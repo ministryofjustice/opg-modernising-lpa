@@ -64,8 +64,8 @@ type CertificateProviderPaths struct {
 	WhoIsEligible        Path
 
 	CertificateProvided                  CertificateProviderPath
-	EnterDateOfBirth                     CertificateProviderPath
 	ConfirmYourDetails                   CertificateProviderPath
+	EnterDateOfBirth                     CertificateProviderPath
 	IdentityWithBiometricResidencePermit CertificateProviderPath
 	IdentityWithDrivingLicencePaper      CertificateProviderPath
 	IdentityWithDrivingLicencePhotocard  CertificateProviderPath
@@ -135,6 +135,7 @@ type AppPaths struct {
 	ChooseYourCertificateProvider                              LpaPath
 	DoYouWantReplacementAttorneys                              LpaPath
 	DoYouWantToNotifyPeople                                    LpaPath
+	EnterTrustCorporation                                      LpaPath
 	EvidenceRequired                                           LpaPath
 	HowDoYouKnowYourCertificateProvider                        LpaPath
 	HowLongHaveYouKnownCertificateProvider                     LpaPath
@@ -156,6 +157,7 @@ type AppPaths struct {
 	IdentityWithYoti                                           LpaPath
 	IdentityWithYotiCallback                                   LpaPath
 	LifeSustainingTreatment                                    LpaPath
+	LpaDetailsSaved                                            LpaPath
 	LpaType                                                    LpaPath
 	LpaYourLegalRightsAndResponsibilities                      LpaPath
 	PaymentConfirmation                                        LpaPath
@@ -198,8 +200,8 @@ var Paths = AppPaths{
 		WhoIsEligible:        "/certificate-provider-who-is-eligible",
 
 		CertificateProvided:                  "/certificate-provided",
-		EnterDateOfBirth:                     "/enter-date-of-birth",
 		ConfirmYourDetails:                   "/confirm-your-details",
+		EnterDateOfBirth:                     "/enter-date-of-birth",
 		IdentityWithBiometricResidencePermit: "/id/brp",
 		IdentityWithDrivingLicencePaper:      "/id/dlpaper",
 		IdentityWithDrivingLicencePhotocard:  "/id/dlphoto",
@@ -270,6 +272,7 @@ var Paths = AppPaths{
 	Dashboard:                                            "/dashboard",
 	DoYouWantReplacementAttorneys:                        "/do-you-want-replacement-attorneys",
 	DoYouWantToNotifyPeople:                              "/do-you-want-to-notify-people",
+	EnterTrustCorporation:                                "/enter-trust-corporation",
 	EvidenceRequired:                                     "/evidence-required",
 	Fixtures:                                             "/fixtures",
 	HowDoYouKnowYourCertificateProvider:                  "/how-do-you-know-your-certificate-provider",
@@ -294,6 +297,7 @@ var Paths = AppPaths{
 	LifeSustainingTreatment:                              "/life-sustaining-treatment",
 	Login:                                                "/login",
 	LoginCallback:                                        "/login-callback",
+	LpaDetailsSaved:                                      "/lpa-details-saved",
 	LpaType:                                              "/lpa-type",
 	LpaYourLegalRightsAndResponsibilities:                "/your-legal-rights-and-responsibilities",
 	PaymentConfirmation:                                  "/payment-confirmation",

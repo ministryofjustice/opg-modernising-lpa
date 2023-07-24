@@ -215,7 +215,15 @@ data "aws_iam_policy_document" "task_role_access_policy" {
   statement {
     sid = "${local.policy_region_prefix}Allow"
 
-    actions = ["dynamodb:*"]
+    actions = [
+      "dynamodb:BatchGetItem",
+      "dynamodb:DeleteItem",
+      "dynamodb:GetItem",
+      "dynamodb:PutItem",
+      "dynamodb:Query",
+      "dynamodb:Scan",
+      "dynamodb:UpdateItem",
+    ]
 
     resources = [
       var.lpas_table.arn,

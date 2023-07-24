@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
@@ -17,14 +18,13 @@ type checkYourLpaData struct {
 	Completed bool
 }
 
-func CheckYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
+func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender ShareCodeSender) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &checkYourLpaData{
 			App: appData,
 			Lpa: lpa,
 			Form: &checkYourLpaForm{
-				Checked: lpa.Checked,
-				Happy:   lpa.HappyToShare,
+				CheckedAndHappy: lpa.CheckedAndHappy,
 			},
 			Completed: lpa.Tasks.CheckYourLpa.Completed(),
 		}
@@ -34,15 +34,18 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.Checked = data.Form.Checked
-				lpa.HappyToShare = data.Form.Happy
+				lpa.CheckedAndHappy = data.Form.CheckedAndHappy
 				lpa.Tasks.CheckYourLpa = actor.TaskCompleted
 
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.AboutPayment.Format(lpa.ID))
+				if err := shareCodeSender.SendCertificateProvider(r.Context(), notify.CertificateProviderInviteEmail, appData, true, lpa); err != nil {
+					return err
+				}
+
+				return appData.Redirect(w, r, lpa, page.Paths.LpaDetailsSaved.Format(lpa.ID))
 			}
 		}
 
@@ -51,23 +54,19 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
 }
 
 type checkYourLpaForm struct {
-	Checked bool
-	Happy   bool
+	CheckedAndHappy bool
 }
 
 func readCheckYourLpaForm(r *http.Request) *checkYourLpaForm {
 	return &checkYourLpaForm{
-		Checked: page.PostFormString(r, "checked") == "1",
-		Happy:   page.PostFormString(r, "happy") == "1",
+		CheckedAndHappy: page.PostFormString(r, "checked-and-happy") == "1",
 	}
 }
 
 func (f *checkYourLpaForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.Bool("checked", "checkedLpa", f.Checked,
-		validation.Selected())
-	errors.Bool("happy", "happyToShareLpa", f.Happy,
+	errors.Bool("checked-and-happy", "theBoxIfYouHaveCheckedAndHappyToShareLpa", f.CheckedAndHappy,
 		validation.Selected())
 
 	return errors

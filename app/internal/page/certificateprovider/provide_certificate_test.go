@@ -19,10 +19,12 @@ func TestGetProvideCertificate(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
+	lpa := &page.Lpa{Submitted: time.Now()}
+
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{Submitted: time.Now()}, nil)
+		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -34,6 +36,7 @@ func TestGetProvideCertificate(t *testing.T) {
 		On("Execute", w, &provideCertificateData{
 			App:                 testAppData,
 			CertificateProvider: &actor.CertificateProviderProvidedDetails{},
+			Lpa:                 lpa,
 			Form:                &provideCertificateForm{},
 		}).
 		Return(nil)
@@ -52,7 +55,7 @@ func TestGetProvideCertificateRedirectsToStartOnLpaNotSubmitted(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&page.Lpa{ID: "lpa-id"}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -64,7 +67,7 @@ func TestGetProvideCertificateRedirectsToStartOnLpaNotSubmitted(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProviderStart.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProvider.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetProvideCertificateWhenDonorStoreErrors(t *testing.T) {
@@ -131,6 +134,9 @@ func TestPostProvideCertificate(t *testing.T) {
 				AgreeToStatement: true,
 				Agreed:           now,
 			},
+			Tasks: actor.CertificateProviderTasks{
+				ProvideTheCertificate: actor.TaskCompleted,
+			},
 		}).
 		Return(nil)
 
@@ -163,12 +169,7 @@ func TestPostProvideCertificateOnStoreError(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 	certificateProviderStore.
-		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{
-			Certificate: actor.Certificate{
-				AgreeToStatement: true,
-				Agreed:           now,
-			},
-		}).
+		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := ProvideCertificate(nil, donorStore, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r)
