@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
@@ -53,6 +54,9 @@ func EnterDateOfBirth(tmpl template.Template, donorStore DonorStore, certificate
 
 			if data.Errors.None() && data.DobWarning == "" {
 				certificateProvider.DateOfBirth = data.Form.Dob
+				if !certificateProvider.Tasks.ConfirmYourDetails.Completed() {
+					certificateProvider.Tasks.ConfirmYourDetails = actor.TaskInProgress
+				}
 
 				if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 					return err
