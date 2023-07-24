@@ -550,8 +550,6 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 
 		random.UseTestCode = true
 
-		logger.Print(lpa.PaymentDetails.PaymentId)
-
 		AppData{}.Redirect(w, r.WithContext(donorCtx), lpa, redirect)
 	}
 }
