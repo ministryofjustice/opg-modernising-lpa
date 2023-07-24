@@ -48,7 +48,10 @@
 
       {{ template "warning" (warning .App "anyErrorsInYourDetailsCanDelay") }}
 
-      <a class="govuk-button" href="{{ link .App (.App.Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity.Format .Lpa.ID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
+      <form novalidate method="post">
+        {{ template "continue-button" . }}
+        {{ template "csrf-field" . }}
+      </form>
     </div>
   </div>
 {{ end }}
