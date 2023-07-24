@@ -157,6 +157,7 @@ type AppPaths struct {
 	IdentityWithYoti                                           LpaPath
 	IdentityWithYotiCallback                                   LpaPath
 	LifeSustainingTreatment                                    LpaPath
+	LpaDetailsSaved                                            LpaPath
 	LpaType                                                    LpaPath
 	LpaYourLegalRightsAndResponsibilities                      LpaPath
 	PaymentConfirmation                                        LpaPath
@@ -296,6 +297,7 @@ var Paths = AppPaths{
 	LifeSustainingTreatment:                              "/life-sustaining-treatment",
 	Login:                                                "/login",
 	LoginCallback:                                        "/login-callback",
+	LpaDetailsSaved:                                      "/lpa-details-saved",
 	LpaType:                                              "/lpa-type",
 	LpaYourLegalRightsAndResponsibilities:                "/your-legal-rights-and-responsibilities",
 	PaymentConfirmation:                                  "/payment-confirmation",
