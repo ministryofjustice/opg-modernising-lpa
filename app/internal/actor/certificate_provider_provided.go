@@ -58,6 +58,7 @@ type Certificate struct {
 }
 
 type CertificateProviderTasks struct {
+	ConfirmYourDetails    TaskState
 	ConfirmYourIdentity   TaskState
 	ReadTheLpa            TaskState
 	ProvideTheCertificate TaskState

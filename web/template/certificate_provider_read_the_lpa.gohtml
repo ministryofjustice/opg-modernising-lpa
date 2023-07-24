@@ -21,7 +21,7 @@
 
       {{ template "people-named-on-lpa" (peopleNamedOnLpa .App .Lpa 0) }}
 
-      {{ if .Lpa.Submitted.IsZero }}
+      {{ if or .Lpa.Submitted.IsZero (not .Lpa.Tasks.PayForLpa.IsCompleted) }}
         <a class="govuk-button" href="{{ link .App (.App.Paths.CertificateProvider.TaskList.Format .Lpa.ID) }}">{{ tr .App "continue" }}</a>
       {{ else }}
         <form novalidate method="post">

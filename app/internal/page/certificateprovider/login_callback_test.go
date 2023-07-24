@@ -16,69 +16,94 @@ import (
 )
 
 func TestLoginCallback(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
-
-	client := newMockOneLoginClient(t)
-	client.
-		On("Exchange", r.Context(), "auth-code", "my-nonce").
-		Return("id-token", "a JWT", nil)
-	client.
-		On("UserInfo", r.Context(), "a JWT").
-		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
-
-	sessionStore := newMockSessionStore(t)
-
-	session := sessions.NewSession(sessionStore, "session")
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   86400,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   true,
-	}
-	session.Values = map[any]any{
-		"session": &sesh.LoginSession{
-			IDToken: "id-token",
-			Sub:     "random",
-			Email:   "name@example.com",
+	testcases := map[string]struct {
+		tasks    actor.CertificateProviderTasks
+		redirect string
+	}{
+		"completed confirm your details": {
+			tasks: actor.CertificateProviderTasks{
+				ConfirmYourDetails: actor.TaskCompleted,
+			},
+			redirect: page.Paths.CertificateProvider.TaskList.Format("lpa-id"),
+		},
+		"not completed confirm your details": {
+			tasks: actor.CertificateProviderTasks{
+				ConfirmYourDetails: actor.TaskInProgress,
+			},
+			redirect: page.Paths.CertificateProvider.EnterDateOfBirth.Format("lpa-id"),
 		},
 	}
 
-	sessionStore.
-		On("Get", r, "params").
-		Return(&sessions.Session{
-			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{
-					State:     "my-state",
-					Nonce:     "my-nonce",
-					Locale:    "en",
-					LpaID:     "lpa-id",
-					SessionID: "session-id",
-					Redirect:  "/redirect",
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
+
+			client := newMockOneLoginClient(t)
+			client.
+				On("Exchange", r.Context(), "auth-code", "my-nonce").
+				Return("id-token", "a JWT", nil)
+			client.
+				On("UserInfo", r.Context(), "a JWT").
+				Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
+
+			sessionStore := newMockSessionStore(t)
+
+			session := sessions.NewSession(sessionStore, "session")
+			session.Options = &sessions.Options{
+				Path:     "/",
+				MaxAge:   86400,
+				SameSite: http.SameSiteLaxMode,
+				HttpOnly: true,
+				Secure:   true,
+			}
+			session.Values = map[any]any{
+				"session": &sesh.LoginSession{
+					IDToken: "id-token",
+					Sub:     "random",
+					Email:   "name@example.com",
 				},
-			},
-		}, nil)
-	sessionStore.
-		On("Save", r, w, session).
-		Return(nil)
+			}
 
-	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
-		SessionID: base64.StdEncoding.EncodeToString([]byte("random")),
-		LpaID:     "lpa-id",
-	})
+			sessionStore.
+				On("Get", r, "params").
+				Return(&sessions.Session{
+					Values: map[any]any{
+						"one-login": &sesh.OneLoginSession{
+							State:     "my-state",
+							Nonce:     "my-nonce",
+							Locale:    "en",
+							LpaID:     "lpa-id",
+							SessionID: "session-id",
+							Redirect:  "/redirect",
+						},
+					},
+				}, nil)
+			sessionStore.
+				On("Save", r, w, session).
+				Return(nil)
 
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Create", ctx, "session-id").
-		Return(&actor.CertificateProviderProvidedDetails{}, nil)
+			ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
+				SessionID: base64.StdEncoding.EncodeToString([]byte("random")),
+				LpaID:     "lpa-id",
+			})
 
-	err := LoginCallback(client, sessionStore, certificateProviderStore)(testAppData, w, r)
-	assert.Nil(t, err)
-	resp := w.Result()
+			certificateProviderStore := newMockCertificateProviderStore(t)
+			certificateProviderStore.
+				On("Create", ctx, "session-id").
+				Return(&actor.CertificateProviderProvidedDetails{}, nil)
+			certificateProviderStore.
+				On("Get", ctx).
+				Return(&actor.CertificateProviderProvidedDetails{Tasks: tc.tasks}, nil)
 
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProvider.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+			err := LoginCallback(client, sessionStore, certificateProviderStore)(testAppData, w, r)
+			assert.Nil(t, err)
+			resp := w.Result()
+
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.redirect, resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestLoginCallbackWhenCertificateProviderExists(t *testing.T) {
@@ -138,13 +163,16 @@ func TestLoginCallbackWhenCertificateProviderExists(t *testing.T) {
 	certificateProviderStore.
 		On("Create", ctx, "session-id").
 		Return(&actor.CertificateProviderProvidedDetails{}, &types.ConditionalCheckFailedException{})
+	certificateProviderStore.
+		On("Get", ctx).
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	err := LoginCallback(client, sessionStore, certificateProviderStore)(testAppData, w, r)
 	assert.Nil(t, err)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProvider.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProvider.EnterDateOfBirth.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestLoginCallbackSessionMissing(t *testing.T) {
