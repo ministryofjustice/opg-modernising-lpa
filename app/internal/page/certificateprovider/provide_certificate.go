@@ -14,6 +14,7 @@ type provideCertificateData struct {
 	App                 page.AppData
 	Errors              validation.List
 	CertificateProvider *actor.CertificateProviderProvidedDetails
+	Lpa                 *page.Lpa
 	Form                *provideCertificateForm
 }
 
@@ -30,12 +31,13 @@ func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func(
 		}
 
 		if lpa.Submitted.IsZero() {
-			return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderStart.Format())
+			return appData.Redirect(w, r, lpa, page.Paths.CertificateProvider.TaskList.Format(lpa.ID))
 		}
 
 		data := &provideCertificateData{
 			App:                 appData,
 			CertificateProvider: certificateProvider,
+			Lpa:                 lpa,
 			Form: &provideCertificateForm{
 				AgreeToStatement: certificateProvider.Certificate.AgreeToStatement,
 			},
@@ -48,6 +50,7 @@ func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func(
 			if data.Errors.None() {
 				certificateProvider.Certificate.AgreeToStatement = true
 				certificateProvider.Certificate.Agreed = now()
+				certificateProvider.Tasks.ProvideTheCertificate = actor.TaskCompleted
 				if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 					return err
 				}

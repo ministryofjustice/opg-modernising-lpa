@@ -36,13 +36,8 @@ type CertificateProviderProvidedDetails struct {
 	IdentityUserData identity.UserData
 	// Details of the certificate provided to the applicant
 	Certificate Certificate
-}
-
-type Certificate struct {
-	// Confirmation the certificate provider agrees to the 'provide a certificate' statement and that ticking box is a legal signature
-	AgreeToStatement bool
-	// Date and time the certificate provider provided the certificate
-	Agreed time.Time
+	// Tasks the certificate provider will complete
+	Tasks CertificateProviderTasks
 }
 
 func (c CertificateProviderProvidedDetails) FullName() string {
@@ -53,4 +48,17 @@ func (c *CertificateProviderProvidedDetails) CertificateProviderIdentityConfirme
 	return c.IdentityUserData.OK && c.IdentityUserData.Provider != identity.UnknownOption &&
 		c.IdentityUserData.MatchName(c.FirstNames, c.LastName) &&
 		c.IdentityUserData.DateOfBirth.Equals(c.DateOfBirth)
+}
+
+type Certificate struct {
+	// Confirmation the certificate provider agrees to the 'provide a certificate' statement and that ticking box is a legal signature
+	AgreeToStatement bool
+	// Date and time the certificate provider provided the certificate
+	Agreed time.Time
+}
+
+type CertificateProviderTasks struct {
+	ConfirmYourIdentity   TaskState
+	ReadTheLpa            TaskState
+	ProvideTheCertificate TaskState
 }
