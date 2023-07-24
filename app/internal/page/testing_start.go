@@ -396,7 +396,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			checked:                    r.FormValue("lpa.checkAndSend") != "" || completeSectionOne,
 			paid:                       paymentComplete || startCpFlowDonorHasPaid || completeLpa,
 			idConfirmedAndSigned:       r.FormValue("lpa.confirmIdentityAndSign") != "" || completeLpa,
-			submitted:                  r.FormValue("lpa.signedByDonor") != "" || startCpFlowDonorHasPaid,
+			submitted:                  r.FormValue("lpa.signedByDonor") != "",
 			certificateProviderEmail:   r.FormValue("lpa.certificateProviderEmail"),
 			attorneyEmail:              r.FormValue("lpa.attorneyEmail"),
 			replacementAttorneyEmail:   r.FormValue("lpa.replacementAttorneyEmail"),
