@@ -309,8 +309,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			}
 
 			if opts.checked {
-				lpa.Checked = true
-				lpa.HappyToShare = true
+				lpa.CheckedAndHappy = true
 				lpa.Tasks.CheckYourLpa = actor.TaskCompleted
 			}
 
