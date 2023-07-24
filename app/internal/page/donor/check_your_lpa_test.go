@@ -205,6 +205,46 @@ func TestPostCheckYourLpaWhenShareCodeSenderErrors(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
+func TestPostCheckYourLpaWhenSMSSenderErrors(t *testing.T) {
+	form := url.Values{
+		"checked-and-happy": {"1"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	lpa := &page.Lpa{
+		ID:                  "lpa-id",
+		CheckedAndHappy:     false,
+		Tasks:               page.Tasks{CheckYourLpa: actor.TaskInProgress},
+		CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper"},
+	}
+
+	updatedLpa := &page.Lpa{
+		ID:                  "lpa-id",
+		CheckedAndHappy:     true,
+		Tasks:               page.Tasks{CheckYourLpa: actor.TaskCompleted},
+		CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper"},
+	}
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), updatedLpa).
+		Return(nil)
+
+	SMSSender := newMockSMSSender(t)
+	SMSSender.
+		On("PaperCertificateProviderMeetingPrompt", r.Context(), lpa, testAppData, notify.CertificateProviderPaperMeetingPromptSMS).
+		Return(expectedError)
+
+	err := CheckYourLpa(nil, donorStore, nil, SMSSender)(testAppData, w, r, lpa)
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
 func TestPostCheckYourLpaWhenValidationErrors(t *testing.T) {
 	form := url.Values{
 		"checked-and-happy": {"0"},
