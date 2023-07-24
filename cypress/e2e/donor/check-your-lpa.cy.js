@@ -26,6 +26,90 @@ describe('Check the LPA', () => {
         cy.url().should('contain', '/lpa-details-saved');
     });
 
+    describe('CP acting on paper', () => {
+        describe('on first check', () => {
+            it('content is tailored for paper CPs and a details component is shown', () => {
+                cy.visit('/testing-start?redirect=/check-your-lpa&lpa.yourDetails=1&lpa.certificateProvider=1&lpa.attorneys=1&lpa.replacementAttorneys=2&lpa.chooseWhenCanBeUsed=1&lpa.restrictions=1&lpa.peopleToNotify=1');
+
+                cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy to show it to my certificate provider, Jessie Jones')
+                cy.get('details[data-module=govuk-details]').contains('What happens if I need to make changes later?')
+
+                cy.get('#f-checked-and-happy').check()
+                cy.contains('button', 'Confirm').click();
+
+                cy.url().should('contain', '/lpa-details-saved');
+
+                cy.get('div[data-module=govuk-notification-banner]').contains('You should show your LPA to your certificate provider, Jessie Jones.')
+
+                cy.contains('a', 'Continue').click();
+
+                cy.url().should('contain', '/about-payment');
+            })
+        })
+
+        describe('on subsequent check after completing LPA', () => {
+            it('content is tailored for paper CPs and a warning component is shown', () => {
+                cy.visit('/testing-start?redirect=/check-your-lpa&lpa.complete=1');
+
+                cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy to show it to my certificate provider, Jessie Jones')
+                cy.get('.govuk-warning-text').contains('Once you select the confirm button, your certificate provider will be sent a text telling them you have changed your LPA.')
+
+                cy.get('#f-checked-and-happy').check()
+                cy.contains('button', 'Confirm').click();
+
+                cy.url().should('contain', '/lpa-details-saved');
+
+                cy.get('div[data-module=govuk-notification-banner]').contains('We’ve saved your changes and sent a text to your certificate provider, Jessie Jones, to tell them that your LPA is ready for review. You should show them your LPA.')
+
+                cy.contains('a', 'Return to dashboard').click();
+
+                cy.url().should('contain', '/dashboard');
+            })
+        })
+    })
+
+    describe('CP acting online', () => {
+        describe('on first check', () => {
+            it('content is tailored for online CPs and a details component is shown', () => {
+                cy.visit('/testing-start?redirect=/check-your-lpa&lpa.yourDetails=1&lpa.certificateProvider=1&lpa.attorneys=1&lpa.replacementAttorneys=2&lpa.chooseWhenCanBeUsed=1&lpa.restrictions=1&lpa.peopleToNotify=1&lpa.certificateProviderActOnline=1');
+
+                cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy for OPG to share it with my certificate provider, Jessie Jones')
+                cy.get('details[data-module=govuk-details]').contains('What happens if I need to make changes later?')
+
+                cy.get('#f-checked-and-happy').check()
+                cy.contains('button', 'Confirm').click();
+
+                cy.url().should('contain', '/lpa-details-saved');
+
+                cy.get('div[data-module=govuk-notification-banner]').contains('We’ve sent an email to your certificate provider, Jessie Jones, to tell them what they need to do next. You should tell them to expect an email from us.')
+
+                cy.contains('a', 'Continue').click();
+
+                cy.url().should('contain', '/about-payment');
+            })
+        })
+
+        describe('on subsequent check after completing LPA', () => {
+            it('content is tailored for online CPs and a warning component is shown', () => {
+                cy.visit('/testing-start?redirect=/check-your-lpa&lpa.complete=1&lpa.certificateProviderActOnline=1');
+
+                cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy for OPG to share it with my certificate provider, Jessie Jones')
+                cy.get('.govuk-warning-text').contains('Once you select the confirm button, your certificate provider will be sent a text telling them you have changed your LPA.')
+
+                cy.get('#f-checked-and-happy').check()
+                cy.contains('button', 'Confirm').click();
+
+                cy.url().should('contain', '/lpa-details-saved');
+
+                cy.get('div[data-module=govuk-notification-banner]').contains('We’ve saved your changes and sent a text to your certificate provider, Jessie Jones, to tell them that they should review your LPA online.')
+
+                cy.contains('a', 'Return to dashboard').click();
+
+                cy.url().should('contain', '/dashboard');
+            })
+        })
+    })
+
     it("errors when not selected", () => {
         cy.contains('button', 'Confirm').click();
 
