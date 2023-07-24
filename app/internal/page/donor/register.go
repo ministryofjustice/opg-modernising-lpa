@@ -118,6 +118,11 @@ type Payer interface {
 	Pay(page.AppData, http.ResponseWriter, *http.Request, *page.Lpa) error
 }
 
+//go:generate mockery --testonly --inpackage --name SMSSender --structname mockSMSSender
+type SMSSender interface {
+	PaperCertificateProviderMeetingPrompt(context.Context, *page.Lpa, page.AppData, notify.TemplateId) error
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -137,6 +142,7 @@ func Register(
 	uidClient UidClient,
 	s3Client *s3.Client,
 	evidenceBucketName string,
+	SMSSender SMSSender,
 ) {
 	payer := &payHelper{
 		logger:       logger,
@@ -239,7 +245,7 @@ func Register(
 		RemovePersonToNotify(logger, tmpls.Get("remove_person_to_notify.gohtml"), donorStore))
 
 	handleWithLpa(page.Paths.CheckYourLpa, CanGoBack,
-		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender))
+		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, SMSSender))
 	handleWithLpa(page.Paths.LpaDetailsSaved, CanGoBack,
 		Guidance(tmpls.Get("lpa_details_saved.gohtml")))
 
