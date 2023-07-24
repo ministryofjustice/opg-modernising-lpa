@@ -448,7 +448,11 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			sesh.SetShareCode(store, r, w, &sesh.ShareCodeSession{LpaID: lpa.ID, Identity: false})
 		}
 
-		if startCpFlowDonorHasPaid || startCpFlowDonorHasNotPaid {
+		if startCpFlowDonorHasNotPaid {
+			redirect = Paths.CertificateProviderStart.Format()
+		}
+
+		if startCpFlowDonorHasPaid {
 			shareCodeSender.SendCertificateProvider(donorCtx, notify.CertificateProviderInviteEmail, AppData{
 				SessionID: donorSessionID,
 				LpaID:     lpa.ID,
