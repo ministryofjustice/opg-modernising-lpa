@@ -33,3 +33,5 @@ const (
 	PaymentTaskPending
 	PaymentTaskDenied
 )
+
+func (pt PaymentTask) Completed() bool { return pt == PaymentTaskCompleted }
