@@ -16,7 +16,7 @@
                 </div>
                 <div class="govuk-notification-banner__content">
                     <p class="govuk-body">
-                        {{ if .Lpa.Tasks.PayForLpa.Completed }}
+                        {{ if .Lpa.Tasks.PayForLpa.IsCompleted }}
                             {{ if eq "paper" .Lpa.CertificateProvider.CarryOutBy }}
                                 {{ trFormat .App "lpaDetailsSavedContentOnSubsequentSubmissionCPCarryingOutRolePaper" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
                             {{ else }}
@@ -33,7 +33,7 @@
                 </div>
             </div>
 
-            {{ if .Lpa.Tasks.PayForLpa.Completed }}
+            {{ if .Lpa.Tasks.PayForLpa.IsCompleted }}
                 <a href="{{ link .App (.App.Paths.Dashboard.String) }}" class="govuk-button">{{ tr .App "returnToDashboard" }}</a>
             {{ else }}
                 {{ if eq "paper" .Lpa.CertificateProvider.CarryOutBy }}
