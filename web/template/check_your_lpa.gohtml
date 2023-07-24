@@ -28,8 +28,8 @@
           {{ template "error-message" (errorMessage . "checked-and-happy") }}
           <div class="govuk-checkboxes" data-module="govuk-checkboxes">
             <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-checked" name="checked-and-happy" type="checkbox" value="1" {{ if .Form.CheckedAndHappy }}checked{{ end }}>
-              <label class="govuk-label govuk-checkboxes__label" for="f-checked">
+              <input class="govuk-checkboxes__input" id="f-checked-and-happy" name="checked-and-happy" type="checkbox" value="1" {{ if .Form.CheckedAndHappy }}checked{{ end }}>
+              <label class="govuk-label govuk-checkboxes__label" for="f-checked-and-happy">
                 {{ if eq "paper" .Lpa.CertificateProvider.CarryOutBy }}
                   {{ trFormat .App "iveCheckedThisLpaAndImHappyToShowToCertificateProvider" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
                 {{ else }}
