@@ -1,0 +1,51 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "lpaDetailsSaved" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+
+            <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
+                 aria-labelledby="govuk-notification-banner-title"
+                 data-module="govuk-notification-banner">
+                <div class="govuk-notification-banner__header">
+                    <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                        {{ tr .App "lpaDetailsSaved" }}
+                    </h1>
+                </div>
+                <div class="govuk-notification-banner__content">
+                    <p class="govuk-body">
+                        {{ if .Lpa.Tasks.PayForLpa.IsCompleted }}
+                            {{ if eq "paper" .Lpa.CertificateProvider.CarryOutBy }}
+                                {{ trFormat .App "lpaDetailsSavedContentOnSubsequentSubmissionCPCarryingOutRolePaper" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
+                            {{ else }}
+                                {{ trFormat .App "lpaDetailsSavedContentOnSubsequentSubmissionCPCarryingOutRoleOnline" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
+                            {{ end }}
+                        {{ else }}
+                            {{ if eq "paper" .Lpa.CertificateProvider.CarryOutBy }}
+                                {{ trFormat .App "lpaDetailsSavedContentOnFirstSubmissionCPCarryingOutRolePaper" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
+                            {{ else }}
+                                {{ trFormat .App "lpaDetailsSavedContentOnFirstSubmissionCPCarryingOutRoleOnline" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
+                            {{ end }}
+                        {{ end }}
+                    </p>
+                </div>
+            </div>
+
+            {{ if .Lpa.Tasks.PayForLpa.IsCompleted }}
+                <a href="{{ link .App (.App.Paths.Dashboard.String) }}" class="govuk-button">{{ tr .App "returnToDashboard" }}</a>
+            {{ else }}
+                {{ if eq "paper" .Lpa.CertificateProvider.CarryOutBy }}
+                    {{ trFormatHtml .App "weveSentATextToCPContent" "CertificateProviderFirstName" .Lpa.CertificateProvider.FirstNames }}
+                {{ end }}
+
+                <p class="govuk-body">
+                    {{ tr .App "youCanContinueToPay" }}
+                </p>
+
+                <a href="{{ link .App (.App.Paths.AboutPayment.Format .App.LpaID) }}" class="govuk-button">{{ tr .App "continue" }}</a>
+            {{ end }}
+        </div>
+    </div>
+{{ end }}
