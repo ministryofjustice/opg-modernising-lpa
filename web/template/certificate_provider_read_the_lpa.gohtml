@@ -21,14 +21,10 @@
 
       {{ template "people-named-on-lpa" (peopleNamedOnLpa .App .Lpa 0) }}
 
-      {{ if .Lpa.Submitted.IsZero }}
-        <a class="govuk-button" href="{{ link .App (.App.Paths.CertificateProvider.TaskList.Format .Lpa.ID) }}">{{ tr .App "continue" }}</a>
-      {{ else }}
-        <form novalidate method="post">
-          {{ template "continue-button" . }}
-          {{ template "csrf-field" . }}
-        </form>
-      {{ end }}
+      <form novalidate method="post">
+        {{ template "continue-button" . }}
+        {{ template "csrf-field" . }}
+      </form>
     </div>
   </div>
 {{ end }}

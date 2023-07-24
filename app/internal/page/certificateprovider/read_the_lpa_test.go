@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
@@ -106,7 +107,13 @@ func TestPostReadTheLpa(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{ID: "lpa-id"}, nil)
+		Return(&page.Lpa{
+			ID:        "lpa-id",
+			Submitted: time.Now(),
+			Tasks: page.Tasks{
+				PayForLpa: actor.PaymentTaskCompleted,
+			},
+		}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -128,14 +135,59 @@ func TestPostReadTheLpa(t *testing.T) {
 	assert.Equal(t, page.Paths.CertificateProvider.WhatHappensNext.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostReadTheLpaWithAttorneyOnDonorStoreError(t *testing.T) {
+func TestPostReadTheLpaWhenNotReady(t *testing.T) {
+	testcases := map[string]*page.Lpa{
+		"not submitted": {
+			ID: "lpa-id",
+			Tasks: page.Tasks{
+				PayForLpa: actor.PaymentTaskCompleted,
+			},
+		},
+		"not paid": {
+			ID:        "lpa-id",
+			Submitted: time.Now(),
+		},
+	}
+
+	for name, lpa := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", nil)
+
+			donorStore := newMockDonorStore(t)
+			donorStore.
+				On("GetAny", r.Context()).
+				Return(lpa, nil)
+
+			certificateProviderStore := newMockCertificateProviderStore(t)
+			certificateProviderStore.
+				On("Get", r.Context()).
+				Return(&actor.CertificateProviderProvidedDetails{}, nil)
+
+			err := ReadTheLpa(nil, donorStore, certificateProviderStore)(testAppData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, page.Paths.CertificateProvider.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+		})
+	}
+}
+
+func TestPostReadTheLpaWithAttorneyOnCertificateStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}, nil)
+		Return(&page.Lpa{
+			ID:        "lpa-id",
+			Submitted: time.Now(),
+			Tasks: page.Tasks{
+				PayForLpa: actor.PaymentTaskCompleted,
+			},
+		}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
