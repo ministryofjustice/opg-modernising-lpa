@@ -133,10 +133,8 @@ type Lpa struct {
 	Restrictions string
 	// Used to show the task list
 	Tasks Tasks
-	// Whether the applicant has checked the LPA
-	Checked bool
-	// Whether the applicant is happy to share the LPA with the certificate provider
-	HappyToShare bool
+	// Whether the applicant has checked the LPA and is happy to share the LPA with the certificate provider
+	CheckedAndHappy bool
 	// Used as part of GOV.UK Pay
 	PaymentDetails PaymentDetails
 	// Which option has been used to complete applicant identity checks

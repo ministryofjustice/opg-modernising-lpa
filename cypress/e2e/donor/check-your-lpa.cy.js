@@ -19,23 +19,20 @@ describe('Check the LPA', () => {
         cy.contains('h3', "Certificate provider")
         cy.contains('h3', "Attorneys")
 
-        cy.get('#f-checked').check()
-        cy.get('#f-happy').check()
+        cy.get('#f-checked-and-happy').check()
 
         cy.contains('button', 'Confirm').click();
 
-        cy.url().should('contain', '/about-payment');
+        cy.url().should('contain', '/lpa-details-saved');
     });
 
     it("errors when not selected", () => {
         cy.contains('button', 'Confirm').click();
 
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('Select that you have checked your LPA and don’t wish to make changes');
-            cy.contains('Select that you are happy to share your LPA with your certificate provider');
+            cy.contains('Select the box if you have checked your LPA and are happy to share it with your certificate provider');
         });
 
-        cy.contains('.govuk-form-group .govuk-error-message', 'Select that you have checked your LPA and don’t wish to make changes');
-        cy.contains('.govuk-form-group .govuk-error-message', 'Select that you are happy to share your LPA with your certificate provider');
+        cy.contains('.govuk-form-group .govuk-error-message', 'Select the box if you have checked your LPA and are happy to share it with your certificate provider');
     })
 });
