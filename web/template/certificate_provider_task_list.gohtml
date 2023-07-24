@@ -23,7 +23,7 @@
           <ul class="app-task-list__items govuk-!-padding-left-0">
             {{ range .Items }}
               <li class="app-task-list__item">
-                {{ if or $.Lpa.Submitted.IsZero .Disabled }}
+                {{ if .Disabled }}
                   <span class="app-task-list__task-name govuk-hint govuk-!-margin-bottom-0">
                     {{ tr $.App .Name }}
                   </span>
