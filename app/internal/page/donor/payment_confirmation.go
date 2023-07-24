@@ -18,7 +18,7 @@ type paymentConfirmationData struct {
 	PaymentReference string
 }
 
-func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore sessions.Store) Handler {
+func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore sessions.Store, reducedFeeStore ReducedFeeStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		paymentSession, err := sesh.Payment(sessionStore, r)
 		if err != nil {
@@ -36,6 +36,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 		lpa.PaymentDetails = page.PaymentDetails{
 			PaymentReference: payment.Reference,
 			PaymentId:        payment.PaymentId,
+			Amount:           payment.Amount,
 		}
 
 		data := &paymentConfirmationData{
@@ -56,6 +57,13 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 		if err := donorStore.Put(r.Context(), lpa); err != nil {
 			logger.Print(fmt.Sprintf("unable to update lpa in donorStore: %s", err.Error()))
 			return err
+		}
+
+		if lpa.FeeType.IsHalfFee() {
+			if err := reducedFeeStore.Create(r.Context(), lpa); err != nil {
+				logger.Print(fmt.Sprintf("unable to create reduced fee: %s", err.Error()))
+				return err
+			}
 		}
 
 		return tmpl(w, data)
