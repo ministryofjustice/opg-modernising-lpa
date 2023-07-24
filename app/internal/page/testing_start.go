@@ -395,7 +395,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			checked:                    r.FormValue("lpa.checkAndSend") != "" || completeSectionOne,
 			paid:                       paymentComplete || startCpFlowDonorHasPaid || completeLpa,
 			idConfirmedAndSigned:       r.FormValue("lpa.confirmIdentityAndSign") != "" || completeLpa,
-			submitted:                  r.FormValue("lpa.signedByDonor") != "" || startCpFlowDonorHasPaid,
+			submitted:                  r.FormValue("lpa.signedByDonor") != "",
 			certificateProviderEmail:   r.FormValue("lpa.certificateProviderEmail"),
 			attorneyEmail:              r.FormValue("lpa.attorneyEmail"),
 			replacementAttorneyEmail:   r.FormValue("lpa.replacementAttorneyEmail"),
@@ -448,11 +448,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			sesh.SetShareCode(store, r, w, &sesh.ShareCodeSession{LpaID: lpa.ID, Identity: false})
 		}
 
-		if startCpFlowDonorHasNotPaid {
-			redirect = Paths.CertificateProviderStart.Format()
-		}
-
-		if startCpFlowDonorHasPaid {
+		if startCpFlowDonorHasPaid || startCpFlowDonorHasNotPaid {
 			shareCodeSender.SendCertificateProvider(donorCtx, notify.CertificateProviderInviteEmail, AppData{
 				SessionID: donorSessionID,
 				LpaID:     lpa.ID,
@@ -553,6 +549,8 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		}
 
 		random.UseTestCode = true
+
+		logger.Print(lpa.PaymentDetails.PaymentId)
 
 		AppData{}.Redirect(w, r.WithContext(donorCtx), lpa, redirect)
 	}

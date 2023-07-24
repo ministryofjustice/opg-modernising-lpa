@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -27,7 +28,7 @@ func TestGetCheckYourLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CheckYourLpa(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := CheckYourLpa(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -53,7 +54,7 @@ func TestGetCheckYourLpaFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CheckYourLpa(template.Execute, nil)(testAppData, w, r, lpa)
+	err := CheckYourLpa(template.Execute, nil, nil)(testAppData, w, r, lpa)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -75,16 +76,23 @@ func TestPostCheckYourLpa(t *testing.T) {
 		Tasks:           page.Tasks{CheckYourLpa: actor.TaskInProgress},
 	}
 
+	updatedLpa := &page.Lpa{
+		ID:              "lpa-id",
+		CheckedAndHappy: true,
+		Tasks:           page.Tasks{CheckYourLpa: actor.TaskCompleted},
+	}
+
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{
-			ID:              "lpa-id",
-			CheckedAndHappy: true,
-			Tasks:           page.Tasks{CheckYourLpa: actor.TaskCompleted},
-		}).
+		On("Put", r.Context(), updatedLpa).
 		Return(nil)
 
-	err := CheckYourLpa(nil, donorStore)(testAppData, w, r, lpa)
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.
+		On("SendCertificateProvider", r.Context(), notify.CertificateProviderInviteEmail, testAppData, true, updatedLpa).
+		Return(nil)
+
+	err := CheckYourLpa(nil, donorStore, shareCodeSender)(testAppData, w, r, lpa)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -109,9 +117,49 @@ func TestPostCheckYourLpaWhenStoreErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := CheckYourLpa(nil, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := CheckYourLpa(nil, donorStore, nil)(testAppData, w, r, &page.Lpa{})
+	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostCheckYourLpaWhenShareCodeSenderErrors(t *testing.T) {
+	form := url.Values{
+		"checked-and-happy": {"1"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	lpa := &page.Lpa{
+		ID:              "lpa-id",
+		CheckedAndHappy: false,
+		Tasks:           page.Tasks{CheckYourLpa: actor.TaskInProgress},
+	}
+
+	updatedLpa := &page.Lpa{
+		ID:              "lpa-id",
+		CheckedAndHappy: true,
+		Tasks:           page.Tasks{CheckYourLpa: actor.TaskCompleted},
+	}
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), updatedLpa).
+		Return(nil)
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.
+		On("SendCertificateProvider", r.Context(), notify.CertificateProviderInviteEmail, testAppData, true, updatedLpa).
+		Return(expectedError)
+
+	err := CheckYourLpa(nil, donorStore, shareCodeSender)(testAppData, w, r, lpa)
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPostCheckYourLpaWhenValidationErrors(t *testing.T) {
@@ -130,7 +178,7 @@ func TestPostCheckYourLpaWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := CheckYourLpa(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := CheckYourLpa(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

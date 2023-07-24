@@ -7,7 +7,6 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
@@ -19,7 +18,7 @@ type paymentConfirmationData struct {
 	PaymentReference string
 }
 
-func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore sessions.Store, shareCodeSender ShareCodeSender) Handler {
+func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore sessions.Store) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		paymentSession, err := sesh.Payment(sessionStore, r)
 		if err != nil {
@@ -31,10 +30,6 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 		payment, err := payClient.GetPayment(paymentId)
 		if err != nil {
 			logger.Print(fmt.Sprintf("unable to retrieve payment info: %s", err.Error()))
-			return err
-		}
-
-		if err := shareCodeSender.SendCertificateProvider(r.Context(), notify.CertificateProviderInviteEmail, appData, true, lpa); err != nil {
 			return err
 		}
 

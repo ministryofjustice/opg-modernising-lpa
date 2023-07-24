@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
@@ -17,7 +18,7 @@ type checkYourLpaData struct {
 	Completed bool
 }
 
-func CheckYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
+func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender ShareCodeSender) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &checkYourLpaData{
 			App: appData,
@@ -37,6 +38,10 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
 				lpa.Tasks.CheckYourLpa = actor.TaskCompleted
 
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
+					return err
+				}
+
+				if err := shareCodeSender.SendCertificateProvider(r.Context(), notify.CertificateProviderInviteEmail, appData, true, lpa); err != nil {
 					return err
 				}
 
