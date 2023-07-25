@@ -83,7 +83,6 @@ func App(
 
 	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicURL, random.String)
 	witnessCodeSender := page.NewWitnessCodeSender(donorStore, notifyClient)
-	SMSSender := page.NewSMSSender(notifyClient)
 
 	errorHandler := page.Error(tmpls.Get("error-500.gohtml"), logger)
 	notFoundHandler := page.Root(tmpls.Get("error-404.gohtml"), logger)
@@ -162,7 +161,7 @@ func App(
 		s3Client,
 		evidenceBucketName,
 		reducedFeeStore,
-		SMSSender,
+		notifyClient,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang, rumConfig, staticHash, oneloginURL)

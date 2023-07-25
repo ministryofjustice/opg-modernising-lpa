@@ -111,18 +111,29 @@ func TestPostCheckYourLpaPaperCertificateProvider(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	localizer := newMockLocalizer(t)
+	localizer.
+		On("T", "pfaLegalTerm").
+		Return("property and affairs")
+
+	testAppData.Localizer = localizer
+
 	lpa := &page.Lpa{
 		ID:                  "lpa-id",
+		Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
 		CheckedAndHappy:     false,
 		Tasks:               page.Tasks{CheckYourLpa: actor.TaskInProgress},
-		CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper"},
+		CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper", Mobile: "07700900000"},
+		Type:                page.LpaTypePropertyFinance,
 	}
 
 	updatedLpa := &page.Lpa{
 		ID:                  "lpa-id",
+		Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
 		CheckedAndHappy:     true,
 		Tasks:               page.Tasks{CheckYourLpa: actor.TaskCompleted},
-		CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper"},
+		CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper", Mobile: "07700900000"},
+		Type:                page.LpaTypePropertyFinance,
 	}
 
 	donorStore := newMockDonorStore(t)
@@ -130,12 +141,23 @@ func TestPostCheckYourLpaPaperCertificateProvider(t *testing.T) {
 		On("Put", r.Context(), updatedLpa).
 		Return(nil)
 
-	SMSSender := newMockSMSSender(t)
-	SMSSender.
-		On("PaperCertificateProviderMeetingPrompt", r.Context(), lpa, testAppData, notify.CertificateProviderPaperMeetingPromptSMS).
-		Return(nil)
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.
+		On("TemplateID", notify.CertificateProviderPaperMeetingPromptSMS).
+		Return("template-id")
+	notifyClient.
+		On("Sms", r.Context(), notify.Sms{
+			PhoneNumber: "07700900000",
+			TemplateID:  "template-id",
+			Personalisation: map[string]string{
+				"donorFullName":   "Teneil Throssell",
+				"lpaType":         "property and affairs",
+				"donorFirstNames": "Teneil",
+			},
+		}).
+		Return("", nil)
 
-	err := CheckYourLpa(nil, donorStore, nil, SMSSender)(testAppData, w, r, lpa)
+	err := CheckYourLpa(nil, donorStore, nil, notifyClient)(testAppData, w, r, lpa)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -205,7 +227,7 @@ func TestPostCheckYourLpaWhenShareCodeSenderErrors(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostCheckYourLpaWhenSMSSenderErrors(t *testing.T) {
+func TestPostCheckYourLpaWhenNotifyClientErrors(t *testing.T) {
 	form := url.Values{
 		"checked-and-happy": {"1"},
 	}
@@ -214,31 +236,27 @@ func TestPostCheckYourLpaWhenSMSSenderErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpa := &page.Lpa{
-		ID:                  "lpa-id",
-		CheckedAndHappy:     false,
-		Tasks:               page.Tasks{CheckYourLpa: actor.TaskInProgress},
-		CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper"},
-	}
+	localizer := newMockLocalizer(t)
+	localizer.
+		On("T", mock.Anything).
+		Return("property and affairs")
 
-	updatedLpa := &page.Lpa{
-		ID:                  "lpa-id",
-		CheckedAndHappy:     true,
-		Tasks:               page.Tasks{CheckYourLpa: actor.TaskCompleted},
-		CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper"},
-	}
+	testAppData.Localizer = localizer
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), updatedLpa).
+		On("Put", mock.Anything, mock.Anything).
 		Return(nil)
 
-	SMSSender := newMockSMSSender(t)
-	SMSSender.
-		On("PaperCertificateProviderMeetingPrompt", r.Context(), lpa, testAppData, notify.CertificateProviderPaperMeetingPromptSMS).
-		Return(expectedError)
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.
+		On("TemplateID", mock.Anything).
+		Return("template-id")
+	notifyClient.
+		On("Sms", mock.Anything, mock.Anything).
+		Return("", expectedError)
 
-	err := CheckYourLpa(nil, donorStore, nil, SMSSender)(testAppData, w, r, lpa)
+	err := CheckYourLpa(nil, donorStore, nil, notifyClient)(testAppData, w, r, &page.Lpa{CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper"}})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

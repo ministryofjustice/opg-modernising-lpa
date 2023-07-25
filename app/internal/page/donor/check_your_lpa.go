@@ -18,7 +18,7 @@ type checkYourLpaData struct {
 	Completed bool
 }
 
-func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender ShareCodeSender, SMSSender SMSSender) Handler {
+func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender ShareCodeSender, notifyClient NotifyClient) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &checkYourLpaData{
 			App: appData,
@@ -42,7 +42,15 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 				}
 
 				if lpa.CertificateProvider.CarryOutBy == "paper" {
-					if err := SMSSender.PaperCertificateProviderMeetingPrompt(r.Context(), lpa, appData, notify.CertificateProviderPaperMeetingPromptSMS); err != nil {
+					if _, err := notifyClient.Sms(r.Context(), notify.Sms{
+						PhoneNumber: lpa.CertificateProvider.Mobile,
+						TemplateID:  notifyClient.TemplateID(notify.CertificateProviderPaperMeetingPromptSMS),
+						Personalisation: map[string]string{
+							"donorFullName":   lpa.Donor.FullName(),
+							"lpaType":         appData.Localizer.T(lpa.Type.LegalTermTransKey()),
+							"donorFirstNames": lpa.Donor.FirstNames,
+						},
+					}); err != nil {
 						return err
 					}
 				} else {

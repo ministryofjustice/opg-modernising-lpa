@@ -123,9 +123,16 @@ type ReducedFeeStore interface {
 	Create(ctx context.Context, lpa *page.Lpa) error
 }
 
-//go:generate mockery --testonly --inpackage --name SMSSender --structname mockSMSSender
-type SMSSender interface {
-	PaperCertificateProviderMeetingPrompt(context.Context, *page.Lpa, page.AppData, notify.TemplateId) error
+//go:generate mockery --testonly --inpackage --name Localizer --structname mockLocalizer
+type Localizer interface {
+	Format(string, map[string]any) string
+	T(string) string
+	Count(messageID string, count int) string
+	FormatCount(messageID string, count int, data map[string]interface{}) string
+	ShowTranslationKeys() bool
+	SetShowTranslationKeys(s bool)
+	Possessive(s string) string
+	Concat([]string, string) string
 }
 
 func Register(
@@ -148,7 +155,7 @@ func Register(
 	s3Client *s3.Client,
 	evidenceBucketName string,
 	reducedFeeStore ReducedFeeStore,
-	SMSSender SMSSender,
+	notifyClient NotifyClient,
 ) {
 	payer := &payHelper{
 		logger:          logger,
@@ -252,7 +259,7 @@ func Register(
 		RemovePersonToNotify(logger, tmpls.Get("remove_person_to_notify.gohtml"), donorStore))
 
 	handleWithLpa(page.Paths.CheckYourLpa, CanGoBack,
-		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, SMSSender))
+		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, notifyClient))
 	handleWithLpa(page.Paths.LpaDetailsSaved, CanGoBack,
 		Guidance(tmpls.Get("lpa_details_saved.gohtml")))
 
