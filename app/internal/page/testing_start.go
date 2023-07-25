@@ -197,6 +197,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 
 		buildLpa := func(ctx context.Context, opts lpaOptions) *Lpa {
 			lpa, err := donorStore.Create(ctx)
+
 			if err != nil {
 				logger.Print("creating lpa ", err)
 			}
@@ -205,6 +206,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 				lpa.Donor = makeDonor()
 				lpa.WhoFor = "me"
 				lpa.Type = LpaTypePropertyFinance
+				lpa.UID = random.UuidString()
 				lpa.Tasks.YourDetails = actor.TaskCompleted
 			}
 

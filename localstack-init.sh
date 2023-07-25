@@ -12,6 +12,7 @@ awslocal secretsmanager create-secret --name "yoti-private-key" --secret-string 
 awslocal secretsmanager create-secret --name "gov-uk-notify-api-key" --secret-string "extremely_fake-a-b-c-d-e-f-g-h-i-j"
 
 awslocal dynamodb create-table --table-name lpas --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000 --global-secondary-indexes file://dynamodb-lpa-gsi-schema.json
+awslocal dynamodb create-table --table-name reduced-fees --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000
 
 awslocal s3api create-bucket --bucket evidence --create-bucket-configuration LocationConstraint=eu-west-1
 
