@@ -62,107 +62,127 @@ func TestGetCheckYourLpaFromStore(t *testing.T) {
 }
 
 func TestPostCheckYourLpaDigitalCertificateProvider(t *testing.T) {
-	form := url.Values{
-		"checked-and-happy": {"1"},
+	testCases := map[actor.TaskState]string{
+		actor.TaskNotStarted: page.Paths.LpaDetailsSaved.Format("lpa-id") + "?firstCheck=1",
+		actor.TaskInProgress: page.Paths.LpaDetailsSaved.Format("lpa-id") + "?firstCheck=1",
+		actor.TaskCompleted:  page.Paths.LpaDetailsSaved.Format("lpa-id"),
 	}
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
+	for existingTaskState, expectedURL := range testCases {
+		t.Run(existingTaskState.String(), func(t *testing.T) {
+			form := url.Values{
+				"checked-and-happy": {"1"},
+			}
 
-	lpa := &page.Lpa{
-		ID:                  "lpa-id",
-		CheckedAndHappy:     false,
-		Tasks:               page.Tasks{CheckYourLpa: actor.TaskInProgress},
-		CertificateProvider: actor.CertificateProvider{CarryOutBy: "online"},
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+			lpa := &page.Lpa{
+				ID:                  "lpa-id",
+				CheckedAndHappy:     false,
+				Tasks:               page.Tasks{CheckYourLpa: existingTaskState},
+				CertificateProvider: actor.CertificateProvider{CarryOutBy: "online"},
+			}
+
+			updatedLpa := &page.Lpa{
+				ID:                  "lpa-id",
+				CheckedAndHappy:     true,
+				Tasks:               page.Tasks{CheckYourLpa: actor.TaskCompleted},
+				CertificateProvider: actor.CertificateProvider{CarryOutBy: "online"},
+			}
+
+			donorStore := newMockDonorStore(t)
+			donorStore.
+				On("Put", r.Context(), updatedLpa).
+				Return(nil)
+
+			shareCodeSender := newMockShareCodeSender(t)
+			shareCodeSender.
+				On("SendCertificateProvider", r.Context(), notify.CertificateProviderInviteEmail, testAppData, true, updatedLpa).
+				Return(nil)
+
+			err := CheckYourLpa(nil, donorStore, shareCodeSender, nil)(testAppData, w, r, lpa)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, expectedURL, resp.Header.Get("Location"))
+		})
 	}
-
-	updatedLpa := &page.Lpa{
-		ID:                  "lpa-id",
-		CheckedAndHappy:     true,
-		Tasks:               page.Tasks{CheckYourLpa: actor.TaskCompleted},
-		CertificateProvider: actor.CertificateProvider{CarryOutBy: "online"},
-	}
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), updatedLpa).
-		Return(nil)
-
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.
-		On("SendCertificateProvider", r.Context(), notify.CertificateProviderInviteEmail, testAppData, true, updatedLpa).
-		Return(nil)
-
-	err := CheckYourLpa(nil, donorStore, shareCodeSender, nil)(testAppData, w, r, lpa)
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.LpaDetailsSaved.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostCheckYourLpaPaperCertificateProvider(t *testing.T) {
-	form := url.Values{
-		"checked-and-happy": {"1"},
+	testCases := map[actor.TaskState]string{
+		actor.TaskNotStarted: page.Paths.LpaDetailsSaved.Format("lpa-id") + "?firstCheck=1",
+		actor.TaskInProgress: page.Paths.LpaDetailsSaved.Format("lpa-id") + "?firstCheck=1",
+		actor.TaskCompleted:  page.Paths.LpaDetailsSaved.Format("lpa-id"),
 	}
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
+	for existingTaskState, expectedURL := range testCases {
+		t.Run(existingTaskState.String(), func(t *testing.T) {
+			form := url.Values{
+				"checked-and-happy": {"1"},
+			}
 
-	localizer := newMockLocalizer(t)
-	localizer.
-		On("T", "pfaLegalTerm").
-		Return("property and affairs")
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	testAppData.Localizer = localizer
+			localizer := newMockLocalizer(t)
+			localizer.
+				On("T", "pfaLegalTerm").
+				Return("property and affairs")
 
-	lpa := &page.Lpa{
-		ID:                  "lpa-id",
-		Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
-		CheckedAndHappy:     false,
-		Tasks:               page.Tasks{CheckYourLpa: actor.TaskInProgress},
-		CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper", Mobile: "07700900000"},
-		Type:                page.LpaTypePropertyFinance,
+			testAppData.Localizer = localizer
+
+			lpa := &page.Lpa{
+				ID:                  "lpa-id",
+				Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
+				CheckedAndHappy:     false,
+				Tasks:               page.Tasks{CheckYourLpa: existingTaskState},
+				CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper", Mobile: "07700900000"},
+				Type:                page.LpaTypePropertyFinance,
+			}
+
+			updatedLpa := &page.Lpa{
+				ID:                  "lpa-id",
+				Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
+				CheckedAndHappy:     true,
+				Tasks:               page.Tasks{CheckYourLpa: actor.TaskCompleted},
+				CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper", Mobile: "07700900000"},
+				Type:                page.LpaTypePropertyFinance,
+			}
+
+			donorStore := newMockDonorStore(t)
+			donorStore.
+				On("Put", r.Context(), updatedLpa).
+				Return(nil)
+
+			notifyClient := newMockNotifyClient(t)
+			notifyClient.
+				On("TemplateID", notify.CertificateProviderPaperMeetingPromptSMS).
+				Return("template-id")
+			notifyClient.
+				On("Sms", r.Context(), notify.Sms{
+					PhoneNumber: "07700900000",
+					TemplateID:  "template-id",
+					Personalisation: map[string]string{
+						"donorFullName":   "Teneil Throssell",
+						"lpaType":         "property and affairs",
+						"donorFirstNames": "Teneil",
+					},
+				}).
+				Return("", nil)
+
+			err := CheckYourLpa(nil, donorStore, nil, notifyClient)(testAppData, w, r, lpa)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, expectedURL, resp.Header.Get("Location"))
+		})
 	}
-
-	updatedLpa := &page.Lpa{
-		ID:                  "lpa-id",
-		Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
-		CheckedAndHappy:     true,
-		Tasks:               page.Tasks{CheckYourLpa: actor.TaskCompleted},
-		CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper", Mobile: "07700900000"},
-		Type:                page.LpaTypePropertyFinance,
-	}
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), updatedLpa).
-		Return(nil)
-
-	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("TemplateID", notify.CertificateProviderPaperMeetingPromptSMS).
-		Return("template-id")
-	notifyClient.
-		On("Sms", r.Context(), notify.Sms{
-			PhoneNumber: "07700900000",
-			TemplateID:  "template-id",
-			Personalisation: map[string]string{
-				"donorFullName":   "Teneil Throssell",
-				"lpaType":         "property and affairs",
-				"donorFirstNames": "Teneil",
-			},
-		}).
-		Return("", nil)
-
-	err := CheckYourLpa(nil, donorStore, nil, notifyClient)(testAppData, w, r, lpa)
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.LpaDetailsSaved.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostCheckYourLpaWhenStoreErrors(t *testing.T) {

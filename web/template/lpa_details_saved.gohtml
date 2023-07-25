@@ -16,17 +16,17 @@
                 </div>
                 <div class="govuk-notification-banner__content">
                     <p class="govuk-body">
-                        {{ if .Lpa.Tasks.PayForLpa.IsCompleted }}
-                            {{ if eq "paper" .Lpa.CertificateProvider.CarryOutBy }}
-                                {{ trFormat .App "lpaDetailsSavedContentOnSubsequentSubmissionCPCarryingOutRolePaper" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
-                            {{ else }}
-                                {{ trFormat .App "lpaDetailsSavedContentOnSubsequentSubmissionCPCarryingOutRoleOnline" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
-                            {{ end }}
-                        {{ else }}
+                        {{ if .IsFirstCheck }}
                             {{ if eq "paper" .Lpa.CertificateProvider.CarryOutBy }}
                                 {{ trFormat .App "lpaDetailsSavedContentOnFirstSubmissionCPCarryingOutRolePaper" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
                             {{ else }}
                                 {{ trFormat .App "lpaDetailsSavedContentOnFirstSubmissionCPCarryingOutRoleOnline" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
+                            {{ end }}
+                        {{ else }}
+                            {{ if eq "paper" .Lpa.CertificateProvider.CarryOutBy }}
+                                {{ trFormat .App "lpaDetailsSavedContentOnSubsequentSubmissionCPCarryingOutRolePaper" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
+                            {{ else }}
+                                {{ trFormat .App "lpaDetailsSavedContentOnSubsequentSubmissionCPCarryingOutRoleOnline" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
                             {{ end }}
                         {{ end }}
                     </p>
@@ -36,7 +36,7 @@
             {{ if .Lpa.Tasks.PayForLpa.IsCompleted }}
                 <a href="{{ link .App (.App.Paths.Dashboard.String) }}" class="govuk-button">{{ tr .App "returnToDashboard" }}</a>
             {{ else }}
-                {{ if eq "paper" .Lpa.CertificateProvider.CarryOutBy }}
+                {{ if and (eq "paper" .Lpa.CertificateProvider.CarryOutBy) .IsFirstCheck }}
                     {{ trFormatHtml .App "weveSentATextToCPContent" "CertificateProviderFirstName" .Lpa.CertificateProvider.FirstNames }}
                 {{ end }}
 
