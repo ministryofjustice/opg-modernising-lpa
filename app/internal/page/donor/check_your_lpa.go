@@ -41,8 +41,10 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 					return err
 				}
 
+				var sms notify.Sms
+
 				if lpa.CertificateProvider.CarryOutBy == "paper" {
-					if _, err := notifyClient.Sms(r.Context(), notify.Sms{
+					sms = notify.Sms{
 						PhoneNumber: lpa.CertificateProvider.Mobile,
 						TemplateID:  notifyClient.TemplateID(notify.CertificateProviderPaperMeetingPromptSMS),
 						Personalisation: map[string]string{
@@ -50,13 +52,43 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 							"lpaType":         appData.Localizer.T(lpa.Type.LegalTermTransKey()),
 							"donorFirstNames": lpa.Donor.FirstNames,
 						},
-					}); err != nil {
-						return err
+					}
+
+					if data.Completed {
+						sms.TemplateID = notifyClient.TemplateID(notify.CertificateProviderPaperLpaDetailsChangedSMS)
+						sms.Personalisation = map[string]string{
+							"donorFullName":   lpa.Donor.FullName(),
+							"lpaId":           lpa.ID,
+							"donorFirstNames": lpa.Donor.FirstNames,
+						}
 					}
 				} else {
-					if err := shareCodeSender.SendCertificateProvider(r.Context(), notify.CertificateProviderInviteEmail, appData, true, lpa); err != nil {
-						return err
+					sms = notify.Sms{
+						PhoneNumber: lpa.CertificateProvider.Mobile,
+						TemplateID:  notifyClient.TemplateID(notify.CertificateProviderDigitalMeetingPromptSMS),
+						Personalisation: map[string]string{
+							"donorFullName": lpa.Donor.FullName(),
+							"lpaType":       appData.Localizer.T(lpa.Type.LegalTermTransKey()),
+						},
 					}
+
+					if data.Completed {
+						sms.TemplateID = notifyClient.TemplateID(notify.CertificateProviderDigitalLpaDetailsChangedSMS)
+						sms.Personalisation = map[string]string{
+							"donorFullNamePossessive": appData.Localizer.Possessive(lpa.Donor.FullName()),
+							"lpaType":                 appData.Localizer.T(lpa.Type.LegalTermTransKey()),
+							"lpaId":                   lpa.ID,
+							"donorFirstNames":         lpa.Donor.FirstNames,
+						}
+					} else {
+						if err := shareCodeSender.SendCertificateProvider(r.Context(), notify.CertificateProviderInviteEmail, appData, true, lpa); err != nil {
+							return err
+						}
+					}
+				}
+
+				if _, err := notifyClient.Sms(r.Context(), sms); err != nil {
+					return err
 				}
 
 				return appData.Redirect(w, r, lpa, page.Paths.LpaDetailsSaved.Format(lpa.ID))
