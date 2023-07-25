@@ -158,8 +158,9 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
 
 	testCases := map[string]struct {
-		form url.Values
-		cp   *actor.CertificateProviderProvidedDetails
+		form      url.Values
+		retrieved *actor.CertificateProviderProvidedDetails
+		updated   *actor.CertificateProviderProvidedDetails
 	}{
 		"valid": {
 			form: url.Values{
@@ -167,9 +168,33 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {validBirthYear},
 			},
-			cp: &actor.CertificateProviderProvidedDetails{
+			retrieved: &actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"},
+			updated: &actor.CertificateProviderProvidedDetails{
 				LpaID:       "lpa-id",
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
+				Tasks: actor.CertificateProviderTasks{
+					ConfirmYourDetails: actor.TaskInProgress,
+				},
+			},
+		},
+		"previously completed": {
+			form: url.Values{
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {validBirthYear},
+			},
+			retrieved: &actor.CertificateProviderProvidedDetails{
+				LpaID: "lpa-id",
+				Tasks: actor.CertificateProviderTasks{
+					ConfirmYourDetails: actor.TaskCompleted,
+				},
+			},
+			updated: &actor.CertificateProviderProvidedDetails{
+				LpaID:       "lpa-id",
+				DateOfBirth: date.New(validBirthYear, "1", "2"),
+				Tasks: actor.CertificateProviderTasks{
+					ConfirmYourDetails: actor.TaskCompleted,
+				},
 			},
 		},
 		"warning ignored": {
@@ -179,9 +204,13 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 				"date-of-birth-year":  {"1900"},
 				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
 			},
-			cp: &actor.CertificateProviderProvidedDetails{
+			retrieved: &actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"},
+			updated: &actor.CertificateProviderProvidedDetails{
 				LpaID:       "lpa-id",
 				DateOfBirth: date.New("1900", "1", "2"),
+				Tasks: actor.CertificateProviderTasks{
+					ConfirmYourDetails: actor.TaskInProgress,
+				},
 			},
 		},
 	}
@@ -201,9 +230,9 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.
 				On("Get", r.Context()).
-				Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
+				Return(tc.retrieved, nil)
 			certificateProviderStore.
-				On("Put", r.Context(), tc.cp).
+				On("Put", r.Context(), tc.updated).
 				Return(nil)
 
 			err := EnterDateOfBirth(nil, donorStore, certificateProviderStore)(testAppData, w, r)
