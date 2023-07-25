@@ -161,6 +161,7 @@ func App(
 		s3Client,
 		evidenceBucketName,
 		reducedFeeStore,
+		notifyClient,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang, rumConfig, staticHash, oneloginURL)

@@ -123,6 +123,18 @@ type ReducedFeeStore interface {
 	Create(ctx context.Context, lpa *page.Lpa) error
 }
 
+//go:generate mockery --testonly --inpackage --name Localizer --structname mockLocalizer
+type Localizer interface {
+	Format(string, map[string]any) string
+	T(string) string
+	Count(messageID string, count int) string
+	FormatCount(messageID string, count int, data map[string]interface{}) string
+	ShowTranslationKeys() bool
+	SetShowTranslationKeys(s bool)
+	Possessive(s string) string
+	Concat([]string, string) string
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -143,6 +155,7 @@ func Register(
 	s3Client *s3.Client,
 	evidenceBucketName string,
 	reducedFeeStore ReducedFeeStore,
+	notifyClient NotifyClient,
 ) {
 	payer := &payHelper{
 		logger:          logger,
@@ -246,7 +259,7 @@ func Register(
 		RemovePersonToNotify(logger, tmpls.Get("remove_person_to_notify.gohtml"), donorStore))
 
 	handleWithLpa(page.Paths.CheckYourLpa, CanGoBack,
-		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender))
+		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, notifyClient))
 	handleWithLpa(page.Paths.LpaDetailsSaved, CanGoBack,
 		Guidance(tmpls.Get("lpa_details_saved.gohtml")))
 

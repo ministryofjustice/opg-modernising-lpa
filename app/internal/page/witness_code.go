@@ -36,7 +36,7 @@ func (s *WitnessCodeSender) Send(ctx context.Context, lpa *Lpa, localizer Locali
 
 	_, err := s.notifyClient.Sms(ctx, notify.Sms{
 		PhoneNumber: lpa.CertificateProvider.Mobile,
-		TemplateID:  s.notifyClient.TemplateID(notify.SignatureCodeSms),
+		TemplateID:  s.notifyClient.TemplateID(notify.SignatureCodeSMS),
 		Personalisation: map[string]string{
 			"WitnessCode":   code,
 			"DonorFullName": localizer.Possessive(lpa.Donor.FullName()),
