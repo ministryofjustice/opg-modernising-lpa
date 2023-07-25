@@ -87,13 +87,14 @@ type TemplateId int
 
 const (
 	SignatureCodeEmail TemplateId = iota
-	SignatureCodeSms
+	SignatureCodeSMS
 	CertificateProviderInviteEmail
 	CertificateProviderReturnEmail
 	CertificateProviderNameChangeEmail
 	AttorneyInviteEmail
 	AttorneyNameChangeEmail
 	ReplacementAttorneyInviteEmail
+	CertificateProviderPaperMeetingPromptSMS
 )
 
 func (c *Client) TemplateID(id TemplateId) string {
@@ -101,7 +102,7 @@ func (c *Client) TemplateID(id TemplateId) string {
 		switch id {
 		case SignatureCodeEmail:
 			return "95f7b0a2-1c3a-4ad9-818b-b358c549c88b"
-		case SignatureCodeSms:
+		case SignatureCodeSMS:
 			return "e39849c0-ecab-4e16-87ec-6b22afb9d535"
 		case CertificateProviderInviteEmail:
 			return "a10341e3-3bbd-4452-b52f-ebb4f51a4d73"
@@ -115,12 +116,14 @@ func (c *Client) TemplateID(id TemplateId) string {
 			return "1e0950c5-63fa-487e-8bf3-f40445412a12"
 		case ReplacementAttorneyInviteEmail:
 			return "1c4d5b24-fc7d-45ee-be40-f1ccda96f101"
+		case CertificateProviderPaperMeetingPromptSMS:
+			return "6be11b4a-79f9-441e-8afe-adff96f7e7fc"
 		}
 	} else {
 		switch id {
 		case SignatureCodeEmail:
 			return "7e8564a0-2635-4f61-9155-0166ddbe5607"
-		case SignatureCodeSms:
+		case SignatureCodeSMS:
 			return "dfa15e16-1f23-494a-bffb-a475513df6cc"
 		case CertificateProviderInviteEmail, CertificateProviderReturnEmail:
 			return "dd864a1a-64b4-4b4e-b810-86267ebd6476"
@@ -132,6 +135,8 @@ func (c *Client) TemplateID(id TemplateId) string {
 			return "685bbdcc-71b8-48b9-b773-03941472d3b1"
 		case ReplacementAttorneyInviteEmail:
 			return "bf79859b-72b7-4701-bfd3-22ac6f0908c8"
+		case CertificateProviderPaperMeetingPromptSMS:
+			return "0eba4e55-c07e-4427-b4ad-b03e08dad8ca"
 		}
 	}
 
