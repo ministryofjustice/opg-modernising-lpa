@@ -63,12 +63,10 @@ func Fixtures(tmpl template.Template) Handler {
 					values.Add("lpa.certificateProviderEmail", data.Form.Email)
 				}
 
-				if data.Form.DonorChecked != "" {
-					values.Add("startCpFlowDonorHasNotPaid", "1")
-				}
-
 				if data.Form.DonorPaid != "" {
 					values.Add("startCpFlowDonorHasPaid", "1")
+				} else {
+					values.Add("startCpFlowDonorHasNotPaid", "1")
 				}
 
 				if data.Form.Signed != "" {
@@ -140,7 +138,6 @@ type fixturesForm struct {
 	ForReplacementAttorney   string
 	Signed                   string
 	Type                     string
-	DonorChecked             string
 }
 
 func readFixtures(r *http.Request) *fixturesForm {
@@ -165,6 +162,5 @@ func readFixtures(r *http.Request) *fixturesForm {
 		ForReplacementAttorney:   PostFormString(r, "for-replacement-attorney"),
 		Signed:                   PostFormString(r, "signed"),
 		Type:                     PostFormString(r, "type"),
-		DonorChecked:             PostFormString(r, "donor-checked"),
 	}
 }

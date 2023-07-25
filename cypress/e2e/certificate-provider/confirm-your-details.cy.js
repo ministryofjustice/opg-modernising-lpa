@@ -18,7 +18,8 @@ describe('Confirm your details', () => {
         cy.contains('5 RICHMOND PLACE');
         cy.contains('07700900000');
 
-        cy.contains('a', 'Continue').click();
-        cy.url().should('contain', '/what-youll-need-to-confirm-your-identity');
+        cy.contains('button', 'Continue').click();
+        cy.url().should('contain', '/task-list');
+        cy.contains('li', 'Confirm your details').should('contain', 'Completed');
     });
 });
