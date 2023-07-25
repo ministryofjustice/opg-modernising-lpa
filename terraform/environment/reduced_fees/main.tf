@@ -1,7 +1,7 @@
 # DynamoDB table for reduced fees
 
 resource "aws_dynamodb_table" "reduced_fees" {
-  name                        = "${data.aws_default_tags.current.tags.environment-name}-reduced-fees"
+  name                        = "${data.aws_default_tags.current.tags.environment-name}-ReducedFees"
   billing_mode                = "PAY_PER_REQUEST"
   deletion_protection_enabled = data.aws_default_tags.current.tags.environment-name == "production" ? true : false
   stream_enabled              = true
