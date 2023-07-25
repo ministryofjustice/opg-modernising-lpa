@@ -76,6 +76,11 @@ resource "aws_s3_bucket_replication_configuration" "replication" {
 
   rule {
     id = "whenScannedOkAndReadyToReplicate"
+
+    delete_marker_replication {
+      status = "Disabled"
+    }
+
     filter {
       tag {
         key   = "replicate"
