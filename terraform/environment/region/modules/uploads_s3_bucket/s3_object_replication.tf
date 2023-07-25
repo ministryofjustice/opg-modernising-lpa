@@ -14,7 +14,7 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 resource "aws_iam_role" "replication" {
-  name               = "reduced_fees_uploads_replication"
+  name               = "reduced-fees-uploads-replication-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
   provider           = aws.region
 }
