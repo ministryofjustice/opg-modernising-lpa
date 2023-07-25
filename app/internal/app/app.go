@@ -35,8 +35,8 @@ type Logger interface {
 	Print(v ...interface{})
 }
 
-//go:generate mockery --testonly --inpackage --name DataStore --structname mockDataStore
-type DataStore interface {
+//go:generate mockery --testonly --inpackage --name DynamoClient --structname mockDynamoClient
+type DynamoClient interface {
 	Get(ctx context.Context, pk, sk string, v interface{}) error
 	Put(ctx context.Context, v interface{}) error
 	GetOneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
@@ -58,7 +58,7 @@ func App(
 	lang localize.Lang,
 	tmpls template.Templates,
 	sessionStore SessionStore,
-	dataStore DataStore,
+	lpaDynamoClient DynamoClient,
 	appPublicURL string,
 	payClient *pay.Client,
 	yotiClient *identity.YotiClient,
@@ -72,12 +72,14 @@ func App(
 	oneloginURL string,
 	s3Client *s3.Client,
 	evidenceBucketName string,
+	reducedFeeDynamoClient DynamoClient,
 ) http.Handler {
-	donorStore := &donorStore{dataStore: dataStore, uuidString: uuid.NewString, now: time.Now}
-	certificateProviderStore := &certificateProviderStore{dataStore: dataStore, now: time.Now}
-	attorneyStore := &attorneyStore{dataStore: dataStore, now: time.Now}
-	shareCodeStore := &shareCodeStore{dataStore: dataStore}
-	dashboardStore := &dashboardStore{dataStore: dataStore}
+	donorStore := &donorStore{dynamoClient: lpaDynamoClient, uuidString: uuid.NewString, now: time.Now}
+	certificateProviderStore := &certificateProviderStore{dynamoClient: lpaDynamoClient, now: time.Now}
+	attorneyStore := &attorneyStore{dynamoClient: lpaDynamoClient, now: time.Now}
+	shareCodeStore := &shareCodeStore{dynamoClient: lpaDynamoClient}
+	dashboardStore := &dashboardStore{dynamoClient: lpaDynamoClient}
+	reducedFeeStore := &reducedFeeStore{dynamoClient: reducedFeeDynamoClient, now: time.Now}
 
 	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicURL, random.String)
 	witnessCodeSender := page.NewWitnessCodeSender(donorStore, notifyClient)
@@ -159,6 +161,7 @@ func App(
 		uidClient,
 		s3Client,
 		evidenceBucketName,
+		reducedFeeStore,
 		SMSSender,
 	)
 

@@ -19,22 +19,22 @@ func TestDashboardStoreGetAll(t *testing.T) {
 	lpa456 := &page.Lpa{ID: "456"}
 	lpa789 := &page.Lpa{ID: "789"}
 
-	dataStore := newMockDataStore(t)
-	dataStore.ExpectGetAllByGsi(ctx, "ActorIndex", "#SUB#an-id",
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectGetAllByGsi(ctx, "ActorIndex", "#SUB#an-id",
 		[]lpaLink{
 			{PK: "LPA#123", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor},
 			{PK: "LPA#456", SK: "#SUB#an-id", DonorKey: "#DONOR#another-id", ActorType: actor.TypeCertificateProvider},
 			{PK: "LPA#789", SK: "#SUB#an-id", DonorKey: "#DONOR#different-id", ActorType: actor.TypeAttorney},
 			{PK: "LPA#0", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor},
 		}, nil)
-	dataStore.ExpectGetAllByKeys(ctx, []dynamo.Key{
+	dynamoClient.ExpectGetAllByKeys(ctx, []dynamo.Key{
 		{PK: "LPA#123", SK: "#DONOR#an-id"},
 		{PK: "LPA#456", SK: "#DONOR#another-id"},
 		{PK: "LPA#789", SK: "#DONOR#different-id"},
 		{PK: "LPA#0", SK: "#DONOR#an-id"},
 	}, []*page.Lpa{lpa123, lpa456, lpa789, lpa0}, nil)
 
-	dashboardStore := &dashboardStore{dataStore: dataStore}
+	dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
 
 	donor, attorney, certificateProvider, err := dashboardStore.GetAll(ctx)
 	assert.Nil(t, err)
@@ -46,11 +46,11 @@ func TestDashboardStoreGetAll(t *testing.T) {
 func TestDashboardStoreGetAllWhenNone(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
 
-	dataStore := newMockDataStore(t)
-	dataStore.ExpectGetAllByGsi(ctx, "ActorIndex", "#SUB#an-id",
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectGetAllByGsi(ctx, "ActorIndex", "#SUB#an-id",
 		[]map[string]any{}, nil)
 
-	dashboardStore := &dashboardStore{dataStore: dataStore}
+	dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
 
 	donor, attorney, certificateProvider, err := dashboardStore.GetAll(ctx)
 	assert.Nil(t, err)
