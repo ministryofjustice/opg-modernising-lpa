@@ -86,21 +86,23 @@ func TestEmailWhenError(t *testing.T) {
 func TestTemplateID(t *testing.T) {
 	production, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", nil)
 	assert.Equal(t, "95f7b0a2-1c3a-4ad9-818b-b358c549c88b", production.TemplateID(SignatureCodeEmail))
-	assert.Equal(t, "e39849c0-ecab-4e16-87ec-6b22afb9d535", production.TemplateID(SignatureCodeSms))
+	assert.Equal(t, "e39849c0-ecab-4e16-87ec-6b22afb9d535", production.TemplateID(SignatureCodeSMS))
 	assert.Equal(t, "a10341e3-3bbd-4452-b52f-ebb4f51a4d73", production.TemplateID(CertificateProviderInviteEmail))
 	assert.Equal(t, "453917cd-d8bb-44af-90a1-d73ae0f3fd07", production.TemplateID(CertificateProviderReturnEmail))
 	assert.Equal(t, "9f8be86f-864a-4cda-a58a-5768522bd325", production.TemplateID(CertificateProviderNameChangeEmail))
 	assert.Equal(t, "9aaedb70-df4a-42a8-9c28-de435cb3d453", production.TemplateID(AttorneyInviteEmail))
 	assert.Equal(t, "1e0950c5-63fa-487e-8bf3-f40445412a12", production.TemplateID(AttorneyNameChangeEmail))
+	assert.Equal(t, "6be11b4a-79f9-441e-8afe-adff96f7e7fc", production.TemplateID(CertificateProviderPaperMeetingPromptSMS))
 
 	test, _ := New(false, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", nil)
 	assert.Equal(t, "7e8564a0-2635-4f61-9155-0166ddbe5607", test.TemplateID(SignatureCodeEmail))
-	assert.Equal(t, "dfa15e16-1f23-494a-bffb-a475513df6cc", test.TemplateID(SignatureCodeSms))
+	assert.Equal(t, "dfa15e16-1f23-494a-bffb-a475513df6cc", test.TemplateID(SignatureCodeSMS))
 	assert.Equal(t, "dd864a1a-64b4-4b4e-b810-86267ebd6476", test.TemplateID(CertificateProviderInviteEmail))
 	assert.Equal(t, "dd864a1a-64b4-4b4e-b810-86267ebd6476", test.TemplateID(CertificateProviderReturnEmail))
 	assert.Equal(t, "0f111ed1-5c58-47eb-a13f-931f2077523b", test.TemplateID(CertificateProviderNameChangeEmail))
 	assert.Equal(t, "9be88a99-21c0-4808-8d6a-52af366e44aa", test.TemplateID(AttorneyInviteEmail))
 	assert.Equal(t, "685bbdcc-71b8-48b9-b773-03941472d3b1", test.TemplateID(AttorneyNameChangeEmail))
+	assert.Equal(t, "0eba4e55-c07e-4427-b4ad-b03e08dad8ca", test.TemplateID(CertificateProviderPaperMeetingPromptSMS))
 }
 
 func TestRequest(t *testing.T) {
