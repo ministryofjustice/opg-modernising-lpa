@@ -100,7 +100,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		}
 	}
 
-	makeCertificateProvider := func(firstNames, carryOutBy string) actor.CertificateProvider {
+	makeCertificateProvider := func(firstNames string, carryOutBy actor.CertificateProviderCarryOutBy) actor.CertificateProvider {
 		return actor.CertificateProvider{
 			FirstNames:         firstNames,
 			LastName:           "Jones",
@@ -291,10 +291,10 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			}
 
 			if opts.hasCertificateProvider {
-				carryOutBy := "paper"
+				carryOutBy := actor.Paper
 
 				if opts.certificateProviderActOnline {
-					carryOutBy = "email"
+					carryOutBy = actor.Online
 				}
 
 				lpa.CertificateProvider = makeCertificateProvider("Jessie", carryOutBy)

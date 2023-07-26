@@ -21,8 +21,9 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
-			App:  testAppData,
-			Form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
+			App:     testAppData,
+			Form:    &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
+			Options: actor.CertificateProviderCarryOutByValues,
 		}).
 		Return(nil)
 
@@ -41,13 +42,14 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleFromStore(t *tes
 	template.
 		On("Execute", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:                 testAppData,
-			CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper"},
-			Form:                &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{CarryOutBy: "paper"},
+			CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Paper},
+			Form:                &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{CarryOutBy: actor.Paper},
+			Options:             actor.CertificateProviderCarryOutByValues,
 		}).
 		Return(nil)
 
 	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil)(testAppData, w, r, &page.Lpa{
-		CertificateProvider: actor.CertificateProvider{CarryOutBy: "paper"},
+		CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Paper},
 	})
 	resp := w.Result()
 
@@ -62,8 +64,9 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenTemplateErro
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
-			App:  testAppData,
-			Form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
+			App:     testAppData,
+			Form:    &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
+			Options: actor.CertificateProviderCarryOutByValues,
 		}).
 		Return(expectedError)
 
@@ -76,22 +79,22 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenTemplateErro
 
 func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) {
 	testCases := []struct {
-		carryOutBy string
+		carryOutBy actor.CertificateProviderCarryOutBy
 		email      string
 	}{
 		{
-			carryOutBy: "paper",
+			carryOutBy: actor.Paper,
 		},
 		{
-			carryOutBy: "email",
+			carryOutBy: actor.Online,
 			email:      "someone@example.com",
 		},
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.carryOutBy, func(t *testing.T) {
+		t.Run(tc.carryOutBy.String(), func(t *testing.T) {
 			form := url.Values{
-				"carry-out-by": {tc.carryOutBy},
+				"carry-out-by": {tc.carryOutBy.String()},
 				"email":        {tc.email},
 			}
 
@@ -119,7 +122,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) 
 
 func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"carry-out-by": {"paper"},
+		"carry-out-by": {actor.Paper.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -143,11 +146,9 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenValidationE
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
-			App:    testAppData,
-			Errors: validation.With("carry-out-by", validation.SelectError{Label: "howYourCertificateProviderWouldPreferToCarryOutTheirRole"}),
-			Form:   &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
-		}).
+		On("Execute", w, mock.MatchedBy(func(data *howWouldCertificateProviderPreferToCarryOutTheirRoleData) bool {
+			return assert.Equal(t, validation.With("carry-out-by", validation.SelectError{Label: "howYourCertificateProviderWouldPreferToCarryOutTheirRole"}), data.Errors)
+		})).
 		Return(nil)
 
 	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
@@ -159,7 +160,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenValidationE
 
 func TestReadHowWouldCertificateProviderPreferToCarryOutTheirRoleForm(t *testing.T) {
 	form := url.Values{
-		"carry-out-by": {"email"},
+		"carry-out-by": {actor.Online.String()},
 		"email":        {"someone@example.com"},
 	}
 
@@ -168,7 +169,7 @@ func TestReadHowWouldCertificateProviderPreferToCarryOutTheirRoleForm(t *testing
 
 	result := readHowWouldCertificateProviderPreferToCarryOutTheirRole(r)
 
-	assert.Equal(t, "email", result.CarryOutBy)
+	assert.Equal(t, actor.Online, result.CarryOutBy)
 	assert.Equal(t, "someone@example.com", result.Email)
 }
 
@@ -179,35 +180,39 @@ func TestHowWouldCertificateProviderPreferToCarryOutTheirRoleFormValidate(t *tes
 	}{
 		"paper": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: "paper",
+				CarryOutBy: actor.Paper,
 			},
 		},
-		"email": {
+		"online": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: "email",
+				CarryOutBy: actor.Online,
 				Email:      "someone@example.com",
 			},
 		},
-		"email invalid": {
+		"online email invalid": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: "email",
+				CarryOutBy: actor.Online,
 				Email:      "what",
 			},
 			errors: validation.With("email", validation.EmailError{Label: "certificateProvidersEmail"}),
 		},
-		"email missing": {
+		"online email missing": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: "email",
+				CarryOutBy: actor.Online,
 			},
 			errors: validation.With("email", validation.EnterError{Label: "certificateProvidersEmail"}),
 		},
 		"missing": {
-			form:   &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
+			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
+				CarryOutBy: actor.CertificateProviderCarryOutBy(0),
+				Error:      expectedError,
+			},
 			errors: validation.With("carry-out-by", validation.SelectError{Label: "howYourCertificateProviderWouldPreferToCarryOutTheirRole"}),
 		},
 		"invalid": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: "what",
+				CarryOutBy: actor.CertificateProviderCarryOutBy(99),
+				Error:      expectedError,
 			},
 			errors: validation.With("carry-out-by", validation.SelectError{Label: "howYourCertificateProviderWouldPreferToCarryOutTheirRole"}),
 		},
