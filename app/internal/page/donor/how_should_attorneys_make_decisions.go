@@ -38,7 +38,7 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorSto
 					lpa.AttorneyDecisions,
 					data.Form.DecisionsType,
 					data.Form.DecisionsDetails)
-				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
+				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.TrustCorporation, lpa.Attorneys, lpa.AttorneyDecisions)
 				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
 				if err := donorStore.Put(r.Context(), lpa); err != nil {

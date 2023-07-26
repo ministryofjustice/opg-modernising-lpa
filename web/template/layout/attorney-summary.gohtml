@@ -1,4 +1,79 @@
 {{ define "attorney-summary" }}
+  {{ if .TrustCorporation }}
+    {{ if eq .HeadingLevel 4 }}
+      <h4 class="govuk-heading-s">{{ tr $.App "trustCorporation" }}</h4>
+    {{ else if eq .HeadingLevel 2 }}
+      <h2 class="govuk-heading-m">{{ tr $.App "trustCorporation" }}</h2>
+    {{ end }}
+
+    <dl class="govuk-summary-list">
+      <div class="govuk-summary-list__row" id="trust-corporation-name">
+        <dt class="govuk-summary-list__key">
+          {{ tr .App "companyName" }}
+        </dt>
+        <dd class="govuk-summary-list__value">
+          {{ .TrustCorporation.Name }}
+        </dd>
+        {{ if and (not .Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) .App.IsDonor }}
+          <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="{{ link .App (.App.Paths.EnterTrustCorporation.Format .Lpa.ID) }}#f-name">
+              {{ trHtml .App "changeCompanyNameLink" }}
+            </a>
+          </dd>
+        {{ end }}
+      </div>
+      <div class="govuk-summary-list__row" id="trust-corporation-date-of-birth">
+        <dt class="govuk-summary-list__key">
+          {{ tr .App "companyNumber" }}
+        </dt>
+        <dd class="govuk-summary-list__value">
+          {{ .TrustCorporation.CompanyNumber }}
+        </dd>
+        {{ if and (not .Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) .App.IsDonor }}
+          <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="{{ link .App (.App.Paths.EnterTrustCorporation.Format .Lpa.ID) }}#f-company-number">
+              {{ trHtml .App "changeCompanyNumberLink" }}
+            </a>
+          </dd>
+        {{ end }}
+      </div>
+      <div class="govuk-summary-list__row" id="trust-corporation-email">
+        <dt class="govuk-summary-list__key ">
+          {{ tr .App "companyEmailAddress" }}
+        </dt>
+        <dd class="govuk-summary-list__value">
+          {{ .TrustCorporation.Email }}
+        </dd>
+        {{ if and (not .Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) .App.IsDonor }}
+          <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="{{ link .App (.App.Paths.EnterTrustCorporation.Format .Lpa.ID) }}#f-email">
+              {{ trHtml .App "changeCompanyEmailLink" }}
+            </a>
+          </dd>
+        {{ end }}
+      </div>
+      <div class="govuk-summary-list__row" id="trust-corporation-address">
+        <dt class="govuk-summary-list__key">
+          {{ tr .App "address" }}
+        </dt>
+        <dd class="govuk-summary-list__value">
+          {{ .TrustCorporation.Address.Line1 }}<br>
+          {{ if .TrustCorporation.Address.Line2 }}{{ .TrustCorporation.Address.Line2 }}<br>{{end}}
+          {{ if .TrustCorporation.Address.Line3 }}{{ .TrustCorporation.Address.Line3 }}<br>{{end}}
+          {{ if .TrustCorporation.Address.TownOrCity }}{{ .TrustCorporation.Address.TownOrCity }}<br>{{end}}
+          {{ .TrustCorporation.Address.Postcode }}
+        </dd>
+        {{ if and (not .Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) .App.IsDonor }}
+          <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="{{ link .App (.App.Paths.EnterTrustCorporationAddress.Format .Lpa.ID) }}#f-address-line-1">
+              {{ trHtml .App "changeCompanyAddressLink" }}
+            </a>
+          </dd>
+        {{ end }}
+      </div>
+    </dl>
+  {{ end }}
+
   {{range $i, $a := .Attorneys}}
     {{ $attorneyNumber := inc $i }}
 
