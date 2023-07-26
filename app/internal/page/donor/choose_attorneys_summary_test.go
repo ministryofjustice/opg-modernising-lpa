@@ -16,27 +16,40 @@ import (
 )
 
 func TestGetChooseAttorneysSummary(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	testcases := map[string]*page.Lpa{
+		"attorney": {
+			Attorneys: actor.Attorneys{{}},
+		},
+		"trust corporation": {
+			TrustCorporation: actor.TrustCorporation{Name: "a"},
+		},
+	}
 
-	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAttorneysSummaryData{
-			App:     testAppData,
-			Lpa:     &page.Lpa{Attorneys: actor.Attorneys{{}}},
-			Form:    &form.YesNoForm{},
-			Options: form.YesNoValues,
-		}).
-		Return(nil)
+	for name, lpa := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseAttorneysSummary(template.Execute)(testAppData, w, r, &page.Lpa{Attorneys: actor.Attorneys{{}}})
-	resp := w.Result()
+			template := newMockTemplate(t)
+			template.
+				On("Execute", w, &chooseAttorneysSummaryData{
+					App:     testAppData,
+					Lpa:     lpa,
+					Form:    &form.YesNoForm{},
+					Options: form.YesNoValues,
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			err := ChooseAttorneysSummary(template.Execute)(testAppData, w, r, lpa)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
-func TestGetChooseAttorneysSummaryWhenNoAttorneys(t *testing.T) {
+func TestGetChooseAttorneysSummaryWhenNoAttorneysOrTrustCorporation(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 

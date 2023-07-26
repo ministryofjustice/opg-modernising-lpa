@@ -34,6 +34,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		hasDonorDetails              bool
 		lpaType                      string
 		attorneys                    int
+		trustCorporation             string
 		howAttorneysAct              string
 		replacementAttorneys         int
 		howReplacementAttorneysAct   string
@@ -238,6 +239,10 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 				lpa.Tasks.ChooseReplacementAttorneys = actor.TaskInProgress
 			}
 
+			if opts.trustCorporation == "incomplete" {
+				lpa.TrustCorporation.Name = "My company"
+			}
+
 			if opts.howAttorneysAct != "" {
 				act, err := actor.ParseAttorneysAct(opts.howAttorneysAct)
 				if err != nil {
@@ -394,6 +399,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			hasDonorDetails:              r.FormValue("lpa.yourDetails") != "" || completeSectionOne,
 			lpaType:                      r.FormValue("lpa.type"),
 			attorneys:                    parseCount(r.FormValue("lpa.attorneys"), completeSectionOne),
+			trustCorporation:             r.FormValue("lpa.trustCorporation"),
 			howAttorneysAct:              r.FormValue("lpa.attorneysAct"),
 			replacementAttorneys:         parseCount(r.FormValue("lpa.replacementAttorneys"), completeSectionOne),
 			howReplacementAttorneysAct:   r.FormValue("lpa.replacementAttorneysAct"),
