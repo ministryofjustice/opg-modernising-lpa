@@ -122,11 +122,11 @@ func (c *Client) TemplateID(id TemplateId) string {
 		case CertificateProviderPaperMeetingPromptSMS:
 			return "6be11b4a-79f9-441e-8afe-adff96f7e7fc"
 		case CertificateProviderDigitalLpaDetailsChangedNotSeenLpaSMS:
-			return "UPDATE"
+			return "19948d7d-a2df-4e85-930b-5d800978f41f"
 		case CertificateProviderPaperLpaDetailsChangedSMS:
-			return "UPDATE"
+			return "d363a56f-e802-4f88-bd09-80b8c9e9d650"
 		case CertificateProviderDigitalLpaDetailsChangedSeenLpaSMS:
-			return "UPDATE"
+			return "71d21daa-11f9-4a2a-9ae2-bb5c2247bfb7"
 		}
 	} else {
 		switch id {
