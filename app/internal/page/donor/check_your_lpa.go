@@ -34,6 +34,12 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
+				redirect := page.Paths.LpaDetailsSaved.Format(lpa.ID)
+
+				if !data.Completed {
+					redirect = redirect + "?firstCheck=1"
+				}
+
 				lpa.CheckedAndHappy = data.Form.CheckedAndHappy
 				lpa.Tasks.CheckYourLpa = actor.TaskCompleted
 
@@ -91,7 +97,7 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.LpaDetailsSaved.Format(lpa.ID))
+				return appData.Redirect(w, r, lpa, redirect)
 			}
 		}
 
