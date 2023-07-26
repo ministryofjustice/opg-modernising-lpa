@@ -46,7 +46,7 @@ func RemoveAttorney(logger Logger, tmpl template.Template, donorStore DonorStore
 						lpa.AttorneyDecisions = actor.AttorneyDecisions{}
 					}
 
-					lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
+					lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.TrustCorporation, lpa.Attorneys, lpa.AttorneyDecisions)
 					lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
 					if err := donorStore.Put(r.Context(), lpa); err != nil {
