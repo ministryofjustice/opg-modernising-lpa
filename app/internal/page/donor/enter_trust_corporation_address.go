@@ -9,27 +9,19 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
 )
 
-func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
+func EnterTrustCorporationAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
-		attorneyId := r.FormValue("id")
-		attorney, found := lpa.Attorneys.Get(attorneyId)
-
-		if found == false {
-			return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneys.Format(lpa.ID))
-		}
+		trustCorporation := lpa.TrustCorporation
 
 		data := &chooseAddressData{
 			App:        appData,
-			ActorLabel: "attorney",
-			FullName:   attorney.FullName(),
-			ID:         attorney.ID,
-			CanSkip:    true,
+			ActorLabel: "theTrustCorporation",
 			Form:       &form.AddressForm{},
 		}
 
-		if attorney.Address.Line1 != "" {
+		if trustCorporation.Address.Line1 != "" {
 			data.Form.Action = "manual"
-			data.Form.Address = &attorney.Address
+			data.Form.Address = &trustCorporation.Address
 		}
 
 		if r.Method == http.MethodPost {
@@ -37,8 +29,8 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 			data.Errors = data.Form.Validate(false)
 
 			setAddress := func(address place.Address) error {
-				attorney.Address = address
-				lpa.Attorneys.Put(attorney)
+				lpa.TrustCorporation.Address = address
+
 				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.TrustCorporation, lpa.Attorneys, lpa.AttorneyDecisions)
 				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
