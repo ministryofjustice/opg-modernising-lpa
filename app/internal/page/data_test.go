@@ -394,12 +394,26 @@ func TestActorAddressesActorWithNoAddressIgnored(t *testing.T) {
 
 func TestChooseAttorneysState(t *testing.T) {
 	testcases := map[string]struct {
-		attorneys actor.Attorneys
-		decisions actor.AttorneyDecisions
-		taskState actor.TaskState
+		trustCorporation actor.TrustCorporation
+		attorneys        actor.Attorneys
+		decisions        actor.AttorneyDecisions
+		taskState        actor.TaskState
 	}{
 		"empty": {
 			taskState: actor.TaskNotStarted,
+		},
+		"trust corporation": {
+			trustCorporation: actor.TrustCorporation{
+				Name:    "a",
+				Address: place.Address{Line1: "a"},
+			},
+			taskState: actor.TaskCompleted,
+		},
+		"trust corporation incomplete": {
+			trustCorporation: actor.TrustCorporation{
+				Name: "a",
+			},
+			taskState: actor.TaskInProgress,
 		},
 		"single with email": {
 			attorneys: actor.Attorneys{{
@@ -456,7 +470,7 @@ func TestChooseAttorneysState(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.taskState, ChooseAttorneysState(tc.attorneys, tc.decisions))
+			assert.Equal(t, tc.taskState, ChooseAttorneysState(tc.trustCorporation, tc.attorneys, tc.decisions))
 		})
 	}
 }

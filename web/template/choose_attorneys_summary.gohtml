@@ -7,7 +7,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ trCount .App "attorneysAdded" (len .Lpa.Attorneys) }}</h1>
 
-      {{ template "attorney-summary" (listAttorneys .Lpa.Attorneys .App "attorney" 2 .Lpa ) }}
+      {{ template "attorney-summary" (listAttorneys .Lpa.TrustCorporation .Lpa.Attorneys .App "attorney" 2 .Lpa ) }}
 
       <form novalidate method="post">
         <div class="govuk-form-group {{ if .Errors.Has "yes-no" }}govuk-form-group--error{{ end }}">
