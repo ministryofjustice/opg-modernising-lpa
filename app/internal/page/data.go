@@ -109,8 +109,10 @@ type Lpa struct {
 	UpdatedAt time.Time
 	// The donor the LPA relates to
 	Donor actor.Donor
-	// Attorney/s named in the LPA
+	// Attorneys named in the LPA
 	Attorneys actor.Attorneys
+	// TrustCorporation named as an attorney
+	TrustCorporation actor.TrustCorporation
 	// Information on how the applicant wishes their attorneys to act
 	AttorneyDecisions actor.AttorneyDecisions
 	// The certificate provider named in the LPA
@@ -143,6 +145,8 @@ type Lpa struct {
 	DonorIdentityUserData identity.UserData
 	// Replacement attorneys named in the LPA
 	ReplacementAttorneys actor.Attorneys
+	// ReplacmentTrustCorporation is the trust corporation named as a replacement attorney
+	ReplacementTrustCorporation actor.TrustCorporation
 	// Information on how the applicant wishes their replacement attorneys to act
 	ReplacementAttorneyDecisions actor.AttorneyDecisions
 	// How to bring in replacement attorneys, if set
@@ -345,9 +349,13 @@ func (l *Lpa) ActorAddresses() []place.Address {
 	return addresses
 }
 
-func ChooseAttorneysState(attorneys actor.Attorneys, decisions actor.AttorneyDecisions) actor.TaskState {
-	if len(attorneys) == 0 {
+func ChooseAttorneysState(trustCorporation actor.TrustCorporation, attorneys actor.Attorneys, decisions actor.AttorneyDecisions) actor.TaskState {
+	if len(attorneys) == 0 && trustCorporation.Name == "" {
 		return actor.TaskNotStarted
+	}
+
+	if trustCorporation.Name != "" && trustCorporation.Address.Line1 == "" {
+		return actor.TaskInProgress
 	}
 
 	for _, a := range attorneys {
@@ -356,6 +364,7 @@ func ChooseAttorneysState(attorneys actor.Attorneys, decisions actor.AttorneyDec
 		}
 	}
 
+	// TODO: figure out how trust corporation interact with decisions
 	if len(attorneys) > 1 && !decisions.IsComplete() {
 		return actor.TaskInProgress
 	}

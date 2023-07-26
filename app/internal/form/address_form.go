@@ -51,7 +51,7 @@ func ReadAddressForm(r *http.Request) *AddressForm {
 func (f *AddressForm) Validate(useYour bool) validation.List {
 	var errors validation.List
 
-	errors.String("action", "placeholder", f.Action,
+	errors.String("action", "ifUsePreviousAddressOrEnterNew", f.Action,
 		validation.Select("reuse", "reuse-select", "postcode", "postcode-lookup", "postcode-select", "manual", "skip"))
 
 	switch f.Action {
