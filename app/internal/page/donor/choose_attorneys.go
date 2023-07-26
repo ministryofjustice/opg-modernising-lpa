@@ -82,7 +82,7 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore, uuidString f
 					lpa.Attorneys.Put(attorney)
 				}
 
-				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
+				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.TrustCorporation, lpa.Attorneys, lpa.AttorneyDecisions)
 				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
