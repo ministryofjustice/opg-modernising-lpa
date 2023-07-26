@@ -95,6 +95,9 @@ const (
 	AttorneyNameChangeEmail
 	ReplacementAttorneyInviteEmail
 	CertificateProviderPaperMeetingPromptSMS
+	CertificateProviderDigitalLpaDetailsChangedNotSeenLpaSMS
+	CertificateProviderPaperLpaDetailsChangedSMS
+	CertificateProviderDigitalLpaDetailsChangedSeenLpaSMS
 )
 
 func (c *Client) TemplateID(id TemplateId) string {
@@ -118,6 +121,12 @@ func (c *Client) TemplateID(id TemplateId) string {
 			return "1c4d5b24-fc7d-45ee-be40-f1ccda96f101"
 		case CertificateProviderPaperMeetingPromptSMS:
 			return "6be11b4a-79f9-441e-8afe-adff96f7e7fc"
+		case CertificateProviderDigitalLpaDetailsChangedNotSeenLpaSMS:
+			return "UPDATE"
+		case CertificateProviderPaperLpaDetailsChangedSMS:
+			return "UPDATE"
+		case CertificateProviderDigitalLpaDetailsChangedSeenLpaSMS:
+			return "UPDATE"
 		}
 	} else {
 		switch id {
@@ -137,6 +146,12 @@ func (c *Client) TemplateID(id TemplateId) string {
 			return "bf79859b-72b7-4701-bfd3-22ac6f0908c8"
 		case CertificateProviderPaperMeetingPromptSMS:
 			return "0eba4e55-c07e-4427-b4ad-b03e08dad8ca"
+		case CertificateProviderDigitalLpaDetailsChangedNotSeenLpaSMS:
+			return "d7513751-49ba-4276-aef5-ad67361d29c4"
+		case CertificateProviderPaperLpaDetailsChangedSMS:
+			return "94477364-281a-4032-9a88-b215f969cd12"
+		case CertificateProviderDigitalLpaDetailsChangedSeenLpaSMS:
+			return "359fffa0-e1ec-444c-a886-6f046af374ab"
 		}
 	}
 

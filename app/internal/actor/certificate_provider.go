@@ -14,6 +14,14 @@ const (
 	Professionally                                            // professionally
 )
 
+//go:generate enumerator -type CertificateProviderCarryOutBy -linecomment -empty
+type CertificateProviderCarryOutBy uint8
+
+const (
+	Paper  CertificateProviderCarryOutBy = iota + 1 // paper
+	Online                                          // online
+)
+
 // CertificateProvider contains details about the certificate provider, provided by the applicant
 type CertificateProvider struct {
 	// First names of the certificate provider
@@ -29,7 +37,7 @@ type CertificateProvider struct {
 	// Email of the certificate provider
 	Email string
 	// How the certificate provider wants to perform their role (paper or online)
-	CarryOutBy string
+	CarryOutBy CertificateProviderCarryOutBy
 	// The certificate provider's relationship to the applicant
 	Relationship CertificateProviderRelationship
 	// Amount of time Relationship has been in place if Personally
