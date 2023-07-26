@@ -48,24 +48,28 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 }
 
 type howWouldCertificateProviderPreferToCarryOutTheirRoleForm struct {
-	CarryOutBy string
+	CarryOutBy actor.CertificateProviderCarryOutBy
 	Email      string
+	Error      error
 }
 
 func readHowWouldCertificateProviderPreferToCarryOutTheirRole(r *http.Request) *howWouldCertificateProviderPreferToCarryOutTheirRoleForm {
+	carryOutBy, err := actor.ParseCertificateProviderCarryOutBy(page.PostFormString(r, "carry-out-by"))
+
 	return &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-		CarryOutBy: page.PostFormString(r, "carry-out-by"),
+		CarryOutBy: carryOutBy,
 		Email:      page.PostFormString(r, "email"),
+		Error:      err,
 	}
 }
 
 func (f *howWouldCertificateProviderPreferToCarryOutTheirRoleForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("carry-out-by", "howYourCertificateProviderWouldPreferToCarryOutTheirRole", f.CarryOutBy,
-		validation.Select("email", "paper")) // selectHowWouldCertificateProviderPreferToCarryOutTheirRole
+	errors.Error("carry-out-by", "howYourCertificateProviderWouldPreferToCarryOutTheirRole", f.Error,
+		validation.Selected())
 
-	if f.CarryOutBy == "email" {
+	if f.CarryOutBy.IsOnline() {
 		errors.String("email", "certificateProvidersEmail", f.Email,
 			validation.Empty(),
 			validation.Email())

@@ -8,6 +8,7 @@ const (
 	TaskCompleted
 )
 
+func (t TaskState) NotStarted() bool { return t == TaskNotStarted }
 func (t TaskState) InProgress() bool { return t == TaskInProgress }
 func (t TaskState) Completed() bool  { return t == TaskCompleted }
 

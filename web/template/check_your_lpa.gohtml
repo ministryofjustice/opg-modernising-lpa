@@ -30,7 +30,7 @@
             <div class="govuk-checkboxes__item">
               <input class="govuk-checkboxes__input" id="f-checked-and-happy" name="checked-and-happy" type="checkbox" value="1">
               <label class="govuk-label govuk-checkboxes__label" for="f-checked-and-happy">
-                {{ if eq "paper" .Lpa.CertificateProvider.CarryOutBy }}
+                {{ if .Lpa.CertificateProvider.CarryOutBy.IsPaper }}
                   {{ trFormat .App "iveCheckedThisLpaAndImHappyToShowToCertificateProvider" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
                 {{ else }}
                   {{ trFormat .App "iveCheckedThisLpaAndImHappyToShareWithCertificateProvider" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
