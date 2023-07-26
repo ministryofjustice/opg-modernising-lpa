@@ -14,6 +14,7 @@ type howWouldCertificateProviderPreferToCarryOutTheirRoleData struct {
 	Errors              validation.List
 	CertificateProvider actor.CertificateProvider
 	Form                *howWouldCertificateProviderPreferToCarryOutTheirRoleForm
+	Options             actor.CertificateProviderCarryOutByOptions
 }
 
 func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template, donorStore DonorStore) Handler {
@@ -25,6 +26,7 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 				CarryOutBy: lpa.CertificateProvider.CarryOutBy,
 				Email:      lpa.CertificateProvider.Email,
 			},
+			Options: actor.CertificateProviderCarryOutByValues,
 		}
 
 		if r.Method == http.MethodPost {
