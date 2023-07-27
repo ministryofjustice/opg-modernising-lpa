@@ -77,3 +77,10 @@ run-structurizr-export:
 	docker pull structurizr/cli:latest
 	docker run --rm -v $(PWD)/docs/architecture/dsl/local:/usr/local/structurizr structurizr/cli \
 	export -workspace /usr/local/structurizr/workspace.dsl -format mermaid
+
+scan-lpas:
+	docker compose exec localstack awslocal dynamodb scan --table-name lpas
+
+get-lpa:
+	docker compose exec localstack awslocal dynamodb \
+		query --table-name lpas --key-condition-expression 'PK = :pk' --expression-attribute-values '{":pk": {"S": "LPA#$(ID)"}}'
