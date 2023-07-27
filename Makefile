@@ -78,9 +78,9 @@ run-structurizr-export:
 	docker run --rm -v $(PWD)/docs/architecture/dsl/local:/usr/local/structurizr structurizr/cli \
 	export -workspace /usr/local/structurizr/workspace.dsl -format mermaid
 
-scan-lpas:
+scan-lpas: ##@app dumps all entries in the lpas dynamodb table
 	docker compose exec localstack awslocal dynamodb scan --table-name lpas
 
-get-lpa:
+get-lpa:  ##@app dumps all entries in the lpas dynamodb table that are related to the LPA id supplied e.g. get-lpa ID=abc-123
 	docker compose exec localstack awslocal dynamodb \
 		query --table-name lpas --key-condition-expression 'PK = :pk' --expression-attribute-values '{":pk": {"S": "LPA#$(ID)"}}'
