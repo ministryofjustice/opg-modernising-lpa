@@ -18,10 +18,10 @@ import (
 func TestGetChooseAttorneysSummary(t *testing.T) {
 	testcases := map[string]*page.Lpa{
 		"attorney": {
-			Attorneys: actor.Attorneys{{}},
+			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 		},
 		"trust corporation": {
-			TrustCorporation: actor.TrustCorporation{Name: "a"},
+			Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
 		},
 	}
 
@@ -70,17 +70,17 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 		"add attorney": {
 			addMoreFormValue: form.Yes,
 			expectedUrl:      page.Paths.ChooseAttorneys.Format("lpa-id") + "?addAnother=1",
-			Attorneys:        actor.Attorneys{},
+			Attorneys:        actor.Attorneys{Attorneys: []actor.Attorney{}},
 		},
 		"do not add attorney - with single attorney": {
 			addMoreFormValue: form.No,
 			expectedUrl:      page.Paths.TaskList.Format("lpa-id"),
-			Attorneys:        actor.Attorneys{{ID: "123"}},
+			Attorneys:        actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}},
 		},
 		"do not add attorney - with multiple attorneys": {
 			addMoreFormValue: form.No,
 			expectedUrl:      page.Paths.HowShouldAttorneysMakeDecisions.Format("lpa-id"),
-			Attorneys:        actor.Attorneys{{ID: "123"}, {ID: "456"}},
+			Attorneys:        actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}, {ID: "456"}}},
 		},
 	}
 
@@ -122,7 +122,7 @@ func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ChooseAttorneysSummary(template.Execute)(testAppData, w, r, &page.Lpa{Attorneys: actor.Attorneys{{}}})
+	err := ChooseAttorneysSummary(template.Execute)(testAppData, w, r, &page.Lpa{Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
