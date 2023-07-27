@@ -28,40 +28,92 @@ func (a Attorney) FullName() string {
 	return fmt.Sprintf("%s %s", a.FirstNames, a.LastName)
 }
 
-type Attorneys []Attorney
+// TrustCorporation contains details about a trust corporation, provided by the applicant
+type TrustCorporation struct {
+	// Name of the company
+	Name string
+	// CompanyNumber as registered by Companies House
+	CompanyNumber string
+	// Email to contact the company
+	Email string
+	// Address of the company
+	Address place.Address
+}
+
+type Attorneys struct {
+	TrustCorporation TrustCorporation
+	Attorneys        []Attorney
+}
+
+func (as Attorneys) Len() int {
+	if as.TrustCorporation.Name == "" {
+		return len(as.Attorneys)
+	}
+
+	return len(as.Attorneys) + 1
+}
+
+func (as Attorneys) Complete() bool {
+	if as.TrustCorporation.Name != "" && as.TrustCorporation.Address.Line1 == "" {
+		return false
+	}
+
+	for _, a := range as.Attorneys {
+		if a.FirstNames == "" || (a.Address.Line1 == "" && a.Email == "") {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (as Attorneys) Addresses() []place.Address {
+	var addresses []place.Address
+
+	if as.TrustCorporation.Address.String() != "" && !slices.Contains(addresses, as.TrustCorporation.Address) {
+		addresses = append(addresses, as.TrustCorporation.Address)
+	}
+
+	for _, attorney := range as.Attorneys {
+		if attorney.Address.String() != "" && !slices.Contains(addresses, attorney.Address) {
+			addresses = append(addresses, attorney.Address)
+		}
+	}
+
+	return addresses
+}
 
 func (as Attorneys) Get(id string) (Attorney, bool) {
-	idx := slices.IndexFunc(as, func(a Attorney) bool { return a.ID == id })
+	idx := slices.IndexFunc(as.Attorneys, func(a Attorney) bool { return a.ID == id })
 	if idx == -1 {
 		return Attorney{}, false
 	}
 
-	return as[idx], true
+	return as.Attorneys[idx], true
 }
 
-func (as Attorneys) Put(attorney Attorney) bool {
-	idx := slices.IndexFunc(as, func(a Attorney) bool { return a.ID == attorney.ID })
+func (as *Attorneys) Put(attorney Attorney) {
+	idx := slices.IndexFunc(as.Attorneys, func(a Attorney) bool { return a.ID == attorney.ID })
 	if idx == -1 {
-		return false
+		as.Attorneys = append(as.Attorneys, attorney)
+	} else {
+		as.Attorneys[idx] = attorney
 	}
-
-	as[idx] = attorney
-	return true
 }
 
 func (as *Attorneys) Delete(attorney Attorney) bool {
-	idx := slices.IndexFunc(*as, func(a Attorney) bool { return a.ID == attorney.ID })
+	idx := slices.IndexFunc(as.Attorneys, func(a Attorney) bool { return a.ID == attorney.ID })
 	if idx == -1 {
 		return false
 	}
 
-	*as = slices.Delete(*as, idx, idx+1)
+	as.Attorneys = slices.Delete(as.Attorneys, idx, idx+1)
 	return true
 }
 
 func (as Attorneys) FullNames() []string {
-	names := make([]string, len(as))
-	for i, a := range as {
+	names := make([]string, len(as.Attorneys))
+	for i, a := range as.Attorneys {
 		names[i] = fmt.Sprintf("%s %s", a.FirstNames, a.LastName)
 	}
 
@@ -69,8 +121,8 @@ func (as Attorneys) FullNames() []string {
 }
 
 func (as Attorneys) FirstNames() []string {
-	names := make([]string, len(as))
-	for i, a := range as {
+	names := make([]string, len(as.Attorneys))
+	for i, a := range as.Attorneys {
 		names[i] = a.FirstNames
 	}
 

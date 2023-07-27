@@ -23,7 +23,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, u
 		addAnother := r.FormValue("addAnother") == "1"
 		attorney, attorneyFound := lpa.ReplacementAttorneys.Get(r.URL.Query().Get("id"))
 
-		if r.Method == http.MethodGet && len(lpa.ReplacementAttorneys) > 0 && attorneyFound == false && addAnother == false {
+		if r.Method == http.MethodGet && lpa.ReplacementAttorneys.Len() > 0 && !attorneyFound && !addAnother {
 			return appData.Redirect(w, r, lpa, page.Paths.ChooseReplacementAttorneysSummary.Format(lpa.ID))
 		}
 
@@ -59,23 +59,15 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, u
 
 			if data.Errors.None() && data.DobWarning == "" && data.NameWarning == nil {
 				if attorneyFound == false {
-					attorney = actor.Attorney{
-						FirstNames:  data.Form.FirstNames,
-						LastName:    data.Form.LastName,
-						Email:       data.Form.Email,
-						DateOfBirth: data.Form.Dob,
-						ID:          uuidString(),
-					}
-
-					lpa.ReplacementAttorneys = append(lpa.ReplacementAttorneys, attorney)
-				} else {
-					attorney.FirstNames = data.Form.FirstNames
-					attorney.LastName = data.Form.LastName
-					attorney.Email = data.Form.Email
-					attorney.DateOfBirth = data.Form.Dob
-
-					lpa.ReplacementAttorneys.Put(attorney)
+					attorney = actor.Attorney{ID: uuidString()}
 				}
+
+				attorney.FirstNames = data.Form.FirstNames
+				attorney.LastName = data.Form.LastName
+				attorney.Email = data.Form.Email
+				attorney.DateOfBirth = data.Form.Dob
+
+				lpa.ReplacementAttorneys.Put(attorney)
 
 				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
@@ -100,13 +92,13 @@ func replacementAttorneyMatches(lpa *page.Lpa, id, firstNames, lastName string) 
 		return actor.TypeDonor
 	}
 
-	for _, attorney := range lpa.Attorneys {
+	for _, attorney := range lpa.Attorneys.Attorneys {
 		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeAttorney
 		}
 	}
 
-	for _, attorney := range lpa.ReplacementAttorneys {
+	for _, attorney := range lpa.ReplacementAttorneys.Attorneys {
 		if attorney.ID != id && strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeReplacementAttorney
 		}
