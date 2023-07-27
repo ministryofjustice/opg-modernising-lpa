@@ -33,6 +33,7 @@ type CertificateProviderStore interface {
 	Create(ctx context.Context, sessionID string) (*actor.CertificateProviderProvidedDetails, error)
 	Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
 	Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error
+	GetAll(ctx context.Context) ([]*actor.CertificateProviderProvidedDetails, error)
 }
 
 //go:generate mockery --testonly --inpackage --name OneLoginClient --structname mockOneLoginClient
@@ -46,6 +47,7 @@ type OneLoginClient interface {
 //go:generate mockery --testonly --inpackage --name ShareCodeStore --structname mockShareCodeStore
 type ShareCodeStore interface {
 	Get(context.Context, actor.Type, string) (actor.ShareCodeData, error)
+	Put(context.Context, actor.Type, string, actor.ShareCodeData) error
 }
 
 //go:generate mockery --testonly --inpackage --name Template --structname mockTemplate
@@ -83,9 +85,9 @@ func Register(
 	shareCodeStore ShareCodeStore,
 	errorHandler page.ErrorHandler,
 	yotiClient YotiClient,
-	notifyClient NotifyClient,
 	certificateProviderStore CertificateProviderStore,
 	notFoundHandler page.Handler,
+	attorneyStore page.AttorneyStore,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -94,7 +96,7 @@ func Register(
 	handleRoot(page.Paths.CertificateProvider.LoginCallback,
 		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.CertificateProvider.EnterReferenceNumber))
 	handleRoot(page.Paths.CertificateProvider.EnterReferenceNumber,
-		EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), shareCodeStore, sessionStore, certificateProviderStore))
+		page.EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), shareCodeStore, sessionStore, certificateProviderStore, attorneyStore, actor.TypeCertificateProvider))
 
 	certificateProviderMux := http.NewServeMux()
 	rootMux.Handle("/certificate-provider/", page.RouteToPrefix("/certificate-provider/", certificateProviderMux, notFoundHandler))
