@@ -173,12 +173,10 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 			localizer.
 				On("T", "pfaLegalTerm").
 				Return("property and affairs")
-
-			if !tc.certificateProviderDetailsTaskState.NotStarted() {
-				localizer.
-					On("Possessive", "Teneil Throssell").
-					Return("Teneil Throssell’s")
-			}
+			localizer.
+				On("Possessive", "Teneil Throssell").
+				Return("Teneil Throssell’s").
+				Maybe()
 
 			testAppData.Localizer = localizer
 
