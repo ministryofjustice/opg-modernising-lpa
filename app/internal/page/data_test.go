@@ -350,14 +350,14 @@ func TestLpaProgress(t *testing.T) {
 func TestActorAddresses(t *testing.T) {
 	lpa := &Lpa{
 		Donor: actor.Donor{Address: place.Address{Line1: "1"}},
-		Attorneys: []actor.Attorney{
+		Attorneys: actor.NewAttorneys(nil, []actor.Attorney{
 			{Address: place.Address{Line1: "2"}},
 			{Address: place.Address{Line1: "3"}},
-		},
-		ReplacementAttorneys: []actor.Attorney{
+		}),
+		ReplacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{
 			{Address: place.Address{Line1: "4"}},
 			{Address: place.Address{Line1: "5"}},
-		},
+		}),
 		CertificateProvider: actor.CertificateProvider{Address: place.Address{Line1: "6"}},
 	}
 
@@ -376,14 +376,14 @@ func TestActorAddresses(t *testing.T) {
 func TestActorAddressesActorWithNoAddressIgnored(t *testing.T) {
 	lpa := &Lpa{
 		Donor: actor.Donor{FirstNames: "Donor", LastName: "Actor", Address: address},
-		Attorneys: []actor.Attorney{
+		Attorneys: actor.NewAttorneys(nil, []actor.Attorney{
 			{FirstNames: "Attorney One", LastName: "Actor", Address: address},
 			{FirstNames: "Attorney Two", LastName: "Actor"},
-		},
-		ReplacementAttorneys: []actor.Attorney{
+		}),
+		ReplacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{
 			{FirstNames: "Replacement Attorney One", LastName: "Actor"},
 			{FirstNames: "Replacement Attorney Two", LastName: "Actor", Address: address},
-		},
+		}),
 		CertificateProvider: actor.CertificateProvider{FirstNames: "Certificate Provider", LastName: "Actor"},
 	}
 
@@ -394,75 +394,74 @@ func TestActorAddressesActorWithNoAddressIgnored(t *testing.T) {
 
 func TestChooseAttorneysState(t *testing.T) {
 	testcases := map[string]struct {
-		trustCorporation actor.TrustCorporation
-		attorneys        actor.Attorneys
-		decisions        actor.AttorneyDecisions
-		taskState        actor.TaskState
+		attorneys actor.Attorneys
+		decisions actor.AttorneyDecisions
+		taskState actor.TaskState
 	}{
 		"empty": {
 			taskState: actor.TaskNotStarted,
 		},
 		"trust corporation": {
-			trustCorporation: actor.TrustCorporation{
+			attorneys: actor.NewAttorneys(&actor.TrustCorporation{
 				Name:    "a",
 				Address: place.Address{Line1: "a"},
-			},
+			}, nil),
 			taskState: actor.TaskCompleted,
 		},
 		"trust corporation incomplete": {
-			trustCorporation: actor.TrustCorporation{
+			attorneys: actor.NewAttorneys(&actor.TrustCorporation{
 				Name: "a",
-			},
+			}, nil),
 			taskState: actor.TaskInProgress,
 		},
 		"single with email": {
-			attorneys: actor.Attorneys{{
+			attorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Email:      "a",
-			}},
+			}}),
 			taskState: actor.TaskCompleted,
 		},
 		"single with address": {
-			attorneys: actor.Attorneys{{
+			attorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Address:    place.Address{Line1: "a"},
-			}},
+			}}),
 			taskState: actor.TaskCompleted,
 		},
 		"single incomplete": {
-			attorneys: actor.Attorneys{{
+			attorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
-			}},
+			}}),
 			taskState: actor.TaskInProgress,
 		},
 		"multiple without decisions": {
-			attorneys: actor.Attorneys{{
+			attorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Email:      "a",
 			}, {
 				FirstNames: "b",
 				Email:      "b",
-			}},
+			}}),
 			taskState: actor.TaskInProgress,
 		},
 		"multiple with decisions": {
-			attorneys: actor.Attorneys{{
+			attorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Email:      "a",
 			}, {
 				FirstNames: "b",
 				Email:      "b",
-			}},
+			}}),
 			decisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			taskState: actor.TaskCompleted,
 		},
 		"multiple incomplete with decisions": {
-			attorneys: actor.Attorneys{{
+			attorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 			}, {
 				FirstNames: "b",
 				Email:      "b",
-			}},
+			}}),
 			decisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			taskState: actor.TaskInProgress,
 		},
@@ -470,7 +469,7 @@ func TestChooseAttorneysState(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.taskState, ChooseAttorneysState(tc.trustCorporation, tc.attorneys, tc.decisions))
+			assert.Equal(t, tc.taskState, ChooseAttorneysState(tc.attorneys, tc.decisions))
 		})
 	}
 }
@@ -497,159 +496,159 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 		},
 		"single with email": {
 			want: form.Yes,
-			replacementAttorneys: actor.Attorneys{{
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Email:      "a",
-			}},
+			}}),
 			taskState: actor.TaskCompleted,
 		},
 		"single with address": {
 			want: form.Yes,
-			replacementAttorneys: actor.Attorneys{{
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Address:    place.Address{Line1: "a"},
-			}},
+			}}),
 			taskState: actor.TaskCompleted,
 		},
 		"single incomplete": {
 			want: form.Yes,
-			replacementAttorneys: actor.Attorneys{{
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
-			}},
+			}}),
 			taskState: actor.TaskInProgress,
 		},
 		"multiple without decisions": {
 			want: form.Yes,
-			replacementAttorneys: actor.Attorneys{{
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Email:      "a",
 			}, {
 				FirstNames: "b",
 				Email:      "b",
-			}},
+			}}),
 			taskState: actor.TaskInProgress,
 		},
 		"multiple jointly and severally": {
 			want: form.Yes,
-			replacementAttorneys: actor.Attorneys{{
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Email:      "a",
 			}, {
 				FirstNames: "b",
 				Email:      "b",
-			}},
+			}}),
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			taskState:                    actor.TaskCompleted,
 		},
 		"multiple jointly": {
 			want: form.Yes,
-			replacementAttorneys: actor.Attorneys{{
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Email:      "a",
 			}, {
 				FirstNames: "b",
 				Email:      "b",
-			}},
+			}}),
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
 			taskState:                    actor.TaskCompleted,
 		},
 		"multiple mixed": {
 			want: form.Yes,
-			replacementAttorneys: actor.Attorneys{{
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Email:      "a",
 			}, {
 				FirstNames: "b",
 				Email:      "b",
-			}},
+			}}),
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers},
 			taskState:                    actor.TaskCompleted,
 		},
 		"jointly and severally attorneys single": {
 			want: form.Yes,
-			replacementAttorneys: actor.Attorneys{{
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Email:      "a",
-			}},
+			}}),
 			attorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			taskState:         actor.TaskInProgress,
 		},
 		"jointly and severally attorneys single with step in": {
 			want: form.Yes,
-			replacementAttorneys: actor.Attorneys{{
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Email:      "a",
-			}},
+			}}),
 			attorneyDecisions:     actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			howReplacementsStepIn: ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			taskState:             actor.TaskCompleted,
 		},
 		"jointly attorneys single": {
 			want: form.Yes,
-			replacementAttorneys: actor.Attorneys{{
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Email:      "a",
-			}},
+			}}),
 			attorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
 			taskState:         actor.TaskCompleted,
 		},
 		"mixed attorneys single": {
 			want: form.Yes,
-			replacementAttorneys: actor.Attorneys{{
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Email:      "a",
-			}},
+			}}),
 			attorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers},
 			taskState:         actor.TaskCompleted,
 		},
 
 		"jointly and severally attorneys multiple": {
 			want: form.Yes,
-			replacementAttorneys: actor.Attorneys{{
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Email:      "a",
 			}, {
 				FirstNames: "b",
 				Email:      "b",
-			}},
+			}}),
 			attorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			taskState:         actor.TaskInProgress,
 		},
 		"jointly and severally attorneys multiple with step in": {
 			want: form.Yes,
-			replacementAttorneys: actor.Attorneys{{
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Email:      "a",
 			}, {
 				FirstNames: "b",
 				Email:      "b",
-			}},
+			}}),
 			attorneyDecisions:     actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			howReplacementsStepIn: ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			taskState:             actor.TaskCompleted,
 		},
 		"jointly and severally attorneys multiple with step in when none can act": {
 			want: form.Yes,
-			replacementAttorneys: actor.Attorneys{{
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Email:      "a",
 			}, {
 				FirstNames: "b",
 				Email:      "b",
-			}},
+			}}),
 			attorneyDecisions:     actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			howReplacementsStepIn: ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			taskState:             actor.TaskInProgress,
 		},
 		"jointly and severally attorneys multiple with step in when none can act jointly": {
 			want: form.Yes,
-			replacementAttorneys: actor.Attorneys{{
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Email:      "a",
 			}, {
 				FirstNames: "b",
 				Email:      "b",
-			}},
+			}}),
 			attorneyDecisions:            actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			howReplacementsStepIn:        ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
@@ -657,13 +656,13 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 		},
 		"jointly and severally attorneys multiple with step in when none can act mixed": {
 			want: form.Yes,
-			replacementAttorneys: actor.Attorneys{{
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Email:      "a",
 			}, {
 				FirstNames: "b",
 				Email:      "b",
-			}},
+			}}),
 			attorneyDecisions:            actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			howReplacementsStepIn:        ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers},
@@ -671,51 +670,51 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 		},
 		"jointly attorneys multiple without decisions": {
 			want: form.Yes,
-			replacementAttorneys: actor.Attorneys{{
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Email:      "a",
 			}, {
 				FirstNames: "b",
 				Email:      "b",
-			}},
+			}}),
 			attorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
 			taskState:         actor.TaskInProgress,
 		},
 		"jointly attorneys multiple jointly and severally": {
 			want: form.Yes,
-			replacementAttorneys: actor.Attorneys{{
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Email:      "a",
 			}, {
 				FirstNames: "b",
 				Email:      "b",
-			}},
+			}}),
 			attorneyDecisions:            actor.AttorneyDecisions{How: actor.Jointly},
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			taskState:                    actor.TaskCompleted,
 		},
 		"jointly attorneys multiple with jointly": {
 			want: form.Yes,
-			replacementAttorneys: actor.Attorneys{{
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Email:      "a",
 			}, {
 				FirstNames: "b",
 				Email:      "b",
-			}},
+			}}),
 			attorneyDecisions:            actor.AttorneyDecisions{How: actor.Jointly},
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
 			taskState:                    actor.TaskCompleted,
 		},
 		"jointly attorneys multiple mixed": {
 			want: form.Yes,
-			replacementAttorneys: actor.Attorneys{{
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{
 				FirstNames: "a",
 				Email:      "a",
 			}, {
 				FirstNames: "b",
 				Email:      "b",
-			}},
+			}}),
 			attorneyDecisions:            actor.AttorneyDecisions{How: actor.Jointly},
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers},
 			taskState:                    actor.TaskCompleted,

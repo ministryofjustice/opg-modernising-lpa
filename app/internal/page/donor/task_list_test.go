@@ -53,8 +53,8 @@ func TestGetTaskList(t *testing.T) {
 				Donor: actor.Donor{
 					FirstNames: "this",
 				},
-				Attorneys:            actor.Attorneys{{}, {}},
-				ReplacementAttorneys: actor.Attorneys{{}},
+				Attorneys:            actor.NewAttorneys(nil, []actor.Attorney{{}, {}}),
+				ReplacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{}}),
 				Tasks: page.Tasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,

@@ -111,8 +111,6 @@ type Lpa struct {
 	Donor actor.Donor
 	// Attorneys named in the LPA
 	Attorneys actor.Attorneys
-	// TrustCorporation named as an attorney
-	TrustCorporation actor.TrustCorporation
 	// Information on how the applicant wishes their attorneys to act
 	AttorneyDecisions actor.AttorneyDecisions
 	// The certificate provider named in the LPA
@@ -145,8 +143,6 @@ type Lpa struct {
 	DonorIdentityUserData identity.UserData
 	// Replacement attorneys named in the LPA
 	ReplacementAttorneys actor.Attorneys
-	// ReplacmentTrustCorporation is the trust corporation named as a replacement attorney
-	ReplacementTrustCorporation actor.TrustCorporation
 	// Information on how the applicant wishes their replacement attorneys to act
 	ReplacementAttorneyDecisions actor.AttorneyDecisions
 	// How to bring in replacement attorneys, if set
@@ -334,38 +330,31 @@ func (l *Lpa) ActorAddresses() []place.Address {
 		addresses = append(addresses, l.CertificateProvider.Address)
 	}
 
-	for _, attorney := range l.Attorneys {
-		if attorney.Address.String() != "" && !slices.Contains(addresses, attorney.Address) {
-			addresses = append(addresses, attorney.Address)
+	for _, address := range l.Attorneys.Addresses() {
+		if address.String() != "" && !slices.Contains(addresses, address) {
+			addresses = append(addresses, address)
 		}
 	}
 
-	for _, replacementAttorney := range l.ReplacementAttorneys {
-		if replacementAttorney.Address.String() != "" && !slices.Contains(addresses, replacementAttorney.Address) {
-			addresses = append(addresses, replacementAttorney.Address)
+	for _, address := range l.ReplacementAttorneys.Addresses() {
+		if address.String() != "" && !slices.Contains(addresses, address) {
+			addresses = append(addresses, address)
 		}
 	}
 
 	return addresses
 }
 
-func ChooseAttorneysState(trustCorporation actor.TrustCorporation, attorneys actor.Attorneys, decisions actor.AttorneyDecisions) actor.TaskState {
-	if len(attorneys) == 0 && trustCorporation.Name == "" {
+func ChooseAttorneysState(attorneys actor.Attorneys, decisions actor.AttorneyDecisions) actor.TaskState {
+	if attorneys.Len() == 0 {
 		return actor.TaskNotStarted
 	}
 
-	if trustCorporation.Name != "" && trustCorporation.Address.Line1 == "" {
+	if !attorneys.Complete() {
 		return actor.TaskInProgress
 	}
 
-	for _, a := range attorneys {
-		if a.FirstNames == "" || (a.Address.Line1 == "" && a.Email == "") {
-			return actor.TaskInProgress
-		}
-	}
-
-	// TODO: figure out how trust corporation interact with decisions
-	if len(attorneys) > 1 && !decisions.IsComplete() {
+	if attorneys.Len() > 1 && !decisions.IsComplete() {
 		return actor.TaskInProgress
 	}
 
@@ -377,7 +366,7 @@ func ChooseReplacementAttorneysState(lpa *Lpa) actor.TaskState {
 		return actor.TaskCompleted
 	}
 
-	if len(lpa.ReplacementAttorneys) == 0 {
+	if lpa.ReplacementAttorneys.Len() == 0 {
 		if lpa.WantReplacementAttorneys != form.Yes && lpa.WantReplacementAttorneys != form.No {
 			return actor.TaskNotStarted
 		}
@@ -385,20 +374,18 @@ func ChooseReplacementAttorneysState(lpa *Lpa) actor.TaskState {
 		return actor.TaskInProgress
 	}
 
-	for _, a := range lpa.ReplacementAttorneys {
-		if a.FirstNames == "" || (a.Address.Line1 == "" && a.Email == "") {
-			return actor.TaskInProgress
-		}
+	if !lpa.ReplacementAttorneys.Complete() {
+		return actor.TaskInProgress
 	}
 
-	if len(lpa.ReplacementAttorneys) > 1 &&
+	if lpa.ReplacementAttorneys.Len() > 1 &&
 		lpa.HowShouldReplacementAttorneysStepIn != ReplacementAttorneysStepInWhenOneCanNoLongerAct &&
 		!lpa.ReplacementAttorneyDecisions.IsComplete() {
 		return actor.TaskInProgress
 	}
 
 	if lpa.AttorneyDecisions.How.IsJointly() &&
-		len(lpa.ReplacementAttorneys) > 1 &&
+		lpa.ReplacementAttorneys.Len() > 1 &&
 		!lpa.ReplacementAttorneyDecisions.IsComplete() {
 		return actor.TaskInProgress
 	}
@@ -408,7 +395,7 @@ func ChooseReplacementAttorneysState(lpa *Lpa) actor.TaskState {
 			return actor.TaskInProgress
 		}
 
-		if len(lpa.ReplacementAttorneys) > 1 &&
+		if lpa.ReplacementAttorneys.Len() > 1 &&
 			lpa.HowShouldReplacementAttorneysStepIn == ReplacementAttorneysStepInWhenAllCanNoLongerAct &&
 			!lpa.ReplacementAttorneyDecisions.IsComplete() {
 			return actor.TaskInProgress

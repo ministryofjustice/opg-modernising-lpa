@@ -43,7 +43,7 @@ func TestGetChooseReplacementAttorneysFromStore(t *testing.T) {
 
 	template := newMockTemplate(t)
 
-	err := ChooseReplacementAttorneys(template.Execute, nil, mockUuidString)(testAppData, w, r, &page.Lpa{ID: "lpa-id", ReplacementAttorneys: actor.Attorneys{{FirstNames: "John", ID: "1"}}})
+	err := ChooseReplacementAttorneys(template.Execute, nil, mockUuidString)(testAppData, w, r, &page.Lpa{ID: "lpa-id", ReplacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{FirstNames: "John", ID: "1"}})})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -143,7 +143,7 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 				On("Put", r.Context(), &page.Lpa{
 					ID:                   "lpa-id",
 					Donor:                actor.Donor{FirstNames: "Jane", LastName: "Doe"},
-					ReplacementAttorneys: actor.Attorneys{tc.attorney},
+					ReplacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{tc.attorney}),
 					Tasks:                page.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 				}).
 				Return(nil)
@@ -234,7 +234,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				On("Put", r.Context(), &page.Lpa{
 					ID:                   "lpa-id",
 					Donor:                actor.Donor{FirstNames: "Jane", LastName: "Doe"},
-					ReplacementAttorneys: actor.Attorneys{tc.attorney},
+					ReplacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{tc.attorney}),
 					Tasks:                page.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 				}).
 				Return(nil)
@@ -242,13 +242,13 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 			err := ChooseReplacementAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r, &page.Lpa{
 				ID:    "lpa-id",
 				Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
-				ReplacementAttorneys: actor.Attorneys{
+				ReplacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{
 					{
 						FirstNames: "John",
 						ID:         "123",
 						Address:    place.Address{Line1: "abc"},
 					},
-				},
+				}),
 			})
 			resp := w.Result()
 
@@ -408,14 +408,14 @@ func TestPostChooseReplacementAttorneysWhenStoreErrors(t *testing.T) {
 func TestReplacementAttorneyMatches(t *testing.T) {
 	lpa := &page.Lpa{
 		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
-		Attorneys: actor.Attorneys{
+		Attorneys: actor.NewAttorneys(nil, []actor.Attorney{
 			{FirstNames: "c", LastName: "d"},
 			{FirstNames: "e", LastName: "f"},
-		},
-		ReplacementAttorneys: actor.Attorneys{
+		}),
+		ReplacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{
 			{FirstNames: "g", LastName: "h"},
 			{ID: "123", FirstNames: "i", LastName: "j"},
-		},
+		}),
 		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
 		PeopleToNotify: actor.PeopleToNotify{
 			{FirstNames: "m", LastName: "n"},
@@ -437,13 +437,13 @@ func TestReplacementAttorneyMatches(t *testing.T) {
 func TestReplacementAttorneyMatchesEmptyNamesIgnored(t *testing.T) {
 	lpa := &page.Lpa{
 		Donor: actor.Donor{FirstNames: "", LastName: ""},
-		Attorneys: actor.Attorneys{
+		Attorneys: actor.NewAttorneys(nil, []actor.Attorney{
 			{FirstNames: "", LastName: ""},
-		},
-		ReplacementAttorneys: actor.Attorneys{
+		}),
+		ReplacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{
 			{FirstNames: "", LastName: ""},
 			{ID: "123", FirstNames: "", LastName: ""},
-		},
+		}),
 		CertificateProvider: actor.CertificateProvider{FirstNames: "", LastName: ""},
 		PeopleToNotify: actor.PeopleToNotify{
 			{FirstNames: "", LastName: ""},
