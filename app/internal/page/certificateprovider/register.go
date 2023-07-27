@@ -89,19 +89,19 @@ func Register(
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
-	handleRoot(page.Paths.CertificateProvider.EnterReferenceNumber,
-		EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), shareCodeStore, sessionStore))
-	handleRoot(page.Paths.CertificateProvider.WhoIsEligible,
-		WhoIsEligible(tmpls.Get("certificate_provider_who_is_eligible.gohtml"), sessionStore))
 	handleRoot(page.Paths.CertificateProvider.Login,
-		Login(logger, oneLoginClient, sessionStore, random.String))
+		page.Login(logger, oneLoginClient, sessionStore, random.String, page.Paths.CertificateProvider.LoginCallback))
 	handleRoot(page.Paths.CertificateProvider.LoginCallback,
-		LoginCallback(oneLoginClient, sessionStore, certificateProviderStore))
+		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.CertificateProvider.EnterReferenceNumber))
+	handleRoot(page.Paths.CertificateProvider.EnterReferenceNumber,
+		EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), shareCodeStore, sessionStore, certificateProviderStore))
 
 	certificateProviderMux := http.NewServeMux()
 	rootMux.Handle("/certificate-provider/", page.RouteToPrefix("/certificate-provider/", certificateProviderMux, notFoundHandler))
 	handleCertificateProvider := makeCertificateProviderHandle(certificateProviderMux, sessionStore, errorHandler)
 
+	handleCertificateProvider(page.Paths.CertificateProvider.WhoIsEligible,
+		WhoIsEligible(tmpls.Get("certificate_provider_who_is_eligible.gohtml"), sessionStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.TaskList,
 		TaskList(tmpls.Get("certificate_provider_task_list.gohtml"), donorStore, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.EnterDateOfBirth,
