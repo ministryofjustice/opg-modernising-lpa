@@ -20,11 +20,11 @@ func TestGetHowShouldReplacementAttorneysStepIn(t *testing.T) {
 		allowSomeOtherWay bool
 	}{
 		"single": {
-			attorneys:         actor.Attorneys{{}},
+			attorneys:         actor.NewAttorneys(nil, []actor.Attorney{{}}),
 			allowSomeOtherWay: true,
 		},
 		"multiple": {
-			attorneys:         actor.Attorneys{{}, {}},
+			attorneys:         actor.NewAttorneys(nil, []actor.Attorney{{}, {}}),
 			allowSomeOtherWay: false,
 		},
 	}
@@ -120,24 +120,24 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 		TaskState                            actor.TaskState
 	}{
 		"multiple attorneys acting jointly and severally replacements step in when none left": {
-			Attorneys: actor.Attorneys{
+			Attorneys: actor.NewAttorneys(nil, []actor.Attorney{
 				{ID: "123"},
 				{ID: "123"},
-			},
-			ReplacementAttorneys: actor.Attorneys{
+			}),
+			ReplacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{
 				{ID: "123"},
 				{ID: "123"},
-			},
+			}),
 			HowAttorneysMakeDecisions:           actor.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: page.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			ExpectedRedirectUrl:                 page.Paths.HowShouldReplacementAttorneysMakeDecisions,
 			TaskState:                           actor.TaskInProgress,
 		},
 		"multiple attorneys acting jointly": {
-			ReplacementAttorneys: actor.Attorneys{
+			ReplacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{
 				{ID: "123"},
 				{ID: "123"},
-			},
+			}),
 			HowAttorneysMakeDecisions:            actor.Jointly,
 			HowShouldReplacementAttorneysStepIn:  page.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			HowReplacementAttorneysMakeDecisions: actor.Jointly,
@@ -145,24 +145,24 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			TaskState:                            actor.TaskInProgress,
 		},
 		"multiple attorneys acting jointly and severally replacements step in when one loses capacity": {
-			Attorneys: actor.Attorneys{
+			Attorneys: actor.NewAttorneys(nil, []actor.Attorney{
 				{ID: "123"},
 				{ID: "123"},
-			},
+			}),
 			HowAttorneysMakeDecisions:           actor.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: page.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			ExpectedRedirectUrl:                 page.Paths.TaskList,
 			TaskState:                           actor.TaskNotStarted,
 		},
 		"multiple attorneys acting jointly and severally": {
-			Attorneys: actor.Attorneys{
+			Attorneys: actor.NewAttorneys(nil, []actor.Attorney{
 				{ID: "123"},
 				{ID: "123"},
-			},
-			ReplacementAttorneys: actor.Attorneys{
+			}),
+			ReplacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{
 				{ID: "123"},
 				{ID: "123"},
-			},
+			}),
 			HowAttorneysMakeDecisions:           actor.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: page.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			ExpectedRedirectUrl:                 page.Paths.TaskList,
