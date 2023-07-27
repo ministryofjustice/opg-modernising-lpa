@@ -18,26 +18,35 @@ import (
 )
 
 func TestGetChooseReplacementAttorneysSummary(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	testcases := map[string]actor.Attorneys{
+		"attorneys":         actor.NewAttorneys(nil, []actor.Attorney{{}}),
+		"trust corporation": actor.NewAttorneys(&actor.TrustCorporation{}, nil),
+	}
 
-	lpa := &page.Lpa{ReplacementAttorneys: actor.Attorneys{{}}}
+	for name, attorneys := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseReplacementAttorneysSummaryData{
-			App:     testAppData,
-			Lpa:     lpa,
-			Form:    &form.YesNoForm{},
-			Options: form.YesNoValues,
-		}).
-		Return(nil)
+			lpa := &page.Lpa{ReplacementAttorneys: attorneys}
 
-	err := ChooseReplacementAttorneysSummary(template.Execute)(testAppData, w, r, lpa)
-	resp := w.Result()
+			template := newMockTemplate(t)
+			template.
+				On("Execute", w, &chooseReplacementAttorneysSummaryData{
+					App:     testAppData,
+					Lpa:     lpa,
+					Form:    &form.YesNoForm{},
+					Options: form.YesNoValues,
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			err := ChooseReplacementAttorneysSummary(template.Execute)(testAppData, w, r, lpa)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
 func TestGetChooseReplacementAttorneysSummaryWhenNoReplacementAttorneys(t *testing.T) {
@@ -64,7 +73,7 @@ func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := ChooseReplacementAttorneysSummary(nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", ReplacementAttorneys: actor.Attorneys{{}}})
+	err := ChooseReplacementAttorneysSummary(nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", ReplacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{}})})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -85,40 +94,40 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 	}{
 		"with multiple attorneys acting jointly and severally and single replacement attorney": {
 			redirectUrl:          page.Paths.HowShouldReplacementAttorneysStepIn,
-			attorneys:            actor.Attorneys{attorney1, attorney2},
-			replacementAttorneys: actor.Attorneys{attorney1},
+			attorneys:            actor.NewAttorneys(nil, []actor.Attorney{attorney1, attorney2}),
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{attorney1}),
 			howAttorneysAct:      actor.JointlyAndSeverally,
 		},
 		"with multiple attorneys acting jointly and severally and multiple replacement attorney": {
 			redirectUrl:          page.Paths.HowShouldReplacementAttorneysStepIn,
-			attorneys:            actor.Attorneys{attorney1, attorney2},
-			replacementAttorneys: actor.Attorneys{attorney1, attorney2},
+			attorneys:            actor.NewAttorneys(nil, []actor.Attorney{attorney1, attorney2}),
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{attorney1, attorney2}),
 			howAttorneysAct:      actor.JointlyAndSeverally,
 		},
 		"with multiple attorneys acting jointly and multiple replacement attorneys": {
 			redirectUrl:          page.Paths.HowShouldReplacementAttorneysMakeDecisions,
-			attorneys:            actor.Attorneys{attorney1, attorney2},
-			replacementAttorneys: actor.Attorneys{attorney1, attorney2},
+			attorneys:            actor.NewAttorneys(nil, []actor.Attorney{attorney1, attorney2}),
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{attorney1, attorney2}),
 			howAttorneysAct:      actor.Jointly,
 		},
 		"with multiple attorneys acting jointly for some decisions and jointly and severally for other decisions and single replacement attorney": {
 			redirectUrl:          page.Paths.TaskList,
-			attorneys:            actor.Attorneys{attorney1, attorney2},
-			replacementAttorneys: actor.Attorneys{attorney1},
+			attorneys:            actor.NewAttorneys(nil, []actor.Attorney{attorney1, attorney2}),
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{attorney1}),
 			howAttorneysAct:      actor.JointlyForSomeSeverallyForOthers,
 			decisionDetails:      "some words",
 		},
 		"with multiple attorneys acting jointly for some decisions, and jointly and severally for other decisions and multiple replacement attorneys": {
 			redirectUrl:          page.Paths.HowShouldReplacementAttorneysMakeDecisions,
-			attorneys:            actor.Attorneys{attorney1, attorney2},
-			replacementAttorneys: actor.Attorneys{attorney1, attorney2},
+			attorneys:            actor.NewAttorneys(nil, []actor.Attorney{attorney1, attorney2}),
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{attorney1, attorney2}),
 			howAttorneysAct:      actor.JointlyForSomeSeverallyForOthers,
 			decisionDetails:      "some words",
 		},
 		"with multiple attorneys acting jointly and single replacement attorneys": {
 			redirectUrl:          page.Paths.TaskList,
-			attorneys:            actor.Attorneys{attorney1, attorney2},
-			replacementAttorneys: actor.Attorneys{attorney1},
+			attorneys:            actor.NewAttorneys(nil, []actor.Attorney{attorney1, attorney2}),
+			replacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{attorney1}),
 			howAttorneysAct:      actor.Jointly,
 		},
 	}
@@ -173,7 +182,7 @@ func TestPostChooseReplacementAttorneySummaryFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysSummary(template.Execute)(testAppData, w, r, &page.Lpa{ReplacementAttorneys: actor.Attorneys{{}}})
+	err := ChooseReplacementAttorneysSummary(template.Execute)(testAppData, w, r, &page.Lpa{ReplacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{}})})
 	resp := w.Result()
 
 	assert.Nil(t, err)

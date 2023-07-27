@@ -20,7 +20,7 @@ type chooseAttorneysSummaryData struct {
 
 func ChooseAttorneysSummary(tmpl template.Template) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
-		if len(lpa.Attorneys) == 0 {
+		if lpa.Attorneys.Len() == 0 {
 			return appData.Redirect(w, r, lpa, fmt.Sprintf("%s?addAnother=1", appData.Paths.ChooseAttorneys.Format(lpa.ID)))
 		}
 
@@ -38,7 +38,7 @@ func ChooseAttorneysSummary(tmpl template.Template) Handler {
 			if data.Errors.None() {
 				redirectUrl := appData.Paths.TaskList.Format(lpa.ID)
 
-				if len(lpa.Attorneys) > 1 {
+				if lpa.Attorneys.Len() > 1 {
 					redirectUrl = appData.Paths.HowShouldAttorneysMakeDecisions.Format(lpa.ID)
 				}
 
