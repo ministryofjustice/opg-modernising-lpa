@@ -253,11 +253,12 @@ func lowerFirst(s string) string {
 
 func listAttorneys(attorneys actor.Attorneys, app page.AppData, attorneyType string, headingLevel int, lpa *page.Lpa) map[string]interface{} {
 	props := map[string]interface{}{
-		"Attorneys":    attorneys,
-		"App":          app,
-		"HeadingLevel": headingLevel,
-		"Lpa":          lpa,
-		"AttorneyType": attorneyType,
+		"TrustCorporation": attorneys.TrustCorporation,
+		"Attorneys":        attorneys.Attorneys,
+		"App":              app,
+		"HeadingLevel":     headingLevel,
+		"Lpa":              lpa,
+		"AttorneyType":     attorneyType,
 	}
 
 	if attorneyType == "replacement" {

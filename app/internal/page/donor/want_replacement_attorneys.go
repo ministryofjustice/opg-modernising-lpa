@@ -54,7 +54,7 @@ func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Han
 			}
 		}
 
-		if len(lpa.ReplacementAttorneys) > 0 {
+		if lpa.ReplacementAttorneys.Len() > 0 {
 			return appData.Redirect(w, r, lpa, page.Paths.ChooseReplacementAttorneysSummary.Format(lpa.ID))
 		}
 

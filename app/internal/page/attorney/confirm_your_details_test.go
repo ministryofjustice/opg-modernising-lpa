@@ -23,7 +23,7 @@ func TestGetConfirmYourDetails(t *testing.T) {
 	}
 
 	lpa := &page.Lpa{
-		Attorneys: actor.Attorneys{attorney},
+		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorney}},
 	}
 
 	donorStore := newMockDonorStore(t)

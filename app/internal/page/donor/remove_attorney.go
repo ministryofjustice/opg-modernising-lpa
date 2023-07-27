@@ -42,7 +42,7 @@ func RemoveAttorney(logger Logger, tmpl template.Template, donorStore DonorStore
 			if data.Errors.None() {
 				if data.Form.YesNo == form.Yes {
 					lpa.Attorneys.Delete(attorney)
-					if len(lpa.Attorneys) == 1 {
+					if lpa.Attorneys.Len() == 1 {
 						lpa.AttorneyDecisions = actor.AttorneyDecisions{}
 					}
 
