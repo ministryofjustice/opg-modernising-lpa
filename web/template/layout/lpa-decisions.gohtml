@@ -45,11 +45,11 @@
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">
         {{ if .App.IsDonor }}
-          {{ trCount .App "whoAreYourAttorneys" (len .Lpa.Attorneys) }}
+          {{ trCount .App "whoAreYourAttorneys" .Lpa.Attorneys.Len }}
         {{ else if .App.IsCertificateProvider }}
-          {{ trCount .App "theirAttorneys" (len .Lpa.Attorneys) }}
+          {{ trCount .App "theirAttorneys" .Lpa.Attorneys.Len }}
         {{ else }}
-          {{ trCount .App "attorneyNames" (len .Lpa.Attorneys) }}
+          {{ trCount .App "attorneyNames" .Lpa.Attorneys.Len }}
         {{ end }}
       </dt>
       <dd class="govuk-summary-list__value">
@@ -64,7 +64,7 @@
       {{ end }}
     </div>
 
-    {{ if gt (len .Lpa.Attorneys) 1 }}
+    {{ if gt .Lpa.Attorneys.Len 1 }}
       {{ $title := "howAttorneysMustMakeDecisions" }}
       {{ if .App.IsDonor }}
         {{ $title = "howYourAttorneysMustMakeDecisions" }}
@@ -100,15 +100,15 @@
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">
         {{ if .App.IsDonor }}
-          {{ trCount .App "whoAreYourReplacementAttorneys" (len .Lpa.ReplacementAttorneys) }}
+          {{ trCount .App "whoAreYourReplacementAttorneys" .Lpa.ReplacementAttorneys.Len }}
         {{ else if .App.IsCertificateProvider }}
-          {{ trCount .App "theirReplacementAttorneys" (len .Lpa.ReplacementAttorneys) }}
+          {{ trCount .App "theirReplacementAttorneys" .Lpa.ReplacementAttorneys.Len }}
         {{ else }}
-          {{ trCount .App "replacementAttorneyNames" (len .Lpa.ReplacementAttorneys) }}
+          {{ trCount .App "replacementAttorneyNames" .Lpa.ReplacementAttorneys.Len }}
         {{ end }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ if eq 0 (len .Lpa.ReplacementAttorneys) }}
+        {{ if eq .Lpa.ReplacementAttorneys.Len 0 }}
           {{ tr .App "replacementAttorneysNotAppointed" }}
         {{ else }}
           {{ concatAnd .App .Lpa.ReplacementAttorneys.FullNames }}
