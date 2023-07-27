@@ -251,10 +251,10 @@ func lowerFirst(s string) string {
 	return string(unicode.ToLower(r)) + s[n:]
 }
 
-func listAttorneys(trustCorporation actor.TrustCorporation, attorneys actor.Attorneys, app page.AppData, attorneyType string, headingLevel int, lpa *page.Lpa) map[string]interface{} {
+func listAttorneys(attorneys actor.Attorneys, app page.AppData, attorneyType string, headingLevel int, lpa *page.Lpa) map[string]interface{} {
 	props := map[string]interface{}{
-		"TrustCorporation": trustCorporation,
-		"Attorneys":        attorneys,
+		"TrustCorporation": attorneys.TrustCorporation,
+		"Attorneys":        attorneys.Attorneys,
 		"App":              app,
 		"HeadingLevel":     headingLevel,
 		"Lpa":              lpa,

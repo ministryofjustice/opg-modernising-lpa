@@ -39,7 +39,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 			setAddress := func(address place.Address) error {
 				attorney.Address = address
 				lpa.Attorneys.Put(attorney)
-				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.TrustCorporation, lpa.Attorneys, lpa.AttorneyDecisions)
+				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
 				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
 				return donorStore.Put(r.Context(), lpa)

@@ -39,7 +39,7 @@ func TestGetRemoveReplacementAttorney(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := RemoveReplacementAttorney(logger, template.Execute, nil)(testAppData, w, r, &page.Lpa{ReplacementAttorneys: actor.Attorneys{attorney}})
+	err := RemoveReplacementAttorney(logger, template.Execute, nil)(testAppData, w, r, &page.Lpa{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorney}}})
 
 	resp := w.Result()
 
@@ -61,7 +61,7 @@ func TestGetRemoveReplacementAttorneyAttorneyDoesNotExist(t *testing.T) {
 		},
 	}
 
-	err := RemoveReplacementAttorney(logger, template.Execute, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", ReplacementAttorneys: actor.Attorneys{attorney}})
+	err := RemoveReplacementAttorney(logger, template.Execute, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorney}}})
 
 	resp := w.Result()
 
@@ -83,12 +83,12 @@ func TestPostRemoveReplacementAttorney(t *testing.T) {
 		"many left": {
 			lpa: &page.Lpa{
 				ID:                           "lpa-id",
-				ReplacementAttorneys:         actor.Attorneys{attorneyWithEmail, attorneyWithAddress, attorneyWithoutAddress},
+				ReplacementAttorneys:         actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithEmail, attorneyWithAddress, attorneyWithoutAddress}},
 				ReplacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
 			},
 			updatedLpa: &page.Lpa{
 				ID:                           "lpa-id",
-				ReplacementAttorneys:         actor.Attorneys{attorneyWithEmail, attorneyWithAddress},
+				ReplacementAttorneys:         actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithEmail, attorneyWithAddress}},
 				ReplacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
 				Tasks:                        page.Tasks{ChooseReplacementAttorneys: actor.TaskInProgress},
 			},
@@ -97,21 +97,21 @@ func TestPostRemoveReplacementAttorney(t *testing.T) {
 		"one left": {
 			lpa: &page.Lpa{
 				ID:                           "lpa-id",
-				ReplacementAttorneys:         actor.Attorneys{attorneyWithAddress, attorneyWithoutAddress},
+				ReplacementAttorneys:         actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithAddress, attorneyWithoutAddress}},
 				ReplacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
 			},
 			updatedLpa: &page.Lpa{
 				ID:                   "lpa-id",
-				ReplacementAttorneys: actor.Attorneys{attorneyWithAddress},
+				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithAddress}},
 				Tasks:                page.Tasks{ChooseReplacementAttorneys: actor.TaskInProgress},
 			},
 			redirect: page.Paths.ChooseReplacementAttorneysSummary,
 		},
 		"none left": {
-			lpa: &page.Lpa{ID: "lpa-id", ReplacementAttorneys: actor.Attorneys{attorneyWithoutAddress}},
+			lpa: &page.Lpa{ID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithoutAddress}}},
 			updatedLpa: &page.Lpa{
 				ID:                   "lpa-id",
-				ReplacementAttorneys: actor.Attorneys{},
+				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{}},
 			},
 			redirect: page.Paths.ChooseReplacementAttorneysSummary,
 		},
@@ -171,7 +171,7 @@ func TestPostRemoveReplacementAttorneyWithFormValueNo(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	err := RemoveReplacementAttorney(logger, template.Execute, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", ReplacementAttorneys: actor.Attorneys{attorneyWithoutAddress, attorneyWithAddress}})
+	err := RemoveReplacementAttorney(logger, template.Execute, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
 
 	resp := w.Result()
 
@@ -215,7 +215,7 @@ func TestPostRemoveReplacementAttorneyErrorOnPutStore(t *testing.T) {
 
 	err := RemoveReplacementAttorney(logger, template.Execute, donorStore)(testAppData, w, r, &page.Lpa{
 		WantReplacementAttorneys: form.Yes,
-		ReplacementAttorneys:     actor.Attorneys{attorneyWithoutAddress, attorneyWithAddress},
+		ReplacementAttorneys:     actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithoutAddress, attorneyWithAddress}},
 	})
 
 	resp := w.Result()
@@ -247,7 +247,7 @@ func TestRemoveReplacementAttorneyFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := RemoveReplacementAttorney(nil, template.Execute, nil)(testAppData, w, r, &page.Lpa{ReplacementAttorneys: actor.Attorneys{attorneyWithoutAddress}})
+	err := RemoveReplacementAttorney(nil, template.Execute, nil)(testAppData, w, r, &page.Lpa{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithoutAddress}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

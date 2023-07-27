@@ -17,12 +17,14 @@ type enterTrustCorporationData struct {
 
 func EnterTrustCorporation(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+		trustCorporation := lpa.Attorneys.TrustCorporation
+
 		data := &enterTrustCorporationData{
 			App: appData,
 			Form: &enterTrustCorporationForm{
-				Name:          lpa.TrustCorporation.Name,
-				CompanyNumber: lpa.TrustCorporation.CompanyNumber,
-				Email:         lpa.TrustCorporation.Email,
+				Name:          trustCorporation.Name,
+				CompanyNumber: trustCorporation.CompanyNumber,
+				Email:         trustCorporation.Email,
 			},
 			LpaID: lpa.ID,
 		}
@@ -32,12 +34,12 @@ func EnterTrustCorporation(tmpl template.Template, donorStore DonorStore) Handle
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.TrustCorporation.Name = data.Form.Name
-				lpa.TrustCorporation.CompanyNumber = data.Form.CompanyNumber
-				lpa.TrustCorporation.Email = data.Form.Email
+				trustCorporation.Name = data.Form.Name
+				trustCorporation.CompanyNumber = data.Form.CompanyNumber
+				trustCorporation.Email = data.Form.Email
+				lpa.Attorneys.TrustCorporation = trustCorporation
 
-				// TODO: figure out what happens here
-				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.TrustCorporation, lpa.Attorneys, lpa.AttorneyDecisions)
+				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
 				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
 				if err := donorStore.Put(r.Context(), lpa); err != nil {

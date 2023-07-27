@@ -13,7 +13,7 @@
         <div class="govuk-form-group {{ if .Errors.Has "when" }}govuk-form-group--error{{ end }}">
           <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-              {{ trFormatCount .App "whenDoYouWantAttorneysToUse" (len .Lpa.Attorneys) }}
+              {{ trFormatCount .App "whenDoYouWantAttorneysToUse" .Lpa.Attorneys.Len }}
             </legend>
 
             {{ template "error-message" (errorMessage . "when") }}

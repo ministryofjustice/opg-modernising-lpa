@@ -525,14 +525,14 @@ func TestYourDetailsFormDobWarning(t *testing.T) {
 func TestDonorMatches(t *testing.T) {
 	lpa := &page.Lpa{
 		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
-		Attorneys: actor.Attorneys{
+		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{FirstNames: "c", LastName: "d"},
 			{FirstNames: "e", LastName: "f"},
-		},
-		ReplacementAttorneys: actor.Attorneys{
+		}},
+		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{FirstNames: "g", LastName: "h"},
 			{FirstNames: "i", LastName: "j"},
-		},
+		}},
 		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
 		PeopleToNotify: actor.PeopleToNotify{
 			{FirstNames: "m", LastName: "n"},
@@ -554,12 +554,12 @@ func TestDonorMatches(t *testing.T) {
 func TestDonorMatchesEmptyNamesIgnored(t *testing.T) {
 	lpa := &page.Lpa{
 		Donor: actor.Donor{FirstNames: "", LastName: ""},
-		Attorneys: actor.Attorneys{
+		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{FirstNames: "", LastName: ""},
-		},
-		ReplacementAttorneys: actor.Attorneys{
+		}},
+		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{FirstNames: "", LastName: ""},
-		},
+		}},
 		CertificateProvider: actor.CertificateProvider{FirstNames: "", LastName: ""},
 		PeopleToNotify: actor.PeopleToNotify{
 			{FirstNames: "", LastName: ""},
