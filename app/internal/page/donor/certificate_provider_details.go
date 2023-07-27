@@ -129,13 +129,13 @@ func certificateProviderMatches(lpa *page.Lpa, firstNames, lastName string) acto
 		return actor.TypeDonor
 	}
 
-	for _, attorney := range lpa.Attorneys {
+	for _, attorney := range lpa.Attorneys.Attorneys() {
 		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeAttorney
 		}
 	}
 
-	for _, attorney := range lpa.ReplacementAttorneys {
+	for _, attorney := range lpa.ReplacementAttorneys.Attorneys() {
 		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeReplacementAttorney
 		}

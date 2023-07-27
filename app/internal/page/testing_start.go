@@ -34,6 +34,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		hasDonorDetails              bool
 		lpaType                      string
 		attorneys                    int
+		trustCorporation             string
 		howAttorneysAct              string
 		replacementAttorneys         int
 		howReplacementAttorneysAct   string
@@ -119,14 +120,23 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		}
 	}
 
-	addAttorneys := func(lpa *Lpa, count int) {
+	addAttorneys := func(opts lpaOptions, lpa *Lpa) {
+		count := opts.attorneys
+
 		if count > len(attorneyNames) {
 			count = len(attorneyNames)
 		}
 
-		for _, name := range attorneyNames[:count] {
-			lpa.Attorneys = append(lpa.Attorneys, makeAttorney(name))
+		var attorneys []actor.Attorney
+		for i, name := range attorneyNames[:count] {
+			a := makeAttorney(name)
+			if i == 0 && opts.attorneyEmail != "" {
+				a.Email = opts.attorneyEmail
+			}
+
+			attorneys = append(attorneys, a)
 		}
+		lpa.Attorneys = actor.NewAttorneys(nil, attorneys)
 
 		if count > 1 {
 			lpa.AttorneyDecisions.How = actor.JointlyAndSeverally
@@ -135,14 +145,23 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		lpa.Tasks.ChooseAttorneys = actor.TaskCompleted
 	}
 
-	addReplacementAttorneys := func(lpa *Lpa, count int) {
+	addReplacementAttorneys := func(opts lpaOptions, lpa *Lpa) {
+		count := opts.replacementAttorneys
+
 		if count > len(replacementAttorneyNames) {
 			count = len(replacementAttorneyNames)
 		}
 
-		for _, name := range replacementAttorneyNames[:count] {
-			lpa.ReplacementAttorneys = append(lpa.ReplacementAttorneys, makeAttorney(name))
+		var attorneys []actor.Attorney
+		for i, name := range replacementAttorneyNames[:count] {
+			a := makeAttorney(name)
+			if i == 0 && opts.replacementAttorneyEmail != "" {
+				a.Email = opts.replacementAttorneyEmail
+			}
+
+			attorneys = append(attorneys, a)
 		}
+		lpa.ReplacementAttorneys = actor.NewAttorneys(nil, attorneys)
 
 		if count > 1 {
 			lpa.ReplacementAttorneyDecisions.How = actor.JointlyAndSeverally
@@ -215,20 +234,23 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			}
 
 			if opts.attorneys > 0 {
-				addAttorneys(lpa, opts.attorneys)
+				addAttorneys(opts, lpa)
 			}
 
 			if opts.attorneys == -1 {
-				addAttorneys(lpa, 2)
-				lpa.Attorneys[0].ID = "with-address"
-				lpa.Attorneys[1].ID = "without-address"
-				lpa.Attorneys[1].Address = place.Address{}
+				attorney1 := makeAttorney(attorneyNames[0])
+				attorney1.ID = "with-address"
+
+				attorney2 := makeAttorney(attorneyNames[1])
+				attorney2.ID = "without-address"
+				attorney2.Address = place.Address{}
+
+				lpa.Attorneys = actor.NewAttorneys(nil, []actor.Attorney{attorney1, attorney2})
+				lpa.AttorneyDecisions.How = actor.JointlyAndSeverally
 
 				lpa.ReplacementAttorneys = lpa.Attorneys
 				lpa.Type = LpaTypePropertyFinance
 				lpa.WhenCanTheLpaBeUsed = CanBeUsedWhenRegistered
-
-				lpa.AttorneyDecisions.How = actor.JointlyAndSeverally
 
 				lpa.WantReplacementAttorneys = form.Yes
 				lpa.ReplacementAttorneyDecisions.How = actor.JointlyAndSeverally
@@ -236,6 +258,10 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 
 				lpa.Tasks.ChooseAttorneys = actor.TaskInProgress
 				lpa.Tasks.ChooseReplacementAttorneys = actor.TaskInProgress
+			}
+
+			if opts.trustCorporation == "incomplete" {
+				lpa.Attorneys = actor.NewAttorneys(&actor.TrustCorporation{Name: "My company"}, nil)
 			}
 
 			if opts.howAttorneysAct != "" {
@@ -251,14 +277,19 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			}
 
 			if opts.replacementAttorneys > 0 {
-				addReplacementAttorneys(lpa, opts.replacementAttorneys)
+				addReplacementAttorneys(opts, lpa)
 			}
 
 			if opts.replacementAttorneys == -1 {
-				addReplacementAttorneys(lpa, 2)
-				lpa.ReplacementAttorneys[0].ID = "with-address"
-				lpa.ReplacementAttorneys[1].ID = "without-address"
-				lpa.ReplacementAttorneys[1].Address = place.Address{}
+				attorney1 := makeAttorney(attorneyNames[0])
+				attorney1.ID = "with-address"
+
+				attorney2 := makeAttorney(attorneyNames[1])
+				attorney2.ID = "without-address"
+				attorney2.Address = place.Address{}
+
+				lpa.ReplacementAttorneys = actor.NewAttorneys(nil, []actor.Attorney{attorney1, attorney2})
+				lpa.ReplacementAttorneyDecisions.How = actor.JointlyAndSeverally
 
 				lpa.ReplacementAttorneys = lpa.Attorneys
 				lpa.WantReplacementAttorneys = form.Yes
@@ -357,14 +388,6 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 				lpa.CertificateProvider.Email = opts.certificateProviderEmail
 			}
 
-			if opts.attorneyEmail != "" {
-				lpa.Attorneys[0].Email = opts.attorneyEmail
-			}
-
-			if opts.replacementAttorneyEmail != "" {
-				lpa.ReplacementAttorneys[0].Email = opts.replacementAttorneyEmail
-			}
-
 			if err := donorStore.Put(ctx, lpa); err != nil {
 				logger.Print("putting lpa ", err)
 			}
@@ -394,6 +417,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			hasDonorDetails:              r.FormValue("lpa.yourDetails") != "" || completeSectionOne,
 			lpaType:                      r.FormValue("lpa.type"),
 			attorneys:                    parseCount(r.FormValue("lpa.attorneys"), completeSectionOne),
+			trustCorporation:             r.FormValue("lpa.trustCorporation"),
 			howAttorneysAct:              r.FormValue("lpa.attorneysAct"),
 			replacementAttorneys:         parseCount(r.FormValue("lpa.replacementAttorneys"), completeSectionOne),
 			howReplacementAttorneysAct:   r.FormValue("lpa.replacementAttorneysAct"),
@@ -537,14 +561,18 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 				currentCtx = ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID, LpaID: lpa.ID})
 			}
 
-			_, err := attorneyStore.Create(currentCtx, attorneySessionID, lpa.Attorneys[0].ID, false)
+			id := lpa.Attorneys.Attorneys()[0].ID
+
+			_, err := attorneyStore.Create(currentCtx, attorneySessionID, id, false)
 			if err != nil {
 				logger.Print("asAttorney:", err)
 			}
 		}
 
 		if asReplacementAttorney {
-			_, err := attorneyStore.Create(attorneyCtx, attorneySessionID, lpa.ReplacementAttorneys[0].ID, true)
+			id := lpa.ReplacementAttorneys.Attorneys()[0].ID
+
+			_, err := attorneyStore.Create(attorneyCtx, attorneySessionID, id, true)
 			if err != nil {
 				logger.Print("asReplacementAttorney:", err)
 			}
