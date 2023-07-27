@@ -11,7 +11,10 @@ import (
 
 func EnterTrustCorporationAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
-		trustCorporation := lpa.TrustCorporation
+		trustCorporation, ok := lpa.Attorneys.TrustCorporation()
+		if !ok {
+			return appData.Redirect(w, r, lpa, page.Paths.EnterTrustCorporation.Format(lpa.ID))
+		}
 
 		data := &chooseAddressData{
 			App:        appData,
@@ -29,9 +32,10 @@ func EnterTrustCorporationAddress(logger Logger, tmpl template.Template, address
 			data.Errors = data.Form.Validate(false)
 
 			setAddress := func(address place.Address) error {
-				lpa.TrustCorporation.Address = address
+				trustCorporation.Address = address
+				lpa.Attorneys.SetTrustCorporation(trustCorporation)
 
-				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.TrustCorporation, lpa.Attorneys, lpa.AttorneyDecisions)
+				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
 				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
 
 				return donorStore.Put(r.Context(), lpa)

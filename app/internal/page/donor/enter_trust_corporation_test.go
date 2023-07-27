@@ -67,11 +67,11 @@ func TestPostEnterTrustCorporation(t *testing.T) {
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			ID: "lpa-id",
-			TrustCorporation: actor.TrustCorporation{
+			Attorneys: actor.NewAttorneys(&actor.TrustCorporation{
 				Name:          "Co co.",
 				CompanyNumber: "453345",
 				Email:         "name@example.com",
-			},
+			}, nil),
 			Tasks: page.Tasks{ChooseAttorneys: actor.TaskInProgress},
 		}).
 		Return(nil)

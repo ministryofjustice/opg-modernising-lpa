@@ -27,10 +27,10 @@ func TestGetSign(t *testing.T) {
 			lpa: &page.Lpa{
 				Submitted:           time.Now(),
 				WhenCanTheLpaBeUsed: page.CanBeUsedWhenRegistered,
-				Attorneys: actor.Attorneys{
+				Attorneys: actor.NewAttorneys(nil, []actor.Attorney{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
-				},
+				}),
 			},
 			usedWhenRegistered: true,
 		},
@@ -39,10 +39,10 @@ func TestGetSign(t *testing.T) {
 			lpa: &page.Lpa{
 				Submitted:           time.Now(),
 				WhenCanTheLpaBeUsed: page.CanBeUsedWhenCapacityLost,
-				Attorneys: actor.Attorneys{
+				Attorneys: actor.NewAttorneys(nil, []actor.Attorney{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
-				},
+				}),
 			},
 		},
 		"replacement attorney use when registered": {
@@ -50,10 +50,10 @@ func TestGetSign(t *testing.T) {
 			lpa: &page.Lpa{
 				Submitted:           time.Now(),
 				WhenCanTheLpaBeUsed: page.CanBeUsedWhenRegistered,
-				ReplacementAttorneys: actor.Attorneys{
+				ReplacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
-				},
+				}),
 			},
 			isReplacement:      true,
 			usedWhenRegistered: true,
@@ -63,10 +63,10 @@ func TestGetSign(t *testing.T) {
 			lpa: &page.Lpa{
 				Submitted:           time.Now(),
 				WhenCanTheLpaBeUsed: page.CanBeUsedWhenCapacityLost,
-				ReplacementAttorneys: actor.Attorneys{
+				ReplacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
-				},
+				}),
 			},
 			isReplacement: true,
 		},
@@ -119,10 +119,10 @@ func TestGetSignCantSignYet(t *testing.T) {
 			appData: testAppData,
 			lpa: &page.Lpa{
 				Submitted: time.Now(),
-				Attorneys: actor.Attorneys{
+				Attorneys: actor.NewAttorneys(nil, []actor.Attorney{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
-				},
+				}),
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{},
 		},
@@ -130,10 +130,10 @@ func TestGetSignCantSignYet(t *testing.T) {
 			appData: testAppData,
 			lpa: &page.Lpa{
 				WhenCanTheLpaBeUsed: page.CanBeUsedWhenCapacityLost,
-				Attorneys: actor.Attorneys{
+				Attorneys: actor.NewAttorneys(nil, []actor.Attorney{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
-				},
+				}),
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{
 				Certificate: actor.Certificate{Agreed: time.Now()},
@@ -175,18 +175,18 @@ func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 			appData: testAppData,
 			lpa: &page.Lpa{
 				Submitted: time.Now(),
-				ReplacementAttorneys: actor.Attorneys{
+				ReplacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
-				},
+				}),
 			},
 		},
 		"replacement attorney": {
 			appData: testReplacementAppData,
 			lpa: &page.Lpa{
 				Submitted: time.Now(),
-				Attorneys: actor.Attorneys{
+				Attorneys: actor.NewAttorneys(nil, []actor.Attorney{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
-				},
+				}),
 			},
 		},
 	}
@@ -250,7 +250,7 @@ func TestGetSignOnTemplateError(t *testing.T) {
 		On("GetAny", r.Context()).
 		Return(&page.Lpa{
 			Submitted: time.Now(),
-			Attorneys: actor.Attorneys{{ID: "attorney-id"}},
+			Attorneys: actor.NewAttorneys(nil, []actor.Attorney{{ID: "attorney-id"}}),
 		}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -279,7 +279,7 @@ func TestPostSign(t *testing.T) {
 			appData: testAppData,
 			lpa: &page.Lpa{
 				Submitted: now,
-				Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
+				Attorneys: actor.NewAttorneys(nil, []actor.Attorney{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}}),
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
 				LpaID:     "lpa-id",
@@ -291,7 +291,7 @@ func TestPostSign(t *testing.T) {
 			appData: testReplacementAppData,
 			lpa: &page.Lpa{
 				Submitted:            now,
-				ReplacementAttorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
+				ReplacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}}),
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
 				LpaID:     "lpa-id",
@@ -354,7 +354,7 @@ func TestPostSignWhenStoreError(t *testing.T) {
 		On("GetAny", r.Context()).
 		Return(&page.Lpa{
 			Submitted: time.Now(),
-			Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
+			Attorneys: actor.NewAttorneys(nil, []actor.Attorney{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}}),
 		}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -389,7 +389,7 @@ func TestPostSignOnValidationError(t *testing.T) {
 		On("GetAny", r.Context()).
 		Return(&page.Lpa{
 			Submitted: time.Now(),
-			Attorneys: actor.Attorneys{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}},
+			Attorneys: actor.NewAttorneys(nil, []actor.Attorney{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}}),
 		}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)

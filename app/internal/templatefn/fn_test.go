@@ -254,11 +254,11 @@ func TestLowerFirst(t *testing.T) {
 }
 
 func TestListAttorneysWithAttorneys(t *testing.T) {
-	attorneys := actor.Attorneys{
+	trustCorporation := actor.TrustCorporation{Name: "a"}
+	attorneys := []actor.Attorney{
 		{ID: "123"},
 		{ID: "123"},
 	}
-	trustCorporation := actor.TrustCorporation{Name: "a"}
 
 	app := page.AppData{SessionID: "abc", Page: "/here"}
 	headingLevel := 3
@@ -277,17 +277,17 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 		"RemovePath":       app.Paths.RemoveAttorney.Format("lpa-id") + "?from=/here",
 	}
 
-	got := listAttorneys(trustCorporation, attorneys, app, attorneyType, headingLevel, lpa)
+	got := listAttorneys(actor.NewAttorneys(&trustCorporation, attorneys), app, attorneyType, headingLevel, lpa)
 
 	assert.Equal(t, want, got)
 }
 
 func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
-	attorneys := actor.Attorneys{
+	trustCorporation := actor.TrustCorporation{Name: "a"}
+	attorneys := []actor.Attorney{
 		{ID: "123"},
 		{ID: "123"},
 	}
-	trustCorporation := actor.TrustCorporation{}
 
 	app := page.AppData{SessionID: "abc", Page: "/here"}
 	headingLevel := 3
@@ -306,7 +306,7 @@ func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
 		"RemovePath":       app.Paths.RemoveReplacementAttorney.Format("lpa-id") + "?from=/here",
 	}
 
-	got := listAttorneys(trustCorporation, attorneys, app, attorneyType, headingLevel, lpa)
+	got := listAttorneys(actor.NewAttorneys(&trustCorporation, attorneys), app, attorneyType, headingLevel, lpa)
 
 	assert.Equal(t, want, got)
 }

@@ -42,7 +42,7 @@ func TestGetWantReplacementAttorneysWithExistingReplacementAttorneys(t *testing.
 
 	template := newMockTemplate(t)
 
-	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", ReplacementAttorneys: actor.Attorneys{{FirstNames: "this"}}})
+	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", ReplacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{FirstNames: "this"}})})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -99,17 +99,17 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 	}{
 		"yes": {
 			yesNo:                        form.Yes,
-			existingReplacementAttorneys: actor.Attorneys{{ID: "123"}},
-			expectedReplacementAttorneys: actor.Attorneys{{ID: "123"}},
+			existingReplacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{ID: "123"}}),
+			expectedReplacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{{ID: "123"}}),
 			taskState:                    actor.TaskInProgress,
 			redirect:                     page.Paths.ChooseReplacementAttorneys,
 		},
 		"no": {
 			yesNo: form.No,
-			existingReplacementAttorneys: actor.Attorneys{
+			existingReplacementAttorneys: actor.NewAttorneys(nil, []actor.Attorney{
 				{ID: "123"},
 				{ID: "345"},
-			},
+			}),
 			expectedReplacementAttorneys: actor.Attorneys{},
 			taskState:                    actor.TaskCompleted,
 			redirect:                     page.Paths.TaskList,

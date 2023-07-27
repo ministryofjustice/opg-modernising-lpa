@@ -1,11 +1,11 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ trCount .App "attorneysAdded" (len .Lpa.Attorneys) }}{{ end }}
+{{ define "pageTitle" }}{{ trCount .App "attorneysAdded" .Lpa.Attorneys.Len }}{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ trCount .App "attorneysAdded" (len .Lpa.Attorneys) }}</h1>
+      <h1 class="govuk-heading-xl">{{ trCount .App "attorneysAdded" .Lpa.Attorneys.Len }}</h1>
 
       {{ template "attorney-summary" (listAttorneys .Lpa.TrustCorporation .Lpa.Attorneys .App "attorney" 2 .Lpa ) }}
 

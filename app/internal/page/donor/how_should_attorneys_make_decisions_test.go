@@ -89,7 +89,7 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			ID:                "lpa-id",
-			Attorneys:         actor.Attorneys{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}},
+			Attorneys:         actor.NewAttorneys(nil, []actor.Attorney{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}}),
 			AttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			Tasks:             page.Tasks{ChooseAttorneys: actor.TaskCompleted},
 		}).
@@ -97,7 +97,7 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 
 	template := newMockTemplate(t)
 
-	err := HowShouldAttorneysMakeDecisions(template.Execute, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Attorneys: actor.Attorneys{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}}})
+	err := HowShouldAttorneysMakeDecisions(template.Execute, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Attorneys: actor.NewAttorneys(nil, []actor.Attorney{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}})})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -147,7 +147,7 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
 					ID:                "lpa-id",
-					Attorneys:         actor.Attorneys{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}},
+					Attorneys:         actor.NewAttorneys(nil, []actor.Attorney{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}}),
 					AttorneyDecisions: actor.AttorneyDecisions{Details: tc.updatedDetails, How: tc.updatedType},
 					Tasks:             page.Tasks{ChooseAttorneys: actor.TaskCompleted},
 				}).
@@ -157,7 +157,7 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 
 			err := HowShouldAttorneysMakeDecisions(template.Execute, donorStore)(testAppData, w, r, &page.Lpa{
 				ID:                "lpa-id",
-				Attorneys:         actor.Attorneys{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}},
+				Attorneys:         actor.NewAttorneys(nil, []actor.Attorney{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}}),
 				AttorneyDecisions: actor.AttorneyDecisions{Details: tc.existingDetails, How: tc.existingType},
 			})
 			resp := w.Result()
