@@ -1,0 +1,30 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "enterTheTrustCorporationsDetails" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <form novalidate method="post">
+        <h1 class="govuk-heading-xl">{{ tr .App "enterTheTrustCorporationsDetails" }}</h1>
+
+        <p class="govuk-body">
+          <a href="{{ link .App (.App.Paths.ChooseAttorneys.Format .LpaID) }}" class="govuk-link govuk-link--no-visited-state">
+            {{ tr .App "myAttorneyIsNotTrustCorporation" }}
+          </a>
+        </p>
+
+        <p class="govuk-body">{{ tr .App "theDetailsYouEnterMustMatchTheTrustCompany" }}</p>
+
+        {{ template "input" (input . "name" "companyName" .Form.Name "classes" "govuk-input--width-20") }}
+        {{ template "input" (input . "company-number" "companyNumber" .Form.CompanyNumber "hint" "companyNumberHint" "classes" "govuk-input--width-20") }}
+        {{ template "input" (input . "email" "companyEmailAddress" .Form.Email "hint" "companyEmailHint" "classes" "govuk-input--width-20") }}
+
+        {{ template "warning" (warning .App "ifTheDetailsYouProvideAreNotCorrect") }}
+
+        {{ template "save-and-return-buttons" . }}
+        {{ template "csrf-field" . }}
+      </form>
+    </div>
+  </div>
+{{ end }}

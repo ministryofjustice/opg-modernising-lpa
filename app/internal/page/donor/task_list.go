@@ -65,13 +65,13 @@ func TaskList(tmpl template.Template) Handler {
 							Name:  "chooseYourAttorneys",
 							Path:  page.Paths.ChooseAttorneysGuidance.Format(lpa.ID),
 							State: lpa.Tasks.ChooseAttorneys,
-							Count: len(lpa.Attorneys),
+							Count: lpa.Attorneys.Len(),
 						},
 						{
 							Name:  "chooseYourReplacementAttorneys",
 							Path:  page.Paths.DoYouWantReplacementAttorneys.Format(lpa.ID),
 							State: lpa.Tasks.ChooseReplacementAttorneys,
-							Count: len(lpa.ReplacementAttorneys),
+							Count: lpa.ReplacementAttorneys.Len(),
 						},
 						typeSpecificStep,
 						{
