@@ -18,7 +18,7 @@
 
             <div class="govuk-radios {{ if .Errors.Has "carry-out-by" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
               <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-carry-out-by" name="carry-out-by" type="radio" value="email" {{ if eq "email" .Form.CarryOutBy }}checked{{ end }} aria-describedby="carry-out-by-item-hint" data-aria-controls="conditional-email">
+                <input class="govuk-radios__input" id="f-carry-out-by" name="carry-out-by" type="radio" value="{{ .Options.Online.String }}" {{ if .Form.CarryOutBy.IsOnline }}checked{{ end }} aria-describedby="carry-out-by-item-hint" data-aria-controls="conditional-email">
                 <label class="govuk-label govuk-radios__label" for="f-carry-out-by">
                   {{ tr .App "byEmail" }}
                 </label>
@@ -28,7 +28,7 @@
               </div>
 
               <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-carry-out-by-2" name="carry-out-by" type="radio" value="paper" {{ if eq "paper" .Form.CarryOutBy }}checked{{ end }}>
+                <input class="govuk-radios__input" id="f-carry-out-by-2" name="carry-out-by" type="radio" value="{{ .Options.Paper.String }}" {{ if .Form.CarryOutBy.IsPaper }}checked{{ end }}>
                 <label class="govuk-label govuk-radios__label" for="f-carry-out-by-2">
                   {{ tr .App "usingPaperForms" }}
                 </label>
