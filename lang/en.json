@@ -685,5 +685,6 @@
     "beACertificateProviderOnAnLpa": "Be a certificate provider on an LPA",
     "untilYouHaveWitnessed": "Until you have witnessed {{.DonorFullName}} sign their LPA, you can only read the draft LPA. After you have witnessed, you will be able to start your other tasks.",
     "readTheDraftLpa": "Read the draft LPA",
-    "myAttorneyIsTrustCorporation": "My attorney is a Trust Corporation"
+    "myAttorneyIsTrustCorporation": "My attorney is a Trust Corporation",
+    "readLpa": "Read LPA"
 }

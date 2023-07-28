@@ -27,7 +27,7 @@ type dashboardStore struct {
 	dynamoClient DynamoClient
 }
 
-func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certificateProvider []*page.Lpa, err error) {
+func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certificateProvider []page.LpaAndActorTasks, err error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, nil, nil, err
@@ -63,16 +63,28 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 	for _, item := range items {
 		switch keyMap[item.ID] {
 		case actor.TypeDonor:
-			donor = append(donor, item)
+			donor = append(donor, page.LpaAndActorTasks{Lpa: item})
 		case actor.TypeAttorney:
-			attorney = append(attorney, item)
+			var attorneyProvided actor.AttorneyProvidedDetails
+			err = s.dynamoClient.Get(ctx, lpaKey(item.ID), attorneyKey(data.SessionID), &attorneyProvided)
+
+			attorney = append(attorney, page.LpaAndActorTasks{
+				Lpa:           item,
+				AttorneyTasks: attorneyProvided.Tasks,
+			})
 		case actor.TypeCertificateProvider:
-			certificateProvider = append(certificateProvider, item)
+			var certificateProviderProvided actor.CertificateProviderProvidedDetails
+			err = s.dynamoClient.Get(ctx, lpaKey(item.ID), certificateProviderKey(data.SessionID), &certificateProviderProvided)
+
+			certificateProvider = append(certificateProvider, page.LpaAndActorTasks{
+				Lpa:                      item,
+				CertificateProviderTasks: certificateProviderProvided.Tasks,
+			})
 		}
 	}
 
-	byUpdatedAt := func(a, b *page.Lpa) bool {
-		return a.UpdatedAt.After(b.UpdatedAt)
+	byUpdatedAt := func(a, b page.LpaAndActorTasks) bool {
+		return a.Lpa.UpdatedAt.After(b.Lpa.UpdatedAt)
 	}
 
 	slices.SortFunc(donor, byUpdatedAt)

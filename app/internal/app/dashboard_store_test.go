@@ -33,14 +33,23 @@ func TestDashboardStoreGetAll(t *testing.T) {
 		{PK: "LPA#789", SK: "#DONOR#different-id"},
 		{PK: "LPA#0", SK: "#DONOR#an-id"},
 	}, []*page.Lpa{lpa123, lpa456, lpa789, lpa0}, nil)
+	dynamoClient.ExpectGet(ctx, "LPA#456", "#CERTIFICATE_PROVIDER#an-id", actor.CertificateProviderProvidedDetails{
+		LpaID: "456",
+		Tasks: actor.CertificateProviderTasks{ConfirmYourDetails: actor.TaskCompleted},
+	}, nil)
+	dynamoClient.ExpectGet(ctx, "LPA#789", "#ATTORNEY#an-id", actor.AttorneyProvidedDetails{
+		LpaID: "456",
+		Tasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskCompleted},
+	}, nil)
 
 	dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
 
 	donor, attorney, certificateProvider, err := dashboardStore.GetAll(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, []*page.Lpa{lpa123, lpa0}, donor)
-	assert.Equal(t, []*page.Lpa{lpa789}, attorney)
-	assert.Equal(t, []*page.Lpa{lpa456}, certificateProvider)
+
+	assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa123}, {Lpa: lpa0}}, donor)
+	assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa789, AttorneyTasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskCompleted}}}, attorney)
+	assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa456, CertificateProviderTasks: actor.CertificateProviderTasks{ConfirmYourDetails: actor.TaskCompleted}}}, certificateProvider)
 }
 
 func TestDashboardStoreGetAllWhenNone(t *testing.T) {
