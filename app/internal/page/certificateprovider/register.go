@@ -33,6 +33,7 @@ type CertificateProviderStore interface {
 	Create(ctx context.Context, sessionID string) (*actor.CertificateProviderProvidedDetails, error)
 	Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
 	Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error
+	GetAll(ctx context.Context) ([]*actor.CertificateProviderProvidedDetails, error)
 }
 
 //go:generate mockery --testonly --inpackage --name OneLoginClient --structname mockOneLoginClient
@@ -46,6 +47,7 @@ type OneLoginClient interface {
 //go:generate mockery --testonly --inpackage --name ShareCodeStore --structname mockShareCodeStore
 type ShareCodeStore interface {
 	Get(context.Context, actor.Type, string) (actor.ShareCodeData, error)
+	Put(context.Context, actor.Type, string, actor.ShareCodeData) error
 }
 
 //go:generate mockery --testonly --inpackage --name Template --structname mockTemplate
@@ -83,25 +85,25 @@ func Register(
 	shareCodeStore ShareCodeStore,
 	errorHandler page.ErrorHandler,
 	yotiClient YotiClient,
-	notifyClient NotifyClient,
 	certificateProviderStore CertificateProviderStore,
 	notFoundHandler page.Handler,
+	attorneyStore page.AttorneyStore,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
-	handleRoot(page.Paths.CertificateProvider.EnterReferenceNumber,
-		EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), shareCodeStore, sessionStore))
-	handleRoot(page.Paths.CertificateProvider.WhoIsEligible,
-		WhoIsEligible(tmpls.Get("certificate_provider_who_is_eligible.gohtml"), sessionStore))
 	handleRoot(page.Paths.CertificateProvider.Login,
-		Login(logger, oneLoginClient, sessionStore, random.String))
+		page.Login(logger, oneLoginClient, sessionStore, random.String, page.Paths.CertificateProvider.LoginCallback))
 	handleRoot(page.Paths.CertificateProvider.LoginCallback,
-		LoginCallback(oneLoginClient, sessionStore, certificateProviderStore))
+		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.CertificateProvider.EnterReferenceNumber))
+	handleRoot(page.Paths.CertificateProvider.EnterReferenceNumber,
+		page.EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), shareCodeStore, sessionStore, certificateProviderStore, attorneyStore, actor.TypeCertificateProvider))
 
 	certificateProviderMux := http.NewServeMux()
 	rootMux.Handle("/certificate-provider/", page.RouteToPrefix("/certificate-provider/", certificateProviderMux, notFoundHandler))
 	handleCertificateProvider := makeCertificateProviderHandle(certificateProviderMux, sessionStore, errorHandler)
 
+	handleCertificateProvider(page.Paths.CertificateProvider.WhoIsEligible,
+		WhoIsEligible(tmpls.Get("certificate_provider_who_is_eligible.gohtml"), donorStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.TaskList,
 		TaskList(tmpls.Get("certificate_provider_task_list.gohtml"), donorStore, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.EnterDateOfBirth,

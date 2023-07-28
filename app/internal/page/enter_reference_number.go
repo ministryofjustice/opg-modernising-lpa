@@ -1,27 +1,28 @@
-package certificateprovider
+package page
 
 import (
+	"encoding/base64"
 	"errors"
 	"net/http"
 
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
 
 type enterReferenceNumberData struct {
-	App    page.AppData
+	App    AppData
 	Errors validation.List
 	Form   *enterReferenceNumberForm
-	Lpa    *page.Lpa
+	Lpa    *Lpa
 }
 
-func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore, sessionStore sessions.Store) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore, sessionStore sessions.Store, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, actorType actor.Type) Handler {
+	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		data := enterReferenceNumberData{
 			App:  appData,
 			Form: &enterReferenceNumberForm{},
@@ -34,7 +35,7 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 			if len(data.Errors) == 0 {
 				referenceNumber := data.Form.ReferenceNumber
 
-				shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeCertificateProvider, referenceNumber)
+				shareCode, err := shareCodeStore.Get(r.Context(), actorType, referenceNumber)
 				if err != nil {
 					if errors.Is(err, dynamo.NotFoundError{}) {
 						data.Errors.Add("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"})
@@ -44,17 +45,38 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 					}
 				}
 
-				if err := sesh.SetShareCode(sessionStore, r, w, &sesh.ShareCodeSession{
-					LpaID:           shareCode.LpaID,
-					SessionID:       shareCode.SessionID,
-					Identity:        shareCode.Identity,
-					DonorFullName:   shareCode.DonorFullname,
-					DonorFirstNames: shareCode.DonorFirstNames,
-				}); err != nil {
+				session, err := sesh.Login(sessionStore, r)
+				if err != nil {
 					return err
 				}
 
-				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.WhoIsEligible.Format())
+				ctx := ContextWithSessionData(r.Context(), &SessionData{
+					SessionID: base64.StdEncoding.EncodeToString([]byte(session.Sub)),
+					LpaID:     shareCode.LpaID,
+				})
+
+				redirect := Paths.CertificateProvider.WhoIsEligible.Format(shareCode.LpaID)
+
+				if actorType.String() == actor.TypeCertificateProvider.String() {
+					if _, err := certificateProviderStore.Create(ctx, shareCode.SessionID); err != nil {
+						var ccf *types.ConditionalCheckFailedException
+						if !errors.As(err, &ccf) {
+							return err
+						}
+					}
+				} else {
+					if _, err := attorneyStore.Create(ctx, shareCode.SessionID, shareCode.AttorneyID, shareCode.IsReplacementAttorney); err != nil {
+						var ccf *types.ConditionalCheckFailedException
+						if !errors.As(err, &ccf) {
+							return err
+						}
+					}
+
+					redirect = Paths.Attorney.CodeOfConduct.Format(shareCode.LpaID)
+				}
+
+				appData.LpaID = shareCode.LpaID
+				return appData.Redirect(w, r, nil, redirect)
 			}
 		}
 
@@ -69,8 +91,8 @@ type enterReferenceNumberForm struct {
 
 func readEnterReferenceNumberForm(r *http.Request) *enterReferenceNumberForm {
 	return &enterReferenceNumberForm{
-		ReferenceNumber:    page.PostFormReferenceNumber(r, "reference-number"),
-		ReferenceNumberRaw: page.PostFormString(r, "reference-number"),
+		ReferenceNumber:    PostFormReferenceNumber(r, "reference-number"),
+		ReferenceNumberRaw: PostFormString(r, "reference-number"),
 	}
 }
 

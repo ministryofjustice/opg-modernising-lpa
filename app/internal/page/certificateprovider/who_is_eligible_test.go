@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gorilla/sessions"
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,47 +14,37 @@ func TestWhoIsEligible(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	sessionStore := newMockSessionStore(t)
-	shareCodeSession := sessions.NewSession(sessionStore, "shareCode")
-	shareCodeSession.Values = map[any]any{
-		"share-code": &sesh.ShareCodeSession{
-			Identity:        true,
-			LpaID:           "lpa-id",
-			DonorFullName:   "Full name",
-			DonorFirstNames: "Full",
-		},
-	}
-
-	sessionStore.
-		On("Get", r, "shareCode").
-		Return(shareCodeSession, nil)
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
+		Return(&page.Lpa{Donor: actor.Donor{FirstNames: "Full", LastName: "Name"}}, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, whoIsEligibleData{
-			DonorFullName:   "Full name",
+			DonorFullName:   "Full Name",
 			DonorFirstNames: "Full",
 			App:             testAppData,
 		}).
 		Return(nil)
 
-	err := WhoIsEligible(template.Execute, sessionStore)(testAppData, w, r)
+	err := WhoIsEligible(template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestWhoIsEligibleWhenSessionStoreError(t *testing.T) {
+func TestWhoIsEligibleWhenDonorStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "shareCode").
-		Return(&sessions.Session{}, expectedError)
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
+		Return(&page.Lpa{}, expectedError)
 
-	err := WhoIsEligible(nil, sessionStore)(testAppData, w, r)
+	err := WhoIsEligible(nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -65,31 +55,21 @@ func TestWhoIsEligibleOnTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	sessionStore := newMockSessionStore(t)
-	shareCodeSession := sessions.NewSession(sessionStore, "shareCode")
-	shareCodeSession.Values = map[any]any{
-		"share-code": &sesh.ShareCodeSession{
-			Identity:        true,
-			LpaID:           "lpa-id",
-			DonorFullName:   "Full name",
-			DonorFirstNames: "Full",
-		},
-	}
-
-	sessionStore.
-		On("Get", r, "shareCode").
-		Return(shareCodeSession, nil)
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
+		Return(&page.Lpa{Donor: actor.Donor{FirstNames: "Full", LastName: "Name"}}, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, whoIsEligibleData{
-			DonorFullName:   "Full name",
+			DonorFullName:   "Full Name",
 			DonorFirstNames: "Full",
 			App:             testAppData,
 		}).
 		Return(expectedError)
 
-	err := WhoIsEligible(template.Execute, sessionStore)(testAppData, w, r)
+	err := WhoIsEligible(template.Execute, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

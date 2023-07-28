@@ -51,6 +51,7 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 					Identity:        identity,
 					DonorFullname:   "Jan Smith",
 					DonorFirstNames: "Jan",
+					SessionID:       "session-id",
 				}).
 				Return(nil)
 
@@ -131,6 +132,7 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 					Identity:        true,
 					DonorFullname:   "Jan Smith",
 					DonorFirstNames: "Jan",
+					SessionID:       "session-id",
 				}).
 				Return(nil)
 			shareCodeStore.
@@ -139,6 +141,7 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 					Identity:        true,
 					DonorFullname:   "Jan Smith",
 					DonorFirstNames: "Jan",
+					SessionID:       "session-id",
 				}).
 				Return(nil)
 
