@@ -719,5 +719,21 @@
     "beACertificateProviderOnAnLpa": "Welsh",
     "untilYouHaveWitnessed": "Welsh",
     "readTheDraftLpa": "Welsh",
-    "myAttorneyIsTrustCorporation": "Welsh"
+    "myAttorneyIsTrustCorporation": "Welsh",
+    "theTrustCorporation": "Welsh",
+    "enterTheTrustCorporationsDetails": "Welsh",
+    "myAttorneyIsNotTrustCorporation": "Welsh",
+    "theDetailsYouEnterMustMatchTheTrustCompany": "Welsh",
+    "companyName": "Welsh",
+    "companyNumber": "Welsh",
+    "companyNumberHint": "Welsh",
+    "companyEmailAddress": "Welsh",
+    "companyEmailHint": "Welsh",
+    "ifTheDetailsYouProvideAreNotCorrect": "Welsh",
+    "ifUsePreviousAddressOrEnterNew": "Welsh",
+    "changeCompanyNameLink": "Welsh",
+    "changeCompanyNumberLink": "Welsh",
+    "changeCompanyEmailLink": "Welsh",
+    "changeCompanyAddressLink": "Welsh",
+    "trustCorporation": "Welsh"
 }
