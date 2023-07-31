@@ -16,9 +16,17 @@
         <div class="govuk-notification-banner__content">
           <p class="govuk-notification-banner__heading">
             {{ if .App.IsReplacementAttorney }}
-              {{ tr .App "weHaveIdentifiedYourReplacementAttorneyReferenceNumber" }}
+              {{ if .App.IsTrustCorporation }}
+                {{ tr .App "weHaveIdentifiedTheTrustCorporationsReplacementAttorneyReferenceNumber" }}
+              {{ else }}
+                {{ tr .App "weHaveIdentifiedYourReplacementAttorneyReferenceNumber" }}
+              {{ end }}
             {{ else }}
-              {{ tr .App "weHaveIdentifiedYourAttorneyReferenceNumber" }}
+              {{ if .App.IsTrustCorporation }}
+                {{ tr .App "weHaveIdentifiedTheTrustCorporationsAttorneyReferenceNumber" }}
+              {{ else }}
+                {{ tr .App "weHaveIdentifiedYourAttorneyReferenceNumber" }}
+              {{ end }}
             {{ end }}
           </p>
         </div>
@@ -28,19 +36,35 @@
 
       {{ $content := "" }}
       {{ if .App.IsReplacementAttorney }}
-        {{ if .Lpa.Type.IsPropertyFinance }}
-          {{ $content = "replacementAttorneyCodeOfConductPfa" }}
+        {{ if .App.IsTrustCorporation }}
+          {{ if .Lpa.Type.IsPropertyFinance }}
+            {{ $content = "replacementTrustCorporationCodeOfConductPfa" }}
+          {{ else }}
+            {{ $content = "replacementTrustCorporationCodeOfConductHw" }}
+          {{ end }}
         {{ else }}
-          {{ $content = "replacementAttorneyCodeOfConductHw" }}
+          {{ if .Lpa.Type.IsPropertyFinance }}
+            {{ $content = "replacementAttorneyCodeOfConductPfa" }}
+          {{ else }}
+            {{ $content = "replacementAttorneyCodeOfConductHw" }}
+          {{ end }}
         {{ end }}
       {{ else }}
-        {{ if .Lpa.Type.IsPropertyFinance }}
-          {{ $content = "attorneyCodeOfConductPfa" }}
+        {{ if .App.IsTrustCorporation }}
+          {{ if .Lpa.Type.IsPropertyFinance }}
+            {{ $content = "trustCorporationCodeOfConductPfa" }}
+          {{ else }}
+            {{ $content = "trustCorporationCodeOfConductHw" }}
+          {{ end }}
         {{ else }}
-          {{ $content = "attorneyCodeOfConductHw" }}
+          {{ if .Lpa.Type.IsPropertyFinance }}
+            {{ $content = "attorneyCodeOfConductPfa" }}
+          {{ else }}
+            {{ $content = "attorneyCodeOfConductHw" }}
+          {{ end }}
         {{ end }}
       {{ end }}
-      
+
       {{ trFormatHtml .App $content
       "DonorFullName" .Lpa.Donor.FullName
       "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName)

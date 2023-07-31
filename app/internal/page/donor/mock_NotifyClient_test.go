@@ -63,11 +63,11 @@ func (_m *mockNotifyClient) Sms(ctx context.Context, sms notify.Sms) (string, er
 }
 
 // TemplateID provides a mock function with given fields: id
-func (_m *mockNotifyClient) TemplateID(id notify.TemplateId) string {
+func (_m *mockNotifyClient) TemplateID(id notify.Template) string {
 	ret := _m.Called(id)
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(notify.TemplateId) string); ok {
+	if rf, ok := ret.Get(0).(func(notify.Template) string); ok {
 		r0 = rf(id)
 	} else {
 		r0 = ret.Get(0).(string)

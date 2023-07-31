@@ -34,6 +34,7 @@ func Fixtures(tmpl template.Template) Handler {
 					"sendAttorneyShare":           {"1"},
 					"lpa.complete":                {"1"},
 					"lpa.attorneys":               {"2"},
+					"lpa.trustCorporation":        {"complete"},
 					"lpa.attorneysAct":            {actor.JointlyAndSeverally.String()},
 					"lpa.replacementAttorneys":    {"2"},
 					"lpa.replacementAttorneysAct": {actor.Jointly.String()},
@@ -41,13 +42,18 @@ func Fixtures(tmpl template.Template) Handler {
 					"lpa.restrictions":            {"1"},
 					"redirect":                    {Paths.Attorney.Start.Format()},
 				}
+
 				if data.Form.Email != "" {
-					if data.Form.ForReplacementAttorney != "" {
+					switch data.Form.SendTo {
+					case "replacment-attorney":
 						values.Add("lpa.replacementAttorneyEmail", data.Form.Email)
-					} else {
+					case "trust-corporation":
+						values.Add("lpa.trustCorporationEmail", data.Form.Email)
+					default:
 						values.Add("lpa.attorneyEmail", data.Form.Email)
 					}
 				}
+
 				if data.Form.Signed != "" {
 					values.Add("lpa.signedByDonor", "1")
 					values.Add("certificateProviderProvided", "certified")
@@ -135,7 +141,7 @@ type fixturesForm struct {
 	CompleteAll              string
 	Email                    string
 	DonorPaid                string
-	ForReplacementAttorney   string
+	SendTo                   string
 	Signed                   string
 	Type                     string
 }
@@ -159,7 +165,7 @@ func readFixtures(r *http.Request) *fixturesForm {
 		CompleteAll:              PostFormString(r, "complete-all-sections"),
 		Email:                    PostFormString(r, "email"),
 		DonorPaid:                PostFormString(r, "donor-paid"),
-		ForReplacementAttorney:   PostFormString(r, "for-replacement-attorney"),
+		SendTo:                   PostFormString(r, "send-to"),
 		Signed:                   PostFormString(r, "signed"),
 		Type:                     PostFormString(r, "type"),
 	}
