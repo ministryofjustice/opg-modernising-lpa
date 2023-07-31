@@ -114,7 +114,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing.T) {
 	testCases := map[string]struct {
 		certificateProviderDetailsTaskState actor.TaskState
-		expectedTemplateId                  notify.TemplateId
+		expectedTemplateId                  notify.Template
 		expectedSms                         notify.Sms
 	}{
 		"cp not started": {

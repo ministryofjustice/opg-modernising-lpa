@@ -180,18 +180,34 @@
         <div class="govuk-form-group">
           <div class="govuk-checkboxes" data-module="govuk-checkboxes">
             <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-for-replacement-attorney" name="for-replacement-attorney" type="checkbox" value="1">
-              <label class="govuk-label govuk-checkboxes__label" for="f-for-replacment-attorney">
-                Send email to replacement attorney
-              </label>
-            </div>
-            <div class="govuk-checkboxes__item">
               <input class="govuk-checkboxes__input" id="signed" name="signed" type="checkbox" value="1">
               <label class="govuk-label govuk-checkboxes__label" for="signed">
                 Signed by donor and certificate provider
               </label>
             </div>
           </div>
+        </div>
+
+        <div class="govuk-form-group">
+          <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend">
+              Send email to
+            </legend>
+            <div class="govuk-radios" data-module="govuk-radios">
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-send-to" name="send-to" type="radio" value="attorney" checked>
+                <label class="govuk-label govuk-radios__label" for="f-send-to">Attorney</label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-send-to-2" name="send-to" type="radio" value="replacment-attorney">
+                <label class="govuk-label govuk-radios__label" for="f-send-to-2">Replacment attorney</label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-send-to-3" name="send-to" type="radio" value="trust-corporation">
+                <label class="govuk-label govuk-radios__label" for="f-send-to-3">Trust corporation</label>
+              </div>
+            </div>
+          </fieldset>
         </div>
 
         <div class="govuk-form-group">
