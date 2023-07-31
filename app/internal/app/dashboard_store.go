@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"strings"
 
@@ -27,7 +28,7 @@ type dashboardStore struct {
 	dynamoClient DynamoClient
 }
 
-func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certificateProvider []*page.Lpa, err error) {
+func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certificateProvider []page.LpaAndActorTasks, err error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, nil, nil, err
@@ -42,10 +43,18 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		return nil, nil, nil, err
 	}
 
-	searchKeys := make([]dynamo.Key, len(keys))
+	var searchKeys []dynamo.Key
 	keyMap := map[string]actor.Type{}
-	for i, key := range keys {
-		searchKeys[i] = dynamo.Key{PK: key.PK, SK: key.DonorKey}
+	for _, key := range keys {
+		searchKeys = append(searchKeys, dynamo.Key{PK: key.PK, SK: key.DonorKey})
+
+		if key.ActorType == actor.TypeAttorney {
+			searchKeys = append(searchKeys, dynamo.Key{PK: key.PK, SK: attorneyKey(data.SessionID)})
+		}
+
+		if key.ActorType == actor.TypeCertificateProvider {
+			searchKeys = append(searchKeys, dynamo.Key{PK: key.PK, SK: certificateProviderKey(data.SessionID)})
+		}
 
 		_, id, _ := strings.Cut(key.PK, "#")
 		keyMap[id] = key.ActorType
@@ -55,24 +64,65 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		return nil, nil, nil, nil
 	}
 
-	var items []*page.Lpa
-	if err := s.dynamoClient.GetAllByKeys(ctx, searchKeys, &items); err != nil {
+	var lpasOrProvidedDetails []interface{}
+	if err := s.dynamoClient.GetAllByKeys(ctx, searchKeys, &lpasOrProvidedDetails); err != nil {
 		return nil, nil, nil, err
 	}
 
-	for _, item := range items {
-		switch keyMap[item.ID] {
-		case actor.TypeDonor:
-			donor = append(donor, item)
-		case actor.TypeAttorney:
-			attorney = append(attorney, item)
-		case actor.TypeCertificateProvider:
-			certificateProvider = append(certificateProvider, item)
+	certificateProviderMap := make(map[string]page.LpaAndActorTasks)
+	attorneyMap := make(map[string]page.LpaAndActorTasks)
+
+	for _, item := range lpasOrProvidedDetails {
+		jsonData, _ := json.Marshal(item)
+
+		var lpa *page.Lpa
+		err := json.Unmarshal(jsonData, &lpa)
+
+		if err == nil && strings.Contains(lpa.SK, donorKey("")) {
+			switch keyMap[lpa.ID] {
+			case actor.TypeDonor:
+				donor = append(donor, page.LpaAndActorTasks{Lpa: lpa})
+			case actor.TypeAttorney:
+				attorneyMap[lpa.ID] = page.LpaAndActorTasks{Lpa: lpa}
+			case actor.TypeCertificateProvider:
+				certificateProviderMap[lpa.ID] = page.LpaAndActorTasks{Lpa: lpa}
+			}
 		}
 	}
 
-	byUpdatedAt := func(a, b *page.Lpa) bool {
-		return a.UpdatedAt.After(b.UpdatedAt)
+	for _, item := range lpasOrProvidedDetails {
+		jsonData, _ := json.Marshal(item)
+
+		var attorneyProvidedDetails *actor.AttorneyProvidedDetails
+		err = json.Unmarshal(jsonData, &attorneyProvidedDetails)
+		if err == nil && strings.Contains(attorneyProvidedDetails.SK, attorneyKey("")) {
+			if entry, ok := attorneyMap[attorneyProvidedDetails.LpaID]; ok {
+				entry.AttorneyTasks = attorneyProvidedDetails.Tasks
+				attorneyMap[attorneyProvidedDetails.LpaID] = entry
+				continue
+			}
+		}
+
+		var certificateProviderProvidedDetails *actor.CertificateProviderProvidedDetails
+		err = json.Unmarshal(jsonData, &certificateProviderProvidedDetails)
+		if err == nil && strings.Contains(certificateProviderProvidedDetails.SK, certificateProviderKey("")) {
+			if entry, ok := certificateProviderMap[certificateProviderProvidedDetails.LpaID]; ok {
+				entry.CertificateProviderTasks = certificateProviderProvidedDetails.Tasks
+				certificateProviderMap[certificateProviderProvidedDetails.LpaID] = entry
+			}
+		}
+	}
+
+	for _, value := range certificateProviderMap {
+		certificateProvider = append(certificateProvider, value)
+	}
+
+	for _, value := range attorneyMap {
+		attorney = append(attorney, value)
+	}
+
+	byUpdatedAt := func(a, b page.LpaAndActorTasks) bool {
+		return a.Lpa.UpdatedAt.After(b.Lpa.UpdatedAt)
 	}
 
 	slices.SortFunc(donor, byUpdatedAt)

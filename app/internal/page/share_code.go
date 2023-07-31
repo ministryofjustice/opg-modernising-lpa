@@ -45,6 +45,7 @@ func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template 
 		Identity:        identity,
 		DonorFullname:   lpa.Donor.FullName(),
 		DonorFirstNames: lpa.Donor.FirstNames,
+		SessionID:       appData.SessionID,
 	}); err != nil {
 		return fmt.Errorf("creating sharecode failed: %w", err)
 	}

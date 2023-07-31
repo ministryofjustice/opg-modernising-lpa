@@ -120,9 +120,9 @@ func App(
 		shareCodeStore,
 		errorHandler,
 		yotiClient,
-		notifyClient,
 		certificateProviderStore,
 		notFoundHandler,
+		attorneyStore,
 	)
 
 	attorney.Register(
@@ -134,10 +134,8 @@ func App(
 		certificateProviderStore,
 		attorneyStore,
 		oneLoginClient,
-		addressClient,
 		shareCodeStore,
 		errorHandler,
-		notifyClient,
 		notFoundHandler,
 	)
 

@@ -16,9 +16,9 @@ import (
 
 var expectedError = errors.New("err")
 
-func (m *mockDynamoClient) ExpectGet(ctx, pk, partialSk, data interface{}, err error) {
+func (m *mockDynamoClient) ExpectGet(ctx, pk, sk, data interface{}, err error) {
 	m.
-		On("Get", ctx, pk, partialSk, mock.Anything).
+		On("Get", ctx, pk, sk, mock.Anything).
 		Return(func(ctx context.Context, pk, partialSk string, v interface{}) error {
 			b, _ := json.Marshal(data)
 			json.Unmarshal(b, v)

@@ -13,9 +13,13 @@ func TestGetDashboard(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorLpas := []*Lpa{{ID: "123"}, {ID: "456"}}
-	certificateProviderLpas := []*Lpa{{ID: "abc"}}
-	attorneyLpas := []*Lpa{{ID: "def"}}
+	donorLpas := []LpaAndActorTasks{
+		{Lpa: &Lpa{ID: "123"}},
+		{Lpa: &Lpa{ID: "456"}},
+	}
+
+	certificateProviderLpas := []LpaAndActorTasks{{Lpa: &Lpa{ID: "abc"}}}
+	attorneyLpas := []LpaAndActorTasks{{Lpa: &Lpa{ID: "def"}}}
 
 	dashboardStore := newMockDashboardStore(t)
 	dashboardStore.
@@ -44,7 +48,10 @@ func TestGetDashboardOnlyDonor(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorLpas := []*Lpa{{ID: "123"}, {ID: "456"}}
+	donorLpas := []LpaAndActorTasks{
+		{Lpa: &Lpa{ID: "123"}},
+		{Lpa: &Lpa{ID: "456"}},
+	}
 
 	dashboardStore := newMockDashboardStore(t)
 	dashboardStore.
