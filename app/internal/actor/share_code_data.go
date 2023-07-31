@@ -7,6 +7,7 @@ type ShareCodeData struct {
 	Identity              bool
 	AttorneyID            string
 	IsReplacementAttorney bool
+	IsTrustCorporation    bool
 	DonorFullname         string
 	DonorFirstNames       string
 }
