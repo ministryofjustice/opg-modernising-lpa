@@ -109,7 +109,7 @@ type Lpa struct {
 	UpdatedAt time.Time
 	// The donor the LPA relates to
 	Donor actor.Donor
-	// Attorney/s named in the LPA
+	// Attorneys named in the LPA
 	Attorneys actor.Attorneys
 	// Information on how the applicant wishes their attorneys to act
 	AttorneyDecisions actor.AttorneyDecisions
@@ -330,15 +330,15 @@ func (l *Lpa) ActorAddresses() []place.Address {
 		addresses = append(addresses, l.CertificateProvider.Address)
 	}
 
-	for _, attorney := range l.Attorneys {
-		if attorney.Address.String() != "" && !slices.Contains(addresses, attorney.Address) {
-			addresses = append(addresses, attorney.Address)
+	for _, address := range l.Attorneys.Addresses() {
+		if address.String() != "" && !slices.Contains(addresses, address) {
+			addresses = append(addresses, address)
 		}
 	}
 
-	for _, replacementAttorney := range l.ReplacementAttorneys {
-		if replacementAttorney.Address.String() != "" && !slices.Contains(addresses, replacementAttorney.Address) {
-			addresses = append(addresses, replacementAttorney.Address)
+	for _, address := range l.ReplacementAttorneys.Addresses() {
+		if address.String() != "" && !slices.Contains(addresses, address) {
+			addresses = append(addresses, address)
 		}
 	}
 
@@ -346,17 +346,15 @@ func (l *Lpa) ActorAddresses() []place.Address {
 }
 
 func ChooseAttorneysState(attorneys actor.Attorneys, decisions actor.AttorneyDecisions) actor.TaskState {
-	if len(attorneys) == 0 {
+	if attorneys.Len() == 0 {
 		return actor.TaskNotStarted
 	}
 
-	for _, a := range attorneys {
-		if a.FirstNames == "" || (a.Address.Line1 == "" && a.Email == "") {
-			return actor.TaskInProgress
-		}
+	if !attorneys.Complete() {
+		return actor.TaskInProgress
 	}
 
-	if len(attorneys) > 1 && !decisions.IsComplete() {
+	if attorneys.Len() > 1 && !decisions.IsComplete() {
 		return actor.TaskInProgress
 	}
 
@@ -368,7 +366,7 @@ func ChooseReplacementAttorneysState(lpa *Lpa) actor.TaskState {
 		return actor.TaskCompleted
 	}
 
-	if len(lpa.ReplacementAttorneys) == 0 {
+	if lpa.ReplacementAttorneys.Len() == 0 {
 		if lpa.WantReplacementAttorneys != form.Yes && lpa.WantReplacementAttorneys != form.No {
 			return actor.TaskNotStarted
 		}
@@ -376,20 +374,18 @@ func ChooseReplacementAttorneysState(lpa *Lpa) actor.TaskState {
 		return actor.TaskInProgress
 	}
 
-	for _, a := range lpa.ReplacementAttorneys {
-		if a.FirstNames == "" || (a.Address.Line1 == "" && a.Email == "") {
-			return actor.TaskInProgress
-		}
+	if !lpa.ReplacementAttorneys.Complete() {
+		return actor.TaskInProgress
 	}
 
-	if len(lpa.ReplacementAttorneys) > 1 &&
+	if lpa.ReplacementAttorneys.Len() > 1 &&
 		lpa.HowShouldReplacementAttorneysStepIn != ReplacementAttorneysStepInWhenOneCanNoLongerAct &&
 		!lpa.ReplacementAttorneyDecisions.IsComplete() {
 		return actor.TaskInProgress
 	}
 
 	if lpa.AttorneyDecisions.How.IsJointly() &&
-		len(lpa.ReplacementAttorneys) > 1 &&
+		lpa.ReplacementAttorneys.Len() > 1 &&
 		!lpa.ReplacementAttorneyDecisions.IsComplete() {
 		return actor.TaskInProgress
 	}
@@ -399,7 +395,7 @@ func ChooseReplacementAttorneysState(lpa *Lpa) actor.TaskState {
 			return actor.TaskInProgress
 		}
 
-		if len(lpa.ReplacementAttorneys) > 1 &&
+		if lpa.ReplacementAttorneys.Len() > 1 &&
 			lpa.HowShouldReplacementAttorneysStepIn == ReplacementAttorneysStepInWhenAllCanNoLongerAct &&
 			!lpa.ReplacementAttorneyDecisions.IsComplete() {
 			return actor.TaskInProgress

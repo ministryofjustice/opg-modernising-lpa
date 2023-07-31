@@ -20,7 +20,7 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore Dono
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &howShouldReplacementAttorneysStepInData{
 			App:               appData,
-			AllowSomeOtherWay: len(lpa.ReplacementAttorneys) == 1,
+			AllowSomeOtherWay: lpa.ReplacementAttorneys.Len() == 1,
 			Form: &howShouldReplacementAttorneysStepInForm{
 				WhenToStepIn: lpa.HowShouldReplacementAttorneysStepIn,
 				OtherDetails: lpa.HowShouldReplacementAttorneysStepInDetails,
@@ -47,7 +47,7 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore Dono
 					return err
 				}
 
-				if len(lpa.ReplacementAttorneys) > 1 && lpa.HowShouldReplacementAttorneysStepIn == page.ReplacementAttorneysStepInWhenAllCanNoLongerAct {
+				if lpa.ReplacementAttorneys.Len() > 1 && lpa.HowShouldReplacementAttorneysStepIn == page.ReplacementAttorneysStepInWhenAllCanNoLongerAct {
 					return appData.Redirect(w, r, lpa, appData.Paths.HowShouldReplacementAttorneysMakeDecisions.Format(lpa.ID))
 				} else {
 					return appData.Redirect(w, r, lpa, appData.Paths.TaskList.Format(lpa.ID))
