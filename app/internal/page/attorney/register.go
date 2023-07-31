@@ -57,7 +57,7 @@ type ShareCodeStore interface {
 type NotifyClient interface {
 	Email(ctx context.Context, email notify.Email) (string, error)
 	Sms(ctx context.Context, sms notify.Sms) (string, error)
-	TemplateID(id notify.TemplateId) string
+	TemplateID(id notify.Template) string
 }
 
 //go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore

@@ -64,7 +64,7 @@ type AddressClient interface {
 
 //go:generate mockery --testonly --inpackage --name ShareCodeSender --structname mockShareCodeSender
 type ShareCodeSender interface {
-	SendCertificateProvider(ctx context.Context, template notify.TemplateId, appData page.AppData, identity bool, lpa *page.Lpa) error
+	SendCertificateProvider(ctx context.Context, template notify.Template, appData page.AppData, identity bool, lpa *page.Lpa) error
 	SendAttorneys(ctx context.Context, appData page.AppData, lpa *page.Lpa) error
 }
 
@@ -88,7 +88,7 @@ type OneLoginClient interface {
 type NotifyClient interface {
 	Email(ctx context.Context, email notify.Email) (string, error)
 	Sms(ctx context.Context, sms notify.Sms) (string, error)
-	TemplateID(id notify.TemplateId) string
+	TemplateID(id notify.Template) string
 }
 
 //go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore
