@@ -109,7 +109,7 @@ func TestAddressFormValidate(t *testing.T) {
 	}{
 		"action missing": {
 			form:   &AddressForm{},
-			errors: validation.With("action", validation.SelectError{Label: "placeholder"}),
+			errors: validation.With("action", validation.SelectError{Label: "ifUsePreviousAddressOrEnterNew"}),
 		},
 		"postcode-lookup valid": {
 			form: &AddressForm{
