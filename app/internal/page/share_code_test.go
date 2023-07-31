@@ -270,7 +270,7 @@ func TestShareCodeSenderSendCertificateProviderWhenShareCodeStoreErrors(t *testi
 
 func TestShareCodeSenderSendAttorneys(t *testing.T) {
 	lpa := &Lpa{
-		Attorneys: actor.Attorneys{
+		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{
 				ID:         "1",
 				FirstNames: "Joanna",
@@ -288,8 +288,8 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 				FirstNames: "Nope",
 				LastName:   "Jones",
 			},
-		},
-		ReplacementAttorneys: actor.Attorneys{
+		}},
+		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{
 				ID:         "4",
 				FirstNames: "Dave",
@@ -301,7 +301,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 				FirstNames: "Donny",
 				LastName:   "Davis",
 			},
-		},
+		}},
 		Donor: actor.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
@@ -407,13 +407,13 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 	}
 
 	lpa := &Lpa{
-		Attorneys: actor.Attorneys{
+		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{
 				FirstNames: "Joanna",
 				LastName:   "Jones",
 				Email:      "name@example.org",
 			},
-		},
+		}},
 		Donor: actor.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
@@ -497,13 +497,13 @@ func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 	ctx := context.Background()
 
 	lpa := &Lpa{
-		Attorneys: actor.Attorneys{
+		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{
 				FirstNames: "Joanna",
 				LastName:   "Jones",
 				Email:      "name@example.org",
 			},
-		},
+		}},
 		Donor: actor.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
@@ -550,7 +550,7 @@ func TestShareCodeSenderSendAttorneysWhenShareCodeStoreErrors(t *testing.T) {
 
 	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", MockRandom)
 	err := sender.SendAttorneys(ctx, TestAppData, &Lpa{
-		Attorneys: actor.Attorneys{{Email: "hey@example.com"}},
+		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{Email: "hey@example.com"}}},
 	})
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))

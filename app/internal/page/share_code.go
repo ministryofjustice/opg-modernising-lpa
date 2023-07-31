@@ -70,13 +70,13 @@ func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template 
 }
 
 func (s *ShareCodeSender) SendAttorneys(ctx context.Context, appData AppData, lpa *Lpa) error {
-	for _, attorney := range lpa.Attorneys {
+	for _, attorney := range lpa.Attorneys.Attorneys {
 		if err := s.sendAttorney(ctx, notify.AttorneyInviteEmail, appData, lpa, attorney, false); err != nil {
 			return err
 		}
 	}
 
-	for _, attorney := range lpa.ReplacementAttorneys {
+	for _, attorney := range lpa.ReplacementAttorneys.Attorneys {
 		if err := s.sendAttorney(ctx, notify.ReplacementAttorneyInviteEmail, appData, lpa, attorney, true); err != nil {
 			return err
 		}
