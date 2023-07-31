@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"strings"
 
@@ -42,10 +43,18 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		return nil, nil, nil, err
 	}
 
-	searchKeys := make([]dynamo.Key, len(keys))
+	var searchKeys []dynamo.Key
 	keyMap := map[string]actor.Type{}
-	for i, key := range keys {
-		searchKeys[i] = dynamo.Key{PK: key.PK, SK: key.DonorKey}
+	for _, key := range keys {
+		searchKeys = append(searchKeys, dynamo.Key{PK: key.PK, SK: key.DonorKey})
+
+		if key.ActorType == actor.TypeAttorney {
+			searchKeys = append(searchKeys, dynamo.Key{PK: key.PK, SK: attorneyKey(data.SessionID)})
+		}
+
+		if key.ActorType == actor.TypeCertificateProvider {
+			searchKeys = append(searchKeys, dynamo.Key{PK: key.PK, SK: certificateProviderKey(data.SessionID)})
+		}
 
 		_, id, _ := strings.Cut(key.PK, "#")
 		keyMap[id] = key.ActorType
@@ -55,32 +64,56 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		return nil, nil, nil, nil
 	}
 
-	var items []*page.Lpa
+	var items []interface{}
 	if err := s.dynamoClient.GetAllByKeys(ctx, searchKeys, &items); err != nil {
 		return nil, nil, nil, err
 	}
 
+	certificateProviderMap := make(map[string]page.LpaAndActorTasks)
+	attorneyMap := make(map[string]page.LpaAndActorTasks)
+
 	for _, item := range items {
-		switch keyMap[item.ID] {
-		case actor.TypeDonor:
-			donor = append(donor, page.LpaAndActorTasks{Lpa: item})
-		case actor.TypeAttorney:
-			var attorneyProvided actor.AttorneyProvidedDetails
-			err = s.dynamoClient.Get(ctx, lpaKey(item.ID), attorneyKey(data.SessionID), &attorneyProvided)
+		jsonData, _ := json.Marshal(item)
 
-			attorney = append(attorney, page.LpaAndActorTasks{
-				Lpa:           item,
-				AttorneyTasks: attorneyProvided.Tasks,
-			})
-		case actor.TypeCertificateProvider:
-			var certificateProviderProvided actor.CertificateProviderProvidedDetails
-			err = s.dynamoClient.Get(ctx, lpaKey(item.ID), certificateProviderKey(data.SessionID), &certificateProviderProvided)
+		var lpa *page.Lpa
+		err := json.Unmarshal(jsonData, &lpa)
 
-			certificateProvider = append(certificateProvider, page.LpaAndActorTasks{
-				Lpa:                      item,
-				CertificateProviderTasks: certificateProviderProvided.Tasks,
-			})
+		if err == nil && lpa.ID != "" {
+			switch keyMap[lpa.ID] {
+			case actor.TypeDonor:
+				donor = append(donor, page.LpaAndActorTasks{Lpa: lpa})
+			case actor.TypeAttorney:
+				attorneyMap[lpa.ID] = page.LpaAndActorTasks{Lpa: lpa}
+			case actor.TypeCertificateProvider:
+				certificateProviderMap[lpa.ID] = page.LpaAndActorTasks{Lpa: lpa}
+			}
 		}
+
+		var certificateProviderProvidedDetails *actor.CertificateProviderProvidedDetails
+		err = json.Unmarshal(jsonData, &certificateProviderProvidedDetails)
+		if err == nil && certificateProviderProvidedDetails.LpaID != "" {
+			if entry, ok := certificateProviderMap[certificateProviderProvidedDetails.LpaID]; ok {
+				entry.CertificateProviderTasks = certificateProviderProvidedDetails.Tasks
+				certificateProviderMap[certificateProviderProvidedDetails.LpaID] = entry
+			}
+		}
+
+		var attorneyProvidedDetails *actor.AttorneyProvidedDetails
+		err = json.Unmarshal(jsonData, &attorneyProvidedDetails)
+		if err == nil && attorneyProvidedDetails.LpaID != "" {
+			if entry, ok := attorneyMap[attorneyProvidedDetails.LpaID]; ok {
+				entry.AttorneyTasks = attorneyProvidedDetails.Tasks
+				attorneyMap[attorneyProvidedDetails.LpaID] = entry
+			}
+		}
+	}
+
+	for _, value := range certificateProviderMap {
+		certificateProvider = append(certificateProvider, value)
+	}
+
+	for _, value := range attorneyMap {
+		attorney = append(attorney, value)
 	}
 
 	byUpdatedAt := func(a, b page.LpaAndActorTasks) bool {
