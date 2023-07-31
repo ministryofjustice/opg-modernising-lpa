@@ -146,3 +146,11 @@ func TestIsReplacementAttorney(t *testing.T) {
 	appData.ActorType = actor.TypeAttorney
 	assert.False(t, appData.IsReplacementAttorney())
 }
+
+func TestIsTrustCorporation(t *testing.T) {
+	assert.True(t, AppData{ActorType: actor.TypeAttorney}.IsTrustCorporation())
+	assert.True(t, AppData{ActorType: actor.TypeReplacementAttorney}.IsTrustCorporation())
+
+	assert.False(t, AppData{ActorType: actor.TypeAttorney, AttorneyID: "1"}.IsTrustCorporation())
+	assert.False(t, AppData{ActorType: actor.TypeReplacementAttorney, AttorneyID: "1"}.IsTrustCorporation())
+}
