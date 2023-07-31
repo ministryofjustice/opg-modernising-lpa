@@ -64,21 +64,21 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		return nil, nil, nil, nil
 	}
 
-	var items []interface{}
-	if err := s.dynamoClient.GetAllByKeys(ctx, searchKeys, &items); err != nil {
+	var lpasOrProvidedDetails []interface{}
+	if err := s.dynamoClient.GetAllByKeys(ctx, searchKeys, &lpasOrProvidedDetails); err != nil {
 		return nil, nil, nil, err
 	}
 
 	certificateProviderMap := make(map[string]page.LpaAndActorTasks)
 	attorneyMap := make(map[string]page.LpaAndActorTasks)
 
-	for _, item := range items {
+	for _, item := range lpasOrProvidedDetails {
 		jsonData, _ := json.Marshal(item)
 
 		var lpa *page.Lpa
 		err := json.Unmarshal(jsonData, &lpa)
 
-		if err == nil && lpa.ID != "" {
+		if err == nil && strings.Contains(lpa.SK, donorKey("")) {
 			switch keyMap[lpa.ID] {
 			case actor.TypeDonor:
 				donor = append(donor, page.LpaAndActorTasks{Lpa: lpa})
@@ -88,22 +88,27 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 				certificateProviderMap[lpa.ID] = page.LpaAndActorTasks{Lpa: lpa}
 			}
 		}
+	}
 
-		var certificateProviderProvidedDetails *actor.CertificateProviderProvidedDetails
-		err = json.Unmarshal(jsonData, &certificateProviderProvidedDetails)
-		if err == nil && certificateProviderProvidedDetails.LpaID != "" {
-			if entry, ok := certificateProviderMap[certificateProviderProvidedDetails.LpaID]; ok {
-				entry.CertificateProviderTasks = certificateProviderProvidedDetails.Tasks
-				certificateProviderMap[certificateProviderProvidedDetails.LpaID] = entry
-			}
-		}
+	for _, item := range lpasOrProvidedDetails {
+		jsonData, _ := json.Marshal(item)
 
 		var attorneyProvidedDetails *actor.AttorneyProvidedDetails
 		err = json.Unmarshal(jsonData, &attorneyProvidedDetails)
-		if err == nil && attorneyProvidedDetails.LpaID != "" {
+		if err == nil && strings.Contains(attorneyProvidedDetails.SK, attorneyKey("")) {
 			if entry, ok := attorneyMap[attorneyProvidedDetails.LpaID]; ok {
 				entry.AttorneyTasks = attorneyProvidedDetails.Tasks
 				attorneyMap[attorneyProvidedDetails.LpaID] = entry
+				continue
+			}
+		}
+
+		var certificateProviderProvidedDetails *actor.CertificateProviderProvidedDetails
+		err = json.Unmarshal(jsonData, &certificateProviderProvidedDetails)
+		if err == nil && strings.Contains(certificateProviderProvidedDetails.SK, certificateProviderKey("")) {
+			if entry, ok := certificateProviderMap[certificateProviderProvidedDetails.LpaID]; ok {
+				entry.CertificateProviderTasks = certificateProviderProvidedDetails.Tasks
+				certificateProviderMap[certificateProviderProvidedDetails.LpaID] = entry
 			}
 		}
 	}
