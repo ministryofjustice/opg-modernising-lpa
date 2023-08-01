@@ -102,7 +102,7 @@ func Register(
 	handleRoot(page.Paths.Attorney.LoginCallback, None,
 		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.Attorney.EnterReferenceNumber))
 	handleRoot(page.Paths.Attorney.EnterReferenceNumber, RequireSession,
-		page.EnterReferenceNumber(tmpls.Get("attorney_enter_reference_number.gohtml"), shareCodeStore, sessionStore, certificateProviderStore, attorneyStore, actor.TypeAttorney))
+		EnterReferenceNumber(tmpls.Get("attorney_enter_reference_number.gohtml"), shareCodeStore, sessionStore, attorneyStore))
 
 	attorneyMux := http.NewServeMux()
 	rootMux.Handle("/attorney/", page.RouteToPrefix("/attorney/", attorneyMux, notFoundHandler))

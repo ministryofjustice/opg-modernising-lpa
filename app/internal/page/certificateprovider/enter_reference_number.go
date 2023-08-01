@@ -1,4 +1,4 @@
-package page
+package certificateprovider
 
 import (
 	"encoding/base64"
@@ -10,19 +10,20 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
 
 type enterReferenceNumberData struct {
-	App    AppData
+	App    page.AppData
 	Errors validation.List
 	Form   *enterReferenceNumberForm
-	Lpa    *Lpa
+	Lpa    *page.Lpa
 }
 
-func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore, sessionStore sessions.Store, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, actorType actor.Type) Handler {
-	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
+func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore, sessionStore sessions.Store, certificateProviderStore CertificateProviderStore) page.Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := enterReferenceNumberData{
 			App:  appData,
 			Form: &enterReferenceNumberForm{},
@@ -35,7 +36,7 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 			if len(data.Errors) == 0 {
 				referenceNumber := data.Form.ReferenceNumber
 
-				shareCode, err := shareCodeStore.Get(r.Context(), actorType, referenceNumber)
+				shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeCertificateProvider, referenceNumber)
 				if err != nil {
 					if errors.Is(err, dynamo.NotFoundError{}) {
 						data.Errors.Add("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"})
@@ -50,33 +51,20 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 					return err
 				}
 
-				ctx := ContextWithSessionData(r.Context(), &SessionData{
+				ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
 					SessionID: base64.StdEncoding.EncodeToString([]byte(session.Sub)),
 					LpaID:     shareCode.LpaID,
 				})
 
-				redirect := Paths.CertificateProvider.WhoIsEligible.Format(shareCode.LpaID)
-
-				if actorType.String() == actor.TypeCertificateProvider.String() {
-					if _, err := certificateProviderStore.Create(ctx, shareCode.SessionID); err != nil {
-						var ccf *types.ConditionalCheckFailedException
-						if !errors.As(err, &ccf) {
-							return err
-						}
+				if _, err := certificateProviderStore.Create(ctx, shareCode.SessionID); err != nil {
+					var ccf *types.ConditionalCheckFailedException
+					if !errors.As(err, &ccf) {
+						return err
 					}
-				} else {
-					if _, err := attorneyStore.Create(ctx, shareCode.SessionID, shareCode.AttorneyID, shareCode.IsReplacementAttorney); err != nil {
-						var ccf *types.ConditionalCheckFailedException
-						if !errors.As(err, &ccf) {
-							return err
-						}
-					}
-
-					redirect = Paths.Attorney.CodeOfConduct.Format(shareCode.LpaID)
 				}
 
 				appData.LpaID = shareCode.LpaID
-				return appData.Redirect(w, r, nil, redirect)
+				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.WhoIsEligible.Format(shareCode.LpaID))
 			}
 		}
 
@@ -91,8 +79,8 @@ type enterReferenceNumberForm struct {
 
 func readEnterReferenceNumberForm(r *http.Request) *enterReferenceNumberForm {
 	return &enterReferenceNumberForm{
-		ReferenceNumber:    PostFormReferenceNumber(r, "reference-number"),
-		ReferenceNumberRaw: PostFormString(r, "reference-number"),
+		ReferenceNumber:    page.PostFormReferenceNumber(r, "reference-number"),
+		ReferenceNumberRaw: page.PostFormString(r, "reference-number"),
 	}
 }
 

@@ -123,7 +123,6 @@ func App(
 		yotiClient,
 		certificateProviderStore,
 		notFoundHandler,
-		attorneyStore,
 	)
 
 	attorney.Register(

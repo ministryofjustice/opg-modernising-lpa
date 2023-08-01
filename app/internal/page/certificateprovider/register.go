@@ -87,7 +87,6 @@ func Register(
 	yotiClient YotiClient,
 	certificateProviderStore CertificateProviderStore,
 	notFoundHandler page.Handler,
-	attorneyStore page.AttorneyStore,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -96,7 +95,7 @@ func Register(
 	handleRoot(page.Paths.CertificateProvider.LoginCallback,
 		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.CertificateProvider.EnterReferenceNumber))
 	handleRoot(page.Paths.CertificateProvider.EnterReferenceNumber,
-		page.EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), shareCodeStore, sessionStore, certificateProviderStore, attorneyStore, actor.TypeCertificateProvider))
+		EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), shareCodeStore, sessionStore, certificateProviderStore))
 
 	certificateProviderMux := http.NewServeMux()
 	rootMux.Handle("/certificate-provider/", page.RouteToPrefix("/certificate-provider/", certificateProviderMux, notFoundHandler))
