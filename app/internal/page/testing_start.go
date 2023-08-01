@@ -49,6 +49,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		attorneyEmail                string
 		replacementAttorneyEmail     string
 		certificateProviderEmail     string
+		trustCorporationEmail        string
 		certificateProviderActOnline bool
 	}
 
@@ -256,8 +257,20 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 				lpa.Tasks.ChooseReplacementAttorneys = actor.TaskInProgress
 			}
 
-			if opts.trustCorporation == "incomplete" {
+			switch opts.trustCorporation {
+			case "incomplete":
 				lpa.Attorneys.TrustCorporation = actor.TrustCorporation{Name: "My company"}
+			case "complete":
+				lpa.Attorneys.TrustCorporation = actor.TrustCorporation{
+					Name:          "My company",
+					CompanyNumber: "555555555",
+					Email:         testEmail,
+					Address:       place.Address{Line1: "123 Fake Street", Postcode: "FF1 1FF"},
+				}
+			}
+
+			if opts.trustCorporationEmail != "" {
+				lpa.Attorneys.TrustCorporation.Email = opts.trustCorporationEmail
 			}
 
 			if opts.howAttorneysAct != "" {

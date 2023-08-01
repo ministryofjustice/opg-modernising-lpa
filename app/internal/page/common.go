@@ -35,7 +35,7 @@ type ShareCodeStore interface {
 type NotifyClient interface {
 	Email(ctx context.Context, email notify.Email) (string, error)
 	Sms(ctx context.Context, sms notify.Sms) (string, error)
-	TemplateID(id notify.TemplateId) string
+	TemplateID(id notify.Template) string
 }
 
 //go:generate mockery --testonly --inpackage --name OneLoginClient --structname mockOneLoginClient
@@ -93,7 +93,7 @@ type Localizer interface {
 
 //go:generate mockery --testonly --inpackage --name shareCodeSender --structname mockShareCodeSender
 type shareCodeSender interface {
-	SendCertificateProvider(ctx context.Context, template notify.TemplateId, appData AppData, identity bool, lpa *Lpa) error
+	SendCertificateProvider(ctx context.Context, template notify.Template, appData AppData, identity bool, lpa *Lpa) error
 	SendAttorneys(ctx context.Context, appData AppData, lpa *Lpa) error
 	UseTestCode()
 }
