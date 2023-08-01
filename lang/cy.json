@@ -589,8 +589,6 @@
     "enterYourAttorneyReferenceNumber": "Welsh",
     "attorneyReferenceNumberContent": "Welsh",
     "attorneyReferenceNumber": "Welsh",
-    "attorneyReferenceNumberMustBeTwelveCharacters": "Welsh",
-    "twelveCharactersAttorneyReferenceNumber": "Welsh",
     "incorrectAttorneyReferenceNumber": "Welsh",
     "attorney18OrOverWarning": "Welsh",
     "youAttorneyAreUnder18Error": "Welsh",
@@ -741,5 +739,6 @@
     "changeCompanyNumberLink": "Welsh",
     "changeCompanyEmailLink": "Welsh",
     "changeCompanyAddressLink": "Welsh",
-    "trustCorporation": "Welsh"
+    "trustCorporation": "Welsh",
+    "readLpa": "Welsh"
 }

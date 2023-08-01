@@ -16,9 +16,9 @@ import (
 
 var expectedError = errors.New("err")
 
-func (m *mockDynamoClient) ExpectGet(ctx, pk, partialSk, data interface{}, err error) {
+func (m *mockDynamoClient) ExpectGet(ctx, pk, sk, data interface{}, err error) {
 	m.
-		On("Get", ctx, pk, partialSk, mock.Anything).
+		On("Get", ctx, pk, sk, mock.Anything).
 		Return(func(ctx context.Context, pk, partialSk string, v interface{}) error {
 			b, _ := json.Marshal(data)
 			json.Unmarshal(b, v)
@@ -49,11 +49,7 @@ func (m *mockDynamoClient) ExpectGetAllByGsi(ctx, gsi, sk, data interface{}, err
 func (m *mockDynamoClient) ExpectGetAllByKeys(ctx context.Context, keys []dynamo.Key, data interface{}, err error) {
 	m.
 		On("GetAllByKeys", ctx, keys, mock.Anything).
-		Return(func(ctx context.Context, keys []dynamo.Key, v interface{}) error {
-			b, _ := json.Marshal(data)
-			json.Unmarshal(b, v)
-			return err
-		})
+		Return(data, err)
 }
 
 func TestDonorStoreGetAll(t *testing.T) {

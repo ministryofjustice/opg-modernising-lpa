@@ -5,21 +5,28 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 )
 
 //go:generate mockery --testonly --inpackage --name DashboardStore --structname mockDashboardStore
 type DashboardStore interface {
-	GetAll(ctx context.Context) (donor, attorney, certificateProvider []*Lpa, err error)
+	GetAll(ctx context.Context) (donor, attorney, certificateProvider []LpaAndActorTasks, err error)
+}
+
+type LpaAndActorTasks struct {
+	Lpa                      *Lpa
+	CertificateProviderTasks actor.CertificateProviderTasks
+	AttorneyTasks            actor.AttorneyTasks
 }
 
 type dashboardData struct {
 	App                     AppData
 	Errors                  validation.List
 	UseTabs                 bool
-	DonorLpas               []*Lpa
-	CertificateProviderLpas []*Lpa
-	AttorneyLpas            []*Lpa
+	DonorLpas               []LpaAndActorTasks
+	CertificateProviderLpas []LpaAndActorTasks
+	AttorneyLpas            []LpaAndActorTasks
 }
 
 func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore DashboardStore) Handler {

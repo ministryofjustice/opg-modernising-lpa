@@ -308,10 +308,9 @@ func TestGetAllByKeys(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v []map[string]string
-	err := c.GetAllByKeys(ctx, []Key{{PK: "pk", SK: "sk"}}, &v)
+	v, err := c.GetAllByKeys(ctx, []Key{{PK: "pk", SK: "sk"}})
 	assert.Nil(t, err)
-	assert.Equal(t, []map[string]string{expected}, v)
+	assert.Equal(t, []map[string]types.AttributeValue{data}, v)
 }
 
 func TestGetAllByKeysWhenQueryErrors(t *testing.T) {
@@ -324,9 +323,6 @@ func TestGetAllByKeysWhenQueryErrors(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v []struct {
-		Data string
-	}
-	err := c.GetAllByKeys(ctx, []Key{{PK: "pk", SK: "sk"}}, &v)
+	_, err := c.GetAllByKeys(ctx, []Key{{PK: "pk", SK: "sk"}})
 	assert.Equal(t, expectedError, err)
 }
