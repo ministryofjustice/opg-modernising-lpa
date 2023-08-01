@@ -49,11 +49,7 @@ func (m *mockDynamoClient) ExpectGetAllByGsi(ctx, gsi, sk, data interface{}, err
 func (m *mockDynamoClient) ExpectGetAllByKeys(ctx context.Context, keys []dynamo.Key, data interface{}, err error) {
 	m.
 		On("GetAllByKeys", ctx, keys, mock.Anything).
-		Return(func(ctx context.Context, keys []dynamo.Key, v interface{}) error {
-			b, _ := json.Marshal(data)
-			json.Unmarshal(b, v)
-			return err
-		})
+		Return(data, err)
 }
 
 func TestDonorStoreGetAll(t *testing.T) {

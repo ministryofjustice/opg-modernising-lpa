@@ -2,10 +2,10 @@ package app
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"strings"
 
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
@@ -28,6 +28,22 @@ type dashboardStore struct {
 	dynamoClient DynamoClient
 }
 
+type keys struct {
+	PK, SK string
+}
+
+func (k keys) isLpa() bool {
+	return strings.Contains(k.SK, donorKey(""))
+}
+
+func (k keys) isCertificateProviderDetails() bool {
+	return strings.Contains(k.SK, certificateProviderKey(""))
+}
+
+func (k keys) isAttorneyDetails() bool {
+	return strings.Contains(k.SK, attorneyKey(""))
+}
+
 func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certificateProvider []page.LpaAndActorTasks, err error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
@@ -38,14 +54,14 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		return nil, nil, nil, errors.New("donorStore.GetAll requires SessionID")
 	}
 
-	var keys []lpaLink
-	if err := s.dynamoClient.GetAllByGsi(ctx, "ActorIndex", subKey(data.SessionID), &keys); err != nil {
+	var links []lpaLink
+	if err := s.dynamoClient.GetAllByGsi(ctx, "ActorIndex", subKey(data.SessionID), &links); err != nil {
 		return nil, nil, nil, err
 	}
 
 	var searchKeys []dynamo.Key
 	keyMap := map[string]actor.Type{}
-	for _, key := range keys {
+	for _, key := range links {
 		searchKeys = append(searchKeys, dynamo.Key{PK: key.PK, SK: key.DonorKey})
 
 		if key.ActorType == actor.TypeAttorney {
@@ -64,8 +80,8 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		return nil, nil, nil, nil
 	}
 
-	var lpasOrProvidedDetails []interface{}
-	if err := s.dynamoClient.GetAllByKeys(ctx, searchKeys, &lpasOrProvidedDetails); err != nil {
+	lpasOrProvidedDetails, err := s.dynamoClient.GetAllByKeys(ctx, searchKeys)
+	if err != nil {
 		return nil, nil, nil, err
 	}
 
@@ -73,12 +89,17 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 	attorneyMap := make(map[string]page.LpaAndActorTasks)
 
 	for _, item := range lpasOrProvidedDetails {
-		jsonData, _ := json.Marshal(item)
+		var ks keys
+		if err = attributevalue.UnmarshalMap(item, &ks); err != nil {
+			return nil, nil, nil, err
+		}
 
-		var lpa *page.Lpa
-		err := json.Unmarshal(jsonData, &lpa)
+		if ks.isLpa() {
+			lpa := &page.Lpa{}
+			if err := attributevalue.UnmarshalMap(item, lpa); err != nil {
+				return nil, nil, nil, err
+			}
 
-		if err == nil && strings.Contains(lpa.SK, donorKey("")) {
 			switch keyMap[lpa.ID] {
 			case actor.TypeDonor:
 				donor = append(donor, page.LpaAndActorTasks{Lpa: lpa})
@@ -91,11 +112,17 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 	}
 
 	for _, item := range lpasOrProvidedDetails {
-		jsonData, _ := json.Marshal(item)
+		var ks keys
+		if err = attributevalue.UnmarshalMap(item, &ks); err != nil {
+			return nil, nil, nil, err
+		}
 
-		var attorneyProvidedDetails *actor.AttorneyProvidedDetails
-		err = json.Unmarshal(jsonData, &attorneyProvidedDetails)
-		if err == nil && strings.Contains(attorneyProvidedDetails.SK, attorneyKey("")) {
+		if ks.isAttorneyDetails() {
+			attorneyProvidedDetails := &actor.AttorneyProvidedDetails{}
+			if err := attributevalue.UnmarshalMap(item, attorneyProvidedDetails); err != nil {
+				return nil, nil, nil, err
+			}
+
 			if entry, ok := attorneyMap[attorneyProvidedDetails.LpaID]; ok {
 				entry.AttorneyTasks = attorneyProvidedDetails.Tasks
 				attorneyMap[attorneyProvidedDetails.LpaID] = entry
@@ -103,9 +130,12 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 			}
 		}
 
-		var certificateProviderProvidedDetails *actor.CertificateProviderProvidedDetails
-		err = json.Unmarshal(jsonData, &certificateProviderProvidedDetails)
-		if err == nil && strings.Contains(certificateProviderProvidedDetails.SK, certificateProviderKey("")) {
+		if ks.isCertificateProviderDetails() {
+			certificateProviderProvidedDetails := &actor.CertificateProviderProvidedDetails{}
+			if err := attributevalue.UnmarshalMap(item, certificateProviderProvidedDetails); err != nil {
+				return nil, nil, nil, err
+			}
+
 			if entry, ok := certificateProviderMap[certificateProviderProvidedDetails.LpaID]; ok {
 				entry.CertificateProviderTasks = certificateProviderProvidedDetails.Tasks
 				certificateProviderMap[certificateProviderProvidedDetails.LpaID] = entry

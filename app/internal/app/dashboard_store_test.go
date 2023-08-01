@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
@@ -14,13 +16,13 @@ import (
 func TestDashboardStoreGetAll(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
 
-	lpa0 := &page.Lpa{ID: "0", UpdatedAt: time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC), SK: donorKey("an-id")}
-	lpa123 := &page.Lpa{ID: "123", UpdatedAt: time.Date(2001, time.January, 1, 0, 0, 0, 0, time.UTC), SK: donorKey("an-id")}
-	lpa456 := &page.Lpa{ID: "456", SK: donorKey("another-id")}
+	lpa0 := &page.Lpa{ID: "0", UpdatedAt: time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC), SK: donorKey("an-id"), PK: lpaKey("0")}
+	lpa123 := &page.Lpa{ID: "123", UpdatedAt: time.Date(2001, time.January, 1, 0, 0, 0, 0, time.UTC), SK: donorKey("an-id"), PK: lpaKey("123")}
+	lpa456 := &page.Lpa{ID: "456", SK: donorKey("another-id"), PK: lpaKey("456")}
 	lpa456CpProvidedDetails := &actor.CertificateProviderProvidedDetails{
 		LpaID: "456", Tasks: actor.CertificateProviderTasks{ConfirmYourDetails: actor.TaskCompleted}, SK: certificateProviderKey("an-id"),
 	}
-	lpa789 := &page.Lpa{ID: "789", SK: donorKey("different-id")}
+	lpa789 := &page.Lpa{ID: "789", SK: donorKey("different-id"), PK: lpaKey("789")}
 	lpa789AttorneyProvidedDetails := &actor.AttorneyProvidedDetails{
 		LpaID: "789", Tasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskInProgress}, SK: attorneyKey("an-id"),
 	}
@@ -40,13 +42,13 @@ func TestDashboardStoreGetAll(t *testing.T) {
 		{PK: "LPA#789", SK: "#DONOR#different-id"},
 		{PK: "LPA#789", SK: "#ATTORNEY#an-id"},
 		{PK: "LPA#0", SK: "#DONOR#an-id"},
-	}, []interface{}{
-		lpa123,
-		lpa456,
-		lpa456CpProvidedDetails,
-		lpa789,
-		lpa789AttorneyProvidedDetails,
-		lpa0,
+	}, []map[string]types.AttributeValue{
+		makeAttributeValueMap(lpa123),
+		makeAttributeValueMap(lpa456),
+		makeAttributeValueMap(lpa456CpProvidedDetails),
+		makeAttributeValueMap(lpa789),
+		makeAttributeValueMap(lpa789AttorneyProvidedDetails),
+		makeAttributeValueMap(lpa0),
 	}, nil)
 
 	dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
@@ -57,6 +59,11 @@ func TestDashboardStoreGetAll(t *testing.T) {
 	assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa123}, {Lpa: lpa0}}, donor)
 	assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa456, CertificateProviderTasks: actor.CertificateProviderTasks{ConfirmYourDetails: actor.TaskCompleted}}}, certificateProvider)
 	assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa789, AttorneyTasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskInProgress}}}, attorney)
+}
+
+func makeAttributeValueMap(i interface{}) map[string]types.AttributeValue {
+	result, _ := attributevalue.MarshalMap(i)
+	return result
 }
 
 func TestDashboardStoreGetAllWhenNone(t *testing.T) {
