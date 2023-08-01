@@ -709,5 +709,10 @@
     "changeCompanyNumberLink": "Change<span class=\"govuk-visually-hidden\"> company number</span>",
     "changeCompanyEmailLink": "Change<span class=\"govuk-visually-hidden\"> company email address</span>",
     "changeCompanyAddressLink": "Change<span class=\"govuk-visually-hidden\"> address</span>",
-    "trustCorporation": "Trust corporation"
+    "trustCorporation": "Trust corporation",
+    "confirmYourCompanyDetails": "Confirm your company details",
+    "youMustConfirmTheDetailsAboutYourCompany": "You must confirm the details {{.DonorFullName}} has given us about your company are correct.",
+    "detailsTheDonorHasGivenAboutYourCompany": "Details the donor has given about your company",
+    "whatToDoIfAnyDetailsAboutCompanyAreIncorrect": "What to do if any of the details given about your company are incorrect",
+    "whatToDoIfAnyDetailsAboutCompanyAreIncorrectAttorneyContent": "<p class=\"govuk-body\">If you notice a mistake in any of the details the donor provided for your company, you should not continue.</p><p class=\"govuk-body\">You’ll need to let the donor know so they can change the details.</p><p class=\"govuk-body\">Once they’ve made the changes, you’ll need to log back in again and confirm the details are correct.</p>"
 }
