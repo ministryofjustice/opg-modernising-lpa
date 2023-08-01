@@ -14,6 +14,7 @@ type confirmYourDetailsData struct {
 	Errors                  validation.List
 	Lpa                     *page.Lpa
 	Attorney                actor.Attorney
+	TrustCorporation        actor.TrustCorporation
 	AttorneyProvidedDetails *actor.AttorneyProvidedDetails
 }
 
@@ -34,13 +35,16 @@ func ConfirmYourDetails(tmpl template.Template, attorneyStore AttorneyStore, don
 			return err
 		}
 
-		attorney, _ := lpa.Attorneys.Get(attorneyProvidedDetails.ID)
-
 		data := &confirmYourDetailsData{
 			App:                     appData,
 			Lpa:                     lpa,
-			Attorney:                attorney,
 			AttorneyProvidedDetails: attorneyProvidedDetails,
+		}
+
+		if appData.IsTrustCorporation() {
+			data.TrustCorporation = lpa.Attorneys.TrustCorporation
+		} else {
+			data.Attorney, _ = lpa.Attorneys.Get(attorneyProvidedDetails.ID)
 		}
 
 		return tmpl(w, data)

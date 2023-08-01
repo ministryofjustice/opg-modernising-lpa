@@ -10,35 +10,13 @@ import (
 )
 
 type readTheLpaData struct {
-	App      page.AppData
-	Errors   validation.List
-	Lpa      *page.Lpa
-	Attorney actor.Attorney
+	App    page.AppData
+	Errors validation.List
+	Lpa    *page.Lpa
 }
 
 func ReadTheLpa(tmpl template.Template, donorStore DonorStore, attorneyStore AttorneyStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *actor.AttorneyProvidedDetails) error {
-		lpa, err := donorStore.GetAny(r.Context())
-		if err != nil {
-			return err
-		}
-
-		attorneys := lpa.Attorneys
-		if appData.IsReplacementAttorney() {
-			attorneys = lpa.ReplacementAttorneys
-		}
-
-		attorney, ok := attorneys.Get(appData.AttorneyID)
-		if !ok {
-			return appData.Redirect(w, r, lpa, page.Paths.Attorney.Start.Format())
-		}
-
-		data := &readTheLpaData{
-			App:      appData,
-			Lpa:      lpa,
-			Attorney: attorney,
-		}
-
 		if r.Method == http.MethodPost {
 			attorneyProvidedDetails.Tasks.ReadTheLpa = actor.TaskCompleted
 
@@ -46,7 +24,17 @@ func ReadTheLpa(tmpl template.Template, donorStore DonorStore, attorneyStore Att
 				return err
 			}
 
-			return appData.Redirect(w, r, lpa, page.Paths.Attorney.RightsAndResponsibilities.Format(attorneyProvidedDetails.LpaID))
+			return appData.Redirect(w, r, nil, page.Paths.Attorney.RightsAndResponsibilities.Format(attorneyProvidedDetails.LpaID))
+		}
+
+		lpa, err := donorStore.GetAny(r.Context())
+		if err != nil {
+			return err
+		}
+
+		data := &readTheLpaData{
+			App: appData,
+			Lpa: lpa,
 		}
 
 		return tmpl(w, data)

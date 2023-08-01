@@ -5,49 +5,86 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "confirmYourDetails" }}</h1>
+      {{ if .TrustCorporation.Name }}
+        <h1 class="govuk-heading-xl">{{ tr .App "confirmYourCompanyDetails" }}</h1>
 
-      <p class="govuk-body">{{ trFormat .App "youMustConfirmYourTelephoneNumber" "DonorFullName" .Lpa.Donor.FullName }}</p>
+        <p class="govuk-body">{{ trFormat .App "youMustConfirmTheDetailsAboutYourCompany" "DonorFullName" .Lpa.Donor.FullName }}</p>
 
-      <h2 class="govuk-heading-m">{{ tr .App "detailsYouHaveGivenUs" }}</h2>
+        <h2 class="govuk-heading-m">{{ tr .App "detailsTheDonorHasGivenAboutYourCompany" }}</h2>
 
-      <dl class="govuk-summary-list">
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">{{ tr .App "telephoneNumber" }}</dt>
-          <dd class="govuk-summary-list__value">{{ .AttorneyProvidedDetails.Mobile }}</dd>
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App (.App.Paths.Attorney.MobileNumber.Format .Lpa.ID) }}">{{ trHtml .App "changeTelephoneNumberLink" }}</a>
-          </dd>
-        </div>
-      </dl>
+        <dl class="govuk-summary-list">
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "companyName" }}</dt>
+            <dd class="govuk-summary-list__value">{{ .TrustCorporation.Name }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "companyNumber" }}</dt>
+            <dd class="govuk-summary-list__value">{{ .TrustCorporation.CompanyNumber }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "companyEmailAddress" }}</dt>
+            <dd class="govuk-summary-list__value">{{ .TrustCorporation.Email }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
+            <dd class="govuk-summary-list__value">
+              {{ .TrustCorporation.Address.Line1 }}<br>
+              {{ if .TrustCorporation.Address.Line2 }}{{ .TrustCorporation.Address.Line2 }}<br>{{end}}
+              {{ if .TrustCorporation.Address.Line3 }}{{ .TrustCorporation.Address.Line3 }}<br>{{end}}
+              {{ if .TrustCorporation.Address.TownOrCity }}{{ .TrustCorporation.Address.TownOrCity }}<br>{{end}}
+              {{ .TrustCorporation.Address.Postcode }}
+            </dd>
+          </div>
+        </dl>
 
-      <h2 class="govuk-heading-m govuk-!-margin-top-8">{{ tr .App "detailsTheDonorHasGivenAboutYou" }}</h2>
+        {{ template "details" (details . "whatToDoIfAnyDetailsAboutCompanyAreIncorrect" "whatToDoIfAnyDetailsAboutCompanyAreIncorrectAttorneyContent" false) }}
 
-      <dl class="govuk-summary-list">
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">{{ tr .App "name" }}</dt>
-          <dd class="govuk-summary-list__value">{{ .Attorney.FullName }}</dd>
-        </div>
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">{{ tr .App "dateOfBirth" }}</dt>
-          <dd class="govuk-summary-list__value">{{ formatDate .Attorney.DateOfBirth }}</dd>
-        </div>
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
-          <dd class="govuk-summary-list__value">
-            {{ .Attorney.Address.Line1 }}<br>
-            {{ if .Attorney.Address.Line2 }}{{ .Attorney.Address.Line2 }}<br>{{end}}
-            {{ if .Attorney.Address.Line3 }}{{ .Attorney.Address.Line3 }}<br>{{end}}
-            {{ if .Attorney.Address.TownOrCity }}{{ .Attorney.Address.TownOrCity }}<br>{{end}}
-            {{ .Attorney.Address.Postcode }}
-          </dd>
-        </div>
-      </dl>
+        {{ template "warning" (warning .App "ifTheDetailsYouProvideAreNotCorrect") }}
+      {{ else }}
+        <h1 class="govuk-heading-xl">{{ tr .App "confirmYourDetails" }}</h1>
 
-      {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" "whatToDoIfAnyDetailsAreIncorrectAttorneyContent" false) }}
+        <p class="govuk-body">{{ trFormat .App "youMustConfirmYourTelephoneNumber" "DonorFullName" .Lpa.Donor.FullName }}</p>
 
-      {{ template "warning" (warning .App "anyErrorsInYourDetailsCanMakeLpaDifficultToUse") }}
+        <h2 class="govuk-heading-m">{{ tr .App "detailsYouHaveGivenUs" }}</h2>
 
+        <dl class="govuk-summary-list">
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "telephoneNumber" }}</dt>
+            <dd class="govuk-summary-list__value">{{ .AttorneyProvidedDetails.Mobile }}</dd>
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link" href="{{ link .App (.App.Paths.Attorney.MobileNumber.Format .Lpa.ID) }}">{{ trHtml .App "changeTelephoneNumberLink" }}</a>
+            </dd>
+          </div>
+        </dl>
+
+        <h2 class="govuk-heading-m govuk-!-margin-top-8">{{ tr .App "detailsTheDonorHasGivenAboutYou" }}</h2>
+
+        <dl class="govuk-summary-list">
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "name" }}</dt>
+            <dd class="govuk-summary-list__value">{{ .Attorney.FullName }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "dateOfBirth" }}</dt>
+            <dd class="govuk-summary-list__value">{{ formatDate .Attorney.DateOfBirth }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
+            <dd class="govuk-summary-list__value">
+              {{ .Attorney.Address.Line1 }}<br>
+              {{ if .Attorney.Address.Line2 }}{{ .Attorney.Address.Line2 }}<br>{{end}}
+              {{ if .Attorney.Address.Line3 }}{{ .Attorney.Address.Line3 }}<br>{{end}}
+              {{ if .Attorney.Address.TownOrCity }}{{ .Attorney.Address.TownOrCity }}<br>{{end}}
+              {{ .Attorney.Address.Postcode }}
+            </dd>
+          </div>
+        </dl>
+
+        {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" "whatToDoIfAnyDetailsAreIncorrectAttorneyContent" false) }}
+
+        {{ template "warning" (warning .App "anyErrorsInYourDetailsCanMakeLpaDifficultToUse") }}
+      {{ end }}
+      
       <form novalidate method="post">
         {{ template "continue-button" . }}
         {{ template "csrf-field" . }}
