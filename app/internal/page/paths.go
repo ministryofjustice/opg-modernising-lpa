@@ -61,7 +61,6 @@ type CertificateProviderPaths struct {
 	Login                Path
 	LoginCallback        Path
 	EnterReferenceNumber Path
-	WhoIsEligible        Path
 
 	CertificateProvided                  CertificateProviderPath
 	ConfirmYourDetails                   CertificateProviderPath
@@ -83,6 +82,7 @@ type CertificateProviderPaths struct {
 	TaskList                             CertificateProviderPath
 	WhatHappensNext                      CertificateProviderPath
 	WhatYoullNeedToConfirmYourIdentity   CertificateProviderPath
+	WhoIsEligible                        CertificateProviderPath
 	YourChosenIdentityOptions            CertificateProviderPath
 }
 

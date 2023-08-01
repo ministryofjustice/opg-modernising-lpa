@@ -39,6 +39,20 @@ func (_m *mockShareCodeStore) Get(_a0 context.Context, _a1 actor.Type, _a2 strin
 	return r0, r1
 }
 
+// Put provides a mock function with given fields: ctx, actorType, shareCode, data
+func (_m *mockShareCodeStore) Put(ctx context.Context, actorType actor.Type, shareCode string, data actor.ShareCodeData) error {
+	ret := _m.Called(ctx, actorType, shareCode, data)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, actor.Type, string, actor.ShareCodeData) error); ok {
+		r0 = rf(ctx, actorType, shareCode, data)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 type mockConstructorTestingTnewMockShareCodeStore interface {
 	mock.TestingT
 	Cleanup(func())
