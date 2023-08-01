@@ -31,11 +31,11 @@ func (_m *mockShareCodeSender) SendAttorneys(ctx context.Context, appData page.A
 }
 
 // SendCertificateProvider provides a mock function with given fields: ctx, template, appData, identity, lpa
-func (_m *mockShareCodeSender) SendCertificateProvider(ctx context.Context, template notify.TemplateId, appData page.AppData, identity bool, lpa *page.Lpa) error {
+func (_m *mockShareCodeSender) SendCertificateProvider(ctx context.Context, template notify.Template, appData page.AppData, identity bool, lpa *page.Lpa) error {
 	ret := _m.Called(ctx, template, appData, identity, lpa)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, notify.TemplateId, page.AppData, bool, *page.Lpa) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, notify.Template, page.AppData, bool, *page.Lpa) error); ok {
 		r0 = rf(ctx, template, appData, identity, lpa)
 	} else {
 		r0 = ret.Error(0)
