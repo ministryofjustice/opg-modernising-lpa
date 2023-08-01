@@ -43,13 +43,18 @@ func TaskList(tmpl template.Template, donorStore DonorStore, certificateProvider
 			}
 		}
 
+		confirmYourDetailsPath := page.Paths.Attorney.MobileNumber
+		if appData.IsTrustCorporation() {
+			confirmYourDetailsPath = page.Paths.Attorney.ConfirmYourDetails
+		}
+
 		data := &taskListData{
 			App: appData,
 			Lpa: lpa,
 			Items: []taskListItem{
 				{
 					Name:  "confirmYourDetails",
-					Path:  page.Paths.Attorney.MobileNumber.Format(lpa.ID),
+					Path:  confirmYourDetailsPath.Format(lpa.ID),
 					State: tasks.ConfirmYourDetails,
 				},
 				{

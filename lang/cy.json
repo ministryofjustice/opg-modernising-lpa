@@ -741,5 +741,10 @@
     "changeCompanyNumberLink": "Welsh",
     "changeCompanyEmailLink": "Welsh",
     "changeCompanyAddressLink": "Welsh",
-    "trustCorporation": "Welsh"
+    "trustCorporation": "Welsh",
+    "confirmYourCompanyDetails": "Welsh",
+    "youMustConfirmTheDetailsAboutYourCompany": "Welsh {{.DonorFullName}}",
+    "detailsTheDonorHasGivenAboutYourCompany": "Welsh",
+    "whatToDoIfAnyDetailsAboutCompanyAreIncorrect": "Welsh",
+    "whatToDoIfAnyDetailsAboutCompanyAreIncorrectAttorneyContent": "<p class=\"govuk-body\">Welsh</p>"
 }

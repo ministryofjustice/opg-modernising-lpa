@@ -12,40 +12,65 @@ import (
 )
 
 func TestGetConfirmYourDetails(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
 	attorneyProvidedDetails := &actor.AttorneyProvidedDetails{ID: "123"}
 
-	attorney := actor.Attorney{
-		ID:         "123",
-		FirstNames: "John",
+	testcases := map[string]struct {
+		appData page.AppData
+		lpa     *page.Lpa
+		data    *confirmYourDetailsData
+	}{
+		"attorney": {
+			appData: testAppData,
+			lpa: &page.Lpa{
+				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123", FirstNames: "John"}}},
+			},
+			data: &confirmYourDetailsData{
+				App: testAppData,
+				Lpa: &page.Lpa{
+					Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123", FirstNames: "John"}}},
+				},
+				Attorney:                actor.Attorney{ID: "123", FirstNames: "John"},
+				AttorneyProvidedDetails: attorneyProvidedDetails,
+			},
+		},
+		"trust corporation": {
+			appData: testTrustCorporationAppData,
+			lpa: &page.Lpa{
+				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "company"}},
+			},
+			data: &confirmYourDetailsData{
+				App: testTrustCorporationAppData,
+				Lpa: &page.Lpa{
+					Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "company"}},
+				},
+				TrustCorporation:        actor.TrustCorporation{Name: "company"},
+				AttorneyProvidedDetails: attorneyProvidedDetails,
+			},
+		},
 	}
 
-	lpa := &page.Lpa{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorney}},
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+			donorStore := newMockDonorStore(t)
+			donorStore.
+				On("GetAny", r.Context()).
+				Return(tc.lpa, nil)
+
+			template := newMockTemplate(t)
+			template.
+				On("Execute", w, tc.data).
+				Return(nil)
+
+			err := ConfirmYourDetails(template.Execute, nil, donorStore)(tc.appData, w, r, attorneyProvidedDetails)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
 	}
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
-		Return(lpa, nil)
-
-	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &confirmYourDetailsData{
-			App:                     testAppData,
-			Lpa:                     lpa,
-			Attorney:                attorney,
-			AttorneyProvidedDetails: attorneyProvidedDetails,
-		}).
-		Return(nil)
-
-	err := ConfirmYourDetails(template.Execute, nil, donorStore)(testAppData, w, r, attorneyProvidedDetails)
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestGetConfirmYourDetailsWhenDonorStoreErrors(t *testing.T) {
