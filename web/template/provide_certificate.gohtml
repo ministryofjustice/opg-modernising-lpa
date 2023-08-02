@@ -7,7 +7,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "provideTheCertificateForThisLpa" }}</h1>
 
-      {{ trHtml .App "provideTheCertificateForThisLpaContent" }}
+      {{ trFormatHtml .App "provideTheCertificateForThisLpaContent" "DonorFullName" .Lpa.Donor.FullName }}
 
       <form novalidate method="post">
         <div class="moj-ticket-panel">

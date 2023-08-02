@@ -16,6 +16,7 @@ type provideCertificateData struct {
 	CertificateProvider *actor.CertificateProviderProvidedDetails
 	Lpa                 *page.Lpa
 	Form                *provideCertificateForm
+	DonorFullName       string
 }
 
 func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func() time.Time, certificateProviderStore CertificateProviderStore) page.Handler {
@@ -41,6 +42,7 @@ func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func(
 			Form: &provideCertificateForm{
 				AgreeToStatement: certificateProvider.Certificate.AgreeToStatement,
 			},
+			DonorFullName: lpa.Donor.FullName(),
 		}
 
 		if r.Method == http.MethodPost {
