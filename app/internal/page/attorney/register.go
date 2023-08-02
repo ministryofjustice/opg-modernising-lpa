@@ -51,6 +51,7 @@ type DonorStore interface {
 //go:generate mockery --testonly --inpackage --name ShareCodeStore --structname mockShareCodeStore
 type ShareCodeStore interface {
 	Get(context.Context, actor.Type, string) (actor.ShareCodeData, error)
+	Put(ctx context.Context, actorType actor.Type, shareCode string, data actor.ShareCodeData) error
 }
 
 //go:generate mockery --testonly --inpackage --name NotifyClient --structname mockNotifyClient
@@ -63,6 +64,9 @@ type NotifyClient interface {
 //go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
 type CertificateProviderStore interface {
 	GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
+	GetAll(context.Context) ([]*actor.CertificateProviderProvidedDetails, error)
+	Create(context.Context, string) (*actor.CertificateProviderProvidedDetails, error)
+	Put(context.Context, *actor.CertificateProviderProvidedDetails) error
 }
 
 //go:generate mockery --testonly --inpackage --name AttorneyStore --structname mockAttorneyStore
@@ -70,6 +74,7 @@ type AttorneyStore interface {
 	Create(context.Context, string, string, bool) (*actor.AttorneyProvidedDetails, error)
 	Get(context.Context) (*actor.AttorneyProvidedDetails, error)
 	Put(context.Context, *actor.AttorneyProvidedDetails) error
+	GetAll(context.Context) ([]*actor.AttorneyProvidedDetails, error)
 }
 
 //go:generate mockery --testonly --inpackage --name AddressClient --structname mockAddressClient
@@ -86,10 +91,8 @@ func Register(
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
 	oneLoginClient OneLoginClient,
-	addressClient AddressClient,
 	shareCodeStore ShareCodeStore,
 	errorHandler page.ErrorHandler,
-	notifyClient NotifyClient,
 	notFoundHandler page.Handler,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)

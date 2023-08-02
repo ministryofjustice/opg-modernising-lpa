@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
@@ -41,7 +42,7 @@ type DynamoClient interface {
 	Put(ctx context.Context, v interface{}) error
 	GetOneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
 	GetAllByGsi(ctx context.Context, gsi, sk string, v interface{}) error
-	GetAllByKeys(ctx context.Context, pks []dynamo.Key, v interface{}) error
+	GetAllByKeys(ctx context.Context, pks []dynamo.Key) ([]map[string]types.AttributeValue, error)
 	Create(ctx context.Context, v interface{}) error
 }
 
@@ -120,7 +121,6 @@ func App(
 		shareCodeStore,
 		errorHandler,
 		yotiClient,
-		notifyClient,
 		certificateProviderStore,
 		notFoundHandler,
 	)
@@ -134,10 +134,8 @@ func App(
 		certificateProviderStore,
 		attorneyStore,
 		oneLoginClient,
-		addressClient,
 		shareCodeStore,
 		errorHandler,
-		notifyClient,
 		notFoundHandler,
 	)
 

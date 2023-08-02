@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/dynamo"
@@ -21,7 +22,7 @@ type enterReferenceNumberData struct {
 	Lpa    *page.Lpa
 }
 
-func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore, sessionStore SessionStore, attorneyStore AttorneyStore) page.Handler {
+func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore, sessionStore sessions.Store, attorneyStore AttorneyStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := enterReferenceNumberData{
 			App:  appData,
@@ -38,7 +39,7 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 				shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeAttorney, referenceNumber)
 				if err != nil {
 					if errors.Is(err, dynamo.NotFoundError{}) {
-						data.Errors.Add("reference-number", validation.CustomError{Label: "incorrectAttorneyReferenceNumber"})
+						data.Errors.Add("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"})
 						return tmpl(w, data)
 					} else {
 						return err
@@ -86,10 +87,10 @@ func readEnterReferenceNumberForm(r *http.Request) *enterReferenceNumberForm {
 func (f *enterReferenceNumberForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("reference-number", "twelveCharactersAttorneyReferenceNumber", f.ReferenceNumber,
+	errors.String("reference-number", "twelveCharactersReferenceNumber", f.ReferenceNumber,
 		validation.Empty())
 
-	errors.String("reference-number", "attorneyReferenceNumberMustBeTwelveCharacters", f.ReferenceNumber,
+	errors.String("reference-number", "referenceNumberMustBeTwelveCharacters", f.ReferenceNumber,
 		validation.StringLength(12))
 
 	return errors
