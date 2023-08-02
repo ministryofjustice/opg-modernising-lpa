@@ -84,6 +84,7 @@ type CertificateProviderPaths struct {
 	WhatYoullNeedToConfirmYourIdentity   CertificateProviderPath
 	WhoIsEligible                        CertificateProviderPath
 	YourChosenIdentityOptions            CertificateProviderPath
+	YourRole                             CertificateProviderPath
 }
 
 type HealthCheckPaths struct {
@@ -221,6 +222,7 @@ var Paths = AppPaths{
 		WhatHappensNext:                      "/what-happens-next",
 		WhatYoullNeedToConfirmYourIdentity:   "/what-youll-need-to-confirm-your-identity",
 		YourChosenIdentityOptions:            "/your-chosen-identity-options",
+		YourRole:                             "/your-role",
 	},
 
 	Attorney: AttorneyPaths{
