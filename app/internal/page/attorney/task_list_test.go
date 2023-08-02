@@ -43,6 +43,19 @@ func TestGetTaskList(t *testing.T) {
 				return items
 			},
 		},
+		"trust corporation": {
+			lpa:      &page.Lpa{ID: "lpa-id"},
+			attorney: &actor.AttorneyProvidedDetails{},
+			certificateProviderStore: func(t *testing.T, r *http.Request) *mockCertificateProviderStore {
+				return nil
+			},
+			appData: testTrustCorporationAppData,
+			expected: func(items []taskListItem) []taskListItem {
+				items[0].Path = page.Paths.Attorney.ConfirmYourDetails.Format("lpa-id")
+
+				return items
+			},
+		},
 		"tasks completed not signed": {
 			lpa: &page.Lpa{
 				ID:        "lpa-id",
