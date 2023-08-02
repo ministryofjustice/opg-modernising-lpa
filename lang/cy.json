@@ -494,7 +494,7 @@
     "yourLegalRightsAndResponsibilities": "Welsh",
     "yourLegalRightsAndResponsibilitiesContentHw": "<p class=\"govuk-body\">Welsh</p>",
     "yourLegalRightsAndResponsibilitiesContentPfa": "<p class=\"govuk-body\">Welsh</p>",
-    "whatHappensNextContent": "<p class=\"govuk-body\">Welsh {{.DonorFullName}}</p>",
+    "whatHappensNextContent": "<p class=\"govuk-body\">Welsh {{.DonorFirstNames}}</p>",
     "provideYourCertificate": "Welsh",
     "provideTheCertificateForThisLpa": "Welsh",
     "provideTheCertificateForThisLpaContent": "<p class=\"govuk-body\">Welsh</p>",
