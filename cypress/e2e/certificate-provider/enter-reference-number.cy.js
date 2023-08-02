@@ -22,10 +22,10 @@ describe('Enter reference number', () => {
         cy.contains('Continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('Enter your 12 character certificate provider reference number');
+            cy.contains('Enter your 12 character reference number');
         });
 
-        cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'Enter your 12 character certificate provider reference number');
+        cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'Enter your 12 character reference number');
     });
 
     it('errors when incorrect code', () => {
@@ -39,10 +39,10 @@ describe('Enter reference number', () => {
         cy.contains('Continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('The certificate provider reference number you entered is incorrect, please check it and try again');
+            cy.contains('The reference number you entered is incorrect, please check it and try again');
         });
 
-        cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'The certificate provider reference number you entered is incorrect, please check it and try again');
+        cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'The reference number you entered is incorrect, please check it and try again');
     });
 
     it('errors when incorrect code length', () => {
