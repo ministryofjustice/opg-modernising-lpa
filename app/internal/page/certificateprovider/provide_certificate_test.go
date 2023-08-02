@@ -19,7 +19,7 @@ func TestGetProvideCertificate(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &page.Lpa{Submitted: time.Now(), Donor: actor.Donor{FirstNames: "Full", LastName: "Name"}}
+	lpa := &page.Lpa{Submitted: time.Now()}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
