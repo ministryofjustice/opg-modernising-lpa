@@ -1,15 +1,25 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "attorneyRightsAndResponsibilitiesTitle" }}{{ end }}
+{{ define "pageTitle" }}
+  {{ if .App.IsTrustCorporation }}
+    {{ tr .App "legalRightsAndResponsibilities" }}
+  {{ else }}
+    {{ tr .App "attorneyRightsAndResponsibilitiesTitle" }}
+  {{ end }}
+{{ end }}
 
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl">{{ tr .App "attorneyRightsAndResponsibilitiesTitle" }}</h1>
+          <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
 
+          {{ if .App.IsTrustCorporation }}
+            {{ trHtml .App "trustCorporationRightsAndResponsibilitiesContent" }}
+          {{ else }}
             {{ trHtml .App "attorneyRightsAndResponsibilitiesContent" }}
+          {{ end }}
 
-            <a class="govuk-button" href="{{ link .App (.App.Paths.Attorney.WhatHappensWhenYouSign.Format .App.LpaID) }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
+          <a class="govuk-button" href="{{ link .App (.App.Paths.Attorney.WhatHappensWhenYouSign.Format .App.LpaID) }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
         </div>
     </div>
 {{ end }}
