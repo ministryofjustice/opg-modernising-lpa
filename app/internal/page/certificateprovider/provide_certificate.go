@@ -42,7 +42,6 @@ func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func(
 			Form: &provideCertificateForm{
 				AgreeToStatement: certificateProvider.Certificate.AgreeToStatement,
 			},
-			DonorFullName: lpa.Donor.FullName(),
 		}
 
 		if r.Method == http.MethodPost {
