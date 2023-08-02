@@ -60,7 +60,7 @@ func Fixtures(tmpl template.Template) Handler {
 
 				if data.Form.Signed != "" {
 					values.Add("lpa.signedByDonor", "1")
-					values.Add("certificateProviderProvided", "certified")
+					values.Add("asCertificateProvider", "certified")
 				}
 
 			case "certificate-provider":
@@ -115,7 +115,7 @@ func Fixtures(tmpl template.Template) Handler {
 				}
 
 				if r.FormValue("as-certificate-provider") != "" {
-					values.Add("certificateProviderProvided", "1")
+					values.Add("asCertificateProvider", "1")
 				}
 			}
 
