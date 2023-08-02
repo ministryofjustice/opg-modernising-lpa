@@ -13,11 +13,12 @@
       <h1 class="govuk-heading-xl">{{ tr .App "yourTaskList" }}</h1>
 
       {{ if .Lpa.Submitted.IsZero }}
-        <p class="govuk-body">{{ trFormat .App "untilYouHaveWitnessed" "DonorFullName" .Lpa.Donor.FullName }}</p>
+        {{ $yourRoleURL := link .App (.App.Paths.CertificateProvider.YourRole.Format .Lpa.ID)}}
+        {{ trFormatHtml .App "untilYouHaveWitnessed" "DonorFullName" .Lpa.Donor.FullName "YourRoleURL" $yourRoleURL }}
 
         <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.CertificateProvider.ReadTheLpa.Format .Lpa.ID) }}">{{ tr .App "readTheDraftLpa" }}</a>
       {{ end }}
-      
+
       <ol class="app-task-list govuk-!-margin-top-0" style="position: relative;">
         <li>
           <ul class="app-task-list__items govuk-!-padding-left-0">
