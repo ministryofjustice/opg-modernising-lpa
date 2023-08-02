@@ -82,7 +82,7 @@ type Key struct {
 	SK string
 }
 
-func (c *Client) GetAllByKeys(ctx context.Context, keys []Key, v interface{}) error {
+func (c *Client) GetAllByKeys(ctx context.Context, keys []Key) ([]map[string]types.AttributeValue, error) {
 	var keyAttrs []map[string]types.AttributeValue
 	for _, key := range keys {
 		keyAttrs = append(keyAttrs, map[string]types.AttributeValue{
@@ -99,10 +99,10 @@ func (c *Client) GetAllByKeys(ctx context.Context, keys []Key, v interface{}) er
 		},
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return attributevalue.UnmarshalListOfMaps(result.Responses[c.table], &v)
+	return result.Responses[c.table], nil
 }
 
 func (c *Client) GetOneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error {

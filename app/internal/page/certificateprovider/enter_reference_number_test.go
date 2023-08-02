@@ -1,6 +1,7 @@
 package certificateprovider
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -14,7 +15,23 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
+
+func (m *mockSessionStore) ExpectGet(r *http.Request, values map[any]any, err error) {
+	session := sessions.NewSession(m, "session")
+	session.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   86400,
+		SameSite: http.SameSiteLaxMode,
+		HttpOnly: true,
+		Secure:   true,
+	}
+	session.Values = values
+	m.
+		On("Get", r, "session").
+		Return(session, err)
+}
 
 func TestGetEnterReferenceNumber(t *testing.T) {
 	w := httptest.NewRecorder()
@@ -30,7 +47,7 @@ func TestGetEnterReferenceNumber(t *testing.T) {
 		On("Execute", w, data).
 		Return(nil)
 
-	err := EnterReferenceNumber(template.Execute, newMockShareCodeStore(t), nil)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, newMockShareCodeStore(t), nil, nil)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -52,7 +69,7 @@ func TestGetEnterReferenceNumberOnTemplateError(t *testing.T) {
 		On("Execute", w, data).
 		Return(expectedError)
 
-	err := EnterReferenceNumber(template.Execute, newMockShareCodeStore(t), nil)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, newMockShareCodeStore(t), nil, nil)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -88,28 +105,26 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 				Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: tc.Identity}, nil)
 
 			sessionStore := newMockSessionStore(t)
-
-			session := sessions.NewSession(sessionStore, "shareCode")
-
-			session.Options = &sessions.Options{
-				Path:     "/",
-				MaxAge:   86400,
-				SameSite: http.SameSiteLaxMode,
-				HttpOnly: true,
-				Secure:   true,
-			}
-			session.Values = map[any]any{"share-code": &sesh.ShareCodeSession{LpaID: "lpa-id", SessionID: "session-id", Identity: tc.Identity}}
-
 			sessionStore.
-				On("Save", r, w, session).
-				Return(nil)
-			err := EnterReferenceNumber(nil, shareCodeStore, sessionStore)(testAppData, w, r)
+				ExpectGet(r,
+					map[any]any{"session": &sesh.LoginSession{Sub: "hey"}}, nil)
+
+			certificateProviderStore := newMockCertificateProviderStore(t)
+			certificateProviderStore.
+				On("Create", mock.MatchedBy(func(ctx context.Context) bool {
+					session, _ := page.SessionDataFromContext(ctx)
+
+					return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
+				}), "session-id").
+				Return(&actor.CertificateProviderProvidedDetails{}, nil)
+
+			err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, certificateProviderStore)(testAppData, w, r)
 
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.CertificateProvider.WhoIsEligible.Format(), resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.CertificateProvider.WhoIsEligible.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -128,7 +143,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreError(t *testing.T) {
 		On("Get", r.Context(), actor.TypeCertificateProvider, "aRefNumber12").
 		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, expectedError)
 
-	err := EnterReferenceNumber(nil, shareCodeStore, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, shareCodeStore, nil, nil)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -161,7 +176,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 		On("Get", r.Context(), actor.TypeCertificateProvider, "aRefNumber12").
 		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, dynamo.NotFoundError{})
 
-	err := EnterReferenceNumber(template.Execute, shareCodeStore, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, shareCodeStore, nil, nil)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -189,7 +204,7 @@ func TestPostEnterReferenceNumberOnValidationError(t *testing.T) {
 		On("Execute", w, data).
 		Return(nil)
 
-	err := EnterReferenceNumber(template.Execute, nil, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, nil, nil, nil)(testAppData, w, r)
 
 	resp := w.Result()
 

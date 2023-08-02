@@ -78,24 +78,24 @@ func TestGetEnterReferenceNumberOnTemplateError(t *testing.T) {
 }
 
 func TestPostEnterReferenceNumber(t *testing.T) {
-	testcases := map[string]struct {
+	testcases := map[actor.Type]struct {
 		shareCode     actor.ShareCodeData
 		session       *sesh.LoginSession
 		isReplacement bool
 	}{
-		"attorney": {
+		actor.TypeAttorney: {
 			shareCode: actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", AttorneyID: "attorney-id"},
 			session:   &sesh.LoginSession{Sub: "hey"},
 		},
-		"replacement attorney": {
+		actor.TypeReplacementAttorney: {
 			shareCode:     actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", AttorneyID: "attorney-id", IsReplacementAttorney: true},
 			session:       &sesh.LoginSession{Sub: "hey"},
 			isReplacement: true,
 		},
 	}
 
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
+	for actorType, tc := range testcases {
+		t.Run(actorType.String(), func(t *testing.T) {
 			form := url.Values{
 				"reference-number": {"a Ref-Number12"},
 			}
@@ -156,7 +156,7 @@ func TestPostEnterReferenceNumberOnDonorStoreError(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostEnterReferenceNumberOnDonorStoreNotFoundError(t *testing.T) {
+func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 	form := url.Values{
 		"reference-number": {"a Ref-Number12"},
 	}
@@ -168,7 +168,7 @@ func TestPostEnterReferenceNumberOnDonorStoreNotFoundError(t *testing.T) {
 	data := enterReferenceNumberData{
 		App:    testAppData,
 		Form:   &enterReferenceNumberForm{ReferenceNumber: "aRefNumber12", ReferenceNumberRaw: "a Ref-Number12"},
-		Errors: validation.With("reference-number", validation.CustomError{Label: "incorrectAttorneyReferenceNumber"}),
+		Errors: validation.With("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"}),
 	}
 
 	template := newMockTemplate(t)
@@ -257,7 +257,7 @@ func TestPostEnterReferenceNumberOnValidationError(t *testing.T) {
 	data := enterReferenceNumberData{
 		App:    testAppData,
 		Form:   &enterReferenceNumberForm{},
-		Errors: validation.With("reference-number", validation.EnterError{Label: "twelveCharactersAttorneyReferenceNumber"}),
+		Errors: validation.With("reference-number", validation.EnterError{Label: "twelveCharactersReferenceNumber"}),
 	}
 
 	template := newMockTemplate(t)
@@ -285,21 +285,21 @@ func TestValidateEnterReferenceNumberForm(t *testing.T) {
 		"too short": {
 			form: &enterReferenceNumberForm{ReferenceNumber: "1"},
 			errors: validation.With("reference-number", validation.StringLengthError{
-				Label:  "attorneyReferenceNumberMustBeTwelveCharacters",
+				Label:  "referenceNumberMustBeTwelveCharacters",
 				Length: 12,
 			}),
 		},
 		"too long": {
 			form: &enterReferenceNumberForm{ReferenceNumber: "abcdef1234567"},
 			errors: validation.With("reference-number", validation.StringLengthError{
-				Label:  "attorneyReferenceNumberMustBeTwelveCharacters",
+				Label:  "referenceNumberMustBeTwelveCharacters",
 				Length: 12,
 			}),
 		},
 		"empty": {
 			form: &enterReferenceNumberForm{},
 			errors: validation.With("reference-number", validation.EnterError{
-				Label: "twelveCharactersAttorneyReferenceNumber",
+				Label: "twelveCharactersReferenceNumber",
 			}),
 		},
 	}

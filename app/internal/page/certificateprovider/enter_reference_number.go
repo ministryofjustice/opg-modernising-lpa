@@ -1,9 +1,11 @@
 package certificateprovider
 
 import (
+	"encoding/base64"
 	"errors"
 	"net/http"
 
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
@@ -20,7 +22,7 @@ type enterReferenceNumberData struct {
 	Lpa    *page.Lpa
 }
 
-func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore, sessionStore sessions.Store) page.Handler {
+func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore, sessionStore sessions.Store, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := enterReferenceNumberData{
 			App:  appData,
@@ -44,17 +46,25 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 					}
 				}
 
-				if err := sesh.SetShareCode(sessionStore, r, w, &sesh.ShareCodeSession{
-					LpaID:           shareCode.LpaID,
-					SessionID:       shareCode.SessionID,
-					Identity:        shareCode.Identity,
-					DonorFullName:   shareCode.DonorFullname,
-					DonorFirstNames: shareCode.DonorFirstNames,
-				}); err != nil {
+				session, err := sesh.Login(sessionStore, r)
+				if err != nil {
 					return err
 				}
 
-				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.WhoIsEligible.Format())
+				ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
+					SessionID: base64.StdEncoding.EncodeToString([]byte(session.Sub)),
+					LpaID:     shareCode.LpaID,
+				})
+
+				if _, err := certificateProviderStore.Create(ctx, shareCode.SessionID); err != nil {
+					var ccf *types.ConditionalCheckFailedException
+					if !errors.As(err, &ccf) {
+						return err
+					}
+				}
+
+				appData.LpaID = shareCode.LpaID
+				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.WhoIsEligible.Format(shareCode.LpaID))
 			}
 		}
 

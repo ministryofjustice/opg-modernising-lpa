@@ -14,37 +14,37 @@ type mockDashboardStore struct {
 }
 
 // GetAll provides a mock function with given fields: ctx
-func (_m *mockDashboardStore) GetAll(ctx context.Context) ([]*Lpa, []*Lpa, []*Lpa, error) {
+func (_m *mockDashboardStore) GetAll(ctx context.Context) ([]LpaAndActorTasks, []LpaAndActorTasks, []LpaAndActorTasks, error) {
 	ret := _m.Called(ctx)
 
-	var r0 []*Lpa
-	var r1 []*Lpa
-	var r2 []*Lpa
+	var r0 []LpaAndActorTasks
+	var r1 []LpaAndActorTasks
+	var r2 []LpaAndActorTasks
 	var r3 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]*Lpa, []*Lpa, []*Lpa, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) ([]LpaAndActorTasks, []LpaAndActorTasks, []LpaAndActorTasks, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) []*Lpa); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) []LpaAndActorTasks); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*Lpa)
+			r0 = ret.Get(0).([]LpaAndActorTasks)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context) []*Lpa); ok {
+	if rf, ok := ret.Get(1).(func(context.Context) []LpaAndActorTasks); ok {
 		r1 = rf(ctx)
 	} else {
 		if ret.Get(1) != nil {
-			r1 = ret.Get(1).([]*Lpa)
+			r1 = ret.Get(1).([]LpaAndActorTasks)
 		}
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context) []*Lpa); ok {
+	if rf, ok := ret.Get(2).(func(context.Context) []LpaAndActorTasks); ok {
 		r2 = rf(ctx)
 	} else {
 		if ret.Get(2) != nil {
-			r2 = ret.Get(2).([]*Lpa)
+			r2 = ret.Get(2).([]LpaAndActorTasks)
 		}
 	}
 
