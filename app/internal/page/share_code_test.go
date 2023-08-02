@@ -57,7 +57,7 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.
-				On("TemplateID", notify.TemplateId(99)).
+				On("TemplateID", notify.Template(99)).
 				Return("template-id")
 			notifyClient.
 				On("Email", ctx, notify.Email{
@@ -76,7 +76,7 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 				Return("", nil)
 
 			sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
-			err := sender.SendCertificateProvider(ctx, notify.TemplateId(99), TestAppData, identity, lpa)
+			err := sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, identity, lpa)
 
 			assert.Nil(t, err)
 		})
@@ -147,7 +147,7 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.
-				On("TemplateID", notify.TemplateId(99)).
+				On("TemplateID", notify.Template(99)).
 				Return("template-id")
 			notifyClient.
 				On("Email", ctx, notify.Email{
@@ -186,11 +186,11 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 				sender.UseTestCode()
 			}
 
-			err := sender.SendCertificateProvider(ctx, notify.TemplateId(99), TestAppData, true, lpa)
+			err := sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, true, lpa)
 
 			assert.Nil(t, err)
 
-			err = sender.SendCertificateProvider(ctx, notify.TemplateId(99), TestAppData, true, lpa)
+			err = sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, true, lpa)
 
 			assert.Nil(t, err)
 		})
@@ -230,7 +230,7 @@ func TestShareCodeSenderSendCertificateProviderWhenEmailErrors(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
-		On("TemplateID", notify.TemplateId(99)).
+		On("TemplateID", notify.Template(99)).
 		Return("template-id")
 	notifyClient.
 		On("Email", ctx, notify.Email{
@@ -249,7 +249,7 @@ func TestShareCodeSenderSendCertificateProviderWhenEmailErrors(t *testing.T) {
 		Return("", ExpectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
-	err := sender.SendCertificateProvider(ctx, notify.TemplateId(99), TestAppData, true, lpa)
+	err := sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, true, lpa)
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))
 }
@@ -263,45 +263,57 @@ func TestShareCodeSenderSendCertificateProviderWhenShareCodeStoreErrors(t *testi
 		Return(ExpectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", MockRandom)
-	err := sender.SendCertificateProvider(ctx, notify.TemplateId(99), TestAppData, true, &Lpa{})
+	err := sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, true, &Lpa{})
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))
 }
 
 func TestShareCodeSenderSendAttorneys(t *testing.T) {
 	lpa := &Lpa{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-			{
-				ID:         "1",
-				FirstNames: "Joanna",
-				LastName:   "Jones",
-				Email:      "name@example.org",
+		Attorneys: actor.Attorneys{
+			TrustCorporation: actor.TrustCorporation{
+				Name:  "Trusty",
+				Email: "trusted@example.com",
 			},
-			{
-				ID:         "2",
-				FirstNames: "John",
-				LastName:   "Jones",
-				Email:      "name2@example.org",
+			Attorneys: []actor.Attorney{
+				{
+					ID:         "1",
+					FirstNames: "Joanna",
+					LastName:   "Jones",
+					Email:      "name@example.org",
+				},
+				{
+					ID:         "2",
+					FirstNames: "John",
+					LastName:   "Jones",
+					Email:      "name2@example.org",
+				},
+				{
+					ID:         "3",
+					FirstNames: "Nope",
+					LastName:   "Jones",
+				},
 			},
-			{
-				ID:         "3",
-				FirstNames: "Nope",
-				LastName:   "Jones",
+		},
+		ReplacementAttorneys: actor.Attorneys{
+			TrustCorporation: actor.TrustCorporation{
+				Name:  "Untrusty",
+				Email: "untrusted@example.com",
 			},
-		}},
-		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-			{
-				ID:         "4",
-				FirstNames: "Dave",
-				LastName:   "Davis",
-				Email:      "dave@example.com",
+			Attorneys: []actor.Attorney{
+				{
+					ID:         "4",
+					FirstNames: "Dave",
+					LastName:   "Davis",
+					Email:      "dave@example.com",
+				},
+				{
+					ID:         "5",
+					FirstNames: "Donny",
+					LastName:   "Davis",
+				},
 			},
-			{
-				ID:         "5",
-				FirstNames: "Donny",
-				LastName:   "Davis",
-			},
-		}},
+		},
 		Donor: actor.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
@@ -323,6 +335,12 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.
+		On("Put", ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", IsTrustCorporation: true}).
+		Return(nil)
+	shareCodeStore.
+		On("Put", ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", IsTrustCorporation: true, IsReplacementAttorney: true}).
+		Return(nil)
+	shareCodeStore.
 		On("Put", ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", AttorneyID: "1"}).
 		Return(nil)
 	shareCodeStore.
@@ -334,11 +352,47 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
-		On("TemplateID", notify.TemplateId(notify.AttorneyInviteEmail)).
+		On("TemplateID", notify.TrustCorporationInviteEmail).
+		Return("trust-template-id")
+	notifyClient.
+		On("TemplateID", notify.ReplacementTrustCorporationInviteEmail).
+		Return("trust-template-id2")
+	notifyClient.
+		On("TemplateID", notify.AttorneyInviteEmail).
 		Return("template-id")
 	notifyClient.
-		On("TemplateID", notify.TemplateId(notify.ReplacementAttorneyInviteEmail)).
+		On("TemplateID", notify.ReplacementAttorneyInviteEmail).
 		Return("template-id2")
+	notifyClient.
+		On("Email", ctx, notify.Email{
+			TemplateID:   "trust-template-id",
+			EmailAddress: "trusted@example.com",
+			Personalisation: map[string]string{
+				"shareCode":                 "123",
+				"attorneyFullName":          "Trusty",
+				"donorFirstNames":           "Jan",
+				"donorFullName":             "Jan Smith",
+				"donorFirstNamesPossessive": "Jan's",
+				"lpaLegalTerm":              "property and affairs",
+				"landingPageLink":           fmt.Sprintf("http://app%s", Paths.Attorney.Start),
+			},
+		}).
+		Return("", nil)
+	notifyClient.
+		On("Email", ctx, notify.Email{
+			TemplateID:   "trust-template-id2",
+			EmailAddress: "untrusted@example.com",
+			Personalisation: map[string]string{
+				"shareCode":                 "123",
+				"attorneyFullName":          "Untrusty",
+				"donorFirstNames":           "Jan",
+				"donorFullName":             "Jan Smith",
+				"donorFirstNamesPossessive": "Jan's",
+				"lpaLegalTerm":              "property and affairs",
+				"landingPageLink":           fmt.Sprintf("http://app%s", Paths.Attorney.Start),
+			},
+		}).
+		Return("", nil)
 	notifyClient.
 		On("Email", ctx, notify.Email{
 			TemplateID:   "template-id",
@@ -445,7 +499,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.
-				On("TemplateID", notify.TemplateId(notify.AttorneyInviteEmail)).
+				On("TemplateID", notify.Template(notify.AttorneyInviteEmail)).
 				Return("template-id")
 			notifyClient.
 				On("Email", ctx, notify.Email{
