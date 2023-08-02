@@ -33,15 +33,15 @@ type keys struct {
 }
 
 func (k keys) isLpa() bool {
-	return strings.Contains(k.SK, donorKey(""))
+	return strings.HasPrefix(k.SK, donorKey(""))
 }
 
 func (k keys) isCertificateProviderDetails() bool {
-	return strings.Contains(k.SK, certificateProviderKey(""))
+	return strings.HasPrefix(k.SK, certificateProviderKey(""))
 }
 
 func (k keys) isAttorneyDetails() bool {
-	return strings.Contains(k.SK, attorneyKey(""))
+	return strings.HasPrefix(k.SK, attorneyKey(""))
 }
 
 func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certificateProvider []page.LpaAndActorTasks, err error) {
