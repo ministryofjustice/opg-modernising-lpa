@@ -16,7 +16,6 @@ type provideCertificateData struct {
 	CertificateProvider *actor.CertificateProviderProvidedDetails
 	Lpa                 *page.Lpa
 	Form                *provideCertificateForm
-	DonorFullName       string
 }
 
 func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func() time.Time, certificateProviderStore CertificateProviderStore) page.Handler {
