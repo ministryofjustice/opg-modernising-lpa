@@ -9,15 +9,28 @@
     <div class="govuk-grid-column-two-thirds">
       <div class="govuk-panel govuk-panel--confirmation">
         <h1 class="govuk-panel__title">
-          {{ if .App.IsReplacementAttorney }}
+          {{ if .App.IsTrustCorporation }}
+            {{ tr .App "signingComplete" }}
+          {{ else if .App.IsReplacementAttorney }}
             {{ tr .App "youveFormallyAgreedToBeReplacementAttorney" }}
           {{ else }}
             {{ tr .App "youveFormallyAgreedToBeAttorney" }}
           {{ end }}
         </h1>
+        {{ if .App.IsTrustCorporation }}
+          <div class="govuk-panel__body">
+            {{ if .App.IsReplacementAttorney }}
+              {{ trFormat .App "trustCorporationHasFormallyAgreedReplacement" "TrustCorporationName" .Lpa.ReplacementAttorneys.TrustCorporation.Name }}
+            {{ else }}
+              {{ trFormat .App "trustCorporationHasFormallyAgreed" "TrustCorporationName" .Lpa.Attorneys.TrustCorporation.Name }}
+            {{ end }}
+          </div>
+        {{ end }}
       </div>
 
-      {{ if .App.IsReplacementAttorney }}
+      {{ if .App.IsTrustCorporation }}
+        {{ trFormatHtml .App "lpaWillBeSubmittedWhenAllAttorneysHaveSigned" "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
+      {{ else if .App.IsReplacementAttorney }}
         {{ trFormatHtml .App "youveFormallyAgreedToBeReplacementAttorneyContent" "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
       {{ else }}
         {{ trFormatHtml .App "youveFormallyAgreedToBeAttorneyContent" "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}

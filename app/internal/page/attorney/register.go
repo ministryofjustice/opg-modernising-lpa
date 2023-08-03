@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -123,7 +124,9 @@ func Register(
 	handleAttorney(page.Paths.Attorney.WhatHappensWhenYouSign, RequireAttorney,
 		Guidance(tmpls.Get("attorney_what_happens_when_you_sign.gohtml"), donorStore))
 	handleAttorney(page.Paths.Attorney.Sign, RequireAttorney,
-		Sign(tmpls.Get("attorney_sign.gohtml"), donorStore, certificateProviderStore, attorneyStore))
+		Sign(tmpls.Get("attorney_sign.gohtml"), donorStore, certificateProviderStore, attorneyStore, time.Now))
+	handleAttorney(page.Paths.Attorney.WouldLikeSecondSignatory, RequireAttorney,
+		WouldLikeSecondSignatory(tmpls.Get("attorney_would_like_second_signatory.gohtml"), attorneyStore))
 	handleAttorney(page.Paths.Attorney.WhatHappensNext, RequireAttorney,
 		Guidance(tmpls.Get("attorney_what_happens_next.gohtml"), donorStore))
 }
