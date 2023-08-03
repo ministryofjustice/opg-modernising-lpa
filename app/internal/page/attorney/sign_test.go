@@ -17,10 +17,9 @@ import (
 
 func TestGetSign(t *testing.T) {
 	testcases := map[string]struct {
-		appData            page.AppData
-		lpa                *page.Lpa
-		isReplacement      bool
-		usedWhenRegistered bool
+		appData page.AppData
+		lpa     *page.Lpa
+		data    *signData
 	}{
 		"attorney use when registered": {
 			appData: testAppData,
@@ -32,7 +31,12 @@ func TestGetSign(t *testing.T) {
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
 				}},
 			},
-			usedWhenRegistered: true,
+			data: &signData{
+				App:                        testAppData,
+				Form:                       &signForm{},
+				Attorney:                   actor.Attorney{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
+				LpaCanBeUsedWhenRegistered: true,
+			},
 		},
 		"attorney use when capacity lost": {
 			appData: testAppData,
@@ -43,6 +47,11 @@ func TestGetSign(t *testing.T) {
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
 				}},
+			},
+			data: &signData{
+				App:      testAppData,
+				Form:     &signForm{},
+				Attorney: actor.Attorney{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
 			},
 		},
 		"replacement attorney use when registered": {
@@ -55,8 +64,13 @@ func TestGetSign(t *testing.T) {
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
 				}},
 			},
-			isReplacement:      true,
-			usedWhenRegistered: true,
+			data: &signData{
+				App:                        testReplacementAppData,
+				Form:                       &signForm{},
+				Attorney:                   actor.Attorney{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
+				IsReplacement:              true,
+				LpaCanBeUsedWhenRegistered: true,
+			},
 		},
 		"replacement attorney use when capacity lost": {
 			appData: testReplacementAppData,
@@ -68,7 +82,28 @@ func TestGetSign(t *testing.T) {
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
 				}},
 			},
-			isReplacement: true,
+			data: &signData{
+				App:           testReplacementAppData,
+				Form:          &signForm{},
+				Attorney:      actor.Attorney{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
+				IsReplacement: true,
+			},
+		},
+		"trust corporation": {
+			appData: testTrustCorporationAppData,
+			lpa: &page.Lpa{
+				Submitted:           time.Now(),
+				WhenCanTheLpaBeUsed: page.CanBeUsedWhenRegistered,
+				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
+					Name: "Corp",
+				}},
+			},
+			data: &signData{
+				App:                        testTrustCorporationAppData,
+				Form:                       &signForm{},
+				TrustCorporation:           actor.TrustCorporation{Name: "Corp"},
+				LpaCanBeUsedWhenRegistered: true,
+			},
 		},
 	}
 
@@ -79,13 +114,7 @@ func TestGetSign(t *testing.T) {
 
 			template := newMockTemplate(t)
 			template.
-				On("Execute", w, &signData{
-					App:                        tc.appData,
-					Form:                       &signForm{},
-					Attorney:                   actor.Attorney{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
-					IsReplacement:              tc.isReplacement,
-					LpaCanBeUsedWhenRegistered: tc.usedWhenRegistered,
-				}).
+				On("Execute", w, tc.data).
 				Return(nil)
 
 			donorStore := newMockDonorStore(t)
@@ -100,7 +129,7 @@ func TestGetSign(t *testing.T) {
 					Certificate: actor.Certificate{Agreed: time.Now()},
 				}, nil)
 
-			err := Sign(template.Execute, donorStore, certificateProviderStore, nil)(tc.appData, w, r, &actor.AttorneyProvidedDetails{})
+			err := Sign(template.Execute, donorStore, certificateProviderStore, nil, nil)(tc.appData, w, r, &actor.AttorneyProvidedDetails{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -156,7 +185,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 				On("GetAny", mock.Anything).
 				Return(tc.certificateProvider, nil)
 
-			err := Sign(nil, donorStore, certificateProviderStore, nil)(tc.appData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id"})
+			err := Sign(nil, donorStore, certificateProviderStore, nil, nil)(tc.appData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -208,7 +237,7 @@ func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 					Certificate: actor.Certificate{Agreed: time.Now()},
 				}, nil)
 
-			err := Sign(nil, donorStore, certificateProviderStore, nil)(tc.appData, w, r, nil)
+			err := Sign(nil, donorStore, certificateProviderStore, nil, nil)(tc.appData, w, r, &actor.AttorneyProvidedDetails{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -229,7 +258,7 @@ func TestGetSignOnDonorStoreError(t *testing.T) {
 		On("GetAny", r.Context()).
 		Return(&page.Lpa{}, expectedError)
 
-	err := Sign(template.Execute, donorStore, nil, nil)(testAppData, w, r, nil)
+	err := Sign(template.Execute, donorStore, nil, nil, nil)(testAppData, w, r, nil)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -260,7 +289,7 @@ func TestGetSignOnTemplateError(t *testing.T) {
 			Certificate: actor.Certificate{Agreed: time.Now()},
 		}, nil)
 
-	err := Sign(template.Execute, donorStore, certificateProviderStore, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
+	err := Sign(template.Execute, donorStore, certificateProviderStore, nil, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -271,43 +300,144 @@ func TestPostSign(t *testing.T) {
 	now := time.Now()
 
 	testcases := map[string]struct {
+		url             string
 		appData         page.AppData
+		form            url.Values
 		lpa             *page.Lpa
 		updatedAttorney *actor.AttorneyProvidedDetails
+		redirect        page.AttorneyPath
 	}{
 		"attorney": {
 			appData: testAppData,
+			form:    url.Values{"confirm": {"1"}},
 			lpa: &page.Lpa{
 				Submitted: now,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}}},
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
 				LpaID:     "lpa-id",
-				Confirmed: true,
+				Confirmed: now,
 				Tasks:     actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
 			},
+			redirect: page.Paths.Attorney.WhatHappensNext,
 		},
 		"replacement attorney": {
 			appData: testReplacementAppData,
+			form:    url.Values{"confirm": {"1"}},
 			lpa: &page.Lpa{
 				Submitted:            now,
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}}},
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
 				LpaID:     "lpa-id",
-				Confirmed: true,
+				Confirmed: now,
 				Tasks:     actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
 			},
+			redirect: page.Paths.Attorney.WhatHappensNext,
+		},
+		"trust corporation": {
+			appData: testTrustCorporationAppData,
+			form: url.Values{
+				"first-names":        {"a"},
+				"last-name":          {"b"},
+				"professional-title": {"c"},
+				"confirm":            {"1"},
+			},
+			lpa: &page.Lpa{
+				Submitted: now,
+				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "Corp"}},
+			},
+			updatedAttorney: &actor.AttorneyProvidedDetails{
+				LpaID: "lpa-id",
+				AuthorisedSignatories: [2]actor.AuthorisedSignatory{{
+					FirstNames:        "a",
+					LastName:          "b",
+					ProfessionalTitle: "c",
+					Confirmed:         now,
+				}},
+				Tasks: actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
+			},
+			redirect: page.Paths.Attorney.WouldLikeSecondSignatory,
+		},
+		"replacement trust corporation": {
+			appData: testReplacementTrustCorporationAppData,
+			form: url.Values{
+				"first-names":        {"a"},
+				"last-name":          {"b"},
+				"professional-title": {"c"},
+				"confirm":            {"1"},
+			},
+			lpa: &page.Lpa{
+				Submitted:            now,
+				ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "Corp"}},
+			},
+			updatedAttorney: &actor.AttorneyProvidedDetails{
+				LpaID: "lpa-id",
+				AuthorisedSignatories: [2]actor.AuthorisedSignatory{{
+					FirstNames:        "a",
+					LastName:          "b",
+					ProfessionalTitle: "c",
+					Confirmed:         now,
+				}},
+				Tasks: actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
+			},
+			redirect: page.Paths.Attorney.WouldLikeSecondSignatory,
+		},
+		"second trust corporation": {
+			url:     "/?second",
+			appData: testTrustCorporationAppData,
+			form: url.Values{
+				"first-names":        {"a"},
+				"last-name":          {"b"},
+				"professional-title": {"c"},
+				"confirm":            {"1"},
+			},
+			lpa: &page.Lpa{
+				Submitted: now,
+				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "Corp"}},
+			},
+			updatedAttorney: &actor.AttorneyProvidedDetails{
+				LpaID: "lpa-id",
+				AuthorisedSignatories: [2]actor.AuthorisedSignatory{{}, {
+					FirstNames:        "a",
+					LastName:          "b",
+					ProfessionalTitle: "c",
+					Confirmed:         now,
+				}},
+				Tasks: actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
+			},
+			redirect: page.Paths.Attorney.WhatHappensNext,
+		},
+		"second replacment trust corporation": {
+			url:     "/?second",
+			appData: testReplacementTrustCorporationAppData,
+			form: url.Values{
+				"first-names":        {"a"},
+				"last-name":          {"b"},
+				"professional-title": {"c"},
+				"confirm":            {"1"},
+			},
+			lpa: &page.Lpa{
+				Submitted:            now,
+				ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "Corp"}},
+			},
+			updatedAttorney: &actor.AttorneyProvidedDetails{
+				LpaID: "lpa-id",
+				AuthorisedSignatories: [2]actor.AuthorisedSignatory{{}, {
+					FirstNames:        "a",
+					LastName:          "b",
+					ProfessionalTitle: "c",
+					Confirmed:         now,
+				}},
+				Tasks: actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
+			},
+			redirect: page.Paths.Attorney.WhatHappensNext,
 		},
 	}
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			form := url.Values{
-				"confirm": {"1"},
-			}
-
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, tc.url, strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			w := httptest.NewRecorder()
@@ -329,12 +459,12 @@ func TestPostSign(t *testing.T) {
 					Certificate: actor.Certificate{Agreed: time.Now()},
 				}, nil)
 
-			err := Sign(nil, donorStore, certificateProviderStore, attorneyStore)(tc.appData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id"})
+			err := Sign(nil, donorStore, certificateProviderStore, attorneyStore, func() time.Time { return now })(tc.appData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Attorney.WhatHappensNext.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, tc.redirect.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -369,7 +499,7 @@ func TestPostSignWhenStoreError(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := Sign(nil, donorStore, certificateProviderStore, attorneyStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
+	err := Sign(nil, donorStore, certificateProviderStore, attorneyStore, time.Now)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -409,7 +539,7 @@ func TestPostSignOnValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := Sign(template.Execute, donorStore, certificateProviderStore, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
+	err := Sign(template.Execute, donorStore, certificateProviderStore, nil, time.Now)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -429,9 +559,10 @@ func TestReadSignForm(t *testing.T) {
 
 func TestValidateSignForm(t *testing.T) {
 	testCases := map[string]struct {
-		form          signForm
-		isReplacement bool
-		errors        validation.List
+		form               signForm
+		isTrustCorporation bool
+		isReplacement      bool
+		errors             validation.List
 	}{
 		"true for attorney": {
 			form: signForm{
@@ -444,6 +575,15 @@ func TestValidateSignForm(t *testing.T) {
 			},
 			isReplacement: true,
 		},
+		"true for trust corporation": {
+			form: signForm{
+				FirstNames:        "a",
+				LastName:          "b",
+				ProfessionalTitle: "c",
+				Confirm:           true,
+			},
+			isTrustCorporation: true,
+		},
 		"false for attorney": {
 			form:   signForm{},
 			errors: validation.With("confirm", validation.CustomError{Label: "youMustSelectTheBoxToSignAttorney"}),
@@ -453,11 +593,19 @@ func TestValidateSignForm(t *testing.T) {
 			errors:        validation.With("confirm", validation.CustomError{Label: "youMustSelectTheBoxToSignReplacementAttorney"}),
 			isReplacement: true,
 		},
+		"empty trust corporation": {
+			form: signForm{},
+			errors: validation.With("first-names", validation.EnterError{Label: "firstNames"}).
+				With("last-name", validation.EnterError{Label: "lastName"}).
+				With("professional-title", validation.EnterError{Label: "professionalTitle"}).
+				With("confirm", validation.CustomError{Label: "youMustSelectTheBoxToSignAttorney"}),
+			isTrustCorporation: true,
+		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate(tc.isReplacement))
+			assert.Equal(t, tc.errors, tc.form.Validate(tc.isTrustCorporation, tc.isReplacement))
 		})
 	}
 }
