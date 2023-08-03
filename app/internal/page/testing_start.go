@@ -405,19 +405,20 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		}
 
 		var (
-			completeLpa                = r.FormValue("lpa.complete") != ""
-			cookiesAccepted            = r.FormValue("cookiesAccepted") != ""
-			useTestShareCode           = r.FormValue("useTestShareCode") != ""
-			withShareCodeSession       = r.FormValue("withShareCodeSession") != ""
-			startCpFlowDonorHasPaid    = r.FormValue("startCpFlowDonorHasPaid") != ""
-			startCpFlowDonorHasNotPaid = r.FormValue("startCpFlowDonorHasNotPaid") != ""
-			asCertificateProvider      = r.FormValue("certificateProviderProvided")
-			fresh                      = r.FormValue("fresh") != ""
-			asAttorney                 = r.FormValue("attorneyProvided") != ""
-			asReplacementAttorney      = r.FormValue("replacementAttorneyProvided") != ""
-			sendAttorneyShare          = r.FormValue("sendAttorneyShare") != ""
-			redirect                   = r.FormValue("redirect")
-			paymentComplete            = r.FormValue("lpa.paid") != ""
+			completeLpa                  = r.FormValue("lpa.complete") != ""
+			cookiesAccepted              = r.FormValue("cookiesAccepted") != ""
+			useTestShareCode             = r.FormValue("useTestShareCode") != ""
+			withShareCodeSession         = r.FormValue("withShareCodeSession") != ""
+			startCpFlowDonorHasPaid      = r.FormValue("startCpFlowDonorHasPaid") != ""
+			startCpFlowDonorHasNotPaid   = r.FormValue("startCpFlowDonorHasNotPaid") != ""
+			asCertificateProvider        = r.FormValue("asCertificateProvider")
+			cpConfirmYourDetailsComplete = r.FormValue("cp.confirmYourDetails") != ""
+			fresh                        = r.FormValue("fresh") != ""
+			asAttorney                   = r.FormValue("attorneyProvided") != ""
+			asReplacementAttorney        = r.FormValue("replacementAttorneyProvided") != ""
+			sendAttorneyShare            = r.FormValue("sendAttorneyShare") != ""
+			redirect                     = r.FormValue("redirect")
+			paymentComplete              = r.FormValue("lpa.paid") != ""
 		)
 
 		completeSectionOne := completeLpa || startCpFlowDonorHasNotPaid || startCpFlowDonorHasPaid || paymentComplete
@@ -543,6 +544,13 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 					AgreeToStatement: true,
 					Agreed:           time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
 				}
+			}
+
+			if cpConfirmYourDetailsComplete {
+				certificateProvider.Mobile = testMobile
+				certificateProvider.Email = testEmail
+				certificateProvider.DateOfBirth = date.New("2000", "1", "2")
+				certificateProvider.Tasks.ConfirmYourDetails = actor.TaskCompleted
 			}
 
 			if err := certificateProviderStore.Put(currentCtx, certificateProvider); err != nil {

@@ -1,0 +1,17 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "yourRoleAsTheCertificateProvider" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "yourRoleAsTheCertificateProvider" }}</h1>
+
+            {{ trFormatHtml .App "yourRoleAsCertificateProviderContent" "DonorFullName" .Lpa.Donor.FullName "DonorFirstNames" .Lpa.Donor.FirstNames  }}
+
+            <div class="govuk-button-group">
+                <a href="{{ link .App (.App.Paths.CertificateProvider.TaskList.Format .App.LpaID) }}" class="govuk-button">{{ tr .App "goToYourTaskList" }}</a>
+            </div>
+        </div>
+    </div>
+{{ end }}

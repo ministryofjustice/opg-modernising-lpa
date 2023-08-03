@@ -747,5 +747,8 @@
     "youMustConfirmTheDetailsAboutYourCompany": "Welsh {{.DonorFullName}}",
     "detailsTheDonorHasGivenAboutYourCompany": "Welsh",
     "whatToDoIfAnyDetailsAboutCompanyAreIncorrect": "Welsh",
-    "whatToDoIfAnyDetailsAboutCompanyAreIncorrectAttorneyContent": "<p class=\"govuk-body\">Welsh</p>"
+    "whatToDoIfAnyDetailsAboutCompanyAreIncorrectAttorneyContent": "<p class=\"govuk-body\">Welsh</p>",
+    "yourRoleAsTheCertificateProvider": "Welsh",
+    "yourRoleAsCertificateProviderContent": "Welsh {{ .DonorFullName }} welsh {{ .DonorFirstNames }}</p>",
+    "goToYourTaskList": "Welsh"
 }
