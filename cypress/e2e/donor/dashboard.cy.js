@@ -52,7 +52,7 @@ describe('Dashboard', () => {
 
     context('with various roles', () => {
         it('shows all of my LPAs', () => {
-            cy.visit('/testing-start?lpa.complete=1&attorneyProvided=1&certificateProviderProvided=1&fresh=1')
+            cy.visit('/testing-start?lpa.complete=1&attorneyProvided=1&asCertificateProvider=1&fresh=1')
             cy.visit('/dashboard');
 
             cy.contains('My LPAs');
