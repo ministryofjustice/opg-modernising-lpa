@@ -1,6 +1,6 @@
 describe('What happens when you sign the LPA', () => {
     it('as a property and affairs attorney', () => {
-        cy.visit('/testing-start?redirect=/what-happens-when-you-sign-the-lpa&lpa.complete=1&attorneyProvided=1&lpa.signedByDonor=1&certificateProviderProvided=certified&loginAs=attorney');
+        cy.visit('/testing-start?redirect=/what-happens-when-you-sign-the-lpa&lpa.complete=1&attorneyProvided=1&lpa.signedByDonor=1&asCertificateProvider=certified&loginAs=attorney');
 
         cy.contains('h1', "What happens when you sign the LPA")
         cy.contains('p', "you’re officially saying that you want to be an attorney on")

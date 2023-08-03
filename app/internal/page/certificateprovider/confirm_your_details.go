@@ -23,19 +23,24 @@ func ConfirmYourDetails(tmpl template.Template, donorStore DonorStore, certifica
 			return err
 		}
 
+		lpa, err := donorStore.GetAny(r.Context())
+		if err != nil {
+			return err
+		}
+
 		if r.Method == http.MethodPost {
+			redirect := page.Paths.CertificateProvider.YourRole.Format(certificateProvider.LpaID)
+			if certificateProvider.Tasks.ConfirmYourDetails.Completed() || !lpa.Submitted.IsZero() {
+				redirect = page.Paths.CertificateProvider.TaskList.Format(certificateProvider.LpaID)
+			}
+
 			certificateProvider.Tasks.ConfirmYourDetails = actor.TaskCompleted
 
 			if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 				return err
 			}
 
-			return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.TaskList.Format(certificateProvider.LpaID))
-		}
-
-		lpa, err := donorStore.GetAny(r.Context())
-		if err != nil {
-			return err
+			return appData.Redirect(w, r, nil, redirect)
 		}
 
 		data := &confirmYourDetailsData{
