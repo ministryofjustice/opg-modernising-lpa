@@ -77,6 +77,15 @@ resource "aws_s3_bucket_replication_configuration" "replication" {
   rule {
     id = "whenScannedOkAndReadyToReplicate"
 
+    source_selection_criteria {
+      replica_modifications {
+        status = "Disabled"
+      }
+      sse_kms_encrypted_objects {
+        status = "Enabled"
+      }
+    }
+
     delete_marker_replication {
       status = "Disabled"
     }
@@ -99,6 +108,28 @@ resource "aws_s3_bucket_replication_configuration" "replication" {
     destination {
       bucket        = var.s3_replication_target_bucket_arn
       storage_class = "STANDARD"
+
+      access_control_translation {
+        owner = "Destination"
+      }
+
+      encryption_configuration {
+        replica_kms_key_id = var.replication_target_encryption_key_arn
+      }
+
+      metrics {
+        event_threshold {
+          minutes = 15
+        }
+        status = "Enabled"
+      }
+
+      replication_time {
+        status = "Enabled"
+        time {
+          minutes = 15
+        }
+      }
     }
   }
   provider = aws.region
