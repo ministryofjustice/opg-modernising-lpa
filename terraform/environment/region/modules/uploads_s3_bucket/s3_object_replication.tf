@@ -73,16 +73,11 @@ resource "aws_s3_bucket_replication_configuration" "replication" {
     delete_marker_replication {
       status = "Disabled"
     }
-
     filter {
-      tag {
-        key   = "replicate"
-        value = "true"
-      }
       and {
         tags = {
-          key   = "virus-scan-status"
-          value = "ok"
+          "replicate"         = "true"
+          "virus-scan-status" = "ok"
         }
       }
     }
@@ -90,8 +85,9 @@ resource "aws_s3_bucket_replication_configuration" "replication" {
     status = "Enabled"
 
     destination {
-      bucket        = var.s3_replication_target_bucket_arn
-      storage_class = "STANDARD"
+      account = "288342028542"
+      bucket  = var.s3_replication_target_bucket_arn
+      # storage_class = "STANDARD"
 
       access_control_translation {
         owner = "Destination"

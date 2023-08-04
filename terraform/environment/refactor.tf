@@ -52,3 +52,9 @@ moved {
   from = aws_route53_record.app
   to   = module.eu_west_1[0].aws_route53_record.app
 }
+
+
+import {
+  to = module.eu_west_1[0].module.uploads_s3_bucket.aws_s3_bucket_replication_configuration.replication
+  id = "uploads-opg-modernising-lpa-605mlpab119-eu-west-1"
+}
