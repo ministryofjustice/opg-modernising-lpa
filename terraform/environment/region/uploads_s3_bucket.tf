@@ -4,7 +4,7 @@ data "aws_ssm_parameter" "replication_encryption_key" {
 }
 
 data "aws_ssm_parameter" "replication_bucket_arn" {
-  name     = "/modernising-lpa/reduced_fees_uploads_bucket_arn/dev/${data.aws_region.current.name}"
+  name     = "/modernising-lpa/reduced_fees_uploads_bucket_arn/${var.reduced_fees.target_environment}/${data.aws_region.current.name}"
   provider = aws.management
 }
 
