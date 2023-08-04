@@ -42,7 +42,7 @@ data "aws_iam_policy_document" "replication" {
 }
 
 resource "aws_iam_policy" "replication" {
-  name     = "reduced_fees_uploads_replication"
+  name     = "reduced-fees-uploads-replication-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
   policy   = data.aws_iam_policy_document.replication.json
   provider = aws.region
 }
