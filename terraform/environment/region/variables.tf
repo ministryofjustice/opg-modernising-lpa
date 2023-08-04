@@ -51,11 +51,6 @@ variable "lpas_table" {
   description = "DynamoDB table for storing LPAs"
 }
 
-variable "reduced_fees_table" {
-  type        = any
-  description = "DynamoDB table for pushing reduced fees events to Sirius"
-}
-
 variable "app_env_vars" {
   type        = any
   description = "Environment variable values for app"
@@ -79,4 +74,15 @@ variable "dns_weighting" {
 variable "app_allowed_api_arns" {
   type        = map(list(string))
   description = "ARNs of allowed APIs"
+}
+
+variable "reduced_fees" {
+  type = object({
+    s3_object_replication_enabled = bool
+    target_environment            = string
+    table = object({
+      arn  = string
+      name = string
+    })
+  })
 }

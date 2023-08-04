@@ -82,7 +82,7 @@ resource "aws_s3_bucket_replication_configuration" "replication" {
       }
     }
 
-    status = "Enabled"
+    status = var.replication_enabled ? "Enabled" : "Disabled"
 
     destination {
       account = "288342028542"
@@ -93,7 +93,7 @@ resource "aws_s3_bucket_replication_configuration" "replication" {
       }
 
       encryption_configuration {
-        replica_kms_key_id = var.replication_target_encryption_key_arn
+        replica_kms_key_id = var.s3_replication_target_encryption_key_arn
       }
 
       metrics {

@@ -11,10 +11,11 @@ data "aws_ssm_parameter" "replication_bucket_arn" {
 module "uploads_s3_bucket" {
   source = "./modules/uploads_s3_bucket"
 
-  bucket_name                           = "uploads-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
-  force_destroy                         = data.aws_default_tags.current.tags.environment-name != "production" ? true : false
-  s3_replication_target_bucket_arn      = data.aws_ssm_parameter.replication_bucket_arn.value
-  replication_target_encryption_key_arn = data.aws_ssm_parameter.replication_encryption_key.value
+  bucket_name                              = "uploads-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
+  force_destroy                            = data.aws_default_tags.current.tags.environment-name != "production" ? true : false
+  s3_replication_target_bucket_arn         = data.aws_ssm_parameter.replication_bucket_arn.value
+  s3_replication_target_encryption_key_arn = data.aws_ssm_parameter.replication_encryption_key.value
+  replication_enabled                      = var.reduced_fees.s3_object_replication_enabled
   providers = {
     aws.region = aws.region
   }
