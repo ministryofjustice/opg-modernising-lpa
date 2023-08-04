@@ -87,7 +87,6 @@ resource "aws_s3_bucket_replication_configuration" "replication" {
     destination {
       account = "288342028542"
       bucket  = var.s3_replication_target_bucket_arn
-      # storage_class = "STANDARD"
 
       access_control_translation {
         owner = "Destination"
