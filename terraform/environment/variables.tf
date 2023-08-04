@@ -76,6 +76,7 @@ variable "environments" {
         target_event_bus_arn          = string
         s3_object_replication_enabled = bool
         target_environment            = string
+        destination_account_id        = string
       })
     })
   )

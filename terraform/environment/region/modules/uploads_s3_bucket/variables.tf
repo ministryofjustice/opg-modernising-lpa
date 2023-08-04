@@ -9,17 +9,11 @@ variable "force_destroy" {
   type        = bool
 }
 
-variable "s3_replication_target_bucket_arn" {
-  description = "The ARN of the S3 bucket where you want Amazon S3 to store replicas of the object identified by the rule."
-  type        = string
-}
-
-variable "s3_replication_target_encryption_key_arn" {
-  description = "The Amazon Resource Name (ARN) of the AWS KMS key that Amazon S3 should use to encrypt replicas of this object."
-  type        = string
-}
-
-variable "replication_enabled" {
-  description = "Enable replication of objects in this bucket."
-  type        = bool
+variable "s3_replication" {
+  type = object({
+    enabled                        = bool
+    destination_bucket_arn         = string
+    destination_encryption_key_arn = string
+    destination_account_id         = string
+  })
 }

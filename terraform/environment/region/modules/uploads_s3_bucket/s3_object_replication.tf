@@ -36,7 +36,7 @@ data "aws_iam_policy_document" "replication" {
       "s3:ReplicateTags",
     ]
 
-    resources = ["${var.s3_replication_target_bucket_arn}/*"]
+    resources = ["${var.s3_replication.destination_bucket_arn}/*"]
   }
   provider = aws.region
 }
@@ -82,18 +82,18 @@ resource "aws_s3_bucket_replication_configuration" "replication" {
       }
     }
 
-    status = var.replication_enabled ? "Enabled" : "Disabled"
+    status = var.s3_replication.enabled ? "Enabled" : "Disabled"
 
     destination {
-      account = "288342028542"
-      bucket  = var.s3_replication_target_bucket_arn
+      account = var.s3_replication.destination_account_id
+      bucket  = var.s3_replication.destination_bucket_arn
 
       access_control_translation {
         owner = "Destination"
       }
 
       encryption_configuration {
-        replica_kms_key_id = var.s3_replication_target_encryption_key_arn
+        replica_kms_key_id = var.s3_replication.destination_encryption_key_arn
       }
 
       metrics {

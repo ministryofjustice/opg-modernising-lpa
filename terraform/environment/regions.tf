@@ -30,6 +30,7 @@ module "eu_west_1" {
   reduced_fees = {
     s3_object_replication_enabled = local.environment.reduced_fees.s3_object_replication_enabled
     target_environment            = local.environment.reduced_fees.target_environment
+    destination_account_id        = local.environment.reduced_fees.destination_account_id
     table = {
       arn  = module.reduced_fees[0].dynamodb_table.arn,
       name = module.reduced_fees[0].dynamodb_table.name,
@@ -71,6 +72,7 @@ module "eu_west_2" {
   reduced_fees = {
     s3_object_replication_enabled = local.environment.reduced_fees.s3_object_replication_enabled
     target_environment            = local.environment.reduced_fees.target_environment
+    destination_account_id        = local.environment.reduced_fees.destination_account_id
     table = {
       arn  = module.reduced_fees[0].dynamodb_table.arn,
       name = module.reduced_fees[0].dynamodb_table.name,
