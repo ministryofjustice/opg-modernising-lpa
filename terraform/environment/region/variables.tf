@@ -80,8 +80,3 @@ variable "app_allowed_api_arns" {
   type        = map(list(string))
   description = "ARNs of allowed APIs"
 }
-
-variable "reduced_fees_uploads_s3_replication_target_bucket_arn" {
-  type        = string
-  description = "ARN of the S3 bucket to replicate reduced fees uploads to"
-}

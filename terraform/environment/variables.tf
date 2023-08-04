@@ -75,7 +75,6 @@ variable "environments" {
         enabled              = bool
         target_event_bus_arn = string
       })
-      reduced_fees_uploads_s3_replication_target_bucket_arn = string
     })
   )
 }

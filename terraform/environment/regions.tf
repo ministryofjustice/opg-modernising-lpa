@@ -30,12 +30,11 @@ module "eu_west_1" {
     arn  = module.reduced_fees[0].dynamodb_table.arn,
     name = module.reduced_fees[0].dynamodb_table.name,
   }
-  reduced_fees_uploads_s3_replication_target_bucket_arn = local.environment.reduced_fees_uploads_s3_replication_target_bucket_arn
-  app_env_vars                                          = local.environment.app.env
-  app_allowed_api_arns                                  = local.environment.app.allowed_api_arns
-  public_access_enabled                                 = var.public_access_enabled
-  pagerduty_service_name                                = local.environment.pagerduty_service_name
-  dns_weighting                                         = 100
+  app_env_vars           = local.environment.app.env
+  app_allowed_api_arns   = local.environment.app.allowed_api_arns
+  public_access_enabled  = var.public_access_enabled
+  pagerduty_service_name = local.environment.pagerduty_service_name
+  dns_weighting          = 100
   providers = {
     aws.region            = aws.eu_west_1
     aws.global            = aws.global
@@ -67,12 +66,11 @@ module "eu_west_2" {
     arn  = module.reduced_fees[0].dynamodb_table.arn,
     name = module.reduced_fees[0].dynamodb_table.name,
   }
-  reduced_fees_uploads_s3_replication_target_bucket_arn = local.environment.reduced_fees_uploads_s3_replication_target_bucket_arn
-  app_env_vars                                          = local.environment.app.env
-  app_allowed_api_arns                                  = local.environment.app.allowed_api_arns
-  public_access_enabled                                 = var.public_access_enabled
-  pagerduty_service_name                                = local.environment.pagerduty_service_name
-  dns_weighting                                         = 0
+  app_env_vars           = local.environment.app.env
+  app_allowed_api_arns   = local.environment.app.allowed_api_arns
+  public_access_enabled  = var.public_access_enabled
+  pagerduty_service_name = local.environment.pagerduty_service_name
+  dns_weighting          = 0
   providers = {
     aws.region            = aws.eu_west_2
     aws.global            = aws.global
