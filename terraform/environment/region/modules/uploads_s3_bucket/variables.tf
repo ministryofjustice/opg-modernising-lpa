@@ -16,4 +16,12 @@ variable "s3_replication" {
     destination_encryption_key_arn = string
     destination_account_id         = string
   })
+  description = <<EOT
+    s3_replication = {
+      enabled                        = "Enable S3 object replication"
+      destination_bucket_arn         = "ARN of the destination bucket"
+      destination_encryption_key_arn = "ARN of the destination encryption key"
+      destination_account_id         = "Account ID of the destination bucket"
+    }
+    EOT
 }
