@@ -33,4 +33,11 @@ var (
 		Paths:     page.Paths,
 		ActorType: actor.TypeAttorney,
 	}
+	testReplacementTrustCorporationAppData = page.AppData{
+		SessionID: "session-id",
+		LpaID:     "lpa-id",
+		Lang:      localize.En,
+		Paths:     page.Paths,
+		ActorType: actor.TypeReplacementAttorney,
+	}
 )

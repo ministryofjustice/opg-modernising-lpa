@@ -46,8 +46,8 @@ type AttorneyPaths struct {
 	LoginCallback        Path
 	Start                Path
 
-	ConfirmYourDetails        AttorneyPath
 	CodeOfConduct             AttorneyPath
+	ConfirmYourDetails        AttorneyPath
 	MobileNumber              AttorneyPath
 	ReadTheLpa                AttorneyPath
 	RightsAndResponsibilities AttorneyPath
@@ -55,6 +55,7 @@ type AttorneyPaths struct {
 	TaskList                  AttorneyPath
 	WhatHappensNext           AttorneyPath
 	WhatHappensWhenYouSign    AttorneyPath
+	WouldLikeSecondSignatory  AttorneyPath
 }
 
 type CertificateProviderPaths struct {
@@ -230,8 +231,8 @@ var Paths = AppPaths{
 		Login:                     "/attorney-login",
 		LoginCallback:             "/attorney-login-callback",
 		Start:                     "/attorney-start",
-		ConfirmYourDetails:        "/confirm-your-details",
 		CodeOfConduct:             "/code-of-conduct",
+		ConfirmYourDetails:        "/confirm-your-details",
 		MobileNumber:              "/mobile-number",
 		ReadTheLpa:                "/read-the-lpa",
 		RightsAndResponsibilities: "/legal-rights-and-responsibilities",
@@ -239,6 +240,7 @@ var Paths = AppPaths{
 		TaskList:                  "/task-list",
 		WhatHappensNext:           "/what-happens-next",
 		WhatHappensWhenYouSign:    "/what-happens-when-you-sign-the-lpa",
+		WouldLikeSecondSignatory:  "/would-like-second-signatory",
 	},
 
 	HealthCheck: HealthCheckPaths{

@@ -750,5 +750,21 @@
     "whatToDoIfAnyDetailsAboutCompanyAreIncorrectAttorneyContent": "<p class=\"govuk-body\">Welsh</p>",
     "yourRoleAsTheCertificateProvider": "Welsh",
     "yourRoleAsCertificateProviderContent": "Welsh {{ .DonorFullName }} welsh {{ .DonorFirstNames }}</p>",
-    "goToYourTaskList": "Welsh"
+    "goToYourTaskList": "Welsh",
+    "iTrustCorporationConfirmTheseStatements": "Welsh",
+    "signAsTrustCorporationWhenCapacityLostBullet": "Welsh",
+    "signAsTrustCorporationWhenRegisteredBullet": "Welsh",
+    "signAsTrustCorporationBullets": "<li>Welsh</li>",
+    "professionalTitle": "Welsh",
+    "authorisedSignatory": "Welsh",
+    "youCanChooseToAddSignatoryOnNextPage": "Welsh",
+    "signOnBehalfOfTrustCorporation": "Welsh",
+    "professionalTitleHint": "Welsh",
+    "wouldYouLikeToAddSecondSignatory": "Welsh",
+    "yesIfWouldLikeSecondSignatory": "Welsh",
+    "theTrustCorporationNoLongerRequiresSecondSignatory": "Welsh",
+    "signingComplete": "Welsh",
+    "trustCorporationHasFormallyAgreed": "Welsh",
+    "trustCorporationHasFormallyAgreedReplacement": "Welsh",
+    "lpaWillBeSubmittedWhenAllAttorneysHaveSigned": "<p class=\"govuk-body\">Welsh</p>"
 }
