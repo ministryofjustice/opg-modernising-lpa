@@ -103,7 +103,11 @@ func Sign(tmpl template.Template, donorStore DonorStore, certificateProviderStor
 			data.Errors = data.Form.Validate(appData.IsTrustCorporation(), appData.IsReplacementAttorney())
 
 			if data.Errors.None() {
-				attorneyProvidedDetails.Tasks.SignTheLpa = actor.TaskCompleted
+				if signatoryIndex == 1 {
+					attorneyProvidedDetails.Tasks.SignTheLpaSecond = actor.TaskCompleted
+				} else {
+					attorneyProvidedDetails.Tasks.SignTheLpa = actor.TaskCompleted
+				}
 
 				if appData.IsTrustCorporation() {
 					attorneyProvidedDetails.AuthorisedSignatories[signatoryIndex] = actor.AuthorisedSignatory{
