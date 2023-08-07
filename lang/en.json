@@ -734,5 +734,7 @@
     "signingComplete": "Signing complete",
     "trustCorporationHasFormallyAgreed": "{{.TrustCorporationName}} has formally agreed to be an attorney",
     "trustCorporationHasFormallyAgreedReplacement": "{{.TrustCorporationName}} has formally agreed to be a replacement attorney",
-    "lpaWillBeSubmittedWhenAllAttorneysHaveSigned": "<p class=\"govuk-body\">{{.DonorFullNamePossessive}} LPA will be submitted for registration when all the attorneys (and any replacement attorneys) have signed.</p>"
+    "lpaWillBeSubmittedWhenAllAttorneysHaveSigned": "<p class=\"govuk-body\">{{.DonorFullNamePossessive}} LPA will be submitted for registration when all the attorneys (and any replacement attorneys) have signed.</p>",
+    "signTheLpaSignatory1": "Sign the LPA (signatory 1)",
+    "signTheLpaSignatory2": "Sign the LPA (signatory 2)"
 }

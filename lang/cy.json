@@ -766,5 +766,7 @@
     "signingComplete": "Welsh",
     "trustCorporationHasFormallyAgreed": "Welsh",
     "trustCorporationHasFormallyAgreedReplacement": "Welsh",
-    "lpaWillBeSubmittedWhenAllAttorneysHaveSigned": "<p class=\"govuk-body\">Welsh</p>"
+    "lpaWillBeSubmittedWhenAllAttorneysHaveSigned": "<p class=\"govuk-body\">Welsh</p>",
+    "signTheLpaSignatory1": "Welsh",
+    "signTheLpaSignatory2": "Welsh"
 }

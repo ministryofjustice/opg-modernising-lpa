@@ -8,6 +8,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -56,6 +57,33 @@ func TestGetTaskList(t *testing.T) {
 				return items
 			},
 		},
+		"trust corporation with two signatories": {
+			lpa: &page.Lpa{
+				ID:        "lpa-id",
+				Submitted: time.Now(),
+			},
+			attorney: &actor.AttorneyProvidedDetails{
+				WouldLikeSecondSignatory: form.Yes,
+				Tasks: actor.AttorneyTasks{
+					ConfirmYourDetails: actor.TaskCompleted,
+					ReadTheLpa:         actor.TaskCompleted,
+				},
+			},
+			certificateProviderStore: certificateProviderAgreed,
+			appData:                  testTrustCorporationAppData,
+			expected: func(items []taskListItem) []taskListItem {
+				items[0].State = actor.TaskCompleted
+				items[0].Path = page.Paths.Attorney.ConfirmYourDetails.Format("lpa-id")
+				items[1].State = actor.TaskCompleted
+				items[2].Name = "signTheLpaSignatory1"
+				items[2].Path = page.Paths.Attorney.Sign.Format("lpa-id")
+
+				return append(items, taskListItem{
+					Name: "signTheLpaSignatory2",
+					Path: page.Paths.Attorney.Sign.Format("lpa-id") + "?second",
+				})
+			},
+		},
 		"tasks completed not signed": {
 			lpa: &page.Lpa{
 				ID:        "lpa-id",
@@ -63,7 +91,8 @@ func TestGetTaskList(t *testing.T) {
 			},
 			attorney: &actor.AttorneyProvidedDetails{
 				Tasks: actor.AttorneyTasks{
-					ReadTheLpa: actor.TaskCompleted,
+					ConfirmYourDetails: actor.TaskCompleted,
+					ReadTheLpa:         actor.TaskCompleted,
 				},
 			},
 			certificateProviderStore: func(t *testing.T, r *http.Request) *mockCertificateProviderStore {
@@ -76,6 +105,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 			appData: testAppData,
 			expected: func(items []taskListItem) []taskListItem {
+				items[0].State = actor.TaskCompleted
 				items[1].State = actor.TaskCompleted
 
 				return items
@@ -88,12 +118,14 @@ func TestGetTaskList(t *testing.T) {
 			},
 			attorney: &actor.AttorneyProvidedDetails{
 				Tasks: actor.AttorneyTasks{
-					ReadTheLpa: actor.TaskCompleted,
+					ConfirmYourDetails: actor.TaskCompleted,
+					ReadTheLpa:         actor.TaskCompleted,
 				},
 			},
 			certificateProviderStore: certificateProviderAgreed,
 			appData:                  testAppData,
 			expected: func(items []taskListItem) []taskListItem {
+				items[0].State = actor.TaskCompleted
 				items[1].State = actor.TaskCompleted
 				items[2].Path = page.Paths.Attorney.Sign.Format("lpa-id")
 
@@ -208,7 +240,7 @@ func TestGetTaskListWhenCertificateProviderStoreErrors(t *testing.T) {
 		On("GetAny", page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
 		Return(nil, expectedError)
 
-	err := TaskList(nil, donorStore, certificateProviderStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{Tasks: actor.AttorneyTasks{ReadTheLpa: actor.TaskCompleted}})
+	err := TaskList(nil, donorStore, certificateProviderStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{Tasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskCompleted, ReadTheLpa: actor.TaskCompleted}})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -232,7 +264,7 @@ func TestGetTaskListWhenCertificateProviderNotFound(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(nil)
 
-	err := TaskList(template.Execute, donorStore, certificateProviderStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{Tasks: actor.AttorneyTasks{ReadTheLpa: actor.TaskCompleted}})
+	err := TaskList(template.Execute, donorStore, certificateProviderStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{Tasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskCompleted, ReadTheLpa: actor.TaskCompleted}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
