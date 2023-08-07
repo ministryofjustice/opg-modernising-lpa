@@ -33,7 +33,7 @@ func TaskList(tmpl template.Template, donorStore DonorStore, certificateProvider
 		tasks := attorney.Tasks
 
 		var signPath string
-		if tasks.ReadTheLpa.Completed() {
+		if tasks.ConfirmYourDetails.Completed() && tasks.ReadTheLpa.Completed() {
 			ok, err := canSign(r.Context(), certificateProviderStore, lpa)
 			if err != nil {
 				return err
@@ -48,10 +48,28 @@ func TaskList(tmpl template.Template, donorStore DonorStore, certificateProvider
 			confirmYourDetailsPath = page.Paths.Attorney.ConfirmYourDetails
 		}
 
+		signItems := []taskListItem{{
+			Name:  "signTheLpa",
+			Path:  signPath,
+			State: tasks.SignTheLpa,
+		}}
+
+		if attorney.WouldLikeSecondSignatory.IsYes() && signPath != "" {
+			signItems = []taskListItem{{
+				Name:  "signTheLpaSignatory1",
+				Path:  signPath,
+				State: tasks.SignTheLpa,
+			}, {
+				Name:  "signTheLpaSignatory2",
+				Path:  signPath + "?second",
+				State: tasks.SignTheLpaSecond,
+			}}
+		}
+
 		data := &taskListData{
 			App: appData,
 			Lpa: lpa,
-			Items: []taskListItem{
+			Items: append([]taskListItem{
 				{
 					Name:  "confirmYourDetails",
 					Path:  confirmYourDetailsPath.Format(lpa.ID),
@@ -62,12 +80,7 @@ func TaskList(tmpl template.Template, donorStore DonorStore, certificateProvider
 					Path:  page.Paths.Attorney.ReadTheLpa.Format(lpa.ID),
 					State: tasks.ReadTheLpa,
 				},
-				{
-					Name:  "signTheLpa",
-					Path:  signPath,
-					State: tasks.SignTheLpa,
-				},
-			},
+			}, signItems...),
 		}
 
 		return tmpl(w, data)
