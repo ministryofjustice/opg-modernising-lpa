@@ -33,6 +33,7 @@ type AttorneyTasks struct {
 	ConfirmYourDetails TaskState
 	ReadTheLpa         TaskState
 	SignTheLpa         TaskState
+	SignTheLpaSecond   TaskState
 }
 
 type AuthorisedSignatory struct {
