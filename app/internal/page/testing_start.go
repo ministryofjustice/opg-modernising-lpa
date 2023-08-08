@@ -31,26 +31,28 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 	)
 
 	type lpaOptions struct {
-		hasDonorDetails              bool
-		lpaType                      string
-		attorneys                    int
-		trustCorporation             string
-		howAttorneysAct              string
-		replacementAttorneys         int
-		howReplacementAttorneysAct   string
-		hasWhenCanBeUsed             bool
-		hasRestrictions              bool
-		hasCertificateProvider       bool
-		peopleToNotify               int
-		checked                      bool
-		paid                         bool
-		idConfirmedAndSigned         bool
-		submitted                    bool
-		attorneyEmail                string
-		replacementAttorneyEmail     string
-		certificateProviderEmail     string
-		trustCorporationEmail        string
-		certificateProviderActOnline bool
+		hasDonorDetails                  bool
+		lpaType                          string
+		attorneys                        int
+		trustCorporation                 string
+		replacementTrustCorporation      string
+		howAttorneysAct                  string
+		replacementAttorneys             int
+		howReplacementAttorneysAct       string
+		hasWhenCanBeUsed                 bool
+		hasRestrictions                  bool
+		hasCertificateProvider           bool
+		peopleToNotify                   int
+		checked                          bool
+		paid                             bool
+		idConfirmedAndSigned             bool
+		submitted                        bool
+		attorneyEmail                    string
+		replacementAttorneyEmail         string
+		certificateProviderEmail         string
+		trustCorporationEmail            string
+		replacementTrustCorporationEmail string
+		certificateProviderActOnline     bool
 	}
 
 	makeDonor := func() actor.Donor {
@@ -273,6 +275,22 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 				lpa.Attorneys.TrustCorporation.Email = opts.trustCorporationEmail
 			}
 
+			switch opts.replacementTrustCorporation {
+			case "incomplete":
+				lpa.ReplacementAttorneys.TrustCorporation = actor.TrustCorporation{Name: "My company"}
+			case "complete":
+				lpa.ReplacementAttorneys.TrustCorporation = actor.TrustCorporation{
+					Name:          "My company",
+					CompanyNumber: "555555555",
+					Email:         testEmail,
+					Address:       place.Address{Line1: "123 Fake Street", Postcode: "FF1 1FF"},
+				}
+			}
+
+			if opts.replacementTrustCorporationEmail != "" {
+				lpa.ReplacementAttorneys.TrustCorporation.Email = opts.replacementTrustCorporationEmail
+			}
+
 			if opts.howAttorneysAct != "" {
 				act, err := actor.ParseAttorneysAct(opts.howAttorneysAct)
 				if err != nil {
@@ -424,25 +442,28 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		completeSectionOne := completeLpa || startCpFlowDonorHasNotPaid || startCpFlowDonorHasPaid || paymentComplete
 
 		lpa := buildLpa(ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID}), lpaOptions{
-			hasDonorDetails:              r.FormValue("lpa.yourDetails") != "" || completeSectionOne,
-			lpaType:                      r.FormValue("lpa.type"),
-			attorneys:                    parseCount(r.FormValue("lpa.attorneys"), completeSectionOne),
-			trustCorporation:             r.FormValue("lpa.trustCorporation"),
-			howAttorneysAct:              r.FormValue("lpa.attorneysAct"),
-			replacementAttorneys:         parseCount(r.FormValue("lpa.replacementAttorneys"), completeSectionOne),
-			howReplacementAttorneysAct:   r.FormValue("lpa.replacementAttorneysAct"),
-			hasWhenCanBeUsed:             r.FormValue("lpa.chooseWhenCanBeUsed") != "" || completeSectionOne,
-			hasRestrictions:              r.FormValue("lpa.restrictions") != "" || completeSectionOne,
-			hasCertificateProvider:       r.FormValue("lpa.certificateProvider") != "" || completeSectionOne,
-			certificateProviderActOnline: r.FormValue("lpa.certificateProviderActOnline") != "",
-			peopleToNotify:               parseCount(r.FormValue("lpa.peopleToNotify"), completeSectionOne),
-			checked:                      r.FormValue("lpa.checkAndSend") != "" || completeSectionOne,
-			paid:                         paymentComplete || startCpFlowDonorHasPaid || completeLpa,
-			idConfirmedAndSigned:         r.FormValue("lpa.confirmIdentityAndSign") != "" || completeLpa,
-			submitted:                    r.FormValue("lpa.signedByDonor") != "",
-			certificateProviderEmail:     r.FormValue("lpa.certificateProviderEmail"),
-			attorneyEmail:                r.FormValue("lpa.attorneyEmail"),
-			replacementAttorneyEmail:     r.FormValue("lpa.replacementAttorneyEmail"),
+			hasDonorDetails:                  r.FormValue("lpa.yourDetails") != "" || completeSectionOne,
+			lpaType:                          r.FormValue("lpa.type"),
+			attorneys:                        parseCount(r.FormValue("lpa.attorneys"), completeSectionOne),
+			trustCorporation:                 r.FormValue("lpa.trustCorporation"),
+			replacementTrustCorporation:      r.FormValue("lpa.replacementTrustCorporation"),
+			howAttorneysAct:                  r.FormValue("lpa.attorneysAct"),
+			replacementAttorneys:             parseCount(r.FormValue("lpa.replacementAttorneys"), completeSectionOne),
+			howReplacementAttorneysAct:       r.FormValue("lpa.replacementAttorneysAct"),
+			hasWhenCanBeUsed:                 r.FormValue("lpa.chooseWhenCanBeUsed") != "" || completeSectionOne,
+			hasRestrictions:                  r.FormValue("lpa.restrictions") != "" || completeSectionOne,
+			hasCertificateProvider:           r.FormValue("lpa.certificateProvider") != "" || completeSectionOne,
+			certificateProviderActOnline:     r.FormValue("lpa.certificateProviderActOnline") != "",
+			peopleToNotify:                   parseCount(r.FormValue("lpa.peopleToNotify"), completeSectionOne),
+			checked:                          r.FormValue("lpa.checkAndSend") != "" || completeSectionOne,
+			paid:                             paymentComplete || startCpFlowDonorHasPaid || completeLpa,
+			idConfirmedAndSigned:             r.FormValue("lpa.confirmIdentityAndSign") != "" || completeLpa,
+			submitted:                        r.FormValue("lpa.signedByDonor") != "",
+			certificateProviderEmail:         r.FormValue("lpa.certificateProviderEmail"),
+			attorneyEmail:                    r.FormValue("lpa.attorneyEmail"),
+			replacementAttorneyEmail:         r.FormValue("lpa.replacementAttorneyEmail"),
+			trustCorporationEmail:            r.FormValue("lpa.trustCorporationEmail"),
+			replacementTrustCorporationEmail: r.FormValue("lpa.replacementTrustCorporationEmail"),
 		})
 
 		// These contexts act on the same LPA for different actors
