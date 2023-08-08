@@ -45,13 +45,13 @@ func TestGetApplicationReasonFromStore(t *testing.T) {
 		On("Execute", w, &applicationReasonData{
 			App: testAppData,
 			Form: &applicationReasonForm{
-				ApplicationReason: page.MoveFromPaperApplication,
+				ApplicationReason: page.RemakeOfInvalidApplication,
 			},
 			Options: page.ApplicationReasonValues,
 		}).
 		Return(nil)
 
-	err := ApplicationReason(template.Execute, nil)(testAppData, w, r, &page.Lpa{ApplicationReason: page.MoveFromPaperApplication})
+	err := ApplicationReason(template.Execute, nil)(testAppData, w, r, &page.Lpa{ApplicationReason: page.RemakeOfInvalidApplication})
 	resp := w.Result()
 
 	assert.Nil(t, err)
