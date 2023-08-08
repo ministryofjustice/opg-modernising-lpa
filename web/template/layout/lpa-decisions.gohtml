@@ -134,13 +134,19 @@
         </dt>
         <dd class="govuk-summary-list__value">
           {{ if .App.IsDonor }}
-            {{ trHtml .App (printf "replacement-%s" .Lpa.ReplacementAttorneyDecisions.How.String) }}
+            {{ if .Lpa.ReplacementAttorneyDecisions.How.IsJointly }}
+              {{ trHtml .App "replacement-jointly" }}
+            {{ else if .Lpa.ReplacementAttorneyDecisions.How.IsJointlyAndSeverally }}
+              {{ trHtml .App "replacement-jointly-and-severally" }}
+            {{ else if .Lpa.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
+              {{ trHtml .App "replacement-mixed" }}
+            {{ end }}
           {{ else }}
             {{ if .Lpa.ReplacementAttorneyDecisions.How.IsJointly }}
               {{ trHtml .App "replacementJointlyExplanation" }}
             {{ else if .Lpa.ReplacementAttorneyDecisions.How.IsJointlyAndSeverally }}
               {{ trHtml .App "replacementJointlyAndSeverallyExplanation" }}
-            {{ else }}
+            {{ else if .Lpa.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
               {{ trHtml .App "replacementJointlyForSomeSeverallyForOthersExplanation" }}
             {{ end }}
           {{ end }}
