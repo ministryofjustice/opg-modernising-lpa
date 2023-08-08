@@ -73,7 +73,6 @@ const (
 	NewApplication ApplicationReason = iota + 1
 	RemakeOfInvalidApplication
 	AdditionalApplication
-	MoveFromPaperApplication
 )
 
 //go:generate enumerator -type FeeType
