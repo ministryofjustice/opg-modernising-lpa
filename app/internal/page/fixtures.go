@@ -43,7 +43,7 @@ func Fixtures(tmpl template.Template) Handler {
 				}
 
 				switch data.Form.SendTo {
-				case "replacment-attorney":
+				case "replacement-attorney":
 					if data.Form.Email != "" {
 						values.Add("lpa.replacementAttorneyEmail", data.Form.Email)
 					}
@@ -51,6 +51,11 @@ func Fixtures(tmpl template.Template) Handler {
 					values.Add("lpa.trustCorporation", "complete")
 					if data.Form.Email != "" {
 						values.Add("lpa.trustCorporationEmail", data.Form.Email)
+					}
+				case "replacement-trust-corporation":
+					values.Add("lpa.replacementTrustCorporation", "complete")
+					if data.Form.Email != "" {
+						values.Add("lpa.replacementTrustCorporationEmail", data.Form.Email)
 					}
 				default:
 					if data.Form.Email != "" {

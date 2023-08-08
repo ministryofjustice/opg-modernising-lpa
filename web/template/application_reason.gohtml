@@ -16,7 +16,6 @@
             {{ template "radios" (items . "application-reason" .Form.ApplicationReason.String
               (item .Options.RemakeOfInvalidApplication.String "remakeOfInvalidApplication")
               (item .Options.AdditionalApplication.String "additionalApplication")
-              (item .Options.MoveFromPaperApplication.String "moveFromPaperApplication")
               (item .Options.NewApplication.String "noneOfTheAbove")
             ) }}
           </fieldset>
