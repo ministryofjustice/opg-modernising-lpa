@@ -41,10 +41,15 @@ func ConfirmYourDetails(tmpl template.Template, attorneyStore AttorneyStore, don
 			AttorneyProvidedDetails: attorneyProvidedDetails,
 		}
 
+		attorneys := lpa.Attorneys
+		if appData.IsReplacementAttorney() {
+			attorneys = lpa.ReplacementAttorneys
+		}
+
 		if appData.IsTrustCorporation() {
-			data.TrustCorporation = lpa.Attorneys.TrustCorporation
+			data.TrustCorporation = attorneys.TrustCorporation
 		} else {
-			data.Attorney, _ = lpa.Attorneys.Get(attorneyProvidedDetails.ID)
+			data.Attorney, _ = attorneys.Get(attorneyProvidedDetails.ID)
 		}
 
 		return tmpl(w, data)
