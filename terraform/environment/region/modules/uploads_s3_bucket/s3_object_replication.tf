@@ -49,7 +49,7 @@ data "aws_iam_policy_document" "replication" {
     effect = "Allow"
 
     resources = [
-      "arn:aws:s3:::replication-manifest-opg-modernising-lpa-605mlpab119-eu-west-1/*"
+      "arn:aws:s3:::batch-manifests-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.name}/*"
     ]
   }
   statement {
@@ -60,7 +60,7 @@ data "aws_iam_policy_document" "replication" {
     ]
 
     resources = [
-      "arn:aws:s3:::replication-manifest-opg-modernising-lpa-605mlpab119-eu-west-1/*"
+      "arn:aws:s3:::batch-manifests-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.name}/*"
     ]
   }
   provider = aws.region
