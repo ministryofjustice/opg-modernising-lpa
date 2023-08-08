@@ -13,12 +13,11 @@ func _() {
 	_ = x[NewApplication-1]
 	_ = x[RemakeOfInvalidApplication-2]
 	_ = x[AdditionalApplication-3]
-	_ = x[MoveFromPaperApplication-4]
 }
 
-const _ApplicationReason_name = "NewApplicationRemakeOfInvalidApplicationAdditionalApplicationMoveFromPaperApplication"
+const _ApplicationReason_name = "NewApplicationRemakeOfInvalidApplicationAdditionalApplication"
 
-var _ApplicationReason_index = [...]uint8{0, 14, 40, 61, 85}
+var _ApplicationReason_index = [...]uint8{0, 14, 40, 61}
 
 func (i ApplicationReason) String() string {
 	i -= 1
@@ -40,10 +39,6 @@ func (i ApplicationReason) IsAdditionalApplication() bool {
 	return i == AdditionalApplication
 }
 
-func (i ApplicationReason) IsMoveFromPaperApplication() bool {
-	return i == MoveFromPaperApplication
-}
-
 func ParseApplicationReason(s string) (ApplicationReason, error) {
 	switch s {
 	case "NewApplication":
@@ -52,8 +47,6 @@ func ParseApplicationReason(s string) (ApplicationReason, error) {
 		return RemakeOfInvalidApplication, nil
 	case "AdditionalApplication":
 		return AdditionalApplication, nil
-	case "MoveFromPaperApplication":
-		return MoveFromPaperApplication, nil
 	default:
 		return ApplicationReason(0), fmt.Errorf("invalid ApplicationReason '%s'", s)
 	}
@@ -63,14 +56,12 @@ type ApplicationReasonOptions struct {
 	NewApplication             ApplicationReason
 	RemakeOfInvalidApplication ApplicationReason
 	AdditionalApplication      ApplicationReason
-	MoveFromPaperApplication   ApplicationReason
 }
 
 var ApplicationReasonValues = ApplicationReasonOptions{
 	NewApplication:             NewApplication,
 	RemakeOfInvalidApplication: RemakeOfInvalidApplication,
 	AdditionalApplication:      AdditionalApplication,
-	MoveFromPaperApplication:   MoveFromPaperApplication,
 }
 
 func (i ApplicationReason) Empty() bool {
