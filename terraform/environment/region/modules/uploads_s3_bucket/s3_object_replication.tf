@@ -41,7 +41,7 @@ data "aws_iam_policy_document" "replication" {
     resources = ["${var.s3_replication.destination_bucket_arn}/*"]
   }
   statement {
-    actinos = [
+    actions = [
       "s3:GetObject",
       "s3:GetObjectVersion"
     ]
