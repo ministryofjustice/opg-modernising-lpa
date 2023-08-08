@@ -41,6 +41,29 @@ data "aws_iam_policy_document" "replication" {
 
     resources = ["${var.s3_replication.destination_bucket_arn}/*"]
   }
+  statement {
+    actinos = [
+      "s3:GetObject",
+      "s3:GetObjectVersion"
+    ]
+
+    effect = "Allow"
+
+    resources = [
+      "arn:aws:s3:::replication-manifest-opg-modernising-lpa-605mlpab119-eu-west-1/*"
+    ]
+  }
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:PutObject"
+    ]
+
+    resources = [
+      "arn:aws:s3:::replication-manifest-opg-modernising-lpa-605mlpab119-eu-west-1/*"
+    ]
+  }
   provider = aws.region
 }
 
