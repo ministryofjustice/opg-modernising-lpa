@@ -22,6 +22,9 @@ data "aws_iam_policy_document" "replication" {
       "s3:GetObjectVersionForReplication",
       "s3:GetObjectVersionAcl",
       "s3:GetObjectVersionTagging",
+      "s3:InitiateReplication",
+      "s3:GetReplicationConfiguration",
+      "s3:PutInventoryConfiguration",
     ]
 
     resources = ["${aws_s3_bucket.bucket.arn}/*"]
