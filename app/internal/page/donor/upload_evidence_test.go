@@ -13,6 +13,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -72,7 +73,8 @@ func TestPostUploadEvidence(t *testing.T) {
 	s3Client.
 		On("PutObject", r.Context(), mock.MatchedBy(func(input *s3.PutObjectInput) bool {
 			return assert.Equal(t, aws.String("evidence-bucket"), input.Bucket) &&
-				assert.Equal(t, aws.String("lpa-id-evidence"), input.Key)
+				assert.Equal(t, aws.String("lpa-id-evidence"), input.Key) &&
+				assert.Equal(t, types.ServerSideEncryptionAes256, input.ServerSideEncryption)
 		})).
 		Return(nil, nil)
 
