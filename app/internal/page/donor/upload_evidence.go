@@ -5,11 +5,13 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
@@ -38,26 +40,33 @@ type S3Client interface {
 	PutObject(context.Context, *s3.PutObjectInput, ...func(*s3.Options)) (*s3.PutObjectOutput, error)
 }
 
-func UploadEvidence(tmpl template.Template, donorStore DonorStore, s3Client S3Client, bucketName string, payer Payer) Handler {
+func UploadEvidence(logger Logger, tmpl template.Template, donorStore DonorStore, s3Client S3Client, bucketName string, payer Payer) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &uploadEvidenceData{
 			App: appData,
 		}
 
 		if r.Method == http.MethodPost {
+			logger.Print("upload-evidence request received")
+
 			r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize+512)
 			form := readUploadEvidenceForm(r)
 			data.Errors = form.Validate()
 
+			logger.Print("upload-evidence request errors:", data.Errors.Any())
+
 			if data.Errors.None() {
 				lpa.EvidenceKey = lpa.ID + "-evidence"
 
-				_, err := s3Client.PutObject(r.Context(), &s3.PutObjectInput{
-					Bucket: aws.String(bucketName),
-					Key:    aws.String(lpa.EvidenceKey),
-					Body:   bytes.NewReader(form.File),
+				out, err := s3Client.PutObject(r.Context(), &s3.PutObjectInput{
+					Bucket:               aws.String(bucketName),
+					Key:                  aws.String(lpa.EvidenceKey),
+					Body:                 bytes.NewReader(form.File),
+					ServerSideEncryption: types.ServerSideEncryptionAes256,
 				})
+				logger.Print(fmt.Sprintf("upload-evidence PutObject: %#v", out))
 				if err != nil {
+					logger.Print(fmt.Sprintf("upload-evidence err: %#v", err))
 					return err
 				}
 
@@ -65,6 +74,7 @@ func UploadEvidence(tmpl template.Template, donorStore DonorStore, s3Client S3Cl
 					return err
 				}
 
+				logger.Print("payer.Pay")
 				return payer.Pay(appData, w, r, lpa)
 			}
 		}
