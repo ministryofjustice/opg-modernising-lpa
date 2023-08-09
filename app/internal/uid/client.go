@@ -53,9 +53,11 @@ type DonorDetails struct {
 }
 
 type CreateCaseRequestBody struct {
-	Type   string       `json:"type"`
-	Source string       `json:"source"`
-	Donor  DonorDetails `json:"donor"`
+	Type                      string       `json:"type"`
+	Source                    string       `json:"source"`
+	Donor                     DonorDetails `json:"donor"`
+	ApplicationReason         string       `json:"applicationReason"`
+	PreviousApplicationNumber string       `json:"previousApplicationNumber,omitempty"`
 }
 
 type CreateCaseResponse struct {
