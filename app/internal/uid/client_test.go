@@ -466,34 +466,16 @@ func TestClientSignOnSignHttpError(t *testing.T) {
 }
 
 func TestPactContract(t *testing.T) {
-	validCreateCaseBody := &CreateCaseRequestBody{
-		Type: "pfa",
-		Donor: DonorDetails{
-			Name:     "Jane Smith",
-			Dob:      ISODate{Time: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
-			Postcode: "ABC123",
-		},
-	}
-
-	invalidCreateCaseBody := &CreateCaseRequestBody{
-		Type: "pfa",
-		Donor: DonorDetails{
-			Name:     "Jane Smith",
-			Dob:      ISODate{Time: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
-			Postcode: "ABCD12345",
-		},
-	}
-
 	testCases := map[string]struct {
-		UponReceiving       string
-		ExpectedRequestBody map[string]interface{}
-		ActualRequestBody   *CreateCaseRequestBody
-		ResponseBody        map[string]interface{}
-		ResponseStatus      int
+		uponReceiving       string
+		expectedRequestBody map[string]interface{}
+		actualRequestBody   *CreateCaseRequestBody
+		responseBody        map[string]interface{}
+		responseStatus      int
 	}{
-		"UID created (%d)": {
-			UponReceiving: "A POST request with valid LPA details",
-			ExpectedRequestBody: map[string]interface{}{
+		"created": {
+			uponReceiving: "A POST request with valid LPA details",
+			expectedRequestBody: map[string]interface{}{
 				"type":   "pfa",
 				"source": "APPLICANT",
 				"donor": map[string]interface{}{
@@ -502,13 +484,46 @@ func TestPactContract(t *testing.T) {
 					"postcode": "ABC123",
 				},
 			},
-			ActualRequestBody: validCreateCaseBody,
-			ResponseBody:      map[string]interface{}{"uid": "M-789Q-P4DF-4UX3"},
-			ResponseStatus:    http.StatusCreated,
+			actualRequestBody: &CreateCaseRequestBody{
+				Type: "pfa",
+				Donor: DonorDetails{
+					Name:     "Jane Smith",
+					Dob:      ISODate{Time: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
+					Postcode: "ABC123",
+				},
+			},
+			responseBody:   map[string]interface{}{"uid": "M-789Q-P4DF-4UX3"},
+			responseStatus: http.StatusCreated,
 		},
-		"UID not created (%d)": {
-			UponReceiving: "A POST request with invalid LPA details",
-			ExpectedRequestBody: map[string]interface{}{
+		"created for previous application": {
+			uponReceiving: "A POST request with valid LPA details for a previous application",
+			expectedRequestBody: map[string]interface{}{
+				"type":   "pfa",
+				"source": "APPLICANT",
+				"donor": map[string]interface{}{
+					"name":     "Jane Smith",
+					"dob":      "2000-01-02",
+					"postcode": "ABC123",
+				},
+				"applicationReason":         "remake",
+				"previousApplicationNumber": "123",
+			},
+			actualRequestBody: &CreateCaseRequestBody{
+				Type: "pfa",
+				Donor: DonorDetails{
+					Name:     "Jane Smith",
+					Dob:      ISODate{Time: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
+					Postcode: "ABC123",
+				},
+				ApplicationReason:         "remake",
+				PreviousApplicationNumber: "123",
+			},
+			responseBody:   map[string]interface{}{"uid": "M-789Q-P4DF-4UX3"},
+			responseStatus: http.StatusCreated,
+		},
+		"error": {
+			uponReceiving: "A POST request with invalid LPA details",
+			expectedRequestBody: map[string]interface{}{
 				"type":   "pfa",
 				"source": "APPLICANT",
 				"donor": map[string]interface{}{
@@ -517,14 +532,21 @@ func TestPactContract(t *testing.T) {
 					"postcode": "ABCD12345",
 				},
 			},
-			ActualRequestBody: invalidCreateCaseBody,
-			ResponseBody: map[string]interface{}{
+			actualRequestBody: &CreateCaseRequestBody{
+				Type: "pfa",
+				Donor: DonorDetails{
+					Name:     "Jane Smith",
+					Dob:      ISODate{Time: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
+					Postcode: "ABCD12345",
+				},
+			},
+			responseBody: map[string]interface{}{
 				"code": "INVALID_REQUEST",
 				"errors": []map[string]interface{}{
 					{"source": "/donor/postcode", "detail": "must be a valid postcode"},
 				},
 			},
-			ResponseStatus: http.StatusBadRequest,
+			responseStatus: http.StatusBadRequest,
 		},
 	}
 
@@ -537,11 +559,11 @@ func TestPactContract(t *testing.T) {
 	defer pact.Teardown()
 
 	for name, tc := range testCases {
-		t.Run(fmt.Sprintf(name, tc.ResponseStatus), func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			pact.
 				AddInteraction().
 				Given("The UID service is available").
-				UponReceiving(tc.UponReceiving).
+				UponReceiving(tc.uponReceiving).
 				WithRequest(dsl.Request{
 					Method: http.MethodPost,
 					Path:   dsl.String("/cases"),
@@ -550,12 +572,12 @@ func TestPactContract(t *testing.T) {
 						"Authorization": dsl.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date, Signature=98fe2cb1c34c6de900d291351991ba8aa948ca05b7bff969d781edce9b75ee20", "AWS4-HMAC-SHA256 Credential=.*\\/.*\\/.*\\/execute-api\\/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date, Signature=.*"),
 						"X-Amz-Date":    dsl.String("20000102T000000Z"),
 					},
-					Body: tc.ExpectedRequestBody,
+					Body: tc.expectedRequestBody,
 				}).
 				WillRespondWith(dsl.Response{
-					Status:  tc.ResponseStatus,
+					Status:  tc.responseStatus,
 					Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
-					Body:    dsl.Like(tc.ResponseBody),
+					Body:    dsl.Like(tc.responseBody),
 				})
 
 			var test = func() (err error) {
@@ -571,9 +593,9 @@ func TestPactContract(t *testing.T) {
 					now:        now,
 				}
 
-				resp, err := client.CreateCase(context.Background(), tc.ActualRequestBody)
+				resp, err := client.CreateCase(context.Background(), tc.actualRequestBody)
 
-				if tc.ResponseStatus == http.StatusCreated {
+				if tc.responseStatus == http.StatusCreated {
 					assert.NotEmpty(t, resp.UID)
 					assert.NoError(t, err)
 				} else {
