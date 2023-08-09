@@ -6,10 +6,12 @@ import (
 	"context"
 	"errors"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
@@ -52,12 +54,15 @@ func UploadEvidence(tmpl template.Template, donorStore DonorStore, s3Client S3Cl
 			if data.Errors.None() {
 				lpa.EvidenceKey = lpa.ID + "-evidence"
 
-				_, err := s3Client.PutObject(r.Context(), &s3.PutObjectInput{
-					Bucket: aws.String(bucketName),
-					Key:    aws.String(lpa.EvidenceKey),
-					Body:   bytes.NewReader(form.File),
+				out, err := s3Client.PutObject(r.Context(), &s3.PutObjectInput{
+					Bucket:               aws.String(bucketName),
+					Key:                  aws.String(lpa.EvidenceKey),
+					Body:                 bytes.NewReader(form.File),
+					ServerSideEncryption: types.ServerSideEncryptionAes256,
 				})
 				if err != nil {
+					log.Printf("out: %#v", out)
+					log.Printf("err: %#v", err)
 					return err
 				}
 
