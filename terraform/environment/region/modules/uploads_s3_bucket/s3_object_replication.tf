@@ -138,3 +138,17 @@ resource "aws_s3_bucket_replication_configuration" "replication" {
   }
   provider = aws.region
 }
+
+
+resource "aws_ssm_parameter" "s3_batch_configuration" {
+  name = "/modernising-lpa/s3-batch-configuration/${data.aws_default_tags.current.tags.environment-name}/s3_batch_configuration"
+  type = "String"
+  value = jsonencode({
+    "aws_account_id" : aws_caller_identity.current.account_id,
+    "report_and_manifests_bucket" : "arn:aws:s3:::batch-manifests-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.name}",
+    "source_bucket" : aws_s3_bucket.bucket.arn,
+    "role_arn" : data.aws_iam_role.replication.arn,
+    "aws_region" : data.aws_region.current.name,
+  })
+  provider = aws.region
+}
