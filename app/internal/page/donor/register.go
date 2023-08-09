@@ -441,6 +441,8 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOp
 						Dob:      uid.ISODate{Time: lpa.Donor.DateOfBirth.Time()},
 						Postcode: lpa.Donor.Address.Postcode,
 					},
+					ApplicationReason:         lpa.ApplicationReason.String(),
+					PreviousApplicationNumber: lpa.PreviousApplicationNumber,
 				}
 
 				resp, err := uidClient.CreateCase(r.Context(), body)

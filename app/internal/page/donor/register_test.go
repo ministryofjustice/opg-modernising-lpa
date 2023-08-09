@@ -196,12 +196,13 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Get", mock.Anything).
-		Return(&page.Lpa{Donor: actor.Donor{
-			FirstNames:  "Jane",
-			LastName:    "Smith",
-			DateOfBirth: date.New("2000", "1", "2"),
-			Address:     place.Address{Postcode: "ABC123"},
-		},
+		Return(&page.Lpa{
+			Donor: actor.Donor{
+				FirstNames:  "Jane",
+				LastName:    "Smith",
+				DateOfBirth: date.New("2000", "1", "2"),
+				Address:     place.Address{Postcode: "ABC123"},
+			},
 			Type:  page.LpaTypePropertyFinance,
 			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
 			UID:   "a-uid",
@@ -298,26 +299,30 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDDoesNotExist(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Get", mock.Anything).
-		Return(&page.Lpa{Donor: actor.Donor{
-			FirstNames:  "Jane",
-			LastName:    "Smith",
-			DateOfBirth: date.New("2000", "1", "2"),
-			Address:     place.Address{Postcode: "ABC123"},
-		},
-			Type:  page.LpaTypePropertyFinance,
-			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
+		Return(&page.Lpa{
+			Donor: actor.Donor{
+				FirstNames:  "Jane",
+				LastName:    "Smith",
+				DateOfBirth: date.New("2000", "1", "2"),
+				Address:     place.Address{Postcode: "ABC123"},
+			},
+			Type:              page.LpaTypePropertyFinance,
+			ApplicationReason: page.NewApplication,
+			Tasks:             page.Tasks{YourDetails: actor.TaskCompleted},
 		}, nil)
 
 	donorStore.
-		On("Put", mock.Anything, &page.Lpa{Donor: actor.Donor{
-			FirstNames:  "Jane",
-			LastName:    "Smith",
-			DateOfBirth: date.New("2000", "1", "2"),
-			Address:     place.Address{Postcode: "ABC123"},
-		},
-			Type:  page.LpaTypePropertyFinance,
-			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
-			UID:   "M-789Q-P4DF-4UX3",
+		On("Put", mock.Anything, &page.Lpa{
+			Donor: actor.Donor{
+				FirstNames:  "Jane",
+				LastName:    "Smith",
+				DateOfBirth: date.New("2000", "1", "2"),
+				Address:     place.Address{Postcode: "ABC123"},
+			},
+			Type:              page.LpaTypePropertyFinance,
+			ApplicationReason: page.NewApplication,
+			Tasks:             page.Tasks{YourDetails: actor.TaskCompleted},
+			UID:               "M-789Q-P4DF-4UX3",
 		}).
 		Return(nil)
 
@@ -330,6 +335,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDDoesNotExist(t *testing.T) {
 				Dob:      uid.ISODate{Time: date.New("2000", "1", "2").Time()},
 				Postcode: "ABC123",
 			},
+			ApplicationReason: page.NewApplication.String(),
 		}).
 		Return(uid.CreateCaseResponse{UID: "M-789Q-P4DF-4UX3"}, nil)
 
@@ -370,25 +376,31 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDDoesNotExistOnUidClientError(t *t
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Get", mock.Anything).
-		Return(&page.Lpa{Donor: actor.Donor{
-			FirstNames:  "Jane",
-			LastName:    "Smith",
-			DateOfBirth: date.New("2000", "1", "2"),
-			Address:     place.Address{Postcode: "ABC123"},
-		},
-			Type:  page.LpaTypePropertyFinance,
-			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
+		Return(&page.Lpa{
+			Donor: actor.Donor{
+				FirstNames:  "Jane",
+				LastName:    "Smith",
+				DateOfBirth: date.New("2000", "1", "2"),
+				Address:     place.Address{Postcode: "ABC123"},
+			},
+			Type:                      page.LpaTypePropertyFinance,
+			ApplicationReason:         page.AdditionalApplication,
+			PreviousApplicationNumber: "123",
+			Tasks:                     page.Tasks{YourDetails: actor.TaskCompleted},
 		}, nil)
 
 	donorStore.
-		On("Put", mock.Anything, &page.Lpa{Donor: actor.Donor{
-			FirstNames:  "Jane",
-			LastName:    "Smith",
-			DateOfBirth: date.New("2000", "1", "2"),
-			Address:     place.Address{Postcode: "ABC123"},
-		},
-			Type:  page.LpaTypePropertyFinance,
-			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
+		On("Put", mock.Anything, &page.Lpa{
+			Donor: actor.Donor{
+				FirstNames:  "Jane",
+				LastName:    "Smith",
+				DateOfBirth: date.New("2000", "1", "2"),
+				Address:     place.Address{Postcode: "ABC123"},
+			},
+			Type:                      page.LpaTypePropertyFinance,
+			ApplicationReason:         page.AdditionalApplication,
+			PreviousApplicationNumber: "123",
+			Tasks:                     page.Tasks{YourDetails: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -401,6 +413,8 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDDoesNotExistOnUidClientError(t *t
 				Dob:      uid.ISODate{Time: date.New("2000", "1", "2").Time()},
 				Postcode: "ABC123",
 			},
+			ApplicationReason:         page.AdditionalApplication.String(),
+			PreviousApplicationNumber: "123",
 		}).
 		Return(uid.CreateCaseResponse{}, expectedError)
 
@@ -446,38 +460,24 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDDoesNotExistOnLpaStorePutError(t 
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Get", mock.Anything).
-		Return(&page.Lpa{Donor: actor.Donor{
-			FirstNames:  "Jane",
-			LastName:    "Smith",
-			DateOfBirth: date.New("2000", "1", "2"),
-			Address:     place.Address{Postcode: "ABC123"},
-		},
+		Return(&page.Lpa{
+			Donor: actor.Donor{
+				FirstNames:  "Jane",
+				LastName:    "Smith",
+				DateOfBirth: date.New("2000", "1", "2"),
+				Address:     place.Address{Postcode: "ABC123"},
+			},
 			Type:  page.LpaTypePropertyFinance,
 			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
 		}, nil)
 
 	donorStore.
-		On("Put", mock.Anything, &page.Lpa{Donor: actor.Donor{
-			FirstNames:  "Jane",
-			LastName:    "Smith",
-			DateOfBirth: date.New("2000", "1", "2"),
-			Address:     place.Address{Postcode: "ABC123"},
-		},
-			Type:  page.LpaTypePropertyFinance,
-			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
-		}).
+		On("Put", mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	uidClient := newMockUidClient(t)
 	uidClient.
-		On("CreateCase", mock.Anything, &uid.CreateCaseRequestBody{
-			Type: page.LpaTypePropertyFinance.String(),
-			Donor: uid.DonorDetails{
-				Name:     "Jane Smith",
-				Dob:      uid.ISODate{Time: date.New("2000", "1", "2").Time()},
-				Postcode: "ABC123",
-			},
-		}).
+		On("CreateCase", mock.Anything, mock.Anything).
 		Return(uid.CreateCaseResponse{}, nil)
 
 	errorHandler := newMockErrorHandler(t)
