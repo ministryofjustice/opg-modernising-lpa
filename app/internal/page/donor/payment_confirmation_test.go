@@ -94,9 +94,9 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 		}).
 		Return(nil)
 
-	reducedFeeStore := newMockReducedFeeStore(t)
-	reducedFeeStore.
-		On("Create", r.Context(), &page.Lpa{
+	eventStore := newMockEventStore(t)
+	eventStore.
+		On("CreateReducedFee", r.Context(), &page.Lpa{
 			FeeType:             page.HalfFee,
 			CertificateProvider: actor.CertificateProvider{Email: "certificateprovider@example.com"},
 			PaymentDetails: page.PaymentDetails{
@@ -108,7 +108,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, reducedFeeStore)(testAppData, w, r, &page.Lpa{
+	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, eventStore)(testAppData, w, r, &page.Lpa{
 		FeeType: page.HalfFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
@@ -216,9 +216,9 @@ func TestGetPaymentConfirmationWhenErrorCreatingReducedFee(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(nil)
 
-	reducedFeeStore := newMockReducedFeeStore(t)
-	reducedFeeStore.
-		On("Create", r.Context(), mock.Anything).
+	eventStore := newMockEventStore(t)
+	eventStore.
+		On("CreateReducedFee", r.Context(), mock.Anything).
 		Return(expectedError)
 
 	logger := newMockLogger(t)
@@ -226,7 +226,7 @@ func TestGetPaymentConfirmationWhenErrorCreatingReducedFee(t *testing.T) {
 		On("Print", "unable to create reduced fee: err").
 		Return(nil)
 
-	err := PaymentConfirmation(logger, nil, payClient, donorStore, sessionStore, reducedFeeStore)(testAppData, w, r, &page.Lpa{
+	err := PaymentConfirmation(logger, nil, payClient, donorStore, sessionStore, eventStore)(testAppData, w, r, &page.Lpa{
 		FeeType: page.HalfFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",

@@ -15,7 +15,7 @@ type previousApplicationNumberData struct {
 	Form   *previousApplicationNumberForm
 }
 
-func PreviousApplicationNumber(tmpl template.Template, donorStore DonorStore) Handler {
+func PreviousApplicationNumber(tmpl template.Template, donorStore DonorStore, eventStore EventStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &previousApplicationNumberData{
 			App: appData,
@@ -31,6 +31,10 @@ func PreviousApplicationNumber(tmpl template.Template, donorStore DonorStore) Ha
 			if data.Errors.None() {
 				lpa.PreviousApplicationNumber = data.Form.PreviousApplicationNumber
 				lpa.Tasks.YourDetails = actor.TaskCompleted
+
+				if err := eventStore.CreatePreviousApplication(r.Context(), lpa); err != nil {
+					return err
+				}
 
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err

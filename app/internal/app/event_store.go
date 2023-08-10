@@ -8,7 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 )
 
-type reducedFeeStore struct {
+type eventStore struct {
 	dynamoClient DynamoClient
 	now          func() time.Time
 }
@@ -24,8 +24,8 @@ type reducedFee struct {
 	EvidenceKeys []string
 }
 
-func (r *reducedFeeStore) Create(ctx context.Context, lpa *page.Lpa) error {
-	reducedFee := &reducedFee{
+func (r *eventStore) CreateReducedFee(ctx context.Context, lpa *page.Lpa) error {
+	return r.dynamoClient.Create(ctx, &reducedFee{
 		PK:        "LPAUID#" + lpa.UID,
 		SK:        "#DATE#" + strconv.FormatInt(r.now().Unix(), 10),
 		PaymentID: lpa.PaymentDetails.PaymentId,
@@ -35,7 +35,22 @@ func (r *reducedFeeStore) Create(ctx context.Context, lpa *page.Lpa) error {
 		UpdatedAt: r.now(),
 		//TODO just reference multiple keys on lpa when we support multi-file uploads
 		EvidenceKeys: []string{lpa.EvidenceKey},
-	}
+	})
+}
 
-	return r.dynamoClient.Create(ctx, reducedFee)
+type previousApplication struct {
+	PK, SK                    string
+	LpaUID                    string
+	ApplicationReason         string
+	PreviousApplicationNumber string
+}
+
+func (r *eventStore) CreatePreviousApplication(ctx context.Context, lpa *page.Lpa) error {
+	return r.dynamoClient.Put(ctx, &previousApplication{
+		PK:                        "LPA#" + lpa.UID,
+		SK:                        "#PREVIOUSAPPLICATION",
+		LpaUID:                    lpa.UID,
+		ApplicationReason:         lpa.ApplicationReason.String(),
+		PreviousApplicationNumber: lpa.PreviousApplicationNumber,
+	})
 }
