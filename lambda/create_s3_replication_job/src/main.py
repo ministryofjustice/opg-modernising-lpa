@@ -1,9 +1,8 @@
 import os
-import ast
 import logging
 import uuid
-import boto3
 import json
+import boto3
 from aws_xray_sdk.core import patch_all, xray_recorder
 
 logger = logging.getLogger()
