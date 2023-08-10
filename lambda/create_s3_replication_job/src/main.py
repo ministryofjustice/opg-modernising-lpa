@@ -12,7 +12,7 @@ patch_all()
 
 
 def handler(event, context):
-    subsegment = xray_recorder.begin_subsegment('batch_replicate_to_sirius')
+    subsegment = xray_recorder.begin_subsegment('create_s3_batch_replication_job')
     subsegment.put_annotation('service', 'reduced_fees_uploads')
     variables = set_variables()
     client = create_client()
