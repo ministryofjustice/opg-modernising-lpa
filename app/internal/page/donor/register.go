@@ -135,6 +135,11 @@ type Localizer interface {
 	Concat([]string, string) string
 }
 
+//go:generate mockery --testonly --inpackage --name EventClient --structname mockEventClient
+type EventClient interface {
+	Send(context.Context, string, any) error
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -156,6 +161,7 @@ func Register(
 	evidenceBucketName string,
 	reducedFeeStore ReducedFeeStore,
 	notifyClient NotifyClient,
+	eventClient EventClient,
 ) {
 	payer := &payHelper{
 		logger:          logger,
@@ -192,7 +198,7 @@ func Register(
 	handleWithLpa(page.Paths.ApplicationReason, None,
 		ApplicationReason(tmpls.Get("application_reason.gohtml"), donorStore))
 	handleWithLpa(page.Paths.PreviousApplicationNumber, None,
-		PreviousApplicationNumber(tmpls.Get("previous_application_number.gohtml"), donorStore))
+		PreviousApplicationNumber(tmpls.Get("previous_application_number.gohtml"), donorStore, eventClient))
 
 	handleWithLpa(page.Paths.TaskList, None,
 		TaskList(tmpls.Get("task_list.gohtml")))
@@ -433,7 +439,7 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOp
 				return
 			}
 
-			if r.Method == http.MethodPost && lpa.Tasks.YourDetails == actor.TaskCompleted && lpa.UID == "" {
+			if r.Method == http.MethodPost && !lpa.Type.Empty() && lpa.UID == "" {
 				body := &uid.CreateCaseRequestBody{
 					Type: lpa.Type.String(),
 					Donor: uid.DonorDetails{

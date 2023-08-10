@@ -85,5 +85,9 @@ variable "reduced_fees" {
       arn  = string
       name = string
     })
+    event_bus = object({
+      arn  = string
+      name = string
+    })
   })
 }
