@@ -1,15 +1,5 @@
-# Ship to OPG Metrics Lambda
+# Creat S3 Batch Replication Job Lambda
 
-This lambda is responsible for taking a correctly formatted list of metrics and sends them to the OPG Metrics API Gateway.
+This lambda is used to create a S3 Batch Replication Job to copy files from one S3 bucket to another.
 
-## Testing
-
-To debug locally you need to move up to the parent folder and run
-
-`docker-compose up`
-
-This will create a local API that you can curl requests too to test your code.
-
-To view the output of the Lambda you can run
-
-`docker-compose -f 'docker-compose.yml' -p 'lambda' logs -f --tail 1000`
+In this service, the source bucket is for uploads to the service and the destination bucket is for a case management system in another AWS account.
