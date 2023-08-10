@@ -28,6 +28,9 @@ jobs:
     strategy:
       matrix:
         ecr_repository: [modernising-lpa/app]
+        include:
+          - ecr_repository: modernising-lpa/app
+            path: ./Dockerfile
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -36,7 +39,7 @@ jobs:
       - name: Build Image
         id: build_image
         run: |
-          docker build -t ${{ matrix.ecr_repository }} --build-arg TAG=${{inputs.tag}} .
+          docker build -f ${{ matrix.path }} -t ${{ matrix.ecr_repository }} --build-arg TAG=${{inputs.tag}} .
       - name: Trivy Image Vulnerability Scanner
         id: trivy_scan
         uses: aquasecurity/trivy-action@0.11.2
