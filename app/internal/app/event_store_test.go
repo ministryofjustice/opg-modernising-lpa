@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestCreate(t *testing.T) {
+func TestCreateReducedFee(t *testing.T) {
 	now := time.Date(2000, time.March, 4, 0, 0, 0, 0, time.UTC)
 	ctx := context.Background()
 	lpa := &page.Lpa{
@@ -37,24 +37,24 @@ func TestCreate(t *testing.T) {
 		}).
 		Return(nil)
 
-	reducedFeeStore := reducedFeeStore{
+	store := &eventStore{
 		dynamoClient: dynamoClient,
 		now:          func() time.Time { return now },
 	}
 
-	assert.Nil(t, reducedFeeStore.Create(ctx, lpa))
+	assert.Nil(t, store.CreateReducedFee(ctx, lpa))
 }
 
-func TestCreateOnDynamoError(t *testing.T) {
+func TestCreateReducedFeeOnDynamoError(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
 		On("Create", mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	reducedFeeStore := reducedFeeStore{
+	store := &eventStore{
 		dynamoClient: dynamoClient,
 		now:          time.Now,
 	}
 
-	assert.Equal(t, expectedError, reducedFeeStore.Create(context.Background(), &page.Lpa{}))
+	assert.Equal(t, expectedError, store.CreateReducedFee(context.Background(), &page.Lpa{}))
 }
