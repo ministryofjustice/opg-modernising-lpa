@@ -32,7 +32,7 @@ jobs:
           - ecr_repository: modernising-lpa/app
             path: ./Dockerfile
     runs-on: ubuntu-latest
-    name: ${{ matrix.path }} Docker Build, Scan and Push to ECR
+    name: ${{ matrix.ecr_repository }}
     steps:
       - uses: actions/checkout@v3
         with:
