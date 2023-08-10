@@ -27,6 +27,14 @@ resource "aws_wafv2_web_acl" "main" {
             count {}
           }
         }
+
+        rule_action_override {
+          name = "CrossSiteScripting_BODY"
+
+          action_to_use {
+            count {}
+          }
+        }
       }
     }
 
