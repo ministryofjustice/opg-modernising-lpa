@@ -118,9 +118,10 @@ type Payer interface {
 	Pay(page.AppData, http.ResponseWriter, *http.Request, *page.Lpa) error
 }
 
-//go:generate mockery --testonly --inpackage --name ReducedFeeStore --structname mockReducedFeeStore
-type ReducedFeeStore interface {
-	Create(ctx context.Context, lpa *page.Lpa) error
+//go:generate mockery --testonly --inpackage --name EventStore --structname mockEventStore
+type EventStore interface {
+	CreateReducedFee(context.Context, *page.Lpa) error
+	CreatePreviousApplication(context.Context, *page.Lpa) error
 }
 
 //go:generate mockery --testonly --inpackage --name Localizer --structname mockLocalizer
@@ -154,17 +155,17 @@ func Register(
 	uidClient UidClient,
 	s3Client *s3.Client,
 	evidenceBucketName string,
-	reducedFeeStore ReducedFeeStore,
+	eventStore EventStore,
 	notifyClient NotifyClient,
 ) {
 	payer := &payHelper{
-		logger:          logger,
-		sessionStore:    sessionStore,
-		donorStore:      donorStore,
-		payClient:       payClient,
-		appPublicURL:    appPublicURL,
-		randomString:    random.String,
-		reducedFeeStore: reducedFeeStore,
+		logger:       logger,
+		sessionStore: sessionStore,
+		donorStore:   donorStore,
+		payClient:    payClient,
+		appPublicURL: appPublicURL,
+		randomString: random.String,
+		eventStore:   eventStore,
 	}
 
 	handleRoot := makeHandle(rootMux, sessionStore, None, errorHandler)
@@ -192,7 +193,7 @@ func Register(
 	handleWithLpa(page.Paths.ApplicationReason, None,
 		ApplicationReason(tmpls.Get("application_reason.gohtml"), donorStore))
 	handleWithLpa(page.Paths.PreviousApplicationNumber, None,
-		PreviousApplicationNumber(tmpls.Get("previous_application_number.gohtml"), donorStore))
+		PreviousApplicationNumber(tmpls.Get("previous_application_number.gohtml"), donorStore, eventStore))
 
 	handleWithLpa(page.Paths.TaskList, None,
 		TaskList(tmpls.Get("task_list.gohtml")))
@@ -290,7 +291,7 @@ func Register(
 	handleWithLpa(page.Paths.HowToSendEvidence, CanGoBack,
 		HowToSendEvidence(tmpls.Get("how_to_send_evidence.gohtml"), payer))
 	handleWithLpa(page.Paths.PaymentConfirmation, None,
-		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, reducedFeeStore))
+		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, eventStore))
 
 	handleWithLpa(page.Paths.HowToConfirmYourIdentityAndSign, None,
 		Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml")))
@@ -433,7 +434,7 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOp
 				return
 			}
 
-			if r.Method == http.MethodPost && lpa.Tasks.YourDetails == actor.TaskCompleted && lpa.UID == "" {
+			if r.Method == http.MethodPost && !lpa.Type.Empty() && lpa.UID == "" {
 				body := &uid.CreateCaseRequestBody{
 					Type: lpa.Type.String(),
 					Donor: uid.DonorDetails{
@@ -464,13 +465,13 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOp
 }
 
 type payHelper struct {
-	logger          Logger
-	sessionStore    sessions.Store
-	donorStore      DonorStore
-	payClient       PayClient
-	appPublicURL    string
-	randomString    func(int) string
-	reducedFeeStore ReducedFeeStore
+	logger       Logger
+	sessionStore sessions.Store
+	donorStore   DonorStore
+	payClient    PayClient
+	appPublicURL string
+	randomString func(int) string
+	eventStore   EventStore
 }
 
 func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
@@ -480,7 +481,7 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 			return err
 		}
 
-		if err := p.reducedFeeStore.Create(r.Context(), lpa); err != nil {
+		if err := p.eventStore.CreateReducedFee(r.Context(), lpa); err != nil {
 			p.logger.Print(fmt.Sprintf("unable to create reduced fee: %s", err.Error()))
 			return err
 		}
