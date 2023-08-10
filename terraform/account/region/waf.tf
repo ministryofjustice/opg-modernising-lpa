@@ -112,6 +112,12 @@ resource "aws_wafv2_web_acl" "main" {
         comparison_operator = "GT"
         size                = 33554432
 
+        field_to_match {
+          body {
+            oversize_handling = "CONTINUE"
+          }
+        }
+
         text_transformation {
           priority = 0
           type     = "NONE"
