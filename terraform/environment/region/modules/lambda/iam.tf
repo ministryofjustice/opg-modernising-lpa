@@ -49,27 +49,6 @@ data "aws_iam_policy_document" "lambda" {
     ]
   }
 
-  statement {
-    sid       = "AllowECRAccess"
-    effect    = "Allow"
-    resources = [var.ecr_arn]
-    actions = [
-      "ecr:SetRepositoryPolicy",
-      "ecr:GetRepositoryPolicy",
-      "ecr:GetDownloadUrlForLayer",
-      "ecr:BatchGetImage",
-      "ecr:BatchCheckLayerAvailability",
-      "ecr:GetAuthorizationToken",
-      "ecr:BatchGetImage",
-      "ecr:DescribeImages",
-      "ecr:DescribeRepositories",
-      "ecr:ListImages",
-      "ecr:PutImage",
-      "ecr:InitiateLayerUpload",
-      "ecr:UploadLayerPart",
-      "ecr:CompleteLayerUpload",
-    ]
-  }
   provider = aws.region
 }
 
@@ -77,4 +56,12 @@ resource "aws_iam_role_policy_attachment" "vpc_access_execution_role" {
   role       = aws_iam_role.lambda_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
   provider   = aws.region
+}
+
+resource "aws_lambda_permission" "allow_lambda_execution_operator" {
+  statement_id  = "AllowExecutionOperator"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda_function.function_name
+  principal     = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/operator"
+  provider      = aws.region
 }
