@@ -379,6 +379,10 @@ locals {
           name  = "ONELOGIN_URL",
           value = var.app_env_vars.onelogin_url
         },
+        {
+          name  = "EVENT_BUS_NAME",
+          value = var.event_bus_name
+        },
       ]
     }
   )

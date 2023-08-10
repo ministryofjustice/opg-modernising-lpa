@@ -23,6 +23,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/app"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/notify"
@@ -75,6 +76,7 @@ func main() {
 		metadataURL        = env.Get("ECS_CONTAINER_METADATA_URI_V4", "")
 		oneloginURL        = env.Get("ONELOGIN_URL", "https://home.integration.account.gov.uk")
 		evidenceBucketName = env.Get("UPLOADS_S3_BUCKET_NAME", "evidence")
+		eventBusName       = env.Get("EVENT_BUS_NAME", "default")
 	)
 
 	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
@@ -141,6 +143,8 @@ func main() {
 	if err != nil {
 		logger.Fatal(err)
 	}
+
+	eventClient := event.NewClient(cfg, eventBusName)
 
 	secretsClient, err := secrets.NewClient(cfg, time.Hour)
 	if err != nil {
@@ -240,7 +244,8 @@ func main() {
 		oneloginURL,
 		s3Client,
 		evidenceBucketName,
-		reducedFeesDynamoClient)))
+		reducedFeesDynamoClient,
+		eventClient)))
 	mux.Handle("/", app.App(
 		logger,
 		bundle.For(localize.En),
@@ -261,7 +266,8 @@ func main() {
 		oneloginURL,
 		s3Client,
 		evidenceBucketName,
-		reducedFeesDynamoClient))
+		reducedFeesDynamoClient,
+		eventClient))
 
 	var handler http.Handler = mux
 	if xrayEnabled {
