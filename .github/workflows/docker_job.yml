@@ -27,10 +27,11 @@ jobs:
   docker_build_scan_push:
     strategy:
       matrix:
-        ecr_repository: [modernising-lpa/app]
         include:
           - ecr_repository: modernising-lpa/app
             path: ./Dockerfile
+          - ecr_repository: modernising-lpa/create-s3-batch-replication-job
+            path: ./lambda/create_s3_replication_job/Dockerfile
     runs-on: ubuntu-latest
     name: ${{ matrix.ecr_repository }}
     steps:
