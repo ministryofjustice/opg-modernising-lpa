@@ -85,5 +85,6 @@ variable "reduced_fees" {
       arn  = string
       name = string
     })
+    event_bus = string
   })
 }
