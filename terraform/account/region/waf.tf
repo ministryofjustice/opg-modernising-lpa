@@ -19,6 +19,14 @@ resource "aws_wafv2_web_acl" "main" {
       managed_rule_group_statement {
         name        = "AWSManagedRulesCommonRuleSet"
         vendor_name = "AWS"
+
+        rule_action_override {
+          name = "SizeRestrictions_BODY"
+
+          action_to_use {
+            count {}
+          }
+        }
       }
     }
 
@@ -91,7 +99,32 @@ resource "aws_wafv2_web_acl" "main" {
       sampled_requests_enabled   = true
     }
   }
+  rule {
+    name     = "SizeRestrictions_BODY"
+    priority = 4
 
+    action {
+      block {}
+    }
+
+    statement {
+      size_constraint_statement {
+        comparison_operator = "GT"
+        size                = 33554432
+
+        text_transformation {
+          priority = 0
+          type     = "NONE"
+        }
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "SizeRestrictions_BODY"
+      sampled_requests_enabled   = true
+    }
+  }
 
   visibility_config {
     cloudwatch_metrics_enabled = true
