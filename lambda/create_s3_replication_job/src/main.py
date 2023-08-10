@@ -35,7 +35,7 @@ def create_client():
     return client
 
 def set_variables():
-    environment = "629mlpab127"
+    environment = os.getenv('ENVIRONMENT')
     ssm_client = boto3.client('ssm')
     parameter = ssm_client.get_parameter(
     Name=f'/modernising-lpa/s3-batch-configuration/{environment}/s3_batch_configuration',
