@@ -35,6 +35,10 @@ module "eu_west_1" {
       arn  = module.reduced_fees[0].dynamodb_table.arn,
       name = module.reduced_fees[0].dynamodb_table.name,
     }
+    event_bus = {
+      arn  = module.reduced_fees[0].event_bus.arn
+      name = module.reduced_fees[0].event_bus.name
+    }
   }
   app_env_vars           = local.environment.app.env
   app_allowed_api_arns   = local.environment.app.allowed_api_arns
@@ -76,6 +80,10 @@ module "eu_west_2" {
     table = {
       arn  = module.reduced_fees[0].dynamodb_table.arn,
       name = module.reduced_fees[0].dynamodb_table.name,
+    }
+    event_bus = {
+      arn  = module.reduced_fees[0].event_bus.arn
+      name = module.reduced_fees[0].event_bus.name
     }
   }
   app_env_vars           = local.environment.app.env
