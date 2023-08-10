@@ -650,14 +650,14 @@ func TestPayHelperPayWhenPaymentNotRequired(t *testing.T) {
 				On("Put", r.Context(), lpa).
 				Return(nil)
 
-			reducedFeeStore := newMockReducedFeeStore(t)
-			reducedFeeStore.
-				On("Create", r.Context(), lpa).
+			eventStore := newMockEventStore(t)
+			eventStore.
+				On("CreateReducedFee", r.Context(), lpa).
 				Return(nil)
 
 			err := (&payHelper{
-				donorStore:      donorStore,
-				reducedFeeStore: reducedFeeStore,
+				donorStore: donorStore,
+				eventStore: eventStore,
 			}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: feeType})
 			resp := w.Result()
 
@@ -693,7 +693,7 @@ func TestPayHelperPayWhenPaymentNotRequiredAndDonorStoreErrors(t *testing.T) {
 	}
 }
 
-func TestPayHelperPayWhenPaymentNotRequiredAndReducedFeeStoreErrors(t *testing.T) {
+func TestPayHelperPayWhenPaymentNotRequiredAndEventStoreErrors(t *testing.T) {
 	testCases := []page.FeeType{
 		page.NoFee,
 		page.HardshipFee,
@@ -711,9 +711,9 @@ func TestPayHelperPayWhenPaymentNotRequiredAndReducedFeeStoreErrors(t *testing.T
 				On("Put", r.Context(), lpa).
 				Return(nil)
 
-			reducedFeeStore := newMockReducedFeeStore(t)
-			reducedFeeStore.
-				On("Create", r.Context(), lpa).
+			eventStore := newMockEventStore(t)
+			eventStore.
+				On("CreateReducedFee", r.Context(), lpa).
 				Return(expectedError)
 
 			logger := newMockLogger(t)
@@ -722,9 +722,9 @@ func TestPayHelperPayWhenPaymentNotRequiredAndReducedFeeStoreErrors(t *testing.T
 				Return(nil)
 
 			err := (&payHelper{
-				donorStore:      donorStore,
-				reducedFeeStore: reducedFeeStore,
-				logger:          logger,
+				donorStore: donorStore,
+				eventStore: eventStore,
+				logger:     logger,
 			}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: feeType})
 			resp := w.Result()
 
