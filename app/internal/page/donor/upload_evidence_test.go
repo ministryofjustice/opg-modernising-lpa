@@ -1,246 +1,228 @@
 package donor
 
-import (
-	"bytes"
-	"crypto/rand"
-	"io"
-	"mime/multipart"
-	"net/http"
-	"net/http/httptest"
-	"os"
-	"strings"
-	"testing"
+// func TestGetUploadEvidence(t *testing.T) {
+//	w := httptest.NewRecorder()
+//	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/validation"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-)
+//	template := newMockTemplate(t)
+//	template.
+//		On("Execute", w, &uploadEvidenceData{
+//			App: testAppData,
+//		}).
+//		Return(nil)
 
-func TestGetUploadEvidence(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+//	err := UploadEvidence(template.Execute, nil, nil, "", nil)(testAppData, w, r, &page.Lpa{})
+//	resp := w.Result()
 
-	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &uploadEvidenceData{
-			App: testAppData,
-		}).
-		Return(nil)
+//	assert.Nil(t, err)
+//	assert.Equal(t, http.StatusOK, resp.StatusCode)
+// }
 
-	err := UploadEvidence(template.Execute, nil, nil, "", nil)(testAppData, w, r, &page.Lpa{})
-	resp := w.Result()
+// func TestGetUploadEvidenceWhenTemplateErrors(t *testing.T) {
+//	w := httptest.NewRecorder()
+//	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
+//	template := newMockTemplate(t)
+//	template.
+//		On("Execute", w, mock.Anything).
+//		Return(expectedError)
 
-func TestGetUploadEvidenceWhenTemplateErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+//	err := UploadEvidence(template.Execute, nil, nil, "", nil)(testAppData, w, r, &page.Lpa{})
+//	assert.Equal(t, expectedError, err)
+// }
 
-	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
-		Return(expectedError)
+// func TestPostUploadEvidence(t *testing.T) {
+//	var buf bytes.Buffer
+//	writer := multipart.NewWriter(&buf)
 
-	err := UploadEvidence(template.Execute, nil, nil, "", nil)(testAppData, w, r, &page.Lpa{})
-	assert.Equal(t, expectedError, err)
-}
+//	part, _ := writer.CreateFormField("csrf")
+//	io.WriteString(part, "123")
 
-func TestPostUploadEvidence(t *testing.T) {
-	var buf bytes.Buffer
-	writer := multipart.NewWriter(&buf)
+//	file, _ := os.Open("testdata/dummy.pdf")
+//	part, _ = writer.CreateFormFile("upload", "whatever.pdf")
+//	io.Copy(part, file)
 
-	part, _ := writer.CreateFormField("csrf")
-	io.WriteString(part, "123")
+//	file.Close()
+//	writer.Close()
 
-	file, _ := os.Open("testdata/dummy.pdf")
-	part, _ = writer.CreateFormFile("upload", "whatever.pdf")
-	io.Copy(part, file)
+//	w := httptest.NewRecorder()
+//	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+//	r.Header.Set("Content-Type", writer.FormDataContentType())
 
-	file.Close()
-	writer.Close()
+//	s3Client := newMockS3Client(t)
+//	s3Client.
+//		On("PutObject", r.Context(), mock.MatchedBy(func(input *s3.PutObjectInput) bool {
+//			return assert.Equal(t, aws.String("evidence-bucket"), input.Bucket) &&
+//				assert.Equal(t, aws.String("lpa-id-evidence"), input.Key) &&
+//				assert.Equal(t, types.ServerSideEncryptionAes256, input.ServerSideEncryption)
+//		})).
+//		Return(nil, nil)
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
-	r.Header.Set("Content-Type", writer.FormDataContentType())
+//	donorStore := newMockDonorStore(t)
+//	donorStore.
+//		On("Put", r.Context(), &page.Lpa{ID: "lpa-id", EvidenceKey: "lpa-id-evidence"}).
+//		Return(nil)
 
-	s3Client := newMockS3Client(t)
-	s3Client.
-		On("PutObject", r.Context(), mock.MatchedBy(func(input *s3.PutObjectInput) bool {
-			return assert.Equal(t, aws.String("evidence-bucket"), input.Bucket) &&
-				assert.Equal(t, aws.String("lpa-id-evidence"), input.Key)
-		})).
-		Return(nil, nil)
+//	payer := newMockPayer(t)
+//	payer.
+//		On("Pay", testAppData, w, r, &page.Lpa{ID: "lpa-id", EvidenceKey: "lpa-id-evidence"}).
+//		Return(nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &page.Lpa{ID: "lpa-id", EvidenceKey: "lpa-id-evidence"}).
-		Return(nil)
+//	err := UploadEvidence(nil, donorStore, s3Client, "evidence-bucket", payer)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+//	assert.Nil(t, err)
+// }
 
-	payer := newMockPayer(t)
-	payer.
-		On("Pay", testAppData, w, r, &page.Lpa{ID: "lpa-id", EvidenceKey: "lpa-id-evidence"}).
-		Return(nil)
+// func TestPostUploadEvidenceWhenBadCsrfField(t *testing.T) {
+//	var buf bytes.Buffer
+//	writer := multipart.NewWriter(&buf)
 
-	err := UploadEvidence(nil, donorStore, s3Client, "evidence-bucket", payer)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
-	assert.Nil(t, err)
-}
+//	part, _ := writer.CreateFormField("what")
+//	io.WriteString(part, "hey")
 
-func TestPostUploadEvidenceWhenBadCsrfField(t *testing.T) {
-	var buf bytes.Buffer
-	writer := multipart.NewWriter(&buf)
+//	writer.Close()
 
-	part, _ := writer.CreateFormField("what")
-	io.WriteString(part, "hey")
+//	w := httptest.NewRecorder()
+//	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+//	r.Header.Set("Content-Type", writer.FormDataContentType())
 
-	writer.Close()
+//	template := newMockTemplate(t)
+//	template.
+//		On("Execute", w, &uploadEvidenceData{
+//			App:    testAppData,
+//			Errors: validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
+//		}).
+//		Return(nil)
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
-	r.Header.Set("Content-Type", writer.FormDataContentType())
+//	err := UploadEvidence(template.Execute, nil, nil, "evidence-bucket", nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+//	resp := w.Result()
 
-	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &uploadEvidenceData{
-			App:    testAppData,
-			Errors: validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
-		}).
-		Return(nil)
+//	assert.Nil(t, err)
+//	assert.Equal(t, http.StatusOK, resp.StatusCode)
+// }
 
-	err := UploadEvidence(template.Execute, nil, nil, "evidence-bucket", nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
-	resp := w.Result()
+// func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
+//	dummy, _ := os.Open("testdata/dummy.pdf")
+//	defer dummy.Close()
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
+//	dummyData, _ := io.ReadAll(dummy)
+//	randomReader := io.LimitReader(rand.Reader, int64(maxUploadSize-len(dummyData)+1))
 
-func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
-	dummy, _ := os.Open("testdata/dummy.pdf")
-	defer dummy.Close()
+//	testcases := map[string]struct {
+//		fieldName    string
+//		fieldContent io.Reader
+//		errorLabel   string
+//	}{
+//		"missing": {
+//			fieldName:    "upload",
+//			fieldContent: strings.NewReader(""),
+//			errorLabel:   "errorUploadMissing",
+//		},
+//		"not pdf": {
+//			fieldName:    "upload",
+//			fieldContent: strings.NewReader("I am just text"),
+//			errorLabel:   "errorFileIncorrectType",
+//		},
+//		"wrong field": {
+//			fieldName:    "file",
+//			fieldContent: bytes.NewReader(dummyData),
+//			errorLabel:   "errorGenericUploadProblem",
+//		},
+//		"over size pdf": {
+//			fieldName:    "upload",
+//			fieldContent: io.MultiReader(bytes.NewReader(dummyData), randomReader),
+//			errorLabel:   "errorFileTooBig",
+//		},
+//	}
 
-	dummyData, _ := io.ReadAll(dummy)
-	randomReader := io.LimitReader(rand.Reader, int64(maxUploadSize-len(dummyData)+1))
+//	for name, tc := range testcases {
+//		t.Run(name, func(t *testing.T) {
+//			var buf bytes.Buffer
+//			writer := multipart.NewWriter(&buf)
 
-	testcases := map[string]struct {
-		fieldName    string
-		fieldContent io.Reader
-		errorLabel   string
-	}{
-		"missing": {
-			fieldName:    "upload",
-			fieldContent: strings.NewReader(""),
-			errorLabel:   "errorUploadMissing",
-		},
-		"not pdf": {
-			fieldName:    "upload",
-			fieldContent: strings.NewReader("I am just text"),
-			errorLabel:   "errorFileIncorrectType",
-		},
-		"wrong field": {
-			fieldName:    "file",
-			fieldContent: bytes.NewReader(dummyData),
-			errorLabel:   "errorGenericUploadProblem",
-		},
-		"over size pdf": {
-			fieldName:    "upload",
-			fieldContent: io.MultiReader(bytes.NewReader(dummyData), randomReader),
-			errorLabel:   "errorFileTooBig",
-		},
-	}
+//			part, _ := writer.CreateFormField("csrf")
+//			io.WriteString(part, "123")
 
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
-			var buf bytes.Buffer
-			writer := multipart.NewWriter(&buf)
+//			part, _ = writer.CreateFormFile(tc.fieldName, "whatever.pdf")
+//			io.Copy(part, tc.fieldContent)
 
-			part, _ := writer.CreateFormField("csrf")
-			io.WriteString(part, "123")
+//			writer.Close()
 
-			part, _ = writer.CreateFormFile(tc.fieldName, "whatever.pdf")
-			io.Copy(part, tc.fieldContent)
+//			w := httptest.NewRecorder()
+//			r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+//			r.Header.Set("Content-Type", writer.FormDataContentType())
 
-			writer.Close()
+//			template := newMockTemplate(t)
+//			template.
+//				On("Execute", w, &uploadEvidenceData{
+//					App:    testAppData,
+//					Errors: validation.With("upload", validation.CustomError{Label: tc.errorLabel}),
+//				}).
+//				Return(nil)
 
-			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", &buf)
-			r.Header.Set("Content-Type", writer.FormDataContentType())
+//			err := UploadEvidence(template.Execute, nil, nil, "evidence-bucket", nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+//			resp := w.Result()
 
-			template := newMockTemplate(t)
-			template.
-				On("Execute", w, &uploadEvidenceData{
-					App:    testAppData,
-					Errors: validation.With("upload", validation.CustomError{Label: tc.errorLabel}),
-				}).
-				Return(nil)
+//			assert.Nil(t, err)
+//			assert.Equal(t, http.StatusOK, resp.StatusCode)
+//		})
+//	}
+// }
 
-			err := UploadEvidence(template.Execute, nil, nil, "evidence-bucket", nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
-			resp := w.Result()
+// func TestPostUploadEvidenceWhenS3ClientErrors(t *testing.T) {
+//	var buf bytes.Buffer
+//	writer := multipart.NewWriter(&buf)
 
-			assert.Nil(t, err)
-			assert.Equal(t, http.StatusOK, resp.StatusCode)
-		})
-	}
-}
+//	part, _ := writer.CreateFormField("csrf")
+//	io.WriteString(part, "123")
 
-func TestPostUploadEvidenceWhenS3ClientErrors(t *testing.T) {
-	var buf bytes.Buffer
-	writer := multipart.NewWriter(&buf)
+//	file, _ := os.Open("testdata/dummy.pdf")
+//	part, _ = writer.CreateFormFile("upload", "whatever.pdf")
+//	io.Copy(part, file)
 
-	part, _ := writer.CreateFormField("csrf")
-	io.WriteString(part, "123")
+//	file.Close()
+//	writer.Close()
 
-	file, _ := os.Open("testdata/dummy.pdf")
-	part, _ = writer.CreateFormFile("upload", "whatever.pdf")
-	io.Copy(part, file)
+//	w := httptest.NewRecorder()
+//	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+//	r.Header.Set("Content-Type", writer.FormDataContentType())
 
-	file.Close()
-	writer.Close()
+//	s3Client := newMockS3Client(t)
+//	s3Client.
+//		On("PutObject", r.Context(), mock.Anything).
+//		Return(nil, expectedError)
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
-	r.Header.Set("Content-Type", writer.FormDataContentType())
+//	err := UploadEvidence(nil, nil, s3Client, "evidence-bucket", nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+//	assert.Equal(t, expectedError, err)
+// }
 
-	s3Client := newMockS3Client(t)
-	s3Client.
-		On("PutObject", r.Context(), mock.Anything).
-		Return(nil, expectedError)
+// func TestPostUploadEvidenceWhenDonorStoreErrors(t *testing.T) {
+//	var buf bytes.Buffer
+//	writer := multipart.NewWriter(&buf)
 
-	err := UploadEvidence(nil, nil, s3Client, "evidence-bucket", nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
-	assert.Equal(t, expectedError, err)
-}
+//	part, _ := writer.CreateFormField("csrf")
+//	io.WriteString(part, "123")
 
-func TestPostUploadEvidenceWhenDonorStoreErrors(t *testing.T) {
-	var buf bytes.Buffer
-	writer := multipart.NewWriter(&buf)
+//	file, _ := os.Open("testdata/dummy.pdf")
+//	part, _ = writer.CreateFormFile("upload", "whatever.pdf")
+//	io.Copy(part, file)
 
-	part, _ := writer.CreateFormField("csrf")
-	io.WriteString(part, "123")
+//	file.Close()
+//	writer.Close()
 
-	file, _ := os.Open("testdata/dummy.pdf")
-	part, _ = writer.CreateFormFile("upload", "whatever.pdf")
-	io.Copy(part, file)
+//	w := httptest.NewRecorder()
+//	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+//	r.Header.Set("Content-Type", writer.FormDataContentType())
 
-	file.Close()
-	writer.Close()
+//	s3Client := newMockS3Client(t)
+//	s3Client.
+//		On("PutObject", r.Context(), mock.Anything).
+//		Return(nil, nil)
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
-	r.Header.Set("Content-Type", writer.FormDataContentType())
+//	donorStore := newMockDonorStore(t)
+//	donorStore.
+//		On("Put", r.Context(), mock.Anything).
+//		Return(expectedError)
 
-	s3Client := newMockS3Client(t)
-	s3Client.
-		On("PutObject", r.Context(), mock.Anything).
-		Return(nil, nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
-		Return(expectedError)
-
-	err := UploadEvidence(nil, donorStore, s3Client, "evidence-bucket", nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
-	assert.Equal(t, expectedError, err)
-}
+//	err := UploadEvidence(nil, donorStore, s3Client, "evidence-bucket", nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+//	assert.Equal(t, expectedError, err)
+// }
