@@ -25,8 +25,3 @@ data "aws_kms_alias" "cloudwatch_application_logs_encryption" {
   name     = "alias/${data.aws_default_tags.current.tags.application}_cloudwatch_application_logs_encryption"
   provider = aws.region
 }
-
-data "aws_ecr_repository" "s3_create_batch_replication_jobs" {
-  name     = "modernising-lpa/s3-create-batch-replication-jobs"
-  provider = aws.region
-}

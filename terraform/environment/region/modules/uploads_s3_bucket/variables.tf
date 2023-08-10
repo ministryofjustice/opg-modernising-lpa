@@ -16,6 +16,7 @@ variable "s3_replication" {
     destination_encryption_key_arn = string
     destination_account_id         = string
     lambda_function_image_ecr_arn  = string
+    lambda_function_image_ecr_url  = string
     lambda_function_image_tag      = string
   })
   description = <<EOT
@@ -25,6 +26,7 @@ variable "s3_replication" {
       destination_encryption_key_arn = "ARN of the destination encryption key"
       destination_account_id         = "Account ID of the destination bucket"
       lambda_function_image_ecr_arn  = "ARN of the lambda function to be invoked on a schedule to create replication jobs"
+      lambda_function_image_ecr_url  = "URL of the lambda function to be invoked on a schedule to create replication jobs"
       lambda_function_image_tag      = "Tag of the lambda function to be invoked on a schedule to create replication jobs"
     }
     EOT

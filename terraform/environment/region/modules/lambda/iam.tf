@@ -4,6 +4,7 @@ resource "aws_iam_role" "lambda_role" {
   lifecycle {
     create_before_destroy = true
   }
+  provider = aws.region
 }
 
 data "aws_iam_policy_document" "lambda_assume" {
@@ -15,21 +16,25 @@ data "aws_iam_policy_document" "lambda_assume" {
       identifiers = ["lambda.amazonaws.com"]
     }
   }
+  provider = aws.region
 }
 
 data "aws_iam_policy" "aws_xray_write_only_access" {
-  arn = "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
+  arn      = "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
+  provider = aws.region
 }
 
 resource "aws_iam_role_policy_attachment" "aws_xray_write_only_access" {
   role       = aws_iam_role.lambda_role.name
   policy_arn = data.aws_iam_policy.aws_xray_write_only_access.arn
+  provider   = aws.region
 }
 
 resource "aws_iam_role_policy" "lambda" {
-  name   = "lambda-${var.environment}"
-  role   = aws_iam_role.lambda_role.id
-  policy = data.aws_iam_policy_document.lambda.json
+  name     = "lambda-${var.environment}"
+  role     = aws_iam_role.lambda_role.id
+  policy   = data.aws_iam_policy_document.lambda.json
+  provider = aws.region
 }
 
 data "aws_iam_policy_document" "lambda" {
@@ -65,9 +70,11 @@ data "aws_iam_policy_document" "lambda" {
       "ecr:CompleteLayerUpload",
     ]
   }
+  provider = aws.region
 }
 
 resource "aws_iam_role_policy_attachment" "vpc_access_execution_role" {
   role       = aws_iam_role.lambda_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+  provider   = aws.region
 }

@@ -9,7 +9,7 @@ data "aws_ssm_parameter" "replication_bucket_arn" {
 }
 
 data "aws_ecr_repository" "s3_create_batch_replication_jobs" {
-  name     = "modernising-lpa/s3-create-batch-replication-jobs"
+  name     = "modernising-lpa/create-s3-batch-replication-job"
   provider = aws.management
 }
 
@@ -25,6 +25,7 @@ module "uploads_s3_bucket" {
     destination_encryption_key_arn = data.aws_ssm_parameter.replication_encryption_key.value
     destination_account_id         = var.reduced_fees.destination_account_id
     lambda_function_image_ecr_arn  = data.aws_ecr_repository.s3_create_batch_replication_jobs.arn
+    lambda_function_image_ecr_url  = data.aws_ecr_repository.s3_create_batch_replication_jobs.repository_url
     lambda_function_image_tag      = var.app_service_container_version
   }
   providers = {

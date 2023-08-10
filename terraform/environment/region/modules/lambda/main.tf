@@ -1,6 +1,7 @@
 resource "aws_cloudwatch_log_group" "lambda" {
   name       = "/aws/lambda/${var.environment}-${var.lambda_name}"
   kms_key_id = var.kms_key
+  provider   = aws.region
 }
 
 resource "aws_lambda_function" "lambda_function" {
@@ -22,4 +23,5 @@ resource "aws_lambda_function" "lambda_function" {
       variables = var.environment_variables
     }
   }
+  provider = aws.region
 }
