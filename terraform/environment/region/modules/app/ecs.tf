@@ -254,6 +254,19 @@ data "aws_iam_policy_document" "task_role_access_policy" {
     ]
   }
 
+  statement {
+    sid    = "${local.policy_region_prefix}EventbridgeAccess"
+    effect = "Allow"
+
+    actions = [
+      "events:PutEvents"
+    ]
+
+    resources = [
+      var.event_bus.arn
+    ]
+  }
+
   provider = aws.region
 }
 
@@ -378,6 +391,10 @@ locals {
         {
           name  = "ONELOGIN_URL",
           value = var.app_env_vars.onelogin_url
+        },
+        {
+          name  = "EVENT_BUS_NAME",
+          value = var.event_bus.name
         },
       ]
     }

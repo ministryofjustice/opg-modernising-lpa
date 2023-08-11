@@ -433,29 +433,6 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOp
 				return
 			}
 
-			if r.Method == http.MethodPost && lpa.Tasks.YourDetails == actor.TaskCompleted && lpa.UID == "" {
-				body := &uid.CreateCaseRequestBody{
-					Type: lpa.Type.String(),
-					Donor: uid.DonorDetails{
-						Name:     lpa.Donor.FullName(),
-						Dob:      uid.ISODate{Time: lpa.Donor.DateOfBirth.Time()},
-						Postcode: lpa.Donor.Address.Postcode,
-					},
-				}
-
-				resp, err := uidClient.CreateCase(r.Context(), body)
-				if err != nil {
-					logger.Print(err)
-				} else {
-					lpa.UID = resp.UID
-				}
-
-				if err := donorStore.Put(ctx, lpa); err != nil {
-					errorHandler(w, r, err)
-					return
-				}
-			}
-
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData)), lpa); err != nil {
 				errorHandler(w, r, err)
 			}

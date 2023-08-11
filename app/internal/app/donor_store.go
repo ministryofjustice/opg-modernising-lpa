@@ -7,11 +7,25 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/uid"
 	"golang.org/x/exp/slices"
 )
 
+//go:generate mockery --testonly --inpackage --name UidClient --structname mockUidClient
+type UidClient interface {
+	CreateCase(context.Context, *uid.CreateCaseRequestBody) (uid.CreateCaseResponse, error)
+}
+
+//go:generate mockery --testonly --inpackage --name EventClient --structname mockEventClient
+type EventClient interface {
+	Send(context.Context, string, any) error
+}
+
 type donorStore struct {
 	dynamoClient DynamoClient
+	eventClient  EventClient
+	uidClient    UidClient
+	logger       Logger
 	uuidString   func() string
 	now          func() time.Time
 }
@@ -104,7 +118,36 @@ func (s *donorStore) Get(ctx context.Context) (*page.Lpa, error) {
 }
 
 func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
-	lpa.UpdatedAt = time.Now()
+	lpa.UpdatedAt = s.now()
+
+	if lpa.UID == "" && !lpa.Type.Empty() {
+		resp, err := s.uidClient.CreateCase(ctx, &uid.CreateCaseRequestBody{
+			Type: lpa.Type.String(),
+			Donor: uid.DonorDetails{
+				Name:     lpa.Donor.FullName(),
+				Dob:      uid.ISODate{Time: lpa.Donor.DateOfBirth.Time()},
+				Postcode: lpa.Donor.Address.Postcode,
+			},
+		})
+		if err != nil {
+			s.logger.Print(err)
+		} else {
+			lpa.UID = resp.UID
+		}
+	}
+
+	if lpa.UID != "" && lpa.PreviousApplicationNumber != "" && !lpa.HasSentPreviousApplicationLinkedEvent {
+		if err := s.eventClient.Send(ctx, "previous-application-linked", map[string]any{
+			"uid":                       lpa.UID,
+			"applicationReason":         lpa.ApplicationReason.String(),
+			"previousApplicationNumber": lpa.PreviousApplicationNumber,
+		}); err != nil {
+			s.logger.Print(err)
+		} else {
+			lpa.HasSentPreviousApplicationLinkedEvent = true
+		}
+	}
+
 	return s.dynamoClient.Put(ctx, lpa)
 }
 
