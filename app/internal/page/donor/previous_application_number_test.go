@@ -84,7 +84,9 @@ func TestPostPreviousApplicationNumber(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
-			ID: "lpa-id",
+			ID:                "lpa-id",
+			UID:               "lpa-uid",
+			ApplicationReason: page.AdditionalApplication,
 			Donor: actor.Donor{
 				FirstNames:  "Jane",
 				LastName:    "Smith",
@@ -97,7 +99,9 @@ func TestPostPreviousApplicationNumber(t *testing.T) {
 		Return(nil)
 
 	err := PreviousApplicationNumber(nil, donorStore)(testAppData, w, r, &page.Lpa{
-		ID: "lpa-id",
+		ID:                "lpa-id",
+		UID:               "lpa-uid",
+		ApplicationReason: page.AdditionalApplication,
 		Donor: actor.Donor{
 			FirstNames:  "Jane",
 			LastName:    "Smith",
@@ -127,7 +131,6 @@ func TestPostPreviousApplicationNumberWhenStoreErrors(t *testing.T) {
 		Return(expectedError)
 
 	err := PreviousApplicationNumber(nil, donorStore)(testAppData, w, r, &page.Lpa{})
-
 	assert.Equal(t, expectedError, err)
 }
 
