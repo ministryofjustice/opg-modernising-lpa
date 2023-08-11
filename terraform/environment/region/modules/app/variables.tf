@@ -113,3 +113,11 @@ variable "uploads_s3_bucket" {
   })
   description = "Name and ARN of the S3 bucket for uploads"
 }
+
+variable "event_bus" {
+  type = object({
+    name = string
+    arn  = string
+  })
+  description = "Name and ARN of the event bus to send events to"
+}

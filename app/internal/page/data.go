@@ -66,13 +66,13 @@ const (
 	ReplacementAttorneysStepInAnotherWay                                                  // other
 )
 
-//go:generate enumerator -type ApplicationReason  -empty
+//go:generate enumerator -type ApplicationReason -linecomment -empty
 type ApplicationReason uint8
 
 const (
-	NewApplication ApplicationReason = iota + 1
-	RemakeOfInvalidApplication
-	AdditionalApplication
+	NewApplication             ApplicationReason = iota + 1 // new-application
+	RemakeOfInvalidApplication                              // remake
+	AdditionalApplication                                   // additional-application
 )
 
 //go:generate enumerator -type FeeType
