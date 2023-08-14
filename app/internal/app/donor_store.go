@@ -137,14 +137,33 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 	}
 
 	if lpa.UID != "" && lpa.PreviousApplicationNumber != "" && !lpa.HasSentPreviousApplicationLinkedEvent {
-		if err := s.eventClient.Send(ctx, "previous-application-linked", map[string]any{
-			"uid":                       lpa.UID,
-			"applicationReason":         lpa.ApplicationReason.String(),
-			"previousApplicationNumber": lpa.PreviousApplicationNumber,
+		if err := s.eventClient.Send(ctx, "previous-application-linked", previousApplicationLinkedEvent{
+			UID:                       lpa.UID,
+			ApplicationReason:         lpa.ApplicationReason.String(),
+			PreviousApplicationNumber: lpa.PreviousApplicationNumber,
 		}); err != nil {
 			s.logger.Print(err)
 		} else {
 			lpa.HasSentPreviousApplicationLinkedEvent = true
+		}
+	}
+
+	if lpa.UID != "" && lpa.EvidenceFormAddress.Line1 != "" && !lpa.HasSentEvidenceFormRequiredEvent {
+		if err := s.eventClient.Send(ctx, "evidence-form-required", evidenceFormRequiredEvent{
+			UID:        lpa.UID,
+			FirstNames: lpa.Donor.FirstNames,
+			LastName:   lpa.Donor.LastName,
+			Address: address{
+				Line1:      lpa.EvidenceFormAddress.Line1,
+				Line2:      lpa.EvidenceFormAddress.Line2,
+				Line3:      lpa.EvidenceFormAddress.Line3,
+				TownOrCity: lpa.EvidenceFormAddress.TownOrCity,
+				Postcode:   lpa.EvidenceFormAddress.Postcode,
+			},
+		}); err != nil {
+			s.logger.Print(err)
+		} else {
+			lpa.HasSentEvidenceFormRequiredEvent = true
 		}
 	}
 
@@ -161,4 +180,25 @@ func donorKey(s string) string {
 
 func subKey(s string) string {
 	return "#SUB#" + s
+}
+
+type previousApplicationLinkedEvent struct {
+	UID                       string `json:"uid"`
+	ApplicationReason         string `json:"applicationReason"`
+	PreviousApplicationNumber string `json:"previousApplicationNumber"`
+}
+
+type evidenceFormRequiredEvent struct {
+	UID        string  `json:"uid"`
+	FirstNames string  `json:"firstNames"`
+	LastName   string  `json:"lastName"`
+	Address    address `json:"address"`
+}
+
+type address struct {
+	Line1      string `json:"line1,omitempty"`
+	Line2      string `json:"line2,omitempty"`
+	Line3      string `json:"line3,omitempty"`
+	TownOrCity string `json:"townOrCity,omitempty"`
+	Postcode   string `json:"postcode,omitempty"`
 }
