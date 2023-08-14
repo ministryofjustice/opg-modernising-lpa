@@ -68,6 +68,7 @@ jobs:
         id: login_ecr
         uses: aws-actions/amazon-ecr-login@v1.6.2
         with:
+          mask-password: true
           registries: 311462405659
       - name: Push ${{ matrix.ecr_repository }} Image to ECR
         env:
