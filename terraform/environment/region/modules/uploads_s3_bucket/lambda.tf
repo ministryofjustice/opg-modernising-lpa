@@ -79,8 +79,29 @@ resource "aws_scheduler_schedule" "invoke_lambda_every_15_minutes" {
 
 resource "aws_iam_role" "scheduler_role" {
   name               = "scheduler-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
-  assume_role_policy = data.aws_iam_policy_document.scheduler_invoke_lambda.json
+  assume_role_policy = data.aws_iam_policy_document.scheduler_assume_role.json
   provider           = aws.region
+}
+
+data "aws_iam_policy_document" "scheduler_assume_role" {
+  statement {
+    actions = [
+      "sts:AssumeRole",
+    ]
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
+  }
+  provider = aws.region
+}
+
+resource "aws_iam_role_policy" "scheduler_invoke_lambda" {
+  name     = "scheduler-invoke-lambda-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
+  policy   = data.aws_iam_policy_document.scheduler_invoke_lambda.json
+  role     = aws_iam_role.scheduler_role.id
+  provider = aws.region
 }
 
 data "aws_iam_policy_document" "scheduler_invoke_lambda" {
