@@ -1,6 +1,6 @@
 module "s3_create_batch_replication_jobs" {
   source      = "../lambda"
-  lambda_name = "create-s3-batch-replication-jobs"
+  lambda_name = "create-s3-batch-replication-jobs-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
   description = "Function to create and run batch replication jobs"
   environment_variables = {
     ENVIRONMENT = data.aws_default_tags.current.tags.environment-name
@@ -54,6 +54,44 @@ data "aws_iam_policy_document" "s3_create_batch_replication_jobs" {
     actions = [
       "iam:GetRole",
       "iam:PassRole",
+    ]
+  }
+  provider = aws.region
+}
+
+resource "aws_scheduler_schedule" "invoke_lambda_every_15_minutes" {
+  count      = var.s3_replication.enable_s3_batch_job_replication_scheduler ? 1 : 0
+  name       = "invoke-lambda-every-15-minutes-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
+  group_name = "s3-create-batch-replication-jobs"
+
+  flexible_time_window {
+    mode = "OFF"
+  }
+
+  schedule_expression = "rate(15 minutes)"
+
+  target {
+    arn      = module.s3_create_batch_replication_jobs.lambda.arn
+    role_arn = aws_iam_role.scheduler_role.arn
+  }
+  provider = aws.region
+}
+
+resource "aws_iam_role" "scheduler_role" {
+  name               = "s3-create-batch-replication-jobs-secheduler--${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
+  assume_role_policy = data.aws_iam_policy_document.scheduler_invoke_lambda.json
+  provider           = aws.region
+}
+
+data "aws_iam_policy_document" "scheduler_invoke_lambda" {
+  statement {
+    sid    = "ScheduleInvokeLambda"
+    effect = "Allow"
+    resources = [
+      module.s3_create_batch_replication_jobs.lambda.arn,
+    ]
+    actions = [
+      "lambda:InvokeFunction",
     ]
   }
   provider = aws.region
