@@ -16,7 +16,7 @@ module "application_logs" {
 }
 
 data "aws_ssm_parameter" "additional_allowed_ingress_cidrs" {
-  name     = "/modernising-lpa/additional-allowed-ingress-cidrs/${data.aws_default_tags.global.tags.account-name}"
+  name     = "/modernising-lpa/additional-allowed-ingress-cidrs/${data.aws_default_tags.current.tags.account-name}"
   provider = aws.management_global
 }
 
