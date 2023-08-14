@@ -32,7 +32,7 @@ module "app" {
   app_allowed_api_arns            = var.app_allowed_api_arns
   app_service_repository_url      = var.app_service_repository_url
   app_service_container_version   = var.app_service_container_version
-  ingress_allow_list_cidr         = var.ingress_allow_list_cidr
+  ingress_allow_list_cidr         = concat(var.ingress_allow_list_cidr, split(",", data.aws_ssm_parameter.additional_allowed_ingress_cidrs.value))
   alb_deletion_protection_enabled = var.alb_deletion_protection_enabled
   lpas_table                      = var.lpas_table
   reduced_fees_table              = var.reduced_fees.table
