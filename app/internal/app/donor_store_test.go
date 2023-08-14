@@ -294,10 +294,10 @@ func TestDonorStorePutWhenPreviousApplicationLinked(t *testing.T) {
 
 	eventClient := newMockEventClient(t)
 	eventClient.
-		On("Send", ctx, "previous-application-linked", map[string]any{
-			"uid":                       "M-1111",
-			"applicationReason":         "remake",
-			"previousApplicationNumber": "5555",
+		On("Send", ctx, "previous-application-linked", previousApplicationLinkedEvent{
+			UID:                       "M-1111",
+			ApplicationReason:         "remake",
+			PreviousApplicationNumber: "5555",
 		}).
 		Return(nil)
 
@@ -364,6 +364,123 @@ func TestDonorStorePutWhenPreviousApplicationLinkedWhenError(t *testing.T) {
 		UID:                       "M-1111",
 		ApplicationReason:         page.RemakeOfInvalidApplication,
 		PreviousApplicationNumber: "5555",
+	})
+	assert.Nil(t, err)
+}
+
+func TestDonorStorePutWhenEvidenceFormRequired(t *testing.T) {
+	ctx := context.Background()
+	now := time.Now()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("Put", ctx, &page.Lpa{
+			PK:        "LPA#5",
+			SK:        "#DONOR#an-id",
+			ID:        "5",
+			UID:       "M-1111",
+			UpdatedAt: now,
+			Donor: actor.Donor{
+				FirstNames: "John",
+				LastName:   "Smithe",
+			},
+			EvidenceFormAddress: place.Address{
+				Line1:      "line1",
+				Line2:      "line2",
+				Line3:      "line3",
+				TownOrCity: "town",
+				Postcode:   "post",
+			},
+			HasSentEvidenceFormRequiredEvent: true,
+		}).
+		Return(nil)
+
+	eventClient := newMockEventClient(t)
+	eventClient.
+		On("Send", ctx, "evidence-form-required", evidenceFormRequiredEvent{
+			UID:        "M-1111",
+			FirstNames: "John",
+			LastName:   "Smithe",
+			Address: address{
+				Line1:      "line1",
+				Line2:      "line2",
+				Line3:      "line3",
+				TownOrCity: "town",
+				Postcode:   "post",
+			},
+		}).
+		Return(nil)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, now: func() time.Time { return now }}
+
+	err := donorStore.Put(ctx, &page.Lpa{
+		PK:  "LPA#5",
+		SK:  "#DONOR#an-id",
+		ID:  "5",
+		UID: "M-1111",
+		Donor: actor.Donor{
+			FirstNames: "John",
+			LastName:   "Smithe",
+		},
+		EvidenceFormAddress: place.Address{
+			Line1:      "line1",
+			Line2:      "line2",
+			Line3:      "line3",
+			TownOrCity: "town",
+			Postcode:   "post",
+		},
+	})
+	assert.Nil(t, err)
+}
+
+func TestDonorStorePutWhenEvidenceFormRequiredWontResend(t *testing.T) {
+	ctx := context.Background()
+	now := time.Now()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("Put", ctx, mock.Anything).
+		Return(nil)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
+
+	err := donorStore.Put(ctx, &page.Lpa{
+		PK:                               "LPA#5",
+		SK:                               "#DONOR#an-id",
+		ID:                               "5",
+		UID:                              "M-1111",
+		EvidenceFormAddress:              place.Address{Line1: "line"},
+		HasSentEvidenceFormRequiredEvent: true,
+	})
+	assert.Nil(t, err)
+}
+
+func TestDonorStorePutWhenEvidenceFormRequiredWhenError(t *testing.T) {
+	ctx := context.Background()
+	now := time.Now()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("Put", ctx, mock.Anything).
+		Return(nil)
+
+	eventClient := newMockEventClient(t)
+	eventClient.
+		On("Send", ctx, "evidence-form-required", mock.Anything).
+		Return(expectedError)
+
+	logger := newMockLogger(t)
+	logger.
+		On("Print", expectedError)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, logger: logger, now: func() time.Time { return now }}
+
+	err := donorStore.Put(ctx, &page.Lpa{
+		PK:                  "LPA#5",
+		SK:                  "#DONOR#an-id",
+		ID:                  "5",
+		UID:                 "M-1111",
+		EvidenceFormAddress: place.Address{Line1: "line"},
 	})
 	assert.Nil(t, err)
 }

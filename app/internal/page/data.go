@@ -170,8 +170,9 @@ type Lpa struct {
 	EvidenceFormAddress place.Address
 	// EvidenceKey is the S3 key for uploaded evidence
 	EvidenceKey string
-	// HasSentPreviousApplicationLinkedEvent is true if the event has been successfully sent
+
 	HasSentPreviousApplicationLinkedEvent bool
+	HasSentEvidenceFormRequiredEvent      bool
 }
 
 type PaymentDetails struct {
