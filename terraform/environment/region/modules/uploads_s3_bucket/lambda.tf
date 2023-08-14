@@ -78,7 +78,7 @@ resource "aws_scheduler_schedule" "invoke_lambda_every_15_minutes" {
 }
 
 resource "aws_iam_role" "scheduler_role" {
-  name               = "s3-create-batch-replication-jobs-secheduler-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
+  name               = "scheduler-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
   assume_role_policy = data.aws_iam_policy_document.scheduler_invoke_lambda.json
   provider           = aws.region
 }
