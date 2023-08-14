@@ -66,13 +66,13 @@ const (
 	ReplacementAttorneysStepInAnotherWay                                                  // other
 )
 
-//go:generate enumerator -type ApplicationReason  -empty
+//go:generate enumerator -type ApplicationReason -linecomment -empty
 type ApplicationReason uint8
 
 const (
-	NewApplication ApplicationReason = iota + 1
-	RemakeOfInvalidApplication
-	AdditionalApplication
+	NewApplication             ApplicationReason = iota + 1 // new-application
+	RemakeOfInvalidApplication                              // remake
+	AdditionalApplication                                   // additional-application
 )
 
 //go:generate enumerator -type FeeType
@@ -170,6 +170,8 @@ type Lpa struct {
 	EvidenceFormAddress place.Address
 	// EvidenceKey is the S3 key for uploaded evidence
 	EvidenceKey string
+	// HasSentPreviousApplicationLinkedEvent is true if the event has been successfully sent
+	HasSentPreviousApplicationLinkedEvent bool
 }
 
 type PaymentDetails struct {

@@ -8,8 +8,11 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/uid"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -155,28 +158,214 @@ func TestDonorStoreGetWhenDataStoreError(t *testing.T) {
 
 func TestDonorStorePut(t *testing.T) {
 	ctx := context.Background()
-	lpa := &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5"}
+	now := time.Now()
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.On("Put", ctx, lpa).Return(nil)
+	dynamoClient.
+		On("Put", ctx, &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5", UpdatedAt: now}).
+		Return(nil)
 
-	donorStore := &donorStore{dynamoClient: dynamoClient}
+	donorStore := &donorStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-	err := donorStore.Put(ctx, lpa)
+	err := donorStore.Put(ctx, &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5"})
 	assert.Nil(t, err)
 }
 
 func TestDonorStorePutWhenError(t *testing.T) {
 	ctx := context.Background()
-	lpa := &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5"}
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.On("Put", ctx, lpa).Return(expectedError)
+	dynamoClient.On("Put", ctx, mock.Anything).Return(expectedError)
 
-	donorStore := &donorStore{dynamoClient: dynamoClient}
+	donorStore := &donorStore{dynamoClient: dynamoClient, now: time.Now}
 
-	err := donorStore.Put(ctx, lpa)
+	err := donorStore.Put(ctx, &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5"})
 	assert.Equal(t, expectedError, err)
+}
+
+func TestDonorStorePutWhenUIDNeeded(t *testing.T) {
+	ctx := context.Background()
+	now := time.Now()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("Put", ctx, &page.Lpa{
+			PK:        "LPA#5",
+			SK:        "#DONOR#an-id",
+			ID:        "5",
+			UID:       "M-1111",
+			UpdatedAt: now,
+			Donor: actor.Donor{
+				FirstNames:  "John",
+				LastName:    "Smith",
+				DateOfBirth: date.New("2000", "01", "01"),
+				Address: place.Address{
+					Postcode: "F1 1FF",
+				},
+			},
+			Type: page.LpaTypeHealthWelfare,
+		}).
+		Return(nil)
+
+	uidClient := newMockUidClient(t)
+	uidClient.
+		On("CreateCase", ctx, &uid.CreateCaseRequestBody{
+			Type: "hw",
+			Donor: uid.DonorDetails{
+				Name:     "John Smith",
+				Dob:      uid.ISODate{Time: time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)},
+				Postcode: "F1 1FF",
+			},
+		}).
+		Return(uid.CreateCaseResponse{UID: "M-1111"}, nil)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, uidClient: uidClient, now: func() time.Time { return now }}
+
+	err := donorStore.Put(ctx, &page.Lpa{
+		PK: "LPA#5",
+		SK: "#DONOR#an-id",
+		ID: "5",
+		Donor: actor.Donor{
+			FirstNames:  "John",
+			LastName:    "Smith",
+			DateOfBirth: date.New("2000", "01", "01"),
+			Address: place.Address{
+				Postcode: "F1 1FF",
+			},
+		},
+		Type: page.LpaTypeHealthWelfare,
+	})
+	assert.Nil(t, err)
+}
+
+func TestDonorStorePutWhenUIDFails(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("Put", ctx, mock.Anything).
+		Return(nil)
+
+	uidClient := newMockUidClient(t)
+	uidClient.
+		On("CreateCase", ctx, mock.Anything).
+		Return(uid.CreateCaseResponse{UID: "M-1111"}, expectedError)
+
+	logger := newMockLogger(t)
+	logger.
+		On("Print", expectedError)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, uidClient: uidClient, logger: logger, now: time.Now}
+
+	err := donorStore.Put(ctx, &page.Lpa{
+		PK: "LPA#5",
+		SK: "#DONOR#an-id",
+		ID: "5",
+		Donor: actor.Donor{
+			FirstNames:  "John",
+			LastName:    "Smith",
+			DateOfBirth: date.New("2000", "01", "01"),
+			Address: place.Address{
+				Postcode: "F1 1FF",
+			},
+		},
+		Type: page.LpaTypeHealthWelfare,
+	})
+	assert.Nil(t, err)
+}
+
+func TestDonorStorePutWhenPreviousApplicationLinked(t *testing.T) {
+	ctx := context.Background()
+	now := time.Now()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("Put", ctx, &page.Lpa{
+			PK:                                    "LPA#5",
+			SK:                                    "#DONOR#an-id",
+			ID:                                    "5",
+			UID:                                   "M-1111",
+			UpdatedAt:                             now,
+			ApplicationReason:                     page.RemakeOfInvalidApplication,
+			PreviousApplicationNumber:             "5555",
+			HasSentPreviousApplicationLinkedEvent: true,
+		}).
+		Return(nil)
+
+	eventClient := newMockEventClient(t)
+	eventClient.
+		On("Send", ctx, "previous-application-linked", map[string]any{
+			"uid":                       "M-1111",
+			"applicationReason":         "remake",
+			"previousApplicationNumber": "5555",
+		}).
+		Return(nil)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, now: func() time.Time { return now }}
+
+	err := donorStore.Put(ctx, &page.Lpa{
+		PK:                        "LPA#5",
+		SK:                        "#DONOR#an-id",
+		ID:                        "5",
+		UID:                       "M-1111",
+		ApplicationReason:         page.RemakeOfInvalidApplication,
+		PreviousApplicationNumber: "5555",
+	})
+	assert.Nil(t, err)
+}
+
+func TestDonorStorePutWhenPreviousApplicationLinkedWontResend(t *testing.T) {
+	ctx := context.Background()
+	now := time.Now()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("Put", ctx, mock.Anything).
+		Return(nil)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
+
+	err := donorStore.Put(ctx, &page.Lpa{
+		PK:                                    "LPA#5",
+		SK:                                    "#DONOR#an-id",
+		ID:                                    "5",
+		UID:                                   "M-1111",
+		ApplicationReason:                     page.RemakeOfInvalidApplication,
+		PreviousApplicationNumber:             "5555",
+		HasSentPreviousApplicationLinkedEvent: true,
+	})
+	assert.Nil(t, err)
+}
+
+func TestDonorStorePutWhenPreviousApplicationLinkedWhenError(t *testing.T) {
+	ctx := context.Background()
+	now := time.Now()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("Put", ctx, mock.Anything).
+		Return(nil)
+
+	eventClient := newMockEventClient(t)
+	eventClient.
+		On("Send", ctx, "previous-application-linked", mock.Anything).
+		Return(expectedError)
+
+	logger := newMockLogger(t)
+	logger.
+		On("Print", expectedError)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, logger: logger, now: func() time.Time { return now }}
+
+	err := donorStore.Put(ctx, &page.Lpa{
+		PK:                        "LPA#5",
+		SK:                        "#DONOR#an-id",
+		ID:                        "5",
+		UID:                       "M-1111",
+		ApplicationReason:         page.RemakeOfInvalidApplication,
+		PreviousApplicationNumber: "5555",
+	})
+	assert.Nil(t, err)
 }
 
 func TestDonorStoreCreate(t *testing.T) {
