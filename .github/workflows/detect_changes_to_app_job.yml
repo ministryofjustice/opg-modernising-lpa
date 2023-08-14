@@ -15,7 +15,7 @@ jobs:
         with:
           ref: ${{ github.event.ref }}
           fetch-depth: 0 # Fetch all history for all tags and branches
-      - name: Detect changes in /app, /web and /lang using git diff
+      - name: Detect changes in /app, /web and /lang and /lambda using git diff
         id: detect_changes
         if: github.ref != 'refs/heads/main'
         run: |
@@ -23,12 +23,12 @@ jobs:
           echo "Build status of ${{github.event.before}}: $BEFORE_STATUS"
           if [[ "$BEFORE_STATUS" == "success" ]]; then
             echo "Checking against ${{github.event.before}}"
-            (git diff --quiet ${{github.event.before}} ${{github.event.after}} -- app lang web Dockerfile package.json yarn.lock && \
+            (git diff --quiet ${{github.event.before}} ${{github.event.after}} -- app lang web lambda Dockerfile package.json yarn.lock && \
             echo "changes=${{ false }}" || \
             echo "changes=${{ true }}") | tee -a "${GITHUB_OUTPUT}"
           else
             echo "Checking against origin/main"
-            (git diff --quiet HEAD origin/main -- app lang web Dockerfile package.json yarn.lock && \
+            (git diff --quiet HEAD origin/main -- app lang web lambda Dockerfile package.json yarn.lock && \
             echo "changes=${{ false }}" || \
             echo "changes=${{ true }}") | tee -a "${GITHUB_OUTPUT}"
           fi
