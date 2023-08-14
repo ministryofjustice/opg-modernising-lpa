@@ -60,15 +60,14 @@ data "aws_iam_policy_document" "s3_create_batch_replication_jobs" {
 }
 
 resource "aws_scheduler_schedule" "invoke_lambda_every_15_minutes" {
-  count = var.s3_replication.enable_s3_batch_job_replication_scheduler ? 1 : 0
-  name  = "invoke-lambda-every-15-minutes-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
-  # group_name = "s3-create-batch-replication-jobs"
+  name = "invoke-lambda-every-15-minutes-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
 
   flexible_time_window {
     mode = "OFF"
   }
 
   schedule_expression = "rate(15 minutes)"
+  state               = var.s3_replication.enable_s3_batch_job_replication_scheduler ? "ENABLED" : "DISABLED"
 
   target {
     arn      = module.s3_create_batch_replication_jobs.lambda.arn
