@@ -39,6 +39,7 @@ module "eu_west_1" {
       arn  = module.reduced_fees[0].event_bus.arn
       name = module.reduced_fees[0].event_bus.name
     }
+    enable_s3_batch_job_replication_scheduler = local.environment.reduced_fees.enable_s3_batch_job_replication_scheduler
   }
   app_env_vars           = local.environment.app.env
   app_allowed_api_arns   = local.environment.app.allowed_api_arns
@@ -85,6 +86,7 @@ module "eu_west_2" {
       arn  = module.reduced_fees[0].event_bus.arn
       name = module.reduced_fees[0].event_bus.name
     }
+    enable_s3_batch_job_replication_scheduler = local.environment.reduced_fees.enable_s3_batch_job_replication_scheduler
   }
   app_env_vars           = local.environment.app.env
   app_allowed_api_arns   = local.environment.app.allowed_api_arns

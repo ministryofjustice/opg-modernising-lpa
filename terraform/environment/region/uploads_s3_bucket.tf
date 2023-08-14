@@ -20,13 +20,14 @@ module "uploads_s3_bucket" {
   bucket_name   = "uploads-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
   force_destroy = data.aws_default_tags.current.tags.environment-name != "production" ? true : false
   s3_replication = {
-    enabled                        = var.reduced_fees.s3_object_replication_enabled
-    destination_bucket_arn         = data.aws_ssm_parameter.replication_bucket_arn.value
-    destination_encryption_key_arn = data.aws_ssm_parameter.replication_encryption_key.value
-    destination_account_id         = var.reduced_fees.destination_account_id
-    lambda_function_image_ecr_arn  = data.aws_ecr_repository.s3_create_batch_replication_jobs.arn
-    lambda_function_image_ecr_url  = data.aws_ecr_repository.s3_create_batch_replication_jobs.repository_url
-    lambda_function_image_tag      = var.app_service_container_version
+    enabled                                   = var.reduced_fees.s3_object_replication_enabled
+    destination_bucket_arn                    = data.aws_ssm_parameter.replication_bucket_arn.value
+    destination_encryption_key_arn            = data.aws_ssm_parameter.replication_encryption_key.value
+    destination_account_id                    = var.reduced_fees.destination_account_id
+    lambda_function_image_ecr_arn             = data.aws_ecr_repository.s3_create_batch_replication_jobs.arn
+    lambda_function_image_ecr_url             = data.aws_ecr_repository.s3_create_batch_replication_jobs.repository_url
+    lambda_function_image_tag                 = var.app_service_container_version
+    enable_s3_batch_job_replication_scheduler = var.reduced_fees.enable_s3_batch_job_replication_scheduler
   }
   providers = {
     aws.region = aws.region
