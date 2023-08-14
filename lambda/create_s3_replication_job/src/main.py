@@ -16,7 +16,8 @@ def handler(event, context):
     subsegment.put_annotation('service', 'reduced_fees_uploads')
     variables = set_variables()
     client = create_client()
-    create_s3_batch_replication_job(client, variables)
+    response = create_s3_batch_replication_job(client, variables)
+    logger.info(response)
     xray_recorder.end_subsegment()
 
 def main():
