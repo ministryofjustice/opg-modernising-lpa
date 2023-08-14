@@ -60,9 +60,9 @@ data "aws_iam_policy_document" "s3_create_batch_replication_jobs" {
 }
 
 resource "aws_scheduler_schedule" "invoke_lambda_every_15_minutes" {
-  count      = var.s3_replication.enable_s3_batch_job_replication_scheduler ? 1 : 0
-  name       = "invoke-lambda-every-15-minutes-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
-  group_name = "s3-create-batch-replication-jobs"
+  count = var.s3_replication.enable_s3_batch_job_replication_scheduler ? 1 : 0
+  name  = "invoke-lambda-every-15-minutes-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
+  # group_name = "s3-create-batch-replication-jobs"
 
   flexible_time_window {
     mode = "OFF"
@@ -91,7 +91,7 @@ data "aws_iam_policy_document" "scheduler_assume_role" {
     effect = "Allow"
     principals {
       type        = "Service"
-      identifiers = ["events.amazonaws.com"]
+      identifiers = ["scheduler.amazonaws.com"]
     }
   }
   provider = aws.region
