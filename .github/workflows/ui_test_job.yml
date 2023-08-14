@@ -73,6 +73,7 @@ jobs:
         id: login_ecr
         uses: aws-actions/amazon-ecr-login@v1.7.0
         with:
+          mask-password: true
           registries: 311462405659
       - name: Run Against Image/Run Docker Compose Service
         if: inputs.run_against_image
