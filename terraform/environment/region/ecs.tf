@@ -15,6 +15,11 @@ module "application_logs" {
   }
 }
 
+data "aws_ssm_parameter" "additional_allowed_ingress_cidrs" {
+  name     = "/modernising-lpa/additional-allowed-ingress-cidrs/${data.aws_default_tags.global.tags.account-name}"
+  provider = aws.management_global
+}
+
 module "app" {
   source                          = "./modules/app"
   ecs_cluster                     = aws_ecs_cluster.main.id
