@@ -66,7 +66,7 @@ jobs:
           role-session-name: GithubActionsECRPushMLPAB
       - name: ECR Login
         id: login_ecr
-        uses: aws-actions/amazon-ecr-login@v1.6.2
+        uses: aws-actions/amazon-ecr-login@v1.7.0
         with:
           registries: 311462405659
       - name: Push ${{ matrix.ecr_repository }} Image to ECR
