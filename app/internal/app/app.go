@@ -16,6 +16,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/notify"
@@ -74,8 +75,16 @@ func App(
 	s3Client *s3.Client,
 	evidenceBucketName string,
 	reducedFeeDynamoClient DynamoClient,
+	eventClient *event.Client,
 ) http.Handler {
-	donorStore := &donorStore{dynamoClient: lpaDynamoClient, uuidString: uuid.NewString, now: time.Now}
+	donorStore := &donorStore{
+		dynamoClient: lpaDynamoClient,
+		eventClient:  eventClient,
+		uidClient:    uidClient,
+		logger:       logger,
+		uuidString:   uuid.NewString,
+		now:          time.Now,
+	}
 	certificateProviderStore := &certificateProviderStore{dynamoClient: lpaDynamoClient, now: time.Now}
 	attorneyStore := &attorneyStore{dynamoClient: lpaDynamoClient, now: time.Now}
 	shareCodeStore := &shareCodeStore{dynamoClient: lpaDynamoClient}
