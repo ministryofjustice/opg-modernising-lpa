@@ -32,6 +32,8 @@ jobs:
             path: ./Dockerfile
           - ecr_repository: modernising-lpa/create-s3-batch-replication-job
             path: ./lambda/create_s3_replication_job/Dockerfile
+          - ecr_repository: modernising-lpa/event-received
+            path: ./lambda/event_received/Dockerfile
     runs-on: ubuntu-latest
     name: ${{ matrix.ecr_repository }}
     steps:
