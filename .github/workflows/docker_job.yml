@@ -30,8 +30,13 @@ jobs:
         include:
           - ecr_repository: modernising-lpa/app
             path: ./Dockerfile
+            dir: .
           - ecr_repository: modernising-lpa/create-s3-batch-replication-job
             path: ./lambda/create_s3_replication_job/Dockerfile
+            dir: .
+          - ecr_repository: modernising-lpa/event-received
+            path: ./lambda/event_received/Dockerfile
+            dir: ./lambda/event_received
     runs-on: ubuntu-latest
     name: ${{ matrix.ecr_repository }}
     steps:
@@ -41,7 +46,7 @@ jobs:
       - name: Build ${{ matrix.ecr_repository }} Image
         id: build_image
         run: |
-          docker build -f ${{ matrix.path }} -t ${{ matrix.ecr_repository }} --build-arg TAG=${{inputs.tag}} .
+          docker build -f ${{ matrix.path }} -t ${{ matrix.ecr_repository }} --build-arg TAG=${{inputs.tag}} ${{ matrix.dir }}
       - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
         id: trivy_scan
         uses: aquasecurity/trivy-action@0.11.2
