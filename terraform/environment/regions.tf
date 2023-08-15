@@ -14,6 +14,7 @@ module "eu_west_1" {
     ecs_execution_role = module.global.iam_roles.ecs_execution_role
     app_ecs_task_role  = module.global.iam_roles.app_ecs_task_role
     s3_antivirus       = module.global.iam_roles.s3_antivirus
+    event_received     = module.global.iam_roles.event_received
   }
   application_log_retention_days  = local.environment.cloudwatch_log_groups.application_log_retention_days
   ecs_capacity_provider           = local.ecs_capacity_provider
@@ -61,6 +62,7 @@ module "eu_west_2" {
     ecs_execution_role = module.global.iam_roles.ecs_execution_role
     app_ecs_task_role  = module.global.iam_roles.app_ecs_task_role
     s3_antivirus       = module.global.iam_roles.s3_antivirus
+    event_received     = module.global.iam_roles.event_received
   }
   application_log_retention_days  = local.environment.cloudwatch_log_groups.application_log_retention_days
   ecs_capacity_provider           = local.ecs_capacity_provider
