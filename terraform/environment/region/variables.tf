@@ -89,5 +89,6 @@ variable "reduced_fees" {
       arn  = string
       name = string
     })
+    enable_s3_batch_job_replication_scheduler = bool
   })
 }
