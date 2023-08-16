@@ -24,6 +24,12 @@ resource "aws_dynamodb_table" "lpas_table" {
     projection_type = "ALL"
   }
 
+  global_secondary_index {
+    name            = "UidIndex"
+    hash_key        = "UID"
+    projection_type = "KEYS_ONLY"
+  }
+
   server_side_encryption {
     enabled     = true
     kms_key_arn = data.aws_kms_alias.dynamodb_encryption_key_eu_west_1.target_key_arn
@@ -36,6 +42,11 @@ resource "aws_dynamodb_table" "lpas_table" {
 
   attribute {
     name = "SK"
+    type = "S"
+  }
+
+  attribute {
+    name = "UID"
     type = "S"
   }
 
