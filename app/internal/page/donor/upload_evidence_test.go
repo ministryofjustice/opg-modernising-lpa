@@ -74,7 +74,7 @@ func TestPostUploadEvidence(t *testing.T) {
 		On("PutObject", r.Context(), mock.MatchedBy(func(input *s3.PutObjectInput) bool {
 			return assert.Equal(t, aws.String("evidence-bucket"), input.Bucket) &&
 				assert.Equal(t, aws.String("lpa-id-evidence"), input.Key) &&
-				assert.Equal(t, types.ServerSideEncryptionAes256, input.ServerSideEncryption)
+				assert.Equal(t, types.ServerSideEncryptionAwsKms, input.ServerSideEncryption)
 		})).
 		Return(nil, nil)
 
