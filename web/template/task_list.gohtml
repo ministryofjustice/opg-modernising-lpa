@@ -10,6 +10,12 @@
 
       {{ template "details" (details . "taskListHelp" "taskListHelpContent" false) }}
 
+      {{ if .EvidenceReceived }}
+        <p class="govuk-body">
+          {{ tr .App "weHaveReceivedYourEvidence" }}
+        </p>
+      {{ end }}
+
       <ol class="app-task-list govuk-!-margin-top-0" style="position: relative;">
         {{ range $i, $e := .Sections }}
           <li>
@@ -46,7 +52,7 @@
                         {{ tr $.App .Name }}
                       </a>
                     </span>
-                    <strong class="govuk-tag app-task-list__tag govuk-tag--red">{{ tr $.App "denied" }} {{if gt .Count 0}}({{ .Count }}){{ end }}</strong>                   
+                    <strong class="govuk-tag app-task-list__tag govuk-tag--red">{{ tr $.App "denied" }} {{if gt .Count 0}}({{ .Count }}){{ end }}</strong>
                   {{ else if not ($.Lpa.CanGoTo .Path) }}
                     <span class="app-task-list__task-name govuk-hint govuk-!-margin-bottom-0">
                       {{ tr $.App .Name }}
