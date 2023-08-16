@@ -90,6 +90,7 @@ func App(
 	shareCodeStore := &shareCodeStore{dynamoClient: lpaDynamoClient}
 	dashboardStore := &dashboardStore{dynamoClient: lpaDynamoClient}
 	reducedFeeStore := &reducedFeeStore{dynamoClient: reducedFeeDynamoClient, now: time.Now}
+	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: lpaDynamoClient}
 
 	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicURL, random.String)
 	witnessCodeSender := page.NewWitnessCodeSender(donorStore, notifyClient)
@@ -169,6 +170,7 @@ func App(
 		evidenceBucketName,
 		reducedFeeStore,
 		notifyClient,
+		evidenceReceivedStore,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang, rumConfig, staticHash, oneloginURL)

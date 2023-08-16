@@ -9,5 +9,16 @@
       "ReadCapacityUnits": 10,
       "WriteCapacityUnits": 5
     }
+  },
+  {
+    "IndexName": "UidIndex",
+    "KeySchema": [{"AttributeName":"UID","KeyType":"HASH"}],
+    "Projection": {
+      "ProjectionType":"KEYS_ONLY"
+    },
+    "ProvisionedThroughput": {
+      "ReadCapacityUnits": 10,
+      "WriteCapacityUnits": 5
+    }
   }
 ]
