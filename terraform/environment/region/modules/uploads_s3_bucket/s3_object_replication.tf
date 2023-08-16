@@ -23,7 +23,7 @@ data "aws_iam_policy_document" "replication" {
       "kms:GenerateDataKey",
       "kms:Encrypt"
     ]
-    resource = [
+    resources = [
       var.s3_replication.destination_encryption_key_arn
     ]
   }
