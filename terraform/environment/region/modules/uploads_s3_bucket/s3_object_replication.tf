@@ -17,6 +17,16 @@ data "aws_iam_policy_document" "replication" {
       data.aws_kms_alias.reduced_fees_uploads_s3_encryption.target_key_arn,
     ]
   }
+  statement {
+    effect = "Allow"
+    actions = [
+      "kms:GenerateDataKey",
+      "kms:Encrypt"
+    ]
+    resource = [
+      var.s3_replication.destination_encryption_key_arn
+    ]
+  }
 
   statement {
     effect = "Allow"
@@ -50,6 +60,7 @@ data "aws_iam_policy_document" "replication" {
       "s3:ReplicateObject",
       "s3:ReplicateDelete",
       "s3:ReplicateTags",
+      # "s3:PutObject",
     ]
 
     resources = ["${var.s3_replication.destination_bucket_arn}/*"]
