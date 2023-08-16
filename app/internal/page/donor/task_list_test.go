@@ -14,11 +14,19 @@ import (
 
 func TestGetTaskList(t *testing.T) {
 	testCases := map[string]struct {
-		lpa      *page.Lpa
-		expected func([]taskListSection) []taskListSection
+		lpa              *page.Lpa
+		evidenceReceived bool
+		expected         func([]taskListSection) []taskListSection
 	}{
 		"empty": {
 			lpa: &page.Lpa{ID: "lpa-id"},
+			expected: func(sections []taskListSection) []taskListSection {
+				return sections
+			},
+		},
+		"evidence received": {
+			lpa:              &page.Lpa{ID: "lpa-id"},
+			evidenceReceived: true,
 			expected: func(sections []taskListSection) []taskListSection {
 				return sections
 			},
@@ -95,8 +103,9 @@ func TestGetTaskList(t *testing.T) {
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, &taskListData{
-					App: testAppData,
-					Lpa: tc.lpa,
+					App:              testAppData,
+					Lpa:              tc.lpa,
+					EvidenceReceived: tc.evidenceReceived,
 					Sections: tc.expected([]taskListSection{
 						{
 							Heading: "fillInTheLpa",
@@ -127,7 +136,12 @@ func TestGetTaskList(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := TaskList(template.Execute)(testAppData, w, r, tc.lpa)
+			evidenceReceivedStore := newMockEvidenceReceivedStore(t)
+			evidenceReceivedStore.
+				On("Get", r.Context()).
+				Return(tc.evidenceReceived, nil)
+
+			err := TaskList(template.Execute, evidenceReceivedStore)(testAppData, w, r, tc.lpa)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -136,16 +150,37 @@ func TestGetTaskList(t *testing.T) {
 	}
 }
 
+func TestGetTaskListWhenEvidenceReceivedStoreErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	evidenceReceivedStore := newMockEvidenceReceivedStore(t)
+	evidenceReceivedStore.
+		On("Get", r.Context()).
+		Return(false, expectedError)
+
+	err := TaskList(nil, evidenceReceivedStore)(testAppData, w, r, &page.Lpa{})
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
 func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	evidenceReceivedStore := newMockEvidenceReceivedStore(t)
+	evidenceReceivedStore.
+		On("Get", r.Context()).
+		Return(false, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := TaskList(template.Execute)(testAppData, w, r, &page.Lpa{})
+	err := TaskList(template.Execute, evidenceReceivedStore)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

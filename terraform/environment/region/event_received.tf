@@ -13,7 +13,7 @@ module "event_received" {
     name = var.lpas_table.name
   }
   event_bus_name = var.reduced_fees.event_bus.name
-  
+
   providers = {
     aws.region = aws.region
   }
