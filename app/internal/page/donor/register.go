@@ -51,6 +51,11 @@ type CertificateProviderStore interface {
 	GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
 }
 
+//go:generate mockery --testonly --inpackage --name EvidenceReceivedStore --structname mockEvidenceReceivedStore
+type EvidenceReceivedStore interface {
+	Get(context.Context) (bool, error)
+}
+
 //go:generate mockery --testonly --inpackage --name PayClient --structname mockPayClient
 type PayClient interface {
 	CreatePayment(body pay.CreatePaymentBody) (pay.CreatePaymentResponse, error)
@@ -156,6 +161,7 @@ func Register(
 	evidenceBucketName string,
 	reducedFeeStore ReducedFeeStore,
 	notifyClient NotifyClient,
+	evidenceReceivedStore EvidenceReceivedStore,
 ) {
 	payer := &payHelper{
 		logger:          logger,
@@ -195,7 +201,7 @@ func Register(
 		PreviousApplicationNumber(tmpls.Get("previous_application_number.gohtml"), donorStore))
 
 	handleWithLpa(page.Paths.TaskList, None,
-		TaskList(tmpls.Get("task_list.gohtml")))
+		TaskList(tmpls.Get("task_list.gohtml"), evidenceReceivedStore))
 
 	handleWithLpa(page.Paths.ChooseAttorneysGuidance, None,
 		Guidance(tmpls.Get("choose_attorneys_guidance.gohtml")))

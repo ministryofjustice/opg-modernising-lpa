@@ -10,10 +10,11 @@ import (
 )
 
 type taskListData struct {
-	App      page.AppData
-	Errors   validation.List
-	Lpa      *page.Lpa
-	Sections []taskListSection
+	App              page.AppData
+	Errors           validation.List
+	Lpa              *page.Lpa
+	Sections         []taskListSection
+	EvidenceReceived bool
 }
 
 type taskListItem struct {
@@ -29,7 +30,7 @@ type taskListSection struct {
 	Items   []taskListItem
 }
 
-func TaskList(tmpl template.Template) Handler {
+func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		signTaskPage := page.Paths.HowToConfirmYourIdentityAndSign
 		if lpa.DonorIdentityConfirmed() {
@@ -49,9 +50,15 @@ func TaskList(tmpl template.Template) Handler {
 			}
 		}
 
+		evidenceReceived, err := evidenceReceivedStore.Get(r.Context())
+		if err != nil {
+			return err
+		}
+
 		data := &taskListData{
-			App: appData,
-			Lpa: lpa,
+			App:              appData,
+			Lpa:              lpa,
+			EvidenceReceived: evidenceReceived,
 			Sections: []taskListSection{
 				{
 					Heading: "fillInTheLpa",
