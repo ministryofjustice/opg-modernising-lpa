@@ -11,7 +11,7 @@ resource "aws_kms_key" "reduced_fees_uploads_s3" {
 }
 
 resource "aws_kms_replica_key" "reduced_fees_uploads_s3_replica" {
-  description             = "${local.default_tags.application} reduced_fees_uploads_s3 Multi-Region replica key"
+  description             = "${local.default_tags.application} reduced fees uploads s3 Multi-Region replica key"
   deletion_window_in_days = 7
   primary_key_arn         = aws_kms_key.reduced_fees_uploads_s3.arn
   provider                = aws.eu_west_2
