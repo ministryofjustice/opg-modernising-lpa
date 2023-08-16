@@ -70,7 +70,7 @@ data "aws_iam_policy_document" "bucket" {
     condition {
       test     = "StringNotEquals"
       variable = "s3:x-amz-server-side-encryption"
-      values   = ["AES256"]
+      values   = ["aws:kms"]
     }
 
     principals {

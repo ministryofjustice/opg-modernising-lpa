@@ -9,7 +9,6 @@ data "aws_iam_policy_document" "replication" {
     effect = "Allow"
 
     actions = [
-      "kms:Encrypt",
       "kms:Decrypt",
       "kms:GenerateDataKey",
     ]
