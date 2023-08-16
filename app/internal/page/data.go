@@ -103,7 +103,7 @@ type Lpa struct {
 	// Identifies the LPA being drafted
 	ID string
 	// A unique identifier created after sending basic LPA details to the UID service
-	UID string
+	UID string `dynamodbav:",omitempty"`
 	// Tracking when the LPA is updated
 	UpdatedAt time.Time
 	// The donor the LPA relates to
