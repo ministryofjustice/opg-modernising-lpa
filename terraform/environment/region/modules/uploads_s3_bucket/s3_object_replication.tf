@@ -4,6 +4,21 @@ data "aws_iam_role" "replication" {
 }
 
 data "aws_iam_policy_document" "replication" {
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:GenerateDataKey",
+    ]
+
+    resources = [
+      data.aws_kms_alias.reduced_fees_uploads_s3_encryption.target_key_arn,
+    ]
+  }
+
   statement {
     effect = "Allow"
 
