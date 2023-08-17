@@ -39,6 +39,22 @@ data "aws_iam_policy_document" "cloudwatch_kms_merged" {
 
 data "aws_iam_policy_document" "cloudwatch_kms" {
   provider = aws.global
+
+  statement {
+    sid    = "Enable IAM User Permissions"
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.global.account_id}:root"]
+    }
+    actions = [
+      "kms:*",
+    ]
+    resources = [
+      "*",
+    ]
+  }
+
   statement {
     sid    = "Allow Key to be used for Encryption"
     effect = "Allow"
