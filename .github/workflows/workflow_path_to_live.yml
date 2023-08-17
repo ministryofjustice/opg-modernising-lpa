@@ -143,6 +143,21 @@ jobs:
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
+  demo_deploy:
+    name: Production Deploy
+    needs: [create_tags, terraform_account_workflow_production, docker_build_scan_push]
+    uses: ./.github/workflows/terraform_environment_job.yml
+    with:
+      workspace_name: demo
+      version_tag: ${{ needs.create_tags.outputs.version_tag }}
+      public_access_enabled: false
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+      ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
+      github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
+
   end_of_main_workflow:
     name: End of Main Workflow
     if: github.ref == 'refs/heads/main'
