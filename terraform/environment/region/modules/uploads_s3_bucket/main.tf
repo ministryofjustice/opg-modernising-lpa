@@ -26,7 +26,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "bucket_encryption
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+      kms_master_key_id = data.aws_kms_alias.reduced_fees_uploads_s3_encryption.target_key_id
+      sse_algorithm     = "aws:kms"
     }
   }
   provider = aws.region
@@ -69,7 +70,7 @@ data "aws_iam_policy_document" "bucket" {
     condition {
       test     = "StringNotEquals"
       variable = "s3:x-amz-server-side-encryption"
-      values   = ["AES256"]
+      values   = ["aws:kms"]
     }
 
     principals {

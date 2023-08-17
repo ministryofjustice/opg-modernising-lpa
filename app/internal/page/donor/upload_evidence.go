@@ -57,7 +57,7 @@ func UploadEvidence(tmpl template.Template, donorStore DonorStore, s3Client S3Cl
 					Bucket:               aws.String(bucketName),
 					Key:                  aws.String(lpa.EvidenceKey),
 					Body:                 bytes.NewReader(form.File),
-					ServerSideEncryption: types.ServerSideEncryptionAes256,
+					ServerSideEncryption: types.ServerSideEncryptionAwsKms,
 				})
 				if err != nil {
 					return err
