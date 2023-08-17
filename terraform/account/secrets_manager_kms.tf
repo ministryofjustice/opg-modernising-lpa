@@ -11,6 +11,7 @@ resource "aws_kms_replica_key" "secrets_manager_replica" {
   description             = "${local.default_tags.application} Secrets Manager secret multi-region replica key"
   deletion_window_in_days = 7
   primary_key_arn         = aws_kms_key.secrets_manager.arn
+  policy                  = local.account.account_name == "development" ? data.aws_iam_policy_document.dynamodb_kms_merged.json : data.aws_iam_policy_document.dynamodb_kms.json
   provider                = aws.eu_west_2
 }
 
@@ -38,6 +39,22 @@ data "aws_iam_policy_document" "secrets_manager_kms_merged" {
 
 data "aws_iam_policy_document" "secrets_manager_kms" {
   provider = aws.global
+
+  statement {
+    sid    = "Enable IAM User Permissions"
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.global.account_id}:root"]
+    }
+    actions = [
+      "kms:*",
+    ]
+    resources = [
+      "*",
+    ]
+  }
+
   statement {
     sid    = "Allow Key to be used for Encryption"
     effect = "Allow"
