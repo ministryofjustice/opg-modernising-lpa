@@ -25,7 +25,7 @@ func TestGetSign(t *testing.T) {
 			appData: testAppData,
 			lpa: &page.Lpa{
 				Submitted:           time.Now(),
-				WhenCanTheLpaBeUsed: page.CanBeUsedWhenRegistered,
+				WhenCanTheLpaBeUsed: page.CanBeUsedWhenHasCapacity,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
@@ -58,7 +58,7 @@ func TestGetSign(t *testing.T) {
 			appData: testReplacementAppData,
 			lpa: &page.Lpa{
 				Submitted:           time.Now(),
-				WhenCanTheLpaBeUsed: page.CanBeUsedWhenRegistered,
+				WhenCanTheLpaBeUsed: page.CanBeUsedWhenHasCapacity,
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
@@ -93,7 +93,7 @@ func TestGetSign(t *testing.T) {
 			appData: testTrustCorporationAppData,
 			lpa: &page.Lpa{
 				Submitted:           time.Now(),
-				WhenCanTheLpaBeUsed: page.CanBeUsedWhenRegistered,
+				WhenCanTheLpaBeUsed: page.CanBeUsedWhenHasCapacity,
 				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
 					Name: "Corp",
 				}},
