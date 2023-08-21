@@ -1,11 +1,11 @@
 package identity
 
 import (
-	"slices"
 	"strings"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
+	"golang.org/x/exp/slices"
 )
 
 // https://www.icao.int/publications/Documents/9303_p3_cons_en.pdf

@@ -1,9 +1,8 @@
 package actor
 
 import (
-	"slices"
-
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
+	"golang.org/x/exp/slices"
 )
 
 // PersonToNotify contains details about a person to notify, provided by the applicant

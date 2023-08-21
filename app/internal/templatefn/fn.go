@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"html/template"
 	"reflect"
-	"slices"
 	"time"
 	"unicode"
 	"unicode/utf8"
@@ -12,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
+	"golang.org/x/exp/slices"
 )
 
 func All(tag, region string) map[string]any {

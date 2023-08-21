@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/mail"
 	"regexp"
-	"slices"
 	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
+	"golang.org/x/exp/slices"
 )
 
 type ErrorChecker interface {
