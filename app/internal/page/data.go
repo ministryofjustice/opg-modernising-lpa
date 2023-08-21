@@ -13,6 +13,7 @@ package page
 
 import (
 	"context"
+	"slices"
 	"strings"
 	"time"
 
@@ -20,7 +21,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
-	"golang.org/x/exp/slices"
 )
 
 //go:generate enumerator -type LpaType -linecomment -trimprefix -empty
@@ -46,7 +46,7 @@ type CanBeUsedWhen uint8
 
 const (
 	CanBeUsedWhenCapacityLost CanBeUsedWhen = iota + 1 // when-capacity-lost
-	CanBeUsedWhenRegistered                            // when-registered
+	CanBeUsedWhenHasCapacity                           // when-has-capacity
 )
 
 //go:generate enumerator -type LifeSustainingTreatment -linecomment -trimprefix -empty
