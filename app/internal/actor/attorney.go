@@ -2,10 +2,10 @@ package actor
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
-	"golang.org/x/exp/slices"
 )
 
 // Attorney contains details about an attorney or replacement attorney, provided by the applicant
