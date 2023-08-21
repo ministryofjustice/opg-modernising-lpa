@@ -77,8 +77,11 @@ func (s *donorStore) GetAll(ctx context.Context) ([]*page.Lpa, error) {
 	var items []*page.Lpa
 	err = s.dynamoClient.GetAllByGsi(ctx, "ActorIndex", donorKey(data.SessionID), &items)
 
-	slices.SortFunc(items, func(a, b *page.Lpa) bool {
-		return a.UpdatedAt.After(b.UpdatedAt)
+	slices.SortFunc(items, func(a, b *page.Lpa) int {
+		if a.UpdatedAt.After(b.UpdatedAt) {
+			return -1
+		}
+		return 1
 	})
 
 	return items, err

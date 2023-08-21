@@ -151,8 +151,11 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		attorney = append(attorney, value)
 	}
 
-	byUpdatedAt := func(a, b page.LpaAndActorTasks) bool {
-		return a.Lpa.UpdatedAt.After(b.Lpa.UpdatedAt)
+	byUpdatedAt := func(a, b page.LpaAndActorTasks) int {
+		if a.Lpa.UpdatedAt.After(b.Lpa.UpdatedAt) {
+			return -1
+		}
+		return 1
 	}
 
 	slices.SortFunc(donor, byUpdatedAt)
