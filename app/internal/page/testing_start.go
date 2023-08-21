@@ -249,7 +249,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 
 				lpa.ReplacementAttorneys = lpa.Attorneys
 				lpa.Type = LpaTypePropertyFinance
-				lpa.WhenCanTheLpaBeUsed = CanBeUsedWhenRegistered
+				lpa.WhenCanTheLpaBeUsed = CanBeUsedWhenHasCapacity
 
 				lpa.WantReplacementAttorneys = form.Yes
 				lpa.ReplacementAttorneyDecisions.How = actor.JointlyAndSeverally
@@ -337,7 +337,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			}
 
 			if opts.hasWhenCanBeUsed {
-				lpa.WhenCanTheLpaBeUsed = CanBeUsedWhenRegistered
+				lpa.WhenCanTheLpaBeUsed = CanBeUsedWhenHasCapacity
 				lpa.Tasks.WhenCanTheLpaBeUsed = actor.TaskCompleted
 				lpa.LifeSustainingTreatmentOption = LifeSustainingTreatmentOptionA
 				lpa.Tasks.LifeSustainingTreatment = actor.TaskCompleted
