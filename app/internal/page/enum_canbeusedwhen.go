@@ -11,12 +11,12 @@ func _() {
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
 	_ = x[CanBeUsedWhenCapacityLost-1]
-	_ = x[CanBeUsedWhenRegistered-2]
+	_ = x[CanBeUsedWhenHasCapacity-2]
 }
 
-const _CanBeUsedWhen_name = "when-capacity-lostwhen-registered"
+const _CanBeUsedWhen_name = "when-capacity-lostwhen-has-capacity"
 
-var _CanBeUsedWhen_index = [...]uint8{0, 18, 33}
+var _CanBeUsedWhen_index = [...]uint8{0, 18, 35}
 
 func (i CanBeUsedWhen) String() string {
 	i -= 1
@@ -30,16 +30,16 @@ func (i CanBeUsedWhen) IsCapacityLost() bool {
 	return i == CanBeUsedWhenCapacityLost
 }
 
-func (i CanBeUsedWhen) IsRegistered() bool {
-	return i == CanBeUsedWhenRegistered
+func (i CanBeUsedWhen) IsHasCapacity() bool {
+	return i == CanBeUsedWhenHasCapacity
 }
 
 func ParseCanBeUsedWhen(s string) (CanBeUsedWhen, error) {
 	switch s {
 	case "when-capacity-lost":
 		return CanBeUsedWhenCapacityLost, nil
-	case "when-registered":
-		return CanBeUsedWhenRegistered, nil
+	case "when-has-capacity":
+		return CanBeUsedWhenHasCapacity, nil
 	default:
 		return CanBeUsedWhen(0), fmt.Errorf("invalid CanBeUsedWhen '%s'", s)
 	}
@@ -47,12 +47,12 @@ func ParseCanBeUsedWhen(s string) (CanBeUsedWhen, error) {
 
 type CanBeUsedWhenOptions struct {
 	CapacityLost CanBeUsedWhen
-	Registered   CanBeUsedWhen
+	HasCapacity  CanBeUsedWhen
 }
 
 var CanBeUsedWhenValues = CanBeUsedWhenOptions{
 	CapacityLost: CanBeUsedWhenCapacityLost,
-	Registered:   CanBeUsedWhenRegistered,
+	HasCapacity:  CanBeUsedWhenHasCapacity,
 }
 
 func (i CanBeUsedWhen) Empty() bool {

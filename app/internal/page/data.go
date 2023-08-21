@@ -46,7 +46,7 @@ type CanBeUsedWhen uint8
 
 const (
 	CanBeUsedWhenCapacityLost CanBeUsedWhen = iota + 1 // when-capacity-lost
-	CanBeUsedWhenRegistered                            // when-registered
+	CanBeUsedWhenHasCapacity                           // when-has-capacity
 )
 
 //go:generate enumerator -type LifeSustainingTreatment -linecomment -trimprefix -empty

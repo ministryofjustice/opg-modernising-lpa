@@ -20,7 +20,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-var ctx = context.TODO()
+var ctx = context.Background()
 
 func TestExchange(t *testing.T) {
 	privateKey, _ := rsa.GenerateKey(rand.New(rand.NewSource(99)), 2048)
