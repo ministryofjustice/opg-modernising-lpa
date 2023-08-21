@@ -31,15 +31,15 @@ func canSign(ctx context.Context, certificateProviderStore CertificateProviderSt
 }
 
 type signData struct {
-	App                        page.AppData
-	Errors                     validation.List
-	LpaID                      string
-	Attorney                   actor.Attorney
-	TrustCorporation           actor.TrustCorporation
-	IsReplacement              bool
-	IsSecondSignatory          bool
-	LpaCanBeUsedWhenRegistered bool
-	Form                       *signForm
+	App                         page.AppData
+	Errors                      validation.List
+	LpaID                       string
+	Attorney                    actor.Attorney
+	TrustCorporation            actor.TrustCorporation
+	IsReplacement               bool
+	IsSecondSignatory           bool
+	LpaCanBeUsedWhenHasCapacity bool
+	Form                        *signForm
 }
 
 func Sign(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, now func() time.Time) Handler {
@@ -59,11 +59,11 @@ func Sign(tmpl template.Template, donorStore DonorStore, certificateProviderStor
 		}
 
 		data := &signData{
-			App:                        appData,
-			LpaID:                      lpa.ID,
-			IsReplacement:              appData.IsReplacementAttorney(),
-			IsSecondSignatory:          signatoryIndex == 1,
-			LpaCanBeUsedWhenRegistered: lpa.WhenCanTheLpaBeUsed == page.CanBeUsedWhenRegistered,
+			App:                         appData,
+			LpaID:                       lpa.ID,
+			IsReplacement:               appData.IsReplacementAttorney(),
+			IsSecondSignatory:           signatoryIndex == 1,
+			LpaCanBeUsedWhenHasCapacity: lpa.WhenCanTheLpaBeUsed == page.CanBeUsedWhenHasCapacity,
 			Form: &signForm{
 				Confirm: !attorneyProvidedDetails.Confirmed.IsZero(),
 			},

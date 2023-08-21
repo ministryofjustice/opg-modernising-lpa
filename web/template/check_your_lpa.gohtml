@@ -52,6 +52,7 @@
           {{ template "details" (details . "whatHappensIfIChange" "whatHappensIfIChangeDetails" false) }}
         {{ end }}
 
+        <p class="govuk-body govuk-!-font-weight-bold">{{ tr .App "onceConfirmedNotAbleToMakeChanges" }}</p>
 
         {{ template "data-loss-warning-dialog" . }}
 
