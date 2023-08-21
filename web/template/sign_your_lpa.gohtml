@@ -22,7 +22,7 @@
         {{ if .Lpa.Type.IsHealthWelfare }}
           <li>{{ tr .App "iGiveAttorneysAuthority" "LpaType" $lpaTypeLegalTerm }}</li>
         {{ else }}
-          {{ if .Lpa.WhenCanTheLpaBeUsed.IsRegistered }}
+          {{ if .Lpa.WhenCanTheLpaBeUsed.IsHasCapacity }}
             <li>{{ tr .App "iGiveAttorneysAuthorityWhenRegistered" }}</li>
           {{ else }}
             <li>{{ tr .App "iGiveAttorneysAuthorityWhenLostMentalCapacity" }}</li>
