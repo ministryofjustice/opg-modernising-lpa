@@ -177,7 +177,7 @@
         "many": "Welsh",
         "other": "Welsh"
     },
-    "asSoonAsItsRegistered": "Cyn gynted ag y bydd wedi’i gofrestru",
+    "whenIHaveMentalCapacity": "Welsh",
     "onlyWhenIDoNotHaveMentalCapacity": "Welsh",
     "restrictionsOnYourAttorneysPowerTitle": "Welsh",
     "restrictionsOnYourAttorneysPowerContent": "<p class=\"govuk-body\">Welsh</p>",
@@ -409,7 +409,7 @@
     "replacement-jointly-and-severally": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
     "replacement-jointly": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
     "replacement-mixed": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
-    "when-registered": "Cyn gynted ag y bydd wedi’i gofrestru",
+    "when-has-capacity": "Welsh",
     "when-capacity-lost": "Dim ond pan nad oes gennyf alluedd meddyliol",
     "peopleToNotifyAboutYourLpa": "Welsh",
     "wantPeopleToNotify": "Ydych chi eisiau hysbysu unrhyw un am eich LPA?",
@@ -717,5 +717,7 @@
     "trustCorporationHasFormallyAgreedReplacement": "Welsh",
     "lpaWillBeSubmittedWhenAllAttorneysHaveSigned": "<p class=\"govuk-body\">Welsh</p>",
     "signTheLpaSignatory1": "Welsh",
-    "signTheLpaSignatory2": "Welsh"
+    "signTheLpaSignatory2": "Welsh",
+    "yourDetailsContent": "Welsh",
+    "onceConfirmedNotAbleToMakeChanges": "Welsh"
 }
