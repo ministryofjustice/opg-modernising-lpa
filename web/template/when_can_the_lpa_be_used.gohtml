@@ -8,7 +8,7 @@
       <h1 class="govuk-heading-xl">{{ tr .App "whenYourAttorneysCanUseYourLpa" }}</h1>
 
       {{ trHtml .App "whenYourAttorneysCanUseYourLpaContent" }}
-      
+
       <form novalidate method="post">
         <div class="govuk-form-group {{ if .Errors.Has "when" }}govuk-form-group--error{{ end }}">
           <fieldset class="govuk-fieldset">
@@ -19,7 +19,7 @@
             {{ template "error-message" (errorMessage . "when") }}
 
             {{ template "radios" (items . "when" .Form.When.String
-              (item .Options.Registered.String "asSoonAsItsRegistered")
+              (item .Options.Registered.String "whenIHaveMentalCapacity")
               (item .Options.CapacityLost.String "onlyWhenIDoNotHaveMentalCapacity")
             ) }}
           </fieldset>
