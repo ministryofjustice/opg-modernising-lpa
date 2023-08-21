@@ -388,7 +388,7 @@
     "peopleToNotifyAboutYourLpa": "People to notify about your LPA",
     "wantPeopleToNotify": "Do you want to notify anyone about your LPA?",
     "yesToNotifySomeoneAboutYourLpa": "yes to notify someone about your LPA",
-    "wantPeopleToNotifyContent": "<p class=\"govuk-body\">You can choose to notify up to 5 people who will be told you have made an LPA and that it is ready for registration. These people can raise any concerns about your LPA before it is registered.</p><p class=\"govuk-body\">Most people choose family members or close friends. We call these ‘people to notify’. Having people to notify is optional.</p><p class=\"govuk-body\">If you choose to notify a person about your LPA, we’ll send them information as soon as we have received and checked your LPA.</p>",
+    "wantPeopleToNotifyContent": "<p class=\"govuk-body\">You can choose to notify up to 5 people who will be told you have made an LPA and that it is ready for registration. These people can raise any concerns about your LPA before it is registered.</p><p class=\"govuk-body\">Most people choose family members or close friends. We call these ‘people to notify’. Having people to notify is optional but can provide extra protection for you.</p><p class=\"govuk-body\">If you choose to notify a person about your LPA, we’ll send them information once everyone has signed and we’ve checked your LPA.</p>",
     "weWillOnlyTellThem": "We’ll only tell them:",
     "thatYouHaveMadeALpaType": "that you’ve made a {{ .LpaType }} LPA",
     "thatYourAttorneysAre": {
@@ -396,7 +396,7 @@
         "other": "that your attorneys are {{.AllAttorneysFirstNames }}"
     },
     "jointlyDescription": "that you want your attorneys to work together to make decisions",
-    "jointlyAndSeverallyDescription": "that you want your attorneys to work together or separately to make decisions",
+    "jointlyAndSeverallyDescription": "that you want your attorneys to work jointly and severally to make decisions",
     "jointlyForSomeSeverallyForOthersDescription": "that you want your attorneys to work together on some decisions but can make other decisions separately",
     "whatToDoIfYouHaveConcerns": "what to do if they have concerns",
     "findOutMoreAboutPeopleToNotifyLink": "<p class=\"govuk-body\"><a href=\"#\" class=\"govuk-link\">Find out more about people to notify.</a></p>",
