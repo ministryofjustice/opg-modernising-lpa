@@ -3,12 +3,12 @@ package app
 import (
 	"context"
 	"errors"
+	"slices"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/uid"
-	"golang.org/x/exp/slices"
 )
 
 //go:generate mockery --testonly --inpackage --name UidClient --structname mockUidClient

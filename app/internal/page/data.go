@@ -13,6 +13,7 @@ package page
 
 import (
 	"context"
+	"slices"
 	"strings"
 	"time"
 
@@ -20,7 +21,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
-	"golang.org/x/exp/slices"
 )
 
 //go:generate enumerator -type LpaType -linecomment -trimprefix -empty

@@ -3,13 +3,13 @@ package app
 import (
 	"context"
 	"errors"
+	"slices"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
-	"golang.org/x/exp/slices"
 )
 
 // An lpaLink is used to join an actor to an LPA.
