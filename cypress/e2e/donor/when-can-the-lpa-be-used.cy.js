@@ -4,7 +4,7 @@ describe('When can the LPA be used', () => {
     });
 
     it('can be submitted', () => {
-        cy.get('#f-when').check('when-registered');
+        cy.get('#f-when').check('when-has-capacity');
 
         cy.checkA11yApp();
 

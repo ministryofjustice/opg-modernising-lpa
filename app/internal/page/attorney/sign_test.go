@@ -25,17 +25,17 @@ func TestGetSign(t *testing.T) {
 			appData: testAppData,
 			lpa: &page.Lpa{
 				Submitted:           time.Now(),
-				WhenCanTheLpaBeUsed: page.CanBeUsedWhenRegistered,
+				WhenCanTheLpaBeUsed: page.CanBeUsedWhenHasCapacity,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
 				}},
 			},
 			data: &signData{
-				App:                        testAppData,
-				Form:                       &signForm{},
-				Attorney:                   actor.Attorney{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
-				LpaCanBeUsedWhenRegistered: true,
+				App:                         testAppData,
+				Form:                        &signForm{},
+				Attorney:                    actor.Attorney{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
+				LpaCanBeUsedWhenHasCapacity: true,
 			},
 		},
 		"attorney use when capacity lost": {
@@ -58,18 +58,18 @@ func TestGetSign(t *testing.T) {
 			appData: testReplacementAppData,
 			lpa: &page.Lpa{
 				Submitted:           time.Now(),
-				WhenCanTheLpaBeUsed: page.CanBeUsedWhenRegistered,
+				WhenCanTheLpaBeUsed: page.CanBeUsedWhenHasCapacity,
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
 				}},
 			},
 			data: &signData{
-				App:                        testReplacementAppData,
-				Form:                       &signForm{},
-				Attorney:                   actor.Attorney{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
-				IsReplacement:              true,
-				LpaCanBeUsedWhenRegistered: true,
+				App:                         testReplacementAppData,
+				Form:                        &signForm{},
+				Attorney:                    actor.Attorney{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
+				IsReplacement:               true,
+				LpaCanBeUsedWhenHasCapacity: true,
 			},
 		},
 		"replacement attorney use when capacity lost": {
@@ -93,16 +93,16 @@ func TestGetSign(t *testing.T) {
 			appData: testTrustCorporationAppData,
 			lpa: &page.Lpa{
 				Submitted:           time.Now(),
-				WhenCanTheLpaBeUsed: page.CanBeUsedWhenRegistered,
+				WhenCanTheLpaBeUsed: page.CanBeUsedWhenHasCapacity,
 				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
 					Name: "Corp",
 				}},
 			},
 			data: &signData{
-				App:                        testTrustCorporationAppData,
-				Form:                       &signForm{},
-				TrustCorporation:           actor.TrustCorporation{Name: "Corp"},
-				LpaCanBeUsedWhenRegistered: true,
+				App:                         testTrustCorporationAppData,
+				Form:                        &signForm{},
+				TrustCorporation:            actor.TrustCorporation{Name: "Corp"},
+				LpaCanBeUsedWhenHasCapacity: true,
 			},
 		},
 	}
