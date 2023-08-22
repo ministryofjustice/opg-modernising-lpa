@@ -57,17 +57,19 @@ func (m *mockDynamoClient) ExpectGetAllByKeys(ctx context.Context, keys []dynamo
 
 func TestDonorStoreGetAll(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
-	lpa := &page.Lpa{ID: "10100000"}
+	lpa123 := &page.Lpa{ID: "123", UpdatedAt: time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)}
+	lpa456 := &page.Lpa{ID: "456", UpdatedAt: time.Date(2002, time.January, 1, 0, 0, 0, 0, time.UTC)}
+	lpa789 := &page.Lpa{ID: "789", UpdatedAt: time.Date(2001, time.January, 1, 0, 0, 0, 0, time.UTC)}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectGetAllByGsi(ctx, "ActorIndex", "#DONOR#an-id",
-		[]any{lpa}, nil)
+		[]any{lpa123, lpa456, lpa789}, nil)
 
-	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
+	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: nil}
 
 	result, err := donorStore.GetAll(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, []*page.Lpa{lpa}, result)
+	assert.Equal(t, []*page.Lpa{lpa456, lpa789, lpa123}, result)
 }
 
 func TestDonorStoreGetAllWithSessionMissing(t *testing.T) {
