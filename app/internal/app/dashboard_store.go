@@ -3,13 +3,13 @@ package app
 import (
 	"context"
 	"errors"
+	"slices"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
-	"golang.org/x/exp/slices"
 )
 
 // An lpaLink is used to join an actor to an LPA.
@@ -151,8 +151,11 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		attorney = append(attorney, value)
 	}
 
-	byUpdatedAt := func(a, b page.LpaAndActorTasks) bool {
-		return a.Lpa.UpdatedAt.After(b.Lpa.UpdatedAt)
+	byUpdatedAt := func(a, b page.LpaAndActorTasks) int {
+		if a.Lpa.UpdatedAt.After(b.Lpa.UpdatedAt) {
+			return -1
+		}
+		return 1
 	}
 
 	slices.SortFunc(donor, byUpdatedAt)
