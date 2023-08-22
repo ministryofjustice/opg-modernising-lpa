@@ -33,4 +33,5 @@ const (
 	PaymentTaskCompleted
 	PaymentTaskPending
 	PaymentTaskDenied
+	PaymentTaskApproved
 )
