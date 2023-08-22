@@ -14,7 +14,6 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/pay"
@@ -22,6 +21,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/uid"
+	"github.com/ministryofjustice/opg-modernising-lpa/shared/notify"
 )
 
 type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, details *page.Lpa) error

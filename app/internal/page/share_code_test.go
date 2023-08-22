@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/shared/notify"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

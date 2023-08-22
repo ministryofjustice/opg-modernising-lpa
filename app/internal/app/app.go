@@ -19,7 +19,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/page/attorney"
@@ -30,6 +29,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/uid"
+	"github.com/ministryofjustice/opg-modernising-lpa/shared/notify"
 )
 
 //go:generate mockery --testonly --inpackage --name Logger --structname mockLogger

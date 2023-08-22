@@ -5,7 +5,7 @@ package donor
 import (
 	context "context"
 
-	notify "github.com/ministryofjustice/opg-modernising-lpa/app/internal/notify"
+	notify "github.com/ministryofjustice/opg-modernising-lpa/shared/notify"
 	mock "github.com/stretchr/testify/mock"
 )
 

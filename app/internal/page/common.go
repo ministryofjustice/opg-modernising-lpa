@@ -9,9 +9,9 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/uid"
+	"github.com/ministryofjustice/opg-modernising-lpa/shared/notify"
 )
 
 const FormUrlEncoded = "application/x-www-form-urlencoded"

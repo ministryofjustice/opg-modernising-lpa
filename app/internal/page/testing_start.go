@@ -12,10 +12,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/app/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/shared/notify"
 )
 
 func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int) string, shareCodeSender shareCodeSender, localizer Localizer, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, logger *logging.Logger, now func() time.Time) http.HandlerFunc {
