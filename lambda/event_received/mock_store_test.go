@@ -80,6 +80,39 @@ func (_m *mockStore) Query(_a0 context.Context, _a1 *dynamodb.QueryInput, _a2 ..
 	return r0, r1
 }
 
+// UpdateItem provides a mock function with given fields: _a0, _a1, _a2
+func (_m *mockStore) UpdateItem(_a0 context.Context, _a1 *dynamodb.UpdateItemInput, _a2 ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error) {
+	_va := make([]interface{}, len(_a2))
+	for _i := range _a2 {
+		_va[_i] = _a2[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, _a0, _a1)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *dynamodb.UpdateItemOutput
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *dynamodb.UpdateItemInput, ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error)); ok {
+		return rf(_a0, _a1, _a2...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *dynamodb.UpdateItemInput, ...func(*dynamodb.Options)) *dynamodb.UpdateItemOutput); ok {
+		r0 = rf(_a0, _a1, _a2...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*dynamodb.UpdateItemOutput)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *dynamodb.UpdateItemInput, ...func(*dynamodb.Options)) error); ok {
+		r1 = rf(_a0, _a1, _a2...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 type mockConstructorTestingTnewMockStore interface {
 	mock.TestingT
 	Cleanup(func())
