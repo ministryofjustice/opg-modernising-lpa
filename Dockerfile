@@ -30,15 +30,13 @@ ARG TAG=v0.0.0
 
 WORKDIR /app
 
-COPY ./app app/
-COPY ./internal internal/
-COPY ./lambda lambda/
-COPY ./mocks mocks/
-COPY go.work .
+COPY go.mod go.sum ./
+RUN go mod download
 
-RUN go work use
+COPY /cmd/mlpa ./cmd/mlpa
+COPY /internal ./internal
 
-RUN cd app && CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -ldflags="-X main.Tag=${TAG}" -o /go/bin/mlpab
+RUN cd cmd/mlpa && CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -ldflags="-X main.Tag=${TAG}" -o /go/bin/mlpab
 
 FROM alpine:3.18.3 as production
 
