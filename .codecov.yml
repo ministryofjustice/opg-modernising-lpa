@@ -6,10 +6,10 @@ coverage:
     - "**/*_test.go"
     - "**/enum_*.go"
     - "./mocks/*"
-    - "./app/internal/identity/yoti*"
-    - "./app/internal/telemetry"
-    - "./app/internal/page/fixtures.go"
-    - "./app/internal/page/testing_start.go"
+    - "./internal/identity/yoti*"
+    - "./internal/telemetry"
+    - "./internal/page/fixtures.go"
+    - "./internal/page/testing_start.go"
     - "./app/main.go"
   status:
     project:
