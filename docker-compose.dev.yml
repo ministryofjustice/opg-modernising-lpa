@@ -10,9 +10,9 @@ services:
     security_opt:
       - "seccomp:unconfined"
     volumes:
-      - ./cmd/mlpa:/cmd/mlpa:rw,delegated
-      - ./internal:/internal:rw,delegated
-      - ./web/template:/web/template:rw,delegated
+      - ./cmd/mlpa:/app/cmd/mlpa:rw,delegated
+      - ./internal:/app/internal:rw,delegated
+      - ./web/template:/app/web/template:rw,delegated
       - ./lang:/app/lang:rw,delegated
       - /cmd/mlpa/web/static
       - ./.air.toml:/app/.air.toml
