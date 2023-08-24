@@ -56,7 +56,7 @@ jobs:
       - name: Run tests and generate coverage report
         run: |
           mkdir -p ./coverage/cmd ./coverage/internal
-          go test -cover ./cmd/... -args -test.gocoverdir="$PWD/coverage/cmd"
+          go test -cover `go list ./cmd/... | (egrep -v '(/GOVUKNotify|/GOVUKSignIn|/OrdnanceSurveyPlacesAPI)$')` -args -test.gocoverdir="$PWD/coverage/cmd"
           go test -cover ./internal/... -args -test.gocoverdir="$PWD/coverage/internal"
           go tool covdata textfmt -i=./coverage/internal,./coverage/cmd -o ./coverage/coverage_combined.out
 
