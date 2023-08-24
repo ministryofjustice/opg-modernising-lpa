@@ -1,6 +1,6 @@
 module github.com/ministryofjustice/opg-modernising-lpa
 
-go 1.21.0
+go 1.21
 
 require (
 	github.com/MicahParks/keyfunc v1.9.0
