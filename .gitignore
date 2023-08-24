@@ -37,3 +37,4 @@ multi-reporter-config.json
 /internal/uid/log/*
 /internal/uid/logs/*
 /internal/uid/pacts/*
+/coverage/*
