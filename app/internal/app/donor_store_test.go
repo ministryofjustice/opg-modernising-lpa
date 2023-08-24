@@ -487,6 +487,100 @@ func TestDonorStorePutWhenEvidenceFormRequiredWhenError(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestDonorStorePutWhenReducedFeeRequested(t *testing.T) {
+	ctx := context.Background()
+	now := time.Now()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("Put", ctx, &page.Lpa{
+			PK:                              "LPA#5",
+			SK:                              "#DONOR#an-id",
+			ID:                              "5",
+			UID:                             "M-1111",
+			UpdatedAt:                       now,
+			FeeType:                         page.HardshipFee,
+			EvidenceKey:                     "/some/key",
+			Tasks:                           page.Tasks{PayForLpa: actor.PaymentTaskPending},
+			HasSentReducedFeeRequestedEvent: true,
+		}).
+		Return(nil)
+
+	eventClient := newMockEventClient(t)
+	eventClient.
+		On("Send", ctx, "reduced-fee-requested", reducedFeeRequestedEvent{
+			UID:         "M-1111",
+			RequestType: "HardshipFee",
+			Evidence:    []string{"/some/key"},
+		}).
+		Return(nil)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, now: func() time.Time { return now }}
+
+	err := donorStore.Put(ctx, &page.Lpa{
+		PK:          "LPA#5",
+		SK:          "#DONOR#an-id",
+		ID:          "5",
+		UID:         "M-1111",
+		FeeType:     page.HardshipFee,
+		EvidenceKey: "/some/key",
+		Tasks:       page.Tasks{PayForLpa: actor.PaymentTaskPending},
+	})
+	assert.Nil(t, err)
+}
+
+func TestDonorStorePutWhenReducedFeeRequestedWontResend(t *testing.T) {
+	ctx := context.Background()
+	now := time.Now()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("Put", ctx, mock.Anything).
+		Return(nil)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
+
+	err := donorStore.Put(ctx, &page.Lpa{
+		PK:                              "LPA#5",
+		SK:                              "#DONOR#an-id",
+		ID:                              "5",
+		UID:                             "M-1111",
+		Tasks:                           page.Tasks{PayForLpa: actor.PaymentTaskPending},
+		HasSentReducedFeeRequestedEvent: true,
+	})
+	assert.Nil(t, err)
+}
+
+func TestDonorStorePutWhenReducedFeeRequestedWhenError(t *testing.T) {
+	ctx := context.Background()
+	now := time.Now()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("Put", ctx, mock.Anything).
+		Return(nil)
+
+	eventClient := newMockEventClient(t)
+	eventClient.
+		On("Send", ctx, "reduced-fee-requested", mock.Anything).
+		Return(expectedError)
+
+	logger := newMockLogger(t)
+	logger.
+		On("Print", expectedError)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, logger: logger, now: func() time.Time { return now }}
+
+	err := donorStore.Put(ctx, &page.Lpa{
+		PK:    "LPA#5",
+		SK:    "#DONOR#an-id",
+		ID:    "5",
+		UID:   "M-1111",
+		Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending},
+	})
+	assert.Nil(t, err)
+}
+
 func TestDonorStoreCreate(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
 	now := time.Now()
