@@ -23,9 +23,6 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: app
     steps:
       - uses: actions/checkout@v3
       - name: Setup Go
@@ -58,7 +55,7 @@ jobs:
 
       - name: Run tests and generate coverage report
         run: |
-          go test ./... -race -covermode=atomic -coverprofile=coverage.out
+          find . -name go.mod -execdir go test ./... -race -covermode=atomic -coverprofile=coverage.out
 
       - name: Publish pacts
         run: |
