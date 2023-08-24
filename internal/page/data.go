@@ -173,6 +173,7 @@ type Lpa struct {
 
 	HasSentPreviousApplicationLinkedEvent bool
 	HasSentEvidenceFormRequiredEvent      bool
+	HasSentReducedFeeRequestedEvent       bool
 }
 
 type PaymentDetails struct {

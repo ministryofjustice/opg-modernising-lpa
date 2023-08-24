@@ -89,7 +89,6 @@ func App(
 	attorneyStore := &attorneyStore{dynamoClient: lpaDynamoClient, now: time.Now}
 	shareCodeStore := &shareCodeStore{dynamoClient: lpaDynamoClient}
 	dashboardStore := &dashboardStore{dynamoClient: lpaDynamoClient}
-	reducedFeeStore := &reducedFeeStore{dynamoClient: reducedFeeDynamoClient, now: time.Now}
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: lpaDynamoClient}
 
 	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicURL, random.String)
@@ -168,7 +167,6 @@ func App(
 		uidClient,
 		s3Client,
 		evidenceBucketName,
-		reducedFeeStore,
 		notifyClient,
 		evidenceReceivedStore,
 	)
