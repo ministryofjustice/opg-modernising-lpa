@@ -55,10 +55,10 @@ jobs:
 
       - name: Run tests and generate coverage report
         run: |
-          mkdir -p ./coverage/app ./coverage/internal
-          go test -cover ./app/... -args -test.gocoverdir="$PWD/coverage/app"
+          mkdir -p ./coverage/cmd ./coverage/internal
+          go test -cover ./cmd/... -args -test.gocoverdir="$PWD/coverage/cmd"
           go test -cover ./internal/... -args -test.gocoverdir="$PWD/coverage/internal"
-          go tool covdata textfmt -i=./coverage/internal,./coverage/app -o ./coverage/coverage_combined.out
+          go tool covdata textfmt -i=./coverage/internal,./coverage/cmd -o ./coverage/coverage_combined.out
 
       - name: Publish pacts
         run: |
