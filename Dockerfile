@@ -26,15 +26,19 @@ ENTRYPOINT ["air"]
 
 FROM base as build-env
 
-WORKDIR /app
 ARG TAG=v0.0.0
 
-COPY /app .
-COPY /internal .
+WORKDIR /app
 
-RUN go mod download
+COPY ./app app/
+COPY ./internal internal/
+COPY ./lambda lambda/
+COPY ./mocks mocks/
+COPY go.work .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -ldflags="-X main.Tag=${TAG}" -o /go/bin/mlpab
+RUN go work use
+
+RUN cd app && CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -ldflags="-X main.Tag=${TAG}" -o /go/bin/mlpab
 
 FROM alpine:3.18.3 as production
 
