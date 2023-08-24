@@ -34,6 +34,7 @@ multi-reporter-config.json
 .idea/*
 /app/tmp/*
 /app/.air.toml
-/app/internal/uid/log/*
-/app/internal/uid/logs/*
-/app/internal/uid/pacts/*
+/internal/uid/log/*
+/internal/uid/logs/*
+/internal/uid/pacts/*
+/coverage/*

@@ -11,6 +11,7 @@ services:
       - "seccomp:unconfined"
     volumes:
       - ./app:/app:rw,delegated
+      - ./internal:/internal:rw,delegated
       - ./web/template:/app/web/template:rw,delegated
       - ./lang:/app/lang:rw,delegated
       - /app/web/static
