@@ -49,7 +49,8 @@ services:
 
   sign-in-mock:
     build:
-      context: mocks/GOVUKSignIn
+      context: ./
+      dockerfile: cmd/GOVUKSignIn/Dockerfile
     container_name: sign-in-mock
     ports:
       - "7012:8080"
@@ -69,14 +70,16 @@ services:
 
   notify-mock:
     build:
-      context: mocks/GOVUKNotify
+      context: ./
+      dockerfile: cmd/GOVUKNotify/Dockerfile
     container_name: notify-mock
     ports:
       - "8080:8080"
 
   ordnance-survey-mock:
     build:
-      context: mocks/OrdnanceSurveyPlacesAPI
+      context: ./
+      dockerfile: cmd/OrdnanceSurveyPlacesAPI/Dockerfile
     container_name: ordnance-survey-mock
     ports:
       - "8081:8080"
