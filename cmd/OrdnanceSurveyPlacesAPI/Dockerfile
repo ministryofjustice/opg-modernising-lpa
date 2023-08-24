@@ -5,6 +5,7 @@ RUN apt-get install -y --no-install-recommends openssl
 WORKDIR /app
 
 COPY ./cmd/OrdnanceSurveyPlacesAPI/main.go .
+COPY ./cmd/OrdnanceSurveyPlacesAPI/testdata ./testdata
 COPY go.mod go.sum ./
 
 RUN go mod download
