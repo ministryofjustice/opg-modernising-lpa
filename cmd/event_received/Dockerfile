@@ -2,8 +2,8 @@ FROM golang:1.20 as build
 
 WORKDIR /app
 
-COPY main.go .
-COPY ../../go.mod ../../go.sum ./
+COPY ./cmd/event_received/main.go .
+COPY go.mod go.sum ./
 
 RUN go mod download
 
