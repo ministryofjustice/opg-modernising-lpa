@@ -13,7 +13,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/ministryofjustice/opg-go-common/env"
 )
 
