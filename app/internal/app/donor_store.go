@@ -170,6 +170,18 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 		}
 	}
 
+	if lpa.UID != "" && lpa.Tasks.PayForLpa.IsPending() && !lpa.HasSentReducedFeeRequestedEvent {
+		if err := s.eventClient.Send(ctx, "reduced-fee-requested", reducedFeeRequestedEvent{
+			UID:         lpa.UID,
+			RequestType: lpa.FeeType.String(),
+			Evidence:    []string{lpa.EvidenceKey},
+		}); err != nil {
+			s.logger.Print(err)
+		} else {
+			lpa.HasSentReducedFeeRequestedEvent = true
+		}
+	}
+
 	return s.dynamoClient.Put(ctx, lpa)
 }
 
@@ -196,6 +208,12 @@ type evidenceFormRequiredEvent struct {
 	FirstNames string  `json:"firstNames"`
 	LastName   string  `json:"lastName"`
 	Address    address `json:"address"`
+}
+
+type reducedFeeRequestedEvent struct {
+	UID         string   `json:"uid"`
+	RequestType string   `json:"requestType"`
+	Evidence    []string `json:"evidence"`
 }
 
 type address struct {
