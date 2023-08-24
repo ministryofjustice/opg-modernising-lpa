@@ -55,8 +55,7 @@ jobs:
 
       - name: Run tests and generate coverage report
         run: |
-          ls
-          go test ./... -race -covermode=atomic -coverprofile=coverage.out
+          find . -name go.mod -execdir go test ./... -race -covermode=atomic -coverprofile=coverage.out
 
       - name: Publish pacts
         run: |
