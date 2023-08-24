@@ -12,7 +12,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.21.3
 	github.com/felixge/httpsnoop v1.0.3
 	github.com/getyoti/yoti-go-sdk/v3 v3.10.0
-	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/uuid v1.3.1
 	github.com/gorilla/sessions v1.2.1
