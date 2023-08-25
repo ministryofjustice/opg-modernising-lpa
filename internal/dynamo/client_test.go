@@ -409,3 +409,31 @@ func TestGetOneByUIDWhenNot1Item(t *testing.T) {
 
 	assert.Equal(t, errors.New("expected to resolve UID but got 2 items"), err)
 }
+
+func TestGetOneByUIDWhenUnmarshalError(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String("this"),
+			IndexName:                 aws.String("UidIndex"),
+			ExpressionAttributeNames:  map[string]string{"#UID": "UID"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
+			KeyConditionExpression:    aws.String("#UID = :UID"),
+		}).
+		Return(&dynamodb.QueryOutput{
+			Items: []map[string]types.AttributeValue{
+				{
+					"PK":  &types.AttributeValueMemberS{Value: "LPA#123"},
+					"UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
+				},
+			},
+		}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	err := c.GetOneByUID(ctx, "M-1111-2222-3333", "not an lpa")
+
+	assert.IsType(t, &attributevalue.InvalidUnmarshalError{}, err)
+}
