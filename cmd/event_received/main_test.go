@@ -8,9 +8,10 @@ import (
 	"testing"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -35,7 +36,6 @@ func TestHandleEvidenceReceived(t *testing.T) {
 		})
 	client.
 		On("Put", ctx, &dynamodb.PutItemInput{
-			TableName: aws.String("lpas"),
 			Item: map[string]types.AttributeValue{
 				"PK": &types.AttributeValueMemberS{Value: "LPA#123"},
 				"SK": &types.AttributeValueMemberS{Value: "#EVIDENCE_RECEIVED"},
@@ -43,7 +43,7 @@ func TestHandleEvidenceReceived(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := handleEvidenceReceived(ctx, client, "lpas", event)
+	err := handleEvidenceReceived(ctx, client, event)
 	assert.Nil(t, err)
 }
 
@@ -59,7 +59,7 @@ func TestHandleEvidenceReceivedWhenClientGetError(t *testing.T) {
 		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(expectedError)
 
-	err := handleEvidenceReceived(ctx, client, "lpas", event)
+	err := handleEvidenceReceived(ctx, client, event)
 	assert.Equal(t, fmt.Errorf("failed to resolve uid for 'evidence-received': %w", expectedError), err)
 }
 
@@ -80,7 +80,6 @@ func TestHandleEvidenceReceivedWhenClientPutError(t *testing.T) {
 		})
 	client.
 		On("Put", ctx, &dynamodb.PutItemInput{
-			TableName: aws.String("lpas"),
 			Item: map[string]types.AttributeValue{
 				"PK": &types.AttributeValueMemberS{Value: "LPA#123"},
 				"SK": &types.AttributeValueMemberS{Value: "#EVIDENCE_RECEIVED"},
@@ -88,6 +87,102 @@ func TestHandleEvidenceReceivedWhenClientPutError(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := handleEvidenceReceived(ctx, client, "lpas", event)
-	assert.Equal(t, expectedError, err)
+	err := handleEvidenceReceived(ctx, client, event)
+	assert.Equal(t, fmt.Errorf("failed to update persist evidence received for 'fee-approved': %w", expectedError), err)
+}
+
+func TestHandleFeeApproved(t *testing.T) {
+	ctx := context.Background()
+	event := events.CloudWatchEvent{
+		DetailType: "fee-approved",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(page.Lpa{PK: "LPA#123"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("Put", ctx, page.Lpa{PK: "LPA#123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskApproved}}).
+		Return(nil)
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.
+		On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, page.AppData{}, false, &page.Lpa{PK: "LPA#123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskApproved}}).
+		Return(nil)
+
+	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{})
+	assert.Nil(t, err)
+}
+
+func TestHandleFeeApprovedWhenDynamoClientGetError(t *testing.T) {
+	ctx := context.Background()
+	event := events.CloudWatchEvent{
+		DetailType: "fee-approved",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(expectedError)
+
+	err := handleFeeApproved(ctx, client, event, nil, page.AppData{})
+	assert.Equal(t, fmt.Errorf("failed to resolve uid for 'fee-approved': %w", expectedError), err)
+}
+
+func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
+	ctx := context.Background()
+	event := events.CloudWatchEvent{
+		DetailType: "fee-approved",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(page.Lpa{PK: "LPA#123"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("Put", ctx, page.Lpa{PK: "LPA#123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskApproved}}).
+		Return(expectedError)
+
+	err := handleFeeApproved(ctx, client, event, nil, page.AppData{})
+	assert.Equal(t, fmt.Errorf("failed to update LPA task status for 'fee-approved': %w", expectedError), err)
+}
+
+func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
+	ctx := context.Background()
+	event := events.CloudWatchEvent{
+		DetailType: "fee-approved",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(page.Lpa{PK: "LPA#123"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("Put", ctx, page.Lpa{PK: "LPA#123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskApproved}}).
+		Return(nil)
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.
+		On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, page.AppData{}, false, &page.Lpa{PK: "LPA#123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskApproved}}).
+		Return(expectedError)
+
+	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{})
+	assert.Equal(t, fmt.Errorf("failed to send share code to certificate provider for 'fee-approved': %w", expectedError), err)
+
 }
