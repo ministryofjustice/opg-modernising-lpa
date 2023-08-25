@@ -13,7 +13,15 @@
 
       <p class="govuk-body">{{ tr .App "chooseSomeoneYoureComfortableHavingAConversationWith" }}</p>
 
-      {{ trFormatHtml .App "whoCannotBeACertificateProvider" "AttorneysFirstNamesOr" (concatOr .App .Lpa.Attorneys.FirstNames) }}
+      {{ if .Lpa.TrustCorporation.Name }}
+        {{ if eq (len .Lpa.AllLayAttorneysFirstNames) 0 }}
+          {{ trFormatHtml .App "whoCannotBeACertificateProviderTrustCorporation" "TrustCorporationName" .Lpa.TrustCorporation.Name }}
+        {{ else }}
+          {{ trFormatHtml .App "whoCannotBeACertificateProviderAttorneysAndTrustCorporation" "AttorneysNames" (concatComma .Lpa.AllLayAttorneysFullNames) "TrustCorporationName" .Lpa.TrustCorporation.Name }}
+        {{ end }}
+      {{ else }}
+        {{ trFormatHtml .App "whoCannotBeACertificateProviderAttorneys" "AttorneysFirstNamesOr" (concatOr .App .Lpa.AllLayAttorneysFirstNames) }}
+      {{ end }}
       {{ trHtml .App "detailsYoullNeedAboutYourCertificateProvider" }}
       
       <div class="govuk-button-group">
