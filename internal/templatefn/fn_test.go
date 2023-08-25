@@ -423,3 +423,10 @@ func TestConcatOr(t *testing.T) {
 	assert.Equal(t, "a or b", concatOr(app, []string{"a", "b"}))
 	assert.Equal(t, "a, b or c", concatOr(app, []string{"a", "b", "c"}))
 }
+
+func TestConcatComma(t *testing.T) {
+	assert.Equal(t, "", concatComma([]string{}))
+	assert.Equal(t, "a", concatComma([]string{"a"}))
+	assert.Equal(t, "a, b", concatComma([]string{"a", "b"}))
+	assert.Equal(t, "a, b, c", concatComma([]string{"a", "b", "c"}))
+}
