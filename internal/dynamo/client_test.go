@@ -3,12 +3,14 @@ package dynamo
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -325,4 +327,85 @@ func TestGetAllByKeysWhenQueryErrors(t *testing.T) {
 
 	_, err := c.GetAllByKeys(ctx, []Key{{PK: "pk", SK: "sk"}})
 	assert.Equal(t, expectedError, err)
+}
+
+func TestGetOneByUID(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String("this"),
+			IndexName:                 aws.String("UidIndex"),
+			ExpressionAttributeNames:  map[string]string{"#UID": "UID"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
+			KeyConditionExpression:    aws.String("#UID = :UID"),
+		}).
+		Return(&dynamodb.QueryOutput{
+			Items: []map[string]types.AttributeValue{{
+				"PK":  &types.AttributeValueMemberS{Value: "LPA#123"},
+				"UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
+			}},
+		}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v page.Lpa
+	err := c.GetOneByUID(ctx, "M-1111-2222-3333", &v)
+
+	assert.Nil(t, err)
+	assert.Equal(t, page.Lpa{PK: "LPA#123", UID: "M-1111-2222-3333"}, v)
+}
+
+func TestGetOneByUIDWhenQueryError(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String("this"),
+			IndexName:                 aws.String("UidIndex"),
+			ExpressionAttributeNames:  map[string]string{"#UID": "UID"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
+			KeyConditionExpression:    aws.String("#UID = :UID"),
+		}).
+		Return(&dynamodb.QueryOutput{}, expectedError)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	err := c.GetOneByUID(ctx, "M-1111-2222-3333", mock.Anything)
+
+	assert.Equal(t, fmt.Errorf("failed to query UID: %w", expectedError), err)
+}
+
+func TestGetOneByUIDWhenNot1Item(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String("this"),
+			IndexName:                 aws.String("UidIndex"),
+			ExpressionAttributeNames:  map[string]string{"#UID": "UID"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
+			KeyConditionExpression:    aws.String("#UID = :UID"),
+		}).
+		Return(&dynamodb.QueryOutput{
+			Items: []map[string]types.AttributeValue{
+				{
+					"PK":  &types.AttributeValueMemberS{Value: "LPA#123"},
+					"UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
+				},
+				{
+					"PK":  &types.AttributeValueMemberS{Value: "LPA#123"},
+					"UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
+				},
+			},
+		}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	err := c.GetOneByUID(ctx, "M-1111-2222-3333", mock.Anything)
+
+	assert.Equal(t, errors.New("expected to resolve UID but got 2 items"), err)
 }

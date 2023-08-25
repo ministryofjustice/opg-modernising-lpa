@@ -12,17 +12,18 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
 type evidenceReceivedEvent struct {
 	UID string `json:"uid"`
 }
 
-//go:generate mockery --testonly --inpackage --name store --structname mockStore
-type store interface {
-	PutItem(context.Context, *dynamodb.PutItemInput, ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error)
-	Query(context.Context, *dynamodb.QueryInput, ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error)
+//go:generate mockery --testonly --inpackage --name dynamodbClient --structname mockDynamodbClient
+type dynamodbClient interface {
+	Put(ctx context.Context, v interface{}) error
+	GetOneByUID(context.Context, string, interface{}) error
 }
 
 func Handler(ctx context.Context, event events.CloudWatchEvent) error {
@@ -33,66 +34,40 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) error {
 		return fmt.Errorf("failed to load default config: %w", err)
 	}
 
-	db := dynamodb.NewFromConfig(cfg)
+	dynamoClient, err := dynamo.NewClient(cfg, tableName)
+	if err != nil {
+		return fmt.Errorf("failed to create dynamodb client: %w", err)
+	}
 
 	switch event.DetailType {
 	case "evidence-received":
-		return handleEvidenceReceived(ctx, db, tableName, event)
+		return handleEvidenceReceived(ctx, dynamoClient, tableName, event)
 	default:
 		return fmt.Errorf("unknown event received: %s", event.DetailType)
 	}
 }
 
-func handleEvidenceReceived(ctx context.Context, db store, tableName string, event events.CloudWatchEvent) error {
+func handleEvidenceReceived(ctx context.Context, client dynamodbClient, tableName string, event events.CloudWatchEvent) error {
 	var v evidenceReceivedEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal 'evidence-received' detail: %w", err)
 	}
 
-	id, err := resolveUID(ctx, db, tableName, v.UID)
+	var lpa page.Lpa
+	err := client.GetOneByUID(ctx, v.UID, &lpa)
 	if err != nil {
 		return fmt.Errorf("failed to resolve uid for 'evidence-received': %w", err)
 	}
 
-	item, err := attributevalue.MarshalMap(map[string]any{"PK": id, "SK": "#EVIDENCE_RECEIVED"})
+	item, err := attributevalue.MarshalMap(map[string]any{"PK": lpa.PK, "SK": "#EVIDENCE_RECEIVED"})
 	if err != nil {
 		return fmt.Errorf("failed to marshal item in response to 'evidence-received': %w", err)
 	}
 
-	_, err = db.PutItem(ctx, &dynamodb.PutItemInput{
+	return client.Put(ctx, &dynamodb.PutItemInput{
 		TableName: aws.String(tableName),
 		Item:      item,
 	})
-
-	return err
-}
-
-func resolveUID(ctx context.Context, db store, tableName, uid string) (string, error) {
-	skey, err := attributevalue.Marshal(uid)
-	if err != nil {
-		return "", fmt.Errorf("failed to marshal UID: %w", err)
-	}
-
-	response, err := db.Query(ctx, &dynamodb.QueryInput{
-		TableName:                 aws.String(tableName),
-		IndexName:                 aws.String("UidIndex"),
-		ExpressionAttributeNames:  map[string]string{"#UID": "UID"},
-		ExpressionAttributeValues: map[string]types.AttributeValue{":UID": skey},
-		KeyConditionExpression:    aws.String("#UID = :UID"),
-	})
-	if err != nil {
-		return "", fmt.Errorf("failed to query UID: %w", err)
-	}
-	if len(response.Items) != 1 {
-		return "", fmt.Errorf("expected to resolve UID but got %d items", len(response.Items))
-	}
-
-	var v struct{ PK string }
-	if err := attributevalue.UnmarshalMap(response.Items[0], &v); err != nil {
-		return "", fmt.Errorf("failed to unmarshal UID response: %w", err)
-	}
-
-	return v.PK, nil
 }
 
 func main() {
