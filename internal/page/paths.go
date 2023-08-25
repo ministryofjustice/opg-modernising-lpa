@@ -112,87 +112,85 @@ type AppPaths struct {
 	YotiRedirect                       Path
 	CookiesConsent                     Path
 
-	AboutPayment                                               LpaPath
-	ApplicationReason                                          LpaPath
-	AreYouApplyingForADifferentFeeType                         LpaPath
-	AreYouHappyIfOneAttorneyCantActNoneCan                     LpaPath
-	AreYouHappyIfOneReplacementAttorneyCantActNoneCan          LpaPath
-	AreYouHappyIfRemainingAttorneysCanContinueToAct            LpaPath
-	AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct LpaPath
-	CanEvidenceBeUploaded                                      LpaPath
-	CertificateProviderAddress                                 LpaPath
-	CertificateProviderDetails                                 LpaPath
-	CertificateProviderOptOut                                  LpaPath
-	CheckYourLpa                                               LpaPath
-	ChooseAttorneys                                            LpaPath
-	ChooseAttorneysAddress                                     LpaPath
-	ChooseAttorneysGuidance                                    LpaPath
-	ChooseAttorneysSummary                                     LpaPath
-	ChoosePeopleToNotify                                       LpaPath
-	ChoosePeopleToNotifyAddress                                LpaPath
-	ChoosePeopleToNotifySummary                                LpaPath
-	ChooseReplacementAttorneys                                 LpaPath
-	ChooseReplacementAttorneysAddress                          LpaPath
-	ChooseReplacementAttorneysSummary                          LpaPath
-	ChooseYourCertificateProvider                              LpaPath
-	DoYouWantReplacementAttorneys                              LpaPath
-	DoYouWantToNotifyPeople                                    LpaPath
-	EnterTrustCorporation                                      LpaPath
-	EnterTrustCorporationAddress                               LpaPath
-	EvidenceRequired                                           LpaPath
-	HowDoYouKnowYourCertificateProvider                        LpaPath
-	HowLongHaveYouKnownCertificateProvider                     LpaPath
-	HowShouldAttorneysMakeDecisions                            LpaPath
-	HowShouldReplacementAttorneysMakeDecisions                 LpaPath
-	HowShouldReplacementAttorneysStepIn                        LpaPath
-	HowToConfirmYourIdentityAndSign                            LpaPath
-	HowToPrintAndSendEvidence                                  LpaPath
-	HowToSendEvidence                                          LpaPath
-	HowWouldCertificateProviderPreferToCarryOutTheirRole       LpaPath
-	IdentityConfirmed                                          LpaPath
-	IdentityWithBiometricResidencePermit                       LpaPath
-	IdentityWithDrivingLicencePaper                            LpaPath
-	IdentityWithDrivingLicencePhotocard                        LpaPath
-	IdentityWithOneLogin                                       LpaPath
-	IdentityWithOneLoginCallback                               LpaPath
-	IdentityWithOnlineBankAccount                              LpaPath
-	IdentityWithPassport                                       LpaPath
-	IdentityWithYoti                                           LpaPath
-	IdentityWithYotiCallback                                   LpaPath
-	LifeSustainingTreatment                                    LpaPath
-	LpaDetailsSaved                                            LpaPath
-	LpaType                                                    LpaPath
-	LpaYourLegalRightsAndResponsibilities                      LpaPath
-	PaymentConfirmation                                        LpaPath
-	PreviousApplicationNumber                                  LpaPath
-	PrintEvidenceForm                                          LpaPath
-	Progress                                                   LpaPath
-	ProvideAddressToSendEvidenceForm                           LpaPath
-	ReadYourLpa                                                LpaPath
-	RemoveAttorney                                             LpaPath
-	RemovePersonToNotify                                       LpaPath
-	RemoveReplacementAttorney                                  LpaPath
-	ResendWitnessCode                                          LpaPath
-	Restrictions                                               LpaPath
-	SelectYourIdentityOptions                                  LpaPath
-	SelectYourIdentityOptions1                                 LpaPath
-	SelectYourIdentityOptions2                                 LpaPath
-	SignYourLpa                                                LpaPath
-	TaskList                                                   LpaPath
-	UploadEvidence                                             LpaPath
-	UseExistingAddress                                         LpaPath
-	WhatACertificateProviderDoes                               LpaPath
-	WhatHappensAfterNoFee                                      LpaPath
-	WhatYoullNeedToConfirmYourIdentity                         LpaPath
-	WhenCanTheLpaBeUsed                                        LpaPath
-	WhichFeeTypeAreYouApplyingFor                              LpaPath
-	WhoIsTheLpaFor                                             LpaPath
-	WitnessingAsCertificateProvider                            LpaPath
-	WitnessingYourSignature                                    LpaPath
-	YouHaveSubmittedYourLpa                                    LpaPath
-	YourAddress                                                LpaPath
-	YourChosenIdentityOptions                                  LpaPath
-	YourDetails                                                LpaPath
+	AboutPayment                                         LpaPath
+	ApplicationReason                                    LpaPath
+	AreYouApplyingForADifferentFeeType                   LpaPath
+	CanEvidenceBeUploaded                                LpaPath
+	CertificateProviderAddress                           LpaPath
+	CertificateProviderDetails                           LpaPath
+	CertificateProviderOptOut                            LpaPath
+	CheckYourLpa                                         LpaPath
+	ChooseAttorneys                                      LpaPath
+	ChooseAttorneysAddress                               LpaPath
+	ChooseAttorneysGuidance                              LpaPath
+	ChooseAttorneysSummary                               LpaPath
+	ChoosePeopleToNotify                                 LpaPath
+	ChoosePeopleToNotifyAddress                          LpaPath
+	ChoosePeopleToNotifySummary                          LpaPath
+	ChooseReplacementAttorneys                           LpaPath
+	ChooseReplacementAttorneysAddress                    LpaPath
+	ChooseReplacementAttorneysSummary                    LpaPath
+	ChooseYourCertificateProvider                        LpaPath
+	DoYouWantReplacementAttorneys                        LpaPath
+	DoYouWantToNotifyPeople                              LpaPath
+	EnterReplacementTrustCorporation                     LpaPath
+	EnterReplacementTrustCorporationAddress              LpaPath
+	EnterTrustCorporation                                LpaPath
+	EnterTrustCorporationAddress                         LpaPath
+	EvidenceRequired                                     LpaPath
+	HowDoYouKnowYourCertificateProvider                  LpaPath
+	HowLongHaveYouKnownCertificateProvider               LpaPath
+	HowShouldAttorneysMakeDecisions                      LpaPath
+	HowShouldReplacementAttorneysMakeDecisions           LpaPath
+	HowShouldReplacementAttorneysStepIn                  LpaPath
+	HowToConfirmYourIdentityAndSign                      LpaPath
+	HowToPrintAndSendEvidence                            LpaPath
+	HowToSendEvidence                                    LpaPath
+	HowWouldCertificateProviderPreferToCarryOutTheirRole LpaPath
+	IdentityConfirmed                                    LpaPath
+	IdentityWithBiometricResidencePermit                 LpaPath
+	IdentityWithDrivingLicencePaper                      LpaPath
+	IdentityWithDrivingLicencePhotocard                  LpaPath
+	IdentityWithOneLogin                                 LpaPath
+	IdentityWithOneLoginCallback                         LpaPath
+	IdentityWithOnlineBankAccount                        LpaPath
+	IdentityWithPassport                                 LpaPath
+	IdentityWithYoti                                     LpaPath
+	IdentityWithYotiCallback                             LpaPath
+	LifeSustainingTreatment                              LpaPath
+	LpaDetailsSaved                                      LpaPath
+	LpaType                                              LpaPath
+	LpaYourLegalRightsAndResponsibilities                LpaPath
+	PaymentConfirmation                                  LpaPath
+	PreviousApplicationNumber                            LpaPath
+	PrintEvidenceForm                                    LpaPath
+	Progress                                             LpaPath
+	ProvideAddressToSendEvidenceForm                     LpaPath
+	ReadYourLpa                                          LpaPath
+	RemoveAttorney                                       LpaPath
+	RemovePersonToNotify                                 LpaPath
+	RemoveReplacementAttorney                            LpaPath
+	ResendWitnessCode                                    LpaPath
+	Restrictions                                         LpaPath
+	SelectYourIdentityOptions                            LpaPath
+	SelectYourIdentityOptions1                           LpaPath
+	SelectYourIdentityOptions2                           LpaPath
+	SignYourLpa                                          LpaPath
+	TaskList                                             LpaPath
+	UploadEvidence                                       LpaPath
+	UseExistingAddress                                   LpaPath
+	WhatACertificateProviderDoes                         LpaPath
+	WhatHappensAfterNoFee                                LpaPath
+	WhatYoullNeedToConfirmYourIdentity                   LpaPath
+	WhenCanTheLpaBeUsed                                  LpaPath
+	WhichFeeTypeAreYouApplyingFor                        LpaPath
+	WhoIsTheLpaFor                                       LpaPath
+	WitnessingAsCertificateProvider                      LpaPath
+	WitnessingYourSignature                              LpaPath
+	YouHaveSubmittedYourLpa                              LpaPath
+	YourAddress                                          LpaPath
+	YourChosenIdentityOptions                            LpaPath
+	YourDetails                                          LpaPath
 }
 
 var Paths = AppPaths{
@@ -248,13 +246,9 @@ var Paths = AppPaths{
 		Dependency: "/health-check/dependency",
 	},
 
-	AboutPayment:                                               "/about-payment",
-	ApplicationReason:                                          "/application-reason",
-	AreYouApplyingForADifferentFeeType:                         "/are-you-applying-for-a-different-fee-type",
-	AreYouHappyIfOneAttorneyCantActNoneCan:                     "/are-you-happy-if-one-attorney-cant-act-none-can",
-	AreYouHappyIfOneReplacementAttorneyCantActNoneCan:          "/are-you-happy-if-one-replacement-attorney-cant-act-none-can",
-	AreYouHappyIfRemainingAttorneysCanContinueToAct:            "/are-you-happy-if-remaining-attorneys-can-continue-to-act",
-	AreYouHappyIfRemainingReplacementAttorneysCanContinueToAct: "/are-you-happy-if-remaining-replacement-attorneys-can-continue-to-act",
+	AboutPayment:                                         "/about-payment",
+	ApplicationReason:                                    "/application-reason",
+	AreYouApplyingForADifferentFeeType:                   "/are-you-applying-for-a-different-fee-type",
 	AuthRedirect:                                         "/auth/redirect",
 	CanEvidenceBeUploaded:                                "/can-evidence-be-uploaded",
 	CertificateProviderAddress:                           "/certificate-provider-address",
@@ -277,6 +271,8 @@ var Paths = AppPaths{
 	Dashboard:                                            "/dashboard",
 	DoYouWantReplacementAttorneys:                        "/do-you-want-replacement-attorneys",
 	DoYouWantToNotifyPeople:                              "/do-you-want-to-notify-people",
+	EnterReplacementTrustCorporation:                     "/enter-replacement-trust-corporation",
+	EnterReplacementTrustCorporationAddress:              "/enter-replacement-trust-corporation-address",
 	EnterTrustCorporation:                                "/enter-trust-corporation",
 	EnterTrustCorporationAddress:                         "/enter-trust-corporation-address",
 	EvidenceRequired:                                     "/evidence-required",
