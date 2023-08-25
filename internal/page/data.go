@@ -348,6 +348,48 @@ func (l *Lpa) ActorAddresses() []place.Address {
 	return addresses
 }
 
+func (l *Lpa) AllLayAttorneysFirstNames() []string {
+	var names []string
+
+	for _, a := range l.Attorneys.Attorneys {
+		names = append(names, a.FirstNames)
+	}
+
+	for _, a := range l.ReplacementAttorneys.Attorneys {
+		names = append(names, a.FirstNames)
+	}
+
+	return names
+}
+
+func (l *Lpa) AllLayAttorneysFullNames() []string {
+	var names []string
+
+	for _, a := range l.Attorneys.Attorneys {
+		names = append(names, a.FullName())
+	}
+
+	for _, a := range l.ReplacementAttorneys.Attorneys {
+		names = append(names, a.FullName())
+	}
+
+	return names
+}
+
+func (l *Lpa) TrustCorporationsNames() []string {
+	var names []string
+
+	if l.Attorneys.TrustCorporation.Name != "" {
+		names = append(names, l.Attorneys.TrustCorporation.Name)
+	}
+
+	if l.ReplacementAttorneys.TrustCorporation.Name != "" {
+		names = append(names, l.ReplacementAttorneys.TrustCorporation.Name)
+	}
+
+	return names
+}
+
 func ChooseAttorneysState(attorneys actor.Attorneys, decisions actor.AttorneyDecisions) actor.TaskState {
 	if attorneys.Len() == 0 {
 		return actor.TaskNotStarted
