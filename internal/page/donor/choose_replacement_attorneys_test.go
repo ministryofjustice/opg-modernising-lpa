@@ -26,6 +26,7 @@ func TestGetChooseReplacementAttorneys(t *testing.T) {
 	template.
 		On("Execute", w, &chooseReplacementAttorneysData{
 			App:  testAppData,
+			Lpa:  &page.Lpa{},
 			Form: &chooseAttorneysForm{},
 		}).
 		Return(nil)
@@ -41,9 +42,7 @@ func TestGetChooseReplacementAttorneysFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	template := newMockTemplate(t)
-
-	err := ChooseReplacementAttorneys(template.Execute, nil, mockUuidString)(testAppData, w, r, &page.Lpa{ID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "John", ID: "1"}}}})
+	err := ChooseReplacementAttorneys(nil, nil, mockUuidString)(testAppData, w, r, &page.Lpa{ID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "John", ID: "1"}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -57,10 +56,7 @@ func TestGetChooseReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &chooseReplacementAttorneysData{
-			App:  testAppData,
-			Form: &chooseAttorneysForm{},
-		}).
+		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
 	err := ChooseReplacementAttorneys(template.Execute, nil, mockUuidString)(testAppData, w, r, &page.Lpa{})
