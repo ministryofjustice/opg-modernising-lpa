@@ -13,6 +13,7 @@ import (
 type chooseReplacementAttorneysData struct {
 	App         page.AppData
 	Errors      validation.List
+	Lpa         *page.Lpa
 	Form        *chooseAttorneysForm
 	DobWarning  string
 	NameWarning *actor.SameNameWarning
@@ -29,6 +30,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, u
 
 		data := &chooseReplacementAttorneysData{
 			App: appData,
+			Lpa: lpa,
 			Form: &chooseAttorneysForm{
 				FirstNames: attorney.FirstNames,
 				LastName:   attorney.LastName,
