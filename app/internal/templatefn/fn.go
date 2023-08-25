@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"reflect"
 	"slices"
+	"strings"
 	"time"
 	"unicode"
 	"unicode/utf8"
@@ -50,6 +51,7 @@ func All(tag, region string) map[string]any {
 		"printStruct":        printStruct,
 		"concatAnd":          concatAnd,
 		"concatOr":           concatOr,
+		"concatComma":        concatComma,
 	}
 }
 
@@ -342,4 +344,8 @@ func concatAnd(app page.AppData, list []string) string {
 
 func concatOr(app page.AppData, list []string) string {
 	return app.Localizer.Concat(list, "or")
+}
+
+func concatComma(list []string) string {
+	return strings.Join(list, ", ")
 }

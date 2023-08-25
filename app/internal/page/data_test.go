@@ -392,6 +392,65 @@ func TestActorAddressesActorWithNoAddressIgnored(t *testing.T) {
 	assert.Equal(t, want, lpa.ActorAddresses())
 }
 
+func TestAllLayAttorneysFirstNames(t *testing.T) {
+	lpa := &Lpa{
+		Attorneys: actor.Attorneys{
+			Attorneys: []actor.Attorney{
+				{FirstNames: "John", LastName: "Smith"},
+				{FirstNames: "Barry", LastName: "Smith"},
+			},
+		},
+		ReplacementAttorneys: actor.Attorneys{
+			Attorneys: []actor.Attorney{
+				{FirstNames: "John2", LastName: "Smithe"},
+				{FirstNames: "Barry2", LastName: "Smithe"},
+			},
+		},
+	}
+
+	assert.Equal(t, []string{"John", "Barry", "John2", "Barry2"}, lpa.AllLayAttorneysFirstNames())
+}
+
+func TestAllLayAttorneysFullNames(t *testing.T) {
+	lpa := &Lpa{
+		Attorneys: actor.Attorneys{
+			Attorneys: []actor.Attorney{
+				{FirstNames: "John", LastName: "Smith"},
+				{FirstNames: "Barry", LastName: "Smith"},
+			},
+		},
+		ReplacementAttorneys: actor.Attorneys{
+			Attorneys: []actor.Attorney{
+				{FirstNames: "John2", LastName: "Smithe"},
+				{FirstNames: "Barry2", LastName: "Smithe"},
+			},
+		},
+	}
+
+	assert.Equal(t, []string{"John Smith", "Barry Smith", "John2 Smithe", "Barry2 Smithe"}, lpa.AllLayAttorneysFullNames())
+}
+
+func TestTrustCorporationOriginal(t *testing.T) {
+	trustCorporation := actor.TrustCorporation{Name: "Corp"}
+
+	lpa := &Lpa{
+		Attorneys:            actor.Attorneys{TrustCorporation: trustCorporation},
+		ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "Trust"}},
+	}
+
+	assert.Equal(t, trustCorporation, lpa.TrustCorporation())
+}
+
+func TestTrustCorporationReplacement(t *testing.T) {
+	trustCorporation := actor.TrustCorporation{Name: "Corp"}
+
+	lpa := &Lpa{
+		ReplacementAttorneys: actor.Attorneys{TrustCorporation: trustCorporation},
+	}
+
+	assert.Equal(t, trustCorporation, lpa.TrustCorporation())
+}
+
 func TestChooseAttorneysState(t *testing.T) {
 	testcases := map[string]struct {
 		attorneys actor.Attorneys
