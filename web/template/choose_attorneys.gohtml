@@ -8,11 +8,13 @@
       <form novalidate method="post">
         <h1 class="govuk-heading-xl">{{ tr .App "enterYourAttorneysDetails" }}</h1>
 
-        <p class="govuk-body">
-          <a href="{{ link .App (.App.Paths.EnterTrustCorporation.Format .LpaID) }}" class="govuk-link govuk-link--no-visited-state">
-            {{ tr .App "myAttorneyIsTrustCorporation" }}
-          </a>
-        </p>
+        {{ if .Lpa.Type.IsPropertyFinance }}
+          <p class="govuk-body">
+            <a href="{{ link .App (.App.Paths.EnterTrustCorporation.Format .Lpa.ID) }}" class="govuk-link govuk-link--no-visited-state">
+              {{ tr .App "myAttorneyIsTrustCorporation" }}
+            </a>
+          </p>
+        {{ end }}
 
         {{ template "details" (details . "whoWouldYouLikeToBeTheAttorneysDetailsTitle" "whoWouldYouLikeToBeTheAttorneysDetailsContent" false) }}
 
