@@ -26,6 +26,7 @@ func TestGetChooseAttorneys(t *testing.T) {
 	template.
 		On("Execute", w, &chooseAttorneysData{
 			App:         testAppData,
+			Lpa:         &page.Lpa{},
 			Form:        &chooseAttorneysForm{},
 			ShowDetails: true,
 		}).
@@ -42,9 +43,7 @@ func TestGetChooseAttorneysFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	template := newMockTemplate(t)
-
-	err := ChooseAttorneys(template.Execute, nil, mockUuidString)(testAppData, w, r, &page.Lpa{
+	err := ChooseAttorneys(nil, nil, mockUuidString)(testAppData, w, r, &page.Lpa{
 		ID: "lpa-id",
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{FirstNames: "John", ID: "1"},
@@ -63,11 +62,7 @@ func TestGetChooseAttorneysWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &chooseAttorneysData{
-			App:         testAppData,
-			Form:        &chooseAttorneysForm{},
-			ShowDetails: true,
-		}).
+		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
 	err := ChooseAttorneys(template.Execute, nil, mockUuidString)(testAppData, w, r, &page.Lpa{})
