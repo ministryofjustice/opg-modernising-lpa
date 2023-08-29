@@ -16,7 +16,7 @@ resource "aws_cloudwatch_event_archive" "reduced_fees" {
 resource "aws_iam_role_policy" "cross_account_put" {
   name     = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}-cross-account-put"
   policy   = data.aws_iam_policy_document.cross_account_put_access.json
-  role     = var.iam_role.cross_account_put.id
+  role     = var.iam_role.id
   provider = aws.region
 }
 
