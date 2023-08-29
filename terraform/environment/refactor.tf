@@ -52,3 +52,8 @@ moved {
   from = aws_route53_record.app
   to   = module.eu_west_1[0].aws_route53_record.app
 }
+
+moved {
+  from = module.reduced_fees[0]
+  to   = module.eu_west_1[0].module.event_bus
+}
