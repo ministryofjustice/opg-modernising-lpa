@@ -78,13 +78,14 @@ variable "app_allowed_api_arns" {
 
 variable "reduced_fees" {
   type = object({
-    s3_object_replication_enabled = bool
-    target_environment            = string
-    destination_account_id        = string
-    event_bus = object({
-      arn  = string
-      name = string
-    })
+    s3_object_replication_enabled             = bool
+    target_environment                        = string
+    destination_account_id                    = string
     enable_s3_batch_job_replication_scheduler = bool
   })
+}
+
+variable "target_event_bus_arn" {
+  type        = string
+  description = "ARN of the event bus to forward events to"
 }

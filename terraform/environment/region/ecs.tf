@@ -47,8 +47,8 @@ module "app" {
     bucket_arn  = module.uploads_s3_bucket.bucket.arn
   }
   event_bus = {
-    name = var.reduced_fees.event_bus.name
-    arn  = var.reduced_fees.event_bus.arn
+    name = module.event_bus.event_bus.name
+    arn  = module.event_bus.event_bus.arn
   }
   aws_rum_guest_role_arn                               = data.aws_iam_role.rum_monitor_unauthenticated.arn
   rum_monitor_application_id_secretsmanager_secret_arn = aws_secretsmanager_secret.rum_monitor_application_id.id

@@ -28,15 +28,12 @@ module "eu_west_1" {
   }
 
   reduced_fees = {
-    s3_object_replication_enabled = local.environment.reduced_fees.s3_object_replication_enabled
-    target_environment            = local.environment.reduced_fees.target_environment
-    destination_account_id        = local.environment.reduced_fees.destination_account_id
-    event_bus = {
-      arn  = module.reduced_fees[0].event_bus.arn
-      name = module.reduced_fees[0].event_bus.name
-    }
+    s3_object_replication_enabled             = local.environment.reduced_fees.s3_object_replication_enabled
+    target_environment                        = local.environment.reduced_fees.target_environment
+    destination_account_id                    = local.environment.reduced_fees.destination_account_id
     enable_s3_batch_job_replication_scheduler = local.environment.reduced_fees.enable_s3_batch_job_replication_scheduler
   }
+  target_event_bus_arn   = local.environment.event_bus.target_event_bus_arn
   app_env_vars           = local.environment.app.env
   app_allowed_api_arns   = local.environment.app.allowed_api_arns
   public_access_enabled  = var.public_access_enabled
@@ -71,15 +68,12 @@ module "eu_west_2" {
   }
 
   reduced_fees = {
-    s3_object_replication_enabled = local.environment.reduced_fees.s3_object_replication_enabled
-    target_environment            = local.environment.reduced_fees.target_environment
-    destination_account_id        = local.environment.reduced_fees.destination_account_id
-    event_bus = {
-      arn  = module.reduced_fees[0].event_bus.arn
-      name = module.reduced_fees[0].event_bus.name
-    }
+    s3_object_replication_enabled             = local.environment.reduced_fees.s3_object_replication_enabled
+    target_environment                        = local.environment.reduced_fees.target_environment
+    destination_account_id                    = local.environment.reduced_fees.destination_account_id
     enable_s3_batch_job_replication_scheduler = local.environment.reduced_fees.enable_s3_batch_job_replication_scheduler
   }
+  target_event_bus_arn   = local.environment.event_bus.target_event_bus_arn
   app_env_vars           = local.environment.app.env
   app_allowed_api_arns   = local.environment.app.allowed_api_arns
   public_access_enabled  = var.public_access_enabled
