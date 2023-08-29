@@ -36,7 +36,7 @@ data "aws_iam_policy_document" "cross_account_put_access" {
 
 resource "aws_cloudwatch_event_rule" "cross_account_put" {
   name        = "${data.aws_default_tags.current.tags.environment-name}-cross-account-put"
-  description = "forward dynamodb stream events to bus in remote account"
+  description = "forward events to bus in remote account"
 
   event_pattern = jsonencode({
     source = ["aws.dynamodb"]
