@@ -39,7 +39,7 @@ resource "aws_cloudwatch_event_rule" "cross_account_put" {
   description = "forward events to bus in remote account"
 
   event_pattern = jsonencode({
-    source = ["aws.dynamodb"]
+    source = ["opg.poas.makeregister"]
   })
   provider = aws.region
 }
