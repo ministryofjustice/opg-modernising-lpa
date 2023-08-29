@@ -35,7 +35,6 @@ module "app" {
   ingress_allow_list_cidr         = concat(var.ingress_allow_list_cidr, split(",", data.aws_ssm_parameter.additional_allowed_ingress_cidrs.value))
   alb_deletion_protection_enabled = var.alb_deletion_protection_enabled
   lpas_table                      = var.lpas_table
-  reduced_fees_table              = var.reduced_fees.table
   container_port                  = 8080
   public_access_enabled           = var.public_access_enabled
   network = {

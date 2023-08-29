@@ -81,10 +81,6 @@ variable "reduced_fees" {
     s3_object_replication_enabled = bool
     target_environment            = string
     destination_account_id        = string
-    table = object({
-      arn  = string
-      name = string
-    })
     event_bus = object({
       arn  = string
       name = string
