@@ -1,9 +1,11 @@
 module "event_received" {
   source      = "../lambda"
   lambda_name = "event-received"
-  description = "Function to react when an event is recieved"
+  description = "Function to react when an event is received"
   environment_variables = {
-    LPAS_TABLE = var.lpas_table.name
+    LPAS_TABLE                 = var.lpas_table.name
+    GOVUK_NOTIFY_IS_PRODUCTION = data.aws_default_tags.current.tags.environment-name == "production" ? "1" : "0"
+    APP_PUBLIC_URL             = "https://${var.app_public_url}"
   }
   image_uri   = "${var.lambda_function_image_ecr_url}:${var.lambda_function_image_tag}"
   ecr_arn     = var.lambda_function_image_ecr_arn

@@ -40,7 +40,6 @@ type shareCodeSender interface {
 func Handler(ctx context.Context, event events.CloudWatchEvent) error {
 	tableName := os.Getenv("LPAS_TABLE")
 	notifyIsProduction := os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
-	notifyBaseURL := os.Getenv("GOVUK_NOTIFY_BASE_URL")
 	appPublicURL := os.Getenv("APP_PUBLIC_URL")
 
 	cfg, err := config.LoadDefaultConfig(ctx)
@@ -63,7 +62,7 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) error {
 		return fmt.Errorf("failed to get notify API secret: %w", err)
 	}
 
-	notifyClient, err := notify.New(notifyIsProduction, notifyBaseURL, notifyApiKey, http.DefaultClient)
+	notifyClient, err := notify.New(notifyIsProduction, "", notifyApiKey, http.DefaultClient)
 
 	bundle := localize.NewBundle("./lang/en.json", "./lang/cy.json")
 
