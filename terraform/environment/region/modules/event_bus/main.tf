@@ -1,13 +1,13 @@
 # Event bus for reduced fees
 
-resource "aws_cloudwatch_event_bus" "reduced_fees" {
+resource "aws_cloudwatch_event_bus" "main" {
   name     = "${data.aws_default_tags.current.tags.environment-name}-reduced-fees"
   provider = aws.region
 }
 
-resource "aws_cloudwatch_event_archive" "reduced_fees" {
+resource "aws_cloudwatch_event_archive" "main" {
   name             = "${data.aws_default_tags.current.tags.environment-name}-reduced-fees"
-  event_source_arn = aws_cloudwatch_event_bus.reduced_fees.arn
+  event_source_arn = aws_cloudwatch_event_bus.main.arn
   provider         = aws.region
 }
 
