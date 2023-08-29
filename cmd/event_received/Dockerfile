@@ -13,5 +13,6 @@ RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -tags lambda.norpc -o main ma
 FROM public.ecr.aws/lambda/provided:al2
 
 COPY --from=build /app/main ./main
+COPY ./lang ./lang
 
 ENTRYPOINT ["./main"]

@@ -65,7 +65,7 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) error {
 
 	notifyClient, err := notify.New(notifyIsProduction, notifyBaseURL, notifyApiKey, http.DefaultClient)
 
-	bundle := localize.NewBundle("../lang/en.json", "../lang/cy.json")
+	bundle := localize.NewBundle("./lang/en.json", "./lang/cy.json")
 
 	//TODO do this in handleFeeApproved when/if we save lang preference in LPA
 	appData := page.AppData{Localizer: bundle.For(localize.En)}
