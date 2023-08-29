@@ -3,6 +3,7 @@ FROM golang:1.21 as build
 WORKDIR /app
 
 COPY ./cmd/event_received/main.go .
+COPY ./internal ./internal
 COPY go.mod go.sum ./
 
 RUN go mod download
