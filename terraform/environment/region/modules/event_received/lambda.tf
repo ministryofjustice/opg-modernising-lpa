@@ -23,7 +23,7 @@ resource "aws_cloudwatch_event_rule" "receive_events" {
 
   event_pattern = jsonencode({
     source      = ["opg.poas.sirius"],
-    detail-type = ["evidence-received"]
+    detail-type = ["evidence-received", "fee-approved"]
   })
   provider = aws.region
 }
@@ -58,6 +58,11 @@ data "aws_kms_alias" "dynamodb_encryption_key" {
   provider = aws.region
 }
 
+data "aws_kms_alias" "secrets_manager_secret_encryption_key" {
+  name     = "alias/${data.aws_default_tags.current.tags.application}_secrets_manager_secret_encryption_key"
+  provider = aws.region
+}
+
 locals {
   policy_region_prefix = lower(replace(data.aws_region.current.name, "-", ""))
 }
@@ -89,6 +94,37 @@ data "aws_iam_policy_document" "event_received" {
     resources = [
       var.lpas_table.arn,
       "${var.lpas_table.arn}/index/*",
+    ]
+  }
+
+  statement {
+    sid    = "${local.policy_region_prefix}SecretAccess"
+    effect = "Allow"
+
+    actions = [
+      "secretsmanager:GetSecretValue",
+      "secretsmanager:DescribeSecret",
+    ]
+
+    resources = [
+      data.aws_secretsmanager_secret.gov_uk_notify_api_key.arn,
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    resources = [
+      data.aws_kms_alias.secrets_manager_secret_encryption_key.target_key_arn,
+    ]
+
+    actions = [
+      "kms:Decrypt",
+      "kms:GenerateDataKey",
+      "kms:GenerateDataKeyPair",
+      "kms:GenerateDataKeyPairWithoutPlaintext",
+      "kms:GenerateDataKeyWithoutPlaintext",
+      "kms:DescribeKey",
     ]
   }
 
