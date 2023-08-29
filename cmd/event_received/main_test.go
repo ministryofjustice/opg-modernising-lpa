@@ -8,8 +8,6 @@ import (
 	"testing"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -35,11 +33,9 @@ func TestHandleEvidenceReceived(t *testing.T) {
 			return nil
 		})
 	client.
-		On("Put", ctx, &dynamodb.PutItemInput{
-			Item: map[string]types.AttributeValue{
-				"PK": &types.AttributeValueMemberS{Value: "LPA#123"},
-				"SK": &types.AttributeValueMemberS{Value: "#EVIDENCE_RECEIVED"},
-			},
+		On("Put", ctx, map[string]string{
+			"PK": "LPA#123",
+			"SK": "#EVIDENCE_RECEIVED",
 		}).
 		Return(nil)
 
@@ -63,6 +59,26 @@ func TestHandleEvidenceReceivedWhenClientGetError(t *testing.T) {
 	assert.Equal(t, fmt.Errorf("failed to resolve uid for 'evidence-received': %w", expectedError), err)
 }
 
+func TestHandleEvidenceReceivedWhenLpaMissingPK(t *testing.T) {
+	ctx := context.Background()
+	event := events.CloudWatchEvent{
+		DetailType: "evidence-required",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(page.Lpa{})
+			json.Unmarshal(b, v)
+			return nil
+		})
+
+	err := handleEvidenceReceived(ctx, client, event)
+	assert.Equal(t, errors.New("PK missing from LPA in response to 'evidence-received'"), err)
+}
+
 func TestHandleEvidenceReceivedWhenClientPutError(t *testing.T) {
 	ctx := context.Background()
 	event := events.CloudWatchEvent{
@@ -79,11 +95,9 @@ func TestHandleEvidenceReceivedWhenClientPutError(t *testing.T) {
 			return nil
 		})
 	client.
-		On("Put", ctx, &dynamodb.PutItemInput{
-			Item: map[string]types.AttributeValue{
-				"PK": &types.AttributeValueMemberS{Value: "LPA#123"},
-				"SK": &types.AttributeValueMemberS{Value: "#EVIDENCE_RECEIVED"},
-			},
+		On("Put", ctx, map[string]string{
+			"PK": "LPA#123",
+			"SK": "#EVIDENCE_RECEIVED",
 		}).
 		Return(expectedError)
 
