@@ -23,7 +23,7 @@ resource "aws_cloudwatch_event_rule" "receive_events" {
 
   event_pattern = jsonencode({
     source      = ["opg.poas.sirius"],
-    detail-type = ["evidence-received"]
+    detail-type = ["evidence-received", "fee-approved"]
   })
   provider = aws.region
 }
