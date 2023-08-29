@@ -7,6 +7,7 @@ variable "iam_roles" {
     ecs_execution_role = any
     app_ecs_task_role  = any
     s3_antivirus       = any
+    cross_account_put  = any
   })
   description = "ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services."
 }
