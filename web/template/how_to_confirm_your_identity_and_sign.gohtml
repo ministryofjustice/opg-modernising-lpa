@@ -13,7 +13,13 @@
 
         <div class="moj-ticket-panel govuk-!-margin-bottom-6">
           <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
-            {{ trFormatHtml .App "howToConfirmYourIdentityAndSignSteps" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames "CertificateProviderFullName" .Lpa.CertificateProvider.FullName "AttorneysFullNames" (concatAnd .App .Lpa.Attorneys.FullNames) }}
+            {{ if eq (len .Lpa.TrustCorporationsNames) 0 }}
+              {{ trFormatHtml .App "howToConfirmYourIdentityAndSignStepsAttorneys" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames "CertificateProviderFullName" .Lpa.CertificateProvider.FullName "AttorneysFullNames" (concatAnd .App .Lpa.AllLayAttorneysFullNames) }}
+            {{ else if eq (len .Lpa.AllLayAttorneysFullNames) 0 }}
+              {{ trFormatHtml .App "howToConfirmYourIdentityAndSignStepsTrustCorporation" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames "CertificateProviderFullName" .Lpa.CertificateProvider.FullName "TrustCorporationsNames" (concatAnd .App .Lpa.TrustCorporationsNames) }}
+            {{ else }}
+              {{ trFormatHtml .App "howToConfirmYourIdentityAndSignSteps" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames "CertificateProviderFullName" .Lpa.CertificateProvider.FullName "TrustCorporationsNames" (concatAnd .App .Lpa.TrustCorporationsNames) "AttorneysFullNames" (concatAnd .App .Lpa.AllLayAttorneysFullNames) }}
+            {{ end }}
           </div>
         </div>
 
