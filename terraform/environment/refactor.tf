@@ -55,5 +55,15 @@ moved {
 
 moved {
   from = module.reduced_fees[0]
-  to   = module.eu_west_1[0].module.event_bus
+  to   = module.eu_west_1[0].module.events
+}
+
+moved {
+  from = module.eu_west_1[0].module.events.aws_cloudwatch_event_bus.reduced_fees
+  to   = module.eu_west_1[0].module.events.aws_cloudwatch_event_bus.main
+}
+
+moved {
+  from = module.eu_west_1[0].module.events.aws_cloudwatch_event_archive.reduced_fees
+  to   = module.eu_west_1[0].module.events.aws_cloudwatch_event_archive.main
 }
