@@ -65,7 +65,7 @@ describe('Confirm your identity and sign', () => {
         cy.checkA11yApp();
 
         cy.contains('h1', "Sign your LPA");
-        cy.contains('label', 'I want to sign this LPA').click();
+        cy.contains('label', 'I want to sign this LPA as a deed').click();
         cy.contains('label', 'I want to apply to register this LPA').click();
         cy.contains('button', 'Submit my signature').click();
 
