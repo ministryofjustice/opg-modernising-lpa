@@ -88,7 +88,7 @@ func TestHandleEvidenceReceivedWhenClientPutError(t *testing.T) {
 		Return(expectedError)
 
 	err := handleEvidenceReceived(ctx, client, event)
-	assert.Equal(t, fmt.Errorf("failed to update persist evidence received for 'fee-approved': %w", expectedError), err)
+	assert.Equal(t, fmt.Errorf("failed to persist evidence received for 'evidence-received': %w", expectedError), err)
 }
 
 func TestHandleFeeApproved(t *testing.T) {

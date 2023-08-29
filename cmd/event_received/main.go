@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -95,13 +96,15 @@ func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event ev
 		return fmt.Errorf("failed to resolve uid for 'evidence-received': %w", err)
 	}
 
+	log.Println(lpa)
+
 	item, err := attributevalue.MarshalMap(map[string]any{"PK": lpa.PK, "SK": "#EVIDENCE_RECEIVED"})
 	if err != nil {
 		return fmt.Errorf("failed to marshal item in response to 'evidence-received': %w", err)
 	}
 
 	if err := client.Put(ctx, &dynamodb.PutItemInput{Item: item}); err != nil {
-		return fmt.Errorf("failed to persist evidence received (PK: '%s') for 'evidence-received': %w", lpa.PK, err)
+		return fmt.Errorf("failed to persist evidence received for 'evidence-received': %w", err)
 	}
 
 	return nil
