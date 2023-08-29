@@ -2,6 +2,7 @@ package dynamo
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -75,6 +76,31 @@ func (c *Client) GetAllByGsi(ctx context.Context, gsi, sk string, v interface{})
 	}
 
 	return attributevalue.UnmarshalListOfMaps(response.Items, v)
+}
+
+func (c *Client) GetOneByUID(ctx context.Context, uid string, v interface{}) error {
+	skey, err := attributevalue.Marshal(uid)
+	if err != nil {
+		return fmt.Errorf("failed to marshal UID: %w", err)
+	}
+
+	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
+		TableName:                 aws.String(c.table),
+		IndexName:                 aws.String("UidIndex"),
+		ExpressionAttributeNames:  map[string]string{"#UID": "UID"},
+		ExpressionAttributeValues: map[string]types.AttributeValue{":UID": skey},
+		KeyConditionExpression:    aws.String("#UID = :UID"),
+	})
+
+	if err != nil {
+		return fmt.Errorf("failed to query UID: %w", err)
+	}
+
+	if len(response.Items) != 1 {
+		return fmt.Errorf("expected to resolve UID but got %d items", len(response.Items))
+	}
+
+	return attributevalue.UnmarshalMap(response.Items[0], v)
 }
 
 type Key struct {

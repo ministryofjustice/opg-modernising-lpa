@@ -11,6 +11,10 @@ type shareCodeStore struct {
 	dynamoClient DynamoClient
 }
 
+func NewShareCodeStore(dynamoClient DynamoClient) *shareCodeStore {
+	return &shareCodeStore{dynamoClient: dynamoClient}
+}
+
 func (s *shareCodeStore) Get(ctx context.Context, actorType actor.Type, shareCode string) (actor.ShareCodeData, error) {
 	var data actor.ShareCodeData
 
