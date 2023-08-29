@@ -48,6 +48,6 @@ resource "aws_cloudwatch_event_target" "cross_account_put" {
   target_id = "${data.aws_default_tags.current.tags.environment-name}-cross-account-put-event"
   arn       = var.target_event_bus_arn
   rule      = aws_cloudwatch_event_rule.cross_account_put.name
-  role_arn  = var.iam_role.cross_account_put.arn
+  role_arn  = var.iam_role.arn
   provider  = aws.region
 }
