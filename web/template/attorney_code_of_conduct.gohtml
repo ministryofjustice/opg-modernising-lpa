@@ -37,31 +37,19 @@
       {{ $content := "" }}
       {{ if .App.IsReplacementAttorney }}
         {{ if .App.IsTrustCorporation }}
-          {{ if .Lpa.Type.IsPropertyFinance }}
-            {{ $content = "replacementTrustCorporationCodeOfConductPfa" }}
-          {{ else }}
-            {{ $content = "replacementTrustCorporationCodeOfConductHw" }}
-          {{ end }}
+          {{ $content = "replacementTrustCorporationCodeOfConductPfa" }}
+        {{ else if .Lpa.Type.IsPropertyFinance }}
+          {{ $content = "replacementAttorneyCodeOfConductPfa" }}
         {{ else }}
-          {{ if .Lpa.Type.IsPropertyFinance }}
-            {{ $content = "replacementAttorneyCodeOfConductPfa" }}
-          {{ else }}
-            {{ $content = "replacementAttorneyCodeOfConductHw" }}
-          {{ end }}
+          {{ $content = "replacementAttorneyCodeOfConductHw" }}
         {{ end }}
       {{ else }}
         {{ if .App.IsTrustCorporation }}
-          {{ if .Lpa.Type.IsPropertyFinance }}
             {{ $content = "trustCorporationCodeOfConductPfa" }}
-          {{ else }}
-            {{ $content = "trustCorporationCodeOfConductHw" }}
-          {{ end }}
+        {{ else if .Lpa.Type.IsPropertyFinance }}
+          {{ $content = "attorneyCodeOfConductPfa" }}
         {{ else }}
-          {{ if .Lpa.Type.IsPropertyFinance }}
-            {{ $content = "attorneyCodeOfConductPfa" }}
-          {{ else }}
-            {{ $content = "attorneyCodeOfConductHw" }}
-          {{ end }}
+          {{ $content = "attorneyCodeOfConductHw" }}
         {{ end }}
       {{ end }}
 
