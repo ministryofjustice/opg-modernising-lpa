@@ -54,6 +54,6 @@ moved {
 }
 
 moved {
-  from = module.reduced_fees
-  to   = module.reduced_fees[0]
+  from = module.reduced_fees[0]
+  to   = module.eu_west_1[0].module.event_bus
 }
