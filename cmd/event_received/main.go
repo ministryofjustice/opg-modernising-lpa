@@ -101,7 +101,7 @@ func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event ev
 	}
 
 	if err := client.Put(ctx, &dynamodb.PutItemInput{Item: item}); err != nil {
-		return fmt.Errorf("failed to update persist evidence received for 'fee-approved': %w", err)
+		return fmt.Errorf("failed to persist evidence received (PK: '%s') for 'evidence-received': %w", lpa.PK, err)
 	}
 
 	return nil
