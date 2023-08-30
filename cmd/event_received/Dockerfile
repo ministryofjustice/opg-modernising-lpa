@@ -3,6 +3,7 @@ FROM golang:1.21 as build
 WORKDIR /app
 
 COPY ./cmd/event_received/main.go .
+COPY ./internal ./internal
 COPY go.mod go.sum ./
 
 RUN go mod download
@@ -12,5 +13,6 @@ RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -tags lambda.norpc -o main ma
 FROM public.ecr.aws/lambda/provided:al2
 
 COPY --from=build /app/main ./main
+COPY ./lang ./lang
 
 ENTRYPOINT ["./main"]

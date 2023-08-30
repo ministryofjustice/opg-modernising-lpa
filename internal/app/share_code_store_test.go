@@ -128,3 +128,9 @@ func TestShareCodeStorePutOnError(t *testing.T) {
 	err := shareCodeStore.Put(ctx, actor.TypeAttorney, "123", actor.ShareCodeData{LpaID: "123"})
 	assert.Equal(t, expectedError, err)
 }
+
+func TestNewShareCodeStore(t *testing.T) {
+	client := newMockDynamoClient(t)
+
+	assert.Equal(t, &shareCodeStore{dynamoClient: client}, NewShareCodeStore(client))
+}

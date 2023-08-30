@@ -20,3 +20,7 @@ variable "lpas_table" {
     name = string
   })
 }
+
+variable "app_public_url" {
+  type = string
+}
