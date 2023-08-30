@@ -5,12 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
@@ -46,10 +48,22 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) error {
 	tableName := os.Getenv("LPAS_TABLE")
 	notifyIsProduction := os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
 	appPublicURL := os.Getenv("APP_PUBLIC_URL")
+	awsBaseURL := os.Getenv("AWS_BASE_URL")
+	notifyBaseURL := os.Getenv("GOVUK_NOTIFY_BASE_URL")
 
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to load default config: %w", err)
+	}
+
+	if len(awsBaseURL) > 0 {
+		cfg.EndpointResolverWithOptions = aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+			return aws.Endpoint{
+				PartitionID:   "aws",
+				URL:           awsBaseURL,
+				SigningRegion: "eu-west-1",
+			}, nil
+		})
 	}
 
 	dynamoClient, err := dynamo.NewClient(cfg, tableName)
@@ -67,7 +81,8 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) error {
 		return fmt.Errorf("failed to get notify API secret: %w", err)
 	}
 
-	notifyClient, err := notify.New(notifyIsProduction, "", notifyApiKey, http.DefaultClient)
+	log.Println(notifyApiKey)
+	notifyClient, err := notify.New(notifyIsProduction, notifyBaseURL, notifyApiKey, http.DefaultClient)
 
 	bundle := localize.NewBundle("./lang/en.json", "./lang/cy.json")
 
