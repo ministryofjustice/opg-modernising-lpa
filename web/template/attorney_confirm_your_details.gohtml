@@ -7,11 +7,25 @@
     <div class="govuk-grid-column-two-thirds">
       {{ if .TrustCorporation.Name }}
         <h1 class="govuk-heading-xl">{{ tr .App "confirmYourCompanyDetails" }}</h1>
-
         <p class="govuk-body">{{ trFormat .App "youMustConfirmTheDetailsAboutYourCompany" "DonorFullName" .Lpa.Donor.FullName }}</p>
+      {{ else }}
+        <h1 class="govuk-heading-xl">{{ tr .App "confirmYourDetails" }}</h1>
+        <p class="govuk-body">{{ trFormat .App "youMustConfirmYourTelephoneNumber" "DonorFullName" .Lpa.Donor.FullName }}</p>
+      {{ end }}
 
+      <h2 class="govuk-heading-m">{{ tr .App "detailsYouHaveGivenUs" }}</h2>
+      <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">{{ tr .App "telephoneNumber" }}</dt>
+          <dd class="govuk-summary-list__value">{{ .AttorneyProvidedDetails.Mobile }}</dd>
+          <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="{{ link .App (.App.Paths.Attorney.MobileNumber.Format .Lpa.ID) }}">{{ trHtml .App "changeTelephoneNumberLink" }}</a>
+          </dd>
+        </div>
+      </dl>
+
+      {{ if .TrustCorporation.Name }}
         <h2 class="govuk-heading-m">{{ tr .App "detailsTheDonorHasGivenAboutYourCompany" }}</h2>
-
         <dl class="govuk-summary-list">
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "companyName" }}</dt>
@@ -38,27 +52,9 @@
         </dl>
 
         {{ template "details" (details . "whatToDoIfAnyDetailsAboutCompanyAreIncorrect" "whatToDoIfAnyDetailsAboutCompanyAreIncorrectAttorneyContent" false) }}
-
         {{ template "warning" (warning .App "ifTheDetailsYouProvideAreNotCorrect") }}
       {{ else }}
-        <h1 class="govuk-heading-xl">{{ tr .App "confirmYourDetails" }}</h1>
-
-        <p class="govuk-body">{{ trFormat .App "youMustConfirmYourTelephoneNumber" "DonorFullName" .Lpa.Donor.FullName }}</p>
-
-        <h2 class="govuk-heading-m">{{ tr .App "detailsYouHaveGivenUs" }}</h2>
-
-        <dl class="govuk-summary-list">
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">{{ tr .App "telephoneNumber" }}</dt>
-            <dd class="govuk-summary-list__value">{{ .AttorneyProvidedDetails.Mobile }}</dd>
-            <dd class="govuk-summary-list__actions">
-              <a class="govuk-link" href="{{ link .App (.App.Paths.Attorney.MobileNumber.Format .Lpa.ID) }}">{{ trHtml .App "changeTelephoneNumberLink" }}</a>
-            </dd>
-          </div>
-        </dl>
-
         <h2 class="govuk-heading-m govuk-!-margin-top-8">{{ tr .App "detailsTheDonorHasGivenAboutYou" }}</h2>
-
         <dl class="govuk-summary-list">
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "name" }}</dt>
@@ -81,10 +77,9 @@
         </dl>
 
         {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" "whatToDoIfAnyDetailsAreIncorrectAttorneyContent" false) }}
-
         {{ template "warning" (warning .App "anyErrorsInYourDetailsCanMakeLpaDifficultToUse") }}
       {{ end }}
-      
+
       <form novalidate method="post">
         {{ template "continue-button" . }}
         {{ template "csrf-field" . }}
