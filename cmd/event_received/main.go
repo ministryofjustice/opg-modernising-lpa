@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -81,7 +80,6 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) error {
 		return fmt.Errorf("failed to get notify API secret: %w", err)
 	}
 
-	log.Println(notifyApiKey)
 	notifyClient, err := notify.New(notifyIsProduction, notifyBaseURL, notifyApiKey, http.DefaultClient)
 
 	bundle := localize.NewBundle("./lang/en.json", "./lang/cy.json")
