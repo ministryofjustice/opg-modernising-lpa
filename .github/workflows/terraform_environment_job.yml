@@ -71,6 +71,7 @@ jobs:
       - uses: unfor19/install-aws-cli-action@v1
       - name: Parse terraform version
         id: tf_version_setup
+        working-directory: ./terraform/environment
         run: |
           if [ -f ./versions.tf ]; then
             terraform_version=$(cat ./versions.tf | ../../scripts/terraform-version.sh)
@@ -79,6 +80,7 @@ jobs:
           fi
       - name: "Terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
         run: echo "terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
+        working-directory: ./terraform/environment
       - uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: ${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}
