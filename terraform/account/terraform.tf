@@ -7,13 +7,6 @@ terraform {
     role_arn       = "arn:aws:iam::311462405659:role/modernising-lpa-ci"
     dynamodb_table = "remote_lock"
   }
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "5.12.0"
-    }
-  }
-  required_version = ">= 1.5.2"
 }
 
 variable "default_role" {
