@@ -13,7 +13,7 @@ module "event_received" {
     name = var.lpas_table.name
   }
   event_bus_name = var.reduced_fees.event_bus.name
-
+  app_public_url = aws_route53_record.app.fqdn
   providers = {
     aws.region = aws.region
   }

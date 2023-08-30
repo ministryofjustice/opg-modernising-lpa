@@ -27,7 +27,7 @@ resource "aws_dynamodb_table" "lpas_table" {
   global_secondary_index {
     name            = "UidIndex"
     hash_key        = "UID"
-    projection_type = "KEYS_ONLY"
+    projection_type = "ALL"
   }
 
   server_side_encryption {
