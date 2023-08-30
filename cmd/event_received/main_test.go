@@ -9,6 +9,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
@@ -116,24 +117,31 @@ func TestHandleFeeApproved(t *testing.T) {
 	client.
 		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(page.Lpa{PK: "LPA#123"})
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
 			json.Unmarshal(b, v)
 			return nil
 		})
 	client.
-		On("Put", ctx, page.Lpa{PK: "LPA#123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}}).
+		On("Get", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}}).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, page.AppData{}, false, &page.Lpa{PK: "LPA#123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}}).
+		On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, page.AppData{}, false, &page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}}).
 		Return(nil)
 
 	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{})
 	assert.Nil(t, err)
 }
 
-func TestHandleFeeApprovedWhenDynamoClientGetError(t *testing.T) {
+func TestHandleFeeApprovedWhenDynamoClientGetOneByUIDError(t *testing.T) {
 	ctx := context.Background()
 	event := events.CloudWatchEvent{
 		DetailType: "fee-approved",
@@ -149,6 +157,29 @@ func TestHandleFeeApprovedWhenDynamoClientGetError(t *testing.T) {
 	assert.Equal(t, fmt.Errorf("failed to resolve uid for 'fee-approved': %w", expectedError), err)
 }
 
+func TestHandleFeeApprovedWhenDynamoClientGetError(t *testing.T) {
+	ctx := context.Background()
+	event := events.CloudWatchEvent{
+		DetailType: "fee-approved",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("Get", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(expectedError)
+
+	err := handleFeeApproved(ctx, client, event, nil, page.AppData{})
+	assert.Equal(t, fmt.Errorf("failed to get LPA for 'fee-approved': %w", expectedError), err)
+}
+
 func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 	ctx := context.Background()
 	event := events.CloudWatchEvent{
@@ -160,12 +191,19 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 	client.
 		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(page.Lpa{PK: "LPA#123"})
+			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456"})
 			json.Unmarshal(b, v)
 			return nil
 		})
 	client.
-		On("Put", ctx, page.Lpa{PK: "LPA#123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}}).
+		On("Get", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}}).
 		Return(expectedError)
 
 	err := handleFeeApproved(ctx, client, event, nil, page.AppData{})
@@ -183,17 +221,24 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 	client.
 		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(page.Lpa{PK: "LPA#123"})
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
 			json.Unmarshal(b, v)
 			return nil
 		})
 	client.
-		On("Put", ctx, page.Lpa{PK: "LPA#123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}}).
+		On("Get", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}}).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, page.AppData{}, false, &page.Lpa{PK: "LPA#123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}}).
+		On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, page.AppData{}, false, &page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}}).
 		Return(expectedError)
 
 	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{})

@@ -26,10 +26,15 @@ type evidenceReceivedEvent struct {
 	UID string `json:"uid"`
 }
 
+type feeApprovedEvent struct {
+	UID string `json:"uid"`
+}
+
 //go:generate mockery --testonly --inpackage --name dynamodbClient --structname mockDynamodbClient
 type dynamodbClient interface {
-	Put(ctx context.Context, v interface{}) error
+	Put(context.Context, interface{}) error
 	GetOneByUID(context.Context, string, interface{}) error
+	Get(ctx context.Context, pk, sk string, v interface{}) error
 }
 
 //go:generate mockery --testonly --inpackage --name shareCodeSender --structname mockShareCodeSender
@@ -87,17 +92,17 @@ func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event ev
 		return fmt.Errorf("failed to unmarshal 'evidence-received' detail: %w", err)
 	}
 
-	var lpa page.Lpa
-	err := client.GetOneByUID(ctx, v.UID, &lpa)
+	var key dynamo.Key
+	err := client.GetOneByUID(ctx, v.UID, &key)
 	if err != nil {
 		return fmt.Errorf("failed to resolve uid for 'evidence-received': %w", err)
 	}
 
-	if lpa.PK == "" {
+	if key.PK == "" {
 		return errors.New("PK missing from LPA in response to 'evidence-received'")
 	}
 
-	if err := client.Put(ctx, map[string]string{"PK": lpa.PK, "SK": "#EVIDENCE_RECEIVED"}); err != nil {
+	if err := client.Put(ctx, map[string]string{"PK": key.PK, "SK": "#EVIDENCE_RECEIVED"}); err != nil {
 		return fmt.Errorf("failed to persist evidence received for 'evidence-received': %w", err)
 	}
 
@@ -105,15 +110,21 @@ func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event ev
 }
 
 func handleFeeApproved(ctx context.Context, dynamoClient dynamodbClient, event events.CloudWatchEvent, shareCodeSender shareCodeSender, appData page.AppData) error {
-	var v evidenceReceivedEvent
+	var v feeApprovedEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal 'fee-approved' detail: %w", err)
 	}
 
-	var lpa page.Lpa
-	err := dynamoClient.GetOneByUID(ctx, v.UID, &lpa)
+	var key dynamo.Key
+	err := dynamoClient.GetOneByUID(ctx, v.UID, &key)
 	if err != nil {
 		return fmt.Errorf("failed to resolve uid for 'fee-approved': %w", err)
+	}
+
+	var lpa page.Lpa
+	err = dynamoClient.Get(ctx, key.PK, key.SK, &lpa)
+	if err != nil {
+		return fmt.Errorf("failed to get LPA for 'fee-approved': %w", err)
 	}
 
 	lpa.Tasks.PayForLpa = actor.PaymentTaskCompleted

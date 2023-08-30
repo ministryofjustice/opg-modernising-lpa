@@ -14,7 +14,7 @@
     "IndexName": "UidIndex",
     "KeySchema": [{"AttributeName":"UID","KeyType":"HASH"}],
     "Projection": {
-      "ProjectionType":"ALL"
+      "ProjectionType":"KEYS_ONLY"
     },
     "ProvisionedThroughput": {
       "ReadCapacityUnits": 10,
