@@ -121,12 +121,12 @@ func TestHandleFeeApproved(t *testing.T) {
 			return nil
 		})
 	client.
-		On("Put", ctx, page.Lpa{PK: "LPA#123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskApproved}}).
+		On("Put", ctx, page.Lpa{PK: "LPA#123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}}).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, page.AppData{}, false, &page.Lpa{PK: "LPA#123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskApproved}}).
+		On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, page.AppData{}, false, &page.Lpa{PK: "LPA#123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}}).
 		Return(nil)
 
 	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{})
@@ -165,7 +165,7 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 			return nil
 		})
 	client.
-		On("Put", ctx, page.Lpa{PK: "LPA#123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskApproved}}).
+		On("Put", ctx, page.Lpa{PK: "LPA#123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}}).
 		Return(expectedError)
 
 	err := handleFeeApproved(ctx, client, event, nil, page.AppData{})
@@ -188,12 +188,12 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 			return nil
 		})
 	client.
-		On("Put", ctx, page.Lpa{PK: "LPA#123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskApproved}}).
+		On("Put", ctx, page.Lpa{PK: "LPA#123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}}).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, page.AppData{}, false, &page.Lpa{PK: "LPA#123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskApproved}}).
+		On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, page.AppData{}, false, &page.Lpa{PK: "LPA#123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}}).
 		Return(expectedError)
 
 	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{})

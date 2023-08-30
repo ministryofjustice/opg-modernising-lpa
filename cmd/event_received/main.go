@@ -116,7 +116,7 @@ func handleFeeApproved(ctx context.Context, dynamoClient dynamodbClient, event e
 		return fmt.Errorf("failed to resolve uid for 'fee-approved': %w", err)
 	}
 
-	lpa.Tasks.PayForLpa = actor.PaymentTaskApproved
+	lpa.Tasks.PayForLpa = actor.PaymentTaskCompleted
 
 	if err := dynamoClient.Put(ctx, lpa); err != nil {
 		return fmt.Errorf("failed to update LPA task status for 'fee-approved': %w", err)

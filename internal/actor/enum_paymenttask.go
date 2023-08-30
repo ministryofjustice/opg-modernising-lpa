@@ -15,12 +15,11 @@ func _() {
 	_ = x[PaymentTaskCompleted-2]
 	_ = x[PaymentTaskPending-3]
 	_ = x[PaymentTaskDenied-4]
-	_ = x[PaymentTaskApproved-5]
 }
 
-const _PaymentTask_name = "NotStartedInProgressCompletedPendingDeniedApproved"
+const _PaymentTask_name = "NotStartedInProgressCompletedPendingDenied"
 
-var _PaymentTask_index = [...]uint8{0, 10, 20, 29, 36, 42, 50}
+var _PaymentTask_index = [...]uint8{0, 10, 20, 29, 36, 42}
 
 func (i PaymentTask) String() string {
 	if i >= PaymentTask(len(_PaymentTask_index)-1) {
@@ -49,10 +48,6 @@ func (i PaymentTask) IsDenied() bool {
 	return i == PaymentTaskDenied
 }
 
-func (i PaymentTask) IsApproved() bool {
-	return i == PaymentTaskApproved
-}
-
 func ParsePaymentTask(s string) (PaymentTask, error) {
 	switch s {
 	case "NotStarted":
@@ -65,8 +60,6 @@ func ParsePaymentTask(s string) (PaymentTask, error) {
 		return PaymentTaskPending, nil
 	case "Denied":
 		return PaymentTaskDenied, nil
-	case "Approved":
-		return PaymentTaskApproved, nil
 	default:
 		return PaymentTask(0), fmt.Errorf("invalid PaymentTask '%s'", s)
 	}
@@ -78,7 +71,6 @@ type PaymentTaskOptions struct {
 	Completed  PaymentTask
 	Pending    PaymentTask
 	Denied     PaymentTask
-	Approved   PaymentTask
 }
 
 var PaymentTaskValues = PaymentTaskOptions{
@@ -87,5 +79,4 @@ var PaymentTaskValues = PaymentTaskOptions{
 	Completed:  PaymentTaskCompleted,
 	Pending:    PaymentTaskPending,
 	Denied:     PaymentTaskDenied,
-	Approved:   PaymentTaskApproved,
 }
