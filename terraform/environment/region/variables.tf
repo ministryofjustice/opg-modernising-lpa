@@ -7,6 +7,7 @@ variable "iam_roles" {
     ecs_execution_role = any
     app_ecs_task_role  = any
     s3_antivirus       = any
+    cross_account_put  = any
   })
   description = "ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services."
 }
@@ -78,17 +79,14 @@ variable "app_allowed_api_arns" {
 
 variable "reduced_fees" {
   type = object({
-    s3_object_replication_enabled = bool
-    target_environment            = string
-    destination_account_id        = string
-    table = object({
-      arn  = string
-      name = string
-    })
-    event_bus = object({
-      arn  = string
-      name = string
-    })
+    s3_object_replication_enabled             = bool
+    target_environment                        = string
+    destination_account_id                    = string
     enable_s3_batch_job_replication_scheduler = bool
   })
+}
+
+variable "target_event_bus_arn" {
+  type        = string
+  description = "ARN of the event bus to forward events to"
 }
