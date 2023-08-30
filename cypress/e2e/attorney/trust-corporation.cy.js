@@ -1,3 +1,5 @@
+const { TestMobile } = require("../../support/e2e");
+
 describe('As a trust corporation', () => {
     beforeEach(() => {
         cy.visit('/testing-start?redirect=/attorney-start&lpa.complete=1&lpa.trustCorporation=complete&useTestShareCode=1&sendAttorneyShare=1&lpa.signedByDonor=1&asCertificateProvider=certified');
@@ -16,7 +18,12 @@ describe('As a trust corporation', () => {
         // task list
         cy.contains('a', 'Confirm your details').click();
 
+        // mobile number
+        cy.get('#f-mobile').type(TestMobile);
+        cy.contains('button', 'Continue').click();
+
         // confirm your company details
+        cy.contains(TestMobile);
         cy.contains('Confirm your company details');
         cy.contains('My company');
         cy.contains('555555555');

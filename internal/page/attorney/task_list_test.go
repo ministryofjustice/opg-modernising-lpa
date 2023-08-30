@@ -52,7 +52,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 			appData: testTrustCorporationAppData,
 			expected: func(items []taskListItem) []taskListItem {
-				items[0].Path = page.Paths.Attorney.ConfirmYourDetails.Format("lpa-id")
+				items[0].Path = page.Paths.Attorney.MobileNumber.Format("lpa-id")
 
 				return items
 			},
@@ -73,7 +73,7 @@ func TestGetTaskList(t *testing.T) {
 			appData:                  testTrustCorporationAppData,
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = actor.TaskCompleted
-				items[0].Path = page.Paths.Attorney.ConfirmYourDetails.Format("lpa-id")
+				items[0].Path = page.Paths.Attorney.MobileNumber.Format("lpa-id")
 				items[1].State = actor.TaskCompleted
 				items[2].Name = "signTheLpaSignatory1"
 				items[2].Path = page.Paths.Attorney.Sign.Format("lpa-id")
