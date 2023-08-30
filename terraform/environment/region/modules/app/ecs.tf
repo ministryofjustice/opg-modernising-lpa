@@ -102,6 +102,11 @@ data "aws_kms_alias" "dynamodb_encryption_key" {
   provider = aws.region
 }
 
+data "aws_kms_alias" "reduced_fees_uploads_s3_encryption" {
+  name     = "alias/${data.aws_default_tags.current.tags.application}_reduced_fees_uploads_s3_encryption"
+  provider = aws.region
+}
+
 data "aws_secretsmanager_secret" "private_jwt_key" {
   name     = "private-jwt-key-base64"
   provider = aws.region
@@ -193,6 +198,21 @@ data "aws_iam_policy_document" "task_role_access_policy" {
   }
 
   statement {
+    sid    = "${local.policy_region_prefix}ReducedFeesUploadsEncryptionAccess"
+    effect = "Allow"
+
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:GenerateDataKey",
+    ]
+
+    resources = [
+      data.aws_kms_alias.reduced_fees_uploads_s3_encryption.target_key_arn,
+    ]
+  }
+
+  statement {
     sid    = "${local.policy_region_prefix}EcsSecretAccess"
     effect = "Allow"
 
@@ -228,8 +248,6 @@ data "aws_iam_policy_document" "task_role_access_policy" {
     resources = [
       var.lpas_table.arn,
       "${var.lpas_table.arn}/index/*",
-      var.reduced_fees_table.arn,
-      "${var.reduced_fees_table.arn}/index/*",
     ]
   }
 
@@ -335,10 +353,6 @@ locals {
         {
           name  = "DYNAMODB_TABLE_LPAS",
           value = var.lpas_table.name
-        },
-        {
-          name  = "DYNAMODB_TABLE_REDUCED_FEES",
-          value = var.reduced_fees_table.name
         },
         {
           name  = "UPLOADS_S3_BUCKET_NAME",

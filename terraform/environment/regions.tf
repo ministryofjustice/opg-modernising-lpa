@@ -14,6 +14,7 @@ module "eu_west_1" {
     ecs_execution_role = module.global.iam_roles.ecs_execution_role
     app_ecs_task_role  = module.global.iam_roles.app_ecs_task_role
     s3_antivirus       = module.global.iam_roles.s3_antivirus
+    cross_account_put  = module.global.iam_roles.cross_account_put
   }
   application_log_retention_days  = local.environment.cloudwatch_log_groups.application_log_retention_days
   ecs_capacity_provider           = local.ecs_capacity_provider
@@ -28,18 +29,12 @@ module "eu_west_1" {
   }
 
   reduced_fees = {
-    s3_object_replication_enabled = local.environment.reduced_fees.s3_object_replication_enabled
-    target_environment            = local.environment.reduced_fees.target_environment
-    destination_account_id        = local.environment.reduced_fees.destination_account_id
-    table = {
-      arn  = module.reduced_fees[0].dynamodb_table.arn,
-      name = module.reduced_fees[0].dynamodb_table.name,
-    }
-    event_bus = {
-      arn  = module.reduced_fees[0].event_bus.arn
-      name = module.reduced_fees[0].event_bus.name
-    }
+    s3_object_replication_enabled             = local.environment.reduced_fees.s3_object_replication_enabled
+    target_environment                        = local.environment.reduced_fees.target_environment
+    destination_account_id                    = local.environment.reduced_fees.destination_account_id
+    enable_s3_batch_job_replication_scheduler = local.environment.reduced_fees.enable_s3_batch_job_replication_scheduler
   }
+  target_event_bus_arn   = local.environment.event_bus.target_event_bus_arn
   app_env_vars           = local.environment.app.env
   app_allowed_api_arns   = local.environment.app.allowed_api_arns
   public_access_enabled  = var.public_access_enabled
@@ -60,6 +55,7 @@ module "eu_west_2" {
     ecs_execution_role = module.global.iam_roles.ecs_execution_role
     app_ecs_task_role  = module.global.iam_roles.app_ecs_task_role
     s3_antivirus       = module.global.iam_roles.s3_antivirus
+    cross_account_put  = module.global.iam_roles.cross_account_put
   }
   application_log_retention_days  = local.environment.cloudwatch_log_groups.application_log_retention_days
   ecs_capacity_provider           = local.ecs_capacity_provider
@@ -74,18 +70,12 @@ module "eu_west_2" {
   }
 
   reduced_fees = {
-    s3_object_replication_enabled = local.environment.reduced_fees.s3_object_replication_enabled
-    target_environment            = local.environment.reduced_fees.target_environment
-    destination_account_id        = local.environment.reduced_fees.destination_account_id
-    table = {
-      arn  = module.reduced_fees[0].dynamodb_table.arn,
-      name = module.reduced_fees[0].dynamodb_table.name,
-    }
-    event_bus = {
-      arn  = module.reduced_fees[0].event_bus.arn
-      name = module.reduced_fees[0].event_bus.name
-    }
+    s3_object_replication_enabled             = local.environment.reduced_fees.s3_object_replication_enabled
+    target_environment                        = local.environment.reduced_fees.target_environment
+    destination_account_id                    = local.environment.reduced_fees.destination_account_id
+    enable_s3_batch_job_replication_scheduler = local.environment.reduced_fees.enable_s3_batch_job_replication_scheduler
   }
+  target_event_bus_arn   = local.environment.event_bus.target_event_bus_arn
   app_env_vars           = local.environment.app.env
   app_allowed_api_arns   = local.environment.app.allowed_api_arns
   public_access_enabled  = var.public_access_enabled

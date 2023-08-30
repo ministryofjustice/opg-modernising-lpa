@@ -55,7 +55,7 @@
             {{ trHtml .App "signAsAttorneyBullets" }}
           {{ end }}
           <li>
-            {{ if .LpaCanBeUsedWhenRegistered }}
+            {{ if .LpaCanBeUsedWhenHasCapacity }}
               {{ if .App.IsTrustCorporation }}
                 {{ tr .App "signAsTrustCorporationWhenRegisteredBullet" }}
               {{ else }}
