@@ -15,5 +15,7 @@
         "few": "{{.PluralCount}} few {{.x}}",
         "many": "{{.PluralCount}} many {{.x}}",
         "other": "{{.PluralCount}} other {{.x}}"
-    }
+    },
+    "and": "a",
+    "or": "neu"
 }
