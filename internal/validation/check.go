@@ -293,13 +293,13 @@ type DateMissingCheck struct{}
 func (c DateMissingCheck) CheckDate(label string, date date.Date) FormattableError {
 	e := DateMissingError{Label: label}
 
-	if date.Day() == "" {
+	if date.DayString() == "" {
 		e.MissingDay = true
 	}
-	if date.Month() == "" {
+	if date.MonthString() == "" {
 		e.MissingMonth = true
 	}
-	if date.Year() == "" {
+	if date.YearString() == "" {
 		e.MissingYear = true
 	}
 

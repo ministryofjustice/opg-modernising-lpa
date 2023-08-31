@@ -230,19 +230,45 @@ func addDays(days int, t time.Time) time.Time {
 type dateOrTime interface {
 	IsZero() bool
 	Format(string) string
+	Day() int
+	Month() time.Month
+	Year() int
 }
 
-func formatDate(t dateOrTime) string {
+var monthsCy = map[time.Month]string{
+	time.January:   "Ionawr",
+	time.February:  "Chwefror",
+	time.March:     "Mawrth",
+	time.April:     "Ebrill",
+	time.May:       "Mai",
+	time.June:      "Mehefin",
+	time.July:      "Gorffennaf",
+	time.August:    "Awst",
+	time.September: "Medi",
+	time.October:   "Hydref",
+	time.November:  "Tachwedd",
+	time.December:  "Rhagfyr",
+}
+
+func formatDate(app page.AppData, t dateOrTime) string {
 	if t.IsZero() {
 		return ""
+	}
+
+	if app.Lang == localize.Cy {
+		return fmt.Sprintf("%d %s %d", t.Day(), monthsCy[t.Month()], t.Year())
 	}
 
 	return t.Format("2 January 2006")
 }
 
-func formatDateTime(t time.Time) string {
+func formatDateTime(app page.AppData, t time.Time) string {
 	if t.IsZero() {
 		return ""
+	}
+
+	if app.Lang == localize.Cy {
+		return fmt.Sprintf("%d %s %d am %s", t.Day(), monthsCy[t.Month()], t.Year(), t.Format("15:04"))
 	}
 
 	return t.Format("2 January 2006 at 15:04")
