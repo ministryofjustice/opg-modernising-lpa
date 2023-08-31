@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -626,6 +627,11 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 
 		random.UseTestCode = true
 
-		AppData{}.Redirect(w, r.WithContext(donorCtx), lpa, redirect)
+		lang := localize.En
+		if r.FormValue("lang") == "cy" {
+			lang = localize.Cy
+		}
+
+		AppData{Lang: lang}.Redirect(w, r.WithContext(donorCtx), lpa, redirect)
 	}
 }
