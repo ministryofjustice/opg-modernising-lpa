@@ -7,6 +7,8 @@ services:
       dockerfile: Dockerfile
       target: dev
     container_name: app-dev
+    depends_on:
+      - events-lambda
     security_opt:
       - "seccomp:unconfined"
     volumes:
@@ -20,3 +22,22 @@ services:
       - SYS_PTRACE
     ports:
       - "2345:2345"
+
+  events-lambda:
+    build:
+      context: .
+      dockerfile: ./cmd/event_received/Dockerfile
+      target: dev
+    container_name: events-lambda
+    environment:
+      - AWS_ACCESS_KEY_ID=fakeKeyId
+      - AWS_BASE_URL=http://localstack:4566
+      - AWS_REGION=eu-west-1
+      - AWS_SECRET_ACCESS_KEY=fakeAccessKey
+      - LPAS_TABLE=lpas
+      - GOVUK_NOTIFY_IS_PRODUCTION=0
+      - APP_PUBLIC_URL=http://localhost:5050
+      - GOVUK_NOTIFY_BASE_URL=http://notify-mock:8080
+    ports:
+      - "9000:8080"
+    entrypoint: aws-lambda-rie /var/task/main

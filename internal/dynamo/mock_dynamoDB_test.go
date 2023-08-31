@@ -146,24 +146,24 @@ func (_m *mockDynamoDB) Query(_a0 context.Context, _a1 *dynamodb.QueryInput, _a2
 	return r0, r1
 }
 
-// TransactWriteItems provides a mock function with given fields: ctx, params, optFns
-func (_m *mockDynamoDB) TransactWriteItems(ctx context.Context, params *dynamodb.TransactWriteItemsInput, optFns ...func(*dynamodb.Options)) (*dynamodb.TransactWriteItemsOutput, error) {
-	_va := make([]interface{}, len(optFns))
-	for _i := range optFns {
-		_va[_i] = optFns[_i]
+// TransactWriteItems provides a mock function with given fields: _a0, _a1, _a2
+func (_m *mockDynamoDB) TransactWriteItems(_a0 context.Context, _a1 *dynamodb.TransactWriteItemsInput, _a2 ...func(*dynamodb.Options)) (*dynamodb.TransactWriteItemsOutput, error) {
+	_va := make([]interface{}, len(_a2))
+	for _i := range _a2 {
+		_va[_i] = _a2[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, ctx, params)
+	_ca = append(_ca, _a0, _a1)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
 	var r0 *dynamodb.TransactWriteItemsOutput
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, *dynamodb.TransactWriteItemsInput, ...func(*dynamodb.Options)) (*dynamodb.TransactWriteItemsOutput, error)); ok {
-		return rf(ctx, params, optFns...)
+		return rf(_a0, _a1, _a2...)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, *dynamodb.TransactWriteItemsInput, ...func(*dynamodb.Options)) *dynamodb.TransactWriteItemsOutput); ok {
-		r0 = rf(ctx, params, optFns...)
+		r0 = rf(_a0, _a1, _a2...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*dynamodb.TransactWriteItemsOutput)
@@ -171,7 +171,7 @@ func (_m *mockDynamoDB) TransactWriteItems(ctx context.Context, params *dynamodb
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, *dynamodb.TransactWriteItemsInput, ...func(*dynamodb.Options)) error); ok {
-		r1 = rf(ctx, params, optFns...)
+		r1 = rf(_a0, _a1, _a2...)
 	} else {
 		r1 = ret.Error(1)
 	}
