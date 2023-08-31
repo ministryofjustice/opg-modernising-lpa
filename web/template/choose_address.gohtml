@@ -2,7 +2,7 @@
 
 {{ define "pageTitle" }}
   {{ if eq .Form.Action "manual" }}
-    {{ trFormat .App "personsAddress" "FullNamePossessive" (tr .App .ActorLabel | possessive .App) }}
+    {{ trFormat .App "personsAddress" "FullNamePossessive" (tr .App .ActorLabel | possessive .App) "FullName" (tr .App .ActorLabel) }}
   {{ else if eq .Form.Action "postcode-select" "postcode-lookup" }}
     {{ trFormat .App "selectAnAddressForPerson" "FullName" (tr .App .ActorLabel | lowerFirst) }}  
   {{ else if eq .Form.Action "postcode" }}
@@ -23,7 +23,7 @@
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
               <h1 class="govuk-fieldset__heading">
                 {{ if .FullName }}
-                  {{ trFormat .App "personsAddress" "FullNamePossessive" (possessive .App .FullName) }}
+                  {{ trFormat .App "personsAddress" "FullNamePossessive" (possessive .App .FullName) "FullName" .FullName }}
                 {{ else }}
                   {{ template "pageTitle" . }}
                 {{ end }}
