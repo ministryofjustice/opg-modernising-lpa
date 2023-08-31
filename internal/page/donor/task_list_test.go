@@ -31,6 +31,17 @@ func TestGetTaskList(t *testing.T) {
 				return sections
 			},
 		},
+		"more evidence required": {
+			lpa:              &page.Lpa{ID: "lpa-id", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}},
+			evidenceReceived: true,
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[1].Items = []taskListItem{
+					{Name: "payForTheLpa", Path: page.Paths.UploadEvidence.Format("lpa-id"), PaymentState: actor.PaymentTaskMoreEvidenceRequired},
+				}
+
+				return sections
+			},
+		},
 		"hw": {
 			lpa: &page.Lpa{ID: "lpa-id", Type: page.LpaTypeHealthWelfare},
 			expected: func(sections []taskListSection) []taskListSection {
