@@ -66,9 +66,21 @@ jobs:
           sudo chmod +x /usr/local/bin/terraform-workspace-manager
           terraform-workspace-manager -register-workspace=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }} -time-to-protect=1 -aws-account-id=653761790766 -aws-iam-role=modernising-lpa-ci
         working-directory: ./terraform/environment
+      - name: Parse terraform version
+        id: tf_version_setup
+        working-directory: ./terraform/environment
+        run: |
+          if [ -f ./versions.tf ]; then
+            terraform_version=$(cat ./versions.tf | ../../scripts/terraform-version.sh)
+            echo "- Terraform version: [${terraform_version}]" >> $GITHUB_STEP_SUMMARY
+            echo "TERRAFORM_VERSION=${terraform_version}" >> $GITHUB_OUTPUT
+          fi
+      - name: "Terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
+        run: echo "terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
+        working-directory: ./terraform/environment
       - uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: 1.5.2
+          terraform_version: ${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}
           terraform_wrapper: false
       - name: Terraform Init
         run: terraform init -input=false
