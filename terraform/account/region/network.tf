@@ -29,3 +29,23 @@ resource "aws_security_group_rule" "lambda_egress" {
   description       = "Outbound Lambda"
   provider          = aws.region
 }
+
+resource "aws_security_group" "test_tfsec" {
+  name        = "test-tf-${data.aws_region.current.name}"
+  vpc_id      = module.network.vpc.id
+  description = "SG to test tfsec pr comments"
+
+  tags     = { "Name" = "test-tf-${data.aws_region.current.name}" }
+  provider = aws.region
+}
+
+resource "aws_security_group_rule" "test_tfsec" {
+  type              = "egress"
+  protocol          = "-1"
+  from_port         = 0
+  to_port           = 0
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.test_tfsec.id
+  description       = "Outbound test tfsec"
+  provider          = aws.region
+}
