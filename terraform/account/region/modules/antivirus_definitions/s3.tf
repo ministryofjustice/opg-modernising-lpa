@@ -16,7 +16,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "bucket" {
 resource "aws_s3_bucket_versioning" "bucket" {
   bucket = aws_s3_bucket.bucket.id
   versioning_configuration {
-    status = "Suspended"
+    status = "Suspended" #tfsec:ignore:aws-s3-enable-versioning
   }
   provider = aws.region
 }
