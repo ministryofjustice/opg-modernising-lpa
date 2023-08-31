@@ -12,7 +12,7 @@ services:
     security_opt:
       - "seccomp:unconfined"
     volumes:
-      - ./cmd/mlpa:/app/cmd/mlpa:rw,delegated
+      - ./cmd:/app/cmd:rw,delegated
       - ./internal:/app/internal:rw,delegated
       - ./web/template:/app/web/template:rw,delegated
       - ./lang:/app/lang:rw,delegated

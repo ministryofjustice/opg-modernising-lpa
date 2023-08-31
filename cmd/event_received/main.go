@@ -31,6 +31,10 @@ type feeApprovedEvent struct {
 	UID string `json:"uid"`
 }
 
+type moreEvidenceRequiredEvent struct {
+	UID string `json:"uid"`
+}
+
 //go:generate mockery --testonly --inpackage --name dynamodbClient --structname mockDynamodbClient
 type dynamodbClient interface {
 	Put(context.Context, interface{}) error
@@ -94,6 +98,8 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) error {
 		return handleEvidenceReceived(ctx, dynamoClient, event)
 	case "fee-approved":
 		return handleFeeApproved(ctx, dynamoClient, event, shareCodeSender, appData)
+	case "more-evidence-required":
+		return handleMoreEvidenceRequired(ctx, dynamoClient, event)
 	default:
 		return fmt.Errorf("unknown event received: %s", event.DetailType)
 	}
@@ -106,8 +112,7 @@ func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event ev
 	}
 
 	var key dynamo.Key
-	err := client.GetOneByUID(ctx, v.UID, &key)
-	if err != nil {
+	if err := client.GetOneByUID(ctx, v.UID, &key); err != nil {
 		return fmt.Errorf("failed to resolve uid for 'evidence-received': %w", err)
 	}
 
@@ -129,14 +134,12 @@ func handleFeeApproved(ctx context.Context, dynamoClient dynamodbClient, event e
 	}
 
 	var key dynamo.Key
-	err := dynamoClient.GetOneByUID(ctx, v.UID, &key)
-	if err != nil {
+	if err := dynamoClient.GetOneByUID(ctx, v.UID, &key); err != nil {
 		return fmt.Errorf("failed to resolve uid for 'fee-approved': %w", err)
 	}
 
 	var lpa page.Lpa
-	err = dynamoClient.Get(ctx, key.PK, key.SK, &lpa)
-	if err != nil {
+	if err := dynamoClient.Get(ctx, key.PK, key.SK, &lpa); err != nil {
 		return fmt.Errorf("failed to get LPA for 'fee-approved': %w", err)
 	}
 
@@ -148,6 +151,35 @@ func handleFeeApproved(ctx context.Context, dynamoClient dynamodbClient, event e
 
 	if err := shareCodeSender.SendCertificateProvider(ctx, notify.CertificateProviderInviteEmail, appData, false, &lpa); err != nil {
 		return fmt.Errorf("failed to send share code to certificate provider for 'fee-approved': %w", err)
+	}
+
+	return nil
+}
+
+func handleMoreEvidenceRequired(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent) error {
+	var v moreEvidenceRequiredEvent
+	if err := json.Unmarshal(event.Detail, &v); err != nil {
+		return fmt.Errorf("failed to unmarshal 'more-evidence-required' detail: %w", err)
+	}
+
+	var key dynamo.Key
+	if err := client.GetOneByUID(ctx, v.UID, &key); err != nil {
+		return fmt.Errorf("failed to resolve uid for 'more-evidence-required': %w", err)
+	}
+
+	if key.PK == "" {
+		return errors.New("PK missing from LPA in response to 'more-evidence-required'")
+	}
+
+	var lpa page.Lpa
+	if err := client.Get(ctx, key.PK, key.SK, &lpa); err != nil {
+		return fmt.Errorf("failed to get LPA for 'more-evidence-required': %w", err)
+	}
+
+	lpa.Tasks.PayForLpa = actor.PaymentTaskMoreEvidenceRequired
+
+	if err := client.Put(ctx, lpa); err != nil {
+		return fmt.Errorf("failed to update LPA task status for 'more-evidence-required': %w", err)
 	}
 
 	return nil
