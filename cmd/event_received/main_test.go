@@ -29,7 +29,7 @@ func TestHandleEvidenceReceived(t *testing.T) {
 	client.
 		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(page.Lpa{PK: "LPA#123"})
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123"})
 			json.Unmarshal(b, v)
 			return nil
 		})
@@ -71,7 +71,7 @@ func TestHandleEvidenceReceivedWhenLpaMissingPK(t *testing.T) {
 	client.
 		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(page.Lpa{})
+			b, _ := json.Marshal(dynamo.Key{})
 			json.Unmarshal(b, v)
 			return nil
 		})
@@ -91,7 +91,7 @@ func TestHandleEvidenceReceivedWhenClientPutError(t *testing.T) {
 	client.
 		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(page.Lpa{PK: "LPA#123"})
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123"})
 			json.Unmarshal(b, v)
 			return nil
 		})
@@ -243,5 +243,124 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 
 	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{})
 	assert.Equal(t, fmt.Errorf("failed to send share code to certificate provider for 'fee-approved': %w", expectedError), err)
+}
 
+func TestHandleMoreEvidenceRequired(t *testing.T) {
+	ctx := context.Background()
+	event := events.CloudWatchEvent{
+		DetailType: "more-evidence-required",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("Get", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}}).
+		Return(nil)
+
+	err := handleMoreEvidenceRequired(ctx, client, event)
+	assert.Nil(t, err)
+}
+
+func TestHandleMoreEvidenceRequiredWhenGetOneByUIDError(t *testing.T) {
+	ctx := context.Background()
+	event := events.CloudWatchEvent{
+		DetailType: "more-evidence-required",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(expectedError)
+
+	err := handleMoreEvidenceRequired(ctx, client, event)
+	assert.Equal(t, fmt.Errorf("failed to resolve uid for 'more-evidence-required': %w", expectedError), err)
+}
+
+func TestHandleMoreEvidenceRequiredWhenPKMissing(t *testing.T) {
+	ctx := context.Background()
+	event := events.CloudWatchEvent{
+		DetailType: "more-evidence-required",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{})
+			json.Unmarshal(b, v)
+			return nil
+		})
+
+	err := handleMoreEvidenceRequired(ctx, client, event)
+
+	assert.Equal(t, errors.New("PK missing from LPA in response to 'more-evidence-required'"), err)
+}
+
+func TestHandleMoreEvidenceRequiredWhenGetError(t *testing.T) {
+	ctx := context.Background()
+	event := events.CloudWatchEvent{
+		DetailType: "more-evidence-required",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("Get", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(expectedError)
+
+	err := handleMoreEvidenceRequired(ctx, client, event)
+	assert.Equal(t, fmt.Errorf("failed to get LPA for 'more-evidence-required': %w", expectedError), err)
+}
+
+func TestHandleMoreEvidenceRequiredWhenPutError(t *testing.T) {
+	ctx := context.Background()
+	event := events.CloudWatchEvent{
+		DetailType: "more-evidence-required",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("Get", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}}).
+		Return(expectedError)
+
+	err := handleMoreEvidenceRequired(ctx, client, event)
+	assert.Equal(t, fmt.Errorf("failed to update LPA task status for 'more-evidence-required': %w", expectedError), err)
 }

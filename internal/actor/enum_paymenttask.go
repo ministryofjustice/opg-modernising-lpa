@@ -15,11 +15,12 @@ func _() {
 	_ = x[PaymentTaskCompleted-2]
 	_ = x[PaymentTaskPending-3]
 	_ = x[PaymentTaskDenied-4]
+	_ = x[PaymentTaskMoreEvidenceRequired-5]
 }
 
-const _PaymentTask_name = "NotStartedInProgressCompletedPendingDenied"
+const _PaymentTask_name = "NotStartedInProgressCompletedPendingDeniedMoreEvidenceRequired"
 
-var _PaymentTask_index = [...]uint8{0, 10, 20, 29, 36, 42}
+var _PaymentTask_index = [...]uint8{0, 10, 20, 29, 36, 42, 62}
 
 func (i PaymentTask) String() string {
 	if i >= PaymentTask(len(_PaymentTask_index)-1) {
@@ -48,6 +49,10 @@ func (i PaymentTask) IsDenied() bool {
 	return i == PaymentTaskDenied
 }
 
+func (i PaymentTask) IsMoreEvidenceRequired() bool {
+	return i == PaymentTaskMoreEvidenceRequired
+}
+
 func ParsePaymentTask(s string) (PaymentTask, error) {
 	switch s {
 	case "NotStarted":
@@ -60,23 +65,27 @@ func ParsePaymentTask(s string) (PaymentTask, error) {
 		return PaymentTaskPending, nil
 	case "Denied":
 		return PaymentTaskDenied, nil
+	case "MoreEvidenceRequired":
+		return PaymentTaskMoreEvidenceRequired, nil
 	default:
 		return PaymentTask(0), fmt.Errorf("invalid PaymentTask '%s'", s)
 	}
 }
 
 type PaymentTaskOptions struct {
-	NotStarted PaymentTask
-	InProgress PaymentTask
-	Completed  PaymentTask
-	Pending    PaymentTask
-	Denied     PaymentTask
+	NotStarted           PaymentTask
+	InProgress           PaymentTask
+	Completed            PaymentTask
+	Pending              PaymentTask
+	Denied               PaymentTask
+	MoreEvidenceRequired PaymentTask
 }
 
 var PaymentTaskValues = PaymentTaskOptions{
-	NotStarted: PaymentTaskNotStarted,
-	InProgress: PaymentTaskInProgress,
-	Completed:  PaymentTaskCompleted,
-	Pending:    PaymentTaskPending,
-	Denied:     PaymentTaskDenied,
+	NotStarted:           PaymentTaskNotStarted,
+	InProgress:           PaymentTaskInProgress,
+	Completed:            PaymentTaskCompleted,
+	Pending:              PaymentTaskPending,
+	Denied:               PaymentTaskDenied,
+	MoreEvidenceRequired: PaymentTaskMoreEvidenceRequired,
 }
