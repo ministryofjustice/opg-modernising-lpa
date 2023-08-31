@@ -28,7 +28,7 @@
         {{ tr .App "dateOfBirth" }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ formatDate .Lpa.Donor.DateOfBirth }}
+        {{ formatDate .App .Lpa.Donor.DateOfBirth }}
       </dd>
       {{ if $canChange }}
         <dd class="govuk-summary-list__actions">

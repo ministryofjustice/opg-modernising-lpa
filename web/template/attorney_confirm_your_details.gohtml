@@ -62,7 +62,7 @@
           </div>
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "dateOfBirth" }}</dt>
-            <dd class="govuk-summary-list__value">{{ formatDate .Attorney.DateOfBirth }}</dd>
+            <dd class="govuk-summary-list__value">{{ formatDate .App .Attorney.DateOfBirth }}</dd>
           </div>
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
