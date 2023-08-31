@@ -240,12 +240,17 @@ func TestAddDays(t *testing.T) {
 }
 
 func TestFormatDate(t *testing.T) {
-	assert.Equal(t, "7 March 2020", formatDate(time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
-	assert.Equal(t, "7 March 2020", formatDate(date.New("2020", "3", "7")))
+	assert.Equal(t, "7 March 2020", formatDate(page.AppData{}, time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
+	assert.Equal(t, "7 March 2020", formatDate(page.AppData{}, date.New("2020", "3", "7")))
+
+	assert.Equal(t, "7 Mawrth 2020", formatDate(page.AppData{Lang: localize.Cy}, time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
+	assert.Equal(t, "7 Mawrth 2020", formatDate(page.AppData{Lang: localize.Cy}, date.New("2020", "3", "7")))
 }
 
 func TestFormatDateTime(t *testing.T) {
-	assert.Equal(t, "7 March 2020 at 03:04", formatDateTime(time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
+	assert.Equal(t, "7 March 2020 at 03:04", formatDateTime(page.AppData{}, time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
+
+	assert.Equal(t, "7 Mawrth 2020 am 03:04", formatDateTime(page.AppData{Lang: localize.Cy}, time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
 }
 
 func TestLowerFirst(t *testing.T) {
