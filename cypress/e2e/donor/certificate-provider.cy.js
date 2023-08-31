@@ -240,13 +240,13 @@ describe('Certificate provider task', () => {
         cy.visitLpa('/certificate-provider-details');
         cy.contains('button', 'Save and continue').click();
 
-        cy.get('#f-first-names').type('John');
-        cy.get('#f-last-name').type('Smith');
+        cy.get('#f-first-names').type('Jessie');
+        cy.get('#f-last-name').type('Jones');
         cy.get('#f-mobile').type(TestMobile);
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/certificate-provider-details');
 
-        cy.contains('There is also an attorney called John Smith.');
+        cy.contains('There is also an attorney called Jessie Jones.');
 
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/how-would-certificate-provider-prefer-to-carry-out-their-role');
