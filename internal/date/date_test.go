@@ -36,9 +36,9 @@ func TestNew(t *testing.T) {
 			date := New(tc.year, tc.month, tc.day)
 
 			assert.Equal(t, tc.date, date)
-			assert.Equal(t, tc.year, date.Year())
-			assert.Equal(t, tc.month, date.Month())
-			assert.Equal(t, tc.day, date.Day())
+			assert.Equal(t, tc.year, date.YearString())
+			assert.Equal(t, tc.month, date.MonthString())
+			assert.Equal(t, tc.day, date.DayString())
 			assert.True(t, date.Valid())
 			assert.False(t, date.IsZero())
 			assert.Equal(t, "2000-3-4", date.String())
