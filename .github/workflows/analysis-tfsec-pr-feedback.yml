@@ -22,9 +22,9 @@ jobs:
   tfsec:
     name: TFSec Static analysis
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        terraform_path: ['terraform/account', 'terraform/environment']
+    # strategy:
+    #   matrix:
+    #     terraform_path: ['terraform/account', 'terraform/environment']
     steps:
       - name: checkout
         uses: actions/checkout@v3
@@ -33,7 +33,10 @@ jobs:
       - name: tfsec with pr comments
         uses: tfsec/tfsec-pr-commenter-action@v1.3.1
         with:
-          working_directory: ${{ matrix.terraform_path }}
+          # working_directory: ${{ matrix.terraform_path }}
+          # setting working_directory to empty string will run tfsec on all .tf files in the repo
+          working_directory: ''
           github_token: ${{secrets.GITHUB_TOKEN}}
           soft_fail_commenter: true
           tfsec_version: v1.28.1
+          tfsec_args: --concise-output --force-all-dirs
