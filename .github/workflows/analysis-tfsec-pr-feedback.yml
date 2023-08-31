@@ -36,3 +36,4 @@ jobs:
           working_directory: ${{ matrix.terraform_path }}
           github_token: ${{secrets.GITHUB_TOKEN}}
           soft_fail_commenter: true
+          tfsec_version: v1.28.1
