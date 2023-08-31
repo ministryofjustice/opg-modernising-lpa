@@ -51,15 +51,27 @@ func FromTime(t time.Time) Date {
 	}
 }
 
-func (d Date) Year() string {
+func (d Date) Year() int {
+	return d.t.Year()
+}
+
+func (d Date) Month() time.Month {
+	return d.t.Month()
+}
+
+func (d Date) Day() int {
+	return d.t.Day()
+}
+
+func (d Date) YearString() string {
 	return d.year
 }
 
-func (d Date) Month() string {
+func (d Date) MonthString() string {
 	return d.month
 }
 
-func (d Date) Day() string {
+func (d Date) DayString() string {
 	return d.day
 }
 
