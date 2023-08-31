@@ -91,10 +91,6 @@ func (l *Localizer) Possessive(s string) string {
 }
 
 func (l *Localizer) Concat(list []string, joiner string) string {
-	if l.Lang == Cy {
-		return "Welsh"
-	}
-
 	switch len(list) {
 	case 0:
 		return ""
