@@ -55,6 +55,11 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 			return err
 		}
 
+		paymentPath := page.Paths.AboutPayment.Format(lpa.ID)
+		if lpa.Tasks.PayForLpa.IsMoreEvidenceRequired() {
+			paymentPath = page.Paths.UploadEvidence.Format(lpa.ID)
+		}
+
 		data := &taskListData{
 			App:              appData,
 			Lpa:              lpa,
@@ -109,7 +114,7 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 					Items: []taskListItem{
 						{
 							Name:         "payForTheLpa",
-							Path:         page.Paths.AboutPayment.Format(lpa.ID),
+							Path:         paymentPath,
 							PaymentState: lpa.Tasks.PayForLpa,
 						},
 					},
