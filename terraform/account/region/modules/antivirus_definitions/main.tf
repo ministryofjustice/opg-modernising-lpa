@@ -18,6 +18,10 @@ resource "aws_lambda_function" "lambda_function" {
   timeout       = 300
   memory_size   = 2048
 
+  tracing_config {
+    mode = "Active"
+  }
+
   vpc_config {
     subnet_ids = data.aws_subnet.application.*.id
     security_group_ids = [
