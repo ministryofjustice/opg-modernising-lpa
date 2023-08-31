@@ -98,6 +98,8 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) error {
 		return handleEvidenceReceived(ctx, dynamoClient, event)
 	case "fee-approved":
 		return handleFeeApproved(ctx, dynamoClient, event, shareCodeSender, appData)
+	case "more-evidence-required":
+		return handleMoreEvidenceRequired(ctx, dynamoClient, event)
 	default:
 		return fmt.Errorf("unknown event received: %s", event.DetailType)
 	}

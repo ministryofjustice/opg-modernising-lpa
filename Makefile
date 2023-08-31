@@ -90,3 +90,6 @@ emit-evidence-received: ##@app emits an evidence-received event with the given U
 
 emit-fee-approved: ##@app emits a fee-approved event with the given UID e.g. emit-fee-approved UID=abc-123
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"fee-approved","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(UID)"}}'
+
+emit-more-evidence-required: ##@app emits a more-evidence-required event with the given UID e.g. emit-fee-approved UID=abc-123
+	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"more-evidence-required","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(UID)"}}'

@@ -45,14 +45,21 @@
                         {{ tr $.App .Name }}
                       </a>
                     </span>
-                    <strong class="govuk-tag app-task-list__tag govuk-tag--yellow">{{ tr $.App "pending" }} {{if gt .Count 0}}({{ .Count }}){{ end }}</strong>
+                    <strong class="govuk-tag app-task-list__tag govuk-tag--yellow">{{ tr $.App "pending" }}</strong>
                   {{ else if .PaymentState.IsDenied }}
                     <span class="app-task-list__task-name">
                       <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
                         {{ tr $.App .Name }}
                       </a>
                     </span>
-                    <strong class="govuk-tag app-task-list__tag govuk-tag--red">{{ tr $.App "denied" }} {{if gt .Count 0}}({{ .Count }}){{ end }}</strong>
+                    <strong class="govuk-tag app-task-list__tag govuk-tag--red">{{ tr $.App "denied" }}</strong>
+                  {{ else if .PaymentState.IsMoreEvidenceRequired }}
+                      <span class="app-task-list__task-name">
+                      <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
+                        {{ tr $.App .Name }}
+                      </a>
+                    </span>
+                    <strong class="govuk-tag app-task-list__tag govuk-tag--blue">{{ tr $.App "evidenceRequired" }}</strong>
                   {{ else if not ($.Lpa.CanGoTo .Path) }}
                     <span class="app-task-list__task-name govuk-hint govuk-!-margin-bottom-0">
                       {{ tr $.App .Name }}
