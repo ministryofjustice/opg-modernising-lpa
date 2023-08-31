@@ -2,7 +2,7 @@ name: "[Job] Slack Notification of Path to Live Workflow Failure"
 
 on:
   workflow_run:
-    workflows: [Path to Live]
+    workflows: ["[Workflow] Path To Live"]
     types: [completed]
 
 jobs:
