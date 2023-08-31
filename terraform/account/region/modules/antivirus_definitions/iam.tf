@@ -42,7 +42,7 @@ data "aws_iam_policy_document" "lambda" {
   }
 
   statement {
-    sid       = "allowS3Writing"
+    sid       = "allowS3LocateList"
     effect    = "Allow"
     resources = [aws_s3_bucket.bucket.arn]
     actions = [
@@ -53,7 +53,7 @@ data "aws_iam_policy_document" "lambda" {
 
   #tfsec:ignore:aws-iam-no-policy-wildcards
   statement {
-    sid       = "allowS3Writing"
+    sid       = "allowS3GetPut"
     effect    = "Allow"
     resources = [aws_s3_bucket.bucket.arn, "${aws_s3_bucket.bucket.arn}/*"]
     actions = [
