@@ -18,13 +18,13 @@ func main() {
 
 		switch postcode {
 		case "INVALID":
-			postcodeJson, _ = os.ReadFile("testdata/invalid-postcode-error.json")
+			postcodeJson, _ = os.ReadFile("data/invalid-postcode-error.json")
 			w.Write(postcodeJson)
 		case "NE234EE":
-			postcodeJson, _ = os.ReadFile("testdata/no-addresses-found.json")
+			postcodeJson, _ = os.ReadFile("data/no-addresses-found.json")
 			w.Write(postcodeJson)
 		default:
-			postcodeJson, _ = os.ReadFile("testdata/multiple-addresses.json")
+			postcodeJson, _ = os.ReadFile("data/multiple-addresses.json")
 			w.Write(postcodeJson)
 		}
 
