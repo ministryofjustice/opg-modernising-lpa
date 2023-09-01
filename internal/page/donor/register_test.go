@@ -451,6 +451,25 @@ func TestPayHelperPayWhenPaymentNotRequired(t *testing.T) {
 	}
 }
 
+func TestPayHelperPayWhenMoreEvidenceProvided(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), &page.Lpa{ID: "lpa-id", FeeType: page.HalfFee, Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}}).
+		Return(nil)
+
+	err := (&payHelper{
+		donorStore: donorStore,
+	}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: page.HalfFee, Tasks: page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.WhatHappensAfterNoFee.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
 func TestPayHelperPayWhenPaymentNotRequiredAndDonorStoreErrors(t *testing.T) {
 	testCases := []page.FeeType{
 		page.NoFee,
