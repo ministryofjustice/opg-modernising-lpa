@@ -3,18 +3,18 @@ version: '3.8'
 services:
   app:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/mlpa/Dockerfile
       args:
         ARCH: ${ARCH:-amd64}
     container_name: app
     depends_on:
       - localstack
-      - sign-in-mock
-      - pay-mock
-      - ordnance-survey-mock
-      - notify-mock
-      - uid-mock
+      - mock-onelogin
+      - mock-pay
+      - mock-os-api
+      - mock-notify
+      - mock-uid
     restart: on-failure
     ports:
       - "5050:8080"
@@ -29,15 +29,15 @@ services:
       - CLIENT_ID=client-id-value
       - DYNAMODB_TABLE_LPAS=lpas
       - DYNAMODB_TABLE_REDUCED_FEES=reduced-fees
-      - GOVUK_NOTIFY_BASE_URL=http://notify-mock:8080
-      - GOVUK_PAY_BASE_URL=http://pay-mock:4010
-      - ISSUER=http://sign-in-mock:8080
-      - ORDNANCE_SURVEY_BASE_URL=http://ordnance-survey-mock:8080
+      - GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080
+      - GOVUK_PAY_BASE_URL=http://mock-pay:4010
+      - ISSUER=http://mock-onelogin:8080
+      - ORDNANCE_SURVEY_BASE_URL=http://mock-os-api:8080
 
   localstack:
     build:
-      context: .
-      dockerfile: ./localstack.Dockerfile
+      context: localstack
+      dockerfile: Dockerfile
     ports:
       - "4566:4566"
     environment:
@@ -47,11 +47,11 @@ services:
       - USE_SINGLE_REGION=1
       - DEBUG=1
 
-  sign-in-mock:
+  mock-onelogin:
     build:
-      context: ./
-      dockerfile: cmd/GOVUKSignIn/Dockerfile
-    container_name: sign-in-mock
+      context: ..
+      dockerfile: docker/mock-onelogin/Dockerfile
+    container_name: mock-onelogin
     ports:
       - "7012:8080"
     environment:
@@ -59,35 +59,35 @@ services:
       - CLIENT_ID=client-id-value
       - REDIRECT_URL=http://localhost:5050/auth/redirect
 
-  pay-mock:
+  mock-notify:
+    build:
+      context: ..
+      dockerfile: docker/mock-notify/Dockerfile
+    container_name: mock-notify
+    ports:
+      - "8080:8080"
+
+  mock-os-api:
+    build:
+      context: ..
+      dockerfile: docker/mock-os-api/Dockerfile
+    container_name: mock-os-api
+    ports:
+      - "8081:8080"
+
+  mock-pay:
     image: stoplight/prism:4.14.1
     command: 'mock /tmp/publicapi_spec.json -h 0.0.0.0'
-    container_name: pay-mock
+    container_name: mock-pay
     ports:
       - '4010:4010'
     volumes:
       - ./mocks/GOVUKPay:/tmp
 
-  notify-mock:
-    build:
-      context: ./
-      dockerfile: cmd/GOVUKNotify/Dockerfile
-    container_name: notify-mock
-    ports:
-      - "8080:8080"
-
-  ordnance-survey-mock:
-    build:
-      context: ./
-      dockerfile: cmd/OrdnanceSurveyPlacesAPI/Dockerfile
-    container_name: ordnance-survey-mock
-    ports:
-      - "8081:8080"
-
-  uid-mock:
+  mock-uid:
     image: outofcoffee/imposter:latest
     volumes:
       - ./mocks/OPGUID/config:/opt/imposter/config
-    container_name: uid-mock
+    container_name: mock-uid
     ports:
       - "8082:8080"
