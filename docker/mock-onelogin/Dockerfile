@@ -4,12 +4,11 @@ RUN apt-get install -y --no-install-recommends openssl
 
 WORKDIR /app
 
-COPY ./cmd/GOVUKNotify/main.go .
 COPY go.mod go.sum ./
-
 RUN go mod download
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o govuk-notify main.go
+COPY cmd/mock-onelogin ./cmd/mock-onelogin
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o mock-onelogin ./cmd/mock-onelogin
 
 RUN addgroup --system app && \
   adduser --system --gecos app app && \
@@ -17,4 +16,4 @@ RUN addgroup --system app && \
 
 USER app
 
-CMD [ "/app/govuk-notify" ]
+CMD [ "/app/mock-onelogin" ]
