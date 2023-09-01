@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/mlpa/Dockerfile
+      args:
+        ARCH: ${ARCH:-amd64}
+    container_name: app
+    depends_on:
+      - localstack
+      - mock-onelogin
+      - mock-pay
+      - mock-os-api
+      - mock-notify
+      - mock-uid
+    restart: on-failure
+    ports:
+      - "5050:8080"
+    environment:
+      - AWS_ACCESS_KEY_ID=fakeKeyId
+      - AWS_BASE_URL=http://localstack:4566
+      - AWS_REGION=eu-west-1
+      - AWS_SECRET_ACCESS_KEY=fakeAccessKey
+
+  localstack:
+    build:
+      context: localstack
+      dockerfile: Dockerfile
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3,secretsmanager
+      - DATA_DIR=/tmp/localstack/data
+      - DEFAULT_REGION=eu-west-1
+      - USE_SINGLE_REGION=1
+      - DEBUG=1
+
+  mock-onelogin:
+    build:
+      context: ..
+      dockerfile: docker/mock-onelogin/Dockerfile
+    container_name: mock-onelogin
+    ports:
+      - "7012:8080"
+    environment:
+      - PUBLIC_URL=http://localhost:7012
+      - CLIENT_ID=client-id-value
+      - REDIRECT_URL=http://localhost:5050/auth/redirect
+
+  mock-notify:
+    build:
+      context: ..
+      dockerfile: docker/mock-notify/Dockerfile
+    container_name: mock-notify
+
+  mock-os-api:
+    build:
+      context: ..
+      dockerfile: docker/mock-os-api/Dockerfile
+    container_name: mock-os-api
+
+  mock-pay:
+    image: stoplight/prism:4.14.1
+    command: 'mock /tmp/publicapi_spec.json -h 0.0.0.0'
+    container_name: mock-pay
+    volumes:
+      - ../mocks/GOVUKPay:/tmp
+
+  mock-uid:
+    image: outofcoffee/imposter:latest
+    volumes:
+      - ../mocks/OPGUID/config:/opt/imposter/config
+    container_name: mock-uid
+    ports:
+      - "8080:8080"
