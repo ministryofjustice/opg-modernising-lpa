@@ -20,7 +20,7 @@ import (
 var (
 	port               = env.Get("PORT", "8080")
 	publicURL          = env.Get("PUBLIC_URL", "http://localhost:8080")
-	internalURL        = env.Get("INTERNAL_URL", "http://sign-in-mock:8080")
+	internalURL        = env.Get("INTERNAL_URL", "http://mock-onelogin:8080")
 	clientId           = env.Get("CLIENT_ID", "theClientId")
 	serviceRedirectUrl = env.Get("REDIRECT_RUL", "http://localhost:5050/auth/redirect")
 

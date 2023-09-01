@@ -39,14 +39,17 @@ else
 endif
 	go test -coverprofile=$(t) $(path) && go tool cover -html=$(t) && unlink $(t)
 
+down: ##@build Takes all containers down
+	docker compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml down
+
 build-up-app: ##@build Builds the app
-	docker compose up -d --build --remove-orphans app
+	docker compose -f docker/docker-compose.yml up -d --build --remove-orphans app
 
 build-up-app-dev: ##@build Builds the app and brings up via Air hot reload with Delve debugging enabled using amd binaries
-	docker compose -f ./docker-compose.yml -f ./docker-compose.dev.yml up -d --build --force-recreate --remove-orphans app
+	docker compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml up -d --build --force-recreate --remove-orphans app
 
 build-up-app-dev-arm: ##@build Builds the app and brings up via Air hot reload with Delve debugging enabled using arm binaries
-	ARCH=arm64 docker compose -f ./docker-compose.yml -f ./docker-compose.dev.yml up -d --build --force-recreate --remove-orphans app
+	ARCH=arm64 docker compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml up -d --build --force-recreate --remove-orphans app
 
 run-cypress: ##@testing Runs cypress e2e tests. To run a specific spec file pass in spec e.g. make run-cypress spec=start
 ifdef spec
