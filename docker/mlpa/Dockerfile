@@ -21,8 +21,8 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY /cmd/mlpa ./cmd/mlpa
-COPY /internal ./internal
+COPY cmd/mlpa ./cmd/mlpa
+COPY internal ./internal
 
 COPY --from=asset-env /app/web/static web/static
 
@@ -39,10 +39,10 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY /cmd/mlpa ./cmd/mlpa
-COPY /internal ./internal
+COPY cmd/mlpa ./cmd/mlpa
+COPY internal ./internal
 
-RUN cd cmd/mlpa && CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -ldflags="-X main.Tag=${TAG}" -o /go/bin/mlpab
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -ldflags="-X main.Tag=${TAG}" -o /go/bin/mlpab ./cmd/mlpa
 
 FROM alpine:3.18.3 as production
 
