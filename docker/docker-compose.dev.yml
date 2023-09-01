@@ -3,8 +3,8 @@ version: '3.8'
 services:
   app:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/mlpa/Dockerfile
       target: dev
     container_name: app-dev
     depends_on:
@@ -25,8 +25,8 @@ services:
 
   events-lambda:
     build:
-      context: .
-      dockerfile: ./cmd/event_received/Dockerfile
+      context: ..
+      dockerfile: docker/event-received/Dockerfile
       target: dev
     container_name: events-lambda
     environment:
@@ -37,7 +37,7 @@ services:
       - LPAS_TABLE=lpas
       - GOVUK_NOTIFY_IS_PRODUCTION=0
       - APP_PUBLIC_URL=http://localhost:5050
-      - GOVUK_NOTIFY_BASE_URL=http://notify-mock:8080
+      - GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080
     ports:
       - "9000:8080"
     entrypoint: aws-lambda-rie /var/task/main
