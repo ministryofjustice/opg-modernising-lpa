@@ -1,5 +1,4 @@
-name: "[Workflow] Path To Live"
-run-name: "Path To Live"
+name: "Path To Live"
 
 on:
   push:
