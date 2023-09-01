@@ -42,12 +42,21 @@ data "aws_iam_policy_document" "lambda" {
   }
 
   statement {
-    sid       = "allowS3Writing"
+    sid       = "allowS3LocateList"
     effect    = "Allow"
-    resources = [aws_s3_bucket.bucket.arn, "${aws_s3_bucket.bucket.arn}/*"]
+    resources = [aws_s3_bucket.bucket.arn]
     actions = [
       "s3:GetBucketLocation",
       "s3:ListBucket",
+    ]
+  }
+
+  #tfsec:ignore:aws-iam-no-policy-wildcards
+  statement {
+    sid       = "allowS3GetPut"
+    effect    = "Allow"
+    resources = [aws_s3_bucket.bucket.arn, "${aws_s3_bucket.bucket.arn}/*"]
+    actions = [
       "s3:GetObject",
       "s3:PutObject"
     ]

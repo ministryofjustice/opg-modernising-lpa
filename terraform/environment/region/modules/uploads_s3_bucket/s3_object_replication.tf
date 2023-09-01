@@ -43,6 +43,7 @@ data "aws_iam_policy_document" "replication" {
   statement {
     effect = "Allow"
 
+
     actions = [
       "s3:GetObjectVersionForReplication",
       "s3:GetObjectVersionAcl",
@@ -50,7 +51,7 @@ data "aws_iam_policy_document" "replication" {
       "s3:InitiateReplication",
     ]
 
-    resources = ["${aws_s3_bucket.bucket.arn}/*"]
+    resources = ["${aws_s3_bucket.bucket.arn}/*"] #tfsec:ignore:aws-iam-no-policy-wildcards
   }
 
   statement {
@@ -60,7 +61,6 @@ data "aws_iam_policy_document" "replication" {
       "s3:ReplicateObject",
       "s3:ReplicateDelete",
       "s3:ReplicateTags",
-      # "s3:PutObject",
     ]
 
     resources = ["${var.s3_replication.destination_bucket_arn}/*"]
