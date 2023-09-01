@@ -3,13 +3,14 @@ resource "aws_s3_bucket" "access_log" {
   bucket   = "${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-lb-access-logs-${data.aws_region.current.name}"
 }
 
+#tfsec:ignore:aws-s3-encryption-customer-key
 resource "aws_s3_bucket_server_side_encryption_configuration" "access_log" {
   provider = aws.region
   bucket   = aws_s3_bucket.access_log.id
   rule {
     apply_server_side_encryption_by_default {
       # Access logging for ALBs only supports Amazon S3 Managed Encryption Keys (SSE-S3)
-      sse_algorithm = "aws:kms" #tfsec:ignore:aws-s3-encryption-customer-key
+      sse_algorithm = "aws:kms"
     }
   }
 }
