@@ -104,7 +104,7 @@
           {{ tr $.App "dateOfBirth" }}
         </dt>
         <dd class="govuk-summary-list__value">
-          {{ formatDate $a.DateOfBirth }}
+          {{ formatDate $.App $a.DateOfBirth }}
         </dd>
         {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
           <dd class="govuk-summary-list__actions">

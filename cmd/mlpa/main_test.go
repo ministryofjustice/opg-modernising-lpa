@@ -29,8 +29,8 @@ func TestAwsRegion(t *testing.T) {
 }
 
 func TestLanguageFilesMatch(t *testing.T) {
-	en := loadTranslations("../lang/en.json")
-	cy := loadTranslations("../lang/cy.json")
+	en := loadTranslations("../../lang/en.json")
+	cy := loadTranslations("../../lang/cy.json")
 
 	for k := range en {
 		if _, ok := cy[k]; !ok {
@@ -48,8 +48,8 @@ func TestLanguageFilesMatch(t *testing.T) {
 }
 
 func TestApostrophesAreCurly(t *testing.T) {
-	en := loadTranslations("../lang/en.json")
-	cy := loadTranslations("../lang/cy.json")
+	en := loadTranslations("../../lang/en.json")
+	cy := loadTranslations("../../lang/cy.json")
 
 	for k, v := range en {
 		if strings.Contains(v, "'") {
@@ -67,7 +67,7 @@ func TestApostrophesAreCurly(t *testing.T) {
 }
 
 func TestLanguageKeyUsed(t *testing.T) {
-	en := loadTranslations("../lang/en.json")
+	en := loadTranslations("../../lang/en.json")
 	wd, _ := os.Getwd()
 
 	workers := 5
@@ -80,7 +80,7 @@ func TestLanguageKeyUsed(t *testing.T) {
 			defer func() { <-sem }()
 
 			cmd := exec.Command("git", "grep", `"`+k+`"`)
-			cmd.Dir = path.Join(wd, "..")
+			cmd.Dir = path.Join(wd, "..", "..")
 			output, _ := cmd.Output()
 
 			if strings.Count(string(output), "\n") <= 2 {
@@ -96,7 +96,11 @@ func TestLanguageKeyUsed(t *testing.T) {
 }
 
 func loadTranslations(path string) map[string]string {
-	data, _ := os.ReadFile(path)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
+
 	var v map[string]string
 	json.Unmarshal(data, &v)
 
