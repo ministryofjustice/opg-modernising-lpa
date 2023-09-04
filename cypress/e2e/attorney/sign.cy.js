@@ -9,7 +9,7 @@ describe('Sign', () => {
 
             cy.contains('Sign as an attorney on this LPA');
 
-            cy.contains('label', 'I, John Smith, confirm').click();
+            cy.contains('label', 'I, Jessie Jones, confirm').click();
             cy.contains('button', 'Submit signature').click();
 
             cy.url().should('contain', '/what-happens-next');
@@ -39,7 +39,7 @@ describe('Sign', () => {
 
             cy.contains('Sign as a replacement attorney on this LPA');
 
-            cy.contains('label', 'I, Jane Smith, confirm').click();
+            cy.contains('label', 'I, Blake Buckley, confirm').click();
             cy.contains('button', 'Submit signature').click();
 
             cy.url().should('contain', '/what-happens-next');

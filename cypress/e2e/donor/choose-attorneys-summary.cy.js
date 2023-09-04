@@ -10,12 +10,12 @@ describe('Choose attorneys summary', () => {
 
         cy.contains('You have added 2 attorneys');
 
-        cy.contains('John Smith');
+        cy.contains('Jessie Jones');
         cy.contains('2 January 2000');
         cy.contains('2 RICHMOND PLACE');
         cy.contains('B14 7ED');
 
-        cy.contains('Joan Smith');
+        cy.contains('Robin Redcar');
         cy.contains('2 January 2000');
 
         cy.visitLpa('/task-list')
@@ -37,7 +37,7 @@ describe('Choose attorneys summary', () => {
 
         cy.url().should('contain', '/choose-attorneys-summary');
 
-        cy.contains('Mark Smith');
+        cy.contains('Mark Jones');
     });
 
     it('can amend attorney address', () => {
@@ -120,7 +120,7 @@ describe('Choose attorneys summary', () => {
 
         cy.checkA11yApp();
 
-        cy.contains('Are you sure you want to remove John Smith?');
+        cy.contains('Are you sure you want to remove Jessie Jones?');
 
         cy.get('input[name="yes-no"]').check('yes');
         cy.contains('button', 'Continue').click();
@@ -129,7 +129,7 @@ describe('Choose attorneys summary', () => {
 
         cy.checkA11yApp();
 
-        cy.get('main').should('not.contain', 'John Smith');
+        cy.get('main').should('not.contain', 'Jessie Jones');
 
         cy.get('#remove-attorney-1').contains('a', 'Remove').click();
         cy.get('input[name="yes-no"]').check('yes');
