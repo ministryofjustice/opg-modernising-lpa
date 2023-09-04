@@ -21,8 +21,25 @@
 
         {{ template "dob-warning" . }}
 
-        {{ template "continue-button" . }}
 
+        <div class="govuk-form-group {{ if .Errors.Has "can-sign" }}govuk-form-group--error{{ end }}">
+          <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+              {{ tr .App "canYouSignYourselfOnline" }}
+            </legend>
+            <p class="govuk-body">{{ tr .App "canYouSignYourselfGuidance" }}</p>
+
+            {{ template "error-message" (errorMessage . "can-sign") }}
+            
+            {{ template "radios" (items . "can-sign" ""
+              (item .YesNoOptions.Yes.String "yes")
+              (item .YesNoOptions.No.String "no")
+              (item .YesNoOptions.No.String "iDontKnow")
+            ) }}
+          </fieldset>
+        </div>
+        
+        {{ template "continue-button" . }}
         {{ template "csrf-field" . }}
       </form>
     </div>
