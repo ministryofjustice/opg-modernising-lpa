@@ -35,6 +35,10 @@ type moreEvidenceRequiredEvent struct {
 	UID string `json:"uid"`
 }
 
+type feeDeniedEvent struct {
+	UID string `json:"uid"`
+}
+
 //go:generate mockery --testonly --inpackage --name dynamodbClient --structname mockDynamodbClient
 type dynamodbClient interface {
 	Put(context.Context, interface{}) error
@@ -100,6 +104,8 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) error {
 		return handleFeeApproved(ctx, dynamoClient, event, shareCodeSender, appData)
 	case "more-evidence-required":
 		return handleMoreEvidenceRequired(ctx, dynamoClient, event)
+	case "fee-denied":
+		return handleFeeDenied(ctx, dynamoClient, event)
 	default:
 		return fmt.Errorf("unknown event received: %s", event.DetailType)
 	}
@@ -180,6 +186,35 @@ func handleMoreEvidenceRequired(ctx context.Context, client dynamodbClient, even
 
 	if err := client.Put(ctx, lpa); err != nil {
 		return fmt.Errorf("failed to update LPA task status for 'more-evidence-required': %w", err)
+	}
+
+	return nil
+}
+
+func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent) error {
+	var v feeApprovedEvent
+	if err := json.Unmarshal(event.Detail, &v); err != nil {
+		return fmt.Errorf("failed to unmarshal 'fee-denied' detail: %w", err)
+	}
+
+	var key dynamo.Key
+	if err := client.GetOneByUID(ctx, v.UID, &key); err != nil {
+		return fmt.Errorf("failed to resolve uid for 'fee-denied': %w", err)
+	}
+
+	if key.PK == "" {
+		return errors.New("PK missing from LPA in response to 'fee-denied'")
+	}
+
+	var lpa page.Lpa
+	if err := client.Get(ctx, key.PK, key.SK, &lpa); err != nil {
+		return fmt.Errorf("failed to get LPA for 'fee-denied': %w", err)
+	}
+
+	lpa.Tasks.PayForLpa = actor.PaymentTaskDenied
+
+	if err := client.Put(ctx, lpa); err != nil {
+		return fmt.Errorf("failed to update LPA task status for 'fee-denied': %w", err)
 	}
 
 	return nil
