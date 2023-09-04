@@ -463,7 +463,7 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 	}
 
 	createPaymentBody := pay.CreatePaymentBody{
-		Amount:      lpa.FeeType.Cost(),
+		Amount:      lpa.FeeAmount(),
 		Reference:   p.randomString(12),
 		Description: "Property and Finance LPA",
 		ReturnUrl:   p.appPublicURL + appData.BuildUrl(page.Paths.PaymentConfirmation.Format(lpa.ID)),
