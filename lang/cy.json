@@ -489,20 +489,32 @@
     "whenAttorneysCanUseTheLpa": "Welsh",
     "theirAttorneys": {
         "one": "Welsh",
+        "two": "Welsh",
+        "few": "Welsh",
+        "many": "Welsh",
         "other": "Welsh"
     },
     "attorneyNames": {
         "one": "Welsh",
+        "two": "Welsh",
+        "few": "Welsh",
+        "many": "Welsh",
         "other": "Welsh"
     },
     "howAttorneysMustMakeDecisions": "Welsh",
     "howReplacementAttorneysMustMakeDecisions": "Welsh",
     "theirReplacementAttorneys": {
         "one": "Welsh",
+        "two": "Welsh",
+        "few": "Welsh",
+        "many": "Welsh",
         "other": "Welsh"
     },
     "replacementAttorneyNames": {
         "one": "Welsh",
+        "two": "Welsh",
+        "few": "Welsh",
+        "many": "Welsh",
         "other": "Welsh"
     },
     "readDonorNameLpa": "Welsh {{ .DonorFullName }}’s welsh",
