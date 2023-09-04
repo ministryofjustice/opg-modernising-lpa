@@ -23,6 +23,7 @@ type taskListItem struct {
 	State        actor.TaskState
 	PaymentState actor.PaymentTask
 	Count        int
+	Hidden       bool
 }
 
 type taskListSection struct {
@@ -101,6 +102,10 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 							Path:  page.Paths.DoYouWantToNotifyPeople.Format(lpa.ID),
 							State: lpa.Tasks.PeopleToNotify,
 							Count: len(lpa.PeopleToNotify),
+						},
+						{
+							Name:   "chooseYourSignatoryAndIndpendentWitness",
+							Hidden: !lpa.Donor.CanSign.IsNo(),
 						},
 						{
 							Name:  "checkAndSendToYourCertificateProvider",

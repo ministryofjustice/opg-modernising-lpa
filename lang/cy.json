@@ -733,5 +733,22 @@
     "signTheLpaSignatory1": "Welsh",
     "signTheLpaSignatory2": "Welsh",
     "yourDetailsContent": "Rhaid i chi nodi eich enw fel y mae’n ymddangos ar ddogfennau swyddogol, fel eich pasbort neu drwydded yrru.",
-    "evidenceRequired": "Welsh"
+    "onceConfirmedNotAbleToMakeChanges": "Welsh",
+    "canYouSignYourselfOnline": "Welsh",
+    "canYouSignYourselfGuidance": "Welsh",
+    "iDontKnow": "Welsh",
+    "yesIfCanSign": "Welsh",
+    "evidenceRequired": "Welsh",
+    "checkThatYouCanSignYourLpa": "Welsh",
+    "checkThatYouCanSignYourLpaGuidance": "<p class=\"govuk-body\">Welsh</p><h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh:</p><ul class=\"govuk-list govuk-list--bullet\"><li>Welsh</li><li>Welsh</li></ul><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p><h3 class=\"govuk-heading-s\">Welsh</h3><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
+    "ifYouCannotTickTheBoxGuidance": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh:</p><ul class=\"govuk-list govuk-list--bullet\"><li>Welsh</li><li>Welsh</li></ul><p class=\"govuk-body\">Welsh</p>",
+    "exampleTickBox": "Welsh",
+    "willYouBeAbleToSign": "Welsh",
+    "wellGiveYouMoreInformationAboutWhatToDo": "Welsh",
+    "yesIfYouWillBeAbleToSignYourself": "Welsh",
+    "informationSaved": "Welsh",
+    "weKnowYouWillNeedHelpSigningTitle": "Welsh",
+    "weKnowYouWillNeedHelpSigning": "Welsh",
+    "weKnowYouWillNeedHelpSigningContent": "<p class=\"govuk-body\">Welsh:</p><ul class=\"govuk-list govuk-list--bullet\"><li>Welsh</li><li>Welsh</li></ul><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
+    "chooseYourSignatoryAndIndpendentWitness": "Welsh"
 }

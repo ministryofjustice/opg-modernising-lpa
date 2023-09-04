@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
@@ -21,6 +22,8 @@ type Donor struct {
 	DateOfBirth date.Date
 	// Address of the donor
 	Address place.Address
+	// CanSign is Yes if the donor has said they will sign online
+	CanSign form.YesNo
 }
 
 func (d Donor) FullName() string {

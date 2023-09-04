@@ -9,17 +9,28 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
+//go:generate enumerator -type YesNoMaybe -linecomment -empty
+type YesNoMaybe uint8
+
+const (
+	Yes YesNoMaybe = iota + 1
+	No
+	Maybe
+)
+
 type yourDetailsData struct {
-	App         page.AppData
-	Errors      validation.List
-	Form        *yourDetailsForm
-	DobWarning  string
-	NameWarning *actor.SameNameWarning
+	App               page.AppData
+	Errors            validation.List
+	Form              *yourDetailsForm
+	YesNoMaybeOptions YesNoMaybeOptions
+	DobWarning        string
+	NameWarning       *actor.SameNameWarning
 }
 
 func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore sessions.Store) Handler {
@@ -32,6 +43,7 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 				OtherNames: lpa.Donor.OtherNames,
 				Dob:        lpa.Donor.DateOfBirth,
 			},
+			YesNoMaybeOptions: YesNoMaybeValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -67,6 +79,9 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 				lpa.Donor.LastName = data.Form.LastName
 				lpa.Donor.OtherNames = data.Form.OtherNames
 				lpa.Donor.DateOfBirth = data.Form.Dob
+				if data.Form.CanSign.IsYes() {
+					lpa.Donor.CanSign = form.Yes
+				}
 				lpa.Donor.Email = loginSession.Email
 				if !lpa.Tasks.YourDetails.Completed() {
 					lpa.Tasks.YourDetails = actor.TaskInProgress
@@ -74,6 +89,10 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
+				}
+
+				if data.Form.CanSign.IsNo() {
+					return appData.Redirect(w, r, lpa, page.Paths.CheckYouCanSign.Format(lpa.ID))
 				}
 
 				return appData.Redirect(w, r, lpa, page.Paths.YourAddress.Format(lpa.ID))
@@ -89,6 +108,8 @@ type yourDetailsForm struct {
 	LastName          string
 	OtherNames        string
 	Dob               date.Date
+	CanSign           YesNoMaybe
+	CanSignError      error
 	IgnoreDobWarning  string
 	IgnoreNameWarning string
 }
@@ -104,6 +125,8 @@ func readYourDetailsForm(r *http.Request) *yourDetailsForm {
 		page.PostFormString(r, "date-of-birth-year"),
 		page.PostFormString(r, "date-of-birth-month"),
 		page.PostFormString(r, "date-of-birth-day"))
+
+	d.CanSign, d.CanSignError = ParseYesNoMaybe(page.PostFormString(r, "can-sign"))
 
 	d.IgnoreDobWarning = page.PostFormString(r, "ignore-dob-warning")
 	d.IgnoreNameWarning = page.PostFormString(r, "ignore-name-warning")
@@ -129,6 +152,9 @@ func (f *yourDetailsForm) Validate() validation.List {
 		validation.DateMissing(),
 		validation.DateMustBeReal(),
 		validation.DateMustBePast())
+
+	errors.Error("can-sign", "yesIfCanSign", f.CanSignError,
+		validation.Selected())
 
 	return errors
 }
