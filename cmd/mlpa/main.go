@@ -53,13 +53,13 @@ func main() {
 		webDir                 = env.Get("WEB_DIR", "web")
 		awsBaseURL             = env.Get("AWS_BASE_URL", "")
 		clientID               = env.Get("CLIENT_ID", "client-id-value")
-		issuer                 = env.Get("ISSUER", "http://sign-in-mock:7012")
-		dynamoTableLpas        = env.Get("DYNAMODB_TABLE_LPAS", "")
-		dynamoTableReducedFees = env.Get("DYNAMODB_TABLE_REDUCED_FEES", "")
-		notifyBaseURL          = env.Get("GOVUK_NOTIFY_BASE_URL", "")
+		issuer                 = env.Get("ISSUER", "http://mock-onelogin:8080")
+		dynamoTableLpas        = env.Get("DYNAMODB_TABLE_LPAS", "lpas")
+		dynamoTableReducedFees = env.Get("DYNAMODB_TABLE_REDUCED_FEES", "reduced-fees")
+		notifyBaseURL          = env.Get("GOVUK_NOTIFY_BASE_URL", "http://mock-notify:8080")
 		notifyIsProduction     = env.Get("GOVUK_NOTIFY_IS_PRODUCTION", "") == "1"
-		ordnanceSurveyBaseURL  = env.Get("ORDNANCE_SURVEY_BASE_URL", "http://ordnance-survey-mock:4011")
-		payBaseURL             = env.Get("GOVUK_PAY_BASE_URL", "http://pay-mock:4010")
+		ordnanceSurveyBaseURL  = env.Get("ORDNANCE_SURVEY_BASE_URL", "http://mock-os-api:8080")
+		payBaseURL             = env.Get("GOVUK_PAY_BASE_URL", "http://mock-pay:4010")
 		port                   = env.Get("APP_PORT", "8080")
 		yotiClientSdkID        = env.Get("YOTI_CLIENT_SDK_ID", "")
 		yotiScenarioID         = env.Get("YOTI_SCENARIO_ID", "")
@@ -72,7 +72,7 @@ func main() {
 			IdentityPoolID:    env.Get("AWS_RUM_IDENTITY_POOL_ID", ""),
 			ApplicationID:     env.Get("AWS_RUM_APPLICATION_ID", ""),
 		}
-		uidBaseURL         = env.Get("UID_BASE_URL", "http://uid-mock:8080")
+		uidBaseURL         = env.Get("UID_BASE_URL", "http://mock-uid:8080")
 		metadataURL        = env.Get("ECS_CONTAINER_METADATA_URI_V4", "")
 		oneloginURL        = env.Get("ONELOGIN_URL", "https://home.integration.account.gov.uk")
 		evidenceBucketName = env.Get("UPLOADS_S3_BUCKET_NAME", "evidence")
