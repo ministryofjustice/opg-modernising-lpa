@@ -33,7 +33,7 @@ describe('As a trust corporation', () => {
         cy.contains('button', 'Continue').click();
 
         // read the lpa
-        cy.contains('Read Jamie Smith’s LPA');
+        cy.contains('Read Sam Smith’s LPA');
         cy.contains('button', 'Continue').click();
 
         // legal rights and responsibilities

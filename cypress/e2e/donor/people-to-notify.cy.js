@@ -1,14 +1,6 @@
-import { AddressFormAssertions, TestEmail, TestEmail2 } from "../../support/e2e";
+import { TestEmail, TestEmail2 } from "../../support/e2e";
 
 describe('People to notify', () => {
-    let person1
-
-    before(() => {
-        cy.fixture('peopleToNotify.json').then(p => {
-            person1 = p.person1
-        })
-    })
-
     it('can add people to notify', () => {
         cy.visit('/testing-start?redirect=/do-you-want-to-notify-people&lpa.yourDetails=1&lpa.attorneys=1');
 
@@ -17,16 +9,49 @@ describe('People to notify', () => {
         cy.get('input[name="yes-no"]').check('yes')
         cy.contains('button', 'Save and continue').click();
 
-        addPersonToNotify(person1, true)
+        cy.url().should('contain', '/choose-people-to-notify');
+
+        cy.checkA11yApp();
+
+        cy.get('#f-first-names').type("Brian")
+        cy.get('#f-last-name').type("Gooding")
+        cy.get('#f-email').type(TestEmail2)
+
+        cy.contains('button', 'Save and continue').click();
+
+        cy.contains('label', 'Enter a new address').click();
+        cy.contains('button', 'Continue').click();
+
+        cy.url().should('contain', '/choose-people-to-notify-address');
+        cy.checkA11yApp();
+
+        cy.get('#f-lookup-postcode').type("B14 7ED")
+        cy.contains('button', 'Find address').click();
+
+        cy.url().should('contain', '/choose-people-to-notify-address');
+        cy.checkA11yApp();
+
+        cy.contains('a', "I can’t find their address in the list").click();
+
+        cy.url().should('contain', '/choose-people-to-notify-address');
+        cy.checkA11yApp();
+
+        cy.get('#f-address-line-1').type("4 RICHMOND PLACE");
+        cy.get('#f-address-town').type("BIRMINGHAM");
+        cy.get('#f-address-postcode').type("B14 7ED");
+
+        cy.contains('button', 'Continue').click();
+
+        cy.url().should('contain', '/choose-people-to-notify-summary');
 
         cy.checkA11yApp();
 
         cy.contains('People to notify about your LPA');
 
-        cy.get('#name-1').contains(`${person1.firstNames} ${person1.lastName}`);
-        cy.get('#address-1').contains(person1.address.line1);
-        cy.get('#address-1').contains(person1.address.town);
-        cy.get('#address-1').contains(person1.address.postcode);
+        cy.get('#name-1').contains('Brian Gooding');
+        cy.get('#address-1').contains("4 RICHMOND PLACE");
+        cy.get('#address-1').contains("BIRMINGHAM");
+        cy.get('#address-1').contains("B14 7ED");
 
         cy.get('input[name="yes-no"]').check('yes')
         cy.contains('button', 'Save and continue').click();
@@ -41,7 +66,7 @@ describe('People to notify', () => {
 
         cy.checkA11yApp();
 
-        cy.contains('Joanna Smith').parent().contains('a', 'Change').click();
+        cy.contains('Jordan Jefferson').parent().contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-people-to-notify');
 
@@ -86,7 +111,7 @@ describe('People to notify', () => {
 
         cy.checkA11yApp();
 
-        cy.get('#remove-person-to-notify-2').contains(`Remove Jonathan Smith`).click();
+        cy.get('#remove-person-to-notify-2').contains(`Remove Danni Davies`).click();
 
         cy.url().should('contain', '/remove-person-to-notify');
 
@@ -97,7 +122,7 @@ describe('People to notify', () => {
 
         cy.url().should('contain', '/choose-people-to-notify-summary');
 
-        cy.get('#remove-person-to-notify-1').contains(`Remove Joanna Smith`).click();
+        cy.get('#remove-person-to-notify-1').contains(`Remove Jordan Jefferson`).click();
 
         cy.url().should('contain', '/remove-person-to-notify');
 
@@ -112,7 +137,7 @@ describe('People to notify', () => {
 
         cy.checkA11yApp();
 
-        cy.contains('Joanna Smith').parent().contains('a', 'Change').should('not.exist');
+        cy.contains('Jordan Jefferson').parent().contains('a', 'Change').should('not.exist');
     });
 
     it('limits people to notify to 5', () => {
@@ -183,69 +208,15 @@ describe('People to notify', () => {
     it('warns when name shared with other actor', () => {
         cy.visit('/testing-start?redirect=/choose-people-to-notify&lpa.yourDetails=1');
 
-        cy.get('#f-first-names').type('Jamie');
+        cy.get('#f-first-names').type('Sam');
         cy.get('#f-last-name').type('Smith');
         cy.get('#f-email').type(TestEmail);
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/choose-people-to-notify');
 
-        cy.contains('The donor’s name is also Jamie Smith.');
+        cy.contains('The donor’s name is also Sam Smith.');
 
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/choose-people-to-notify-address');
     });
 });
-
-function addPersonToNotify(p, manualAddress) {
-    cy.url().should('contain', '/choose-people-to-notify');
-
-    cy.checkA11yApp();
-
-    cy.get('#f-first-names').type(p.firstNames)
-    cy.get('#f-last-name').type(p.lastName)
-    cy.get('#f-email').type(p.email)
-
-    cy.contains('button', 'Save and continue').click();
-
-    cy.contains('label', 'Enter a new address').click();
-    cy.contains('button', 'Continue').click();
-
-    cy.url().should('contain', '/choose-people-to-notify-address');
-    cy.checkA11yApp();
-
-    cy.get('#f-lookup-postcode').type(p.address.postcode)
-    cy.contains('button', 'Find address').click();
-
-    cy.url().should('contain', '/choose-people-to-notify-address');
-    cy.checkA11yApp();
-
-    if (manualAddress) {
-        cy.contains('a', "I can’t find their address in the list").click();
-
-        cy.url().should('contain', '/choose-people-to-notify-address');
-        cy.checkA11yApp();
-
-        cy.get('#f-address-line-1').type(p.address.line1);
-        cy.get('#f-address-town').type(p.address.town);
-        cy.get('#f-address-postcode').type(p.address.postcode);
-    } else {
-        cy.checkA11yApp();
-
-        cy.get('#f-select-address').select(`${p.address.line1}, ${p.address.town}, ${p.address.postcode}`);
-        cy.contains('button', 'Continue').click();
-
-        cy.url().should('contain', '/choose-people-to-notify-address');
-
-        cy.checkA11yApp();
-
-        cy.get('#f-address-line-1').should('have.value', p.address.line1);
-        cy.get('#f-address-line-2').should('have.value', p.address.line2);
-        cy.get('#f-address-line-3').should('have.value', p.address.line3);
-        cy.get('#f-address-town').should('have.value', p.address.town);
-        cy.get('#f-address-postcode').should('have.value', p.address.postcode);
-    }
-
-    cy.contains('button', 'Continue').click();
-
-    cy.url().should('contain', '/choose-people-to-notify-summary');
-}

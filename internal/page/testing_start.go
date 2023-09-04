@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -24,10 +25,32 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		testMobile = "07700900000"
 	)
 
+	type Name struct {
+		Firstnames, Lastname string
+	}
+
 	var (
-		attorneyNames            = []string{"John", "Joan", "Johan", "Jilly", "James"}
-		replacementAttorneyNames = []string{"Jane", "Jorge", "Jackson", "Jacob", "Joshua"}
-		peopleToNotifyNames      = []string{"Joanna", "Jonathan", "Julian", "Jayden", "Juniper"}
+		attorneyNames = []Name{
+			{Firstnames: "Jessie", Lastname: "Jones"},
+			{Firstnames: "Robin", Lastname: "Redcar"},
+			{Firstnames: "Leslie", Lastname: "Lewis"},
+			{Firstnames: "Ashley", Lastname: "Alwinton"},
+			{Firstnames: "Frankie", Lastname: "Fernandes"},
+		}
+		replacementAttorneyNames = []Name{
+			{Firstnames: "Blake", Lastname: "Buckley"},
+			{Firstnames: "Taylor", Lastname: "Thompson"},
+			{Firstnames: "Marley", Lastname: "Morris"},
+			{Firstnames: "Alex", Lastname: "Abbott"},
+			{Firstnames: "Billie", Lastname: "Blair"},
+		}
+		peopleToNotifyNames = []Name{
+			{Firstnames: "Jordan", Lastname: "Jefferson"},
+			{Firstnames: "Danni", Lastname: "Davies"},
+			{Firstnames: "Bobbie", Lastname: "Bones"},
+			{Firstnames: "Ally", Lastname: "Avery"},
+			{Firstnames: "Deva", Lastname: "Dankar"},
+		}
 	)
 
 	type lpaOptions struct {
@@ -57,7 +80,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 
 	makeDonor := func() actor.Donor {
 		return actor.Donor{
-			FirstNames: "Jamie",
+			FirstNames: "Sam",
 			LastName:   "Smith",
 			Address: place.Address{
 				Line1:      "1 RICHMOND PLACE",
@@ -71,11 +94,11 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		}
 	}
 
-	makeAttorney := func(firstNames string) actor.Attorney {
+	makeAttorney := func(name Name) actor.Attorney {
 		return actor.Attorney{
-			ID:          firstNames + "Smith",
-			FirstNames:  firstNames,
-			LastName:    "Smith",
+			ID:          name.Firstnames + name.Lastname,
+			FirstNames:  name.Firstnames,
+			LastName:    name.Lastname,
 			Email:       testEmail,
 			DateOfBirth: date.New("2000", "1", "2"),
 			Address: place.Address{
@@ -88,11 +111,11 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		}
 	}
 
-	makePersonToNotify := func(firstNames string) actor.PersonToNotify {
+	makePersonToNotify := func(name Name) actor.PersonToNotify {
 		return actor.PersonToNotify{
-			ID:         firstNames + "Smith",
-			FirstNames: firstNames,
-			LastName:   "Smith",
+			ID:         name.Firstnames + name.Lastname,
+			FirstNames: name.Firstnames,
+			LastName:   name.Lastname,
 			Email:      testEmail,
 			Address: place.Address{
 				Line1:      "4 RICHMOND PLACE",
@@ -104,10 +127,10 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		}
 	}
 
-	makeCertificateProvider := func(firstNames string, carryOutBy actor.CertificateProviderCarryOutBy) actor.CertificateProvider {
+	makeCertificateProvider := func(carryOutBy actor.CertificateProviderCarryOutBy) actor.CertificateProvider {
 		return actor.CertificateProvider{
-			FirstNames:         firstNames,
-			LastName:           "Jones",
+			FirstNames:         "Charlie",
+			LastName:           "Cooper",
 			Email:              testEmail,
 			Mobile:             testMobile,
 			Relationship:       actor.Personally,
@@ -355,7 +378,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 					carryOutBy = actor.Online
 				}
 
-				lpa.CertificateProvider = makeCertificateProvider("Jessie", carryOutBy)
+				lpa.CertificateProvider = makeCertificateProvider(carryOutBy)
 				lpa.Tasks.CertificateProvider = actor.TaskCompleted
 			}
 
@@ -626,6 +649,11 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 
 		random.UseTestCode = true
 
-		AppData{}.Redirect(w, r.WithContext(donorCtx), lpa, redirect)
+		lang := localize.En
+		if r.FormValue("lang") == "cy" {
+			lang = localize.Cy
+		}
+
+		AppData{Lang: lang}.Redirect(w, r.WithContext(donorCtx), lpa, redirect)
 	}
 }
