@@ -21,6 +21,7 @@ describe('Dashboard', () => {
             cy.get('#f-date-of-birth').type('2');
             cy.get('#f-date-of-birth-month').type('3');
             cy.get('#f-date-of-birth-year').type('1990');
+            cy.get('#f-can-sign').check();
             cy.contains('button', 'Continue').click();
 
             cy.visitLpa('/lpa-type');
