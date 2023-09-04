@@ -34,7 +34,7 @@ require (
 	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63
 	golang.org/x/mod v0.12.0
 	golang.org/x/text v0.13.0
-	golang.org/x/tools v0.12.1-0.20230830221818-e3671fc6117f
+	golang.org/x/tools v0.12.1-0.20230901210945-21090a2aa8d3
 	google.golang.org/grpc v1.57.0
 )
 
