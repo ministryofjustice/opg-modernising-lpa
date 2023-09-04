@@ -135,7 +135,7 @@ type Lpa struct {
 	// Whether the applicant has checked the LPA and is happy to share the LPA with the certificate provider
 	CheckedAndHappy bool
 	// Used as part of GOV.UK Pay
-	PaymentDetails PaymentDetails
+	PaymentDetails []PaymentDetails
 	// Which option has been used to complete applicant identity checks
 	DonorIdentityOption identity.Option
 	// Information returned by the identity service related to the applicant

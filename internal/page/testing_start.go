@@ -407,10 +407,10 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 				ref := randomString(12)
 				sesh.SetPayment(store, r, w, &sesh.PaymentSession{PaymentID: ref})
 
-				lpa.PaymentDetails = PaymentDetails{
+				lpa.PaymentDetails = append(lpa.PaymentDetails, PaymentDetails{
 					PaymentReference: ref,
 					PaymentId:        ref,
-				}
+				})
 				lpa.Tasks.PayForLpa = actor.PaymentTaskCompleted
 			}
 
