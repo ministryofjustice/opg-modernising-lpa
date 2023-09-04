@@ -12,3 +12,10 @@
 body:not(.js-enabled) .govuk-back-link {
     display: none;
 }
+
+.app-example-box {
+    @include govuk-responsive-padding(4);
+    @include govuk-responsive-margin(6, "bottom");
+    
+    border: 1px solid $govuk-border-colour;
+}
