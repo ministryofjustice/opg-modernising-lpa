@@ -129,5 +129,9 @@ func TestConcat(t *testing.T) {
 	assert.Equal(t, "", en.Concat([]string{}, "and"))
 
 	cy := bundle.For(Cy)
-	assert.Equal(t, "Welsh", cy.Concat([]string{"a"}, "and"))
+	assert.Equal(t, "Bob Smith, Alice Jones, John Doe neu Paul Compton", cy.Concat([]string{"Bob Smith", "Alice Jones", "John Doe", "Paul Compton"}, "or"))
+	assert.Equal(t, "Bob Smith, Alice Jones a John Doe", cy.Concat([]string{"Bob Smith", "Alice Jones", "John Doe"}, "and"))
+	assert.Equal(t, "Bob Smith a John Doe", cy.Concat([]string{"Bob Smith", "John Doe"}, "and"))
+	assert.Equal(t, "Bob Smith", cy.Concat([]string{"Bob Smith"}, "and"))
+	assert.Equal(t, "", cy.Concat([]string{}, "and"))
 }
