@@ -9,17 +9,19 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type yourDetailsData struct {
-	App         page.AppData
-	Errors      validation.List
-	Form        *yourDetailsForm
-	DobWarning  string
-	NameWarning *actor.SameNameWarning
+	App               page.AppData
+	Errors            validation.List
+	Form              *yourDetailsForm
+	YesNoMaybeOptions actor.YesNoMaybeOptions
+	DobWarning        string
+	NameWarning       *actor.SameNameWarning
 }
 
 func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore sessions.Store) Handler {
@@ -31,7 +33,9 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 				LastName:   lpa.Donor.LastName,
 				OtherNames: lpa.Donor.OtherNames,
 				Dob:        lpa.Donor.DateOfBirth,
+				CanSign:    lpa.Donor.ThinksCanSign,
 			},
+			YesNoMaybeOptions: actor.YesNoMaybeValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -63,11 +67,21 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 			}
 
 			if !data.Errors.Any() && data.DobWarning == "" && data.NameWarning == nil {
+				redirect := page.Paths.YourAddress
+
 				lpa.Donor.FirstNames = data.Form.FirstNames
 				lpa.Donor.LastName = data.Form.LastName
 				lpa.Donor.OtherNames = data.Form.OtherNames
 				lpa.Donor.DateOfBirth = data.Form.Dob
+				lpa.Donor.ThinksCanSign = data.Form.CanSign
 				lpa.Donor.Email = loginSession.Email
+
+				if lpa.Donor.ThinksCanSign.IsYes() {
+					lpa.Donor.CanSign = form.Yes
+				} else {
+					redirect = page.Paths.CheckYouCanSign
+				}
+
 				if !lpa.Tasks.YourDetails.Completed() {
 					lpa.Tasks.YourDetails = actor.TaskInProgress
 				}
@@ -76,7 +90,7 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.YourAddress.Format(lpa.ID))
+				return appData.Redirect(w, r, lpa, redirect.Format(lpa.ID))
 			}
 		}
 
@@ -89,6 +103,8 @@ type yourDetailsForm struct {
 	LastName          string
 	OtherNames        string
 	Dob               date.Date
+	CanSign           actor.YesNoMaybe
+	CanSignError      error
 	IgnoreDobWarning  string
 	IgnoreNameWarning string
 }
@@ -104,6 +120,8 @@ func readYourDetailsForm(r *http.Request) *yourDetailsForm {
 		page.PostFormString(r, "date-of-birth-year"),
 		page.PostFormString(r, "date-of-birth-month"),
 		page.PostFormString(r, "date-of-birth-day"))
+
+	d.CanSign, d.CanSignError = actor.ParseYesNoMaybe(page.PostFormString(r, "can-sign"))
 
 	d.IgnoreDobWarning = page.PostFormString(r, "ignore-dob-warning")
 	d.IgnoreNameWarning = page.PostFormString(r, "ignore-name-warning")
@@ -129,6 +147,9 @@ func (f *yourDetailsForm) Validate() validation.List {
 		validation.DateMissing(),
 		validation.DateMustBeReal(),
 		validation.DateMustBePast())
+
+	errors.Error("can-sign", "yesIfCanSign", f.CanSignError,
+		validation.Selected())
 
 	return errors
 }
