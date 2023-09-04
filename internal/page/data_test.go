@@ -817,6 +817,10 @@ func TestFeeAmount(t *testing.T) {
 			Lpa:          &Lpa{FeeType: HardshipFee},
 			ExpectedCost: 0,
 		},
+		"full fee - paid": {
+			Lpa:          &Lpa{FeeType: FullFee, PaymentDetails: []Payment{{Amount: 8200}}},
+			ExpectedCost: 0,
+		},
 		"half fee - paid": {
 			Lpa:          &Lpa{FeeType: HalfFee, PaymentDetails: []Payment{{Amount: 4100}}},
 			ExpectedCost: 0,
