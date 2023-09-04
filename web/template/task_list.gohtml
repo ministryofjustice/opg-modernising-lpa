@@ -24,54 +24,56 @@
             </h2>
             <ul class="app-task-list__items">
               {{ range $e.Items }}
-                <li class="app-task-list__item">
-                  {{ if or .State.Completed .PaymentState.IsCompleted }}
-                    <span class="app-task-list__task-name">
-                      <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
-                        {{ tr $.App .Name }}
-                      </a>
-                    </span>
-                    <strong class="govuk-tag app-task-list__tag">{{ tr $.App "completed" }} {{if gt .Count 0}}({{ .Count }}){{ end }}</strong>
-                  {{ else if or .State.InProgress .PaymentState.IsInProgress }}
-                    <span class="app-task-list__task-name">
-                      <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
-                        {{ tr $.App .Name }}
-                      </a>
-                    </span>
-                    <strong class="govuk-tag app-task-list__tag govuk-tag--blue">{{ tr $.App "inProgress" }} {{if gt .Count 0}}({{ .Count }}){{ end }}</strong>
-                  {{ else if .PaymentState.IsPending }}
-                    <span class="app-task-list__task-name govuk-hint govuk-!-margin-bottom-0">
-                        {{ tr $.App .Name }}
-                    </span>
-                    <strong class="govuk-tag app-task-list__tag govuk-tag--yellow">{{ tr $.App "pending" }}</strong>
-                  {{ else if .PaymentState.IsDenied }}
-                    <span class="app-task-list__task-name">
-                      <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
-                        {{ tr $.App .Name }}
-                      </a>
-                    </span>
-                    <strong class="govuk-tag app-task-list__tag govuk-tag--red">{{ tr $.App "denied" }}</strong>
-                  {{ else if .PaymentState.IsMoreEvidenceRequired }}
+                {{ if not .Hidden }}
+                  <li class="app-task-list__item">
+                    {{ if or .State.Completed .PaymentState.IsCompleted }}
                       <span class="app-task-list__task-name">
-                      <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
+                        <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
+                          {{ tr $.App .Name }}
+                        </a>
+                      </span>
+                      <strong class="govuk-tag app-task-list__tag">{{ tr $.App "completed" }} {{if gt .Count 0}}({{ .Count }}){{ end }}</strong>
+                    {{ else if or .State.InProgress .PaymentState.IsInProgress }}
+                      <span class="app-task-list__task-name">
+                        <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
+                          {{ tr $.App .Name }}
+                        </a>
+                      </span>
+                      <strong class="govuk-tag app-task-list__tag govuk-tag--blue">{{ tr $.App "inProgress" }} {{if gt .Count 0}}({{ .Count }}){{ end }}</strong>
+                    {{ else if .PaymentState.IsPending }}
+                      <span class="app-task-list__task-name govuk-hint govuk-!-margin-bottom-0">
                         {{ tr $.App .Name }}
-                      </a>
-                    </span>
-                    <strong class="govuk-tag app-task-list__tag govuk-tag--blue">{{ tr $.App "evidenceRequired" }}</strong>
-                  {{ else if not ($.Lpa.CanGoTo .Path) }}
-                    <span class="app-task-list__task-name govuk-hint govuk-!-margin-bottom-0">
-                      {{ tr $.App .Name }}
-                    </span>
-                    <strong class="govuk-tag govuk-tag--grey app-task-list__tag">{{ tr $.App "cannotStartYet" }}</strong>
-                  {{ else }}
-                    <span class="app-task-list__task-name">
-                      <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
+                      </span>
+                      <strong class="govuk-tag app-task-list__tag govuk-tag--yellow">{{ tr $.App "pending" }}</strong>
+                    {{ else if .PaymentState.IsDenied }}
+                      <span class="app-task-list__task-name">
+                        <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
+                          {{ tr $.App .Name }}
+                        </a>
+                      </span>
+                      <strong class="govuk-tag app-task-list__tag govuk-tag--red">{{ tr $.App "denied" }}</strong>
+                    {{ else if .PaymentState.IsMoreEvidenceRequired }}
+                      <span class="app-task-list__task-name">
+                        <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
+                          {{ tr $.App .Name }}
+                        </a>
+                      </span>
+                      <strong class="govuk-tag app-task-list__tag govuk-tag--blue">{{ tr $.App "evidenceRequired" }}</strong>
+                    {{ else if not ($.Lpa.CanGoTo .Path) }}
+                      <span class="app-task-list__task-name govuk-hint govuk-!-margin-bottom-0">
                         {{ tr $.App .Name }}
-                      </a>
-                    </span>
-                    <strong class="govuk-tag govuk-tag--grey app-task-list__tag">{{ tr $.App "notStarted" }}</strong>
-                  {{ end }}
-                </li>
+                      </span>
+                      <strong class="govuk-tag govuk-tag--grey app-task-list__tag">{{ tr $.App "cannotStartYet" }}</strong>
+                    {{ else }}
+                      <span class="app-task-list__task-name">
+                        <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
+                          {{ tr $.App .Name }}
+                        </a>
+                      </span>
+                      <strong class="govuk-tag govuk-tag--grey app-task-list__tag">{{ tr $.App "notStarted" }}</strong>
+                    {{ end }}
+                  </li>
+                {{ end }}
               {{ end }}
             </ul>
           </li>

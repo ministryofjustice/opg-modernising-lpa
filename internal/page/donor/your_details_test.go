@@ -12,6 +12,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -27,8 +28,9 @@ func TestGetYourDetails(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &yourDetailsData{
-			App:  testAppData,
-			Form: &yourDetailsForm{},
+			App:          testAppData,
+			Form:         &yourDetailsForm{},
+			YesNoOptions: form.YesNoValues,
 		}).
 		Return(nil)
 
@@ -50,6 +52,7 @@ func TestGetYourDetailsFromStore(t *testing.T) {
 			Form: &yourDetailsForm{
 				FirstNames: "John",
 			},
+			YesNoOptions: form.YesNoValues,
 		}).
 		Return(nil)
 
@@ -70,10 +73,7 @@ func TestGetYourDetailsWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &yourDetailsData{
-			App:  testAppData,
-			Form: &yourDetailsForm{},
-		}).
+		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
 	err := YourDetails(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
@@ -87,8 +87,9 @@ func TestPostYourDetails(t *testing.T) {
 	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
 
 	testCases := map[string]struct {
-		form   url.Values
-		person actor.Donor
+		form     url.Values
+		person   actor.Donor
+		redirect page.LpaPath
 	}{
 		"valid": {
 			form: url.Values{
@@ -97,6 +98,7 @@ func TestPostYourDetails(t *testing.T) {
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {validBirthYear},
+				"can-sign":            {form.Yes.String()},
 			},
 			person: actor.Donor{
 				FirstNames:  "John",
@@ -104,7 +106,9 @@ func TestPostYourDetails(t *testing.T) {
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
 				Address:     place.Address{Line1: "abc"},
 				Email:       "name@example.com",
+				CanSign:     form.Yes,
 			},
+			redirect: page.Paths.YourAddress,
 		},
 		"warning ignored": {
 			form: url.Values{
@@ -114,6 +118,7 @@ func TestPostYourDetails(t *testing.T) {
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1900"},
 				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
+				"can-sign":            {form.Yes.String()},
 			},
 			person: actor.Donor{
 				FirstNames:  "John",
@@ -121,7 +126,27 @@ func TestPostYourDetails(t *testing.T) {
 				DateOfBirth: date.New("1900", "1", "2"),
 				Address:     place.Address{Line1: "abc"},
 				Email:       "name@example.com",
+				CanSign:     form.Yes,
 			},
+			redirect: page.Paths.YourAddress,
+		},
+		"cannot sign": {
+			form: url.Values{
+				"first-names":         {"John"},
+				"last-name":           {"Doe"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {validBirthYear},
+				"can-sign":            {form.No.String()},
+			},
+			person: actor.Donor{
+				FirstNames:  "John",
+				LastName:    "Doe",
+				DateOfBirth: date.New(validBirthYear, "1", "2"),
+				Address:     place.Address{Line1: "abc"},
+				Email:       "name@example.com",
+			},
+			redirect: page.Paths.CheckYouCanSign,
 		},
 	}
 
@@ -157,7 +182,7 @@ func TestPostYourDetails(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.YourAddress.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, tc.redirect.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -165,17 +190,18 @@ func TestPostYourDetails(t *testing.T) {
 func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {
 	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
 
-	form := url.Values{
+	f := url.Values{
 		"first-names":         {"John"},
 		"last-name":           {"Doe"},
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
 		"date-of-birth-year":  {validBirthYear},
+		"can-sign":            {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
@@ -188,6 +214,7 @@ func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
 				Address:     place.Address{Line1: "abc"},
 				Email:       "name@example.com",
+				CanSign:     form.Yes,
 			},
 			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
 		}).
@@ -224,6 +251,7 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1990"},
+				"can-sign":            {form.Yes.String()},
 			},
 			dataMatcher: func(t *testing.T, data *yourDetailsData) bool {
 				return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
@@ -236,6 +264,7 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1900"},
+				"can-sign":            {form.Yes.String()},
 			},
 			dataMatcher: func(t *testing.T, data *yourDetailsData) bool {
 				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
@@ -248,6 +277,7 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1900"},
 				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
+				"can-sign":            {form.Yes.String()},
 			},
 			dataMatcher: func(t *testing.T, data *yourDetailsData) bool {
 				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
@@ -261,6 +291,7 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1900"},
 				"ignore-dob-warning":  {"dateOfBirthIsUnder18"},
+				"can-sign":            {form.Yes.String()},
 			},
 			dataMatcher: func(t *testing.T, data *yourDetailsData) bool {
 				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
@@ -302,6 +333,7 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
 		"date-of-birth-year":  {"1990"},
+		"can-sign":            {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -355,6 +387,7 @@ func TestPostYourDetailsWhenSessionProblem(t *testing.T) {
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1990"},
+				"can-sign":            {form.Yes.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -376,7 +409,7 @@ func TestPostYourDetailsWhenSessionProblem(t *testing.T) {
 func TestReadYourDetailsForm(t *testing.T) {
 	assert := assert.New(t)
 
-	form := url.Values{
+	f := url.Values{
 		"first-names":         {"  John "},
 		"last-name":           {"Doe"},
 		"other-names":         {"Somebody"},
@@ -384,9 +417,10 @@ func TestReadYourDetailsForm(t *testing.T) {
 		"date-of-birth-month": {"1"},
 		"date-of-birth-year":  {"1990"},
 		"ignore-dob-warning":  {"xyz"},
+		"can-sign":            {form.Yes.String()},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readYourDetailsForm(r)
@@ -396,6 +430,8 @@ func TestReadYourDetailsForm(t *testing.T) {
 	assert.Equal("Somebody", result.OtherNames)
 	assert.Equal(date.New("1990", "1", "2"), result.Dob)
 	assert.Equal("xyz", result.IgnoreDobWarning)
+	assert.Equal(form.Yes, result.CanSign)
+	assert.Nil(result.CanSignError)
 }
 
 func TestYourDetailsFormValidate(t *testing.T) {
@@ -413,7 +449,7 @@ func TestYourDetailsFormValidate(t *testing.T) {
 				Dob:        validDob,
 			},
 		},
-		"max-length": {
+		"max length": {
 			form: &yourDetailsForm{
 				FirstNames: strings.Repeat("x", 53),
 				LastName:   strings.Repeat("x", 61),
@@ -421,14 +457,14 @@ func TestYourDetailsFormValidate(t *testing.T) {
 				Dob:        validDob,
 			},
 		},
-		"missing-all": {
+		"missing all": {
 			form: &yourDetailsForm{},
 			errors: validation.
 				With("first-names", validation.EnterError{Label: "firstNames"}).
 				With("last-name", validation.EnterError{Label: "lastName"}).
 				With("date-of-birth", validation.EnterError{Label: "dateOfBirth"}),
 		},
-		"too-long": {
+		"too long": {
 			form: &yourDetailsForm{
 				FirstNames: strings.Repeat("x", 54),
 				LastName:   strings.Repeat("x", 62),
@@ -440,7 +476,7 @@ func TestYourDetailsFormValidate(t *testing.T) {
 				With("last-name", validation.StringTooLongError{Label: "lastName", Length: 61}).
 				With("other-names", validation.StringTooLongError{Label: "otherNamesLabel", Length: 50}),
 		},
-		"future-dob": {
+		"future dob": {
 			form: &yourDetailsForm{
 				FirstNames: "A",
 				LastName:   "B",
@@ -448,7 +484,7 @@ func TestYourDetailsFormValidate(t *testing.T) {
 			},
 			errors: validation.With("date-of-birth", validation.DateMustBePastError{Label: "dateOfBirth"}),
 		},
-		"invalid-dob": {
+		"invalid dob": {
 			form: &yourDetailsForm{
 				FirstNames: "A",
 				LastName:   "B",
@@ -456,13 +492,22 @@ func TestYourDetailsFormValidate(t *testing.T) {
 			},
 			errors: validation.With("date-of-birth", validation.DateMustBeRealError{Label: "dateOfBirth"}),
 		},
-		"invalid-missing-dob": {
+		"invalid missing dob": {
 			form: &yourDetailsForm{
 				FirstNames: "A",
 				LastName:   "B",
 				Dob:        date.New("1", "", "1"),
 			},
 			errors: validation.With("date-of-birth", validation.DateMissingError{Label: "dateOfBirth", MissingMonth: true}),
+		},
+		"invalid can sign": {
+			form: &yourDetailsForm{
+				FirstNames:   "A",
+				LastName:     "B",
+				Dob:          validDob,
+				CanSignError: expectedError,
+			},
+			errors: validation.With("can-sign", validation.SelectError{Label: "yesIfCanSign"}),
 		},
 	}
 
