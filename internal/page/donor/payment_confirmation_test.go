@@ -37,7 +37,7 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 			CertificateProvider: actor.CertificateProvider{
 				Email: "certificateprovider@example.com",
 			},
-			PaymentDetails: []page.PaymentDetails{{
+			PaymentDetails: []page.Payment{{
 				PaymentId:        "abc123",
 				PaymentReference: "123456789012",
 				Amount:           8200,
@@ -83,7 +83,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 			CertificateProvider: actor.CertificateProvider{
 				Email: "certificateprovider@example.com",
 			},
-			PaymentDetails: []page.PaymentDetails{{
+			PaymentDetails: []page.Payment{{
 				PaymentId:        "abc123",
 				PaymentReference: "123456789012",
 				Amount:           4100,

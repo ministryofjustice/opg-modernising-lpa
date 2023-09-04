@@ -50,7 +50,7 @@ func (m *mockDonorStore) withCompletedPaymentLpaData(r *http.Request, paymentId,
 			CertificateProvider: actor.CertificateProvider{
 				Email: "certificateprovider@example.com",
 			},
-			PaymentDetails: []page.PaymentDetails{{
+			PaymentDetails: []page.Payment{{
 				PaymentId:        paymentId,
 				PaymentReference: paymentReference,
 				Amount:           paymentAmount,

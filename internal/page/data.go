@@ -135,7 +135,7 @@ type Lpa struct {
 	// Whether the applicant has checked the LPA and is happy to share the LPA with the certificate provider
 	CheckedAndHappy bool
 	// Used as part of GOV.UK Pay
-	PaymentDetails []PaymentDetails
+	PaymentDetails []Payment
 	// Which option has been used to complete applicant identity checks
 	DonorIdentityOption identity.Option
 	// Information returned by the identity service related to the applicant
@@ -176,7 +176,7 @@ type Lpa struct {
 	HasSentReducedFeeRequestedEvent       bool
 }
 
-type PaymentDetails struct {
+type Payment struct {
 	// Reference generated for the payment
 	PaymentReference string
 	// ID returned from GOV.UK Pay
@@ -388,6 +388,20 @@ func (l *Lpa) TrustCorporationsNames() []string {
 	}
 
 	return names
+}
+
+func (l *Lpa) FeeAmount() int {
+	paid := 0
+
+	for _, payment := range l.PaymentDetails {
+		paid = paid + payment.Amount
+	}
+
+	if l.Tasks.PayForLpa.IsDenied() {
+		return FullFee.Cost() - paid
+	} else {
+		return l.FeeType.Cost() - paid
+	}
 }
 
 func ChooseAttorneysState(attorneys actor.Attorneys, decisions actor.AttorneyDecisions) actor.TaskState {
