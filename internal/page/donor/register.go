@@ -192,6 +192,10 @@ func Register(
 		ApplicationReason(tmpls.Get("application_reason.gohtml"), donorStore))
 	handleWithLpa(page.Paths.PreviousApplicationNumber, None,
 		PreviousApplicationNumber(tmpls.Get("previous_application_number.gohtml"), donorStore))
+	handleWithLpa(page.Paths.CheckYouCanSign, None,
+		CheckYouCanSign(tmpls.Get("check_you_can_sign.gohtml"), donorStore))
+	handleWithLpa(page.Paths.NeedHelpSigningConfirmation, None,
+		Guidance(tmpls.Get("need_help_signing_confirmation.gohtml")))
 
 	handleWithLpa(page.Paths.TaskList, None,
 		TaskList(tmpls.Get("task_list.gohtml"), evidenceReceivedStore))
