@@ -105,7 +105,7 @@ resource "aws_route53_resolver_firewall_rule" "egress_block" {
 resource "aws_route53_resolver_firewall_rule_group_association" "egress" {
   name                   = "egress"
   firewall_rule_group_id = aws_route53_resolver_firewall_rule_group.egress.id
-  priority               = 1
+  priority               = 101
   vpc_id                 = var.vpc_id
   provider               = aws.region
 }
