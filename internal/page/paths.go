@@ -119,6 +119,7 @@ type AppPaths struct {
 	CertificateProviderAddress                           LpaPath
 	CertificateProviderDetails                           LpaPath
 	CertificateProviderOptOut                            LpaPath
+	CheckYouCanSign                                      LpaPath
 	CheckYourLpa                                         LpaPath
 	ChooseAttorneys                                      LpaPath
 	ChooseAttorneysAddress                               LpaPath
@@ -161,6 +162,7 @@ type AppPaths struct {
 	LpaDetailsSaved                                      LpaPath
 	LpaType                                              LpaPath
 	LpaYourLegalRightsAndResponsibilities                LpaPath
+	NeedHelpSigningConfirmation                          LpaPath
 	PaymentConfirmation                                  LpaPath
 	PreviousApplicationNumber                            LpaPath
 	PrintEvidenceForm                                    LpaPath
@@ -255,6 +257,7 @@ var Paths = AppPaths{
 	CertificateProviderDetails:                           "/certificate-provider-details",
 	CertificateProviderOptOut:                            "/certificate-provider-opt-out",
 	CertificateProviderStart:                             "/certificate-provider-start",
+	CheckYouCanSign:                                      "/check-you-can-sign",
 	CheckYourLpa:                                         "/check-your-lpa",
 	ChooseAttorneys:                                      "/choose-attorneys",
 	ChooseAttorneysAddress:                               "/choose-attorneys-address",
@@ -302,6 +305,7 @@ var Paths = AppPaths{
 	LpaDetailsSaved:                                      "/lpa-details-saved",
 	LpaType:                                              "/lpa-type",
 	LpaYourLegalRightsAndResponsibilities:                "/your-legal-rights-and-responsibilities",
+	NeedHelpSigningConfirmation:                          "/need-help-signing-confirmation",
 	PaymentConfirmation:                                  "/payment-confirmation",
 	PreviousApplicationNumber:                            "/previous-application-number",
 	PrintEvidenceForm:                                    "/print-evidence-form",

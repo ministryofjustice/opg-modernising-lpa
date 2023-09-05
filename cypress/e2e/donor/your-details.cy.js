@@ -9,6 +9,7 @@ describe('Donor details', () => {
         cy.get('#f-date-of-birth').type('1');
         cy.get('#f-date-of-birth-month').type('2');
         cy.get('#f-date-of-birth-year').type('1990');
+        cy.get('#f-can-sign').check();
 
         cy.checkA11yApp();
 
@@ -66,11 +67,13 @@ describe('Donor details', () => {
         cy.get('#f-date-of-birth').type('1');
         cy.get('#f-date-of-birth-month').type('2');
         cy.get('#f-date-of-birth-year').type('1990');
+        cy.get('#f-can-sign').check();
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/your-details');
 
         cy.contains('There is also an attorney called Jessie Jones.');
 
+        cy.get('#f-can-sign').check();
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/your-address');
     });
