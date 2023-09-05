@@ -62,11 +62,10 @@ services:
     container_name: mock-os-api
 
   mock-pay:
-    image: stoplight/prism:4.14.1
-    command: 'mock /tmp/publicapi_spec.json -h 0.0.0.0'
-    container_name: mock-pay
+    image: outofcoffee/imposter:latest
     volumes:
-      - ./mock-pay:/tmp
+      - ./mock-pay/mock-pay-config.yaml:/opt/imposter/config/mock-pay-config.yaml
+    container_name: mock-pay
 
   mock-uid:
     image: outofcoffee/imposter:latest

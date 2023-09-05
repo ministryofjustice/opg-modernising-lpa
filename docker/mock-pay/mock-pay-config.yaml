@@ -1,0 +1,5 @@
+plugin: openapi
+specFile: https://raw.githubusercontent.com/alphagov/pay-publicapi/master/openapi/publicapi_spec.json
+
+validation:
+  request: true
