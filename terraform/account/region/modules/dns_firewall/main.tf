@@ -87,7 +87,7 @@ resource "aws_route53_resolver_firewall_rule" "egress_allow" {
   action                  = "ALLOW"
   firewall_domain_list_id = aws_route53_resolver_firewall_domain_list.egress_allow.id
   firewall_rule_group_id  = aws_route53_resolver_firewall_rule_group.egress.id
-  priority                = 200
+  priority                = 1
   provider                = aws.region
 }
 
@@ -98,14 +98,14 @@ resource "aws_route53_resolver_firewall_rule" "egress_block" {
   # block_response          = "NODATA"
   firewall_domain_list_id = aws_route53_resolver_firewall_domain_list.egress_block.id
   firewall_rule_group_id  = aws_route53_resolver_firewall_rule_group.egress.id
-  priority                = 300
+  priority                = 2
   provider                = aws.region
 }
 
 resource "aws_route53_resolver_firewall_rule_group_association" "egress" {
   name                   = "egress"
   firewall_rule_group_id = aws_route53_resolver_firewall_rule_group.egress.id
-  priority               = 500
+  priority               = 101
   vpc_id                 = var.vpc_id
   provider               = aws.region
 }
