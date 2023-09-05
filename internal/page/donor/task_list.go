@@ -105,6 +105,7 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 						},
 						{
 							Name:   "chooseYourSignatoryAndIndpendentWitness",
+							Path:   page.Paths.GettingHelpSigning.Format(lpa.ID),
 							Hidden: !lpa.Donor.CanSign.IsNo(),
 						},
 						{
