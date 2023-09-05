@@ -363,6 +363,10 @@ locals {
           value = "https://publicapi.payments.service.gov.uk"
         },
         {
+          name = "GOVUK_NOTIFY_BASE_URL",
+          value = "https://api.notifications.service.gov.uk"
+        },
+        {
           name  = "YOTI_CLIENT_SDK_ID",
           value = var.app_env_vars.yoti_client_sdk_id
         },
