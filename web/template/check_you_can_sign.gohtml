@@ -31,7 +31,7 @@
 
             {{ template "error-message" (errorMessage . "yes-no") }}
             
-            {{ template "radios" (items . "yes-no" ""
+            {{ template "radios" (items . "yes-no" .Form.YesNo.String
               (item .Options.Yes.String "yes")
               (item .Options.No.String "no" "hint" "wellGiveYouMoreInformationAboutWhatToDo")
             ) }}
