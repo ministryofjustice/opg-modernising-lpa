@@ -87,10 +87,6 @@ func New(isProduction bool, baseURL, apiKey string, httpClient Doer) (*Client, e
 		return nil, errors.New("invalid apiKey format")
 	}
 
-	if baseURL == "" {
-		baseURL = "https://api.notifications.service.gov.uk"
-	}
-
 	templates := testingTemplates
 	if isProduction {
 		templates = productionTemplates

@@ -32,12 +32,6 @@ func TestNewWithInvalidApiKey(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestNewWithEmptyBaseURL(t *testing.T) {
-	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", http.DefaultClient)
-
-	assert.Equal(t, "https://api.notifications.service.gov.uk", client.baseURL)
-}
-
 func TestEmail(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
@@ -102,14 +96,14 @@ func TestRequest(t *testing.T) {
 	var jsonBody bytes.Buffer
 	jsonBody.WriteString(`{"some": "json"}`)
 
-	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+	client, _ := New(true, "http://base", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 	req, err := client.request(ctx, "/an/url", &jsonBody)
 
 	assert.Nil(err)
 	assert.Equal(http.MethodPost, req.Method)
-	assert.Equal("https://api.notifications.service.gov.uk/an/url", req.URL.String())
+	assert.Equal("http://base/an/url", req.URL.String())
 	assert.Equal("application/json", req.Header.Get("Content-Type"))
 	assert.Equal("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmMzM1MTdmZi0yYTg4LTRmNmUtYjg1NS1jNTUwMjY4Y2UwOGEiLCJpYXQiOjE1Nzc5MzQyNDV9.V0iR-Foo_twZdWttAxy4koJoSYJzyZHMr-tJIBwZj8k", req.Header.Get("Authorization"))
 }
