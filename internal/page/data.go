@@ -196,6 +196,7 @@ type Tasks struct {
 	CheckYourLpa               actor.TaskState
 	PayForLpa                  actor.PaymentTask
 	ConfirmYourIdentityAndSign actor.TaskState
+	ChooseYourSignatory        actor.TaskState // if .Donor.CanSign.IsNo only
 	PeopleToNotify             actor.TaskState
 }
 
@@ -273,6 +274,8 @@ func (l *Lpa) canGoToLpaPath(path string) bool {
 	case Paths.WhenCanTheLpaBeUsed.String(), Paths.LifeSustainingTreatment.String(), Paths.Restrictions.String(), Paths.WhatACertificateProviderDoes.String(), Paths.DoYouWantToNotifyPeople.String(), Paths.DoYouWantReplacementAttorneys.String():
 		return l.Tasks.YourDetails.Completed() &&
 			l.Tasks.ChooseAttorneys.Completed()
+	case Paths.GettingHelpSigning.String():
+		return l.Tasks.CertificateProvider.Completed()
 	case Paths.CheckYourLpa.String():
 		return l.Tasks.YourDetails.Completed() &&
 			l.Tasks.ChooseAttorneys.Completed() &&
@@ -280,7 +283,8 @@ func (l *Lpa) canGoToLpaPath(path string) bool {
 			(l.Type == LpaTypeHealthWelfare && l.Tasks.LifeSustainingTreatment.Completed() || l.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
 			l.Tasks.Restrictions.Completed() &&
 			l.Tasks.CertificateProvider.Completed() &&
-			l.Tasks.PeopleToNotify.Completed()
+			l.Tasks.PeopleToNotify.Completed() &&
+			(l.Donor.CanSign.IsYes() || l.Tasks.ChooseYourSignatory.Completed())
 	case Paths.AboutPayment.String():
 		return section1Completed
 	case Paths.SelectYourIdentityOptions.String(), Paths.HowToConfirmYourIdentityAndSign.String():

@@ -269,6 +269,9 @@ func Register(
 	handleWithLpa(page.Paths.RemovePersonToNotify, CanGoBack,
 		RemovePersonToNotify(logger, tmpls.Get("remove_person_to_notify.gohtml"), donorStore))
 
+	handleWithLpa(page.Paths.GettingHelpSigning, CanGoBack,
+		Guidance(tmpls.Get("getting_help_signing.gohtml")))
+
 	handleWithLpa(page.Paths.CheckYourLpa, CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, notifyClient, certificateProviderStore))
 	handleWithLpa(page.Paths.LpaDetailsSaved, CanGoBack,
