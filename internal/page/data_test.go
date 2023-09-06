@@ -241,6 +241,59 @@ func TestCanGoTo(t *testing.T) {
 			url:      "/whatever",
 			expected: true,
 		},
+		"getting help signing no certificate provider": {
+			lpa: &Lpa{
+				Type: LpaTypeHealthWelfare,
+				Tasks: Tasks{
+					YourDetails: actor.TaskCompleted,
+				},
+			},
+			url:      Paths.GettingHelpSigning.Format("123"),
+			expected: false,
+		},
+		"getting help signing": {
+			lpa: &Lpa{
+				Type: LpaTypeHealthWelfare,
+				Tasks: Tasks{
+					CertificateProvider: actor.TaskCompleted,
+				},
+			},
+			url:      Paths.GettingHelpSigning.Format("123"),
+			expected: true,
+		},
+		"check your lpa when unsure if can sign": {
+			lpa: &Lpa{
+				Type: LpaTypeHealthWelfare,
+				Tasks: Tasks{
+					YourDetails:                actor.TaskCompleted,
+					ChooseAttorneys:            actor.TaskCompleted,
+					ChooseReplacementAttorneys: actor.TaskCompleted,
+					LifeSustainingTreatment:    actor.TaskCompleted,
+					Restrictions:               actor.TaskCompleted,
+					CertificateProvider:        actor.TaskCompleted,
+					PeopleToNotify:             actor.TaskCompleted,
+				},
+			},
+			url:      Paths.CheckYourLpa.Format("123"),
+			expected: false,
+		},
+		"check your lpa when can sign": {
+			lpa: &Lpa{
+				Donor: actor.Donor{CanSign: form.Yes},
+				Type:  LpaTypeHealthWelfare,
+				Tasks: Tasks{
+					YourDetails:                actor.TaskCompleted,
+					ChooseAttorneys:            actor.TaskCompleted,
+					ChooseReplacementAttorneys: actor.TaskCompleted,
+					LifeSustainingTreatment:    actor.TaskCompleted,
+					Restrictions:               actor.TaskCompleted,
+					CertificateProvider:        actor.TaskCompleted,
+					PeopleToNotify:             actor.TaskCompleted,
+				},
+			},
+			url:      Paths.CheckYourLpa.Format("123"),
+			expected: true,
+		},
 		"about payment without task": {
 			lpa:      &Lpa{ID: "123"},
 			url:      Paths.AboutPayment.Format("123"),

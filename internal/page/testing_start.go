@@ -89,8 +89,10 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 				TownOrCity: "BIRMINGHAM",
 				Postcode:   "B14 7ED",
 			},
-			Email:       testEmail,
-			DateOfBirth: date.New("2000", "1", "2"),
+			Email:         testEmail,
+			DateOfBirth:   date.New("2000", "1", "2"),
+			ThinksCanSign: actor.Yes,
+			CanSign:       form.Yes,
 		}
 	}
 
