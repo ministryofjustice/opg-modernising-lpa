@@ -18,7 +18,7 @@ func TestGetFeeDenied(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, feeDeniedData{Lpa: lpa}).
+		On("Execute", w, feeDeniedData{Lpa: lpa, App: testAppData}).
 		Return(nil)
 
 	err := FeeDenied(template.Execute, nil)(testAppData, w, r, lpa)

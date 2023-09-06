@@ -734,5 +734,6 @@
     "signTheLpaSignatory2": "Welsh",
     "yourDetailsContent": "Rhaid i chi nodi eich enw fel y mae’n ymddangos ar ddogfennau swyddogol, fel eich pasbort neu drwydded yrru.",
     "onceConfirmedNotAbleToMakeChanges": "Welsh.",
-    "evidenceRequired": "Welsh"
+    "evidenceRequired": "Welsh",
+    "feeDeniedContent": "<p class=\"govuk-body\">Welsh £{{.RemainingAmountDue}}.</p>"
 }
