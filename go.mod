@@ -12,6 +12,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/eventbridge v1.20.5
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.38.5
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.21.3
+	github.com/dustin/go-humanize v1.0.1
 	github.com/felixge/httpsnoop v1.0.3
 	github.com/getyoti/yoti-go-sdk/v3 v3.10.0
 	github.com/golang-jwt/jwt/v4 v4.5.0

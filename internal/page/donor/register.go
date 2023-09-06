@@ -292,6 +292,8 @@ func Register(
 		ProvideAddressToSendEvidenceForm(logger, tmpls.Get("provide_address_to_send_evidence_form.gohtml"), addressClient, donorStore))
 	handleWithLpa(page.Paths.HowToSendEvidence, CanGoBack,
 		HowToSendEvidence(tmpls.Get("how_to_send_evidence.gohtml"), payer))
+	handleWithLpa(page.Paths.FeeDenied, None,
+		FeeDenied(tmpls.Get("fee_denied.gohtml"), payer))
 	handleWithLpa(page.Paths.PaymentConfirmation, None,
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore))
 

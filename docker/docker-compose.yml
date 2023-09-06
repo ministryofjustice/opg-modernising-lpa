@@ -28,6 +28,7 @@ services:
     build:
       context: localstack
       dockerfile: Dockerfile
+    container_name: localstack
     ports:
       - "4566:4566"
     environment:
@@ -64,13 +65,13 @@ services:
   mock-pay:
     image: outofcoffee/imposter:latest
     volumes:
-      - ./mock-pay/mock-pay-config.yaml:/opt/imposter/config/mock-pay-config.yaml
+      - ./mock-pay:/opt/imposter/config/
     container_name: mock-pay
 
   mock-uid:
     image: outofcoffee/imposter:latest
     volumes:
-      - ./mock-uid/config:/opt/imposter/config
+      - ./mock-uid/mock-uid-config.yaml:/opt/imposter/config/mock-uid-config.yaml
     container_name: mock-uid
     ports:
       - "8080:8080"

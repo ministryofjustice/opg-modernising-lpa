@@ -40,4 +40,4 @@ services:
       - GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080
     ports:
       - "9000:8080"
-    entrypoint: aws-lambda-rie /var/task/main
+    entrypoint: aws-lambda-rie /var/task/event-received
