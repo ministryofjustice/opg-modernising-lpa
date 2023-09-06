@@ -192,6 +192,7 @@ type AppPaths struct {
 	WitnessingYourSignature                              LpaPath
 	YouHaveSubmittedYourLpa                              LpaPath
 	YourAddress                                          LpaPath
+	YourAuthorisedSignatory                              LpaPath
 	YourChosenIdentityOptions                            LpaPath
 	YourDetails                                          LpaPath
 }
@@ -341,6 +342,7 @@ var Paths = AppPaths{
 	YotiRedirect:                                         "/yoti/redirect",
 	YouHaveSubmittedYourLpa:                              "/you-have-submitted-your-lpa",
 	YourAddress:                                          "/your-address",
+	YourAuthorisedSignatory:                              "/your-authorised-signatory",
 	YourChosenIdentityOptions:                            "/your-chosen-identity-options",
 	YourDetails:                                          "/your-details",
 	YourLegalRightsAndResponsibilities:                   "/your-legal-rights-and-responsibilities",
