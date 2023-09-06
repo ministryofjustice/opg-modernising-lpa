@@ -750,5 +750,8 @@
     "weKnowYouWillNeedHelpSigningTitle": "Welsh",
     "weKnowYouWillNeedHelpSigning": "Welsh",
     "weKnowYouWillNeedHelpSigningContent": "<p class=\"govuk-body\">Welsh:</p><ul class=\"govuk-list govuk-list--bullet\"><li>Welsh</li><li>Welsh</li></ul><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
-    "chooseYourSignatoryAndIndpendentWitness": "Welsh"
+    "chooseYourSignatoryAndIndpendentWitness": "Welsh",
+    "chooseYourSignatoryAndIndpendentWitness": "Welsh",
+    "gettingHelpSigningYourLpa": "Welsh",
+    "gettingHelpSigningYourLpaContent": "<p class=\"govuk-body\">Welsh</p>"
 }
