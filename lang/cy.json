@@ -753,5 +753,16 @@
     "chooseYourSignatoryAndIndependentWitness": "Welsh",
     "gettingHelpSigningYourLpa": "Welsh",
     "gettingHelpSigningYourLpaContent": "<p class=\"govuk-body\">Welsh</p>",
-    "feeDeniedContent": "<p class=\"govuk-body\">Welsh £{{.RemainingAmountDue}}.</p>"
+    "feeDeniedContent": "<p class=\"govuk-body\">Welsh £{{.RemainingAmountDue}}.</p>",
+    "enterTheNameOfYourAuthorisedSignatory": "Welsh",
+    "thisIsThePersonWhoWillSignOnYourBehalf": "Welsh",
+    "authorisedSignatoryThisPersonCannotBeWarning": "Welsh",
+    "theSignatory": "Welsh",
+    "enterTheNameOfYourIndependentWitness": "Welsh",
+    "thisIsThePersonWhoWillActAsAdditionalWitness": "Welsh",
+    "independentWitnessThisPersonCannotBeWarning": "Welsh",
+    "enterMobileNumberOfIndependentWitness": "Welsh",
+    "weNeedYourIndependentWitnessMobileNumberSo": "Welsh",
+    "aMobilePhoneNumber": "Welsh",
+    "aUKMobileNumber": "Welsh"
 }

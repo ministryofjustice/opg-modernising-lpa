@@ -186,5 +186,13 @@ func attorneyMatches(lpa *page.Lpa, id, firstNames, lastName string) actor.Type 
 		}
 	}
 
+	if strings.EqualFold(lpa.Signatory.FirstNames, firstNames) && strings.EqualFold(lpa.Signatory.LastName, lastName) {
+		return actor.TypeSignatory
+	}
+
+	if strings.EqualFold(lpa.IndependentWitness.FirstNames, firstNames) && strings.EqualFold(lpa.IndependentWitness.LastName, lastName) {
+		return actor.TypeIndependentWitness
+	}
+
 	return actor.TypeNone
 }
