@@ -31,3 +31,9 @@ type Donor struct {
 func (d Donor) FullName() string {
 	return fmt.Sprintf("%s %s", d.FirstNames, d.LastName)
 }
+
+// Signatory contains details of the person who will sign the LPA on the donor's behalf
+type Signatory struct {
+	FirstNames string
+	LastName   string
+}
