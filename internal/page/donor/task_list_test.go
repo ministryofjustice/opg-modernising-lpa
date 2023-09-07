@@ -51,6 +51,17 @@ func TestGetTaskList(t *testing.T) {
 				return sections
 			},
 		},
+		"fee denied": {
+			lpa:              &page.Lpa{ID: "lpa-id", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskDenied}},
+			evidenceReceived: true,
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[1].Items = []taskListItem{
+					{Name: "payForTheLpa", Path: page.Paths.FeeDenied.Format("lpa-id"), PaymentState: actor.PaymentTaskDenied},
+				}
+
+				return sections
+			},
+		},
 		"hw": {
 			lpa: &page.Lpa{ID: "lpa-id", Type: page.LpaTypeHealthWelfare},
 			expected: func(sections []taskListSection) []taskListSection {
@@ -103,7 +114,7 @@ func TestGetTaskList(t *testing.T) {
 					{Name: "addRestrictionsToTheLpa", Path: page.Paths.Restrictions.Format("lpa-id"), State: actor.TaskCompleted},
 					{Name: "chooseYourCertificateProvider", Path: page.Paths.WhatACertificateProviderDoes.Format("lpa-id"), State: actor.TaskInProgress},
 					{Name: "peopleToNotifyAboutYourLpa", Path: page.Paths.DoYouWantToNotifyPeople.Format("lpa-id")},
-					{Name: "chooseYourSignatoryAndIndpendentWitness", Path: page.Paths.GettingHelpSigning.Format("lpa-id"), Hidden: true},
+					{Name: "chooseYourSignatoryAndIndependentWitness", Path: page.Paths.GettingHelpSigning.Format("lpa-id"), Hidden: true},
 					{Name: "checkAndSendToYourCertificateProvider", Path: page.Paths.CheckYourLpa.Format("lpa-id"), State: actor.TaskCompleted},
 				}
 
@@ -138,7 +149,7 @@ func TestGetTaskList(t *testing.T) {
 								{Name: "addRestrictionsToTheLpa", Path: page.Paths.Restrictions.Format("lpa-id")},
 								{Name: "chooseYourCertificateProvider", Path: page.Paths.WhatACertificateProviderDoes.Format("lpa-id")},
 								{Name: "peopleToNotifyAboutYourLpa", Path: page.Paths.DoYouWantToNotifyPeople.Format("lpa-id")},
-								{Name: "chooseYourSignatoryAndIndpendentWitness", Path: page.Paths.GettingHelpSigning.Format("lpa-id"), Hidden: true},
+								{Name: "chooseYourSignatoryAndIndependentWitness", Path: page.Paths.GettingHelpSigning.Format("lpa-id"), Hidden: true},
 								{Name: "checkAndSendToYourCertificateProvider", Path: page.Paths.CheckYourLpa.Format("lpa-id")},
 							},
 						},

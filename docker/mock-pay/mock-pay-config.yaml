@@ -1,0 +1,7 @@
+plugin: openapi
+specFile: openapi-spec.json
+response:
+  scriptFile: payments.js
+
+validation:
+  request: true

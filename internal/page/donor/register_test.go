@@ -470,6 +470,145 @@ func TestPayHelperPayWhenMoreEvidenceProvided(t *testing.T) {
 	assert.Equal(t, page.Paths.WhatHappensAfterNoFee.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
+func TestPayHelperPayWhenFeeDenied(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
+
+	sessionStore := newMockSessionStore(t)
+
+	session := sessions.NewSession(sessionStore, "pay")
+	session.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   5400,
+		SameSite: http.SameSiteLaxMode,
+		HttpOnly: true,
+		Secure:   true,
+	}
+	session.Values = map[any]any{"payment": &sesh.PaymentSession{PaymentID: "a-fake-id"}}
+
+	sessionStore.
+		On("Save", r, w, session).
+		Return(nil)
+
+	payClient := newMockPayClient(t)
+	payClient.
+		On("CreatePayment", pay.CreatePaymentBody{
+			Amount:      4100,
+			Reference:   "123456789012",
+			Description: "Property and Finance LPA",
+			ReturnUrl:   "http://example.org/lpa/lpa-id/payment-confirmation",
+			Email:       "a@b.com",
+			Language:    "en",
+		}).
+		Return(pay.CreatePaymentResponse{
+			PaymentId: "a-fake-id",
+			Links: map[string]pay.Link{
+				"next_url": {
+					Href: page.Paths.PaymentConfirmation.Format("lpa-id"),
+				},
+			},
+		}, nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), &page.Lpa{
+			ID:             "lpa-id",
+			Donor:          actor.Donor{Email: "a@b.com"},
+			FeeType:        page.FullFee,
+			Tasks:          page.Tasks{PayForLpa: actor.PaymentTaskInProgress},
+			PaymentDetails: []page.Payment{{Amount: 4100}},
+		}).
+		Return(nil)
+
+	err := (&payHelper{
+		sessionStore: sessionStore,
+		donorStore:   donorStore,
+		payClient:    payClient,
+		appPublicURL: "http://example.org",
+		randomString: func(int) string { return "123456789012" },
+	}).Pay(testAppData, w, r, &page.Lpa{
+		ID:             "lpa-id",
+		Donor:          actor.Donor{Email: "a@b.com"},
+		FeeType:        page.HalfFee,
+		Tasks:          page.Tasks{PayForLpa: actor.PaymentTaskDenied},
+		PaymentDetails: []page.Payment{{Amount: 4100}},
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, "/lpa/lpa-id/payment-confirmation", resp.Header.Get("Location"))
+}
+
+func TestPayHelperPayWhenFeeDeniedAndPutStoreError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
+
+	sessionStore := newMockSessionStore(t)
+
+	session := sessions.NewSession(sessionStore, "pay")
+	session.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   5400,
+		SameSite: http.SameSiteLaxMode,
+		HttpOnly: true,
+		Secure:   true,
+	}
+	session.Values = map[any]any{"payment": &sesh.PaymentSession{PaymentID: "a-fake-id"}}
+
+	sessionStore.
+		On("Save", r, w, session).
+		Return(nil)
+
+	payClient := newMockPayClient(t)
+	payClient.
+		On("CreatePayment", pay.CreatePaymentBody{
+			Amount:      4100,
+			Reference:   "123456789012",
+			Description: "Property and Finance LPA",
+			ReturnUrl:   "http://example.org/lpa/lpa-id/payment-confirmation",
+			Email:       "a@b.com",
+			Language:    "en",
+		}).
+		Return(pay.CreatePaymentResponse{
+			PaymentId: "a-fake-id",
+			Links: map[string]pay.Link{
+				"next_url": {
+					Href: page.Paths.PaymentConfirmation.Format("lpa-id"),
+				},
+			},
+		}, nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), &page.Lpa{
+			ID:             "lpa-id",
+			Donor:          actor.Donor{Email: "a@b.com"},
+			FeeType:        page.FullFee,
+			Tasks:          page.Tasks{PayForLpa: actor.PaymentTaskInProgress},
+			PaymentDetails: []page.Payment{{Amount: 4100}},
+		}).
+		Return(expectedError)
+
+	err := (&payHelper{
+		sessionStore: sessionStore,
+		donorStore:   donorStore,
+		payClient:    payClient,
+		appPublicURL: "http://example.org",
+		randomString: func(int) string { return "123456789012" },
+	}).Pay(testAppData, w, r, &page.Lpa{
+		ID:             "lpa-id",
+		Donor:          actor.Donor{Email: "a@b.com"},
+		FeeType:        page.HalfFee,
+		Tasks:          page.Tasks{PayForLpa: actor.PaymentTaskDenied},
+		PaymentDetails: []page.Payment{{Amount: 4100}},
+	})
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
 func TestPayHelperPayWhenPaymentNotRequiredAndDonorStoreErrors(t *testing.T) {
 	testCases := []page.FeeType{
 		page.NoFee,
