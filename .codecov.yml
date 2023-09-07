@@ -11,9 +11,9 @@ coverage:
     - "./internal/page/fixtures.go"
     - "./internal/page/testing_start.go"
     - "./cmd/mlpa/main.go"
-    - "./cmd/GOVUKNotify/main.go"
-    - "./cmd/GOVUKSignIn/main.go"
-    - "./cmd/OrdnanceSurveyPlacesAPI/main.go"
+    - "./cmd/mock-notify/main.go"
+    - "./cmd/mock-onelogin/main.go"
+    - "./cmd/mock-os-api/main.go"
   status:
     project:
       default:
