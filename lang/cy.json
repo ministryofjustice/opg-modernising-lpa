@@ -757,5 +757,8 @@
     "enterTheNameOfYourAuthorisedSignatory": "Welsh",
     "thisIsThePersonWhoWillSignOnYourBehalf": "Welsh",
     "authorisedSignatoryThisPersonCannotBeWarning": "Welsh",
-    "theSignatory": "Welsh"
+    "theSignatory": "Welsh",
+    "enterTheNameOfYourIndependentWitness": "Welsh",
+    "thisIsThePersonWhoWillActAsAdditionalWitness": "Welsh",
+    "independentWitnessThisPersonCannotBeWarning": "Welsh"
 }

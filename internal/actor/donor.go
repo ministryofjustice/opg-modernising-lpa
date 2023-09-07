@@ -37,3 +37,10 @@ type Signatory struct {
 	FirstNames string
 	LastName   string
 }
+
+// IndependentWitness contains details of the person who will also witness the signing of the LPA
+type IndependentWitness struct {
+	FirstNames string
+	LastName   string
+	Mobile     string
+}

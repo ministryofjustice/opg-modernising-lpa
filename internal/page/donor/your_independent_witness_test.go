@@ -15,41 +15,41 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetYourAuthorisedSignatory(t *testing.T) {
+func TestGetYourIndependentWitness(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &yourAuthorisedSignatoryData{
+		On("Execute", w, &yourIndependentWitnessData{
 			App:  testAppData,
-			Form: &yourAuthorisedSignatoryForm{},
+			Form: &yourIndependentWitnessForm{},
 		}).
 		Return(nil)
 
-	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetYourAuthorisedSignatoryFromStore(t *testing.T) {
+func TestGetYourIndependentWitnessFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &yourAuthorisedSignatoryData{
+		On("Execute", w, &yourIndependentWitnessData{
 			App: testAppData,
-			Form: &yourAuthorisedSignatoryForm{
+			Form: &yourIndependentWitnessForm{
 				FirstNames: "John",
 			},
 		}).
 		Return(nil)
 
-	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &page.Lpa{
-		Signatory: actor.Signatory{
+	err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &page.Lpa{
+		IndependentWitness: actor.IndependentWitness{
 			FirstNames: "John",
 		},
 	})
@@ -59,7 +59,7 @@ func TestGetYourAuthorisedSignatoryFromStore(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetYourAuthorisedSignatoryWhenTemplateErrors(t *testing.T) {
+func TestGetYourIndependentWitnessWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -68,24 +68,24 @@ func TestGetYourAuthorisedSignatoryWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostYourAuthorisedSignatory(t *testing.T) {
+func TestPostYourIndependentWitness(t *testing.T) {
 	testCases := map[string]struct {
 		form   url.Values
-		person actor.Signatory
+		person actor.IndependentWitness
 	}{
 		"valid": {
 			form: url.Values{
 				"first-names": {"John"},
 				"last-name":   {"Doe"},
 			},
-			person: actor.Signatory{
+			person: actor.IndependentWitness{
 				FirstNames: "John",
 				LastName:   "Doe",
 			},
@@ -94,9 +94,9 @@ func TestPostYourAuthorisedSignatory(t *testing.T) {
 			form: url.Values{
 				"first-names":         {"John"},
 				"last-name":           {"Smith"},
-				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeSignatory, actor.TypeDonor, "John", "Smith").String()},
+				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeIndependentWitness, actor.TypeDonor, "John", "Smith").String()},
 			},
-			person: actor.Signatory{
+			person: actor.IndependentWitness{
 				FirstNames: "John",
 				LastName:   "Smith",
 			},
@@ -113,14 +113,14 @@ func TestPostYourAuthorisedSignatory(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
-					ID:        "lpa-id",
-					Donor:     actor.Donor{FirstNames: "John", LastName: "Smith"},
-					Signatory: tc.person,
-					Tasks:     page.Tasks{ChooseYourSignatory: actor.TaskInProgress},
+					ID:                 "lpa-id",
+					Donor:              actor.Donor{FirstNames: "John", LastName: "Smith"},
+					IndependentWitness: tc.person,
+					Tasks:              page.Tasks{ChooseYourSignatory: actor.TaskInProgress},
 				}).
 				Return(nil)
 
-			err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &page.Lpa{
+			err := YourIndependentWitness(nil, donorStore)(testAppData, w, r, &page.Lpa{
 				ID:    "lpa-id",
 				Donor: actor.Donor{FirstNames: "John", LastName: "Smith"},
 			})
@@ -128,12 +128,12 @@ func TestPostYourAuthorisedSignatory(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.YourIndependentWitness.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.YourIndependentWitnessMobile.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
 
-func TestPostYourAuthorisedSignatoryWhenTaskCompleted(t *testing.T) {
+func TestPostYourIndependentWitnessWhenTaskCompleted(t *testing.T) {
 	f := url.Values{
 		"first-names": {"John"},
 		"last-name":   {"Doe"},
@@ -148,7 +148,7 @@ func TestPostYourAuthorisedSignatoryWhenTaskCompleted(t *testing.T) {
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			ID: "lpa-id",
-			Signatory: actor.Signatory{
+			IndependentWitness: actor.IndependentWitness{
 				FirstNames: "John",
 				LastName:   "Doe",
 			},
@@ -156,9 +156,9 @@ func TestPostYourAuthorisedSignatoryWhenTaskCompleted(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &page.Lpa{
+	err := YourIndependentWitness(nil, donorStore)(testAppData, w, r, &page.Lpa{
 		ID: "lpa-id",
-		Signatory: actor.Signatory{
+		IndependentWitness: actor.IndependentWitness{
 			FirstNames: "John",
 		},
 		Tasks: page.Tasks{ChooseYourSignatory: actor.TaskCompleted},
@@ -167,19 +167,19 @@ func TestPostYourAuthorisedSignatoryWhenTaskCompleted(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.YourIndependentWitness.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.YourIndependentWitnessMobile.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostYourAuthorisedSignatoryWhenInputRequired(t *testing.T) {
+func TestPostYourIndependentWitnessWhenInputRequired(t *testing.T) {
 	testCases := map[string]struct {
 		form        url.Values
-		dataMatcher func(t *testing.T, data *yourAuthorisedSignatoryData) bool
+		dataMatcher func(t *testing.T, data *yourIndependentWitnessData) bool
 	}{
 		"validation error": {
 			form: url.Values{
 				"last-name": {"Doe"},
 			},
-			dataMatcher: func(t *testing.T, data *yourAuthorisedSignatoryData) bool {
+			dataMatcher: func(t *testing.T, data *yourIndependentWitnessData) bool {
 				return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
 			},
 		},
@@ -188,16 +188,16 @@ func TestPostYourAuthorisedSignatoryWhenInputRequired(t *testing.T) {
 				"first-names": {"John"},
 				"last-name":   {"Doe"},
 			},
-			dataMatcher: func(t *testing.T, data *yourAuthorisedSignatoryData) bool {
-				return assert.Equal(t, actor.NewSameNameWarning(actor.TypeSignatory, actor.TypeDonor, "John", "Doe"), data.NameWarning)
+			dataMatcher: func(t *testing.T, data *yourIndependentWitnessData) bool {
+				return assert.Equal(t, actor.NewSameNameWarning(actor.TypeIndependentWitness, actor.TypeDonor, "John", "Doe"), data.NameWarning)
 			},
 		},
 		"name warning ignored but other errors": {
 			form: url.Values{
 				"first-names":         {"John"},
-				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeSignatory, actor.TypeDonor, "John", "Doe").String()},
+				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeIndependentWitness, actor.TypeDonor, "John", "Doe").String()},
 			},
-			dataMatcher: func(t *testing.T, data *yourAuthorisedSignatoryData) bool {
+			dataMatcher: func(t *testing.T, data *yourIndependentWitnessData) bool {
 				return assert.Equal(t, validation.With("last-name", validation.EnterError{Label: "lastName"}), data.Errors)
 			},
 		},
@@ -205,10 +205,10 @@ func TestPostYourAuthorisedSignatoryWhenInputRequired(t *testing.T) {
 			form: url.Values{
 				"first-names":         {"John"},
 				"last-name":           {"Doe"},
-				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeSignatory, actor.TypeDonor, "John", "John").String()},
+				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeIndependentWitness, actor.TypeDonor, "John", "John").String()},
 			},
-			dataMatcher: func(t *testing.T, data *yourAuthorisedSignatoryData) bool {
-				return assert.Equal(t, actor.NewSameNameWarning(actor.TypeSignatory, actor.TypeDonor, "John", "Doe"), data.NameWarning)
+			dataMatcher: func(t *testing.T, data *yourIndependentWitnessData) bool {
+				return assert.Equal(t, actor.NewSameNameWarning(actor.TypeIndependentWitness, actor.TypeDonor, "John", "Doe"), data.NameWarning)
 			},
 		},
 	}
@@ -221,12 +221,12 @@ func TestPostYourAuthorisedSignatoryWhenInputRequired(t *testing.T) {
 
 			template := newMockTemplate(t)
 			template.
-				On("Execute", w, mock.MatchedBy(func(data *yourAuthorisedSignatoryData) bool {
+				On("Execute", w, mock.MatchedBy(func(data *yourIndependentWitnessData) bool {
 					return tc.dataMatcher(t, data)
 				})).
 				Return(nil)
 
-			err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &page.Lpa{
+			err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &page.Lpa{
 				Donor: actor.Donor{
 					FirstNames: "John",
 					LastName:   "Doe",
@@ -240,7 +240,7 @@ func TestPostYourAuthorisedSignatoryWhenInputRequired(t *testing.T) {
 	}
 }
 
-func TestPostYourAuthorisedSignatoryWhenStoreErrors(t *testing.T) {
+func TestPostYourIndependentWitnessWhenStoreErrors(t *testing.T) {
 	form := url.Values{
 		"first-names": {"John"},
 		"last-name":   {"Doe"},
@@ -255,7 +255,7 @@ func TestPostYourAuthorisedSignatoryWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &page.Lpa{
+	err := YourIndependentWitness(nil, donorStore)(testAppData, w, r, &page.Lpa{
 		Donor: actor.Donor{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
@@ -265,7 +265,7 @@ func TestPostYourAuthorisedSignatoryWhenStoreErrors(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestReadYourAuthorisedSignatoryForm(t *testing.T) {
+func TestReadYourIndependentWitnessForm(t *testing.T) {
 	assert := assert.New(t)
 
 	f := url.Values{
@@ -277,38 +277,38 @@ func TestReadYourAuthorisedSignatoryForm(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	result := readYourAuthorisedSignatoryForm(r)
+	result := readYourIndependentWitnessForm(r)
 
 	assert.Equal("John", result.FirstNames)
 	assert.Equal("Doe", result.LastName)
 	assert.Equal("xyz", result.IgnoreNameWarning)
 }
 
-func TestYourAuthorisedSignatoryFormValidate(t *testing.T) {
+func TestYourIndependentWitnessFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form   *yourAuthorisedSignatoryForm
+		form   *yourIndependentWitnessForm
 		errors validation.List
 	}{
 		"valid": {
-			form: &yourAuthorisedSignatoryForm{
+			form: &yourIndependentWitnessForm{
 				FirstNames: "A",
 				LastName:   "B",
 			},
 		},
 		"max length": {
-			form: &yourAuthorisedSignatoryForm{
+			form: &yourIndependentWitnessForm{
 				FirstNames: strings.Repeat("x", 53),
 				LastName:   strings.Repeat("x", 61),
 			},
 		},
 		"missing all": {
-			form: &yourAuthorisedSignatoryForm{},
+			form: &yourIndependentWitnessForm{},
 			errors: validation.
 				With("first-names", validation.EnterError{Label: "firstNames"}).
 				With("last-name", validation.EnterError{Label: "lastName"}),
 		},
 		"too long": {
-			form: &yourAuthorisedSignatoryForm{
+			form: &yourIndependentWitnessForm{
 				FirstNames: strings.Repeat("x", 54),
 				LastName:   strings.Repeat("x", 62),
 			},
@@ -325,7 +325,7 @@ func TestYourAuthorisedSignatoryFormValidate(t *testing.T) {
 	}
 }
 
-func TestSignatoryMatches(t *testing.T) {
+func TestIndependentWitnessMatches(t *testing.T) {
 	lpa := &page.Lpa{
 		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
@@ -345,25 +345,25 @@ func TestSignatoryMatches(t *testing.T) {
 		IndependentWitness: actor.IndependentWitness{FirstNames: "i", LastName: "w"},
 	}
 
-	assert.Equal(t, actor.TypeNone, signatoryMatches(lpa, "x", "y"))
-	assert.Equal(t, actor.TypeDonor, signatoryMatches(lpa, "a", "b"))
-	assert.Equal(t, actor.TypeAttorney, signatoryMatches(lpa, "C", "D"))
-	assert.Equal(t, actor.TypeAttorney, signatoryMatches(lpa, "e", "f"))
-	assert.Equal(t, actor.TypeReplacementAttorney, signatoryMatches(lpa, "G", "H"))
-	assert.Equal(t, actor.TypeReplacementAttorney, signatoryMatches(lpa, "i", "j"))
-	assert.Equal(t, actor.TypeCertificateProvider, signatoryMatches(lpa, "k", "l"))
-	assert.Equal(t, actor.TypeNone, signatoryMatches(lpa, "m", "n"))
-	assert.Equal(t, actor.TypeNone, signatoryMatches(lpa, "O", "P"))
-	assert.Equal(t, actor.TypeNone, signatoryMatches(lpa, "a", "s"))
-	assert.Equal(t, actor.TypeIndependentWitness, signatoryMatches(lpa, "i", "w"))
+	assert.Equal(t, actor.TypeNone, independentWitnessMatches(lpa, "x", "y"))
+	assert.Equal(t, actor.TypeDonor, independentWitnessMatches(lpa, "a", "b"))
+	assert.Equal(t, actor.TypeAttorney, independentWitnessMatches(lpa, "C", "D"))
+	assert.Equal(t, actor.TypeAttorney, independentWitnessMatches(lpa, "e", "f"))
+	assert.Equal(t, actor.TypeReplacementAttorney, independentWitnessMatches(lpa, "G", "H"))
+	assert.Equal(t, actor.TypeReplacementAttorney, independentWitnessMatches(lpa, "i", "j"))
+	assert.Equal(t, actor.TypeCertificateProvider, independentWitnessMatches(lpa, "k", "l"))
+	assert.Equal(t, actor.TypeNone, independentWitnessMatches(lpa, "m", "n"))
+	assert.Equal(t, actor.TypeNone, independentWitnessMatches(lpa, "O", "P"))
+	assert.Equal(t, actor.TypeSignatory, independentWitnessMatches(lpa, "a", "s"))
+	assert.Equal(t, actor.TypeNone, independentWitnessMatches(lpa, "i", "w"))
 }
 
-func TestSignatoryMatchesEmptyNamesIgnored(t *testing.T) {
+func TestIndependentWitnessMatchesEmptyNamesIgnored(t *testing.T) {
 	lpa := &page.Lpa{
 		Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 		PeopleToNotify:       actor.PeopleToNotify{{}},
 	}
 
-	assert.Equal(t, actor.TypeNone, signatoryMatches(lpa, "", ""))
+	assert.Equal(t, actor.TypeNone, independentWitnessMatches(lpa, "", ""))
 }

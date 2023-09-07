@@ -273,6 +273,8 @@ func Register(
 		Guidance(tmpls.Get("getting_help_signing.gohtml")))
 	handleWithLpa(page.Paths.YourAuthorisedSignatory, CanGoBack,
 		YourAuthorisedSignatory(tmpls.Get("your_authorised_signatory.gohtml"), donorStore))
+	handleWithLpa(page.Paths.YourIndependentWitness, CanGoBack,
+		YourIndependentWitness(tmpls.Get("your_independent_witness.gohtml"), donorStore))
 
 	handleWithLpa(page.Paths.CheckYourLpa, CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, notifyClient, certificateProviderStore))
