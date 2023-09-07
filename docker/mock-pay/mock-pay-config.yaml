@@ -3,22 +3,5 @@ specFile: openapi-spec.json
 response:
   scriptFile: payments.js
 
-#resources:
-#  - path: "/v1/payments/:paymentId"
-#    method: GET
-#    contentType: application/json
-#    response:
-#      scriptFile: payments.js
-#
-#  - path: "/v1/payments"
-#    method: POST
-#    contentType: application/json
-#    response:
-#      scriptFile: payments.js
-#    capture:
-#      amount:
-#        jsonPath: $.Amount
-#        store: paymentStore
-
 validation:
   request: true

@@ -134,7 +134,7 @@ type Lpa struct {
 	Tasks Tasks
 	// Whether the applicant has checked the LPA and is happy to share the LPA with the certificate provider
 	CheckedAndHappy bool
-	// Used as part of GOV.UK Pay
+	// PaymentDetails are records of payments made for the LPA via GOV.UK Pay
 	PaymentDetails []Payment
 	// Which option has been used to complete applicant identity checks
 	DonorIdentityOption identity.Option
