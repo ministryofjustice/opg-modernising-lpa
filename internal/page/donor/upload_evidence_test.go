@@ -80,12 +80,12 @@ func TestPostUploadEvidence(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{ID: "lpa-id", EvidenceKey: "lpa-id-evidence"}).
+		On("Put", r.Context(), &page.Lpa{ID: "lpa-id", EvidenceKeys: []string{"lpa-id-evidence"}}).
 		Return(nil)
 
 	payer := newMockPayer(t)
 	payer.
-		On("Pay", testAppData, w, r, &page.Lpa{ID: "lpa-id", EvidenceKey: "lpa-id-evidence"}).
+		On("Pay", testAppData, w, r, &page.Lpa{ID: "lpa-id", EvidenceKeys: []string{"lpa-id-evidence"}}).
 		Return(nil)
 
 	err := UploadEvidence(nil, donorStore, s3Client, "evidence-bucket", payer)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})

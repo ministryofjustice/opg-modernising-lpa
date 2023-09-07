@@ -51,11 +51,11 @@ func UploadEvidence(tmpl template.Template, donorStore DonorStore, s3Client S3Cl
 			data.Errors = form.Validate()
 
 			if data.Errors.None() {
-				lpa.EvidenceKey = lpa.ID + "-evidence"
+				lpa.EvidenceKeys = append(lpa.EvidenceKeys, lpa.ID+"-evidence")
 
 				_, err := s3Client.PutObject(r.Context(), &s3.PutObjectInput{
 					Bucket:               aws.String(bucketName),
-					Key:                  aws.String(lpa.EvidenceKey),
+					Key:                  aws.String(lpa.EvidenceKeys[0]),
 					Body:                 bytes.NewReader(form.File),
 					ServerSideEncryption: types.ServerSideEncryptionAwsKms,
 				})

@@ -174,7 +174,7 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 		if err := s.eventClient.Send(ctx, "reduced-fee-requested", reducedFeeRequestedEvent{
 			UID:         lpa.UID,
 			RequestType: lpa.FeeType.String(),
-			Evidence:    []string{lpa.EvidenceKey},
+			Evidence:    lpa.EvidenceKeys,
 		}); err != nil {
 			s.logger.Print(err)
 		} else {

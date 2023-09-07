@@ -168,8 +168,8 @@ type Lpa struct {
 	FeeType FeeType
 	// EvidenceFormAddress is where the form to provide evidence for a fee reduction will be sent
 	EvidenceFormAddress place.Address
-	// EvidenceKey is the S3 key for uploaded evidence
-	EvidenceKey string
+	// EvidenceKeys is the S3 key for uploaded evidence
+	EvidenceKeys []string
 
 	HasSentPreviousApplicationLinkedEvent bool
 	HasSentEvidenceFormRequiredEvent      bool

@@ -500,7 +500,7 @@ func TestDonorStorePutWhenReducedFeeRequested(t *testing.T) {
 			UID:                             "M-1111",
 			UpdatedAt:                       now,
 			FeeType:                         page.HardshipFee,
-			EvidenceKey:                     "/some/key",
+			EvidenceKeys:                    []string{"/some/key"},
 			Tasks:                           page.Tasks{PayForLpa: actor.PaymentTaskPending},
 			HasSentReducedFeeRequestedEvent: true,
 		}).
@@ -518,13 +518,13 @@ func TestDonorStorePutWhenReducedFeeRequested(t *testing.T) {
 	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, now: func() time.Time { return now }}
 
 	err := donorStore.Put(ctx, &page.Lpa{
-		PK:          "LPA#5",
-		SK:          "#DONOR#an-id",
-		ID:          "5",
-		UID:         "M-1111",
-		FeeType:     page.HardshipFee,
-		EvidenceKey: "/some/key",
-		Tasks:       page.Tasks{PayForLpa: actor.PaymentTaskPending},
+		PK:           "LPA#5",
+		SK:           "#DONOR#an-id",
+		ID:           "5",
+		UID:          "M-1111",
+		FeeType:      page.HardshipFee,
+		EvidenceKeys: []string{"/some/key"},
+		Tasks:        page.Tasks{PayForLpa: actor.PaymentTaskPending},
 	})
 	assert.Nil(t, err)
 }
