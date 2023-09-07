@@ -32,10 +32,10 @@ go-generate: ##@testing Runs go generate
 coverage: ##@testing Produces coverage report and launches browser line based coverage explorer. To test a specific internal package pass in the package name e.g. make coverage package=page
 ifdef package
 	$(eval t="/tmp/go-cover.$(package).tmp")
-	$(eval path="./app/internal/$(package)/...")
+	$(eval path="./internal/$(package)/...")
 else
 	$(eval t="/tmp/go-cover.tmp")
-	$(eval path="./app/...")
+	$(eval path="./internal/...")
 endif
 	go test -coverprofile=$(t) $(path) && go tool cover -html=$(t) && unlink $(t)
 
