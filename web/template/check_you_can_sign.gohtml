@@ -1,0 +1,46 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "yourDetails" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <form novalidate method="post">
+        <h1 class="govuk-heading-xl">{{ tr .App "checkThatYouCanSignYourLpa" }}</h1>
+
+        {{ trHtml .App "checkThatYouCanSignYourLpaGuidance" }}
+
+        <div class="app-example-box">
+          <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+            <div class="govuk-checkboxes__item">
+              <input class="govuk-checkboxes__input" id="f-example" name="example" type="checkbox" value="value">
+              <label class="govuk-label govuk-checkboxes__label" for="f-example">
+                {{ tr .App "exampleTickBox" }}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {{ trHtml .App "ifYouCannotTickTheBoxGuidance" }}
+        
+        <div class="govuk-form-group {{ if .Errors.Has "yes-no" }}govuk-form-group--error{{ end }}">
+          <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+              {{ tr .App "willYouBeAbleToSign" }}
+            </legend>
+
+            {{ template "error-message" (errorMessage . "yes-no") }}
+            
+            {{ template "radios" (items . "yes-no" .Form.YesNo.String
+              (item .Options.Yes.String "yes")
+              (item .Options.No.String "no" "hint" "wellGiveYouMoreInformationAboutWhatToDo")
+            ) }}
+          </fieldset>
+        </div>
+        
+        {{ template "continue-button" . }}
+        {{ template "csrf-field" . }}
+      </form>
+    </div>
+  </div>
+{{ end }}

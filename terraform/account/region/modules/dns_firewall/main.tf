@@ -22,12 +22,15 @@ resource "aws_route53_resolver_query_log_config_association" "egress" {
 
 locals {
   service_id = [
-    "logs",
-    "ecr",
     "dynamodb",
-    "kms",
-    "secretsmanager",
     "ecr.api",
+    "ecr",
+    "events",
+    "kms",
+    "logs",
+    "s3",
+    "secretsmanager",
+    "xray",
   ]
 }
 
@@ -41,9 +44,21 @@ data "aws_service" "services" {
 locals {
   aws_service_dns_name = [for service in data.aws_service.services : "${service.dns_name}."]
   interpolated_dns = [
+    "311462405659.dkr.ecr.${data.aws_region.current.name}.amazonaws.com.",
     "prod-${data.aws_region.current.name}-starport-layer-bucket.s3.${data.aws_region.current.name}.amazonaws.com.",
     "public-keys.auth.elb.${data.aws_region.current.name}.amazonaws.com.",
-    "311462405659.dkr.ecr.${data.aws_region.current.name}.amazonaws.com.",
+    "public.ecr.aws.",
+  ]
+  endpoints_dns = [
+    "api.notifications.service.gov.uk.",
+    "api.os.uk.",
+    "api.yoti.com.",
+    "current.cvd.clamav.net.",
+    "database.clamav.net.",
+    "development.lpa-uid.api.opg.service.justice.gov.uk.",
+    "integration.lpa-uid.api.opg.service.justice.gov.uk.",
+    "oidc.integration.account.gov.uk.",
+    "publicapi.payments.service.gov.uk.",
   ]
 }
 resource "aws_route53_resolver_firewall_domain_list" "egress_allow" {
@@ -51,7 +66,7 @@ resource "aws_route53_resolver_firewall_domain_list" "egress_allow" {
   domains = concat(
     local.interpolated_dns,
     local.aws_service_dns_name,
-    # local.account.dns_firewall.domains_allowed
+    local.endpoints_dns,
   )
   provider = aws.region
 }
@@ -72,7 +87,7 @@ resource "aws_route53_resolver_firewall_rule" "egress_allow" {
   action                  = "ALLOW"
   firewall_domain_list_id = aws_route53_resolver_firewall_domain_list.egress_allow.id
   firewall_rule_group_id  = aws_route53_resolver_firewall_rule_group.egress.id
-  priority                = 200
+  priority                = 1
   provider                = aws.region
 }
 
@@ -83,14 +98,14 @@ resource "aws_route53_resolver_firewall_rule" "egress_block" {
   # block_response          = "NODATA"
   firewall_domain_list_id = aws_route53_resolver_firewall_domain_list.egress_block.id
   firewall_rule_group_id  = aws_route53_resolver_firewall_rule_group.egress.id
-  priority                = 300
+  priority                = 2
   provider                = aws.region
 }
 
 resource "aws_route53_resolver_firewall_rule_group_association" "egress" {
   name                   = "egress"
   firewall_rule_group_id = aws_route53_resolver_firewall_rule_group.egress.id
-  priority               = 500
+  priority               = 101
   vpc_id                 = var.vpc_id
   provider               = aws.region
 }

@@ -192,6 +192,10 @@ func Register(
 		ApplicationReason(tmpls.Get("application_reason.gohtml"), donorStore))
 	handleWithLpa(page.Paths.PreviousApplicationNumber, None,
 		PreviousApplicationNumber(tmpls.Get("previous_application_number.gohtml"), donorStore))
+	handleWithLpa(page.Paths.CheckYouCanSign, None,
+		CheckYouCanSign(tmpls.Get("check_you_can_sign.gohtml"), donorStore))
+	handleWithLpa(page.Paths.NeedHelpSigningConfirmation, None,
+		Guidance(tmpls.Get("need_help_signing_confirmation.gohtml")))
 
 	handleWithLpa(page.Paths.TaskList, None,
 		TaskList(tmpls.Get("task_list.gohtml"), evidenceReceivedStore))
@@ -264,6 +268,9 @@ func Register(
 		ChoosePeopleToNotifySummary(tmpls.Get("choose_people_to_notify_summary.gohtml")))
 	handleWithLpa(page.Paths.RemovePersonToNotify, CanGoBack,
 		RemovePersonToNotify(logger, tmpls.Get("remove_person_to_notify.gohtml"), donorStore))
+
+	handleWithLpa(page.Paths.GettingHelpSigning, CanGoBack,
+		Guidance(tmpls.Get("getting_help_signing.gohtml")))
 
 	handleWithLpa(page.Paths.CheckYourLpa, CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, notifyClient, certificateProviderStore))

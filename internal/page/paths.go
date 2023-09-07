@@ -119,6 +119,7 @@ type AppPaths struct {
 	CertificateProviderAddress                           LpaPath
 	CertificateProviderDetails                           LpaPath
 	CertificateProviderOptOut                            LpaPath
+	CheckYouCanSign                                      LpaPath
 	CheckYourLpa                                         LpaPath
 	ChooseAttorneys                                      LpaPath
 	ChooseAttorneysAddress                               LpaPath
@@ -139,6 +140,7 @@ type AppPaths struct {
 	EnterTrustCorporationAddress                         LpaPath
 	EvidenceRequired                                     LpaPath
 	FeeDenied                                            LpaPath
+	GettingHelpSigning                                   LpaPath
 	HowDoYouKnowYourCertificateProvider                  LpaPath
 	HowLongHaveYouKnownCertificateProvider               LpaPath
 	HowShouldAttorneysMakeDecisions                      LpaPath
@@ -162,6 +164,7 @@ type AppPaths struct {
 	LpaDetailsSaved                                      LpaPath
 	LpaType                                              LpaPath
 	LpaYourLegalRightsAndResponsibilities                LpaPath
+	NeedHelpSigningConfirmation                          LpaPath
 	PaymentConfirmation                                  LpaPath
 	PreviousApplicationNumber                            LpaPath
 	PrintEvidenceForm                                    LpaPath
@@ -190,6 +193,7 @@ type AppPaths struct {
 	WitnessingYourSignature                              LpaPath
 	YouHaveSubmittedYourLpa                              LpaPath
 	YourAddress                                          LpaPath
+	YourAuthorisedSignatory                              LpaPath
 	YourChosenIdentityOptions                            LpaPath
 	YourDetails                                          LpaPath
 }
@@ -256,6 +260,7 @@ var Paths = AppPaths{
 	CertificateProviderDetails:                           "/certificate-provider-details",
 	CertificateProviderOptOut:                            "/certificate-provider-opt-out",
 	CertificateProviderStart:                             "/certificate-provider-start",
+	CheckYouCanSign:                                      "/check-you-can-sign",
 	CheckYourLpa:                                         "/check-your-lpa",
 	ChooseAttorneys:                                      "/choose-attorneys",
 	ChooseAttorneysAddress:                               "/choose-attorneys-address",
@@ -279,6 +284,7 @@ var Paths = AppPaths{
 	EvidenceRequired:                                     "/evidence-required",
 	FeeDenied:                                            "/fee-denied",
 	Fixtures:                                             "/fixtures",
+	GettingHelpSigning:                                   "/getting-help-signing",
 	HowDoYouKnowYourCertificateProvider:                  "/how-do-you-know-your-certificate-provider",
 	HowLongHaveYouKnownCertificateProvider:               "/how-long-have-you-known-certificate-provider",
 	HowShouldAttorneysMakeDecisions:                      "/how-should-attorneys-make-decisions",
@@ -304,6 +310,7 @@ var Paths = AppPaths{
 	LpaDetailsSaved:                                      "/lpa-details-saved",
 	LpaType:                                              "/lpa-type",
 	LpaYourLegalRightsAndResponsibilities:                "/your-legal-rights-and-responsibilities",
+	NeedHelpSigningConfirmation:                          "/need-help-signing-confirmation",
 	PaymentConfirmation:                                  "/payment-confirmation",
 	PreviousApplicationNumber:                            "/previous-application-number",
 	PrintEvidenceForm:                                    "/print-evidence-form",
@@ -337,6 +344,7 @@ var Paths = AppPaths{
 	YotiRedirect:                                         "/yoti/redirect",
 	YouHaveSubmittedYourLpa:                              "/you-have-submitted-your-lpa",
 	YourAddress:                                          "/your-address",
+	YourAuthorisedSignatory:                              "/your-authorised-signatory",
 	YourChosenIdentityOptions:                            "/your-chosen-identity-options",
 	YourDetails:                                          "/your-details",
 	YourLegalRightsAndResponsibilities:                   "/your-legal-rights-and-responsibilities",
