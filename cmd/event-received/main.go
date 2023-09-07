@@ -23,15 +23,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 )
 
-type evidenceReceivedEvent struct {
-	UID string `json:"uid"`
-}
-
-type feeApprovedEvent struct {
-	UID string `json:"uid"`
-}
-
-type moreEvidenceRequiredEvent struct {
+type uidEvent struct {
 	UID string `json:"uid"`
 }
 
@@ -100,13 +92,15 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) error {
 		return handleFeeApproved(ctx, dynamoClient, event, shareCodeSender, appData)
 	case "more-evidence-required":
 		return handleMoreEvidenceRequired(ctx, dynamoClient, event)
+	case "fee-denied":
+		return handleFeeDenied(ctx, dynamoClient, event)
 	default:
 		return fmt.Errorf("unknown event received: %s", event.DetailType)
 	}
 }
 
 func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent) error {
-	var v evidenceReceivedEvent
+	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal 'evidence-received' detail: %w", err)
 	}
@@ -128,7 +122,7 @@ func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event ev
 }
 
 func handleFeeApproved(ctx context.Context, dynamoClient dynamodbClient, event events.CloudWatchEvent, shareCodeSender shareCodeSender, appData page.AppData) error {
-	var v feeApprovedEvent
+	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal 'fee-approved' detail: %w", err)
 	}
@@ -157,7 +151,7 @@ func handleFeeApproved(ctx context.Context, dynamoClient dynamodbClient, event e
 }
 
 func handleMoreEvidenceRequired(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent) error {
-	var v moreEvidenceRequiredEvent
+	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal 'more-evidence-required' detail: %w", err)
 	}
@@ -180,6 +174,35 @@ func handleMoreEvidenceRequired(ctx context.Context, client dynamodbClient, even
 
 	if err := client.Put(ctx, lpa); err != nil {
 		return fmt.Errorf("failed to update LPA task status for 'more-evidence-required': %w", err)
+	}
+
+	return nil
+}
+
+func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent) error {
+	var v uidEvent
+	if err := json.Unmarshal(event.Detail, &v); err != nil {
+		return fmt.Errorf("failed to unmarshal 'fee-denied' detail: %w", err)
+	}
+
+	var key dynamo.Key
+	if err := client.GetOneByUID(ctx, v.UID, &key); err != nil {
+		return fmt.Errorf("failed to resolve uid for 'fee-denied': %w", err)
+	}
+
+	if key.PK == "" {
+		return errors.New("PK missing from LPA in response to 'fee-denied'")
+	}
+
+	var lpa page.Lpa
+	if err := client.Get(ctx, key.PK, key.SK, &lpa); err != nil {
+		return fmt.Errorf("failed to get LPA for 'fee-denied': %w", err)
+	}
+
+	lpa.Tasks.PayForLpa = actor.PaymentTaskDenied
+
+	if err := client.Put(ctx, lpa); err != nil {
+		return fmt.Errorf("failed to update LPA task status for 'fee-denied': %w", err)
 	}
 
 	return nil

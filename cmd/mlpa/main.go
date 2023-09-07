@@ -59,7 +59,7 @@ func main() {
 		notifyBaseURL          = env.Get("GOVUK_NOTIFY_BASE_URL", "http://mock-notify:8080")
 		notifyIsProduction     = env.Get("GOVUK_NOTIFY_IS_PRODUCTION", "") == "1"
 		ordnanceSurveyBaseURL  = env.Get("ORDNANCE_SURVEY_BASE_URL", "http://mock-os-api:8080")
-		payBaseURL             = env.Get("GOVUK_PAY_BASE_URL", "http://mock-pay:4010")
+		payBaseURL             = env.Get("GOVUK_PAY_BASE_URL", "http://mock-pay:8080")
 		port                   = env.Get("APP_PORT", "8080")
 		yotiClientSdkID        = env.Get("YOTI_CLIENT_SDK_ID", "")
 		yotiScenarioID         = env.Get("YOTI_SCENARIO_ID", "")

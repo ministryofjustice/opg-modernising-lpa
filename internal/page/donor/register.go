@@ -299,6 +299,8 @@ func Register(
 		ProvideAddressToSendEvidenceForm(logger, tmpls.Get("provide_address_to_send_evidence_form.gohtml"), addressClient, donorStore))
 	handleWithLpa(page.Paths.HowToSendEvidence, CanGoBack,
 		HowToSendEvidence(tmpls.Get("how_to_send_evidence.gohtml"), payer))
+	handleWithLpa(page.Paths.FeeDenied, None,
+		FeeDenied(tmpls.Get("fee_denied.gohtml"), payer))
 	handleWithLpa(page.Paths.PaymentConfirmation, None,
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore))
 
@@ -470,7 +472,7 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 	}
 
 	createPaymentBody := pay.CreatePaymentBody{
-		Amount:      lpa.FeeType.Cost(),
+		Amount:      lpa.FeeAmount(),
 		Reference:   p.randomString(12),
 		Description: "Property and Finance LPA",
 		ReturnUrl:   p.appPublicURL + appData.BuildUrl(page.Paths.PaymentConfirmation.Format(lpa.ID)),
@@ -486,6 +488,14 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 
 	if err = sesh.SetPayment(p.sessionStore, r, w, &sesh.PaymentSession{PaymentID: resp.PaymentId}); err != nil {
 		return err
+	}
+
+	if lpa.Tasks.PayForLpa.IsDenied() {
+		lpa.FeeType = page.FullFee
+		lpa.Tasks.PayForLpa = actor.PaymentTaskInProgress
+		if err := p.donorStore.Put(r.Context(), lpa); err != nil {
+			return err
+		}
 	}
 
 	nextUrl := resp.Links["next_url"].Href

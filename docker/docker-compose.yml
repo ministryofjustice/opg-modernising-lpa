@@ -28,6 +28,7 @@ services:
     build:
       context: localstack
       dockerfile: Dockerfile
+    container_name: localstack
     ports:
       - "4566:4566"
     environment:
@@ -62,16 +63,15 @@ services:
     container_name: mock-os-api
 
   mock-pay:
-    image: stoplight/prism:4.14.1
-    command: 'mock /tmp/publicapi_spec.json -h 0.0.0.0'
+    build:
+      context: ..
+      dockerfile: docker/mock-pay/Dockerfile
     container_name: mock-pay
-    volumes:
-      - ./mock-pay:/tmp
 
   mock-uid:
     image: outofcoffee/imposter:latest
     volumes:
-      - ./mock-uid/config:/opt/imposter/config
+      - ./mock-uid/mock-uid-config.yaml:/opt/imposter/config/mock-uid-config.yaml
     container_name: mock-uid
     ports:
       - "8080:8080"

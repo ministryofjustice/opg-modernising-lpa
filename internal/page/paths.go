@@ -139,6 +139,7 @@ type AppPaths struct {
 	EnterTrustCorporation                                LpaPath
 	EnterTrustCorporationAddress                         LpaPath
 	EvidenceRequired                                     LpaPath
+	FeeDenied                                            LpaPath
 	GettingHelpSigning                                   LpaPath
 	HowDoYouKnowYourCertificateProvider                  LpaPath
 	HowLongHaveYouKnownCertificateProvider               LpaPath
@@ -281,6 +282,7 @@ var Paths = AppPaths{
 	EnterTrustCorporation:                                "/enter-trust-corporation",
 	EnterTrustCorporationAddress:                         "/enter-trust-corporation-address",
 	EvidenceRequired:                                     "/evidence-required",
+	FeeDenied:                                            "/fee-denied",
 	Fixtures:                                             "/fixtures",
 	GettingHelpSigning:                                   "/getting-help-signing",
 	HowDoYouKnowYourCertificateProvider:                  "/how-do-you-know-your-certificate-provider",
