@@ -1,14 +1,13 @@
-
 var paymentsStore = stores.open('payments');
 
 switch (context.request.method) {
     case 'GET':
         console.log(paymentsStore.load('amount'))
-        var response = respond()
-        var respBody = JSON.parse(response.content)
-
-        respBody.amount = paymentsStore.load('amount')
-        respond().withContent(JSON.stringify(respBody))
+        if (paymentsStore.load('amount') === 4100) {
+            respond().withExampleName('half-fee')
+        } else {
+            respond().withExampleName('full-fee')
+        }
 
         break
     case 'POST':

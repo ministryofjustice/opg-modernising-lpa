@@ -63,9 +63,9 @@ services:
     container_name: mock-os-api
 
   mock-pay:
-    image: outofcoffee/imposter:latest
-    volumes:
-      - ./mock-pay:/opt/imposter/config/
+    build:
+      context: ..
+      dockerfile: docker/mock-pay/Dockerfile
     container_name: mock-pay
 
   mock-uid:
