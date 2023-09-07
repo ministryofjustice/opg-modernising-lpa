@@ -398,7 +398,7 @@ func (l *Lpa) FeeAmount() int {
 	paid := 0
 
 	for _, payment := range l.PaymentDetails {
-		paid = paid + payment.Amount
+		paid += payment.Amount
 	}
 
 	if l.Tasks.PayForLpa.IsDenied() {
