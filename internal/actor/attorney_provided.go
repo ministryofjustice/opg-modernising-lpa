@@ -36,6 +36,7 @@ type AttorneyTasks struct {
 	SignTheLpaSecond   TaskState
 }
 
+// AuthorisedSignatory contains the details of a person who signed the LPA on behalf of a trust corporation
 type AuthorisedSignatory struct {
 	FirstNames        string
 	LastName          string
