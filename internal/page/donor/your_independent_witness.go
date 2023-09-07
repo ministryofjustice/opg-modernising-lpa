@@ -10,30 +10,30 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type yourAuthorisedSignatoryData struct {
+type yourIndependentWitnessData struct {
 	App         page.AppData
 	Errors      validation.List
-	Form        *yourAuthorisedSignatoryForm
+	Form        *yourIndependentWitnessForm
 	NameWarning *actor.SameNameWarning
 }
 
-func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore) Handler {
+func YourIndependentWitness(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
-		data := &yourAuthorisedSignatoryData{
+		data := &yourIndependentWitnessData{
 			App: appData,
-			Form: &yourAuthorisedSignatoryForm{
-				FirstNames: lpa.Signatory.FirstNames,
-				LastName:   lpa.Signatory.LastName,
+			Form: &yourIndependentWitnessForm{
+				FirstNames: lpa.IndependentWitness.FirstNames,
+				LastName:   lpa.IndependentWitness.LastName,
 			},
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readYourAuthorisedSignatoryForm(r)
+			data.Form = readYourIndependentWitnessForm(r)
 			data.Errors = data.Form.Validate()
 
 			nameWarning := actor.NewSameNameWarning(
-				actor.TypeSignatory,
-				signatoryMatches(lpa, data.Form.FirstNames, data.Form.LastName),
+				actor.TypeIndependentWitness,
+				independentWitnessMatches(lpa, data.Form.FirstNames, data.Form.LastName),
 				data.Form.FirstNames,
 				data.Form.LastName,
 			)
@@ -43,8 +43,8 @@ func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore) Hand
 			}
 
 			if !data.Errors.Any() && data.NameWarning == nil {
-				lpa.Signatory.FirstNames = data.Form.FirstNames
-				lpa.Signatory.LastName = data.Form.LastName
+				lpa.IndependentWitness.FirstNames = data.Form.FirstNames
+				lpa.IndependentWitness.LastName = data.Form.LastName
 
 				if !lpa.Tasks.ChooseYourSignatory.Completed() {
 					lpa.Tasks.ChooseYourSignatory = actor.TaskInProgress
@@ -54,7 +54,7 @@ func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore) Hand
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.YourIndependentWitness.Format(lpa.ID))
+				return appData.Redirect(w, r, lpa, page.Paths.YourIndependentWitnessMobile.Format(lpa.ID))
 			}
 		}
 
@@ -62,21 +62,21 @@ func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore) Hand
 	}
 }
 
-type yourAuthorisedSignatoryForm struct {
+type yourIndependentWitnessForm struct {
 	FirstNames        string
 	LastName          string
 	IgnoreNameWarning string
 }
 
-func readYourAuthorisedSignatoryForm(r *http.Request) *yourAuthorisedSignatoryForm {
-	return &yourAuthorisedSignatoryForm{
+func readYourIndependentWitnessForm(r *http.Request) *yourIndependentWitnessForm {
+	return &yourIndependentWitnessForm{
 		FirstNames:        page.PostFormString(r, "first-names"),
 		LastName:          page.PostFormString(r, "last-name"),
 		IgnoreNameWarning: page.PostFormString(r, "ignore-name-warning"),
 	}
 }
 
-func (f *yourAuthorisedSignatoryForm) Validate() validation.List {
+func (f *yourIndependentWitnessForm) Validate() validation.List {
 	var errors validation.List
 
 	errors.String("first-names", "firstNames", f.FirstNames,
@@ -90,7 +90,7 @@ func (f *yourAuthorisedSignatoryForm) Validate() validation.List {
 	return errors
 }
 
-func signatoryMatches(lpa *page.Lpa, firstNames, lastName string) actor.Type {
+func independentWitnessMatches(lpa *page.Lpa, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}
@@ -115,8 +115,8 @@ func signatoryMatches(lpa *page.Lpa, firstNames, lastName string) actor.Type {
 		return actor.TypeCertificateProvider
 	}
 
-	if strings.EqualFold(lpa.IndependentWitness.FirstNames, firstNames) && strings.EqualFold(lpa.IndependentWitness.LastName, lastName) {
-		return actor.TypeIndependentWitness
+	if strings.EqualFold(lpa.Signatory.FirstNames, firstNames) && strings.EqualFold(lpa.Signatory.LastName, lastName) {
+		return actor.TypeSignatory
 	}
 
 	return actor.TypeNone

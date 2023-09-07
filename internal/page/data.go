@@ -152,8 +152,10 @@ type Lpa struct {
 	DoYouWantToNotifyPeople form.YesNo
 	// People to notify about the application
 	PeopleToNotify actor.PeopleToNotify
-	// Signatory signs on the donor's behalf if they are unable to sign
+	// The Signatory signs on the donor's behalf if they are unable to sign
 	Signatory actor.Signatory
+	// The IndependentWitness acts as an additional witness when the LPA is signed
+	IndependentWitness actor.IndependentWitness
 	// Codes used for the certificate provider to witness signing
 	WitnessCodes WitnessCodes
 	// Confirmation that the applicant wants to apply to register the LPA

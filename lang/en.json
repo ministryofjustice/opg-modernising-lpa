@@ -713,5 +713,8 @@
     "enterTheNameOfYourAuthorisedSignatory": "Enter the name of your authorised signatory",
     "thisIsThePersonWhoWillSignOnYourBehalf": "This is the name of the person who will sign the LPA on your behalf.",
     "authorisedSignatoryThisPersonCannotBeWarning": "This person cannot be your independent witness, certificate provider or an attorney on this LPA.",
-    "theSignatory": "the authorised signatory"
+    "theSignatory": "the authorised signatory",
+    "enterTheNameOfYourIndependentWitness": "Enter the name of your independent witness",
+    "thisIsThePersonWhoWillActAsAdditionalWitness": "This is the name of the person who will act as your additional witness when your LPA is signed.",
+    "independentWitnessThisPersonCannotBeWarning": "This person cannot be your certificate provider, an attorney on this LPA, or the person who is signing the LPA for you."
 }
