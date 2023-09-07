@@ -12,12 +12,12 @@ services:
     security_opt:
       - "seccomp:unconfined"
     volumes:
-      - ./cmd:/app/cmd:rw,delegated
-      - ./internal:/app/internal:rw,delegated
-      - ./web/template:/app/web/template:rw,delegated
-      - ./lang:/app/lang:rw,delegated
+      - ../cmd:/app/cmd:rw,delegated
+      - ../internal:/app/internal:rw,delegated
+      - ../web/template:/app/web/template:rw,delegated
+      - ../lang:/app/lang:rw,delegated
       - /cmd/mlpa/web/static
-      - ./.air.toml:/app/.air.toml
+      - ../.air.toml:/app/.air.toml
     cap_add:
       - SYS_PTRACE
     ports:
@@ -40,4 +40,4 @@ services:
       - GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080
     ports:
       - "9000:8080"
-    entrypoint: aws-lambda-rie /var/task/main
+    entrypoint: aws-lambda-rie /var/task/event-received

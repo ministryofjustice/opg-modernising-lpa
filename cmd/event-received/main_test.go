@@ -364,3 +364,123 @@ func TestHandleMoreEvidenceRequiredWhenPutError(t *testing.T) {
 	err := handleMoreEvidenceRequired(ctx, client, event)
 	assert.Equal(t, fmt.Errorf("failed to update LPA task status for 'more-evidence-required': %w", expectedError), err)
 }
+
+func TestHandleFeeDenied(t *testing.T) {
+	ctx := context.Background()
+	event := events.CloudWatchEvent{
+		DetailType: "fee-denied",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("Get", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskDenied}}).
+		Return(nil)
+
+	err := handleFeeDenied(ctx, client, event)
+	assert.Nil(t, err)
+}
+
+func TestHandleFeeDeniedWhenGetOneByUIDError(t *testing.T) {
+	ctx := context.Background()
+	event := events.CloudWatchEvent{
+		DetailType: "fee-denied",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(expectedError)
+
+	err := handleFeeDenied(ctx, client, event)
+	assert.Equal(t, fmt.Errorf("failed to resolve uid for 'fee-denied': %w", expectedError), err)
+}
+
+func TestHandleFeeDeniedWhenPKMissing(t *testing.T) {
+	ctx := context.Background()
+	event := events.CloudWatchEvent{
+		DetailType: "fee-denied",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{})
+			json.Unmarshal(b, v)
+			return nil
+		})
+
+	err := handleFeeDenied(ctx, client, event)
+
+	assert.Equal(t, errors.New("PK missing from LPA in response to 'fee-denied'"), err)
+}
+
+func TestHandleFeeDeniedWhenGetError(t *testing.T) {
+	ctx := context.Background()
+	event := events.CloudWatchEvent{
+		DetailType: "fee-denied",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("Get", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(expectedError)
+
+	err := handleFeeDenied(ctx, client, event)
+	assert.Equal(t, fmt.Errorf("failed to get LPA for 'fee-denied': %w", expectedError), err)
+}
+
+func TestHandleFeeDeniedWhenPutError(t *testing.T) {
+	ctx := context.Background()
+	event := events.CloudWatchEvent{
+		DetailType: "fee-denied",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("Get", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskDenied}}).
+		Return(expectedError)
+
+	err := handleFeeDenied(ctx, client, event)
+	assert.Equal(t, fmt.Errorf("failed to update LPA task status for 'fee-denied': %w", expectedError), err)
+}

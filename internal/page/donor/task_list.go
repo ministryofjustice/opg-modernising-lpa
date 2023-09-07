@@ -56,9 +56,15 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 			return err
 		}
 
-		paymentPath := page.Paths.AboutPayment.Format(lpa.ID)
-		if lpa.Tasks.PayForLpa.IsMoreEvidenceRequired() {
+		var paymentPath string
+
+		switch lpa.Tasks.PayForLpa {
+		case actor.PaymentTaskDenied:
+			paymentPath = page.Paths.FeeDenied.Format(lpa.ID)
+		case actor.PaymentTaskMoreEvidenceRequired:
 			paymentPath = page.Paths.UploadEvidence.Format(lpa.ID)
+		default:
+			paymentPath = page.Paths.AboutPayment.Format(lpa.ID)
 		}
 
 		data := &taskListData{
@@ -104,7 +110,7 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 							Count: len(lpa.PeopleToNotify),
 						},
 						{
-							Name:   "chooseYourSignatoryAndIndpendentWitness",
+							Name:   "chooseYourSignatoryAndIndependentWitness",
 							Path:   page.Paths.GettingHelpSigning.Format(lpa.ID),
 							Hidden: !lpa.Donor.CanSign.IsNo(),
 						},

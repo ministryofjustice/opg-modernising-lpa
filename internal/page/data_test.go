@@ -848,3 +848,54 @@ func TestFeeTypeCost(t *testing.T) {
 		})
 	}
 }
+
+func TestFeeAmount(t *testing.T) {
+	testCases := map[string]struct {
+		Lpa          *Lpa
+		ExpectedCost int
+	}{
+		"full fee - not paid": {
+			Lpa:          &Lpa{FeeType: FullFee},
+			ExpectedCost: 8200,
+		},
+		"half fee - not paid": {
+			Lpa:          &Lpa{FeeType: HalfFee},
+			ExpectedCost: 4100,
+		},
+		"no fee": {
+			Lpa:          &Lpa{FeeType: NoFee},
+			ExpectedCost: 0,
+		},
+		"hardship fee": {
+			Lpa:          &Lpa{FeeType: HardshipFee},
+			ExpectedCost: 0,
+		},
+		"full fee - paid": {
+			Lpa:          &Lpa{FeeType: FullFee, PaymentDetails: []Payment{{Amount: 8200}}},
+			ExpectedCost: 0,
+		},
+		"half fee - paid": {
+			Lpa:          &Lpa{FeeType: HalfFee, PaymentDetails: []Payment{{Amount: 4100}}},
+			ExpectedCost: 0,
+		},
+		"half fee - paid, denied": {
+			Lpa:          &Lpa{FeeType: HalfFee, PaymentDetails: []Payment{{Amount: 4100}}, Tasks: Tasks{PayForLpa: actor.PaymentTaskDenied}},
+			ExpectedCost: 4100,
+		},
+		"no fee - paid, denied": {
+			Lpa:          &Lpa{FeeType: NoFee, Tasks: Tasks{PayForLpa: actor.PaymentTaskDenied}},
+			ExpectedCost: 8200,
+		},
+		"hardship fee - paid, denied": {
+			Lpa:          &Lpa{FeeType: HardshipFee, Tasks: Tasks{PayForLpa: actor.PaymentTaskDenied}},
+			ExpectedCost: 8200,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.ExpectedCost, tc.Lpa.FeeAmount())
+		})
+	}
+
+}

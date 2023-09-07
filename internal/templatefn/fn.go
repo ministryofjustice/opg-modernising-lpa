@@ -10,6 +10,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	humanize "github.com/dustin/go-humanize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -52,6 +53,7 @@ func All(tag, region string) map[string]any {
 		"concatAnd":          concatAnd,
 		"concatOr":           concatOr,
 		"concatComma":        concatComma,
+		"penceToPounds":      penceToPounds,
 	}
 }
 
@@ -374,4 +376,8 @@ func concatOr(app page.AppData, list []string) string {
 
 func concatComma(list []string) string {
 	return strings.Join(list, ", ")
+}
+
+func penceToPounds(pence int) string {
+	return humanize.CommafWithDigits(float64(pence)/100, 2)
 }
