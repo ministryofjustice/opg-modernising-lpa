@@ -48,4 +48,9 @@ type IndependentWitness struct {
 	LastName       string
 	HasNonUKMobile bool
 	Mobile         string
+	Address        place.Address
+}
+
+func (w IndependentWitness) FullName() string {
+	return fmt.Sprintf("%s %s", w.FirstNames, w.LastName)
 }
