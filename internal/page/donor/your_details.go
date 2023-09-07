@@ -204,5 +204,9 @@ func donorMatches(lpa *page.Lpa, firstNames, lastName string) actor.Type {
 		return actor.TypeSignatory
 	}
 
+	if strings.EqualFold(lpa.IndependentWitness.FirstNames, firstNames) && strings.EqualFold(lpa.IndependentWitness.LastName, lastName) {
+		return actor.TypeIndependentWitness
+	}
+
 	return actor.TypeNone
 }
