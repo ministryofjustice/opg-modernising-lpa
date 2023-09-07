@@ -22,8 +22,8 @@ func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore) Hand
 		data := &yourAuthorisedSignatoryData{
 			App: appData,
 			Form: &yourAuthorisedSignatoryForm{
-				FirstNames: lpa.Signatory.FirstNames,
-				LastName:   lpa.Signatory.LastName,
+				FirstNames: lpa.AuthorisedSignatory.FirstNames,
+				LastName:   lpa.AuthorisedSignatory.LastName,
 			},
 		}
 
@@ -32,7 +32,7 @@ func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore) Hand
 			data.Errors = data.Form.Validate()
 
 			nameWarning := actor.NewSameNameWarning(
-				actor.TypeSignatory,
+				actor.TypeAuthorisedSignatory,
 				signatoryMatches(lpa, data.Form.FirstNames, data.Form.LastName),
 				data.Form.FirstNames,
 				data.Form.LastName,
@@ -43,8 +43,8 @@ func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore) Hand
 			}
 
 			if !data.Errors.Any() && data.NameWarning == nil {
-				lpa.Signatory.FirstNames = data.Form.FirstNames
-				lpa.Signatory.LastName = data.Form.LastName
+				lpa.AuthorisedSignatory.FirstNames = data.Form.FirstNames
+				lpa.AuthorisedSignatory.LastName = data.Form.LastName
 
 				if !lpa.Tasks.ChooseYourSignatory.Completed() {
 					lpa.Tasks.ChooseYourSignatory = actor.TaskInProgress

@@ -606,8 +606,8 @@ func TestDonorMatches(t *testing.T) {
 			{FirstNames: "m", LastName: "n"},
 			{FirstNames: "o", LastName: "p"},
 		},
-		Signatory:          actor.Signatory{FirstNames: "a", LastName: "s"},
-		IndependentWitness: actor.IndependentWitness{FirstNames: "i", LastName: "w"},
+		AuthorisedSignatory: actor.AuthorisedSignatory{FirstNames: "a", LastName: "s"},
+		IndependentWitness:  actor.IndependentWitness{FirstNames: "i", LastName: "w"},
 	}
 
 	assert.Equal(t, actor.TypeNone, donorMatches(lpa, "x", "y"))
@@ -619,7 +619,7 @@ func TestDonorMatches(t *testing.T) {
 	assert.Equal(t, actor.TypeCertificateProvider, donorMatches(lpa, "k", "l"))
 	assert.Equal(t, actor.TypePersonToNotify, donorMatches(lpa, "m", "n"))
 	assert.Equal(t, actor.TypePersonToNotify, donorMatches(lpa, "O", "P"))
-	assert.Equal(t, actor.TypeSignatory, donorMatches(lpa, "a", "s"))
+	assert.Equal(t, actor.TypeAuthorisedSignatory, donorMatches(lpa, "a", "s"))
 	assert.Equal(t, actor.TypeIndependentWitness, donorMatches(lpa, "i", "w"))
 }
 

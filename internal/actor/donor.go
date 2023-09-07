@@ -32,13 +32,13 @@ func (d Donor) FullName() string {
 	return fmt.Sprintf("%s %s", d.FirstNames, d.LastName)
 }
 
-// Signatory contains details of the person who will sign the LPA on the donor's behalf
-type Signatory struct {
+// AuthorisedSignatory contains details of the person who will sign the LPA on the donor's behalf
+type AuthorisedSignatory struct {
 	FirstNames string
 	LastName   string
 }
 
-func (s Signatory) FullName() string {
+func (s AuthorisedSignatory) FullName() string {
 	return fmt.Sprintf("%s %s", s.FirstNames, s.LastName)
 }
 

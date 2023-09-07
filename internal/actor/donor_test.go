@@ -12,8 +12,8 @@ func TestDonorFullName(t *testing.T) {
 	assert.Equal(t, "Bob Alan George Smith Jones-Doe", d.FullName())
 }
 
-func TestSignatoryFullName(t *testing.T) {
-	d := Signatory{FirstNames: "Bob Alan George", LastName: "Smith Jones-Doe"}
+func TestAuthorisedSignatoryFullName(t *testing.T) {
+	d := AuthorisedSignatory{FirstNames: "Bob Alan George", LastName: "Smith Jones-Doe"}
 
 	assert.Equal(t, "Bob Alan George Smith Jones-Doe", d.FullName())
 }

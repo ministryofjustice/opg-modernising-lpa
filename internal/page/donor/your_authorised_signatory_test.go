@@ -49,7 +49,7 @@ func TestGetYourAuthorisedSignatoryFromStore(t *testing.T) {
 		Return(nil)
 
 	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &page.Lpa{
-		Signatory: actor.Signatory{
+		AuthorisedSignatory: actor.AuthorisedSignatory{
 			FirstNames: "John",
 		},
 	})
@@ -78,14 +78,14 @@ func TestGetYourAuthorisedSignatoryWhenTemplateErrors(t *testing.T) {
 func TestPostYourAuthorisedSignatory(t *testing.T) {
 	testCases := map[string]struct {
 		form   url.Values
-		person actor.Signatory
+		person actor.AuthorisedSignatory
 	}{
 		"valid": {
 			form: url.Values{
 				"first-names": {"John"},
 				"last-name":   {"Doe"},
 			},
-			person: actor.Signatory{
+			person: actor.AuthorisedSignatory{
 				FirstNames: "John",
 				LastName:   "Doe",
 			},
@@ -94,9 +94,9 @@ func TestPostYourAuthorisedSignatory(t *testing.T) {
 			form: url.Values{
 				"first-names":         {"John"},
 				"last-name":           {"Smith"},
-				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeSignatory, actor.TypeDonor, "John", "Smith").String()},
+				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeAuthorisedSignatory, actor.TypeDonor, "John", "Smith").String()},
 			},
-			person: actor.Signatory{
+			person: actor.AuthorisedSignatory{
 				FirstNames: "John",
 				LastName:   "Smith",
 			},
@@ -113,10 +113,10 @@ func TestPostYourAuthorisedSignatory(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
-					ID:        "lpa-id",
-					Donor:     actor.Donor{FirstNames: "John", LastName: "Smith"},
-					Signatory: tc.person,
-					Tasks:     page.Tasks{ChooseYourSignatory: actor.TaskInProgress},
+					ID:                  "lpa-id",
+					Donor:               actor.Donor{FirstNames: "John", LastName: "Smith"},
+					AuthorisedSignatory: tc.person,
+					Tasks:               page.Tasks{ChooseYourSignatory: actor.TaskInProgress},
 				}).
 				Return(nil)
 
@@ -148,7 +148,7 @@ func TestPostYourAuthorisedSignatoryWhenTaskCompleted(t *testing.T) {
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			ID: "lpa-id",
-			Signatory: actor.Signatory{
+			AuthorisedSignatory: actor.AuthorisedSignatory{
 				FirstNames: "John",
 				LastName:   "Doe",
 			},
@@ -158,7 +158,7 @@ func TestPostYourAuthorisedSignatoryWhenTaskCompleted(t *testing.T) {
 
 	err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &page.Lpa{
 		ID: "lpa-id",
-		Signatory: actor.Signatory{
+		AuthorisedSignatory: actor.AuthorisedSignatory{
 			FirstNames: "John",
 		},
 		Tasks: page.Tasks{ChooseYourSignatory: actor.TaskCompleted},
@@ -189,13 +189,13 @@ func TestPostYourAuthorisedSignatoryWhenInputRequired(t *testing.T) {
 				"last-name":   {"Doe"},
 			},
 			dataMatcher: func(t *testing.T, data *yourAuthorisedSignatoryData) bool {
-				return assert.Equal(t, actor.NewSameNameWarning(actor.TypeSignatory, actor.TypeDonor, "John", "Doe"), data.NameWarning)
+				return assert.Equal(t, actor.NewSameNameWarning(actor.TypeAuthorisedSignatory, actor.TypeDonor, "John", "Doe"), data.NameWarning)
 			},
 		},
 		"name warning ignored but other errors": {
 			form: url.Values{
 				"first-names":         {"John"},
-				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeSignatory, actor.TypeDonor, "John", "Doe").String()},
+				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeAuthorisedSignatory, actor.TypeDonor, "John", "Doe").String()},
 			},
 			dataMatcher: func(t *testing.T, data *yourAuthorisedSignatoryData) bool {
 				return assert.Equal(t, validation.With("last-name", validation.EnterError{Label: "lastName"}), data.Errors)
@@ -205,10 +205,10 @@ func TestPostYourAuthorisedSignatoryWhenInputRequired(t *testing.T) {
 			form: url.Values{
 				"first-names":         {"John"},
 				"last-name":           {"Doe"},
-				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeSignatory, actor.TypeDonor, "John", "John").String()},
+				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeAuthorisedSignatory, actor.TypeDonor, "John", "John").String()},
 			},
 			dataMatcher: func(t *testing.T, data *yourAuthorisedSignatoryData) bool {
-				return assert.Equal(t, actor.NewSameNameWarning(actor.TypeSignatory, actor.TypeDonor, "John", "Doe"), data.NameWarning)
+				return assert.Equal(t, actor.NewSameNameWarning(actor.TypeAuthorisedSignatory, actor.TypeDonor, "John", "Doe"), data.NameWarning)
 			},
 		},
 	}
@@ -341,8 +341,8 @@ func TestSignatoryMatches(t *testing.T) {
 			{FirstNames: "m", LastName: "n"},
 			{FirstNames: "o", LastName: "p"},
 		},
-		Signatory:          actor.Signatory{FirstNames: "a", LastName: "s"},
-		IndependentWitness: actor.IndependentWitness{FirstNames: "i", LastName: "w"},
+		AuthorisedSignatory: actor.AuthorisedSignatory{FirstNames: "a", LastName: "s"},
+		IndependentWitness:  actor.IndependentWitness{FirstNames: "i", LastName: "w"},
 	}
 
 	assert.Equal(t, actor.TypeNone, signatoryMatches(lpa, "x", "y"))

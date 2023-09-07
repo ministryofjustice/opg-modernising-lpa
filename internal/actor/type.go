@@ -9,7 +9,7 @@ const (
 	TypeReplacementAttorney
 	TypeCertificateProvider
 	TypePersonToNotify
-	TypeSignatory
+	TypeAuthorisedSignatory
 	TypeIndependentWitness
 )
 
@@ -25,7 +25,7 @@ func (t Type) String() string {
 		return "certificateProvider"
 	case TypePersonToNotify:
 		return "personToNotify"
-	case TypeSignatory:
+	case TypeAuthorisedSignatory:
 		return "signatory"
 	case TypeIndependentWitness:
 		return "independentWitness"
@@ -41,7 +41,7 @@ type Types struct {
 	ReplacementAttorney Type
 	CertificateProvider Type
 	PersonToNotify      Type
-	Signatory           Type
+	AuthorisedSignatory Type
 	IndependentWitness  Type
 }
 
@@ -52,6 +52,6 @@ var ActorTypes = Types{
 	ReplacementAttorney: TypeReplacementAttorney,
 	CertificateProvider: TypeCertificateProvider,
 	PersonToNotify:      TypePersonToNotify,
-	Signatory:           TypeSignatory,
+	AuthorisedSignatory: TypeAuthorisedSignatory,
 	IndependentWitness:  TypeIndependentWitness,
 }

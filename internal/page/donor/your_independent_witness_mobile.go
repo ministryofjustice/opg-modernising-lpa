@@ -10,17 +10,17 @@ import (
 )
 
 type yourIndependentWitnessMobileData struct {
-	App       page.AppData
-	Errors    validation.List
-	Signatory actor.Signatory
-	Form      *yourIndependentWitnessMobileForm
+	App                 page.AppData
+	Errors              validation.List
+	AuthorisedSignatory actor.AuthorisedSignatory
+	Form                *yourIndependentWitnessMobileForm
 }
 
 func YourIndependentWitnessMobile(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &yourIndependentWitnessMobileData{
-			App:       appData,
-			Signatory: lpa.Signatory,
+			App:                 appData,
+			AuthorisedSignatory: lpa.AuthorisedSignatory,
 			Form: &yourIndependentWitnessMobileForm{
 				HasNonUKMobile: lpa.IndependentWitness.HasNonUKMobile,
 			},

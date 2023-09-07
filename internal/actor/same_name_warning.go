@@ -63,8 +63,10 @@ func (w *SameNameWarning) translationKey() string {
 			return "personToNotifyMatchesPersonToNotifyWarning"
 		}
 		return "personToNotifyMatchesActorWarning"
-	case TypeSignatory:
-		return "signatoryMatchesActorWarning"
+	case TypeAuthorisedSignatory:
+		return "authorisedSignatoryMatchesActorWarning"
+	case TypeIndependentWitness:
+		return "independentWitnessMatchesActorWarning"
 	}
 
 	return ""
@@ -82,8 +84,10 @@ func (w *SameNameWarning) actorType() string {
 		return "theCertificateProvider"
 	case TypePersonToNotify:
 		return "aPersonToNotify"
-	case TypeSignatory:
-		return "theSignatory"
+	case TypeAuthorisedSignatory:
+		return "theAuthorisedSignatory"
+	case TypeIndependentWitness:
+		return "theIndependentWitness"
 	}
 
 	return ""

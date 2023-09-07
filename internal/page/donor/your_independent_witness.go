@@ -115,8 +115,8 @@ func independentWitnessMatches(lpa *page.Lpa, firstNames, lastName string) actor
 		return actor.TypeCertificateProvider
 	}
 
-	if strings.EqualFold(lpa.Signatory.FirstNames, firstNames) && strings.EqualFold(lpa.Signatory.LastName, lastName) {
-		return actor.TypeSignatory
+	if strings.EqualFold(lpa.AuthorisedSignatory.FirstNames, firstNames) && strings.EqualFold(lpa.AuthorisedSignatory.LastName, lastName) {
+		return actor.TypeAuthorisedSignatory
 	}
 
 	return actor.TypeNone

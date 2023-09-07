@@ -417,8 +417,8 @@ func TestReplacementAttorneyMatches(t *testing.T) {
 			{FirstNames: "m", LastName: "n"},
 			{FirstNames: "o", LastName: "p"},
 		},
-		Signatory:          actor.Signatory{FirstNames: "a", LastName: "s"},
-		IndependentWitness: actor.IndependentWitness{FirstNames: "i", LastName: "w"},
+		AuthorisedSignatory: actor.AuthorisedSignatory{FirstNames: "a", LastName: "s"},
+		IndependentWitness:  actor.IndependentWitness{FirstNames: "i", LastName: "w"},
 	}
 
 	assert.Equal(t, actor.TypeNone, replacementAttorneyMatches(lpa, "123", "x", "y"))
@@ -430,7 +430,7 @@ func TestReplacementAttorneyMatches(t *testing.T) {
 	assert.Equal(t, actor.TypeCertificateProvider, replacementAttorneyMatches(lpa, "123", "K", "l"))
 	assert.Equal(t, actor.TypePersonToNotify, replacementAttorneyMatches(lpa, "123", "m", "n"))
 	assert.Equal(t, actor.TypePersonToNotify, replacementAttorneyMatches(lpa, "123", "O", "P"))
-	assert.Equal(t, actor.TypeSignatory, replacementAttorneyMatches(lpa, "123", "a", "s"))
+	assert.Equal(t, actor.TypeAuthorisedSignatory, replacementAttorneyMatches(lpa, "123", "a", "s"))
 	assert.Equal(t, actor.TypeIndependentWitness, replacementAttorneyMatches(lpa, "123", "i", "w"))
 }
 
