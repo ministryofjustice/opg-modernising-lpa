@@ -196,6 +196,7 @@ type AppPaths struct {
 	YourChosenIdentityOptions                            LpaPath
 	YourDetails                                          LpaPath
 	YourIndependentWitness                               LpaPath
+	YourIndependentWitnessAddress                        LpaPath
 	YourIndependentWitnessMobile                         LpaPath
 }
 
@@ -348,6 +349,7 @@ var Paths = AppPaths{
 	YourChosenIdentityOptions:                            "/your-chosen-identity-options",
 	YourDetails:                                          "/your-details",
 	YourIndependentWitness:                               "/your-independent-witness",
+	YourIndependentWitnessAddress:                        "/your-independent-witness-address",
 	YourIndependentWitnessMobile:                         "/your-independent-witness-mobile",
 	YourLegalRightsAndResponsibilities:                   "/your-legal-rights-and-responsibilities",
 }

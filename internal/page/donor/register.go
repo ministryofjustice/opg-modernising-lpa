@@ -275,6 +275,8 @@ func Register(
 		YourAuthorisedSignatory(tmpls.Get("your_authorised_signatory.gohtml"), donorStore))
 	handleWithLpa(page.Paths.YourIndependentWitness, CanGoBack,
 		YourIndependentWitness(tmpls.Get("your_independent_witness.gohtml"), donorStore))
+	handleWithLpa(page.Paths.YourIndependentWitnessMobile, CanGoBack,
+		YourIndependentWitnessMobile(tmpls.Get("your_independent_witness_mobile.gohtml"), donorStore))
 
 	handleWithLpa(page.Paths.CheckYourLpa, CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, notifyClient, certificateProviderStore))

@@ -760,5 +760,9 @@
     "theSignatory": "Welsh",
     "enterTheNameOfYourIndependentWitness": "Welsh",
     "thisIsThePersonWhoWillActAsAdditionalWitness": "Welsh",
-    "independentWitnessThisPersonCannotBeWarning": "Welsh"
+    "independentWitnessThisPersonCannotBeWarning": "Welsh",
+    "enterMobileNumberOfIndependentWitness": "Welsh",
+    "weNeedYourIndependentWitnessMobileNumberSo": "Welsh",
+    "aMobilePhoneNumber": "Welsh",
+    "aUKMobileNumber": "Welsh"
 }
