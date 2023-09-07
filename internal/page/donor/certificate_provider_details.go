@@ -141,5 +141,13 @@ func certificateProviderMatches(lpa *page.Lpa, firstNames, lastName string) acto
 		}
 	}
 
+	if strings.EqualFold(lpa.Signatory.FirstNames, firstNames) && strings.EqualFold(lpa.Signatory.LastName, lastName) {
+		return actor.TypeSignatory
+	}
+
+	if strings.EqualFold(lpa.IndependentWitness.FirstNames, firstNames) && strings.EqualFold(lpa.IndependentWitness.LastName, lastName) {
+		return actor.TypeIndependentWitness
+	}
+
 	return actor.TypeNone
 }
