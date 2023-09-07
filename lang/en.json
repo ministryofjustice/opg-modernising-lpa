@@ -716,5 +716,9 @@
     "theSignatory": "the authorised signatory",
     "enterTheNameOfYourIndependentWitness": "Enter the name of your independent witness",
     "thisIsThePersonWhoWillActAsAdditionalWitness": "This is the name of the person who will act as your additional witness when your LPA is signed.",
-    "independentWitnessThisPersonCannotBeWarning": "This person cannot be your certificate provider, an attorney on this LPA, or the person who is signing the LPA for you."
+    "independentWitnessThisPersonCannotBeWarning": "This person cannot be your certificate provider, an attorney on this LPA, or the person who is signing the LPA for you.",
+    "enterMobileNumberOfIndependentWitness": "Enter the mobile number of your independent witness",
+    "weNeedYourIndependentWitnessMobileNumberSo": "We need your independent witness’s mobile number so we can send them a code when they witness {{.SignatoryFullName}} sign the LPA for you.",
+    "aMobilePhoneNumber": "a mobile phone number",
+    "aUKMobileNumber": "a UK mobile number"
 }
