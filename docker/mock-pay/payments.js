@@ -2,7 +2,6 @@ var paymentsStore = stores.open('payments');
 
 switch (context.request.method) {
     case 'GET':
-        console.log(paymentsStore.load('amount'))
         if (paymentsStore.load('amount') === 4100) {
             respond().withExampleName('half-fee')
         } else {
