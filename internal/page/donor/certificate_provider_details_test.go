@@ -418,6 +418,8 @@ func TestCertificateProviderMatches(t *testing.T) {
 			{FirstNames: "m", LastName: "n"},
 			{FirstNames: "o", LastName: "p"},
 		},
+		AuthorisedSignatory: actor.AuthorisedSignatory{FirstNames: "a", LastName: "s"},
+		IndependentWitness:  actor.IndependentWitness{FirstNames: "i", LastName: "w"},
 	}
 
 	assert.Equal(t, actor.TypeNone, certificateProviderMatches(lpa, "x", "y"))
@@ -429,6 +431,8 @@ func TestCertificateProviderMatches(t *testing.T) {
 	assert.Equal(t, actor.TypeNone, certificateProviderMatches(lpa, "k", "l"))
 	assert.Equal(t, actor.TypeNone, certificateProviderMatches(lpa, "m", "n"))
 	assert.Equal(t, actor.TypeNone, certificateProviderMatches(lpa, "o", "p"))
+	assert.Equal(t, actor.TypeAuthorisedSignatory, certificateProviderMatches(lpa, "a", "s"))
+	assert.Equal(t, actor.TypeIndependentWitness, certificateProviderMatches(lpa, "i", "w"))
 }
 
 func TestCertificateProviderMatchesEmptyNamesIgnored(t *testing.T) {

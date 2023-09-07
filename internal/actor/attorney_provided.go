@@ -24,7 +24,7 @@ type AttorneyProvidedDetails struct {
 	// WouldLikeSecondSignatory captures whether two signatories will be used for a trust corporation
 	WouldLikeSecondSignatory form.YesNo
 	// AuthorisedSignatories captures the details of the person who signed on behalf of a trust corporation, if one is acting as an attorney
-	AuthorisedSignatories [2]AuthorisedSignatory
+	AuthorisedSignatories [2]TrustCorporationSignatory
 	// Used to show attorney task list
 	Tasks AttorneyTasks
 }
@@ -36,7 +36,8 @@ type AttorneyTasks struct {
 	SignTheLpaSecond   TaskState
 }
 
-type AuthorisedSignatory struct {
+// TrustCorporationSignatory contains the details of a person who signed the LPA on behalf of a trust corporation
+type TrustCorporationSignatory struct {
 	FirstNames        string
 	LastName          string
 	ProfessionalTitle string

@@ -1,0 +1,34 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "enterMobileNumberOfIndependentWitness" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <form novalidate method="post">
+        <h1 class="govuk-heading-xl">{{ tr .App "enterMobileNumberOfIndependentWitness" }}</h1>
+
+        <p class="govuk-body">{{ trFormat .App "weNeedYourIndependentWitnessMobileNumberSo" "SignatoryFullName" .AuthorisedSignatory.FullName }}</p>
+
+        {{ template "input" (input . "mobile" "ukMobileNumber" .Form.Mobile "hint" "enterYourUkMobileHint" "classes" "govuk-input--width-20" "type" "tel" "autocomplete" "tel") }}
+
+        <div class="govuk-form-group">
+          <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+            <div class="govuk-checkboxes__item">
+              <input class="govuk-checkboxes__input" id="f-has-non-uk-mobile" name="has-non-uk-mobile" type="checkbox" value="1" data-aria-controls="conditional-has-non-uk-mobile" {{ if .Form.HasNonUKMobile }}checked{{ end }}>
+              <label class="govuk-label govuk-checkboxes__label" for="f-has-non-uk-mobile">
+                {{ tr .App "theyDoNotHaveAUkMobileNumber" }}
+              </label>
+            </div>
+            <div class="govuk-checkboxes__conditional govuk-checkboxes__conditional--hidden" id="conditional-has-non-uk-mobile">
+              {{ template "input" (input . "non-uk-mobile" "mobilePhoneNumber" .Form.NonUKMobile "hint" "nonUkMobileHint" "classes" "govuk-input--width-20" "type" "tel" "autocomplete" "tel") }}
+            </div>
+          </div>
+        </div>
+
+        {{ template "save-and-return-buttons" . }}
+        {{ template "csrf-field" . }}
+      </form>
+    </div>
+  </div>
+{{ end }}
