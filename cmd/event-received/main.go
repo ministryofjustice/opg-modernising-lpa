@@ -23,19 +23,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 )
 
-type evidenceReceivedEvent struct {
-	UID string `json:"uid"`
-}
-
-type feeApprovedEvent struct {
-	UID string `json:"uid"`
-}
-
-type moreEvidenceRequiredEvent struct {
-	UID string `json:"uid"`
-}
-
-type feeDeniedEvent struct {
+type uidEvent struct {
 	UID string `json:"uid"`
 }
 
@@ -112,7 +100,7 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) error {
 }
 
 func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent) error {
-	var v evidenceReceivedEvent
+	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal 'evidence-received' detail: %w", err)
 	}
@@ -134,7 +122,7 @@ func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event ev
 }
 
 func handleFeeApproved(ctx context.Context, dynamoClient dynamodbClient, event events.CloudWatchEvent, shareCodeSender shareCodeSender, appData page.AppData) error {
-	var v feeApprovedEvent
+	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal 'fee-approved' detail: %w", err)
 	}
@@ -163,7 +151,7 @@ func handleFeeApproved(ctx context.Context, dynamoClient dynamodbClient, event e
 }
 
 func handleMoreEvidenceRequired(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent) error {
-	var v moreEvidenceRequiredEvent
+	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal 'more-evidence-required' detail: %w", err)
 	}
@@ -192,7 +180,7 @@ func handleMoreEvidenceRequired(ctx context.Context, client dynamodbClient, even
 }
 
 func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent) error {
-	var v feeApprovedEvent
+	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal 'fee-denied' detail: %w", err)
 	}
