@@ -349,7 +349,7 @@ func TestPostSign(t *testing.T) {
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
 				LpaID: "lpa-id",
-				AuthorisedSignatories: [2]actor.AuthorisedSignatory{{
+				AuthorisedSignatories: [2]actor.TrustCorporationSignatory{{
 					FirstNames:        "a",
 					LastName:          "b",
 					ProfessionalTitle: "c",
@@ -373,7 +373,7 @@ func TestPostSign(t *testing.T) {
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
 				LpaID: "lpa-id",
-				AuthorisedSignatories: [2]actor.AuthorisedSignatory{{
+				AuthorisedSignatories: [2]actor.TrustCorporationSignatory{{
 					FirstNames:        "a",
 					LastName:          "b",
 					ProfessionalTitle: "c",
@@ -398,7 +398,7 @@ func TestPostSign(t *testing.T) {
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
 				LpaID: "lpa-id",
-				AuthorisedSignatories: [2]actor.AuthorisedSignatory{{}, {
+				AuthorisedSignatories: [2]actor.TrustCorporationSignatory{{}, {
 					FirstNames:        "a",
 					LastName:          "b",
 					ProfessionalTitle: "c",
@@ -423,7 +423,7 @@ func TestPostSign(t *testing.T) {
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
 				LpaID: "lpa-id",
-				AuthorisedSignatories: [2]actor.AuthorisedSignatory{{}, {
+				AuthorisedSignatories: [2]actor.TrustCorporationSignatory{{}, {
 					FirstNames:        "a",
 					LastName:          "b",
 					ProfessionalTitle: "c",

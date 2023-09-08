@@ -110,7 +110,7 @@ func Sign(tmpl template.Template, donorStore DonorStore, certificateProviderStor
 				}
 
 				if appData.IsTrustCorporation() {
-					attorneyProvidedDetails.AuthorisedSignatories[signatoryIndex] = actor.AuthorisedSignatory{
+					attorneyProvidedDetails.AuthorisedSignatories[signatoryIndex] = actor.TrustCorporationSignatory{
 						FirstNames:        data.Form.FirstNames,
 						LastName:          data.Form.LastName,
 						ProfessionalTitle: data.Form.ProfessionalTitle,
