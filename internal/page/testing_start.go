@@ -55,6 +55,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 
 	type lpaOptions struct {
 		hasDonorDetails                  bool
+		cannotSign                       bool
 		lpaType                          string
 		attorneys                        int
 		trustCorporation                 string
@@ -247,6 +248,21 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 
 			if opts.hasDonorDetails {
 				lpa.Donor = makeDonor()
+				if opts.cannotSign {
+					lpa.Donor.ThinksCanSign = actor.No
+					lpa.Donor.CanSign = form.No
+
+					lpa.AuthorisedSignatory = actor.AuthorisedSignatory{
+						FirstNames: "Allie",
+						LastName:   "Adams",
+					}
+
+					lpa.IndependentWitness = actor.IndependentWitness{
+						FirstNames: "Indie",
+						LastName:   "Irwin",
+					}
+				}
+
 				lpa.WhoFor = "me"
 				lpa.Type = LpaTypePropertyFinance
 				lpa.UID = random.UuidString()
@@ -468,6 +484,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 
 		lpa := buildLpa(ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID}), lpaOptions{
 			hasDonorDetails:                  r.FormValue("lpa.yourDetails") != "" || completeSectionOne,
+			cannotSign:                       r.FormValue("lpa.cannotSign") != "",
 			lpaType:                          r.FormValue("lpa.type"),
 			attorneys:                        parseCount(r.FormValue("lpa.attorneys"), completeSectionOne),
 			trustCorporation:                 r.FormValue("lpa.trustCorporation"),
