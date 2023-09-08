@@ -179,6 +179,7 @@ type AppPaths struct {
 	SelectYourIdentityOptions                            LpaPath
 	SelectYourIdentityOptions1                           LpaPath
 	SelectYourIdentityOptions2                           LpaPath
+	SignTheLpaOnBehalf                                   LpaPath
 	SignYourLpa                                          LpaPath
 	TaskList                                             LpaPath
 	UploadEvidence                                       LpaPath
@@ -330,6 +331,7 @@ var Paths = AppPaths{
 	SelectYourIdentityOptions2:                           "/select-identity-document-2",
 	SelectYourIdentityOptions:                            "/select-your-identity-options",
 	SignOut:                                              "/sign-out",
+	SignTheLpaOnBehalf:                                   "/sign-the-lpa-on-behalf",
 	SignYourLpa:                                          "/sign-your-lpa",
 	Start:                                                "/start",
 	TaskList:                                             "/task-list",

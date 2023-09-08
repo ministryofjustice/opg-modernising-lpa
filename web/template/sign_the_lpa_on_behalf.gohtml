@@ -1,53 +1,56 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "signYourLpa" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "signTheLpaOnBehalfOfTheDonor" }}{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">
-        {{ tr .App "signYourLpa" }}
+        {{ trFormat .App "signTheLpaOnBehalfOf" "DonorFullName" .Lpa.Donor.FullName }}
       </h1>
 
-      <h2 class="govuk-heading-m">{{ tr .App "signingYourLpaIsAnImportant" }}</h2>
+      <h2 class="govuk-heading-m">{{ tr .App "signingAnLpaIsAnImportant" }}</h2>
 
       {{ template "details" (details . "whatHappensIfIWantToMakeChanges" "whatHappensIfIWantToMakeChangesContent" false) }}
 
       {{ $lpaTypeLegalTerm := tr .App .Lpa.Type.LegalTermTransKey }}
 
-      <p class="govuk-body">{{ trFormat .App "bySigningIConfirm" "LpaType" $lpaTypeLegalTerm }}</p>
+      <p class="govuk-body govuk-!-font-weight-bold">{{ trFormat .App "bySigningOnBehalfIConfirm" "DonorFullName" .Lpa.Donor.FullName }}</p>
 
       <ul class="govuk-list govuk-list--bullet">
-        <li>{{ tr .App "iHaveReadLpa" }}</li>
+        <li>{{ tr .App "theDonorHasReadLpa" }}</li>
         {{ if .Lpa.Type.IsHealthWelfare }}
           <li>{{ trFormat .App "iGiveAttorneysAuthority" "LpaType" $lpaTypeLegalTerm }}</li>
         {{ else }}
           {{ if .Lpa.WhenCanTheLpaBeUsed.IsHasCapacity }}
-            <li>{{ tr .App "iGiveAttorneysAuthorityWhenRegistered" }}</li>
+            <li>{{ tr .App "theDonorGivesAttorneysAuthorityWhenRegistered" }}</li>
           {{ else }}
-            <li>{{ tr .App "iGiveAttorneysAuthorityWhenLostMentalCapacity" }}</li>
+            <li>{{ tr .App "theDonorGivesAttorneysAuthorityWhenLostMentalCapacity" }}</li>
           {{ end }}
         {{ end }}
         {{ if .Lpa.Type.IsHealthWelfare }}
           {{ if .Lpa.LifeSustainingTreatmentOption.IsOptionA }}
-            <li>{{ tr .App "iGiveMyAttorneysAuthorityLifeSustainingTreatment" }}</li>
+            <li>{{ tr .App "theDonorGivesAttorneysAuthorityLifeSustainingTreatment" }}</li>
           {{ else }}
-            <li>{{ trHtml .App "iDoNotGiveMyAttorneysAuthorityLifeSustainingTreatment" }}</li>
+            <li>{{ trHtml .App "theDonorDoesNotGiveAttorneysAuthorityLifeSustainingTreatment" }}</li>
           {{ end }}
         {{ end }}
         {{ if gt (len .Lpa.PeopleToNotify) 0 }}
-          <li>{{ trFormatCount .App "iHaveChosenNPeopleToNotify" (len .Lpa.PeopleToNotify) }}</li>
+          <li>{{ trFormatCount .App "theyHaveChosenNPeopleToNotify" (len .Lpa.PeopleToNotify) }}</li>
         {{ else }}
-          <li>{{ tr .App "iHaveNotChosenToNotifyAnyone" }}</li>
+          <li>{{ tr .App "theyHaveNotChosenToNotifyAnyone" }}</li>
         {{ end }}
-        <li>{{ tr .App "infoIProvidedCanBeUsedByOpg" }}</li>
+        <li>{{ tr .App "infoTheyProvidedCanBeUsedByOpg" }}</li>
       </ul>
 
       <form novalidate method="post">
-        <div class="moj-ticket-panel">
-          <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
+        <div class="govuk-summary-card">
+          <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">{{ tr .App "yourSignature" }}</h2>
+          </div>
+          <div class="govuk-summary-card__content">
             <p class="govuk-body govuk-!-font-weight-bold">
-              {{ trFormat .App "iConfirmThat" "DonorFullName" .Lpa.Donor.FullName }}
+              {{ trFormat .App "iConfirmAsAuthorisedSignatoryThat" "SignatoryFullName" .Lpa.AuthorisedSignatory.FullName }}
             </p>
 
             <div class="govuk-form-group {{ if .Errors.Has "sign-lpa" }}govuk-form-group--error{{ end }}">
@@ -57,19 +60,19 @@
                 <div class="govuk-checkboxes__item">
                   <input class="govuk-checkboxes__input" id="f-sign-lpa" name="sign-lpa" type="checkbox" value="{{ .WantToSignFormValue }}" {{ if eq .Lpa.WantToSignLpa true }}checked{{ end }}>
                   <label class="govuk-label govuk-checkboxes__label" for="f-sign-lpa">
-                    {{ tr .App "iWantToSignThisLpa" }}
+                    {{ trFormat .App "donorWantsToSignThisLpa" "DonorFullName" .Lpa.Donor.FullName }}
                   </label>
                 </div>
 
                 <div class="govuk-checkboxes__item">
                   <input class="govuk-checkboxes__input" id="f-sign-lpa-2" name="sign-lpa" type="checkbox" value="{{ .WantToApplyFormValue }}" {{ if eq .Lpa.WantToApplyForLpa true }}checked{{ end }}>
                   <label class="govuk-label govuk-checkboxes__label" for="f-sign-lpa-2">
-                    {{ tr .App "wantToApply" }}
+                    {{ trFormat .App "donorWantsToApply" "DonorFullName" .Lpa.Donor.FullName }}
                   </label>
                 </div>
 
                 <div class="govuk-body">
-                  {{ tr .App "whenYouTickAndClick" }}
+                  {{ tr .App "whenYouTickAsAuthorisedSignatory" }}
                 </div>
               </div>
             </div>
@@ -82,7 +85,7 @@
 
         <div class="govuk-button-group">
           <button type="submit" id="save-and-continue-btn" class="govuk-button" data-module="govuk-button">
-            {{ tr .App "submitMySignature" }}
+            {{ tr .App "submitSignature" }}
           </button>
           <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" id="return-to-tasklist-btn" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
         </div>
