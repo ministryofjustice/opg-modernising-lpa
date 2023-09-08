@@ -3,29 +3,47 @@
 {{ define "pageTitle" }}{{ tr .App "howToConfirmYourIdentityAndSign" }}{{ end }}
 
 {{ define "main" }}
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-two-thirds">
-        <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">{{ tr .App "howToConfirmYourIdentityAndSign" }}</h1>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">{{ tr .App "howToConfirmYourIdentityAndSign" }}</h1>
 
-        <p class="govuk-body-l">{{ tr .App "howToConfirmYourIdentityAndSignIntro" }}</p>
+      <p class="govuk-body-l">{{ tr .App "howToConfirmYourIdentityAndSignIntro" }}</p>
 
+      {{ if .Lpa.Donor.CanSign.IsYes }}
         {{ template "warning" (warning .App (trFormat .App "yourCertificateProviderMustBeWithYou" "CertificateProviderName" .Lpa.CertificateProvider.FullName)) }}
+      {{ end }}
 
-        <div class="moj-ticket-panel govuk-!-margin-bottom-6">
-          <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
-            {{ if eq (len .Lpa.TrustCorporationsNames) 0 }}
-              {{ trFormatHtml .App "howToConfirmYourIdentityAndSignStepsAttorneys" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames "CertificateProviderFullName" .Lpa.CertificateProvider.FullName "AttorneysFullNames" (concatAnd .App .Lpa.AllLayAttorneysFullNames) }}
-            {{ else if eq (len .Lpa.AllLayAttorneysFullNames) 0 }}
-              {{ trFormatHtml .App "howToConfirmYourIdentityAndSignStepsTrustCorporation" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames "CertificateProviderFullName" .Lpa.CertificateProvider.FullName "TrustCorporationsNames" (concatAnd .App .Lpa.TrustCorporationsNames) }}
-            {{ else }}
-              {{ trFormatHtml .App "howToConfirmYourIdentityAndSignSteps" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames "CertificateProviderFullName" .Lpa.CertificateProvider.FullName "TrustCorporationsNames" (concatAnd .App .Lpa.TrustCorporationsNames) "AttorneysFullNames" (concatAnd .App .Lpa.AllLayAttorneysFullNames) }}
-            {{ end }}
-          </div>
+      <div class="moj-ticket-panel govuk-!-margin-bottom-6">
+        <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
+          {{ if .Lpa.Donor.CanSign.IsYes }}
+            {{ trHtml .App "confirmYourIdentityStep" }}
+          {{ else }}
+            {{ trHtml .App "confirmYourIdentityStepCannotSign" }}
+          {{ end }}
+
+          {{ if eq (len .Lpa.TrustCorporationsNames) 0 }}
+            {{ trFormatHtml .App "discussWithCertificateProviderStepAttorneys" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames "AttorneysFullNames" (concatAnd .App .Lpa.AllLayAttorneysFullNames) }}
+          {{ else if eq (len .Lpa.AllLayAttorneysFullNames) 0 }}
+            {{ trFormatHtml .App "discussWithCertificateProviderStepTrustCorporation" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames "TrustCorporationsNames" (concatAnd .App .Lpa.TrustCorporationsNames) }}
+          {{ else }}
+            {{ trFormatHtml .App "discussWithCertificateProviderStepAttorneysAndTrustCorporation" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames  "TrustCorporationsNames" (concatAnd .App .Lpa.TrustCorporationsNames) "AttorneysFullNames" (concatAnd .App .Lpa.AllLayAttorneysFullNames) }}
+          {{ end }}
+
+          {{ if .Lpa.Donor.CanSign.IsYes }}
+            {{ trFormatHtml .App "signYourLpaStep" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
+          {{ else }}
+            {{ trFormatHtml .App "signYourLpaStepCannotSign" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName "AuthorisedSignatoryFullName" .Lpa.AuthorisedSignatory.FullName "IndependentWitnessFullName" .Lpa.IndependentWitness.FullName }}
+          {{ end }}
         </div>
+      </div>
 
-        <div class="govuk-button-group">
-          <a class="govuk-button" href="{{ link .App (.App.Paths.WhatYoullNeedToConfirmYourIdentity.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
-          <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+      {{ if .Lpa.Donor.CanSign.IsNo }}
+        {{ template "warning" (warning .App "yourCertificateProviderAndIndependentWitnessMustBeWithYou") }}
+      {{ end }}
+
+      <div class="govuk-button-group">
+        <a class="govuk-button" href="{{ link .App (.App.Paths.WhatYoullNeedToConfirmYourIdentity.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
+        <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
       </div>
     </div>
 {{ end }}
