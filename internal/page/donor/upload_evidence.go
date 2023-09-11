@@ -6,7 +6,9 @@ import (
 	"context"
 	"errors"
 	"io"
+	"log"
 	"net/http"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -39,7 +41,21 @@ type S3Client interface {
 	PutObject(context.Context, *s3.PutObjectInput, ...func(*s3.Options)) (*s3.PutObjectOutput, error)
 }
 
-func UploadEvidence(tmpl template.Template, donorStore DonorStore, s3Client S3Client, bucketName string, payer Payer) Handler {
+func UploadEvidence(tmpl template.Template, payer Payer) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+		data := &uploadEvidenceData{
+			App: appData,
+		}
+
+		if r.Method == http.MethodPost {
+			return payer.Pay(appData, w, r, lpa)
+		}
+
+		return tmpl(w, data)
+	}
+}
+
+func UploadEvidenceAjax(donorStore DonorStore, s3Client S3Client, bucketName string, now func() time.Time) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &uploadEvidenceData{
 			App: appData,
@@ -51,32 +67,33 @@ func UploadEvidence(tmpl template.Template, donorStore DonorStore, s3Client S3Cl
 			data.Errors = form.Validate()
 
 			if data.Errors.None() {
-				lpa.EvidenceKeys = append(lpa.EvidenceKeys, lpa.ID+"-evidence")
+
+				key := lpa.UID + "-evidence-" + now().Format(time.RFC3339Nano)
+				log.Print(key)
+				lpa.EvidenceKeys.Add(key)
 
 				_, err := s3Client.PutObject(r.Context(), &s3.PutObjectInput{
 					Bucket:               aws.String(bucketName),
-					Key:                  aws.String(lpa.EvidenceKeys[0]),
-					Body:                 bytes.NewReader(form.File),
+					Key:                  aws.String(key),
+					Body:                 bytes.NewReader(form.Files),
 					ServerSideEncryption: types.ServerSideEncryptionAwsKms,
 				})
 				if err != nil {
 					return err
 				}
 
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
-					return err
-				}
-
-				return payer.Pay(appData, w, r, lpa)
+				return donorStore.Put(r.Context(), lpa)
 			}
+
+			return nil
 		}
 
-		return tmpl(w, data)
+		return nil
 	}
 }
 
 type uploadEvidenceForm struct {
-	File  []byte
+	Files []byte
 	Error error
 }
 
@@ -86,23 +103,13 @@ func readUploadEvidenceForm(r *http.Request) *uploadEvidenceForm {
 		return &uploadEvidenceForm{Error: err}
 	}
 
-	// first part will be csrf, so skip
+	// upload part
 	part, err := reader.NextPart()
 	if err != nil && err != io.EOF {
 		return &uploadEvidenceForm{Error: err}
 	}
 
-	if part.FormName() != "csrf" {
-		return &uploadEvidenceForm{Error: errors.New("unexpected field name")}
-	}
-
-	// upload part
-	part, err = reader.NextPart()
-	if err != nil && err != io.EOF {
-		return &uploadEvidenceForm{Error: err}
-	}
-
-	if part.FormName() != "upload" {
+	if part.FormName() != "documents" {
 		return &uploadEvidenceForm{Error: errors.New("unexpected field name")}
 	}
 
@@ -129,7 +136,7 @@ func readUploadEvidenceForm(r *http.Request) *uploadEvidenceForm {
 		return &uploadEvidenceForm{Error: errUploadTooBig}
 	}
 
-	return &uploadEvidenceForm{File: file.Bytes()}
+	return &uploadEvidenceForm{Files: file.Bytes()}
 }
 
 func (f *uploadEvidenceForm) Validate() validation.List {

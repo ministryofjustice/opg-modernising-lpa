@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -156,6 +157,7 @@ func Register(
 	evidenceBucketName string,
 	notifyClient NotifyClient,
 	evidenceReceivedStore EvidenceReceivedStore,
+	mu *sync.Mutex,
 ) {
 	payer := &payHelper{
 		logger:       logger,
@@ -288,7 +290,9 @@ func Register(
 	handleWithLpa(page.Paths.CanEvidenceBeUploaded, CanGoBack,
 		CanEvidenceBeUploaded(tmpls.Get("can_evidence_be_uploaded.gohtml")))
 	handleWithLpa(page.Paths.UploadEvidence, CanGoBack,
-		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), donorStore, s3Client, evidenceBucketName, payer))
+		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), payer))
+	handleWithLpa(page.Paths.UploadEvidenceAjax, None,
+		UploadEvidenceAjax(donorStore, s3Client, evidenceBucketName, time.Now))
 	handleWithLpa(page.Paths.WhatHappensAfterNoFee, None,
 		Guidance(tmpls.Get("what_happens_after_no_fee.gohtml")))
 	handleWithLpa(page.Paths.PrintEvidenceForm, CanGoBack,

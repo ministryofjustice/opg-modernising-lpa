@@ -14,6 +14,7 @@ package page
 import (
 	"context"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -169,11 +170,23 @@ type Lpa struct {
 	// EvidenceFormAddress is where the form to provide evidence for a fee reduction will be sent
 	EvidenceFormAddress place.Address
 	// EvidenceKeys is the S3 key for uploaded evidence
-	EvidenceKeys []string
+	EvidenceKeys EvidenceKeys
 
 	HasSentPreviousApplicationLinkedEvent bool
 	HasSentEvidenceFormRequiredEvent      bool
 	HasSentReducedFeeRequestedEvent       bool
+}
+
+type EvidenceKeys struct {
+	Keys []string
+	mu   sync.Mutex
+}
+
+func (e *EvidenceKeys) Add(entry string) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+
+	e.Keys = append(e.Keys, entry)
 }
 
 type Payment struct {

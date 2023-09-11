@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -224,6 +225,7 @@ func main() {
 	mux.Handle(page.Paths.AuthRedirect.String(), page.AuthRedirect(logger, sessionStore))
 	mux.Handle(page.Paths.YotiRedirect.String(), page.YotiRedirect(logger, sessionStore))
 	mux.Handle(page.Paths.CookiesConsent.String(), page.CookieConsent(page.Paths))
+	var mu sync.Mutex
 	mux.Handle("/cy/", http.StripPrefix("/cy", app.App(
 		logger,
 		bundle.For(localize.Cy),
@@ -245,7 +247,8 @@ func main() {
 		s3Client,
 		evidenceBucketName,
 		reducedFeesDynamoClient,
-		eventClient)))
+		eventClient,
+		&mu)))
 	mux.Handle("/", app.App(
 		logger,
 		bundle.For(localize.En),
@@ -267,7 +270,8 @@ func main() {
 		s3Client,
 		evidenceBucketName,
 		reducedFeesDynamoClient,
-		eventClient))
+		eventClient,
+		&mu))
 
 	var handler http.Handler = mux
 	if xrayEnabled {
