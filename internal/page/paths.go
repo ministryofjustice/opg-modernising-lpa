@@ -174,7 +174,8 @@ type AppPaths struct {
 	RemoveAttorney                                       LpaPath
 	RemovePersonToNotify                                 LpaPath
 	RemoveReplacementAttorney                            LpaPath
-	ResendWitnessCode                                    LpaPath
+	ResendCertificateProviderCode                        LpaPath
+	ResendIndependentWitnessCode                         LpaPath
 	Restrictions                                         LpaPath
 	SelectYourIdentityOptions                            LpaPath
 	SelectYourIdentityOptions1                           LpaPath
@@ -191,6 +192,7 @@ type AppPaths struct {
 	WhichFeeTypeAreYouApplyingFor                        LpaPath
 	WhoIsTheLpaFor                                       LpaPath
 	WitnessingAsCertificateProvider                      LpaPath
+	WitnessingAsIndependentWitness                       LpaPath
 	WitnessingYourSignature                              LpaPath
 	YouHaveSubmittedYourLpa                              LpaPath
 	YourAddress                                          LpaPath
@@ -324,7 +326,8 @@ var Paths = AppPaths{
 	RemoveAttorney:                                       "/remove-attorney",
 	RemovePersonToNotify:                                 "/remove-person-to-notify",
 	RemoveReplacementAttorney:                            "/remove-replacement-attorney",
-	ResendWitnessCode:                                    "/resend-witness-code",
+	ResendCertificateProviderCode:                        "/resend-certificate-provider-code",
+	ResendIndependentWitnessCode:                         "/resend-independent-witness-code",
 	Restrictions:                                         "/restrictions",
 	Root:                                                 "/",
 	SelectYourIdentityOptions1:                           "/select-identity-document",
@@ -345,6 +348,7 @@ var Paths = AppPaths{
 	WhichFeeTypeAreYouApplyingFor:                        "/which-fee-type-are-you-applying-for",
 	WhoIsTheLpaFor:                                       "/who-is-the-lpa-for",
 	WitnessingAsCertificateProvider:                      "/witnessing-as-certificate-provider",
+	WitnessingAsIndependentWitness:                       "/witnessing-as-independent-witness",
 	WitnessingYourSignature:                              "/witnessing-your-signature",
 	YotiRedirect:                                         "/yoti/redirect",
 	YouHaveSubmittedYourLpa:                              "/you-have-submitted-your-lpa",
