@@ -7,15 +7,17 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "witnessYourSignature" }}</h1>
 
-      {{ trFormatHtml .App "witnessYourSignatureContent" "CpFullName" .Lpa.CertificateProvider.FullName "CpFirstNames" .Lpa.CertificateProvider.FirstNames }}
+      {{ if .Lpa.Donor.CanSign.IsYes }}
+        {{ trFormatHtml .App "witnessYourSignatureContent" "CpFullName" .Lpa.CertificateProvider.FullName "CpFirstNames" .Lpa.CertificateProvider.FirstNames }}
 
-      {{ $warningContent := trFormat .App "witnessCodeTimeWarning" "CpFirstNames" .Lpa.CertificateProvider.FirstNames }}
-      {{ template "warning" (warning .App $warningContent)  }}
+        {{ $warningContent := trFormat .App "witnessCodeTimeWarning" "CpFirstNames" .Lpa.CertificateProvider.FirstNames }}
+        {{ template "warning" (warning .App $warningContent)  }}
+      {{ else }}
+        {{ trFormatHtml .App "witnessYourSignatureContentCannotSign" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName "IndependentWitnessFullName" .Lpa.IndependentWitness.FullName }}
+      {{ end }}
 
       <form novalidate method="post">
-        <div class="govuk-button-group">
-          {{ template "continue-button" . }}
-        </div>
+        {{ template "continue-and-return-buttons" . }}
         {{ template "csrf-field" . }}
       </form>
     </div>

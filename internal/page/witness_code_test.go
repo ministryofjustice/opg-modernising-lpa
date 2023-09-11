@@ -34,10 +34,10 @@ func TestWitnessCodeSenderSend(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", ctx, &Lpa{
-			Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-			CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
-			WitnessCodes:        WitnessCodes{{Code: "1234", Created: now}},
-			Type:                LpaTypePropertyFinance,
+			Donor:                    actor.Donor{FirstNames: "Joe", LastName: "Jones"},
+			CertificateProvider:      actor.CertificateProvider{Mobile: "0777"},
+			CertificateProviderCodes: WitnessCodes{{Code: "1234", Created: now}},
+			Type:                     LpaTypePropertyFinance,
 		}).
 		Return(nil)
 
@@ -55,7 +55,7 @@ func TestWitnessCodeSenderSend(t *testing.T) {
 		randomCode:   func(int) string { return "1234" },
 		now:          func() time.Time { return now },
 	}
-	err := sender.Send(ctx, &Lpa{
+	err := sender.SendToCertificateProvider(ctx, &Lpa{
 		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
 		Type:                LpaTypePropertyFinance,
@@ -86,7 +86,7 @@ func TestWitnessCodeSenderSendWhenNotifyClientErrors(t *testing.T) {
 		randomCode:   func(int) string { return "1234" },
 		now:          time.Now,
 	}
-	err := sender.Send(context.Background(), &Lpa{
+	err := sender.SendToCertificateProvider(context.Background(), &Lpa{
 		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
 		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 		Type:                LpaTypePropertyFinance,
@@ -123,7 +123,7 @@ func TestWitnessCodeSenderSendWhenDonorStoreErrors(t *testing.T) {
 		randomCode:   func(int) string { return "1234" },
 		now:          time.Now,
 	}
-	err := sender.Send(context.Background(), &Lpa{
+	err := sender.SendToCertificateProvider(context.Background(), &Lpa{
 		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
 		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 		Type:                LpaTypePropertyFinance,
@@ -160,12 +160,12 @@ func TestWitnessCodeHasExpired(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			lpa := Lpa{
-				WitnessCodes: WitnessCodes{
+				CertificateProviderCodes: WitnessCodes{
 					{Code: "a", Created: now.Add(-tc.duration)},
 				},
 			}
 
-			code, _ := lpa.WitnessCodes.Find("a")
+			code, _ := lpa.CertificateProviderCodes.Find("a")
 			assert.Equal(t, tc.expected, code.HasExpired())
 		})
 	}
