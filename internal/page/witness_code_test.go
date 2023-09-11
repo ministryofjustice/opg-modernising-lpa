@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestWitnessCodeSenderSend(t *testing.T) {
+func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 	now := time.Now()
 	ctx := context.Background()
 
@@ -34,10 +34,10 @@ func TestWitnessCodeSenderSend(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", ctx, &Lpa{
-			Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-			CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
-			WitnessCodes:        WitnessCodes{{Code: "1234", Created: now}},
-			Type:                LpaTypePropertyFinance,
+			Donor:                    actor.Donor{FirstNames: "Joe", LastName: "Jones"},
+			CertificateProvider:      actor.CertificateProvider{Mobile: "0777"},
+			CertificateProviderCodes: WitnessCodes{{Code: "1234", Created: now}},
+			Type:                     LpaTypePropertyFinance,
 		}).
 		Return(nil)
 
@@ -55,7 +55,7 @@ func TestWitnessCodeSenderSend(t *testing.T) {
 		randomCode:   func(int) string { return "1234" },
 		now:          func() time.Time { return now },
 	}
-	err := sender.Send(ctx, &Lpa{
+	err := sender.SendToCertificateProvider(ctx, &Lpa{
 		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
 		Type:                LpaTypePropertyFinance,
@@ -64,7 +64,7 @@ func TestWitnessCodeSenderSend(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestWitnessCodeSenderSendWhenNotifyClientErrors(t *testing.T) {
+func TestWitnessCodeSenderSendToCertificateProviderWhenNotifyClientErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
 		On("TemplateID", mock.Anything).
@@ -86,7 +86,7 @@ func TestWitnessCodeSenderSendWhenNotifyClientErrors(t *testing.T) {
 		randomCode:   func(int) string { return "1234" },
 		now:          time.Now,
 	}
-	err := sender.Send(context.Background(), &Lpa{
+	err := sender.SendToCertificateProvider(context.Background(), &Lpa{
 		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
 		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 		Type:                LpaTypePropertyFinance,
@@ -95,7 +95,7 @@ func TestWitnessCodeSenderSendWhenNotifyClientErrors(t *testing.T) {
 	assert.Equal(t, ExpectedError, err)
 }
 
-func TestWitnessCodeSenderSendWhenDonorStoreErrors(t *testing.T) {
+func TestWitnessCodeSenderSendToCertificateProviderWhenDonorStoreErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
 		On("TemplateID", mock.Anything).
@@ -123,10 +123,131 @@ func TestWitnessCodeSenderSendWhenDonorStoreErrors(t *testing.T) {
 		randomCode:   func(int) string { return "1234" },
 		now:          time.Now,
 	}
-	err := sender.Send(context.Background(), &Lpa{
+	err := sender.SendToCertificateProvider(context.Background(), &Lpa{
 		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
 		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 		Type:                LpaTypePropertyFinance,
+	}, localizer)
+
+	assert.Equal(t, ExpectedError, err)
+}
+
+func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
+	now := time.Now()
+	ctx := context.Background()
+
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.
+		On("TemplateID", notify.SignatureCodeSMS).
+		Return("template-id")
+	notifyClient.
+		On("Sms", ctx, notify.Sms{
+			PhoneNumber: "0777",
+			TemplateID:  "template-id",
+			Personalisation: map[string]string{
+				"WitnessCode":   "1234",
+				"DonorFullName": "Joe Jones’",
+				"LpaType":       "property and affairs",
+			},
+		}).
+		Return("sms-id", nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", ctx, &Lpa{
+			Donor:                   actor.Donor{FirstNames: "Joe", LastName: "Jones"},
+			IndependentWitness:      actor.IndependentWitness{Mobile: "0777"},
+			IndependentWitnessCodes: WitnessCodes{{Code: "1234", Created: now}},
+			Type:                    LpaTypePropertyFinance,
+		}).
+		Return(nil)
+
+	localizer := newMockLocalizer(t)
+	localizer.
+		On("T", "pfaLegalTerm").
+		Return("property and affairs")
+	localizer.
+		On("Possessive", "Joe Jones").
+		Return("Joe Jones’")
+
+	sender := &WitnessCodeSender{
+		donorStore:   donorStore,
+		notifyClient: notifyClient,
+		randomCode:   func(int) string { return "1234" },
+		now:          func() time.Time { return now },
+	}
+	err := sender.SendToIndependentWitness(ctx, &Lpa{
+		Donor:              actor.Donor{FirstNames: "Joe", LastName: "Jones"},
+		IndependentWitness: actor.IndependentWitness{Mobile: "0777"},
+		Type:               LpaTypePropertyFinance,
+	}, localizer)
+
+	assert.Nil(t, err)
+}
+
+func TestWitnessCodeSenderSendToIndependentWitnessWhenNotifyClientErrors(t *testing.T) {
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.
+		On("TemplateID", mock.Anything).
+		Return("template-id")
+	notifyClient.
+		On("Sms", mock.Anything, mock.Anything).
+		Return("", ExpectedError)
+
+	localizer := newMockLocalizer(t)
+	localizer.
+		On("T", "pfaLegalTerm").
+		Return("property and affairs")
+	localizer.
+		On("Possessive", "Joe Jones").
+		Return("Joe Jones’")
+
+	sender := &WitnessCodeSender{
+		notifyClient: notifyClient,
+		randomCode:   func(int) string { return "1234" },
+		now:          time.Now,
+	}
+	err := sender.SendToIndependentWitness(context.Background(), &Lpa{
+		IndependentWitness: actor.IndependentWitness{Mobile: "0777"},
+		Donor:              actor.Donor{FirstNames: "Joe", LastName: "Jones"},
+		Type:               LpaTypePropertyFinance,
+	}, localizer)
+
+	assert.Equal(t, ExpectedError, err)
+}
+
+func TestWitnessCodeSenderSendToIndependentWitnessWhenDonorStoreErrors(t *testing.T) {
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.
+		On("TemplateID", mock.Anything).
+		Return("template-id")
+	notifyClient.
+		On("Sms", mock.Anything, mock.Anything).
+		Return("sms-id", nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", mock.Anything, mock.Anything).
+		Return(ExpectedError)
+
+	localizer := newMockLocalizer(t)
+	localizer.
+		On("T", "pfaLegalTerm").
+		Return("property and affairs")
+	localizer.
+		On("Possessive", "Joe Jones").
+		Return("Joe Jones’")
+
+	sender := &WitnessCodeSender{
+		donorStore:   donorStore,
+		notifyClient: notifyClient,
+		randomCode:   func(int) string { return "1234" },
+		now:          time.Now,
+	}
+	err := sender.SendToIndependentWitness(context.Background(), &Lpa{
+		IndependentWitness: actor.IndependentWitness{Mobile: "0777"},
+		Donor:              actor.Donor{FirstNames: "Joe", LastName: "Jones"},
+		Type:               LpaTypePropertyFinance,
 	}, localizer)
 
 	assert.Equal(t, ExpectedError, err)
@@ -160,12 +281,12 @@ func TestWitnessCodeHasExpired(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			lpa := Lpa{
-				WitnessCodes: WitnessCodes{
+				CertificateProviderCodes: WitnessCodes{
 					{Code: "a", Created: now.Add(-tc.duration)},
 				},
 			}
 
-			code, _ := lpa.WitnessCodes.Find("a")
+			code, _ := lpa.CertificateProviderCodes.Find("a")
 			assert.Equal(t, tc.expected, code.HasExpired())
 		})
 	}

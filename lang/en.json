@@ -747,5 +747,13 @@
     "iConfirmAsAuthorisedSignatoryThat": "I, {{.SignatoryFullName}}, confirm as the authorised signatory, that:",
     "donorWantsToSignThisLpa": "{{.DonorFullName}} wants to sign this LPA as a deed",
     "donorWantsToApply": "{{.DonorFullName}} wants to apply to register this LPA",
-    "whenYouTickAsAuthorisedSignatory": "When you tick these boxes and select ‘Submit signature’ you are legally signing this LPA on behalf of the donor and delivering it as a deed."
+    "whenYouTickAsAuthorisedSignatory": "When you tick these boxes and select ‘Submit signature’ you are legally signing this LPA on behalf of the donor and delivering it as a deed.",
+    "witnessYourSignatureContentCannotSign": "<p class=\"govuk-body\">Both of your witnesses must confirm that they are with you and have witnessed your LPA being signed.</p><p class=\"govuk-body\">Your witnesses are:</p><ul class=\"govuk-list govuk-list--bullet\"><li>your independent witness, {{.IndependentWitnessFullName}}</li><li>your certificate provider, {{.CertificateProviderFullName}}</li></ul><h2 class=\"govuk-heading-m\">What happens next</h2><ol class=\"govuk-list govuk-list--number\"><li>When you select <span class=\"govuk-!-font-weight-bold\">Continue</span>, we will send both of your witnesses an individual text message that contains a unique code.</li><li>They will each need to type in their unique code on the next screens.</li></ol><p class=\"govuk-body\">Codes are only valid for 30 minutes. They must use the codes within this time.</p>",
+    "confirmYouWitnessedTheDonorSign": "Confirm you witnessed the donor sign their LPA",
+    "weHaveSentACodeTo": "We have sent a code by text message to: <span class=\"govuk-!-font-weight-bold\">{{.Mobile}}</span>",
+    "asTheIndependentWitnessTypeTheCode": "{{.IndependentWitnessFirstNames}}, as the independent witness for {{.DonorFullName}}, please type in the code to prove that you witnessed their LPA being signed.",
+    "enter4DigitCode": "Enter 4 digit code",
+    "imHavingProblemWithCode": "I’m having a problem with the code",
+    "imHavingProblemWithCodeContent": "<a href=\"{{.Link}}\">Resend</a>",
+    "asTheCertificateProviderTypeTheCode": "{{.CertificateProviderFirstNames}}, as the certificate provider for {{.DonorFullName}}, please type in the code to prove that you witnessed their LPA being signed."
 }

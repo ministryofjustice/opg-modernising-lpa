@@ -30,12 +30,32 @@ func NewWitnessCodeSender(donorStore DonorStore, notifyClient NotifyClient) *Wit
 	}
 }
 
-func (s *WitnessCodeSender) Send(ctx context.Context, lpa *Lpa, localizer Localizer) error {
+func (s *WitnessCodeSender) SendToCertificateProvider(ctx context.Context, lpa *Lpa, localizer Localizer) error {
 	code := s.randomCode(4)
-	lpa.WitnessCodes = append(lpa.WitnessCodes, WitnessCode{Code: code, Created: s.now()})
+	lpa.CertificateProviderCodes = append(lpa.CertificateProviderCodes, WitnessCode{Code: code, Created: s.now()})
 
 	_, err := s.notifyClient.Sms(ctx, notify.Sms{
 		PhoneNumber: lpa.CertificateProvider.Mobile,
+		TemplateID:  s.notifyClient.TemplateID(notify.SignatureCodeSMS),
+		Personalisation: map[string]string{
+			"WitnessCode":   code,
+			"DonorFullName": localizer.Possessive(lpa.Donor.FullName()),
+			"LpaType":       localizer.T(lpa.Type.LegalTermTransKey()),
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	return s.donorStore.Put(ctx, lpa)
+}
+
+func (s *WitnessCodeSender) SendToIndependentWitness(ctx context.Context, lpa *Lpa, localizer Localizer) error {
+	code := s.randomCode(4)
+	lpa.IndependentWitnessCodes = append(lpa.IndependentWitnessCodes, WitnessCode{Code: code, Created: s.now()})
+
+	_, err := s.notifyClient.Sms(ctx, notify.Sms{
+		PhoneNumber: lpa.IndependentWitness.Mobile,
 		TemplateID:  s.notifyClient.TemplateID(notify.SignatureCodeSMS),
 		Personalisation: map[string]string{
 			"WitnessCode":   code,
