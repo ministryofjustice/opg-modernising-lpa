@@ -791,5 +791,13 @@
     "iConfirmAsAuthorisedSignatoryThat": "Welsh",
     "donorWantsToSignThisLpa": "Welsh",
     "donorWantsToApply": "Welsh",
-    "whenYouTickAsAuthorisedSignatory": "Welsh"
+    "whenYouTickAsAuthorisedSignatory": "Welsh",
+    "witnessYourSignatureContentCannotSign": "<p class=\"govuk-body\">Welsh</p>",
+    "confirmYouWitnessedTheDonorSign": "Welsh",
+    "weHaveSentACodeTo": "Welsh",
+    "asTheIndependentWitnessTypeTheCode": "Welsh",
+    "enter4DigitCode": "Welsh",
+    "imHavingProblemWithCode": "Welsh",
+    "imHavingProblemWithCodeContent": "<a href=\"{{.Link}}\">Welsh</a>",
+    "asTheCertificateProviderTypeTheCode": "Welsh."
 }
