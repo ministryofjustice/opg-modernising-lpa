@@ -444,7 +444,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 				lpa.WantToApplyForLpa = true
 				lpa.WantToSignLpa = true
 				lpa.Submitted = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
-				lpa.CPWitnessCodeValidated = true
+				lpa.WitnessedByCertificateProviderAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 				lpa.Tasks.ConfirmYourIdentityAndSign = actor.TaskCompleted
 			}
 
