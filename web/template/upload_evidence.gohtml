@@ -12,27 +12,14 @@
       <form novalidate method="post" enctype="multipart/form-data">
         {{ template "csrf-field" . }}
 
-        <div class="moj-multi-file-upload">
-          <div class="moj-multi-file__uploaded-files ">
-            <h2 class="govuk-heading-m">Files added</h2>
-            <div class="govuk-summary-list moj-multi-file-upload__list">
+        <div class="govuk-form-group">
+          <label class="govuk-label" for="f-upload">{{ tr .App "upload" }}</label>
+          <input class="govuk-file-upload" id="f-upload" name="upload" type="file" accept="application/pdf" />
+        </div>
 
-            </div>
-          </div>
-
-          <div class="moj-multi-file-upload__upload">
-            <div class="govuk-form-group">
-              <label class="govuk-label" for="f-upload">{{ tr .App "uploadAFile" }}</label>
-              <input class="govuk-file-upload moj-multi-file-upload__input" id="f-upload" name="upload" type="file" multiple="" accept="application/pdf">
-            </div>
-
-            <button class="govuk-button govuk-button--secondary moj-multi-file-upload__button" data-module="govuk-button">{{ tr .App "uploadFiles" }}</button>
-          </div>
-
-          <div class="govuk-button-group">
-            <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "continueToPayment" }}</button>
-            <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
-          </div>
+        <div class="govuk-button-group">
+          <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "continueToPayment" }}</button>
+          <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
         </div>
       </form>
     </div>
