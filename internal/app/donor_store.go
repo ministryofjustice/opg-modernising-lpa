@@ -6,6 +6,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
@@ -28,6 +29,7 @@ type donorStore struct {
 	logger       Logger
 	uuidString   func() string
 	now          func() time.Time
+	s3Client     *s3.Client
 }
 
 func (s *donorStore) Create(ctx context.Context) (*page.Lpa, error) {
@@ -170,15 +172,27 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 		}
 	}
 
-	if lpa.UID != "" && lpa.Tasks.PayForLpa.IsPending() && !lpa.HasSentReducedFeeRequestedEvent {
+	if lpa.UID != "" && lpa.Tasks.PayForLpa.IsPending() && lpa.HasUnsentReducedFeesEvidence() {
+		var unsentKeys []string
+
+		for _, evidence := range lpa.EvidenceKeys {
+			if evidence.Sent.IsZero() {
+				unsentKeys = append(unsentKeys, evidence.Key)
+			}
+		}
+
 		if err := s.eventClient.Send(ctx, "reduced-fee-requested", reducedFeeRequestedEvent{
 			UID:         lpa.UID,
 			RequestType: lpa.FeeType.String(),
-			Evidence:    []string{lpa.EvidenceKey},
+			Evidence:    unsentKeys,
 		}); err != nil {
 			s.logger.Print(err)
-		} else {
-			lpa.HasSentReducedFeeRequestedEvent = true
+		}
+
+		for i, evidence := range lpa.EvidenceKeys {
+			if evidence.Sent.IsZero() {
+				lpa.EvidenceKeys[i].Sent = s.now()
+			}
 		}
 	}
 

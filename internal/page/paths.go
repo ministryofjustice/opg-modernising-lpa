@@ -184,6 +184,7 @@ type AppPaths struct {
 	SignYourLpa                                          LpaPath
 	TaskList                                             LpaPath
 	UploadEvidence                                       LpaPath
+	UploadEvidenceAjax                                   LpaPath
 	UseExistingAddress                                   LpaPath
 	WhatACertificateProviderDoes                         LpaPath
 	WhatHappensAfterNoFee                                LpaPath
@@ -340,6 +341,7 @@ var Paths = AppPaths{
 	TaskList:                                             "/task-list",
 	TestingStart:                                         "/testing-start",
 	UploadEvidence:                                       "/upload-evidence",
+	UploadEvidenceAjax:                                   "/upload-evidence-ajax",
 	UseExistingAddress:                                   "/use-existing-address",
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
 	WhatHappensAfterNoFee:                                "/what-happens-after-no-fee",
