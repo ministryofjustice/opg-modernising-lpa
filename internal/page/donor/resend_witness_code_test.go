@@ -16,21 +16,25 @@ import (
 )
 
 func TestGetResendWitnessCode(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	for _, actorType := range []actor.Type{actor.TypeIndependentWitness, actor.TypeCertificateProvider} {
+		t.Run(actorType.String(), func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &resendWitnessCodeData{
-			App: testAppData,
-		}).
-		Return(nil)
+			template := newMockTemplate(t)
+			template.
+				On("Execute", w, &resendWitnessCodeData{
+					App: testAppData,
+				}).
+				Return(nil)
 
-	err := ResendWitnessCode(template.Execute, nil, time.Now)(testAppData, w, r, &page.Lpa{})
-	resp := w.Result()
+			err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, time.Now, actorType)(testAppData, w, r, &page.Lpa{})
+			resp := w.Result()
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
 func TestGetResendWitnessCodeWhenTemplateErrors(t *testing.T) {
@@ -42,7 +46,7 @@ func TestGetResendWitnessCodeWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := ResendWitnessCode(template.Execute, nil, time.Now)(testAppData, w, r, &page.Lpa{})
+	err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, time.Now, actor.TypeCertificateProvider)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -50,27 +54,44 @@ func TestGetResendWitnessCodeWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostResendWitnessCode(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	lpa := &page.Lpa{
-		ID:                    "lpa-id",
-		Donor:                 actor.Donor{FirstNames: "john"},
-		DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin, FirstNames: "john"},
+	testcases := map[actor.Type]struct {
+		redirect page.LpaPath
+		method   string
+	}{
+		actor.TypeIndependentWitness: {
+			redirect: page.Paths.WitnessingAsIndependentWitness,
+			method:   "SendToIndependentWitness",
+		},
+		actor.TypeCertificateProvider: {
+			redirect: page.Paths.WitnessingAsCertificateProvider,
+			method:   "SendToCertificateProvider",
+		},
 	}
 
-	witnessCodeSender := newMockWitnessCodeSender(t)
-	witnessCodeSender.
-		On("Send", r.Context(), lpa, mock.Anything).
-		Return(nil)
+	for actorType, tc := range testcases {
+		t.Run(actorType.String(), func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := ResendWitnessCode(nil, witnessCodeSender, time.Now)(testAppData, w, r, lpa)
-	resp := w.Result()
+			lpa := &page.Lpa{
+				ID:                    "lpa-id",
+				DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.DrivingLicencePaper},
+			}
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.WitnessingAsCertificateProvider.Format("lpa-id"), resp.Header.Get("Location"))
+			witnessCodeSender := newMockWitnessCodeSender(t)
+			witnessCodeSender.
+				On(tc.method, r.Context(), lpa, testAppData.Localizer).
+				Return(nil)
+
+			err := ResendWitnessCode(nil, witnessCodeSender, time.Now, actorType)(testAppData, w, r, lpa)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.redirect.Format("lpa-id"), resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestPostResendWitnessCodeWhenSendErrors(t *testing.T) {
@@ -82,35 +103,45 @@ func TestPostResendWitnessCodeWhenSendErrors(t *testing.T) {
 
 	witnessCodeSender := newMockWitnessCodeSender(t)
 	witnessCodeSender.
-		On("Send", r.Context(), lpa, mock.Anything).
+		On("SendToCertificateProvider", r.Context(), lpa, mock.Anything).
 		Return(expectedError)
 
-	err := ResendWitnessCode(nil, witnessCodeSender, time.Now)(testAppData, w, r, lpa)
+	err := ResendWitnessCode(nil, witnessCodeSender, time.Now, actor.TypeCertificateProvider)(testAppData, w, r, lpa)
 
 	assert.Equal(t, expectedError, err)
 }
 
 func TestPostResendWitnessCodeWhenTooRecentlySent(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	lpa := &page.Lpa{
-		Donor:        actor.Donor{FirstNames: "john"},
-		WitnessCodes: page.WitnessCodes{{Created: time.Now()}},
+	testcases := map[actor.Type]*page.Lpa{
+		actor.TypeIndependentWitness: {
+			Donor:                   actor.Donor{FirstNames: "john"},
+			IndependentWitnessCodes: page.WitnessCodes{{Created: time.Now()}},
+		},
+		actor.TypeCertificateProvider: {
+			Donor:                    actor.Donor{FirstNames: "john"},
+			CertificateProviderCodes: page.WitnessCodes{{Created: time.Now()}},
+		},
 	}
 
-	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &resendWitnessCodeData{
-			App:    testAppData,
-			Errors: validation.With("request", validation.CustomError{Label: "pleaseWaitOneMinute"}),
-		}).
-		Return(nil)
+	for actorType, lpa := range testcases {
+		t.Run(actorType.String(), func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := ResendWitnessCode(template.Execute, nil, time.Now)(testAppData, w, r, lpa)
-	resp := w.Result()
+			template := newMockTemplate(t)
+			template.
+				On("Execute", w, &resendWitnessCodeData{
+					App:    testAppData,
+					Errors: validation.With("request", validation.CustomError{Label: "pleaseWaitOneMinute"}),
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, time.Now, actorType)(testAppData, w, r, lpa)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }

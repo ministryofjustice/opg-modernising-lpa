@@ -174,11 +174,13 @@ type AppPaths struct {
 	RemoveAttorney                                       LpaPath
 	RemovePersonToNotify                                 LpaPath
 	RemoveReplacementAttorney                            LpaPath
-	ResendWitnessCode                                    LpaPath
+	ResendCertificateProviderCode                        LpaPath
+	ResendIndependentWitnessCode                         LpaPath
 	Restrictions                                         LpaPath
 	SelectYourIdentityOptions                            LpaPath
 	SelectYourIdentityOptions1                           LpaPath
 	SelectYourIdentityOptions2                           LpaPath
+	SignTheLpaOnBehalf                                   LpaPath
 	SignYourLpa                                          LpaPath
 	TaskList                                             LpaPath
 	UploadEvidence                                       LpaPath
@@ -191,12 +193,16 @@ type AppPaths struct {
 	WhichFeeTypeAreYouApplyingFor                        LpaPath
 	WhoIsTheLpaFor                                       LpaPath
 	WitnessingAsCertificateProvider                      LpaPath
+	WitnessingAsIndependentWitness                       LpaPath
 	WitnessingYourSignature                              LpaPath
 	YouHaveSubmittedYourLpa                              LpaPath
 	YourAddress                                          LpaPath
 	YourAuthorisedSignatory                              LpaPath
 	YourChosenIdentityOptions                            LpaPath
 	YourDetails                                          LpaPath
+	YourIndependentWitness                               LpaPath
+	YourIndependentWitnessAddress                        LpaPath
+	YourIndependentWitnessMobile                         LpaPath
 }
 
 var Paths = AppPaths{
@@ -321,13 +327,15 @@ var Paths = AppPaths{
 	RemoveAttorney:                                       "/remove-attorney",
 	RemovePersonToNotify:                                 "/remove-person-to-notify",
 	RemoveReplacementAttorney:                            "/remove-replacement-attorney",
-	ResendWitnessCode:                                    "/resend-witness-code",
+	ResendCertificateProviderCode:                        "/resend-certificate-provider-code",
+	ResendIndependentWitnessCode:                         "/resend-independent-witness-code",
 	Restrictions:                                         "/restrictions",
 	Root:                                                 "/",
 	SelectYourIdentityOptions1:                           "/select-identity-document",
 	SelectYourIdentityOptions2:                           "/select-identity-document-2",
 	SelectYourIdentityOptions:                            "/select-your-identity-options",
 	SignOut:                                              "/sign-out",
+	SignTheLpaOnBehalf:                                   "/sign-the-lpa-on-behalf",
 	SignYourLpa:                                          "/sign-your-lpa",
 	Start:                                                "/start",
 	TaskList:                                             "/task-list",
@@ -342,6 +350,7 @@ var Paths = AppPaths{
 	WhichFeeTypeAreYouApplyingFor:                        "/which-fee-type-are-you-applying-for",
 	WhoIsTheLpaFor:                                       "/who-is-the-lpa-for",
 	WitnessingAsCertificateProvider:                      "/witnessing-as-certificate-provider",
+	WitnessingAsIndependentWitness:                       "/witnessing-as-independent-witness",
 	WitnessingYourSignature:                              "/witnessing-your-signature",
 	YotiRedirect:                                         "/yoti/redirect",
 	YouHaveSubmittedYourLpa:                              "/you-have-submitted-your-lpa",
@@ -349,5 +358,8 @@ var Paths = AppPaths{
 	YourAuthorisedSignatory:                              "/your-authorised-signatory",
 	YourChosenIdentityOptions:                            "/your-chosen-identity-options",
 	YourDetails:                                          "/your-details",
+	YourIndependentWitness:                               "/your-independent-witness",
+	YourIndependentWitnessAddress:                        "/your-independent-witness-address",
+	YourIndependentWitnessMobile:                         "/your-independent-witness-mobile",
 	YourLegalRightsAndResponsibilities:                   "/your-legal-rights-and-responsibilities",
 }

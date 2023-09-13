@@ -116,5 +116,13 @@ func replacementAttorneyMatches(lpa *page.Lpa, id, firstNames, lastName string) 
 		}
 	}
 
+	if strings.EqualFold(lpa.AuthorisedSignatory.FirstNames, firstNames) && strings.EqualFold(lpa.AuthorisedSignatory.LastName, lastName) {
+		return actor.TypeAuthorisedSignatory
+	}
+
+	if strings.EqualFold(lpa.IndependentWitness.FirstNames, firstNames) && strings.EqualFold(lpa.IndependentWitness.LastName, lastName) {
+		return actor.TypeIndependentWitness
+	}
+
 	return actor.TypeNone
 }

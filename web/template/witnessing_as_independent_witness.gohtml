@@ -1,0 +1,28 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "confirmYouWitnessedTheDonorSign" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ tr .App "confirmYouWitnessedTheDonorSign" }}</h1>
+
+      <p class="govuk-inset-text">
+        {{ trFormatHtml .App "weHaveSentACodeTo" "Mobile" .Lpa.IndependentWitness.Mobile }}
+      </p>
+
+      <p class="govuk-body">
+        {{ trFormat .App "asTheIndependentWitnessTypeTheCode" "IndependentWitnessFirstNames" .Lpa.IndependentWitness.FirstNames "DonorFullName" .Lpa.Donor.FullName }}
+      </p>
+
+      <form novalidate method="post">
+        {{ template "input" (input . "witness-code" "enter4DigitCode" .Form.Code "classes" "govuk-input--width-5" "labelClasses" "govuk-label--s" "autocomplete" "off") }}
+
+        {{ template "continue-and-return-buttons" . }}
+        {{ template "csrf-field" . }}
+      </form>
+
+      {{ template "details" (details . "imHavingProblemWithCode" (trFormat .App "imHavingProblemWithCodeContent" "Link" (link .App (.App.Paths.ResendIndependentWitnessCode.Format .Lpa.ID))) false) }}
+    </div>
+  </div>
+{{ end }}
