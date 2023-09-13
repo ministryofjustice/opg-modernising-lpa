@@ -26,8 +26,6 @@ import (
 
 type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, details *page.Lpa) error
 
-type JsonHandler func(data page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa)
-
 //go:generate mockery --testonly --inpackage --name Template --structname mockTemplate
 type Template func(io.Writer, interface{}) error
 
