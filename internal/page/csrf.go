@@ -1,8 +1,11 @@
 package page
 
 import (
+	"bytes"
 	"errors"
+	"io"
 	"mime"
+	"mime/multipart"
 	"net/http"
 
 	"github.com/gorilla/sessions"
@@ -55,8 +58,24 @@ func csrfValid(r *http.Request, csrfSession *sessions.Session) bool {
 		return false
 	}
 
-	if mediaType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type")); err == nil && mediaType == "multipart/form-data" {
-		return r.URL.Query().Get("csrf") == cookieValue
+	if mediaType, params, err := mime.ParseMediaType(r.Header.Get("Content-Type")); err == nil && mediaType == "multipart/form-data" {
+		var buf bytes.Buffer
+		reader := multipart.NewReader(io.TeeReader(r.Body, &buf), params["boundary"])
+
+		part, err := reader.NextPart()
+		if err != nil {
+			return false
+		}
+
+		if part.FormName() != "csrf" {
+			return false
+		}
+
+		lmt := io.LimitReader(part, csrfTokenLength+1)
+		value, _ := io.ReadAll(lmt)
+
+		r.Body = MultiReadCloser(io.NopCloser(&buf), r.Body)
+		return string(value) == cookieValue
 	}
 
 	return r.PostFormValue("csrf") == cookieValue
