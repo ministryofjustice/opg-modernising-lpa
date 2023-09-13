@@ -78,7 +78,7 @@ func (l *Localizer) SetShowTranslationKeys(s bool) {
 
 func (l *Localizer) Possessive(s string) string {
 	if l.Lang == Cy {
-		return "Welsh"
+		return s
 	}
 
 	format := "%s’s"
