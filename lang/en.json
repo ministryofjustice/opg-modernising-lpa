@@ -743,7 +743,6 @@
     },
     "theyHaveNotChosenToNotifyAnyone": "They have chosen not to notify anyone about their LPA.",
     "infoTheyProvidedCanBeUsedByOpg": "The information they have provided can be used by the Office of the Public Guardian when carrying out its duties.",
-    "yourSignature": "Your signature",
     "iConfirmAsAuthorisedSignatoryThat": "I, {{.SignatoryFullName}}, confirm as the authorised signatory, that:",
     "donorWantsToSignThisLpa": "{{.DonorFullName}} wants to sign this LPA as a deed",
     "donorWantsToApply": "{{.DonorFullName}} wants to apply to register this LPA",
