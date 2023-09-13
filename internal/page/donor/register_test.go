@@ -12,19 +12,19 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, &place.Client{}, "http://public.url", &pay.Client{}, &identity.YotiClient{}, nil, nil, nil, nil, nil, &uid.Client{}, nil, "bucket", nil, nil)
+	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, &place.Client{}, "http://public.url", &pay.Client{}, &identity.YotiClient{}, nil, nil, nil, nil, nil, &notify.Client{}, nil, nil, "bucket-name")
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
@@ -207,7 +207,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 			UID:   "a-uid",
 		}, nil)
 
-	handle := makeLpaHandle(mux, sessionStore, RequireSession, nil, donorStore, nil, nil)
+	handle := makeLpaHandle(mux, sessionStore, RequireSession, nil, donorStore)
 	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, lpa *page.Lpa) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/lpa//path",
@@ -241,7 +241,7 @@ func TestMakeLpaHandleWhenSessionStoreError(t *testing.T) {
 		On("Get", r, "session").
 		Return(&sessions.Session{}, expectedError)
 
-	handle := makeLpaHandle(mux, sessionStore, RequireSession, nil, nil, nil, nil)
+	handle := makeLpaHandle(mux, sessionStore, RequireSession, nil, nil)
 	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, lpa *page.Lpa) error {
 		return expectedError
 	})
@@ -273,7 +273,7 @@ func TestMakeLpaHandleWhenLpaStoreError(t *testing.T) {
 	errorHandler.
 		On("Execute", w, r, expectedError)
 
-	handle := makeLpaHandle(mux, sessionStore, RequireSession, errorHandler.Execute, donorStore, nil, nil)
+	handle := makeLpaHandle(mux, sessionStore, RequireSession, errorHandler.Execute, donorStore)
 	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, lpa *page.Lpa) error {
 		return expectedError
 	})
@@ -300,7 +300,7 @@ func TestMakeLpaHandleSessionExistingSessionData(t *testing.T) {
 		Return(&page.Lpa{}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeLpaHandle(mux, sessionStore, None, nil, donorStore, nil, nil)
+	handle := makeLpaHandle(mux, sessionStore, None, nil, donorStore)
 	handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, lpa *page.Lpa) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/lpa/123/path",
@@ -343,7 +343,7 @@ func TestMakeLpaHandleErrors(t *testing.T) {
 		Return(&page.Lpa{}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeLpaHandle(mux, sessionStore, None, errorHandler.Execute, donorStore, nil, nil)
+	handle := makeLpaHandle(mux, sessionStore, None, errorHandler.Execute, donorStore)
 	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, lpa *page.Lpa) error {
 		return expectedError
 	})

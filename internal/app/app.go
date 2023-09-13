@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
@@ -75,9 +74,7 @@ func App(
 	oneloginURL string,
 	s3Client *s3.Client,
 	evidenceBucketName string,
-	reducedFeeDynamoClient DynamoClient,
 	eventClient *event.Client,
-	mu *sync.Mutex,
 ) http.Handler {
 	donorStore := &donorStore{
 		dynamoClient: lpaDynamoClient,
@@ -166,12 +163,10 @@ func App(
 		errorHandler,
 		notFoundHandler,
 		certificateProviderStore,
-		uidClient,
-		s3Client,
-		evidenceBucketName,
 		notifyClient,
 		evidenceReceivedStore,
-		mu,
+		s3Client,
+		evidenceBucketName,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang, rumConfig, staticHash, oneloginURL)

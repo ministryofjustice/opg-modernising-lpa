@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -26,6 +25,8 @@ import (
 )
 
 type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, details *page.Lpa) error
+
+type JsonHandler func(data page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa)
 
 //go:generate mockery --testonly --inpackage --name Template --structname mockTemplate
 type Template func(io.Writer, interface{}) error
@@ -55,6 +56,11 @@ type CertificateProviderStore interface {
 //go:generate mockery --testonly --inpackage --name EvidenceReceivedStore --structname mockEvidenceReceivedStore
 type EvidenceReceivedStore interface {
 	Get(context.Context) (bool, error)
+}
+
+//go:generate mockery --testonly --inpackage --name S3Client --structname mockS3Client
+type S3Client interface {
+	PutObject(context.Context, *s3.PutObjectInput, ...func(*s3.Options)) (*s3.PutObjectOutput, error)
 }
 
 //go:generate mockery --testonly --inpackage --name PayClient --structname mockPayClient
@@ -152,12 +158,10 @@ func Register(
 	errorHandler page.ErrorHandler,
 	notFoundHandler page.Handler,
 	certificateProviderStore CertificateProviderStore,
-	uidClient UidClient,
-	s3Client *s3.Client,
-	evidenceBucketName string,
 	notifyClient NotifyClient,
 	evidenceReceivedStore EvidenceReceivedStore,
-	mu *sync.Mutex,
+	s3Client S3Client,
+	evidenceBucketName string,
 ) {
 	payer := &payHelper{
 		logger:       logger,
@@ -179,7 +183,7 @@ func Register(
 	rootMux.Handle("/lpa/", page.RouteToPrefix("/lpa/", lpaMux, notFoundHandler))
 
 	handleLpa := makeHandle(lpaMux, sessionStore, RequireSession, errorHandler)
-	handleWithLpa := makeLpaHandle(lpaMux, sessionStore, RequireSession, errorHandler, donorStore, uidClient, logger)
+	handleWithLpa := makeLpaHandle(lpaMux, sessionStore, RequireSession, errorHandler, donorStore)
 
 	handleLpa(page.Paths.Root, None, notFoundHandler)
 	handleWithLpa(page.Paths.YourDetails, None,
@@ -290,9 +294,7 @@ func Register(
 	handleWithLpa(page.Paths.CanEvidenceBeUploaded, CanGoBack,
 		CanEvidenceBeUploaded(tmpls.Get("can_evidence_be_uploaded.gohtml")))
 	handleWithLpa(page.Paths.UploadEvidence, CanGoBack,
-		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), payer))
-	handleWithLpa(page.Paths.UploadEvidenceAjax, None,
-		UploadEvidenceAjax(donorStore, s3Client, evidenceBucketName, time.Now))
+		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), payer, donorStore, random.UuidString, evidenceBucketName, s3Client))
 	handleWithLpa(page.Paths.WhatHappensAfterNoFee, None,
 		Guidance(tmpls.Get("what_happens_after_no_fee.gohtml")))
 	handleWithLpa(page.Paths.PrintEvidenceForm, CanGoBack,
@@ -411,7 +413,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, 
 	}
 }
 
-func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, errorHandler page.ErrorHandler, donorStore DonorStore, uidClient UidClient, logger Logger) func(page.LpaPath, handleOpt, Handler) {
+func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, errorHandler page.ErrorHandler, donorStore DonorStore) func(page.LpaPath, handleOpt, Handler) {
 	return func(path page.LpaPath, opt handleOpt, h Handler) {
 		opt = opt | defaultOptions
 

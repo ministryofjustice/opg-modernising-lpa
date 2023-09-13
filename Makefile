@@ -88,6 +88,10 @@ get-lpa:  ##@app dumps all entries in the lpas dynamodb table that are related t
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb \
 		query --table-name lpas --key-condition-expression 'PK = :pk' --expression-attribute-values '{":pk": {"S": "LPA#$(ID)"}}'
 
+get-evidence:  ##@app dumps all fee evidence in the lpas dynamodb table that are related to the LPA id supplied e.g. get-evidence ID=abc-123
+	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb \
+		query --table-name lpas --key-condition-expression 'PK = :pk' --expression-attribute-values '{":pk": {"S": "LPA#$(ID)"}}' --projection-expression "EvidenceKeys"
+
 emit-evidence-received: ##@app emits an evidence-received event with the given UID e.g. emit-evidence-received UID=abc-123
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"evidence-received","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(UID)"}}'
 

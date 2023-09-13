@@ -18,6 +18,17 @@ func (e CustomError) Format(l Localizer) string {
 	return l.T(e.Label)
 }
 
+type FileError struct {
+	Label    string
+	Filename string
+}
+
+func (e FileError) Format(l Localizer) string {
+	return l.Format(e.Label, map[string]any{
+		"Filename": e.Filename,
+	})
+}
+
 type SelectError struct {
 	Label string
 }
