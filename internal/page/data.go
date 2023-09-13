@@ -156,18 +156,24 @@ type Lpa struct {
 	AuthorisedSignatory actor.AuthorisedSignatory
 	// The IndependentWitness acts as an additional witness when the LPA is signed
 	IndependentWitness actor.IndependentWitness
-	// Codes used for the certificate provider to witness signing
-	WitnessCodes WitnessCodes
 	// Confirmation that the applicant wants to apply to register the LPA
 	WantToApplyForLpa bool
 	// Confirmation that the applicant wants to sign the LPA
 	WantToSignLpa bool
 	// When the Lpa was signed
 	Submitted time.Time
-	// Whether the signing was witnessed by the certificate provider
-	CPWitnessCodeValidated bool
-	// Used to rate limit witnessing requests
+
+	// Codes used for the certificate provider to witness signing
+	CertificateProviderCodes WitnessCodes
+	// When the signing was witnessed by the certificate provider
+	WitnessedByCertificateProviderAt time.Time
+	// Codes used for the independent witness to witness signing
+	IndependentWitnessCodes WitnessCodes
+	// When the signing was witnessed by the independent witness
+	WitnessedByIndependentWitnessAt time.Time
+	// Used to rate limit witness code attempts
 	WitnessCodeLimiter *Limiter
+
 	// FeeType is the type of fee the user is applying for
 	FeeType FeeType
 	// EvidenceFormAddress is where the form to provide evidence for a fee reduction will be sent
@@ -273,7 +279,7 @@ func (l *Lpa) canGoToLpaPath(path string) bool {
 		l.Tasks.CheckYourLpa.Completed()
 
 	switch path {
-	case Paths.ReadYourLpa.String(), Paths.SignYourLpa.String(), Paths.WitnessingYourSignature.String(), Paths.WitnessingAsCertificateProvider.String(), Paths.YouHaveSubmittedYourLpa.String():
+	case Paths.ReadYourLpa.String(), Paths.SignYourLpa.String(), Paths.WitnessingYourSignature.String(), Paths.WitnessingAsCertificateProvider.String(), Paths.WitnessingAsIndependentWitness.String(), Paths.YouHaveSubmittedYourLpa.String():
 		return l.DonorIdentityConfirmed()
 	case Paths.WhenCanTheLpaBeUsed.String(), Paths.LifeSustainingTreatment.String(), Paths.Restrictions.String(), Paths.WhatACertificateProviderDoes.String(), Paths.DoYouWantToNotifyPeople.String(), Paths.DoYouWantReplacementAttorneys.String():
 		return l.Tasks.YourDetails.Completed() &&

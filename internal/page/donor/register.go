@@ -105,7 +105,8 @@ type SessionStore interface {
 
 //go:generate mockery --testonly --inpackage --name WitnessCodeSender --structname mockWitnessCodeSender
 type WitnessCodeSender interface {
-	Send(context.Context, *page.Lpa, page.Localizer) error
+	SendToCertificateProvider(context.Context, *page.Lpa, page.Localizer) error
+	SendToIndependentWitness(context.Context, *page.Lpa, page.Localizer) error
 }
 
 //go:generate mockery --testonly --inpackage --name UidClient --structname mockUidClient
@@ -358,10 +359,14 @@ func Register(
 		SignYourLpa(tmpls.Get("sign_the_lpa_on_behalf.gohtml"), donorStore))
 	handleWithLpa(page.Paths.WitnessingYourSignature, None,
 		WitnessingYourSignature(tmpls.Get("witnessing_your_signature.gohtml"), witnessCodeSender))
+	handleWithLpa(page.Paths.WitnessingAsIndependentWitness, None,
+		WitnessingAsIndependentWitness(tmpls.Get("witnessing_as_independent_witness.gohtml"), donorStore, time.Now))
 	handleWithLpa(page.Paths.WitnessingAsCertificateProvider, None,
 		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), donorStore, shareCodeSender, time.Now, certificateProviderStore))
-	handleWithLpa(page.Paths.ResendWitnessCode, CanGoBack,
-		ResendWitnessCode(tmpls.Get("resend_witness_code.gohtml"), witnessCodeSender, time.Now))
+	handleWithLpa(page.Paths.ResendIndependentWitnessCode, CanGoBack,
+		ResendWitnessCode(tmpls.Get("resend_witness_code.gohtml"), witnessCodeSender, time.Now, actor.TypeIndependentWitness))
+	handleWithLpa(page.Paths.ResendCertificateProviderCode, CanGoBack,
+		ResendWitnessCode(tmpls.Get("resend_witness_code.gohtml"), witnessCodeSender, time.Now, actor.TypeCertificateProvider))
 	handleWithLpa(page.Paths.YouHaveSubmittedYourLpa, None,
 		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml")))
 
