@@ -38,7 +38,7 @@ func WitnessingAsCertificateProvider(tmpl template.Template, donorStore DonorSto
 			if !lpa.WitnessCodeLimiter.Allow(now()) {
 				data.Errors.Add("witness-code", validation.CustomError{Label: "tooManyWitnessCodeAttempts"})
 			} else {
-				code, found := lpa.WitnessCodes.Find(data.Form.Code)
+				code, found := lpa.CertificateProviderCodes.Find(data.Form.Code)
 				if !found {
 					data.Errors.Add("witness-code", validation.CustomError{Label: "witnessCodeDoesNotMatch"})
 				} else if code.HasExpired() {
@@ -48,7 +48,7 @@ func WitnessingAsCertificateProvider(tmpl template.Template, donorStore DonorSto
 
 			if data.Errors.None() {
 				lpa.WitnessCodeLimiter = nil
-				lpa.CPWitnessCodeValidated = true
+				lpa.WitnessedByCertificateProviderAt = now()
 				lpa.Submitted = now()
 			}
 
