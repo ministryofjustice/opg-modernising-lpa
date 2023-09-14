@@ -743,7 +743,6 @@
     },
     "theyHaveNotChosenToNotifyAnyone": "They have chosen not to notify anyone about their LPA.",
     "infoTheyProvidedCanBeUsedByOpg": "The information they have provided can be used by the Office of the Public Guardian when carrying out its duties.",
-    "yourSignature": "Your signature",
     "iConfirmAsAuthorisedSignatoryThat": "I, {{.SignatoryFullName}}, confirm as the authorised signatory, that:",
     "donorWantsToSignThisLpa": "{{.DonorFullName}} wants to sign this LPA as a deed",
     "donorWantsToApply": "{{.DonorFullName}} wants to apply to register this LPA",
@@ -755,5 +754,12 @@
     "enter4DigitCode": "Enter 4 digit code",
     "imHavingProblemWithCode": "I’m having a problem with the code",
     "imHavingProblemWithCodeContent": "<a href=\"{{.Link}}\">Resend</a>",
-    "asTheCertificateProviderTypeTheCode": "{{.CertificateProviderFirstNames}}, as the certificate provider for {{.DonorFullName}}, please type in the code to prove that you witnessed their LPA being signed."
+    "asTheCertificateProviderTypeTheCode": "{{.CertificateProviderFirstNames}}, as the certificate provider for {{.DonorFullName}}, please type in the code to prove that you witnessed their LPA being signed.",
+    "errorGenericUploadProblem": "Generic upload error",
+    "errorTooManyFiles": "Too many files uploaded",
+    "errorFileTooBig": "{{.Filename}}: File size too big",
+    "errorFileIncorrectType": "{{.Filename}}: File is not a PDF",
+    "errorFileEmpty": "{{.Filename}}: File is empty",
+    "errorGenericUploadProblemFile": "{{.Filename}}: Generic file error",
+    "uploadEvidenceContent": "<p class=\"govuk-body\">Upload a maximum of {{.NumberOfAllowedFiles}} files.</p>"
 }

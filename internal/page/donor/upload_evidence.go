@@ -3,7 +3,6 @@ package donor
 import (
 	"bufio"
 	"bytes"
-	"context"
 	"errors"
 	"io"
 	"net/http"
@@ -21,46 +20,50 @@ type uploadError int
 func (uploadError) Error() string { return "err" }
 
 const (
-	peekSize      = 512
-	maxUploadSize = 32 << 20 // 32Mb
+	peekSize             = 512
+	maxFileSize          = 32 << 20 // 32Mb
+	numberOfAllowedFiles = 5
 
-	errUploadMissing         = uploadError(1)
+	errEmptyFile             = uploadError(1)
 	errUnexpectedContentType = uploadError(2)
-	errUploadTooBig          = uploadError(3)
+	errFileTooBig            = uploadError(3)
+	errTooManyFiles          = uploadError(4)
 )
 
 type uploadEvidenceData struct {
-	App    page.AppData
-	Errors validation.List
+	App                  page.AppData
+	Errors               validation.List
+	NumberOfAllowedFiles int
 }
 
-//go:generate mockery --testonly --inpackage --name S3Client --structname mockS3Client
-type S3Client interface {
-	PutObject(context.Context, *s3.PutObjectInput, ...func(*s3.Options)) (*s3.PutObjectOutput, error)
-}
-
-func UploadEvidence(tmpl template.Template, donorStore DonorStore, s3Client S3Client, bucketName string, payer Payer) Handler {
+func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, randomUUID func() string, evidenceBucketName string, s3Client S3Client) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &uploadEvidenceData{
-			App: appData,
+			App:                  appData,
+			NumberOfAllowedFiles: numberOfAllowedFiles,
 		}
 
 		if r.Method == http.MethodPost {
-			r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize+512)
+			r.Body = http.MaxBytesReader(w, r.Body, numberOfAllowedFiles*maxFileSize+512)
 			form := readUploadEvidenceForm(r)
 			data.Errors = form.Validate()
 
 			if data.Errors.None() {
-				lpa.EvidenceKey = lpa.ID + "-evidence"
+				for _, file := range form.Files {
+					uuid := randomUUID()
+					key := lpa.UID + "-evidence-" + uuid
 
-				_, err := s3Client.PutObject(r.Context(), &s3.PutObjectInput{
-					Bucket:               aws.String(bucketName),
-					Key:                  aws.String(lpa.EvidenceKey),
-					Body:                 bytes.NewReader(form.File),
-					ServerSideEncryption: types.ServerSideEncryptionAwsKms,
-				})
-				if err != nil {
-					return err
+					_, err := s3Client.PutObject(r.Context(), &s3.PutObjectInput{
+						Bucket:               aws.String(evidenceBucketName),
+						Key:                  aws.String(key),
+						Body:                 bytes.NewReader(file.Data),
+						ServerSideEncryption: types.ServerSideEncryptionAwsKms,
+					})
+					if err != nil {
+						return err
+					}
+
+					lpa.EvidenceKeys = append(lpa.EvidenceKeys, page.Evidence{Key: key, Filename: file.Filename})
 				}
 
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
@@ -75,8 +78,14 @@ func UploadEvidence(tmpl template.Template, donorStore DonorStore, s3Client S3Cl
 	}
 }
 
+type File struct {
+	Data     []byte
+	Filename string
+	Error    error
+}
+
 type uploadEvidenceForm struct {
-	File  []byte
+	Files []File
 	Error error
 }
 
@@ -97,39 +106,59 @@ func readUploadEvidenceForm(r *http.Request) *uploadEvidenceForm {
 	}
 
 	// upload part
-	part, err = reader.NextPart()
-	if err != nil && err != io.EOF {
-		return &uploadEvidenceForm{Error: err}
+	files := make([]File, 0, 5)
+
+	for {
+		part, err = reader.NextPart()
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			return &uploadEvidenceForm{Error: err}
+		}
+
+		if part.FormName() != "upload" {
+			return &uploadEvidenceForm{Error: errors.New("unexpected field name")}
+		}
+
+		if len(files) >= numberOfAllowedFiles {
+			return &uploadEvidenceForm{Error: errTooManyFiles}
+		}
+
+		buf := bufio.NewReader(part)
+		sniff, _ := buf.Peek(peekSize)
+
+		if len(sniff) == 0 {
+			files = append(files, File{Error: errEmptyFile, Filename: part.FileName()})
+			continue
+		}
+
+		contentType := http.DetectContentType(sniff)
+		if contentType != "application/pdf" {
+			files = append(files, File{Error: errUnexpectedContentType, Filename: part.FileName()})
+			continue
+		}
+
+		var f bytes.Buffer
+		lmt := io.MultiReader(buf, io.LimitReader(part, maxFileSize-peekSize+1))
+
+		copied, err := io.Copy(&f, lmt)
+		if err != nil && err != io.EOF {
+			return &uploadEvidenceForm{Error: err}
+		}
+		if copied > maxFileSize {
+			files = append(files, File{Error: errFileTooBig, Filename: part.FileName()})
+			continue
+		}
+
+		files = append(files, File{
+			Data:     f.Bytes(),
+			Filename: part.FileName(),
+		})
 	}
 
-	if part.FormName() != "upload" {
-		return &uploadEvidenceForm{Error: errors.New("unexpected field name")}
-	}
-
-	buf := bufio.NewReader(part)
-
-	sniff, _ := buf.Peek(peekSize)
-	if len(sniff) == 0 {
-		return &uploadEvidenceForm{Error: errUploadMissing}
-	}
-
-	contentType := http.DetectContentType(sniff)
-	if contentType != "application/pdf" {
-		return &uploadEvidenceForm{Error: errUnexpectedContentType}
-	}
-
-	var file bytes.Buffer
-	lmt := io.MultiReader(buf, io.LimitReader(part, maxUploadSize-peekSize+1))
-
-	copied, err := io.Copy(&file, lmt)
-	if err != nil && err != io.EOF {
-		return &uploadEvidenceForm{Error: err}
-	}
-	if copied > maxUploadSize {
-		return &uploadEvidenceForm{Error: errUploadTooBig}
-	}
-
-	return &uploadEvidenceForm{File: file.Bytes()}
+	return &uploadEvidenceForm{Files: files}
 }
 
 func (f *uploadEvidenceForm) Validate() validation.List {
@@ -137,14 +166,25 @@ func (f *uploadEvidenceForm) Validate() validation.List {
 
 	if f.Error != nil {
 		switch f.Error {
-		case errUploadMissing:
-			errors.Add("upload", validation.CustomError{Label: "errorUploadMissing"})
-		case errUnexpectedContentType:
-			errors.Add("upload", validation.CustomError{Label: "errorFileIncorrectType"})
-		case errUploadTooBig:
-			errors.Add("upload", validation.CustomError{Label: "errorFileTooBig"})
+		case errTooManyFiles:
+			errors.Add("upload", validation.CustomError{Label: "errorTooManyFiles"})
 		default:
 			errors.Add("upload", validation.CustomError{Label: "errorGenericUploadProblem"})
+		}
+	}
+
+	for _, file := range f.Files {
+		if file.Error != nil {
+			switch file.Error {
+			case errUnexpectedContentType:
+				errors.Add("upload", validation.FileError{Label: "errorFileIncorrectType", Filename: file.Filename})
+			case errFileTooBig:
+				errors.Add("upload", validation.FileError{Label: "errorFileTooBig", Filename: file.Filename})
+			case errEmptyFile:
+				errors.Add("upload", validation.FileError{Label: "errorFileEmpty", Filename: file.Filename})
+			default:
+				errors.Add("upload", validation.FileError{Label: "errorGenericUploadProblemFile", Filename: file.Filename})
+			}
 		}
 	}
 

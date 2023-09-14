@@ -178,12 +178,17 @@ type Lpa struct {
 	FeeType FeeType
 	// EvidenceFormAddress is where the form to provide evidence for a fee reduction will be sent
 	EvidenceFormAddress place.Address
-	// EvidenceKey is the S3 key for uploaded evidence
-	EvidenceKey string
+	// EvidenceKeys is the S3 keys for uploaded evidence with a record of when it's been sent to caseworkers
+	EvidenceKeys []Evidence
 
 	HasSentPreviousApplicationLinkedEvent bool
 	HasSentEvidenceFormRequiredEvent      bool
-	HasSentReducedFeeRequestedEvent       bool
+}
+
+type Evidence struct {
+	Key      string
+	Filename string
+	Sent     time.Time
 }
 
 type Payment struct {
@@ -416,6 +421,15 @@ func (l *Lpa) FeeAmount() int {
 	} else {
 		return l.FeeType.Cost() - paid
 	}
+}
+
+func (l *Lpa) HasUnsentReducedFeesEvidence() bool {
+	for _, evidence := range l.EvidenceKeys {
+		if evidence.Sent.IsZero() {
+			return true
+		}
+	}
+	return false
 }
 
 func ChooseAttorneysState(attorneys actor.Attorneys, decisions actor.AttorneyDecisions) actor.TaskState {

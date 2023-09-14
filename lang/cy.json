@@ -787,7 +787,6 @@
     },
     "theyHaveNotChosenToNotifyAnyone": "Welsh",
     "infoTheyProvidedCanBeUsedByOpg": "Welsh",
-    "yourSignature": "Welsh",
     "iConfirmAsAuthorisedSignatoryThat": "Welsh",
     "donorWantsToSignThisLpa": "Welsh",
     "donorWantsToApply": "Welsh",
@@ -799,5 +798,12 @@
     "enter4DigitCode": "Welsh",
     "imHavingProblemWithCode": "Welsh",
     "imHavingProblemWithCodeContent": "<a href=\"{{.Link}}\">Welsh</a>",
-    "asTheCertificateProviderTypeTheCode": "Welsh."
+    "asTheCertificateProviderTypeTheCode": "Welsh.",
+    "errorGenericUploadProblem": "Welsh",
+    "errorTooManyFiles": "Welsh",
+    "errorFileTooBig": "{{.Filename}}: Welsh",
+    "errorFileIncorrectType": "{{.Filename}}: Welsh",
+    "errorFileEmpty": "{{.Filename}}: Welsh",
+    "errorGenericUploadProblemFile": "{{.Filename}}: Welsh",
+    "uploadEvidenceContent": "<p class=\"govuk-body\">Welsh {{.NumberOfAllowedFiles}}</p>"
 }

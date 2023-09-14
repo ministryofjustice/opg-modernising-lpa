@@ -74,7 +74,6 @@ func App(
 	oneloginURL string,
 	s3Client *s3.Client,
 	evidenceBucketName string,
-	reducedFeeDynamoClient DynamoClient,
 	eventClient *event.Client,
 ) http.Handler {
 	donorStore := &donorStore{
@@ -164,11 +163,10 @@ func App(
 		errorHandler,
 		notFoundHandler,
 		certificateProviderStore,
-		uidClient,
-		s3Client,
-		evidenceBucketName,
 		notifyClient,
 		evidenceReceivedStore,
+		s3Client,
+		evidenceBucketName,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang, rumConfig, staticHash, oneloginURL)

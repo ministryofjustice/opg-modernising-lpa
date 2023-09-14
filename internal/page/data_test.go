@@ -899,3 +899,20 @@ func TestFeeAmount(t *testing.T) {
 	}
 
 }
+
+func TestHasUnsentReducedFeesEvidence(t *testing.T) {
+	lpa := Lpa{EvidenceKeys: []Evidence{
+		{Sent: time.Now()},
+		{},
+		{Sent: time.Now()},
+	}}
+
+	assert.True(t, lpa.HasUnsentReducedFeesEvidence())
+
+	lpa.EvidenceKeys = []Evidence{
+		{Sent: time.Now()},
+		{Sent: time.Now()},
+	}
+
+	assert.False(t, lpa.HasUnsentReducedFeesEvidence())
+}
