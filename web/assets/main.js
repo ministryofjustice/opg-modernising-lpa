@@ -1,14 +1,14 @@
-import { initAll } from '@ministryofjustice/frontend';
 import { AwsRum, AwsRumConfig } from 'aws-rum-web';
+import * as MOJFrontend from '@ministryofjustice/frontend'
 import * as GOVUKFrontend from "govuk-frontend";
 import $ from 'jquery';
 import { CrossServiceHeader } from './service-header';
 import { DataLossWarning } from './data-loss-warning';
 
 window.$ = $
-initAll()
 
 GOVUKFrontend.initAll();
+MOJFrontend.initAll();
 
 const header = document.querySelector("[data-module='one-login-header']");
 if (header) {

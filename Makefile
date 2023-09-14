@@ -32,10 +32,10 @@ go-generate: ##@testing Runs go generate
 coverage: ##@testing Produces coverage report and launches browser line based coverage explorer. To test a specific internal package pass in the package name e.g. make coverage package=page
 ifdef package
 	$(eval t="/tmp/go-cover.$(package).tmp")
-	$(eval path="./app/internal/$(package)/...")
+	$(eval path="./internal/$(package)/...")
 else
 	$(eval t="/tmp/go-cover.tmp")
-	$(eval path="./app/...")
+	$(eval path="./internal/...")
 endif
 	go test -coverprofile=$(t) $(path) && go tool cover -html=$(t) && unlink $(t)
 
@@ -87,6 +87,10 @@ scan-lpas: ##@app dumps all entries in the lpas dynamodb table
 get-lpa:  ##@app dumps all entries in the lpas dynamodb table that are related to the LPA id supplied e.g. get-lpa ID=abc-123
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb \
 		query --table-name lpas --key-condition-expression 'PK = :pk' --expression-attribute-values '{":pk": {"S": "LPA#$(ID)"}}'
+
+get-evidence:  ##@app dumps all fee evidence in the lpas dynamodb table that are related to the LPA id supplied e.g. get-evidence ID=abc-123
+	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb \
+		query --table-name lpas --key-condition-expression 'PK = :pk' --expression-attribute-values '{":pk": {"S": "LPA#$(ID)"}}' --projection-expression "EvidenceKeys"
 
 emit-evidence-received: ##@app emits an evidence-received event with the given UID e.g. emit-evidence-received UID=abc-123
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"evidence-received","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(UID)"}}'
