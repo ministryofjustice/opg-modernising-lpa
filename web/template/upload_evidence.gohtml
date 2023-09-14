@@ -7,7 +7,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "uploadEvidence" }}</h1>
 
-      {{ trHtml .App "uploadEvidenceContent" }}
+      {{ trFormatHtml .App "uploadEvidenceContent" "NumberOfAllowedFiles" .NumberOfAllowedFiles }}
 
       <form novalidate method="post" enctype="multipart/form-data">
         {{ template "csrf-field" . }}

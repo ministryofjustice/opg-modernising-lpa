@@ -760,5 +760,6 @@
     "errorFileTooBig": "{{.Filename}}: File size too big",
     "errorFileIncorrectType": "{{.Filename}}: File is not a PDF",
     "errorFileEmpty": "{{.Filename}}: File is empty",
-    "errorGenericUploadProblemFile": "{{.Filename}}: Generic file error"
+    "errorGenericUploadProblemFile": "{{.Filename}}: Generic file error",
+    "uploadEvidenceContent": "<p class=\"govuk-body\">Upload a maximum of {{.NumberOfAllowedFiles}} files.</p>"
 }
