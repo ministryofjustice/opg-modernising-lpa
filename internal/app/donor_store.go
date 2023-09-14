@@ -187,11 +187,11 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 			Evidence:    unsentKeys,
 		}); err != nil {
 			s.logger.Print(err)
-		}
-
-		for i, evidence := range lpa.EvidenceKeys {
-			if evidence.Sent.IsZero() {
-				lpa.EvidenceKeys[i].Sent = s.now()
+		} else {
+			for i, evidence := range lpa.EvidenceKeys {
+				if evidence.Sent.IsZero() {
+					lpa.EvidenceKeys[i].Sent = s.now()
+				}
 			}
 		}
 	}

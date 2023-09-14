@@ -605,7 +605,15 @@ func TestDonorStorePutWhenReducedFeeRequestedWhenError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		On("Put", ctx, mock.Anything).
+		On("Put", ctx, &page.Lpa{
+			PK:           "LPA#5",
+			SK:           "#DONOR#an-id",
+			ID:           "5",
+			UID:          "M-1111",
+			Tasks:        page.Tasks{PayForLpa: actor.PaymentTaskPending},
+			EvidenceKeys: []page.Evidence{{Sent: now}, {}},
+			UpdatedAt:    now,
+		}).
 		Return(nil)
 
 	eventClient := newMockEventClient(t)
@@ -625,7 +633,7 @@ func TestDonorStorePutWhenReducedFeeRequestedWhenError(t *testing.T) {
 		ID:           "5",
 		UID:          "M-1111",
 		Tasks:        page.Tasks{PayForLpa: actor.PaymentTaskPending},
-		EvidenceKeys: []page.Evidence{{}},
+		EvidenceKeys: []page.Evidence{{Sent: now}, {}},
 	})
 	assert.Nil(t, err)
 }
