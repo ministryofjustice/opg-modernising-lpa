@@ -23,7 +23,11 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &paymentConfirmationData{App: testAppData, PaymentReference: "123456789012"}).
+		On("Execute", w, &paymentConfirmationData{
+			App:              testAppData,
+			PaymentReference: "123456789012",
+			FeeType:          page.FullFee,
+		}).
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t).
@@ -69,7 +73,11 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &paymentConfirmationData{App: testAppData, PaymentReference: "123456789012"}).
+		On("Execute", w, &paymentConfirmationData{
+			App:              testAppData,
+			PaymentReference: "123456789012",
+			FeeType:          page.HalfFee,
+		}).
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t).

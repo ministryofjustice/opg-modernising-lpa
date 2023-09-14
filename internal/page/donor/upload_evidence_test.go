@@ -29,10 +29,11 @@ func TestGetUploadEvidence(t *testing.T) {
 		On("Execute", w, &uploadEvidenceData{
 			App:                  testAppData,
 			NumberOfAllowedFiles: 5,
+			FeeType:              page.FullFee,
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, nil, "", nil)(testAppData, w, r, &page.Lpa{})
+	err := UploadEvidence(template.Execute, nil, nil, nil, "", nil)(testAppData, w, r, &page.Lpa{FeeType: page.FullFee})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -123,10 +124,11 @@ func TestPostUploadEvidenceWhenBadCsrfField(t *testing.T) {
 			App:                  testAppData,
 			NumberOfAllowedFiles: 5,
 			Errors:               validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
+			FeeType:              page.FullFee,
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, nil, "bucket-name", nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+	err := UploadEvidence(template.Execute, nil, nil, nil, "bucket-name", nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: page.FullFee})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -160,10 +162,11 @@ func TestPostUploadEvidenceNumberOfFilesLimitPassed(t *testing.T) {
 			App:                  testAppData,
 			NumberOfAllowedFiles: 5,
 			Errors:               validation.With("upload", validation.CustomError{Label: "errorTooManyFiles"}),
+			FeeType:              page.FullFee,
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, nil, "bucket-name", nil)(testAppData, w, r, &page.Lpa{UID: "lpa-uid"})
+	err := UploadEvidence(template.Execute, nil, nil, nil, "bucket-name", nil)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.FullFee})
 	assert.Nil(t, err)
 }
 
@@ -224,10 +227,11 @@ func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
 					App:                  testAppData,
 					NumberOfAllowedFiles: 5,
 					Errors:               validation.With("upload", tc.expectedError),
+					FeeType:              page.FullFee,
 				}).
 				Return(nil)
 
-			err := UploadEvidence(template.Execute, nil, nil, nil, "bucket-name", nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+			err := UploadEvidence(template.Execute, nil, nil, nil, "bucket-name", nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: page.FullFee})
 			resp := w.Result()
 
 			assert.Nil(t, err)

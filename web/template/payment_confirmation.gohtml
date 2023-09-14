@@ -16,6 +16,10 @@
 
       {{ trHtml .App "paymentConfirmationContent" }}
 
+      {{ if .FeeType.IsHalfFee }}
+        {{ trHtml .App "halfFeeNextSteps" }}
+      {{ end }}
+
       <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}">{{ tr .App "continue" }}</a>
     </div>
   </div>
