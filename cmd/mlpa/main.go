@@ -48,24 +48,23 @@ func main() {
 	logger := logging.New(os.Stdout, "opg-modernising-lpa")
 
 	var (
-		appPublicURL           = env.Get("APP_PUBLIC_URL", "http://localhost:5050")
-		authRedirectBaseURL    = env.Get("AUTH_REDIRECT_BASE_URL", "http://localhost:5050")
-		webDir                 = env.Get("WEB_DIR", "web")
-		awsBaseURL             = env.Get("AWS_BASE_URL", "")
-		clientID               = env.Get("CLIENT_ID", "client-id-value")
-		issuer                 = env.Get("ISSUER", "http://mock-onelogin:8080")
-		dynamoTableLpas        = env.Get("DYNAMODB_TABLE_LPAS", "lpas")
-		dynamoTableReducedFees = env.Get("DYNAMODB_TABLE_REDUCED_FEES", "reduced-fees")
-		notifyBaseURL          = env.Get("GOVUK_NOTIFY_BASE_URL", "http://mock-notify:8080")
-		notifyIsProduction     = env.Get("GOVUK_NOTIFY_IS_PRODUCTION", "") == "1"
-		ordnanceSurveyBaseURL  = env.Get("ORDNANCE_SURVEY_BASE_URL", "http://mock-os-api:8080")
-		payBaseURL             = env.Get("GOVUK_PAY_BASE_URL", "http://mock-pay:8080")
-		port                   = env.Get("APP_PORT", "8080")
-		yotiClientSdkID        = env.Get("YOTI_CLIENT_SDK_ID", "")
-		yotiScenarioID         = env.Get("YOTI_SCENARIO_ID", "")
-		yotiSandbox            = env.Get("YOTI_SANDBOX", "") == "1"
-		xrayEnabled            = env.Get("XRAY_ENABLED", "") == "1"
-		rumConfig              = page.RumConfig{
+		appPublicURL          = env.Get("APP_PUBLIC_URL", "http://localhost:5050")
+		authRedirectBaseURL   = env.Get("AUTH_REDIRECT_BASE_URL", "http://localhost:5050")
+		webDir                = env.Get("WEB_DIR", "web")
+		awsBaseURL            = env.Get("AWS_BASE_URL", "")
+		clientID              = env.Get("CLIENT_ID", "client-id-value")
+		issuer                = env.Get("ISSUER", "http://mock-onelogin:8080")
+		dynamoTableLpas       = env.Get("DYNAMODB_TABLE_LPAS", "lpas")
+		notifyBaseURL         = env.Get("GOVUK_NOTIFY_BASE_URL", "http://mock-notify:8080")
+		notifyIsProduction    = env.Get("GOVUK_NOTIFY_IS_PRODUCTION", "") == "1"
+		ordnanceSurveyBaseURL = env.Get("ORDNANCE_SURVEY_BASE_URL", "http://mock-os-api:8080")
+		payBaseURL            = env.Get("GOVUK_PAY_BASE_URL", "http://mock-pay:8080")
+		port                  = env.Get("APP_PORT", "8080")
+		yotiClientSdkID       = env.Get("YOTI_CLIENT_SDK_ID", "")
+		yotiScenarioID        = env.Get("YOTI_SCENARIO_ID", "")
+		yotiSandbox           = env.Get("YOTI_SANDBOX", "") == "1"
+		xrayEnabled           = env.Get("XRAY_ENABLED", "") == "1"
+		rumConfig             = page.RumConfig{
 			GuestRoleArn:      env.Get("AWS_RUM_GUEST_ROLE_ARN", ""),
 			Endpoint:          env.Get("AWS_RUM_ENDPOINT", ""),
 			ApplicationRegion: env.Get("AWS_RUM_APPLICATION_REGION", ""),
@@ -135,11 +134,6 @@ func main() {
 	}
 
 	lpasDynamoClient, err := dynamo.NewClient(cfg, dynamoTableLpas)
-	if err != nil {
-		logger.Fatal(err)
-	}
-
-	reducedFeesDynamoClient, err := dynamo.NewClient(cfg, dynamoTableReducedFees)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -224,6 +218,7 @@ func main() {
 	mux.Handle(page.Paths.AuthRedirect.String(), page.AuthRedirect(logger, sessionStore))
 	mux.Handle(page.Paths.YotiRedirect.String(), page.YotiRedirect(logger, sessionStore))
 	mux.Handle(page.Paths.CookiesConsent.String(), page.CookieConsent(page.Paths))
+
 	mux.Handle("/cy/", http.StripPrefix("/cy", app.App(
 		logger,
 		bundle.For(localize.Cy),
@@ -244,8 +239,8 @@ func main() {
 		oneloginURL,
 		s3Client,
 		evidenceBucketName,
-		reducedFeesDynamoClient,
-		eventClient)))
+		eventClient,
+	)))
 	mux.Handle("/", app.App(
 		logger,
 		bundle.For(localize.En),
@@ -266,8 +261,8 @@ func main() {
 		oneloginURL,
 		s3Client,
 		evidenceBucketName,
-		reducedFeesDynamoClient,
-		eventClient))
+		eventClient,
+	))
 
 	var handler http.Handler = mux
 	if xrayEnabled {
