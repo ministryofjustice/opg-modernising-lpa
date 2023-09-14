@@ -800,7 +800,9 @@
     "imHavingProblemWithCodeContent": "<a href=\"{{.Link}}\">Welsh</a>",
     "asTheCertificateProviderTypeTheCode": "Welsh.",
     "errorGenericUploadProblem": "Welsh",
+    "errorTooManyFiles": "Welsh",
     "errorFileTooBig": "{{.Filename}}: Welsh",
     "errorFileIncorrectType": "{{.Filename}}: Welsh",
+    "errorFileEmpty": "{{.Filename}}: Welsh",
     "errorGenericUploadProblemFile": "{{.Filename}}: Welsh"
 }

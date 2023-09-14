@@ -756,7 +756,9 @@
     "imHavingProblemWithCodeContent": "<a href=\"{{.Link}}\">Resend</a>",
     "asTheCertificateProviderTypeTheCode": "{{.CertificateProviderFirstNames}}, as the certificate provider for {{.DonorFullName}}, please type in the code to prove that you witnessed their LPA being signed.",
     "errorGenericUploadProblem": "Generic upload error",
+    "errorTooManyFiles": "Too many files uploaded",
     "errorFileTooBig": "{{.Filename}}: File size too big",
     "errorFileIncorrectType": "{{.Filename}}: File is not a PDF",
+    "errorFileEmpty": "{{.Filename}}: File is empty",
     "errorGenericUploadProblemFile": "{{.Filename}}: Generic file error"
 }

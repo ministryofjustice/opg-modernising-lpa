@@ -20,27 +20,31 @@ type uploadError int
 func (uploadError) Error() string { return "err" }
 
 const (
-	peekSize      = 512
-	maxUploadSize = 32 << 20 // 32Mb
+	peekSize             = 512
+	maxFileSize          = 32 << 20 // 32Mb
+	numberOfAllowedFiles = 5
 
-	errUploadMissing         = uploadError(1)
+	errEmptyFile             = uploadError(1)
 	errUnexpectedContentType = uploadError(2)
-	errUploadTooBig          = uploadError(3)
+	errFileTooBig            = uploadError(3)
+	errTooManyFiles          = uploadError(4)
 )
 
 type uploadEvidenceData struct {
-	App    page.AppData
-	Errors validation.List
+	App                  page.AppData
+	Errors               validation.List
+	NumberOfAllowedFiles int
 }
 
 func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, randomUUID func() string, evidenceBucketName string, s3Client S3Client) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &uploadEvidenceData{
-			App: appData,
+			App:                  appData,
+			NumberOfAllowedFiles: numberOfAllowedFiles,
 		}
 
 		if r.Method == http.MethodPost {
-			r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize+512)
+			r.Body = http.MaxBytesReader(w, r.Body, numberOfAllowedFiles*maxFileSize+512)
 			form := readUploadEvidenceForm(r)
 			data.Errors = form.Validate()
 
@@ -102,8 +106,8 @@ func readUploadEvidenceForm(r *http.Request) *uploadEvidenceForm {
 	}
 
 	// upload part
-	var files []File
-	var formLevelError error
+	files := make([]File, 0, 5)
+
 	for {
 		part, err = reader.NextPart()
 		if err == io.EOF {
@@ -111,21 +115,23 @@ func readUploadEvidenceForm(r *http.Request) *uploadEvidenceForm {
 		}
 
 		if err != nil {
-			formLevelError = err
-			break
+			return &uploadEvidenceForm{Error: err}
 		}
 
 		if part.FormName() != "upload" {
-			formLevelError = errors.New("unexpected field name")
-			break
+			return &uploadEvidenceForm{Error: errors.New("unexpected field name")}
+		}
+
+		if len(files) >= numberOfAllowedFiles {
+			return &uploadEvidenceForm{Error: errTooManyFiles}
 		}
 
 		buf := bufio.NewReader(part)
-
 		sniff, _ := buf.Peek(peekSize)
+
 		if len(sniff) == 0 {
-			formLevelError = errUploadMissing
-			break
+			files = append(files, File{Error: errEmptyFile, Filename: part.FileName()})
+			continue
 		}
 
 		contentType := http.DetectContentType(sniff)
@@ -135,19 +141,15 @@ func readUploadEvidenceForm(r *http.Request) *uploadEvidenceForm {
 		}
 
 		var f bytes.Buffer
-		lmt := io.MultiReader(buf, io.LimitReader(part, maxUploadSize-peekSize+1))
+		lmt := io.MultiReader(buf, io.LimitReader(part, maxFileSize-peekSize+1))
 
-		_, err := io.Copy(&f, lmt)
-
-		if err != nil {
-			file := File{Error: err, Filename: part.FileName()}
-
-			if errors.As(err, new(*http.MaxBytesError)) {
-				file.Error = errUploadTooBig
-			}
-
-			files = append(files, file)
-			break
+		copied, err := io.Copy(&f, lmt)
+		if err != nil && err != io.EOF {
+			return &uploadEvidenceForm{Error: err}
+		}
+		if copied > maxFileSize {
+			files = append(files, File{Error: errFileTooBig, Filename: part.FileName()})
+			continue
 		}
 
 		files = append(files, File{
@@ -156,7 +158,7 @@ func readUploadEvidenceForm(r *http.Request) *uploadEvidenceForm {
 		})
 	}
 
-	return &uploadEvidenceForm{Files: files, Error: formLevelError}
+	return &uploadEvidenceForm{Files: files}
 }
 
 func (f *uploadEvidenceForm) Validate() validation.List {
@@ -164,8 +166,8 @@ func (f *uploadEvidenceForm) Validate() validation.List {
 
 	if f.Error != nil {
 		switch f.Error {
-		case errUploadMissing:
-			errors.Add("upload", validation.CustomError{Label: "errorUploadMissing"})
+		case errTooManyFiles:
+			errors.Add("upload", validation.CustomError{Label: "errorTooManyFiles"})
 		default:
 			errors.Add("upload", validation.CustomError{Label: "errorGenericUploadProblem"})
 		}
@@ -176,8 +178,10 @@ func (f *uploadEvidenceForm) Validate() validation.List {
 			switch file.Error {
 			case errUnexpectedContentType:
 				errors.Add("upload", validation.FileError{Label: "errorFileIncorrectType", Filename: file.Filename})
-			case errUploadTooBig:
+			case errFileTooBig:
 				errors.Add("upload", validation.FileError{Label: "errorFileTooBig", Filename: file.Filename})
+			case errEmptyFile:
+				errors.Add("upload", validation.FileError{Label: "errorFileEmpty", Filename: file.Filename})
 			default:
 				errors.Add("upload", validation.FileError{Label: "errorGenericUploadProblemFile", Filename: file.Filename})
 			}

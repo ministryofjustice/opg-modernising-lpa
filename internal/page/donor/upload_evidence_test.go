@@ -27,7 +27,8 @@ func TestGetUploadEvidence(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &uploadEvidenceData{
-			App: testAppData,
+			App:                  testAppData,
+			NumberOfAllowedFiles: 5,
 		}).
 		Return(nil)
 
@@ -58,16 +59,11 @@ func TestPostUploadEvidence(t *testing.T) {
 	part, _ := writer.CreateFormField("csrf")
 	io.WriteString(part, "123")
 
-	file, _ := os.Open("testdata/dummy.pdf")
-	part, _ = writer.CreateFormFile("upload", "whatever.pdf")
-	io.Copy(part, file)
+	file := addFileToUploadField(writer, "whatever.pdf")
+	file = addFileToUploadField(writer, "who-cares.pdf")
 
-	file, _ = os.Open("testdata/dummy.pdf")
-	part, _ = writer.CreateFormFile("upload", "who-cares.pdf")
-	io.Copy(part, file)
-
-	file.Close()
 	writer.Close()
+	file.Close()
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
@@ -124,8 +120,9 @@ func TestPostUploadEvidenceWhenBadCsrfField(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &uploadEvidenceData{
-			App:    testAppData,
-			Errors: validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
+			App:                  testAppData,
+			NumberOfAllowedFiles: 5,
+			Errors:               validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
 		}).
 		Return(nil)
 
@@ -136,12 +133,46 @@ func TestPostUploadEvidenceWhenBadCsrfField(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
+func TestPostUploadEvidenceNumberOfFilesLimitPassed(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, _ := writer.CreateFormField("csrf")
+	io.WriteString(part, "123")
+
+	file := addFileToUploadField(writer, "whatever.pdf")
+	file = addFileToUploadField(writer, "whatever.pdf")
+	file = addFileToUploadField(writer, "whatever.pdf")
+	file = addFileToUploadField(writer, "whatever.pdf")
+	file = addFileToUploadField(writer, "whatever.pdf")
+	file = addFileToUploadField(writer, "whatever.pdf")
+
+	writer.Close()
+	file.Close()
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &uploadEvidenceData{
+			App:                  testAppData,
+			NumberOfAllowedFiles: 5,
+			Errors:               validation.With("upload", validation.CustomError{Label: "errorTooManyFiles"}),
+		}).
+		Return(nil)
+
+	err := UploadEvidence(template.Execute, nil, nil, nil, "bucket-name", nil)(testAppData, w, r, &page.Lpa{UID: "lpa-uid"})
+	assert.Nil(t, err)
+}
+
 func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
 	dummy, _ := os.Open("testdata/dummy.pdf")
 	defer dummy.Close()
 
 	dummyData, _ := io.ReadAll(dummy)
-	randomReader := io.LimitReader(rand.Reader, int64(maxUploadSize))
+	randomReader := io.LimitReader(rand.Reader, int64(maxFileSize))
 
 	testcases := map[string]struct {
 		fieldName     string
@@ -151,7 +182,7 @@ func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
 		"missing": {
 			fieldName:     "upload",
 			fieldContent:  strings.NewReader(""),
-			expectedError: validation.CustomError{Label: "errorUploadMissing"},
+			expectedError: validation.FileError{Label: "errorFileEmpty", Filename: "whatever.pdf"},
 		},
 		"not pdf": {
 			fieldName:     "upload",
@@ -190,8 +221,9 @@ func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
 			template := newMockTemplate(t)
 			template.
 				On("Execute", w, &uploadEvidenceData{
-					App:    testAppData,
-					Errors: validation.With("upload", tc.expectedError),
+					App:                  testAppData,
+					NumberOfAllowedFiles: 5,
+					Errors:               validation.With("upload", tc.expectedError),
 				}).
 				Return(nil)
 
@@ -211,9 +243,7 @@ func TestPostUploadEvidenceWhenS3ClientErrors(t *testing.T) {
 	part, _ := writer.CreateFormField("csrf")
 	io.WriteString(part, "123")
 
-	file, _ := os.Open("testdata/dummy.pdf")
-	part, _ = writer.CreateFormFile("upload", "whatever.pdf")
-	io.Copy(part, file)
+	file := addFileToUploadField(writer, "whatever.pdf")
 
 	file.Close()
 	writer.Close()
@@ -242,9 +272,7 @@ func TestPostUploadEvidenceWhenDonorStoreError(t *testing.T) {
 	part, _ := writer.CreateFormField("csrf")
 	io.WriteString(part, "123")
 
-	file, _ := os.Open("testdata/dummy.pdf")
-	part, _ = writer.CreateFormFile("upload", "whatever.pdf")
-	io.Copy(part, file)
+	file := addFileToUploadField(writer, "whatever.pdf")
 
 	file.Close()
 	writer.Close()
@@ -282,9 +310,7 @@ func TestPostUploadEvidenceWhenPayerError(t *testing.T) {
 	part, _ := writer.CreateFormField("csrf")
 	io.WriteString(part, "123")
 
-	file, _ := os.Open("testdata/dummy.pdf")
-	part, _ = writer.CreateFormFile("upload", "whatever.pdf")
-	io.Copy(part, file)
+	file := addFileToUploadField(writer, "whatever.pdf")
 
 	file.Close()
 	writer.Close()
@@ -318,4 +344,11 @@ func TestPostUploadEvidenceWhenPayerError(t *testing.T) {
 
 	err := UploadEvidence(nil, payer, donorStore, func() string { return "a-uid" }, "bucket-name", s3Client)(testAppData, w, r, &page.Lpa{UID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
+}
+
+func addFileToUploadField(writer *multipart.Writer, filename string) *os.File {
+	file, _ := os.Open("testdata/dummy.pdf")
+	part, _ := writer.CreateFormFile("upload", filename)
+	io.Copy(part, file)
+	return file
 }
