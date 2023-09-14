@@ -113,7 +113,7 @@ func TestPossessive(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			assert.Equal(t, tc.Expected, en.Possessive(tc.Str))
-			assert.Equal(t, "Welsh", cy.Possessive(tc.Str))
+			assert.Equal(t, tc.Str, cy.Possessive(tc.Str))
 		})
 	}
 }
