@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
-const dateFormat = "2006-1-2"
+const unpaddedDate = "2006-1-2"
 
 type FormatError string
 
@@ -27,7 +27,7 @@ type Date struct {
 }
 
 func New(year, month, day string) Date {
-	t, err := time.Parse(dateFormat, year+"-"+month+"-"+day)
+	t, err := time.Parse(unpaddedDate, year+"-"+month+"-"+day)
 
 	return Date{
 		year:  year,
@@ -88,7 +88,7 @@ func (d Date) Format(format string) string {
 }
 
 func (d Date) String() string {
-	return d.t.Format(dateFormat)
+	return d.t.Format(unpaddedDate)
 }
 
 func (d Date) Equals(other Date) bool {
@@ -129,7 +129,7 @@ func (d Date) MarshalText() ([]byte, error) {
 		return []byte{}, nil
 	}
 
-	return []byte(d.String()), nil
+	return []byte(d.t.Format(time.DateOnly)), nil
 }
 
 func (d *Date) UnmarshalDynamoDBAttributeValue(av types.AttributeValue) error {
@@ -142,9 +142,12 @@ func (d *Date) UnmarshalDynamoDBAttributeValue(av types.AttributeValue) error {
 }
 
 func (d Date) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) {
-	text, _ := d.MarshalText()
+	text := ""
+	if !d.IsZero() {
+		text = d.t.Format(unpaddedDate)
+	}
 
-	return attributevalue.Marshal(string(text))
+	return attributevalue.Marshal(text)
 }
 
 func (d Date) Time() time.Time {

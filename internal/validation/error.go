@@ -83,6 +83,16 @@ func (e MobileError) Format(l Localizer) string {
 	})
 }
 
+type PostcodeError struct {
+	Label string
+}
+
+func (e PostcodeError) Format(l Localizer) string {
+	return l.Format("errorPostcode", map[string]any{
+		"Label": l.T(e.Label),
+	})
+}
+
 type EmailError struct {
 	Label string
 }

@@ -69,10 +69,15 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 			if !data.Errors.Any() && data.DobWarning == "" && data.NameWarning == nil {
 				redirect := page.Paths.YourAddress
 
-				lpa.Donor.FirstNames = data.Form.FirstNames
-				lpa.Donor.LastName = data.Form.LastName
+				if lpa.Donor.FirstNames != data.Form.FirstNames || lpa.Donor.LastName != data.Form.LastName || lpa.Donor.DateOfBirth != data.Form.Dob {
+					lpa.Donor.FirstNames = data.Form.FirstNames
+					lpa.Donor.LastName = data.Form.LastName
+					lpa.Donor.DateOfBirth = data.Form.Dob
+
+					lpa.HasSentApplicationUpdatedEvent = false
+				}
+
 				lpa.Donor.OtherNames = data.Form.OtherNames
-				lpa.Donor.DateOfBirth = data.Form.Dob
 				lpa.Donor.ThinksCanSign = data.Form.CanSign
 				lpa.Donor.Email = loginSession.Email
 
