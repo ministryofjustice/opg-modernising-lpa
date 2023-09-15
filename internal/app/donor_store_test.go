@@ -189,6 +189,32 @@ func TestDonorStorePutWhenUIDNeeded(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
+	eventClient := newMockEventClient(t)
+	eventClient.
+		On("Send", ctx, "application-updated", applicationUpdatedEvent{
+			UID:  "M-1111",
+			Type: "hw",
+			Donor: applicationUpdatedEventDonor{
+				FirstNames:  "John",
+				LastName:    "Smith",
+				DateOfBirth: date.New("2000", "01", "01"),
+				Postcode:    "F1 1FF",
+			},
+		}).
+		Return(nil)
+
+	uidClient := newMockUidClient(t)
+	uidClient.
+		On("CreateCase", ctx, &uid.CreateCaseRequestBody{
+			Type: "hw",
+			Donor: uid.DonorDetails{
+				Name:     "John Smith",
+				Dob:      date.New("2000", "01", "01"),
+				Postcode: "F1 1FF",
+			},
+		}).
+		Return(uid.CreateCaseResponse{UID: "M-1111"}, nil)
+
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
 		On("Put", ctx, &page.Lpa{
@@ -205,23 +231,12 @@ func TestDonorStorePutWhenUIDNeeded(t *testing.T) {
 					Postcode: "F1 1FF",
 				},
 			},
-			Type: page.LpaTypeHealthWelfare,
+			Type:                           page.LpaTypeHealthWelfare,
+			HasSentApplicationUpdatedEvent: true,
 		}).
 		Return(nil)
 
-	uidClient := newMockUidClient(t)
-	uidClient.
-		On("CreateCase", ctx, &uid.CreateCaseRequestBody{
-			Type: "hw",
-			Donor: uid.DonorDetails{
-				Name:     "John Smith",
-				Dob:      uid.ISODate{Time: time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)},
-				Postcode: "F1 1FF",
-			},
-		}).
-		Return(uid.CreateCaseResponse{UID: "M-1111"}, nil)
-
-	donorStore := &donorStore{dynamoClient: dynamoClient, uidClient: uidClient, now: func() time.Time { return now }}
+	donorStore := &donorStore{dynamoClient: dynamoClient, uidClient: uidClient, eventClient: eventClient, now: func() time.Time { return now }}
 
 	err := donorStore.Put(ctx, &page.Lpa{
 		PK: "LPA#5",
@@ -276,9 +291,56 @@ func TestDonorStorePutWhenUIDFails(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestDonorStorePutWhenApplicationUpdatedWhenError(t *testing.T) {
+	ctx := context.Background()
+	now := time.Now()
+
+	eventClient := newMockEventClient(t)
+	eventClient.
+		On("Send", ctx, "application-updated", mock.Anything).
+		Return(expectedError)
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("Put", ctx, mock.Anything).
+		Return(nil)
+
+	logger := newMockLogger(t)
+	logger.
+		On("Print", expectedError)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, logger: logger, now: func() time.Time { return now }}
+
+	err := donorStore.Put(ctx, &page.Lpa{
+		PK:  "LPA#5",
+		SK:  "#DONOR#an-id",
+		ID:  "5",
+		UID: "M-1111",
+		Donor: actor.Donor{
+			FirstNames:  "John",
+			LastName:    "Smith",
+			DateOfBirth: date.New("2000", "01", "01"),
+			Address: place.Address{
+				Postcode: "F1 1FF",
+			},
+		},
+		Type: page.LpaTypeHealthWelfare,
+	})
+	assert.Nil(t, err)
+}
+
 func TestDonorStorePutWhenPreviousApplicationLinked(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
+
+	eventClient := newMockEventClient(t)
+	eventClient.
+		On("Send", ctx, "previous-application-linked", previousApplicationLinkedEvent{
+			UID:                       "M-1111",
+			ApplicationReason:         "remake",
+			PreviousApplicationNumber: "5555",
+		}).
+		Return(nil)
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
@@ -290,28 +352,21 @@ func TestDonorStorePutWhenPreviousApplicationLinked(t *testing.T) {
 			UpdatedAt:                             now,
 			ApplicationReason:                     page.RemakeOfInvalidApplication,
 			PreviousApplicationNumber:             "5555",
+			HasSentApplicationUpdatedEvent:        true,
 			HasSentPreviousApplicationLinkedEvent: true,
-		}).
-		Return(nil)
-
-	eventClient := newMockEventClient(t)
-	eventClient.
-		On("Send", ctx, "previous-application-linked", previousApplicationLinkedEvent{
-			UID:                       "M-1111",
-			ApplicationReason:         "remake",
-			PreviousApplicationNumber: "5555",
 		}).
 		Return(nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, now: func() time.Time { return now }}
 
 	err := donorStore.Put(ctx, &page.Lpa{
-		PK:                        "LPA#5",
-		SK:                        "#DONOR#an-id",
-		ID:                        "5",
-		UID:                       "M-1111",
-		ApplicationReason:         page.RemakeOfInvalidApplication,
-		PreviousApplicationNumber: "5555",
+		PK:                             "LPA#5",
+		SK:                             "#DONOR#an-id",
+		ID:                             "5",
+		UID:                            "M-1111",
+		ApplicationReason:              page.RemakeOfInvalidApplication,
+		PreviousApplicationNumber:      "5555",
+		HasSentApplicationUpdatedEvent: true,
 	})
 	assert.Nil(t, err)
 }
@@ -334,6 +389,7 @@ func TestDonorStorePutWhenPreviousApplicationLinkedWontResend(t *testing.T) {
 		UID:                                   "M-1111",
 		ApplicationReason:                     page.RemakeOfInvalidApplication,
 		PreviousApplicationNumber:             "5555",
+		HasSentApplicationUpdatedEvent:        true,
 		HasSentPreviousApplicationLinkedEvent: true,
 	})
 	assert.Nil(t, err)
@@ -360,12 +416,13 @@ func TestDonorStorePutWhenPreviousApplicationLinkedWhenError(t *testing.T) {
 	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, logger: logger, now: func() time.Time { return now }}
 
 	err := donorStore.Put(ctx, &page.Lpa{
-		PK:                        "LPA#5",
-		SK:                        "#DONOR#an-id",
-		ID:                        "5",
-		UID:                       "M-1111",
-		ApplicationReason:         page.RemakeOfInvalidApplication,
-		PreviousApplicationNumber: "5555",
+		PK:                             "LPA#5",
+		SK:                             "#DONOR#an-id",
+		ID:                             "5",
+		UID:                            "M-1111",
+		ApplicationReason:              page.RemakeOfInvalidApplication,
+		PreviousApplicationNumber:      "5555",
+		HasSentApplicationUpdatedEvent: true,
 	})
 	assert.Nil(t, err)
 }
@@ -393,6 +450,7 @@ func TestDonorStorePutWhenEvidenceFormRequired(t *testing.T) {
 				TownOrCity: "town",
 				Postcode:   "post",
 			},
+			HasSentApplicationUpdatedEvent:   true,
 			HasSentEvidenceFormRequiredEvent: true,
 		}).
 		Return(nil)
@@ -431,6 +489,7 @@ func TestDonorStorePutWhenEvidenceFormRequired(t *testing.T) {
 			TownOrCity: "town",
 			Postcode:   "post",
 		},
+		HasSentApplicationUpdatedEvent: true,
 	})
 	assert.Nil(t, err)
 }
@@ -452,6 +511,7 @@ func TestDonorStorePutWhenEvidenceFormRequiredWontResend(t *testing.T) {
 		ID:                               "5",
 		UID:                              "M-1111",
 		EvidenceFormAddress:              place.Address{Line1: "line"},
+		HasSentApplicationUpdatedEvent:   true,
 		HasSentEvidenceFormRequiredEvent: true,
 	})
 	assert.Nil(t, err)
@@ -478,11 +538,12 @@ func TestDonorStorePutWhenEvidenceFormRequiredWhenError(t *testing.T) {
 	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, logger: logger, now: func() time.Time { return now }}
 
 	err := donorStore.Put(ctx, &page.Lpa{
-		PK:                  "LPA#5",
-		SK:                  "#DONOR#an-id",
-		ID:                  "5",
-		UID:                 "M-1111",
-		EvidenceFormAddress: place.Address{Line1: "line"},
+		PK:                             "LPA#5",
+		SK:                             "#DONOR#an-id",
+		ID:                             "5",
+		UID:                            "M-1111",
+		EvidenceFormAddress:            place.Address{Line1: "line"},
+		HasSentApplicationUpdatedEvent: true,
 	})
 	assert.Nil(t, err)
 }
@@ -494,14 +555,15 @@ func TestDonorStorePutWhenReducedFeeRequested(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
 		On("Put", ctx, &page.Lpa{
-			PK:           "LPA#5",
-			SK:           "#DONOR#an-id",
-			ID:           "5",
-			UID:          "M-1111",
-			UpdatedAt:    now,
-			FeeType:      page.HalfFee,
-			EvidenceKeys: []page.Evidence{{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf", Sent: now}},
-			Tasks:        page.Tasks{PayForLpa: actor.PaymentTaskPending},
+			PK:                             "LPA#5",
+			SK:                             "#DONOR#an-id",
+			ID:                             "5",
+			UID:                            "M-1111",
+			UpdatedAt:                      now,
+			FeeType:                        page.HalfFee,
+			EvidenceKeys:                   []page.Evidence{{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf", Sent: now}},
+			Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
+			HasSentApplicationUpdatedEvent: true,
 		}).
 		Return(nil)
 
@@ -517,13 +579,14 @@ func TestDonorStorePutWhenReducedFeeRequested(t *testing.T) {
 	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, now: func() time.Time { return now }}
 
 	err := donorStore.Put(ctx, &page.Lpa{
-		PK:           "LPA#5",
-		SK:           "#DONOR#an-id",
-		ID:           "5",
-		UID:          "M-1111",
-		FeeType:      page.HalfFee,
-		EvidenceKeys: []page.Evidence{{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf"}},
-		Tasks:        page.Tasks{PayForLpa: actor.PaymentTaskPending},
+		PK:                             "LPA#5",
+		SK:                             "#DONOR#an-id",
+		ID:                             "5",
+		UID:                            "M-1111",
+		FeeType:                        page.HalfFee,
+		EvidenceKeys:                   []page.Evidence{{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf"}},
+		Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
+		HasSentApplicationUpdatedEvent: true,
 	})
 	assert.Nil(t, err)
 }
@@ -546,7 +609,8 @@ func TestDonorStorePutWhenReducedFeeRequestedSentAndUnsentFees(t *testing.T) {
 				{Key: "lpa-uid-evidence-a-uid-2", Filename: "whenever.pdf", Sent: now},
 				{Key: "lpa-uid-evidence-a-uid-3", Filename: "whoever.pdf", Sent: now},
 			},
-			Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending},
+			Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
+			HasSentApplicationUpdatedEvent: true,
 		}).
 		Return(nil)
 
@@ -572,7 +636,8 @@ func TestDonorStorePutWhenReducedFeeRequestedSentAndUnsentFees(t *testing.T) {
 			{Key: "lpa-uid-evidence-a-uid-2", Filename: "whenever.pdf", Sent: now},
 			{Key: "lpa-uid-evidence-a-uid-3", Filename: "whoever.pdf"},
 		},
-		Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending},
+		Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
+		HasSentApplicationUpdatedEvent: true,
 	})
 	assert.Nil(t, err)
 }
@@ -589,12 +654,13 @@ func TestDonorStorePutWhenReducedFeeRequestedWontResend(t *testing.T) {
 	donorStore := &donorStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
 	err := donorStore.Put(ctx, &page.Lpa{
-		PK:           "LPA#5",
-		SK:           "#DONOR#an-id",
-		ID:           "5",
-		UID:          "M-1111",
-		Tasks:        page.Tasks{PayForLpa: actor.PaymentTaskPending},
-		EvidenceKeys: []page.Evidence{{Key: "lpa-uid-evidence-a-uid-1", Filename: "whatever.pdf", Sent: now}},
+		PK:                             "LPA#5",
+		SK:                             "#DONOR#an-id",
+		ID:                             "5",
+		UID:                            "M-1111",
+		Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
+		EvidenceKeys:                   []page.Evidence{{Key: "lpa-uid-evidence-a-uid-1", Filename: "whatever.pdf", Sent: now}},
+		HasSentApplicationUpdatedEvent: true,
 	})
 	assert.Nil(t, err)
 }
@@ -606,13 +672,14 @@ func TestDonorStorePutWhenReducedFeeRequestedWhenError(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
 		On("Put", ctx, &page.Lpa{
-			PK:           "LPA#5",
-			SK:           "#DONOR#an-id",
-			ID:           "5",
-			UID:          "M-1111",
-			Tasks:        page.Tasks{PayForLpa: actor.PaymentTaskPending},
-			EvidenceKeys: []page.Evidence{{Sent: now}, {}},
-			UpdatedAt:    now,
+			PK:                             "LPA#5",
+			SK:                             "#DONOR#an-id",
+			ID:                             "5",
+			UID:                            "M-1111",
+			Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
+			EvidenceKeys:                   []page.Evidence{{Sent: now}, {}},
+			UpdatedAt:                      now,
+			HasSentApplicationUpdatedEvent: true,
 		}).
 		Return(nil)
 
@@ -628,12 +695,13 @@ func TestDonorStorePutWhenReducedFeeRequestedWhenError(t *testing.T) {
 	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, logger: logger, now: func() time.Time { return now }}
 
 	err := donorStore.Put(ctx, &page.Lpa{
-		PK:           "LPA#5",
-		SK:           "#DONOR#an-id",
-		ID:           "5",
-		UID:          "M-1111",
-		Tasks:        page.Tasks{PayForLpa: actor.PaymentTaskPending},
-		EvidenceKeys: []page.Evidence{{Sent: now}, {}},
+		PK:                             "LPA#5",
+		SK:                             "#DONOR#an-id",
+		ID:                             "5",
+		UID:                            "M-1111",
+		Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
+		EvidenceKeys:                   []page.Evidence{{Sent: now}, {}},
+		HasSentApplicationUpdatedEvent: true,
 	})
 	assert.Nil(t, err)
 }
@@ -641,7 +709,7 @@ func TestDonorStorePutWhenReducedFeeRequestedWhenError(t *testing.T) {
 func TestDonorStoreCreate(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
 	now := time.Now()
-	lpa := &page.Lpa{PK: "LPA#10100000", SK: "#DONOR#an-id", ID: "10100000", UpdatedAt: now}
+	lpa := &page.Lpa{PK: "LPA#10100000", SK: "#DONOR#an-id", ID: "10100000", CreatedAt: now, UpdatedAt: now}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
