@@ -59,7 +59,7 @@ func TestNewWhenError(t *testing.T) {
 }
 
 func TestToday(t *testing.T) {
-	assert.Equal(t, Today().String(), time.Now().Format(dateFormat))
+	assert.Equal(t, Today().String(), time.Now().Format(unpaddedDate))
 }
 
 func TestFromTime(t *testing.T) {
@@ -117,12 +117,12 @@ func TestMarshal(t *testing.T) {
 	}{
 		"unpadded": {
 			date: New("2020", "5", "21"),
-			json: `"2020-5-21"`,
+			json: `"2020-05-21"`,
 			av:   &types.AttributeValueMemberS{Value: "2020-5-21"},
 		},
 		"padded": {
 			date: New("2020", "05", "01"),
-			json: `"2020-5-1"`,
+			json: `"2020-05-01"`,
 			av:   &types.AttributeValueMemberS{Value: "2020-5-1"},
 		},
 		"zero value": {

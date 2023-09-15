@@ -8,9 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -84,30 +82,41 @@ func TestPostPreviousApplicationNumber(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
-			ID:                "lpa-id",
-			UID:               "lpa-uid",
-			ApplicationReason: page.AdditionalApplication,
-			Donor: actor.Donor{
-				FirstNames:  "Jane",
-				LastName:    "Smith",
-				DateOfBirth: date.New("2000", "1", "2"),
-				Address:     place.Address{Postcode: "ABC123"},
-			},
+			ID:                        "lpa-id",
+			UID:                       "lpa-uid",
+			ApplicationReason:         page.AdditionalApplication,
 			PreviousApplicationNumber: "ABC",
 			Tasks:                     page.Tasks{YourDetails: actor.TaskCompleted},
 		}).
 		Return(nil)
 
 	err := PreviousApplicationNumber(nil, donorStore)(testAppData, w, r, &page.Lpa{
-		ID:                "lpa-id",
-		UID:               "lpa-uid",
-		ApplicationReason: page.AdditionalApplication,
-		Donor: actor.Donor{
-			FirstNames:  "Jane",
-			LastName:    "Smith",
-			DateOfBirth: date.New("2000", "1", "2"),
-			Address:     place.Address{Postcode: "ABC123"},
-		},
+		ID:                             "lpa-id",
+		UID:                            "lpa-uid",
+		ApplicationReason:              page.AdditionalApplication,
+		HasSentApplicationUpdatedEvent: true,
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPostPreviousApplicationNumberWhenNotChanged(t *testing.T) {
+	form := url.Values{
+		"previous-application-number": {"ABC"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	err := PreviousApplicationNumber(nil, nil)(testAppData, w, r, &page.Lpa{
+		ID:                        "lpa-id",
+		UID:                       "lpa-uid",
+		ApplicationReason:         page.AdditionalApplication,
+		PreviousApplicationNumber: "ABC",
 	})
 	resp := w.Result()
 
