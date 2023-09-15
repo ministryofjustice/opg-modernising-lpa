@@ -232,7 +232,7 @@ func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
 	invalidAddress := &place.Address{
 		Line2:      "b",
 		TownOrCity: "c",
-		Postcode:   "d",
+		Postcode:   "D",
 	}
 
 	template := newMockTemplate(t)
@@ -575,7 +575,7 @@ func TestPostCertificateProviderAddressReuseSelect(t *testing.T) {
 					Line2:      "b",
 					Line3:      "c",
 					TownOrCity: "d",
-					Postcode:   "e",
+					Postcode:   "E",
 				},
 			},
 		}).

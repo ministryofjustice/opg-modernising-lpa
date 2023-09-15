@@ -21,7 +21,7 @@ var (
 		Line2:      "b",
 		Line3:      "c",
 		TownOrCity: "d",
-		Postcode:   "e",
+		Postcode:   "E",
 	}
 	expectedError = errors.New("err")
 	testAppData   = page.AppData{

@@ -11,6 +11,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
+var (
+	mobileRegex      = regexp.MustCompile(`^(?:07|\+?447)\d{9}$`)
+	nonUKMobileRegex = regexp.MustCompile(`^\+\d{4,15}$`)
+	postcodeRegex    = regexp.MustCompile("^[A-Z0-9 ]{1,9}$")
+)
+
 type ErrorChecker interface {
 	CheckError(label string, value error) FormattableError
 }
@@ -232,11 +238,6 @@ func StringLength(length int) StringLengthCheck {
 	return StringLengthCheck{length: length}
 }
 
-var (
-	MobileRegex      = regexp.MustCompile(`^(?:07|\+?447)\d{9}$`)
-	NonUKMobileRegex = regexp.MustCompile(`^\+\d{4,15}$`)
-)
-
 type MobileCheck struct {
 	nonUK      bool
 	errorLabel string
@@ -248,9 +249,9 @@ func (c MobileCheck) ErrorLabel(label string) MobileCheck {
 }
 
 func (c MobileCheck) CheckString(label, value string) FormattableError {
-	re := MobileRegex
+	re := mobileRegex
 	if c.nonUK {
-		re = NonUKMobileRegex
+		re = nonUKMobileRegex
 	}
 
 	if value != "" && !re.MatchString(strings.ReplaceAll(value, " ", "")) {
@@ -270,6 +271,20 @@ func Mobile() MobileCheck {
 
 func NonUKMobile() MobileCheck {
 	return MobileCheck{nonUK: true}
+}
+
+type PostcodeCheck struct{}
+
+func (c PostcodeCheck) CheckString(label, value string) FormattableError {
+	if value != "" && !postcodeRegex.MatchString(value) {
+		return PostcodeError{Label: label}
+	}
+
+	return nil
+}
+
+func Postcode() PostcodeCheck {
+	return PostcodeCheck{}
 }
 
 type EmailCheck struct{}
