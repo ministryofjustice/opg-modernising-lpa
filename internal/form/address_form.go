@@ -3,6 +3,7 @@ package form
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -41,7 +42,7 @@ func ReadAddressForm(r *http.Request) *AddressForm {
 			Line2:      PostFormString(r, "address-line-2"),
 			Line3:      PostFormString(r, "address-line-3"),
 			TownOrCity: PostFormString(r, "address-town"),
-			Postcode:   PostFormString(r, "address-postcode"),
+			Postcode:   strings.ToUpper(PostFormString(r, "address-postcode")),
 		}
 	}
 
@@ -85,7 +86,8 @@ func (f *AddressForm) Validate(useYour bool) validation.List {
 			errors.String("address-town", "yourTownOrCity", f.Address.TownOrCity,
 				validation.Empty())
 			errors.String("address-postcode", "yourPostcode", f.Address.Postcode,
-				validation.Empty())
+				validation.Empty(),
+				validation.Postcode())
 		} else {
 			errors.String("address-line-1", "addressLine1", f.Address.Line1,
 				validation.Empty(),
@@ -97,7 +99,8 @@ func (f *AddressForm) Validate(useYour bool) validation.List {
 			errors.String("address-town", "townOrCity", f.Address.TownOrCity,
 				validation.Empty())
 			errors.String("address-postcode", "aPostcode", f.Address.Postcode,
-				validation.Empty())
+				validation.Empty(),
+				validation.Postcode())
 		}
 	}
 
