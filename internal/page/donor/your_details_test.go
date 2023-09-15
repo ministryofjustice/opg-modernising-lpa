@@ -199,6 +199,7 @@ func TestPostYourDetails(t *testing.T) {
 					FirstNames: "John",
 					Address:    place.Address{Line1: "abc"},
 				},
+				HasSentApplicationUpdatedEvent: true,
 			})
 			resp := w.Result()
 
@@ -207,6 +208,60 @@ func TestPostYourDetails(t *testing.T) {
 			assert.Equal(t, tc.redirect.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
+}
+
+func TestPostYourDetailsWhenDetailsNotChanged(t *testing.T) {
+	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
+	f := url.Values{
+		"first-names":         {"John"},
+		"last-name":           {"Doe"},
+		"date-of-birth-day":   {"2"},
+		"date-of-birth-month": {"1"},
+		"date-of-birth-year":  {validBirthYear},
+		"can-sign":            {actor.Yes.String()},
+	}
+
+	w := httptest.NewRecorder()
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), &page.Lpa{
+			ID: "lpa-id",
+			Donor: actor.Donor{
+				FirstNames:    "John",
+				LastName:      "Doe",
+				DateOfBirth:   date.New(validBirthYear, "1", "2"),
+				Email:         "name@example.com",
+				ThinksCanSign: actor.Yes,
+				CanSign:       form.Yes,
+			},
+			Tasks:                          page.Tasks{YourDetails: actor.TaskInProgress},
+			HasSentApplicationUpdatedEvent: true,
+		}).
+		Return(nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "session").
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
+
+	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &page.Lpa{
+		ID: "lpa-id",
+		Donor: actor.Donor{
+			FirstNames:  "John",
+			LastName:    "Doe",
+			DateOfBirth: date.New(validBirthYear, "1", "2"),
+		},
+		HasSentApplicationUpdatedEvent: true,
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.YourAddress.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {

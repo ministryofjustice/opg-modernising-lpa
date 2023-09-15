@@ -104,7 +104,9 @@ type Lpa struct {
 	ID string
 	// A unique identifier created after sending basic LPA details to the UID service
 	UID string `dynamodbav:",omitempty"`
-	// Tracking when the LPA is updated
+	// CreatedAt is when the LPA was created
+	CreatedAt time.Time
+	// UpdatedAt is when the LPA was last updated
 	UpdatedAt time.Time
 	// The donor the LPA relates to
 	Donor actor.Donor
@@ -181,6 +183,7 @@ type Lpa struct {
 	// EvidenceKeys is the S3 keys for uploaded evidence with a record of when it's been sent to caseworkers
 	EvidenceKeys []Evidence
 
+	HasSentApplicationUpdatedEvent        bool
 	HasSentPreviousApplicationLinkedEvent bool
 	HasSentEvidenceFormRequiredEvent      bool
 }
