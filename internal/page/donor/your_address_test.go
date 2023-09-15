@@ -130,6 +130,49 @@ func TestPostYourAddressManual(t *testing.T) {
 
 	err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{
 		ID: "lpa-id",
+		Donor: actor.Donor{
+			Address: place.Address{Line1: "a", Line2: "b", Line3: "c", TownOrCity: "d"},
+		},
+		HasSentApplicationUpdatedEvent: true,
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.WhoIsTheLpaFor.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPostYourAddressManualWhenPostcodeNotChanged(t *testing.T) {
+	f := url.Values{
+		"action":           {"manual"},
+		"address-line-1":   {"a"},
+		"address-line-2":   {"b"},
+		"address-line-3":   {"c"},
+		"address-town":     {"d"},
+		"address-postcode": {"e"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), &page.Lpa{
+			ID: "lpa-id",
+			Donor: actor.Donor{
+				Address: testAddress,
+			},
+			HasSentApplicationUpdatedEvent: true,
+		}).
+		Return(nil)
+
+	err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{
+		ID: "lpa-id",
+		Donor: actor.Donor{
+			Address: place.Address{Postcode: "e"},
+		},
+		HasSentApplicationUpdatedEvent: true,
 	})
 	resp := w.Result()
 

@@ -28,7 +28,12 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 			switch data.Form.Action {
 			case "manual":
 				if data.Errors.None() {
+					if lpa.Donor.Address.Postcode != data.Form.Address.Postcode {
+						lpa.HasSentApplicationUpdatedEvent = false
+					}
+
 					lpa.Donor.Address = *data.Form.Address
+
 					if err := donorStore.Put(r.Context(), lpa); err != nil {
 						return err
 					}
