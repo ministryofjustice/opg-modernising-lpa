@@ -34,6 +34,7 @@ type uploadEvidenceData struct {
 	App                  page.AppData
 	Errors               validation.List
 	NumberOfAllowedFiles int
+	FeeType              page.FeeType
 }
 
 func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, randomUUID func() string, evidenceBucketName string, s3Client S3Client) Handler {
@@ -41,6 +42,7 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 		data := &uploadEvidenceData{
 			App:                  appData,
 			NumberOfAllowedFiles: numberOfAllowedFiles,
+			FeeType:              lpa.FeeType,
 		}
 
 		if r.Method == http.MethodPost {
