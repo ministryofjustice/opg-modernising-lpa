@@ -296,7 +296,7 @@ func TestPostChooseReplacementAttorneysAddressManualWhenValidationError(t *testi
 	invalidAddress := &place.Address{
 		Line2:      "b",
 		TownOrCity: "c",
-		Postcode:   "d",
+		Postcode:   "D",
 	}
 
 	template := newMockTemplate(t)
@@ -660,7 +660,7 @@ func TestPostChooseReplacementAttorneysAddressReuseSelect(t *testing.T) {
 			Line2:      "b",
 			Line3:      "c",
 			TownOrCity: "d",
-			Postcode:   "e",
+			Postcode:   "E",
 		},
 	}
 

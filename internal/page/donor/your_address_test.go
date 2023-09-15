@@ -170,7 +170,7 @@ func TestPostYourAddressManualWhenPostcodeNotChanged(t *testing.T) {
 	err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{
 		ID: "lpa-id",
 		Donor: actor.Donor{
-			Address: place.Address{Postcode: "e"},
+			Address: place.Address{Postcode: "E"},
 		},
 		HasSentApplicationUpdatedEvent: true,
 	})
@@ -271,7 +271,7 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 				Address: &place.Address{
 					Line2:      "b",
 					TownOrCity: "c",
-					Postcode:   "d",
+					Postcode:   "D",
 				},
 			},
 			Errors: validation.With("address-line-1", validation.EnterError{Label: "addressLine1OfYourAddress"}),
