@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     name: ${{ matrix.ecr_repository }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.checkout_tag }}
       - name: Build ${{ matrix.ecr_repository }} Image
