@@ -22,7 +22,7 @@
     },
     "devDependencies": {
         "axe-core": "^4.6",
-        "cypress": "^12.0.0",
+        "cypress": "^13.0.0",
         "cypress-axe": "^1.4",
         "cypress-multi-reporters": "^1.6.1",
         "cypress-real-events": "^1.8.1"
