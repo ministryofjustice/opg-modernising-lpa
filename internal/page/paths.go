@@ -190,7 +190,6 @@ type AppPaths struct {
 	WhatYoullNeedToConfirmYourIdentity                   LpaPath
 	WhenCanTheLpaBeUsed                                  LpaPath
 	WhichFeeTypeAreYouApplyingFor                        LpaPath
-	WhoIsTheLpaFor                                       LpaPath
 	WitnessingAsCertificateProvider                      LpaPath
 	WitnessingAsIndependentWitness                       LpaPath
 	WitnessingYourSignature                              LpaPath
@@ -346,7 +345,6 @@ var Paths = AppPaths{
 	WhatYoullNeedToConfirmYourIdentity:                   "/what-youll-need-to-confirm-your-identity",
 	WhenCanTheLpaBeUsed:                                  "/when-can-the-lpa-be-used",
 	WhichFeeTypeAreYouApplyingFor:                        "/which-fee-type-are-you-applying-for",
-	WhoIsTheLpaFor:                                       "/who-is-the-lpa-for",
 	WitnessingAsCertificateProvider:                      "/witnessing-as-certificate-provider",
 	WitnessingAsIndependentWitness:                       "/witnessing-as-independent-witness",
 	WitnessingYourSignature:                              "/witnessing-your-signature",

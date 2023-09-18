@@ -174,7 +174,6 @@ func TestPostEnterReplacementTrustCorporationAddressManualFromStore(t *testing.T
 				Name:    "John",
 				Address: testAddress,
 			}},
-			WhoFor: "me",
 		}).
 		Return(nil)
 
@@ -184,7 +183,6 @@ func TestPostEnterReplacementTrustCorporationAddressManualFromStore(t *testing.T
 			Name:    "John",
 			Address: place.Address{Line1: "abc"},
 		}},
-		WhoFor: "me",
 	})
 	resp := w.Result()
 

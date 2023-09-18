@@ -260,8 +260,7 @@ func TestPostChooseReplacementAttorneysAddressManualFromStore(t *testing.T) {
 				FirstNames: "John",
 				Address:    testAddress,
 			}}},
-			WhoFor: "me",
-			Tasks:  page.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
+			Tasks: page.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -272,7 +271,6 @@ func TestPostChooseReplacementAttorneysAddressManualFromStore(t *testing.T) {
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
 		}}},
-		WhoFor: "me",
 	})
 	resp := w.Result()
 

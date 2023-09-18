@@ -263,7 +263,6 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 					}
 				}
 
-				lpa.WhoFor = "me"
 				lpa.Type = LpaTypePropertyFinance
 				lpa.UID = random.UuidString()
 				lpa.Tasks.YourDetails = actor.TaskCompleted

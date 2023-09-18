@@ -200,7 +200,6 @@ func TestPostYourIndependentWitnessAddressManualFromStore(t *testing.T) {
 				FirstNames: "John",
 				Address:    testAddress,
 			},
-			WhoFor: "me",
 			Tasks: page.Tasks{
 				ChooseYourSignatory: actor.TaskCompleted,
 			},
@@ -213,7 +212,6 @@ func TestPostYourIndependentWitnessAddressManualFromStore(t *testing.T) {
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
 		},
-		WhoFor: "me",
 	})
 	resp := w.Result()
 
