@@ -363,7 +363,7 @@ locals {
           value = "https://publicapi.payments.service.gov.uk"
         },
         {
-          name = "GOVUK_NOTIFY_BASE_URL",
+          name  = "GOVUK_NOTIFY_BASE_URL",
           value = "https://api.notifications.service.gov.uk"
         },
         {
