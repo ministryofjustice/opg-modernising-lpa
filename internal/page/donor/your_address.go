@@ -38,7 +38,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 						return err
 					}
 
-					return appData.Redirect(w, r, lpa, page.Paths.WhoIsTheLpaFor.Format(lpa.ID))
+					return appData.Redirect(w, r, lpa, page.Paths.LpaType.Format(lpa.ID))
 				}
 
 			case "postcode-select":

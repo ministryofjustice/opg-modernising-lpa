@@ -198,7 +198,6 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 				FirstNames: "John",
 				Address:    testAddress,
 			},
-			WhoFor: "me",
 		}).
 		Return(nil)
 
@@ -208,7 +207,6 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
 		},
-		WhoFor: "me",
 	})
 	resp := w.Result()
 
