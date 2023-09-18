@@ -24,10 +24,10 @@ help: ##@other Show this help.
 	@perl -e '$(HELP_FUN)' $(MAKEFILE_LIST)
 
 go-test: ##@testing Runs full go test suite
-	find . -name go.mod -execdir go test ./... -race -covermode=atomic -coverprofile=coverage.out \;
+	go test ./... -race -covermode=atomic -coverprofile=coverage.out
 
 go-generate: ##@testing Runs go generate
-	find . -name go.mod -execdir go generate ./... \;
+	go generate ./...
 
 coverage: ##@testing Produces coverage report and launches browser line based coverage explorer. To test a specific internal package pass in the package name e.g. make coverage package=page
 ifdef package
