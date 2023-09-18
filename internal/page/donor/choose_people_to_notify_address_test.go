@@ -572,7 +572,7 @@ func TestPostChoosePeopleToNotifyAddressReuseSelect(t *testing.T) {
 					Line2:      "b",
 					Line3:      "c",
 					TownOrCity: "d",
-					Postcode:   "e",
+					Postcode:   "E",
 				},
 			}},
 			Tasks: page.Tasks{PeopleToNotify: actor.TaskCompleted},

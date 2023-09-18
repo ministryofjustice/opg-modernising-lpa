@@ -8,6 +8,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
@@ -48,6 +49,7 @@ func (s *donorStore) Create(ctx context.Context) (*page.Lpa, error) {
 		PK:        lpaKey(lpaID),
 		SK:        donorKey(data.SessionID),
 		ID:        lpaID,
+		CreatedAt: s.now(),
 		UpdatedAt: s.now(),
 	}
 
@@ -130,7 +132,7 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 			Type: lpa.Type.String(),
 			Donor: uid.DonorDetails{
 				Name:     lpa.Donor.FullName(),
-				Dob:      uid.ISODate{Time: lpa.Donor.DateOfBirth.Time()},
+				Dob:      lpa.Donor.DateOfBirth,
 				Postcode: lpa.Donor.Address.Postcode,
 			},
 		})
@@ -138,6 +140,24 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 			s.logger.Print(err)
 		} else {
 			lpa.UID = resp.UID
+		}
+	}
+
+	if lpa.UID != "" && !lpa.HasSentApplicationUpdatedEvent {
+		if err := s.eventClient.Send(ctx, "application-updated", applicationUpdatedEvent{
+			UID:       lpa.UID,
+			Type:      lpa.Type.String(),
+			CreatedAt: lpa.CreatedAt,
+			Donor: applicationUpdatedEventDonor{
+				FirstNames:  lpa.Donor.FirstNames,
+				LastName:    lpa.Donor.LastName,
+				DateOfBirth: lpa.Donor.DateOfBirth,
+				Postcode:    lpa.Donor.Address.Postcode,
+			},
+		}); err != nil {
+			s.logger.Print(err)
+		} else {
+			lpa.HasSentApplicationUpdatedEvent = true
 		}
 	}
 
@@ -209,6 +229,20 @@ func donorKey(s string) string {
 
 func subKey(s string) string {
 	return "#SUB#" + s
+}
+
+type applicationUpdatedEvent struct {
+	UID       string                       `json:"uid"`
+	Type      string                       `json:"type"`
+	CreatedAt time.Time                    `json:"createdAt"`
+	Donor     applicationUpdatedEventDonor `json:"donor"`
+}
+
+type applicationUpdatedEventDonor struct {
+	FirstNames  string    `json:"firstNames"`
+	LastName    string    `json:"lastName"`
+	DateOfBirth date.Date `json:"dob"`
+	Postcode    string    `json:"postcode"`
 }
 
 type previousApplicationLinkedEvent struct {

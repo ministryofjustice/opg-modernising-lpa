@@ -15,6 +15,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/pact-foundation/pact-go/dsl"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -24,7 +25,7 @@ var validBody = &CreateCaseRequestBody{
 	Type: "pfa",
 	Donor: DonorDetails{
 		Name:     "Jane Smith",
-		Dob:      ISODate{Time: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
+		Dob:      date.New("2000", "1", "2"),
 		Postcode: "ABC123",
 	},
 }
@@ -229,7 +230,7 @@ func TestValid(t *testing.T) {
 			Source: "APPLICANT",
 			Donor: DonorDetails{
 				Name:     "Jane Smith",
-				Dob:      ISODate{Time: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
+				Dob:      date.New("2000", "1", "2"),
 				Postcode: "ABC123",
 			},
 		},
@@ -237,7 +238,7 @@ func TestValid(t *testing.T) {
 			Type:   "pfa",
 			Source: "APPLICANT",
 			Donor: DonorDetails{
-				Dob:      ISODate{Time: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
+				Dob:      date.New("2000", "1", "2"),
 				Postcode: "ABC123",
 			},
 		},
@@ -254,7 +255,7 @@ func TestValid(t *testing.T) {
 			Source: "APPLICANT",
 			Donor: DonorDetails{
 				Name: "Jane Smith",
-				Dob:  ISODate{Time: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
+				Dob:  date.New("2000", "1", "2"),
 			},
 		},
 	}
@@ -470,7 +471,7 @@ func TestPactContract(t *testing.T) {
 		Type: "pfa",
 		Donor: DonorDetails{
 			Name:     "Jane Smith",
-			Dob:      ISODate{Time: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
+			Dob:      date.New("2000", "1", "2"),
 			Postcode: "ABC123",
 		},
 	}
@@ -479,7 +480,7 @@ func TestPactContract(t *testing.T) {
 		Type: "pfa",
 		Donor: DonorDetails{
 			Name:     "Jane Smith",
-			Dob:      ISODate{Time: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
+			Dob:      date.New("2000", "1", "2"),
 			Postcode: "ABCD12345",
 		},
 	}

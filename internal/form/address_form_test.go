@@ -17,7 +17,7 @@ func TestReadAddressForm(t *testing.T) {
 		Line2:      "b",
 		Line3:      "c",
 		TownOrCity: "d",
-		Postcode:   "e",
+		Postcode:   "E",
 	}
 
 	testCases := map[string]struct {
@@ -178,7 +178,7 @@ func TestAddressFormValidate(t *testing.T) {
 				Address: &place.Address{
 					Line1:      "a",
 					TownOrCity: "b",
-					Postcode:   "c",
+					Postcode:   "C12 1CC",
 				},
 			},
 		},
@@ -211,7 +211,7 @@ func TestAddressFormValidate(t *testing.T) {
 					Line2:      strings.Repeat("x", 50),
 					Line3:      strings.Repeat("x", 50),
 					TownOrCity: "b",
-					Postcode:   "c",
+					Postcode:   "C",
 				},
 			},
 		},
@@ -223,7 +223,7 @@ func TestAddressFormValidate(t *testing.T) {
 					Line2:      strings.Repeat("x", 51),
 					Line3:      strings.Repeat("x", 51),
 					TownOrCity: "b",
-					Postcode:   "c",
+					Postcode:   "C",
 				},
 			},
 			errors: validation.
@@ -239,7 +239,7 @@ func TestAddressFormValidate(t *testing.T) {
 					Line2:      strings.Repeat("x", 51),
 					Line3:      strings.Repeat("x", 51),
 					TownOrCity: "b",
-					Postcode:   "c",
+					Postcode:   "C",
 				},
 			},
 			errors: validation.

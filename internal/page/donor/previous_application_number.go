@@ -29,11 +29,14 @@ func PreviousApplicationNumber(tmpl template.Template, donorStore DonorStore) Ha
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.PreviousApplicationNumber = data.Form.PreviousApplicationNumber
-				lpa.Tasks.YourDetails = actor.TaskCompleted
+				if lpa.PreviousApplicationNumber != data.Form.PreviousApplicationNumber {
+					lpa.HasSentApplicationUpdatedEvent = false
+					lpa.PreviousApplicationNumber = data.Form.PreviousApplicationNumber
+					lpa.Tasks.YourDetails = actor.TaskCompleted
 
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
-					return err
+					if err := donorStore.Put(r.Context(), lpa); err != nil {
+						return err
+					}
 				}
 
 				return appData.Redirect(w, r, lpa, page.Paths.TaskList.Format(lpa.ID))
