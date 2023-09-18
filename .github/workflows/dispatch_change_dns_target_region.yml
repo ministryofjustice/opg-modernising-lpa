@@ -37,7 +37,7 @@ jobs:
   change_dns_target_region:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: unfor19/install-aws-cli-action@v1
       - name: Configure AWS credentials for dns target region parameter change
         uses: aws-actions/configure-aws-credentials@v4

@@ -64,7 +64,7 @@ jobs:
       url: ${{ steps.terraform_outputs.outputs.url }}
       environment_config_json: ${{ steps.terraform_outputs.outputs.environment_config_json }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.checkout_tag }}
           fetch-depth: '0'

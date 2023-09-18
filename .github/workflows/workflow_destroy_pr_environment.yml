@@ -46,7 +46,7 @@ jobs:
     needs: generate_environment_workspace_name
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Configure AWS Credentials For Terraform
         uses: aws-actions/configure-aws-credentials@v4
         with:
