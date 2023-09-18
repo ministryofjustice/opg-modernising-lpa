@@ -38,10 +38,13 @@ func LpaType(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.Type = data.Form.LpaType
+				if lpa.Type != data.Form.LpaType {
+					lpa.Type = data.Form.LpaType
+					lpa.HasSentApplicationUpdatedEvent = false
 
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
-					return err
+					if err := donorStore.Put(r.Context(), lpa); err != nil {
+						return err
+					}
 				}
 
 				return appData.Redirect(w, r, lpa, page.Paths.ApplicationReason.Format(lpa.ID))

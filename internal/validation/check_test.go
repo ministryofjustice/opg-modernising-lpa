@@ -164,6 +164,24 @@ func TestCheckString(t *testing.T) {
 			checks:   []StringChecker{NonUKMobile()},
 			expected: With(name, MobileError{Label: label}),
 		},
+		"postcode": {
+			input:  "B14 7ET",
+			checks: []StringChecker{Postcode()},
+		},
+		"postcode no spaces": {
+			input:  "B147ET",
+			checks: []StringChecker{Postcode()},
+		},
+		"postcode too long": {
+			input:    "B12345678T",
+			checks:   []StringChecker{Postcode()},
+			expected: With(name, PostcodeError{Label: label}),
+		},
+		"postcode lowercase": {
+			input:    "B14 7Et",
+			checks:   []StringChecker{Postcode()},
+			expected: With(name, PostcodeError{Label: label}),
+		},
 		"email": {
 			input:  "name@example.com",
 			checks: []StringChecker{Email()},

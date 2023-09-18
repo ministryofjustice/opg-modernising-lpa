@@ -7,10 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -92,25 +89,34 @@ func TestPostLpaType(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
-			ID: "lpa-id",
-			Donor: actor.Donor{
-				FirstNames:  "Jane",
-				LastName:    "Smith",
-				DateOfBirth: date.New("2000", "1", "2"),
-				Address:     place.Address{Postcode: "ABC123"},
-			},
+			ID:   "lpa-id",
 			Type: page.LpaTypePropertyFinance,
 		}).
 		Return(nil)
 
 	err := LpaType(nil, donorStore)(testAppData, w, r, &page.Lpa{
-		ID: "lpa-id",
-		Donor: actor.Donor{
-			FirstNames:  "Jane",
-			LastName:    "Smith",
-			DateOfBirth: date.New("2000", "1", "2"),
-			Address:     place.Address{Postcode: "ABC123"},
-		},
+		ID:                             "lpa-id",
+		HasSentApplicationUpdatedEvent: true,
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.ApplicationReason.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPostLpaTypeWhenNotChanged(t *testing.T) {
+	form := url.Values{
+		"lpa-type": {page.LpaTypePropertyFinance.String()},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	err := LpaType(nil, nil)(testAppData, w, r, &page.Lpa{
+		ID:   "lpa-id",
+		Type: page.LpaTypePropertyFinance,
 	})
 	resp := w.Result()
 

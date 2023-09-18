@@ -14,6 +14,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 )
 
 const apiGatewayServiceName = "execute-api"
@@ -47,9 +48,9 @@ func New(baseURL string, httpClient Doer, cfg aws.Config, signer v4Signer, now f
 }
 
 type DonorDetails struct {
-	Name     string  `json:"name"`
-	Dob      ISODate `json:"dob"`
-	Postcode string  `json:"postcode"`
+	Name     string    `json:"name"`
+	Dob      date.Date `json:"dob"`
+	Postcode string    `json:"postcode"`
 }
 
 type CreateCaseRequestBody struct {
@@ -130,14 +131,6 @@ func (c *Client) Health(ctx context.Context) (*http.Response, error) {
 	}
 
 	return resp, nil
-}
-
-type ISODate struct {
-	time.Time
-}
-
-func (d ISODate) MarshalJSON() ([]byte, error) {
-	return json.Marshal(d.Time.Format("2000-01-02"))
 }
 
 func (b CreateCaseRequestBody) Valid() bool {

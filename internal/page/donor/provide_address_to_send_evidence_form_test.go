@@ -213,7 +213,7 @@ func TestPostProvideAddressToSendEvidenceFormManualWhenValidationError(t *testin
 				Address: &place.Address{
 					Line2:      "b",
 					TownOrCity: "c",
-					Postcode:   "d",
+					Postcode:   "D",
 				},
 			},
 			Errors: validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
