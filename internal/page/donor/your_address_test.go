@@ -139,7 +139,7 @@ func TestPostYourAddressManual(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.WhoIsTheLpaFor.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.LpaType.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostYourAddressManualWhenPostcodeNotChanged(t *testing.T) {
@@ -178,7 +178,7 @@ func TestPostYourAddressManualWhenPostcodeNotChanged(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.WhoIsTheLpaFor.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.LpaType.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
@@ -231,7 +231,6 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 				FirstNames: "John",
 				Address:    testAddress,
 			},
-			WhoFor: "me",
 		}).
 		Return(nil)
 
@@ -241,13 +240,12 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
 		},
-		WhoFor: "me",
 	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.WhoIsTheLpaFor.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.LpaType.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostYourAddressManualWhenValidationError(t *testing.T) {

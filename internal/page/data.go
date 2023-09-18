@@ -116,8 +116,6 @@ type Lpa struct {
 	AttorneyDecisions actor.AttorneyDecisions
 	// The certificate provider named in the LPA
 	CertificateProvider actor.CertificateProvider
-	// Who the LPA is being drafted for (set, but not used)
-	WhoFor string
 	// Type of LPA being drafted
 	Type LpaType
 	// ApplicationReason is why the application is being made
