@@ -357,7 +357,6 @@
     "applicationNumber": "Rhif",
     "options": "Opsiynau",
     "lastSaved": "Wedi achub diwethaf",
-    "statusTag": "Welsh",
     "howShouldAttorneysMakeDecisions": "Sut dylai eich atwrneiod wneud penderfyniadau?",
     "jointlyAndSeverallyHumanised": "Ar y cyd ac yn unigol – gall eich atwrneiod wneud penderfyniadau ar eu pen eu hunain neu gyda’i gilydd",
     "jointlyAndSeverallyHumanisedReplacement": "Ar y cyd ac yn unigol – gall eich atwrneiod wrth gefn wneud penderfyniadau ar eu pen eu hunain neu gyda’i gilydd",
@@ -802,5 +801,7 @@
     "errorFileEmpty": "{{.Filename}}: Welsh",
     "errorGenericUploadProblemFile": "{{.Filename}}: Welsh",
     "uploadEvidenceContent": "<p class=\"govuk-body\">Welsh {{.NumberOfAllowedFiles}}</p>",
-    "halfFeeNextSteps": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh</p>"
+    "halfFeeNextSteps": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh</p>",
+    "referenceNumber": "Reference number",
+    "lastUpdated": "Last updated"
 }
