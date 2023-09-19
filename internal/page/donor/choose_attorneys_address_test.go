@@ -295,7 +295,6 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 				FirstNames: "John",
 				Address:    testAddress,
 			}}},
-			WhoFor: "me",
 		}).
 		Return(nil)
 
@@ -306,7 +305,6 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
 		}}},
-		WhoFor: "me",
 	})
 	resp := w.Result()
 

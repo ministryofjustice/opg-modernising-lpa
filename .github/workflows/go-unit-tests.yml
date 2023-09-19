@@ -56,10 +56,7 @@ jobs:
 
       - name: Run tests and generate coverage report
         run: |
-          mkdir -p ./coverage/cmd ./coverage/internal
-          go test -cover ./internal/... -args -test.gocoverdir="$PWD/coverage/cmd"
-          go test -cover ./internal/... -args -test.gocoverdir="$PWD/coverage/internal"
-          go tool covdata textfmt -i=./coverage/internal,./coverage/cmd -o ./coverage/coverage_combined.out
+          make go-test
 
       - name: Publish pacts
         run: |
@@ -75,4 +72,4 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           flags: unittests
-          files: ./coverage/coverage_combined.out
+          files: ./coverage.out
