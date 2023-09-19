@@ -85,8 +85,8 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		return nil, nil, nil, err
 	}
 
-	certificateProviderMap := make(map[string]page.LpaAndActorTasks)
-	attorneyMap := make(map[string]page.LpaAndActorTasks)
+	certificateProviderMap := map[string]page.LpaAndActorTasks{}
+	attorneyMap := map[string]page.LpaAndActorTasks{}
 
 	for _, item := range lpasOrProvidedDetails {
 		var ks keys
@@ -98,6 +98,10 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 			lpa := &page.Lpa{}
 			if err := attributevalue.UnmarshalMap(item, lpa); err != nil {
 				return nil, nil, nil, err
+			}
+
+			if lpa.UID == "" {
+				continue
 			}
 
 			switch keyMap[lpa.ID] {

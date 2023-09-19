@@ -13,7 +13,7 @@ describe('Dashboard', () => {
             cy.url().should('contain', '/task-list');
         });
 
-        it('can create another', () => {
+        it.only('can create another', () => {
             cy.contains('button', 'Create another LPA').click();
 
             cy.get('#f-first-names').type('Jane');
@@ -24,11 +24,17 @@ describe('Dashboard', () => {
             cy.get('#f-can-sign').check();
             cy.contains('button', 'Continue').click();
 
-            cy.visitLpa('/lpa-type');
+            cy.get('#f-lookup-postcode').type('B14 7ED');
+            cy.contains('button', 'Find address').click();
+
+            cy.get('#f-select-address').select('1 RICHMOND PLACE, BIRMINGHAM, B14 7ED');
+            cy.contains('button', 'Continue').click();
+            cy.contains('button', 'Continue').click();
 
             cy.get('#f-lpa-type-2').check();
             cy.contains('button', 'Continue').click();
 
+            cy.visit('/dashboard');
             cy.visit('/dashboard');
 
             cy.contains('Property and affairs: Sam Smith');
