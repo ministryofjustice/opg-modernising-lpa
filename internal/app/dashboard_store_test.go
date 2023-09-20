@@ -14,16 +14,17 @@ import (
 )
 
 func TestDashboardStoreGetAll(t *testing.T) {
-	lpa0 := &page.Lpa{ID: "0", UpdatedAt: time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC), SK: donorKey("an-id"), PK: lpaKey("0")}
-	lpa123 := &page.Lpa{ID: "123", UpdatedAt: time.Date(2001, time.January, 1, 0, 0, 0, 0, time.UTC), SK: donorKey("an-id"), PK: lpaKey("123")}
-	lpa456 := &page.Lpa{ID: "456", SK: donorKey("another-id"), PK: lpaKey("456")}
+	lpa0 := &page.Lpa{ID: "0", UID: "M", UpdatedAt: time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC), SK: donorKey("an-id"), PK: lpaKey("0")}
+	lpa123 := &page.Lpa{ID: "123", UID: "M", UpdatedAt: time.Date(2001, time.January, 1, 0, 0, 0, 0, time.UTC), SK: donorKey("an-id"), PK: lpaKey("123")}
+	lpa456 := &page.Lpa{ID: "456", UID: "M", SK: donorKey("another-id"), PK: lpaKey("456")}
 	lpa456CpProvidedDetails := &actor.CertificateProviderProvidedDetails{
 		LpaID: "456", Tasks: actor.CertificateProviderTasks{ConfirmYourDetails: actor.TaskCompleted}, SK: certificateProviderKey("an-id"),
 	}
-	lpa789 := &page.Lpa{ID: "789", SK: donorKey("different-id"), PK: lpaKey("789")}
+	lpa789 := &page.Lpa{ID: "789", UID: "M", SK: donorKey("different-id"), PK: lpaKey("789")}
 	lpa789AttorneyProvidedDetails := &actor.AttorneyProvidedDetails{
 		LpaID: "789", Tasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskInProgress}, SK: attorneyKey("an-id"),
 	}
+	lpaNoUID := &page.Lpa{ID: "999", UpdatedAt: time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC), SK: donorKey("an-id"), PK: lpaKey("0")}
 
 	testCases := map[string][]map[string]types.AttributeValue{
 		"details returned after lpas": {
@@ -35,6 +36,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 			makeAttributeValueMap(lpa0),
 		},
 		"details returned before lpas": {
+			makeAttributeValueMap(lpaNoUID),
 			makeAttributeValueMap(lpa456CpProvidedDetails),
 			makeAttributeValueMap(lpa789AttorneyProvidedDetails),
 			makeAttributeValueMap(lpa123),
@@ -55,6 +57,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 					{PK: "LPA#456", SK: "#SUB#an-id", DonorKey: "#DONOR#another-id", ActorType: actor.TypeCertificateProvider},
 					{PK: "LPA#789", SK: "#SUB#an-id", DonorKey: "#DONOR#different-id", ActorType: actor.TypeAttorney},
 					{PK: "LPA#0", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor},
+					{PK: "LPA#999", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor},
 				}, nil)
 			dynamoClient.ExpectGetAllByKeys(ctx, []dynamo.Key{
 				{PK: "LPA#123", SK: "#DONOR#an-id"},
@@ -63,6 +66,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 				{PK: "LPA#789", SK: "#DONOR#different-id"},
 				{PK: "LPA#789", SK: "#ATTORNEY#an-id"},
 				{PK: "LPA#0", SK: "#DONOR#an-id"},
+				{PK: "LPA#999", SK: "#DONOR#an-id"},
 			}, attributeValues, nil)
 
 			dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
