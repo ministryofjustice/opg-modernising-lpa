@@ -38,6 +38,18 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 			YesNoMaybeOptions: actor.YesNoMaybeValues,
 		}
 
+		if r.Method == http.MethodGet && data.Form.FirstNames == "" {
+			if latestLpa, _ := donorStore.Latest(r.Context()); latestLpa != nil {
+				data.Form = &yourDetailsForm{
+					FirstNames: latestLpa.Donor.FirstNames,
+					LastName:   latestLpa.Donor.LastName,
+					OtherNames: latestLpa.Donor.OtherNames,
+					Dob:        latestLpa.Donor.DateOfBirth,
+					CanSign:    latestLpa.Donor.ThinksCanSign,
+				}
+			}
+		}
+
 		if r.Method == http.MethodPost {
 			loginSession, err := sesh.Login(sessionStore, r)
 			if err != nil {

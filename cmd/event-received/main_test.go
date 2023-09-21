@@ -27,7 +27,7 @@ func TestHandleEvidenceReceived(t *testing.T) {
 
 	client := newMockDynamodbClient(t)
 	client.
-		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
 			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123"})
 			json.Unmarshal(b, v)
@@ -53,7 +53,7 @@ func TestHandleEvidenceReceivedWhenClientGetError(t *testing.T) {
 
 	client := newMockDynamodbClient(t)
 	client.
-		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(expectedError)
 
 	err := handleEvidenceReceived(ctx, client, event)
@@ -69,7 +69,7 @@ func TestHandleEvidenceReceivedWhenLpaMissingPK(t *testing.T) {
 
 	client := newMockDynamodbClient(t)
 	client.
-		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
 			b, _ := json.Marshal(dynamo.Key{})
 			json.Unmarshal(b, v)
@@ -89,7 +89,7 @@ func TestHandleEvidenceReceivedWhenClientPutError(t *testing.T) {
 
 	client := newMockDynamodbClient(t)
 	client.
-		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
 			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123"})
 			json.Unmarshal(b, v)
@@ -115,14 +115,14 @@ func TestHandleFeeApproved(t *testing.T) {
 
 	client := newMockDynamodbClient(t)
 	client.
-		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
 			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
 			json.Unmarshal(b, v)
 			return nil
 		})
 	client.
-		On("Get", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
 			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}})
 			json.Unmarshal(b, v)
@@ -141,7 +141,7 @@ func TestHandleFeeApproved(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestHandleFeeApprovedWhenDynamoClientGetOneByUIDError(t *testing.T) {
+func TestHandleFeeApprovedWhenDynamoClientOneByUIDError(t *testing.T) {
 	ctx := context.Background()
 	event := events.CloudWatchEvent{
 		DetailType: "fee-approved",
@@ -150,7 +150,7 @@ func TestHandleFeeApprovedWhenDynamoClientGetOneByUIDError(t *testing.T) {
 
 	client := newMockDynamodbClient(t)
 	client.
-		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(expectedError)
 
 	err := handleFeeApproved(ctx, client, event, nil, page.AppData{})
@@ -166,14 +166,14 @@ func TestHandleFeeApprovedWhenDynamoClientGetError(t *testing.T) {
 
 	client := newMockDynamodbClient(t)
 	client.
-		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
 			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
 			json.Unmarshal(b, v)
 			return nil
 		})
 	client.
-		On("Get", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(expectedError)
 
 	err := handleFeeApproved(ctx, client, event, nil, page.AppData{})
@@ -189,14 +189,14 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 
 	client := newMockDynamodbClient(t)
 	client.
-		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
 			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456"})
 			json.Unmarshal(b, v)
 			return nil
 		})
 	client.
-		On("Get", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
 			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}})
 			json.Unmarshal(b, v)
@@ -219,14 +219,14 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 
 	client := newMockDynamodbClient(t)
 	client.
-		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
 			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
 			json.Unmarshal(b, v)
 			return nil
 		})
 	client.
-		On("Get", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
 			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}})
 			json.Unmarshal(b, v)
@@ -254,14 +254,14 @@ func TestHandleMoreEvidenceRequired(t *testing.T) {
 
 	client := newMockDynamodbClient(t)
 	client.
-		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
 			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
 			json.Unmarshal(b, v)
 			return nil
 		})
 	client.
-		On("Get", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
 			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}})
 			json.Unmarshal(b, v)
@@ -275,7 +275,7 @@ func TestHandleMoreEvidenceRequired(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestHandleMoreEvidenceRequiredWhenGetOneByUIDError(t *testing.T) {
+func TestHandleMoreEvidenceRequiredWhenOneByUIDError(t *testing.T) {
 	ctx := context.Background()
 	event := events.CloudWatchEvent{
 		DetailType: "more-evidence-required",
@@ -284,7 +284,7 @@ func TestHandleMoreEvidenceRequiredWhenGetOneByUIDError(t *testing.T) {
 
 	client := newMockDynamodbClient(t)
 	client.
-		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(expectedError)
 
 	err := handleMoreEvidenceRequired(ctx, client, event)
@@ -300,7 +300,7 @@ func TestHandleMoreEvidenceRequiredWhenPKMissing(t *testing.T) {
 
 	client := newMockDynamodbClient(t)
 	client.
-		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
 			b, _ := json.Marshal(dynamo.Key{})
 			json.Unmarshal(b, v)
@@ -321,14 +321,14 @@ func TestHandleMoreEvidenceRequiredWhenGetError(t *testing.T) {
 
 	client := newMockDynamodbClient(t)
 	client.
-		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
 			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
 			json.Unmarshal(b, v)
 			return nil
 		})
 	client.
-		On("Get", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(expectedError)
 
 	err := handleMoreEvidenceRequired(ctx, client, event)
@@ -344,14 +344,14 @@ func TestHandleMoreEvidenceRequiredWhenPutError(t *testing.T) {
 
 	client := newMockDynamodbClient(t)
 	client.
-		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
 			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
 			json.Unmarshal(b, v)
 			return nil
 		})
 	client.
-		On("Get", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
 			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}})
 			json.Unmarshal(b, v)
@@ -374,14 +374,14 @@ func TestHandleFeeDenied(t *testing.T) {
 
 	client := newMockDynamodbClient(t)
 	client.
-		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
 			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
 			json.Unmarshal(b, v)
 			return nil
 		})
 	client.
-		On("Get", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
 			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}})
 			json.Unmarshal(b, v)
@@ -395,7 +395,7 @@ func TestHandleFeeDenied(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestHandleFeeDeniedWhenGetOneByUIDError(t *testing.T) {
+func TestHandleFeeDeniedWhenOneByUIDError(t *testing.T) {
 	ctx := context.Background()
 	event := events.CloudWatchEvent{
 		DetailType: "fee-denied",
@@ -404,7 +404,7 @@ func TestHandleFeeDeniedWhenGetOneByUIDError(t *testing.T) {
 
 	client := newMockDynamodbClient(t)
 	client.
-		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(expectedError)
 
 	err := handleFeeDenied(ctx, client, event)
@@ -420,7 +420,7 @@ func TestHandleFeeDeniedWhenPKMissing(t *testing.T) {
 
 	client := newMockDynamodbClient(t)
 	client.
-		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
 			b, _ := json.Marshal(dynamo.Key{})
 			json.Unmarshal(b, v)
@@ -441,14 +441,14 @@ func TestHandleFeeDeniedWhenGetError(t *testing.T) {
 
 	client := newMockDynamodbClient(t)
 	client.
-		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
 			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
 			json.Unmarshal(b, v)
 			return nil
 		})
 	client.
-		On("Get", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(expectedError)
 
 	err := handleFeeDenied(ctx, client, event)
@@ -464,14 +464,14 @@ func TestHandleFeeDeniedWhenPutError(t *testing.T) {
 
 	client := newMockDynamodbClient(t)
 	client.
-		On("GetOneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
 			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
 			json.Unmarshal(b, v)
 			return nil
 		})
 	client.
-		On("Get", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
 			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}})
 			json.Unmarshal(b, v)
