@@ -109,7 +109,7 @@ describe('Choose replacement attorneys summary', () => {
         cy.contains('B14 7ED');
     });
 
-    it.only('can remove an attorney', () => {
+    it('can remove an attorney', () => {
         cy.checkA11yApp();
 
         cy.get('#remove-replacement-1').contains('a', 'Remove').click();

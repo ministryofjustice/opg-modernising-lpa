@@ -41,27 +41,12 @@ func (s *attorneyStore) Create(ctx context.Context, donorSessionID, attorneyID s
 		SK:        subKey(data.SessionID),
 		DonorKey:  donorKey(donorSessionID),
 		ActorType: actor.TypeAttorney,
+		UpdatedAt: s.now(),
 	}); err != nil {
 		return nil, err
 	}
 
 	return attorney, err
-}
-
-func (s *attorneyStore) GetAll(ctx context.Context) ([]*actor.AttorneyProvidedDetails, error) {
-	data, err := page.SessionDataFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	if data.SessionID == "" {
-		return nil, errors.New("attorneyStore.GetAll requires SessionID")
-	}
-
-	var items []*actor.AttorneyProvidedDetails
-	err = s.dynamoClient.GetAllByGsi(ctx, "ActorIndex", attorneyKey(data.SessionID), &items)
-
-	return items, err
 }
 
 func (s *attorneyStore) Get(ctx context.Context) (*actor.AttorneyProvidedDetails, error) {
@@ -75,7 +60,7 @@ func (s *attorneyStore) Get(ctx context.Context) (*actor.AttorneyProvidedDetails
 	}
 
 	var attorney actor.AttorneyProvidedDetails
-	err = s.dynamoClient.Get(ctx, lpaKey(data.LpaID), attorneyKey(data.SessionID), &attorney)
+	err = s.dynamoClient.One(ctx, lpaKey(data.LpaID), attorneyKey(data.SessionID), &attorney)
 
 	return &attorney, err
 }
