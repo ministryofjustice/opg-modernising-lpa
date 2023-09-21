@@ -17,7 +17,7 @@ import (
 
 var expectedError = errors.New("err")
 
-func TestGet(t *testing.T) {
+func TestOne(t *testing.T) {
 	ctx := context.Background()
 
 	expected := map[string]string{"Col": "Val"}
@@ -36,12 +36,12 @@ func TestGet(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var actual map[string]string
-	err := c.Get(ctx, "a-pk", "a-sk", &actual)
+	err := c.One(ctx, "a-pk", "a-sk", &actual)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, actual)
 }
 
-func TestGetWhenError(t *testing.T) {
+func TestOneWhenError(t *testing.T) {
 	ctx := context.Background()
 	pkey, _ := attributevalue.Marshal("a-pk")
 	skey, _ := attributevalue.Marshal("a-sk")
@@ -57,12 +57,12 @@ func TestGetWhenError(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v string
-	err := c.Get(ctx, "a-pk", "a-sk", &v)
+	err := c.One(ctx, "a-pk", "a-sk", &v)
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, "", v)
 }
 
-func TestGetWhenNotFound(t *testing.T) {
+func TestOneWhenNotFound(t *testing.T) {
 	ctx := context.Background()
 	pkey, _ := attributevalue.Marshal("a-pk")
 	skey, _ := attributevalue.Marshal("a-sk")
@@ -78,9 +78,353 @@ func TestGetWhenNotFound(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v string
-	err := c.Get(ctx, "a-pk", "a-sk", &v)
+	err := c.One(ctx, "a-pk", "a-sk", &v)
 	assert.Equal(t, NotFoundError{}, err)
 	assert.Equal(t, "", v)
+}
+
+func TestOneByUID(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String("this"),
+			IndexName:                 aws.String(uidIndex),
+			ExpressionAttributeNames:  map[string]string{"#UID": "UID"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
+			KeyConditionExpression:    aws.String("#UID = :UID"),
+		}).
+		Return(&dynamodb.QueryOutput{
+			Items: []map[string]types.AttributeValue{{
+				"PK":  &types.AttributeValueMemberS{Value: "LPA#123"},
+				"UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
+			}},
+		}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v page.Lpa
+	err := c.OneByUID(ctx, "M-1111-2222-3333", &v)
+
+	assert.Nil(t, err)
+	assert.Equal(t, page.Lpa{PK: "LPA#123", UID: "M-1111-2222-3333"}, v)
+}
+
+func TestOneByUIDWhenQueryError(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String("this"),
+			IndexName:                 aws.String(uidIndex),
+			ExpressionAttributeNames:  map[string]string{"#UID": "UID"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
+			KeyConditionExpression:    aws.String("#UID = :UID"),
+		}).
+		Return(&dynamodb.QueryOutput{}, expectedError)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	err := c.OneByUID(ctx, "M-1111-2222-3333", mock.Anything)
+
+	assert.Equal(t, fmt.Errorf("failed to query UID: %w", expectedError), err)
+}
+
+func TestOneByUIDWhenNot1Item(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String("this"),
+			IndexName:                 aws.String(uidIndex),
+			ExpressionAttributeNames:  map[string]string{"#UID": "UID"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
+			KeyConditionExpression:    aws.String("#UID = :UID"),
+		}).
+		Return(&dynamodb.QueryOutput{
+			Items: []map[string]types.AttributeValue{
+				{
+					"PK":  &types.AttributeValueMemberS{Value: "LPA#123"},
+					"UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
+				},
+				{
+					"PK":  &types.AttributeValueMemberS{Value: "LPA#123"},
+					"UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
+				},
+			},
+		}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	err := c.OneByUID(ctx, "M-1111-2222-3333", mock.Anything)
+
+	assert.Equal(t, errors.New("expected to resolve UID but got 2 items"), err)
+}
+
+func TestOneByUIDWhenUnmarshalError(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String("this"),
+			IndexName:                 aws.String(uidIndex),
+			ExpressionAttributeNames:  map[string]string{"#UID": "UID"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
+			KeyConditionExpression:    aws.String("#UID = :UID"),
+		}).
+		Return(&dynamodb.QueryOutput{
+			Items: []map[string]types.AttributeValue{
+				{
+					"PK":  &types.AttributeValueMemberS{Value: "LPA#123"},
+					"UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
+				},
+			},
+		}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	err := c.OneByUID(ctx, "M-1111-2222-3333", "not an lpa")
+
+	assert.IsType(t, &attributevalue.InvalidUnmarshalError{}, err)
+}
+
+func TestOneByPartialSk(t *testing.T) {
+	ctx := context.Background()
+
+	expected := map[string]string{"Col": "Val"}
+	pkey, _ := attributevalue.Marshal("a-pk")
+	skey, _ := attributevalue.Marshal("a-partial-sk")
+	data, _ := attributevalue.MarshalMap(expected)
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String("this"),
+			ExpressionAttributeNames:  map[string]string{"#PK": "PK", "#SK": "SK"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":PK": pkey, ":SK": skey},
+			KeyConditionExpression:    aws.String("#PK = :PK and begins_with(#SK, :SK)"),
+		}).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v map[string]string
+	err := c.OneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
+	assert.Nil(t, err)
+	assert.Equal(t, expected, v)
+}
+
+func TestOneByPartialSkOnQueryError(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, mock.Anything).
+		Return(nil, expectedError)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v map[string]string
+	err := c.OneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestOneByPartialSkWhenNotFound(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, mock.Anything).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v map[string]string
+	err := c.OneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
+	assert.Equal(t, NotFoundError{}, err)
+}
+
+func TestOneByPartialSkWhenMultipleResults(t *testing.T) {
+	ctx := context.Background()
+
+	data, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val"})
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, mock.Anything).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data, data}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v map[string]string
+	err := c.OneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
+	assert.Equal(t, MultipleResultsError{}, err)
+}
+
+func TestAllForActor(t *testing.T) {
+	ctx := context.Background()
+
+	expected := map[string]string{"Col": "Val"}
+	skey, _ := attributevalue.Marshal("a-partial-sk")
+	data, _ := attributevalue.MarshalMap(expected)
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String("this"),
+			IndexName:                 aws.String(actorUpdatedAtIndex),
+			ExpressionAttributeNames:  map[string]string{"#SK": "SK"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":SK": skey},
+			KeyConditionExpression:    aws.String("#SK = :SK"),
+		}).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data, data}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v []map[string]string
+	err := c.AllForActor(ctx, "a-partial-sk", &v)
+	assert.Nil(t, err)
+	assert.Equal(t, []map[string]string{expected, expected}, v)
+}
+
+func TestAllForActorWhenNotFound(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, mock.Anything).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v []string
+	err := c.AllForActor(ctx, "a-partial-sk", &v)
+	assert.Nil(t, err)
+	assert.Empty(t, v)
+}
+
+func TestAllForActorOnQueryError(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, mock.Anything).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{}}, expectedError)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v []string
+	err := c.AllForActor(ctx, "a-partial-sk", &v)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestLatestForActor(t *testing.T) {
+	ctx := context.Background()
+
+	expected := map[string]string{"Col": "Val"}
+	skey, _ := attributevalue.Marshal("a-partial-sk")
+	updated, _ := attributevalue.Marshal("2")
+	data, _ := attributevalue.MarshalMap(expected)
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String("this"),
+			IndexName:                 aws.String(actorUpdatedAtIndex),
+			ExpressionAttributeNames:  map[string]string{"#SK": "SK", "#UpdatedAt": "UpdatedAt"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":SK": skey, ":UpdatedAt": updated},
+			KeyConditionExpression:    aws.String("#SK = :SK and #UpdatedAt > :UpdatedAt"),
+			ScanIndexForward:          aws.Bool(false),
+			Limit:                     aws.Int32(1),
+		}).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v map[string]string
+	err := c.LatestForActor(ctx, "a-partial-sk", &v)
+	assert.Nil(t, err)
+	assert.Equal(t, expected, v)
+}
+
+func TestLatestForActorWhenNotFound(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, mock.Anything).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v interface{}
+	err := c.LatestForActor(ctx, "a-partial-sk", &v)
+	assert.Nil(t, err)
+	assert.Nil(t, v)
+}
+
+func TestLatestForActorOnQueryError(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, mock.Anything).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{}}, expectedError)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v []string
+	err := c.LatestForActor(ctx, "a-partial-sk", &v)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestAllByKeys(t *testing.T) {
+	ctx := context.Background()
+
+	expected := map[string]string{"Col": "Val"}
+	data, _ := attributevalue.MarshalMap(expected)
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("BatchGetItem", ctx, &dynamodb.BatchGetItemInput{
+			RequestItems: map[string]types.KeysAndAttributes{
+				"this": {
+					Keys: []map[string]types.AttributeValue{{
+						"PK": &types.AttributeValueMemberS{Value: "pk"},
+						"SK": &types.AttributeValueMemberS{Value: "sk"},
+					}},
+				},
+			},
+		}).
+		Return(&dynamodb.BatchGetItemOutput{
+			Responses: map[string][]map[string]types.AttributeValue{
+				"this": {data},
+			},
+		}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	v, err := c.AllByKeys(ctx, []Key{{PK: "pk", SK: "sk"}})
+	assert.Nil(t, err)
+	assert.Equal(t, []map[string]types.AttributeValue{data}, v)
+}
+
+func TestAllByKeysWhenQueryErrors(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("BatchGetItem", ctx, mock.Anything).
+		Return(nil, expectedError)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	_, err := c.AllByKeys(ctx, []Key{{PK: "pk", SK: "sk"}})
+	assert.Equal(t, expectedError, err)
 }
 
 func TestPut(t *testing.T) {
@@ -146,294 +490,4 @@ func TestCreateWhenError(t *testing.T) {
 
 	err := c.Create(ctx, map[string]string{"Col": "Val"})
 	assert.Equal(t, expectedError, err)
-}
-
-func TestGetOneByPartialSk(t *testing.T) {
-	ctx := context.Background()
-
-	expected := map[string]string{"Col": "Val"}
-	pkey, _ := attributevalue.Marshal("a-pk")
-	skey, _ := attributevalue.Marshal("a-partial-sk")
-	data, _ := attributevalue.MarshalMap(expected)
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.
-		On("Query", ctx, &dynamodb.QueryInput{
-			TableName:                 aws.String("this"),
-			ExpressionAttributeNames:  map[string]string{"#PK": "PK", "#SK": "SK"},
-			ExpressionAttributeValues: map[string]types.AttributeValue{":PK": pkey, ":SK": skey},
-			KeyConditionExpression:    aws.String("#PK = :PK and begins_with(#SK, :SK)"),
-		}).
-		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data}}, nil)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	var v map[string]string
-	err := c.GetOneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
-	assert.Nil(t, err)
-	assert.Equal(t, expected, v)
-}
-
-func TestGetOneByPartialSkOnQueryError(t *testing.T) {
-	ctx := context.Background()
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.
-		On("Query", ctx, mock.Anything).
-		Return(nil, expectedError)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	var v map[string]string
-	err := c.GetOneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
-	assert.Equal(t, expectedError, err)
-}
-
-func TestGetOneByPartialSkWhenNotFound(t *testing.T) {
-	ctx := context.Background()
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.
-		On("Query", ctx, mock.Anything).
-		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{}}, nil)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	var v map[string]string
-	err := c.GetOneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
-	assert.Equal(t, NotFoundError{}, err)
-}
-
-func TestGetOneByPartialSkWhenMultipleResults(t *testing.T) {
-	ctx := context.Background()
-
-	data, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val"})
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.
-		On("Query", ctx, mock.Anything).
-		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data, data}}, nil)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	var v map[string]string
-	err := c.GetOneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
-	assert.Equal(t, MultipleResultsError{}, err)
-}
-
-func TestGetAllByGsi(t *testing.T) {
-	ctx := context.Background()
-
-	expected := map[string]string{"Col": "Val"}
-	skey, _ := attributevalue.Marshal("a-partial-sk")
-	data, _ := attributevalue.MarshalMap(expected)
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.
-		On("Query", ctx, &dynamodb.QueryInput{
-			TableName:                 aws.String("this"),
-			IndexName:                 aws.String("index-name"),
-			ExpressionAttributeNames:  map[string]string{"#SK": "SK"},
-			ExpressionAttributeValues: map[string]types.AttributeValue{":SK": skey},
-			KeyConditionExpression:    aws.String("#SK = :SK"),
-		}).
-		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data, data}}, nil)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	var v []map[string]string
-	err := c.GetAllByGsi(ctx, "index-name", "a-partial-sk", &v)
-	assert.Nil(t, err)
-	assert.Equal(t, []map[string]string{expected, expected}, v)
-}
-
-func TestGetAllByGsiWhenNotFound(t *testing.T) {
-	ctx := context.Background()
-	skey, _ := attributevalue.Marshal("a-partial-sk")
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.
-		On("Query", ctx, &dynamodb.QueryInput{
-			TableName:                 aws.String("this"),
-			IndexName:                 aws.String("index-name"),
-			ExpressionAttributeNames:  map[string]string{"#SK": "SK"},
-			ExpressionAttributeValues: map[string]types.AttributeValue{":SK": skey},
-			KeyConditionExpression:    aws.String("#SK = :SK"),
-		}).
-		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{}}, nil)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	var v []string
-	err := c.GetAllByGsi(ctx, "index-name", "a-partial-sk", &v)
-	assert.Nil(t, err)
-}
-
-func TestGetAllByGsiOnQueryError(t *testing.T) {
-	ctx := context.Background()
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.
-		On("Query", ctx, mock.Anything).
-		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{}}, expectedError)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	var v []string
-	err := c.GetAllByGsi(ctx, "index-name", "a-partial-sk", &v)
-	assert.Equal(t, expectedError, err)
-}
-
-func TestGetAllByKeys(t *testing.T) {
-	ctx := context.Background()
-
-	expected := map[string]string{"Col": "Val"}
-	data, _ := attributevalue.MarshalMap(expected)
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.
-		On("BatchGetItem", ctx, &dynamodb.BatchGetItemInput{
-			RequestItems: map[string]types.KeysAndAttributes{
-				"this": {
-					Keys: []map[string]types.AttributeValue{{
-						"PK": &types.AttributeValueMemberS{Value: "pk"},
-						"SK": &types.AttributeValueMemberS{Value: "sk"},
-					}},
-				},
-			},
-		}).
-		Return(&dynamodb.BatchGetItemOutput{
-			Responses: map[string][]map[string]types.AttributeValue{
-				"this": {data},
-			},
-		}, nil)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	v, err := c.GetAllByKeys(ctx, []Key{{PK: "pk", SK: "sk"}})
-	assert.Nil(t, err)
-	assert.Equal(t, []map[string]types.AttributeValue{data}, v)
-}
-
-func TestGetAllByKeysWhenQueryErrors(t *testing.T) {
-	ctx := context.Background()
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.
-		On("BatchGetItem", ctx, mock.Anything).
-		Return(nil, expectedError)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	_, err := c.GetAllByKeys(ctx, []Key{{PK: "pk", SK: "sk"}})
-	assert.Equal(t, expectedError, err)
-}
-
-func TestGetOneByUID(t *testing.T) {
-	ctx := context.Background()
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.
-		On("Query", ctx, &dynamodb.QueryInput{
-			TableName:                 aws.String("this"),
-			IndexName:                 aws.String("UidIndex"),
-			ExpressionAttributeNames:  map[string]string{"#UID": "UID"},
-			ExpressionAttributeValues: map[string]types.AttributeValue{":UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
-			KeyConditionExpression:    aws.String("#UID = :UID"),
-		}).
-		Return(&dynamodb.QueryOutput{
-			Items: []map[string]types.AttributeValue{{
-				"PK":  &types.AttributeValueMemberS{Value: "LPA#123"},
-				"UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
-			}},
-		}, nil)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	var v page.Lpa
-	err := c.GetOneByUID(ctx, "M-1111-2222-3333", &v)
-
-	assert.Nil(t, err)
-	assert.Equal(t, page.Lpa{PK: "LPA#123", UID: "M-1111-2222-3333"}, v)
-}
-
-func TestGetOneByUIDWhenQueryError(t *testing.T) {
-	ctx := context.Background()
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.
-		On("Query", ctx, &dynamodb.QueryInput{
-			TableName:                 aws.String("this"),
-			IndexName:                 aws.String("UidIndex"),
-			ExpressionAttributeNames:  map[string]string{"#UID": "UID"},
-			ExpressionAttributeValues: map[string]types.AttributeValue{":UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
-			KeyConditionExpression:    aws.String("#UID = :UID"),
-		}).
-		Return(&dynamodb.QueryOutput{}, expectedError)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	err := c.GetOneByUID(ctx, "M-1111-2222-3333", mock.Anything)
-
-	assert.Equal(t, fmt.Errorf("failed to query UID: %w", expectedError), err)
-}
-
-func TestGetOneByUIDWhenNot1Item(t *testing.T) {
-	ctx := context.Background()
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.
-		On("Query", ctx, &dynamodb.QueryInput{
-			TableName:                 aws.String("this"),
-			IndexName:                 aws.String("UidIndex"),
-			ExpressionAttributeNames:  map[string]string{"#UID": "UID"},
-			ExpressionAttributeValues: map[string]types.AttributeValue{":UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
-			KeyConditionExpression:    aws.String("#UID = :UID"),
-		}).
-		Return(&dynamodb.QueryOutput{
-			Items: []map[string]types.AttributeValue{
-				{
-					"PK":  &types.AttributeValueMemberS{Value: "LPA#123"},
-					"UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
-				},
-				{
-					"PK":  &types.AttributeValueMemberS{Value: "LPA#123"},
-					"UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
-				},
-			},
-		}, nil)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	err := c.GetOneByUID(ctx, "M-1111-2222-3333", mock.Anything)
-
-	assert.Equal(t, errors.New("expected to resolve UID but got 2 items"), err)
-}
-
-func TestGetOneByUIDWhenUnmarshalError(t *testing.T) {
-	ctx := context.Background()
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.
-		On("Query", ctx, &dynamodb.QueryInput{
-			TableName:                 aws.String("this"),
-			IndexName:                 aws.String("UidIndex"),
-			ExpressionAttributeNames:  map[string]string{"#UID": "UID"},
-			ExpressionAttributeValues: map[string]types.AttributeValue{":UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
-			KeyConditionExpression:    aws.String("#UID = :UID"),
-		}).
-		Return(&dynamodb.QueryOutput{
-			Items: []map[string]types.AttributeValue{
-				{
-					"PK":  &types.AttributeValueMemberS{Value: "LPA#123"},
-					"UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
-				},
-			},
-		}, nil)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	err := c.GetOneByUID(ctx, "M-1111-2222-3333", "not an lpa")
-
-	assert.IsType(t, &attributevalue.InvalidUnmarshalError{}, err)
 }

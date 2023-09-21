@@ -9,7 +9,7 @@ data "aws_kms_alias" "dynamodb_encryption_key_eu_west_2" {
 }
 
 resource "aws_dynamodb_table" "lpas_table" {
-  name                        = "${local.environment_name}-Lpas2"
+  name                        = "${local.environment_name}-Lpas"
   billing_mode                = "PAY_PER_REQUEST"
   deletion_protection_enabled = local.default_tags.environment-name == "production" ? true : false
   # see docs/runbooks/disabling_dynamodb_global_tables.md when Global Tables needs to be disabled
@@ -19,8 +19,9 @@ resource "aws_dynamodb_table" "lpas_table" {
   range_key        = "SK"
 
   global_secondary_index {
-    name            = "ActorIndex"
+    name            = "ActorUpdatedAtIndex"
     hash_key        = "SK"
+    range_key       = "UpdatedAt"
     projection_type = "ALL"
   }
 
@@ -47,6 +48,11 @@ resource "aws_dynamodb_table" "lpas_table" {
 
   attribute {
     name = "UID"
+    type = "S"
+  }
+
+  attribute {
+    name = "UpdatedAt"
     type = "S"
   }
 

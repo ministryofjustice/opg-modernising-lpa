@@ -22,7 +22,7 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 		On("Create", ctx, details).
 		Return(nil)
 	dynamoClient.
-		On("Create", ctx, lpaLink{PK: "LPA#123", SK: "#SUB#456", DonorKey: "#DONOR#session-id", ActorType: actor.TypeCertificateProvider}).
+		On("Create", ctx, lpaLink{PK: "LPA#123", SK: "#SUB#456", DonorKey: "#DONOR#session-id", ActorType: actor.TypeCertificateProvider, UpdatedAt: now}).
 		Return(nil)
 
 	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
@@ -98,46 +98,12 @@ func TestCertificateProviderStoreCreateWhenCreateError(t *testing.T) {
 	}
 }
 
-func TestCertificateProviderStoreGetAll(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "session-id"})
-	certificateProvider := &actor.CertificateProviderProvidedDetails{LpaID: "123"}
-
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		ExpectGetAllByGsi(ctx, "ActorIndex", "#CERTIFICATE_PROVIDER#session-id",
-			[]any{certificateProvider}, nil)
-
-	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: nil}
-
-	certificateProviders, err := certificateProviderStore.GetAll(ctx)
-	assert.Nil(t, err)
-	assert.Equal(t, []*actor.CertificateProviderProvidedDetails{certificateProvider}, certificateProviders)
-}
-
-func TestCertificateProviderStoreGetAllWhenSessionMissing(t *testing.T) {
-	ctx := context.Background()
-
-	certificateProviderStore := &certificateProviderStore{}
-
-	_, err := certificateProviderStore.GetAll(ctx)
-	assert.Equal(t, page.SessionMissingError{}, err)
-}
-
-func TestCertificateProviderStoreGetAllWhenMissingSessionID(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{})
-
-	certificateProviderStore := &certificateProviderStore{}
-
-	_, err := certificateProviderStore.GetAll(ctx)
-	assert.NotNil(t, err)
-}
-
 func TestCertificateProviderStoreGetAny(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectGetOneByPartialSk(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, nil)
+		ExpectOneByPartialSk(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, nil)
 
 	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: nil}
 
@@ -169,7 +135,7 @@ func TestCertificateProviderStoreGetAnyOnError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectGetOneByPartialSk(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, expectedError)
+		ExpectOneByPartialSk(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, expectedError)
 
 	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: nil}
 
@@ -182,7 +148,7 @@ func TestCertificateProviderStoreGet(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectGet(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, nil)
+		ExpectOne(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, nil)
 
 	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: nil}
 
@@ -223,7 +189,7 @@ func TestCertificateProviderStoreGetOnError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectGet(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, expectedError)
+		ExpectOne(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#456", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, expectedError)
 
 	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: nil}
 
