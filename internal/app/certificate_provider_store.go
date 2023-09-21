@@ -39,27 +39,12 @@ func (s *certificateProviderStore) Create(ctx context.Context, donorSessionID st
 		SK:        subKey(data.SessionID),
 		DonorKey:  donorKey(donorSessionID),
 		ActorType: actor.TypeCertificateProvider,
+		UpdatedAt: s.now(),
 	}); err != nil {
 		return nil, err
 	}
 
 	return cp, err
-}
-
-func (s *certificateProviderStore) GetAll(ctx context.Context) ([]*actor.CertificateProviderProvidedDetails, error) {
-	data, err := page.SessionDataFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	if data.SessionID == "" {
-		return nil, errors.New("certificateProviderStore.GetAll requires SessionID")
-	}
-
-	var items []*actor.CertificateProviderProvidedDetails
-	err = s.dynamoClient.GetAllByGsi(ctx, "ActorIndex", certificateProviderKey(data.SessionID), &items)
-
-	return items, err
 }
 
 func (s *certificateProviderStore) GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error) {
@@ -73,7 +58,7 @@ func (s *certificateProviderStore) GetAny(ctx context.Context) (*actor.Certifica
 	}
 
 	var certificateProvider actor.CertificateProviderProvidedDetails
-	err = s.dynamoClient.GetOneByPartialSk(ctx, lpaKey(data.LpaID), "#CERTIFICATE_PROVIDER#", &certificateProvider)
+	err = s.dynamoClient.OneByPartialSk(ctx, lpaKey(data.LpaID), "#CERTIFICATE_PROVIDER#", &certificateProvider)
 
 	return &certificateProvider, err
 }
@@ -89,7 +74,7 @@ func (s *certificateProviderStore) Get(ctx context.Context) (*actor.CertificateP
 	}
 
 	var certificateProvider actor.CertificateProviderProvidedDetails
-	err = s.dynamoClient.Get(ctx, lpaKey(data.LpaID), certificateProviderKey(data.SessionID), &certificateProvider)
+	err = s.dynamoClient.One(ctx, lpaKey(data.LpaID), certificateProviderKey(data.SessionID), &certificateProvider)
 
 	return &certificateProvider, err
 }

@@ -16,50 +16,8 @@ type mockDynamoClient struct {
 	mock.Mock
 }
 
-// Create provides a mock function with given fields: ctx, v
-func (_m *mockDynamoClient) Create(ctx context.Context, v interface{}) error {
-	ret := _m.Called(ctx, v)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, interface{}) error); ok {
-		r0 = rf(ctx, v)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// Get provides a mock function with given fields: ctx, pk, sk, v
-func (_m *mockDynamoClient) Get(ctx context.Context, pk string, sk string, v interface{}) error {
-	ret := _m.Called(ctx, pk, sk, v)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, interface{}) error); ok {
-		r0 = rf(ctx, pk, sk, v)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// GetAllByGsi provides a mock function with given fields: ctx, gsi, sk, v
-func (_m *mockDynamoClient) GetAllByGsi(ctx context.Context, gsi string, sk string, v interface{}) error {
-	ret := _m.Called(ctx, gsi, sk, v)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, interface{}) error); ok {
-		r0 = rf(ctx, gsi, sk, v)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// GetAllByKeys provides a mock function with given fields: ctx, pks
-func (_m *mockDynamoClient) GetAllByKeys(ctx context.Context, pks []dynamo.Key) ([]map[string]types.AttributeValue, error) {
+// AllByKeys provides a mock function with given fields: ctx, pks
+func (_m *mockDynamoClient) AllByKeys(ctx context.Context, pks []dynamo.Key) ([]map[string]types.AttributeValue, error) {
 	ret := _m.Called(ctx, pks)
 
 	var r0 []map[string]types.AttributeValue
@@ -84,8 +42,64 @@ func (_m *mockDynamoClient) GetAllByKeys(ctx context.Context, pks []dynamo.Key) 
 	return r0, r1
 }
 
-// GetOneByPartialSk provides a mock function with given fields: ctx, pk, partialSk, v
-func (_m *mockDynamoClient) GetOneByPartialSk(ctx context.Context, pk string, partialSk string, v interface{}) error {
+// AllForActor provides a mock function with given fields: ctx, sk, v
+func (_m *mockDynamoClient) AllForActor(ctx context.Context, sk string, v interface{}) error {
+	ret := _m.Called(ctx, sk, v)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, interface{}) error); ok {
+		r0 = rf(ctx, sk, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// Create provides a mock function with given fields: ctx, v
+func (_m *mockDynamoClient) Create(ctx context.Context, v interface{}) error {
+	ret := _m.Called(ctx, v)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}) error); ok {
+		r0 = rf(ctx, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// LatestForActor provides a mock function with given fields: ctx, sk, v
+func (_m *mockDynamoClient) LatestForActor(ctx context.Context, sk string, v interface{}) error {
+	ret := _m.Called(ctx, sk, v)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, interface{}) error); ok {
+		r0 = rf(ctx, sk, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// One provides a mock function with given fields: ctx, pk, sk, v
+func (_m *mockDynamoClient) One(ctx context.Context, pk string, sk string, v interface{}) error {
+	ret := _m.Called(ctx, pk, sk, v)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, interface{}) error); ok {
+		r0 = rf(ctx, pk, sk, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// OneByPartialSk provides a mock function with given fields: ctx, pk, partialSk, v
+func (_m *mockDynamoClient) OneByPartialSk(ctx context.Context, pk string, partialSk string, v interface{}) error {
 	ret := _m.Called(ctx, pk, partialSk, v)
 
 	var r0 error
