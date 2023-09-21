@@ -23,7 +23,7 @@ func (s *shareCodeStore) Get(ctx context.Context, actorType actor.Type, shareCod
 		return data, err
 	}
 
-	err = s.dynamoClient.Get(ctx, pk, sk, &data)
+	err = s.dynamoClient.One(ctx, pk, sk, &data)
 	return data, err
 }
 

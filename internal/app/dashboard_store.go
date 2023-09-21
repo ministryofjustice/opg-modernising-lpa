@@ -5,6 +5,7 @@ import (
 	"errors"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -22,6 +23,8 @@ type lpaLink struct {
 	DonorKey string
 	// ActorType is the type for the current user
 	ActorType actor.Type
+	// UpdatedAt is set to allow this data to be queried from ActorUpdatedAtIndex
+	UpdatedAt time.Time
 }
 
 type dashboardStore struct {
@@ -55,7 +58,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 	}
 
 	var links []lpaLink
-	if err := s.dynamoClient.GetAllByGsi(ctx, "ActorIndex", subKey(data.SessionID), &links); err != nil {
+	if err := s.dynamoClient.AllForActor(ctx, subKey(data.SessionID), &links); err != nil {
 		return nil, nil, nil, err
 	}
 
@@ -80,7 +83,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		return nil, nil, nil, nil
 	}
 
-	lpasOrProvidedDetails, err := s.dynamoClient.GetAllByKeys(ctx, searchKeys)
+	lpasOrProvidedDetails, err := s.dynamoClient.AllByKeys(ctx, searchKeys)
 	if err != nil {
 		return nil, nil, nil, err
 	}
