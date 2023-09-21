@@ -1,7 +1,7 @@
 [
   {
-    "IndexName": "ActorIndex",
-    "KeySchema": [{"AttributeName":"SK","KeyType":"HASH"}],
+    "IndexName": "ActorUpdatedAtIndex",
+    "KeySchema": [{"AttributeName":"SK","KeyType":"HASH"},{"AttributeName":"UpdatedAt","KeyType":"Range"}],
     "Projection": {
       "ProjectionType":"ALL"
     },

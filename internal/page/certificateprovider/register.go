@@ -33,7 +33,6 @@ type CertificateProviderStore interface {
 	Create(ctx context.Context, sessionID string) (*actor.CertificateProviderProvidedDetails, error)
 	Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
 	Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error
-	GetAll(ctx context.Context) ([]*actor.CertificateProviderProvidedDetails, error)
 }
 
 //go:generate mockery --testonly --inpackage --name OneLoginClient --structname mockOneLoginClient

@@ -29,9 +29,9 @@ type uidEvent struct {
 
 //go:generate mockery --testonly --inpackage --name dynamodbClient --structname mockDynamodbClient
 type dynamodbClient interface {
-	Put(context.Context, interface{}) error
-	GetOneByUID(context.Context, string, interface{}) error
-	Get(ctx context.Context, pk, sk string, v interface{}) error
+	One(ctx context.Context, pk, sk string, v interface{}) error
+	OneByUID(ctx context.Context, uid string, v interface{}) error
+	Put(ctx context.Context, v interface{}) error
 }
 
 //go:generate mockery --testonly --inpackage --name shareCodeSender --structname mockShareCodeSender
@@ -106,7 +106,7 @@ func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event ev
 	}
 
 	var key dynamo.Key
-	if err := client.GetOneByUID(ctx, v.UID, &key); err != nil {
+	if err := client.OneByUID(ctx, v.UID, &key); err != nil {
 		return fmt.Errorf("failed to resolve uid for 'evidence-received': %w", err)
 	}
 
@@ -128,12 +128,12 @@ func handleFeeApproved(ctx context.Context, dynamoClient dynamodbClient, event e
 	}
 
 	var key dynamo.Key
-	if err := dynamoClient.GetOneByUID(ctx, v.UID, &key); err != nil {
+	if err := dynamoClient.OneByUID(ctx, v.UID, &key); err != nil {
 		return fmt.Errorf("failed to resolve uid for 'fee-approved': %w", err)
 	}
 
 	var lpa page.Lpa
-	if err := dynamoClient.Get(ctx, key.PK, key.SK, &lpa); err != nil {
+	if err := dynamoClient.One(ctx, key.PK, key.SK, &lpa); err != nil {
 		return fmt.Errorf("failed to get LPA for 'fee-approved': %w", err)
 	}
 
@@ -157,7 +157,7 @@ func handleMoreEvidenceRequired(ctx context.Context, client dynamodbClient, even
 	}
 
 	var key dynamo.Key
-	if err := client.GetOneByUID(ctx, v.UID, &key); err != nil {
+	if err := client.OneByUID(ctx, v.UID, &key); err != nil {
 		return fmt.Errorf("failed to resolve uid for 'more-evidence-required': %w", err)
 	}
 
@@ -166,7 +166,7 @@ func handleMoreEvidenceRequired(ctx context.Context, client dynamodbClient, even
 	}
 
 	var lpa page.Lpa
-	if err := client.Get(ctx, key.PK, key.SK, &lpa); err != nil {
+	if err := client.One(ctx, key.PK, key.SK, &lpa); err != nil {
 		return fmt.Errorf("failed to get LPA for 'more-evidence-required': %w", err)
 	}
 
@@ -186,7 +186,7 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.Cl
 	}
 
 	var key dynamo.Key
-	if err := client.GetOneByUID(ctx, v.UID, &key); err != nil {
+	if err := client.OneByUID(ctx, v.UID, &key); err != nil {
 		return fmt.Errorf("failed to resolve uid for 'fee-denied': %w", err)
 	}
 
@@ -195,7 +195,7 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.Cl
 	}
 
 	var lpa page.Lpa
-	if err := client.Get(ctx, key.PK, key.SK, &lpa); err != nil {
+	if err := client.One(ctx, key.PK, key.SK, &lpa); err != nil {
 		return fmt.Errorf("failed to get LPA for 'fee-denied': %w", err)
 	}
 
