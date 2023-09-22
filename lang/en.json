@@ -766,5 +766,6 @@
     "use": "Use",
     "registered": "Registered",
     "submittedToOpg": "Submitted to OPG",
-    "readyToSign": "Ready to sign"
+    "readyToSign": "Ready to sign",
+    "whatIsYourCompanyPhoneNumber": "What is your company"
 }
