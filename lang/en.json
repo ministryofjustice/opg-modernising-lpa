@@ -759,5 +759,6 @@
     "uploadEvidenceContent": "<p class=\"govuk-body\">Upload a maximum of {{.NumberOfAllowedFiles}} files.</p>",
     "halfFeeNextSteps": "<h2 class=\"govuk-heading-m\">Next steps</h2><p class=\"govuk-body\">Content detailing next steps when donor has paid a half fee and is waiting for evidence to be checked by a case worker</p>",
     "referenceNumber": "Reference number",
-    "lastUpdated": "Last updated"
+    "lastUpdated": "Last updated",
+    "whatIsYourCompanyPhoneNumber": "What is your company"
 }
