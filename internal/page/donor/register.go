@@ -36,9 +36,8 @@ type Logger interface {
 
 //go:generate mockery --testonly --inpackage --name DonorStore --structname mockDonorStore
 type DonorStore interface {
-	Create(context.Context) (*page.Lpa, error)
-	GetAll(context.Context) ([]*page.Lpa, error)
 	Get(context.Context) (*page.Lpa, error)
+	Latest(context.Context) (*page.Lpa, error)
 	Put(context.Context, *page.Lpa) error
 }
 

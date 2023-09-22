@@ -51,7 +51,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 			ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
 
 			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.ExpectGetAllByGsi(ctx, "ActorIndex", "#SUB#an-id",
+			dynamoClient.ExpectAllForActor(ctx, "#SUB#an-id",
 				[]lpaLink{
 					{PK: "LPA#123", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor},
 					{PK: "LPA#456", SK: "#SUB#an-id", DonorKey: "#DONOR#another-id", ActorType: actor.TypeCertificateProvider},
@@ -59,7 +59,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 					{PK: "LPA#0", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor},
 					{PK: "LPA#999", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor},
 				}, nil)
-			dynamoClient.ExpectGetAllByKeys(ctx, []dynamo.Key{
+			dynamoClient.ExpectAllByKeys(ctx, []dynamo.Key{
 				{PK: "LPA#123", SK: "#DONOR#an-id"},
 				{PK: "LPA#456", SK: "#DONOR#another-id"},
 				{PK: "LPA#456", SK: "#CERTIFICATE_PROVIDER#an-id"},
@@ -90,7 +90,7 @@ func TestDashboardStoreGetAllWhenNone(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectGetAllByGsi(ctx, "ActorIndex", "#SUB#an-id",
+	dynamoClient.ExpectAllForActor(ctx, "#SUB#an-id",
 		[]map[string]any{}, nil)
 
 	dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
@@ -100,4 +100,33 @@ func TestDashboardStoreGetAllWhenNone(t *testing.T) {
 	assert.Nil(t, donor)
 	assert.Nil(t, attorney)
 	assert.Nil(t, certificateProvider)
+}
+
+func TestDashboardStoreGetAllWhenAllForActorErrors(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectAllForActor(ctx, "#SUB#an-id",
+		[]lpaLink{}, expectedError)
+
+	dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
+
+	_, _, _, err := dashboardStore.GetAll(ctx)
+	assert.Equal(t, err, expectedError)
+}
+
+func TestDashboardStoreGetAllWhenAllByKeysErrors(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectAllForActor(ctx, "#SUB#an-id",
+		[]lpaLink{{PK: "LPA#123", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor}}, nil)
+	dynamoClient.ExpectAllByKeys(ctx, []dynamo.Key{
+		{PK: "LPA#123", SK: "#DONOR#an-id"},
+	}, nil, expectedError)
+
+	dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
+
+	_, _, _, err := dashboardStore.GetAll(ctx)
+	assert.Equal(t, expectedError, err)
 }
