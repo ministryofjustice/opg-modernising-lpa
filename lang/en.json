@@ -760,5 +760,9 @@
     "halfFeeNextSteps": "<h2 class=\"govuk-heading-m\">Next steps</h2><p class=\"govuk-body\">Content detailing next steps when donor has paid a half fee and is waiting for evidence to be checked by a case worker</p>",
     "referenceNumber": "Reference number",
     "lastUpdated": "Last updated",
-    "whatIsYourCompanyPhoneNumber": "What is your company’s phone number?"
+    "whatIsYourCompanyPhoneNumber": "What is your company’s phone number?",
+    "enterYourCompanyNumberOptional": "Enter your company’s phone number (optional)",
+    "youCanChooseToTellUsYourCompanyNumber": "You can choose to tell us your company's phone number in case we ever need to contact you.",
+    "enterYourCompanyPhoneNumberHint": "For example, 07700 900 982 or 01632 960000.",
+    "errorCompanyNumber": "Enter a valid phone number"
 }
