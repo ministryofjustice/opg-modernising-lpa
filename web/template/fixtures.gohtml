@@ -246,15 +246,45 @@
         <div class="govuk-form-group">
           <div class="govuk-checkboxes" data-module="govuk-checkboxes">
             <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-as-attorney" name="as-attorney" type="checkbox" value="1">
+              <input class="govuk-checkboxes__input" id="f-as-attorney" name="attorneyProvided" type="checkbox" value="1">
               <label class="govuk-label govuk-checkboxes__label" for="f-as-attorney">
                 And as attorney
               </label>
             </div>
             <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-as-certificate-provider" name="as-certificate-provider" type="checkbox" value="1">
+              <input class="govuk-checkboxes__input" id="f-as-certificate-provider" name="asCertificateProvider" type="checkbox" value="1">
               <label class="govuk-label govuk-checkboxes__label" for="f-as-certificate-provider">
                 And as certificate provider
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="govuk-heading-s">Donor's LPA</h3>
+        <div class="govuk-form-group">
+          <div class="govuk-radios" data-module="govuk-radios">
+            <div class="govuk-radios__item">
+              <input class="govuk-radios__input" id="f-unsigned" name="lpa.progress" type="radio" value="">
+              <label class="govuk-label govuk-radios__label" for="f-unsigned">
+                Unsigned
+              </label>
+            </div>
+            <div class="govuk-radios__item">
+              <input class="govuk-radios__input" id="f-signedByDonor" name="lpa.progress" type="radio" value="signedByDonor">
+              <label class="govuk-label govuk-radios__label" for="f-signedByDonor">
+                Signed by donor
+              </label>
+            </div>
+            <div class="govuk-radios__item">
+              <input class="govuk-radios__input" id="f-submitted" name="lpa.progress" type="radio" value="submitted">
+              <label class="govuk-label govuk-radios__label" for="f-submitted">
+                Submitted
+              </label>
+            </div>
+            <div class="govuk-radios__item">
+              <input class="govuk-radios__input" id="f-registered" name="lpa.progress" type="radio" value="registered">
+              <label class="govuk-label govuk-radios__label" for="f-registered">
+                Registered
               </label>
             </div>
           </div>

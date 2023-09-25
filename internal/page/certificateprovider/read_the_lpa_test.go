@@ -108,8 +108,8 @@ func TestPostReadTheLpa(t *testing.T) {
 	donorStore.
 		On("GetAny", r.Context()).
 		Return(&page.Lpa{
-			ID:        "lpa-id",
-			Submitted: time.Now(),
+			ID:       "lpa-id",
+			SignedAt: time.Now(),
 			Tasks: page.Tasks{
 				PayForLpa: actor.PaymentTaskCompleted,
 			},
@@ -144,8 +144,8 @@ func TestPostReadTheLpaWhenNotReady(t *testing.T) {
 			},
 		},
 		"not paid": {
-			ID:        "lpa-id",
-			Submitted: time.Now(),
+			ID:       "lpa-id",
+			SignedAt: time.Now(),
 		},
 	}
 
@@ -182,8 +182,8 @@ func TestPostReadTheLpaWithAttorneyOnCertificateStoreError(t *testing.T) {
 	donorStore.
 		On("GetAny", r.Context()).
 		Return(&page.Lpa{
-			ID:        "lpa-id",
-			Submitted: time.Now(),
+			ID:       "lpa-id",
+			SignedAt: time.Now(),
 			Tasks: page.Tasks{
 				PayForLpa: actor.PaymentTaskCompleted,
 			},

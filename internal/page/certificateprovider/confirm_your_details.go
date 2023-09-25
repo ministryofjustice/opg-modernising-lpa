@@ -30,7 +30,7 @@ func ConfirmYourDetails(tmpl template.Template, donorStore DonorStore, certifica
 
 		if r.Method == http.MethodPost {
 			redirect := page.Paths.CertificateProvider.YourRole.Format(certificateProvider.LpaID)
-			if certificateProvider.Tasks.ConfirmYourDetails.Completed() || !lpa.Submitted.IsZero() {
+			if certificateProvider.Tasks.ConfirmYourDetails.Completed() || !lpa.SignedAt.IsZero() {
 				redirect = page.Paths.CertificateProvider.TaskList.Format(certificateProvider.LpaID)
 			}
 

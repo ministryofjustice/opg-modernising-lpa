@@ -12,7 +12,7 @@
       </span>
       <h1 class="govuk-heading-xl">{{ tr .App "yourTaskList" }}</h1>
 
-      {{ if .Lpa.Submitted.IsZero }}
+      {{ if .Lpa.SignedAt.IsZero }}
         {{ $yourRoleURL := link .App (.App.Paths.CertificateProvider.YourRole.Format .Lpa.ID)}}
         {{ trFormatHtml .App "untilYouHaveWitnessed" "DonorFullName" .Lpa.Donor.FullName "YourRoleURL" $yourRoleURL }}
 

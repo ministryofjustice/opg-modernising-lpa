@@ -50,19 +50,19 @@ func TaskList(tmpl template.Template, donorStore DonorStore, certificateProvider
 					Name:     "confirmYourIdentity",
 					Path:     page.Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity.Format(lpa.ID),
 					State:    tasks.ConfirmYourIdentity,
-					Disabled: !lpa.Tasks.PayForLpa.IsCompleted() || lpa.Submitted.IsZero(),
+					Disabled: !lpa.Tasks.PayForLpa.IsCompleted() || lpa.SignedAt.IsZero(),
 				},
 				{
 					Name:     "readTheLpa",
 					Path:     page.Paths.CertificateProvider.ReadTheLpa.Format(lpa.ID),
 					State:    tasks.ReadTheLpa,
-					Disabled: lpa.Submitted.IsZero(),
+					Disabled: lpa.SignedAt.IsZero(),
 				},
 				{
 					Name:     "provideTheCertificateForThisLpa",
 					Path:     page.Paths.CertificateProvider.ProvideCertificate.Format(lpa.ID),
 					State:    tasks.ProvideTheCertificate,
-					Disabled: lpa.Submitted.IsZero() || !tasks.ConfirmYourDetails.Completed() || !tasks.ConfirmYourIdentity.Completed() || !tasks.ReadTheLpa.Completed(),
+					Disabled: lpa.SignedAt.IsZero() || !tasks.ConfirmYourDetails.Completed() || !tasks.ConfirmYourIdentity.Completed() || !tasks.ReadTheLpa.Completed(),
 				},
 			},
 		}
