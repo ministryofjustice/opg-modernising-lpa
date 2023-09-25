@@ -802,6 +802,11 @@
     "errorGenericUploadProblemFile": "{{.Filename}}: Welsh",
     "uploadEvidenceContent": "<p class=\"govuk-body\">Welsh {{.NumberOfAllowedFiles}}</p>",
     "halfFeeNextSteps": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh</p>",
-    "referenceNumber": "Reference number",
-    "lastUpdated": "Last updated"
+    "referenceNumber": "Welsh",
+    "lastUpdated": "Welsh",
+    "viewLpa": "Welsh",
+    "withdrawLpa": "Welsh",
+    "deleteLpa": "Welsh",
+    "goToTaskList": "Welsh",
+    "use": "Welsh"
 }

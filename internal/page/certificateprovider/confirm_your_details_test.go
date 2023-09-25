@@ -131,7 +131,7 @@ func TestPostConfirmYourDetails(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("GetAny", r.Context()).
-				Return(&page.Lpa{Submitted: tc.lpaSubmittedDate}, nil)
+				Return(&page.Lpa{SignedAt: tc.lpaSubmittedDate}, nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.
