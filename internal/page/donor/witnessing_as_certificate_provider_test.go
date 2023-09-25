@@ -121,7 +121,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 					DonorIdentityUserData:            identity.UserData{OK: true, Provider: identity.OneLogin},
 					CertificateProviderCodes:         page.WitnessCodes{{Code: "1234", Created: now}},
 					WitnessedByCertificateProviderAt: now,
-					Submitted:                        now,
+					SignedAt:                         now,
 				}).
 				Return(nil)
 
@@ -165,7 +165,7 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 		CertificateProvider:              actor.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderCodes:         page.WitnessCodes{{Code: "1234", Created: now}},
 		WitnessedByCertificateProviderAt: now,
-		Submitted:                        now,
+		SignedAt:                         now,
 	}
 	donorStore := newMockDonorStore(t)
 	donorStore.
@@ -214,7 +214,7 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendErrors(t *testing.T
 		CertificateProvider:              actor.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderCodes:         page.WitnessCodes{{Code: "1234", Created: now}},
 		WitnessedByCertificateProviderAt: now,
-		Submitted:                        now,
+		SignedAt:                         now,
 	}
 	donorStore := newMockDonorStore(t)
 	donorStore.
