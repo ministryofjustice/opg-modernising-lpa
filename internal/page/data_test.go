@@ -218,7 +218,7 @@ func TestTypeLegalTermTransKey(t *testing.T) {
 
 func TestAttorneysSigningDeadline(t *testing.T) {
 	lpa := Lpa{
-		Submitted: time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC),
+		SignedAt: time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC),
 	}
 
 	expected := time.Date(2020, time.January, 30, 3, 4, 5, 6, time.UTC)
@@ -367,7 +367,7 @@ func TestLpaProgress(t *testing.T) {
 			},
 		},
 		"lpa signed": {
-			lpa: &Lpa{Submitted: time.Now()},
+			lpa: &Lpa{SignedAt: time.Now()},
 			cp:  &actor.CertificateProviderProvidedDetails{},
 			expectedProgress: Progress{
 				LpaSigned:                   actor.TaskCompleted,
@@ -379,7 +379,7 @@ func TestLpaProgress(t *testing.T) {
 			},
 		},
 		"certificate provider declared": {
-			lpa: &Lpa{Submitted: time.Now()},
+			lpa: &Lpa{SignedAt: time.Now()},
 			cp:  &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: time.Now()}},
 			expectedProgress: Progress{
 				LpaSigned:                   actor.TaskCompleted,

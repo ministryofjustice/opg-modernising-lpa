@@ -59,8 +59,8 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"trust corporation with two signatories": {
 			lpa: &page.Lpa{
-				ID:        "lpa-id",
-				Submitted: time.Now(),
+				ID:       "lpa-id",
+				SignedAt: time.Now(),
 			},
 			attorney: &actor.AttorneyProvidedDetails{
 				WouldLikeSecondSignatory: form.Yes,
@@ -86,8 +86,8 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"tasks completed not signed": {
 			lpa: &page.Lpa{
-				ID:        "lpa-id",
-				Submitted: time.Now(),
+				ID:       "lpa-id",
+				SignedAt: time.Now(),
 			},
 			attorney: &actor.AttorneyProvidedDetails{
 				Tasks: actor.AttorneyTasks{
@@ -113,8 +113,8 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"tasks completed and signed": {
 			lpa: &page.Lpa{
-				ID:        "lpa-id",
-				Submitted: time.Now(),
+				ID:       "lpa-id",
+				SignedAt: time.Now(),
 			},
 			attorney: &actor.AttorneyProvidedDetails{
 				Tasks: actor.AttorneyTasks{
@@ -134,8 +134,8 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"completed": {
 			lpa: &page.Lpa{
-				ID:        "lpa-id",
-				Submitted: time.Now(),
+				ID:       "lpa-id",
+				SignedAt: time.Now(),
 			},
 			attorney: &actor.AttorneyProvidedDetails{
 				Tasks: actor.AttorneyTasks{
@@ -157,8 +157,8 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"completed replacement": {
 			lpa: &page.Lpa{
-				ID:        "lpa-id",
-				Submitted: time.Now(),
+				ID:       "lpa-id",
+				SignedAt: time.Now(),
 			},
 			attorney: &actor.AttorneyProvidedDetails{
 				Tasks: actor.AttorneyTasks{

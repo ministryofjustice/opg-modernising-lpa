@@ -49,7 +49,7 @@ func WitnessingAsCertificateProvider(tmpl template.Template, donorStore DonorSto
 			if data.Errors.None() {
 				lpa.WitnessCodeLimiter = nil
 				lpa.WitnessedByCertificateProviderAt = now()
-				lpa.Submitted = now()
+				lpa.SignedAt = now()
 			}
 
 			if err := donorStore.Put(r.Context(), lpa); err != nil {
