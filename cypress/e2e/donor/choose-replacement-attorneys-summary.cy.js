@@ -15,7 +15,7 @@ describe('Choose replacement attorneys summary', () => {
         cy.contains('2 RICHMOND PLACE');
         cy.contains('B14 7ED');
 
-        cy.contains('Joan Smith');
+        cy.contains('Robin Redcar');
         cy.contains('2 January 2000');
 
         cy.visitLpa('/task-list')
@@ -26,18 +26,12 @@ describe('Choose replacement attorneys summary', () => {
         cy.checkA11yApp();
 
         cy.get('#replacement-name-1').contains('a', 'Change').click();
-
-        cy.url().should('contain', '/choose-replacement-attorneys');
-        cy.url().should('contain', 'from=/choose-replacement-attorneys-summary');
-        cy.url().should('match', /id=\w*/);
-
         cy.get('#f-first-names').clear().type('Mark');
 
         cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/choose-replacement-attorneys-summary');
-
-        cy.contains('Mark Smith');
+        cy.contains('Mark Jones');
     });
 
     it('can amend attorney address', () => {
@@ -45,29 +39,11 @@ describe('Choose replacement attorneys summary', () => {
 
         cy.get('#replacement-address-2').contains('a', 'Change').click();
 
-        cy.url().should('contain', '/choose-replacement-attorneys-address');
-        cy.url().should('contain', 'from=/choose-replacement-attorneys-summary');
-        cy.url().should('match', /id=\w*/);
-
-        cy.contains('label', 'Enter a new address').click();
-        cy.contains('button', 'Continue').click();
-
-        cy.get('#f-lookup-postcode').type('B14 7ED');
-        cy.contains('button', 'Find address').click();
-
-        cy.get('#f-select-address').select('4 RICHMOND PLACE, BIRMINGHAM, B14 7ED');
-        cy.contains('button', 'Continue').click();
-
-        cy.url().should('contain', '/choose-replacement-attorneys-address');
-        cy.get('#f-address-line-1').should('have.value', '4 RICHMOND PLACE');
+        cy.get('#f-address-line-1').clear().type('4 RICHMOND PLACE');
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/choose-replacement-attorneys-summary');
-
         cy.contains('dd', '4 RICHMOND PLACE');
-
-        cy.visitLpa('/task-list')
-        cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('Completed (2)')
     });
 
     it('can add another attorney from summary page', () => {
@@ -109,7 +85,7 @@ describe('Choose replacement attorneys summary', () => {
         cy.contains('B14 7ED');
     });
 
-    it.only('can remove an attorney', () => {
+    it('can remove an attorney', () => {
         cy.checkA11yApp();
 
         cy.get('#remove-replacement-1').contains('a', 'Remove').click();

@@ -19,9 +19,9 @@ import (
 
 var expectedError = errors.New("err")
 
-func (m *mockDynamoClient) ExpectGet(ctx, pk, sk, data interface{}, err error) {
+func (m *mockDynamoClient) ExpectOne(ctx, pk, sk, data interface{}, err error) {
 	m.
-		On("Get", ctx, pk, sk, mock.Anything).
+		On("One", ctx, pk, sk, mock.Anything).
 		Return(func(ctx context.Context, pk, partialSk string, v interface{}) error {
 			b, _ := json.Marshal(data)
 			json.Unmarshal(b, v)
@@ -29,9 +29,9 @@ func (m *mockDynamoClient) ExpectGet(ctx, pk, sk, data interface{}, err error) {
 		})
 }
 
-func (m *mockDynamoClient) ExpectGetOneByPartialSk(ctx, pk, partialSk, data interface{}, err error) {
+func (m *mockDynamoClient) ExpectOneByPartialSk(ctx, pk, partialSk, data interface{}, err error) {
 	m.
-		On("GetOneByPartialSk", ctx, pk, partialSk, mock.Anything).
+		On("OneByPartialSk", ctx, pk, partialSk, mock.Anything).
 		Return(func(ctx context.Context, pk, partialSk string, v interface{}) error {
 			b, _ := json.Marshal(data)
 			json.Unmarshal(b, v)
@@ -39,62 +39,37 @@ func (m *mockDynamoClient) ExpectGetOneByPartialSk(ctx, pk, partialSk, data inte
 		})
 }
 
-func (m *mockDynamoClient) ExpectGetAllByGsi(ctx, gsi, sk, data interface{}, err error) {
+func (m *mockDynamoClient) ExpectAllForActor(ctx, sk, data interface{}, err error) {
 	m.
-		On("GetAllByGsi", ctx, gsi, sk, mock.Anything).
-		Return(func(ctx context.Context, gsi, pk string, v interface{}) error {
+		On("AllForActor", ctx, sk, mock.Anything).
+		Return(func(ctx context.Context, pk string, v interface{}) error {
 			b, _ := json.Marshal(data)
 			json.Unmarshal(b, v)
 			return err
 		})
 }
 
-func (m *mockDynamoClient) ExpectGetAllByKeys(ctx context.Context, keys []dynamo.Key, data interface{}, err error) {
+func (m *mockDynamoClient) ExpectLatestForActor(ctx, sk, data interface{}, err error) {
 	m.
-		On("GetAllByKeys", ctx, keys, mock.Anything).
+		On("LatestForActor", ctx, sk, mock.Anything).
+		Return(func(ctx context.Context, sk string, v interface{}) error {
+			b, _ := json.Marshal(data)
+			json.Unmarshal(b, v)
+			return err
+		})
+}
+
+func (m *mockDynamoClient) ExpectAllByKeys(ctx context.Context, keys []dynamo.Key, data interface{}, err error) {
+	m.
+		On("AllByKeys", ctx, keys, mock.Anything).
 		Return(data, err)
-}
-
-func TestDonorStoreGetAll(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
-	lpa123 := &page.Lpa{ID: "123", UpdatedAt: time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)}
-	lpa456 := &page.Lpa{ID: "456", UpdatedAt: time.Date(2002, time.January, 1, 0, 0, 0, 0, time.UTC)}
-	lpa789 := &page.Lpa{ID: "789", UpdatedAt: time.Date(2001, time.January, 1, 0, 0, 0, 0, time.UTC)}
-
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectGetAllByGsi(ctx, "ActorIndex", "#DONOR#an-id",
-		[]any{lpa123, lpa456, lpa789}, nil)
-
-	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: nil}
-
-	result, err := donorStore.GetAll(ctx)
-	assert.Nil(t, err)
-	assert.Equal(t, []*page.Lpa{lpa456, lpa789, lpa123}, result)
-}
-
-func TestDonorStoreGetAllWithSessionMissing(t *testing.T) {
-	ctx := context.Background()
-
-	donorStore := &donorStore{dynamoClient: nil, uuidString: func() string { return "10100000" }}
-
-	_, err := donorStore.GetAll(ctx)
-	assert.Equal(t, page.SessionMissingError{}, err)
-}
-
-func TestDonorStoreGetAllWhenMissingSessionID(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{})
-
-	donorStore := &donorStore{dynamoClient: nil, uuidString: func() string { return "10100000" }}
-
-	_, err := donorStore.GetAll(ctx)
-	assert.NotNil(t, err)
 }
 
 func TestDonorStoreGetAny(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectGetOneByPartialSk(ctx, "LPA#an-id", "#DONOR#", &page.Lpa{ID: "an-id"}, nil)
+	dynamoClient.ExpectOneByPartialSk(ctx, "LPA#an-id", "#DONOR#", &page.Lpa{ID: "an-id"}, nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
@@ -116,7 +91,7 @@ func TestDonorStoreGetAnyWhenDataStoreError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectGetOneByPartialSk(ctx, "LPA#an-id", "#DONOR#", &page.Lpa{ID: "an-id"}, expectedError)
+	dynamoClient.ExpectOneByPartialSk(ctx, "LPA#an-id", "#DONOR#", &page.Lpa{ID: "an-id"}, expectedError)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
@@ -128,7 +103,7 @@ func TestDonorStoreGet(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectGet(ctx, "LPA#an-id", "#DONOR#456", &page.Lpa{ID: "an-id"}, nil)
+	dynamoClient.ExpectOne(ctx, "LPA#an-id", "#DONOR#456", &page.Lpa{ID: "an-id"}, nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
@@ -150,7 +125,7 @@ func TestDonorStoreGetWhenDataStoreError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectGet(ctx, "LPA#an-id", "#DONOR#456", &page.Lpa{ID: "an-id"}, expectedError)
+	dynamoClient.ExpectOne(ctx, "LPA#an-id", "#DONOR#456", &page.Lpa{ID: "an-id"}, expectedError)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
@@ -158,19 +133,70 @@ func TestDonorStoreGetWhenDataStoreError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
+func TestDonorStoreLatest(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", SessionID: "456"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectLatestForActor(ctx, "#DONOR#456", &page.Lpa{ID: "an-id"}, nil)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
+
+	lpa, err := donorStore.Latest(ctx)
+	assert.Nil(t, err)
+	assert.Equal(t, &page.Lpa{ID: "an-id"}, lpa)
+}
+
+func TestDonorStoreLatestWithSessionMissing(t *testing.T) {
+	ctx := context.Background()
+
+	donorStore := &donorStore{dynamoClient: nil, uuidString: func() string { return "10100000" }}
+
+	_, err := donorStore.Latest(ctx)
+	assert.Equal(t, page.SessionMissingError{}, err)
+}
+
+func TestDonorStoreLatestWhenDataStoreError(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", SessionID: "456"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectLatestForActor(ctx, "#DONOR#456", &page.Lpa{ID: "an-id"}, expectedError)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
+
+	_, err := donorStore.Latest(ctx)
+	assert.Equal(t, expectedError, err)
+}
+
 func TestDonorStorePut(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Put", ctx, &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5", UpdatedAt: now}).
-		Return(nil)
+	testcases := map[string]struct {
+		input, saved *page.Lpa
+	}{
+		"no uid": {
+			input: &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true},
+			saved: &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true},
+		},
+		"with uid": {
+			input: &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true, UID: "M"},
+			saved: &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true, UID: "M", UpdatedAt: now},
+		},
+	}
 
-	donorStore := &donorStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.
+				On("Put", ctx, tc.saved).
+				Return(nil)
 
-	err := donorStore.Put(ctx, &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5"})
-	assert.Nil(t, err)
+			donorStore := &donorStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
+
+			err := donorStore.Put(ctx, tc.input)
+			assert.Nil(t, err)
+		})
+	}
 }
 
 func TestDonorStorePutWhenError(t *testing.T) {
@@ -709,14 +735,14 @@ func TestDonorStorePutWhenReducedFeeRequestedWhenError(t *testing.T) {
 func TestDonorStoreCreate(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
 	now := time.Now()
-	lpa := &page.Lpa{PK: "LPA#10100000", SK: "#DONOR#an-id", ID: "10100000", CreatedAt: now, UpdatedAt: now}
+	lpa := &page.Lpa{PK: "LPA#10100000", SK: "#DONOR#an-id", ID: "10100000", CreatedAt: now}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
 		On("Create", ctx, lpa).
 		Return(nil)
 	dynamoClient.
-		On("Create", ctx, lpaLink{PK: "LPA#10100000", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor}).
+		On("Create", ctx, lpaLink{PK: "LPA#10100000", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor, UpdatedAt: now}).
 		Return(nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }, now: func() time.Time { return now }}

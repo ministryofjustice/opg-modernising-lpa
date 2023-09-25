@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"errors"
-	"slices"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -50,7 +49,6 @@ func (s *donorStore) Create(ctx context.Context) (*page.Lpa, error) {
 		SK:        donorKey(data.SessionID),
 		ID:        lpaID,
 		CreatedAt: s.now(),
-		UpdatedAt: s.now(),
 	}
 
 	if err := s.dynamoClient.Create(ctx, lpa); err != nil {
@@ -61,34 +59,12 @@ func (s *donorStore) Create(ctx context.Context) (*page.Lpa, error) {
 		SK:        subKey(data.SessionID),
 		DonorKey:  donorKey(data.SessionID),
 		ActorType: actor.TypeDonor,
+		UpdatedAt: s.now(),
 	}); err != nil {
 		return nil, err
 	}
 
 	return lpa, err
-}
-
-func (s *donorStore) GetAll(ctx context.Context) ([]*page.Lpa, error) {
-	data, err := page.SessionDataFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	if data.SessionID == "" {
-		return nil, errors.New("donorStore.GetAll requires SessionID")
-	}
-
-	var items []*page.Lpa
-	err = s.dynamoClient.GetAllByGsi(ctx, "ActorIndex", donorKey(data.SessionID), &items)
-
-	slices.SortFunc(items, func(a, b *page.Lpa) int {
-		if a.UpdatedAt.After(b.UpdatedAt) {
-			return -1
-		}
-		return 1
-	})
-
-	return items, err
 }
 
 func (s *donorStore) GetAny(ctx context.Context) (*page.Lpa, error) {
@@ -102,7 +78,7 @@ func (s *donorStore) GetAny(ctx context.Context) (*page.Lpa, error) {
 	}
 
 	var lpa *page.Lpa
-	if err := s.dynamoClient.GetOneByPartialSk(ctx, lpaKey(data.LpaID), "#DONOR#", &lpa); err != nil {
+	if err := s.dynamoClient.OneByPartialSk(ctx, lpaKey(data.LpaID), "#DONOR#", &lpa); err != nil {
 		return nil, err
 	}
 
@@ -120,13 +96,29 @@ func (s *donorStore) Get(ctx context.Context) (*page.Lpa, error) {
 	}
 
 	var lpa *page.Lpa
-	err = s.dynamoClient.Get(ctx, lpaKey(data.LpaID), donorKey(data.SessionID), &lpa)
+	err = s.dynamoClient.One(ctx, lpaKey(data.LpaID), donorKey(data.SessionID), &lpa)
 	return lpa, err
 }
 
-func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
-	lpa.UpdatedAt = s.now()
+func (s *donorStore) Latest(ctx context.Context) (*page.Lpa, error) {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 
+	if data.SessionID == "" {
+		return nil, errors.New("donorStore.Get requires SessionID")
+	}
+
+	var lpa *page.Lpa
+	if err := s.dynamoClient.LatestForActor(ctx, donorKey(data.SessionID), &lpa); err != nil {
+		return nil, err
+	}
+
+	return lpa, nil
+}
+
+func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 	if lpa.UID == "" && !lpa.Type.Empty() {
 		resp, err := s.uidClient.CreateCase(ctx, &uid.CreateCaseRequestBody{
 			Type: lpa.Type.String(),
@@ -141,6 +133,12 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 		} else {
 			lpa.UID = resp.UID
 		}
+	}
+
+	// By not setting UpdatedAt until a UID exists, queries for SK=#DONOR#xyz on
+	// ActorUpdatedAtIndex will not return UID-less LPAs.
+	if lpa.UID != "" {
+		lpa.UpdatedAt = s.now()
 	}
 
 	if lpa.UID != "" && !lpa.HasSentApplicationUpdatedEvent {
