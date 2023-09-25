@@ -6,11 +6,11 @@ require (
 	github.com/MicahParks/keyfunc v1.9.0
 	github.com/aws/aws-lambda-go v1.41.0
 	github.com/aws/aws-sdk-go-v2 v1.21.0
-	github.com/aws/aws-sdk-go-v2/config v1.18.39
+	github.com/aws/aws-sdk-go-v2/config v1.18.41
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.10.39
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.21.5
 	github.com/aws/aws-sdk-go-v2/service/eventbridge v1.22.0
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.38.5
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.39.0
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.21.3
 	github.com/dustin/go-humanize v1.0.1
 	github.com/felixge/httpsnoop v1.0.3
@@ -36,12 +36,12 @@ require (
 	golang.org/x/mod v0.12.0
 	golang.org/x/text v0.13.0
 	golang.org/x/tools v0.13.0
-	google.golang.org/grpc v1.58.1
+	google.golang.org/grpc v1.58.2
 )
 
 require (
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.13 // indirect
-	github.com/aws/aws-sdk-go-v2/credentials v1.13.37 // indirect
+	github.com/aws/aws-sdk-go-v2/credentials v1.13.39 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.13.11 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.41 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.4.35 // indirect
@@ -54,9 +54,9 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.9.35 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.15.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.24.5 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sso v1.13.6 // indirect
-	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.15.6 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sts v1.21.5 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sso v1.14.0 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.17.0 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sts v1.22.0 // indirect
 	github.com/aws/smithy-go v1.14.2 // indirect
 	github.com/brunoscheufler/aws-ecs-metadata-go v0.0.0-20220812150832-b6b31c6eeeaf // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
