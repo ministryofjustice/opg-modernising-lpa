@@ -70,13 +70,15 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		checked                          bool
 		paid                             bool
 		idConfirmedAndSigned             bool
-		submitted                        bool
 		attorneyEmail                    string
 		replacementAttorneyEmail         string
 		certificateProviderEmail         string
 		trustCorporationEmail            string
 		replacementTrustCorporationEmail string
 		certificateProviderActOnline     bool
+		signedByDonor                    bool
+		submittedToOPG                   bool
+		registeredByOPG                  bool
 	}
 
 	makeDonor := func() actor.Donor {
@@ -442,13 +444,21 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 
 				lpa.WantToApplyForLpa = true
 				lpa.WantToSignLpa = true
-				lpa.Submitted = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
+				lpa.SignedAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 				lpa.WitnessedByCertificateProviderAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 				lpa.Tasks.ConfirmYourIdentityAndSign = actor.TaskCompleted
 			}
 
-			if opts.submitted {
-				lpa.Submitted = now()
+			if opts.signedByDonor {
+				lpa.SignedAt = now()
+			}
+
+			if opts.submittedToOPG {
+				lpa.SubmittedAt = now()
+			}
+
+			if opts.registeredByOPG {
+				lpa.RegisteredAt = now()
 			}
 
 			if opts.certificateProviderEmail != "" {
@@ -477,6 +487,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			sendAttorneyShare            = r.FormValue("sendAttorneyShare") != ""
 			redirect                     = r.FormValue("redirect")
 			paymentComplete              = r.FormValue("lpa.paid") != ""
+			progress                     = r.FormValue("lpa.progress")
 		)
 
 		completeSectionOne := completeLpa || startCpFlowDonorHasNotPaid || startCpFlowDonorHasPaid || paymentComplete
@@ -499,12 +510,14 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			checked:                          r.FormValue("lpa.checkAndSend") != "" || completeSectionOne,
 			paid:                             paymentComplete || startCpFlowDonorHasPaid || completeLpa,
 			idConfirmedAndSigned:             r.FormValue("lpa.confirmIdentityAndSign") != "" || completeLpa,
-			submitted:                        r.FormValue("lpa.signedByDonor") != "",
 			certificateProviderEmail:         r.FormValue("lpa.certificateProviderEmail"),
 			attorneyEmail:                    r.FormValue("lpa.attorneyEmail"),
 			replacementAttorneyEmail:         r.FormValue("lpa.replacementAttorneyEmail"),
 			trustCorporationEmail:            r.FormValue("lpa.trustCorporationEmail"),
 			replacementTrustCorporationEmail: r.FormValue("lpa.replacementTrustCorporationEmail"),
+			signedByDonor:                    r.FormValue("lpa.signedByDonor") != "" || progress == "signedByDonor" || progress == "submitted" || progress == "registered",
+			submittedToOPG:                   progress == "submitted" || progress == "registered",
+			registeredByOPG:                  progress == "registered",
 		})
 
 		// These contexts act on the same LPA for different actors

@@ -8,7 +8,7 @@ describe('Dashboard', () => {
         it('shows my lasting power of attorney', () => {
             cy.contains('Property and affairs');
             cy.contains('Sam Smith');
-            cy.contains('a', 'Continue').click();
+            cy.contains('a', 'Go to task list').click();
 
             cy.url().should('contain', '/task-list');
         });
@@ -49,6 +49,33 @@ describe('Dashboard', () => {
             cy.contains('a', 'Track LPA progress').click();
 
             cy.url().should('contain', '/progress');
+        });
+    });
+
+    context('with submitted LPA', () => {
+        it('shows the correct options', () => {
+            cy.visit('/testing-start?lpa.complete=1&lpa.progress=submitted')
+            cy.visit('/dashboard');
+
+            cy.contains('Property and affairs');
+            cy.contains('Sam Smith');
+            cy.contains('strong', 'Submitted to OPG');
+            cy.contains('a', 'View LPA');
+            cy.contains('a', 'Track LPA progress');
+            cy.contains('a', 'Withdraw LPA');
+        });
+    });
+
+    context('with registered LPA', () => {
+        it('shows the correct options', () => {
+            cy.visit('/testing-start?lpa.complete=1&lpa.progress=registered')
+            cy.visit('/dashboard');
+
+            cy.contains('Property and affairs');
+            cy.contains('Sam Smith');
+            cy.contains('strong', 'Registered');
+            cy.contains('a', 'View LPA');
+            cy.contains('a', 'Use');
         });
     });
 

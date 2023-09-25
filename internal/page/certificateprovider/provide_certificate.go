@@ -30,7 +30,7 @@ func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func(
 			return err
 		}
 
-		if lpa.Submitted.IsZero() {
+		if lpa.SignedAt.IsZero() {
 			return appData.Redirect(w, r, lpa, page.Paths.CertificateProvider.TaskList.Format(lpa.ID))
 		}
 

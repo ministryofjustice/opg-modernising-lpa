@@ -55,8 +55,8 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"submitted": {
 			lpa: &page.Lpa{
-				ID:        "lpa-id",
-				Submitted: time.Now(),
+				ID:       "lpa-id",
+				SignedAt: time.Now(),
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{
 				Tasks: actor.CertificateProviderTasks{
@@ -74,8 +74,8 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"all": {
 			lpa: &page.Lpa{
-				ID:        "lpa-id",
-				Submitted: time.Now(),
+				ID:       "lpa-id",
+				SignedAt: time.Now(),
 				Tasks: page.Tasks{
 					PayForLpa: actor.PaymentTaskCompleted,
 				},

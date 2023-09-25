@@ -160,8 +160,12 @@ type Lpa struct {
 	WantToApplyForLpa bool
 	// Confirmation that the applicant wants to sign the LPA
 	WantToSignLpa bool
-	// When the Lpa was signed
-	Submitted time.Time
+	// SignedAt is when the donor submitted their signature
+	SignedAt time.Time
+	// SubmittedAt is when the Lpa was sent to the OPG
+	SubmittedAt time.Time
+	// RegisteredAt is when the Lpa was registered by the OPG
+	RegisteredAt time.Time
 
 	// Codes used for the certificate provider to witness signing
 	CertificateProviderCodes WitnessCodes
@@ -257,7 +261,7 @@ func (l *Lpa) DonorIdentityConfirmed() bool {
 }
 
 func (l *Lpa) AttorneysAndCpSigningDeadline() time.Time {
-	return l.Submitted.Add((24 * time.Hour) * 28)
+	return l.SignedAt.Add((24 * time.Hour) * 28)
 }
 
 func (l *Lpa) CanGoTo(url string) bool {
@@ -322,7 +326,7 @@ func (l *Lpa) Progress(certificateProvider *actor.CertificateProviderProvidedDet
 		LpaRegistered:               actor.TaskNotStarted,
 	}
 
-	if !l.Submitted.IsZero() {
+	if !l.SignedAt.IsZero() {
 		p.LpaSigned = actor.TaskCompleted
 		p.CertificateProviderDeclared = actor.TaskInProgress
 	}
