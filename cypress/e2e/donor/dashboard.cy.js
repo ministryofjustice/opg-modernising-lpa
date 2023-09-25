@@ -13,15 +13,10 @@ describe('Dashboard', () => {
             cy.url().should('contain', '/task-list');
         });
 
-        it('can create another', () => {
+        it('can create another reusing some previous details', () => {
             cy.contains('button', 'Create another LPA').click();
 
-            cy.get('#f-first-names').type('Jane');
-            cy.get('#f-last-name').type('Smith');
-            cy.get('#f-date-of-birth').type('2');
-            cy.get('#f-date-of-birth-month').type('3');
-            cy.get('#f-date-of-birth-year').type('1990');
-            cy.get('#f-can-sign').check();
+            cy.get('#f-first-names').clear().type('Jane');
             cy.contains('button', 'Continue').click();
 
             cy.get('#f-lookup-postcode').type('B14 7ED');

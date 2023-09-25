@@ -10,6 +10,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
+const (
+	uidIndex            = "UidIndex"
+	actorUpdatedAtIndex = "ActorUpdatedAtIndex"
+)
+
 //go:generate mockery --testonly --inpackage --name dynamoDB --structname mockDynamoDB
 type dynamoDB interface {
 	Query(context.Context, *dynamodb.QueryInput, ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error)
@@ -40,7 +45,7 @@ func NewClient(cfg aws.Config, tableName string) (*Client, error) {
 	return &Client{table: tableName, svc: dynamodb.NewFromConfig(cfg)}, nil
 }
 
-func (c *Client) Get(ctx context.Context, pk, sk string, v interface{}) error {
+func (c *Client) One(ctx context.Context, pk, sk string, v interface{}) error {
 	result, err := c.svc.GetItem(ctx, &dynamodb.GetItemInput{
 		TableName: aws.String(c.table),
 		Key: map[string]types.AttributeValue{
@@ -58,38 +63,15 @@ func (c *Client) Get(ctx context.Context, pk, sk string, v interface{}) error {
 	return attributevalue.UnmarshalMap(result.Item, v)
 }
 
-func (c *Client) GetAllByGsi(ctx context.Context, gsi, sk string, v interface{}) error {
-	skey, err := attributevalue.Marshal(sk)
-	if err != nil {
-		return err
-	}
-
+func (c *Client) OneByUID(ctx context.Context, uid string, v interface{}) error {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
-		TableName:                 aws.String(c.table),
-		IndexName:                 aws.String(gsi),
-		ExpressionAttributeNames:  map[string]string{"#SK": "SK"},
-		ExpressionAttributeValues: map[string]types.AttributeValue{":SK": skey},
-		KeyConditionExpression:    aws.String("#SK = :SK"),
-	})
-	if err != nil {
-		return err
-	}
-
-	return attributevalue.UnmarshalListOfMaps(response.Items, v)
-}
-
-func (c *Client) GetOneByUID(ctx context.Context, uid string, v interface{}) error {
-	skey, err := attributevalue.Marshal(uid)
-	if err != nil {
-		return fmt.Errorf("failed to marshal UID: %w", err)
-	}
-
-	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
-		TableName:                 aws.String(c.table),
-		IndexName:                 aws.String("UidIndex"),
-		ExpressionAttributeNames:  map[string]string{"#UID": "UID"},
-		ExpressionAttributeValues: map[string]types.AttributeValue{":UID": skey},
-		KeyConditionExpression:    aws.String("#UID = :UID"),
+		TableName:                aws.String(c.table),
+		IndexName:                aws.String(uidIndex),
+		ExpressionAttributeNames: map[string]string{"#UID": "UID"},
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":UID": &types.AttributeValueMemberS{Value: uid},
+		},
+		KeyConditionExpression: aws.String("#UID = :UID"),
 	})
 
 	if err != nil {
@@ -103,12 +85,55 @@ func (c *Client) GetOneByUID(ctx context.Context, uid string, v interface{}) err
 	return attributevalue.UnmarshalMap(response.Items[0], v)
 }
 
+func (c *Client) AllForActor(ctx context.Context, sk string, v interface{}) error {
+	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
+		TableName:                aws.String(c.table),
+		IndexName:                aws.String(actorUpdatedAtIndex),
+		ExpressionAttributeNames: map[string]string{"#SK": "SK"},
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":SK": &types.AttributeValueMemberS{Value: sk},
+		},
+		KeyConditionExpression: aws.String("#SK = :SK"),
+	})
+	if err != nil {
+		return err
+	}
+
+	return attributevalue.UnmarshalListOfMaps(response.Items, v)
+}
+
+func (c *Client) LatestForActor(ctx context.Context, sk string, v interface{}) error {
+	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
+		TableName:                aws.String(c.table),
+		IndexName:                aws.String(actorUpdatedAtIndex),
+		ExpressionAttributeNames: map[string]string{"#SK": "SK", "#UpdatedAt": "UpdatedAt"},
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":SK": &types.AttributeValueMemberS{Value: sk},
+			// Specifying the condition UpdatedAt>2 filters out zero-value timestamps
+			":UpdatedAt": &types.AttributeValueMemberS{Value: "2"},
+		},
+		KeyConditionExpression: aws.String("#SK = :SK and #UpdatedAt > :UpdatedAt"),
+		ScanIndexForward:       aws.Bool(false),
+		Limit:                  aws.Int32(1),
+	})
+
+	if err != nil {
+		return err
+	}
+
+	if len(response.Items) == 0 {
+		return nil
+	}
+
+	return attributevalue.UnmarshalMap(response.Items[0], v)
+}
+
 type Key struct {
 	PK string
 	SK string
 }
 
-func (c *Client) GetAllByKeys(ctx context.Context, keys []Key) ([]map[string]types.AttributeValue, error) {
+func (c *Client) AllByKeys(ctx context.Context, keys []Key) ([]map[string]types.AttributeValue, error) {
 	var keyAttrs []map[string]types.AttributeValue
 	for _, key := range keys {
 		keyAttrs = append(keyAttrs, map[string]types.AttributeValue{
@@ -131,22 +156,15 @@ func (c *Client) GetAllByKeys(ctx context.Context, keys []Key) ([]map[string]typ
 	return result.Responses[c.table], nil
 }
 
-func (c *Client) GetOneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error {
-	pkey, err := attributevalue.Marshal(pk)
-	if err != nil {
-		return err
-	}
-
-	partialSkey, err := attributevalue.Marshal(partialSk)
-	if err != nil {
-		return err
-	}
-
+func (c *Client) OneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
-		TableName:                 aws.String(c.table),
-		ExpressionAttributeNames:  map[string]string{"#PK": "PK", "#SK": "SK"},
-		ExpressionAttributeValues: map[string]types.AttributeValue{":PK": pkey, ":SK": partialSkey},
-		KeyConditionExpression:    aws.String("#PK = :PK and begins_with(#SK, :SK)"),
+		TableName:                aws.String(c.table),
+		ExpressionAttributeNames: map[string]string{"#PK": "PK", "#SK": "SK"},
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":PK": &types.AttributeValueMemberS{Value: pk},
+			":SK": &types.AttributeValueMemberS{Value: partialSk},
+		},
+		KeyConditionExpression: aws.String("#PK = :PK and begins_with(#SK, :SK)"),
 	})
 
 	if err != nil {
