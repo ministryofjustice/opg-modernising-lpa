@@ -25,6 +25,11 @@ func TestGetYourDetails(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Latest", r.Context()).
+		Return(nil, expectedError)
+
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &yourDetailsData{
@@ -34,7 +39,7 @@ func TestGetYourDetails(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourDetails(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
+	err := YourDetails(template.Execute, donorStore, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -67,6 +72,45 @@ func TestGetYourDetailsFromStore(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
+func TestGetYourDetailsFromLatest(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Latest", r.Context()).
+		Return(&page.Lpa{
+			Donor: actor.Donor{
+				FirstNames:    "John",
+				LastName:      "Doe",
+				OtherNames:    "J",
+				DateOfBirth:   date.New("2000", "01", "02"),
+				ThinksCanSign: actor.Yes,
+			},
+		}, nil)
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &yourDetailsData{
+			App: testAppData,
+			Form: &yourDetailsForm{
+				FirstNames: "John",
+				LastName:   "Doe",
+				OtherNames: "J",
+				Dob:        date.New("2000", "01", "02"),
+				CanSign:    actor.Yes,
+			},
+			YesNoMaybeOptions: actor.YesNoMaybeValues,
+		}).
+		Return(nil)
+
+	err := YourDetails(template.Execute, donorStore, nil)(testAppData, w, r, &page.Lpa{})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
 func TestGetYourDetailsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
@@ -76,7 +120,7 @@ func TestGetYourDetailsWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := YourDetails(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
+	err := YourDetails(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{Donor: actor.Donor{FirstNames: "John"}})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

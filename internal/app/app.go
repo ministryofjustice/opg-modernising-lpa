@@ -39,11 +39,12 @@ type Logger interface {
 
 //go:generate mockery --testonly --inpackage --name DynamoClient --structname mockDynamoClient
 type DynamoClient interface {
-	Get(ctx context.Context, pk, sk string, v interface{}) error
+	One(ctx context.Context, pk, sk string, v interface{}) error
+	OneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
+	LatestForActor(ctx context.Context, sk string, v interface{}) error
+	AllForActor(ctx context.Context, sk string, v interface{}) error
+	AllByKeys(ctx context.Context, pks []dynamo.Key) ([]map[string]types.AttributeValue, error)
 	Put(ctx context.Context, v interface{}) error
-	GetOneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
-	GetAllByGsi(ctx context.Context, gsi, sk string, v interface{}) error
-	GetAllByKeys(ctx context.Context, pks []dynamo.Key) ([]map[string]types.AttributeValue, error)
 	Create(ctx context.Context, v interface{}) error
 }
 
