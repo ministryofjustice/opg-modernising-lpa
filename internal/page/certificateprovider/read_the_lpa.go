@@ -29,7 +29,7 @@ func ReadTheLpa(tmpl template.Template, donorStore DonorStore, certificateProvid
 		}
 
 		if r.Method == http.MethodPost {
-			if lpa.Submitted.IsZero() || !lpa.Tasks.PayForLpa.IsCompleted() {
+			if lpa.SignedAt.IsZero() || !lpa.Tasks.PayForLpa.IsCompleted() {
 				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.TaskList.Format(lpa.ID))
 			}
 

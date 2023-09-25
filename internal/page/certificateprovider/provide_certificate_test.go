@@ -19,7 +19,7 @@ func TestGetProvideCertificate(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &page.Lpa{Submitted: time.Now()}
+	lpa := &page.Lpa{SignedAt: time.Now()}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
@@ -121,7 +121,7 @@ func TestPostProvideCertificate(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{Submitted: now}, nil)
+		Return(&page.Lpa{SignedAt: now}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -162,7 +162,7 @@ func TestPostProvideCertificateOnStoreError(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{Submitted: now}, nil)
+		Return(&page.Lpa{SignedAt: now}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -193,7 +193,7 @@ func TestPostProvideCertificateWhenValidationErrors(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{Submitted: now}, nil)
+		Return(&page.Lpa{SignedAt: now}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.

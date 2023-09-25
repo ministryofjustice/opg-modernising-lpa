@@ -41,3 +41,8 @@ body:not(.js-enabled) .govuk-back-link {
         display: block !important;
     }
 }
+
+.app-tag--black {
+    background: govuk-colour("black");
+    color: govuk-colour("white");
+}
