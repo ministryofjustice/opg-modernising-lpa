@@ -768,8 +768,8 @@
     "submittedToOpg": "Submitted to OPG",
     "readyToSign": "Ready to sign",
     "whatIsYourCompanyPhoneNumber": "What is your company’s phone number?",
-    "enterYourCompanyNumberOptional": "Enter your company’s phone number (optional)",
-    "youCanChooseToTellUsYourCompanyNumber": "You can choose to tell us your company's phone number in case we ever need to contact you.",
+    "enterYourCompanyPhoneNumberOptional": "Enter your company’s phone number (optional)",
+    "youCanChooseToTellUsYourCompanyPhoneNumber": "You can choose to tell us your company's phone number in case we ever need to contact you.",
     "enterYourCompanyPhoneNumberHint": "For example, 07700 900 982 or 01632 960000.",
-    "errorCompanyNumber": "Enter a valid phone number"
+    "errorCompanyPhoneNumber": "Enter a valid phone number"
 }
