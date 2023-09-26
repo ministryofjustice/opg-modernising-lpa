@@ -143,6 +143,10 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 				return nil, nil, nil, err
 			}
 
+			if certificateProviderProvidedDetails.Certificate.AgreeToStatement {
+				delete(certificateProviderMap, certificateProviderProvidedDetails.LpaID)
+			}
+
 			if entry, ok := certificateProviderMap[certificateProviderProvidedDetails.LpaID]; ok {
 				entry.CertificateProviderTasks = certificateProviderProvidedDetails.Tasks
 				certificateProviderMap[certificateProviderProvidedDetails.LpaID] = entry
