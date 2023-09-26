@@ -15,8 +15,10 @@ type AttorneyProvidedDetails struct {
 	LpaID string
 	// Tracking when AttorneyProvidedDetails is updated
 	UpdatedAt time.Time
-	// Determines if the details relate to an attorney or replacement attorney
+	// IsReplacement is true when the details relate to an attorney appointed as a replacement
 	IsReplacement bool
+	// IsTrustCorporation is true when the details relate to a trust corporation
+	IsTrustCorporation bool
 	// Mobile number of the attorney or replacement attorney
 	Mobile string
 	// Confirming the attorney or replacement attorney agrees to responsibilities and confirms the tick box is a legal signature
@@ -27,6 +29,21 @@ type AttorneyProvidedDetails struct {
 	AuthorisedSignatories [2]TrustCorporationSignatory
 	// Used to show attorney task list
 	Tasks AttorneyTasks
+}
+
+func (d AttorneyProvidedDetails) Signed() bool {
+	if d.IsTrustCorporation {
+		switch d.WouldLikeSecondSignatory {
+		case form.Yes:
+			return !d.AuthorisedSignatories[0].Confirmed.IsZero() && !d.AuthorisedSignatories[1].Confirmed.IsZero()
+		case form.No:
+			return !d.AuthorisedSignatories[0].Confirmed.IsZero()
+		default:
+			return false
+		}
+	}
+
+	return !d.Confirmed.IsZero()
 }
 
 type AttorneyTasks struct {
