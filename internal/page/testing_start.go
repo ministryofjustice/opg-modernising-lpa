@@ -515,10 +515,15 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			replacementAttorneyEmail:         r.FormValue("lpa.replacementAttorneyEmail"),
 			trustCorporationEmail:            r.FormValue("lpa.trustCorporationEmail"),
 			replacementTrustCorporationEmail: r.FormValue("lpa.replacementTrustCorporationEmail"),
-			signedByDonor:                    r.FormValue("lpa.signedByDonor") != "" || progress == "signedByDonor" || progress == "submitted" || progress == "registered",
+			signedByDonor:                    r.FormValue("lpa.signedByDonor") != "" || progress == "signedByDonor" || progress == "signedByCertificateProvider" || progress == "signedByAttorney" || progress == "submitted" || progress == "registered",
 			submittedToOPG:                   progress == "submitted" || progress == "registered",
 			registeredByOPG:                  progress == "registered",
 		})
+
+		var (
+			signedByCertificateProvider = progress == "signedByCertificateProvider" || progress == "signedByAttorney" || progress == "submitted" || progress == "registered"
+			signedByAttorney            = progress == "signedByAttorney" || progress == "submitted" || progress == "registered"
+		)
 
 		// These contexts act on the same LPA for different actors
 		var (
@@ -577,7 +582,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			redirect = Paths.CertificateProviderStart.Format()
 		}
 
-		if asCertificateProvider != "" {
+		if signedByCertificateProvider || asCertificateProvider != "" {
 			currentCtx := certificateProviderCtx
 
 			// "fresh=1" causes an LPA to be created for the certificate provider (as
@@ -612,7 +617,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 				LastName:   "Jones",
 			}
 
-			if asCertificateProvider == "certified" {
+			if signedByCertificateProvider || asCertificateProvider == "certified" {
 				certificateProvider.Mobile = testMobile
 				certificateProvider.Email = testEmail
 				certificateProvider.Certificate = actor.Certificate{
@@ -621,7 +626,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 				}
 			}
 
-			if cpConfirmYourDetailsComplete {
+			if signedByCertificateProvider || cpConfirmYourDetailsComplete {
 				certificateProvider.Mobile = testMobile
 				certificateProvider.Email = testEmail
 				certificateProvider.DateOfBirth = date.New("2000", "1", "2")
@@ -633,7 +638,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			}
 		}
 
-		if asAttorney {
+		if signedByAttorney || asAttorney {
 			currentCtx := attorneyCtx
 
 			if fresh {
@@ -655,9 +660,17 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 
 			id := lpa.Attorneys.Attorneys[0].ID
 
-			_, err := attorneyStore.Create(currentCtx, attorneySessionID, id, false)
+			attorneyProvided, err := attorneyStore.Create(currentCtx, attorneySessionID, id, false)
 			if err != nil {
 				logger.Print("asAttorney:", err)
+			}
+
+			if signedByAttorney {
+				attorneyProvided.Tasks.SignTheLpa = actor.TaskCompleted
+
+				if err := attorneyStore.Put(currentCtx, attorneyProvided); err != nil {
+					logger.Print("asAttorney:", err)
+				}
 			}
 		}
 
