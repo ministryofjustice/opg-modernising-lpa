@@ -14,7 +14,7 @@ type attorneyStore struct {
 	now          func() time.Time
 }
 
-func (s *attorneyStore) Create(ctx context.Context, donorSessionID, attorneyID string, isReplacement bool) (*actor.AttorneyProvidedDetails, error) {
+func (s *attorneyStore) Create(ctx context.Context, donorSessionID, attorneyID string, isReplacement, isTrustCorporation bool) (*actor.AttorneyProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -25,12 +25,13 @@ func (s *attorneyStore) Create(ctx context.Context, donorSessionID, attorneyID s
 	}
 
 	attorney := &actor.AttorneyProvidedDetails{
-		PK:            lpaKey(data.LpaID),
-		SK:            attorneyKey(data.SessionID),
-		ID:            attorneyID,
-		LpaID:         data.LpaID,
-		UpdatedAt:     s.now(),
-		IsReplacement: isReplacement,
+		PK:                 lpaKey(data.LpaID),
+		SK:                 attorneyKey(data.SessionID),
+		ID:                 attorneyID,
+		LpaID:              data.LpaID,
+		UpdatedAt:          s.now(),
+		IsReplacement:      isReplacement,
+		IsTrustCorporation: isTrustCorporation,
 	}
 
 	if err := s.dynamoClient.Create(ctx, attorney); err != nil {

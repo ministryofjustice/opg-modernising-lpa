@@ -40,6 +40,7 @@ func Fixtures(tmpl template.Template) Handler {
 					"lpa.type":                    {data.Form.Type},
 					"lpa.restrictions":            {"1"},
 					"redirect":                    {Paths.Attorney.Start.Format()},
+					"lpa.progress":                {r.FormValue("lpa.progress")},
 				}
 
 				switch data.Form.SendTo {
@@ -113,17 +114,19 @@ func Fixtures(tmpl template.Template) Handler {
 					values.Add("lpa.peopleToNotify", data.Form.PersonToNotifyCount)
 				}
 			case "everything":
-				values = url.Values{"fresh": {"1"}, "redirect": {Paths.Dashboard.Format()}}
+				values = url.Values{
+					"fresh":                 {"1"},
+					"redirect":              {Paths.Dashboard.Format()},
+					"attorneyProvided":      {r.FormValue("attorneyProvided")},
+					"asCertificateProvider": {r.FormValue("asCertificateProvider")},
+					"lpa.progress":          {r.FormValue("lpa.progress")},
+				}
 
 				if r.FormValue("lpa.progress") == "" {
 					values.Set("lpa.yourDetails", "1")
 				} else {
 					values.Set("lpa.complete", "1")
 				}
-
-				values.Set("attorneyProvided", r.FormValue("attorneyProvided"))
-				values.Set("asCertificateProvider", r.FormValue("asCertificateProvider"))
-				values.Set("lpa.progress", r.FormValue("lpa.progress"))
 			}
 
 			http.Redirect(w, r, fmt.Sprintf("%s?%s", Paths.TestingStart, values.Encode()), http.StatusFound)
