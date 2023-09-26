@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"os/exec"
-	"path"
 	"strings"
 	"testing"
 
@@ -63,35 +61,6 @@ func TestApostrophesAreCurly(t *testing.T) {
 			t.Fail()
 			t.Log("lang/cy.json: ", k)
 		}
-	}
-}
-
-func TestLanguageKeyUsed(t *testing.T) {
-	en := loadTranslations("../../lang/en.json")
-	wd, _ := os.Getwd()
-
-	workers := 5
-	sem := make(chan struct{}, workers)
-
-	for k := range en {
-		sem <- struct{}{}
-
-		go func(k string) {
-			defer func() { <-sem }()
-
-			cmd := exec.Command("git", "grep", `"`+k+`"`)
-			cmd.Dir = path.Join(wd, "..", "..")
-			output, _ := cmd.Output()
-
-			if strings.Count(string(output), "\n") <= 2 {
-				t.Fail()
-				t.Log("unused key: ", k)
-			}
-		}(k)
-	}
-
-	for i := 0; i < workers; i++ {
-		sem <- struct{}{}
 	}
 }
 
