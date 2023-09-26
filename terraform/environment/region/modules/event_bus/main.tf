@@ -35,8 +35,9 @@ data "aws_iam_policy_document" "cross_account_put_access" {
 }
 
 resource "aws_cloudwatch_event_rule" "cross_account_put" {
-  name        = "${data.aws_default_tags.current.tags.environment-name}-cross-account-put"
-  description = "forward events to bus in remote account"
+  name           = "${data.aws_default_tags.current.tags.environment-name}-cross-account-put"
+  description    = "forward events to bus in remote account"
+  event_bus_name = aws_cloudwatch_event_bus.main.name
 
   event_pattern = jsonencode({
     source = ["opg.poas.makeregister"]
@@ -45,9 +46,10 @@ resource "aws_cloudwatch_event_rule" "cross_account_put" {
 }
 
 resource "aws_cloudwatch_event_target" "cross_account_put" {
-  target_id = "${data.aws_default_tags.current.tags.environment-name}-cross-account-put-event"
-  arn       = var.target_event_bus_arn
-  rule      = aws_cloudwatch_event_rule.cross_account_put.name
-  role_arn  = var.iam_role.arn
-  provider  = aws.region
+  target_id      = "${data.aws_default_tags.current.tags.environment-name}-cross-account-put-event"
+  event_bus_name = aws_cloudwatch_event_bus.main.name
+  arn            = var.target_event_bus_arn
+  rule           = aws_cloudwatch_event_rule.cross_account_put.name
+  role_arn       = var.iam_role.arn
+  provider       = aws.region
 }
