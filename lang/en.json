@@ -766,5 +766,6 @@
     "goToTaskList": "Go to task list",
     "use": "Use",
     "registered": "Registered",
-    "submittedToOpg": "Submitted to OPG"
+    "submittedToOpg": "Submitted to OPG",
+    "readyToSign": "Ready to sign"
 }
