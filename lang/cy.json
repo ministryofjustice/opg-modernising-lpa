@@ -706,7 +706,6 @@
     "changeCompanyEmailLink": "Welsh",
     "changeCompanyAddressLink": "Welsh",
     "trustCorporation": "Welsh",
-    "readLpa": "Welsh",
     "confirmYourCompanyDetails": "Welsh",
     "youMustConfirmTheDetailsAboutYourCompany": "Welsh {{.DonorFullName}}",
     "detailsTheDonorHasGivenAboutYourCompany": "Welsh",
@@ -810,5 +809,6 @@
     "goToTaskList": "Welsh",
     "use": "Welsh",
     "registered": "Welsh",
-    "submittedToOpg": "Welsh"
+    "submittedToOpg": "Welsh",
+    "readyToSign": "Welsh"
 }
