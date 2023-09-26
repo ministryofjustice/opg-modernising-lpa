@@ -25,6 +25,10 @@ func TestDashboardStoreGetAll(t *testing.T) {
 		LpaID: "789", Tasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskInProgress}, SK: attorneyKey("an-id"),
 	}
 	lpaNoUID := &page.Lpa{ID: "999", UpdatedAt: time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC), SK: donorKey("an-id"), PK: lpaKey("0")}
+	lpaSignedByCp := &page.Lpa{ID: "signed-by-cp", UID: "M", SK: donorKey("another-id"), PK: lpaKey("signed-by-cp")}
+	lpaSignedByCpProvidedDetails := &actor.CertificateProviderProvidedDetails{
+		LpaID: "signed-by-cp", SK: certificateProviderKey("an-id"), Certificate: actor.Certificate{AgreeToStatement: true},
+	}
 
 	testCases := map[string][]map[string]types.AttributeValue{
 		"details returned after lpas": {
@@ -34,14 +38,18 @@ func TestDashboardStoreGetAll(t *testing.T) {
 			makeAttributeValueMap(lpa789),
 			makeAttributeValueMap(lpa789AttorneyProvidedDetails),
 			makeAttributeValueMap(lpa0),
+			makeAttributeValueMap(lpaSignedByCp),
+			makeAttributeValueMap(lpaSignedByCpProvidedDetails),
 		},
 		"details returned before lpas": {
 			makeAttributeValueMap(lpaNoUID),
 			makeAttributeValueMap(lpa456CpProvidedDetails),
 			makeAttributeValueMap(lpa789AttorneyProvidedDetails),
+			makeAttributeValueMap(lpaSignedByCpProvidedDetails),
 			makeAttributeValueMap(lpa123),
 			makeAttributeValueMap(lpa456),
 			makeAttributeValueMap(lpa789),
+			makeAttributeValueMap(lpaSignedByCp),
 			makeAttributeValueMap(lpa0),
 		},
 	}
@@ -58,6 +66,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 					{PK: "LPA#789", SK: "#SUB#an-id", DonorKey: "#DONOR#different-id", ActorType: actor.TypeAttorney},
 					{PK: "LPA#0", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor},
 					{PK: "LPA#999", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor},
+					{PK: "LPA#signed-by-cp", SK: "#SUB#an-id", DonorKey: "#DONOR#another-id", ActorType: actor.TypeCertificateProvider},
 				}, nil)
 			dynamoClient.ExpectAllByKeys(ctx, []dynamo.Key{
 				{PK: "LPA#123", SK: "#DONOR#an-id"},
@@ -67,6 +76,8 @@ func TestDashboardStoreGetAll(t *testing.T) {
 				{PK: "LPA#789", SK: "#ATTORNEY#an-id"},
 				{PK: "LPA#0", SK: "#DONOR#an-id"},
 				{PK: "LPA#999", SK: "#DONOR#an-id"},
+				{PK: "LPA#signed-by-cp", SK: "#DONOR#another-id"},
+				{PK: "LPA#signed-by-cp", SK: "#CERTIFICATE_PROVIDER#an-id"},
 			}, attributeValues, nil)
 
 			dashboardStore := &dashboardStore{dynamoClient: dynamoClient}

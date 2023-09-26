@@ -662,7 +662,6 @@
     "changeCompanyEmailLink": "Change<span class=\"govuk-visually-hidden\"> company email address</span>",
     "changeCompanyAddressLink": "Change<span class=\"govuk-visually-hidden\"> address</span>",
     "trustCorporation": "Trust corporation",
-    "readLpa": "Read LPA",
     "confirmYourCompanyDetails": "Confirm your company details",
     "youMustConfirmTheDetailsAboutYourCompany": "You must confirm the details {{.DonorFullName}} has given us about your company are correct.",
     "detailsTheDonorHasGivenAboutYourCompany": "Details the donor has given about your company",
@@ -766,5 +765,6 @@
     "goToTaskList": "Go to task list",
     "use": "Use",
     "registered": "Registered",
-    "submittedToOpg": "Submitted to OPG"
+    "submittedToOpg": "Submitted to OPG",
+    "readyToSign": "Ready to sign"
 }
