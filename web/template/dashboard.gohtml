@@ -79,20 +79,21 @@
         {{ if .Item.Lpa.Type.IsPropertyFinance }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}:
         <span class="govuk-!-font-weight-regular">{{ .Item.Lpa.Donor.FirstNames }} {{ .Item.Lpa.Donor.LastName }}</span>
       </h3>
-      <div><strong class="govuk-tag">{{ tr .App "status" }}</strong></div>
+      <div>
+        {{ if and .Item.CertificateProviderTasks.ReadTheLpa.Completed (not .Item.Lpa.SignedAt.IsZero) .Item.Lpa.Tasks.PayForLpa.IsCompleted }}
+          <strong class="govuk-tag govuk-tag--yellow">{{ tr .App "readyToSign" }}</strong>
+        {{ else }}
+          <strong class="govuk-tag govuk-tag--blue">{{ tr .App "inProgress" }}</strong>
+        {{ end }}
+      </div>
     </div>
     <div class="app-dashboard-row">
-      <p class="govuk-body-s"><strong>{{ tr .App "applicationNumber" }}:</strong> {{ .Item.Lpa.UID }}</p>
-      <p class="govuk-body-s"><strong>{{ tr .App "lastSaved" }}:</strong> {{ formatDateTime .App .Item.Lpa.UpdatedAt }}</p>
+      <p class="govuk-body-s"><strong>{{ tr .App "referenceNumber" }}:</strong> {{ .Item.Lpa.UID }}</p>
+      <p class="govuk-body-s"><strong>{{ tr .App "lastUpdated" }}:</strong> {{ formatDateTime .App .Item.Lpa.UpdatedAt }}</p>
     </div>
     <div class="app-dashboard-row">
       <div class="govuk-button-group">
-        {{ if .Item.CertificateProviderTasks.ReadTheLpa.Completed }}
-          <a class="govuk-button" href="{{ link .App (.App.Paths.CertificateProvider.ReadTheLpa.Format .Item.Lpa.ID) }}">{{ tr .App "readLpa" }}</a>
-        {{ else }}
-          <a class="govuk-button" href="{{ link .App (.App.Paths.CertificateProvider.TaskList.Format .Item.Lpa.ID) }}">{{ tr .App "continue" }}</a>
-        {{ end }}
-        <a class="govuk-button govuk-button--secondary" href="#">{{ tr .App "options" }}</a>
+        <a class="govuk-button" href="{{ link .App (.App.Paths.CertificateProvider.TaskList.Format .Item.Lpa.ID) }}">{{ tr .App "goToTaskList" }}</a>
       </div>
     </div>
   </div>
