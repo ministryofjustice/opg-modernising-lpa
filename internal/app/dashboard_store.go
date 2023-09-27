@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"golang.org/x/exp/maps"
 )
 
 // An lpaLink is used to join an actor to an LPA.
@@ -131,6 +132,11 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 			}
 
 			if entry, ok := attorneyMap[attorneyProvidedDetails.LpaID]; ok {
+				if attorneyProvidedDetails.IsReplacement && !entry.Lpa.SubmittedAt.IsZero() {
+					delete(attorneyMap, attorneyProvidedDetails.LpaID)
+					continue
+				}
+
 				entry.Attorney = attorneyProvidedDetails
 				attorneyMap[attorneyProvidedDetails.LpaID] = entry
 				continue
@@ -154,13 +160,8 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		}
 	}
 
-	for _, value := range certificateProviderMap {
-		certificateProvider = append(certificateProvider, value)
-	}
-
-	for _, value := range attorneyMap {
-		attorney = append(attorney, value)
-	}
+	certificateProvider = maps.Values(certificateProviderMap)
+	attorney = maps.Values(attorneyMap)
 
 	byUpdatedAt := func(a, b page.LpaAndActorTasks) int {
 		if a.Lpa.UpdatedAt.After(b.Lpa.UpdatedAt) {
