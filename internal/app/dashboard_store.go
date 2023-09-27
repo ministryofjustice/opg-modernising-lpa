@@ -131,7 +131,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 			}
 
 			if entry, ok := attorneyMap[attorneyProvidedDetails.LpaID]; ok {
-				entry.AttorneyTasks = attorneyProvidedDetails.Tasks
+				entry.Attorney = attorneyProvidedDetails
 				attorneyMap[attorneyProvidedDetails.LpaID] = entry
 				continue
 			}
