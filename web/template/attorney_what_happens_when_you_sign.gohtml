@@ -11,7 +11,7 @@
 
       {{ if .Lpa.Type.IsHealthWelfare }}
         {{ if and .App.IsReplacementAttorney .App.IsTrustCorporation }}
-          {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentReplacementTrustCorporationPw" "DonorFullNamePossessive" $donorFullNamePossessive "TrustCorporationName" .Lpa.Attorneys.TrustCorporation.Name }}
+          {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentReplacementTrustCorporationPw" "DonorFullNamePossessive" $donorFullNamePossessive "TrustCorporationName" .Lpa.ReplacementAttorneys.TrustCorporation.Name }}
         {{ else if .App.IsTrustCorporation }}
           {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentTrustCorporationPw" "DonorFullNamePossessive" $donorFullNamePossessive "TrustCorporationName" .Lpa.Attorneys.TrustCorporation.Name }}
         {{ else if .App.IsReplacementAttorney }}
@@ -29,7 +29,7 @@
         {{ end }}
       {{ else }}
         {{ if and .App.IsReplacementAttorney .App.IsTrustCorporation }}
-          {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentReplacementTrustCorporationPa" "DonorFullNamePossessive" $donorFullNamePossessive "TrustCorporationName" .Lpa.Attorneys.TrustCorporation.Name }}
+          {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentReplacementTrustCorporationPa" "DonorFullNamePossessive" $donorFullNamePossessive "TrustCorporationName" .Lpa.ReplacementAttorneys.TrustCorporation.Name }}
         {{ else if .App.IsTrustCorporation }}
           {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentTrustCorporationPa" "DonorFullNamePossessive" $donorFullNamePossessive "TrustCorporationName" .Lpa.Attorneys.TrustCorporation.Name }}
         {{ else if .App.IsReplacementAttorney }}

@@ -1,0 +1,85 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}Attorney fixtures{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">Attorney fixtures</h1>
+
+      <form novalidate method="post">
+        <p class="govuk-body">Entering an email will cause a reference code to be sent and redirect you to the start page. Leave it blank to be signed in and taken to the dashboard instead.</p>
+        {{ template "input" (input . "email" "email" "" "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
+
+        <div class="govuk-form-group">
+          <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend">As</legend>
+            <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="f-is-replacement" name="is-replacement" type="checkbox" value="1">
+                <label class="govuk-label govuk-checkboxes__label" for="f-is-replacement">Replacement</label>
+              </div>
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="f-is-trust-corporation" name="is-trust-corporation" type="checkbox" value="1">
+                <label class="govuk-label govuk-checkboxes__label" for="f-is-trust-corporation">Trust corporation</label>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="govuk-form-group">
+          <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend">LPA type</legend>
+            <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-lpa-type" name="lpa-type" type="radio" value="pfa" checked>
+                <label class="govuk-label govuk-radios__label" for="f-lpa-type">Property and affairs</label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="lpa-type-2" name="lpa-type" type="radio" value="hw">
+                <label class="govuk-label govuk-radios__label" for="f-lpa-type-2">Personal welfare</label>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+
+        <fieldset class="govuk-fieldset">
+          <legend class="govuk-fieldset__legend">Progress</legend>
+          <div class="govuk-form-group">
+            <div class="govuk-radios" data-module="govuk-radios">
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-progress" name="progress" type="radio" value="signedByCertificateProvider" checked>
+                <label class="govuk-label govuk-radios__label" for="f-progress">
+                  Signed by donor and certificate provider
+                </label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-progress-2" name="progress" type="radio" value="signedByAttorney">
+                <label class="govuk-label govuk-radios__label" for="f-progress-2">
+                  Signed by attorney
+                </label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-progress-3" name="progress" type="radio" value="submitted">
+                <label class="govuk-label govuk-radios__label" for="f-progress-3">
+                  Submitted
+                </label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-progress-4" name="progress" type="radio" value="registered">
+                <label class="govuk-label govuk-radios__label" for="f-progress-4">
+                  Registered
+                </label>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="govuk-button-group govuk-!-padding-top-3">
+          <button type="submit" class="govuk-button" data-module="govuk-button">Start</button>
+        </div>
+        {{ template "csrf-field" . }}
+      </form>
+    </div>
+  </div>
+{{ end }}
