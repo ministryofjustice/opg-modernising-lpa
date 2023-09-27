@@ -78,24 +78,36 @@ func TestGetEnterReferenceNumberOnTemplateError(t *testing.T) {
 }
 
 func TestPostEnterReferenceNumber(t *testing.T) {
-	testcases := map[actor.Type]struct {
-		shareCode     actor.ShareCodeData
-		session       *sesh.LoginSession
-		isReplacement bool
+	testcases := map[string]struct {
+		shareCode          actor.ShareCodeData
+		session            *sesh.LoginSession
+		isReplacement      bool
+		isTrustCorporation bool
 	}{
-		actor.TypeAttorney: {
+		"attorney": {
 			shareCode: actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", AttorneyID: "attorney-id"},
 			session:   &sesh.LoginSession{Sub: "hey"},
 		},
-		actor.TypeReplacementAttorney: {
+		"replacement": {
 			shareCode:     actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", AttorneyID: "attorney-id", IsReplacementAttorney: true},
 			session:       &sesh.LoginSession{Sub: "hey"},
 			isReplacement: true,
 		},
+		"trust corporation": {
+			shareCode:          actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", AttorneyID: "attorney-id", IsTrustCorporation: true},
+			session:            &sesh.LoginSession{Sub: "hey"},
+			isTrustCorporation: true,
+		},
+		"replacement trust corporation": {
+			shareCode:          actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", AttorneyID: "attorney-id", IsReplacementAttorney: true, IsTrustCorporation: true},
+			session:            &sesh.LoginSession{Sub: "hey"},
+			isReplacement:      true,
+			isTrustCorporation: true,
+		},
 	}
 
-	for actorType, tc := range testcases {
-		t.Run(actorType.String(), func(t *testing.T) {
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
 			form := url.Values{
 				"reference-number": {"a Ref-Number12"},
 			}
@@ -115,7 +127,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 					session, _ := page.SessionDataFromContext(ctx)
 
 					return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
-				}), "aGV5", "attorney-id", tc.isReplacement).
+				}), "aGV5", "attorney-id", tc.isReplacement, tc.isTrustCorporation).
 				Return(&actor.AttorneyProvidedDetails{}, nil)
 
 			sessionStore := newMockSessionStore(t)
@@ -229,7 +241,7 @@ func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
 
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.
-		On("Create", mock.Anything, mock.Anything, mock.Anything, false).
+		On("Create", mock.Anything, mock.Anything, mock.Anything, false, false).
 		Return(&actor.AttorneyProvidedDetails{}, expectedError)
 
 	sessionStore := newMockSessionStore(t)

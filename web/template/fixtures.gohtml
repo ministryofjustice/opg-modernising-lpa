@@ -178,17 +178,6 @@
         {{ template "input" (input . "email" "email" "" "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
 
         <div class="govuk-form-group">
-          <div class="govuk-checkboxes" data-module="govuk-checkboxes">
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="signed" name="signed" type="checkbox" value="1">
-              <label class="govuk-label govuk-checkboxes__label" for="signed">
-                Signed by donor and certificate provider
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="govuk-form-group">
           <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend">
               Send email to
@@ -232,6 +221,40 @@
           </fieldset>
         </div>
 
+        <fieldset class="govuk-fieldset">
+          <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+            <h3 class="govuk-fieldset__heading">LPA</h3>
+          </legend>
+          <div class="govuk-form-group">
+            <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-attorney-signedByOthers" name="lpa.progress" type="radio" value="signedByCertificateProvider" checked>
+                <label class="govuk-label govuk-radios__label" for="f-attorney-signedByOthers">
+                  Signed by donor and certificate provider
+                </label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-attorney-signed" name="lpa.progress" type="radio" value="signedByAttorney" checked>
+                <label class="govuk-label govuk-radios__label" for="f-attorney-signed">
+                  Signed by attorney
+                </label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-attorney-submitted" name="lpa.progress" type="radio" value="submitted">
+                <label class="govuk-label govuk-radios__label" for="f-attorney-submitted">
+                  Submitted
+                </label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-attorney-registered" name="lpa.progress" type="radio" value="registered">
+                <label class="govuk-label govuk-radios__label" for="f-attorney-registered">
+                  Registered
+                </label>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+        
         <div class="govuk-button-group govuk-!-padding-top-3">
           <button type="submit" class="govuk-button" data-module="govuk-button" name="journey" value="attorney">Start</button>
         </div>
@@ -260,35 +283,39 @@
           </div>
         </div>
 
-        <h3 class="govuk-heading-s">Donor's LPA</h3>
-        <div class="govuk-form-group">
-          <div class="govuk-radios" data-module="govuk-radios">
-            <div class="govuk-radios__item">
-              <input class="govuk-radios__input" id="f-unsigned" name="lpa.progress" type="radio" value="">
-              <label class="govuk-label govuk-radios__label" for="f-unsigned">
-                Unsigned
-              </label>
-            </div>
-            <div class="govuk-radios__item">
-              <input class="govuk-radios__input" id="f-signedByDonor" name="lpa.progress" type="radio" value="signedByDonor">
-              <label class="govuk-label govuk-radios__label" for="f-signedByDonor">
-                Signed by donor
-              </label>
-            </div>
-            <div class="govuk-radios__item">
-              <input class="govuk-radios__input" id="f-submitted" name="lpa.progress" type="radio" value="submitted">
-              <label class="govuk-label govuk-radios__label" for="f-submitted">
-                Submitted
-              </label>
-            </div>
-            <div class="govuk-radios__item">
-              <input class="govuk-radios__input" id="f-registered" name="lpa.progress" type="radio" value="registered">
-              <label class="govuk-label govuk-radios__label" for="f-registered">
-                Registered
-              </label>
+        <fieldset class="govuk-fieldset">
+          <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+            <h3 class="govuk-fieldset__heading">Donor LPA</h3>
+          </legend>
+          <div class="govuk-form-group">
+            <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-started" name="lpa.progress" type="radio" value="" checked>
+                <label class="govuk-label govuk-radios__label" for="f-started">
+                  Started
+                </label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-signedByDonor" name="lpa.progress" type="radio" value="signedByDonor">
+                <label class="govuk-label govuk-radios__label" for="f-signedByDonor">
+                  Signed
+                </label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-submitted" name="lpa.progress" type="radio" value="submitted">
+                <label class="govuk-label govuk-radios__label" for="f-submitted">
+                  Submitted
+                </label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-registered" name="lpa.progress" type="radio" value="registered">
+                <label class="govuk-label govuk-radios__label" for="f-registered">
+                  Registered
+                </label>
+              </div>
             </div>
           </div>
-        </div>
+        </fieldset>
 
         <div class="govuk-button-group govuk-!-padding-top-3">
           <button type="submit" class="govuk-button" data-module="govuk-button" name="journey" value="everything">Start</button>
