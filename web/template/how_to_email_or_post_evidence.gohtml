@@ -1,13 +1,13 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "howToSendEvidence" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "howToEmailOrPostEvidence" }}{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "howToSendEvidence" }}</h1>
+      <h1 class="govuk-heading-xl">{{ tr .App "howToEmailOrPostEvidence" }}</h1>
 
-      {{ trHtml .App "howToSendEvidenceContent" }}
+      {{ trHtml .App "howToEmailOrPostEvidenceContent" }}
 
       <form novalidate method="post">
         <div class="govuk-button-group">

@@ -171,25 +171,6 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 		}
 	}
 
-	if lpa.UID != "" && lpa.EvidenceFormAddress.Line1 != "" && !lpa.HasSentEvidenceFormRequiredEvent {
-		if err := s.eventClient.Send(ctx, "evidence-form-required", evidenceFormRequiredEvent{
-			UID:        lpa.UID,
-			FirstNames: lpa.Donor.FirstNames,
-			LastName:   lpa.Donor.LastName,
-			Address: address{
-				Line1:      lpa.EvidenceFormAddress.Line1,
-				Line2:      lpa.EvidenceFormAddress.Line2,
-				Line3:      lpa.EvidenceFormAddress.Line3,
-				TownOrCity: lpa.EvidenceFormAddress.TownOrCity,
-				Postcode:   lpa.EvidenceFormAddress.Postcode,
-			},
-		}); err != nil {
-			s.logger.Print(err)
-		} else {
-			lpa.HasSentEvidenceFormRequiredEvent = true
-		}
-	}
-
 	if lpa.UID != "" && lpa.Tasks.PayForLpa.IsPending() && lpa.HasUnsentReducedFeesEvidence() {
 		var unsentKeys []string
 
