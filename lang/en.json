@@ -330,10 +330,8 @@
     "weWillEmailYou": "<p class=\"govuk-body\">We’ll email you to update you with the progress of your LPA’s registration. If there are any problems, we’ll let you know.</p><p class=\"govuk-body\">You can also track the progress of your LPA by logging back into this service at any time.</p>",
     "signIn4WeeksWarning": "{{ .CpFirstNames }} and your attorneys must sign your LPA by {{ .AttorneysAndCpSigningDeadline }}. If they do not sign by this date, you will have to pay the application fee again. You will also have to meet with {{ .CpFirstNames }} and sign your LPA again. ",
     "myLastingPowersOfAttorney": "My lasting powers of attorney",
-    "createAnotherLpa": "Create another LPA",
     "applicationNumber": "Application number",
     "options": "Options",
-    "lastSaved": "Last saved",
     "howShouldAttorneysMakeDecisions": "How should your attorneys make decisions?",
     "jointlyAndSeverallyHumanised": "Jointly and severally - your attorneys can make decisions both on their own or together",
     "jointlyAndSeverallyHumanisedReplacement": "Jointly and severally - your replacement attorneys can make decisions both on their own or together",
@@ -772,5 +770,8 @@
     "youCanChooseToTellUsYourCompanyPhoneNumber": "You can choose to tell us your company’s phone number in case we ever need to contact you.",
     "enterYourCompanyPhoneNumberHint": "For example, 07700 900 982 or 01632 960000.",
     "errorCompanyPhoneNumber": "Enter a valid phone number",
-    "lpaNumber": "LPA number"
+    "lpaNumber": "LPA number",
+    "makeNewLpa": "Make a new lasting power of attorney (LPA)",
+    "youCanMakeNewLpa": "You can make a new LPA for yourself.",
+    "startNow": "Start now"
 }

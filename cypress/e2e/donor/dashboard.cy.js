@@ -1,8 +1,7 @@
 describe('Dashboard', () => {
     context('with incomplete LPA', () => {
         beforeEach(() => {
-            cy.visit('/testing-start?lpa.yourDetails=1');
-            cy.visit('/dashboard');
+            cy.visit('/fixtures/dashboard?asDonor=1&redirect=/dashboard');
         });
 
         it('shows my lasting power of attorney', () => {
@@ -14,7 +13,7 @@ describe('Dashboard', () => {
         });
 
         it('can create another reusing some previous details', () => {
-            cy.contains('button', 'Create another LPA').click();
+            cy.contains('button', 'Start now').click();
 
             cy.get('#f-first-names').clear().type('Jane');
             cy.contains('button', 'Continue').click();
@@ -81,8 +80,7 @@ describe('Dashboard', () => {
 
     context('with various roles', () => {
         it('shows all of my LPAs', () => {
-            cy.visit('/testing-start?lpa.complete=1&attorneyProvided=1&asCertificateProvider=1&fresh=1')
-            cy.visit('/dashboard');
+            cy.visit('/fixtures/dashboard?asDonor=1&asAttorney=1&asCertificateProvider=1&redirect=/dashboard');
 
             cy.contains('My LPAs');
             cy.contains('I’m an attorney');

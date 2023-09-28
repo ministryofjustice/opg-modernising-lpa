@@ -52,18 +52,6 @@ type DonorStore interface {
 	Put(context.Context, *Lpa) error
 }
 
-//go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
-type CertificateProviderStore interface {
-	Create(context.Context, string) (*actor.CertificateProviderProvidedDetails, error)
-	Put(context.Context, *actor.CertificateProviderProvidedDetails) error
-}
-
-//go:generate mockery --testonly --inpackage --name AttorneyStore --structname mockAttorneyStore
-type AttorneyStore interface {
-	Create(context.Context, string, string, bool, bool) (*actor.AttorneyProvidedDetails, error)
-	Put(context.Context, *actor.AttorneyProvidedDetails) error
-}
-
 //go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore
 type SessionStore interface {
 	Get(r *http.Request, name string) (*sessions.Session, error)
@@ -92,7 +80,6 @@ type Localizer interface {
 type shareCodeSender interface {
 	SendCertificateProvider(ctx context.Context, template notify.Template, appData AppData, identity bool, lpa *Lpa) error
 	SendAttorneys(ctx context.Context, appData AppData, lpa *Lpa) error
-	UseTestCode()
 }
 
 func PostFormString(r *http.Request, name string) string {
