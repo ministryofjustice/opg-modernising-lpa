@@ -1,0 +1,48 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}Fixtures{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">Certificate provider fixtures</h1>
+
+      <p class="govuk-body">Starting this flow will send an email with reference code to the email entered below. If you don't care about seeing the email then leave the field blank.</p>
+
+      <form novalidate method="post">
+        {{ template "input" (input . "email" "email" "" "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
+
+        <fieldset class="govuk-fieldset">
+          <legend class="govuk-fieldset__legend">Progress</legend>
+          <div class="govuk-form-group">
+            <div class="govuk-radios" data-module="govuk-radios">
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-progress" name="progress" type="radio" value="paid" checked>
+                <label class="govuk-label govuk-radios__label" for="f-progress">
+                  Paid
+                </label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-progress" name="progress" type="radio" value="signedByDonor">
+                <label class="govuk-label govuk-radios__label" for="f-progress">
+                  Signed by donor
+                </label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-progress" name="progress" type="radio" value="detailsConfirmed">
+                <label class="govuk-label govuk-radios__label" for="f-progress">
+                  Details confirmed
+                </label>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+        
+        <div class="govuk-button-group govuk-!-padding-top-3">
+          <button type="submit" class="govuk-button" data-module="govuk-button" name="journey" value="certificate-provider">Start</button>
+        </div>
+        {{ template "csrf-field" . }}
+      </form>
+    </div>
+  </div>
+{{ end }}

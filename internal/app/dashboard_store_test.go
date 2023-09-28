@@ -32,10 +32,6 @@ func TestDashboardStoreGetAll(t *testing.T) {
 	lpaSignedByCpProvidedDetails := &actor.CertificateProviderProvidedDetails{
 		LpaID: "signed-by-cp", SK: certificateProviderKey(sessionID), Certificate: actor.Certificate{AgreeToStatement: true},
 	}
-	lpaSubmitted := &page.Lpa{ID: "submitted", UID: "M", SK: donorKey("another-id"), PK: lpaKey("submitted"), SubmittedAt: aTime}
-	lpaSubmittedAttorneyDetails := &actor.AttorneyProvidedDetails{LpaID: "submitted", SK: attorneyKey(sessionID)}
-	lpaSubmittedReplacement := &page.Lpa{ID: "submitted-replacement", UID: "M", SK: donorKey("another-id"), PK: lpaKey("submitted-replacement"), SubmittedAt: aTime}
-	lpaSubmittedReplacementAttorneyDetails := &actor.AttorneyProvidedDetails{LpaID: "submitted-replacement", SK: attorneyKey(sessionID), IsReplacement: true}
 
 	testCases := map[string][]map[string]types.AttributeValue{
 		"details returned after lpas": {
@@ -47,25 +43,17 @@ func TestDashboardStoreGetAll(t *testing.T) {
 			makeAttributeValueMap(lpa0),
 			makeAttributeValueMap(lpaSignedByCp),
 			makeAttributeValueMap(lpaSignedByCpProvidedDetails),
-			makeAttributeValueMap(lpaSubmitted),
-			makeAttributeValueMap(lpaSubmittedAttorneyDetails),
-			makeAttributeValueMap(lpaSubmittedReplacement),
-			makeAttributeValueMap(lpaSubmittedReplacementAttorneyDetails),
 		},
 		"details returned before lpas": {
 			makeAttributeValueMap(lpaNoUID),
 			makeAttributeValueMap(lpa456CpProvidedDetails),
 			makeAttributeValueMap(lpa789AttorneyProvidedDetails),
 			makeAttributeValueMap(lpaSignedByCpProvidedDetails),
-			makeAttributeValueMap(lpaSubmittedAttorneyDetails),
-			makeAttributeValueMap(lpaSubmittedReplacementAttorneyDetails),
 			makeAttributeValueMap(lpa123),
 			makeAttributeValueMap(lpa456),
 			makeAttributeValueMap(lpa789),
 			makeAttributeValueMap(lpaSignedByCp),
 			makeAttributeValueMap(lpa0),
-			makeAttributeValueMap(lpaSubmitted),
-			makeAttributeValueMap(lpaSubmittedReplacement),
 		},
 	}
 
@@ -82,8 +70,6 @@ func TestDashboardStoreGetAll(t *testing.T) {
 					{PK: "LPA#0", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor},
 					{PK: "LPA#999", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor},
 					{PK: "LPA#signed-by-cp", SK: "#SUB#an-id", DonorKey: "#DONOR#another-id", ActorType: actor.TypeCertificateProvider},
-					{PK: "LPA#submitted", SK: "#SUB#an-id", DonorKey: "#DONOR#another-id", ActorType: actor.TypeAttorney},
-					{PK: "LPA#submitted-replacement", SK: "#SUB#an-id", DonorKey: "#DONOR#another-id", ActorType: actor.TypeAttorney},
 				}, nil)
 			dynamoClient.ExpectAllByKeys(ctx, []dynamo.Key{
 				{PK: "LPA#123", SK: "#DONOR#an-id"},
@@ -95,10 +81,6 @@ func TestDashboardStoreGetAll(t *testing.T) {
 				{PK: "LPA#999", SK: "#DONOR#an-id"},
 				{PK: "LPA#signed-by-cp", SK: "#DONOR#another-id"},
 				{PK: "LPA#signed-by-cp", SK: "#CERTIFICATE_PROVIDER#an-id"},
-				{PK: "LPA#submitted", SK: "#DONOR#another-id"},
-				{PK: "LPA#submitted", SK: "#ATTORNEY#an-id"},
-				{PK: "LPA#submitted-replacement", SK: "#DONOR#another-id"},
-				{PK: "LPA#submitted-replacement", SK: "#ATTORNEY#an-id"},
 			}, attributeValues, nil)
 
 			dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
@@ -106,19 +88,49 @@ func TestDashboardStoreGetAll(t *testing.T) {
 			donor, attorney, certificateProvider, err := dashboardStore.GetAll(ctx)
 			assert.Nil(t, err)
 
-			assert.Equal(t, []page.LpaAndActorTasks{
-				{Lpa: lpa123},
-				{Lpa: lpa0},
-			}, donor)
-			assert.Equal(t, []page.LpaAndActorTasks{
-				{Lpa: lpa456, CertificateProviderTasks: actor.CertificateProviderTasks{ConfirmYourDetails: actor.TaskCompleted}},
-			}, certificateProvider)
-			assert.Equal(t, []page.LpaAndActorTasks{
-				{Lpa: lpa789, Attorney: lpa789AttorneyProvidedDetails},
-				{Lpa: lpaSubmitted, Attorney: lpaSubmittedAttorneyDetails},
-			}, attorney)
+			assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa123}, {Lpa: lpa0}}, donor)
+			assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa456, CertificateProviderTasks: actor.CertificateProviderTasks{ConfirmYourDetails: actor.TaskCompleted}}}, certificateProvider)
+			assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa789, Attorney: lpa789AttorneyProvidedDetails}}, attorney)
 		})
 	}
+}
+
+func TestDashboardStoreGetAllSubmittedForAttorneys(t *testing.T) {
+	sessionID := "an-id"
+	aTime := time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)
+
+	lpaSubmitted := &page.Lpa{ID: "submitted", UID: "M", SK: donorKey("another-id"), PK: lpaKey("submitted"), SubmittedAt: aTime}
+	lpaSubmittedAttorneyDetails := &actor.AttorneyProvidedDetails{LpaID: "submitted", SK: attorneyKey(sessionID)}
+	lpaSubmittedReplacement := &page.Lpa{ID: "submitted-replacement", UID: "M", SK: donorKey("another-id"), PK: lpaKey("submitted-replacement"), SubmittedAt: aTime}
+	lpaSubmittedReplacementAttorneyDetails := &actor.AttorneyProvidedDetails{LpaID: "submitted-replacement", SK: attorneyKey(sessionID), IsReplacement: true}
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: sessionID})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectAllForActor(ctx, "#SUB#an-id",
+		[]lpaLink{
+			{PK: "LPA#submitted", SK: "#SUB#an-id", DonorKey: "#DONOR#another-id", ActorType: actor.TypeAttorney},
+			{PK: "LPA#submitted-replacement", SK: "#SUB#an-id", DonorKey: "#DONOR#another-id", ActorType: actor.TypeAttorney},
+		}, nil)
+	dynamoClient.ExpectAllByKeys(ctx, []dynamo.Key{
+		{PK: "LPA#submitted", SK: "#DONOR#another-id"},
+		{PK: "LPA#submitted", SK: "#ATTORNEY#an-id"},
+		{PK: "LPA#submitted-replacement", SK: "#DONOR#another-id"},
+		{PK: "LPA#submitted-replacement", SK: "#ATTORNEY#an-id"},
+	}, []map[string]types.AttributeValue{
+		makeAttributeValueMap(lpaSubmitted),
+		makeAttributeValueMap(lpaSubmittedAttorneyDetails),
+		makeAttributeValueMap(lpaSubmittedReplacement),
+		makeAttributeValueMap(lpaSubmittedReplacementAttorneyDetails),
+	}, nil)
+
+	dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
+
+	_, attorney, _, err := dashboardStore.GetAll(ctx)
+	assert.Nil(t, err)
+
+	assert.Equal(t, []page.LpaAndActorTasks{
+		{Lpa: lpaSubmitted, Attorney: lpaSubmittedAttorneyDetails},
+	}, attorney)
 }
 
 func makeAttributeValueMap(i interface{}) map[string]types.AttributeValue {
