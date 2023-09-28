@@ -1,6 +1,6 @@
 describe('Task list', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/task-list&lpa.complete=1&asCertificateProvider=1&loginAs=certificate-provider');
+        cy.visit('/fixtures/certificate-provider?redirect=/task-list&progress=signedByDonor');
     });
 
     it('shows tasks', () => {

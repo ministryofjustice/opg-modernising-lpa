@@ -1,6 +1,6 @@
 describe('Confirm your details', () => {
     it('shows details', () => {
-        cy.visit('/testing-start?redirect=/enter-date-of-birth&lpa.certificateProvider=1&asCertificateProvider=1&loginAs=certificate-provider');
+        cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth');
 
         cy.get('#f-date-of-birth').type('1');
         cy.get('#f-date-of-birth-month').type('2');
@@ -20,8 +20,8 @@ describe('Confirm your details', () => {
         cy.url().should('contain', '/your-role');
     });
 
-    it('redirects to tasklist when details have already been confirmed', () => {
-        cy.visit('/testing-start?redirect=/confirm-your-details&lpa.certificateProvider=1&asCertificateProvider=1&cp.confirmYourDetails=1&loginAs=certificate-provider');
+    it('redirects to tasklist when LPA has already been witnessed', () => {
+        cy.visit('/fixtures/certificate-provider?redirect=/confirm-your-details&progress=signedByDonor');
 
         cy.url().should('contain', '/confirm-your-details');
         cy.checkA11yApp();
@@ -32,8 +32,8 @@ describe('Confirm your details', () => {
         cy.contains('li', 'Confirm your details').should('contain', 'Completed');
     });
 
-    it('redirects to tasklist when LPA has already been witnessed', () => {
-        cy.visit('/testing-start?redirect=/confirm-your-details&lpa.certificateProvider=1&asCertificateProvider=1&lpa.signedByDonor=1&loginAs=certificate-provider');
+    it('redirects to tasklist when details have already been confirmed', () => {
+        cy.visit('/fixtures/certificate-provider?redirect=/confirm-your-details&progress=detailsConfirmed');
 
         cy.url().should('contain', '/confirm-your-details');
         cy.checkA11yApp();
