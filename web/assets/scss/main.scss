@@ -27,6 +27,10 @@ body:not(.js-enabled) .govuk-back-link {
     @include govuk-responsive-margin(4, "bottom");
 
     border: 1px solid $govuk-border-colour;
+
+    &--dashed {
+        border-style: dashed;
+    }
 }
 
 .app-dashboard-row {

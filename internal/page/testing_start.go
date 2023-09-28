@@ -475,8 +475,6 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			completeLpa           = r.FormValue("lpa.complete") != ""
 			cookiesAccepted       = r.FormValue("cookiesAccepted") != ""
 			asCertificateProvider = r.FormValue("asCertificateProvider")
-			fresh                 = r.FormValue("fresh") != ""
-			asAttorney            = r.FormValue("attorneyProvided") != ""
 			redirect              = r.FormValue("redirect")
 			paymentComplete       = r.FormValue("lpa.paid") != ""
 			progress              = r.FormValue("lpa.progress")
@@ -524,27 +522,13 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			attorneyCtx            = ContextWithSessionData(r.Context(), &SessionData{SessionID: attorneySessionID, LpaID: lpa.ID})
 		)
 
-		// loginAs controls which actor we will be pretending to be for the LPA
-		switch r.FormValue("loginAs") {
-		case "attorney":
-			_ = sesh.SetLoginSession(store, r, w, &sesh.LoginSession{Sub: attorneySub, Email: testEmail})
-			if redirect != "" {
-				redirect = "/attorney/" + lpa.ID + redirect
-			}
-		case "certificate-provider":
-			_ = sesh.SetLoginSession(store, r, w, &sesh.LoginSession{Sub: certificateProviderSub, Email: testEmail})
-			if redirect != "" {
-				redirect = "/certificate-provider/" + lpa.ID + redirect
-			}
-		default:
-			_ = sesh.SetLoginSession(store, r, w, &sesh.LoginSession{Sub: donorSub, Email: testEmail})
-			if redirect != "" &&
-				redirect != Paths.Start.Format() &&
-				redirect != Paths.Dashboard.Format() &&
-				redirect != Paths.CertificateProviderStart.Format() &&
-				redirect != Paths.Attorney.Start.Format() {
-				redirect = "/lpa/" + lpa.ID + redirect
-			}
+		_ = sesh.SetLoginSession(store, r, w, &sesh.LoginSession{Sub: donorSub, Email: testEmail})
+		if redirect != "" &&
+			redirect != Paths.Start.Format() &&
+			redirect != Paths.Dashboard.Format() &&
+			redirect != Paths.CertificateProviderStart.Format() &&
+			redirect != Paths.Attorney.Start.Format() {
+			redirect = "/lpa/" + lpa.ID + redirect
 		}
 
 		if cookiesAccepted {
@@ -557,29 +541,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		}
 
 		if signedByCertificateProvider || asCertificateProvider != "" {
-			currentCtx := certificateProviderCtx
-
-			// "fresh=1" causes an LPA to be created for the certificate provider (as
-			// the donor), we then link this to the donor so they are both each
-			// other's certificate provider.
-			if fresh {
-				lpa := buildLpa(certificateProviderCtx, lpaOptions{
-					hasDonorDetails:        true,
-					attorneys:              2,
-					replacementAttorneys:   2,
-					hasWhenCanBeUsed:       true,
-					hasRestrictions:        true,
-					hasCertificateProvider: true,
-					peopleToNotify:         2,
-					checked:                true,
-					paid:                   true,
-					idConfirmedAndSigned:   true,
-				})
-
-				currentCtx = ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID, LpaID: lpa.ID})
-			}
-
-			certificateProvider, err := certificateProviderStore.Create(currentCtx, certificateProviderSessionID)
+			certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, certificateProviderSessionID)
 			if err != nil {
 				logger.Print("asCertificateProvider creating CP ", err)
 			}
@@ -607,34 +569,15 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 				certificateProvider.Tasks.ConfirmYourDetails = actor.TaskCompleted
 			}
 
-			if err := certificateProviderStore.Put(currentCtx, certificateProvider); err != nil {
+			if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {
 				logger.Print("provideCertificate putting CP ", err)
 			}
 		}
 
-		if signedByAttorney || asAttorney {
-			currentCtx := attorneyCtx
-
-			if fresh {
-				lpa := buildLpa(attorneyCtx, lpaOptions{
-					hasDonorDetails:        true,
-					attorneys:              2,
-					replacementAttorneys:   2,
-					hasWhenCanBeUsed:       true,
-					hasRestrictions:        true,
-					hasCertificateProvider: true,
-					peopleToNotify:         2,
-					checked:                true,
-					paid:                   true,
-					idConfirmedAndSigned:   true,
-				})
-
-				currentCtx = ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID, LpaID: lpa.ID})
-			}
-
+		if signedByAttorney {
 			id := lpa.Attorneys.Attorneys[0].ID
 
-			attorneyProvided, err := attorneyStore.Create(currentCtx, attorneySessionID, id, false, false)
+			attorneyProvided, err := attorneyStore.Create(attorneyCtx, attorneySessionID, id, false, false)
 			if err != nil {
 				logger.Print("asAttorney:", err)
 			}
@@ -642,7 +585,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			if signedByAttorney {
 				attorneyProvided.Tasks.SignTheLpa = actor.TaskCompleted
 
-				if err := attorneyStore.Put(currentCtx, attorneyProvided); err != nil {
+				if err := attorneyStore.Put(attorneyCtx, attorneyProvided); err != nil {
 					logger.Print("asAttorney:", err)
 				}
 			}

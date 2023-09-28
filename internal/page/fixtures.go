@@ -51,20 +51,6 @@ func Fixtures(tmpl template.Template) Handler {
 				if data.Form.PeopleToNotify != "" {
 					values.Add("lpa.peopleToNotify", data.Form.PersonToNotifyCount)
 				}
-			case "everything":
-				values = url.Values{
-					"fresh":                 {"1"},
-					"redirect":              {Paths.Dashboard.Format()},
-					"attorneyProvided":      {r.FormValue("attorneyProvided")},
-					"asCertificateProvider": {r.FormValue("asCertificateProvider")},
-					"lpa.progress":          {r.FormValue("lpa.progress")},
-				}
-
-				if r.FormValue("lpa.progress") == "" {
-					values.Set("lpa.yourDetails", "1")
-				} else {
-					values.Set("lpa.complete", "1")
-				}
 			}
 
 			http.Redirect(w, r, fmt.Sprintf("%s?%s", Paths.TestingStart, values.Encode()), http.StatusFound)
