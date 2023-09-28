@@ -6,7 +6,6 @@ import (
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -28,67 +27,6 @@ func Fixtures(tmpl template.Template) Handler {
 			var values url.Values
 
 			switch data.Form.Journey {
-			case "attorney":
-				values = url.Values{
-					"useTestShareCode":            {"1"},
-					"sendAttorneyShare":           {"1"},
-					"lpa.complete":                {"1"},
-					"lpa.attorneys":               {"2"},
-					"lpa.attorneysAct":            {actor.JointlyAndSeverally.String()},
-					"lpa.replacementAttorneys":    {"2"},
-					"lpa.replacementAttorneysAct": {actor.Jointly.String()},
-					"lpa.type":                    {data.Form.Type},
-					"lpa.restrictions":            {"1"},
-					"redirect":                    {Paths.Attorney.Start.Format()},
-					"lpa.progress":                {r.FormValue("lpa.progress")},
-				}
-
-				switch data.Form.SendTo {
-				case "replacement-attorney":
-					if data.Form.Email != "" {
-						values.Add("lpa.replacementAttorneyEmail", data.Form.Email)
-					}
-				case "trust-corporation":
-					values.Add("lpa.trustCorporation", "complete")
-					if data.Form.Email != "" {
-						values.Add("lpa.trustCorporationEmail", data.Form.Email)
-					}
-				case "replacement-trust-corporation":
-					values.Add("lpa.replacementTrustCorporation", "complete")
-					if data.Form.Email != "" {
-						values.Add("lpa.replacementTrustCorporationEmail", data.Form.Email)
-					}
-				default:
-					if data.Form.Email != "" {
-						values.Add("lpa.attorneyEmail", data.Form.Email)
-					}
-				}
-
-				if data.Form.Signed != "" {
-					values.Add("lpa.signedByDonor", "1")
-					values.Add("asCertificateProvider", "certified")
-				}
-
-			case "certificate-provider":
-				values = url.Values{
-					"useTestShareCode":  {"1"},
-					data.Form.DonorPaid: {"1"},
-				}
-
-				if data.Form.Email != "" {
-					values.Add("lpa.certificateProviderEmail", data.Form.Email)
-				}
-
-				if data.Form.DonorPaid != "" {
-					values.Add("startCpFlowDonorHasPaid", "1")
-				} else {
-					values.Add("startCpFlowDonorHasNotPaid", "1")
-				}
-
-				if data.Form.Signed != "" {
-					values.Add("lpa.signedByDonor", "1")
-				}
-
 			case "donor":
 				values = url.Values{
 					"lpa.type":                    {data.Form.Type},
@@ -154,7 +92,6 @@ type fixturesForm struct {
 	IdAndSign                string
 	CompleteAll              string
 	Email                    string
-	DonorPaid                string
 	SendTo                   string
 	Signed                   string
 	Type                     string
@@ -178,7 +115,6 @@ func readFixtures(r *http.Request) *fixturesForm {
 		IdAndSign:                PostFormString(r, "confirm-id-and-sign"),
 		CompleteAll:              PostFormString(r, "complete-all-sections"),
 		Email:                    PostFormString(r, "email"),
-		DonorPaid:                PostFormString(r, "donor-paid"),
 		SendTo:                   PostFormString(r, "send-to"),
 		Signed:                   PostFormString(r, "signed"),
 		Type:                     PostFormString(r, "type"),

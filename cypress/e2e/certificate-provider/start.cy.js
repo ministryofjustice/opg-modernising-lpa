@@ -1,6 +1,6 @@
 describe('Start', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?startCpFlowDonorHasPaid=1');
+        cy.visit('/certificate-provider-start');
     });
 
     it('can be completed', () => {
