@@ -1,4 +1,4 @@
-package page
+package fixtures
 
 import (
 	"context"
@@ -13,12 +13,13 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int) string, localizer Localizer, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, logger *logging.Logger, now func() time.Time) http.HandlerFunc {
+func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int) string, localizer page.Localizer, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, logger *logging.Logger, now func() time.Time) http.HandlerFunc {
 	const (
 		testEmail  = "simulate-delivered@notifications.service.gov.uk"
 		testMobile = "07700900000"
@@ -150,7 +151,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		}
 	}
 
-	addAttorneys := func(opts lpaOptions, lpa *Lpa) {
+	addAttorneys := func(opts lpaOptions, lpa *page.Lpa) {
 		count := opts.attorneys
 
 		if count > len(attorneyNames) {
@@ -173,7 +174,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		lpa.Tasks.ChooseAttorneys = actor.TaskCompleted
 	}
 
-	addReplacementAttorneys := func(opts lpaOptions, lpa *Lpa) {
+	addReplacementAttorneys := func(opts lpaOptions, lpa *page.Lpa) {
 		count := opts.replacementAttorneys
 
 		if count > len(replacementAttorneyNames) {
@@ -191,14 +192,14 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 
 		if count > 1 {
 			lpa.ReplacementAttorneyDecisions.How = actor.JointlyAndSeverally
-			lpa.HowShouldReplacementAttorneysStepIn = ReplacementAttorneysStepInWhenOneCanNoLongerAct
+			lpa.HowShouldReplacementAttorneysStepIn = page.ReplacementAttorneysStepInWhenOneCanNoLongerAct
 		}
 
 		lpa.WantReplacementAttorneys = form.Yes
 		lpa.Tasks.ChooseReplacementAttorneys = actor.TaskCompleted
 	}
 
-	addPeopleToNotify := func(lpa *Lpa, count int) {
+	addPeopleToNotify := func(lpa *page.Lpa, count int) {
 		if count > len(peopleToNotifyNames) {
 			count = len(peopleToNotifyNames)
 		}
@@ -240,7 +241,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			attorneySessionID            = base64.StdEncoding.EncodeToString([]byte(attorneySub))
 		)
 
-		buildLpa := func(ctx context.Context, opts lpaOptions) *Lpa {
+		buildLpa := func(ctx context.Context, opts lpaOptions) *page.Lpa {
 			lpa, err := donorStore.Create(ctx)
 
 			if err != nil {
@@ -264,13 +265,13 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 					}
 				}
 
-				lpa.Type = LpaTypePropertyFinance
+				lpa.Type = page.LpaTypePropertyFinance
 				lpa.UID = random.UuidString()
 				lpa.Tasks.YourDetails = actor.TaskCompleted
 			}
 
 			if opts.lpaType == "hw" {
-				lpa.Type = LpaTypeHealthWelfare
+				lpa.Type = page.LpaTypeHealthWelfare
 			}
 
 			if opts.attorneys > 0 {
@@ -289,12 +290,12 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 				lpa.AttorneyDecisions.How = actor.JointlyAndSeverally
 
 				lpa.ReplacementAttorneys = lpa.Attorneys
-				lpa.Type = LpaTypePropertyFinance
-				lpa.WhenCanTheLpaBeUsed = CanBeUsedWhenHasCapacity
+				lpa.Type = page.LpaTypePropertyFinance
+				lpa.WhenCanTheLpaBeUsed = page.CanBeUsedWhenHasCapacity
 
 				lpa.WantReplacementAttorneys = form.Yes
 				lpa.ReplacementAttorneyDecisions.How = actor.JointlyAndSeverally
-				lpa.HowShouldReplacementAttorneysStepIn = ReplacementAttorneysStepInWhenOneCanNoLongerAct
+				lpa.HowShouldReplacementAttorneysStepIn = page.ReplacementAttorneysStepInWhenOneCanNoLongerAct
 
 				lpa.Tasks.ChooseAttorneys = actor.TaskInProgress
 				lpa.Tasks.ChooseReplacementAttorneys = actor.TaskInProgress
@@ -378,9 +379,9 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			}
 
 			if opts.hasWhenCanBeUsed {
-				lpa.WhenCanTheLpaBeUsed = CanBeUsedWhenHasCapacity
+				lpa.WhenCanTheLpaBeUsed = page.CanBeUsedWhenHasCapacity
 				lpa.Tasks.WhenCanTheLpaBeUsed = actor.TaskCompleted
-				lpa.LifeSustainingTreatmentOption = LifeSustainingTreatmentOptionA
+				lpa.LifeSustainingTreatmentOption = page.LifeSustainingTreatmentOptionA
 				lpa.Tasks.LifeSustainingTreatment = actor.TaskCompleted
 			}
 
@@ -425,7 +426,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 				ref := randomString(12)
 				sesh.SetPayment(store, r, w, &sesh.PaymentSession{PaymentID: ref})
 
-				lpa.PaymentDetails = append(lpa.PaymentDetails, Payment{
+				lpa.PaymentDetails = append(lpa.PaymentDetails, page.Payment{
 					PaymentReference: ref,
 					PaymentId:        ref,
 				})
@@ -475,8 +476,6 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			completeLpa           = r.FormValue("lpa.complete") != ""
 			cookiesAccepted       = r.FormValue("cookiesAccepted") != ""
 			asCertificateProvider = r.FormValue("asCertificateProvider")
-			fresh                 = r.FormValue("fresh") != ""
-			asAttorney            = r.FormValue("attorneyProvided") != ""
 			redirect              = r.FormValue("redirect")
 			paymentComplete       = r.FormValue("lpa.paid") != ""
 			progress              = r.FormValue("lpa.progress")
@@ -484,7 +483,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 
 		completeSectionOne := completeLpa || paymentComplete
 
-		lpa := buildLpa(ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID}), lpaOptions{
+		lpa := buildLpa(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}), lpaOptions{
 			hasDonorDetails:                  r.FormValue("lpa.yourDetails") != "" || completeSectionOne,
 			cannotSign:                       r.FormValue("lpa.cannotSign") != "",
 			lpaType:                          r.FormValue("lpa.type"),
@@ -519,32 +518,18 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 
 		// These contexts act on the same LPA for different actors
 		var (
-			donorCtx               = ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID, LpaID: lpa.ID})
-			certificateProviderCtx = ContextWithSessionData(r.Context(), &SessionData{SessionID: certificateProviderSessionID, LpaID: lpa.ID})
-			attorneyCtx            = ContextWithSessionData(r.Context(), &SessionData{SessionID: attorneySessionID, LpaID: lpa.ID})
+			donorCtx               = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: lpa.ID})
+			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: certificateProviderSessionID, LpaID: lpa.ID})
+			attorneyCtx            = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: attorneySessionID, LpaID: lpa.ID})
 		)
 
-		// loginAs controls which actor we will be pretending to be for the LPA
-		switch r.FormValue("loginAs") {
-		case "attorney":
-			_ = sesh.SetLoginSession(store, r, w, &sesh.LoginSession{Sub: attorneySub, Email: testEmail})
-			if redirect != "" {
-				redirect = "/attorney/" + lpa.ID + redirect
-			}
-		case "certificate-provider":
-			_ = sesh.SetLoginSession(store, r, w, &sesh.LoginSession{Sub: certificateProviderSub, Email: testEmail})
-			if redirect != "" {
-				redirect = "/certificate-provider/" + lpa.ID + redirect
-			}
-		default:
-			_ = sesh.SetLoginSession(store, r, w, &sesh.LoginSession{Sub: donorSub, Email: testEmail})
-			if redirect != "" &&
-				redirect != Paths.Start.Format() &&
-				redirect != Paths.Dashboard.Format() &&
-				redirect != Paths.CertificateProviderStart.Format() &&
-				redirect != Paths.Attorney.Start.Format() {
-				redirect = "/lpa/" + lpa.ID + redirect
-			}
+		_ = sesh.SetLoginSession(store, r, w, &sesh.LoginSession{Sub: donorSub, Email: testEmail})
+		if redirect != "" &&
+			redirect != page.Paths.Start.Format() &&
+			redirect != page.Paths.Dashboard.Format() &&
+			redirect != page.Paths.CertificateProviderStart.Format() &&
+			redirect != page.Paths.Attorney.Start.Format() {
+			redirect = "/lpa/" + lpa.ID + redirect
 		}
 
 		if cookiesAccepted {
@@ -557,29 +542,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		}
 
 		if signedByCertificateProvider || asCertificateProvider != "" {
-			currentCtx := certificateProviderCtx
-
-			// "fresh=1" causes an LPA to be created for the certificate provider (as
-			// the donor), we then link this to the donor so they are both each
-			// other's certificate provider.
-			if fresh {
-				lpa := buildLpa(certificateProviderCtx, lpaOptions{
-					hasDonorDetails:        true,
-					attorneys:              2,
-					replacementAttorneys:   2,
-					hasWhenCanBeUsed:       true,
-					hasRestrictions:        true,
-					hasCertificateProvider: true,
-					peopleToNotify:         2,
-					checked:                true,
-					paid:                   true,
-					idConfirmedAndSigned:   true,
-				})
-
-				currentCtx = ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID, LpaID: lpa.ID})
-			}
-
-			certificateProvider, err := certificateProviderStore.Create(currentCtx, certificateProviderSessionID)
+			certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, certificateProviderSessionID)
 			if err != nil {
 				logger.Print("asCertificateProvider creating CP ", err)
 			}
@@ -607,34 +570,15 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 				certificateProvider.Tasks.ConfirmYourDetails = actor.TaskCompleted
 			}
 
-			if err := certificateProviderStore.Put(currentCtx, certificateProvider); err != nil {
+			if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {
 				logger.Print("provideCertificate putting CP ", err)
 			}
 		}
 
-		if signedByAttorney || asAttorney {
-			currentCtx := attorneyCtx
-
-			if fresh {
-				lpa := buildLpa(attorneyCtx, lpaOptions{
-					hasDonorDetails:        true,
-					attorneys:              2,
-					replacementAttorneys:   2,
-					hasWhenCanBeUsed:       true,
-					hasRestrictions:        true,
-					hasCertificateProvider: true,
-					peopleToNotify:         2,
-					checked:                true,
-					paid:                   true,
-					idConfirmedAndSigned:   true,
-				})
-
-				currentCtx = ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID, LpaID: lpa.ID})
-			}
-
+		if signedByAttorney {
 			id := lpa.Attorneys.Attorneys[0].ID
 
-			attorneyProvided, err := attorneyStore.Create(currentCtx, attorneySessionID, id, false, false)
+			attorneyProvided, err := attorneyStore.Create(attorneyCtx, attorneySessionID, id, false, false)
 			if err != nil {
 				logger.Print("asAttorney:", err)
 			}
@@ -642,7 +586,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			if signedByAttorney {
 				attorneyProvided.Tasks.SignTheLpa = actor.TaskCompleted
 
-				if err := attorneyStore.Put(currentCtx, attorneyProvided); err != nil {
+				if err := attorneyStore.Put(attorneyCtx, attorneyProvided); err != nil {
 					logger.Print("asAttorney:", err)
 				}
 			}
@@ -655,6 +599,6 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			lang = localize.Cy
 		}
 
-		AppData{Lang: lang}.Redirect(w, r.WithContext(donorCtx), lpa, redirect)
+		page.AppData{Lang: lang}.Redirect(w, r.WithContext(donorCtx), lpa, redirect)
 	}
 }

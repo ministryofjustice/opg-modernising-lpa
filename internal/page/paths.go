@@ -106,6 +106,7 @@ type AppPaths struct {
 	Fixtures                           Path
 	AttorneyFixtures                   Path
 	CertificateProviderFixtures        Path
+	DashboardFixtures                  Path
 	YourLegalRightsAndResponsibilities Path
 	CertificateProviderStart           Path
 	Start                              Path
@@ -282,6 +283,7 @@ var Paths = AppPaths{
 	ChooseYourCertificateProvider:                        "/choose-your-certificate-provider",
 	CookiesConsent:                                       "/cookies-consent",
 	Dashboard:                                            "/dashboard",
+	DashboardFixtures:                                    "/fixtures/dashboard",
 	DoYouWantReplacementAttorneys:                        "/do-you-want-replacement-attorneys",
 	DoYouWantToNotifyPeople:                              "/do-you-want-to-notify-people",
 	EnterReplacementTrustCorporation:                     "/enter-replacement-trust-corporation",
