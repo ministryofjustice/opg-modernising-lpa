@@ -2,7 +2,7 @@ import { TestMobile } from '../../support/e2e';
 
 describe('Confirm your details', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/mobile-number&lpa.attorneys=1&attorneyProvided=1&loginAs=attorney');
+        cy.visit('/fixtures/attorney?redirect=/mobile-number');
 
         cy.get('#f-mobile').type(TestMobile);
         cy.contains('Continue').click();

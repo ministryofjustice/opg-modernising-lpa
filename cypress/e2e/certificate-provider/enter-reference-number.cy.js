@@ -1,7 +1,11 @@
-describe('Enter reference number', () => {
-    it('can enter a valid reference number', { pageLoadTimeout: 6000 }, () => {
-        cy.visit('/testing-start?lpa.complete=1&startCpFlowDonorHasPaid=1&useTestShareCode=1');
+const { TestEmail } = require("../../support/e2e");
 
+describe('Enter reference number', () => {
+    beforeEach(() => {
+        cy.visit('/fixtures/certificate-provider?redirect=/certificate-provider-start&use-test-code=1&email=' + TestEmail);
+    });
+
+    it('can enter a valid reference number', { pageLoadTimeout: 6000 }, () => {
         cy.contains('a', 'Start').click()
 
         cy.checkA11yApp();
@@ -13,8 +17,6 @@ describe('Enter reference number', () => {
     });
 
     it('errors when empty number', () => {
-        cy.visit('/testing-start?lpa.complete=1&startCpFlowDonorHasPaid=1&useTestShareCode=1');
-
         cy.contains('a', 'Start').click()
 
         cy.checkA11yApp();
@@ -29,8 +31,6 @@ describe('Enter reference number', () => {
     });
 
     it('errors when incorrect code', () => {
-        cy.visit('/testing-start?lpa.complete=1&startCpFlowDonorHasPaid=1&useTestShareCode=1');
-
         cy.contains('a', 'Start').click()
 
         cy.checkA11yApp();
@@ -46,8 +46,6 @@ describe('Enter reference number', () => {
     });
 
     it('errors when incorrect code length', () => {
-        cy.visit('/testing-start?lpa.complete=1&startCpFlowDonorHasPaid=1&useTestShareCode=1');
-
         cy.contains('a', 'Start').click()
 
         cy.checkA11yApp();
