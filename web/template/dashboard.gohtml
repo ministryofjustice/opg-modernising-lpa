@@ -128,10 +128,14 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "manageYourLpas" }}</h1>
 
-      <form novalidate method="post">
-        <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "createAnotherLpa" }}</button>
-        {{ template "csrf-field" . }}
-      </form>
+      <div class="app-dashboard-card app-dashboard-card--dashed">
+        <h3 class="govuk-heading-m">{{ tr .App "makeNewLpa" }}</h3>
+        <p class="govuk-body">{{ tr .App "youCanMakeNewLpa" }}</p>
+        <form novalidate method="post">
+          <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "startNow" }}</button>
+          {{ template "csrf-field" . }}
+        </form>
+      </div>
     </div>
   </div>
 

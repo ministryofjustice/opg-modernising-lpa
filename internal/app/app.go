@@ -113,6 +113,8 @@ func App(
 		page.CertificateProviderFixtures(tmpls.Get("certificate_provider_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore))
 	handleRoot(paths.AttorneyFixtures, None,
 		page.AttorneyFixtures(tmpls.Get("attorney_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore))
+	handleRoot(paths.DashboardFixtures, None,
+		page.DashboardFixtures(tmpls.Get("dashboard_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore))
 	handleRoot(paths.YourLegalRightsAndResponsibilities, None,
 		page.Guidance(tmpls.Get("your_legal_rights_and_responsibilities_general.gohtml")))
 	handleRoot(page.Paths.Start, None,
