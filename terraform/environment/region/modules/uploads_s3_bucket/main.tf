@@ -99,5 +99,21 @@ data "aws_iam_policy_document" "bucket" {
       identifiers = ["*"]
     }
   }
+
+  statement {
+    sid     = "AllowS3ObjectTagging"
+    effect  = "Allow"
+    actions = ["s3:PutObjectTagging"]
+    resources = [
+      aws_s3_bucket.bucket.arn,
+      "${aws_s3_bucket.bucket.arn}/*"
+    ]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+  }
+
   provider = aws.region
 }
