@@ -13,13 +13,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int) string, shareCodeSender shareCodeSender, localizer Localizer, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, logger *logging.Logger, now func() time.Time) http.HandlerFunc {
+func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int) string, localizer Localizer, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, logger *logging.Logger, now func() time.Time) http.HandlerFunc {
 	const (
 		testEmail  = "simulate-delivered@notifications.service.gov.uk"
 		testMobile = "07700900000"
@@ -473,24 +472,17 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 		}
 
 		var (
-			completeLpa                  = r.FormValue("lpa.complete") != ""
-			cookiesAccepted              = r.FormValue("cookiesAccepted") != ""
-			useTestShareCode             = r.FormValue("useTestShareCode") != ""
-			withShareCodeSession         = r.FormValue("withShareCodeSession") != ""
-			startCpFlowDonorHasPaid      = r.FormValue("startCpFlowDonorHasPaid") != ""
-			startCpFlowDonorHasNotPaid   = r.FormValue("startCpFlowDonorHasNotPaid") != ""
-			asCertificateProvider        = r.FormValue("asCertificateProvider")
-			cpConfirmYourDetailsComplete = r.FormValue("cp.confirmYourDetails") != ""
-			fresh                        = r.FormValue("fresh") != ""
-			asAttorney                   = r.FormValue("attorneyProvided") != ""
-			asReplacementAttorney        = r.FormValue("replacementAttorneyProvided") != ""
-			sendAttorneyShare            = r.FormValue("sendAttorneyShare") != ""
-			redirect                     = r.FormValue("redirect")
-			paymentComplete              = r.FormValue("lpa.paid") != ""
-			progress                     = r.FormValue("lpa.progress")
+			completeLpa           = r.FormValue("lpa.complete") != ""
+			cookiesAccepted       = r.FormValue("cookiesAccepted") != ""
+			asCertificateProvider = r.FormValue("asCertificateProvider")
+			fresh                 = r.FormValue("fresh") != ""
+			asAttorney            = r.FormValue("attorneyProvided") != ""
+			redirect              = r.FormValue("redirect")
+			paymentComplete       = r.FormValue("lpa.paid") != ""
+			progress              = r.FormValue("lpa.progress")
 		)
 
-		completeSectionOne := completeLpa || startCpFlowDonorHasNotPaid || startCpFlowDonorHasPaid || paymentComplete
+		completeSectionOne := completeLpa || paymentComplete
 
 		lpa := buildLpa(ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID}), lpaOptions{
 			hasDonorDetails:                  r.FormValue("lpa.yourDetails") != "" || completeSectionOne,
@@ -508,7 +500,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			certificateProviderActOnline:     r.FormValue("lpa.certificateProviderActOnline") != "",
 			peopleToNotify:                   parseCount(r.FormValue("lpa.peopleToNotify"), completeSectionOne),
 			checked:                          r.FormValue("lpa.checkAndSend") != "" || completeSectionOne,
-			paid:                             paymentComplete || startCpFlowDonorHasPaid || completeLpa,
+			paid:                             paymentComplete || completeLpa,
 			idConfirmedAndSigned:             r.FormValue("lpa.confirmIdentityAndSign") != "" || completeLpa,
 			certificateProviderEmail:         r.FormValue("lpa.certificateProviderEmail"),
 			attorneyEmail:                    r.FormValue("lpa.attorneyEmail"),
@@ -564,24 +556,6 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			})
 		}
 
-		if useTestShareCode {
-			shareCodeSender.UseTestCode()
-		}
-
-		if withShareCodeSession {
-			sesh.SetShareCode(store, r, w, &sesh.ShareCodeSession{LpaID: lpa.ID, Identity: false})
-		}
-
-		if startCpFlowDonorHasPaid || startCpFlowDonorHasNotPaid {
-			shareCodeSender.SendCertificateProvider(donorCtx, notify.CertificateProviderInviteEmail, AppData{
-				SessionID: donorSessionID,
-				LpaID:     lpa.ID,
-				Localizer: localizer,
-			}, false, lpa)
-
-			redirect = Paths.CertificateProviderStart.Format()
-		}
-
 		if signedByCertificateProvider || asCertificateProvider != "" {
 			currentCtx := certificateProviderCtx
 
@@ -626,7 +600,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 				}
 			}
 
-			if signedByCertificateProvider || cpConfirmYourDetailsComplete {
+			if signedByCertificateProvider {
 				certificateProvider.Mobile = testMobile
 				certificateProvider.Email = testEmail
 				certificateProvider.DateOfBirth = date.New("2000", "1", "2")
@@ -672,23 +646,6 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 					logger.Print("asAttorney:", err)
 				}
 			}
-		}
-
-		if asReplacementAttorney {
-			id := lpa.ReplacementAttorneys.Attorneys[0].ID
-
-			_, err := attorneyStore.Create(attorneyCtx, attorneySessionID, id, true, false)
-			if err != nil {
-				logger.Print("asReplacementAttorney:", err)
-			}
-		}
-
-		if sendAttorneyShare {
-			shareCodeSender.SendAttorneys(donorCtx, AppData{
-				SessionID: donorSessionID,
-				LpaID:     lpa.ID,
-				Localizer: localizer,
-			}, lpa)
 		}
 
 		random.UseTestCode = true

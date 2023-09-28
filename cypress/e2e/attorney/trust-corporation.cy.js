@@ -1,8 +1,8 @@
-const { TestMobile } = require("../../support/e2e");
+const { TestMobile, TestEmail } = require("../../support/e2e");
 
 describe('As a trust corporation', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/attorney-start&lpa.complete=1&lpa.trustCorporation=complete&useTestShareCode=1&sendAttorneyShare=1&lpa.signedByDonor=1&asCertificateProvider=certified');
+        cy.visit('/fixtures/attorney?redirect=/attorney-start&is-trust-corporation=1&progress=signedByCertificateProvider&use-test-code=1&email=' + TestEmail);
 
         // start
         cy.contains('a', 'Start').click();
@@ -25,11 +25,11 @@ describe('As a trust corporation', () => {
         // confirm your company details
         cy.contains(TestMobile);
         cy.contains('Confirm your company details');
-        cy.contains('My company');
+        cy.contains('First Choice Trust Corporation Ltd.');
         cy.contains('555555555');
         cy.contains('simulate-delivered@notifications.service.gov.uk');
-        cy.contains('123 Fake Street');
-        cy.contains('FF1 1FF');
+        cy.contains('2 RICHMOND PLACE');
+        cy.contains('B14 7ED');
         cy.contains('button', 'Continue').click();
 
         // read the lpa
@@ -59,7 +59,7 @@ describe('As a trust corporation', () => {
         cy.contains('button', 'Continue').click();
 
         // what happens next
-        cy.contains('My company has formally agreed to be an attorney');
+        cy.contains('First Choice Trust Corporation Ltd. has formally agreed to be an attorney');
         cy.contains('a', 'Go to your dashboard');
     });
 
@@ -89,7 +89,7 @@ describe('As a trust corporation', () => {
         cy.contains('button', 'Submit signature').click();
 
         // what happens next
-        cy.contains('My company has formally agreed to be an attorney');
+        cy.contains('First Choice Trust Corporation Ltd. has formally agreed to be an attorney');
         cy.contains('a', 'Go to your dashboard');
     });
 
@@ -119,7 +119,7 @@ describe('As a trust corporation', () => {
         cy.contains('button', 'Continue').click();
 
         // what happens next
-        cy.contains('My company has formally agreed to be an attorney');
+        cy.contains('First Choice Trust Corporation Ltd. has formally agreed to be an attorney');
         cy.contains('a', 'Go to your dashboard');
     });
 });
