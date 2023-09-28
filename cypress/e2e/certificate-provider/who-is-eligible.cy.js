@@ -1,6 +1,6 @@
 describe('Who is eligible', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/certificate-provider-who-is-eligible&loginAs=certificate-provider');
+        cy.visit('/fixtures/certificate-provider?redirect=/certificate-provider-who-is-eligible');
     });
 
     it('can continue', () => {
