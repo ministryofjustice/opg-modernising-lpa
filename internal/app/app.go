@@ -99,7 +99,7 @@ func App(
 
 	rootMux := http.NewServeMux()
 
-	rootMux.Handle(paths.TestingStart.String(), page.TestingStart(sessionStore, donorStore, random.String, shareCodeSender, localizer, certificateProviderStore, attorneyStore, logger, time.Now))
+	rootMux.Handle(paths.TestingStart.String(), page.TestingStart(sessionStore, donorStore, random.String, localizer, certificateProviderStore, attorneyStore, logger, time.Now))
 
 	handleRoot := makeHandle(rootMux, errorHandler, sessionStore)
 
@@ -109,6 +109,10 @@ func App(
 		page.SignOut(logger, sessionStore, oneLoginClient, appPublicURL))
 	handleRoot(paths.Fixtures, None,
 		page.Fixtures(tmpls.Get("fixtures.gohtml")))
+	handleRoot(paths.CertificateProviderFixtures, None,
+		page.CertificateProviderFixtures(tmpls.Get("certificate_provider_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore))
+	handleRoot(paths.AttorneyFixtures, None,
+		page.AttorneyFixtures(tmpls.Get("attorney_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore))
 	handleRoot(paths.YourLegalRightsAndResponsibilities, None,
 		page.Guidance(tmpls.Get("your_legal_rights_and_responsibilities_general.gohtml")))
 	handleRoot(page.Paths.Start, None,

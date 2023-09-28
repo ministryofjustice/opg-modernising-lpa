@@ -1,6 +1,6 @@
 describe('Certificate provided', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/certificate-provided&loginAs=certificate-provider');
+        cy.visit('/fixtures/certificate-provider?redirect=/certificate-provided');
     });
 
     it('has a button to the dashboard', () => {
