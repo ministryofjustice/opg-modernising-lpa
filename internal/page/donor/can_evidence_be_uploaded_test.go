@@ -71,7 +71,7 @@ func TestGetCanEvidenceBeUploadedWhenTemplateErrors(t *testing.T) {
 func TestPostCanEvidenceBeUploaded(t *testing.T) {
 	testcases := map[form.YesNo]page.LpaPath{
 		form.Yes: page.Paths.UploadEvidence,
-		form.No:  page.Paths.PrintEvidenceForm,
+		form.No:  page.Paths.HowToEmailOrPostEvidence,
 	}
 
 	for yesNo, redirect := range testcases {

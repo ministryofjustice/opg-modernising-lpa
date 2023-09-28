@@ -301,14 +301,8 @@ func Register(
 		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), payer, donorStore, random.UuidString, evidenceBucketName, s3Client))
 	handleWithLpa(page.Paths.WhatHappensAfterNoFee, None,
 		Guidance(tmpls.Get("what_happens_after_no_fee.gohtml")))
-	handleWithLpa(page.Paths.PrintEvidenceForm, CanGoBack,
-		Guidance(tmpls.Get("print_evidence_form.gohtml")))
-	handleWithLpa(page.Paths.HowToPrintAndSendEvidence, CanGoBack,
-		Guidance(tmpls.Get("how_to_print_and_send_evidence.gohtml")))
-	handleWithLpa(page.Paths.ProvideAddressToSendEvidenceForm, CanGoBack,
-		ProvideAddressToSendEvidenceForm(logger, tmpls.Get("provide_address_to_send_evidence_form.gohtml"), addressClient, donorStore))
-	handleWithLpa(page.Paths.HowToSendEvidence, CanGoBack,
-		HowToSendEvidence(tmpls.Get("how_to_send_evidence.gohtml"), payer))
+	handleWithLpa(page.Paths.HowToEmailOrPostEvidence, CanGoBack,
+		HowToEmailOrPostEvidence(tmpls.Get("how_to_email_or_post_evidence.gohtml"), payer))
 	handleWithLpa(page.Paths.FeeDenied, None,
 		FeeDenied(tmpls.Get("fee_denied.gohtml"), payer))
 	handleWithLpa(page.Paths.PaymentConfirmation, None,
