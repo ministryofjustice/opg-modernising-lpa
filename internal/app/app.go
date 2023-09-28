@@ -109,6 +109,8 @@ func App(
 		page.SignOut(logger, sessionStore, oneLoginClient, appPublicURL))
 	handleRoot(paths.Fixtures, None,
 		page.Fixtures(tmpls.Get("fixtures.gohtml")))
+	handleRoot(paths.CertificateProviderFixtures, None,
+		page.CertificateProviderFixtures(tmpls.Get("certificate_provider_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore))
 	handleRoot(paths.AttorneyFixtures, None,
 		page.AttorneyFixtures(tmpls.Get("attorney_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore))
 	handleRoot(paths.YourLegalRightsAndResponsibilities, None,

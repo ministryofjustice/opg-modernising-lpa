@@ -9,7 +9,7 @@
 
       <ul class="govuk-list">
         <li><a class="govuk-link govuk-link--no-visited-state" href="#donor">Donor flow</a></li>
-        <li><a class="govuk-link govuk-link--no-visited-state" href="#certificate-provider">Certificate provider flow</a></li>
+        <li><a class="govuk-link govuk-link--no-visited-state" href="{{ link .App .App.Paths.CertificateProviderFixtures.Format }}">Certificate provider</a></li>
         <li><a class="govuk-link govuk-link--no-visited-state" href="{{ link .App .App.Paths.AttorneyFixtures.Format }}">Attorney</a></li>
         <li><a class="govuk-link govuk-link--no-visited-state" href="#dashboard">Dashboard</a></li>
       </ul>
@@ -135,38 +135,6 @@
           <button type="submit" class="govuk-button" data-module="govuk-button" name="journey" value="donor">Start</button>
         </fieldset>
 
-        {{ template "csrf-field" . }}
-      </form>
-
-      <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible" />
-      <h2 id="certificate-provider" class="govuk-heading-m">Certificate provider journey</h2>
-      <p class="govuk-body">Starting this flow will send an email with reference code to the email entered below. If you don't care about seeing the email then leave the field blank.</p>
-
-      <form novalidate method="post">
-        {{ template "input" (input . "email" "email" "" "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
-
-        {{ template "error-message" (errorMessage . "cp-flow-has-donor-paid") }}
-
-        <div class="govuk-form-group">
-          <div class="govuk-checkboxes" data-module="govuk-checkboxes">
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-donor-paid" name="donor-paid" type="checkbox" value="1" checked>
-              <label class="govuk-label govuk-checkboxes__label" for="f-donor-paid">
-                Donor has paid
-              </label>
-            </div>
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-signed-cp" name="signed" type="checkbox" value="1" checked>
-              <label class="govuk-label govuk-checkboxes__label" for="f-signed-cp">
-                Donor has signed LPA
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="govuk-button-group govuk-!-padding-top-3">
-          <button type="submit" class="govuk-button" data-module="govuk-button" name="journey" value="certificate-provider">Start</button>
-        </div>
         {{ template "csrf-field" . }}
       </form>
 
