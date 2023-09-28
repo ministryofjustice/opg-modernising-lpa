@@ -187,7 +187,6 @@ type Lpa struct {
 
 	HasSentApplicationUpdatedEvent        bool
 	HasSentPreviousApplicationLinkedEvent bool
-	HasSentEvidenceFormRequiredEvent      bool
 }
 
 type Evidence struct {
