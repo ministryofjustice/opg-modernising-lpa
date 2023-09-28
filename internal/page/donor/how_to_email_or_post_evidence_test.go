@@ -11,39 +11,39 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetHowToSendEvidence(t *testing.T) {
+func TestGetHowToEmailOrPostEvidence(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/about-payment", nil)
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &howToSendEvidenceData{App: testAppData}).
+		On("Execute", w, &howToEmailOrPostEvidenceData{App: testAppData}).
 		Return(nil)
 
-	err := HowToSendEvidence(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := HowToEmailOrPostEvidence(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetHowToSendEvidenceWhenTemplateErrors(t *testing.T) {
+func TestGetHowToEmailOrPostEvidenceWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/about-payment", nil)
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &howToSendEvidenceData{App: testAppData}).
+		On("Execute", w, &howToEmailOrPostEvidenceData{App: testAppData}).
 		Return(expectedError)
 
-	err := HowToSendEvidence(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := HowToEmailOrPostEvidence(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostHowToSendEvidence(t *testing.T) {
+func TestPostHowToEmailOrPostEvidence(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
@@ -54,11 +54,11 @@ func TestPostHowToSendEvidence(t *testing.T) {
 		On("Pay", testAppData, w, r, lpa).
 		Return(nil)
 
-	err := HowToSendEvidence(nil, payer)(testAppData, w, r, lpa)
+	err := HowToEmailOrPostEvidence(nil, payer)(testAppData, w, r, lpa)
 	assert.Nil(t, err)
 }
 
-func TestPostHowToSendEvidenceWhenPayerErrors(t *testing.T) {
+func TestPostHowToEmailOrPostEvidenceWhenPayerErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
@@ -67,6 +67,6 @@ func TestPostHowToSendEvidenceWhenPayerErrors(t *testing.T) {
 		On("Pay", testAppData, w, r, mock.Anything).
 		Return(expectedError)
 
-	err := HowToSendEvidence(nil, payer)(testAppData, w, r, &page.Lpa{})
+	err := HowToEmailOrPostEvidence(nil, payer)(testAppData, w, r, &page.Lpa{})
 	assert.Equal(t, expectedError, err)
 }
