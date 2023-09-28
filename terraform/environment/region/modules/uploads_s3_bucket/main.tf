@@ -79,25 +79,41 @@ data "aws_iam_policy_document" "bucket" {
     }
   }
 
+  #  statement {
+  #    sid     = "DenyNonSSLRequests"
+  #    effect  = "Deny"
+  #    actions = ["s3:*"]
+  #    resources = [
+  #      aws_s3_bucket.bucket.arn,
+  #      "${aws_s3_bucket.bucket.arn}/*"
+  #    ]
+  #
+  #    condition {
+  #      test     = "Bool"
+  #      variable = "aws:SecureTransport"
+  #      values   = [false]
+  #    }
+  #
+  #    principals {
+  #      type        = "AWS"
+  #      identifiers = ["*"]
+  #    }
+  #  }
+
   statement {
-    sid     = "DenyNonSSLRequests"
-    effect  = "Deny"
-    actions = ["s3:*"]
+    sid     = "AllowS3ObjectTagging"
+    effect  = "Allow"
+    actions = ["s3:PutObjectTagging"]
     resources = [
       aws_s3_bucket.bucket.arn,
       "${aws_s3_bucket.bucket.arn}/*"
     ]
-
-    condition {
-      test     = "Bool"
-      variable = "aws:SecureTransport"
-      values   = [false]
-    }
 
     principals {
       type        = "AWS"
       identifiers = ["*"]
     }
   }
+
   provider = aws.region
 }
