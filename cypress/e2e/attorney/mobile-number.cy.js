@@ -2,7 +2,7 @@ import { TestMobile } from "../../support/e2e";
 
 describe('Mobile number', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?lpa.complete=1&attorneyProvided=1&redirect=/mobile-number&loginAs=attorney');
+        cy.visit('/fixtures/attorney?redirect=/mobile-number');
     });
 
     it('can be completed', () => {

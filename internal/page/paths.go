@@ -104,6 +104,8 @@ type AppPaths struct {
 	Root                               Path
 	SignOut                            Path
 	Fixtures                           Path
+	AttorneyFixtures                   Path
+	CertificateProviderFixtures        Path
 	YourLegalRightsAndResponsibilities Path
 	CertificateProviderStart           Path
 	Start                              Path
@@ -259,10 +261,12 @@ var Paths = AppPaths{
 	AboutPayment:                                         "/about-payment",
 	ApplicationReason:                                    "/application-reason",
 	AreYouApplyingForADifferentFeeType:                   "/are-you-applying-for-a-different-fee-type",
+	AttorneyFixtures:                                     "/fixtures/attorney",
 	AuthRedirect:                                         "/auth/redirect",
 	CanEvidenceBeUploaded:                                "/can-evidence-be-uploaded",
 	CertificateProviderAddress:                           "/certificate-provider-address",
 	CertificateProviderDetails:                           "/certificate-provider-details",
+	CertificateProviderFixtures:                          "/fixtures/certificate-provider",
 	CertificateProviderOptOut:                            "/certificate-provider-opt-out",
 	CertificateProviderStart:                             "/certificate-provider-start",
 	CheckYouCanSign:                                      "/check-you-can-sign",
