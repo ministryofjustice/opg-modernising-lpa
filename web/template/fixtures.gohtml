@@ -11,7 +11,7 @@
         <li><a class="govuk-link govuk-link--no-visited-state" href="#donor">Donor flow</a></li>
         <li><a class="govuk-link govuk-link--no-visited-state" href="{{ link .App .App.Paths.CertificateProviderFixtures.Format }}">Certificate provider</a></li>
         <li><a class="govuk-link govuk-link--no-visited-state" href="{{ link .App .App.Paths.AttorneyFixtures.Format }}">Attorney</a></li>
-        <li><a class="govuk-link govuk-link--no-visited-state" href="#dashboard">Dashboard</a></li>
+        <li><a class="govuk-link govuk-link--no-visited-state" href="{{ link .App .App.Paths.DashboardFixtures.Format }}">Dashboard</a></li>
       </ul>
 
       <form novalidate method="post">
@@ -135,68 +135,6 @@
           <button type="submit" class="govuk-button" data-module="govuk-button" name="journey" value="donor">Start</button>
         </fieldset>
 
-        {{ template "csrf-field" . }}
-      </form>
-
-      <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible" />
-
-      <h2 id="dashboard" class="govuk-heading-m">Dashboard</h2>
-
-      <form novalidate method="post">
-        <div class="govuk-form-group">
-          <div class="govuk-checkboxes" data-module="govuk-checkboxes">
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-as-attorney" name="attorneyProvided" type="checkbox" value="1">
-              <label class="govuk-label govuk-checkboxes__label" for="f-as-attorney">
-                And as attorney
-              </label>
-            </div>
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-as-certificate-provider" name="asCertificateProvider" type="checkbox" value="1">
-              <label class="govuk-label govuk-checkboxes__label" for="f-as-certificate-provider">
-                And as certificate provider
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <fieldset class="govuk-fieldset">
-          <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
-            <h3 class="govuk-fieldset__heading">Donor LPA</h3>
-          </legend>
-          <div class="govuk-form-group">
-            <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-started" name="lpa.progress" type="radio" value="" checked>
-                <label class="govuk-label govuk-radios__label" for="f-started">
-                  Started
-                </label>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-signedByDonor" name="lpa.progress" type="radio" value="signedByDonor">
-                <label class="govuk-label govuk-radios__label" for="f-signedByDonor">
-                  Signed
-                </label>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-submitted" name="lpa.progress" type="radio" value="submitted">
-                <label class="govuk-label govuk-radios__label" for="f-submitted">
-                  Submitted
-                </label>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-registered" name="lpa.progress" type="radio" value="registered">
-                <label class="govuk-label govuk-radios__label" for="f-registered">
-                  Registered
-                </label>
-              </div>
-            </div>
-          </div>
-        </fieldset>
-
-        <div class="govuk-button-group govuk-!-padding-top-3">
-          <button type="submit" class="govuk-button" data-module="govuk-button" name="journey" value="everything">Start</button>
-        </div>
         {{ template "csrf-field" . }}
       </form>
     </div>
