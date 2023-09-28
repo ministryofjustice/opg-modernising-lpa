@@ -75,6 +75,7 @@ func TestPostUploadEvidence(t *testing.T) {
 		On("PutObject", r.Context(), mock.MatchedBy(func(input *s3.PutObjectInput) bool {
 			return assert.Equal(t, aws.String("bucket-name"), input.Bucket) &&
 				assert.Equal(t, aws.String("lpa-uid-evidence-a-uid"), input.Key) &&
+				assert.Equal(t, aws.String("replicate=true"), input.Tagging) &&
 				assert.Equal(t, types.ServerSideEncryptionAwsKms, input.ServerSideEncryption)
 		})).
 		Return(nil, nil)
@@ -82,6 +83,7 @@ func TestPostUploadEvidence(t *testing.T) {
 		On("PutObject", r.Context(), mock.MatchedBy(func(input *s3.PutObjectInput) bool {
 			return assert.Equal(t, aws.String("bucket-name"), input.Bucket) &&
 				assert.Equal(t, aws.String("lpa-uid-evidence-a-uid"), input.Key) &&
+				assert.Equal(t, aws.String("replicate=true"), input.Tagging) &&
 				assert.Equal(t, types.ServerSideEncryptionAwsKms, input.ServerSideEncryption)
 		})).
 		Return(nil, nil)
