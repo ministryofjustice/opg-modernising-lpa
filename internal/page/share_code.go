@@ -8,9 +8,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 )
 
-var useTestCode = false
-
 type ShareCodeSender struct {
+	useTestCode    bool
 	shareCodeStore ShareCodeStore
 	notifyClient   NotifyClient
 	appPublicURL   string
@@ -27,14 +26,14 @@ func NewShareCodeSender(shareCodeStore ShareCodeStore, notifyClient NotifyClient
 }
 
 func (s *ShareCodeSender) UseTestCode() {
-	useTestCode = true
+	s.useTestCode = true
 }
 
 func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template notify.Template, appData AppData, identity bool, lpa *Lpa) error {
 	shareCode := s.randomString(12)
-	if useTestCode {
+	if s.useTestCode {
 		shareCode = "abcdef123456"
-		useTestCode = false
+		s.useTestCode = false
 	}
 
 	if err := s.shareCodeStore.Put(ctx, actor.TypeCertificateProvider, shareCode, actor.ShareCodeData{
@@ -95,9 +94,9 @@ func (s *ShareCodeSender) sendAttorney(ctx context.Context, template notify.Temp
 	}
 
 	shareCode := s.randomString(12)
-	if useTestCode {
+	if s.useTestCode {
 		shareCode = "abcdef123456"
-		useTestCode = false
+		s.useTestCode = false
 	}
 
 	if err := s.shareCodeStore.Put(ctx, actor.TypeAttorney, shareCode, actor.ShareCodeData{
@@ -134,9 +133,9 @@ func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, template not
 	}
 
 	shareCode := s.randomString(12)
-	if useTestCode {
+	if s.useTestCode {
 		shareCode = "abcdef123456"
-		useTestCode = false
+		s.useTestCode = false
 	}
 
 	if err := s.shareCodeStore.Put(ctx, actor.TypeAttorney, shareCode, actor.ShareCodeData{
