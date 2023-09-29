@@ -47,6 +47,13 @@ var (
 		{Firstnames: "Alex", Lastname: "Abbott"},
 		{Firstnames: "Billie", Lastname: "Blair"},
 	}
+	peopleToNotifyNames = []Name{
+		{Firstnames: "Jordan", Lastname: "Jefferson"},
+		{Firstnames: "Danni", Lastname: "Davies"},
+		{Firstnames: "Bobbie", Lastname: "Bones"},
+		{Firstnames: "Ally", Lastname: "Avery"},
+		{Firstnames: "Deva", Lastname: "Dankar"},
+	}
 )
 
 func makeAttorney(name Name) actor.Attorney {
@@ -110,6 +117,22 @@ func makeCertificateProvider() actor.CertificateProvider {
 		CarryOutBy:         actor.Online,
 		Address: place.Address{
 			Line1:      "5 RICHMOND PLACE",
+			Line2:      "KINGS HEATH",
+			Line3:      "WEST MIDLANDS",
+			TownOrCity: "BIRMINGHAM",
+			Postcode:   "B14 7ED",
+		},
+	}
+}
+
+func makePersonToNotify(name Name) actor.PersonToNotify {
+	return actor.PersonToNotify{
+		ID:         name.Firstnames + name.Lastname,
+		FirstNames: name.Firstnames,
+		LastName:   name.Lastname,
+		Email:      testEmail,
+		Address: place.Address{
+			Line1:      "4 RICHMOND PLACE",
 			Line2:      "KINGS HEATH",
 			Line3:      "WEST MIDLANDS",
 			TownOrCity: "BIRMINGHAM",
