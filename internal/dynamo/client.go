@@ -182,6 +182,23 @@ func (c *Client) OneByPartialSk(ctx context.Context, pk, partialSk string, v int
 	return attributevalue.UnmarshalMap(response.Items[0], v)
 }
 
+func (c *Client) AllByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error {
+	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
+		TableName:                aws.String(c.table),
+		ExpressionAttributeNames: map[string]string{"#PK": "PK", "#SK": "SK"},
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":PK": &types.AttributeValueMemberS{Value: pk},
+			":SK": &types.AttributeValueMemberS{Value: partialSk},
+		},
+		KeyConditionExpression: aws.String("#PK = :PK and begins_with(#SK, :SK)"),
+	})
+	if err != nil {
+		return err
+	}
+
+	return attributevalue.UnmarshalListOfMaps(response.Items, v)
+}
+
 func (c *Client) Put(ctx context.Context, v interface{}) error {
 	item, err := attributevalue.MarshalMap(v)
 	if err != nil {

@@ -315,7 +315,7 @@ func (l *Lpa) canGoToLpaPath(path string) bool {
 	}
 }
 
-func (l *Lpa) Progress(certificateProvider *actor.CertificateProviderProvidedDetails) Progress {
+func (l *Lpa) Progress(certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) Progress {
 	p := Progress{
 		LpaSigned:                   actor.TaskInProgress,
 		CertificateProviderDeclared: actor.TaskNotStarted,
@@ -333,6 +333,28 @@ func (l *Lpa) Progress(certificateProvider *actor.CertificateProviderProvidedDet
 	if !certificateProvider.Certificate.Agreed.IsZero() {
 		p.CertificateProviderDeclared = actor.TaskCompleted
 		p.AttorneysDeclared = actor.TaskInProgress
+	}
+
+	signedAttorneys := 0
+	for _, attorney := range attorneys {
+		if attorney.Signed() {
+			signedAttorneys++
+		}
+	}
+
+	if signedAttorneys == l.Attorneys.Len()+l.ReplacementAttorneys.Len() {
+		p.AttorneysDeclared = actor.TaskCompleted
+		p.LpaSubmitted = actor.TaskInProgress
+	}
+
+	if !l.SubmittedAt.IsZero() {
+		p.LpaSubmitted = actor.TaskCompleted
+		p.StatutoryWaitingPeriod = actor.TaskInProgress
+	}
+
+	if !l.RegisteredAt.IsZero() {
+		p.StatutoryWaitingPeriod = actor.TaskCompleted
+		p.LpaRegistered = actor.TaskCompleted
 	}
 
 	return p

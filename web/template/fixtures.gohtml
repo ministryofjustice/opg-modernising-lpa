@@ -15,125 +15,144 @@
       </ul>
 
       <form novalidate method="post">
-        <fieldset class="govuk-fieldset" aria-describedby="waste-hint">
-          <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-            <h2 class="govuk-fieldset__heading" id="donor">
-              Donor flow
-            </h2>
-          </legend>
-          <div class="govuk-form-group">
-            <fieldset class="govuk-fieldset">
-              <legend class="govuk-fieldset__legend">
-                LPA type
-              </legend>
-              <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
-                <div class="govuk-radios__item">
-                  <input class="govuk-radios__input" id="type" name="type" type="radio" value="pfa" checked>
-                  <label class="govuk-label govuk-radios__label" for="type">Property and affairs</label>
-                </div>
-                <div class="govuk-radios__item">
-                  <input class="govuk-radios__input" id="type-2" name="type" type="radio" value="hw">
-                  <label class="govuk-label govuk-radios__label" for="type-2">Personal welfare</label>
-                </div>
-              </div>
-            </fieldset>
-          </div>
-          <div class="govuk-checkboxes govuk-!-margin-bottom-3" data-module="govuk-checkboxes">
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-donor-details" name="donor-details" type="checkbox" value="lpa.yourDetails">
-              <label class="govuk-label govuk-checkboxes__label" for="f-donor-details">
-                Provide your details
-              </label>
-            </div>
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-attorneys" name="attorneys" type="checkbox" value="withAttorneys" data-aria-controls="conditional-attorney-count">
-              <label class="govuk-label govuk-checkboxes__label" for="f-attorneys">
-                Choose your attorneys
-              </label>
-            </div>
-            <div class="govuk-checkboxes__conditional" id="conditional-attorney-count">
-              <div class="govuk-form-group">
-                <label class="govuk-label" for="f-attorney-count">
-                  How many? (Max 5)
-                </label>
-                <input class="govuk-input govuk-!-width-one-third" id="f-attorney-count" name="attorney-count" value="2">
-              </div>
-            </div>
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-replacement-attorneys" name="replacement-attorneys" type="checkbox" value="withReplacementAttorneys" data-aria-controls="conditional-replacement-attorney-count">
-              <label class="govuk-label govuk-checkboxes__label" for="f-replacement-attorneys">
-                Choose your replacement attorneys
-              </label>
-            </div>
-            <div class="govuk-checkboxes__conditional" id="conditional-replacement-attorney-count">
-              <div class="govuk-form-group">
-                <label class="govuk-label" for="f-replacement-attorney-count">
-                  How many? (Max 5)
-                </label>
-                <input class="govuk-input govuk-!-width-one-third" id="f-replacement-attorney-count" name="replacement-attorney-count" value="2">
-              </div>
-            </div>
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-when-can-lpa-be-used" name="when-can-lpa-be-used" type="checkbox" value="lpa.chooseWhenCanBeUsed">
-              <label class="govuk-label govuk-checkboxes__label" for="f-when-can-lpa-be-used">
-                Choose when the LPA can be used / Life-sustaining treatment
-              </label>
-            </div>
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-restrictions" name="restrictions" type="checkbox" value="lpa.restrictions">
-              <label class="govuk-label govuk-checkboxes__label" for="f-restrictions">
-                Add restrictions to the LPA
-              </label>
-            </div>
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-certificate-provider" name="certificate-provider" type="checkbox" value="lpa.certificateProvider">
-              <label class="govuk-label govuk-checkboxes__label" for="f-certificate-provider">
-                Choose your certificate provider
-              </label>
-            </div>
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-people-to-notify" name="people-to-notify" type="checkbox" value="withPeopleToNotify" data-aria-controls="conditional-person-to-notify-count">
-              <label class="govuk-label govuk-checkboxes__label" for="f-people-to-notify">
-                People to notify about your LPA
-              </label>
-            </div>
-            <div class="govuk-checkboxes__conditional" id="conditional-person-to-notify-count">
-              <div class="govuk-form-group">
-                <label class="govuk-label" for="f-person-to-notify-count">
-                  How many? (Max 5)
-                </label>
-                <input class="govuk-input govuk-!-width-one-third" id="f-person-to-notify-count" name="person-to-notify-count" value="2">
-              </div>
-            </div>
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-check-and-send-to-cp" name="check-and-send-to-cp" type="checkbox" value="lpa.checkAndSend">
-              <label class="govuk-label govuk-checkboxes__label" for="f-check-and-send-to-cp">
-                Check and send to your certificate provider
-              </label>
-            </div>
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-pay-for-lpa" name="pay-for-lpa" type="checkbox" value="lpa.paid">
-              <label class="govuk-label govuk-checkboxes__label" for="f-pay-for-lpa">
-                Pay for the LPA
-              </label>
-            </div>
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-confirm-id-and-sign" name="confirm-id-and-sign" type="checkbox" value="lpa.confirmIdentityAndSign">
-              <label class="govuk-label govuk-checkboxes__label" for="f-confirm-id-and-sign">
-                Confirm your identity and sign the LPA
-              </label>
-            </div>
-            <div class="govuk-checkboxes__divider">or</div>
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-complete-all-sections" name="complete-all-sections" type="checkbox" value="lpa.complete">
-              <label class="govuk-label govuk-checkboxes__label" for="f-complete-all-sections">
-                Complete all sections
-              </label>
-            </div>
-          </div>
+        <h1 class="govuk-heading-xl">Donor fixtures</h1>
 
-          <button type="submit" class="govuk-button" data-module="govuk-button" name="journey" value="donor">Start</button>
+        <div class="govuk-form-group">
+          <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend">
+              LPA type
+            </legend>
+            <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="type" name="type" type="radio" value="pfa" checked>
+                <label class="govuk-label govuk-radios__label" for="type">Property and affairs</label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="type-2" name="type" type="radio" value="hw">
+                <label class="govuk-label govuk-radios__label" for="type-2">Personal welfare</label>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+
+        <fieldset class="govuk-fieldset">
+          <legend class="govuk-fieldset__legend">Progress</legend>
+          <div class="govuk-form-group">
+            
+            <div class="govuk-radios" data-module="govuk-radios">
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-progress" name="progress" type="radio" value="provideYourDetails">
+                <label class="govuk-label govuk-radios__label" for="f-progress">
+                  Provide your details
+                </label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-progress-2" name="progress" type="radio" value="chooseYourAttorneys" data-aria-controls="conditional-attorney-count">
+                <label class="govuk-label govuk-radios__label" for="f-progress-2">
+                  Choose your attorneys
+                </label>
+              </div>
+              <div class="govuk-radios__conditional" id="conditional-attorney-count">
+                <div class="govuk-form-group">
+                  <label class="govuk-label" for="f-attorney-count">
+                    How many? (Max 5)
+                  </label>
+                  <input class="govuk-input govuk-!-width-one-third" id="f-attorney-count" name="attorney-count" value="2">
+                </div>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-progress-3" name="progress" type="radio" value="chooseYourReplacementAttorneys" data-aria-controls="conditional-replacement-attorney-count">
+                <label class="govuk-label govuk-radios__label" for="f-progress-3">
+                  Choose your replacement attorneys
+                </label>
+              </div>
+              <div class="govuk-radios__conditional" id="conditional-replacement-attorney-count">
+                <div class="govuk-form-group">
+                  <label class="govuk-label" for="f-replacement-attorney-count">
+                    How many? (Max 5)
+                  </label>
+                  <input class="govuk-input govuk-!-width-one-third" id="f-replacement-attorney-count" name="replacement-attorney-count" value="2">
+                </div>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-progress-4" name="progress" type="radio" value="chooseWhenTheLpaCanBeUsed">
+                <label class="govuk-label govuk-radios__label" for="f-progress-4">
+                  Choose when the LPA can be used / Life-sustaining treatment
+                </label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-progress-5" name="progress" type="radio" value="addRestrictionsToTheLpa">
+                <label class="govuk-label govuk-radios__label" for="f-progress-5">
+                  Add restrictions to the LPA
+                </label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-progress-6" name="progress" type="radio" value="chooseYourCertificateProvider">
+                <label class="govuk-label govuk-radios__label" for="f-progress-6">
+                  Choose your certificate provider
+                </label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-progress-7" name="progress" type="radio" value="peopleToNotifyAboutYourLpa" data-aria-controls="conditional-person-to-notify-count">
+                <label class="govuk-label govuk-radios__label" for="f-progress-7">
+                  People to notify about your LPA
+                </label>
+              </div>
+              <div class="govuk-radios__conditional" id="conditional-person-to-notify-count">
+                <div class="govuk-form-group">
+                  <label class="govuk-label" for="f-person-to-notify-count">
+                    How many? (Max 5)
+                  </label>
+                  <input class="govuk-input govuk-!-width-one-third" id="f-person-to-notify-count" name="person-to-notify-count" value="2">
+                </div>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-progress-8" name="progress" type="radio" value="checkAndSendToYourCertificateProvider">
+                <label class="govuk-label govuk-radios__label" for="f-progress-8">
+                  Check and send to your certificate provider
+                </label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-progress-9" name="progress" type="radio" value="payForTheLpa">
+                <label class="govuk-label govuk-radios__label" for="f-progress-9">
+                  Pay for the LPA
+                </label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-progress-10" name="progress" type="radio" value="confirmYourIdentityAndSignTheLpa">
+                <label class="govuk-label govuk-radios__label" for="f-progress-10">
+                  Confirm your identity and sign the LPA
+                </label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-progress-11" name="progress" type="radio" value="signedByCertificateProvider">
+                <label class="govuk-label govuk-radios__label" for="f-progress-11">
+                  Signed by certificate provider
+                </label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-progress-12" name="progress" type="radio" value="signedByAttorneys">
+                <label class="govuk-label govuk-radios__label" for="f-progress-12">
+                  Signed by attorneys
+                </label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-progress-13" name="progress" type="radio" value="submitted">
+                <label class="govuk-label govuk-radios__label" for="f-progress-13">
+                  Submitted
+                </label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="f-progress-14" name="progress" type="radio" value="registered">
+                <label class="govuk-label govuk-radios__label" for="f-progress-14">
+                  Registered
+                </label>
+              </div>
+            </div>
+          </div>
         </fieldset>
+
+        <button type="submit" class="govuk-button" data-module="govuk-button" name="journey" value="donor">Start</button>
 
         {{ template "csrf-field" . }}
       </form>
