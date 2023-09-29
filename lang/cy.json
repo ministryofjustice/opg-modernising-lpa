@@ -353,10 +353,8 @@
     "yourIdentityNotConfirmedWithOneLogin": "Welsh",
     "pleaseContinueWithADifferentMethod": "Welsh",
     "myLastingPowersOfAttorney": "Fy atwrneiaethau arhosol",
-    "createAnotherLpa": "Creu LPA arall",
     "applicationNumber": "Rhif",
     "options": "Opsiynau",
-    "lastSaved": "Wedi achub diwethaf",
     "howShouldAttorneysMakeDecisions": "Sut dylai eich atwrneiod wneud penderfyniadau?",
     "jointlyAndSeverallyHumanised": "Ar y cyd ac yn unigol – gall eich atwrneiod wneud penderfyniadau ar eu pen eu hunain neu gyda’i gilydd",
     "jointlyAndSeverallyHumanisedReplacement": "Ar y cyd ac yn unigol – gall eich atwrneiod wrth gefn wneud penderfyniadau ar eu pen eu hunain neu gyda’i gilydd",
@@ -816,5 +814,8 @@
     "youCanChooseToTellUsYourCompanyPhoneNumber": "Welsh",
     "enterYourCompanyPhoneNumberHint": "Welsh",
     "errorCompanyPhoneNumber": "Welsh",
-    "lpaNumber": "Welsh"
+    "lpaNumber": "Welsh",
+    "makeNewLpa": "Welsh",
+    "youCanMakeNewLpa": "Welsh",
+    "startNow": "Welsh"
 }

@@ -1,6 +1,7 @@
-package page
+package fixtures
 
 import (
+	"context"
 	"encoding/base64"
 	"net/http"
 	"slices"
@@ -10,90 +11,44 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type attorneyFixturesData struct {
-	App    AppData
-	Errors validation.List
+type DonorStore interface {
+	Create(context.Context) (*page.Lpa, error)
+	Put(context.Context, *page.Lpa) error
 }
 
-func AttorneyFixtures(
+type CertificateProviderStore interface {
+	Create(context.Context, string) (*actor.CertificateProviderProvidedDetails, error)
+	Put(context.Context, *actor.CertificateProviderProvidedDetails) error
+}
+
+type AttorneyStore interface {
+	Create(context.Context, string, string, bool, bool) (*actor.AttorneyProvidedDetails, error)
+	Put(context.Context, *actor.AttorneyProvidedDetails) error
+}
+
+func Attorney(
 	tmpl template.Template,
 	sessionStore sesh.Store,
-	shareCodeSender *ShareCodeSender,
+	shareCodeSender ShareCodeSender,
 	donorStore DonorStore,
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
-) Handler {
-	const (
-		testEmail  = "simulate-delivered@notifications.service.gov.uk"
-		testMobile = "07700900000"
-	)
-
-	type Name struct {
-		Firstnames, Lastname string
+) page.Handler {
+	progressValues := []string{
+		"signedByCertificateProvider",
+		"signedByAttorney",
+		"submitted",
+		"registered",
 	}
 
-	var (
-		progressValues = []string{
-			"signedByCertificateProvider",
-			"signedByAttorney",
-			"submitted",
-			"registered",
-		}
-		attorneyNames = []Name{
-			{Firstnames: "Jessie", Lastname: "Jones"},
-			{Firstnames: "Robin", Lastname: "Redcar"},
-			{Firstnames: "Leslie", Lastname: "Lewis"},
-			{Firstnames: "Ashley", Lastname: "Alwinton"},
-			{Firstnames: "Frankie", Lastname: "Fernandes"},
-		}
-		replacementAttorneyNames = []Name{
-			{Firstnames: "Blake", Lastname: "Buckley"},
-			{Firstnames: "Taylor", Lastname: "Thompson"},
-			{Firstnames: "Marley", Lastname: "Morris"},
-			{Firstnames: "Alex", Lastname: "Abbott"},
-			{Firstnames: "Billie", Lastname: "Blair"},
-		}
-	)
-
-	makeAttorney := func(name Name) actor.Attorney {
-		return actor.Attorney{
-			ID:          name.Firstnames + name.Lastname,
-			FirstNames:  name.Firstnames,
-			LastName:    name.Lastname,
-			Email:       testEmail,
-			DateOfBirth: date.New("2000", "1", "2"),
-			Address: place.Address{
-				Line1:      "2 RICHMOND PLACE",
-				Line2:      "KINGS HEATH",
-				Line3:      "WEST MIDLANDS",
-				TownOrCity: "BIRMINGHAM",
-				Postcode:   "B14 7ED",
-			},
-		}
-	}
-
-	makeTrustCorporation := func(name string) actor.TrustCorporation {
-		return actor.TrustCorporation{
-			Name:          name,
-			CompanyNumber: "555555555",
-			Email:         testEmail,
-			Address: place.Address{
-				Line1:      "2 RICHMOND PLACE",
-				Line2:      "KINGS HEATH",
-				Line3:      "WEST MIDLANDS",
-				TownOrCity: "BIRMINGHAM",
-				Postcode:   "B14 7ED",
-			},
-		}
-	}
-
-	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		var (
 			isReplacement      = r.FormValue("is-replacement") == "1"
 			isTrustCorporation = r.FormValue("is-trust-corporation") == "1"
@@ -104,11 +59,11 @@ func AttorneyFixtures(
 		)
 
 		if r.Method != http.MethodPost && redirect == "" {
-			return tmpl(w, &attorneyFixturesData{App: appData})
+			return tmpl(w, &fixturesData{App: appData})
 		}
 
 		if lpaType == "hw" && isTrustCorporation {
-			return tmpl(w, &attorneyFixturesData{App: appData, Errors: validation.With("", validation.CustomError{Label: "Can't add a trust corporation to a personal welfare LPA"})})
+			return tmpl(w, &fixturesData{App: appData, Errors: validation.With("", validation.CustomError{Label: "Can't add a trust corporation to a personal welfare LPA"})})
 		}
 
 		var (
@@ -124,15 +79,15 @@ func AttorneyFixtures(
 			return err
 		}
 
-		lpa, err := donorStore.Create(ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID}))
+		lpa, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}))
 		if err != nil {
 			return err
 		}
 
 		var (
-			donorCtx               = ContextWithSessionData(r.Context(), &SessionData{SessionID: donorSessionID, LpaID: lpa.ID})
-			certificateProviderCtx = ContextWithSessionData(r.Context(), &SessionData{SessionID: certificateProviderSessionID, LpaID: lpa.ID})
-			attorneyCtx            = ContextWithSessionData(r.Context(), &SessionData{SessionID: attorneySessionID, LpaID: lpa.ID})
+			donorCtx               = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: lpa.ID})
+			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: certificateProviderSessionID, LpaID: lpa.ID})
+			attorneyCtx            = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: attorneySessionID, LpaID: lpa.ID})
 		)
 
 		lpa.Donor = actor.Donor{
@@ -150,9 +105,9 @@ func AttorneyFixtures(
 			ThinksCanSign: actor.Yes,
 			CanSign:       form.Yes,
 		}
-		lpa.Type = LpaTypePropertyFinance
+		lpa.Type = page.LpaTypePropertyFinance
 		if lpaType == "hw" && !isTrustCorporation {
-			lpa.Type = LpaTypeHealthWelfare
+			lpa.Type = page.LpaTypeHealthWelfare
 		}
 
 		lpa.Attorneys = actor.Attorneys{
@@ -240,25 +195,25 @@ func AttorneyFixtures(
 
 		// should only be used in tests as otherwise people can read their emails...
 		if r.FormValue("use-test-code") == "1" {
-			useTestCode = true
+			shareCodeSender.UseTestCode()
 		}
 
 		if email != "" {
-			shareCodeSender.SendAttorneys(donorCtx, AppData{
+			shareCodeSender.SendAttorneys(donorCtx, page.AppData{
 				SessionID: donorSessionID,
 				LpaID:     lpa.ID,
 				Localizer: appData.Localizer,
 			}, lpa)
 
-			return AppData{}.Redirect(w, r, nil, Paths.Attorney.Start.Format())
+			return page.AppData{}.Redirect(w, r, nil, page.Paths.Attorney.Start.Format())
 		}
 
 		if redirect == "" {
-			redirect = Paths.Dashboard.Format()
+			redirect = page.Paths.Dashboard.Format()
 		} else {
 			redirect = "/attorney/" + lpa.ID + redirect
 		}
 
-		return AppData{}.Redirect(w, r, nil, redirect)
+		return page.AppData{}.Redirect(w, r, nil, redirect)
 	}
 }

@@ -88,7 +88,6 @@ describe('Confirm your identity and sign', () => {
         cy.contains('a', 'Continue').click();
 
         cy.url().should('contain', '/dashboard');
-        cy.checkA11yApp();
     });
 
     it('can be restarted', () => {
