@@ -50,6 +50,11 @@ type CertificateProviderStore interface {
 	GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
 }
 
+//go:generate mockery --testonly --inpackage --name AttorneyStore --structname mockAttorneyStore
+type AttorneyStore interface {
+	GetAny(ctx context.Context) ([]*actor.AttorneyProvidedDetails, error)
+}
+
 //go:generate mockery --testonly --inpackage --name EvidenceReceivedStore --structname mockEvidenceReceivedStore
 type EvidenceReceivedStore interface {
 	Get(context.Context) (bool, error)
@@ -156,6 +161,7 @@ func Register(
 	errorHandler page.ErrorHandler,
 	notFoundHandler page.Handler,
 	certificateProviderStore CertificateProviderStore,
+	attorneyStore AttorneyStore,
 	notifyClient NotifyClient,
 	evidenceReceivedStore EvidenceReceivedStore,
 	s3Client S3Client,
@@ -368,7 +374,7 @@ func Register(
 		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml")))
 
 	handleWithLpa(page.Paths.Progress, CanGoBack,
-		LpaProgress(tmpls.Get("lpa_progress.gohtml"), certificateProviderStore))
+		LpaProgress(tmpls.Get("lpa_progress.gohtml"), certificateProviderStore, attorneyStore))
 }
 
 type handleOpt byte
