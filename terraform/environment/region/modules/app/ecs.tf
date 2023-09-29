@@ -265,6 +265,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
     effect = "Allow"
     actions = [
       "s3:PutObject",
+      "s3:PutObjectTagging",
       "s3:DeleteObject",
     ]
     resources = [

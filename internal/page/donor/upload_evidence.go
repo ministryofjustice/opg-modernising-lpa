@@ -60,6 +60,7 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 						Key:                  aws.String(key),
 						Body:                 bytes.NewReader(file.Data),
 						ServerSideEncryption: types.ServerSideEncryptionAwsKms,
+						Tagging:              aws.String("replicate=true"),
 					})
 					if err != nil {
 						return err
