@@ -265,6 +265,48 @@ func TestOneByPartialSkWhenMultipleResults(t *testing.T) {
 	assert.Equal(t, MultipleResultsError{}, err)
 }
 
+func TestAllByPartialSk(t *testing.T) {
+	ctx := context.Background()
+
+	expected := []map[string]string{{"Col": "Val"}, {"Other": "Thing"}}
+	pkey, _ := attributevalue.Marshal("a-pk")
+	skey, _ := attributevalue.Marshal("a-partial-sk")
+	data, _ := attributevalue.MarshalMap(expected[0])
+	data2, _ := attributevalue.MarshalMap(expected[1])
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String("this"),
+			ExpressionAttributeNames:  map[string]string{"#PK": "PK", "#SK": "SK"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":PK": pkey, ":SK": skey},
+			KeyConditionExpression:    aws.String("#PK = :PK and begins_with(#SK, :SK)"),
+		}).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data, data2}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v []map[string]string
+	err := c.AllByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
+	assert.Nil(t, err)
+	assert.Equal(t, expected, v)
+}
+
+func TestAllByPartialSkOnQueryError(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, mock.Anything).
+		Return(nil, expectedError)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v map[string]string
+	err := c.AllByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
+	assert.Equal(t, expectedError, err)
+}
+
 func TestAllForActor(t *testing.T) {
 	ctx := context.Background()
 
