@@ -416,15 +416,15 @@
     "signYourLpaStepCannotSign": "<h2 class=\"govuk-heading-m\">3. Sign your LPA</h2><div class=\"govuk-body\"><p>Your authorised signatory, {{.AuthorisedSignatoryFullName}}, will sign the LPA online for you.</p><p>Your certificate provider, {{.CertificateProviderFullName}}, and your independent witness, {{.IndependentWitnessFullName}}, will both be sent unique codes by text message. They must both enter their codes to prove they were there when your LPA was signed.</p></div>",
     "whatYoullNeedToConfirmYourIdentity": "What you’ll need to confirm your identity",
     "whatYoullNeedToConfirmYourIdentityContent": "<p class=\"govuk-body-l\">To confirm your identity, you’ll need 3 things from this list.</p><ul class=\"govuk-list govuk-list--bullet govuk-list--spaced\"><li><span class=\"govuk-body govuk-!-font-weight-bold\">Your passport</span><br>This must be your current passport or one that expired less than 10 years ago. Your name on your passport must be the same as on your LPA.</li><li><span class=\"govuk-body govuk-!-font-weight-bold\">Your driving licence</span><br>This must be your current licence or one that expired less than 10 years ago. Your name and address on your licence must be the same as on your LPA.</li><li><span class=\"govuk-body govuk-!-font-weight-bold\">A GOV.UK Account</span><br>We’ll ask you to sign in to your account so we can confirm your name, address and date of birth. We will not see any other information about you.</li><li><span class=\"govuk-body govuk-!-font-weight-bold\">Post Office EasyID</span><br>Post Office EasyID is a secure digital app that lets you confirm your identity online. We’ll confirm your name, address and date of birth through Post Office EasyID. We will not see any other information Post Office EasyID holds about you.</li><li><span class=\"govuk-body govuk-!-font-weight-bold\">A Department for Work and Pensions (DWP) account and your National Insurance Number</span><br>We’ll check your details with DWP - they’ll confirm your name, address and date of birth. We will not see any other information about you.</li><li><span class=\"govuk-body govuk-!-font-weight-bold\">A utility bill</span><br>This must a gas, electric, broadband or landline phone bill issued within the last three months. Your name and address on the bill must be the same as on your LPA. You’ll need to upload a photo, scan or a PDF of the bill.</li><li><span class=\"govuk-body govuk-!-font-weight-bold\">A council tax bill</span><br>This must be for the current council tax year. Your name and address on the bill must be the same as on your LPA. You’ll need to upload a photo, scan or a PDF of the bill.</li></ul>",
-    "lpaSigned": "LPA signed",
-    "certificateProviderHasDeclared": "Certificate provider has made their declaration",
+    "youveSignedYourLpa": "You’ve signed your LPA",
+    "certificateProviderHasDeclared": "{{.CertificateProviderFullName}} has provided their certificate",
     "attorneysHaveDeclared": {
-        "one": "Attorney has made their declaration",
-        "other": "Attorneys have made their declaration"
+        "one": "Your attorney has signed your LPA",
+        "other": "Your attorneys have signed your LPA"
     },
-    "lpaSubmitted": "LPA submitted to the OPG",
-    "statutoryWaitingPeriod": "Statutory waiting period",
-    "lpaRegistered": "LPA registered",
+    "weHaveReceivedYourLpa": "We have received your LPA",
+    "yourWaitingPeriodHasStarted": "Your 4-week waiting period has started",
+    "yourLpaHasBeenRegistered": "Your LPA has been registered",
     "trackLpaProgress": "Track LPA progress",
     "backToDashboard": "Back to dashboard",
     "myLpa": "My {{ .LpaType }} lasting power of attorney",
