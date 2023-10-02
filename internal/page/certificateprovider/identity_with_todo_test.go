@@ -21,11 +21,9 @@ func TestGetIdentityWithTodo(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{FirstNames: "a", LastName: "b"}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 	certificateProviderStore.
 		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{
-			FirstNames: "a",
-			LastName:   "b",
 			IdentityUserData: identity.UserData{
 				OK:          true,
 				Provider:    identity.Passport,
@@ -39,6 +37,11 @@ func TestGetIdentityWithTodo(t *testing.T) {
 		}).
 		Return(nil)
 
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
+		Return(&page.Lpa{CertificateProvider: actor.CertificateProvider{FirstNames: "a", LastName: "b"}}, nil)
+
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &identityWithTodoData{
@@ -47,7 +50,7 @@ func TestGetIdentityWithTodo(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := IdentityWithTodo(template.Execute, func() time.Time { return now }, identity.Passport, certificateProviderStore)(testAppData, w, r)
+	err := IdentityWithTodo(template.Execute, func() time.Time { return now }, identity.Passport, certificateProviderStore, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -63,23 +66,46 @@ func TestGetIdentityWithTodoWhenCertificateProviderStoreGetErrors(t *testing.T) 
 		On("Get", r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
-	err := IdentityWithTodo(nil, nil, identity.Passport, certificateProviderStore)(testAppData, w, r)
+	err := IdentityWithTodo(nil, nil, identity.Passport, certificateProviderStore, nil)(testAppData, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
-func TestGetIdentityWithTodoWhenDonorStorePutErrors(t *testing.T) {
+func TestGetIdentityWithTodoWhenDonorStoreGetErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{FirstNames: "a", LastName: "b"}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
+		Return(&page.Lpa{CertificateProvider: actor.CertificateProvider{FirstNames: "a", LastName: "b"}}, expectedError)
+
+	err := IdentityWithTodo(nil, nil, identity.Passport, certificateProviderStore, donorStore)(testAppData, w, r)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestGetIdentityWithTodoWhenCertificateProviderStorePutErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
+		On("Get", r.Context()).
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 	certificateProviderStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := IdentityWithTodo(nil, time.Now, identity.Passport, certificateProviderStore)(testAppData, w, r)
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
+		Return(&page.Lpa{CertificateProvider: actor.CertificateProvider{FirstNames: "a", LastName: "b"}}, nil)
+
+	err := IdentityWithTodo(nil, time.Now, identity.Passport, certificateProviderStore, donorStore)(testAppData, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -92,7 +118,12 @@ func TestPostIdentityWithTodo(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 
-	err := IdentityWithTodo(nil, nil, identity.Passport, certificateProviderStore)(testAppData, w, r)
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
+		Return(&page.Lpa{CertificateProvider: actor.CertificateProvider{FirstNames: "a", LastName: "b"}}, nil)
+
+	err := IdentityWithTodo(nil, nil, identity.Passport, certificateProviderStore, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

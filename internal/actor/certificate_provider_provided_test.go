@@ -7,24 +7,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCertificateProviderProvidedFullName(t *testing.T) {
-	p := CertificateProviderProvidedDetails{FirstNames: "Bob Alan George", LastName: "Smith Jones-Doe"}
-
-	assert.Equal(t, "Bob Alan George Smith Jones-Doe", p.FullName())
-}
-
 func TestCertificateProviderProvidedIdentityConfirmed(t *testing.T) {
 	testCases := map[string]struct {
-		cp       *CertificateProviderProvidedDetails
-		expected bool
+		cp         *CertificateProviderProvidedDetails
+		firstNames string
+		lastName   string
+		expected   bool
 	}{
 		"set": {
 			cp: &CertificateProviderProvidedDetails{
-				FirstNames:       "a",
-				LastName:         "b",
 				IdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin, FirstNames: "a", LastName: "b"},
 			},
-			expected: true,
+			firstNames: "a",
+			lastName:   "b",
+			expected:   true,
 		},
 		"missing provider": {
 			cp: &CertificateProviderProvidedDetails{
@@ -40,11 +36,11 @@ func TestCertificateProviderProvidedIdentityConfirmed(t *testing.T) {
 		},
 		"no match": {
 			cp: &CertificateProviderProvidedDetails{
-				FirstNames:       "a",
-				LastName:         "b",
 				IdentityUserData: identity.UserData{Provider: identity.OneLogin},
 			},
-			expected: false,
+			firstNames: "a",
+			lastName:   "b",
+			expected:   false,
 		},
 		"none": {
 			cp:       &CertificateProviderProvidedDetails{},
@@ -54,7 +50,7 @@ func TestCertificateProviderProvidedIdentityConfirmed(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expected, tc.cp.CertificateProviderIdentityConfirmed())
+			assert.Equal(t, tc.expected, tc.cp.CertificateProviderIdentityConfirmed(tc.firstNames, tc.lastName))
 		})
 	}
 }
