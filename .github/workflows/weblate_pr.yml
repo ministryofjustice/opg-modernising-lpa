@@ -1,4 +1,5 @@
-name: "[Workflow] PR"
+
+name: "Weblate PR Workflow"
 
 on:
   pull_request:
@@ -6,8 +7,7 @@ on:
       - 'main'
   push:
     # Sequence of patterns matched against refs/heads
-    branches-ignore:
-      - 'main'
+    branches:
       - 'MLPAB-1419-use-a-single-persistent-environment-for-weblate-changes-optimise-workflow'
 
 permissions:
@@ -63,50 +63,6 @@ jobs:
     with:
       tag: ${{ needs.create_tags.outputs.version_tag }}
 
-  terraform_account_workflow_development:
-    name: TF Plan Dev Account
-    uses: ./.github/workflows/terraform_account_job.yml
-    with:
-      workspace_name: development
-    secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-
-  terraform_account_workflow_preproduction:
-    name: TF Plan Preprod Account
-    needs: terraform_account_workflow_development
-    uses: ./.github/workflows/terraform_account_job.yml
-    with:
-      workspace_name: preproduction
-    secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-
-  terraform_account_workflow_production:
-    name: TF Plan Prod Account
-    needs: terraform_account_workflow_development
-    uses: ./.github/workflows/terraform_account_job.yml
-    with:
-      workspace_name: production
-    secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-
-  ui_tests_image:
-    name: Run Cypress UI Tests On Images
-    if: needs.detect_changes.outputs.changes_detected == 'true' &&
-      (needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped')
-    uses: ./.github/workflows/ui_test_job.yml
-    needs: [docker_build_scan_push, create_tags]
-    with:
-      run_against_image: true
-      tag: ${{ needs.create_tags.outputs.version_tag }}
-    secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-      cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
-      github_access_token: ${{ secrets.GITHUB_TOKEN }}
-
   pr_deploy:
       name: PR Environment Deploy
       if: always() &&
@@ -121,7 +77,7 @@ jobs:
       ]
       uses: ./.github/workflows/terraform_environment_job.yml
       with:
-        workspace_name: ${{ needs.create_tags.outputs.environment_workspace_name }}
+        workspace_name: weblate
         version_tag: ${{ needs.create_tags.outputs.version_tag }}
       secrets:
         aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
