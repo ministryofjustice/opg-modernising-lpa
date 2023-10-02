@@ -1,12 +1,10 @@
 package actor
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
 // CertificateProviderProvidedDetails contains details about the certificate provider, provided by the certificate provider
@@ -16,20 +14,8 @@ type CertificateProviderProvidedDetails struct {
 	LpaID string
 	// Tracking when CertificateProviderProvidedDetails is updated
 	UpdatedAt time.Time
-	// First names of the certificate provider
-	FirstNames string
-	// Last name of the certificate provider
-	LastName string
-	// Email of the certificate provider
-	Email string
-	// Address of the certificate provider
-	Address place.Address
-	// Mobile number of the certificate provider
-	Mobile string
 	// Date of birth of the certificate provider
 	DateOfBirth date.Date
-	// The full name provided by the certificate provider. Only requested if the certificate provider indicates their name as provided by the applicant is incorrect
-	DeclaredFullName string
 	// The method by which the certificate provider will complete identity checks
 	IdentityOption identity.Option
 	// Data returned from an identity check service
@@ -40,13 +26,9 @@ type CertificateProviderProvidedDetails struct {
 	Tasks CertificateProviderTasks
 }
 
-func (c CertificateProviderProvidedDetails) FullName() string {
-	return fmt.Sprintf("%s %s", c.FirstNames, c.LastName)
-}
-
-func (c *CertificateProviderProvidedDetails) CertificateProviderIdentityConfirmed() bool {
+func (c *CertificateProviderProvidedDetails) CertificateProviderIdentityConfirmed(firstNames, lastName string) bool {
 	return c.IdentityUserData.OK && c.IdentityUserData.Provider != identity.UnknownOption &&
-		c.IdentityUserData.MatchName(c.FirstNames, c.LastName) &&
+		c.IdentityUserData.MatchName(firstNames, lastName) &&
 		c.IdentityUserData.DateOfBirth.Equals(c.DateOfBirth)
 }
 
