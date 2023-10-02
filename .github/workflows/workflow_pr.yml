@@ -4,7 +4,11 @@ on:
   pull_request:
     branches:
       - 'main'
-      - '!MLPAB-1419-use-a-single-persistent-environment-for-weblate-changes-optimise-workflow'
+  push:
+    # Sequence of patterns matched against refs/heads
+    branches-ignore:
+      - 'main'
+      - 'MLPAB-1419-use-a-single-persistent-environment-for-weblate-changes-optimise-workflow'
 
 permissions:
   id-token: write
