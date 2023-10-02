@@ -95,7 +95,6 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 		},
 		"identity not confirmed": {
 			certificateProvider: &actor.CertificateProviderProvidedDetails{
-				FirstNames: "Fred",
 				IdentityUserData: identity.UserData{
 					FirstNames: "Barry",
 				},
@@ -120,6 +119,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 					ID:                               "lpa-id",
 					DonorIdentityUserData:            identity.UserData{OK: true, Provider: identity.OneLogin},
 					CertificateProviderCodes:         page.WitnessCodes{{Code: "1234", Created: now}},
+					CertificateProvider:              actor.CertificateProvider{FirstNames: "Fred"},
 					WitnessedByCertificateProviderAt: now,
 					SignedAt:                         now,
 				}).
@@ -139,6 +139,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 				ID:                       "lpa-id",
 				DonorIdentityUserData:    identity.UserData{OK: true, Provider: identity.OneLogin},
 				CertificateProviderCodes: page.WitnessCodes{{Code: "1234", Created: now}},
+				CertificateProvider:      actor.CertificateProvider{FirstNames: "Fred"},
 			})
 			resp := w.Result()
 
