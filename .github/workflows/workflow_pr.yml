@@ -7,8 +7,9 @@ on:
   push:
     # Sequence of patterns matched against refs/heads
     branches-ignore:
-      - 'main'
-      - 'MLPAB-1419-use-a-single-persistent-environment-for-weblate-changes-optimise-workflow'
+      - main
+      - MLPAB-1419-use-a-single-persistent-environment-for-weblate-changes-optimise-workflow
+      - weblate-pr
 
 permissions:
   id-token: write

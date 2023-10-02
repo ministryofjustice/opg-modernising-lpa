@@ -9,6 +9,7 @@ on:
     # Sequence of patterns matched against refs/heads
     branches:
       - 'MLPAB-1419-use-a-single-persistent-environment-for-weblate-changes-optimise-workflow'
+      - weblate-pr
 
 permissions:
   id-token: write
