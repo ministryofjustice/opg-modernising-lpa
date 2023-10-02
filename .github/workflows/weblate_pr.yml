@@ -1,4 +1,5 @@
-name: "[Workflow] PR"
+
+name: "Weblate PR Workflow"
 
 on:
   pull_request:
@@ -6,8 +7,7 @@ on:
       - 'main'
   push:
     # Sequence of patterns matched against refs/heads
-    branches-ignore:
-      - 'main'
+    branches:
       - 'MLPAB-1419-use-a-single-persistent-environment-for-weblate-changes-optimise-workflow'
 
 permissions:
