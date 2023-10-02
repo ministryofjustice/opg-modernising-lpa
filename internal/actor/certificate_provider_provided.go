@@ -14,16 +14,8 @@ type CertificateProviderProvidedDetails struct {
 	LpaID string
 	// Tracking when CertificateProviderProvidedDetails is updated
 	UpdatedAt time.Time
-	// First names of the certificate provider
-	FirstNames string
-	// Last name of the certificate provider
-	LastName string
-	// Email of the certificate provider
-	Email string
 	// Date of birth of the certificate provider
 	DateOfBirth date.Date
-	// The full name provided by the certificate provider. Only requested if the certificate provider indicates their name as provided by the applicant is incorrect
-	DeclaredFullName string
 	// The method by which the certificate provider will complete identity checks
 	IdentityOption identity.Option
 	// Data returned from an identity check service

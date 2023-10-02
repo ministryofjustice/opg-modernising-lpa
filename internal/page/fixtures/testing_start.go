@@ -555,7 +555,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			}
 
 			if signedByCertificateProvider || asCertificateProvider == "certified" {
-				certificateProvider.Email = testEmail
+				lpa.CertificateProvider.Email = testMobile
 				certificateProvider.Certificate = actor.Certificate{
 					AgreeToStatement: true,
 					Agreed:           time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
@@ -563,7 +563,7 @@ func TestingStart(store sesh.Store, donorStore DonorStore, randomString func(int
 			}
 
 			if signedByCertificateProvider {
-				certificateProvider.Email = testEmail
+				lpa.CertificateProvider.Email = testMobile
 				certificateProvider.DateOfBirth = date.New("2000", "1", "2")
 				certificateProvider.Tasks.ConfirmYourDetails = actor.TaskCompleted
 			}
