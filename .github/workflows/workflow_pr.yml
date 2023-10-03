@@ -96,6 +96,7 @@ jobs:
     with:
       run_against_image: true
       tag: ${{ needs.create_tags.outputs.version_tag }}
+      smoke: ${{ contains(fromJSON('["MLPAB-1419-use-a-single-persistent-environment-for-weblate-changes-optimise-workflow", "weblate-pr"]'), github.head_ref) }}
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
