@@ -3,7 +3,7 @@ name: "[Workflow] PR"
 on:
   pull_request:
     branches:
-      - main
+      - 'main'
 
 permissions:
   id-token: write
@@ -89,7 +89,8 @@ jobs:
 
   ui_tests_image:
     name: Run Cypress UI Tests On Images
-    if: needs.detect_changes.outputs.changes_detected == 'true' &&
+    if: ${{ github.head_ref != 'MLPAB-1419-use-a-single-persistent-environment-for-weblate-changes-optimise-workflow' }} &&
+      needs.detect_changes.outputs.changes_detected == 'true' &&
       (needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped')
     uses: ./.github/workflows/ui_test_job.yml
     needs: [docker_build_scan_push, create_tags]
