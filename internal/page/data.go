@@ -180,8 +180,6 @@ type Lpa struct {
 
 	// FeeType is the type of fee the user is applying for
 	FeeType FeeType
-	// EvidenceFormAddress is where the form to provide evidence for a fee reduction will be sent
-	EvidenceFormAddress place.Address
 	// EvidenceKeys is the S3 keys for uploaded evidence with a record of when it's been sent to caseworkers
 	EvidenceKeys []Evidence
 
