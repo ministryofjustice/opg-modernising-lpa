@@ -3,7 +3,7 @@ name: "[Workflow] PR"
 on:
   pull_request:
     branches:
-      - 'main'
+      - main
 
 permissions:
   id-token: write
@@ -86,13 +86,6 @@ jobs:
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-
-  print_branch_name:
-    name: Print Branch Name
-    runs-on: ubuntu-latest
-    steps:
-      - name: Print Branch Name
-        run: echo ${{ github.head_ref }}
 
   ui_tests_image:
     name: Run Cypress UI Tests On Images
