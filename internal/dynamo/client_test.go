@@ -445,6 +445,26 @@ func TestPut(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestPutWhenStructHasUpdatedAt(t *testing.T) {
+	ctx := context.Background()
+	data, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val", "UpdatedAt": "123"})
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("PutItem", ctx, &dynamodb.PutItemInput{
+			TableName:                 aws.String("this"),
+			Item:                      data,
+			ConditionExpression:       aws.String("UpdatedAt < :updatedAt"),
+			ExpressionAttributeValues: map[string]types.AttributeValue{":updatedAt": &types.AttributeValueMemberS{Value: "123"}},
+		}).
+		Return(&dynamodb.PutItemOutput{}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	err := c.Put(ctx, map[string]string{"Col": "Val", "UpdatedAt": "123"})
+	assert.Nil(t, err)
+}
+
 func TestPutWhenError(t *testing.T) {
 	ctx := context.Background()
 

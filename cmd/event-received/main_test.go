@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -113,6 +114,8 @@ func TestHandleFeeApproved(t *testing.T) {
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
+	now := time.Now()
+
 	client := newMockDynamodbClient(t)
 	client.
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
@@ -129,15 +132,15 @@ func TestHandleFeeApproved(t *testing.T) {
 			return nil
 		})
 	client.
-		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}}).
+		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, page.AppData{}, false, &page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}}).
+		On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, page.AppData{}, false, &page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
 		Return(nil)
 
-	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{})
+	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{}, func() time.Time { return now })
 	assert.Nil(t, err)
 }
 
@@ -153,7 +156,7 @@ func TestHandleFeeApprovedWhenDynamoClientOneByUIDError(t *testing.T) {
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, nil, page.AppData{})
+	err := handleFeeApproved(ctx, client, event, nil, page.AppData{}, time.Now)
 	assert.Equal(t, fmt.Errorf("failed to resolve uid for 'fee-approved': %w", expectedError), err)
 }
 
@@ -176,7 +179,7 @@ func TestHandleFeeApprovedWhenDynamoClientGetError(t *testing.T) {
 		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, nil, page.AppData{})
+	err := handleFeeApproved(ctx, client, event, nil, page.AppData{}, time.Now)
 	assert.Equal(t, fmt.Errorf("failed to get LPA for 'fee-approved': %w", expectedError), err)
 }
 
@@ -186,6 +189,8 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 		DetailType: "fee-approved",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
+
+	now := time.Now()
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -203,10 +208,10 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 			return nil
 		})
 	client.
-		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}}).
+		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, nil, page.AppData{})
+	err := handleFeeApproved(ctx, client, event, nil, page.AppData{}, func() time.Time { return now })
 	assert.Equal(t, fmt.Errorf("failed to update LPA task status for 'fee-approved': %w", expectedError), err)
 }
 
@@ -217,6 +222,8 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
+	now := time.Now()
+
 	client := newMockDynamodbClient(t)
 	client.
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
@@ -233,15 +240,15 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 			return nil
 		})
 	client.
-		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}}).
+		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, page.AppData{}, false, &page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}}).
+		On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, page.AppData{}, false, &page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{})
+	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{}, func() time.Time { return now })
 	assert.Equal(t, fmt.Errorf("failed to send share code to certificate provider for 'fee-approved': %w", expectedError), err)
 }
 
@@ -252,6 +259,8 @@ func TestHandleMoreEvidenceRequired(t *testing.T) {
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
+	now := time.Now()
+
 	client := newMockDynamodbClient(t)
 	client.
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
@@ -268,10 +277,10 @@ func TestHandleMoreEvidenceRequired(t *testing.T) {
 			return nil
 		})
 	client.
-		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}}).
+		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}).
 		Return(nil)
 
-	err := handleMoreEvidenceRequired(ctx, client, event)
+	err := handleMoreEvidenceRequired(ctx, client, event, func() time.Time { return now })
 	assert.Nil(t, err)
 }
 
@@ -287,7 +296,7 @@ func TestHandleMoreEvidenceRequiredWhenOneByUIDError(t *testing.T) {
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(expectedError)
 
-	err := handleMoreEvidenceRequired(ctx, client, event)
+	err := handleMoreEvidenceRequired(ctx, client, event, time.Now)
 	assert.Equal(t, fmt.Errorf("failed to resolve uid for 'more-evidence-required': %w", expectedError), err)
 }
 
@@ -307,7 +316,7 @@ func TestHandleMoreEvidenceRequiredWhenPKMissing(t *testing.T) {
 			return nil
 		})
 
-	err := handleMoreEvidenceRequired(ctx, client, event)
+	err := handleMoreEvidenceRequired(ctx, client, event, time.Now)
 
 	assert.Equal(t, errors.New("PK missing from LPA in response to 'more-evidence-required'"), err)
 }
@@ -331,7 +340,7 @@ func TestHandleMoreEvidenceRequiredWhenGetError(t *testing.T) {
 		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(expectedError)
 
-	err := handleMoreEvidenceRequired(ctx, client, event)
+	err := handleMoreEvidenceRequired(ctx, client, event, time.Now)
 	assert.Equal(t, fmt.Errorf("failed to get LPA for 'more-evidence-required': %w", expectedError), err)
 }
 
@@ -342,6 +351,8 @@ func TestHandleMoreEvidenceRequiredWhenPutError(t *testing.T) {
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
+	now := time.Now()
+
 	client := newMockDynamodbClient(t)
 	client.
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
@@ -358,10 +369,10 @@ func TestHandleMoreEvidenceRequiredWhenPutError(t *testing.T) {
 			return nil
 		})
 	client.
-		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}}).
+		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}).
 		Return(expectedError)
 
-	err := handleMoreEvidenceRequired(ctx, client, event)
+	err := handleMoreEvidenceRequired(ctx, client, event, func() time.Time { return now })
 	assert.Equal(t, fmt.Errorf("failed to update LPA task status for 'more-evidence-required': %w", expectedError), err)
 }
 
@@ -372,6 +383,8 @@ func TestHandleFeeDenied(t *testing.T) {
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
+	now := time.Now()
+
 	client := newMockDynamodbClient(t)
 	client.
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
@@ -388,10 +401,10 @@ func TestHandleFeeDenied(t *testing.T) {
 			return nil
 		})
 	client.
-		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskDenied}}).
+		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskDenied}, UpdatedAt: now}).
 		Return(nil)
 
-	err := handleFeeDenied(ctx, client, event)
+	err := handleFeeDenied(ctx, client, event, func() time.Time { return now })
 	assert.Nil(t, err)
 }
 
@@ -407,7 +420,7 @@ func TestHandleFeeDeniedWhenOneByUIDError(t *testing.T) {
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeDenied(ctx, client, event)
+	err := handleFeeDenied(ctx, client, event, time.Now)
 	assert.Equal(t, fmt.Errorf("failed to resolve uid for 'fee-denied': %w", expectedError), err)
 }
 
@@ -427,7 +440,7 @@ func TestHandleFeeDeniedWhenPKMissing(t *testing.T) {
 			return nil
 		})
 
-	err := handleFeeDenied(ctx, client, event)
+	err := handleFeeDenied(ctx, client, event, time.Now)
 
 	assert.Equal(t, errors.New("PK missing from LPA in response to 'fee-denied'"), err)
 }
@@ -451,7 +464,7 @@ func TestHandleFeeDeniedWhenGetError(t *testing.T) {
 		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeDenied(ctx, client, event)
+	err := handleFeeDenied(ctx, client, event, time.Now)
 	assert.Equal(t, fmt.Errorf("failed to get LPA for 'fee-denied': %w", expectedError), err)
 }
 
@@ -461,6 +474,8 @@ func TestHandleFeeDeniedWhenPutError(t *testing.T) {
 		DetailType: "fee-denied",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
+
+	now := time.Now()
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -478,9 +493,9 @@ func TestHandleFeeDeniedWhenPutError(t *testing.T) {
 			return nil
 		})
 	client.
-		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskDenied}}).
+		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskDenied}, UpdatedAt: now}).
 		Return(expectedError)
 
-	err := handleFeeDenied(ctx, client, event)
+	err := handleFeeDenied(ctx, client, event, func() time.Time { return now })
 	assert.Equal(t, fmt.Errorf("failed to update LPA task status for 'fee-denied': %w", expectedError), err)
 }
