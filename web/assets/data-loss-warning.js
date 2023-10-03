@@ -9,7 +9,6 @@ export class DataLossWarning {
         if (this.dialog && this.dialogOverlay && this.returnToTaskListButton) {
             this.formValuesOnPageLoad = this.getEncodedStringifiedFormValues()
             this.formValuesPriorToPageLoad = this.getFormValuesFromCookie()
-
             this.registerListeners()
         }
     }
@@ -60,10 +59,10 @@ export class DataLossWarning {
                 e.preventDefault()
             }
         })
+        document.getElementById('save-and-continue-btn').addEventListener('click', this.addFormValuesToCookie.bind(this))
         document.getElementById('return-to-tasklist-btn').addEventListener('click', this.toggleDialogVisibility.bind(this))
         document.getElementById('back-to-page-dialog-btn').addEventListener('click', this.toggleDialogVisibility.bind(this))
         document.getElementById('return-to-task-list-dialog-btn').addEventListener('click', this.toggleDialogVisibility.bind(this))
-        document.getElementById('save-and-continue-btn').addEventListener('click', () => { this.addFormValuesToCookie() })
     }
 
     handleTrapFocus(e) {
@@ -96,13 +95,13 @@ export class DataLossWarning {
 
     addFormValuesToCookie() {
         // so the cookie isn't available for longer than required
-        const tenSecondsFutureDate = new Date();
-        tenSecondsFutureDate.setTime(tenSecondsFutureDate.getTime() + 10)
+        const tenSecondsFutureDate = new Date()
+        tenSecondsFutureDate.setSeconds(tenSecondsFutureDate.getSeconds() + 10)
 
-        document.cookie = `formValues=${this.getEncodedStringifiedFormValues()}; expires=${tenSecondsFutureDate.toUTCString()}; SameSite=Lax; Secure`;
+        document.cookie = `formValues=${this.getEncodedStringifiedFormValues()}; expires=${tenSecondsFutureDate.toUTCString()}; SameSite=Lax; Secure`
     }
 
     getFormValuesFromCookie() {
-        return document.cookie.split("; ").find((row) => row.startsWith("formValues="))?.split("=")[1];
+        return document.cookie.split("; ").find((row) => row.startsWith("formValues="))?.split("=")[1]
     }
 }
