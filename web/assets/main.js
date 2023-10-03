@@ -5,14 +5,11 @@ import $ from 'jquery';
 import { CrossServiceHeader } from './service-header';
 import { DataLossWarning } from './data-loss-warning';
 
+// Account for DOMContentLoaded firing before JS runs
 if (document.readyState !== "loading") {
-    console.log('not loading')
     init()
 } else {
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log('DOM content loaded')
-        init()
-    })
+    document.addEventListener('DOMContentLoaded', init)
 }
 
 function init() {
