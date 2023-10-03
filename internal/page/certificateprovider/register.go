@@ -126,13 +126,13 @@ func Register(
 	handleCertificateProvider(page.Paths.CertificateProvider.YourChosenIdentityOptions,
 		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml"), certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithYoti,
-		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), sessionStore, yotiClient, certificateProviderStore))
+		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), sessionStore, yotiClient, certificateProviderStore, donorStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithYotiCallback,
-		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, certificateProviderStore))
+		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, certificateProviderStore, donorStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLogin,
 		IdentityWithOneLogin(logger, oneLoginClient, sessionStore, random.String))
 	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLoginCallback,
-		IdentityWithOneLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, certificateProviderStore))
+		IdentityWithOneLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, certificateProviderStore, donorStore))
 
 	for path, identityOption := range map[page.CertificateProviderPath]identity.Option{
 		page.Paths.CertificateProvider.IdentityWithPassport:                 identity.Passport,
@@ -142,7 +142,7 @@ func Register(
 		page.Paths.CertificateProvider.IdentityWithOnlineBankAccount:        identity.OnlineBankAccount,
 	} {
 		handleCertificateProvider(path,
-			IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), time.Now, identityOption, certificateProviderStore))
+			IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), time.Now, identityOption, certificateProviderStore, donorStore))
 	}
 
 	handleCertificateProvider(page.Paths.CertificateProvider.ReadTheLpa,

@@ -17,9 +17,14 @@ type identityWithTodoData struct {
 	IdentityOption identity.Option
 }
 
-func IdentityWithTodo(tmpl template.Template, now func() time.Time, identityOption identity.Option, certificateProviderStore CertificateProviderStore) page.Handler {
+func IdentityWithTodo(tmpl template.Template, now func() time.Time, identityOption identity.Option, certificateProviderStore CertificateProviderStore, donorStore DonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		certificateProvider, err := certificateProviderStore.Get(r.Context())
+		if err != nil {
+			return err
+		}
+
+		lpa, err := donorStore.GetAny(r.Context())
 		if err != nil {
 			return err
 		}
@@ -31,8 +36,8 @@ func IdentityWithTodo(tmpl template.Template, now func() time.Time, identityOpti
 		certificateProvider.IdentityUserData = identity.UserData{
 			OK:          true,
 			Provider:    identityOption,
-			FirstNames:  certificateProvider.FirstNames,
-			LastName:    certificateProvider.LastName,
+			FirstNames:  lpa.CertificateProvider.FirstNames,
+			LastName:    lpa.CertificateProvider.LastName,
 			DateOfBirth: certificateProvider.DateOfBirth,
 			RetrievedAt: now(),
 		}

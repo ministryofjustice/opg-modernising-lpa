@@ -67,7 +67,7 @@ func WitnessingAsCertificateProvider(tmpl template.Template, donorStore DonorSto
 					return err
 				}
 
-				if err == nil && certificateProvider.CertificateProviderIdentityConfirmed() {
+				if err == nil && certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
 					if err := shareCodeSender.SendCertificateProvider(r.Context(), notify.CertificateProviderReturnEmail, appData, false, lpa); err != nil {
 						return err
 					}
