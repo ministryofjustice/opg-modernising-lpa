@@ -157,7 +157,7 @@ jobs:
             }
 
       - name: Protect environment workspace
-        if: github.workflow == '[Workflow] PR'
+        if: github.event_name == 'pull_request' && inputs.workspace_name != 'weblate'
         env:
           TF_WORKSPACE: ${{ inputs.workspace_name }}
           TF_VAR_container_version: ${{ inputs.version_tag }}
