@@ -22,15 +22,20 @@ type identityWithOneLoginCallbackData struct {
 	CouldNotConfirm bool
 }
 
-func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLoginClient, sessionStore sesh.Store, certificateProviderStore CertificateProviderStore) page.Handler {
+func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLoginClient, sessionStore sesh.Store, certificateProviderStore CertificateProviderStore, donorStore DonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
+		lpa, err := donorStore.GetAny(r.Context())
+		if err != nil {
+			return err
+		}
+
 		if r.Method == http.MethodPost {
-			if certificateProvider.CertificateProviderIdentityConfirmed() {
+			if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
 				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.ReadTheLpa.Format(certificateProvider.LpaID))
 			} else {
 				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.SelectYourIdentityOptions1.Format(certificateProvider.LpaID))
@@ -39,7 +44,7 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 
 		data := &identityWithOneLoginCallbackData{App: appData}
 
-		if certificateProvider.CertificateProviderIdentityConfirmed() {
+		if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
 			data.FirstNames = certificateProvider.IdentityUserData.FirstNames
 			data.LastName = certificateProvider.IdentityUserData.LastName
 			data.DateOfBirth = certificateProvider.IdentityUserData.DateOfBirth
@@ -77,7 +82,7 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 		certificateProvider.IdentityUserData = userData
 		certificateProvider.Tasks.ConfirmYourIdentity = actor.TaskCompleted
 
-		if certificateProvider.CertificateProviderIdentityConfirmed() {
+		if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
 			data.FirstNames = userData.FirstNames
 			data.LastName = userData.LastName
 			data.DateOfBirth = userData.DateOfBirth

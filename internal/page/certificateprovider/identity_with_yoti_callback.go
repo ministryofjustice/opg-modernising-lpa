@@ -20,15 +20,20 @@ type identityWithYotiCallbackData struct {
 	CouldNotConfirm bool
 }
 
-func IdentityWithYotiCallback(tmpl template.Template, yotiClient YotiClient, certificateProviderStore CertificateProviderStore) page.Handler {
+func IdentityWithYotiCallback(tmpl template.Template, yotiClient YotiClient, certificateProviderStore CertificateProviderStore, donorStore DonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
+		lpa, err := donorStore.GetAny(r.Context())
+		if err != nil {
+			return err
+		}
+
 		if r.Method == http.MethodPost {
-			if certificateProvider.CertificateProviderIdentityConfirmed() {
+			if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
 				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.ReadTheLpa.Format(certificateProvider.LpaID))
 			} else {
 				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.SelectYourIdentityOptions1.Format(certificateProvider.LpaID))
@@ -37,7 +42,7 @@ func IdentityWithYotiCallback(tmpl template.Template, yotiClient YotiClient, cer
 
 		data := &identityWithYotiCallbackData{App: appData}
 
-		if certificateProvider.CertificateProviderIdentityConfirmed() {
+		if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
 			data.FirstNames = certificateProvider.IdentityUserData.FirstNames
 			data.LastName = certificateProvider.IdentityUserData.LastName
 			data.DateOfBirth = certificateProvider.IdentityUserData.DateOfBirth
@@ -53,7 +58,7 @@ func IdentityWithYotiCallback(tmpl template.Template, yotiClient YotiClient, cer
 
 		certificateProvider.IdentityUserData = user
 
-		if certificateProvider.CertificateProviderIdentityConfirmed() {
+		if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
 			if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 				return err
 			}
