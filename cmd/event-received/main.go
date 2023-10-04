@@ -84,16 +84,17 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) error {
 	appData := page.AppData{Localizer: bundle.For(localize.En)}
 
 	shareCodeSender := page.NewShareCodeSender(app.NewShareCodeStore(dynamoClient), notifyClient, appPublicURL, random.String)
+	now := time.Now
 
 	switch event.DetailType {
 	case "evidence-received":
 		return handleEvidenceReceived(ctx, dynamoClient, event)
 	case "fee-approved":
-		return handleFeeApproved(ctx, dynamoClient, event, shareCodeSender, appData)
+		return handleFeeApproved(ctx, dynamoClient, event, shareCodeSender, appData, now)
 	case "more-evidence-required":
-		return handleMoreEvidenceRequired(ctx, dynamoClient, event)
+		return handleMoreEvidenceRequired(ctx, dynamoClient, event, now)
 	case "fee-denied":
-		return handleFeeDenied(ctx, dynamoClient, event)
+		return handleFeeDenied(ctx, dynamoClient, event, now)
 	default:
 		return fmt.Errorf("unknown event received: %s", event.DetailType)
 	}
@@ -121,7 +122,7 @@ func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event ev
 	return nil
 }
 
-func handleFeeApproved(ctx context.Context, dynamoClient dynamodbClient, event events.CloudWatchEvent, shareCodeSender shareCodeSender, appData page.AppData) error {
+func handleFeeApproved(ctx context.Context, dynamoClient dynamodbClient, event events.CloudWatchEvent, shareCodeSender shareCodeSender, appData page.AppData, now func() time.Time) error {
 	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal 'fee-approved' detail: %w", err)
@@ -138,6 +139,7 @@ func handleFeeApproved(ctx context.Context, dynamoClient dynamodbClient, event e
 	}
 
 	lpa.Tasks.PayForLpa = actor.PaymentTaskCompleted
+	lpa.UpdatedAt = now()
 
 	if err := dynamoClient.Put(ctx, lpa); err != nil {
 		return fmt.Errorf("failed to update LPA task status for 'fee-approved': %w", err)
@@ -150,7 +152,7 @@ func handleFeeApproved(ctx context.Context, dynamoClient dynamodbClient, event e
 	return nil
 }
 
-func handleMoreEvidenceRequired(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent) error {
+func handleMoreEvidenceRequired(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, now func() time.Time) error {
 	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal 'more-evidence-required' detail: %w", err)
@@ -171,6 +173,7 @@ func handleMoreEvidenceRequired(ctx context.Context, client dynamodbClient, even
 	}
 
 	lpa.Tasks.PayForLpa = actor.PaymentTaskMoreEvidenceRequired
+	lpa.UpdatedAt = now()
 
 	if err := client.Put(ctx, lpa); err != nil {
 		return fmt.Errorf("failed to update LPA task status for 'more-evidence-required': %w", err)
@@ -179,7 +182,7 @@ func handleMoreEvidenceRequired(ctx context.Context, client dynamodbClient, even
 	return nil
 }
 
-func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent) error {
+func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, now func() time.Time) error {
 	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal 'fee-denied' detail: %w", err)
@@ -200,6 +203,7 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.Cl
 	}
 
 	lpa.Tasks.PayForLpa = actor.PaymentTaskDenied
+	lpa.UpdatedAt = now()
 
 	if err := client.Put(ctx, lpa); err != nil {
 		return fmt.Errorf("failed to update LPA task status for 'fee-denied': %w", err)
