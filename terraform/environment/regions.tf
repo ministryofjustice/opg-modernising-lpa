@@ -35,6 +35,7 @@ module "eu_west_1" {
     enable_s3_batch_job_replication_scheduler = local.environment.reduced_fees.enable_s3_batch_job_replication_scheduler
   }
   target_event_bus_arn   = local.environment.event_bus.target_event_bus_arn
+  receive_account_id     = local.environment.event_bus.receive_account_id
   app_env_vars           = local.environment.app.env
   app_allowed_api_arns   = local.environment.app.allowed_api_arns
   public_access_enabled  = var.public_access_enabled
@@ -76,6 +77,7 @@ module "eu_west_2" {
     enable_s3_batch_job_replication_scheduler = local.environment.reduced_fees.enable_s3_batch_job_replication_scheduler
   }
   target_event_bus_arn   = local.environment.event_bus.target_event_bus_arn
+  receive_account_id     = local.environment.event_bus.receive_account_id
   app_env_vars           = local.environment.app.env
   app_allowed_api_arns   = local.environment.app.allowed_api_arns
   public_access_enabled  = var.public_access_enabled
