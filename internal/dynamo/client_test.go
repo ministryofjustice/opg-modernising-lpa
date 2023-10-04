@@ -428,26 +428,35 @@ func TestAllByKeysWhenQueryErrors(t *testing.T) {
 }
 
 func TestPut(t *testing.T) {
-	ctx := context.Background()
-	data, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val"})
+	testCases := map[string]map[string]string{
+		"Without UpdatedAt": {"Col": "Val"},
+		"Zero UpdatedAt":    {"Col": "Val", "UpdatedAt": "0001-01-01T00:00:00Z"},
+	}
 
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.
-		On("PutItem", ctx, &dynamodb.PutItemInput{
-			TableName: aws.String("this"),
-			Item:      data,
-		}).
-		Return(&dynamodb.PutItemOutput{}, nil)
+	for name, dataMap := range testCases {
+		t.Run(name, func(t *testing.T) {
+			ctx := context.Background()
+			data, _ := attributevalue.MarshalMap(dataMap)
 
-	c := &Client{table: "this", svc: dynamoDB}
+			dynamoDB := newMockDynamoDB(t)
+			dynamoDB.
+				On("PutItem", ctx, &dynamodb.PutItemInput{
+					TableName: aws.String("this"),
+					Item:      data,
+				}).
+				Return(&dynamodb.PutItemOutput{}, nil)
 
-	err := c.Put(ctx, map[string]string{"Col": "Val"})
-	assert.Nil(t, err)
+			c := &Client{table: "this", svc: dynamoDB}
+
+			err := c.Put(ctx, dataMap)
+			assert.Nil(t, err)
+		})
+	}
 }
 
 func TestPutWhenStructHasUpdatedAt(t *testing.T) {
 	ctx := context.Background()
-	data, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val", "UpdatedAt": "123"})
+	data, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val", "UpdatedAt": "2023-10-04T10:51:44.021428675Z"})
 
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
@@ -455,13 +464,13 @@ func TestPutWhenStructHasUpdatedAt(t *testing.T) {
 			TableName:                 aws.String("this"),
 			Item:                      data,
 			ConditionExpression:       aws.String("UpdatedAt < :updatedAt"),
-			ExpressionAttributeValues: map[string]types.AttributeValue{":updatedAt": &types.AttributeValueMemberS{Value: "123"}},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":updatedAt": &types.AttributeValueMemberS{Value: "2023-10-04T10:51:44.021428675Z"}},
 		}).
 		Return(&dynamodb.PutItemOutput{}, nil)
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	err := c.Put(ctx, map[string]string{"Col": "Val", "UpdatedAt": "123"})
+	err := c.Put(ctx, map[string]string{"Col": "Val", "UpdatedAt": "2023-10-04T10:51:44.021428675Z"})
 	assert.Nil(t, err)
 }
 
@@ -477,6 +486,15 @@ func TestPutWhenError(t *testing.T) {
 
 	err := c.Put(ctx, "hello")
 	assert.Equal(t, expectedError, err)
+}
+
+func TestPutWhenUnmarshalError(t *testing.T) {
+	ctx := context.Background()
+
+	c := &Client{table: "this", svc: newMockDynamoDB(t)}
+
+	err := c.Put(ctx, map[string]string{"Col": "Val", "UpdatedAt": "not a date"})
+	assert.NotNil(t, err)
 }
 
 func TestCreate(t *testing.T) {

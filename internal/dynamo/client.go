@@ -3,6 +3,7 @@ package dynamo
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -194,9 +195,17 @@ func (c *Client) Put(ctx context.Context, v interface{}) error {
 	}
 
 	if updatedAt, exists := item["UpdatedAt"]; exists {
-		input.ConditionExpression = aws.String("UpdatedAt < :updatedAt")
-		input.ExpressionAttributeValues = map[string]types.AttributeValue{
-			":updatedAt": updatedAt,
+		var updatedAtTime time.Time
+		err = attributevalue.Unmarshal(updatedAt, &updatedAtTime)
+		if err != nil {
+			return err
+		}
+
+		if !updatedAtTime.IsZero() {
+			input.ConditionExpression = aws.String("UpdatedAt < :updatedAt")
+			input.ExpressionAttributeValues = map[string]types.AttributeValue{
+				":updatedAt": updatedAt,
+			}
 		}
 	}
 
