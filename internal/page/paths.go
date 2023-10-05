@@ -128,6 +128,7 @@ type AppPaths struct {
 	ChooseAttorneysAddress                               LpaPath
 	ChooseAttorneysGuidance                              LpaPath
 	ChooseAttorneysSummary                               LpaPath
+	ChooseNewCertificateProvider                         LpaPath
 	ChoosePeopleToNotify                                 LpaPath
 	ChoosePeopleToNotifyAddress                          LpaPath
 	ChoosePeopleToNotifySummary                          LpaPath
@@ -274,6 +275,7 @@ var Paths = AppPaths{
 	ChooseAttorneysAddress:                               "/choose-attorneys-address",
 	ChooseAttorneysGuidance:                              "/choose-attorneys-guidance",
 	ChooseAttorneysSummary:                               "/choose-attorneys-summary",
+	ChooseNewCertificateProvider:                         "/choose-new-certificate-provider",
 	ChoosePeopleToNotify:                                 "/choose-people-to-notify",
 	ChoosePeopleToNotifyAddress:                          "/choose-people-to-notify-address",
 	ChoosePeopleToNotifySummary:                          "/choose-people-to-notify-summary",
