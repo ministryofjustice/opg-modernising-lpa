@@ -219,7 +219,6 @@
     "howLongHaveYouKnownCertificateProviderTitle": "Welsh",
     "twoYearsOrMore": "2 flynedd neu fwy",
     "lessThanTwoYears": "Llai na 2 flynedd",
-    "mustHaveKnownCertificateProviderTwoYears": "Rhaid eich bod wedi adnabod eich darparwr tystysgrif yn bersonol ers 2 flynedd neu fwy. Os ydych wedi eu hadnabod ers llai na 2 flynedd, rhaid i chi ddewis darparwr tystysgrif gwahanol.",
     "howLongYouHaveKnownCertificateProvider": "Welsh",
     "iveCheckedThisLpaAndImHappyToShowToCertificateProvider": "Rydw i wedi gwirio’r LPA hon ac nid wyf am wneud unrhyw newidiadau",
     "iveCheckedThisLpaAndImHappyToShareWithCertificateProvider": "Welsh",
@@ -818,5 +817,7 @@
     "makeNewLpa": "Welsh",
     "youCanMakeNewLpa": "Welsh",
     "startNow": "Welsh",
-    "youCanIncludeRestrictionsAboutLst": "Gallwch hefyd gynnwys unrhyw gyfyngiadau ac amodau sydd gennych ynglŷn â thriniaeth cynnal bywyd."
+    "youCanIncludeRestrictionsAboutLst": "Gallwch hefyd gynnwys unrhyw gyfyngiadau ac amodau sydd gennych ynglŷn â thriniaeth cynnal bywyd.",
+    "youMustChooseANewCertificateProvider": "Welsh",
+    "youMustChooseANewCertificateProviderContent": "<p class=\"govuk-body\">Welsh {{ .CertificateProviderFullName }} Welsh</p> <p class=\"govuk-body\">Welsh</p>"
 }

@@ -74,7 +74,7 @@ func TestGetHowLongHaveYouKnownCertificateProviderWhenTemplateErrors(t *testing.
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostHowLongHaveYouKnownCertificateProvider(t *testing.T) {
+func TestPostHowLongHaveYouKnownCertificateProviderMoreThan2Years(t *testing.T) {
 	form := url.Values{
 		"how-long": {"gte-2-years"},
 	}
@@ -105,6 +105,23 @@ func TestPostHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, page.Paths.DoYouWantToNotifyPeople.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPostHowLongHaveYouKnownCertificateProviderLessThan2Years(t *testing.T) {
+	form := url.Values{
+		"how-long": {"lt-2-years"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	err := HowLongHaveYouKnownCertificateProvider(nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.ChooseNewCertificateProvider.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostHowLongHaveYouKnownCertificateProviderWhenStoreErrors(t *testing.T) {
@@ -168,12 +185,6 @@ func TestHowLongHaveYouKnownCertificateProviderFormValidate(t *testing.T) {
 			form: &howLongHaveYouKnownCertificateProviderForm{
 				HowLong: "gte-2-years",
 			},
-		},
-		"lt-2-years": {
-			form: &howLongHaveYouKnownCertificateProviderForm{
-				HowLong: "lt-2-years",
-			},
-			errors: validation.With("how-long", validation.CustomError{Label: "mustHaveKnownCertificateProviderTwoYears"}),
 		},
 		"missing": {
 			form:   &howLongHaveYouKnownCertificateProviderForm{},
