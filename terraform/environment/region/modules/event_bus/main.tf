@@ -55,7 +55,7 @@ resource "aws_cloudwatch_event_target" "cross_account_put" {
 }
 
 # Allow other accounts to send messages
-data "aws_iam_policy_document" "main" {
+data "aws_iam_policy_document" "cross_account_receive" {
   statement {
     sid    = "CrossAccountAccess"
     effect = "Allow"
@@ -73,10 +73,10 @@ data "aws_iam_policy_document" "main" {
   }
 }
 
-resource "aws_cloudwatch_event_bus_policy" "main" {
+resource "aws_cloudwatch_event_bus_policy" "cross_account_receive" {
   count          = length(var.receive_account_ids) > 0 ? 1 : 0
   event_bus_name = aws_cloudwatch_event_bus.main.name
-  policy         = data.aws_iam_policy_document.main.json
+  policy         = data.aws_iam_policy_document.cross_account_receive.json
   provider       = aws.region
 }
 
