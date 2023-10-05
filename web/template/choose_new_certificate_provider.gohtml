@@ -1,0 +1,18 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "youMustChooseANewCertificateProvider" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "youMustChooseANewCertificateProvider" }}</h1>
+
+            {{ trFormatHtml .App "youMustChooseANewCertificateProviderContent" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
+
+            <form novalidate method="post">
+                {{ template "continue-and-return-buttons" . }}
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
+    </div>
+{{ end }}
