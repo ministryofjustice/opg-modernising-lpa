@@ -104,3 +104,27 @@ data "aws_iam_policy_document" "s3_vpc_endpoint" {
     }
   }
 }
+
+resource "aws_vpc_endpoint" "dynamodb" {
+  provider          = aws.region
+  count             = 3
+  vpc_id            = module.network.vpc.id
+  service_name      = "com.amazonaws.${data.aws_region.current.name}.dynamodb"
+  route_table_ids   = tolist(data.aws_route_tables.public.ids)
+  vpc_endpoint_type = "Gateway"
+  policy            = data.aws_iam_policy_document.dynamodb_vpc_endpoint.json
+  tags              = { "Name" = "public.${data.aws_default_tags.current.tags.account-name}" }
+}
+
+data "aws_iam_policy_document" "dynamodb_vpc_endpoint" {
+  provider = aws.region
+  statement {
+    sid       = "DynamoDBVpcEndpointPolicy"
+    actions   = ["*"]
+    resources = ["*"]
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+  }
+}
