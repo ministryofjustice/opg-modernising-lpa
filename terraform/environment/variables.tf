@@ -73,6 +73,7 @@ variable "environments" {
       pagerduty_service_name                  = string
       event_bus = object({
         target_event_bus_arn = string
+        receive_account_ids  = list(string)
       })
       reduced_fees = object({
         enabled                                   = bool
