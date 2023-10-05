@@ -68,13 +68,13 @@ data "aws_iam_policy_document" "main" {
 
     principals {
       type        = "AWS"
-      identifiers = [var.receive_account_id]
+      identifiers = var.receive_account_ids
     }
   }
 }
 
 resource "aws_cloudwatch_event_bus_policy" "main" {
-  count          = var.receive_account_id == "" ? 0 : 1
+  count          = length(var.receive_account_ids) > 0 ? 1 : 0
   event_bus_name = aws_cloudwatch_event_bus.main.name
   policy         = data.aws_iam_policy_document.main.json
   provider       = aws.region

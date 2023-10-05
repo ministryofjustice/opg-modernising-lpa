@@ -91,8 +91,8 @@ variable "target_event_bus_arn" {
   description = "ARN of the event bus to forward events to"
 }
 
-variable "receive_account_id" {
-  type        = string
-  description = "ID of account to receive messages from"
-  default     = ""
+variable "receive_account_ids" {
+  type        = list(string)
+  description = "IDs of accounts to receive messages from"
+  default     = []
 }
