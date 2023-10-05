@@ -31,6 +31,11 @@ resource "aws_security_group_rule" "vpc_endpoints_public_subnet_ingress" {
 locals {
   interface_endpoint = toset([
     "ec2",
+    "ecr.api",
+    "ecr.dkr",
+    "logs",
+    "secretsmanager",
+    "ssm",
   ])
 }
 
