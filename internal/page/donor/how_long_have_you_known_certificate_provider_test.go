@@ -169,12 +169,6 @@ func TestHowLongHaveYouKnownCertificateProviderFormValidate(t *testing.T) {
 				HowLong: "gte-2-years",
 			},
 		},
-		"lt-2-years": {
-			form: &howLongHaveYouKnownCertificateProviderForm{
-				HowLong: "lt-2-years",
-			},
-			errors: validation.With("how-long", validation.CustomError{Label: "mustHaveKnownCertificateProviderTwoYears"}),
-		},
 		"missing": {
 			form:   &howLongHaveYouKnownCertificateProviderForm{},
 			errors: validation.With("how-long", validation.SelectError{Label: "howLongYouHaveKnownCertificateProvider"}),
