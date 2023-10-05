@@ -29,6 +29,10 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore D
 			data.Errors = form.Validate()
 
 			if data.Errors.None() {
+				if form.HowLong == "lt-2-years" {
+					return appData.Redirect(w, r, lpa, page.Paths.ChooseNewCertificateProvider.Format(lpa.ID))
+				}
+
 				lpa.Tasks.CertificateProvider = actor.TaskCompleted
 				lpa.CertificateProvider.RelationshipLength = form.HowLong
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
@@ -58,10 +62,6 @@ func (f *howLongHaveYouKnownCertificateProviderForm) Validate() validation.List 
 
 	errors.String("how-long", "howLongYouHaveKnownCertificateProvider", f.HowLong,
 		validation.Select("gte-2-years", "lt-2-years"))
-
-	if f.HowLong == "lt-2-years" {
-		errors.Add("how-long", validation.CustomError{Label: "mustHaveKnownCertificateProviderTwoYears"})
-	}
 
 	return errors
 }

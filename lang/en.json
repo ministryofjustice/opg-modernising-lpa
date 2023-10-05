@@ -208,7 +208,6 @@
     "howLongHaveYouKnownCertificateProviderTitle": "How long have you known your certificate provider?",
     "twoYearsOrMore": "2 years or more",
     "lessThanTwoYears": "Less than 2 years",
-    "mustHaveKnownCertificateProviderTwoYears": "You must have known your certificate provider personally for 2 years or more. If you have known them for less than 2 years, you must choose a different certificate provider.",
     "howLongYouHaveKnownCertificateProvider": "how long you have known your certificate provider",
     "theBoxIfYouHaveCheckedAndHappyToShareLpa": "the box if you have checked your LPA and are happy to share it with your certificate provider",
     "checkYourLpa": "Check your LPA",
@@ -774,5 +773,7 @@
     "makeNewLpa": "Make a new lasting power of attorney (LPA)",
     "youCanMakeNewLpa": "You can make a new LPA for yourself.",
     "startNow": "Start now",
-    "youCanIncludeRestrictionsAboutLst": "You can also include any restrictions and conditions you have about life-sustaining treatment."
+    "youCanIncludeRestrictionsAboutLst": "You can also include any restrictions and conditions you have about life-sustaining treatment.",
+    "youMustChooseANewCertificateProvider": "You must choose a different certificate provider",
+    "youMustChooseANewCertificateProviderContent": "<p class=\"govuk-body\">As you’ve known {{ .CertificateProviderFullName }} for less than 2 years, they cannot be your certificate provider.</p> <p class=\"govuk-body\">Select Continue to choose a different certificate provider.</p>"
 }
