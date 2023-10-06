@@ -782,5 +782,9 @@
     "uploadFiles": "Upload files",
     "uploadedFiles": "Uploaded files",
     "fileName": "File name",
-    "delete": "Delete"
+    "delete": "Delete",
+    "nFilesSuccessfullyUploaded": {
+        "one": "{{.PluralCount}} file successfully uploaded",
+        "other": "{{.PluralCount}} files successfully uploaded"
+    }
 }

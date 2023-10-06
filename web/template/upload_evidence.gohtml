@@ -3,6 +3,17 @@
 {{ define "pageTitle" }}{{ tr .App "uploadYourEvidence" }}{{ end }}
 
 {{ define "main" }}
+  {{ $evidenceCount := (len .Evidence) }}
+  {{ if gt $evidenceCount 0 }}
+    <div class="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+      <div class="govuk-notification-banner__content">
+        <p class="govuk-notification-banner__heading">
+          {{ trFormatCount .App "nFilesSuccessfullyUploaded" $evidenceCount }}
+        </p>
+      </div>
+    </div>
+  {{ end }}
+
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "uploadYourEvidence" }}</h1>
@@ -52,11 +63,13 @@
         {{ end }}
       </dl>
 
-      <form novalidate method="post" >
+      <form novalidate method="post" enctype="multipart/form-data">
         {{ template "csrf-field" . }}
 
+        <input type="hidden" id="f-pay-action" name="action" value="pay" />
+
         <div class="govuk-button-group">
-          {{ if gt (len .Evidence) 0 }}
+          {{ if gt $evidenceCount 0 }}
             <button type="submit" class="govuk-button" data-module="govuk-button">{{ if or .FeeType.IsFullFee .FeeType.IsHalfFee }} {{ tr .App "continueToPayment" }} {{ else }} {{ tr .App "continue" }} {{ end }}</button>
           {{ end }}
           <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
