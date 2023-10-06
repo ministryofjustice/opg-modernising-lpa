@@ -179,8 +179,7 @@ func readUploadEvidenceForm(r *http.Request) *uploadEvidenceForm {
 				continue
 			}
 
-			// to account for various docs appearing as zips
-			mimetype.SetLimit(0)
+			mimetype.SetLimit(peekSize)
 			contentType := mimetype.Detect(sniff)
 
 			if !slices.Contains(acceptedMimeTypes(), contentType.String()) {
