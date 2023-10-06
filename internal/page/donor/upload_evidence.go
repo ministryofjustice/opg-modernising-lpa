@@ -185,8 +185,6 @@ func readUploadEvidenceForm(r *http.Request) *uploadEvidenceForm {
 		}
 
 		form.Files = files
-	} else {
-		form.Action = "pay"
 	}
 
 	return form
