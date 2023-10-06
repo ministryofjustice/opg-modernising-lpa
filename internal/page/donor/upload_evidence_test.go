@@ -30,6 +30,7 @@ func TestGetUploadEvidence(t *testing.T) {
 			App:                  testAppData,
 			NumberOfAllowedFiles: 5,
 			FeeType:              page.FullFee,
+			MimeTypes:            acceptedMimeTypes(),
 		}).
 		Return(nil)
 
@@ -53,7 +54,78 @@ func TestGetUploadEvidenceWhenTemplateErrors(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestPostUploadEvidenceWithUploadAction(t *testing.T) {
+func TestPostUploadEvidenceWithUploadActionAcceptedFileTypes(t *testing.T) {
+	testCases := []string{
+		"dummy.docx",
+		"dummy.heic",
+		"dummy.jpeg",
+		"dummy.jpg",
+		"dummy.ods",
+		"dummy.odt",
+		"dummy.pdf",
+		"dummy.png",
+		"dummy.tif",
+		"dummy.xlsx",
+	}
+
+	for _, filename := range testCases {
+		t.Run(filename, func(t *testing.T) {
+			var buf bytes.Buffer
+			writer := multipart.NewWriter(&buf)
+
+			part, _ := writer.CreateFormField("csrf")
+			io.WriteString(part, "123")
+
+			part, _ = writer.CreateFormField("action")
+			io.WriteString(part, "upload")
+
+			file := addFileToUploadField(writer, filename)
+
+			writer.Close()
+			file.Close()
+
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+			r.Header.Set("Content-Type", writer.FormDataContentType())
+
+			s3Client := newMockS3Client(t)
+			s3Client.
+				On("PutObject", r.Context(), mock.MatchedBy(func(input *s3.PutObjectInput) bool {
+					return assert.Equal(t, aws.String("bucket-name"), input.Bucket) &&
+						assert.Equal(t, aws.String("lpa-uid-evidence-a-uid"), input.Key) &&
+						assert.Equal(t, aws.String("replicate=true"), input.Tagging) &&
+						assert.Equal(t, types.ServerSideEncryptionAwsKms, input.ServerSideEncryption)
+				})).
+				Return(nil, nil)
+
+			evidence := []page.Evidence{
+				{Key: "lpa-uid-evidence-a-uid", Filename: filename},
+			}
+			updatedLpa := &page.Lpa{UID: "lpa-uid", EvidenceKeys: evidence, FeeType: page.HalfFee}
+
+			donorStore := newMockDonorStore(t)
+			donorStore.
+				On("Put", r.Context(), updatedLpa).
+				Return(nil)
+
+			template := newMockTemplate(t)
+			template.
+				On("Execute", w, &uploadEvidenceData{
+					App:                  testAppData,
+					Evidence:             evidence,
+					NumberOfAllowedFiles: 5,
+					MimeTypes:            acceptedMimeTypes(),
+					FeeType:              page.HalfFee,
+				}).
+				Return(nil)
+
+			err := UploadEvidence(template.Execute, nil, donorStore, func() string { return "a-uid" }, "bucket-name", s3Client)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee})
+			assert.Nil(t, err)
+		})
+	}
+}
+
+func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
 	var buf bytes.Buffer
 	writer := multipart.NewWriter(&buf)
 
@@ -63,8 +135,8 @@ func TestPostUploadEvidenceWithUploadAction(t *testing.T) {
 	part, _ = writer.CreateFormField("action")
 	io.WriteString(part, "upload")
 
-	file := addFileToUploadField(writer, "whatever.pdf")
-	file = addFileToUploadField(writer, "who-cares.pdf")
+	file := addFileToUploadField(writer, "dummy.pdf")
+	file = addFileToUploadField(writer, "dummy.png")
 
 	writer.Close()
 	file.Close()
@@ -92,8 +164,8 @@ func TestPostUploadEvidenceWithUploadAction(t *testing.T) {
 		Return(nil, nil)
 
 	evidence := []page.Evidence{
-		{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf"},
-		{Key: "lpa-uid-evidence-a-uid", Filename: "who-cares.pdf"},
+		{Key: "lpa-uid-evidence-a-uid", Filename: "dummy.pdf"},
+		{Key: "lpa-uid-evidence-a-uid", Filename: "dummy.png"},
 	}
 	updatedLpa := &page.Lpa{UID: "lpa-uid", EvidenceKeys: evidence, FeeType: page.HalfFee}
 
@@ -108,6 +180,7 @@ func TestPostUploadEvidenceWithUploadAction(t *testing.T) {
 			App:                  testAppData,
 			Evidence:             evidence,
 			NumberOfAllowedFiles: 5,
+			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              page.HalfFee,
 		}).
 		Return(nil)
@@ -159,8 +232,10 @@ func TestPostUploadEvidenceWhenBadCsrfField(t *testing.T) {
 		On("Execute", w, &uploadEvidenceData{
 			App:                  testAppData,
 			NumberOfAllowedFiles: 5,
-			Errors:               validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
-			FeeType:              page.FullFee,
+			MimeTypes:            acceptedMimeTypes(),
+			Errors: validation.With(""+
+				"upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
+			FeeType: page.FullFee,
 		}).
 		Return(nil)
 
@@ -192,6 +267,7 @@ func TestPostUploadEvidenceWhenBadActionField(t *testing.T) {
 		On("Execute", w, &uploadEvidenceData{
 			App:                  testAppData,
 			NumberOfAllowedFiles: 5,
+			MimeTypes:            acceptedMimeTypes(),
 			Errors:               validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
 			FeeType:              page.FullFee,
 		}).
@@ -214,12 +290,12 @@ func TestPostUploadEvidenceNumberOfFilesLimitPassed(t *testing.T) {
 	part, _ = writer.CreateFormField("action")
 	io.WriteString(part, "upload")
 
-	file := addFileToUploadField(writer, "whatever.pdf")
-	file = addFileToUploadField(writer, "whatever.pdf")
-	file = addFileToUploadField(writer, "whatever.pdf")
-	file = addFileToUploadField(writer, "whatever.pdf")
-	file = addFileToUploadField(writer, "whatever.pdf")
-	file = addFileToUploadField(writer, "whatever.pdf")
+	file := addFileToUploadField(writer, "dummy.pdf")
+	file = addFileToUploadField(writer, "dummy.pdf")
+	file = addFileToUploadField(writer, "dummy.pdf")
+	file = addFileToUploadField(writer, "dummy.pdf")
+	file = addFileToUploadField(writer, "dummy.pdf")
+	file = addFileToUploadField(writer, "dummy.pdf")
 
 	writer.Close()
 	file.Close()
@@ -233,6 +309,7 @@ func TestPostUploadEvidenceNumberOfFilesLimitPassed(t *testing.T) {
 		On("Execute", w, &uploadEvidenceData{
 			App:                  testAppData,
 			NumberOfAllowedFiles: 5,
+			MimeTypes:            acceptedMimeTypes(),
 			Errors:               validation.With("upload", validation.CustomError{Label: "errorTooManyFiles"}),
 			FeeType:              page.FullFee,
 		}).
@@ -257,12 +334,12 @@ func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
 		"missing": {
 			fieldName:     "upload",
 			fieldContent:  strings.NewReader(""),
-			expectedError: validation.FileError{Label: "errorFileEmpty", Filename: "whatever.pdf"},
+			expectedError: validation.FileError{Label: "errorFileEmpty", Filename: "dummy.pdf"},
 		},
 		"not pdf": {
 			fieldName:     "upload",
 			fieldContent:  strings.NewReader("I am just text"),
-			expectedError: validation.FileError{Label: "errorFileIncorrectType", Filename: "whatever.pdf"},
+			expectedError: validation.FileError{Label: "errorFileIncorrectType", Filename: "dummy.pdf"},
 		},
 		"wrong field": {
 			fieldName:     "file",
@@ -272,7 +349,7 @@ func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
 		"over size pdf": {
 			fieldName:     "upload",
 			fieldContent:  io.MultiReader(bytes.NewReader(dummyData), randomReader),
-			expectedError: validation.FileError{Label: "errorFileTooBig", Filename: "whatever.pdf"},
+			expectedError: validation.FileError{Label: "errorFileTooBig", Filename: "dummy.pdf"},
 		},
 	}
 
@@ -287,7 +364,7 @@ func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
 			part, _ = writer.CreateFormField("action")
 			io.WriteString(part, "upload")
 
-			part, _ = writer.CreateFormFile(tc.fieldName, "whatever.pdf")
+			part, _ = writer.CreateFormFile(tc.fieldName, "dummy.pdf")
 			io.Copy(part, tc.fieldContent)
 
 			writer.Close()
@@ -301,6 +378,7 @@ func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
 				On("Execute", w, &uploadEvidenceData{
 					App:                  testAppData,
 					NumberOfAllowedFiles: 5,
+					MimeTypes:            acceptedMimeTypes(),
 					Errors:               validation.With("upload", tc.expectedError),
 					FeeType:              page.FullFee,
 				}).
@@ -325,7 +403,7 @@ func TestPostUploadEvidenceWhenS3ClientErrors(t *testing.T) {
 	part, _ = writer.CreateFormField("action")
 	io.WriteString(part, "upload")
 
-	file := addFileToUploadField(writer, "whatever.pdf")
+	file := addFileToUploadField(writer, "dummy.pdf")
 
 	file.Close()
 	writer.Close()
@@ -357,7 +435,7 @@ func TestPostUploadEvidenceWhenDonorStoreError(t *testing.T) {
 	part, _ = writer.CreateFormField("action")
 	io.WriteString(part, "upload")
 
-	file := addFileToUploadField(writer, "whatever.pdf")
+	file := addFileToUploadField(writer, "dummy.pdf")
 
 	file.Close()
 	writer.Close()
@@ -376,7 +454,7 @@ func TestPostUploadEvidenceWhenDonorStoreError(t *testing.T) {
 		Return(nil, nil)
 
 	updatedLpa := &page.Lpa{UID: "lpa-uid", EvidenceKeys: []page.Evidence{
-		{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf"},
+		{Key: "lpa-uid-evidence-a-uid", Filename: "dummy.pdf"},
 	}}
 
 	donorStore := newMockDonorStore(t)
@@ -414,7 +492,7 @@ func TestPostUploadEvidenceWhenPayerError(t *testing.T) {
 }
 
 func addFileToUploadField(writer *multipart.Writer, filename string) *os.File {
-	file, _ := os.Open("testdata/dummy.pdf")
+	file, _ := os.Open("testdata/" + filename)
 	part, _ := writer.CreateFormFile("upload", filename)
 	io.Copy(part, file)
 	return file

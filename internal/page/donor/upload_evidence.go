@@ -6,10 +6,12 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"slices"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -20,7 +22,7 @@ type uploadError int
 func (uploadError) Error() string { return "err" }
 
 const (
-	peekSize             = 512
+	peekSize             = 2000     // to account for detecting MS Office files
 	maxFileSize          = 32 << 20 // 32Mb
 	numberOfAllowedFiles = 5
 
@@ -30,12 +32,28 @@ const (
 	errTooManyFiles          = uploadError(4)
 )
 
+func acceptedMimeTypes() []string {
+	return []string{
+		"application/pdf",
+		"image/png",
+		"image/jpeg",
+		"image/tiff",
+		"image/heic",
+		"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+		"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+		"application/vnd.oasis.opendocument.text",
+		"application/vnd.oasis.opendocument.spreadsheet",
+		"application/vnd.oasis.opendocument.spreadsheet",
+	}
+}
+
 type uploadEvidenceData struct {
 	App                  page.AppData
 	Errors               validation.List
 	NumberOfAllowedFiles int
 	FeeType              page.FeeType
 	Evidence             []page.Evidence
+	MimeTypes            []string
 }
 
 func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, randomUUID func() string, evidenceBucketName string, s3Client S3Client) Handler {
@@ -45,6 +63,7 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 			NumberOfAllowedFiles: numberOfAllowedFiles,
 			FeeType:              lpa.FeeType,
 			Evidence:             lpa.EvidenceKeys,
+			MimeTypes:            acceptedMimeTypes(),
 		}
 
 		if r.Method == http.MethodPost {
@@ -160,8 +179,11 @@ func readUploadEvidenceForm(r *http.Request) *uploadEvidenceForm {
 				continue
 			}
 
-			contentType := http.DetectContentType(sniff)
-			if contentType != "application/pdf" {
+			// to account for various docs appearing as zips
+			mimetype.SetLimit(0)
+			contentType := mimetype.Detect(sniff)
+
+			if !slices.Contains(acceptedMimeTypes(), contentType.String()) {
 				files = append(files, File{Error: errUnexpectedContentType, Filename: part.FileName()})
 				continue
 			}

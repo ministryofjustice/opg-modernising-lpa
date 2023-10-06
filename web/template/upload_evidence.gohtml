@@ -29,7 +29,7 @@
           <div class="govuk-form-group">
             <label class="govuk-label--m" for="f-upload">{{ tr .App "uploadAFile" }}</label>
             {{ trFormatHtml .App "uploadGuidance" "NumberOfAllowedFiles" .NumberOfAllowedFiles }}
-            <input class="govuk-file-upload" id="f-upload" name="upload" type="file" accept="application/pdf" multiple />
+            <input class="govuk-file-upload" id="f-upload" name="upload" type="file" accept="{{ concatComma .MimeTypes }}" multiple />
           </div>
 
           <div class="govuk-form-group">
