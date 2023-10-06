@@ -23,7 +23,7 @@ func (uploadError) Error() string { return "err" }
 
 const (
 	peekSize             = 2000     // to account for detecting MS Office files
-	maxFileSize          = 32 << 20 // 32Mb
+	maxFileSize          = 20 << 20 // 20Mb
 	numberOfAllowedFiles = 5
 
 	errEmptyFile             = uploadError(1)
