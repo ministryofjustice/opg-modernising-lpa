@@ -749,7 +749,7 @@
     "errorGenericUploadProblem": "Generic upload error",
     "errorTooManyFiles": "Too many files uploaded",
     "errorFileTooBig": "{{.Filename}}: File size too big",
-    "errorFileIncorrectType": "{{.Filename}}: File is not a PDF",
+    "errorFileIncorrectType": "{{.Filename}}: File is not a supported file type",
     "errorFileEmpty": "{{.Filename}}: File is empty",
     "errorGenericUploadProblemFile": "{{.Filename}}: Generic file error",
     "halfFeeNextSteps": "<h2 class=\"govuk-heading-m\">Next steps</h2><p class=\"govuk-body\">Content detailing next steps when donor has paid a half fee and is waiting for evidence to be checked by a case worker</p>",

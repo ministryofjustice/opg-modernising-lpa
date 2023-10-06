@@ -6,7 +6,7 @@ describe('Upload evidence', () => {
     it('can upload evidence', () => {
         cy.checkA11yApp();
 
-        cy.get('input[type="file"]').attachFile(['example.pdf', 'another-example.pdf']);
+        cy.get('input[type="file"]').attachFile(['dummy.pdf', 'dummy.png']);
 
         cy.contains('button', 'Upload files').click()
 
@@ -19,8 +19,8 @@ describe('Upload evidence', () => {
         });
 
         cy.get('.govuk-summary-list').within(() => {
-            cy.contains('example.pdf');
-            cy.contains('another-example.pdf');
+            cy.contains('dummy.pdf');
+            cy.contains('dummy.png');
         });
 
         cy.contains('button', 'Continue to payment').click()
