@@ -749,10 +749,9 @@
     "errorGenericUploadProblem": "Generic upload error",
     "errorTooManyFiles": "Too many files uploaded",
     "errorFileTooBig": "{{.Filename}}: File size too big",
-    "errorFileIncorrectType": "{{.Filename}}: File is not a PDF",
+    "errorFileIncorrectType": "{{.Filename}}: File is not a supported file type",
     "errorFileEmpty": "{{.Filename}}: File is empty",
     "errorGenericUploadProblemFile": "{{.Filename}}: Generic file error",
-    "uploadEvidenceContent": "<p class=\"govuk-body\">Upload a maximum of {{.NumberOfAllowedFiles}} files.</p>",
     "halfFeeNextSteps": "<h2 class=\"govuk-heading-m\">Next steps</h2><p class=\"govuk-body\">Content detailing next steps when donor has paid a half fee and is waiting for evidence to be checked by a case worker</p>",
     "referenceNumber": "Reference number",
     "lastUpdated": "Last updated",
@@ -775,5 +774,17 @@
     "startNow": "Start now",
     "youCanIncludeRestrictionsAboutLst": "You can also include any restrictions and conditions you have about life-sustaining treatment.",
     "youMustChooseANewCertificateProvider": "You must choose a different certificate provider",
-    "youMustChooseANewCertificateProviderContent": "<p class=\"govuk-body\">As you’ve known {{ .CertificateProviderFullName }} for less than 2 years, they cannot be your certificate provider.</p> <p class=\"govuk-body\">Select Continue to choose a different certificate provider.</p>"
+    "youMustChooseANewCertificateProviderContent": "<p class=\"govuk-body\">As you’ve known {{ .CertificateProviderFullName }} for less than 2 years, they cannot be your certificate provider.</p> <p class=\"govuk-body\">Select Continue to choose a different certificate provider.</p>",
+    "uploadYourEvidence": "Upload your evidence",
+    "uploadEvidenceContent": "<p class=\"govuk-body\">You can upload scans and photographs of your paper documents. We accept most common image and document file formats.</p>",
+    "uploadGuidance": "<span class=\"govuk-caption-m govuk-!-padding-top-2 govuk-!-padding-bottom-2\">You can upload a maximum of {{.NumberOfAllowedFiles}} files. The maximum file size is 20MB.</span>",
+    "uploadAFile": "Upload a file",
+    "uploadFiles": "Upload files",
+    "uploadedFiles": "Uploaded files",
+    "fileName": "File name",
+    "delete": "Delete",
+    "nFilesSuccessfullyUploaded": {
+        "one": "{{.PluralCount}} file successfully uploaded",
+        "other": "{{.PluralCount}} files successfully uploaded"
+    }
 }

@@ -773,8 +773,11 @@
     "theDonorGivesAttorneysAuthorityLifeSustainingTreatment": "Welsh",
     "theDonorDoesNotGiveAttorneysAuthorityLifeSustainingTreatment": "Welsh",
     "theyHaveChosenNPeopleToNotify": {
-        "one": "Welsh",
-        "other": "Welsh"
+        "one": "{{.PluralCount}} Welsh",
+        "two": "{{.PluralCount}} Welsh",
+        "few": "{{.PluralCount}} Welsh",
+        "many": "{{.PluralCount}} Welsh",
+        "other": "{{.PluralCount}} Welsh"
     },
     "theyHaveNotChosenToNotifyAnyone": "Welsh",
     "infoTheyProvidedCanBeUsedByOpg": "Welsh",
@@ -796,7 +799,6 @@
     "errorFileIncorrectType": "{{.Filename}}: Welsh",
     "errorFileEmpty": "{{.Filename}}: Welsh",
     "errorGenericUploadProblemFile": "{{.Filename}}: Welsh",
-    "uploadEvidenceContent": "<p class=\"govuk-body\">Welsh {{.NumberOfAllowedFiles}}</p>",
     "halfFeeNextSteps": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh</p>",
     "referenceNumber": "Welsh",
     "lastUpdated": "Welsh",
@@ -819,5 +821,20 @@
     "startNow": "Welsh",
     "youCanIncludeRestrictionsAboutLst": "Gallwch hefyd gynnwys unrhyw gyfyngiadau ac amodau sydd gennych ynglŷn â thriniaeth cynnal bywyd.",
     "youMustChooseANewCertificateProvider": "Welsh",
-    "youMustChooseANewCertificateProviderContent": "<p class=\"govuk-body\">Welsh {{ .CertificateProviderFullName }} Welsh</p> <p class=\"govuk-body\">Welsh</p>"
+    "youMustChooseANewCertificateProviderContent": "<p class=\"govuk-body\">Welsh {{ .CertificateProviderFullName }} Welsh</p> <p class=\"govuk-body\">Welsh</p>",
+    "uploadYourEvidence": "Upload your evidence",
+    "uploadEvidenceContent": "<p class=\"govuk-body\">Welsh</p>",
+    "uploadGuidance": "<span class=\"govuk-caption-m govuk-!-padding-top-2 govuk-!-padding-bottom-2\">Welsh {{.NumberOfAllowedFiles}} Welsh</span>",
+    "uploadAFile": "Welsh",
+    "uploadFiles": "Welsh",
+    "uploadedFiles": "Welsh",
+    "fileName": "Welsh",
+    "delete": "Welsh",
+    "nFilesSuccessfullyUploaded": {
+        "one": "{{.PluralCount}} Welsh",
+        "two": "{{.PluralCount}} Welsh",
+        "few": "{{.PluralCount}} Welsh",
+        "many": "{{.PluralCount}} Welsh",
+        "other": "{{.PluralCount}} Welsh"
+    }
 }
