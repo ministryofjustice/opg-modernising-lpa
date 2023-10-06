@@ -1,6 +1,6 @@
 FROM golang:1.21.2-alpine as build-env
 
-RUN apt-get install -y --no-install-recommends openssl
+RUN apk --no-cache add openssl
 
 WORKDIR /app
 
