@@ -44,28 +44,31 @@
 
       <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
 
-      <h2 class="govuk-heading-m">{{ tr .App "uploadedFiles" }}</h2>
+      {{ if gt $evidenceCount 0 }}
+        <h2 class="govuk-heading-m">{{ tr .App "uploadedFiles" }}</h2>
 
-      <dl class="govuk-summary-list">
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">
-            {{ tr .App "fileName" }}
-          </dt>
-          <dd class="govuk-summary-list__actions"></dd>
-        </div>
-        {{ range .Evidence }}
+        <dl class="govuk-summary-list">
           <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__value">
-              {{ .Filename }}
+            <dt class="govuk-summary-list__key">
+              {{ tr .App "fileName" }}
             </dt>
-            <dd class="govuk-summary-list__actions">
-              <a class="govuk-link" href="#">
-                {{ tr $.App "delete" }}<span class="govuk-visually-hidden"> {{ .Filename }}</span>
-              </a>
-            </dd>
+            <dd class="govuk-summary-list__actions"></dd>
           </div>
-        {{ end }}
-      </dl>
+          {{ range .Evidence }}
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__value">
+                {{ .Filename }}
+              </dt>
+              <dd class="govuk-summary-list__actions">
+                <a class="govuk-link" href="#">
+                  {{ tr $.App "delete" }}<span class="govuk-visually-hidden"> {{ .Filename }}</span>
+                </a>
+              </dd
+              >
+            </div>
+          {{ end }}
+        </dl>
+      {{ end }}
 
       <form novalidate method="post" enctype="multipart/form-data">
         {{ template "csrf-field" . }}
