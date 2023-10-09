@@ -39,6 +39,16 @@ func (m *mockDynamoClient) ExpectOneByPartialSk(ctx, pk, partialSk, data interfa
 		})
 }
 
+func (m *mockDynamoClient) ExpectAllByPartialSk(ctx, pk, partialSk, data interface{}, err error) {
+	m.
+		On("AllByPartialSk", ctx, pk, partialSk, mock.Anything).
+		Return(func(ctx context.Context, pk, partialSk string, v interface{}) error {
+			b, _ := json.Marshal(data)
+			json.Unmarshal(b, v)
+			return err
+		})
+}
+
 func (m *mockDynamoClient) ExpectAllForActor(ctx, sk, data interface{}, err error) {
 	m.
 		On("AllForActor", ctx, sk, mock.Anything).
