@@ -71,11 +71,11 @@
     tslib "^2.5.0"
 
 "@aws-sdk/types@^3.110.0", "@aws-sdk/types@^3.222.0":
-  version "3.418.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/types/-/types-3.418.0.tgz#c23213110b0c313d5546c810da032a441682f49a"
-  integrity sha512-y4PQSH+ulfFLY0+FYkaK4qbIaQI9IJNMO2xsxukW6/aNoApNymN1D2FSi2la8Qbp/iPjNDKsG8suNPm9NtsWXQ==
+  version "3.425.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/types/-/types-3.425.0.tgz#8d4e94743a69c865a83785a9f3bcfd49945836f7"
+  integrity sha512-6lqbmorwerN4v+J5dqbHPAsjynI0mkEF+blf+69QTaKKGaxBBVaXgqoqul9RXYcK5MMrrYRbQIMd0zYOoy90kA==
   dependencies:
-    "@smithy/types" "^2.3.3"
+    "@smithy/types" "^2.3.4"
     tslib "^2.5.0"
 
 "@aws-sdk/util-hex-encoding@^3.36.0":
@@ -321,10 +321,10 @@
   dependencies:
     tslib "^2.5.0"
 
-"@smithy/types@^2.3.3":
-  version "2.3.4"
-  resolved "https://registry.yarnpkg.com/@smithy/types/-/types-2.3.4.tgz#3b9bc15000af0a0b1f4fda741f78c1580ba15e92"
-  integrity sha512-D7xlM9FOMFyFw7YnMXn9dK2KuN6+JhnrZwVt1fWaIu8hCk5CigysweeIT/H/nCo4YV+s8/oqUdLfexbkPZtvqw==
+"@smithy/types@^2.3.4":
+  version "2.3.5"
+  resolved "https://registry.yarnpkg.com/@smithy/types/-/types-2.3.5.tgz#7684a74d4368f323b478bd9e99e7dc3a6156b5e5"
+  integrity sha512-ehyDt8M9hehyxrLQGoA1BGPou8Js1Ocoh5M0ngDhJMqbFmNK5N6Xhr9/ZExWkyIW8XcGkiMPq3ZUEE0ScrhbuQ==
   dependencies:
     tslib "^2.5.0"
 
@@ -478,9 +478,9 @@ at-least-node@^1.0.0:
   integrity sha512-+q/t7Ekv1EDY2l6Gda6LLiX14rU9TV20Wa3ofeQmwPFZbOMo9DXrLbOjFaaclkXKWidIaopwAObQDqwWtGUjqg==
 
 aws-rum-web@^1.11.0:
-  version "1.14.1"
-  resolved "https://registry.yarnpkg.com/aws-rum-web/-/aws-rum-web-1.14.1.tgz#231d7e99ee346c33c01eb4df8a23aeeee0288c3a"
-  integrity sha512-7iCnJyIe/0DQuwRZEU4L4Z/LkUXoxNnwCRpu3iYnFVRSHD/ShiG9CWMY5FS0TAZk57IjxD+49BEjq6Q1AGcX7Q==
+  version "1.15.0"
+  resolved "https://registry.yarnpkg.com/aws-rum-web/-/aws-rum-web-1.15.0.tgz#7328bd6d6418d39e12b344b0053d4b824c21cfc9"
+  integrity sha512-/HvWIGSCjOiRAVki0tAzKnHTIRX1l94I0hzM9h66JQFP7OkgYqKnsFt1dfnq2oPU65xG1snXx6giJQIjIQ3B0w==
   dependencies:
     "@aws-crypto/sha256-js" "^2.0.2"
     "@aws-sdk/fetch-http-handler" "^3.36.0"
@@ -1511,9 +1511,9 @@ safer-buffer@^2.0.2, safer-buffer@^2.1.0, safer-buffer@~2.1.0:
   integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
 
 sass@^1.56.1:
-  version "1.68.0"
-  resolved "https://registry.yarnpkg.com/sass/-/sass-1.68.0.tgz#0034b0cc9a50248b7d1702ac166fd25990023669"
-  integrity sha512-Lmj9lM/fef0nQswm1J2HJcEsBUba4wgNx2fea6yJHODREoMFnwRpZydBnX/RjyXw2REIwdkbqE4hrTo4qfDBUA==
+  version "1.69.0"
+  resolved "https://registry.yarnpkg.com/sass/-/sass-1.69.0.tgz#5195075371c239ed556280cf2f5944d234f42679"
+  integrity sha512-l3bbFpfTOGgQZCLU/gvm1lbsQ5mC/WnLz3djL2v4WCJBDrWm58PO+jgngcGRNnKUh6wSsdm50YaovTqskZ0xDQ==
   dependencies:
     chokidar ">=3.0.0 <4.0.0"
     immutable "^4.0.0"
