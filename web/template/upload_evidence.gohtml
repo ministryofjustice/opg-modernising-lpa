@@ -20,6 +20,10 @@
 
       {{ trHtml .App "uploadEvidenceContent" }}
 
+      {{ if eq $evidenceCount 0 }}
+        {{ template "details" (details . "tipsForTakingPhotosAndCopies" "tipsForTakingPhotosAndCopiesDetails" false) }}
+      {{ end }}
+
       <div class="govuk-!-width-two-thirds">
         <form novalidate method="post" enctype="multipart/form-data">
           {{ template "csrf-field" . }}
