@@ -1,101 +1,209 @@
 package fixtures
 
 import (
-	"fmt"
+	"context"
+	"encoding/base64"
 	"net/http"
-	"net/url"
+	"slices"
+	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func Donor(tmpl template.Template) page.Handler {
+func Donor(
+	tmpl template.Template,
+	sessionStore sesh.Store,
+	donorStore DonorStore,
+	certificateProviderStore CertificateProviderStore,
+	attorneyStore AttorneyStore,
+) page.Handler {
+	progressValues := []string{
+		"provideYourDetails",
+		"chooseYourAttorneys",
+		"chooseYourReplacementAttorneys",
+		"chooseWhenTheLpaCanBeUsed",
+		"addRestrictionsToTheLpa",
+		"chooseYourCertificateProvider",
+		"peopleToNotifyAboutYourLpa",
+		"checkAndSendToYourCertificateProvider",
+		"payForTheLpa",
+		"confirmYourIdentityAndSignTheLpa",
+		"signedByCertificateProvider",
+		"signedByAttorneys",
+		"submitted",
+		"registered",
+	}
+
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		data := &fixturesData{
-			App: appData,
+		var (
+			lpaType  = r.FormValue("lpa-type")
+			progress = slices.Index(progressValues, r.FormValue("progress"))
+			redirect = r.FormValue("redirect")
+		)
+
+		if r.Method != http.MethodPost && redirect == "" {
+			return tmpl(w, &fixturesData{App: appData})
 		}
 
-		if r.Method == http.MethodPost {
-			form := readFixtures(r)
-			var values url.Values
+		var (
+			donorSub       = random.String(16)
+			donorSessionID = base64.StdEncoding.EncodeToString([]byte(donorSub))
+		)
 
-			switch form.Journey {
-			case "donor":
-				values = url.Values{
-					"lpa.type":               {form.Type},
-					form.DonorDetails:        {"1"},
-					form.WhenCanLpaBeUsed:    {"1"},
-					form.Restrictions:        {"1"},
-					form.CertificateProvider: {"1"},
-					form.CheckAndSend:        {"1"},
-					form.Pay:                 {"1"},
-					form.IdAndSign:           {"1"},
-					form.CompleteAll:         {"1"},
-				}
+		if err := sesh.SetLoginSession(sessionStore, r, w, &sesh.LoginSession{Sub: donorSub, Email: testEmail}); err != nil {
+			return err
+		}
 
-				if form.Attorneys != "" {
-					values.Add("lpa.attorneys", form.AttorneyCount)
-				}
+		lpa, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}))
+		if err != nil {
+			return err
+		}
 
-				if form.ReplacementAttorneys != "" {
-					values.Add("lpa.replacementAttorneys", form.ReplacementAttorneyCount)
-				}
-
-				if form.PeopleToNotify != "" {
-					values.Add("lpa.peopleToNotify", form.PersonToNotifyCount)
-				}
+		if progress >= slices.Index(progressValues, "provideYourDetails") {
+			lpa.Donor = makeDonor("Sam", "Smith")
+			lpa.Type = page.LpaTypePropertyFinance
+			if lpaType == "hw" {
+				lpa.Type = page.LpaTypeHealthWelfare
+			}
+			lpa.UID = random.UuidString()
+			lpa.Tasks.YourDetails = actor.TaskCompleted
+		}
+		if progress >= slices.Index(progressValues, "chooseYourAttorneys") {
+			lpa.Attorneys.Attorneys = []actor.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])}
+			lpa.AttorneyDecisions.How = actor.JointlyAndSeverally
+			lpa.Tasks.ChooseAttorneys = actor.TaskCompleted
+		}
+		if progress >= slices.Index(progressValues, "chooseYourReplacementAttorneys") {
+			lpa.ReplacementAttorneys.Attorneys = []actor.Attorney{makeAttorney(replacementAttorneyNames[0]), makeAttorney(replacementAttorneyNames[1])}
+			lpa.ReplacementAttorneyDecisions.How = actor.JointlyAndSeverally
+			lpa.Tasks.ChooseReplacementAttorneys = actor.TaskCompleted
+		}
+		if progress >= slices.Index(progressValues, "chooseWhenTheLpaCanBeUsed") {
+			if lpa.Type == page.LpaTypeHealthWelfare {
+				lpa.LifeSustainingTreatmentOption = page.LifeSustainingTreatmentOptionA
+				lpa.Tasks.LifeSustainingTreatment = actor.TaskCompleted
+			} else {
+				lpa.WhenCanTheLpaBeUsed = page.CanBeUsedWhenHasCapacity
+				lpa.Tasks.WhenCanTheLpaBeUsed = actor.TaskCompleted
+			}
+		}
+		if progress >= slices.Index(progressValues, "addRestrictionsToTheLpa") {
+			lpa.Restrictions = "My attorneys must not sell my home unless, in my doctor’s opinion, I can no longer live independently"
+			lpa.Tasks.Restrictions = actor.TaskCompleted
+		}
+		if progress >= slices.Index(progressValues, "chooseYourCertificateProvider") {
+			lpa.CertificateProvider = makeCertificateProvider()
+			lpa.Tasks.CertificateProvider = actor.TaskCompleted
+		}
+		if progress >= slices.Index(progressValues, "peopleToNotifyAboutYourLpa") {
+			lpa.DoYouWantToNotifyPeople = form.Yes
+			lpa.PeopleToNotify = []actor.PersonToNotify{makePersonToNotify(peopleToNotifyNames[0]), makePersonToNotify(peopleToNotifyNames[1])}
+			lpa.Tasks.PeopleToNotify = actor.TaskCompleted
+		}
+		if progress >= slices.Index(progressValues, "checkAndSendToYourCertificateProvider") {
+			lpa.CheckedAndHappy = true
+			lpa.Tasks.CheckYourLpa = actor.TaskCompleted
+		}
+		if progress >= slices.Index(progressValues, "payForTheLpa") {
+			lpa.PaymentDetails = append(lpa.PaymentDetails, page.Payment{
+				PaymentReference: random.String(12),
+				PaymentId:        random.String(12),
+			})
+			lpa.Tasks.PayForLpa = actor.PaymentTaskCompleted
+		}
+		if progress >= slices.Index(progressValues, "confirmYourIdentityAndSignTheLpa") {
+			lpa.DonorIdentityUserData = identity.UserData{
+				OK:          true,
+				Provider:    identity.OneLogin,
+				RetrievedAt: time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
+				FirstNames:  "Jamie",
+				LastName:    "Smith",
 			}
 
-			http.Redirect(w, r, fmt.Sprintf("%s?%s", page.Paths.TestingStart, values.Encode()), http.StatusFound)
-			return nil
+			lpa.WantToApplyForLpa = true
+			lpa.WantToSignLpa = true
+			lpa.SignedAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
+			lpa.WitnessedByCertificateProviderAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
+			lpa.Tasks.ConfirmYourIdentityAndSign = actor.TaskCompleted
+		}
+		if progress >= slices.Index(progressValues, "signedByCertificateProvider") {
+			ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: lpa.ID})
+
+			certificateProvider, err := certificateProviderStore.Create(ctx, donorSessionID)
+			if err != nil {
+				return err
+			}
+
+			certificateProvider.Certificate = actor.Certificate{Agreed: time.Now()}
+
+			if err := certificateProviderStore.Put(ctx, certificateProvider); err != nil {
+				return err
+			}
+		}
+		if progress >= slices.Index(progressValues, "signedByAttorneys") {
+			signAttorney := func(ctx context.Context, attorney *actor.AttorneyProvidedDetails) error {
+				attorney.Mobile = testMobile
+				attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
+				attorney.Tasks.ReadTheLpa = actor.TaskCompleted
+				attorney.Tasks.SignTheLpa = actor.TaskCompleted
+				attorney.Confirmed = time.Now()
+
+				return attorneyStore.Put(ctx, attorney)
+			}
+
+			for isReplacement, list := range map[bool]actor.Attorneys{false: lpa.Attorneys, true: lpa.ReplacementAttorneys} {
+				for _, a := range list.Attorneys {
+					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: lpa.ID})
+
+					attorney, err := attorneyStore.Create(ctx, donorSessionID, a.ID, isReplacement, false)
+					if err != nil {
+						return err
+					}
+
+					if err := signAttorney(ctx, attorney); err != nil {
+						return err
+					}
+				}
+
+				if list.TrustCorporation.Name != "" {
+					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: lpa.ID})
+
+					attorney, err := attorneyStore.Create(ctx, donorSessionID, "", isReplacement, true)
+					if err != nil {
+						return err
+					}
+
+					if err := signAttorney(ctx, attorney); err != nil {
+						return err
+					}
+				}
+			}
+		}
+		if progress >= slices.Index(progressValues, "submitted") {
+			lpa.SubmittedAt = time.Now()
+		}
+		if progress >= slices.Index(progressValues, "registered") {
+			lpa.RegisteredAt = time.Now()
 		}
 
-		return tmpl(w, data)
-	}
-}
+		donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: lpa.ID})
 
-type fixturesForm struct {
-	Journey                  string
-	DonorDetails             string
-	Attorneys                string
-	AttorneyCount            string
-	ReplacementAttorneys     string
-	ReplacementAttorneyCount string
-	WhenCanLpaBeUsed         string
-	Restrictions             string
-	CertificateProvider      string
-	PeopleToNotify           string
-	PersonToNotifyCount      string
-	CheckAndSend             string
-	Pay                      string
-	IdAndSign                string
-	CompleteAll              string
-	Email                    string
-	SendTo                   string
-	Signed                   string
-	Type                     string
-}
+		if err := donorStore.Put(donorCtx, lpa); err != nil {
+			return err
+		}
 
-func readFixtures(r *http.Request) *fixturesForm {
-	return &fixturesForm{
-		Journey:                  r.FormValue("journey"),
-		DonorDetails:             r.FormValue("donor-details"),
-		Attorneys:                r.FormValue("attorneys"),
-		AttorneyCount:            r.FormValue("attorney-count"),
-		ReplacementAttorneys:     r.FormValue("replacement-attorneys"),
-		ReplacementAttorneyCount: r.FormValue("replacement-attorney-count"),
-		WhenCanLpaBeUsed:         r.FormValue("when-can-lpa-be-used"),
-		Restrictions:             r.FormValue("restrictions"),
-		CertificateProvider:      r.FormValue("certificate-provider"),
-		PeopleToNotify:           r.FormValue("people-to-notify"),
-		PersonToNotifyCount:      r.FormValue("person-to-notify-count"),
-		CheckAndSend:             r.FormValue("check-and-send-to-cp"),
-		Pay:                      r.FormValue("pay-for-lpa"),
-		IdAndSign:                r.FormValue("confirm-id-and-sign"),
-		CompleteAll:              r.FormValue("complete-all-sections"),
-		Email:                    r.FormValue("email"),
-		SendTo:                   r.FormValue("send-to"),
-		Signed:                   r.FormValue("signed"),
-		Type:                     r.FormValue("type"),
+		if redirect == "" {
+			redirect = page.Paths.Dashboard.Format()
+		} else {
+			redirect = "/lpa/" + lpa.ID + redirect
+		}
+
+		return page.AppData{}.Redirect(w, r, nil, redirect)
 	}
 }
