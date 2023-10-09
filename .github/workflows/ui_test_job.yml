@@ -60,7 +60,7 @@ jobs:
         if: inputs.run_against_image
       - name: Run Against Image/Configure AWS Credentials
         if: inputs.run_against_image
-        uses: aws-actions/configure-aws-credentials@v4.0.0
+        uses: aws-actions/configure-aws-credentials@v4.0.1
         with:
           aws-access-key-id: ${{ secrets.aws_access_key_id }}
           aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
@@ -71,7 +71,7 @@ jobs:
       - name: Run Against Image/ECR Login
         if: inputs.run_against_image
         id: login_ecr
-        uses: aws-actions/amazon-ecr-login@v1.7.0
+        uses: aws-actions/amazon-ecr-login@v1.7.1
         with:
           mask-password: true
           registries: 311462405659
@@ -87,7 +87,7 @@ jobs:
 
       - name: Manage Ingress/Configure AWS Credentials
         if: inputs.run_against_image != true
-        uses: aws-actions/configure-aws-credentials@v4.0.0
+        uses: aws-actions/configure-aws-credentials@v4.0.1
         with:
           aws-access-key-id: ${{ secrets.aws_access_key_id }}
           aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
