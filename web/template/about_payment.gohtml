@@ -9,10 +9,29 @@
 
       {{ trHtml .App "aboutPaymentContent" }}
 
-      <div class="govuk-button-group">
-        <a href="{{ link .App (.App.Paths.AreYouApplyingForADifferentFeeType.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "continue" }}</a>
-      </div>
+      {{ trHtml .App "aboutPaymentNoFeeContent" }}
 
+      {{ template "details" (details . "whoIsEligibleForAnExemption" "whoIsEligibleForAnExemptionDetails" false) }}
+
+      {{ trHtml .App "aboutPaymentHalfFeeContent" }}
+
+      {{ template "details" (details . "payingAHalfFeeBasedOnYourIncome" "payingAHalfFeeBasedOnYourIncomeDetails" false) }}
+
+      {{ template "details" (details . "payingAHalfFeeBasedOnUniversalCredit" "payingAHalfFeeBasedOnUniversalCreditDetails" false) }}
+
+      {{ trHtml .App "aboutPaymentRepeatApplicationContent" }}
+
+      {{ template "details" (details . "whoIsEligibleForARepeatApplicationDiscount" "whoIsEligibleForARepeatApplicationDiscountDetails" false) }}
+
+      {{ trHtml .App "aboutPaymentHardshipContent" }}
+
+      {{ template "details" (details . "whatYouNeedToMakeAHardshipApplication" "whatYouNeedToMakeAHardshipApplicationDetails" false) }}
+
+      <p class="govuk-body">{{ tr .App "youllBeAskedIfYouWantToPayInFullOrNot" }}</p>
+
+      {{ template "warning" (warning .App "mustProvideEvidenceWarning") }}
+
+      {{ template "continue-and-return-buttons" . }}
     </div>
   </div>
 {{ end }}
