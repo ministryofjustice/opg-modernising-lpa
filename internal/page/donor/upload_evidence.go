@@ -75,7 +75,7 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 				if form.Action == "upload" {
 					for _, file := range form.Files {
 						uuid := randomUUID()
-						key := lpa.UID + "-evidence-" + uuid
+						key := lpa.UID + "/evidence/" + uuid
 
 						_, err := s3Client.PutObject(r.Context(), &s3.PutObjectInput{
 							Bucket:               aws.String(evidenceBucketName),

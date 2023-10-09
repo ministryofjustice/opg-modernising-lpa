@@ -92,14 +92,14 @@ func TestPostUploadEvidenceWithUploadActionAcceptedFileTypes(t *testing.T) {
 			s3Client.
 				On("PutObject", r.Context(), mock.MatchedBy(func(input *s3.PutObjectInput) bool {
 					return assert.Equal(t, aws.String("bucket-name"), input.Bucket) &&
-						assert.Equal(t, aws.String("lpa-uid-evidence-a-uid"), input.Key) &&
+						assert.Equal(t, aws.String("lpa-uid/evidence/a-uid"), input.Key) &&
 						assert.Equal(t, aws.String("replicate=true"), input.Tagging) &&
 						assert.Equal(t, types.ServerSideEncryptionAwsKms, input.ServerSideEncryption)
 				})).
 				Return(nil, nil)
 
 			evidence := []page.Evidence{
-				{Key: "lpa-uid-evidence-a-uid", Filename: filename},
+				{Key: "lpa-uid/evidence/a-uid", Filename: filename},
 			}
 			updatedLpa := &page.Lpa{UID: "lpa-uid", EvidenceKeys: evidence, FeeType: page.HalfFee}
 
@@ -149,7 +149,7 @@ func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
 	s3Client.
 		On("PutObject", r.Context(), mock.MatchedBy(func(input *s3.PutObjectInput) bool {
 			return assert.Equal(t, aws.String("bucket-name"), input.Bucket) &&
-				assert.Equal(t, aws.String("lpa-uid-evidence-a-uid"), input.Key) &&
+				assert.Equal(t, aws.String("lpa-uid/evidence/a-uid"), input.Key) &&
 				assert.Equal(t, aws.String("replicate=true"), input.Tagging) &&
 				assert.Equal(t, types.ServerSideEncryptionAwsKms, input.ServerSideEncryption)
 		})).
@@ -157,15 +157,15 @@ func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
 	s3Client.
 		On("PutObject", r.Context(), mock.MatchedBy(func(input *s3.PutObjectInput) bool {
 			return assert.Equal(t, aws.String("bucket-name"), input.Bucket) &&
-				assert.Equal(t, aws.String("lpa-uid-evidence-a-uid"), input.Key) &&
+				assert.Equal(t, aws.String("lpa-uid/evidence/a-uid"), input.Key) &&
 				assert.Equal(t, aws.String("replicate=true"), input.Tagging) &&
 				assert.Equal(t, types.ServerSideEncryptionAwsKms, input.ServerSideEncryption)
 		})).
 		Return(nil, nil)
 
 	evidence := []page.Evidence{
-		{Key: "lpa-uid-evidence-a-uid", Filename: "dummy.pdf"},
-		{Key: "lpa-uid-evidence-a-uid", Filename: "dummy.png"},
+		{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
+		{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.png"},
 	}
 	updatedLpa := &page.Lpa{UID: "lpa-uid", EvidenceKeys: evidence, FeeType: page.HalfFee}
 
@@ -416,7 +416,7 @@ func TestPostUploadEvidenceWhenS3ClientErrors(t *testing.T) {
 	s3Client.
 		On("PutObject", r.Context(), mock.MatchedBy(func(input *s3.PutObjectInput) bool {
 			return assert.Equal(t, aws.String("bucket-name"), input.Bucket) &&
-				assert.Equal(t, aws.String("lpa-uid-evidence-a-uid"), input.Key) &&
+				assert.Equal(t, aws.String("lpa-uid/evidence/a-uid"), input.Key) &&
 				assert.Equal(t, types.ServerSideEncryptionAwsKms, input.ServerSideEncryption)
 		})).
 		Return(nil, expectedError)
@@ -448,13 +448,13 @@ func TestPostUploadEvidenceWhenDonorStoreError(t *testing.T) {
 	s3Client.
 		On("PutObject", r.Context(), mock.MatchedBy(func(input *s3.PutObjectInput) bool {
 			return assert.Equal(t, aws.String("bucket-name"), input.Bucket) &&
-				assert.Equal(t, aws.String("lpa-uid-evidence-a-uid"), input.Key) &&
+				assert.Equal(t, aws.String("lpa-uid/evidence/a-uid"), input.Key) &&
 				assert.Equal(t, types.ServerSideEncryptionAwsKms, input.ServerSideEncryption)
 		})).
 		Return(nil, nil)
 
 	updatedLpa := &page.Lpa{UID: "lpa-uid", EvidenceKeys: []page.Evidence{
-		{Key: "lpa-uid-evidence-a-uid", Filename: "dummy.pdf"},
+		{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
 	}}
 
 	donorStore := newMockDonorStore(t)
