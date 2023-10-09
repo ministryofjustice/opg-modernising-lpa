@@ -62,12 +62,10 @@ jobs:
         if: inputs.run_against_image
         uses: aws-actions/configure-aws-credentials@v4.0.1
         with:
-          aws-access-key-id: ${{ secrets.aws_access_key_id }}
-          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
           aws-region: eu-west-1
-          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-ci
+          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ecr-pull
           role-duration-seconds: 900
-          role-session-name: OPGModernisingLPATerraformGithubActionTestImages
+          role-session-name: GithubActionsECRPullMLPAB
       - name: Run Against Image/ECR Login
         if: inputs.run_against_image
         id: login_ecr
