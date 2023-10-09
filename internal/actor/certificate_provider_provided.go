@@ -26,6 +26,10 @@ type CertificateProviderProvidedDetails struct {
 	Tasks CertificateProviderTasks
 }
 
+func (c CertificateProviderProvidedDetails) Signed(after time.Time) bool {
+	return c.Certificate.Agreed.After(after)
+}
+
 func (c *CertificateProviderProvidedDetails) CertificateProviderIdentityConfirmed(firstNames, lastName string) bool {
 	return c.IdentityUserData.OK && c.IdentityUserData.Provider != identity.UnknownOption &&
 		c.IdentityUserData.MatchName(firstNames, lastName) &&
