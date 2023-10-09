@@ -42,6 +42,20 @@ func (_m *mockDynamoClient) AllByKeys(ctx context.Context, pks []dynamo.Key) ([]
 	return r0, r1
 }
 
+// AllByPartialSk provides a mock function with given fields: ctx, pk, partialSk, v
+func (_m *mockDynamoClient) AllByPartialSk(ctx context.Context, pk string, partialSk string, v interface{}) error {
+	ret := _m.Called(ctx, pk, partialSk, v)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, interface{}) error); ok {
+		r0 = rf(ctx, pk, partialSk, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // AllForActor provides a mock function with given fields: ctx, sk, v
 func (_m *mockDynamoClient) AllForActor(ctx context.Context, sk string, v interface{}) error {
 	ret := _m.Called(ctx, sk, v)

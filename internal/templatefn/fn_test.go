@@ -342,22 +342,6 @@ func TestListPeopleToNotify(t *testing.T) {
 	assert.Equal(t, want, got)
 }
 
-func TestProgressbar(t *testing.T) {
-	app := page.AppData{SessionID: "abc"}
-	lpa := &page.Lpa{}
-	cp := &actor.CertificateProviderProvidedDetails{}
-
-	want := map[string]interface{}{
-		"App":                 app,
-		"Lpa":                 lpa,
-		"CertificateProvider": cp,
-	}
-
-	got := progressBar(app, lpa, cp)
-
-	assert.Equal(t, want, got)
-}
-
 func TestListPeopleNamedOnLpa(t *testing.T) {
 	app := page.AppData{SessionID: "abc"}
 	headingLevel := 3
