@@ -19,7 +19,7 @@ require (
 	github.com/google/uuid v1.3.1
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/sessions v1.2.1
-	github.com/ministryofjustice/opg-go-common v0.0.0-20230927143549-86931d77c086
+	github.com/ministryofjustice/opg-go-common v0.0.0-20231002150139-ed6f6387fc7e
 	github.com/nicksnyder/go-i18n/v2 v2.2.1
 	github.com/pact-foundation/pact-go v1.7.0
 	github.com/stretchr/testify v1.8.4
