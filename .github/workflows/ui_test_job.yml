@@ -67,7 +67,7 @@ jobs:
           aws-region: eu-west-1
           role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-ci
           role-duration-seconds: 900
-          role-session-name: OPGModernisingLPATerraformGithubAction
+          role-session-name: OPGModernisingLPATerraformGithubActionTestImages
       - name: Run Against Image/ECR Login
         if: inputs.run_against_image
         id: login_ecr
@@ -93,7 +93,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
           aws-region: eu-west-1
           role-duration-seconds: 900
-          role-session-name: OPGModernisingLPATerraformGithubAction
+          role-session-name: OPGModernisingLPATerraformGithubActionTestInfra
       - uses: actions/setup-python@v4
         if: inputs.run_against_image != true
         with:
