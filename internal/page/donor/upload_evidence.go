@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"errors"
+	"html"
 	"io"
 	"net/http"
 	"slices"
@@ -174,8 +175,10 @@ func readUploadEvidenceForm(r *http.Request) *uploadEvidenceForm {
 			buf := bufio.NewReader(part)
 			sniff, _ := buf.Peek(peekSize)
 
+			filename := html.EscapeString(part.FileName())
+
 			if len(sniff) == 0 {
-				files = append(files, File{Error: errEmptyFile, Filename: part.FileName()})
+				files = append(files, File{Error: errEmptyFile, Filename: filename})
 				continue
 			}
 
@@ -183,7 +186,7 @@ func readUploadEvidenceForm(r *http.Request) *uploadEvidenceForm {
 			contentType := mimetype.Detect(sniff)
 
 			if !slices.Contains(acceptedMimeTypes(), contentType.String()) {
-				files = append(files, File{Error: errUnexpectedContentType, Filename: part.FileName()})
+				files = append(files, File{Error: errUnexpectedContentType, Filename: filename})
 				continue
 			}
 
@@ -195,13 +198,13 @@ func readUploadEvidenceForm(r *http.Request) *uploadEvidenceForm {
 				return &uploadEvidenceForm{Error: err}
 			}
 			if copied > maxFileSize {
-				files = append(files, File{Error: errFileTooBig, Filename: part.FileName()})
+				files = append(files, File{Error: errFileTooBig, Filename: filename})
 				continue
 			}
 
 			files = append(files, File{
 				Data:     f.Bytes(),
-				Filename: part.FileName(),
+				Filename: filename,
 			})
 		}
 

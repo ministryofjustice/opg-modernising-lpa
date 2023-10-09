@@ -189,6 +189,70 @@ func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestPostUploadEvidenceWithUploadActionFilenameSpecialCharactersAreEscaped(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, _ := writer.CreateFormField("csrf")
+	io.WriteString(part, "123")
+
+	part, _ = writer.CreateFormField("action")
+	io.WriteString(part, "upload")
+
+	file, _ := os.Open("testdata/" + "dummy.pdf")
+	part, _ = writer.CreateFormFile("upload", "<img src=1 onerror=alert(document.domain)>’ brute.heic")
+	io.Copy(part, file)
+
+	writer.Close()
+	file.Close()
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("PutObject", r.Context(), mock.MatchedBy(func(input *s3.PutObjectInput) bool {
+			return assert.Equal(t, aws.String("bucket-name"), input.Bucket) &&
+				assert.Equal(t, aws.String("lpa-uid/evidence/a-uid"), input.Key) &&
+				assert.Equal(t, aws.String("replicate=true"), input.Tagging) &&
+				assert.Equal(t, types.ServerSideEncryptionAwsKms, input.ServerSideEncryption)
+		})).
+		Return(nil, nil)
+	s3Client.
+		On("PutObject", r.Context(), mock.MatchedBy(func(input *s3.PutObjectInput) bool {
+			return assert.Equal(t, aws.String("bucket-name"), input.Bucket) &&
+				assert.Equal(t, aws.String("lpa-uid/evidence/a-uid"), input.Key) &&
+				assert.Equal(t, aws.String("replicate=true"), input.Tagging) &&
+				assert.Equal(t, types.ServerSideEncryptionAwsKms, input.ServerSideEncryption)
+		})).
+		Return(nil, nil)
+
+	evidence := []page.Evidence{
+		{Key: "lpa-uid/evidence/a-uid", Filename: "&lt;img src=1 onerror=alert(document.domain)&gt;’ brute.heic"},
+	}
+	updatedLpa := &page.Lpa{UID: "lpa-uid", EvidenceKeys: evidence, FeeType: page.HalfFee}
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), updatedLpa).
+		Return(nil)
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &uploadEvidenceData{
+			App:                  testAppData,
+			Evidence:             evidence,
+			NumberOfAllowedFiles: 5,
+			MimeTypes:            acceptedMimeTypes(),
+			FeeType:              page.HalfFee,
+		}).
+		Return(nil)
+
+	err := UploadEvidence(template.Execute, nil, donorStore, func() string { return "a-uid" }, "bucket-name", s3Client)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee})
+	assert.Nil(t, err)
+}
+
 func TestPostUploadEvidenceWithPayAction(t *testing.T) {
 	var buf bytes.Buffer
 	writer := multipart.NewWriter(&buf)
