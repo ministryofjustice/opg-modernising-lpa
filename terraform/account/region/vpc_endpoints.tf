@@ -33,10 +33,13 @@ locals {
     "ec2",
     "ecr.api",
     "ecr.dkr",
+    "execute-api",
     "events",
     "logs",
+    "rum",
     "secretsmanager",
     "ssm",
+    "xray",
   ])
 }
 
