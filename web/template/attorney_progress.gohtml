@@ -1,0 +1,40 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}
+  {{ trFormat .App "theirLpa" "FullNamePossessive" (possessive .App .Lpa.Donor.FullName) "LpaType" (tr .App .Lpa.Type.LegalTermTransKey) }}
+{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+      <div class="govuk-body">
+        <span><strong>{{ tr .App "applicationNumber" }}:</strong> {{ .Lpa.ID }}</span>
+      </div>
+
+      <div class="app-progress-bar">
+        <ol class="app-progress-bar__list">
+          <li class="app-progress-bar__item" {{ if and .Signed (not .AttorneysSigned) }}aria-current="step"{{ end }}>
+            <span class="app-progress-bar__icon {{ if .Signed }}app-progress-bar__icon--complete{{ end }}"></span>
+            <span class="app-progress-bar__label">
+              {{ tr .App "youveSignedYourLpa" }}<span class="govuk-visually-hidden"> {{ if .Signed }}{{ tr .App "completed" }}{{ else }}{{ tr .App "notStarted" }}{{ end }}</span>
+            </span>
+          </li>
+          <li class="app-progress-bar__item" {{ if .AttorneysSigned }}aria-current="step"{{ end }}>
+            <span class="app-progress-bar__icon {{ if .AttorneysSigned }}app-progress-bar__icon--complete{{ end }}"></span>
+            <span class="app-progress-bar__label">
+              {{ tr .App "allAttorneysHaveSignedTheLpa" }}<span class="govuk-visually-hidden"> {{ if .AttorneysSigned }}{{ tr .App "completed" }}{{ else }}{{ tr .App "notStarted" }}{{ end }}</span>
+            </span>
+          </li>
+        </ol>
+      </div>
+
+      <a class="govuk-button" href="{{ link .App .App.Paths.Dashboard.Format }}">{{ tr .App "backToDashboard" }}</a>
+
+      <h2 class="govuk-heading-m">{{ tr .App "lpaDecisions"}}</h2>
+
+      {{ template "lpa-decisions" . }}
+      {{ template "people-named-on-lpa" (peopleNamedOnLpa .App .Lpa 0) }}
+    </div>
+  </div>
+{{ end }}
