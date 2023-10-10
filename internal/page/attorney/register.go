@@ -71,6 +71,7 @@ type CertificateProviderStore interface {
 type AttorneyStore interface {
 	Create(context.Context, string, string, bool, bool) (*actor.AttorneyProvidedDetails, error)
 	Get(context.Context) (*actor.AttorneyProvidedDetails, error)
+	GetAny(context.Context) ([]*actor.AttorneyProvidedDetails, error)
 	Put(context.Context, *actor.AttorneyProvidedDetails) error
 }
 
@@ -125,6 +126,8 @@ func Register(
 		WouldLikeSecondSignatory(tmpls.Get("attorney_would_like_second_signatory.gohtml"), attorneyStore))
 	handleAttorney(page.Paths.Attorney.WhatHappensNext, RequireAttorney,
 		Guidance(tmpls.Get("attorney_what_happens_next.gohtml"), donorStore))
+	handleAttorney(page.Paths.Attorney.Progress, RequireAttorney,
+		Progress(tmpls.Get("attorney_progress.gohtml"), attorneyStore, donorStore))
 }
 
 type handleOpt byte

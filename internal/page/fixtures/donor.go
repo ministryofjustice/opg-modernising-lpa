@@ -1,7 +1,6 @@
 package fixtures
 
 import (
-	"context"
 	"encoding/base64"
 	"net/http"
 	"slices"
@@ -223,16 +222,6 @@ func Donor(
 		}
 
 		if progress >= slices.Index(progressValues, "signedByAttorneys") {
-			signAttorney := func(ctx context.Context, attorney *actor.AttorneyProvidedDetails) error {
-				attorney.Mobile = testMobile
-				attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
-				attorney.Tasks.ReadTheLpa = actor.TaskCompleted
-				attorney.Tasks.SignTheLpa = actor.TaskCompleted
-				attorney.Confirmed = time.Now()
-
-				return attorneyStore.Put(ctx, attorney)
-			}
-
 			for isReplacement, list := range map[bool]actor.Attorneys{false: lpa.Attorneys, true: lpa.ReplacementAttorneys} {
 				for _, a := range list.Attorneys {
 					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: lpa.ID})
@@ -242,7 +231,14 @@ func Donor(
 						return err
 					}
 
-					if err := signAttorney(ctx, attorney); err != nil {
+					attorney.Mobile = testMobile
+					attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
+					attorney.Tasks.ReadTheLpa = actor.TaskCompleted
+					attorney.Tasks.SignTheLpa = actor.TaskCompleted
+					attorney.LpaSignedAt = lpa.SignedAt
+					attorney.Confirmed = lpa.SignedAt.Add(2 * time.Hour)
+
+					if err := attorneyStore.Put(ctx, attorney); err != nil {
 						return err
 					}
 				}
@@ -255,7 +251,20 @@ func Donor(
 						return err
 					}
 
-					if err := signAttorney(ctx, attorney); err != nil {
+					attorney.Mobile = testMobile
+					attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
+					attorney.Tasks.ReadTheLpa = actor.TaskCompleted
+					attorney.Tasks.SignTheLpa = actor.TaskCompleted
+					attorney.WouldLikeSecondSignatory = form.No
+					attorney.AuthorisedSignatories = [2]actor.TrustCorporationSignatory{{
+						FirstNames:        "A",
+						LastName:          "Sign",
+						ProfessionalTitle: "Assistant to the signer",
+						LpaSignedAt:       lpa.SignedAt,
+						Confirmed:         lpa.SignedAt.Add(2 * time.Hour),
+					}}
+
+					if err := attorneyStore.Put(ctx, attorney); err != nil {
 						return err
 					}
 				}

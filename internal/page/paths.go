@@ -49,6 +49,7 @@ type AttorneyPaths struct {
 	CodeOfConduct             AttorneyPath
 	ConfirmYourDetails        AttorneyPath
 	MobileNumber              AttorneyPath
+	Progress                  AttorneyPath
 	ReadTheLpa                AttorneyPath
 	RightsAndResponsibilities AttorneyPath
 	Sign                      AttorneyPath
@@ -236,16 +237,17 @@ var Paths = AppPaths{
 	},
 
 	Attorney: AttorneyPaths{
+		CodeOfConduct:             "/code-of-conduct",
+		ConfirmYourDetails:        "/confirm-your-details",
 		EnterReferenceNumber:      "/attorney-enter-reference-number",
 		Login:                     "/attorney-login",
 		LoginCallback:             "/attorney-login-callback",
-		Start:                     "/attorney-start",
-		CodeOfConduct:             "/code-of-conduct",
-		ConfirmYourDetails:        "/confirm-your-details",
 		MobileNumber:              "/mobile-number",
+		Progress:                  "/progress",
 		ReadTheLpa:                "/read-the-lpa",
 		RightsAndResponsibilities: "/legal-rights-and-responsibilities",
 		Sign:                      "/sign",
+		Start:                     "/attorney-start",
 		TaskList:                  "/task-list",
 		WhatHappensNext:           "/what-happens-next",
 		WhatHappensWhenYouSign:    "/what-happens-when-you-sign-the-lpa",
