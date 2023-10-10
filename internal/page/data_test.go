@@ -349,6 +349,8 @@ func TestCanGoTo(t *testing.T) {
 }
 
 func TestLpaProgress(t *testing.T) {
+	lpaSignedAt := time.Now()
+
 	testCases := map[string]struct {
 		lpa                 *Lpa
 		certificateProvider *actor.CertificateProviderProvidedDetails
@@ -368,7 +370,7 @@ func TestLpaProgress(t *testing.T) {
 			},
 		},
 		"lpa signed": {
-			lpa:                 &Lpa{SignedAt: time.Now()},
+			lpa:                 &Lpa{SignedAt: lpaSignedAt},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{},
 			expectedProgress: Progress{
 				DonorSigned:               actor.TaskCompleted,
@@ -380,8 +382,8 @@ func TestLpaProgress(t *testing.T) {
 			},
 		},
 		"certificate provider signed": {
-			lpa:                 &Lpa{SignedAt: time.Now()},
-			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: time.Now().Add(time.Second)}},
+			lpa:                 &Lpa{SignedAt: lpaSignedAt},
+			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
 			expectedProgress: Progress{
 				DonorSigned:               actor.TaskCompleted,
 				CertificateProviderSigned: actor.TaskCompleted,
@@ -393,13 +395,13 @@ func TestLpaProgress(t *testing.T) {
 		},
 		"attorneys signed": {
 			lpa: &Lpa{
-				SignedAt:  time.Now(),
+				SignedAt:  lpaSignedAt,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "a1"}, {ID: "a2"}}},
 			},
-			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: time.Now().Add(time.Second)}},
+			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
 			attorneys: []*actor.AttorneyProvidedDetails{
-				{ID: "a1", Confirmed: time.Now().Add(time.Minute)},
-				{ID: "a2", Confirmed: time.Now().Add(time.Minute)},
+				{ID: "a1", LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
+				{ID: "a2", LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
 			},
 			expectedProgress: Progress{
 				DonorSigned:               actor.TaskCompleted,
@@ -412,14 +414,14 @@ func TestLpaProgress(t *testing.T) {
 		},
 		"submitted": {
 			lpa: &Lpa{
-				SignedAt:    time.Now(),
-				SubmittedAt: time.Now(),
+				SignedAt:    lpaSignedAt,
+				SubmittedAt: lpaSignedAt.Add(time.Hour),
 				Attorneys:   actor.Attorneys{Attorneys: []actor.Attorney{{ID: "a1"}, {ID: "a2"}}},
 			},
-			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: time.Now().Add(time.Second)}},
+			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
 			attorneys: []*actor.AttorneyProvidedDetails{
-				{ID: "a1", Confirmed: time.Now().Add(time.Minute)},
-				{ID: "a2", Confirmed: time.Now().Add(time.Minute)},
+				{ID: "a1", LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
+				{ID: "a2", LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
 			},
 			expectedProgress: Progress{
 				DonorSigned:               actor.TaskCompleted,
@@ -432,15 +434,15 @@ func TestLpaProgress(t *testing.T) {
 		},
 		"registered": {
 			lpa: &Lpa{
-				SignedAt:     time.Now(),
-				SubmittedAt:  time.Now(),
-				RegisteredAt: time.Now(),
+				SignedAt:     lpaSignedAt,
+				SubmittedAt:  lpaSignedAt.Add(time.Hour),
+				RegisteredAt: lpaSignedAt.Add(2 * time.Hour),
 				Attorneys:    actor.Attorneys{Attorneys: []actor.Attorney{{ID: "a1"}, {ID: "a2"}}},
 			},
-			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: time.Now().Add(time.Second)}},
+			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
 			attorneys: []*actor.AttorneyProvidedDetails{
-				{ID: "a1", Confirmed: time.Now().Add(time.Minute)},
-				{ID: "a2", Confirmed: time.Now().Add(time.Minute)},
+				{ID: "a1", LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
+				{ID: "a2", LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
 			},
 			expectedProgress: Progress{
 				DonorSigned:               actor.TaskCompleted,
@@ -461,9 +463,9 @@ func TestLpaProgress(t *testing.T) {
 }
 
 func TestAllAttorneysSigned(t *testing.T) {
-	certificateProviderSignedAt := time.Now()
-	signedAfter := certificateProviderSignedAt.Add(time.Second)
-	signedBefore := certificateProviderSignedAt.Add(-time.Second)
+	lpaSignedAt := time.Now()
+	otherLpaSignedAt := lpaSignedAt.Add(time.Minute)
+	attorneySigned := lpaSignedAt.Add(time.Second)
 
 	testcases := map[string]struct {
 		lpa       *Lpa
@@ -479,9 +481,9 @@ func TestAllAttorneysSigned(t *testing.T) {
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "r1"}}},
 			},
 			attorneys: []*actor.AttorneyProvidedDetails{
-				{ID: "a1", Confirmed: signedAfter},
-				{ID: "a3", Confirmed: signedBefore},
-				{ID: "r1", IsReplacement: true, Confirmed: signedAfter},
+				{ID: "a1", LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{ID: "a3", LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySigned},
+				{ID: "r1", IsReplacement: true, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
 			},
 			expected: false,
 		},
@@ -491,9 +493,9 @@ func TestAllAttorneysSigned(t *testing.T) {
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "r1"}, {ID: "r2"}}},
 			},
 			attorneys: []*actor.AttorneyProvidedDetails{
-				{ID: "a1", Confirmed: signedAfter},
+				{ID: "a1", LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
 				{ID: "r1", IsReplacement: true},
-				{ID: "r2", IsReplacement: true, Confirmed: signedAfter},
+				{ID: "r2", IsReplacement: true, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
 			},
 			expected: false,
 		},
@@ -503,9 +505,9 @@ func TestAllAttorneysSigned(t *testing.T) {
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "r1"}}},
 			},
 			attorneys: []*actor.AttorneyProvidedDetails{
-				{ID: "a1", Confirmed: signedAfter},
-				{ID: "a2", Confirmed: signedAfter},
-				{ID: "r1", IsReplacement: true, Confirmed: signedAfter},
+				{ID: "a1", LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{ID: "a2", LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{ID: "r1", IsReplacement: true, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
 			},
 			expected: true,
 		},
@@ -514,9 +516,9 @@ func TestAllAttorneysSigned(t *testing.T) {
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "a1"}, {ID: "a2"}}},
 			},
 			attorneys: []*actor.AttorneyProvidedDetails{
-				{ID: "a1", Confirmed: signedAfter},
-				{ID: "a2", Confirmed: signedAfter},
-				{ID: "a3", Confirmed: signedBefore},
+				{ID: "a1", LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{ID: "a2", LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{ID: "a3", LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySigned},
 			},
 			expected: true,
 		},
@@ -525,9 +527,9 @@ func TestAllAttorneysSigned(t *testing.T) {
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "a1"}, {ID: "a2"}}},
 			},
 			attorneys: []*actor.AttorneyProvidedDetails{
-				{ID: "a1", Confirmed: signedBefore},
-				{ID: "a2", Confirmed: signedAfter},
-				{ID: "a3", Confirmed: signedBefore},
+				{ID: "a1", LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySigned},
+				{ID: "a2", LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{ID: "a3", LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySigned},
 			},
 			expected: false,
 		},
@@ -547,12 +549,12 @@ func TestAllAttorneysSigned(t *testing.T) {
 				{
 					IsTrustCorporation:       true,
 					WouldLikeSecondSignatory: form.No,
-					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{Confirmed: signedAfter}},
+					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned}},
 				},
 				{
 					IsTrustCorporation:       true,
 					WouldLikeSecondSignatory: form.Yes,
-					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{Confirmed: signedAfter}},
+					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned}},
 				},
 			},
 			expected: false,
@@ -566,13 +568,13 @@ func TestAllAttorneysSigned(t *testing.T) {
 				{
 					IsTrustCorporation:       true,
 					WouldLikeSecondSignatory: form.No,
-					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{Confirmed: signedAfter}},
+					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned}},
 				},
 				{
 					IsTrustCorporation:       true,
 					IsReplacement:            true,
 					WouldLikeSecondSignatory: form.No,
-					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{Confirmed: signedAfter}},
+					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned}},
 				},
 			},
 			expected: true,
@@ -581,7 +583,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expected, tc.lpa.allAttorneysSigned(certificateProviderSignedAt, tc.attorneys))
+			assert.Equal(t, tc.expected, tc.lpa.AllAttorneysSigned(lpaSignedAt, tc.attorneys))
 		})
 	}
 }

@@ -789,5 +789,7 @@
         "other": "{{.PluralCount}} files successfully uploaded"
     },
     "tipsForTakingPhotosAndCopies": "Tips for taking photos and copies",
-    "tipsForTakingPhotosAndCopiesDetails": "<p class=\"govuk-body\">Any photos or scanned copies of your documents should be clear and high quality so we can read the information.</p> <p class=\"govuk-body\">If you’re taking a photo, it helps if the area you are in is well lit.</p> <p class=\"govuk-body\">Make sure that the document is:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>in focus on your camera screen</li> <li>recent and relevant to the time of application</li> <li>not torn, creased, or marked</li> </ul>"
+    "tipsForTakingPhotosAndCopiesDetails": "<p class=\"govuk-body\">Any photos or scanned copies of your documents should be clear and high quality so we can read the information.</p> <p class=\"govuk-body\">If you’re taking a photo, it helps if the area you are in is well lit.</p> <p class=\"govuk-body\">Make sure that the document is:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>in focus on your camera screen</li> <li>recent and relevant to the time of application</li> <li>not torn, creased, or marked</li> </ul>",
+    "theirLpa": "{{.FullNamePossessive}} {{.LpaType}} LPA",
+    "allAttorneysHaveSignedTheLpa": "All attorneys have signed the LPA"
 }
