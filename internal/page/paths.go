@@ -118,7 +118,6 @@ type AppPaths struct {
 	AboutPayment                                         LpaPath
 	ApplicationReason                                    LpaPath
 	AreYouApplyingForFeeDiscountOrExemption              LpaPath
-	CanEvidenceBeUploaded                                LpaPath
 	CertificateProviderAddress                           LpaPath
 	CertificateProviderDetails                           LpaPath
 	CertificateProviderOptOut                            LpaPath
@@ -154,6 +153,7 @@ type AppPaths struct {
 	HowToEmailOrPostEvidence                             LpaPath
 	HowToSendEvidence                                    LpaPath
 	HowWouldCertificateProviderPreferToCarryOutTheirRole LpaPath
+	HowWouldYouLikeToSendEvidence                        LpaPath
 	IdentityConfirmed                                    LpaPath
 	IdentityWithBiometricResidencePermit                 LpaPath
 	IdentityWithDrivingLicencePaper                      LpaPath
@@ -263,7 +263,6 @@ var Paths = AppPaths{
 	AreYouApplyingForFeeDiscountOrExemption:              "/are-you-applying-for-fee-discount-or-exemption",
 	AttorneyFixtures:                                     "/fixtures/attorney",
 	AuthRedirect:                                         "/auth/redirect",
-	CanEvidenceBeUploaded:                                "/can-evidence-be-uploaded",
 	CertificateProviderAddress:                           "/certificate-provider-address",
 	CertificateProviderDetails:                           "/certificate-provider-details",
 	CertificateProviderFixtures:                          "/fixtures/certificate-provider",
@@ -305,6 +304,7 @@ var Paths = AppPaths{
 	HowToEmailOrPostEvidence:                             "/how-to-email-or-post-evidence",
 	HowToSendEvidence:                                    "/how-to-send-evidence",
 	HowWouldCertificateProviderPreferToCarryOutTheirRole: "/how-would-certificate-provider-prefer-to-carry-out-their-role",
+	HowWouldYouLikeToSendEvidence:                        "/can-evidence-be-uploaded",
 	IdentityConfirmed:                                    "/identity-confirmed",
 	IdentityWithBiometricResidencePermit:                 "/id/biometric-residence-permit",
 	IdentityWithDrivingLicencePaper:                      "/id/driving-licence-paper",

@@ -1,48 +1,44 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "evidenceRequired" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App (printf "evidenceRequired%s" .Lpa.FeeType.String) }}{{ end }}
 
 {{ define "main" }}
+  {{ $pageTitle := printf "evidenceRequired%s" .Lpa.FeeType.String }}
+
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      {{ if .Lpa.FeeType.IsHalfFee }}
-        <h1 class="govuk-heading-xl">{{ tr .App "evidenceRequiredToPayAHalfFee" }}</h1>
+        <h1 class="govuk-heading-xl">{{ tr .App $pageTitle }}</h1>
 
-        {{ trHtml .App "evidenceRequiredToPayAHalfFeeIntroContent" }}
+        {{ if .Lpa.FeeType.IsHalfFee }}
+            {{ trHtml .App "evidenceRequiredHalfFeeIntroContent" }}
 
-        {{ template "details" details . "whereYourIncomeCanComeFrom" "whereYourIncomeCanComeFromDetail" false }}
+            {{ template "details" details . "whereYourIncomeCanComeFrom" "whereYourIncomeCanComeFromDetail" false }}
 
-        {{ trHtml .App "evidenceRequiredToPayAHalfFeeEvidenceContent" }}
+            {{ trHtml .App "evidenceRequiredHalfFeeEvidenceContent" }}
 
-        {{ template "details" details . "ifYouHaveNoIncome" "ifYouHaveNoIncomeDetail" false }}
+            {{ template "details" details . "ifYouHaveNoIncome" "ifYouHaveNoIncomeDetail" false }}
 
-        {{ trHtml .App "evidenceRequiredToPayAHalfFeeUniversalCreditContent" }}
-      {{ end }}
+            {{ trHtml .App "evidenceRequiredHalfFeeUniversalCreditContent" }}
+        {{ end }}
 
       {{ if .Lpa.FeeType.IsNoFee }}
-          <h1 class="govuk-heading-xl">{{ tr .App "evidenceRequiredToPayNoFee" }}</h1>
-
-          {{ trHtml .App "evidenceRequiredToPayNoFeeIntroContent" }}
+          {{ trHtml .App "evidenceRequiredNoFeeIntroContent" }}
 
           {{ template "details" details . "eligibleMeansTestedBenefits" "eligibleMeansTestedBenefitsDetail" false }}
 
-          {{ trHtml .App "evidenceRequiredToPayNoFeeEvidenceContent" }}
+          {{ trHtml .App "evidenceRequiredNoFeeEvidenceContent" }}
       {{ end }}
 
       {{ if .Lpa.FeeType.IsHardshipFee }}
-        <h1 class="govuk-heading-xl">{{ tr .App "evidenceRequiredForAHardshipApplication" }}</h1>
-
-        {{ trHtml .App "evidenceRequiredForAHardshipApplicationContent" }}
+        {{ trHtml .App "evidenceRequiredHardshipFeeContent" }}
       {{ end }}
 
       {{ if .Lpa.FeeType.IsRepeatApplicationFee }}
-        <h1 class="govuk-heading-xl">{{ tr .App "placeholder" }}</h1>
-
         {{ trHtml .App "placeholder" }}
       {{ end }}
 
       <div class="govuk-button-group">
-        <a class="govuk-button" href="{{ link .App (.App.Paths.CanEvidenceBeUploaded.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
+        <a class="govuk-button" href="{{ link .App (.App.Paths.HowWouldYouLikeToSendEvidence.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
         <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
       </div>
     </div>

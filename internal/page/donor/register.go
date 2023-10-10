@@ -297,8 +297,8 @@ func Register(
 		WhichFeeTypeAreYouApplyingFor(tmpls.Get("which_fee_type_are_you_applying_for.gohtml"), donorStore))
 	handleWithLpa(page.Paths.EvidenceRequired, CanGoBack,
 		Guidance(tmpls.Get("evidence_required.gohtml")))
-	handleWithLpa(page.Paths.CanEvidenceBeUploaded, CanGoBack,
-		CanEvidenceBeUploaded(tmpls.Get("can_evidence_be_uploaded.gohtml")))
+	handleWithLpa(page.Paths.HowWouldYouLikeToSendEvidence, CanGoBack,
+		HowWouldYouLikeToSendEvidence(tmpls.Get("how_would_you_like_to_send_evidence.gohtml")))
 	handleWithLpa(page.Paths.UploadEvidence, CanGoBack,
 		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), payer, donorStore, random.UuidString, evidenceBucketName, s3Client))
 	handleWithLpa(page.Paths.WhatHappensAfterNoFee, None,
