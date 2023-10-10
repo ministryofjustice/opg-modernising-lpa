@@ -2,7 +2,7 @@ import { TestEmail } from "../../support/e2e";
 
 describe('Enter trust corporation', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/enter-trust-corporation');
+        cy.visit('/fixtures?redirect=/enter-trust-corporation');
     });
 
     it('can be submitted', () => {

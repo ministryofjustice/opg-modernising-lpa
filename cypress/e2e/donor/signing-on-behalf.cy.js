@@ -1,6 +1,6 @@
 describe('Signing on behalf of the donor', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/how-to-confirm-your-identity-and-sign&lpa.paid=1&lpa.certificateProvider=1&lpa.yourDetails=1&lpa.cannotSign=1');
+        cy.visit('/fixtures?redirect=/how-to-confirm-your-identity-and-sign&progress=payForTheLpa&donor=cannot-sign');
 
         cy.url().should('contain', '/how-to-confirm-your-identity-and-sign');
         cy.contains('h1', 'How to confirm your identity and sign the LPA');

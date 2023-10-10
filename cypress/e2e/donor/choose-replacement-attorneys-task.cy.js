@@ -2,13 +2,14 @@ import { TestEmail } from "../../support/e2e";
 
 describe.skip('Choose replacement attorneys task', () => {
     it('is not started when no replacement attorneys are set', () => {
-        cy.visit('/testing-start?redirect=/task-list&lpa.yourDetails=1&lpa.attorneys=1&cookiesAccepted=1');
+        cy.visit('/fixtures?redirect=/task-list&progress=chooseYourAttorneys');
 
         cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('Not started');
     });
 
     it('is completed if I do not want replacement attorneys', () => {
-        cy.visit('/testing-start?redirect=/task-list&lpa.yourDetails=1&lpa.attorneys=1&cookiesAccepted=1');
+        cy.visit('/fixtures?redirect=/task-list&progress=chooseYourAttorneys');
+
         cy.contains('a', 'Choose your replacement attorneys').click();
 
         cy.contains('label', 'No').click();
@@ -18,7 +19,7 @@ describe.skip('Choose replacement attorneys task', () => {
     });
 
     it('is in progress if I do want replacement attorneys', () => {
-        cy.visit('/testing-start?redirect=/task-list&lpa.yourDetails=1&lpa.attorneys=1&cookiesAccepted=1');
+        cy.visit('/fixtures?redirect=/task-list&progress=chooseYourAttorneys');
         cy.contains('a', 'Choose your replacement attorneys').click();
 
         cy.contains('label', 'Yes').click();
@@ -29,7 +30,7 @@ describe.skip('Choose replacement attorneys task', () => {
     });
 
     it('is completed if enter a replacement attorneys details', () => {
-        cy.visit('/testing-start?redirect=/task-list&lpa.yourDetails=1&lpa.attorneys=1&cookiesAccepted=1');
+        cy.visit('/fixtures?redirect=/task-list&progress=chooseYourAttorneys&attorneys=single');
         cy.contains('a', 'Choose your replacement attorneys').click();
 
         cy.contains('label', 'Yes').click();
@@ -48,7 +49,7 @@ describe.skip('Choose replacement attorneys task', () => {
     });
 
     it('is in progress if enter a replacement attorneys details then add attorneys', () => {
-        cy.visit('/testing-start?redirect=/task-list&lpa.yourDetails=1&lpa.attorneys=1&cookiesAccepted=1');
+        cy.visit('/fixtures?redirect=/task-list&progress=chooseYourAttorneys&attorneys=single');
         cy.contains('a', 'Choose your replacement attorneys').click();
 
         cy.contains('label', 'Yes').click();
@@ -94,7 +95,7 @@ describe.skip('Choose replacement attorneys task', () => {
 
     describe('having a single attorney and a single replacement attorney', () => {
         it('is completed', () => {
-            cy.visit('/testing-start?redirect=/task-list&lpa.yourDetails=1&lpa.attorneys=1&cookiesAccepted=1');
+            cy.visit('/fixtures?redirect=/task-list&progress=chooseYourAttorneys&attorneys=single');
             cy.contains('a', 'Choose your replacement attorneys').click();
 
             cy.contains('label', 'Yes').click();
@@ -121,7 +122,7 @@ describe.skip('Choose replacement attorneys task', () => {
 
     describe('having a single attorney and multiple replacement attorneys', () => {
         beforeEach(() => {
-            cy.visit('/testing-start?redirect=/task-list&lpa.yourDetails=1&lpa.attorneys=1&lpa.replacementAttorneys=1&cookiesAccepted=1');
+            cy.visit('/fixtures?redirect=/task-list&progress=chooseYourReplacementAttorneys&attorneys=single&replacementAttorneys=single');
             cy.contains('a', 'Choose your replacement attorneys').click();
 
             cy.contains('label', 'Yes').click();
@@ -176,7 +177,7 @@ describe.skip('Choose replacement attorneys task', () => {
 
     describe('having jointly and severally attorneys and a single replacement attorney', () => {
         beforeEach(() => {
-            cy.visit('/testing-start?redirect=/task-list&lpa.yourDetails=1&lpa.attorneys=1&lpa.attorneysAct=jointly-and-severally&cookiesAccepted=1');
+            cy.visit('/fixtures?redirect=/task-list&progress=chooseYourAttorneys');
             cy.contains('a', 'Choose your replacement attorneys').click();
 
             cy.contains('label', 'Yes').click();
@@ -223,7 +224,7 @@ describe.skip('Choose replacement attorneys task', () => {
 
     describe('having jointly attorneys and a single replacement attorney', () => {
         it('is completed', () => {
-            cy.visit('/testing-start?redirect=/task-list&lpa.yourDetails=1&lpa.attorneys=1&lpa.attorneysAct=jointly&cookiesAccepted=1');
+            cy.visit('/fixtures?redirect=/task-list&progress=chooseYourAttorneys&attorneys=jointly');
             cy.contains('a', 'Choose your replacement attorneys').click();
 
             cy.contains('label', 'Yes').click();
@@ -250,7 +251,7 @@ describe.skip('Choose replacement attorneys task', () => {
 
     describe('having jointly for some attorneys and a single replacement attorney', () => {
         it('is completed', () => {
-            cy.visit('/testing-start?redirect=/task-list&lpa.yourDetails=1&lpa.attorneys=1&lpa.attorneysAct=mixed&cookiesAccepted=1');
+            cy.visit('/fixtures?redirect=/task-list&progress=chooseYourAttorneys&attorneys=mixed');
             cy.contains('a', 'Choose your replacement attorneys').click();
 
             cy.contains('label', 'Yes').click();
@@ -277,7 +278,7 @@ describe.skip('Choose replacement attorneys task', () => {
 
     describe('having jointly and severally attorneys and multiple replacement attorneys', () => {
         beforeEach(() => {
-            cy.visit('/testing-start?redirect=/task-list&lpa.yourDetails=1&lpa.attorneys=2&lpa.attorneysAct=jointly-and-severally&lpa.replacementAttorneys=1&cookiesAccepted=1');
+            cy.visit('/fixtures?redirect=/task-list&progress=chooseYourReplacementAttorneys&replacementAttorneys=single');
             cy.contains('a', 'Choose your replacement attorneys').click();
 
             cy.contains('label', 'Yes').click();
@@ -355,7 +356,7 @@ describe.skip('Choose replacement attorneys task', () => {
 
     describe('having jointly attorneys and multiple replacement attorneys', () => {
         beforeEach(() => {
-            cy.visit('/testing-start?redirect=/task-list&donorDetails=1&lpa.attorneys=2&lpa.attorneysAct=jointly&lpa.replacementAttorneys=1&cookiesAccepted=1');
+            cy.visit('/fixtures?redirect=/task-list&progress=chooseYourReplacementAttorneys&attorneys=jointly&replacementAttorneys=single');
             cy.contains('a', 'Choose your replacement attorneys').click();
 
             cy.contains('label', 'Yes').click();
@@ -404,7 +405,7 @@ describe.skip('Choose replacement attorneys task', () => {
 
     describe('having jointly for some attorneys and multiple replacement attorneys', () => {
         beforeEach(() => {
-            cy.visit('/testing-start?redirect=/task-list&donorDetails=1&lpa.attorneys=1&lpa.attorneysAct=mixed&lpa.replacementAttorneys=1&cookiesAccepted=1');
+            cy.visit('/fixtures?redirect=/task-list&progress=chooseYourReplacementAttorneys&attorneys=mixed&replacementAttorneys=single');
             cy.contains('a', 'Choose your replacement attorneys').click();
 
             cy.contains('label', 'Yes').click();

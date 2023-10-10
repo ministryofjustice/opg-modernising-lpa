@@ -1,6 +1,6 @@
 describe('Upload evidence', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/upload-evidence&lpa.complete=1&lpa.certificateProvider=1');
+        cy.visit('/fixtures?redirect=/upload-evidence');
     });
 
     it('can upload evidence', () => {

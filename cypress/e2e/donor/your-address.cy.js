@@ -2,7 +2,7 @@ import { AddressFormAssertions } from "../../support/e2e";
 
 describe('Donor address', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/your-address');
+        cy.visit('/fixtures?redirect=/your-address');
     });
 
     it('address can be looked up', () => {

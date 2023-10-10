@@ -1,21 +1,21 @@
 describe('Error pages', () => {
     it('shows for 404s', () => {
-        cy.visit('/not-a-real-page', {failOnStatusCode: false});
+        cy.visit('/not-a-real-page', { failOnStatusCode: false });
         cy.contains('Page not found');
         cy.checkA11yApp();
 
-        cy.visit('/lpa', {failOnStatusCode: false});
+        cy.visit('/lpa', { failOnStatusCode: false });
         cy.contains('Page not found');
 
-        cy.visit('/lpa/1000', {failOnStatusCode: false});
+        cy.visit('/lpa/1000', { failOnStatusCode: false });
         cy.contains('Page not found');
 
-        cy.visit('/testing-start?redirect=/not-a-real-page', {failOnStatusCode: false});
+        cy.visit('/fixtures?redirect=/not-a-real-page', { failOnStatusCode: false });
         cy.contains('Page not found');
     });
 
     it('shows for 500s', () => {
-        cy.visit('/testing-start?redirect=/task-list');
+        cy.visit('/fixtures?redirect=/task-list');
         cy.visitLpa('/payment-confirmation', { failOnStatusCode: false });
 
         cy.contains('Sorry, there is a problem with the service');
@@ -23,7 +23,7 @@ describe('Error pages', () => {
     });
 
     it('shows for invalid CSRF tokens', () => {
-        cy.visit('/testing-start?redirect=/your-details');
+        cy.visit('/fixtures?redirect=/your-details');
         cy.clearCookie('csrf');
 
         cy.get('#f-first-names').type('John');
