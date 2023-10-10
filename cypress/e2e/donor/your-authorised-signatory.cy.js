@@ -1,6 +1,6 @@
 describe('Your authorised signatory', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/your-authorised-signatory');
+        cy.visit('/fixtures?redirect=/your-authorised-signatory');
     });
 
     it('can be submitted', () => {
@@ -36,7 +36,7 @@ describe('Your authorised signatory', () => {
     });
 
     it('warns when name shared with other actor', () => {
-        cy.visit('/testing-start?redirect=/your-authorised-signatory&lpa.attorneys=1');
+        cy.visit('/fixtures?redirect=/your-authorised-signatory&progress=chooseYourAttorneys');
 
         cy.get('#f-first-names').type('Jessie');
         cy.get('#f-last-name').type('Jones');

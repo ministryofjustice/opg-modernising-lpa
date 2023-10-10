@@ -2,13 +2,13 @@ import { TestEmail } from "../../support/e2e";
 
 describe.skip('Choose attorneys task', () => {
     it('is not started when no attorneys are set', () => {
-        cy.visit('/testing-start?redirect=/task-list&cookiesAccepted=1');
+        cy.visit('/fixtures?redirect=/task-list');
 
         cy.contains('a', 'Choose your attorneys').parent().parent().contains('Not started');
     });
 
     it('is in progress if I start adding an attorney', () => {
-        cy.visit('/testing-start?redirect=/task-list&cookiesAccepted=1');
+        cy.visit('/fixtures?redirect=/task-list');
         cy.contains('a', 'Choose your attorneys').click();
         cy.contains('a', 'Continue').click();
 
@@ -24,7 +24,7 @@ describe.skip('Choose attorneys task', () => {
     });
 
     it('is completed if enter an attorneys details', () => {
-        cy.visit('/testing-start?redirect=/task-list&cookiesAccepted=1');
+        cy.visit('/fixtures?redirect=/task-list');
         cy.contains('a', 'Choose your attorneys').click();
         cy.contains('a', 'Continue').click();
 
@@ -41,7 +41,7 @@ describe.skip('Choose attorneys task', () => {
     });
 
     it('is completed if enter an attorneys details using address', () => {
-        cy.visit('/testing-start?redirect=/task-list&cookiesAccepted=1');
+        cy.visit('/fixtures?redirect=/task-list');
         cy.contains('a', 'Choose your attorneys').click();
         cy.contains('a', 'Continue').click();
 
@@ -69,7 +69,7 @@ describe.skip('Choose attorneys task', () => {
     });
 
     it('is in progress if I enter multiple attorneys details', () => {
-        cy.visit('/testing-start?redirect=/task-list&lpa.attorneys=1&cookiesAccepted=1');
+        cy.visit('/fixtures?redirect=/task-list&progress=chooseYourAttorneys&attorneys=single');
         cy.contains('a', 'Choose your attorneys').click();
         cy.contains('a', 'Continue').click();
 
@@ -89,7 +89,7 @@ describe.skip('Choose attorneys task', () => {
     });
 
     it('is completed if I enter multiple attorneys details with how they act', () => {
-        cy.visit('/testing-start?redirect=/task-list&lpa.attorneys=1&cookiesAccepted=1');
+        cy.visit('/fixtures?redirect=/task-list&progress=chooseYourAttorneys&attorneys=single');
         cy.contains('a', 'Choose your attorneys').click();
         cy.contains('a', 'Continue').click();
 
@@ -119,7 +119,7 @@ describe.skip('Choose attorneys task', () => {
     });
 
     it('is completed if I enter multiple attorneys details when jointly', () => {
-        cy.visit('/testing-start?redirect=/task-list&lpa.attorneys=1&cookiesAccepted=1');
+        cy.visit('/fixtures?redirect=/task-list&progress=chooseYourAttorneys&attorneys=single');
         cy.contains('a', 'Choose your attorneys').click();
         cy.contains('a', 'Continue').click();
 
