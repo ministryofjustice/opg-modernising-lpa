@@ -5,9 +5,41 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "evidenceRequired" }}</h1>
+      {{ if .Lpa.FeeType.IsHalfFee }}
+        <h1 class="govuk-heading-xl">{{ tr .App "evidenceRequiredToPayAHalfFee" }}</h1>
 
-      {{ trHtml .App "evidenceRequiredContent" }}
+        {{ trHtml .App "evidenceRequiredToPayAHalfFeeIntroContent" }}
+
+        {{ template "details" details . "whereYourIncomeCanComeFrom" "whereYourIncomeCanComeFromDetail" false }}
+
+        {{ trHtml .App "evidenceRequiredToPayAHalfFeeEvidenceContent" }}
+
+        {{ template "details" details . "ifYouHaveNoIncome" "ifYouHaveNoIncomeDetail" false }}
+
+        {{ trHtml .App "evidenceRequiredToPayAHalfFeeUniversalCreditContent" }}
+      {{ end }}
+
+      {{ if .Lpa.FeeType.IsNoFee }}
+          <h1 class="govuk-heading-xl">{{ tr .App "evidenceRequiredToPayNoFee" }}</h1>
+
+          {{ trHtml .App "evidenceRequiredToPayNoFeeIntroContent" }}
+
+          {{ template "details" details . "eligibleMeansTestedBenefits" "eligibleMeansTestedBenefitsDetail" false }}
+
+          {{ trHtml .App "evidenceRequiredToPayNoFeeEvidenceContent" }}
+      {{ end }}
+
+      {{ if .Lpa.FeeType.IsHardshipFee }}
+        <h1 class="govuk-heading-xl">{{ tr .App "evidenceRequiredForAHardshipApplication" }}</h1>
+
+        {{ trHtml .App "evidenceRequiredForAHardshipApplicationContent" }}
+      {{ end }}
+
+      {{ if .Lpa.FeeType.IsRepeatApplicationFee }}
+        <h1 class="govuk-heading-xl">{{ tr .App "placeholder" }}</h1>
+
+        {{ trHtml .App "placeholder" }}
+      {{ end }}
 
       <div class="govuk-button-group">
         <a class="govuk-button" href="{{ link .App (.App.Paths.CanEvidenceBeUploaded.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
