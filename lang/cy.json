@@ -854,5 +854,8 @@
         "other": "{{.PluralCount}} Welsh"
     },
     "tipsForTakingPhotosAndCopies": "Welsh",
-    "tipsForTakingPhotosAndCopiesDetails": "<p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> </ul>"
+    "tipsForTakingPhotosAndCopiesDetails": "<p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh</li> <li>Welsh</li> <li>Welsh</li> </ul>",
+    "areYouApplyingForAnyTypeOfFeeDiscountOrExemption": "Welsh",
+    "areYouApplyingForAnyTypeOfFeeDiscountOrExemptionContent": "<p class=\"govuk-body\">Welsh</p>",
+    "chooseThisIfYouWantToPayForYourLpaInFull": "Welsh"
 }

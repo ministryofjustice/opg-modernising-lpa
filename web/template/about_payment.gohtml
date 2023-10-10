@@ -31,7 +31,10 @@
 
       {{ template "warning" (warning .App "mustProvideEvidenceWarning") }}
 
-      {{ template "continue-and-return-buttons" . }}
+      <div class="govuk-button-group">
+        <a href="{{ link .App (.App.Paths.AreYouApplyingForFeeDiscountOrExemption.Format .App.LpaID) }}" class="govuk-button">{{ tr .App "continue" }}</a>
+        <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+      </div>
     </div>
   </div>
 {{ end }}

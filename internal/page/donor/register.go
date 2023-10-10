@@ -291,8 +291,8 @@ func Register(
 
 	handleWithLpa(page.Paths.AboutPayment, None,
 		Guidance(tmpls.Get("about_payment.gohtml")))
-	handleWithLpa(page.Paths.AreYouApplyingForADifferentFeeType, CanGoBack,
-		AreYouApplyingForADifferentFeeType(tmpls.Get("are_you_applying_for_a_different_fee_type.gohtml"), payer, donorStore))
+	handleWithLpa(page.Paths.AreYouApplyingForFeeDiscountOrExemption, CanGoBack,
+		AreYouApplyingForFeeDiscountOrExemption(tmpls.Get("are_you_applying_for_a_different_fee_type.gohtml"), payer, donorStore))
 	handleWithLpa(page.Paths.WhichFeeTypeAreYouApplyingFor, CanGoBack,
 		WhichFeeTypeAreYouApplyingFor(tmpls.Get("which_fee_type_are_you_applying_for.gohtml"), donorStore))
 	handleWithLpa(page.Paths.EvidenceRequired, CanGoBack,

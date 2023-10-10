@@ -117,7 +117,7 @@ type AppPaths struct {
 
 	AboutPayment                                         LpaPath
 	ApplicationReason                                    LpaPath
-	AreYouApplyingForADifferentFeeType                   LpaPath
+	AreYouApplyingForFeeDiscountOrExemption              LpaPath
 	CanEvidenceBeUploaded                                LpaPath
 	CertificateProviderAddress                           LpaPath
 	CertificateProviderDetails                           LpaPath
@@ -260,7 +260,7 @@ var Paths = AppPaths{
 
 	AboutPayment:                                         "/about-payment",
 	ApplicationReason:                                    "/application-reason",
-	AreYouApplyingForADifferentFeeType:                   "/are-you-applying-for-a-different-fee-type",
+	AreYouApplyingForFeeDiscountOrExemption:              "/are-you-applying-for-fee-discount-or-exemption",
 	AttorneyFixtures:                                     "/fixtures/attorney",
 	AuthRedirect:                                         "/auth/redirect",
 	CanEvidenceBeUploaded:                                "/can-evidence-be-uploaded",
