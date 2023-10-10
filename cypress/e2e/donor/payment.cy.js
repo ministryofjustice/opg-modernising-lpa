@@ -7,7 +7,7 @@ describe('Payment', () => {
             cy.visit('/fixtures?redirect=/about-payment&progress=checkAndSendToYourCertificateProvider');
             cy.checkA11yApp();
 
-            cy.get('h1').should('contain', 'About payment');
+            cy.get('h1').should('contain', 'Paying for your LPA');
             cy.contains('a', 'Continue').click();
 
             cy.url().should('contains', '/are-you-applying-for-fee-discount-or-exemption')

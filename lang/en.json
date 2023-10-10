@@ -198,7 +198,7 @@
     "byEmail": "By email",
     "usingPaperForms": "Using paper forms",
     "certificateProvidersEmail": "Certificate provider’s email address",
-    "aboutPayment": "About payment",
+    "aboutPayment": "Paying for your LPA",
     "aboutPaymentContent": "<p class=\"govuk-body\">It costs £82 to register an LPA. An LPA must be registered before it can be used.</p> <p class=\"govuk-body\">However, you may be able to pay no fee or a half fee, depending on your circumstances.</p> <p class=\"govuk-body\">You may also be able to pay less if you’re making a repeat application.</p>",
     "aboutPaymentNoFeeContent": "<h2 class=\"govuk-heading-m\">No fee</h2> <p class=\"govuk-body\">If you receive certain means-tested benefits, you may be eligible to pay no fee. This is called an ‘exemption’.</p>",
     "whoIsEligibleForAnExemption": "Who is eligible for an exemption",
