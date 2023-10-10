@@ -44,6 +44,7 @@ func Attorney(
 	progressValues := []string{
 		"signedByCertificateProvider",
 		"signedByAttorney",
+		"signedByAllAttorneys",
 		"submitted",
 		"registered",
 	}
@@ -173,6 +174,49 @@ func Attorney(
 				}}
 			} else {
 				attorney.Confirmed = lpa.SignedAt.Add(2 * time.Hour)
+			}
+		}
+		if progress >= slices.Index(progressValues, "signedByAllAttorneys") {
+			for isReplacement, list := range map[bool]actor.Attorneys{false: lpa.Attorneys, true: lpa.ReplacementAttorneys} {
+				for _, a := range list.Attorneys {
+					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: lpa.ID})
+
+					attorney, err := attorneyStore.Create(ctx, donorSessionID, a.ID, isReplacement, false)
+					if err != nil {
+						return err
+					}
+
+					attorney.Mobile = testMobile
+					attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
+					attorney.Tasks.ReadTheLpa = actor.TaskCompleted
+					attorney.Tasks.SignTheLpa = actor.TaskCompleted
+					attorney.Confirmed = lpa.SignedAt.Add(2 * time.Hour)
+
+					if err := attorneyStore.Put(ctx, attorney); err != nil {
+						return err
+					}
+				}
+
+				if list.TrustCorporation.Name != "" {
+					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: lpa.ID})
+
+					attorney, err := attorneyStore.Create(ctx, donorSessionID, "", isReplacement, true)
+					if err != nil {
+						return err
+					}
+
+					attorney.WouldLikeSecondSignatory = form.No
+					attorney.AuthorisedSignatories = [2]actor.TrustCorporationSignatory{{
+						FirstNames:        "A",
+						LastName:          "Sign",
+						ProfessionalTitle: "Assistant to the signer",
+						Confirmed:         lpa.SignedAt.Add(2 * time.Hour),
+					}}
+
+					if err := attorneyStore.Put(ctx, attorney); err != nil {
+						return err
+					}
+				}
 			}
 		}
 		if progress >= slices.Index(progressValues, "submitted") {

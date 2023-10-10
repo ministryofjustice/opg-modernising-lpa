@@ -15,9 +15,9 @@ type DashboardStore interface {
 }
 
 type LpaAndActorTasks struct {
-	Lpa                      *Lpa
-	CertificateProviderTasks actor.CertificateProviderTasks
-	Attorney                 *actor.AttorneyProvidedDetails
+	Lpa                 *Lpa
+	CertificateProvider *actor.CertificateProviderProvidedDetails
+	Attorney            *actor.AttorneyProvidedDetails
 }
 
 type dashboardData struct {
