@@ -45,7 +45,6 @@ func All(tag, region string) map[string]any {
 		"listAttorneys":      listAttorneys,
 		"warning":            warning,
 		"listPeopleToNotify": listPeopleToNotify,
-		"progressBar":        progressBar,
 		"peopleNamedOnLpa":   peopleNamedOnLpa,
 		"possessive":         possessive,
 		"card":               card,
@@ -316,14 +315,6 @@ func warning(app page.AppData, content string) map[string]interface{} {
 	return map[string]interface{}{
 		"app":     app,
 		"content": content,
-	}
-}
-
-func progressBar(app page.AppData, lpa *page.Lpa, certificateProvider *actor.CertificateProviderProvidedDetails) map[string]interface{} {
-	return map[string]interface{}{
-		"App":                 app,
-		"Lpa":                 lpa,
-		"CertificateProvider": certificateProvider,
 	}
 }
 

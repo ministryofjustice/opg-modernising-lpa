@@ -110,7 +110,6 @@ type AppPaths struct {
 	YourLegalRightsAndResponsibilities Path
 	CertificateProviderStart           Path
 	Start                              Path
-	TestingStart                       Path
 	Dashboard                          Path
 	YotiRedirect                       Path
 	CookiesConsent                     Path
@@ -128,6 +127,7 @@ type AppPaths struct {
 	ChooseAttorneysAddress                               LpaPath
 	ChooseAttorneysGuidance                              LpaPath
 	ChooseAttorneysSummary                               LpaPath
+	ChooseNewCertificateProvider                         LpaPath
 	ChoosePeopleToNotify                                 LpaPath
 	ChoosePeopleToNotifyAddress                          LpaPath
 	ChoosePeopleToNotifySummary                          LpaPath
@@ -274,6 +274,7 @@ var Paths = AppPaths{
 	ChooseAttorneysAddress:                               "/choose-attorneys-address",
 	ChooseAttorneysGuidance:                              "/choose-attorneys-guidance",
 	ChooseAttorneysSummary:                               "/choose-attorneys-summary",
+	ChooseNewCertificateProvider:                         "/choose-new-certificate-provider",
 	ChoosePeopleToNotify:                                 "/choose-people-to-notify",
 	ChoosePeopleToNotifyAddress:                          "/choose-people-to-notify-address",
 	ChoosePeopleToNotifySummary:                          "/choose-people-to-notify-summary",
@@ -339,7 +340,6 @@ var Paths = AppPaths{
 	SignYourLpa:                                          "/sign-your-lpa",
 	Start:                                                "/start",
 	TaskList:                                             "/task-list",
-	TestingStart:                                         "/testing-start",
 	UploadEvidence:                                       "/upload-evidence",
 	UseExistingAddress:                                   "/use-existing-address",
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",

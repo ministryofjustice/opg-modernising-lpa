@@ -1,6 +1,6 @@
 describe('Restrictions', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/restrictions&lpa.yourDetails=1&lpa.attorneys=1');
+        cy.visit('/fixtures?redirect=/restrictions');
     });
 
     it('can be submitted', () => {

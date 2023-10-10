@@ -42,6 +42,7 @@ type Logger interface {
 type DynamoClient interface {
 	One(ctx context.Context, pk, sk string, v interface{}) error
 	OneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
+	AllByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
 	LatestForActor(ctx context.Context, sk string, v interface{}) error
 	AllForActor(ctx context.Context, sk string, v interface{}) error
 	AllByKeys(ctx context.Context, pks []dynamo.Key) ([]map[string]types.AttributeValue, error)
@@ -99,9 +100,6 @@ func App(
 	notFoundHandler := page.Root(tmpls.Get("error-404.gohtml"), logger)
 
 	rootMux := http.NewServeMux()
-
-	rootMux.Handle(paths.TestingStart.String(), fixtures.TestingStart(sessionStore, donorStore, random.String, localizer, certificateProviderStore, attorneyStore, logger, time.Now))
-
 	handleRoot := makeHandle(rootMux, errorHandler, sessionStore)
 
 	handleRoot(paths.Root, None,
@@ -109,7 +107,7 @@ func App(
 	handleRoot(paths.SignOut, None,
 		page.SignOut(logger, sessionStore, oneLoginClient, appPublicURL))
 	handleRoot(paths.Fixtures, None,
-		fixtures.Donor(tmpls.Get("fixtures.gohtml")))
+		fixtures.Donor(tmpls.Get("fixtures.gohtml"), sessionStore, donorStore, certificateProviderStore, attorneyStore))
 	handleRoot(paths.CertificateProviderFixtures, None,
 		fixtures.CertificateProvider(tmpls.Get("certificate_provider_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore))
 	handleRoot(paths.AttorneyFixtures, None,
@@ -171,6 +169,7 @@ func App(
 		errorHandler,
 		notFoundHandler,
 		certificateProviderStore,
+		attorneyStore,
 		notifyClient,
 		evidenceReceivedStore,
 		s3Client,

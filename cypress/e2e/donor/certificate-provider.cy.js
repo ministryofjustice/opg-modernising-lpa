@@ -4,7 +4,7 @@ import {
 
 describe('Certificate provider task', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/task-list&lpa.yourDetails=1&lpa.attorneys=1');
+        cy.visit('/fixtures?redirect=/task-list&progress=chooseYourAttorneys');
     });
 
     it('can be a professional', () => {
@@ -115,6 +115,28 @@ describe('Certificate provider task', () => {
             .should('contain', 'Completed');
     });
 
+    it('requires a new certificate provider when known for less than 2 years', () => {
+        cy.visitLpa('/how-long-have-you-known-certificate-provider');
+
+        cy.contains('label', 'Less than 2 years').click();
+        cy.contains('button', 'Save and continue').click();
+
+        cy.url().should('contain', '/choose-new-certificate-provider');
+        cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
+
+        cy.contains('button', 'Continue').click();
+
+        cy.url().should('contain', '/choose-your-certificate-provider');
+
+        cy.contains('a', 'Continue').click();
+
+        cy.url().should('contain', '/certificate-provider-details');
+
+        cy.get('#f-first-names').should('have.value', '');
+        cy.get('#f-last-name').should('have.value', '');
+        cy.get('#f-mobile').should('have.value', '');
+    });
+
     it('errors when details empty', () => {
         cy.visitLpa('/certificate-provider-details');
         cy.contains('button', 'Save and continue').click();
@@ -221,19 +243,6 @@ describe('Certificate provider task', () => {
         });
 
         cy.contains('.govuk-fieldset .govuk-error-message', 'Select how long you have known your certificate provider');
-    });
-
-    it('errors when known for less than 2 years', () => {
-        cy.visitLpa('/how-long-have-you-known-certificate-provider');
-
-        cy.contains('label', 'Less than 2 years').click();
-        cy.contains('button', 'Save and continue').click();
-
-        cy.get('.govuk-error-summary').within(() => {
-            cy.contains('You must have known your certificate provider personally for 2 years or more. If you have known them for less than 2 years, you must choose a different certificate provider.');
-        });
-
-        cy.contains('.govuk-fieldset .govuk-error-message', 'You must have known your certificate provider personally for 2 years or more. If you have known them for less than 2 years, you must choose a different certificate provider.');
     });
 
     it('warns when name shared with other actor', () => {

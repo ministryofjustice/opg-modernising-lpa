@@ -50,6 +50,11 @@ type CertificateProviderStore interface {
 	GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
 }
 
+//go:generate mockery --testonly --inpackage --name AttorneyStore --structname mockAttorneyStore
+type AttorneyStore interface {
+	GetAny(ctx context.Context) ([]*actor.AttorneyProvidedDetails, error)
+}
+
 //go:generate mockery --testonly --inpackage --name EvidenceReceivedStore --structname mockEvidenceReceivedStore
 type EvidenceReceivedStore interface {
 	Get(context.Context) (bool, error)
@@ -156,6 +161,7 @@ func Register(
 	errorHandler page.ErrorHandler,
 	notFoundHandler page.Handler,
 	certificateProviderStore CertificateProviderStore,
+	attorneyStore AttorneyStore,
 	notifyClient NotifyClient,
 	evidenceReceivedStore EvidenceReceivedStore,
 	s3Client S3Client,
@@ -249,6 +255,8 @@ func Register(
 		Guidance(tmpls.Get("what_a_certificate_provider_does.gohtml")))
 	handleWithLpa(page.Paths.ChooseYourCertificateProvider, None,
 		Guidance(tmpls.Get("choose_your_certificate_provider.gohtml")))
+	handleWithLpa(page.Paths.ChooseNewCertificateProvider, None,
+		ChooseNewCertificateProvider(tmpls.Get("choose_new_certificate_provider.gohtml"), donorStore))
 	handleWithLpa(page.Paths.CertificateProviderDetails, CanGoBack,
 		CertificateProviderDetails(tmpls.Get("certificate_provider_details.gohtml"), donorStore))
 	handleWithLpa(page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole, CanGoBack,
@@ -366,7 +374,7 @@ func Register(
 		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml")))
 
 	handleWithLpa(page.Paths.Progress, CanGoBack,
-		LpaProgress(tmpls.Get("lpa_progress.gohtml"), certificateProviderStore))
+		LpaProgress(tmpls.Get("lpa_progress.gohtml"), certificateProviderStore, attorneyStore))
 }
 
 type handleOpt byte
