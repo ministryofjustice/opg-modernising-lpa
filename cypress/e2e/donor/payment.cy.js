@@ -10,7 +10,7 @@ describe('Payment', () => {
             cy.get('h1').should('contain', 'About payment');
             cy.contains('a', 'Continue').click();
 
-            cy.url().should('contains', '/are-you-applying-for-a-different-fee-type')
+            cy.url().should('contains', '/are-you-applying-for-fee-discount-or-exemption')
             cy.checkA11yApp();
 
             cy.get('input[name="yes-no"]').check('no');
@@ -19,7 +19,7 @@ describe('Payment', () => {
                 cy.getCookie('pay').should('exist');
             });
 
-            cy.contains('button', 'Continue').click();
+            cy.contains('button', 'Save and continue').click();
 
             cy.get('h1').should('contain', 'Payment received');
             cy.checkA11yApp();
