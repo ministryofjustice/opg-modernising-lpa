@@ -83,7 +83,7 @@ const (
 	HalfFee
 	NoFee
 	HardshipFee
-	RepeatApplicationDiscountFee
+	RepeatApplicationFee
 )
 
 func (i FeeType) Cost() int {

@@ -14,12 +14,12 @@ func _() {
 	_ = x[HalfFee-1]
 	_ = x[NoFee-2]
 	_ = x[HardshipFee-3]
-	_ = x[RepeatApplicationDiscountFee-4]
+	_ = x[RepeatApplicationFee-4]
 }
 
-const _FeeType_name = "FullFeeHalfFeeNoFeeHardshipFeeRepeatApplicationDiscountFee"
+const _FeeType_name = "FullFeeHalfFeeNoFeeHardshipFeeRepeatApplicationFee"
 
-var _FeeType_index = [...]uint8{0, 7, 14, 19, 30, 58}
+var _FeeType_index = [...]uint8{0, 7, 14, 19, 30, 50}
 
 func (i FeeType) String() string {
 	if i >= FeeType(len(_FeeType_index)-1) {
@@ -44,8 +44,8 @@ func (i FeeType) IsHardshipFee() bool {
 	return i == HardshipFee
 }
 
-func (i FeeType) IsRepeatApplicationDiscountFee() bool {
-	return i == RepeatApplicationDiscountFee
+func (i FeeType) IsRepeatApplicationFee() bool {
+	return i == RepeatApplicationFee
 }
 
 func ParseFeeType(s string) (FeeType, error) {
@@ -58,25 +58,25 @@ func ParseFeeType(s string) (FeeType, error) {
 		return NoFee, nil
 	case "HardshipFee":
 		return HardshipFee, nil
-	case "RepeatApplicationDiscountFee":
-		return RepeatApplicationDiscountFee, nil
+	case "RepeatApplicationFee":
+		return RepeatApplicationFee, nil
 	default:
 		return FeeType(0), fmt.Errorf("invalid FeeType '%s'", s)
 	}
 }
 
 type FeeTypeOptions struct {
-	FullFee                      FeeType
-	HalfFee                      FeeType
-	NoFee                        FeeType
-	HardshipFee                  FeeType
-	RepeatApplicationDiscountFee FeeType
+	FullFee              FeeType
+	HalfFee              FeeType
+	NoFee                FeeType
+	HardshipFee          FeeType
+	RepeatApplicationFee FeeType
 }
 
 var FeeTypeValues = FeeTypeOptions{
-	FullFee:                      FullFee,
-	HalfFee:                      HalfFee,
-	NoFee:                        NoFee,
-	HardshipFee:                  HardshipFee,
-	RepeatApplicationDiscountFee: RepeatApplicationDiscountFee,
+	FullFee:              FullFee,
+	HalfFee:              HalfFee,
+	NoFee:                NoFee,
+	HardshipFee:          HardshipFee,
+	RepeatApplicationFee: RepeatApplicationFee,
 }

@@ -15,8 +15,9 @@
                         {{ template "error-message" (errorMessage . "fee-type") }}
 
                         {{ template "radios" (items . "fee-type" ""
-                        (item .Options.HalfFee.String "halfFee")
                         (item .Options.NoFee.String "noFee")
+                        (item .Options.HalfFee.String "halfFee")
+                        (item .Options.RepeatApplicationFee.String "hardship")
                         (item .Options.HardshipFee.String "hardship")
                         ) }}
                     </div>
