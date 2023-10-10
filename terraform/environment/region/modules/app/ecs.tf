@@ -327,20 +327,8 @@ locals {
       ],
       environment = [
         {
-          name  = "LOGGING_LEVEL",
-          value = tostring(100)
-        },
-        {
           name  = "APP_PORT",
           value = tostring(var.container_port)
-        },
-        {
-          name  = "CLIENT_ID",
-          value = "37iOvkzc5BIRKsFSu5l3reZmFlA"
-        },
-        {
-          name  = "ISSUER",
-          value = "https://oidc.integration.account.gov.uk"
         },
         {
           name  = "APP_PUBLIC_URL",
@@ -352,72 +340,85 @@ locals {
           value = var.app_env_vars.auth_redirect_base_url
         },
         {
-          name  = "DYNAMODB_TABLE_LPAS",
-          value = var.lpas_table.name
-        },
-        {
-          name  = "UPLOADS_S3_BUCKET_NAME",
-          value = var.uploads_s3_bucket.bucket_name
-        },
-        {
-          name  = "GOVUK_PAY_BASE_URL",
-          value = "https://publicapi.payments.service.gov.uk"
-        },
-        {
-          name  = "GOVUK_NOTIFY_BASE_URL",
-          value = "https://api.notifications.service.gov.uk"
-        },
-        {
-          name  = "YOTI_CLIENT_SDK_ID",
-          value = var.app_env_vars.yoti_client_sdk_id
-        },
-        {
-          name  = "YOTI_SCENARIO_ID",
-          value = var.app_env_vars.yoti_scenario_id
-        },
-        {
-          name  = "YOTI_SANDBOX",
-          value = var.app_env_vars.yoti_sandbox
-        },
-        {
-          name  = "ORDNANCE_SURVEY_BASE_URL",
-          value = "https://api.os.uk"
-        },
-        {
-          name  = "GOVUK_NOTIFY_IS_PRODUCTION",
-          value = var.app_env_vars.notify_is_production
-        },
-        {
-          name  = "XRAY_ENABLED",
-          value = "1"
-        },
-        {
-          name  = "AWS_RUM_GUEST_ROLE_ARN",
-          value = var.aws_rum_guest_role_arn
-        },
-        {
-          name  = "AWS_RUM_ENDPOINT",
-          value = "https://dataplane.rum.${data.aws_region.current.name}.amazonaws.com"
+          # use vpc endpoints
+          name  = "AWS_BASE_URL",
+          value = "https://com.amazonaws.${data.aws_region.current.name}"
         },
         {
           name  = "AWS_RUM_APPLICATION_REGION",
           value = data.aws_region.current.name
         },
         {
-          name  = "UID_BASE_URL",
-          value = var.app_env_vars.uid_base_url
+          name  = "AWS_RUM_ENDPOINT",
+          value = "https://dataplane.rum.${data.aws_region.current.name}.amazonaws.com"
         },
         {
-          name  = "ONELOGIN_URL",
-          value = var.app_env_vars.onelogin_url
+          name  = "AWS_RUM_GUEST_ROLE_ARN",
+          value = var.aws_rum_guest_role_arn
+        },
+        {
+          name  = "CLIENT_ID",
+          value = "37iOvkzc5BIRKsFSu5l3reZmFlA"
+        },
+        {
+          name  = "DYNAMODB_TABLE_LPAS",
+          value = var.lpas_table.name
         },
         {
           name  = "EVENT_BUS_NAME",
           value = var.event_bus.name
         },
         {
-          name  = "AWS_BASE_URL",
-          value = "com.amazonaws.${data.aws_region.current.name}"
+          name  = "GOVUK_NOTIFY_BASE_URL",
+          value = "https://api.notifications.service.gov.uk"
+        },
+        {
+          name  = "GOVUK_NOTIFY_IS_PRODUCTION",
+          value = var.app_env_vars.notify_is_production
+        },
+        {
+          name  = "GOVUK_PAY_BASE_URL",
+          value = "https://publicapi.payments.service.gov.uk"
+        },
+        {
+          name  = "ISSUER",
+          value = "https://oidc.integration.account.gov.uk"
+        },
+        {
+          name  = "LOGGING_LEVEL",
+          value = tostring(100)
+        },
+        {
+          name  = "ONELOGIN_URL",
+          value = var.app_env_vars.onelogin_url
+        },
+        {
+          name  = "ORDNANCE_SURVEY_BASE_URL",
+          value = "https://api.os.uk"
+        },
+        {
+          name  = "UID_BASE_URL",
+          value = var.app_env_vars.uid_base_url
+        },
+        {
+          name  = "UPLOADS_S3_BUCKET_NAME",
+          value = var.uploads_s3_bucket.bucket_name
+        },
+        {
+          name  = "XRAY_ENABLED",
+          value = "1"
+        },
+        {
+          name  = "YOTI_CLIENT_SDK_ID",
+          value = var.app_env_vars.yoti_client_sdk_id
+        },
+        {
+          name  = "YOTI_SANDBOX",
+          value = var.app_env_vars.yoti_sandbox
+        },
+        {
+          name  = "YOTI_SCENARIO_ID",
+          value = var.app_env_vars.yoti_scenario_id
         },
       ]
     }
