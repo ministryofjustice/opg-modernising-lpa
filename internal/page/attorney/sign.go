@@ -25,9 +25,7 @@ func canSign(ctx context.Context, certificateProviderStore CertificateProviderSt
 		}
 	}
 
-	progress := lpa.Progress(certificateProvider)
-
-	return progress.LpaSigned.Completed() && progress.CertificateProviderDeclared.Completed(), nil
+	return !lpa.SignedAt.IsZero() && certificateProvider.Signed(lpa.SignedAt), nil
 }
 
 type signData struct {

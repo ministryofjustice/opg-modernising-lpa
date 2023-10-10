@@ -148,8 +148,6 @@ func Attorney(
 			return err
 		}
 
-		certificateProvider.Certificate = actor.Certificate{Agreed: time.Now()}
-
 		attorney, err := attorneyStore.Create(attorneyCtx, donorSessionID, attorneyID, isReplacement, isTrustCorporation)
 		if err != nil {
 			return err
@@ -157,6 +155,7 @@ func Attorney(
 
 		if progress >= slices.Index(progressValues, "signedByCertificateProvider") {
 			lpa.SignedAt = time.Now()
+			certificateProvider.Certificate = actor.Certificate{Agreed: lpa.SignedAt.Add(time.Hour)}
 		}
 		if progress >= slices.Index(progressValues, "signedByAttorney") {
 			attorney.Mobile = testMobile
@@ -170,10 +169,10 @@ func Attorney(
 					FirstNames:        "A",
 					LastName:          "Sign",
 					ProfessionalTitle: "Assistant to the signer",
-					Confirmed:         time.Now(),
+					Confirmed:         lpa.SignedAt.Add(2 * time.Hour),
 				}}
 			} else {
-				attorney.Confirmed = time.Now()
+				attorney.Confirmed = lpa.SignedAt.Add(2 * time.Hour)
 			}
 		}
 		if progress >= slices.Index(progressValues, "submitted") {

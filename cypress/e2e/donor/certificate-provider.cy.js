@@ -4,7 +4,7 @@ import {
 
 describe('Certificate provider task', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/task-list&lpa.yourDetails=1&lpa.attorneys=1');
+        cy.visit('/fixtures?redirect=/task-list&progress=chooseYourAttorneys');
     });
 
     it('can be a professional', () => {
