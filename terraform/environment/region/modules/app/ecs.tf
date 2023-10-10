@@ -415,6 +415,10 @@ locals {
           name  = "EVENT_BUS_NAME",
           value = var.event_bus.name
         },
+        {
+          name  = "AWS_BASE_URL",
+          value = "com.amazonaws.${data.aws_region.current.name}"
+        },
       ]
     }
   )
