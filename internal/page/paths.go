@@ -303,7 +303,7 @@ var Paths = AppPaths{
 	HowToEmailOrPostEvidence:                             "/how-to-email-or-post-evidence",
 	HowToSendEvidence:                                    "/how-to-send-evidence",
 	HowWouldCertificateProviderPreferToCarryOutTheirRole: "/how-would-certificate-provider-prefer-to-carry-out-their-role",
-	HowWouldYouLikeToSendEvidence:                        "/can-evidence-be-uploaded",
+	HowWouldYouLikeToSendEvidence:                        "/how-would-you-like-to-send-evidence",
 	IdentityConfirmed:                                    "/identity-confirmed",
 	IdentityWithBiometricResidencePermit:                 "/id/biometric-residence-permit",
 	IdentityWithDrivingLicencePaper:                      "/id/driving-licence-paper",
