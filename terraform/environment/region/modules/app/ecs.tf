@@ -339,11 +339,11 @@ locals {
           name  = "AUTH_REDIRECT_BASE_URL",
           value = var.app_env_vars.auth_redirect_base_url
         },
-        # {
-        #   # use vpc endpoints
-        #   name  = "AWS_BASE_URL",
-        #   value = "https://com.amazonaws.${data.aws_region.current.name}"
-        # },
+        {
+          # use vpc endpoints
+          name  = "AWS_BASE_URL",
+          value = "com.amazonaws.${data.aws_region.current.name}"
+        },
         {
           name  = "AWS_RUM_APPLICATION_REGION",
           value = data.aws_region.current.name
