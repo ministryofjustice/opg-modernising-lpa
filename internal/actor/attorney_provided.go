@@ -31,19 +31,23 @@ type AttorneyProvidedDetails struct {
 	Tasks AttorneyTasks
 }
 
-func (d AttorneyProvidedDetails) Signed() bool {
+func (d AttorneyProvidedDetails) Signed(after time.Time) bool {
+	if after.IsZero() {
+		return false
+	}
+
 	if d.IsTrustCorporation {
 		switch d.WouldLikeSecondSignatory {
 		case form.Yes:
-			return !d.AuthorisedSignatories[0].Confirmed.IsZero() && !d.AuthorisedSignatories[1].Confirmed.IsZero()
+			return d.AuthorisedSignatories[0].Confirmed.After(after) && d.AuthorisedSignatories[1].Confirmed.After(after)
 		case form.No:
-			return !d.AuthorisedSignatories[0].Confirmed.IsZero()
+			return d.AuthorisedSignatories[0].Confirmed.After(after)
 		default:
 			return false
 		}
 	}
 
-	return !d.Confirmed.IsZero()
+	return d.Confirmed.After(after)
 }
 
 type AttorneyTasks struct {

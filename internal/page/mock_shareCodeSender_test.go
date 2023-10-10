@@ -42,11 +42,6 @@ func (_m *mockShareCodeSender) SendCertificateProvider(ctx context.Context, temp
 	return r0
 }
 
-// UseTestCode provides a mock function with given fields:
-func (_m *mockShareCodeSender) UseTestCode() {
-	_m.Called()
-}
-
 type mockConstructorTestingTnewMockShareCodeSender interface {
 	mock.TestingT
 	Cleanup(func())
