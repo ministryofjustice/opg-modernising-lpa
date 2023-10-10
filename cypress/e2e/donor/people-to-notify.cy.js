@@ -2,7 +2,7 @@ import { TestEmail, TestEmail2 } from "../../support/e2e";
 
 describe('People to notify', () => {
     it('can add people to notify', () => {
-        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people&lpa.yourDetails=1&lpa.attorneys=1');
+        cy.visit('/fixtures?redirect=/do-you-want-to-notify-people&progress=chooseYourAttorneys');
 
         cy.checkA11yApp();
 
@@ -62,7 +62,7 @@ describe('People to notify', () => {
     });
 
     it('can modify a person to notifys details', () => {
-        cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&lpa.yourDetails=1&lpa.attorneys=1&lpa.peopleToNotify=1');
+        cy.visit('/fixtures?redirect=/choose-people-to-notify-summary&progress=peopleToNotifyAboutYourLpa');
 
         cy.checkA11yApp();
 
@@ -107,7 +107,7 @@ describe('People to notify', () => {
     });
 
     it('can remove a person to notify', () => {
-        cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&lpa.yourDetails=1&lpa.attorneys=1&lpa.peopleToNotify=2');
+        cy.visit('/fixtures?redirect=/choose-people-to-notify-summary&progress=peopleToNotifyAboutYourLpa');
 
         cy.checkA11yApp();
 
@@ -133,7 +133,7 @@ describe('People to notify', () => {
     });
 
     it('hides action links when LPA has been signed', () => {
-        cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&lpa.complete=1&lpa.peopleToNotify=1');
+        cy.visit('/fixtures?redirect=/choose-people-to-notify-summary&progress=confirmYourIdentityAndSignTheLpa');
 
         cy.checkA11yApp();
 
@@ -141,7 +141,7 @@ describe('People to notify', () => {
     });
 
     it('limits people to notify to 5', () => {
-        cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&lpa.complete=1&lpa.peopleToNotify=5');
+        cy.visit('/fixtures?redirect=/choose-people-to-notify-summary&progress=peopleToNotifyAboutYourLpa&peopleToNotify=max');
 
         cy.checkA11yApp();
 
@@ -153,7 +153,7 @@ describe('People to notify', () => {
     });
 
     it('errors when unselected', () => {
-        cy.visit('/testing-start?redirect=/do-you-want-to-notify-people&lpa.yourDetails=1&lpa.attorneys=1');
+        cy.visit('/fixtures?redirect=/do-you-want-to-notify-people');
         cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
@@ -164,7 +164,7 @@ describe('People to notify', () => {
     });
 
     it('errors when people to notify details empty', () => {
-        cy.visit('/testing-start?redirect=/choose-people-to-notify');
+        cy.visit('/fixtures?redirect=/choose-people-to-notify');
         cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
@@ -179,7 +179,7 @@ describe('People to notify', () => {
     });
 
     it('errors when people to notify details invalid', () => {
-        cy.visit('/testing-start?redirect=/choose-people-to-notify');
+        cy.visit('/fixtures?redirect=/choose-people-to-notify');
 
         cy.get('#f-first-names').invoke('val', 'a'.repeat(54));
         cy.get('#f-last-name').invoke('val', 'b'.repeat(62));
@@ -192,7 +192,7 @@ describe('People to notify', () => {
     });
 
     it('errors when another not selected', () => {
-        cy.visit('/testing-start?redirect=/choose-people-to-notify-summary&lpa.yourDetails=1&lpa.attorneys=1&lpa.peopleToNotify=1');
+        cy.visit('/fixtures?redirect=/choose-people-to-notify-summary&progress=peopleToNotifyAboutYourLpa');
 
         cy.checkA11yApp();
 
@@ -205,8 +205,8 @@ describe('People to notify', () => {
         cy.contains('.govuk-fieldset .govuk-error-message', 'Select yes to add another person to notify');
     });
 
-    it('warns when name shared with other actor', () => {
-        cy.visit('/testing-start?redirect=/choose-people-to-notify&lpa.yourDetails=1');
+    it.only('warns when name shared with other actor', () => {
+        cy.visit('/fixtures?redirect=/choose-people-to-notify&progress=provideYourDetails');
 
         cy.get('#f-first-names').type('Sam');
         cy.get('#f-last-name').type('Smith');

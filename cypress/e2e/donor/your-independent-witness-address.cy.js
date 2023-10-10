@@ -3,7 +3,7 @@ import { AddressFormAssertions } from "../../support/e2e";
 describe('Choose independent witness address', () => {
     describe('Entering a new address', () => {
         beforeEach(() => {
-            cy.visit('/testing-start?redirect=/your-independent-witness-address');
+            cy.visit('/fixtures?redirect=/your-independent-witness-address');
             cy.contains('label', 'Enter a new address').click();
             cy.contains('button', 'Continue').click();
         });
@@ -45,11 +45,11 @@ describe('Choose independent witness address', () => {
     });
 
     it('address can be copied from another actor', () => {
-        cy.visit('/testing-start?redirect=/your-independent-witness-address?lpa.attorneys=1&lpa.certificateProvider=1');
+        cy.visit('/fixtures?redirect=/your-independent-witness-address&progress=chooseYourAttorneys');
         cy.contains('label', 'Use an address you’ve already entered').click();
         cy.contains('button', 'Continue').click();
 
-        cy.contains('label', '5 RICHMOND PLACE').click();
+        cy.contains('label', '2 RICHMOND PLACE').click();
         cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/task-list');

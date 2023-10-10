@@ -2,7 +2,7 @@ import { TestMobile } from "../../support/e2e";
 
 describe('Your independent witness mobile', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/your-independent-witness-mobile');
+        cy.visit('/fixtures?redirect=/your-independent-witness-mobile');
     });
 
     it('can be submitted', () => {

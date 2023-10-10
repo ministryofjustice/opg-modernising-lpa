@@ -1,6 +1,6 @@
 describe('data loss warning accessibility', () => {
     it('locks focus to data loss warning dialog', () => {
-        cy.visit('/testing-start?redirect=/choose-attorneys&lpa.yourDetails=1&cookiesAccepted=1');
+        cy.visit('/fixtures?redirect=/choose-attorneys&progress=provideYourDetails');
 
         cy.get('#f-first-names').type('John');
         cy.contains('a', 'Return to task list').click()

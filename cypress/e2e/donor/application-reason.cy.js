@@ -1,6 +1,6 @@
 describe('Application reason', () => {
     it('can be submitted', () => {
-        cy.visit('/testing-start?redirect=/application-reason&lpa.yourDetails=1');
+        cy.visit('/fixtures?redirect=/application-reason&progress=provideYourDetails');
         cy.checkA11yApp();
 
         cy.contains('label', 'noneOfTheAbove').click();
@@ -10,7 +10,7 @@ describe('Application reason', () => {
     });
 
     it('errors when unselected', () => {
-        cy.visit('/testing-start?redirect=/application-reason');
+        cy.visit('/fixtures?redirect=/application-reason&progress=provideYourDetails');
 
         cy.contains('button', 'Continue').click();
 

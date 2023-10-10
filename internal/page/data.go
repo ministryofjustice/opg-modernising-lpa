@@ -219,12 +219,12 @@ type Tasks struct {
 }
 
 type Progress struct {
-	LpaSigned                   actor.TaskState
-	CertificateProviderDeclared actor.TaskState
-	AttorneysDeclared           actor.TaskState
-	LpaSubmitted                actor.TaskState
-	StatutoryWaitingPeriod      actor.TaskState
-	LpaRegistered               actor.TaskState
+	DonorSigned               actor.TaskState
+	CertificateProviderSigned actor.TaskState
+	AttorneysSigned           actor.TaskState
+	LpaSubmitted              actor.TaskState
+	StatutoryWaitingPeriod    actor.TaskState
+	LpaRegistered             actor.TaskState
 }
 
 type SessionData struct {
@@ -314,27 +314,103 @@ func (l *Lpa) canGoToLpaPath(path string) bool {
 	}
 }
 
-func (l *Lpa) Progress(certificateProvider *actor.CertificateProviderProvidedDetails) Progress {
+func (l *Lpa) Progress(certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) Progress {
 	p := Progress{
-		LpaSigned:                   actor.TaskInProgress,
-		CertificateProviderDeclared: actor.TaskNotStarted,
-		AttorneysDeclared:           actor.TaskNotStarted,
-		LpaSubmitted:                actor.TaskNotStarted,
-		StatutoryWaitingPeriod:      actor.TaskNotStarted,
-		LpaRegistered:               actor.TaskNotStarted,
+		DonorSigned:               actor.TaskInProgress,
+		CertificateProviderSigned: actor.TaskNotStarted,
+		AttorneysSigned:           actor.TaskNotStarted,
+		LpaSubmitted:              actor.TaskNotStarted,
+		StatutoryWaitingPeriod:    actor.TaskNotStarted,
+		LpaRegistered:             actor.TaskNotStarted,
 	}
 
-	if !l.SignedAt.IsZero() {
-		p.LpaSigned = actor.TaskCompleted
-		p.CertificateProviderDeclared = actor.TaskInProgress
+	if l.SignedAt.IsZero() {
+		return p
 	}
 
-	if !certificateProvider.Certificate.Agreed.IsZero() {
-		p.CertificateProviderDeclared = actor.TaskCompleted
-		p.AttorneysDeclared = actor.TaskInProgress
+	p.DonorSigned = actor.TaskCompleted
+	p.CertificateProviderSigned = actor.TaskInProgress
+
+	if !certificateProvider.Signed(l.SignedAt) {
+		return p
 	}
+
+	p.CertificateProviderSigned = actor.TaskCompleted
+	p.AttorneysSigned = actor.TaskInProgress
+
+	if !l.allAttorneysSigned(certificateProvider.Certificate.Agreed, attorneys) {
+		return p
+	}
+
+	p.AttorneysSigned = actor.TaskCompleted
+	p.LpaSubmitted = actor.TaskInProgress
+
+	if l.SubmittedAt.IsZero() {
+		return p
+	}
+
+	p.LpaSubmitted = actor.TaskCompleted
+	p.StatutoryWaitingPeriod = actor.TaskInProgress
+
+	if l.RegisteredAt.IsZero() {
+		return p
+	}
+
+	p.StatutoryWaitingPeriod = actor.TaskCompleted
+	p.LpaRegistered = actor.TaskCompleted
 
 	return p
+}
+
+func (l *Lpa) allAttorneysSigned(after time.Time, attorneys []*actor.AttorneyProvidedDetails) bool {
+	if l == nil || after.IsZero() || l.Attorneys.Len() == 0 {
+		return false
+	}
+
+	var (
+		attorneysSigned                   = map[string]struct{}{}
+		replacementAttorneysSigned        = map[string]struct{}{}
+		trustCorporationSigned            = false
+		replacementTrustCorporationSigned = false
+	)
+
+	for _, a := range attorneys {
+		if !a.Signed(after) {
+			continue
+		}
+
+		if a.IsReplacement && a.IsTrustCorporation {
+			replacementTrustCorporationSigned = true
+		} else if a.IsReplacement {
+			replacementAttorneysSigned[a.ID] = struct{}{}
+		} else if a.IsTrustCorporation {
+			trustCorporationSigned = true
+		} else {
+			attorneysSigned[a.ID] = struct{}{}
+		}
+	}
+
+	if l.ReplacementAttorneys.TrustCorporation.Name != "" && !replacementTrustCorporationSigned {
+		return false
+	}
+
+	for _, a := range l.ReplacementAttorneys.Attorneys {
+		if _, ok := replacementAttorneysSigned[a.ID]; !ok {
+			return false
+		}
+	}
+
+	if l.Attorneys.TrustCorporation.Name != "" && !trustCorporationSigned {
+		return false
+	}
+
+	for _, a := range l.Attorneys.Attorneys {
+		if _, ok := attorneysSigned[a.ID]; !ok {
+			return false
+		}
+	}
+
+	return true
 }
 
 type AddressDetail struct {

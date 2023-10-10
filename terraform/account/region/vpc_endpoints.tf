@@ -33,9 +33,13 @@ locals {
     "ec2",
     "ecr.api",
     "ecr.dkr",
+    "execute-api",
+    "events",
     "logs",
+    "rum",
     "secretsmanager",
     "ssm",
+    "xray",
   ])
 }
 
@@ -88,6 +92,7 @@ resource "aws_vpc_endpoint" "s3" {
   route_table_ids   = tolist(data.aws_route_tables.public.ids)
   vpc_endpoint_type = "Gateway"
   policy            = data.aws_iam_policy_document.s3_vpc_endpoint.json
+  tags              = { Name = "s3-private-${data.aws_region.current.name}" }
 }
 
 data "aws_iam_policy_document" "s3_vpc_endpoint" {
@@ -110,6 +115,7 @@ resource "aws_vpc_endpoint" "dynamodb" {
   route_table_ids   = tolist(data.aws_route_tables.public.ids)
   vpc_endpoint_type = "Gateway"
   policy            = data.aws_iam_policy_document.dynamodb_vpc_endpoint.json
+  tags              = { Name = "dynamodb-private-${data.aws_region.current.name}" }
 }
 
 data "aws_iam_policy_document" "dynamodb_vpc_endpoint" {

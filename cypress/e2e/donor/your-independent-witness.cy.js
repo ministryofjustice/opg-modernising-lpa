@@ -1,6 +1,6 @@
 describe('Your independent witness', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/your-independent-witness');
+        cy.visit('/fixtures?redirect=/your-independent-witness');
     });
 
     it('can be submitted', () => {
@@ -36,7 +36,7 @@ describe('Your independent witness', () => {
     });
 
     it('warns when name shared with other actor', () => {
-        cy.visit('/testing-start?redirect=/your-independent-witness&lpa.attorneys=1');
+        cy.visit('/fixtures?redirect=/your-independent-witness&progress=chooseYourAttorneys');
 
         cy.get('#f-first-names').type('Jessie');
         cy.get('#f-last-name').type('Jones');

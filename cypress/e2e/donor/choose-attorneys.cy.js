@@ -2,7 +2,7 @@ import { TestEmail } from "../../support/e2e";
 
 describe('Choose attorneys', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/choose-attorneys');
+        cy.visit('/fixtures?redirect=/choose-attorneys');
     });
 
     it('can be submitted', () => {
@@ -85,7 +85,7 @@ describe('Choose attorneys', () => {
     });
 
     it('warns when name shared with other actor', () => {
-        cy.visit('/testing-start?redirect=/choose-attorneys&lpa.yourDetails=1');
+        cy.visit('/fixtures?redirect=/choose-attorneys&progress=provideYourDetails');
 
         cy.get('#f-first-names').type('Sam');
         cy.get('#f-last-name').type('Smith');
