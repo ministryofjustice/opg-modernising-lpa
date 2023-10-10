@@ -1,6 +1,6 @@
 describe('How should replacement attorneys step in', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/how-should-replacement-attorneys-step-in&cookiesAccepted=1&lpa.replacementAttorneys=1');
+        cy.visit('/fixtures?redirect=/how-should-replacement-attorneys-step-in&progress=chooseYourReplacementAttorneys&replacementAttorneys=single');
     });
 
     it('can choose how replacement attorneys step in', () => {

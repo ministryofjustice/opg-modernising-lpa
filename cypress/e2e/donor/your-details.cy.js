@@ -1,6 +1,6 @@
 describe('Donor details', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/your-details');
+        cy.visit('/fixtures?redirect=/your-details');
     });
 
     it('can be submitted', () => {
@@ -60,14 +60,10 @@ describe('Donor details', () => {
     });
 
     it('warns when name shared with other actor', () => {
-        cy.visit('/testing-start?redirect=/your-details&lpa.attorneys=1');
+        cy.visit('/fixtures?redirect=/your-details&progress=chooseYourAttorneys');
 
-        cy.get('#f-first-names').type('Jessie');
-        cy.get('#f-last-name').type('Jones');
-        cy.get('#f-date-of-birth').type('1');
-        cy.get('#f-date-of-birth-month').type('2');
-        cy.get('#f-date-of-birth-year').type('1990');
-        cy.get('#f-can-sign').check();
+        cy.get('#f-first-names').clear().type('Jessie');
+        cy.get('#f-last-name').clear().type('Jones');
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/your-details');
 

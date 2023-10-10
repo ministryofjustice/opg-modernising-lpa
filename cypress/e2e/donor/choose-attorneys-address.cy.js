@@ -3,7 +3,8 @@ import { AddressFormAssertions } from "../../support/e2e";
 describe('Choose attorneys address', () => {
     describe('Entering a new address', () => {
         beforeEach(() => {
-            cy.visit('/testing-start?redirect=/choose-attorneys-address?id=without-address&lpa.attorneys=-1');
+            cy.visit('/fixtures?redirect=/choose-attorneys-address?id=without-address&progress=chooseYourAttorneys&attorneys=without-address');
+
             cy.contains('label', 'Enter a new address').click();
             cy.contains('button', 'Continue').click();
         });
@@ -45,15 +46,15 @@ describe('Choose attorneys address', () => {
     });
 
     it('address can be copied from another actor', () => {
-        cy.visit('/testing-start?redirect=/choose-attorneys-address?id=without-address&lpa.attorneys=-1&lpa.certificateProvider=1');
+        cy.visit('/fixtures?redirect=/choose-attorneys-address?id=without-address&progress=chooseYourAttorneys&attorneys=without-address');
         cy.contains('label', 'Use an address you’ve already entered').click();
         cy.contains('button', 'Continue').click();
 
-        cy.contains('label', '5 RICHMOND PLACE').click();
+        cy.contains('label', '2 RICHMOND PLACE').click();
         cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/choose-attorneys-summary');
 
-        cy.get('#attorney-address-2').should('contain', '5 RICHMOND PLACE');
+        cy.get('#attorney-address-2').should('contain', '2 RICHMOND PLACE');
     });
 });

@@ -1,6 +1,6 @@
 describe('LPA type', () => {
     it('can be submitted', () => {
-        cy.visit('/testing-start?redirect=/lpa-type&lpa.yourDetails=1');
+        cy.visit('/fixtures?redirect=/lpa-type&progress=provideYourDetails');
 
         cy.get('#f-lpa-type').check('pfa');
 
@@ -11,7 +11,7 @@ describe('LPA type', () => {
     });
 
     it('errors when unselected', () => {
-        cy.visit('/testing-start?redirect=/lpa-type');
+        cy.visit('/fixtures?redirect=/lpa-type');
 
         cy.contains('button', 'Continue').click();
 

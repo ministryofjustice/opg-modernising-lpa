@@ -110,7 +110,6 @@ type AppPaths struct {
 	YourLegalRightsAndResponsibilities Path
 	CertificateProviderStart           Path
 	Start                              Path
-	TestingStart                       Path
 	Dashboard                          Path
 	YotiRedirect                       Path
 	CookiesConsent                     Path
@@ -341,7 +340,6 @@ var Paths = AppPaths{
 	SignYourLpa:                                          "/sign-your-lpa",
 	Start:                                                "/start",
 	TaskList:                                             "/task-list",
-	TestingStart:                                         "/testing-start",
 	UploadEvidence:                                       "/upload-evidence",
 	UseExistingAddress:                                   "/use-existing-address",
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",

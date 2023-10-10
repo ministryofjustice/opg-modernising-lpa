@@ -2,7 +2,7 @@ import { TestEmail } from "../../support/e2e";
 
 describe('Choose replacement attorneys summary', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/choose-replacement-attorneys-summary&lpa.yourDetails=1&lpa.attorneys=2&lpa.replacementAttorneys=-1&cookiesAccepted=1');
+        cy.visit('/fixtures?redirect=/choose-replacement-attorneys-summary&progress=chooseYourReplacementAttorneys');
     });
 
     it('multiple attorneys details are listed', () => {
@@ -10,16 +10,18 @@ describe('Choose replacement attorneys summary', () => {
 
         cy.contains('You have added 2 replacement attorneys');
 
-        cy.contains('Jessie Jones');
+        cy.contains('Blake Buckley');
         cy.contains('2 January 2000');
         cy.contains('2 RICHMOND PLACE');
         cy.contains('B14 7ED');
 
-        cy.contains('Robin Redcar');
+        cy.contains('Taylor Thompson');
         cy.contains('2 January 2000');
+        cy.contains('2 RICHMOND PLACE');
+        cy.contains('B14 7ED');
 
         cy.visitLpa('/task-list')
-        cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('In progress (2)')
+        cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('Completed (2)')
     });
 
     it('can amend attorney details', () => {
@@ -31,7 +33,7 @@ describe('Choose replacement attorneys summary', () => {
         cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/choose-replacement-attorneys-summary');
-        cy.contains('Mark Jones');
+        cy.contains('Mark Buckley');
     });
 
     it('can amend attorney address', () => {
@@ -95,7 +97,7 @@ describe('Choose replacement attorneys summary', () => {
 
         cy.checkA11yApp();
 
-        cy.contains('Are you sure you want to remove Jessie Jones?');
+        cy.contains('Are you sure you want to remove Blake Buckley?');
 
         cy.get('input[name="yes-no"]').check('yes');
         cy.contains('button', 'Continue').click();
@@ -104,7 +106,7 @@ describe('Choose replacement attorneys summary', () => {
 
         cy.checkA11yApp();
 
-        cy.get('main').should('not.contain', 'Jessie Jones');
+        cy.get('main').should('not.contain', 'Blake Buckley');
 
         cy.get('#remove-replacement-1').contains('a', 'Remove').click();
         cy.get('input[name="yes-no"]').check('yes');
@@ -114,7 +116,7 @@ describe('Choose replacement attorneys summary', () => {
     });
 
     it('errors when remove not selected', () => {
-        cy.contains('a', 'Remove Jessie Jones').click();
+        cy.contains('a', 'Remove Blake Buckley').click();
 
         cy.contains('button', 'Continue').click();
 

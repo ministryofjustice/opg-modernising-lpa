@@ -1,6 +1,6 @@
 describe('Check the LPA', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/check-your-lpa&lpa.yourDetails=1&lpa.certificateProvider=1&lpa.attorneys=1&lpa.replacementAttorneys=2&lpa.chooseWhenCanBeUsed=1&lpa.restrictions=1&lpa.peopleToNotify=1');
+        cy.visit('/fixtures?redirect=/check-your-lpa&progress=peopleToNotifyAboutYourLpa');
     });
 
     it("can submit the completed LPA", () => {
@@ -11,7 +11,7 @@ describe('Check the LPA', () => {
         cy.contains('h2', "LPA decisions")
 
         cy.contains('dt', "When your attorneys can use your LPA")
-        cy.contains('dt', "Who is your attorney")
+        cy.contains('dt', "Who are your attorneys")
         cy.contains('dt', "Who are your replacement attorneys")
 
         cy.contains('h2', "People named on the LPA")
@@ -29,7 +29,7 @@ describe('Check the LPA', () => {
     describe('CP acting on paper', () => {
         describe('on first check', () => {
             it('content is tailored for paper CPs, a details component is shown and nav redirects to payment', () => {
-                cy.visit('/testing-start?redirect=/check-your-lpa&lpa.yourDetails=1&lpa.certificateProvider=1&lpa.attorneys=1&lpa.replacementAttorneys=2&lpa.chooseWhenCanBeUsed=1&lpa.restrictions=1&lpa.peopleToNotify=1');
+                cy.visit('/fixtures?redirect=/check-your-lpa&progress=peopleToNotifyAboutYourLpa&certificateProvider=paper');
 
                 cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy to show it to my certificate provider, Charlie Cooper')
                 cy.get('details[data-module=govuk-details]').contains('What happens if I need to make changes later?')
@@ -49,7 +49,7 @@ describe('Check the LPA', () => {
 
         describe('on subsequent check when LPA has not been paid for', () => {
             it('content is tailored for paper CPs, a warning component is shown and nav redirects to payment', () => {
-                cy.visit('/testing-start?redirect=/check-your-lpa&lpa.yourDetails=1&lpa.certificateProvider=1&lpa.attorneys=1&lpa.replacementAttorneys=2&lpa.chooseWhenCanBeUsed=1&lpa.restrictions=1&lpa.peopleToNotify=1&lpa.checkAndSend=1');
+                cy.visit('/fixtures?redirect=/check-your-lpa&progress=checkAndSendToYourCertificateProvider&certificateProvider=paper');
 
                 cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy to show it to my certificate provider, Charlie Cooper')
                 cy.get('.govuk-warning-text').contains('Once you select the confirm button, your certificate provider will be sent a text telling them you have changed your LPA.')
@@ -69,7 +69,7 @@ describe('Check the LPA', () => {
 
         describe('on subsequent check when LPA has been paid for', () => {
             it('content is tailored for paper CPs, a warning component is shown and nav redirects to dashboard', () => {
-                cy.visit('/testing-start?redirect=/check-your-lpa&lpa.paid=1');
+                cy.visit('/fixtures?redirect=/check-your-lpa&progress=payForTheLpa&certificateProvider=paper');
 
                 cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy to show it to my certificate provider, Charlie Cooper')
                 cy.get('.govuk-warning-text').contains('Once you select the confirm button, your certificate provider will be sent a text telling them you have changed your LPA.')
@@ -91,7 +91,7 @@ describe('Check the LPA', () => {
     describe('CP acting online', () => {
         describe('on first check', () => {
             it('content is tailored for online CPs, a details component is shown and nav redirects to payment', () => {
-                cy.visit('/testing-start?redirect=/check-your-lpa&lpa.yourDetails=1&lpa.certificateProvider=1&lpa.attorneys=1&lpa.replacementAttorneys=2&lpa.chooseWhenCanBeUsed=1&lpa.restrictions=1&lpa.peopleToNotify=1&lpa.certificateProviderActOnline=1');
+                cy.visit('/fixtures?redirect=/check-your-lpa&progress=peopleToNotifyAboutYourLpa');
 
                 cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy for OPG to share it with my certificate provider, Charlie Cooper')
                 cy.get('details[data-module=govuk-details]').contains('What happens if I need to make changes later?')
@@ -111,7 +111,7 @@ describe('Check the LPA', () => {
 
         describe('on subsequent check when LPA has not been paid for', () => {
             it('content is tailored for online CPs, a warning component is shown and nav redirects to payment', () => {
-                cy.visit('/testing-start?redirect=/check-your-lpa&lpa.yourDetails=1&lpa.certificateProvider=1&lpa.attorneys=1&lpa.replacementAttorneys=2&lpa.chooseWhenCanBeUsed=1&lpa.restrictions=1&lpa.peopleToNotify=1&lpa.checkAndSend=1&lpa.certificateProviderActOnline=1');
+                cy.visit('/fixtures?redirect=/check-your-lpa&progress=checkAndSendToYourCertificateProvider');
 
                 cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy for OPG to share it with my certificate provider, Charlie Cooper')
                 cy.get('.govuk-warning-text').contains('Once you select the confirm button, your certificate provider will be sent a text telling them you have changed your LPA.')
@@ -131,7 +131,7 @@ describe('Check the LPA', () => {
 
         describe('on subsequent check when LPA has been paid for', () => {
             it('content is tailored for online CPs, a warning component is shown and nav redirects to dashboard', () => {
-                cy.visit('/testing-start?redirect=/check-your-lpa&lpa.paid=1&lpa.certificateProviderActOnline=1');
+                cy.visit('/fixtures?redirect=/check-your-lpa&progress=payForTheLpa');
 
                 cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy for OPG to share it with my certificate provider, Charlie Cooper')
                 cy.get('.govuk-warning-text').contains('Once you select the confirm button, your certificate provider will be sent a text telling them you have changed your LPA.')

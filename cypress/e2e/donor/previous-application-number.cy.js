@@ -1,6 +1,6 @@
 describe('Previous application number', () => {
     it('can be submitted', () => {
-        cy.visit('/testing-start?redirect=/previous-application-number&lpa.yourDetails=1');
+        cy.visit('/fixtures?redirect=/previous-application-number');
         cy.checkA11yApp();
 
         cy.get('#f-previous-application-number').type('ABC');
@@ -10,7 +10,7 @@ describe('Previous application number', () => {
     });
 
     it('errors when unselected', () => {
-        cy.visit('/testing-start?redirect=/previous-application-number');
+        cy.visit('/fixtures?redirect=/previous-application-number');
 
         cy.contains('button', 'Continue').click();
 
