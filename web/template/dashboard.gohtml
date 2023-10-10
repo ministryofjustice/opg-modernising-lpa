@@ -62,7 +62,7 @@
           <strong class="govuk-tag app-tag--black">{{ tr .App "registered" }}</strong>
         {{ else if not .Item.Lpa.SubmittedAt.IsZero }}
           <strong class="govuk-tag govuk-tag--green">{{ tr .App "submittedToOpg" }}</strong>
-        {{ else if .Item.Attorney.Signed }}
+        {{ else if .Item.Attorney.Signed .Item.Lpa.SignedAt }}
           <strong class="govuk-tag govuk-tag--blue">{{ tr .App "inProgress" }}</strong>
         {{ else }}
           <strong class="govuk-tag govuk-tag--yellow">{{ tr .App "readyToSign" }}</strong>
@@ -84,10 +84,10 @@
           <a class="govuk-link" href="#">{{ tr .App "use" }}</a>
         {{ else if not .Item.Lpa.SubmittedAt.IsZero }}
           <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a>
-          <a class="govuk-button govuk-button--secondary" href="#">{{ tr .App "trackLpaProgress" }}</a>
-        {{ else if .Item.Attorney.Signed }}
+          <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.Attorney.Progress.Format .Item.Lpa.ID) }}">{{ tr .App "trackLpaProgress" }}</a>
+        {{ else if .Item.Attorney.Signed .Item.Lpa.SignedAt }}
           <a class="govuk-button" href="{{ link .App (.App.Paths.Attorney.TaskList.Format .Item.Lpa.ID) }}">{{ tr .App "goToTaskList" }}</a>
-          <a class="govuk-button govuk-button--secondary" href="#">{{ tr .App "trackLpaProgress" }}</a>
+          <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.Attorney.Progress.Format .Item.Lpa.ID) }}">{{ tr .App "trackLpaProgress" }}</a>
         {{ else }}
           <a class="govuk-button" href="{{ link .App (.App.Paths.Attorney.TaskList.Format .Item.Lpa.ID) }}">{{ tr .App "goToTaskList" }}</a>
         {{ end }}
@@ -104,7 +104,7 @@
         <span class="govuk-!-font-weight-regular">{{ .Item.Lpa.Donor.FirstNames }} {{ .Item.Lpa.Donor.LastName }}</span>
       </h3>
       <div>
-        {{ if and .Item.CertificateProviderTasks.ReadTheLpa.Completed (not .Item.Lpa.SignedAt.IsZero) .Item.Lpa.Tasks.PayForLpa.IsCompleted }}
+        {{ if and .Item.CertificateProvider.Tasks.ReadTheLpa.Completed (not .Item.Lpa.SignedAt.IsZero) .Item.Lpa.Tasks.PayForLpa.IsCompleted }}
           <strong class="govuk-tag govuk-tag--yellow">{{ tr .App "readyToSign" }}</strong>
         {{ else }}
           <strong class="govuk-tag govuk-tag--blue">{{ tr .App "inProgress" }}</strong>
