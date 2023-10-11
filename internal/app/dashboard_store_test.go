@@ -89,7 +89,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 			assert.Nil(t, err)
 
 			assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa123}, {Lpa: lpa0}}, donor)
-			assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa456, CertificateProviderTasks: actor.CertificateProviderTasks{ConfirmYourDetails: actor.TaskCompleted}}}, certificateProvider)
+			assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa456, CertificateProvider: lpa456CpProvidedDetails}}, certificateProvider)
 			assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa789, Attorney: lpa789AttorneyProvidedDetails}}, attorney)
 		})
 	}

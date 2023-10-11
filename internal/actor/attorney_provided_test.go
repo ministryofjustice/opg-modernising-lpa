@@ -9,8 +9,9 @@ import (
 )
 
 func TestAttorneyProvidedDetailsSigned(t *testing.T) {
-	certificateProviderSignedAt := time.Now()
-	signedAfter := certificateProviderSignedAt.Add(time.Second)
+	lpaSignedAt := time.Now()
+	otherLpaSignedAt := lpaSignedAt.Add(time.Minute)
+	attorneySignedAt := lpaSignedAt.Add(time.Second)
 
 	testcases := map[string]struct {
 		details AttorneyProvidedDetails
@@ -18,24 +19,27 @@ func TestAttorneyProvidedDetailsSigned(t *testing.T) {
 	}{
 		"unsigned": {},
 		"signed": {
-			details: AttorneyProvidedDetails{Confirmed: signedAfter},
+			details: AttorneyProvidedDetails{LpaSignedAt: lpaSignedAt, Confirmed: attorneySignedAt},
 			signed:  true,
 		},
-		"signed before": {
-			details: AttorneyProvidedDetails{Confirmed: certificateProviderSignedAt},
+		"signed for different iteration": {
+			details: AttorneyProvidedDetails{LpaSignedAt: otherLpaSignedAt, Confirmed: lpaSignedAt},
 		},
 		"trust corporation unsigned": {
-			details: AttorneyProvidedDetails{Confirmed: signedAfter, IsTrustCorporation: true},
+			details: AttorneyProvidedDetails{Confirmed: attorneySignedAt, IsTrustCorporation: true},
 		},
 		"trust corporation single signatory": {
 			details: AttorneyProvidedDetails{
 				IsTrustCorporation:       true,
 				WouldLikeSecondSignatory: form.No,
-				AuthorisedSignatories:    [2]TrustCorporationSignatory{{Confirmed: signedAfter}, {}},
+				AuthorisedSignatories: [2]TrustCorporationSignatory{
+					{LpaSignedAt: lpaSignedAt, Confirmed: attorneySignedAt},
+					{},
+				},
 			},
 			signed: true,
 		},
-		"trust corporation signle signatory unsigned": {
+		"trust corporation single signatory unsigned": {
 			details: AttorneyProvidedDetails{
 				IsTrustCorporation:       true,
 				WouldLikeSecondSignatory: form.No,
@@ -46,7 +50,10 @@ func TestAttorneyProvidedDetailsSigned(t *testing.T) {
 			details: AttorneyProvidedDetails{
 				IsTrustCorporation:       true,
 				WouldLikeSecondSignatory: form.Yes,
-				AuthorisedSignatories:    [2]TrustCorporationSignatory{{Confirmed: signedAfter}, {Confirmed: signedAfter}},
+				AuthorisedSignatories: [2]TrustCorporationSignatory{
+					{LpaSignedAt: lpaSignedAt, Confirmed: attorneySignedAt},
+					{LpaSignedAt: lpaSignedAt, Confirmed: attorneySignedAt},
+				},
 			},
 			signed: true,
 		},
@@ -54,25 +61,31 @@ func TestAttorneyProvidedDetailsSigned(t *testing.T) {
 			details: AttorneyProvidedDetails{
 				IsTrustCorporation:       true,
 				WouldLikeSecondSignatory: form.Yes,
-				AuthorisedSignatories:    [2]TrustCorporationSignatory{{Confirmed: signedAfter}, {}},
+				AuthorisedSignatories: [2]TrustCorporationSignatory{
+					{LpaSignedAt: lpaSignedAt, Confirmed: attorneySignedAt},
+					{},
+				},
 			},
 		},
 		"trust corporation double signatory signed before": {
 			details: AttorneyProvidedDetails{
 				IsTrustCorporation:       true,
 				WouldLikeSecondSignatory: form.Yes,
-				AuthorisedSignatories:    [2]TrustCorporationSignatory{{Confirmed: certificateProviderSignedAt}, {Confirmed: signedAfter}},
+				AuthorisedSignatories: [2]TrustCorporationSignatory{
+					{LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySignedAt},
+					{LpaSignedAt: lpaSignedAt, Confirmed: attorneySignedAt},
+				},
 			},
 		},
 	}
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.signed, tc.details.Signed(certificateProviderSignedAt))
+			assert.Equal(t, tc.signed, tc.details.Signed(lpaSignedAt))
 		})
 	}
 }
 
-func TestAttorneyProvidedDetailsSignedWhenPreviousActorNotSigned(t *testing.T) {
+func TestAttorneyProvidedDetailsSignedWhenLpaNotSigned(t *testing.T) {
 	assert.False(t, AttorneyProvidedDetails{Confirmed: time.Now()}.Signed(time.Time{}))
 }
