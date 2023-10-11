@@ -50,11 +50,11 @@ describe('Choose attorneys address', () => {
         cy.contains('label', 'Use an address you’ve already entered').click();
         cy.contains('button', 'Continue').click();
 
-        cy.contains('label', '2 RICHMOND PLACE').click();
+        cy.contains('label', '1 RICHMOND PLACE').click();
         cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/choose-attorneys-summary');
 
-        cy.get('#attorney-address-2').should('contain', '2 RICHMOND PLACE');
+        cy.contains('.govuk-summary-card', 'Robin Redcar').should('contain', '1 RICHMOND PLACE');
     });
 });

@@ -39,6 +39,6 @@ describe('People to notify address', () => {
 
         cy.url().should('contain', '/choose-people-to-notify-summary');
 
-        cy.get('#address-1').should('contain', '5 RICHMOND PLACE');
+        cy.contains('.govuk-summary-card', 'Jordan Jefferson').should('contain', '5 RICHMOND PLACE');
     });
 });
