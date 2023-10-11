@@ -418,7 +418,7 @@ locals {
         {
           # use vpc endpoints
           name  = "AWS_BASE_URL",
-          value = "https://com.amazonaws.${data.aws_region.current.name}."
+          value = "https://com.amazonaws.${data.aws_region.current.name}"
         },
       ]
     }
