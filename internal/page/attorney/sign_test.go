@@ -297,6 +297,7 @@ func TestGetSignOnTemplateError(t *testing.T) {
 }
 
 func TestPostSign(t *testing.T) {
+	lpaSignedAt := time.Now().Add(-time.Minute)
 	now := time.Now()
 
 	testcases := map[string]struct {
@@ -311,13 +312,14 @@ func TestPostSign(t *testing.T) {
 			appData: testAppData,
 			form:    url.Values{"confirm": {"1"}},
 			lpa: &page.Lpa{
-				SignedAt:  now,
+				SignedAt:  lpaSignedAt,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}}},
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
-				LpaID:     "lpa-id",
-				Confirmed: now,
-				Tasks:     actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
+				LpaID:       "lpa-id",
+				LpaSignedAt: lpaSignedAt,
+				Confirmed:   now,
+				Tasks:       actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
 			},
 			redirect: page.Paths.Attorney.WhatHappensNext,
 		},
@@ -325,13 +327,14 @@ func TestPostSign(t *testing.T) {
 			appData: testReplacementAppData,
 			form:    url.Values{"confirm": {"1"}},
 			lpa: &page.Lpa{
-				SignedAt:             now,
+				SignedAt:             lpaSignedAt,
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}}},
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
-				LpaID:     "lpa-id",
-				Confirmed: now,
-				Tasks:     actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
+				LpaID:       "lpa-id",
+				LpaSignedAt: lpaSignedAt,
+				Confirmed:   now,
+				Tasks:       actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
 			},
 			redirect: page.Paths.Attorney.WhatHappensNext,
 		},
@@ -344,7 +347,7 @@ func TestPostSign(t *testing.T) {
 				"confirm":            {"1"},
 			},
 			lpa: &page.Lpa{
-				SignedAt:  now,
+				SignedAt:  lpaSignedAt,
 				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "Corp"}},
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
@@ -353,6 +356,7 @@ func TestPostSign(t *testing.T) {
 					FirstNames:        "a",
 					LastName:          "b",
 					ProfessionalTitle: "c",
+					LpaSignedAt:       lpaSignedAt,
 					Confirmed:         now,
 				}},
 				Tasks: actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
@@ -368,7 +372,7 @@ func TestPostSign(t *testing.T) {
 				"confirm":            {"1"},
 			},
 			lpa: &page.Lpa{
-				SignedAt:             now,
+				SignedAt:             lpaSignedAt,
 				ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "Corp"}},
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
@@ -378,6 +382,7 @@ func TestPostSign(t *testing.T) {
 					LastName:          "b",
 					ProfessionalTitle: "c",
 					Confirmed:         now,
+					LpaSignedAt:       lpaSignedAt,
 				}},
 				Tasks: actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
 			},
@@ -393,7 +398,7 @@ func TestPostSign(t *testing.T) {
 				"confirm":            {"1"},
 			},
 			lpa: &page.Lpa{
-				SignedAt:  now,
+				SignedAt:  lpaSignedAt,
 				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "Corp"}},
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
@@ -402,6 +407,7 @@ func TestPostSign(t *testing.T) {
 					FirstNames:        "a",
 					LastName:          "b",
 					ProfessionalTitle: "c",
+					LpaSignedAt:       lpaSignedAt,
 					Confirmed:         now,
 				}},
 				Tasks: actor.AttorneyTasks{SignTheLpaSecond: actor.TaskCompleted},
@@ -418,7 +424,7 @@ func TestPostSign(t *testing.T) {
 				"confirm":            {"1"},
 			},
 			lpa: &page.Lpa{
-				SignedAt:             now,
+				SignedAt:             lpaSignedAt,
 				ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "Corp"}},
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
@@ -427,6 +433,7 @@ func TestPostSign(t *testing.T) {
 					FirstNames:        "a",
 					LastName:          "b",
 					ProfessionalTitle: "c",
+					LpaSignedAt:       lpaSignedAt,
 					Confirmed:         now,
 				}},
 				Tasks: actor.AttorneyTasks{SignTheLpaSecond: actor.TaskCompleted},
