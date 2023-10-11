@@ -1,79 +1,64 @@
 {{ define "people-to-notify-summary" }}
-  {{range $i, $p := .Lpa.PeopleToNotify}}
-    {{ $personNumber := inc $i }}
+  {{ $canChange := and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
 
-    {{ $detailsLink := printf "%s?from=%s&id=%s" ($.App.Paths.ChoosePeopleToNotify.Format $.App.LpaID) $.App.Page .ID }}
-    {{ $addressLink := printf "%s?from=%s&id=%s" ($.App.Paths.ChoosePeopleToNotifyAddress.Format $.App.LpaID) $.App.Page .ID }}
-    {{ $removeLink := printf "%s?from=%s&id=%s" ($.App.Paths.RemovePersonToNotify.Format $.App.LpaID) $.App.Page .ID }}
+  {{ range .Lpa.PeopleToNotify }}
+    {{ $detailsLink := printf "%s?from=%s&id=%s" (link $.App ($.App.Paths.ChoosePeopleToNotify.Format $.App.LpaID)) $.App.Page .ID }}
+    {{ $addressLink := printf "%s?from=%s&id=%s" (link $.App ($.App.Paths.ChoosePeopleToNotifyAddress.Format $.App.LpaID)) $.App.Page .ID }}
+    {{ $removeLink := printf "%s?from=%s&id=%s" (link $.App ($.App.Paths.RemovePersonToNotify.Format $.App.LpaID)) $.App.Page .ID }}
 
-    {{ if eq $.HeadingLevel 4 }}
-      <h4 class="govuk-heading-s">Person {{ $personNumber }}</h4>
-    {{ else if eq $.HeadingLevel 2 }}
-      <h2 class="govuk-heading-m">Person {{ $personNumber }}</h2>
-    {{ end }}
+    <div class="govuk-summary-card">
+      <div class="govuk-summary-card__title-wrapper">
+        {{ if eq $.HeadingLevel 4 }}
+          <h4 class="govuk-summary-card__title">{{ .FullName }}</h4>
+        {{ else if eq $.HeadingLevel 2 }}
+          <h2 class="govuk-summary-card__title">{{ .FullName }}</h2>
+        {{ end }}
 
-    <dl class="govuk-summary-list">
-      <div class="govuk-summary-list__row" id="name-{{ $personNumber }}">
-        <dt class="govuk-summary-list__key">
-          {{ tr $.App "name" }}
-        </dt>
-        <dd class="govuk-summary-list__value">
-          {{ $p.FirstNames }} {{ $p.LastName }}
-        </dd>
-        {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link $.App $detailsLink }}#f-first-names">
-              {{ trFormatHtml $.App "changeNameLinkText" "FirstNames" $p.FirstNames "LastName" $p.LastName }}
-            </a>
-          </dd>
+        {{ if $canChange }}
+          <ul class="govuk-summary-card__actions">
+            <li class="govuk-summary-card__action">
+              <a class="govuk-link govuk-link--no-visited-state" href="{{ $removeLink }}">{{ tr $.App "removePersonToNotify" }}</a>
+            </li>
+          </ul>
         {{ end }}
       </div>
-      <div class="govuk-summary-list__row" id="email-{{ $personNumber }}">
-        <dt class="govuk-summary-list__key ">
-          {{ tr $.App "email" }}
-        </dt>
-        <dd class="govuk-summary-list__value">
-          {{ $p.Email }}
-        </dd>
-        {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link $.App $detailsLink }}#f-email">
-              {{ trFormatHtml $.App "changeEmailLinkText" "FirstNames" $p.FirstNames "LastName" $p.LastName }}
-            </a>
-          </dd>
-        {{ end }}
-      </div>
-      <div class="govuk-summary-list__row" id="address-{{ $personNumber }}">
-        <dt class="govuk-summary-list__key">
-          {{ tr $.App "address" }}
-        </dt>
-        <dd class="govuk-summary-list__value">
-          {{ $p.Address.Line1 }}<br>
-          {{ if $p.Address.Line2 }}{{ $p.Address.Line2 }}<br>{{end}}
-          {{ if $p.Address.Line3 }}{{ $p.Address.Line3 }}<br>{{end}}
-          {{ if $p.Address.TownOrCity }}{{ $p.Address.TownOrCity }}<br>{{end}}
-          {{ $p.Address.Postcode }}
-        </dd>
-        {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link $.App $addressLink }}#f-address-line-1">
-              {{ trFormatHtml $.App "changeAddressLink" "FirstNames" $p.FirstNames "LastName" $p.LastName }}
-            </a>
-          </dd>
-        {{ end }}
-      </div>
-    </dl>
-
-    {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
-      <div class="govuk-grid-row" id="remove-person-to-notify-{{ $personNumber }}">
-        <div class="govuk-grid-column-full">
-          <div class="app-float-right">
-            <a class="govuk-button govuk-button--secondary" href="{{ link $.App $removeLink }}" data-module="govuk-button">
-              {{ trFormatHtml $.App "removePersonToNotifyButtonLink" "FirstNames" $p.FirstNames "LastName" $p.LastName }}
-            </a>
+      <div class="govuk-summary-card__content">
+        <dl class="govuk-summary-list">
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key"> {{ tr $.App "name" }}</dt>
+            <dd class="govuk-summary-list__value">{{ .FullName }}</dd>
+            {{ if $canChange }}
+              <dd class="govuk-summary-list__actions">
+                <a class="govuk-link govuk-link--no-visited-state" href="{{ $detailsLink }}#f-first-names">
+                  {{ trFormatHtml $.App "changeNameLinkText" "FirstNames" .FirstNames "LastName" .LastName }}
+                </a>
+              </dd>
+            {{ end }}
           </div>
-        </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr $.App "email" }}</dt>
+            <dd class="govuk-summary-list__value">{{ .Email }}</dd>
+            {{ if $canChange }}
+              <dd class="govuk-summary-list__actions">
+                <a class="govuk-link govuk-link--no-visited-state" href="{{ $detailsLink }}#f-email">
+                  {{ trFormatHtml $.App "changeEmailLinkText" "FirstNames" .FirstNames "LastName" .LastName }}
+                </a>
+              </dd>
+            {{ end }}
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr $.App "address" }}</dt>
+            <dd class="govuk-summary-list__value">{{ template "address-lines" .Address }}</dd>
+            {{ if $canChange }}
+              <dd class="govuk-summary-list__actions">
+                <a class="govuk-link govuk-link--no-visited-state" href="{{ $addressLink }}#f-address-line-1">
+                  {{ trFormatHtml $.App "changeAddressLink" "FirstNames" .FirstNames "LastName" .LastName }}
+                </a>
+              </dd>
+            {{ end }}
+          </div>
+        </dl>
       </div>
-    {{ end }}
+    </div>
   {{ end }}
 {{ end }}
