@@ -836,5 +836,7 @@
     "sendItByPost" : "Send it by post",
     "theirLpa": "{{.FullNamePossessive}} {{.LpaType}} LPA",
     "allAttorneysHaveSignedTheLpa": "All attorneys have signed the LPA",
-    "youveSignedTheLpa": "You’ve signed the LPA"
+    "youveSignedTheLpa": "You’ve signed the LPA",
+    "removeAttorney": "Remove attorney",
+    "removePersonToNotify": "Remove person to notify"
 }
