@@ -337,7 +337,7 @@ func (l *Lpa) Progress(certificateProvider *actor.CertificateProviderProvidedDet
 	p.CertificateProviderSigned = actor.TaskCompleted
 	p.AttorneysSigned = actor.TaskInProgress
 
-	if !l.allAttorneysSigned(certificateProvider.Certificate.Agreed, attorneys) {
+	if !l.AllAttorneysSigned(l.SignedAt, attorneys) {
 		return p
 	}
 
@@ -361,8 +361,8 @@ func (l *Lpa) Progress(certificateProvider *actor.CertificateProviderProvidedDet
 	return p
 }
 
-func (l *Lpa) allAttorneysSigned(after time.Time, attorneys []*actor.AttorneyProvidedDetails) bool {
-	if l == nil || after.IsZero() || l.Attorneys.Len() == 0 {
+func (l *Lpa) AllAttorneysSigned(lpaSignedAt time.Time, attorneys []*actor.AttorneyProvidedDetails) bool {
+	if l == nil || lpaSignedAt.IsZero() || l.Attorneys.Len() == 0 {
 		return false
 	}
 
@@ -374,7 +374,7 @@ func (l *Lpa) allAttorneysSigned(after time.Time, attorneys []*actor.AttorneyPro
 	)
 
 	for _, a := range attorneys {
-		if !a.Signed(after) {
+		if !a.Signed(lpaSignedAt) {
 			continue
 		}
 

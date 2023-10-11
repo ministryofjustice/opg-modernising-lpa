@@ -149,13 +149,20 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 				return nil, nil, nil, err
 			}
 
+			lpaID := certificateProviderProvidedDetails.LpaID
+
 			if certificateProviderProvidedDetails.Certificate.AgreeToStatement {
-				delete(certificateProviderMap, certificateProviderProvidedDetails.LpaID)
+				delete(certificateProviderMap, lpaID)
 			}
 
-			if entry, ok := certificateProviderMap[certificateProviderProvidedDetails.LpaID]; ok {
-				entry.CertificateProviderTasks = certificateProviderProvidedDetails.Tasks
-				certificateProviderMap[certificateProviderProvidedDetails.LpaID] = entry
+			if entry, ok := certificateProviderMap[lpaID]; ok {
+				entry.CertificateProvider = certificateProviderProvidedDetails
+				certificateProviderMap[lpaID] = entry
+			}
+
+			if entry, ok := attorneyMap[lpaID]; ok {
+				entry.CertificateProvider = certificateProviderProvidedDetails
+				attorneyMap[lpaID] = entry
 			}
 		}
 	}
