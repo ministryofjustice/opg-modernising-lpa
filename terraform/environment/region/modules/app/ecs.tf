@@ -342,7 +342,7 @@ locals {
         {
           # use vpc endpoints
           name  = "AWS_ENDPOINT_URL",
-          value = "com.amazonaws.${data.aws_region.current.name}"
+          value = "https://com.amazonaws.${data.aws_region.current.name}"
         },
         {
           name  = "AWS_RUM_APPLICATION_REGION",
