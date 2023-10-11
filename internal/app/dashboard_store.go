@@ -131,14 +131,16 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 				return nil, nil, nil, err
 			}
 
-			if entry, ok := attorneyMap[attorneyProvidedDetails.LpaID]; ok {
+			lpaID := attorneyProvidedDetails.LpaID
+
+			if entry, ok := attorneyMap[lpaID]; ok {
 				if attorneyProvidedDetails.IsReplacement && !entry.Lpa.SubmittedAt.IsZero() {
-					delete(attorneyMap, attorneyProvidedDetails.LpaID)
+					delete(attorneyMap, lpaID)
 					continue
 				}
 
 				entry.Attorney = attorneyProvidedDetails
-				attorneyMap[attorneyProvidedDetails.LpaID] = entry
+				attorneyMap[lpaID] = entry
 				continue
 			}
 		}
@@ -149,13 +151,15 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 				return nil, nil, nil, err
 			}
 
+			lpaID := certificateProviderProvidedDetails.LpaID
+
 			if certificateProviderProvidedDetails.Certificate.AgreeToStatement {
-				delete(certificateProviderMap, certificateProviderProvidedDetails.LpaID)
+				delete(certificateProviderMap, lpaID)
 			}
 
-			if entry, ok := certificateProviderMap[certificateProviderProvidedDetails.LpaID]; ok {
-				entry.CertificateProviderTasks = certificateProviderProvidedDetails.Tasks
-				certificateProviderMap[certificateProviderProvidedDetails.LpaID] = entry
+			if entry, ok := certificateProviderMap[lpaID]; ok {
+				entry.CertificateProvider = certificateProviderProvidedDetails
+				certificateProviderMap[lpaID] = entry
 			}
 		}
 	}
