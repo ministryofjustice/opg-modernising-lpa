@@ -342,22 +342,6 @@ func TestListPeopleToNotify(t *testing.T) {
 	assert.Equal(t, want, got)
 }
 
-func TestListPeopleNamedOnLpa(t *testing.T) {
-	app := page.AppData{SessionID: "abc"}
-	headingLevel := 3
-	lpa := &page.Lpa{}
-
-	want := map[string]interface{}{
-		"App":          app,
-		"HeadingLevel": headingLevel,
-		"Lpa":          lpa,
-	}
-
-	got := peopleNamedOnLpa(app, lpa, headingLevel)
-
-	assert.Equal(t, want, got)
-}
-
 func TestCard(t *testing.T) {
 	app := page.AppData{SessionID: "abc"}
 

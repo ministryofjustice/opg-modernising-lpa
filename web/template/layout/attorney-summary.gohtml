@@ -1,167 +1,138 @@
 {{ define "attorney-summary" }}
+  {{ $canChange := and (not .Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) .App.IsDonor }}
+  {{ $enterTrustCorporationLink := link .App (.App.Paths.EnterTrustCorporation.Format .Lpa.ID) }}
+  {{ $enterTrustCorporationAddressLink := link .App (.App.Paths.EnterTrustCorporationAddress.Format .Lpa.ID) }}
+  
   {{ if .TrustCorporation.Name }}
-    {{ if eq .HeadingLevel 4 }}
-      <h4 class="govuk-heading-s">{{ tr $.App "trustCorporation" }}</h4>
-    {{ else if eq .HeadingLevel 2 }}
-      <h2 class="govuk-heading-m">{{ tr $.App "trustCorporation" }}</h2>
-    {{ end }}
-
-    <dl class="govuk-summary-list">
-      <div class="govuk-summary-list__row" id="trust-corporation-name">
-        <dt class="govuk-summary-list__key">
-          {{ tr .App "companyName" }}
-        </dt>
-        <dd class="govuk-summary-list__value">
-          {{ .TrustCorporation.Name }}
-        </dd>
-        {{ if and (not .Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) .App.IsDonor }}
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App (.App.Paths.EnterTrustCorporation.Format .Lpa.ID) }}#f-name">
-              {{ trHtml .App "changeCompanyNameLink" }}
-            </a>
-          </dd>
+    <div class="govuk-summary-card">
+      <div class="govuk-summary-card__title-wrapper">
+        {{ if eq .HeadingLevel 4 }}
+          <h4 class="govuk-summary-card__title">{{ .TrustCorporation.Name }}</h4>
+        {{ else if eq .HeadingLevel 2 }}
+          <h2 class="govuk-summary-card__title">{{ .TrustCorporation.Name }}</h2>
         {{ end }}
       </div>
-      <div class="govuk-summary-list__row" id="trust-corporation-date-of-birth">
-        <dt class="govuk-summary-list__key">
-          {{ tr .App "companyNumber" }}
-        </dt>
-        <dd class="govuk-summary-list__value">
-          {{ .TrustCorporation.CompanyNumber }}
-        </dd>
-        {{ if and (not .Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) .App.IsDonor }}
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App (.App.Paths.EnterTrustCorporation.Format .Lpa.ID) }}#f-company-number">
-              {{ trHtml .App "changeCompanyNumberLink" }}
-            </a>
-          </dd>
-        {{ end }}
+      <div class="govuk-summary-card__content">
+        <dl class="govuk-summary-list">
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "companyName" }}</dt>
+            <dd class="govuk-summary-list__value">{{ .TrustCorporation.Name }}</dd>
+            {{ if $canChange }}
+              <dd class="govuk-summary-list__actions">
+                <a class="govuk-link govuk-link--no-visited-state" href="{{ $enterTrustCorporationLink }}#f-name">
+                  {{ trHtml .App "changeCompanyNameLink" }}
+                </a>
+              </dd>
+            {{ end }}
+          </div>
+          
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "companyNumber" }}</dt>
+            <dd class="govuk-summary-list__value">{{ .TrustCorporation.CompanyNumber }}</dd>
+            {{ if $canChange }}
+              <dd class="govuk-summary-list__actions">
+                <a class="govuk-link govuk-link--no-visited-state" href="{{ $enterTrustCorporationLink }}#f-company-number">
+                  {{ trHtml .App "changeCompanyNumberLink" }}
+                </a>
+              </dd>
+            {{ end }}
+          </div>
+          
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key ">{{ tr .App "companyEmailAddress" }}</dt>
+            <dd class="govuk-summary-list__value">{{ .TrustCorporation.Email }}</dd>
+            {{ if $canChange }}
+              <dd class="govuk-summary-list__actions">
+                <a class="govuk-link govuk-link--no-visited-state" href="{{ $enterTrustCorporationLink }}#f-email">
+                  {{ trHtml .App "changeCompanyEmailLink" }}
+                </a>
+              </dd>
+            {{ end }}
+          </div>
+          
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
+            <dd class="govuk-summary-list__value">{{ template "address-lines" .TrustCorporation.Address }}</dd>
+            {{ if $canChange }}
+              <dd class="govuk-summary-list__actions">
+                <a class="govuk-link govuk-link--no-visited-state" href="{{ $enterTrustCorporationAddressLink }}#f-address-line-1">
+                  {{ trHtml .App "changeCompanyAddressLink" }}
+                </a>
+              </dd>
+            {{ end }}
+          </div>
+        </dl>
       </div>
-      <div class="govuk-summary-list__row" id="trust-corporation-email">
-        <dt class="govuk-summary-list__key ">
-          {{ tr .App "companyEmailAddress" }}
-        </dt>
-        <dd class="govuk-summary-list__value">
-          {{ .TrustCorporation.Email }}
-        </dd>
-        {{ if and (not .Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) .App.IsDonor }}
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App (.App.Paths.EnterTrustCorporation.Format .Lpa.ID) }}#f-email">
-              {{ trHtml .App "changeCompanyEmailLink" }}
-            </a>
-          </dd>
-        {{ end }}
-      </div>
-      <div class="govuk-summary-list__row" id="trust-corporation-address">
-        <dt class="govuk-summary-list__key">
-          {{ tr .App "address" }}
-        </dt>
-        <dd class="govuk-summary-list__value">
-          {{ .TrustCorporation.Address.Line1 }}<br>
-          {{ if .TrustCorporation.Address.Line2 }}{{ .TrustCorporation.Address.Line2 }}<br>{{end}}
-          {{ if .TrustCorporation.Address.Line3 }}{{ .TrustCorporation.Address.Line3 }}<br>{{end}}
-          {{ if .TrustCorporation.Address.TownOrCity }}{{ .TrustCorporation.Address.TownOrCity }}<br>{{end}}
-          {{ .TrustCorporation.Address.Postcode }}
-        </dd>
-        {{ if and (not .Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) .App.IsDonor }}
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App (.App.Paths.EnterTrustCorporationAddress.Format .Lpa.ID) }}#f-address-line-1">
-              {{ trHtml .App "changeCompanyAddressLink" }}
-            </a>
-          </dd>
-        {{ end }}
-      </div>
-    </dl>
+    </div>
   {{ end }}
 
-  {{range $i, $a := .Attorneys}}
-    {{ $attorneyNumber := inc $i }}
+  {{range .Attorneys}}
+    <div class="govuk-summary-card">
+      <div class="govuk-summary-card__title-wrapper">
+        {{ if eq $.HeadingLevel 4 }}
+          <h4 class="govuk-summary-card__title">{{ .FullName }}</h4>
+        {{ else if eq $.HeadingLevel 2 }}
+          <h2 class="govuk-summary-card__title">{{ .FullName }}</h2>
+        {{ end }}
 
-    {{ if eq $.HeadingLevel 4 }}
-      <h4 class="govuk-heading-s">{{ if eq $.AttorneyType "replacement" }}{{ tr $.App "replacementAttorney" }} {{ else }} {{ tr $.App "attorney" }} {{ end }} {{ $attorneyNumber }}</h4>
-    {{ else if eq $.HeadingLevel 2 }}
-      <h2 class="govuk-heading-m">{{ if eq $.AttorneyType "replacement" }}{{ tr $.App "replacementAttorney" }} {{ else }} {{ tr $.App "attorney" }} {{ end }} {{ $attorneyNumber }}</h2>
-    {{ end }}
-
-    <dl class="govuk-summary-list">
-      <div class="govuk-summary-list__row" id="{{ $.AttorneyType }}-name-{{ $attorneyNumber }}">
-        <dt class="govuk-summary-list__key">
-          {{ tr $.App "name" }}
-        </dt>
-        <dd class="govuk-summary-list__value">
-          {{ $a.FirstNames }} {{ $a.LastName }}
-        </dd>
-        {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link $.App $.DetailsPath }}&id={{ .ID }}#f-first-names">
-              {{ trFormatHtml $.App "changeNameLinkText" "FirstNames" $a.FirstNames "LastName" $a.LastName }}
-            </a>
-          </dd>
+        {{ if $canChange }}
+          <ul class="govuk-summary-card__actions">
+            <li class="govuk-summary-card__action">
+              <a class="govuk-link govuk-link--no-visited-state" href="{{ link $.App $.RemovePath }}&id={{ .ID }}">{{ tr $.App "removeAttorney" }}</a>
+            </li>
+          </ul>
         {{ end }}
       </div>
-      <div class="govuk-summary-list__row" id="{{ $.AttorneyType }}-date-of-birth-{{ $attorneyNumber }}">
-        <dt class="govuk-summary-list__key">
-          {{ tr $.App "dateOfBirth" }}
-        </dt>
-        <dd class="govuk-summary-list__value">
-          {{ formatDate $.App $a.DateOfBirth }}
-        </dd>
-        {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link $.App $.DetailsPath }}&id={{ .ID }}#f-date-of-birth">
-              {{ trFormatHtml $.App "changeDOBLinkText" "FirstNames" $a.FirstNames "LastName" $a.LastName }}
-            </a>
-          </dd>
-        {{ end }}
-      </div>
-      {{ if $a.Email }}
-        <div class="govuk-summary-list__row" id="{{ $.AttorneyType }}-email-{{ $attorneyNumber }}">
-          <dt class="govuk-summary-list__key ">
-            {{ tr $.App "email" }}
-          </dt>
-          <dd class="govuk-summary-list__value">
-            {{ $a.Email }}
-          </dd>
-          {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
-            <dd class="govuk-summary-list__actions">
-              <a class="govuk-link" href="{{ link $.App $.DetailsPath }}&id={{ .ID }}#f-email">
-                {{ trFormatHtml $.App "changeEmailLinkText" "FirstNames" $a.FirstNames "LastName" $a.LastName }}
-              </a>
-            </dd>
-          {{ end }}
-        </div>
-      {{ end }}
-      <div class="govuk-summary-list__row" id="{{ $.AttorneyType }}-address-{{ $attorneyNumber }}">
-        <dt class="govuk-summary-list__key">
-          {{ tr $.App "address" }}
-        </dt>
-        <dd class="govuk-summary-list__value">
-          {{ $a.Address.Line1 }}<br>
-          {{ if $a.Address.Line2 }}{{ $a.Address.Line2 }}<br>{{end}}
-          {{ if $a.Address.Line3 }}{{ $a.Address.Line3 }}<br>{{end}}
-          {{ if $a.Address.TownOrCity }}{{ $a.Address.TownOrCity }}<br>{{end}}
-          {{ $a.Address.Postcode }}
-        </dd>
-        {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link $.App $.AddressPath }}&id={{ .ID }}#f-address-line-1">
-              {{ trFormatHtml $.App "changeAddressLink" "FirstNames" $a.FirstNames "LastName" $a.LastName }}
-            </a>
-          </dd>
-        {{ end }}
-      </div>
-    </dl>
-
-    {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
-      <div class="govuk-grid-row" id="remove-{{ $.AttorneyType }}-{{ $attorneyNumber }}">
-        <div class="govuk-grid-column-full">
-          <div class="app-float-right">
-            <a class="govuk-button govuk-button--secondary" href="{{ link $.App $.RemovePath }}&id={{ .ID }}" data-module="govuk-button">
-              {{ trFormat $.App "removeAttorneyButtonLink" "FirstNames" $a.FirstNames "LastName" $a.LastName  }}
-            </a>
+      <div class="govuk-summary-card__content">
+        <dl class="govuk-summary-list">
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr $.App "name" }}</dt>
+            <dd class="govuk-summary-list__value">{{ .FullName }}</dd>
+            {{ if $canChange }}
+              <dd class="govuk-summary-list__actions">
+                <a class="govuk-link govuk-link--no-visited-state" href="{{ link $.App $.DetailsPath }}&id={{ .ID }}#f-first-names">
+                  {{ trFormatHtml $.App "changeNameLinkText" "FirstNames" .FirstNames "LastName" .LastName }}
+                </a>
+              </dd>
+            {{ end }}
           </div>
-        </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr $.App "dateOfBirth" }}</dt>
+            <dd class="govuk-summary-list__value">{{ formatDate $.App .DateOfBirth }}</dd>
+            {{ if $canChange }}
+              <dd class="govuk-summary-list__actions">
+                <a class="govuk-link govuk-link--no-visited-state" href="{{ link $.App $.DetailsPath }}&id={{ .ID }}#f-date-of-birth">
+                  {{ trFormatHtml $.App "changeDOBLinkText" "FirstNames" .FirstNames "LastName" .LastName }}
+                </a>
+              </dd>
+            {{ end }}
+          </div>
+          {{ if .Email }}
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">{{ tr $.App "email" }}</dt>
+              <dd class="govuk-summary-list__value">{{ .Email }}</dd>
+              {{ if $canChange }}
+                <dd class="govuk-summary-list__actions">
+                  <a class="govuk-link govuk-link--no-visited-state" href="{{ link $.App $.DetailsPath }}&id={{ .ID }}#f-email">
+                    {{ trFormatHtml $.App "changeEmailLinkText" "FirstNames" .FirstNames "LastName" .LastName }}
+                  </a>
+                </dd>
+              {{ end }}
+            </div>
+          {{ end }}
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr $.App "address" }}</dt>
+            <dd class="govuk-summary-list__value">{{ template "address-lines" .Address }}</dd>
+            {{ if $canChange }}
+              <dd class="govuk-summary-list__actions">
+                <a class="govuk-link govuk-link--no-visited-state" href="{{ link $.App $.AddressPath }}&id={{ .ID }}#f-address-line-1">
+                  {{ trFormatHtml $.App "changeAddressLink" "FirstNames" .FirstNames "LastName" .LastName }}
+                </a>
+              </dd>
+            {{ end }}
+          </div>
+        </dl>
       </div>
-    {{ end }}
+    </div>
   {{ end }}
 {{ end }}
