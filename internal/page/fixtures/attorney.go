@@ -106,10 +106,13 @@ func Attorney(
 			ThinksCanSign: actor.Yes,
 			CanSign:       form.Yes,
 		}
+
 		lpa.Type = page.LpaTypePropertyFinance
 		if lpaType == "hw" && !isTrustCorporation {
 			lpa.Type = page.LpaTypeHealthWelfare
 		}
+
+		lpa.CertificateProvider = makeCertificateProvider()
 
 		lpa.Attorneys = actor.Attorneys{
 			Attorneys:        []actor.Attorney{makeAttorney(attorneyNames[0])},
