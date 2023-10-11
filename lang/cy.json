@@ -883,5 +883,8 @@
     "howWouldYouLikeToSendUsYourEvidenceContent": "<p class=\"govuk-body\">Welsh</p>",
     "howYouWouldLikeToSendUsYourEvidence": "Welsh",
     "uploadItOnline" : "Welsh",
-    "sendItByPost" : "Welsh"
+    "sendItByPost" : "Welsh",
+    "sendItByPost" : "Welsh",
+    "removeAttorney": "Welsh",
+    "removePersonToNotify": "Welsh"
 }

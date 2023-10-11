@@ -833,5 +833,7 @@
     "howWouldYouLikeToSendUsYourEvidenceContent": "<p class=\"govuk-body\">You can upload your supporting evidence on the next page, or you can send it to us in the post.</p>",
     "howYouWouldLikeToSendUsYourEvidence": "how you would like to send us your evidence",
     "uploadItOnline" : "Upload it online",
-    "sendItByPost" : "Send it by post"
+    "sendItByPost" : "Send it by post",
+    "removeAttorney": "Remove attorney",
+    "removePersonToNotify": "Remove person to notify"
 }
