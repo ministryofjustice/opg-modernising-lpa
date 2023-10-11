@@ -15,51 +15,51 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetAreYouApplyingForADifferentFeeType(t *testing.T) {
+func TestGetAreYouApplyingForFeeDiscountOrExemption(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/are-you-applying-for-a-different-fee-type", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &areYouApplyingForADifferentFeeTypeData{
+		On("Execute", w, &areYouApplyingForFeeDiscountOrExemption{
 			App:     testAppData,
 			Options: form.YesNoValues,
 		}).
 		Return(nil)
 
-	err := AreYouApplyingForADifferentFeeType(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
+	err := AreYouApplyingForFeeDiscountOrExemption(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetAreYouApplyingForADifferentFeeTypeWhenTemplateErrors(t *testing.T) {
+func TestGetAreYouApplyingForFeeDiscountOrExemptionWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/are-you-applying-for-a-different-fee-type", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &areYouApplyingForADifferentFeeTypeData{
+		On("Execute", w, &areYouApplyingForFeeDiscountOrExemption{
 			App:     testAppData,
 			Options: form.YesNoValues,
 		}).
 		Return(expectedError)
 
-	err := AreYouApplyingForADifferentFeeType(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
+	err := AreYouApplyingForFeeDiscountOrExemption(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostAreYouApplyingForADifferentFeeType(t *testing.T) {
+func TestPostAreYouApplyingForFeeDiscountOrExemption(t *testing.T) {
 	f := url.Values{
 		"yes-no": {form.No.String()},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpa := &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}}
@@ -78,17 +78,17 @@ func TestPostAreYouApplyingForADifferentFeeType(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := AreYouApplyingForADifferentFeeType(nil, payer, donorStore)(testAppData, w, r, lpa)
+	err := AreYouApplyingForFeeDiscountOrExemption(nil, payer, donorStore)(testAppData, w, r, lpa)
 	assert.Nil(t, err)
 }
 
-func TestPostAreYouApplyingForADifferentFeeTypeWhenDonorStoreErrors(t *testing.T) {
+func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenDonorStoreErrors(t *testing.T) {
 	form := url.Values{
 		"yes-no": {form.No.String()},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
@@ -96,17 +96,17 @@ func TestPostAreYouApplyingForADifferentFeeTypeWhenDonorStoreErrors(t *testing.T
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := AreYouApplyingForADifferentFeeType(nil, nil, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := AreYouApplyingForFeeDiscountOrExemption(nil, nil, donorStore)(testAppData, w, r, &page.Lpa{})
 	assert.Equal(t, expectedError, err)
 }
 
-func TestPostAreYouApplyingForADifferentFeeTypeWhenPayerErrors(t *testing.T) {
+func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenPayerErrors(t *testing.T) {
 	form := url.Values{
 		"yes-no": {form.No.String()},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	payer := newMockPayer(t)
@@ -119,17 +119,17 @@ func TestPostAreYouApplyingForADifferentFeeTypeWhenPayerErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(nil)
 
-	err := AreYouApplyingForADifferentFeeType(nil, payer, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := AreYouApplyingForFeeDiscountOrExemption(nil, payer, donorStore)(testAppData, w, r, &page.Lpa{})
 	assert.Equal(t, expectedError, err)
 }
 
-func TestPostAreYouApplyingForADifferentFeeTypeWhenYes(t *testing.T) {
+func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenYes(t *testing.T) {
 	f := url.Values{
 		"yes-no": {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
@@ -141,7 +141,7 @@ func TestPostAreYouApplyingForADifferentFeeTypeWhenYes(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := AreYouApplyingForADifferentFeeType(nil, nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}})
+	err := AreYouApplyingForFeeDiscountOrExemption(nil, nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -149,25 +149,25 @@ func TestPostAreYouApplyingForADifferentFeeTypeWhenYes(t *testing.T) {
 	assert.Equal(t, page.Paths.WhichFeeTypeAreYouApplyingFor.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostAreYouApplyingForADifferentFeeTypeWhenValidationError(t *testing.T) {
+func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenValidationError(t *testing.T) {
 	form := url.Values{
 		"yes-no": {""},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/are-you-applying-for-a-different-fee-type", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	validationError := validation.With("yes-no", validation.SelectError{Label: "whetherApplyingForDifferentFeeType"})
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, mock.MatchedBy(func(data *areYouApplyingForADifferentFeeTypeData) bool {
+		On("Execute", w, mock.MatchedBy(func(data *areYouApplyingForFeeDiscountOrExemption) bool {
 			return assert.Equal(t, validationError, data.Errors)
 		})).
 		Return(nil)
 
-	err := AreYouApplyingForADifferentFeeType(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}})
+	err := AreYouApplyingForFeeDiscountOrExemption(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

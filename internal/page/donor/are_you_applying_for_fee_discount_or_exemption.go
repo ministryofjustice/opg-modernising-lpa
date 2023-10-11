@@ -10,7 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type areYouApplyingForADifferentFeeTypeData struct {
+type areYouApplyingForFeeDiscountOrExemption struct {
 	App                 page.AppData
 	Errors              validation.List
 	CertificateProvider actor.CertificateProvider
@@ -18,9 +18,9 @@ type areYouApplyingForADifferentFeeTypeData struct {
 	Form                *form.YesNoForm
 }
 
-func AreYouApplyingForADifferentFeeType(tmpl template.Template, payer Payer, donorStore DonorStore) Handler {
+func AreYouApplyingForFeeDiscountOrExemption(tmpl template.Template, payer Payer, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
-		data := &areYouApplyingForADifferentFeeTypeData{
+		data := &areYouApplyingForFeeDiscountOrExemption{
 			App:                 appData,
 			CertificateProvider: lpa.CertificateProvider,
 			Options:             form.YesNoValues,
