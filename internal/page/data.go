@@ -181,10 +181,23 @@ type Lpa struct {
 	// FeeType is the type of fee the user is applying for
 	FeeType FeeType
 	// EvidenceKeys is the S3 keys for uploaded evidence with a record of when it's been sent to caseworkers
-	EvidenceKeys []Evidence
+	EvidenceKeys EvidenceKeys
 
 	HasSentApplicationUpdatedEvent        bool
 	HasSentPreviousApplicationLinkedEvent bool
+}
+
+type EvidenceKeys []Evidence
+
+func (es *EvidenceKeys) Delete(evidenceKey string) bool {
+	idx := slices.IndexFunc(*es, func(e Evidence) bool { return e.Key == evidenceKey })
+	if idx == -1 {
+		return false
+	}
+
+	*es = slices.Delete(*es, idx, idx+1)
+
+	return true
 }
 
 type Evidence struct {

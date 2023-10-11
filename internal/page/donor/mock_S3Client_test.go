@@ -14,6 +14,39 @@ type mockS3Client struct {
 	mock.Mock
 }
 
+// DeleteObject provides a mock function with given fields: _a0, _a1, _a2
+func (_m *mockS3Client) DeleteObject(_a0 context.Context, _a1 *s3.DeleteObjectInput, _a2 ...func(*s3.Options)) (*s3.DeleteObjectOutput, error) {
+	_va := make([]interface{}, len(_a2))
+	for _i := range _a2 {
+		_va[_i] = _a2[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, _a0, _a1)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *s3.DeleteObjectOutput
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *s3.DeleteObjectInput, ...func(*s3.Options)) (*s3.DeleteObjectOutput, error)); ok {
+		return rf(_a0, _a1, _a2...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *s3.DeleteObjectInput, ...func(*s3.Options)) *s3.DeleteObjectOutput); ok {
+		r0 = rf(_a0, _a1, _a2...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*s3.DeleteObjectOutput)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *s3.DeleteObjectInput, ...func(*s3.Options)) error); ok {
+		r1 = rf(_a0, _a1, _a2...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // PutObject provides a mock function with given fields: _a0, _a1, _a2
 func (_m *mockS3Client) PutObject(_a0 context.Context, _a1 *s3.PutObjectInput, _a2 ...func(*s3.Options)) (*s3.PutObjectOutput, error) {
 	_va := make([]interface{}, len(_a2))

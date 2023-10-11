@@ -103,6 +103,24 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 			}
 		}
 
+		if key := r.URL.Query().Get("delete"); key != "" {
+			_, err := s3Client.DeleteObject(r.Context(), &s3.DeleteObjectInput{
+				Bucket: aws.String(evidenceBucketName),
+				Key:    aws.String(key),
+			})
+			if err != nil {
+				return err
+			}
+
+			lpa.EvidenceKeys.Delete(key)
+
+			if err := donorStore.Put(r.Context(), lpa); err != nil {
+				return err
+			}
+
+			data.Evidence = lpa.EvidenceKeys
+		}
+
 		return tmpl(w, data)
 	}
 }
