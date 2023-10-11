@@ -341,7 +341,7 @@ locals {
         },
         {
           # use vpc endpoints
-          name  = "AWS_BASE_URL",
+          name  = "AWS_ENDPOINT_URL",
           value = "com.amazonaws.${data.aws_region.current.name}"
         },
         {
