@@ -21,7 +21,7 @@
         {{ tr .App "peopleNamedOnTheLpa" }}
       </h2>
 
-      {{ template "people-named-on-lpa" (peopleNamedOnLpa .App .Lpa 4) }}
+      {{ template "people-named-on-lpa" . }}
 
       <form novalidate method="post">
         <div class="govuk-form-group  {{ if .Errors.Has "checked-and-happy" }}govuk-form-group--error{{ end }}">
