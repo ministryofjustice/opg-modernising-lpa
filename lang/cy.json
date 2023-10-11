@@ -886,5 +886,8 @@
     "sendItByPost" : "Welsh",
     "theirLpa": "{{.FullNamePossessive}} {{.LpaType}} Welsh",
     "allAttorneysHaveSignedTheLpa": "Welsh",
-    "youveSignedTheLpa": "Welsh"
+    "youveSignedTheLpa": "Welsh",
+    "sendItByPost" : "Welsh",
+    "removeAttorney": "Welsh",
+    "removePersonToNotify": "Welsh"
 }
