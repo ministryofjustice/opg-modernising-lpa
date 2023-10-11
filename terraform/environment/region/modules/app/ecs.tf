@@ -415,6 +415,11 @@ locals {
           name  = "EVENT_BUS_NAME",
           value = var.event_bus.name
         },
+        # {
+        #   # use vpc endpoints
+        #   name  = "AWS_ENDPOINT_URL",
+        #   value = "https://com.amazonaws.${data.aws_region.current.name}"
+        # },
       ]
     }
   )
