@@ -108,6 +108,7 @@ func TestPostUploadEvidenceWithUploadActionAcceptedFileTypes(t *testing.T) {
 					NumberOfAllowedFiles: 5,
 					MimeTypes:            acceptedMimeTypes(),
 					FeeType:              page.HalfFee,
+					UploadedCount:        1,
 				}).
 				Return(nil)
 
@@ -164,6 +165,7 @@ func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              page.HalfFee,
+			UploadedCount:        2,
 		}).
 		Return(nil)
 
@@ -215,6 +217,7 @@ func TestPostUploadEvidenceWithUploadActionFilenameSpecialCharactersAreEscaped(t
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              page.HalfFee,
+			UploadedCount:        1,
 		}).
 		Return(nil)
 
@@ -543,6 +546,7 @@ func TestGetUploadEvidenceDeleteEvidence(t *testing.T) {
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              page.HalfFee,
+			Deleted:              "dummy.pdf",
 		}).
 		Return(nil)
 
@@ -636,6 +640,7 @@ func TestGetUploadEvidenceDeleteEvidenceOnTemplateError(t *testing.T) {
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              page.HalfFee,
+			Deleted:              "dummy.pdf",
 		}).
 		Return(expectedError)
 

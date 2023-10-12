@@ -52,6 +52,8 @@ type uploadEvidenceData struct {
 	FeeType              page.FeeType
 	Evidence             []page.Evidence
 	MimeTypes            []string
+	Deleted              string
+	UploadedCount        int
 }
 
 func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, randomUUID func() string, evidenceS3Client S3Client) Handler {
@@ -81,6 +83,7 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 						}
 
 						lpa.Evidence = append(lpa.Evidence, page.Evidence{Key: key, Filename: file.Filename})
+						data.UploadedCount += 1
 					}
 
 					if err := donorStore.Put(r.Context(), lpa); err != nil {
@@ -95,10 +98,13 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 		}
 
 		if key := r.URL.Query().Get("delete"); key != "" {
-			if lpa.Evidence.HasKey(key) {
+			evidence := lpa.Evidence.GetByKey(key)
+			if evidence.Key != "" {
 				if err := evidenceS3Client.DeleteObject(r.Context(), key); err != nil {
 					return err
 				}
+
+				data.Deleted = evidence.Filename
 
 				lpa.Evidence.Delete(key)
 

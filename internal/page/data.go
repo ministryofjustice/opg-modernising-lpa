@@ -211,14 +211,14 @@ func (es *Evidences) Keys() []string {
 	return keys
 }
 
-func (es *Evidences) HasKey(key string) bool {
+func (es *Evidences) GetByKey(key string) Evidence {
 	for _, e := range *es {
 		if e.Key == key {
-			return true
+			return e
 		}
 	}
 
-	return false
+	return Evidence{}
 }
 
 type Evidence struct {

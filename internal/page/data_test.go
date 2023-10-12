@@ -1136,14 +1136,14 @@ func TestEvidencesKeys(t *testing.T) {
 	assert.Equal(t, []string{"a-key", "another-key"}, evidences.Keys())
 }
 
-func TestEvidencesHasKey(t *testing.T) {
+func TestEvidencesGetByKey(t *testing.T) {
 	evidences := Evidences{
 		{Key: "a-key"},
 		{Key: "another-key"},
 	}
 
-	assert.True(t, evidences.HasKey("a-key"))
-	assert.True(t, evidences.HasKey("another-key"))
+	assert.Equal(t, Evidence{Key: "a-key"}, evidences.GetByKey("a-key"))
+	assert.Equal(t, Evidence{Key: "another-key"}, evidences.GetByKey("another-key"))
 
-	assert.False(t, evidences.HasKey("not-a-key"))
+	assert.Equal(t, Evidence{}, evidences.GetByKey("not-a-key"))
 }
