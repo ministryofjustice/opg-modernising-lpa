@@ -31,6 +31,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	s3pkg "github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/templatefn"
@@ -204,7 +205,7 @@ func main() {
 
 	uidClient := uid.New(uidBaseURL, httpClient, cfg, v4.NewSigner(), time.Now)
 
-	s3Client := s3.NewFromConfig(cfg, func(o *s3.Options) {
+	evidenceS3Client := s3pkg.NewClient(cfg, evidenceBucketName, func(o *s3.Options) {
 		o.UsePathStyle = true
 	})
 
@@ -237,8 +238,7 @@ func main() {
 		signInClient,
 		uidClient,
 		oneloginURL,
-		s3Client,
-		evidenceBucketName,
+		evidenceS3Client,
 		eventClient,
 	)))
 	mux.Handle("/", app.App(
@@ -259,8 +259,7 @@ func main() {
 		signInClient,
 		uidClient,
 		oneloginURL,
-		s3Client,
-		evidenceBucketName,
+		evidenceS3Client,
 		eventClient,
 	))
 

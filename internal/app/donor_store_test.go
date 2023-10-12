@@ -476,7 +476,7 @@ func TestDonorStorePutWhenReducedFeeRequested(t *testing.T) {
 			UID:                            "M-1111",
 			UpdatedAt:                      now,
 			FeeType:                        page.HalfFee,
-			EvidenceKeys:                   []page.Evidence{{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf", Sent: now}},
+			Evidence:                       []page.Evidence{{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf", Sent: now}},
 			Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
 			HasSentApplicationUpdatedEvent: true,
 		}).
@@ -499,7 +499,7 @@ func TestDonorStorePutWhenReducedFeeRequested(t *testing.T) {
 		ID:                             "5",
 		UID:                            "M-1111",
 		FeeType:                        page.HalfFee,
-		EvidenceKeys:                   []page.Evidence{{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf"}},
+		Evidence:                       []page.Evidence{{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf"}},
 		Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
 		HasSentApplicationUpdatedEvent: true,
 	})
@@ -519,7 +519,7 @@ func TestDonorStorePutWhenReducedFeeRequestedSentAndUnsentFees(t *testing.T) {
 			UID:       "M-1111",
 			UpdatedAt: now,
 			FeeType:   page.HalfFee,
-			EvidenceKeys: []page.Evidence{
+			Evidence: []page.Evidence{
 				{Key: "lpa-uid-evidence-a-uid-1", Filename: "whatever.pdf", Sent: now},
 				{Key: "lpa-uid-evidence-a-uid-2", Filename: "whenever.pdf", Sent: now},
 				{Key: "lpa-uid-evidence-a-uid-3", Filename: "whoever.pdf", Sent: now},
@@ -546,7 +546,7 @@ func TestDonorStorePutWhenReducedFeeRequestedSentAndUnsentFees(t *testing.T) {
 		ID:      "5",
 		UID:     "M-1111",
 		FeeType: page.HalfFee,
-		EvidenceKeys: []page.Evidence{
+		Evidence: []page.Evidence{
 			{Key: "lpa-uid-evidence-a-uid-1", Filename: "whatever.pdf"},
 			{Key: "lpa-uid-evidence-a-uid-2", Filename: "whenever.pdf", Sent: now},
 			{Key: "lpa-uid-evidence-a-uid-3", Filename: "whoever.pdf"},
@@ -574,7 +574,7 @@ func TestDonorStorePutWhenReducedFeeRequestedWontResend(t *testing.T) {
 		ID:                             "5",
 		UID:                            "M-1111",
 		Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
-		EvidenceKeys:                   []page.Evidence{{Key: "lpa-uid-evidence-a-uid-1", Filename: "whatever.pdf", Sent: now}},
+		Evidence:                       []page.Evidence{{Key: "lpa-uid-evidence-a-uid-1", Filename: "whatever.pdf", Sent: now}},
 		HasSentApplicationUpdatedEvent: true,
 	})
 	assert.Nil(t, err)
@@ -592,7 +592,7 @@ func TestDonorStorePutWhenReducedFeeRequestedWhenError(t *testing.T) {
 			ID:                             "5",
 			UID:                            "M-1111",
 			Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
-			EvidenceKeys:                   []page.Evidence{{Sent: now}, {}},
+			Evidence:                       []page.Evidence{{Sent: now}, {}},
 			UpdatedAt:                      now,
 			HasSentApplicationUpdatedEvent: true,
 		}).
@@ -615,7 +615,7 @@ func TestDonorStorePutWhenReducedFeeRequestedWhenError(t *testing.T) {
 		ID:                             "5",
 		UID:                            "M-1111",
 		Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
-		EvidenceKeys:                   []page.Evidence{{Sent: now}, {}},
+		Evidence:                       []page.Evidence{{Sent: now}, {}},
 		HasSentApplicationUpdatedEvent: true,
 	})
 	assert.Nil(t, err)
