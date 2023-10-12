@@ -27,7 +27,7 @@ describe('Choose replacement attorneys summary', () => {
     it('can amend attorney details', () => {
         cy.checkA11yApp();
 
-        cy.get('#replacement-name-1').contains('a', 'Change').click();
+        cy.contains('.govuk-summary-card', 'Blake Buckley').contains('a', 'Change').click();
         cy.get('#f-first-names').clear().type('Mark');
 
         cy.contains('button', 'Save and continue').click();
@@ -39,7 +39,10 @@ describe('Choose replacement attorneys summary', () => {
     it('can amend attorney address', () => {
         cy.checkA11yApp();
 
-        cy.get('#replacement-address-2').contains('a', 'Change').click();
+        cy.contains('.govuk-summary-card', 'Taylor Thompson')
+            .contains('.govuk-summary-list__row', 'Address')
+            .contains('a', 'Change')
+            .click();
 
         cy.get('#f-address-line-1').clear().type('4 RICHMOND PLACE');
         cy.contains('button', 'Continue').click();
@@ -90,7 +93,7 @@ describe('Choose replacement attorneys summary', () => {
     it('can remove an attorney', () => {
         cy.checkA11yApp();
 
-        cy.get('#remove-replacement-1').contains('a', 'Remove').click();
+        cy.contains('.govuk-summary-card', 'Blake Buckley').contains('a', 'Remove').click();
 
         cy.url().should('contain', '/remove-replacement-attorney');
         cy.url().should('match', /id=\w*/);
@@ -108,7 +111,7 @@ describe('Choose replacement attorneys summary', () => {
 
         cy.get('main').should('not.contain', 'Blake Buckley');
 
-        cy.get('#remove-replacement-1').contains('a', 'Remove').click();
+        cy.contains('.govuk-summary-card', 'Taylor Thompson').contains('a', 'Remove').click();
         cy.get('input[name="yes-no"]').check('yes');
         cy.contains('button', 'Continue').click();
 
@@ -116,7 +119,7 @@ describe('Choose replacement attorneys summary', () => {
     });
 
     it('errors when remove not selected', () => {
-        cy.contains('a', 'Remove Blake Buckley').click();
+        cy.contains('.govuk-summary-card', 'Blake Buckley').contains('a', 'Remove').click();
 
         cy.contains('button', 'Continue').click();
 

@@ -15,14 +15,14 @@
     {{ tr .App "attorneys" }}
   </h3>
 
-  {{ template "attorney-summary" (listAttorneys .Lpa.Attorneys .App "attorney" .HeadingLevel .Lpa) }}
+  {{ template "attorney-summary" (listAttorneys .Lpa.Attorneys .App "attorney" 4 .Lpa) }}
 
   {{ if gt .Lpa.ReplacementAttorneys.Len 0 }}
     <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">
       {{ tr .App "replacementAttorneys" }}
     </h3>
 
-    {{ template "attorney-summary" (listAttorneys .Lpa.ReplacementAttorneys .App "replacement" .HeadingLevel .Lpa) }}
+    {{ template "attorney-summary" (listAttorneys .Lpa.ReplacementAttorneys .App "replacement" 4 .Lpa) }}
   {{ end }}
 
   {{ if gt (len .Lpa.PeopleToNotify) 0  }}
@@ -32,9 +32,8 @@
       {{ else}}
         {{ tr .App "peopleToNotifyAboutTheLpa" }}
       {{ end }}
-
     </h3>
 
-    {{ template "people-to-notify-summary" (listPeopleToNotify .App .HeadingLevel .Lpa) }}
+    {{ template "people-to-notify-summary" (listPeopleToNotify .App 4 .Lpa) }}
   {{ end }}
 {{ end }}
