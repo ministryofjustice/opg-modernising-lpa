@@ -838,5 +838,6 @@
     "allAttorneysHaveSignedTheLpa": "All attorneys have signed the LPA",
     "youveSignedTheLpa": "You’ve signed the LPA",
     "removeAttorney": "Remove attorney",
-    "removePersonToNotify": "Remove person to notify"
+    "removePersonToNotify": "Remove person to notify",
+    "youHaveDeletedFile": "You have deleted file {{ .Filename }}"
 }

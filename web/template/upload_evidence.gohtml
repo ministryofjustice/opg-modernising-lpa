@@ -21,7 +21,7 @@
       </svg>
 
       <div class="moj-banner__message">
-        <h2 class="govuk-heading-m">You have deleted file {{ .Deleted }}</h2>
+        <h2 class="govuk-heading-m">{{ trFormat .App "youHaveDeletedFile" "Filename" .Deleted }}</h2>
       </div>
     </div>
   {{ end }}
