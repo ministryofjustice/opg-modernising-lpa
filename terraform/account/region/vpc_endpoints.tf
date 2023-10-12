@@ -56,9 +56,10 @@ resource "aws_vpc_endpoint" "private" {
   tags                = { Name = "${each.value}-private-${data.aws_region.current.name}" }
 }
 
-resource "aws_vpc_endpoint_policy" "ec2" {
+resource "aws_vpc_endpoint_policy" "private" {
   provider        = aws.region
-  vpc_endpoint_id = aws_vpc_endpoint.private["ec2"].id
+  for_each        = local.interface_endpoint
+  vpc_endpoint_id = aws_vpc_endpoint.private[each.value].id
   policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [
@@ -66,10 +67,10 @@ resource "aws_vpc_endpoint_policy" "ec2" {
         "Sid" : "AllowAll",
         "Effect" : "Allow",
         "Principal" : {
-          "AWS" : "*"
+          "AWS" : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
         },
         "Action" : [
-          "ec2:*"
+          "${each.value}:*"
         ],
         "Resource" : "*"
       }
