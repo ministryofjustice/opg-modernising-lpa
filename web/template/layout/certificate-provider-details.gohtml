@@ -1,41 +1,43 @@
 {{ define "certificate-provider-details" }}
-  <dl class="govuk-summary-list">
-    <div class="govuk-summary-list__row">
-      <dt class="govuk-summary-list__key">
-        {{ tr .App "name" }}
-      </dt>
-      <dd class="govuk-summary-list__value">
-        {{ .Lpa.CertificateProvider.FirstNames }} {{ .Lpa.CertificateProvider.LastName }}
-      </dd>
-      {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
-        <dd class="govuk-summary-list__actions">
-          <a class="govuk-link" href="{{ link .App (.App.Paths.CertificateProviderDetails.Format .App.LpaID) }}?from={{.App.Page}}#f-first-names">
-            {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr .App "certificateProvider") }}</span>
-          </a>
-        </dd>
-      {{ end }}
-{{/*      This is the only reason we need to inject cpStore in to the Guidance handler - revisit if knowing CP ID status is a must have*/}}
-{{/*      {{ if .CertificateProvider.CertificateProviderIdentityConfirmed }}*/}}
-{{/*        <dd class="govuk-summary-list__value">*/}}
-{{/*          <strong class="govuk-tag app-task-list__tag govuk-tag">{{ tr .App "idVerifiedTag" }}</strong>*/}}
-{{/*        </dd>*/}}
-{{/*      {{ end }}*/}}
+  {{ $canChange := and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
+  {{ $certificateProviderDetailsLink := printf "%s?from=%s" (link .App (.App.Paths.CertificateProviderDetails.Format .App.LpaID)) .App.Page }}
+  
+  <div class="govuk-summary-card">
+    <div class="govuk-summary-card__title-wrapper">
+      <h4 class="govuk-summary-card__title">{{ .Lpa.CertificateProvider.FullName }}</h4>
     </div>
+    <div class="govuk-summary-card__content">
+      <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">{{ tr .App "name" }}</dt>
+          <dd class="govuk-summary-list__value">{{ .Lpa.CertificateProvider.FullName }}</dd>
+          {{ if $canChange }}
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link govuk-link--no-visited-state" href="{{ $certificateProviderDetailsLink }}#f-first-names">
+                {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr .App "certificateProvider") }}</span>
+              </a>
+            </dd>
+          {{ end }}
+          {{/*      This is the only reason we need to inject cpStore in to the Guidance handler - revisit if knowing CP ID status is a must have*/}}
+          {{/*      {{ if .CertificateProvider.CertificateProviderIdentityConfirmed }}*/}}
+          {{/*        <dd class="govuk-summary-list__value">*/}}
+          {{/*          <strong class="govuk-tag app-task-list__tag govuk-tag">{{ tr .App "idVerifiedTag" }}</strong>*/}}
+          {{/*        </dd>*/}}
+          {{/*      {{ end }}*/}}
+        </div>
 
-    <div class="govuk-summary-list__row">
-      <dt class="govuk-summary-list__key">
-        {{ tr .App "mobile" }}
-      </dt>
-      <dd class="govuk-summary-list__value">
-        {{ .Lpa.CertificateProvider.Mobile }}
-      </dd>
-      {{ if and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
-        <dd class="govuk-summary-list__actions">
-          <a class="govuk-link" href="{{ link .App (.App.Paths.CertificateProviderDetails.Format .App.LpaID) }}?from={{.App.Page}}#f-mobile">
-            {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "certificateProviderMobile" }}</span>
-          </a>
-        </dd>
-      {{ end }}
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">{{ tr .App "mobile" }}</dt>
+          <dd class="govuk-summary-list__value">{{ .Lpa.CertificateProvider.Mobile }}</dd>
+          {{ if $canChange }}
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link govuk-link--no-visited-state" href="{{ $certificateProviderDetailsLink }}#f-mobile">
+                {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "certificateProviderMobile" }}</span>
+              </a>
+            </dd>
+          {{ end }}
+        </div>
+      </dl>
     </div>
-  </dl>
+  </div>
 {{ end }}

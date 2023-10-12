@@ -48,10 +48,12 @@ describe('People to notify', () => {
 
         cy.contains('People to notify about your LPA');
 
-        cy.get('#name-1').contains('Brian Gooding');
-        cy.get('#address-1').contains("4 RICHMOND PLACE");
-        cy.get('#address-1').contains("BIRMINGHAM");
-        cy.get('#address-1').contains("B14 7ED");
+        cy.contains('.govuk-summary-card', 'Brian Gooding').within(() => {
+            cy.contains('Brian Gooding');
+            cy.contains("4 RICHMOND PLACE");
+            cy.contains("BIRMINGHAM");
+            cy.contains("B14 7ED");
+        });
 
         cy.get('input[name="yes-no"]').check('yes')
         cy.contains('button', 'Save and continue').click();
@@ -66,7 +68,7 @@ describe('People to notify', () => {
 
         cy.checkA11yApp();
 
-        cy.contains('Jordan Jefferson').parent().contains('a', 'Change').click();
+        cy.contains('.govuk-summary-list__row', 'Jordan Jefferson').contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-people-to-notify');
 
@@ -80,10 +82,8 @@ describe('People to notify', () => {
 
         cy.url().should('contain', '/choose-people-to-notify-summary');
 
-        cy.get('#name-1').contains('Changed Altered')
-        cy.get('#email-1').contains(TestEmail2)
-
-        cy.contains('4 RICHMOND PLACE').parent().contains('a', 'Change').click();
+        cy.contains('.govuk-summary-card', 'Changed Altered').contains(TestEmail2);
+        cy.contains('.govuk-summary-list__row', '4 RICHMOND PLACE').contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-people-to-notify-address');
 
@@ -99,11 +99,13 @@ describe('People to notify', () => {
 
         cy.url().should('contain', '/choose-people-to-notify-summary');
 
-        cy.get('#address-1').contains('1 New Road');
-        cy.get('#address-1').contains('Changeville');
-        cy.get('#address-1').contains('Newington');
-        cy.get('#address-1').contains('Newshire');
-        cy.get('#address-1').contains('A12 3BC');
+        cy.contains('.govuk-summary-card', 'Changed Altered').within(() => {
+            cy.contains('1 New Road');
+            cy.contains('Changeville');
+            cy.contains('Newington');
+            cy.contains('Newshire');
+            cy.contains('A12 3BC');
+        });
     });
 
     it('can remove a person to notify', () => {
@@ -111,7 +113,7 @@ describe('People to notify', () => {
 
         cy.checkA11yApp();
 
-        cy.get('#remove-person-to-notify-2').contains(`Remove Danni Davies`).click();
+        cy.contains('.govuk-summary-card', 'Danni Davies').contains('Remove person to notify').click();
 
         cy.url().should('contain', '/remove-person-to-notify');
 
@@ -122,7 +124,7 @@ describe('People to notify', () => {
 
         cy.url().should('contain', '/choose-people-to-notify-summary');
 
-        cy.get('#remove-person-to-notify-1').contains(`Remove Jordan Jefferson`).click();
+        cy.contains('.govuk-summary-card', 'Jordan Jefferson').contains('Remove person to notify').click();
 
         cy.url().should('contain', '/remove-person-to-notify');
 
@@ -205,7 +207,7 @@ describe('People to notify', () => {
         cy.contains('.govuk-fieldset .govuk-error-message', 'Select yes to add another person to notify');
     });
 
-    it.only('warns when name shared with other actor', () => {
+    it('warns when name shared with other actor', () => {
         cy.visit('/fixtures?redirect=/choose-people-to-notify&progress=provideYourDetails');
 
         cy.get('#f-first-names').type('Sam');
