@@ -27,7 +27,7 @@ describe('Choose attorneys summary', () => {
     it('can amend attorney details', () => {
         cy.checkA11yApp();
 
-        cy.get('#attorney-name-1').contains('a', 'Change').click();
+        cy.contains('.govuk-summary-card', 'Jessie Jones').contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-attorneys?from=');
         cy.url().should('contain', '/choose-attorneys-summary');
@@ -45,7 +45,10 @@ describe('Choose attorneys summary', () => {
     it('can amend attorney address', () => {
         cy.checkA11yApp();
 
-        cy.get('#attorney-address-2').contains('a', 'Change').click();
+        cy.contains('.govuk-summary-card', 'Robin Redcar')
+            .contains('.govuk-summary-list__row', 'Address')
+            .contains('a', 'Change')
+            .click();
 
         cy.url().should('contain', '/choose-attorneys-address?from=');
         cy.url().should('contain', '/choose-attorneys-summary');
@@ -104,7 +107,7 @@ describe('Choose attorneys summary', () => {
     it('can remove an attorney', () => {
         cy.checkA11yApp();
 
-        cy.get('#remove-attorney-1').contains('a', 'Remove').click();
+        cy.contains('.govuk-summary-card', 'Jessie Jones').contains('a', 'Remove').click();
 
         cy.url().should('contain', '/remove-attorney');
         cy.url().should('match', /id=\w*/);
@@ -122,7 +125,7 @@ describe('Choose attorneys summary', () => {
 
         cy.get('main').should('not.contain', 'Jessie Jones');
 
-        cy.get('#remove-attorney-1').contains('a', 'Remove').click();
+        cy.contains('.govuk-summary-card', 'Robin Redcar').contains('a', 'Remove').click();
         cy.get('input[name="yes-no"]').check('yes');
         cy.contains('button', 'Continue').click();
 
@@ -130,7 +133,7 @@ describe('Choose attorneys summary', () => {
     });
 
     it('errors when remove not selected', () => {
-        cy.get('#remove-attorney-1').contains('a', 'Remove').click();
+        cy.contains('.govuk-summary-card', 'Jessie Jones').contains('a', 'Remove').click();
 
         cy.contains('button', 'Continue').click();
 
