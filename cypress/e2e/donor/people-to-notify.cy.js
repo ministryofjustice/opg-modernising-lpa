@@ -205,7 +205,7 @@ describe('People to notify', () => {
         cy.contains('.govuk-fieldset .govuk-error-message', 'Select yes to add another person to notify');
     });
 
-    it.only('warns when name shared with other actor', () => {
+    it('warns when name shared with other actor', () => {
         cy.visit('/fixtures?redirect=/choose-people-to-notify&progress=provideYourDetails');
 
         cy.get('#f-first-names').type('Sam');

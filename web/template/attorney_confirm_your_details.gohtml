@@ -41,13 +41,7 @@
           </div>
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
-            <dd class="govuk-summary-list__value">
-              {{ .TrustCorporation.Address.Line1 }}<br>
-              {{ if .TrustCorporation.Address.Line2 }}{{ .TrustCorporation.Address.Line2 }}<br>{{end}}
-              {{ if .TrustCorporation.Address.Line3 }}{{ .TrustCorporation.Address.Line3 }}<br>{{end}}
-              {{ if .TrustCorporation.Address.TownOrCity }}{{ .TrustCorporation.Address.TownOrCity }}<br>{{end}}
-              {{ .TrustCorporation.Address.Postcode }}
-            </dd>
+            <dd class="govuk-summary-list__value">{{ template "address-lines" .TrustCorporation.Address }}</dd>
           </div>
         </dl>
 
@@ -66,13 +60,7 @@
           </div>
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
-            <dd class="govuk-summary-list__value">
-              {{ .Attorney.Address.Line1 }}<br>
-              {{ if .Attorney.Address.Line2 }}{{ .Attorney.Address.Line2 }}<br>{{end}}
-              {{ if .Attorney.Address.Line3 }}{{ .Attorney.Address.Line3 }}<br>{{end}}
-              {{ if .Attorney.Address.TownOrCity }}{{ .Attorney.Address.TownOrCity }}<br>{{end}}
-              {{ .Attorney.Address.Postcode }}
-            </dd>
+            <dd class="govuk-summary-list__value">{{ template "address-lines" .Attorney.Address }}</dd>
           </div>
         </dl>
 
