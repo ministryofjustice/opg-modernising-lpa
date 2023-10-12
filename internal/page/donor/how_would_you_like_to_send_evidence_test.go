@@ -7,52 +7,51 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetCanEvidenceBeUploaded(t *testing.T) {
+func TestGetHowWouldYouLikeToSendEvidence(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &canEvidenceBeUploadedData{
+		On("Execute", w, &howWouldYouLikeToSendEvidenceData{
 			App:     testAppData,
-			Options: form.YesNoValues,
+			Options: EvidenceDeliveryValues,
 		}).
 		Return(nil)
 
-	err := CanEvidenceBeUploaded(template.Execute)(testAppData, w, r, &page.Lpa{})
+	err := HowWouldYouLikeToSendEvidence(template.Execute)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetCanEvidenceBeUploadedFromStore(t *testing.T) {
+func TestGetHowWouldYouLikeToSendEvidenceFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &canEvidenceBeUploadedData{
+		On("Execute", w, &howWouldYouLikeToSendEvidenceData{
 			App:     testAppData,
-			Options: form.YesNoValues,
+			Options: EvidenceDeliveryValues,
 		}).
 		Return(nil)
 
-	err := CanEvidenceBeUploaded(template.Execute)(testAppData, w, r, &page.Lpa{})
+	err := HowWouldYouLikeToSendEvidence(template.Execute)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetCanEvidenceBeUploadedWhenTemplateErrors(t *testing.T) {
+func TestGetHowWouldYouLikeToSendEvidenceWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -61,30 +60,30 @@ func TestGetCanEvidenceBeUploadedWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := CanEvidenceBeUploaded(template.Execute)(testAppData, w, r, &page.Lpa{})
+	err := HowWouldYouLikeToSendEvidence(template.Execute)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostCanEvidenceBeUploaded(t *testing.T) {
-	testcases := map[form.YesNo]page.LpaPath{
-		form.Yes: page.Paths.UploadEvidence,
-		form.No:  page.Paths.HowToEmailOrPostEvidence,
+func TestPostHowWouldYouLikeToSendEvidence(t *testing.T) {
+	testcases := map[EvidenceDelivery]page.LpaPath{
+		Upload: page.Paths.UploadEvidence,
+		Post:   page.Paths.HowToEmailOrPostEvidence,
 	}
 
-	for yesNo, redirect := range testcases {
-		t.Run(yesNo.String(), func(t *testing.T) {
+	for evidenceDelivery, redirect := range testcases {
+		t.Run(evidenceDelivery.String(), func(t *testing.T) {
 			form := url.Values{
-				"yes-no": {yesNo.String()},
+				"evidence-delivery": {evidenceDelivery.String()},
 			}
 
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := CanEvidenceBeUploaded(nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+			err := HowWouldYouLikeToSendEvidence(nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -94,19 +93,19 @@ func TestPostCanEvidenceBeUploaded(t *testing.T) {
 	}
 }
 
-func TestPostCanEvidenceBeUploadedWhenValidationErrors(t *testing.T) {
+func TestPostHowWouldYouLikeToSendEvidenceWhenValidationErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, mock.MatchedBy(func(data *canEvidenceBeUploadedData) bool {
-			return assert.Equal(t, validation.With("yes-no", validation.SelectError{Label: "canEvidenceBeUploaded"}), data.Errors)
+		On("Execute", w, mock.MatchedBy(func(data *howWouldYouLikeToSendEvidenceData) bool {
+			return assert.Equal(t, validation.With("evidence-delivery", validation.SelectError{Label: "howYouWouldLikeToSendUsYourEvidence"}), data.Errors)
 		})).
 		Return(nil)
 
-	err := CanEvidenceBeUploaded(template.Execute)(testAppData, w, r, &page.Lpa{})
+	err := HowWouldYouLikeToSendEvidence(template.Execute)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

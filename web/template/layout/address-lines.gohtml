@@ -1,0 +1,7 @@
+{{ define "address-lines" }}
+  {{ .Line1 }}<br>
+  {{ if .Line2 }}{{ .Line2 }}<br>{{end}}
+  {{ if .Line3 }}{{ .Line3 }}<br>{{end}}
+  {{ if .TownOrCity }}{{ .TownOrCity }}<br>{{end}}
+  {{ .Postcode }}
+{{ end }}

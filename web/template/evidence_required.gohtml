@@ -1,16 +1,44 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "evidenceRequired" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App (printf "evidenceRequired%s" .Lpa.FeeType.String) }}{{ end }}
 
 {{ define "main" }}
+  {{ $pageTitle := printf "evidenceRequired%s" .Lpa.FeeType.String }}
+
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "evidenceRequired" }}</h1>
+        <h1 class="govuk-heading-xl">{{ tr .App $pageTitle }}</h1>
 
-      {{ trHtml .App "evidenceRequiredContent" }}
+        {{ if .Lpa.FeeType.IsHalfFee }}
+            {{ trHtml .App "evidenceRequiredHalfFeeIntroContent" }}
+
+            {{ template "details" details . "whereYourIncomeCanComeFrom" "whereYourIncomeCanComeFromDetail" false }}
+
+            {{ trHtml .App "evidenceRequiredHalfFeeEvidenceContent" }}
+
+            {{ template "details" details . "ifYouHaveNoIncome" "ifYouHaveNoIncomeDetail" false }}
+
+            {{ trHtml .App "evidenceRequiredHalfFeeUniversalCreditContent" }}
+        {{ end }}
+
+      {{ if .Lpa.FeeType.IsNoFee }}
+          {{ trHtml .App "evidenceRequiredNoFeeIntroContent" }}
+
+          {{ template "details" details . "eligibleMeansTestedBenefits" "eligibleMeansTestedBenefitsDetail" false }}
+
+          {{ trHtml .App "evidenceRequiredNoFeeEvidenceContent" }}
+      {{ end }}
+
+      {{ if .Lpa.FeeType.IsHardshipFee }}
+        {{ trHtml .App "evidenceRequiredHardshipFeeContent" }}
+      {{ end }}
+
+      {{ if .Lpa.FeeType.IsRepeatApplicationFee }}
+        {{ trHtml .App "placeholder" }}
+      {{ end }}
 
       <div class="govuk-button-group">
-        <a class="govuk-button" href="{{ link .App (.App.Paths.CanEvidenceBeUploaded.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
+        <a class="govuk-button" href="{{ link .App (.App.Paths.HowWouldYouLikeToSendEvidence.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
         <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
       </div>
     </div>

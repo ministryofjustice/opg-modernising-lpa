@@ -22,7 +22,7 @@
         {{ tr .App "peopleNamedOnTheLpa" }}
       </h2>
 
-      {{ template "people-named-on-lpa" (peopleNamedOnLpa .App .Lpa 0) }}
+      {{ template "people-named-on-lpa" . }}
 
       <p class="govuk-body">
         <a href="{{ link .App (.App.Paths.LpaYourLegalRightsAndResponsibilities.Format .App.LpaID) }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">

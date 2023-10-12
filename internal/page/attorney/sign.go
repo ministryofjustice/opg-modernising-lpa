@@ -113,9 +113,11 @@ func Sign(tmpl template.Template, donorStore DonorStore, certificateProviderStor
 						LastName:          data.Form.LastName,
 						ProfessionalTitle: data.Form.ProfessionalTitle,
 						Confirmed:         now(),
+						LpaSignedAt:       lpa.SignedAt,
 					}
 				} else {
 					attorneyProvidedDetails.Confirmed = now()
+					attorneyProvidedDetails.LpaSignedAt = lpa.SignedAt
 				}
 
 				if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
