@@ -31,7 +31,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	s3Pkg "github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
+	s3pkg "github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/templatefn"
@@ -205,7 +205,7 @@ func main() {
 
 	uidClient := uid.New(uidBaseURL, httpClient, cfg, v4.NewSigner(), time.Now)
 
-	evidenceS3Client := s3Pkg.NewClient(cfg, evidenceBucketName, func(o *s3.Options) {
+	evidenceS3Client := s3pkg.NewClient(cfg, evidenceBucketName, func(o *s3.Options) {
 		o.UsePathStyle = true
 	})
 
