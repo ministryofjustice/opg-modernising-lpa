@@ -60,11 +60,12 @@
                 {{ .Filename }}
               </dt>
               <dd class="govuk-summary-list__actions">
-                <a class="govuk-link" href="#">
-                  {{ tr $.App "delete" }}<span class="govuk-visually-hidden"> {{ .Filename }}</span>
-                </a>
-              </dd
-              >
+                {{ if .Sent.IsZero }}
+                  <a class="govuk-link" href="{{ $.App.Path }}?delete={{ .Key }}">
+                    {{ tr $.App "delete" }}<span class="govuk-visually-hidden"> {{ .Filename }}</span>
+                  </a>
+                {{ end }}
+              </dd>
             </div>
           {{ end }}
         </dl>

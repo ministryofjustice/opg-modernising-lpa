@@ -174,7 +174,7 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 	if lpa.UID != "" && lpa.Tasks.PayForLpa.IsPending() && lpa.HasUnsentReducedFeesEvidence() {
 		var unsentKeys []string
 
-		for _, evidence := range lpa.EvidenceKeys {
+		for _, evidence := range lpa.Evidence {
 			if evidence.Sent.IsZero() {
 				unsentKeys = append(unsentKeys, evidence.Key)
 			}
@@ -187,9 +187,9 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 		}); err != nil {
 			s.logger.Print(err)
 		} else {
-			for i, evidence := range lpa.EvidenceKeys {
+			for i, evidence := range lpa.Evidence {
 				if evidence.Sent.IsZero() {
-					lpa.EvidenceKeys[i].Sent = s.now()
+					lpa.Evidence[i].Sent = s.now()
 				}
 			}
 		}

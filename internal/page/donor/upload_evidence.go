@@ -9,9 +9,6 @@ import (
 	"net/http"
 	"slices"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -57,13 +54,13 @@ type uploadEvidenceData struct {
 	MimeTypes            []string
 }
 
-func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, randomUUID func() string, evidenceBucketName string, s3Client S3Client) Handler {
+func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, randomUUID func() string, evidenceS3Client S3Client) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &uploadEvidenceData{
 			App:                  appData,
 			NumberOfAllowedFiles: numberOfAllowedFiles,
 			FeeType:              lpa.FeeType,
-			Evidence:             lpa.EvidenceKeys,
+			Evidence:             lpa.Evidence,
 			MimeTypes:            acceptedMimeTypes(),
 		}
 
@@ -78,28 +75,38 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 						uuid := randomUUID()
 						key := lpa.UID + "/evidence/" + uuid
 
-						_, err := s3Client.PutObject(r.Context(), &s3.PutObjectInput{
-							Bucket:               aws.String(evidenceBucketName),
-							Key:                  aws.String(key),
-							Body:                 bytes.NewReader(file.Data),
-							ServerSideEncryption: types.ServerSideEncryptionAwsKms,
-							Tagging:              aws.String("replicate=true"),
-						})
+						err := evidenceS3Client.PutObject(r.Context(), key, file.Data)
 						if err != nil {
 							return err
 						}
 
-						lpa.EvidenceKeys = append(lpa.EvidenceKeys, page.Evidence{Key: key, Filename: file.Filename})
+						lpa.Evidence = append(lpa.Evidence, page.Evidence{Key: key, Filename: file.Filename})
 					}
 
 					if err := donorStore.Put(r.Context(), lpa); err != nil {
 						return err
 					}
 
-					data.Evidence = lpa.EvidenceKeys
+					data.Evidence = lpa.Evidence
 				} else {
 					return payer.Pay(appData, w, r, lpa)
 				}
+			}
+		}
+
+		if key := r.URL.Query().Get("delete"); key != "" {
+			if lpa.Evidence.HasKey(key) {
+				if err := evidenceS3Client.DeleteObject(r.Context(), key); err != nil {
+					return err
+				}
+
+				lpa.Evidence.Delete(key)
+
+				if err := donorStore.Put(r.Context(), lpa); err != nil {
+					return err
+				}
+
+				data.Evidence = lpa.Evidence
 			}
 		}
 
