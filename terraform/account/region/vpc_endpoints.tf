@@ -100,11 +100,16 @@ data "aws_iam_policy_document" "s3_vpc_endpoint" {
   provider = aws.region
   statement {
     sid       = "S3VpcEndpointPolicy"
-    actions   = ["*"]
+    actions   = ["s3:*"]
     resources = ["*"]
     principals {
       type        = "AWS"
-      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+      identifiers = ["*"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "aws:PrincipalAccount"
+      values   = [data.aws_caller_identity.current.account_id]
     }
   }
 }
@@ -123,11 +128,17 @@ data "aws_iam_policy_document" "dynamodb_vpc_endpoint" {
   provider = aws.region
   statement {
     sid       = "DynamoDBVpcEndpointPolicy"
-    actions   = ["*"]
+    effect    = "Allow"
+    actions   = ["dynamodb:*"]
     resources = ["*"]
     principals {
       type        = "AWS"
-      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+      identifiers = ["*"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "aws:PrincipalAccount"
+      values   = [data.aws_caller_identity.current.account_id]
     }
   }
 }
