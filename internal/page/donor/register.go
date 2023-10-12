@@ -166,7 +166,7 @@ func Register(
 	attorneyStore AttorneyStore,
 	notifyClient NotifyClient,
 	evidenceReceivedStore EvidenceReceivedStore,
-	s3Client S3Client,
+	evidenceS3Client S3Client,
 ) {
 	payer := &payHelper{
 		logger:       logger,
@@ -307,15 +307,15 @@ func Register(
 	handleWithLpa(page.Paths.CanEvidenceBeUploaded, CanGoBack,
 		CanEvidenceBeUploaded(tmpls.Get("can_evidence_be_uploaded.gohtml")))
 	handleWithLpa(page.Paths.UploadEvidence, CanGoBack,
-		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), payer, donorStore, random.UuidString, s3Client))
+		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), payer, donorStore, random.UuidString, evidenceS3Client))
 	handleWithLpa(page.Paths.WhatHappensAfterNoFee, None,
-		Guidance(tmpls.Get("what_happens_after_no_fee.gohtml")))
+		WhatHappensAfterNoFee(tmpls.Get("what_happens_after_no_fee.gohtml"), donorStore, evidenceS3Client, logger, time.Now))
 	handleWithLpa(page.Paths.HowToEmailOrPostEvidence, CanGoBack,
 		HowToEmailOrPostEvidence(tmpls.Get("how_to_email_or_post_evidence.gohtml"), payer))
 	handleWithLpa(page.Paths.FeeDenied, None,
 		FeeDenied(tmpls.Get("fee_denied.gohtml"), payer))
 	handleWithLpa(page.Paths.PaymentConfirmation, None,
-		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, s3Client))
+		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, evidenceS3Client, time.Now))
 
 	handleWithLpa(page.Paths.HowToConfirmYourIdentityAndSign, None,
 		Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml")))

@@ -54,7 +54,7 @@ type uploadEvidenceData struct {
 	MimeTypes            []string
 }
 
-func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, randomUUID func() string, s3Client S3Client) Handler {
+func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, randomUUID func() string, evidenceS3Client S3Client) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &uploadEvidenceData{
 			App:                  appData,
@@ -75,7 +75,7 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 						uuid := randomUUID()
 						key := lpa.UID + "/evidence/" + uuid
 
-						err := s3Client.PutObject(r.Context(), key, file.Data)
+						err := evidenceS3Client.PutObject(r.Context(), key, file.Data)
 						if err != nil {
 							return err
 						}
@@ -96,7 +96,7 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 
 		if key := r.URL.Query().Get("delete"); key != "" {
 			if lpa.Evidence.HasKey(key) {
-				if err := s3Client.DeleteObject(r.Context(), key); err != nil {
+				if err := evidenceS3Client.DeleteObject(r.Context(), key); err != nil {
 					return err
 				}
 
