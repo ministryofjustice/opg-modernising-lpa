@@ -181,11 +181,44 @@ type Lpa struct {
 
 	// FeeType is the type of fee the user is applying for
 	FeeType FeeType
-	// EvidenceKeys is the S3 keys for uploaded evidence with a record of when it's been sent to caseworkers
-	EvidenceKeys []Evidence
+	// Evidence is the documents uploaded by a donor to apply for non-full fees
+	Evidence Evidences
 
 	HasSentApplicationUpdatedEvent        bool
 	HasSentPreviousApplicationLinkedEvent bool
+}
+
+type Evidences []Evidence
+
+func (es *Evidences) Delete(evidenceKey string) bool {
+	idx := slices.IndexFunc(*es, func(e Evidence) bool { return e.Key == evidenceKey })
+	if idx == -1 {
+		return false
+	}
+
+	*es = slices.Delete(*es, idx, idx+1)
+
+	return true
+}
+
+func (es *Evidences) Keys() []string {
+	var keys []string
+
+	for _, e := range *es {
+		keys = append(keys, e.Key)
+	}
+
+	return keys
+}
+
+func (es *Evidences) GetByKey(key string) Evidence {
+	for _, e := range *es {
+		if e.Key == key {
+			return e
+		}
+	}
+
+	return Evidence{}
 }
 
 type Evidence struct {
@@ -503,7 +536,7 @@ func (l *Lpa) FeeAmount() int {
 }
 
 func (l *Lpa) HasUnsentReducedFeesEvidence() bool {
-	for _, evidence := range l.EvidenceKeys {
+	for _, evidence := range l.Evidence {
 		if evidence.Sent.IsZero() {
 			return true
 		}
