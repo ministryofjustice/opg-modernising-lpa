@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -19,7 +21,7 @@ type paymentConfirmationData struct {
 	FeeType          page.FeeType
 }
 
-func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore sessions.Store) Handler {
+func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore sessions.Store, s3Client S3Client) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		paymentSession, err := sesh.Payment(sessionStore, r)
 		if err != nil {
@@ -54,6 +56,17 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 			lpa.Tasks.PayForLpa = actor.PaymentTaskCompleted
 		} else {
 			lpa.Tasks.PayForLpa = actor.PaymentTaskPending
+
+			for _, key := range lpa.Evidence.Keys() {
+				err := s3Client.PutObjectTagging(r.Context(), key, []types.Tag{
+					{Key: aws.String("replicate"), Value: aws.String("true")},
+				})
+
+				if err != nil {
+					logger.Print(fmt.Sprintf("error tagging evidence: %s", err.Error()))
+					return err
+				}
+			}
 		}
 
 		if err := donorStore.Put(r.Context(), lpa); err != nil {

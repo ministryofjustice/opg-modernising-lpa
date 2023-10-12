@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -62,8 +62,9 @@ type EvidenceReceivedStore interface {
 
 //go:generate mockery --testonly --inpackage --name S3Client --structname mockS3Client
 type S3Client interface {
-	PutObject(context.Context, *s3.PutObjectInput, ...func(*s3.Options)) (*s3.PutObjectOutput, error)
-	DeleteObject(context.Context, *s3.DeleteObjectInput, ...func(*s3.Options)) (*s3.DeleteObjectOutput, error)
+	PutObject(context.Context, string, []byte) error
+	PutObjectTagging(context.Context, string, []types.Tag) error
+	DeleteObject(context.Context, string) error
 }
 
 //go:generate mockery --testonly --inpackage --name PayClient --structname mockPayClient
@@ -166,7 +167,6 @@ func Register(
 	notifyClient NotifyClient,
 	evidenceReceivedStore EvidenceReceivedStore,
 	s3Client S3Client,
-	evidenceBucketName string,
 ) {
 	payer := &payHelper{
 		logger:       logger,
@@ -307,7 +307,7 @@ func Register(
 	handleWithLpa(page.Paths.CanEvidenceBeUploaded, CanGoBack,
 		CanEvidenceBeUploaded(tmpls.Get("can_evidence_be_uploaded.gohtml")))
 	handleWithLpa(page.Paths.UploadEvidence, CanGoBack,
-		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), payer, donorStore, random.UuidString, evidenceBucketName, s3Client))
+		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), payer, donorStore, random.UuidString, s3Client))
 	handleWithLpa(page.Paths.WhatHappensAfterNoFee, None,
 		Guidance(tmpls.Get("what_happens_after_no_fee.gohtml")))
 	handleWithLpa(page.Paths.HowToEmailOrPostEvidence, CanGoBack,
@@ -315,7 +315,7 @@ func Register(
 	handleWithLpa(page.Paths.FeeDenied, None,
 		FeeDenied(tmpls.Get("fee_denied.gohtml"), payer))
 	handleWithLpa(page.Paths.PaymentConfirmation, None,
-		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore))
+		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, s3Client))
 
 	handleWithLpa(page.Paths.HowToConfirmYourIdentityAndSign, None,
 		Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml")))

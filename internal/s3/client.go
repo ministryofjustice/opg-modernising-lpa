@@ -21,6 +21,10 @@ type Client struct {
 	svc    s3Service
 }
 
+func NewClient(cfg aws.Config, bucket string, optsFn ...func(*s3.Options)) *Client {
+	return &Client{bucket: bucket, svc: s3.NewFromConfig(cfg, optsFn...)}
+}
+
 func (c *Client) DeleteObject(ctx context.Context, key string) error {
 	_, err := c.svc.DeleteObject(ctx, &s3.DeleteObjectInput{
 		Bucket: aws.String(c.bucket),

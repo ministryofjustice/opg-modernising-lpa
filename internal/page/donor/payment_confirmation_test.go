@@ -52,7 +52,7 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore)(testAppData, w, r, &page.Lpa{
+	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, nil)(testAppData, w, r, &page.Lpa{
 		FeeType: page.FullFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
@@ -102,7 +102,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore)(testAppData, w, r, &page.Lpa{
+	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, nil)(testAppData, w, r, &page.Lpa{
 		FeeType: page.HalfFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
@@ -125,7 +125,7 @@ func TestGetPaymentConfirmationWhenErrorGettingSession(t *testing.T) {
 		On("Get", r, "pay").
 		Return(&sessions.Session{}, expectedError)
 
-	err := PaymentConfirmation(nil, template.Execute, newMockPayClient(t), nil, sessionStore)(testAppData, w, r, &page.Lpa{})
+	err := PaymentConfirmation(nil, template.Execute, newMockPayClient(t), nil, sessionStore, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -151,7 +151,7 @@ func TestGetPaymentConfirmationWhenErrorGettingPayment(t *testing.T) {
 
 	template := newMockTemplate(t)
 
-	err := PaymentConfirmation(logger, template.Execute, payClient, nil, sessionStore)(testAppData, w, r, &page.Lpa{})
+	err := PaymentConfirmation(logger, template.Execute, payClient, nil, sessionStore, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -185,7 +185,7 @@ func TestGetPaymentConfirmationWhenErrorExpiringSession(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(nil)
 
-	err := PaymentConfirmation(logger, template.Execute, payClient, donorStore, sessionStore)(testAppData, w, r, &page.Lpa{CertificateProvider: actor.CertificateProvider{
+	err := PaymentConfirmation(logger, template.Execute, payClient, donorStore, sessionStore, nil)(testAppData, w, r, &page.Lpa{CertificateProvider: actor.CertificateProvider{
 		Email: "certificateprovider@example.com",
 	}})
 	resp := w.Result()
