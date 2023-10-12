@@ -49,6 +49,6 @@ describe('Choose replacement attorneys address', () => {
 
         cy.url().should('contain', '/choose-replacement-attorneys-summary');
 
-        cy.get('#replacement-address-2').should('contain', '2 RICHMOND PLACE');
+        cy.contains('.govuk-summary-card', 'Taylor Thompson').should('contain', '2 RICHMOND PLACE');
     });
 });

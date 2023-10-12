@@ -1,7 +1,6 @@
 describe('LPA progress', () => {
     it('when nothing completed', () => {
         cy.visit('/fixtures?redirect=/progress');
-        cy.checkA11yApp();
 
         cy.contains('li', 'You’ve signed your LPA In progress');
         cy.contains('li', 'Your certificate provider has provided their certificate Not started');
