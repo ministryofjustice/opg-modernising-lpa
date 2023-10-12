@@ -1102,3 +1102,39 @@ func TestHasUnsentReducedFeesEvidence(t *testing.T) {
 
 	assert.False(t, lpa.HasUnsentReducedFeesEvidence())
 }
+
+func TestEvidencesDelete(t *testing.T) {
+	evidences := Evidences{
+		{Key: "a-key"},
+		{Key: "another-key"},
+	}
+
+	assert.True(t, evidences.Delete("a-key"))
+	assert.Equal(t, Evidences{{Key: "another-key"}}, evidences)
+
+	assert.True(t, evidences.Delete("another-key"))
+	assert.Equal(t, Evidences{}, evidences)
+
+	assert.False(t, evidences.Delete("not-a-key"))
+}
+
+func TestEvidencesKeys(t *testing.T) {
+	evidences := Evidences{
+		{Key: "a-key"},
+		{Key: "another-key"},
+	}
+
+	assert.Equal(t, []string{"a-key", "another-key"}, evidences.Keys())
+}
+
+func TestEvidencesHasKey(t *testing.T) {
+	evidences := Evidences{
+		{Key: "a-key"},
+		{Key: "another-key"},
+	}
+
+	assert.True(t, evidences.HasKey("a-key"))
+	assert.True(t, evidences.HasKey("another-key"))
+
+	assert.False(t, evidences.HasKey("not-a-key"))
+}
