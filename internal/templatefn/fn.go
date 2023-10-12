@@ -45,7 +45,6 @@ func All(tag, region string) map[string]any {
 		"listAttorneys":      listAttorneys,
 		"warning":            warning,
 		"listPeopleToNotify": listPeopleToNotify,
-		"peopleNamedOnLpa":   peopleNamedOnLpa,
 		"possessive":         possessive,
 		"card":               card,
 		"printStruct":        printStruct,
@@ -315,14 +314,6 @@ func warning(app page.AppData, content string) map[string]interface{} {
 	return map[string]interface{}{
 		"app":     app,
 		"content": content,
-	}
-}
-
-func peopleNamedOnLpa(app page.AppData, lpa *page.Lpa, headingLevel int) map[string]interface{} {
-	return map[string]interface{}{
-		"App":          app,
-		"Lpa":          lpa,
-		"HeadingLevel": headingLevel,
 	}
 }
 
