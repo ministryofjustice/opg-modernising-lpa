@@ -70,7 +70,7 @@ resource "aws_vpc_endpoint_policy" "private" {
           "AWS" : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
         },
         "Action" : [
-          "${each.value}:*"
+          "${startswith(each.value, "ecr") ? "ecr" : each.value}:*"
         ],
         "Resource" : "*"
       }
