@@ -56,27 +56,27 @@ resource "aws_vpc_endpoint" "private" {
   tags                = { Name = "${each.value}-private-${data.aws_region.current.name}" }
 }
 
-resource "aws_vpc_endpoint_policy" "private" {
-  provider        = aws.region
-  for_each        = local.interface_endpoint
-  vpc_endpoint_id = aws_vpc_endpoint.private[each.value].id
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Sid" : "AllowAll",
-        "Effect" : "Allow",
-        "Principal" : {
-          "AWS" : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-        },
-        "Action" : [
-          "${startswith(each.value, "ecr") ? "ecr" : each.value}:*"
-        ],
-        "Resource" : "*"
-      }
-    ]
-  })
-}
+# resource "aws_vpc_endpoint_policy" "private" {
+#   provider        = aws.region
+#   for_each        = local.interface_endpoint
+#   vpc_endpoint_id = aws_vpc_endpoint.private[each.value].id
+#   policy = jsonencode({
+#     "Version" : "2012-10-17",
+#     "Statement" : [
+#       {
+#         "Sid" : "AllowAll",
+#         "Effect" : "Allow",
+#         "Principal" : {
+#           "AWS" : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+#         },
+#         "Action" : [
+#           "${startswith(each.value, "ecr") ? "ecr" : each.value}:*"
+#         ],
+#         "Resource" : "*"
+#       }
+#     ]
+#   })
+# }
 
 data "aws_route_tables" "public" {
   provider = aws.region
