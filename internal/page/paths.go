@@ -121,6 +121,8 @@ type AppPaths struct {
 	CertificateProviderAddress                           LpaPath
 	CertificateProviderDetails                           LpaPath
 	CertificateProviderOptOut                            LpaPath
+	ChangeCertificateProviderMobileNumber                LpaPath
+	ChangeIndependentWitnessMobileNumber                 LpaPath
 	CheckYouCanSign                                      LpaPath
 	CheckYourLpa                                         LpaPath
 	ChooseAttorneys                                      LpaPath
@@ -269,6 +271,8 @@ var Paths = AppPaths{
 	CertificateProviderFixtures:                          "/fixtures/certificate-provider",
 	CertificateProviderOptOut:                            "/certificate-provider-opt-out",
 	CertificateProviderStart:                             "/certificate-provider-start",
+	ChangeCertificateProviderMobileNumber:                "/change-certificate-provider-mobile-number",
+	ChangeIndependentWitnessMobileNumber:                 "/change-independent-witness-mobile-number",
 	CheckYouCanSign:                                      "/check-you-can-sign",
 	CheckYourLpa:                                         "/check-your-lpa",
 	ChooseAttorneys:                                      "/choose-attorneys",

@@ -364,12 +364,16 @@ func Register(
 		WitnessingYourSignature(tmpls.Get("witnessing_your_signature.gohtml"), witnessCodeSender))
 	handleWithLpa(page.Paths.WitnessingAsIndependentWitness, None,
 		WitnessingAsIndependentWitness(tmpls.Get("witnessing_as_independent_witness.gohtml"), donorStore, time.Now))
+	handleWithLpa(page.Paths.ResendIndependentWitnessCode, CanGoBack,
+		ResendWitnessCode(tmpls.Get("resend_witness_code.gohtml"), witnessCodeSender, actor.TypeIndependentWitness))
+	handleWithLpa(page.Paths.ChangeIndependentWitnessMobileNumber, CanGoBack,
+		ChangeMobileNumber(tmpls.Get("change_mobile_number.gohtml"), donorStore, witnessCodeSender, actor.TypeIndependentWitness))
 	handleWithLpa(page.Paths.WitnessingAsCertificateProvider, None,
 		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), donorStore, shareCodeSender, time.Now, certificateProviderStore))
-	handleWithLpa(page.Paths.ResendIndependentWitnessCode, CanGoBack,
-		ResendWitnessCode(tmpls.Get("resend_witness_code.gohtml"), witnessCodeSender, time.Now, actor.TypeIndependentWitness))
 	handleWithLpa(page.Paths.ResendCertificateProviderCode, CanGoBack,
-		ResendWitnessCode(tmpls.Get("resend_witness_code.gohtml"), witnessCodeSender, time.Now, actor.TypeCertificateProvider))
+		ResendWitnessCode(tmpls.Get("resend_witness_code.gohtml"), witnessCodeSender, actor.TypeCertificateProvider))
+	handleWithLpa(page.Paths.ChangeCertificateProviderMobileNumber, CanGoBack,
+		ChangeMobileNumber(tmpls.Get("change_mobile_number.gohtml"), donorStore, witnessCodeSender, actor.TypeCertificateProvider))
 	handleWithLpa(page.Paths.YouHaveSubmittedYourLpa, None,
 		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml")))
 

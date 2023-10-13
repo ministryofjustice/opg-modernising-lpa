@@ -2,6 +2,7 @@ package page
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -13,6 +14,8 @@ const (
 	witnessCodeIgnoreAfter  = 2 * time.Hour
 	witnessCodeRequestAfter = time.Minute
 )
+
+var ErrTooManyWitnessCodeRequests = errors.New("too many witness code requests")
 
 type WitnessCodeSender struct {
 	donorStore   DonorStore
@@ -31,6 +34,10 @@ func NewWitnessCodeSender(donorStore DonorStore, notifyClient NotifyClient) *Wit
 }
 
 func (s *WitnessCodeSender) SendToCertificateProvider(ctx context.Context, lpa *Lpa, localizer Localizer) error {
+	if !lpa.CertificateProviderCodes.CanRequest(s.now()) {
+		return ErrTooManyWitnessCodeRequests
+	}
+
 	code := s.randomCode(4)
 	lpa.CertificateProviderCodes = append(lpa.CertificateProviderCodes, WitnessCode{Code: code, Created: s.now()})
 
@@ -51,6 +58,10 @@ func (s *WitnessCodeSender) SendToCertificateProvider(ctx context.Context, lpa *
 }
 
 func (s *WitnessCodeSender) SendToIndependentWitness(ctx context.Context, lpa *Lpa, localizer Localizer) error {
+	if !lpa.IndependentWitnessCodes.CanRequest(s.now()) {
+		return ErrTooManyWitnessCodeRequests
+	}
+
 	code := s.randomCode(4)
 	lpa.IndependentWitnessCodes = append(lpa.IndependentWitnessCodes, WitnessCode{Code: code, Created: s.now()})
 
