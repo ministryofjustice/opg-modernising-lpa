@@ -28,7 +28,7 @@ func TestGetResendWitnessCode(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, time.Now, actorType)(testAppData, w, r, &page.Lpa{})
+			err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, actorType)(testAppData, w, r, &page.Lpa{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -46,7 +46,7 @@ func TestGetResendWitnessCodeWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, time.Now, actor.TypeCertificateProvider)(testAppData, w, r, &page.Lpa{})
+	err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, actor.TypeCertificateProvider)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -84,7 +84,7 @@ func TestPostResendWitnessCode(t *testing.T) {
 				On(tc.method, r.Context(), lpa, testAppData.Localizer).
 				Return(nil)
 
-			err := ResendWitnessCode(nil, witnessCodeSender, time.Now, actorType)(testAppData, w, r, lpa)
+			err := ResendWitnessCode(nil, witnessCodeSender, actorType)(testAppData, w, r, lpa)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -106,7 +106,7 @@ func TestPostResendWitnessCodeWhenSendErrors(t *testing.T) {
 		On("SendToCertificateProvider", r.Context(), lpa, mock.Anything).
 		Return(expectedError)
 
-	err := ResendWitnessCode(nil, witnessCodeSender, time.Now, actor.TypeCertificateProvider)(testAppData, w, r, lpa)
+	err := ResendWitnessCode(nil, witnessCodeSender, actor.TypeCertificateProvider)(testAppData, w, r, lpa)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -137,7 +137,7 @@ func TestPostResendWitnessCodeWhenTooRecentlySent(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, time.Now, actorType)(testAppData, w, r, lpa)
+			err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, actorType)(testAppData, w, r, lpa)
 			resp := w.Result()
 
 			assert.Nil(t, err)
