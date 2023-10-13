@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/stretchr/testify/assert"
 )
@@ -50,6 +51,9 @@ func TestAppDataRedirectWhenCanGoTo(t *testing.T) {
 		"allowed": {
 			url: "/",
 			lpa: &Lpa{
+				Donor: actor.Donor{
+					CanSign: form.Yes,
+				},
 				Type: LpaTypeHealthWelfare,
 				Tasks: Tasks{
 					YourDetails:                actor.TaskCompleted,

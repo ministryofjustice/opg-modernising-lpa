@@ -22,7 +22,11 @@
         {{ template "csrf-field" . }}
       </form>
 
-      {{ template "details" (details . "imHavingProblemWithCode" (trFormat .App "imHavingProblemWithCodeContent" "Link" (link .App (.App.Paths.ResendIndependentWitnessCode.Format .Lpa.ID))) false) }}
+      {{ template "details" (details . "imHavingProblemWithCode" (
+        trFormat .App "imHavingProblemWithCodeContent"
+        "ResendLink" (link .App (.App.Paths.ResendIndependentWitnessCode.Format .Lpa.ID))
+        "ChangeLink" (link .App (.App.Paths.ChangeIndependentWitnessMobileNumber.Format .Lpa.ID))
+      ) false) }}
     </div>
   </div>
 {{ end }}

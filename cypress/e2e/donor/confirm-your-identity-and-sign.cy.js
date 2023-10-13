@@ -70,9 +70,9 @@ describe('Confirm your identity and sign', () => {
         cy.url().should('contain', '/witnessing-as-certificate-provider');
         cy.checkA11yApp();
 
-        cy.contains('h1', "Witness as the certificate provider");
+        cy.contains('h1', "Confirm you witnessed the donor sign");
         cy.get('#f-witness-code').type('1234');
-        cy.contains('button', 'Save and continue').click();
+        cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/you-have-submitted-your-lpa');
         cy.checkA11yApp();
@@ -126,22 +126,22 @@ describe('Confirm your identity and sign', () => {
         cy.visitLpa('/witnessing-your-signature');
         cy.contains('button', 'Continue').click();
 
-        cy.contains('button', 'Save and continue').click();
+        cy.contains('button', 'Continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Enter the code we sent to the certificate provider');
         });
 
-        cy.contains('.moj-ticket-panel .govuk-error-message', 'Enter the code we sent to the certificate provider');
+        cy.contains('.govuk-error-message', 'Enter the code we sent to the certificate provider');
 
         cy.get('#f-witness-code').type('123');
-        cy.contains('button', 'Save and continue').click();
+        cy.contains('button', 'Continue').click();
 
-        cy.contains('.moj-ticket-panel .govuk-error-message', 'The code we sent to the certificate provider must be 4 characters');
+        cy.contains('.govuk-error-message', 'The code we sent to the certificate provider must be 4 characters');
 
         cy.get('#f-witness-code').type('45');
-        cy.contains('button', 'Save and continue').click();
+        cy.contains('button', 'Continue').click();
 
-        cy.contains('.moj-ticket-panel .govuk-error-message', 'The code we sent to the certificate provider must be 4 characters');
+        cy.contains('.govuk-error-message', 'The code we sent to the certificate provider must be 4 characters');
     });
 });
