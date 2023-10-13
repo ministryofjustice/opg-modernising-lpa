@@ -56,9 +56,10 @@ resource "aws_vpc_endpoint" "private" {
   tags                = { Name = "${each.value}-private-${data.aws_region.current.name}" }
 }
 
-resource "aws_vpc_endpoint_policy" "ec2" {
+resource "aws_vpc_endpoint_policy" "private" {
   provider        = aws.region
-  vpc_endpoint_id = aws_vpc_endpoint.private["ec2"].id
+  for_each        = local.interface_endpoint
+  vpc_endpoint_id = aws_vpc_endpoint.private[each.value].id
   policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [
@@ -66,10 +67,10 @@ resource "aws_vpc_endpoint_policy" "ec2" {
         "Sid" : "AllowAll",
         "Effect" : "Allow",
         "Principal" : {
-          "AWS" : "*"
+          "AWS" : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
         },
         "Action" : [
-          "ec2:*"
+          "${startswith(each.value, "ecr") ? "ecr" : each.value}:*"
         ],
         "Resource" : "*"
       }
@@ -99,11 +100,16 @@ data "aws_iam_policy_document" "s3_vpc_endpoint" {
   provider = aws.region
   statement {
     sid       = "S3VpcEndpointPolicy"
-    actions   = ["*"]
+    actions   = ["s3:*"]
     resources = ["*"]
     principals {
-      type        = "*"
+      type        = "AWS"
       identifiers = ["*"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "aws:PrincipalAccount"
+      values   = [data.aws_caller_identity.current.account_id]
     }
   }
 }
@@ -122,11 +128,17 @@ data "aws_iam_policy_document" "dynamodb_vpc_endpoint" {
   provider = aws.region
   statement {
     sid       = "DynamoDBVpcEndpointPolicy"
-    actions   = ["*"]
+    effect    = "Allow"
+    actions   = ["dynamodb:*"]
     resources = ["*"]
     principals {
-      type        = "*"
+      type        = "AWS"
       identifiers = ["*"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "aws:PrincipalAccount"
+      values   = [data.aws_caller_identity.current.account_id]
     }
   }
 }
