@@ -284,6 +284,7 @@ func (l *Lpa) canGoToLpaPath(path string) bool {
 		l.Tasks.Restrictions.Completed() &&
 		l.Tasks.CertificateProvider.Completed() &&
 		l.Tasks.PeopleToNotify.Completed() &&
+		(l.Donor.CanSign.IsYes() || l.Tasks.ChooseYourSignatory.Completed()) &&
 		l.Tasks.CheckYourLpa.Completed()
 
 	switch path {
