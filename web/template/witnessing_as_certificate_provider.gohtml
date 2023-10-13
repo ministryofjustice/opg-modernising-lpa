@@ -1,52 +1,32 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}
-  {{ if .Lpa.Donor.CanSign.IsYes }}
-    {{ tr .App "witnessingAsCP" }}
-  {{ else }}
-    {{ tr .App "confirmYouWitnessedTheDonorSign" }}
-  {{ end }}
-{{ end }}
+{{ define "pageTitle" }}{{ tr .App "confirmYouWitnessedTheDonorSign" }}{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+      <h1 class="govuk-heading-xl">{{ tr .App "confirmYouWitnessedTheDonorSign" }}</h1>
 
-      {{ if .Lpa.Donor.CanSign.IsYes }}
-        <form novalidate method="post">
-          <div class="moj-ticket-panel">
-            <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
-              {{ $enterUniqueCodeHint := trFormat .App "enterUniqueCodeHint" "CpFirstName" .Lpa.CertificateProvider.FirstNames "DonorFullName" .Lpa.Donor.FullName }}
-              {{ template "input" (input . "witness-code" "enterUniqueCodeLabel" .Form.Code "hint" $enterUniqueCodeHint "classes" "govuk-input--width-5" "autocomplete" "off") }}
-            </div>
-          </div>
+      <p class="govuk-inset-text">
+        {{ trFormatHtml .App "weHaveSentACodeTo" "Mobile" .Lpa.CertificateProvider.Mobile }}
+      </p>
 
-          <p class="govuk-body">
-            <a href="{{ link .App (.App.Paths.ResendCertificateProviderCode.Format .App.LpaID) }}" class="govuk-link">{{ tr .App "cpNotReceivedCodeLink" }}</a>
-          </p>
+      <p class="govuk-body">
+        {{ trFormat .App "asTheCertificateProviderTypeTheCode" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames "DonorFullName" .Lpa.Donor.FullName }}
+      </p>
+      
+      <form novalidate method="post">
+        {{ template "input" (input . "witness-code" "enter4DigitCode" .Form.Code "classes" "govuk-input--width-5" "labelClasses" "govuk-label--s" "autocomplete" "off") }}
 
-          <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "saveAndContinue" }}</button>
-          {{ template "csrf-field" . }}
-        </form>
-      {{ else }}
-        <p class="govuk-inset-text">
-          {{ trFormatHtml .App "weHaveSentACodeTo" "Mobile" .Lpa.CertificateProvider.Mobile }}
-        </p>
+        {{ template "continue-and-return-buttons" . }}
+        {{ template "csrf-field" . }}
+      </form>
 
-        <p class="govuk-body">
-          {{ trFormat .App "asTheCertificateProviderTypeTheCode" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames "DonorFullName" .Lpa.Donor.FullName }}
-        </p>
-        
-        <form novalidate method="post">
-          {{ template "input" (input . "witness-code" "enter4DigitCode" .Form.Code "classes" "govuk-input--width-5" "labelClasses" "govuk-label--s" "autocomplete" "off") }}
-
-          {{ template "continue-and-return-buttons" . }}
-          {{ template "csrf-field" . }}
-        </form>
-
-        {{ template "details" (details . "imHavingProblemWithCode" (trFormat .App "imHavingProblemWithCodeContent" "Link" (link .App (.App.Paths.ResendCertificateProviderCode.Format .Lpa.ID))) false) }}
-      {{ end }}
+      {{ template "details" (details . "imHavingProblemWithCode" (
+        trFormat .App "imHavingProblemWithCodeContent"
+        "ResendLink" (link .App (.App.Paths.ResendCertificateProviderCode.Format .Lpa.ID))
+        "ChangeLink" (link .App (.App.Paths.ChangeCertificateProviderMobileNumber.Format .Lpa.ID))
+      ) false) }}
     </div>
   </div>
 {{ end }}
