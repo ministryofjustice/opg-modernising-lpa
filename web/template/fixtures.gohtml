@@ -37,119 +37,23 @@
 
         <fieldset class="govuk-fieldset">
           <legend class="govuk-fieldset__legend">Progress</legend>
-          <div class="govuk-form-group">
-            
-            <div class="govuk-radios" data-module="govuk-radios">
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-progress" name="progress" type="radio" value="provideYourDetails">
-                <label class="govuk-label govuk-radios__label" for="f-progress">
-                  Provide your details
-                </label>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-progress-2" name="progress" type="radio" value="chooseYourAttorneys" data-aria-controls="conditional-attorney-count">
-                <label class="govuk-label govuk-radios__label" for="f-progress-2">
-                  Choose your attorneys
-                </label>
-              </div>
-              <div class="govuk-radios__conditional" id="conditional-attorney-count">
-                <div class="govuk-form-group">
-                  <label class="govuk-label" for="f-attorney-count">
-                    How many? (Max 5)
-                  </label>
-                  <input class="govuk-input govuk-!-width-one-third" id="f-attorney-count" name="attorney-count" value="2">
-                </div>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-progress-3" name="progress" type="radio" value="chooseYourReplacementAttorneys" data-aria-controls="conditional-replacement-attorney-count">
-                <label class="govuk-label govuk-radios__label" for="f-progress-3">
-                  Choose your replacement attorneys
-                </label>
-              </div>
-              <div class="govuk-radios__conditional" id="conditional-replacement-attorney-count">
-                <div class="govuk-form-group">
-                  <label class="govuk-label" for="f-replacement-attorney-count">
-                    How many? (Max 5)
-                  </label>
-                  <input class="govuk-input govuk-!-width-one-third" id="f-replacement-attorney-count" name="replacement-attorney-count" value="2">
-                </div>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-progress-4" name="progress" type="radio" value="chooseWhenTheLpaCanBeUsed">
-                <label class="govuk-label govuk-radios__label" for="f-progress-4">
-                  Choose when the LPA can be used / Life-sustaining treatment
-                </label>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-progress-5" name="progress" type="radio" value="addRestrictionsToTheLpa">
-                <label class="govuk-label govuk-radios__label" for="f-progress-5">
-                  Add restrictions to the LPA
-                </label>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-progress-6" name="progress" type="radio" value="chooseYourCertificateProvider">
-                <label class="govuk-label govuk-radios__label" for="f-progress-6">
-                  Choose your certificate provider
-                </label>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-progress-7" name="progress" type="radio" value="peopleToNotifyAboutYourLpa" data-aria-controls="conditional-person-to-notify-count">
-                <label class="govuk-label govuk-radios__label" for="f-progress-7">
-                  People to notify about your LPA
-                </label>
-              </div>
-              <div class="govuk-radios__conditional" id="conditional-person-to-notify-count">
-                <div class="govuk-form-group">
-                  <label class="govuk-label" for="f-person-to-notify-count">
-                    How many? (Max 5)
-                  </label>
-                  <input class="govuk-input govuk-!-width-one-third" id="f-person-to-notify-count" name="person-to-notify-count" value="2">
-                </div>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-progress-8" name="progress" type="radio" value="checkAndSendToYourCertificateProvider">
-                <label class="govuk-label govuk-radios__label" for="f-progress-8">
-                  Check and send to your certificate provider
-                </label>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-progress-9" name="progress" type="radio" value="payForTheLpa">
-                <label class="govuk-label govuk-radios__label" for="f-progress-9">
-                  Pay for the LPA
-                </label>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-progress-10" name="progress" type="radio" value="confirmYourIdentityAndSignTheLpa">
-                <label class="govuk-label govuk-radios__label" for="f-progress-10">
-                  Confirm your identity and sign the LPA
-                </label>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-progress-11" name="progress" type="radio" value="signedByCertificateProvider">
-                <label class="govuk-label govuk-radios__label" for="f-progress-11">
-                  Signed by certificate provider
-                </label>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-progress-12" name="progress" type="radio" value="signedByAttorneys">
-                <label class="govuk-label govuk-radios__label" for="f-progress-12">
-                  Signed by attorneys
-                </label>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-progress-13" name="progress" type="radio" value="submitted">
-                <label class="govuk-label govuk-radios__label" for="f-progress-13">
-                  Submitted
-                </label>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-progress-14" name="progress" type="radio" value="registered">
-                <label class="govuk-label govuk-radios__label" for="f-progress-14">
-                  Registered
-                </label>
-              </div>
-            </div>
-          </div>
+
+          {{ template "radios" (items . "progress" nil
+            (item "provideYourDetails" "provideYourDetails")
+            (item "chooseYourAttorneys" "chooseYourAttorneys")
+            (item "chooseYourReplacementAttorneys" "chooseYourReplacementAttorneys")
+            (item "Choose when the LPA can be used / Life-sustaining treatment" "chooseWhenTheLpaCanBeUsed")
+            (item "addRestrictionsToTheLpa" "addRestrictionsToTheLpa")
+            (item "chooseYourCertificateProvider" "chooseYourCertificateProvider")
+            (item "peopleToNotifyAboutYourLpa" "peopleToNotifyAboutYourLpa")
+            (item "checkAndSendToYourCertificateProvider" "checkAndSendToYourCertificateProvider")
+            (item "payForTheLpa" "payForTheLpa")
+            (item "confirmYourIdentityAndSignTheLpa" "confirmYourIdentityAndSignTheLpa")
+            (item "signedByCertificateProvider" "signedByCertificateProvider")
+            (item "signedByAttorneys" "signedByAttorneys")
+            (item "submitted" "submitted")
+            (item "registered" "registered")
+          ) }}
         </fieldset>
 
         <button type="submit" class="govuk-button" data-module="govuk-button" name="journey" value="donor">Start</button>
