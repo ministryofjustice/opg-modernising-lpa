@@ -841,5 +841,9 @@
     "removePersonToNotify": "Remove person to notify",
     "weNeedYourCorrectMobileNumber": "{{.FirstNames}}, as the <span class=\"govuk-!-font-weight-bold\">{{.ActorType}}</span>, we need your correct mobile number to send your witnessing code.",
     "changeYourMobileNumber": "Change your mobile number",
-    "independentWitness": "Independent witness"
+    "independentWitness": "Independent witness",
+    "contactPreference": "Contact preference",
+    "certificateProviderEmail": "certificate provider email",
+    "certificateProviderAddress": "certificate provider address",
+    "certificateProviderContactPreference": "certificate provider contact preference"
 }
