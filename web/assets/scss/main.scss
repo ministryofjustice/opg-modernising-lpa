@@ -50,3 +50,21 @@ body:not(.js-enabled) .govuk-back-link {
     background: govuk-colour("black");
     color: govuk-colour("white");
 }
+
+.app-link-button {
+    @include govuk-link-common;
+    @include govuk-link-style-default;
+    @include govuk-link-style-no-visited-state;
+
+    &:visited {
+        @include govuk-link-style-inverse;
+    }
+
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    color: $govuk-link-colour;
+}
