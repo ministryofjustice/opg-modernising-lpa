@@ -3,7 +3,7 @@ import { AddressFormAssertions } from "../../support/e2e";
 describe('Choose replacement attorneys address', () => {
     describe('Entering a new address', () => {
         beforeEach(() => {
-            cy.visit('/testing-start?redirect=/choose-replacement-attorneys-address?id=without-address&lpa.attorneys=-1');
+            cy.visit('/fixtures?redirect=/choose-replacement-attorneys-address?id=without-address&progress=chooseYourReplacementAttorneys&replacementAttorneys=without-address');
             cy.contains('label', 'Enter a new address').click();
             cy.contains('button', 'Continue').click();
         });
@@ -40,15 +40,15 @@ describe('Choose replacement attorneys address', () => {
     });
 
     it('address can be copied from another actor', () => {
-        cy.visit('/testing-start?redirect=/choose-replacement-attorneys-address?id=without-address&lpa.attorneys=-1&lpa.certificateProvider=1');
+        cy.visit('/fixtures?redirect=/choose-replacement-attorneys-address?id=without-address&progress=chooseYourReplacementAttorneys&replacementAttorneys=without-address');
         cy.contains('label', 'Use an address you’ve already entered').click();
         cy.contains('button', 'Continue').click();
 
-        cy.contains('label', '5 RICHMOND PLACE').click();
+        cy.contains('label', '2 RICHMOND PLACE').click();
         cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/choose-replacement-attorneys-summary');
 
-        cy.get('#replacement-address-2').should('contain', '5 RICHMOND PLACE');
+        cy.contains('.govuk-summary-card', 'Taylor Thompson').should('contain', '2 RICHMOND PLACE');
     });
 });

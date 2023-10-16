@@ -3,7 +3,7 @@ import { AddressFormAssertions } from "../../support/e2e";
 describe('Enter trust corporation address', () => {
     describe('Entering a new address', () => {
         beforeEach(() => {
-            cy.visit('/testing-start?redirect=/enter-trust-corporation-address&lpa.trustCorporation=incomplete');
+            cy.visit('/fixtures?redirect=/enter-trust-corporation-address&progress=chooseYourAttorneys&attorneys=trust-corporation-without-address');
             cy.contains('label', 'Enter a new address').click();
             cy.contains('button', 'Continue').click();
         });
@@ -45,15 +45,15 @@ describe('Enter trust corporation address', () => {
     });
 
     it('address can be copied from another actor', () => {
-        cy.visit('/testing-start?redirect=/enter-trust-corporation-address&lpa.certificateProvider=1&lpa.trustCorporation=incomplete');
+        cy.visit('/fixtures?redirect=/enter-trust-corporation-address&progress=chooseYourAttorneys&attorneys=trust-corporation-without-address');
         cy.contains('label', 'Use an address you’ve already entered').click();
         cy.contains('button', 'Continue').click();
 
-        cy.contains('label', '5 RICHMOND PLACE').click();
+        cy.contains('label', '1 RICHMOND PLACE').click();
         cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/choose-attorneys-summary');
 
-        cy.get('#trust-corporation-address').should('contain', '5 RICHMOND PLACE');
+        cy.contains('.govuk-summary-card', 'First Choice Trust Corporation Ltd.').contains('1 RICHMOND PLACE');
     });
 });

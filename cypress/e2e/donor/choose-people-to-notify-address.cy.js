@@ -3,7 +3,7 @@ import { AddressFormAssertions } from "../../support/e2e";
 describe('People to notify address', () => {
     describe('Entering a new address', () => {
         beforeEach(() => {
-            cy.visit('/testing-start?lpa.peopleToNotify=-1&redirect=/choose-people-to-notify-address?id=JordanJefferson');
+            cy.visit('/fixtures?redirect=/choose-people-to-notify-address?id=without-address&progress=peopleToNotifyAboutYourLpa&peopleToNotify=without-address');
             cy.contains('label', 'Enter a new address').click();
             cy.contains('button', 'Continue').click();
         });
@@ -30,7 +30,7 @@ describe('People to notify address', () => {
     });
 
     it('address can be copied from another actor', () => {
-        cy.visit('/testing-start?redirect=/choose-people-to-notify-address?id=JordanJefferson&lpa.peopleToNotify=-1&lpa.certificateProvider=1');
+        cy.visit('/fixtures?redirect=/choose-people-to-notify-address?id=without-address&progress=peopleToNotifyAboutYourLpa&peopleToNotify=without-address');
         cy.contains('label', 'Use an address you’ve already entered').click();
         cy.contains('button', 'Continue').click();
 
@@ -39,6 +39,6 @@ describe('People to notify address', () => {
 
         cy.url().should('contain', '/choose-people-to-notify-summary');
 
-        cy.get('#address-1').should('contain', '5 RICHMOND PLACE');
+        cy.contains('.govuk-summary-card', 'Jordan Jefferson').should('contain', '5 RICHMOND PLACE');
     });
 });

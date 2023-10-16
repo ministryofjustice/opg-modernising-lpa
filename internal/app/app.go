@@ -100,9 +100,6 @@ func App(
 	notFoundHandler := page.Root(tmpls.Get("error-404.gohtml"), logger)
 
 	rootMux := http.NewServeMux()
-
-	rootMux.Handle(paths.TestingStart.String(), fixtures.TestingStart(sessionStore, donorStore, random.String, localizer, certificateProviderStore, attorneyStore, logger, time.Now))
-
 	handleRoot := makeHandle(rootMux, errorHandler, sessionStore)
 
 	handleRoot(paths.Root, None,

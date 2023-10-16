@@ -40,8 +40,7 @@ describe('Dashboard', () => {
 
     context('with completed LPA', () => {
         it('completed LPAs have a track progress button', () => {
-            cy.visit('/testing-start?lpa.complete=1')
-            cy.visit('/dashboard');
+            cy.visit('/fixtures?redirect=&progress=confirmYourIdentityAndSignTheLpa');
 
             cy.get('button').should('not.contain', 'Continue');
 
@@ -55,8 +54,7 @@ describe('Dashboard', () => {
 
     context('with submitted LPA', () => {
         it('shows the correct options', () => {
-            cy.visit('/testing-start?lpa.complete=1&lpa.progress=submitted')
-            cy.visit('/dashboard');
+            cy.visit('/fixtures?redirect=&progress=submitted');
 
             cy.contains('Property and affairs');
             cy.contains('Sam Smith');
@@ -69,8 +67,7 @@ describe('Dashboard', () => {
 
     context('with registered LPA', () => {
         it('shows the correct options', () => {
-            cy.visit('/testing-start?lpa.complete=1&lpa.progress=registered')
-            cy.visit('/dashboard');
+            cy.visit('/fixtures?redirect=&progress=registered');
 
             cy.contains('Property and affairs');
             cy.contains('Sam Smith');

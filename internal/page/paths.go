@@ -49,6 +49,7 @@ type AttorneyPaths struct {
 	CodeOfConduct             AttorneyPath
 	ConfirmYourDetails        AttorneyPath
 	MobileNumber              AttorneyPath
+	Progress                  AttorneyPath
 	ReadTheLpa                AttorneyPath
 	RightsAndResponsibilities AttorneyPath
 	Sign                      AttorneyPath
@@ -110,15 +111,13 @@ type AppPaths struct {
 	YourLegalRightsAndResponsibilities Path
 	CertificateProviderStart           Path
 	Start                              Path
-	TestingStart                       Path
 	Dashboard                          Path
 	YotiRedirect                       Path
 	CookiesConsent                     Path
 
 	AboutPayment                                         LpaPath
 	ApplicationReason                                    LpaPath
-	AreYouApplyingForADifferentFeeType                   LpaPath
-	CanEvidenceBeUploaded                                LpaPath
+	AreYouApplyingForFeeDiscountOrExemption              LpaPath
 	CertificateProviderAddress                           LpaPath
 	CertificateProviderDetails                           LpaPath
 	CertificateProviderOptOut                            LpaPath
@@ -154,6 +153,7 @@ type AppPaths struct {
 	HowToEmailOrPostEvidence                             LpaPath
 	HowToSendEvidence                                    LpaPath
 	HowWouldCertificateProviderPreferToCarryOutTheirRole LpaPath
+	HowWouldYouLikeToSendEvidence                        LpaPath
 	IdentityConfirmed                                    LpaPath
 	IdentityWithBiometricResidencePermit                 LpaPath
 	IdentityWithDrivingLicencePaper                      LpaPath
@@ -237,16 +237,17 @@ var Paths = AppPaths{
 	},
 
 	Attorney: AttorneyPaths{
+		CodeOfConduct:             "/code-of-conduct",
+		ConfirmYourDetails:        "/confirm-your-details",
 		EnterReferenceNumber:      "/attorney-enter-reference-number",
 		Login:                     "/attorney-login",
 		LoginCallback:             "/attorney-login-callback",
-		Start:                     "/attorney-start",
-		CodeOfConduct:             "/code-of-conduct",
-		ConfirmYourDetails:        "/confirm-your-details",
 		MobileNumber:              "/mobile-number",
+		Progress:                  "/progress",
 		ReadTheLpa:                "/read-the-lpa",
 		RightsAndResponsibilities: "/legal-rights-and-responsibilities",
 		Sign:                      "/sign",
+		Start:                     "/attorney-start",
 		TaskList:                  "/task-list",
 		WhatHappensNext:           "/what-happens-next",
 		WhatHappensWhenYouSign:    "/what-happens-when-you-sign-the-lpa",
@@ -260,10 +261,9 @@ var Paths = AppPaths{
 
 	AboutPayment:                                         "/about-payment",
 	ApplicationReason:                                    "/application-reason",
-	AreYouApplyingForADifferentFeeType:                   "/are-you-applying-for-a-different-fee-type",
+	AreYouApplyingForFeeDiscountOrExemption:              "/are-you-applying-for-fee-discount-or-exemption",
 	AttorneyFixtures:                                     "/fixtures/attorney",
 	AuthRedirect:                                         "/auth/redirect",
-	CanEvidenceBeUploaded:                                "/can-evidence-be-uploaded",
 	CertificateProviderAddress:                           "/certificate-provider-address",
 	CertificateProviderDetails:                           "/certificate-provider-details",
 	CertificateProviderFixtures:                          "/fixtures/certificate-provider",
@@ -305,6 +305,7 @@ var Paths = AppPaths{
 	HowToEmailOrPostEvidence:                             "/how-to-email-or-post-evidence",
 	HowToSendEvidence:                                    "/how-to-send-evidence",
 	HowWouldCertificateProviderPreferToCarryOutTheirRole: "/how-would-certificate-provider-prefer-to-carry-out-their-role",
+	HowWouldYouLikeToSendEvidence:                        "/how-would-you-like-to-send-evidence",
 	IdentityConfirmed:                                    "/identity-confirmed",
 	IdentityWithBiometricResidencePermit:                 "/id/biometric-residence-permit",
 	IdentityWithDrivingLicencePaper:                      "/id/driving-licence-paper",
@@ -341,7 +342,6 @@ var Paths = AppPaths{
 	SignYourLpa:                                          "/sign-your-lpa",
 	Start:                                                "/start",
 	TaskList:                                             "/task-list",
-	TestingStart:                                         "/testing-start",
 	UploadEvidence:                                       "/upload-evidence",
 	UseExistingAddress:                                   "/use-existing-address",
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",

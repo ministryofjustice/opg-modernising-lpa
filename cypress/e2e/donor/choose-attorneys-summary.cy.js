@@ -2,7 +2,7 @@ import { TestEmail } from "../../support/e2e";
 
 describe('Choose attorneys summary', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/choose-attorneys-summary&lpa.attorneys=-1&cookiesAccepted=1');
+        cy.visit('/fixtures?redirect=/choose-attorneys-summary&progress=chooseYourAttorneys');
     });
 
     it('multiple attorneys details are listed', () => {
@@ -17,15 +17,17 @@ describe('Choose attorneys summary', () => {
 
         cy.contains('Robin Redcar');
         cy.contains('2 January 2000');
+        cy.contains('2 RICHMOND PLACE');
+        cy.contains('B14 7ED');
 
         cy.visitLpa('/task-list')
-        cy.contains('a', 'Choose your attorneys').parent().parent().contains('In progress (2)')
+        cy.contains('a', 'Choose your attorneys').parent().parent().contains('Completed (2)')
     });
 
     it('can amend attorney details', () => {
         cy.checkA11yApp();
 
-        cy.get('#attorney-name-1').contains('a', 'Change').click();
+        cy.contains('.govuk-summary-card', 'Jessie Jones').contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-attorneys?from=');
         cy.url().should('contain', '/choose-attorneys-summary');
@@ -43,24 +45,16 @@ describe('Choose attorneys summary', () => {
     it('can amend attorney address', () => {
         cy.checkA11yApp();
 
-        cy.get('#attorney-address-2').contains('a', 'Change').click();
+        cy.contains('.govuk-summary-card', 'Robin Redcar')
+            .contains('.govuk-summary-list__row', 'Address')
+            .contains('a', 'Change')
+            .click();
 
         cy.url().should('contain', '/choose-attorneys-address?from=');
         cy.url().should('contain', '/choose-attorneys-summary');
         cy.url().should('match', /id=\w*/);
 
-        cy.contains('label', 'Enter a new address').click();
-        cy.contains('button', 'Continue').click();
-
-        cy.get('#f-lookup-postcode').type('B14 7ED');
-        cy.contains('button', 'Find address').click();
-
-        cy.get('#f-select-address').select('1 RICHMOND PLACE, BIRMINGHAM, B14 7ED');
-        cy.contains('button', 'Continue').click();
-
-        cy.url().should('contain', '/choose-attorneys-address');
-        cy.get('#f-address-line-1').should('have.value', '1 RICHMOND PLACE');
-
+        cy.get('#f-address-line-1').clear().type('1 RICHMOND PLACE');
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/choose-attorneys-summary');
@@ -113,7 +107,7 @@ describe('Choose attorneys summary', () => {
     it('can remove an attorney', () => {
         cy.checkA11yApp();
 
-        cy.get('#remove-attorney-1').contains('a', 'Remove').click();
+        cy.contains('.govuk-summary-card', 'Jessie Jones').contains('a', 'Remove').click();
 
         cy.url().should('contain', '/remove-attorney');
         cy.url().should('match', /id=\w*/);
@@ -131,7 +125,7 @@ describe('Choose attorneys summary', () => {
 
         cy.get('main').should('not.contain', 'Jessie Jones');
 
-        cy.get('#remove-attorney-1').contains('a', 'Remove').click();
+        cy.contains('.govuk-summary-card', 'Robin Redcar').contains('a', 'Remove').click();
         cy.get('input[name="yes-no"]').check('yes');
         cy.contains('button', 'Continue').click();
 
@@ -139,7 +133,7 @@ describe('Choose attorneys summary', () => {
     });
 
     it('errors when remove not selected', () => {
-        cy.get('#remove-attorney-1').contains('a', 'Remove').click();
+        cy.contains('.govuk-summary-card', 'Jessie Jones').contains('a', 'Remove').click();
 
         cy.contains('button', 'Continue').click();
 

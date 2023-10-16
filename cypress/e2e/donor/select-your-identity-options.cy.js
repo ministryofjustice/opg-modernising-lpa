@@ -1,6 +1,6 @@
 describe('Select your identity options', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?lpa.paid=1&redirect=/select-your-identity-options');
+        cy.visit('/fixtures?redirect=/select-your-identity-options&progress=payForTheLpa');
     });
 
     it('can select on first page', () => {

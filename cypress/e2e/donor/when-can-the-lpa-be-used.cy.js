@@ -1,6 +1,6 @@
 describe('When can the LPA be used', () => {
     beforeEach(() => {
-        cy.visit('/testing-start?redirect=/when-can-the-lpa-be-used&lpa.yourDetails=1&lpa.attorneys=1');
+        cy.visit('/fixtures?redirect=/when-can-the-lpa-be-used');
     });
 
     it('can be submitted', () => {

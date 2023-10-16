@@ -1,7 +1,6 @@
 describe('LPA progress', () => {
     it('when nothing completed', () => {
-        cy.visit('/testing-start?redirect=/progress');
-        cy.checkA11yApp();
+        cy.visit('/fixtures?redirect=/progress');
 
         cy.contains('li', 'You’ve signed your LPA In progress');
         cy.contains('li', 'Your certificate provider has provided their certificate Not started');
@@ -12,7 +11,7 @@ describe('LPA progress', () => {
     })
 
     it('when LPA submitted', () => {
-        cy.visit('/testing-start?redirect=/progress&lpa.complete=1');
+        cy.visit('/fixtures?redirect=/progress&progress=confirmYourIdentityAndSignTheLpa');
         cy.checkA11yApp();
 
         cy.contains('li', 'You’ve signed your LPA Completed');
