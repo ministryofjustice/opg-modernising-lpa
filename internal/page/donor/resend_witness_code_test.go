@@ -28,7 +28,7 @@ func TestGetResendWitnessCode(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, time.Now, actorType)(testAppData, w, r, &page.Lpa{})
+			err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, actorType)(testAppData, w, r, &page.Lpa{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -46,7 +46,7 @@ func TestGetResendWitnessCodeWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, time.Now, actor.TypeCertificateProvider)(testAppData, w, r, &page.Lpa{})
+	err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, actor.TypeCertificateProvider)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -84,7 +84,7 @@ func TestPostResendWitnessCode(t *testing.T) {
 				On(tc.method, r.Context(), lpa, testAppData.Localizer).
 				Return(nil)
 
-			err := ResendWitnessCode(nil, witnessCodeSender, time.Now, actorType)(testAppData, w, r, lpa)
+			err := ResendWitnessCode(nil, witnessCodeSender, actorType)(testAppData, w, r, lpa)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -106,28 +106,42 @@ func TestPostResendWitnessCodeWhenSendErrors(t *testing.T) {
 		On("SendToCertificateProvider", r.Context(), lpa, mock.Anything).
 		Return(expectedError)
 
-	err := ResendWitnessCode(nil, witnessCodeSender, time.Now, actor.TypeCertificateProvider)(testAppData, w, r, lpa)
+	err := ResendWitnessCode(nil, witnessCodeSender, actor.TypeCertificateProvider)(testAppData, w, r, lpa)
 
 	assert.Equal(t, expectedError, err)
 }
 
 func TestPostResendWitnessCodeWhenTooRecentlySent(t *testing.T) {
-	testcases := map[actor.Type]*page.Lpa{
+	testcases := map[actor.Type]struct {
+		lpa  *page.Lpa
+		send string
+	}{
 		actor.TypeIndependentWitness: {
-			Donor:                   actor.Donor{FirstNames: "john"},
-			IndependentWitnessCodes: page.WitnessCodes{{Created: time.Now()}},
+			lpa: &page.Lpa{
+				Donor:                   actor.Donor{FirstNames: "john"},
+				IndependentWitnessCodes: page.WitnessCodes{{Created: time.Now()}},
+			},
+			send: "SendToIndependentWitness",
 		},
 		actor.TypeCertificateProvider: {
-			Donor:                    actor.Donor{FirstNames: "john"},
-			CertificateProviderCodes: page.WitnessCodes{{Created: time.Now()}},
+			lpa: &page.Lpa{
+				Donor:                    actor.Donor{FirstNames: "john"},
+				CertificateProviderCodes: page.WitnessCodes{{Created: time.Now()}},
+			},
+			send: "SendToCertificateProvider",
 		},
 	}
 
-	for actorType, lpa := range testcases {
+	for actorType, tc := range testcases {
 		t.Run(actorType.String(), func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+			witnessCodeSender := newMockWitnessCodeSender(t)
+			witnessCodeSender.
+				On(tc.send, r.Context(), tc.lpa, testAppData.Localizer).
+				Return(page.ErrTooManyWitnessCodeRequests)
 
 			template := newMockTemplate(t)
 			template.
@@ -137,7 +151,7 @@ func TestPostResendWitnessCodeWhenTooRecentlySent(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, time.Now, actorType)(testAppData, w, r, lpa)
+			err := ResendWitnessCode(template.Execute, witnessCodeSender, actorType)(testAppData, w, r, tc.lpa)
 			resp := w.Result()
 
 			assert.Nil(t, err)
