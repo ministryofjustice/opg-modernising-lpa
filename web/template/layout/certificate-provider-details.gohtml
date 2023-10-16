@@ -1,6 +1,8 @@
 {{ define "certificate-provider-details" }}
   {{ $canChange := and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
-  {{ $certificateProviderDetailsLink := printf "%s?from=%s" (link .App (.App.Paths.CertificateProviderDetails.Format .App.LpaID)) .App.Page }}
+  {{ $detailsLink := printf "%s?from=%s" (link .App (.App.Paths.CertificateProviderDetails.Format .App.LpaID)) .App.Page }}
+  {{ $carryOutByLink := printf "%s?from=%s" (link .App (.App.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Format .App.LpaID)) .App.Page }}
+  {{ $addressLink := printf "%s?from=%s" (link .App (.App.Paths.CertificateProviderAddress.Format .App.LpaID)) .App.Page }}
   
   <div class="govuk-summary-card">
     <div class="govuk-summary-card__title-wrapper">
@@ -13,7 +15,7 @@
           <dd class="govuk-summary-list__value">{{ .Lpa.CertificateProvider.FullName }}</dd>
           {{ if $canChange }}
             <dd class="govuk-summary-list__actions">
-              <a class="govuk-link govuk-link--no-visited-state" href="{{ $certificateProviderDetailsLink }}#f-first-names">
+              <a class="govuk-link govuk-link--no-visited-state" href="{{ $detailsLink }}#f-first-names">
                 {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ lowerFirst (tr .App "certificateProvider") }}</span>
               </a>
             </dd>
@@ -25,8 +27,46 @@
           <dd class="govuk-summary-list__value">{{ .Lpa.CertificateProvider.Mobile }}</dd>
           {{ if $canChange }}
             <dd class="govuk-summary-list__actions">
-              <a class="govuk-link govuk-link--no-visited-state" href="{{ $certificateProviderDetailsLink }}#f-mobile">
+              <a class="govuk-link govuk-link--no-visited-state" href="{{ $detailsLink }}#f-mobile">
                 {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "certificateProviderMobile" }}</span>
+              </a>
+            </dd>
+          {{ end }}
+        </div>
+
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">{{ tr .App "contactPreference" }}</dt>
+          <dd class="govuk-summary-list__value">{{ if .Lpa.CertificateProvider.CarryOutBy.IsPaper }}{{ tr .App "usingPaperForms" }}{{ else if .Lpa.CertificateProvider.CarryOutBy.IsOnline }}{{ tr .App "byEmail" }}{{ end }}</dd>
+          {{ if $canChange }}
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link govuk-link--no-visited-state" href="{{ $carryOutByLink }}">
+                {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "certificateProviderContactPreference" }}</span>
+              </a>
+            </dd>
+          {{ end }}
+        </div>
+
+        {{ if .Lpa.CertificateProvider.Email }}
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "email" }}</dt>
+            <dd class="govuk-summary-list__value">{{ .Lpa.CertificateProvider.Email }}</dd>
+            {{ if $canChange }}
+              <dd class="govuk-summary-list__actions">
+                <a class="govuk-link govuk-link--no-visited-state" href="{{ $carryOutByLink }}#f-email">
+                  {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "certificateProviderEmail" }}</span>
+                </a>
+              </dd>
+            {{ end }}
+          </div>
+        {{ end }}
+
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
+          <dd class="govuk-summary-list__value">{{ template "address-lines" .Lpa.CertificateProvider.Address }}</dd>
+          {{ if $canChange }}
+            <dd class="govuk-summary-list__actions">
+              <a class="govuk-link govuk-link--no-visited-state" href="{{ $addressLink }}#f-address-line-1">
+                {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "certificateProviderAddress" }}</span>
               </a>
             </dd>
           {{ end }}
