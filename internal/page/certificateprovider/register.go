@@ -109,10 +109,10 @@ func Register(
 	handleCertificateProvider(page.Paths.CertificateProvider.ConfirmYourDetails,
 		ConfirmYourDetails(tmpls.Get("certificate_provider_confirm_your_details.gohtml"), donorStore, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.YourRole,
-		Guidance(tmpls.Get("certificate_provider_your_role.gohtml"), donorStore, nil))
+		Guidance(tmpls.Get("certificate_provider_your_role.gohtml"), donorStore))
 
 	handleCertificateProvider(page.Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity,
-		Guidance(tmpls.Get("certificate_provider_what_youll_need_to_confirm_your_identity.gohtml"), donorStore, nil))
+		Guidance(tmpls.Get("certificate_provider_what_youll_need_to_confirm_your_identity.gohtml"), donorStore))
 
 	for path, page := range map[page.CertificateProviderPath]int{
 		page.Paths.CertificateProvider.SelectYourIdentityOptions:  0,
@@ -148,11 +148,11 @@ func Register(
 	handleCertificateProvider(page.Paths.CertificateProvider.ReadTheLpa,
 		ReadTheLpa(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), donorStore, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.WhatHappensNext,
-		Guidance(tmpls.Get("certificate_provider_what_happens_next.gohtml"), donorStore, nil))
+		Guidance(tmpls.Get("certificate_provider_what_happens_next.gohtml"), donorStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.ProvideCertificate,
 		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), donorStore, time.Now, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.CertificateProvided,
-		Guidance(tmpls.Get("certificate_provided.gohtml"), donorStore, nil))
+		Guidance(tmpls.Get("certificate_provided.gohtml"), donorStore))
 }
 
 func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler) func(page.Path, page.Handler) {
