@@ -892,5 +892,9 @@
     "removePersonToNotify": "Welsh",
     "weNeedYourCorrectMobileNumber": "{{.FirstNames}}, welsh <span class=\"govuk-!-font-weight-bold\">{{.ActorType}}</span>, welsh",
     "changeYourMobileNumber": "Welsh",
-    "independentWitness": "Welsh"
+    "independentWitness": "Welsh",
+    "contactPreference": "Welsh",
+    "certificateProviderEmail": "Welsh",
+    "certificateProviderAddress": "Welsh",
+    "certificateProviderContactPreference": "Welsh"
 }
