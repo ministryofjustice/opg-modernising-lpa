@@ -1,8 +1,8 @@
 package donor
 
 import (
+	"errors"
 	"net/http"
-	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -15,7 +15,7 @@ type resendWitnessCodeData struct {
 	Errors validation.List
 }
 
-func ResendWitnessCode(tmpl template.Template, witnessCodeSender WitnessCodeSender, now func() time.Time, actorType actor.Type) Handler {
+func ResendWitnessCode(tmpl template.Template, witnessCodeSender WitnessCodeSender, actorType actor.Type) Handler {
 	send := witnessCodeSender.SendToCertificateProvider
 	redirect := page.Paths.WitnessingAsCertificateProvider
 
@@ -30,18 +30,12 @@ func ResendWitnessCode(tmpl template.Template, witnessCodeSender WitnessCodeSend
 		}
 
 		if r.Method == http.MethodPost {
-			canRequest := lpa.CertificateProviderCodes.CanRequest
-
-			if actorType == actor.TypeIndependentWitness {
-				canRequest = lpa.IndependentWitnessCodes.CanRequest
-			}
-
-			if !canRequest(now()) {
-				data.Errors.Add("request", validation.CustomError{Label: "pleaseWaitOneMinute"})
-				return tmpl(w, data)
-			}
-
 			if err := send(r.Context(), lpa, appData.Localizer); err != nil {
+				if errors.Is(err, page.ErrTooManyWitnessCodeRequests) {
+					data.Errors.Add("request", validation.CustomError{Label: "pleaseWaitOneMinute"})
+					return tmpl(w, data)
+				}
+
 				return err
 			}
 

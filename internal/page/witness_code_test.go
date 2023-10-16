@@ -64,6 +64,18 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestWitnessCodeSenderSendToCertificateProviderWhenTooRecentlySent(t *testing.T) {
+	now := time.Now()
+	ctx := context.Background()
+
+	sender := &WitnessCodeSender{now: func() time.Time { return now }}
+	err := sender.SendToCertificateProvider(ctx, &Lpa{
+		CertificateProviderCodes: WitnessCodes{{Created: now.Add(-time.Minute)}},
+	}, nil)
+
+	assert.Equal(t, ErrTooManyWitnessCodeRequests, err)
+}
+
 func TestWitnessCodeSenderSendToCertificateProviderWhenNotifyClientErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
@@ -183,6 +195,18 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 	}, localizer)
 
 	assert.Nil(t, err)
+}
+
+func TestWitnessCodeSenderSendToIndependentWitnessWhenTooRecentlySent(t *testing.T) {
+	now := time.Now()
+	ctx := context.Background()
+
+	sender := &WitnessCodeSender{now: func() time.Time { return now }}
+	err := sender.SendToIndependentWitness(ctx, &Lpa{
+		IndependentWitnessCodes: WitnessCodes{{Created: now.Add(-time.Minute)}},
+	}, nil)
+
+	assert.Equal(t, ErrTooManyWitnessCodeRequests, err)
 }
 
 func TestWitnessCodeSenderSendToIndependentWitnessWhenNotifyClientErrors(t *testing.T) {
