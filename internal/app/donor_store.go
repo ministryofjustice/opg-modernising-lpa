@@ -230,13 +230,6 @@ type previousApplicationLinkedEvent struct {
 	PreviousApplicationNumber string `json:"previousApplicationNumber"`
 }
 
-type evidenceFormRequiredEvent struct {
-	UID        string  `json:"uid"`
-	FirstNames string  `json:"firstNames"`
-	LastName   string  `json:"lastName"`
-	Address    address `json:"address"`
-}
-
 type reducedFeeRequestedEvent struct {
 	UID         string   `json:"uid"`
 	RequestType string   `json:"requestType"`
