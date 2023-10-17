@@ -841,5 +841,6 @@
     "removePersonToNotify": "Remove person to notify",
     "weNeedYourCorrectMobileNumber": "{{.FirstNames}}, as the <span class=\"govuk-!-font-weight-bold\">{{.ActorType}}</span>, we need your correct mobile number to send your witnessing code.",
     "changeYourMobileNumber": "Change your mobile number",
-    "independentWitness": "Independent witness"
+    "independentWitness": "Independent witness",
+    "youHaveDeletedFile": "You have deleted file {{ .Filename }}"
 }

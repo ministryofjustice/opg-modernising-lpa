@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
+	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/logging"
@@ -45,9 +45,16 @@ type DynamoClient interface {
 	AllByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
 	LatestForActor(ctx context.Context, sk string, v interface{}) error
 	AllForActor(ctx context.Context, sk string, v interface{}) error
-	AllByKeys(ctx context.Context, pks []dynamo.Key) ([]map[string]types.AttributeValue, error)
+	AllByKeys(ctx context.Context, pks []dynamo.Key) ([]map[string]dynamodbtypes.AttributeValue, error)
 	Put(ctx context.Context, v interface{}) error
 	Create(ctx context.Context, v interface{}) error
+}
+
+//go:generate mockery --testonly --inpackage --name S3Client --structname mockS3Client
+type S3Client interface {
+	PutObject(context.Context, string, []byte) error
+	PutObjectTagging(context.Context, string, []types.Tag) error
+	DeleteObject(context.Context, string) error
 }
 
 //go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore
@@ -75,8 +82,7 @@ func App(
 	oneLoginClient *onelogin.Client,
 	uidClient *uid.Client,
 	oneloginURL string,
-	s3Client *s3.Client,
-	evidenceBucketName string,
+	s3Client S3Client,
 	eventClient *event.Client,
 ) http.Handler {
 	donorStore := &donorStore{
@@ -173,7 +179,6 @@ func App(
 		notifyClient,
 		evidenceReceivedStore,
 		s3Client,
-		evidenceBucketName,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang, rumConfig, staticHash, oneloginURL)

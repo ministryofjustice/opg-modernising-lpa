@@ -191,4 +191,27 @@ describe('Pay for LPA', () => {
         cy.url().should('contain', '/what-happens-after-no-fee');
         cy.checkA11yApp();
     })
+
+    it('can only delete evidence that has not been sent to OPG', () => {
+        cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&feeType=half-fee');
+        cy.checkA11yApp();
+
+        cy.get('input[type="file"]').attachFile(['dummy.pdf']);
+
+        cy.contains('button', 'Upload files').click()
+
+        cy.url().should('contain', '/upload-evidence');
+
+        cy.get('.govuk-summary-list').within(() => {
+            cy.contains('supporting-evidence.png').parent().should('not.contain', 'Delete');
+            cy.contains('dummy.pdf').parent().contains('button', 'Delete').click();
+        });
+
+        cy.url().should('contain', '/upload-evidence');
+        cy.checkA11yApp();
+
+        cy.get('.moj-banner').within(() => {
+            cy.contains('You have deleted file dummy.pdf');
+        });
+    })
 });

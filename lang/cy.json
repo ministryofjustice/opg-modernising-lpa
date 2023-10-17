@@ -887,10 +887,10 @@
     "theirLpa": "{{.FullNamePossessive}} {{.LpaType}} Welsh",
     "allAttorneysHaveSignedTheLpa": "Welsh",
     "youveSignedTheLpa": "Welsh",
-    "sendItByPost" : "Welsh",
     "removeAttorney": "Welsh",
     "removePersonToNotify": "Welsh",
     "weNeedYourCorrectMobileNumber": "{{.FirstNames}}, welsh <span class=\"govuk-!-font-weight-bold\">{{.ActorType}}</span>, welsh",
     "changeYourMobileNumber": "Welsh",
-    "independentWitness": "Welsh"
+    "independentWitness": "Welsh",
+    "youHaveDeletedFile": "Welsh {{ .Filename }}"
 }
