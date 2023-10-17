@@ -86,33 +86,34 @@ data "aws_route_tables" "application" {
   }
 }
 
-resource "aws_vpc_endpoint" "s3" {
-  provider          = aws.region
-  vpc_id            = module.network.vpc.id
-  service_name      = "com.amazonaws.${data.aws_region.current.name}.s3"
-  route_table_ids   = tolist(data.aws_route_tables.application.ids)
-  vpc_endpoint_type = "Gateway"
-  policy            = data.aws_iam_policy_document.s3_vpc_endpoint.json
-  tags              = { Name = "s3-private-${data.aws_region.current.name}" }
-}
+# resource "aws_vpc_endpoint" "s3" {
+#   provider          = aws.region
+#   vpc_id            = module.network.vpc.id
+#   service_name      = "com.amazonaws.${data.aws_region.current.name}.s3"
+#   route_table_ids   = tolist(data.aws_route_tables.application.ids)
+#   vpc_endpoint_type = "Gateway"
+#   policy            = data.aws_iam_policy_document.s3_vpc_endpoint.json
+#   tags              = { Name = "s3-private-${data.aws_region.current.name}" }
+# }
 
-data "aws_iam_policy_document" "s3_vpc_endpoint" {
-  provider = aws.region
-  statement {
-    sid       = "S3VpcEndpointPolicy"
-    actions   = ["s3:*"]
-    resources = ["*"]
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
-    }
-    condition {
-      test     = "StringEquals"
-      variable = "aws:PrincipalAccount"
-      values   = [data.aws_caller_identity.current.account_id]
-    }
-  }
-}
+# data "aws_iam_policy_document" "s3_vpc_endpoint" {
+#   provider = aws.region
+#   statement {
+#     sid       = "S3VpcEndpointPolicy"
+#     effect    = "Deny"
+#     actions   = ["s3:*"]
+#     resources = ["*"]
+#     principals {
+#       type        = "AWS"
+#       identifiers = ["*"]
+#     }
+#     condition {
+#       test     = "StringNotEquals"
+#       variable = "aws:SourceVpc"
+#       values   = [module.network.vpc.id]
+#     }
+#   }
+# }
 
 resource "aws_vpc_endpoint" "dynamodb" {
   provider          = aws.region
@@ -128,7 +129,7 @@ data "aws_iam_policy_document" "dynamodb_vpc_endpoint" {
   provider = aws.region
   statement {
     sid       = "DynamoDBVpcEndpointPolicy"
-    effect    = "Allow"
+    effect    = "Deny"
     actions   = ["dynamodb:*"]
     resources = ["*"]
     principals {
@@ -136,9 +137,9 @@ data "aws_iam_policy_document" "dynamodb_vpc_endpoint" {
       identifiers = ["*"]
     }
     condition {
-      test     = "StringEquals"
-      variable = "aws:PrincipalAccount"
-      values   = [data.aws_caller_identity.current.account_id]
+      test     = "StringNotEquals"
+      variable = "aws:SourceVpc"
+      values   = [module.network.vpc.id]
     }
   }
 }
