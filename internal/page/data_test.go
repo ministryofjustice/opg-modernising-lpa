@@ -301,6 +301,9 @@ func TestCanGoTo(t *testing.T) {
 		},
 		"about payment with tasks": {
 			lpa: &Lpa{
+				Donor: actor.Donor{
+					CanSign: form.Yes,
+				},
 				Type: LpaTypePropertyFinance,
 				Tasks: Tasks{
 					YourDetails:                actor.TaskCompleted,
@@ -323,6 +326,9 @@ func TestCanGoTo(t *testing.T) {
 		},
 		"select your identity options with tasks": {
 			lpa: &Lpa{
+				Donor: actor.Donor{
+					CanSign: form.Yes,
+				},
 				Type: LpaTypeHealthWelfare,
 				Tasks: Tasks{
 					YourDetails:                actor.TaskCompleted,

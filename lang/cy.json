@@ -889,5 +889,8 @@
     "youveSignedTheLpa": "Welsh",
     "removeAttorney": "Welsh",
     "removePersonToNotify": "Welsh",
+    "weNeedYourCorrectMobileNumber": "{{.FirstNames}}, welsh <span class=\"govuk-!-font-weight-bold\">{{.ActorType}}</span>, welsh",
+    "changeYourMobileNumber": "Welsh",
+    "independentWitness": "Welsh",
     "youHaveDeletedFile": "Welsh {{ .Filename }}"
 }

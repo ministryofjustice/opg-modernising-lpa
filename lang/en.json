@@ -761,7 +761,7 @@
     "asTheIndependentWitnessTypeTheCode": "{{.IndependentWitnessFirstNames}}, as the independent witness for {{.DonorFullName}}, please type in the code to prove that you witnessed their LPA being signed.",
     "enter4DigitCode": "Enter 4 digit code",
     "imHavingProblemWithCode": "I’m having a problem with the code",
-    "imHavingProblemWithCodeContent": "<a href=\"{{.Link}}\">Resend</a>",
+    "imHavingProblemWithCodeContent": "<p class=\"govuk-body\">The code can take a few minutes to arrive. We can <a class=\"govuk-link\" href=\"{{.ResendLink}}\">send the code again</a> if it is not working or you did not receive it.</p><p class=\"govuk-body\">If the mobile number we have for you is incorrect, you can <a class=\"govuk-link\" href=\"{{.ChangeLink}}\">change the number</a> we send the code to.</p>",
     "asTheCertificateProviderTypeTheCode": "{{.CertificateProviderFirstNames}}, as the certificate provider for {{.DonorFullName}}, please type in the code to prove that you witnessed their LPA being signed.",
     "errorGenericUploadProblem": "Generic upload error",
     "errorTooManyFiles": "Too many files uploaded",
@@ -839,5 +839,8 @@
     "youveSignedTheLpa": "You’ve signed the LPA",
     "removeAttorney": "Remove attorney",
     "removePersonToNotify": "Remove person to notify",
+    "weNeedYourCorrectMobileNumber": "{{.FirstNames}}, as the <span class=\"govuk-!-font-weight-bold\">{{.ActorType}}</span>, we need your correct mobile number to send your witnessing code.",
+    "changeYourMobileNumber": "Change your mobile number",
+    "independentWitness": "Independent witness",
     "youHaveDeletedFile": "You have deleted file {{ .Filename }}"
 }
