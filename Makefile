@@ -104,5 +104,8 @@ emit-fee-denied: ##@app emits a fee-denied event with the given UID e.g. emit-fe
 emit-more-evidence-required: ##@app emits a more-evidence-required event with the given UID e.g. emit-more-evidence-required UID=abc-123
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"more-evidence-required","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(UID)"}}'
 
+emit-document-scanned: ##@app emits a document-scanned event with the given UID, S3 key and result and  e.g. emit-document-scanned UID=abc-123 key=doc/key virus_detected=false
+	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"document-scanned","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(UID)","key":"$(key)","virus_detected":$(virus_detected)}}'
+
 logs: ##@app tails logs for all containers running
 	docker compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml logs -f

@@ -53,7 +53,7 @@ type uploadEvidenceData struct {
 	Errors               validation.List
 	NumberOfAllowedFiles int
 	FeeType              page.FeeType
-	Evidence             []page.Evidence
+	Evidence             page.Evidence
 	MimeTypes            []string
 }
 
@@ -63,7 +63,7 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 			App:                  appData,
 			NumberOfAllowedFiles: numberOfAllowedFiles,
 			FeeType:              lpa.FeeType,
-			Evidence:             lpa.EvidenceKeys,
+			Evidence:             lpa.Evidence,
 			MimeTypes:            acceptedMimeTypes(),
 		}
 
@@ -89,14 +89,14 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 							return err
 						}
 
-						lpa.EvidenceKeys = append(lpa.EvidenceKeys, page.Evidence{Key: key, Filename: file.Filename})
+						lpa.Evidence.Documents = append(lpa.Evidence.Documents, page.Document{Key: key, Filename: file.Filename})
 					}
 
 					if err := donorStore.Put(r.Context(), lpa); err != nil {
 						return err
 					}
 
-					data.Evidence = lpa.EvidenceKeys
+					data.Evidence = lpa.Evidence
 				} else {
 					return payer.Pay(appData, w, r, lpa)
 				}

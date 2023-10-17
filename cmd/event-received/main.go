@@ -27,6 +27,12 @@ type uidEvent struct {
 	UID string `json:"uid"`
 }
 
+type documentScannedEvent struct {
+	UID           string `json:"uid"`
+	Key           string `json:"key"`
+	VirusDetected bool   `json:"virus_detected"`
+}
+
 //go:generate mockery --testonly --inpackage --name dynamodbClient --structname mockDynamodbClient
 type dynamodbClient interface {
 	One(ctx context.Context, pk, sk string, v interface{}) error
@@ -95,6 +101,8 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) error {
 		return handleMoreEvidenceRequired(ctx, dynamoClient, event, now)
 	case "fee-denied":
 		return handleFeeDenied(ctx, dynamoClient, event, now)
+	case "document-scanned":
+		return handleDocumentScanned(ctx, dynamoClient, event, now)
 	default:
 		return fmt.Errorf("unknown event received: %s", event.DetailType)
 	}
@@ -128,14 +136,9 @@ func handleFeeApproved(ctx context.Context, dynamoClient dynamodbClient, event e
 		return fmt.Errorf("failed to unmarshal 'fee-approved' detail: %w", err)
 	}
 
-	var key dynamo.Key
-	if err := dynamoClient.OneByUID(ctx, v.UID, &key); err != nil {
-		return fmt.Errorf("failed to resolve uid for 'fee-approved': %w", err)
-	}
-
-	var lpa page.Lpa
-	if err := dynamoClient.One(ctx, key.PK, key.SK, &lpa); err != nil {
-		return fmt.Errorf("failed to get LPA for 'fee-approved': %w", err)
+	lpa, err := getLpaByUID(ctx, dynamoClient, v.UID, "fee-approved")
+	if err != nil {
+		return err
 	}
 
 	lpa.Tasks.PayForLpa = actor.PaymentTaskCompleted
@@ -158,18 +161,9 @@ func handleMoreEvidenceRequired(ctx context.Context, client dynamodbClient, even
 		return fmt.Errorf("failed to unmarshal 'more-evidence-required' detail: %w", err)
 	}
 
-	var key dynamo.Key
-	if err := client.OneByUID(ctx, v.UID, &key); err != nil {
-		return fmt.Errorf("failed to resolve uid for 'more-evidence-required': %w", err)
-	}
-
-	if key.PK == "" {
-		return errors.New("PK missing from LPA in response to 'more-evidence-required'")
-	}
-
-	var lpa page.Lpa
-	if err := client.One(ctx, key.PK, key.SK, &lpa); err != nil {
-		return fmt.Errorf("failed to get LPA for 'more-evidence-required': %w", err)
+	lpa, err := getLpaByUID(ctx, client, v.UID, "more-evidence-required")
+	if err != nil {
+		return err
 	}
 
 	lpa.Tasks.PayForLpa = actor.PaymentTaskMoreEvidenceRequired
@@ -188,18 +182,9 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.Cl
 		return fmt.Errorf("failed to unmarshal 'fee-denied' detail: %w", err)
 	}
 
-	var key dynamo.Key
-	if err := client.OneByUID(ctx, v.UID, &key); err != nil {
-		return fmt.Errorf("failed to resolve uid for 'fee-denied': %w", err)
-	}
-
-	if key.PK == "" {
-		return errors.New("PK missing from LPA in response to 'fee-denied'")
-	}
-
-	var lpa page.Lpa
-	if err := client.One(ctx, key.PK, key.SK, &lpa); err != nil {
-		return fmt.Errorf("failed to get LPA for 'fee-denied': %w", err)
+	lpa, err := getLpaByUID(ctx, client, v.UID, "fee-denied")
+	if err != nil {
+		return err
 	}
 
 	lpa.Tasks.PayForLpa = actor.PaymentTaskDenied
@@ -210,6 +195,52 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.Cl
 	}
 
 	return nil
+}
+
+func handleDocumentScanned(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, now func() time.Time) error {
+	var v documentScannedEvent
+	if err := json.Unmarshal(event.Detail, &v); err != nil {
+		return fmt.Errorf("failed to unmarshal 'document-scanned' detail: %w", err)
+	}
+
+	lpa, err := getLpaByUID(ctx, client, v.UID, "document-scanned")
+	if err != nil {
+		return err
+	}
+
+	evidence := lpa.Evidence.GetByKey(v.Key)
+	evidence.Scanned = now()
+	evidence.VirusDetected = v.VirusDetected
+
+	if ok := lpa.Evidence.Update(evidence); !ok {
+		return errors.New("failed to update evidence on LPA for 'document-scanned'")
+	}
+
+	lpa.UpdatedAt = now()
+
+	if err := client.Put(ctx, lpa); err != nil {
+		return fmt.Errorf("failed to update LPA for 'document-scanned': %w", err)
+	}
+
+	return nil
+}
+
+func getLpaByUID(ctx context.Context, client dynamodbClient, uid, eventName string) (page.Lpa, error) {
+	var key dynamo.Key
+	if err := client.OneByUID(ctx, uid, &key); err != nil {
+		return page.Lpa{}, fmt.Errorf("failed to resolve uid for '%s': %w", eventName, err)
+	}
+
+	if key.PK == "" {
+		return page.Lpa{}, fmt.Errorf("PK missing from LPA in response to '%s'", eventName)
+	}
+
+	var lpa page.Lpa
+	if err := client.One(ctx, key.PK, key.SK, &lpa); err != nil {
+		return page.Lpa{}, fmt.Errorf("failed to get LPA for '%s': %w", eventName, err)
+	}
+
+	return lpa, nil
 }
 
 func main() {
