@@ -33,3 +33,9 @@ data "aws_subnet" "public" {
   }
   provider = aws.region
 }
+
+data "aws_vpc_endpoint" "s3" {
+  vpc_id       = data.aws_vpc.main.id
+  service_name = "com.amazonaws.${data.aws_region.current.name}.s3"
+  provider     = aws.region
+}
