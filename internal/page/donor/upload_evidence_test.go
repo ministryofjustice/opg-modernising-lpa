@@ -98,10 +98,11 @@ func TestPostUploadEvidenceWithUploadActionAcceptedFileTypes(t *testing.T) {
 				})).
 				Return(nil, nil)
 
-			evidence := []page.Evidence{
+			evidence := page.Evidence{Documents: []page.Document{
 				{Key: "lpa-uid/evidence/a-uid", Filename: filename},
-			}
-			updatedLpa := &page.Lpa{UID: "lpa-uid", EvidenceKeys: evidence, FeeType: page.HalfFee}
+			}}
+
+			updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: page.HalfFee}
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
@@ -163,11 +164,11 @@ func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
 		})).
 		Return(nil, nil)
 
-	evidence := []page.Evidence{
+	evidence := page.Evidence{Documents: []page.Document{
 		{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
 		{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.png"},
-	}
-	updatedLpa := &page.Lpa{UID: "lpa-uid", EvidenceKeys: evidence, FeeType: page.HalfFee}
+	}}
+	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: page.HalfFee}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
@@ -228,10 +229,10 @@ func TestPostUploadEvidenceWithUploadActionFilenameSpecialCharactersAreEscaped(t
 		})).
 		Return(nil, nil)
 
-	evidence := []page.Evidence{
+	evidence := page.Evidence{Documents: []page.Document{
 		{Key: "lpa-uid/evidence/a-uid", Filename: "&lt;img src=1 onerror=alert(document.domain)&gt;’ brute.heic"},
-	}
-	updatedLpa := &page.Lpa{UID: "lpa-uid", EvidenceKeys: evidence, FeeType: page.HalfFee}
+	}}
+	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: page.HalfFee}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
@@ -517,8 +518,8 @@ func TestPostUploadEvidenceWhenDonorStoreError(t *testing.T) {
 		})).
 		Return(nil, nil)
 
-	updatedLpa := &page.Lpa{UID: "lpa-uid", EvidenceKeys: []page.Evidence{
-		{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
+	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: page.Evidence{
+		Documents: []page.Document{{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"}},
 	}}
 
 	donorStore := newMockDonorStore(t)
