@@ -269,9 +269,8 @@ func TestPostUploadEvidenceWhenBadCsrfField(t *testing.T) {
 			App:                  testAppData,
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
-			Errors: validation.With(""+
-				"upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
-			FeeType: page.FullFee,
+			Errors:               validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
+			FeeType:              page.FullFee,
 		}).
 		Return(nil)
 
@@ -520,8 +519,23 @@ func TestPostUploadEvidenceWhenPayerError(t *testing.T) {
 }
 
 func TestGetUploadEvidenceDeleteEvidence(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, _ := writer.CreateFormField("csrf")
+	io.WriteString(part, "123")
+
+	part, _ = writer.CreateFormField("action")
+	io.WriteString(part, "delete")
+
+	part, _ = writer.CreateFormField("delete")
+	io.WriteString(part, "lpa-uid/evidence/a-uid")
+
+	writer.Close()
+
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?delete=lpa-uid/evidence/a-uid", nil)
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
 
 	s3Client := newMockS3Client(t)
 	s3Client.
@@ -558,12 +572,68 @@ func TestGetUploadEvidenceDeleteEvidence(t *testing.T) {
 			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
 		},
 	})
+
+	assert.Nil(t, err)
+}
+
+func TestGetUploadEvidenceDeleteEvidenceWhenUnexpectedFieldName(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, _ := writer.CreateFormField("csrf")
+	io.WriteString(part, "123")
+
+	part, _ = writer.CreateFormField("action")
+	io.WriteString(part, "delete")
+
+	part, _ = writer.CreateFormField("not-delete")
+	io.WriteString(part, "not-a-key")
+
+	writer.Close()
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &uploadEvidenceData{
+			App:                  testAppData,
+			Evidence:             []page.Evidence{{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"}},
+			NumberOfAllowedFiles: 5,
+			MimeTypes:            acceptedMimeTypes(),
+			FeeType:              page.HalfFee,
+			Errors:               validation.With("delete", validation.CustomError{Label: "errorGenericUploadProblem"}),
+		}).
+		Return(nil)
+
+	err := UploadEvidence(template.Execute, nil, nil, func() string { return "a-uid" }, nil)(testAppData, w, r, &page.Lpa{
+		UID:      "lpa-uid",
+		FeeType:  page.HalfFee,
+		Evidence: []page.Evidence{{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"}},
+	})
+
 	assert.Nil(t, err)
 }
 
 func TestGetUploadEvidenceDeleteEvidenceWhenS3ClientError(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, _ := writer.CreateFormField("csrf")
+	io.WriteString(part, "123")
+
+	part, _ = writer.CreateFormField("action")
+	io.WriteString(part, "delete")
+
+	part, _ = writer.CreateFormField("delete")
+	io.WriteString(part, "lpa-uid/evidence/a-uid")
+
+	writer.Close()
+
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?delete=lpa-uid/evidence/a-uid", nil)
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
 
 	s3Client := newMockS3Client(t)
 	s3Client.
@@ -583,8 +653,23 @@ func TestGetUploadEvidenceDeleteEvidenceWhenS3ClientError(t *testing.T) {
 }
 
 func TestGetUploadEvidenceDeleteEvidenceOnDonorStoreError(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, _ := writer.CreateFormField("csrf")
+	io.WriteString(part, "123")
+
+	part, _ = writer.CreateFormField("action")
+	io.WriteString(part, "delete")
+
+	part, _ = writer.CreateFormField("delete")
+	io.WriteString(part, "lpa-uid/evidence/a-uid")
+
+	writer.Close()
+
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?delete=lpa-uid/evidence/a-uid", nil)
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
 
 	s3Client := newMockS3Client(t)
 	s3Client.
@@ -614,8 +699,23 @@ func TestGetUploadEvidenceDeleteEvidenceOnDonorStoreError(t *testing.T) {
 }
 
 func TestGetUploadEvidenceDeleteEvidenceOnTemplateError(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, _ := writer.CreateFormField("csrf")
+	io.WriteString(part, "123")
+
+	part, _ = writer.CreateFormField("action")
+	io.WriteString(part, "delete")
+
+	part, _ = writer.CreateFormField("delete")
+	io.WriteString(part, "lpa-uid/evidence/a-uid")
+
+	writer.Close()
+
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?delete=lpa-uid/evidence/a-uid", nil)
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
 
 	s3Client := newMockS3Client(t)
 	s3Client.

@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -169,12 +170,14 @@ func Register(
 	evidenceS3Client S3Client,
 ) {
 	payer := &payHelper{
-		logger:       logger,
-		sessionStore: sessionStore,
-		donorStore:   donorStore,
-		payClient:    payClient,
-		appPublicURL: appPublicURL,
-		randomString: random.String,
+		logger:           logger,
+		sessionStore:     sessionStore,
+		donorStore:       donorStore,
+		payClient:        payClient,
+		appPublicURL:     appPublicURL,
+		randomString:     random.String,
+		evidenceS3Client: evidenceS3Client,
+		now:              time.Now,
 	}
 
 	handleRoot := makeHandle(rootMux, sessionStore, None, errorHandler)
@@ -309,7 +312,7 @@ func Register(
 	handleWithLpa(page.Paths.UploadEvidence, CanGoBack,
 		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), payer, donorStore, random.UuidString, evidenceS3Client))
 	handleWithLpa(page.Paths.WhatHappensAfterNoFee, None,
-		WhatHappensAfterNoFee(tmpls.Get("what_happens_after_no_fee.gohtml"), donorStore, evidenceS3Client, logger, time.Now))
+		Guidance(tmpls.Get("what_happens_after_no_fee.gohtml")))
 	handleWithLpa(page.Paths.HowToEmailOrPostEvidence, CanGoBack,
 		HowToEmailOrPostEvidence(tmpls.Get("how_to_email_or_post_evidence.gohtml"), payer))
 	handleWithLpa(page.Paths.FeeDenied, None,
@@ -472,16 +475,33 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOp
 }
 
 type payHelper struct {
-	logger       Logger
-	sessionStore sessions.Store
-	donorStore   DonorStore
-	payClient    PayClient
-	appPublicURL string
-	randomString func(int) string
+	logger           Logger
+	sessionStore     sessions.Store
+	donorStore       DonorStore
+	payClient        PayClient
+	appPublicURL     string
+	randomString     func(int) string
+	evidenceS3Client S3Client
+	now              func() time.Time
 }
 
 func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 	if lpa.FeeType.IsNoFee() || lpa.FeeType.IsHardshipFee() || lpa.Tasks.PayForLpa.IsMoreEvidenceRequired() {
+		for i, evidence := range lpa.Evidence {
+			if evidence.Sent.IsZero() {
+				err := p.evidenceS3Client.PutObjectTagging(r.Context(), evidence.Key, []types.Tag{
+					{Key: aws.String("replicate"), Value: aws.String("true")},
+				})
+
+				if err != nil {
+					p.logger.Print(fmt.Sprintf("error tagging evidence: %s", err.Error()))
+					return err
+				}
+
+				lpa.Evidence[i].Sent = p.now()
+			}
+		}
+
 		lpa.Tasks.PayForLpa = actor.PaymentTaskPending
 		if err := p.donorStore.Put(r.Context(), lpa); err != nil {
 			return err

@@ -15,7 +15,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/env"
@@ -31,7 +30,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	s3pkg "github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/templatefn"
@@ -205,9 +204,7 @@ func main() {
 
 	uidClient := uid.New(uidBaseURL, httpClient, cfg, v4.NewSigner(), time.Now)
 
-	evidenceS3Client := s3pkg.NewClient(cfg, evidenceBucketName, func(o *s3.Options) {
-		o.UsePathStyle = true
-	})
+	evidenceS3Client := s3.NewClient(cfg, evidenceBucketName)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc(page.Paths.HealthCheck.Service.String(), func(w http.ResponseWriter, r *http.Request) {})

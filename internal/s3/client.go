@@ -21,8 +21,10 @@ type Client struct {
 	svc    s3Service
 }
 
-func NewClient(cfg aws.Config, bucket string, optsFn ...func(*s3.Options)) *Client {
-	return &Client{bucket: bucket, svc: s3.NewFromConfig(cfg, optsFn...)}
+func NewClient(cfg aws.Config, bucket string) *Client {
+	return &Client{bucket: bucket, svc: s3.NewFromConfig(cfg, func(o *s3.Options) {
+		o.UsePathStyle = true
+	})}
 }
 
 func (c *Client) DeleteObject(ctx context.Context, key string) error {

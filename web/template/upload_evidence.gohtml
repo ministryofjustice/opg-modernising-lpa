@@ -64,6 +64,8 @@
         <form novalidate method="post" enctype="multipart/form-data">
           {{ template "csrf-field" . }}
 
+          <input type="hidden" id="f-delete-action" name="action" value="delete" />
+
           <dl class="govuk-summary-list">
             <div class="govuk-summary-list__row">
               <dt class="govuk-summary-list__key">
@@ -71,16 +73,16 @@
               </dt>
               <dd class="govuk-summary-list__actions"></dd>
             </div>
-            {{ range .Evidence }}
+            {{ range $i, $e := .Evidence }}
               <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__value">
-                  {{ .Filename }}
+                  {{ $e.Filename }}
                 </dt>
                 <dd class="govuk-summary-list__actions">
-                  {{ if .Sent.IsZero }}
-                    <input type="hidden" id="f-delete-action" name="delete" value="{{ .Key }}" />
-                      <button class="app-link-button">
-                        {{ tr $.App "delete" }}<span class="govuk-visually-hidden"> {{ .Filename }}</span>
+                  {{ if $e.Sent.IsZero }}
+                    <input type="hidden" id="f-delete-evidence-{{ $i }}" name="delete" value="{{ $e.Key }}" />
+                      <button class="app-button-link">
+                        {{ tr $.App "delete" }}<span class="govuk-visually-hidden"> {{ $e.Filename }}</span>
                       </button>
                   {{ end }}
                 </dd>

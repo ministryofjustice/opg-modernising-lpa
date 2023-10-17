@@ -6,7 +6,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -433,16 +436,40 @@ func TestPayHelperPayWhenPaymentNotRequired(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
-			lpa := &page.Lpa{ID: "lpa-id", FeeType: feeType, Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}}
+			now := time.Now()
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), lpa).
+				On("Put", r.Context(), &page.Lpa{
+					ID:      "lpa-id",
+					FeeType: feeType,
+					Tasks:   page.Tasks{PayForLpa: actor.PaymentTaskPending},
+					Evidence: page.Evidences{
+						{Key: "evidence-1", Sent: date.New("2000", "01", "01").Time()},
+						{Key: "evidence-2", Sent: now},
+					},
+				}).
+				Return(nil)
+
+			s3Client := newMockS3Client(t)
+			s3Client.
+				On("PutObjectTagging", r.Context(), "evidence-2", []types.Tag{
+					{Key: aws.String("replicate"), Value: aws.String("true")},
+				}).
 				Return(nil)
 
 			err := (&payHelper{
-				donorStore: donorStore,
-			}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: feeType})
+				donorStore:       donorStore,
+				now:              func() time.Time { return now },
+				evidenceS3Client: s3Client,
+			}).Pay(testAppData, w, r, &page.Lpa{
+				ID:      "lpa-id",
+				FeeType: feeType,
+				Evidence: page.Evidences{
+					{Key: "evidence-1", Sent: date.New("2000", "01", "01").Time()},
+					{Key: "evidence-2"},
+				},
+			})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -456,19 +483,80 @@ func TestPayHelperPayWhenMoreEvidenceProvided(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
+	now := time.Now()
+
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{ID: "lpa-id", FeeType: page.HalfFee, Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}}).
+		On("Put", r.Context(), &page.Lpa{
+			ID:      "lpa-id",
+			FeeType: page.HalfFee,
+			Tasks:   page.Tasks{PayForLpa: actor.PaymentTaskPending},
+			Evidence: page.Evidences{
+				{Key: "evidence-1", Sent: date.New("2000", "01", "01").Time()},
+				{Key: "evidence-2", Sent: now},
+			},
+		}).
+		Return(nil)
+
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("PutObjectTagging", r.Context(), "evidence-2", []types.Tag{
+			{Key: aws.String("replicate"), Value: aws.String("true")},
+		}).
 		Return(nil)
 
 	err := (&payHelper{
-		donorStore: donorStore,
-	}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: page.HalfFee, Tasks: page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}})
+		donorStore:       donorStore,
+		now:              func() time.Time { return now },
+		evidenceS3Client: s3Client,
+	}).Pay(testAppData, w, r, &page.Lpa{
+		ID:      "lpa-id",
+		FeeType: page.HalfFee,
+		Evidence: page.Evidences{
+			{Key: "evidence-1", Sent: date.New("2000", "01", "01").Time()},
+			{Key: "evidence-2"},
+		},
+		Tasks: page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, page.Paths.WhatHappensAfterNoFee.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPayHelperPayNoPaymentRequiredWhenS3ClientError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
+
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("PutObjectTagging", r.Context(), "evidence-2", []types.Tag{
+			{Key: aws.String("replicate"), Value: aws.String("true")},
+		}).
+		Return(expectedError)
+
+	logger := newMockLogger(t)
+	logger.
+		On("Print", "error tagging evidence: err").
+		Return(nil)
+
+	err := (&payHelper{
+		evidenceS3Client: s3Client,
+		logger:           logger,
+	}).Pay(testAppData, w, r, &page.Lpa{
+		ID:      "lpa-id",
+		FeeType: page.HalfFee,
+		Evidence: page.Evidences{
+			{Key: "evidence-1", Sent: date.New("2000", "01", "01").Time()},
+			{Key: "evidence-2"},
+		},
+		Tasks: page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired},
+	})
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPayHelperPayWhenFeeDenied(t *testing.T) {
