@@ -78,11 +78,11 @@ resource "aws_vpc_endpoint_policy" "private" {
   })
 }
 
-data "aws_route_tables" "public" {
+data "aws_route_tables" "application" {
   provider = aws.region
   filter {
     name   = "tag:Name"
-    values = ["public-route-table"]
+    values = ["application-route-table"]
   }
 }
 
@@ -90,7 +90,7 @@ data "aws_route_tables" "public" {
 #   provider          = aws.region
 #   vpc_id            = module.network.vpc.id
 #   service_name      = "com.amazonaws.${data.aws_region.current.name}.s3"
-#   route_table_ids   = tolist(data.aws_route_tables.public.ids)
+#   route_table_ids   = tolist(data.aws_route_tables.application.ids)
 #   vpc_endpoint_type = "Gateway"
 #   policy            = data.aws_iam_policy_document.s3_vpc_endpoint.json
 #   tags              = { Name = "s3-private-${data.aws_region.current.name}" }
@@ -118,7 +118,7 @@ data "aws_route_tables" "public" {
 #   provider          = aws.region
 #   vpc_id            = module.network.vpc.id
 #   service_name      = "com.amazonaws.${data.aws_region.current.name}.dynamodb"
-#   route_table_ids   = tolist(data.aws_route_tables.public.ids)
+#   route_table_ids   = tolist(data.aws_route_tables.application.ids)
 #   vpc_endpoint_type = "Gateway"
 #   policy            = data.aws_iam_policy_document.dynamodb_vpc_endpoint.json
 #   tags              = { Name = "dynamodb-private-${data.aws_region.current.name}" }
