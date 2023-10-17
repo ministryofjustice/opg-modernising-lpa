@@ -86,15 +86,15 @@ data "aws_route_tables" "application" {
   }
 }
 
-resource "aws_vpc_endpoint" "s3" {
-  provider          = aws.region
-  vpc_id            = module.network.vpc.id
-  service_name      = "com.amazonaws.${data.aws_region.current.name}.s3"
-  route_table_ids   = tolist(data.aws_route_tables.application.ids)
-  vpc_endpoint_type = "Gateway"
-  policy            = data.aws_iam_policy_document.allow_account_access.json
-  tags              = { Name = "s3-private-${data.aws_region.current.name}" }
-}
+# resource "aws_vpc_endpoint" "s3" {
+#   provider          = aws.region
+#   vpc_id            = module.network.vpc.id
+#   service_name      = "com.amazonaws.${data.aws_region.current.name}.s3"
+#   route_table_ids   = tolist(data.aws_route_tables.application.ids)
+#   vpc_endpoint_type = "Gateway"
+#   policy            = data.aws_iam_policy_document.s3.json
+#   tags              = { Name = "s3-private-${data.aws_region.current.name}" }
+# }
 
 resource "aws_vpc_endpoint" "dynamodb" {
   provider          = aws.region
@@ -123,6 +123,26 @@ data "aws_iam_policy_document" "allow_account_access" {
       test     = "StringEquals"
       variable = "aws:PrincipalAccount"
       values   = [data.aws_caller_identity.current.account_id]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "s3" {
+  source_policy_documents = [
+    data.aws_iam_policy_document.allow_account_access.json,
+    data.aws_iam_policy_document.s3_bucket_access.json,
+  ]
+}
+
+data "aws_iam_policy_document" "s3_bucket_access" {
+  statement {
+    sid       = "Access-to-specific-bucket-only"
+    effect    = "Allow"
+    actions   = ["s3:GetObject"]
+    resources = ["arn:aws:s3:::prod-region-starport-layer-bucket/*"]
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
     }
   }
 }
