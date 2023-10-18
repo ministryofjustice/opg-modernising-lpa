@@ -48,7 +48,7 @@ resource "aws_cloudwatch_event_rule" "s3_object_tags_added" {
     source      = ["aws.s3"],
     detail-type = ["Object Tags Added"],
     detail = {
-      bucketName = [var.uploads_bucket.name]
+      bucketName = [var.uploads_bucket.bucket]
     }
   })
   provider = aws.region
@@ -159,7 +159,7 @@ data "aws_iam_policy_document" "event_received" {
     effect = "Allow"
 
     resources = [
-      var.uploads_bucket.bucket
+      var.uploads_bucket.arn
     ]
 
     actions = [
