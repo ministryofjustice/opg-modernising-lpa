@@ -208,11 +208,11 @@ func handleDocumentScanned(ctx context.Context, client dynamodbClient, event eve
 		return err
 	}
 
-	evidence := lpa.Evidence.GetByKey(v.Key)
-	evidence.Scanned = now()
-	evidence.VirusDetected = v.VirusDetected
+	document := lpa.Evidence.GetByDocumentKey(v.Key)
+	document.Scanned = now()
+	document.VirusDetected = v.VirusDetected
 
-	if ok := lpa.Evidence.Update(evidence); !ok {
+	if ok := lpa.Evidence.Update(document); !ok {
 		return errors.New("failed to update evidence on LPA for 'document-scanned'")
 	}
 

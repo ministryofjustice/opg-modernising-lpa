@@ -1147,7 +1147,7 @@ func TestEvidencesGetByKey(t *testing.T) {
 		{Key: "another-key"},
 	}}
 
-	assert.Equal(t, Document{Key: "a-key"}, evidence.GetByKey("a-key"))
-	assert.Equal(t, Document{Key: "another-key"}, evidence.GetByKey("another-key"))
-	assert.Equal(t, Document{}, evidence.GetByKey("not-a-key"))
+	assert.Equal(t, Document{Key: "a-key"}, evidence.GetByDocumentKey("a-key"))
+	assert.Equal(t, Document{Key: "another-key"}, evidence.GetByDocumentKey("another-key"))
+	assert.Equal(t, Document{}, evidence.GetByDocumentKey("not-a-key"))
 }

@@ -97,7 +97,7 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 					return payer.Pay(appData, w, r, lpa)
 
 				case "delete":
-					evidence := lpa.Evidence.GetByKey(form.DeleteKey)
+					evidence := lpa.Evidence.GetByDocumentKey(form.DeleteKey)
 					if evidence.Key != "" {
 						if err := evidenceS3Client.DeleteObject(r.Context(), evidence.Key); err != nil {
 							return err

@@ -213,7 +213,7 @@ func (es *Evidence) Keys() []string {
 	return keys
 }
 
-func (es *Evidence) GetByKey(key string) Document {
+func (es *Evidence) GetByDocumentKey(key string) Document {
 	for _, d := range es.Documents {
 		if d.Key == key {
 			return d
