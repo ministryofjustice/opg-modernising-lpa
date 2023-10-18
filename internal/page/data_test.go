@@ -1102,54 +1102,52 @@ func TestFeeAmount(t *testing.T) {
 }
 
 func TestHasUnsentReducedFeesEvidence(t *testing.T) {
-	lpa := Lpa{Evidence: []Evidence{
-		{Sent: time.Now()},
-		{},
-		{Sent: time.Now()},
-	}}
+	lpa := Lpa{Evidence: Evidence{Documents: []Document{
+		{Sent: time.Now()}, {}, {Sent: time.Now()}}},
+	}
 
 	assert.True(t, lpa.HasUnsentReducedFeesEvidence())
 
-	lpa.Evidence = []Evidence{
-		{Sent: time.Now()},
-		{Sent: time.Now()},
+	lpa.Evidence = Evidence{Documents: []Document{
+		{Sent: time.Now()}, {Sent: time.Now()}},
 	}
 
 	assert.False(t, lpa.HasUnsentReducedFeesEvidence())
 }
 
 func TestEvidencesDelete(t *testing.T) {
-	evidences := Evidences{
+	evidence := Evidence{Documents: []Document{
 		{Key: "a-key"},
 		{Key: "another-key"},
-	}
+	}}
 
-	assert.True(t, evidences.Delete("a-key"))
-	assert.Equal(t, Evidences{{Key: "another-key"}}, evidences)
+	assert.True(t, evidence.Delete("a-key"))
+	assert.Equal(t, Evidence{Documents: []Document{
+		{Key: "another-key"},
+	}}, evidence)
 
-	assert.True(t, evidences.Delete("another-key"))
-	assert.Equal(t, Evidences{}, evidences)
+	assert.True(t, evidence.Delete("another-key"))
+	assert.Equal(t, Evidence{Documents: []Document{}}, evidence)
 
-	assert.False(t, evidences.Delete("not-a-key"))
+	assert.False(t, evidence.Delete("not-a-key"))
 }
 
 func TestEvidencesKeys(t *testing.T) {
-	evidences := Evidences{
+	evidence := Evidence{Documents: []Document{
 		{Key: "a-key"},
 		{Key: "another-key"},
-	}
+	}}
 
-	assert.Equal(t, []string{"a-key", "another-key"}, evidences.Keys())
+	assert.Equal(t, []string{"a-key", "another-key"}, evidence.Keys())
 }
 
 func TestEvidencesGetByKey(t *testing.T) {
-	evidences := Evidences{
+	evidence := Evidence{Documents: []Document{
 		{Key: "a-key"},
 		{Key: "another-key"},
-	}
+	}}
 
-	assert.Equal(t, Evidence{Key: "a-key"}, evidences.GetByKey("a-key"))
-	assert.Equal(t, Evidence{Key: "another-key"}, evidences.GetByKey("another-key"))
-
-	assert.Equal(t, Evidence{}, evidences.GetByKey("not-a-key"))
+	assert.Equal(t, Document{Key: "a-key"}, evidence.GetByDocumentKey("a-key"))
+	assert.Equal(t, Document{Key: "another-key"}, evidence.GetByDocumentKey("another-key"))
+	assert.Equal(t, Document{}, evidence.GetByDocumentKey("not-a-key"))
 }

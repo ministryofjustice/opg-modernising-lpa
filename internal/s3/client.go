@@ -14,6 +14,7 @@ type s3Service interface {
 	PutObject(context.Context, *s3.PutObjectInput, ...func(*s3.Options)) (*s3.PutObjectOutput, error)
 	PutObjectTagging(context.Context, *s3.PutObjectTaggingInput, ...func(*s3.Options)) (*s3.PutObjectTaggingOutput, error)
 	DeleteObject(context.Context, *s3.DeleteObjectInput, ...func(*s3.Options)) (*s3.DeleteObjectOutput, error)
+	GetObjectTagging(ctx context.Context, params *s3.GetObjectTaggingInput, optFns ...func(*s3.Options)) (*s3.GetObjectTaggingOutput, error)
 }
 
 type Client struct {
@@ -34,6 +35,19 @@ func (c *Client) DeleteObject(ctx context.Context, key string) error {
 	})
 
 	return err
+}
+
+func (c *Client) GetObjectTags(ctx context.Context, key string) ([]types.Tag, error) {
+	output, err := c.svc.GetObjectTagging(ctx, &s3.GetObjectTaggingInput{
+		Bucket: aws.String(c.bucket),
+		Key:    aws.String(key),
+	})
+
+	if err != nil {
+		return []types.Tag{}, err
+	}
+
+	return output.TagSet, nil
 }
 
 func (c *Client) PutObjectTagging(ctx context.Context, key string, tagSet []types.Tag) error {

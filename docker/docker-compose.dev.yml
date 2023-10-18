@@ -38,6 +38,7 @@ services:
       - GOVUK_NOTIFY_IS_PRODUCTION=0
       - APP_PUBLIC_URL=http://localhost:5050
       - GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080
+      - UPLOADS_S3_BUCKET_NAME=evidence
     ports:
       - "9000:8080"
     entrypoint: aws-lambda-rie /var/task/event-received

@@ -444,10 +444,10 @@ func TestPayHelperPayWhenPaymentNotRequired(t *testing.T) {
 					ID:      "lpa-id",
 					FeeType: feeType,
 					Tasks:   page.Tasks{PayForLpa: actor.PaymentTaskPending},
-					Evidence: page.Evidences{
+					Evidence: page.Evidence{Documents: []page.Document{
 						{Key: "evidence-1", Sent: date.New("2000", "01", "01").Time()},
 						{Key: "evidence-2", Sent: now},
-					},
+					}},
 				}).
 				Return(nil)
 
@@ -465,10 +465,10 @@ func TestPayHelperPayWhenPaymentNotRequired(t *testing.T) {
 			}).Pay(testAppData, w, r, &page.Lpa{
 				ID:      "lpa-id",
 				FeeType: feeType,
-				Evidence: page.Evidences{
+				Evidence: page.Evidence{Documents: []page.Document{
 					{Key: "evidence-1", Sent: date.New("2000", "01", "01").Time()},
 					{Key: "evidence-2"},
-				},
+				}},
 			})
 			resp := w.Result()
 
@@ -491,10 +491,10 @@ func TestPayHelperPayWhenMoreEvidenceProvided(t *testing.T) {
 			ID:      "lpa-id",
 			FeeType: page.HalfFee,
 			Tasks:   page.Tasks{PayForLpa: actor.PaymentTaskPending},
-			Evidence: page.Evidences{
+			Evidence: page.Evidence{Documents: []page.Document{
 				{Key: "evidence-1", Sent: date.New("2000", "01", "01").Time()},
 				{Key: "evidence-2", Sent: now},
-			},
+			}},
 		}).
 		Return(nil)
 
@@ -512,10 +512,10 @@ func TestPayHelperPayWhenMoreEvidenceProvided(t *testing.T) {
 	}).Pay(testAppData, w, r, &page.Lpa{
 		ID:      "lpa-id",
 		FeeType: page.HalfFee,
-		Evidence: page.Evidences{
+		Evidence: page.Evidence{Documents: []page.Document{
 			{Key: "evidence-1", Sent: date.New("2000", "01", "01").Time()},
 			{Key: "evidence-2"},
-		},
+		}},
 		Tasks: page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired},
 	})
 	resp := w.Result()
@@ -547,10 +547,10 @@ func TestPayHelperPayNoPaymentRequiredWhenS3ClientError(t *testing.T) {
 	}).Pay(testAppData, w, r, &page.Lpa{
 		ID:      "lpa-id",
 		FeeType: page.HalfFee,
-		Evidence: page.Evidences{
+		Evidence: page.Evidence{Documents: []page.Document{
 			{Key: "evidence-1", Sent: date.New("2000", "01", "01").Time()},
 			{Key: "evidence-2"},
-		},
+		}},
 		Tasks: page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired},
 	})
 	resp := w.Result()
