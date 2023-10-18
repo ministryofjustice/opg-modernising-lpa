@@ -11,9 +11,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -34,7 +31,7 @@ func TestGetUploadEvidence(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, nil, "", nil)(testAppData, w, r, &page.Lpa{FeeType: page.FullFee})
+	err := UploadEvidence(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{FeeType: page.FullFee})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -50,7 +47,7 @@ func TestGetUploadEvidenceWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := UploadEvidence(template.Execute, nil, nil, nil, "", nil)(testAppData, w, r, &page.Lpa{})
+	err := UploadEvidence(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -90,13 +87,8 @@ func TestPostUploadEvidenceWithUploadActionAcceptedFileTypes(t *testing.T) {
 
 			s3Client := newMockS3Client(t)
 			s3Client.
-				On("PutObject", r.Context(), mock.MatchedBy(func(input *s3.PutObjectInput) bool {
-					return assert.Equal(t, aws.String("bucket-name"), input.Bucket) &&
-						assert.Equal(t, aws.String("lpa-uid/evidence/a-uid"), input.Key) &&
-						assert.Equal(t, aws.String("replicate=true"), input.Tagging) &&
-						assert.Equal(t, types.ServerSideEncryptionAwsKms, input.ServerSideEncryption)
-				})).
-				Return(nil, nil)
+				On("PutObject", r.Context(), "lpa-uid/evidence/a-uid", mock.Anything).
+				Return(nil)
 
 			evidence := page.Evidence{Documents: []page.Document{
 				{Key: "lpa-uid/evidence/a-uid", Filename: filename},
@@ -117,10 +109,11 @@ func TestPostUploadEvidenceWithUploadActionAcceptedFileTypes(t *testing.T) {
 					NumberOfAllowedFiles: 5,
 					MimeTypes:            acceptedMimeTypes(),
 					FeeType:              page.HalfFee,
+					UploadedCount:        1,
 				}).
 				Return(nil)
 
-			err := UploadEvidence(template.Execute, nil, donorStore, func() string { return "a-uid" }, "bucket-name", s3Client)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee})
+			err := UploadEvidence(template.Execute, nil, donorStore, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee})
 			assert.Nil(t, err)
 		})
 	}
@@ -148,21 +141,11 @@ func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
 
 	s3Client := newMockS3Client(t)
 	s3Client.
-		On("PutObject", r.Context(), mock.MatchedBy(func(input *s3.PutObjectInput) bool {
-			return assert.Equal(t, aws.String("bucket-name"), input.Bucket) &&
-				assert.Equal(t, aws.String("lpa-uid/evidence/a-uid"), input.Key) &&
-				assert.Equal(t, aws.String("replicate=true"), input.Tagging) &&
-				assert.Equal(t, types.ServerSideEncryptionAwsKms, input.ServerSideEncryption)
-		})).
-		Return(nil, nil)
+		On("PutObject", r.Context(), "lpa-uid/evidence/a-uid", mock.Anything).
+		Return(nil)
 	s3Client.
-		On("PutObject", r.Context(), mock.MatchedBy(func(input *s3.PutObjectInput) bool {
-			return assert.Equal(t, aws.String("bucket-name"), input.Bucket) &&
-				assert.Equal(t, aws.String("lpa-uid/evidence/a-uid"), input.Key) &&
-				assert.Equal(t, aws.String("replicate=true"), input.Tagging) &&
-				assert.Equal(t, types.ServerSideEncryptionAwsKms, input.ServerSideEncryption)
-		})).
-		Return(nil, nil)
+		On("PutObject", r.Context(), "lpa-uid/evidence/a-uid", mock.Anything).
+		Return(nil)
 
 	evidence := page.Evidence{Documents: []page.Document{
 		{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
@@ -183,10 +166,11 @@ func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              page.HalfFee,
+			UploadedCount:        2,
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, donorStore, func() string { return "a-uid" }, "bucket-name", s3Client)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee})
+	err := UploadEvidence(template.Execute, nil, donorStore, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee})
 	assert.Nil(t, err)
 }
 
@@ -213,21 +197,8 @@ func TestPostUploadEvidenceWithUploadActionFilenameSpecialCharactersAreEscaped(t
 
 	s3Client := newMockS3Client(t)
 	s3Client.
-		On("PutObject", r.Context(), mock.MatchedBy(func(input *s3.PutObjectInput) bool {
-			return assert.Equal(t, aws.String("bucket-name"), input.Bucket) &&
-				assert.Equal(t, aws.String("lpa-uid/evidence/a-uid"), input.Key) &&
-				assert.Equal(t, aws.String("replicate=true"), input.Tagging) &&
-				assert.Equal(t, types.ServerSideEncryptionAwsKms, input.ServerSideEncryption)
-		})).
-		Return(nil, nil)
-	s3Client.
-		On("PutObject", r.Context(), mock.MatchedBy(func(input *s3.PutObjectInput) bool {
-			return assert.Equal(t, aws.String("bucket-name"), input.Bucket) &&
-				assert.Equal(t, aws.String("lpa-uid/evidence/a-uid"), input.Key) &&
-				assert.Equal(t, aws.String("replicate=true"), input.Tagging) &&
-				assert.Equal(t, types.ServerSideEncryptionAwsKms, input.ServerSideEncryption)
-		})).
-		Return(nil, nil)
+		On("PutObject", r.Context(), "lpa-uid/evidence/a-uid", mock.Anything).
+		Return(nil)
 
 	evidence := page.Evidence{Documents: []page.Document{
 		{Key: "lpa-uid/evidence/a-uid", Filename: "&lt;img src=1 onerror=alert(document.domain)&gt;’ brute.heic"},
@@ -247,10 +218,11 @@ func TestPostUploadEvidenceWithUploadActionFilenameSpecialCharactersAreEscaped(t
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              page.HalfFee,
+			UploadedCount:        1,
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, donorStore, func() string { return "a-uid" }, "bucket-name", s3Client)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee})
+	err := UploadEvidence(template.Execute, nil, donorStore, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee})
 	assert.Nil(t, err)
 }
 
@@ -275,7 +247,7 @@ func TestPostUploadEvidenceWithPayAction(t *testing.T) {
 		On("Pay", testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee}).
 		Return(nil)
 
-	err := UploadEvidence(nil, payer, nil, nil, "", nil)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee})
+	err := UploadEvidence(nil, payer, nil, nil, nil)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee})
 	assert.Nil(t, err)
 }
 
@@ -298,13 +270,12 @@ func TestPostUploadEvidenceWhenBadCsrfField(t *testing.T) {
 			App:                  testAppData,
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
-			Errors: validation.With(""+
-				"upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
-			FeeType: page.FullFee,
+			Errors:               validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
+			FeeType:              page.FullFee,
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, nil, "bucket-name", nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: page.FullFee})
+	err := UploadEvidence(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: page.FullFee})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -338,7 +309,7 @@ func TestPostUploadEvidenceWhenBadActionField(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, nil, "bucket-name", nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: page.FullFee})
+	err := UploadEvidence(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: page.FullFee})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -380,7 +351,7 @@ func TestPostUploadEvidenceNumberOfFilesLimitPassed(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, nil, "bucket-name", nil)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.FullFee})
+	err := UploadEvidence(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.FullFee})
 	assert.Nil(t, err)
 }
 
@@ -449,7 +420,7 @@ func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := UploadEvidence(template.Execute, nil, nil, nil, "bucket-name", nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: page.FullFee})
+			err := UploadEvidence(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: page.FullFee})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -479,14 +450,10 @@ func TestPostUploadEvidenceWhenS3ClientErrors(t *testing.T) {
 
 	s3Client := newMockS3Client(t)
 	s3Client.
-		On("PutObject", r.Context(), mock.MatchedBy(func(input *s3.PutObjectInput) bool {
-			return assert.Equal(t, aws.String("bucket-name"), input.Bucket) &&
-				assert.Equal(t, aws.String("lpa-uid/evidence/a-uid"), input.Key) &&
-				assert.Equal(t, types.ServerSideEncryptionAwsKms, input.ServerSideEncryption)
-		})).
-		Return(nil, expectedError)
+		On("PutObject", r.Context(), "lpa-uid/evidence/a-uid", mock.Anything).
+		Return(expectedError)
 
-	err := UploadEvidence(nil, nil, nil, func() string { return "a-uid" }, "bucket-name", s3Client)(testAppData, w, r, &page.Lpa{UID: "lpa-uid"})
+	err := UploadEvidence(nil, nil, nil, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{UID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -511,23 +478,19 @@ func TestPostUploadEvidenceWhenDonorStoreError(t *testing.T) {
 
 	s3Client := newMockS3Client(t)
 	s3Client.
-		On("PutObject", r.Context(), mock.MatchedBy(func(input *s3.PutObjectInput) bool {
-			return assert.Equal(t, aws.String("bucket-name"), input.Bucket) &&
-				assert.Equal(t, aws.String("lpa-uid/evidence/a-uid"), input.Key) &&
-				assert.Equal(t, types.ServerSideEncryptionAwsKms, input.ServerSideEncryption)
-		})).
-		Return(nil, nil)
+		On("PutObject", r.Context(), "lpa-uid/evidence/a-uid", mock.Anything).
+		Return(nil)
 
-	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: page.Evidence{
-		Documents: []page.Document{{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"}},
-	}}
+	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: page.Evidence{Documents: []page.Document{
+		{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
+	}}}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), updatedLpa).
 		Return(expectedError)
 
-	err := UploadEvidence(nil, nil, donorStore, func() string { return "a-uid" }, "bucket-name", s3Client)(testAppData, w, r, &page.Lpa{UID: "lpa-uid"})
+	err := UploadEvidence(nil, nil, donorStore, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{UID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -552,7 +515,249 @@ func TestPostUploadEvidenceWhenPayerError(t *testing.T) {
 		On("Pay", testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee}).
 		Return(expectedError)
 
-	err := UploadEvidence(nil, payer, nil, nil, "", nil)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee})
+	err := UploadEvidence(nil, payer, nil, nil, nil)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee})
+	assert.Equal(t, expectedError, err)
+}
+
+func TestGetUploadEvidenceDeleteEvidence(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, _ := writer.CreateFormField("csrf")
+	io.WriteString(part, "123")
+
+	part, _ = writer.CreateFormField("action")
+	io.WriteString(part, "delete")
+
+	part, _ = writer.CreateFormField("delete")
+	io.WriteString(part, "lpa-uid/evidence/a-uid")
+
+	writer.Close()
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("DeleteObject", r.Context(), "lpa-uid/evidence/a-uid").
+		Return(nil)
+
+	evidence := page.Evidence{Documents: []page.Document{
+		{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
+	}}
+	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: page.HalfFee}
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), updatedLpa).
+		Return(nil)
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &uploadEvidenceData{
+			App:                  testAppData,
+			Evidence:             evidence,
+			NumberOfAllowedFiles: 5,
+			MimeTypes:            acceptedMimeTypes(),
+			FeeType:              page.HalfFee,
+			Deleted:              "dummy.pdf",
+		}).
+		Return(nil)
+
+	err := UploadEvidence(template.Execute, nil, donorStore, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{
+		UID:     "lpa-uid",
+		FeeType: page.HalfFee,
+		Evidence: page.Evidence{Documents: []page.Document{
+			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
+			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
+		}},
+	})
+
+	assert.Nil(t, err)
+}
+
+func TestGetUploadEvidenceDeleteEvidenceWhenUnexpectedFieldName(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, _ := writer.CreateFormField("csrf")
+	io.WriteString(part, "123")
+
+	part, _ = writer.CreateFormField("action")
+	io.WriteString(part, "delete")
+
+	part, _ = writer.CreateFormField("not-delete")
+	io.WriteString(part, "not-a-key")
+
+	writer.Close()
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &uploadEvidenceData{
+			App: testAppData,
+			Evidence: page.Evidence{Documents: []page.Document{
+				{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
+			}},
+			NumberOfAllowedFiles: 5,
+			MimeTypes:            acceptedMimeTypes(),
+			FeeType:              page.HalfFee,
+			Errors:               validation.With("delete", validation.CustomError{Label: "errorGenericUploadProblem"}),
+		}).
+		Return(nil)
+
+	err := UploadEvidence(template.Execute, nil, nil, func() string { return "a-uid" }, nil)(testAppData, w, r, &page.Lpa{
+		UID:     "lpa-uid",
+		FeeType: page.HalfFee,
+		Evidence: page.Evidence{Documents: []page.Document{
+			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"}},
+		},
+	})
+
+	assert.Nil(t, err)
+}
+
+func TestGetUploadEvidenceDeleteEvidenceWhenS3ClientError(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, _ := writer.CreateFormField("csrf")
+	io.WriteString(part, "123")
+
+	part, _ = writer.CreateFormField("action")
+	io.WriteString(part, "delete")
+
+	part, _ = writer.CreateFormField("delete")
+	io.WriteString(part, "lpa-uid/evidence/a-uid")
+
+	writer.Close()
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("DeleteObject", r.Context(), "lpa-uid/evidence/a-uid").
+		Return(expectedError)
+
+	err := UploadEvidence(nil, nil, nil, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{
+		UID:     "lpa-uid",
+		FeeType: page.HalfFee,
+		Evidence: page.Evidence{Documents: []page.Document{
+			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
+			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
+		}},
+	})
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestGetUploadEvidenceDeleteEvidenceOnDonorStoreError(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, _ := writer.CreateFormField("csrf")
+	io.WriteString(part, "123")
+
+	part, _ = writer.CreateFormField("action")
+	io.WriteString(part, "delete")
+
+	part, _ = writer.CreateFormField("delete")
+	io.WriteString(part, "lpa-uid/evidence/a-uid")
+
+	writer.Close()
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("DeleteObject", r.Context(), "lpa-uid/evidence/a-uid").
+		Return(nil)
+
+	evidence := page.Evidence{Documents: []page.Document{
+		{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
+	}}
+	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: page.HalfFee}
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), updatedLpa).
+		Return(expectedError)
+
+	err := UploadEvidence(nil, nil, donorStore, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{
+		UID:     "lpa-uid",
+		FeeType: page.HalfFee,
+		Evidence: page.Evidence{Documents: []page.Document{
+			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
+			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
+		}},
+	})
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestGetUploadEvidenceDeleteEvidenceOnTemplateError(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, _ := writer.CreateFormField("csrf")
+	io.WriteString(part, "123")
+
+	part, _ = writer.CreateFormField("action")
+	io.WriteString(part, "delete")
+
+	part, _ = writer.CreateFormField("delete")
+	io.WriteString(part, "lpa-uid/evidence/a-uid")
+
+	writer.Close()
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("DeleteObject", r.Context(), "lpa-uid/evidence/a-uid").
+		Return(nil)
+
+	evidence := page.Evidence{Documents: []page.Document{
+		{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
+	}}
+	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: page.HalfFee}
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), updatedLpa).
+		Return(nil)
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &uploadEvidenceData{
+			App:                  testAppData,
+			Evidence:             evidence,
+			NumberOfAllowedFiles: 5,
+			MimeTypes:            acceptedMimeTypes(),
+			FeeType:              page.HalfFee,
+			Deleted:              "dummy.pdf",
+		}).
+		Return(expectedError)
+
+	err := UploadEvidence(template.Execute, nil, donorStore, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{
+		UID:     "lpa-uid",
+		FeeType: page.HalfFee,
+		Evidence: page.Evidence{Documents: []page.Document{
+			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
+			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
+		}},
+	})
+
 	assert.Equal(t, expectedError, err)
 }
 

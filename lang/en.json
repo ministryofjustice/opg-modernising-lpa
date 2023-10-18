@@ -228,7 +228,6 @@
     "theBoxIfYouHaveCheckedAndHappyToShareLpa": "the box if you have checked your LPA and are happy to share it with your certificate provider",
     "checkYourLpa": "Check your LPA",
     "youveNowFinishedFillingInTheLpa": "You’ve now finished filling in your LPA. Before you continue, carefully check all your answers.",
-    "idVerifiedTag": "ID Verified",
     "lpaDecisions": "LPA decisions",
     "typeOfLpa": "Type of LPA",
     "whoAreYourAttorneys": {
@@ -841,5 +840,10 @@
     "removePersonToNotify": "Remove person to notify",
     "weNeedYourCorrectMobileNumber": "{{.FirstNames}}, as the <span class=\"govuk-!-font-weight-bold\">{{.ActorType}}</span>, we need your correct mobile number to send your witnessing code.",
     "changeYourMobileNumber": "Change your mobile number",
-    "independentWitness": "Independent witness"
+    "independentWitness": "Independent witness",
+    "contactPreference": "Contact preference",
+    "certificateProviderEmail": "certificate provider email",
+    "certificateProviderAddress": "certificate provider address",
+    "certificateProviderContactPreference": "certificate provider contact preference",
+    "youHaveDeletedFile": "You have deleted file {{ .Filename }}"
 }

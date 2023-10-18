@@ -5,7 +5,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -52,7 +55,7 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore)(testAppData, w, r, &page.Lpa{
+	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, nil, nil)(testAppData, w, r, &page.Lpa{
 		FeeType: page.FullFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
@@ -84,6 +87,8 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 		withPaySession(r).
 		withExpiredPaySession(r, w)
 
+	now := time.Now()
+
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
@@ -99,14 +104,29 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 			Tasks: page.Tasks{
 				PayForLpa: actor.PaymentTaskPending,
 			},
+			Evidence: page.Evidence{Documents: []page.Document{
+				{Key: "evidence-key", Sent: now},
+				{Key: "another-evidence-key", Sent: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
+			}},
 		}).
 		Return(nil)
 
-	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore)(testAppData, w, r, &page.Lpa{
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("PutObjectTagging", r.Context(), "evidence-key", []types.Tag{
+			{Key: aws.String("replicate"), Value: aws.String("true")},
+		}).
+		Return(nil)
+
+	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, s3Client, func() time.Time { return now })(testAppData, w, r, &page.Lpa{
 		FeeType: page.HalfFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
 		},
+		Evidence: page.Evidence{Documents: []page.Document{
+			{Key: "evidence-key"},
+			{Key: "another-evidence-key", Sent: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
+		}},
 	})
 	resp := w.Result()
 
@@ -125,7 +145,7 @@ func TestGetPaymentConfirmationWhenErrorGettingSession(t *testing.T) {
 		On("Get", r, "pay").
 		Return(&sessions.Session{}, expectedError)
 
-	err := PaymentConfirmation(nil, template.Execute, newMockPayClient(t), nil, sessionStore)(testAppData, w, r, &page.Lpa{})
+	err := PaymentConfirmation(nil, template.Execute, newMockPayClient(t), nil, sessionStore, nil, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -151,7 +171,7 @@ func TestGetPaymentConfirmationWhenErrorGettingPayment(t *testing.T) {
 
 	template := newMockTemplate(t)
 
-	err := PaymentConfirmation(logger, template.Execute, payClient, nil, sessionStore)(testAppData, w, r, &page.Lpa{})
+	err := PaymentConfirmation(logger, template.Execute, payClient, nil, sessionStore, nil, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -185,12 +205,52 @@ func TestGetPaymentConfirmationWhenErrorExpiringSession(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(nil)
 
-	err := PaymentConfirmation(logger, template.Execute, payClient, donorStore, sessionStore)(testAppData, w, r, &page.Lpa{CertificateProvider: actor.CertificateProvider{
+	err := PaymentConfirmation(logger, template.Execute, payClient, donorStore, sessionStore, nil, nil)(testAppData, w, r, &page.Lpa{CertificateProvider: actor.CertificateProvider{
 		Email: "certificateprovider@example.com",
 	}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestGetPaymentConfirmationHalfFeeWhenS3ClientError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
+
+	payClient := newMockPayClient(t).
+		withASuccessfulPayment("abc123", "123456789012", 4100)
+
+	sessionStore := newMockSessionStore(t).
+		withPaySession(r).
+		withExpiredPaySession(r, w)
+
+	now := time.Now()
+
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("PutObjectTagging", r.Context(), "evidence-key", []types.Tag{
+			{Key: aws.String("replicate"), Value: aws.String("true")},
+		}).
+		Return(expectedError)
+
+	logger := newMockLogger(t)
+	logger.
+		On("Print", fmt.Sprintf("error tagging evidence: %s", expectedError.Error())).
+		Return(nil)
+
+	err := PaymentConfirmation(logger, nil, payClient, nil, sessionStore, s3Client, func() time.Time { return now })(testAppData, w, r, &page.Lpa{
+		FeeType: page.HalfFee,
+		CertificateProvider: actor.CertificateProvider{
+			Email: "certificateprovider@example.com",
+		},
+		Evidence: page.Evidence{Documents: []page.Document{
+			{Key: "evidence-key"},
+		}},
+	})
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 

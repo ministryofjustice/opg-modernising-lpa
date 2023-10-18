@@ -9,9 +9,6 @@ import (
 	"net/http"
 	"slices"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -55,9 +52,11 @@ type uploadEvidenceData struct {
 	FeeType              page.FeeType
 	Evidence             page.Evidence
 	MimeTypes            []string
+	Deleted              string
+	UploadedCount        int
 }
 
-func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, randomUUID func() string, evidenceBucketName string, s3Client S3Client) Handler {
+func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, randomUUID func() string, evidenceS3Client S3Client) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &uploadEvidenceData{
 			App:                  appData,
@@ -73,23 +72,19 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 			data.Errors = form.Validate()
 
 			if data.Errors.None() {
-				if form.Action == "upload" {
+				switch form.Action {
+				case "upload":
 					for _, file := range form.Files {
 						uuid := randomUUID()
 						key := lpa.UID + "/evidence/" + uuid
 
-						_, err := s3Client.PutObject(r.Context(), &s3.PutObjectInput{
-							Bucket:               aws.String(evidenceBucketName),
-							Key:                  aws.String(key),
-							Body:                 bytes.NewReader(file.Data),
-							ServerSideEncryption: types.ServerSideEncryptionAwsKms,
-							Tagging:              aws.String("replicate=true"),
-						})
+						err := evidenceS3Client.PutObject(r.Context(), key, file.Data)
 						if err != nil {
 							return err
 						}
 
 						lpa.Evidence.Documents = append(lpa.Evidence.Documents, page.Document{Key: key, Filename: file.Filename})
+						data.UploadedCount += 1
 					}
 
 					if err := donorStore.Put(r.Context(), lpa); err != nil {
@@ -97,8 +92,30 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 					}
 
 					data.Evidence = lpa.Evidence
-				} else {
+
+				case "pay":
 					return payer.Pay(appData, w, r, lpa)
+
+				case "delete":
+					evidence := lpa.Evidence.GetByKey(form.DeleteKey)
+					if evidence.Key != "" {
+						if err := evidenceS3Client.DeleteObject(r.Context(), evidence.Key); err != nil {
+							return err
+						}
+
+						data.Deleted = evidence.Filename
+
+						lpa.Evidence.Delete(evidence.Key)
+
+						if err := donorStore.Put(r.Context(), lpa); err != nil {
+							return err
+						}
+
+						data.Evidence = lpa.Evidence
+					}
+
+				default:
+					return errors.New("unexpected action")
 				}
 			}
 		}
@@ -114,9 +131,10 @@ type File struct {
 }
 
 type uploadEvidenceForm struct {
-	Files  []File
-	Action string
-	Error  error
+	Files     []File
+	Action    string
+	DeleteKey string
+	Error     error
 }
 
 func readUploadEvidenceForm(r *http.Request) *uploadEvidenceForm {
@@ -165,11 +183,11 @@ func readUploadEvidenceForm(r *http.Request) *uploadEvidenceForm {
 			}
 
 			if part.FormName() != "upload" {
-				return &uploadEvidenceForm{Error: errors.New("unexpected field name")}
+				return &uploadEvidenceForm{Error: errors.New("unexpected field name"), Action: "upload"}
 			}
 
 			if len(files) >= numberOfAllowedFiles {
-				return &uploadEvidenceForm{Error: errTooManyFiles}
+				return &uploadEvidenceForm{Error: errTooManyFiles, Action: "upload"}
 			}
 
 			buf := bufio.NewReader(part)
@@ -195,7 +213,7 @@ func readUploadEvidenceForm(r *http.Request) *uploadEvidenceForm {
 
 			copied, err := io.Copy(&f, lmt)
 			if err != nil && err != io.EOF {
-				return &uploadEvidenceForm{Error: err}
+				return &uploadEvidenceForm{Error: err, Action: "upload"}
 			}
 			if copied > maxFileSize {
 				files = append(files, File{Error: errFileTooBig, Filename: filename})
@@ -211,6 +229,18 @@ func readUploadEvidenceForm(r *http.Request) *uploadEvidenceForm {
 		form.Files = files
 	}
 
+	if form.Action == "delete" {
+		part, err = reader.NextPart()
+
+		if part.FormName() != "delete" {
+			return &uploadEvidenceForm{Error: errors.New("unexpected field name"), Action: "delete"}
+		}
+
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(part)
+		form.DeleteKey = buf.String()
+	}
+
 	return form
 }
 
@@ -218,11 +248,17 @@ func (f *uploadEvidenceForm) Validate() validation.List {
 	var errors validation.List
 
 	if f.Error != nil {
+		field := "upload"
+
+		if f.Action != "" {
+			field = f.Action
+		}
+
 		switch f.Error {
 		case errTooManyFiles:
 			errors.Add("upload", validation.CustomError{Label: "errorTooManyFiles"})
 		default:
-			errors.Add("upload", validation.CustomError{Label: "errorGenericUploadProblem"})
+			errors.Add(field, validation.CustomError{Label: "errorGenericUploadProblem"})
 		}
 	}
 

@@ -50,6 +50,7 @@ func Donor(
 			attorneys            = r.FormValue("attorneys")
 			peopleToNotify       = r.FormValue("peopleToNotify")
 			replacementAttorneys = r.FormValue("replacementAttorneys")
+			feeType              = r.FormValue("feeType")
 		)
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
@@ -183,6 +184,15 @@ func Donor(
 		}
 
 		if progress >= slices.Index(progressValues, "payForTheLpa") {
+			if feeType == "half-fee" {
+				lpa.FeeType = page.HalfFee
+				lpa.Evidence = page.Evidence{Documents: []page.Document{
+					{Key: "evidence-key", Filename: "supporting-evidence.png", Sent: time.Now()},
+				}}
+			} else {
+				lpa.FeeType = page.FullFee
+			}
+
 			lpa.PaymentDetails = append(lpa.PaymentDetails, page.Payment{
 				PaymentReference: random.String(12),
 				PaymentId:        random.String(12),

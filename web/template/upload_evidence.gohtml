@@ -3,13 +3,25 @@
 {{ define "pageTitle" }}{{ tr .App "uploadYourEvidence" }}{{ end }}
 
 {{ define "main" }}
-  {{ $evidenceCount := (len .Evidence.Documents) }}
-  {{ if gt $evidenceCount 0 }}
+  {{ if gt .UploadedCount 0 }}
     <div class="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
       <div class="govuk-notification-banner__content">
         <p class="govuk-notification-banner__heading">
-          {{ trFormatCount .App "nFilesSuccessfullyUploaded" $evidenceCount }}
+          {{ trFormatCount .App "nFilesSuccessfullyUploaded" .UploadedCount }}
         </p>
+      </div>
+    </div>
+  {{ end }}
+
+  {{ if .Deleted }}
+    <div class="moj-banner" role="region" aria-label="information">
+      <svg class="moj-banner__icon" fill="currentColor" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" height="25" width="25">
+        <path d="M13.7,18.5h-2.4v-2.4h2.4V18.5z M12.5,13.7c-0.7,0-1.2-0.5-1.2-1.2V7.7c0-0.7,0.5-1.2,1.2-1.2s1.2,0.5,1.2,1.2v4.8
+	C13.7,13.2,13.2,13.7,12.5,13.7z M12.5,0.5c-6.6,0-12,5.4-12,12s5.4,12,12,12s12-5.4,12-12S19.1,0.5,12.5,0.5z" />
+      </svg>
+
+      <div class="moj-banner__message">
+        <h2 class="govuk-heading-m">{{ trFormat .App "youHaveDeletedFile" "Filename" .Deleted }}</h2>
       </div>
     </div>
   {{ end }}
@@ -19,6 +31,8 @@
       <h1 class="govuk-heading-xl">{{ tr .App "uploadYourEvidence" }}</h1>
 
       {{ trHtml .App "uploadEvidenceContent" }}
+
+      {{ $evidenceCount := (len .Evidence.Documents) }}
 
       {{ if eq $evidenceCount 0 }}
         {{ template "details" (details . "tipsForTakingPhotosAndCopies" "tipsForTakingPhotosAndCopiesDetails" false) }}
@@ -47,27 +61,35 @@
       {{ if gt $evidenceCount 0 }}
         <h2 class="govuk-heading-m">{{ tr .App "uploadedFiles" }}</h2>
 
-        <dl class="govuk-summary-list">
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">
-              {{ tr .App "fileName" }}
-            </dt>
-            <dd class="govuk-summary-list__actions"></dd>
-          </div>
-          {{ range .Evidence.Documents }}
+        <form novalidate method="post" enctype="multipart/form-data">
+          {{ template "csrf-field" . }}
+
+          <input type="hidden" id="f-delete-action" name="action" value="delete" />
+
+          <dl class="govuk-summary-list">
             <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__value">
-                {{ .Filename }}
+              <dt class="govuk-summary-list__key">
+                {{ tr .App "fileName" }}
               </dt>
-              <dd class="govuk-summary-list__actions">
-                <a class="govuk-link" href="#">
-                  {{ tr $.App "delete" }}<span class="govuk-visually-hidden"> {{ .Filename }}</span>
-                </a>
-              </dd
-              >
+              <dd class="govuk-summary-list__actions"></dd>
             </div>
-          {{ end }}
-        </dl>
+            {{ range $i, $e := .Evidence.Documents }}
+              <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__value">
+                  {{ $e.Filename }}
+                </dt>
+                <dd class="govuk-summary-list__actions">
+                  {{ if $e.Sent.IsZero }}
+                    <input type="hidden" id="f-delete-evidence-{{ $i }}" name="delete" value="{{ $e.Key }}" />
+                      <button class="app-button-link">
+                        {{ tr $.App "delete" }}<span class="govuk-visually-hidden"> {{ $e.Filename }}</span>
+                      </button>
+                  {{ end }}
+                </dd>
+              </div>
+            {{ end }}
+          </dl>
+        </form>
       {{ end }}
 
       <form novalidate method="post" enctype="multipart/form-data">
