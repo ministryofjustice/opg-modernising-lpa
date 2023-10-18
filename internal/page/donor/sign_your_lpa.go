@@ -23,7 +23,7 @@ const (
 	WantToApplyForLpa = "want-to-apply"
 )
 
-func SignYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
+func SignYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender ShareCodeSender) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &signYourLpaData{
 			App: appData,
@@ -47,13 +47,15 @@ func SignYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
 
 			if data.Errors.None() {
 				lpa.Tasks.ConfirmYourIdentityAndSign = actor.TaskCompleted
-			}
 
-			if err := donorStore.Put(r.Context(), lpa); err != nil {
-				return err
-			}
+				if err := shareCodeSender.SendAttorneys(r.Context(), appData, lpa); err != nil {
+					return err
+				}
 
-			if data.Errors.None() {
+				if err := donorStore.Put(r.Context(), lpa); err != nil {
+					return err
+				}
+
 				return appData.Redirect(w, r, lpa, page.Paths.WitnessingYourSignature.Format(lpa.ID))
 			}
 		}
