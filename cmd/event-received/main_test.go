@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -331,39 +333,163 @@ func TestHandleFeeDeniedWhenPutError(t *testing.T) {
 	assert.Equal(t, fmt.Errorf("failed to update LPA task status for 'fee-denied': %w", expectedError), err)
 }
 
-func TestHandleDocumentScanned(t *testing.T) {
+func TestHandleObjectTagsAdded(t *testing.T) {
 	event := events.CloudWatchEvent{
-		DetailType: "document-scanned",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333", "key": "document/key", "virus_detected": false}`),
+		DetailType: "Object Tags Added",
+		Detail:     json.RawMessage(`{"object": {"key": "M-1111-2222-3333/evidence/a-uid"}}`),
 	}
 
 	now := time.Now()
 
-	client := newMockDynamodbClient(t)
-	client.
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("GetObjectTags", ctx, "M-1111-2222-3333/evidence/a-uid").
+		Return([]types.Tag{
+			{Key: aws.String("virus-scan-status"), Value: aws.String("ok")},
+		}, nil)
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
 			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
 			json.Unmarshal(b, v)
 			return nil
 		})
-	client.
+	dynamoClient.
 		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
 			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Evidence: page.Evidence{
-				Documents: []page.Document{{Key: "document/key"}},
+				Documents: []page.Document{{Key: "M-1111-2222-3333/evidence/a-uid"}},
 			}})
 			json.Unmarshal(b, v)
 			return nil
 		})
-	client.
+	dynamoClient.
 		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", UpdatedAt: now, Evidence: page.Evidence{
-			Documents: []page.Document{{Key: "document/key", Scanned: now, VirusDetected: false}},
+			Documents: []page.Document{{Key: "M-1111-2222-3333/evidence/a-uid", Scanned: now, VirusDetected: false}},
 		}}).
 		Return(nil)
 
-	err := handleDocumentScanned(ctx, client, event, func() time.Time { return now })
+	err := handleObjectTagsAdded(ctx, dynamoClient, event, func() time.Time { return now }, s3Client)
 	assert.Nil(t, err)
+}
+
+func TestHandleObjectTagsAddedWhenGetObjectTagsError(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "Object Tags Added",
+		Detail:     json.RawMessage(`{"object": {"key": "M-1111-2222-3333/evidence/a-uid"}}`),
+	}
+
+	now := time.Now()
+
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("GetObjectTags", ctx, "M-1111-2222-3333/evidence/a-uid").
+		Return([]types.Tag{
+			{Key: aws.String("virus-scan-status"), Value: aws.String("ok")},
+		}, expectedError)
+
+	err := handleObjectTagsAdded(ctx, nil, event, func() time.Time { return now }, s3Client)
+	assert.Equal(t, fmt.Errorf("failed to get tags for object in 'Object Tags Added': %w", expectedError), err)
+}
+
+func TestHandleObjectTagsAddedWhenDoesNotContainVirusScanTag(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "Object Tags Added",
+		Detail:     json.RawMessage(`{"object": {"key": "M-1111-2222-3333/evidence/a-uid"}}`),
+	}
+
+	now := time.Now()
+
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("GetObjectTags", ctx, "M-1111-2222-3333/evidence/a-uid").
+		Return([]types.Tag{
+			{Key: aws.String("not-virus-scan-status")},
+		}, nil)
+
+	err := handleObjectTagsAdded(ctx, nil, event, func() time.Time { return now }, s3Client)
+	assert.Nil(t, err)
+}
+
+func TestHandleObjectTagsAddedWhenLpaEvidenceDoesNotContainDocument(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "Object Tags Added",
+		Detail:     json.RawMessage(`{"object": {"key": "M-1111-2222-3333/evidence/a-uid"}}`),
+	}
+
+	now := time.Now()
+
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("GetObjectTags", ctx, "M-1111-2222-3333/evidence/a-uid").
+		Return([]types.Tag{
+			{Key: aws.String("virus-scan-status"), Value: aws.String("ok")},
+		}, nil)
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	dynamoClient.
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Evidence: page.Evidence{
+				Documents: []page.Document{{Key: "M-1111-2222-3333/evidence/a-different-uid"}},
+			}})
+			json.Unmarshal(b, v)
+			return nil
+		})
+
+	err := handleObjectTagsAdded(ctx, dynamoClient, event, func() time.Time { return now }, s3Client)
+	assert.Equal(t, fmt.Errorf("LPA did not contain a document with key %s for 'Object Tags Added'", "M-1111-2222-3333/evidence/a-uid"), err)
+}
+
+func TestHandleObjectTagsAddedWhenDynamoPutError(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "Object Tags Added",
+		Detail:     json.RawMessage(`{"object": {"key": "M-1111-2222-3333/evidence/a-uid"}}`),
+	}
+
+	now := time.Now()
+
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("GetObjectTags", ctx, "M-1111-2222-3333/evidence/a-uid").
+		Return([]types.Tag{
+			{Key: aws.String("virus-scan-status"), Value: aws.String("ok")},
+		}, nil)
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	dynamoClient.
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Evidence: page.Evidence{
+				Documents: []page.Document{{Key: "M-1111-2222-3333/evidence/a-uid"}},
+			}})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	dynamoClient.
+		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", UpdatedAt: now, Evidence: page.Evidence{
+			Documents: []page.Document{{Key: "M-1111-2222-3333/evidence/a-uid", Scanned: now, VirusDetected: false}},
+		}}).
+		Return(expectedError)
+
+	err := handleObjectTagsAdded(ctx, dynamoClient, event, func() time.Time { return now }, s3Client)
+	assert.Equal(t, fmt.Errorf("failed to update LPA for 'Object Tags Added': %w", expectedError), err)
 }
 
 func TestGetLpaByUID(t *testing.T) {
@@ -419,7 +545,6 @@ func TestGetLpaByUIDWhenPKMissing(t *testing.T) {
 
 	assert.Equal(t, page.Lpa{}, lpa)
 	assert.Equal(t, errors.New("PK missing from LPA in response to 'an-event'"), err)
-
 }
 
 func TestGetLpaByUIDWhenClientOneError(t *testing.T) {
