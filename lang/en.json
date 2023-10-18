@@ -340,9 +340,19 @@
     "theCodeWeSentCertificateProvider": "The code we sent to the certificate provider",
     "submittedYourLpa": "You’ve submitted your LPA",
     "whatHappensNext": "What happens next",
-    "nextStepsList": "<ol class=\"govuk-list govuk-list--number govuk-list--spaced\"><li>We’ll contact your certificate provider, {{.CpFirstNames}}, and ask them to confirm their identity.</li><li>Your certificate provider will then need to ‘provide the certificate’ by signing online.</li><li>We will then contact {{.AttorneysFullNames}} and ask them to sign your LPA as your attorneys.</li><li>Once everyone has signed and we’ve received your LPA, we’ll inform any people you chose to notify. A 4-week waiting period will begin. This is required by law, to allow anyone with objections to raise them.</li><li>We’ll register your LPA.</li></ol>",
+    "weWillContactYourCertificateProvider": "We’ll contact your certificate provider, {{.FirstNames}}, and ask them to confirm their identity.",
+    "yourCertificateProviderWillThenNeedTo": "Your certificate provider will then need to ‘provide the certificate’ by signing online.",
+    "weWillThenContactAttorneys": {
+        "one": "We will then contact {{.FullNames}} and ask them to sign your LPA as your attorney.",
+        "other": "We will then contact {{.FullNames}} and ask them to sign your LPA as your attorneys."
+    },
+    "onceEveryoneHasSigned": "Once everyone has signed and we’ve received your LPA, we’ll inform any people you chose to notify. A 4-week waiting period will begin. This is required by law, to allow anyone with objections to raise them.",
+    "wellRegisteredYourLpa": "We’ll register your LPA.",
     "weWillEmailYou": "<p class=\"govuk-body\">We’ll email you to update you with the progress of your LPA’s registration. If there are any problems, we’ll let you know.</p><p class=\"govuk-body\">You can also track the progress of your LPA by logging back into this service at any time.</p>",
-    "signIn4WeeksWarning": "{{ .CpFirstNames }} and your attorneys must sign your LPA by {{ .AttorneysAndCpSigningDeadline }}. If they do not sign by this date, you will have to pay the application fee again. You will also have to meet with {{ .CpFirstNames }} and sign your LPA again. ",
+    "signIn4WeeksWarning": {
+        "one": "{{ .CpFirstNames }} and your attorney must sign your LPA by {{ .AttorneysAndCpSigningDeadline }}. If they do not sign by this date, you will have to pay the application fee again. You will also have to meet with {{ .CpFirstNames }} and sign your LPA again. ",
+        "other": "{{ .CpFirstNames }} and your attorneys must sign your LPA by {{ .AttorneysAndCpSigningDeadline }}. If they do not sign by this date, you will have to pay the application fee again. You will also have to meet with {{ .CpFirstNames }} and sign your LPA again. "
+    },
     "myLastingPowersOfAttorney": "My lasting powers of attorney",
     "applicationNumber": "Application number",
     "options": "Options",
