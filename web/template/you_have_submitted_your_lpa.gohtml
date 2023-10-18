@@ -11,12 +11,18 @@
 
       <h2 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h2>
 
-      {{ trFormatHtml .App "nextStepsList" "CpFirstNames" .Lpa.CertificateProvider.FirstNames "AttorneysFullNames" (concatAnd .App .Lpa.Attorneys.FullNames) }}
+      <ol class="govuk-list govuk-list--number govuk-list--spaced">
+        <li>{{ trFormat .App "weWillContactYourCertificateProvider" "FirstNames" .Lpa.CertificateProvider.FirstNames }}</li>
+        <li>{{ tr .App "yourCertificateProviderWillThenNeedTo" }}</li>
+        <li>{{ trFormatCount .App "weWillThenContactAttorneys" .Lpa.Attorneys.Len "FullNames" (concatAnd .App .Lpa.Attorneys.FullNames) }}</li>
+        <li>{{ tr .App "onceEveryoneHasSigned" }}</li>
+        <li>{{ tr .App "wellRegisteredYourLpa" }}</li>
+      </ol>
 
       {{ trHtml .App "weWillEmailYou" }}
 
       {{ $formattedDeadline := formatDate .App .Lpa.AttorneysAndCpSigningDeadline}}
-      {{ $signIn4WeeksWarning := trFormat .App "signIn4WeeksWarning" "CpFirstNames" .Lpa.CertificateProvider.FirstNames "AttorneysAndCpSigningDeadline" $formattedDeadline}}
+      {{ $signIn4WeeksWarning := trFormatCount .App "signIn4WeeksWarning" .Lpa.Attorneys.Len "CpFirstNames" .Lpa.CertificateProvider.FirstNames "AttorneysAndCpSigningDeadline" $formattedDeadline}}
       {{ template "warning" (warning .App $signIn4WeeksWarning) }}
 
       <a class="govuk-button" href="{{ link .App .App.Paths.Dashboard.Format }}" data-module="govuk-button">
