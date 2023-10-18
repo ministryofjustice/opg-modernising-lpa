@@ -24,8 +24,8 @@ resource "aws_cloudwatch_event_rule" "receive_events" {
   event_bus_name = var.event_bus_name
 
   event_pattern = jsonencode({
-    source      = ["opg.poas.sirius", "aws.s3"],
-    detail-type = ["evidence-received", "fee-approved", "more-evidence-required", "Object Tags Added"],
+    source      = ["opg.poas.sirius"],
+    detail-type = ["evidence-received", "fee-approved", "more-evidence-required"],
   })
   provider = aws.region
 }
@@ -37,7 +37,6 @@ resource "aws_cloudwatch_event_target" "receive_events" {
   arn            = module.event_received.lambda.arn
   provider       = aws.region
 }
-
 
 resource "aws_cloudwatch_event_rule" "s3_object_tags_added" {
   name           = "${data.aws_default_tags.current.tags.environment-name}-s3-object-tags-added"
