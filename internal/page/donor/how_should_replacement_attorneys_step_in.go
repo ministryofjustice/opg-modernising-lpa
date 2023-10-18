@@ -9,18 +9,16 @@ import (
 )
 
 type howShouldReplacementAttorneysStepInData struct {
-	App               page.AppData
-	Errors            validation.List
-	AllowSomeOtherWay bool
-	Form              *howShouldReplacementAttorneysStepInForm
-	Options           page.ReplacementAttorneysStepInOptions
+	App     page.AppData
+	Errors  validation.List
+	Form    *howShouldReplacementAttorneysStepInForm
+	Options page.ReplacementAttorneysStepInOptions
 }
 
 func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &howShouldReplacementAttorneysStepInData{
-			App:               appData,
-			AllowSomeOtherWay: lpa.ReplacementAttorneys.Len() == 1,
+			App: appData,
 			Form: &howShouldReplacementAttorneysStepInForm{
 				WhenToStepIn: lpa.HowShouldReplacementAttorneysStepIn,
 				OtherDetails: lpa.HowShouldReplacementAttorneysStepInDetails,
