@@ -35,26 +35,28 @@
           </fieldset>
         </div>
 
-        <fieldset class="govuk-fieldset">
-          <legend class="govuk-fieldset__legend">Progress</legend>
+        <div class="govuk-form-group">
+          <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend">Progress</legend>
 
-          {{ template "radios" (items . "progress" nil
-            (item "provideYourDetails" "provideYourDetails")
-            (item "chooseYourAttorneys" "chooseYourAttorneys")
-            (item "chooseYourReplacementAttorneys" "chooseYourReplacementAttorneys")
-            (item "Choose when the LPA can be used / Life-sustaining treatment" "chooseWhenTheLpaCanBeUsed")
-            (item "addRestrictionsToTheLpa" "addRestrictionsToTheLpa")
-            (item "chooseYourCertificateProvider" "chooseYourCertificateProvider")
-            (item "peopleToNotifyAboutYourLpa" "peopleToNotifyAboutYourLpa")
-            (item "checkAndSendToYourCertificateProvider" "checkAndSendToYourCertificateProvider")
-            (item "payForTheLpa" "payForTheLpa")
-            (item "confirmYourIdentityAndSignTheLpa" "confirmYourIdentityAndSignTheLpa")
-            (item "signedByCertificateProvider" "signedByCertificateProvider")
-            (item "signedByAttorneys" "signedByAttorneys")
-            (item "submitted" "submitted")
-            (item "registered" "registered")
-          ) }}
-        </fieldset>
+            {{ template "radios" (items . "progress" nil
+              (item "provideYourDetails" "provideYourDetails")
+              (item "chooseYourAttorneys" "chooseYourAttorneys")
+              (item "chooseYourReplacementAttorneys" "chooseYourReplacementAttorneys")
+              (item "Choose when the LPA can be used / Life-sustaining treatment" "chooseWhenTheLpaCanBeUsed")
+              (item "addRestrictionsToTheLpa" "addRestrictionsToTheLpa")
+              (item "chooseYourCertificateProvider" "chooseYourCertificateProvider")
+              (item "peopleToNotifyAboutYourLpa" "peopleToNotifyAboutYourLpa")
+              (item "checkAndSendToYourCertificateProvider" "checkAndSendToYourCertificateProvider")
+              (item "payForTheLpa" "payForTheLpa")
+              (item "confirmYourIdentityAndSignTheLpa" "confirmYourIdentityAndSign")
+              (item "signedByCertificateProvider" "Signed by certificate provider")
+              (item "signedByAttorneys" "Signed by attorneys")
+              (item "submitted" "Submitted")
+              (item "registered" "registered")
+            ) }}
+          </fieldset>
+        </div>
 
         <button type="submit" class="govuk-button" data-module="govuk-button" name="journey" value="donor">Start</button>
 

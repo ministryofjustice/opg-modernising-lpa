@@ -10,6 +10,7 @@ module "event_received" {
   lambda_function_image_tag     = var.app_service_container_version
   event_bus_name                = module.event_bus.event_bus.name
   app_public_url                = aws_route53_record.app.fqdn
+  uploads_bucket                = module.uploads_s3_bucket.bucket
 
   lpas_table = {
     arn  = var.lpas_table.arn
