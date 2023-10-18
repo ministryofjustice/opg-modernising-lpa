@@ -24,8 +24,8 @@ resource "aws_cloudwatch_event_rule" "receive_events" {
   event_bus_name = var.event_bus_name
 
   event_pattern = jsonencode({
-    source      = ["opg.poas.sirius"],
-    detail-type = ["evidence-received", "fee-approved", "more-evidence-required"]
+    source      = ["opg.poas.sirius", "aws.s3"],
+    detail-type = ["evidence-received", "fee-approved", "more-evidence-required", "Object Tags Added"],
   })
   provider = aws.region
 }
@@ -34,6 +34,30 @@ resource "aws_cloudwatch_event_target" "receive_events" {
   target_id      = "${data.aws_default_tags.current.tags.environment-name}-receive-events"
   event_bus_name = var.event_bus_name
   rule           = aws_cloudwatch_event_rule.receive_events.name
+  arn            = module.event_received.lambda.arn
+  provider       = aws.region
+}
+
+
+resource "aws_cloudwatch_event_rule" "s3_object_tags_added" {
+  name           = "${data.aws_default_tags.current.tags.environment-name}-s3-object-tags-added"
+  description    = "S3 Object Tags Added"
+  event_bus_name = var.event_bus_name
+
+  event_pattern = jsonencode({
+    source      = ["aws.s3"],
+    detail-type = ["Object Tags Added"],
+    detail = {
+      bucketName = [var.uploads_bucket_name]
+    }
+  })
+  provider = aws.region
+}
+
+resource "aws_cloudwatch_event_target" "s3_object_tags_added" {
+  target_id      = "${data.aws_default_tags.current.tags.environment-name}-s3-object-tags-added"
+  event_bus_name = var.event_bus_name
+  rule           = aws_cloudwatch_event_rule.s3_object_tags_added.name
   arn            = module.event_received.lambda.arn
   provider       = aws.region
 }
@@ -128,6 +152,18 @@ data "aws_iam_policy_document" "event_received" {
       "kms:GenerateDataKeyPairWithoutPlaintext",
       "kms:GenerateDataKeyWithoutPlaintext",
       "kms:DescribeKey",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    resources = [
+      var.uploads_bucket_name
+    ]
+
+    actions = [
+      "s3:getObjectTagging",
     ]
   }
 

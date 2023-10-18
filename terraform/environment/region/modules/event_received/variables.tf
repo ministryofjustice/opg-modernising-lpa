@@ -24,3 +24,7 @@ variable "lpas_table" {
 variable "app_public_url" {
   type = string
 }
+
+variable "uploads_bucket_name" {
+  type = string
+}
