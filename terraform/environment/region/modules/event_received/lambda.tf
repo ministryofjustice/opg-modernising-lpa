@@ -42,7 +42,7 @@ resource "aws_cloudwatch_event_target" "receive_events" {
 resource "aws_cloudwatch_event_rule" "s3_object_tags_added" {
   name           = "${data.aws_default_tags.current.tags.environment-name}-s3-object-tags-added"
   description    = "S3 Object Tags Added"
-  event_bus_name = var.event_bus_name
+  event_bus_name = "default"
 
   event_pattern = jsonencode({
     source      = ["aws.s3"],
@@ -56,7 +56,7 @@ resource "aws_cloudwatch_event_rule" "s3_object_tags_added" {
 
 resource "aws_cloudwatch_event_target" "s3_object_tags_added" {
   target_id      = "${data.aws_default_tags.current.tags.environment-name}-s3-object-tags-added"
-  event_bus_name = var.event_bus_name
+  event_bus_name = "default"
   rule           = aws_cloudwatch_event_rule.s3_object_tags_added.name
   arn            = module.event_received.lambda.arn
   provider       = aws.region
