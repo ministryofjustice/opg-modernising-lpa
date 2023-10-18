@@ -10,11 +10,6 @@
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">{{ tr .App "name" }}</dt>
           <dd class="govuk-summary-list__value">{{ .Lpa.Donor.FullName }}</dd>
-          {{ if .Lpa.DonorIdentityConfirmed }}
-            <dd class="govuk-summary-list__value">
-              <strong class="govuk-tag app-task-list__tag govuk-tag">{{ tr .App "idVerifiedTag" }}</strong>
-            </dd>
-          {{ end }}
           {{ if $canChange }}
             <dd class="govuk-summary-list__actions">
               <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (.App.Paths.YourDetails.Format .App.LpaID) }}?from={{.App.Page}}#f-first-names">
