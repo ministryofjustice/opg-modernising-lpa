@@ -9,7 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -62,7 +63,9 @@ type EvidenceReceivedStore interface {
 
 //go:generate mockery --testonly --inpackage --name S3Client --structname mockS3Client
 type S3Client interface {
-	PutObject(context.Context, *s3.PutObjectInput, ...func(*s3.Options)) (*s3.PutObjectOutput, error)
+	PutObject(context.Context, string, []byte) error
+	PutObjectTagging(context.Context, string, []types.Tag) error
+	DeleteObject(context.Context, string) error
 }
 
 //go:generate mockery --testonly --inpackage --name PayClient --structname mockPayClient
@@ -164,16 +167,17 @@ func Register(
 	attorneyStore AttorneyStore,
 	notifyClient NotifyClient,
 	evidenceReceivedStore EvidenceReceivedStore,
-	s3Client S3Client,
-	evidenceBucketName string,
+	evidenceS3Client S3Client,
 ) {
 	payer := &payHelper{
-		logger:       logger,
-		sessionStore: sessionStore,
-		donorStore:   donorStore,
-		payClient:    payClient,
-		appPublicURL: appPublicURL,
-		randomString: random.String,
+		logger:           logger,
+		sessionStore:     sessionStore,
+		donorStore:       donorStore,
+		payClient:        payClient,
+		appPublicURL:     appPublicURL,
+		randomString:     random.String,
+		evidenceS3Client: evidenceS3Client,
+		now:              time.Now,
 	}
 
 	handleRoot := makeHandle(rootMux, sessionStore, None, errorHandler)
@@ -306,7 +310,7 @@ func Register(
 	handleWithLpa(page.Paths.HowWouldYouLikeToSendEvidence, CanGoBack,
 		HowWouldYouLikeToSendEvidence(tmpls.Get("how_would_you_like_to_send_evidence.gohtml")))
 	handleWithLpa(page.Paths.UploadEvidence, CanGoBack,
-		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), payer, donorStore, random.UuidString, evidenceBucketName, s3Client))
+		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), payer, donorStore, random.UuidString, evidenceS3Client))
 	handleWithLpa(page.Paths.WhatHappensAfterNoFee, None,
 		Guidance(tmpls.Get("what_happens_after_no_fee.gohtml")))
 	handleWithLpa(page.Paths.HowToEmailOrPostEvidence, CanGoBack,
@@ -314,7 +318,7 @@ func Register(
 	handleWithLpa(page.Paths.FeeDenied, None,
 		FeeDenied(tmpls.Get("fee_denied.gohtml"), payer))
 	handleWithLpa(page.Paths.PaymentConfirmation, None,
-		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore))
+		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, evidenceS3Client, time.Now))
 
 	handleWithLpa(page.Paths.HowToConfirmYourIdentityAndSign, None,
 		Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml")))
@@ -475,16 +479,33 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOp
 }
 
 type payHelper struct {
-	logger       Logger
-	sessionStore sessions.Store
-	donorStore   DonorStore
-	payClient    PayClient
-	appPublicURL string
-	randomString func(int) string
+	logger           Logger
+	sessionStore     sessions.Store
+	donorStore       DonorStore
+	payClient        PayClient
+	appPublicURL     string
+	randomString     func(int) string
+	evidenceS3Client S3Client
+	now              func() time.Time
 }
 
 func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 	if lpa.FeeType.IsNoFee() || lpa.FeeType.IsHardshipFee() || lpa.Tasks.PayForLpa.IsMoreEvidenceRequired() {
+		for i, evidence := range lpa.Evidence {
+			if evidence.Sent.IsZero() {
+				err := p.evidenceS3Client.PutObjectTagging(r.Context(), evidence.Key, []types.Tag{
+					{Key: aws.String("replicate"), Value: aws.String("true")},
+				})
+
+				if err != nil {
+					p.logger.Print(fmt.Sprintf("error tagging evidence: %s", err.Error()))
+					return err
+				}
+
+				lpa.Evidence[i].Sent = p.now()
+			}
+		}
+
 		lpa.Tasks.PayForLpa = actor.PaymentTaskPending
 		if err := p.donorStore.Put(r.Context(), lpa); err != nil {
 			return err
