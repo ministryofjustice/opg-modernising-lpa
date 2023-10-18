@@ -1102,7 +1102,7 @@ func TestFeeAmount(t *testing.T) {
 }
 
 func TestHasUnsentReducedFeesEvidence(t *testing.T) {
-	lpa := Lpa{EvidenceKeys: []Evidence{
+	lpa := Lpa{Evidence: []Evidence{
 		{Sent: time.Now()},
 		{},
 		{Sent: time.Now()},
@@ -1110,10 +1110,46 @@ func TestHasUnsentReducedFeesEvidence(t *testing.T) {
 
 	assert.True(t, lpa.HasUnsentReducedFeesEvidence())
 
-	lpa.EvidenceKeys = []Evidence{
+	lpa.Evidence = []Evidence{
 		{Sent: time.Now()},
 		{Sent: time.Now()},
 	}
 
 	assert.False(t, lpa.HasUnsentReducedFeesEvidence())
+}
+
+func TestEvidencesDelete(t *testing.T) {
+	evidences := Evidences{
+		{Key: "a-key"},
+		{Key: "another-key"},
+	}
+
+	assert.True(t, evidences.Delete("a-key"))
+	assert.Equal(t, Evidences{{Key: "another-key"}}, evidences)
+
+	assert.True(t, evidences.Delete("another-key"))
+	assert.Equal(t, Evidences{}, evidences)
+
+	assert.False(t, evidences.Delete("not-a-key"))
+}
+
+func TestEvidencesKeys(t *testing.T) {
+	evidences := Evidences{
+		{Key: "a-key"},
+		{Key: "another-key"},
+	}
+
+	assert.Equal(t, []string{"a-key", "another-key"}, evidences.Keys())
+}
+
+func TestEvidencesGetByKey(t *testing.T) {
+	evidences := Evidences{
+		{Key: "a-key"},
+		{Key: "another-key"},
+	}
+
+	assert.Equal(t, Evidence{Key: "a-key"}, evidences.GetByKey("a-key"))
+	assert.Equal(t, Evidence{Key: "another-key"}, evidences.GetByKey("another-key"))
+
+	assert.Equal(t, Evidence{}, evidences.GetByKey("not-a-key"))
 }

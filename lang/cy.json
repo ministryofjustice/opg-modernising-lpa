@@ -886,7 +886,6 @@
     "theirLpa": "{{.FullNamePossessive}} {{.LpaType}} Welsh",
     "allAttorneysHaveSignedTheLpa": "Welsh",
     "youveSignedTheLpa": "Welsh",
-    "sendItByPost" : "Welsh",
     "removeAttorney": "Welsh",
     "removePersonToNotify": "Welsh",
     "weNeedYourCorrectMobileNumber": "{{.FirstNames}}, welsh <span class=\"govuk-!-font-weight-bold\">{{.ActorType}}</span>, welsh",
@@ -895,5 +894,6 @@
     "contactPreference": "Welsh",
     "certificateProviderEmail": "Welsh",
     "certificateProviderAddress": "Welsh",
-    "certificateProviderContactPreference": "Welsh"
+    "certificateProviderContactPreference": "Welsh",
+    "youHaveDeletedFile": "Welsh {{ .Filename }}"
 }

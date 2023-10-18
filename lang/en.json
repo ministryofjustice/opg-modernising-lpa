@@ -844,5 +844,6 @@
     "contactPreference": "Contact preference",
     "certificateProviderEmail": "certificate provider email",
     "certificateProviderAddress": "certificate provider address",
-    "certificateProviderContactPreference": "certificate provider contact preference"
+    "certificateProviderContactPreference": "certificate provider contact preference",
+    "youHaveDeletedFile": "You have deleted file {{ .Filename }}"
 }
