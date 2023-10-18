@@ -159,7 +159,7 @@ data "aws_iam_policy_document" "event_received" {
     effect = "Allow"
 
     resources = [
-      var.uploads_bucket.arn
+      var.uploads_bucket.bucket
     ]
 
     actions = [
