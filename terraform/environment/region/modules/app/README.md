@@ -52,7 +52,6 @@ No modules.
 | [aws_secretsmanager_secret.os_postcode_lookup_api_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/secretsmanager_secret)                 | data source |
 | [aws_secretsmanager_secret.private_jwt_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/secretsmanager_secret)                            | data source |
 | [aws_secretsmanager_secret.rum_monitor_identity_pool_id](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/secretsmanager_secret)               | data source |
-| [aws_secretsmanager_secret.yoti_private_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/secretsmanager_secret)                           | data source |
 | [aws_wafv2_web_acl.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/wafv2_web_acl)                                                       | data source |
 
 ## Inputs

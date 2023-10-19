@@ -8,13 +8,20 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/ministryofjustice/opg-go-common/env"
+)
+
+const (
+	charset    = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	signingKid = "my-kid"
 )
 
 var (
@@ -24,11 +31,17 @@ var (
 	clientId           = env.Get("CLIENT_ID", "theClientId")
 	serviceRedirectUrl = env.Get("REDIRECT_RUL", "http://localhost:5050/auth/redirect")
 
-	nonce          string
-	returnIdentity = false
-	signingKid     = "my-kid"
-	signingKey, _  = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	signingKey, _ = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+
+	sessions = map[string]sessionData{}
+	tokens   = map[string]sessionData{}
 )
+
+type sessionData struct {
+	user     string
+	nonce    string
+	identity bool
+}
 
 type OpenIdConfig struct {
 	AuthorizationEndpoint string `json:"authorization_endpoint"`
@@ -52,41 +65,6 @@ type UserInfoResponse struct {
 	PhoneVerified   bool   `json:"phone_verified"`
 	UpdatedAt       int    `json:"updated_at"`
 	CoreIdentityJWT string `json:"https://vocab.account.gov.uk/v1/coreIdentityJWT,omitempty"`
-}
-
-const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
-func stringWithCharset(length int, charset string) string {
-	bytes := make([]byte, length)
-	_, err := rand.Read(bytes)
-	if err != nil {
-		panic(err)
-	}
-	for i, b := range bytes {
-		bytes[i] = charset[b%byte(len(charset))]
-	}
-	return string(bytes)
-}
-
-func randomString(length int) string {
-	return stringWithCharset(length, charset)
-}
-
-func createSignedToken(clientId, issuer string) (string, error) {
-	t := jwt.New(jwt.SigningMethodES256)
-
-	t.Header["kid"] = signingKid
-
-	t.Claims = jwt.MapClaims{
-		"sub":   fmt.Sprintf("%s-sub", randomString(10)),
-		"iss":   issuer,
-		"nonce": nonce,
-		"aud":   clientId,
-		"exp":   time.Now().Add(time.Minute * 5).Unix(),
-		"iat":   time.Now().Unix(),
-	}
-
-	return t.SignedString(signingKey)
 }
 
 func openIDConfig(c OpenIdConfig) http.HandlerFunc {
@@ -119,13 +97,20 @@ func jwks() http.HandlerFunc {
 
 func token(clientId, issuer string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		t, err := createSignedToken(clientId, issuer)
+		code := r.PostFormValue("code")
+		accessToken := randomString(10)
+
+		session := sessions[code]
+		delete(sessions, code)
+		tokens[accessToken] = session
+
+		t, err := createSignedToken(session.nonce, clientId, issuer)
 		if err != nil {
 			log.Fatalf("Error creating JWT: %s", err)
 		}
 
 		json.NewEncoder(w).Encode(TokenResponse{
-			AccessToken: "access-token-value",
+			AccessToken: accessToken,
 			TokenType:   "Bearer",
 			IDToken:     t,
 		})
@@ -134,9 +119,20 @@ func token(clientId, issuer string) http.HandlerFunc {
 
 func authorize() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println("/authorize")
+		wantsIdentity := r.FormValue("vtr") == "[Cl.Cm.P2]" && r.FormValue("claims") == `{"userinfo":{"https://vocab.account.gov.uk/v1/coreIdentityJWT": null}}`
 
-		nonce = r.FormValue("nonce")
+		if r.Method == http.MethodGet && wantsIdentity {
+			io.WriteString(w, `<!doctype html>
+<style>body { font-family: sans-serif; font-size: 21px; margin: 2rem; } label { display: inline-block; padding: .5rem 0; margin-bottom: 1rem; } button { font-family: inherit; font-size: 21px; padding: .3rem .5rem; } input { transform: scale(1.2); margin-right: .5rem; }</style>
+<h1>Mock GOV.UK One Login</h1>
+<form method="post">
+<label><input type="radio" name="user" value="donor" />Sam Smith (donor)</label><br/>
+<label><input type="radio" name="user" value="certificate-provider" />Charlie Cooper (certificate provider)</label><br/>
+<label><input type="radio" name="user" value="random" />Somebody Else (a random person)</label><br/>
+<button type="submit">Sign in</button>
+</form>`)
+			return
+		}
 
 		redirectUri := r.FormValue("redirect_uri")
 		if redirectUri == "" {
@@ -158,14 +154,14 @@ func authorize() http.HandlerFunc {
 		q.Set("code", code)
 		q.Set("state", r.FormValue("state"))
 
-		if r.FormValue("vtr") == "[Cl.Cm.P2]" && r.FormValue("claims") == `{"userinfo":{"https://vocab.account.gov.uk/v1/coreIdentityJWT": null}}` {
-			returnIdentity = true
+		sessions[code] = sessionData{
+			nonce:    r.FormValue("nonce"),
+			user:     r.FormValue("user"),
+			identity: wantsIdentity,
 		}
-
 		u.RawQuery = q.Encode()
 
 		log.Printf("Redirecting to %s", u.String())
-
 		http.Redirect(w, r, u.String(), 302)
 	}
 }
@@ -181,7 +177,11 @@ func userInfo(privateKey *ecdsa.PrivateKey) http.HandlerFunc {
 			UpdatedAt:     1311280970,
 		}
 
-		if returnIdentity {
+		token := tokens[strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")]
+
+		if token.identity {
+			givenName, familyName, birthDate := userDetails(token.user)
+
 			userInfo.CoreIdentityJWT, _ = jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
 				"iat": time.Now().Add(-time.Minute).Unix(),
 				"vc": map[string]any{
@@ -191,14 +191,14 @@ func userInfo(privateKey *ecdsa.PrivateKey) http.HandlerFunc {
 							{
 								"validFrom": "2000-01-01",
 								"nameParts": []map[string]any{
-									{"type": "GivenName", "value": "John"},
-									{"type": "FamilyName", "value": "Doe"},
+									{"type": "GivenName", "value": givenName},
+									{"type": "FamilyName", "value": familyName},
 								},
 							},
 						},
 						"birthDate": []map[string]any{
 							{
-								"value": "1970-01-02",
+								"value": birthDate,
 							},
 						},
 					},
@@ -241,5 +241,49 @@ func logRoute(h http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println(r.Method, r.URL.Path)
 		h.ServeHTTP(w, r)
+	}
+}
+
+func stringWithCharset(length int, charset string) string {
+	bytes := make([]byte, length)
+	_, err := rand.Read(bytes)
+	if err != nil {
+		panic(err)
+	}
+	for i, b := range bytes {
+		bytes[i] = charset[b%byte(len(charset))]
+	}
+	return string(bytes)
+}
+
+func randomString(length int) string {
+	return stringWithCharset(length, charset)
+}
+
+func createSignedToken(nonce, clientId, issuer string) (string, error) {
+	t := jwt.New(jwt.SigningMethodES256)
+
+	t.Header["kid"] = signingKid
+
+	t.Claims = jwt.MapClaims{
+		"sub":   fmt.Sprintf("%s-sub", randomString(10)),
+		"iss":   issuer,
+		"nonce": nonce,
+		"aud":   clientId,
+		"exp":   time.Now().Add(time.Minute * 5).Unix(),
+		"iat":   time.Now().Unix(),
+	}
+
+	return t.SignedString(signingKey)
+}
+
+func userDetails(key string) (givenName, familyName, birthDate string) {
+	switch key {
+	case "donor":
+		return "Sam", "Smith", "2000-01-02"
+	case "certificate-provider":
+		return "Charlie", "Cooper", "1990-01-02"
+	default:
+		return "Someone", "Else", "2000-01-02"
 	}
 }
