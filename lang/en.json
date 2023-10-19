@@ -324,10 +324,6 @@
     "yourChosenIdentityOptionsContent": "You told us that you have the following things to confirm your identity:",
     "whenYouAreReadyToCompleteTheIdentityConfirmationChecks": "When you are ready to complete the identity confirmation checks, please press continue.",
     "yourBankAccount": "your bank account",
-    "identifyYourselfWithYoti": "Identify yourself with the Yoti app",
-    "scanWithTheYotiApp": "Scan with the Yoti app",
-    "yourIdentityConfirmedWithYoti": "Your identity details confirmed with Yoti",
-    "yourIdentityNotConfirmedWithYoti": "Your identity details could not be confirmed with Yoti",
     "yourIdentityConfirmedWithOneLogin": "Your identity details confirmed with GOV.UK One Login",
     "yourIdentityNotConfirmedWithOneLogin": "Your identity details could not be confirmed with GOV.UK One Login",
     "pleaseContinueWithADifferentMethod": "Placeholder",
@@ -854,5 +850,9 @@
     "certificateProviderEmail": "certificate provider email",
     "certificateProviderAddress": "certificate provider address",
     "certificateProviderContactPreference": "certificate provider contact preference",
-    "youHaveDeletedFile": "You have deleted file {{ .Filename }}"
+    "youHaveDeletedFile": "You have deleted file {{ .Filename }}",
+    "proveYourIdentity": "Prove your identity",
+    "proveYourIdentityContent": "<p class=\"govuk-body\">You can do this online. You will need an identity document, for example your passport or driving licence.</p><details class=\"govuk-details\" data-module=\"govuk-details\"><summary class=\"govuk-details__summary\"><span class=\"govuk-details__summary-text\">Other ways you can prove your identity</span></summary><div class=\"govuk-details__text\"><p class=\"govuk-body\">If you’re not sure that you can prove your identity online, you can prove your identity at a Post Office instead. This option takes longer, but you can usually get an outcome within a day.</p><p class=\"govuk-body\">When you select <span class=\"govuk-!-font-weight-bold\">Continue</span>, you’ll be taken to GOV.UK One Login where you can choose how you want to prove your identity.</p></div></details>",
+    "beforeYouSignYourLpa": "Before you sign your LPA, you need to prove your identity with GOV.UK One Login.",
+    "beforeYouCanProvideYourCertificateForThisLpa": "Before you can provide your certificate for this LPA, you need to prove your identity with GOV.UK One Login."
 }
