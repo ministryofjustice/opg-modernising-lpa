@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -72,6 +73,34 @@ func TestGetTaskList(t *testing.T) {
 				return items
 			},
 		},
+		"identity confirmed": {
+			lpa: &page.Lpa{
+				ID:       "lpa-id",
+				SignedAt: time.Now(),
+				Tasks: page.Tasks{
+					PayForLpa: actor.PaymentTaskCompleted,
+				},
+			},
+			certificateProvider: &actor.CertificateProviderProvidedDetails{
+				IdentityUserData: identity.UserData{OK: true},
+				Tasks: actor.CertificateProviderTasks{
+					ConfirmYourDetails:    actor.TaskCompleted,
+					ConfirmYourIdentity:   actor.TaskCompleted,
+					ReadTheLpa:            actor.TaskCompleted,
+					ProvideTheCertificate: actor.TaskCompleted,
+				},
+			},
+			appData: testAppData,
+			expected: func(items []taskListItem) []taskListItem {
+				items[0].State = actor.TaskCompleted
+				items[1].State = actor.TaskCompleted
+				items[1].Path = page.Paths.CertificateProvider.ReadTheLpa.Format("lpa-id")
+				items[2].State = actor.TaskCompleted
+				items[3].State = actor.TaskCompleted
+
+				return items
+			},
+		},
 		"all": {
 			lpa: &page.Lpa{
 				ID:       "lpa-id",
@@ -122,7 +151,7 @@ func TestGetTaskList(t *testing.T) {
 					Lpa: tc.lpa,
 					Items: tc.expected([]taskListItem{
 						{Name: "confirmYourDetails", Path: page.Paths.CertificateProvider.EnterDateOfBirth.Format("lpa-id")},
-						{Name: "confirmYourIdentity", Path: page.Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity.Format("lpa-id")},
+						{Name: "confirmYourIdentity", Path: page.Paths.CertificateProvider.ProveYourIdentity.Format("lpa-id")},
 						{Name: "readTheLpa", Path: page.Paths.CertificateProvider.ReadTheLpa.Format("lpa-id")},
 						{Name: "provideTheCertificateForThisLpa", Path: page.Paths.CertificateProvider.ProvideCertificate.Format("lpa-id")},
 					}),
