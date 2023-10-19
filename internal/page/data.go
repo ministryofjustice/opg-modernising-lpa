@@ -137,8 +137,6 @@ type Lpa struct {
 	CheckedAndHappy bool
 	// PaymentDetails are records of payments made for the LPA via GOV.UK Pay
 	PaymentDetails []Payment
-	// Which option has been used to complete applicant identity checks
-	DonorIdentityOption identity.Option
 	// Information returned by the identity service related to the applicant
 	DonorIdentityUserData identity.UserData
 	// Replacement attorneys named in the LPA
@@ -286,7 +284,7 @@ func ContextWithSessionData(ctx context.Context, data *SessionData) context.Cont
 }
 
 func (l *Lpa) DonorIdentityConfirmed() bool {
-	return l.DonorIdentityUserData.OK && l.DonorIdentityUserData.Provider != identity.UnknownOption &&
+	return l.DonorIdentityUserData.OK &&
 		l.DonorIdentityUserData.MatchName(l.Donor.FirstNames, l.Donor.LastName) &&
 		l.DonorIdentityUserData.DateOfBirth.Equals(l.Donor.DateOfBirth)
 }
@@ -339,7 +337,7 @@ func (l *Lpa) canGoToLpaPath(path string) bool {
 			(l.Donor.CanSign.IsYes() || l.Tasks.ChooseYourSignatory.Completed())
 	case Paths.AboutPayment.String():
 		return section1Completed
-	case Paths.SelectYourIdentityOptions.String(), Paths.HowToConfirmYourIdentityAndSign.String():
+	case Paths.HowToConfirmYourIdentityAndSign.String(), Paths.IdentityWithOneLogin.String():
 		return section1Completed && l.Tasks.PayForLpa.IsCompleted()
 	case "":
 		return false
