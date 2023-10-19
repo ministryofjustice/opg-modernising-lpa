@@ -17,27 +17,21 @@ func TestCertificateProviderProvidedIdentityConfirmed(t *testing.T) {
 	}{
 		"set": {
 			cp: &CertificateProviderProvidedDetails{
-				IdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin, FirstNames: "a", LastName: "b"},
+				IdentityUserData: identity.UserData{OK: true, FirstNames: "a", LastName: "b"},
 			},
 			firstNames: "a",
 			lastName:   "b",
 			expected:   true,
 		},
-		"missing provider": {
-			cp: &CertificateProviderProvidedDetails{
-				IdentityUserData: identity.UserData{OK: true},
-			},
-			expected: false,
-		},
 		"not ok": {
 			cp: &CertificateProviderProvidedDetails{
-				IdentityUserData: identity.UserData{Provider: identity.OneLogin},
+				IdentityUserData: identity.UserData{},
 			},
 			expected: false,
 		},
 		"no match": {
 			cp: &CertificateProviderProvidedDetails{
-				IdentityUserData: identity.UserData{Provider: identity.OneLogin},
+				IdentityUserData: identity.UserData{},
 			},
 			firstNames: "a",
 			lastName:   "b",

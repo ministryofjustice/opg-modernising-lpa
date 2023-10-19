@@ -76,7 +76,7 @@ func TestPostWitnessingYourSignature(t *testing.T) {
 			lpa := &page.Lpa{
 				ID:                    "lpa-id",
 				Donor:                 tc.donor,
-				DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
+				DonorIdentityUserData: identity.UserData{OK: true},
 				CertificateProvider:   actor.CertificateProvider{Mobile: "07535111111"},
 			}
 

@@ -1,0 +1,19 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "proveYourIdentity" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">{{ tr .App "proveYourIdentity" }}</h1>
+
+      <p class="govuk-body">{{ tr .App "beforeYouSignYourLpa" }}</p>
+      
+      {{ trHtml .App "proveYourIdentityContent" }}
+
+      <div class="govuk-button-group">
+        <a class="govuk-button" href="{{ link .App (.App.Paths.IdentityWithOneLogin.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
+        <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+      </div>
+    </div>
+{{ end }}

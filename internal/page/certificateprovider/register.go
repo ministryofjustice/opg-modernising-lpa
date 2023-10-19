@@ -59,14 +59,6 @@ type SessionStore interface {
 	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
 }
 
-//go:generate mockery --testonly --inpackage --name YotiClient --structname mockYotiClient
-type YotiClient interface {
-	IsTest() bool
-	SdkID() string
-	ScenarioID() string
-	User(string) (identity.UserData, error)
-}
-
 //go:generate mockery --testonly --inpackage --name NotifyClient --structname mockNotifyClient
 type NotifyClient interface {
 	Email(ctx context.Context, email notify.Email) (string, error)
@@ -83,7 +75,6 @@ func Register(
 	oneLoginClient OneLoginClient,
 	shareCodeStore ShareCodeStore,
 	errorHandler page.ErrorHandler,
-	yotiClient YotiClient,
 	certificateProviderStore CertificateProviderStore,
 	notFoundHandler page.Handler,
 ) {
@@ -111,39 +102,12 @@ func Register(
 	handleCertificateProvider(page.Paths.CertificateProvider.YourRole,
 		Guidance(tmpls.Get("certificate_provider_your_role.gohtml"), donorStore))
 
-	handleCertificateProvider(page.Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity,
-		Guidance(tmpls.Get("certificate_provider_what_youll_need_to_confirm_your_identity.gohtml"), donorStore))
-
-	for path, page := range map[page.CertificateProviderPath]int{
-		page.Paths.CertificateProvider.SelectYourIdentityOptions:  0,
-		page.Paths.CertificateProvider.SelectYourIdentityOptions1: 1,
-		page.Paths.CertificateProvider.SelectYourIdentityOptions2: 2,
-	} {
-		handleCertificateProvider(path,
-			SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), page, certificateProviderStore))
-	}
-
-	handleCertificateProvider(page.Paths.CertificateProvider.YourChosenIdentityOptions,
-		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml"), certificateProviderStore))
-	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithYoti,
-		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), sessionStore, yotiClient, certificateProviderStore, donorStore))
-	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithYotiCallback,
-		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, certificateProviderStore, donorStore))
+	handleCertificateProvider(page.Paths.CertificateProvider.ProveYourIdentity,
+		Guidance(tmpls.Get("certificate_provider_prove_your_identity.gohtml"), nil))
 	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLogin,
 		IdentityWithOneLogin(logger, oneLoginClient, sessionStore, random.String))
 	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLoginCallback,
 		IdentityWithOneLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, certificateProviderStore, donorStore))
-
-	for path, identityOption := range map[page.CertificateProviderPath]identity.Option{
-		page.Paths.CertificateProvider.IdentityWithPassport:                 identity.Passport,
-		page.Paths.CertificateProvider.IdentityWithBiometricResidencePermit: identity.BiometricResidencePermit,
-		page.Paths.CertificateProvider.IdentityWithDrivingLicencePaper:      identity.DrivingLicencePaper,
-		page.Paths.CertificateProvider.IdentityWithDrivingLicencePhotocard:  identity.DrivingLicencePhotocard,
-		page.Paths.CertificateProvider.IdentityWithOnlineBankAccount:        identity.OnlineBankAccount,
-	} {
-		handleCertificateProvider(path,
-			IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), time.Now, identityOption, certificateProviderStore, donorStore))
-	}
 
 	handleCertificateProvider(page.Paths.CertificateProvider.ReadTheLpa,
 		ReadTheLpa(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), donorStore, certificateProviderStore))

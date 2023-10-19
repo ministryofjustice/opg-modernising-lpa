@@ -61,7 +61,7 @@ func CertificateProvider(
 			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: certificateProviderSessionID, LpaID: lpa.ID})
 		)
 
-		lpa.Donor = makeDonor("Sam", "Smith")
+		lpa.Donor = makeDonor()
 		lpa.Type = page.LpaTypePropertyFinance
 		if lpaType == "hw" {
 			lpa.Type = page.LpaTypeHealthWelfare
