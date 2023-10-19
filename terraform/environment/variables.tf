@@ -37,9 +37,6 @@ variable "environments" {
           app_public_url         = string
           auth_redirect_base_url = string
           notify_is_production   = string
-          yoti_client_sdk_id     = string
-          yoti_scenario_id       = string
-          yoti_sandbox           = string
           uid_base_url           = string
           onelogin_url           = string
         })
