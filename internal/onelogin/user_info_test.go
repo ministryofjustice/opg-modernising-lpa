@@ -157,7 +157,6 @@ func TestParseIdentityClaim(t *testing.T) {
 			}), privateKey),
 			userData: identity.UserData{
 				OK:          true,
-				Provider:    identity.OneLogin,
 				FirstNames:  "Alice Jane Laura",
 				LastName:    "Doe",
 				DateOfBirth: date.New("1970", "01", "02"),
@@ -171,7 +170,7 @@ func TestParseIdentityClaim(t *testing.T) {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
 				"iat": issuedAt.Unix(),
 			}), privateKey),
-			userData: identity.UserData{OK: false, Provider: identity.OneLogin},
+			userData: identity.UserData{OK: false},
 		},
 		"without dob": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
@@ -182,7 +181,7 @@ func TestParseIdentityClaim(t *testing.T) {
 					},
 				},
 			}), privateKey),
-			userData: identity.UserData{OK: false, Provider: identity.OneLogin},
+			userData: identity.UserData{OK: false},
 		},
 		"with invalid dob": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
@@ -198,13 +197,13 @@ func TestParseIdentityClaim(t *testing.T) {
 					},
 				},
 			}), privateKey),
-			userData: identity.UserData{OK: false, Provider: identity.OneLogin},
+			userData: identity.UserData{OK: false},
 		},
 		"without iat": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
 				"vc": vc,
 			}), privateKey),
-			userData: identity.UserData{OK: false, Provider: identity.OneLogin},
+			userData: identity.UserData{OK: false},
 		},
 		"with unexpected signing method": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{

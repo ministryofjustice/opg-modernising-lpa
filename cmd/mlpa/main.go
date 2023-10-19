@@ -23,7 +23,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -60,9 +59,6 @@ func main() {
 		ordnanceSurveyBaseURL = env.Get("ORDNANCE_SURVEY_BASE_URL", "http://mock-os-api:8080")
 		payBaseURL            = env.Get("GOVUK_PAY_BASE_URL", "http://mock-pay:8080")
 		port                  = env.Get("APP_PORT", "8080")
-		yotiClientSdkID       = env.Get("YOTI_CLIENT_SDK_ID", "")
-		yotiScenarioID        = env.Get("YOTI_SCENARIO_ID", "")
-		yotiSandbox           = env.Get("YOTI_SANDBOX", "") == "1"
 		xrayEnabled           = env.Get("XRAY_ENABLED", "") == "1"
 		rumConfig             = page.RumConfig{
 			GuestRoleArn:      env.Get("AWS_RUM_GUEST_ROLE_ARN", ""),
@@ -170,21 +166,6 @@ func main() {
 		HttpClient: httpClient,
 	}
 
-	yotiPrivateKey, err := secretsClient.SecretBytes(ctx, secrets.YotiPrivateKey)
-	if err != nil {
-		logger.Fatal(err)
-	}
-
-	yotiClient, err := identity.NewYotiClient(yotiScenarioID, yotiClientSdkID, yotiPrivateKey)
-	if err != nil {
-		logger.Fatal(err)
-	}
-	if yotiSandbox {
-		if err := yotiClient.SetupSandbox(); err != nil {
-			logger.Fatal(err)
-		}
-	}
-
 	osApiKey, err := secretsClient.Secret(ctx, secrets.OrdnanceSurvey)
 	if err != nil {
 		logger.Fatal(err)
@@ -214,7 +195,6 @@ func main() {
 	})
 	mux.Handle("/static/", http.StripPrefix("/static", handlers.CompressHandler(page.CacheControlHeaders(http.FileServer(http.Dir(webDir+"/static/"))))))
 	mux.Handle(page.Paths.AuthRedirect.String(), page.AuthRedirect(logger, sessionStore))
-	mux.Handle(page.Paths.YotiRedirect.String(), page.YotiRedirect(logger, sessionStore))
 	mux.Handle(page.Paths.CookiesConsent.String(), page.CookieConsent(page.Paths))
 
 	mux.Handle("/cy/", http.StripPrefix("/cy", app.App(
@@ -226,7 +206,6 @@ func main() {
 		lpasDynamoClient,
 		appPublicURL,
 		payClient,
-		yotiClient,
 		notifyClient,
 		addressClient,
 		rumConfig,
@@ -247,7 +226,6 @@ func main() {
 		lpasDynamoClient,
 		appPublicURL,
 		payClient,
-		yotiClient,
 		notifyClient,
 		addressClient,
 		rumConfig,
