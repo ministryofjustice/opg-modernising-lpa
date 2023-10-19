@@ -64,29 +64,17 @@ type CertificateProviderPaths struct {
 	LoginCallback        Path
 	EnterReferenceNumber Path
 
-	CertificateProvided                  CertificateProviderPath
-	ConfirmYourDetails                   CertificateProviderPath
-	EnterDateOfBirth                     CertificateProviderPath
-	IdentityWithBiometricResidencePermit CertificateProviderPath
-	IdentityWithDrivingLicencePaper      CertificateProviderPath
-	IdentityWithDrivingLicencePhotocard  CertificateProviderPath
-	IdentityWithOneLogin                 CertificateProviderPath
-	IdentityWithOneLoginCallback         CertificateProviderPath
-	IdentityWithOnlineBankAccount        CertificateProviderPath
-	IdentityWithPassport                 CertificateProviderPath
-	IdentityWithYoti                     CertificateProviderPath
-	IdentityWithYotiCallback             CertificateProviderPath
-	ProvideCertificate                   CertificateProviderPath
-	ReadTheLpa                           CertificateProviderPath
-	SelectYourIdentityOptions            CertificateProviderPath
-	SelectYourIdentityOptions1           CertificateProviderPath
-	SelectYourIdentityOptions2           CertificateProviderPath
-	TaskList                             CertificateProviderPath
-	WhatHappensNext                      CertificateProviderPath
-	WhatYoullNeedToConfirmYourIdentity   CertificateProviderPath
-	WhoIsEligible                        CertificateProviderPath
-	YourChosenIdentityOptions            CertificateProviderPath
-	YourRole                             CertificateProviderPath
+	CertificateProvided          CertificateProviderPath
+	ConfirmYourDetails           CertificateProviderPath
+	EnterDateOfBirth             CertificateProviderPath
+	IdentityWithOneLogin         CertificateProviderPath
+	IdentityWithOneLoginCallback CertificateProviderPath
+	ProvideCertificate           CertificateProviderPath
+	ReadTheLpa                   CertificateProviderPath
+	TaskList                     CertificateProviderPath
+	WhatHappensNext              CertificateProviderPath
+	WhoIsEligible                CertificateProviderPath
+	YourRole                     CertificateProviderPath
 }
 
 type HealthCheckPaths struct {
@@ -112,7 +100,6 @@ type AppPaths struct {
 	CertificateProviderStart           Path
 	Start                              Path
 	Dashboard                          Path
-	YotiRedirect                       Path
 	CookiesConsent                     Path
 
 	AboutPayment                                         LpaPath
@@ -157,15 +144,8 @@ type AppPaths struct {
 	HowWouldCertificateProviderPreferToCarryOutTheirRole LpaPath
 	HowWouldYouLikeToSendEvidence                        LpaPath
 	IdentityConfirmed                                    LpaPath
-	IdentityWithBiometricResidencePermit                 LpaPath
-	IdentityWithDrivingLicencePaper                      LpaPath
-	IdentityWithDrivingLicencePhotocard                  LpaPath
 	IdentityWithOneLogin                                 LpaPath
 	IdentityWithOneLoginCallback                         LpaPath
-	IdentityWithOnlineBankAccount                        LpaPath
-	IdentityWithPassport                                 LpaPath
-	IdentityWithYoti                                     LpaPath
-	IdentityWithYotiCallback                             LpaPath
 	LifeSustainingTreatment                              LpaPath
 	LpaDetailsSaved                                      LpaPath
 	LpaType                                              LpaPath
@@ -181,9 +161,6 @@ type AppPaths struct {
 	ResendCertificateProviderCode                        LpaPath
 	ResendIndependentWitnessCode                         LpaPath
 	Restrictions                                         LpaPath
-	SelectYourIdentityOptions                            LpaPath
-	SelectYourIdentityOptions1                           LpaPath
-	SelectYourIdentityOptions2                           LpaPath
 	SignTheLpaOnBehalf                                   LpaPath
 	SignYourLpa                                          LpaPath
 	TaskList                                             LpaPath
@@ -191,7 +168,6 @@ type AppPaths struct {
 	UseExistingAddress                                   LpaPath
 	WhatACertificateProviderDoes                         LpaPath
 	WhatHappensAfterNoFee                                LpaPath
-	WhatYoullNeedToConfirmYourIdentity                   LpaPath
 	WhenCanTheLpaBeUsed                                  LpaPath
 	WhichFeeTypeAreYouApplyingFor                        LpaPath
 	WitnessingAsCertificateProvider                      LpaPath
@@ -200,7 +176,6 @@ type AppPaths struct {
 	YouHaveSubmittedYourLpa                              LpaPath
 	YourAddress                                          LpaPath
 	YourAuthorisedSignatory                              LpaPath
-	YourChosenIdentityOptions                            LpaPath
 	YourDetails                                          LpaPath
 	YourIndependentWitness                               LpaPath
 	YourIndependentWitnessAddress                        LpaPath
@@ -214,28 +189,16 @@ var Paths = AppPaths{
 		EnterReferenceNumber: "/certificate-provider-enter-reference-number",
 		WhoIsEligible:        "/certificate-provider-who-is-eligible",
 
-		CertificateProvided:                  "/certificate-provided",
-		ConfirmYourDetails:                   "/confirm-your-details",
-		EnterDateOfBirth:                     "/enter-date-of-birth",
-		IdentityWithBiometricResidencePermit: "/id/brp",
-		IdentityWithDrivingLicencePaper:      "/id/dlpaper",
-		IdentityWithDrivingLicencePhotocard:  "/id/dlphoto",
-		IdentityWithOneLogin:                 "/identity-with-one-login",
-		IdentityWithOneLoginCallback:         "/identity-with-one-login-callback",
-		IdentityWithOnlineBankAccount:        "/id/bank",
-		IdentityWithPassport:                 "/id/passport",
-		IdentityWithYoti:                     "/identity-with-yoti",
-		IdentityWithYotiCallback:             "/identity-with-yoti-callback",
-		ProvideCertificate:                   "/provide-certificate",
-		ReadTheLpa:                           "/read-the-lpa",
-		SelectYourIdentityOptions1:           "/select-identity-document",
-		SelectYourIdentityOptions2:           "/select-identity-document-2",
-		SelectYourIdentityOptions:            "/select-your-identity-options",
-		TaskList:                             "/task-list",
-		WhatHappensNext:                      "/what-happens-next",
-		WhatYoullNeedToConfirmYourIdentity:   "/what-youll-need-to-confirm-your-identity",
-		YourChosenIdentityOptions:            "/your-chosen-identity-options",
-		YourRole:                             "/your-role",
+		CertificateProvided:          "/certificate-provided",
+		ConfirmYourDetails:           "/confirm-your-details",
+		EnterDateOfBirth:             "/enter-date-of-birth",
+		IdentityWithOneLogin:         "/identity-with-one-login",
+		IdentityWithOneLoginCallback: "/identity-with-one-login-callback",
+		ProvideCertificate:           "/provide-certificate",
+		ReadTheLpa:                   "/read-the-lpa",
+		TaskList:                     "/task-list",
+		WhatHappensNext:              "/what-happens-next",
+		YourRole:                     "/your-role",
 	},
 
 	Attorney: AttorneyPaths{
@@ -311,15 +274,8 @@ var Paths = AppPaths{
 	HowWouldCertificateProviderPreferToCarryOutTheirRole: "/how-would-certificate-provider-prefer-to-carry-out-their-role",
 	HowWouldYouLikeToSendEvidence:                        "/how-would-you-like-to-send-evidence",
 	IdentityConfirmed:                                    "/identity-confirmed",
-	IdentityWithBiometricResidencePermit:                 "/id/biometric-residence-permit",
-	IdentityWithDrivingLicencePaper:                      "/id/driving-licence-paper",
-	IdentityWithDrivingLicencePhotocard:                  "/id/driving-licence-photocard",
 	IdentityWithOneLogin:                                 "/id/one-login",
 	IdentityWithOneLoginCallback:                         "/id/one-login/callback",
-	IdentityWithOnlineBankAccount:                        "/id/online-bank-account",
-	IdentityWithPassport:                                 "/id/passport",
-	IdentityWithYoti:                                     "/id/yoti",
-	IdentityWithYotiCallback:                             "/id/yoti/callback",
 	LifeSustainingTreatment:                              "/life-sustaining-treatment",
 	Login:                                                "/login",
 	LoginCallback:                                        "/login-callback",
@@ -338,9 +294,6 @@ var Paths = AppPaths{
 	ResendIndependentWitnessCode:                         "/resend-independent-witness-code",
 	Restrictions:                                         "/restrictions",
 	Root:                                                 "/",
-	SelectYourIdentityOptions1:                           "/select-identity-document",
-	SelectYourIdentityOptions2:                           "/select-identity-document-2",
-	SelectYourIdentityOptions:                            "/select-your-identity-options",
 	SignOut:                                              "/sign-out",
 	SignTheLpaOnBehalf:                                   "/sign-the-lpa-on-behalf",
 	SignYourLpa:                                          "/sign-your-lpa",
@@ -350,17 +303,14 @@ var Paths = AppPaths{
 	UseExistingAddress:                                   "/use-existing-address",
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
 	WhatHappensAfterNoFee:                                "/what-happens-after-no-fee",
-	WhatYoullNeedToConfirmYourIdentity:                   "/what-youll-need-to-confirm-your-identity",
 	WhenCanTheLpaBeUsed:                                  "/when-can-the-lpa-be-used",
 	WhichFeeTypeAreYouApplyingFor:                        "/which-fee-type-are-you-applying-for",
 	WitnessingAsCertificateProvider:                      "/witnessing-as-certificate-provider",
 	WitnessingAsIndependentWitness:                       "/witnessing-as-independent-witness",
 	WitnessingYourSignature:                              "/witnessing-your-signature",
-	YotiRedirect:                                         "/yoti/redirect",
 	YouHaveSubmittedYourLpa:                              "/you-have-submitted-your-lpa",
 	YourAddress:                                          "/your-address",
 	YourAuthorisedSignatory:                              "/your-authorised-signatory",
-	YourChosenIdentityOptions:                            "/your-chosen-identity-options",
 	YourDetails:                                          "/your-details",
 	YourIndependentWitness:                               "/your-independent-witness",
 	YourIndependentWitnessAddress:                        "/your-independent-witness-address",

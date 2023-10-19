@@ -52,7 +52,6 @@ locals {
   endpoints_dns = [
     "api.notifications.service.gov.uk.",
     "api.os.uk.",
-    "api.yoti.com.",
     "current.cvd.clamav.net.",
     "database.clamav.net.",
     "development.lpa-uid.api.opg.service.justice.gov.uk.",

@@ -85,14 +85,6 @@ type ShareCodeSender interface {
 	SendAttorneys(ctx context.Context, appData page.AppData, lpa *page.Lpa) error
 }
 
-//go:generate mockery --testonly --inpackage --name YotiClient --structname mockYotiClient
-type YotiClient interface {
-	IsTest() bool
-	SdkID() string
-	ScenarioID() string
-	User(string) (identity.UserData, error)
-}
-
 //go:generate mockery --testonly --inpackage --name OneLoginClient --structname mockOneLoginClient
 type OneLoginClient interface {
 	AuthCodeURL(state, nonce, locale string, identity bool) string
@@ -158,7 +150,6 @@ func Register(
 	addressClient AddressClient,
 	appPublicURL string,
 	payClient PayClient,
-	yotiClient YotiClient,
 	shareCodeSender ShareCodeSender,
 	witnessCodeSender WitnessCodeSender,
 	errorHandler page.ErrorHandler,
@@ -322,39 +313,11 @@ func Register(
 
 	handleWithLpa(page.Paths.HowToConfirmYourIdentityAndSign, None,
 		Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml")))
-	handleWithLpa(page.Paths.WhatYoullNeedToConfirmYourIdentity, None,
-		Guidance(tmpls.Get("what_youll_need_to_confirm_your_identity.gohtml")))
 
-	for path, page := range map[page.LpaPath]int{
-		page.Paths.SelectYourIdentityOptions:  0,
-		page.Paths.SelectYourIdentityOptions1: 1,
-		page.Paths.SelectYourIdentityOptions2: 2,
-	} {
-		handleWithLpa(path, None,
-			SelectYourIdentityOptions(tmpls.Get("select_your_identity_options.gohtml"), donorStore, page))
-	}
-
-	handleWithLpa(page.Paths.YourChosenIdentityOptions, CanGoBack,
-		YourChosenIdentityOptions(tmpls.Get("your_chosen_identity_options.gohtml")))
-	handleWithLpa(page.Paths.IdentityWithYoti, CanGoBack,
-		IdentityWithYoti(tmpls.Get("identity_with_yoti.gohtml"), sessionStore, yotiClient))
-	handleWithLpa(page.Paths.IdentityWithYotiCallback, CanGoBack,
-		IdentityWithYotiCallback(tmpls.Get("identity_with_yoti_callback.gohtml"), yotiClient, donorStore))
 	handleWithLpa(page.Paths.IdentityWithOneLogin, CanGoBack,
 		IdentityWithOneLogin(logger, oneLoginClient, sessionStore, random.String))
 	handleWithLpa(page.Paths.IdentityWithOneLoginCallback, CanGoBack,
 		IdentityWithOneLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, donorStore))
-
-	for path, identityOption := range map[page.LpaPath]identity.Option{
-		page.Paths.IdentityWithPassport:                 identity.Passport,
-		page.Paths.IdentityWithBiometricResidencePermit: identity.BiometricResidencePermit,
-		page.Paths.IdentityWithDrivingLicencePaper:      identity.DrivingLicencePaper,
-		page.Paths.IdentityWithDrivingLicencePhotocard:  identity.DrivingLicencePhotocard,
-		page.Paths.IdentityWithOnlineBankAccount:        identity.OnlineBankAccount,
-	} {
-		handleWithLpa(path, CanGoBack,
-			IdentityWithTodo(tmpls.Get("identity_with_todo.gohtml"), donorStore, time.Now, identityOption))
-	}
 
 	handleWithLpa(page.Paths.ReadYourLpa, None,
 		Guidance(tmpls.Get("read_your_lpa.gohtml")))

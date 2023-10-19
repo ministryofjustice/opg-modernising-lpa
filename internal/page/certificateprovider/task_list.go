@@ -35,6 +35,11 @@ func TaskList(tmpl template.Template, donorStore DonorStore, certificateProvider
 			return err
 		}
 
+		identityTaskPage := page.Paths.CertificateProvider.IdentityWithOneLogin
+		if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
+			identityTaskPage = page.Paths.CertificateProvider.ReadTheLpa
+		}
+
 		tasks := certificateProvider.Tasks
 
 		data := &taskListData{
@@ -48,7 +53,7 @@ func TaskList(tmpl template.Template, donorStore DonorStore, certificateProvider
 				},
 				{
 					Name:     "confirmYourIdentity",
-					Path:     page.Paths.CertificateProvider.WhatYoullNeedToConfirmYourIdentity.Format(lpa.ID),
+					Path:     identityTaskPage.Format(lpa.ID),
 					State:    tasks.ConfirmYourIdentity,
 					Disabled: !lpa.Tasks.PayForLpa.IsCompleted() || lpa.SignedAt.IsZero(),
 				},

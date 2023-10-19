@@ -9,6 +9,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -22,7 +23,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 	now := time.Now()
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
-	userData := identity.UserData{OK: true, Provider: identity.OneLogin, FirstNames: "John", LastName: "Doe", RetrievedAt: now}
+	userData := identity.UserData{OK: true, FirstNames: "John", LastName: "Doe", RetrievedAt: now}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
@@ -234,7 +235,7 @@ func TestGetIdentityWithOneLoginCallbackWhenPutDonorStoreError(t *testing.T) {
 		Return(userInfo, nil)
 	oneLoginClient.
 		On("ParseIdentityClaim", mock.Anything, mock.Anything).
-		Return(identity.UserData{OK: true, Provider: identity.OneLogin}, nil)
+		Return(identity.UserData{OK: true}, nil)
 
 	err := IdentityWithOneLoginCallback(nil, oneLoginClient, sessionStore, donorStore)(testAppData, w, r, &page.Lpa{})
 
@@ -245,7 +246,7 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 	now := time.Date(2012, time.January, 1, 2, 3, 4, 5, time.UTC)
-	userData := identity.UserData{OK: true, Provider: identity.OneLogin, FirstNames: "first-name", LastName: "last-name", RetrievedAt: now}
+	userData := identity.UserData{OK: true, FirstNames: "first-name", LastName: "last-name", RetrievedAt: now}
 
 	template := newMockTemplate(t)
 	template.
@@ -273,7 +274,7 @@ func TestPostIdentityWithOneLoginCallback(t *testing.T) {
 
 	err := IdentityWithOneLoginCallback(nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{
 		ID:                    "lpa-id",
-		DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
+		DonorIdentityUserData: identity.UserData{OK: true},
 	})
 	resp := w.Result()
 
@@ -286,10 +287,27 @@ func TestPostIdentityWithOneLoginCallbackNotConfirmed(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	err := IdentityWithOneLoginCallback(nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+	err := IdentityWithOneLoginCallback(nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{
+		ID: "lpa-id",
+		Donor: actor.Donor{
+			CanSign: form.Yes,
+		},
+		Type: page.LpaTypeHealthWelfare,
+		Tasks: page.Tasks{
+			YourDetails:                actor.TaskCompleted,
+			ChooseAttorneys:            actor.TaskCompleted,
+			ChooseReplacementAttorneys: actor.TaskCompleted,
+			LifeSustainingTreatment:    actor.TaskCompleted,
+			Restrictions:               actor.TaskCompleted,
+			CertificateProvider:        actor.TaskCompleted,
+			PeopleToNotify:             actor.TaskCompleted,
+			CheckYourLpa:               actor.TaskCompleted,
+			PayForLpa:                  actor.PaymentTaskCompleted,
+		},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.SelectYourIdentityOptions1.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.HowToConfirmYourIdentityAndSign.Format("lpa-id"), resp.Header.Get("Location"))
 }
