@@ -115,7 +115,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 
 			lpa := &page.Lpa{
 				ID:                               "lpa-id",
-				DonorIdentityUserData:            identity.UserData{OK: true, Provider: identity.OneLogin},
+				DonorIdentityUserData:            identity.UserData{OK: true},
 				CertificateProviderCodes:         page.WitnessCodes{{Code: "1234", Created: now}},
 				CertificateProvider:              actor.CertificateProvider{FirstNames: "Fred"},
 				WitnessedByCertificateProviderAt: now,
@@ -144,7 +144,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 
 			err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r, &page.Lpa{
 				ID:                       "lpa-id",
-				DonorIdentityUserData:    identity.UserData{OK: true, Provider: identity.OneLogin},
+				DonorIdentityUserData:    identity.UserData{OK: true},
 				CertificateProviderCodes: page.WitnessCodes{{Code: "1234", Created: now}},
 				CertificateProvider:      actor.CertificateProvider{FirstNames: "Fred"},
 			})
@@ -169,7 +169,7 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 
 	lpa := &page.Lpa{
 		ID:                               "lpa-id",
-		DonorIdentityUserData:            identity.UserData{OK: true, Provider: identity.OneLogin},
+		DonorIdentityUserData:            identity.UserData{OK: true},
 		CertificateProvider:              actor.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderCodes:         page.WitnessCodes{{Code: "1234", Created: now}},
 		WitnessedByCertificateProviderAt: now,
@@ -188,7 +188,7 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("GetAny", ctx).
-		Return(&actor.CertificateProviderProvidedDetails{IdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin}}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{IdentityUserData: identity.UserData{OK: true}}, nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
@@ -200,7 +200,7 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 
 	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r, &page.Lpa{
 		ID:                       "lpa-id",
-		DonorIdentityUserData:    identity.UserData{OK: true, Provider: identity.OneLogin},
+		DonorIdentityUserData:    identity.UserData{OK: true},
 		CertificateProvider:      actor.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderCodes: page.WitnessCodes{{Code: "1234", Created: now}},
 	})
@@ -223,7 +223,7 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToAttorneysErrors(t
 
 	lpa := &page.Lpa{
 		ID:                               "lpa-id",
-		DonorIdentityUserData:            identity.UserData{OK: true, Provider: identity.OneLogin},
+		DonorIdentityUserData:            identity.UserData{OK: true},
 		CertificateProviderCodes:         page.WitnessCodes{{Code: "1234", Created: now}},
 		CertificateProvider:              actor.CertificateProvider{FirstNames: "Fred"},
 		WitnessedByCertificateProviderAt: now,
@@ -252,7 +252,7 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToAttorneysErrors(t
 
 	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r, &page.Lpa{
 		ID:                       "lpa-id",
-		DonorIdentityUserData:    identity.UserData{OK: true, Provider: identity.OneLogin},
+		DonorIdentityUserData:    identity.UserData{OK: true},
 		CertificateProviderCodes: page.WitnessCodes{{Code: "1234", Created: now}},
 		CertificateProvider:      actor.CertificateProvider{FirstNames: "Fred"},
 	})
@@ -291,7 +291,7 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToCertificateProvid
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("GetAny", ctx).
-		Return(&actor.CertificateProviderProvidedDetails{IdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin}}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{IdentityUserData: identity.UserData{OK: true}}, nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
