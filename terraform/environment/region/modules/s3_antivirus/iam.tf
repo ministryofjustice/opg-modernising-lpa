@@ -30,6 +30,16 @@ data "aws_iam_policy_document" "lambda" {
   }
 
   statement {
+    sid       = "allowS3ObjectDecryption"
+    effect    = "Allow"
+    resources = [data.aws_kms_alias.uploads_encryption_key.target_key_arn]
+    actions = [
+      "kms:Decrypt",
+      "kms:DescribeKey"
+    ]
+  }
+
+  statement {
     sid       = "allowVirusDefinitions"
     effect    = "Allow"
     resources = [var.definition_bucket.arn, "${var.definition_bucket.arn}/*"]
