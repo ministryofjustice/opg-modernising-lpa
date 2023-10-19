@@ -9,7 +9,6 @@ import (
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -23,7 +22,7 @@ import (
 )
 
 func TestApp(t *testing.T) {
-	app := App(&logging.Logger{}, &localize.Localizer{}, localize.En, template.Templates{}, nil, &dynamo.Client{}, "http://public.url", &pay.Client{}, &identity.YotiClient{}, &notify.Client{}, &place.Client{}, page.RumConfig{}, "?%3fNEI0t9MN", page.Paths, &onelogin.Client{}, &uid.Client{}, "http://onelogin.url", &s3.Client{}, nil)
+	app := App(&logging.Logger{}, &localize.Localizer{}, localize.En, template.Templates{}, nil, &dynamo.Client{}, "http://public.url", &pay.Client{}, &notify.Client{}, &place.Client{}, page.RumConfig{}, "?%3fNEI0t9MN", page.Paths, &onelogin.Client{}, &uid.Client{}, "http://onelogin.url", &s3.Client{}, nil)
 
 	assert.Implements(t, (*http.Handler)(nil), app)
 }
