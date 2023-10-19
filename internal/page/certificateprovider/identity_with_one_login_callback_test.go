@@ -22,7 +22,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 	now := time.Now()
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
-	userData := identity.UserData{OK: true, Provider: identity.OneLogin, FirstNames: "John", LastName: "Doe", RetrievedAt: now}
+	userData := identity.UserData{OK: true, FirstNames: "John", LastName: "Doe", RetrievedAt: now}
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -132,7 +132,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 					Return(userInfo, nil)
 				oneLoginClient.
 					On("ParseIdentityClaim", mock.Anything, mock.Anything).
-					Return(identity.UserData{OK: true, Provider: identity.OneLogin, FirstNames: "x", LastName: "y"}, nil)
+					Return(identity.UserData{OK: true, FirstNames: "x", LastName: "y"}, nil)
 				return oneLoginClient
 			},
 			sessionStore: sessionRetrieved,
@@ -311,7 +311,7 @@ func TestGetIdentityWithOneLoginCallbackWhenPutCertificateProviderStoreError(t *
 		Return(userInfo, nil)
 	oneLoginClient.
 		On("ParseIdentityClaim", mock.Anything, mock.Anything).
-		Return(identity.UserData{OK: true, Provider: identity.OneLogin}, nil)
+		Return(identity.UserData{OK: true}, nil)
 
 	err := IdentityWithOneLoginCallback(nil, oneLoginClient, sessionStore, certificateProviderStore, donorStore)(testAppData, w, r)
 
@@ -322,7 +322,7 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 	now := time.Date(2012, time.January, 1, 2, 3, 4, 5, time.UTC)
-	userData := identity.UserData{OK: true, Provider: identity.OneLogin, FirstNames: "first-names", LastName: "last-name", RetrievedAt: now}
+	userData := identity.UserData{OK: true, FirstNames: "first-names", LastName: "last-name", RetrievedAt: now}
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -362,7 +362,7 @@ func TestPostIdentityWithOneLoginCallback(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{
 			LpaID:            "lpa-id",
-			IdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
+			IdentityUserData: identity.UserData{OK: true},
 		}, nil)
 
 	donorStore := newMockDonorStore(t)
@@ -397,5 +397,5 @@ func TestPostIdentityWithOneLoginCallbackNotConfirmed(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProvider.SelectYourIdentityOptions1.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProvider.ProveYourIdentity.Format("lpa-id"), resp.Header.Get("Location"))
 }

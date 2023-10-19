@@ -15,29 +15,18 @@ describe('Confirm your identity and sign', () => {
         cy.contains('h1', 'How to confirm your identity and sign the LPA');
         cy.contains('a', 'Continue').click();
 
-        cy.url().should('contain', '/what-youll-need-to-confirm-your-identity');
+        cy.url().should('contain', '/prove-your-identity');
+        cy.checkA11yApp();
+        cy.contains('a', 'Continue').click();
+
+        cy.contains('label', 'Sam Smith (donor)').click();
+        cy.contains('button', 'Sign in').click();
+
+        cy.url().should('contain', '/one-login/callback');
         cy.checkA11yApp();
 
-        cy.contains('h1', "What you’ll need to confirm your identity");
-        cy.contains('a', 'Save and continue').click();
-
-        cy.url().should('contain', '/select-your-identity-options');
-        cy.checkA11yApp();
-
-        cy.contains('label', 'I do not have either of these types of accounts').click();
-        cy.contains('button', 'Save and continue').click();
-
-        cy.url().should('contain', '/select-identity-document');
-        cy.checkA11yApp();
-
-        cy.contains('label', 'Your passport').click();
-        cy.contains('button', 'Save and continue').click();
-
-        cy.url().should('contain', '/your-chosen-identity-options');
-        cy.checkA11yApp();
-
-        cy.contains('passport');
-        cy.contains('button', 'Continue').click();
+        cy.contains('Sam');
+        cy.contains('Smith');
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/read-your-lpa');
@@ -83,30 +72,6 @@ describe('Confirm your identity and sign', () => {
         cy.url().should('contain', '/dashboard');
     });
 
-    it('can be restarted', () => {
-        cy.contains('li', "Confirm your identity and sign")
-            .should('contain', 'Not started')
-            .find('a')
-            .click();
-
-        cy.contains('a', 'Continue').click();
-        cy.contains('a', 'Save and continue').click();
-        cy.contains('label', 'Your GOV.UK One Login Identity').click();
-        cy.contains('button', 'Save and continue').click();
-
-        cy.visitLpa('/task-list');
-
-        cy.contains('li', "Confirm your identity and sign")
-            .should('contain', 'In progress')
-            .find('a')
-            .click();
-
-        cy.contains('a', 'Continue').click();
-        cy.contains('a', 'Save and continue').click();
-        cy.contains('button', 'Save and continue').click();
-        cy.contains('Your GOV.UK One Login Identity');
-    });
-
     it('errors when not signed', () => {
         cy.visitLpa('/sign-your-lpa');
 
@@ -120,12 +85,28 @@ describe('Confirm your identity and sign', () => {
     });
 
     it('errors when not witnessed', () => {
-        cy.visitLpa('/id/passport');
-        cy.contains('button', 'Continue').click();
+        cy.contains('li', "Confirm your identity and sign")
+            .should('contain', 'Not started')
+            .find('a')
+            .click();
 
-        cy.visitLpa('/witnessing-your-signature');
-        cy.contains('button', 'Continue').click();
+        cy.url().should('contain', '/how-to-confirm-your-identity-and-sign');
+        cy.checkA11yApp();
 
+        cy.contains('a', 'Continue').click();
+        cy.contains('a', 'Continue').click();
+
+        cy.contains('label', 'Sam Smith (donor').click();
+        cy.contains('button', 'Sign in').click();
+
+        cy.contains('button', 'Continue').click();
+        cy.contains('a', 'Continue').click();
+        cy.contains('a', 'Continue to signing page').click();
+        cy.contains('label', 'I want to sign this LPA as a deed').click();
+        cy.contains('label', 'I want to apply to register this LPA').click();
+        cy.contains('button', 'Submit my signature').click();
+
+        cy.contains('button', 'Continue').click();
         cy.contains('button', 'Continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
