@@ -127,11 +127,6 @@ data "aws_secretsmanager_secret" "gov_uk_pay_api_key" {
   provider = aws.region
 }
 
-data "aws_secretsmanager_secret" "yoti_private_key" {
-  name     = "yoti-private-key"
-  provider = aws.region
-}
-
 data "aws_secretsmanager_secret" "gov_uk_notify_api_key" {
   name     = "gov-uk-notify-api-key"
   provider = aws.region
@@ -228,7 +223,6 @@ data "aws_iam_policy_document" "task_role_access_policy" {
       data.aws_secretsmanager_secret.gov_uk_pay_api_key.arn,
       data.aws_secretsmanager_secret.os_postcode_lookup_api_key.arn,
       data.aws_secretsmanager_secret.private_jwt_key.arn,
-      data.aws_secretsmanager_secret.yoti_private_key.arn,
     ]
   }
 
@@ -366,18 +360,6 @@ locals {
         {
           name  = "GOVUK_NOTIFY_BASE_URL",
           value = "https://api.notifications.service.gov.uk"
-        },
-        {
-          name  = "YOTI_CLIENT_SDK_ID",
-          value = var.app_env_vars.yoti_client_sdk_id
-        },
-        {
-          name  = "YOTI_SCENARIO_ID",
-          value = var.app_env_vars.yoti_scenario_id
-        },
-        {
-          name  = "YOTI_SANDBOX",
-          value = var.app_env_vars.yoti_sandbox
         },
         {
           name  = "ORDNANCE_SURVEY_BASE_URL",
