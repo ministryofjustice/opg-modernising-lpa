@@ -80,7 +80,7 @@ func TestPostSignYourLpa(t *testing.T) {
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			ID:                    "lpa-id",
-			DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
+			DonorIdentityUserData: identity.UserData{OK: true},
 			Tasks: page.Tasks{
 				ConfirmYourIdentityAndSign: actor.TaskCompleted,
 			},
@@ -89,7 +89,7 @@ func TestPostSignYourLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := SignYourLpa(nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id", DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin}})
+	err := SignYourLpa(nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id", DonorIdentityUserData: identity.UserData{OK: true}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

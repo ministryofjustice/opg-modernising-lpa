@@ -16,8 +16,6 @@ type CertificateProviderProvidedDetails struct {
 	UpdatedAt time.Time
 	// Date of birth of the certificate provider
 	DateOfBirth date.Date
-	// The method by which the certificate provider will complete identity checks
-	IdentityOption identity.Option
 	// Data returned from an identity check service
 	IdentityUserData identity.UserData
 	// Details of the certificate provided to the applicant
@@ -31,7 +29,7 @@ func (c CertificateProviderProvidedDetails) Signed(after time.Time) bool {
 }
 
 func (c *CertificateProviderProvidedDetails) CertificateProviderIdentityConfirmed(firstNames, lastName string) bool {
-	return c.IdentityUserData.OK && c.IdentityUserData.Provider != identity.UnknownOption &&
+	return c.IdentityUserData.OK &&
 		c.IdentityUserData.MatchName(firstNames, lastName) &&
 		c.IdentityUserData.DateOfBirth.Equals(c.DateOfBirth)
 }

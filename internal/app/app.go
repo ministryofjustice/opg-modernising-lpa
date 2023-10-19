@@ -17,7 +17,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -73,7 +72,6 @@ func App(
 	lpaDynamoClient DynamoClient,
 	appPublicURL string,
 	payClient *pay.Client,
-	yotiClient *identity.YotiClient,
 	notifyClient *notify.Client,
 	addressClient *place.Client,
 	rumConfig page.RumConfig,
@@ -140,7 +138,6 @@ func App(
 		oneLoginClient,
 		shareCodeStore,
 		errorHandler,
-		yotiClient,
 		certificateProviderStore,
 		notFoundHandler,
 	)
@@ -169,7 +166,6 @@ func App(
 		addressClient,
 		appPublicURL,
 		payClient,
-		yotiClient,
 		shareCodeSender,
 		witnessCodeSender,
 		errorHandler,
