@@ -1,0 +1,28 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "proveYourIdentity" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">{{ tr .App "proveYourIdentity" }}</h1>
+
+      {{ if .App.IsDonor }}
+        <p class="govuk-body">{{ tr .App "beforeYouSignYourLpa" }}</p>
+      {{ else }}
+        <p class="govuk-body">{{ tr .App "beforeYouCanProvideYourCertificateForThisLpa" }}</p>
+      {{ end }}
+      
+      {{ trHtml .App "proveYourIdentityContent" }}
+
+      <div class="govuk-button-group">
+        {{ if .App.IsDonor }}
+          <a class="govuk-button" href="{{ link .App (.App.Paths.IdentityWithOneLogin.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
+          <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+        {{ else }}
+          <a class="govuk-button" href="{{ link .App (.App.Paths.CertificateProvider.IdentityWithOneLogin.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
+          <a href="{{ link .App (.App.Paths.CertificateProvider.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+        {{ end }}
+      </div>
+    </div>
+{{ end }}
