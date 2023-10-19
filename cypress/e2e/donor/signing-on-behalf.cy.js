@@ -6,20 +6,8 @@ describe('Signing on behalf of the donor', () => {
         cy.contains('h1', 'How to confirm your identity and sign the LPA');
         cy.contains('a', 'Continue').click();
 
-        cy.url().should('contain', '/what-youll-need-to-confirm-your-identity');
-        cy.contains('h1', "What you’ll need to confirm your identity");
-        cy.contains('a', 'Save and continue').click();
-
-        cy.url().should('contain', '/select-your-identity-options');
-        cy.contains('label', 'I do not have either of these types of accounts').click();
-        cy.contains('button', 'Save and continue').click();
-
-        cy.url().should('contain', '/select-identity-document');
-        cy.contains('label', 'Your passport').click();
-        cy.contains('button', 'Save and continue').click();
-
-        cy.url().should('contain', '/your-chosen-identity-options');
-        cy.contains('button', 'Continue').click();
+        cy.contains('label', 'Sam Smith (donor').click();
+        cy.contains('button', 'Sign in').click();
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/read-your-lpa');
