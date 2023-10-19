@@ -116,7 +116,7 @@ describe('Confirm your identity and sign', () => {
             cy.contains('Select both boxes to sign and apply to register your LPA');
         });
 
-        cy.contains('.moj-ticket-panel  .govuk-error-message', 'Select both boxes to sign and apply to register your LPA');
+        cy.contains('.govuk-error-message', 'Select both boxes to sign and apply to register your LPA');
     });
 
     it('errors when not witnessed', () => {
