@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -222,8 +221,6 @@ func handleObjectTagsAdded(ctx context.Context, client dynamodbClient, event eve
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal '%s' detail: %w", objectTagsAddedEventName, err)
 	}
-
-	log.Println(v)
 
 	objectKey := v.Object.Key
 

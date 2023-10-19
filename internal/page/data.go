@@ -192,29 +192,29 @@ type Evidence struct {
 	Documents []Document
 }
 
-func (es *Evidence) Delete(documentKey string) bool {
-	idx := slices.IndexFunc(es.Documents, func(d Document) bool { return d.Key == documentKey })
+func (e *Evidence) Delete(documentKey string) bool {
+	idx := slices.IndexFunc(e.Documents, func(d Document) bool { return d.Key == documentKey })
 	if idx == -1 {
 		return false
 	}
 
-	es.Documents = slices.Delete(es.Documents, idx, idx+1)
+	e.Documents = slices.Delete(e.Documents, idx, idx+1)
 
 	return true
 }
 
-func (es *Evidence) Keys() []string {
+func (e *Evidence) Keys() []string {
 	var keys []string
 
-	for _, d := range es.Documents {
+	for _, d := range e.Documents {
 		keys = append(keys, d.Key)
 	}
 
 	return keys
 }
 
-func (es *Evidence) GetByDocumentKey(key string) Document {
-	for _, d := range es.Documents {
+func (e *Evidence) GetByDocumentKey(key string) Document {
+	for _, d := range e.Documents {
 		if d.Key == key {
 			return d
 		}
@@ -223,12 +223,12 @@ func (es *Evidence) GetByDocumentKey(key string) Document {
 	return Document{}
 }
 
-func (es *Evidence) Update(document Document) bool {
-	idx := slices.IndexFunc(es.Documents, func(d Document) bool { return d.Key == document.Key })
+func (e *Evidence) Update(document Document) bool {
+	idx := slices.IndexFunc(e.Documents, func(d Document) bool { return d.Key == document.Key })
 	if idx == -1 {
 		return false
 	} else {
-		es.Documents[idx] = document
+		e.Documents[idx] = document
 		return true
 	}
 }
