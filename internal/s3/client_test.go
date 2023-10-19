@@ -119,3 +119,41 @@ func TestPutObjectOnServiceError(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 }
+
+func TestGetObjectTags(t *testing.T) {
+	expectedTagSet := []types.Tag{
+		{Key: aws.String("a-tag-key"), Value: aws.String("a-value")},
+		{Key: aws.String("another-tag-key"), Value: aws.String("another-value")},
+	}
+
+	s3Service := newMockS3Service(t)
+	s3Service.
+		On("GetObjectTagging", context.Background(), &s3.GetObjectTaggingInput{
+			Bucket: aws.String("a-bucket"),
+			Key:    aws.String("a-object-key"),
+		}).
+		Return(&s3.GetObjectTaggingOutput{
+			TagSet: expectedTagSet,
+		}, nil)
+
+	client := Client{bucket: "a-bucket", svc: s3Service}
+	tags, err := client.GetObjectTags(context.Background(), "a-object-key")
+
+	assert.Nil(t, err)
+	assert.Equal(t, expectedTagSet, tags)
+}
+
+func TestGetObjectTagsOnServiceError(t *testing.T) {
+	s3Service := newMockS3Service(t)
+	s3Service.
+		On("GetObjectTagging", context.Background(), &s3.GetObjectTaggingInput{
+			Bucket: aws.String("a-bucket"),
+			Key:    aws.String("a-object-key"),
+		}).
+		Return(&s3.GetObjectTaggingOutput{}, expectedError)
+
+	client := Client{bucket: "a-bucket", svc: s3Service}
+	_, err := client.GetObjectTags(context.Background(), "a-object-key")
+
+	assert.Equal(t, expectedError, err)
+}
