@@ -33,7 +33,7 @@ describe('Confirm your details', () => {
     });
 
     it('redirects to tasklist when details have already been confirmed', () => {
-        cy.visit('/fixtures/certificate-provider?redirect=/confirm-your-details&progress=detailsConfirmed');
+        cy.visit('/fixtures/certificate-provider?redirect=/confirm-your-details&progress=confirmYourDetails');
 
         cy.url().should('contain', '/confirm-your-details');
         cy.checkA11yApp();
