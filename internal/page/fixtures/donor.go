@@ -187,9 +187,9 @@ func Donor(
 		if progress >= slices.Index(progressValues, "payForTheLpa") {
 			if feeType == "half-fee" {
 				lpa.FeeType = page.HalfFee
-				lpa.Evidence = []page.Evidence{
+				lpa.Evidence = page.Evidence{Documents: []page.Document{
 					{Key: "evidence-key", Filename: "supporting-evidence.png", Sent: time.Now()},
-				}
+				}}
 			} else {
 				lpa.FeeType = page.FullFee
 			}
