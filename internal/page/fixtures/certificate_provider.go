@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -25,7 +26,8 @@ func CertificateProvider(
 	progressValues := []string{
 		"paid",
 		"signedByDonor",
-		"detailsConfirmed",
+		"confirmYourDetails",
+		"confirmYourIdentity",
 	}
 
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
@@ -88,12 +90,25 @@ func CertificateProvider(
 			})
 			lpa.Tasks.PayForLpa = actor.PaymentTaskCompleted
 		}
+
 		if progress >= slices.Index(progressValues, "signedByDonor") {
 			lpa.SignedAt = time.Now()
 		}
-		if progress >= slices.Index(progressValues, "detailsConfirmed") {
+
+		if progress >= slices.Index(progressValues, "confirmYourDetails") {
 			certificateProvider.DateOfBirth = date.New("1990", "1", "2")
 			certificateProvider.Tasks.ConfirmYourDetails = actor.TaskCompleted
+		}
+
+		if progress >= slices.Index(progressValues, "confirmYourIdentity") {
+			certificateProvider.IdentityUserData = identity.UserData{
+				OK:          true,
+				RetrievedAt: time.Now(),
+				FirstNames:  lpa.CertificateProvider.FirstNames,
+				LastName:    lpa.CertificateProvider.LastName,
+				DateOfBirth: certificateProvider.DateOfBirth,
+			}
+			certificateProvider.Tasks.ConfirmYourIdentity = actor.TaskCompleted
 		}
 
 		if err := donorStore.Put(donorCtx, lpa); err != nil {
