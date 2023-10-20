@@ -230,12 +230,13 @@ func handleObjectTagsAdded(ctx context.Context, client dynamodbClient, event eve
 	}
 
 	hasScannedTag := false
-	var tagIndex int
+	hasVirus := false
 
-	for i, tag := range tags {
+	for _, tag := range tags {
 		if *tag.Key == "virus-scan-status" {
 			hasScannedTag = true
-			tagIndex = i
+			hasVirus = *tag.Value == virusFound
+			break
 		}
 	}
 
@@ -250,18 +251,15 @@ func handleObjectTagsAdded(ctx context.Context, client dynamodbClient, event eve
 		return err
 	}
 
-	document := lpa.Evidence.GetByDocumentKey(objectKey)
+	document := lpa.Evidence.Get(objectKey)
 	if document.Key == "" {
 		return fmt.Errorf("LPA did not contain a document with key %s for '%s'", objectKey, objectTagsAddedEventName)
 	}
 
 	document.Scanned = now()
-	document.VirusDetected = *tags[tagIndex].Value == virusFound
+	document.VirusDetected = hasVirus
 
-	if ok := lpa.Evidence.Update(document); !ok {
-		return fmt.Errorf("failed to update evidence on LPA for '%s'", objectTagsAddedEventName)
-	}
-
+	lpa.Evidence.Put(document)
 	lpa.UpdatedAt = now()
 
 	if err := client.Put(ctx, lpa); err != nil {

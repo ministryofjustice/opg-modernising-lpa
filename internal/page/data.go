@@ -213,9 +213,9 @@ func (e *Evidence) Keys() []string {
 	return keys
 }
 
-func (e *Evidence) GetByDocumentKey(key string) Document {
+func (e *Evidence) Get(documentKey string) Document {
 	for _, d := range e.Documents {
-		if d.Key == key {
+		if d.Key == documentKey {
 			return d
 		}
 	}
@@ -223,13 +223,12 @@ func (e *Evidence) GetByDocumentKey(key string) Document {
 	return Document{}
 }
 
-func (e *Evidence) Update(document Document) bool {
+func (e *Evidence) Put(document Document) {
 	idx := slices.IndexFunc(e.Documents, func(d Document) bool { return d.Key == document.Key })
 	if idx == -1 {
-		return false
+		e.Documents = append(e.Documents, document)
 	} else {
 		e.Documents[idx] = document
-		return true
 	}
 }
 

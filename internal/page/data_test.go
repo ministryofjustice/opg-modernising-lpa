@@ -1147,21 +1147,20 @@ func TestEvidenceGetByKey(t *testing.T) {
 		{Key: "another-key"},
 	}}
 
-	assert.Equal(t, Document{Key: "a-key"}, evidence.GetByDocumentKey("a-key"))
-	assert.Equal(t, Document{Key: "another-key"}, evidence.GetByDocumentKey("another-key"))
-	assert.Equal(t, Document{}, evidence.GetByDocumentKey("not-a-key"))
+	assert.Equal(t, Document{Key: "a-key"}, evidence.Get("a-key"))
+	assert.Equal(t, Document{Key: "another-key"}, evidence.Get("another-key"))
+	assert.Equal(t, Document{}, evidence.Get("not-a-key"))
 }
 
-func TestEvidenceUpdate(t *testing.T) {
+func TestEvidencePut(t *testing.T) {
 	evidence := Evidence{Documents: []Document{
 		{Key: "a-key", Filename: "a-filename"},
 		{Key: "another-key", Filename: "another-filename"},
 	}}
 
-	assert.True(t, evidence.Update(Document{Key: "a-key", Filename: "a-new-filename"}))
-
+	evidence.Put(Document{Key: "a-key", Filename: "a-new-filename"})
 	assert.Equal(t, Document{Key: "a-key", Filename: "a-new-filename"}, evidence.Documents[0])
-	assert.Equal(t, Document{Key: "another-key", Filename: "another-filename"}, evidence.Documents[1])
 
-	assert.False(t, evidence.Update(Document{Key: "not-a-key"}))
+	evidence.Put(Document{Key: "new-key", Filename: "a-filename"})
+	assert.Equal(t, Document{Key: "new-key", Filename: "a-filename"}, evidence.Documents[2])
 }
