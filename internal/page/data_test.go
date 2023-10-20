@@ -1098,54 +1098,65 @@ func TestFeeAmount(t *testing.T) {
 }
 
 func TestHasUnsentReducedFeesEvidence(t *testing.T) {
-	lpa := Lpa{Evidence: []Evidence{
-		{Sent: time.Now()},
-		{},
-		{Sent: time.Now()},
-	}}
+	lpa := Lpa{Evidence: Evidence{Documents: []Document{
+		{Sent: time.Now()}, {}, {Sent: time.Now()}}},
+	}
 
 	assert.True(t, lpa.HasUnsentReducedFeesEvidence())
 
-	lpa.Evidence = []Evidence{
-		{Sent: time.Now()},
-		{Sent: time.Now()},
+	lpa.Evidence = Evidence{Documents: []Document{
+		{Sent: time.Now()}, {Sent: time.Now()}},
 	}
 
 	assert.False(t, lpa.HasUnsentReducedFeesEvidence())
 }
 
-func TestEvidencesDelete(t *testing.T) {
-	evidences := Evidences{
+func TestEvidenceDelete(t *testing.T) {
+	evidence := Evidence{Documents: []Document{
 		{Key: "a-key"},
 		{Key: "another-key"},
-	}
+	}}
 
-	assert.True(t, evidences.Delete("a-key"))
-	assert.Equal(t, Evidences{{Key: "another-key"}}, evidences)
+	assert.True(t, evidence.Delete("a-key"))
+	assert.Equal(t, Evidence{Documents: []Document{
+		{Key: "another-key"},
+	}}, evidence)
 
-	assert.True(t, evidences.Delete("another-key"))
-	assert.Equal(t, Evidences{}, evidences)
+	assert.True(t, evidence.Delete("another-key"))
+	assert.Equal(t, Evidence{Documents: []Document{}}, evidence)
 
-	assert.False(t, evidences.Delete("not-a-key"))
+	assert.False(t, evidence.Delete("not-a-key"))
 }
 
-func TestEvidencesKeys(t *testing.T) {
-	evidences := Evidences{
+func TestEvidenceKeys(t *testing.T) {
+	evidence := Evidence{Documents: []Document{
 		{Key: "a-key"},
 		{Key: "another-key"},
-	}
+	}}
 
-	assert.Equal(t, []string{"a-key", "another-key"}, evidences.Keys())
+	assert.Equal(t, []string{"a-key", "another-key"}, evidence.Keys())
 }
 
-func TestEvidencesGetByKey(t *testing.T) {
-	evidences := Evidences{
+func TestEvidenceGetByKey(t *testing.T) {
+	evidence := Evidence{Documents: []Document{
 		{Key: "a-key"},
 		{Key: "another-key"},
-	}
+	}}
 
-	assert.Equal(t, Evidence{Key: "a-key"}, evidences.GetByKey("a-key"))
-	assert.Equal(t, Evidence{Key: "another-key"}, evidences.GetByKey("another-key"))
+	assert.Equal(t, Document{Key: "a-key"}, evidence.Get("a-key"))
+	assert.Equal(t, Document{Key: "another-key"}, evidence.Get("another-key"))
+	assert.Equal(t, Document{}, evidence.Get("not-a-key"))
+}
 
-	assert.Equal(t, Evidence{}, evidences.GetByKey("not-a-key"))
+func TestEvidencePut(t *testing.T) {
+	evidence := Evidence{Documents: []Document{
+		{Key: "a-key", Filename: "a-filename"},
+		{Key: "another-key", Filename: "another-filename"},
+	}}
+
+	evidence.Put(Document{Key: "a-key", Filename: "a-new-filename"})
+	assert.Equal(t, Document{Key: "a-key", Filename: "a-new-filename"}, evidence.Documents[0])
+
+	evidence.Put(Document{Key: "new-key", Filename: "a-filename"})
+	assert.Equal(t, Document{Key: "new-key", Filename: "a-filename"}, evidence.Documents[2])
 }
