@@ -90,9 +90,10 @@ func TestPostUploadEvidenceWithUploadActionAcceptedFileTypes(t *testing.T) {
 				On("PutObject", r.Context(), "lpa-uid/evidence/a-uid", mock.Anything).
 				Return(nil)
 
-			evidence := []page.Evidence{
+			evidence := page.Evidence{Documents: []page.Document{
 				{Key: "lpa-uid/evidence/a-uid", Filename: filename},
-			}
+			}}
+
 			updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: page.HalfFee}
 
 			donorStore := newMockDonorStore(t)
@@ -146,10 +147,10 @@ func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
 		On("PutObject", r.Context(), "lpa-uid/evidence/a-uid", mock.Anything).
 		Return(nil)
 
-	evidence := []page.Evidence{
+	evidence := page.Evidence{Documents: []page.Document{
 		{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
 		{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.png"},
-	}
+	}}
 	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: page.HalfFee}
 
 	donorStore := newMockDonorStore(t)
@@ -199,9 +200,9 @@ func TestPostUploadEvidenceWithUploadActionFilenameSpecialCharactersAreEscaped(t
 		On("PutObject", r.Context(), "lpa-uid/evidence/a-uid", mock.Anything).
 		Return(nil)
 
-	evidence := []page.Evidence{
+	evidence := page.Evidence{Documents: []page.Document{
 		{Key: "lpa-uid/evidence/a-uid", Filename: "&lt;img src=1 onerror=alert(document.domain)&gt;’ brute.heic"},
-	}
+	}}
 	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: page.HalfFee}
 
 	donorStore := newMockDonorStore(t)
@@ -480,9 +481,9 @@ func TestPostUploadEvidenceWhenDonorStoreError(t *testing.T) {
 		On("PutObject", r.Context(), "lpa-uid/evidence/a-uid", mock.Anything).
 		Return(nil)
 
-	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: []page.Evidence{
+	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: page.Evidence{Documents: []page.Document{
 		{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
-	}}
+	}}}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
@@ -542,9 +543,9 @@ func TestGetUploadEvidenceDeleteEvidence(t *testing.T) {
 		On("DeleteObject", r.Context(), "lpa-uid/evidence/a-uid").
 		Return(nil)
 
-	evidence := []page.Evidence{
+	evidence := page.Evidence{Documents: []page.Document{
 		{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
-	}
+	}}
 	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: page.HalfFee}
 
 	donorStore := newMockDonorStore(t)
@@ -567,10 +568,10 @@ func TestGetUploadEvidenceDeleteEvidence(t *testing.T) {
 	err := UploadEvidence(template.Execute, nil, donorStore, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{
 		UID:     "lpa-uid",
 		FeeType: page.HalfFee,
-		Evidence: []page.Evidence{
+		Evidence: page.Evidence{Documents: []page.Document{
 			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
 			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
-		},
+		}},
 	})
 
 	assert.Nil(t, err)
@@ -598,8 +599,10 @@ func TestGetUploadEvidenceDeleteEvidenceWhenUnexpectedFieldName(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &uploadEvidenceData{
-			App:                  testAppData,
-			Evidence:             []page.Evidence{{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"}},
+			App: testAppData,
+			Evidence: page.Evidence{Documents: []page.Document{
+				{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
+			}},
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              page.HalfFee,
@@ -608,9 +611,11 @@ func TestGetUploadEvidenceDeleteEvidenceWhenUnexpectedFieldName(t *testing.T) {
 		Return(nil)
 
 	err := UploadEvidence(template.Execute, nil, nil, func() string { return "a-uid" }, nil)(testAppData, w, r, &page.Lpa{
-		UID:      "lpa-uid",
-		FeeType:  page.HalfFee,
-		Evidence: []page.Evidence{{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"}},
+		UID:     "lpa-uid",
+		FeeType: page.HalfFee,
+		Evidence: page.Evidence{Documents: []page.Document{
+			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"}},
+		},
 	})
 
 	assert.Nil(t, err)
@@ -643,10 +648,10 @@ func TestGetUploadEvidenceDeleteEvidenceWhenS3ClientError(t *testing.T) {
 	err := UploadEvidence(nil, nil, nil, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{
 		UID:     "lpa-uid",
 		FeeType: page.HalfFee,
-		Evidence: []page.Evidence{
+		Evidence: page.Evidence{Documents: []page.Document{
 			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
 			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
-		},
+		}},
 	})
 
 	assert.Equal(t, expectedError, err)
@@ -676,9 +681,9 @@ func TestGetUploadEvidenceDeleteEvidenceOnDonorStoreError(t *testing.T) {
 		On("DeleteObject", r.Context(), "lpa-uid/evidence/a-uid").
 		Return(nil)
 
-	evidence := []page.Evidence{
+	evidence := page.Evidence{Documents: []page.Document{
 		{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
-	}
+	}}
 	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: page.HalfFee}
 
 	donorStore := newMockDonorStore(t)
@@ -689,10 +694,10 @@ func TestGetUploadEvidenceDeleteEvidenceOnDonorStoreError(t *testing.T) {
 	err := UploadEvidence(nil, nil, donorStore, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{
 		UID:     "lpa-uid",
 		FeeType: page.HalfFee,
-		Evidence: []page.Evidence{
+		Evidence: page.Evidence{Documents: []page.Document{
 			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
 			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
-		},
+		}},
 	})
 
 	assert.Equal(t, expectedError, err)
@@ -722,9 +727,9 @@ func TestGetUploadEvidenceDeleteEvidenceOnTemplateError(t *testing.T) {
 		On("DeleteObject", r.Context(), "lpa-uid/evidence/a-uid").
 		Return(nil)
 
-	evidence := []page.Evidence{
+	evidence := page.Evidence{Documents: []page.Document{
 		{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
-	}
+	}}
 	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: page.HalfFee}
 
 	donorStore := newMockDonorStore(t)
@@ -747,10 +752,10 @@ func TestGetUploadEvidenceDeleteEvidenceOnTemplateError(t *testing.T) {
 	err := UploadEvidence(template.Execute, nil, donorStore, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{
 		UID:     "lpa-uid",
 		FeeType: page.HalfFee,
-		Evidence: []page.Evidence{
+		Evidence: page.Evidence{Documents: []page.Document{
 			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
 			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
-		},
+		}},
 	})
 
 	assert.Equal(t, expectedError, err)

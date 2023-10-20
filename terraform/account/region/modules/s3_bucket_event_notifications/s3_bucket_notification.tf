@@ -5,4 +5,5 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
     events        = var.s3_bucket_event_types
     filter_suffix = ".log"
   }
+  eventbridge = true
 }
