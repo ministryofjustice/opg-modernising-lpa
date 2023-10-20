@@ -1149,3 +1149,113 @@ func TestEvidencesGetByKey(t *testing.T) {
 
 	assert.Equal(t, Evidence{}, evidences.GetByKey("not-a-key"))
 }
+
+func TestCertificateProviderShareLastName(t *testing.T) {
+	testcases := map[string]struct {
+		certificateProvider  string
+		donor                string
+		attorneys            []string
+		replacementAttorneys []string
+		expected             bool
+	}{
+		"no match": {
+			certificateProvider:  "a",
+			attorneys:            []string{"b"},
+			replacementAttorneys: []string{"c"},
+		},
+		"match donor": {
+			certificateProvider: "a",
+			donor:               "a",
+			expected:            true,
+		},
+		"match attorney": {
+			certificateProvider: "a",
+			attorneys:           []string{"b", "a"},
+			expected:            true,
+		},
+		"match replacement attorney": {
+			certificateProvider:  "a",
+			replacementAttorneys: []string{"b", "a"},
+			expected:             true,
+		},
+		"half-start on certificate provider match donor": {
+			certificateProvider: "a-c",
+			donor:               "a",
+			expected:            true,
+		},
+		"half-end on certificate provider match donor": {
+			certificateProvider: "c-a",
+			donor:               "a",
+			expected:            true,
+		},
+		"half-start on donor match donor": {
+			certificateProvider: "a",
+			donor:               "a-c",
+			expected:            true,
+		},
+		"half-end on donor match donor": {
+			certificateProvider: "a",
+			donor:               "c-a",
+			expected:            true,
+		},
+		"half-start on certificate provider match attorney": {
+			certificateProvider: "a-c",
+			attorneys:           []string{"b", "a"},
+			expected:            true,
+		},
+		"half-end on certificate provider match attorney": {
+			certificateProvider: "c-a",
+			attorneys:           []string{"b", "a"},
+			expected:            true,
+		},
+		"half-start on attorney match attorney": {
+			certificateProvider: "a",
+			attorneys:           []string{"b", "a-c"},
+			expected:            true,
+		},
+		"half-end on attorney match attorney": {
+			certificateProvider: "a",
+			attorneys:           []string{"b", "c-a"},
+			expected:            true,
+		},
+		"half-start on certificate provider match replacement attorney": {
+			certificateProvider:  "a-c",
+			replacementAttorneys: []string{"b", "a"},
+			expected:             true,
+		},
+		"half-end on certificate provider match replacement attorney": {
+			certificateProvider:  "c-a",
+			replacementAttorneys: []string{"b", "a"},
+			expected:             true,
+		},
+		"half-start on replacement attorney match replacement attorney": {
+			certificateProvider:  "a",
+			replacementAttorneys: []string{"b", "a-c"},
+			expected:             true,
+		},
+		"half-end on replacement attorney match replacement attorney": {
+			certificateProvider:  "a",
+			replacementAttorneys: []string{"b", "c-a"},
+			expected:             true,
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			lpa := &Lpa{
+				Donor:               actor.Donor{LastName: tc.donor},
+				CertificateProvider: actor.CertificateProvider{LastName: tc.certificateProvider},
+			}
+
+			for _, a := range tc.attorneys {
+				lpa.Attorneys.Attorneys = append(lpa.Attorneys.Attorneys, actor.Attorney{LastName: a})
+			}
+
+			for _, a := range tc.replacementAttorneys {
+				lpa.ReplacementAttorneys.Attorneys = append(lpa.ReplacementAttorneys.Attorneys, actor.Attorney{LastName: a})
+			}
+
+			assert.Equal(t, tc.expected, lpa.CertificateProviderSharesLastName())
+		})
+	}
+}

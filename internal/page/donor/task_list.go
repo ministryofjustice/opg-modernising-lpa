@@ -57,7 +57,6 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 		}
 
 		var paymentPath string
-
 		switch lpa.Tasks.PayForLpa {
 		case actor.PaymentTaskDenied:
 			paymentPath = page.Paths.FeeDenied.Format(lpa.ID)
@@ -65,6 +64,11 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 			paymentPath = page.Paths.UploadEvidence.Format(lpa.ID)
 		default:
 			paymentPath = page.Paths.AboutPayment.Format(lpa.ID)
+		}
+
+		checkPath := page.Paths.CheckYourLpa
+		if lpa.CertificateProviderSharesLastName() {
+			checkPath = page.Paths.ConfirmYourCertificateProviderIsNotRelated
 		}
 
 		data := &taskListData{
@@ -117,7 +121,7 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 						},
 						{
 							Name:  "checkAndSendToYourCertificateProvider",
-							Path:  page.Paths.CheckYourLpa.Format(lpa.ID),
+							Path:  checkPath.Format(lpa.ID),
 							State: lpa.Tasks.CheckYourLpa,
 						},
 					},
