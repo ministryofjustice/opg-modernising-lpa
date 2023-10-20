@@ -43,43 +43,19 @@
           </fieldset>
         </div>
 
-        <fieldset class="govuk-fieldset">
-          <legend class="govuk-fieldset__legend">Progress</legend>
-          <div class="govuk-form-group">
-            <div class="govuk-radios" data-module="govuk-radios">
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-progress" name="progress" type="radio" value="signedByCertificateProvider" checked>
-                <label class="govuk-label govuk-radios__label" for="f-progress">
-                  Signed by donor and certificate provider
-                </label>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-progress-2" name="progress" type="radio" value="signedByAttorney">
-                <label class="govuk-label govuk-radios__label" for="f-progress-2">
-                  Signed by attorney
-                </label>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-progress-3" name="progress" type="radio" value="signedByAllAttorneys">
-                <label class="govuk-label govuk-radios__label" for="f-progress-3">
-                  Signed by all attorneys
-                </label>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-progress-4" name="progress" type="radio" value="submitted">
-                <label class="govuk-label govuk-radios__label" for="f-progress-4">
-                  Submitted
-                </label>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-progress-5" name="progress" type="radio" value="registered">
-                <label class="govuk-label govuk-radios__label" for="f-progress-5">
-                  Registered
-                </label>
-              </div>
-            </div>
-          </div>
-        </fieldset>
+        <div class="govuk-form-group">
+          <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend">Progress</legend>
+
+            {{ template "radios" (items . "progress" "signedByCertificateProvider"
+              (item "signedByCertificateProvider" "Signed by donor and certificate provider")
+              (item "signedByAttorney" "Signed by attorney")
+              (item "signedByAllAttorneys" "Signed by all attorneys")
+              (item "submitted" "Submitted")
+              (item "registered" "Registered")
+            ) }}
+          </fieldset>
+        </div>
 
         <div class="govuk-button-group govuk-!-padding-top-3">
           <button type="submit" class="govuk-button" data-module="govuk-button">Start</button>
