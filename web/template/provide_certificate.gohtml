@@ -10,25 +10,22 @@
       {{ trFormatHtml .App "provideTheCertificateForThisLpaContent" "DonorFullName" .Lpa.Donor.FullName }}
 
       <form novalidate method="post">
-        <div class="moj-ticket-panel">
-          <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
-            <div class="govuk-form-group  {{ if .Errors.Has "agree-to-statement" }}govuk-form-group--error{{ end }}">
-              <fieldset class="govuk-fieldset">
-                <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                  {{ tr .App "yourSignature" }}
-                </legend>
+        <div class="govuk-summary-card">
+          <div class="govuk-summary-card__title-wrapper">
+            <span class="govuk-summary-card__title">{{ tr .App "yourSignature" }}</span>
+          </div>
+          <div class="govuk-summary-card__content">
+            <div class="govuk-form-group govuk-!-margin-bottom-0 {{ if .Errors.Has "agree-to-statement" }}govuk-form-group--error{{ end }}">
+              {{ template "error-message" (errorMessage . "agree-to-statement") }}
 
-                {{ template "error-message" (errorMessage . "agree-to-statement") }}
-
-                <div class="govuk-checkboxes" data-module="govuk-checkboxes">
-                  <div class="govuk-checkboxes__item">
-                    <input class="govuk-checkboxes__input" id="f-agree-to-statement" name="agree-to-statement" type="checkbox" value="1" {{ if .Form.AgreeToStatement }}checked{{ end }}>
-                    <label class="govuk-label govuk-checkboxes__label" for="f-agree-to-statement">
-                      {{ trFormat .App "iAgreeToTheseStatements" "FullName" .Lpa.CertificateProvider.FullName }}
-                    </label>
-                  </div>
+              <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="f-agree-to-statement" name="agree-to-statement" type="checkbox" value="1" {{ if .Form.AgreeToStatement }}checked{{ end }}>
+                  <label class="govuk-label govuk-checkboxes__label" for="f-agree-to-statement">
+                    {{ trFormat .App "iAgreeToTheseStatements" "FullName" .Lpa.CertificateProvider.FullName }}
+                  </label>
                 </div>
-              </fieldset>
+              </div>
             </div>
           </div>
         </div>
