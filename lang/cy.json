@@ -910,5 +910,10 @@
     "proveYourIdentity": "Welsh",
     "proveYourIdentityContent": "<p class=\"govuk-body\">Welsh</p>",
     "beforeYouSignYourLpa": "Welsh",
-    "beforeYouCanProvideYourCertificateForThisLpa": "Welsh"
+    "beforeYouCanProvideYourCertificateForThisLpa": "Welsh",
+    "confirmYourCertificateProviderIsNotRelated": "Welsh",
+    "confirmYourCertificateProviderIsNotRelatedContent": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh <a href=\"{{.Link}}\" class=\"govuk-link\">Welsh</a>.</p><p class=\"govuk-body\">Welsh</p>",
+    "iConfirmThatMyCertificateProviderIsNotRelated": "Welsh",
+    "theBoxToConfirmYourCertificateProviderIsNotRelated": "Welsh",
+    "youMustReviewTheInformationYouHaveEntered": "Welsh"
 }
