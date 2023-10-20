@@ -33,7 +33,8 @@ func Donor(
 		"peopleToNotifyAboutYourLpa",
 		"checkAndSendToYourCertificateProvider",
 		"payForTheLpa",
-		"confirmYourIdentityAndSignTheLpa",
+		"confirmYourIdentity",
+		"signTheLpa",
 		"signedByCertificateProvider",
 		"signedByAttorneys",
 		"submitted",
@@ -200,14 +201,18 @@ func Donor(
 			lpa.Tasks.PayForLpa = actor.PaymentTaskCompleted
 		}
 
-		if progress >= slices.Index(progressValues, "confirmYourIdentityAndSignTheLpa") {
+		if progress >= slices.Index(progressValues, "confirmYourIdentity") {
 			lpa.DonorIdentityUserData = identity.UserData{
 				OK:          true,
-				RetrievedAt: time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
-				FirstNames:  "Jamie",
-				LastName:    "Smith",
+				RetrievedAt: time.Now(),
+				FirstNames:  lpa.Donor.FirstNames,
+				LastName:    lpa.Donor.LastName,
+				DateOfBirth: lpa.Donor.DateOfBirth,
 			}
+			lpa.Tasks.ConfirmYourIdentityAndSign = actor.TaskInProgress
+		}
 
+		if progress >= slices.Index(progressValues, "signTheLpa") {
 			lpa.WantToApplyForLpa = true
 			lpa.WantToSignLpa = true
 			lpa.SignedAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
