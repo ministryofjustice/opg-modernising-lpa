@@ -12,31 +12,18 @@
       <form novalidate method="post">
         {{ template "input" (input . "email" "email" "" "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
 
-        <fieldset class="govuk-fieldset">
-          <legend class="govuk-fieldset__legend">Progress</legend>
-          <div class="govuk-form-group">
-            <div class="govuk-radios" data-module="govuk-radios">
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-progress" name="progress" type="radio" value="paid" checked>
-                <label class="govuk-label govuk-radios__label" for="f-progress">
-                  Paid
-                </label>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-progress" name="progress" type="radio" value="signedByDonor">
-                <label class="govuk-label govuk-radios__label" for="f-progress">
-                  Signed by donor
-                </label>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="f-progress" name="progress" type="radio" value="detailsConfirmed">
-                <label class="govuk-label govuk-radios__label" for="f-progress">
-                  Details confirmed
-                </label>
-              </div>
-            </div>
-          </div>
-        </fieldset>
+        <div class="govuk-form-group">
+          <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend">Progress</legend>
+
+            {{ template "radios" (items . "progress" "paid"
+              (item "paid" "Paid")
+              (item "signedByDonor" "Signed by donor")
+              (item "confirmYourDetails" "confirmYourDetails")
+              (item "confirmYourIdentity" "confirmYourIdentity")
+            ) }}
+          </fieldset>
+        </div>
         
         <div class="govuk-button-group govuk-!-padding-top-3">
           <button type="submit" class="govuk-button" data-module="govuk-button" name="journey" value="certificate-provider">Start</button>
