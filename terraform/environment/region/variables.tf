@@ -96,3 +96,7 @@ variable "receive_account_ids" {
   description = "IDs of accounts to receive messages from"
   default     = []
 }
+
+variable "use_mock_onelogin" {
+  type = bool
+}
