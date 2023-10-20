@@ -76,7 +76,7 @@ func TestGetTaskList(t *testing.T) {
 		"confirmed identity": {
 			lpa: &page.Lpa{
 				ID:                    "lpa-id",
-				DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin},
+				DonorIdentityUserData: identity.UserData{OK: true},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{

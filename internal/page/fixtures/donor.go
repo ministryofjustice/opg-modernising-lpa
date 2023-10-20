@@ -72,7 +72,7 @@ func Donor(
 		}
 
 		if progress >= slices.Index(progressValues, "provideYourDetails") {
-			lpa.Donor = makeDonor("Sam", "Smith")
+			lpa.Donor = makeDonor()
 			lpa.Type = page.LpaTypePropertyFinance
 			if lpaType == "hw" {
 				lpa.Type = page.LpaTypeHealthWelfare
@@ -203,7 +203,6 @@ func Donor(
 		if progress >= slices.Index(progressValues, "confirmYourIdentityAndSignTheLpa") {
 			lpa.DonorIdentityUserData = identity.UserData{
 				OK:          true,
-				Provider:    identity.OneLogin,
 				RetrievedAt: time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC),
 				FirstNames:  "Jamie",
 				LastName:    "Smith",

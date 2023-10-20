@@ -88,10 +88,10 @@ func makeTrustCorporation(name string) actor.TrustCorporation {
 	}
 }
 
-func makeDonor(firstNames, lastName string) actor.Donor {
+func makeDonor() actor.Donor {
 	return actor.Donor{
-		FirstNames: firstNames,
-		LastName:   lastName,
+		FirstNames: "Sam",
+		LastName:   "Smith",
 		Address: place.Address{
 			Line1:      "1 RICHMOND PLACE",
 			Line2:      "KINGS HEATH",
