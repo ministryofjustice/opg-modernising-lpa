@@ -135,7 +135,7 @@ describe('People to notify', () => {
     });
 
     it('hides action links when LPA has been signed', () => {
-        cy.visit('/fixtures?redirect=/choose-people-to-notify-summary&progress=confirmYourIdentityAndSignTheLpa');
+        cy.visit('/fixtures?redirect=/choose-people-to-notify-summary&progress=signTheLpa');
 
         cy.checkA11yApp();
 
