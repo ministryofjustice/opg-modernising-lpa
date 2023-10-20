@@ -29,7 +29,7 @@ var (
 	publicURL          = env.Get("PUBLIC_URL", "http://localhost:8080")
 	internalURL        = env.Get("INTERNAL_URL", "http://mock-onelogin:8080")
 	clientId           = env.Get("CLIENT_ID", "theClientId")
-	serviceRedirectUrl = env.Get("REDIRECT_RUL", "http://localhost:5050/auth/redirect")
+	serviceRedirectUrl = env.Get("REDIRECT_URL", "http://localhost:5050/auth/redirect")
 
 	signingKey, _ = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 
