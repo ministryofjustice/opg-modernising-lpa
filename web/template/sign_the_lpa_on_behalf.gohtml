@@ -56,26 +56,24 @@
             <div class="govuk-form-group {{ if .Errors.Has "sign-lpa" }}govuk-form-group--error{{ end }}">
               {{ template "error-message" (errorMessage . "sign-lpa") }}
 
-              <div class="govuk-checkboxes {{ if .Errors.Has "sign-lpa" }}govuk-checkboxes--error{{ end }}">
+              <div class="govuk-checkboxes">
                 <div class="govuk-checkboxes__item">
-                  <input class="govuk-checkboxes__input" id="f-sign-lpa" name="sign-lpa" type="checkbox" value="{{ .WantToSignFormValue }}" {{ if eq .Lpa.WantToSignLpa true }}checked{{ end }}>
+                  <input class="govuk-checkboxes__input" id="f-sign-lpa" name="sign-lpa" type="checkbox" value="{{ .WantToSignFormValue }}" {{ if .Lpa.WantToSignLpa }}checked{{ end }}>
                   <label class="govuk-label govuk-checkboxes__label" for="f-sign-lpa">
                     {{ trFormat .App "donorWantsToSignThisLpa" "DonorFullName" .Lpa.Donor.FullName }}
                   </label>
                 </div>
 
                 <div class="govuk-checkboxes__item">
-                  <input class="govuk-checkboxes__input" id="f-sign-lpa-2" name="sign-lpa" type="checkbox" value="{{ .WantToApplyFormValue }}" {{ if eq .Lpa.WantToApplyForLpa true }}checked{{ end }}>
+                  <input class="govuk-checkboxes__input" id="f-sign-lpa-2" name="sign-lpa" type="checkbox" value="{{ .WantToApplyFormValue }}" {{ if .Lpa.WantToApplyForLpa }}checked{{ end }}>
                   <label class="govuk-label govuk-checkboxes__label" for="f-sign-lpa-2">
                     {{ trFormat .App "donorWantsToApply" "DonorFullName" .Lpa.Donor.FullName }}
                   </label>
                 </div>
-
-                <div class="govuk-body">
-                  {{ tr .App "whenYouTickAsAuthorisedSignatory" }}
-                </div>
               </div>
             </div>
+
+            <div class="govuk-body">{{ tr .App "whenYouTickAsAuthorisedSignatory" }}</div>
           </div>
         </div>
 
