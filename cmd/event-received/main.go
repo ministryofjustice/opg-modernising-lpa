@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -110,6 +111,9 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) error {
 
 	shareCodeSender := page.NewShareCodeSender(app.NewShareCodeStore(dynamoClient), notifyClient, appPublicURL, random.String)
 	now := time.Now
+
+	eJson, _ := json.Marshal(event)
+	log.Println(string(eJson))
 
 	switch event.DetailType {
 	case evidenceReceivedEventName:
