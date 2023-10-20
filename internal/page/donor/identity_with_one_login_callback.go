@@ -28,7 +28,7 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 			if lpa.DonorIdentityConfirmed() {
 				return appData.Redirect(w, r, lpa, page.Paths.ReadYourLpa.Format(lpa.ID))
 			} else {
-				return appData.Redirect(w, r, lpa, page.Paths.SelectYourIdentityOptions1.Format(lpa.ID))
+				return appData.Redirect(w, r, lpa, page.Paths.ProveYourIdentity.Format(lpa.ID))
 			}
 		}
 

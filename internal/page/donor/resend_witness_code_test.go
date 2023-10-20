@@ -76,7 +76,7 @@ func TestPostResendWitnessCode(t *testing.T) {
 
 			lpa := &page.Lpa{
 				ID:                    "lpa-id",
-				DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.DrivingLicencePaper},
+				DonorIdentityUserData: identity.UserData{OK: true},
 			}
 
 			witnessCodeSender := newMockWitnessCodeSender(t)
