@@ -125,6 +125,7 @@ type AppPaths struct {
 	ChooseReplacementAttorneysAddress                    LpaPath
 	ChooseReplacementAttorneysSummary                    LpaPath
 	ChooseYourCertificateProvider                        LpaPath
+	ConfirmYourCertificateProviderIsNotRelated           LpaPath
 	DoYouWantReplacementAttorneys                        LpaPath
 	DoYouWantToNotifyPeople                              LpaPath
 	EnterReplacementTrustCorporation                     LpaPath
@@ -252,6 +253,7 @@ var Paths = AppPaths{
 	ChooseReplacementAttorneysAddress:                    "/choose-replacement-attorneys-address",
 	ChooseReplacementAttorneysSummary:                    "/choose-replacement-attorneys-summary",
 	ChooseYourCertificateProvider:                        "/choose-your-certificate-provider",
+	ConfirmYourCertificateProviderIsNotRelated:           "/confirm-your-certificate-provider-is-not-related",
 	CookiesConsent:                                       "/cookies-consent",
 	Dashboard:                                            "/dashboard",
 	DashboardFixtures:                                    "/fixtures/dashboard",

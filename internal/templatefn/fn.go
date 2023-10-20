@@ -140,8 +140,16 @@ func link(app page.AppData, path string) string {
 	return app.BuildUrl(path)
 }
 
-func contains(needle string, list []string) bool {
-	return slices.Contains(list, needle)
+func contains(needle string, list any) bool {
+	if list == nil {
+		return false
+	}
+
+	if slist, ok := list.([]string); ok {
+		return slices.Contains(slist, needle)
+	}
+
+	return false
 }
 
 func tr(app page.AppData, messageID string) string {
