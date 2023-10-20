@@ -20,13 +20,13 @@ func TestGetTaskList(t *testing.T) {
 		expected         func([]taskListSection) []taskListSection
 	}{
 		"empty": {
-			lpa: &page.Lpa{ID: "lpa-id"},
+			lpa: &page.Lpa{ID: "lpa-id", Donor: actor.Donor{LastName: "a"}},
 			expected: func(sections []taskListSection) []taskListSection {
 				return sections
 			},
 		},
 		"cannot sign": {
-			lpa: &page.Lpa{ID: "lpa-id", Donor: actor.Donor{CanSign: form.No}},
+			lpa: &page.Lpa{ID: "lpa-id", Donor: actor.Donor{LastName: "a", CanSign: form.No}},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items[7].Hidden = false
 
@@ -34,14 +34,14 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"evidence received": {
-			lpa:              &page.Lpa{ID: "lpa-id"},
+			lpa:              &page.Lpa{ID: "lpa-id", Donor: actor.Donor{LastName: "a"}},
 			evidenceReceived: true,
 			expected: func(sections []taskListSection) []taskListSection {
 				return sections
 			},
 		},
 		"more evidence required": {
-			lpa:              &page.Lpa{ID: "lpa-id", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}},
+			lpa:              &page.Lpa{ID: "lpa-id", Donor: actor.Donor{LastName: "a"}, Tasks: page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}},
 			evidenceReceived: true,
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[1].Items = []taskListItem{
@@ -52,7 +52,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"fee denied": {
-			lpa:              &page.Lpa{ID: "lpa-id", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskDenied}},
+			lpa:              &page.Lpa{ID: "lpa-id", Donor: actor.Donor{LastName: "a"}, Tasks: page.Tasks{PayForLpa: actor.PaymentTaskDenied}},
 			evidenceReceived: true,
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[1].Items = []taskListItem{
@@ -63,7 +63,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"hw": {
-			lpa: &page.Lpa{ID: "lpa-id", Type: page.LpaTypeHealthWelfare},
+			lpa: &page.Lpa{ID: "lpa-id", Type: page.LpaTypeHealthWelfare, Donor: actor.Donor{LastName: "a"}},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items[3] = taskListItem{
 					Name: "lifeSustainingTreatment",
@@ -76,12 +76,25 @@ func TestGetTaskList(t *testing.T) {
 		"confirmed identity": {
 			lpa: &page.Lpa{
 				ID:                    "lpa-id",
-				DonorIdentityUserData: identity.UserData{OK: true},
+				Donor:                 actor.Donor{LastName: "a"},
+				DonorIdentityUserData: identity.UserData{OK: true, LastName: "a"},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
 					{Name: "confirmYourIdentityAndSign", Path: page.Paths.ReadYourLpa.Format("lpa-id")},
 				}
+
+				return sections
+			},
+		},
+		"certificate provider has similar name": {
+			lpa: &page.Lpa{
+				ID:                  "lpa-id",
+				Donor:               actor.Donor{LastName: "a"},
+				CertificateProvider: actor.CertificateProvider{LastName: "a"},
+			},
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[0].Items[8].Path = page.Paths.ConfirmYourCertificateProviderIsNotRelated.Format("lpa-id")
 
 				return sections
 			},
@@ -92,6 +105,7 @@ func TestGetTaskList(t *testing.T) {
 				Donor: actor.Donor{
 					FirstNames: "this",
 				},
+				CertificateProvider:  actor.CertificateProvider{LastName: "a"},
 				Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{}, {}}},
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 				Tasks: page.Tasks{
