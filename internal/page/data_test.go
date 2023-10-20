@@ -154,22 +154,18 @@ func TestIdentityConfirmed(t *testing.T) {
 		"set": {
 			lpa: &Lpa{
 				Donor:                 actor.Donor{FirstNames: "a", LastName: "b"},
-				DonorIdentityUserData: identity.UserData{OK: true, Provider: identity.OneLogin, FirstNames: "a", LastName: "b"},
+				DonorIdentityUserData: identity.UserData{OK: true, FirstNames: "a", LastName: "b"},
 			},
 			expected: true,
 		},
-		"missing provider": {
-			lpa:      &Lpa{DonorIdentityUserData: identity.UserData{OK: true}},
-			expected: false,
-		},
 		"not ok": {
-			lpa:      &Lpa{DonorIdentityUserData: identity.UserData{Provider: identity.OneLogin}},
+			lpa:      &Lpa{DonorIdentityUserData: identity.UserData{}},
 			expected: false,
 		},
 		"no match": {
 			lpa: &Lpa{
 				Donor:                 actor.Donor{FirstNames: "a", LastName: "b"},
-				DonorIdentityUserData: identity.UserData{Provider: identity.OneLogin},
+				DonorIdentityUserData: identity.UserData{},
 			},
 			expected: false,
 		},
@@ -319,12 +315,12 @@ func TestCanGoTo(t *testing.T) {
 			url:      Paths.AboutPayment.Format("123"),
 			expected: true,
 		},
-		"select your identity options without task": {
+		"identity without task": {
 			lpa:      &Lpa{},
-			url:      Paths.SelectYourIdentityOptions.Format("123"),
+			url:      Paths.IdentityWithOneLogin.Format("123"),
 			expected: false,
 		},
-		"select your identity options with tasks": {
+		"identity with tasks": {
 			lpa: &Lpa{
 				Donor: actor.Donor{
 					CanSign: form.Yes,
@@ -342,7 +338,7 @@ func TestCanGoTo(t *testing.T) {
 					PayForLpa:                  actor.PaymentTaskCompleted,
 				},
 			},
-			url:      Paths.SelectYourIdentityOptions.Format("123"),
+			url:      Paths.IdentityWithOneLogin.Format("123"),
 			expected: true,
 		},
 	}
