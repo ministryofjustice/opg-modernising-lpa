@@ -50,7 +50,7 @@ type uploadEvidenceData struct {
 	Errors               validation.List
 	NumberOfAllowedFiles int
 	FeeType              page.FeeType
-	Evidence             []page.Evidence
+	Evidence             page.Evidence
 	MimeTypes            []string
 	Deleted              string
 	UploadedCount        int
@@ -83,7 +83,7 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 							return err
 						}
 
-						lpa.Evidence = append(lpa.Evidence, page.Evidence{Key: key, Filename: file.Filename})
+						lpa.Evidence.Documents = append(lpa.Evidence.Documents, page.Document{Key: key, Filename: file.Filename})
 						data.UploadedCount += 1
 					}
 
@@ -97,7 +97,7 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 					return payer.Pay(appData, w, r, lpa)
 
 				case "delete":
-					evidence := lpa.Evidence.GetByKey(form.DeleteKey)
+					evidence := lpa.Evidence.Get(form.DeleteKey)
 					if evidence.Key != "" {
 						if err := evidenceS3Client.DeleteObject(r.Context(), evidence.Key); err != nil {
 							return err
