@@ -56,3 +56,27 @@ module "app" {
     aws.region = aws.region
   }
 }
+
+module "mock_onelogin" {
+  source                                  = "./modules/mock_onelogin"
+  ecs_cluster                             = aws_ecs_cluster.main.id
+  ecs_execution_role                      = var.iam_roles.ecs_execution_role
+  ecs_task_role                           = var.iam_roles.app_ecs_task_role
+  ecs_service_desired_count               = var.use_mock_onelogin ? 1 : 0
+  ecs_application_log_group_name          = module.application_logs.cloudwatch_log_group.name
+  ecs_capacity_provider                   = var.ecs_capacity_provider
+  mock_onelogin_service_repository_url    = var.mock_onelogin_service_repository_url
+  mock_onelogin_service_container_version = var.mock_onelogin_service_container_version
+  ingress_allow_list_cidr                 = concat(var.ingress_allow_list_cidr, split(",", data.aws_ssm_parameter.additional_allowed_ingress_cidrs.value))
+  alb_deletion_protection_enabled         = var.alb_deletion_protection_enabled
+  container_port                          = 8080
+  public_access_enabled                   = var.public_access_enabled
+  network = {
+    vpc_id              = data.aws_vpc.main.id
+    application_subnets = data.aws_subnet.application.*.id
+    public_subnets      = data.aws_subnet.public.*.id
+  }
+  providers = {
+    aws.region = aws.region
+  }
+}

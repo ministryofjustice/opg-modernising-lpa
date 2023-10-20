@@ -48,7 +48,6 @@ services:
     environment:
       - PUBLIC_URL=http://localhost:7012
       - CLIENT_ID=client-id-value
-      - REDIRECT_URL=http://localhost:5050/auth/redirect
 
   mock-notify:
     build:
