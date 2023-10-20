@@ -543,6 +543,29 @@ func (l *Lpa) HasUnsentReducedFeesEvidence() bool {
 	return false
 }
 
+func (l *Lpa) CertificateProviderSharesLastName() bool {
+	certificateProviderParts := strings.Split(l.CertificateProvider.LastName, "-")
+
+	donorParts := strings.Split(l.Donor.LastName, "-")
+	for _, certificateProviderPart := range certificateProviderParts {
+		if slices.Contains(donorParts, certificateProviderPart) {
+			return true
+		}
+	}
+
+	for _, attorney := range append(l.Attorneys.Attorneys, l.ReplacementAttorneys.Attorneys...) {
+		attorneyParts := strings.Split(attorney.LastName, "-")
+
+		for _, certificateProviderPart := range certificateProviderParts {
+			if slices.Contains(attorneyParts, certificateProviderPart) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 func ChooseAttorneysState(attorneys actor.Attorneys, decisions actor.AttorneyDecisions) actor.TaskState {
 	if attorneys.Len() == 0 {
 		return actor.TaskNotStarted
