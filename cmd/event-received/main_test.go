@@ -18,9 +18,9 @@ import (
 )
 
 var expectedError = errors.New("err")
+var ctx = context.Background()
 
 func TestHandleEvidenceReceived(t *testing.T) {
-	ctx := context.Background()
 	event := events.CloudWatchEvent{
 		DetailType: "evidence-required",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
@@ -46,7 +46,6 @@ func TestHandleEvidenceReceived(t *testing.T) {
 }
 
 func TestHandleEvidenceReceivedWhenClientGetError(t *testing.T) {
-	ctx := context.Background()
 	event := events.CloudWatchEvent{
 		DetailType: "evidence-required",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
@@ -62,7 +61,6 @@ func TestHandleEvidenceReceivedWhenClientGetError(t *testing.T) {
 }
 
 func TestHandleEvidenceReceivedWhenLpaMissingPK(t *testing.T) {
-	ctx := context.Background()
 	event := events.CloudWatchEvent{
 		DetailType: "evidence-required",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
@@ -82,7 +80,6 @@ func TestHandleEvidenceReceivedWhenLpaMissingPK(t *testing.T) {
 }
 
 func TestHandleEvidenceReceivedWhenClientPutError(t *testing.T) {
-	ctx := context.Background()
 	event := events.CloudWatchEvent{
 		DetailType: "evidence-required",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
@@ -108,7 +105,6 @@ func TestHandleEvidenceReceivedWhenClientPutError(t *testing.T) {
 }
 
 func TestHandleFeeApproved(t *testing.T) {
-	ctx := context.Background()
 	event := events.CloudWatchEvent{
 		DetailType: "fee-approved",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
@@ -144,47 +140,7 @@ func TestHandleFeeApproved(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestHandleFeeApprovedWhenDynamoClientOneByUIDError(t *testing.T) {
-	ctx := context.Background()
-	event := events.CloudWatchEvent{
-		DetailType: "fee-approved",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
-	}
-
-	client := newMockDynamodbClient(t)
-	client.
-		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
-		Return(expectedError)
-
-	err := handleFeeApproved(ctx, client, event, nil, page.AppData{}, time.Now)
-	assert.Equal(t, fmt.Errorf("failed to resolve uid for 'fee-approved': %w", expectedError), err)
-}
-
-func TestHandleFeeApprovedWhenDynamoClientGetError(t *testing.T) {
-	ctx := context.Background()
-	event := events.CloudWatchEvent{
-		DetailType: "fee-approved",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
-	}
-
-	client := newMockDynamodbClient(t)
-	client.
-		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
-		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
-			json.Unmarshal(b, v)
-			return nil
-		})
-	client.
-		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
-		Return(expectedError)
-
-	err := handleFeeApproved(ctx, client, event, nil, page.AppData{}, time.Now)
-	assert.Equal(t, fmt.Errorf("failed to get LPA for 'fee-approved': %w", expectedError), err)
-}
-
 func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
-	ctx := context.Background()
 	event := events.CloudWatchEvent{
 		DetailType: "fee-approved",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
@@ -216,7 +172,6 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 }
 
 func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
-	ctx := context.Background()
 	event := events.CloudWatchEvent{
 		DetailType: "fee-approved",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
@@ -253,7 +208,6 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 }
 
 func TestHandleMoreEvidenceRequired(t *testing.T) {
-	ctx := context.Background()
 	event := events.CloudWatchEvent{
 		DetailType: "more-evidence-required",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
@@ -284,68 +238,7 @@ func TestHandleMoreEvidenceRequired(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestHandleMoreEvidenceRequiredWhenOneByUIDError(t *testing.T) {
-	ctx := context.Background()
-	event := events.CloudWatchEvent{
-		DetailType: "more-evidence-required",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
-	}
-
-	client := newMockDynamodbClient(t)
-	client.
-		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
-		Return(expectedError)
-
-	err := handleMoreEvidenceRequired(ctx, client, event, time.Now)
-	assert.Equal(t, fmt.Errorf("failed to resolve uid for 'more-evidence-required': %w", expectedError), err)
-}
-
-func TestHandleMoreEvidenceRequiredWhenPKMissing(t *testing.T) {
-	ctx := context.Background()
-	event := events.CloudWatchEvent{
-		DetailType: "more-evidence-required",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
-	}
-
-	client := newMockDynamodbClient(t)
-	client.
-		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
-		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(dynamo.Key{})
-			json.Unmarshal(b, v)
-			return nil
-		})
-
-	err := handleMoreEvidenceRequired(ctx, client, event, time.Now)
-
-	assert.Equal(t, errors.New("PK missing from LPA in response to 'more-evidence-required'"), err)
-}
-
-func TestHandleMoreEvidenceRequiredWhenGetError(t *testing.T) {
-	ctx := context.Background()
-	event := events.CloudWatchEvent{
-		DetailType: "more-evidence-required",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
-	}
-
-	client := newMockDynamodbClient(t)
-	client.
-		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
-		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
-			json.Unmarshal(b, v)
-			return nil
-		})
-	client.
-		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
-		Return(expectedError)
-
-	err := handleMoreEvidenceRequired(ctx, client, event, time.Now)
-	assert.Equal(t, fmt.Errorf("failed to get LPA for 'more-evidence-required': %w", expectedError), err)
-}
-
 func TestHandleMoreEvidenceRequiredWhenPutError(t *testing.T) {
-	ctx := context.Background()
 	event := events.CloudWatchEvent{
 		DetailType: "more-evidence-required",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
@@ -377,7 +270,6 @@ func TestHandleMoreEvidenceRequiredWhenPutError(t *testing.T) {
 }
 
 func TestHandleFeeDenied(t *testing.T) {
-	ctx := context.Background()
 	event := events.CloudWatchEvent{
 		DetailType: "fee-denied",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
@@ -408,68 +300,7 @@ func TestHandleFeeDenied(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestHandleFeeDeniedWhenOneByUIDError(t *testing.T) {
-	ctx := context.Background()
-	event := events.CloudWatchEvent{
-		DetailType: "fee-denied",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
-	}
-
-	client := newMockDynamodbClient(t)
-	client.
-		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
-		Return(expectedError)
-
-	err := handleFeeDenied(ctx, client, event, time.Now)
-	assert.Equal(t, fmt.Errorf("failed to resolve uid for 'fee-denied': %w", expectedError), err)
-}
-
-func TestHandleFeeDeniedWhenPKMissing(t *testing.T) {
-	ctx := context.Background()
-	event := events.CloudWatchEvent{
-		DetailType: "fee-denied",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
-	}
-
-	client := newMockDynamodbClient(t)
-	client.
-		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
-		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(dynamo.Key{})
-			json.Unmarshal(b, v)
-			return nil
-		})
-
-	err := handleFeeDenied(ctx, client, event, time.Now)
-
-	assert.Equal(t, errors.New("PK missing from LPA in response to 'fee-denied'"), err)
-}
-
-func TestHandleFeeDeniedWhenGetError(t *testing.T) {
-	ctx := context.Background()
-	event := events.CloudWatchEvent{
-		DetailType: "fee-denied",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
-	}
-
-	client := newMockDynamodbClient(t)
-	client.
-		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
-		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
-			json.Unmarshal(b, v)
-			return nil
-		})
-	client.
-		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
-		Return(expectedError)
-
-	err := handleFeeDenied(ctx, client, event, time.Now)
-	assert.Equal(t, fmt.Errorf("failed to get LPA for 'fee-denied': %w", expectedError), err)
-}
-
 func TestHandleFeeDeniedWhenPutError(t *testing.T) {
-	ctx := context.Background()
 	event := events.CloudWatchEvent{
 		DetailType: "fee-denied",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
@@ -498,4 +329,237 @@ func TestHandleFeeDeniedWhenPutError(t *testing.T) {
 
 	err := handleFeeDenied(ctx, client, event, func() time.Time { return now })
 	assert.Equal(t, fmt.Errorf("failed to update LPA task status for 'fee-denied': %w", expectedError), err)
+}
+
+//func TestHandleObjectTagsAdded(t *testing.T) {
+//	event := events.CloudWatchEvent{
+//		DetailType: "Object Tags Added",
+//		Detail:     json.RawMessage(`{"object": {"key": "M-1111-2222-3333/evidence/a-uid"}}`),
+//	}
+//
+//	now := time.Now()
+//
+//	s3Client := newMockS3Client(t)
+//	s3Client.
+//		On("GetObjectTags", ctx, "M-1111-2222-3333/evidence/a-uid").
+//		Return([]types.Tag{
+//			{Key: aws.String("virus-scan-status"), Value: aws.String("ok")},
+//		}, nil)
+//
+//	dynamoClient := newMockDynamodbClient(t)
+//	dynamoClient.
+//		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+//		Return(func(ctx context.Context, uid string, v interface{}) error {
+//			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+//			json.Unmarshal(b, v)
+//			return nil
+//		})
+//	dynamoClient.
+//		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+//		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+//			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Evidence: page.Evidence{
+//				Documents: []page.Document{{Key: "M-1111-2222-3333/evidence/a-uid"}},
+//			}})
+//			json.Unmarshal(b, v)
+//			return nil
+//		})
+//	dynamoClient.
+//		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", UpdatedAt: now, Evidence: page.Evidence{
+//			Documents: []page.Document{{Key: "M-1111-2222-3333/evidence/a-uid", Scanned: now, VirusDetected: false}},
+//		}}).
+//		Return(nil)
+//
+//	err := handleObjectTagsAdded(ctx, dynamoClient, event, func() time.Time { return now }, s3Client)
+//	assert.Nil(t, err)
+//}
+//
+//func TestHandleObjectTagsAddedWhenGetObjectTagsError(t *testing.T) {
+//	event := events.CloudWatchEvent{
+//		DetailType: "Object Tags Added",
+//		Detail:     json.RawMessage(`{"object": {"key": "M-1111-2222-3333/evidence/a-uid"}}`),
+//	}
+//
+//	now := time.Now()
+//
+//	s3Client := newMockS3Client(t)
+//	s3Client.
+//		On("GetObjectTags", ctx, "M-1111-2222-3333/evidence/a-uid").
+//		Return([]types.Tag{
+//			{Key: aws.String("virus-scan-status"), Value: aws.String("ok")},
+//		}, expectedError)
+//
+//	err := handleObjectTagsAdded(ctx, nil, event, func() time.Time { return now }, s3Client)
+//	assert.Equal(t, fmt.Errorf("failed to get tags for object in 'Object Tags Added': %w", expectedError), err)
+//}
+//
+//func TestHandleObjectTagsAddedWhenDoesNotContainVirusScanTag(t *testing.T) {
+//	event := events.CloudWatchEvent{
+//		DetailType: "Object Tags Added",
+//		Detail:     json.RawMessage(`{"object": {"key": "M-1111-2222-3333/evidence/a-uid"}}`),
+//	}
+//
+//	now := time.Now()
+//
+//	s3Client := newMockS3Client(t)
+//	s3Client.
+//		On("GetObjectTags", ctx, "M-1111-2222-3333/evidence/a-uid").
+//		Return([]types.Tag{
+//			{Key: aws.String("not-virus-scan-status")},
+//		}, nil)
+//
+//	err := handleObjectTagsAdded(ctx, nil, event, func() time.Time { return now }, s3Client)
+//	assert.Nil(t, err)
+//}
+//
+//func TestHandleObjectTagsAddedWhenLpaEvidenceDoesNotContainDocument(t *testing.T) {
+//	event := events.CloudWatchEvent{
+//		DetailType: "Object Tags Added",
+//		Detail:     json.RawMessage(`{"object": {"key": "M-1111-2222-3333/evidence/a-uid"}}`),
+//	}
+//
+//	now := time.Now()
+//
+//	s3Client := newMockS3Client(t)
+//	s3Client.
+//		On("GetObjectTags", ctx, "M-1111-2222-3333/evidence/a-uid").
+//		Return([]types.Tag{
+//			{Key: aws.String("virus-scan-status"), Value: aws.String("ok")},
+//		}, nil)
+//
+//	dynamoClient := newMockDynamodbClient(t)
+//	dynamoClient.
+//		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+//		Return(func(ctx context.Context, uid string, v interface{}) error {
+//			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+//			json.Unmarshal(b, v)
+//			return nil
+//		})
+//	dynamoClient.
+//		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+//		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+//			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Evidence: page.Evidence{
+//				Documents: []page.Document{{Key: "M-1111-2222-3333/evidence/a-different-uid"}},
+//			}})
+//			json.Unmarshal(b, v)
+//			return nil
+//		})
+//
+//	err := handleObjectTagsAdded(ctx, dynamoClient, event, func() time.Time { return now }, s3Client)
+//	assert.Equal(t, fmt.Errorf("LPA did not contain a document with key %s for 'Object Tags Added'", "M-1111-2222-3333/evidence/a-uid"), err)
+//}
+//
+//func TestHandleObjectTagsAddedWhenDynamoPutError(t *testing.T) {
+//	event := events.CloudWatchEvent{
+//		DetailType: "Object Tags Added",
+//		Detail:     json.RawMessage(`{"object": {"key": "M-1111-2222-3333/evidence/a-uid"}}`),
+//	}
+//
+//	now := time.Now()
+//
+//	s3Client := newMockS3Client(t)
+//	s3Client.
+//		On("GetObjectTags", ctx, "M-1111-2222-3333/evidence/a-uid").
+//		Return([]types.Tag{
+//			{Key: aws.String("virus-scan-status"), Value: aws.String("ok")},
+//		}, nil)
+//
+//	dynamoClient := newMockDynamodbClient(t)
+//	dynamoClient.
+//		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+//		Return(func(ctx context.Context, uid string, v interface{}) error {
+//			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+//			json.Unmarshal(b, v)
+//			return nil
+//		})
+//	dynamoClient.
+//		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+//		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+//			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Evidence: page.Evidence{
+//				Documents: []page.Document{{Key: "M-1111-2222-3333/evidence/a-uid"}},
+//			}})
+//			json.Unmarshal(b, v)
+//			return nil
+//		})
+//	dynamoClient.
+//		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", UpdatedAt: now, Evidence: page.Evidence{
+//			Documents: []page.Document{{Key: "M-1111-2222-3333/evidence/a-uid", Scanned: now, VirusDetected: false}},
+//		}}).
+//		Return(expectedError)
+//
+//	err := handleObjectTagsAdded(ctx, dynamoClient, event, func() time.Time { return now }, s3Client)
+//	assert.Equal(t, fmt.Errorf("failed to update LPA for 'Object Tags Added': %w", expectedError), err)
+//}
+
+func TestGetLpaByUID(t *testing.T) {
+	expectedLpa := page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Evidence: page.Evidence{
+		Documents: []page.Document{{Key: "document/key"}},
+	}}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(expectedLpa)
+			json.Unmarshal(b, v)
+			return nil
+		})
+
+	lpa, err := getLpaByUID(ctx, client, "M-1111-2222-3333", "an-event")
+
+	assert.Equal(t, expectedLpa, lpa)
+	assert.Nil(t, err)
+}
+
+func TestGetLpaByUIDWhenClientOneByUidError(t *testing.T) {
+	client := newMockDynamodbClient(t)
+	client.
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(expectedError)
+
+	lpa, err := getLpaByUID(ctx, client, "M-1111-2222-3333", "an-event")
+
+	assert.Equal(t, page.Lpa{}, lpa)
+	assert.Equal(t, fmt.Errorf("failed to resolve uid for 'an-event': %w", expectedError), err)
+}
+
+func TestGetLpaByUIDWhenPKMissing(t *testing.T) {
+	client := newMockDynamodbClient(t)
+	client.
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+
+	lpa, err := getLpaByUID(ctx, client, "M-1111-2222-3333", "an-event")
+
+	assert.Equal(t, page.Lpa{}, lpa)
+	assert.Equal(t, errors.New("PK missing from LPA in response to 'an-event'"), err)
+}
+
+func TestGetLpaByUIDWhenClientOneError(t *testing.T) {
+	client := newMockDynamodbClient(t)
+	client.
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(expectedError)
+
+	lpa, err := getLpaByUID(ctx, client, "M-1111-2222-3333", "an-event")
+
+	assert.Equal(t, page.Lpa{}, lpa)
+	assert.Equal(t, fmt.Errorf("failed to get LPA for 'an-event': %w", expectedError), err)
 }

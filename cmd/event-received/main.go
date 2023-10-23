@@ -3,16 +3,18 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -20,7 +22,17 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
+)
+
+const (
+	virusFound                    = "infected"
+	evidenceReceivedEventName     = "evidence-received"
+	feeApprovedEventName          = "fee-approved"
+	feeDeniedEventName            = "fee-denied"
+	moreEvidenceRequiredEventName = "more-evidence-required"
+	objectTagsAddedEventName      = "Object Tags Added"
 )
 
 type uidEvent struct {
@@ -34,17 +46,32 @@ type dynamodbClient interface {
 	Put(ctx context.Context, v interface{}) error
 }
 
+//go:generate mockery --testonly --inpackage --name s3Client --structname mockS3Client
+type s3Client interface {
+	GetObjectTags(ctx context.Context, key string) ([]types.Tag, error)
+}
+
 //go:generate mockery --testonly --inpackage --name shareCodeSender --structname mockShareCodeSender
 type shareCodeSender interface {
 	SendCertificateProvider(context.Context, notify.Template, page.AppData, bool, *page.Lpa) error
 }
 
-func Handler(ctx context.Context, event events.CloudWatchEvent) error {
+type Event struct {
+	events.S3Event
+	events.CloudWatchEvent
+}
+
+func (e Event) isS3Event() bool {
+	return len(e.Records) > 0
+}
+
+func Handler(ctx context.Context, event Event) error {
 	tableName := os.Getenv("LPAS_TABLE")
 	notifyIsProduction := os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
 	appPublicURL := os.Getenv("APP_PUBLIC_URL")
 	awsBaseURL := os.Getenv("AWS_BASE_URL")
 	notifyBaseURL := os.Getenv("GOVUK_NOTIFY_BASE_URL")
+	evidenceBucketName := os.Getenv("UPLOADS_S3_BUCKET_NAME")
 
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
@@ -60,6 +87,8 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) error {
 			}, nil
 		})
 	}
+
+	s3Client := s3.NewClient(cfg, evidenceBucketName)
 
 	dynamoClient, err := dynamo.NewClient(cfg, tableName)
 	if err != nil {
@@ -86,15 +115,22 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) error {
 	shareCodeSender := page.NewShareCodeSender(app.NewShareCodeStore(dynamoClient), notifyClient, appPublicURL, random.String)
 	now := time.Now
 
+	eJson, _ := json.Marshal(event)
+	log.Println(string(eJson))
+
+	if event.isS3Event() {
+		return handleObjectTagsAdded(ctx, dynamoClient, event.S3Event, now, s3Client)
+	}
+
 	switch event.DetailType {
-	case "evidence-received":
-		return handleEvidenceReceived(ctx, dynamoClient, event)
-	case "fee-approved":
-		return handleFeeApproved(ctx, dynamoClient, event, shareCodeSender, appData, now)
-	case "more-evidence-required":
-		return handleMoreEvidenceRequired(ctx, dynamoClient, event, now)
-	case "fee-denied":
-		return handleFeeDenied(ctx, dynamoClient, event, now)
+	case evidenceReceivedEventName:
+		return handleEvidenceReceived(ctx, dynamoClient, event.CloudWatchEvent)
+	case feeApprovedEventName:
+		return handleFeeApproved(ctx, dynamoClient, event.CloudWatchEvent, shareCodeSender, appData, now)
+	case moreEvidenceRequiredEventName:
+		return handleMoreEvidenceRequired(ctx, dynamoClient, event.CloudWatchEvent, now)
+	case feeDeniedEventName:
+		return handleFeeDenied(ctx, dynamoClient, event.CloudWatchEvent, now)
 	default:
 		return fmt.Errorf("unknown event received: %s", event.DetailType)
 	}
@@ -103,20 +139,20 @@ func Handler(ctx context.Context, event events.CloudWatchEvent) error {
 func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent) error {
 	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
-		return fmt.Errorf("failed to unmarshal 'evidence-received' detail: %w", err)
+		return fmt.Errorf("failed to unmarshal '%s' detail: %w", evidenceReceivedEventName, err)
 	}
 
 	var key dynamo.Key
 	if err := client.OneByUID(ctx, v.UID, &key); err != nil {
-		return fmt.Errorf("failed to resolve uid for 'evidence-received': %w", err)
+		return fmt.Errorf("failed to resolve uid for '%s': %w", evidenceReceivedEventName, err)
 	}
 
 	if key.PK == "" {
-		return errors.New("PK missing from LPA in response to 'evidence-received'")
+		return fmt.Errorf("PK missing from LPA in response to '%s'", evidenceReceivedEventName)
 	}
 
 	if err := client.Put(ctx, map[string]string{"PK": key.PK, "SK": "#EVIDENCE_RECEIVED"}); err != nil {
-		return fmt.Errorf("failed to persist evidence received for 'evidence-received': %w", err)
+		return fmt.Errorf("failed to persist evidence received for '%s': %w", evidenceReceivedEventName, err)
 	}
 
 	return nil
@@ -125,28 +161,23 @@ func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event ev
 func handleFeeApproved(ctx context.Context, dynamoClient dynamodbClient, event events.CloudWatchEvent, shareCodeSender shareCodeSender, appData page.AppData, now func() time.Time) error {
 	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
-		return fmt.Errorf("failed to unmarshal 'fee-approved' detail: %w", err)
+		return fmt.Errorf("failed to unmarshal '%s' detail: %w", feeApprovedEventName, err)
 	}
 
-	var key dynamo.Key
-	if err := dynamoClient.OneByUID(ctx, v.UID, &key); err != nil {
-		return fmt.Errorf("failed to resolve uid for 'fee-approved': %w", err)
-	}
-
-	var lpa page.Lpa
-	if err := dynamoClient.One(ctx, key.PK, key.SK, &lpa); err != nil {
-		return fmt.Errorf("failed to get LPA for 'fee-approved': %w", err)
+	lpa, err := getLpaByUID(ctx, dynamoClient, v.UID, feeApprovedEventName)
+	if err != nil {
+		return err
 	}
 
 	lpa.Tasks.PayForLpa = actor.PaymentTaskCompleted
 	lpa.UpdatedAt = now()
 
 	if err := dynamoClient.Put(ctx, lpa); err != nil {
-		return fmt.Errorf("failed to update LPA task status for 'fee-approved': %w", err)
+		return fmt.Errorf("failed to update LPA task status for '%s': %w", feeApprovedEventName, err)
 	}
 
 	if err := shareCodeSender.SendCertificateProvider(ctx, notify.CertificateProviderInviteEmail, appData, false, &lpa); err != nil {
-		return fmt.Errorf("failed to send share code to certificate provider for 'fee-approved': %w", err)
+		return fmt.Errorf("failed to send share code to certificate provider for '%s': %w", feeApprovedEventName, err)
 	}
 
 	return nil
@@ -155,28 +186,19 @@ func handleFeeApproved(ctx context.Context, dynamoClient dynamodbClient, event e
 func handleMoreEvidenceRequired(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, now func() time.Time) error {
 	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
-		return fmt.Errorf("failed to unmarshal 'more-evidence-required' detail: %w", err)
+		return fmt.Errorf("failed to unmarshal '%s' detail: %w", moreEvidenceRequiredEventName, err)
 	}
 
-	var key dynamo.Key
-	if err := client.OneByUID(ctx, v.UID, &key); err != nil {
-		return fmt.Errorf("failed to resolve uid for 'more-evidence-required': %w", err)
-	}
-
-	if key.PK == "" {
-		return errors.New("PK missing from LPA in response to 'more-evidence-required'")
-	}
-
-	var lpa page.Lpa
-	if err := client.One(ctx, key.PK, key.SK, &lpa); err != nil {
-		return fmt.Errorf("failed to get LPA for 'more-evidence-required': %w", err)
+	lpa, err := getLpaByUID(ctx, client, v.UID, moreEvidenceRequiredEventName)
+	if err != nil {
+		return err
 	}
 
 	lpa.Tasks.PayForLpa = actor.PaymentTaskMoreEvidenceRequired
 	lpa.UpdatedAt = now()
 
 	if err := client.Put(ctx, lpa); err != nil {
-		return fmt.Errorf("failed to update LPA task status for 'more-evidence-required': %w", err)
+		return fmt.Errorf("failed to update LPA task status for '%s': %w", moreEvidenceRequiredEventName, err)
 	}
 
 	return nil
@@ -185,31 +207,91 @@ func handleMoreEvidenceRequired(ctx context.Context, client dynamodbClient, even
 func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, now func() time.Time) error {
 	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
-		return fmt.Errorf("failed to unmarshal 'fee-denied' detail: %w", err)
+		return fmt.Errorf("failed to unmarshal '%s' detail: %w", feeDeniedEventName, err)
 	}
 
-	var key dynamo.Key
-	if err := client.OneByUID(ctx, v.UID, &key); err != nil {
-		return fmt.Errorf("failed to resolve uid for 'fee-denied': %w", err)
-	}
-
-	if key.PK == "" {
-		return errors.New("PK missing from LPA in response to 'fee-denied'")
-	}
-
-	var lpa page.Lpa
-	if err := client.One(ctx, key.PK, key.SK, &lpa); err != nil {
-		return fmt.Errorf("failed to get LPA for 'fee-denied': %w", err)
+	lpa, err := getLpaByUID(ctx, client, v.UID, feeDeniedEventName)
+	if err != nil {
+		return err
 	}
 
 	lpa.Tasks.PayForLpa = actor.PaymentTaskDenied
 	lpa.UpdatedAt = now()
 
 	if err := client.Put(ctx, lpa); err != nil {
-		return fmt.Errorf("failed to update LPA task status for 'fee-denied': %w", err)
+		return fmt.Errorf("failed to update LPA task status for '%s': %w", feeDeniedEventName, err)
 	}
 
 	return nil
+}
+
+func handleObjectTagsAdded(ctx context.Context, client dynamodbClient, event events.S3Event, now func() time.Time, s3Client s3Client) error {
+	objectKey := event.Records[0].S3.Object.Key
+	if objectKey == "" {
+		return fmt.Errorf("object key missing in event in '%s'", objectTagsAddedEventName)
+	}
+
+	tags, err := s3Client.GetObjectTags(ctx, objectKey)
+	if err != nil {
+		return fmt.Errorf("failed to get tags for object in '%s': %w", objectTagsAddedEventName, err)
+	}
+
+	hasScannedTag := false
+	hasVirus := false
+
+	for _, tag := range tags {
+		if *tag.Key == "virus-scan-status" {
+			hasScannedTag = true
+			hasVirus = *tag.Value == virusFound
+			break
+		}
+	}
+
+	if !hasScannedTag {
+		return nil
+	}
+
+	uid := strings.Split(objectKey, "/")
+
+	lpa, err := getLpaByUID(ctx, client, uid[0], objectTagsAddedEventName)
+	if err != nil {
+		return err
+	}
+
+	document := lpa.Evidence.Get(objectKey)
+	if document.Key == "" {
+		return fmt.Errorf("LPA did not contain a document with key %s for '%s'", objectKey, objectTagsAddedEventName)
+	}
+
+	document.Scanned = now()
+	document.VirusDetected = hasVirus
+
+	lpa.Evidence.Put(document)
+	lpa.UpdatedAt = now()
+
+	if err := client.Put(ctx, lpa); err != nil {
+		return fmt.Errorf("failed to update LPA for '%s': %w", objectTagsAddedEventName, err)
+	}
+
+	return nil
+}
+
+func getLpaByUID(ctx context.Context, client dynamodbClient, uid, eventName string) (page.Lpa, error) {
+	var key dynamo.Key
+	if err := client.OneByUID(ctx, uid, &key); err != nil {
+		return page.Lpa{}, fmt.Errorf("failed to resolve uid for '%s': %w", eventName, err)
+	}
+
+	if key.PK == "" {
+		return page.Lpa{}, fmt.Errorf("PK missing from LPA in response to '%s'", eventName)
+	}
+
+	var lpa page.Lpa
+	if err := client.One(ctx, key.PK, key.SK, &lpa); err != nil {
+		return page.Lpa{}, fmt.Errorf("failed to get LPA for '%s': %w", eventName, err)
+	}
+
+	return lpa, nil
 }
 
 func main() {
