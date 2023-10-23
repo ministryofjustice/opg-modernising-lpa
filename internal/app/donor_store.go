@@ -174,9 +174,9 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 	if lpa.UID != "" && lpa.Tasks.PayForLpa.IsPending() && lpa.HasUnsentReducedFeesEvidence() {
 		var unsentKeys []string
 
-		for _, evidence := range lpa.Evidence {
-			if evidence.Sent.IsZero() {
-				unsentKeys = append(unsentKeys, evidence.Key)
+		for _, document := range lpa.Evidence.Documents {
+			if document.Sent.IsZero() {
+				unsentKeys = append(unsentKeys, document.Key)
 			}
 		}
 
@@ -187,9 +187,9 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 		}); err != nil {
 			s.logger.Print(err)
 		} else {
-			for i, evidence := range lpa.Evidence {
-				if evidence.Sent.IsZero() {
-					lpa.Evidence[i].Sent = s.now()
+			for i, document := range lpa.Evidence.Documents {
+				if document.Sent.IsZero() {
+					lpa.Evidence.Documents[i].Sent = s.now()
 				}
 			}
 		}
@@ -228,13 +228,6 @@ type previousApplicationLinkedEvent struct {
 	UID                       string `json:"uid"`
 	ApplicationReason         string `json:"applicationReason"`
 	PreviousApplicationNumber string `json:"previousApplicationNumber"`
-}
-
-type evidenceFormRequiredEvent struct {
-	UID        string  `json:"uid"`
-	FirstNames string  `json:"firstNames"`
-	LastName   string  `json:"lastName"`
-	Address    address `json:"address"`
 }
 
 type reducedFeeRequestedEvent struct {

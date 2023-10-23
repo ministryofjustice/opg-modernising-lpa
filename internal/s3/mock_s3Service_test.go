@@ -47,6 +47,39 @@ func (_m *mockS3Service) DeleteObject(_a0 context.Context, _a1 *services3.Delete
 	return r0, r1
 }
 
+// GetObjectTagging provides a mock function with given fields: ctx, params, optFns
+func (_m *mockS3Service) GetObjectTagging(ctx context.Context, params *services3.GetObjectTaggingInput, optFns ...func(*services3.Options)) (*services3.GetObjectTaggingOutput, error) {
+	_va := make([]interface{}, len(optFns))
+	for _i := range optFns {
+		_va[_i] = optFns[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, params)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *services3.GetObjectTaggingOutput
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *services3.GetObjectTaggingInput, ...func(*services3.Options)) (*services3.GetObjectTaggingOutput, error)); ok {
+		return rf(ctx, params, optFns...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *services3.GetObjectTaggingInput, ...func(*services3.Options)) *services3.GetObjectTaggingOutput); ok {
+		r0 = rf(ctx, params, optFns...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*services3.GetObjectTaggingOutput)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *services3.GetObjectTaggingInput, ...func(*services3.Options)) error); ok {
+		r1 = rf(ctx, params, optFns...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // PutObject provides a mock function with given fields: _a0, _a1, _a2
 func (_m *mockS3Service) PutObject(_a0 context.Context, _a1 *services3.PutObjectInput, _a2 ...func(*services3.Options)) (*services3.PutObjectOutput, error) {
 	_va := make([]interface{}, len(_a2))
