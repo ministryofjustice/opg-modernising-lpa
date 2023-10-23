@@ -34,7 +34,3 @@ variable "environment_variables" {
 variable "lambda_task_role" {
   description = "Execution role for Lambda"
 }
-
-variable "events_received_lambda_function_arn" {
-  description = "Lambda function ARN for events received"
-}
