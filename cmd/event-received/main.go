@@ -32,7 +32,7 @@ const (
 	feeApprovedEventName          = "fee-approved"
 	feeDeniedEventName            = "fee-denied"
 	moreEvidenceRequiredEventName = "more-evidence-required"
-	objectTagsAddedEventName      = "Object Tags Added"
+	objectTagsAddedEventName      = "ObjectTagging:Put"
 )
 
 type uidEvent struct {
