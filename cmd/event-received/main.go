@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -65,6 +64,10 @@ func (e Event) isS3Event() bool {
 	return len(e.Records) > 0
 }
 
+func (e Event) isCloudWatchEvent() bool {
+	return e.Source == "aws.cloudwatch"
+}
+
 func Handler(ctx context.Context, event Event) error {
 	tableName := os.Getenv("LPAS_TABLE")
 	notifyIsProduction := os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
@@ -115,25 +118,27 @@ func Handler(ctx context.Context, event Event) error {
 	shareCodeSender := page.NewShareCodeSender(app.NewShareCodeStore(dynamoClient), notifyClient, appPublicURL, random.String)
 	now := time.Now
 
-	eJson, _ := json.Marshal(event)
-	log.Println(string(eJson))
-
 	if event.isS3Event() {
 		return handleObjectTagsAdded(ctx, dynamoClient, event.S3Event, now, s3Client)
 	}
 
-	switch event.DetailType {
-	case evidenceReceivedEventName:
-		return handleEvidenceReceived(ctx, dynamoClient, event.CloudWatchEvent)
-	case feeApprovedEventName:
-		return handleFeeApproved(ctx, dynamoClient, event.CloudWatchEvent, shareCodeSender, appData, now)
-	case moreEvidenceRequiredEventName:
-		return handleMoreEvidenceRequired(ctx, dynamoClient, event.CloudWatchEvent, now)
-	case feeDeniedEventName:
-		return handleFeeDenied(ctx, dynamoClient, event.CloudWatchEvent, now)
-	default:
-		return fmt.Errorf("unknown event received: %s", event.DetailType)
+	if event.isCloudWatchEvent() {
+		switch event.DetailType {
+		case evidenceReceivedEventName:
+			return handleEvidenceReceived(ctx, dynamoClient, event.CloudWatchEvent)
+		case feeApprovedEventName:
+			return handleFeeApproved(ctx, dynamoClient, event.CloudWatchEvent, shareCodeSender, appData, now)
+		case moreEvidenceRequiredEventName:
+			return handleMoreEvidenceRequired(ctx, dynamoClient, event.CloudWatchEvent, now)
+		case feeDeniedEventName:
+			return handleFeeDenied(ctx, dynamoClient, event.CloudWatchEvent, now)
+		default:
+			return fmt.Errorf("unknown event received: %s", event.DetailType)
+		}
 	}
+
+	eJson, _ := json.Marshal(event)
+	return fmt.Errorf("unknown event type received: %s", string(eJson))
 }
 
 func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent) error {
