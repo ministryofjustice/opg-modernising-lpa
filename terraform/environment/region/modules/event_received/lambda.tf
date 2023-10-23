@@ -45,11 +45,9 @@ resource "aws_cloudwatch_event_rule" "s3_object_tags_added" {
 
   event_pattern = jsonencode({
     source      = ["aws.s3"],
-    detail-type = ["Object Tags Added", "s3:ObjectTagging:Put"],
+    detail-type = ["Object Tags Added"],
     detail = {
-      bucket = {
-        name = var.uploads_bucket.bucket
-      }
+      bucketName = [var.uploads_bucket.bucket]
     }
   })
   provider = aws.region

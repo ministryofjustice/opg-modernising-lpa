@@ -187,7 +187,6 @@ module "s3_event_notifications" {
   s3_bucket_event_types = [
     "s3:ObjectRemoved:*",
     "s3:ObjectAcl:Put",
-    "s3:ObjectTagging:Put",
   ]
   sns_kms_key_alias             = var.sns_kms_key_alias
   s3_bucket_id                  = aws_s3_bucket.access_log.id

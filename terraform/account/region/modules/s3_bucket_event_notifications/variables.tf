@@ -4,7 +4,6 @@ variable "s3_bucket_event_types" {
   default = [
     "s3:ObjectRemoved:*",
     "s3:ObjectAcl:Put",
-    "s3:ObjectTagging:Put",
   ]
 }
 
