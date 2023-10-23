@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -38,12 +39,6 @@ type uidEvent struct {
 	UID string `json:"uid"`
 }
 
-type objectTagsAddedEvent struct {
-	Object struct {
-		Key string `json:"key"`
-	} `json:"object"`
-}
-
 //go:generate mockery --testonly --inpackage --name dynamodbClient --structname mockDynamodbClient
 type dynamodbClient interface {
 	One(ctx context.Context, pk, sk string, v interface{}) error
@@ -64,6 +59,10 @@ type shareCodeSender interface {
 type Event struct {
 	events.S3Event
 	events.CloudWatchEvent
+}
+
+func (e Event) isS3Event() bool {
+	return len(e.Records) > 0
 }
 
 func Handler(ctx context.Context, event Event) error {
@@ -119,6 +118,10 @@ func Handler(ctx context.Context, event Event) error {
 	eJson, _ := json.Marshal(event)
 	log.Println(string(eJson))
 
+	if event.isS3Event() {
+		return handleObjectTagsAdded(ctx, dynamoClient, event.S3Event, now, s3Client)
+	}
+
 	switch event.DetailType {
 	case evidenceReceivedEventName:
 		return handleEvidenceReceived(ctx, dynamoClient, event.CloudWatchEvent)
@@ -128,8 +131,6 @@ func Handler(ctx context.Context, event Event) error {
 		return handleMoreEvidenceRequired(ctx, dynamoClient, event.CloudWatchEvent, now)
 	case feeDeniedEventName:
 		return handleFeeDenied(ctx, dynamoClient, event.CloudWatchEvent, now)
-	case objectTagsAddedEventName:
-		return handleObjectTagsAdded(ctx, dynamoClient, event.S3Event, now, s3Client)
 	default:
 		return fmt.Errorf("unknown event received: %s", event.DetailType)
 	}
@@ -225,54 +226,52 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.Cl
 }
 
 func handleObjectTagsAdded(ctx context.Context, client dynamodbClient, event events.S3Event, now func() time.Time, s3Client s3Client) error {
-	//var v objectTagsAddedEvent
-	//if err := json.Unmarshal(event.Detail, &v); err != nil {
-	//	return fmt.Errorf("failed to unmarshal '%s' detail: %w", objectTagsAddedEventName, err)
-	//}
-	//
-	//objectKey := v.Object.Key
-	//
-	//tags, err := s3Client.GetObjectTags(ctx, objectKey)
-	//if err != nil {
-	//	return fmt.Errorf("failed to get tags for object in '%s': %w", objectTagsAddedEventName, err)
-	//}
-	//
-	//hasScannedTag := false
-	//hasVirus := false
-	//
-	//for _, tag := range tags {
-	//	if *tag.Key == "virus-scan-status" {
-	//		hasScannedTag = true
-	//		hasVirus = *tag.Value == virusFound
-	//		break
-	//	}
-	//}
-	//
-	//if !hasScannedTag {
-	//	return nil
-	//}
-	//
-	//uid := strings.Split(objectKey, "/")
-	//
-	//lpa, err := getLpaByUID(ctx, client, uid[0], objectTagsAddedEventName)
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//document := lpa.Evidence.Get(objectKey)
-	//if document.Key == "" {
-	//	return fmt.Errorf("LPA did not contain a document with key %s for '%s'", objectKey, objectTagsAddedEventName)
-	//}
-	//
-	//document.Scanned = now()
-	//document.VirusDetected = hasVirus
-	//
-	//lpa.Evidence.Put(document)
-	//lpa.UpdatedAt = now()
-	//
-	//if err := client.Put(ctx, lpa); err != nil {
-	//	return fmt.Errorf("failed to update LPA for '%s': %w", objectTagsAddedEventName, err)
-	//}
+	objectKey := event.Records[0].S3.Object.Key
+	if objectKey == "" {
+		return fmt.Errorf("object key missing in event in '%s'", objectTagsAddedEventName)
+	}
+
+	tags, err := s3Client.GetObjectTags(ctx, objectKey)
+	if err != nil {
+		return fmt.Errorf("failed to get tags for object in '%s': %w", objectTagsAddedEventName, err)
+	}
+
+	hasScannedTag := false
+	hasVirus := false
+
+	for _, tag := range tags {
+		if *tag.Key == "virus-scan-status" {
+			hasScannedTag = true
+			hasVirus = *tag.Value == virusFound
+			break
+		}
+	}
+
+	if !hasScannedTag {
+		return nil
+	}
+
+	uid := strings.Split(objectKey, "/")
+
+	lpa, err := getLpaByUID(ctx, client, uid[0], objectTagsAddedEventName)
+	if err != nil {
+		return err
+	}
+
+	document := lpa.Evidence.Get(objectKey)
+	if document.Key == "" {
+		return fmt.Errorf("LPA did not contain a document with key %s for '%s'", objectKey, objectTagsAddedEventName)
+	}
+
+	document.Scanned = now()
+	document.VirusDetected = hasVirus
+
+	lpa.Evidence.Put(document)
+	lpa.UpdatedAt = now()
+
+	if err := client.Put(ctx, lpa); err != nil {
+		return fmt.Errorf("failed to update LPA for '%s': %w", objectTagsAddedEventName, err)
+	}
 
 	return nil
 }
