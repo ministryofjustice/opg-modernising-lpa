@@ -180,49 +180,62 @@ type Lpa struct {
 	// FeeType is the type of fee the user is applying for
 	FeeType FeeType
 	// Evidence is the documents uploaded by a donor to apply for non-full fees
-	Evidence Evidences
+	Evidence Evidence
 
 	HasSentApplicationUpdatedEvent        bool
 	HasSentPreviousApplicationLinkedEvent bool
 }
 
-type Evidences []Evidence
+type Evidence struct {
+	Documents []Document
+}
 
-func (es *Evidences) Delete(evidenceKey string) bool {
-	idx := slices.IndexFunc(*es, func(e Evidence) bool { return e.Key == evidenceKey })
+func (e *Evidence) Delete(documentKey string) bool {
+	idx := slices.IndexFunc(e.Documents, func(d Document) bool { return d.Key == documentKey })
 	if idx == -1 {
 		return false
 	}
 
-	*es = slices.Delete(*es, idx, idx+1)
+	e.Documents = slices.Delete(e.Documents, idx, idx+1)
 
 	return true
 }
 
-func (es *Evidences) Keys() []string {
+func (e *Evidence) Keys() []string {
 	var keys []string
 
-	for _, e := range *es {
-		keys = append(keys, e.Key)
+	for _, d := range e.Documents {
+		keys = append(keys, d.Key)
 	}
 
 	return keys
 }
 
-func (es *Evidences) GetByKey(key string) Evidence {
-	for _, e := range *es {
-		if e.Key == key {
-			return e
+func (e *Evidence) Get(documentKey string) Document {
+	for _, d := range e.Documents {
+		if d.Key == documentKey {
+			return d
 		}
 	}
 
-	return Evidence{}
+	return Document{}
 }
 
-type Evidence struct {
-	Key      string
-	Filename string
-	Sent     time.Time
+func (e *Evidence) Put(document Document) {
+	idx := slices.IndexFunc(e.Documents, func(d Document) bool { return d.Key == document.Key })
+	if idx == -1 {
+		e.Documents = append(e.Documents, document)
+	} else {
+		e.Documents[idx] = document
+	}
+}
+
+type Document struct {
+	Key           string
+	Filename      string
+	Sent          time.Time
+	Scanned       time.Time
+	VirusDetected bool
 }
 
 type Payment struct {
@@ -535,8 +548,8 @@ func (l *Lpa) FeeAmount() int {
 }
 
 func (l *Lpa) HasUnsentReducedFeesEvidence() bool {
-	for _, evidence := range l.Evidence {
-		if evidence.Sent.IsZero() {
+	for _, document := range l.Evidence.Documents {
+		if document.Sent.IsZero() {
 			return true
 		}
 	}
