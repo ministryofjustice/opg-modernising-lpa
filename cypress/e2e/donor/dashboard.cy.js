@@ -40,7 +40,7 @@ describe('Dashboard', () => {
 
     context('with completed LPA', () => {
         it('completed LPAs have a track progress button', () => {
-            cy.visit('/fixtures?redirect=&progress=confirmYourIdentityAndSignTheLpa');
+            cy.visit('/fixtures?redirect=&progress=signTheLpa');
 
             cy.get('button').should('not.contain', 'Continue');
 
