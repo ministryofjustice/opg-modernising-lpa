@@ -1,16 +1,16 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "requestANewWitnessCode" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "getANewCode" }}{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "requestANewWitnessCode" }}</h1>
+      <h1 class="govuk-heading-xl">{{ tr .App "getANewCode" }}</h1>
 
       <p class="govuk-body">{{ tr .App "textMessagesSometimesTakeAFewMinutes" }}</p>
 
       <form novalidate method="post">
-        <button id="f-request" type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "requestANewCode" }}</button>
+        <button id="f-request" type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "getANewCode" }}</button>
         {{ template "csrf-field" . }}
       </form>
     </div>
