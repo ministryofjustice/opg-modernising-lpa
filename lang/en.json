@@ -472,7 +472,7 @@
     "referenceNumberHint": "This will be made up of 12 characters. For example, ABCD-1234-5678.",
     "incorrectReferenceNumber": "The reference number you entered is incorrect, please check it and try again",
     "twelveCharactersReferenceNumber": "your 12 character reference number",
-    "referenceNumberMustBeTwelveCharacters": "The certificate provider reference number you enter must contain 12 characters",
+    "referenceNumberMustBeTwelveCharacters": "The certificate provider reference number you enter must be 12 characters",
     "whenAttorneysCanUseTheLpa": "When attorneys can use the LPA",
     "theirAttorneys": {
         "one": "Their attorney",
