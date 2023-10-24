@@ -38,16 +38,6 @@ resource "aws_lambda_function" "lambda_function" {
   provider = aws.region
 }
 
-resource "aws_lambda_permission" "allow_bucket_to_run" {
-  statement_id   = "AllowExecutionFromS3Bucket"
-  action         = "lambda:InvokeFunction"
-  function_name  = aws_lambda_function.lambda_function.function_name
-  principal      = "s3.amazonaws.com"
-  source_account = data.aws_caller_identity.current.account_id
-  source_arn     = var.data_store_bucket.arn
-  provider       = aws.region
-}
-
 data "aws_security_group" "lambda_egress" {
   name     = "lambda-egress-${data.aws_region.current.name}"
   provider = aws.region
