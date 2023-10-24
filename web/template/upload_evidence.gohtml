@@ -122,12 +122,8 @@
 
           <h2 id="dialog-title" class="govuk-heading-l" tabindex="0">{{ tr .App "yourFilesAreUploading" }}</h2>
 
-          <div class="app-loading-spinner">
-            <div
-                    class="app-loading-spinner__spinner"
-                    aria-live="polite"
-                    role="status"
-            ></div>
+          <div class="app-loading-spinner" data-sse-url="{{ link .App (.App.Paths.Events.Format .App.LpaID) }}">
+            <div class="app-loading-spinner__spinner" aria-live="polite" role="status"></div>
             <div class="app-loading-spinner__content">
               <h3 id="dialog-title" class="govuk-heading-s" tabindex="0">{{ tr .App "nOfNFilesUploaded" }}</h3>
             </div>

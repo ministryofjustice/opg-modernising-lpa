@@ -349,6 +349,9 @@ func Register(
 
 	handleWithLpa(page.Paths.Progress, CanGoBack,
 		LpaProgress(tmpls.Get("lpa_progress.gohtml"), certificateProviderStore, attorneyStore))
+
+	handleWithLpa(page.Paths.Events, None,
+		Events())
 }
 
 type handleOpt byte

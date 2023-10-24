@@ -1,11 +1,13 @@
 export class FileUploadSpinner {
     init() {
         this.continueButton = document.getElementById('continue-or-pay')
-        this.returnToTaskListButton = document.getElementById('return-to-tasklist-btn')
+        this.cancelUploadButton = document.getElementById('cancel-upload-button')
+
         this.dialog = document.getElementById('dialog')
         this.dialogOverlay = document.getElementById('dialog-overlay')
-        // so we can reference the same func when removing event
-        this.handleTrapFocus = this.handleTrapFocus.bind(this)
+
+        this.sseURL = document.querySelector("[data-sse-url]").dataset.sseUrl
+        this.eventSource = null
 
         this.registerListeners()
     }
@@ -13,52 +15,25 @@ export class FileUploadSpinner {
     registerListeners() {
         this.continueButton.addEventListener('click', (e) => {e.preventDefault()})
         this.continueButton.addEventListener('click', this.toggleDialogVisibility.bind(this))
+        this.continueButton.addEventListener('click', this.openConnection.bind(this))
 
-        document.getElementById('cancel-upload-button').addEventListener('click', this.toggleDialogVisibility.bind(this))
-    }
-
-    dialogVisible() {
-        return !this.dialog.classList.contains('govuk-!-display-none') && !this.dialogOverlay.classList.contains('govuk-!-display-none')
+        this.cancelUploadButton.addEventListener('click', this.toggleDialogVisibility.bind(this))
+        this.cancelUploadButton.addEventListener('click', this.closeConnection.bind(this))
     }
 
     toggleDialogVisibility() {
         this.dialog.classList.toggle('govuk-!-display-none')
         this.dialogOverlay.classList.toggle('govuk-!-display-none')
-
-        if (this.dialogVisible()) {
-            this.dialog.addEventListener('keydown', this.handleTrapFocus)
-            this.continueButton.focus()
-        } else {
-            this.dialog.removeEventListener('keydown', this.handleTrapFocus)
-            this.returnToTaskListButton.focus()
-        }
     }
 
-    handleTrapFocus(e) {
-        const firstFocusableEl = document.getElementById('dialog-title')
-        const lastFocusableEl = document.getElementById('cancel-upload-button')
-        const KEY_CODE_TAB = 9
-        const KEY_CODE_ESC = 27
+    openConnection() {
+        this.eventSource = new EventSource(this.sseURL);
+        this.eventSource.onmessage = (event) => {
+            console.log(event.data)
+        };
+    }
 
-        const tabPressed = (e.key === 'Tab' || e.keyCode === KEY_CODE_TAB)
-        const escPressed = (e.key === 'Esc' || e.keyCode === KEY_CODE_ESC)
-
-        if (tabPressed) {
-            if (e.shiftKey) { /* shift + tab */
-                if (document.activeElement === firstFocusableEl) {
-                    lastFocusableEl.focus()
-                    e.preventDefault()
-                }
-            } else /* tab */ {
-                if (document.activeElement === lastFocusableEl) {
-                    firstFocusableEl.focus()
-                    e.preventDefault()
-                }
-            }
-        }
-
-        if (escPressed) {
-            this.toggleDialogVisibility()
-        }
+    closeConnection() {
+        this.eventSource.close()
     }
 }
