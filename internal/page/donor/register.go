@@ -285,6 +285,8 @@ func Register(
 	handleWithLpa(page.Paths.YourIndependentWitnessAddress, CanGoBack,
 		YourIndependentWitnessAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 
+	handleWithLpa(page.Paths.ConfirmYourCertificateProviderIsNotRelated, CanGoBack,
+		ConfirmYourCertificateProviderIsNotRelated(tmpls.Get("confirm_your_certificate_provider_is_not_related.gohtml"), donorStore))
 	handleWithLpa(page.Paths.CheckYourLpa, CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, notifyClient, certificateProviderStore))
 	handleWithLpa(page.Paths.LpaDetailsSaved, CanGoBack,

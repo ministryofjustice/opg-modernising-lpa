@@ -556,6 +556,43 @@ func (l *Lpa) HasUnsentReducedFeesEvidence() bool {
 	return false
 }
 
+// CertificateProviderSharesDetails will return true if the last name or address
+// of the certificate provider matches that of the donor or one of the
+// attorneys. For a match of the last name we break on '-' to account for
+// double-barrelled names.
+func (l *Lpa) CertificateProviderSharesDetails() bool {
+	certificateProviderParts := strings.Split(l.CertificateProvider.LastName, "-")
+
+	donorParts := strings.Split(l.Donor.LastName, "-")
+	for _, certificateProviderPart := range certificateProviderParts {
+		if slices.Contains(donorParts, certificateProviderPart) {
+			return true
+		}
+
+		if l.CertificateProvider.Address.Line1 == l.Donor.Address.Line1 &&
+			l.CertificateProvider.Address.Postcode == l.Donor.Address.Postcode {
+			return true
+		}
+	}
+
+	for _, attorney := range append(l.Attorneys.Attorneys, l.ReplacementAttorneys.Attorneys...) {
+		attorneyParts := strings.Split(attorney.LastName, "-")
+
+		for _, certificateProviderPart := range certificateProviderParts {
+			if slices.Contains(attorneyParts, certificateProviderPart) {
+				return true
+			}
+
+			if l.CertificateProvider.Address.Line1 == attorney.Address.Line1 &&
+				l.CertificateProvider.Address.Postcode == attorney.Address.Postcode {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 func ChooseAttorneysState(attorneys actor.Attorneys, decisions actor.AttorneyDecisions) actor.TaskState {
 	if attorneys.Len() == 0 {
 		return actor.TaskNotStarted
