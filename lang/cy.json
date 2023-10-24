@@ -510,7 +510,7 @@
     "referenceNumberHint": "Bydd y cyfeirnod yn cynnwys 12 nod. Er enghraifft, ABCD-1234-5678.",
     "incorrectReferenceNumber": "Welsh",
     "twelveCharactersReferenceNumber": "welsh",
-    "referenceNumberMustBeTwelveCharacters": "Welsh",
+    "referenceNumberMustBeTwelveCharacters": "Rhaid i'r rhif cyfeirnod a roddwch fod yn 12 cymeriad",
     "whenAttorneysCanUseTheLpa": "Pryd y gall atwrneiod ddefnyddio’r LPA",
     "theirAttorneys": {
         "one": "Yr atwrneiod",
