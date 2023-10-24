@@ -104,10 +104,10 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 			Tasks: page.Tasks{
 				PayForLpa: actor.PaymentTaskPending,
 			},
-			Evidence: []page.Evidence{
+			Evidence: page.Evidence{Documents: []page.Document{
 				{Key: "evidence-key", Sent: now},
 				{Key: "another-evidence-key", Sent: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
-			},
+			}},
 		}).
 		Return(nil)
 
@@ -123,10 +123,10 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
 		},
-		Evidence: []page.Evidence{
+		Evidence: page.Evidence{Documents: []page.Document{
 			{Key: "evidence-key"},
 			{Key: "another-evidence-key", Sent: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
-		},
+		}},
 	})
 	resp := w.Result()
 
@@ -244,9 +244,9 @@ func TestGetPaymentConfirmationHalfFeeWhenS3ClientError(t *testing.T) {
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
 		},
-		Evidence: []page.Evidence{
+		Evidence: page.Evidence{Documents: []page.Document{
 			{Key: "evidence-key"},
-		},
+		}},
 	})
 	resp := w.Result()
 

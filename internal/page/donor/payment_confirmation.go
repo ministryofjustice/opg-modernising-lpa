@@ -58,7 +58,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 		} else {
 			lpa.Tasks.PayForLpa = actor.PaymentTaskPending
 
-			for i, evidence := range lpa.Evidence {
+			for i, evidence := range lpa.Evidence.Documents {
 				if evidence.Sent.IsZero() {
 					err := evidenceS3Client.PutObjectTagging(r.Context(), evidence.Key, []types.Tag{
 						{Key: aws.String("replicate"), Value: aws.String("true")},
@@ -69,7 +69,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 						return err
 					}
 
-					lpa.Evidence[i].Sent = now()
+					lpa.Evidence.Documents[i].Sent = now()
 				}
 			}
 		}
