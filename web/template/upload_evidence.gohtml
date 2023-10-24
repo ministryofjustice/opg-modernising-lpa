@@ -99,7 +99,7 @@
 
         <div class="govuk-button-group">
           {{ if gt $evidenceCount 0 }}
-            <button type="submit" class="govuk-button" data-module="govuk-button">{{ if or .FeeType.IsFullFee .FeeType.IsHalfFee }} {{ tr .App "continueToPayment" }} {{ else }} {{ tr .App "continue" }} {{ end }}</button>
+            <button type="submit" class="govuk-button" id="continue-or-pay" data-module="govuk-button">{{ if or .FeeType.IsFullFee .FeeType.IsHalfFee }} {{ tr .App "continueToPayment" }} {{ else }} {{ tr .App "continue" }} {{ end }}</button>
           {{ end }}
           <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
         </div>
@@ -136,12 +136,10 @@
           <p id="dialog-description" class="govuk-body" tabindex="0">{{ trHtml .App "yourFilesAreUploadingContent" }}</p>
 
           <div class="govuk-button-group">
-            <button type="button" id='back-to-page-dialog-btn' class="govuk-button govuk-button--secondary" data-module="govuk-button" aria-label="{{ tr .App "cancelUpload" }}">{{ tr .App "cancelUpload" }}</button>
+            <button type="button" id='cancel-upload-button' class="govuk-button govuk-button--secondary" data-module="govuk-button" aria-label="{{ tr .App "cancelUpload" }}">{{ tr .App "cancelUpload" }}</button>
           </div>
         </div>
       </form>
-
-
     </div>
   </div>
 {{ end }}
