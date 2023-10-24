@@ -158,6 +158,7 @@ jobs:
   end_of_pr_workflow:
     name: End of PR Workflow
     runs-on: ubuntu-latest
+    if: always()
     environment:
       name: "dev_${{ needs.create_tags.outputs.environment_workspace_name }}"
       url: "https://${{ needs.pr_deploy.outputs.url }}"
@@ -168,3 +169,4 @@ jobs:
           echo "${{ needs.pr_deploy.outputs.terraform_workspace_name }} PR environment tested, built and deployed"
           echo "Tag Deployed: ${{ needs.pr_deploy.outputs.terraform_container_version }}"
           echo "URL: https://${{ needs.pr_deploy.outputs.url }}"
+          exit 1
