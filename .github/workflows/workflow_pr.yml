@@ -157,8 +157,7 @@ jobs:
 
   end_of_pr_workflow:
     name: End of PR Workflow
-    if: always() &&
-      success(ui_tests_pr_env)
+    if: success(ui_tests_pr_env)
     runs-on: ubuntu-latest
     environment:
       name: "dev_${{ needs.create_tags.outputs.environment_workspace_name }}"
