@@ -6,6 +6,7 @@ module "event_received" {
     LPAS_TABLE                 = var.lpas_table.name
     GOVUK_NOTIFY_IS_PRODUCTION = data.aws_default_tags.current.tags.environment-name == "production" ? "1" : "0"
     APP_PUBLIC_URL             = "https://${var.app_public_url}"
+    UPLOADS_S3_BUCKET_NAME     = var.uploads_bucket.bucket
   }
   image_uri   = "${var.lambda_function_image_ecr_url}:${var.lambda_function_image_tag}"
   ecr_arn     = var.lambda_function_image_ecr_arn
@@ -135,7 +136,7 @@ data "aws_iam_policy_document" "event_received" {
     effect = "Allow"
 
     resources = [
-      var.uploads_bucket.arn
+      "${var.uploads_bucket.arn}/*"
     ]
 
     actions = [
