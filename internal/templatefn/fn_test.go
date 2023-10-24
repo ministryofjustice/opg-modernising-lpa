@@ -147,6 +147,8 @@ func TestLink(t *testing.T) {
 func TestContains(t *testing.T) {
 	assert.True(t, contains("b", []string{"a", "b", "c"}))
 	assert.False(t, contains("d", []string{"a", "b", "c"}))
+
+	assert.False(t, contains("", nil))
 }
 
 func TestTr(t *testing.T) {
