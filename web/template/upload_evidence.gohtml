@@ -104,6 +104,44 @@
           <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
         </div>
       </form>
+
+      <form novalidate method="post" enctype="multipart/form-data">
+        {{ template "csrf-field" . }}
+
+        <input type="hidden" id="f-cancel-upload-action" name="action" value="cancel-upload" />
+
+        <div id="dialog-overlay" class="app-dialog-overlay govuk-!-display-none" tabindex="-1"></div>
+
+        <div id="dialog"
+             class="app-dialog govuk-!-display-none"
+             class="app-dialog"
+             role="dialog"
+             aria-labelledby="dialog-title"
+             aria-describedby="dialog-description"
+             aria-modal="true">
+
+          <h2 id="dialog-title" class="govuk-heading-l" tabindex="0">{{ tr .App "yourFilesAreUploading" }}</h2>
+
+          <div class="app-loading-spinner">
+            <div
+                    class="app-loading-spinner__spinner"
+                    aria-live="polite"
+                    role="status"
+            ></div>
+            <div class="app-loading-spinner__content">
+              <h3 id="dialog-title" class="govuk-heading-s" tabindex="0">{{ tr .App "nOfNFilesUploaded" }}</h3>
+            </div>
+          </div>
+
+          <p id="dialog-description" class="govuk-body" tabindex="0">{{ trHtml .App "yourFilesAreUploadingContent" }}</p>
+
+          <div class="govuk-button-group">
+            <button type="button" id='back-to-page-dialog-btn' class="govuk-button govuk-button--secondary" data-module="govuk-button" aria-label="{{ tr .App "cancelUpload" }}">{{ tr .App "cancelUpload" }}</button>
+          </div>
+        </div>
+      </form>
+
+
     </div>
   </div>
 {{ end }}

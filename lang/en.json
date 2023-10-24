@@ -859,5 +859,10 @@
     "confirmYourCertificateProviderIsNotRelatedContent": "<p class=\"govuk-body\">The details you have given indicate that your certificate provider may be related to you or one of your attorneys.</p><p class=\"govuk-body\">Your certificate provider cannot be related to you or any of your attorneys (on this LPA or any other LPA for you).</p><p class=\"govuk-body\">If your certificate provider is related to you or one of you attorneys, you must <a href=\"{{.Link}}\" class=\"govuk-link govuk-link--no-visited-state\">choose a different certificate provider</a>.</p><p class=\"govuk-body\">If they are not related, you can tick the box to confirm this and continue.</p>",
     "iConfirmThatMyCertificateProviderIsNotRelated": "I confirm that my certificate provider is not related to me or any of my attorneys",
     "theBoxToConfirmYourCertificateProviderIsNotRelated": "the box to confirm your certificate provider is not related to you or your attorneys, or choose another certificate provider",
-    "youMustReviewTheInformationYouHaveEntered": "You must review the information you have entered."
+    "youMustReviewTheInformationYouHaveEntered": "You must review the information you have entered.",
+    "yourFilesAreUploading": "Your files uploading",
+    "nOfNFilesUploaded": "1 of 4 files uploaded",
+    "yourFilesAreUploadingContent": "This may take a few minutes. Please do not close your browser window.",
+    "cancelUpload": "Cancel upload"
+
 }
