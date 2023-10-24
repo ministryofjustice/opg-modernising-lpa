@@ -157,11 +157,8 @@ jobs:
 
   end_of_pr_workflow:
     name: End of PR Workflow
-    if: always() &&
-      needs.pr_deploy.result == 'success' &&
-      needs.create_tags.result == 'success' &&
-      needs.ui_tests_pr_env.result == 'success'
     runs-on: ubuntu-latest
+    if: always()
     environment:
       name: "dev_${{ needs.create_tags.outputs.environment_workspace_name }}"
       url: "https://${{ needs.pr_deploy.outputs.url }}"
@@ -172,3 +169,11 @@ jobs:
           echo "${{ needs.pr_deploy.outputs.terraform_workspace_name }} PR environment tested, built and deployed"
           echo "Tag Deployed: ${{ needs.pr_deploy.outputs.terraform_container_version }}"
           echo "URL: https://${{ needs.pr_deploy.outputs.url }}"
+          if ${{ contains(needs.ui_tests_pr_env.result,'success') }}
+          then
+            echo "PR environment tested, built and deployed"
+            exit 0
+          else
+            echo "PR environment tested, built and deployed but UI tests failed"
+            exit 1
+          fi
