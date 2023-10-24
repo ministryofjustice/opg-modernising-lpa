@@ -26,25 +26,36 @@
         <strong>{{ if .Item.Lpa.RegisteredAt.IsZero }}{{ tr .App "referenceNumber" }}{{ else }}{{ tr .App "lpaNumber" }}{{ end }}:</strong>
         {{ .Item.Lpa.UID }}
       </p>
-      <p class="govuk-body-s"><strong>{{ tr .App "lastUpdated" }}:</strong> {{ formatDateTime .App .Item.Lpa.UpdatedAt }}</p>
+      {{ if .Item.Lpa.RegisteredAt.IsZero }}
+        <p class="govuk-body-s"><strong>{{ tr .App "lastUpdated" }}:</strong> {{ formatDateTime .App .Item.Lpa.UpdatedAt }}</p>
+      {{ else }}
+        <p class="govuk-body-s"><strong>{{ tr .App "registered" }}:</strong> {{ formatDateTime .App .Item.Lpa.RegisteredAt }}</p>
+      {{ end }}
     </div>
     <div class="govuk-dashboard-row">
-      <div class="govuk-button-group">
-        {{ if not .Item.Lpa.RegisteredAt.IsZero }}
-          <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a>
-          <a class="govuk-link" href="#">{{ tr .App "use" }}</a>
-        {{ else if not .Item.Lpa.SubmittedAt.IsZero }}
+      {{ if not .Item.Lpa.RegisteredAt.IsZero }}
+        <p class="govuk-body">
+          <a class="govuk-button" href="#">{{ tr .App "viewSignedLpa" }}</a><br/>
+          <a class="govuk-link" href="#">{{ tr .App "useThisLpa" }}</a>
+        </p>
+      {{ else if not .Item.Lpa.SubmittedAt.IsZero }}
+        <div class="govuk-button-group">
           <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a>
           <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.Progress.Format .Item.Lpa.ID) }}">{{ tr .App "trackLpaProgress" }}</a>
           <a class="govuk-button govuk-button--secondary" href="#">{{ tr .App "withdrawLpa" }}</a>
-        {{ else if not .Item.Lpa.SignedAt.IsZero }}
+        </div>
+      {{ else if not .Item.Lpa.SignedAt.IsZero }}
+        <div class="govuk-button-group">
           <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .Item.Lpa.ID) }}">{{ tr .App "goToTaskList" }}</a>
           <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.Progress.Format .Item.Lpa.ID) }}">{{ tr .App "trackLpaProgress" }}</a>
           <a class="govuk-button govuk-button--secondary" href="#">{{ tr .App "withdrawLpa" }}</a>
-        {{ else }}
+        </div>
+      {{ else }}
+        <div class="govuk-button-group">
           <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .Item.Lpa.ID) }}">{{ tr .App "goToTaskList" }}</a>
           <a class="govuk-button govuk-button--secondary" href="#">{{ tr .App "deleteLpa" }}</a>
-        {{ end }}
+        </div>
+      {{ end }}
       </div>
     </div>
   </div>
@@ -167,8 +178,27 @@
         {{ if .UseTabs }}<div class="govuk-tabs__panel" id="donor">{{ end }}
           <h2 class="govuk-heading-l">{{ tr .App "myLpas" }}</h2>
           <p class="govuk-body">{{ tr .App "viewAndManageDonor" }}</p>
+          {{ $hasRegistered := false }}
           {{ range .DonorLpas }}
-            {{ template "donorCard" (card $.App .) }}
+            {{ if .Lpa.RegisteredAt.IsZero }}
+              {{ template "donorCard" (card $.App .) }}
+            {{ else }}
+              {{ $hasRegistered = true }}
+            {{ end }}
+          {{ end }}
+
+          <h3 class="govuk-heading-m">{{ tr .App "registeredLpas" }}</h3>
+
+          {{ trHtml .App "registeredLpasContent" }}
+
+          {{ template "details" (details . "whatIsTheUseService" "whatIsTheUseServiceDetails" false) }}
+          
+          {{ if $hasRegistered }}
+            {{ range .DonorLpas }}
+              {{ if not .Lpa.RegisteredAt.IsZero }}
+                {{ template "donorCard" (card $.App .) }}                
+              {{ end }}
+            {{ end }}
           {{ end }}
         {{ if .UseTabs }}</div>{{ end }}
       {{ end }}
@@ -177,9 +207,28 @@
         {{ if .UseTabs }}<div class="govuk-tabs__panel" id="attorney">{{ end }}
           <h2 class="govuk-heading-l">{{ tr .App "imAnAttorney" }}</h2>
           <p class="govuk-body">{{ tr .App "viewAndManageAttorney" }}</p>
+          {{ $hasRegistered := false }}
           {{ range .AttorneyLpas }}
-            {{ template "attorneyCard" (card $.App .) }}
+            {{ if .Lpa.RegisteredAt.IsZero }}
+              {{ template "attorneyCard" (card $.App .) }}
+            {{ else }}
+              {{ $hasRegistered = true }}
+            {{ end }}
           {{ end }}
+
+          <h3 class="govuk-heading-m">{{ tr .App "registeredLpas" }}</h3>
+
+          {{ trHtml .App "registeredLpasContentAttorney" }}
+
+          {{ template "details" (details . "whatIsTheUseService" "whatIsTheUseServiceDetails" false) }}
+          
+          {{ if $hasRegistered }}
+            {{ range .AttorneyLpas }}
+              {{ if not .Lpa.RegisteredAt.IsZero }}
+                {{ template "donorCard" (card $.App .) }}                
+              {{ end }}
+            {{ end }}
+          {{ end }}          
         {{ if .UseTabs }}</div>{{ end }}
       {{ end }}
 
