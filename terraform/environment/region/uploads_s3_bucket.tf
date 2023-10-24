@@ -13,7 +13,6 @@ data "aws_ecr_repository" "s3_create_batch_replication_jobs" {
   provider = aws.management
 }
 
-
 module "uploads_s3_bucket" {
   source = "./modules/uploads_s3_bucket"
 

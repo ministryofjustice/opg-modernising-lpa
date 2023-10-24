@@ -457,7 +457,7 @@ type payHelper struct {
 
 func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 	if lpa.FeeType.IsNoFee() || lpa.FeeType.IsHardshipFee() || lpa.Tasks.PayForLpa.IsMoreEvidenceRequired() {
-		for i, evidence := range lpa.Evidence {
+		for i, evidence := range lpa.Evidence.Documents {
 			if evidence.Sent.IsZero() {
 				err := p.evidenceS3Client.PutObjectTagging(r.Context(), evidence.Key, []types.Tag{
 					{Key: aws.String("replicate"), Value: aws.String("true")},
@@ -468,7 +468,7 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 					return err
 				}
 
-				lpa.Evidence[i].Sent = p.now()
+				lpa.Evidence.Documents[i].Sent = p.now()
 			}
 		}
 
