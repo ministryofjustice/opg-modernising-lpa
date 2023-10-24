@@ -90,7 +90,7 @@ func (f *enterReferenceNumberForm) Validate() validation.List {
 	errors.String("reference-number", "twelveCharactersReferenceNumber", f.ReferenceNumber,
 		validation.Empty())
 
-	errors.String("reference-number", "referenceNumberMustBeTwelveCharacters", f.ReferenceNumber,
+	errors.String("reference-number", "theReferenceNumberYouEnter", f.ReferenceNumber,
 		validation.StringLength(12))
 
 	return errors

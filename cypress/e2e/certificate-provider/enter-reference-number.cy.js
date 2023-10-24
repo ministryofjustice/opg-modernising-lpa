@@ -54,9 +54,9 @@ describe('Enter reference number', () => {
         cy.contains('Continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('The certificate provider reference number you enter must contain 12 characters');
+            cy.contains('The reference number you enter must be 12 characters');
         });
 
-        cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'The certificate provider reference number you enter must contain 12 characters');
+        cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'The reference number you enter must be 12 characters');
     });
 });
