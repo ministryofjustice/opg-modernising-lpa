@@ -420,7 +420,7 @@
     "howShouldYourReplacementAttorneysStepIn": "Sut dylai eich atwrneiod wrth gefn gamu i mewn?",
     "howShouldReplacementAttorneysStepInDetailSomeOtherWay": "<p class=\"govuk-body\">Gallwch ddewis pryd fydd eich atwrneiod wrth gefn yn camu i mewn ac ym mha drefn.</p><p class=\"govuk-body\">Mae’r rhan fwyaf o roddwyr yn dewis i’w holl atwrneiod wrth gefn gamu i mewn ar yr un pryd, hynny yw, cyn gynted ag y bydd un o’u hatwrneiod gwreiddiol yn methu â gweithredu mwyach. Serch hynny, os byddai’n well gennych i’ch atwrneiod wrth gefn gamu i mewn yn hwyrach neu mewn trefn benodol, dewiswch un o’r 2 opsiwn arall.</p>",
     "whenOneCanNoLongerAct": "Gyda’i gilydd, cyn gynted ag y bydd <span class=\"govuk-!-font-weight-bold\">un</span> o’ch atwrneiod gwreiddiol yn methu gweithredu mwyach. Byddant yn gallu gwneud penderfyniadau ar y cyd ac yn unigol ag unrhyw atwrnai gwreiddiol sy’n parhau i weithredu.\n",
-    "whenNoneCanNoLongerAct": "Gyda’i gilydd, pan na all <span class=\"govuk-!-font-weight-bold\">unrhyw un</span> o'ch atwrneiod gwreiddiol weithredu\n",
+    "whenNoneCanNoLongerAct": "Gyda’i gilydd, pan na all <span class=\"govuk-!-font-weight-bold\">unrhyw un</span> o’ch atwrneiod gwreiddiol weithredu\n",
     "otherWay": "Mewn trefn benodol",
     "otherWayHint": "Disgrifiwch sut yr hoffech i’ch atwrneiod wrth gefn gamu i mewn. Byddwch yn ofalus - y mwyaf penodol yw’ch cyfarwyddiadau, y mwyaf tebygol na fydd eich atwrneiod wrth gefn yn gallu eu dilyn. Os oes gennych unrhyw amheuaeth, gofynnwch am gyngor cyfreithiol.",
     "whenYourReplacementAttorneysStepIn": "Pryd fydd eich atwrneiod wrth gefn yn camu i mewn",
@@ -510,7 +510,7 @@
     "referenceNumberHint": "Bydd y cyfeirnod yn cynnwys 12 nod. Er enghraifft, ABCD-1234-5678.",
     "incorrectReferenceNumber": "Welsh",
     "twelveCharactersReferenceNumber": "welsh",
-    "referenceNumberMustBeTwelveCharacters": "Rhaid i'r rhif cyfeirnod a roddwch fod yn 12 cymeriad",
+    "referenceNumberMustBeTwelveCharacters": "Rhaid i’r rhif cyfeirnod a roddwch fod yn 12 cymeriad",
     "whenAttorneysCanUseTheLpa": "Pryd y gall atwrneiod ddefnyddio’r LPA",
     "theirAttorneys": {
         "one": "Yr atwrneiod",
