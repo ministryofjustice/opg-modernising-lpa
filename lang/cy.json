@@ -915,5 +915,9 @@
     "confirmYourCertificateProviderIsNotRelatedContent": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh <a href=\"{{.Link}}\" class=\"govuk-link\">Welsh</a>.</p><p class=\"govuk-body\">Welsh</p>",
     "iConfirmThatMyCertificateProviderIsNotRelated": "Welsh",
     "theBoxToConfirmYourCertificateProviderIsNotRelated": "Welsh",
-    "youMustReviewTheInformationYouHaveEntered": "Welsh"
+    "youMustReviewTheInformationYouHaveEntered": "Welsh",
+    "yourFilesAreUploading": "Welsh",
+    "0OfNFilesUploaded": "Welsh {{ .TotalFilesCount }} welsh",
+    "yourFilesAreUploadingContent": "Welsh",
+    "cancelUpload": "Welsh"
 }

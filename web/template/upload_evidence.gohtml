@@ -39,7 +39,7 @@
       {{ end }}
 
       <div class="govuk-!-width-two-thirds">
-        <form novalidate method="post" enctype="multipart/form-data">
+        <form novalidate method="post" enctype="multipart/form-data" id="upload-form">
           {{ template "csrf-field" . }}
 
           <input type="hidden" id="f-upload-action" name="action" value="upload" />
@@ -61,7 +61,7 @@
       {{ if gt $evidenceCount 0 }}
         <h2 class="govuk-heading-m">{{ tr .App "uploadedFiles" }}</h2>
 
-        <form novalidate method="post" enctype="multipart/form-data">
+        <form novalidate method="post" enctype="multipart/form-data" id="delete-form">
           {{ template "csrf-field" . }}
 
           <input type="hidden" id="f-delete-action" name="action" value="delete" />
@@ -92,7 +92,7 @@
         </form>
       {{ end }}
 
-      <form novalidate method="post" enctype="multipart/form-data">
+      <form novalidate method="post" enctype="multipart/form-data" id="pay-form">
         {{ template "csrf-field" . }}
 
         <input type="hidden" id="f-pay-action" name="action" value="pay" />
@@ -105,7 +105,7 @@
         </div>
       </form>
 
-      <form novalidate method="post" enctype="multipart/form-data">
+      <form novalidate method="post" enctype="multipart/form-data" id="cancel-upload-form">
         {{ template "csrf-field" . }}
 
         <input type="hidden" id="f-cancel-upload-action" name="action" value="cancel-upload" />
@@ -125,7 +125,7 @@
           <div class="app-loading-spinner" data-sse-url="{{ link .App (.App.Paths.Events.Format .App.LpaID) }}">
             <div class="app-loading-spinner__spinner" aria-live="polite" role="status"></div>
             <div class="app-loading-spinner__content">
-              <h3 id="dialog-title" class="govuk-heading-s" tabindex="0">{{ tr .App "nOfNFilesUploaded" }}</h3>
+              <h3 id="file-count" class="govuk-heading-s" tabindex="0">{{ trFormat .App "0OfNFilesUploaded" "TotalFilesCount" .TotalFilesCount }}</h3>
             </div>
           </div>
 

@@ -860,9 +860,8 @@
     "iConfirmThatMyCertificateProviderIsNotRelated": "I confirm that my certificate provider is not related to me or any of my attorneys",
     "theBoxToConfirmYourCertificateProviderIsNotRelated": "the box to confirm your certificate provider is not related to you or your attorneys, or choose another certificate provider",
     "youMustReviewTheInformationYouHaveEntered": "You must review the information you have entered.",
-    "yourFilesAreUploading": "Your files uploading",
-    "nOfNFilesUploaded": "1 of 4 files uploaded",
+    "yourFilesAreUploading": "Your files are uploading",
+    "0OfNFilesUploaded": "0 of {{ .TotalFilesCount }} files uploaded",
     "yourFilesAreUploadingContent": "This may take a few minutes. Please do not close your browser window.",
     "cancelUpload": "Cancel upload"
-
 }

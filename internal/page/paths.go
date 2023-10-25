@@ -132,7 +132,6 @@ type AppPaths struct {
 	EnterReplacementTrustCorporationAddress              LpaPath
 	EnterTrustCorporation                                LpaPath
 	EnterTrustCorporationAddress                         LpaPath
-	Events                                               LpaPath
 	EvidenceRequired                                     LpaPath
 	FeeDenied                                            LpaPath
 	GettingHelpSigning                                   LpaPath
@@ -169,6 +168,7 @@ type AppPaths struct {
 	SignYourLpa                                          LpaPath
 	TaskList                                             LpaPath
 	UploadEvidence                                       LpaPath
+	UploadEvidenceSSE                                    LpaPath
 	UseExistingAddress                                   LpaPath
 	WhatACertificateProviderDoes                         LpaPath
 	WhatHappensAfterNoFee                                LpaPath
@@ -264,7 +264,6 @@ var Paths = AppPaths{
 	EnterReplacementTrustCorporationAddress:              "/enter-replacement-trust-corporation-address",
 	EnterTrustCorporation:                                "/enter-trust-corporation",
 	EnterTrustCorporationAddress:                         "/enter-trust-corporation-address",
-	Events:                                               "/events",
 	EvidenceRequired:                                     "/evidence-required",
 	FeeDenied:                                            "/fee-denied",
 	Fixtures:                                             "/fixtures",
@@ -307,6 +306,7 @@ var Paths = AppPaths{
 	Start:                                                "/start",
 	TaskList:                                             "/task-list",
 	UploadEvidence:                                       "/upload-evidence",
+	UploadEvidenceSSE:                                    "/upload-evidence-sse",
 	UseExistingAddress:                                   "/use-existing-address",
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
 	WhatHappensAfterNoFee:                                "/what-happens-after-no-fee",

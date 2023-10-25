@@ -5,6 +5,7 @@ export class FileUploadSpinner {
 
         this.dialog = document.getElementById('dialog')
         this.dialogOverlay = document.getElementById('dialog-overlay')
+        this.dialogFileCount = document.getElementById('file-count')
 
         this.sseURL = document.querySelector("[data-sse-url]").dataset.sseUrl
         this.eventSource = null
@@ -28,8 +29,17 @@ export class FileUploadSpinner {
 
     openConnection() {
         this.eventSource = new EventSource(this.sseURL);
+
         this.eventSource.onmessage = (event) => {
-            console.log(event.data)
+            const data = JSON.parse(event.data)
+
+            if (data.scannedTotal === data.fileTotal) {
+                document.getElementById('pay-form').submit()
+            }
+
+            let parts = this.dialogFileCount.innerHTML.split(' ')
+            parts[0] = data.scannedTotal
+            this.dialogFileCount.innerHTML = parts.join(' ')
         };
     }
 

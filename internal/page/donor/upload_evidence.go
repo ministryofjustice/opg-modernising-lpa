@@ -54,6 +54,7 @@ type uploadEvidenceData struct {
 	MimeTypes            []string
 	Deleted              string
 	UploadedCount        int
+	TotalFilesCount      int
 }
 
 func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, randomUUID func() string, evidenceS3Client S3Client) Handler {
@@ -120,6 +121,7 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 			}
 		}
 
+		data.TotalFilesCount = len(lpa.Evidence.Documents)
 		return tmpl(w, data)
 	}
 }
