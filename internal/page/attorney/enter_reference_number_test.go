@@ -297,14 +297,14 @@ func TestValidateEnterReferenceNumberForm(t *testing.T) {
 		"too short": {
 			form: &enterReferenceNumberForm{ReferenceNumber: "1"},
 			errors: validation.With("reference-number", validation.StringLengthError{
-				Label:  "referenceNumberMustBeTwelveCharacters",
+				Label:  "theReferenceNumberYouEnter",
 				Length: 12,
 			}),
 		},
 		"too long": {
 			form: &enterReferenceNumberForm{ReferenceNumber: "abcdef1234567"},
 			errors: validation.With("reference-number", validation.StringLengthError{
-				Label:  "referenceNumberMustBeTwelveCharacters",
+				Label:  "theReferenceNumberYouEnter",
 				Length: 12,
 			}),
 		},
