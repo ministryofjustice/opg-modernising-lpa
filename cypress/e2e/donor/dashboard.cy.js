@@ -72,7 +72,7 @@ describe('Dashboard', () => {
             cy.contains('Property and affairs');
             cy.contains('Sam Smith');
             cy.contains('strong', 'Registered');
-            cy.contains('a', 'View LPA');
+            cy.contains('a', 'View signed LPA');
             cy.contains('a', 'Use');
         });
     });
