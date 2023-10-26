@@ -826,6 +826,13 @@
     "errorFileIncorrectType": "{{.Filename}}: Welsh",
     "errorFileEmpty": "{{.Filename}}: Welsh",
     "errorGenericUploadProblemFile": "{{.Filename}}: Welsh",
+    "errorFileInfected": {
+        "one": "{{.Filenames}} Welsh",
+        "two": "{{.Filenames}} Welsh",
+        "few": "{{.Filenames}} Welsh",
+        "many": "{{.Filenames}} Welsh",
+        "other": "{{.Filenames}} Welsh"
+    },
     "halfFeeNextSteps": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh</p>",
     "referenceNumber": "Welsh",
     "lastUpdated": "Welsh",

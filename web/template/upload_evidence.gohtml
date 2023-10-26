@@ -44,9 +44,13 @@
 
           <input type="hidden" id="f-upload-action" name="action" value="upload" />
 
-          <div class="govuk-form-group">
+          <div class="govuk-form-group {{ if .Errors.Has "upload" }}govuk-form-group--error{{ end }}">
             <label class="govuk-label--m" for="f-upload">{{ tr .App "uploadAFile" }}</label>
+
+            {{ template "error-message" (errorMessage . "upload") }}
+
             {{ trFormatHtml .App "uploadGuidance" "NumberOfAllowedFiles" .NumberOfAllowedFiles }}
+
             <input class="govuk-file-upload" id="f-upload" name="upload" type="file" accept="{{ concatComma .MimeTypes }}" multiple />
           </div>
 
@@ -122,7 +126,7 @@
 
           <h2 id="dialog-title" class="govuk-heading-l" tabindex="0">{{ tr .App "yourFilesAreUploading" }}</h2>
 
-          <div class="app-loading-spinner" data-sse-url="{{ link .App (.App.Paths.Events.Format .App.LpaID) }}">
+          <div class="app-loading-spinner" data-sse-url="{{ link .App (.App.Paths.UploadEvidenceSSE.Format .App.LpaID) }}">
             <div class="app-loading-spinner__spinner" aria-live="polite" role="status"></div>
             <div class="app-loading-spinner__content">
               <h3 id="file-count" class="govuk-heading-s" tabindex="0">{{ trFormat .App "0OfNFilesUploaded" "TotalFilesCount" .TotalFilesCount }}</h3>
