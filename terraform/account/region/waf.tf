@@ -118,7 +118,7 @@ resource "aws_wafv2_web_acl" "main" {
     statement {
       size_constraint_statement {
         comparison_operator = "GT"
-        size                = 33554432
+        size                = 104857600
 
         field_to_match {
           body {
