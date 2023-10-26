@@ -255,6 +255,161 @@ func TestPostUploadEvidenceWithPayAction(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestPostUploadEvidenceWithPayActionWithInfectedFiles(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, _ := writer.CreateFormField("csrf")
+	io.WriteString(part, "123")
+
+	part, _ = writer.CreateFormField("action")
+	io.WriteString(part, "pay")
+
+	writer.Close()
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), &page.Lpa{
+			UID:      "lpa-uid",
+			FeeType:  page.HalfFee,
+			Evidence: page.Evidence{Documents: []page.Document{{Filename: "c", VirusDetected: false}}},
+		}).
+		Return(nil)
+
+	localizer := newMockLocalizer(t)
+	localizer.
+		On("FormatCount", "errorFileInfected", 3, map[string]interface{}{"Filenames": "a, b and d"}).
+		Return("formatted string")
+	localizer.
+		On("Concat", []string{"a", "b", "d"}, "and").
+		Return("a, b and d")
+	localizer.
+		On("T", "and").
+		Return("and")
+
+	testAppData.Localizer = localizer
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &uploadEvidenceData{
+			App:                  testAppData,
+			Evidence:             page.Evidence{Documents: []page.Document{{Filename: "c", VirusDetected: false}}},
+			NumberOfAllowedFiles: 5,
+			MimeTypes:            acceptedMimeTypes(),
+			FeeType:              page.HalfFee,
+			Errors:               validation.With("upload", validation.CustomError{Label: "formatted string"}),
+		}).
+		Return(nil)
+
+	err := UploadEvidence(template.Execute, nil, donorStore, nil, nil)(testAppData, w, r, &page.Lpa{
+		UID:     "lpa-uid",
+		FeeType: page.HalfFee,
+		Evidence: page.Evidence{Documents: []page.Document{
+			{Filename: "a", VirusDetected: true},
+			{Filename: "b", VirusDetected: true},
+			{Filename: "c", VirusDetected: false},
+			{Filename: "d", VirusDetected: true},
+		}},
+	})
+	assert.Nil(t, err)
+}
+
+func TestPostUploadEvidenceWithPayActionWithInfectedFilesWhenDonorStoreErrors(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, _ := writer.CreateFormField("csrf")
+	io.WriteString(part, "123")
+
+	part, _ = writer.CreateFormField("action")
+	io.WriteString(part, "pay")
+
+	writer.Close()
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), &page.Lpa{
+			UID:      "lpa-uid",
+			FeeType:  page.HalfFee,
+			Evidence: page.Evidence{Documents: []page.Document{{Filename: "c", VirusDetected: false}}},
+		}).
+		Return(expectedError)
+
+	err := UploadEvidence(nil, nil, donorStore, nil, nil)(testAppData, w, r, &page.Lpa{
+		UID:     "lpa-uid",
+		FeeType: page.HalfFee,
+		Evidence: page.Evidence{Documents: []page.Document{
+			{Filename: "a", VirusDetected: true},
+			{Filename: "b", VirusDetected: true},
+			{Filename: "c", VirusDetected: false},
+			{Filename: "d", VirusDetected: true},
+		}},
+	})
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestPostUploadEvidenceWithPayActionWithInfectedFilesWhenTemplateError(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, _ := writer.CreateFormField("csrf")
+	io.WriteString(part, "123")
+
+	part, _ = writer.CreateFormField("action")
+	io.WriteString(part, "pay")
+
+	writer.Close()
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), mock.Anything).
+		Return(nil)
+
+	localizer := newMockLocalizer(t)
+	localizer.
+		On("FormatCount", mock.Anything, mock.Anything, mock.Anything).
+		Return("formatted string")
+	localizer.
+		On("Concat", mock.Anything, mock.Anything).
+		Return("a, b and d")
+	localizer.
+		On("T", mock.Anything).
+		Return("and")
+
+	testAppData.Localizer = localizer
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, mock.Anything).
+		Return(expectedError)
+
+	err := UploadEvidence(template.Execute, nil, donorStore, nil, nil)(testAppData, w, r, &page.Lpa{
+		UID:     "lpa-uid",
+		FeeType: page.HalfFee,
+		Evidence: page.Evidence{Documents: []page.Document{
+			{Filename: "a", VirusDetected: true},
+			{Filename: "b", VirusDetected: true},
+			{Filename: "c", VirusDetected: false},
+			{Filename: "d", VirusDetected: true},
+		}},
+	})
+
+	assert.Equal(t, expectedError, err)
+}
+
 func TestPostUploadEvidenceWhenBadCsrfField(t *testing.T) {
 	var buf bytes.Buffer
 	writer := multipart.NewWriter(&buf)
