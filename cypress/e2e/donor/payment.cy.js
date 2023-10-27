@@ -76,6 +76,8 @@ describe('Pay for LPA', () => {
             cy.contains('dummy.png');
         });
 
+        cy.contains('button', 'Continue').click()
+
         cy.get('#dialog').should('not.have.class', 'govuk-!-display-none');
         cy.get('#dialog-overlay').should('not.have.class', 'govuk-!-display-none');
         cy.get('#file-count').should('contain', '0 of 2 files uploaded');
@@ -93,8 +95,6 @@ describe('Pay for LPA', () => {
         });
 
         cy.contains('button', 'Continue').click()
-
-        cy.contains('button', 'Continue to payment').click()
 
         cy.url().should('contain', '/payment-confirmation');
     })
@@ -247,7 +247,7 @@ describe('Pay for LPA', () => {
     })
 
     it('can only delete evidence that has not been sent to OPG', () => {
-        cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&feeType=half-fee');
+        cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&feeType=HalfFee');
         cy.checkA11yApp();
 
         cy.get('input[type="file"]').attachFile(['dummy.pdf']);

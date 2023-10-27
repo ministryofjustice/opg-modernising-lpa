@@ -4,7 +4,7 @@ import * as GOVUKFrontend from "govuk-frontend";
 import $ from 'jquery';
 import { CrossServiceHeader } from './service-header';
 import { DataLossWarning } from './data-loss-warning';
-import {FileUploadSpinner} from "./file-upload-spinner";
+import { FileUploadSpinner } from "./file-upload-spinner";
 
 // Account for DOMContentLoaded firing before JS runs
 if (document.readyState !== "loading") {
