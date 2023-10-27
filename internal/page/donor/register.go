@@ -40,6 +40,7 @@ type DonorStore interface {
 	Get(context.Context) (*page.Lpa, error)
 	Latest(context.Context) (*page.Lpa, error)
 	Put(context.Context, *page.Lpa) error
+	Delete(context.Context) error
 }
 
 type GetDonorStore interface {
@@ -185,6 +186,12 @@ func Register(
 	handleWithLpa := makeLpaHandle(lpaMux, sessionStore, RequireSession, errorHandler, donorStore)
 
 	handleLpa(page.Paths.Root, None, notFoundHandler)
+
+	handleWithLpa(page.Paths.DeleteThisLpa, None,
+		DeleteThisLpa(tmpls.Get("delete_this_lpa.gohtml"), donorStore))
+	handleWithLpa(page.Paths.WithdrawThisLpa, None,
+		WithdrawThisLpa(tmpls.Get("withdraw_this_lpa.gohtml"), donorStore, time.Now))
+
 	handleWithLpa(page.Paths.YourDetails, None,
 		YourDetails(tmpls.Get("your_details.gohtml"), donorStore, sessionStore))
 	handleWithLpa(page.Paths.YourAddress, None,

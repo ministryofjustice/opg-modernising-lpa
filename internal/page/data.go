@@ -165,6 +165,8 @@ type Lpa struct {
 	SubmittedAt time.Time
 	// RegisteredAt is when the Lpa was registered by the OPG
 	RegisteredAt time.Time
+	// WithdrawnAt is when the Lpa was withdrawn by the donor
+	WithdrawnAt time.Time
 
 	// Codes used for the certificate provider to witness signing
 	CertificateProviderCodes WitnessCodes
