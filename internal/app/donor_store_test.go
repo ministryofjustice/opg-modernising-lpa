@@ -692,3 +692,77 @@ func TestDonorStoreCreateWhenError(t *testing.T) {
 		})
 	}
 }
+
+func TestDonorStoreDelete(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", LpaID: "123"})
+
+	keys := []dynamo.Key{
+		{PK: "LPA#123", SK: "sk1"},
+		{PK: "LPA#123", SK: "sk2"},
+		{PK: "LPA#123", SK: "#DONOR#an-id"},
+	}
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("AllKeysByPk", ctx, "LPA#123").
+		Return(keys, nil)
+	dynamoClient.
+		On("DeleteKeys", ctx, keys).
+		Return(nil)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient}
+
+	err := donorStore.Delete(ctx)
+	assert.Nil(t, err)
+}
+
+func TestDonorStoreDeleteWhenOtherDonor(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", LpaID: "123"})
+
+	keys := []dynamo.Key{
+		{PK: "LPA#123", SK: "sk1"},
+		{PK: "LPA#123", SK: "sk2"},
+		{PK: "LPA#123", SK: "#DONOR#another-id"},
+	}
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("AllKeysByPk", ctx, "LPA#123").
+		Return(keys, nil)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient}
+
+	err := donorStore.Delete(ctx)
+	assert.NotNil(t, err)
+}
+
+func TestDonorStoreDeleteWhenAllKeysByPkErrors(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", LpaID: "123"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("AllKeysByPk", ctx, "LPA#123").
+		Return(nil, expectedError)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient}
+
+	err := donorStore.Delete(ctx)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestDonorStoreDeleteWhenDeleteKeysErrors(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", LpaID: "123"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("AllKeysByPk", ctx, "LPA#123").
+		Return([]dynamo.Key{{PK: "LPA#123", SK: "#DONOR#an-id"}}, nil)
+	dynamoClient.
+		On("DeleteKeys", ctx, mock.Anything).
+		Return(expectedError)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient}
+
+	err := donorStore.Delete(ctx)
+	assert.Equal(t, expectedError, err)
+}
