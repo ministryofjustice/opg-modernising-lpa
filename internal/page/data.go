@@ -230,6 +230,18 @@ func (e *Evidence) Put(document Document) {
 	}
 }
 
+func (e *Evidence) ScannedCount() int {
+	count := 0
+
+	for _, d := range e.Documents {
+		if !d.Scanned.IsZero() {
+			count++
+		}
+	}
+
+	return count
+}
+
 type Document struct {
 	Key           string
 	Filename      string

@@ -54,10 +54,15 @@ type uploadEvidenceData struct {
 	MimeTypes            []string
 	Deleted              string
 	UploadedCount        int
+	TotalFilesCount      int
 }
 
 func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, randomUUID func() string, evidenceS3Client S3Client) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+		if lpa.Tasks.PayForLpa.IsPending() {
+			return appData.Redirect(w, r, lpa, page.Paths.TaskList.Format(lpa.ID))
+		}
+
 		data := &uploadEvidenceData{
 			App:                  appData,
 			NumberOfAllowedFiles: numberOfAllowedFiles,
@@ -94,18 +99,46 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 					data.Evidence = lpa.Evidence
 
 				case "pay":
-					return payer.Pay(appData, w, r, lpa)
+					var filenames []string
 
-				case "delete":
-					evidence := lpa.Evidence.Get(form.DeleteKey)
-					if evidence.Key != "" {
-						if err := evidenceS3Client.DeleteObject(r.Context(), evidence.Key); err != nil {
+					// TODO decide if we want to delete from S3 now or run a job to delete all infected files
+					lpa.Evidence.Documents = slices.DeleteFunc(lpa.Evidence.Documents, func(d page.Document) bool {
+						if d.VirusDetected {
+							filenames = append(filenames, d.Filename)
+							return true
+						}
+
+						return false
+					})
+
+					if len(filenames) > 0 {
+						if err := donorStore.Put(r.Context(), lpa); err != nil {
 							return err
 						}
 
-						data.Deleted = evidence.Filename
+						// This is gross. There must be a nicer way to do this...
+						errorMessage := appData.Localizer.FormatCount(
+							"errorFileInfected",
+							len(filenames),
+							map[string]interface{}{"Filenames": appData.Localizer.Concat(filenames, appData.Localizer.T("and"))},
+						)
 
-						lpa.Evidence.Delete(evidence.Key)
+						data.Errors = validation.With("upload", validation.CustomError{Label: errorMessage})
+						data.Evidence = lpa.Evidence
+						return tmpl(w, data)
+					}
+
+					return payer.Pay(appData, w, r, lpa)
+				case "delete":
+					document := lpa.Evidence.Get(form.DeleteKey)
+					if document.Key != "" {
+						if err := evidenceS3Client.DeleteObject(r.Context(), document.Key); err != nil {
+							return err
+						}
+
+						data.Deleted = document.Filename
+
+						lpa.Evidence.Delete(document.Key)
 
 						if err := donorStore.Put(r.Context(), lpa); err != nil {
 							return err
@@ -120,6 +153,7 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 			}
 		}
 
+		data.TotalFilesCount = len(lpa.Evidence.Documents)
 		return tmpl(w, data)
 	}
 }
