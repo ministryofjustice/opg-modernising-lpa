@@ -88,20 +88,22 @@ type AppPaths struct {
 	CertificateProvider CertificateProviderPaths
 	HealthCheck         HealthCheckPaths
 
+	AttorneyFixtures                   Path
 	AuthRedirect                       Path
+	CertificateProviderFixtures        Path
+	CertificateProviderStart           Path
+	CookiesConsent                     Path
+	Dashboard                          Path
+	DashboardFixtures                  Path
+	Fixtures                           Path
 	Login                              Path
 	LoginCallback                      Path
+	LpaDeleted                         Path
+	LpaWithdrawn                       Path
 	Root                               Path
 	SignOut                            Path
-	Fixtures                           Path
-	AttorneyFixtures                   Path
-	CertificateProviderFixtures        Path
-	DashboardFixtures                  Path
-	YourLegalRightsAndResponsibilities Path
-	CertificateProviderStart           Path
 	Start                              Path
-	Dashboard                          Path
-	CookiesConsent                     Path
+	YourLegalRightsAndResponsibilities Path
 
 	AboutPayment                                         LpaPath
 	ApplicationReason                                    LpaPath
@@ -126,6 +128,7 @@ type AppPaths struct {
 	ChooseReplacementAttorneysSummary                    LpaPath
 	ChooseYourCertificateProvider                        LpaPath
 	ConfirmYourCertificateProviderIsNotRelated           LpaPath
+	DeleteThisLpa                                        LpaPath
 	DoYouWantReplacementAttorneys                        LpaPath
 	DoYouWantToNotifyPeople                              LpaPath
 	EnterReplacementTrustCorporation                     LpaPath
@@ -173,6 +176,7 @@ type AppPaths struct {
 	WhatHappensAfterNoFee                                LpaPath
 	WhenCanTheLpaBeUsed                                  LpaPath
 	WhichFeeTypeAreYouApplyingFor                        LpaPath
+	WithdrawThisLpa                                      LpaPath
 	WitnessingAsCertificateProvider                      LpaPath
 	WitnessingAsIndependentWitness                       LpaPath
 	WitnessingYourSignature                              LpaPath
@@ -257,6 +261,7 @@ var Paths = AppPaths{
 	CookiesConsent:                                       "/cookies-consent",
 	Dashboard:                                            "/dashboard",
 	DashboardFixtures:                                    "/fixtures/dashboard",
+	DeleteThisLpa:                                        "/delete-this-lpa",
 	DoYouWantReplacementAttorneys:                        "/do-you-want-replacement-attorneys",
 	DoYouWantToNotifyPeople:                              "/do-you-want-to-notify-people",
 	EnterReplacementTrustCorporation:                     "/enter-replacement-trust-corporation",
@@ -283,8 +288,10 @@ var Paths = AppPaths{
 	LifeSustainingTreatment:                              "/life-sustaining-treatment",
 	Login:                                                "/login",
 	LoginCallback:                                        "/login-callback",
+	LpaDeleted:                                           "/lpa-deleted",
 	LpaDetailsSaved:                                      "/lpa-details-saved",
 	LpaType:                                              "/lpa-type",
+	LpaWithdrawn:                                         "/lpa-withdrawn",
 	LpaYourLegalRightsAndResponsibilities:                "/your-legal-rights-and-responsibilities",
 	NeedHelpSigningConfirmation:                          "/need-help-signing-confirmation",
 	PaymentConfirmation:                                  "/payment-confirmation",
@@ -310,6 +317,7 @@ var Paths = AppPaths{
 	WhatHappensAfterNoFee:                                "/what-happens-after-no-fee",
 	WhenCanTheLpaBeUsed:                                  "/when-can-the-lpa-be-used",
 	WhichFeeTypeAreYouApplyingFor:                        "/which-fee-type-are-you-applying-for",
+	WithdrawThisLpa:                                      "/withdraw-this-lpa",
 	WitnessingAsCertificateProvider:                      "/witnessing-as-certificate-provider",
 	WitnessingAsIndependentWitness:                       "/witnessing-as-independent-witness",
 	WitnessingYourSignature:                              "/witnessing-your-signature",

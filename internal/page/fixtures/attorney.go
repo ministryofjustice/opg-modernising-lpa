@@ -46,6 +46,7 @@ func Attorney(
 		"signedByAttorney",
 		"signedByAllAttorneys",
 		"submitted",
+		"withdrawn",
 		"registered",
 	}
 
@@ -161,6 +162,7 @@ func Attorney(
 			lpa.SignedAt = time.Now()
 			certificateProvider.Certificate = actor.Certificate{Agreed: lpa.SignedAt.Add(time.Hour)}
 		}
+
 		if progress >= slices.Index(progressValues, "signedByAttorney") {
 			attorney.Mobile = testMobile
 			attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
@@ -181,6 +183,7 @@ func Attorney(
 				attorney.Confirmed = lpa.SignedAt.Add(2 * time.Hour)
 			}
 		}
+
 		if progress >= slices.Index(progressValues, "signedByAllAttorneys") {
 			for isReplacement, list := range map[bool]actor.Attorneys{false: lpa.Attorneys, true: lpa.ReplacementAttorneys} {
 				for _, a := range list.Attorneys {
@@ -230,9 +233,15 @@ func Attorney(
 				}
 			}
 		}
+
 		if progress >= slices.Index(progressValues, "submitted") {
 			lpa.SubmittedAt = time.Now()
 		}
+
+		if progress == slices.Index(progressValues, "withdrawn") {
+			lpa.WithdrawnAt = time.Now()
+		}
+
 		if progress >= slices.Index(progressValues, "registered") {
 			lpa.RegisteredAt = time.Now()
 		}
