@@ -42,18 +42,18 @@
         <div class="govuk-button-group">
           <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a>
           <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.Progress.Format .Item.Lpa.ID) }}">{{ tr .App "trackLpaProgress" }}</a>
-          <a class="govuk-button govuk-button--secondary" href="#">{{ tr .App "withdrawLpa" }}</a>
+          <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.WithdrawThisLpa.Format .Item.Lpa.ID) }}">{{ tr .App "withdrawLpa" }}</a>
         </div>
       {{ else if not .Item.Lpa.SignedAt.IsZero }}
         <div class="govuk-button-group">
           <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .Item.Lpa.ID) }}">{{ tr .App "goToTaskList" }}</a>
           <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.Progress.Format .Item.Lpa.ID) }}">{{ tr .App "trackLpaProgress" }}</a>
-          <a class="govuk-button govuk-button--secondary" href="#">{{ tr .App "withdrawLpa" }}</a>
+          <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.WithdrawThisLpa.Format .Item.Lpa.ID) }}">{{ tr .App "withdrawLpa" }}</a>
         </div>
       {{ else }}
         <div class="govuk-button-group">
           <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .Item.Lpa.ID) }}">{{ tr .App "goToTaskList" }}</a>
-          <a class="govuk-button govuk-button--secondary" href="#">{{ tr .App "deleteLpa" }}</a>
+          <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.DeleteThisLpa.Format .Item.Lpa.ID) }}">{{ tr .App "deleteLpa" }}</a>
         </div>
       {{ end }}
     </div>
