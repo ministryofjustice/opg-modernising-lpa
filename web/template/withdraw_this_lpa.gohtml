@@ -1,0 +1,50 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "withdrawThisLpa" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ tr .App "withdrawThisLpa" }}</h1>
+
+      <div class="govuk-summary-card">
+        <div class="govuk-summary-card__title-wrapper">
+          <h2 class="govuk-summary-card__title">{{ tr .App "lpaNumber" }}: {{ .Lpa.UID }}</h2>
+          <ul class="govuk-summary-card__actions">
+            <li class="govuk-summary-card__action">
+              <a class="govuk-link" href="#">View full LPA</a>
+            </li>
+          </ul>
+        </div>
+        <div class="govuk-summary-card__content">
+          <dl class="govuk-summary-list">
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">{{ tr .App "donorName" }}</dt>
+              <dd class="govuk-summary-list__value">{{ .Lpa.Donor.FullName }}</dd>
+            </div>
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">{{ tr .App "lpaType" }}</dt>
+              <dd class="govuk-summary-list__value">{{ if .Lpa.Type.IsPropertyFinance }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}</dd>
+            </div>
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">{{ tr .App "dateLpaSigned" }}</dt>
+              <dd class="govuk-summary-list__value">{{ formatDateTime .App .Lpa.SignedAt }}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      {{ trHtml .App "whatHappensWhenYouWithdrawYourLpa" }}
+
+      {{ template "warning" (warning .App "withdrawingThisLpaIsPermanent") }}
+
+      <form novalidate method="post">
+        <div class="govuk-button-group">
+          <button type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button">{{ tr .App "withdrawThisLpa" }}</button>
+          <a href="{{ link .App (.App.Paths.Dashboard.Format) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToDashboard" }}</a>
+        </div>
+        {{ template "csrf-field" . }}
+      </form>
+    </div>
+  </div>
+{{ end }}
