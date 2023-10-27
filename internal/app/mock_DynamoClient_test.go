@@ -70,6 +70,32 @@ func (_m *mockDynamoClient) AllForActor(ctx context.Context, sk string, v interf
 	return r0
 }
 
+// AllKeysByPk provides a mock function with given fields: ctx, pk
+func (_m *mockDynamoClient) AllKeysByPk(ctx context.Context, pk string) ([]dynamo.Key, error) {
+	ret := _m.Called(ctx, pk)
+
+	var r0 []dynamo.Key
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) ([]dynamo.Key, error)); ok {
+		return rf(ctx, pk)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) []dynamo.Key); ok {
+		r0 = rf(ctx, pk)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]dynamo.Key)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, pk)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Create provides a mock function with given fields: ctx, v
 func (_m *mockDynamoClient) Create(ctx context.Context, v interface{}) error {
 	ret := _m.Called(ctx, v)
@@ -77,6 +103,20 @@ func (_m *mockDynamoClient) Create(ctx context.Context, v interface{}) error {
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, interface{}) error); ok {
 		r0 = rf(ctx, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// DeleteKeys provides a mock function with given fields: ctx, keys
+func (_m *mockDynamoClient) DeleteKeys(ctx context.Context, keys []dynamo.Key) error {
+	ret := _m.Called(ctx, keys)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Key) error); ok {
+		r0 = rf(ctx, keys)
 	} else {
 		r0 = ret.Error(0)
 	}

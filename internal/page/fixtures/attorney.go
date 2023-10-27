@@ -46,6 +46,7 @@ func Attorney(
 		"signedByAttorney",
 		"signedByAllAttorneys",
 		"submitted",
+		"withdrawn",
 		"registered",
 	}
 
@@ -232,6 +233,9 @@ func Attorney(
 		}
 		if progress >= slices.Index(progressValues, "submitted") {
 			lpa.SubmittedAt = time.Now()
+		}
+		if progress >= slices.Index(progressValues, "withdrawn") {
+			lpa.WithdrawnAt = time.Now()
 		}
 		if progress >= slices.Index(progressValues, "registered") {
 			lpa.RegisteredAt = time.Now()
