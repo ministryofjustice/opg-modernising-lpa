@@ -59,6 +59,10 @@ type uploadEvidenceData struct {
 
 func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, randomUUID func() string, evidenceS3Client S3Client) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+		if lpa.Tasks.PayForLpa.IsPending() {
+			return appData.Redirect(w, r, lpa, page.Paths.TaskList.Format(lpa.ID))
+		}
+
 		data := &uploadEvidenceData{
 			App:                  appData,
 			NumberOfAllowedFiles: numberOfAllowedFiles,
