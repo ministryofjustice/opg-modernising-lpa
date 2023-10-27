@@ -134,6 +134,31 @@ type Key struct {
 	SK string
 }
 
+func (c *Client) AllKeysByPk(ctx context.Context, pk string) ([]Key, error) {
+	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
+		TableName:                aws.String(c.table),
+		ExpressionAttributeNames: map[string]string{"#PK": "PK"},
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":PK": &types.AttributeValueMemberS{Value: pk},
+		},
+		KeyConditionExpression: aws.String("#PK = :PK"),
+		ProjectionExpression:   aws.String("PK, SK"),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(response.Items) == 0 {
+		return nil, NotFoundError{}
+	}
+
+	var keys []Key
+	err = attributevalue.UnmarshalListOfMaps(response.Items, &keys)
+
+	return keys, err
+}
+
 func (c *Client) AllByKeys(ctx context.Context, keys []Key) ([]map[string]types.AttributeValue, error) {
 	var keyAttrs []map[string]types.AttributeValue
 	for _, key := range keys {
@@ -241,6 +266,28 @@ func (c *Client) Create(ctx context.Context, v interface{}) error {
 		TableName:           aws.String(c.table),
 		Item:                item,
 		ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
+	})
+
+	return err
+}
+
+func (c *Client) DeleteKeys(ctx context.Context, keys []Key) error {
+	items := make([]types.TransactWriteItem, len(keys))
+
+	for i, key := range keys {
+		items[i] = types.TransactWriteItem{
+			Delete: &types.Delete{
+				TableName: aws.String(c.table),
+				Key: map[string]types.AttributeValue{
+					"PK": &types.AttributeValueMemberS{Value: *aws.String(key.PK)},
+					"SK": &types.AttributeValueMemberS{Value: *aws.String(key.SK)},
+				},
+			},
+		}
+	}
+
+	_, err := c.svc.TransactWriteItems(ctx, &dynamodb.TransactWriteItemsInput{
+		TransactItems: items,
 	})
 
 	return err
