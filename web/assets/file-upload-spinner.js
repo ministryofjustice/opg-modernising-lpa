@@ -85,6 +85,7 @@ export class FileUploadSpinner {
         }
 
         if (escPressed) {
+            this.closeConnection()
             this.toggleDialogVisibility()
         }
     }
