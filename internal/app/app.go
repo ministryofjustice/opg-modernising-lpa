@@ -45,8 +45,10 @@ type DynamoClient interface {
 	LatestForActor(ctx context.Context, sk string, v interface{}) error
 	AllForActor(ctx context.Context, sk string, v interface{}) error
 	AllByKeys(ctx context.Context, pks []dynamo.Key) ([]map[string]dynamodbtypes.AttributeValue, error)
+	AllKeysByPk(ctx context.Context, pk string) ([]dynamo.Key, error)
 	Put(ctx context.Context, v interface{}) error
 	Create(ctx context.Context, v interface{}) error
+	DeleteKeys(ctx context.Context, keys []dynamo.Key) error
 }
 
 //go:generate mockery --testonly --inpackage --name S3Client --structname mockS3Client
@@ -128,6 +130,10 @@ func App(
 		page.Guidance(tmpls.Get("attorney_start.gohtml")))
 	handleRoot(page.Paths.Dashboard, RequireSession,
 		page.Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, dashboardStore))
+	handleRoot(page.Paths.LpaDeleted, RequireSession,
+		page.Guidance(tmpls.Get("lpa_deleted.gohtml")))
+	handleRoot(page.Paths.LpaWithdrawn, RequireSession,
+		page.Guidance(tmpls.Get("lpa_withdrawn.gohtml")))
 
 	certificateprovider.Register(
 		rootMux,
