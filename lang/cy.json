@@ -882,5 +882,19 @@
     "registeredLpasContent": "<p class=\"govuk-body\">Welsh</p>",
     "registeredLpasContentAttorney": "<p class=\"govuk-body\">Welsh</p>",
     "whatIsTheUseService": "Welsh",
-    "whatIsTheUseServiceDetails": "<p class=\"govuk-body\">Welsh</p>"
+    "whatIsTheUseServiceDetails": "<p class=\"govuk-body\">Welsh</p>",
+    "deleteThisLpa": "Welsh",
+    "donorName": "Welsh",
+    "lpaType": "Welsh",
+    "whatHappensWhenYouDeleteYourLpa": "<h2 class=\"govuk-heading-m\">Welsh</h2>",
+    "deletingThisLpaIsPermanent": "Welsh",
+    "lpaDeleted": "Welsh",
+    "lpaNumberHasBeenDeleted": "Welsh <span class=\"govuk-!-font-weight-bold\">{{.UID}}</span> Welsh",
+    "withdrawThisLpa": "Welsh",
+    "whatHappensWhenYouWithdrawYourLpa": "<h2 class=\"govuk-heading-m\">Welsh</h2>",
+    "withdrawingThisLpaIsPermanent": "Welsh",
+    "lpaWithdrawn": "Welsh",
+    "youHaveWithdrawnLpaNumber": "Welsh <span class=\"govuk-!-font-weight-bold\">{{.UID}}</span>",
+    "opgWillNowContactAnyoneWhoHasAlreadyBeenContacted": "Welsh",
+    "withdrawn": "Welsh"
 }
