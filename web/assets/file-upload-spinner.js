@@ -13,7 +13,9 @@ export class FileUploadSpinner {
 
         this.eventSource = null
 
-        this.registerListeners()
+        if (this.continueButton && this.cancelUploadButton) {
+            this.registerListeners()
+        }
     }
 
     registerListeners() {

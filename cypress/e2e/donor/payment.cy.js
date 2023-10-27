@@ -76,6 +76,24 @@ describe('Pay for LPA', () => {
             cy.contains('dummy.png');
         });
 
+        cy.get('#dialog').should('not.have.class', 'govuk-!-display-none');
+        cy.get('#dialog-overlay').should('not.have.class', 'govuk-!-display-none');
+        cy.get('#file-count').should('contain', '0 of 2 files uploaded');
+
+        cy.contains('button', 'Cancel upload').click()
+        cy.get('#dialog').should('have.class', 'govuk-!-display-none');
+        cy.get('#dialog-overlay').should('have.class', 'govuk-!-display-none');
+
+        // spoofing virus scan completing
+        cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&paymentTaskProgress=InProgress&feeType=HalfFee');
+        cy.url().should('contain', '/upload-evidence');
+
+        cy.get('.govuk-summary-list').within(() => {
+            cy.contains('supporting-evidence.png');
+        });
+
+        cy.contains('button', 'Continue').click()
+
         cy.contains('button', 'Continue to payment').click()
 
         cy.url().should('contain', '/payment-confirmation');
@@ -128,6 +146,24 @@ describe('Pay for LPA', () => {
 
         cy.get('.govuk-summary-list').within(() => {
             cy.contains('dummy.pdf');
+        });
+
+        cy.contains('button', 'Continue').click()
+
+        cy.get('#dialog').should('not.have.class', 'govuk-!-display-none');
+        cy.get('#dialog-overlay').should('not.have.class', 'govuk-!-display-none');
+        cy.get('#file-count').should('contain', '0 of 1 files uploaded');
+
+        cy.contains('button', 'Cancel upload').click()
+        cy.get('#dialog').should('have.class', 'govuk-!-display-none');
+        cy.get('#dialog-overlay').should('have.class', 'govuk-!-display-none');
+
+        // spoofing virus scan completing
+        cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&paymentTaskProgress=InProgress&feeType=NoFee');
+        cy.url().should('contain', '/upload-evidence');
+
+        cy.get('.govuk-summary-list').within(() => {
+            cy.contains('supporting-evidence.png');
         });
 
         cy.contains('button', 'Continue').click()
@@ -187,6 +223,24 @@ describe('Pay for LPA', () => {
 
         cy.contains('button', 'Continue').click()
 
+        cy.get('#dialog').should('not.have.class', 'govuk-!-display-none');
+        cy.get('#dialog-overlay').should('not.have.class', 'govuk-!-display-none');
+        cy.get('#file-count').should('contain', '0 of 1 files uploaded');
+
+        cy.contains('button', 'Cancel upload').click()
+        cy.get('#dialog').should('have.class', 'govuk-!-display-none');
+        cy.get('#dialog-overlay').should('have.class', 'govuk-!-display-none');
+
+        // spoofing virus scan completing
+        cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&paymentTaskProgress=InProgress&feeType=HardshipFee');
+        cy.url().should('contain', '/upload-evidence');
+
+        cy.get('.govuk-summary-list').within(() => {
+            cy.contains('supporting-evidence.png');
+        });
+
+        cy.contains('button', 'Continue').click()
+
         // TODO: update once designs for page are finalised
         cy.url().should('contain', '/what-happens-after-no-fee');
         cy.checkA11yApp();
@@ -213,5 +267,29 @@ describe('Pay for LPA', () => {
         cy.get('.moj-banner').within(() => {
             cy.contains('You have deleted file dummy.pdf');
         });
+    })
+
+    it('errors when uploading a file with a virus', () => {
+        cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&paymentTaskProgress=InProgress&feeType=HardshipFee&withVirus=1');
+        cy.checkA11yApp();
+
+        cy.url().should('contain', '/upload-evidence');
+
+        cy.get('.govuk-summary-list').within(() => {
+            cy.contains('supporting-evidence.png');
+        });
+
+        cy.contains('button', 'Continue').click()
+
+        cy.url().should('contain', '/upload-evidence');
+        cy.checkA11yApp();
+
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('supporting-evidence.png cannot be uploaded as it contains a virus');
+        });
+
+        cy.contains('.govuk-form-group .govuk-error-message', 'supporting-evidence.png cannot be uploaded as it contains a virus');
+
+        cy.get('.govuk-summary-list').should('not.exist')
     })
 });
