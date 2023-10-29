@@ -53,6 +53,11 @@ export class FileUploadSpinner {
                 document.getElementById('pay-form').submit()
             }
 
+            if (data.closeConnection === "1") {
+                this.closeConnection()
+                document.getElementById('close-connection-form').submit()
+            }
+
             let parts = this.dialogFileCount.innerHTML.split(' ')
             parts[0] = data.scannedTotal
             this.dialogFileCount.innerHTML = parts.join(' ')

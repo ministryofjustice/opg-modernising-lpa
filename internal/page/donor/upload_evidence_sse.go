@@ -2,6 +2,7 @@ package donor
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -19,15 +20,23 @@ func UploadEvidenceSSE(store DonorStore, ttl time.Duration, flushFrequency time.
 		for start := time.Now(); time.Since(start) < ttl; {
 			lpa, err := store.Get(r.Context())
 			if err != nil {
+				printMessage("data: {\"closeConnection\": \"1\"}\n\n", w)
 				return err
 			}
 
-			fmt.Fprintf(w, "data: {\"fileTotal\": %d, \"scannedTotal\": %d}\n", fileTotal, lpa.Evidence.ScannedCount())
-			w.(http.Flusher).Flush()
+			printMessage(fmt.Sprintf("data: {\"fileTotal\": %d, \"scannedTotal\": %d}\n\n", fileTotal, lpa.Evidence.ScannedCount()), w)
 
 			time.Sleep(flushFrequency)
 		}
 
+		printMessage("data: {\"closeConnection\": \"1\"}\n\n", w)
+
 		return nil
 	}
+}
+
+func printMessage(message string, w io.Writer) {
+	fmt.Fprint(w, "event: message\n")
+	fmt.Fprint(w, message)
+	w.(http.Flusher).Flush()
 }

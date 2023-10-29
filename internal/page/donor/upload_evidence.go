@@ -129,6 +129,7 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 					}
 
 					return payer.Pay(appData, w, r, lpa)
+
 				case "delete":
 					document := lpa.Evidence.Get(form.DeleteKey)
 					if document.Key != "" {
@@ -146,6 +147,10 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 
 						data.Evidence = lpa.Evidence
 					}
+
+				case "closeConnection":
+					data.Errors = validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"})
+					return tmpl(w, data)
 
 				default:
 					return errors.New("unexpected action")

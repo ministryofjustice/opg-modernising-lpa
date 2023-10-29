@@ -236,7 +236,7 @@ func (c *Client) Put(ctx context.Context, v interface{}) error {
 		input.Item = item
 		input.ConditionExpression = aws.String("Version = :version")
 		input.ExpressionAttributeValues = map[string]types.AttributeValue{
-			":version": &types.AttributeValueMemberN{Value: "1"},
+			":version": currentVersion,
 		}
 	}
 

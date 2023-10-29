@@ -732,7 +732,7 @@
     "imHavingProblemWithCode": "I’m having a problem with the code",
     "imHavingProblemWithCodeContent": "<p class=\"govuk-body\">The code can take a few minutes to arrive. We can <a class=\"govuk-link\" href=\"{{.ResendLink}}\">send the code again</a> if it is not working or you did not receive it.</p><p class=\"govuk-body\">If the mobile number we have for you is incorrect, you can <a class=\"govuk-link\" href=\"{{.ChangeLink}}\">change the number</a> we send the code to.</p>",
     "asTheCertificateProviderTypeTheCode": "{{.CertificateProviderFirstNames}}, as the certificate provider for {{.DonorFullName}}, please type in the code to prove that you witnessed their LPA being signed.",
-    "errorGenericUploadProblem": "Generic upload error",
+    "errorGenericUploadProblem": "There was a problem uploading your files. Try again later.",
     "errorTooManyFiles": "Too many files uploaded",
     "errorFileTooBig": "{{.Filename}}: File size too big",
     "errorFileIncorrectType": "{{.Filename}}: File is not a supported file type",

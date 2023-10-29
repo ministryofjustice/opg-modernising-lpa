@@ -948,6 +948,78 @@ func TestGetUploadEvidenceDeleteEvidenceOnTemplateError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
+func TestPostUploadEvidenceWithCloseConnectionAction(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, _ := writer.CreateFormField("csrf")
+	io.WriteString(part, "123")
+
+	part, _ = writer.CreateFormField("action")
+	io.WriteString(part, "closeConnection")
+
+	writer.Close()
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &uploadEvidenceData{
+			App:                  testAppData,
+			NumberOfAllowedFiles: 5,
+			FeeType:              page.HalfFee,
+			MimeTypes:            acceptedMimeTypes(),
+			TotalFilesCount:      0,
+			Errors:               validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
+		}).
+		Return(nil)
+
+	err := UploadEvidence(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee})
+
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostUploadEvidenceWithCloseConnectionActionWhenTemplateError(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, _ := writer.CreateFormField("csrf")
+	io.WriteString(part, "123")
+
+	part, _ = writer.CreateFormField("action")
+	io.WriteString(part, "closeConnection")
+
+	writer.Close()
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &uploadEvidenceData{
+			App:                  testAppData,
+			NumberOfAllowedFiles: 5,
+			FeeType:              page.HalfFee,
+			MimeTypes:            acceptedMimeTypes(),
+			TotalFilesCount:      0,
+			Errors:               validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
+		}).
+		Return(expectedError)
+
+	err := UploadEvidence(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee})
+
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
 func addFileToUploadField(writer *multipart.Writer, filename string) *os.File {
 	file, _ := os.Open("testdata/" + filename)
 	part, _ := writer.CreateFormFile("upload", filename)

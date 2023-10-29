@@ -39,7 +39,7 @@ func TestUploadEvidenceSSE(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	assert.Equal(t, "data: {\"fileTotal\": 2, \"scannedTotal\": 1}\ndata: {\"fileTotal\": 2, \"scannedTotal\": 2}\n", string(bodyBytes))
+	assert.Equal(t, "event: message\ndata: {\"fileTotal\": 2, \"scannedTotal\": 1}\n\nevent: message\ndata: {\"fileTotal\": 2, \"scannedTotal\": 2}\n\nevent: message\ndata: {\"closeConnection\": \"1\"}\n\n", string(bodyBytes))
 }
 
 func TestUploadEvidenceSSEOnDonorStoreError(t *testing.T) {
@@ -60,6 +60,9 @@ func TestUploadEvidenceSSEOnDonorStoreError(t *testing.T) {
 	}}})
 	resp := w.Result()
 
+	bodyBytes, _ := io.ReadAll(resp.Body)
+
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	assert.Equal(t, "event: message\ndata: {\"closeConnection\": \"1\"}\n\n", string(bodyBytes))
 }
