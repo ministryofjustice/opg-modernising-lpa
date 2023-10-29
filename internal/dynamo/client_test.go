@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/aws/smithy-go"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
@@ -496,24 +497,44 @@ func TestPut(t *testing.T) {
 	}
 }
 
-func TestPutWhenStructHasUpdatedAt(t *testing.T) {
+func TestPutWhenStructHasVersion(t *testing.T) {
 	ctx := context.Background()
-	data, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val", "UpdatedAt": "2023-10-04T10:51:44.021428675Z"})
+	data, _ := attributevalue.MarshalMap(map[string]any{"Col": "Val", "Version": 2})
 
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
 		On("PutItem", ctx, &dynamodb.PutItemInput{
 			TableName:                 aws.String("this"),
 			Item:                      data,
-			ConditionExpression:       aws.String("UpdatedAt < :updatedAt"),
-			ExpressionAttributeValues: map[string]types.AttributeValue{":updatedAt": &types.AttributeValueMemberS{Value: "2023-10-04T10:51:44.021428675Z"}},
+			ConditionExpression:       aws.String("Version = :version"),
+			ExpressionAttributeValues: map[string]types.AttributeValue{":version": &types.AttributeValueMemberN{Value: "1"}},
 		}).
 		Return(&dynamodb.PutItemOutput{}, nil)
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	err := c.Put(ctx, map[string]string{"Col": "Val", "UpdatedAt": "2023-10-04T10:51:44.021428675Z"})
+	err := c.Put(ctx, map[string]any{"Col": "Val", "Version": 1})
 	assert.Nil(t, err)
+}
+
+func TestPutWhenConditionalCheckFailedException(t *testing.T) {
+	ctx := context.Background()
+	data, _ := attributevalue.MarshalMap(map[string]any{"Col": "Val", "Version": 2})
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("PutItem", ctx, &dynamodb.PutItemInput{
+			TableName:                 aws.String("this"),
+			Item:                      data,
+			ConditionExpression:       aws.String("Version = :version"),
+			ExpressionAttributeValues: map[string]types.AttributeValue{":version": &types.AttributeValueMemberN{Value: "1"}},
+		}).
+		Return(&dynamodb.PutItemOutput{}, &smithy.OperationError{Err: &types.ConditionalCheckFailedException{}})
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	err := c.Put(ctx, map[string]any{"Col": "Val", "Version": 1})
+	assert.Equal(t, ConditionalCheckFailedError{}, err)
 }
 
 func TestPutWhenError(t *testing.T) {
@@ -535,7 +556,7 @@ func TestPutWhenUnmarshalError(t *testing.T) {
 
 	c := &Client{table: "this", svc: newMockDynamoDB(t)}
 
-	err := c.Put(ctx, map[string]string{"Col": "Val", "UpdatedAt": "not a date"})
+	err := c.Put(ctx, map[string]string{"Col": "Val", "Version": "not an int"})
 	assert.NotNil(t, err)
 }
 

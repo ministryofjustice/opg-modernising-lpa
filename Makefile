@@ -88,9 +88,9 @@ get-lpa:  ##@app dumps all entries in the lpas dynamodb table that are related t
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb \
 		query --table-name lpas --key-condition-expression 'PK = :pk' --expression-attribute-values '{":pk": {"S": "LPA#$(id)"}}'
 
-get-evidence:  ##@app dumps all fee evidence in the lpas dynamodb table that are related to the LPA id supplied e.g. get-evidence id=abc-123
+get-evidence:  ##@app dumps all fee evidence in the lpas dynamodb table that are related to the LPA id supplied e.g. get-evidence lpaId=abc-123
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb \
-		query --table-name lpas --key-condition-expression 'PK = :pk' --expression-attribute-values '{":pk": {"S": "LPA#$(id)"}}' --projection-expression "Evidence"
+		query --table-name lpas --key-condition-expression 'PK = :pk' --expression-attribute-values '{":pk": {"S": "LPA#$(lpaId)"}}' --projection-expression "Evidence"
 
 emit-evidence-received: ##@app emits an evidence-received event with the given UID e.g. emit-evidence-received uid=abc-123
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"evidence-received","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
@@ -104,17 +104,17 @@ emit-fee-denied: ##@app emits a fee-denied event with the given UID e.g. emit-fe
 emit-more-evidence-required: ##@app emits a more-evidence-required event with the given UID e.g. emit-more-evidence-required uid=abc-123
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"more-evidence-required","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
 
-emit-object-tags-added-with-virus: ##@app emits a Object Tags Added event with the given S3 key e.g. emit-object-tags-added-with-virus key=doc/key. Also ensures a tag with virus-scan-status exists on an existing object set to infected
+emit-object-tags-added-with-virus: ##@app emits a ObjectTagging:Put event with the given S3 key e.g. emit-object-tags-added-with-virus key=doc/key. Also ensures a tag with virus-scan-status exists on an existing object set to infected
 	docker compose -f docker/docker-compose.yml exec localstack awslocal s3api \
 		put-object-tagging --bucket evidence --key $(key) --tagging '{"TagSet": [{ "Key": "virus-scan-status", "Value": "infected" }]}'
 
-	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"Object Tags Added","source":"aws.s3","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"object":{"key":"$(key)"}}}'
+	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"Records":[{"eventSource":"aws:s3","eventTime":"2023-10-23T15:58:33.081Z","eventName":"ObjectTagging:Put","s3":{"bucket":{"name":"uploads-opg-modernising-lpa-eu-west-1"},"object":{"key":"$(key)"}}}]}'
 
-emit-object-tags-added-without-virus: ##@app emits a Object Tags Added event with the given S3 key e.g. emit-object-tags-added-with-virus key=doc/key. Also ensures a tag with virus-scan-status exists on an existing object set to ok
+emit-object-tags-added-without-virus: ##@app emits a ObjectTagging:Put event with the given S3 key e.g. emit-object-tags-added-with-virus key=doc/key. Also ensures a tag with virus-scan-status exists on an existing object set to ok
 	docker compose -f docker/docker-compose.yml exec localstack awslocal s3api \
 		put-object-tagging --bucket evidence --key $(key) --tagging '{"TagSet": [{ "Key": "virus-scan-status", "Value": "ok" }]}'
 
-	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"Object Tags Added","source":"aws.s3","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"object":{"key":"$(key)"}}}'
+	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"Records":[{"eventSource":"aws:s3","eventTime":"2023-10-23T15:58:33.081Z","eventName":"ObjectTagging:Put","s3":{"bucket":{"name":"uploads-opg-modernising-lpa-eu-west-1"},"object":{"key":"$(key)"}}}]}'
 
 logs: ##@app tails logs for all containers running
 	docker compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml logs -f

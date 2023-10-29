@@ -165,6 +165,8 @@ type Lpa struct {
 	SubmittedAt time.Time
 	// RegisteredAt is when the Lpa was registered by the OPG
 	RegisteredAt time.Time
+	// Version is the number of times the LPA has been updated (auto-incremented on PUT)
+	Version int
 
 	// Codes used for the certificate provider to witness signing
 	CertificateProviderCodes WitnessCodes
@@ -228,6 +230,18 @@ func (e *Evidence) Put(document Document) {
 	} else {
 		e.Documents[idx] = document
 	}
+}
+
+func (e *Evidence) ScannedCount() int {
+	count := 0
+
+	for _, d := range e.Documents {
+		if !d.Scanned.IsZero() {
+			count++
+		}
+	}
+
+	return count
 }
 
 type Document struct {

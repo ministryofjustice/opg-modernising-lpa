@@ -11,6 +11,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -28,6 +29,7 @@ func TestGetUploadEvidence(t *testing.T) {
 			NumberOfAllowedFiles: 5,
 			FeeType:              page.FullFee,
 			MimeTypes:            acceptedMimeTypes(),
+			TotalFilesCount:      0,
 		}).
 		Return(nil)
 
@@ -36,6 +38,18 @@ func TestGetUploadEvidence(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestGetUploadEvidenceWhenTaskPending(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	err := UploadEvidence(nil, nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: page.FullFee, Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetUploadEvidenceWhenTemplateErrors(t *testing.T) {
@@ -110,6 +124,7 @@ func TestPostUploadEvidenceWithUploadActionAcceptedFileTypes(t *testing.T) {
 					MimeTypes:            acceptedMimeTypes(),
 					FeeType:              page.HalfFee,
 					UploadedCount:        1,
+					TotalFilesCount:      1,
 				}).
 				Return(nil)
 
@@ -117,6 +132,18 @@ func TestPostUploadEvidenceWithUploadActionAcceptedFileTypes(t *testing.T) {
 			assert.Nil(t, err)
 		})
 	}
+}
+
+func TestPostUploadEvidenceWhenTaskPending(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+
+	err := UploadEvidence(nil, nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: page.FullFee, Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
@@ -167,6 +194,7 @@ func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
 			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              page.HalfFee,
 			UploadedCount:        2,
+			TotalFilesCount:      2,
 		}).
 		Return(nil)
 
@@ -219,6 +247,7 @@ func TestPostUploadEvidenceWithUploadActionFilenameSpecialCharactersAreEscaped(t
 			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              page.HalfFee,
 			UploadedCount:        1,
+			TotalFilesCount:      1,
 		}).
 		Return(nil)
 
@@ -249,6 +278,161 @@ func TestPostUploadEvidenceWithPayAction(t *testing.T) {
 
 	err := UploadEvidence(nil, payer, nil, nil, nil)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee})
 	assert.Nil(t, err)
+}
+
+func TestPostUploadEvidenceWithPayActionWithInfectedFiles(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, _ := writer.CreateFormField("csrf")
+	io.WriteString(part, "123")
+
+	part, _ = writer.CreateFormField("action")
+	io.WriteString(part, "pay")
+
+	writer.Close()
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), &page.Lpa{
+			UID:      "lpa-uid",
+			FeeType:  page.HalfFee,
+			Evidence: page.Evidence{Documents: []page.Document{{Filename: "c", VirusDetected: false}}},
+		}).
+		Return(nil)
+
+	localizer := newMockLocalizer(t)
+	localizer.
+		On("FormatCount", "errorFileInfected", 3, map[string]interface{}{"Filenames": "a, b and d"}).
+		Return("formatted string")
+	localizer.
+		On("Concat", []string{"a", "b", "d"}, "and").
+		Return("a, b and d")
+	localizer.
+		On("T", "and").
+		Return("and")
+
+	testAppData.Localizer = localizer
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &uploadEvidenceData{
+			App:                  testAppData,
+			Evidence:             page.Evidence{Documents: []page.Document{{Filename: "c", VirusDetected: false}}},
+			NumberOfAllowedFiles: 5,
+			MimeTypes:            acceptedMimeTypes(),
+			FeeType:              page.HalfFee,
+			Errors:               validation.With("upload", validation.CustomError{Label: "formatted string"}),
+		}).
+		Return(nil)
+
+	err := UploadEvidence(template.Execute, nil, donorStore, nil, nil)(testAppData, w, r, &page.Lpa{
+		UID:     "lpa-uid",
+		FeeType: page.HalfFee,
+		Evidence: page.Evidence{Documents: []page.Document{
+			{Filename: "a", VirusDetected: true},
+			{Filename: "b", VirusDetected: true},
+			{Filename: "c", VirusDetected: false},
+			{Filename: "d", VirusDetected: true},
+		}},
+	})
+	assert.Nil(t, err)
+}
+
+func TestPostUploadEvidenceWithPayActionWithInfectedFilesWhenDonorStoreErrors(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, _ := writer.CreateFormField("csrf")
+	io.WriteString(part, "123")
+
+	part, _ = writer.CreateFormField("action")
+	io.WriteString(part, "pay")
+
+	writer.Close()
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), &page.Lpa{
+			UID:      "lpa-uid",
+			FeeType:  page.HalfFee,
+			Evidence: page.Evidence{Documents: []page.Document{{Filename: "c", VirusDetected: false}}},
+		}).
+		Return(expectedError)
+
+	err := UploadEvidence(nil, nil, donorStore, nil, nil)(testAppData, w, r, &page.Lpa{
+		UID:     "lpa-uid",
+		FeeType: page.HalfFee,
+		Evidence: page.Evidence{Documents: []page.Document{
+			{Filename: "a", VirusDetected: true},
+			{Filename: "b", VirusDetected: true},
+			{Filename: "c", VirusDetected: false},
+			{Filename: "d", VirusDetected: true},
+		}},
+	})
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestPostUploadEvidenceWithPayActionWithInfectedFilesWhenTemplateError(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, _ := writer.CreateFormField("csrf")
+	io.WriteString(part, "123")
+
+	part, _ = writer.CreateFormField("action")
+	io.WriteString(part, "pay")
+
+	writer.Close()
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), mock.Anything).
+		Return(nil)
+
+	localizer := newMockLocalizer(t)
+	localizer.
+		On("FormatCount", mock.Anything, mock.Anything, mock.Anything).
+		Return("formatted string")
+	localizer.
+		On("Concat", mock.Anything, mock.Anything).
+		Return("a, b and d")
+	localizer.
+		On("T", mock.Anything).
+		Return("and")
+
+	testAppData.Localizer = localizer
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, mock.Anything).
+		Return(expectedError)
+
+	err := UploadEvidence(template.Execute, nil, donorStore, nil, nil)(testAppData, w, r, &page.Lpa{
+		UID:     "lpa-uid",
+		FeeType: page.HalfFee,
+		Evidence: page.Evidence{Documents: []page.Document{
+			{Filename: "a", VirusDetected: true},
+			{Filename: "b", VirusDetected: true},
+			{Filename: "c", VirusDetected: false},
+			{Filename: "d", VirusDetected: true},
+		}},
+	})
+
+	assert.Equal(t, expectedError, err)
 }
 
 func TestPostUploadEvidenceWhenBadCsrfField(t *testing.T) {
@@ -562,6 +746,7 @@ func TestGetUploadEvidenceDeleteEvidence(t *testing.T) {
 			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              page.HalfFee,
 			Deleted:              "dummy.pdf",
+			TotalFilesCount:      1,
 		}).
 		Return(nil)
 
@@ -607,6 +792,7 @@ func TestGetUploadEvidenceDeleteEvidenceWhenUnexpectedFieldName(t *testing.T) {
 			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              page.HalfFee,
 			Errors:               validation.With("delete", validation.CustomError{Label: "errorGenericUploadProblem"}),
+			TotalFilesCount:      1,
 		}).
 		Return(nil)
 
@@ -746,6 +932,7 @@ func TestGetUploadEvidenceDeleteEvidenceOnTemplateError(t *testing.T) {
 			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              page.HalfFee,
 			Deleted:              "dummy.pdf",
+			TotalFilesCount:      1,
 		}).
 		Return(expectedError)
 
@@ -759,6 +946,78 @@ func TestGetUploadEvidenceDeleteEvidenceOnTemplateError(t *testing.T) {
 	})
 
 	assert.Equal(t, expectedError, err)
+}
+
+func TestPostUploadEvidenceWithCloseConnectionAction(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, _ := writer.CreateFormField("csrf")
+	io.WriteString(part, "123")
+
+	part, _ = writer.CreateFormField("action")
+	io.WriteString(part, "closeConnection")
+
+	writer.Close()
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &uploadEvidenceData{
+			App:                  testAppData,
+			NumberOfAllowedFiles: 5,
+			FeeType:              page.HalfFee,
+			MimeTypes:            acceptedMimeTypes(),
+			TotalFilesCount:      0,
+			Errors:               validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
+		}).
+		Return(nil)
+
+	err := UploadEvidence(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee})
+
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostUploadEvidenceWithCloseConnectionActionWhenTemplateError(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, _ := writer.CreateFormField("csrf")
+	io.WriteString(part, "123")
+
+	part, _ = writer.CreateFormField("action")
+	io.WriteString(part, "closeConnection")
+
+	writer.Close()
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &uploadEvidenceData{
+			App:                  testAppData,
+			NumberOfAllowedFiles: 5,
+			FeeType:              page.HalfFee,
+			MimeTypes:            acceptedMimeTypes(),
+			TotalFilesCount:      0,
+			Errors:               validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
+		}).
+		Return(expectedError)
+
+	err := UploadEvidence(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee})
+
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func addFileToUploadField(writer *multipart.Writer, filename string) *os.File {
