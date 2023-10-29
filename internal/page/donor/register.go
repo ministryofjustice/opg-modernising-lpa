@@ -331,7 +331,7 @@ func Register(
 	handleWithLpa(page.Paths.SignTheLpaOnBehalf, CanGoBack,
 		SignYourLpa(tmpls.Get("sign_the_lpa_on_behalf.gohtml"), donorStore))
 	handleWithLpa(page.Paths.WitnessingYourSignature, None,
-		WitnessingYourSignature(tmpls.Get("witnessing_your_signature.gohtml"), witnessCodeSender))
+		WitnessingYourSignature(tmpls.Get("witnessing_your_signature.gohtml"), witnessCodeSender, donorStore))
 	handleWithLpa(page.Paths.WitnessingAsIndependentWitness, None,
 		WitnessingAsIndependentWitness(tmpls.Get("witnessing_as_independent_witness.gohtml"), donorStore, time.Now))
 	handleWithLpa(page.Paths.ResendIndependentWitnessCode, CanGoBack,
