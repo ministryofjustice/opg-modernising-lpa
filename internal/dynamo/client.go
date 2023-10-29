@@ -2,8 +2,8 @@ package dynamo
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -40,6 +40,12 @@ type MultipleResultsError struct{}
 
 func (n MultipleResultsError) Error() string {
 	return "A single result was expected but multiple results found"
+}
+
+type ConditionalCheckFailedError struct{}
+
+func (c ConditionalCheckFailedError) Error() string {
+	return "Conditional checks failed"
 }
 
 func NewClient(cfg aws.Config, tableName string) (*Client, error) {
@@ -211,24 +217,41 @@ func (c *Client) Put(ctx context.Context, v interface{}) error {
 		Item:      item,
 	}
 
-	if updatedAt, exists := item["UpdatedAt"]; exists {
-		var updatedAtTime time.Time
-		err = attributevalue.Unmarshal(updatedAt, &updatedAtTime)
+	// Tracking Value equality against data on write allows for optimistic locking
+	if currentVersion, exists := item["Version"]; exists {
+		var v int
+		err = attributevalue.Unmarshal(currentVersion, &v)
 		if err != nil {
 			return err
 		}
 
-		if !updatedAtTime.IsZero() {
-			input.ConditionExpression = aws.String("UpdatedAt < :updatedAt")
-			input.ExpressionAttributeValues = map[string]types.AttributeValue{
-				":updatedAt": updatedAt,
-			}
+		v++
+		newVersion, err := attributevalue.Marshal(v)
+		if err != nil {
+			return err
+		}
+
+		item["Version"] = newVersion
+
+		input.Item = item
+		input.ConditionExpression = aws.String("Version = :version")
+		input.ExpressionAttributeValues = map[string]types.AttributeValue{
+			":version": &types.AttributeValueMemberN{Value: "1"},
 		}
 	}
 
 	_, err = c.svc.PutItem(ctx, input)
 
-	return err
+	if err != nil {
+		var ccf *types.ConditionalCheckFailedException
+		if errors.As(err, &ccf) {
+			return ConditionalCheckFailedError{}
+		}
+
+		return err
+	}
+
+	return nil
 }
 
 func (c *Client) Create(ctx context.Context, v interface{}) error {

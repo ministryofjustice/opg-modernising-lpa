@@ -49,6 +49,7 @@ func (s *donorStore) Create(ctx context.Context) (*page.Lpa, error) {
 		SK:        donorKey(data.SessionID),
 		ID:        lpaID,
 		CreatedAt: s.now(),
+		Version:   1,
 	}
 
 	if err := s.dynamoClient.Create(ctx, lpa); err != nil {

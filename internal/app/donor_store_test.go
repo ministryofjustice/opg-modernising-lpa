@@ -633,7 +633,7 @@ func TestDonorStorePutWhenReducedFeeRequestedWhenError(t *testing.T) {
 func TestDonorStoreCreate(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
 	now := time.Now()
-	lpa := &page.Lpa{PK: "LPA#10100000", SK: "#DONOR#an-id", ID: "10100000", CreatedAt: now}
+	lpa := &page.Lpa{PK: "LPA#10100000", SK: "#DONOR#an-id", ID: "10100000", CreatedAt: now, Version: 1}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.

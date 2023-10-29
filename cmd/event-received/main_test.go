@@ -494,6 +494,187 @@ func TestHandleObjectTagsAddedWhenDynamoPutError(t *testing.T) {
 		Return(expectedError)
 
 	err := handleObjectTagsAdded(ctx, dynamoClient, event.S3Event, func() time.Time { return now }, s3Client)
+
+	assert.Equal(t, fmt.Errorf("failed to update LPA for 'ObjectTagging:Put': %w", expectedError), err)
+}
+
+func TestHandleObjectTagsAddedWhenDynamoPutConditionalCheckFailedException(t *testing.T) {
+	event := Event{
+		S3Event: events.S3Event{Records: []events.S3EventRecord{
+			{S3: events.S3Entity{Object: events.S3Object{Key: "M-1111-2222-3333/evidence/a-uid"}}},
+		}},
+	}
+
+	now := time.Now()
+
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("GetObjectTags", ctx, "M-1111-2222-3333/evidence/a-uid").
+		Return([]types.Tag{
+			{Key: aws.String("virus-scan-status"), Value: aws.String("ok")},
+		}, nil)
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	dynamoClient.
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Version: 1, Evidence: page.Evidence{
+				Documents: []page.Document{{Key: "M-1111-2222-3333/evidence/a-uid"}},
+			}})
+			json.Unmarshal(b, v)
+			return nil
+		}).
+		Once()
+	dynamoClient.
+		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Version: 1, UpdatedAt: now, Evidence: page.Evidence{
+			Documents: []page.Document{{Key: "M-1111-2222-3333/evidence/a-uid", Scanned: now, VirusDetected: false}},
+		}}).
+		Return(dynamo.ConditionalCheckFailedError{}).
+		Once()
+	dynamoClient.
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Version: 2, Evidence: page.Evidence{
+				Documents: []page.Document{{Key: "M-1111-2222-3333/evidence/a-uid"}},
+			}})
+			json.Unmarshal(b, v)
+			return nil
+		}).
+		Once()
+	dynamoClient.
+		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Version: 2, UpdatedAt: now, Evidence: page.Evidence{
+			Documents: []page.Document{{Key: "M-1111-2222-3333/evidence/a-uid", Scanned: now, VirusDetected: false}},
+		}}).
+		Return(nil).
+		Once()
+
+	err := handleObjectTagsAdded(ctx, dynamoClient, event.S3Event, func() time.Time { return now }, s3Client)
+
+	assert.Nil(t, err)
+}
+
+func TestHandleObjectTagsAddedWhenDynamoPutConditionalCheckFailedExceptionOneError(t *testing.T) {
+	event := Event{
+		S3Event: events.S3Event{Records: []events.S3EventRecord{
+			{S3: events.S3Entity{Object: events.S3Object{Key: "M-1111-2222-3333/evidence/a-uid"}}},
+		}},
+	}
+
+	now := time.Now()
+
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("GetObjectTags", ctx, "M-1111-2222-3333/evidence/a-uid").
+		Return([]types.Tag{
+			{Key: aws.String("virus-scan-status"), Value: aws.String("ok")},
+		}, nil)
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	dynamoClient.
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Version: 1, Evidence: page.Evidence{
+				Documents: []page.Document{{Key: "M-1111-2222-3333/evidence/a-uid"}},
+			}})
+			json.Unmarshal(b, v)
+			return nil
+		}).
+		Once()
+	dynamoClient.
+		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Version: 1, UpdatedAt: now, Evidence: page.Evidence{
+			Documents: []page.Document{{Key: "M-1111-2222-3333/evidence/a-uid", Scanned: now, VirusDetected: false}},
+		}}).
+		Return(dynamo.ConditionalCheckFailedError{}).
+		Once()
+	dynamoClient.
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Version: 2, Evidence: page.Evidence{
+				Documents: []page.Document{{Key: "M-1111-2222-3333/evidence/a-uid"}},
+			}})
+			json.Unmarshal(b, v)
+			return expectedError
+		}).
+		Once()
+
+	err := handleObjectTagsAdded(ctx, dynamoClient, event.S3Event, func() time.Time { return now }, s3Client)
+
+	assert.Equal(t, fmt.Errorf("failed to get LPA for 'ObjectTagging:Put': %w", expectedError), err)
+}
+
+func TestHandleObjectTagsAddedWhenDynamoPutConditionalCheckFailedExceptionPutError(t *testing.T) {
+	event := Event{
+		S3Event: events.S3Event{Records: []events.S3EventRecord{
+			{S3: events.S3Entity{Object: events.S3Object{Key: "M-1111-2222-3333/evidence/a-uid"}}},
+		}},
+	}
+
+	now := time.Now()
+
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("GetObjectTags", ctx, "M-1111-2222-3333/evidence/a-uid").
+		Return([]types.Tag{
+			{Key: aws.String("virus-scan-status"), Value: aws.String("ok")},
+		}, nil)
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	dynamoClient.
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Version: 1, Evidence: page.Evidence{
+				Documents: []page.Document{{Key: "M-1111-2222-3333/evidence/a-uid"}},
+			}})
+			json.Unmarshal(b, v)
+			return nil
+		}).
+		Once()
+	dynamoClient.
+		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Version: 1, UpdatedAt: now, Evidence: page.Evidence{
+			Documents: []page.Document{{Key: "M-1111-2222-3333/evidence/a-uid", Scanned: now, VirusDetected: false}},
+		}}).
+		Return(dynamo.ConditionalCheckFailedError{}).
+		Once()
+	dynamoClient.
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Version: 2, Evidence: page.Evidence{
+				Documents: []page.Document{{Key: "M-1111-2222-3333/evidence/a-uid"}},
+			}})
+			json.Unmarshal(b, v)
+			return nil
+		}).
+		Once()
+	dynamoClient.
+		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Version: 2, UpdatedAt: now, Evidence: page.Evidence{
+			Documents: []page.Document{{Key: "M-1111-2222-3333/evidence/a-uid", Scanned: now, VirusDetected: false}},
+		}}).
+		Return(expectedError).
+		Once()
+
+	err := handleObjectTagsAdded(ctx, dynamoClient, event.S3Event, func() time.Time { return now }, s3Client)
+
 	assert.Equal(t, fmt.Errorf("failed to update LPA for 'ObjectTagging:Put': %w", expectedError), err)
 }
 
