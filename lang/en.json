@@ -732,12 +732,16 @@
     "imHavingProblemWithCode": "I’m having a problem with the code",
     "imHavingProblemWithCodeContent": "<p class=\"govuk-body\">The code can take a few minutes to arrive. We can <a class=\"govuk-link\" href=\"{{.ResendLink}}\">send the code again</a> if it is not working or you did not receive it.</p><p class=\"govuk-body\">If the mobile number we have for you is incorrect, you can <a class=\"govuk-link\" href=\"{{.ChangeLink}}\">change the number</a> we send the code to.</p>",
     "asTheCertificateProviderTypeTheCode": "{{.CertificateProviderFirstNames}}, as the certificate provider for {{.DonorFullName}}, please type in the code to prove that you witnessed their LPA being signed.",
-    "errorGenericUploadProblem": "Generic upload error",
+    "errorGenericUploadProblem": "There was a problem uploading your files. Try again later.",
     "errorTooManyFiles": "Too many files uploaded",
     "errorFileTooBig": "{{.Filename}}: File size too big",
     "errorFileIncorrectType": "{{.Filename}}: File is not a supported file type",
     "errorFileEmpty": "{{.Filename}}: File is empty",
     "errorGenericUploadProblemFile": "{{.Filename}}: Generic file error",
+    "errorFileInfected": {
+        "one": "{{.Filenames}} cannot be uploaded as it contains a virus",
+        "other": "{{.Filenames}} cannot be uploaded as they contain a virus"
+    },
     "halfFeeNextSteps": "<h2 class=\"govuk-heading-m\">Next steps</h2><p class=\"govuk-body\">Content detailing next steps when donor has paid a half fee and is waiting for evidence to be checked by a case worker</p>",
     "referenceNumber": "Reference number",
     "lastUpdated": "Last updated",
@@ -826,5 +830,9 @@
     "registeredLpasContent": "<p class=\"govuk-body\">You can view your LPA in full below, as it was when it was signed.</p><p class=\"govuk-body\">You can also go to the ‘Use a lasting power of attorney’ service where you can manage which organisations can use your LPA.</p>",
     "registeredLpasContentAttorney": "<p class=\"govuk-body\">You can view the LPA in full below, as it was when it was signed.</p><p class=\"govuk-body\">You can also go to the ‘Use a lasting power of attorney’ service where you can manage which organisations can use the LPA.</p>",
     "whatIsTheUseService": "What is the ‘Use a lasting power of attorney’ service?",
-    "whatIsTheUseServiceDetails": "<p class=\"govuk-body\">Once an LPA is registered, it can be shared with organisations on the ‘Use a lasting power of attorney’ service.</p><p class=\"govuk-body\">You may have to create an account for this service if you’ve not used it before. If you have an account, you will need to sign in again.</p><p class=\"govuk-body\">On the ‘Use a lasting power of attorney’ service you can:</p><ul class=\"govuk-list govuk-list--bullet\"><li>give organisations access to an online summary of the LPA, including any restrictions or conditions</li><li>keep track of the organisations that have access</li><li>view the most up to date version of the LPA summary, including any changes since it was signed</li><li>ask for an activation key if you have not been given one or it has expired</li></ul>"
+    "whatIsTheUseServiceDetails": "<p class=\"govuk-body\">Once an LPA is registered, it can be shared with organisations on the ‘Use a lasting power of attorney’ service.</p><p class=\"govuk-body\">You may have to create an account for this service if you’ve not used it before. If you have an account, you will need to sign in again.</p><p class=\"govuk-body\">On the ‘Use a lasting power of attorney’ service you can:</p><ul class=\"govuk-list govuk-list--bullet\"><li>give organisations access to an online summary of the LPA, including any restrictions or conditions</li><li>keep track of the organisations that have access</li><li>view the most up to date version of the LPA summary, including any changes since it was signed</li><li>ask for an activation key if you have not been given one or it has expired</li></ul>",
+    "yourFilesAreUploading": "Your files are uploading",
+    "0OfNFilesUploaded": "0 of {{ .TotalFilesCount }} files uploaded",
+    "yourFilesAreUploadingContent": "This may take a few minutes. Please do not close your browser window.",
+    "cancelUpload": "Cancel upload"
 }
