@@ -38,5 +38,4 @@ variable "lambda_task_role" {
 variable "s3_antivirus_provisioned_concurrency" {
   description = "Number of concurrent executions to provision for Lambda"
   type        = number
-  default     = 0
 }

@@ -34,13 +34,14 @@ module "eu_west_1" {
     destination_account_id                    = local.environment.reduced_fees.destination_account_id
     enable_s3_batch_job_replication_scheduler = local.environment.reduced_fees.enable_s3_batch_job_replication_scheduler
   }
-  target_event_bus_arn   = local.environment.event_bus.target_event_bus_arn
-  receive_account_ids    = local.environment.event_bus.receive_account_ids
-  app_env_vars           = local.environment.app.env
-  app_allowed_api_arns   = local.environment.app.allowed_api_arns
-  public_access_enabled  = var.public_access_enabled
-  pagerduty_service_name = local.environment.pagerduty_service_name
-  dns_weighting          = 100
+  target_event_bus_arn                 = local.environment.event_bus.target_event_bus_arn
+  receive_account_ids                  = local.environment.event_bus.receive_account_ids
+  app_env_vars                         = local.environment.app.env
+  app_allowed_api_arns                 = local.environment.app.allowed_api_arns
+  public_access_enabled                = var.public_access_enabled
+  pagerduty_service_name               = local.environment.pagerduty_service_name
+  dns_weighting                        = 100
+  s3_antivirus_provisioned_concurrency = local.environment.s3_antivirus_provisioned_concurrency
   providers = {
     aws.region            = aws.eu_west_1
     aws.global            = aws.global
@@ -76,13 +77,14 @@ module "eu_west_2" {
     destination_account_id                    = local.environment.reduced_fees.destination_account_id
     enable_s3_batch_job_replication_scheduler = local.environment.reduced_fees.enable_s3_batch_job_replication_scheduler
   }
-  target_event_bus_arn   = local.environment.event_bus.target_event_bus_arn
-  receive_account_ids    = local.environment.event_bus.receive_account_ids
-  app_env_vars           = local.environment.app.env
-  app_allowed_api_arns   = local.environment.app.allowed_api_arns
-  public_access_enabled  = var.public_access_enabled
-  pagerduty_service_name = local.environment.pagerduty_service_name
-  dns_weighting          = 0
+  target_event_bus_arn                 = local.environment.event_bus.target_event_bus_arn
+  receive_account_ids                  = local.environment.event_bus.receive_account_ids
+  app_env_vars                         = local.environment.app.env
+  app_allowed_api_arns                 = local.environment.app.allowed_api_arns
+  public_access_enabled                = var.public_access_enabled
+  pagerduty_service_name               = local.environment.pagerduty_service_name
+  dns_weighting                        = 0
+  s3_antivirus_provisioned_concurrency = local.environment.s3_antivirus_provisioned_concurrency
   providers = {
     aws.region            = aws.eu_west_2
     aws.global            = aws.global

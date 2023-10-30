@@ -96,3 +96,9 @@ variable "receive_account_ids" {
   description = "IDs of accounts to receive messages from"
   default     = []
 }
+
+variable "s3_antivirus_provisioned_concurrency" {
+  type        = number
+  description = "Number of concurrent executions to provision for Lambda"
+  default     = 0
+}
