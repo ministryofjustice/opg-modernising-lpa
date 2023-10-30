@@ -66,15 +66,6 @@ const (
 	ReplacementAttorneysStepInAnotherWay                                                  // other
 )
 
-//go:generate enumerator -type ApplicationReason -linecomment -empty
-type ApplicationReason uint8
-
-const (
-	NewApplication             ApplicationReason = iota + 1 // new-application
-	RemakeOfInvalidApplication                              // remake
-	AdditionalApplication                                   // additional-application
-)
-
 //go:generate enumerator -type FeeType
 type FeeType uint8
 
@@ -119,8 +110,6 @@ type Lpa struct {
 	CertificateProvider actor.CertificateProvider
 	// Type of LPA being drafted
 	Type LpaType
-	// ApplicationReason is why the application is being made
-	ApplicationReason ApplicationReason
 	// PreviousApplicationNumber if the application is related to an existing application
 	PreviousApplicationNumber string
 	// Whether the applicant wants to add replacement attorneys

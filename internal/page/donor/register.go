@@ -198,8 +198,6 @@ func Register(
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, donorStore))
 	handleWithLpa(page.Paths.LpaType, None,
 		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore))
-	handleWithLpa(page.Paths.ApplicationReason, None,
-		ApplicationReason(tmpls.Get("application_reason.gohtml"), donorStore))
 	handleWithLpa(page.Paths.PreviousApplicationNumber, None,
 		PreviousApplicationNumber(tmpls.Get("previous_application_number.gohtml"), donorStore))
 	handleWithLpa(page.Paths.CheckYouCanSign, None,
