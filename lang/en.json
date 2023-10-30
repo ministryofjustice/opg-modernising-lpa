@@ -840,5 +840,6 @@
     "lpaWithdrawn": "LPA withdrawn",
     "youHaveWithdrawnLpaNumber": "You have withdrawn LPA number <span class=\"govuk-!-font-weight-bold\">{{.UID}}</span>.",
     "opgWillNowContactAnyoneWhoHasAlreadyBeenContacted": "OPG will now contact anyone who has already been contacted in relation to your LPA and notify them of your decision to withdraw.",
-    "withdrawn": "Withdrawn"
+    "withdrawn": "Withdrawn",
+    "dateLpaSigned": "Date LPA signed"
 }
