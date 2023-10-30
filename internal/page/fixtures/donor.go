@@ -53,6 +53,8 @@ func Donor(
 			peopleToNotify       = r.FormValue("peopleToNotify")
 			replacementAttorneys = r.FormValue("replacementAttorneys")
 			feeType              = r.FormValue("feeType")
+			paymentTaskProgress  = r.FormValue("paymentTaskProgress")
+			withVirus            = r.FormValue("withVirus") == "1"
 		)
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
@@ -186,10 +188,15 @@ func Donor(
 		}
 
 		if progress >= slices.Index(progressValues, "payForTheLpa") {
-			if feeType == "half-fee" {
-				lpa.FeeType = page.HalfFee
+			if feeType != "" {
+				feeType, err := page.ParseFeeType(feeType)
+				if err != nil {
+					return err
+				}
+
+				lpa.FeeType = feeType
 				lpa.Evidence = page.Evidence{Documents: []page.Document{
-					{Key: "evidence-key", Filename: "supporting-evidence.png", Sent: time.Now()},
+					{Key: "evidence-key", Filename: "supporting-evidence.png", Sent: time.Now(), Scanned: time.Now(), VirusDetected: withVirus},
 				}}
 			} else {
 				lpa.FeeType = page.FullFee
@@ -199,7 +206,17 @@ func Donor(
 				PaymentReference: random.String(12),
 				PaymentId:        random.String(12),
 			})
+
 			lpa.Tasks.PayForLpa = actor.PaymentTaskCompleted
+
+			if paymentTaskProgress != "" {
+				taskState, err := actor.ParsePaymentTask(paymentTaskProgress)
+				if err != nil {
+					return err
+				}
+
+				lpa.Tasks.PayForLpa = taskState
+			}
 		}
 
 		if progress >= slices.Index(progressValues, "confirmYourIdentity") {

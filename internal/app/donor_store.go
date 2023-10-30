@@ -49,6 +49,7 @@ func (s *donorStore) Create(ctx context.Context) (*page.Lpa, error) {
 		SK:        donorKey(data.SessionID),
 		ID:        lpaID,
 		CreatedAt: s.now(),
+		Version:   1,
 	}
 
 	if err := s.dynamoClient.Create(ctx, lpa); err != nil {
@@ -175,7 +176,7 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 		var unsentKeys []string
 
 		for _, document := range lpa.Evidence.Documents {
-			if document.Sent.IsZero() {
+			if document.Sent.IsZero() && !document.Scanned.IsZero() {
 				unsentKeys = append(unsentKeys, document.Key)
 			}
 		}
@@ -188,7 +189,7 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 			s.logger.Print(err)
 		} else {
 			for i, document := range lpa.Evidence.Documents {
-				if document.Sent.IsZero() {
+				if document.Sent.IsZero() && !document.Scanned.IsZero() {
 					lpa.Evidence.Documents[i].Sent = s.now()
 				}
 			}

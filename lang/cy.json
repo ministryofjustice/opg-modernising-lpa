@@ -791,6 +791,13 @@
     "errorFileIncorrectType": "{{.Filename}}: Welsh",
     "errorFileEmpty": "{{.Filename}}: Welsh",
     "errorGenericUploadProblemFile": "{{.Filename}}: Welsh",
+    "errorFileInfected": {
+        "one": "{{.Filenames}} Welsh",
+        "two": "{{.Filenames}} Welsh",
+        "few": "{{.Filenames}} Welsh",
+        "many": "{{.Filenames}} Welsh",
+        "other": "{{.Filenames}} Welsh"
+    },
     "halfFeeNextSteps": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh</p>",
     "referenceNumber": "Welsh",
     "lastUpdated": "Welsh",
@@ -896,5 +903,9 @@
     "lpaWithdrawn": "Welsh",
     "youHaveWithdrawnLpaNumber": "Welsh <span class=\"govuk-!-font-weight-bold\">{{.UID}}</span>",
     "opgWillNowContactAnyoneWhoHasAlreadyBeenContacted": "Welsh",
-    "withdrawn": "Welsh"
+    "withdrawn": "Welsh",
+    "yourFilesAreUploading": "Welsh",
+    "0OfNFilesUploaded": "Welsh {{ .TotalFilesCount }} welsh",
+    "yourFilesAreUploadingContent": "Welsh",
+    "cancelUpload": "Welsh"
 }

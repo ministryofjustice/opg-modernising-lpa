@@ -39,14 +39,18 @@
       {{ end }}
 
       <div class="govuk-!-width-two-thirds">
-        <form novalidate method="post" enctype="multipart/form-data">
+        <form novalidate method="post" enctype="multipart/form-data" id="upload-form">
           {{ template "csrf-field" . }}
 
           <input type="hidden" id="f-upload-action" name="action" value="upload" />
 
-          <div class="govuk-form-group">
+          <div class="govuk-form-group {{ if .Errors.Has "upload" }}govuk-form-group--error{{ end }}">
             <label class="govuk-label--m" for="f-upload">{{ tr .App "uploadAFile" }}</label>
+
+            {{ template "error-message" (errorMessage . "upload") }}
+
             {{ trFormatHtml .App "uploadGuidance" "NumberOfAllowedFiles" .NumberOfAllowedFiles }}
+
             <input class="govuk-file-upload" id="f-upload" name="upload" type="file" accept="{{ concatComma .MimeTypes }}" multiple />
           </div>
 
@@ -61,7 +65,7 @@
       {{ if gt $evidenceCount 0 }}
         <h2 class="govuk-heading-m">{{ tr .App "uploadedFiles" }}</h2>
 
-        <form novalidate method="post" enctype="multipart/form-data">
+        <form novalidate method="post" enctype="multipart/form-data" id="delete-form">
           {{ template "csrf-field" . }}
 
           <input type="hidden" id="f-delete-action" name="action" value="delete" />
@@ -92,16 +96,48 @@
         </form>
       {{ end }}
 
-      <form novalidate method="post" enctype="multipart/form-data">
+      <form novalidate method="post" enctype="multipart/form-data" id="pay-form">
         {{ template "csrf-field" . }}
 
         <input type="hidden" id="f-pay-action" name="action" value="pay" />
 
         <div class="govuk-button-group">
           {{ if gt $evidenceCount 0 }}
-            <button type="submit" class="govuk-button" data-module="govuk-button">{{ if or .FeeType.IsFullFee .FeeType.IsHalfFee }} {{ tr .App "continueToPayment" }} {{ else }} {{ tr .App "continue" }} {{ end }}</button>
+            <button type="submit" class="govuk-button" id="continue-or-pay" data-module="govuk-button">{{ if or .FeeType.IsFullFee .FeeType.IsHalfFee }} {{ tr .App "continueToPayment" }} {{ else }} {{ tr .App "continue" }} {{ end }}</button>
           {{ end }}
           <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+        </div>
+      </form>
+
+      <form novalidate method="post" enctype="multipart/form-data" id="close-connection-form">
+         {{ template "csrf-field" . }}
+
+         <input type="hidden" id="f-close-connection-action" name="action" value="closeConnection" />
+
+        <div id="dialog-overlay" class="app-dialog-overlay govuk-!-display-none" tabindex="-1"></div>
+
+        <div id="dialog"
+             class="app-dialog govuk-!-display-none"
+             class="app-dialog"
+             role="dialog"
+             aria-labelledby="dialog-title"
+             aria-describedby="dialog-description"
+             aria-modal="true">
+
+          <h2 id="dialog-title" class="govuk-heading-l" tabindex="0">{{ tr .App "yourFilesAreUploading" }}</h2>
+
+          <div class="app-loading-spinner" data-sse-url="{{ link .App (.App.Paths.UploadEvidenceSSE.Format .App.LpaID) }}">
+            <div class="app-loading-spinner__spinner" aria-live="polite" role="status"></div>
+            <div class="app-loading-spinner__content">
+              <h3 id="file-count" class="govuk-heading-s" tabindex="0">{{ trFormat .App "0OfNFilesUploaded" "TotalFilesCount" .TotalFilesCount }}</h3>
+            </div>
+          </div>
+
+          <p id="dialog-description" class="govuk-body" tabindex="0">{{ trHtml .App "yourFilesAreUploadingContent" }}</p>
+
+          <div class="govuk-button-group">
+            <button type="button" id='cancel-upload-button' class="govuk-button govuk-button--secondary" data-module="govuk-button" aria-label="{{ tr .App "cancelUpload" }}">{{ tr .App "cancelUpload" }}</button>
+          </div>
         </div>
       </form>
     </div>

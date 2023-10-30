@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -275,7 +276,25 @@ func handleObjectTagsAdded(ctx context.Context, client dynamodbClient, event eve
 	lpa.UpdatedAt = now()
 
 	if err := client.Put(ctx, lpa); err != nil {
-		return fmt.Errorf("failed to update LPA for '%s': %w", objectTagsAddedEventName, err)
+		if errors.Is(err, dynamo.ConditionalCheckFailedError{}) {
+			var refreshedLpa page.Lpa
+			if err = client.One(ctx, lpa.PK, lpa.SK, &refreshedLpa); err != nil {
+				return fmt.Errorf("failed to get LPA for '%s': %w", objectTagsAddedEventName, err)
+			}
+
+			document := refreshedLpa.Evidence.Get(objectKey)
+			document.Scanned = now()
+			document.VirusDetected = hasVirus
+
+			refreshedLpa.Evidence.Put(document)
+			refreshedLpa.UpdatedAt = now()
+
+			if err = client.Put(ctx, refreshedLpa); err != nil {
+				return fmt.Errorf("failed to update LPA for '%s': %w", objectTagsAddedEventName, err)
+			}
+		} else {
+			return fmt.Errorf("failed to update LPA for '%s': %w", objectTagsAddedEventName, err)
+		}
 	}
 
 	return nil
