@@ -46,7 +46,7 @@ data "aws_security_group" "lambda_egress" {
 resource "aws_lambda_alias" "lambda_alias" {
   name             = "latest"
   function_name    = aws_lambda_function.lambda_function.function_name
-  function_version = aws_lambda_function.lambda_function.version
+  function_version = "$LATEST"
   provider         = aws.region
 }
 
