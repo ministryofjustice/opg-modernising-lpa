@@ -49,6 +49,7 @@
     "errorSelect": "Dewiswch {{.Label}}",
     "errorEmail": "{{.Label}} Welsh",
     "errorPostcode": "{{.Label}} Welsh",
+    "errorReferenceNumber": "{{.Label}} Welsh",
     "donorMatchesActorWarning": "Welsh {{.FirstNames}} {{.LastName}} {{.Type}}",
     "attorneyMatchesActorWarning": "Welsh {{.FirstNames}} {{.LastName}} {{.Type}}",
     "attorneyMatchesAttorneyWarning": "Welsh {{.FirstNames}} {{.LastName}}",
@@ -897,5 +898,10 @@
     "youHaveWithdrawnLpaNumber": "Welsh <span class=\"govuk-!-font-weight-bold\">{{.UID}}</span>",
     "opgWillNowContactAnyoneWhoHasAlreadyBeenContacted": "Welsh",
     "withdrawn": "Welsh",
-    "dateLpaSigned": "Welsh"
+    "dateLpaSigned": "Welsh",
+    "whatIsYourPreviousReferenceNumber": "Welsh",
+    "whatIsYourPreviousReferenceNumberContent": "<p class=\"govuk-body\">Welsh</p>",
+    "whereCanFindReferenceNumber": "Welsh",
+    "whereCanFindReferenceNumberDetails": "<p class=\"govuk-body\">Welsh</p>",
+    "previousApplicationNumber": "Welsh"
 }

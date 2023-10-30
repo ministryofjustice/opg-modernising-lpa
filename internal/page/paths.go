@@ -106,7 +106,6 @@ type AppPaths struct {
 	YourLegalRightsAndResponsibilities Path
 
 	AboutPayment                                         LpaPath
-	ApplicationReason                                    LpaPath
 	AreYouApplyingForFeeDiscountOrExemption              LpaPath
 	CertificateProviderAddress                           LpaPath
 	CertificateProviderDetails                           LpaPath
@@ -174,6 +173,7 @@ type AppPaths struct {
 	UseExistingAddress                                   LpaPath
 	WhatACertificateProviderDoes                         LpaPath
 	WhatHappensAfterNoFee                                LpaPath
+	WhatWasYourOriginalFee                               LpaPath
 	WhenCanTheLpaBeUsed                                  LpaPath
 	WhichFeeTypeAreYouApplyingFor                        LpaPath
 	WithdrawThisLpa                                      LpaPath
@@ -232,7 +232,6 @@ var Paths = AppPaths{
 	},
 
 	AboutPayment:                                         "/about-payment",
-	ApplicationReason:                                    "/application-reason",
 	AreYouApplyingForFeeDiscountOrExemption:              "/are-you-applying-for-fee-discount-or-exemption",
 	AttorneyFixtures:                                     "/fixtures/attorney",
 	AuthRedirect:                                         "/auth/redirect",
@@ -315,6 +314,7 @@ var Paths = AppPaths{
 	UseExistingAddress:                                   "/use-existing-address",
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
 	WhatHappensAfterNoFee:                                "/what-happens-after-no-fee",
+	WhatWasYourOriginalFee:                               "/what-was-your-original-fee",
 	WhenCanTheLpaBeUsed:                                  "/when-can-the-lpa-be-used",
 	WhichFeeTypeAreYouApplyingFor:                        "/which-fee-type-are-you-applying-for",
 	WithdrawThisLpa:                                      "/withdraw-this-lpa",
