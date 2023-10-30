@@ -42,3 +42,10 @@ data "aws_security_group" "lambda_egress" {
   name     = "lambda-egress-${data.aws_region.current.name}"
   provider = aws.region
 }
+
+resource "aws_lambda_provisioned_concurrency_config" "main" {
+  count                             = var.s3_antivirus_provisioned_concurrency > 0 ? 1 : 0
+  function_name                     = aws_lambda_function.lambda_function.function_name
+  provisioned_concurrent_executions = var.s3_antivirus_provisioned_concurrency
+  qualifier                         = aws_lambda_function.lambda_function.function_name
+}
