@@ -84,7 +84,6 @@ func TestPostPreviousApplicationNumber(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			ID:                        "lpa-id",
 			UID:                       "lpa-uid",
-			ApplicationReason:         page.AdditionalApplication,
 			PreviousApplicationNumber: "ABC",
 			Tasks:                     page.Tasks{YourDetails: actor.TaskCompleted},
 		}).
@@ -93,7 +92,6 @@ func TestPostPreviousApplicationNumber(t *testing.T) {
 	err := PreviousApplicationNumber(nil, donorStore)(testAppData, w, r, &page.Lpa{
 		ID:                             "lpa-id",
 		UID:                            "lpa-uid",
-		ApplicationReason:              page.AdditionalApplication,
 		HasSentApplicationUpdatedEvent: true,
 	})
 	resp := w.Result()
@@ -115,7 +113,6 @@ func TestPostPreviousApplicationNumberWhenNotChanged(t *testing.T) {
 	err := PreviousApplicationNumber(nil, nil)(testAppData, w, r, &page.Lpa{
 		ID:                        "lpa-id",
 		UID:                       "lpa-uid",
-		ApplicationReason:         page.AdditionalApplication,
 		PreviousApplicationNumber: "ABC",
 	})
 	resp := w.Result()
