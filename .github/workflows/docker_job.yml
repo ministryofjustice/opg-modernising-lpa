@@ -46,7 +46,7 @@ jobs:
           docker build -f ${{ matrix.path }} -t ${{ matrix.ecr_repository }} --build-arg TAG=${{inputs.tag}} .
       - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
         id: trivy_scan
-        uses: aquasecurity/trivy-action@0.12.0
+        uses: aquasecurity/trivy-action@0.13.0
         with:
           image-ref: ${{ matrix.ecr_repository }}:latest
           severity: 'HIGH,CRITICAL'
