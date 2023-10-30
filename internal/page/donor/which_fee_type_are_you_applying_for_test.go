@@ -74,25 +74,36 @@ func TestGetWhichFeeTypeAreYouApplyingForOnTemplateError(t *testing.T) {
 }
 
 func TestPostWhichFeeTypeAreYouApplyingFor(t *testing.T) {
-	form := url.Values{
-		"fee-type": {page.HalfFee.String()},
+	testcases := map[page.FeeType]page.LpaPath{
+		page.HalfFee:              page.Paths.EvidenceRequired,
+		page.NoFee:                page.Paths.EvidenceRequired,
+		page.HardshipFee:          page.Paths.EvidenceRequired,
+		page.RepeatApplicationFee: page.Paths.PreviousApplicationNumber,
 	}
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
+	for feeType, redirect := range testcases {
+		t.Run(feeType.String(), func(t *testing.T) {
+			form := url.Values{
+				"fee-type": {feeType.String()},
+			}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &page.Lpa{ID: "lpa-id", FeeType: page.HalfFee}).
-		Return(nil)
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := WhichFeeTypeAreYouApplyingFor(nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
-	resp := w.Result()
+			donorStore := newMockDonorStore(t)
+			donorStore.
+				On("Put", r.Context(), &page.Lpa{ID: "lpa-id", FeeType: feeType}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, page.Paths.EvidenceRequired.Format("lpa-id"), resp.Header.Get("Location"))
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
+			err := WhichFeeTypeAreYouApplyingFor(nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, redirect.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+		})
+	}
 }
 
 func TestPostWhichFeeTypeAreYouApplyingForOnStoreError(t *testing.T) {

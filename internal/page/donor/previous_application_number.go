@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -30,16 +29,18 @@ func PreviousApplicationNumber(tmpl template.Template, donorStore DonorStore) Ha
 
 			if data.Errors.None() {
 				if lpa.PreviousApplicationNumber != data.Form.PreviousApplicationNumber {
-					lpa.HasSentApplicationUpdatedEvent = false
 					lpa.PreviousApplicationNumber = data.Form.PreviousApplicationNumber
-					lpa.Tasks.YourDetails = actor.TaskCompleted
 
 					if err := donorStore.Put(r.Context(), lpa); err != nil {
 						return err
 					}
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.TaskList.Format(lpa.ID))
+				if lpa.PreviousApplicationNumber[0] == '7' {
+					return appData.Redirect(w, r, lpa, page.Paths.WhatWasYourOriginalFee.Format(lpa.ID))
+				} else {
+					return appData.Redirect(w, r, lpa, page.Paths.WhatHappensAfterNoFee.Format(lpa.ID))
+				}
 			}
 		}
 
@@ -61,7 +62,8 @@ func (f *previousApplicationNumberForm) Validate() validation.List {
 	var errors validation.List
 
 	errors.String("previous-application-number", "previousApplicationNumber", f.PreviousApplicationNumber,
-		validation.Empty())
+		validation.Empty(),
+		validation.ReferenceNumber())
 
 	return errors
 }
