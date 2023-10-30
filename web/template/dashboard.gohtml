@@ -7,15 +7,15 @@
     <div class="app-dashboard-row">
       {{ if .Item.Lpa.RegisteredAt.IsZero }}<h3 class="govuk-heading-m">{{ else }}<h4 class="govuk-heading-m">{{ end }}
         {{ if .Item.Lpa.Type.IsPropertyFinance }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}:
-        <span class="govuk-!-font-weight-regular">{{ .Item.Lpa.Donor.FirstNames }} {{ .Item.Lpa.Donor.LastName }}</span>
+        <span class="govuk-!-font-weight-regular">{{ .Item.Lpa.Donor.FullName }}</span>
         {{ if .Item.Lpa.RegisteredAt.IsZero }}</h3>{{ else }}</h4>{{ end }}
         <div>
-          {{ if not .Item.Lpa.RegisteredAt.IsZero }}
+          {{ if not .Item.Lpa.WithdrawnAt.IsZero }}
+            <strong class="govuk-tag govuk-tag--red">{{ tr .App "withdrawn" }}</strong>
+          {{ else if not .Item.Lpa.RegisteredAt.IsZero }}
             <strong class="govuk-tag app-tag--black">{{ tr .App "registered" }}</strong>
           {{ else if not .Item.Lpa.SubmittedAt.IsZero }}
             <strong class="govuk-tag govuk-tag--green">{{ tr .App "submittedToOpg" }}</strong>
-          {{ else if not .Item.Lpa.SignedAt.IsZero }}
-            <strong class="govuk-tag govuk-tag--blue">{{ tr .App "inProgress" }}</strong>
           {{ else }}
             <strong class="govuk-tag govuk-tag--blue">{{ tr .App "inProgress" }}</strong>
           {{ end }}
@@ -26,37 +26,41 @@
         <strong>{{ if .Item.Lpa.RegisteredAt.IsZero }}{{ tr .App "referenceNumber" }}{{ else }}{{ tr .App "lpaNumber" }}{{ end }}:</strong>
         {{ .Item.Lpa.UID }}
       </p>
-      {{ if .Item.Lpa.RegisteredAt.IsZero }}
-        <p class="govuk-body-s"><strong>{{ tr .App "lastUpdated" }}:</strong> {{ formatDateTime .App .Item.Lpa.UpdatedAt }}</p>
-      {{ else }}
+      {{ if not .Item.Lpa.WithdrawnAt.IsZero }}
+        <p class="govuk-body-s"><strong>{{ tr .App "withdrawn" }}:</strong> {{ formatDateTime .App .Item.Lpa.WithdrawnAt }}</p>
+      {{ else if not .Item.Lpa.RegisteredAt.IsZero }}
         <p class="govuk-body-s"><strong>{{ tr .App "registered" }}:</strong> {{ formatDateTime .App .Item.Lpa.RegisteredAt }}</p>
-      {{ end }}
-    </div>
-    <div class="govuk-dashboard-row">
-      {{ if not .Item.Lpa.RegisteredAt.IsZero }}
-        <p class="govuk-body">
-          <a class="govuk-button" href="#">{{ tr .App "viewSignedLpa" }}</a><br/>
-          <a class="govuk-link" href="#">{{ tr .App "useThisLpa" }}</a>
-        </p>
-      {{ else if not .Item.Lpa.SubmittedAt.IsZero }}
-        <div class="govuk-button-group">
-          <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a>
-          <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.Progress.Format .Item.Lpa.ID) }}">{{ tr .App "trackLpaProgress" }}</a>
-          <a class="govuk-button govuk-button--secondary" href="#">{{ tr .App "withdrawLpa" }}</a>
-        </div>
-      {{ else if not .Item.Lpa.SignedAt.IsZero }}
-        <div class="govuk-button-group">
-          <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .Item.Lpa.ID) }}">{{ tr .App "goToTaskList" }}</a>
-          <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.Progress.Format .Item.Lpa.ID) }}">{{ tr .App "trackLpaProgress" }}</a>
-          <a class="govuk-button govuk-button--secondary" href="#">{{ tr .App "withdrawLpa" }}</a>
-        </div>
       {{ else }}
-        <div class="govuk-button-group">
-          <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .Item.Lpa.ID) }}">{{ tr .App "goToTaskList" }}</a>
-          <a class="govuk-button govuk-button--secondary" href="#">{{ tr .App "deleteLpa" }}</a>
-        </div>
+        <p class="govuk-body-s"><strong>{{ tr .App "lastUpdated" }}:</strong> {{ formatDateTime .App .Item.Lpa.UpdatedAt }}</p>
       {{ end }}
     </div>
+    {{ if .Item.Lpa.WithdrawnAt.IsZero }}
+      <div class="govuk-dashboard-row">
+        {{ if not .Item.Lpa.RegisteredAt.IsZero }}
+          <p class="govuk-body">
+            <a class="govuk-button" href="#">{{ tr .App "viewSignedLpa" }}</a><br/>
+            <a class="govuk-link" href="#">{{ tr .App "useThisLpa" }}</a>
+          </p>
+        {{ else if not .Item.Lpa.SubmittedAt.IsZero }}
+          <div class="govuk-button-group">
+            <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a>
+            <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.Progress.Format .Item.Lpa.ID) }}">{{ tr .App "trackLpaProgress" }}</a>
+            <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.WithdrawThisLpa.Format .Item.Lpa.ID) }}">{{ tr .App "withdrawLpa" }}</a>
+          </div>
+        {{ else if not .Item.Lpa.SignedAt.IsZero }}
+          <div class="govuk-button-group">
+            <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .Item.Lpa.ID) }}">{{ tr .App "goToTaskList" }}</a>
+            <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.Progress.Format .Item.Lpa.ID) }}">{{ tr .App "trackLpaProgress" }}</a>
+            <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.WithdrawThisLpa.Format .Item.Lpa.ID) }}">{{ tr .App "withdrawLpa" }}</a>
+          </div>
+        {{ else }}
+          <div class="govuk-button-group">
+            <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .Item.Lpa.ID) }}">{{ tr .App "goToTaskList" }}</a>
+            <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.DeleteThisLpa.Format .Item.Lpa.ID) }}">{{ tr .App "deleteLpa" }}</a>
+          </div>
+        {{ end }}
+      </div>
+    {{ end }}
   </div>
 {{ end }}
 
@@ -65,10 +69,12 @@
     <div class="app-dashboard-row">
       {{ if .Item.Lpa.RegisteredAt.IsZero }}<h3 class="govuk-heading-m">{{ else }}<h4 class="govuk-heading-m">{{ end }}
         {{ if .Item.Lpa.Type.IsPropertyFinance }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}:
-        <span class="govuk-!-font-weight-regular">{{ .Item.Lpa.Donor.FirstNames }} {{ .Item.Lpa.Donor.LastName }}</span>
+        <span class="govuk-!-font-weight-regular">{{ .Item.Lpa.Donor.FullName }}</span>
         {{ if .Item.Lpa.RegisteredAt.IsZero }}</h3>{{ else }}</h4>{{ end }}
         <div>
-          {{ if not .Item.Lpa.RegisteredAt.IsZero }}
+          {{ if not .Item.Lpa.WithdrawnAt.IsZero }}
+            <strong class="govuk-tag govuk-tag--red">{{ tr .App "withdrawn" }}</strong>
+          {{ else if not .Item.Lpa.RegisteredAt.IsZero }}
             <strong class="govuk-tag app-tag--black">{{ tr .App "registered" }}</strong>
           {{ else if not .Item.Lpa.SubmittedAt.IsZero }}
             <strong class="govuk-tag govuk-tag--green">{{ tr .App "submittedToOpg" }}</strong>
@@ -84,28 +90,32 @@
         <strong>{{ if .Item.Lpa.RegisteredAt.IsZero }}{{ tr .App "referenceNumber" }}{{ else }}{{ tr .App "lpaNumber" }}{{ end }}:</strong>
         {{ .Item.Lpa.UID }}
       </p>
-      {{ if .Item.Lpa.RegisteredAt.IsZero }}
-        <p class="govuk-body-s"><strong>{{ tr .App "lastUpdated" }}:</strong> {{ formatDateTime .App .Item.Lpa.UpdatedAt }}</p>
-      {{ else }}
+      {{ if not .Item.Lpa.WithdrawnAt.IsZero }}
+        <p class="govuk-body-s"><strong>{{ tr .App "withdrawn" }}:</strong> {{ formatDateTime .App .Item.Lpa.WithdrawnAt }}</p>
+      {{ else if not .Item.Lpa.RegisteredAt.IsZero }}
         <p class="govuk-body-s"><strong>{{ tr .App "registered" }}:</strong> {{ formatDateTime .App .Item.Lpa.RegisteredAt }}</p>
+      {{ else }}
+        <p class="govuk-body-s"><strong>{{ tr .App "lastUpdated" }}:</strong> {{ formatDateTime .App .Item.Lpa.UpdatedAt }}</p>
       {{ end }}
     </div>
-    <div class="app-dashboard-row">
-      <div class="govuk-button-group">
-        {{ if not .Item.Lpa.RegisteredAt.IsZero }}
-          <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a>
-          <a class="govuk-link" href="#">{{ tr .App "use" }}</a>
-        {{ else if not .Item.Lpa.SubmittedAt.IsZero }}
-          <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a>
-          <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.Attorney.Progress.Format .Item.Lpa.ID) }}">{{ tr .App "trackLpaProgress" }}</a>
-        {{ else if .Item.Attorney.Signed .Item.Lpa.SignedAt }}
-          <a class="govuk-button" href="{{ link .App (.App.Paths.Attorney.TaskList.Format .Item.Lpa.ID) }}">{{ tr .App "goToTaskList" }}</a>
-          <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.Attorney.Progress.Format .Item.Lpa.ID) }}">{{ tr .App "trackLpaProgress" }}</a>
-        {{ else }}
-          <a class="govuk-button" href="{{ link .App (.App.Paths.Attorney.TaskList.Format .Item.Lpa.ID) }}">{{ tr .App "goToTaskList" }}</a>
-        {{ end }}
+    {{ if .Item.Lpa.WithdrawnAt.IsZero }}
+      <div class="app-dashboard-row">
+        <div class="govuk-button-group">
+          {{ if not .Item.Lpa.RegisteredAt.IsZero }}
+            <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a>
+            <a class="govuk-link" href="#">{{ tr .App "use" }}</a>
+          {{ else if not .Item.Lpa.SubmittedAt.IsZero }}
+            <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a>
+            <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.Attorney.Progress.Format .Item.Lpa.ID) }}">{{ tr .App "trackLpaProgress" }}</a>
+          {{ else if .Item.Attorney.Signed .Item.Lpa.SignedAt }}
+            <a class="govuk-button" href="{{ link .App (.App.Paths.Attorney.TaskList.Format .Item.Lpa.ID) }}">{{ tr .App "goToTaskList" }}</a>
+            <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.Attorney.Progress.Format .Item.Lpa.ID) }}">{{ tr .App "trackLpaProgress" }}</a>
+          {{ else }}
+            <a class="govuk-button" href="{{ link .App (.App.Paths.Attorney.TaskList.Format .Item.Lpa.ID) }}">{{ tr .App "goToTaskList" }}</a>
+          {{ end }}
+        </div>
       </div>
-    </div>
+    {{ end }}
   </div>
 {{ end }}
 
@@ -114,7 +124,7 @@
     <div class="app-dashboard-row">
       <h3 class="govuk-heading-m">
         {{ if .Item.Lpa.Type.IsPropertyFinance }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}:
-        <span class="govuk-!-font-weight-regular">{{ .Item.Lpa.Donor.FirstNames }} {{ .Item.Lpa.Donor.LastName }}</span>
+        <span class="govuk-!-font-weight-regular">{{ .Item.Lpa.Donor.FullName }}</span>
       </h3>
       <div>
         {{ if and .Item.CertificateProvider.Tasks.ReadTheLpa.Completed (not .Item.Lpa.SignedAt.IsZero) .Item.Lpa.Tasks.PayForLpa.IsCompleted }}
