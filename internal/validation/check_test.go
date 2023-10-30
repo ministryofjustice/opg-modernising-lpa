@@ -195,6 +195,19 @@ func TestCheckString(t *testing.T) {
 			checks:   []StringChecker{Email()},
 			expected: With(name, EmailError{Label: label}),
 		},
+		"reference number modernised": {
+			input:  "M",
+			checks: []StringChecker{ReferenceNumber()},
+		},
+		"reference number old": {
+			input:  "7",
+			checks: []StringChecker{ReferenceNumber()},
+		},
+		"reference number invalid": {
+			input:    "a",
+			checks:   []StringChecker{ReferenceNumber()},
+			expected: With(name, ReferenceNumberError{Label: label}),
+		},
 	}
 
 	for scenario, tc := range testcases {

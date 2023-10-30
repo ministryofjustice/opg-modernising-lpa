@@ -1,23 +1,35 @@
 describe('Previous application number', () => {
-    it('can be submitted', () => {
+    beforeEach(() => {
         cy.visit('/fixtures?redirect=/previous-application-number');
+    });
+
+    it('can be submitted', () => {
         cy.checkA11yApp();
 
-        cy.get('#f-previous-application-number').type('ABC');
+        cy.get('#f-previous-application-number').type('MABC');
+        cy.contains('button', 'Save and continue').click();
 
-        cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/task-list');
+        cy.url().should('contain', '/what-happens-after-no-fee');
     });
 
     it('errors when unselected', () => {
-        cy.visit('/fixtures?redirect=/previous-application-number');
-
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('Enter previousApplicationNumber');
+            cy.contains('Enter previous reference number');
         });
 
-        cy.contains('.govuk-fieldset .govuk-error-message', 'Enter previousApplicationNumber');
+        cy.contains('.govuk-error-message', 'Enter previous reference number');
+    });
+
+    it('errors when not correct format', () => {
+        cy.get('#f-previous-application-number').type('ABC');
+        cy.contains('button', 'Save and continue').click();
+
+        cy.get('.govuk-error-summary').within(() => {
+            cy.contains('Previous reference number must begin with 7 or M');
+        });
+
+        cy.contains('.govuk-error-message', 'Previous reference number must begin with 7 or M');
     });
 });
