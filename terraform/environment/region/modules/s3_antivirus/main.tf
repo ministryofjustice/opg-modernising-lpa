@@ -43,10 +43,17 @@ data "aws_security_group" "lambda_egress" {
   provider = aws.region
 }
 
+resource "aws_lambda_alias" "test_lambda_alias" {
+  name             = "latest"
+  function_name    = aws_lambda_function.lambda_function.function_name
+  function_version = aws.lambda_function.lambda_function.version
+  provider         = aws.region
+}
+
 resource "aws_lambda_provisioned_concurrency_config" "main" {
   count                             = var.s3_antivirus_provisioned_concurrency > 0 ? 1 : 0
-  function_name                     = aws_lambda_function.lambda_function.function_name
+  function_name                     = aws_lambda_alias.test_lambda_alias.function_name
   provisioned_concurrent_executions = var.s3_antivirus_provisioned_concurrency
-  qualifier                         = aws_lambda_function.lambda_function.function_name
+  qualifier                         = aws_lambda_alias.test_lambda_alias.name
   provider                          = aws.region
 }
