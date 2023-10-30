@@ -425,6 +425,51 @@ func TestLatestForActorOnQueryError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
+func TestAllKeysByPk(t *testing.T) {
+	ctx := context.Background()
+
+	keys := []Key{
+		{PK: "pk", SK: "sk1"},
+		{PK: "pk", SK: "sk2"},
+	}
+
+	item1, _ := attributevalue.MarshalMap(keys[0])
+	item2, _ := attributevalue.MarshalMap(keys[1])
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, &dynamodb.QueryInput{
+			TableName:                aws.String("this"),
+			ExpressionAttributeNames: map[string]string{"#PK": "PK"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{
+				":PK": &types.AttributeValueMemberS{Value: "pk"},
+			},
+			KeyConditionExpression: aws.String("#PK = :PK"),
+			ProjectionExpression:   aws.String("PK, SK"),
+		}).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{item1, item2}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	result, err := c.AllKeysByPk(ctx, "pk")
+	assert.Nil(t, err)
+	assert.Equal(t, keys, result)
+}
+
+func TestAllKeysByPkWhenError(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("Query", ctx, mock.Anything).
+		Return(nil, expectedError)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	_, err := c.AllKeysByPk(ctx, "pk")
+	assert.Equal(t, expectedError, err)
+}
+
 func TestAllByKeys(t *testing.T) {
 	ctx := context.Background()
 
@@ -590,5 +635,40 @@ func TestCreateWhenError(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	err := c.Create(ctx, map[string]string{"Col": "Val"})
+	assert.Equal(t, expectedError, err)
+}
+
+func TestDeleteKeys(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("TransactWriteItems", ctx, &dynamodb.TransactWriteItemsInput{
+			TransactItems: []types.TransactWriteItem{
+				{
+					Delete: &types.Delete{
+						TableName: aws.String("this"),
+						Key: map[string]types.AttributeValue{
+							"PK": &types.AttributeValueMemberS{Value: "pk"},
+							"SK": &types.AttributeValueMemberS{Value: "sk1"},
+						},
+					},
+				},
+				{
+					Delete: &types.Delete{
+						TableName: aws.String("this"),
+						Key: map[string]types.AttributeValue{
+							"PK": &types.AttributeValueMemberS{Value: "pk"},
+							"SK": &types.AttributeValueMemberS{Value: "sk2"},
+						},
+					},
+				},
+			},
+		}).
+		Return(nil, expectedError)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	err := c.DeleteKeys(ctx, []Key{{PK: "pk", SK: "sk1"}, {PK: "pk", SK: "sk2"}})
 	assert.Equal(t, expectedError, err)
 }

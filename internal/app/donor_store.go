@@ -199,6 +199,36 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 	return s.dynamoClient.Put(ctx, lpa)
 }
 
+func (s *donorStore) Delete(ctx context.Context) error {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	if data.SessionID == "" || data.LpaID == "" {
+		return errors.New("donorStore.Create requires SessionID and LpaID")
+	}
+
+	keys, err := s.dynamoClient.AllKeysByPk(ctx, lpaKey(data.LpaID))
+	if err != nil {
+		return err
+	}
+
+	canDelete := false
+	for _, key := range keys {
+		if key.PK == lpaKey(data.LpaID) && key.SK == donorKey(data.SessionID) {
+			canDelete = true
+			break
+		}
+	}
+
+	if !canDelete {
+		return errors.New("cannot access data of another donor")
+	}
+
+	return s.dynamoClient.DeleteKeys(ctx, keys)
+}
+
 func lpaKey(s string) string {
 	return "LPA#" + s
 }

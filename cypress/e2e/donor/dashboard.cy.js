@@ -65,6 +65,17 @@ describe('Dashboard', () => {
         });
     });
 
+    context('with withdrawn LPA', () => {
+        it('shows the no options', () => {
+            cy.visit('/fixtures?redirect=&progress=withdrawn');
+
+            cy.contains('Property and affairs');
+            cy.contains('Sam Smith');
+            cy.contains('strong', 'Withdrawn');
+            cy.contains('.app-dashboard-card a').should('not.exist');
+        });
+    });
+
     context('with registered LPA', () => {
         it('shows the correct options', () => {
             cy.visit('/fixtures?redirect=&progress=registered');

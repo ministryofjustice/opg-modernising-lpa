@@ -38,6 +38,7 @@ func Donor(
 		"signedByCertificateProvider",
 		"signedByAttorneys",
 		"submitted",
+		"withdrawn",
 		"registered",
 	}
 
@@ -304,6 +305,10 @@ func Donor(
 
 		if progress >= slices.Index(progressValues, "submitted") {
 			lpa.SubmittedAt = time.Now()
+		}
+
+		if progress == slices.Index(progressValues, "withdrawn") {
+			lpa.WithdrawnAt = time.Now()
 		}
 
 		if progress >= slices.Index(progressValues, "registered") {
