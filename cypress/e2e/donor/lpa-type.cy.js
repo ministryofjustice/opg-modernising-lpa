@@ -7,7 +7,7 @@ describe('LPA type', () => {
         cy.checkA11yApp();
 
         cy.contains('button', 'Continue').click();
-        cy.url().should('contain', '/application-reason');
+        cy.url().should('contain', '/task-list');
     });
 
     it('errors when unselected', () => {
