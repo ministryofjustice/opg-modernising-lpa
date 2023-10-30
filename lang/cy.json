@@ -896,5 +896,6 @@
     "lpaWithdrawn": "Welsh",
     "youHaveWithdrawnLpaNumber": "Welsh <span class=\"govuk-!-font-weight-bold\">{{.UID}}</span>",
     "opgWillNowContactAnyoneWhoHasAlreadyBeenContacted": "Welsh",
-    "withdrawn": "Welsh"
+    "withdrawn": "Welsh",
+    "dateLpaSigned": "Welsh"
 }
