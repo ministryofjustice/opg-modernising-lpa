@@ -17,6 +17,7 @@ resource "aws_lambda_function" "lambda_function" {
   role          = var.lambda_task_role.arn
   timeout       = 300
   memory_size   = 4096
+  publish       = true
 
   tracing_config {
     mode = "Active"
@@ -46,7 +47,7 @@ data "aws_security_group" "lambda_egress" {
 resource "aws_lambda_alias" "lambda_alias" {
   name             = "latest"
   function_name    = aws_lambda_function.lambda_function.function_name
-  function_version = "$LATEST"
+  function_version = aws_lambda_function.lambda_function.version
   provider         = aws.region
 }
 
