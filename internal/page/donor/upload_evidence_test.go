@@ -305,19 +305,6 @@ func TestPostUploadEvidenceWithPayActionWithInfectedFiles(t *testing.T) {
 		}).
 		Return(nil)
 
-	localizer := newMockLocalizer(t)
-	localizer.
-		On("FormatCount", "errorFileInfected", 3, map[string]interface{}{"Filenames": "a, b and d"}).
-		Return("formatted string")
-	localizer.
-		On("Concat", []string{"a", "b", "d"}, "and").
-		Return("a, b and d")
-	localizer.
-		On("T", "and").
-		Return("and")
-
-	testAppData.Localizer = localizer
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &uploadEvidenceData{
@@ -326,7 +313,7 @@ func TestPostUploadEvidenceWithPayActionWithInfectedFiles(t *testing.T) {
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              page.HalfFee,
-			Errors:               validation.With("upload", validation.CustomError{Label: "formatted string"}),
+			Errors:               validation.With("upload", validation.FilesInfectedError{Label: "upload", Filenames: []string{"a", "b", "d"}}),
 		}).
 		Return(nil)
 
@@ -402,19 +389,6 @@ func TestPostUploadEvidenceWithPayActionWithInfectedFilesWhenTemplateError(t *te
 	donorStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(nil)
-
-	localizer := newMockLocalizer(t)
-	localizer.
-		On("FormatCount", mock.Anything, mock.Anything, mock.Anything).
-		Return("formatted string")
-	localizer.
-		On("Concat", mock.Anything, mock.Anything).
-		Return("a, b and d")
-	localizer.
-		On("T", mock.Anything).
-		Return("and")
-
-	testAppData.Localizer = localizer
 
 	template := newMockTemplate(t)
 	template.

@@ -791,7 +791,7 @@
     "errorFileIncorrectType": "{{.Filename}}: Welsh",
     "errorFileEmpty": "{{.Filename}}: Welsh",
     "errorGenericUploadProblemFile": "{{.Filename}}: Welsh",
-    "errorFileInfected": {
+    "errorFilesInfected": {
         "one": "{{.Filenames}} Welsh",
         "two": "{{.Filenames}} Welsh",
         "few": "{{.Filenames}} Welsh",

@@ -99,32 +99,26 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 					data.Evidence = lpa.Evidence
 
 				case "pay":
-					var filenames []string
+					var infectedFilenames []string
 
-					// TODO decide if we want to delete from S3 now or run a job to delete all infected files
+					//TODO decide if we want to delete from S3 now or run a job to delete all infected files
 					lpa.Evidence.Documents = slices.DeleteFunc(lpa.Evidence.Documents, func(d page.Document) bool {
 						if d.VirusDetected {
-							filenames = append(filenames, d.Filename)
+							infectedFilenames = append(infectedFilenames, d.Filename)
 							return true
 						}
 
 						return false
 					})
 
-					if len(filenames) > 0 {
+					if len(infectedFilenames) > 0 {
 						if err := donorStore.Put(r.Context(), lpa); err != nil {
 							return err
 						}
 
-						// This is gross. There must be a nicer way to do this...
-						errorMessage := appData.Localizer.FormatCount(
-							"errorFileInfected",
-							len(filenames),
-							map[string]interface{}{"Filenames": appData.Localizer.Concat(filenames, appData.Localizer.T("and"))},
-						)
-
-						data.Errors = validation.With("upload", validation.CustomError{Label: errorMessage})
+						data.Errors = validation.With("upload", validation.FilesInfectedError{Label: "upload", Filenames: infectedFilenames})
 						data.Evidence = lpa.Evidence
+
 						return tmpl(w, data)
 					}
 

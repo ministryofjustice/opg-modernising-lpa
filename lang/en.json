@@ -738,7 +738,7 @@
     "errorFileIncorrectType": "{{.Filename}}: File is not a supported file type",
     "errorFileEmpty": "{{.Filename}}: File is empty",
     "errorGenericUploadProblemFile": "{{.Filename}}: Generic file error",
-    "errorFileInfected": {
+    "errorFilesInfected": {
         "one": "{{.Filenames}} cannot be uploaded as it contains a virus",
         "other": "{{.Filenames}} cannot be uploaded as they contain a virus"
     },
