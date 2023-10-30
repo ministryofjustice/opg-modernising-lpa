@@ -50,6 +50,7 @@
     "errorSelect": "Select {{.Label}}",
     "errorEmail": "{{.Label}} must be in the correct format, like name@example.com",
     "errorPostcode": "{{.Label}} must be a UK postcode",
+    "errorReferenceNumber": "{{.Label}} must begin with 7 or M",
     "donorMatchesActorWarning": "The donor’s name is also {{.FirstNames}} {{.LastName}}. The donor cannot be {{.Type}}.",
     "attorneyMatchesActorWarning": "There is also an attorney called {{.FirstNames}} {{.LastName}}. An attorney cannot be {{.Type}}.",
     "attorneyMatchesAttorneyWarning": "There is already an attorney called {{.FirstNames}} {{.LastName}}.",
@@ -841,5 +842,10 @@
     "youHaveWithdrawnLpaNumber": "You have withdrawn LPA number <span class=\"govuk-!-font-weight-bold\">{{.UID}}</span>.",
     "opgWillNowContactAnyoneWhoHasAlreadyBeenContacted": "OPG will now contact anyone who has already been contacted in relation to your LPA and notify them of your decision to withdraw.",
     "withdrawn": "Withdrawn",
-    "dateLpaSigned": "Date LPA signed"
+    "dateLpaSigned": "Date LPA signed",
+    "whatIsYourPreviousReferenceNumber": "What is your previous reference number?",
+    "whatIsYourPreviousReferenceNumberContent": "<p class=\"govuk-body\">You’ve told us that you recently made an LPA application.</p><p class=\"govuk-body\">We need your previous reference number so that we can match your old application to your new one.</p>",
+    "whereCanFindReferenceNumber": "Where can I find my reference number?",
+    "whereCanFindReferenceNumberDetails": "<p class=\"govuk-body\">Your reference number (also called 'OPG reference number' or 'Our ref') is on any letter you have from the Office of the Public Guardian.</p><p class=\"govuk-body\">It should also be on the cover letter we sent you when we sent your original application back to you.</p>",
+    "previousApplicationNumber": "Previous reference number"
 }
