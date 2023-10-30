@@ -173,6 +173,7 @@ type AppPaths struct {
 	UseExistingAddress                                   LpaPath
 	WhatACertificateProviderDoes                         LpaPath
 	WhatHappensAfterNoFee                                LpaPath
+	WhatWasYourOriginalFee                               LpaPath
 	WhenCanTheLpaBeUsed                                  LpaPath
 	WhichFeeTypeAreYouApplyingFor                        LpaPath
 	WithdrawThisLpa                                      LpaPath
@@ -313,6 +314,7 @@ var Paths = AppPaths{
 	UseExistingAddress:                                   "/use-existing-address",
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
 	WhatHappensAfterNoFee:                                "/what-happens-after-no-fee",
+	WhatWasYourOriginalFee:                               "/what-was-your-original-fee",
 	WhenCanTheLpaBeUsed:                                  "/when-can-the-lpa-be-used",
 	WhichFeeTypeAreYouApplyingFor:                        "/which-fee-type-are-you-applying-for",
 	WithdrawThisLpa:                                      "/withdraw-this-lpa",
