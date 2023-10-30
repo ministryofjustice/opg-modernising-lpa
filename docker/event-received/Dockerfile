@@ -1,5 +1,9 @@
 FROM golang:1.21.3-alpine as build
 
+RUN curl -O https://lambda-insights-extension.s3-ap-northeast-1.amazonaws.com/amazon_linux/lambda-insights-extension.rpm && \
+    rpm -U lambda-insights-extension.rpm && \
+    rm -f lambda-insights-extension.rpm
+
 WORKDIR /app
 
 COPY go.mod go.sum ./
