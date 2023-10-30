@@ -360,3 +360,17 @@ func (c DateMustBePastCheck) CheckDate(label string, value date.Date) Formattabl
 func DateMustBePast() DateMustBePastCheck {
 	return DateMustBePastCheck{}
 }
+
+type ReferenceNumberCheck struct{}
+
+func (c ReferenceNumberCheck) CheckString(label, value string) FormattableError {
+	if value[0] != 'M' && value[0] != '7' {
+		return ReferenceNumberError{Label: label}
+	}
+
+	return nil
+}
+
+func ReferenceNumber() ReferenceNumberCheck {
+	return ReferenceNumberCheck{}
+}
