@@ -31,9 +31,13 @@
         {{ end }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ tr .App .Lpa.WhenCanTheLpaBeUsed.String }}
+        {{ if .Lpa.Type.IsPropertyFinance }}
+          {{ tr .App .Lpa.WhenCanTheLpaBeUsed.String }}
+        {{ else if .Lpa.Type.IsHealthWelfare }}
+          {{ tr .App "when-capacity-lost" }}
+        {{ end }}
       </dd>
-      {{ if $canChange }}
+      {{ if and $canChange .Lpa.Type.IsPropertyFinance }}
         <dd class="govuk-summary-list__actions">
           <a class="govuk-link" href="{{ link .App (.App.Paths.WhenCanTheLpaBeUsed.Format .App.LpaID) }}">
             {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "whenYourAttorneysCanUseYourLpa" }}</span>

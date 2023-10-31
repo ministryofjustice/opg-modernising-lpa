@@ -3,6 +3,14 @@ describe('Check the LPA', () => {
         cy.visit('/fixtures?redirect=/check-your-lpa&progress=peopleToNotifyAboutYourLpa');
     });
 
+    it('cannot change when personal welfare LPA can be used', () => {
+        cy.visit('/fixtures?redirect=/check-your-lpa&progress=peopleToNotifyAboutYourLpa&lpa-type=hw');
+
+        cy.contains('.govuk-summary-list__row', 'When your attorneys can use your LPA')
+            .contains('Only when I do not have mental capacity')
+            .contains('Change').should('not.exist');
+    });
+
     it("can submit the completed LPA", () => {
         cy.contains('h1', "Check your LPA")
 
