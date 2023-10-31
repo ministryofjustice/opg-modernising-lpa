@@ -71,7 +71,7 @@ func TestGetPreviousApplicationNumberWhenTemplateErrors(t *testing.T) {
 
 func TestPostPreviousApplicationNumber(t *testing.T) {
 	testcases := map[string]page.LpaPath{
-		"7": page.Paths.WhatWasYourOriginalFee,
+		"7": page.Paths.PreviousFee,
 		"M": page.Paths.WhatHappensAfterNoFee,
 	}
 

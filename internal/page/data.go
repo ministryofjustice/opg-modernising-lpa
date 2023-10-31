@@ -77,17 +77,15 @@ const (
 	RepeatApplicationFee
 )
 
-func (i FeeType) Cost() int {
-	if i.IsFullFee() {
-		return 8200
-	}
+//go:generate enumerator -type PreviousFee -empty
+type PreviousFee uint8
 
-	if i.IsHalfFee() {
-		return 4100
-	}
-
-	return 0
-}
+const (
+	PreviousFeeFull PreviousFee = iota + 1
+	PreviousFeeHalf
+	PreviousFeeExemption
+	PreviousFeeHardship
+)
 
 // Lpa contains all the data related to the LPA application
 type Lpa struct {
@@ -110,8 +108,6 @@ type Lpa struct {
 	CertificateProvider actor.CertificateProvider
 	// Type of LPA being drafted
 	Type LpaType
-	// PreviousApplicationNumber if the application is related to an existing application
-	PreviousApplicationNumber string
 	// Whether the applicant wants to add replacement attorneys
 	WantReplacementAttorneys form.YesNo
 	// When the LPA can be used
@@ -172,6 +168,10 @@ type Lpa struct {
 	FeeType FeeType
 	// Evidence is the documents uploaded by a donor to apply for non-full fees
 	Evidence Evidence
+	// PreviousApplicationNumber if the application is related to an existing application
+	PreviousApplicationNumber string
+	// PreviousFee is the fee previously paid for an LPA
+	PreviousFee PreviousFee
 
 	HasSentApplicationUpdatedEvent        bool
 	HasSentPreviousApplicationLinkedEvent bool
@@ -524,6 +524,30 @@ func (l *Lpa) TrustCorporationsNames() []string {
 	return names
 }
 
+func (l *Lpa) Cost() int {
+	if l.Tasks.PayForLpa.IsDenied() {
+		return 8200
+	}
+
+	switch l.FeeType {
+	case FullFee:
+		return 8200
+	case HalfFee:
+		return 4100
+	case RepeatApplicationFee:
+		switch l.PreviousFee {
+		case PreviousFeeFull:
+			return 4100
+		case PreviousFeeHalf:
+			return 2050
+		default:
+			return 0
+		}
+	default:
+		return 0
+	}
+}
+
 func (l *Lpa) FeeAmount() int {
 	paid := 0
 
@@ -531,11 +555,7 @@ func (l *Lpa) FeeAmount() int {
 		paid += payment.Amount
 	}
 
-	if l.Tasks.PayForLpa.IsDenied() {
-		return FullFee.Cost() - paid
-	} else {
-		return l.FeeType.Cost() - paid
-	}
+	return l.Cost() - paid
 }
 
 func (l *Lpa) HasUnsentReducedFeesEvidence() bool {
