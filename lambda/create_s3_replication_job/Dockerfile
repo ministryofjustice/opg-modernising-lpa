@@ -34,18 +34,8 @@ RUN python -m pip install \
         --target ${FUNCTION_DIR} \
         --requirement requirements.txt
 
-FROM public.ecr.aws/lambda/python:3.8 AS production
-
-RUN curl -O https://lambda-insights-extension.s3-ap-northeast-1.amazonaws.com/amazon_linux/lambda-insights-extension.rpm && \
-    rpm -U lambda-insights-extension.rpm && \
-    rm -f lambda-insights-extension.rpm
-
-# RUN curl -O https://lambda-insights-extension-arm64.s3-ap-northeast-1.amazonaws.com/amazon_linux/lambda-insights-extension-arm64.rpm && \
-#     rpm -U lambda-insights-extension-arm64.rpm && \
-#     rm -f lambda-insights-extension-arm64.rpm
-
 # Multi-stage build: grab a fresh copy of the base image
-# FROM python-alpine
+FROM python-alpine
 
 # Include global arg in this stage of the build
 ARG FUNCTION_DIR
