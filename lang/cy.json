@@ -904,5 +904,12 @@
     "whatIsYourPreviousReferenceNumberContent": "<p class=\"govuk-body\">Welsh</p>",
     "whereCanFindReferenceNumber": "Welsh",
     "whereCanFindReferenceNumberDetails": "<p class=\"govuk-body\">Welsh</p>",
-    "previousApplicationNumber": "Welsh"
+    "previousApplicationNumber": "Welsh",
+    "howMuchDidYouPreviouslyPayForYourLpa": "Welsh",
+    "toCalculateYourFeeForThisLpa": "Welsh",
+    "fullFee": "Welsh",
+    "halfFee": "Welsh",
+    "nothingExemption": "Welsh",
+    "nothingHardship": "Welsh",
+    "howMuchYouPreviouslyPaid": "Welsh"
 }

@@ -198,8 +198,6 @@ func Register(
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, donorStore))
 	handleWithLpa(page.Paths.LpaType, None,
 		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore))
-	handleWithLpa(page.Paths.PreviousApplicationNumber, None,
-		PreviousApplicationNumber(tmpls.Get("previous_application_number.gohtml"), donorStore))
 	handleWithLpa(page.Paths.CheckYouCanSign, None,
 		CheckYouCanSign(tmpls.Get("check_you_can_sign.gohtml"), donorStore))
 	handleWithLpa(page.Paths.NeedHelpSigningConfirmation, None,
@@ -303,6 +301,10 @@ func Register(
 		AreYouApplyingForFeeDiscountOrExemption(tmpls.Get("are_you_applying_for_a_different_fee_type.gohtml"), payer, donorStore))
 	handleWithLpa(page.Paths.WhichFeeTypeAreYouApplyingFor, CanGoBack,
 		WhichFeeTypeAreYouApplyingFor(tmpls.Get("which_fee_type_are_you_applying_for.gohtml"), donorStore))
+	handleWithLpa(page.Paths.PreviousApplicationNumber, None,
+		PreviousApplicationNumber(tmpls.Get("previous_application_number.gohtml"), donorStore))
+	handleWithLpa(page.Paths.PreviousFee, CanGoBack,
+		PreviousFee(tmpls.Get("previous_fee.gohtml"), payer, donorStore))
 	handleWithLpa(page.Paths.EvidenceRequired, CanGoBack,
 		Guidance(tmpls.Get("evidence_required.gohtml")))
 	handleWithLpa(page.Paths.HowWouldYouLikeToSendEvidence, CanGoBack,
