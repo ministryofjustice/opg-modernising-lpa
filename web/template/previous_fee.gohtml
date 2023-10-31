@@ -1,0 +1,29 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "howMuchDidYouPreviouslyPayForYourLpa" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ tr .App "howMuchDidYouPreviouslyPayForYourLpa" }}</h1>
+
+      <p class="govuk-body">{{ tr .App "toCalculateYourFeeForThisLpa" }}</p>
+
+      <form novalidate method="post">
+        <div class="govuk-form-group {{ if .Errors.Has "previous-fee" }}govuk-form-group--error{{ end }}">
+          {{ template "error-message" (errorMessage . "previous-fee") }}
+
+          {{ template "radios" (items . "previous-fee" .Form.PreviousFee.String
+            (item .Options.PreviousFeeFull.String "fullFee")
+            (item .Options.PreviousFeeHalf.String "halfFee")
+            (item .Options.PreviousFeeExemption.String "nothingExemption")
+            (item .Options.PreviousFeeHardship.String "nothingHardship")
+          ) }}
+        </div>
+
+        {{ template "continue-and-return-buttons" . }}
+        {{ template "csrf-field" . }}
+      </form>
+    </div>
+  </div>
+{{ end }}

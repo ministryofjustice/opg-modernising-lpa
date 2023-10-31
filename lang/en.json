@@ -848,5 +848,12 @@
     "whatIsYourPreviousReferenceNumberContent": "<p class=\"govuk-body\">You’ve told us that you recently made an LPA application.</p><p class=\"govuk-body\">We need your previous reference number so that we can match your old application to your new one.</p>",
     "whereCanFindReferenceNumber": "Where can I find my reference number?",
     "whereCanFindReferenceNumberDetails": "<p class=\"govuk-body\">Your reference number (also called ‘OPG reference number’ or ‘Our ref’) is on any letter you have from the Office of the Public Guardian.</p><p class=\"govuk-body\">It should also be on the cover letter we sent you when we sent your original application back to you.</p>",
-    "previousApplicationNumber": "Previous reference number"
+    "previousApplicationNumber": "Previous reference number",
+    "howMuchDidYouPreviouslyPayForYourLpa": "How much did you previously pay for your LPA?",
+    "toCalculateYourFeeForThisLpa": "To calculate your fee for this LPA, we need to know how much you paid when you submitted your last LPA application.",
+    "fullFee": "£82 (full fee)",
+    "halfFee": "£41 (half fee)",
+    "nothingExemption": "Nothing - I paid no fee because I got an exemption",
+    "nothingHardship": "Nothing - I paid no fee because I got a hardship fee waiver",
+    "howMuchYouPreviouslyPaid": "how much you previously paid"
 }

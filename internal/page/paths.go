@@ -135,6 +135,7 @@ type AppPaths struct {
 	EnterTrustCorporation                                LpaPath
 	EnterTrustCorporationAddress                         LpaPath
 	EvidenceRequired                                     LpaPath
+	EvidenceRequiredForPreviousFee                       LpaPath
 	FeeDenied                                            LpaPath
 	GettingHelpSigning                                   LpaPath
 	HowDoYouKnowYourCertificateProvider                  LpaPath
@@ -173,7 +174,7 @@ type AppPaths struct {
 	UseExistingAddress                                   LpaPath
 	WhatACertificateProviderDoes                         LpaPath
 	WhatHappensAfterNoFee                                LpaPath
-	WhatWasYourOriginalFee                               LpaPath
+	PreviousFee                                          LpaPath
 	WhenCanTheLpaBeUsed                                  LpaPath
 	WhichFeeTypeAreYouApplyingFor                        LpaPath
 	WithdrawThisLpa                                      LpaPath
@@ -314,7 +315,7 @@ var Paths = AppPaths{
 	UseExistingAddress:                                   "/use-existing-address",
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
 	WhatHappensAfterNoFee:                                "/what-happens-after-no-fee",
-	WhatWasYourOriginalFee:                               "/what-was-your-original-fee",
+	PreviousFee:                                          "/how-much-did-you-previously-pay-for-your-lpa",
 	WhenCanTheLpaBeUsed:                                  "/when-can-the-lpa-be-used",
 	WhichFeeTypeAreYouApplyingFor:                        "/which-fee-type-are-you-applying-for",
 	WithdrawThisLpa:                                      "/withdraw-this-lpa",
@@ -329,4 +330,5 @@ var Paths = AppPaths{
 	YourIndependentWitnessAddress:                        "/your-independent-witness-address",
 	YourIndependentWitnessMobile:                         "/your-independent-witness-mobile",
 	YourLegalRightsAndResponsibilities:                   "/your-legal-rights-and-responsibilities",
+	EvidenceRequiredForPreviousFee:                       "/evidence-required-for-previous-fee",
 }
