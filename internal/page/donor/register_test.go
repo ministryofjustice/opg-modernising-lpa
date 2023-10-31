@@ -2,11 +2,15 @@ package donor
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -421,139 +425,266 @@ func TestPayHelperPay(t *testing.T) {
 	}
 }
 
-//func TestPayHelperPayWhenPaymentNotRequired(t *testing.T) {
-//	testCases := []page.FeeType{
-//		page.NoFee,
-//		page.HardshipFee,
-//	}
-//
-//	for _, feeType := range testCases {
-//		t.Run(feeType.String(), func(t *testing.T) {
-//			w := httptest.NewRecorder()
-//			r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
-//
-//			now := time.Now()
-//
-//			donorStore := newMockDonorStore(t)
-//			donorStore.
-//				On("Put", r.Context(), &page.Lpa{
-//					ID:      "lpa-id",
-//					FeeType: feeType,
-//					Tasks:   page.Tasks{PayForLpa: actor.PaymentTaskPending},
-//					Evidence: page.Evidence{Documents: []page.Document{
-//						{Key: "evidence-1", Sent: date.New("2000", "01", "01").Time()},
-//						{Key: "evidence-2", Sent: now},
-//					}},
-//				}).
-//				Return(nil)
-//
-//			s3Client := newMockS3Client(t)
-//			s3Client.
-//				On("PutObjectTagging", r.Context(), "evidence-2", []types.Tag{
-//					{Key: aws.String("replicate"), Value: aws.String("true")},
-//				}).
-//				Return(nil)
-//
-//			err := (&payHelper{
-//				donorStore:       donorStore,
-//				now:              func() time.Time { return now },
-//				evidenceS3Client: s3Client,
-//			}).Pay(testAppData, w, r, &page.Lpa{
-//				ID:      "lpa-id",
-//				FeeType: feeType,
-//				Evidence: page.Evidence{Documents: []page.Document{
-//					{Key: "evidence-1", Sent: date.New("2000", "01", "01").Time()},
-//					{Key: "evidence-2"},
-//				}},
-//			})
-//			resp := w.Result()
-//
-//			assert.Nil(t, err)
-//			assert.Equal(t, http.StatusFound, resp.StatusCode)
-//			assert.Equal(t, page.Paths.WhatHappensAfterNoFee.Format("lpa-id"), resp.Header.Get("Location"))
-//		})
-//	}
-//}
-//
-//func TestPayHelperPayWhenMoreEvidenceProvided(t *testing.T) {
-//	w := httptest.NewRecorder()
-//	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
-//
-//	now := time.Now()
-//
-//	donorStore := newMockDonorStore(t)
-//	donorStore.
-//		On("Put", r.Context(), &page.Lpa{
-//			ID:      "lpa-id",
-//			FeeType: page.HalfFee,
-//			Tasks:   page.Tasks{PayForLpa: actor.PaymentTaskPending},
-//			Evidence: page.Evidence{Documents: []page.Document{
-//				{Key: "evidence-1", Sent: date.New("2000", "01", "01").Time()},
-//				{Key: "evidence-2", Sent: now},
-//			}},
-//		}).
-//		Return(nil)
-//
-//	s3Client := newMockS3Client(t)
-//	s3Client.
-//		On("PutObjectTagging", r.Context(), "evidence-2", []types.Tag{
-//			{Key: aws.String("replicate"), Value: aws.String("true")},
-//		}).
-//		Return(nil)
-//
-//	err := (&payHelper{
-//		donorStore:       donorStore,
-//		now:              func() time.Time { return now },
-//		evidenceS3Client: s3Client,
-//	}).Pay(testAppData, w, r, &page.Lpa{
-//		ID:      "lpa-id",
-//		FeeType: page.HalfFee,
-//		Evidence: page.Evidence{Documents: []page.Document{
-//			{Key: "evidence-1", Sent: date.New("2000", "01", "01").Time()},
-//			{Key: "evidence-2"},
-//		}},
-//		Tasks: page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired},
-//	})
-//	resp := w.Result()
-//
-//	assert.Nil(t, err)
-//	assert.Equal(t, http.StatusFound, resp.StatusCode)
-//	assert.Equal(t, page.Paths.WhatHappensAfterNoFee.Format("lpa-id"), resp.Header.Get("Location"))
-//}
-//
-//func TestPayHelperPayNoPaymentRequiredWhenS3ClientError(t *testing.T) {
-//	w := httptest.NewRecorder()
-//	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
-//
-//	s3Client := newMockS3Client(t)
-//	s3Client.
-//		On("PutObjectTagging", r.Context(), "evidence-2", []types.Tag{
-//			{Key: aws.String("replicate"), Value: aws.String("true")},
-//		}).
-//		Return(expectedError)
-//
-//	logger := newMockLogger(t)
-//	logger.
-//		On("Print", "error tagging evidence: err").
-//		Return(nil)
-//
-//	err := (&payHelper{
-//		evidenceS3Client: s3Client,
-//		logger:           logger,
-//	}).Pay(testAppData, w, r, &page.Lpa{
-//		ID:      "lpa-id",
-//		FeeType: page.HalfFee,
-//		Evidence: page.Evidence{Documents: []page.Document{
-//			{Key: "evidence-1", Sent: date.New("2000", "01", "01").Time()},
-//			{Key: "evidence-2"},
-//		}},
-//		Tasks: page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired},
-//	})
-//	resp := w.Result()
-//
-//	assert.Equal(t, expectedError, err)
-//	assert.Equal(t, http.StatusOK, resp.StatusCode)
-//}
+func TestPayHelperPayWhenPaymentNotRequired(t *testing.T) {
+	testCases := []page.FeeType{
+		page.NoFee,
+		page.HardshipFee,
+	}
+
+	for _, feeType := range testCases {
+		t.Run(feeType.String(), func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", nil)
+
+			now := time.Now()
+
+			documentStore := newMockDocumentStore(t)
+			documentStore.
+				On("GetAll", r.Context()).
+				Return(page.Documents{
+					{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf", Sent: now},
+					{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
+				}, nil)
+			documentStore.
+				On("Put", r.Context(), page.Document{
+					Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Sent: now,
+				}, []byte(nil)).
+				Return(nil)
+
+			donorStore := newMockDonorStore(t)
+			donorStore.
+				On("Put", r.Context(), &page.Lpa{
+					ID:      "lpa-id",
+					FeeType: feeType,
+					Tasks:   page.Tasks{PayForLpa: actor.PaymentTaskPending},
+				}).
+				Return(nil)
+
+			s3Client := newMockS3Client(t)
+			s3Client.
+				On("PutObjectTagging", r.Context(), "lpa-uid/evidence/another-uid", []types.Tag{
+					{Key: aws.String("replicate"), Value: aws.String("true")},
+				}).
+				Return(nil)
+
+			err := (&payHelper{
+				donorStore:       donorStore,
+				now:              func() time.Time { return now },
+				evidenceS3Client: s3Client,
+				documentStore:    documentStore,
+			}).Pay(testAppData, w, r, &page.Lpa{
+				ID:      "lpa-id",
+				FeeType: feeType,
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, page.Paths.WhatHappensAfterNoFee.Format("lpa-id"), resp.Header.Get("Location"))
+		})
+	}
+}
+
+func TestPayHelperPayWhenMoreEvidenceProvided(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+
+	now := time.Now()
+
+	documentStore := newMockDocumentStore(t)
+	documentStore.
+		On("GetAll", r.Context()).
+		Return(page.Documents{
+			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf", Sent: now},
+			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
+		}, nil)
+	documentStore.
+		On("Put", r.Context(), page.Document{
+			Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Sent: now,
+		}, []byte(nil)).
+		Return(nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), &page.Lpa{
+			ID:      "lpa-id",
+			FeeType: page.FullFee,
+			Tasks:   page.Tasks{PayForLpa: actor.PaymentTaskPending},
+		}).
+		Return(nil)
+
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("PutObjectTagging", r.Context(), "lpa-uid/evidence/another-uid", []types.Tag{
+			{Key: aws.String("replicate"), Value: aws.String("true")},
+		}).
+		Return(nil)
+
+	err := (&payHelper{
+		donorStore:       donorStore,
+		now:              func() time.Time { return now },
+		evidenceS3Client: s3Client,
+		documentStore:    documentStore,
+	}).Pay(testAppData, w, r, &page.Lpa{
+		ID:      "lpa-id",
+		FeeType: page.FullFee,
+		Tasks:   page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired},
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.WhatHappensAfterNoFee.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPayHelperPayWhenPaymentNotRequiredWhenDocumentStoreGetAllError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+
+	documentStore := newMockDocumentStore(t)
+	documentStore.
+		On("GetAll", r.Context()).
+		Return(page.Documents{}, expectedError)
+
+	err := (&payHelper{documentStore: documentStore}).Pay(testAppData, w, r, &page.Lpa{
+		ID:      "lpa-id",
+		FeeType: page.NoFee,
+	})
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPayHelperPayWhenPaymentNotRequiredWhenS3ClientPutObjectTaggingError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+
+	now := time.Now()
+
+	documentStore := newMockDocumentStore(t)
+	documentStore.
+		On("GetAll", r.Context()).
+		Return(page.Documents{
+			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf", Sent: now},
+			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
+		}, nil)
+
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("PutObjectTagging", r.Context(), "lpa-uid/evidence/another-uid", []types.Tag{
+			{Key: aws.String("replicate"), Value: aws.String("true")},
+		}).
+		Return(expectedError)
+
+	logger := newMockLogger(t)
+	logger.
+		On("Print", fmt.Sprintf("error tagging evidence: %s", expectedError))
+
+	err := (&payHelper{
+		logger:           logger,
+		now:              func() time.Time { return now },
+		evidenceS3Client: s3Client,
+		documentStore:    documentStore,
+	}).Pay(testAppData, w, r, &page.Lpa{
+		ID:      "lpa-id",
+		FeeType: page.NoFee,
+	})
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPayHelperPayWhenPaymentNotRequiredWhenDocumentStorePutError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+
+	now := time.Now()
+
+	documentStore := newMockDocumentStore(t)
+	documentStore.
+		On("GetAll", r.Context()).
+		Return(page.Documents{
+			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf", Sent: now},
+			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
+		}, nil)
+	documentStore.
+		On("Put", r.Context(), page.Document{
+			Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Sent: now,
+		}, []byte(nil)).
+		Return(expectedError)
+
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("PutObjectTagging", r.Context(), "lpa-uid/evidence/another-uid", []types.Tag{
+			{Key: aws.String("replicate"), Value: aws.String("true")},
+		}).
+		Return(nil)
+
+	err := (&payHelper{
+		now:              func() time.Time { return now },
+		evidenceS3Client: s3Client,
+		documentStore:    documentStore,
+	}).Pay(testAppData, w, r, &page.Lpa{
+		ID:      "lpa-id",
+		FeeType: page.NoFee,
+	})
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPayHelperPayWhenPaymentNotRequiredWhenDonorStorePutError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+
+	now := time.Now()
+
+	documentStore := newMockDocumentStore(t)
+	documentStore.
+		On("GetAll", r.Context()).
+		Return(page.Documents{
+			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf", Sent: now},
+			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
+		}, nil)
+	documentStore.
+		On("Put", r.Context(), page.Document{
+			Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Sent: now,
+		}, []byte(nil)).
+		Return(nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), &page.Lpa{
+			ID:      "lpa-id",
+			FeeType: page.NoFee,
+			Tasks:   page.Tasks{PayForLpa: actor.PaymentTaskPending},
+		}).
+		Return(expectedError)
+
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("PutObjectTagging", r.Context(), "lpa-uid/evidence/another-uid", []types.Tag{
+			{Key: aws.String("replicate"), Value: aws.String("true")},
+		}).
+		Return(nil)
+
+	err := (&payHelper{
+		donorStore:       donorStore,
+		now:              func() time.Time { return now },
+		evidenceS3Client: s3Client,
+		documentStore:    documentStore,
+	}).Pay(testAppData, w, r, &page.Lpa{
+		ID:      "lpa-id",
+		FeeType: page.NoFee,
+	})
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
 
 func TestPayHelperPayWhenFeeDenied(t *testing.T) {
 	w := httptest.NewRecorder()
@@ -692,31 +823,6 @@ func TestPayHelperPayWhenFeeDeniedAndPutStoreError(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestPayHelperPayWhenPaymentNotRequiredAndDonorStoreErrors(t *testing.T) {
-	testCases := []page.FeeType{
-		page.NoFee,
-		page.HardshipFee,
-	}
-
-	for _, feeType := range testCases {
-		t.Run(feeType.String(), func(t *testing.T) {
-			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
-
-			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), mock.Anything).
-				Return(expectedError)
-
-			err := (&payHelper{
-				donorStore: donorStore,
-			}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: feeType})
-
-			assert.Equal(t, expectedError, err)
-		})
-	}
 }
 
 func TestPayHelperPayWhenCreatePaymentErrors(t *testing.T) {

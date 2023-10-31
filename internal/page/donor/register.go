@@ -485,15 +485,14 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 
 		for _, document := range documents {
 			if document.Sent.IsZero() {
-				err := p.evidenceS3Client.PutObjectTagging(r.Context(), document.Key, []types.Tag{
+				if err := p.evidenceS3Client.PutObjectTagging(r.Context(), document.Key, []types.Tag{
 					{Key: aws.String("replicate"), Value: aws.String("true")},
-				})
-
-				if err != nil {
+				}); err != nil {
 					p.logger.Print(fmt.Sprintf("error tagging evidence: %s", err.Error()))
 					return err
 				}
 
+				document.Sent = p.now()
 				if err := p.documentStore.Put(r.Context(), document, nil); err != nil {
 					return err
 				}
