@@ -51,7 +51,6 @@ export class FileUploadSpinner {
         this.eventSource.onmessage = (event) => {
             const data = JSON.parse(event.data)
 
-            console.log(data)
             if (data.finishedScanning === true) {
                 document.getElementById('scan-results-form').submit()
             }
