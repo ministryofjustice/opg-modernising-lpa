@@ -183,40 +183,100 @@ type Lpa struct {
 
 	// FeeType is the type of fee the user is applying for
 	FeeType FeeType
-	// Evidence is the documents uploaded by a donor to apply for non-full fees
-	Evidence Evidence
 
 	HasSentApplicationUpdatedEvent        bool
 	HasSentPreviousApplicationLinkedEvent bool
 }
 
-type Evidence struct {
-	Documents []Document
+type Document struct {
+	PK, SK        string
+	Filename      string
+	VirusDetected bool
+	Scanned       bool
+	Key           string
+	Sent          time.Time
 }
 
-func (e *Evidence) Delete(documentKey string) bool {
-	idx := slices.IndexFunc(e.Documents, func(d Document) bool { return d.Key == documentKey })
+type Documents []Document
+
+func (ds *Documents) Delete(documentKey string) bool {
+	idx := slices.IndexFunc(*ds, func(ds Document) bool { return ds.Key == documentKey })
 	if idx == -1 {
 		return false
 	}
 
-	e.Documents = slices.Delete(e.Documents, idx, idx+1)
+	*ds = slices.Delete(*ds, idx, idx+1)
 
 	return true
 }
 
-func (e *Evidence) Keys() []string {
+func (ds *Documents) Keys() []string {
 	var keys []string
 
-	for _, d := range e.Documents {
-		keys = append(keys, d.Key)
+	for _, ds := range *ds {
+		keys = append(keys, ds.Key)
 	}
 
 	return keys
 }
 
-func (e *Evidence) Get(documentKey string) Document {
-	for _, d := range e.Documents {
+func (ds *Documents) Put(scannedDocument Document) {
+	idx := slices.IndexFunc(*ds, func(ds Document) bool { return ds.Key == scannedDocument.Key })
+	if idx == -1 {
+		*ds = append(*ds, scannedDocument)
+	} else {
+		(*ds)[idx] = scannedDocument
+	}
+}
+
+func (ds *Documents) InfectedFilenames() []string {
+	var filenames []string
+
+	for _, d := range *ds {
+		if d.VirusDetected {
+			filenames = append(filenames, d.Filename)
+		}
+	}
+
+	return filenames
+}
+
+func (ds *Documents) Scanned() Documents {
+	var documents Documents
+
+	for _, d := range *ds {
+		if d.Scanned {
+			documents = append(documents, d)
+		}
+	}
+
+	return documents
+}
+
+func (ds *Documents) NotScanned() Documents {
+	var documents Documents
+
+	for _, d := range *ds {
+		if !d.Scanned {
+			documents = append(documents, d)
+		}
+	}
+
+	return documents
+}
+
+func (ds *Documents) Filenames() []string {
+	var filenames []string
+
+	for _, ds := range *ds {
+		filenames = append(filenames, ds.Filename)
+	}
+
+	return filenames
+}
+
+func (ds *Documents) Get(documentKey string) Document {
+	for _, d := range *ds {
 		if d.Key == documentKey {
 			return d
 		}
@@ -225,34 +285,57 @@ func (e *Evidence) Get(documentKey string) Document {
 	return Document{}
 }
 
-func (e *Evidence) Put(document Document) {
-	idx := slices.IndexFunc(e.Documents, func(d Document) bool { return d.Key == document.Key })
-	if idx == -1 {
-		e.Documents = append(e.Documents, document)
-	} else {
-		e.Documents[idx] = document
-	}
-}
-
-func (e *Evidence) ScannedCount() int {
-	count := 0
-
-	for _, d := range e.Documents {
-		if !d.Scanned.IsZero() {
-			count++
-		}
-	}
-
-	return count
-}
-
-type Document struct {
-	Key           string
-	Filename      string
-	Sent          time.Time
-	Scanned       time.Time
-	VirusDetected bool
-}
+//type Evidence struct {
+//	Documents []Document
+//}
+//
+//func (e *Evidence) Delete(documentKey string) bool {
+//	idx := slices.IndexFunc(e.Documents, func(d Document) bool { return d.Key == documentKey })
+//	if idx == -1 {
+//		return false
+//	}
+//
+//	e.Documents = slices.Delete(e.Documents, idx, idx+1)
+//
+//	return true
+//}
+//
+//func (e *Evidence) Keys() []string {
+//	var keys []string
+//
+//	for _, d := range e.Documents {
+//		keys = append(keys, d.Key)
+//	}
+//
+//	return keys
+//}
+//
+//func (e *Evidence) Get(documentKey string) Document {
+//	for _, d := range e.Documents {
+//		if d.Key == documentKey {
+//			return d
+//		}
+//	}
+//
+//	return Document{}
+//}
+//
+//func (e *Evidence) Put(document Document) {
+//	idx := slices.IndexFunc(e.Documents, func(d Document) bool { return d.Key == document.Key })
+//	if idx == -1 {
+//		e.Documents = append(e.Documents, document)
+//	} else {
+//		e.Documents[idx] = document
+//	}
+//}
+//
+//type Document struct {
+//	Key           string
+//	Filename      string
+//	Sent          time.Time
+//	Scanned       bool
+//	VirusDetected bool
+//}
 
 type Payment struct {
 	// Reference generated for the payment
@@ -561,15 +644,6 @@ func (l *Lpa) FeeAmount() int {
 	} else {
 		return l.FeeType.Cost() - paid
 	}
-}
-
-func (l *Lpa) HasUnsentReducedFeesEvidence() bool {
-	for _, document := range l.Evidence.Documents {
-		if document.Sent.IsZero() {
-			return true
-		}
-	}
-	return false
 }
 
 // CertificateProviderSharesDetails will return true if the last name or address

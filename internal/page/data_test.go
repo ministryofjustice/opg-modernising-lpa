@@ -1161,15 +1161,6 @@ func TestEvidencePut(t *testing.T) {
 	assert.Equal(t, Document{Key: "new-key", Filename: "a-filename"}, evidence.Documents[2])
 }
 
-func TestScannedCount(t *testing.T) {
-	evidence := Evidence{Documents: []Document{
-		{Key: "a-key", Filename: "a-filename"},
-		{Key: "another-key", Filename: "another-filename", Scanned: time.Now()},
-	}}
-
-	assert.Equal(t, 1, evidence.ScannedCount())
-}
-
 func TestCertificateProviderSharesDetailsNames(t *testing.T) {
 	testcases := map[string]struct {
 		certificateProvider  string

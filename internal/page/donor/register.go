@@ -141,6 +141,14 @@ type Localizer interface {
 	Concat([]string, string) string
 }
 
+//go:generate mockery --testonly --inpackage --name DocumentStore --structname mockDocumentStore
+type DocumentStore interface {
+	GetAll(context.Context) (page.Documents, error)
+	Put(context.Context, page.Document, []byte) error
+	Delete(context.Context, page.Document) error
+	DeleteInfectedDocuments(context.Context, []page.Document) error
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -160,6 +168,7 @@ func Register(
 	notifyClient NotifyClient,
 	evidenceReceivedStore EvidenceReceivedStore,
 	evidenceS3Client S3Client,
+	documentStore DocumentStore,
 ) {
 	payer := &payHelper{
 		logger:           logger,
@@ -170,6 +179,7 @@ func Register(
 		randomString:     random.String,
 		evidenceS3Client: evidenceS3Client,
 		now:              time.Now,
+		documentStore:    documentStore,
 	}
 
 	handleRoot := makeHandle(rootMux, sessionStore, None, errorHandler)
@@ -310,7 +320,7 @@ func Register(
 	handleWithLpa(page.Paths.HowWouldYouLikeToSendEvidence, CanGoBack,
 		HowWouldYouLikeToSendEvidence(tmpls.Get("how_would_you_like_to_send_evidence.gohtml")))
 	handleWithLpa(page.Paths.UploadEvidence, CanGoBack,
-		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), payer, donorStore, random.UuidString, evidenceS3Client))
+		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), payer, donorStore, random.UuidString, documentStore))
 	handleWithLpa(page.Paths.WhatHappensAfterNoFee, None,
 		Guidance(tmpls.Get("what_happens_after_no_fee.gohtml")))
 	handleWithLpa(page.Paths.HowToEmailOrPostEvidence, CanGoBack,
@@ -318,7 +328,7 @@ func Register(
 	handleWithLpa(page.Paths.FeeDenied, None,
 		FeeDenied(tmpls.Get("fee_denied.gohtml"), payer))
 	handleWithLpa(page.Paths.PaymentConfirmation, None,
-		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, evidenceS3Client, time.Now))
+		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, evidenceS3Client, time.Now, documentStore))
 
 	handleWithLpa(page.Paths.HowToConfirmYourIdentityAndSign, None,
 		Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml")))
@@ -358,7 +368,7 @@ func Register(
 		LpaProgress(tmpls.Get("lpa_progress.gohtml"), certificateProviderStore, attorneyStore))
 
 	handleWithLpa(page.Paths.UploadEvidenceSSE, None,
-		UploadEvidenceSSE(donorStore, 2*time.Minute, 2*time.Second))
+		UploadEvidenceSSE(documentStore, 2*time.Minute, 2*time.Second))
 }
 
 type handleOpt byte
@@ -463,13 +473,19 @@ type payHelper struct {
 	randomString     func(int) string
 	evidenceS3Client S3Client
 	now              func() time.Time
+	documentStore    DocumentStore
 }
 
 func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 	if lpa.FeeType.IsNoFee() || lpa.FeeType.IsHardshipFee() || lpa.Tasks.PayForLpa.IsMoreEvidenceRequired() {
-		for i, evidence := range lpa.Evidence.Documents {
-			if evidence.Sent.IsZero() {
-				err := p.evidenceS3Client.PutObjectTagging(r.Context(), evidence.Key, []types.Tag{
+		documents, err := p.documentStore.GetAll(r.Context())
+		if err != nil {
+			return err
+		}
+
+		for _, document := range documents {
+			if document.Sent.IsZero() {
+				err := p.evidenceS3Client.PutObjectTagging(r.Context(), document.Key, []types.Tag{
 					{Key: aws.String("replicate"), Value: aws.String("true")},
 				})
 
@@ -478,7 +494,9 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 					return err
 				}
 
-				lpa.Evidence.Documents[i].Sent = p.now()
+				if err := p.documentStore.Put(r.Context(), document, nil); err != nil {
+					return err
+				}
 			}
 		}
 

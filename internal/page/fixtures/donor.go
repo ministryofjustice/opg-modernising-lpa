@@ -1,6 +1,7 @@
 package fixtures
 
 import (
+	"context"
 	"encoding/base64"
 	"net/http"
 	"slices"
@@ -16,12 +17,18 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
+type DocumentStore interface {
+	GetAll(context.Context) (page.Documents, error)
+	Put(context.Context, page.Document, []byte) error
+}
+
 func Donor(
 	tmpl template.Template,
 	sessionStore sesh.Store,
 	donorStore DonorStore,
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
+	documentStore DocumentStore,
 ) page.Handler {
 	progressValues := []string{
 		"provideYourDetails",
@@ -188,16 +195,22 @@ func Donor(
 		}
 
 		if progress >= slices.Index(progressValues, "payForTheLpa") {
-			if feeType != "" {
+			if feeType != "" && feeType != "FullFee" {
 				feeType, err := page.ParseFeeType(feeType)
 				if err != nil {
 					return err
 				}
 
 				lpa.FeeType = feeType
-				lpa.Evidence = page.Evidence{Documents: []page.Document{
-					{Key: "evidence-key", Filename: "supporting-evidence.png", Sent: time.Now(), Scanned: time.Now(), VirusDetected: withVirus},
-				}}
+
+				if err := documentStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: lpa.ID}), page.Document{
+					PK:            "LPA#" + lpa.ID,
+					SK:            "#SCANNED_DOCUMENT#" + random.UuidString(),
+					Filename:      "supporting-evidence.png",
+					VirusDetected: withVirus,
+				}, make([]byte, 64)); err != nil {
+					return err
+				}
 			} else {
 				lpa.FeeType = page.FullFee
 			}

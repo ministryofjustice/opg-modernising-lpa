@@ -50,24 +50,28 @@ type uploadEvidenceData struct {
 	Errors               validation.List
 	NumberOfAllowedFiles int
 	FeeType              page.FeeType
-	Evidence             page.Evidence
+	Documents            page.Documents
 	MimeTypes            []string
 	Deleted              string
-	UploadedCount        int
-	TotalFilesCount      int
+	StartScan            string
 }
 
-func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, randomUUID func() string, evidenceS3Client S3Client) Handler {
+func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, randomUUID func() string, documentStore DocumentStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if lpa.Tasks.PayForLpa.IsPending() {
 			return appData.Redirect(w, r, lpa, page.Paths.TaskList.Format(lpa.ID))
+		}
+
+		documents, err := documentStore.GetAll(r.Context())
+		if err != nil {
+			return err
 		}
 
 		data := &uploadEvidenceData{
 			App:                  appData,
 			NumberOfAllowedFiles: numberOfAllowedFiles,
 			FeeType:              lpa.FeeType,
-			Evidence:             lpa.Evidence,
+			Documents:            documents,
 			MimeTypes:            acceptedMimeTypes(),
 		}
 
@@ -79,71 +83,78 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 			if data.Errors.None() {
 				switch form.Action {
 				case "upload":
-					for _, file := range form.Files {
-						uuid := randomUUID()
-						key := lpa.UID + "/evidence/" + uuid
+					var uploadedDocuments []page.Document
 
-						err := evidenceS3Client.PutObject(r.Context(), key, file.Data)
+					for _, file := range form.Files {
+						key := lpa.UID + "/evidence/" + randomUUID()
+
+						document := page.Document{
+							PK:       "LPA#" + lpa.ID,
+							SK:       "#DOCUMENT#" + key,
+							Filename: file.Filename,
+							Key:      key,
+						}
+						if err := documentStore.Put(r.Context(), document, file.Data); err != nil {
+							return err
+						}
+
+						uploadedDocuments = append(uploadedDocuments, document)
+					}
+
+					data.Documents = uploadedDocuments
+					data.StartScan = "1"
+
+				case "scanResults":
+					infectedFilenames := documents.InfectedFilenames()
+					if len(infectedFilenames) > 0 {
+						if err := documentStore.DeleteInfectedDocuments(r.Context(), documents); err != nil {
+							return err
+						}
+
+						refreshedDocuments, err := documentStore.GetAll(r.Context())
 						if err != nil {
 							return err
 						}
 
-						lpa.Evidence.Documents = append(lpa.Evidence.Documents, page.Document{Key: key, Filename: file.Filename})
-						data.UploadedCount += 1
-					}
-
-					if err := donorStore.Put(r.Context(), lpa); err != nil {
-						return err
-					}
-
-					data.Evidence = lpa.Evidence
-
-				case "pay":
-					var infectedFilenames []string
-
-					//TODO decide if we want to delete from S3 now or run a job to delete all infected files
-					lpa.Evidence.Documents = slices.DeleteFunc(lpa.Evidence.Documents, func(d page.Document) bool {
-						if d.VirusDetected {
-							infectedFilenames = append(infectedFilenames, d.Filename)
-							return true
-						}
-
-						return false
-					})
-
-					if len(infectedFilenames) > 0 {
-						if err := donorStore.Put(r.Context(), lpa); err != nil {
-							return err
-						}
-
 						data.Errors = validation.With("upload", validation.FilesInfectedError{Label: "upload", Filenames: infectedFilenames})
-						data.Evidence = lpa.Evidence
+						data.Documents = refreshedDocuments
 
 						return tmpl(w, data)
 					}
 
+				case "pay":
 					return payer.Pay(appData, w, r, lpa)
 
 				case "delete":
-					document := lpa.Evidence.Get(form.DeleteKey)
+					document := documents.Get(form.DeleteKey)
 					if document.Key != "" {
-						if err := evidenceS3Client.DeleteObject(r.Context(), document.Key); err != nil {
-							return err
-						}
-
 						data.Deleted = document.Filename
 
-						lpa.Evidence.Delete(document.Key)
-
-						if err := donorStore.Put(r.Context(), lpa); err != nil {
+						if err := documentStore.Delete(r.Context(), document); err != nil {
 							return err
 						}
+						documents.Delete(document.Key)
 
-						data.Evidence = lpa.Evidence
+						data.Documents = documents
 					}
 
-				case "closeConnection":
-					data.Errors = validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"})
+				case "closeConnection", "cancelUpload":
+					for _, d := range documents {
+						if d.Key != "" && !d.Scanned {
+							if err := documentStore.Delete(r.Context(), d); err != nil {
+								return err
+							}
+
+							documents.Delete(d.Key)
+						}
+					}
+
+					data.Documents = documents
+
+					if form.Action == "closeConnection" {
+						data.Errors = validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"})
+					}
+
 					return tmpl(w, data)
 
 				default:
@@ -152,7 +163,6 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 			}
 		}
 
-		data.TotalFilesCount = len(lpa.Evidence.Documents)
 		return tmpl(w, data)
 	}
 }

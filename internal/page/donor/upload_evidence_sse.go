@@ -9,22 +9,32 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
-func UploadEvidenceSSE(store DonorStore, ttl time.Duration, flushFrequency time.Duration) Handler {
+// move to non-LPA handler
+func UploadEvidenceSSE(documentStore DocumentStore, ttl time.Duration, flushFrequency time.Duration) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		w.Header().Set("Cache-Control", "no-cache")
 		w.Header().Set("Connection", "keep-alive")
 		w.Header().Set("Content-Type", "text/event-stream")
 
-		fileTotal := len(lpa.Evidence.Documents)
+		documents, err := documentStore.GetAll(r.Context())
+		if err != nil {
+			printMessage("data: {\"closeConnection\": \"1\"}\n\n", w)
+			return nil
+		}
+
+		alreadyScannedCount := len(documents.Scanned())
+		batchToBeScannedCount := len(documents.NotScanned())
 
 		for start := time.Now(); time.Since(start) < ttl; {
-			lpa, err := store.Get(r.Context())
+			documents, err := documentStore.GetAll(r.Context())
 			if err != nil {
 				printMessage("data: {\"closeConnection\": \"1\"}\n\n", w)
-				return err
+				return nil
 			}
 
-			printMessage(fmt.Sprintf("data: {\"fileTotal\": %d, \"scannedTotal\": %d}\n\n", fileTotal, lpa.Evidence.ScannedCount()), w)
+			scannedCount := len(documents.Scanned()) - alreadyScannedCount
+
+			printMessage(fmt.Sprintf("data: {\"finishedScanning\": %v, \"scannedCount\": %d}\n\n", scannedCount == batchToBeScannedCount, scannedCount), w)
 
 			time.Sleep(flushFrequency)
 		}

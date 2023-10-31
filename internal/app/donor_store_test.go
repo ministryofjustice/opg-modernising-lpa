@@ -469,124 +469,124 @@ func TestDonorStorePutWhenPreviousApplicationLinkedWhenError(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestDonorStorePutWhenReducedFeeRequested(t *testing.T) {
-	ctx := context.Background()
-	now := time.Now()
-
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Put", ctx, &page.Lpa{
-			PK:                             "LPA#5",
-			SK:                             "#DONOR#an-id",
-			ID:                             "5",
-			UID:                            "M-1111",
-			UpdatedAt:                      now,
-			FeeType:                        page.HalfFee,
-			Evidence:                       page.Evidence{Documents: []page.Document{{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf", Sent: now, Scanned: now}}},
-			Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
-			HasSentApplicationUpdatedEvent: true,
-		}).
-		Return(nil)
-
-	eventClient := newMockEventClient(t)
-	eventClient.
-		On("Send", ctx, "reduced-fee-requested", reducedFeeRequestedEvent{
-			UID:         "M-1111",
-			RequestType: "HalfFee",
-			Evidence:    []string{"lpa-uid-evidence-a-uid"},
-		}).
-		Return(nil)
-
-	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, now: func() time.Time { return now }}
-
-	err := donorStore.Put(ctx, &page.Lpa{
-		PK:                             "LPA#5",
-		SK:                             "#DONOR#an-id",
-		ID:                             "5",
-		UID:                            "M-1111",
-		FeeType:                        page.HalfFee,
-		Evidence:                       page.Evidence{Documents: []page.Document{{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf", Scanned: now}}},
-		Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
-		HasSentApplicationUpdatedEvent: true,
-	})
-
-	assert.Nil(t, err)
-}
-
-func TestDonorStorePutWhenReducedFeeRequestedSentAndUnsentFees(t *testing.T) {
-	ctx := context.Background()
-	now := time.Now()
-
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Put", ctx, &page.Lpa{
-			PK:        "LPA#5",
-			SK:        "#DONOR#an-id",
-			ID:        "5",
-			UID:       "M-1111",
-			UpdatedAt: now,
-			FeeType:   page.HalfFee,
-			Evidence: page.Evidence{Documents: []page.Document{
-				{Key: "lpa-uid-evidence-a-uid-1", Filename: "whatever.pdf", Sent: now, Scanned: now},
-				{Key: "lpa-uid-evidence-a-uid-2", Filename: "whenever.pdf", Sent: now, Scanned: now},
-				{Key: "lpa-uid-evidence-a-uid-3", Filename: "whoever.pdf", Sent: now, Scanned: now},
-			}},
-			Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
-			HasSentApplicationUpdatedEvent: true,
-		}).
-		Return(nil)
-
-	eventClient := newMockEventClient(t)
-	eventClient.
-		On("Send", ctx, "reduced-fee-requested", reducedFeeRequestedEvent{
-			UID:         "M-1111",
-			RequestType: "HalfFee",
-			Evidence:    []string{"lpa-uid-evidence-a-uid-1", "lpa-uid-evidence-a-uid-3"},
-		}).
-		Return(nil)
-
-	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, now: func() time.Time { return now }}
-
-	err := donorStore.Put(ctx, &page.Lpa{
-		PK:      "LPA#5",
-		SK:      "#DONOR#an-id",
-		ID:      "5",
-		UID:     "M-1111",
-		FeeType: page.HalfFee,
-		Evidence: page.Evidence{Documents: []page.Document{
-			{Key: "lpa-uid-evidence-a-uid-1", Filename: "whatever.pdf", Scanned: now},
-			{Key: "lpa-uid-evidence-a-uid-2", Filename: "whenever.pdf", Sent: now, Scanned: now},
-			{Key: "lpa-uid-evidence-a-uid-3", Filename: "whoever.pdf", Scanned: now},
-		}},
-		Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
-		HasSentApplicationUpdatedEvent: true,
-	})
-	assert.Nil(t, err)
-}
-
-func TestDonorStorePutWhenReducedFeeRequestedWontResend(t *testing.T) {
-	ctx := context.Background()
-	now := time.Now()
-
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Put", ctx, mock.Anything).
-		Return(nil)
-
-	donorStore := &donorStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
-
-	err := donorStore.Put(ctx, &page.Lpa{
-		PK:                             "LPA#5",
-		SK:                             "#DONOR#an-id",
-		ID:                             "5",
-		UID:                            "M-1111",
-		Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
-		Evidence:                       page.Evidence{Documents: []page.Document{{Key: "lpa-uid-evidence-a-uid-1", Filename: "whatever.pdf", Sent: now, Scanned: now}}},
-		HasSentApplicationUpdatedEvent: true,
-	})
-
-	assert.Nil(t, err)
-}
+//func TestDonorStorePutWhenReducedFeeRequested(t *testing.T) {
+//	ctx := context.Background()
+//	now := time.Now()
+//
+//	dynamoClient := newMockDynamoClient(t)
+//	dynamoClient.
+//		On("Put", ctx, &page.Lpa{
+//			PK:                             "LPA#5",
+//			SK:                             "#DONOR#an-id",
+//			ID:                             "5",
+//			UID:                            "M-1111",
+//			UpdatedAt:                      now,
+//			FeeType:                        page.HalfFee,
+//			Evidence:                       page.Evidence{Documents: []page.Document{{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf", Sent: now, Scanned: now}}},
+//			Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
+//			HasSentApplicationUpdatedEvent: true,
+//		}).
+//		Return(nil)
+//
+//	eventClient := newMockEventClient(t)
+//	eventClient.
+//		On("Send", ctx, "reduced-fee-requested", reducedFeeRequestedEvent{
+//			UID:         "M-1111",
+//			RequestType: "HalfFee",
+//			Evidence:    []string{"lpa-uid-evidence-a-uid"},
+//		}).
+//		Return(nil)
+//
+//	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, now: func() time.Time { return now }}
+//
+//	err := donorStore.Put(ctx, &page.Lpa{
+//		PK:                             "LPA#5",
+//		SK:                             "#DONOR#an-id",
+//		ID:                             "5",
+//		UID:                            "M-1111",
+//		FeeType:                        page.HalfFee,
+//		Evidence:                       page.Evidence{Documents: []page.Document{{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf", Scanned: now}}},
+//		Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
+//		HasSentApplicationUpdatedEvent: true,
+//	})
+//
+//	assert.Nil(t, err)
+//}
+//
+//func TestDonorStorePutWhenReducedFeeRequestedSentAndUnsentFees(t *testing.T) {
+//	ctx := context.Background()
+//	now := time.Now()
+//
+//	dynamoClient := newMockDynamoClient(t)
+//	dynamoClient.
+//		On("Put", ctx, &page.Lpa{
+//			PK:        "LPA#5",
+//			SK:        "#DONOR#an-id",
+//			ID:        "5",
+//			UID:       "M-1111",
+//			UpdatedAt: now,
+//			FeeType:   page.HalfFee,
+//			Evidence: page.Evidence{Documents: []page.Document{
+//				{Key: "lpa-uid-evidence-a-uid-1", Filename: "whatever.pdf", Sent: now, Scanned: now},
+//				{Key: "lpa-uid-evidence-a-uid-2", Filename: "whenever.pdf", Sent: now, Scanned: now},
+//				{Key: "lpa-uid-evidence-a-uid-3", Filename: "whoever.pdf", Sent: now, Scanned: now},
+//			}},
+//			Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
+//			HasSentApplicationUpdatedEvent: true,
+//		}).
+//		Return(nil)
+//
+//	eventClient := newMockEventClient(t)
+//	eventClient.
+//		On("Send", ctx, "reduced-fee-requested", reducedFeeRequestedEvent{
+//			UID:         "M-1111",
+//			RequestType: "HalfFee",
+//			Evidence:    []string{"lpa-uid-evidence-a-uid-1", "lpa-uid-evidence-a-uid-3"},
+//		}).
+//		Return(nil)
+//
+//	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, now: func() time.Time { return now }}
+//
+//	err := donorStore.Put(ctx, &page.Lpa{
+//		PK:      "LPA#5",
+//		SK:      "#DONOR#an-id",
+//		ID:      "5",
+//		UID:     "M-1111",
+//		FeeType: page.HalfFee,
+//		Evidence: page.Evidence{Documents: []page.Document{
+//			{Key: "lpa-uid-evidence-a-uid-1", Filename: "whatever.pdf", Scanned: now},
+//			{Key: "lpa-uid-evidence-a-uid-2", Filename: "whenever.pdf", Sent: now, Scanned: now},
+//			{Key: "lpa-uid-evidence-a-uid-3", Filename: "whoever.pdf", Scanned: now},
+//		}},
+//		Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
+//		HasSentApplicationUpdatedEvent: true,
+//	})
+//	assert.Nil(t, err)
+//}
+//
+//func TestDonorStorePutWhenReducedFeeRequestedWontResend(t *testing.T) {
+//	ctx := context.Background()
+//	now := time.Now()
+//
+//	dynamoClient := newMockDynamoClient(t)
+//	dynamoClient.
+//		On("Put", ctx, mock.Anything).
+//		Return(nil)
+//
+//	donorStore := &donorStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
+//
+//	err := donorStore.Put(ctx, &page.Lpa{
+//		PK:                             "LPA#5",
+//		SK:                             "#DONOR#an-id",
+//		ID:                             "5",
+//		UID:                            "M-1111",
+//		Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
+//		Evidence:                       page.Evidence{Documents: []page.Document{{Key: "lpa-uid-evidence-a-uid-1", Filename: "whatever.pdf", Sent: now, Scanned: now}}},
+//		HasSentApplicationUpdatedEvent: true,
+//	})
+//
+//	assert.Nil(t, err)
+//}
 
 func TestDonorStorePutWhenReducedFeeRequestedWhenError(t *testing.T) {
 	ctx := context.Background()

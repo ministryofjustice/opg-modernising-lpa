@@ -23,6 +23,8 @@ type dynamoDB interface {
 	BatchGetItem(context.Context, *dynamodb.BatchGetItemInput, ...func(*dynamodb.Options)) (*dynamodb.BatchGetItemOutput, error)
 	PutItem(context.Context, *dynamodb.PutItemInput, ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error)
 	TransactWriteItems(context.Context, *dynamodb.TransactWriteItemsInput, ...func(*dynamodb.Options)) (*dynamodb.TransactWriteItemsOutput, error)
+	DeleteItem(context.Context, *dynamodb.DeleteItemInput, ...func(*dynamodb.Options)) (*dynamodb.DeleteItemOutput, error)
+	UpdateItem(context.Context, *dynamodb.UpdateItemInput, ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error)
 }
 
 type Client struct {
@@ -308,6 +310,25 @@ func (c *Client) DeleteKeys(ctx context.Context, keys []Key) error {
 	_, err := c.svc.TransactWriteItems(ctx, &dynamodb.TransactWriteItemsInput{
 		TransactItems: items,
 	})
+
+	return err
+}
+
+func (c *Client) DeleteOne(ctx context.Context, key Key) error {
+	_, err := c.svc.DeleteItem(ctx, &dynamodb.DeleteItemInput{
+		TableName: aws.String(c.table),
+		Key: map[string]types.AttributeValue{
+			"PK": &types.AttributeValueMemberS{Value: key.PK},
+			"SK": &types.AttributeValueMemberS{Value: key.SK},
+		},
+	})
+
+	return err
+}
+
+func (c *Client) Update(ctx context.Context, input *dynamodb.UpdateItemInput) error {
+	input.TableName = aws.String(c.table)
+	_, err := c.svc.UpdateItem(ctx, input)
 
 	return err
 }

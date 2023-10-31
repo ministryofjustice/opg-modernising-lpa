@@ -3,7 +3,6 @@ export class FileUploadSpinner {
         // so we can reference the same func when removing event
         this.handleTrapFocus = this.handleTrapFocus.bind(this)
 
-        this.continueButton = document.getElementById('continue-or-pay')
         this.cancelUploadButton = document.getElementById('cancel-upload-button')
 
         this.dialog = document.getElementById('dialog')
@@ -13,18 +12,20 @@ export class FileUploadSpinner {
 
         this.eventSource = null
 
-        if (this.continueButton && this.cancelUploadButton) {
+        if (this.cancelUploadButton && this.dialog) {
             this.registerListeners()
+
+            if (this.dialog.dataset.startScan === "1") {
+                this.toggleDialogVisibility()
+                this.openConnection()
+            }
         }
     }
 
     registerListeners() {
-        this.continueButton.addEventListener('click', (e) => {e.preventDefault()})
-        this.continueButton.addEventListener('click', this.toggleDialogVisibility.bind(this))
-        this.continueButton.addEventListener('click', this.openConnection.bind(this))
-
-        this.cancelUploadButton.addEventListener('click', this.toggleDialogVisibility.bind(this))
-        this.cancelUploadButton.addEventListener('click', this.closeConnection.bind(this))
+        this.cancelUploadButton.addEventListener('click', () => {
+            document.getElementById('cancel-upload-form').submit()
+        })
     }
 
     toggleDialogVisibility() {
@@ -44,28 +45,26 @@ export class FileUploadSpinner {
     }
 
     openConnection() {
+        console.log('open connection started')
         this.eventSource = new EventSource(document.querySelector("[data-sse-url]").dataset.sseUrl);
 
         this.eventSource.onmessage = (event) => {
             const data = JSON.parse(event.data)
 
-            if (data.scannedTotal === data.fileTotal) {
-                document.getElementById('pay-form').submit()
+            console.log(data)
+            if (data.finishedScanning === true) {
+                document.getElementById('scan-results-form').submit()
             }
 
             if (data.closeConnection === "1") {
-                this.closeConnection()
+                this.eventSource.close()
                 document.getElementById('close-connection-form').submit()
             }
 
             let parts = this.dialogFileCount.innerHTML.split(' ')
-            parts[0] = data.scannedTotal
+            parts[0] = data.scannedCount
             this.dialogFileCount.innerHTML = parts.join(' ')
         };
-    }
-
-    closeConnection() {
-        this.eventSource.close()
     }
 
     handleTrapFocus(e) {
@@ -92,8 +91,7 @@ export class FileUploadSpinner {
         }
 
         if (escPressed) {
-            this.closeConnection()
-            this.toggleDialogVisibility()
+            document.getElementById('cancel-upload-form').submit()
         }
     }
 }

@@ -37,7 +37,9 @@ type FilesInfectedError struct {
 func (e FilesInfectedError) Format(l Localizer) string {
 	joinedFilenames := l.Concat(e.Filenames, l.T("and"))
 
-	return l.FormatCount("errorFilesInfected", len(e.Filenames), map[string]interface{}{"Filenames": joinedFilenames})
+	return l.FormatCount("errorFilesInfected", len(e.Filenames), map[string]interface{}{
+		"Filenames": joinedFilenames,
+	})
 }
 
 type SelectError struct {
