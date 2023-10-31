@@ -6,7 +6,7 @@ require (
 	github.com/MicahParks/keyfunc v1.9.0
 	github.com/aws/aws-lambda-go v1.41.0
 	github.com/aws/aws-sdk-go-v2 v1.21.2
-	github.com/aws/aws-sdk-go-v2/config v1.19.0
+	github.com/aws/aws-sdk-go-v2/config v1.19.1
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.10.43
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.23.0
 	github.com/aws/aws-sdk-go-v2/service/eventbridge v1.22.2
@@ -17,11 +17,11 @@ require (
 	github.com/felixge/httpsnoop v1.0.3
 	github.com/gabriel-vasile/mimetype v1.4.3
 	github.com/golang-jwt/jwt/v4 v4.5.0
-	github.com/google/uuid v1.3.1
+	github.com/google/uuid v1.4.0
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/sessions v1.2.1
 	github.com/ministryofjustice/opg-go-common v0.0.0-20231009133357-1f236d604316
-	github.com/nicksnyder/go-i18n/v2 v2.2.1
+	github.com/nicksnyder/go-i18n/v2 v2.2.2
 	github.com/pact-foundation/pact-go v1.8.0
 	github.com/stretchr/testify v1.8.4
 	github.com/vektra/mockery v1.1.2

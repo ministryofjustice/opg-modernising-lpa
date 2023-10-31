@@ -34,3 +34,8 @@ variable "environment_variables" {
 variable "lambda_task_role" {
   description = "Execution role for Lambda"
 }
+
+variable "s3_antivirus_provisioned_concurrency" {
+  description = "Number of concurrent executions to provision for Lambda"
+  type        = number
+}

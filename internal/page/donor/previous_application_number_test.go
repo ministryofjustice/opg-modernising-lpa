@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -71,41 +70,46 @@ func TestGetPreviousApplicationNumberWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostPreviousApplicationNumber(t *testing.T) {
-	form := url.Values{
-		"previous-application-number": {"ABC"},
+	testcases := map[string]page.LpaPath{
+		"7": page.Paths.PreviousFee,
+		"M": page.Paths.WhatHappensAfterNoFee,
 	}
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
+	for start, redirect := range testcases {
+		t.Run(start, func(t *testing.T) {
+			form := url.Values{
+				"previous-application-number": {start},
+			}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &page.Lpa{
-			ID:                        "lpa-id",
-			UID:                       "lpa-uid",
-			ApplicationReason:         page.AdditionalApplication,
-			PreviousApplicationNumber: "ABC",
-			Tasks:                     page.Tasks{YourDetails: actor.TaskCompleted},
-		}).
-		Return(nil)
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := PreviousApplicationNumber(nil, donorStore)(testAppData, w, r, &page.Lpa{
-		ID:                             "lpa-id",
-		UID:                            "lpa-uid",
-		ApplicationReason:              page.AdditionalApplication,
-		HasSentApplicationUpdatedEvent: true,
-	})
-	resp := w.Result()
+			donorStore := newMockDonorStore(t)
+			donorStore.
+				On("Put", r.Context(), &page.Lpa{
+					ID:                        "lpa-id",
+					UID:                       "lpa-uid",
+					PreviousApplicationNumber: start,
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+			err := PreviousApplicationNumber(nil, donorStore)(testAppData, w, r, &page.Lpa{
+				ID:  "lpa-id",
+				UID: "lpa-uid",
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, redirect.Format("lpa-id"), resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestPostPreviousApplicationNumberWhenNotChanged(t *testing.T) {
 	form := url.Values{
-		"previous-application-number": {"ABC"},
+		"previous-application-number": {"M-0000"},
 	}
 
 	w := httptest.NewRecorder()
@@ -115,19 +119,18 @@ func TestPostPreviousApplicationNumberWhenNotChanged(t *testing.T) {
 	err := PreviousApplicationNumber(nil, nil)(testAppData, w, r, &page.Lpa{
 		ID:                        "lpa-id",
 		UID:                       "lpa-uid",
-		ApplicationReason:         page.AdditionalApplication,
-		PreviousApplicationNumber: "ABC",
+		PreviousApplicationNumber: "M-0000",
 	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.WhatHappensAfterNoFee.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostPreviousApplicationNumberWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"previous-application-number": {"ABC"},
+		"previous-application-number": {"MABC"},
 	}
 
 	w := httptest.NewRecorder()
@@ -180,10 +183,21 @@ func TestPreviousApplicationNumberFormValidate(t *testing.T) {
 		form   *previousApplicationNumberForm
 		errors validation.List
 	}{
-		"valid": {
+		"valid modernised": {
 			form: &previousApplicationNumberForm{
-				PreviousApplicationNumber: "A",
+				PreviousApplicationNumber: "M",
 			},
+		},
+		"valid old": {
+			form: &previousApplicationNumberForm{
+				PreviousApplicationNumber: "7",
+			},
+		},
+		"invalid": {
+			form: &previousApplicationNumberForm{
+				PreviousApplicationNumber: "x",
+			},
+			errors: validation.With("previous-application-number", validation.ReferenceNumberError{Label: "previousApplicationNumber"}),
 		},
 		"empty": {
 			form:   &previousApplicationNumberForm{},

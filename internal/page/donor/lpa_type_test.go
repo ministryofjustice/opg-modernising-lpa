@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -89,8 +90,9 @@ func TestPostLpaType(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
-			ID:   "lpa-id",
-			Type: page.LpaTypePropertyFinance,
+			ID:    "lpa-id",
+			Type:  page.LpaTypePropertyFinance,
+			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -102,7 +104,7 @@ func TestPostLpaType(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ApplicationReason.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostLpaTypeWhenNotChanged(t *testing.T) {
@@ -122,7 +124,7 @@ func TestPostLpaTypeWhenNotChanged(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ApplicationReason.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostLpaTypeWhenStoreErrors(t *testing.T) {

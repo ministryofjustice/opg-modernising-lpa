@@ -1,0 +1,218 @@
+package donor
+
+import (
+	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"strings"
+	"testing"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+)
+
+func TestGetPreviousFee(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &previousFeeData{
+			App:     testAppData,
+			Form:    &previousFeeForm{},
+			Options: page.PreviousFeeValues,
+		}).
+		Return(nil)
+
+	err := PreviousFee(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestGetPreviousFeeFromStore(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &previousFeeData{
+			App: testAppData,
+			Form: &previousFeeForm{
+				PreviousFee: page.PreviousFeeHalf,
+			},
+			Options: page.PreviousFeeValues,
+		}).
+		Return(nil)
+
+	err := PreviousFee(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{PreviousFee: page.PreviousFeeHalf})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestGetPreviousFeeWhenTemplateErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, mock.Anything).
+		Return(expectedError)
+
+	err := PreviousFee(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostPreviousFeeWhenFullFee(t *testing.T) {
+	form := url.Values{
+		"previous-fee": {page.PreviousFeeFull.String()},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	lpa := &page.Lpa{
+		ID:          "lpa-id",
+		PreviousFee: page.PreviousFeeFull,
+	}
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), lpa).
+		Return(nil)
+
+	payer := newMockPayer(t)
+	payer.
+		On("Pay", testAppData, w, r, lpa).
+		Return(nil)
+
+	err := PreviousFee(nil, payer, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+	assert.Nil(t, err)
+}
+
+func TestPostPreviousFeeWhenOtherFee(t *testing.T) {
+	form := url.Values{
+		"previous-fee": {page.PreviousFeeHalf.String()},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), &page.Lpa{
+			ID:          "lpa-id",
+			PreviousFee: page.PreviousFeeHalf,
+		}).
+		Return(nil)
+
+	err := PreviousFee(nil, nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.EvidenceRequiredForPreviousFee.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPostPreviousFeeWhenNotChanged(t *testing.T) {
+	form := url.Values{
+		"previous-fee": {page.PreviousFeeHalf.String()},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	err := PreviousFee(nil, nil, nil)(testAppData, w, r, &page.Lpa{
+		ID:          "lpa-id",
+		PreviousFee: page.PreviousFeeHalf,
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.EvidenceRequiredForPreviousFee.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPostPreviousFeeWhenStoreErrors(t *testing.T) {
+	form := url.Values{
+		"previous-fee": {page.PreviousFeeHalf.String()},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), mock.Anything).
+		Return(expectedError)
+
+	err := PreviousFee(nil, nil, donorStore)(testAppData, w, r, &page.Lpa{})
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestPostPreviousFeeWhenValidationErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, mock.MatchedBy(func(data *previousFeeData) bool {
+			return assert.Equal(t, validation.With("previous-fee", validation.SelectError{Label: "howMuchYouPreviouslyPaid"}), data.Errors)
+		})).
+		Return(nil)
+
+	err := PreviousFee(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestReadPreviousFeeForm(t *testing.T) {
+	form := url.Values{
+		"previous-fee": {page.PreviousFeeHalf.String()},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	result := readPreviousFeeForm(r)
+	assert.Equal(t, page.PreviousFeeHalf, result.PreviousFee)
+}
+
+func TestPreviousFeeFormValidate(t *testing.T) {
+	testCases := map[string]struct {
+		form   *previousFeeForm
+		errors validation.List
+	}{
+		"valid": {
+			form: &previousFeeForm{},
+		},
+		"invalid": {
+			form: &previousFeeForm{
+				Error: expectedError,
+			},
+			errors: validation.With("previous-fee", validation.SelectError{Label: "howMuchYouPreviouslyPaid"}),
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.errors, tc.form.Validate())
+		})
+	}
+}

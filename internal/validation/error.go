@@ -162,6 +162,16 @@ func (e DateMustBePastError) Format(l Localizer) string {
 	})
 }
 
+type ReferenceNumberError struct {
+	Label string
+}
+
+func (e ReferenceNumberError) Format(l Localizer) string {
+	return l.Format("errorReferenceNumber", map[string]any{
+		"Label": l.T(e.Label),
+	})
+}
+
 func lowerFirst(s string) string {
 	r, n := utf8.DecodeRuneInString(s)
 	return string(unicode.ToLower(r)) + s[n:]

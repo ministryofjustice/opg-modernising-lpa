@@ -1031,17 +1031,48 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 	}
 }
 
-func TestFeeTypeCost(t *testing.T) {
-	testCases := map[FeeType]int{
-		FullFee:     8200,
-		HalfFee:     4100,
-		NoFee:       0,
-		HardshipFee: 0,
+func TestLpaCost(t *testing.T) {
+	testCases := map[string]struct {
+		lpa      *Lpa
+		expected int
+	}{
+		"full": {
+			lpa:      &Lpa{FeeType: FullFee},
+			expected: 8200,
+		},
+		"half": {
+			lpa:      &Lpa{FeeType: HalfFee},
+			expected: 4100,
+		},
+		"no fee": {
+			lpa:      &Lpa{FeeType: NoFee},
+			expected: 0,
+		},
+		"hardship": {
+			lpa:      &Lpa{FeeType: HardshipFee},
+			expected: 0,
+		},
+		"repeat full": {
+			lpa:      &Lpa{FeeType: RepeatApplicationFee, PreviousFee: PreviousFeeFull},
+			expected: 4100,
+		},
+		"repeat half": {
+			lpa:      &Lpa{FeeType: RepeatApplicationFee, PreviousFee: PreviousFeeHalf},
+			expected: 2050,
+		},
+		"repeat exemption": {
+			lpa:      &Lpa{FeeType: RepeatApplicationFee, PreviousFee: PreviousFeeExemption},
+			expected: 0,
+		},
+		"repeat hardship": {
+			lpa:      &Lpa{FeeType: RepeatApplicationFee, PreviousFee: PreviousFeeHardship},
+			expected: 0,
+		},
 	}
 
-	for feeType, expectedCost := range testCases {
-		t.Run(feeType.String(), func(t *testing.T) {
-			assert.Equal(t, expectedCost, feeType.Cost())
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.expected, tc.lpa.Cost())
 		})
 	}
 }

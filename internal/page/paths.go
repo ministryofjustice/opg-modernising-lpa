@@ -106,7 +106,6 @@ type AppPaths struct {
 	YourLegalRightsAndResponsibilities Path
 
 	AboutPayment                                         LpaPath
-	ApplicationReason                                    LpaPath
 	AreYouApplyingForFeeDiscountOrExemption              LpaPath
 	CertificateProviderAddress                           LpaPath
 	CertificateProviderDetails                           LpaPath
@@ -136,6 +135,7 @@ type AppPaths struct {
 	EnterTrustCorporation                                LpaPath
 	EnterTrustCorporationAddress                         LpaPath
 	EvidenceRequired                                     LpaPath
+	EvidenceRequiredForPreviousFee                       LpaPath
 	FeeDenied                                            LpaPath
 	GettingHelpSigning                                   LpaPath
 	HowDoYouKnowYourCertificateProvider                  LpaPath
@@ -175,6 +175,7 @@ type AppPaths struct {
 	UseExistingAddress                                   LpaPath
 	WhatACertificateProviderDoes                         LpaPath
 	WhatHappensAfterNoFee                                LpaPath
+	PreviousFee                                          LpaPath
 	WhenCanTheLpaBeUsed                                  LpaPath
 	WhichFeeTypeAreYouApplyingFor                        LpaPath
 	WithdrawThisLpa                                      LpaPath
@@ -233,7 +234,6 @@ var Paths = AppPaths{
 	},
 
 	AboutPayment:                                         "/about-payment",
-	ApplicationReason:                                    "/application-reason",
 	AreYouApplyingForFeeDiscountOrExemption:              "/are-you-applying-for-fee-discount-or-exemption",
 	AttorneyFixtures:                                     "/fixtures/attorney",
 	AuthRedirect:                                         "/auth/redirect",
@@ -317,6 +317,7 @@ var Paths = AppPaths{
 	UseExistingAddress:                                   "/use-existing-address",
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
 	WhatHappensAfterNoFee:                                "/what-happens-after-no-fee",
+	PreviousFee:                                          "/how-much-did-you-previously-pay-for-your-lpa",
 	WhenCanTheLpaBeUsed:                                  "/when-can-the-lpa-be-used",
 	WhichFeeTypeAreYouApplyingFor:                        "/which-fee-type-are-you-applying-for",
 	WithdrawThisLpa:                                      "/withdraw-this-lpa",
@@ -331,4 +332,5 @@ var Paths = AppPaths{
 	YourIndependentWitnessAddress:                        "/your-independent-witness-address",
 	YourIndependentWitnessMobile:                         "/your-independent-witness-mobile",
 	YourLegalRightsAndResponsibilities:                   "/your-legal-rights-and-responsibilities",
+	EvidenceRequiredForPreviousFee:                       "/evidence-required-for-previous-fee",
 }

@@ -171,7 +171,6 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 	if lpa.UID != "" && lpa.PreviousApplicationNumber != "" && !lpa.HasSentPreviousApplicationLinkedEvent {
 		if err := s.eventClient.Send(ctx, "previous-application-linked", previousApplicationLinkedEvent{
 			UID:                       lpa.UID,
-			ApplicationReason:         lpa.ApplicationReason.String(),
 			PreviousApplicationNumber: lpa.PreviousApplicationNumber,
 		}); err != nil {
 			s.logger.Print(err)
@@ -275,7 +274,6 @@ type applicationUpdatedEventDonor struct {
 
 type previousApplicationLinkedEvent struct {
 	UID                       string `json:"uid"`
-	ApplicationReason         string `json:"applicationReason"`
 	PreviousApplicationNumber string `json:"previousApplicationNumber"`
 }
 

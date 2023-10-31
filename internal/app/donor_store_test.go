@@ -376,7 +376,6 @@ func TestDonorStorePutWhenPreviousApplicationLinked(t *testing.T) {
 	eventClient.
 		On("Send", ctx, "previous-application-linked", previousApplicationLinkedEvent{
 			UID:                       "M-1111",
-			ApplicationReason:         "remake",
 			PreviousApplicationNumber: "5555",
 		}).
 		Return(nil)
@@ -389,7 +388,6 @@ func TestDonorStorePutWhenPreviousApplicationLinked(t *testing.T) {
 			ID:                                    "5",
 			UID:                                   "M-1111",
 			UpdatedAt:                             now,
-			ApplicationReason:                     page.RemakeOfInvalidApplication,
 			PreviousApplicationNumber:             "5555",
 			HasSentApplicationUpdatedEvent:        true,
 			HasSentPreviousApplicationLinkedEvent: true,
@@ -403,7 +401,6 @@ func TestDonorStorePutWhenPreviousApplicationLinked(t *testing.T) {
 		SK:                             "#DONOR#an-id",
 		ID:                             "5",
 		UID:                            "M-1111",
-		ApplicationReason:              page.RemakeOfInvalidApplication,
 		PreviousApplicationNumber:      "5555",
 		HasSentApplicationUpdatedEvent: true,
 	})
@@ -427,7 +424,6 @@ func TestDonorStorePutWhenPreviousApplicationLinkedWontResend(t *testing.T) {
 		SK:                                    "#DONOR#an-id",
 		ID:                                    "5",
 		UID:                                   "M-1111",
-		ApplicationReason:                     page.RemakeOfInvalidApplication,
 		PreviousApplicationNumber:             "5555",
 		HasSentApplicationUpdatedEvent:        true,
 		HasSentPreviousApplicationLinkedEvent: true,
@@ -461,7 +457,6 @@ func TestDonorStorePutWhenPreviousApplicationLinkedWhenError(t *testing.T) {
 		SK:                             "#DONOR#an-id",
 		ID:                             "5",
 		UID:                            "M-1111",
-		ApplicationReason:              page.RemakeOfInvalidApplication,
 		PreviousApplicationNumber:      "5555",
 		HasSentApplicationUpdatedEvent: true,
 	})

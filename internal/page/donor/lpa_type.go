@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -40,6 +41,7 @@ func LpaType(tmpl template.Template, donorStore DonorStore) Handler {
 			if data.Errors.None() {
 				if lpa.Type != data.Form.LpaType {
 					lpa.Type = data.Form.LpaType
+					lpa.Tasks.YourDetails = actor.TaskCompleted
 					lpa.HasSentApplicationUpdatedEvent = false
 
 					if err := donorStore.Put(r.Context(), lpa); err != nil {
@@ -47,7 +49,7 @@ func LpaType(tmpl template.Template, donorStore DonorStore) Handler {
 					}
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.ApplicationReason.Format(lpa.ID))
+				return appData.Redirect(w, r, lpa, page.Paths.TaskList.Format(lpa.ID))
 			}
 		}
 
