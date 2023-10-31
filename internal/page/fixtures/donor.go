@@ -3,6 +3,7 @@ package fixtures
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"net/http"
 	"slices"
 	"time"
@@ -202,12 +203,15 @@ func Donor(
 				}
 
 				lpa.FeeType = feeType
+				key := fmt.Sprintf("%s/evidence/%s", lpa.UID, random.UuidString())
 
 				if err := documentStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: lpa.ID}), page.Document{
 					PK:            "LPA#" + lpa.ID,
-					SK:            "#SCANNED_DOCUMENT#" + random.UuidString(),
+					SK:            "#DOCUMENT#" + key,
 					Filename:      "supporting-evidence.png",
 					VirusDetected: withVirus,
+					Key:           key,
+					Scanned:       true,
 				}, make([]byte, 64)); err != nil {
 					return err
 				}
