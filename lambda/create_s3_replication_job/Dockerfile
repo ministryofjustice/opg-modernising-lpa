@@ -34,7 +34,7 @@ RUN python -m pip install \
         --target ${FUNCTION_DIR} \
         --requirement requirements.txt
 
-FROM public.ecr.aws/lambda/provided:al2 AS production
+FROM public.ecr.aws/lambda/python:3.8 AS production
 
 RUN curl -O https://lambda-insights-extension.s3-ap-northeast-1.amazonaws.com/amazon_linux/lambda-insights-extension.rpm && \
     rpm -U lambda-insights-extension.rpm && \
