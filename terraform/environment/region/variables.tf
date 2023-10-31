@@ -96,3 +96,13 @@ variable "receive_account_ids" {
   description = "IDs of accounts to receive messages from"
   default     = []
 }
+
+variable "s3_antivirus_provisioned_concurrency" {
+  type        = number
+  description = "Number of concurrent executions to provision for Lambda"
+  default     = 0
+  validation {
+    condition     = var.s3_antivirus_provisioned_concurrency >= 0 && var.s3_antivirus_provisioned_concurrency <= 6
+    error_message = "s3_antivirus_provisioned_concurrency must be between 0 and 6"
+  }
+}
