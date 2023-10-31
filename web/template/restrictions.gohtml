@@ -12,7 +12,11 @@
 
         {{ trFormatHtml .App "restrictionsOnYourAttorneysPowerContent" "AllAttorneysFirstNames" (concatAnd .App .Lpa.Attorneys.FirstNames) }}
 
-        {{ template "details" (details . "restrictionExamples" "restrictionExamplesContent" false) }}
+        {{ if .Lpa.Type.IsHealthWelfare }}
+          {{ template "details" (details . "restrictionExamples" "restrictionExamplesContentHw" false) }}
+        {{ else }}
+          {{ template "details" (details . "restrictionExamples" "restrictionExamplesContentPfa" false) }}
+        {{ end }}
 
         {{ if .Lpa.LifeSustainingTreatmentOption.IsOptionA }}
           <p class="govuk-inset-text">{{ tr .App "youCanIncludeRestrictionsAboutLst" }}</p>
