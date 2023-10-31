@@ -22,6 +22,13 @@ type EventClient interface {
 	Send(context.Context, string, any) error
 }
 
+//go:generate mockery --testonly --inpackage --name DocumentStore --structname mockDocumentStore
+type DocumentStore interface {
+	GetAll(context.Context) (page.Documents, error)
+	Put(context.Context, page.Document, []byte) error
+	UpdateScanResults(context.Context, string, string, bool) error
+}
+
 type donorStore struct {
 	dynamoClient  DynamoClient
 	eventClient   EventClient
@@ -30,7 +37,7 @@ type donorStore struct {
 	uuidString    func() string
 	now           func() time.Time
 	s3Client      *s3.Client
-	documentStore *DocumentStore
+	documentStore DocumentStore
 }
 
 func (s *donorStore) Create(ctx context.Context) (*page.Lpa, error) {

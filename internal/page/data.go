@@ -285,58 +285,6 @@ func (ds *Documents) Get(documentKey string) Document {
 	return Document{}
 }
 
-//type Evidence struct {
-//	Documents []Document
-//}
-//
-//func (e *Evidence) Delete(documentKey string) bool {
-//	idx := slices.IndexFunc(e.Documents, func(d Document) bool { return d.Key == documentKey })
-//	if idx == -1 {
-//		return false
-//	}
-//
-//	e.Documents = slices.Delete(e.Documents, idx, idx+1)
-//
-//	return true
-//}
-//
-//func (e *Evidence) Keys() []string {
-//	var keys []string
-//
-//	for _, d := range e.Documents {
-//		keys = append(keys, d.Key)
-//	}
-//
-//	return keys
-//}
-//
-//func (e *Evidence) Get(documentKey string) Document {
-//	for _, d := range e.Documents {
-//		if d.Key == documentKey {
-//			return d
-//		}
-//	}
-//
-//	return Document{}
-//}
-//
-//func (e *Evidence) Put(document Document) {
-//	idx := slices.IndexFunc(e.Documents, func(d Document) bool { return d.Key == document.Key })
-//	if idx == -1 {
-//		e.Documents = append(e.Documents, document)
-//	} else {
-//		e.Documents[idx] = document
-//	}
-//}
-//
-//type Document struct {
-//	Key           string
-//	Filename      string
-//	Sent          time.Time
-//	Scanned       bool
-//	VirusDetected bool
-//}
-
 type Payment struct {
 	// Reference generated for the payment
 	PaymentReference string

@@ -89,7 +89,7 @@ func App(
 	s3Client S3Client,
 	eventClient *event.Client,
 ) http.Handler {
-	documentStore := &DocumentStore{dynamoClient: lpaDynamoClient, s3Client: s3Client}
+	documentStore := &documentStore{dynamoClient: lpaDynamoClient, s3Client: s3Client}
 
 	donorStore := &donorStore{
 		dynamoClient:  lpaDynamoClient,

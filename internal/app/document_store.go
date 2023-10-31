@@ -11,16 +11,16 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
-type DocumentStore struct {
+type documentStore struct {
 	dynamoClient DynamoClient
 	s3Client     S3Client
 }
 
 func NewDocumentStore(dynamoClient DynamoClient, s3Client S3Client) DocumentStore {
-	return DocumentStore{dynamoClient: dynamoClient, s3Client: s3Client}
+	return documentStore{dynamoClient: dynamoClient, s3Client: s3Client}
 }
 
-func (s DocumentStore) GetAll(ctx context.Context) (page.Documents, error) {
+func (s documentStore) GetAll(ctx context.Context) (page.Documents, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return []page.Document{}, err
@@ -42,7 +42,7 @@ func (s DocumentStore) GetAll(ctx context.Context) (page.Documents, error) {
 	return ds, nil
 }
 
-func (s DocumentStore) UpdateScanResults(ctx context.Context, PK, SK string, virusDetected bool) error {
+func (s documentStore) UpdateScanResults(ctx context.Context, PK, SK string, virusDetected bool) error {
 	input := &dynamodb.UpdateItemInput{
 		Key: map[string]types.AttributeValue{
 			"PK": &types.AttributeValueMemberS{Value: PK},
@@ -58,7 +58,7 @@ func (s DocumentStore) UpdateScanResults(ctx context.Context, PK, SK string, vir
 	return s.dynamoClient.Update(ctx, input)
 }
 
-func (s DocumentStore) Put(ctx context.Context, document page.Document, data []byte) error {
+func (s documentStore) Put(ctx context.Context, document page.Document, data []byte) error {
 	if data != nil {
 		if err := s.s3Client.PutObject(ctx, document.Key, data); err != nil {
 			return err
@@ -68,7 +68,7 @@ func (s DocumentStore) Put(ctx context.Context, document page.Document, data []b
 	return s.dynamoClient.Put(ctx, document)
 }
 
-func (s DocumentStore) DeleteInfectedDocuments(ctx context.Context, documents page.Documents) error {
+func (s documentStore) DeleteInfectedDocuments(ctx context.Context, documents page.Documents) error {
 	var dynamoKeys []dynamo.Key
 	var s3Keys []string
 
@@ -82,6 +82,10 @@ func (s DocumentStore) DeleteInfectedDocuments(ctx context.Context, documents pa
 		}
 	}
 
+	if len(dynamoKeys) == 0 {
+		return nil
+	}
+
 	if err := s.s3Client.DeleteObjects(ctx, s3Keys); err != nil {
 		return err
 	}
@@ -89,7 +93,7 @@ func (s DocumentStore) DeleteInfectedDocuments(ctx context.Context, documents pa
 	return s.dynamoClient.DeleteKeys(ctx, dynamoKeys)
 }
 
-func (s DocumentStore) Delete(ctx context.Context, document page.Document) error {
+func (s documentStore) Delete(ctx context.Context, document page.Document) error {
 	if err := s.s3Client.DeleteObject(ctx, document.Key); err != nil {
 		return err
 	}
