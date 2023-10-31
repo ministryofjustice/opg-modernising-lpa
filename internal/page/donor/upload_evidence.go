@@ -50,19 +50,28 @@ type uploadEvidenceData struct {
 	Errors               validation.List
 	NumberOfAllowedFiles int
 	FeeType              page.FeeType
-	Evidence             page.Evidence
+	Documents            page.Documents
 	MimeTypes            []string
 	Deleted              string
-	UploadedCount        int
+	StartScan            string
 }
 
-func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, randomUUID func() string, evidenceS3Client S3Client) Handler {
+func UploadEvidence(tmpl template.Template, payer Payer, randomUUID func() string, documentStore DocumentStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+		if lpa.Tasks.PayForLpa.IsPending() {
+			return appData.Redirect(w, r, lpa, page.Paths.TaskList.Format(lpa.ID))
+		}
+
+		documents, err := documentStore.GetAll(r.Context())
+		if err != nil {
+			return err
+		}
+
 		data := &uploadEvidenceData{
 			App:                  appData,
 			NumberOfAllowedFiles: numberOfAllowedFiles,
 			FeeType:              lpa.FeeType,
-			Evidence:             lpa.Evidence,
+			Documents:            documents,
 			MimeTypes:            acceptedMimeTypes(),
 		}
 
@@ -74,45 +83,80 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 			if data.Errors.None() {
 				switch form.Action {
 				case "upload":
-					for _, file := range form.Files {
-						uuid := randomUUID()
-						key := lpa.UID + "/evidence/" + uuid
+					var uploadedDocuments []page.Document
 
-						err := evidenceS3Client.PutObject(r.Context(), key, file.Data)
+					for _, file := range form.Files {
+						key := lpa.UID + "/evidence/" + randomUUID()
+
+						document := page.Document{
+							PK:       "LPA#" + lpa.ID,
+							SK:       "#DOCUMENT#" + key,
+							Filename: file.Filename,
+							Key:      key,
+						}
+						if err := documentStore.Put(r.Context(), document, file.Data); err != nil {
+							return err
+						}
+
+						uploadedDocuments = append(uploadedDocuments, document)
+					}
+
+					data.Documents = uploadedDocuments
+					data.StartScan = "1"
+
+				case "scanResults":
+					infectedFilenames := documents.InfectedFilenames()
+
+					if len(infectedFilenames) > 0 {
+						if err := documentStore.DeleteInfectedDocuments(r.Context(), documents); err != nil {
+							return err
+						}
+
+						refreshedDocuments, err := documentStore.GetAll(r.Context())
 						if err != nil {
 							return err
 						}
 
-						lpa.Evidence.Documents = append(lpa.Evidence.Documents, page.Document{Key: key, Filename: file.Filename})
-						data.UploadedCount += 1
-					}
+						data.Errors = validation.With("upload", validation.FilesInfectedError{Label: "upload", Filenames: infectedFilenames})
+						data.Documents = refreshedDocuments
 
-					if err := donorStore.Put(r.Context(), lpa); err != nil {
-						return err
+						return tmpl(w, data)
 					}
-
-					data.Evidence = lpa.Evidence
 
 				case "pay":
 					return payer.Pay(appData, w, r, lpa)
 
 				case "delete":
-					evidence := lpa.Evidence.Get(form.DeleteKey)
-					if evidence.Key != "" {
-						if err := evidenceS3Client.DeleteObject(r.Context(), evidence.Key); err != nil {
+					document := documents.Get(form.DeleteKey)
+					if document.Key != "" {
+						data.Deleted = document.Filename
+
+						if err := documentStore.Delete(r.Context(), document); err != nil {
 							return err
 						}
+						documents.Delete(document.Key)
 
-						data.Deleted = evidence.Filename
-
-						lpa.Evidence.Delete(evidence.Key)
-
-						if err := donorStore.Put(r.Context(), lpa); err != nil {
-							return err
-						}
-
-						data.Evidence = lpa.Evidence
+						data.Documents = documents
 					}
+
+				case "closeConnection", "cancelUpload":
+					for _, d := range documents {
+						if d.Key != "" && !d.Scanned {
+							if err := documentStore.Delete(r.Context(), d); err != nil {
+								return err
+							}
+
+							documents.Delete(d.Key)
+						}
+					}
+
+					data.Documents = documents
+
+					if form.Action == "closeConnection" {
+						data.Errors = validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"})
+					}
+
+					return tmpl(w, data)
 
 				default:
 					return errors.New("unexpected action")

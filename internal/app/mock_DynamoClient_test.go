@@ -5,7 +5,9 @@ package app
 import (
 	context "context"
 
+	dynamodb "github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	dynamo "github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+
 	mock "github.com/stretchr/testify/mock"
 
 	types "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
@@ -124,6 +126,20 @@ func (_m *mockDynamoClient) DeleteKeys(ctx context.Context, keys []dynamo.Key) e
 	return r0
 }
 
+// DeleteOne provides a mock function with given fields: ctx, key
+func (_m *mockDynamoClient) DeleteOne(ctx context.Context, key dynamo.Key) error {
+	ret := _m.Called(ctx, key)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, dynamo.Key) error); ok {
+		r0 = rf(ctx, key)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // LatestForActor provides a mock function with given fields: ctx, sk, v
 func (_m *mockDynamoClient) LatestForActor(ctx context.Context, sk string, v interface{}) error {
 	ret := _m.Called(ctx, sk, v)
@@ -173,6 +189,20 @@ func (_m *mockDynamoClient) Put(ctx context.Context, v interface{}) error {
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, interface{}) error); ok {
 		r0 = rf(ctx, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// Update provides a mock function with given fields: ctx, input
+func (_m *mockDynamoClient) Update(ctx context.Context, input *dynamodb.UpdateItemInput) error {
+	ret := _m.Called(ctx, input)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *dynamodb.UpdateItemInput) error); ok {
+		r0 = rf(ctx, input)
 	} else {
 		r0 = ret.Error(0)
 	}
