@@ -23,12 +23,12 @@ jobs:
           echo "Build status of ${{github.event.before}}: $BEFORE_STATUS"
           if [[ "$BEFORE_STATUS" == "success" ]]; then
             echo "Checking against ${{github.event.before}}"
-            (git diff --quiet ${{github.event.before}} ${{github.event.after}} -- cmd internal lang web lambda Dockerfile package.json yarn.lock go.mod && \
+            (git diff --quiet ${{github.event.before}} ${{github.event.after}} -- cmd internal lang web lambda docker/event-received docker/mlpa package.json yarn.lock go.mod && \
             echo "changes=${{ false }}" || \
             echo "changes=${{ true }}") | tee -a "${GITHUB_OUTPUT}"
           else
             echo "Checking against origin/main"
-            (git diff --quiet HEAD origin/main -- cmd internal lang web lambda Dockerfile package.json yarn.lock go.mod && \
+            (git diff --quiet HEAD origin/main -- cmd internal lang web lambda docker/event-received docker/mlpa package.json yarn.lock go.mod && \
             echo "changes=${{ false }}" || \
             echo "changes=${{ true }}") | tee -a "${GITHUB_OUTPUT}"
           fi
