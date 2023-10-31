@@ -135,7 +135,6 @@ type AppPaths struct {
 	EnterTrustCorporation                                LpaPath
 	EnterTrustCorporationAddress                         LpaPath
 	EvidenceRequired                                     LpaPath
-	EvidenceRequiredForPreviousFee                       LpaPath
 	FeeDenied                                            LpaPath
 	GettingHelpSigning                                   LpaPath
 	HowDoYouKnowYourCertificateProvider                  LpaPath
@@ -330,5 +329,4 @@ var Paths = AppPaths{
 	YourIndependentWitnessAddress:                        "/your-independent-witness-address",
 	YourIndependentWitnessMobile:                         "/your-independent-witness-mobile",
 	YourLegalRightsAndResponsibilities:                   "/your-legal-rights-and-responsibilities",
-	EvidenceRequiredForPreviousFee:                       "/evidence-required-for-previous-fee",
 }

@@ -1,40 +1,45 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App (printf "evidenceRequired%s" .Lpa.FeeType.String) }}{{ end }}
+{{ define "pageTitle" }}
+  {{ if .Lpa.FeeType.IsRepeatApplicationFee }}
+    {{ tr .App (printf "newEvidenceRequired%s" .Lpa.PreviousFee.String) }}
+  {{ else }}
+    {{ tr .App (printf "evidenceRequired%s" .Lpa.FeeType.String) }}
+  {{ end }}
+{{ end }}
 
 {{ define "main" }}
-  {{ $pageTitle := printf "evidenceRequired%s" .Lpa.FeeType.String }}
-
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <h1 class="govuk-heading-xl">{{ tr .App $pageTitle }}</h1>
+      <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
 
-        {{ if .Lpa.FeeType.IsHalfFee }}
-            {{ trHtml .App "evidenceRequiredHalfFeeIntroContent" }}
-
-            {{ template "details" details . "whereYourIncomeCanComeFrom" "whereYourIncomeCanComeFromDetail" false }}
-
-            {{ trHtml .App "evidenceRequiredHalfFeeEvidenceContent" }}
-
-            {{ template "details" details . "ifYouHaveNoIncome" "ifYouHaveNoIncomeDetail" false }}
-
-            {{ trHtml .App "evidenceRequiredHalfFeeUniversalCreditContent" }}
+      {{ if or .Lpa.FeeType.IsHalfFee .Lpa.PreviousFee.IsPreviousFeeHalf }}
+        {{ if .Lpa.FeeType.IsRepeatApplicationFee }}
+          {{ trHtml .App "newEvidenceRequiredHalfFeeIntroContent" }}
+        {{ else }}
+          {{ trHtml .App "evidenceRequiredHalfFeeIntroContent" }}
         {{ end }}
+          {{ trHtml .App "evidenceRequiredHalfFeeIncomeContent" }}
+        {{ template "details" (details . "whereYourIncomeCanComeFrom" "whereYourIncomeCanComeFromDetail" false) }}
+        {{ trHtml .App "evidenceRequiredHalfFeeEvidenceContent" }}
+        {{ template "details" (details . "ifYouHaveNoIncome" "ifYouHaveNoIncomeDetail" false) }}
+        {{ trHtml .App "evidenceRequiredHalfFeeUniversalCreditContent" }}
 
-      {{ if .Lpa.FeeType.IsNoFee }}
+      {{ else if or .Lpa.FeeType.IsNoFee .Lpa.PreviousFee.IsPreviousFeeExemption }}
+        {{ if .Lpa.FeeType.IsRepeatApplicationFee }}
+          {{ trHtml .App "newEvidenceRequiredNoFeeIntroContent" }}
+        {{ else }}
           {{ trHtml .App "evidenceRequiredNoFeeIntroContent" }}
+        {{ end }}
+        {{ template "details" (details . "eligibleMeansTestedBenefits" "eligibleMeansTestedBenefitsDetail" false) }}
+        {{ trHtml .App "evidenceRequiredNoFeeEvidenceContent" }}
 
-          {{ template "details" details . "eligibleMeansTestedBenefits" "eligibleMeansTestedBenefitsDetail" false }}
-
-          {{ trHtml .App "evidenceRequiredNoFeeEvidenceContent" }}
-      {{ end }}
-
-      {{ if .Lpa.FeeType.IsHardshipFee }}
-        {{ trHtml .App "evidenceRequiredHardshipFeeContent" }}
-      {{ end }}
-
-      {{ if .Lpa.FeeType.IsRepeatApplicationFee }}
-        {{ trHtml .App "placeholder" }}
+      {{ else if or .Lpa.FeeType.IsHardshipFee .Lpa.PreviousFee.IsPreviousFeeHardship }}
+        {{ if .Lpa.FeeType.IsRepeatApplicationFee }}
+          {{ trHtml .App "newEvidenceRequiredHardshipFeeContent" }}
+        {{ else }}
+          {{ trHtml .App "evidenceRequiredHardshipFeeContent" }}
+        {{ end }}
       {{ end }}
 
       <div class="govuk-button-group">
