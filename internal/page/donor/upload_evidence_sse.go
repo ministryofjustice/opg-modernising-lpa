@@ -9,7 +9,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
-// move to non-LPA handler
 func UploadEvidenceSSE(documentStore DocumentStore, ttl time.Duration, flushFrequency time.Duration) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		w.Header().Set("Cache-Control", "no-cache")
