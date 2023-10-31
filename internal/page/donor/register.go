@@ -146,7 +146,7 @@ type DocumentStore interface {
 	GetAll(context.Context) (page.Documents, error)
 	Put(context.Context, page.Document, []byte) error
 	Delete(context.Context, page.Document) error
-	DeleteInfectedDocuments(context.Context, []page.Document) error
+	DeleteInfectedDocuments(context.Context, page.Documents) error
 }
 
 func Register(
@@ -320,7 +320,7 @@ func Register(
 	handleWithLpa(page.Paths.HowWouldYouLikeToSendEvidence, CanGoBack,
 		HowWouldYouLikeToSendEvidence(tmpls.Get("how_would_you_like_to_send_evidence.gohtml")))
 	handleWithLpa(page.Paths.UploadEvidence, CanGoBack,
-		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), payer, donorStore, random.UuidString, documentStore))
+		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), payer, random.UuidString, documentStore))
 	handleWithLpa(page.Paths.WhatHappensAfterNoFee, None,
 		Guidance(tmpls.Get("what_happens_after_no_fee.gohtml")))
 	handleWithLpa(page.Paths.HowToEmailOrPostEvidence, CanGoBack,

@@ -57,10 +57,6 @@ type shareCodeSender interface {
 
 //go:generate mockery --testonly --inpackage --name DocumentStore --structname mockDocumentStore
 type DocumentStore interface {
-	GetAll(context.Context) (page.Documents, error)
-	Put(context.Context, page.Document, []byte) error
-	Delete(context.Context, page.Document) error
-	DeleteInfectedDocuments(context.Context, []page.Document) error
 	UpdateScanResults(ctx context.Context, PK, SK string, virusDetected bool) error
 }
 

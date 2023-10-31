@@ -29,11 +29,11 @@ func (_m *mockDocumentStore) Delete(_a0 context.Context, _a1 page.Document) erro
 }
 
 // DeleteInfectedDocuments provides a mock function with given fields: _a0, _a1
-func (_m *mockDocumentStore) DeleteInfectedDocuments(_a0 context.Context, _a1 []page.Document) error {
+func (_m *mockDocumentStore) DeleteInfectedDocuments(_a0 context.Context, _a1 page.Documents) error {
 	ret := _m.Called(_a0, _a1)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, []page.Document) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, page.Documents) error); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		r0 = ret.Error(0)

@@ -56,7 +56,7 @@ type uploadEvidenceData struct {
 	StartScan            string
 }
 
-func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, randomUUID func() string, documentStore DocumentStore) Handler {
+func UploadEvidence(tmpl template.Template, payer Payer, randomUUID func() string, documentStore DocumentStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if lpa.Tasks.PayForLpa.IsPending() {
 			return appData.Redirect(w, r, lpa, page.Paths.TaskList.Format(lpa.ID))
@@ -106,6 +106,7 @@ func UploadEvidence(tmpl template.Template, payer Payer, donorStore DonorStore, 
 
 				case "scanResults":
 					infectedFilenames := documents.InfectedFilenames()
+
 					if len(infectedFilenames) > 0 {
 						if err := documentStore.DeleteInfectedDocuments(r.Context(), documents); err != nil {
 							return err

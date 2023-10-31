@@ -68,7 +68,7 @@ func (s DocumentStore) Put(ctx context.Context, document page.Document, data []b
 	return s.dynamoClient.Put(ctx, document)
 }
 
-func (s DocumentStore) DeleteInfectedDocuments(ctx context.Context, documents []page.Document) error {
+func (s DocumentStore) DeleteInfectedDocuments(ctx context.Context, documents page.Documents) error {
 	var dynamoKeys []dynamo.Key
 	var s3Keys []string
 
