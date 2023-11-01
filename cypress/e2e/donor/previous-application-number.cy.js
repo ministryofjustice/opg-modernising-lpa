@@ -27,9 +27,9 @@ describe('Previous application number', () => {
         cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('Previous reference number must begin with 7 or M');
+            cy.contains('Previous reference number must begin with the number 7 or the letter M');
         });
 
-        cy.contains('.govuk-error-message', 'Previous reference number must begin with 7 or M');
+        cy.contains('.govuk-error-message', 'Previous reference number must begin with the number 7 or the letter M');
     });
 });
