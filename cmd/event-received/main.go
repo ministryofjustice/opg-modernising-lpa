@@ -270,7 +270,7 @@ func handleObjectTagsAdded(ctx context.Context, dynamodbClient dynamodbClient, e
 		return fmt.Errorf("failed to resolve uid for '%s': %w", objectTagsAddedEventName, err)
 	}
 
-	err = documentStore.UpdateScanResults(ctx, lpaKey.PK, "#DOCUMENT#"+objectKey, hasVirus)
+	err = documentStore.UpdateScanResults(ctx, lpaKey.PK, lpaKey.SK, hasVirus)
 	if err != nil {
 		return fmt.Errorf("failed to update scan results for '%s': %w", objectTagsAddedEventName, err)
 	}
