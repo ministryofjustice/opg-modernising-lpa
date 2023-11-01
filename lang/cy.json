@@ -180,7 +180,8 @@
     "restrictionsOnYourAttorneysPowerTitle": "Cyfyngu ar y penderfyniadau y gall eich atwrneiod eu gwneud",
     "restrictionsOnYourAttorneysPowerContent": "<p class=\"govuk-body\">Gallwch gyfyngu ar y penderfyniadau y gall eich atwrneiod eu gwneud drwy ychwanegu cyfyngiadau neu amodau at eich LPA.</p><p class=\"govuk-body\">Mae’r adran hon yn ddewisol.</p><p class=\"govuk-body\">Bydd yr hyn a ddywedwch yma yn dweud wrth John a Joan am y pethau:</p><ul class=\"govuk-list govuk-list--bullet\"><li>na allant eu gwneud (‘cyfyngiadau’)</li><li>y gellir eu gwneud mewn rhai amgylchiadau yn unig (‘amodau’)</li></ul><p class=\"govuk-body\">Nid oes rhaid i chi ychwanegu cyfyngiadau neu amodau at eich LPA.</p><p class=\"govuk-body\">Mae yna reolau cyfreithiol ynglŷn â sut dylid geirio eich cyfyngiadau a’ch amodau, felly mae’n bwysig <a href=\"#\" class=\"govuk-link\">darllen ein canllawiau ar ysgrifennu cyfyngiadau ac amodau</a>.</p><p class=\"govuk-body\">Os ydych yn ansicr, neu os oes gennych gyfyngiadau neu amodau manwl, dylech gael cyngor cyfreithiol.</p>",
     "restrictionExamples": "Dangoswch rai enghreifftiau i fi",
-    "restrictionExamplesContent": "<h2 class=\"govuk-heading-s\">Enghreifftiau o gyfyngiadau: pethau na all yr atwrneiod eu gwneud</h2><ul class=\"govuk-list govuk-list--bullet\"><li>‘Ni all fy atwrneiod werthu fy nghartref.’</li></ul><h2 class=\"govuk-heading-s\">Enghreifftiau o amodau: pethau y gall eich atwrneiod eu gwneud mewn rhai amgylchiadau yn unig</h2><ul class=\"govuk-list govuk-list--bullet\"><li>‘Ni all fy atwrneiod werthu fy nghartref oni bai, ym marn fy meddyg, ni allaf fyw’n annibynnol mwyach.’</li></ul>",
+    "restrictionExamplesContentPfa": "<h2 class=\"govuk-heading-s\">Enghreifftiau o gyfyngiadau: pethau na all yr atwrneiod eu gwneud</h2><ul class=\"govuk-list govuk-list--bullet\"><li>‘Ni all fy atwrneiod werthu fy nghartref.’</li></ul><h2 class=\"govuk-heading-s\">Enghreifftiau o amodau: pethau y gall eich atwrneiod eu gwneud mewn rhai amgylchiadau yn unig</h2><ul class=\"govuk-list govuk-list--bullet\"><li>‘Ni all fy atwrneiod werthu fy nghartref oni bai, ym marn fy meddyg, ni allaf fyw’n annibynnol mwyach.’</li></ul>",
+    "restrictionExamplesContentHw": "<h2 class=\"govuk-heading-s\">Welsh</h2>",
     "restrictions": "Cyfyngiadau ac amodau",
     "restrictionsOptional": "Cyfyngiadau ac amodau (dewisol)",
     "restrictionsHint": "Os nad ydych eisiau ychwanegu unrhyw gyfyngiadau neu amodau, gadewch y blwch yn wag.",
@@ -903,5 +904,12 @@
     "whatIsYourPreviousReferenceNumberContent": "<p class=\"govuk-body\">Welsh</p>",
     "whereCanFindReferenceNumber": "Welsh",
     "whereCanFindReferenceNumberDetails": "<p class=\"govuk-body\">Welsh</p>",
-    "previousApplicationNumber": "Welsh"
+    "previousApplicationNumber": "Welsh",
+    "howMuchDidYouPreviouslyPayForYourLpa": "Welsh",
+    "toCalculateYourFeeForThisLpa": "Welsh",
+    "fullFee": "Welsh",
+    "halfFee": "Welsh",
+    "nothingExemption": "Welsh",
+    "nothingHardship": "Welsh",
+    "howMuchYouPreviouslyPaid": "Welsh"
 }

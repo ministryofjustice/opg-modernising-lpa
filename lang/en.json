@@ -170,7 +170,8 @@
     "restrictionsOnYourAttorneysPowerTitle": "Restrict the decisions your attorneys can make",
     "restrictionsOnYourAttorneysPowerContent": "<p class=\"govuk-body\">You can limit the decisions your attorneys can make by adding restrictions or conditions to your LPA.</p><p class=\"govuk-body\">This section is optional.</p><p class=\"govuk-body\">What you say here will tell your attorneys things they:</p><ul class=\"govuk-list govuk-list--bullet\"><li>cannot do (‘restrictions’)</li><li>can only do in certain circumstances (‘conditions’)</li></ul><p class=\"govuk-body\">You do not have to add restrictions or conditions to your LPA.</p><p class=\"govuk-body\">There are legal rules about how your restrictions and conditions should be worded, so it’s important to <a href=\"#\" class=\"govuk-link\">read our guidance on writing restrictions and conditions</a>.</p><p class=\"govuk-body\">If you’re unsure, or you have detailed restrictions or conditions, you should get legal advice.</p>",
     "restrictionExamples": "Show me some examples",
-    "restrictionExamplesContent": "<h2 class=\"govuk-heading-s\">Example restrictions: things the attorneys cannot do</h2><ul class=\"govuk-list govuk-list--bullet\"><li>‘My attorneys cannot sell my home.’</li></ul><h2 class=\"govuk-heading-s\">Example conditions: things your attorneys can only do in certain circumstances</h2><ul class=\"govuk-list govuk-list--bullet\"><li>‘My attorneys must not sell my home unless, in my doctor’s opinion, I can no longer live independently.’</li></ul>",
+    "restrictionExamplesContentPfa": "<h2 class=\"govuk-heading-s\">Example restrictions: things the attorneys cannot do</h2><ul class=\"govuk-list govuk-list--bullet\"><li>‘My attorneys cannot sell my home.’</li></ul><h2 class=\"govuk-heading-s\">Example conditions: things your attorneys can only do in certain circumstances</h2><ul class=\"govuk-list govuk-list--bullet\"><li>‘My attorneys must not sell my home unless, in my doctor’s opinion, I can no longer live independently.’</li></ul>",
+    "restrictionExamplesContentHw": "<h2 class=\"govuk-heading-s\">Example restrictions: things the attorneys cannot do</h2><ul class=\"govuk-list govuk-list--bullet\"><li>‘My attorneys cannot move me into a care home.’</li></ul><h2 class=\"govuk-heading-s\">Example conditions: things your attorneys can only do in certain circumstances</h2><ul class=\"govuk-list govuk-list--bullet\"><li>‘My attorneys can only make the decision to move me to a care home if a doctor has determined that I can no longer live alone.’</li></ul>",
     "restrictions": "Restrictions and conditions",
     "restrictionsOptional": "Restrictions and conditions (optional)",
     "restrictionsHelp": "It’s important that you word any restrictions and conditions clearly and carefully.",
@@ -847,5 +848,12 @@
     "whatIsYourPreviousReferenceNumberContent": "<p class=\"govuk-body\">You’ve told us that you recently made an LPA application.</p><p class=\"govuk-body\">We need your previous reference number so that we can match your old application to your new one.</p>",
     "whereCanFindReferenceNumber": "Where can I find my reference number?",
     "whereCanFindReferenceNumberDetails": "<p class=\"govuk-body\">Your reference number (also called ‘OPG reference number’ or ‘Our ref’) is on any letter you have from the Office of the Public Guardian.</p><p class=\"govuk-body\">It should also be on the cover letter we sent you when we sent your original application back to you.</p>",
-    "previousApplicationNumber": "Previous reference number"
+    "previousApplicationNumber": "Previous reference number",
+    "howMuchDidYouPreviouslyPayForYourLpa": "How much did you previously pay for your LPA?",
+    "toCalculateYourFeeForThisLpa": "To calculate your fee for this LPA, we need to know how much you paid when you submitted your last LPA application.",
+    "fullFee": "£82 (full fee)",
+    "halfFee": "£41 (half fee)",
+    "nothingExemption": "Nothing - I paid no fee because I got an exemption",
+    "nothingHardship": "Nothing - I paid no fee because I got a hardship fee waiver",
+    "howMuchYouPreviouslyPaid": "how much you previously paid"
 }
