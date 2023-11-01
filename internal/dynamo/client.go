@@ -2,8 +2,8 @@ package dynamo
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -23,6 +23,8 @@ type dynamoDB interface {
 	BatchGetItem(context.Context, *dynamodb.BatchGetItemInput, ...func(*dynamodb.Options)) (*dynamodb.BatchGetItemOutput, error)
 	PutItem(context.Context, *dynamodb.PutItemInput, ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error)
 	TransactWriteItems(context.Context, *dynamodb.TransactWriteItemsInput, ...func(*dynamodb.Options)) (*dynamodb.TransactWriteItemsOutput, error)
+	DeleteItem(context.Context, *dynamodb.DeleteItemInput, ...func(*dynamodb.Options)) (*dynamodb.DeleteItemOutput, error)
+	UpdateItem(context.Context, *dynamodb.UpdateItemInput, ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error)
 }
 
 type Client struct {
@@ -40,6 +42,12 @@ type MultipleResultsError struct{}
 
 func (n MultipleResultsError) Error() string {
 	return "A single result was expected but multiple results found"
+}
+
+type ConditionalCheckFailedError struct{}
+
+func (c ConditionalCheckFailedError) Error() string {
+	return "Conditional checks failed"
 }
 
 func NewClient(cfg aws.Config, tableName string) (*Client, error) {
@@ -232,24 +240,41 @@ func (c *Client) Put(ctx context.Context, v interface{}) error {
 		Item:      item,
 	}
 
-	if updatedAt, exists := item["UpdatedAt"]; exists {
-		var updatedAtTime time.Time
-		err = attributevalue.Unmarshal(updatedAt, &updatedAtTime)
+	// Tracking Value equality against data on write allows for optimistic locking
+	if currentVersion, exists := item["Version"]; exists {
+		var v int
+		err = attributevalue.Unmarshal(currentVersion, &v)
 		if err != nil {
 			return err
 		}
 
-		if !updatedAtTime.IsZero() {
-			input.ConditionExpression = aws.String("UpdatedAt < :updatedAt")
-			input.ExpressionAttributeValues = map[string]types.AttributeValue{
-				":updatedAt": updatedAt,
-			}
+		v++
+		newVersion, err := attributevalue.Marshal(v)
+		if err != nil {
+			return err
+		}
+
+		item["Version"] = newVersion
+
+		input.Item = item
+		input.ConditionExpression = aws.String("Version = :version")
+		input.ExpressionAttributeValues = map[string]types.AttributeValue{
+			":version": currentVersion,
 		}
 	}
 
 	_, err = c.svc.PutItem(ctx, input)
 
-	return err
+	if err != nil {
+		var ccf *types.ConditionalCheckFailedException
+		if errors.As(err, &ccf) {
+			return ConditionalCheckFailedError{}
+		}
+
+		return err
+	}
+
+	return nil
 }
 
 func (c *Client) Create(ctx context.Context, v interface{}) error {
@@ -285,6 +310,25 @@ func (c *Client) DeleteKeys(ctx context.Context, keys []Key) error {
 	_, err := c.svc.TransactWriteItems(ctx, &dynamodb.TransactWriteItemsInput{
 		TransactItems: items,
 	})
+
+	return err
+}
+
+func (c *Client) DeleteOne(ctx context.Context, key Key) error {
+	_, err := c.svc.DeleteItem(ctx, &dynamodb.DeleteItemInput{
+		TableName: aws.String(c.table),
+		Key: map[string]types.AttributeValue{
+			"PK": &types.AttributeValueMemberS{Value: key.PK},
+			"SK": &types.AttributeValueMemberS{Value: key.SK},
+		},
+	})
+
+	return err
+}
+
+func (c *Client) Update(ctx context.Context, input *dynamodb.UpdateItemInput) error {
+	input.TableName = aws.String(c.table)
+	_, err := c.svc.UpdateItem(ctx, input)
 
 	return err
 }
