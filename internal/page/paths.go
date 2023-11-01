@@ -135,6 +135,7 @@ type AppPaths struct {
 	EnterTrustCorporation                                LpaPath
 	EnterTrustCorporationAddress                         LpaPath
 	EvidenceRequired                                     LpaPath
+	EvidenceSuccessfullyUploaded                         LpaPath
 	FeeDenied                                            LpaPath
 	GettingHelpSigning                                   LpaPath
 	HowDoYouKnowYourCertificateProvider                  LpaPath
@@ -157,6 +158,7 @@ type AppPaths struct {
 	NeedHelpSigningConfirmation                          LpaPath
 	PaymentConfirmation                                  LpaPath
 	PreviousApplicationNumber                            LpaPath
+	PreviousFee                                          LpaPath
 	Progress                                             LpaPath
 	ProveYourIdentity                                    LpaPath
 	ReadYourLpa                                          LpaPath
@@ -173,8 +175,6 @@ type AppPaths struct {
 	UploadEvidenceSSE                                    LpaPath
 	UseExistingAddress                                   LpaPath
 	WhatACertificateProviderDoes                         LpaPath
-	WhatHappensAfterNoFee                                LpaPath
-	PreviousFee                                          LpaPath
 	WhenCanTheLpaBeUsed                                  LpaPath
 	WhichFeeTypeAreYouApplyingFor                        LpaPath
 	WithdrawThisLpa                                      LpaPath
@@ -269,6 +269,7 @@ var Paths = AppPaths{
 	EnterTrustCorporation:                                "/enter-trust-corporation",
 	EnterTrustCorporationAddress:                         "/enter-trust-corporation-address",
 	EvidenceRequired:                                     "/evidence-required",
+	EvidenceSuccessfullyUploaded:                         "/evidence-successfully-uploaded",
 	FeeDenied:                                            "/fee-denied",
 	Fixtures:                                             "/fixtures",
 	GettingHelpSigning:                                   "/getting-help-signing",
@@ -296,6 +297,7 @@ var Paths = AppPaths{
 	NeedHelpSigningConfirmation:                          "/need-help-signing-confirmation",
 	PaymentConfirmation:                                  "/payment-confirmation",
 	PreviousApplicationNumber:                            "/previous-application-number",
+	PreviousFee:                                          "/how-much-did-you-previously-pay-for-your-lpa",
 	Progress:                                             "/progress",
 	ProveYourIdentity:                                    "/prove-your-identity",
 	ReadYourLpa:                                          "/read-your-lpa",
@@ -315,8 +317,6 @@ var Paths = AppPaths{
 	UploadEvidenceSSE:                                    "/upload-evidence-sse",
 	UseExistingAddress:                                   "/use-existing-address",
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
-	WhatHappensAfterNoFee:                                "/what-happens-after-no-fee",
-	PreviousFee:                                          "/how-much-did-you-previously-pay-for-your-lpa",
 	WhenCanTheLpaBeUsed:                                  "/when-can-the-lpa-be-used",
 	WhichFeeTypeAreYouApplyingFor:                        "/which-fee-type-are-you-applying-for",
 	WithdrawThisLpa:                                      "/withdraw-this-lpa",

@@ -39,7 +39,7 @@ func PreviousApplicationNumber(tmpl template.Template, donorStore DonorStore) Ha
 				if lpa.PreviousApplicationNumber[0] == '7' {
 					return appData.Redirect(w, r, lpa, page.Paths.PreviousFee.Format(lpa.ID))
 				} else {
-					return appData.Redirect(w, r, lpa, page.Paths.WhatHappensAfterNoFee.Format(lpa.ID))
+					return appData.Redirect(w, r, lpa, page.Paths.EvidenceSuccessfullyUploaded.Format(lpa.ID))
 				}
 			}
 		}

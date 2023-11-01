@@ -362,10 +362,17 @@ func TestHandleObjectTagsAdded(t *testing.T) {
 					json.Unmarshal(b, v)
 					return nil
 				})
+			dynamoClient.
+				On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+				Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+					b, _ := json.Marshal(page.Lpa{ID: "123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}})
+					json.Unmarshal(b, v)
+					return nil
+				})
 
 			documentStore := newMockDocumentStore(t)
 			documentStore.
-				On("UpdateScanResults", ctx, "LPA#123", "#DOCUMENT#M-1111-2222-3333/evidence/a-uid", hasVirus).
+				On("UpdateScanResults", ctx, "123", "M-1111-2222-3333/evidence/a-uid", hasVirus).
 				Return(nil)
 
 			err := handleObjectTagsAdded(ctx, dynamoClient, event.S3Event, s3Client, documentStore)
@@ -439,11 +446,18 @@ func TestHandleObjectTagsAddedWhenDynamoClientOneByUIDError(t *testing.T) {
 		Return(func(ctx context.Context, uid string, v interface{}) error {
 			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
 			json.Unmarshal(b, v)
+			return nil
+		})
+	dynamoClient.
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(page.Lpa{ID: "123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}})
+			json.Unmarshal(b, v)
 			return expectedError
 		})
 
 	err := handleObjectTagsAdded(ctx, dynamoClient, event.S3Event, s3Client, nil)
-	assert.Equal(t, fmt.Errorf("failed to resolve uid for '%s': %w", objectTagsAddedEventName, expectedError), err)
+	assert.Equal(t, fmt.Errorf("failed to get LPA for '%s': %w", objectTagsAddedEventName, expectedError), err)
 }
 
 func TestHandleObjectTagsAddedWhenDocumentStoreUpdateScanResultsError(t *testing.T) {
@@ -468,10 +482,17 @@ func TestHandleObjectTagsAddedWhenDocumentStoreUpdateScanResultsError(t *testing
 			json.Unmarshal(b, v)
 			return nil
 		})
+	dynamoClient.
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(page.Lpa{ID: "123", Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}})
+			json.Unmarshal(b, v)
+			return nil
+		})
 
 	documentStore := newMockDocumentStore(t)
 	documentStore.
-		On("UpdateScanResults", ctx, "LPA#123", "#DOCUMENT#M-1111-2222-3333/evidence/a-uid", false).
+		On("UpdateScanResults", ctx, "123", "M-1111-2222-3333/evidence/a-uid", false).
 		Return(expectedError)
 
 	err := handleObjectTagsAdded(ctx, dynamoClient, event.S3Event, s3Client, documentStore)

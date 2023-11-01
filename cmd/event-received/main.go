@@ -57,7 +57,7 @@ type shareCodeSender interface {
 
 //go:generate mockery --testonly --inpackage --name DocumentStore --structname mockDocumentStore
 type DocumentStore interface {
-	UpdateScanResults(ctx context.Context, pk, sk string, virusDetected bool) error
+	UpdateScanResults(ctx context.Context, lpaID, objectKey string, virusDetected bool) error
 }
 
 type Event struct {
@@ -265,12 +265,12 @@ func handleObjectTagsAdded(ctx context.Context, dynamodbClient dynamodbClient, e
 
 	parts := strings.Split(objectKey, "/")
 
-	var lpaKey dynamo.Key
-	if err := dynamodbClient.OneByUID(ctx, parts[0], &lpaKey); err != nil {
-		return fmt.Errorf("failed to resolve uid for '%s': %w", objectTagsAddedEventName, err)
+	lpa, err := getLpaByUID(ctx, dynamodbClient, parts[0], objectTagsAddedEventName)
+	if err != nil {
+		return err
 	}
 
-	err = documentStore.UpdateScanResults(ctx, lpaKey.PK, lpaKey.SK, hasVirus)
+	err = documentStore.UpdateScanResults(ctx, lpa.ID, objectKey, hasVirus)
 	if err != nil {
 		return fmt.Errorf("failed to update scan results for '%s': %w", objectTagsAddedEventName, err)
 	}

@@ -9,7 +9,7 @@ describe('Previous application number', () => {
         cy.get('#f-previous-application-number').type('MABC');
         cy.contains('button', 'Save and continue').click();
 
-        cy.url().should('contain', '/what-happens-after-no-fee');
+        cy.url().should('contain', '/evidence-successfully-uploaded');
     });
 
     it('errors when unselected', () => {
@@ -27,9 +27,9 @@ describe('Previous application number', () => {
         cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('Previous reference number must begin with 7 or M');
+            cy.contains('Previous reference number must begin with the number 7 or the letter M');
         });
 
-        cy.contains('.govuk-error-message', 'Previous reference number must begin with 7 or M');
+        cy.contains('.govuk-error-message', 'Previous reference number must begin with the number 7 or the letter M');
     });
 });
