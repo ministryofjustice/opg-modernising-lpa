@@ -42,7 +42,7 @@ func PreviousFee(tmpl template.Template, payer Payer, donorStore DonorStore) Han
 					return payer.Pay(appData, w, r, lpa)
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.EvidenceRequiredForPreviousFee.Format(lpa.ID))
+				return appData.Redirect(w, r, lpa, page.Paths.EvidenceRequired.Format(lpa.ID))
 			}
 		}
 
