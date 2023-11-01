@@ -75,7 +75,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 					}
 
 					document.Sent = now()
-					if err := documentStore.Put(r.Context(), document, nil); err != nil {
+					if err := documentStore.Put(r.Context(), document); err != nil {
 						return err
 					}
 				}

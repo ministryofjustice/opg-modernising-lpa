@@ -498,7 +498,7 @@ func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocuments(t *testing.T) {
 			{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf"},
 		}, nil)
 	documentStore.
-		On("Put", ctx, page.Document{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf", Sent: now}, []byte(nil)).
+		On("BatchPut", ctx, []page.Document{{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf", Sent: now}}).
 		Return(nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, now: func() time.Time { return now }, documentStore: documentStore}
@@ -555,7 +555,16 @@ func TestDonorStorePutWhenReducedFeeRequestedWhenDocumentStoreGetAllError(t *tes
 		On("GetAll", ctx).
 		Return(page.Documents{}, expectedError)
 
-	donorStore := &donorStore{now: func() time.Time { return now }, documentStore: documentStore}
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("Put", ctx, mock.Anything).
+		Return(nil)
+
+	logger := newMockLogger(t)
+	logger.
+		On("Print", expectedError)
+
+	donorStore := &donorStore{now: func() time.Time { return now }, documentStore: documentStore, logger: logger, dynamoClient: dynamoClient}
 
 	err := donorStore.Put(ctx, &page.Lpa{
 		PK:                             "LPA#5",
@@ -566,10 +575,10 @@ func TestDonorStorePutWhenReducedFeeRequestedWhenDocumentStoreGetAllError(t *tes
 		HasSentApplicationUpdatedEvent: true,
 	})
 
-	assert.Equal(t, expectedError, err)
+	assert.Nil(t, err)
 }
 
-func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocumentsWhenEventClietnSendError(t *testing.T) {
+func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocumentsWhenEventClientSendError(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
@@ -613,7 +622,7 @@ func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocumentsWhenEventClietnSe
 	assert.Nil(t, err)
 }
 
-func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocumentsWhenDocumentStorePutError(t *testing.T) {
+func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocumentsWhenDocumentStoreBatchPutError(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
@@ -633,10 +642,19 @@ func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocumentsWhenDocumentStore
 			{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf"},
 		}, nil)
 	documentStore.
-		On("Put", ctx, page.Document{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf", Sent: now}, []byte(nil)).
+		On("BatchPut", ctx, []page.Document{{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf", Sent: now}}).
 		Return(expectedError)
 
-	donorStore := &donorStore{eventClient: eventClient, now: func() time.Time { return now }, documentStore: documentStore}
+	logger := newMockLogger(t)
+	logger.
+		On("Print", expectedError)
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("Put", ctx, mock.Anything).
+		Return(nil)
+
+	donorStore := &donorStore{eventClient: eventClient, now: func() time.Time { return now }, documentStore: documentStore, dynamoClient: dynamoClient, logger: logger}
 
 	err := donorStore.Put(ctx, &page.Lpa{
 		PK:                             "LPA#5",
@@ -648,7 +666,7 @@ func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocumentsWhenDocumentStore
 		HasSentApplicationUpdatedEvent: true,
 	})
 
-	assert.Equal(t, expectedError, err)
+	assert.Nil(t, err)
 }
 
 func TestDonorStoreCreate(t *testing.T) {

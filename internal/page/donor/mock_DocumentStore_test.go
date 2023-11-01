@@ -14,6 +14,30 @@ type mockDocumentStore struct {
 	mock.Mock
 }
 
+// Create provides a mock function with given fields: _a0, _a1, _a2, _a3
+func (_m *mockDocumentStore) Create(_a0 context.Context, _a1 *page.Lpa, _a2 string, _a3 []byte) (page.Document, error) {
+	ret := _m.Called(_a0, _a1, _a2, _a3)
+
+	var r0 page.Document
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *page.Lpa, string, []byte) (page.Document, error)); ok {
+		return rf(_a0, _a1, _a2, _a3)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *page.Lpa, string, []byte) page.Document); ok {
+		r0 = rf(_a0, _a1, _a2, _a3)
+	} else {
+		r0 = ret.Get(0).(page.Document)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *page.Lpa, string, []byte) error); ok {
+		r1 = rf(_a0, _a1, _a2, _a3)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Delete provides a mock function with given fields: _a0, _a1
 func (_m *mockDocumentStore) Delete(_a0 context.Context, _a1 page.Document) error {
 	ret := _m.Called(_a0, _a1)
@@ -68,13 +92,13 @@ func (_m *mockDocumentStore) GetAll(_a0 context.Context) (page.Documents, error)
 	return r0, r1
 }
 
-// Put provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockDocumentStore) Put(_a0 context.Context, _a1 page.Document, _a2 []byte) error {
-	ret := _m.Called(_a0, _a1, _a2)
+// Put provides a mock function with given fields: _a0, _a1
+func (_m *mockDocumentStore) Put(_a0 context.Context, _a1 page.Document) error {
+	ret := _m.Called(_a0, _a1)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, page.Document, []byte) error); ok {
-		r0 = rf(_a0, _a1, _a2)
+	if rf, ok := ret.Get(0).(func(context.Context, page.Document) error); ok {
+		r0 = rf(_a0, _a1)
 	} else {
 		r0 = ret.Error(0)
 	}

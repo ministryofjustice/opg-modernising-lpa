@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/google/uuid"
@@ -50,8 +49,9 @@ type DynamoClient interface {
 	Put(ctx context.Context, v interface{}) error
 	Create(ctx context.Context, v interface{}) error
 	DeleteKeys(ctx context.Context, keys []dynamo.Key) error
-	DeleteOne(ctx context.Context, key dynamo.Key) error
-	Update(ctx context.Context, input *dynamodb.UpdateItemInput) error
+	DeleteOne(ctx context.Context, pk, sk string) error
+	Update(ctx context.Context, pk, sk string, values map[string]dynamodbtypes.AttributeValue, expression string) error
+	BatchPut(ctx context.Context, items []interface{}) (int, error)
 }
 
 //go:generate mockery --testonly --inpackage --name S3Client --structname mockS3Client
@@ -89,7 +89,7 @@ func App(
 	s3Client S3Client,
 	eventClient *event.Client,
 ) http.Handler {
-	documentStore := &documentStore{dynamoClient: lpaDynamoClient, s3Client: s3Client}
+	documentStore := NewDocumentStore(lpaDynamoClient, s3Client, random.UuidString)
 
 	donorStore := &donorStore{
 		dynamoClient:  lpaDynamoClient,

@@ -25,11 +25,18 @@ type dynamoDB interface {
 	TransactWriteItems(context.Context, *dynamodb.TransactWriteItemsInput, ...func(*dynamodb.Options)) (*dynamodb.TransactWriteItemsOutput, error)
 	DeleteItem(context.Context, *dynamodb.DeleteItemInput, ...func(*dynamodb.Options)) (*dynamodb.DeleteItemOutput, error)
 	UpdateItem(context.Context, *dynamodb.UpdateItemInput, ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error)
+	BatchWriteItem(ctx context.Context, params *dynamodb.BatchWriteItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.BatchWriteItemOutput, error)
+}
+
+//go:generate mockery --testonly --inpackage --name Logger --structname mockLogger
+type Logger interface {
+	Print(v ...interface{})
 }
 
 type Client struct {
-	table string
-	svc   dynamoDB
+	table  string
+	svc    dynamoDB
+	logger Logger
 }
 
 type NotFoundError struct{}
@@ -314,21 +321,74 @@ func (c *Client) DeleteKeys(ctx context.Context, keys []Key) error {
 	return err
 }
 
-func (c *Client) DeleteOne(ctx context.Context, key Key) error {
+func (c *Client) DeleteOne(ctx context.Context, pk, sk string) error {
 	_, err := c.svc.DeleteItem(ctx, &dynamodb.DeleteItemInput{
 		TableName: aws.String(c.table),
 		Key: map[string]types.AttributeValue{
-			"PK": &types.AttributeValueMemberS{Value: key.PK},
-			"SK": &types.AttributeValueMemberS{Value: key.SK},
+			"PK": &types.AttributeValueMemberS{Value: pk},
+			"SK": &types.AttributeValueMemberS{Value: sk},
 		},
 	})
 
 	return err
 }
 
-func (c *Client) Update(ctx context.Context, input *dynamodb.UpdateItemInput) error {
-	input.TableName = aws.String(c.table)
-	_, err := c.svc.UpdateItem(ctx, input)
+func (c *Client) Update(ctx context.Context, pk, sk string, values map[string]types.AttributeValue, expression string) error {
+	_, err := c.svc.UpdateItem(ctx, &dynamodb.UpdateItemInput{
+		TableName: aws.String(c.table),
+		Key: map[string]types.AttributeValue{
+			"PK": &types.AttributeValueMemberS{Value: pk},
+			"SK": &types.AttributeValueMemberS{Value: sk},
+		},
+		ExpressionAttributeValues: values,
+		UpdateExpression:          aws.String(expression),
+	})
 
 	return err
+}
+
+func (c *Client) BatchPut(ctx context.Context, items []interface{}) (int, error) {
+	// courtesy of https://docs.aws.amazon.com/code-library/latest/ug/go_2_dynamodb_code_examples.html
+
+	var err error
+	var itemValues map[string]types.AttributeValue
+
+	written := 0
+	batchSize := 25 // DynamoDB allows a maximum batch size of 25 items.
+	start := 0
+	end := start + batchSize
+
+	for start < len(items) {
+		var writeReqs []types.WriteRequest
+		if end > len(items) {
+			end = len(items)
+		}
+
+		for _, item := range items[start:end] {
+			itemValues, err = attributevalue.MarshalMap(item)
+			if err != nil {
+				c.logger.Print("failed to marshal item during BatchPut: ", err)
+			} else {
+				writeReqs = append(
+					writeReqs,
+					types.WriteRequest{PutRequest: &types.PutRequest{Item: itemValues}},
+				)
+			}
+		}
+
+		_, err := c.svc.BatchWriteItem(ctx, &dynamodb.BatchWriteItemInput{
+			RequestItems: map[string][]types.WriteRequest{c.table: writeReqs},
+		})
+
+		if err != nil {
+			c.logger.Print("failed to add a batch of item during BatchPut: ", err)
+		} else {
+			written += len(writeReqs)
+		}
+
+		start = end
+		end += batchSize
+	}
+
+	return written, err
 }

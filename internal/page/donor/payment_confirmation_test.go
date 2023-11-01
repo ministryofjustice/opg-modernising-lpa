@@ -115,7 +115,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 			{Key: "another-evidence-key", Sent: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
 		}, nil)
 	documentStore.
-		On("Put", r.Context(), page.Document{Key: "evidence-key", Sent: now}, []byte(nil)).
+		On("Put", r.Context(), page.Document{Key: "evidence-key", Sent: now}).
 		Return(nil)
 
 	s3Client := newMockS3Client(t)
@@ -304,7 +304,7 @@ func TestGetPaymentConfirmationHalfFeeWhenDocumentStorePutError(t *testing.T) {
 		On("GetAll", r.Context()).
 		Return(page.Documents{{}}, nil)
 	documentStore.
-		On("Put", r.Context(), mock.Anything, []byte(nil)).
+		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
 	s3Client := newMockS3Client(t)
@@ -347,7 +347,7 @@ func TestGetPaymentConfirmationHalfFeeWhenDonorStorePutError(t *testing.T) {
 		On("GetAll", r.Context()).
 		Return(page.Documents{{}}, nil)
 	documentStore.
-		On("Put", r.Context(), mock.Anything, []byte(nil)).
+		On("Put", r.Context(), mock.Anything).
 		Return(nil)
 
 	s3Client := newMockS3Client(t)

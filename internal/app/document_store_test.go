@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -18,8 +16,9 @@ func TestNewDocumentStore(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	s3Client := newMockS3Client(t)
 
-	assert.Equal(t, documentStore{dynamoClient: dynamoClient, s3Client: s3Client},
-		NewDocumentStore(dynamoClient, s3Client))
+	expected := &documentStore{dynamoClient: dynamoClient, s3Client: s3Client, randomUUID: nil}
+
+	assert.Equal(t, expected, NewDocumentStore(dynamoClient, s3Client, nil))
 }
 
 func TestDocumentStoreGetAll(t *testing.T) {
@@ -83,7 +82,7 @@ func TestDocumentStoreGetAllWhenNoResults(t *testing.T) {
 	dynamoClient.
 		On("AllByPartialSk", ctx, "LPA#123", "#DOCUMENT#", mock.Anything).
 		Return(func(ctx context.Context, pk, partialSk string, v interface{}) error {
-			b, _ := json.Marshal(page.Documents{{PK: "LPA#123"}})
+			b, _ := json.Marshal(page.Documents{})
 			json.Unmarshal(b, v)
 			return dynamo.NotFoundError{}
 		})
@@ -97,58 +96,42 @@ func TestDocumentStoreGetAllWhenNoResults(t *testing.T) {
 
 func TestDocumentStoreUpdateScanResults(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
-	PK := "A-PK"
-	SK := "A-SK"
-
-	input := &dynamodb.UpdateItemInput{
-		Key: map[string]types.AttributeValue{
-			"PK": &types.AttributeValueMemberS{Value: PK},
-			"SK": &types.AttributeValueMemberS{Value: SK},
-		},
-		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":virusDetected": &types.AttributeValueMemberBOOL{Value: true},
-			":scanned":       &types.AttributeValueMemberBOOL{Value: true},
-		},
-		UpdateExpression: aws.String("set VirusDetected = :virusDetected, Scanned = :scanned"),
-	}
-
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		On("Update", ctx, input).
+		On("Update",
+			ctx,
+			"LPA#123",
+			"#DOCUMENT#object/key",
+			map[string]types.AttributeValue{
+				":virusDetected": &types.AttributeValueMemberBOOL{Value: true},
+				":scanned":       &types.AttributeValueMemberBOOL{Value: true},
+			}, "set VirusDetected = :virusDetected, Scanned = :scanned").
 		Return(nil)
 
 	documentStore := documentStore{dynamoClient: dynamoClient}
 
-	err := documentStore.UpdateScanResults(ctx, PK, SK, true)
+	err := documentStore.UpdateScanResults(ctx, "123", "object/key", true)
 
 	assert.Nil(t, err)
 }
 
 func TestDocumentStoreUpdateScanResultsWhenUpdateError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
-	PK := "A-PK"
-	SK := "A-SK"
-
-	input := &dynamodb.UpdateItemInput{
-		Key: map[string]types.AttributeValue{
-			"PK": &types.AttributeValueMemberS{Value: PK},
-			"SK": &types.AttributeValueMemberS{Value: SK},
-		},
-		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":virusDetected": &types.AttributeValueMemberBOOL{Value: true},
-			":scanned":       &types.AttributeValueMemberBOOL{Value: true},
-		},
-		UpdateExpression: aws.String("set VirusDetected = :virusDetected, Scanned = :scanned"),
-	}
-
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		On("Update", ctx, input).
+		On("Update",
+			ctx,
+			"LPA#123",
+			"#DOCUMENT#object/key",
+			map[string]types.AttributeValue{
+				":virusDetected": &types.AttributeValueMemberBOOL{Value: true},
+				":scanned":       &types.AttributeValueMemberBOOL{Value: true},
+			}, "set VirusDetected = :virusDetected, Scanned = :scanned").
 		Return(expectedError)
 
 	documentStore := documentStore{dynamoClient: dynamoClient}
 
-	err := documentStore.UpdateScanResults(ctx, PK, SK, true)
+	err := documentStore.UpdateScanResults(ctx, "123", "object/key", true)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -163,7 +146,7 @@ func TestDocumentStorePut(t *testing.T) {
 
 	documentStore := documentStore{dynamoClient: dynamoClient}
 
-	err := documentStore.Put(ctx, page.Document{Key: "a-key"}, nil)
+	err := documentStore.Put(ctx, page.Document{Key: "a-key"})
 
 	assert.Nil(t, err)
 }
@@ -178,44 +161,7 @@ func TestDocumentStorePutWhenDynamoClientError(t *testing.T) {
 
 	documentStore := documentStore{dynamoClient: dynamoClient}
 
-	err := documentStore.Put(ctx, page.Document{Key: "a-key"}, nil)
-
-	assert.Equal(t, expectedError, err)
-}
-
-func TestDocumentStorePutWithData(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
-	data := make([]byte, 20)
-
-	s3Client := newMockS3Client(t)
-	s3Client.
-		On("PutObject", ctx, "a-key", data).
-		Return(nil)
-
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Put", ctx, page.Document{Key: "a-key"}).
-		Return(nil)
-
-	documentStore := documentStore{dynamoClient: dynamoClient, s3Client: s3Client}
-
-	err := documentStore.Put(ctx, page.Document{Key: "a-key"}, data)
-
-	assert.Nil(t, err)
-}
-
-func TestDocumentStorePutWithDataWhenS3ClientError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
-	data := make([]byte, 20)
-
-	s3Client := newMockS3Client(t)
-	s3Client.
-		On("PutObject", ctx, "a-key", data).
-		Return(expectedError)
-
-	documentStore := documentStore{s3Client: s3Client}
-
-	err := documentStore.Put(ctx, page.Document{Key: "a-key"}, data)
+	err := documentStore.Put(ctx, page.Document{Key: "a-key"})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -313,7 +259,7 @@ func TestDelete(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		On("DeleteOne", ctx, dynamo.Key{PK: "a-pk", SK: "a-sk"}).
+		On("DeleteOne", ctx, "a-pk", "a-sk").
 		Return(nil)
 
 	documentStore := documentStore{s3Client: s3Client, dynamoClient: dynamoClient}
@@ -348,7 +294,7 @@ func TestDeleteWhenDynamoClientError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		On("DeleteOne", ctx, dynamo.Key{PK: "a-pk", SK: "a-sk"}).
+		On("DeleteOne", ctx, "a-pk", "a-sk").
 		Return(expectedError)
 
 	documentStore := documentStore{s3Client: s3Client, dynamoClient: dynamoClient}
@@ -359,5 +305,68 @@ func TestDeleteWhenDynamoClientError(t *testing.T) {
 }
 
 func TestDocumentKey(t *testing.T) {
-	assert.Equal(t, "#DOCUMENT#key", DocumentKey("key"))
+	assert.Equal(t, "#DOCUMENT#key", documentKey("key"))
+}
+
+func TestBatchPut(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("BatchPut", ctx, []interface{}{
+			page.Document{PK: "a-pk", SK: "a-sk", Key: "a-key"},
+			page.Document{PK: "aanother-pk", SK: "aanother-sk", Key: "aanother-key"},
+		}).
+		Return(2, nil)
+
+	documentStore := documentStore{dynamoClient: dynamoClient}
+
+	err := documentStore.BatchPut(ctx, []page.Document{
+		{PK: "a-pk", SK: "a-sk", Key: "a-key"},
+		{PK: "aanother-pk", SK: "aanother-sk", Key: "aanother-key"},
+	})
+
+	assert.Nil(t, err)
+}
+
+func TestBatchPutPartialWrite(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("BatchPut", ctx, []interface{}{
+			page.Document{PK: "a-pk", SK: "a-sk", Key: "a-key"},
+			page.Document{PK: "aanother-pk", SK: "aanother-sk", Key: "aanother-key"},
+		}).
+		Return(1, nil)
+
+	documentStore := documentStore{dynamoClient: dynamoClient}
+
+	err := documentStore.BatchPut(ctx, []page.Document{
+		{PK: "a-pk", SK: "a-sk", Key: "a-key"},
+		{PK: "aanother-pk", SK: "aanother-sk", Key: "aanother-key"},
+	})
+
+	assert.Equal(t, PartialBatchWriteError{Written: 1, Expected: 2}, err)
+}
+
+func TestBatchPutWhenDynamoError(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("BatchPut", ctx, []interface{}{
+			page.Document{PK: "a-pk", SK: "a-sk", Key: "a-key"},
+			page.Document{PK: "aanother-pk", SK: "aanother-sk", Key: "aanother-key"},
+		}).
+		Return(0, expectedError)
+
+	documentStore := documentStore{dynamoClient: dynamoClient}
+
+	err := documentStore.BatchPut(ctx, []page.Document{
+		{PK: "a-pk", SK: "a-sk", Key: "a-key"},
+		{PK: "aanother-pk", SK: "aanother-sk", Key: "aanother-key"},
+	})
+
+	assert.Equal(t, expectedError, err)
 }

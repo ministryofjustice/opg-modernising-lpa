@@ -144,9 +144,10 @@ type Localizer interface {
 //go:generate mockery --testonly --inpackage --name DocumentStore --structname mockDocumentStore
 type DocumentStore interface {
 	GetAll(context.Context) (page.Documents, error)
-	Put(context.Context, page.Document, []byte) error
+	Put(context.Context, page.Document) error
 	Delete(context.Context, page.Document) error
 	DeleteInfectedDocuments(context.Context, page.Documents) error
+	Create(context.Context, *page.Lpa, string, []byte) (page.Document, error)
 }
 
 func Register(
@@ -320,7 +321,7 @@ func Register(
 	handleWithLpa(page.Paths.HowWouldYouLikeToSendEvidence, CanGoBack,
 		HowWouldYouLikeToSendEvidence(tmpls.Get("how_would_you_like_to_send_evidence.gohtml")))
 	handleWithLpa(page.Paths.UploadEvidence, CanGoBack,
-		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), payer, random.UuidString, documentStore))
+		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), payer, documentStore))
 	handleWithLpa(page.Paths.WhatHappensAfterNoFee, None,
 		Guidance(tmpls.Get("what_happens_after_no_fee.gohtml")))
 	handleWithLpa(page.Paths.HowToEmailOrPostEvidence, CanGoBack,
@@ -493,7 +494,7 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 				}
 
 				document.Sent = p.now()
-				if err := p.documentStore.Put(r.Context(), document, nil); err != nil {
+				if err := p.documentStore.Put(r.Context(), document); err != nil {
 					return err
 				}
 			}

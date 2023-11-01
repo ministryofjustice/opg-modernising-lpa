@@ -57,7 +57,7 @@ type shareCodeSender interface {
 
 //go:generate mockery --testonly --inpackage --name DocumentStore --structname mockDocumentStore
 type DocumentStore interface {
-	UpdateScanResults(ctx context.Context, PK, SK string, virusDetected bool) error
+	UpdateScanResults(ctx context.Context, pk, sk string, virusDetected bool) error
 }
 
 type Event struct {
@@ -115,7 +115,7 @@ func Handler(ctx context.Context, event Event) error {
 
 	notifyClient, err := notify.New(notifyIsProduction, notifyBaseURL, notifyApiKey, http.DefaultClient)
 
-	documentStore := app.NewDocumentStore(dynamoClient, s3Client)
+	documentStore := app.NewDocumentStore(dynamoClient, s3Client, random.UuidString)
 
 	bundle := localize.NewBundle("./lang/en.json", "./lang/cy.json")
 

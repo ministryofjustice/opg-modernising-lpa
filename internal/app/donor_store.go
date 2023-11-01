@@ -25,8 +25,9 @@ type EventClient interface {
 //go:generate mockery --testonly --inpackage --name DocumentStore --structname mockDocumentStore
 type DocumentStore interface {
 	GetAll(context.Context) (page.Documents, error)
-	Put(context.Context, page.Document, []byte) error
+	Put(context.Context, page.Document) error
 	UpdateScanResults(context.Context, string, string, bool) error
+	BatchPut(context.Context, []page.Document) error
 }
 
 type donorStore struct {
@@ -182,7 +183,8 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 	if lpa.UID != "" && lpa.Tasks.PayForLpa.IsPending() {
 		documents, err := s.documentStore.GetAll(ctx)
 		if err != nil {
-			return err
+			s.logger.Print(err)
+			return s.dynamoClient.Put(ctx, lpa)
 		}
 
 		var unsentKeys []string
@@ -201,13 +203,17 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 			}); err != nil {
 				s.logger.Print(err)
 			} else {
+				var updatedDocuments page.Documents
+
 				for _, document := range documents {
 					if document.Sent.IsZero() && !document.Scanned {
 						document.Sent = s.now()
-						if err := s.documentStore.Put(ctx, document, nil); err != nil {
-							return err
-						}
+						updatedDocuments = append(updatedDocuments, document)
 					}
+				}
+
+				if err := s.documentStore.BatchPut(ctx, updatedDocuments); err != nil {
+					s.logger.Print(err)
 				}
 			}
 		}

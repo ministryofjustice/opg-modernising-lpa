@@ -56,7 +56,7 @@ type uploadEvidenceData struct {
 	StartScan            string
 }
 
-func UploadEvidence(tmpl template.Template, payer Payer, randomUUID func() string, documentStore DocumentStore) Handler {
+func UploadEvidence(tmpl template.Template, payer Payer, documentStore DocumentStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if lpa.Tasks.PayForLpa.IsPending() {
 			return appData.Redirect(w, r, lpa, page.Paths.TaskList.Format(lpa.ID))
@@ -86,15 +86,8 @@ func UploadEvidence(tmpl template.Template, payer Payer, randomUUID func() strin
 					var uploadedDocuments []page.Document
 
 					for _, file := range form.Files {
-						key := lpa.UID + "/evidence/" + randomUUID()
-
-						document := page.Document{
-							PK:       "LPA#" + lpa.ID,
-							SK:       "#DOCUMENT#" + key,
-							Filename: file.Filename,
-							Key:      key,
-						}
-						if err := documentStore.Put(r.Context(), document, file.Data); err != nil {
+						document, err := documentStore.Create(r.Context(), lpa, file.Filename, file.Data)
+						if err != nil {
 							return err
 						}
 

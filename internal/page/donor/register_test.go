@@ -448,7 +448,7 @@ func TestPayHelperPayWhenPaymentNotRequired(t *testing.T) {
 			documentStore.
 				On("Put", r.Context(), page.Document{
 					Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Sent: now,
-				}, []byte(nil)).
+				}).
 				Return(nil)
 
 			donorStore := newMockDonorStore(t)
@@ -501,7 +501,7 @@ func TestPayHelperPayWhenMoreEvidenceProvided(t *testing.T) {
 	documentStore.
 		On("Put", r.Context(), page.Document{
 			Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Sent: now,
-		}, []byte(nil)).
+		}).
 		Return(nil)
 
 	donorStore := newMockDonorStore(t)
@@ -612,7 +612,7 @@ func TestPayHelperPayWhenPaymentNotRequiredWhenDocumentStorePutError(t *testing.
 	documentStore.
 		On("Put", r.Context(), page.Document{
 			Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Sent: now,
-		}, []byte(nil)).
+		}).
 		Return(expectedError)
 
 	s3Client := newMockS3Client(t)
@@ -652,7 +652,7 @@ func TestPayHelperPayWhenPaymentNotRequiredWhenDonorStorePutError(t *testing.T) 
 	documentStore.
 		On("Put", r.Context(), page.Document{
 			Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Sent: now,
-		}, []byte(nil)).
+		}).
 		Return(nil)
 
 	donorStore := newMockDonorStore(t)

@@ -3,7 +3,6 @@ package fixtures
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
 	"net/http"
 	"slices"
 	"time"
@@ -20,7 +19,8 @@ import (
 
 type DocumentStore interface {
 	GetAll(context.Context) (page.Documents, error)
-	Put(context.Context, page.Document, []byte) error
+	Put(context.Context, page.Document) error
+	Create(ctx context.Context, lpa *page.Lpa, filename string, data []byte) (page.Document, error)
 }
 
 func Donor(
@@ -203,18 +203,24 @@ func Donor(
 				}
 
 				lpa.FeeType = feeType
-				key := fmt.Sprintf("%s/evidence/%s", lpa.UID, random.UuidString())
 
-				if err := documentStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: lpa.ID}), page.Document{
-					PK:            "LPA#" + lpa.ID,
-					SK:            "#DOCUMENT#" + key,
-					Filename:      "supporting-evidence.png",
-					VirusDetected: withVirus,
-					Key:           key,
-					Scanned:       true,
-				}, make([]byte, 64)); err != nil {
+				document, err := documentStore.Create(
+					page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}),
+					lpa,
+					"supporting-evidence.png",
+					make([]byte, 64),
+				)
+
+				if err != nil {
 					return err
 				}
+
+				document.Scanned = true
+				document.VirusDetected = withVirus
+				if err := documentStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}), document); err != nil {
+					return err
+				}
+
 			} else {
 				lpa.FeeType = page.FullFee
 			}
