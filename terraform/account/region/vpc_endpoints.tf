@@ -92,8 +92,8 @@ resource "aws_vpc_endpoint" "s3" {
   service_name      = "com.amazonaws.${data.aws_region.current.name}.s3"
   route_table_ids   = tolist(data.aws_route_tables.application.ids)
   vpc_endpoint_type = "Gateway"
-  # policy            = data.aws_iam_policy_document.s3.json
-  tags = { Name = "s3-private-${data.aws_region.current.name}" }
+  policy            = data.aws_iam_policy_document.s3.json
+  tags              = { Name = "s3-private-${data.aws_region.current.name}" }
 }
 
 resource "aws_vpc_endpoint" "dynamodb" {
@@ -123,6 +123,16 @@ data "aws_iam_policy_document" "allow_account_access" {
       test     = "StringEquals"
       variable = "aws:PrincipalAccount"
       values   = [data.aws_caller_identity.current.account_id]
+    }
+  }
+  statement {
+    sid       = "Allow-ecs-service"
+    effect    = "Allow"
+    actions   = ["*"]
+    resources = ["*"]
+    principals {
+      type        = "Service"
+      identifiers = ["ecs.amazonaws.com"]
     }
   }
 }
