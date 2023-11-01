@@ -368,7 +368,7 @@ func Register(
 		LpaProgress(tmpls.Get("lpa_progress.gohtml"), certificateProviderStore, attorneyStore))
 
 	handleWithLpa(page.Paths.UploadEvidenceSSE, None,
-		UploadEvidenceSSE(documentStore, 2*time.Minute, 2*time.Second))
+		UploadEvidenceSSE(documentStore, 3*time.Minute, 2*time.Second))
 }
 
 type handleOpt byte
