@@ -132,7 +132,7 @@ describe('Pay for LPA', () => {
 
         cy.contains('button', 'Continue').click()
 
-        cy.url().should('contain', '/what-happens-after-no-fee');
+        cy.url().should('contain', '/evidence-successfully-uploaded');
         cy.checkA11yApp();
     })
 
@@ -187,8 +187,7 @@ describe('Pay for LPA', () => {
 
         cy.contains('button', 'Continue').click()
 
-        // TODO: update once designs for page are finalised
-        cy.url().should('contain', '/what-happens-after-no-fee');
+        cy.url().should('contain', '/evidence-successfully-uploaded');
         cy.checkA11yApp();
     })
 
