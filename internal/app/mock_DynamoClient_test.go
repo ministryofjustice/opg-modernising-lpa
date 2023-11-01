@@ -96,6 +96,30 @@ func (_m *mockDynamoClient) AllKeysByPk(ctx context.Context, pk string) ([]dynam
 	return r0, r1
 }
 
+// BatchPut provides a mock function with given fields: ctx, items
+func (_m *mockDynamoClient) BatchPut(ctx context.Context, items []interface{}) (int, error) {
+	ret := _m.Called(ctx, items)
+
+	var r0 int
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, []interface{}) (int, error)); ok {
+		return rf(ctx, items)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, []interface{}) int); ok {
+		r0 = rf(ctx, items)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, []interface{}) error); ok {
+		r1 = rf(ctx, items)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Create provides a mock function with given fields: ctx, v
 func (_m *mockDynamoClient) Create(ctx context.Context, v interface{}) error {
 	ret := _m.Called(ctx, v)
@@ -117,6 +141,20 @@ func (_m *mockDynamoClient) DeleteKeys(ctx context.Context, keys []dynamo.Key) e
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Key) error); ok {
 		r0 = rf(ctx, keys)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// DeleteOne provides a mock function with given fields: ctx, pk, sk
+func (_m *mockDynamoClient) DeleteOne(ctx context.Context, pk string, sk string) error {
+	ret := _m.Called(ctx, pk, sk)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
+		r0 = rf(ctx, pk, sk)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -173,6 +211,20 @@ func (_m *mockDynamoClient) Put(ctx context.Context, v interface{}) error {
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, interface{}) error); ok {
 		r0 = rf(ctx, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// Update provides a mock function with given fields: ctx, pk, sk, values, expression
+func (_m *mockDynamoClient) Update(ctx context.Context, pk string, sk string, values map[string]types.AttributeValue, expression string) error {
+	ret := _m.Called(ctx, pk, sk, values, expression)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, map[string]types.AttributeValue, string) error); ok {
+		r0 = rf(ctx, pk, sk, values, expression)
 	} else {
 		r0 = ret.Error(0)
 	}

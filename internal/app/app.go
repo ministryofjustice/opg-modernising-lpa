@@ -49,6 +49,9 @@ type DynamoClient interface {
 	Put(ctx context.Context, v interface{}) error
 	Create(ctx context.Context, v interface{}) error
 	DeleteKeys(ctx context.Context, keys []dynamo.Key) error
+	DeleteOne(ctx context.Context, pk, sk string) error
+	Update(ctx context.Context, pk, sk string, values map[string]dynamodbtypes.AttributeValue, expression string) error
+	BatchPut(ctx context.Context, items []interface{}) (int, error)
 }
 
 //go:generate mockery --testonly --inpackage --name S3Client --structname mockS3Client
@@ -56,6 +59,7 @@ type S3Client interface {
 	PutObject(context.Context, string, []byte) error
 	PutObjectTagging(context.Context, string, []types.Tag) error
 	DeleteObject(context.Context, string) error
+	DeleteObjects(ctx context.Context, keys []string) error
 }
 
 //go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore
@@ -85,13 +89,16 @@ func App(
 	s3Client S3Client,
 	eventClient *event.Client,
 ) http.Handler {
+	documentStore := NewDocumentStore(lpaDynamoClient, s3Client, random.UuidString)
+
 	donorStore := &donorStore{
-		dynamoClient: lpaDynamoClient,
-		eventClient:  eventClient,
-		uidClient:    uidClient,
-		logger:       logger,
-		uuidString:   uuid.NewString,
-		now:          time.Now,
+		dynamoClient:  lpaDynamoClient,
+		eventClient:   eventClient,
+		uidClient:     uidClient,
+		logger:        logger,
+		uuidString:    uuid.NewString,
+		now:           time.Now,
+		documentStore: documentStore,
 	}
 	certificateProviderStore := &certificateProviderStore{dynamoClient: lpaDynamoClient, now: time.Now}
 	attorneyStore := &attorneyStore{dynamoClient: lpaDynamoClient, now: time.Now}
@@ -113,7 +120,7 @@ func App(
 	handleRoot(paths.SignOut, None,
 		page.SignOut(logger, sessionStore, oneLoginClient, appPublicURL))
 	handleRoot(paths.Fixtures, None,
-		fixtures.Donor(tmpls.Get("fixtures.gohtml"), sessionStore, donorStore, certificateProviderStore, attorneyStore))
+		fixtures.Donor(tmpls.Get("fixtures.gohtml"), sessionStore, donorStore, certificateProviderStore, attorneyStore, documentStore))
 	handleRoot(paths.CertificateProviderFixtures, None,
 		fixtures.CertificateProvider(tmpls.Get("certificate_provider_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore))
 	handleRoot(paths.AttorneyFixtures, None,
@@ -181,6 +188,7 @@ func App(
 		notifyClient,
 		evidenceReceivedStore,
 		s3Client,
+		documentStore,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang, rumConfig, staticHash, oneloginURL)
