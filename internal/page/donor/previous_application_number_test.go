@@ -72,7 +72,7 @@ func TestGetPreviousApplicationNumberWhenTemplateErrors(t *testing.T) {
 func TestPostPreviousApplicationNumber(t *testing.T) {
 	testcases := map[string]page.LpaPath{
 		"7": page.Paths.PreviousFee,
-		"M": page.Paths.WhatHappensAfterNoFee,
+		"M": page.Paths.EvidenceSuccessfullyUploaded,
 	}
 
 	for start, redirect := range testcases {
@@ -125,7 +125,7 @@ func TestPostPreviousApplicationNumberWhenNotChanged(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.WhatHappensAfterNoFee.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.EvidenceSuccessfullyUploaded.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostPreviousApplicationNumberWhenStoreErrors(t *testing.T) {
