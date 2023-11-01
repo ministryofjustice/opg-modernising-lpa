@@ -125,16 +125,6 @@ data "aws_iam_policy_document" "allow_account_access" {
       values   = [data.aws_caller_identity.current.account_id]
     }
   }
-  statement {
-    sid       = "Allow-ecs-service"
-    effect    = "Allow"
-    actions   = ["*"]
-    resources = ["*"]
-    principals {
-      type        = "Service"
-      identifiers = ["ecs.amazonaws.com"]
-    }
-  }
 }
 
 data "aws_iam_policy_document" "s3" {
@@ -149,7 +139,7 @@ data "aws_iam_policy_document" "s3_bucket_access" {
     sid       = "Access-to-specific-bucket-only"
     effect    = "Allow"
     actions   = ["s3:GetObject"]
-    resources = ["arn:aws:s3:::prod-region-starport-layer-bucket/*"]
+    resources = ["arn:aws:s3:::prod-${data.aws_region.current.name}-starport-layer-bucket/*"]
     principals {
       type        = "AWS"
       identifiers = ["*"]
