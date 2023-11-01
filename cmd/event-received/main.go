@@ -55,6 +55,11 @@ type shareCodeSender interface {
 	SendCertificateProvider(context.Context, notify.Template, page.AppData, bool, *page.Lpa) error
 }
 
+//go:generate mockery --testonly --inpackage --name DocumentStore --structname mockDocumentStore
+type DocumentStore interface {
+	UpdateScanResults(ctx context.Context, PK, SK string, virusDetected bool) error
+}
+
 type Event struct {
 	events.S3Event
 	events.CloudWatchEvent
@@ -110,6 +115,8 @@ func Handler(ctx context.Context, event Event) error {
 
 	notifyClient, err := notify.New(notifyIsProduction, notifyBaseURL, notifyApiKey, http.DefaultClient)
 
+	documentStore := app.NewDocumentStore(dynamoClient, s3Client)
+
 	bundle := localize.NewBundle("./lang/en.json", "./lang/cy.json")
 
 	//TODO do this in handleFeeApproved when/if we save lang preference in LPA
@@ -119,7 +126,7 @@ func Handler(ctx context.Context, event Event) error {
 	now := time.Now
 
 	if event.isS3Event() {
-		return handleObjectTagsAdded(ctx, dynamoClient, event.S3Event, now, s3Client)
+		return handleObjectTagsAdded(ctx, dynamoClient, event.S3Event, s3Client, documentStore)
 	}
 
 	if event.isCloudWatchEvent() {
@@ -230,7 +237,7 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.Cl
 	return nil
 }
 
-func handleObjectTagsAdded(ctx context.Context, client dynamodbClient, event events.S3Event, now func() time.Time, s3Client s3Client) error {
+func handleObjectTagsAdded(ctx context.Context, dynamodbClient dynamodbClient, event events.S3Event, s3Client s3Client, documentStore DocumentStore) error {
 	objectKey := event.Records[0].S3.Object.Key
 	if objectKey == "" {
 		return fmt.Errorf("object key missing in event in '%s'", objectTagsAddedEventName)
@@ -256,26 +263,16 @@ func handleObjectTagsAdded(ctx context.Context, client dynamodbClient, event eve
 		return nil
 	}
 
-	uid := strings.Split(objectKey, "/")
+	parts := strings.Split(objectKey, "/")
 
-	lpa, err := getLpaByUID(ctx, client, uid[0], objectTagsAddedEventName)
+	var lpaKey dynamo.Key
+	if err := dynamodbClient.OneByUID(ctx, parts[0], &lpaKey); err != nil {
+		return fmt.Errorf("failed to resolve uid for '%s': %w", objectTagsAddedEventName, err)
+	}
+
+	err = documentStore.UpdateScanResults(ctx, lpaKey.PK, "#DOCUMENT#"+objectKey, hasVirus)
 	if err != nil {
-		return err
-	}
-
-	document := lpa.Evidence.Get(objectKey)
-	if document.Key == "" {
-		return fmt.Errorf("LPA did not contain a document with key %s for '%s'", objectKey, objectTagsAddedEventName)
-	}
-
-	document.Scanned = now()
-	document.VirusDetected = hasVirus
-
-	lpa.Evidence.Put(document)
-	lpa.UpdatedAt = now()
-
-	if err := client.Put(ctx, lpa); err != nil {
-		return fmt.Errorf("failed to update LPA for '%s': %w", objectTagsAddedEventName, err)
+		return fmt.Errorf("failed to update scan results for '%s': %w", objectTagsAddedEventName, err)
 	}
 
 	return nil
