@@ -47,18 +47,6 @@ provider "registry.terraform.io/pagerduty/pagerduty" {
   version     = "3.1.0"
   constraints = ">= 2.16.0, ~> 3.1.0"
   hashes = [
-    "h1:0toSoCiyVN9rmcwZYwfOPHtahVgU7vPWi2JKQNRMAS8=",
-    "h1:444AVDTesJfLt0WMd9ifMDYMBWhpaKquWSu0F3yyp5w=",
-    "h1:4ek51+3eidEvPCwjQwAA9NzjscshHCXm0d1X3QHVzH8=",
-    "h1:6UpWprDDtDR3AP9wm8J/TcrmGkr/QhYK79ihIB2N4t4=",
-    "h1:HmJe2yCKzKuSdu2aQXyWsZ2kT4Z0AgVsHtzQNYi3nb4=",
-    "h1:T/NQm8oVLmInSj/77esKnXcWR49uy9w5fV0SgYBoIlE=",
-    "h1:UBZGiJZp2fJ8U19Mh16hiaqve9JxtRBl0ATswnB3tMs=",
-    "h1:UEaBo9CW33AmOHVUcQLXp7C+TjlYf3OLhRFvRkKosYE=",
-    "h1:UkJdDjDM5hpPGkkOqtOqYQfKLi/tC7/LlgJ1D4+6Z5E=",
-    "h1:dMclW5RZdfZ1Wy6d8Nfxkiyf81cJAdZ5+LGgQC3sIeg=",
-    "h1:l6DTbuwFKkLzK5P+i77YQ3ZOVKfYuGFu8Qs/YUGtFlI=",
-    "h1:mbCUhjWoemCMasqrLJLjLvB1w3BXO/UFN8gdM8Hx6M8=",
     "h1:qks14qeSHFsstzTdtNe+7l+tmc2/sRVtzixlrNvmlMw=",
     "zh:01039fe438097a7adc795fb7dce21b2103685089ae57b35d568d2efbb1b24d0f",
     "zh:09cc1625756ad6f55a60b3b6558b3138cf00aaf6ef43cd66f71e91250ab6286a",
