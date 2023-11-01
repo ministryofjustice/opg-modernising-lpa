@@ -116,3 +116,9 @@ data "aws_iam_policy_document" "scheduler_invoke_lambda" {
   }
   provider = aws.region
 }
+
+resource "aws_iam_role_policy_attachment" "cloudwatch_lambda_insights" {
+  role       = module.s3_create_batch_replication_jobs.lambda_role.id
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy"
+  provider   = aws.region
+}
