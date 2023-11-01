@@ -862,5 +862,10 @@
     "halfFee": "£41 (half fee)",
     "nothingExemption": "Nothing - I paid no fee because I got an exemption",
     "nothingHardship": "Nothing - I paid no fee because I got a hardship fee waiver",
-    "howMuchYouPreviouslyPaid": "how much you previously paid"
+    "howMuchYouPreviouslyPaid": "how much you previously paid",
+    "evidenceSuccessfullyUploaded": "Evidence successfully uploaded",
+    "weWillReviewYourLpaApplicationAndSupportingEvidence": "<p class=\"govuk-body\">We will review your LPA application and supporting evidence.</p><h2 class=\"govuk-heading-m\">What happens next</h2><h3 class=\"govuk-heading-s\">Sign your LPA</h3><p class=\"govuk-body\">You can still sign your LPA while we’re reviewing your application. Your certificate provider must be there as a witness when you sign it.</p><p class=\"govuk-body\">However, we will not contact your certificate provider to provide their certificate until your {{.Application}} has been approved.</p><h3 class=\"govuk-heading-s\">If your application is successful</h3><p class=\"govuk-body\">Once we have approved your payment, we will contact your certificate provider to provide their certificate.</p><h3 class=\"govuk-heading-s\">If your application is not successful</h3><p class=\"govuk-body\">We will contact you if we need more information or if your application is unsuccessful.</p><details class=\"govuk-details\" data-module=\"govuk-details\"><summary class=\"govuk-details__summary\"><span class=\"govuk-details__summary-text\"> Appealing the decision </span></summary><div class=\"govuk-details__text\"><p class=\"govuk-body\">If your application is unsuccessful, you can appeal within 4 weeks of the decision by writing to the Head of Corporate Services.</p><p class=\"govuk-body\">If the original decision is upheld, it will be referred to the Public Guardian for confirmation.</p></div></details>",
+    "applicationNoFee": "application to pay no fee",
+    "applicationHalfFee": "application to pay a half fee",
+    "applicationHardshipFee": "hardship application"
 }

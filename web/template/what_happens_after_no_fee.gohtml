@@ -1,16 +1,18 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "whatHappensAfterNoFee" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "evidenceSuccessfullyUploaded" }}{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "whatHappensAfterNoFee" }}</h1>
+      <div class="govuk-panel govuk-panel--confirmation">
+        <h1 class="govuk-panel__title">{{ tr .App "evidenceSuccessfullyUploaded" }}</h1>
+      </div>
 
-      {{ trHtml .App "whatHappensAfterNoFeeContent" }}
+      {{ trFormatHtml .App "weWillReviewYourLpaApplicationAndSupportingEvidence" "Application" (printf "application%s" .Lpa.FeeType.String | tr .App) }}
 
       <div class="govuk-button-group">
-        <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
+        <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "returnToTaskList" }}</a>
       </div>
     </div>
   </div>

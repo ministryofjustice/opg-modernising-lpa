@@ -17,10 +17,10 @@
       {{ trHtml .App "paymentConfirmationContent" }}
 
       {{ if .FeeType.IsHalfFee }}
-        {{ trHtml .App "halfFeeNextSteps" }}
+        <a class="govuk-button" href="{{ link .App (.App.Paths.WhatHappensAfterNoFee.Format .App.LpaID) }}">{{ tr .App "continue" }}</a>
+      {{ else }}
+        <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}">{{ tr .App "continue" }}</a>
       {{ end }}
-
-      <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}">{{ tr .App "continue" }}</a>
     </div>
   </div>
 {{ end }}
