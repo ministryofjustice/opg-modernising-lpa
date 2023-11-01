@@ -1,6 +1,5 @@
 FROM golang:1.21.3-alpine as build
 
-
 WORKDIR /app
 
 COPY go.mod go.sum ./
