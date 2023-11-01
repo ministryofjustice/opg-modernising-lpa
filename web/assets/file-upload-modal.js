@@ -1,4 +1,4 @@
-export class FileUploadSpinner {
+export class FileUploadModal {
     init() {
         // so we can reference the same func when removing event
         this.handleTrapFocus = this.handleTrapFocus.bind(this)
@@ -45,7 +45,6 @@ export class FileUploadSpinner {
     }
 
     openConnection() {
-        console.log('open connection started')
         this.eventSource = new EventSource(document.querySelector("[data-sse-url]").dataset.sseUrl);
 
         this.eventSource.onmessage = (event) => {
