@@ -9,7 +9,7 @@ describe('Previous application number', () => {
         cy.get('#f-previous-application-number').type('MABC');
         cy.contains('button', 'Save and continue').click();
 
-        cy.url().should('contain', '/what-happens-after-no-fee');
+        cy.url().should('contain', '/evidence-successfully-uploaded');
     });
 
     it('errors when unselected', () => {

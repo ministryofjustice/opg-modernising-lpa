@@ -311,8 +311,8 @@ func Register(
 		HowWouldYouLikeToSendEvidence(tmpls.Get("how_would_you_like_to_send_evidence.gohtml")))
 	handleWithLpa(page.Paths.UploadEvidence, CanGoBack,
 		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), payer, donorStore, random.UuidString, evidenceS3Client))
-	handleWithLpa(page.Paths.WhatHappensAfterNoFee, None,
-		Guidance(tmpls.Get("what_happens_after_no_fee.gohtml")))
+	handleWithLpa(page.Paths.EvidenceSuccessfullyUploaded, None,
+		Guidance(tmpls.Get("evidence_successfully_uploaded.gohtml")))
 	handleWithLpa(page.Paths.HowToEmailOrPostEvidence, CanGoBack,
 		HowToEmailOrPostEvidence(tmpls.Get("how_to_email_or_post_evidence.gohtml"), payer))
 	handleWithLpa(page.Paths.FeeDenied, None,
@@ -484,7 +484,7 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 			return err
 		}
 
-		return appData.Redirect(w, r, lpa, page.Paths.WhatHappensAfterNoFee.Format(lpa.ID))
+		return appData.Redirect(w, r, lpa, page.Paths.EvidenceSuccessfullyUploaded.Format(lpa.ID))
 	}
 
 	createPaymentBody := pay.CreatePaymentBody{
