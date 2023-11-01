@@ -30,6 +30,15 @@ data "aws_iam_policy_document" "execution_role" {
     resources = ["*"] #tfsec:ignore:aws-iam-no-policy-wildcards
     actions = [
       "ecr:GetAuthorizationToken",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchGetImage",
+    ]
+  }
+  statement {
+    effect    = "Allow"
+    resources = ["*"] #tfsec:ignore:aws-iam-no-policy-wildcards
+    actions = [
       "logs:CreateLogStream",
       "logs:PutLogEvents",
     ]

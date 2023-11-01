@@ -41,24 +41,5 @@ data "aws_iam_policy_document" "execution_role_region" {
     ]
   }
 
-  statement {
-    effect    = "Allow"
-    resources = ["*"] #tfsec:ignore:aws-iam-no-policy-wildcards
-    actions = [
-      "ecr:BatchCheckLayerAvailability",
-      "ecr:GetDownloadUrlForLayer",
-      "ecr:BatchGetImage",
-    ]
-    # condition {
-    #   test     = "StringEquals"
-    #   variable = "aws:sourceVpce"
-    #   values   = [data.aws_vpc_endpoint.s3.id]
-    # }
-    # condition {
-    #   test     = "StringEquals"
-    #   variable = "aws:sourceVpc"
-    #   values   = [data.aws_vpc.main.id]
-    # }
-  }
   provider = aws.global
 }
