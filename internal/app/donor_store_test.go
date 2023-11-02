@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/stretchr/testify/assert"
@@ -476,7 +477,7 @@ func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocuments(t *testing.T) {
 			ID:                             "5",
 			UID:                            "M-1111",
 			UpdatedAt:                      now,
-			FeeType:                        page.HalfFee,
+			FeeType:                        pay.HalfFee,
 			Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
 			HasSentApplicationUpdatedEvent: true,
 		}).
@@ -508,7 +509,7 @@ func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocuments(t *testing.T) {
 		SK:                             "#DONOR#an-id",
 		ID:                             "5",
 		UID:                            "M-1111",
-		FeeType:                        page.HalfFee,
+		FeeType:                        pay.HalfFee,
 		Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
 		HasSentApplicationUpdatedEvent: true,
 	})
@@ -614,7 +615,7 @@ func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocumentsWhenEventClientSe
 		SK:                             "#DONOR#an-id",
 		ID:                             "5",
 		UID:                            "M-1111",
-		FeeType:                        page.HalfFee,
+		FeeType:                        pay.HalfFee,
 		Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
 		HasSentApplicationUpdatedEvent: true,
 	})
@@ -661,7 +662,7 @@ func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocumentsWhenDocumentStore
 		SK:                             "#DONOR#an-id",
 		ID:                             "5",
 		UID:                            "M-1111",
-		FeeType:                        page.HalfFee,
+		FeeType:                        pay.HalfFee,
 		Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
 		HasSentApplicationUpdatedEvent: true,
 	})

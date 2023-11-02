@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -22,7 +23,7 @@ func TestGetPreviousFee(t *testing.T) {
 		On("Execute", w, &previousFeeData{
 			App:     testAppData,
 			Form:    &previousFeeForm{},
-			Options: page.PreviousFeeValues,
+			Options: pay.PreviousFeeValues,
 		}).
 		Return(nil)
 
@@ -42,13 +43,13 @@ func TestGetPreviousFeeFromStore(t *testing.T) {
 		On("Execute", w, &previousFeeData{
 			App: testAppData,
 			Form: &previousFeeForm{
-				PreviousFee: page.PreviousFeeHalf,
+				PreviousFee: pay.PreviousFeeHalf,
 			},
-			Options: page.PreviousFeeValues,
+			Options: pay.PreviousFeeValues,
 		}).
 		Return(nil)
 
-	err := PreviousFee(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{PreviousFee: page.PreviousFeeHalf})
+	err := PreviousFee(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{PreviousFee: pay.PreviousFeeHalf})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -73,7 +74,7 @@ func TestGetPreviousFeeWhenTemplateErrors(t *testing.T) {
 
 func TestPostPreviousFeeWhenFullFee(t *testing.T) {
 	form := url.Values{
-		"previous-fee": {page.PreviousFeeFull.String()},
+		"previous-fee": {pay.PreviousFeeFull.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -82,7 +83,7 @@ func TestPostPreviousFeeWhenFullFee(t *testing.T) {
 
 	lpa := &page.Lpa{
 		ID:          "lpa-id",
-		PreviousFee: page.PreviousFeeFull,
+		PreviousFee: pay.PreviousFeeFull,
 	}
 
 	donorStore := newMockDonorStore(t)
@@ -101,7 +102,7 @@ func TestPostPreviousFeeWhenFullFee(t *testing.T) {
 
 func TestPostPreviousFeeWhenOtherFee(t *testing.T) {
 	form := url.Values{
-		"previous-fee": {page.PreviousFeeHalf.String()},
+		"previous-fee": {pay.PreviousFeeHalf.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -112,7 +113,7 @@ func TestPostPreviousFeeWhenOtherFee(t *testing.T) {
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			ID:          "lpa-id",
-			PreviousFee: page.PreviousFeeHalf,
+			PreviousFee: pay.PreviousFeeHalf,
 		}).
 		Return(nil)
 
@@ -126,7 +127,7 @@ func TestPostPreviousFeeWhenOtherFee(t *testing.T) {
 
 func TestPostPreviousFeeWhenNotChanged(t *testing.T) {
 	form := url.Values{
-		"previous-fee": {page.PreviousFeeHalf.String()},
+		"previous-fee": {pay.PreviousFeeHalf.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -135,7 +136,7 @@ func TestPostPreviousFeeWhenNotChanged(t *testing.T) {
 
 	err := PreviousFee(nil, nil, nil)(testAppData, w, r, &page.Lpa{
 		ID:          "lpa-id",
-		PreviousFee: page.PreviousFeeHalf,
+		PreviousFee: pay.PreviousFeeHalf,
 	})
 	resp := w.Result()
 
@@ -146,7 +147,7 @@ func TestPostPreviousFeeWhenNotChanged(t *testing.T) {
 
 func TestPostPreviousFeeWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"previous-fee": {page.PreviousFeeHalf.String()},
+		"previous-fee": {pay.PreviousFeeHalf.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -184,14 +185,14 @@ func TestPostPreviousFeeWhenValidationErrors(t *testing.T) {
 
 func TestReadPreviousFeeForm(t *testing.T) {
 	form := url.Values{
-		"previous-fee": {page.PreviousFeeHalf.String()},
+		"previous-fee": {pay.PreviousFeeHalf.String()},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	result := readPreviousFeeForm(r)
-	assert.Equal(t, page.PreviousFeeHalf, result.PreviousFee)
+	assert.Equal(t, pay.PreviousFeeHalf, result.PreviousFee)
 }
 
 func TestPreviousFeeFormValidate(t *testing.T) {
