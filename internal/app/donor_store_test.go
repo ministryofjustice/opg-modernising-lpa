@@ -866,9 +866,10 @@ func TestEventSchema(t *testing.T) {
 			},
 		},
 		"reduced-fee-requested": reducedFeeRequestedEvent{
-			UID:         "M-0000-0000-0000",
-			RequestType: "NoFee",
-			Evidence:    []string{"key"},
+			UID:              "M-0000-0000-0000",
+			RequestType:      "NoFee",
+			Evidence:         []string{"key"},
+			EvidenceDelivery: "upload",
 		},
 	}
 
