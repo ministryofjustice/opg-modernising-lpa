@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	pay "github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -22,7 +23,7 @@ func TestGetWhichFeeTypeAreYouApplyingFor(t *testing.T) {
 		On("Execute", w, &whichFeeTypeAreYouApplyingForData{
 			App:     testAppData,
 			Form:    &whichFeeTypeAreYouApplyingForForm{},
-			Options: page.FeeTypeValues,
+			Options: pay.FeeTypeValues,
 		}).
 		Return(nil)
 
@@ -41,12 +42,12 @@ func TestGetWhichFeeTypeAreYouApplyingForWithLpaData(t *testing.T) {
 	template.
 		On("Execute", w, &whichFeeTypeAreYouApplyingForData{
 			App:     testAppData,
-			Form:    &whichFeeTypeAreYouApplyingForForm{FeeType: page.HalfFee},
-			Options: page.FeeTypeValues,
+			Form:    &whichFeeTypeAreYouApplyingForForm{FeeType: pay.HalfFee},
+			Options: pay.FeeTypeValues,
 		}).
 		Return(nil)
 
-	err := WhichFeeTypeAreYouApplyingFor(template.Execute, nil)(testAppData, w, r, &page.Lpa{FeeType: page.HalfFee})
+	err := WhichFeeTypeAreYouApplyingFor(template.Execute, nil)(testAppData, w, r, &page.Lpa{FeeType: pay.HalfFee})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -62,7 +63,7 @@ func TestGetWhichFeeTypeAreYouApplyingForOnTemplateError(t *testing.T) {
 		On("Execute", w, &whichFeeTypeAreYouApplyingForData{
 			App:     testAppData,
 			Form:    &whichFeeTypeAreYouApplyingForForm{},
-			Options: page.FeeTypeValues,
+			Options: pay.FeeTypeValues,
 		}).
 		Return(expectedError)
 
@@ -74,11 +75,11 @@ func TestGetWhichFeeTypeAreYouApplyingForOnTemplateError(t *testing.T) {
 }
 
 func TestPostWhichFeeTypeAreYouApplyingFor(t *testing.T) {
-	testcases := map[page.FeeType]page.LpaPath{
-		page.HalfFee:              page.Paths.EvidenceRequired,
-		page.NoFee:                page.Paths.EvidenceRequired,
-		page.HardshipFee:          page.Paths.EvidenceRequired,
-		page.RepeatApplicationFee: page.Paths.PreviousApplicationNumber,
+	testcases := map[pay.FeeType]page.LpaPath{
+		pay.HalfFee:              page.Paths.EvidenceRequired,
+		pay.NoFee:                page.Paths.EvidenceRequired,
+		pay.HardshipFee:          page.Paths.EvidenceRequired,
+		pay.RepeatApplicationFee: page.Paths.PreviousApplicationNumber,
 	}
 
 	for feeType, redirect := range testcases {
@@ -108,7 +109,7 @@ func TestPostWhichFeeTypeAreYouApplyingFor(t *testing.T) {
 
 func TestPostWhichFeeTypeAreYouApplyingForOnStoreError(t *testing.T) {
 	form := url.Values{
-		"fee-type": {page.HalfFee.String()},
+		"fee-type": {pay.HalfFee.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -117,7 +118,7 @@ func TestPostWhichFeeTypeAreYouApplyingForOnStoreError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{ID: "lpa-id", FeeType: page.HalfFee}).
+		On("Put", r.Context(), &page.Lpa{ID: "lpa-id", FeeType: pay.HalfFee}).
 		Return(expectedError)
 
 	err := WhichFeeTypeAreYouApplyingFor(nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})

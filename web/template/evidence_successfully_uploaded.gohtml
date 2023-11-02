@@ -10,7 +10,8 @@
       </div>
 
       {{ trFormatHtml .App "weWillReviewYourLpaApplicationAndSupportingEvidence" "Application" (printf "application%s" .Lpa.FeeType.String | tr .App) }}
-
+      {{ template "details" (details . "appealingTheDecision" "appealingTheDecisionDetails" false) }}
+      
       <div class="govuk-button-group">
         <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "returnToTaskList" }}</a>
       </div>

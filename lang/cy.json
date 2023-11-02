@@ -927,5 +927,11 @@
     "yourFilesAreUploading": "Welsh",
     "0OfNFilesUploaded": "Welsh {{ .TotalFilesCount }} welsh",
     "yourFilesAreUploadingContent": "Welsh",
-    "cancelUpload": "Welsh"
+    "cancelUpload": "Welsh",
+    "sendUsYourEvidenceByPost": "Welsh",
+    "sendUsYourEvidenceByPostContent": "<p class=\"govuk-body\">Welsh</p>",
+    "youMustIncludeYourReferenceNumberWarning": "Welsh",
+    "whatHappensNextPostEvidenceContent": "<p class=\"govuk-body\">Welsh</p>",
+    "appealingTheDecision": "Welsh",
+    "appealingTheDecisionDetails": "<p class=\"govuk-body\">Welsh</p>"
 }
