@@ -56,6 +56,12 @@ resource "aws_iam_role_policy" "event_received" {
   provider = aws.region
 }
 
+resource "aws_iam_role_policy_attachment" "cloudwatch_lambda_insights" {
+  role       = module.event_received.lambda_role.id
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy"
+  provider   = aws.region
+}
+
 data "aws_kms_alias" "dynamodb_encryption_key" {
   name     = "alias/${data.aws_default_tags.current.tags.application}_dynamodb_encryption"
   provider = aws.region
