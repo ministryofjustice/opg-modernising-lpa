@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -197,7 +198,7 @@ func Donor(
 
 		if progress >= slices.Index(progressValues, "payForTheLpa") {
 			if feeType != "" && feeType != "FullFee" {
-				feeType, err := page.ParseFeeType(feeType)
+				feeType, err := pay.ParseFeeType(feeType)
 				if err != nil {
 					return err
 				}
@@ -220,9 +221,8 @@ func Donor(
 				if err := documentStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}), document); err != nil {
 					return err
 				}
-
 			} else {
-				lpa.FeeType = page.FullFee
+				lpa.FeeType = pay.FullFee
 			}
 
 			lpa.PaymentDetails = append(lpa.PaymentDetails, page.Payment{
