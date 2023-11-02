@@ -22,14 +22,23 @@ type EventClient interface {
 	Send(context.Context, string, any) error
 }
 
+//go:generate mockery --testonly --inpackage --name DocumentStore --structname mockDocumentStore
+type DocumentStore interface {
+	GetAll(context.Context) (page.Documents, error)
+	Put(context.Context, page.Document) error
+	UpdateScanResults(context.Context, string, string, bool) error
+	BatchPut(context.Context, []page.Document) error
+}
+
 type donorStore struct {
-	dynamoClient DynamoClient
-	eventClient  EventClient
-	uidClient    UidClient
-	logger       Logger
-	uuidString   func() string
-	now          func() time.Time
-	s3Client     *s3.Client
+	dynamoClient  DynamoClient
+	eventClient   EventClient
+	uidClient     UidClient
+	logger        Logger
+	uuidString    func() string
+	now           func() time.Time
+	s3Client      *s3.Client
+	documentStore DocumentStore
 }
 
 func (s *donorStore) Create(ctx context.Context) (*page.Lpa, error) {
@@ -49,6 +58,7 @@ func (s *donorStore) Create(ctx context.Context) (*page.Lpa, error) {
 		SK:        donorKey(data.SessionID),
 		ID:        lpaID,
 		CreatedAt: s.now(),
+		Version:   1,
 	}
 
 	if err := s.dynamoClient.Create(ctx, lpa); err != nil {
@@ -170,25 +180,40 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 		}
 	}
 
-	if lpa.UID != "" && lpa.Tasks.PayForLpa.IsPending() && lpa.HasUnsentReducedFeesEvidence() {
+	if lpa.UID != "" && lpa.Tasks.PayForLpa.IsPending() {
+		documents, err := s.documentStore.GetAll(ctx)
+		if err != nil {
+			s.logger.Print(err)
+			return s.dynamoClient.Put(ctx, lpa)
+		}
+
 		var unsentKeys []string
 
-		for _, document := range lpa.Evidence.Documents {
-			if document.Sent.IsZero() {
+		for _, document := range documents {
+			if document.Sent.IsZero() && !document.Scanned {
 				unsentKeys = append(unsentKeys, document.Key)
 			}
 		}
 
-		if err := s.eventClient.Send(ctx, "reduced-fee-requested", reducedFeeRequestedEvent{
-			UID:         lpa.UID,
-			RequestType: lpa.FeeType.String(),
-			Evidence:    unsentKeys,
-		}); err != nil {
-			s.logger.Print(err)
-		} else {
-			for i, document := range lpa.Evidence.Documents {
-				if document.Sent.IsZero() {
-					lpa.Evidence.Documents[i].Sent = s.now()
+		if len(unsentKeys) > 0 {
+			if err := s.eventClient.Send(ctx, "reduced-fee-requested", reducedFeeRequestedEvent{
+				UID:         lpa.UID,
+				RequestType: lpa.FeeType.String(),
+				Evidence:    unsentKeys,
+			}); err != nil {
+				s.logger.Print(err)
+			} else {
+				var updatedDocuments page.Documents
+
+				for _, document := range documents {
+					if document.Sent.IsZero() && !document.Scanned {
+						document.Sent = s.now()
+						updatedDocuments = append(updatedDocuments, document)
+					}
+				}
+
+				if err := s.documentStore.BatchPut(ctx, updatedDocuments); err != nil {
+					s.logger.Print(err)
 				}
 			}
 		}
@@ -262,12 +287,4 @@ type reducedFeeRequestedEvent struct {
 	UID         string   `json:"uid"`
 	RequestType string   `json:"requestType"`
 	Evidence    []string `json:"evidence"`
-}
-
-type address struct {
-	Line1      string `json:"line1,omitempty"`
-	Line2      string `json:"line2,omitempty"`
-	Line3      string `json:"line3,omitempty"`
-	TownOrCity string `json:"townOrCity,omitempty"`
-	Postcode   string `json:"postcode,omitempty"`
 }

@@ -1,6 +1,7 @@
 package fixtures
 
 import (
+	"context"
 	"encoding/base64"
 	"net/http"
 	"slices"
@@ -16,12 +17,19 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
+type DocumentStore interface {
+	GetAll(context.Context) (page.Documents, error)
+	Put(context.Context, page.Document) error
+	Create(ctx context.Context, lpa *page.Lpa, filename string, data []byte) (page.Document, error)
+}
+
 func Donor(
 	tmpl template.Template,
 	sessionStore sesh.Store,
 	donorStore DonorStore,
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
+	documentStore DocumentStore,
 ) page.Handler {
 	progressValues := []string{
 		"provideYourDetails",
@@ -53,6 +61,8 @@ func Donor(
 			peopleToNotify       = r.FormValue("peopleToNotify")
 			replacementAttorneys = r.FormValue("replacementAttorneys")
 			feeType              = r.FormValue("feeType")
+			paymentTaskProgress  = r.FormValue("paymentTaskProgress")
+			withVirus            = r.FormValue("withVirus") == "1"
 		)
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
@@ -186,11 +196,31 @@ func Donor(
 		}
 
 		if progress >= slices.Index(progressValues, "payForTheLpa") {
-			if feeType == "half-fee" {
-				lpa.FeeType = page.HalfFee
-				lpa.Evidence = page.Evidence{Documents: []page.Document{
-					{Key: "evidence-key", Filename: "supporting-evidence.png", Sent: time.Now()},
-				}}
+			if feeType != "" && feeType != "FullFee" {
+				feeType, err := page.ParseFeeType(feeType)
+				if err != nil {
+					return err
+				}
+
+				lpa.FeeType = feeType
+
+				document, err := documentStore.Create(
+					page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}),
+					lpa,
+					"supporting-evidence.png",
+					make([]byte, 64),
+				)
+
+				if err != nil {
+					return err
+				}
+
+				document.Scanned = true
+				document.VirusDetected = withVirus
+				if err := documentStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}), document); err != nil {
+					return err
+				}
+
 			} else {
 				lpa.FeeType = page.FullFee
 			}
@@ -199,7 +229,17 @@ func Donor(
 				PaymentReference: random.String(12),
 				PaymentId:        random.String(12),
 			})
+
 			lpa.Tasks.PayForLpa = actor.PaymentTaskCompleted
+
+			if paymentTaskProgress != "" {
+				taskState, err := actor.ParsePaymentTask(paymentTaskProgress)
+				if err != nil {
+					return err
+				}
+
+				lpa.Tasks.PayForLpa = taskState
+			}
 		}
 
 		if progress >= slices.Index(progressValues, "confirmYourIdentity") {

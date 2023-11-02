@@ -4,6 +4,7 @@ import * as GOVUKFrontend from "govuk-frontend";
 import $ from 'jquery';
 import { CrossServiceHeader } from './service-header';
 import { DataLossWarning } from './data-loss-warning';
+import { FileUploadModal } from "./file-upload-modal";
 
 // Account for DOMContentLoaded firing before JS runs
 if (document.readyState !== "loading") {
@@ -24,6 +25,8 @@ function init() {
     }
 
     new DataLossWarning().init()
+
+    new FileUploadModal().init()
 
     const backLink = document.querySelector('.govuk-back-link');
     if (backLink) {
