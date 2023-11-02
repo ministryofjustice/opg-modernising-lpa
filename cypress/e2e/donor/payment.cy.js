@@ -67,16 +67,25 @@ describe('Pay for LPA', () => {
 
         cy.checkA11yApp();
 
-        cy.get('.govuk-notification-banner--success').within(() => {
-            cy.contains('2 files successfully uploaded');
-        });
+        cy.get('#dialog').should('not.have.class', 'govuk-!-display-none');
+        cy.get('#dialog-overlay').should('not.have.class', 'govuk-!-display-none');
+        cy.get('#file-count').should('contain', '0 of 2 files uploaded');
+
+        cy.contains('button', 'Cancel upload').click()
+        cy.get('#dialog').should('have.class', 'govuk-!-display-none');
+        cy.get('#dialog-overlay').should('have.class', 'govuk-!-display-none');
+
+        cy.get('.govuk-summary-list').should('not.exist');
+
+        // spoofing virus scan completing
+        cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&paymentTaskProgress=InProgress&feeType=HalfFee');
+        cy.url().should('contain', '/upload-evidence');
 
         cy.get('.govuk-summary-list').within(() => {
-            cy.contains('dummy.pdf');
-            cy.contains('dummy.png');
+            cy.contains('supporting-evidence.png');
         });
 
-        cy.contains('button', 'Continue to payment').click()
+        cy.contains('button', 'Continue').click()
 
         cy.url().should('contain', '/payment-confirmation');
     })
@@ -122,12 +131,20 @@ describe('Pay for LPA', () => {
         cy.url().should('contain', '/upload-evidence');
         cy.checkA11yApp();
 
-        cy.get('.govuk-notification-banner--success').within(() => {
-            cy.contains('1 file successfully uploaded');
-        });
+        cy.get('#dialog').should('not.have.class', 'govuk-!-display-none');
+        cy.get('#dialog-overlay').should('not.have.class', 'govuk-!-display-none');
+        cy.get('#file-count').should('contain', '0 of 1 files uploaded');
+
+        cy.contains('button', 'Cancel upload').click()
+        cy.get('#dialog').should('have.class', 'govuk-!-display-none');
+        cy.get('#dialog-overlay').should('have.class', 'govuk-!-display-none');
+
+        // spoofing virus scan completing
+        cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&paymentTaskProgress=InProgress&feeType=NoFee');
+        cy.url().should('contain', '/upload-evidence');
 
         cy.get('.govuk-summary-list').within(() => {
-            cy.contains('dummy.pdf');
+            cy.contains('supporting-evidence.png');
         });
 
         cy.contains('button', 'Continue').click()
@@ -177,12 +194,20 @@ describe('Pay for LPA', () => {
         cy.url().should('contain', '/upload-evidence');
         cy.checkA11yApp();
 
-        cy.get('.govuk-notification-banner--success').within(() => {
-            cy.contains('1 file successfully uploaded');
-        });
+        cy.get('#dialog').should('not.have.class', 'govuk-!-display-none');
+        cy.get('#dialog-overlay').should('not.have.class', 'govuk-!-display-none');
+        cy.get('#file-count').should('contain', '0 of 1 files uploaded');
+
+        cy.contains('button', 'Cancel upload').click()
+        cy.get('#dialog').should('have.class', 'govuk-!-display-none');
+        cy.get('#dialog-overlay').should('have.class', 'govuk-!-display-none');
+
+        // spoofing virus scan completing
+        cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&paymentTaskProgress=InProgress&feeType=NoFee');
+        cy.url().should('contain', '/upload-evidence');
 
         cy.get('.govuk-summary-list').within(() => {
-            cy.contains('dummy.pdf');
+            cy.contains('supporting-evidence.png');
         });
 
         cy.contains('button', 'Continue').click()
@@ -192,25 +217,20 @@ describe('Pay for LPA', () => {
     })
 
     it('can only delete evidence that has not been sent to OPG', () => {
-        cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&feeType=half-fee');
+        cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&feeType=HalfFee');
         cy.checkA11yApp();
-
-        cy.get('input[type="file"]').attachFile(['dummy.pdf']);
-
-        cy.contains('button', 'Upload files').click()
 
         cy.url().should('contain', '/upload-evidence');
 
         cy.get('.govuk-summary-list').within(() => {
-            cy.contains('supporting-evidence.png').parent().should('not.contain', 'Delete');
-            cy.contains('dummy.pdf').parent().contains('button', 'Delete').click();
+            cy.contains('supporting-evidence.png').parent().contains('button', 'Delete').click();
         });
 
         cy.url().should('contain', '/upload-evidence');
         cy.checkA11yApp();
 
         cy.get('.moj-banner').within(() => {
-            cy.contains('You have deleted file dummy.pdf');
+            cy.contains('supporting-evidence.png');
         });
     })
 });

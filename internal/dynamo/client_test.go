@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/aws/smithy-go"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
@@ -541,24 +542,44 @@ func TestPut(t *testing.T) {
 	}
 }
 
-func TestPutWhenStructHasUpdatedAt(t *testing.T) {
+func TestPutWhenStructHasVersion(t *testing.T) {
 	ctx := context.Background()
-	data, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val", "UpdatedAt": "2023-10-04T10:51:44.021428675Z"})
+	data, _ := attributevalue.MarshalMap(map[string]any{"Col": "Val", "Version": 2})
 
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
 		On("PutItem", ctx, &dynamodb.PutItemInput{
 			TableName:                 aws.String("this"),
 			Item:                      data,
-			ConditionExpression:       aws.String("UpdatedAt < :updatedAt"),
-			ExpressionAttributeValues: map[string]types.AttributeValue{":updatedAt": &types.AttributeValueMemberS{Value: "2023-10-04T10:51:44.021428675Z"}},
+			ConditionExpression:       aws.String("Version = :version"),
+			ExpressionAttributeValues: map[string]types.AttributeValue{":version": &types.AttributeValueMemberN{Value: "1"}},
 		}).
 		Return(&dynamodb.PutItemOutput{}, nil)
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	err := c.Put(ctx, map[string]string{"Col": "Val", "UpdatedAt": "2023-10-04T10:51:44.021428675Z"})
+	err := c.Put(ctx, map[string]any{"Col": "Val", "Version": 1})
 	assert.Nil(t, err)
+}
+
+func TestPutWhenConditionalCheckFailedException(t *testing.T) {
+	ctx := context.Background()
+	data, _ := attributevalue.MarshalMap(map[string]any{"Col": "Val", "Version": 2})
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("PutItem", ctx, &dynamodb.PutItemInput{
+			TableName:                 aws.String("this"),
+			Item:                      data,
+			ConditionExpression:       aws.String("Version = :version"),
+			ExpressionAttributeValues: map[string]types.AttributeValue{":version": &types.AttributeValueMemberN{Value: "1"}},
+		}).
+		Return(&dynamodb.PutItemOutput{}, &smithy.OperationError{Err: &types.ConditionalCheckFailedException{}})
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	err := c.Put(ctx, map[string]any{"Col": "Val", "Version": 1})
+	assert.Equal(t, ConditionalCheckFailedError{}, err)
 }
 
 func TestPutWhenError(t *testing.T) {
@@ -580,7 +601,7 @@ func TestPutWhenUnmarshalError(t *testing.T) {
 
 	c := &Client{table: "this", svc: newMockDynamoDB(t)}
 
-	err := c.Put(ctx, map[string]string{"Col": "Val", "UpdatedAt": "not a date"})
+	err := c.Put(ctx, map[string]string{"Col": "Val", "Version": "not an int"})
 	assert.NotNil(t, err)
 }
 
@@ -650,4 +671,165 @@ func TestDeleteKeys(t *testing.T) {
 
 	err := c.DeleteKeys(ctx, []Key{{PK: "pk", SK: "sk1"}, {PK: "pk", SK: "sk2"}})
 	assert.Equal(t, expectedError, err)
+}
+
+func TestUpdate(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("UpdateItem", ctx, &dynamodb.UpdateItemInput{
+			TableName: aws.String("table-name"),
+			Key: map[string]types.AttributeValue{
+				"PK": &types.AttributeValueMemberS{Value: "a-pk"},
+				"SK": &types.AttributeValueMemberS{Value: "a-sk"},
+			},
+			ExpressionAttributeValues: map[string]types.AttributeValue{"prop": &types.AttributeValueMemberS{Value: "val"}},
+			UpdateExpression:          aws.String("some = expression"),
+		}).
+		Return(nil, nil)
+
+	c := &Client{table: "table-name", svc: dynamoDB}
+
+	err := c.Update(ctx, "a-pk", "a-sk", map[string]types.AttributeValue{"prop": &types.AttributeValueMemberS{Value: "val"}}, "some = expression")
+
+	assert.Nil(t, err)
+}
+
+func TestUpdateOnServiceError(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("UpdateItem", ctx, &dynamodb.UpdateItemInput{
+			TableName: aws.String("table-name"),
+			Key: map[string]types.AttributeValue{
+				"PK": &types.AttributeValueMemberS{Value: "a-pk"},
+				"SK": &types.AttributeValueMemberS{Value: "a-sk"},
+			},
+			ExpressionAttributeValues: map[string]types.AttributeValue{"Col": &types.AttributeValueMemberS{Value: "Val"}},
+			UpdateExpression:          aws.String("some = expression"),
+		}).
+		Return(nil, expectedError)
+
+	c := &Client{table: "table-name", svc: dynamoDB}
+
+	err := c.Update(ctx, "a-pk", "a-sk", map[string]types.AttributeValue{"Col": &types.AttributeValueMemberS{Value: "Val"}}, "some = expression")
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestBatchPutOneBatch(t *testing.T) {
+	ctx := context.Background()
+
+	type testObject struct {
+		Col string
+	}
+
+	item, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val"})
+	var items []interface{}
+	var writeReqs []types.WriteRequest
+
+	count := 0
+	for count < 25 {
+		items = append(items, testObject{Col: "Val"})
+
+		writeReqs = append(
+			writeReqs,
+			types.WriteRequest{PutRequest: &types.PutRequest{Item: item}},
+		)
+
+		count++
+	}
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("BatchWriteItem", ctx, &dynamodb.BatchWriteItemInput{
+			RequestItems: map[string][]types.WriteRequest{"table-name": writeReqs},
+		}).
+		Return(nil, nil).
+		Once()
+
+	c := &Client{table: "table-name", svc: dynamoDB}
+	written, err := c.BatchPut(ctx, items)
+
+	assert.Nil(t, err)
+	assert.Equal(t, 25, written)
+}
+
+func TestBatchPutMultipleBatches(t *testing.T) {
+	ctx := context.Background()
+
+	type testObject struct {
+		Col string
+	}
+
+	item, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val"})
+	var items []interface{}
+	var writeReqs []types.WriteRequest
+
+	count := 0
+	for count < 26 {
+		items = append(items, testObject{Col: "Val"})
+
+		writeReqs = append(
+			writeReqs,
+			types.WriteRequest{PutRequest: &types.PutRequest{Item: item}},
+		)
+		count++
+	}
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("BatchWriteItem", ctx, &dynamodb.BatchWriteItemInput{
+			RequestItems: map[string][]types.WriteRequest{"table-name": writeReqs[0:25]},
+		}).
+		Return(nil, nil).
+		Once()
+
+	dynamoDB.
+		On("BatchWriteItem", ctx, &dynamodb.BatchWriteItemInput{
+			RequestItems: map[string][]types.WriteRequest{"table-name": {
+				{PutRequest: &types.PutRequest{Item: item}},
+			}},
+		}).
+		Return(nil, nil).
+		Once()
+
+	c := &Client{table: "table-name", svc: dynamoDB}
+	written, err := c.BatchPut(ctx, items)
+
+	assert.Nil(t, err)
+	assert.Equal(t, 26, written)
+}
+
+func TestBatchPutWhenDynamoBatchWriteItemError(t *testing.T) {
+	ctx := context.Background()
+
+	type testObject struct {
+		Col string
+	}
+
+	item, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val"})
+	items := []interface{}{testObject{Col: "Val"}}
+	writeReqs := []types.WriteRequest{
+		{PutRequest: &types.PutRequest{Item: item}},
+	}
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.
+		On("BatchWriteItem", ctx, &dynamodb.BatchWriteItemInput{
+			RequestItems: map[string][]types.WriteRequest{"table-name": writeReqs},
+		}).
+		Return(nil, expectedError)
+
+	logger := newMockLogger(t)
+	logger.
+		On("Print", "failed to add a batch of item during BatchPut: ", expectedError)
+
+	c := &Client{table: "table-name", svc: dynamoDB, logger: logger}
+	written, err := c.BatchPut(ctx, items)
+
+	assert.Nil(t, err)
+	assert.Equal(t, 0, written)
 }

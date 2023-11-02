@@ -22,7 +22,7 @@ type paymentConfirmationData struct {
 	FeeType          page.FeeType
 }
 
-func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore sessions.Store, evidenceS3Client S3Client, now func() time.Time) Handler {
+func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore sessions.Store, evidenceS3Client S3Client, now func() time.Time, documentStore DocumentStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		paymentSession, err := sesh.Payment(sessionStore, r)
 		if err != nil {
@@ -58,9 +58,14 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 		} else {
 			lpa.Tasks.PayForLpa = actor.PaymentTaskPending
 
-			for i, evidence := range lpa.Evidence.Documents {
-				if evidence.Sent.IsZero() {
-					err := evidenceS3Client.PutObjectTagging(r.Context(), evidence.Key, []types.Tag{
+			documents, err := documentStore.GetAll(r.Context())
+			if err != nil {
+				return err
+			}
+
+			for _, document := range documents {
+				if document.Sent.IsZero() {
+					err := evidenceS3Client.PutObjectTagging(r.Context(), document.Key, []types.Tag{
 						{Key: aws.String("replicate"), Value: aws.String("true")},
 					})
 
@@ -69,7 +74,10 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 						return err
 					}
 
-					lpa.Evidence.Documents[i].Sent = now()
+					document.Sent = now()
+					if err := documentStore.Put(r.Context(), document); err != nil {
+						return err
+					}
 				}
 			}
 		}

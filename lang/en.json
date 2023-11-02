@@ -734,12 +734,16 @@
     "imHavingProblemWithCode": "I’m having a problem with the code",
     "imHavingProblemWithCodeContent": "<p class=\"govuk-body\">The code can take a few minutes to arrive. We can <a class=\"govuk-link\" href=\"{{.ResendLink}}\">send the code again</a> if it is not working or you did not receive it.</p><p class=\"govuk-body\">If the mobile number we have for you is incorrect, you can <a class=\"govuk-link\" href=\"{{.ChangeLink}}\">change the number</a> we send the code to.</p>",
     "asTheCertificateProviderTypeTheCode": "{{.CertificateProviderFirstNames}}, as the certificate provider for {{.DonorFullName}}, please type in the code to prove that you witnessed their LPA being signed.",
-    "errorGenericUploadProblem": "Generic upload error",
+    "errorGenericUploadProblem": "There was a problem uploading your files. Try again later.",
     "errorTooManyFiles": "Too many files uploaded",
     "errorFileTooBig": "{{.Filename}}: File size too big",
     "errorFileIncorrectType": "{{.Filename}}: File is not a supported file type",
     "errorFileEmpty": "{{.Filename}}: File is empty",
     "errorGenericUploadProblemFile": "{{.Filename}}: Generic file error",
+    "errorFilesInfected": {
+        "one": "{{.Filenames}} cannot be uploaded as it contains a virus",
+        "other": "{{.Filenames}} cannot be uploaded as they contain a virus"
+    },
     "halfFeeNextSteps": "<h2 class=\"govuk-heading-m\">Next steps</h2><p class=\"govuk-body\">Content detailing next steps when donor has paid a half fee and is waiting for evidence to be checked by a case worker</p>",
     "referenceNumber": "Reference number",
     "lastUpdated": "Last updated",
@@ -766,10 +770,6 @@
     "uploadedFiles": "Uploaded files",
     "fileName": "File name",
     "delete": "Delete",
-    "nFilesSuccessfullyUploaded": {
-        "one": "{{.PluralCount}} file successfully uploaded",
-        "other": "{{.PluralCount}} files successfully uploaded"
-    },
     "tipsForTakingPhotosAndCopies": "Tips for taking photos and copies",
     "tipsForTakingPhotosAndCopiesDetails": "<p class=\"govuk-body\">Any photos or scanned copies of your documents should be clear and high quality so we can read the information.</p> <p class=\"govuk-body\">If you’re taking a photo, it helps if the area you are in is well lit.</p> <p class=\"govuk-body\">Make sure that the document is:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>in focus on your camera screen</li> <li>recent and relevant to the time of application</li> <li>not torn, creased, or marked</li> </ul>",
     "areYouApplyingForAnyTypeOfFeeDiscountOrExemption": "Are you applying for any type of fee discount or exemption?",
@@ -867,5 +867,9 @@
     "weWillReviewYourLpaApplicationAndSupportingEvidence": "<p class=\"govuk-body\">We will review your LPA application and supporting evidence.</p><h2 class=\"govuk-heading-m\">What happens next</h2><h3 class=\"govuk-heading-s\">Sign your LPA</h3><p class=\"govuk-body\">You can still sign your LPA while we’re reviewing your application. Your certificate provider must be there as a witness when you sign it.</p><p class=\"govuk-body\">However, we will not contact your certificate provider to provide their certificate until your {{.Application}} has been approved.</p><h3 class=\"govuk-heading-s\">If your application is successful</h3><p class=\"govuk-body\">Once we have approved your payment, we will contact your certificate provider to provide their certificate.</p><h3 class=\"govuk-heading-s\">If your application is not successful</h3><p class=\"govuk-body\">We will contact you if we need more information or if your application is unsuccessful.</p><details class=\"govuk-details\" data-module=\"govuk-details\"><summary class=\"govuk-details__summary\"><span class=\"govuk-details__summary-text\"> Appealing the decision </span></summary><div class=\"govuk-details__text\"><p class=\"govuk-body\">If your application is unsuccessful, you can appeal within 4 weeks of the decision by writing to the Head of Corporate Services.</p><p class=\"govuk-body\">If the original decision is upheld, it will be referred to the Public Guardian for confirmation.</p></div></details>",
     "applicationNoFee": "application to pay no fee",
     "applicationHalfFee": "application to pay a half fee",
-    "applicationHardshipFee": "hardship application"
+    "applicationHardshipFee": "hardship application",
+    "yourFilesAreUploading": "Your files are uploading",
+    "0OfNFilesUploaded": "0 of {{ .DocumentsToScanCount }} files uploaded",
+    "yourFilesAreUploadingContent": "This may take a few minutes. Please do not close your browser window.",
+    "cancelUpload": "Cancel upload"
 }

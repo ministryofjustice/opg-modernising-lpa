@@ -9,6 +9,20 @@ type mockLocalizer struct {
 	mock.Mock
 }
 
+// Concat provides a mock function with given fields: _a0, _a1
+func (_m *mockLocalizer) Concat(_a0 []string, _a1 string) string {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func([]string, string) string); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
 // Format provides a mock function with given fields: _a0, _a1
 func (_m *mockLocalizer) Format(_a0 string, _a1 map[string]interface{}) string {
 	ret := _m.Called(_a0, _a1)
@@ -16,6 +30,20 @@ func (_m *mockLocalizer) Format(_a0 string, _a1 map[string]interface{}) string {
 	var r0 string
 	if rf, ok := ret.Get(0).(func(string, map[string]interface{}) string); ok {
 		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// FormatCount provides a mock function with given fields: _a0, _a1, _a2
+func (_m *mockLocalizer) FormatCount(_a0 string, _a1 int, _a2 map[string]interface{}) string {
+	ret := _m.Called(_a0, _a1, _a2)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string, int, map[string]interface{}) string); ok {
+		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
