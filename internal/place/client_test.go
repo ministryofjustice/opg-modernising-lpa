@@ -33,6 +33,7 @@ func TestLookupPostcode(t *testing.T) {
 					Line1:      "123 MELTON ROAD",
 					TownOrCity: "BIRMINGHAM",
 					Postcode:   "B14 7ET",
+					Country:    "GB",
 				},
 				{
 					Line1:      "87A",
@@ -40,6 +41,7 @@ func TestLookupPostcode(t *testing.T) {
 					Line3:      "KINGS HEATH",
 					TownOrCity: "BIRMINGHAM",
 					Postcode:   "B14 7ET",
+					Country:    "GB",
 				},
 			},
 		},
@@ -186,7 +188,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 				Town:              "BIRMINGHAM",
 				Postcode:          "B14 7ET",
 			},
-			want: Address{Line1: "1 MELTON ROAD", Line2: "", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+			want: Address{Line1: "1 MELTON ROAD", Line2: "", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET", Country: "GB"},
 		},
 		"building name no building number": {
 			ad: addressDetails{
@@ -198,7 +200,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 				Town:              "BIRMINGHAM",
 				Postcode:          "B14 7ET",
 			},
-			want: Address{Line1: "1A", Line2: "MELTON ROAD", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+			want: Address{Line1: "1A", Line2: "MELTON ROAD", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET", Country: "GB"},
 		},
 		"building name and building number": {
 			ad: addressDetails{
@@ -210,7 +212,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 				Town:              "BIRMINGHAM",
 				Postcode:          "B14 7ET",
 			},
-			want: Address{Line1: "MELTON HOUSE", Line2: "2 MELTON ROAD", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+			want: Address{Line1: "MELTON HOUSE", Line2: "2 MELTON ROAD", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET", Country: "GB"},
 		},
 		"dependent locality building number": {
 			ad: addressDetails{
@@ -222,7 +224,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 				Town:              "BIRMINGHAM",
 				Postcode:          "B14 7ET",
 			},
-			want: Address{Line1: "3 MELTON ROAD", Line2: "KINGS HEATH", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+			want: Address{Line1: "3 MELTON ROAD", Line2: "KINGS HEATH", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET", Country: "GB"},
 		},
 		"dependent locality building name": {
 			ad: addressDetails{
@@ -234,7 +236,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 				Town:              "BIRMINGHAM",
 				Postcode:          "B14 7ET",
 			},
-			want: Address{Line1: "MELTON HOUSE", Line2: "MELTON ROAD", Line3: "KINGS HEATH", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+			want: Address{Line1: "MELTON HOUSE", Line2: "MELTON ROAD", Line3: "KINGS HEATH", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET", Country: "GB"},
 		},
 		"dependent locality building name and building number": {
 			ad: addressDetails{
@@ -246,7 +248,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 				Town:              "BIRMINGHAM",
 				Postcode:          "B14 7ET",
 			},
-			want: Address{Line1: "MELTON HOUSE", Line2: "5 MELTON ROAD", Line3: "KINGS HEATH", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET"},
+			want: Address{Line1: "MELTON HOUSE", Line2: "5 MELTON ROAD", Line3: "KINGS HEATH", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET", Country: "GB"},
 		},
 		"building name and sub building name": {
 			ad: addressDetails{
@@ -257,7 +259,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 				Town:             "NOTTINGHAM",
 				Postcode:         "NG1 6GR",
 			},
-			want: Address{Line1: "APARTMENT 34, CHARLES HOUSE", Line2: "PARK ROW", TownOrCity: "NOTTINGHAM", Postcode: "NG1 6GR"},
+			want: Address{Line1: "APARTMENT 34, CHARLES HOUSE", Line2: "PARK ROW", TownOrCity: "NOTTINGHAM", Postcode: "NG1 6GR", Country: "GB"},
 		},
 	}
 
