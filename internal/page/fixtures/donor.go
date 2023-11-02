@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -187,12 +188,12 @@ func Donor(
 
 		if progress >= slices.Index(progressValues, "payForTheLpa") {
 			if feeType == "half-fee" {
-				lpa.FeeType = page.HalfFee
+				lpa.FeeType = pay.HalfFee
 				lpa.Evidence = page.Evidence{Documents: []page.Document{
 					{Key: "evidence-key", Filename: "supporting-evidence.png", Sent: time.Now()},
 				}}
 			} else {
-				lpa.FeeType = page.FullFee
+				lpa.FeeType = pay.FullFee
 			}
 
 			lpa.PaymentDetails = append(lpa.PaymentDetails, page.Payment{
