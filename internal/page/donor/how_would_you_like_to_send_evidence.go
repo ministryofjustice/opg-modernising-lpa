@@ -29,11 +29,12 @@ func HowWouldYouLikeToSendEvidence(tmpl template.Template, donorStore DonorStore
 
 			if data.Errors.None() {
 				lpa.EvidenceDelivery = form.EvidenceDelivery
+
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				if form.EvidenceDelivery.IsUpload() {
+				if lpa.EvidenceDelivery.IsUpload() {
 					return appData.Redirect(w, r, lpa, page.Paths.UploadEvidence.Format(lpa.ID))
 				} else {
 					return appData.Redirect(w, r, lpa, page.Paths.SendUsYourEvidenceByPost.Format(lpa.ID))
