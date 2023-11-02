@@ -166,6 +166,8 @@ type Lpa struct {
 
 	// FeeType is the type of fee the user is applying for
 	FeeType FeeType
+	// EvidenceDelivery is the method by which the user wants to send evidence
+	EvidenceDelivery EvidenceDelivery
 	// Evidence is the documents uploaded by a donor to apply for non-full fees
 	Evidence Evidence
 	// PreviousApplicationNumber if the application is related to an existing application
@@ -176,6 +178,14 @@ type Lpa struct {
 	HasSentApplicationUpdatedEvent        bool
 	HasSentPreviousApplicationLinkedEvent bool
 }
+
+//go:generate enumerator -type EvidenceDelivery -linecomment -empty
+type EvidenceDelivery uint8
+
+const (
+	Upload EvidenceDelivery = iota + 1 // upload
+	Post                               // post
+)
 
 type Evidence struct {
 	Documents []Document
