@@ -270,6 +270,7 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 					Line2:      "b",
 					TownOrCity: "c",
 					Postcode:   "D",
+					Country:    "GB",
 				},
 			},
 			Errors: validation.With("address-line-1", validation.EnterError{Label: "addressLine1OfYourAddress"}),
