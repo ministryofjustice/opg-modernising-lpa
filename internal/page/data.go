@@ -19,6 +19,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"golang.org/x/exp/slices"
 )
@@ -64,27 +65,6 @@ const (
 	ReplacementAttorneysStepInWhenAllCanNoLongerAct ReplacementAttorneysStepIn = iota + 1 // all
 	ReplacementAttorneysStepInWhenOneCanNoLongerAct                                       // one
 	ReplacementAttorneysStepInAnotherWay                                                  // other
-)
-
-//go:generate enumerator -type FeeType
-type FeeType uint8
-
-const (
-	FullFee FeeType = iota
-	HalfFee
-	NoFee
-	HardshipFee
-	RepeatApplicationFee
-)
-
-//go:generate enumerator -type PreviousFee -empty
-type PreviousFee uint8
-
-const (
-	PreviousFeeFull PreviousFee = iota + 1
-	PreviousFeeHalf
-	PreviousFeeExemption
-	PreviousFeeHardship
 )
 
 // Lpa contains all the data related to the LPA application
@@ -165,13 +145,15 @@ type Lpa struct {
 	WitnessCodeLimiter *Limiter
 
 	// FeeType is the type of fee the user is applying for
-	FeeType FeeType
+	FeeType pay.FeeType
+	// EvidenceDelivery is the method by which the user wants to send evidence
+	EvidenceDelivery pay.EvidenceDelivery
 	// Evidence is the documents uploaded by a donor to apply for non-full fees
 	Evidence Evidence
 	// PreviousApplicationNumber if the application is related to an existing application
 	PreviousApplicationNumber string
 	// PreviousFee is the fee previously paid for an LPA
-	PreviousFee PreviousFee
+	PreviousFee pay.PreviousFee
 
 	HasSentApplicationUpdatedEvent        bool
 	HasSentPreviousApplicationLinkedEvent bool
@@ -529,23 +511,7 @@ func (l *Lpa) Cost() int {
 		return 8200
 	}
 
-	switch l.FeeType {
-	case FullFee:
-		return 8200
-	case HalfFee:
-		return 4100
-	case RepeatApplicationFee:
-		switch l.PreviousFee {
-		case PreviousFeeFull:
-			return 4100
-		case PreviousFeeHalf:
-			return 2050
-		default:
-			return 0
-		}
-	default:
-		return 0
-	}
+	return pay.Cost(l.FeeType, l.PreviousFee)
 }
 
 func (l *Lpa) FeeAmount() int {

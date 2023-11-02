@@ -6,28 +6,21 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
-)
-
-//go:generate enumerator -type EvidenceDelivery -linecomment -empty
-type EvidenceDelivery uint8
-
-const (
-	Upload EvidenceDelivery = iota + 1 // upload
-	Post                               // post
 )
 
 type howWouldYouLikeToSendEvidenceData struct {
 	App     page.AppData
 	Errors  validation.List
-	Options EvidenceDeliveryOptions
+	Options pay.EvidenceDeliveryOptions
 }
 
-func HowWouldYouLikeToSendEvidence(tmpl template.Template) Handler {
+func HowWouldYouLikeToSendEvidence(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &howWouldYouLikeToSendEvidenceData{
 			App:     appData,
-			Options: EvidenceDeliveryValues,
+			Options: pay.EvidenceDeliveryValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -35,10 +28,16 @@ func HowWouldYouLikeToSendEvidence(tmpl template.Template) Handler {
 			data.Errors = form.Validate()
 
 			if data.Errors.None() {
+				lpa.EvidenceDelivery = form.EvidenceDelivery
+
+				if err := donorStore.Put(r.Context(), lpa); err != nil {
+					return err
+				}
+
 				if form.EvidenceDelivery.IsUpload() {
 					return appData.Redirect(w, r, lpa, page.Paths.UploadEvidence.Format(lpa.ID))
 				} else {
-					return appData.Redirect(w, r, lpa, page.Paths.HowToEmailOrPostEvidence.Format(lpa.ID))
+					return appData.Redirect(w, r, lpa, page.Paths.SendUsYourEvidenceByPost.Format(lpa.ID))
 				}
 			}
 		}
@@ -48,7 +47,7 @@ func HowWouldYouLikeToSendEvidence(tmpl template.Template) Handler {
 }
 
 type evidenceDeliveryForm struct {
-	EvidenceDelivery EvidenceDelivery
+	EvidenceDelivery pay.EvidenceDelivery
 	Error            error
 	ErrorLabel       string
 }
@@ -63,7 +62,7 @@ func (f *evidenceDeliveryForm) Validate() validation.List {
 }
 
 func readHowWouldYouLikeToSendEvidenceForm(r *http.Request) *evidenceDeliveryForm {
-	evidenceDelivery, err := ParseEvidenceDelivery(form.PostFormString(r, "evidence-delivery"))
+	evidenceDelivery, err := pay.ParseEvidenceDelivery(form.PostFormString(r, "evidence-delivery"))
 
 	return &evidenceDeliveryForm{
 		EvidenceDelivery: evidenceDelivery,

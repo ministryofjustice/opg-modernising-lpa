@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/stretchr/testify/assert"
@@ -470,7 +471,7 @@ func TestDonorStorePutWhenReducedFeeRequested(t *testing.T) {
 			ID:                             "5",
 			UID:                            "M-1111",
 			UpdatedAt:                      now,
-			FeeType:                        page.HalfFee,
+			FeeType:                        pay.HalfFee,
 			Evidence:                       page.Evidence{Documents: []page.Document{{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf", Sent: now}}},
 			Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
 			HasSentApplicationUpdatedEvent: true,
@@ -493,7 +494,7 @@ func TestDonorStorePutWhenReducedFeeRequested(t *testing.T) {
 		SK:                             "#DONOR#an-id",
 		ID:                             "5",
 		UID:                            "M-1111",
-		FeeType:                        page.HalfFee,
+		FeeType:                        pay.HalfFee,
 		Evidence:                       page.Evidence{Documents: []page.Document{{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf"}}},
 		Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
 		HasSentApplicationUpdatedEvent: true,
@@ -513,7 +514,7 @@ func TestDonorStorePutWhenReducedFeeRequestedSentAndUnsentFees(t *testing.T) {
 			ID:        "5",
 			UID:       "M-1111",
 			UpdatedAt: now,
-			FeeType:   page.HalfFee,
+			FeeType:   pay.HalfFee,
 			Evidence: page.Evidence{Documents: []page.Document{
 				{Key: "lpa-uid-evidence-a-uid-1", Filename: "whatever.pdf", Sent: now},
 				{Key: "lpa-uid-evidence-a-uid-2", Filename: "whenever.pdf", Sent: now},
@@ -540,7 +541,7 @@ func TestDonorStorePutWhenReducedFeeRequestedSentAndUnsentFees(t *testing.T) {
 		SK:      "#DONOR#an-id",
 		ID:      "5",
 		UID:     "M-1111",
-		FeeType: page.HalfFee,
+		FeeType: pay.HalfFee,
 		Evidence: page.Evidence{Documents: []page.Document{
 			{Key: "lpa-uid-evidence-a-uid-1", Filename: "whatever.pdf"},
 			{Key: "lpa-uid-evidence-a-uid-2", Filename: "whenever.pdf", Sent: now},

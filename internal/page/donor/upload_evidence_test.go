@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	pay "github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -26,12 +27,12 @@ func TestGetUploadEvidence(t *testing.T) {
 		On("Execute", w, &uploadEvidenceData{
 			App:                  testAppData,
 			NumberOfAllowedFiles: 5,
-			FeeType:              page.FullFee,
+			FeeType:              pay.FullFee,
 			MimeTypes:            acceptedMimeTypes(),
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{FeeType: page.FullFee})
+	err := UploadEvidence(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{FeeType: pay.FullFee})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -94,7 +95,7 @@ func TestPostUploadEvidenceWithUploadActionAcceptedFileTypes(t *testing.T) {
 				{Key: "lpa-uid/evidence/a-uid", Filename: filename},
 			}}
 
-			updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: page.HalfFee}
+			updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: pay.HalfFee}
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
@@ -108,12 +109,12 @@ func TestPostUploadEvidenceWithUploadActionAcceptedFileTypes(t *testing.T) {
 					Evidence:             evidence,
 					NumberOfAllowedFiles: 5,
 					MimeTypes:            acceptedMimeTypes(),
-					FeeType:              page.HalfFee,
+					FeeType:              pay.HalfFee,
 					UploadedCount:        1,
 				}).
 				Return(nil)
 
-			err := UploadEvidence(template.Execute, nil, donorStore, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee})
+			err := UploadEvidence(template.Execute, nil, donorStore, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: pay.HalfFee})
 			assert.Nil(t, err)
 		})
 	}
@@ -151,7 +152,7 @@ func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
 		{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
 		{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.png"},
 	}}
-	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: page.HalfFee}
+	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: pay.HalfFee}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
@@ -165,12 +166,12 @@ func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
 			Evidence:             evidence,
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
-			FeeType:              page.HalfFee,
+			FeeType:              pay.HalfFee,
 			UploadedCount:        2,
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, donorStore, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee})
+	err := UploadEvidence(template.Execute, nil, donorStore, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: pay.HalfFee})
 	assert.Nil(t, err)
 }
 
@@ -203,7 +204,7 @@ func TestPostUploadEvidenceWithUploadActionFilenameSpecialCharactersAreEscaped(t
 	evidence := page.Evidence{Documents: []page.Document{
 		{Key: "lpa-uid/evidence/a-uid", Filename: "&lt;img src=1 onerror=alert(document.domain)&gt;’ brute.heic"},
 	}}
-	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: page.HalfFee}
+	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: pay.HalfFee}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
@@ -217,12 +218,12 @@ func TestPostUploadEvidenceWithUploadActionFilenameSpecialCharactersAreEscaped(t
 			Evidence:             evidence,
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
-			FeeType:              page.HalfFee,
+			FeeType:              pay.HalfFee,
 			UploadedCount:        1,
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, donorStore, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee})
+	err := UploadEvidence(template.Execute, nil, donorStore, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: pay.HalfFee})
 	assert.Nil(t, err)
 }
 
@@ -244,10 +245,10 @@ func TestPostUploadEvidenceWithPayAction(t *testing.T) {
 
 	payer := newMockPayer(t)
 	payer.
-		On("Pay", testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee}).
+		On("Pay", testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: pay.HalfFee}).
 		Return(nil)
 
-	err := UploadEvidence(nil, payer, nil, nil, nil)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee})
+	err := UploadEvidence(nil, payer, nil, nil, nil)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: pay.HalfFee})
 	assert.Nil(t, err)
 }
 
@@ -271,11 +272,11 @@ func TestPostUploadEvidenceWhenBadCsrfField(t *testing.T) {
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			Errors:               validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
-			FeeType:              page.FullFee,
+			FeeType:              pay.FullFee,
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: page.FullFee})
+	err := UploadEvidence(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: pay.FullFee})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -305,11 +306,11 @@ func TestPostUploadEvidenceWhenBadActionField(t *testing.T) {
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			Errors:               validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
-			FeeType:              page.FullFee,
+			FeeType:              pay.FullFee,
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: page.FullFee})
+	err := UploadEvidence(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: pay.FullFee})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -347,11 +348,11 @@ func TestPostUploadEvidenceNumberOfFilesLimitPassed(t *testing.T) {
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			Errors:               validation.With("upload", validation.CustomError{Label: "errorTooManyFiles"}),
-			FeeType:              page.FullFee,
+			FeeType:              pay.FullFee,
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.FullFee})
+	err := UploadEvidence(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: pay.FullFee})
 	assert.Nil(t, err)
 }
 
@@ -416,11 +417,11 @@ func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
 					NumberOfAllowedFiles: 5,
 					MimeTypes:            acceptedMimeTypes(),
 					Errors:               validation.With("upload", tc.expectedError),
-					FeeType:              page.FullFee,
+					FeeType:              pay.FullFee,
 				}).
 				Return(nil)
 
-			err := UploadEvidence(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: page.FullFee})
+			err := UploadEvidence(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: pay.FullFee})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -512,10 +513,10 @@ func TestPostUploadEvidenceWhenPayerError(t *testing.T) {
 
 	payer := newMockPayer(t)
 	payer.
-		On("Pay", testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee}).
+		On("Pay", testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: pay.HalfFee}).
 		Return(expectedError)
 
-	err := UploadEvidence(nil, payer, nil, nil, nil)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: page.HalfFee})
+	err := UploadEvidence(nil, payer, nil, nil, nil)(testAppData, w, r, &page.Lpa{UID: "lpa-uid", FeeType: pay.HalfFee})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -546,7 +547,7 @@ func TestGetUploadEvidenceDeleteEvidence(t *testing.T) {
 	evidence := page.Evidence{Documents: []page.Document{
 		{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
 	}}
-	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: page.HalfFee}
+	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: pay.HalfFee}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
@@ -560,14 +561,14 @@ func TestGetUploadEvidenceDeleteEvidence(t *testing.T) {
 			Evidence:             evidence,
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
-			FeeType:              page.HalfFee,
+			FeeType:              pay.HalfFee,
 			Deleted:              "dummy.pdf",
 		}).
 		Return(nil)
 
 	err := UploadEvidence(template.Execute, nil, donorStore, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{
 		UID:     "lpa-uid",
-		FeeType: page.HalfFee,
+		FeeType: pay.HalfFee,
 		Evidence: page.Evidence{Documents: []page.Document{
 			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
 			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
@@ -605,14 +606,14 @@ func TestGetUploadEvidenceDeleteEvidenceWhenUnexpectedFieldName(t *testing.T) {
 			}},
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
-			FeeType:              page.HalfFee,
+			FeeType:              pay.HalfFee,
 			Errors:               validation.With("delete", validation.CustomError{Label: "errorGenericUploadProblem"}),
 		}).
 		Return(nil)
 
 	err := UploadEvidence(template.Execute, nil, nil, func() string { return "a-uid" }, nil)(testAppData, w, r, &page.Lpa{
 		UID:     "lpa-uid",
-		FeeType: page.HalfFee,
+		FeeType: pay.HalfFee,
 		Evidence: page.Evidence{Documents: []page.Document{
 			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"}},
 		},
@@ -647,7 +648,7 @@ func TestGetUploadEvidenceDeleteEvidenceWhenS3ClientError(t *testing.T) {
 
 	err := UploadEvidence(nil, nil, nil, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{
 		UID:     "lpa-uid",
-		FeeType: page.HalfFee,
+		FeeType: pay.HalfFee,
 		Evidence: page.Evidence{Documents: []page.Document{
 			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
 			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
@@ -684,7 +685,7 @@ func TestGetUploadEvidenceDeleteEvidenceOnDonorStoreError(t *testing.T) {
 	evidence := page.Evidence{Documents: []page.Document{
 		{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
 	}}
-	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: page.HalfFee}
+	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: pay.HalfFee}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
@@ -693,7 +694,7 @@ func TestGetUploadEvidenceDeleteEvidenceOnDonorStoreError(t *testing.T) {
 
 	err := UploadEvidence(nil, nil, donorStore, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{
 		UID:     "lpa-uid",
-		FeeType: page.HalfFee,
+		FeeType: pay.HalfFee,
 		Evidence: page.Evidence{Documents: []page.Document{
 			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
 			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
@@ -730,7 +731,7 @@ func TestGetUploadEvidenceDeleteEvidenceOnTemplateError(t *testing.T) {
 	evidence := page.Evidence{Documents: []page.Document{
 		{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
 	}}
-	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: page.HalfFee}
+	updatedLpa := &page.Lpa{UID: "lpa-uid", Evidence: evidence, FeeType: pay.HalfFee}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
@@ -744,14 +745,14 @@ func TestGetUploadEvidenceDeleteEvidenceOnTemplateError(t *testing.T) {
 			Evidence:             evidence,
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
-			FeeType:              page.HalfFee,
+			FeeType:              pay.HalfFee,
 			Deleted:              "dummy.pdf",
 		}).
 		Return(expectedError)
 
 	err := UploadEvidence(template.Execute, nil, donorStore, func() string { return "a-uid" }, s3Client)(testAppData, w, r, &page.Lpa{
 		UID:     "lpa-uid",
-		FeeType: page.HalfFee,
+		FeeType: pay.HalfFee,
 		Evidence: page.Evidence{Documents: []page.Document{
 			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
 			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},

@@ -12,6 +12,7 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -49,7 +50,7 @@ type uploadEvidenceData struct {
 	App                  page.AppData
 	Errors               validation.List
 	NumberOfAllowedFiles int
-	FeeType              page.FeeType
+	FeeType              pay.FeeType
 	Evidence             page.Evidence
 	MimeTypes            []string
 	Deleted              string

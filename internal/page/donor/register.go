@@ -308,17 +308,19 @@ func Register(
 	handleWithLpa(page.Paths.EvidenceRequired, CanGoBack,
 		Guidance(tmpls.Get("evidence_required.gohtml")))
 	handleWithLpa(page.Paths.HowWouldYouLikeToSendEvidence, CanGoBack,
-		HowWouldYouLikeToSendEvidence(tmpls.Get("how_would_you_like_to_send_evidence.gohtml")))
+		HowWouldYouLikeToSendEvidence(tmpls.Get("how_would_you_like_to_send_evidence.gohtml"), donorStore))
 	handleWithLpa(page.Paths.UploadEvidence, CanGoBack,
 		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), payer, donorStore, random.UuidString, evidenceS3Client))
-	handleWithLpa(page.Paths.EvidenceSuccessfullyUploaded, None,
-		Guidance(tmpls.Get("evidence_successfully_uploaded.gohtml")))
-	handleWithLpa(page.Paths.HowToEmailOrPostEvidence, CanGoBack,
-		HowToEmailOrPostEvidence(tmpls.Get("how_to_email_or_post_evidence.gohtml"), payer))
+	handleWithLpa(page.Paths.SendUsYourEvidenceByPost, CanGoBack,
+		SendUsYourEvidenceByPost(tmpls.Get("send_us_your_evidence_by_post.gohtml"), payer))
 	handleWithLpa(page.Paths.FeeDenied, None,
 		FeeDenied(tmpls.Get("fee_denied.gohtml"), payer))
 	handleWithLpa(page.Paths.PaymentConfirmation, None,
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, evidenceS3Client, time.Now))
+	handleWithLpa(page.Paths.EvidenceSuccessfullyUploaded, None,
+		Guidance(tmpls.Get("evidence_successfully_uploaded.gohtml")))
+	handleWithLpa(page.Paths.WhatHappensNextPostEvidence, None,
+		Guidance(tmpls.Get("what_happens_next_post_evidence.gohtml")))
 
 	handleWithLpa(page.Paths.HowToConfirmYourIdentityAndSign, None,
 		Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml")))
@@ -484,7 +486,11 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 			return err
 		}
 
-		return appData.Redirect(w, r, lpa, page.Paths.EvidenceSuccessfullyUploaded.Format(lpa.ID))
+		if lpa.EvidenceDelivery.IsUpload() {
+			return appData.Redirect(w, r, lpa, page.Paths.EvidenceSuccessfullyUploaded.Format(lpa.ID))
+		} else {
+			return appData.Redirect(w, r, lpa, page.Paths.WhatHappensNextPostEvidence.Format(lpa.ID))
+		}
 	}
 
 	createPaymentBody := pay.CreatePaymentBody{
@@ -507,7 +513,7 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 	}
 
 	if lpa.Tasks.PayForLpa.IsDenied() {
-		lpa.FeeType = page.FullFee
+		lpa.FeeType = pay.FullFee
 		lpa.Tasks.PayForLpa = actor.PaymentTaskInProgress
 		if err := p.donorStore.Put(r.Context(), lpa); err != nil {
 			return err

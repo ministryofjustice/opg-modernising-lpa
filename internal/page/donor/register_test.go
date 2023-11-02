@@ -414,7 +414,7 @@ func TestPayHelperPay(t *testing.T) {
 				payClient:    payClient,
 				appPublicURL: "http://example.org",
 				randomString: func(int) string { return "123456789012" },
-			}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, FeeType: page.FullFee})
+			}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, FeeType: pay.FullFee})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -425,9 +425,9 @@ func TestPayHelperPay(t *testing.T) {
 }
 
 func TestPayHelperPayWhenPaymentNotRequired(t *testing.T) {
-	testCases := []page.FeeType{
-		page.NoFee,
-		page.HardshipFee,
+	testCases := []pay.FeeType{
+		pay.NoFee,
+		pay.HardshipFee,
 	}
 
 	for _, feeType := range testCases {
@@ -447,6 +447,7 @@ func TestPayHelperPayWhenPaymentNotRequired(t *testing.T) {
 						{Key: "evidence-1", Sent: date.New("2000", "01", "01").Time()},
 						{Key: "evidence-2", Sent: now},
 					}},
+					EvidenceDelivery: pay.Upload,
 				}).
 				Return(nil)
 
@@ -468,6 +469,7 @@ func TestPayHelperPayWhenPaymentNotRequired(t *testing.T) {
 					{Key: "evidence-1", Sent: date.New("2000", "01", "01").Time()},
 					{Key: "evidence-2"},
 				}},
+				EvidenceDelivery: pay.Upload,
 			})
 			resp := w.Result()
 
@@ -488,12 +490,13 @@ func TestPayHelperPayWhenMoreEvidenceProvided(t *testing.T) {
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			ID:      "lpa-id",
-			FeeType: page.HalfFee,
+			FeeType: pay.HalfFee,
 			Tasks:   page.Tasks{PayForLpa: actor.PaymentTaskPending},
 			Evidence: page.Evidence{Documents: []page.Document{
 				{Key: "evidence-1", Sent: date.New("2000", "01", "01").Time()},
 				{Key: "evidence-2", Sent: now},
 			}},
+			EvidenceDelivery: pay.Upload,
 		}).
 		Return(nil)
 
@@ -510,12 +513,13 @@ func TestPayHelperPayWhenMoreEvidenceProvided(t *testing.T) {
 		evidenceS3Client: s3Client,
 	}).Pay(testAppData, w, r, &page.Lpa{
 		ID:      "lpa-id",
-		FeeType: page.HalfFee,
+		FeeType: pay.HalfFee,
 		Evidence: page.Evidence{Documents: []page.Document{
 			{Key: "evidence-1", Sent: date.New("2000", "01", "01").Time()},
 			{Key: "evidence-2"},
 		}},
-		Tasks: page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired},
+		Tasks:            page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired},
+		EvidenceDelivery: pay.Upload,
 	})
 	resp := w.Result()
 
@@ -545,7 +549,7 @@ func TestPayHelperPayNoPaymentRequiredWhenS3ClientError(t *testing.T) {
 		logger:           logger,
 	}).Pay(testAppData, w, r, &page.Lpa{
 		ID:      "lpa-id",
-		FeeType: page.HalfFee,
+		FeeType: pay.HalfFee,
 		Evidence: page.Evidence{Documents: []page.Document{
 			{Key: "evidence-1", Sent: date.New("2000", "01", "01").Time()},
 			{Key: "evidence-2"},
@@ -602,7 +606,7 @@ func TestPayHelperPayWhenFeeDenied(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			ID:             "lpa-id",
 			Donor:          actor.Donor{Email: "a@b.com"},
-			FeeType:        page.FullFee,
+			FeeType:        pay.FullFee,
 			Tasks:          page.Tasks{PayForLpa: actor.PaymentTaskInProgress},
 			PaymentDetails: []page.Payment{{Amount: 4100}},
 		}).
@@ -617,7 +621,7 @@ func TestPayHelperPayWhenFeeDenied(t *testing.T) {
 	}).Pay(testAppData, w, r, &page.Lpa{
 		ID:             "lpa-id",
 		Donor:          actor.Donor{Email: "a@b.com"},
-		FeeType:        page.HalfFee,
+		FeeType:        pay.HalfFee,
 		Tasks:          page.Tasks{PayForLpa: actor.PaymentTaskDenied},
 		PaymentDetails: []page.Payment{{Amount: 4100}},
 	})
@@ -672,7 +676,7 @@ func TestPayHelperPayWhenFeeDeniedAndPutStoreError(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			ID:             "lpa-id",
 			Donor:          actor.Donor{Email: "a@b.com"},
-			FeeType:        page.FullFee,
+			FeeType:        pay.FullFee,
 			Tasks:          page.Tasks{PayForLpa: actor.PaymentTaskInProgress},
 			PaymentDetails: []page.Payment{{Amount: 4100}},
 		}).
@@ -687,7 +691,7 @@ func TestPayHelperPayWhenFeeDeniedAndPutStoreError(t *testing.T) {
 	}).Pay(testAppData, w, r, &page.Lpa{
 		ID:             "lpa-id",
 		Donor:          actor.Donor{Email: "a@b.com"},
-		FeeType:        page.HalfFee,
+		FeeType:        pay.HalfFee,
 		Tasks:          page.Tasks{PayForLpa: actor.PaymentTaskDenied},
 		PaymentDetails: []page.Payment{{Amount: 4100}},
 	})
@@ -698,9 +702,9 @@ func TestPayHelperPayWhenFeeDeniedAndPutStoreError(t *testing.T) {
 }
 
 func TestPayHelperPayWhenPaymentNotRequiredAndDonorStoreErrors(t *testing.T) {
-	testCases := []page.FeeType{
-		page.NoFee,
-		page.HardshipFee,
+	testCases := []pay.FeeType{
+		pay.NoFee,
+		pay.HardshipFee,
 	}
 
 	for _, feeType := range testCases {
