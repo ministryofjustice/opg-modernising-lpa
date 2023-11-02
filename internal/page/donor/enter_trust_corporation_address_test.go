@@ -207,6 +207,7 @@ func TestPostEnterTrustCorporationAddressManualWhenValidationError(t *testing.T)
 		Line2:      "b",
 		TownOrCity: "c",
 		Postcode:   "D",
+		Country:    "GB",
 	}
 
 	template := newMockTemplate(t)
@@ -554,6 +555,7 @@ func TestPostEnterTrustCorporationAddressReuseSelect(t *testing.T) {
 			Line3:      "c",
 			TownOrCity: "d",
 			Postcode:   "E",
+			Country:    "GB",
 		},
 	}
 

@@ -235,7 +235,7 @@ func TestDonorStorePutWhenUIDNeeded(t *testing.T) {
 				FirstNames:  "John",
 				LastName:    "Smith",
 				DateOfBirth: date.New("2000", "01", "01"),
-				Postcode:    "F1 1FF",
+				Address:     place.Address{Line1: "line", Postcode: "F1 1FF"},
 			},
 		}).
 		Return(nil)
@@ -265,6 +265,7 @@ func TestDonorStorePutWhenUIDNeeded(t *testing.T) {
 				LastName:    "Smith",
 				DateOfBirth: date.New("2000", "01", "01"),
 				Address: place.Address{
+					Line1:    "line",
 					Postcode: "F1 1FF",
 				},
 			},
@@ -284,6 +285,7 @@ func TestDonorStorePutWhenUIDNeeded(t *testing.T) {
 			LastName:    "Smith",
 			DateOfBirth: date.New("2000", "01", "01"),
 			Address: place.Address{
+				Line1:    "line",
 				Postcode: "F1 1FF",
 			},
 		},
