@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -12,7 +13,7 @@ type previousFeeData struct {
 	App     page.AppData
 	Errors  validation.List
 	Form    *previousFeeForm
-	Options page.PreviousFeeOptions
+	Options pay.PreviousFeeOptions
 }
 
 func PreviousFee(tmpl template.Template, payer Payer, donorStore DonorStore) Handler {
@@ -22,7 +23,7 @@ func PreviousFee(tmpl template.Template, payer Payer, donorStore DonorStore) Han
 			Form: &previousFeeForm{
 				PreviousFee: lpa.PreviousFee,
 			},
-			Options: page.PreviousFeeValues,
+			Options: pay.PreviousFeeValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -51,12 +52,12 @@ func PreviousFee(tmpl template.Template, payer Payer, donorStore DonorStore) Han
 }
 
 type previousFeeForm struct {
-	PreviousFee page.PreviousFee
+	PreviousFee pay.PreviousFee
 	Error       error
 }
 
 func readPreviousFeeForm(r *http.Request) *previousFeeForm {
-	previousFee, err := page.ParsePreviousFee(page.PostFormString(r, "previous-fee"))
+	previousFee, err := pay.ParsePreviousFee(page.PostFormString(r, "previous-fee"))
 
 	return &previousFeeForm{
 		PreviousFee: previousFee,

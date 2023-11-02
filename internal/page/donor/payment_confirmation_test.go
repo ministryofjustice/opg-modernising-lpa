@@ -29,7 +29,7 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 		On("Execute", w, &paymentConfirmationData{
 			App:              testAppData,
 			PaymentReference: "123456789012",
-			FeeType:          page.FullFee,
+			FeeType:          pay.FullFee,
 		}).
 		Return(nil)
 
@@ -40,7 +40,7 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
-			FeeType: page.FullFee,
+			FeeType: pay.FullFee,
 			CertificateProvider: actor.CertificateProvider{
 				Email: "certificateprovider@example.com",
 			},
@@ -56,7 +56,7 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 		Return(nil)
 
 	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, nil, nil, nil)(testAppData, w, r, &page.Lpa{
-		FeeType: page.FullFee,
+		FeeType: pay.FullFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
 		},
@@ -79,7 +79,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 		On("Execute", w, &paymentConfirmationData{
 			App:              testAppData,
 			PaymentReference: "123456789012",
-			FeeType:          page.HalfFee,
+			FeeType:          pay.HalfFee,
 		}).
 		Return(nil)
 
@@ -92,7 +92,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
-			FeeType: page.HalfFee,
+			FeeType: pay.HalfFee,
 			CertificateProvider: actor.CertificateProvider{
 				Email: "certificateprovider@example.com",
 			},
@@ -126,7 +126,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 		Return(nil)
 
 	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, s3Client, func() time.Time { return now }, documentStore)(testAppData, w, r, &page.Lpa{
-		FeeType: page.HalfFee,
+		FeeType: pay.HalfFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
 		},
@@ -236,7 +236,7 @@ func TestGetPaymentConfirmationHalfFeeWhenDocumentStoreGetAllError(t *testing.T)
 		Return(page.Documents{}, expectedError)
 
 	err := PaymentConfirmation(nil, nil, payClient, nil, sessionStore, nil, func() time.Time { return now }, documentStore)(testAppData, w, r, &page.Lpa{
-		FeeType: page.HalfFee,
+		FeeType: pay.HalfFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
 		},
@@ -275,7 +275,7 @@ func TestGetPaymentConfirmationHalfFeeWhenS3ClientPutTaggingObjectError(t *testi
 		On("Print", fmt.Sprintf("error tagging evidence: %s", expectedError))
 
 	err := PaymentConfirmation(logger, nil, payClient, nil, sessionStore, s3Client, func() time.Time { return now }, documentStore)(testAppData, w, r, &page.Lpa{
-		FeeType: page.HalfFee,
+		FeeType: pay.HalfFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
 		},
@@ -313,7 +313,7 @@ func TestGetPaymentConfirmationHalfFeeWhenDocumentStorePutError(t *testing.T) {
 		Return(nil)
 
 	err := PaymentConfirmation(nil, nil, payClient, nil, sessionStore, s3Client, func() time.Time { return now }, documentStore)(testAppData, w, r, &page.Lpa{
-		FeeType: page.HalfFee,
+		FeeType: pay.HalfFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
 		},
@@ -360,7 +360,7 @@ func TestGetPaymentConfirmationHalfFeeWhenDonorStorePutError(t *testing.T) {
 		On("Print", fmt.Sprintf("unable to update lpa in donorStore: %s", expectedError))
 
 	err := PaymentConfirmation(logger, nil, payClient, donorStore, sessionStore, s3Client, func() time.Time { return now }, documentStore)(testAppData, w, r, &page.Lpa{
-		FeeType: page.HalfFee,
+		FeeType: pay.HalfFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
 		},

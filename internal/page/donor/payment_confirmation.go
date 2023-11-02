@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -19,7 +20,9 @@ type paymentConfirmationData struct {
 	App              page.AppData
 	Errors           validation.List
 	PaymentReference string
-	FeeType          page.FeeType
+	FeeType          pay.FeeType
+	PreviousFee      pay.PreviousFee
+	EvidenceDelivery pay.EvidenceDelivery
 }
 
 func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore sessions.Store, evidenceS3Client S3Client, now func() time.Time, documentStore DocumentStore) Handler {
@@ -47,6 +50,8 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 			App:              appData,
 			PaymentReference: payment.Reference,
 			FeeType:          lpa.FeeType,
+			PreviousFee:      lpa.PreviousFee,
+			EvidenceDelivery: lpa.EvidenceDelivery,
 		}
 
 		if err := sesh.ClearPayment(sessionStore, r, w); err != nil {
