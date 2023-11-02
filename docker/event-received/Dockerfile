@@ -22,7 +22,6 @@ ENTRYPOINT ["./event-received"]
 
 FROM public.ecr.aws/lambda/provided:al2 AS production
 
-# ARG arch
 WORKDIR /app
 
 RUN curl -O https://lambda-insights-extension.s3-ap-northeast-1.amazonaws.com/amazon_linux/lambda-insights-extension.rpm && \
