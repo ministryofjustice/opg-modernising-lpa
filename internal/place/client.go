@@ -108,6 +108,7 @@ type Address struct {
 	Line3      string `json:"line3"`
 	TownOrCity string `json:"town"`
 	Postcode   string `json:"postcode"`
+	Country    string `json:"country"`
 }
 
 func (a Address) Encode() string {
@@ -165,6 +166,7 @@ func (ad *addressDetails) transformToAddress() Address {
 
 	a.TownOrCity = ad.Town
 	a.Postcode = ad.Postcode
+	a.Country = "GB"
 
 	return a
 }
