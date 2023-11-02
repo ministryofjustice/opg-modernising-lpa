@@ -2,8 +2,8 @@ package dynamo
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -23,11 +23,20 @@ type dynamoDB interface {
 	BatchGetItem(context.Context, *dynamodb.BatchGetItemInput, ...func(*dynamodb.Options)) (*dynamodb.BatchGetItemOutput, error)
 	PutItem(context.Context, *dynamodb.PutItemInput, ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error)
 	TransactWriteItems(context.Context, *dynamodb.TransactWriteItemsInput, ...func(*dynamodb.Options)) (*dynamodb.TransactWriteItemsOutput, error)
+	DeleteItem(context.Context, *dynamodb.DeleteItemInput, ...func(*dynamodb.Options)) (*dynamodb.DeleteItemOutput, error)
+	UpdateItem(context.Context, *dynamodb.UpdateItemInput, ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error)
+	BatchWriteItem(ctx context.Context, params *dynamodb.BatchWriteItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.BatchWriteItemOutput, error)
+}
+
+//go:generate mockery --testonly --inpackage --name Logger --structname mockLogger
+type Logger interface {
+	Print(v ...interface{})
 }
 
 type Client struct {
-	table string
-	svc   dynamoDB
+	table  string
+	svc    dynamoDB
+	logger Logger
 }
 
 type NotFoundError struct{}
@@ -40,6 +49,12 @@ type MultipleResultsError struct{}
 
 func (n MultipleResultsError) Error() string {
 	return "A single result was expected but multiple results found"
+}
+
+type ConditionalCheckFailedError struct{}
+
+func (c ConditionalCheckFailedError) Error() string {
+	return "Conditional checks failed"
 }
 
 func NewClient(cfg aws.Config, tableName string) (*Client, error) {
@@ -232,24 +247,41 @@ func (c *Client) Put(ctx context.Context, v interface{}) error {
 		Item:      item,
 	}
 
-	if updatedAt, exists := item["UpdatedAt"]; exists {
-		var updatedAtTime time.Time
-		err = attributevalue.Unmarshal(updatedAt, &updatedAtTime)
+	// Tracking Value equality against data on write allows for optimistic locking
+	if currentVersion, exists := item["Version"]; exists {
+		var v int
+		err = attributevalue.Unmarshal(currentVersion, &v)
 		if err != nil {
 			return err
 		}
 
-		if !updatedAtTime.IsZero() {
-			input.ConditionExpression = aws.String("UpdatedAt < :updatedAt")
-			input.ExpressionAttributeValues = map[string]types.AttributeValue{
-				":updatedAt": updatedAt,
-			}
+		v++
+		newVersion, err := attributevalue.Marshal(v)
+		if err != nil {
+			return err
+		}
+
+		item["Version"] = newVersion
+
+		input.Item = item
+		input.ConditionExpression = aws.String("Version = :version")
+		input.ExpressionAttributeValues = map[string]types.AttributeValue{
+			":version": currentVersion,
 		}
 	}
 
 	_, err = c.svc.PutItem(ctx, input)
 
-	return err
+	if err != nil {
+		var ccf *types.ConditionalCheckFailedException
+		if errors.As(err, &ccf) {
+			return ConditionalCheckFailedError{}
+		}
+
+		return err
+	}
+
+	return nil
 }
 
 func (c *Client) Create(ctx context.Context, v interface{}) error {
@@ -287,4 +319,76 @@ func (c *Client) DeleteKeys(ctx context.Context, keys []Key) error {
 	})
 
 	return err
+}
+
+func (c *Client) DeleteOne(ctx context.Context, pk, sk string) error {
+	_, err := c.svc.DeleteItem(ctx, &dynamodb.DeleteItemInput{
+		TableName: aws.String(c.table),
+		Key: map[string]types.AttributeValue{
+			"PK": &types.AttributeValueMemberS{Value: pk},
+			"SK": &types.AttributeValueMemberS{Value: sk},
+		},
+	})
+
+	return err
+}
+
+func (c *Client) Update(ctx context.Context, pk, sk string, values map[string]types.AttributeValue, expression string) error {
+	_, err := c.svc.UpdateItem(ctx, &dynamodb.UpdateItemInput{
+		TableName: aws.String(c.table),
+		Key: map[string]types.AttributeValue{
+			"PK": &types.AttributeValueMemberS{Value: pk},
+			"SK": &types.AttributeValueMemberS{Value: sk},
+		},
+		ExpressionAttributeValues: values,
+		UpdateExpression:          aws.String(expression),
+	})
+
+	return err
+}
+
+func (c *Client) BatchPut(ctx context.Context, items []interface{}) (int, error) {
+	// courtesy of https://docs.aws.amazon.com/code-library/latest/ug/go_2_dynamodb_code_examples.html
+
+	var err error
+	var itemValues map[string]types.AttributeValue
+
+	written := 0
+	batchSize := 25 // DynamoDB allows a maximum batch size of 25 items.
+	start := 0
+	end := start + batchSize
+
+	for start < len(items) {
+		var writeReqs []types.WriteRequest
+		if end > len(items) {
+			end = len(items)
+		}
+
+		for _, item := range items[start:end] {
+			itemValues, err = attributevalue.MarshalMap(item)
+			if err != nil {
+				c.logger.Print("failed to marshal item during BatchPut: ", err)
+			} else {
+				writeReqs = append(
+					writeReqs,
+					types.WriteRequest{PutRequest: &types.PutRequest{Item: itemValues}},
+				)
+			}
+		}
+
+		_, err := c.svc.BatchWriteItem(ctx, &dynamodb.BatchWriteItemInput{
+			RequestItems: map[string][]types.WriteRequest{c.table: writeReqs},
+		})
+
+		if err != nil {
+			c.logger.Print("failed to add a batch of item during BatchPut: ", err)
+		} else {
+			written += len(writeReqs)
+		}
+
+		start = end
+		end += batchSize
+	}
+
+	return written, err
 }

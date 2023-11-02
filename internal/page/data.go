@@ -19,6 +19,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"golang.org/x/exp/slices"
 )
@@ -64,27 +65,6 @@ const (
 	ReplacementAttorneysStepInWhenAllCanNoLongerAct ReplacementAttorneysStepIn = iota + 1 // all
 	ReplacementAttorneysStepInWhenOneCanNoLongerAct                                       // one
 	ReplacementAttorneysStepInAnotherWay                                                  // other
-)
-
-//go:generate enumerator -type FeeType
-type FeeType uint8
-
-const (
-	FullFee FeeType = iota
-	HalfFee
-	NoFee
-	HardshipFee
-	RepeatApplicationFee
-)
-
-//go:generate enumerator -type PreviousFee -empty
-type PreviousFee uint8
-
-const (
-	PreviousFeeFull PreviousFee = iota + 1
-	PreviousFeeHalf
-	PreviousFeeExemption
-	PreviousFeeHardship
 )
 
 // Lpa contains all the data related to the LPA application
@@ -152,6 +132,8 @@ type Lpa struct {
 	RegisteredAt time.Time
 	// WithdrawnAt is when the Lpa was withdrawn by the donor
 	WithdrawnAt time.Time
+	// Version is the number of times the LPA has been updated (auto-incremented on PUT)
+	Version int
 
 	// Codes used for the certificate provider to witness signing
 	CertificateProviderCodes WitnessCodes
@@ -165,68 +147,16 @@ type Lpa struct {
 	WitnessCodeLimiter *Limiter
 
 	// FeeType is the type of fee the user is applying for
-	FeeType FeeType
-	// Evidence is the documents uploaded by a donor to apply for non-full fees
-	Evidence Evidence
+	FeeType pay.FeeType
+	// EvidenceDelivery is the method by which the user wants to send evidence
+	EvidenceDelivery pay.EvidenceDelivery
 	// PreviousApplicationNumber if the application is related to an existing application
 	PreviousApplicationNumber string
 	// PreviousFee is the fee previously paid for an LPA
-	PreviousFee PreviousFee
+	PreviousFee pay.PreviousFee
 
 	HasSentApplicationUpdatedEvent        bool
 	HasSentPreviousApplicationLinkedEvent bool
-}
-
-type Evidence struct {
-	Documents []Document
-}
-
-func (e *Evidence) Delete(documentKey string) bool {
-	idx := slices.IndexFunc(e.Documents, func(d Document) bool { return d.Key == documentKey })
-	if idx == -1 {
-		return false
-	}
-
-	e.Documents = slices.Delete(e.Documents, idx, idx+1)
-
-	return true
-}
-
-func (e *Evidence) Keys() []string {
-	var keys []string
-
-	for _, d := range e.Documents {
-		keys = append(keys, d.Key)
-	}
-
-	return keys
-}
-
-func (e *Evidence) Get(documentKey string) Document {
-	for _, d := range e.Documents {
-		if d.Key == documentKey {
-			return d
-		}
-	}
-
-	return Document{}
-}
-
-func (e *Evidence) Put(document Document) {
-	idx := slices.IndexFunc(e.Documents, func(d Document) bool { return d.Key == document.Key })
-	if idx == -1 {
-		e.Documents = append(e.Documents, document)
-	} else {
-		e.Documents[idx] = document
-	}
-}
-
-type Document struct {
-	Key           string
-	Filename      string
-	Sent          time.Time
-	Scanned       time.Time
-	VirusDetected bool
 }
 
 type Payment struct {
@@ -529,23 +459,7 @@ func (l *Lpa) Cost() int {
 		return 8200
 	}
 
-	switch l.FeeType {
-	case FullFee:
-		return 8200
-	case HalfFee:
-		return 4100
-	case RepeatApplicationFee:
-		switch l.PreviousFee {
-		case PreviousFeeFull:
-			return 4100
-		case PreviousFeeHalf:
-			return 2050
-		default:
-			return 0
-		}
-	default:
-		return 0
-	}
+	return pay.Cost(l.FeeType, l.PreviousFee)
 }
 
 func (l *Lpa) FeeAmount() int {
@@ -556,15 +470,6 @@ func (l *Lpa) FeeAmount() int {
 	}
 
 	return l.Cost() - paid
-}
-
-func (l *Lpa) HasUnsentReducedFeesEvidence() bool {
-	for _, document := range l.Evidence.Documents {
-		if document.Sent.IsZero() {
-			return true
-		}
-	}
-	return false
 }
 
 // CertificateProviderSharesDetails will return true if the last name or address

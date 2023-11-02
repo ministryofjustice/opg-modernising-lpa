@@ -14,7 +14,8 @@ type s3Service interface {
 	PutObject(context.Context, *s3.PutObjectInput, ...func(*s3.Options)) (*s3.PutObjectOutput, error)
 	PutObjectTagging(context.Context, *s3.PutObjectTaggingInput, ...func(*s3.Options)) (*s3.PutObjectTaggingOutput, error)
 	DeleteObject(context.Context, *s3.DeleteObjectInput, ...func(*s3.Options)) (*s3.DeleteObjectOutput, error)
-	GetObjectTagging(ctx context.Context, params *s3.GetObjectTaggingInput, optFns ...func(*s3.Options)) (*s3.GetObjectTaggingOutput, error)
+	GetObjectTagging(context.Context, *s3.GetObjectTaggingInput, ...func(*s3.Options)) (*s3.GetObjectTaggingOutput, error)
+	DeleteObjects(context.Context, *s3.DeleteObjectsInput, ...func(*s3.Options)) (*s3.DeleteObjectsOutput, error)
 }
 
 type Client struct {
@@ -32,6 +33,22 @@ func (c *Client) DeleteObject(ctx context.Context, key string) error {
 	_, err := c.svc.DeleteObject(ctx, &s3.DeleteObjectInput{
 		Bucket: aws.String(c.bucket),
 		Key:    aws.String(key),
+	})
+
+	return err
+}
+
+func (c *Client) DeleteObjects(ctx context.Context, keys []string) error {
+	var objectIdentifier []types.ObjectIdentifier
+	for _, k := range keys {
+		objectIdentifier = append(objectIdentifier, types.ObjectIdentifier{Key: aws.String(k)})
+	}
+
+	_, err := c.svc.DeleteObjects(ctx, &s3.DeleteObjectsInput{
+		Bucket: aws.String(c.bucket),
+		Delete: &types.Delete{
+			Objects: objectIdentifier,
+		},
 	})
 
 	return err

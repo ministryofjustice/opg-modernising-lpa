@@ -144,7 +144,6 @@ type AppPaths struct {
 	HowShouldReplacementAttorneysMakeDecisions           LpaPath
 	HowShouldReplacementAttorneysStepIn                  LpaPath
 	HowToConfirmYourIdentityAndSign                      LpaPath
-	HowToEmailOrPostEvidence                             LpaPath
 	HowToSendEvidence                                    LpaPath
 	HowWouldCertificateProviderPreferToCarryOutTheirRole LpaPath
 	HowWouldYouLikeToSendEvidence                        LpaPath
@@ -168,12 +167,15 @@ type AppPaths struct {
 	ResendCertificateProviderCode                        LpaPath
 	ResendIndependentWitnessCode                         LpaPath
 	Restrictions                                         LpaPath
+	SendUsYourEvidenceByPost                             LpaPath
 	SignTheLpaOnBehalf                                   LpaPath
 	SignYourLpa                                          LpaPath
 	TaskList                                             LpaPath
 	UploadEvidence                                       LpaPath
+	UploadEvidenceSSE                                    LpaPath
 	UseExistingAddress                                   LpaPath
 	WhatACertificateProviderDoes                         LpaPath
+	WhatHappensNextPostEvidence                          LpaPath
 	WhenCanTheLpaBeUsed                                  LpaPath
 	WhichFeeTypeAreYouApplyingFor                        LpaPath
 	WithdrawThisLpa                                      LpaPath
@@ -278,7 +280,6 @@ var Paths = AppPaths{
 	HowShouldReplacementAttorneysMakeDecisions:           "/how-should-replacement-attorneys-make-decisions",
 	HowShouldReplacementAttorneysStepIn:                  "/how-should-replacement-attorneys-step-in",
 	HowToConfirmYourIdentityAndSign:                      "/how-to-confirm-your-identity-and-sign",
-	HowToEmailOrPostEvidence:                             "/how-to-email-or-post-evidence",
 	HowToSendEvidence:                                    "/how-to-send-evidence",
 	HowWouldCertificateProviderPreferToCarryOutTheirRole: "/how-would-certificate-provider-prefer-to-carry-out-their-role",
 	HowWouldYouLikeToSendEvidence:                        "/how-would-you-like-to-send-evidence",
@@ -307,14 +308,17 @@ var Paths = AppPaths{
 	ResendIndependentWitnessCode:                         "/resend-independent-witness-code",
 	Restrictions:                                         "/restrictions",
 	Root:                                                 "/",
+	SendUsYourEvidenceByPost:                             "/send-us-your-evidence-by-post",
 	SignOut:                                              "/sign-out",
 	SignTheLpaOnBehalf:                                   "/sign-the-lpa-on-behalf",
 	SignYourLpa:                                          "/sign-your-lpa",
 	Start:                                                "/start",
 	TaskList:                                             "/task-list",
 	UploadEvidence:                                       "/upload-evidence",
+	UploadEvidenceSSE:                                    "/upload-evidence-sse",
 	UseExistingAddress:                                   "/use-existing-address",
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
+	WhatHappensNextPostEvidence:                          "/what-happens-next-post-evidence",
 	WhenCanTheLpaBeUsed:                                  "/when-can-the-lpa-be-used",
 	WhichFeeTypeAreYouApplyingFor:                        "/which-fee-type-are-you-applying-for",
 	WithdrawThisLpa:                                      "/withdraw-this-lpa",

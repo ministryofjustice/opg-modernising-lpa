@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 )
@@ -1036,37 +1037,13 @@ func TestLpaCost(t *testing.T) {
 		lpa      *Lpa
 		expected int
 	}{
-		"full": {
-			lpa:      &Lpa{FeeType: FullFee},
+		"denied": {
+			lpa:      &Lpa{FeeType: pay.HalfFee, Tasks: Tasks{PayForLpa: actor.PaymentTaskDenied}},
 			expected: 8200,
 		},
 		"half": {
-			lpa:      &Lpa{FeeType: HalfFee},
+			lpa:      &Lpa{FeeType: pay.HalfFee},
 			expected: 4100,
-		},
-		"no fee": {
-			lpa:      &Lpa{FeeType: NoFee},
-			expected: 0,
-		},
-		"hardship": {
-			lpa:      &Lpa{FeeType: HardshipFee},
-			expected: 0,
-		},
-		"repeat full": {
-			lpa:      &Lpa{FeeType: RepeatApplicationFee, PreviousFee: PreviousFeeFull},
-			expected: 4100,
-		},
-		"repeat half": {
-			lpa:      &Lpa{FeeType: RepeatApplicationFee, PreviousFee: PreviousFeeHalf},
-			expected: 2050,
-		},
-		"repeat exemption": {
-			lpa:      &Lpa{FeeType: RepeatApplicationFee, PreviousFee: PreviousFeeExemption},
-			expected: 0,
-		},
-		"repeat hardship": {
-			lpa:      &Lpa{FeeType: RepeatApplicationFee, PreviousFee: PreviousFeeHardship},
-			expected: 0,
 		},
 	}
 
@@ -1082,41 +1059,21 @@ func TestFeeAmount(t *testing.T) {
 		Lpa          *Lpa
 		ExpectedCost int
 	}{
-		"full fee - not paid": {
-			Lpa:          &Lpa{FeeType: FullFee},
-			ExpectedCost: 8200,
-		},
-		"half fee - not paid": {
-			Lpa:          &Lpa{FeeType: HalfFee},
+		"not paid": {
+			Lpa:          &Lpa{FeeType: pay.HalfFee},
 			ExpectedCost: 4100,
 		},
-		"no fee": {
-			Lpa:          &Lpa{FeeType: NoFee},
+		"fully paid": {
+			Lpa:          &Lpa{FeeType: pay.HalfFee, PaymentDetails: []Payment{{Amount: 4100}}},
 			ExpectedCost: 0,
 		},
-		"hardship fee": {
-			Lpa:          &Lpa{FeeType: HardshipFee},
-			ExpectedCost: 0,
-		},
-		"full fee - paid": {
-			Lpa:          &Lpa{FeeType: FullFee, PaymentDetails: []Payment{{Amount: 8200}}},
-			ExpectedCost: 0,
-		},
-		"half fee - paid": {
-			Lpa:          &Lpa{FeeType: HalfFee, PaymentDetails: []Payment{{Amount: 4100}}},
-			ExpectedCost: 0,
-		},
-		"half fee - paid, denied": {
-			Lpa:          &Lpa{FeeType: HalfFee, PaymentDetails: []Payment{{Amount: 4100}}, Tasks: Tasks{PayForLpa: actor.PaymentTaskDenied}},
+		"denied partially paid": {
+			Lpa:          &Lpa{FeeType: pay.HalfFee, PaymentDetails: []Payment{{Amount: 4100}}, Tasks: Tasks{PayForLpa: actor.PaymentTaskDenied}},
 			ExpectedCost: 4100,
 		},
-		"no fee - paid, denied": {
-			Lpa:          &Lpa{FeeType: NoFee, Tasks: Tasks{PayForLpa: actor.PaymentTaskDenied}},
-			ExpectedCost: 8200,
-		},
-		"hardship fee - paid, denied": {
-			Lpa:          &Lpa{FeeType: HardshipFee, Tasks: Tasks{PayForLpa: actor.PaymentTaskDenied}},
-			ExpectedCost: 8200,
+		"denied fully paid": {
+			Lpa:          &Lpa{FeeType: pay.HalfFee, PaymentDetails: []Payment{{Amount: 4100}, {Amount: 4100}}, Tasks: Tasks{PayForLpa: actor.PaymentTaskDenied}},
+			ExpectedCost: 0,
 		},
 	}
 
@@ -1126,70 +1083,6 @@ func TestFeeAmount(t *testing.T) {
 		})
 	}
 
-}
-
-func TestHasUnsentReducedFeesEvidence(t *testing.T) {
-	lpa := Lpa{Evidence: Evidence{Documents: []Document{
-		{Sent: time.Now()}, {}, {Sent: time.Now()}}},
-	}
-
-	assert.True(t, lpa.HasUnsentReducedFeesEvidence())
-
-	lpa.Evidence = Evidence{Documents: []Document{
-		{Sent: time.Now()}, {Sent: time.Now()}},
-	}
-
-	assert.False(t, lpa.HasUnsentReducedFeesEvidence())
-}
-
-func TestEvidenceDelete(t *testing.T) {
-	evidence := Evidence{Documents: []Document{
-		{Key: "a-key"},
-		{Key: "another-key"},
-	}}
-
-	assert.True(t, evidence.Delete("a-key"))
-	assert.Equal(t, Evidence{Documents: []Document{
-		{Key: "another-key"},
-	}}, evidence)
-
-	assert.True(t, evidence.Delete("another-key"))
-	assert.Equal(t, Evidence{Documents: []Document{}}, evidence)
-
-	assert.False(t, evidence.Delete("not-a-key"))
-}
-
-func TestEvidenceKeys(t *testing.T) {
-	evidence := Evidence{Documents: []Document{
-		{Key: "a-key"},
-		{Key: "another-key"},
-	}}
-
-	assert.Equal(t, []string{"a-key", "another-key"}, evidence.Keys())
-}
-
-func TestEvidenceGetByKey(t *testing.T) {
-	evidence := Evidence{Documents: []Document{
-		{Key: "a-key"},
-		{Key: "another-key"},
-	}}
-
-	assert.Equal(t, Document{Key: "a-key"}, evidence.Get("a-key"))
-	assert.Equal(t, Document{Key: "another-key"}, evidence.Get("another-key"))
-	assert.Equal(t, Document{}, evidence.Get("not-a-key"))
-}
-
-func TestEvidencePut(t *testing.T) {
-	evidence := Evidence{Documents: []Document{
-		{Key: "a-key", Filename: "a-filename"},
-		{Key: "another-key", Filename: "another-filename"},
-	}}
-
-	evidence.Put(Document{Key: "a-key", Filename: "a-new-filename"})
-	assert.Equal(t, Document{Key: "a-key", Filename: "a-new-filename"}, evidence.Documents[0])
-
-	evidence.Put(Document{Key: "new-key", Filename: "a-filename"})
-	assert.Equal(t, Document{Key: "new-key", Filename: "a-filename"}, evidence.Documents[2])
 }
 
 func TestCertificateProviderSharesDetailsNames(t *testing.T) {

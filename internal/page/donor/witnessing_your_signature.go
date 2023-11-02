@@ -14,7 +14,7 @@ type witnessingYourSignatureData struct {
 	Lpa    *page.Lpa
 }
 
-func WitnessingYourSignature(tmpl template.Template, witnessCodeSender WitnessCodeSender) Handler {
+func WitnessingYourSignature(tmpl template.Template, witnessCodeSender WitnessCodeSender, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if r.Method == http.MethodPost {
 			if err := witnessCodeSender.SendToCertificateProvider(r.Context(), lpa, appData.Localizer); err != nil {
@@ -24,6 +24,11 @@ func WitnessingYourSignature(tmpl template.Template, witnessCodeSender WitnessCo
 			if lpa.Donor.CanSign.IsYes() {
 				return appData.Redirect(w, r, lpa, page.Paths.WitnessingAsCertificateProvider.Format(lpa.ID))
 			} else {
+				lpa, err := donorStore.Get(r.Context())
+				if err != nil {
+					return err
+				}
+
 				if err := witnessCodeSender.SendToIndependentWitness(r.Context(), lpa, appData.Localizer); err != nil {
 					return err
 				}

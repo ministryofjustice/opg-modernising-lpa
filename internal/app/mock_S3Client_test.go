@@ -28,6 +28,20 @@ func (_m *mockS3Client) DeleteObject(_a0 context.Context, _a1 string) error {
 	return r0
 }
 
+// DeleteObjects provides a mock function with given fields: ctx, keys
+func (_m *mockS3Client) DeleteObjects(ctx context.Context, keys []string) error {
+	ret := _m.Called(ctx, keys)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, []string) error); ok {
+		r0 = rf(ctx, keys)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // PutObject provides a mock function with given fields: _a0, _a1, _a2
 func (_m *mockS3Client) PutObject(_a0 context.Context, _a1 string, _a2 []byte) error {
 	ret := _m.Called(_a0, _a1, _a2)

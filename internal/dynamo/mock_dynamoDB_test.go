@@ -47,6 +47,72 @@ func (_m *mockDynamoDB) BatchGetItem(_a0 context.Context, _a1 *dynamodb.BatchGet
 	return r0, r1
 }
 
+// BatchWriteItem provides a mock function with given fields: ctx, params, optFns
+func (_m *mockDynamoDB) BatchWriteItem(ctx context.Context, params *dynamodb.BatchWriteItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.BatchWriteItemOutput, error) {
+	_va := make([]interface{}, len(optFns))
+	for _i := range optFns {
+		_va[_i] = optFns[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, params)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *dynamodb.BatchWriteItemOutput
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *dynamodb.BatchWriteItemInput, ...func(*dynamodb.Options)) (*dynamodb.BatchWriteItemOutput, error)); ok {
+		return rf(ctx, params, optFns...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *dynamodb.BatchWriteItemInput, ...func(*dynamodb.Options)) *dynamodb.BatchWriteItemOutput); ok {
+		r0 = rf(ctx, params, optFns...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*dynamodb.BatchWriteItemOutput)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *dynamodb.BatchWriteItemInput, ...func(*dynamodb.Options)) error); ok {
+		r1 = rf(ctx, params, optFns...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// DeleteItem provides a mock function with given fields: _a0, _a1, _a2
+func (_m *mockDynamoDB) DeleteItem(_a0 context.Context, _a1 *dynamodb.DeleteItemInput, _a2 ...func(*dynamodb.Options)) (*dynamodb.DeleteItemOutput, error) {
+	_va := make([]interface{}, len(_a2))
+	for _i := range _a2 {
+		_va[_i] = _a2[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, _a0, _a1)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *dynamodb.DeleteItemOutput
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *dynamodb.DeleteItemInput, ...func(*dynamodb.Options)) (*dynamodb.DeleteItemOutput, error)); ok {
+		return rf(_a0, _a1, _a2...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *dynamodb.DeleteItemInput, ...func(*dynamodb.Options)) *dynamodb.DeleteItemOutput); ok {
+		r0 = rf(_a0, _a1, _a2...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*dynamodb.DeleteItemOutput)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *dynamodb.DeleteItemInput, ...func(*dynamodb.Options)) error); ok {
+		r1 = rf(_a0, _a1, _a2...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetItem provides a mock function with given fields: _a0, _a1, _a2
 func (_m *mockDynamoDB) GetItem(_a0 context.Context, _a1 *dynamodb.GetItemInput, _a2 ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error) {
 	_va := make([]interface{}, len(_a2))
@@ -171,6 +237,39 @@ func (_m *mockDynamoDB) TransactWriteItems(_a0 context.Context, _a1 *dynamodb.Tr
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, *dynamodb.TransactWriteItemsInput, ...func(*dynamodb.Options)) error); ok {
+		r1 = rf(_a0, _a1, _a2...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UpdateItem provides a mock function with given fields: _a0, _a1, _a2
+func (_m *mockDynamoDB) UpdateItem(_a0 context.Context, _a1 *dynamodb.UpdateItemInput, _a2 ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error) {
+	_va := make([]interface{}, len(_a2))
+	for _i := range _a2 {
+		_va[_i] = _a2[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, _a0, _a1)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *dynamodb.UpdateItemOutput
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *dynamodb.UpdateItemInput, ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error)); ok {
+		return rf(_a0, _a1, _a2...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *dynamodb.UpdateItemInput, ...func(*dynamodb.Options)) *dynamodb.UpdateItemOutput); ok {
+		r0 = rf(_a0, _a1, _a2...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*dynamodb.UpdateItemOutput)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *dynamodb.UpdateItemInput, ...func(*dynamodb.Options)) error); ok {
 		r1 = rf(_a0, _a1, _a2...)
 	} else {
 		r1 = ret.Error(1)
