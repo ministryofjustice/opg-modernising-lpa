@@ -43,6 +43,7 @@ func ReadAddressForm(r *http.Request) *AddressForm {
 			Line3:      PostFormString(r, "address-line-3"),
 			TownOrCity: PostFormString(r, "address-town"),
 			Postcode:   strings.ToUpper(PostFormString(r, "address-postcode")),
+			Country:    "GB",
 		}
 	}
 
