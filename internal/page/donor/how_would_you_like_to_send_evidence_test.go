@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -21,11 +22,11 @@ func TestGetHowWouldYouLikeToSendEvidence(t *testing.T) {
 	template.
 		On("Execute", w, &howWouldYouLikeToSendEvidenceData{
 			App:     testAppData,
-			Options: EvidenceDeliveryValues,
+			Options: pay.EvidenceDeliveryValues,
 		}).
 		Return(nil)
 
-	err := HowWouldYouLikeToSendEvidence(template.Execute)(testAppData, w, r, &page.Lpa{})
+	err := HowWouldYouLikeToSendEvidence(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -40,11 +41,11 @@ func TestGetHowWouldYouLikeToSendEvidenceFromStore(t *testing.T) {
 	template.
 		On("Execute", w, &howWouldYouLikeToSendEvidenceData{
 			App:     testAppData,
-			Options: EvidenceDeliveryValues,
+			Options: pay.EvidenceDeliveryValues,
 		}).
 		Return(nil)
 
-	err := HowWouldYouLikeToSendEvidence(template.Execute)(testAppData, w, r, &page.Lpa{})
+	err := HowWouldYouLikeToSendEvidence(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -60,7 +61,7 @@ func TestGetHowWouldYouLikeToSendEvidenceWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := HowWouldYouLikeToSendEvidence(template.Execute)(testAppData, w, r, &page.Lpa{})
+	err := HowWouldYouLikeToSendEvidence(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -68,9 +69,9 @@ func TestGetHowWouldYouLikeToSendEvidenceWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostHowWouldYouLikeToSendEvidence(t *testing.T) {
-	testcases := map[EvidenceDelivery]page.LpaPath{
-		Upload: page.Paths.UploadEvidence,
-		Post:   page.Paths.HowToEmailOrPostEvidence,
+	testcases := map[pay.EvidenceDelivery]page.LpaPath{
+		pay.Upload: page.Paths.UploadEvidence,
+		pay.Post:   page.Paths.SendUsYourEvidenceByPost,
 	}
 
 	for evidenceDelivery, redirect := range testcases {
@@ -83,7 +84,12 @@ func TestPostHowWouldYouLikeToSendEvidence(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := HowWouldYouLikeToSendEvidence(nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+			donorStore := newMockDonorStore(t)
+			donorStore.
+				On("Put", r.Context(), &page.Lpa{ID: "lpa-id", EvidenceDelivery: evidenceDelivery}).
+				Return(nil)
+
+			err := HowWouldYouLikeToSendEvidence(nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -91,6 +97,24 @@ func TestPostHowWouldYouLikeToSendEvidence(t *testing.T) {
 			assert.Equal(t, redirect.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
+}
+
+func TestPostHowWouldYouLikeToSendEvidenceWhenStoreErrors(t *testing.T) {
+	form := url.Values{
+		"evidence-delivery": {pay.Upload.String()},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), mock.Anything).
+		Return(expectedError)
+
+	err := HowWouldYouLikeToSendEvidence(nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+	assert.Equal(t, expectedError, err)
 }
 
 func TestPostHowWouldYouLikeToSendEvidenceWhenValidationErrors(t *testing.T) {
@@ -105,7 +129,7 @@ func TestPostHowWouldYouLikeToSendEvidenceWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := HowWouldYouLikeToSendEvidence(template.Execute)(testAppData, w, r, &page.Lpa{})
+	err := HowWouldYouLikeToSendEvidence(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
