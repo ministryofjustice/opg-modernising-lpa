@@ -18,6 +18,7 @@ func TestReadAddressForm(t *testing.T) {
 		Line3:      "c",
 		TownOrCity: "d",
 		Postcode:   "E",
+		Country:    "GB",
 	}
 
 	testCases := map[string]struct {

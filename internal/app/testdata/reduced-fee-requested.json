@@ -1,0 +1,26 @@
+{
+  "$id": "https://opg.service.justice.gov.uk/opg.poas.makeregister/reduced-fee-requested.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "opg.poas.makeregister/reduced-fee-requested",
+  "type": "object",
+  "properties": {
+    "uid": {
+      "type": "string",
+      "description": "The UID of the LPA",
+      "pattern": "M(-[A-Z0-9]{4}){3}"
+    },
+    "requestType": {
+      "type": "string",
+      "description": "The type of reduction being requested",
+      "enum": ["HalfFee", "NoFee"]
+    },
+    "evidence": {
+      "type": "array",
+      "description": "An array of absolute paths to evidence files in S3",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": ["uid", "requestType", "evidence"]
+}
