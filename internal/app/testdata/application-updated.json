@@ -1,0 +1,71 @@
+{
+  "$id": "https://opg.service.justice.gov.uk/opg.poas.makeregister/application-updated.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "opg.poas.makeregister/application-updated",
+  "type": "object",
+  "properties": {
+    "uid": {
+      "type": "string",
+      "description": "The UID of the LPA",
+      "pattern": "M(-[A-Z0-9]{4}){3}"
+    },
+    "type": {
+      "type": "string",
+      "description": "The type of LPA being applied for",
+      "enum": ["hw", "pfa"]
+    },
+    "createdAt": {
+      "type": "string",
+      "description": "When the LPA was created",
+      "format": "date-time"
+    },
+    "donor": {
+      "type": "object",
+      "properties": {
+        "firstNames": {
+          "type": "string",
+          "description": "The first name(s) of the donor, including any middle names"
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name of the donor"
+        },
+        "dob": {
+          "type": "string",
+          "description": "The date of birth of the donor",
+          "format": "date"
+        },
+        "address": {
+          "type": "object",
+          "description": "The donor's address",
+          "properties": {
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string"
+            },
+            "line3": {
+              "type": "string"
+            },
+            "town": {
+              "type": "string"
+            },
+            "postcode": {
+              "type": "string",
+              "pattern": "[A-Z0-9 ]{1,9}"
+            },
+            "country": {
+              "type": "string",
+              "description": "2-digit ISO 3166-1 country code per FCDO definitions: https://www.gov.uk/government/publications/geographical-names-and-information",
+              "pattern": "[A-Z]{2}"
+            }
+          },
+          "required": ["line1", "town", "country"]
+        }
+      },
+      "required": ["firstNames", "lastName", "dob", "address"]
+    }
+  },
+  "required": ["uid", "type", "createdAt", "donor"]
+}

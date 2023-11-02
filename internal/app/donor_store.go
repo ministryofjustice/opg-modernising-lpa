@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
@@ -160,7 +161,7 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 				FirstNames:  lpa.Donor.FirstNames,
 				LastName:    lpa.Donor.LastName,
 				DateOfBirth: lpa.Donor.DateOfBirth,
-				Postcode:    lpa.Donor.Address.Postcode,
+				Address:     lpa.Donor.Address,
 			},
 		}); err != nil {
 			s.logger.Print(err)
@@ -272,10 +273,10 @@ type applicationUpdatedEvent struct {
 }
 
 type applicationUpdatedEventDonor struct {
-	FirstNames  string    `json:"firstNames"`
-	LastName    string    `json:"lastName"`
-	DateOfBirth date.Date `json:"dob"`
-	Postcode    string    `json:"postcode"`
+	FirstNames  string        `json:"firstNames"`
+	LastName    string        `json:"lastName"`
+	DateOfBirth date.Date     `json:"dob"`
+	Address     place.Address `json:"address"`
 }
 
 type previousApplicationLinkedEvent struct {

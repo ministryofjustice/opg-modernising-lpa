@@ -103,11 +103,12 @@ func (c *Client) LookupPostcode(ctx context.Context, postcode string) ([]Address
 }
 
 type Address struct {
-	Line1      string
-	Line2      string
-	Line3      string
-	TownOrCity string
-	Postcode   string
+	Line1      string `json:"line1"`
+	Line2      string `json:"line2"`
+	Line3      string `json:"line3"`
+	TownOrCity string `json:"town"`
+	Postcode   string `json:"postcode"`
+	Country    string `json:"country"`
 }
 
 func (a Address) Encode() string {
@@ -165,6 +166,7 @@ func (ad *addressDetails) transformToAddress() Address {
 
 	a.TownOrCity = ad.Town
 	a.Postcode = ad.Postcode
+	a.Country = "GB"
 
 	return a
 }

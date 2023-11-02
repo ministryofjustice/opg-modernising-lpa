@@ -334,6 +334,7 @@ func TestPostChooseAttorneysAddressManualWhenValidationError(t *testing.T) {
 		Line2:      "b",
 		TownOrCity: "c",
 		Postcode:   "D",
+		Country:    "GB",
 	}
 
 	template := newMockTemplate(t)
@@ -708,6 +709,7 @@ func TestPostChooseAttorneysAddressReuseSelect(t *testing.T) {
 			Line3:      "c",
 			TownOrCity: "d",
 			Postcode:   "E",
+			Country:    "GB",
 		},
 	}
 
