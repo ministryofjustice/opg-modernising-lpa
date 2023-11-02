@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -12,7 +13,7 @@ type whichFeeTypeAreYouApplyingForData struct {
 	App     page.AppData
 	Errors  validation.List
 	Form    *whichFeeTypeAreYouApplyingForForm
-	Options page.FeeTypeOptions
+	Options pay.FeeTypeOptions
 }
 
 func WhichFeeTypeAreYouApplyingFor(tmpl template.Template, donorStore DonorStore) Handler {
@@ -22,7 +23,7 @@ func WhichFeeTypeAreYouApplyingFor(tmpl template.Template, donorStore DonorStore
 			Form: &whichFeeTypeAreYouApplyingForForm{
 				FeeType: lpa.FeeType,
 			},
-			Options: page.FeeTypeValues,
+			Options: pay.FeeTypeValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -48,12 +49,12 @@ func WhichFeeTypeAreYouApplyingFor(tmpl template.Template, donorStore DonorStore
 }
 
 type whichFeeTypeAreYouApplyingForForm struct {
-	FeeType page.FeeType
+	FeeType pay.FeeType
 	Error   error
 }
 
 func readWhichFeeTypeAreYouApplyingForForm(r *http.Request) *whichFeeTypeAreYouApplyingForForm {
-	feeType, err := page.ParseFeeType(page.PostFormString(r, "fee-type"))
+	feeType, err := pay.ParseFeeType(page.PostFormString(r, "fee-type"))
 
 	return &whichFeeTypeAreYouApplyingForForm{
 		FeeType: feeType,
