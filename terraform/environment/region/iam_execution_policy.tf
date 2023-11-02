@@ -23,6 +23,7 @@ data "aws_iam_policy_document" "execution_role_region" {
       "secretsmanager:GetSecretValue",
     ]
   }
+
   statement {
     effect = "Allow"
 
@@ -39,5 +40,6 @@ data "aws_iam_policy_document" "execution_role_region" {
       "kms:DescribeKey",
     ]
   }
+
   provider = aws.global
 }
