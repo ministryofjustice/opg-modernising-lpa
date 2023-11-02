@@ -70,7 +70,7 @@ func TestGetHowWouldYouLikeToSendEvidenceWhenTemplateErrors(t *testing.T) {
 func TestPostHowWouldYouLikeToSendEvidence(t *testing.T) {
 	testcases := map[EvidenceDelivery]page.LpaPath{
 		Upload: page.Paths.UploadEvidence,
-		Post:   page.Paths.HowToEmailOrPostEvidence,
+		Post:   page.Paths.SendUsYourEvidenceByPost,
 	}
 
 	for evidenceDelivery, redirect := range testcases {

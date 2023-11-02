@@ -20,6 +20,8 @@ type paymentConfirmationData struct {
 	Errors           validation.List
 	PaymentReference string
 	FeeType          page.FeeType
+	PreviousFee      page.PreviousFee
+	EvidenceDelivery page.EvidenceDelivery
 }
 
 func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore sessions.Store, evidenceS3Client S3Client, now func() time.Time) Handler {
@@ -47,6 +49,8 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 			App:              appData,
 			PaymentReference: payment.Reference,
 			FeeType:          lpa.FeeType,
+			PreviousFee:      lpa.PreviousFee,
+			EvidenceDelivery: lpa.EvidenceDelivery,
 		}
 
 		if err := sesh.ClearPayment(sessionStore, r, w); err != nil {

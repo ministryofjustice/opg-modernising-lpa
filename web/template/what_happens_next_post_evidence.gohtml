@@ -1,0 +1,16 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "whatHappensNext" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ tr .App "whatHappensNext" }}</h1>
+
+      {{ trFormatHtml .App "whatHappensNextPostEvidenceContent" "Application" (printf "application%s" .Lpa.FeeType.String | tr .App) }}
+      {{ template "details" (details . "appealingTheDecision" "appealingTheDecisionDetails" false) }}
+      
+      <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}">{{ tr .App "returnToTaskList" }}</a>
+    </div>
+  </div>
+{{ end }}
