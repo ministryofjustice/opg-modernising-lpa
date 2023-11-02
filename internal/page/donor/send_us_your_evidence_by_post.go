@@ -8,14 +8,14 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type howToEmailOrPostEvidenceData struct {
+type sendUsYourEvidenceByPostData struct {
 	App    page.AppData
 	Errors validation.List
 }
 
-func HowToEmailOrPostEvidence(tmpl template.Template, payer Payer) Handler {
+func SendUsYourEvidenceByPost(tmpl template.Template, payer Payer) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
-		data := &howToEmailOrPostEvidenceData{
+		data := &sendUsYourEvidenceByPostData{
 			App: appData,
 		}
 

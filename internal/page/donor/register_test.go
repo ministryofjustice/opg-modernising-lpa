@@ -415,7 +415,7 @@ func TestPayHelperPay(t *testing.T) {
 				payClient:    payClient,
 				appPublicURL: "http://example.org",
 				randomString: func(int) string { return "123456789012" },
-			}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, FeeType: page.FullFee})
+			}).Pay(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, FeeType: pay.FullFee})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -426,9 +426,9 @@ func TestPayHelperPay(t *testing.T) {
 }
 
 func TestPayHelperPayWhenPaymentNotRequired(t *testing.T) {
-	testCases := []page.FeeType{
-		page.NoFee,
-		page.HardshipFee,
+	testCases := []pay.FeeType{
+		pay.NoFee,
+		pay.HardshipFee,
 	}
 
 	for _, feeType := range testCases {
@@ -454,9 +454,10 @@ func TestPayHelperPayWhenPaymentNotRequired(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
-					ID:      "lpa-id",
-					FeeType: feeType,
-					Tasks:   page.Tasks{PayForLpa: actor.PaymentTaskPending},
+					ID:               "lpa-id",
+					FeeType:          feeType,
+					Tasks:            page.Tasks{PayForLpa: actor.PaymentTaskPending},
+					EvidenceDelivery: pay.Upload,
 				}).
 				Return(nil)
 
@@ -473,14 +474,55 @@ func TestPayHelperPayWhenPaymentNotRequired(t *testing.T) {
 				evidenceS3Client: s3Client,
 				documentStore:    documentStore,
 			}).Pay(testAppData, w, r, &page.Lpa{
-				ID:      "lpa-id",
-				FeeType: feeType,
+				ID:               "lpa-id",
+				FeeType:          feeType,
+				EvidenceDelivery: pay.Upload,
 			})
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
 			assert.Equal(t, page.Paths.EvidenceSuccessfullyUploaded.Format("lpa-id"), resp.Header.Get("Location"))
+		})
+	}
+}
+
+func TestPayHelperPayWhenPostingEvidence(t *testing.T) {
+	testCases := []pay.FeeType{
+		pay.NoFee,
+		pay.HardshipFee,
+	}
+
+	for _, feeType := range testCases {
+		t.Run(feeType.String(), func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", nil)
+
+			now := time.Now()
+
+			donorStore := newMockDonorStore(t)
+			donorStore.
+				On("Put", r.Context(), &page.Lpa{
+					ID:               "lpa-id",
+					FeeType:          feeType,
+					Tasks:            page.Tasks{PayForLpa: actor.PaymentTaskPending},
+					EvidenceDelivery: pay.Post,
+				}).
+				Return(nil)
+
+			err := (&payHelper{
+				donorStore: donorStore,
+				now:        func() time.Time { return now },
+			}).Pay(testAppData, w, r, &page.Lpa{
+				ID:               "lpa-id",
+				FeeType:          feeType,
+				EvidenceDelivery: pay.Post,
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, page.Paths.WhatHappensNextPostEvidence.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -507,9 +549,10 @@ func TestPayHelperPayWhenMoreEvidenceProvided(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
-			ID:      "lpa-id",
-			FeeType: page.FullFee,
-			Tasks:   page.Tasks{PayForLpa: actor.PaymentTaskPending},
+			ID:               "lpa-id",
+			FeeType:          pay.HalfFee,
+			Tasks:            page.Tasks{PayForLpa: actor.PaymentTaskPending},
+			EvidenceDelivery: pay.Upload,
 		}).
 		Return(nil)
 
@@ -526,9 +569,10 @@ func TestPayHelperPayWhenMoreEvidenceProvided(t *testing.T) {
 		evidenceS3Client: s3Client,
 		documentStore:    documentStore,
 	}).Pay(testAppData, w, r, &page.Lpa{
-		ID:      "lpa-id",
-		FeeType: page.FullFee,
-		Tasks:   page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired},
+		ID:               "lpa-id",
+		FeeType:          pay.HalfFee,
+		Tasks:            page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired},
+		EvidenceDelivery: pay.Upload,
 	})
 	resp := w.Result()
 
@@ -541,14 +585,19 @@ func TestPayHelperPayWhenPaymentNotRequiredWhenDocumentStoreGetAllError(t *testi
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), mock.Anything).
+		Return(nil)
+
 	documentStore := newMockDocumentStore(t)
 	documentStore.
 		On("GetAll", r.Context()).
 		Return(page.Documents{}, expectedError)
 
-	err := (&payHelper{documentStore: documentStore}).Pay(testAppData, w, r, &page.Lpa{
+	err := (&payHelper{documentStore: documentStore, donorStore: donorStore}).Pay(testAppData, w, r, &page.Lpa{
 		ID:      "lpa-id",
-		FeeType: page.NoFee,
+		FeeType: pay.NoFee,
 	})
 	resp := w.Result()
 
@@ -561,6 +610,11 @@ func TestPayHelperPayWhenPaymentNotRequiredWhenS3ClientPutObjectTaggingError(t *
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 	now := time.Now()
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), mock.Anything).
+		Return(nil)
 
 	documentStore := newMockDocumentStore(t)
 	documentStore.
@@ -584,11 +638,12 @@ func TestPayHelperPayWhenPaymentNotRequiredWhenS3ClientPutObjectTaggingError(t *
 	err := (&payHelper{
 		logger:           logger,
 		now:              func() time.Time { return now },
+		donorStore:       donorStore,
 		evidenceS3Client: s3Client,
 		documentStore:    documentStore,
 	}).Pay(testAppData, w, r, &page.Lpa{
 		ID:      "lpa-id",
-		FeeType: page.NoFee,
+		FeeType: pay.NoFee,
 	})
 	resp := w.Result()
 
@@ -602,6 +657,11 @@ func TestPayHelperPayWhenPaymentNotRequiredWhenDocumentStorePutError(t *testing.
 
 	now := time.Now()
 
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), mock.Anything).
+		Return(nil)
+
 	documentStore := newMockDocumentStore(t)
 	documentStore.
 		On("GetAll", r.Context()).
@@ -624,11 +684,12 @@ func TestPayHelperPayWhenPaymentNotRequiredWhenDocumentStorePutError(t *testing.
 
 	err := (&payHelper{
 		now:              func() time.Time { return now },
+		donorStore:       donorStore,
 		evidenceS3Client: s3Client,
 		documentStore:    documentStore,
 	}).Pay(testAppData, w, r, &page.Lpa{
 		ID:      "lpa-id",
-		FeeType: page.NoFee,
+		FeeType: pay.NoFee,
 	})
 	resp := w.Result()
 
@@ -642,43 +703,21 @@ func TestPayHelperPayWhenPaymentNotRequiredWhenDonorStorePutError(t *testing.T) 
 
 	now := time.Now()
 
-	documentStore := newMockDocumentStore(t)
-	documentStore.
-		On("GetAll", r.Context()).
-		Return(page.Documents{
-			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf", Sent: now},
-			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
-		}, nil)
-	documentStore.
-		On("Put", r.Context(), page.Document{
-			Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Sent: now,
-		}).
-		Return(nil)
-
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			ID:      "lpa-id",
-			FeeType: page.NoFee,
+			FeeType: pay.NoFee,
 			Tasks:   page.Tasks{PayForLpa: actor.PaymentTaskPending},
 		}).
 		Return(expectedError)
 
-	s3Client := newMockS3Client(t)
-	s3Client.
-		On("PutObjectTagging", r.Context(), "lpa-uid/evidence/another-uid", []types.Tag{
-			{Key: aws.String("replicate"), Value: aws.String("true")},
-		}).
-		Return(nil)
-
 	err := (&payHelper{
-		donorStore:       donorStore,
-		now:              func() time.Time { return now },
-		evidenceS3Client: s3Client,
-		documentStore:    documentStore,
+		donorStore: donorStore,
+		now:        func() time.Time { return now },
 	}).Pay(testAppData, w, r, &page.Lpa{
 		ID:      "lpa-id",
-		FeeType: page.NoFee,
+		FeeType: pay.NoFee,
 	})
 	resp := w.Result()
 
@@ -730,7 +769,7 @@ func TestPayHelperPayWhenFeeDenied(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			ID:             "lpa-id",
 			Donor:          actor.Donor{Email: "a@b.com"},
-			FeeType:        page.FullFee,
+			FeeType:        pay.FullFee,
 			Tasks:          page.Tasks{PayForLpa: actor.PaymentTaskInProgress},
 			PaymentDetails: []page.Payment{{Amount: 4100}},
 		}).
@@ -745,7 +784,7 @@ func TestPayHelperPayWhenFeeDenied(t *testing.T) {
 	}).Pay(testAppData, w, r, &page.Lpa{
 		ID:             "lpa-id",
 		Donor:          actor.Donor{Email: "a@b.com"},
-		FeeType:        page.HalfFee,
+		FeeType:        pay.HalfFee,
 		Tasks:          page.Tasks{PayForLpa: actor.PaymentTaskDenied},
 		PaymentDetails: []page.Payment{{Amount: 4100}},
 	})
@@ -800,7 +839,7 @@ func TestPayHelperPayWhenFeeDeniedAndPutStoreError(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			ID:             "lpa-id",
 			Donor:          actor.Donor{Email: "a@b.com"},
-			FeeType:        page.FullFee,
+			FeeType:        pay.FullFee,
 			Tasks:          page.Tasks{PayForLpa: actor.PaymentTaskInProgress},
 			PaymentDetails: []page.Payment{{Amount: 4100}},
 		}).
@@ -815,7 +854,7 @@ func TestPayHelperPayWhenFeeDeniedAndPutStoreError(t *testing.T) {
 	}).Pay(testAppData, w, r, &page.Lpa{
 		ID:             "lpa-id",
 		Donor:          actor.Donor{Email: "a@b.com"},
-		FeeType:        page.HalfFee,
+		FeeType:        pay.HalfFee,
 		Tasks:          page.Tasks{PayForLpa: actor.PaymentTaskDenied},
 		PaymentDetails: []page.Payment{{Amount: 4100}},
 	})
