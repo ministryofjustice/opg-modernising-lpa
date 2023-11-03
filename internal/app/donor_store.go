@@ -7,9 +7,8 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
@@ -20,7 +19,10 @@ type UidClient interface {
 
 //go:generate mockery --testonly --inpackage --name EventClient --structname mockEventClient
 type EventClient interface {
-	Send(context.Context, string, any) error
+	SendUidRequested(context.Context, event.UidRequested) error
+	SendApplicationUpdated(context.Context, event.ApplicationUpdated) error
+	SendPreviousApplicationLinked(context.Context, event.PreviousApplicationLinked) error
+	SendReducedFeeRequested(context.Context, event.ReducedFeeRequested) error
 }
 
 //go:generate mockery --testonly --inpackage --name DocumentStore --structname mockDocumentStore
@@ -34,7 +36,6 @@ type DocumentStore interface {
 type donorStore struct {
 	dynamoClient  DynamoClient
 	eventClient   EventClient
-	uidClient     UidClient
 	logger        Logger
 	uuidString    func() string
 	now           func() time.Time
@@ -130,55 +131,61 @@ func (s *donorStore) Latest(ctx context.Context) (*page.Lpa, error) {
 }
 
 func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
-	if lpa.UID == "" && !lpa.Type.Empty() {
-		resp, err := s.uidClient.CreateCase(ctx, &uid.CreateCaseRequestBody{
-			Type: lpa.Type.String(),
-			Donor: uid.DonorDetails{
-				Name:     lpa.Donor.FullName(),
-				Dob:      lpa.Donor.DateOfBirth,
-				Postcode: lpa.Donor.Address.Postcode,
-			},
-		})
-		if err != nil {
-			s.logger.Print(err)
-		} else {
-			lpa.UID = resp.UID
-		}
-	}
-
 	// By not setting UpdatedAt until a UID exists, queries for SK=#DONOR#xyz on
 	// ActorUpdatedAtIndex will not return UID-less LPAs.
 	if lpa.UID != "" {
 		lpa.UpdatedAt = s.now()
 	}
 
+	if lpa.UID == "" && !lpa.Type.Empty() && !lpa.HasSentUidRequestedEvent {
+		data, err := page.SessionDataFromContext(ctx)
+		if err != nil {
+			return err
+		}
+
+		if err := s.eventClient.SendUidRequested(ctx, event.UidRequested{
+			ID:             lpa.ID,
+			DonorSessionID: data.SessionID,
+			Type:           lpa.Type.String(),
+			Donor: uid.DonorDetails{
+				Name:     lpa.Donor.FullName(),
+				Dob:      lpa.Donor.DateOfBirth,
+				Postcode: lpa.Donor.Address.Postcode,
+			},
+		}); err != nil {
+			return err
+		}
+
+		lpa.HasSentUidRequestedEvent = true
+	}
+
 	if lpa.UID != "" && !lpa.HasSentApplicationUpdatedEvent {
-		if err := s.eventClient.Send(ctx, "application-updated", applicationUpdatedEvent{
+		if err := s.eventClient.SendApplicationUpdated(ctx, event.ApplicationUpdated{
 			UID:       lpa.UID,
 			Type:      lpa.Type.String(),
 			CreatedAt: lpa.CreatedAt,
-			Donor: applicationUpdatedEventDonor{
+			Donor: event.ApplicationUpdatedDonor{
 				FirstNames:  lpa.Donor.FirstNames,
 				LastName:    lpa.Donor.LastName,
 				DateOfBirth: lpa.Donor.DateOfBirth,
 				Address:     lpa.Donor.Address,
 			},
 		}); err != nil {
-			s.logger.Print(err)
-		} else {
-			lpa.HasSentApplicationUpdatedEvent = true
+			return err
 		}
+
+		lpa.HasSentApplicationUpdatedEvent = true
 	}
 
 	if lpa.UID != "" && lpa.PreviousApplicationNumber != "" && !lpa.HasSentPreviousApplicationLinkedEvent {
-		if err := s.eventClient.Send(ctx, "previous-application-linked", previousApplicationLinkedEvent{
+		if err := s.eventClient.SendPreviousApplicationLinked(ctx, event.PreviousApplicationLinked{
 			UID:                       lpa.UID,
 			PreviousApplicationNumber: lpa.PreviousApplicationNumber,
 		}); err != nil {
-			s.logger.Print(err)
-		} else {
-			lpa.HasSentPreviousApplicationLinkedEvent = true
+			return err
 		}
+
+		lpa.HasSentPreviousApplicationLinkedEvent = true
 	}
 
 	if lpa.UID != "" && lpa.Tasks.PayForLpa.IsPending() {
@@ -197,25 +204,25 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 		}
 
 		if len(unsentKeys) > 0 {
-			if err := s.eventClient.Send(ctx, "reduced-fee-requested", reducedFeeRequestedEvent{
+			if err := s.eventClient.SendReducedFeeRequested(ctx, event.ReducedFeeRequested{
 				UID:         lpa.UID,
 				RequestType: lpa.FeeType.String(),
 				Evidence:    unsentKeys,
 			}); err != nil {
+				return err
+			}
+
+			var updatedDocuments page.Documents
+
+			for _, document := range documents {
+				if document.Sent.IsZero() && !document.Scanned {
+					document.Sent = s.now()
+					updatedDocuments = append(updatedDocuments, document)
+				}
+			}
+
+			if err := s.documentStore.BatchPut(ctx, updatedDocuments); err != nil {
 				s.logger.Print(err)
-			} else {
-				var updatedDocuments page.Documents
-
-				for _, document := range documents {
-					if document.Sent.IsZero() && !document.Scanned {
-						document.Sent = s.now()
-						updatedDocuments = append(updatedDocuments, document)
-					}
-				}
-
-				if err := s.documentStore.BatchPut(ctx, updatedDocuments); err != nil {
-					s.logger.Print(err)
-				}
 			}
 		}
 	}
@@ -263,29 +270,4 @@ func donorKey(s string) string {
 
 func subKey(s string) string {
 	return "#SUB#" + s
-}
-
-type applicationUpdatedEvent struct {
-	UID       string                       `json:"uid"`
-	Type      string                       `json:"type"`
-	CreatedAt time.Time                    `json:"createdAt"`
-	Donor     applicationUpdatedEventDonor `json:"donor"`
-}
-
-type applicationUpdatedEventDonor struct {
-	FirstNames  string        `json:"firstNames"`
-	LastName    string        `json:"lastName"`
-	DateOfBirth date.Date     `json:"dob"`
-	Address     place.Address `json:"address"`
-}
-
-type previousApplicationLinkedEvent struct {
-	UID                       string `json:"uid"`
-	PreviousApplicationNumber string `json:"previousApplicationNumber"`
-}
-
-type reducedFeeRequestedEvent struct {
-	UID         string   `json:"uid"`
-	RequestType string   `json:"requestType"`
-	Evidence    []string `json:"evidence"`
 }
