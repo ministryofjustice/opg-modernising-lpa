@@ -28,3 +28,11 @@ variable "app_public_url" {
 variable "uploads_bucket" {
   type = any
 }
+
+variable "uid_base_url" {
+  type = string
+}
+
+variable "allowed_api_arns" {
+  type = list(string)
+}
