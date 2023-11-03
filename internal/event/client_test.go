@@ -29,7 +29,7 @@ func TestClientSend(t *testing.T) {
 		Return(nil, expectedError)
 
 	client := Client{svc: svc, eventBusName: "my-bus"}
-	err := client.Send(ctx, "my-detail", map[string]string{"my": "event"})
+	err := client.send(ctx, "my-detail", map[string]string{"my": "event"})
 
 	assert.Equal(t, expectedError, err)
 }
