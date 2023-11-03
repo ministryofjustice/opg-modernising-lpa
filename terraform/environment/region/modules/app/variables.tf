@@ -96,11 +96,6 @@ variable "rum_monitor_application_id_secretsmanager_secret_arn" {
   nullable    = true
 }
 
-variable "app_allowed_api_arns" {
-  type        = map(list(string))
-  description = "ARNs of allowed APIs"
-}
-
 variable "uploads_s3_bucket" {
   type = object({
     bucket_name = string
@@ -115,4 +110,8 @@ variable "event_bus" {
     arn  = string
   })
   description = "Name and ARN of the event bus to send events to"
+}
+
+variable "uid_base_url" {
+  type = string
 }

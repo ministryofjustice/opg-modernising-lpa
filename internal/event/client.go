@@ -28,7 +28,23 @@ func NewClient(cfg aws.Config, eventBusName string) *Client {
 	}
 }
 
-func (c *Client) Send(ctx context.Context, detailType string, detail any) error {
+func (c *Client) SendUidRequested(ctx context.Context, event UidRequested) error {
+	return c.send(ctx, "uid-requested", event)
+}
+
+func (c *Client) SendApplicationUpdated(ctx context.Context, event ApplicationUpdated) error {
+	return c.send(ctx, "application-updated", event)
+}
+
+func (c *Client) SendPreviousApplicationLinked(ctx context.Context, event PreviousApplicationLinked) error {
+	return c.send(ctx, "previous-application-linked", event)
+}
+
+func (c *Client) SendReducedFeeRequested(ctx context.Context, event ReducedFeeRequested) error {
+	return c.send(ctx, "reduced-fee-requested", event)
+}
+
+func (c *Client) send(ctx context.Context, detailType string, detail any) error {
 	v, err := json.Marshal(detail)
 	if err != nil {
 		return err
