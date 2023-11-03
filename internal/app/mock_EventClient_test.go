@@ -5,6 +5,7 @@ package app
 import (
 	context "context"
 
+	event "github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -13,13 +14,55 @@ type mockEventClient struct {
 	mock.Mock
 }
 
-// Send provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockEventClient) Send(_a0 context.Context, _a1 string, _a2 interface{}) error {
-	ret := _m.Called(_a0, _a1, _a2)
+// SendApplicationUpdated provides a mock function with given fields: _a0, _a1
+func (_m *mockEventClient) SendApplicationUpdated(_a0 context.Context, _a1 event.ApplicationUpdated) error {
+	ret := _m.Called(_a0, _a1)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, interface{}) error); ok {
-		r0 = rf(_a0, _a1, _a2)
+	if rf, ok := ret.Get(0).(func(context.Context, event.ApplicationUpdated) error); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// SendPreviousApplicationLinked provides a mock function with given fields: _a0, _a1
+func (_m *mockEventClient) SendPreviousApplicationLinked(_a0 context.Context, _a1 event.PreviousApplicationLinked) error {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, event.PreviousApplicationLinked) error); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// SendReducedFeeRequested provides a mock function with given fields: _a0, _a1
+func (_m *mockEventClient) SendReducedFeeRequested(_a0 context.Context, _a1 event.ReducedFeeRequested) error {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, event.ReducedFeeRequested) error); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// SendUidRequested provides a mock function with given fields: _a0, _a1
+func (_m *mockEventClient) SendUidRequested(_a0 context.Context, _a1 event.UidRequested) error {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, event.UidRequested) error); ok {
+		r0 = rf(_a0, _a1)
 	} else {
 		r0 = ret.Error(0)
 	}
