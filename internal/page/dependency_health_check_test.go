@@ -21,7 +21,7 @@ func TestDependencyHealthCheck(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/", nil)
 		w := httptest.NewRecorder()
 
-		uidClient := newMockUidClient(t)
+		uidClient := newMockHealthChecker(t)
 		uidClient.
 			On("Health", mock.Anything).
 			Return(&http.Response{StatusCode: status}, nil)
@@ -38,7 +38,7 @@ func TestDependencyHealthCheckUidOnRequestError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 
-	uidClient := newMockUidClient(t)
+	uidClient := newMockHealthChecker(t)
 	uidClient.
 		On("Health", mock.Anything).
 		Return(&http.Response{}, expectedError)
