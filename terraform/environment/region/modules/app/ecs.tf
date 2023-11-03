@@ -246,15 +246,6 @@ data "aws_iam_policy_document" "task_role_access_policy" {
   }
 
   statement {
-    sid    = "uidApiAccess"
-    effect = "Allow"
-    actions = [
-      "execute-api:Invoke",
-    ]
-    resources = var.app_allowed_api_arns.uid_service
-  }
-
-  statement {
     sid    = "uploadsS3BucketAccess"
     effect = "Allow"
     actions = [
@@ -384,10 +375,6 @@ locals {
         {
           name  = "AWS_RUM_APPLICATION_REGION",
           value = data.aws_region.current.name
-        },
-        {
-          name  = "UID_BASE_URL",
-          value = var.app_env_vars.uid_base_url
         },
         {
           name  = "ONELOGIN_URL",

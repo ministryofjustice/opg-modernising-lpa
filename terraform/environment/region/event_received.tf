@@ -11,6 +11,8 @@ module "event_received" {
   event_bus_name                = module.event_bus.event_bus.name
   app_public_url                = aws_route53_record.app.fqdn
   uploads_bucket                = module.uploads_s3_bucket.bucket
+  uid_base_url                  = var.event_received.uid_base_url
+  allowed_api_arns              = var.event_received.allowed_api_arns
 
   lpas_table = {
     arn  = var.lpas_table.arn

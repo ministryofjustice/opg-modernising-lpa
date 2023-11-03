@@ -49,6 +49,15 @@ data "aws_iam_policy_document" "lambda" {
     ]
   }
 
+  statement {
+    sid    = "allowApiAccess"
+    effect = "Allow"
+    actions = [
+      "execute-api:Invoke",
+    ]
+    resources = var.allowed_api_arns
+  }
+
   provider = aws.region
 }
 
