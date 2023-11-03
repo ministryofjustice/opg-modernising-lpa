@@ -13,13 +13,13 @@ type mockDocumentStore struct {
 	mock.Mock
 }
 
-// UpdateScanResults provides a mock function with given fields: ctx, pk, sk, virusDetected
-func (_m *mockDocumentStore) UpdateScanResults(ctx context.Context, pk string, sk string, virusDetected bool) error {
-	ret := _m.Called(ctx, pk, sk, virusDetected)
+// UpdateScanResults provides a mock function with given fields: ctx, lpaID, objectKey, virusDetected
+func (_m *mockDocumentStore) UpdateScanResults(ctx context.Context, lpaID string, objectKey string, virusDetected bool) error {
+	ret := _m.Called(ctx, lpaID, objectKey, virusDetected)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, string, string, bool) error); ok {
-		r0 = rf(ctx, pk, sk, virusDetected)
+		r0 = rf(ctx, lpaID, objectKey, virusDetected)
 	} else {
 		r0 = ret.Error(0)
 	}
