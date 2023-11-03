@@ -72,11 +72,6 @@ variable "dns_weighting" {
   description = "Weighting for DNS records"
 }
 
-variable "app_allowed_api_arns" {
-  type        = map(list(string))
-  description = "ARNs of allowed APIs"
-}
-
 variable "reduced_fees" {
   type = object({
     s3_object_replication_enabled             = bool
@@ -105,4 +100,11 @@ variable "s3_antivirus_provisioned_concurrency" {
     condition     = var.s3_antivirus_provisioned_concurrency >= 0 && var.s3_antivirus_provisioned_concurrency <= 6
     error_message = "s3_antivirus_provisioned_concurrency must be between 0 and 6"
   }
+}
+
+variable "event_received" {
+  type = object({
+    uid_base_url     = string
+    allowed_api_arns = string
+  })
 }
