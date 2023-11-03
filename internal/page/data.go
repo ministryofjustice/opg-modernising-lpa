@@ -155,6 +155,7 @@ type Lpa struct {
 	// PreviousFee is the fee previously paid for an LPA
 	PreviousFee pay.PreviousFee
 
+	HasSentUidRequestedEvent              bool
 	HasSentApplicationUpdatedEvent        bool
 	HasSentPreviousApplicationLinkedEvent bool
 }
