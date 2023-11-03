@@ -5,18 +5,21 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type sendUsYourEvidenceByPostData struct {
-	App    page.AppData
-	Errors validation.List
+	App     page.AppData
+	Errors  validation.List
+	FeeType pay.FeeType
 }
 
 func SendUsYourEvidenceByPost(tmpl template.Template, payer Payer) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &sendUsYourEvidenceByPostData{
-			App: appData,
+			App:     appData,
+			FeeType: lpa.FeeType,
 		}
 
 		if r.Method == http.MethodPost {
