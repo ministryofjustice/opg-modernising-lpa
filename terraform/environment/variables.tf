@@ -37,16 +37,16 @@ variable "environments" {
           app_public_url         = string
           auth_redirect_base_url = string
           notify_is_production   = string
-          uid_base_url           = string
           onelogin_url           = string
         })
         autoscaling = object({
           minimum = number
           maximum = number
         })
-        allowed_api_arns = object({
-          uid_service = list(string)
-        })
+      })
+      event_received = object({
+        uid_base_url     = string
+        allowed_api_arns = list(string)
       })
       backups = object({
         backup_plan_enabled = bool

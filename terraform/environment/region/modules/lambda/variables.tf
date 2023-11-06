@@ -59,3 +59,8 @@ variable "ecr_arn" {
 variable "kms_key" {
   description = "KMS key for the lambda log group"
 }
+
+variable "allowed_api_arns" {
+  type    = list(string)
+  default = []
+}
