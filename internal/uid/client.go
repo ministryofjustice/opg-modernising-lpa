@@ -69,9 +69,9 @@ type CreateCaseResponseBadRequestError struct {
 	Detail string `json:"detail"`
 }
 
-func (c *Client) CreateCase(ctx context.Context, body *CreateCaseRequestBody) (CreateCaseResponse, error) {
+func (c *Client) CreateCase(ctx context.Context, body *CreateCaseRequestBody) (string, error) {
 	if !body.Valid() {
-		return CreateCaseResponse{}, errors.New("CreateCaseRequestBody missing details. Requires Type, Donor name, dob and postcode")
+		return "", errors.New("CreateCaseRequestBody missing details. Requires Type, Donor name, dob and postcode")
 	}
 
 	body.Source = "APPLICANT"
@@ -79,39 +79,38 @@ func (c *Client) CreateCase(ctx context.Context, body *CreateCaseRequestBody) (C
 
 	r, err := http.NewRequest(http.MethodPost, c.baseURL+"/cases", bytes.NewReader(data))
 	if err != nil {
-		return CreateCaseResponse{}, err
+		return "", err
 	}
 
 	r.Header.Add("Content-Type", "application/json")
 
 	err = c.sign(ctx, r, apiGatewayServiceName)
 	if err != nil {
-		return CreateCaseResponse{}, err
+		return "", err
 	}
 
 	resp, err := c.httpClient.Do(r)
 	if err != nil {
-		return CreateCaseResponse{}, err
+		return "", err
 	}
-
 	defer resp.Body.Close()
 
 	if resp.StatusCode > http.StatusBadRequest {
 		body, _ := io.ReadAll(resp.Body)
-		return CreateCaseResponse{}, fmt.Errorf("error POSTing to UID service: (%d) %s", resp.StatusCode, string(body))
+		return "", fmt.Errorf("error POSTing to UID service: (%d) %s", resp.StatusCode, string(body))
 	}
 
 	var createCaseResponse CreateCaseResponse
 
 	if err := json.NewDecoder(resp.Body).Decode(&createCaseResponse); err != nil {
-		return CreateCaseResponse{}, err
+		return "", err
 	}
 
 	if len(createCaseResponse.BadRequestErrors) > 0 {
-		return CreateCaseResponse{}, createCaseResponse.Error()
+		return "", createCaseResponse.Error()
 	}
 
-	return createCaseResponse, nil
+	return createCaseResponse.UID, nil
 }
 
 func (c *Client) Health(ctx context.Context) (*http.Response, error) {

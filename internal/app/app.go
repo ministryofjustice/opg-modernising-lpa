@@ -29,7 +29,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
 //go:generate mockery --testonly --inpackage --name Logger --structname mockLogger
@@ -84,7 +83,6 @@ func App(
 	staticHash string,
 	paths page.AppPaths,
 	oneLoginClient *onelogin.Client,
-	uidClient *uid.Client,
 	oneloginURL string,
 	s3Client S3Client,
 	eventClient *event.Client,
@@ -94,7 +92,6 @@ func App(
 	donorStore := &donorStore{
 		dynamoClient:  lpaDynamoClient,
 		eventClient:   eventClient,
-		uidClient:     uidClient,
 		logger:        logger,
 		uuidString:    uuid.NewString,
 		now:           time.Now,
