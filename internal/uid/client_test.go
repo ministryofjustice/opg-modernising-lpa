@@ -119,7 +119,7 @@ func TestCreateCase(t *testing.T) {
 		now:        now,
 	}
 
-	resp, err := client.CreateCase(context.Background(), validBody)
+	uid, err := client.CreateCase(context.Background(), validBody)
 
 	expectedBody := `{"type":"pfa","source":"APPLICANT","donor":{"name":"Jane Smith","dob":"2000-01-02","postcode":"ABC123"}}`
 
@@ -129,8 +129,7 @@ func TestCreateCase(t *testing.T) {
 	assert.JSONEq(t, expectedBody, requestBody)
 
 	assert.Nil(t, err)
-	assert.Nil(t, resp.BadRequestErrors)
-	assert.Equal(t, "M-789Q-P4DF-4UX3", resp.UID)
+	assert.Equal(t, "M-789Q-P4DF-4UX3", uid)
 }
 
 func TestCreateCaseOnInvalidBody(t *testing.T) {
@@ -293,10 +292,10 @@ func TestCreateCaseOnBadRequestResponse(t *testing.T) {
 		now:        now,
 	}
 
-	resp, err := client.CreateCase(context.Background(), validBody)
+	uid, err := client.CreateCase(context.Background(), validBody)
 
 	assert.Equal(t, errors.New("error POSTing to UID service: (400) /donor/dob must match format YYYY-MM-DD"), err)
-	assert.Equal(t, "", resp.UID)
+	assert.Equal(t, "", uid)
 }
 
 func TestCreateCaseNonSuccessResponses(t *testing.T) {
@@ -348,10 +347,10 @@ func TestCreateCaseNonSuccessResponses(t *testing.T) {
 				now:        now,
 			}
 
-			resp, err := client.CreateCase(context.Background(), validBody)
+			uid, err := client.CreateCase(context.Background(), validBody)
 
 			assert.Equal(t, tc.expectedError, err)
-			assert.Equal(t, "", resp.UID)
+			assert.Equal(t, "", uid)
 		})
 	}
 }
@@ -572,13 +571,13 @@ func TestPactContract(t *testing.T) {
 					now:        now,
 				}
 
-				resp, err := client.CreateCase(context.Background(), tc.ActualRequestBody)
+				uid, err := client.CreateCase(context.Background(), tc.ActualRequestBody)
 
 				if tc.ResponseStatus == http.StatusCreated {
-					assert.NotEmpty(t, resp.UID)
+					assert.NotEmpty(t, uid)
 					assert.NoError(t, err)
 				} else {
-					assert.Empty(t, resp.UID)
+					assert.Empty(t, uid)
 					assert.Error(t, err)
 				}
 
