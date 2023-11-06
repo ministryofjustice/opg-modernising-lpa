@@ -39,6 +39,7 @@ services:
       - APP_PUBLIC_URL=http://localhost:5050
       - GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080
       - UPLOADS_S3_BUCKET_NAME=evidence
+      - UID_BASE_URL=http://mock-uid:8080
     ports:
       - "9000:8080"
     entrypoint: aws-lambda-rie /var/task/event-received
