@@ -23,7 +23,8 @@ func TestGetHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &howLongHaveYouKnownCertificateProviderData{
-			App: testAppData,
+			App:     testAppData,
+			Options: actor.CertificateProviderRelationshipLengthValues,
 		}).
 		Return(nil)
 
@@ -46,6 +47,7 @@ func TestGetHowLongHaveYouKnownCertificateProviderFromStore(t *testing.T) {
 			App:                 testAppData,
 			CertificateProvider: certificateProvider,
 			RelationshipLength:  actor.GreaterThanEqualToTwoYears,
+			Options:             actor.CertificateProviderRelationshipLengthValues,
 		}).
 		Return(nil)
 
@@ -63,7 +65,8 @@ func TestGetHowLongHaveYouKnownCertificateProviderWhenTemplateErrors(t *testing.
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &howLongHaveYouKnownCertificateProviderData{
-			App: testAppData,
+			App:     testAppData,
+			Options: actor.CertificateProviderRelationshipLengthValues,
 		}).
 		Return(expectedError)
 
@@ -151,8 +154,9 @@ func TestPostHowLongHaveYouKnownCertificateProviderWhenValidationErrors(t *testi
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &howLongHaveYouKnownCertificateProviderData{
-			App:    testAppData,
-			Errors: validation.With("relationship-length", validation.SelectError{Label: "howLongYouHaveKnownCertificateProvider"}),
+			App:     testAppData,
+			Errors:  validation.With("relationship-length", validation.SelectError{Label: "howLongYouHaveKnownCertificateProvider"}),
+			Options: actor.CertificateProviderRelationshipLengthValues,
 		}).
 		Return(nil)
 
