@@ -12,15 +12,79 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 var expectedError = errors.New("err")
 var ctx = context.Background()
+
+func TestHandleUidRequested(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "uid-requested",
+		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","type":"hw","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
+	}
+
+	uidClient := newMockUidClient(t)
+	uidClient.
+		On("CreateCase", ctx, &uid.CreateCaseRequestBody{
+			Type: "hw",
+			Donor: uid.DonorDetails{
+				Name:     "a donor",
+				Dob:      date.New("2000", "01", "02"),
+				Postcode: "F1 1FF",
+			},
+		}).
+		Return("M-1111-2222-3333", nil)
+
+	uidStore := newMockUidStore(t)
+	uidStore.
+		On("Set", ctx, "an-id", "donor-id", "M-1111-2222-3333").
+		Return(nil)
+
+	err := handleUidRequested(ctx, uidStore, uidClient, event)
+	assert.Nil(t, err)
+}
+
+func TestHandleUidRequestedWhenUidClientErrors(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "uid-requested",
+		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","type":"hw","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
+	}
+
+	uidClient := newMockUidClient(t)
+	uidClient.
+		On("CreateCase", ctx, mock.Anything).
+		Return("", expectedError)
+
+	err := handleUidRequested(ctx, nil, uidClient, event)
+	assert.Equal(t, fmt.Errorf("failed to create case: %w", expectedError), err)
+}
+
+func TestHandleUidRequestedWhenUidStoreErrors(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "uid-requested",
+		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","type":"hw","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
+	}
+
+	uidClient := newMockUidClient(t)
+	uidClient.
+		On("CreateCase", ctx, mock.Anything).
+		Return("M-1111-2222-3333", nil)
+
+	uidStore := newMockUidStore(t)
+	uidStore.
+		On("Set", ctx, "an-id", "donor-id", "M-1111-2222-3333").
+		Return(expectedError)
+
+	err := handleUidRequested(ctx, uidStore, uidClient, event)
+	assert.Equal(t, fmt.Errorf("failed to set uid: %w", expectedError), err)
+}
 
 func TestHandleEvidenceReceived(t *testing.T) {
 	event := events.CloudWatchEvent{
@@ -59,7 +123,7 @@ func TestHandleEvidenceReceivedWhenClientGetError(t *testing.T) {
 		Return(expectedError)
 
 	err := handleEvidenceReceived(ctx, client, event)
-	assert.Equal(t, fmt.Errorf("failed to resolve uid for 'evidence-received': %w", expectedError), err)
+	assert.Equal(t, fmt.Errorf("failed to resolve uid: %w", expectedError), err)
 }
 
 func TestHandleEvidenceReceivedWhenLpaMissingPK(t *testing.T) {
@@ -78,7 +142,7 @@ func TestHandleEvidenceReceivedWhenLpaMissingPK(t *testing.T) {
 		})
 
 	err := handleEvidenceReceived(ctx, client, event)
-	assert.Equal(t, errors.New("PK missing from LPA in response to 'evidence-received'"), err)
+	assert.Equal(t, errors.New("PK missing from LPA in response"), err)
 }
 
 func TestHandleEvidenceReceivedWhenClientPutError(t *testing.T) {
@@ -103,7 +167,7 @@ func TestHandleEvidenceReceivedWhenClientPutError(t *testing.T) {
 		Return(expectedError)
 
 	err := handleEvidenceReceived(ctx, client, event)
-	assert.Equal(t, fmt.Errorf("failed to persist evidence received for 'evidence-received': %w", expectedError), err)
+	assert.Equal(t, fmt.Errorf("failed to persist evidence received: %w", expectedError), err)
 }
 
 func TestHandleFeeApproved(t *testing.T) {
@@ -170,7 +234,7 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 		Return(expectedError)
 
 	err := handleFeeApproved(ctx, client, event, nil, page.AppData{}, func() time.Time { return now })
-	assert.Equal(t, fmt.Errorf("failed to update LPA task status for 'fee-approved': %w", expectedError), err)
+	assert.Equal(t, fmt.Errorf("failed to update LPA task status: %w", expectedError), err)
 }
 
 func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
@@ -206,7 +270,7 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 		Return(expectedError)
 
 	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{}, func() time.Time { return now })
-	assert.Equal(t, fmt.Errorf("failed to send share code to certificate provider for 'fee-approved': %w", expectedError), err)
+	assert.Equal(t, fmt.Errorf("failed to send share code to certificate provider: %w", expectedError), err)
 }
 
 func TestHandleMoreEvidenceRequired(t *testing.T) {
@@ -268,7 +332,7 @@ func TestHandleMoreEvidenceRequiredWhenPutError(t *testing.T) {
 		Return(expectedError)
 
 	err := handleMoreEvidenceRequired(ctx, client, event, func() time.Time { return now })
-	assert.Equal(t, fmt.Errorf("failed to update LPA task status for 'more-evidence-required': %w", expectedError), err)
+	assert.Equal(t, fmt.Errorf("failed to update LPA task status: %w", expectedError), err)
 }
 
 func TestHandleFeeDenied(t *testing.T) {
@@ -330,7 +394,7 @@ func TestHandleFeeDeniedWhenPutError(t *testing.T) {
 		Return(expectedError)
 
 	err := handleFeeDenied(ctx, client, event, func() time.Time { return now })
-	assert.Equal(t, fmt.Errorf("failed to update LPA task status for 'fee-denied': %w", expectedError), err)
+	assert.Equal(t, fmt.Errorf("failed to update LPA task status: %w", expectedError), err)
 }
 
 func TestHandleObjectTagsAdded(t *testing.T) {
@@ -407,7 +471,7 @@ func TestHandleObjectTagsAddedWhenObjectKeyMissing(t *testing.T) {
 	}
 
 	err := handleObjectTagsAdded(ctx, nil, event.S3Event, nil, nil)
-	assert.Equal(t, fmt.Errorf("object key missing in event in '%s'", objectTagsAddedEventName), err)
+	assert.Equal(t, fmt.Errorf("object key missing"), err)
 }
 
 func TestHandleObjectTagsAddedWhenS3ClientGetObjectTagsError(t *testing.T) {
@@ -423,7 +487,7 @@ func TestHandleObjectTagsAddedWhenS3ClientGetObjectTagsError(t *testing.T) {
 		Return([]types.Tag{}, expectedError)
 
 	err := handleObjectTagsAdded(ctx, nil, event.S3Event, s3Client, nil)
-	assert.Equal(t, fmt.Errorf("failed to get tags for object in '%s': %w", objectTagsAddedEventName, expectedError), err)
+	assert.Equal(t, fmt.Errorf("failed to get tags for object: %w", expectedError), err)
 }
 
 func TestHandleObjectTagsAddedWhenDynamoClientOneByUIDError(t *testing.T) {
@@ -457,7 +521,7 @@ func TestHandleObjectTagsAddedWhenDynamoClientOneByUIDError(t *testing.T) {
 		})
 
 	err := handleObjectTagsAdded(ctx, dynamoClient, event.S3Event, s3Client, nil)
-	assert.Equal(t, fmt.Errorf("failed to get LPA for '%s': %w", objectTagsAddedEventName, expectedError), err)
+	assert.Equal(t, fmt.Errorf("failed to get LPA: %w", expectedError), err)
 }
 
 func TestHandleObjectTagsAddedWhenDocumentStoreUpdateScanResultsError(t *testing.T) {
@@ -496,7 +560,7 @@ func TestHandleObjectTagsAddedWhenDocumentStoreUpdateScanResultsError(t *testing
 		Return(expectedError)
 
 	err := handleObjectTagsAdded(ctx, dynamoClient, event.S3Event, s3Client, documentStore)
-	assert.Equal(t, fmt.Errorf("failed to update scan results for '%s': %w", objectTagsAddedEventName, expectedError), err)
+	assert.Equal(t, fmt.Errorf("failed to update scan results: %w", expectedError), err)
 }
 
 func TestGetLpaByUID(t *testing.T) {
@@ -518,7 +582,7 @@ func TestGetLpaByUID(t *testing.T) {
 			return nil
 		})
 
-	lpa, err := getLpaByUID(ctx, client, "M-1111-2222-3333", "an-event")
+	lpa, err := getLpaByUID(ctx, client, "M-1111-2222-3333")
 
 	assert.Equal(t, expectedLpa, lpa)
 	assert.Nil(t, err)
@@ -530,10 +594,10 @@ func TestGetLpaByUIDWhenClientOneByUidError(t *testing.T) {
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(expectedError)
 
-	lpa, err := getLpaByUID(ctx, client, "M-1111-2222-3333", "an-event")
+	lpa, err := getLpaByUID(ctx, client, "M-1111-2222-3333")
 
 	assert.Equal(t, page.Lpa{}, lpa)
-	assert.Equal(t, fmt.Errorf("failed to resolve uid for 'an-event': %w", expectedError), err)
+	assert.Equal(t, fmt.Errorf("failed to resolve uid: %w", expectedError), err)
 }
 
 func TestGetLpaByUIDWhenPKMissing(t *testing.T) {
@@ -546,10 +610,10 @@ func TestGetLpaByUIDWhenPKMissing(t *testing.T) {
 			return nil
 		})
 
-	lpa, err := getLpaByUID(ctx, client, "M-1111-2222-3333", "an-event")
+	lpa, err := getLpaByUID(ctx, client, "M-1111-2222-3333")
 
 	assert.Equal(t, page.Lpa{}, lpa)
-	assert.Equal(t, errors.New("PK missing from LPA in response to 'an-event'"), err)
+	assert.Equal(t, errors.New("PK missing from LPA in response"), err)
 }
 
 func TestGetLpaByUIDWhenClientOneError(t *testing.T) {
@@ -565,8 +629,8 @@ func TestGetLpaByUIDWhenClientOneError(t *testing.T) {
 		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(expectedError)
 
-	lpa, err := getLpaByUID(ctx, client, "M-1111-2222-3333", "an-event")
+	lpa, err := getLpaByUID(ctx, client, "M-1111-2222-3333")
 
 	assert.Equal(t, page.Lpa{}, lpa)
-	assert.Equal(t, fmt.Errorf("failed to get LPA for 'an-event': %w", expectedError), err)
+	assert.Equal(t, fmt.Errorf("failed to get LPA: %w", expectedError), err)
 }

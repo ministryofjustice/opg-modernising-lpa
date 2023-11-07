@@ -2,6 +2,7 @@ package event
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"testing"
 
@@ -13,23 +14,53 @@ import (
 
 var expectedError = errors.New("err")
 
-func TestClientSend(t *testing.T) {
+func TestClientSendApplicationUpdated(t *testing.T) {
 	ctx := context.Background()
 
-	svc := newMockEventbridgeClient(t)
-	svc.
-		On("PutEvents", ctx, &eventbridge.PutEventsInput{
-			Entries: []types.PutEventsRequestEntry{{
-				EventBusName: aws.String("my-bus"),
-				Source:       aws.String("opg.poas.makeregister"),
-				DetailType:   aws.String("my-detail"),
-				Detail:       aws.String(`{"my":"event"}`),
-			}},
-		}).
-		Return(nil, expectedError)
+	testcases := map[string]func() (func(*Client) error, any){
+		"uid-requested": func() (func(*Client) error, any) {
+			event := UidRequested{LpaID: "5"}
 
-	client := Client{svc: svc, eventBusName: "my-bus"}
-	err := client.Send(ctx, "my-detail", map[string]string{"my": "event"})
+			return func(client *Client) error { return client.SendUidRequested(ctx, event) }, event
+		},
+		"application-updated": func() (func(*Client) error, any) {
+			event := ApplicationUpdated{UID: "a"}
 
-	assert.Equal(t, expectedError, err)
+			return func(client *Client) error { return client.SendApplicationUpdated(ctx, event) }, event
+		},
+		"previous-application-linked": func() (func(*Client) error, any) {
+			event := PreviousApplicationLinked{UID: "a"}
+
+			return func(client *Client) error { return client.SendPreviousApplicationLinked(ctx, event) }, event
+		},
+		"reduced-fee-requested": func() (func(*Client) error, any) {
+			event := ReducedFeeRequested{UID: "a"}
+
+			return func(client *Client) error { return client.SendReducedFeeRequested(ctx, event) }, event
+		},
+	}
+
+	for eventName, setup := range testcases {
+		t.Run(eventName, func(t *testing.T) {
+			fn, event := setup()
+			data, _ := json.Marshal(event)
+
+			svc := newMockEventbridgeClient(t)
+			svc.
+				On("PutEvents", ctx, &eventbridge.PutEventsInput{
+					Entries: []types.PutEventsRequestEntry{{
+						EventBusName: aws.String("my-bus"),
+						Source:       aws.String("opg.poas.makeregister"),
+						DetailType:   aws.String(eventName),
+						Detail:       aws.String(string(data)),
+					}},
+				}).
+				Return(nil, expectedError)
+
+			client := &Client{svc: svc, eventBusName: "my-bus"}
+			err := fn(client)
+
+			assert.Equal(t, expectedError, err)
+		})
+	}
 }
