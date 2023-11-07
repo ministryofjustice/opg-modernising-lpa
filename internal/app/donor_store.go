@@ -198,9 +198,10 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 
 		if len(unsentKeys) > 0 {
 			if err := s.eventClient.Send(ctx, "reduced-fee-requested", reducedFeeRequestedEvent{
-				UID:         lpa.UID,
-				RequestType: lpa.FeeType.String(),
-				Evidence:    unsentKeys,
+				UID:              lpa.UID,
+				RequestType:      lpa.FeeType.String(),
+				Evidence:         unsentKeys,
+				EvidenceDelivery: lpa.EvidenceDelivery.String(),
 			}); err != nil {
 				s.logger.Print(err)
 			} else {
@@ -285,7 +286,8 @@ type previousApplicationLinkedEvent struct {
 }
 
 type reducedFeeRequestedEvent struct {
-	UID         string   `json:"uid"`
-	RequestType string   `json:"requestType"`
-	Evidence    []string `json:"evidence"`
+	UID              string   `json:"uid"`
+	RequestType      string   `json:"requestType"`
+	Evidence         []string `json:"evidence"`
+	EvidenceDelivery string   `json:"evidenceDelivery"`
 }

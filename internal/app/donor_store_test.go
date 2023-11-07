@@ -485,15 +485,17 @@ func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocuments(t *testing.T) {
 			FeeType:                        pay.HalfFee,
 			Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
 			HasSentApplicationUpdatedEvent: true,
+			EvidenceDelivery:               pay.Upload,
 		}).
 		Return(nil)
 
 	eventClient := newMockEventClient(t)
 	eventClient.
 		On("Send", ctx, "reduced-fee-requested", reducedFeeRequestedEvent{
-			UID:         "M-1111",
-			RequestType: "HalfFee",
-			Evidence:    []string{"lpa-uid-evidence-a-uid"},
+			UID:              "M-1111",
+			RequestType:      "HalfFee",
+			Evidence:         []string{"lpa-uid-evidence-a-uid"},
+			EvidenceDelivery: "upload",
 		}).
 		Return(nil)
 
@@ -517,6 +519,7 @@ func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocuments(t *testing.T) {
 		FeeType:                        pay.HalfFee,
 		Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
 		HasSentApplicationUpdatedEvent: true,
+		EvidenceDelivery:               pay.Upload,
 	})
 
 	assert.Nil(t, err)
@@ -591,9 +594,10 @@ func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocumentsWhenEventClientSe
 	eventClient := newMockEventClient(t)
 	eventClient.
 		On("Send", ctx, "reduced-fee-requested", reducedFeeRequestedEvent{
-			UID:         "M-1111",
-			RequestType: "HalfFee",
-			Evidence:    []string{"lpa-uid-evidence-a-uid"},
+			UID:              "M-1111",
+			RequestType:      "HalfFee",
+			Evidence:         []string{"lpa-uid-evidence-a-uid"},
+			EvidenceDelivery: "upload",
 		}).
 		Return(expectedError)
 
@@ -623,6 +627,7 @@ func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocumentsWhenEventClientSe
 		FeeType:                        pay.HalfFee,
 		Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
 		HasSentApplicationUpdatedEvent: true,
+		EvidenceDelivery:               pay.Upload,
 	})
 
 	assert.Nil(t, err)
@@ -635,9 +640,10 @@ func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocumentsWhenDocumentStore
 	eventClient := newMockEventClient(t)
 	eventClient.
 		On("Send", ctx, "reduced-fee-requested", reducedFeeRequestedEvent{
-			UID:         "M-1111",
-			RequestType: "HalfFee",
-			Evidence:    []string{"lpa-uid-evidence-a-uid"},
+			UID:              "M-1111",
+			RequestType:      "HalfFee",
+			Evidence:         []string{"lpa-uid-evidence-a-uid"},
+			EvidenceDelivery: "upload",
 		}).
 		Return(nil)
 
@@ -670,6 +676,7 @@ func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocumentsWhenDocumentStore
 		FeeType:                        pay.HalfFee,
 		Tasks:                          page.Tasks{PayForLpa: actor.PaymentTaskPending},
 		HasSentApplicationUpdatedEvent: true,
+		EvidenceDelivery:               pay.Upload,
 	})
 
 	assert.Nil(t, err)
@@ -859,9 +866,10 @@ func TestEventSchema(t *testing.T) {
 			},
 		},
 		"reduced-fee-requested": reducedFeeRequestedEvent{
-			UID:         "M-0000-0000-0000",
-			RequestType: "NoFee",
-			Evidence:    []string{"key"},
+			UID:              "M-0000-0000-0000",
+			RequestType:      "NoFee",
+			Evidence:         []string{"key"},
+			EvidenceDelivery: "upload",
 		},
 	}
 
