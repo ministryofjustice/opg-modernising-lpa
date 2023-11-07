@@ -40,6 +40,20 @@ data "aws_iam_policy_document" "sqs" {
   }
 }
 
+resource "aws_cloudwatch_metric_alarm" "event_bus_dead_letter_queue" {
+  alarm_name          = "${data.aws_default_tags.current.tags.environment-name}-event-bus-dead-letter-queue"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  metric_name         = "ApproximateNumberOfMessagesVisible"
+  namespace           = "AWS/SQS"
+  period              = 60
+  statistic           = "Sum"
+  threshold           = 1
+  alarm_description   = "Alarm if dead letter queue has messages"
+  # alarm_actions       = [aws_sns_topic.event_bus_dead_letter_queue.arn]
+  provider = aws.region
+}
+
 # Send event to remote account event bus
 
 resource "aws_iam_role_policy" "cross_account_put" {
