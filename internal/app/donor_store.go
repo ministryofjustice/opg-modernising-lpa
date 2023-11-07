@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"errors"
+	"log"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -189,40 +190,42 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 	}
 
 	if lpa.UID != "" && lpa.Tasks.PayForLpa.IsPending() {
+		log.Println("reduced-fee-requested event start")
+
 		documents, err := s.documentStore.GetAll(ctx)
 		if err != nil {
 			s.logger.Print(err)
 			return s.dynamoClient.Put(ctx, lpa)
 		}
 
-		var unsentKeys []string
+		var unsentDocuments page.Documents
 
 		for _, document := range documents {
-			if document.Sent.IsZero() && !document.Scanned {
-				unsentKeys = append(unsentKeys, document.Key)
+			if document.Sent.IsZero() && document.Scanned && !document.VirusDetected {
+				unsentDocuments = append(unsentDocuments, document)
 			}
 		}
 
-		if len(unsentKeys) > 0 {
+		log.Println("reduced-fee-requested unsentDocuments: ", len(unsentDocuments))
+
+		if len(unsentDocuments) > 0 {
+			log.Println("reduced-fee-requested sending event")
+
 			if err := s.eventClient.SendReducedFeeRequested(ctx, event.ReducedFeeRequested{
 				UID:              lpa.UID,
 				RequestType:      lpa.FeeType.String(),
-				Evidence:         unsentKeys,
+				Evidence:         unsentDocuments.Keys(),
 				EvidenceDelivery: lpa.EvidenceDelivery.String(),
 			}); err != nil {
 				return err
 			}
+			log.Println("reduced-fee-requested sent event")
 
-			var updatedDocuments page.Documents
-
-			for _, document := range documents {
-				if document.Sent.IsZero() && !document.Scanned {
-					document.Sent = s.now()
-					updatedDocuments = append(updatedDocuments, document)
-				}
+			for i := range unsentDocuments {
+				unsentDocuments[i].Sent = s.now()
 			}
 
-			if err := s.documentStore.BatchPut(ctx, updatedDocuments); err != nil {
+			if err := s.documentStore.BatchPut(ctx, unsentDocuments); err != nil {
 				s.logger.Print(err)
 			}
 		}
