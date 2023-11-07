@@ -11,6 +11,12 @@ resource "aws_cloudwatch_event_archive" "main" {
   provider         = aws.region
 }
 
+resource "aws_sqs_queue" "main" {
+  name                              = "${data.aws_default_tags.current.tags.environment-name}-event-bus-dead-letter-queue"
+  kms_master_key_id                 = "alias/aws/sqs"
+  kms_data_key_reuse_period_seconds = 300
+}
+
 # Send event to remote account event bus
 
 resource "aws_iam_role_policy" "cross_account_put" {
@@ -79,4 +85,3 @@ resource "aws_cloudwatch_event_bus_policy" "cross_account_receive" {
   policy         = data.aws_iam_policy_document.cross_account_receive.json
   provider       = aws.region
 }
-
