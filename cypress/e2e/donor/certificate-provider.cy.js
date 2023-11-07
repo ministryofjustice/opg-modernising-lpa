@@ -45,13 +45,8 @@ describe('Certificate provider task', () => {
         cy.contains('button', 'Save and continue').click()
 
         cy.url().should('contain', '/certificate-provider-address');
-        cy.get('#f-address-line-1').type('Flat 2');
-        cy.get('#f-address-line-2').type('123 Fake Street');
-        cy.get('#f-address-line-3').type('Pretendingham');
-        cy.get('#f-address-town').type('Someville');
-        cy.get('#f-address-postcode').type('NG1');
 
-        cy.contains('button', 'Continue').click();
+        AddressFormAssertions.assertCanAddAddressFromSelect()
 
         cy.url().should('contain', '/task-list');
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });

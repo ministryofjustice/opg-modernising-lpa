@@ -57,10 +57,11 @@ func TestGetCertificateProviderAddressWhenProfessionalCertificateProvider(t *tes
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseAddressData{
-			App:        testAppData,
-			Form:       &form.AddressForm{Action: "manual", Address: &place.Address{}},
-			FullName:   "John Smith",
-			ActorLabel: "certificateProvider",
+			App:                               testAppData,
+			Form:                              &form.AddressForm{Action: "postcode"},
+			FullName:                          "John Smith",
+			ActorLabel:                        "certificateProvider",
+			IsProfessionalCertificateProvider: true,
 		}).
 		Return(nil)
 
