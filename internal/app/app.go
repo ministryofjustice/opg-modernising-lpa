@@ -50,7 +50,7 @@ type DynamoClient interface {
 	DeleteKeys(ctx context.Context, keys []dynamo.Key) error
 	DeleteOne(ctx context.Context, pk, sk string) error
 	Update(ctx context.Context, pk, sk string, values map[string]dynamodbtypes.AttributeValue, expression string) error
-	BatchPut(ctx context.Context, items []interface{}) (int, error)
+	BatchPut(ctx context.Context, items []interface{}) error
 }
 
 //go:generate mockery --testonly --inpackage --name S3Client --structname mockS3Client
