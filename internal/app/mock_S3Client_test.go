@@ -5,7 +5,6 @@ package app
 import (
 	context "context"
 
-	types "github.com/aws/aws-sdk-go-v2/service/s3/types"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -57,11 +56,11 @@ func (_m *mockS3Client) PutObject(_a0 context.Context, _a1 string, _a2 []byte) e
 }
 
 // PutObjectTagging provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockS3Client) PutObjectTagging(_a0 context.Context, _a1 string, _a2 []types.Tag) error {
+func (_m *mockS3Client) PutObjectTagging(_a0 context.Context, _a1 string, _a2 map[string]string) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, []types.Tag) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, map[string]string) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
