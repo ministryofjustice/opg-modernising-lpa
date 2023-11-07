@@ -11,9 +11,9 @@ resource "aws_cloudwatch_event_archive" "main" {
   provider         = aws.region
 }
 
-resource "aws_sqs_queue" "main" {
+resource "aws_sqs_queue" "event_bus_dead_letter_queue" {
   name                              = "${data.aws_default_tags.current.tags.environment-name}-event-bus-dead-letter-queue"
-  kms_master_key_id                 = "alias/aws/sqs"
+  kms_master_key_id                 = "alias/aws/sqs" #tfsec:ignore:aws-sqs-queue-encryption-use-cmk
   kms_data_key_reuse_period_seconds = 300
   policy                            = data.aws_iam_policy_document.sqs.json
   provider                          = aws.region
@@ -79,7 +79,7 @@ resource "aws_cloudwatch_event_target" "cross_account_put" {
   event_bus_name = aws_cloudwatch_event_bus.main.name
   arn            = var.target_event_bus_arn
   dead_letter_config {
-    arn = aws_sqs_queue.main.arn
+    arn = aws_sqs_queue.event_bus_dead_letter_queue.arn
   }
   rule     = aws_cloudwatch_event_rule.cross_account_put.name
   role_arn = var.iam_role.arn
