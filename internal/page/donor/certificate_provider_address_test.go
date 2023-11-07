@@ -139,6 +139,7 @@ func TestPostCertificateProviderAddressManual(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			ID:                  "lpa-id",
 			CertificateProvider: actor.CertificateProvider{Address: testAddress},
+			Tasks:               page.Tasks{CertificateProvider: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -147,7 +148,7 @@ func TestPostCertificateProviderAddressManual(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.HowDoYouKnowYourCertificateProvider.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
@@ -168,6 +169,7 @@ func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			CertificateProvider: actor.CertificateProvider{Address: testAddress},
+			Tasks:               page.Tasks{CertificateProvider: actor.TaskCompleted},
 		}).
 		Return(expectedError)
 
@@ -198,6 +200,7 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 				FirstNames: "John",
 				Address:    testAddress,
 			},
+			Tasks: page.Tasks{CertificateProvider: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -212,7 +215,7 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.HowDoYouKnowYourCertificateProvider.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
@@ -578,6 +581,7 @@ func TestPostCertificateProviderAddressReuseSelect(t *testing.T) {
 					Country:    "GB",
 				},
 			},
+			Tasks: page.Tasks{CertificateProvider: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -586,7 +590,7 @@ func TestPostCertificateProviderAddressReuseSelect(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.HowDoYouKnowYourCertificateProvider.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostCertificateProviderAddressReuseSelectWhenValidationError(t *testing.T) {

@@ -90,7 +90,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderMoreThan2Years(t *testing.T) 
 			Attorneys:           actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}}},
 			AttorneyDecisions:   actor.AttorneyDecisions{How: actor.Jointly},
 			CertificateProvider: actor.CertificateProvider{RelationshipLength: "gte-2-years"},
-			Tasks:               page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, CertificateProvider: actor.TaskCompleted},
+			Tasks:               page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -104,7 +104,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderMoreThan2Years(t *testing.T) 
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.DoYouWantToNotifyPeople.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostHowLongHaveYouKnownCertificateProviderLessThan2Years(t *testing.T) {

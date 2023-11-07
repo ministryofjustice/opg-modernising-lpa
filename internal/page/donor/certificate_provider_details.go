@@ -68,7 +68,7 @@ func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore) H
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Format(lpa.ID))
+				return appData.Redirect(w, r, lpa, page.Paths.HowDoYouKnowYourCertificateProvider.Format(lpa.ID))
 			}
 		}
 

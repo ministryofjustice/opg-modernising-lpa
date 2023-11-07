@@ -40,13 +40,11 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore Dono
 					requireLength = true
 				}
 
-				if requireLength {
-					// TODO: should stay as Completed if editing and not changing the answer here
-					lpa.Tasks.CertificateProvider = actor.TaskInProgress
-				} else {
+				if !requireLength {
 					lpa.CertificateProvider.RelationshipLength = ""
-					lpa.Tasks.CertificateProvider = actor.TaskCompleted
 				}
+
+				lpa.Tasks.CertificateProvider = actor.TaskInProgress
 
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err

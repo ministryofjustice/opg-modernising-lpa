@@ -81,7 +81,6 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 	testCases := map[string]struct {
 		form                       url.Values
 		certificateProviderDetails actor.CertificateProvider
-		taskState                  actor.TaskState
 		redirect                   page.LpaPath
 	}{
 		"professionally": {
@@ -90,8 +89,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				FirstNames:   "John",
 				Relationship: actor.Professionally,
 			},
-			taskState: actor.TaskCompleted,
-			redirect:  page.Paths.DoYouWantToNotifyPeople,
+			redirect: page.Paths.DoYouWantToNotifyPeople,
 		},
 		"personally": {
 			form: url.Values{"how": {actor.Personally.String()}},
@@ -99,8 +97,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				FirstNames:   "John",
 				Relationship: actor.Personally,
 			},
-			taskState: actor.TaskInProgress,
-			redirect:  page.Paths.HowLongHaveYouKnownCertificateProvider,
+			redirect: page.Paths.HowLongHaveYouKnownCertificateProvider,
 		},
 	}
 
@@ -118,7 +115,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 					Tasks: page.Tasks{
 						YourDetails:         actor.TaskCompleted,
 						ChooseAttorneys:     actor.TaskCompleted,
-						CertificateProvider: tc.taskState,
+						CertificateProvider: actor.TaskInProgress,
 					},
 				}).
 				Return(nil)

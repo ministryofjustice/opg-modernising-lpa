@@ -33,13 +33,12 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore D
 					return appData.Redirect(w, r, lpa, page.Paths.ChooseNewCertificateProvider.Format(lpa.ID))
 				}
 
-				lpa.Tasks.CertificateProvider = actor.TaskCompleted
 				lpa.CertificateProvider.RelationshipLength = form.HowLong
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.DoYouWantToNotifyPeople.Format(lpa.ID))
+				return appData.Redirect(w, r, lpa, page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Format(lpa.ID))
 			}
 		}
 
