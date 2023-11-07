@@ -7,7 +7,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "bucket" {
   bucket = aws_s3_bucket.bucket.id
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+      sse_algorithm     = "aws:kms"
+      kms_master_key_id = data.aws_kms_alias.reduced_fees_uploads_s3_alias.target_key_id
     }
   }
   provider = aws.region
