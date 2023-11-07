@@ -40,13 +40,11 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore Dono
 					requireLength = true
 				}
 
-				if requireLength {
-					// TODO: should stay as Completed if editing and not changing the answer here
-					lpa.Tasks.CertificateProvider = actor.TaskInProgress
-				} else {
-					lpa.CertificateProvider.RelationshipLength = ""
-					lpa.Tasks.CertificateProvider = actor.TaskCompleted
+				if !requireLength {
+					lpa.CertificateProvider.RelationshipLength = 0
 				}
+
+				lpa.Tasks.CertificateProvider = actor.TaskInProgress
 
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
@@ -56,7 +54,7 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore Dono
 					return appData.Redirect(w, r, lpa, page.Paths.HowLongHaveYouKnownCertificateProvider.Format(lpa.ID))
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.DoYouWantToNotifyPeople.Format(lpa.ID))
+				return appData.Redirect(w, r, lpa, page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Format(lpa.ID))
 			}
 		}
 
