@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -488,27 +487,6 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 
 		if lpa.EvidenceDelivery.IsPost() {
 			return appData.Redirect(w, r, lpa, page.Paths.WhatHappensNextPostEvidence.Format(lpa.ID))
-		}
-
-		documents, err := p.documentStore.GetAll(r.Context())
-		if err != nil {
-			return err
-		}
-
-		for _, document := range documents {
-			if document.Sent.IsZero() {
-				if err := p.evidenceS3Client.PutObjectTagging(r.Context(), document.Key, []types.Tag{
-					{Key: aws.String("replicate"), Value: aws.String("true")},
-				}); err != nil {
-					p.logger.Print(fmt.Sprintf("error tagging evidence: %s", err.Error()))
-					return err
-				}
-
-				document.Sent = p.now()
-				if err := p.documentStore.Put(r.Context(), document); err != nil {
-					return err
-				}
-			}
 		}
 
 		return appData.Redirect(w, r, lpa, page.Paths.EvidenceSuccessfullyUploaded.Format(lpa.ID))
