@@ -14,6 +14,7 @@ type howShouldReplacementAttorneysMakeDecisionsData struct {
 	Errors  validation.List
 	Form    *howShouldAttorneysMakeDecisionsForm
 	Options actor.AttorneysActOptions
+	Lpa     *page.Lpa
 }
 
 func HowShouldReplacementAttorneysMakeDecisions(tmpl template.Template, donorStore DonorStore) Handler {
@@ -25,6 +26,7 @@ func HowShouldReplacementAttorneysMakeDecisions(tmpl template.Template, donorSto
 				DecisionsDetails: lpa.ReplacementAttorneyDecisions.Details,
 			},
 			Options: actor.AttorneysActValues,
+			Lpa:     lpa,
 		}
 
 		if r.Method == http.MethodPost {
