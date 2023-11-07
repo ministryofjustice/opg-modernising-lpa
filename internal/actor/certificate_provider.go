@@ -22,6 +22,14 @@ const (
 	Online                                          // online
 )
 
+//go:generate enumerator -type CertificateProviderRelationshipLength -linecomment -trimprefix -empty
+type CertificateProviderRelationshipLength uint8
+
+const (
+	LessThanTwoYears           CertificateProviderRelationshipLength = iota + 1 // lt-2-years
+	GreaterThanEqualToTwoYears                                                  // gte-2-years
+)
+
 // CertificateProvider contains details about the certificate provider, provided by the applicant
 type CertificateProvider struct {
 	// First names of the certificate provider
@@ -41,7 +49,7 @@ type CertificateProvider struct {
 	// The certificate provider's relationship to the applicant
 	Relationship CertificateProviderRelationship
 	// Amount of time Relationship has been in place if Personally
-	RelationshipLength string
+	RelationshipLength CertificateProviderRelationshipLength
 }
 
 func (c CertificateProvider) FullName() string {

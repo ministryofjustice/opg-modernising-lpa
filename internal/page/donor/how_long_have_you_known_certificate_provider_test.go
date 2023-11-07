@@ -38,14 +38,14 @@ func TestGetHowLongHaveYouKnownCertificateProviderFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	certificateProvider := actor.CertificateProvider{RelationshipLength: "gte-2-years"}
+	certificateProvider := actor.CertificateProvider{RelationshipLength: actor.GreaterThanEqualToTwoYears}
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &howLongHaveYouKnownCertificateProviderData{
 			App:                 testAppData,
 			CertificateProvider: certificateProvider,
-			HowLong:             "gte-2-years",
+			RelationshipLength:  actor.GreaterThanEqualToTwoYears,
 		}).
 		Return(nil)
 
@@ -76,7 +76,7 @@ func TestGetHowLongHaveYouKnownCertificateProviderWhenTemplateErrors(t *testing.
 
 func TestPostHowLongHaveYouKnownCertificateProviderMoreThan2Years(t *testing.T) {
 	form := url.Values{
-		"how-long": {"gte-2-years"},
+		"relationship-length": {actor.GreaterThanEqualToTwoYears.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -89,7 +89,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderMoreThan2Years(t *testing.T) 
 			ID:                  "lpa-id",
 			Attorneys:           actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}}},
 			AttorneyDecisions:   actor.AttorneyDecisions{How: actor.Jointly},
-			CertificateProvider: actor.CertificateProvider{RelationshipLength: "gte-2-years"},
+			CertificateProvider: actor.CertificateProvider{RelationshipLength: actor.GreaterThanEqualToTwoYears},
 			Tasks:               page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
@@ -109,7 +109,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderMoreThan2Years(t *testing.T) 
 
 func TestPostHowLongHaveYouKnownCertificateProviderLessThan2Years(t *testing.T) {
 	form := url.Values{
-		"how-long": {"lt-2-years"},
+		"relationship-length": {"lt-2-years"},
 	}
 
 	w := httptest.NewRecorder()
@@ -126,7 +126,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderLessThan2Years(t *testing.T) 
 
 func TestPostHowLongHaveYouKnownCertificateProviderWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"how-long": {"gte-2-years"},
+		"relationship-length": {actor.GreaterThanEqualToTwoYears.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -152,7 +152,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderWhenValidationErrors(t *testi
 	template.
 		On("Execute", w, &howLongHaveYouKnownCertificateProviderData{
 			App:    testAppData,
-			Errors: validation.With("how-long", validation.SelectError{Label: "howLongYouHaveKnownCertificateProvider"}),
+			Errors: validation.With("relationship-length", validation.SelectError{Label: "howLongYouHaveKnownCertificateProvider"}),
 		}).
 		Return(nil)
 
@@ -165,7 +165,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderWhenValidationErrors(t *testi
 
 func TestReadHowLongHaveYouKnownCertificateProviderForm(t *testing.T) {
 	form := url.Values{
-		"how-long": {"gte-2-years"},
+		"relationship-length": {actor.GreaterThanEqualToTwoYears.String()},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -173,7 +173,7 @@ func TestReadHowLongHaveYouKnownCertificateProviderForm(t *testing.T) {
 
 	result := readHowLongHaveYouKnownCertificateProviderForm(r)
 
-	assert.Equal(t, "gte-2-years", result.HowLong)
+	assert.Equal(t, actor.GreaterThanEqualToTwoYears, result.RelationshipLength)
 }
 
 func TestHowLongHaveYouKnownCertificateProviderFormValidate(t *testing.T) {
@@ -181,20 +181,16 @@ func TestHowLongHaveYouKnownCertificateProviderFormValidate(t *testing.T) {
 		form   *howLongHaveYouKnownCertificateProviderForm
 		errors validation.List
 	}{
-		"gte-2-years": {
+		"valid": {
 			form: &howLongHaveYouKnownCertificateProviderForm{
-				HowLong: "gte-2-years",
+				RelationshipLength: actor.GreaterThanEqualToTwoYears,
 			},
-		},
-		"missing": {
-			form:   &howLongHaveYouKnownCertificateProviderForm{},
-			errors: validation.With("how-long", validation.SelectError{Label: "howLongYouHaveKnownCertificateProvider"}),
 		},
 		"invalid": {
 			form: &howLongHaveYouKnownCertificateProviderForm{
-				HowLong: "what",
+				Error: expectedError,
 			},
-			errors: validation.With("how-long", validation.SelectError{Label: "howLongYouHaveKnownCertificateProvider"}),
+			errors: validation.With("relationship-length", validation.SelectError{Label: "howLongYouHaveKnownCertificateProvider"}),
 		},
 	}
 

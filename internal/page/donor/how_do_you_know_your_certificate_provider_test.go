@@ -89,13 +89,14 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				FirstNames:   "John",
 				Relationship: actor.Professionally,
 			},
-			redirect: page.Paths.DoYouWantToNotifyPeople,
+			redirect: page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole,
 		},
 		"personally": {
 			form: url.Values{"how": {actor.Personally.String()}},
 			certificateProviderDetails: actor.CertificateProvider{
-				FirstNames:   "John",
-				Relationship: actor.Personally,
+				FirstNames:         "John",
+				Relationship:       actor.Personally,
+				RelationshipLength: actor.GreaterThanEqualToTwoYears,
 			},
 			redirect: page.Paths.HowLongHaveYouKnownCertificateProvider,
 		},
@@ -122,7 +123,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 
 			err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &page.Lpa{
 				ID:                  "lpa-id",
-				CertificateProvider: actor.CertificateProvider{FirstNames: "John"},
+				CertificateProvider: actor.CertificateProvider{FirstNames: "John", RelationshipLength: actor.GreaterThanEqualToTwoYears},
 				Tasks: page.Tasks{
 					YourDetails:     actor.TaskCompleted,
 					ChooseAttorneys: actor.TaskCompleted,
