@@ -62,6 +62,6 @@ variable "kms_key" {
 
 variable "iam_policy_documents" {
   description = "List of IAM policy documents that are merged together. Documents later in the list override earlier ones"
-  type    = list(string)
-  default = []
+  type        = list(string)
+  default     = []
 }

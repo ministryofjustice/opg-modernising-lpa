@@ -18,3 +18,8 @@ variable "secrets_manager_kms_key_alias" {
   description = "The alias of the KMS key used to encrypt Secrets Manager secrets"
   type        = string
 }
+
+variable "reduced_fees_uploads_s3_encryption_kms_key_alias" {
+  description = "The alias of the KMS key used to encrypt the reduced fees uploads S3 bucket and replication manifests"
+  type        = string
+}
