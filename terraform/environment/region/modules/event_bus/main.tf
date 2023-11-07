@@ -37,6 +37,23 @@ data "aws_iam_policy_document" "cross_account_put_access" {
       var.target_event_bus_arn
     ]
   }
+  statement {
+    sid    = "DeadLetterQueueAccess"
+    effect = "Allow"
+    actions = [
+      "sqs:SendMessage",
+    ]
+    resources = [
+      aws_sqs_queue.main.arn
+    ]
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values = [
+        aws_cloudwatch_event_bus.main.arn
+      ]
+    }
+  }
   provider = aws.region
 }
 
@@ -55,9 +72,12 @@ resource "aws_cloudwatch_event_target" "cross_account_put" {
   target_id      = "${data.aws_default_tags.current.tags.environment-name}-cross-account-put-event"
   event_bus_name = aws_cloudwatch_event_bus.main.name
   arn            = var.target_event_bus_arn
-  rule           = aws_cloudwatch_event_rule.cross_account_put.name
-  role_arn       = var.iam_role.arn
-  provider       = aws.region
+  dead_letter_config {
+    arn = aws_sqs_queue.main.arn
+  }
+  rule     = aws_cloudwatch_event_rule.cross_account_put.name
+  role_arn = var.iam_role.arn
+  provider = aws.region
 }
 
 # Allow other accounts to send messages
