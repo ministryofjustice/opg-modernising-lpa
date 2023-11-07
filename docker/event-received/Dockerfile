@@ -14,7 +14,7 @@ FROM public.ecr.aws/lambda/provided:al2 AS dev
 
 WORKDIR /app
 
-COPY --from=build /app/event-received ./event-received
+COPY --from=build /app/event-received /var/task/event-received
 COPY lang ./lang
 COPY docker/event-received/aws-lambda-rie ./aws-lambda-rie
 
