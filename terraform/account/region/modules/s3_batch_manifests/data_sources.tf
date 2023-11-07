@@ -16,6 +16,6 @@ data "aws_s3_bucket" "access_logging" {
 }
 
 data "aws_kms_alias" "reduced_fees_uploads_s3_alias" {
-  name     = var.reduced_fees_uploads_s3_encryption_kms_key_alias
+  name     = var.s3_encryption_kms_key_alias
   provider = aws.region
 }
