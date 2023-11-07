@@ -7,20 +7,33 @@ module "event_received" {
     GOVUK_NOTIFY_IS_PRODUCTION = data.aws_default_tags.current.tags.environment-name == "production" ? "1" : "0"
     APP_PUBLIC_URL             = "https://${var.app_public_url}"
     UPLOADS_S3_BUCKET_NAME     = var.uploads_bucket.bucket
+    UID_BASE_URL               = var.uid_base_url
   }
-  image_uri   = "${var.lambda_function_image_ecr_url}:${var.lambda_function_image_tag}"
-  ecr_arn     = var.lambda_function_image_ecr_arn
-  environment = data.aws_default_tags.current.tags.environment-name
-  kms_key     = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
-  timeout     = 300
-  memory      = 1024
+  image_uri           = "${var.lambda_function_image_ecr_url}:${var.lambda_function_image_tag}"
+  ecr_arn             = var.lambda_function_image_ecr_arn
+  environment         = data.aws_default_tags.current.tags.environment-name
+  kms_key             = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
+  iam_policy_document = data.aws_iam_policy_document.api_access_policy.json
+  timeout             = 300
+  memory              = 1024
   providers = {
     aws.region = aws.region
   }
 }
 
-resource "aws_cloudwatch_event_rule" "receive_events" {
-  name           = "${data.aws_default_tags.current.tags.environment-name}-receive-events"
+data "aws_iam_policy_document" "api_access_policy" {
+  statement {
+    sid       = "allowApiAccess"
+    effect    = "Allow"
+    resources = var.allowed_api_arns
+    actions = [
+      "execute-api:Invoke",
+    ]
+  }
+}
+
+resource "aws_cloudwatch_event_rule" "receive_events_sirius" {
+  name           = "${data.aws_default_tags.current.tags.environment-name}-receive-events-sirius"
   description    = "receive events from sirius"
   event_bus_name = var.event_bus_name
 
@@ -31,21 +44,51 @@ resource "aws_cloudwatch_event_rule" "receive_events" {
   provider = aws.region
 }
 
-resource "aws_cloudwatch_event_target" "receive_events" {
-  target_id      = "${data.aws_default_tags.current.tags.environment-name}-receive-events"
+resource "aws_cloudwatch_event_target" "receive_events_sirius" {
+  target_id      = "${data.aws_default_tags.current.tags.environment-name}-receive-events-sirius"
   event_bus_name = var.event_bus_name
-  rule           = aws_cloudwatch_event_rule.receive_events.name
+  rule           = aws_cloudwatch_event_rule.receive_events_sirius.name
   arn            = module.event_received.lambda.arn
   provider       = aws.region
 }
 
-resource "aws_lambda_permission" "allow_cloudwatch_to_call_event_received" {
-  statement_id   = "AllowExecutionFromCloudWatch"
+resource "aws_cloudwatch_event_rule" "receive_events_mlpa" {
+  name           = "${data.aws_default_tags.current.tags.environment-name}-receive-events-mlpa"
+  description    = "receive events from mlpa"
+  event_bus_name = var.event_bus_name
+
+  event_pattern = jsonencode({
+    source      = ["opg.poas.makeregister"],
+    detail-type = ["uid-requested"],
+  })
+  provider = aws.region
+}
+
+resource "aws_cloudwatch_event_target" "receive_events_mlpa" {
+  target_id      = "${data.aws_default_tags.current.tags.environment-name}-receive-events-mlpa"
+  event_bus_name = var.event_bus_name
+  rule           = aws_cloudwatch_event_rule.receive_events_mlpa.name
+  arn            = module.event_received.lambda.arn
+  provider       = aws.region
+}
+
+resource "aws_lambda_permission" "allow_cloudwatch_to_call_event_received_sirius" {
+  statement_id   = "AllowExecutionFromCloudWatchSirius"
   action         = "lambda:InvokeFunction"
   function_name  = module.event_received.lambda.function_name
   principal      = "events.amazonaws.com"
   source_account = data.aws_caller_identity.current.account_id
-  source_arn     = aws_cloudwatch_event_rule.receive_events.arn
+  source_arn     = aws_cloudwatch_event_rule.receive_events_sirius.arn
+  provider       = aws.region
+}
+
+resource "aws_lambda_permission" "allow_cloudwatch_to_call_event_received_mlpa" {
+  statement_id   = "AllowExecutionFromCloudWatchMlpa"
+  action         = "lambda:InvokeFunction"
+  function_name  = module.event_received.lambda.function_name
+  principal      = "events.amazonaws.com"
+  source_account = data.aws_caller_identity.current.account_id
+  source_arn     = aws_cloudwatch_event_rule.receive_events_mlpa.arn
   provider       = aws.region
 }
 

@@ -5,6 +5,7 @@ package main
 import (
 	context "context"
 
+	types "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -48,6 +49,20 @@ func (_m *mockDynamodbClient) Put(ctx context.Context, v interface{}) error {
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, interface{}) error); ok {
 		r0 = rf(ctx, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// Update provides a mock function with given fields: ctx, pk, sk, values, expression
+func (_m *mockDynamodbClient) Update(ctx context.Context, pk string, sk string, values map[string]types.AttributeValue, expression string) error {
+	ret := _m.Called(ctx, pk, sk, values, expression)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, map[string]types.AttributeValue, string) error); ok {
+		r0 = rf(ctx, pk, sk, values, expression)
 	} else {
 		r0 = ret.Error(0)
 	}
