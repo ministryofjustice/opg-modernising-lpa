@@ -189,6 +189,8 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 	}
 
 	if lpa.UID != "" && lpa.Tasks.PayForLpa.IsPending() {
+		s.logger.Print("reduced-fee-requested event start")
+
 		documents, err := s.documentStore.GetAll(ctx)
 		if err != nil {
 			s.logger.Print(err)
@@ -203,7 +205,11 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 			}
 		}
 
+		s.logger.Print("reduced-fee-requested unsentKeys", unsentKeys)
+
 		if len(unsentKeys) > 0 {
+			s.logger.Print("reduced-fee-requested sending event")
+
 			if err := s.eventClient.SendReducedFeeRequested(ctx, event.ReducedFeeRequested{
 				UID:              lpa.UID,
 				RequestType:      lpa.FeeType.String(),
@@ -212,6 +218,7 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 			}); err != nil {
 				return err
 			}
+			s.logger.Print("reduced-fee-requested sent event")
 
 			var updatedDocuments page.Documents
 
