@@ -483,10 +483,10 @@ func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocuments(t *testing.T) {
 	documentStore.
 		On("GetAll", ctx).
 		Return(page.Documents{
-			{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf"},
+			{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf", Scanned: true},
 		}, nil)
 	documentStore.
-		On("BatchPut", ctx, []page.Document{{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf", Sent: now}}).
+		On("BatchPut", ctx, []page.Document{{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf", Scanned: true, Sent: now}}).
 		Return(nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, now: func() time.Time { return now }, documentStore: documentStore}
@@ -585,7 +585,7 @@ func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocumentsWhenEventClientSe
 	documentStore.
 		On("GetAll", ctx).
 		Return(page.Documents{
-			{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf"},
+			{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf", Scanned: true},
 		}, nil)
 
 	donorStore := &donorStore{eventClient: eventClient, now: func() time.Time { return now }, documentStore: documentStore}
@@ -622,10 +622,10 @@ func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocumentsWhenDocumentStore
 	documentStore.
 		On("GetAll", ctx).
 		Return(page.Documents{
-			{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf"},
+			{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf", Scanned: true},
 		}, nil)
 	documentStore.
-		On("BatchPut", ctx, []page.Document{{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf", Sent: now}}).
+		On("BatchPut", ctx, mock.Anything).
 		Return(expectedError)
 
 	logger := newMockLogger(t)
