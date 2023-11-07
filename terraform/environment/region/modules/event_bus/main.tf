@@ -40,6 +40,10 @@ data "aws_iam_policy_document" "cross_account_put_access" {
   statement {
     sid    = "DeadLetterQueueAccess"
     effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
     actions = [
       "sqs:SendMessage",
     ]
