@@ -50,8 +50,8 @@ resource "aws_cloudwatch_metric_alarm" "event_bus_dead_letter_queue" {
   statistic           = "Sum"
   threshold           = 1
   alarm_description   = "Alarm if dead letter queue has messages"
-  # alarm_actions       = [aws_sns_topic.event_bus_dead_letter_queue.arn]
-  provider = aws.region
+  alarm_actions       = [data.aws_sns_topic.custom_cloudwatch_alarms.arn]
+  provider            = aws.region
 }
 
 # Send event to remote account event bus
