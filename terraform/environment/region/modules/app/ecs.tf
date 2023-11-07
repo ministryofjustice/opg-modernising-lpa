@@ -246,12 +246,12 @@ data "aws_iam_policy_document" "task_role_access_policy" {
   }
 
   statement {
-    sid    = "uidApiAccess"
+    sid    = "allowApiAccess"
     effect = "Allow"
     actions = [
       "execute-api:Invoke",
     ]
-    resources = var.app_allowed_api_arns.uid_service
+    resources = var.app_allowed_api_arns
   }
 
   statement {
@@ -387,7 +387,7 @@ locals {
         },
         {
           name  = "UID_BASE_URL",
-          value = var.app_env_vars.uid_base_url
+          value = var.uid_base_url
         },
         {
           name  = "ONELOGIN_URL",

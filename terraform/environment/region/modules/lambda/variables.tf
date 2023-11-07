@@ -59,3 +59,8 @@ variable "ecr_arn" {
 variable "kms_key" {
   description = "KMS key for the lambda log group"
 }
+
+variable "iam_policy_document" {
+  type    = string
+  default = ""
+}

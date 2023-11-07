@@ -4,21 +4,19 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"os"
-	"strings"
 	"testing"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
-	"github.com/xeipuuv/gojsonschema"
 )
 
 var expectedError = errors.New("err")
@@ -226,43 +224,29 @@ func TestDonorStorePutWhenError(t *testing.T) {
 }
 
 func TestDonorStorePutWhenUIDNeeded(t *testing.T) {
-	ctx := context.Background()
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
 	now := time.Now()
 
 	eventClient := newMockEventClient(t)
 	eventClient.
-		On("Send", ctx, "application-updated", applicationUpdatedEvent{
-			UID:  "M-1111",
-			Type: "hw",
-			Donor: applicationUpdatedEventDonor{
-				FirstNames:  "John",
-				LastName:    "Smith",
-				DateOfBirth: date.New("2000", "01", "01"),
-				Address:     place.Address{Line1: "line", Postcode: "F1 1FF"},
-			},
-		}).
-		Return(nil)
-
-	uidClient := newMockUidClient(t)
-	uidClient.
-		On("CreateCase", ctx, &uid.CreateCaseRequestBody{
-			Type: "hw",
+		On("SendUidRequested", ctx, event.UidRequested{
+			ID:             "5",
+			DonorSessionID: "an-id",
+			Type:           "hw",
 			Donor: uid.DonorDetails{
 				Name:     "John Smith",
 				Dob:      date.New("2000", "01", "01"),
 				Postcode: "F1 1FF",
 			},
 		}).
-		Return(uid.CreateCaseResponse{UID: "M-1111"}, nil)
+		Return(nil)
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
 		On("Put", ctx, &page.Lpa{
-			PK:        "LPA#5",
-			SK:        "#DONOR#an-id",
-			ID:        "5",
-			UID:       "M-1111",
-			UpdatedAt: now,
+			PK: "LPA#5",
+			SK: "#DONOR#an-id",
+			ID: "5",
 			Donor: actor.Donor{
 				FirstNames:  "John",
 				LastName:    "Smith",
@@ -272,12 +256,12 @@ func TestDonorStorePutWhenUIDNeeded(t *testing.T) {
 					Postcode: "F1 1FF",
 				},
 			},
-			Type:                           page.LpaTypeHealthWelfare,
-			HasSentApplicationUpdatedEvent: true,
+			Type:                     page.LpaTypeHealthWelfare,
+			HasSentUidRequestedEvent: true,
 		}).
 		Return(nil)
 
-	donorStore := &donorStore{dynamoClient: dynamoClient, uidClient: uidClient, eventClient: eventClient, now: func() time.Time { return now }}
+	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, now: func() time.Time { return now }}
 
 	err := donorStore.Put(ctx, &page.Lpa{
 		PK: "LPA#5",
@@ -298,24 +282,39 @@ func TestDonorStorePutWhenUIDNeeded(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestDonorStorePutWhenUIDFails(t *testing.T) {
+func TestDonorStorePutWhenUIDNeededMissingSessionData(t *testing.T) {
 	ctx := context.Background()
 
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Put", ctx, mock.Anything).
-		Return(nil)
+	donorStore := &donorStore{}
 
-	uidClient := newMockUidClient(t)
-	uidClient.
-		On("CreateCase", ctx, mock.Anything).
-		Return(uid.CreateCaseResponse{UID: "M-1111"}, expectedError)
+	err := donorStore.Put(ctx, &page.Lpa{
+		PK: "LPA#5",
+		SK: "#DONOR#an-id",
+		ID: "5",
+		Donor: actor.Donor{
+			FirstNames:  "John",
+			LastName:    "Smith",
+			DateOfBirth: date.New("2000", "01", "01"),
+			Address: place.Address{
+				Line1:    "line",
+				Postcode: "F1 1FF",
+			},
+		},
+		Type: page.LpaTypeHealthWelfare,
+	})
 
-	logger := newMockLogger(t)
-	logger.
-		On("Print", expectedError)
+	assert.Equal(t, page.SessionMissingError{}, err)
+}
 
-	donorStore := &donorStore{dynamoClient: dynamoClient, uidClient: uidClient, logger: logger, now: time.Now}
+func TestDonorStorePutWhenUIDFails(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
+
+	eventClient := newMockEventClient(t)
+	eventClient.
+		On("SendUidRequested", ctx, mock.Anything).
+		Return(expectedError)
+
+	donorStore := &donorStore{eventClient: eventClient, now: time.Now}
 
 	err := donorStore.Put(ctx, &page.Lpa{
 		PK: "LPA#5",
@@ -332,7 +331,7 @@ func TestDonorStorePutWhenUIDFails(t *testing.T) {
 		Type: page.LpaTypeHealthWelfare,
 	})
 
-	assert.Nil(t, err)
+	assert.Equal(t, expectedError, err)
 }
 
 func TestDonorStorePutWhenApplicationUpdatedWhenError(t *testing.T) {
@@ -341,19 +340,10 @@ func TestDonorStorePutWhenApplicationUpdatedWhenError(t *testing.T) {
 
 	eventClient := newMockEventClient(t)
 	eventClient.
-		On("Send", ctx, "application-updated", mock.Anything).
+		On("SendApplicationUpdated", ctx, mock.Anything).
 		Return(expectedError)
 
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Put", ctx, mock.Anything).
-		Return(nil)
-
-	logger := newMockLogger(t)
-	logger.
-		On("Print", expectedError)
-
-	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, logger: logger, now: func() time.Time { return now }}
+	donorStore := &donorStore{eventClient: eventClient, now: func() time.Time { return now }}
 
 	err := donorStore.Put(ctx, &page.Lpa{
 		PK:  "LPA#5",
@@ -371,7 +361,7 @@ func TestDonorStorePutWhenApplicationUpdatedWhenError(t *testing.T) {
 		Type: page.LpaTypeHealthWelfare,
 	})
 
-	assert.Nil(t, err)
+	assert.Equal(t, expectedError, err)
 }
 
 func TestDonorStorePutWhenPreviousApplicationLinked(t *testing.T) {
@@ -380,7 +370,7 @@ func TestDonorStorePutWhenPreviousApplicationLinked(t *testing.T) {
 
 	eventClient := newMockEventClient(t)
 	eventClient.
-		On("Send", ctx, "previous-application-linked", previousApplicationLinkedEvent{
+		On("SendPreviousApplicationLinked", ctx, event.PreviousApplicationLinked{
 			UID:                       "M-1111",
 			PreviousApplicationNumber: "5555",
 		}).
@@ -442,21 +432,12 @@ func TestDonorStorePutWhenPreviousApplicationLinkedWhenError(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Put", ctx, mock.Anything).
-		Return(nil)
-
 	eventClient := newMockEventClient(t)
 	eventClient.
-		On("Send", ctx, "previous-application-linked", mock.Anything).
+		On("SendPreviousApplicationLinked", ctx, mock.Anything).
 		Return(expectedError)
 
-	logger := newMockLogger(t)
-	logger.
-		On("Print", expectedError)
-
-	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, logger: logger, now: func() time.Time { return now }}
+	donorStore := &donorStore{eventClient: eventClient, now: func() time.Time { return now }}
 
 	err := donorStore.Put(ctx, &page.Lpa{
 		PK:                             "LPA#5",
@@ -466,8 +447,7 @@ func TestDonorStorePutWhenPreviousApplicationLinkedWhenError(t *testing.T) {
 		PreviousApplicationNumber:      "5555",
 		HasSentApplicationUpdatedEvent: true,
 	})
-
-	assert.Nil(t, err)
+	assert.Equal(t, expectedError, err)
 }
 
 func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocuments(t *testing.T) {
@@ -491,7 +471,7 @@ func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocuments(t *testing.T) {
 
 	eventClient := newMockEventClient(t)
 	eventClient.
-		On("Send", ctx, "reduced-fee-requested", reducedFeeRequestedEvent{
+		On("SendReducedFeeRequested", ctx, event.ReducedFeeRequested{
 			UID:              "M-1111",
 			RequestType:      "HalfFee",
 			Evidence:         []string{"lpa-uid-evidence-a-uid"},
@@ -593,18 +573,13 @@ func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocumentsWhenEventClientSe
 
 	eventClient := newMockEventClient(t)
 	eventClient.
-		On("Send", ctx, "reduced-fee-requested", reducedFeeRequestedEvent{
+		On("SendReducedFeeRequested", ctx, event.ReducedFeeRequested{
 			UID:              "M-1111",
 			RequestType:      "HalfFee",
 			Evidence:         []string{"lpa-uid-evidence-a-uid"},
 			EvidenceDelivery: "upload",
 		}).
 		Return(expectedError)
-
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Put", ctx, mock.Anything).
-		Return(nil)
 
 	documentStore := newMockDocumentStore(t)
 	documentStore.
@@ -613,11 +588,7 @@ func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocumentsWhenEventClientSe
 			{Key: "lpa-uid-evidence-a-uid", Filename: "whatever.pdf"},
 		}, nil)
 
-	logger := newMockLogger(t)
-	logger.
-		On("Print", expectedError)
-
-	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, now: func() time.Time { return now }, documentStore: documentStore, logger: logger}
+	donorStore := &donorStore{eventClient: eventClient, now: func() time.Time { return now }, documentStore: documentStore}
 
 	err := donorStore.Put(ctx, &page.Lpa{
 		PK:                             "LPA#5",
@@ -630,7 +601,7 @@ func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocumentsWhenEventClientSe
 		EvidenceDelivery:               pay.Upload,
 	})
 
-	assert.Nil(t, err)
+	assert.Equal(t, expectedError, err)
 }
 
 func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocumentsWhenDocumentStoreBatchPutError(t *testing.T) {
@@ -639,7 +610,7 @@ func TestDonorStorePutWhenReducedFeeRequestedAndUnsentDocumentsWhenDocumentStore
 
 	eventClient := newMockEventClient(t)
 	eventClient.
-		On("Send", ctx, "reduced-fee-requested", reducedFeeRequestedEvent{
+		On("SendReducedFeeRequested", ctx, event.ReducedFeeRequested{
 			UID:              "M-1111",
 			RequestType:      "HalfFee",
 			Evidence:         []string{"lpa-uid-evidence-a-uid"},
@@ -841,56 +812,6 @@ func TestDonorStoreDeleteWhenSessionMissing(t *testing.T) {
 
 			err := donorStore.Delete(ctx)
 			assert.NotNil(t, err)
-		})
-	}
-}
-
-func TestEventSchema(t *testing.T) {
-	testcases := map[string]any{
-		"application-updated": applicationUpdatedEvent{
-			UID:       "M-0000-0000-0000",
-			Type:      "hw",
-			CreatedAt: time.Now(),
-			Donor: applicationUpdatedEventDonor{
-				FirstNames:  "syz",
-				LastName:    "syz",
-				DateOfBirth: date.New("2000", "01", "01"),
-				Address: place.Address{
-					Line1:      "line1",
-					Line2:      "line2",
-					Line3:      "line3",
-					TownOrCity: "townOrCity",
-					Postcode:   "F1 1FF",
-					Country:    "GB",
-				},
-			},
-		},
-		"reduced-fee-requested": reducedFeeRequestedEvent{
-			UID:              "M-0000-0000-0000",
-			RequestType:      "NoFee",
-			Evidence:         []string{"key"},
-			EvidenceDelivery: "upload",
-		},
-	}
-
-	dir, _ := os.Getwd()
-
-	for name, event := range testcases {
-		t.Run(name, func(t *testing.T) {
-			schemaLoader := gojsonschema.NewReferenceLoader("file:///" + dir + "/testdata/" + name + ".json")
-			documentLoader := gojsonschema.NewGoLoader(event)
-
-			result, err := gojsonschema.Validate(schemaLoader, documentLoader)
-			assert.Nil(t, err)
-
-			if !assert.True(t, result.Valid()) {
-				lines := []string{"The document is not valid:"}
-				for _, desc := range result.Errors() {
-					lines = append(lines, "- "+desc.String())
-				}
-
-				t.Log(strings.Join(lines, "\n"))
-			}
 		})
 	}
 }
