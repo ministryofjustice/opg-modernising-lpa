@@ -29,9 +29,9 @@ module "app" {
   ecs_application_log_group_name  = module.application_logs.cloudwatch_log_group.name
   ecs_capacity_provider           = var.ecs_capacity_provider
   app_env_vars                    = var.app_env_vars
-  app_allowed_api_arns            = var.app_allowed_api_arns
   app_service_repository_url      = var.app_service_repository_url
   app_service_container_version   = var.app_service_container_version
+  app_allowed_api_arns            = var.uid_service.api_arns
   ingress_allow_list_cidr         = concat(var.ingress_allow_list_cidr, split(",", data.aws_ssm_parameter.additional_allowed_ingress_cidrs.value))
   alb_deletion_protection_enabled = var.alb_deletion_protection_enabled
   lpas_table                      = var.lpas_table
@@ -52,6 +52,7 @@ module "app" {
   }
   aws_rum_guest_role_arn                               = data.aws_iam_role.rum_monitor_unauthenticated.arn
   rum_monitor_application_id_secretsmanager_secret_arn = aws_secretsmanager_secret.rum_monitor_application_id.id
+  uid_base_url                                         = var.uid_service.base_url
   providers = {
     aws.region = aws.region
   }
