@@ -163,7 +163,7 @@ func handler(ctx context.Context, event Event) error {
 
 			err = handleFeeApproved(ctx, dynamoClient, event.CloudWatchEvent, shareCodeSender, appData, now)
 
-		case "fee-denined":
+		case "reduced-fee-declined":
 			err = handleFeeDenied(ctx, dynamoClient, event.CloudWatchEvent, now)
 
 		case "move-evidence-required":
