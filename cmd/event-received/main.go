@@ -138,7 +138,7 @@ func handler(ctx context.Context, event Event) error {
 		case "evidence-received":
 			err = handleEvidenceReceived(ctx, dynamoClient, event.CloudWatchEvent)
 
-		case "fee-approved":
+		case "reduced-fee-approved":
 			bundle := localize.NewBundle("./lang/en.json", "./lang/cy.json")
 
 			//TODO do this in handleFeeApproved when/if we save lang preference in LPA
