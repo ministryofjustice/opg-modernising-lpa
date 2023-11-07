@@ -23,7 +23,7 @@
                   {{ tr .App "jointlyAndSeverallyHumanisedReplacement" }}
                 </label>
 
-                <div id="decision-type-item-hint" class="govuk-hint govuk-radios__hint">
+                <div id="decision-type-item-hint" class="govuk-radios__hint">
                   {{ tr .App "jointlyAndSeverallyHintReplacementAttorneys" }}
                 </div>
               </div>
@@ -33,7 +33,7 @@
                   {{ tr .App "jointlyHumanisedReplacement" }}
                 </label>
 
-                <div id="decision-type-2-item-hint" class="govuk-hint govuk-radios__hint">
+                <div id="decision-type-2-item-hint" class="govuk-radios__hint">
                   {{ tr .App "jointlyHintReplacementAttorneys" }}
                 </div>
               </div>
@@ -43,13 +43,14 @@
                   {{ tr .App "jointlyAndSeverallyMixedHumanisedReplacement" }}
                 </label>
 
-                <div id="decision-type-3-item-hint" class="govuk-hint govuk-radios__hint">
+                <div id="decision-type-3-item-hint" class="govuk-radios__hint">
                   <p>{{ tr .App "jointlyAndSeverallyMixedHintReplacementAttorneys" }}</p>
                   {{ if .Lpa.Type.IsPropertyFinance }}
                     <p>{{ tr .App "jointlyAndSeverallyMixedHintReplacementAttorneysExamplePA" }}</p>
                   {{ else }}
                     <p>{{ tr .App "jointlyAndSeverallyMixedHintReplacementAttorneysExamplePW" }}</p>
                   {{ end }}
+                  <p>{{ tr .App "ifYouChooseThisOptionMustStateDecisionsAgreedTogether" }}</p>
                 </div>
 
                 <div class="govuk-radios__conditional" id="decision-type-3-conditional-div">

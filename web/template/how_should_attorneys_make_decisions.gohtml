@@ -25,7 +25,7 @@
                   {{ tr .App "jointlyAndSeverallyHumanised" }}
                 </label>
 
-                <div id="decision-type-item-hint" class="govuk-hint govuk-radios__hint">
+                <div id="decision-type-item-hint" class="govuk-radios__hint">
                   {{ trHtml .App "jointlyAndSeverallyHint" }}
                 </div>
               </div>
@@ -35,7 +35,7 @@
                   {{ tr .App "jointlyHumanised" }}
                 </label>
 
-                <div id="decision-type-2-item-hint" class="govuk-hint govuk-radios__hint">
+                <div id="decision-type-2-item-hint" class="govuk-radios__hint">
                   {{ trHtml .App "jointlyHintAttorneys" }}
                 </div>
               </div>
@@ -45,13 +45,14 @@
                   {{ tr .App "jointlyAndSeverallyMixedHumanised" }}
                 </label>
 
-                <div id="decision-type-3-item-hint" class="govuk-hint govuk-radios__hint">
+                <div id="decision-type-3-item-hint" class="govuk-radios__hint">
                   <p>{{ tr .App "jointlyAndSeverallyMixedHint" }}</p>
                   {{ if .Lpa.Type.IsPropertyFinance }}
                     <p>{{ tr .App "jointlyAndSeverallyMixedHintExamplePA" }}</p>
                   {{ else }}
                     <p>{{ tr .App "jointlyAndSeverallyMixedHintExamplePW" }}</p>
                   {{ end }}
+                  <p>{{ tr .App "ifYouChooseThisOptionMustStateDecisionsAgreedTogether" }}</p>
                 </div>
 
                 <div class="govuk-radios__conditional" id="decision-type-3-conditional-div">

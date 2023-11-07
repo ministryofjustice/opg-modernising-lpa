@@ -369,6 +369,7 @@
     "jointlyAndSeverallyMixedHintReplacementAttorneys": "Welsh",
     "jointlyAndSeverallyMixedHintReplacementAttorneysExamplePA": "Welsh",
     "jointlyAndSeverallyMixedHintReplacementAttorneysExamplePW": "Welsh",
+    "ifYouChooseThisOptionMustStateDecisionsAgreedTogether": "Welsh",
     "decisionDetailsHint": "Rhestrwch y penderfyniadau y mae’n rhaid i’ch atwrneiod eu gwneud gyda’i gilydd. <a class=\"govuk-link\" href=\"#\">Darllenwch y canllawiau i weld enghreifftiau o benderfyniadau y gallai eich atwrneiod eu gwneud gyda’i gilydd</a>.",
     "replacementDecisionDetailsHint": "Dywedwch wrthym pa benderfyniadau y mae’n rhaid i’ch atwrneiod eu gwneud ar y cyd. <a class=\"govuk-link\" href=\"#\">Edrychwch ar y canllawiau am enghreifftiau</a> os bydd eich atwrneiod yn gwneud penderfyniadau gyda’i gilydd.",
     "details": "Manylion",
