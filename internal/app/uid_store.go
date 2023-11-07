@@ -1,0 +1,35 @@
+package app
+
+import (
+	"context"
+	"time"
+
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+)
+
+type DynamoUpdateClient interface {
+	Update(ctx context.Context, pk, sk string, values map[string]types.AttributeValue, expression string) error
+}
+
+type uidStore struct {
+	dynamoClient DynamoUpdateClient
+	now          func() time.Time
+}
+
+func NewUidStore(dynamoClient DynamoUpdateClient, now func() time.Time) *uidStore {
+	return &uidStore{dynamoClient: dynamoClient, now: now}
+}
+
+func (s *uidStore) Set(ctx context.Context, lpaID, sessionID, uid string) error {
+	values, err := attributevalue.MarshalMap(map[string]any{
+		":uid": uid,
+		":now": s.now(),
+	})
+	if err != nil {
+		return err
+	}
+
+	return s.dynamoClient.Update(ctx, lpaKey(lpaID), donorKey(sessionID), values,
+		"set UID = :uid, UpdatedAt = :now")
+}
