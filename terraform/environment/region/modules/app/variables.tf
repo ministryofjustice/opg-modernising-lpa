@@ -54,6 +54,10 @@ variable "app_service_container_version" {
   description = "(optional) describe your variable"
 }
 
+variable "app_allowed_api_arns" {
+  type = list(string)
+}
+
 variable "ingress_allow_list_cidr" {
   type        = list(string)
   description = "List of CIDR ranges permitted to access the service"
@@ -96,11 +100,6 @@ variable "rum_monitor_application_id_secretsmanager_secret_arn" {
   nullable    = true
 }
 
-variable "app_allowed_api_arns" {
-  type        = map(list(string))
-  description = "ARNs of allowed APIs"
-}
-
 variable "uploads_s3_bucket" {
   type = object({
     bucket_name = string
@@ -115,4 +114,8 @@ variable "event_bus" {
     arn  = string
   })
   description = "Name and ARN of the event bus to send events to"
+}
+
+variable "uid_base_url" {
+  type = string
 }
