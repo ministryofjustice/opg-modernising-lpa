@@ -15,7 +15,29 @@ resource "aws_sqs_queue" "main" {
   name                              = "${data.aws_default_tags.current.tags.environment-name}-event-bus-dead-letter-queue"
   kms_master_key_id                 = "alias/aws/sqs"
   kms_data_key_reuse_period_seconds = 300
+  policy                            = data.aws_iam_policy_document.sqs.json
   provider                          = aws.region
+}
+
+data "aws_iam_policy_document" "sqs" {
+  statement {
+    sid    = "DeadLetterQueueAccess"
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
+    actions = [
+      "sqs:SendMessage",
+    ]
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values = [
+        aws_cloudwatch_event_rule.cross_account_put.arn
+      ]
+    }
+  }
 }
 
 # Send event to remote account event bus
@@ -37,27 +59,6 @@ data "aws_iam_policy_document" "cross_account_put_access" {
     resources = [
       var.target_event_bus_arn
     ]
-  }
-  statement {
-    sid    = "DeadLetterQueueAccess"
-    effect = "Allow"
-    principals {
-      type        = "Service"
-      identifiers = ["events.amazonaws.com"]
-    }
-    actions = [
-      "sqs:SendMessage",
-    ]
-    resources = [
-      aws_sqs_queue.main.arn
-    ]
-    condition {
-      test     = "ArnEquals"
-      variable = "aws:SourceArn"
-      values = [
-        aws_cloudwatch_event_bus.main.arn
-      ]
-    }
   }
   provider = aws.region
 }
