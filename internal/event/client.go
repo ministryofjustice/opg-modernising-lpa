@@ -3,6 +3,7 @@ package event
 import (
 	"context"
 	"encoding/json"
+	"log"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/eventbridge"
@@ -45,6 +46,8 @@ func (c *Client) SendReducedFeeRequested(ctx context.Context, event ReducedFeeRe
 }
 
 func (c *Client) send(ctx context.Context, detailType string, detail any) error {
+	log.Println("send", detailType)
+
 	v, err := json.Marshal(detail)
 	if err != nil {
 		return err
