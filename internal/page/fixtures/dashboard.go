@@ -56,6 +56,7 @@ func Dashboard(
 
 			donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID, LpaID: lpa.ID})
 
+			lpa.UID = "M-1111-1111-1111"
 			lpa.Donor = makeDonor()
 			lpa.Type = page.LpaTypePropertyFinance
 
