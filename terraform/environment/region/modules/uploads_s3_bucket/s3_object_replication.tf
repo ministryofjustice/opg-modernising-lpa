@@ -177,3 +177,31 @@ resource "aws_ssm_parameter" "s3_batch_configuration" {
   })
   provider = aws.region
 }
+
+resource "aws_cloudwatch_metric_alarm" "replication-failed" {
+  actions_enabled     = var.s3_replication.enabled
+  alarm_actions       = ["arn:aws:sns:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:custom_cloudwatch_alarms"]
+  alarm_description   = null
+  alarm_name          = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}-replication-failed"
+  comparison_operator = "GreaterThanThreshold"
+  datapoints_to_alarm = 1
+  dimensions = {
+    DestinationBucket = var.s3_replication.destination_bucket_arn
+    RuleId            = "whenScannedOkAndReadyToReplicate"
+    SourceBucket      = aws_s3_bucket.bucket.bucket
+  }
+  evaluate_low_sample_count_percentiles = null
+  evaluation_periods                    = 1
+  extended_statistic                    = null
+  insufficient_data_actions             = []
+  metric_name                           = "OperationsFailedReplication"
+  namespace                             = "AWS/S3"
+  ok_actions                            = []
+  period                                = 300
+  statistic                             = "Sum"
+  threshold                             = 1
+  threshold_metric_id                   = null
+  treat_missing_data                    = "missing"
+  unit                                  = null
+  provider                              = aws.region
+}
