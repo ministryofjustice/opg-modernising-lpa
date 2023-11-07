@@ -43,6 +43,34 @@ func TestGetCertificateProviderAddress(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
+func TestGetCertificateProviderAddressWhenProfessionalCertificateProvider(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	certificateProvider := actor.CertificateProvider{
+		FirstNames:   "John",
+		LastName:     "Smith",
+		Address:      place.Address{},
+		Relationship: actor.Professionally,
+	}
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &chooseAddressData{
+			App:        testAppData,
+			Form:       &form.AddressForm{Action: "manual", Address: &place.Address{}},
+			FullName:   "John Smith",
+			ActorLabel: "certificateProvider",
+		}).
+		Return(nil)
+
+	err := CertificateProviderAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{CertificateProvider: certificateProvider})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
 func TestGetCertificateProviderAddressFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)

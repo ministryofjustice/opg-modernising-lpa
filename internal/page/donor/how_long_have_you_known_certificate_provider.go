@@ -23,6 +23,7 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore D
 			App:                 appData,
 			CertificateProvider: lpa.CertificateProvider,
 			RelationshipLength:  lpa.CertificateProvider.RelationshipLength,
+			Options:             actor.CertificateProviderRelationshipLengthValues,
 		}
 
 		if r.Method == http.MethodPost {

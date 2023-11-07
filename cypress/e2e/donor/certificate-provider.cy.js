@@ -30,6 +30,13 @@ describe('Certificate provider task', () => {
         cy.get('#f-mobile').type(TestMobile);
         cy.contains('button', 'Save and continue').click();
 
+        cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
+        cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
+
+        cy.contains('How do you know John Doe, your certificate provider?');
+        cy.contains('label', 'Professionally').click();
+        cy.contains('button', 'Save and continue').click();
+
         cy.url().should('contain', '/how-would-certificate-provider-prefer-to-carry-out-their-role');
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
@@ -38,22 +45,17 @@ describe('Certificate provider task', () => {
         cy.contains('button', 'Save and continue').click()
 
         cy.url().should('contain', '/certificate-provider-address');
+        cy.get('#f-address-line-1').type('Flat 2');
+        cy.get('#f-address-line-2').type('123 Fake Street');
+        cy.get('#f-address-line-3').type('Pretendingham');
+        cy.get('#f-address-town').type('Someville');
+        cy.get('#f-address-postcode').type('NG1');
 
-        cy.contains('label', 'Enter a new address').click();
         cy.contains('button', 'Continue').click();
-        AddressFormAssertions.assertCanAddAddressFromSelect()
 
-        cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
+        cy.url().should('contain', '/task-list');
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
-        cy.contains('How do you know John Doe, your certificate provider?');
-        cy.contains('label', 'Professionally').click();
-        cy.contains('button', 'Save and continue').click();
-
-        cy.url().should('contain', '/do-you-want-to-notify-people');
-        cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
-
-        cy.visitLpa('/task-list')
         cy.contains('li', "Choose your certificate provider")
             .should('contain', 'Completed');
     });

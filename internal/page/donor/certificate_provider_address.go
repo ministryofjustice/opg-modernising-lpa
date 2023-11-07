@@ -19,7 +19,7 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 			Form:       &form.AddressForm{},
 		}
 
-		if lpa.CertificateProvider.Address.Line1 != "" {
+		if lpa.CertificateProvider.Address.Line1 != "" || lpa.CertificateProvider.Relationship.IsProfessionally() {
 			data.Form.Action = "manual"
 			data.Form.Address = &lpa.CertificateProvider.Address
 		}
