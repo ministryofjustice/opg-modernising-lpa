@@ -81,7 +81,6 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 	testCases := map[string]struct {
 		form                       url.Values
 		certificateProviderDetails actor.CertificateProvider
-		taskState                  actor.TaskState
 		redirect                   page.LpaPath
 	}{
 		"professionally": {
@@ -90,17 +89,16 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				FirstNames:   "John",
 				Relationship: actor.Professionally,
 			},
-			taskState: actor.TaskCompleted,
-			redirect:  page.Paths.DoYouWantToNotifyPeople,
+			redirect: page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole,
 		},
 		"personally": {
 			form: url.Values{"how": {actor.Personally.String()}},
 			certificateProviderDetails: actor.CertificateProvider{
-				FirstNames:   "John",
-				Relationship: actor.Personally,
+				FirstNames:         "John",
+				Relationship:       actor.Personally,
+				RelationshipLength: actor.GreaterThanEqualToTwoYears,
 			},
-			taskState: actor.TaskInProgress,
-			redirect:  page.Paths.HowLongHaveYouKnownCertificateProvider,
+			redirect: page.Paths.HowLongHaveYouKnownCertificateProvider,
 		},
 	}
 
@@ -118,14 +116,14 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 					Tasks: page.Tasks{
 						YourDetails:         actor.TaskCompleted,
 						ChooseAttorneys:     actor.TaskCompleted,
-						CertificateProvider: tc.taskState,
+						CertificateProvider: actor.TaskInProgress,
 					},
 				}).
 				Return(nil)
 
 			err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &page.Lpa{
 				ID:                  "lpa-id",
-				CertificateProvider: actor.CertificateProvider{FirstNames: "John"},
+				CertificateProvider: actor.CertificateProvider{FirstNames: "John", RelationshipLength: actor.GreaterThanEqualToTwoYears},
 				Tasks: page.Tasks{
 					YourDetails:     actor.TaskCompleted,
 					ChooseAttorneys: actor.TaskCompleted,

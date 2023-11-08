@@ -11,14 +11,15 @@ import (
 )
 
 type chooseAddressData struct {
-	App        page.AppData
-	Errors     validation.List
-	ActorLabel string
-	FullName   string
-	ID         string
-	CanSkip    bool
-	Addresses  []place.Address
-	Form       *form.AddressForm
+	App                               page.AppData
+	Errors                            validation.List
+	ActorLabel                        string
+	FullName                          string
+	ID                                string
+	CanSkip                           bool
+	Addresses                         []place.Address
+	Form                              *form.AddressForm
+	IsProfessionalCertificateProvider bool
 }
 
 func lookupAddress(ctx context.Context, logger Logger, addressClient AddressClient, data *chooseAddressData, your bool) {
