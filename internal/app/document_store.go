@@ -3,30 +3,30 @@ package app
 import (
 	"context"
 	"errors"
-	"fmt"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
-
-type PartialBatchWriteError struct {
-	Written  int
-	Expected int
-}
-
-func (e PartialBatchWriteError) Error() string {
-	return fmt.Sprintf("Expected to write %d but %d were written", e.Expected, e.Written)
-}
 
 type documentStore struct {
 	dynamoClient DynamoClient
 	s3Client     S3Client
+	eventClient  EventClient
 	randomUUID   func() string
+	now          func() time.Time
 }
 
-func NewDocumentStore(dynamoClient DynamoClient, s3Client S3Client, randomUUID func() string) *documentStore {
-	return &documentStore{dynamoClient: dynamoClient, s3Client: s3Client, randomUUID: randomUUID}
+func NewDocumentStore(dynamoClient DynamoClient, s3Client S3Client, eventClient EventClient, randomUUID func() string, now func() time.Time) *documentStore {
+	return &documentStore{
+		dynamoClient: dynamoClient,
+		s3Client:     s3Client,
+		eventClient:  eventClient,
+		randomUUID:   randomUUID,
+		now:          now,
+	}
 }
 
 func (s *documentStore) Create(ctx context.Context, lpa *page.Lpa, filename string, data []byte) (page.Document, error) {
@@ -80,21 +80,12 @@ func (s *documentStore) UpdateScanResults(ctx context.Context, lpaID, s3ObjectKe
 }
 
 func (s *documentStore) BatchPut(ctx context.Context, documents []page.Document) error {
-	var converted []interface{}
+	var converted []any
 	for _, d := range documents {
 		converted = append(converted, d)
 	}
 
-	toWrite := len(converted)
-	written, err := s.dynamoClient.BatchPut(ctx, converted)
-
-	if err != nil {
-		return err
-	} else if written != toWrite {
-		return PartialBatchWriteError{Written: written, Expected: toWrite}
-	}
-
-	return nil
+	return s.dynamoClient.BatchPut(ctx, converted)
 }
 
 func (s *documentStore) Put(ctx context.Context, document page.Document) error {
@@ -103,24 +94,15 @@ func (s *documentStore) Put(ctx context.Context, document page.Document) error {
 
 func (s *documentStore) DeleteInfectedDocuments(ctx context.Context, documents page.Documents) error {
 	var dynamoKeys []dynamo.Key
-	var s3Keys []string
 
 	for _, d := range documents {
 		if d.VirusDetected {
-			dynamoKeys = append(dynamoKeys, dynamo.Key{
-				PK: d.PK,
-				SK: d.SK,
-			})
-			s3Keys = append(s3Keys, d.Key)
+			dynamoKeys = append(dynamoKeys, dynamo.Key{PK: d.PK, SK: d.SK})
 		}
 	}
 
 	if len(dynamoKeys) == 0 {
 		return nil
-	}
-
-	if err := s.s3Client.DeleteObjects(ctx, s3Keys); err != nil {
-		return err
 	}
 
 	return s.dynamoClient.DeleteKeys(ctx, dynamoKeys)
@@ -132,6 +114,38 @@ func (s *documentStore) Delete(ctx context.Context, document page.Document) erro
 	}
 
 	return s.dynamoClient.DeleteOne(ctx, document.PK, document.SK)
+}
+
+func (s *documentStore) Submit(ctx context.Context, lpa *page.Lpa, documents page.Documents) error {
+	var unsentDocuments page.Documents
+
+	for _, document := range documents {
+		if document.Sent.IsZero() && !document.VirusDetected {
+			document.Sent = s.now()
+			unsentDocuments = append(unsentDocuments, document)
+
+			if err := s.s3Client.PutObjectTagging(ctx, document.Key, map[string]string{"replicate": "true"}); err != nil {
+				return err
+			}
+		}
+	}
+
+	if len(unsentDocuments) > 0 {
+		if err := s.eventClient.SendReducedFeeRequested(ctx, event.ReducedFeeRequested{
+			UID:              lpa.UID,
+			RequestType:      lpa.FeeType.String(),
+			Evidence:         unsentDocuments.Keys(),
+			EvidenceDelivery: lpa.EvidenceDelivery.String(),
+		}); err != nil {
+			return err
+		}
+
+		if err := s.BatchPut(ctx, unsentDocuments); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func documentKey(s3Key string) string {
