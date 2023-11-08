@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -94,9 +95,8 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		"personally": {
 			form: url.Values{"how": {actor.Personally.String()}},
 			certificateProviderDetails: actor.CertificateProvider{
-				FirstNames:         "John",
-				Relationship:       actor.Personally,
-				RelationshipLength: actor.GreaterThanEqualToTwoYears,
+				FirstNames:   "John",
+				Relationship: actor.Personally,
 			},
 			redirect: page.Paths.HowLongHaveYouKnownCertificateProvider,
 		},
@@ -114,6 +114,77 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 					ID:                  "lpa-id",
 					CertificateProvider: tc.certificateProviderDetails,
 					Tasks: page.Tasks{
+						YourDetails:     actor.TaskCompleted,
+						ChooseAttorneys: actor.TaskCompleted,
+					},
+				}).
+				Return(nil)
+
+			err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &page.Lpa{
+				ID:                  "lpa-id",
+				CertificateProvider: actor.CertificateProvider{FirstNames: "John"},
+				Tasks: page.Tasks{
+					YourDetails:     actor.TaskCompleted,
+					ChooseAttorneys: actor.TaskCompleted,
+				},
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.redirect.Format("lpa-id"), resp.Header.Get("Location"))
+		})
+	}
+}
+
+func TestPostHowDoYouKnowYourCertificateProviderWhenSwitchingRelationship(t *testing.T) {
+	testCases := map[string]struct {
+		form                               url.Values
+		existingCertificateProviderDetails actor.CertificateProvider
+		updatedCertificateProviderDetails  actor.CertificateProvider
+		redirect                           page.LpaPath
+		taskState                          actor.TaskState
+	}{
+		"personally to professionally": {
+			form: url.Values{"how": {actor.Professionally.String()}},
+			existingCertificateProviderDetails: actor.CertificateProvider{
+				RelationshipLength: actor.GreaterThanEqualToTwoYears,
+				Relationship:       actor.Personally,
+				Address:            testAddress,
+			},
+			updatedCertificateProviderDetails: actor.CertificateProvider{
+				RelationshipLength: actor.RelationshipLengthUnknown,
+				Relationship:       actor.Professionally,
+				Address:            place.Address{},
+			},
+			redirect: page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole,
+		},
+		"professionally to personally": {
+			form: url.Values{"how": {actor.Personally.String()}},
+			existingCertificateProviderDetails: actor.CertificateProvider{
+				Relationship: actor.Professionally,
+				Address:      testAddress,
+			},
+			updatedCertificateProviderDetails: actor.CertificateProvider{
+				Relationship: actor.Personally,
+				Address:      place.Address{},
+			},
+			redirect: page.Paths.HowLongHaveYouKnownCertificateProvider,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+			donorStore := newMockDonorStore(t)
+			donorStore.
+				On("Put", r.Context(), &page.Lpa{
+					ID:                  "lpa-id",
+					CertificateProvider: tc.updatedCertificateProviderDetails,
+					Tasks: page.Tasks{
 						YourDetails:         actor.TaskCompleted,
 						ChooseAttorneys:     actor.TaskCompleted,
 						CertificateProvider: actor.TaskInProgress,
@@ -123,10 +194,11 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 
 			err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &page.Lpa{
 				ID:                  "lpa-id",
-				CertificateProvider: actor.CertificateProvider{FirstNames: "John", RelationshipLength: actor.GreaterThanEqualToTwoYears},
+				CertificateProvider: tc.existingCertificateProviderDetails,
 				Tasks: page.Tasks{
-					YourDetails:     actor.TaskCompleted,
-					ChooseAttorneys: actor.TaskCompleted,
+					YourDetails:         actor.TaskCompleted,
+					ChooseAttorneys:     actor.TaskCompleted,
+					CertificateProvider: actor.TaskCompleted,
 				},
 			})
 			resp := w.Result()

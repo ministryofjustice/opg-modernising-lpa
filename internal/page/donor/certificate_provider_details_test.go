@@ -181,6 +181,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 						LastName:   "Doe",
 					},
 					CertificateProvider: tc.certificateProviderDetails,
+					Tasks:               page.Tasks{CertificateProvider: actor.TaskInProgress},
 				}).
 				Return(nil)
 
