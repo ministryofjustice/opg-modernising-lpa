@@ -347,48 +347,26 @@ func (c *Client) Update(ctx context.Context, pk, sk string, values map[string]ty
 	return err
 }
 
-func (c *Client) BatchPut(ctx context.Context, items []interface{}) (int, error) {
-	// courtesy of https://docs.aws.amazon.com/code-library/latest/ug/go_2_dynamodb_code_examples.html
+func (c *Client) BatchPut(ctx context.Context, values []interface{}) error {
+	items := make([]types.TransactWriteItem, len(values))
 
-	var err error
-	var itemValues map[string]types.AttributeValue
-
-	written := 0
-	batchSize := 25 // DynamoDB allows a maximum batch size of 25 items.
-	start := 0
-	end := start + batchSize
-
-	for start < len(items) {
-		var writeReqs []types.WriteRequest
-		if end > len(items) {
-			end = len(items)
-		}
-
-		for _, item := range items[start:end] {
-			itemValues, err = attributevalue.MarshalMap(item)
-			if err != nil {
-				c.logger.Print("failed to marshal item during BatchPut: ", err)
-			} else {
-				writeReqs = append(
-					writeReqs,
-					types.WriteRequest{PutRequest: &types.PutRequest{Item: itemValues}},
-				)
-			}
-		}
-
-		_, err := c.svc.BatchWriteItem(ctx, &dynamodb.BatchWriteItemInput{
-			RequestItems: map[string][]types.WriteRequest{c.table: writeReqs},
-		})
-
+	for i, value := range values {
+		v, err := attributevalue.MarshalMap(value)
 		if err != nil {
-			c.logger.Print("failed to add a batch of item during BatchPut: ", err)
-		} else {
-			written += len(writeReqs)
+			return err
 		}
 
-		start = end
-		end += batchSize
+		items[i] = types.TransactWriteItem{
+			Put: &types.Put{
+				TableName: aws.String(c.table),
+				Item:      v,
+			},
+		}
 	}
 
-	return written, err
+	_, err := c.svc.TransactWriteItems(ctx, &dynamodb.TransactWriteItemsInput{
+		TransactItems: items,
+	})
+
+	return err
 }
