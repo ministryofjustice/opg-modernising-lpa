@@ -9,11 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -65,7 +64,6 @@ type EvidenceReceivedStore interface {
 //go:generate mockery --testonly --inpackage --name S3Client --structname mockS3Client
 type S3Client interface {
 	PutObject(context.Context, string, []byte) error
-	PutObjectTagging(context.Context, string, []types.Tag) error
 	DeleteObject(context.Context, string) error
 }
 
@@ -148,6 +146,12 @@ type DocumentStore interface {
 	Delete(context.Context, page.Document) error
 	DeleteInfectedDocuments(context.Context, page.Documents) error
 	Create(context.Context, *page.Lpa, string, []byte) (page.Document, error)
+	BatchPut(context.Context, []page.Document) error
+}
+
+//go:generate mockery --testonly --inpackage --name EventClient --structname mockEventClient
+type EventClient interface {
+	SendReducedFeeRequested(context.Context, event.ReducedFeeRequested) error
 }
 
 func Register(
@@ -170,17 +174,15 @@ func Register(
 	evidenceReceivedStore EvidenceReceivedStore,
 	evidenceS3Client S3Client,
 	documentStore DocumentStore,
+	eventClient EventClient,
 ) {
 	payer := &payHelper{
-		logger:           logger,
-		sessionStore:     sessionStore,
-		donorStore:       donorStore,
-		payClient:        payClient,
-		appPublicURL:     appPublicURL,
-		randomString:     random.String,
-		evidenceS3Client: evidenceS3Client,
-		now:              time.Now,
-		documentStore:    documentStore,
+		logger:       logger,
+		sessionStore: sessionStore,
+		donorStore:   donorStore,
+		payClient:    payClient,
+		appPublicURL: appPublicURL,
+		randomString: random.String,
 	}
 
 	handleRoot := makeHandle(rootMux, sessionStore, None, errorHandler)
@@ -321,13 +323,13 @@ func Register(
 	handleWithLpa(page.Paths.HowWouldYouLikeToSendEvidence, CanGoBack,
 		HowWouldYouLikeToSendEvidence(tmpls.Get("how_would_you_like_to_send_evidence.gohtml"), donorStore))
 	handleWithLpa(page.Paths.UploadEvidence, CanGoBack,
-		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), payer, documentStore))
+		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), payer, documentStore, eventClient, time.Now))
 	handleWithLpa(page.Paths.SendUsYourEvidenceByPost, CanGoBack,
 		SendUsYourEvidenceByPost(tmpls.Get("send_us_your_evidence_by_post.gohtml"), payer))
 	handleWithLpa(page.Paths.FeeDenied, None,
 		FeeDenied(tmpls.Get("fee_denied.gohtml"), payer))
 	handleWithLpa(page.Paths.PaymentConfirmation, None,
-		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, evidenceS3Client, time.Now, documentStore))
+		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore))
 	handleWithLpa(page.Paths.EvidenceSuccessfullyUploaded, None,
 		Guidance(tmpls.Get("evidence_successfully_uploaded.gohtml")))
 	handleWithLpa(page.Paths.WhatHappensNextPostEvidence, None,
@@ -468,15 +470,12 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOp
 }
 
 type payHelper struct {
-	logger           Logger
-	sessionStore     sessions.Store
-	donorStore       DonorStore
-	payClient        PayClient
-	appPublicURL     string
-	randomString     func(int) string
-	evidenceS3Client S3Client
-	now              func() time.Time
-	documentStore    DocumentStore
+	logger       Logger
+	sessionStore sessions.Store
+	donorStore   DonorStore
+	payClient    PayClient
+	appPublicURL string
+	randomString func(int) string
 }
 
 func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
@@ -488,27 +487,6 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 
 		if lpa.EvidenceDelivery.IsPost() {
 			return appData.Redirect(w, r, lpa, page.Paths.WhatHappensNextPostEvidence.Format(lpa.ID))
-		}
-
-		documents, err := p.documentStore.GetAll(r.Context())
-		if err != nil {
-			return err
-		}
-
-		for _, document := range documents {
-			if document.Sent.IsZero() {
-				if err := p.evidenceS3Client.PutObjectTagging(r.Context(), document.Key, []types.Tag{
-					{Key: aws.String("replicate"), Value: aws.String("true")},
-				}); err != nil {
-					p.logger.Print(fmt.Sprintf("error tagging evidence: %s", err.Error()))
-					return err
-				}
-
-				document.Sent = p.now()
-				if err := p.documentStore.Put(r.Context(), document); err != nil {
-					return err
-				}
-			}
 		}
 
 		return appData.Redirect(w, r, lpa, page.Paths.EvidenceSuccessfullyUploaded.Format(lpa.ID))

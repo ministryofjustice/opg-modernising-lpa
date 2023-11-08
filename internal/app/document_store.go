@@ -3,21 +3,11 @@ package app
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
-
-type PartialBatchWriteError struct {
-	Written  int
-	Expected int
-}
-
-func (e PartialBatchWriteError) Error() string {
-	return fmt.Sprintf("Expected to write %d but %d were written", e.Expected, e.Written)
-}
 
 type documentStore struct {
 	dynamoClient DynamoClient
@@ -80,21 +70,12 @@ func (s *documentStore) UpdateScanResults(ctx context.Context, lpaID, s3ObjectKe
 }
 
 func (s *documentStore) BatchPut(ctx context.Context, documents []page.Document) error {
-	var converted []interface{}
+	var converted []any
 	for _, d := range documents {
 		converted = append(converted, d)
 	}
 
-	toWrite := len(converted)
-	written, err := s.dynamoClient.BatchPut(ctx, converted)
-
-	if err != nil {
-		return err
-	} else if written != toWrite {
-		return PartialBatchWriteError{Written: written, Expected: toWrite}
-	}
-
-	return nil
+	return s.dynamoClient.BatchPut(ctx, converted)
 }
 
 func (s *documentStore) Put(ctx context.Context, document page.Document) error {
@@ -103,24 +84,15 @@ func (s *documentStore) Put(ctx context.Context, document page.Document) error {
 
 func (s *documentStore) DeleteInfectedDocuments(ctx context.Context, documents page.Documents) error {
 	var dynamoKeys []dynamo.Key
-	var s3Keys []string
 
 	for _, d := range documents {
 		if d.VirusDetected {
-			dynamoKeys = append(dynamoKeys, dynamo.Key{
-				PK: d.PK,
-				SK: d.SK,
-			})
-			s3Keys = append(s3Keys, d.Key)
+			dynamoKeys = append(dynamoKeys, dynamo.Key{PK: d.PK, SK: d.SK})
 		}
 	}
 
 	if len(dynamoKeys) == 0 {
 		return nil
-	}
-
-	if err := s.s3Client.DeleteObjects(ctx, s3Keys); err != nil {
-		return err
 	}
 
 	return s.dynamoClient.DeleteKeys(ctx, dynamoKeys)

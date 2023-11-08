@@ -8,9 +8,11 @@ import (
 	"io"
 	"net/http"
 	"slices"
+	"time"
 
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -57,7 +59,7 @@ type uploadEvidenceData struct {
 	StartScan            string
 }
 
-func UploadEvidence(tmpl template.Template, payer Payer, documentStore DocumentStore) Handler {
+func UploadEvidence(tmpl template.Template, payer Payer, documentStore DocumentStore, eventClient EventClient, now func() time.Time) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if lpa.Tasks.PayForLpa.IsPending() {
 			return appData.Redirect(w, r, lpa, page.Paths.TaskList.Format(lpa.ID))
@@ -118,6 +120,40 @@ func UploadEvidence(tmpl template.Template, payer Payer, documentStore DocumentS
 					}
 
 				case "pay":
+					// todo: mark documents with replicate
+					var unsentDocuments page.Documents
+
+					for _, document := range documents {
+						if !document.Scanned {
+							// TODO: log so we know something weird has happened
+							data.Errors = validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"})
+							return tmpl(w, data)
+						}
+
+						if document.Sent.IsZero() && !document.VirusDetected {
+							unsentDocuments = append(unsentDocuments, document)
+						}
+					}
+
+					if len(unsentDocuments) > 0 {
+						if err := eventClient.SendReducedFeeRequested(r.Context(), event.ReducedFeeRequested{
+							UID:              lpa.UID,
+							RequestType:      lpa.FeeType.String(),
+							Evidence:         unsentDocuments.Keys(),
+							EvidenceDelivery: lpa.EvidenceDelivery.String(),
+						}); err != nil {
+							return err
+						}
+
+						for i := range unsentDocuments {
+							unsentDocuments[i].Sent = now()
+						}
+
+						if err := documentStore.BatchPut(r.Context(), unsentDocuments); err != nil {
+							return err
+						}
+					}
+
 					return payer.Pay(appData, w, r, lpa)
 
 				case "delete":

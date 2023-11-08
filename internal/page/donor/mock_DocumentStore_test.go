@@ -14,6 +14,20 @@ type mockDocumentStore struct {
 	mock.Mock
 }
 
+// BatchPut provides a mock function with given fields: _a0, _a1
+func (_m *mockDocumentStore) BatchPut(_a0 context.Context, _a1 []page.Document) error {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, []page.Document) error); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Create provides a mock function with given fields: _a0, _a1, _a2, _a3
 func (_m *mockDocumentStore) Create(_a0 context.Context, _a1 *page.Lpa, _a2 string, _a3 []byte) (page.Document, error) {
 	ret := _m.Called(_a0, _a1, _a2, _a3)

@@ -722,114 +722,32 @@ func TestUpdateOnServiceError(t *testing.T) {
 func TestBatchPutOneBatch(t *testing.T) {
 	ctx := context.Background()
 
-	type testObject struct {
-		Col string
-	}
-
-	item, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val"})
-	var items []interface{}
-	var writeReqs []types.WriteRequest
-
-	count := 0
-	for count < 25 {
-		items = append(items, testObject{Col: "Val"})
-
-		writeReqs = append(
-			writeReqs,
-			types.WriteRequest{PutRequest: &types.PutRequest{Item: item}},
-		)
-
-		count++
-	}
+	values := []any{map[string]string{"a": "b"}, map[string]string{"x": "y"}}
+	itemA, _ := attributevalue.MarshalMap(values[0])
+	itemB, _ := attributevalue.MarshalMap(values[1])
 
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.
-		On("BatchWriteItem", ctx, &dynamodb.BatchWriteItemInput{
-			RequestItems: map[string][]types.WriteRequest{"table-name": writeReqs},
-		}).
-		Return(nil, nil).
-		Once()
-
-	c := &Client{table: "table-name", svc: dynamoDB}
-	written, err := c.BatchPut(ctx, items)
-
-	assert.Nil(t, err)
-	assert.Equal(t, 25, written)
-}
-
-func TestBatchPutMultipleBatches(t *testing.T) {
-	ctx := context.Background()
-
-	type testObject struct {
-		Col string
-	}
-
-	item, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val"})
-	var items []interface{}
-	var writeReqs []types.WriteRequest
-
-	count := 0
-	for count < 26 {
-		items = append(items, testObject{Col: "Val"})
-
-		writeReqs = append(
-			writeReqs,
-			types.WriteRequest{PutRequest: &types.PutRequest{Item: item}},
-		)
-		count++
-	}
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.
-		On("BatchWriteItem", ctx, &dynamodb.BatchWriteItemInput{
-			RequestItems: map[string][]types.WriteRequest{"table-name": writeReqs[0:25]},
-		}).
-		Return(nil, nil).
-		Once()
-
-	dynamoDB.
-		On("BatchWriteItem", ctx, &dynamodb.BatchWriteItemInput{
-			RequestItems: map[string][]types.WriteRequest{"table-name": {
-				{PutRequest: &types.PutRequest{Item: item}},
-			}},
-		}).
-		Return(nil, nil).
-		Once()
-
-	c := &Client{table: "table-name", svc: dynamoDB}
-	written, err := c.BatchPut(ctx, items)
-
-	assert.Nil(t, err)
-	assert.Equal(t, 26, written)
-}
-
-func TestBatchPutWhenDynamoBatchWriteItemError(t *testing.T) {
-	ctx := context.Background()
-
-	type testObject struct {
-		Col string
-	}
-
-	item, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val"})
-	items := []interface{}{testObject{Col: "Val"}}
-	writeReqs := []types.WriteRequest{
-		{PutRequest: &types.PutRequest{Item: item}},
-	}
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.
-		On("BatchWriteItem", ctx, &dynamodb.BatchWriteItemInput{
-			RequestItems: map[string][]types.WriteRequest{"table-name": writeReqs},
+		On("TransactWriteItems", ctx, &dynamodb.TransactWriteItemsInput{
+			TransactItems: []types.TransactWriteItem{
+				{
+					Put: &types.Put{
+						TableName: aws.String("table-name"),
+						Item:      itemA,
+					},
+				},
+				{
+					Put: &types.Put{
+						TableName: aws.String("table-name"),
+						Item:      itemB,
+					},
+				},
+			},
 		}).
 		Return(nil, expectedError)
 
-	logger := newMockLogger(t)
-	logger.
-		On("Print", "failed to add a batch of item during BatchPut: ", expectedError)
+	c := &Client{table: "table-name", svc: dynamoDB}
+	err := c.BatchPut(ctx, values)
 
-	c := &Client{table: "table-name", svc: dynamoDB, logger: logger}
-	written, err := c.BatchPut(ctx, items)
-
-	assert.Nil(t, err)
-	assert.Equal(t, 0, written)
+	assert.Equal(t, expectedError, err)
 }

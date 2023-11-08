@@ -22,7 +22,6 @@ type EventClient interface {
 	SendUidRequested(context.Context, event.UidRequested) error
 	SendApplicationUpdated(context.Context, event.ApplicationUpdated) error
 	SendPreviousApplicationLinked(context.Context, event.PreviousApplicationLinked) error
-	SendReducedFeeRequested(context.Context, event.ReducedFeeRequested) error
 }
 
 //go:generate mockery --testonly --inpackage --name DocumentStore --structname mockDocumentStore
@@ -30,7 +29,6 @@ type DocumentStore interface {
 	GetAll(context.Context) (page.Documents, error)
 	Put(context.Context, page.Document) error
 	UpdateScanResults(context.Context, string, string, bool) error
-	BatchPut(context.Context, []page.Document) error
 }
 
 type donorStore struct {
@@ -186,46 +184,6 @@ func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
 		}
 
 		lpa.HasSentPreviousApplicationLinkedEvent = true
-	}
-
-	if lpa.UID != "" && lpa.Tasks.PayForLpa.IsPending() {
-		documents, err := s.documentStore.GetAll(ctx)
-		if err != nil {
-			s.logger.Print(err)
-			return s.dynamoClient.Put(ctx, lpa)
-		}
-
-		var unsentKeys []string
-
-		for _, document := range documents {
-			if document.Sent.IsZero() && !document.Scanned {
-				unsentKeys = append(unsentKeys, document.Key)
-			}
-		}
-
-		if len(unsentKeys) > 0 {
-			if err := s.eventClient.SendReducedFeeRequested(ctx, event.ReducedFeeRequested{
-				UID:              lpa.UID,
-				RequestType:      lpa.FeeType.String(),
-				Evidence:         unsentKeys,
-				EvidenceDelivery: lpa.EvidenceDelivery.String(),
-			}); err != nil {
-				return err
-			}
-
-			var updatedDocuments page.Documents
-
-			for _, document := range documents {
-				if document.Sent.IsZero() && !document.Scanned {
-					document.Sent = s.now()
-					updatedDocuments = append(updatedDocuments, document)
-				}
-			}
-
-			if err := s.documentStore.BatchPut(ctx, updatedDocuments); err != nil {
-				s.logger.Print(err)
-			}
-		}
 	}
 
 	return s.dynamoClient.Put(ctx, lpa)

@@ -169,11 +169,6 @@ func TestDocumentStorePutWhenDynamoClientError(t *testing.T) {
 func TestDeleteInfectedDocuments(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
 
-	s3Client := newMockS3Client(t)
-	s3Client.
-		On("DeleteObjects", ctx, []string{"a-key", "another-key"}).
-		Return(nil)
-
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
 		On("DeleteKeys", ctx, []dynamo.Key{
@@ -182,7 +177,7 @@ func TestDeleteInfectedDocuments(t *testing.T) {
 		}).
 		Return(nil)
 
-	documentStore := documentStore{s3Client: s3Client, dynamoClient: dynamoClient}
+	documentStore := documentStore{dynamoClient: dynamoClient}
 
 	err := documentStore.DeleteInfectedDocuments(ctx, page.Documents{
 		{PK: "a-pk", SK: "a-sk", Key: "a-key", VirusDetected: true},
@@ -192,31 +187,8 @@ func TestDeleteInfectedDocuments(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestDeleteInfectedDocumentsWhenS3ClientError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
-
-	s3Client := newMockS3Client(t)
-	s3Client.
-		On("DeleteObjects", ctx, []string{"a-key", "another-key"}).
-		Return(expectedError)
-
-	documentStore := documentStore{s3Client: s3Client}
-
-	err := documentStore.DeleteInfectedDocuments(ctx, page.Documents{
-		{PK: "a-pk", SK: "a-sk", Key: "a-key", VirusDetected: true},
-		{PK: "another-pk", SK: "another-sk", Key: "another-key", VirusDetected: true},
-	})
-
-	assert.Equal(t, expectedError, err)
-}
-
 func TestDeleteInfectedDocumentsWhenDynamoClientError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
-
-	s3Client := newMockS3Client(t)
-	s3Client.
-		On("DeleteObjects", ctx, []string{"a-key", "another-key"}).
-		Return(nil)
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
@@ -226,7 +198,7 @@ func TestDeleteInfectedDocumentsWhenDynamoClientError(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	documentStore := documentStore{s3Client: s3Client, dynamoClient: dynamoClient}
+	documentStore := documentStore{dynamoClient: dynamoClient}
 
 	err := documentStore.DeleteInfectedDocuments(ctx, page.Documents{
 		{PK: "a-pk", SK: "a-sk", Key: "a-key", VirusDetected: true},
@@ -317,7 +289,7 @@ func TestBatchPut(t *testing.T) {
 			page.Document{PK: "a-pk", SK: "a-sk", Key: "a-key"},
 			page.Document{PK: "aanother-pk", SK: "aanother-sk", Key: "aanother-key"},
 		}).
-		Return(2, nil)
+		Return(nil)
 
 	documentStore := documentStore{dynamoClient: dynamoClient}
 
@@ -329,27 +301,6 @@ func TestBatchPut(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestBatchPutPartialWrite(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
-
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("BatchPut", ctx, []interface{}{
-			page.Document{PK: "a-pk", SK: "a-sk", Key: "a-key"},
-			page.Document{PK: "aanother-pk", SK: "aanother-sk", Key: "aanother-key"},
-		}).
-		Return(1, nil)
-
-	documentStore := documentStore{dynamoClient: dynamoClient}
-
-	err := documentStore.BatchPut(ctx, []page.Document{
-		{PK: "a-pk", SK: "a-sk", Key: "a-key"},
-		{PK: "aanother-pk", SK: "aanother-sk", Key: "aanother-key"},
-	})
-
-	assert.Equal(t, PartialBatchWriteError{Written: 1, Expected: 2}, err)
-}
-
 func TestBatchPutWhenDynamoError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
 
@@ -359,7 +310,7 @@ func TestBatchPutWhenDynamoError(t *testing.T) {
 			page.Document{PK: "a-pk", SK: "a-sk", Key: "a-key"},
 			page.Document{PK: "aanother-pk", SK: "aanother-sk", Key: "aanother-key"},
 		}).
-		Return(0, expectedError)
+		Return(expectedError)
 
 	documentStore := documentStore{dynamoClient: dynamoClient}
 
