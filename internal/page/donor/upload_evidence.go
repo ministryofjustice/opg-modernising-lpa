@@ -16,6 +16,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
+var ErrUnscannedDocumentSubmitted = errors.New("an unscanned document was submitted")
+
 type uploadError int
 
 func (uploadError) Error() string { return "err" }
@@ -118,6 +120,16 @@ func UploadEvidence(tmpl template.Template, payer Payer, documentStore DocumentS
 					}
 
 				case "pay":
+					if err := documentStore.Submit(r.Context(), lpa, documents); err != nil {
+						if errors.Is(err, ErrUnscannedDocumentSubmitted) {
+							// TODO: log so we know something weird has happened
+							data.Errors = validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"})
+							return tmpl(w, data)
+						}
+
+						return err
+					}
+
 					return payer.Pay(appData, w, r, lpa)
 
 				case "delete":

@@ -9,7 +9,6 @@ import (
 	"time"
 
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/logging"
@@ -50,15 +49,15 @@ type DynamoClient interface {
 	DeleteKeys(ctx context.Context, keys []dynamo.Key) error
 	DeleteOne(ctx context.Context, pk, sk string) error
 	Update(ctx context.Context, pk, sk string, values map[string]dynamodbtypes.AttributeValue, expression string) error
-	BatchPut(ctx context.Context, items []interface{}) (int, error)
+	BatchPut(ctx context.Context, items []interface{}) error
 }
 
 //go:generate mockery --testonly --inpackage --name S3Client --structname mockS3Client
 type S3Client interface {
 	PutObject(context.Context, string, []byte) error
-	PutObjectTagging(context.Context, string, []types.Tag) error
 	DeleteObject(context.Context, string) error
 	DeleteObjects(ctx context.Context, keys []string) error
+	PutObjectTagging(context.Context, string, map[string]string) error
 }
 
 //go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore
