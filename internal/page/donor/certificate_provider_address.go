@@ -16,12 +16,16 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 		data.ActorLabel = "certificateProvider"
 		data.FullName = lpa.CertificateProvider.FullName()
 
+		// so keys are set when amending address
+		if lpa.CertificateProvider.Relationship.IsProfessionally() {
+			data.overrideProfessionalCertificateProviderKeys()
+		}
+
 		if lpa.CertificateProvider.Address.Line1 != "" {
 			data.Form.Action = "manual"
 			data.Form.Address = &lpa.CertificateProvider.Address
 		} else if lpa.CertificateProvider.Relationship.IsProfessionally() {
 			data.Form.Action = "postcode"
-			data.overrideProfessionalCertificateProviderKeys()
 		}
 
 		if r.Method == http.MethodPost {
