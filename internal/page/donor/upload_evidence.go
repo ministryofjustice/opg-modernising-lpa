@@ -57,7 +57,7 @@ type uploadEvidenceData struct {
 	StartScan            string
 }
 
-func UploadEvidence(tmpl template.Template, payer Payer, documentStore DocumentStore) Handler {
+func UploadEvidence(tmpl template.Template, logger Logger, payer Payer, documentStore DocumentStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if lpa.Tasks.PayForLpa.IsPending() {
 			return appData.Redirect(w, r, lpa, page.Paths.TaskList.Format(lpa.ID))
@@ -118,6 +118,16 @@ func UploadEvidence(tmpl template.Template, payer Payer, documentStore DocumentS
 					}
 
 				case "pay":
+					if len(documents.NotScanned()) > 0 {
+						logger.Print("attempt to pay with unscanned documents on lpa:", lpa.UID)
+						data.Errors = validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"})
+						return tmpl(w, data)
+					}
+
+					if err := documentStore.Submit(r.Context(), lpa, documents); err != nil {
+						return err
+					}
+
 					return payer.Pay(appData, w, r, lpa)
 
 				case "delete":
