@@ -2,15 +2,15 @@
 
 {{ define "pageTitle" }}
   {{ if eq .Form.Action "manual" }}
-    {{ trFormat .App "personsAddress" "FullNamePossessive" (tr .App .ActorLabel | possessive .App) "FullName" (tr .App .ActorLabel) }}
+      {{ trFormat .App .TitleKeys.Manual "FullNamePossessive" (tr .App .ActorLabel | possessive .App) "FullName" (tr .App .ActorLabel) }}
   {{ else if eq .Form.Action "postcode-select" "postcode-lookup" }}
-    {{ trFormat .App "selectAnAddressForPerson" "FullName" (tr .App .ActorLabel | lowerFirst) }}  
+      {{ trFormat .App .TitleKeys.PostcodeSelectAndPostcodeLookup "FullNamePossessive" (tr .App .ActorLabel | possessive .App | lowerFirst) "FullName" (tr .App .ActorLabel | lowerFirst) }}
   {{ else if eq .Form.Action "postcode" }}
-    {{ trFormat .App "whatIsPersonsPostcode" "FullNamePossessive" (tr .App .ActorLabel | possessive .App | lowerFirst) }}
+      {{ trFormat .App .TitleKeys.Postcode "FullNamePossessive" (tr .App .ActorLabel | possessive .App | lowerFirst) }}
   {{ else if eq .Form.Action "reuse" "reuse-select" }}
-    {{ trFormat .App "selectAnAddressForPerson" "FullName" (tr .App .ActorLabel | lowerFirst) }}
+      {{ trFormat .App .TitleKeys.ReuseAndReuseSelect "FullName" (tr .App .ActorLabel | lowerFirst) }}
   {{ else }}
-    {{ trFormat .App "addPersonsAddress" "FullNamePossessive" (tr .App .ActorLabel | possessive .App | lowerFirst) }}
+      {{ trFormat .App .TitleKeys.ReuseOrNew "FullNamePossessive" (tr .App .ActorLabel | possessive .App | lowerFirst) }}
   {{ end }}
 {{ end }}
 
@@ -23,7 +23,7 @@
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
               <h1 class="govuk-fieldset__heading">
                 {{ if .FullName }}
-                  {{ trFormat .App "personsAddress" "FullNamePossessive" (possessive .App .FullName) "FullName" .FullName }}
+                  {{ trFormat .App .TitleKeys.Manual "FullNamePossessive" (possessive .App .FullName) "FullName" .FullName }}
                 {{ else }}
                   {{ template "pageTitle" . }}
                 {{ end }}
@@ -55,7 +55,7 @@
               <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
                 <h1 class="govuk-fieldset__heading">
                   {{ if .FullName }}
-                    {{ trFormat .App "selectAnAddressForPerson" "FullName" .FullName }}
+                      {{ trFormat .App .TitleKeys.PostcodeSelectAndPostcodeLookup "FullNamePossessive" (possessive .App .FullName) "FullName" .FullName }}
                   {{ else }}
                     {{ template "pageTitle" . }}
                   {{ end }}
@@ -66,7 +66,7 @@
                 {{ tr .App "selectAnAddress" }}
               </label>
               {{ template "error-message" (errorMessage . "select-address") }}
-              
+
               <select class="govuk-select {{ if .Errors.Has "select-address" }}govuk-select--error{{ end }}" id="f-select-address" name="select-address">
                 <option value="">{{ trCount .App "addressesFound" (len .Addresses) }}</option>
                 {{ range .Addresses }}
@@ -102,7 +102,7 @@
               <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
                 <h1 class="govuk-fieldset__heading">
                   {{ if .FullName }}
-                    {{ trFormat .App "whatIsPersonsPostcode" "FullNamePossessive" (possessive .App .FullName) }}
+                    {{ trFormat .App .TitleKeys.Postcode "FullNamePossessive" (possessive .App .FullName) }}
                   {{ else }}
                     {{ template "pageTitle" . }}
                   {{ end }}
@@ -113,7 +113,7 @@
                 {{ tr .App "postcode" }}
               </label>
               {{ template "error-message" (errorMessage . "lookup-postcode") }}
-              
+
               <input class="govuk-input govuk-input--width-10  {{ if .Errors.Has "lookup-postcode" }}govuk-input--error{{ end }}" id="f-lookup-postcode" name="lookup-postcode" type="text" autocomplete="postal-code" value="{{ .Form.LookupPostcode }}">
             </fieldset>
           </div>
@@ -142,7 +142,7 @@
               <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
                 <h1 class="govuk-fieldset__heading">
                   {{ if .FullName }}
-                    {{ trFormat .App "selectAnAddressForPerson" "FullName" .FullName }}
+                    {{ trFormat .App .TitleKeys.ReuseAndReuseSelect "FullName" .FullName }}
                   {{ else }}
                     {{ template "pageTitle" . }}
                   {{ end }}
@@ -165,25 +165,25 @@
 
           {{ template "save-and-return-buttons" . }}
           <input type="hidden" name="action" value="reuse-select" />
-          
+
         {{ else }}
           <div class="govuk-form-group {{ if .Errors.Has "action" }}govuk-form-group--error{{ end }}">
             <fieldset class="govuk-fieldset">
               <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
                 <h1 class="govuk-fieldset__heading">
                   {{ if .FullName }}
-                    {{ trFormat .App "addPersonsAddress" "FullNamePossessive" (possessive .App .FullName) }}
+                    {{ trFormat .App .TitleKeys.ReuseOrNew "FullNamePossessive" (possessive .App .FullName) }}
                   {{ else }}
                     {{ template "pageTitle" . }}
                   {{ end }}
                 </h1>
               </legend>
               {{ template "error-message" (errorMessage . "action") }}
-              
+
               {{ template "radios" (items . "action" .Form.Action
                 (item "reuse" "useAnAddressYouAlreadyEntered")
                 (item "postcode" "enterNewAddress")
-              ) }}              
+              ) }}
             </fieldset>
           </div>
 
