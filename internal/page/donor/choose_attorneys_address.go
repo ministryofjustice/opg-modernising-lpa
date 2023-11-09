@@ -21,7 +21,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 		data := newChooseAddressData()
 		data.App = appData
 		data.ActorLabel = "attorney"
-		data.FullName = lpa.CertificateProvider.FullName()
+		data.FullName = attorney.FullName()
 		data.ID = attorney.ID
 		data.CanSkip = true
 

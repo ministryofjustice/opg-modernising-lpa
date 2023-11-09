@@ -250,6 +250,7 @@
     "donor": "Donor",
     "name": "Name",
     "address": "Address",
+    "workAddress": "Work address",
     "certificateProvider": "Certificate provider",
     "certificateProviderMobile": "certificate provider mobile",
     "attorneys": "Attorneys",

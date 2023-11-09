@@ -33,6 +33,7 @@ func TestGetCertificateProviderAddress(t *testing.T) {
 			Form:       &form.AddressForm{},
 			FullName:   "John Smith",
 			ActorLabel: "certificateProvider",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -57,11 +58,17 @@ func TestGetCertificateProviderAddressWhenProfessionalCertificateProvider(t *tes
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseAddressData{
-			App:                               testAppData,
-			Form:                              &form.AddressForm{Action: "postcode"},
-			FullName:                          "John Smith",
-			ActorLabel:                        "certificateProvider",
-			IsProfessionalCertificateProvider: true,
+			App:        testAppData,
+			Form:       &form.AddressForm{Action: "postcode"},
+			FullName:   "John Smith",
+			ActorLabel: "certificateProvider",
+			TitleKeys: titleKeys{
+				Manual:                          "personsWorkAddress",
+				PostcodeSelectAndPostcodeLookup: "selectPersonsWorkAddress",
+				Postcode:                        "whatIsPersonsWorkPostcode",
+				ReuseAndReuseSelect:             "selectAnAddressForPerson",
+				ReuseOrNew:                      "addPersonsAddress",
+			},
 		}).
 		Return(nil)
 
@@ -90,6 +97,7 @@ func TestGetCertificateProviderAddressFromStore(t *testing.T) {
 			},
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -118,6 +126,7 @@ func TestGetCertificateProviderAddressManual(t *testing.T) {
 			},
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -139,6 +148,7 @@ func TestGetCertificateProviderAddressWhenTemplateErrors(t *testing.T) {
 			Form:       &form.AddressForm{},
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(expectedError)
 
@@ -277,6 +287,7 @@ func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
 			Errors:     validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -309,6 +320,7 @@ func TestPostCertificateProviderPostcodeSelect(t *testing.T) {
 			},
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -350,6 +362,7 @@ func TestPostCertificateProviderPostcodeSelectWhenValidationError(t *testing.T) 
 			ActorLabel: "certificateProvider",
 			Addresses:  addresses,
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -390,6 +403,7 @@ func TestPostCertificateProviderPostcodeLookup(t *testing.T) {
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
 			Addresses:  addresses,
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -431,6 +445,7 @@ func TestPostCertificateProviderPostcodeLookupError(t *testing.T) {
 			ActorLabel: "certificateProvider",
 			Addresses:  []place.Address{},
 			Errors:     validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -477,6 +492,7 @@ func TestPostCertificateProviderPostcodeLookupInvalidPostcodeError(t *testing.T)
 			ActorLabel: "certificateProvider",
 			Addresses:  []place.Address{},
 			Errors:     validation.With("lookup-postcode", validation.EnterError{Label: "invalidPostcode"}),
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -517,6 +533,7 @@ func TestPostCertificateProviderPostcodeLookupValidPostcodeNoAddresses(t *testin
 			ActorLabel: "certificateProvider",
 			Addresses:  []place.Address{},
 			Errors:     validation.With("lookup-postcode", validation.CustomError{Label: "noAddressesFound"}),
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -546,6 +563,7 @@ func TestPostCertificateProviderPostcodeLookupWhenValidationError(t *testing.T) 
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
 			Errors:     validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -574,6 +592,7 @@ func TestPostCertificateProviderAddressReuse(t *testing.T) {
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
 			Addresses:  []place.Address{{Line1: "donor lane"}},
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -642,6 +661,7 @@ func TestPostCertificateProviderAddressReuseSelectWhenValidationError(t *testing
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
