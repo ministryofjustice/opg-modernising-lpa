@@ -14,14 +14,11 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 		attorneyId := r.FormValue("id")
 		attorney, _ := lpa.ReplacementAttorneys.Get(attorneyId)
 
-		data := &chooseAddressData{
-			App:        appData,
-			ActorLabel: "replacementAttorney",
-			FullName:   attorney.FullName(),
-			ID:         attorney.ID,
-			CanSkip:    true,
-			Form:       &form.AddressForm{},
-		}
+		data := newChooseAddressData(appData)
+		data.ActorLabel = "replacementAttorney"
+		data.FullName = attorney.FullName()
+		data.ID = attorney.ID
+		data.CanSkip = true
 
 		if attorney.Address.Line1 != "" {
 			data.Form.Action = "manual"

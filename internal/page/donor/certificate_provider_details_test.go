@@ -181,6 +181,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 						LastName:   "Doe",
 					},
 					CertificateProvider: tc.certificateProviderDetails,
+					Tasks:               page.Tasks{CertificateProvider: actor.TaskInProgress},
 				}).
 				Return(nil)
 
@@ -195,7 +196,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.HowDoYouKnowYourCertificateProvider.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
