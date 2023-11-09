@@ -116,7 +116,7 @@ func handler(ctx context.Context, event Event) error {
 
 	if event.isS3Event() {
 		s3Client := s3.NewClient(cfg, evidenceBucketName)
-		documentStore := app.NewDocumentStore(dynamoClient, s3Client, random.UuidString)
+		documentStore := app.NewDocumentStore(dynamoClient, nil, nil, nil, nil)
 
 		if err := handleObjectTagsAdded(ctx, dynamoClient, event.S3Event, s3Client, documentStore); err != nil {
 			return fmt.Errorf("ObjectTagging:Put: %w", err)

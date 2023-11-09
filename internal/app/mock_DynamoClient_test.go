@@ -97,27 +97,17 @@ func (_m *mockDynamoClient) AllKeysByPk(ctx context.Context, pk string) ([]dynam
 }
 
 // BatchPut provides a mock function with given fields: ctx, items
-func (_m *mockDynamoClient) BatchPut(ctx context.Context, items []interface{}) (int, error) {
+func (_m *mockDynamoClient) BatchPut(ctx context.Context, items []interface{}) error {
 	ret := _m.Called(ctx, items)
 
-	var r0 int
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, []interface{}) (int, error)); ok {
-		return rf(ctx, items)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, []interface{}) int); ok {
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, []interface{}) error); ok {
 		r0 = rf(ctx, items)
 	} else {
-		r0 = ret.Get(0).(int)
+		r0 = ret.Error(0)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, []interface{}) error); ok {
-		r1 = rf(ctx, items)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
 // Create provides a mock function with given fields: ctx, v
