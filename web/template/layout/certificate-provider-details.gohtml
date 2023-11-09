@@ -3,7 +3,7 @@
   {{ $detailsLink := printf "%s?from=%s" (link .App (.App.Paths.CertificateProviderDetails.Format .App.LpaID)) .App.Page }}
   {{ $carryOutByLink := printf "%s?from=%s" (link .App (.App.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Format .App.LpaID)) .App.Page }}
   {{ $addressLink := printf "%s?from=%s" (link .App (.App.Paths.CertificateProviderAddress.Format .App.LpaID)) .App.Page }}
-  
+
   <div class="govuk-summary-card">
     <div class="govuk-summary-card__title-wrapper">
       <h4 class="govuk-summary-card__title">{{ .Lpa.CertificateProvider.FullName }}</h4>
@@ -61,7 +61,7 @@
         {{ end }}
 
         <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
+          <dt class="govuk-summary-list__key">{{ if .Lpa.CertificateProvider.Relationship.IsProfessionally }} {{ tr .App "workAddress" }} {{ else }} {{ tr .App "address" }} {{ end }}</dt>
           <dd class="govuk-summary-list__value">{{ template "address-lines" .Lpa.CertificateProvider.Address }}</dd>
           {{ if $canChange }}
             <dd class="govuk-summary-list__actions">
