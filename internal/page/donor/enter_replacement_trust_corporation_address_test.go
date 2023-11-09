@@ -26,6 +26,7 @@ func TestGetEnterReplacementTrustCorporationAddress(t *testing.T) {
 			App:        testAppData,
 			Form:       &form.AddressForm{},
 			ActorLabel: "theTrustCorporation",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -51,6 +52,7 @@ func TestGetEnterReplacementTrustCorporationAddressManual(t *testing.T) {
 				Address: &place.Address{},
 			},
 			ActorLabel: "theTrustCorporation",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -73,6 +75,7 @@ func TestGetEnterReplacementTrustCorporationAddressWhenTemplateErrors(t *testing
 			App:        testAppData,
 			Form:       &form.AddressForm{},
 			ActorLabel: "theTrustCorporation",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(expectedError)
 
@@ -220,6 +223,7 @@ func TestPostEnterReplacementTrustCorporationAddressManualWhenValidationError(t 
 			},
 			Errors:     validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
 			ActorLabel: "theTrustCorporation",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -253,6 +257,7 @@ func TestPostEnterReplacementTrustCorporationAddressPostcodeSelect(t *testing.T)
 				Address:        &testAddress,
 			},
 			ActorLabel: "theTrustCorporation",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -295,6 +300,7 @@ func TestPostEnterReplacementTrustCorporationAddressPostcodeSelectWhenValidation
 			Addresses:  addresses,
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
 			ActorLabel: "theTrustCorporation",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -336,6 +342,7 @@ func TestPostEnterReplacementTrustCorporationPostcodeLookup(t *testing.T) {
 			},
 			Addresses:  addresses,
 			ActorLabel: "theTrustCorporation",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -378,6 +385,7 @@ func TestPostEnterReplacementTrustCorporationPostcodeLookupError(t *testing.T) {
 			Addresses:  []place.Address{},
 			Errors:     validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
 			ActorLabel: "theTrustCorporation",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -425,6 +433,7 @@ func TestPostEnterReplacementTrustCorporationAddressPostcodeLookupInvalidPostcod
 			Addresses:  []place.Address{},
 			Errors:     validation.With("lookup-postcode", validation.EnterError{Label: "invalidPostcode"}),
 			ActorLabel: "theTrustCorporation",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -464,6 +473,7 @@ func TestPostEnterReplacementTrustCorporationAddressPostcodeLookupValidPostcodeN
 			Addresses:  []place.Address{},
 			Errors:     validation.With("lookup-postcode", validation.CustomError{Label: "noAddressesFound"}),
 			ActorLabel: "theTrustCorporation",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -494,6 +504,7 @@ func TestPostEnterReplacementTrustCorporationAddressPostcodeLookupWhenValidation
 			},
 			Errors:     validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
 			ActorLabel: "theTrustCorporation",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -524,6 +535,7 @@ func TestPostEnterReplacementTrustCorporationAddressReuse(t *testing.T) {
 			},
 			ActorLabel: "theTrustCorporation",
 			Addresses:  []place.Address{{Line1: "donor lane"}},
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -600,6 +612,7 @@ func TestPostEnterReplacementTrustCorporationAddressReuseSelectWhenValidationErr
 			Addresses:  []place.Address{{Line1: "donor lane"}},
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
 			ActorLabel: "theTrustCorporation",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
