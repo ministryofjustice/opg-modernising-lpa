@@ -12,19 +12,17 @@ import (
 
 func CertificateProviderAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
-		data := &chooseAddressData{
-			App:        appData,
-			ActorLabel: "certificateProvider",
-			FullName:   lpa.CertificateProvider.FullName(),
-			Form:       &form.AddressForm{},
-		}
+		data := newChooseAddressData()
+		data.App = appData
+		data.ActorLabel = "certificateProvider"
+		data.FullName = lpa.CertificateProvider.FullName()
 
 		if lpa.CertificateProvider.Address.Line1 != "" {
 			data.Form.Action = "manual"
 			data.Form.Address = &lpa.CertificateProvider.Address
 		} else if lpa.CertificateProvider.Relationship.IsProfessionally() {
 			data.Form.Action = "postcode"
-			data.IsProfessionalCertificateProvider = true
+			data.overrideProfessionalCertificateProviderKeys()
 		}
 
 		if r.Method == http.MethodPost {

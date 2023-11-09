@@ -1,32 +1,16 @@
 {{ template "page" . }}
 
-
-
 {{ define "pageTitle" }}
-    {{ $manualTitle := "personsAddress" }}
-    {{ if .IsProfessionalCertificateProvider }}
-        {{ $manualTitle = "personsWorkAddress"  }}
-    {{ end }}
-
-    {{ $postcodeTitle := "whatIsPersonsPostcode" }}
-    {{ if .IsProfessionalCertificateProvider }}
-        {{ $postcodeTitle = "whatIsPersonsWorkPostcode"  }}
-    {{ end }}
-
   {{ if eq .Form.Action "manual" }}
-    {{ trFormat .App $manualTitle "FullNamePossessive" (tr .App .ActorLabel | possessive .App) "FullName" (tr .App .ActorLabel) }}
+      {{ trFormat .App .TitleKeys.Manual "FullNamePossessive" (tr .App .ActorLabel | possessive .App) "FullName" (tr .App .ActorLabel) }}
   {{ else if eq .Form.Action "postcode-select" "postcode-lookup" }}
-      {{ if .IsProfessionalCertificateProvider }}
-          {{ trFormat .App "selectPersonsWorkAddress" "FullNamePossessive" (tr .App .ActorLabel | possessive .App | lowerFirst) }}
-      {{ else }}
-          {{ trFormat .App "selectAnAddressForPerson" "FullName" (tr .App .ActorLabel | lowerFirst) }}
-      {{ end }}
+      {{ trFormat .App .TitleKeys.PostcodeSelectAndPostcodeLookup "FullNamePossessive" (tr .App .ActorLabel | possessive .App | lowerFirst) "FullName" (tr .App .ActorLabel | lowerFirst) }}
   {{ else if eq .Form.Action "postcode" }}
-      {{ trFormat .App $postcodeTitle "FullNamePossessive" (tr .App .ActorLabel | possessive .App | lowerFirst) }}
+      {{ trFormat .App .TitleKeys.Postcode "FullNamePossessive" (tr .App .ActorLabel | possessive .App | lowerFirst) }}
   {{ else if eq .Form.Action "reuse" "reuse-select" }}
-    {{ trFormat .App "selectAnAddressForPerson" "FullName" (tr .App .ActorLabel | lowerFirst) }}
+      {{ trFormat .App .TitleKeys.ReuseAndReuseSelect "FullName" (tr .App .ActorLabel | lowerFirst) }}
   {{ else }}
-    {{ trFormat .App "addPersonsAddress" "FullNamePossessive" (tr .App .ActorLabel | possessive .App | lowerFirst) }}
+      {{ trFormat .App .TitleKeys.ReuseOrNew "FullNamePossessive" (tr .App .ActorLabel | possessive .App | lowerFirst) }}
   {{ end }}
 {{ end }}
 
@@ -39,12 +23,7 @@
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
               <h1 class="govuk-fieldset__heading">
                 {{ if .FullName }}
-                    {{ $manualTitle := "personsAddress" }}
-                    {{ if .IsProfessionalCertificateProvider }}
-                        {{ $manualTitle = "personsWorkAddress"  }}
-                    {{ end }}
-
-                  {{ trFormat .App $manualTitle "FullNamePossessive" (possessive .App .FullName) "FullName" .FullName }}
+                  {{ trFormat .App .TitleKeys.Manual "FullNamePossessive" (possessive .App .FullName) "FullName" .FullName }}
                 {{ else }}
                   {{ template "pageTitle" . }}
                 {{ end }}
@@ -76,11 +55,7 @@
               <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
                 <h1 class="govuk-fieldset__heading">
                   {{ if .FullName }}
-                      {{ if .IsProfessionalCertificateProvider }}
-                          {{ trFormat .App "selectPersonsWorkAddress"  "FullNamePossessive" (possessive .App .FullName) }}
-                      {{ else }}
-                          {{ trFormat .App "selectAnAddressForPerson" "FullName" .FullName }}
-                      {{ end }}
+                      {{ trFormat .App .TitleKeys.PostcodeSelectAndPostcodeLookup "FullNamePossessive" (possessive .App .FullName) "FullName" .FullName }}
                   {{ else }}
                     {{ template "pageTitle" . }}
                   {{ end }}
@@ -127,11 +102,7 @@
               <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
                 <h1 class="govuk-fieldset__heading">
                   {{ if .FullName }}
-                      {{ $postcodeTitle := "whatIsPersonsPostcode" }}
-                      {{ if .IsProfessionalCertificateProvider }}
-                          {{ $postcodeTitle = "whatIsPersonsWorkPostcode"  }}
-                      {{ end }}
-                    {{ trFormat .App $postcodeTitle "FullNamePossessive" (possessive .App .FullName) }}
+                    {{ trFormat .App .TitleKeys.Postcode "FullNamePossessive" (possessive .App .FullName) }}
                   {{ else }}
                     {{ template "pageTitle" . }}
                   {{ end }}
@@ -171,7 +142,7 @@
               <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
                 <h1 class="govuk-fieldset__heading">
                   {{ if .FullName }}
-                    {{ trFormat .App "selectAnAddressForPerson" "FullName" .FullName }}
+                    {{ trFormat .App .TitleKeys.ReuseAndReuseSelect "FullName" .FullName }}
                   {{ else }}
                     {{ template "pageTitle" . }}
                   {{ end }}
@@ -201,7 +172,7 @@
               <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
                 <h1 class="govuk-fieldset__heading">
                   {{ if .FullName }}
-                    {{ trFormat .App "addPersonsAddress" "FullNamePossessive" (possessive .App .FullName) }}
+                    {{ trFormat .App .TitleKeys.ReuseOrNew "FullNamePossessive" (possessive .App .FullName) }}
                   {{ else }}
                     {{ template "pageTitle" . }}
                   {{ end }}
