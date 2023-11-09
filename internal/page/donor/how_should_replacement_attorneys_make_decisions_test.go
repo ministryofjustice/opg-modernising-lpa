@@ -24,6 +24,7 @@ func TestGetHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 			App:     testAppData,
 			Form:    &howShouldAttorneysMakeDecisionsForm{},
 			Options: actor.AttorneysActValues,
+			Lpa:     &page.Lpa{},
 		}).
 		Return(nil)
 
@@ -47,6 +48,7 @@ func TestGetHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 				DecisionsDetails: "some decisions",
 			},
 			Options: actor.AttorneysActValues,
+			Lpa:     &page.Lpa{ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "some decisions", How: actor.Jointly}},
 		}).
 		Return(nil)
 

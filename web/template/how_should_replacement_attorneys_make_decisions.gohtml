@@ -44,7 +44,13 @@
                 </label>
 
                 <div id="decision-type-3-item-hint" class="govuk-radios__hint">
-                  {{ tr .App "jointlyAndSeverallyMixedHintReplacementAttorneys" }}
+                  <p>{{ tr .App "jointlyAndSeverallyMixedHintReplacementAttorneys" }}</p>
+                  {{ if .Lpa.Type.IsPropertyFinance }}
+                    <p>{{ tr .App "jointlyAndSeverallyMixedHintReplacementAttorneysExamplePA" }}</p>
+                  {{ else }}
+                    <p>{{ tr .App "jointlyAndSeverallyMixedHintReplacementAttorneysExamplePW" }}</p>
+                  {{ end }}
+                  <p>{{ tr .App "ifYouChooseThisOptionMustStateDecisionsAgreedTogether" }}</p>
                 </div>
 
                 <div class="govuk-radios__conditional" id="decision-type-3-conditional-div">
