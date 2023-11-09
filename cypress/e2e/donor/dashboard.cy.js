@@ -17,24 +17,8 @@ describe('Dashboard', () => {
         it('can create another reusing some previous details', () => {
             cy.contains('button', 'Start now').click();
 
-            cy.get('#f-first-names').clear().type('Jane');
-            cy.contains('button', 'Continue').click();
-
-            cy.get('#f-lookup-postcode').type('B14 7ED');
-            cy.contains('button', 'Find address').click();
-
-            cy.get('#f-select-address').select('1 RICHMOND PLACE, BIRMINGHAM, B14 7ED');
-            cy.contains('button', 'Continue').click();
-            cy.contains('button', 'Continue').click();
-
-            cy.get('#f-lpa-type-2').check();
-            cy.contains('button', 'Continue').click();
-
-            cy.visit('/dashboard');
-            cy.visit('/dashboard');
-
-            cy.contains('Property and affairs: Sam Smith');
-            cy.contains('Personal welfare: Jane Smith');
+            cy.get('#f-first-names').should('have.value', 'Sam');
+            cy.get('#f-last-name').should('have.value', 'Smith');
         });
     })
 

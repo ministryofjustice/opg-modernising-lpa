@@ -2,15 +2,11 @@ package donor
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -20,7 +16,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -28,7 +23,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, &place.Client{}, "http://public.url", &pay.Client{}, nil, &mockWitnessCodeSender{}, nil, nil, nil, nil, &notify.Client{}, nil, &s3.Client{}, nil)
+	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, &place.Client{}, "http://public.url", &pay.Client{}, nil, &mockWitnessCodeSender{}, nil, nil, nil, nil, &notify.Client{}, nil, nil, nil, nil)
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
@@ -436,21 +431,6 @@ func TestPayHelperPayWhenPaymentNotRequired(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-			now := time.Now()
-
-			documentStore := newMockDocumentStore(t)
-			documentStore.
-				On("GetAll", r.Context()).
-				Return(page.Documents{
-					{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf", Sent: now},
-					{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
-				}, nil)
-			documentStore.
-				On("Put", r.Context(), page.Document{
-					Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Sent: now,
-				}).
-				Return(nil)
-
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
@@ -461,18 +441,8 @@ func TestPayHelperPayWhenPaymentNotRequired(t *testing.T) {
 				}).
 				Return(nil)
 
-			s3Client := newMockS3Client(t)
-			s3Client.
-				On("PutObjectTagging", r.Context(), "lpa-uid/evidence/another-uid", []types.Tag{
-					{Key: aws.String("replicate"), Value: aws.String("true")},
-				}).
-				Return(nil)
-
 			err := (&payHelper{
-				donorStore:       donorStore,
-				now:              func() time.Time { return now },
-				evidenceS3Client: s3Client,
-				documentStore:    documentStore,
+				donorStore: donorStore,
 			}).Pay(testAppData, w, r, &page.Lpa{
 				ID:               "lpa-id",
 				FeeType:          feeType,
@@ -498,8 +468,6 @@ func TestPayHelperPayWhenPostingEvidence(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-			now := time.Now()
-
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &page.Lpa{
@@ -512,7 +480,6 @@ func TestPayHelperPayWhenPostingEvidence(t *testing.T) {
 
 			err := (&payHelper{
 				donorStore: donorStore,
-				now:        func() time.Time { return now },
 			}).Pay(testAppData, w, r, &page.Lpa{
 				ID:               "lpa-id",
 				FeeType:          feeType,
@@ -531,21 +498,6 @@ func TestPayHelperPayWhenMoreEvidenceProvided(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	now := time.Now()
-
-	documentStore := newMockDocumentStore(t)
-	documentStore.
-		On("GetAll", r.Context()).
-		Return(page.Documents{
-			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf", Sent: now},
-			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
-		}, nil)
-	documentStore.
-		On("Put", r.Context(), page.Document{
-			Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Sent: now,
-		}).
-		Return(nil)
-
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
@@ -556,18 +508,8 @@ func TestPayHelperPayWhenMoreEvidenceProvided(t *testing.T) {
 		}).
 		Return(nil)
 
-	s3Client := newMockS3Client(t)
-	s3Client.
-		On("PutObjectTagging", r.Context(), "lpa-uid/evidence/another-uid", []types.Tag{
-			{Key: aws.String("replicate"), Value: aws.String("true")},
-		}).
-		Return(nil)
-
 	err := (&payHelper{
-		donorStore:       donorStore,
-		now:              func() time.Time { return now },
-		evidenceS3Client: s3Client,
-		documentStore:    documentStore,
+		donorStore: donorStore,
 	}).Pay(testAppData, w, r, &page.Lpa{
 		ID:               "lpa-id",
 		FeeType:          pay.HalfFee,
@@ -581,127 +523,9 @@ func TestPayHelperPayWhenMoreEvidenceProvided(t *testing.T) {
 	assert.Equal(t, page.Paths.EvidenceSuccessfullyUploaded.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPayHelperPayWhenPaymentNotRequiredWhenDocumentStoreGetAllError(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
-		Return(nil)
-
-	documentStore := newMockDocumentStore(t)
-	documentStore.
-		On("GetAll", r.Context()).
-		Return(page.Documents{}, expectedError)
-
-	err := (&payHelper{documentStore: documentStore, donorStore: donorStore}).Pay(testAppData, w, r, &page.Lpa{
-		ID:      "lpa-id",
-		FeeType: pay.NoFee,
-	})
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestPayHelperPayWhenPaymentNotRequiredWhenS3ClientPutObjectTaggingError(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", nil)
-
-	now := time.Now()
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
-		Return(nil)
-
-	documentStore := newMockDocumentStore(t)
-	documentStore.
-		On("GetAll", r.Context()).
-		Return(page.Documents{
-			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf", Sent: now},
-			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
-		}, nil)
-
-	s3Client := newMockS3Client(t)
-	s3Client.
-		On("PutObjectTagging", r.Context(), "lpa-uid/evidence/another-uid", []types.Tag{
-			{Key: aws.String("replicate"), Value: aws.String("true")},
-		}).
-		Return(expectedError)
-
-	logger := newMockLogger(t)
-	logger.
-		On("Print", fmt.Sprintf("error tagging evidence: %s", expectedError))
-
-	err := (&payHelper{
-		logger:           logger,
-		now:              func() time.Time { return now },
-		donorStore:       donorStore,
-		evidenceS3Client: s3Client,
-		documentStore:    documentStore,
-	}).Pay(testAppData, w, r, &page.Lpa{
-		ID:      "lpa-id",
-		FeeType: pay.NoFee,
-	})
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestPayHelperPayWhenPaymentNotRequiredWhenDocumentStorePutError(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", nil)
-
-	now := time.Now()
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
-		Return(nil)
-
-	documentStore := newMockDocumentStore(t)
-	documentStore.
-		On("GetAll", r.Context()).
-		Return(page.Documents{
-			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf", Sent: now},
-			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
-		}, nil)
-	documentStore.
-		On("Put", r.Context(), page.Document{
-			Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Sent: now,
-		}).
-		Return(expectedError)
-
-	s3Client := newMockS3Client(t)
-	s3Client.
-		On("PutObjectTagging", r.Context(), "lpa-uid/evidence/another-uid", []types.Tag{
-			{Key: aws.String("replicate"), Value: aws.String("true")},
-		}).
-		Return(nil)
-
-	err := (&payHelper{
-		now:              func() time.Time { return now },
-		donorStore:       donorStore,
-		evidenceS3Client: s3Client,
-		documentStore:    documentStore,
-	}).Pay(testAppData, w, r, &page.Lpa{
-		ID:      "lpa-id",
-		FeeType: pay.NoFee,
-	})
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestPayHelperPayWhenPaymentNotRequiredWhenDonorStorePutError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
-
-	now := time.Now()
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
@@ -714,7 +538,6 @@ func TestPayHelperPayWhenPaymentNotRequiredWhenDonorStorePutError(t *testing.T) 
 
 	err := (&payHelper{
 		donorStore: donorStore,
-		now:        func() time.Time { return now },
 	}).Pay(testAppData, w, r, &page.Lpa{
 		ID:      "lpa-id",
 		FeeType: pay.NoFee,

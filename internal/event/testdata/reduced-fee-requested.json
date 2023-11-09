@@ -20,7 +20,12 @@
       "items": {
         "type": "string"
       }
+    },
+    "evidenceDelivery": {
+      "type": "string",
+      "description": "How the evidence is being delivered to OPG",
+      "enum": ["upload", "post"]
     }
   },
-  "required": ["uid", "requestType", "evidence"]
+  "required": ["uid", "requestType", "evidence", "evidenceDelivery"]
 }

@@ -49,7 +49,8 @@ data "aws_iam_policy_document" "lambda" {
     ]
   }
 
-  provider = aws.region
+  override_policy_documents = var.iam_policy_documents
+  provider                  = aws.region
 }
 
 resource "aws_iam_role_policy_attachment" "vpc_access_execution_role" {

@@ -9,7 +9,6 @@ import (
 	"time"
 
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/logging"
@@ -29,7 +28,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
 //go:generate mockery --testonly --inpackage --name Logger --structname mockLogger
@@ -51,15 +49,15 @@ type DynamoClient interface {
 	DeleteKeys(ctx context.Context, keys []dynamo.Key) error
 	DeleteOne(ctx context.Context, pk, sk string) error
 	Update(ctx context.Context, pk, sk string, values map[string]dynamodbtypes.AttributeValue, expression string) error
-	BatchPut(ctx context.Context, items []interface{}) (int, error)
+	BatchPut(ctx context.Context, items []interface{}) error
 }
 
 //go:generate mockery --testonly --inpackage --name S3Client --structname mockS3Client
 type S3Client interface {
 	PutObject(context.Context, string, []byte) error
-	PutObjectTagging(context.Context, string, []types.Tag) error
 	DeleteObject(context.Context, string) error
 	DeleteObjects(ctx context.Context, keys []string) error
+	PutObjectTagging(context.Context, string, map[string]string) error
 }
 
 //go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore
@@ -84,17 +82,15 @@ func App(
 	staticHash string,
 	paths page.AppPaths,
 	oneLoginClient *onelogin.Client,
-	uidClient *uid.Client,
 	oneloginURL string,
 	s3Client S3Client,
 	eventClient *event.Client,
 ) http.Handler {
-	documentStore := NewDocumentStore(lpaDynamoClient, s3Client, random.UuidString)
+	documentStore := NewDocumentStore(lpaDynamoClient, s3Client, eventClient, random.UuidString, time.Now)
 
 	donorStore := &donorStore{
 		dynamoClient:  lpaDynamoClient,
 		eventClient:   eventClient,
-		uidClient:     uidClient,
 		logger:        logger,
 		uuidString:    uuid.NewString,
 		now:           time.Now,
@@ -189,6 +185,7 @@ func App(
 		evidenceReceivedStore,
 		s3Client,
 		documentStore,
+		eventClient,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang, rumConfig, staticHash, oneloginURL)

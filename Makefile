@@ -88,6 +88,10 @@ get-lpa:  ##@app dumps all entries in the lpas dynamodb table that are related t
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb \
 		query --table-name lpas --key-condition-expression 'PK = :pk' --expression-attribute-values '{":pk": {"S": "LPA#$(id)"}}'
 
+get-donor-session-id:
+	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb \
+		query --table-name lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "LPA#$(id)"}, ":sk": {"S": "#DONOR#"}}' | jq -r .Items[0].SK.S | sed 's/#DONOR#//g'
+
 get-documents:  ##@app dumps all documents in the lpas dynamodb table that are related to the LPA id supplied e.g. get-documents lpaId=abc-123
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb \
 		query --table-name lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "LPA#$(lpaId)"}, ":sk": {"S": "#DOCUMENT#"}}'
@@ -95,11 +99,11 @@ get-documents:  ##@app dumps all documents in the lpas dynamodb table that are r
 emit-evidence-received: ##@app emits an evidence-received event with the given UID e.g. emit-evidence-received uid=abc-123
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"evidence-received","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
 
-emit-fee-approved: ##@app emits a fee-approved event with the given UID e.g. emit-fee-approved uid=abc-123
-	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"fee-approved","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
+emit-reduced-fee-approved: ##@app emits a reduced-fee-approved event with the given UID e.g. emit-reduced-fee-approved uid=abc-123
+	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"reduced-fee-approved","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
 
-emit-fee-denied: ##@app emits a fee-denied event with the given UID e.g. emit-fee-denied uid=abc-123
-	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"fee-denied","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
+emit-reduced-fee-declined: ##@app emits a reduced-fee-declined event with the given UID e.g. emit-reduced-fee-declined uid=abc-123
+	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"reduced-fee-declined","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
 
 emit-more-evidence-required: ##@app emits a more-evidence-required event with the given UID e.g. emit-more-evidence-required uid=abc-123
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"more-evidence-required","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
@@ -115,6 +119,9 @@ emit-object-tags-added-without-virus: ##@app emits a ObjectTagging:Put event wit
 		put-object-tagging --bucket evidence --key $(key) --tagging '{"TagSet": [{ "Key": "virus-scan-status", "Value": "ok" }]}'
 
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"Records":[{"eventSource":"aws:s3","eventTime":"2023-10-23T15:58:33.081Z","eventName":"ObjectTagging:Put","s3":{"bucket":{"name":"uploads-opg-modernising-lpa-eu-west-1"},"object":{"key":"$(key)"}}}]}'
+
+emit-uid-requested: ##@app emits a uid-requested event with the given detail e.g. emit-uid-requested lpaID=abc sessionID=xyz
+	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"uid-requested","source":"opg.poas.makeregister","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"LpaID":"$(lpaID)","DonorSessionID":"$(sessionID)","Type":"pfa","Donor":{"Name":"abc","Dob":"2000-01-01","Postcode":"F1 1FF"}}}'
 
 logs: ##@app tails logs for all containers running
 	docker compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml logs -f
