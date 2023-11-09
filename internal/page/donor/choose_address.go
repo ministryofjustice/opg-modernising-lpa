@@ -10,8 +10,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-func newChooseAddressData() *chooseAddressData {
+func newChooseAddressData(appData page.AppData) *chooseAddressData {
 	return &chooseAddressData{
+		App:  appData,
 		Form: &form.AddressForm{},
 		TitleKeys: titleKeys{
 			Manual:                          "personsAddress",

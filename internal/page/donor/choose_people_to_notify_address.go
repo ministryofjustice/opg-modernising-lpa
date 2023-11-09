@@ -19,8 +19,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 			return appData.Redirect(w, r, lpa, page.Paths.ChoosePeopleToNotify.Format(lpa.ID))
 		}
 
-		data := newChooseAddressData()
-		data.App = appData
+		data := newChooseAddressData(appData)
 		data.ActorLabel = "personToNotify"
 		data.FullName = personToNotify.FullName()
 		data.ID = personToNotify.ID

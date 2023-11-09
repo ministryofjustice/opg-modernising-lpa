@@ -14,8 +14,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 		attorneyId := r.FormValue("id")
 		attorney, _ := lpa.ReplacementAttorneys.Get(attorneyId)
 
-		data := newChooseAddressData()
-		data.App = appData
+		data := newChooseAddressData(appData)
 		data.ActorLabel = "replacementAttorney"
 		data.FullName = attorney.FullName()
 		data.ID = attorney.ID

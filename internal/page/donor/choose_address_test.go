@@ -19,14 +19,16 @@ func TestNewChooseAddressData(t *testing.T) {
 	assert.Equal(t, &chooseAddressData{
 		Form:      &form.AddressForm{},
 		TitleKeys: testTitleKeys,
-	}, newChooseAddressData())
+		App:       testAppData,
+	}, newChooseAddressData(testAppData))
 }
 
 func TestOverrideProfessionalCertificateProviderKeys(t *testing.T) {
-	data := newChooseAddressData()
+	data := newChooseAddressData(testAppData)
 	data.overrideProfessionalCertificateProviderKeys()
 
 	assert.Equal(t, &chooseAddressData{
+		App:  testAppData,
 		Form: &form.AddressForm{},
 		TitleKeys: titleKeys{
 			Manual:                          "personsWorkAddress",

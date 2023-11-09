@@ -12,8 +12,7 @@ import (
 
 func CertificateProviderAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
-		data := newChooseAddressData()
-		data.App = appData
+		data := newChooseAddressData(appData)
 		data.ActorLabel = "certificateProvider"
 		data.FullName = lpa.CertificateProvider.FullName()
 
