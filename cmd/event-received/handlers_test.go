@@ -172,7 +172,7 @@ func TestHandleEvidenceReceivedWhenClientPutError(t *testing.T) {
 
 func TestHandleFeeApproved(t *testing.T) {
 	event := events.CloudWatchEvent{
-		DetailType: "fee-approved",
+		DetailType: "reduced-fee-approved",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
@@ -208,7 +208,7 @@ func TestHandleFeeApproved(t *testing.T) {
 
 func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 	event := events.CloudWatchEvent{
-		DetailType: "fee-approved",
+		DetailType: "reduced-fee-approved",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
@@ -239,7 +239,7 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 
 func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 	event := events.CloudWatchEvent{
-		DetailType: "fee-approved",
+		DetailType: "reduced-fee-approved",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
@@ -337,7 +337,7 @@ func TestHandleMoreEvidenceRequiredWhenPutError(t *testing.T) {
 
 func TestHandleFeeDenied(t *testing.T) {
 	event := events.CloudWatchEvent{
-		DetailType: "fee-denied",
+		DetailType: "reduced-fee-declined",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
@@ -368,7 +368,7 @@ func TestHandleFeeDenied(t *testing.T) {
 
 func TestHandleFeeDeniedWhenPutError(t *testing.T) {
 	event := events.CloudWatchEvent{
-		DetailType: "fee-denied",
+		DetailType: "reduced-fee-declined",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
