@@ -18,5 +18,22 @@ resource "aws_s3_bucket_lifecycle_configuration" "main" {
     status = "Enabled"
   }
 
+  rule {
+    id = "delete-objects-replicated-to-sirius"
+
+    filter {
+      tag {
+        key   = "replicate"
+        value = "true"
+      }
+    }
+
+    expiration {
+      days = "30"
+    }
+
+    status = "Enabled"
+  }
+
   provider = aws.region
 }
