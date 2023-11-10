@@ -88,6 +88,16 @@ describe('Pay for LPA', () => {
         cy.contains('button', 'Continue').click()
 
         cy.url().should('contain', '/payment-confirmation');
+
+        cy.visit('/dashboard');
+        cy.contains('.govuk-body-s', 'Reference number:')
+            .invoke('text')
+            .then((text) => {
+                const uid = text.split(':')[1].trim();
+                cy.visit('http://localhost:9001/?detail-type=reduced-fee-requested&detail=' + uid);
+
+                cy.contains('tr', uid);
+            });
     })
 
     it('can apply for a no fee remission', () => {
