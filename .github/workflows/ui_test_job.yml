@@ -133,4 +133,5 @@ jobs:
       - name: Stop Docker Compose Service
         if: always()
         run:
+          docker compose -f docker/docker-compose.yml -f docker/docker-compose.ci.yml logs event-logger
           docker compose -f docker/docker-compose.yml -f docker/docker-compose.ci.yml down
