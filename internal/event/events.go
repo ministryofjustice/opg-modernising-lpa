@@ -37,6 +37,6 @@ type PreviousApplicationLinked struct {
 type ReducedFeeRequested struct {
 	UID              string   `json:"uid"`
 	RequestType      string   `json:"requestType"`
-	Evidence         []string `json:"evidence"`
+	Evidence         []string `json:"evidence,omitempty"`
 	EvidenceDelivery string   `json:"evidenceDelivery"`
 }
