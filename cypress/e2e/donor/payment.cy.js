@@ -88,7 +88,19 @@ describe('Pay for LPA', () => {
         cy.contains('button', 'Continue').click()
 
         cy.url().should('contain', '/payment-confirmation');
-    })
+
+        cy.visit('/dashboard');
+        cy.contains('.govuk-body-s', 'Reference number:')
+            .invoke('text')
+            .then((text) => {
+                const uid = text.split(':')[1].trim();
+                cy.visit('http://localhost:9001/?detail-type=reduced-fee-requested&detail=' + uid);
+
+                cy.contains('"requestType": "HalfFee"');
+                cy.contains('"evidence": ["' + uid);
+                cy.contains('"evidenceDelivery": "upload"');
+            });
+    });
 
     it('can apply for a no fee remission', () => {
         cy.visit('/fixtures?redirect=/about-payment&progress=checkAndSendToYourCertificateProvider');
@@ -151,7 +163,19 @@ describe('Pay for LPA', () => {
 
         cy.url().should('contain', '/evidence-successfully-uploaded');
         cy.checkA11yApp();
-    })
+
+        cy.visit('/dashboard');
+        cy.contains('.govuk-body-s', 'Reference number:')
+            .invoke('text')
+            .then((text) => {
+                const uid = text.split(':')[1].trim();
+                cy.visit('http://localhost:9001/?detail-type=reduced-fee-requested&detail=' + uid);
+
+                cy.contains('"requestType": "NoFee"');
+                cy.contains('"evidence": ["' + uid);
+                cy.contains('"evidenceDelivery": "upload"');
+            });
+    });
 
     it('can apply for a hardship fee exemption', () => {
         cy.visit('/fixtures?redirect=/about-payment&progress=checkAndSendToYourCertificateProvider');
@@ -214,7 +238,19 @@ describe('Pay for LPA', () => {
 
         cy.url().should('contain', '/evidence-successfully-uploaded');
         cy.checkA11yApp();
-    })
+
+        cy.visit('/dashboard');
+        cy.contains('.govuk-body-s', 'Reference number:')
+            .invoke('text')
+            .then((text) => {
+                const uid = text.split(':')[1].trim();
+                cy.visit('http://localhost:9001/?detail-type=reduced-fee-requested&detail=' + uid);
+
+                cy.contains('"requestType": "NoFee"');
+                cy.contains('"evidence": ["' + uid);
+                cy.contains('"evidenceDelivery": "upload"');
+            });
+    });
 
     it('can only delete evidence that has not been sent to OPG', () => {
         cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&feeType=HalfFee');
@@ -232,5 +268,57 @@ describe('Pay for LPA', () => {
         cy.get('.moj-banner').within(() => {
             cy.contains('supporting-evidence.png');
         });
-    })
+    });
+
+    it('can apply for a reduced fee by posting evidence', () => {
+        cy.visit('/fixtures?redirect=/about-payment&progress=checkAndSendToYourCertificateProvider');
+        cy.checkA11yApp();
+
+        cy.get('h1').should('contain', 'Paying for your LPA');
+        cy.contains('a', 'Continue').click();
+
+        cy.url().should('contains', '/are-you-applying-for-fee-discount-or-exemption')
+        cy.checkA11yApp();
+
+        cy.get('input[name="yes-no"]').check('yes');
+        cy.contains('button', 'Save and continue').click();
+
+        cy.url().should('contains', '/which-fee-type-are-you-applying-for')
+        cy.checkA11yApp();
+
+        cy.get('input[name="fee-type"]').check('HardshipFee');
+        cy.contains('button', 'Save and continue').click();
+
+        cy.url().should('contains', '/evidence-required')
+        cy.checkA11yApp();
+
+        cy.get('h1').should('contain', 'Evidence required for a hardship application');
+        cy.contains('a', 'Continue').click();
+
+        cy.url().should('contains', '/how-would-you-like-to-send-evidence')
+        cy.checkA11yApp();
+
+        cy.get('input[name="evidence-delivery"]').check('post');
+        cy.contains('button', 'Continue').click();
+
+        cy.url().should('contains', '/send-us-your-evidence-by-post')
+        cy.checkA11yApp();
+
+        cy.contains('button', 'Continue').click()
+
+        cy.url().should('contain', '/what-happens-next-post-evidence');
+        cy.checkA11yApp();
+
+        cy.visit('/dashboard');
+        cy.contains('.govuk-body-s', 'Reference number:')
+            .invoke('text')
+            .then((text) => {
+                const uid = text.split(':')[1].trim();
+                cy.visit('http://localhost:9001/?detail-type=reduced-fee-requested&detail=' + uid);
+
+                cy.contains('"requestType": "HardshipFee"');
+                cy.contains('"evidence"').should('not.exist');
+                cy.contains('"evidenceDelivery": "post"');
+            });
+    });
 });
