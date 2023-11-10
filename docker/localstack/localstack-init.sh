@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -e
-
 echo 'generating key pair'
 openssl genpkey -algorithm RSA -out /tmp/private_key.pem -pkeyopt rsa_keygen_bits:2048
 openssl rsa -pubout -in /tmp/private_key.pem -out /tmp/public_key.pem
@@ -24,3 +22,9 @@ awslocal dynamodb create-table \
 
 echo 'creating bucket'
 awslocal s3api create-bucket --bucket evidence --create-bucket-configuration LocationConstraint=eu-west-1
+
+echo 'configuring events'
+awslocal sqs create-queue --queue-name event-queue
+awslocal events create-event-bus --name default
+awslocal events put-rule --name send-events-to-queue-rule --event-bus-name default --event-pattern '{}'
+awslocal events put-targets --event-bus-name default --rule send-events-to-queue-rule --targets "Id"="event-queue","Arn"="arn:aws:sqs:eu-west-1:000000000000:event-queue"

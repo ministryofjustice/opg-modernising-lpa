@@ -9,6 +9,7 @@ services:
         ARCH: ${ARCH:-amd64}
     container_name: app
     depends_on:
+      - event-logger
       - localstack
       - mock-onelogin
       - mock-pay
@@ -24,6 +25,21 @@ services:
       - AWS_REGION=eu-west-1
       - AWS_SECRET_ACCESS_KEY=fakeAccessKey
 
+  event-logger:
+    build:
+      context: ..
+      dockerfile: docker/event-logger/Dockerfile
+    depends_on:
+      - localstack
+    container_name: event-logger
+    ports:
+      - "9001:8080"
+    environment:
+      - AWS_ACCESS_KEY_ID=fakeKeyId
+      - AWS_BASE_URL=http://localstack:4566
+      - AWS_REGION=eu-west-1
+      - AWS_SECRET_ACCESS_KEY=fakeAccessKey
+
   localstack:
     build:
       context: localstack
@@ -32,7 +48,7 @@ services:
     ports:
       - "4566:4566"
     environment:
-      - SERVICES=s3,secretsmanager
+      - SERVICES=s3,secretsmanager,sqs
       - DATA_DIR=/tmp/localstack/data
       - DEFAULT_REGION=eu-west-1
       - USE_SINGLE_REGION=1
