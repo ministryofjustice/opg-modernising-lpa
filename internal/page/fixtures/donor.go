@@ -90,7 +90,7 @@ func Donor(
 			if lpaType == "hw" {
 				lpa.Type = page.LpaTypeHealthWelfare
 			}
-			lpa.UID = random.UuidString()
+			lpa.UID = makeUid()
 
 			if donor == "cannot-sign" {
 				lpa.Donor.ThinksCanSign = actor.No
