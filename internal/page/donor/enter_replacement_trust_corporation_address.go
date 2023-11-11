@@ -13,8 +13,13 @@ func EnterReplacementTrustCorporationAddress(logger Logger, tmpl template.Templa
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		trustCorporation := lpa.ReplacementAttorneys.TrustCorporation
 
-		data := newChooseAddressData(appData)
-		data.ActorLabel = "theTrustCorporation"
+		data := newChooseAddressData(
+			appData,
+			"theTrustCorporation",
+			"",
+			"",
+			false,
+		)
 
 		if trustCorporation.Address.Line1 != "" {
 			data.Form.Action = "manual"

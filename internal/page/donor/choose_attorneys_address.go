@@ -18,7 +18,14 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 			return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneys.Format(lpa.ID))
 		}
 
-		data := newChooseAddressData(appData)
+		data := newChooseAddressData(
+			appData,
+			"attorney",
+			attorney.FullName(),
+			attorney.ID,
+			true,
+		)
+
 		data.ActorLabel = "attorney"
 		data.FullName = attorney.FullName()
 		data.ID = attorney.ID

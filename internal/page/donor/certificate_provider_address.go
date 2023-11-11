@@ -12,13 +12,23 @@ import (
 
 func CertificateProviderAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
-		data := newChooseAddressData(appData)
-		data.ActorLabel = "certificateProvider"
-		data.FullName = lpa.CertificateProvider.FullName()
+		data := newChooseAddressData(
+			appData,
+			"certificateProvider",
+			lpa.CertificateProvider.FullName(),
+			"",
+			false,
+		)
 
 		// so keys are set when amending address
 		if lpa.CertificateProvider.Relationship.IsProfessionally() {
-			data.overrideProfessionalCertificateProviderKeys()
+			data.overrideTitleKeys(titleKeys{
+				Manual:                          "personsWorkAddress",
+				PostcodeSelectAndPostcodeLookup: "selectPersonsWorkAddress",
+				Postcode:                        "whatIsPersonsWorkPostcode",
+				ReuseAndReuseSelect:             "selectAnAddressForPerson",
+				ReuseOrNew:                      "addPersonsAddress",
+			})
 		}
 
 		if lpa.CertificateProvider.Address.Line1 != "" {

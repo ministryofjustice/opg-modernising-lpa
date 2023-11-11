@@ -64,7 +64,9 @@ func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore) H
 					lpa.CertificateProvider.Mobile = data.Form.Mobile
 				}
 
-				lpa.Tasks.CertificateProvider = actor.TaskInProgress
+				if !lpa.Tasks.CertificateProvider.Completed() {
+					lpa.Tasks.CertificateProvider = actor.TaskInProgress
+				}
 
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err

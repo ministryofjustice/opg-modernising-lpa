@@ -10,10 +10,14 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-func newChooseAddressData(appData page.AppData) *chooseAddressData {
+func newChooseAddressData(appData page.AppData, actorLabel, fullName, ID string, canSkip bool) *chooseAddressData {
 	return &chooseAddressData{
-		App:  appData,
-		Form: &form.AddressForm{},
+		App:        appData,
+		ActorLabel: actorLabel,
+		FullName:   fullName,
+		ID:         ID,
+		CanSkip:    canSkip,
+		Form:       &form.AddressForm{},
 		TitleKeys: titleKeys{
 			Manual:                          "personsAddress",
 			Postcode:                        "whatIsPersonsPostcode",
@@ -44,10 +48,8 @@ type titleKeys struct {
 	ReuseOrNew                      string
 }
 
-func (d *chooseAddressData) overrideProfessionalCertificateProviderKeys() {
-	d.TitleKeys.Manual = "personsWorkAddress"
-	d.TitleKeys.Postcode = "whatIsPersonsWorkPostcode"
-	d.TitleKeys.PostcodeSelectAndPostcodeLookup = "selectPersonsWorkAddress"
+func (d *chooseAddressData) overrideTitleKeys(newTitleKeys titleKeys) {
+	d.TitleKeys = newTitleKeys
 }
 
 func lookupAddress(ctx context.Context, logger Logger, addressClient AddressClient, data *chooseAddressData, your bool) {

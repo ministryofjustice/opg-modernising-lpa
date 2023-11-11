@@ -11,7 +11,13 @@ import (
 
 func YourAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
-		data := newChooseAddressData(appData)
+		data := newChooseAddressData(
+			appData,
+			"",
+			"",
+			"",
+			false,
+		)
 
 		if lpa.Donor.Address.Line1 != "" {
 			data.Form.Action = "manual"

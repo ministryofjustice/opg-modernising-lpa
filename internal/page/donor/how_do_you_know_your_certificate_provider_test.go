@@ -153,9 +153,8 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenSwitchingRelationship(t *tes
 				Address:            testAddress,
 			},
 			updatedCertificateProviderDetails: actor.CertificateProvider{
-				RelationshipLength: actor.RelationshipLengthUnknown,
-				Relationship:       actor.Professionally,
-				Address:            place.Address{},
+				Relationship: actor.Professionally,
+				Address:      place.Address{},
 			},
 			redirect: page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole,
 		},

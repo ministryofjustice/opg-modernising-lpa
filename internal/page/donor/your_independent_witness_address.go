@@ -12,9 +12,13 @@ import (
 
 func YourIndependentWitnessAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
-		data := newChooseAddressData(appData)
-		data.ActorLabel = "independentWitness"
-		data.FullName = lpa.IndependentWitness.FullName()
+		data := newChooseAddressData(
+			appData,
+			"independentWitness",
+			lpa.IndependentWitness.FullName(),
+			"",
+			false,
+		)
 
 		if lpa.IndependentWitness.Address.Line1 != "" {
 			data.Form.Action = "manual"

@@ -22,13 +22,13 @@ const (
 	Online                                          // online
 )
 
-//go:generate enumerator -type CertificateProviderRelationshipLength -linecomment -empty
+//go:generate enumerator -type CertificateProviderRelationshipLength -linecomment
 type CertificateProviderRelationshipLength uint8
 
 const (
-	LessThanTwoYears           CertificateProviderRelationshipLength = iota + 1 // lt-2-years
-	GreaterThanEqualToTwoYears                                                  // gte-2-years
-	RelationshipLengthUnknown                                                   // unknown
+	RelationshipLengthUnknown  CertificateProviderRelationshipLength = iota // unknown
+	LessThanTwoYears                                                        // lt-2-years
+	GreaterThanEqualToTwoYears                                              // gte-2-years
 )
 
 // CertificateProvider contains details about the certificate provider, provided by the applicant
