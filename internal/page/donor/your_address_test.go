@@ -23,8 +23,9 @@ func TestGetYourAddress(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseAddressData{
-			App:  testAppData,
-			Form: &form.AddressForm{},
+			App:       testAppData,
+			Form:      &form.AddressForm{},
+			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
 
@@ -49,6 +50,7 @@ func TestGetYourAddressFromStore(t *testing.T) {
 				Action:  "manual",
 				Address: &address,
 			},
+			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
 
@@ -75,6 +77,7 @@ func TestGetYourAddressManual(t *testing.T) {
 				Action:  "manual",
 				Address: &place.Address{},
 			},
+			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
 
@@ -92,8 +95,9 @@ func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseAddressData{
-			App:  testAppData,
-			Form: &form.AddressForm{},
+			App:       testAppData,
+			Form:      &form.AddressForm{},
+			TitleKeys: testTitleKeys,
 		}).
 		Return(expectedError)
 
@@ -273,7 +277,8 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 					Country:    "GB",
 				},
 			},
-			Errors: validation.With("address-line-1", validation.EnterError{Label: "addressLine1OfYourAddress"}),
+			Errors:    validation.With("address-line-1", validation.EnterError{Label: "addressLine1OfYourAddress"}),
+			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
 
@@ -311,6 +316,7 @@ func TestPostYourAddressSelect(t *testing.T) {
 				LookupPostcode: "NG1",
 				Address:        expectedAddress,
 			},
+			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
 
@@ -350,6 +356,7 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 			},
 			Addresses: addresses,
 			Errors:    validation.With("select-address", validation.SelectError{Label: "yourAddressFromTheList"}),
+			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
 
@@ -388,6 +395,7 @@ func TestPostYourAddressLookup(t *testing.T) {
 				LookupPostcode: "NG1",
 			},
 			Addresses: addresses,
+			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
 
@@ -427,6 +435,7 @@ func TestPostYourAddressLookupError(t *testing.T) {
 			},
 			Addresses: []place.Address{},
 			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
+			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
 
@@ -471,6 +480,7 @@ func TestPostYourAddressInvalidPostcodeError(t *testing.T) {
 			},
 			Addresses: []place.Address{},
 			Errors:    validation.With("lookup-postcode", validation.EnterError{Label: "invalidPostcode"}),
+			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
 
@@ -509,6 +519,7 @@ func TestPostYourAddressValidPostcodeNoAddresses(t *testing.T) {
 			},
 			Addresses: []place.Address{},
 			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "noYourAddressesFound"}),
+			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
 
@@ -535,7 +546,8 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 			Form: &form.AddressForm{
 				Action: "postcode",
 			},
-			Errors: validation.With("lookup-postcode", validation.EnterError{Label: "yourPostcode"}),
+			Errors:    validation.With("lookup-postcode", validation.EnterError{Label: "yourPostcode"}),
+			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
 
