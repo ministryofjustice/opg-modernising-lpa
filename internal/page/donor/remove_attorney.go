@@ -12,11 +12,12 @@ import (
 )
 
 type removeAttorneyData struct {
-	App      page.AppData
-	Attorney actor.Attorney
-	Errors   validation.List
-	Form     *form.YesNoForm
-	Options  form.YesNoOptions
+	App        page.AppData
+	TitleLabel string
+	Name       string
+	Errors     validation.List
+	Form       *form.YesNoForm
+	Options    form.YesNoOptions
 }
 
 func RemoveAttorney(logger Logger, tmpl template.Template, donorStore DonorStore) Handler {
@@ -29,10 +30,11 @@ func RemoveAttorney(logger Logger, tmpl template.Template, donorStore DonorStore
 		}
 
 		data := &removeAttorneyData{
-			App:      appData,
-			Attorney: attorney,
-			Form:     &form.YesNoForm{},
-			Options:  form.YesNoValues,
+			App:        appData,
+			TitleLabel: "removeAnAttorney",
+			Name:       attorney.FullName(),
+			Form:       &form.YesNoForm{},
+			Options:    form.YesNoValues,
 		}
 
 		if r.Method == http.MethodPost {

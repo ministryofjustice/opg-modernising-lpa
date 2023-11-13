@@ -23,7 +23,9 @@ func TestGetRemoveReplacementAttorney(t *testing.T) {
 	logger := newMockLogger(t)
 
 	attorney := actor.Attorney{
-		ID: "123",
+		ID:         "123",
+		FirstNames: "John",
+		LastName:   "Smith",
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
@@ -31,11 +33,12 @@ func TestGetRemoveReplacementAttorney(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &removeReplacementAttorneyData{
-			App:      testAppData,
-			Attorney: attorney,
-			Form:     &form.YesNoForm{},
-			Options:  form.YesNoValues,
+		On("Execute", w, &removeAttorneyData{
+			App:        testAppData,
+			TitleLabel: "doYouWantToRemoveReplacementAttorney",
+			Name:       "John Smith",
+			Form:       &form.YesNoForm{},
+			Options:    form.YesNoValues,
 		}).
 		Return(nil)
 
@@ -242,7 +245,7 @@ func TestRemoveReplacementAttorneyFormValidation(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, mock.MatchedBy(func(data *removeReplacementAttorneyData) bool {
+		On("Execute", w, mock.MatchedBy(func(data *removeAttorneyData) bool {
 			return assert.Equal(t, validationError, data.Errors)
 		})).
 		Return(nil)
