@@ -287,27 +287,44 @@ func lowerFirst(s string) string {
 	return string(unicode.ToLower(r)) + s[n:]
 }
 
-func listAttorneys(attorneys actor.Attorneys, app page.AppData, attorneyType string, headingLevel int, lpa *page.Lpa) map[string]interface{} {
-	props := map[string]interface{}{
-		"TrustCorporation": attorneys.TrustCorporation,
-		"Attorneys":        attorneys.Attorneys,
-		"App":              app,
-		"HeadingLevel":     headingLevel,
-		"Lpa":              lpa,
-		"AttorneyType":     attorneyType,
+type attorneySummaryData struct {
+	App              page.AppData
+	CanChange        bool
+	TrustCorporation actor.TrustCorporation
+	Attorneys        []actor.Attorney
+	Link             struct {
+		TrustCorporation, TrustCorporationAddress, RemoveTrustCorporation string
+		Attorney, AttorneyAddress, RemoveAttorney                         string
+	}
+	HeadingLevel int
+}
+
+func listAttorneys(attorneys actor.Attorneys, app page.AppData, attorneyType string, headingLevel int, lpa *page.Lpa) attorneySummaryData {
+	data := attorneySummaryData{
+		App:              app,
+		CanChange:        !lpa.Tasks.ConfirmYourIdentityAndSign.Completed() && app.IsDonor(),
+		TrustCorporation: attorneys.TrustCorporation,
+		Attorneys:        attorneys.Attorneys,
+		HeadingLevel:     headingLevel,
 	}
 
 	if attorneyType == "replacement" {
-		props["DetailsPath"] = fmt.Sprintf("%s?from=%s", app.Paths.ChooseReplacementAttorneys.Format(lpa.ID), app.Page)
-		props["AddressPath"] = fmt.Sprintf("%s?from=%s", app.Paths.ChooseReplacementAttorneysAddress.Format(lpa.ID), app.Page)
-		props["RemovePath"] = fmt.Sprintf("%s?from=%s", app.Paths.RemoveReplacementAttorney.Format(lpa.ID), app.Page)
+		data.Link.Attorney = fmt.Sprintf("%s?from=%s", app.Paths.ChooseReplacementAttorneys.Format(lpa.ID), app.Page)
+		data.Link.AttorneyAddress = fmt.Sprintf("%s?from=%s", app.Paths.ChooseReplacementAttorneysAddress.Format(lpa.ID), app.Page)
+		data.Link.RemoveAttorney = fmt.Sprintf("%s?from=%s", app.Paths.RemoveReplacementAttorney.Format(lpa.ID), app.Page)
+		data.Link.TrustCorporation = fmt.Sprintf("%s?from=%s", app.Paths.EnterReplacementTrustCorporation.Format(lpa.ID), app.Page)
+		data.Link.TrustCorporationAddress = fmt.Sprintf("%s?from=%s", app.Paths.EnterReplacementTrustCorporationAddress.Format(lpa.ID), app.Page)
+		data.Link.RemoveTrustCorporation = fmt.Sprintf("%s?from=%s", app.Paths.RemoveReplacementTrustCorporation.Format(lpa.ID), app.Page)
 	} else {
-		props["DetailsPath"] = fmt.Sprintf("%s?from=%s", app.Paths.ChooseAttorneys.Format(lpa.ID), app.Page)
-		props["AddressPath"] = fmt.Sprintf("%s?from=%s", app.Paths.ChooseAttorneysAddress.Format(lpa.ID), app.Page)
-		props["RemovePath"] = fmt.Sprintf("%s?from=%s", app.Paths.RemoveAttorney.Format(lpa.ID), app.Page)
+		data.Link.Attorney = fmt.Sprintf("%s?from=%s", app.Paths.ChooseAttorneys.Format(lpa.ID), app.Page)
+		data.Link.AttorneyAddress = fmt.Sprintf("%s?from=%s", app.Paths.ChooseAttorneysAddress.Format(lpa.ID), app.Page)
+		data.Link.RemoveAttorney = fmt.Sprintf("%s?from=%s", app.Paths.RemoveAttorney.Format(lpa.ID), app.Page)
+		data.Link.TrustCorporation = fmt.Sprintf("%s?from=%s", app.Paths.EnterTrustCorporation.Format(lpa.ID), app.Page)
+		data.Link.TrustCorporationAddress = fmt.Sprintf("%s?from=%s", app.Paths.EnterTrustCorporationAddress.Format(lpa.ID), app.Page)
+		data.Link.RemoveTrustCorporation = fmt.Sprintf("%s?from=%s", app.Paths.RemoveTrustCorporation.Format(lpa.ID), app.Page)
 	}
 
-	return props
+	return data
 }
 
 func listPeopleToNotify(app page.AppData, headingLevel int, lpa *page.Lpa) map[string]interface{} {

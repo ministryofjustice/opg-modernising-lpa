@@ -233,6 +233,8 @@ func Register(
 		ChooseAttorneysSummary(tmpls.Get("choose_attorneys_summary.gohtml")))
 	handleWithLpa(page.Paths.RemoveAttorney, CanGoBack,
 		RemoveAttorney(logger, tmpls.Get("remove_attorney.gohtml"), donorStore))
+	handleWithLpa(page.Paths.RemoveTrustCorporation, CanGoBack,
+		RemoveTrustCorporation(tmpls.Get("remove_attorney.gohtml"), donorStore, false))
 	handleWithLpa(page.Paths.HowShouldAttorneysMakeDecisions, CanGoBack,
 		HowShouldAttorneysMakeDecisions(tmpls.Get("how_should_attorneys_make_decisions.gohtml"), donorStore))
 
@@ -249,7 +251,9 @@ func Register(
 	handleWithLpa(page.Paths.ChooseReplacementAttorneysSummary, CanGoBack,
 		ChooseReplacementAttorneysSummary(tmpls.Get("choose_replacement_attorneys_summary.gohtml")))
 	handleWithLpa(page.Paths.RemoveReplacementAttorney, CanGoBack,
-		RemoveReplacementAttorney(logger, tmpls.Get("remove_replacement_attorney.gohtml"), donorStore))
+		RemoveReplacementAttorney(logger, tmpls.Get("remove_attorney.gohtml"), donorStore))
+	handleWithLpa(page.Paths.RemoveReplacementTrustCorporation, CanGoBack,
+		RemoveTrustCorporation(tmpls.Get("remove_attorney.gohtml"), donorStore, true))
 	handleWithLpa(page.Paths.HowShouldReplacementAttorneysStepIn, CanGoBack,
 		HowShouldReplacementAttorneysStepIn(tmpls.Get("how_should_replacement_attorneys_step_in.gohtml"), donorStore))
 	handleWithLpa(page.Paths.HowShouldReplacementAttorneysMakeDecisions, CanGoBack,
