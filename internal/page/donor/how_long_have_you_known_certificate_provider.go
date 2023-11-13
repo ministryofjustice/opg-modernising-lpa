@@ -13,7 +13,8 @@ type howLongHaveYouKnownCertificateProviderData struct {
 	App                 page.AppData
 	Errors              validation.List
 	CertificateProvider actor.CertificateProvider
-	HowLong             string
+	RelationshipLength  actor.CertificateProviderRelationshipLength
+	Options             actor.CertificateProviderRelationshipLengthOptions
 }
 
 func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore DonorStore) Handler {
@@ -21,7 +22,8 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore D
 		data := &howLongHaveYouKnownCertificateProviderData{
 			App:                 appData,
 			CertificateProvider: lpa.CertificateProvider,
-			HowLong:             lpa.CertificateProvider.RelationshipLength,
+			RelationshipLength:  lpa.CertificateProvider.RelationshipLength,
+			Options:             actor.CertificateProviderRelationshipLengthValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -29,17 +31,16 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore D
 			data.Errors = form.Validate()
 
 			if data.Errors.None() {
-				if form.HowLong == "lt-2-years" {
+				if form.RelationshipLength == actor.LessThanTwoYears {
 					return appData.Redirect(w, r, lpa, page.Paths.ChooseNewCertificateProvider.Format(lpa.ID))
 				}
 
-				lpa.Tasks.CertificateProvider = actor.TaskCompleted
-				lpa.CertificateProvider.RelationshipLength = form.HowLong
+				lpa.CertificateProvider.RelationshipLength = form.RelationshipLength
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.DoYouWantToNotifyPeople.Format(lpa.ID))
+				return appData.Redirect(w, r, lpa, page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Format(lpa.ID))
 			}
 		}
 
@@ -48,20 +49,24 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore D
 }
 
 type howLongHaveYouKnownCertificateProviderForm struct {
-	HowLong string
+	RelationshipLength actor.CertificateProviderRelationshipLength
+	Error              error
 }
 
 func readHowLongHaveYouKnownCertificateProviderForm(r *http.Request) *howLongHaveYouKnownCertificateProviderForm {
+	relationshipLength, err := actor.ParseCertificateProviderRelationshipLength(page.PostFormString(r, "relationship-length"))
+
 	return &howLongHaveYouKnownCertificateProviderForm{
-		HowLong: page.PostFormString(r, "how-long"),
+		RelationshipLength: relationshipLength,
+		Error:              err,
 	}
 }
 
 func (f *howLongHaveYouKnownCertificateProviderForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("how-long", "howLongYouHaveKnownCertificateProvider", f.HowLong,
-		validation.Select("gte-2-years", "lt-2-years"))
+	errors.Error("relationship-length", "howLongYouHaveKnownCertificateProvider", f.Error,
+		validation.Selected())
 
 	return errors
 }

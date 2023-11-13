@@ -30,6 +30,13 @@ describe('Certificate provider task', () => {
         cy.get('#f-mobile').type(TestMobile);
         cy.contains('button', 'Save and continue').click();
 
+        cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
+        cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
+
+        cy.contains('How do you know John Doe, your certificate provider?');
+        cy.contains('label', 'Professionally').click();
+        cy.contains('button', 'Save and continue').click();
+
         cy.url().should('contain', '/how-would-certificate-provider-prefer-to-carry-out-their-role');
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
@@ -39,21 +46,11 @@ describe('Certificate provider task', () => {
 
         cy.url().should('contain', '/certificate-provider-address');
 
-        cy.contains('label', 'Enter a new address').click();
-        cy.contains('button', 'Continue').click();
         AddressFormAssertions.assertCanAddAddressFromSelect()
 
-        cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
+        cy.url().should('contain', '/task-list');
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
-        cy.contains('How do you know John Doe, your certificate provider?');
-        cy.contains('label', 'Professionally').click();
-        cy.contains('button', 'Save and continue').click();
-
-        cy.url().should('contain', '/do-you-want-to-notify-people');
-        cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
-
-        cy.visitLpa('/task-list')
         cy.contains('li', "Choose your certificate provider")
             .should('contain', 'Completed');
     });
@@ -81,18 +78,6 @@ describe('Certificate provider task', () => {
         cy.get('#f-mobile').type(TestMobile);
         cy.contains('button', 'Save and continue').click();
 
-        cy.url().should('contain', '/how-would-certificate-provider-prefer-to-carry-out-their-role');
-        cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
-
-        cy.contains('label', 'Using paper forms').click();
-        cy.contains('button', 'Save and continue').click()
-
-        cy.url().should('contain', '/certificate-provider-address');
-
-        cy.contains('label', 'Enter a new address').click();
-        cy.contains('button', 'Continue').click();
-        AddressFormAssertions.assertCanAddAddressFromSelect()
-
         cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
@@ -107,10 +92,22 @@ describe('Certificate provider task', () => {
         cy.contains('label', '2 years or more').click();
         cy.contains('button', 'Save and continue').click();
 
-        cy.url().should('contain', '/do-you-want-to-notify-people');
+        cy.url().should('contain', '/how-would-certificate-provider-prefer-to-carry-out-their-role');
+
+        cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
+        cy.contains('label', 'Using paper forms').click();
+
+        cy.contains('button', 'Save and continue').click()
+
+        cy.url().should('contain', '/certificate-provider-address');
+        cy.contains('label', 'Enter a new address').click();
+        cy.contains('button', 'Continue').click();
+
+        AddressFormAssertions.assertCanAddAddressFromSelect()
+
+        cy.url().should('contain', '/task-list');
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
-        cy.visitLpa('/task-list')
         cy.contains('li', "Choose your certificate provider")
             .should('contain', 'Completed');
     });
@@ -258,7 +255,7 @@ describe('Certificate provider task', () => {
         cy.contains('There is also an attorney called Jessie Jones.');
 
         cy.contains('button', 'Save and continue').click();
-        cy.url().should('contain', '/how-would-certificate-provider-prefer-to-carry-out-their-role');
+        cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
     });
 
     it('warns when lastname shared with other donor', () => {
@@ -274,6 +271,6 @@ describe('Certificate provider task', () => {
         cy.contains('Your certificate provider’s last name is the same as yours or very similar');
 
         cy.contains('button', 'Save and continue').click();
-        cy.url().should('contain', '/how-would-certificate-provider-prefer-to-carry-out-their-role');
+        cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
     });
 });
