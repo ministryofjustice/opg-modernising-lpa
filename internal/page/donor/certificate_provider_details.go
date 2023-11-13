@@ -64,11 +64,15 @@ func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore) H
 					lpa.CertificateProvider.Mobile = data.Form.Mobile
 				}
 
+				if !lpa.Tasks.CertificateProvider.Completed() {
+					lpa.Tasks.CertificateProvider = actor.TaskInProgress
+				}
+
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Format(lpa.ID))
+				return appData.Redirect(w, r, lpa, page.Paths.HowDoYouKnowYourCertificateProvider.Format(lpa.ID))
 			}
 		}
 

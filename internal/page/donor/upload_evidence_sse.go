@@ -9,7 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
-func UploadEvidenceSSE(documentStore DocumentStore, ttl time.Duration, flushFrequency time.Duration) Handler {
+func UploadEvidenceSSE(documentStore DocumentStore, ttl time.Duration, flushFrequency time.Duration, now func() time.Time) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		w.Header().Set("Cache-Control", "no-cache")
 		w.Header().Set("Connection", "keep-alive")
@@ -24,7 +24,7 @@ func UploadEvidenceSSE(documentStore DocumentStore, ttl time.Duration, flushFreq
 		alreadyScannedCount := len(documents.Scanned())
 		batchToBeScannedCount := len(documents.NotScanned())
 
-		for start := time.Now(); time.Since(start) < ttl; {
+		for start := now(); time.Since(start) < ttl; {
 			documents, err := documentStore.GetAll(r.Context())
 			if err != nil {
 				printMessage("data: {\"closeConnection\": \"1\"}\n\n", w)

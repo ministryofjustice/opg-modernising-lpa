@@ -35,6 +35,7 @@ func TestGetChoosePeopleToNotifyAddress(t *testing.T) {
 			ID:         "123",
 			FullName:   "John Smith",
 			ActorLabel: "personToNotify",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -60,6 +61,7 @@ func TestGetChoosePeopleToNotifyAddressFromStore(t *testing.T) {
 			ID:         "123",
 			FullName:   " ",
 			ActorLabel: "personToNotify",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -87,6 +89,7 @@ func TestGetChoosePeopleToNotifyAddressManual(t *testing.T) {
 			ID:         "123",
 			FullName:   " ",
 			ActorLabel: "personToNotify",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -114,6 +117,7 @@ func TestGetChoosePeopleToNotifyAddressWhenTemplateErrors(t *testing.T) {
 			ID:         "123",
 			FullName:   " ",
 			ActorLabel: "personToNotify",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(expectedError)
 
@@ -254,6 +258,7 @@ func TestPostChoosePeopleToNotifyPostcodeSelect(t *testing.T) {
 			ID:         "123",
 			FullName:   "John ",
 			ActorLabel: "personToNotify",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -302,6 +307,7 @@ func TestPostChoosePeopleToNotifyPostcodeSelectWhenValidationError(t *testing.T)
 			ActorLabel: "personToNotify",
 			Addresses:  addresses,
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -343,6 +349,7 @@ func TestPostChoosePeopleToNotifyPostcodeLookup(t *testing.T) {
 			FullName:   "John ",
 			ActorLabel: "personToNotify",
 			Addresses:  addresses,
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -385,6 +392,7 @@ func TestPostChoosePeopleToNotifyPostcodeLookupError(t *testing.T) {
 			ActorLabel: "personToNotify",
 			Addresses:  []place.Address{},
 			Errors:     validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -432,6 +440,7 @@ func TestPostChoosePeopleToNotifyPostcodeLookupInvalidPostcodeError(t *testing.T
 			ActorLabel: "personToNotify",
 			Addresses:  []place.Address{},
 			Errors:     validation.With("lookup-postcode", validation.EnterError{Label: "invalidPostcode"}),
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -473,6 +482,7 @@ func TestPostChoosePeopleToNotifyPostcodeLookupValidPostcodeNoAddresses(t *testi
 			ActorLabel: "personToNotify",
 			Addresses:  []place.Address{},
 			Errors:     validation.With("lookup-postcode", validation.CustomError{Label: "noAddressesFound"}),
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -508,6 +518,7 @@ func TestPostChoosePeopleToNotifyPostcodeLookupWhenValidationError(t *testing.T)
 			FullName:   " ",
 			ActorLabel: "personToNotify",
 			Errors:     validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -538,6 +549,7 @@ func TestPostChoosePeopleToNotifyAddressReuse(t *testing.T) {
 			FullName:   " ",
 			ActorLabel: "personToNotify",
 			Addresses:  []place.Address{{Line1: "donor lane"}},
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -609,6 +621,7 @@ func TestPostChoosePeopleToNotifyAddressReuseSelectWhenValidationError(t *testin
 			ID:         "123",
 			FullName:   " ",
 			ActorLabel: "personToNotify",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
