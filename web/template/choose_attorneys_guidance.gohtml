@@ -7,7 +7,13 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "choosingYourAttorneys" }}</h1>
 
-      {{ trHtml .App "choosingYourAttorneysContent" }}
+      {{ $content := "choosingYourAttorneysContentPW" }}
+
+      {{ if .Lpa.Type.IsPropertyFinance }}
+        {{ $content = "choosingYourAttorneysContentPA" }}
+      {{ end }}
+
+      {{ trHtml .App $content }}
 
       <div class="govuk-button-group">
         <a class="govuk-button" href="{{ link .App (.App.Paths.ChooseAttorneys.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
