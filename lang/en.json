@@ -137,7 +137,7 @@
     "yesToAddAnotherAttorney": "yes to add another attorney",
     "yesToAddAnotherReplacementAttorney": "yes to add another replacement attorney",
     "removeAnAttorney": "Remove an attorney",
-    "doYouWantToRemove": "Are you sure you want to remove {{ .FirstNames }} {{ .LastName }}?",
+    "doYouWantToRemove": "Are you sure you want to remove {{ .Name }}?",
     "yesToRemoveAttorney": "yes to remove the attorney",
     "yesToRemoveReplacementAttorney": "yes to remove the replacement attorney",
     "doYouWantToRemovePersonToNotify": "Are you sure you want to remove this person to notify?",
@@ -877,5 +877,7 @@
     "youMustIncludeYourReferenceNumberWarning": "You must include your reference number so we can link your evidence to your application. Not providing it could cause a delay and your LPA application could expire.",
     "whatHappensNextPostEvidenceContent": "<p class=\"govuk-body\">You should now send us your evidence by post. We will review it along with your LPA application.</p><h2 class=\"govuk-heading-m\">Sign your LPA</h2><p class=\"govuk-body\">You can still sign your LPA while we’re reviewing your application. Your certificate provider must be there as a witness when you sign it.</p><p class=\"govuk-body\">However, we will not contact your certificate provider to provide their certificate until your {{.Application}} has been approved.</p><h2 class=\"govuk-heading-m\">If your application is successful</h2><p class=\"govuk-body\">Once we have approved your payment, we will contact your certificate provider to provide their certificate.</p><h2 class=\"govuk-heading-m\">If your application is not successful</h2><p class=\"govuk-body\">We will contact you if we need more information or if your application is unsuccessful.</p>",
     "appealingTheDecision": "Appealing the decision",
-    "appealingTheDecisionDetails": "<p class=\"govuk-body\">If your application is unsuccessful, you can appeal within 4 weeks of the decision by writing to the Head of Corporate Services.</p><p class=\"govuk-body\">If the original decision is upheld, it will be referred to the Public Guardian for confirmation.</p>"
+    "appealingTheDecisionDetails": "<p class=\"govuk-body\">If your application is unsuccessful, you can appeal within 4 weeks of the decision by writing to the Head of Corporate Services.</p><p class=\"govuk-body\">If the original decision is upheld, it will be referred to the Public Guardian for confirmation.</p>",
+    "removeTrustCorporation": "Remove trust corporation",
+    "yesToRemoveTrustCorporation": "yes to remove the trust corporation"
 }

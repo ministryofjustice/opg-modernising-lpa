@@ -164,6 +164,8 @@ type AppPaths struct {
 	RemoveAttorney                                       LpaPath
 	RemovePersonToNotify                                 LpaPath
 	RemoveReplacementAttorney                            LpaPath
+	RemoveReplacementTrustCorporation                    LpaPath
+	RemoveTrustCorporation                               LpaPath
 	ResendCertificateProviderCode                        LpaPath
 	ResendIndependentWitnessCode                         LpaPath
 	Restrictions                                         LpaPath
@@ -304,6 +306,8 @@ var Paths = AppPaths{
 	RemoveAttorney:                                       "/remove-attorney",
 	RemovePersonToNotify:                                 "/remove-person-to-notify",
 	RemoveReplacementAttorney:                            "/remove-replacement-attorney",
+	RemoveReplacementTrustCorporation:                    "/remove-replacement-trust-corporation",
+	RemoveTrustCorporation:                               "/remove-trust-corporation",
 	ResendCertificateProviderCode:                        "/resend-certificate-provider-code",
 	ResendIndependentWitnessCode:                         "/resend-independent-witness-code",
 	Restrictions:                                         "/restrictions",
