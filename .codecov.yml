@@ -9,6 +9,7 @@ coverage:
     - "./internal/identity/yoti*"
     - "./internal/telemetry"
     - "./internal/page/fixtures"
+    - "./cmd/event-logger/main.go"
     - "./cmd/event-received/main.go"
     - "./cmd/mlpa/main.go"
     - "./cmd/mock-notify/main.go"
