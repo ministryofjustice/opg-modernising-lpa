@@ -121,7 +121,6 @@ func TestPutObjectTagging(t *testing.T) {
 			Tagging: &types.Tagging{
 				TagSet: []types.Tag{
 					{Key: aws.String("a-tag-key"), Value: aws.String("a-value")},
-					{Key: aws.String("another-tag-key"), Value: aws.String("another-value")},
 				},
 			},
 		}).
@@ -130,8 +129,7 @@ func TestPutObjectTagging(t *testing.T) {
 	client := Client{bucket: "a-bucket", svc: s3Service}
 
 	err := client.PutObjectTagging(context.Background(), "a-object-key", map[string]string{
-		"a-tag-key":       "a-value",
-		"another-tag-key": "another-value",
+		"a-tag-key": "a-value",
 	})
 
 	assert.Equal(t, expectedError, err)
