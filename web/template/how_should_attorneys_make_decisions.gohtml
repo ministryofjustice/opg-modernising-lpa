@@ -46,7 +46,13 @@
                 </label>
 
                 <div id="decision-type-3-item-hint" class="govuk-radios__hint">
-                  {{ trHtml .App "jointlyAndSeverallyMixedHint" }}
+                  <p>{{ tr .App "jointlyAndSeverallyMixedHint" }}</p>
+                  {{ if .Lpa.Type.IsPropertyFinance }}
+                    <p>{{ tr .App "jointlyAndSeverallyMixedHintExamplePA" }}</p>
+                  {{ else }}
+                    <p>{{ tr .App "jointlyAndSeverallyMixedHintExamplePW" }}</p>
+                  {{ end }}
+                  <p>{{ tr .App "ifYouChooseThisOptionMustStateDecisionsAgreedTogether" }}</p>
                 </div>
 
                 <div class="govuk-radios__conditional" id="decision-type-3-conditional-div">
