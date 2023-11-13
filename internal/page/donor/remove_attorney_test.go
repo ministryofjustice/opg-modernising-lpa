@@ -23,7 +23,9 @@ func TestGetRemoveAttorney(t *testing.T) {
 	logger := newMockLogger(t)
 
 	attorney := actor.Attorney{
-		ID: "123",
+		ID:         "123",
+		FirstNames: "John",
+		LastName:   "Smith",
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
@@ -32,11 +34,10 @@ func TestGetRemoveAttorney(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &removeAttorneyData{
-			App:      testAppData,
-			Attorney: attorney,
-			Errors:   nil,
-			Form:     &form.YesNoForm{},
-			Options:  form.YesNoValues,
+			App:     testAppData,
+			Name:    "John Smith",
+			Form:    &form.YesNoForm{},
+			Options: form.YesNoValues,
 		}).
 		Return(nil)
 
