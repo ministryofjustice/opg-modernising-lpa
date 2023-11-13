@@ -36,6 +36,7 @@ func TestGetChooseReplacementAttorneysAddress(t *testing.T) {
 			FullName:   "John Smith",
 			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -67,6 +68,7 @@ func TestGetChooseReplacementAttorneysAddressFromStore(t *testing.T) {
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -98,6 +100,7 @@ func TestGetChooseReplacementAttorneysAddressManual(t *testing.T) {
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -126,6 +129,7 @@ func TestGetChooseReplacementAttorneysAddressWhenTemplateErrors(t *testing.T) {
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(expectedError)
 
@@ -311,6 +315,7 @@ func TestPostChooseReplacementAttorneysAddressManualWhenValidationError(t *testi
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -345,6 +350,7 @@ func TestPostChooseReplacementAttorneysPostcodeSelect(t *testing.T) {
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -388,6 +394,7 @@ func TestPostChooseReplacementAttorneysPostcodeSelectWhenValidationError(t *test
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -430,6 +437,7 @@ func TestPostChooseReplacementAttorneysPostcodeLookup(t *testing.T) {
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -473,6 +481,7 @@ func TestPostChooseReplacementAttorneysPostcodeLookupError(t *testing.T) {
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -521,6 +530,7 @@ func TestPostChooseReplacementAttorneysPostcodeLookupInvalidPostcodeError(t *tes
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -565,6 +575,7 @@ func TestPostChooseReplacementAttorneysPostcodeLookupValidPostcodeNoAddresses(t 
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -598,6 +609,7 @@ func TestPostChooseReplacementAttorneysPostcodeLookupWhenValidationError(t *test
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -629,6 +641,7 @@ func TestPostChooseReplacementAttorneysAddressReuse(t *testing.T) {
 			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
 			Addresses:  []place.Address{{Line1: "donor lane"}},
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -706,6 +719,7 @@ func TestPostChooseReplacementAttorneysAddressReuseSelectWhenValidationError(t *
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 

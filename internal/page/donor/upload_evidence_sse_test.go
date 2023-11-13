@@ -35,7 +35,9 @@ func TestUploadEvidenceSSE(t *testing.T) {
 			{Scanned: true},
 		}, nil).Once()
 
-	err := UploadEvidenceSSE(documentStore, 4*time.Millisecond, 2*time.Millisecond)(testAppData, w, r, &page.Lpa{})
+	now := time.Now()
+
+	err := UploadEvidenceSSE(documentStore, 4*time.Millisecond, 2*time.Millisecond, func() time.Time { return now })(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	bodyBytes, _ := io.ReadAll(resp.Body)
@@ -57,7 +59,7 @@ func TestUploadEvidenceSSEOnDonorStoreError(t *testing.T) {
 			{Scanned: true},
 		}, expectedError)
 
-	err := UploadEvidenceSSE(documentStore, 4*time.Millisecond, 2*time.Millisecond)(testAppData, w, r, &page.Lpa{})
+	err := UploadEvidenceSSE(documentStore, 4*time.Millisecond, 2*time.Millisecond, nil)(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	bodyBytes, _ := io.ReadAll(resp.Body)
@@ -88,7 +90,9 @@ func TestUploadEvidenceSSEOnDonorStoreErrorWhenRefreshingDocuments(t *testing.T)
 		}, expectedError).
 		Once()
 
-	err := UploadEvidenceSSE(documentStore, 4*time.Millisecond, 2*time.Millisecond)(testAppData, w, r, &page.Lpa{})
+	now := time.Now()
+
+	err := UploadEvidenceSSE(documentStore, 4*time.Millisecond, 2*time.Millisecond, func() time.Time { return now })(testAppData, w, r, &page.Lpa{})
 	resp := w.Result()
 
 	bodyBytes, _ := io.ReadAll(resp.Body)
