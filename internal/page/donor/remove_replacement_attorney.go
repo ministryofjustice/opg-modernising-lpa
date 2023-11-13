@@ -8,16 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
-
-type removeReplacementAttorneyData struct {
-	App      page.AppData
-	Attorney actor.Attorney
-	Errors   validation.List
-	Form     *form.YesNoForm
-	Options  form.YesNoOptions
-}
 
 func RemoveReplacementAttorney(logger Logger, tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
@@ -28,11 +19,11 @@ func RemoveReplacementAttorney(logger Logger, tmpl template.Template, donorStore
 			return appData.Redirect(w, r, lpa, page.Paths.ChooseReplacementAttorneysSummary.Format(lpa.ID))
 		}
 
-		data := &removeReplacementAttorneyData{
-			App:      appData,
-			Attorney: attorney,
-			Form:     &form.YesNoForm{},
-			Options:  form.YesNoValues,
+		data := &removeAttorneyData{
+			App:     appData,
+			Name:    attorney.FullName(),
+			Form:    &form.YesNoForm{},
+			Options: form.YesNoValues,
 		}
 
 		if r.Method == http.MethodPost {
