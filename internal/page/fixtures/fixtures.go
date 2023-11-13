@@ -2,6 +2,7 @@ package fixtures
 
 import (
 	"context"
+	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
@@ -9,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -113,7 +115,7 @@ func makeCertificateProvider() actor.CertificateProvider {
 		Email:              testEmail,
 		Mobile:             testMobile,
 		Relationship:       actor.Personally,
-		RelationshipLength: "gte-2-years",
+		RelationshipLength: actor.GreaterThanEqualToTwoYears,
 		CarryOutBy:         actor.Online,
 		Address: place.Address{
 			Line1:      "5 RICHMOND PLACE",
@@ -139,4 +141,8 @@ func makePersonToNotify(name Name) actor.PersonToNotify {
 			Postcode:   "B14 7ED",
 		},
 	}
+}
+
+func makeUid() string {
+	return strings.ToUpper("N-" + random.String(4) + "-" + random.String(4) + "-" + random.String(4))
 }

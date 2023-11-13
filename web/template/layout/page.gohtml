@@ -1,6 +1,6 @@
 {{ define "page" }}
   <!DOCTYPE html>
-  <html lang="en" class="govuk-template app-html-class">
+  <html lang="{{ .App.Lang.String }}" class="govuk-template app-html-class">
     <head>
       <meta charset="utf-8">
       <title>{{ if .Errors }}Error: {{ end }} {{ if not (eq .App.Page .App.Paths.Start .App.Paths.CertificateProviderStart .App.Paths.Attorney.Start) }}{{ block "pageTitle" . }}{{ end }} - {{ end }}{{ tr .App "serviceName" }}</title>
