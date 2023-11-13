@@ -27,6 +27,7 @@ func TestGetYourIndependentWitnessAddress(t *testing.T) {
 			ActorLabel: "independentWitness",
 			FullName:   "John Smith",
 			Form:       &form.AddressForm{},
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
@@ -58,6 +59,7 @@ func TestGetYourIndependentWitnessAddressFromStore(t *testing.T) {
 				Action:  "manual",
 				Address: &address,
 			},
+			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
 
@@ -86,6 +88,7 @@ func TestGetYourIndependentWitnessAddressManual(t *testing.T) {
 				Action:  "manual",
 				Address: &place.Address{},
 			},
+			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
 
@@ -107,6 +110,7 @@ func TestGetYourIndependentWitnessAddressWhenTemplateErrors(t *testing.T) {
 			ActorLabel: "independentWitness",
 			FullName:   " ",
 			Form:       &form.AddressForm{},
+			TitleKeys:  testTitleKeys,
 		}).
 		Return(expectedError)
 
@@ -247,7 +251,8 @@ func TestPostYourIndependentWitnessAddressManualWhenValidationError(t *testing.T
 					Country:    "GB",
 				},
 			},
-			Errors: validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
+			Errors:    validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
+			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
 
@@ -287,6 +292,7 @@ func TestPostYourIndependentWitnessAddressSelect(t *testing.T) {
 				LookupPostcode: "NG1",
 				Address:        expectedAddress,
 			},
+			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
 
@@ -328,6 +334,7 @@ func TestPostYourIndependentWitnessAddressSelectWhenValidationError(t *testing.T
 			},
 			Addresses: addresses,
 			Errors:    validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
+			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
 
@@ -368,6 +375,7 @@ func TestPostYourIndependentWitnessAddressLookup(t *testing.T) {
 				LookupPostcode: "NG1",
 			},
 			Addresses: addresses,
+			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
 
@@ -409,6 +417,7 @@ func TestPostYourIndependentWitnessAddressLookupError(t *testing.T) {
 			},
 			Addresses: []place.Address{},
 			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
+			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
 
@@ -455,6 +464,7 @@ func TestPostYourIndependentWitnessAddressInvalidPostcodeError(t *testing.T) {
 			},
 			Addresses: []place.Address{},
 			Errors:    validation.With("lookup-postcode", validation.EnterError{Label: "invalidPostcode"}),
+			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
 
@@ -495,6 +505,7 @@ func TestPostYourIndependentWitnessAddressValidPostcodeNoAddresses(t *testing.T)
 			},
 			Addresses: []place.Address{},
 			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "noAddressesFound"}),
+			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
 
@@ -523,7 +534,8 @@ func TestPostYourIndependentWitnessAddressLookupWhenValidationError(t *testing.T
 			Form: &form.AddressForm{
 				Action: "postcode",
 			},
-			Errors: validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
+			Errors:    validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
+			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
 
