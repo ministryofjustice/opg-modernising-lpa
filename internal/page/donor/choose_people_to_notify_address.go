@@ -19,13 +19,13 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 			return appData.Redirect(w, r, lpa, page.Paths.ChoosePeopleToNotify.Format(lpa.ID))
 		}
 
-		data := &chooseAddressData{
-			App:        appData,
-			ActorLabel: "personToNotify",
-			FullName:   personToNotify.FullName(),
-			ID:         personToNotify.ID,
-			Form:       &form.AddressForm{},
-		}
+		data := newChooseAddressData(
+			appData,
+			"personToNotify",
+			personToNotify.FullName(),
+			personToNotify.ID,
+			false,
+		)
 
 		if personToNotify.Address.Line1 != "" {
 			data.Form.Action = "manual"

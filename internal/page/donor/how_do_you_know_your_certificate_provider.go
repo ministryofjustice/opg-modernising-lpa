@@ -6,6 +6,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -33,30 +34,26 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore Dono
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.CertificateProvider.Relationship = data.Form.How
-
-				requireLength := false
-				if lpa.CertificateProvider.Relationship.IsPersonally() {
-					requireLength = true
+				if data.Form.How.IsProfessionally() && lpa.CertificateProvider.Relationship.IsPersonally() {
+					lpa.CertificateProvider.RelationshipLength = actor.RelationshipLengthUnknown
 				}
 
-				if requireLength {
-					// TODO: should stay as Completed if editing and not changing the answer here
+				if !lpa.CertificateProvider.Relationship.Empty() && data.Form.How != lpa.CertificateProvider.Relationship {
 					lpa.Tasks.CertificateProvider = actor.TaskInProgress
-				} else {
-					lpa.CertificateProvider.RelationshipLength = ""
-					lpa.Tasks.CertificateProvider = actor.TaskCompleted
+					lpa.CertificateProvider.Address = place.Address{}
 				}
+
+				lpa.CertificateProvider.Relationship = data.Form.How
 
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				if requireLength {
+				if lpa.CertificateProvider.Relationship.IsPersonally() {
 					return appData.Redirect(w, r, lpa, page.Paths.HowLongHaveYouKnownCertificateProvider.Format(lpa.ID))
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.DoYouWantToNotifyPeople.Format(lpa.ID))
+				return appData.Redirect(w, r, lpa, page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Format(lpa.ID))
 			}
 		}
 

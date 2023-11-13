@@ -18,14 +18,18 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 			return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneys.Format(lpa.ID))
 		}
 
-		data := &chooseAddressData{
-			App:        appData,
-			ActorLabel: "attorney",
-			FullName:   attorney.FullName(),
-			ID:         attorney.ID,
-			CanSkip:    true,
-			Form:       &form.AddressForm{},
-		}
+		data := newChooseAddressData(
+			appData,
+			"attorney",
+			attorney.FullName(),
+			attorney.ID,
+			true,
+		)
+
+		data.ActorLabel = "attorney"
+		data.FullName = attorney.FullName()
+		data.ID = attorney.ID
+		data.CanSkip = true
 
 		if attorney.Address.Line1 != "" {
 			data.Form.Action = "manual"
