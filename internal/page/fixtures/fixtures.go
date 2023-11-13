@@ -115,7 +115,7 @@ func makeCertificateProvider() actor.CertificateProvider {
 		Email:              testEmail,
 		Mobile:             testMobile,
 		Relationship:       actor.Personally,
-		RelationshipLength: "gte-2-years",
+		RelationshipLength: actor.GreaterThanEqualToTwoYears,
 		CarryOutBy:         actor.Online,
 		Address: place.Address{
 			Line1:      "5 RICHMOND PLACE",

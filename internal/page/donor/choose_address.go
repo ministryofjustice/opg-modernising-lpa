@@ -10,6 +10,24 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
+func newChooseAddressData(appData page.AppData, actorLabel, fullName, ID string, canSkip bool) *chooseAddressData {
+	return &chooseAddressData{
+		App:        appData,
+		ActorLabel: actorLabel,
+		FullName:   fullName,
+		ID:         ID,
+		CanSkip:    canSkip,
+		Form:       &form.AddressForm{},
+		TitleKeys: titleKeys{
+			Manual:                          "personsAddress",
+			Postcode:                        "whatIsPersonsPostcode",
+			PostcodeSelectAndPostcodeLookup: "selectAnAddressForPerson",
+			ReuseAndReuseSelect:             "selectAnAddressForPerson",
+			ReuseOrNew:                      "addPersonsAddress",
+		},
+	}
+}
+
 type chooseAddressData struct {
 	App        page.AppData
 	Errors     validation.List
@@ -19,6 +37,19 @@ type chooseAddressData struct {
 	CanSkip    bool
 	Addresses  []place.Address
 	Form       *form.AddressForm
+	TitleKeys  titleKeys
+}
+
+type titleKeys struct {
+	Manual                          string
+	PostcodeSelectAndPostcodeLookup string
+	Postcode                        string
+	ReuseAndReuseSelect             string
+	ReuseOrNew                      string
+}
+
+func (d *chooseAddressData) overrideTitleKeys(newTitleKeys titleKeys) {
+	d.TitleKeys = newTitleKeys
 }
 
 func lookupAddress(ctx context.Context, logger Logger, addressClient AddressClient, data *chooseAddressData, your bool) {
