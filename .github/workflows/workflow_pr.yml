@@ -97,6 +97,7 @@ jobs:
       run_against_image: true
       tag: ${{ needs.create_tags.outputs.version_tag }}
       smoke: ${{ contains(fromJSON('["weblate-pr"]'), github.head_ref) }}
+      matrixSpecs: '["cypress/e2e/donor/*","cypress/e2e/attorney/*,cypress/e2e/certificate-provider/*,cypress/e2e/accessibility/*,cypress/e2e/dev-features.cy.js,cypress/e2e/error-pages.cy.js"]'
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
@@ -169,6 +170,8 @@ jobs:
           echo "${{ needs.pr_deploy.outputs.terraform_workspace_name }} PR environment tested, built and deployed"
           echo "Tag Deployed: ${{ needs.pr_deploy.outputs.terraform_container_version }}"
           echo "URL: https://${{ needs.pr_deploy.outputs.url }}"
+          echo "${{ needs.ui_tests_pr_env.result }}"
+
           if ${{ contains(needs.ui_tests_pr_env.result,'success') }}
           then
             echo "PR environment tested, built and deployed"
