@@ -97,15 +97,6 @@ jobs:
       run_against_image: true
       tag: ${{ needs.create_tags.outputs.version_tag }}
       smoke: ${{ contains(fromJSON('["weblate-pr"]'), github.head_ref) }}
-    strategy:
-      # don't fail the entire matrix on failure
-      fail-fast: false
-      matrix:
-        # run copies of the current job in parallel
-        specs: [
-          "cypress/e2e/donor/*",
-          "cypress/e2e/attorney/*,cypress/e2e/certificate-provider/*,cypress/e2e/accessibility/*,cypress/e2e/dev-features.cy.js,cypress/e2e/error-pages.cy.js"
-        ]
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
