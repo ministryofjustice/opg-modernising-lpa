@@ -939,5 +939,8 @@
     "youMustIncludeYourReferenceNumberWarning": "Welsh",
     "whatHappensNextPostEvidenceContent": "<p class=\"govuk-body\">Welsh</p>",
     "appealingTheDecision": "Welsh",
-    "appealingTheDecisionDetails": "<p class=\"govuk-body\">Welsh</p>"
+    "appealingTheDecisionDetails": "<p class=\"govuk-body\">Welsh</p>",
+    "removeTrustCorporation": "Welsh",
+    "yesToRemoveTrustCorporation": "Welsh",
+    "removeReplacementTrustCorporation": "Welsh"
 }
