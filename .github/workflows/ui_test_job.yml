@@ -30,6 +30,10 @@ on:
         description: 'Environment config JSON'
         required: false
         type: string
+      matrixSpecs:
+        description: 'A list of cypress specs that should be run'
+        required: false
+        type: string
     secrets:
       aws_access_key_id:
         description: 'AWS Access Key ID'
