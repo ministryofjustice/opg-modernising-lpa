@@ -1,35 +1,22 @@
-{{ template "page" . }}
+{{ template "fixtures-page" . }}
 
-{{ define "pageTitle" }}Fixtures{{ end }}
+{{ define "pageTitle" }}Certificate provider fixtures{{ end }}
 
-{{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">Certificate provider fixtures</h1>
+{{ define "fixtures-main" }}
+  <p class="govuk-body">Starting this flow will send an email with reference code to the email entered below. If you don't care about seeing the email then leave the field blank.</p>
 
-      <p class="govuk-body">Starting this flow will send an email with reference code to the email entered below. If you don't care about seeing the email then leave the field blank.</p>
+  {{ template "input" (input . "email" "email" "" "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
 
-      <form novalidate method="post">
-        {{ template "input" (input . "email" "email" "" "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
+  <div class="govuk-form-group">
+    <fieldset class="govuk-fieldset">
+      <legend class="govuk-fieldset__legend">Progress</legend>
 
-        <div class="govuk-form-group">
-          <fieldset class="govuk-fieldset">
-            <legend class="govuk-fieldset__legend">Progress</legend>
-
-            {{ template "radios" (items . "progress" "paid"
-              (item "paid" "Paid")
-              (item "signedByDonor" "Signed by donor")
-              (item "confirmYourDetails" "confirmYourDetails")
-              (item "confirmYourIdentity" "confirmYourIdentity")
-            ) }}
-          </fieldset>
-        </div>
-        
-        <div class="govuk-button-group govuk-!-padding-top-3">
-          <button type="submit" class="govuk-button" data-module="govuk-button" name="journey" value="certificate-provider">Start</button>
-        </div>
-        {{ template "csrf-field" . }}
-      </form>
-    </div>
+      {{ template "radios" (items . "progress" "paid"
+        (item "paid" "Paid")
+        (item "signedByDonor" "Signed by donor")
+        (item "confirmYourDetails" "confirmYourDetails")
+        (item "confirmYourIdentity" "confirmYourIdentity")
+      ) }}
+    </fieldset>
   </div>
 {{ end }}
