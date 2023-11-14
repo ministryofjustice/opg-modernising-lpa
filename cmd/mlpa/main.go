@@ -253,7 +253,7 @@ func main() {
 		}
 	}()
 
-	logger.Print("Running at :" + port)
+	logger.Print("Running at   :" + port)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
