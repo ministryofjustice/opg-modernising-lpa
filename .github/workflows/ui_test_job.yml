@@ -114,7 +114,7 @@ jobs:
 
       - name: Cypress run
         if: inputs.smoke != true
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@v6
         with:
           spec: ${{ matrix.specs }}
         env:
@@ -124,7 +124,7 @@ jobs:
 
       - name: Cypress run (smoke)
         if: inputs.smoke
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@v6
         with:
           spec: |
             cypress/e2e/donor/start.cy.js
