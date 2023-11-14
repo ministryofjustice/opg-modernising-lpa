@@ -24,6 +24,7 @@ type DocumentStore interface {
 	Create(ctx context.Context, lpa *page.Lpa, filename string, data []byte) (page.Document, error)
 }
 
+// force tests
 func Donor(
 	tmpl template.Template,
 	sessionStore sesh.Store,
