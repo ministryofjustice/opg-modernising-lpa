@@ -30,6 +30,10 @@ on:
         description: 'Environment config JSON'
         required: false
         type: string
+      matrixSpecs:
+        description: 'A list of cypress specs that should be run'
+        required: false
+        type: string
     secrets:
       aws_access_key_id:
         description: 'AWS Access Key ID'
@@ -51,6 +55,12 @@ defaults:
 jobs:
   run_ui_tests:
     runs-on: ubuntu-latest
+    strategy:
+      # don't fail the entire matrix on failure
+      fail-fast: false
+      matrix:
+        # run copies of the current job in parallel
+        specs: ${{ fromJSON(inputs.matrixSpecs) }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -105,7 +115,9 @@ jobs:
 
       - name: Cypress run
         if: inputs.smoke != true
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@v6
+        with:
+          spec: ${{ matrix.specs }}
         env:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
           CYPRESS_RECORD_KEY: ${{ secrets.cypress_record_key }}
@@ -113,11 +125,9 @@ jobs:
 
       - name: Cypress run (smoke)
         if: inputs.smoke
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@v6
         with:
-          spec: |
-            cypress/e2e/donor/start.cy.js
-            cypress/e2e/smoke/external.cy.js
+          spec: ${{ matrix.specs }}
         env:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
           CYPRESS_RECORD_KEY: ${{ secrets.cypress_record_key }}
