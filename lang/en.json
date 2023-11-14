@@ -721,7 +721,7 @@
     "theDonorGivesAttorneysAuthorityWhenRegistered": "The donor gives their attorneys authority to make decisions about their property and affairs, once this LPA is registered.",
     "theDonorGivesAttorneysAuthorityWhenLostMentalCapacity": "The donor gives their attorneys authority to make decisions about their property and affairs when they cannot act because they do not have mental capacity.",
     "theDonorGivesAttorneysAuthorityLifeSustainingTreatment": "The donor gives their attorneys authority to give or refuse consent to life-sustaining treatment on their behalf.",
-    "theDonorDoesNotGiveAttorneysAuthorityLifeSustainingTreatment": "The donor <span class=\"govuk-!-font-weight-bold\">does not</span> give their attorneys the authority to give or refuse consent to life-sustaining treatment on my behalf.",
+    "theDonorDoesNotGiveAttorneysAuthorityLifeSustainingTreatment": "The donor <span class=\"govuk-!-font-weight-bold\">does not</span> give their attorneys the authority to give or refuse consent to life-sustaining treatment on their behalf.",
     "theyHaveChosenNPeopleToNotify": {
         "one": "They have chosen to notify 1 person about their LPA.",
         "other": "They have chosen to notify {{ .PluralCount }} people about their LPA."
