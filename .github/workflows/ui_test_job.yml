@@ -103,9 +103,27 @@ jobs:
         if: inputs.run_against_image != true
         run: python ./scripts/ci_ingress/ci_ingress.py ${{ inputs.environment_config_json}} --add
 
-      - name: Cypress run
+      - name: Cypress run (donor)
         if: inputs.smoke != true
         uses: cypress-io/github-action@v5
+        with:
+          spec: |
+            cypress/e2e/donor/*
+        env:
+          CYPRESS_baseUrl: ${{ inputs.base_url }}
+          CYPRESS_RECORD_KEY: ${{ secrets.cypress_record_key }}
+          GITHUB_TOKEN: ${{ secrets.github_access_token }}
+
+      - name: Cypress run (others)
+        if: inputs.smoke != true
+        uses: cypress-io/github-action@v5
+        with:
+          spec: |
+            cypress/e2e/attorney/*
+            cypress/e2e/certificate-provider/*
+            cypress/e2e/accessibility/*
+            cypress/e2e/dev-features.cy.js
+            cypress/e2e/error-pages.cy.js
         env:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
           CYPRESS_RECORD_KEY: ${{ secrets.cypress_record_key }}
