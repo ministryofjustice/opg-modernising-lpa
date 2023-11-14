@@ -1,6 +1,6 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "removeAnAttorney" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App .TitleLabel }}{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
@@ -10,7 +10,7 @@
           <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
               <h1 class="govuk-fieldset__heading">
-                {{ trFormat .App "doYouWantToRemove" "FirstNames" .Attorney.FirstNames "LastName" .Attorney.LastName }}
+                {{ trFormat .App "doYouWantToRemove" "Name" .Name }}
               </h1>
             </legend>
 
