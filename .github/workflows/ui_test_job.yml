@@ -106,6 +106,8 @@ jobs:
       - name: Cypress run
         if: inputs.smoke != true
         uses: cypress-io/github-action@v5
+        with:
+          spec: ${{ matrix.specs }}
         env:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
           CYPRESS_RECORD_KEY: ${{ secrets.cypress_record_key }}
