@@ -1,69 +1,48 @@
-{{ template "page" . }}
+{{ template "fixtures-page" . }}
 
-{{ define "pageTitle" }}Fixtures{{ end }}
+{{ define "pageTitle" }}Donor fixtures{{ end }}
 
-{{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">Fixtures</h1>
-
-      <ul class="govuk-list">
-        <li><a class="govuk-link govuk-link--no-visited-state" href="#donor">Donor flow</a></li>
-        <li><a class="govuk-link govuk-link--no-visited-state" href="{{ link .App .App.Paths.CertificateProviderFixtures.Format }}">Certificate provider</a></li>
-        <li><a class="govuk-link govuk-link--no-visited-state" href="{{ link .App .App.Paths.AttorneyFixtures.Format }}">Attorney</a></li>
-        <li><a class="govuk-link govuk-link--no-visited-state" href="{{ link .App .App.Paths.DashboardFixtures.Format }}">Dashboard</a></li>
-      </ul>
-
-      <form novalidate method="post">
-        <h1 class="govuk-heading-xl">Donor fixtures</h1>
-
-        <div class="govuk-form-group">
-          <fieldset class="govuk-fieldset">
-            <legend class="govuk-fieldset__legend">
-              LPA type
-            </legend>
-            <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="type" name="lpa-type" type="radio" value="pfa" checked>
-                <label class="govuk-label govuk-radios__label" for="type">Property and affairs</label>
-              </div>
-              <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="type-2" name="lpa-type" type="radio" value="hw">
-                <label class="govuk-label govuk-radios__label" for="type-2">Personal welfare</label>
-              </div>
-            </div>
-          </fieldset>
+{{ define "fixtures-main" }}
+  <div class="govuk-form-group">
+    <fieldset class="govuk-fieldset">
+      <legend class="govuk-fieldset__legend">
+        LPA type
+      </legend>
+      <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
+        <div class="govuk-radios__item">
+          <input class="govuk-radios__input" id="type" name="lpa-type" type="radio" value="pfa" checked>
+          <label class="govuk-label govuk-radios__label" for="type">Property and affairs</label>
         </div>
-
-        <div class="govuk-form-group">
-          <fieldset class="govuk-fieldset">
-            <legend class="govuk-fieldset__legend">Progress</legend>
-
-            {{ template "radios" (items . "progress" nil
-              (item "provideYourDetails" "provideYourDetails")
-              (item "chooseYourAttorneys" "chooseYourAttorneys")
-              (item "chooseYourReplacementAttorneys" "chooseYourReplacementAttorneys")
-              (item "Choose when the LPA can be used / Life-sustaining treatment" "chooseWhenTheLpaCanBeUsed")
-              (item "addRestrictionsToTheLpa" "addRestrictionsToTheLpa")
-              (item "chooseYourCertificateProvider" "chooseYourCertificateProvider")
-              (item "peopleToNotifyAboutYourLpa" "peopleToNotifyAboutYourLpa")
-              (item "checkAndSendToYourCertificateProvider" "checkAndSendToYourCertificateProvider")
-              (item "payForTheLpa" "payForTheLpa")
-              (item "confirmYourIdentity" "Confirm your identity")
-              (item "signTheLpa" "Sign the LPA")
-              (item "signedByCertificateProvider" "Signed by certificate provider")
-              (item "signedByAttorneys" "Signed by attorneys")
-              (item "submitted" "Submitted")
-              (item "withdrawn" "Withdrawn")
-              (item "registered" "registered")
-            ) }}
-          </fieldset>
+        <div class="govuk-radios__item">
+          <input class="govuk-radios__input" id="type-2" name="lpa-type" type="radio" value="hw">
+          <label class="govuk-label govuk-radios__label" for="type-2">Personal welfare</label>
         </div>
+      </div>
+    </fieldset>
+  </div>
 
-        <button type="submit" class="govuk-button" data-module="govuk-button" name="journey" value="donor">Start</button>
+  <div class="govuk-form-group">
+    <fieldset class="govuk-fieldset">
+      <legend class="govuk-fieldset__legend">Progress</legend>
 
-        {{ template "csrf-field" . }}
-      </form>
-    </div>
+      {{ template "radios" (items . "progress" nil
+        (item "provideYourDetails" "provideYourDetails")
+        (item "chooseYourAttorneys" "chooseYourAttorneys")
+        (item "chooseYourReplacementAttorneys" "chooseYourReplacementAttorneys")
+        (item "Choose when the LPA can be used / Life-sustaining treatment" "chooseWhenTheLpaCanBeUsed")
+        (item "addRestrictionsToTheLpa" "addRestrictionsToTheLpa")
+        (item "chooseYourCertificateProvider" "chooseYourCertificateProvider")
+        (item "peopleToNotifyAboutYourLpa" "peopleToNotifyAboutYourLpa")
+        (item "checkAndSendToYourCertificateProvider" "checkAndSendToYourCertificateProvider")
+        (item "payForTheLpa" "payForTheLpa")
+        (item "confirmYourIdentity" "Confirm your identity")
+        (item "signTheLpa" "Sign the LPA")
+        (item "signedByCertificateProvider" "Signed by certificate provider")
+        (item "signedByAttorneys" "Signed by attorneys")
+        (item "submitted" "Submitted")
+        (item "withdrawn" "Withdrawn")
+        (item "registered" "registered")
+      ) }}
+    </fieldset>
   </div>
 {{ end }}
