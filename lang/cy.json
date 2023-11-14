@@ -713,7 +713,7 @@
     "goToYourTaskList": "Ewch at eich rhestr o dasgau",
     "iTrustCorporationConfirmTheseStatements": "Mae gennyf awdurdod i lofnodi ar ran {{.TrustCorporationName}} sy’n gweithredu fel atwrnai. Rydw i’n cadarnhau bod y datganiadau hyn yn wir ac yn deall bod ticio’r blwch hwn yn gweithredu fel fy llofnod cyfreithiol.",
     "signAsTrustCorporationWhenCapacityLostBullet": "Dim ond pan fydd yr atwrneiaeth arhosol hon wedi ei chofrestru a dim ond pan nad yw’r rhoddwr yn meddu ar alluedd meddyliol y gall y cwmni wneud penderfyniadau a gweithredu.",
-    "signAsTrustCorporationWhenRegisteredBullet": "Dim ond pan fydd yr atwrniaeth arhosol hon wedi'i chofrestru y gall y cwmni wneud penderfyniadau a gweithredu.",
+    "signAsTrustCorporationWhenRegisteredBullet": "Dim ond pan fydd yr atwrniaeth arhosol hon wedi’i chofrestru y gall y cwmni wneud penderfyniadau a gweithredu.",
     "signAsTrustCorporationBullets": "<li>Ar ran y cwmni, rwyf wedi darllen yr atwrneiaeth arhosol (LPA) hon neu mae rhywun wedi ei darllen i mi. Mae hyn yn cynnwys hawliau a chyfrifoldebau cyfreithiol y cwmni.</li><li>Mae dyletswydd ar y cwmni i weithredu ar sail egwyddorion Deddf Galluedd Meddyliol 2005, ac ystyried <a href=\"https://www.gov.uk/government/publications/mental-capacity-act-code-of-practice\" class=\"govuk-link\">Cod Ymarfer y Ddeddf Galluedd Meddyliol</a>.</li><li>Rhaid i’r cwmni wneud penderfyniadau a gweithredu er budd pennaf y rhoddwr.</li><li>Rhaid i’r cwmni ystyried unrhyw gyfyngiad ac amod a nodir yn yr atwrneiaeth arhosol hon.</li>",
     "professionalTitle": "Teitl proffesiynol",
     "authorisedSignatory": "Llofnodwr awdurdodedig",
