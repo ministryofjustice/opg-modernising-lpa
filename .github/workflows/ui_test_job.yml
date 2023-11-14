@@ -32,7 +32,7 @@ on:
         required: false
         type: string
       matrixSpecs:
-        description: 'A list of cypress specs that should be run'
+        description: 'A list of cypress specs in format ["<filepath,filepath>","<filepath>"] with each array value triggering an additional matrix job'
         required: true
         type: string
     secrets:
