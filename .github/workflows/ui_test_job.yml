@@ -51,6 +51,15 @@ defaults:
 jobs:
   run_ui_tests:
     runs-on: ubuntu-latest
+    strategy:
+      # don't fail the entire matrix on failure
+      fail-fast: false
+      matrix:
+        # run copies of the current job in parallel
+        specs: [
+          "cypress/e2e/donor/*",
+          "cypress/e2e/attorney/*,cypress/e2e/certificate-provider/*,cypress/e2e/accessibility/*,cypress/e2e/dev-features.cy.js,cypress/e2e/error-pages.cy.js"
+        ]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -105,7 +114,9 @@ jobs:
 
       - name: Cypress run
         if: inputs.smoke != true
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@v6
+        with:
+          spec: ${{ matrix.specs }}
         env:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
           CYPRESS_RECORD_KEY: ${{ secrets.cypress_record_key }}
@@ -113,7 +124,7 @@ jobs:
 
       - name: Cypress run (smoke)
         if: inputs.smoke
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@v6
         with:
           spec: |
             cypress/e2e/donor/start.cy.js
