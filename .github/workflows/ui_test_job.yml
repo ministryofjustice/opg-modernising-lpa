@@ -22,9 +22,10 @@ on:
         default: ${{ github.ref }}
         required: false
         type: string
-      smoke:
-        description: 'Run "smoke" specs only'
+      skip:
+        description: 'Should running all tests be skipped'
         required: false
+        default: false
         type: boolean
       environment_config_json:
         description: 'Environment config JSON'
@@ -32,7 +33,7 @@ on:
         type: string
       matrixSpecs:
         description: 'A list of cypress specs that should be run'
-        required: false
+        required: true
         type: string
     secrets:
       aws_access_key_id:
@@ -114,17 +115,7 @@ jobs:
         run: python ./scripts/ci_ingress/ci_ingress.py ${{ inputs.environment_config_json}} --add
 
       - name: Cypress run
-        if: inputs.smoke != true
-        uses: cypress-io/github-action@v6
-        with:
-          spec: ${{ matrix.specs }}
-        env:
-          CYPRESS_baseUrl: ${{ inputs.base_url }}
-          CYPRESS_RECORD_KEY: ${{ secrets.cypress_record_key }}
-          GITHUB_TOKEN: ${{ secrets.github_access_token }}
-
-      - name: Cypress run (smoke)
-        if: inputs.smoke
+        if: inputs.skip != true
         uses: cypress-io/github-action@v6
         with:
           spec: ${{ matrix.specs }}
