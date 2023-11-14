@@ -1,0 +1,43 @@
+{{ template "page" . }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <ul class="govuk-list">
+        <li><a class="govuk-link govuk-link--no-visited-state" href="{{ link .App .App.Paths.Fixtures.Format }}">Donor</a></li>
+        <li><a class="govuk-link govuk-link--no-visited-state" href="{{ link .App .App.Paths.CertificateProviderFixtures.Format }}">Certificate provider</a></li>
+        <li><a class="govuk-link govuk-link--no-visited-state" href="{{ link .App .App.Paths.AttorneyFixtures.Format }}">Attorney</a></li>
+        <li><a class="govuk-link govuk-link--no-visited-state" href="{{ link .App .App.Paths.DashboardFixtures.Format }}">Dashboard</a></li>
+      </ul>
+
+      <form novalidate method="post">
+        <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+      
+        {{ template "fixtures-main" . }}
+        <button type="submit" class="govuk-button" data-module="govuk-button">Start</button>
+
+        <div class="govuk-inset-text">
+          <p id="the-link"></p>
+        </div>
+
+        {{ template "csrf-field" . }}
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const form = document.querySelector('form');
+    
+    function updateTheLink() {
+      const theLink = document.getElementById('the-link');
+      const data = new FormData(form);
+      data.delete('csrf');
+      const query = Array.from(data).reduce((a, [k,v]) => `${a}&${k}=${v}`, 'redirect=');
+      
+      theLink.innerText = `${document.location.origin}${document.location.pathname}?${query}`;
+    }
+
+    form.addEventListener('change', updateTheLink);
+    updateTheLink();
+  </script>
+{{ end }}
