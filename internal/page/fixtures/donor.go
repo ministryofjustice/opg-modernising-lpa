@@ -123,6 +123,8 @@ func Donor(
 			case "trust-corporation-without-address":
 				lpa.Attorneys.TrustCorporation = makeTrustCorporation("First Choice Trust Corporation Ltd.")
 				lpa.Attorneys.TrustCorporation.Address = place.Address{}
+			case "trust-corporation":
+				lpa.Attorneys.TrustCorporation = makeTrustCorporation("First Choice Trust Corporation Ltd.")
 			case "single":
 				lpa.Attorneys.Attorneys = lpa.Attorneys.Attorneys[:1]
 				lpa.AttorneyDecisions = actor.AttorneyDecisions{}
@@ -147,6 +149,8 @@ func Donor(
 			case "trust-corporation-without-address":
 				lpa.ReplacementAttorneys.TrustCorporation = makeTrustCorporation("First Choice Trust Corporation Ltd.")
 				lpa.ReplacementAttorneys.TrustCorporation.Address = place.Address{}
+			case "trust-corporation":
+				lpa.ReplacementAttorneys.TrustCorporation = makeTrustCorporation("First Choice Trust Corporation Ltd.")
 			case "single":
 				lpa.ReplacementAttorneys.Attorneys = lpa.ReplacementAttorneys.Attorneys[:1]
 				lpa.ReplacementAttorneyDecisions = actor.AttorneyDecisions{}
