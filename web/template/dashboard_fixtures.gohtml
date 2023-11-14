@@ -1,42 +1,30 @@
-{{ template "page" . }}
+{{ template "fixtures-page" . }}
 
 {{ define "pageTitle" }}Dashboard fixtures{{ end }}
 
-{{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">Dashboard fixtures</h1>
-      <p class="govuk-body">This only shows adding LPAs for each of the roles, it doesn't set up enough data on the LPA to make it useful, for more detailed options use the relevant fixture page.</p>
+{{ define "fixtures-main" }}
+  <p class="govuk-body">This only shows adding LPAs for each of the roles, it doesn't set up enough data on the LPA to make it useful, for more detailed options use the relevant fixture page.</p>
 
-      <form novalidate method="post">
-        <div class="govuk-form-group">
-          <div class="govuk-checkboxes" data-module="govuk-checkboxes">
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-as-donor" name="asDonor" type="checkbox" value="1" checked>
-              <label class="govuk-label govuk-checkboxes__label" for="f-as-donor">
-                As donor
-              </label>
-            </div>
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-as-attorney" name="asAttorney" type="checkbox" value="1">
-              <label class="govuk-label govuk-checkboxes__label" for="f-as-attorney">
-                As attorney
-              </label>
-            </div>
-            <div class="govuk-checkboxes__item">
-              <input class="govuk-checkboxes__input" id="f-as-certificate-provider" name="asCertificateProvider" type="checkbox" value="1">
-              <label class="govuk-label govuk-checkboxes__label" for="f-as-certificate-provider">
-                As certificate provider
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="govuk-button-group govuk-!-padding-top-3">
-          <button type="submit" class="govuk-button" data-module="govuk-button">Start</button>
-        </div>
-        {{ template "csrf-field" . }}
-      </form>
+  <div class="govuk-form-group">
+    <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+      <div class="govuk-checkboxes__item">
+        <input class="govuk-checkboxes__input" id="f-as-donor" name="asDonor" type="checkbox" value="1" checked>
+        <label class="govuk-label govuk-checkboxes__label" for="f-as-donor">
+          As donor
+        </label>
+      </div>
+      <div class="govuk-checkboxes__item">
+        <input class="govuk-checkboxes__input" id="f-as-attorney" name="asAttorney" type="checkbox" value="1">
+        <label class="govuk-label govuk-checkboxes__label" for="f-as-attorney">
+          As attorney
+        </label>
+      </div>
+      <div class="govuk-checkboxes__item">
+        <input class="govuk-checkboxes__input" id="f-as-certificate-provider" name="asCertificateProvider" type="checkbox" value="1">
+        <label class="govuk-label govuk-checkboxes__label" for="f-as-certificate-provider">
+          As certificate provider
+        </label>
+      </div>
     </div>
   </div>
 {{ end }}

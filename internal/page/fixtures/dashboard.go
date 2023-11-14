@@ -30,10 +30,9 @@ func Dashboard(
 			asDonor               = r.FormValue("asDonor") == "1"
 			asAttorney            = r.FormValue("asAttorney") == "1"
 			asCertificateProvider = r.FormValue("asCertificateProvider") == "1"
-			redirect              = r.FormValue("redirect")
 		)
 
-		if r.Method != http.MethodPost && redirect == "" {
+		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
 			return tmpl(w, &fixturesData{App: appData})
 		}
 
