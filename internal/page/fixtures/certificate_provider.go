@@ -38,7 +38,7 @@ func CertificateProvider(
 			redirect = r.FormValue("redirect")
 		)
 
-		if r.Method != http.MethodPost && redirect == "" {
+		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
 			return tmpl(w, &fixturesData{App: appData})
 		}
 
