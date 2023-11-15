@@ -532,7 +532,7 @@ func ChooseReplacementAttorneysState(lpa *Lpa) actor.TaskState {
 	}
 
 	if lpa.ReplacementAttorneys.Len() == 0 {
-		if lpa.WantReplacementAttorneys != form.Yes && lpa.WantReplacementAttorneys != form.No {
+		if lpa.WantReplacementAttorneys.Empty() {
 			return actor.TaskNotStarted
 		}
 
@@ -544,13 +544,7 @@ func ChooseReplacementAttorneysState(lpa *Lpa) actor.TaskState {
 	}
 
 	if lpa.ReplacementAttorneys.Len() > 1 &&
-		lpa.HowShouldReplacementAttorneysStepIn != ReplacementAttorneysStepInWhenOneCanNoLongerAct &&
-		!lpa.ReplacementAttorneyDecisions.IsComplete() {
-		return actor.TaskInProgress
-	}
-
-	if lpa.AttorneyDecisions.How.IsJointly() &&
-		lpa.ReplacementAttorneys.Len() > 1 &&
+		(lpa.Attorneys.Len() == 1 || lpa.AttorneyDecisions.How.IsJointly() || lpa.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers()) &&
 		!lpa.ReplacementAttorneyDecisions.IsComplete() {
 		return actor.TaskInProgress
 	}
@@ -561,7 +555,7 @@ func ChooseReplacementAttorneysState(lpa *Lpa) actor.TaskState {
 		}
 
 		if lpa.ReplacementAttorneys.Len() > 1 &&
-			lpa.HowShouldReplacementAttorneysStepIn == ReplacementAttorneysStepInWhenAllCanNoLongerAct &&
+			lpa.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct() &&
 			!lpa.ReplacementAttorneyDecisions.IsComplete() {
 			return actor.TaskInProgress
 		}

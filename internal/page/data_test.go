@@ -824,7 +824,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				FirstNames: "b",
 				Email:      "b",
 			}}},
-			taskState: actor.TaskInProgress,
+			taskState: actor.TaskCompleted,
 		},
 		"multiple jointly and severally": {
 			want: form.Yes,
