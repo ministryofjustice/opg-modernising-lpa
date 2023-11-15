@@ -52,7 +52,7 @@ func EnterHomeAddress(logger Logger, tmpl template.Template, addressClient Addre
 						lpa.HasSentApplicationUpdatedEvent = false
 					}
 
-					lpa.Donor.Address = *data.Form.Address
+					certificateProvider.HomeAddress = *data.Form.Address
 
 					if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 						return err
