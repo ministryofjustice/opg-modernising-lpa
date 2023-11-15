@@ -200,21 +200,21 @@ describe.skip('Choose replacement attorneys task', () => {
         });
 
         it('is completed if step in as soon as one', () => {
-            cy.contains('label', 'As soon as one').click();
+            cy.contains('label', 'All together, as soon as one').click();
             cy.contains('button', 'Save and continue').click();
 
             cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('Completed (1)');
         });
 
         it('is completed if step in when none', () => {
-            cy.contains('label', 'When none').click();
+            cy.contains('label', 'All together, when none').click();
             cy.contains('button', 'Save and continue').click();
 
             cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('Completed (1)');
         });
 
         it('is completed if step in some other way', () => {
-            cy.contains('label', 'In some other way').click();
+            cy.contains('label', 'In a particular order').click();
             cy.get('textarea').type('Details');
             cy.contains('button', 'Save and continue').click();
 
@@ -301,7 +301,7 @@ describe.skip('Choose replacement attorneys task', () => {
         });
 
         it('is completed if step in as soon as one', () => {
-            cy.contains('label', 'As soon as one').click();
+            cy.contains('label', 'All together, as soon as one').click();
             cy.contains('button', 'Save and continue').click();
 
             cy.visitLpa('/task-list');
@@ -309,7 +309,7 @@ describe.skip('Choose replacement attorneys task', () => {
         });
 
         it('is in progress if step in when none', () => {
-            cy.contains('label', 'When none').click();
+            cy.contains('label', 'All together, when none').click();
             cy.contains('button', 'Save and continue').click();
 
             cy.visitLpa('/task-list');
@@ -317,7 +317,7 @@ describe.skip('Choose replacement attorneys task', () => {
         });
 
         it('is completed if step in when none and jointly and severally', () => {
-            cy.contains('label', 'When none').click();
+            cy.contains('label', 'All together, when none').click();
             cy.contains('button', 'Save and continue').click();
 
             cy.get('input[value=jointly-and-severally]').click();
@@ -327,7 +327,7 @@ describe.skip('Choose replacement attorneys task', () => {
         });
 
         it('is completed if step in when none and jointly', () => {
-            cy.contains('label', 'When none').click();
+            cy.contains('label', 'All together, when none').click();
             cy.contains('button', 'Save and continue').click();
 
             cy.get('input[value=jointly]').click();
@@ -338,7 +338,7 @@ describe.skip('Choose replacement attorneys task', () => {
         });
 
         it('is completed if step in when none and mixed', () => {
-            cy.contains('label', 'When none').click();
+            cy.contains('label', 'All together, when none').click();
             cy.contains('button', 'Save and continue').click();
 
             cy.get('input[value=mixed]').click();
@@ -349,8 +349,12 @@ describe.skip('Choose replacement attorneys task', () => {
             cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('Completed (2)');
         });
 
-        it('does not allow in some other way', () => {
-            cy.contains('label', 'In some other way').should('not.exist');
+        it('is completed if in some other way', () => {
+            cy.contains('label', 'In a particular order').click();
+            cy.get('textarea').type('Details');
+            cy.contains('button', 'Save and continue').click();
+
+            cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('Completed (2)');
         });
     });
 
