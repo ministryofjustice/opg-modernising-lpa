@@ -32,10 +32,11 @@ func CertificateProvider(
 
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		var (
-			lpaType  = r.FormValue("lpa-type")
-			progress = slices.Index(progressValues, r.FormValue("progress"))
-			email    = r.FormValue("email")
-			redirect = r.FormValue("redirect")
+			lpaType                           = r.FormValue("lpa-type")
+			progress                          = slices.Index(progressValues, r.FormValue("progress"))
+			email                             = r.FormValue("email")
+			redirect                          = r.FormValue("redirect")
+			asProfessionalCertificateProvider = r.FormValue("as-prof-cp") == "1"
 		)
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
@@ -77,6 +78,10 @@ func CertificateProvider(
 		lpa.CertificateProvider = makeCertificateProvider()
 		if email != "" {
 			lpa.CertificateProvider.Email = email
+		}
+
+		if asProfessionalCertificateProvider {
+			lpa.CertificateProvider.Relationship = actor.Professionally
 		}
 
 		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID)
@@ -134,9 +139,12 @@ func CertificateProvider(
 			return page.AppData{}.Redirect(w, r, nil, page.Paths.CertificateProviderStart.Format())
 		}
 
-		if redirect == "" {
+		switch redirect {
+		case "":
 			redirect = page.Paths.Dashboard.Format()
-		} else {
+		case page.Paths.CertificateProviderStart.Format():
+			redirect = page.Paths.CertificateProviderStart.Format()
+		default:
 			redirect = "/certificate-provider/" + lpa.ID + redirect
 		}
 

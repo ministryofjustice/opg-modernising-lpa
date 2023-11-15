@@ -891,5 +891,11 @@
     "appealingTheDecisionDetails": "<p class=\"govuk-body\">If your application is unsuccessful, you can appeal within 4 weeks of the decision by writing to the Head of Corporate Services.</p><p class=\"govuk-body\">If the original decision is upheld, it will be referred to the Public Guardian for confirmation.</p>",
     "removeTrustCorporation": "Remove trust corporation",
     "yesToRemoveTrustCorporation": "yes to remove the trust corporation",
-    "removeReplacementTrustCorporation": "Remove replacement trust corporation"
+    "removeReplacementTrustCorporation": "Remove replacement trust corporation",
+    "whatIsYourHomePostcode": "What is your home postcode?",
+    "homePostcode": "Home postcode",
+    "thisIsRequiredToCheckAndProtect": "This information is required to check your identity and protect against fraud.",
+    "yourHomeAddressWillNotBeShown": "Your home address will not be shown to the donor or appear on the completed LPA.",
+    "selectYourHomeAddress": "Select your home address",
+    "yourHomeAddress": "Your home address"
 }
