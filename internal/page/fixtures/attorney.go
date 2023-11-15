@@ -125,6 +125,9 @@ func Attorney(
 			TrustCorporation: makeTrustCorporation("Second Choice Trust Corporation Ltd."),
 		}
 
+		lpa.WhenCanTheLpaBeUsed = page.CanBeUsedWhenHasCapacity
+		lpa.LifeSustainingTreatmentOption = page.LifeSustainingTreatmentOptionA
+
 		if email != "" {
 			if isTrustCorporation {
 				if isReplacement {
