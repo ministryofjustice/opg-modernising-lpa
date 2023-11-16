@@ -119,6 +119,6 @@ func Dashboard(
 			}
 		}
 
-		return page.AppData{}.Redirect(w, r, nil, page.Paths.Dashboard.Format())
+		return page.AppData{}.Redirect(w, r, page.Paths.Dashboard.Format())
 	}
 }

@@ -21,7 +21,7 @@ func DeleteLpa(tmpl template.Template, donorStore DonorStore) Handler {
 				return err
 			}
 
-			return appData.Redirect(w, r, nil, page.Paths.LpaDeleted.Format()+"?uid="+lpa.UID)
+			return appData.Redirect(w, r, page.Paths.LpaDeleted.Format()+"?uid="+lpa.UID)
 		}
 
 		return tmpl(w, &deleteLpaData{

@@ -35,13 +35,13 @@ func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Han
 
 			if data.Errors.None() {
 				lpa.WantReplacementAttorneys = f.YesNo
-				var redirectUrl string
+				var redirectUrl page.LpaPath
 
 				if lpa.WantReplacementAttorneys == form.No {
 					lpa.ReplacementAttorneys = actor.Attorneys{}
-					redirectUrl = page.Paths.TaskList.Format(lpa.ID)
+					redirectUrl = page.Paths.TaskList
 				} else {
-					redirectUrl = page.Paths.ChooseReplacementAttorneys.Format(lpa.ID)
+					redirectUrl = page.Paths.ChooseReplacementAttorneys
 				}
 
 				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
@@ -50,12 +50,12 @@ func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Han
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, redirectUrl)
+				return redirectUrl.Redirect(w, r, appData, lpa)
 			}
 		}
 
 		if lpa.ReplacementAttorneys.Len() > 0 {
-			return appData.Redirect(w, r, lpa, page.Paths.ChooseReplacementAttorneysSummary.Format(lpa.ID))
+			return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, lpa)
 		}
 
 		return tmpl(w, data)

@@ -28,22 +28,12 @@ type AppData struct {
 	OneloginURL      string
 }
 
-func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, lpa *Lpa, url string) error {
+func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, url string) error {
 	if fromURL := r.FormValue("from"); fromURL != "" {
 		url = fromURL
 	}
 
-	if lpa != nil && d.LpaID == "" {
-		d.LpaID = lpa.ID
-	}
-
-	// as a shortcut for when you don't have an Lpa but know the transition is fine we allow passing nil
-	if lpa == nil || lpa.CanGoTo(url) {
-		http.Redirect(w, r, d.BuildUrl(url), http.StatusFound)
-	} else {
-		http.Redirect(w, r, d.BuildUrl(Paths.TaskList.Format(d.LpaID)), http.StatusFound)
-	}
-
+	http.Redirect(w, r, d.BuildUrl(url), http.StatusFound)
 	return nil
 }
 

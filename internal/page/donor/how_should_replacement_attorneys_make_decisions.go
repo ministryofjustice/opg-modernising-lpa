@@ -44,7 +44,7 @@ func HowShouldReplacementAttorneysMakeDecisions(tmpl template.Template, donorSto
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.TaskList.Format(lpa.ID))
+				return page.Paths.TaskList.Redirect(w, r, appData, lpa)
 			}
 		}
 

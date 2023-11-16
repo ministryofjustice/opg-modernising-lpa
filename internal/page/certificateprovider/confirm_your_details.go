@@ -40,7 +40,7 @@ func ConfirmYourDetails(tmpl template.Template, donorStore DonorStore, certifica
 				return err
 			}
 
-			return appData.Redirect(w, r, nil, redirect)
+			return appData.Redirect(w, r, redirect)
 		}
 
 		data := &confirmYourDetailsData{

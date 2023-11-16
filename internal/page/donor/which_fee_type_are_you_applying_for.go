@@ -37,9 +37,9 @@ func WhichFeeTypeAreYouApplyingFor(tmpl template.Template, donorStore DonorStore
 				}
 
 				if lpa.FeeType.IsRepeatApplicationFee() {
-					return appData.Redirect(w, r, lpa, page.Paths.PreviousApplicationNumber.Format(lpa.ID))
+					return page.Paths.PreviousApplicationNumber.Redirect(w, r, appData, lpa)
 				} else {
-					return appData.Redirect(w, r, lpa, page.Paths.EvidenceRequired.Format(lpa.ID))
+					return page.Paths.EvidenceRequired.Redirect(w, r, appData, lpa)
 				}
 			}
 		}

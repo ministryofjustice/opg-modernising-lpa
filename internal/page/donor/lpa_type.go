@@ -49,7 +49,7 @@ func LpaType(tmpl template.Template, donorStore DonorStore) Handler {
 					}
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.TaskList.Format(lpa.ID))
+				return page.Paths.TaskList.Redirect(w, r, appData, lpa)
 			}
 		}
 

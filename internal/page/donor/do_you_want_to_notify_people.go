@@ -22,7 +22,7 @@ type doYouWantToNotifyPeopleData struct {
 func DoYouWantToNotifyPeople(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if len(lpa.PeopleToNotify) > 0 {
-			return appData.Redirect(w, r, lpa, page.Paths.ChoosePeopleToNotifySummary.Format(lpa.ID))
+			return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, lpa)
 		}
 
 		data := &doYouWantToNotifyPeopleData{
@@ -51,10 +51,10 @@ func DoYouWantToNotifyPeople(tmpl template.Template, donorStore DonorStore) Hand
 				lpa.DoYouWantToNotifyPeople = data.Form.YesNo
 				lpa.Tasks.PeopleToNotify = actor.TaskInProgress
 
-				redirectPath := appData.Paths.ChoosePeopleToNotify.Format(lpa.ID)
+				redirectPath := appData.Paths.ChoosePeopleToNotify
 
 				if lpa.DoYouWantToNotifyPeople == form.No {
-					redirectPath = appData.Paths.TaskList.Format(lpa.ID)
+					redirectPath = appData.Paths.TaskList
 					lpa.Tasks.PeopleToNotify = actor.TaskCompleted
 				}
 
@@ -62,7 +62,7 @@ func DoYouWantToNotifyPeople(tmpl template.Template, donorStore DonorStore) Hand
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, redirectPath)
+				return redirectPath.Redirect(w, r, appData, lpa)
 			}
 		}
 

@@ -35,9 +35,9 @@ func HowWouldYouLikeToSendEvidence(tmpl template.Template, donorStore DonorStore
 				}
 
 				if lpa.EvidenceDelivery.IsUpload() {
-					return appData.Redirect(w, r, lpa, page.Paths.UploadEvidence.Format(lpa.ID))
+					return page.Paths.UploadEvidence.Redirect(w, r, appData, lpa)
 				} else {
-					return appData.Redirect(w, r, lpa, page.Paths.SendUsYourEvidenceByPost.Format(lpa.ID))
+					return page.Paths.SendUsYourEvidenceByPost.Redirect(w, r, appData, lpa)
 				}
 			}
 		}

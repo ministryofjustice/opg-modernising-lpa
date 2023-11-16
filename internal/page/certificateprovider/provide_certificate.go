@@ -31,7 +31,7 @@ func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func(
 		}
 
 		if lpa.SignedAt.IsZero() {
-			return appData.Redirect(w, r, lpa, page.Paths.CertificateProvider.TaskList.Format(lpa.ID))
+			return appData.Redirect(w, r, page.Paths.CertificateProvider.TaskList.Format(lpa.ID))
 		}
 
 		data := &provideCertificateData{
@@ -55,7 +55,7 @@ func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func(
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.CertificateProvider.CertificateProvided.Format(certificateProvider.LpaID))
+				return appData.Redirect(w, r, page.Paths.CertificateProvider.CertificateProvided.Format(certificateProvider.LpaID))
 			}
 		}
 

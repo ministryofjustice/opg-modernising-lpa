@@ -50,10 +50,10 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore Dono
 				}
 
 				if lpa.CertificateProvider.Relationship.IsPersonally() {
-					return appData.Redirect(w, r, lpa, page.Paths.HowLongHaveYouKnownCertificateProvider.Format(lpa.ID))
+					return page.Paths.HowLongHaveYouKnownCertificateProvider.Redirect(w, r, appData, lpa)
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Format(lpa.ID))
+				return page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Redirect(w, r, appData, lpa)
 			}
 		}
 

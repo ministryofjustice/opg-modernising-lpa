@@ -272,7 +272,7 @@ func Attorney(
 				Localizer: appData.Localizer,
 			}, lpa)
 
-			return page.AppData{}.Redirect(w, r, nil, page.Paths.Attorney.Start.Format())
+			return page.AppData{}.Redirect(w, r, page.Paths.Attorney.Start.Format())
 		}
 
 		if redirect == "" {
@@ -281,6 +281,6 @@ func Attorney(
 			redirect = "/attorney/" + lpa.ID + redirect
 		}
 
-		return page.AppData{}.Redirect(w, r, nil, redirect)
+		return page.AppData{}.Redirect(w, r, redirect)
 	}
 }

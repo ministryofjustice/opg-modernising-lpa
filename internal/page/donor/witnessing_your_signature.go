@@ -22,7 +22,7 @@ func WitnessingYourSignature(tmpl template.Template, witnessCodeSender WitnessCo
 			}
 
 			if lpa.Donor.CanSign.IsYes() {
-				return appData.Redirect(w, r, lpa, page.Paths.WitnessingAsCertificateProvider.Format(lpa.ID))
+				return page.Paths.WitnessingAsCertificateProvider.Redirect(w, r, appData, lpa)
 			} else {
 				lpa, err := donorStore.Get(r.Context())
 				if err != nil {
@@ -33,7 +33,7 @@ func WitnessingYourSignature(tmpl template.Template, witnessCodeSender WitnessCo
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.WitnessingAsIndependentWitness.Format(lpa.ID))
+				return page.Paths.WitnessingAsIndependentWitness.Redirect(w, r, appData, lpa)
 			}
 		}
 

@@ -77,7 +77,7 @@ func WitnessingAsCertificateProvider(tmpl template.Template, donorStore DonorSto
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.YouHaveSubmittedYourLpa.Format(lpa.ID))
+				return page.Paths.YouHaveSubmittedYourLpa.Redirect(w, r, appData, lpa)
 			}
 		}
 

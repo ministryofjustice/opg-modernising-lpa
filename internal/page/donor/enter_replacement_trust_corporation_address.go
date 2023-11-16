@@ -46,7 +46,7 @@ func EnterReplacementTrustCorporationAddress(logger Logger, tmpl template.Templa
 						return err
 					}
 
-					return appData.Redirect(w, r, lpa, page.Paths.ChooseReplacementAttorneysSummary.Format(lpa.ID))
+					return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, lpa)
 				}
 
 			case "postcode-select":
@@ -72,7 +72,7 @@ func EnterReplacementTrustCorporationAddress(logger Logger, tmpl template.Templa
 						return err
 					}
 
-					return appData.Redirect(w, r, lpa, page.Paths.ChooseReplacementAttorneysSummary.Format(lpa.ID))
+					return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, lpa)
 				} else {
 					data.Addresses = lpa.ActorAddresses()
 				}

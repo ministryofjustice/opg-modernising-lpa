@@ -64,7 +64,7 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 				}
 
 				appData.LpaID = shareCode.LpaID
-				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.WhoIsEligible.Format(shareCode.LpaID))
+				return appData.Redirect(w, r, page.Paths.CertificateProvider.WhoIsEligible.Format(shareCode.LpaID))
 			}
 		}
 

@@ -37,9 +37,9 @@ func WouldLikeSecondSignatory(tmpl template.Template, attorneyStore AttorneyStor
 				}
 
 				if form.YesNo.IsYes() {
-					return appData.Redirect(w, r, nil, page.Paths.Attorney.Sign.Format(attorneyProvidedDetails.LpaID)+"?second")
+					return appData.Redirect(w, r, page.Paths.Attorney.Sign.Format(attorneyProvidedDetails.LpaID)+"?second")
 				} else {
-					return appData.Redirect(w, r, nil, page.Paths.Attorney.WhatHappensNext.Format(attorneyProvidedDetails.LpaID))
+					return appData.Redirect(w, r, page.Paths.Attorney.WhatHappensNext.Format(attorneyProvidedDetails.LpaID))
 				}
 			}
 		}
