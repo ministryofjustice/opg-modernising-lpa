@@ -21,6 +21,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/mitchellh/hashstructure/v2"
 	"golang.org/x/exp/slices"
 )
 
@@ -70,6 +71,8 @@ const (
 // Lpa contains all the data related to the LPA application
 type Lpa struct {
 	PK, SK string
+	// Hash is used to determine whether the Lpa has been changed since last read
+	Hash uint64 `hash:"-"`
 	// Identifies the LPA being drafted
 	ID string
 	// A unique identifier created after sending basic LPA details to the UID service
@@ -77,7 +80,7 @@ type Lpa struct {
 	// CreatedAt is when the LPA was created
 	CreatedAt time.Time
 	// UpdatedAt is when the LPA was last updated
-	UpdatedAt time.Time
+	UpdatedAt time.Time `hash:"-"`
 	// The donor the LPA relates to
 	Donor actor.Donor
 	// Attorneys named in the LPA
@@ -98,8 +101,6 @@ type Lpa struct {
 	Restrictions string
 	// Used to show the task list
 	Tasks Tasks
-	// Whether the applicant has checked the LPA and is happy to share the LPA with the certificate provider
-	CheckedAndHappy bool
 	// PaymentDetails are records of payments made for the LPA via GOV.UK Pay
 	PaymentDetails []Payment
 	// Information returned by the identity service related to the applicant
@@ -124,6 +125,10 @@ type Lpa struct {
 	WantToApplyForLpa bool
 	// Confirmation that the applicant wants to sign the LPA
 	WantToSignLpa bool
+	// CheckedAt is when the donor checked their LPA
+	CheckedAt time.Time
+	// CheckedHash is the Hash value of the LPA when last checked
+	CheckedHash uint64 `hash:"-"`
 	// SignedAt is when the donor submitted their signature
 	SignedAt time.Time
 	// SubmittedAt is when the Lpa was sent to the OPG
@@ -133,7 +138,7 @@ type Lpa struct {
 	// WithdrawnAt is when the Lpa was withdrawn by the donor
 	WithdrawnAt time.Time
 	// Version is the number of times the LPA has been updated (auto-incremented on PUT)
-	Version int
+	Version int `hash:"-"`
 
 	// Codes used for the certificate provider to witness signing
 	CertificateProviderCodes WitnessCodes
@@ -155,9 +160,9 @@ type Lpa struct {
 	// PreviousFee is the fee previously paid for an LPA
 	PreviousFee pay.PreviousFee
 
-	HasSentUidRequestedEvent              bool
-	HasSentApplicationUpdatedEvent        bool
-	HasSentPreviousApplicationLinkedEvent bool
+	HasSentUidRequestedEvent              bool `hash:"-"`
+	HasSentApplicationUpdatedEvent        bool `hash:"-"`
+	HasSentPreviousApplicationLinkedEvent bool `hash:"-"`
 }
 
 type Payment struct {
@@ -216,6 +221,10 @@ func SessionDataFromContext(ctx context.Context) (*SessionData, error) {
 
 func ContextWithSessionData(ctx context.Context, data *SessionData) context.Context {
 	return context.WithValue(ctx, (*SessionData)(nil), data)
+}
+
+func (l *Lpa) GenerateHash() (uint64, error) {
+	return hashstructure.Hash(l, hashstructure.FormatV2, nil)
 }
 
 func (l *Lpa) DonorIdentityConfirmed() bool {
