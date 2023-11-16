@@ -57,9 +57,6 @@
                             <button name="action" value="postcode-select" class="govuk-button" data-module="govuk-button">{{ tr .App "continue" }}</button>
                             <a href="{{ link .App (.App.Paths.CertificateProvider.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
                         </div>
-
-
-
                     {{ else }}
                         <p class="govuk-body">{{ tr .App "thisIsRequiredToCheckAndProtect" }}</p>
 
