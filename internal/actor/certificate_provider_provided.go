@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
 // CertificateProviderProvidedDetails contains details about the certificate provider, provided by the certificate provider
@@ -16,6 +17,8 @@ type CertificateProviderProvidedDetails struct {
 	UpdatedAt time.Time
 	// Date of birth of the certificate provider
 	DateOfBirth date.Date
+	// HomeAddress is the personal address of the certificate provider
+	HomeAddress place.Address
 	// Data returned from an identity check
 	IdentityUserData identity.UserData
 	// Details of the certificate provided to the applicant
