@@ -34,6 +34,21 @@ describe('Check the LPA', () => {
         cy.url().should('contain', '/lpa-details-saved');
     });
 
+    it('does not allow checking when no changes', () => {
+        cy.get('#f-checked-and-happy').check()
+        cy.contains('button', 'Confirm').click();
+
+        cy.visitLpa('/check-your-lpa');
+        cy.contains('button', 'Confirm').should('not.exist');
+
+        cy.visitLpa('/restrictions');
+        cy.get('#f-restrictions').type('2');
+        cy.contains('button', 'Save and continue').click();
+
+        cy.visitLpa('/check-your-lpa');
+        cy.contains('button', 'Confirm');
+    });
+
     describe('CP acting on paper', () => {
         describe('on first check', () => {
             it('content is tailored for paper CPs, a details component is shown and nav redirects to payment', () => {
