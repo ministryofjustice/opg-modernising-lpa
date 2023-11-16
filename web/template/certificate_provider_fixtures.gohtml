@@ -9,6 +9,30 @@
 
   <div class="govuk-form-group">
     <fieldset class="govuk-fieldset">
+      <legend class="govuk-fieldset__legend">From</legend>
+      <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+        <div class="govuk-checkboxes__item">
+          <input class="govuk-checkboxes__input" id="f-redirect" name="redirect" type="checkbox" value="/certificate-provider-start">
+          <label class="govuk-label govuk-checkboxes__label" for="f-redirect">Start page</label>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+
+  <div class="govuk-form-group">
+    <fieldset class="govuk-fieldset">
+      <legend class="govuk-fieldset__legend">As</legend>
+      <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+        <div class="govuk-checkboxes__item">
+          <input class="govuk-checkboxes__input" id="f-as-prof-cp" name="as-prof-cp" type="checkbox" value="1">
+          <label class="govuk-label govuk-checkboxes__label" for="f-as-prof-cp">Professional</label>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+
+  <div class="govuk-form-group">
+    <fieldset class="govuk-fieldset">
       <legend class="govuk-fieldset__legend">Progress</legend>
 
       {{ template "radios" (items . "progress" "paid"
