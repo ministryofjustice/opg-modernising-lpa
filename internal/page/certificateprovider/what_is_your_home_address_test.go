@@ -51,11 +51,6 @@ func TestGetWhatIsYourHomeAddress(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
 			w := httptest.NewRecorder()
 
-			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("GetAny", r.Context()).
-				Return(&page.Lpa{}, nil)
-
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.
 				On("Get", r.Context()).
@@ -74,7 +69,7 @@ func TestGetWhatIsYourHomeAddress(t *testing.T) {
 				On("Execute", w, data).
 				Return(nil)
 
-			err := WhatIsYourHomeAddress(nil, template.Execute, nil, donorStore, certificateProviderStore)(testAppData, w, r)
+			err := WhatIsYourHomeAddress(nil, template.Execute, nil, certificateProviderStore)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -83,37 +78,16 @@ func TestGetWhatIsYourHomeAddress(t *testing.T) {
 	}
 }
 
-func TestGetWhatIsYourHomeAddressWhenDonorStoreError(t *testing.T) {
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-	w := httptest.NewRecorder()
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
-		Return(&page.Lpa{}, expectedError)
-
-	err := WhatIsYourHomeAddress(nil, nil, nil, donorStore, nil)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestGetWhatIsYourHomeAddressWhenCertificateProviderStoreError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
-	err := WhatIsYourHomeAddress(nil, nil, nil, donorStore, certificateProviderStore)(testAppData, w, r)
+	err := WhatIsYourHomeAddress(nil, nil, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -123,11 +97,6 @@ func TestGetWhatIsYourHomeAddressWhenCertificateProviderStoreError(t *testing.T)
 func TestGetWhatIsYourHomeAddressWhenTemplateError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -139,7 +108,7 @@ func TestGetWhatIsYourHomeAddressWhenTemplateError(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := WhatIsYourHomeAddress(nil, template.Execute, nil, donorStore, certificateProviderStore)(testAppData, w, r)
+	err := WhatIsYourHomeAddress(nil, template.Execute, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -160,11 +129,6 @@ func TestPostWhatIsYourHomeAddressManual(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
@@ -183,7 +147,7 @@ func TestPostWhatIsYourHomeAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WhatIsYourHomeAddress(nil, nil, nil, donorStore, certificateProviderStore)(testAppData, w, r)
+	err := WhatIsYourHomeAddress(nil, nil, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -205,11 +169,6 @@ func TestPostWhatIsYourHomeAddressManualWhenCertificateProviderStoreError(t *tes
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
-		Return(&page.Lpa{}, nil)
-
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
 		On("Get", r.Context()).
@@ -218,7 +177,7 @@ func TestPostWhatIsYourHomeAddressManualWhenCertificateProviderStoreError(t *tes
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := WhatIsYourHomeAddress(nil, nil, nil, donorStore, certificateProviderStore)(testAppData, w, r)
+	err := WhatIsYourHomeAddress(nil, nil, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -235,11 +194,6 @@ func TestPostWhatIsYourHomeAddressPostcodeSelect(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -258,7 +212,7 @@ func TestPostWhatIsYourHomeAddressPostcodeSelect(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WhatIsYourHomeAddress(nil, template.Execute, nil, donorStore, certificateProviderStore)(testAppData, w, r)
+	err := WhatIsYourHomeAddress(nil, template.Execute, nil, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -274,11 +228,6 @@ func TestPostWhatIsYourHomeAddressPostcodeSelectWhenValidationError(t *testing.T
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -307,7 +256,7 @@ func TestPostWhatIsYourHomeAddressPostcodeSelectWhenValidationError(t *testing.T
 		}).
 		Return(nil)
 
-	err := WhatIsYourHomeAddress(nil, template.Execute, addressClient, donorStore, certificateProviderStore)(testAppData, w, r)
+	err := WhatIsYourHomeAddress(nil, template.Execute, addressClient, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -323,11 +272,6 @@ func TestPostWhatIsYourHomeAddressPostcodeLookup(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -355,7 +299,7 @@ func TestPostWhatIsYourHomeAddressPostcodeLookup(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WhatIsYourHomeAddress(nil, template.Execute, addressClient, donorStore, certificateProviderStore)(testAppData, w, r)
+	err := WhatIsYourHomeAddress(nil, template.Execute, addressClient, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -371,11 +315,6 @@ func TestPostWhatIsYourHomeAddressPostcodeLookupWhenPostcodeNotFound(t *testing.
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -400,7 +339,7 @@ func TestPostWhatIsYourHomeAddressPostcodeLookupWhenPostcodeNotFound(t *testing.
 		}).
 		Return(nil)
 
-	err := WhatIsYourHomeAddress(nil, template.Execute, addressClient, donorStore, certificateProviderStore)(testAppData, w, r)
+	err := WhatIsYourHomeAddress(nil, template.Execute, addressClient, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -416,11 +355,6 @@ func TestPostWhatIsYourHomeAddressPostcodeLookupWhenInvalidPostcode(t *testing.T
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
-		Return(&page.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -450,7 +384,7 @@ func TestPostWhatIsYourHomeAddressPostcodeLookupWhenInvalidPostcode(t *testing.T
 		}).
 		Return(nil)
 
-	err := WhatIsYourHomeAddress(logger, template.Execute, addressClient, donorStore, certificateProviderStore)(testAppData, w, r)
+	err := WhatIsYourHomeAddress(logger, template.Execute, addressClient, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

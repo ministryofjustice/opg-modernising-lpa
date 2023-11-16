@@ -19,13 +19,8 @@ type whatIsYourHomeAddressData struct {
 	Errors    validation.List
 }
 
-func WhatIsYourHomeAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore, certificateProviderStore CertificateProviderStore) page.Handler {
+func WhatIsYourHomeAddress(logger Logger, tmpl template.Template, addressClient AddressClient, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.GetAny(r.Context())
-		if err != nil {
-			return err
-		}
-
 		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
@@ -56,7 +51,7 @@ func WhatIsYourHomeAddress(logger Logger, tmpl template.Template, addressClient 
 						return err
 					}
 
-					return appData.Redirect(w, r, lpa, page.Paths.CertificateProvider.ConfirmYourDetails.Format(certificateProvider.LpaID))
+					return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.ConfirmYourDetails.Format(certificateProvider.LpaID))
 				}
 
 			case "postcode-select":
