@@ -396,7 +396,7 @@ func TestPostWhatIsYourHomeAddressPostcodeLookupWhenPostcodeNotFound(t *testing.
 				LookupPostcode: "NG1",
 			},
 			Addresses: []place.Address{},
-			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "noYourHomeAddressesFound"}),
+			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "noYourAddressesFound"}),
 		}).
 		Return(nil)
 

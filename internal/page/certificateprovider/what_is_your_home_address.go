@@ -100,7 +100,7 @@ func lookupAddress(ctx context.Context, logger Logger, addressClient AddressClie
 
 		data.Form.Action = "postcode"
 	} else if len(addresses) == 0 {
-		data.Errors.Add("lookup-postcode", validation.CustomError{Label: "noYourHomeAddressesFound"})
+		data.Errors.Add("lookup-postcode", validation.CustomError{Label: "noYourAddressesFound"})
 		data.Form.Action = "postcode"
 	}
 
