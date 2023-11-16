@@ -37,7 +37,7 @@ func CertificateProvider(
 			progress                          = slices.Index(progressValues, r.FormValue("progress"))
 			email                             = r.FormValue("email")
 			redirect                          = r.FormValue("redirect")
-			asProfessionalCertificateProvider = r.FormValue("as-prof-cp") == "1"
+			asProfessionalCertificateProvider = r.FormValue("relationship") == "professional"
 		)
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {

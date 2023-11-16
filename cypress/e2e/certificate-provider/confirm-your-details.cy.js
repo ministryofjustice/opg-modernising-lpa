@@ -22,7 +22,7 @@ describe('Confirm your details', () => {
         });
 
         it('professional certificate providers', () => {
-            cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth&as-prof-cp=1');
+            cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth&relationship=professional');
 
             cy.get('#f-date-of-birth').type('1');
             cy.get('#f-date-of-birth-month').type('2');

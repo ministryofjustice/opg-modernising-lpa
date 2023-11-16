@@ -15,7 +15,7 @@ describe('Enter date of birth', () => {
 
 
         it('professional certificate provider', () => {
-            cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth&as-prof-cp=1');
+            cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth&relationship=professional');
             cy.checkA11yApp();
 
             cy.get('#f-date-of-birth').type('1');
