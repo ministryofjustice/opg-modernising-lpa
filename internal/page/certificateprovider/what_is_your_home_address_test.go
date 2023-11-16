@@ -32,7 +32,7 @@ func TestGetWhatIsYourHomeAddress(t *testing.T) {
 			certificateProvider: &actor.CertificateProviderProvidedDetails{
 				HomeAddress: testAddress,
 			},
-			expectedAction:      "postcode",
+			expectedAction:      "manual",
 			expectedFormAddress: &testAddress,
 			url:                 "/",
 		},

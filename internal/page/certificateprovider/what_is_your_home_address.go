@@ -32,8 +32,10 @@ func WhatIsYourHomeAddress(logger Logger, tmpl template.Template, addressClient 
 		}
 
 		data := &whatIsYourHomeAddressData{
-			App:  appData,
-			Form: &form.AddressForm{},
+			App: appData,
+			Form: &form.AddressForm{
+				Action: "postcode",
+			},
 		}
 
 		if certificateProvider.HomeAddress.Line1 != "" {
@@ -78,8 +80,6 @@ func WhatIsYourHomeAddress(logger Logger, tmpl template.Template, addressClient 
 			if action == "manual" {
 				data.Form.Action = "manual"
 				data.Form.Address = &place.Address{}
-			} else {
-				data.Form.Action = "postcode"
 			}
 		}
 
