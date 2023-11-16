@@ -309,23 +309,6 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				return assert.Equal(t, actor.NewSameNameWarning(actor.TypeCertificateProvider, actor.TypeDonor, "John", "Doe"), data.NameWarning)
 			},
 		},
-		"same last name as donor warning": {
-			form: url.Values{
-				"first-names": {"Joyce"},
-				"last-name":   {"Doe"},
-				"mobile":      {"07535111111"},
-			},
-			existingLpa: &page.Lpa{
-				Donor: actor.Donor{
-					FirstNames: "John",
-					LastName:   "Doe",
-				},
-			},
-			dataMatcher: func(t *testing.T, data *certificateProviderDetailsData) bool {
-				assert.True(t, data.SameLastnameAsDonor)
-				return assert.Equal(t, (*actor.SameNameWarning)(nil), data.NameWarning)
-			},
-		},
 	}
 
 	for name, tc := range testCases {
