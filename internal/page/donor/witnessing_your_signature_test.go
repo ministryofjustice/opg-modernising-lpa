@@ -79,7 +79,6 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 	lpa := &page.Lpa{
-		Version:               1,
 		ID:                    "lpa-id",
 		Donor:                 actor.Donor{CanSign: form.No},
 		DonorIdentityUserData: identity.UserData{OK: true},
@@ -92,7 +91,6 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 		Return(nil)
 	witnessCodeSender.
 		On("SendToIndependentWitness", r.Context(), &page.Lpa{
-			Version:               2,
 			ID:                    "lpa-id",
 			Donor:                 actor.Donor{CanSign: form.No},
 			DonorIdentityUserData: identity.UserData{OK: true},
@@ -104,7 +102,6 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 	donorStore.
 		On("Get", r.Context()).
 		Return(&page.Lpa{
-			Version:               2,
 			ID:                    "lpa-id",
 			Donor:                 actor.Donor{CanSign: form.No},
 			DonorIdentityUserData: identity.UserData{OK: true},
