@@ -196,7 +196,7 @@ func Donor(
 		}
 
 		if progress >= slices.Index(progressValues, "checkAndSendToYourCertificateProvider") {
-			lpa.CheckedAndHappy = true
+			lpa.CheckedAt = time.Now()
 			lpa.Tasks.CheckYourLpa = actor.TaskCompleted
 		}
 
