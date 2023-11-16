@@ -245,6 +245,45 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 	}
 }
 
+func TestPostEnterDateOfBirthWhenProfessionalCertificateProvider(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	form := url.Values{
+		"date-of-birth-day":   {"2"},
+		"date-of-birth-month": {"1"},
+		"date-of-birth-year":  {"1980"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
+		Return(&page.Lpa{ID: "lpa-id", CertificateProvider: actor.CertificateProvider{Relationship: actor.Professionally}}, nil)
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
+		On("Get", r.Context()).
+		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
+	certificateProviderStore.
+		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{
+			LpaID:       "lpa-id",
+			DateOfBirth: date.New("1980", "1", "2"),
+			Tasks: actor.CertificateProviderTasks{
+				ConfirmYourDetails: actor.TaskInProgress,
+			},
+		}).
+		Return(nil)
+
+	err := EnterDateOfBirth(nil, donorStore, certificateProviderStore)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.CertificateProvider.WhatIsYourHomeAddress.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
 func TestPostEnterDateOfBirthWhenInputRequired(t *testing.T) {
 	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
 
