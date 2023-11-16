@@ -1,8 +1,10 @@
 package donor
 
 import (
+	"context"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -13,22 +15,102 @@ import (
 )
 
 type checkYourLpaData struct {
-	App       page.AppData
-	Errors    validation.List
-	Lpa       *page.Lpa
-	Form      *checkYourLpaForm
-	Completed bool
+	App         page.AppData
+	Errors      validation.List
+	Lpa         *page.Lpa
+	Form        *checkYourLpaForm
+	Completed   bool
+	CanContinue bool
 }
 
-func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender ShareCodeSender, notifyClient NotifyClient, certificateProviderStore CertificateProviderStore) Handler {
+type checkYourLpaNotifier struct {
+	notifyClient             NotifyClient
+	shareCodeSender          ShareCodeSender
+	certificateProviderStore CertificateProviderStore
+}
+
+func (n *checkYourLpaNotifier) Notify(ctx context.Context, appData page.AppData, lpa *page.Lpa, wasCompleted bool) error {
+	if lpa.CertificateProvider.CarryOutBy.IsPaper() {
+		err := n.sendPaperNotification(ctx, appData, lpa, wasCompleted)
+		return err
+	}
+
+	err := n.sendOnlineNotification(ctx, appData, lpa, wasCompleted)
+	return err
+}
+
+func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appData page.AppData, lpa *page.Lpa, wasCompleted bool) error {
+	sms := notify.Sms{
+		PhoneNumber: lpa.CertificateProvider.Mobile,
+		Personalisation: map[string]string{
+			"donorFullName":   lpa.Donor.FullName(),
+			"donorFirstNames": lpa.Donor.FirstNames,
+		},
+	}
+
+	if wasCompleted {
+		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderPaperLpaDetailsChangedSMS)
+		sms.Personalisation["lpaId"] = lpa.ID
+	} else {
+		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderPaperMeetingPromptSMS)
+		sms.Personalisation["lpaType"] = appData.Localizer.T(lpa.Type.LegalTermTransKey())
+	}
+
+	_, err := n.notifyClient.Sms(ctx, sms)
+	return err
+}
+
+func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appData page.AppData, lpa *page.Lpa, wasCompleted bool) error {
+	if !wasCompleted {
+		err := n.shareCodeSender.SendCertificateProvider(ctx, notify.CertificateProviderInviteEmail, appData, true, lpa)
+		return err
+	}
+
+	certificateProvider, err := n.certificateProviderStore.GetAny(ctx)
+	if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
+		return err
+	}
+
+	sms := notify.Sms{
+		PhoneNumber: lpa.CertificateProvider.Mobile,
+	}
+
+	if certificateProvider.Tasks.ConfirmYourDetails.NotStarted() {
+		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderDigitalLpaDetailsChangedNotSeenLpaSMS)
+		sms.Personalisation = map[string]string{
+			"donorFullName": lpa.Donor.FullName(),
+			"lpaType":       appData.Localizer.T(lpa.Type.LegalTermTransKey()),
+		}
+	} else {
+		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderDigitalLpaDetailsChangedSeenLpaSMS)
+		sms.Personalisation = map[string]string{
+			"donorFullNamePossessive": appData.Localizer.Possessive(lpa.Donor.FullName()),
+			"lpaType":                 appData.Localizer.T(lpa.Type.LegalTermTransKey()),
+			"lpaId":                   lpa.ID,
+			"donorFirstNames":         lpa.Donor.FirstNames,
+		}
+	}
+
+	_, err = n.notifyClient.Sms(ctx, sms)
+	return err
+}
+
+func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender ShareCodeSender, notifyClient NotifyClient, certificateProviderStore CertificateProviderStore, now func() time.Time) Handler {
+	notifier := &checkYourLpaNotifier{
+		notifyClient:             notifyClient,
+		shareCodeSender:          shareCodeSender,
+		certificateProviderStore: certificateProviderStore,
+	}
+
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		data := &checkYourLpaData{
 			App: appData,
 			Lpa: lpa,
 			Form: &checkYourLpaForm{
-				CheckedAndHappy: lpa.CheckedAndHappy,
+				CheckedAndHappy: !lpa.CheckedAt.IsZero(),
 			},
-			Completed: lpa.Tasks.CheckYourLpa.Completed(),
+			Completed:   lpa.Tasks.CheckYourLpa.Completed(),
+			CanContinue: lpa.CheckedHash != lpa.Hash,
 		}
 
 		if r.Method == http.MethodPost {
@@ -42,69 +124,21 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 					redirect = redirect + "?firstCheck=1"
 				}
 
-				lpa.CheckedAndHappy = data.Form.CheckedAndHappy
 				lpa.Tasks.CheckYourLpa = actor.TaskCompleted
+				lpa.CheckedAt = now()
+
+				newHash, err := lpa.GenerateHash()
+				if err != nil {
+					return err
+				}
+				lpa.CheckedHash = newHash
 
 				if err := donorStore.Put(r.Context(), lpa); err != nil {
 					return err
 				}
 
-				if lpa.CertificateProvider.CarryOutBy.IsPaper() {
-					sms := notify.Sms{
-						PhoneNumber: lpa.CertificateProvider.Mobile,
-						Personalisation: map[string]string{
-							"donorFullName":   lpa.Donor.FullName(),
-							"donorFirstNames": lpa.Donor.FirstNames,
-						},
-					}
-
-					if data.Completed {
-						sms.TemplateID = notifyClient.TemplateID(notify.CertificateProviderPaperLpaDetailsChangedSMS)
-						sms.Personalisation["lpaId"] = lpa.ID
-					} else {
-						sms.TemplateID = notifyClient.TemplateID(notify.CertificateProviderPaperMeetingPromptSMS)
-						sms.Personalisation["lpaType"] = appData.Localizer.T(lpa.Type.LegalTermTransKey())
-					}
-
-					if _, err := notifyClient.Sms(r.Context(), sms); err != nil {
-						return err
-					}
-				} else {
-					if data.Completed {
-						certificateProvider, err := certificateProviderStore.GetAny(r.Context())
-
-						if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
-							return err
-						}
-
-						sms := notify.Sms{
-							PhoneNumber: lpa.CertificateProvider.Mobile,
-						}
-
-						if certificateProvider.Tasks.ConfirmYourDetails.NotStarted() {
-							sms.TemplateID = notifyClient.TemplateID(notify.CertificateProviderDigitalLpaDetailsChangedNotSeenLpaSMS)
-							sms.Personalisation = map[string]string{
-								"donorFullName": lpa.Donor.FullName(),
-								"lpaType":       appData.Localizer.T(lpa.Type.LegalTermTransKey()),
-							}
-						} else {
-							sms.TemplateID = notifyClient.TemplateID(notify.CertificateProviderDigitalLpaDetailsChangedSeenLpaSMS)
-							sms.Personalisation = map[string]string{
-								"donorFullNamePossessive": appData.Localizer.Possessive(lpa.Donor.FullName()),
-								"lpaType":                 appData.Localizer.T(lpa.Type.LegalTermTransKey()),
-								"lpaId":                   lpa.ID,
-								"donorFirstNames":         lpa.Donor.FirstNames,
-							}
-						}
-
-						if _, err := notifyClient.Sms(r.Context(), sms); err != nil {
-							return err
-						}
-					} else {
-						if err := shareCodeSender.SendCertificateProvider(r.Context(), notify.CertificateProviderInviteEmail, appData, true, lpa); err != nil {
-							return err
-						}
-					}
+				if err := notifier.Notify(r.Context(), appData, lpa, data.Completed); err != nil {
+					return err
 				}
 
 				return appData.Redirect(w, r, lpa, redirect)
