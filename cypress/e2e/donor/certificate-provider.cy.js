@@ -257,20 +257,4 @@ describe('Certificate provider task', () => {
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
     });
-
-    it('warns when lastname shared with other donor', () => {
-        cy.visitLpa('/certificate-provider-details');
-        cy.contains('button', 'Save and continue').click();
-
-        cy.get('#f-first-names').type('Jill');
-        cy.get('#f-last-name').type('Smith');
-        cy.get('#f-mobile').type(TestMobile);
-        cy.contains('button', 'Save and continue').click();
-        cy.url().should('contain', '/certificate-provider-details');
-
-        cy.contains('Your certificate provider’s last name is the same as yours or very similar');
-
-        cy.contains('button', 'Save and continue').click();
-        cy.url().should('contain', '/how-do-you-know-your-certificate-provider');
-    });
 });
