@@ -14,11 +14,16 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
+	"github.com/mitchellh/hashstructure/v2"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
 )
 
-var expectedError = errors.New("err")
+var (
+	expectedError = errors.New("err")
+	testNow       = time.Date(2023, time.April, 2, 3, 4, 5, 6, time.UTC)
+	testNowFn     = func() time.Time { return testNow }
+)
 
 func (m *mockDynamoClient) ExpectOne(ctx, pk, sk, data interface{}, err error) {
 	m.
@@ -180,18 +185,17 @@ func TestDonorStoreLatestWhenDataStoreError(t *testing.T) {
 
 func TestDonorStorePut(t *testing.T) {
 	ctx := context.Background()
-	now := time.Now()
 
 	testcases := map[string]struct {
 		input, saved *page.Lpa
 	}{
 		"no uid": {
-			input: &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true},
-			saved: &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true},
+			input: &page.Lpa{PK: "LPA#5", Hash: 5, SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true},
+			saved: &page.Lpa{PK: "LPA#5", Hash: 13284817533099450179, SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true},
 		},
 		"with uid": {
-			input: &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true, UID: "M"},
-			saved: &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true, UID: "M", UpdatedAt: now},
+			input: &page.Lpa{PK: "LPA#5", Hash: 5, SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true, UID: "M"},
+			saved: &page.Lpa{PK: "LPA#5", Hash: 10720866432253210668, SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true, UID: "M", UpdatedAt: testNow},
 		},
 	}
 
@@ -202,12 +206,23 @@ func TestDonorStorePut(t *testing.T) {
 				On("Put", ctx, tc.saved).
 				Return(nil)
 
-			donorStore := &donorStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
+			donorStore := &donorStore{dynamoClient: dynamoClient, now: testNowFn}
 
 			err := donorStore.Put(ctx, tc.input)
 			assert.Nil(t, err)
 		})
 	}
+}
+
+func TestDonorStorePutWhenNoChange(t *testing.T) {
+	ctx := context.Background()
+	donorStore := &donorStore{}
+
+	lpa := &page.Lpa{ID: "an-id"}
+	lpa.Hash, _ = hashstructure.Hash(lpa, hashstructure.FormatV2, nil)
+
+	err := donorStore.Put(ctx, lpa)
+	assert.Nil(t, err)
 }
 
 func TestDonorStorePutWhenError(t *testing.T) {
@@ -224,7 +239,6 @@ func TestDonorStorePutWhenError(t *testing.T) {
 
 func TestDonorStorePutWhenUIDNeeded(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
-	now := time.Now()
 
 	eventClient := newMockEventClient(t)
 	eventClient.
@@ -243,9 +257,10 @@ func TestDonorStorePutWhenUIDNeeded(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
 		On("Put", ctx, &page.Lpa{
-			PK: "LPA#5",
-			SK: "#DONOR#an-id",
-			ID: "5",
+			PK:   "LPA#5",
+			SK:   "#DONOR#an-id",
+			Hash: 4950301396988640020,
+			ID:   "5",
 			Donor: actor.Donor{
 				FirstNames:  "John",
 				LastName:    "Smith",
@@ -260,7 +275,7 @@ func TestDonorStorePutWhenUIDNeeded(t *testing.T) {
 		}).
 		Return(nil)
 
-	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, now: func() time.Time { return now }}
+	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient}
 
 	err := donorStore.Put(ctx, &page.Lpa{
 		PK: "LPA#5",
@@ -335,14 +350,13 @@ func TestDonorStorePutWhenUIDFails(t *testing.T) {
 
 func TestDonorStorePutWhenApplicationUpdatedWhenError(t *testing.T) {
 	ctx := context.Background()
-	now := time.Now()
 
 	eventClient := newMockEventClient(t)
 	eventClient.
 		On("SendApplicationUpdated", ctx, mock.Anything).
 		Return(expectedError)
 
-	donorStore := &donorStore{eventClient: eventClient, now: func() time.Time { return now }}
+	donorStore := &donorStore{eventClient: eventClient, now: testNowFn}
 
 	err := donorStore.Put(ctx, &page.Lpa{
 		PK:  "LPA#5",
@@ -365,7 +379,6 @@ func TestDonorStorePutWhenApplicationUpdatedWhenError(t *testing.T) {
 
 func TestDonorStorePutWhenPreviousApplicationLinked(t *testing.T) {
 	ctx := context.Background()
-	now := time.Now()
 
 	eventClient := newMockEventClient(t)
 	eventClient.
@@ -380,16 +393,17 @@ func TestDonorStorePutWhenPreviousApplicationLinked(t *testing.T) {
 		On("Put", ctx, &page.Lpa{
 			PK:                                    "LPA#5",
 			SK:                                    "#DONOR#an-id",
+			Hash:                                  13521670104127762466,
 			ID:                                    "5",
 			UID:                                   "M-1111",
-			UpdatedAt:                             now,
+			UpdatedAt:                             testNow,
 			PreviousApplicationNumber:             "5555",
 			HasSentApplicationUpdatedEvent:        true,
 			HasSentPreviousApplicationLinkedEvent: true,
 		}).
 		Return(nil)
 
-	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, now: func() time.Time { return now }}
+	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, now: testNowFn}
 
 	err := donorStore.Put(ctx, &page.Lpa{
 		PK:                             "LPA#5",
@@ -405,14 +419,13 @@ func TestDonorStorePutWhenPreviousApplicationLinked(t *testing.T) {
 
 func TestDonorStorePutWhenPreviousApplicationLinkedWontResend(t *testing.T) {
 	ctx := context.Background()
-	now := time.Now()
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
 		On("Put", ctx, mock.Anything).
 		Return(nil)
 
-	donorStore := &donorStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
+	donorStore := &donorStore{dynamoClient: dynamoClient, now: testNowFn}
 
 	err := donorStore.Put(ctx, &page.Lpa{
 		PK:                                    "LPA#5",
@@ -429,14 +442,13 @@ func TestDonorStorePutWhenPreviousApplicationLinkedWontResend(t *testing.T) {
 
 func TestDonorStorePutWhenPreviousApplicationLinkedWhenError(t *testing.T) {
 	ctx := context.Background()
-	now := time.Now()
 
 	eventClient := newMockEventClient(t)
 	eventClient.
 		On("SendPreviousApplicationLinked", ctx, mock.Anything).
 		Return(expectedError)
 
-	donorStore := &donorStore{eventClient: eventClient, now: func() time.Time { return now }}
+	donorStore := &donorStore{eventClient: eventClient, now: testNowFn}
 
 	err := donorStore.Put(ctx, &page.Lpa{
 		PK:                             "LPA#5",
@@ -451,18 +463,17 @@ func TestDonorStorePutWhenPreviousApplicationLinkedWhenError(t *testing.T) {
 
 func TestDonorStoreCreate(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
-	now := time.Now()
-	lpa := &page.Lpa{PK: "LPA#10100000", SK: "#DONOR#an-id", ID: "10100000", CreatedAt: now, Version: 1}
+	lpa := &page.Lpa{PK: "LPA#10100000", SK: "#DONOR#an-id", Hash: 7193312000565147901, ID: "10100000", CreatedAt: testNow}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
 		On("Create", ctx, lpa).
 		Return(nil)
 	dynamoClient.
-		On("Create", ctx, lpaLink{PK: "LPA#10100000", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor, UpdatedAt: now}).
+		On("Create", ctx, lpaLink{PK: "LPA#10100000", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor, UpdatedAt: testNow}).
 		Return(nil)
 
-	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }, now: func() time.Time { return now }}
+	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }, now: testNowFn}
 
 	result, err := donorStore.Create(ctx)
 	assert.Nil(t, err)
@@ -480,7 +491,6 @@ func TestDonorStoreCreateWithSessionMissing(t *testing.T) {
 
 func TestDonorStoreCreateWhenError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
-	now := time.Now()
 
 	testcases := map[string]func(*testing.T) *mockDynamoClient{
 		"certificate provider record": func(t *testing.T) *mockDynamoClient {
@@ -512,7 +522,7 @@ func TestDonorStoreCreateWhenError(t *testing.T) {
 			donorStore := &donorStore{
 				dynamoClient: dynamoClient,
 				uuidString:   func() string { return "10100000" },
-				now:          func() time.Time { return now },
+				now:          testNowFn,
 			}
 
 			_, err := donorStore.Create(ctx)
