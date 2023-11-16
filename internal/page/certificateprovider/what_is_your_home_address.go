@@ -12,14 +12,14 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type enterHomeAddressData struct {
+type whatIsYourHomeAddressData struct {
 	App       page.AppData
 	Addresses []place.Address
 	Form      *form.AddressForm
 	Errors    validation.List
 }
 
-func EnterHomeAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore, certificateProviderStore CertificateProviderStore) page.Handler {
+func WhatIsYourHomeAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := donorStore.GetAny(r.Context())
 		if err != nil {
@@ -31,7 +31,7 @@ func EnterHomeAddress(logger Logger, tmpl template.Template, addressClient Addre
 			return err
 		}
 
-		data := &enterHomeAddressData{
+		data := &whatIsYourHomeAddressData{
 			App:  appData,
 			Form: &form.AddressForm{},
 		}
@@ -48,10 +48,6 @@ func EnterHomeAddress(logger Logger, tmpl template.Template, addressClient Addre
 			switch data.Form.Action {
 			case "manual":
 				if data.Errors.None() {
-					if lpa.Donor.Address.Postcode != data.Form.Address.Postcode {
-						lpa.HasSentApplicationUpdatedEvent = false
-					}
-
 					certificateProvider.HomeAddress = *data.Form.Address
 
 					if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
@@ -91,7 +87,7 @@ func EnterHomeAddress(logger Logger, tmpl template.Template, addressClient Addre
 	}
 }
 
-func lookupAddress(ctx context.Context, logger Logger, addressClient AddressClient, data *enterHomeAddressData) {
+func lookupAddress(ctx context.Context, logger Logger, addressClient AddressClient, data *whatIsYourHomeAddressData) {
 	addresses, err := addressClient.LookupPostcode(ctx, data.Form.LookupPostcode)
 	if err != nil {
 		logger.Print(err)

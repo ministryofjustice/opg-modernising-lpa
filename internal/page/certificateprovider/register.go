@@ -105,7 +105,7 @@ func Register(
 	handleCertificateProvider(page.Paths.CertificateProvider.EnterDateOfBirth,
 		EnterDateOfBirth(tmpls.Get("certificate_provider_enter_date_of_birth.gohtml"), donorStore, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.WhatIsYourHomeAddress,
-		EnterHomeAddress(logger, tmpls.Get("certificate_provider_what_is_your_home_address.gohtml"), addressClient, donorStore, certificateProviderStore))
+		WhatIsYourHomeAddress(logger, tmpls.Get("certificate_provider_what_is_your_home_address.gohtml"), addressClient, donorStore, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.ConfirmYourDetails,
 		ConfirmYourDetails(tmpls.Get("certificate_provider_confirm_your_details.gohtml"), donorStore, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.YourRole,
