@@ -1,5 +1,10 @@
 package page
 
+import (
+	"net/http"
+	"net/url"
+)
+
 type Path string
 
 func (p Path) String() string {
@@ -18,6 +23,36 @@ func (p LpaPath) String() string {
 
 func (p LpaPath) Format(id string) string {
 	return "/lpa/" + id + string(p)
+}
+
+func (p LpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData, lpa *Lpa) error {
+	rurl := p.Format(lpa.ID)
+	if fromURL := r.FormValue("from"); fromURL != "" {
+		rurl = fromURL
+	}
+
+	if lpa.CanGoTo(rurl) {
+		http.Redirect(w, r, appData.BuildUrl(rurl), http.StatusFound)
+	} else {
+		http.Redirect(w, r, appData.BuildUrl(Paths.TaskList.Format(lpa.ID)), http.StatusFound)
+	}
+
+	return nil
+}
+
+func (p LpaPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, lpa *Lpa, query url.Values) error {
+	rurl := p.Format(lpa.ID) + "?" + query.Encode()
+	if fromURL := r.FormValue("from"); fromURL != "" {
+		rurl = fromURL
+	}
+
+	if lpa.CanGoTo(rurl) {
+		http.Redirect(w, r, appData.BuildUrl(rurl), http.StatusFound)
+	} else {
+		http.Redirect(w, r, appData.BuildUrl(Paths.TaskList.Format(lpa.ID)), http.StatusFound)
+	}
+
+	return nil
 }
 
 type AttorneyPath string

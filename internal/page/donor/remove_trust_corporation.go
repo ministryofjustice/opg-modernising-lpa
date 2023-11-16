@@ -63,7 +63,7 @@ func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, isRep
 					}
 				}
 
-				return appData.Redirect(w, r, lpa, redirect.Format(lpa.ID))
+				return redirect.Redirect(w, r, appData, lpa)
 			}
 		}
 

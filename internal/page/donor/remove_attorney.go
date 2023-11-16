@@ -26,7 +26,7 @@ func RemoveAttorney(logger Logger, tmpl template.Template, donorStore DonorStore
 		attorney, found := lpa.Attorneys.Get(id)
 
 		if found == false {
-			return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneysSummary.Format(lpa.ID))
+			return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, lpa)
 		}
 
 		data := &removeAttorneyData{
@@ -57,7 +57,7 @@ func RemoveAttorney(logger Logger, tmpl template.Template, donorStore DonorStore
 					}
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneysSummary.Format(lpa.ID))
+				return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, lpa)
 			}
 		}
 
