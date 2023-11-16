@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"time"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -31,6 +32,8 @@ var (
 		Lang:      localize.En,
 		Paths:     page.Paths,
 	}
+	testNow   = time.Date(2023, time.July, 3, 4, 5, 6, 1, time.UTC)
+	testNowFn = func() time.Time { return testNow }
 )
 
 func (m *mockDonorStore) willReturnEmptyLpa(r *http.Request) *mockDonorStore {
