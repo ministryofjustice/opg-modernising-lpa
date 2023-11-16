@@ -39,7 +39,7 @@ func ResendWitnessCode(tmpl template.Template, witnessCodeSender WitnessCodeSend
 				return err
 			}
 
-			return appData.Redirect(w, r, lpa, redirect.Format(lpa.ID))
+			return redirect.Redirect(w, r, appData, lpa)
 		}
 
 		return tmpl(w, data)

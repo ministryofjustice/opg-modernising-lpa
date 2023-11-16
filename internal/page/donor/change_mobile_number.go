@@ -69,7 +69,7 @@ func ChangeMobileNumber(tmpl template.Template, witnessCodeSender WitnessCodeSen
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, redirect.Format(lpa.ID))
+				return redirect.Redirect(w, r, appData, lpa)
 			}
 		}
 
