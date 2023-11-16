@@ -27,7 +27,7 @@ func ConfirmYourDetails(tmpl template.Template, attorneyStore AttorneyStore, don
 				return err
 			}
 
-			return appData.Redirect(w, r, nil, page.Paths.Attorney.ReadTheLpa.Format(attorneyProvidedDetails.LpaID))
+			return appData.Redirect(w, r, page.Paths.Attorney.ReadTheLpa.Format(attorneyProvidedDetails.LpaID))
 		}
 
 		lpa, err := donorStore.GetAny(r.Context())

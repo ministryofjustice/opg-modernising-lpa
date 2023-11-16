@@ -23,7 +23,7 @@ func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.
 				return err
 			}
 
-			return appData.Redirect(w, r, nil, page.Paths.LpaWithdrawn.Format()+"?uid="+lpa.UID)
+			return appData.Redirect(w, r, page.Paths.LpaWithdrawn.Format()+"?uid="+lpa.UID)
 		}
 
 		return tmpl(w, &withdrawLpaData{
