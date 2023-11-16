@@ -61,7 +61,7 @@
                         <p class="govuk-body">{{ tr .App "thisIsRequiredToCheckAndProtect" }}</p>
 
                         <div id="find" class="govuk-form-group govuk-!-margin-bottom-6  {{ if .Errors.Has "lookup-postcode" }}govuk-form-group--error{{ end }}">
-                            <label class="govuk-label govuk-label--m" for="f-lookup-postcode">
+                            <label class="govuk-label govuk-label--s" for="f-lookup-postcode">
                                 {{ tr .App "homePostcode" }}
                             </label>
                             {{ template "error-message" (errorMessage . "lookup-postcode") }}
