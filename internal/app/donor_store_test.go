@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
+	"github.com/mitchellh/hashstructure/v2"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -186,12 +187,12 @@ func TestDonorStorePut(t *testing.T) {
 		input, saved *page.Lpa
 	}{
 		"no uid": {
-			input: &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true},
-			saved: &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true},
+			input: &page.Lpa{PK: "LPA#5", Hash: 5, SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true},
+			saved: &page.Lpa{PK: "LPA#5", Hash: 4674964479521614595, SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true},
 		},
 		"with uid": {
-			input: &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true, UID: "M"},
-			saved: &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true, UID: "M", UpdatedAt: now},
+			input: &page.Lpa{PK: "LPA#5", Hash: 5, SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true, UID: "M"},
+			saved: &page.Lpa{PK: "LPA#5", Hash: 13048968821828315402, SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true, UID: "M", UpdatedAt: now},
 		},
 	}
 
@@ -208,6 +209,17 @@ func TestDonorStorePut(t *testing.T) {
 			assert.Nil(t, err)
 		})
 	}
+}
+
+func TestDonorStorePutWhenNoChange(t *testing.T) {
+	ctx := context.Background()
+	donorStore := &donorStore{}
+
+	lpa := &page.Lpa{ID: "an-id"}
+	lpa.Hash, _ = hashstructure.Hash(lpa, hashstructure.FormatV2, nil)
+
+	err := donorStore.Put(ctx, lpa)
+	assert.Nil(t, err)
 }
 
 func TestDonorStorePutWhenError(t *testing.T) {
@@ -243,9 +255,10 @@ func TestDonorStorePutWhenUIDNeeded(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
 		On("Put", ctx, &page.Lpa{
-			PK: "LPA#5",
-			SK: "#DONOR#an-id",
-			ID: "5",
+			PK:   "LPA#5",
+			SK:   "#DONOR#an-id",
+			Hash: 8784571114962839539,
+			ID:   "5",
 			Donor: actor.Donor{
 				FirstNames:  "John",
 				LastName:    "Smith",
@@ -380,6 +393,7 @@ func TestDonorStorePutWhenPreviousApplicationLinked(t *testing.T) {
 		On("Put", ctx, &page.Lpa{
 			PK:                                    "LPA#5",
 			SK:                                    "#DONOR#an-id",
+			Hash:                                  15423628355520621350,
 			ID:                                    "5",
 			UID:                                   "M-1111",
 			UpdatedAt:                             now,
@@ -452,7 +466,7 @@ func TestDonorStorePutWhenPreviousApplicationLinkedWhenError(t *testing.T) {
 func TestDonorStoreCreate(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
 	now := time.Now()
-	lpa := &page.Lpa{PK: "LPA#10100000", SK: "#DONOR#an-id", ID: "10100000", CreatedAt: now, Version: 1}
+	lpa := &page.Lpa{PK: "LPA#10100000", SK: "#DONOR#an-id", Hash: 223735405608242074, ID: "10100000", CreatedAt: now}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.

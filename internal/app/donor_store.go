@@ -59,12 +59,16 @@ func (s *donorStore) Create(ctx context.Context) (*page.Lpa, error) {
 		SK:        donorKey(data.SessionID),
 		ID:        lpaID,
 		CreatedAt: s.now(),
-		Version:   1,
+	}
+
+	if lpa.Hash, err = lpa.NewHash(); err != nil {
+		return nil, err
 	}
 
 	if err := s.dynamoClient.Create(ctx, lpa); err != nil {
 		return nil, err
 	}
+
 	if err := s.dynamoClient.Create(ctx, lpaLink{
 		PK:        lpaKey(lpaID),
 		SK:        subKey(data.SessionID),
@@ -130,6 +134,13 @@ func (s *donorStore) Latest(ctx context.Context) (*page.Lpa, error) {
 }
 
 func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
+	newHash, err := lpa.NewHash()
+	if newHash == lpa.Hash || err != nil {
+		return err
+	}
+
+	lpa.Hash = newHash
+
 	// By not setting UpdatedAt until a UID exists, queries for SK=#DONOR#xyz on
 	// ActorUpdatedAtIndex will not return UID-less LPAs.
 	if lpa.UID != "" {
