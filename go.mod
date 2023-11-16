@@ -22,6 +22,7 @@ require (
 	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/sessions v1.2.2
 	github.com/ministryofjustice/opg-go-common v0.0.0-20231106092059-b3dcf8bd1eeb
+	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/nicksnyder/go-i18n/v2 v2.2.2
 	github.com/pact-foundation/pact-go v1.8.0
 	github.com/stretchr/testify v1.8.4
@@ -70,7 +71,6 @@ require (
 	github.com/hashicorp/go-version v1.5.0 // indirect
 	github.com/hashicorp/logutils v1.0.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
-	github.com/mitchellh/hashstructure/v2 v2.0.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect

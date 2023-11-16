@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
@@ -32,10 +33,11 @@ func CertificateProvider(
 
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		var (
-			lpaType  = r.FormValue("lpa-type")
-			progress = slices.Index(progressValues, r.FormValue("progress"))
-			email    = r.FormValue("email")
-			redirect = r.FormValue("redirect")
+			lpaType                           = r.FormValue("lpa-type")
+			progress                          = slices.Index(progressValues, r.FormValue("progress"))
+			email                             = r.FormValue("email")
+			redirect                          = r.FormValue("redirect")
+			asProfessionalCertificateProvider = r.FormValue("relationship") == "professional"
 		)
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
@@ -79,6 +81,10 @@ func CertificateProvider(
 			lpa.CertificateProvider.Email = email
 		}
 
+		if asProfessionalCertificateProvider {
+			lpa.CertificateProvider.Relationship = actor.Professionally
+		}
+
 		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID)
 		if err != nil {
 			return err
@@ -99,6 +105,16 @@ func CertificateProvider(
 		if progress >= slices.Index(progressValues, "confirmYourDetails") {
 			certificateProvider.DateOfBirth = date.New("1990", "1", "2")
 			certificateProvider.Tasks.ConfirmYourDetails = actor.TaskCompleted
+
+			if asProfessionalCertificateProvider {
+				certificateProvider.HomeAddress = place.Address{
+					Line1:      "6 RICHMOND PLACE",
+					Line2:      "KINGS HEATH",
+					Line3:      "WEST MIDLANDS",
+					TownOrCity: "BIRMINGHAM",
+					Postcode:   "B14 7ED",
+				}
+			}
 		}
 
 		if progress >= slices.Index(progressValues, "confirmYourIdentity") {
@@ -134,9 +150,12 @@ func CertificateProvider(
 			return page.AppData{}.Redirect(w, r, nil, page.Paths.CertificateProviderStart.Format())
 		}
 
-		if redirect == "" {
+		switch redirect {
+		case "":
 			redirect = page.Paths.Dashboard.Format()
-		} else {
+		case page.Paths.CertificateProviderStart.Format():
+			redirect = page.Paths.CertificateProviderStart.Format()
+		default:
 			redirect = "/certificate-provider/" + lpa.ID + redirect
 		}
 
