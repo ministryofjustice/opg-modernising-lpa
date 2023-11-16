@@ -31,12 +31,10 @@ type checkYourLpaNotifier struct {
 
 func (n *checkYourLpaNotifier) Notify(ctx context.Context, appData page.AppData, lpa *page.Lpa, wasCompleted bool) error {
 	if lpa.CertificateProvider.CarryOutBy.IsPaper() {
-		err := n.sendPaperNotification(ctx, appData, lpa, wasCompleted)
-		return err
+		return n.sendPaperNotification(ctx, appData, lpa, wasCompleted)
 	}
 
-	err := n.sendOnlineNotification(ctx, appData, lpa, wasCompleted)
-	return err
+	return n.sendOnlineNotification(ctx, appData, lpa, wasCompleted)
 }
 
 func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appData page.AppData, lpa *page.Lpa, wasCompleted bool) error {
@@ -62,8 +60,7 @@ func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appDat
 
 func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appData page.AppData, lpa *page.Lpa, wasCompleted bool) error {
 	if !wasCompleted {
-		err := n.shareCodeSender.SendCertificateProvider(ctx, notify.CertificateProviderInviteEmail, appData, true, lpa)
-		return err
+		return n.shareCodeSender.SendCertificateProvider(ctx, notify.CertificateProviderInviteEmail, appData, true, lpa)
 	}
 
 	certificateProvider, err := n.certificateProviderStore.GetAny(ctx)
