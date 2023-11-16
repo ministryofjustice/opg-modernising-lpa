@@ -147,6 +147,18 @@ func TestReplacementAttorneysStepIn(t *testing.T) {
 	})
 }
 
+func TestGenerateHash(t *testing.T) {
+	lpa := &Lpa{}
+	hash, err := lpa.GenerateHash()
+	assert.Nil(t, err)
+	assert.Equal(t, uint64(0xd5ba9fc7cde6ef7f), hash)
+
+	lpa.ID = "1"
+	hash, err = lpa.GenerateHash()
+	assert.Nil(t, err)
+	assert.Equal(t, uint64(0xc92bf9efb0734311), hash)
+}
+
 func TestIdentityConfirmed(t *testing.T) {
 	testCases := map[string]struct {
 		lpa      *Lpa
