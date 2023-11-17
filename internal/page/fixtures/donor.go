@@ -356,6 +356,7 @@ func Donor(
 		}
 
 		random.UseTestCode = true
-		return page.AppData{}.Redirect(w, r, redirect)
+		http.Redirect(w, r, redirect, http.StatusFound)
+		return nil
 	}
 }

@@ -29,10 +29,6 @@ type AppData struct {
 }
 
 func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, url string) error {
-	if fromURL := r.FormValue("from"); fromURL != "" {
-		url = fromURL
-	}
-
 	http.Redirect(w, r, d.BuildUrl(url), http.StatusFound)
 	return nil
 }

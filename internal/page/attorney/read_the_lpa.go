@@ -24,7 +24,7 @@ func ReadTheLpa(tmpl template.Template, donorStore DonorStore, attorneyStore Att
 				return err
 			}
 
-			return appData.Redirect(w, r, page.Paths.Attorney.RightsAndResponsibilities.Format(attorneyProvidedDetails.LpaID))
+			return page.Paths.Attorney.RightsAndResponsibilities.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 		}
 
 		lpa, err := donorStore.GetAny(r.Context())

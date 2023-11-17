@@ -3,6 +3,7 @@ package page
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -17,6 +18,32 @@ func TestPathString(t *testing.T) {
 
 func TestPathFormat(t *testing.T) {
 	assert.Equal(t, "/anything", Path("/anything").Format())
+}
+
+func TestPathRedirect(t *testing.T) {
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	w := httptest.NewRecorder()
+	p := Path("/something")
+
+	err := p.Redirect(w, r, AppData{Lang: localize.En})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, p.Format(), resp.Header.Get("Location"))
+}
+
+func TestPathRedirectQuery(t *testing.T) {
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	w := httptest.NewRecorder()
+	p := Path("/something")
+
+	err := p.RedirectQuery(w, r, AppData{Lang: localize.En}, url.Values{"q": {"1"}})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, p.Format()+"?q=1", resp.Header.Get("Location"))
 }
 
 func TestLpaPathString(t *testing.T) {
@@ -77,14 +104,28 @@ func TestLpaPathRedirect(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
 			w := httptest.NewRecorder()
 
-			Paths.HowToConfirmYourIdentityAndSign.Redirect(w, r, AppData{Lang: localize.En}, tc.lpa)
+			err := Paths.HowToConfirmYourIdentityAndSign.Redirect(w, r, AppData{Lang: localize.En}, tc.lpa)
 			resp := w.Result()
 
+			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
 			assert.Equal(t, tc.expected, resp.Header.Get("Location"))
 		})
 	}
 }
+
+func TestLpaPathRedirectQuery(t *testing.T) {
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	w := httptest.NewRecorder()
+
+	err := Paths.TaskList.RedirectQuery(w, r, AppData{Lang: localize.En}, &Lpa{ID: "lpa-id"}, url.Values{"q": {"1"}})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, Paths.TaskList.Format("lpa-id")+"?q=1", resp.Header.Get("Location"))
+}
+
 func TestAttorneyPathString(t *testing.T) {
 	assert.Equal(t, "/anything", AttorneyPath("/anything").String())
 }
@@ -93,10 +134,49 @@ func TestAttorneyPathFormat(t *testing.T) {
 	assert.Equal(t, "/attorney/abc/anything", AttorneyPath("/anything").Format("abc"))
 }
 
+func TestAttorneyPathRedirect(t *testing.T) {
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	w := httptest.NewRecorder()
+	p := AttorneyPath("/something")
+
+	err := p.Redirect(w, r, AppData{Lang: localize.En}, "lpa-id")
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, p.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestAttorneyPathRedirectQuery(t *testing.T) {
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	w := httptest.NewRecorder()
+	p := AttorneyPath("/something")
+
+	err := p.RedirectQuery(w, r, AppData{Lang: localize.En}, "lpa-id", url.Values{"q": {"1"}})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, p.Format("lpa-id")+"?q=1", resp.Header.Get("Location"))
+}
+
 func TestCertificateProviderPathString(t *testing.T) {
 	assert.Equal(t, "/anything", CertificateProviderPath("/anything").String())
 }
 
 func TestCertificateProviderPathFormat(t *testing.T) {
 	assert.Equal(t, "/certificate-provider/abc/anything", CertificateProviderPath("/anything").Format("abc"))
+}
+
+func TestCertificateProviderPathRedirect(t *testing.T) {
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	w := httptest.NewRecorder()
+	p := CertificateProviderPath("/something")
+
+	err := p.Redirect(w, r, AppData{Lang: localize.En}, "lpa-id")
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, p.Format("lpa-id"), resp.Header.Get("Location"))
 }
