@@ -1,5 +1,6 @@
 package donor
 
+
 import (
 	"net/http"
 	"strings"
@@ -18,7 +19,7 @@ type yourIndependentWitnessData struct {
 }
 
 func YourIndependentWitness(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
 		data := &yourIndependentWitnessData{
 			App: appData,
 			Form: &yourIndependentWitnessForm{
@@ -90,7 +91,7 @@ func (f *yourIndependentWitnessForm) Validate() validation.List {
 	return errors
 }
 
-func independentWitnessMatches(lpa *page.Lpa, firstNames, lastName string) actor.Type {
+func independentWitnessMatches(lpa *actor.Lpa, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}

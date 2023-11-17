@@ -19,7 +19,7 @@ type areYouApplyingForFeeDiscountOrExemption struct {
 }
 
 func AreYouApplyingForFeeDiscountOrExemption(tmpl template.Template, payer Payer, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
 		data := &areYouApplyingForFeeDiscountOrExemption{
 			App:                 appData,
 			CertificateProvider: lpa.CertificateProvider,

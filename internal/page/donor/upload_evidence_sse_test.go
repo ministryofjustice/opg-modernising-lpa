@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 )
@@ -37,7 +38,7 @@ func TestUploadEvidenceSSE(t *testing.T) {
 
 	now := time.Now()
 
-	err := UploadEvidenceSSE(documentStore, 4*time.Millisecond, 2*time.Millisecond, func() time.Time { return now })(testAppData, w, r, &page.Lpa{})
+	err := UploadEvidenceSSE(documentStore, 4*time.Millisecond, 2*time.Millisecond, func() time.Time { return now })(testAppData, w, r, &actor.Lpa{})
 	resp := w.Result()
 
 	bodyBytes, _ := io.ReadAll(resp.Body)
@@ -59,7 +60,7 @@ func TestUploadEvidenceSSEOnDonorStoreError(t *testing.T) {
 			{Scanned: true},
 		}, expectedError)
 
-	err := UploadEvidenceSSE(documentStore, 4*time.Millisecond, 2*time.Millisecond, nil)(testAppData, w, r, &page.Lpa{})
+	err := UploadEvidenceSSE(documentStore, 4*time.Millisecond, 2*time.Millisecond, nil)(testAppData, w, r, &actor.Lpa{})
 	resp := w.Result()
 
 	bodyBytes, _ := io.ReadAll(resp.Body)
@@ -92,7 +93,7 @@ func TestUploadEvidenceSSEOnDonorStoreErrorWhenRefreshingDocuments(t *testing.T)
 
 	now := time.Now()
 
-	err := UploadEvidenceSSE(documentStore, 4*time.Millisecond, 2*time.Millisecond, func() time.Time { return now })(testAppData, w, r, &page.Lpa{})
+	err := UploadEvidenceSSE(documentStore, 4*time.Millisecond, 2*time.Millisecond, func() time.Time { return now })(testAppData, w, r, &actor.Lpa{})
 	resp := w.Result()
 
 	bodyBytes, _ := io.ReadAll(resp.Body)

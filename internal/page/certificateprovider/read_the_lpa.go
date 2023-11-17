@@ -12,7 +12,7 @@ import (
 type readTheLpaData struct {
 	App                 page.AppData
 	Errors              validation.List
-	Lpa                 *page.Lpa
+	Lpa                 *actor.Lpa
 	CertificateProvider *actor.CertificateProviderProvidedDetails
 }
 

@@ -1,5 +1,6 @@
 package donor
 
+
 import (
 	"net/http"
 
@@ -11,7 +12,7 @@ import (
 )
 
 func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
 		personId := r.FormValue("id")
 		personToNotify, found := lpa.PeopleToNotify.Get(personId)
 

@@ -6,95 +6,29 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 )
 
-var address = place.Address{
-	Line1:      "a",
-	Line2:      "b",
-	Line3:      "c",
-	TownOrCity: "d",
-	Postcode:   "e",
-}
-
-func TestGenerateHash(t *testing.T) {
-	lpa := &Lpa{}
-	hash, err := lpa.GenerateHash()
-	assert.Nil(t, err)
-	assert.Equal(t, uint64(0x4b37df4a36f24c8), hash)
-
-	lpa.ID = "1"
-	hash, err = lpa.GenerateHash()
-	assert.Nil(t, err)
-	assert.Equal(t, uint64(0xb058317f6e9a325b), hash)
-}
-
-func TestIdentityConfirmed(t *testing.T) {
-	testCases := map[string]struct {
-		lpa      *Lpa
-		expected bool
-	}{
-		"set": {
-			lpa: &Lpa{
-				Donor:                 actor.Donor{FirstNames: "a", LastName: "b"},
-				DonorIdentityUserData: identity.UserData{OK: true, FirstNames: "a", LastName: "b"},
-			},
-			expected: true,
-		},
-		"not ok": {
-			lpa:      &Lpa{DonorIdentityUserData: identity.UserData{}},
-			expected: false,
-		},
-		"no match": {
-			lpa: &Lpa{
-				Donor:                 actor.Donor{FirstNames: "a", LastName: "b"},
-				DonorIdentityUserData: identity.UserData{},
-			},
-			expected: false,
-		},
-		"none": {
-			lpa:      &Lpa{},
-			expected: false,
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expected, tc.lpa.DonorIdentityConfirmed())
-		})
-	}
-}
-
-func TestAttorneysSigningDeadline(t *testing.T) {
-	lpa := Lpa{
-		SignedAt: time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC),
-	}
-
-	expected := time.Date(2020, time.January, 30, 3, 4, 5, 6, time.UTC)
-	assert.Equal(t, expected, lpa.AttorneysAndCpSigningDeadline())
-}
-
 func TestCanGoTo(t *testing.T) {
 	testCases := map[string]struct {
-		lpa      *Lpa
+		lpa      *actor.Lpa
 		url      string
 		expected bool
 	}{
 		"empty path": {
-			lpa:      &Lpa{},
+			lpa:      &actor.Lpa{},
 			url:      "",
 			expected: false,
 		},
 		"unexpected path": {
-			lpa:      &Lpa{},
+			lpa:      &actor.Lpa{},
 			url:      "/whatever",
 			expected: true,
 		},
 		"getting help signing no certificate provider": {
-			lpa: &Lpa{
+			lpa: &actor.Lpa{
 				Type: actor.LpaTypeHealthWelfare,
 				Tasks: actor.DonorTasks{
 					YourDetails: actor.TaskCompleted,
@@ -104,7 +38,7 @@ func TestCanGoTo(t *testing.T) {
 			expected: false,
 		},
 		"getting help signing": {
-			lpa: &Lpa{
+			lpa: &actor.Lpa{
 				Type: actor.LpaTypeHealthWelfare,
 				Tasks: actor.DonorTasks{
 					CertificateProvider: actor.TaskCompleted,
@@ -114,7 +48,7 @@ func TestCanGoTo(t *testing.T) {
 			expected: true,
 		},
 		"check your lpa when unsure if can sign": {
-			lpa: &Lpa{
+			lpa: &actor.Lpa{
 				Type: actor.LpaTypeHealthWelfare,
 				Tasks: actor.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
@@ -130,7 +64,7 @@ func TestCanGoTo(t *testing.T) {
 			expected: false,
 		},
 		"check your lpa when can sign": {
-			lpa: &Lpa{
+			lpa: &actor.Lpa{
 				Donor: actor.Donor{CanSign: form.Yes},
 				Type:  actor.LpaTypeHealthWelfare,
 				Tasks: actor.DonorTasks{
@@ -147,12 +81,12 @@ func TestCanGoTo(t *testing.T) {
 			expected: true,
 		},
 		"about payment without task": {
-			lpa:      &Lpa{ID: "123"},
+			lpa:      &actor.Lpa{ID: "123"},
 			url:      Paths.AboutPayment.Format("123"),
 			expected: false,
 		},
 		"about payment with tasks": {
-			lpa: &Lpa{
+			lpa: &actor.Lpa{
 				Donor: actor.Donor{
 					CanSign: form.Yes,
 				},
@@ -172,12 +106,12 @@ func TestCanGoTo(t *testing.T) {
 			expected: true,
 		},
 		"identity without task": {
-			lpa:      &Lpa{},
+			lpa:      &actor.Lpa{},
 			url:      Paths.IdentityWithOneLogin.Format("123"),
 			expected: false,
 		},
 		"identity with tasks": {
-			lpa: &Lpa{
+			lpa: &actor.Lpa{
 				Donor: actor.Donor{
 					CanSign: form.Yes,
 				},
@@ -201,7 +135,7 @@ func TestCanGoTo(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expected, tc.lpa.CanGoTo(tc.url))
+			assert.Equal(t, tc.expected, CanGoTo(tc.lpa, tc.url))
 		})
 	}
 }
@@ -210,15 +144,15 @@ func TestLpaProgress(t *testing.T) {
 	lpaSignedAt := time.Now()
 
 	testCases := map[string]struct {
-		lpa                 *Lpa
+		lpa                 *actor.Lpa
 		certificateProvider *actor.CertificateProviderProvidedDetails
 		attorneys           []*actor.AttorneyProvidedDetails
-		expectedProgress    Progress
+		expectedProgress    actor.Progress
 	}{
 		"initial state": {
-			lpa:                 &Lpa{},
+			lpa:                 &actor.Lpa{},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{},
-			expectedProgress: Progress{
+			expectedProgress: actor.Progress{
 				DonorSigned:               actor.TaskInProgress,
 				CertificateProviderSigned: actor.TaskNotStarted,
 				AttorneysSigned:           actor.TaskNotStarted,
@@ -228,9 +162,9 @@ func TestLpaProgress(t *testing.T) {
 			},
 		},
 		"lpa signed": {
-			lpa:                 &Lpa{SignedAt: lpaSignedAt},
+			lpa:                 &actor.Lpa{SignedAt: lpaSignedAt},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{},
-			expectedProgress: Progress{
+			expectedProgress: actor.Progress{
 				DonorSigned:               actor.TaskCompleted,
 				CertificateProviderSigned: actor.TaskInProgress,
 				AttorneysSigned:           actor.TaskNotStarted,
@@ -240,9 +174,9 @@ func TestLpaProgress(t *testing.T) {
 			},
 		},
 		"certificate provider signed": {
-			lpa:                 &Lpa{SignedAt: lpaSignedAt},
+			lpa:                 &actor.Lpa{SignedAt: lpaSignedAt},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
-			expectedProgress: Progress{
+			expectedProgress: actor.Progress{
 				DonorSigned:               actor.TaskCompleted,
 				CertificateProviderSigned: actor.TaskCompleted,
 				AttorneysSigned:           actor.TaskInProgress,
@@ -252,7 +186,7 @@ func TestLpaProgress(t *testing.T) {
 			},
 		},
 		"attorneys signed": {
-			lpa: &Lpa{
+			lpa: &actor.Lpa{
 				SignedAt:  lpaSignedAt,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "a1"}, {ID: "a2"}}},
 			},
@@ -261,7 +195,7 @@ func TestLpaProgress(t *testing.T) {
 				{ID: "a1", LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
 				{ID: "a2", LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
 			},
-			expectedProgress: Progress{
+			expectedProgress: actor.Progress{
 				DonorSigned:               actor.TaskCompleted,
 				CertificateProviderSigned: actor.TaskCompleted,
 				AttorneysSigned:           actor.TaskCompleted,
@@ -271,7 +205,7 @@ func TestLpaProgress(t *testing.T) {
 			},
 		},
 		"submitted": {
-			lpa: &Lpa{
+			lpa: &actor.Lpa{
 				SignedAt:    lpaSignedAt,
 				SubmittedAt: lpaSignedAt.Add(time.Hour),
 				Attorneys:   actor.Attorneys{Attorneys: []actor.Attorney{{ID: "a1"}, {ID: "a2"}}},
@@ -281,7 +215,7 @@ func TestLpaProgress(t *testing.T) {
 				{ID: "a1", LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
 				{ID: "a2", LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
 			},
-			expectedProgress: Progress{
+			expectedProgress: actor.Progress{
 				DonorSigned:               actor.TaskCompleted,
 				CertificateProviderSigned: actor.TaskCompleted,
 				AttorneysSigned:           actor.TaskCompleted,
@@ -291,7 +225,7 @@ func TestLpaProgress(t *testing.T) {
 			},
 		},
 		"registered": {
-			lpa: &Lpa{
+			lpa: &actor.Lpa{
 				SignedAt:     lpaSignedAt,
 				SubmittedAt:  lpaSignedAt.Add(time.Hour),
 				RegisteredAt: lpaSignedAt.Add(2 * time.Hour),
@@ -302,7 +236,7 @@ func TestLpaProgress(t *testing.T) {
 				{ID: "a1", LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
 				{ID: "a2", LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
 			},
-			expectedProgress: Progress{
+			expectedProgress: actor.Progress{
 				DonorSigned:               actor.TaskCompleted,
 				CertificateProviderSigned: actor.TaskCompleted,
 				AttorneysSigned:           actor.TaskCompleted,
@@ -318,231 +252,6 @@ func TestLpaProgress(t *testing.T) {
 			assert.Equal(t, tc.expectedProgress, tc.lpa.Progress(tc.certificateProvider, tc.attorneys))
 		})
 	}
-}
-
-func TestAllAttorneysSigned(t *testing.T) {
-	lpaSignedAt := time.Now()
-	otherLpaSignedAt := lpaSignedAt.Add(time.Minute)
-	attorneySigned := lpaSignedAt.Add(time.Second)
-
-	testcases := map[string]struct {
-		lpa       *Lpa
-		attorneys []*actor.AttorneyProvidedDetails
-		expected  bool
-	}{
-		"no attorneys": {
-			expected: false,
-		},
-		"need attorney to sign": {
-			lpa: &Lpa{
-				SignedAt:             lpaSignedAt,
-				Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{ID: "a1"}, {ID: "a2"}}},
-				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "r1"}}},
-			},
-			attorneys: []*actor.AttorneyProvidedDetails{
-				{ID: "a1", LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{ID: "a3", LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySigned},
-				{ID: "r1", IsReplacement: true, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-			},
-			expected: false,
-		},
-		"need replacement attorney to sign": {
-			lpa: &Lpa{
-				SignedAt:             lpaSignedAt,
-				Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{ID: "a1"}}},
-				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "r1"}, {ID: "r2"}}},
-			},
-			attorneys: []*actor.AttorneyProvidedDetails{
-				{ID: "a1", LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{ID: "r1", IsReplacement: true},
-				{ID: "r2", IsReplacement: true, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-			},
-			expected: false,
-		},
-		"all attorneys signed": {
-			lpa: &Lpa{
-				SignedAt:             lpaSignedAt,
-				Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{ID: "a1"}, {ID: "a2"}}},
-				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "r1"}}},
-			},
-			attorneys: []*actor.AttorneyProvidedDetails{
-				{ID: "a1", LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{ID: "a2", LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{ID: "r1", IsReplacement: true, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-			},
-			expected: true,
-		},
-		"more attorneys signed": {
-			lpa: &Lpa{
-				SignedAt:  lpaSignedAt,
-				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "a1"}, {ID: "a2"}}},
-			},
-			attorneys: []*actor.AttorneyProvidedDetails{
-				{ID: "a1", LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{ID: "a2", LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{ID: "a3", LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySigned},
-			},
-			expected: true,
-		},
-		"waiting for attorney to re-sign": {
-			lpa: &Lpa{
-				SignedAt:  lpaSignedAt,
-				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "a1"}, {ID: "a2"}}},
-			},
-			attorneys: []*actor.AttorneyProvidedDetails{
-				{ID: "a1", LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySigned},
-				{ID: "a2", LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-			},
-			expected: false,
-		},
-		"trust corporations not signed": {
-			lpa: &Lpa{
-				SignedAt:             lpaSignedAt,
-				Attorneys:            actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
-				ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "r"}},
-			},
-			expected: false,
-		},
-		"replacement trust corporations not signed": {
-			lpa: &Lpa{
-				SignedAt:             lpaSignedAt,
-				Attorneys:            actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
-				ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "r"}},
-			},
-			attorneys: []*actor.AttorneyProvidedDetails{
-				{
-					IsTrustCorporation:       true,
-					WouldLikeSecondSignatory: form.No,
-					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned}},
-				},
-				{
-					IsTrustCorporation:       true,
-					WouldLikeSecondSignatory: form.Yes,
-					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned}},
-				},
-			},
-			expected: false,
-		},
-		"trust corporations signed": {
-			lpa: &Lpa{
-				SignedAt:             lpaSignedAt,
-				Attorneys:            actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
-				ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "r"}},
-			},
-			attorneys: []*actor.AttorneyProvidedDetails{
-				{
-					IsTrustCorporation:       true,
-					WouldLikeSecondSignatory: form.No,
-					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned}},
-				},
-				{
-					IsTrustCorporation:       true,
-					IsReplacement:            true,
-					WouldLikeSecondSignatory: form.No,
-					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned}},
-				},
-			},
-			expected: true,
-		},
-	}
-
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expected, tc.lpa.AllAttorneysSigned(tc.attorneys))
-		})
-	}
-}
-
-func TestActorAddresses(t *testing.T) {
-	lpa := &Lpa{
-		Donor: actor.Donor{Address: place.Address{Line1: "1"}},
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-			{Address: place.Address{Line1: "2"}},
-			{Address: place.Address{Line1: "3"}},
-		}},
-		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-			{Address: place.Address{Line1: "4"}},
-			{Address: place.Address{Line1: "5"}},
-		}},
-		CertificateProvider: actor.CertificateProvider{Address: place.Address{Line1: "6"}},
-	}
-
-	want := []place.Address{
-		{Line1: "1"},
-		{Line1: "6"},
-		{Line1: "2"},
-		{Line1: "3"},
-		{Line1: "4"},
-		{Line1: "5"},
-	}
-
-	assert.Equal(t, want, lpa.ActorAddresses())
-}
-
-func TestActorAddressesActorWithNoAddressIgnored(t *testing.T) {
-	lpa := &Lpa{
-		Donor: actor.Donor{FirstNames: "Donor", LastName: "Actor", Address: address},
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-			{FirstNames: "Attorney One", LastName: "Actor", Address: address},
-			{FirstNames: "Attorney Two", LastName: "Actor"},
-		}},
-		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-			{FirstNames: "Replacement Attorney One", LastName: "Actor"},
-			{FirstNames: "Replacement Attorney Two", LastName: "Actor", Address: address},
-		}},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "Certificate Provider", LastName: "Actor"},
-	}
-
-	want := []place.Address{address}
-
-	assert.Equal(t, want, lpa.ActorAddresses())
-}
-
-func TestAllLayAttorneysFirstNames(t *testing.T) {
-	lpa := &Lpa{
-		Attorneys: actor.Attorneys{
-			Attorneys: []actor.Attorney{
-				{FirstNames: "John", LastName: "Smith"},
-				{FirstNames: "Barry", LastName: "Smith"},
-			},
-		},
-		ReplacementAttorneys: actor.Attorneys{
-			Attorneys: []actor.Attorney{
-				{FirstNames: "John2", LastName: "Smithe"},
-				{FirstNames: "Barry2", LastName: "Smithe"},
-			},
-		},
-	}
-
-	assert.Equal(t, []string{"John", "Barry", "John2", "Barry2"}, lpa.AllLayAttorneysFirstNames())
-}
-
-func TestAllLayAttorneysFullNames(t *testing.T) {
-	lpa := &Lpa{
-		Attorneys: actor.Attorneys{
-			Attorneys: []actor.Attorney{
-				{FirstNames: "John", LastName: "Smith"},
-				{FirstNames: "Barry", LastName: "Smith"},
-			},
-		},
-		ReplacementAttorneys: actor.Attorneys{
-			Attorneys: []actor.Attorney{
-				{FirstNames: "John2", LastName: "Smithe"},
-				{FirstNames: "Barry2", LastName: "Smithe"},
-			},
-		},
-	}
-
-	assert.Equal(t, []string{"John Smith", "Barry Smith", "John2 Smithe", "Barry2 Smithe"}, lpa.AllLayAttorneysFullNames())
-}
-
-func TestTrustCorporationOriginal(t *testing.T) {
-	lpa := &Lpa{
-		Attorneys:            actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "Corp"}},
-		ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "Trust"}},
-	}
-
-	assert.Equal(t, []string{"Corp", "Trust"}, lpa.TrustCorporationsNames())
 }
 
 func TestChooseAttorneysState(t *testing.T) {
@@ -876,7 +585,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.taskState, ChooseReplacementAttorneysState(&Lpa{
+			assert.Equal(t, tc.taskState, ChooseReplacementAttorneysState(&actor.Lpa{
 				WantReplacementAttorneys:            tc.want,
 				AttorneyDecisions:                   tc.attorneyDecisions,
 				ReplacementAttorneys:                tc.replacementAttorneys,
@@ -889,15 +598,15 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 
 func TestLpaCost(t *testing.T) {
 	testCases := map[string]struct {
-		lpa      *Lpa
+		lpa      *actor.Lpa
 		expected int
 	}{
 		"denied": {
-			lpa:      &Lpa{FeeType: pay.HalfFee, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
+			lpa:      &actor.Lpa{FeeType: pay.HalfFee, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
 			expected: 8200,
 		},
 		"half": {
-			lpa:      &Lpa{FeeType: pay.HalfFee},
+			lpa:      &actor.Lpa{FeeType: pay.HalfFee},
 			expected: 4100,
 		},
 	}
@@ -911,23 +620,23 @@ func TestLpaCost(t *testing.T) {
 
 func TestFeeAmount(t *testing.T) {
 	testCases := map[string]struct {
-		Lpa          *Lpa
+		Lpa          *actor.Lpa
 		ExpectedCost int
 	}{
 		"not paid": {
-			Lpa:          &Lpa{FeeType: pay.HalfFee},
+			Lpa:          &actor.Lpa{FeeType: pay.HalfFee},
 			ExpectedCost: 4100,
 		},
 		"fully paid": {
-			Lpa:          &Lpa{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}},
+			Lpa:          &actor.Lpa{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}},
 			ExpectedCost: 0,
 		},
 		"denied partially paid": {
-			Lpa:          &Lpa{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
+			Lpa:          &actor.Lpa{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
 			ExpectedCost: 4100,
 		},
 		"denied fully paid": {
-			Lpa:          &Lpa{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}, {Amount: 4100}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
+			Lpa:          &actor.Lpa{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}, {Amount: 4100}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
 			ExpectedCost: 0,
 		},
 	}
@@ -1032,7 +741,7 @@ func TestCertificateProviderSharesDetailsNames(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			lpa := &Lpa{
+			lpa := &actor.Lpa{
 				Donor:               actor.Donor{LastName: tc.donor},
 				CertificateProvider: actor.CertificateProvider{LastName: tc.certificateProvider, Address: place.Address{Line1: "x"}},
 			}
@@ -1086,7 +795,7 @@ func TestCertificateProviderSharesDetailsAddresses(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			lpa := &Lpa{
+			lpa := &actor.Lpa{
 				Donor:               actor.Donor{Address: tc.donor},
 				CertificateProvider: actor.CertificateProvider{LastName: "x", Address: tc.certificateProvider},
 			}

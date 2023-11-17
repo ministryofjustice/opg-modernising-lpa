@@ -1,5 +1,6 @@
 package donor
 
+
 import (
 	"net/http"
 	"net/http/httptest"
@@ -22,13 +23,13 @@ func TestGetWhenCanTheLpaBeUsed(t *testing.T) {
 	template.
 		On("Execute", w, &whenCanTheLpaBeUsedData{
 			App:     testAppData,
-			Lpa:     &page.Lpa{},
+			Lpa:     &actor.Lpa{},
 			Form:    &whenCanTheLpaBeUsedForm{},
 			Options: actor.CanBeUsedWhenValues,
 		}).
 		Return(nil)
 
-	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -43,7 +44,7 @@ func TestGetWhenCanTheLpaBeUsedFromStore(t *testing.T) {
 	template.
 		On("Execute", w, &whenCanTheLpaBeUsedData{
 			App: testAppData,
-			Lpa: &page.Lpa{WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity},
+			Lpa: &actor.Lpa{WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity},
 			Form: &whenCanTheLpaBeUsedForm{
 				When: actor.CanBeUsedWhenHasCapacity,
 			},
@@ -51,7 +52,7 @@ func TestGetWhenCanTheLpaBeUsedFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &page.Lpa{WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity})
+	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &actor.Lpa{WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -67,7 +68,7 @@ func TestGetWhenCanTheLpaBeUsedWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -85,14 +86,14 @@ func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{
+		On("Put", r.Context(), &actor.Lpa{
 			ID:                  "lpa-id",
 			WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity,
 			Tasks:               actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, WhenCanTheLpaBeUsed: actor.TaskCompleted},
 		}).
 		Return(nil)
 
-	err := WhenCanTheLpaBeUsed(nil, donorStore)(testAppData, w, r, &page.Lpa{
+	err := WhenCanTheLpaBeUsed(nil, donorStore)(testAppData, w, r, &actor.Lpa{
 		ID:    "lpa-id",
 		Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 	})
@@ -114,10 +115,10 @@ func TestPostWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity, Tasks: actor.DonorTasks{WhenCanTheLpaBeUsed: actor.TaskCompleted}}).
+		On("Put", r.Context(), &actor.Lpa{WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity, Tasks: actor.DonorTasks{WhenCanTheLpaBeUsed: actor.TaskCompleted}}).
 		Return(expectedError)
 
-	err := WhenCanTheLpaBeUsed(nil, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := WhenCanTheLpaBeUsed(nil, donorStore)(testAppData, w, r, &actor.Lpa{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -134,7 +135,7 @@ func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

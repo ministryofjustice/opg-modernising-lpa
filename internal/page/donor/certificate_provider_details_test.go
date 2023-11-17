@@ -26,7 +26,7 @@ func TestGetCertificateProviderDetails(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CertificateProviderDetails(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := CertificateProviderDetails(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -35,11 +35,11 @@ func TestGetCertificateProviderDetails(t *testing.T) {
 
 func TestGetCertificateProviderDetailsFromStore(t *testing.T) {
 	testcases := map[string]struct {
-		lpa  *page.Lpa
+		lpa  *actor.Lpa
 		form *certificateProviderDetailsForm
 	}{
 		"uk mobile": {
-			lpa: &page.Lpa{
+			lpa: &actor.Lpa{
 				CertificateProvider: actor.CertificateProvider{
 					FirstNames: "John",
 					Mobile:     "07777",
@@ -51,7 +51,7 @@ func TestGetCertificateProviderDetailsFromStore(t *testing.T) {
 			},
 		},
 		"non-uk mobile": {
-			lpa: &page.Lpa{
+			lpa: &actor.Lpa{
 				CertificateProvider: actor.CertificateProvider{
 					FirstNames:     "John",
 					Mobile:         "07777",
@@ -100,7 +100,7 @@ func TestGetCertificateProviderDetailsWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := CertificateProviderDetails(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := CertificateProviderDetails(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -174,7 +174,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), &page.Lpa{
+				On("Put", r.Context(), &actor.Lpa{
 					ID: "lpa-id",
 					Donor: actor.Donor{
 						FirstNames: "Jane",
@@ -185,7 +185,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := CertificateProviderDetails(nil, donorStore)(testAppData, w, r, &page.Lpa{
+			err := CertificateProviderDetails(nil, donorStore)(testAppData, w, r, &actor.Lpa{
 				ID: "lpa-id",
 				Donor: actor.Donor{
 					FirstNames: "Jane",
@@ -214,7 +214,7 @@ func TestPostCertificateProviderDetailsWhenAmendingDetailsAfterStateComplete(t *
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{
+		On("Put", r.Context(), &actor.Lpa{
 			ID: "lpa-id",
 			Donor: actor.Donor{
 				FirstNames: "Jane",
@@ -229,7 +229,7 @@ func TestPostCertificateProviderDetailsWhenAmendingDetailsAfterStateComplete(t *
 		}).
 		Return(nil)
 
-	err := CertificateProviderDetails(nil, donorStore)(testAppData, w, r, &page.Lpa{
+	err := CertificateProviderDetails(nil, donorStore)(testAppData, w, r, &actor.Lpa{
 		ID: "lpa-id",
 		Donor: actor.Donor{
 			FirstNames: "Jane",
@@ -247,7 +247,7 @@ func TestPostCertificateProviderDetailsWhenAmendingDetailsAfterStateComplete(t *
 func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 	testCases := map[string]struct {
 		form        url.Values
-		existingLpa *page.Lpa
+		existingLpa *actor.Lpa
 		dataMatcher func(t *testing.T, data *certificateProviderDetailsData) bool
 	}{
 		"validation error": {
@@ -255,7 +255,7 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				"last-name": {"Doe"},
 				"mobile":    {"07535111111"},
 			},
-			existingLpa: &page.Lpa{},
+			existingLpa: &actor.Lpa{},
 			dataMatcher: func(t *testing.T, data *certificateProviderDetailsData) bool {
 				return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
 			},
@@ -266,7 +266,7 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				"last-name":   {"Doe"},
 				"mobile":      {"07535111111"},
 			},
-			existingLpa: &page.Lpa{
+			existingLpa: &actor.Lpa{
 				Donor: actor.Donor{
 					FirstNames: "John",
 					LastName:   "Doe",
@@ -282,7 +282,7 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				"last-name":           {"Doe"},
 				"ignore-name-warning": {"errorDonorMatchesActor|theCertificateProvider|John|Doe"},
 			},
-			existingLpa: &page.Lpa{
+			existingLpa: &actor.Lpa{
 				Donor: actor.Donor{
 					FirstNames: "John",
 					LastName:   "Doe",
@@ -299,7 +299,7 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				"mobile":              {"07535111111"},
 				"ignore-name-warning": {"errorAttorneyMatchesActor|theCertificateProvider|John|Doe"},
 			},
-			existingLpa: &page.Lpa{
+			existingLpa: &actor.Lpa{
 				Donor: actor.Donor{
 					FirstNames: "John",
 					LastName:   "Doe",
@@ -349,7 +349,7 @@ func TestPostCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := CertificateProviderDetails(nil, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := CertificateProviderDetails(nil, donorStore)(testAppData, w, r, &actor.Lpa{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -430,7 +430,7 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 }
 
 func TestCertificateProviderMatches(t *testing.T) {
-	lpa := &page.Lpa{
+	lpa := &actor.Lpa{
 		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{FirstNames: "c", LastName: "d"},
@@ -463,7 +463,7 @@ func TestCertificateProviderMatches(t *testing.T) {
 }
 
 func TestCertificateProviderMatchesEmptyNamesIgnored(t *testing.T) {
-	lpa := &page.Lpa{
+	lpa := &actor.Lpa{
 		Donor: actor.Donor{FirstNames: "", LastName: ""},
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{FirstNames: "", LastName: ""},

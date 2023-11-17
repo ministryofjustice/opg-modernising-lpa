@@ -24,7 +24,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
-type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, details *page.Lpa) error
+type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, details *actor.Lpa) error
 
 //go:generate mockery --testonly --inpackage --name Template --structname mockTemplate
 type Template func(io.Writer, interface{}) error
@@ -36,14 +36,14 @@ type Logger interface {
 
 //go:generate mockery --testonly --inpackage --name DonorStore --structname mockDonorStore
 type DonorStore interface {
-	Get(context.Context) (*page.Lpa, error)
-	Latest(context.Context) (*page.Lpa, error)
-	Put(context.Context, *page.Lpa) error
+	Get(context.Context) (*actor.Lpa, error)
+	Latest(context.Context) (*actor.Lpa, error)
+	Put(context.Context, *actor.Lpa) error
 	Delete(context.Context) error
 }
 
 type GetDonorStore interface {
-	Get(context.Context) (*page.Lpa, error)
+	Get(context.Context) (*actor.Lpa, error)
 }
 
 //go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
@@ -80,8 +80,8 @@ type AddressClient interface {
 
 //go:generate mockery --testonly --inpackage --name ShareCodeSender --structname mockShareCodeSender
 type ShareCodeSender interface {
-	SendCertificateProvider(ctx context.Context, template notify.Template, appData page.AppData, identity bool, lpa *page.Lpa) error
-	SendAttorneys(ctx context.Context, appData page.AppData, lpa *page.Lpa) error
+	SendCertificateProvider(ctx context.Context, template notify.Template, appData page.AppData, identity bool, lpa *actor.Lpa) error
+	SendAttorneys(ctx context.Context, appData page.AppData, lpa *actor.Lpa) error
 }
 
 //go:generate mockery --testonly --inpackage --name OneLoginClient --structname mockOneLoginClient
@@ -108,8 +108,8 @@ type SessionStore interface {
 
 //go:generate mockery --testonly --inpackage --name WitnessCodeSender --structname mockWitnessCodeSender
 type WitnessCodeSender interface {
-	SendToCertificateProvider(context.Context, *page.Lpa, page.Localizer) error
-	SendToIndependentWitness(context.Context, *page.Lpa, page.Localizer) error
+	SendToCertificateProvider(context.Context, *actor.Lpa, page.Localizer) error
+	SendToIndependentWitness(context.Context, *actor.Lpa, page.Localizer) error
 }
 
 //go:generate mockery --testonly --inpackage --name UidClient --structname mockUidClient
@@ -124,7 +124,7 @@ type RequestSigner interface {
 
 //go:generate mockery --testonly --inpackage --name Payer --structname mockPayer
 type Payer interface {
-	Pay(page.AppData, http.ResponseWriter, *http.Request, *page.Lpa) error
+	Pay(page.AppData, http.ResponseWriter, *http.Request, *actor.Lpa) error
 }
 
 //go:generate mockery --testonly --inpackage --name Localizer --structname mockLocalizer
@@ -145,8 +145,8 @@ type DocumentStore interface {
 	Put(context.Context, page.Document) error
 	Delete(context.Context, page.Document) error
 	DeleteInfectedDocuments(context.Context, page.Documents) error
-	Create(context.Context, *page.Lpa, string, []byte) (page.Document, error)
-	Submit(context.Context, *page.Lpa, page.Documents) error
+	Create(context.Context, *actor.Lpa, string, []byte) (page.Document, error)
+	Submit(context.Context, *actor.Lpa, page.Documents) error
 }
 
 //go:generate mockery --testonly --inpackage --name EventClient --structname mockEventClient
@@ -430,6 +430,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, 
 
 func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, errorHandler page.ErrorHandler, donorStore DonorStore) func(page.LpaPath, handleOpt, Handler) {
 	return func(path page.LpaPath, opt handleOpt, h Handler) {
+
 		opt = opt | defaultOptions
 
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
@@ -482,7 +483,7 @@ type payHelper struct {
 	randomString func(int) string
 }
 
-func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
 	if lpa.FeeType.IsNoFee() || lpa.FeeType.IsHardshipFee() || lpa.Tasks.PayForLpa.IsMoreEvidenceRequired() {
 		lpa.Tasks.PayForLpa = actor.PaymentTaskPending
 		if err := p.donorStore.Put(r.Context(), lpa); err != nil {

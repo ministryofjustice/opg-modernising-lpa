@@ -15,6 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -50,7 +51,7 @@ type s3Client interface {
 
 //go:generate mockery --testonly --inpackage --name shareCodeSender --structname mockShareCodeSender
 type shareCodeSender interface {
-	SendCertificateProvider(context.Context, notify.Template, page.AppData, bool, *page.Lpa) error
+	SendCertificateProvider(context.Context, notify.Template, page.AppData, bool, *actor.Lpa) error
 }
 
 //go:generate mockery --testonly --inpackage --name DocumentStore --structname mockDocumentStore

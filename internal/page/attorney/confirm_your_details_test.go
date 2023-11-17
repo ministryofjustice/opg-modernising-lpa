@@ -16,17 +16,17 @@ func TestGetConfirmYourDetails(t *testing.T) {
 
 	testcases := map[string]struct {
 		appData page.AppData
-		lpa     *page.Lpa
+		lpa     *actor.Lpa
 		data    *confirmYourDetailsData
 	}{
 		"attorney": {
 			appData: testAppData,
-			lpa: &page.Lpa{
+			lpa: &actor.Lpa{
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123", FirstNames: "John"}}},
 			},
 			data: &confirmYourDetailsData{
 				App: testAppData,
-				Lpa: &page.Lpa{
+				Lpa: &actor.Lpa{
 					Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123", FirstNames: "John"}}},
 				},
 				Attorney:                actor.Attorney{ID: "123", FirstNames: "John"},
@@ -35,12 +35,12 @@ func TestGetConfirmYourDetails(t *testing.T) {
 		},
 		"trust corporation": {
 			appData: testTrustCorporationAppData,
-			lpa: &page.Lpa{
+			lpa: &actor.Lpa{
 				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "company"}},
 			},
 			data: &confirmYourDetailsData{
 				App: testTrustCorporationAppData,
-				Lpa: &page.Lpa{
+				Lpa: &actor.Lpa{
 					Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "company"}},
 				},
 				TrustCorporation:        actor.TrustCorporation{Name: "company"},
@@ -77,7 +77,7 @@ func TestGetConfirmYourDetailsWhenDonorStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &page.Lpa{}
+	lpa := &actor.Lpa{}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
@@ -96,7 +96,7 @@ func TestGetConfirmYourDetailsWhenTemplateErrors(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&actor.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.

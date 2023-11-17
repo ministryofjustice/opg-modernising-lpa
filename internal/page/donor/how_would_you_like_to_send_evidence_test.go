@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -26,7 +27,7 @@ func TestGetHowWouldYouLikeToSendEvidence(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowWouldYouLikeToSendEvidence(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := HowWouldYouLikeToSendEvidence(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -45,7 +46,7 @@ func TestGetHowWouldYouLikeToSendEvidenceFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowWouldYouLikeToSendEvidence(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := HowWouldYouLikeToSendEvidence(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -61,7 +62,7 @@ func TestGetHowWouldYouLikeToSendEvidenceWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := HowWouldYouLikeToSendEvidence(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := HowWouldYouLikeToSendEvidence(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -86,10 +87,10 @@ func TestPostHowWouldYouLikeToSendEvidence(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), &page.Lpa{ID: "lpa-id", EvidenceDelivery: evidenceDelivery}).
+				On("Put", r.Context(), &actor.Lpa{ID: "lpa-id", EvidenceDelivery: evidenceDelivery}).
 				Return(nil)
 
-			err := HowWouldYouLikeToSendEvidence(nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+			err := HowWouldYouLikeToSendEvidence(nil, donorStore)(testAppData, w, r, &actor.Lpa{ID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -113,7 +114,7 @@ func TestPostHowWouldYouLikeToSendEvidenceWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := HowWouldYouLikeToSendEvidence(nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+	err := HowWouldYouLikeToSendEvidence(nil, donorStore)(testAppData, w, r, &actor.Lpa{ID: "lpa-id"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -129,7 +130,7 @@ func TestPostHowWouldYouLikeToSendEvidenceWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := HowWouldYouLikeToSendEvidence(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := HowWouldYouLikeToSendEvidence(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

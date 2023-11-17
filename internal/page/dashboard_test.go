@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -14,12 +15,12 @@ func TestGetDashboard(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorLpas := []LpaAndActorTasks{
-		{Lpa: &Lpa{ID: "123"}},
-		{Lpa: &Lpa{ID: "456"}},
+		{Lpa: &actor.Lpa{ID: "123"}},
+		{Lpa: &actor.Lpa{ID: "456"}},
 	}
 
-	certificateProviderLpas := []LpaAndActorTasks{{Lpa: &Lpa{ID: "abc"}}}
-	attorneyLpas := []LpaAndActorTasks{{Lpa: &Lpa{ID: "def"}}}
+	certificateProviderLpas := []LpaAndActorTasks{{Lpa: &actor.Lpa{ID: "abc"}}}
+	attorneyLpas := []LpaAndActorTasks{{Lpa: &actor.Lpa{ID: "def"}}}
 
 	dashboardStore := newMockDashboardStore(t)
 	dashboardStore.
@@ -49,8 +50,8 @@ func TestGetDashboardOnlyDonor(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorLpas := []LpaAndActorTasks{
-		{Lpa: &Lpa{ID: "123"}},
-		{Lpa: &Lpa{ID: "456"}},
+		{Lpa: &actor.Lpa{ID: "123"}},
+		{Lpa: &actor.Lpa{ID: "456"}},
 	}
 
 	dashboardStore := newMockDashboardStore(t)
@@ -114,7 +115,7 @@ func TestPostDashboard(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Create", r.Context()).
-		Return(&Lpa{ID: "lpa-id"}, nil)
+		Return(&actor.Lpa{ID: "lpa-id"}, nil)
 
 	err := Dashboard(nil, donorStore, nil)(AppData{}, w, r)
 	resp := w.Result()
@@ -131,7 +132,7 @@ func TestPostDashboardWhenDonorStoreError(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Create", r.Context()).
-		Return(&Lpa{ID: "123"}, expectedError)
+		Return(&actor.Lpa{ID: "123"}, expectedError)
 
 	err := Dashboard(nil, donorStore, nil)(AppData{}, w, r)
 	resp := w.Result()

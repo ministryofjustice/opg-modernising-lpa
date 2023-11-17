@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -11,11 +12,11 @@ import (
 type witnessingYourSignatureData struct {
 	App    page.AppData
 	Errors validation.List
-	Lpa    *page.Lpa
+	Lpa    *actor.Lpa
 }
 
 func WitnessingYourSignature(tmpl template.Template, witnessCodeSender WitnessCodeSender, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
 		if r.Method == http.MethodPost {
 			if err := witnessCodeSender.SendToCertificateProvider(r.Context(), lpa, appData.Localizer); err != nil {
 				return err

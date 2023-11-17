@@ -5,7 +5,8 @@ package donor
 import (
 	context "context"
 
-	page "github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -29,19 +30,19 @@ func (_m *mockDonorStore) Delete(_a0 context.Context) error {
 }
 
 // Get provides a mock function with given fields: _a0
-func (_m *mockDonorStore) Get(_a0 context.Context) (*page.Lpa, error) {
+func (_m *mockDonorStore) Get(_a0 context.Context) (*actor.Lpa, error) {
 	ret := _m.Called(_a0)
 
-	var r0 *page.Lpa
+	var r0 *actor.Lpa
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*page.Lpa, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*actor.Lpa, error)); ok {
 		return rf(_a0)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *page.Lpa); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *actor.Lpa); ok {
 		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*page.Lpa)
+			r0 = ret.Get(0).(*actor.Lpa)
 		}
 	}
 
@@ -55,19 +56,19 @@ func (_m *mockDonorStore) Get(_a0 context.Context) (*page.Lpa, error) {
 }
 
 // Latest provides a mock function with given fields: _a0
-func (_m *mockDonorStore) Latest(_a0 context.Context) (*page.Lpa, error) {
+func (_m *mockDonorStore) Latest(_a0 context.Context) (*actor.Lpa, error) {
 	ret := _m.Called(_a0)
 
-	var r0 *page.Lpa
+	var r0 *actor.Lpa
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*page.Lpa, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*actor.Lpa, error)); ok {
 		return rf(_a0)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *page.Lpa); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *actor.Lpa); ok {
 		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*page.Lpa)
+			r0 = ret.Get(0).(*actor.Lpa)
 		}
 	}
 
@@ -81,11 +82,11 @@ func (_m *mockDonorStore) Latest(_a0 context.Context) (*page.Lpa, error) {
 }
 
 // Put provides a mock function with given fields: _a0, _a1
-func (_m *mockDonorStore) Put(_a0 context.Context, _a1 *page.Lpa) error {
+func (_m *mockDonorStore) Put(_a0 context.Context, _a1 *actor.Lpa) error {
 	ret := _m.Called(_a0, _a1)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *page.Lpa) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *actor.Lpa) error); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		r0 = ret.Error(0)

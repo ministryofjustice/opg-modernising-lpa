@@ -15,11 +15,11 @@ type wantReplacementAttorneysData struct {
 	Errors  validation.List
 	Form    *form.YesNoForm
 	Options form.YesNoOptions
-	Lpa     *page.Lpa
+	Lpa     *actor.Lpa
 }
 
 func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
 		data := &wantReplacementAttorneysData{
 			App: appData,
 			Lpa: lpa,

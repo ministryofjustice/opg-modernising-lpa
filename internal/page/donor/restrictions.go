@@ -1,5 +1,6 @@
 package donor
 
+
 import (
 	"net/http"
 
@@ -12,11 +13,11 @@ import (
 type restrictionsData struct {
 	App    page.AppData
 	Errors validation.List
-	Lpa    *page.Lpa
+	Lpa    *actor.Lpa
 }
 
 func Restrictions(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
 		data := &restrictionsData{
 			App: appData,
 			Lpa: lpa,

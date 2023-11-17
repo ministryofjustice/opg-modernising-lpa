@@ -5,8 +5,11 @@ package donor
 import (
 	context "context"
 
-	notify "github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+
 	mock "github.com/stretchr/testify/mock"
+
+	notify "github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 
 	page "github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
@@ -17,11 +20,11 @@ type mockShareCodeSender struct {
 }
 
 // SendAttorneys provides a mock function with given fields: ctx, appData, lpa
-func (_m *mockShareCodeSender) SendAttorneys(ctx context.Context, appData page.AppData, lpa *page.Lpa) error {
+func (_m *mockShareCodeSender) SendAttorneys(ctx context.Context, appData page.AppData, lpa *actor.Lpa) error {
 	ret := _m.Called(ctx, appData, lpa)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, page.AppData, *page.Lpa) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, page.AppData, *actor.Lpa) error); ok {
 		r0 = rf(ctx, appData, lpa)
 	} else {
 		r0 = ret.Error(0)
@@ -31,11 +34,11 @@ func (_m *mockShareCodeSender) SendAttorneys(ctx context.Context, appData page.A
 }
 
 // SendCertificateProvider provides a mock function with given fields: ctx, template, appData, identity, lpa
-func (_m *mockShareCodeSender) SendCertificateProvider(ctx context.Context, template notify.Template, appData page.AppData, identity bool, lpa *page.Lpa) error {
+func (_m *mockShareCodeSender) SendCertificateProvider(ctx context.Context, template notify.Template, appData page.AppData, identity bool, lpa *actor.Lpa) error {
 	ret := _m.Called(ctx, template, appData, identity, lpa)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, notify.Template, page.AppData, bool, *page.Lpa) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, notify.Template, page.AppData, bool, *actor.Lpa) error); ok {
 		r0 = rf(ctx, template, appData, identity, lpa)
 	} else {
 		r0 = ret.Error(0)

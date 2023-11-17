@@ -1,5 +1,6 @@
 package donor
 
+
 import (
 	"errors"
 	"net/http"
@@ -24,7 +25,7 @@ func ResendWitnessCode(tmpl template.Template, witnessCodeSender WitnessCodeSend
 		redirect = page.Paths.WitnessingAsIndependentWitness
 	}
 
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
 		data := &resendWitnessCodeData{
 			App: appData,
 		}

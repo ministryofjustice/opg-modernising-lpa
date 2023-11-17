@@ -1,5 +1,6 @@
 package donor
 
+
 import (
 	"fmt"
 	"net/http"
@@ -20,7 +21,7 @@ type removePersonToNotifyData struct {
 }
 
 func RemovePersonToNotify(logger Logger, tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
 		id := r.FormValue("id")
 		person, found := lpa.PeopleToNotify.Get(id)
 

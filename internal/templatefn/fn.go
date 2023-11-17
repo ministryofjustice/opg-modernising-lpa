@@ -299,7 +299,7 @@ type attorneySummaryData struct {
 	HeadingLevel int
 }
 
-func listAttorneys(attorneys actor.Attorneys, app page.AppData, attorneyType string, headingLevel int, lpa *page.Lpa) attorneySummaryData {
+func listAttorneys(attorneys actor.Attorneys, app page.AppData, attorneyType string, headingLevel int, lpa *actor.Lpa) attorneySummaryData {
 	data := attorneySummaryData{
 		App:              app,
 		CanChange:        !lpa.Tasks.ConfirmYourIdentityAndSign.Completed() && app.IsDonor(),
@@ -327,7 +327,7 @@ func listAttorneys(attorneys actor.Attorneys, app page.AppData, attorneyType str
 	return data
 }
 
-func listPeopleToNotify(app page.AppData, headingLevel int, lpa *page.Lpa) map[string]interface{} {
+func listPeopleToNotify(app page.AppData, headingLevel int, lpa *actor.Lpa) map[string]interface{} {
 	return map[string]interface{}{
 		"App":          app,
 		"HeadingLevel": headingLevel,

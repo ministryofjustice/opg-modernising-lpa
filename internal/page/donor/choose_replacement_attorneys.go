@@ -1,5 +1,6 @@
 package donor
 
+
 import (
 	"net/http"
 	"net/url"
@@ -14,14 +15,14 @@ import (
 type chooseReplacementAttorneysData struct {
 	App         page.AppData
 	Errors      validation.List
-	Lpa         *page.Lpa
+	Lpa         *actor.Lpa
 	Form        *chooseAttorneysForm
 	DobWarning  string
 	NameWarning *actor.SameNameWarning
 }
 
 func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, uuidString func() string) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
 		addAnother := r.FormValue("addAnother") == "1"
 		attorney, attorneyFound := lpa.ReplacementAttorneys.Get(r.URL.Query().Get("id"))
 
@@ -86,7 +87,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, u
 	}
 }
 
-func replacementAttorneyMatches(lpa *page.Lpa, id, firstNames, lastName string) actor.Type {
+func replacementAttorneyMatches(lpa *actor.Lpa, id, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}

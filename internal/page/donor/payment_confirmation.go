@@ -1,5 +1,6 @@
 package donor
 
+
 import (
 	"fmt"
 	"net/http"
@@ -23,7 +24,7 @@ type paymentConfirmationData struct {
 }
 
 func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore sessions.Store) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
 		paymentSession, err := sesh.Payment(sessionStore, r)
 		if err != nil {
 			return err

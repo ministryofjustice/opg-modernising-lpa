@@ -12,7 +12,7 @@ import (
 type confirmYourDetailsData struct {
 	App                     page.AppData
 	Errors                  validation.List
-	Lpa                     *page.Lpa
+	Lpa                     *actor.Lpa
 	Attorney                actor.Attorney
 	TrustCorporation        actor.TrustCorporation
 	AttorneyProvidedDetails *actor.AttorneyProvidedDetails

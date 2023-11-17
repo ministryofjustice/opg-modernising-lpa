@@ -1,5 +1,6 @@
 package donor
 
+
 import (
 	"net/http"
 	"net/http/httptest"
@@ -23,13 +24,13 @@ func TestGetWantReplacementAttorneys(t *testing.T) {
 	template.
 		On("Execute", w, &wantReplacementAttorneysData{
 			App:     testAppData,
-			Lpa:     &page.Lpa{},
+			Lpa:     &actor.Lpa{},
 			Form:    &form.YesNoForm{},
 			Options: form.YesNoValues,
 		}).
 		Return(nil)
 
-	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -42,7 +43,7 @@ func TestGetWantReplacementAttorneysWithExistingReplacementAttorneys(t *testing.
 
 	template := newMockTemplate(t)
 
-	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "this"}}}})
+	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &actor.Lpa{ID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "this"}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -58,7 +59,7 @@ func TestGetWantReplacementAttorneysFromStore(t *testing.T) {
 	template.
 		On("Execute", w, &wantReplacementAttorneysData{
 			App: testAppData,
-			Lpa: &page.Lpa{WantReplacementAttorneys: form.Yes},
+			Lpa: &actor.Lpa{WantReplacementAttorneys: form.Yes},
 			Form: &form.YesNoForm{
 				YesNo: form.Yes,
 			},
@@ -66,7 +67,7 @@ func TestGetWantReplacementAttorneysFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &page.Lpa{WantReplacementAttorneys: form.Yes})
+	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &actor.Lpa{WantReplacementAttorneys: form.Yes})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -82,7 +83,7 @@ func TestGetWantReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -128,7 +129,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), &page.Lpa{
+				On("Put", r.Context(), &actor.Lpa{
 					ID:                       "lpa-id",
 					WantReplacementAttorneys: tc.yesNo,
 					ReplacementAttorneys:     tc.expectedReplacementAttorneys,
@@ -136,7 +137,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := WantReplacementAttorneys(nil, donorStore)(testAppData, w, r, &page.Lpa{
+			err := WantReplacementAttorneys(nil, donorStore)(testAppData, w, r, &actor.Lpa{
 				ID:                   "lpa-id",
 				ReplacementAttorneys: tc.existingReplacementAttorneys,
 				Tasks:                actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
@@ -164,7 +165,7 @@ func TestPostWantReplacementAttorneysWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := WantReplacementAttorneys(nil, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := WantReplacementAttorneys(nil, donorStore)(testAppData, w, r, &actor.Lpa{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -181,7 +182,7 @@ func TestPostWantReplacementAttorneysWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

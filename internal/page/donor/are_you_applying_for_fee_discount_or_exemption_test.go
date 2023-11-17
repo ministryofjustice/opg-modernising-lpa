@@ -27,7 +27,7 @@ func TestGetAreYouApplyingForFeeDiscountOrExemption(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := AreYouApplyingForFeeDiscountOrExemption(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
+	err := AreYouApplyingForFeeDiscountOrExemption(template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -46,7 +46,7 @@ func TestGetAreYouApplyingForFeeDiscountOrExemptionWhenTemplateErrors(t *testing
 		}).
 		Return(expectedError)
 
-	err := AreYouApplyingForFeeDiscountOrExemption(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
+	err := AreYouApplyingForFeeDiscountOrExemption(template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -62,7 +62,7 @@ func TestPostAreYouApplyingForFeeDiscountOrExemption(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpa := &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}}
+	lpa := &actor.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}}
 
 	payer := newMockPayer(t)
 	payer.
@@ -71,7 +71,7 @@ func TestPostAreYouApplyingForFeeDiscountOrExemption(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{
+		On("Put", r.Context(), &actor.Lpa{
 			ID:    "lpa-id",
 			Donor: actor.Donor{Email: "a@b.com"},
 			Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskInProgress},
@@ -96,7 +96,7 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenDonorStoreErrors(t *test
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := AreYouApplyingForFeeDiscountOrExemption(nil, nil, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := AreYouApplyingForFeeDiscountOrExemption(nil, nil, donorStore)(testAppData, w, r, &actor.Lpa{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -119,7 +119,7 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenPayerErrors(t *testing.T
 		On("Put", r.Context(), mock.Anything).
 		Return(nil)
 
-	err := AreYouApplyingForFeeDiscountOrExemption(nil, payer, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := AreYouApplyingForFeeDiscountOrExemption(nil, payer, donorStore)(testAppData, w, r, &actor.Lpa{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -134,14 +134,14 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenYes(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{
+		On("Put", r.Context(), &actor.Lpa{
 			ID:    "lpa-id",
 			Donor: actor.Donor{Email: "a@b.com"},
 			Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskInProgress},
 		}).
 		Return(nil)
 
-	err := AreYouApplyingForFeeDiscountOrExemption(nil, nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}})
+	err := AreYouApplyingForFeeDiscountOrExemption(nil, nil, donorStore)(testAppData, w, r, &actor.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -167,7 +167,7 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenValidationError(t *testi
 		})).
 		Return(nil)
 
-	err := AreYouApplyingForFeeDiscountOrExemption(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}})
+	err := AreYouApplyingForFeeDiscountOrExemption(template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

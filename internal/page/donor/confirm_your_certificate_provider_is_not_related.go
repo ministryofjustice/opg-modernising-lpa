@@ -1,5 +1,6 @@
 package donor
 
+
 import (
 	"net/http"
 
@@ -14,11 +15,11 @@ type confirmYourCertificateProviderIsNotRelatedData struct {
 	App    page.AppData
 	Errors validation.List
 	Yes    form.YesNo
-	Lpa    *page.Lpa
+	Lpa    *actor.Lpa
 }
 
 func ConfirmYourCertificateProviderIsNotRelated(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
 		data := &confirmYourCertificateProviderIsNotRelatedData{
 			App: appData,
 			Yes: form.Yes,

@@ -1,5 +1,6 @@
 package donor
 
+
 import (
 	"net/http"
 	"net/http/httptest"
@@ -39,7 +40,7 @@ func TestGetYourDetails(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourDetails(template.Execute, donorStore, nil)(testAppData, w, r, &page.Lpa{})
+	err := YourDetails(template.Execute, donorStore, nil)(testAppData, w, r, &actor.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -61,7 +62,7 @@ func TestGetYourDetailsFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourDetails(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{
+	err := YourDetails(template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{
 		Donor: actor.Donor{
 			FirstNames: "John",
 		},
@@ -79,7 +80,7 @@ func TestGetYourDetailsFromLatest(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Latest", r.Context()).
-		Return(&page.Lpa{
+		Return(&actor.Lpa{
 			Donor: actor.Donor{
 				FirstNames:    "John",
 				LastName:      "Doe",
@@ -104,7 +105,7 @@ func TestGetYourDetailsFromLatest(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourDetails(template.Execute, donorStore, nil)(testAppData, w, r, &page.Lpa{})
+	err := YourDetails(template.Execute, donorStore, nil)(testAppData, w, r, &actor.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -120,7 +121,7 @@ func TestGetYourDetailsWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := YourDetails(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{Donor: actor.Donor{FirstNames: "John"}})
+	err := YourDetails(template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{Donor: actor.Donor{FirstNames: "John"}})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -225,7 +226,7 @@ func TestPostYourDetails(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), &page.Lpa{
+				On("Put", r.Context(), &actor.Lpa{
 					ID:    "lpa-id",
 					Donor: tc.person,
 					Tasks: actor.DonorTasks{YourDetails: actor.TaskInProgress},
@@ -237,7 +238,7 @@ func TestPostYourDetails(t *testing.T) {
 				On("Get", r, "session").
 				Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
-			err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &page.Lpa{
+			err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &actor.Lpa{
 				ID: "lpa-id",
 				Donor: actor.Donor{
 					FirstNames: "John",
@@ -272,7 +273,7 @@ func TestPostYourDetailsWhenDetailsNotChanged(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{
+		On("Put", r.Context(), &actor.Lpa{
 			ID: "lpa-id",
 			Donor: actor.Donor{
 				FirstNames:    "John",
@@ -292,7 +293,7 @@ func TestPostYourDetailsWhenDetailsNotChanged(t *testing.T) {
 		On("Get", r, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
-	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &page.Lpa{
+	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &actor.Lpa{
 		ID: "lpa-id",
 		Donor: actor.Donor{
 			FirstNames:  "John",
@@ -327,7 +328,7 @@ func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{
+		On("Put", r.Context(), &actor.Lpa{
 			ID: "lpa-id",
 			Donor: actor.Donor{
 				FirstNames:    "John",
@@ -347,7 +348,7 @@ func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {
 		On("Get", r, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
-	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &page.Lpa{
+	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &actor.Lpa{
 		ID: "lpa-id",
 		Donor: actor.Donor{
 			FirstNames: "John",
@@ -439,7 +440,7 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 				On("Get", mock.Anything, "session").
 				Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
-			err := YourDetails(template.Execute, nil, sessionStore)(testAppData, w, r, &page.Lpa{})
+			err := YourDetails(template.Execute, nil, sessionStore)(testAppData, w, r, &actor.Lpa{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -472,7 +473,7 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 		On("Get", mock.Anything, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
-	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &page.Lpa{
+	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &actor.Lpa{
 		Donor: actor.Donor{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
@@ -521,7 +522,7 @@ func TestPostYourDetailsWhenSessionProblem(t *testing.T) {
 				On("Get", mock.Anything, "session").
 				Return(tc.session, tc.error)
 
-			err := YourDetails(nil, nil, sessionStore)(testAppData, w, r, &page.Lpa{})
+			err := YourDetails(nil, nil, sessionStore)(testAppData, w, r, &actor.Lpa{})
 
 			assert.NotNil(t, err)
 		})
@@ -690,7 +691,7 @@ func TestYourDetailsFormDobWarning(t *testing.T) {
 }
 
 func TestDonorMatches(t *testing.T) {
-	lpa := &page.Lpa{
+	lpa := &actor.Lpa{
 		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{FirstNames: "c", LastName: "d"},
@@ -723,7 +724,7 @@ func TestDonorMatches(t *testing.T) {
 }
 
 func TestDonorMatchesEmptyNamesIgnored(t *testing.T) {
-	lpa := &page.Lpa{
+	lpa := &actor.Lpa{
 		Donor: actor.Donor{FirstNames: "", LastName: ""},
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{FirstNames: "", LastName: ""},

@@ -1,5 +1,6 @@
 package donor
 
+
 import (
 	"net/http"
 	"net/http/httptest"
@@ -30,7 +31,7 @@ func TestGetLpaType(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LpaType(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := LpaType(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -55,7 +56,7 @@ func TestGetLpaTypeFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LpaType(template.Execute, nil)(testAppData, w, r, &page.Lpa{Type: actor.LpaTypePropertyFinance})
+	err := LpaType(template.Execute, nil)(testAppData, w, r, &actor.Lpa{Type: actor.LpaTypePropertyFinance})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -71,7 +72,7 @@ func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := LpaType(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := LpaType(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -89,14 +90,14 @@ func TestPostLpaType(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{
+		On("Put", r.Context(), &actor.Lpa{
 			ID:    "lpa-id",
 			Type:  actor.LpaTypePropertyFinance,
 			Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted},
 		}).
 		Return(nil)
 
-	err := LpaType(nil, donorStore)(testAppData, w, r, &page.Lpa{
+	err := LpaType(nil, donorStore)(testAppData, w, r, &actor.Lpa{
 		ID:                             "lpa-id",
 		HasSentApplicationUpdatedEvent: true,
 	})
@@ -116,7 +117,7 @@ func TestPostLpaTypeWhenNotChanged(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := LpaType(nil, nil)(testAppData, w, r, &page.Lpa{
+	err := LpaType(nil, nil)(testAppData, w, r, &actor.Lpa{
 		ID:   "lpa-id",
 		Type: actor.LpaTypePropertyFinance,
 	})
@@ -141,7 +142,7 @@ func TestPostLpaTypeWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := LpaType(nil, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := LpaType(nil, donorStore)(testAppData, w, r, &actor.Lpa{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -158,7 +159,7 @@ func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := LpaType(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := LpaType(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

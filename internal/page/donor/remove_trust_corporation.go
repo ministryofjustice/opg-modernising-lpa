@@ -1,5 +1,6 @@
 package donor
 
+
 import (
 	"net/http"
 
@@ -17,7 +18,7 @@ func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, isRep
 		titleLabel = "removeReplacementTrustCorporation"
 	}
 
-	updateLpa := func(lpa *page.Lpa) {
+	updateLpa := func(lpa *actor.Lpa) {
 		lpa.Attorneys.TrustCorporation = actor.TrustCorporation{}
 		if lpa.Attorneys.Len() == 1 {
 			lpa.AttorneyDecisions = actor.AttorneyDecisions{}
@@ -25,7 +26,7 @@ func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, isRep
 	}
 
 	if isReplacement {
-		updateLpa = func(lpa *page.Lpa) {
+		updateLpa = func(lpa *actor.Lpa) {
 			lpa.ReplacementAttorneys.TrustCorporation = actor.TrustCorporation{}
 			if lpa.ReplacementAttorneys.Len() == 1 {
 				lpa.ReplacementAttorneyDecisions = actor.AttorneyDecisions{}
@@ -33,7 +34,7 @@ func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, isRep
 		}
 	}
 
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
 		name := lpa.Attorneys.TrustCorporation.Name
 		if isReplacement {
 			name = lpa.ReplacementAttorneys.TrustCorporation.Name

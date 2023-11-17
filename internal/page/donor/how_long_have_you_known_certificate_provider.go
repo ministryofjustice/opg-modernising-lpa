@@ -1,5 +1,6 @@
 package donor
 
+
 import (
 	"net/http"
 
@@ -18,7 +19,7 @@ type howLongHaveYouKnownCertificateProviderData struct {
 }
 
 func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
 		data := &howLongHaveYouKnownCertificateProviderData{
 			App:                 appData,
 			CertificateProvider: lpa.CertificateProvider,

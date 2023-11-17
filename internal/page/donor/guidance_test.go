@@ -5,15 +5,16 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGuidance(t *testing.T) {
+
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &page.Lpa{}
+	lpa := &actor.Lpa{}
 
 	template := newMockTemplate(t)
 	template.
@@ -33,10 +34,10 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &guidanceData{App: testAppData, Lpa: &page.Lpa{}}).
+		On("Execute", w, &guidanceData{App: testAppData, Lpa: &actor.Lpa{}}).
 		Return(expectedError)
 
-	err := Guidance(template.Execute)(testAppData, w, r, &page.Lpa{})
+	err := Guidance(template.Execute)(testAppData, w, r, &actor.Lpa{})
 
 	assert.Equal(t, expectedError, err)
 }

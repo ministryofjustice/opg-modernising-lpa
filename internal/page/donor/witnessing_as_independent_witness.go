@@ -14,11 +14,11 @@ type witnessingAsIndependentWitnessData struct {
 	App    page.AppData
 	Errors validation.List
 	Form   *witnessingAsIndependentWitnessForm
-	Lpa    *page.Lpa
+	Lpa    *actor.Lpa
 }
 
 func WitnessingAsIndependentWitness(tmpl template.Template, donorStore DonorStore, now func() time.Time) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
 		data := &witnessingAsIndependentWitnessData{
 			App:  appData,
 			Lpa:  lpa,

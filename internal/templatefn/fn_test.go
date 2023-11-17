@@ -269,7 +269,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 
 	app := page.AppData{SessionID: "abc", Page: "/here", ActorType: actor.TypeDonor}
 	headingLevel := 3
-	lpa := &page.Lpa{ID: "lpa-id"}
+	lpa := &actor.Lpa{ID: "lpa-id"}
 	attorneyType := "attorney"
 
 	want := attorneySummaryData{
@@ -301,7 +301,7 @@ func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
 
 	app := page.AppData{SessionID: "abc", Page: "/here"}
 	headingLevel := 3
-	lpa := &page.Lpa{ID: "lpa-id"}
+	lpa := &actor.Lpa{ID: "lpa-id"}
 	attorneyType := "replacement"
 
 	want := attorneySummaryData{
@@ -336,7 +336,7 @@ func TestWarning(t *testing.T) {
 func TestListPeopleToNotify(t *testing.T) {
 	app := page.AppData{SessionID: "abc"}
 	headingLevel := 3
-	lpa := &page.Lpa{}
+	lpa := &actor.Lpa{}
 
 	want := map[string]interface{}{
 		"App":          app,

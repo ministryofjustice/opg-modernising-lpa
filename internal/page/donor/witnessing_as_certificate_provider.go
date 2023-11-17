@@ -17,11 +17,11 @@ type witnessingAsCertificateProviderData struct {
 	App    page.AppData
 	Errors validation.List
 	Form   *witnessingAsCertificateProviderForm
-	Lpa    *page.Lpa
+	Lpa    *actor.Lpa
 }
 
 func WitnessingAsCertificateProvider(tmpl template.Template, donorStore DonorStore, shareCodeSender ShareCodeSender, now func() time.Time, certificateProviderStore CertificateProviderStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
 		data := &witnessingAsCertificateProviderData{
 			App:  appData,
 			Lpa:  lpa,

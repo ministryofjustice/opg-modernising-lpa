@@ -15,7 +15,7 @@ import (
 type chooseAttorneysData struct {
 	App         page.AppData
 	Errors      validation.List
-	Lpa         *page.Lpa
+	Lpa         *actor.Lpa
 	Form        *chooseAttorneysForm
 	ShowDetails bool
 	DobWarning  string
@@ -23,7 +23,7 @@ type chooseAttorneysData struct {
 }
 
 func ChooseAttorneys(tmpl template.Template, donorStore DonorStore, uuidString func() string) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
 		addAnother := r.FormValue("addAnother") == "1"
 		attorney, attorneyFound := lpa.Attorneys.Get(r.URL.Query().Get("id"))
 
@@ -156,7 +156,7 @@ func (d *chooseAttorneysForm) DobWarning() string {
 	return ""
 }
 
-func attorneyMatches(lpa *page.Lpa, id, firstNames, lastName string) actor.Type {
+func attorneyMatches(lpa *actor.Lpa, id, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}
