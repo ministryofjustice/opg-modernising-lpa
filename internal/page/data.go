@@ -245,49 +245,10 @@ func (l *Lpa) CanGoTo(url string) bool {
 
 	if strings.HasPrefix(path, "/lpa/") {
 		_, lpaPath, _ := strings.Cut(strings.TrimPrefix(path, "/lpa/"), "/")
-		return l.canGoToLpaPath("/" + lpaPath)
+		return canGoToLpaPath(l, "/"+lpaPath)
 	}
 
 	return true
-}
-
-func (l *Lpa) canGoToLpaPath(path string) bool {
-	section1Completed := l.Tasks.YourDetails.Completed() &&
-		l.Tasks.ChooseAttorneys.Completed() &&
-		l.Tasks.ChooseReplacementAttorneys.Completed() &&
-		(l.Type == LpaTypeHealthWelfare && l.Tasks.LifeSustainingTreatment.Completed() || l.Type == LpaTypePropertyFinance && l.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
-		l.Tasks.Restrictions.Completed() &&
-		l.Tasks.CertificateProvider.Completed() &&
-		l.Tasks.PeopleToNotify.Completed() &&
-		(l.Donor.CanSign.IsYes() || l.Tasks.ChooseYourSignatory.Completed()) &&
-		l.Tasks.CheckYourLpa.Completed()
-
-	switch path {
-	case Paths.ReadYourLpa.String(), Paths.SignYourLpa.String(), Paths.WitnessingYourSignature.String(), Paths.WitnessingAsCertificateProvider.String(), Paths.WitnessingAsIndependentWitness.String(), Paths.YouHaveSubmittedYourLpa.String():
-		return l.DonorIdentityConfirmed()
-	case Paths.WhenCanTheLpaBeUsed.String(), Paths.LifeSustainingTreatment.String(), Paths.Restrictions.String(), Paths.WhatACertificateProviderDoes.String(), Paths.DoYouWantToNotifyPeople.String(), Paths.DoYouWantReplacementAttorneys.String():
-		return l.Tasks.YourDetails.Completed() &&
-			l.Tasks.ChooseAttorneys.Completed()
-	case Paths.GettingHelpSigning.String():
-		return l.Tasks.CertificateProvider.Completed()
-	case Paths.CheckYourLpa.String():
-		return l.Tasks.YourDetails.Completed() &&
-			l.Tasks.ChooseAttorneys.Completed() &&
-			l.Tasks.ChooseReplacementAttorneys.Completed() &&
-			(l.Type == LpaTypeHealthWelfare && l.Tasks.LifeSustainingTreatment.Completed() || l.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
-			l.Tasks.Restrictions.Completed() &&
-			l.Tasks.CertificateProvider.Completed() &&
-			l.Tasks.PeopleToNotify.Completed() &&
-			(l.Donor.CanSign.IsYes() || l.Tasks.ChooseYourSignatory.Completed())
-	case Paths.AboutPayment.String():
-		return section1Completed
-	case Paths.HowToConfirmYourIdentityAndSign.String(), Paths.IdentityWithOneLogin.String():
-		return section1Completed && l.Tasks.PayForLpa.IsCompleted()
-	case "":
-		return false
-	default:
-		return true
-	}
 }
 
 func (l *Lpa) Progress(certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) Progress {
