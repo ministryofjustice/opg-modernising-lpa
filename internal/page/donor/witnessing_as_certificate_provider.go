@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -32,7 +33,7 @@ func WitnessingAsCertificateProvider(tmpl template.Template, donorStore DonorSto
 			data.Errors = data.Form.Validate()
 
 			if lpa.WitnessCodeLimiter == nil {
-				lpa.WitnessCodeLimiter = page.NewLimiter(time.Minute, 5, 10)
+				lpa.WitnessCodeLimiter = actor.NewLimiter(time.Minute, 5, 10)
 			}
 
 			if !lpa.WitnessCodeLimiter.Allow(now()) {
