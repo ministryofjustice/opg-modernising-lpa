@@ -41,6 +41,9 @@ func LpaType(tmpl template.Template, donorStore DonorStore) Handler {
 			if data.Errors.None() {
 				if lpa.Type != data.Form.LpaType {
 					lpa.Type = data.Form.LpaType
+					if lpa.Type.IsHealthWelfare() {
+						lpa.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
+					}
 					lpa.Tasks.YourDetails = actor.TaskCompleted
 					lpa.HasSentApplicationUpdatedEvent = false
 

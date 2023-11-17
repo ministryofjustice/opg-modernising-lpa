@@ -79,32 +79,46 @@ func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostLpaType(t *testing.T) {
-	form := url.Values{
-		"lpa-type": {actor.LpaTypePropertyFinance.String()},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &page.Lpa{
+	testcases := map[actor.LpaType]*page.Lpa{
+		actor.LpaTypePropertyFinance: {
 			ID:    "lpa-id",
 			Type:  actor.LpaTypePropertyFinance,
 			Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted},
-		}).
-		Return(nil)
+		},
+		actor.LpaTypeHealthWelfare: {
+			ID:                  "lpa-id",
+			Type:                actor.LpaTypeHealthWelfare,
+			WhenCanTheLpaBeUsed: actor.CanBeUsedWhenCapacityLost,
+			Tasks:               actor.DonorTasks{YourDetails: actor.TaskCompleted},
+		},
+	}
 
-	err := LpaType(nil, donorStore)(testAppData, w, r, &page.Lpa{
-		ID:                             "lpa-id",
-		HasSentApplicationUpdatedEvent: true,
-	})
-	resp := w.Result()
+	for lpaType, lpa := range testcases {
+		t.Run(lpaType.String(), func(t *testing.T) {
+			form := url.Values{
+				"lpa-type": {lpaType.String()},
+			}
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+			donorStore := newMockDonorStore(t)
+			donorStore.
+				On("Put", r.Context(), lpa).
+				Return(nil)
+
+			err := LpaType(nil, donorStore)(testAppData, w, r, &page.Lpa{
+				ID:                             "lpa-id",
+				HasSentApplicationUpdatedEvent: true,
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestPostLpaTypeWhenNotChanged(t *testing.T) {
