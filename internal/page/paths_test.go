@@ -57,12 +57,12 @@ func TestLpaPathFormat(t *testing.T) {
 func TestLpaPathRedirect(t *testing.T) {
 	testCases := map[string]struct {
 		url      string
-		lpa      *Lpa
+		lpa      *actor.DonorProvidedDetails
 		expected string
 	}{
 		"allowed": {
 			url: "/",
-			lpa: &Lpa{
+			lpa: &actor.DonorProvidedDetails{
 				ID: "lpa-id",
 				Donor: actor.Donor{
 					CanSign: form.Yes,
@@ -84,17 +84,17 @@ func TestLpaPathRedirect(t *testing.T) {
 		},
 		"allowed from": {
 			url:      "/?from=" + Paths.Restrictions.Format("lpa-id"),
-			lpa:      &Lpa{ID: "lpa-id", Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted}},
+			lpa:      &actor.DonorProvidedDetails{ID: "lpa-id", Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted}},
 			expected: Paths.Restrictions.Format("lpa-id"),
 		},
 		"not allowed": {
 			url:      "/",
-			lpa:      &Lpa{ID: "lpa-id"},
+			lpa:      &actor.DonorProvidedDetails{ID: "lpa-id"},
 			expected: Paths.TaskList.Format("lpa-id"),
 		},
 		"not allowed from": {
 			url:      "/?from=" + Paths.Restrictions.Format("lpa-id"),
-			lpa:      &Lpa{ID: "lpa-id"},
+			lpa:      &actor.DonorProvidedDetails{ID: "lpa-id"},
 			expected: Paths.TaskList.Format("lpa-id"),
 		},
 	}
@@ -118,7 +118,7 @@ func TestLpaPathRedirectQuery(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 
-	err := Paths.TaskList.RedirectQuery(w, r, AppData{Lang: localize.En}, &Lpa{ID: "lpa-id"}, url.Values{"q": {"1"}})
+	err := Paths.TaskList.RedirectQuery(w, r, AppData{Lang: localize.En}, &actor.DonorProvidedDetails{ID: "lpa-id"}, url.Values{"q": {"1"}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
