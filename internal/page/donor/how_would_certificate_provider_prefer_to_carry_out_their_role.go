@@ -41,7 +41,7 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.CertificateProviderAddress.Format(lpa.ID))
+				return page.Paths.CertificateProviderAddress.Redirect(w, r, appData, lpa)
 			}
 		}
 

@@ -27,6 +27,6 @@ func AuthRedirect(logger Logger, store sesh.Store) http.HandlerFunc {
 
 		appData := AppData{Lang: lang, LpaID: oneLoginSession.LpaID}
 
-		appData.Redirect(w, r, nil, oneLoginSession.Redirect+"?"+r.URL.RawQuery)
+		appData.Redirect(w, r, oneLoginSession.Redirect+"?"+r.URL.RawQuery)
 	}
 }

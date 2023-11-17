@@ -107,7 +107,7 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, redirect.Format(lpa.ID))
+				return redirect.Redirect(w, r, appData, lpa)
 			}
 		}
 

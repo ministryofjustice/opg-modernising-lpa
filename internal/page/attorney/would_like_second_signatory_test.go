@@ -55,7 +55,7 @@ func TestGetWouldLikeSecondSignatoryWhenTemplateErrors(t *testing.T) {
 
 func TestPostWouldLikeSecondSignatory(t *testing.T) {
 	testcases := map[form.YesNo]string{
-		form.Yes: page.Paths.Attorney.Sign.Format("lpa-id") + "?second",
+		form.Yes: page.Paths.Attorney.Sign.Format("lpa-id") + "?second=",
 		form.No:  page.Paths.Attorney.WhatHappensNext.Format("lpa-id"),
 	}
 

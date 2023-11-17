@@ -1,5 +1,10 @@
 package page
 
+import (
+	"net/http"
+	"net/url"
+)
+
 type Path string
 
 func (p Path) String() string {
@@ -8,6 +13,16 @@ func (p Path) String() string {
 
 func (p Path) Format() string {
 	return string(p)
+}
+
+func (p Path) Redirect(w http.ResponseWriter, r *http.Request, appData AppData) error {
+	http.Redirect(w, r, appData.Lang.URL(p.Format()), http.StatusFound)
+	return nil
+}
+
+func (p Path) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, query url.Values) error {
+	http.Redirect(w, r, appData.Lang.URL(p.Format())+"?"+query.Encode(), http.StatusFound)
+	return nil
 }
 
 type LpaPath string
@@ -20,6 +35,36 @@ func (p LpaPath) Format(id string) string {
 	return "/lpa/" + id + string(p)
 }
 
+func (p LpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData, lpa *Lpa) error {
+	rurl := p.Format(lpa.ID)
+	if fromURL := r.FormValue("from"); fromURL != "" {
+		rurl = fromURL
+	}
+
+	if lpa.CanGoTo(rurl) {
+		http.Redirect(w, r, appData.Lang.URL(rurl), http.StatusFound)
+	} else {
+		http.Redirect(w, r, appData.Lang.URL(Paths.TaskList.Format(lpa.ID)), http.StatusFound)
+	}
+
+	return nil
+}
+
+func (p LpaPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, lpa *Lpa, query url.Values) error {
+	rurl := p.Format(lpa.ID) + "?" + query.Encode()
+	if fromURL := r.FormValue("from"); fromURL != "" {
+		rurl = fromURL
+	}
+
+	if lpa.CanGoTo(rurl) {
+		http.Redirect(w, r, appData.Lang.URL(rurl), http.StatusFound)
+	} else {
+		http.Redirect(w, r, appData.Lang.URL(Paths.TaskList.Format(lpa.ID)), http.StatusFound)
+	}
+
+	return nil
+}
+
 type AttorneyPath string
 
 func (p AttorneyPath) String() string {
@@ -30,6 +75,16 @@ func (p AttorneyPath) Format(id string) string {
 	return "/attorney/" + id + string(p)
 }
 
+func (p AttorneyPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData, lpaID string) error {
+	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID)), http.StatusFound)
+	return nil
+}
+
+func (p AttorneyPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, lpaID string, query url.Values) error {
+	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID))+"?"+query.Encode(), http.StatusFound)
+	return nil
+}
+
 type CertificateProviderPath string
 
 func (p CertificateProviderPath) String() string {
@@ -38,6 +93,11 @@ func (p CertificateProviderPath) String() string {
 
 func (p CertificateProviderPath) Format(id string) string {
 	return "/certificate-provider/" + id + string(p)
+}
+
+func (p CertificateProviderPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData, lpaID string) error {
+	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID)), http.StatusFound)
+	return nil
 }
 
 type AttorneyPaths struct {

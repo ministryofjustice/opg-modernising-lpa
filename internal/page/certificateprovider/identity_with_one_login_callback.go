@@ -36,9 +36,9 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 
 		if r.Method == http.MethodPost {
 			if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
-				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.ReadTheLpa.Format(certificateProvider.LpaID))
+				return page.Paths.CertificateProvider.ReadTheLpa.Redirect(w, r, appData, certificateProvider.LpaID)
 			} else {
-				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.ProveYourIdentity.Format(certificateProvider.LpaID))
+				return page.Paths.CertificateProvider.ProveYourIdentity.Redirect(w, r, appData, certificateProvider.LpaID)
 			}
 		}
 
