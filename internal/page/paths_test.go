@@ -68,7 +68,7 @@ func TestLpaPathRedirect(t *testing.T) {
 					CanSign: form.Yes,
 				},
 				Type: actor.LpaTypeHealthWelfare,
-				Tasks: Tasks{
+				Tasks: actor.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
 					ChooseReplacementAttorneys: actor.TaskCompleted,
@@ -84,7 +84,7 @@ func TestLpaPathRedirect(t *testing.T) {
 		},
 		"allowed from": {
 			url:      "/?from=" + Paths.Restrictions.Format("lpa-id"),
-			lpa:      &Lpa{ID: "lpa-id", Tasks: Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted}},
+			lpa:      &Lpa{ID: "lpa-id", Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted}},
 			expected: Paths.Restrictions.Format("lpa-id"),
 		},
 		"not allowed": {

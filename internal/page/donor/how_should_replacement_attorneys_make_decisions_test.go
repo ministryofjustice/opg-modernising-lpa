@@ -145,7 +145,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 					ID:                           "lpa-id",
 					ReplacementAttorneys:         tc.attorneys,
 					ReplacementAttorneyDecisions: tc.updated,
-					Tasks:                        page.Tasks{ChooseReplacementAttorneys: tc.taskState},
+					Tasks:                        actor.DonorTasks{ChooseReplacementAttorneys: tc.taskState},
 				}).
 				Return(nil)
 

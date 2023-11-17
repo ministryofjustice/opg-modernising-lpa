@@ -293,7 +293,7 @@ func TestPostIdentityWithOneLoginCallbackNotConfirmed(t *testing.T) {
 			CanSign: form.Yes,
 		},
 		Type: actor.LpaTypeHealthWelfare,
-		Tasks: page.Tasks{
+		Tasks: actor.DonorTasks{
 			YourDetails:                actor.TaskCompleted,
 			ChooseAttorneys:            actor.TaskCompleted,
 			ChooseReplacementAttorneys: actor.TaskCompleted,

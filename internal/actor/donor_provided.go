@@ -51,3 +51,18 @@ type Payment struct {
 	// Amount is the amount paid in pence
 	Amount int
 }
+
+type DonorTasks struct {
+	YourDetails                TaskState
+	ChooseAttorneys            TaskState
+	ChooseReplacementAttorneys TaskState
+	WhenCanTheLpaBeUsed        TaskState // pfa only
+	LifeSustainingTreatment    TaskState // hw only
+	Restrictions               TaskState
+	CertificateProvider        TaskState
+	CheckYourLpa               TaskState
+	PayForLpa                  PaymentTask
+	ConfirmYourIdentityAndSign TaskState
+	ChooseYourSignatory        TaskState // if .Donor.CanSign.IsNo only
+	PeopleToNotify             TaskState
+}

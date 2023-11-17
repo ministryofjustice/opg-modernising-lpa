@@ -44,7 +44,7 @@ func TestGetChoosePeopleToNotifySummaryWhenNoPeopleToNotify(t *testing.T) {
 
 	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &page.Lpa{
 		ID: "lpa-id",
-		Tasks: page.Tasks{
+		Tasks: actor.DonorTasks{
 			YourDetails:                actor.TaskCompleted,
 			ChooseAttorneys:            actor.TaskCompleted,
 			ChooseReplacementAttorneys: actor.TaskCompleted,
@@ -90,7 +90,7 @@ func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &page.Lpa{
 		ID:             "lpa-id",
 		PeopleToNotify: actor.PeopleToNotify{{ID: "123"}},
-		Tasks: page.Tasks{
+		Tasks: actor.DonorTasks{
 			YourDetails:                actor.TaskCompleted,
 			ChooseAttorneys:            actor.TaskCompleted,
 			ChooseReplacementAttorneys: actor.TaskCompleted,
