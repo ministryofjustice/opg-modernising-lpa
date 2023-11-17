@@ -11,11 +11,10 @@ import (
 )
 
 type certificateProviderDetailsData struct {
-	App                 page.AppData
-	Errors              validation.List
-	Form                *certificateProviderDetailsForm
-	NameWarning         *actor.SameNameWarning
-	SameLastnameAsDonor bool
+	App         page.AppData
+	Errors      validation.List
+	Form        *certificateProviderDetailsForm
+	NameWarning *actor.SameNameWarning
 }
 
 func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore) Handler {
@@ -50,11 +49,7 @@ func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore) H
 				data.NameWarning = sameNameWarning
 			}
 
-			if lpa.Donor.LastName == data.Form.LastName && !data.Form.IgnoreSimilarNameWarning && sameNameWarning == nil {
-				data.SameLastnameAsDonor = true
-			}
-
-			if data.Errors.None() && data.NameWarning == nil && !data.SameLastnameAsDonor {
+			if data.Errors.None() && data.NameWarning == nil {
 				lpa.CertificateProvider.FirstNames = data.Form.FirstNames
 				lpa.CertificateProvider.LastName = data.Form.LastName
 				lpa.CertificateProvider.HasNonUKMobile = data.Form.HasNonUKMobile
