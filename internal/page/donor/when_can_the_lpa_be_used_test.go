@@ -24,7 +24,7 @@ func TestGetWhenCanTheLpaBeUsed(t *testing.T) {
 			App:     testAppData,
 			Lpa:     &page.Lpa{},
 			Form:    &whenCanTheLpaBeUsedForm{},
-			Options: page.CanBeUsedWhenValues,
+			Options: actor.CanBeUsedWhenValues,
 		}).
 		Return(nil)
 
@@ -43,15 +43,15 @@ func TestGetWhenCanTheLpaBeUsedFromStore(t *testing.T) {
 	template.
 		On("Execute", w, &whenCanTheLpaBeUsedData{
 			App: testAppData,
-			Lpa: &page.Lpa{WhenCanTheLpaBeUsed: page.CanBeUsedWhenHasCapacity},
+			Lpa: &page.Lpa{WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity},
 			Form: &whenCanTheLpaBeUsedForm{
-				When: page.CanBeUsedWhenHasCapacity,
+				When: actor.CanBeUsedWhenHasCapacity,
 			},
-			Options: page.CanBeUsedWhenValues,
+			Options: actor.CanBeUsedWhenValues,
 		}).
 		Return(nil)
 
-	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &page.Lpa{WhenCanTheLpaBeUsed: page.CanBeUsedWhenHasCapacity})
+	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &page.Lpa{WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -76,7 +76,7 @@ func TestGetWhenCanTheLpaBeUsedWhenTemplateErrors(t *testing.T) {
 
 func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 	form := url.Values{
-		"when": {page.CanBeUsedWhenHasCapacity.String()},
+		"when": {actor.CanBeUsedWhenHasCapacity.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -87,7 +87,7 @@ func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			ID:                  "lpa-id",
-			WhenCanTheLpaBeUsed: page.CanBeUsedWhenHasCapacity,
+			WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity,
 			Tasks:               page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, WhenCanTheLpaBeUsed: actor.TaskCompleted},
 		}).
 		Return(nil)
@@ -105,7 +105,7 @@ func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 
 func TestPostWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"when": {page.CanBeUsedWhenHasCapacity.String()},
+		"when": {actor.CanBeUsedWhenHasCapacity.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -114,7 +114,7 @@ func TestPostWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{WhenCanTheLpaBeUsed: page.CanBeUsedWhenHasCapacity, Tasks: page.Tasks{WhenCanTheLpaBeUsed: actor.TaskCompleted}}).
+		On("Put", r.Context(), &page.Lpa{WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity, Tasks: page.Tasks{WhenCanTheLpaBeUsed: actor.TaskCompleted}}).
 		Return(expectedError)
 
 	err := WhenCanTheLpaBeUsed(nil, donorStore)(testAppData, w, r, &page.Lpa{})
@@ -143,7 +143,7 @@ func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
 
 func TestReadWhenCanTheLpaBeUsedForm(t *testing.T) {
 	form := url.Values{
-		"when": {page.CanBeUsedWhenHasCapacity.String()},
+		"when": {actor.CanBeUsedWhenHasCapacity.String()},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -151,7 +151,7 @@ func TestReadWhenCanTheLpaBeUsedForm(t *testing.T) {
 
 	result := readWhenCanTheLpaBeUsedForm(r)
 
-	assert.Equal(t, page.CanBeUsedWhenHasCapacity, result.When)
+	assert.Equal(t, actor.CanBeUsedWhenHasCapacity, result.When)
 }
 
 func TestWhenCanTheLpaBeUsedFormValidate(t *testing.T) {

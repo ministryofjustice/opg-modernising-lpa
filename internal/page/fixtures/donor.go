@@ -162,7 +162,7 @@ func Donor(
 				lpa.LifeSustainingTreatmentOption = page.LifeSustainingTreatmentOptionA
 				lpa.Tasks.LifeSustainingTreatment = actor.TaskCompleted
 			} else {
-				lpa.WhenCanTheLpaBeUsed = page.CanBeUsedWhenHasCapacity
+				lpa.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
 				lpa.Tasks.WhenCanTheLpaBeUsed = actor.TaskCompleted
 			}
 		}
