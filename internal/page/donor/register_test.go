@@ -594,7 +594,7 @@ func TestPayHelperPayWhenFeeDenied(t *testing.T) {
 			Donor:          actor.Donor{Email: "a@b.com"},
 			FeeType:        pay.FullFee,
 			Tasks:          page.Tasks{PayForLpa: actor.PaymentTaskInProgress},
-			PaymentDetails: []page.Payment{{Amount: 4100}},
+			PaymentDetails: []actor.Payment{{Amount: 4100}},
 		}).
 		Return(nil)
 
@@ -609,7 +609,7 @@ func TestPayHelperPayWhenFeeDenied(t *testing.T) {
 		Donor:          actor.Donor{Email: "a@b.com"},
 		FeeType:        pay.HalfFee,
 		Tasks:          page.Tasks{PayForLpa: actor.PaymentTaskDenied},
-		PaymentDetails: []page.Payment{{Amount: 4100}},
+		PaymentDetails: []actor.Payment{{Amount: 4100}},
 	})
 	resp := w.Result()
 
@@ -664,7 +664,7 @@ func TestPayHelperPayWhenFeeDeniedAndPutStoreError(t *testing.T) {
 			Donor:          actor.Donor{Email: "a@b.com"},
 			FeeType:        pay.FullFee,
 			Tasks:          page.Tasks{PayForLpa: actor.PaymentTaskInProgress},
-			PaymentDetails: []page.Payment{{Amount: 4100}},
+			PaymentDetails: []actor.Payment{{Amount: 4100}},
 		}).
 		Return(expectedError)
 
@@ -679,7 +679,7 @@ func TestPayHelperPayWhenFeeDeniedAndPutStoreError(t *testing.T) {
 		Donor:          actor.Donor{Email: "a@b.com"},
 		FeeType:        pay.HalfFee,
 		Tasks:          page.Tasks{PayForLpa: actor.PaymentTaskDenied},
-		PaymentDetails: []page.Payment{{Amount: 4100}},
+		PaymentDetails: []actor.Payment{{Amount: 4100}},
 	})
 	resp := w.Result()
 
