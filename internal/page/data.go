@@ -106,7 +106,7 @@ type Lpa struct {
 	// When the signing was witnessed by the independent witness
 	WitnessedByIndependentWitnessAt time.Time
 	// Used to rate limit witness code attempts
-	WitnessCodeLimiter *Limiter
+	WitnessCodeLimiter *actor.Limiter
 
 	// FeeType is the type of fee the user is applying for
 	FeeType pay.FeeType

@@ -468,7 +468,7 @@ func TestPostWitnessingAsCertificateProviderCodeLimitBreached(t *testing.T) {
 		Return(nil)
 
 	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, time.Now, nil)(testAppData, w, r, &page.Lpa{
-		WitnessCodeLimiter:       page.NewLimiter(time.Minute, 0, 10),
+		WitnessCodeLimiter:       actor.NewLimiter(time.Minute, 0, 10),
 		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 	})
 	resp := w.Result()
