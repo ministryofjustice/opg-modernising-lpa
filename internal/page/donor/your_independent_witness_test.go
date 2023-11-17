@@ -116,7 +116,7 @@ func TestPostYourIndependentWitness(t *testing.T) {
 					ID:                 "lpa-id",
 					Donor:              actor.Donor{FirstNames: "John", LastName: "Smith"},
 					IndependentWitness: tc.person,
-					Tasks:              page.Tasks{ChooseYourSignatory: actor.TaskInProgress},
+					Tasks:              actor.DonorTasks{ChooseYourSignatory: actor.TaskInProgress},
 				}).
 				Return(nil)
 
@@ -152,7 +152,7 @@ func TestPostYourIndependentWitnessWhenTaskCompleted(t *testing.T) {
 				FirstNames: "John",
 				LastName:   "Doe",
 			},
-			Tasks: page.Tasks{ChooseYourSignatory: actor.TaskCompleted},
+			Tasks: actor.DonorTasks{ChooseYourSignatory: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -161,7 +161,7 @@ func TestPostYourIndependentWitnessWhenTaskCompleted(t *testing.T) {
 		IndependentWitness: actor.IndependentWitness{
 			FirstNames: "John",
 		},
-		Tasks: page.Tasks{ChooseYourSignatory: actor.TaskCompleted},
+		Tasks: actor.DonorTasks{ChooseYourSignatory: actor.TaskCompleted},
 	})
 	resp := w.Result()
 

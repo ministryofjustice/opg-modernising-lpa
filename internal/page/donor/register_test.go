@@ -201,8 +201,8 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 			DateOfBirth: date.New("2000", "1", "2"),
 			Address:     place.Address{Postcode: "ABC123"},
 		},
-			Type:  page.LpaTypePropertyFinance,
-			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
+			Type:  actor.LpaTypePropertyFinance,
+			Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted},
 			UID:   "a-uid",
 		}, nil)
 
@@ -436,7 +436,7 @@ func TestPayHelperPayWhenPaymentNotRequired(t *testing.T) {
 				On("Put", r.Context(), &page.Lpa{
 					ID:               "lpa-id",
 					FeeType:          feeType,
-					Tasks:            page.Tasks{PayForLpa: actor.PaymentTaskPending},
+					Tasks:            actor.DonorTasks{PayForLpa: actor.PaymentTaskPending},
 					EvidenceDelivery: pay.Upload,
 				}).
 				Return(nil)
@@ -473,7 +473,7 @@ func TestPayHelperPayWhenPostingEvidence(t *testing.T) {
 				On("Put", r.Context(), &page.Lpa{
 					ID:               "lpa-id",
 					FeeType:          feeType,
-					Tasks:            page.Tasks{PayForLpa: actor.PaymentTaskPending},
+					Tasks:            actor.DonorTasks{PayForLpa: actor.PaymentTaskPending},
 					EvidenceDelivery: pay.Post,
 				}).
 				Return(nil)
@@ -503,7 +503,7 @@ func TestPayHelperPayWhenMoreEvidenceProvided(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			ID:               "lpa-id",
 			FeeType:          pay.HalfFee,
-			Tasks:            page.Tasks{PayForLpa: actor.PaymentTaskPending},
+			Tasks:            actor.DonorTasks{PayForLpa: actor.PaymentTaskPending},
 			EvidenceDelivery: pay.Upload,
 		}).
 		Return(nil)
@@ -513,7 +513,7 @@ func TestPayHelperPayWhenMoreEvidenceProvided(t *testing.T) {
 	}).Pay(testAppData, w, r, &page.Lpa{
 		ID:               "lpa-id",
 		FeeType:          pay.HalfFee,
-		Tasks:            page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired},
+		Tasks:            actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired},
 		EvidenceDelivery: pay.Upload,
 	})
 	resp := w.Result()
@@ -532,7 +532,7 @@ func TestPayHelperPayWhenPaymentNotRequiredWhenDonorStorePutError(t *testing.T) 
 		On("Put", r.Context(), &page.Lpa{
 			ID:      "lpa-id",
 			FeeType: pay.NoFee,
-			Tasks:   page.Tasks{PayForLpa: actor.PaymentTaskPending},
+			Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskPending},
 		}).
 		Return(expectedError)
 
@@ -593,8 +593,8 @@ func TestPayHelperPayWhenFeeDenied(t *testing.T) {
 			ID:             "lpa-id",
 			Donor:          actor.Donor{Email: "a@b.com"},
 			FeeType:        pay.FullFee,
-			Tasks:          page.Tasks{PayForLpa: actor.PaymentTaskInProgress},
-			PaymentDetails: []page.Payment{{Amount: 4100}},
+			Tasks:          actor.DonorTasks{PayForLpa: actor.PaymentTaskInProgress},
+			PaymentDetails: []actor.Payment{{Amount: 4100}},
 		}).
 		Return(nil)
 
@@ -608,8 +608,8 @@ func TestPayHelperPayWhenFeeDenied(t *testing.T) {
 		ID:             "lpa-id",
 		Donor:          actor.Donor{Email: "a@b.com"},
 		FeeType:        pay.HalfFee,
-		Tasks:          page.Tasks{PayForLpa: actor.PaymentTaskDenied},
-		PaymentDetails: []page.Payment{{Amount: 4100}},
+		Tasks:          actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied},
+		PaymentDetails: []actor.Payment{{Amount: 4100}},
 	})
 	resp := w.Result()
 
@@ -663,8 +663,8 @@ func TestPayHelperPayWhenFeeDeniedAndPutStoreError(t *testing.T) {
 			ID:             "lpa-id",
 			Donor:          actor.Donor{Email: "a@b.com"},
 			FeeType:        pay.FullFee,
-			Tasks:          page.Tasks{PayForLpa: actor.PaymentTaskInProgress},
-			PaymentDetails: []page.Payment{{Amount: 4100}},
+			Tasks:          actor.DonorTasks{PayForLpa: actor.PaymentTaskInProgress},
+			PaymentDetails: []actor.Payment{{Amount: 4100}},
 		}).
 		Return(expectedError)
 
@@ -678,8 +678,8 @@ func TestPayHelperPayWhenFeeDeniedAndPutStoreError(t *testing.T) {
 		ID:             "lpa-id",
 		Donor:          actor.Donor{Email: "a@b.com"},
 		FeeType:        pay.HalfFee,
-		Tasks:          page.Tasks{PayForLpa: actor.PaymentTaskDenied},
-		PaymentDetails: []page.Payment{{Amount: 4100}},
+		Tasks:          actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied},
+		PaymentDetails: []actor.Payment{{Amount: 4100}},
 	})
 	resp := w.Result()
 

@@ -132,14 +132,14 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 					ID:                       "lpa-id",
 					WantReplacementAttorneys: tc.yesNo,
 					ReplacementAttorneys:     tc.expectedReplacementAttorneys,
-					Tasks:                    page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, ChooseReplacementAttorneys: tc.taskState},
+					Tasks:                    actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, ChooseReplacementAttorneys: tc.taskState},
 				}).
 				Return(nil)
 
 			err := WantReplacementAttorneys(nil, donorStore)(testAppData, w, r, &page.Lpa{
 				ID:                   "lpa-id",
 				ReplacementAttorneys: tc.existingReplacementAttorneys,
-				Tasks:                page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
+				Tasks:                actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 			})
 			resp := w.Result()
 
