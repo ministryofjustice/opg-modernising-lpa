@@ -69,3 +69,10 @@ body:not(.js-enabled) .govuk-back-link {
     outline: inherit;
     color: $govuk-link-colour;
 }
+
+@media print {
+    .app-hide-print {
+        display: none !important;
+    }
+    .govuk-grid-column-two-thirds { width: 100% !important; }
+}

@@ -5,7 +5,7 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <div class="govuk-panel govuk-panel--confirmation">
+      <div class="govuk-panel govuk-panel--confirmation app-hide-print">
         <h1 class="govuk-panel__title">{{ tr .App "youveProvidedTheCertificateForThisLpa" }}</h1>
       </div>
 
@@ -19,7 +19,7 @@
 
       {{ trFormatHtml .App "certificateProvidedConcerns" "DonorFirstNamesPossessive" (possessive .App .Lpa.Donor.FirstNames) }}
 
-      <a href="{{ link .App .App.Paths.Dashboard.Format }}" class="govuk-button">{{ tr .App "goToYourDashboard" }}</a>
+      <a href="{{ link .App .App.Paths.Dashboard.Format }}" class="govuk-button app-hide-print">{{ tr .App "goToYourDashboard" }}</a>
     </div>
   </div>
 {{ end }}
