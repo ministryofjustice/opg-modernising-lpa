@@ -900,5 +900,6 @@
     "yourHomeAddress": "Your home address",
     "changeHomeAddressLink": "Change<span class=\"govuk-visually-hidden\"> home address</span>",
     "homeAddress": "Home address",
-    "goToDashboard": "Go to dashboard"
+    "goToDashboard": "Go to dashboard",
+    "yourDateOfBirthWillNotBeShown": "Your date of birth will not be shown to the donor or appear on the completed LPA."
 }
