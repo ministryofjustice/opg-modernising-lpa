@@ -16,12 +16,12 @@ func (p Path) Format() string {
 }
 
 func (p Path) Redirect(w http.ResponseWriter, r *http.Request, appData AppData) error {
-	http.Redirect(w, r, appData.BuildUrl(p.Format()), http.StatusFound)
+	http.Redirect(w, r, appData.Lang.URL(p.Format()), http.StatusFound)
 	return nil
 }
 
 func (p Path) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, query url.Values) error {
-	http.Redirect(w, r, appData.BuildUrl(p.Format())+"?"+query.Encode(), http.StatusFound)
+	http.Redirect(w, r, appData.Lang.URL(p.Format())+"?"+query.Encode(), http.StatusFound)
 	return nil
 }
 
@@ -42,9 +42,9 @@ func (p LpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppDat
 	}
 
 	if lpa.CanGoTo(rurl) {
-		http.Redirect(w, r, appData.BuildUrl(rurl), http.StatusFound)
+		http.Redirect(w, r, appData.Lang.URL(rurl), http.StatusFound)
 	} else {
-		http.Redirect(w, r, appData.BuildUrl(Paths.TaskList.Format(lpa.ID)), http.StatusFound)
+		http.Redirect(w, r, appData.Lang.URL(Paths.TaskList.Format(lpa.ID)), http.StatusFound)
 	}
 
 	return nil
@@ -57,9 +57,9 @@ func (p LpaPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData A
 	}
 
 	if lpa.CanGoTo(rurl) {
-		http.Redirect(w, r, appData.BuildUrl(rurl), http.StatusFound)
+		http.Redirect(w, r, appData.Lang.URL(rurl), http.StatusFound)
 	} else {
-		http.Redirect(w, r, appData.BuildUrl(Paths.TaskList.Format(lpa.ID)), http.StatusFound)
+		http.Redirect(w, r, appData.Lang.URL(Paths.TaskList.Format(lpa.ID)), http.StatusFound)
 	}
 
 	return nil
@@ -76,12 +76,12 @@ func (p AttorneyPath) Format(id string) string {
 }
 
 func (p AttorneyPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData, lpaID string) error {
-	http.Redirect(w, r, appData.BuildUrl(p.Format(lpaID)), http.StatusFound)
+	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID)), http.StatusFound)
 	return nil
 }
 
 func (p AttorneyPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, lpaID string, query url.Values) error {
-	http.Redirect(w, r, appData.BuildUrl(p.Format(lpaID))+"?"+query.Encode(), http.StatusFound)
+	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID))+"?"+query.Encode(), http.StatusFound)
 	return nil
 }
 
@@ -96,7 +96,7 @@ func (p CertificateProviderPath) Format(id string) string {
 }
 
 func (p CertificateProviderPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData, lpaID string) error {
-	http.Redirect(w, r, appData.BuildUrl(p.Format(lpaID)), http.StatusFound)
+	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID)), http.StatusFound)
 	return nil
 }
 

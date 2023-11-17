@@ -31,25 +31,6 @@ func TestAppDataRedirect(t *testing.T) {
 	}
 }
 
-func TestAppDataBuildUrl(t *testing.T) {
-	testCases := map[string]struct {
-		lang localize.Lang
-		url  string
-		want string
-	}{
-		"english":        {lang: localize.En, url: "/example.org", want: "/example.org"},
-		"welsh":          {lang: localize.Cy, url: "/example.org", want: "/cy/example.org"},
-		"other language": {lang: localize.Lang(3), url: "/example.org", want: "/example.org"},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			builtUrl := AppData{Lang: tc.lang}.BuildUrl(tc.url)
-			assert.Equal(t, tc.want, builtUrl)
-		})
-	}
-}
-
 func TestAppDataContext(t *testing.T) {
 	appData := AppData{LpaID: "me"}
 	ctx := context.Background()
