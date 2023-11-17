@@ -51,7 +51,7 @@ func WhatIsYourHomeAddress(logger Logger, tmpl template.Template, addressClient 
 						return err
 					}
 
-					return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.ConfirmYourDetails.Format(certificateProvider.LpaID))
+					return page.Paths.CertificateProvider.ConfirmYourDetails.Redirect(w, r, appData, certificateProvider.LpaID)
 				}
 
 			case "postcode-select":
