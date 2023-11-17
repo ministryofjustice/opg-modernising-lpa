@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/stretchr/testify/assert"
 )
@@ -23,98 +22,11 @@ func TestAppDataRedirect(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 			w := httptest.NewRecorder()
 
-			AppData{Lang: lang, LpaID: "lpa-id"}.Redirect(w, r, nil, "/dashboard")
+			AppData{Lang: lang, LpaID: "lpa-id"}.Redirect(w, r, "/dashboard")
 			resp := w.Result()
 
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
 			assert.Equal(t, url, resp.Header.Get("Location"))
-		})
-	}
-}
-
-func TestAppDataRedirectWhenCanGoTo(t *testing.T) {
-	testCases := map[string]struct {
-		url      string
-		lpa      *Lpa
-		expected string
-	}{
-		"nil": {
-			url:      "/",
-			lpa:      nil,
-			expected: Paths.HowToConfirmYourIdentityAndSign.Format("lpa-id"),
-		},
-		"nil and from": {
-			url:      "/?from=" + Paths.Restrictions.Format("lpa-id"),
-			lpa:      nil,
-			expected: Paths.Restrictions.Format("lpa-id"),
-		},
-		"allowed": {
-			url: "/",
-			lpa: &Lpa{
-				Donor: actor.Donor{
-					CanSign: form.Yes,
-				},
-				Type: LpaTypeHealthWelfare,
-				Tasks: Tasks{
-					YourDetails:                actor.TaskCompleted,
-					ChooseAttorneys:            actor.TaskCompleted,
-					ChooseReplacementAttorneys: actor.TaskCompleted,
-					LifeSustainingTreatment:    actor.TaskCompleted,
-					Restrictions:               actor.TaskCompleted,
-					CertificateProvider:        actor.TaskCompleted,
-					PeopleToNotify:             actor.TaskCompleted,
-					CheckYourLpa:               actor.TaskCompleted,
-					PayForLpa:                  actor.PaymentTaskCompleted,
-				},
-			},
-			expected: Paths.HowToConfirmYourIdentityAndSign.Format("lpa-id"),
-		},
-		"allowed from": {
-			url:      "/?from=" + Paths.Restrictions.Format("lpa-id"),
-			lpa:      &Lpa{Tasks: Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted}},
-			expected: Paths.Restrictions.Format("lpa-id"),
-		},
-		"not allowed": {
-			url:      "/",
-			lpa:      &Lpa{},
-			expected: Paths.TaskList.Format("lpa-id"),
-		},
-		"not allowed from": {
-			url:      "/?from=" + Paths.Restrictions.Format("lpa-id"),
-			lpa:      &Lpa{},
-			expected: Paths.TaskList.Format("lpa-id"),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
-			w := httptest.NewRecorder()
-
-			AppData{Lang: localize.En, LpaID: "lpa-id"}.Redirect(w, r, tc.lpa, Paths.HowToConfirmYourIdentityAndSign.Format("lpa-id"))
-			resp := w.Result()
-
-			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, tc.expected, resp.Header.Get("Location"))
-		})
-	}
-}
-
-func TestAppDataBuildUrl(t *testing.T) {
-	testCases := map[string]struct {
-		lang localize.Lang
-		url  string
-		want string
-	}{
-		"english":        {lang: localize.En, url: "/example.org", want: "/example.org"},
-		"welsh":          {lang: localize.Cy, url: "/example.org", want: "/cy/example.org"},
-		"other language": {lang: localize.Lang(3), url: "/example.org", want: "/example.org"},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			builtUrl := AppData{Lang: tc.lang}.BuildUrl(tc.url)
-			assert.Equal(t, tc.want, builtUrl)
 		})
 	}
 }

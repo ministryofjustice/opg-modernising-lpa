@@ -29,9 +29,9 @@ func ConfirmYourDetails(tmpl template.Template, donorStore DonorStore, certifica
 		}
 
 		if r.Method == http.MethodPost {
-			redirect := page.Paths.CertificateProvider.YourRole.Format(certificateProvider.LpaID)
+			redirect := page.Paths.CertificateProvider.YourRole
 			if certificateProvider.Tasks.ConfirmYourDetails.Completed() || !lpa.SignedAt.IsZero() {
-				redirect = page.Paths.CertificateProvider.TaskList.Format(certificateProvider.LpaID)
+				redirect = page.Paths.CertificateProvider.TaskList
 			}
 
 			certificateProvider.Tasks.ConfirmYourDetails = actor.TaskCompleted
@@ -40,7 +40,7 @@ func ConfirmYourDetails(tmpl template.Template, donorStore DonorStore, certifica
 				return err
 			}
 
-			return appData.Redirect(w, r, nil, redirect)
+			return redirect.Redirect(w, r, appData, certificateProvider.LpaID)
 		}
 
 		data := &confirmYourDetailsData{

@@ -10,6 +10,14 @@ func (l Lang) String() string {
 	return englishAbbreviation
 }
 
+func (l Lang) URL(path string) string {
+	if l == Cy {
+		return "/" + Cy.String() + path
+	}
+
+	return path
+}
+
 const (
 	En Lang = iota
 	Cy

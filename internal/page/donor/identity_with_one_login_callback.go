@@ -26,9 +26,9 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if r.Method == http.MethodPost {
 			if lpa.DonorIdentityConfirmed() {
-				return appData.Redirect(w, r, lpa, page.Paths.ReadYourLpa.Format(lpa.ID))
+				return page.Paths.ReadYourLpa.Redirect(w, r, appData, lpa)
 			} else {
-				return appData.Redirect(w, r, lpa, page.Paths.ProveYourIdentity.Format(lpa.ID))
+				return page.Paths.ProveYourIdentity.Redirect(w, r, appData, lpa)
 			}
 		}
 

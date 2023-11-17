@@ -162,7 +162,7 @@
                   </a>
                 </li>
                 <li class="govuk-footer__inline-list-item">
-                  <a class="govuk-footer__link" href="{{ if .App.Localizer.ShowTranslationKeys }}{{ .App.BuildUrl .App.Page }}{{ else }}{{ .App.BuildUrl .App.Page }}?showTranslationKeys=1{{ end }}">
+                  <a class="govuk-footer__link" href="{{ if .App.Localizer.ShowTranslationKeys }}{{ link .App .App.Page }}{{ else }}{{ link .App .App.Page }}?showTranslationKeys=1{{ end }}">
                     {{ tr .App "toggleTransKeys" }}
                   </a>
                 </li>

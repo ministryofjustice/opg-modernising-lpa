@@ -62,12 +62,11 @@ func EnterDateOfBirth(tmpl template.Template, donorStore DonorStore, certificate
 					return err
 				}
 
-				redirect := page.Paths.CertificateProvider.ConfirmYourDetails.Format(certificateProvider.LpaID)
 				if lpa.CertificateProvider.Relationship.IsProfessionally() {
-					redirect = page.Paths.CertificateProvider.WhatIsYourHomeAddress.Format(certificateProvider.LpaID)
+					return page.Paths.CertificateProvider.WhatIsYourHomeAddress.Redirect(w, r, appData, certificateProvider.LpaID)
 				}
 
-				return appData.Redirect(w, r, lpa, redirect)
+				return page.Paths.CertificateProvider.ConfirmYourDetails.Redirect(w, r, appData, certificateProvider.LpaID)
 			}
 		}
 

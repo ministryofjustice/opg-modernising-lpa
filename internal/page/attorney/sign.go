@@ -53,7 +53,7 @@ func Sign(tmpl template.Template, donorStore DonorStore, certificateProviderStor
 		}
 
 		if ok, _ := canSign(r.Context(), certificateProviderStore, lpa); !ok {
-			return appData.Redirect(w, r, lpa, page.Paths.Attorney.TaskList.Format(attorneyProvidedDetails.LpaID))
+			return page.Paths.Attorney.TaskList.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 		}
 
 		data := &signData{
@@ -90,7 +90,7 @@ func Sign(tmpl template.Template, donorStore DonorStore, certificateProviderStor
 
 			attorney, ok := attorneys.Get(appData.AttorneyID)
 			if !ok {
-				return appData.Redirect(w, r, lpa, page.Paths.Attorney.Start.Format())
+				return page.Paths.Attorney.Start.Redirect(w, r, appData)
 			}
 
 			data.Attorney = attorney
@@ -125,9 +125,9 @@ func Sign(tmpl template.Template, donorStore DonorStore, certificateProviderStor
 				}
 
 				if appData.IsTrustCorporation() && signatoryIndex == 0 {
-					return appData.Redirect(w, r, lpa, page.Paths.Attorney.WouldLikeSecondSignatory.Format(attorneyProvidedDetails.LpaID))
+					return page.Paths.Attorney.WouldLikeSecondSignatory.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 				} else {
-					return appData.Redirect(w, r, lpa, page.Paths.Attorney.WhatHappensNext.Format(attorneyProvidedDetails.LpaID))
+					return page.Paths.Attorney.WhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 				}
 			}
 		}

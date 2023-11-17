@@ -36,7 +36,7 @@ func ConfirmYourCertificateProviderIsNotRelated(tmpl template.Template, donorSto
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.CheckYourLpa.Format(lpa.ID))
+				return page.Paths.CheckYourLpa.Redirect(w, r, appData, lpa)
 			}
 		}
 

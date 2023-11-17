@@ -147,7 +147,8 @@ func CertificateProvider(
 				Localizer: appData.Localizer,
 			}, true, lpa)
 
-			return page.AppData{}.Redirect(w, r, nil, page.Paths.CertificateProviderStart.Format())
+			http.Redirect(w, r, page.Paths.CertificateProviderStart.Format(), http.StatusFound)
+			return nil
 		}
 
 		switch redirect {
@@ -159,6 +160,7 @@ func CertificateProvider(
 			redirect = "/certificate-provider/" + lpa.ID + redirect
 		}
 
-		return page.AppData{}.Redirect(w, r, nil, redirect)
+		http.Redirect(w, r, redirect, http.StatusFound)
+		return nil
 	}
 }

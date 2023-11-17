@@ -490,17 +490,17 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 		}
 
 		if lpa.EvidenceDelivery.IsPost() {
-			return appData.Redirect(w, r, lpa, page.Paths.WhatHappensNextPostEvidence.Format(lpa.ID))
+			return page.Paths.WhatHappensNextPostEvidence.Redirect(w, r, appData, lpa)
 		}
 
-		return appData.Redirect(w, r, lpa, page.Paths.EvidenceSuccessfullyUploaded.Format(lpa.ID))
+		return page.Paths.EvidenceSuccessfullyUploaded.Redirect(w, r, appData, lpa)
 	}
 
 	createPaymentBody := pay.CreatePaymentBody{
 		Amount:      lpa.FeeAmount(),
 		Reference:   p.randomString(12),
 		Description: "Property and Finance LPA",
-		ReturnUrl:   p.appPublicURL + appData.BuildUrl(page.Paths.PaymentConfirmation.Format(lpa.ID)),
+		ReturnUrl:   p.appPublicURL + appData.Lang.URL(page.Paths.PaymentConfirmation.Format(lpa.ID)),
 		Email:       lpa.Donor.Email,
 		Language:    appData.Lang.String(),
 	}
@@ -531,5 +531,5 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 		return nil
 	}
 
-	return appData.Redirect(w, r, lpa, page.Paths.PaymentConfirmation.Format(lpa.ID))
+	return page.Paths.PaymentConfirmation.Redirect(w, r, appData, lpa)
 }

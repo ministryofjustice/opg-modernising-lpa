@@ -2,6 +2,7 @@ package donor
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -21,7 +22,7 @@ func DeleteLpa(tmpl template.Template, donorStore DonorStore) Handler {
 				return err
 			}
 
-			return appData.Redirect(w, r, nil, page.Paths.LpaDeleted.Format()+"?uid="+lpa.UID)
+			return page.Paths.LpaDeleted.RedirectQuery(w, r, appData, url.Values{"uid": {lpa.UID}})
 		}
 
 		return tmpl(w, &deleteLpaData{

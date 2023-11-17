@@ -2,6 +2,7 @@ package donor
 
 import (
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -23,7 +24,7 @@ func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.
 				return err
 			}
 
-			return appData.Redirect(w, r, nil, page.Paths.LpaWithdrawn.Format()+"?uid="+lpa.UID)
+			return page.Paths.LpaWithdrawn.RedirectQuery(w, r, appData, url.Values{"uid": {lpa.UID}})
 		}
 
 		return tmpl(w, &withdrawLpaData{
