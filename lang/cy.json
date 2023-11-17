@@ -543,7 +543,10 @@
     "optionB": "Na - <span class=\"govuk-!-font-weight-bold\">nid</span> wyf yn rhoi awdurdod i’m hatwrneiod roi neu wrthod caniatâd triniaeth cynnal bywyd ar fy rhan",
     "ifTheDonorGivesConsentToLifeSustainingTreatment": "os ydych yn rhoi neu’n peidio â rhoi awdurdod i’ch atwrneiod roi neu wrthod caniatâd i driniaeth cynnal bywyd ar eich rhan",
     "youveProvidedTheCertificateForThisLpa": "Rydych wedi darparu’r dystysgrif ar gyfer yr LPA hon",
-    "certificateProvidedContent": "<p class=\"govuk-body\">Rydych yn awr wedi llofnodi a darparu’r dystysgrif ar gyfer yr LPA hon.</p><p class=\"govuk-body\">Mae hyn yn golygu eich bod wedi gwneud popeth y mae angen i chi ei wneud fel darparwr tystysgrif {{ .DonorFirstNamesPossessive }}.</p><h2 class=\"govuk-heading-m\">Beth fydd yn digwydd nesaf</h2><p class=\"govuk-body\">Os bydd gan Swyddfa’r Gwarcheidwad Cyhoeddus unrhyw bryderon ynglŷn ag LPA {{ .DonorFirstNamesPossessive }} yn y dyfodol, mae’n bosibl y byddwn yn cysylltu â chi.</p><p class=\"govuk-body\">Os bydd angen i chi roi gwybod am bryder, gallwch wneud hyn unrhyw bryd gan ddefnyddio’r <a href=\"#\" class=\"govuk-link\">gwasanaeth rhoi gwybod am bryder ynglŷn ag LPA</a>.</p>",
+    "certificateProvidedContent": "<p class=\"govuk-body\">{{ .CertificateProviderFullName }}, Welsh</p>",
+    "certificateDetails": "<div class=\"govuk-inset-text\"> <p class=\"govuk-!-margin-bottom-1\"><span class=\"govuk-!-font-weight-bold\">Welsh:</span> {{ .AgreedTimeStamp }}</p> <p class=\"govuk-!-margin-bottom-1 govuk-!-margin-top-1\"><span class=\"govuk-!-font-weight-bold\">Welsh:</span> {{ .DonorFullName }}</p> <p class=\"govuk-!-margin-top-1\"><span class=\"govuk-!-font-weight-bold\">Welsh:</span> {{ .LpaUID }}</p></div>",
+    "thisMeansYouveDoneEverythingContent": "<p class=\"govuk-body\">Welsh {{ .DonorFullNamePossessive }} Welsh</p> <h2 class=\"govuk-heading-m\">Welsh</h2> <p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh <span class=\"govuk-!-font-weight-bold\">{{ .CertificateProviderEmail }}</span></p> <p class=\"govuk-body\">Welsh</p>",
+    "certificateProvidedConcerns": "<p class=\"govuk-body\">Welsh {{ .DonorFirstNamesPossessive }} Welsh</p> <p class=\"govuk-body\">Welsh <a href=\"/\" class=\"govuk-link\">Welsh</a>.</p>",
     "goToYourDashboard": "Mynd i’ch dangosfwrdd",
     "beAnAttorney": "Bod yn atwrnai ar atwrneiaeth arhosol",
     "enterYourAttorneyReferenceNumber": "Rhowch eich cyfeirnod",
@@ -956,5 +959,6 @@
     "yourHomeAddress": "Welsh",
     "changeHomeAddressLink": "Welsh<span class=\"govuk-visually-hidden\"> Welsh</span>",
     "homeAddress": "Welsh",
-    "goToDashboard": "Welsh"
+    "goToDashboard": "Welsh",
+    "printThisPage": "Welsh"
 }
