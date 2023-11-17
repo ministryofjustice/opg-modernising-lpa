@@ -109,9 +109,13 @@ func Attorney(
 		}
 
 		lpa.UID = makeUid()
-		lpa.Type = actor.LpaTypePropertyFinance
 		if lpaType == "hw" && !isTrustCorporation {
 			lpa.Type = actor.LpaTypeHealthWelfare
+			lpa.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
+			lpa.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
+		} else {
+			lpa.Type = actor.LpaTypePropertyFinance
+			lpa.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
 		}
 
 		lpa.CertificateProvider = makeCertificateProvider()
@@ -124,9 +128,6 @@ func Attorney(
 			Attorneys:        []actor.Attorney{makeAttorney(replacementAttorneyNames[0])},
 			TrustCorporation: makeTrustCorporation("Second Choice Trust Corporation Ltd."),
 		}
-
-		lpa.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
-		lpa.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
 
 		if email != "" {
 			if isTrustCorporation {
