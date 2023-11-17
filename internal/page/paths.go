@@ -15,6 +15,16 @@ func (p Path) Format() string {
 	return string(p)
 }
 
+func (p Path) Redirect(w http.ResponseWriter, r *http.Request, appData AppData) error {
+	http.Redirect(w, r, appData.BuildUrl(p.Format()), http.StatusFound)
+	return nil
+}
+
+func (p Path) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, query url.Values) error {
+	http.Redirect(w, r, appData.BuildUrl(p.Format())+"?"+query.Encode(), http.StatusFound)
+	return nil
+}
+
 type LpaPath string
 
 func (p LpaPath) String() string {
@@ -65,6 +75,16 @@ func (p AttorneyPath) Format(id string) string {
 	return "/attorney/" + id + string(p)
 }
 
+func (p AttorneyPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData, lpaID string) error {
+	http.Redirect(w, r, appData.BuildUrl(p.Format(lpaID)), http.StatusFound)
+	return nil
+}
+
+func (p AttorneyPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, lpaID string, query url.Values) error {
+	http.Redirect(w, r, appData.BuildUrl(p.Format(lpaID))+"?"+query.Encode(), http.StatusFound)
+	return nil
+}
+
 type CertificateProviderPath string
 
 func (p CertificateProviderPath) String() string {
@@ -73,6 +93,11 @@ func (p CertificateProviderPath) String() string {
 
 func (p CertificateProviderPath) Format(id string) string {
 	return "/certificate-provider/" + id + string(p)
+}
+
+func (p CertificateProviderPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData, lpaID string) error {
+	http.Redirect(w, r, appData.BuildUrl(p.Format(lpaID)), http.StatusFound)
+	return nil
 }
 
 type AttorneyPaths struct {
