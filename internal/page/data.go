@@ -25,24 +25,6 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-//go:generate enumerator -type LpaType -linecomment -trimprefix -empty
-type LpaType uint8
-
-const (
-	LpaTypeHealthWelfare   LpaType = iota + 1 // hw
-	LpaTypePropertyFinance                    // pfa
-)
-
-func (e LpaType) LegalTermTransKey() string {
-	switch e {
-	case LpaTypePropertyFinance:
-		return "pfaLegalTerm"
-	case LpaTypeHealthWelfare:
-		return "hwLegalTerm"
-	}
-	return ""
-}
-
 //go:generate enumerator -type CanBeUsedWhen -linecomment -trimprefix -empty
 type CanBeUsedWhen uint8
 
@@ -90,7 +72,7 @@ type Lpa struct {
 	// The certificate provider named in the LPA
 	CertificateProvider actor.CertificateProvider
 	// Type of LPA being drafted
-	Type LpaType
+	Type actor.LpaType
 	// Whether the applicant wants to add replacement attorneys
 	WantReplacementAttorneys form.YesNo
 	// When the LPA can be used
@@ -255,7 +237,7 @@ func (l *Lpa) canGoToLpaPath(path string) bool {
 	section1Completed := l.Tasks.YourDetails.Completed() &&
 		l.Tasks.ChooseAttorneys.Completed() &&
 		l.Tasks.ChooseReplacementAttorneys.Completed() &&
-		(l.Type == LpaTypeHealthWelfare && l.Tasks.LifeSustainingTreatment.Completed() || l.Type == LpaTypePropertyFinance && l.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
+		(l.Type.IsHealthWelfare() && l.Tasks.LifeSustainingTreatment.Completed() || l.Type.IsPropertyFinance() && l.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
 		l.Tasks.Restrictions.Completed() &&
 		l.Tasks.CertificateProvider.Completed() &&
 		l.Tasks.PeopleToNotify.Completed() &&
@@ -274,7 +256,7 @@ func (l *Lpa) canGoToLpaPath(path string) bool {
 		return l.Tasks.YourDetails.Completed() &&
 			l.Tasks.ChooseAttorneys.Completed() &&
 			l.Tasks.ChooseReplacementAttorneys.Completed() &&
-			(l.Type == LpaTypeHealthWelfare && l.Tasks.LifeSustainingTreatment.Completed() || l.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
+			(l.Type.IsHealthWelfare() && l.Tasks.LifeSustainingTreatment.Completed() || l.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
 			l.Tasks.Restrictions.Completed() &&
 			l.Tasks.CertificateProvider.Completed() &&
 			l.Tasks.PeopleToNotify.Completed() &&

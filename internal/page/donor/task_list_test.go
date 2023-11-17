@@ -64,7 +64,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"hw": {
-			lpa: &page.Lpa{ID: "lpa-id", Type: page.LpaTypeHealthWelfare, Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}}},
+			lpa: &page.Lpa{ID: "lpa-id", Type: actor.LpaTypeHealthWelfare, Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}}},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items[3] = taskListItem{
 					Name: "lifeSustainingTreatment",

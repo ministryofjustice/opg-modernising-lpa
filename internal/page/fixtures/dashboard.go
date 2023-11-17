@@ -57,7 +57,7 @@ func Dashboard(
 
 			lpa.UID = makeUid()
 			lpa.Donor = makeDonor()
-			lpa.Type = page.LpaTypePropertyFinance
+			lpa.Type = actor.LpaTypePropertyFinance
 
 			lpa.Attorneys = actor.Attorneys{
 				Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},

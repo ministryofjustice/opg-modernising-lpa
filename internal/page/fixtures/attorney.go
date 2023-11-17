@@ -109,9 +109,9 @@ func Attorney(
 		}
 
 		lpa.UID = makeUid()
-		lpa.Type = page.LpaTypePropertyFinance
+		lpa.Type = actor.LpaTypePropertyFinance
 		if lpaType == "hw" && !isTrustCorporation {
-			lpa.Type = page.LpaTypeHealthWelfare
+			lpa.Type = actor.LpaTypeHealthWelfare
 		}
 
 		lpa.CertificateProvider = makeCertificateProvider()
