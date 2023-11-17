@@ -126,7 +126,7 @@ func Attorney(
 		}
 
 		lpa.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
-		lpa.LifeSustainingTreatmentOption = page.LifeSustainingTreatmentOptionA
+		lpa.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
 
 		if email != "" {
 			if isTrustCorporation {

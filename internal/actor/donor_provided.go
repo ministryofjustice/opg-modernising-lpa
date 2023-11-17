@@ -25,3 +25,20 @@ const (
 	CanBeUsedWhenCapacityLost CanBeUsedWhen = iota + 1 // when-capacity-lost
 	CanBeUsedWhenHasCapacity                           // when-has-capacity
 )
+
+//go:generate enumerator -type LifeSustainingTreatment -linecomment -trimprefix -empty
+type LifeSustainingTreatment uint8
+
+const (
+	LifeSustainingTreatmentOptionA LifeSustainingTreatment = iota + 1 // option-a
+	LifeSustainingTreatmentOptionB                                    // option-b
+)
+
+//go:generate enumerator -type ReplacementAttorneysStepIn -linecomment -trimprefix -empty
+type ReplacementAttorneysStepIn uint8
+
+const (
+	ReplacementAttorneysStepInWhenAllCanNoLongerAct ReplacementAttorneysStepIn = iota + 1 // all
+	ReplacementAttorneysStepInWhenOneCanNoLongerAct                                       // one
+	ReplacementAttorneysStepInAnotherWay                                                  // other
+)
