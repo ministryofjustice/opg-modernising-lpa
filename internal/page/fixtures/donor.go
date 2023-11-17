@@ -159,7 +159,7 @@ func Donor(
 
 		if progress >= slices.Index(progressValues, "chooseWhenTheLpaCanBeUsed") {
 			if lpa.Type == actor.LpaTypeHealthWelfare {
-				lpa.LifeSustainingTreatmentOption = page.LifeSustainingTreatmentOptionA
+				lpa.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
 				lpa.Tasks.LifeSustainingTreatment = actor.TaskCompleted
 			} else {
 				lpa.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity

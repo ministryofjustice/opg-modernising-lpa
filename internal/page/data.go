@@ -25,23 +25,6 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-//go:generate enumerator -type LifeSustainingTreatment -linecomment -trimprefix -empty
-type LifeSustainingTreatment uint8
-
-const (
-	LifeSustainingTreatmentOptionA LifeSustainingTreatment = iota + 1 // option-a
-	LifeSustainingTreatmentOptionB                                    // option-b
-)
-
-//go:generate enumerator -type ReplacementAttorneysStepIn -linecomment -trimprefix -empty
-type ReplacementAttorneysStepIn uint8
-
-const (
-	ReplacementAttorneysStepInWhenAllCanNoLongerAct ReplacementAttorneysStepIn = iota + 1 // all
-	ReplacementAttorneysStepInWhenOneCanNoLongerAct                                       // one
-	ReplacementAttorneysStepInAnotherWay                                                  // other
-)
-
 // Lpa contains all the data related to the LPA application
 type Lpa struct {
 	PK, SK string
@@ -70,7 +53,7 @@ type Lpa struct {
 	// When the LPA can be used
 	WhenCanTheLpaBeUsed actor.CanBeUsedWhen
 	// Preferences on life sustaining treatment (applicable to personal welfare LPAs only)
-	LifeSustainingTreatmentOption LifeSustainingTreatment
+	LifeSustainingTreatmentOption actor.LifeSustainingTreatment
 	// Restrictions on attorneys actions
 	Restrictions string
 	// Used to show the task list
@@ -84,7 +67,7 @@ type Lpa struct {
 	// Information on how the applicant wishes their replacement attorneys to act
 	ReplacementAttorneyDecisions actor.AttorneyDecisions
 	// How to bring in replacement attorneys, if set
-	HowShouldReplacementAttorneysStepIn ReplacementAttorneysStepIn
+	HowShouldReplacementAttorneysStepIn actor.ReplacementAttorneysStepIn
 	// Details on how replacement attorneys must step in if HowShouldReplacementAttorneysStepIn is set to "other"
 	HowShouldReplacementAttorneysStepInDetails string
 	// Whether the applicant wants to notify people about the application
