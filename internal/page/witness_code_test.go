@@ -36,7 +36,7 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 		On("Put", ctx, &Lpa{
 			Donor:                    actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 			CertificateProvider:      actor.CertificateProvider{Mobile: "0777"},
-			CertificateProviderCodes: WitnessCodes{{Code: "1234", Created: now}},
+			CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 			Type:                     actor.LpaTypePropertyFinance,
 		}).
 		Return(nil)
@@ -70,7 +70,7 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenTooRecentlySent(t *testin
 
 	sender := &WitnessCodeSender{now: func() time.Time { return now }}
 	err := sender.SendToCertificateProvider(ctx, &Lpa{
-		CertificateProviderCodes: WitnessCodes{{Created: now.Add(-time.Minute)}},
+		CertificateProviderCodes: actor.WitnessCodes{{Created: now.Add(-time.Minute)}},
 	}, nil)
 
 	assert.Equal(t, ErrTooManyWitnessCodeRequests, err)
@@ -169,7 +169,7 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 		On("Put", ctx, &Lpa{
 			Donor:                   actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 			IndependentWitness:      actor.IndependentWitness{Mobile: "0777"},
-			IndependentWitnessCodes: WitnessCodes{{Code: "1234", Created: now}},
+			IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 			Type:                    actor.LpaTypePropertyFinance,
 		}).
 		Return(nil)
@@ -203,7 +203,7 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenTooRecentlySent(t *testing
 
 	sender := &WitnessCodeSender{now: func() time.Time { return now }}
 	err := sender.SendToIndependentWitness(ctx, &Lpa{
-		IndependentWitnessCodes: WitnessCodes{{Created: now.Add(-time.Minute)}},
+		IndependentWitnessCodes: actor.WitnessCodes{{Created: now.Add(-time.Minute)}},
 	}, nil)
 
 	assert.Equal(t, ErrTooManyWitnessCodeRequests, err)
@@ -275,94 +275,4 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenDonorStoreErrors(t *testin
 	}, localizer)
 
 	assert.Equal(t, ExpectedError, err)
-}
-
-func TestWitnessCodeHasExpired(t *testing.T) {
-	now := time.Now()
-
-	testCases := map[string]struct {
-		duration time.Duration
-		expected bool
-	}{
-		"now": {
-			duration: 0,
-			expected: false,
-		},
-		"14m59s ago": {
-			duration: 14*time.Minute + 59*time.Second,
-			expected: false,
-		},
-		"15m ago": {
-			duration: 15 * time.Minute,
-			expected: true,
-		},
-		"15m01s ago": {
-			duration: 15*time.Minute + time.Second,
-			expected: true,
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			lpa := Lpa{
-				CertificateProviderCodes: WitnessCodes{
-					{Code: "a", Created: now.Add(-tc.duration)},
-				},
-			}
-
-			code, _ := lpa.CertificateProviderCodes.Find("a")
-			assert.Equal(t, tc.expected, code.HasExpired())
-		})
-	}
-}
-
-func TestWitnessCodesFind(t *testing.T) {
-	codes := WitnessCodes{
-		{Code: "new", Created: time.Now()},
-		{Code: "expired", Created: time.Now().Add(-16 * time.Minute)},
-		{Code: "almost ignored", Created: time.Now().Add(-2*time.Hour + time.Second)},
-		{Code: "ignored", Created: time.Now().Add(-2 * time.Hour)},
-	}
-
-	testcases := map[string]bool{
-		"wrong":          false,
-		"new":            true,
-		"expired":        true,
-		"almost ignored": true,
-		"ignored":        false,
-	}
-
-	for code, expected := range testcases {
-		t.Run(code, func(t *testing.T) {
-			_, ok := codes.Find(code)
-			assert.Equal(t, expected, ok)
-		})
-	}
-}
-
-func TestWitnessCodesCanRequest(t *testing.T) {
-	now := time.Now()
-
-	testcases := map[string]struct {
-		codes    WitnessCodes
-		expected bool
-	}{
-		"empty": {
-			expected: true,
-		},
-		"after 1 minute": {
-			codes:    WitnessCodes{{Created: now.Add(-time.Minute - time.Second)}},
-			expected: true,
-		},
-		"within 1 minute": {
-			codes:    WitnessCodes{{Created: now.Add(-time.Minute)}},
-			expected: false,
-		},
-	}
-
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expected, tc.codes.CanRequest(now))
-		})
-	}
 }
