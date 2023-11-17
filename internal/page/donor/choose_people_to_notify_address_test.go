@@ -147,14 +147,14 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			ID:             "lpa-id",
 			PeopleToNotify: actor.PeopleToNotify{{ID: "123", Address: testAddress}},
-			Tasks:          page.Tasks{PeopleToNotify: actor.TaskCompleted},
+			Tasks:          actor.DonorTasks{PeopleToNotify: actor.TaskCompleted},
 		}).
 		Return(nil)
 
 	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &page.Lpa{
 		ID:             "lpa-id",
 		PeopleToNotify: actor.PeopleToNotify{{ID: "123"}},
-		Tasks:          page.Tasks{PeopleToNotify: actor.TaskInProgress},
+		Tasks:          actor.DonorTasks{PeopleToNotify: actor.TaskInProgress},
 	})
 	resp := w.Result()
 
@@ -181,7 +181,7 @@ func TestPostChoosePeopleToNotifyAddressManualWhenStoreErrors(t *testing.T) {
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			PeopleToNotify: actor.PeopleToNotify{{ID: "123", Address: testAddress}},
-			Tasks:          page.Tasks{PeopleToNotify: actor.TaskCompleted},
+			Tasks:          actor.DonorTasks{PeopleToNotify: actor.TaskCompleted},
 		}).
 		Return(expectedError)
 
@@ -214,7 +214,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 				FirstNames: "John",
 				Address:    testAddress,
 			}},
-			Tasks: page.Tasks{PeopleToNotify: actor.TaskCompleted},
+			Tasks: actor.DonorTasks{PeopleToNotify: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -225,7 +225,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 			FirstNames: "John",
 			Address:    place.Address{Line1: "line1"},
 		}},
-		Tasks: page.Tasks{PeopleToNotify: actor.TaskInProgress},
+		Tasks: actor.DonorTasks{PeopleToNotify: actor.TaskInProgress},
 	})
 
 	resp := w.Result()
@@ -588,7 +588,7 @@ func TestPostChoosePeopleToNotifyAddressReuseSelect(t *testing.T) {
 					Country:    "GB",
 				},
 			}},
-			Tasks: page.Tasks{PeopleToNotify: actor.TaskCompleted},
+			Tasks: actor.DonorTasks{PeopleToNotify: actor.TaskCompleted},
 		}).
 		Return(nil)
 

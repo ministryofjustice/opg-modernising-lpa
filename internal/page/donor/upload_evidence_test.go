@@ -50,7 +50,7 @@ func TestGetUploadEvidenceWhenTaskPending(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := UploadEvidence(nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: pay.FullFee, Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}})
+	err := UploadEvidence(nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: pay.FullFee, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -138,7 +138,7 @@ func TestPostUploadEvidenceWhenTaskPending(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	err := UploadEvidence(nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: pay.FullFee, Tasks: page.Tasks{PayForLpa: actor.PaymentTaskPending}})
+	err := UploadEvidence(nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", FeeType: pay.FullFee, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

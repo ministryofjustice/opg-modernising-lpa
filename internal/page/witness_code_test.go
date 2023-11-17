@@ -36,8 +36,8 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 		On("Put", ctx, &Lpa{
 			Donor:                    actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 			CertificateProvider:      actor.CertificateProvider{Mobile: "0777"},
-			CertificateProviderCodes: WitnessCodes{{Code: "1234", Created: now}},
-			Type:                     LpaTypePropertyFinance,
+			CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
+			Type:                     actor.LpaTypePropertyFinance,
 		}).
 		Return(nil)
 
@@ -58,7 +58,7 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 	err := sender.SendToCertificateProvider(ctx, &Lpa{
 		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
-		Type:                LpaTypePropertyFinance,
+		Type:                actor.LpaTypePropertyFinance,
 	}, localizer)
 
 	assert.Nil(t, err)
@@ -70,7 +70,7 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenTooRecentlySent(t *testin
 
 	sender := &WitnessCodeSender{now: func() time.Time { return now }}
 	err := sender.SendToCertificateProvider(ctx, &Lpa{
-		CertificateProviderCodes: WitnessCodes{{Created: now.Add(-time.Minute)}},
+		CertificateProviderCodes: actor.WitnessCodes{{Created: now.Add(-time.Minute)}},
 	}, nil)
 
 	assert.Equal(t, ErrTooManyWitnessCodeRequests, err)
@@ -101,7 +101,7 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenNotifyClientErrors(t *tes
 	err := sender.SendToCertificateProvider(context.Background(), &Lpa{
 		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
 		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:                LpaTypePropertyFinance,
+		Type:                actor.LpaTypePropertyFinance,
 	}, localizer)
 
 	assert.Equal(t, ExpectedError, err)
@@ -138,7 +138,7 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenDonorStoreErrors(t *testi
 	err := sender.SendToCertificateProvider(context.Background(), &Lpa{
 		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
 		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:                LpaTypePropertyFinance,
+		Type:                actor.LpaTypePropertyFinance,
 	}, localizer)
 
 	assert.Equal(t, ExpectedError, err)
@@ -169,8 +169,8 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 		On("Put", ctx, &Lpa{
 			Donor:                   actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 			IndependentWitness:      actor.IndependentWitness{Mobile: "0777"},
-			IndependentWitnessCodes: WitnessCodes{{Code: "1234", Created: now}},
-			Type:                    LpaTypePropertyFinance,
+			IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
+			Type:                    actor.LpaTypePropertyFinance,
 		}).
 		Return(nil)
 
@@ -191,7 +191,7 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 	err := sender.SendToIndependentWitness(ctx, &Lpa{
 		Donor:              actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 		IndependentWitness: actor.IndependentWitness{Mobile: "0777"},
-		Type:               LpaTypePropertyFinance,
+		Type:               actor.LpaTypePropertyFinance,
 	}, localizer)
 
 	assert.Nil(t, err)
@@ -203,7 +203,7 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenTooRecentlySent(t *testing
 
 	sender := &WitnessCodeSender{now: func() time.Time { return now }}
 	err := sender.SendToIndependentWitness(ctx, &Lpa{
-		IndependentWitnessCodes: WitnessCodes{{Created: now.Add(-time.Minute)}},
+		IndependentWitnessCodes: actor.WitnessCodes{{Created: now.Add(-time.Minute)}},
 	}, nil)
 
 	assert.Equal(t, ErrTooManyWitnessCodeRequests, err)
@@ -234,7 +234,7 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenNotifyClientErrors(t *test
 	err := sender.SendToIndependentWitness(context.Background(), &Lpa{
 		IndependentWitness: actor.IndependentWitness{Mobile: "0777"},
 		Donor:              actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:               LpaTypePropertyFinance,
+		Type:               actor.LpaTypePropertyFinance,
 	}, localizer)
 
 	assert.Equal(t, ExpectedError, err)
@@ -271,7 +271,7 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenDonorStoreErrors(t *testin
 	err := sender.SendToIndependentWitness(context.Background(), &Lpa{
 		IndependentWitness: actor.IndependentWitness{Mobile: "0777"},
 		Donor:              actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:               LpaTypePropertyFinance,
+		Type:               actor.LpaTypePropertyFinance,
 	}, localizer)
 
 	assert.Equal(t, ExpectedError, err)
@@ -305,7 +305,7 @@ func TestWitnessCodeHasExpired(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			lpa := Lpa{
-				CertificateProviderCodes: WitnessCodes{
+				CertificateProviderCodes: actor.WitnessCodes{
 					{Code: "a", Created: now.Add(-tc.duration)},
 				},
 			}
@@ -317,7 +317,7 @@ func TestWitnessCodeHasExpired(t *testing.T) {
 }
 
 func TestWitnessCodesFind(t *testing.T) {
-	codes := WitnessCodes{
+	codes := actor.WitnessCodes{
 		{Code: "new", Created: time.Now()},
 		{Code: "expired", Created: time.Now().Add(-16 * time.Minute)},
 		{Code: "almost ignored", Created: time.Now().Add(-2*time.Hour + time.Second)},
@@ -344,18 +344,18 @@ func TestWitnessCodesCanRequest(t *testing.T) {
 	now := time.Now()
 
 	testcases := map[string]struct {
-		codes    WitnessCodes
+		codes    actor.WitnessCodes
 		expected bool
 	}{
 		"empty": {
 			expected: true,
 		},
 		"after 1 minute": {
-			codes:    WitnessCodes{{Created: now.Add(-time.Minute - time.Second)}},
+			codes:    actor.WitnessCodes{{Created: now.Add(-time.Minute - time.Second)}},
 			expected: true,
 		},
 		"within 1 minute": {
-			codes:    WitnessCodes{{Created: now.Add(-time.Minute)}},
+			codes:    actor.WitnessCodes{{Created: now.Add(-time.Minute)}},
 			expected: false,
 		},
 	}

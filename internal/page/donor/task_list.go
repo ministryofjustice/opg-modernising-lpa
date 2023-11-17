@@ -43,7 +43,7 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 			Path:  page.Paths.WhenCanTheLpaBeUsed.Format(lpa.ID),
 			State: lpa.Tasks.WhenCanTheLpaBeUsed,
 		}
-		if lpa.Type == page.LpaTypeHealthWelfare {
+		if lpa.Type == actor.LpaTypeHealthWelfare {
 			typeSpecificStep = taskListItem{
 				Name:  "lifeSustainingTreatment",
 				Path:  page.Paths.LifeSustainingTreatment.Format(lpa.ID),

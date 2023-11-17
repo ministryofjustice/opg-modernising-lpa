@@ -116,7 +116,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 			lpa := &page.Lpa{
 				ID:                               "lpa-id",
 				DonorIdentityUserData:            identity.UserData{OK: true},
-				CertificateProviderCodes:         page.WitnessCodes{{Code: "1234", Created: now}},
+				CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
 				CertificateProvider:              actor.CertificateProvider{FirstNames: "Fred"},
 				WitnessedByCertificateProviderAt: now,
 				SignedAt:                         now,
@@ -145,7 +145,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 			err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r, &page.Lpa{
 				ID:                       "lpa-id",
 				DonorIdentityUserData:    identity.UserData{OK: true},
-				CertificateProviderCodes: page.WitnessCodes{{Code: "1234", Created: now}},
+				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 				CertificateProvider:      actor.CertificateProvider{FirstNames: "Fred"},
 			})
 			resp := w.Result()
@@ -171,7 +171,7 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 		ID:                               "lpa-id",
 		DonorIdentityUserData:            identity.UserData{OK: true},
 		CertificateProvider:              actor.CertificateProvider{Email: "name@example.com"},
-		CertificateProviderCodes:         page.WitnessCodes{{Code: "1234", Created: now}},
+		CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
 		WitnessedByCertificateProviderAt: now,
 		SignedAt:                         now,
 	}
@@ -202,7 +202,7 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 		ID:                       "lpa-id",
 		DonorIdentityUserData:    identity.UserData{OK: true},
 		CertificateProvider:      actor.CertificateProvider{Email: "name@example.com"},
-		CertificateProviderCodes: page.WitnessCodes{{Code: "1234", Created: now}},
+		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 	})
 	resp := w.Result()
 
@@ -224,7 +224,7 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToAttorneysErrors(t
 	lpa := &page.Lpa{
 		ID:                               "lpa-id",
 		DonorIdentityUserData:            identity.UserData{OK: true},
-		CertificateProviderCodes:         page.WitnessCodes{{Code: "1234", Created: now}},
+		CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
 		CertificateProvider:              actor.CertificateProvider{FirstNames: "Fred"},
 		WitnessedByCertificateProviderAt: now,
 		SignedAt:                         now,
@@ -253,7 +253,7 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToAttorneysErrors(t
 	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r, &page.Lpa{
 		ID:                       "lpa-id",
 		DonorIdentityUserData:    identity.UserData{OK: true},
-		CertificateProviderCodes: page.WitnessCodes{{Code: "1234", Created: now}},
+		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 		CertificateProvider:      actor.CertificateProvider{FirstNames: "Fred"},
 	})
 	assert.Equal(t, expectedError, err)
@@ -271,7 +271,7 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToCertificateProvid
 
 	lpa := &page.Lpa{
 		CertificateProvider:              actor.CertificateProvider{Email: "name@example.com"},
-		CertificateProviderCodes:         page.WitnessCodes{{Code: "1234", Created: now}},
+		CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
 		WitnessedByCertificateProviderAt: now,
 		SignedAt:                         now,
 	}
@@ -300,7 +300,7 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToCertificateProvid
 
 	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r, &page.Lpa{
 		CertificateProvider:      actor.CertificateProvider{Email: "name@example.com"},
-		CertificateProviderCodes: page.WitnessCodes{{Code: "1234", Created: now}},
+		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 	})
 
 	assert.Equal(t, expectedError, err)
@@ -323,7 +323,7 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 		On("Put", r.Context(), mock.MatchedBy(func(lpa *page.Lpa) bool {
 			lpa.WitnessCodeLimiter = nil
 			return assert.Equal(t, lpa, &page.Lpa{
-				CertificateProviderCodes: page.WitnessCodes{{Code: "1234", Created: invalidCreated}},
+				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 			})
 		})).
 		Return(nil)
@@ -333,7 +333,7 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 		On("Execute", w, &witnessingAsCertificateProviderData{
 			App: testAppData,
 			Lpa: &page.Lpa{
-				CertificateProviderCodes: page.WitnessCodes{{Code: "1234", Created: invalidCreated}},
+				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 			},
 			Errors: validation.With("witness-code", validation.CustomError{Label: "witnessCodeExpired"}),
 			Form:   &witnessingAsCertificateProviderForm{Code: "1234"},
@@ -341,7 +341,7 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 		Return(nil)
 
 	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, time.Now, nil)(testAppData, w, r, &page.Lpa{
-		CertificateProviderCodes: page.WitnessCodes{{Code: "1234", Created: invalidCreated}},
+		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 	})
 	resp := w.Result()
 
@@ -365,7 +365,7 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 		On("Put", r.Context(), mock.MatchedBy(func(lpa *page.Lpa) bool {
 			lpa.WitnessCodeLimiter = nil
 			return assert.Equal(t, lpa, &page.Lpa{
-				CertificateProviderCodes: page.WitnessCodes{{Code: "1234", Created: now}},
+				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 			})
 		})).
 		Return(nil)
@@ -375,7 +375,7 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 		On("Execute", w, &witnessingAsCertificateProviderData{
 			App: testAppData,
 			Lpa: &page.Lpa{
-				CertificateProviderCodes: page.WitnessCodes{{Code: "1234", Created: now}},
+				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 			},
 			Errors: validation.With("witness-code", validation.CustomError{Label: "witnessCodeDoesNotMatch"}),
 			Form:   &witnessingAsCertificateProviderForm{Code: "4321"},
@@ -383,7 +383,7 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 		Return(nil)
 
 	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, time.Now, nil)(testAppData, w, r, &page.Lpa{
-		CertificateProviderCodes: page.WitnessCodes{{Code: "1234", Created: now}},
+		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 	})
 	resp := w.Result()
 
@@ -408,7 +408,7 @@ func TestPostWitnessingAsCertificateProviderWhenCodeExpired(t *testing.T) {
 		On("Put", r.Context(), mock.MatchedBy(func(lpa *page.Lpa) bool {
 			lpa.WitnessCodeLimiter = nil
 			return assert.Equal(t, lpa, &page.Lpa{
-				CertificateProviderCodes: page.WitnessCodes{{Code: "1234", Created: invalidCreated}},
+				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 			})
 		})).
 		Return(nil)
@@ -418,7 +418,7 @@ func TestPostWitnessingAsCertificateProviderWhenCodeExpired(t *testing.T) {
 		On("Execute", w, &witnessingAsCertificateProviderData{
 			App: testAppData,
 			Lpa: &page.Lpa{
-				CertificateProviderCodes: page.WitnessCodes{{Code: "1234", Created: invalidCreated}},
+				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 			},
 			Errors: validation.With("witness-code", validation.CustomError{Label: "witnessCodeExpired"}),
 			Form:   &witnessingAsCertificateProviderForm{Code: "1234"},
@@ -426,7 +426,7 @@ func TestPostWitnessingAsCertificateProviderWhenCodeExpired(t *testing.T) {
 		Return(nil)
 
 	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, time.Now, nil)(testAppData, w, r, &page.Lpa{
-		CertificateProviderCodes: page.WitnessCodes{{Code: "1234", Created: invalidCreated}},
+		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 	})
 	resp := w.Result()
 
@@ -450,7 +450,7 @@ func TestPostWitnessingAsCertificateProviderCodeLimitBreached(t *testing.T) {
 		On("Put", r.Context(), mock.MatchedBy(func(lpa *page.Lpa) bool {
 			lpa.WitnessCodeLimiter = nil
 			return assert.Equal(t, lpa, &page.Lpa{
-				CertificateProviderCodes: page.WitnessCodes{{Code: "1234", Created: now}},
+				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 			})
 		})).
 		Return(nil)
@@ -460,7 +460,7 @@ func TestPostWitnessingAsCertificateProviderCodeLimitBreached(t *testing.T) {
 		On("Execute", w, &witnessingAsCertificateProviderData{
 			App: testAppData,
 			Lpa: &page.Lpa{
-				CertificateProviderCodes: page.WitnessCodes{{Code: "1234", Created: now}},
+				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 			},
 			Errors: validation.With("witness-code", validation.CustomError{Label: "tooManyWitnessCodeAttempts"}),
 			Form:   &witnessingAsCertificateProviderForm{Code: "4321"},
@@ -468,8 +468,8 @@ func TestPostWitnessingAsCertificateProviderCodeLimitBreached(t *testing.T) {
 		Return(nil)
 
 	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, time.Now, nil)(testAppData, w, r, &page.Lpa{
-		WitnessCodeLimiter:       page.NewLimiter(time.Minute, 0, 10),
-		CertificateProviderCodes: page.WitnessCodes{{Code: "1234", Created: now}},
+		WitnessCodeLimiter:       actor.NewLimiter(time.Minute, 0, 10),
+		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 	})
 	resp := w.Result()
 

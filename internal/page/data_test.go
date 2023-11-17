@@ -1,7 +1,6 @@
 package page
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -21,142 +20,16 @@ var address = place.Address{
 	Postcode:   "e",
 }
 
-func TestLpaType(t *testing.T) {
-	values := map[LpaType]string{LpaTypeHealthWelfare: "hw", LpaTypePropertyFinance: "pfa"}
-
-	for value, s := range values {
-		t.Run(fmt.Sprintf("parse %s", s), func(t *testing.T) {
-			parsed, err := ParseLpaType(s)
-			assert.Nil(t, err)
-			assert.Equal(t, value, parsed)
-		})
-
-		t.Run(fmt.Sprintf("string %s", s), func(t *testing.T) {
-			assert.Equal(t, s, value.String())
-		})
-	}
-
-	t.Run("parse invalid", func(t *testing.T) {
-		_, err := ParseLpaType("invalid")
-		assert.NotNil(t, err)
-	})
-
-	t.Run("IsHealthWelfare", func(t *testing.T) {
-		assert.True(t, LpaTypeHealthWelfare.IsHealthWelfare())
-		assert.False(t, LpaTypePropertyFinance.IsHealthWelfare())
-	})
-
-	t.Run("IsPropertyFinance", func(t *testing.T) {
-		assert.True(t, LpaTypePropertyFinance.IsPropertyFinance())
-		assert.False(t, LpaTypeHealthWelfare.IsPropertyFinance())
-	})
-}
-
-func TestCanBeUsedWhen(t *testing.T) {
-	values := map[CanBeUsedWhen]string{CanBeUsedWhenCapacityLost: "when-capacity-lost", CanBeUsedWhenHasCapacity: "when-has-capacity"}
-
-	for value, s := range values {
-		t.Run(fmt.Sprintf("parse(%s)", s), func(t *testing.T) {
-			parsed, err := ParseCanBeUsedWhen(s)
-			assert.Nil(t, err)
-			assert.Equal(t, value, parsed)
-		})
-
-		t.Run(fmt.Sprintf("string(%s)", s), func(t *testing.T) {
-			assert.Equal(t, s, value.String())
-		})
-	}
-
-	t.Run("parse invalid", func(t *testing.T) {
-		_, err := ParseCanBeUsedWhen("invalid")
-		assert.NotNil(t, err)
-	})
-}
-
-func TestLifeSustainingTreatment(t *testing.T) {
-	values := map[LifeSustainingTreatment]string{LifeSustainingTreatmentOptionA: "option-a", LifeSustainingTreatmentOptionB: "option-b"}
-
-	for value, s := range values {
-		t.Run(fmt.Sprintf("parse(%s)", s), func(t *testing.T) {
-			parsed, err := ParseLifeSustainingTreatment(s)
-			assert.Nil(t, err)
-			assert.Equal(t, value, parsed)
-		})
-
-		t.Run(fmt.Sprintf("string(%s)", s), func(t *testing.T) {
-			assert.Equal(t, s, value.String())
-		})
-	}
-
-	t.Run("parse invalid", func(t *testing.T) {
-		_, err := ParseLifeSustainingTreatment("invalid")
-		assert.NotNil(t, err)
-	})
-
-	t.Run("IsOptionA", func(t *testing.T) {
-		assert.True(t, LifeSustainingTreatmentOptionA.IsOptionA())
-		assert.False(t, LifeSustainingTreatmentOptionB.IsOptionA())
-	})
-
-	t.Run("IsOptionB", func(t *testing.T) {
-		assert.True(t, LifeSustainingTreatmentOptionB.IsOptionB())
-		assert.False(t, LifeSustainingTreatmentOptionA.IsOptionB())
-	})
-}
-
-func TestReplacementAttorneysStepIn(t *testing.T) {
-	values := map[ReplacementAttorneysStepIn]string{
-		ReplacementAttorneysStepInWhenAllCanNoLongerAct: "all",
-		ReplacementAttorneysStepInWhenOneCanNoLongerAct: "one",
-		ReplacementAttorneysStepInAnotherWay:            "other",
-	}
-
-	for value, s := range values {
-		t.Run(fmt.Sprintf("parse(%s)", s), func(t *testing.T) {
-			parsed, err := ParseReplacementAttorneysStepIn(s)
-			assert.Nil(t, err)
-			assert.Equal(t, value, parsed)
-		})
-
-		t.Run(fmt.Sprintf("string(%s)", s), func(t *testing.T) {
-			assert.Equal(t, s, value.String())
-		})
-	}
-
-	t.Run("parse invalid", func(t *testing.T) {
-		_, err := ParseReplacementAttorneysStepIn("invalid")
-		assert.NotNil(t, err)
-	})
-
-	t.Run("IsWhenAllCanNoLongerAct", func(t *testing.T) {
-		assert.True(t, ReplacementAttorneysStepInWhenAllCanNoLongerAct.IsWhenAllCanNoLongerAct())
-		assert.False(t, ReplacementAttorneysStepInWhenOneCanNoLongerAct.IsWhenAllCanNoLongerAct())
-		assert.False(t, ReplacementAttorneysStepInAnotherWay.IsWhenAllCanNoLongerAct())
-	})
-
-	t.Run("IsWhenOneCanNoLongerAct", func(t *testing.T) {
-		assert.True(t, ReplacementAttorneysStepInWhenOneCanNoLongerAct.IsWhenOneCanNoLongerAct())
-		assert.False(t, ReplacementAttorneysStepInWhenAllCanNoLongerAct.IsWhenOneCanNoLongerAct())
-		assert.False(t, ReplacementAttorneysStepInAnotherWay.IsWhenOneCanNoLongerAct())
-	})
-
-	t.Run("IsAnotherWay", func(t *testing.T) {
-		assert.True(t, ReplacementAttorneysStepInAnotherWay.IsAnotherWay())
-		assert.False(t, ReplacementAttorneysStepInWhenAllCanNoLongerAct.IsAnotherWay())
-		assert.False(t, ReplacementAttorneysStepInWhenOneCanNoLongerAct.IsAnotherWay())
-	})
-}
-
 func TestGenerateHash(t *testing.T) {
 	lpa := &Lpa{}
 	hash, err := lpa.GenerateHash()
 	assert.Nil(t, err)
-	assert.Equal(t, uint64(0x53e4ea75485b238f), hash)
+	assert.Equal(t, uint64(0x4b37df4a36f24c8), hash)
 
 	lpa.ID = "1"
 	hash, err = lpa.GenerateHash()
 	assert.Nil(t, err)
-	assert.Equal(t, uint64(0x8dbcd47c6136ec6f), hash)
+	assert.Equal(t, uint64(0xb058317f6e9a325b), hash)
 }
 
 func TestIdentityConfirmed(t *testing.T) {
@@ -195,36 +68,6 @@ func TestIdentityConfirmed(t *testing.T) {
 	}
 }
 
-func TestTypeLegalTermTransKey(t *testing.T) {
-	testCases := map[string]struct {
-		LpaType           LpaType
-		ExpectedLegalTerm string
-	}{
-		"PFA": {
-			LpaType:           LpaTypePropertyFinance,
-			ExpectedLegalTerm: "pfaLegalTerm",
-		},
-		"HW": {
-			LpaType:           LpaTypeHealthWelfare,
-			ExpectedLegalTerm: "hwLegalTerm",
-		},
-		"unexpected": {
-			LpaType:           LpaType(5),
-			ExpectedLegalTerm: "",
-		},
-		"empty": {
-			ExpectedLegalTerm: "",
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			lpa := Lpa{Type: tc.LpaType}
-			assert.Equal(t, tc.ExpectedLegalTerm, lpa.Type.LegalTermTransKey())
-		})
-	}
-}
-
 func TestAttorneysSigningDeadline(t *testing.T) {
 	lpa := Lpa{
 		SignedAt: time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC),
@@ -252,8 +95,8 @@ func TestCanGoTo(t *testing.T) {
 		},
 		"getting help signing no certificate provider": {
 			lpa: &Lpa{
-				Type: LpaTypeHealthWelfare,
-				Tasks: Tasks{
+				Type: actor.LpaTypeHealthWelfare,
+				Tasks: actor.DonorTasks{
 					YourDetails: actor.TaskCompleted,
 				},
 			},
@@ -262,8 +105,8 @@ func TestCanGoTo(t *testing.T) {
 		},
 		"getting help signing": {
 			lpa: &Lpa{
-				Type: LpaTypeHealthWelfare,
-				Tasks: Tasks{
+				Type: actor.LpaTypeHealthWelfare,
+				Tasks: actor.DonorTasks{
 					CertificateProvider: actor.TaskCompleted,
 				},
 			},
@@ -272,8 +115,8 @@ func TestCanGoTo(t *testing.T) {
 		},
 		"check your lpa when unsure if can sign": {
 			lpa: &Lpa{
-				Type: LpaTypeHealthWelfare,
-				Tasks: Tasks{
+				Type: actor.LpaTypeHealthWelfare,
+				Tasks: actor.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
 					ChooseReplacementAttorneys: actor.TaskCompleted,
@@ -289,8 +132,8 @@ func TestCanGoTo(t *testing.T) {
 		"check your lpa when can sign": {
 			lpa: &Lpa{
 				Donor: actor.Donor{CanSign: form.Yes},
-				Type:  LpaTypeHealthWelfare,
-				Tasks: Tasks{
+				Type:  actor.LpaTypeHealthWelfare,
+				Tasks: actor.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
 					ChooseReplacementAttorneys: actor.TaskCompleted,
@@ -313,8 +156,8 @@ func TestCanGoTo(t *testing.T) {
 				Donor: actor.Donor{
 					CanSign: form.Yes,
 				},
-				Type: LpaTypePropertyFinance,
-				Tasks: Tasks{
+				Type: actor.LpaTypePropertyFinance,
+				Tasks: actor.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
 					ChooseReplacementAttorneys: actor.TaskCompleted,
@@ -338,8 +181,8 @@ func TestCanGoTo(t *testing.T) {
 				Donor: actor.Donor{
 					CanSign: form.Yes,
 				},
-				Type: LpaTypeHealthWelfare,
-				Tasks: Tasks{
+				Type: actor.LpaTypeHealthWelfare,
+				Tasks: actor.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
 					ChooseReplacementAttorneys: actor.TaskCompleted,
@@ -789,7 +632,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 		want                         form.YesNo
 		replacementAttorneys         actor.Attorneys
 		attorneyDecisions            actor.AttorneyDecisions
-		howReplacementsStepIn        ReplacementAttorneysStepIn
+		howReplacementsStepIn        actor.ReplacementAttorneysStepIn
 		replacementAttorneyDecisions actor.AttorneyDecisions
 		taskState                    actor.TaskState
 	}{
@@ -890,7 +733,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				Email:      "a",
 			}}},
 			attorneyDecisions:     actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
-			howReplacementsStepIn: ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+			howReplacementsStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			taskState:             actor.TaskCompleted,
 		},
 		"jointly attorneys single": {
@@ -934,7 +777,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				Email:      "b",
 			}}},
 			attorneyDecisions:     actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
-			howReplacementsStepIn: ReplacementAttorneysStepInWhenOneCanNoLongerAct,
+			howReplacementsStepIn: actor.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			taskState:             actor.TaskCompleted,
 		},
 		"jointly and severally attorneys multiple with step in when none can act": {
@@ -947,7 +790,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				Email:      "b",
 			}}},
 			attorneyDecisions:     actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
-			howReplacementsStepIn: ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+			howReplacementsStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			taskState:             actor.TaskInProgress,
 		},
 		"jointly and severally attorneys multiple with step in when none can act jointly": {
@@ -960,7 +803,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				Email:      "b",
 			}}},
 			attorneyDecisions:            actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
-			howReplacementsStepIn:        ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+			howReplacementsStepIn:        actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
 			taskState:                    actor.TaskCompleted,
 		},
@@ -974,7 +817,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				Email:      "b",
 			}}},
 			attorneyDecisions:            actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
-			howReplacementsStepIn:        ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+			howReplacementsStepIn:        actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers},
 			taskState:                    actor.TaskCompleted,
 		},
@@ -1050,7 +893,7 @@ func TestLpaCost(t *testing.T) {
 		expected int
 	}{
 		"denied": {
-			lpa:      &Lpa{FeeType: pay.HalfFee, Tasks: Tasks{PayForLpa: actor.PaymentTaskDenied}},
+			lpa:      &Lpa{FeeType: pay.HalfFee, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
 			expected: 8200,
 		},
 		"half": {
@@ -1076,15 +919,15 @@ func TestFeeAmount(t *testing.T) {
 			ExpectedCost: 4100,
 		},
 		"fully paid": {
-			Lpa:          &Lpa{FeeType: pay.HalfFee, PaymentDetails: []Payment{{Amount: 4100}}},
+			Lpa:          &Lpa{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}},
 			ExpectedCost: 0,
 		},
 		"denied partially paid": {
-			Lpa:          &Lpa{FeeType: pay.HalfFee, PaymentDetails: []Payment{{Amount: 4100}}, Tasks: Tasks{PayForLpa: actor.PaymentTaskDenied}},
+			Lpa:          &Lpa{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
 			ExpectedCost: 4100,
 		},
 		"denied fully paid": {
-			Lpa:          &Lpa{FeeType: pay.HalfFee, PaymentDetails: []Payment{{Amount: 4100}, {Amount: 4100}}, Tasks: Tasks{PayForLpa: actor.PaymentTaskDenied}},
+			Lpa:          &Lpa{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}, {Amount: 4100}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
 			ExpectedCost: 0,
 		},
 	}
