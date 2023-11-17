@@ -134,6 +134,7 @@ type CertificateProviderPaths struct {
 	ReadTheLpa                   CertificateProviderPath
 	TaskList                     CertificateProviderPath
 	WhatHappensNext              CertificateProviderPath
+	WhatIsYourHomeAddress        CertificateProviderPath
 	WhoIsEligible                CertificateProviderPath
 	YourRole                     CertificateProviderPath
 }
@@ -268,6 +269,7 @@ var Paths = AppPaths{
 		ReadTheLpa:                   "/read-the-lpa",
 		TaskList:                     "/task-list",
 		WhatHappensNext:              "/what-happens-next",
+		WhatIsYourHomeAddress:        "/what-is-your-home-address",
 		WhoIsEligible:                "/certificate-provider-who-is-eligible",
 		YourRole:                     "/your-role",
 	},

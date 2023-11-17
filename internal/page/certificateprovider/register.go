@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
@@ -66,6 +67,11 @@ type NotifyClient interface {
 	TemplateID(id notify.Template) string
 }
 
+//go:generate mockery --testonly --inpackage --name AddressClient --structname mockAddressClient
+type AddressClient interface {
+	LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error)
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -77,6 +83,7 @@ func Register(
 	errorHandler page.ErrorHandler,
 	certificateProviderStore CertificateProviderStore,
 	notFoundHandler page.Handler,
+	addressClient AddressClient,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -97,6 +104,8 @@ func Register(
 		TaskList(tmpls.Get("certificate_provider_task_list.gohtml"), donorStore, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.EnterDateOfBirth,
 		EnterDateOfBirth(tmpls.Get("certificate_provider_enter_date_of_birth.gohtml"), donorStore, certificateProviderStore))
+	handleCertificateProvider(page.Paths.CertificateProvider.WhatIsYourHomeAddress,
+		WhatIsYourHomeAddress(logger, tmpls.Get("certificate_provider_what_is_your_home_address.gohtml"), addressClient, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.ConfirmYourDetails,
 		ConfirmYourDetails(tmpls.Get("certificate_provider_confirm_your_details.gohtml"), donorStore, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.YourRole,
