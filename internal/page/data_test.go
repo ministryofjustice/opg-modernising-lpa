@@ -24,12 +24,12 @@ func TestGenerateHash(t *testing.T) {
 	lpa := &Lpa{}
 	hash, err := lpa.GenerateHash()
 	assert.Nil(t, err)
-	assert.Equal(t, uint64(0x53e4ea75485b238f), hash)
+	assert.Equal(t, uint64(0x4b37df4a36f24c8), hash)
 
 	lpa.ID = "1"
 	hash, err = lpa.GenerateHash()
 	assert.Nil(t, err)
-	assert.Equal(t, uint64(0x8dbcd47c6136ec6f), hash)
+	assert.Equal(t, uint64(0xb058317f6e9a325b), hash)
 }
 
 func TestIdentityConfirmed(t *testing.T) {
@@ -96,7 +96,7 @@ func TestCanGoTo(t *testing.T) {
 		"getting help signing no certificate provider": {
 			lpa: &Lpa{
 				Type: actor.LpaTypeHealthWelfare,
-				Tasks: Tasks{
+				Tasks: actor.DonorTasks{
 					YourDetails: actor.TaskCompleted,
 				},
 			},
@@ -106,7 +106,7 @@ func TestCanGoTo(t *testing.T) {
 		"getting help signing": {
 			lpa: &Lpa{
 				Type: actor.LpaTypeHealthWelfare,
-				Tasks: Tasks{
+				Tasks: actor.DonorTasks{
 					CertificateProvider: actor.TaskCompleted,
 				},
 			},
@@ -116,7 +116,7 @@ func TestCanGoTo(t *testing.T) {
 		"check your lpa when unsure if can sign": {
 			lpa: &Lpa{
 				Type: actor.LpaTypeHealthWelfare,
-				Tasks: Tasks{
+				Tasks: actor.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
 					ChooseReplacementAttorneys: actor.TaskCompleted,
@@ -133,7 +133,7 @@ func TestCanGoTo(t *testing.T) {
 			lpa: &Lpa{
 				Donor: actor.Donor{CanSign: form.Yes},
 				Type:  actor.LpaTypeHealthWelfare,
-				Tasks: Tasks{
+				Tasks: actor.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
 					ChooseReplacementAttorneys: actor.TaskCompleted,
@@ -157,7 +157,7 @@ func TestCanGoTo(t *testing.T) {
 					CanSign: form.Yes,
 				},
 				Type: actor.LpaTypePropertyFinance,
-				Tasks: Tasks{
+				Tasks: actor.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
 					ChooseReplacementAttorneys: actor.TaskCompleted,
@@ -182,7 +182,7 @@ func TestCanGoTo(t *testing.T) {
 					CanSign: form.Yes,
 				},
 				Type: actor.LpaTypeHealthWelfare,
-				Tasks: Tasks{
+				Tasks: actor.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
 					ChooseReplacementAttorneys: actor.TaskCompleted,
@@ -893,7 +893,7 @@ func TestLpaCost(t *testing.T) {
 		expected int
 	}{
 		"denied": {
-			lpa:      &Lpa{FeeType: pay.HalfFee, Tasks: Tasks{PayForLpa: actor.PaymentTaskDenied}},
+			lpa:      &Lpa{FeeType: pay.HalfFee, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
 			expected: 8200,
 		},
 		"half": {
@@ -923,11 +923,11 @@ func TestFeeAmount(t *testing.T) {
 			ExpectedCost: 0,
 		},
 		"denied partially paid": {
-			Lpa:          &Lpa{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}, Tasks: Tasks{PayForLpa: actor.PaymentTaskDenied}},
+			Lpa:          &Lpa{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
 			ExpectedCost: 4100,
 		},
 		"denied fully paid": {
-			Lpa:          &Lpa{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}, {Amount: 4100}}, Tasks: Tasks{PayForLpa: actor.PaymentTaskDenied}},
+			Lpa:          &Lpa{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}, {Amount: 4100}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
 			ExpectedCost: 0,
 		},
 	}

@@ -94,7 +94,7 @@ func TestPostRemoveAttorney(t *testing.T) {
 				ID:                "lpa-id",
 				Attorneys:         actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithEmail, attorneyWithAddress}},
 				AttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
-				Tasks:             page.Tasks{ChooseAttorneys: actor.TaskInProgress},
+				Tasks:             actor.DonorTasks{ChooseAttorneys: actor.TaskInProgress},
 			},
 			redirect: page.Paths.ChooseAttorneysSummary,
 		},
@@ -107,7 +107,7 @@ func TestPostRemoveAttorney(t *testing.T) {
 			updatedLpa: &page.Lpa{
 				ID:        "lpa-id",
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithAddress}},
-				Tasks:     page.Tasks{ChooseAttorneys: actor.TaskInProgress},
+				Tasks:     actor.DonorTasks{ChooseAttorneys: actor.TaskInProgress},
 			},
 			redirect: page.Paths.ChooseAttorneysSummary,
 		},

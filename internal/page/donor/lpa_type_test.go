@@ -92,7 +92,7 @@ func TestPostLpaType(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			ID:    "lpa-id",
 			Type:  actor.LpaTypePropertyFinance,
-			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
+			Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted},
 		}).
 		Return(nil)
 

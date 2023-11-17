@@ -155,7 +155,7 @@ func TestPostChooseAttorneysAddressSkip(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			ID:        "lpa-id",
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123", FirstNames: "a", Email: "a"}}},
-			Tasks:     page.Tasks{ChooseAttorneys: actor.TaskCompleted},
+			Tasks:     actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -222,7 +222,7 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			ID:    "lpa-id",
-			Tasks: page.Tasks{ChooseAttorneys: actor.TaskCompleted},
+			Tasks: actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				ID:         "123",
 				FirstNames: "a",
@@ -293,7 +293,7 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			ID:    "lpa-id",
-			Tasks: page.Tasks{ChooseAttorneys: actor.TaskCompleted},
+			Tasks: actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				ID:         "123",
 				FirstNames: "John",
@@ -731,7 +731,7 @@ func TestPostChooseAttorneysAddressReuseSelect(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			ID:        "lpa-id",
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{updatedAttorney}},
-			Tasks:     page.Tasks{ChooseAttorneys: actor.TaskInProgress},
+			Tasks:     actor.DonorTasks{ChooseAttorneys: actor.TaskInProgress},
 		}).
 		Return(nil)
 
