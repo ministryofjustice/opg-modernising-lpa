@@ -98,11 +98,11 @@ type Lpa struct {
 	Version int `hash:"-"`
 
 	// Codes used for the certificate provider to witness signing
-	CertificateProviderCodes WitnessCodes
+	CertificateProviderCodes actor.WitnessCodes
 	// When the signing was witnessed by the certificate provider
 	WitnessedByCertificateProviderAt time.Time
 	// Codes used for the independent witness to witness signing
-	IndependentWitnessCodes WitnessCodes
+	IndependentWitnessCodes actor.WitnessCodes
 	// When the signing was witnessed by the independent witness
 	WitnessedByIndependentWitnessAt time.Time
 	// Used to rate limit witness code attempts

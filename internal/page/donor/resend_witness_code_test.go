@@ -119,14 +119,14 @@ func TestPostResendWitnessCodeWhenTooRecentlySent(t *testing.T) {
 		actor.TypeIndependentWitness: {
 			lpa: &page.Lpa{
 				Donor:                   actor.Donor{FirstNames: "john"},
-				IndependentWitnessCodes: page.WitnessCodes{{Created: time.Now()}},
+				IndependentWitnessCodes: actor.WitnessCodes{{Created: time.Now()}},
 			},
 			send: "SendToIndependentWitness",
 		},
 		actor.TypeCertificateProvider: {
 			lpa: &page.Lpa{
 				Donor:                    actor.Donor{FirstNames: "john"},
-				CertificateProviderCodes: page.WitnessCodes{{Created: time.Now()}},
+				CertificateProviderCodes: actor.WitnessCodes{{Created: time.Now()}},
 			},
 			send: "SendToCertificateProvider",
 		},
