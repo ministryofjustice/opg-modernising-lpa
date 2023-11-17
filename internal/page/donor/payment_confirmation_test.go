@@ -46,7 +46,7 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 				PaymentReference: "123456789012",
 				Amount:           8200,
 			}},
-			Tasks: page.Tasks{
+			Tasks: actor.DonorTasks{
 				PayForLpa: actor.PaymentTaskCompleted,
 			},
 		}).
@@ -96,7 +96,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 				PaymentReference: "123456789012",
 				Amount:           4100,
 			}},
-			Tasks: page.Tasks{
+			Tasks: actor.DonorTasks{
 				PayForLpa: actor.PaymentTaskPending,
 			},
 		}).

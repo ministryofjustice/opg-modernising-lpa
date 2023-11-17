@@ -81,7 +81,7 @@ func TestPostSignYourLpa(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			ID:                    "lpa-id",
 			DonorIdentityUserData: identity.UserData{OK: true},
-			Tasks: page.Tasks{
+			Tasks: actor.DonorTasks{
 				ConfirmYourIdentityAndSign: actor.TaskCompleted,
 			},
 			WantToSignLpa:     true,

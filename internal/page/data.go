@@ -57,7 +57,7 @@ type Lpa struct {
 	// Restrictions on attorneys actions
 	Restrictions string
 	// Used to show the task list
-	Tasks Tasks
+	Tasks actor.DonorTasks
 	// PaymentDetails are records of payments made for the LPA via GOV.UK Pay
 	PaymentDetails []actor.Payment
 	// Information returned by the identity service related to the applicant
@@ -120,21 +120,6 @@ type Lpa struct {
 	HasSentUidRequestedEvent              bool `hash:"-"`
 	HasSentApplicationUpdatedEvent        bool `hash:"-"`
 	HasSentPreviousApplicationLinkedEvent bool `hash:"-"`
-}
-
-type Tasks struct {
-	YourDetails                actor.TaskState
-	ChooseAttorneys            actor.TaskState
-	ChooseReplacementAttorneys actor.TaskState
-	WhenCanTheLpaBeUsed        actor.TaskState // pfa only
-	LifeSustainingTreatment    actor.TaskState // hw only
-	Restrictions               actor.TaskState
-	CertificateProvider        actor.TaskState
-	CheckYourLpa               actor.TaskState
-	PayForLpa                  actor.PaymentTask
-	ConfirmYourIdentityAndSign actor.TaskState
-	ChooseYourSignatory        actor.TaskState // if .Donor.CanSign.IsNo only
-	PeopleToNotify             actor.TaskState
 }
 
 type Progress struct {

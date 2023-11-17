@@ -74,7 +74,7 @@ func TestPostEnterReplacementTrustCorporation(t *testing.T) {
 					Email:         "name@example.com",
 				},
 			},
-			Tasks: page.Tasks{
+			Tasks: actor.DonorTasks{
 				ChooseReplacementAttorneys: actor.TaskInProgress,
 			},
 		}).

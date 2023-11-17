@@ -75,7 +75,7 @@ func TestPostCheckYourLpaWhenNotChanged(t *testing.T) {
 		Hash:                5,
 		CheckedAt:           testNow,
 		CheckedHash:         5,
-		Tasks:               page.Tasks{CheckYourLpa: actor.TaskCompleted},
+		Tasks:               actor.DonorTasks{CheckYourLpa: actor.TaskCompleted},
 		CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Online},
 	}
 
@@ -117,7 +117,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 			lpa := &page.Lpa{
 				ID:                  "lpa-id",
 				Hash:                5,
-				Tasks:               page.Tasks{CheckYourLpa: existingTaskState},
+				Tasks:               actor.DonorTasks{CheckYourLpa: existingTaskState},
 				CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Online},
 			}
 
@@ -125,7 +125,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 				ID:                  "lpa-id",
 				Hash:                5,
 				CheckedAt:           testNow,
-				Tasks:               page.Tasks{CheckYourLpa: actor.TaskCompleted},
+				Tasks:               actor.DonorTasks{CheckYourLpa: actor.TaskCompleted},
 				CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Online},
 			}
 			updatedLpa.CheckedHash, _ = updatedLpa.GenerateHash()
@@ -225,7 +225,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 				Type:                actor.LpaTypePropertyFinance,
 				Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
 				CheckedAt:           testNow,
-				Tasks:               page.Tasks{CheckYourLpa: actor.TaskCompleted},
+				Tasks:               actor.DonorTasks{CheckYourLpa: actor.TaskCompleted},
 				CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Online, Mobile: "07700900000"},
 			}
 
@@ -284,7 +284,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecksCertificate
 		Type:                actor.LpaTypePropertyFinance,
 		Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
 		CheckedAt:           testNow,
-		Tasks:               page.Tasks{CheckYourLpa: actor.TaskCompleted},
+		Tasks:               actor.DonorTasks{CheckYourLpa: actor.TaskCompleted},
 		CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Online, Mobile: "07700900000"},
 	})
 	assert.Equal(t, expectedError, err)
@@ -312,7 +312,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 				ID:                  "lpa-id",
 				Hash:                5,
 				Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
-				Tasks:               page.Tasks{CheckYourLpa: existingTaskState},
+				Tasks:               actor.DonorTasks{CheckYourLpa: existingTaskState},
 				CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Paper, Mobile: "07700900000"},
 				Type:                actor.LpaTypePropertyFinance,
 			}
@@ -322,7 +322,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 				Hash:                5,
 				Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
 				CheckedAt:           testNow,
-				Tasks:               page.Tasks{CheckYourLpa: actor.TaskCompleted},
+				Tasks:               actor.DonorTasks{CheckYourLpa: actor.TaskCompleted},
 				CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Paper, Mobile: "07700900000"},
 				Type:                actor.LpaTypePropertyFinance,
 			}
@@ -373,7 +373,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnSubsequentCheck(t *testing.T)
 		Hash:                5,
 		Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
 		CheckedAt:           testNow,
-		Tasks:               page.Tasks{CheckYourLpa: actor.TaskCompleted},
+		Tasks:               actor.DonorTasks{CheckYourLpa: actor.TaskCompleted},
 		CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Paper, Mobile: "07700900000"},
 		Type:                actor.LpaTypePropertyFinance,
 	}
@@ -440,7 +440,7 @@ func TestPostCheckYourLpaWhenShareCodeSenderErrors(t *testing.T) {
 	lpa := &page.Lpa{
 		ID:    "lpa-id",
 		Hash:  5,
-		Tasks: page.Tasks{CheckYourLpa: actor.TaskInProgress},
+		Tasks: actor.DonorTasks{CheckYourLpa: actor.TaskInProgress},
 	}
 
 	donorStore := newMockDonorStore(t)

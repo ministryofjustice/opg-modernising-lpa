@@ -186,7 +186,7 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 				On("Put", r.Context(), &page.Lpa{
 					ID:                      "lpa-id",
 					DoYouWantToNotifyPeople: tc.YesNo,
-					Tasks: page.Tasks{
+					Tasks: actor.DonorTasks{
 						YourDetails:                actor.TaskCompleted,
 						ChooseAttorneys:            actor.TaskCompleted,
 						ChooseReplacementAttorneys: actor.TaskCompleted,
@@ -201,7 +201,7 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 			err := DoYouWantToNotifyPeople(nil, donorStore)(testAppData, w, r, &page.Lpa{
 				ID:                      "lpa-id",
 				DoYouWantToNotifyPeople: tc.ExistingAnswer,
-				Tasks: page.Tasks{
+				Tasks: actor.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
 					ChooseReplacementAttorneys: actor.TaskCompleted,
@@ -232,7 +232,7 @@ func TestPostDoYouWantToNotifyPeopleWhenStoreErrors(t *testing.T) {
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			DoYouWantToNotifyPeople: form.Yes,
-			Tasks:                   page.Tasks{PeopleToNotify: actor.TaskInProgress},
+			Tasks:                   actor.DonorTasks{PeopleToNotify: actor.TaskInProgress},
 		}).
 		Return(expectedError)
 

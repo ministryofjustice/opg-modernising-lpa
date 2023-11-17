@@ -91,7 +91,7 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 			ID:                "lpa-id",
 			Attorneys:         actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}}},
 			AttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
-			Tasks:             page.Tasks{ChooseAttorneys: actor.TaskCompleted},
+			Tasks:             actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -149,7 +149,7 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 					ID:                "lpa-id",
 					Attorneys:         actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}}},
 					AttorneyDecisions: actor.AttorneyDecisions{Details: tc.updatedDetails, How: tc.updatedType},
-					Tasks:             page.Tasks{ChooseAttorneys: actor.TaskCompleted},
+					Tasks:             actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
 				}).
 				Return(nil)
 

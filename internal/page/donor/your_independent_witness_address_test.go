@@ -142,7 +142,7 @@ func TestPostYourIndependentWitnessAddressManual(t *testing.T) {
 			IndependentWitness: actor.IndependentWitness{
 				Address: testAddress,
 			},
-			Tasks: page.Tasks{
+			Tasks: actor.DonorTasks{
 				ChooseYourSignatory: actor.TaskCompleted,
 			},
 		}).
@@ -204,7 +204,7 @@ func TestPostYourIndependentWitnessAddressManualFromStore(t *testing.T) {
 				FirstNames: "John",
 				Address:    testAddress,
 			},
-			Tasks: page.Tasks{
+			Tasks: actor.DonorTasks{
 				ChooseYourSignatory: actor.TaskCompleted,
 			},
 		}).
