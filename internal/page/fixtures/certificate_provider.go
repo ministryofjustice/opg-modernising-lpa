@@ -67,9 +67,9 @@ func CertificateProvider(
 
 		lpa.UID = makeUid()
 		lpa.Donor = makeDonor()
-		lpa.Type = page.LpaTypePropertyFinance
+		lpa.Type = actor.LpaTypePropertyFinance
 		if lpaType == "hw" {
-			lpa.Type = page.LpaTypeHealthWelfare
+			lpa.Type = actor.LpaTypeHealthWelfare
 		}
 
 		lpa.Attorneys = actor.Attorneys{

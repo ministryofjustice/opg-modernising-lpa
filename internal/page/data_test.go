@@ -21,37 +21,6 @@ var address = place.Address{
 	Postcode:   "e",
 }
 
-func TestLpaType(t *testing.T) {
-	values := map[LpaType]string{LpaTypeHealthWelfare: "hw", LpaTypePropertyFinance: "pfa"}
-
-	for value, s := range values {
-		t.Run(fmt.Sprintf("parse %s", s), func(t *testing.T) {
-			parsed, err := ParseLpaType(s)
-			assert.Nil(t, err)
-			assert.Equal(t, value, parsed)
-		})
-
-		t.Run(fmt.Sprintf("string %s", s), func(t *testing.T) {
-			assert.Equal(t, s, value.String())
-		})
-	}
-
-	t.Run("parse invalid", func(t *testing.T) {
-		_, err := ParseLpaType("invalid")
-		assert.NotNil(t, err)
-	})
-
-	t.Run("IsHealthWelfare", func(t *testing.T) {
-		assert.True(t, LpaTypeHealthWelfare.IsHealthWelfare())
-		assert.False(t, LpaTypePropertyFinance.IsHealthWelfare())
-	})
-
-	t.Run("IsPropertyFinance", func(t *testing.T) {
-		assert.True(t, LpaTypePropertyFinance.IsPropertyFinance())
-		assert.False(t, LpaTypeHealthWelfare.IsPropertyFinance())
-	})
-}
-
 func TestCanBeUsedWhen(t *testing.T) {
 	values := map[CanBeUsedWhen]string{CanBeUsedWhenCapacityLost: "when-capacity-lost", CanBeUsedWhenHasCapacity: "when-has-capacity"}
 
@@ -195,36 +164,6 @@ func TestIdentityConfirmed(t *testing.T) {
 	}
 }
 
-func TestTypeLegalTermTransKey(t *testing.T) {
-	testCases := map[string]struct {
-		LpaType           LpaType
-		ExpectedLegalTerm string
-	}{
-		"PFA": {
-			LpaType:           LpaTypePropertyFinance,
-			ExpectedLegalTerm: "pfaLegalTerm",
-		},
-		"HW": {
-			LpaType:           LpaTypeHealthWelfare,
-			ExpectedLegalTerm: "hwLegalTerm",
-		},
-		"unexpected": {
-			LpaType:           LpaType(5),
-			ExpectedLegalTerm: "",
-		},
-		"empty": {
-			ExpectedLegalTerm: "",
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			lpa := Lpa{Type: tc.LpaType}
-			assert.Equal(t, tc.ExpectedLegalTerm, lpa.Type.LegalTermTransKey())
-		})
-	}
-}
-
 func TestAttorneysSigningDeadline(t *testing.T) {
 	lpa := Lpa{
 		SignedAt: time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC),
@@ -252,7 +191,7 @@ func TestCanGoTo(t *testing.T) {
 		},
 		"getting help signing no certificate provider": {
 			lpa: &Lpa{
-				Type: LpaTypeHealthWelfare,
+				Type: actor.LpaTypeHealthWelfare,
 				Tasks: Tasks{
 					YourDetails: actor.TaskCompleted,
 				},
@@ -262,7 +201,7 @@ func TestCanGoTo(t *testing.T) {
 		},
 		"getting help signing": {
 			lpa: &Lpa{
-				Type: LpaTypeHealthWelfare,
+				Type: actor.LpaTypeHealthWelfare,
 				Tasks: Tasks{
 					CertificateProvider: actor.TaskCompleted,
 				},
@@ -272,7 +211,7 @@ func TestCanGoTo(t *testing.T) {
 		},
 		"check your lpa when unsure if can sign": {
 			lpa: &Lpa{
-				Type: LpaTypeHealthWelfare,
+				Type: actor.LpaTypeHealthWelfare,
 				Tasks: Tasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
@@ -289,7 +228,7 @@ func TestCanGoTo(t *testing.T) {
 		"check your lpa when can sign": {
 			lpa: &Lpa{
 				Donor: actor.Donor{CanSign: form.Yes},
-				Type:  LpaTypeHealthWelfare,
+				Type:  actor.LpaTypeHealthWelfare,
 				Tasks: Tasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
@@ -313,7 +252,7 @@ func TestCanGoTo(t *testing.T) {
 				Donor: actor.Donor{
 					CanSign: form.Yes,
 				},
-				Type: LpaTypePropertyFinance,
+				Type: actor.LpaTypePropertyFinance,
 				Tasks: Tasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
@@ -338,7 +277,7 @@ func TestCanGoTo(t *testing.T) {
 				Donor: actor.Donor{
 					CanSign: form.Yes,
 				},
-				Type: LpaTypeHealthWelfare,
+				Type: actor.LpaTypeHealthWelfare,
 				Tasks: Tasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,

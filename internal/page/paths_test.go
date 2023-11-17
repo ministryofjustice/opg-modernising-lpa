@@ -67,7 +67,7 @@ func TestLpaPathRedirect(t *testing.T) {
 				Donor: actor.Donor{
 					CanSign: form.Yes,
 				},
-				Type: LpaTypeHealthWelfare,
+				Type: actor.LpaTypeHealthWelfare,
 				Tasks: Tasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
