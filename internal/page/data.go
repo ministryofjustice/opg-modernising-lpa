@@ -25,24 +25,6 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-//go:generate enumerator -type LpaType -linecomment -trimprefix -empty
-type LpaType uint8
-
-const (
-	LpaTypeHealthWelfare   LpaType = iota + 1 // hw
-	LpaTypePropertyFinance                    // pfa
-)
-
-func (e LpaType) LegalTermTransKey() string {
-	switch e {
-	case LpaTypePropertyFinance:
-		return "pfaLegalTerm"
-	case LpaTypeHealthWelfare:
-		return "hwLegalTerm"
-	}
-	return ""
-}
-
 //go:generate enumerator -type CanBeUsedWhen -linecomment -trimprefix -empty
 type CanBeUsedWhen uint8
 
@@ -90,7 +72,7 @@ type Lpa struct {
 	// The certificate provider named in the LPA
 	CertificateProvider actor.CertificateProvider
 	// Type of LPA being drafted
-	Type LpaType
+	Type actor.LpaType
 	// Whether the applicant wants to add replacement attorneys
 	WantReplacementAttorneys form.YesNo
 	// When the LPA can be used

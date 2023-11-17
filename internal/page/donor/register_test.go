@@ -201,7 +201,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 			DateOfBirth: date.New("2000", "1", "2"),
 			Address:     place.Address{Postcode: "ABC123"},
 		},
-			Type:  page.LpaTypePropertyFinance,
+			Type:  actor.LpaTypePropertyFinance,
 			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
 			UID:   "a-uid",
 		}, nil)

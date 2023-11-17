@@ -37,7 +37,7 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 			Donor:                    actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 			CertificateProvider:      actor.CertificateProvider{Mobile: "0777"},
 			CertificateProviderCodes: WitnessCodes{{Code: "1234", Created: now}},
-			Type:                     LpaTypePropertyFinance,
+			Type:                     actor.LpaTypePropertyFinance,
 		}).
 		Return(nil)
 
@@ -58,7 +58,7 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 	err := sender.SendToCertificateProvider(ctx, &Lpa{
 		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
-		Type:                LpaTypePropertyFinance,
+		Type:                actor.LpaTypePropertyFinance,
 	}, localizer)
 
 	assert.Nil(t, err)
@@ -101,7 +101,7 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenNotifyClientErrors(t *tes
 	err := sender.SendToCertificateProvider(context.Background(), &Lpa{
 		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
 		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:                LpaTypePropertyFinance,
+		Type:                actor.LpaTypePropertyFinance,
 	}, localizer)
 
 	assert.Equal(t, ExpectedError, err)
@@ -138,7 +138,7 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenDonorStoreErrors(t *testi
 	err := sender.SendToCertificateProvider(context.Background(), &Lpa{
 		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
 		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:                LpaTypePropertyFinance,
+		Type:                actor.LpaTypePropertyFinance,
 	}, localizer)
 
 	assert.Equal(t, ExpectedError, err)
@@ -170,7 +170,7 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 			Donor:                   actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 			IndependentWitness:      actor.IndependentWitness{Mobile: "0777"},
 			IndependentWitnessCodes: WitnessCodes{{Code: "1234", Created: now}},
-			Type:                    LpaTypePropertyFinance,
+			Type:                    actor.LpaTypePropertyFinance,
 		}).
 		Return(nil)
 
@@ -191,7 +191,7 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 	err := sender.SendToIndependentWitness(ctx, &Lpa{
 		Donor:              actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 		IndependentWitness: actor.IndependentWitness{Mobile: "0777"},
-		Type:               LpaTypePropertyFinance,
+		Type:               actor.LpaTypePropertyFinance,
 	}, localizer)
 
 	assert.Nil(t, err)
@@ -234,7 +234,7 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenNotifyClientErrors(t *test
 	err := sender.SendToIndependentWitness(context.Background(), &Lpa{
 		IndependentWitness: actor.IndependentWitness{Mobile: "0777"},
 		Donor:              actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:               LpaTypePropertyFinance,
+		Type:               actor.LpaTypePropertyFinance,
 	}, localizer)
 
 	assert.Equal(t, ExpectedError, err)
@@ -271,7 +271,7 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenDonorStoreErrors(t *testin
 	err := sender.SendToIndependentWitness(context.Background(), &Lpa{
 		IndependentWitness: actor.IndependentWitness{Mobile: "0777"},
 		Donor:              actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:               LpaTypePropertyFinance,
+		Type:               actor.LpaTypePropertyFinance,
 	}, localizer)
 
 	assert.Equal(t, ExpectedError, err)
