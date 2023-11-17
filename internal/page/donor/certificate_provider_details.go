@@ -18,7 +18,7 @@ type certificateProviderDetailsData struct {
 }
 
 func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
 		data := &certificateProviderDetailsData{
 			App: appData,
 			Form: &certificateProviderDetailsForm{
@@ -119,7 +119,7 @@ func (d *certificateProviderDetailsForm) Validate() validation.List {
 	return errors
 }
 
-func certificateProviderMatches(lpa *page.Lpa, firstNames, lastName string) actor.Type {
+func certificateProviderMatches(lpa *actor.DonorProvidedDetails, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}

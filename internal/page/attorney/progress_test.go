@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -47,7 +46,7 @@ func TestProgress(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			lpa := &page.Lpa{
+			lpa := &actor.DonorProvidedDetails{
 				SignedAt:  lpaSignedAt,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 			}
@@ -83,7 +82,7 @@ func TestProgressWhenAttorneyStoreErrors(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&actor.DonorProvidedDetails{}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.
@@ -98,7 +97,7 @@ func TestProgressWhenDonorStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &page.Lpa{}
+	lpa := &actor.DonorProvidedDetails{}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
@@ -116,7 +115,7 @@ func TestProgressWhenTemplateErrors(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&actor.DonorProvidedDetails{}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.
@@ -125,7 +124,7 @@ func TestProgressWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &progressData{App: testAppData, Lpa: &page.Lpa{}}).
+		On("Execute", w, &progressData{App: testAppData, Lpa: &actor.DonorProvidedDetails{}}).
 		Return(expectedError)
 
 	err := Progress(template.Execute, attorneyStore, donorStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{})

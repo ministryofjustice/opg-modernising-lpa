@@ -27,7 +27,7 @@ func TestGetYourAuthorisedSignatory(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -48,7 +48,7 @@ func TestGetYourAuthorisedSignatoryFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &page.Lpa{
+	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		AuthorisedSignatory: actor.AuthorisedSignatory{
 			FirstNames: "John",
 		},
@@ -68,7 +68,7 @@ func TestGetYourAuthorisedSignatoryWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -112,7 +112,7 @@ func TestPostYourAuthorisedSignatory(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), &page.Lpa{
+				On("Put", r.Context(), &actor.DonorProvidedDetails{
 					ID:                  "lpa-id",
 					Donor:               actor.Donor{FirstNames: "John", LastName: "Smith"},
 					AuthorisedSignatory: tc.person,
@@ -120,7 +120,7 @@ func TestPostYourAuthorisedSignatory(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &page.Lpa{
+			err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 				ID:    "lpa-id",
 				Donor: actor.Donor{FirstNames: "John", LastName: "Smith"},
 			})
@@ -146,7 +146,7 @@ func TestPostYourAuthorisedSignatoryWhenTaskCompleted(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{
+		On("Put", r.Context(), &actor.DonorProvidedDetails{
 			ID: "lpa-id",
 			AuthorisedSignatory: actor.AuthorisedSignatory{
 				FirstNames: "John",
@@ -156,7 +156,7 @@ func TestPostYourAuthorisedSignatoryWhenTaskCompleted(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &page.Lpa{
+	err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		ID: "lpa-id",
 		AuthorisedSignatory: actor.AuthorisedSignatory{
 			FirstNames: "John",
@@ -226,7 +226,7 @@ func TestPostYourAuthorisedSignatoryWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &page.Lpa{
+			err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 				Donor: actor.Donor{
 					FirstNames: "John",
 					LastName:   "Doe",
@@ -255,7 +255,7 @@ func TestPostYourAuthorisedSignatoryWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &page.Lpa{
+	err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor: actor.Donor{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
@@ -326,7 +326,7 @@ func TestYourAuthorisedSignatoryFormValidate(t *testing.T) {
 }
 
 func TestSignatoryMatches(t *testing.T) {
-	lpa := &page.Lpa{
+	lpa := &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{FirstNames: "c", LastName: "d"},
@@ -359,7 +359,7 @@ func TestSignatoryMatches(t *testing.T) {
 }
 
 func TestSignatoryMatchesEmptyNamesIgnored(t *testing.T) {
-	lpa := &page.Lpa{
+	lpa := &actor.DonorProvidedDetails{
 		Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 		PeopleToNotify:       actor.PeopleToNotify{{}},

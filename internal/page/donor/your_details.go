@@ -25,7 +25,7 @@ type yourDetailsData struct {
 }
 
 func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore sessions.Store) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
 		data := &yourDetailsData{
 			App: appData,
 			Form: &yourDetailsForm{
@@ -190,7 +190,7 @@ func (f *yourDetailsForm) DobWarning() string {
 	return ""
 }
 
-func donorMatches(lpa *page.Lpa, firstNames, lastName string) actor.Type {
+func donorMatches(lpa *actor.DonorProvidedDetails, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}

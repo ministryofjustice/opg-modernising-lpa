@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -29,12 +28,12 @@ func TestGetLpaProgress(t *testing.T) {
 	template.
 		On("Execute", w, &lpaProgressData{
 			App:      testAppData,
-			Lpa:      &page.Lpa{ID: "123"},
-			Progress: page.Progress{DonorSigned: actor.TaskInProgress},
+			Lpa:      &actor.DonorProvidedDetails{ID: "123"},
+			Progress: actor.Progress{DonorSigned: actor.TaskInProgress},
 		}).
 		Return(nil)
 
-	err := LpaProgress(template.Execute, certificateProviderStore, attorneyStore)(testAppData, w, r, &page.Lpa{ID: "123"})
+	err := LpaProgress(template.Execute, certificateProviderStore, attorneyStore)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "123"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -50,7 +49,7 @@ func TestGetLpaProgressWhenCertificateProviderStoreErrors(t *testing.T) {
 		On("GetAny", r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
-	err := LpaProgress(nil, certificateProviderStore, nil)(testAppData, w, r, &page.Lpa{ID: "123"})
+	err := LpaProgress(nil, certificateProviderStore, nil)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "123"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -68,7 +67,7 @@ func TestGetLpaProgressWhenAttorneyStoreErrors(t *testing.T) {
 		On("GetAny", r.Context()).
 		Return([]*actor.AttorneyProvidedDetails{}, expectedError)
 
-	err := LpaProgress(nil, certificateProviderStore, attorneyStore)(testAppData, w, r, &page.Lpa{ID: "123"})
+	err := LpaProgress(nil, certificateProviderStore, attorneyStore)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "123"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -91,6 +90,6 @@ func TestGetLpaProgressOnTemplateError(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := LpaProgress(template.Execute, certificateProviderStore, attorneyStore)(testAppData, w, r, &page.Lpa{ID: "123"})
+	err := LpaProgress(template.Execute, certificateProviderStore, attorneyStore)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "123"})
 	assert.Equal(t, expectedError, err)
 }
