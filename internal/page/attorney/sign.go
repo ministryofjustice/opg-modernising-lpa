@@ -61,7 +61,7 @@ func Sign(tmpl template.Template, donorStore DonorStore, certificateProviderStor
 			LpaID:                       lpa.ID,
 			IsReplacement:               appData.IsReplacementAttorney(),
 			IsSecondSignatory:           signatoryIndex == 1,
-			LpaCanBeUsedWhenHasCapacity: lpa.WhenCanTheLpaBeUsed == page.CanBeUsedWhenHasCapacity,
+			LpaCanBeUsedWhenHasCapacity: lpa.WhenCanTheLpaBeUsed == actor.CanBeUsedWhenHasCapacity,
 			Form: &signForm{
 				Confirm: !attorneyProvidedDetails.Confirmed.IsZero(),
 			},

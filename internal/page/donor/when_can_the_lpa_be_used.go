@@ -14,7 +14,7 @@ type whenCanTheLpaBeUsedData struct {
 	Errors  validation.List
 	Lpa     *page.Lpa
 	Form    *whenCanTheLpaBeUsedForm
-	Options page.CanBeUsedWhenOptions
+	Options actor.CanBeUsedWhenOptions
 }
 
 func WhenCanTheLpaBeUsed(tmpl template.Template, donorStore DonorStore) Handler {
@@ -25,7 +25,7 @@ func WhenCanTheLpaBeUsed(tmpl template.Template, donorStore DonorStore) Handler 
 			Form: &whenCanTheLpaBeUsedForm{
 				When: lpa.WhenCanTheLpaBeUsed,
 			},
-			Options: page.CanBeUsedWhenValues,
+			Options: actor.CanBeUsedWhenValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -48,12 +48,12 @@ func WhenCanTheLpaBeUsed(tmpl template.Template, donorStore DonorStore) Handler 
 }
 
 type whenCanTheLpaBeUsedForm struct {
-	When  page.CanBeUsedWhen
+	When  actor.CanBeUsedWhen
 	Error error
 }
 
 func readWhenCanTheLpaBeUsedForm(r *http.Request) *whenCanTheLpaBeUsedForm {
-	when, err := page.ParseCanBeUsedWhen(page.PostFormString(r, "when"))
+	when, err := actor.ParseCanBeUsedWhen(page.PostFormString(r, "when"))
 
 	return &whenCanTheLpaBeUsedForm{
 		When:  when,
