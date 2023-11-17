@@ -74,7 +74,7 @@ func TestPostAreYouApplyingForFeeDiscountOrExemption(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			ID:    "lpa-id",
 			Donor: actor.Donor{Email: "a@b.com"},
-			Tasks: page.Tasks{PayForLpa: actor.PaymentTaskInProgress},
+			Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskInProgress},
 		}).
 		Return(nil)
 
@@ -137,7 +137,7 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenYes(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			ID:    "lpa-id",
 			Donor: actor.Donor{Email: "a@b.com"},
-			Tasks: page.Tasks{PayForLpa: actor.PaymentTaskInProgress},
+			Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskInProgress},
 		}).
 		Return(nil)
 

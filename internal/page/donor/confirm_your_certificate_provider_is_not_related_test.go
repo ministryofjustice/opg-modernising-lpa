@@ -86,7 +86,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 			ID:                             "lpa-id",
 			Donor:                          actor.Donor{CanSign: form.Yes},
 			HasSentApplicationUpdatedEvent: true,
-			Tasks: page.Tasks{
+			Tasks: actor.DonorTasks{
 				YourDetails:                actor.TaskCompleted,
 				ChooseAttorneys:            actor.TaskCompleted,
 				ChooseReplacementAttorneys: actor.TaskCompleted,
@@ -103,7 +103,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 		ID:                             "lpa-id",
 		Donor:                          actor.Donor{CanSign: form.Yes},
 		HasSentApplicationUpdatedEvent: true,
-		Tasks: page.Tasks{
+		Tasks: actor.DonorTasks{
 			YourDetails:                actor.TaskCompleted,
 			ChooseAttorneys:            actor.TaskCompleted,
 			ChooseReplacementAttorneys: actor.TaskCompleted,

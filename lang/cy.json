@@ -202,7 +202,6 @@
     "certificateProviderDetailsHint": "Bydd hunaniaeth eich darparwr tystysgrif yn cael ei wirio. Dylech nodi eu henw fel y mae’n ymddangos ar ddogfennau swyddogol, fel eu pasbort neu drwydded yrru.",
     "certificateProviderMobileContext": "Mae angen i ni gael rhif ffôn symudol eich darparwr tystysgrif er mwyn i ni allu anfon cod atynt i’w ddefnyddio pan fyddant yn eich gweld yn llofnodi eich LPA.",
     "mobile": "Welsh",
-    "donorAndCertificateProviderShareLastnameWarning": "<strong class=\"govuk-warning-text__text govuk-!-padding-bottom-3\">Welsh:</strong> <ul class=\"govuk-list govuk-list--bullet\"> <strong class=\"govuk-warning-text__text\"><li>welsh</li></strong> <strong class=\"govuk-warning-text__text\"><li>welsh</li></strong> </ul> </strong>",
     "howWouldCertificateProviderPreferToCarryOutTheirRole": "Sut hoffai {{.FirstNames}} i ni gysylltu â nhw?",
     "howWouldCertificateProviderPreferToCarryOutTheirRoleTitle": "Welsh",
     "howYourCertificateProviderWouldPreferToCarryOutTheirRole": "Welsh",

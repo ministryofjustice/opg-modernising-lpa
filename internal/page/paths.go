@@ -400,3 +400,59 @@ var Paths = AppPaths{
 	YourIndependentWitnessMobile:                         "/your-independent-witness-mobile",
 	YourLegalRightsAndResponsibilities:                   "/your-legal-rights-and-responsibilities",
 }
+
+func canGoToLpaPath(lpa *Lpa, path string) bool {
+	section1Completed := lpa.Tasks.YourDetails.Completed() &&
+		lpa.Tasks.ChooseAttorneys.Completed() &&
+		lpa.Tasks.ChooseReplacementAttorneys.Completed() &&
+		(lpa.Type.IsHealthWelfare() && lpa.Tasks.LifeSustainingTreatment.Completed() || lpa.Type.IsPropertyFinance() && lpa.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
+		lpa.Tasks.Restrictions.Completed() &&
+		lpa.Tasks.CertificateProvider.Completed() &&
+		lpa.Tasks.PeopleToNotify.Completed() &&
+		(lpa.Donor.CanSign.IsYes() || lpa.Tasks.ChooseYourSignatory.Completed()) &&
+		lpa.Tasks.CheckYourLpa.Completed()
+
+	switch path {
+	case Paths.WhenCanTheLpaBeUsed.String(),
+		Paths.LifeSustainingTreatment.String(),
+		Paths.Restrictions.String(),
+		Paths.WhatACertificateProviderDoes.String(),
+		Paths.DoYouWantToNotifyPeople.String(),
+		Paths.DoYouWantReplacementAttorneys.String():
+		return lpa.Tasks.YourDetails.Completed() && lpa.Tasks.ChooseAttorneys.Completed()
+
+	case Paths.GettingHelpSigning.String():
+		return lpa.Tasks.CertificateProvider.Completed()
+
+	case Paths.ReadYourLpa.String(),
+		Paths.SignYourLpa.String(),
+		Paths.WitnessingYourSignature.String(),
+		Paths.WitnessingAsCertificateProvider.String(),
+		Paths.WitnessingAsIndependentWitness.String(),
+		Paths.YouHaveSubmittedYourLpa.String():
+		return lpa.DonorIdentityConfirmed()
+
+	case Paths.ConfirmYourCertificateProviderIsNotRelated.String(),
+		Paths.CheckYourLpa.String():
+		return lpa.Tasks.YourDetails.Completed() &&
+			lpa.Tasks.ChooseAttorneys.Completed() &&
+			lpa.Tasks.ChooseReplacementAttorneys.Completed() &&
+			(lpa.Type.IsHealthWelfare() && lpa.Tasks.LifeSustainingTreatment.Completed() || lpa.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
+			lpa.Tasks.Restrictions.Completed() &&
+			lpa.Tasks.CertificateProvider.Completed() &&
+			lpa.Tasks.PeopleToNotify.Completed() &&
+			(lpa.Donor.CanSign.IsYes() || lpa.Tasks.ChooseYourSignatory.Completed())
+
+	case Paths.AboutPayment.String():
+		return section1Completed
+
+	case Paths.HowToConfirmYourIdentityAndSign.String(), Paths.IdentityWithOneLogin.String():
+		return section1Completed && lpa.Tasks.PayForLpa.IsCompleted()
+
+	case "":
+		return false
+
+	default:
+		return true
+	}
+}

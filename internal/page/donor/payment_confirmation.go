@@ -37,7 +37,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 			return err
 		}
 
-		lpa.PaymentDetails = append(lpa.PaymentDetails, page.Payment{
+		lpa.PaymentDetails = append(lpa.PaymentDetails, actor.Payment{
 			PaymentReference: payment.Reference,
 			PaymentId:        payment.PaymentId,
 			Amount:           payment.Amount,
