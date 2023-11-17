@@ -1,7 +1,6 @@
 package page
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -19,80 +18,6 @@ var address = place.Address{
 	Line3:      "c",
 	TownOrCity: "d",
 	Postcode:   "e",
-}
-
-func TestLifeSustainingTreatment(t *testing.T) {
-	values := map[LifeSustainingTreatment]string{LifeSustainingTreatmentOptionA: "option-a", LifeSustainingTreatmentOptionB: "option-b"}
-
-	for value, s := range values {
-		t.Run(fmt.Sprintf("parse(%s)", s), func(t *testing.T) {
-			parsed, err := ParseLifeSustainingTreatment(s)
-			assert.Nil(t, err)
-			assert.Equal(t, value, parsed)
-		})
-
-		t.Run(fmt.Sprintf("string(%s)", s), func(t *testing.T) {
-			assert.Equal(t, s, value.String())
-		})
-	}
-
-	t.Run("parse invalid", func(t *testing.T) {
-		_, err := ParseLifeSustainingTreatment("invalid")
-		assert.NotNil(t, err)
-	})
-
-	t.Run("IsOptionA", func(t *testing.T) {
-		assert.True(t, LifeSustainingTreatmentOptionA.IsOptionA())
-		assert.False(t, LifeSustainingTreatmentOptionB.IsOptionA())
-	})
-
-	t.Run("IsOptionB", func(t *testing.T) {
-		assert.True(t, LifeSustainingTreatmentOptionB.IsOptionB())
-		assert.False(t, LifeSustainingTreatmentOptionA.IsOptionB())
-	})
-}
-
-func TestReplacementAttorneysStepIn(t *testing.T) {
-	values := map[ReplacementAttorneysStepIn]string{
-		ReplacementAttorneysStepInWhenAllCanNoLongerAct: "all",
-		ReplacementAttorneysStepInWhenOneCanNoLongerAct: "one",
-		ReplacementAttorneysStepInAnotherWay:            "other",
-	}
-
-	for value, s := range values {
-		t.Run(fmt.Sprintf("parse(%s)", s), func(t *testing.T) {
-			parsed, err := ParseReplacementAttorneysStepIn(s)
-			assert.Nil(t, err)
-			assert.Equal(t, value, parsed)
-		})
-
-		t.Run(fmt.Sprintf("string(%s)", s), func(t *testing.T) {
-			assert.Equal(t, s, value.String())
-		})
-	}
-
-	t.Run("parse invalid", func(t *testing.T) {
-		_, err := ParseReplacementAttorneysStepIn("invalid")
-		assert.NotNil(t, err)
-	})
-
-	t.Run("IsWhenAllCanNoLongerAct", func(t *testing.T) {
-		assert.True(t, ReplacementAttorneysStepInWhenAllCanNoLongerAct.IsWhenAllCanNoLongerAct())
-		assert.False(t, ReplacementAttorneysStepInWhenOneCanNoLongerAct.IsWhenAllCanNoLongerAct())
-		assert.False(t, ReplacementAttorneysStepInAnotherWay.IsWhenAllCanNoLongerAct())
-	})
-
-	t.Run("IsWhenOneCanNoLongerAct", func(t *testing.T) {
-		assert.True(t, ReplacementAttorneysStepInWhenOneCanNoLongerAct.IsWhenOneCanNoLongerAct())
-		assert.False(t, ReplacementAttorneysStepInWhenAllCanNoLongerAct.IsWhenOneCanNoLongerAct())
-		assert.False(t, ReplacementAttorneysStepInAnotherWay.IsWhenOneCanNoLongerAct())
-	})
-
-	t.Run("IsAnotherWay", func(t *testing.T) {
-		assert.True(t, ReplacementAttorneysStepInAnotherWay.IsAnotherWay())
-		assert.False(t, ReplacementAttorneysStepInWhenAllCanNoLongerAct.IsAnotherWay())
-		assert.False(t, ReplacementAttorneysStepInWhenOneCanNoLongerAct.IsAnotherWay())
-	})
 }
 
 func TestGenerateHash(t *testing.T) {
@@ -707,7 +632,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 		want                         form.YesNo
 		replacementAttorneys         actor.Attorneys
 		attorneyDecisions            actor.AttorneyDecisions
-		howReplacementsStepIn        ReplacementAttorneysStepIn
+		howReplacementsStepIn        actor.ReplacementAttorneysStepIn
 		replacementAttorneyDecisions actor.AttorneyDecisions
 		taskState                    actor.TaskState
 	}{
@@ -808,7 +733,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				Email:      "a",
 			}}},
 			attorneyDecisions:     actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
-			howReplacementsStepIn: ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+			howReplacementsStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			taskState:             actor.TaskCompleted,
 		},
 		"jointly attorneys single": {
@@ -852,7 +777,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				Email:      "b",
 			}}},
 			attorneyDecisions:     actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
-			howReplacementsStepIn: ReplacementAttorneysStepInWhenOneCanNoLongerAct,
+			howReplacementsStepIn: actor.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			taskState:             actor.TaskCompleted,
 		},
 		"jointly and severally attorneys multiple with step in when none can act": {
@@ -865,7 +790,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				Email:      "b",
 			}}},
 			attorneyDecisions:     actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
-			howReplacementsStepIn: ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+			howReplacementsStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			taskState:             actor.TaskInProgress,
 		},
 		"jointly and severally attorneys multiple with step in when none can act jointly": {
@@ -878,7 +803,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				Email:      "b",
 			}}},
 			attorneyDecisions:            actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
-			howReplacementsStepIn:        ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+			howReplacementsStepIn:        actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
 			taskState:                    actor.TaskCompleted,
 		},
@@ -892,7 +817,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				Email:      "b",
 			}}},
 			attorneyDecisions:            actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
-			howReplacementsStepIn:        ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+			howReplacementsStepIn:        actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers},
 			taskState:                    actor.TaskCompleted,
 		},

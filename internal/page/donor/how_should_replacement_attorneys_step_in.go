@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -12,7 +13,7 @@ type howShouldReplacementAttorneysStepInData struct {
 	App     page.AppData
 	Errors  validation.List
 	Form    *howShouldReplacementAttorneysStepInForm
-	Options page.ReplacementAttorneysStepInOptions
+	Options actor.ReplacementAttorneysStepInOptions
 }
 
 func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore DonorStore) Handler {
@@ -23,7 +24,7 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore Dono
 				WhenToStepIn: lpa.HowShouldReplacementAttorneysStepIn,
 				OtherDetails: lpa.HowShouldReplacementAttorneysStepInDetails,
 			},
-			Options: page.ReplacementAttorneysStepInValues,
+			Options: actor.ReplacementAttorneysStepInValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -33,7 +34,7 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore Dono
 			if data.Errors.None() {
 				lpa.HowShouldReplacementAttorneysStepIn = data.Form.WhenToStepIn
 
-				if lpa.HowShouldReplacementAttorneysStepIn != page.ReplacementAttorneysStepInAnotherWay {
+				if lpa.HowShouldReplacementAttorneysStepIn != actor.ReplacementAttorneysStepInAnotherWay {
 					lpa.HowShouldReplacementAttorneysStepInDetails = ""
 				} else {
 					lpa.HowShouldReplacementAttorneysStepInDetails = data.Form.OtherDetails
@@ -58,13 +59,13 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore Dono
 }
 
 type howShouldReplacementAttorneysStepInForm struct {
-	WhenToStepIn page.ReplacementAttorneysStepIn
+	WhenToStepIn actor.ReplacementAttorneysStepIn
 	Error        error
 	OtherDetails string
 }
 
 func readHowShouldReplacementAttorneysStepInForm(r *http.Request) *howShouldReplacementAttorneysStepInForm {
-	when, err := page.ParseReplacementAttorneysStepIn(page.PostFormString(r, "when-to-step-in"))
+	when, err := actor.ParseReplacementAttorneysStepIn(page.PostFormString(r, "when-to-step-in"))
 
 	return &howShouldReplacementAttorneysStepInForm{
 		WhenToStepIn: when,
@@ -79,7 +80,7 @@ func (f *howShouldReplacementAttorneysStepInForm) Validate() validation.List {
 	errors.Error("when-to-step-in", "whenYourReplacementAttorneysStepIn", f.Error,
 		validation.Selected())
 
-	if f.WhenToStepIn == page.ReplacementAttorneysStepInAnotherWay {
+	if f.WhenToStepIn == actor.ReplacementAttorneysStepInAnotherWay {
 		errors.String("other-details", "detailsOfWhenToStepIn", f.OtherDetails,
 			validation.Empty())
 	}
