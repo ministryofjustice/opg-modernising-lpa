@@ -42,7 +42,7 @@ func CheckYouCanSign(tmpl template.Template, donorStore DonorStore) Handler {
 					redirect = page.Paths.NeedHelpSigningConfirmation
 				}
 
-				return appData.Redirect(w, r, lpa, redirect.Format(lpa.ID))
+				return redirect.Redirect(w, r, appData, lpa)
 			}
 		}
 

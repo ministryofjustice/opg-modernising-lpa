@@ -2,6 +2,7 @@ package attorney
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -37,9 +38,9 @@ func WouldLikeSecondSignatory(tmpl template.Template, attorneyStore AttorneyStor
 				}
 
 				if form.YesNo.IsYes() {
-					return appData.Redirect(w, r, nil, page.Paths.Attorney.Sign.Format(attorneyProvidedDetails.LpaID)+"?second")
+					return page.Paths.Attorney.Sign.RedirectQuery(w, r, appData, attorneyProvidedDetails.LpaID, url.Values{"second": {""}})
 				} else {
-					return appData.Redirect(w, r, nil, page.Paths.Attorney.WhatHappensNext.Format(attorneyProvidedDetails.LpaID))
+					return page.Paths.Attorney.WhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 				}
 			}
 		}

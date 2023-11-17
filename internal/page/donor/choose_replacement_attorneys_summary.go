@@ -2,6 +2,7 @@ package donor
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
@@ -20,7 +21,7 @@ type chooseReplacementAttorneysSummaryData struct {
 func ChooseReplacementAttorneysSummary(tmpl template.Template) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if lpa.ReplacementAttorneys.Len() == 0 {
-			return appData.Redirect(w, r, lpa, page.Paths.DoYouWantReplacementAttorneys.Format(lpa.ID))
+			return page.Paths.DoYouWantReplacementAttorneys.Redirect(w, r, appData, lpa)
 		}
 
 		data := &chooseReplacementAttorneysSummaryData{
@@ -35,19 +36,15 @@ func ChooseReplacementAttorneysSummary(tmpl template.Template) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				var redirectUrl string
-
 				if data.Form.YesNo == form.Yes {
-					redirectUrl = appData.Paths.ChooseReplacementAttorneys.Format(lpa.ID) + "?addAnother=1"
+					return appData.Paths.ChooseReplacementAttorneys.RedirectQuery(w, r, appData, lpa, url.Values{"addAnother": {"1"}})
 				} else if lpa.ReplacementAttorneys.Len() > 1 && (lpa.Attorneys.Len() == 1 || lpa.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers() || lpa.AttorneyDecisions.How.IsJointly()) {
-					redirectUrl = appData.Paths.HowShouldReplacementAttorneysMakeDecisions.Format(lpa.ID)
+					return appData.Paths.HowShouldReplacementAttorneysMakeDecisions.Redirect(w, r, appData, lpa)
 				} else if lpa.AttorneyDecisions.How.IsJointlyAndSeverally() {
-					redirectUrl = appData.Paths.HowShouldReplacementAttorneysStepIn.Format(lpa.ID)
+					return appData.Paths.HowShouldReplacementAttorneysStepIn.Redirect(w, r, appData, lpa)
 				} else {
-					redirectUrl = page.Paths.TaskList.Format(lpa.ID)
+					return page.Paths.TaskList.Redirect(w, r, appData, lpa)
 				}
-
-				return appData.Redirect(w, r, lpa, redirectUrl)
 			}
 
 		}

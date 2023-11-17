@@ -54,7 +54,7 @@ func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore) Hand
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.YourIndependentWitness.Format(lpa.ID))
+				return page.Paths.YourIndependentWitness.Redirect(w, r, appData, lpa)
 			}
 		}
 

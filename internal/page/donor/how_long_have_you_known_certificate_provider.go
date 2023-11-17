@@ -32,7 +32,7 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore D
 
 			if data.Errors.None() {
 				if form.RelationshipLength == actor.LessThanTwoYears {
-					return appData.Redirect(w, r, lpa, page.Paths.ChooseNewCertificateProvider.Format(lpa.ID))
+					return page.Paths.ChooseNewCertificateProvider.Redirect(w, r, appData, lpa)
 				}
 
 				lpa.CertificateProvider.RelationshipLength = form.RelationshipLength
@@ -40,7 +40,7 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore D
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Format(lpa.ID))
+				return page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Redirect(w, r, appData, lpa)
 			}
 		}
 

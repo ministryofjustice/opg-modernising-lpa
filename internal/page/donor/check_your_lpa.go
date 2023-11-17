@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -118,12 +119,6 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				redirect := page.Paths.LpaDetailsSaved.Format(lpa.ID)
-
-				if !data.Completed {
-					redirect = redirect + "?firstCheck=1"
-				}
-
 				lpa.Tasks.CheckYourLpa = actor.TaskCompleted
 				lpa.CheckedAt = now()
 
@@ -141,7 +136,11 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, redirect)
+				if !data.Completed {
+					return page.Paths.LpaDetailsSaved.RedirectQuery(w, r, appData, lpa, url.Values{"firstCheck": {"1"}})
+				}
+
+				return page.Paths.LpaDetailsSaved.Redirect(w, r, appData, lpa)
 			}
 		}
 

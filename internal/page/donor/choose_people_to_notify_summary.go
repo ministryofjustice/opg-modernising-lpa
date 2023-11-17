@@ -2,6 +2,7 @@ package donor
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
@@ -20,7 +21,7 @@ type choosePeopleToNotifySummaryData struct {
 func ChoosePeopleToNotifySummary(tmpl template.Template) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
 		if len(lpa.PeopleToNotify) == 0 {
-			return appData.Redirect(w, r, lpa, page.Paths.DoYouWantToNotifyPeople.Format(lpa.ID))
+			return page.Paths.DoYouWantToNotifyPeople.Redirect(w, r, appData, lpa)
 		}
 
 		data := &choosePeopleToNotifySummaryData{
@@ -35,13 +36,11 @@ func ChoosePeopleToNotifySummary(tmpl template.Template) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				redirectUrl := appData.Paths.ChoosePeopleToNotify.Format(lpa.ID) + "?addAnother=1"
-
 				if data.Form.YesNo == form.No {
-					redirectUrl = appData.Paths.TaskList.Format(lpa.ID)
+					return appData.Paths.TaskList.Redirect(w, r, appData, lpa)
+				} else {
+					return appData.Paths.ChoosePeopleToNotify.RedirectQuery(w, r, appData, lpa, url.Values{"addAnother": {"1"}})
 				}
-
-				return appData.Redirect(w, r, lpa, redirectUrl)
 			}
 		}
 
