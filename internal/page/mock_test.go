@@ -41,11 +41,11 @@ func mockDonorStoreWithCompletedPaymentLpaData(m *mockDonorStore, r *http.Reques
 			CertificateProvider: actor.CertificateProvider{
 				Email: "certificateprovider@example.com",
 			},
-			PaymentDetails: []Payment{{
+			PaymentDetails: []actor.Payment{{
 				PaymentId:        paymentId,
 				PaymentReference: paymentReference,
 			}},
-			Tasks: Tasks{
+			Tasks: actor.DonorTasks{
 				PayForLpa: actor.PaymentTaskCompleted,
 			},
 		}).

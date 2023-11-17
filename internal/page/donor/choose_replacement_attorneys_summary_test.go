@@ -55,7 +55,7 @@ func TestGetChooseReplacementAttorneysSummaryWhenNoReplacementAttorneys(t *testi
 
 	err := ChooseReplacementAttorneysSummary(nil)(testAppData, w, r, &page.Lpa{
 		ID:    "lpa-id",
-		Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
+		Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 	})
 	resp := w.Result()
 
@@ -150,7 +150,7 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 					Details: tc.decisionDetails,
 				},
 				Attorneys: tc.attorneys,
-				Tasks: page.Tasks{
+				Tasks: actor.DonorTasks{
 					YourDetails:     actor.TaskCompleted,
 					ChooseAttorneys: actor.TaskCompleted,
 				},

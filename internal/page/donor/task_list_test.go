@@ -42,7 +42,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"more evidence required": {
-			lpa:              &page.Lpa{ID: "lpa-id", Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: page.Tasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}},
+			lpa:              &page.Lpa{ID: "lpa-id", Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}},
 			evidenceReceived: true,
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[1].Items = []taskListItem{
@@ -53,7 +53,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"fee denied": {
-			lpa:              &page.Lpa{ID: "lpa-id", Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: page.Tasks{PayForLpa: actor.PaymentTaskDenied}},
+			lpa:              &page.Lpa{ID: "lpa-id", Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
 			evidenceReceived: true,
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[1].Items = []taskListItem{
@@ -64,7 +64,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"hw": {
-			lpa: &page.Lpa{ID: "lpa-id", Type: page.LpaTypeHealthWelfare, Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}}},
+			lpa: &page.Lpa{ID: "lpa-id", Type: actor.LpaTypeHealthWelfare, Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}}},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items[3] = taskListItem{
 					Name: "lifeSustainingTreatment",
@@ -107,7 +107,7 @@ func TestGetTaskList(t *testing.T) {
 				CertificateProvider:  actor.CertificateProvider{LastName: "a", Address: place.Address{Line1: "x"}},
 				Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{}, {}}},
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
-				Tasks: page.Tasks{
+				Tasks: actor.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
 					ChooseReplacementAttorneys: actor.TaskInProgress,

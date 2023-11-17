@@ -269,7 +269,7 @@ func TestDonorStorePutWhenUIDNeeded(t *testing.T) {
 				Postcode: "F1 1FF",
 			},
 		},
-		Type:                     page.LpaTypeHealthWelfare,
+		Type:                     actor.LpaTypeHealthWelfare,
 		HasSentUidRequestedEvent: true,
 	}
 	updatedLpa.Hash, _ = updatedLpa.GenerateHash()
@@ -294,7 +294,7 @@ func TestDonorStorePutWhenUIDNeeded(t *testing.T) {
 				Postcode: "F1 1FF",
 			},
 		},
-		Type: page.LpaTypeHealthWelfare,
+		Type: actor.LpaTypeHealthWelfare,
 	})
 
 	assert.Nil(t, err)
@@ -318,7 +318,7 @@ func TestDonorStorePutWhenUIDNeededMissingSessionData(t *testing.T) {
 				Postcode: "F1 1FF",
 			},
 		},
-		Type: page.LpaTypeHealthWelfare,
+		Type: actor.LpaTypeHealthWelfare,
 	})
 
 	assert.Equal(t, page.SessionMissingError{}, err)
@@ -346,7 +346,7 @@ func TestDonorStorePutWhenUIDFails(t *testing.T) {
 				Postcode: "F1 1FF",
 			},
 		},
-		Type: page.LpaTypeHealthWelfare,
+		Type: actor.LpaTypeHealthWelfare,
 	})
 
 	assert.Equal(t, expectedError, err)
@@ -375,7 +375,7 @@ func TestDonorStorePutWhenApplicationUpdatedWhenError(t *testing.T) {
 				Postcode: "F1 1FF",
 			},
 		},
-		Type: page.LpaTypeHealthWelfare,
+		Type: actor.LpaTypeHealthWelfare,
 	})
 
 	assert.Equal(t, expectedError, err)

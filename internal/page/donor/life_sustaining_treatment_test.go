@@ -23,7 +23,7 @@ func TestGetLifeSustainingTreatment(t *testing.T) {
 		On("Execute", w, &lifeSustainingTreatmentData{
 			App:     testAppData,
 			Form:    &lifeSustainingTreatmentForm{},
-			Options: page.LifeSustainingTreatmentValues,
+			Options: actor.LifeSustainingTreatmentValues,
 		}).
 		Return(nil)
 
@@ -43,13 +43,13 @@ func TestGetLifeSustainingTreatmentFromStore(t *testing.T) {
 		On("Execute", w, &lifeSustainingTreatmentData{
 			App: testAppData,
 			Form: &lifeSustainingTreatmentForm{
-				Option: page.LifeSustainingTreatmentOptionA,
+				Option: actor.LifeSustainingTreatmentOptionA,
 			},
-			Options: page.LifeSustainingTreatmentValues,
+			Options: actor.LifeSustainingTreatmentValues,
 		}).
 		Return(nil)
 
-	err := LifeSustainingTreatment(template.Execute, nil)(testAppData, w, r, &page.Lpa{LifeSustainingTreatmentOption: page.LifeSustainingTreatmentOptionA})
+	err := LifeSustainingTreatment(template.Execute, nil)(testAppData, w, r, &page.Lpa{LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -74,7 +74,7 @@ func TestGetLifeSustainingTreatmentWhenTemplateErrors(t *testing.T) {
 
 func TestPostLifeSustainingTreatment(t *testing.T) {
 	form := url.Values{
-		"option": {page.LifeSustainingTreatmentOptionA.String()},
+		"option": {actor.LifeSustainingTreatmentOptionA.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -85,14 +85,14 @@ func TestPostLifeSustainingTreatment(t *testing.T) {
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			ID:                            "lpa-id",
-			LifeSustainingTreatmentOption: page.LifeSustainingTreatmentOptionA,
-			Tasks:                         page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, LifeSustainingTreatment: actor.TaskCompleted},
+			LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA,
+			Tasks:                         actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, LifeSustainingTreatment: actor.TaskCompleted},
 		}).
 		Return(nil)
 
 	err := LifeSustainingTreatment(nil, donorStore)(testAppData, w, r, &page.Lpa{
 		ID:    "lpa-id",
-		Tasks: page.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
+		Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 	})
 	resp := w.Result()
 
@@ -103,7 +103,7 @@ func TestPostLifeSustainingTreatment(t *testing.T) {
 
 func TestPostLifeSustainingTreatmentWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"option": {page.LifeSustainingTreatmentOptionA.String()},
+		"option": {actor.LifeSustainingTreatmentOptionA.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -112,7 +112,7 @@ func TestPostLifeSustainingTreatmentWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{LifeSustainingTreatmentOption: page.LifeSustainingTreatmentOptionA, Tasks: page.Tasks{LifeSustainingTreatment: actor.TaskCompleted}}).
+		On("Put", r.Context(), &page.Lpa{LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA, Tasks: actor.DonorTasks{LifeSustainingTreatment: actor.TaskCompleted}}).
 		Return(expectedError)
 
 	err := LifeSustainingTreatment(nil, donorStore)(testAppData, w, r, &page.Lpa{})
@@ -141,7 +141,7 @@ func TestPostLifeSustainingTreatmentWhenValidationErrors(t *testing.T) {
 
 func TestReadLifeSustainingTreatmentForm(t *testing.T) {
 	form := url.Values{
-		"option": {page.LifeSustainingTreatmentOptionA.String()},
+		"option": {actor.LifeSustainingTreatmentOptionA.String()},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -149,7 +149,7 @@ func TestReadLifeSustainingTreatmentForm(t *testing.T) {
 
 	result := readLifeSustainingTreatmentForm(r)
 
-	assert.Equal(t, page.LifeSustainingTreatmentOptionA, result.Option)
+	assert.Equal(t, actor.LifeSustainingTreatmentOptionA, result.Option)
 }
 
 func TestLifeSustainingTreatmentFormValidate(t *testing.T) {

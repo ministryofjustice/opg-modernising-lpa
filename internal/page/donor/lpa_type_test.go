@@ -24,8 +24,8 @@ func TestGetLpaType(t *testing.T) {
 			App:  testAppData,
 			Form: &lpaTypeForm{},
 			Options: lpaTypeOptions{
-				PropertyFinance: page.LpaTypePropertyFinance,
-				HealthWelfare:   page.LpaTypeHealthWelfare,
+				PropertyFinance: actor.LpaTypePropertyFinance,
+				HealthWelfare:   actor.LpaTypeHealthWelfare,
 			},
 		}).
 		Return(nil)
@@ -46,16 +46,16 @@ func TestGetLpaTypeFromStore(t *testing.T) {
 		On("Execute", w, &lpaTypeData{
 			App: testAppData,
 			Form: &lpaTypeForm{
-				LpaType: page.LpaTypePropertyFinance,
+				LpaType: actor.LpaTypePropertyFinance,
 			},
 			Options: lpaTypeOptions{
-				PropertyFinance: page.LpaTypePropertyFinance,
-				HealthWelfare:   page.LpaTypeHealthWelfare,
+				PropertyFinance: actor.LpaTypePropertyFinance,
+				HealthWelfare:   actor.LpaTypeHealthWelfare,
 			},
 		}).
 		Return(nil)
 
-	err := LpaType(template.Execute, nil)(testAppData, w, r, &page.Lpa{Type: page.LpaTypePropertyFinance})
+	err := LpaType(template.Execute, nil)(testAppData, w, r, &page.Lpa{Type: actor.LpaTypePropertyFinance})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -80,7 +80,7 @@ func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 
 func TestPostLpaType(t *testing.T) {
 	form := url.Values{
-		"lpa-type": {page.LpaTypePropertyFinance.String()},
+		"lpa-type": {actor.LpaTypePropertyFinance.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -91,8 +91,8 @@ func TestPostLpaType(t *testing.T) {
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			ID:    "lpa-id",
-			Type:  page.LpaTypePropertyFinance,
-			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
+			Type:  actor.LpaTypePropertyFinance,
+			Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -109,7 +109,7 @@ func TestPostLpaType(t *testing.T) {
 
 func TestPostLpaTypeWhenNotChanged(t *testing.T) {
 	form := url.Values{
-		"lpa-type": {page.LpaTypePropertyFinance.String()},
+		"lpa-type": {actor.LpaTypePropertyFinance.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -118,7 +118,7 @@ func TestPostLpaTypeWhenNotChanged(t *testing.T) {
 
 	err := LpaType(nil, nil)(testAppData, w, r, &page.Lpa{
 		ID:   "lpa-id",
-		Type: page.LpaTypePropertyFinance,
+		Type: actor.LpaTypePropertyFinance,
 	})
 	resp := w.Result()
 
@@ -129,7 +129,7 @@ func TestPostLpaTypeWhenNotChanged(t *testing.T) {
 
 func TestPostLpaTypeWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"lpa-type": {page.LpaTypePropertyFinance.String()},
+		"lpa-type": {actor.LpaTypePropertyFinance.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -167,7 +167,7 @@ func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 
 func TestReadLpaTypeForm(t *testing.T) {
 	form := url.Values{
-		"lpa-type": {page.LpaTypePropertyFinance.String()},
+		"lpa-type": {actor.LpaTypePropertyFinance.String()},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -175,7 +175,7 @@ func TestReadLpaTypeForm(t *testing.T) {
 
 	result := readLpaTypeForm(r)
 
-	assert.Equal(t, page.LpaTypePropertyFinance, result.LpaType)
+	assert.Equal(t, actor.LpaTypePropertyFinance, result.LpaType)
 }
 
 func TestLpaTypeFormValidate(t *testing.T) {
