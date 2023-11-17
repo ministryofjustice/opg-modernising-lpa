@@ -904,5 +904,6 @@
     "changeHomeAddressLink": "Change<span class=\"govuk-visually-hidden\"> home address</span>",
     "homeAddress": "Home address",
     "goToDashboard": "Go to dashboard",
-    "printThisPage": "Print this page"
+    "printThisPage": "Print this page",
+    "printerIcon": "Icon of a printer"
 }
