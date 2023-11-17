@@ -919,15 +919,15 @@ func TestFeeAmount(t *testing.T) {
 			ExpectedCost: 4100,
 		},
 		"fully paid": {
-			Lpa:          &Lpa{FeeType: pay.HalfFee, PaymentDetails: []Payment{{Amount: 4100}}},
+			Lpa:          &Lpa{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}},
 			ExpectedCost: 0,
 		},
 		"denied partially paid": {
-			Lpa:          &Lpa{FeeType: pay.HalfFee, PaymentDetails: []Payment{{Amount: 4100}}, Tasks: Tasks{PayForLpa: actor.PaymentTaskDenied}},
+			Lpa:          &Lpa{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}, Tasks: Tasks{PayForLpa: actor.PaymentTaskDenied}},
 			ExpectedCost: 4100,
 		},
 		"denied fully paid": {
-			Lpa:          &Lpa{FeeType: pay.HalfFee, PaymentDetails: []Payment{{Amount: 4100}, {Amount: 4100}}, Tasks: Tasks{PayForLpa: actor.PaymentTaskDenied}},
+			Lpa:          &Lpa{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}, {Amount: 4100}}, Tasks: Tasks{PayForLpa: actor.PaymentTaskDenied}},
 			ExpectedCost: 0,
 		},
 	}

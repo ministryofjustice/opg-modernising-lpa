@@ -229,7 +229,7 @@ func Donor(
 				lpa.FeeType = pay.FullFee
 			}
 
-			lpa.PaymentDetails = append(lpa.PaymentDetails, page.Payment{
+			lpa.PaymentDetails = append(lpa.PaymentDetails, actor.Payment{
 				PaymentReference: random.String(12),
 				PaymentId:        random.String(12),
 			})
