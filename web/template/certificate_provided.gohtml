@@ -9,7 +9,15 @@
         <h1 class="govuk-panel__title">{{ tr .App "youveProvidedTheCertificateForThisLpa" }}</h1>
       </div>
 
-      {{ trFormatHtml .App "certificateProvidedContent" "DonorFirstNamesPossessive" (possessive .App .Lpa.Donor.FirstNames) }}
+      {{ trFormatHtml .App "certificateProvidedContent" "DonorFullName" .Lpa.Donor.FullName "DonorFirstNamesPossessive" (possessive .App .Lpa.Donor.FirstNames) "CertificateProviderFullName" .Lpa.CertificateProvider.FullName  }}
+
+      {{ trFormatHtml .App "certificateDetails" "AgreedTimeStamp" (formatDateTime .App .CertificateProvider.Certificate.Agreed) "LpaUID" .Lpa.UID "DonorFullName" .Lpa.Donor.FullName }}
+
+      {{ trFormatHtml .App "thisMeansYouveDoneEverythingContent" "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) "CertificateProviderEmail" .Lpa.CertificateProvider.Email }}
+
+      {{ template "print-this-page" . }}
+
+      {{ trFormatHtml .App "certificateProvidedConcerns" "DonorFirstNamesPossessive" (possessive .App .Lpa.Donor.FirstNames) }}
 
       <a href="{{ link .App .App.Paths.Dashboard.Format }}" class="govuk-button">{{ tr .App "goToYourDashboard" }}</a>
     </div>
