@@ -26,7 +26,7 @@ func ChooseNewCertificateProvider(tmpl template.Template, donorStore DonorStore)
 				return err
 			}
 
-			return appData.Redirect(w, r, lpa, page.Paths.ChooseYourCertificateProvider.Format(lpa.ID))
+			return page.Paths.ChooseYourCertificateProvider.Redirect(w, r, appData, lpa)
 		}
 
 		return tmpl(w, data)

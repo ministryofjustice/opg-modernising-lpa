@@ -28,31 +28,9 @@ type AppData struct {
 	OneloginURL      string
 }
 
-func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, lpa *Lpa, url string) error {
-	if fromURL := r.FormValue("from"); fromURL != "" {
-		url = fromURL
-	}
-
-	if lpa != nil && d.LpaID == "" {
-		d.LpaID = lpa.ID
-	}
-
-	// as a shortcut for when you don't have an Lpa but know the transition is fine we allow passing nil
-	if lpa == nil || lpa.CanGoTo(url) {
-		http.Redirect(w, r, d.BuildUrl(url), http.StatusFound)
-	} else {
-		http.Redirect(w, r, d.BuildUrl(Paths.TaskList.Format(d.LpaID)), http.StatusFound)
-	}
-
+func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, url string) error {
+	http.Redirect(w, r, d.Lang.URL(url), http.StatusFound)
 	return nil
-}
-
-func (d AppData) BuildUrl(url string) string {
-	if d.Lang == localize.Cy {
-		return "/" + localize.Cy.String() + url
-	}
-
-	return url
 }
 
 func ContextWithAppData(ctx context.Context, appData AppData) context.Context {

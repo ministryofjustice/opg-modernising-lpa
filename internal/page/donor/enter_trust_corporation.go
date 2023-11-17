@@ -46,7 +46,7 @@ func EnterTrustCorporation(tmpl template.Template, donorStore DonorStore) Handle
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, appData.Paths.EnterTrustCorporationAddress.Format(lpa.ID))
+				return appData.Paths.EnterTrustCorporationAddress.Redirect(w, r, appData, lpa)
 			}
 		}
 

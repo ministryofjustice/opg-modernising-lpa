@@ -2,6 +2,7 @@ package donor
 
 import (
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -27,7 +28,7 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore, uuidString f
 		attorney, attorneyFound := lpa.Attorneys.Get(r.URL.Query().Get("id"))
 
 		if r.Method == http.MethodGet && len(lpa.Attorneys.Attorneys) > 0 && !attorneyFound && !addAnother {
-			return appData.Redirect(w, r, lpa, page.Paths.ChooseAttorneysSummary.Format(lpa.ID))
+			return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, lpa)
 		}
 
 		data := &chooseAttorneysData{
@@ -81,7 +82,7 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore, uuidString f
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, appData.Paths.ChooseAttorneysAddress.Format(lpa.ID)+"?id="+attorney.ID)
+				return appData.Paths.ChooseAttorneysAddress.RedirectQuery(w, r, appData, lpa, url.Values{"id": {attorney.ID}})
 			}
 		}
 

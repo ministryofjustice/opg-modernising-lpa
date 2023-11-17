@@ -48,7 +48,7 @@ func YourIndependentWitnessMobile(tmpl template.Template, donorStore DonorStore)
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.YourIndependentWitnessAddress.Format(lpa.ID))
+				return page.Paths.YourIndependentWitnessAddress.Redirect(w, r, appData, lpa)
 			}
 		}
 

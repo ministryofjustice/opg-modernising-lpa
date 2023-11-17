@@ -30,7 +30,7 @@ func ReadTheLpa(tmpl template.Template, donorStore DonorStore, certificateProvid
 
 		if r.Method == http.MethodPost {
 			if lpa.SignedAt.IsZero() || !lpa.Tasks.PayForLpa.IsCompleted() {
-				return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.TaskList.Format(lpa.ID))
+				return page.Paths.CertificateProvider.TaskList.Redirect(w, r, appData, lpa.ID)
 			}
 
 			certificateProvider.Tasks.ReadTheLpa = actor.TaskCompleted
@@ -38,7 +38,7 @@ func ReadTheLpa(tmpl template.Template, donorStore DonorStore, certificateProvid
 				return err
 			}
 
-			return appData.Redirect(w, r, nil, page.Paths.CertificateProvider.WhatHappensNext.Format(lpa.ID))
+			return page.Paths.CertificateProvider.WhatHappensNext.Redirect(w, r, appData, lpa.ID)
 		}
 
 		data := &readTheLpaData{
