@@ -16,7 +16,7 @@ func TestGetReadTheLpa(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &page.Lpa{}
+	lpa := &actor.DonorProvidedDetails{}
 	certificateProvider := &actor.CertificateProviderProvidedDetails{}
 
 	donorStore := newMockDonorStore(t)
@@ -45,7 +45,7 @@ func TestGetReadTheLpaWhenDonorStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &page.Lpa{}
+	lpa := &actor.DonorProvidedDetails{}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
@@ -64,7 +64,7 @@ func TestGetReadTheLpaWhenCertificateProviderStoreErrors(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&actor.DonorProvidedDetails{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -83,7 +83,7 @@ func TestGetReadTheLpaWhenTemplateErrors(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&actor.DonorProvidedDetails{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -107,7 +107,7 @@ func TestPostReadTheLpa(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{
+		Return(&actor.DonorProvidedDetails{
 			ID:       "lpa-id",
 			SignedAt: time.Now(),
 			Tasks: actor.DonorTasks{
@@ -136,7 +136,7 @@ func TestPostReadTheLpa(t *testing.T) {
 }
 
 func TestPostReadTheLpaWhenNotReady(t *testing.T) {
-	testcases := map[string]*page.Lpa{
+	testcases := map[string]*actor.DonorProvidedDetails{
 		"not submitted": {
 			ID: "lpa-id",
 			Tasks: actor.DonorTasks{
@@ -181,7 +181,7 @@ func TestPostReadTheLpaWithAttorneyOnCertificateStoreError(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{
+		Return(&actor.DonorProvidedDetails{
 			ID:       "lpa-id",
 			SignedAt: time.Now(),
 			Tasks: actor.DonorTasks{

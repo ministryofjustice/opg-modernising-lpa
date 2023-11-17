@@ -42,7 +42,7 @@ type donorStore struct {
 	documentStore DocumentStore
 }
 
-func (s *donorStore) Create(ctx context.Context) (*page.Lpa, error) {
+func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func (s *donorStore) Create(ctx context.Context) (*page.Lpa, error) {
 
 	lpaID := s.uuidString()
 
-	lpa := &page.Lpa{
+	lpa := &actor.DonorProvidedDetails{
 		PK:        lpaKey(lpaID),
 		SK:        donorKey(data.SessionID),
 		ID:        lpaID,
@@ -83,7 +83,7 @@ func (s *donorStore) Create(ctx context.Context) (*page.Lpa, error) {
 	return lpa, err
 }
 
-func (s *donorStore) GetAny(ctx context.Context) (*page.Lpa, error) {
+func (s *donorStore) GetAny(ctx context.Context) (*actor.DonorProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -93,7 +93,7 @@ func (s *donorStore) GetAny(ctx context.Context) (*page.Lpa, error) {
 		return nil, errors.New("donorStore.Get requires LpaID")
 	}
 
-	var lpa *page.Lpa
+	var lpa *actor.DonorProvidedDetails
 	if err := s.dynamoClient.OneByPartialSk(ctx, lpaKey(data.LpaID), "#DONOR#", &lpa); err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func (s *donorStore) GetAny(ctx context.Context) (*page.Lpa, error) {
 	return lpa, nil
 }
 
-func (s *donorStore) Get(ctx context.Context) (*page.Lpa, error) {
+func (s *donorStore) Get(ctx context.Context) (*actor.DonorProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -111,12 +111,12 @@ func (s *donorStore) Get(ctx context.Context) (*page.Lpa, error) {
 		return nil, errors.New("donorStore.Get requires LpaID and SessionID")
 	}
 
-	var lpa *page.Lpa
+	var lpa *actor.DonorProvidedDetails
 	err = s.dynamoClient.One(ctx, lpaKey(data.LpaID), donorKey(data.SessionID), &lpa)
 	return lpa, err
 }
 
-func (s *donorStore) Latest(ctx context.Context) (*page.Lpa, error) {
+func (s *donorStore) Latest(ctx context.Context) (*actor.DonorProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -126,7 +126,7 @@ func (s *donorStore) Latest(ctx context.Context) (*page.Lpa, error) {
 		return nil, errors.New("donorStore.Get requires SessionID")
 	}
 
-	var lpa *page.Lpa
+	var lpa *actor.DonorProvidedDetails
 	if err := s.dynamoClient.LatestForActor(ctx, donorKey(data.SessionID), &lpa); err != nil {
 		return nil, err
 	}
@@ -134,7 +134,7 @@ func (s *donorStore) Latest(ctx context.Context) (*page.Lpa, error) {
 	return lpa, nil
 }
 
-func (s *donorStore) Put(ctx context.Context, lpa *page.Lpa) error {
+func (s *donorStore) Put(ctx context.Context, lpa *actor.DonorProvidedDetails) error {
 	newHash, err := lpa.GenerateHash()
 	if newHash == lpa.Hash || err != nil {
 		return err

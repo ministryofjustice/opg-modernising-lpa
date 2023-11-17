@@ -17,7 +17,7 @@ type lifeSustainingTreatmentData struct {
 }
 
 func LifeSustainingTreatment(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
 		data := &lifeSustainingTreatmentData{
 			App: appData,
 			Form: &lifeSustainingTreatmentForm{

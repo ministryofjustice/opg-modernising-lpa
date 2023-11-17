@@ -5,8 +5,11 @@ package main
 import (
 	context "context"
 
-	notify "github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+
 	mock "github.com/stretchr/testify/mock"
+
+	notify "github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 
 	page "github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
@@ -17,11 +20,11 @@ type mockShareCodeSender struct {
 }
 
 // SendCertificateProvider provides a mock function with given fields: _a0, _a1, _a2, _a3, _a4
-func (_m *mockShareCodeSender) SendCertificateProvider(_a0 context.Context, _a1 notify.Template, _a2 page.AppData, _a3 bool, _a4 *page.Lpa) error {
+func (_m *mockShareCodeSender) SendCertificateProvider(_a0 context.Context, _a1 notify.Template, _a2 page.AppData, _a3 bool, _a4 *actor.DonorProvidedDetails) error {
 	ret := _m.Called(_a0, _a1, _a2, _a3, _a4)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, notify.Template, page.AppData, bool, *page.Lpa) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, notify.Template, page.AppData, bool, *actor.DonorProvidedDetails) error); ok {
 		r0 = rf(_a0, _a1, _a2, _a3, _a4)
 	} else {
 		r0 = ret.Error(0)
