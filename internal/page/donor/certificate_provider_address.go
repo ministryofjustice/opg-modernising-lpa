@@ -56,7 +56,7 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 						return err
 					}
 
-					return appData.Redirect(w, r, lpa, page.Paths.TaskList.Format(lpa.ID))
+					return page.Paths.TaskList.Redirect(w, r, appData, lpa)
 				}
 
 			case "postcode-select":
@@ -82,7 +82,7 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 						return err
 					}
 
-					return appData.Redirect(w, r, lpa, page.Paths.TaskList.Format(lpa.ID))
+					return page.Paths.TaskList.Redirect(w, r, appData, lpa)
 				} else {
 					data.Addresses = lpa.ActorAddresses()
 				}

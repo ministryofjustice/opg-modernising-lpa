@@ -53,7 +53,7 @@ func WitnessingAsIndependentWitness(tmpl template.Template, donorStore DonorStor
 			}
 
 			if data.Errors.None() {
-				return appData.Redirect(w, r, lpa, page.Paths.WitnessingAsCertificateProvider.Format(lpa.ID))
+				return page.Paths.WitnessingAsCertificateProvider.Redirect(w, r, appData, lpa)
 			}
 		}
 

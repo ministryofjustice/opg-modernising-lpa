@@ -39,7 +39,7 @@ func WhenCanTheLpaBeUsed(tmpl template.Template, donorStore DonorStore) Handler 
 					return err
 				}
 
-				return appData.Redirect(w, r, lpa, page.Paths.TaskList.Format(lpa.ID))
+				return page.Paths.TaskList.Redirect(w, r, appData, lpa)
 			}
 		}
 

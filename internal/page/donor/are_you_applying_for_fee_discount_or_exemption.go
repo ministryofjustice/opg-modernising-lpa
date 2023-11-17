@@ -39,7 +39,7 @@ func AreYouApplyingForFeeDiscountOrExemption(tmpl template.Template, payer Payer
 				if data.Form.YesNo.IsNo() {
 					return payer.Pay(appData, w, r, lpa)
 				} else {
-					return appData.Redirect(w, r, lpa, page.Paths.WhichFeeTypeAreYouApplyingFor.Format(lpa.ID))
+					return page.Paths.WhichFeeTypeAreYouApplyingFor.Redirect(w, r, appData, lpa)
 				}
 			}
 		}
