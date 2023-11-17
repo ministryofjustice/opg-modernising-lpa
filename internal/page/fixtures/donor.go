@@ -86,9 +86,9 @@ func Donor(
 
 		if progress >= slices.Index(progressValues, "provideYourDetails") {
 			lpa.Donor = makeDonor()
-			lpa.Type = page.LpaTypePropertyFinance
+			lpa.Type = actor.LpaTypePropertyFinance
 			if lpaType == "hw" {
-				lpa.Type = page.LpaTypeHealthWelfare
+				lpa.Type = actor.LpaTypeHealthWelfare
 			}
 			lpa.UID = makeUid()
 
@@ -158,11 +158,11 @@ func Donor(
 		}
 
 		if progress >= slices.Index(progressValues, "chooseWhenTheLpaCanBeUsed") {
-			if lpa.Type == page.LpaTypeHealthWelfare {
-				lpa.LifeSustainingTreatmentOption = page.LifeSustainingTreatmentOptionA
+			if lpa.Type == actor.LpaTypeHealthWelfare {
+				lpa.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
 				lpa.Tasks.LifeSustainingTreatment = actor.TaskCompleted
 			} else {
-				lpa.WhenCanTheLpaBeUsed = page.CanBeUsedWhenHasCapacity
+				lpa.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
 				lpa.Tasks.WhenCanTheLpaBeUsed = actor.TaskCompleted
 			}
 		}
@@ -229,7 +229,7 @@ func Donor(
 				lpa.FeeType = pay.FullFee
 			}
 
-			lpa.PaymentDetails = append(lpa.PaymentDetails, page.Payment{
+			lpa.PaymentDetails = append(lpa.PaymentDetails, actor.Payment{
 				PaymentReference: random.String(12),
 				PaymentId:        random.String(12),
 			})

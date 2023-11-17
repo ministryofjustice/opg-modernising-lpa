@@ -35,7 +35,7 @@ func TestGetTaskList(t *testing.T) {
 		"paid": {
 			lpa: &page.Lpa{
 				ID: "lpa-id",
-				Tasks: page.Tasks{
+				Tasks: actor.DonorTasks{
 					PayForLpa: actor.PaymentTaskCompleted,
 				},
 			},
@@ -77,7 +77,7 @@ func TestGetTaskList(t *testing.T) {
 			lpa: &page.Lpa{
 				ID:       "lpa-id",
 				SignedAt: time.Now(),
-				Tasks: page.Tasks{
+				Tasks: actor.DonorTasks{
 					PayForLpa: actor.PaymentTaskCompleted,
 				},
 			},
@@ -105,7 +105,7 @@ func TestGetTaskList(t *testing.T) {
 			lpa: &page.Lpa{
 				ID:       "lpa-id",
 				SignedAt: time.Now(),
-				Tasks: page.Tasks{
+				Tasks: actor.DonorTasks{
 					PayForLpa: actor.PaymentTaskCompleted,
 				},
 			},

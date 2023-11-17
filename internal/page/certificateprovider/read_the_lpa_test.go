@@ -110,7 +110,7 @@ func TestPostReadTheLpa(t *testing.T) {
 		Return(&page.Lpa{
 			ID:       "lpa-id",
 			SignedAt: time.Now(),
-			Tasks: page.Tasks{
+			Tasks: actor.DonorTasks{
 				PayForLpa: actor.PaymentTaskCompleted,
 			},
 		}, nil)
@@ -139,7 +139,7 @@ func TestPostReadTheLpaWhenNotReady(t *testing.T) {
 	testcases := map[string]*page.Lpa{
 		"not submitted": {
 			ID: "lpa-id",
-			Tasks: page.Tasks{
+			Tasks: actor.DonorTasks{
 				PayForLpa: actor.PaymentTaskCompleted,
 			},
 		},
@@ -184,7 +184,7 @@ func TestPostReadTheLpaWithAttorneyOnCertificateStoreError(t *testing.T) {
 		Return(&page.Lpa{
 			ID:       "lpa-id",
 			SignedAt: time.Now(),
-			Tasks: page.Tasks{
+			Tasks: actor.DonorTasks{
 				PayForLpa: actor.PaymentTaskCompleted,
 			},
 		}, nil)

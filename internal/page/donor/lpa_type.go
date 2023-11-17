@@ -10,8 +10,8 @@ import (
 )
 
 type lpaTypeOptions struct {
-	PropertyFinance page.LpaType
-	HealthWelfare   page.LpaType
+	PropertyFinance actor.LpaType
+	HealthWelfare   actor.LpaType
 }
 
 type lpaTypeData struct {
@@ -29,8 +29,8 @@ func LpaType(tmpl template.Template, donorStore DonorStore) Handler {
 				LpaType: lpa.Type,
 			},
 			Options: lpaTypeOptions{
-				PropertyFinance: page.LpaTypePropertyFinance,
-				HealthWelfare:   page.LpaTypeHealthWelfare,
+				PropertyFinance: actor.LpaTypePropertyFinance,
+				HealthWelfare:   actor.LpaTypeHealthWelfare,
 			},
 		}
 
@@ -58,12 +58,12 @@ func LpaType(tmpl template.Template, donorStore DonorStore) Handler {
 }
 
 type lpaTypeForm struct {
-	LpaType page.LpaType
+	LpaType actor.LpaType
 	Error   error
 }
 
 func readLpaTypeForm(r *http.Request) *lpaTypeForm {
-	lpaType, err := page.ParseLpaType(page.PostFormString(r, "lpa-type"))
+	lpaType, err := actor.ParseLpaType(page.PostFormString(r, "lpa-type"))
 
 	return &lpaTypeForm{
 		LpaType: lpaType,

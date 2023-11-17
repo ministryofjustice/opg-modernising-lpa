@@ -228,7 +228,7 @@ func TestPostYourDetails(t *testing.T) {
 				On("Put", r.Context(), &page.Lpa{
 					ID:    "lpa-id",
 					Donor: tc.person,
-					Tasks: page.Tasks{YourDetails: actor.TaskInProgress},
+					Tasks: actor.DonorTasks{YourDetails: actor.TaskInProgress},
 				}).
 				Return(nil)
 
@@ -282,7 +282,7 @@ func TestPostYourDetailsWhenDetailsNotChanged(t *testing.T) {
 				ThinksCanSign: actor.Yes,
 				CanSign:       form.Yes,
 			},
-			Tasks:                          page.Tasks{YourDetails: actor.TaskInProgress},
+			Tasks:                          actor.DonorTasks{YourDetails: actor.TaskInProgress},
 			HasSentApplicationUpdatedEvent: true,
 		}).
 		Return(nil)
@@ -338,7 +338,7 @@ func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {
 				ThinksCanSign: actor.Yes,
 				CanSign:       form.Yes,
 			},
-			Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
+			Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -353,7 +353,7 @@ func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
 		},
-		Tasks: page.Tasks{YourDetails: actor.TaskCompleted},
+		Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted},
 	})
 	resp := w.Result()
 

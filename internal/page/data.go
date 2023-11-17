@@ -25,49 +25,6 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-//go:generate enumerator -type LpaType -linecomment -trimprefix -empty
-type LpaType uint8
-
-const (
-	LpaTypeHealthWelfare   LpaType = iota + 1 // hw
-	LpaTypePropertyFinance                    // pfa
-)
-
-func (e LpaType) LegalTermTransKey() string {
-	switch e {
-	case LpaTypePropertyFinance:
-		return "pfaLegalTerm"
-	case LpaTypeHealthWelfare:
-		return "hwLegalTerm"
-	}
-	return ""
-}
-
-//go:generate enumerator -type CanBeUsedWhen -linecomment -trimprefix -empty
-type CanBeUsedWhen uint8
-
-const (
-	CanBeUsedWhenCapacityLost CanBeUsedWhen = iota + 1 // when-capacity-lost
-	CanBeUsedWhenHasCapacity                           // when-has-capacity
-)
-
-//go:generate enumerator -type LifeSustainingTreatment -linecomment -trimprefix -empty
-type LifeSustainingTreatment uint8
-
-const (
-	LifeSustainingTreatmentOptionA LifeSustainingTreatment = iota + 1 // option-a
-	LifeSustainingTreatmentOptionB                                    // option-b
-)
-
-//go:generate enumerator -type ReplacementAttorneysStepIn -linecomment -trimprefix -empty
-type ReplacementAttorneysStepIn uint8
-
-const (
-	ReplacementAttorneysStepInWhenAllCanNoLongerAct ReplacementAttorneysStepIn = iota + 1 // all
-	ReplacementAttorneysStepInWhenOneCanNoLongerAct                                       // one
-	ReplacementAttorneysStepInAnotherWay                                                  // other
-)
-
 // Lpa contains all the data related to the LPA application
 type Lpa struct {
 	PK, SK string
@@ -90,19 +47,19 @@ type Lpa struct {
 	// The certificate provider named in the LPA
 	CertificateProvider actor.CertificateProvider
 	// Type of LPA being drafted
-	Type LpaType
+	Type actor.LpaType
 	// Whether the applicant wants to add replacement attorneys
 	WantReplacementAttorneys form.YesNo
 	// When the LPA can be used
-	WhenCanTheLpaBeUsed CanBeUsedWhen
+	WhenCanTheLpaBeUsed actor.CanBeUsedWhen
 	// Preferences on life sustaining treatment (applicable to personal welfare LPAs only)
-	LifeSustainingTreatmentOption LifeSustainingTreatment
+	LifeSustainingTreatmentOption actor.LifeSustainingTreatment
 	// Restrictions on attorneys actions
 	Restrictions string
 	// Used to show the task list
-	Tasks Tasks
+	Tasks actor.DonorTasks
 	// PaymentDetails are records of payments made for the LPA via GOV.UK Pay
-	PaymentDetails []Payment
+	PaymentDetails []actor.Payment
 	// Information returned by the identity service related to the applicant
 	DonorIdentityUserData identity.UserData
 	// Replacement attorneys named in the LPA
@@ -110,7 +67,7 @@ type Lpa struct {
 	// Information on how the applicant wishes their replacement attorneys to act
 	ReplacementAttorneyDecisions actor.AttorneyDecisions
 	// How to bring in replacement attorneys, if set
-	HowShouldReplacementAttorneysStepIn ReplacementAttorneysStepIn
+	HowShouldReplacementAttorneysStepIn actor.ReplacementAttorneysStepIn
 	// Details on how replacement attorneys must step in if HowShouldReplacementAttorneysStepIn is set to "other"
 	HowShouldReplacementAttorneysStepInDetails string
 	// Whether the applicant wants to notify people about the application
@@ -141,15 +98,15 @@ type Lpa struct {
 	Version int `hash:"-"`
 
 	// Codes used for the certificate provider to witness signing
-	CertificateProviderCodes WitnessCodes
+	CertificateProviderCodes actor.WitnessCodes
 	// When the signing was witnessed by the certificate provider
 	WitnessedByCertificateProviderAt time.Time
 	// Codes used for the independent witness to witness signing
-	IndependentWitnessCodes WitnessCodes
+	IndependentWitnessCodes actor.WitnessCodes
 	// When the signing was witnessed by the independent witness
 	WitnessedByIndependentWitnessAt time.Time
 	// Used to rate limit witness code attempts
-	WitnessCodeLimiter *Limiter
+	WitnessCodeLimiter *actor.Limiter
 
 	// FeeType is the type of fee the user is applying for
 	FeeType pay.FeeType
@@ -163,30 +120,6 @@ type Lpa struct {
 	HasSentUidRequestedEvent              bool `hash:"-"`
 	HasSentApplicationUpdatedEvent        bool `hash:"-"`
 	HasSentPreviousApplicationLinkedEvent bool `hash:"-"`
-}
-
-type Payment struct {
-	// Reference generated for the payment
-	PaymentReference string
-	// ID returned from GOV.UK Pay
-	PaymentId string
-	// Amount is the amount paid in pence
-	Amount int
-}
-
-type Tasks struct {
-	YourDetails                actor.TaskState
-	ChooseAttorneys            actor.TaskState
-	ChooseReplacementAttorneys actor.TaskState
-	WhenCanTheLpaBeUsed        actor.TaskState // pfa only
-	LifeSustainingTreatment    actor.TaskState // hw only
-	Restrictions               actor.TaskState
-	CertificateProvider        actor.TaskState
-	CheckYourLpa               actor.TaskState
-	PayForLpa                  actor.PaymentTask
-	ConfirmYourIdentityAndSign actor.TaskState
-	ChooseYourSignatory        actor.TaskState // if .Donor.CanSign.IsNo only
-	PeopleToNotify             actor.TaskState
 }
 
 type Progress struct {
