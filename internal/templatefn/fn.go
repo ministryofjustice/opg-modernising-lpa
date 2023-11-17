@@ -52,6 +52,7 @@ func All(tag, region string) map[string]any {
 		"concatOr":           concatOr,
 		"concatComma":        concatComma,
 		"penceToPounds":      penceToPounds,
+		"canGoTo":            page.CanGoTo,
 	}
 }
 
