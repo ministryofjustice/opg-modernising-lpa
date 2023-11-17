@@ -14,11 +14,11 @@ import (
 type withdrawLpaData struct {
 	App    page.AppData
 	Errors validation.List
-	Lpa    *actor.Lpa
+	Lpa    *actor.DonorProvidedDetails
 }
 
 func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.Time) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
 		if r.Method == http.MethodPost {
 			lpa.WithdrawnAt = now()
 			if err := donorStore.Put(r.Context(), lpa); err != nil {

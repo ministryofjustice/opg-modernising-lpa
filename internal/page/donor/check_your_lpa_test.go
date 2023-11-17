@@ -1,6 +1,5 @@
 package donor
 
-
 import (
 	"net/http"
 	"net/http/httptest"
@@ -25,11 +24,11 @@ func TestGetCheckYourLpa(t *testing.T) {
 		On("Execute", w, &checkYourLpaData{
 			App:  testAppData,
 			Form: &checkYourLpaForm{},
-			Lpa:  &actor.Lpa{},
+			Lpa:  &actor.DonorProvidedDetails{},
 		}).
 		Return(nil)
 
-	err := CheckYourLpa(template.Execute, nil, nil, nil, nil, testNowFn)(testAppData, w, r, &actor.Lpa{})
+	err := CheckYourLpa(template.Execute, nil, nil, nil, nil, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -40,7 +39,7 @@ func TestGetCheckYourLpaFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &actor.Lpa{
+	lpa := &actor.DonorProvidedDetails{
 		CheckedAt: testNow,
 	}
 
@@ -71,7 +70,7 @@ func TestPostCheckYourLpaWhenNotChanged(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpa := &actor.Lpa{
+	lpa := &actor.DonorProvidedDetails{
 		ID:                  "lpa-id",
 		Hash:                5,
 		CheckedAt:           testNow,
@@ -115,14 +114,14 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpa := &actor.Lpa{
+			lpa := &actor.DonorProvidedDetails{
 				ID:                  "lpa-id",
 				Hash:                5,
 				Tasks:               actor.DonorTasks{CheckYourLpa: existingTaskState},
 				CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Online},
 			}
 
-			updatedLpa := &actor.Lpa{
+			updatedLpa := &actor.DonorProvidedDetails{
 				ID:                  "lpa-id",
 				Hash:                5,
 				CheckedAt:           testNow,
@@ -220,7 +219,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 
 			testAppData.Localizer = localizer
 
-			lpa := &actor.Lpa{
+			lpa := &actor.DonorProvidedDetails{
 				ID:                  "lpa-id",
 				Hash:                5,
 				Type:                actor.LpaTypePropertyFinance,
@@ -279,7 +278,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecksCertificate
 		On("GetAny", r.Context()).
 		Return(nil, expectedError)
 
-	err := CheckYourLpa(nil, donorStore, nil, nil, certificateProviderStore, testNowFn)(testAppData, w, r, &actor.Lpa{
+	err := CheckYourLpa(nil, donorStore, nil, nil, certificateProviderStore, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{
 		ID:                  "lpa-id",
 		Hash:                5,
 		Type:                actor.LpaTypePropertyFinance,
@@ -309,7 +308,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 
 			testAppData.Localizer = localizer
 
-			lpa := &actor.Lpa{
+			lpa := &actor.DonorProvidedDetails{
 				ID:                  "lpa-id",
 				Hash:                5,
 				Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
@@ -318,7 +317,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 				Type:                actor.LpaTypePropertyFinance,
 			}
 
-			updatedLpa := &actor.Lpa{
+			updatedLpa := &actor.DonorProvidedDetails{
 				ID:                  "lpa-id",
 				Hash:                5,
 				Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
@@ -369,7 +368,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnSubsequentCheck(t *testing.T)
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpa := &actor.Lpa{
+	lpa := &actor.DonorProvidedDetails{
 		ID:                  "lpa-id",
 		Hash:                5,
 		Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
@@ -422,7 +421,7 @@ func TestPostCheckYourLpaWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := CheckYourLpa(nil, donorStore, nil, nil, nil, testNowFn)(testAppData, w, r, &actor.Lpa{Hash: 5})
+	err := CheckYourLpa(nil, donorStore, nil, nil, nil, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{Hash: 5})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -438,7 +437,7 @@ func TestPostCheckYourLpaWhenShareCodeSenderErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpa := &actor.Lpa{
+	lpa := &actor.DonorProvidedDetails{
 		ID:    "lpa-id",
 		Hash:  5,
 		Tasks: actor.DonorTasks{CheckYourLpa: actor.TaskInProgress},
@@ -490,7 +489,7 @@ func TestPostCheckYourLpaWhenNotifyClientErrors(t *testing.T) {
 		On("Sms", mock.Anything, mock.Anything).
 		Return("", expectedError)
 
-	err := CheckYourLpa(nil, donorStore, nil, notifyClient, nil, testNowFn)(testAppData, w, r, &actor.Lpa{Hash: 5, CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Paper}})
+	err := CheckYourLpa(nil, donorStore, nil, notifyClient, nil, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{Hash: 5, CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Paper}})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -513,7 +512,7 @@ func TestPostCheckYourLpaWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := CheckYourLpa(template.Execute, nil, nil, nil, nil, nil)(testAppData, w, r, &actor.Lpa{Hash: 5})
+	err := CheckYourLpa(template.Execute, nil, nil, nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{Hash: 5})
 	resp := w.Result()
 
 	assert.Nil(t, err)

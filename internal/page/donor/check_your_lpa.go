@@ -1,6 +1,5 @@
 package donor
 
-
 import (
 	"context"
 	"errors"
@@ -19,7 +18,7 @@ import (
 type checkYourLpaData struct {
 	App         page.AppData
 	Errors      validation.List
-	Lpa         *actor.Lpa
+	Lpa         *actor.DonorProvidedDetails
 	Form        *checkYourLpaForm
 	Completed   bool
 	CanContinue bool
@@ -31,7 +30,7 @@ type checkYourLpaNotifier struct {
 	certificateProviderStore CertificateProviderStore
 }
 
-func (n *checkYourLpaNotifier) Notify(ctx context.Context, appData page.AppData, lpa *actor.Lpa, wasCompleted bool) error {
+func (n *checkYourLpaNotifier) Notify(ctx context.Context, appData page.AppData, lpa *actor.DonorProvidedDetails, wasCompleted bool) error {
 	if lpa.CertificateProvider.CarryOutBy.IsPaper() {
 		return n.sendPaperNotification(ctx, appData, lpa, wasCompleted)
 	}
@@ -39,7 +38,7 @@ func (n *checkYourLpaNotifier) Notify(ctx context.Context, appData page.AppData,
 	return n.sendOnlineNotification(ctx, appData, lpa, wasCompleted)
 }
 
-func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appData page.AppData, lpa *actor.Lpa, wasCompleted bool) error {
+func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appData page.AppData, lpa *actor.DonorProvidedDetails, wasCompleted bool) error {
 	sms := notify.Sms{
 		PhoneNumber: lpa.CertificateProvider.Mobile,
 		Personalisation: map[string]string{
@@ -60,7 +59,7 @@ func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appDat
 	return err
 }
 
-func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appData page.AppData, lpa *actor.Lpa, wasCompleted bool) error {
+func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appData page.AppData, lpa *actor.DonorProvidedDetails, wasCompleted bool) error {
 	if !wasCompleted {
 		return n.shareCodeSender.SendCertificateProvider(ctx, notify.CertificateProviderInviteEmail, appData, true, lpa)
 	}
@@ -101,7 +100,7 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 		certificateProviderStore: certificateProviderStore,
 	}
 
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
 		data := &checkYourLpaData{
 			App: appData,
 			Lpa: lpa,

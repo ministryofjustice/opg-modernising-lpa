@@ -42,7 +42,7 @@ func TestIdentityWithOneLogin(t *testing.T) {
 		On("Save", r, w, session).
 		Return(nil)
 
-	err := IdentityWithOneLogin(nil, client, sessionStore, func(int) string { return "i am random" })(page.AppData{Lang: localize.Cy}, w, r, &actor.Lpa{ID: "lpa-id"})
+	err := IdentityWithOneLogin(nil, client, sessionStore, func(int) string { return "i am random" })(page.AppData{Lang: localize.Cy}, w, r, &actor.DonorProvidedDetails{ID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -68,7 +68,7 @@ func TestIdentityWithOneLoginWhenStoreSaveError(t *testing.T) {
 		On("Save", r, w, mock.Anything).
 		Return(expectedError)
 
-	err := IdentityWithOneLogin(logger, client, sessionStore, func(int) string { return "i am random" })(testAppData, w, r, &actor.Lpa{})
+	err := IdentityWithOneLogin(logger, client, sessionStore, func(int) string { return "i am random" })(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

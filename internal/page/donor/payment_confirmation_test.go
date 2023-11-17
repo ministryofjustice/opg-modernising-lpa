@@ -35,7 +35,7 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &actor.Lpa{
+		On("Put", r.Context(), &actor.DonorProvidedDetails{
 			FeeType: pay.FullFee,
 			CertificateProvider: actor.CertificateProvider{
 				Email: "certificateprovider@example.com",
@@ -51,7 +51,7 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore)(testAppData, w, r, &actor.Lpa{
+	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		FeeType: pay.FullFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
@@ -85,7 +85,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &actor.Lpa{
+		On("Put", r.Context(), &actor.DonorProvidedDetails{
 			FeeType: pay.HalfFee,
 			CertificateProvider: actor.CertificateProvider{
 				Email: "certificateprovider@example.com",
@@ -101,7 +101,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore)(testAppData, w, r, &actor.Lpa{
+	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		FeeType: pay.HalfFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
@@ -124,7 +124,7 @@ func TestGetPaymentConfirmationWhenErrorGettingSession(t *testing.T) {
 		On("Get", r, "pay").
 		Return(&sessions.Session{}, expectedError)
 
-	err := PaymentConfirmation(nil, template.Execute, newMockPayClient(t), nil, sessionStore)(testAppData, w, r, &actor.Lpa{})
+	err := PaymentConfirmation(nil, template.Execute, newMockPayClient(t), nil, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -150,7 +150,7 @@ func TestGetPaymentConfirmationWhenErrorGettingPayment(t *testing.T) {
 
 	template := newMockTemplate(t)
 
-	err := PaymentConfirmation(logger, template.Execute, payClient, nil, sessionStore)(testAppData, w, r, &actor.Lpa{})
+	err := PaymentConfirmation(logger, template.Execute, payClient, nil, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -184,7 +184,7 @@ func TestGetPaymentConfirmationWhenErrorExpiringSession(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(nil)
 
-	err := PaymentConfirmation(logger, template.Execute, payClient, donorStore, sessionStore)(testAppData, w, r, &actor.Lpa{CertificateProvider: actor.CertificateProvider{
+	err := PaymentConfirmation(logger, template.Execute, payClient, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{CertificateProvider: actor.CertificateProvider{
 		Email: "certificateprovider@example.com",
 	}})
 	resp := w.Result()
@@ -213,7 +213,7 @@ func TestGetPaymentConfirmationHalfFeeWhenDonorStorePutError(t *testing.T) {
 	logger.
 		On("Print", fmt.Sprintf("unable to update lpa in donorStore: %s", expectedError))
 
-	err := PaymentConfirmation(logger, nil, payClient, donorStore, sessionStore)(testAppData, w, r, &actor.Lpa{
+	err := PaymentConfirmation(logger, nil, payClient, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		FeeType: pay.HalfFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",

@@ -11,7 +11,7 @@ import (
 )
 
 func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
 		attorneyId := r.FormValue("id")
 		attorney, _ := lpa.ReplacementAttorneys.Get(attorneyId)
 

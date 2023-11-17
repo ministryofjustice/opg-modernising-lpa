@@ -1,6 +1,5 @@
 package donor
 
-
 import (
 	"net/http"
 	"net/http/httptest"
@@ -29,7 +28,7 @@ func TestGetHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
+	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -54,7 +53,7 @@ func TestGetHowDoYouKnowYourCertificateProviderFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil)(testAppData, w, r, &actor.Lpa{
+	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		CertificateProvider: certificateProvider,
 	})
 	resp := w.Result()
@@ -72,7 +71,7 @@ func TestGetHowDoYouKnowYourCertificateProviderWhenTemplateErrors(t *testing.T) 
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
+	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -111,7 +110,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), &actor.Lpa{
+				On("Put", r.Context(), &actor.DonorProvidedDetails{
 					ID:                  "lpa-id",
 					CertificateProvider: tc.certificateProviderDetails,
 					Tasks: actor.DonorTasks{
@@ -121,7 +120,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &actor.Lpa{
+			err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 				ID:                  "lpa-id",
 				CertificateProvider: actor.CertificateProvider{FirstNames: "John"},
 				Tasks: actor.DonorTasks{
@@ -181,7 +180,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenSwitchingRelationship(t *tes
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), &actor.Lpa{
+				On("Put", r.Context(), &actor.DonorProvidedDetails{
 					ID:                  "lpa-id",
 					CertificateProvider: tc.updatedCertificateProviderDetails,
 					Tasks: actor.DonorTasks{
@@ -192,7 +191,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenSwitchingRelationship(t *tes
 				}).
 				Return(nil)
 
-			err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &actor.Lpa{
+			err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 				ID:                  "lpa-id",
 				CertificateProvider: tc.existingCertificateProviderDetails,
 				Tasks: actor.DonorTasks{
@@ -224,7 +223,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &actor.Lpa{})
+	err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -241,7 +240,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenValidationErrors(t *testing.
 		})).
 		Return(nil)
 
-	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
+	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

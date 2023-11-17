@@ -1,6 +1,5 @@
 package donor
 
-
 import (
 	"fmt"
 	"net/http"
@@ -12,7 +11,7 @@ import (
 )
 
 func RemoveReplacementAttorney(logger Logger, tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
 		id := r.FormValue("id")
 		attorney, found := lpa.ReplacementAttorneys.Get(id)
 

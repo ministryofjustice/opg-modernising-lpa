@@ -79,8 +79,8 @@ type DonorTasks struct {
 	PeopleToNotify             TaskState
 }
 
-// Lpa contains all the data related to the LPA application
-type Lpa struct {
+// DonorProvidedDetails contains all the data related to the LPA application
+type DonorProvidedDetails struct {
 	PK, SK string
 	// Hash is used to determine whether the Lpa has been changed since last read
 	Hash uint64 `hash:"-"`
@@ -176,17 +176,17 @@ type Lpa struct {
 	HasSentPreviousApplicationLinkedEvent bool `hash:"-"`
 }
 
-func (l *Lpa) GenerateHash() (uint64, error) {
+func (l *DonorProvidedDetails) GenerateHash() (uint64, error) {
 	return hashstructure.Hash(l, hashstructure.FormatV2, nil)
 }
 
-func (l *Lpa) DonorIdentityConfirmed() bool {
+func (l *DonorProvidedDetails) DonorIdentityConfirmed() bool {
 	return l.DonorIdentityUserData.OK &&
 		l.DonorIdentityUserData.MatchName(l.Donor.FirstNames, l.Donor.LastName) &&
 		l.DonorIdentityUserData.DateOfBirth.Equals(l.Donor.DateOfBirth)
 }
 
-func (l *Lpa) AttorneysAndCpSigningDeadline() time.Time {
+func (l *DonorProvidedDetails) AttorneysAndCpSigningDeadline() time.Time {
 	return l.SignedAt.Add((24 * time.Hour) * 28)
 }
 
@@ -199,7 +199,7 @@ type Progress struct {
 	LpaRegistered             TaskState
 }
 
-func (l *Lpa) Progress(certificateProvider *CertificateProviderProvidedDetails, attorneys []*AttorneyProvidedDetails) Progress {
+func (l *DonorProvidedDetails) Progress(certificateProvider *CertificateProviderProvidedDetails, attorneys []*AttorneyProvidedDetails) Progress {
 	p := Progress{
 		DonorSigned:               TaskInProgress,
 		CertificateProviderSigned: TaskNotStarted,
@@ -247,7 +247,7 @@ func (l *Lpa) Progress(certificateProvider *CertificateProviderProvidedDetails, 
 	return p
 }
 
-func (l *Lpa) AllAttorneysSigned(attorneys []*AttorneyProvidedDetails) bool {
+func (l *DonorProvidedDetails) AllAttorneysSigned(attorneys []*AttorneyProvidedDetails) bool {
 	if l == nil || l.SignedAt.IsZero() || l.Attorneys.Len() == 0 {
 		return false
 	}
@@ -305,7 +305,7 @@ type AddressDetail struct {
 	ID      string
 }
 
-func (l *Lpa) ActorAddresses() []place.Address {
+func (l *DonorProvidedDetails) ActorAddresses() []place.Address {
 	var addresses []place.Address
 
 	if l.Donor.Address.String() != "" {
@@ -331,7 +331,7 @@ func (l *Lpa) ActorAddresses() []place.Address {
 	return addresses
 }
 
-func (l *Lpa) AllLayAttorneysFirstNames() []string {
+func (l *DonorProvidedDetails) AllLayAttorneysFirstNames() []string {
 	var names []string
 
 	for _, a := range l.Attorneys.Attorneys {
@@ -345,7 +345,7 @@ func (l *Lpa) AllLayAttorneysFirstNames() []string {
 	return names
 }
 
-func (l *Lpa) AllLayAttorneysFullNames() []string {
+func (l *DonorProvidedDetails) AllLayAttorneysFullNames() []string {
 	var names []string
 
 	for _, a := range l.Attorneys.Attorneys {
@@ -359,7 +359,7 @@ func (l *Lpa) AllLayAttorneysFullNames() []string {
 	return names
 }
 
-func (l *Lpa) TrustCorporationsNames() []string {
+func (l *DonorProvidedDetails) TrustCorporationsNames() []string {
 	var names []string
 
 	if l.Attorneys.TrustCorporation.Name != "" {
@@ -373,7 +373,7 @@ func (l *Lpa) TrustCorporationsNames() []string {
 	return names
 }
 
-func (l *Lpa) Cost() int {
+func (l *DonorProvidedDetails) Cost() int {
 	if l.Tasks.PayForLpa.IsDenied() {
 		return 8200
 	}
@@ -381,7 +381,7 @@ func (l *Lpa) Cost() int {
 	return pay.Cost(l.FeeType, l.PreviousFee)
 }
 
-func (l *Lpa) FeeAmount() int {
+func (l *DonorProvidedDetails) FeeAmount() int {
 	paid := 0
 
 	for _, payment := range l.PaymentDetails {
@@ -395,7 +395,7 @@ func (l *Lpa) FeeAmount() int {
 // of the certificate provider matches that of the donor or one of the
 // attorneys. For a match of the last name we break on '-' to account for
 // double-barrelled names.
-func (l *Lpa) CertificateProviderSharesDetails() bool {
+func (l *DonorProvidedDetails) CertificateProviderSharesDetails() bool {
 	certificateProviderParts := strings.Split(l.CertificateProvider.LastName, "-")
 
 	donorParts := strings.Split(l.Donor.LastName, "-")

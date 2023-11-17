@@ -1,6 +1,5 @@
 package donor
 
-
 import (
 	"net/http"
 	"net/http/httptest"
@@ -32,7 +31,7 @@ func TestGetYourIndependentWitnessAddress(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourIndependentWitnessAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{
+	err := YourIndependentWitnessAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		IndependentWitness: actor.IndependentWitness{
 			FirstNames: "John",
 			LastName:   "Smith",
@@ -64,7 +63,7 @@ func TestGetYourIndependentWitnessAddressFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourIndependentWitnessAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{
+	err := YourIndependentWitnessAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		IndependentWitness: actor.IndependentWitness{
 			Address: address,
 		},
@@ -93,7 +92,7 @@ func TestGetYourIndependentWitnessAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourIndependentWitnessAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{})
+	err := YourIndependentWitnessAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -115,7 +114,7 @@ func TestGetYourIndependentWitnessAddressWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := YourIndependentWitnessAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{})
+	err := YourIndependentWitnessAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -138,7 +137,7 @@ func TestPostYourIndependentWitnessAddressManual(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &actor.Lpa{
+		On("Put", r.Context(), &actor.DonorProvidedDetails{
 			ID: "lpa-id",
 			IndependentWitness: actor.IndependentWitness{
 				Address: testAddress,
@@ -149,7 +148,7 @@ func TestPostYourIndependentWitnessAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourIndependentWitnessAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.Lpa{
+	err := YourIndependentWitnessAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		ID: "lpa-id",
 	})
 	resp := w.Result()
@@ -178,7 +177,7 @@ func TestPostYourIndependentWitnessAddressManualWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourIndependentWitnessAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.Lpa{})
+	err := YourIndependentWitnessAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -199,7 +198,7 @@ func TestPostYourIndependentWitnessAddressManualFromStore(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &actor.Lpa{
+		On("Put", r.Context(), &actor.DonorProvidedDetails{
 			ID: "lpa-id",
 			IndependentWitness: actor.IndependentWitness{
 				FirstNames: "John",
@@ -211,7 +210,7 @@ func TestPostYourIndependentWitnessAddressManualFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourIndependentWitnessAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.Lpa{
+	err := YourIndependentWitnessAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		ID: "lpa-id",
 		IndependentWitness: actor.IndependentWitness{
 			FirstNames: "John",
@@ -257,7 +256,7 @@ func TestPostYourIndependentWitnessAddressManualWhenValidationError(t *testing.T
 		}).
 		Return(nil)
 
-	err := YourIndependentWitnessAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{})
+	err := YourIndependentWitnessAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -297,7 +296,7 @@ func TestPostYourIndependentWitnessAddressSelect(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourIndependentWitnessAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{})
+	err := YourIndependentWitnessAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -339,7 +338,7 @@ func TestPostYourIndependentWitnessAddressSelectWhenValidationError(t *testing.T
 		}).
 		Return(nil)
 
-	err := YourIndependentWitnessAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.Lpa{})
+	err := YourIndependentWitnessAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -380,7 +379,7 @@ func TestPostYourIndependentWitnessAddressLookup(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourIndependentWitnessAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.Lpa{})
+	err := YourIndependentWitnessAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -422,7 +421,7 @@ func TestPostYourIndependentWitnessAddressLookupError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourIndependentWitnessAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.Lpa{})
+	err := YourIndependentWitnessAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -469,7 +468,7 @@ func TestPostYourIndependentWitnessAddressInvalidPostcodeError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourIndependentWitnessAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.Lpa{})
+	err := YourIndependentWitnessAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -510,7 +509,7 @@ func TestPostYourIndependentWitnessAddressValidPostcodeNoAddresses(t *testing.T)
 		}).
 		Return(nil)
 
-	err := YourIndependentWitnessAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.Lpa{})
+	err := YourIndependentWitnessAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -540,7 +539,7 @@ func TestPostYourIndependentWitnessAddressLookupWhenValidationError(t *testing.T
 		}).
 		Return(nil)
 
-	err := YourIndependentWitnessAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{})
+	err := YourIndependentWitnessAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

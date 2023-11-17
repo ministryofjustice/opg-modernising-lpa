@@ -30,19 +30,19 @@ func (_m *mockDonorStore) Delete(_a0 context.Context) error {
 }
 
 // Get provides a mock function with given fields: _a0
-func (_m *mockDonorStore) Get(_a0 context.Context) (*actor.Lpa, error) {
+func (_m *mockDonorStore) Get(_a0 context.Context) (*actor.DonorProvidedDetails, error) {
 	ret := _m.Called(_a0)
 
-	var r0 *actor.Lpa
+	var r0 *actor.DonorProvidedDetails
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*actor.Lpa, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*actor.DonorProvidedDetails, error)); ok {
 		return rf(_a0)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *actor.Lpa); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *actor.DonorProvidedDetails); ok {
 		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*actor.Lpa)
+			r0 = ret.Get(0).(*actor.DonorProvidedDetails)
 		}
 	}
 
@@ -56,19 +56,19 @@ func (_m *mockDonorStore) Get(_a0 context.Context) (*actor.Lpa, error) {
 }
 
 // Latest provides a mock function with given fields: _a0
-func (_m *mockDonorStore) Latest(_a0 context.Context) (*actor.Lpa, error) {
+func (_m *mockDonorStore) Latest(_a0 context.Context) (*actor.DonorProvidedDetails, error) {
 	ret := _m.Called(_a0)
 
-	var r0 *actor.Lpa
+	var r0 *actor.DonorProvidedDetails
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*actor.Lpa, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*actor.DonorProvidedDetails, error)); ok {
 		return rf(_a0)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *actor.Lpa); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *actor.DonorProvidedDetails); ok {
 		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*actor.Lpa)
+			r0 = ret.Get(0).(*actor.DonorProvidedDetails)
 		}
 	}
 
@@ -82,11 +82,11 @@ func (_m *mockDonorStore) Latest(_a0 context.Context) (*actor.Lpa, error) {
 }
 
 // Put provides a mock function with given fields: _a0, _a1
-func (_m *mockDonorStore) Put(_a0 context.Context, _a1 *actor.Lpa) error {
+func (_m *mockDonorStore) Put(_a0 context.Context, _a1 *actor.DonorProvidedDetails) error {
 	ret := _m.Called(_a0, _a1)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *actor.Lpa) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *actor.DonorProvidedDetails) error); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		r0 = ret.Error(0)

@@ -18,7 +18,7 @@ type checkYouCanSignData struct {
 }
 
 func CheckYouCanSign(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
 		data := &checkYouCanSignData{
 			App: appData,
 			Form: &form.YesNoForm{

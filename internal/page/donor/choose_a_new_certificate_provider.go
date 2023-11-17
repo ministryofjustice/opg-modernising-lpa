@@ -1,6 +1,5 @@
 package donor
 
-
 import (
 	"net/http"
 
@@ -11,13 +10,13 @@ import (
 )
 
 type chooseNewCertificateProviderData struct {
-	Lpa    *actor.Lpa
+	Lpa    *actor.DonorProvidedDetails
 	Errors validation.List
 	App    page.AppData
 }
 
 func ChooseNewCertificateProvider(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
 		data := &chooseNewCertificateProviderData{Lpa: lpa, App: appData}
 
 		if r.Method == http.MethodPost {

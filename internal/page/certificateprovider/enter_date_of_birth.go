@@ -12,7 +12,7 @@ import (
 
 type dateOfBirthData struct {
 	App        page.AppData
-	Lpa        *actor.Lpa
+	Lpa        *actor.DonorProvidedDetails
 	Form       *dateOfBirthForm
 	Errors     validation.List
 	DobWarning string

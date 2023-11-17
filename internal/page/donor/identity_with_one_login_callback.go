@@ -24,7 +24,7 @@ type identityWithOneLoginCallbackData struct {
 }
 
 func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLoginClient, sessionStore sessions.Store, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
 		if r.Method == http.MethodPost {
 			if lpa.DonorIdentityConfirmed() {
 				return page.Paths.ReadYourLpa.Redirect(w, r, appData, lpa)

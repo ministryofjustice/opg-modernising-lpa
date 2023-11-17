@@ -13,7 +13,7 @@ func TestGetFeeDenied(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &actor.Lpa{Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
+	lpa := &actor.DonorProvidedDetails{Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
 
 	template := newMockTemplate(t)
 	template.
@@ -31,7 +31,7 @@ func TestPostFeeDenied(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpa := &actor.Lpa{Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
+	lpa := &actor.DonorProvidedDetails{Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
 
 	payer := newMockPayer(t)
 	payer.
@@ -49,7 +49,7 @@ func TestPostFeeDeniedWhenPayerError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpa := &actor.Lpa{Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
+	lpa := &actor.DonorProvidedDetails{Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
 
 	payer := newMockPayer(t)
 	payer.

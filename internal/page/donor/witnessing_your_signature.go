@@ -12,11 +12,11 @@ import (
 type witnessingYourSignatureData struct {
 	App    page.AppData
 	Errors validation.List
-	Lpa    *actor.Lpa
+	Lpa    *actor.DonorProvidedDetails
 }
 
 func WitnessingYourSignature(tmpl template.Template, witnessCodeSender WitnessCodeSender, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
 		if r.Method == http.MethodPost {
 			if err := witnessCodeSender.SendToCertificateProvider(r.Context(), lpa, appData.Localizer); err != nil {
 				return err

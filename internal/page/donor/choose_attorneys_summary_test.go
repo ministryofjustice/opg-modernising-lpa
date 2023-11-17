@@ -1,6 +1,5 @@
 package donor
 
-
 import (
 	"net/http"
 	"net/http/httptest"
@@ -17,7 +16,7 @@ import (
 )
 
 func TestGetChooseAttorneysSummary(t *testing.T) {
-	testcases := map[string]*actor.Lpa{
+	testcases := map[string]*actor.DonorProvidedDetails{
 		"attorney": {
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 		},
@@ -54,7 +53,7 @@ func TestGetChooseAttorneysSummaryWhenNoAttorneysOrTrustCorporation(t *testing.T
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseAttorneysSummary(nil)(testAppData, w, r, &actor.Lpa{ID: "lpa-id"})
+	err := ChooseAttorneysSummary(nil)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -95,7 +94,7 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := ChooseAttorneysSummary(nil)(testAppData, w, r, &actor.Lpa{ID: "lpa-id", Attorneys: tc.Attorneys})
+			err := ChooseAttorneysSummary(nil)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id", Attorneys: tc.Attorneys})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -123,7 +122,7 @@ func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ChooseAttorneysSummary(template.Execute)(testAppData, w, r, &actor.Lpa{Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}}})
+	err := ChooseAttorneysSummary(template.Execute)(testAppData, w, r, &actor.DonorProvidedDetails{Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

@@ -99,7 +99,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		}
 
 		if ks.isLpa() {
-			lpa := &actor.Lpa{}
+			lpa := &actor.DonorProvidedDetails{}
 			if err := attributevalue.UnmarshalMap(item, lpa); err != nil {
 				return nil, nil, nil, err
 			}

@@ -20,11 +20,11 @@ type mockShareCodeSender struct {
 }
 
 // SendAttorneys provides a mock function with given fields: ctx, appData, lpa
-func (_m *mockShareCodeSender) SendAttorneys(ctx context.Context, appData page.AppData, lpa *actor.Lpa) error {
+func (_m *mockShareCodeSender) SendAttorneys(ctx context.Context, appData page.AppData, lpa *actor.DonorProvidedDetails) error {
 	ret := _m.Called(ctx, appData, lpa)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, page.AppData, *actor.Lpa) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, page.AppData, *actor.DonorProvidedDetails) error); ok {
 		r0 = rf(ctx, appData, lpa)
 	} else {
 		r0 = ret.Error(0)
@@ -34,11 +34,11 @@ func (_m *mockShareCodeSender) SendAttorneys(ctx context.Context, appData page.A
 }
 
 // SendCertificateProvider provides a mock function with given fields: ctx, template, appData, identity, lpa
-func (_m *mockShareCodeSender) SendCertificateProvider(ctx context.Context, template notify.Template, appData page.AppData, identity bool, lpa *actor.Lpa) error {
+func (_m *mockShareCodeSender) SendCertificateProvider(ctx context.Context, template notify.Template, appData page.AppData, identity bool, lpa *actor.DonorProvidedDetails) error {
 	ret := _m.Called(ctx, template, appData, identity, lpa)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, notify.Template, page.AppData, bool, *actor.Lpa) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, notify.Template, page.AppData, bool, *actor.DonorProvidedDetails) error); ok {
 		r0 = rf(ctx, template, appData, identity, lpa)
 	} else {
 		r0 = ret.Error(0)

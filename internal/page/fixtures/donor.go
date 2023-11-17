@@ -21,7 +21,7 @@ import (
 type DocumentStore interface {
 	GetAll(context.Context) (page.Documents, error)
 	Put(context.Context, page.Document) error
-	Create(ctx context.Context, lpa *actor.Lpa, filename string, data []byte) (page.Document, error)
+	Create(ctx context.Context, lpa *actor.DonorProvidedDetails, filename string, data []byte) (page.Document, error)
 }
 
 func Donor(

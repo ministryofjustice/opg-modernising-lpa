@@ -19,7 +19,7 @@ type enterReferenceNumberData struct {
 	App    page.AppData
 	Errors validation.List
 	Form   *enterReferenceNumberForm
-	Lpa    *actor.Lpa
+	Lpa    *actor.DonorProvidedDetails
 }
 
 func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore, sessionStore sessions.Store, certificateProviderStore CertificateProviderStore) page.Handler {

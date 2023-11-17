@@ -14,7 +14,7 @@ type provideCertificateData struct {
 	App                 page.AppData
 	Errors              validation.List
 	CertificateProvider *actor.CertificateProviderProvidedDetails
-	Lpa                 *actor.Lpa
+	Lpa                 *actor.DonorProvidedDetails
 	Form                *provideCertificateForm
 }
 

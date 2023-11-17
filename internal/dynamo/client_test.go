@@ -105,11 +105,11 @@ func TestOneByUID(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v actor.Lpa
+	var v actor.DonorProvidedDetails
 	err := c.OneByUID(ctx, "M-1111-2222-3333", &v)
 
 	assert.Nil(t, err)
-	assert.Equal(t, actor.Lpa{PK: "LPA#123", UID: "M-1111-2222-3333"}, v)
+	assert.Equal(t, actor.DonorProvidedDetails{PK: "LPA#123", UID: "M-1111-2222-3333"}, v)
 }
 
 func TestOneByUIDWhenQueryError(t *testing.T) {

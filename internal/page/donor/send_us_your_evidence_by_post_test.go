@@ -21,7 +21,7 @@ func TestGetSendUsYourEvidenceByPost(t *testing.T) {
 		On("Execute", w, &sendUsYourEvidenceByPostData{App: testAppData}).
 		Return(nil)
 
-	err := SendUsYourEvidenceByPost(template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{})
+	err := SendUsYourEvidenceByPost(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -37,7 +37,7 @@ func TestGetSendUsYourEvidenceByPostWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, &sendUsYourEvidenceByPostData{App: testAppData}).
 		Return(expectedError)
 
-	err := SendUsYourEvidenceByPost(template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{})
+	err := SendUsYourEvidenceByPost(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -48,7 +48,7 @@ func TestPostSendUsYourEvidenceByPost(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
-	lpa := &actor.Lpa{ID: "lpa-id", UID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Post}
+	lpa := &actor.DonorProvidedDetails{ID: "lpa-id", UID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Post}
 
 	eventClient := newMockEventClient(t)
 	eventClient.
@@ -77,7 +77,7 @@ func TestPostSendUsYourEvidenceByPostWhenEventClientErrors(t *testing.T) {
 		On("SendReducedFeeRequested", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := SendUsYourEvidenceByPost(nil, nil, eventClient)(testAppData, w, r, &actor.Lpa{})
+	err := SendUsYourEvidenceByPost(nil, nil, eventClient)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -95,6 +95,6 @@ func TestPostSendUsYourEvidenceByPostWhenPayerErrors(t *testing.T) {
 		On("Pay", testAppData, w, r, mock.Anything).
 		Return(expectedError)
 
-	err := SendUsYourEvidenceByPost(nil, payer, eventClient)(testAppData, w, r, &actor.Lpa{})
+	err := SendUsYourEvidenceByPost(nil, payer, eventClient)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	assert.Equal(t, expectedError, err)
 }

@@ -20,11 +20,11 @@ func TestGetDeleteLpa(t *testing.T) {
 	template.
 		On("Execute", w, &deleteLpaData{
 			App: testAppData,
-			Lpa: &actor.Lpa{},
+			Lpa: &actor.DonorProvidedDetails{},
 		}).
 		Return(nil)
 
-	err := DeleteLpa(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
+	err := DeleteLpa(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -40,7 +40,7 @@ func TestGetDeleteLpaWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := DeleteLpa(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
+	err := DeleteLpa(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -57,7 +57,7 @@ func TestPostDeleteLpa(t *testing.T) {
 		On("Delete", r.Context()).
 		Return(nil)
 
-	err := DeleteLpa(nil, donorStore)(testAppData, w, r, &actor.Lpa{UID: "lpa-uid"})
+	err := DeleteLpa(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{UID: "lpa-uid"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -75,7 +75,7 @@ func TestPostDeleteLpaWhenStoreErrors(t *testing.T) {
 		On("Delete", r.Context()).
 		Return(expectedError)
 
-	err := DeleteLpa(nil, donorStore)(testAppData, w, r, &actor.Lpa{})
+	err := DeleteLpa(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }

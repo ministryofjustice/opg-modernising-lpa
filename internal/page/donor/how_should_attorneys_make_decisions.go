@@ -1,6 +1,5 @@
 package donor
 
-
 import (
 	"net/http"
 
@@ -14,12 +13,12 @@ type howShouldAttorneysMakeDecisionsData struct {
 	App     page.AppData
 	Errors  validation.List
 	Form    *howShouldAttorneysMakeDecisionsForm
-	Lpa     *actor.Lpa
+	Lpa     *actor.DonorProvidedDetails
 	Options actor.AttorneysActOptions
 }
 
 func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
 		data := &howShouldAttorneysMakeDecisionsData{
 			App: appData,
 			Form: &howShouldAttorneysMakeDecisionsForm{

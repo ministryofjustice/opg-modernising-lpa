@@ -1,6 +1,5 @@
 package donor
 
-
 import (
 	"net/http"
 
@@ -18,7 +17,7 @@ type yourIndependentWitnessMobileData struct {
 }
 
 func YourIndependentWitnessMobile(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
 		data := &yourIndependentWitnessMobileData{
 			App:                 appData,
 			AuthorisedSignatory: lpa.AuthorisedSignatory,

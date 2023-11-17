@@ -1,6 +1,5 @@
 package donor
 
-
 import (
 	"net/http"
 	"net/http/httptest"
@@ -28,7 +27,7 @@ func TestGetLifeSustainingTreatment(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LifeSustainingTreatment(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
+	err := LifeSustainingTreatment(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -50,7 +49,7 @@ func TestGetLifeSustainingTreatmentFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LifeSustainingTreatment(template.Execute, nil)(testAppData, w, r, &actor.Lpa{LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA})
+	err := LifeSustainingTreatment(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -66,7 +65,7 @@ func TestGetLifeSustainingTreatmentWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := LifeSustainingTreatment(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
+	err := LifeSustainingTreatment(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -84,14 +83,14 @@ func TestPostLifeSustainingTreatment(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &actor.Lpa{
+		On("Put", r.Context(), &actor.DonorProvidedDetails{
 			ID:                            "lpa-id",
 			LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA,
 			Tasks:                         actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, LifeSustainingTreatment: actor.TaskCompleted},
 		}).
 		Return(nil)
 
-	err := LifeSustainingTreatment(nil, donorStore)(testAppData, w, r, &actor.Lpa{
+	err := LifeSustainingTreatment(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		ID:    "lpa-id",
 		Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 	})
@@ -113,10 +112,10 @@ func TestPostLifeSustainingTreatmentWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &actor.Lpa{LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA, Tasks: actor.DonorTasks{LifeSustainingTreatment: actor.TaskCompleted}}).
+		On("Put", r.Context(), &actor.DonorProvidedDetails{LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA, Tasks: actor.DonorTasks{LifeSustainingTreatment: actor.TaskCompleted}}).
 		Return(expectedError)
 
-	err := LifeSustainingTreatment(nil, donorStore)(testAppData, w, r, &actor.Lpa{})
+	err := LifeSustainingTreatment(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -133,7 +132,7 @@ func TestPostLifeSustainingTreatmentWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := LifeSustainingTreatment(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
+	err := LifeSustainingTreatment(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

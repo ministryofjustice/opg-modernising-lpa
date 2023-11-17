@@ -12,13 +12,13 @@ import (
 type whenCanTheLpaBeUsedData struct {
 	App     page.AppData
 	Errors  validation.List
-	Lpa     *actor.Lpa
+	Lpa     *actor.DonorProvidedDetails
 	Form    *whenCanTheLpaBeUsedForm
 	Options actor.CanBeUsedWhenOptions
 }
 
 func WhenCanTheLpaBeUsed(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
 		data := &whenCanTheLpaBeUsedData{
 			App: appData,
 			Lpa: lpa,

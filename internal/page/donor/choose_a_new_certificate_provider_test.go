@@ -15,10 +15,10 @@ func TestGetChooseNewCertificateProvider(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &chooseNewCertificateProviderData{Lpa: &actor.Lpa{}, App: testAppData}).
+		On("Execute", w, &chooseNewCertificateProviderData{Lpa: &actor.DonorProvidedDetails{}, App: testAppData}).
 		Return(nil)
 
-	err := ChooseNewCertificateProvider(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
+	err := ChooseNewCertificateProvider(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -31,10 +31,10 @@ func TestGetChooseNewCertificateProviderWhenTemplateError(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &chooseNewCertificateProviderData{Lpa: &actor.Lpa{}, App: testAppData}).
+		On("Execute", w, &chooseNewCertificateProviderData{Lpa: &actor.DonorProvidedDetails{}, App: testAppData}).
 		Return(expectedError)
 
-	err := ChooseNewCertificateProvider(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
+	err := ChooseNewCertificateProvider(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -47,10 +47,10 @@ func TestPostChooseNewCertificateProvider(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &actor.Lpa{CertificateProvider: actor.CertificateProvider{}}).
+		On("Put", r.Context(), &actor.DonorProvidedDetails{CertificateProvider: actor.CertificateProvider{}}).
 		Return(nil)
 
-	err := ChooseNewCertificateProvider(nil, donorStore)(testAppData, w, r, &actor.Lpa{CertificateProvider: actor.CertificateProvider{FirstNames: "first-names"}})
+	err := ChooseNewCertificateProvider(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{CertificateProvider: actor.CertificateProvider{FirstNames: "first-names"}})
 
 	resp := w.Result()
 
@@ -64,10 +64,10 @@ func TestPostChooseNewCertificateProviderWhenStoreError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &actor.Lpa{CertificateProvider: actor.CertificateProvider{}}).
+		On("Put", r.Context(), &actor.DonorProvidedDetails{CertificateProvider: actor.CertificateProvider{}}).
 		Return(expectedError)
 
-	err := ChooseNewCertificateProvider(nil, donorStore)(testAppData, w, r, &actor.Lpa{CertificateProvider: actor.CertificateProvider{FirstNames: "first-names"}})
+	err := ChooseNewCertificateProvider(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{CertificateProvider: actor.CertificateProvider{FirstNames: "first-names"}})
 
 	resp := w.Result()
 

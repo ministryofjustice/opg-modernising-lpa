@@ -29,7 +29,7 @@ func (s *ShareCodeSender) UseTestCode() {
 	s.useTestCode = true
 }
 
-func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template notify.Template, appData AppData, identity bool, lpa *actor.Lpa) error {
+func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template notify.Template, appData AppData, identity bool, lpa *actor.DonorProvidedDetails) error {
 	shareCode := s.randomString(12)
 	if s.useTestCode {
 		shareCode = "abcdef123456"
@@ -65,7 +65,7 @@ func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template 
 	return nil
 }
 
-func (s *ShareCodeSender) SendAttorneys(ctx context.Context, appData AppData, lpa *actor.Lpa) error {
+func (s *ShareCodeSender) SendAttorneys(ctx context.Context, appData AppData, lpa *actor.DonorProvidedDetails) error {
 	if err := s.sendTrustCorporation(ctx, notify.TrustCorporationInviteEmail, appData, lpa, lpa.Attorneys.TrustCorporation, false); err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func (s *ShareCodeSender) SendAttorneys(ctx context.Context, appData AppData, lp
 	return nil
 }
 
-func (s *ShareCodeSender) sendAttorney(ctx context.Context, template notify.Template, appData AppData, lpa *actor.Lpa, attorney actor.Attorney, isReplacement bool) error {
+func (s *ShareCodeSender) sendAttorney(ctx context.Context, template notify.Template, appData AppData, lpa *actor.DonorProvidedDetails, attorney actor.Attorney, isReplacement bool) error {
 	if attorney.Email == "" {
 		return nil
 	}
@@ -127,7 +127,7 @@ func (s *ShareCodeSender) sendAttorney(ctx context.Context, template notify.Temp
 	return nil
 }
 
-func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, template notify.Template, appData AppData, lpa *actor.Lpa, trustCorporation actor.TrustCorporation, isReplacement bool) error {
+func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, template notify.Template, appData AppData, lpa *actor.DonorProvidedDetails, trustCorporation actor.TrustCorporation, isReplacement bool) error {
 	if trustCorporation.Email == "" {
 		return nil
 	}

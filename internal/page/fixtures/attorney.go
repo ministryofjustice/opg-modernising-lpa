@@ -19,8 +19,8 @@ import (
 )
 
 type DonorStore interface {
-	Create(context.Context) (*actor.Lpa, error)
-	Put(context.Context, *actor.Lpa) error
+	Create(context.Context) (*actor.DonorProvidedDetails, error)
+	Put(context.Context, *actor.DonorProvidedDetails) error
 }
 
 type CertificateProviderStore interface {

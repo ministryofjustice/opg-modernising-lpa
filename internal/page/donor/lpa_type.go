@@ -22,7 +22,7 @@ type lpaTypeData struct {
 }
 
 func LpaType(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
 		data := &lpaTypeData{
 			App: appData,
 			Form: &lpaTypeForm{

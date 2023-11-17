@@ -18,11 +18,11 @@ type mockPayer struct {
 }
 
 // Pay provides a mock function with given fields: _a0, _a1, _a2, _a3
-func (_m *mockPayer) Pay(_a0 page.AppData, _a1 http.ResponseWriter, _a2 *http.Request, _a3 *actor.Lpa) error {
+func (_m *mockPayer) Pay(_a0 page.AppData, _a1 http.ResponseWriter, _a2 *http.Request, _a3 *actor.DonorProvidedDetails) error {
 	ret := _m.Called(_a0, _a1, _a2, _a3)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(page.AppData, http.ResponseWriter, *http.Request, *actor.Lpa) error); ok {
+	if rf, ok := ret.Get(0).(func(page.AppData, http.ResponseWriter, *http.Request, *actor.DonorProvidedDetails) error); ok {
 		r0 = rf(_a0, _a1, _a2, _a3)
 	} else {
 		r0 = ret.Error(0)

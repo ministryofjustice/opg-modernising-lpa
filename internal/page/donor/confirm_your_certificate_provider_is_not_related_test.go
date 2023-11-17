@@ -1,6 +1,5 @@
 package donor
 
-
 import (
 	"net/http"
 	"net/http/httptest"
@@ -25,11 +24,11 @@ func TestGetConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 		On("Execute", w, &confirmYourCertificateProviderIsNotRelatedData{
 			App: testAppData,
 			Yes: form.Yes,
-			Lpa: &actor.Lpa{},
+			Lpa: &actor.DonorProvidedDetails{},
 		}).
 		Return(nil)
 
-	err := ConfirmYourCertificateProviderIsNotRelated(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
+	err := ConfirmYourCertificateProviderIsNotRelated(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -45,11 +44,11 @@ func TestGetConfirmYourCertificateProviderIsNotRelatedFromStore(t *testing.T) {
 		On("Execute", w, &confirmYourCertificateProviderIsNotRelatedData{
 			App: testAppData,
 			Yes: form.Yes,
-			Lpa: &actor.Lpa{},
+			Lpa: &actor.DonorProvidedDetails{},
 		}).
 		Return(nil)
 
-	err := ConfirmYourCertificateProviderIsNotRelated(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
+	err := ConfirmYourCertificateProviderIsNotRelated(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -65,7 +64,7 @@ func TestGetConfirmYourCertificateProviderIsNotRelatedWhenTemplateErrors(t *test
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := ConfirmYourCertificateProviderIsNotRelated(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
+	err := ConfirmYourCertificateProviderIsNotRelated(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -83,7 +82,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &actor.Lpa{
+		On("Put", r.Context(), &actor.DonorProvidedDetails{
 			ID:                             "lpa-id",
 			Donor:                          actor.Donor{CanSign: form.Yes},
 			HasSentApplicationUpdatedEvent: true,
@@ -100,7 +99,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ConfirmYourCertificateProviderIsNotRelated(nil, donorStore)(testAppData, w, r, &actor.Lpa{
+	err := ConfirmYourCertificateProviderIsNotRelated(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		ID:                             "lpa-id",
 		Donor:                          actor.Donor{CanSign: form.Yes},
 		HasSentApplicationUpdatedEvent: true,
@@ -135,7 +134,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelatedWhenStoreErrors(t *testin
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ConfirmYourCertificateProviderIsNotRelated(nil, donorStore)(testAppData, w, r, &actor.Lpa{})
+	err := ConfirmYourCertificateProviderIsNotRelated(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -152,7 +151,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelatedWhenValidationErrors(t *t
 		})).
 		Return(nil)
 
-	err := ConfirmYourCertificateProviderIsNotRelated(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
+	err := ConfirmYourCertificateProviderIsNotRelated(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

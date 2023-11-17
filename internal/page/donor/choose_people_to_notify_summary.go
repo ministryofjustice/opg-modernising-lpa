@@ -16,11 +16,11 @@ type choosePeopleToNotifySummaryData struct {
 	Errors  validation.List
 	Form    *form.YesNoForm
 	Options form.YesNoOptions
-	Lpa     *actor.Lpa
+	Lpa     *actor.DonorProvidedDetails
 }
 
 func ChoosePeopleToNotifySummary(tmpl template.Template) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
 		if len(lpa.PeopleToNotify) == 0 {
 			return page.Paths.DoYouWantToNotifyPeople.Redirect(w, r, appData, lpa)
 		}

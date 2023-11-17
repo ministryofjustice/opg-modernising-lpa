@@ -1,6 +1,5 @@
 package donor
 
-
 import (
 	"net/http"
 	"net/http/httptest"
@@ -27,7 +26,7 @@ func TestGetEnterTrustCorporation(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterTrustCorporation(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
+	err := EnterTrustCorporation(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -46,7 +45,7 @@ func TestGetEnterTrustCorporationWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := EnterTrustCorporation(template.Execute, nil)(testAppData, w, r, &actor.Lpa{})
+	err := EnterTrustCorporation(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -66,7 +65,7 @@ func TestPostEnterTrustCorporation(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &actor.Lpa{
+		On("Put", r.Context(), &actor.DonorProvidedDetails{
 			ID: "lpa-id",
 			Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
 				Name:          "Co co.",
@@ -77,7 +76,7 @@ func TestPostEnterTrustCorporation(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterTrustCorporation(nil, donorStore)(testAppData, w, r, &actor.Lpa{
+	err := EnterTrustCorporation(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		ID: "lpa-id",
 	})
 	resp := w.Result()
@@ -104,7 +103,7 @@ func TestPostEnterTrustCorporationWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := EnterTrustCorporation(template.Execute, nil)(testAppData, w, r, &actor.Lpa{
+	err := EnterTrustCorporation(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 	})
 	resp := w.Result()
@@ -129,7 +128,7 @@ func TestPostEnterTrustCorporationWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := EnterTrustCorporation(nil, donorStore)(testAppData, w, r, &actor.Lpa{})
+	err := EnterTrustCorporation(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }

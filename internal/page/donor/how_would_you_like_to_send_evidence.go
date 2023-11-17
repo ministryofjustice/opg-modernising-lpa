@@ -18,7 +18,7 @@ type howWouldYouLikeToSendEvidenceData struct {
 }
 
 func HowWouldYouLikeToSendEvidence(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
 		data := &howWouldYouLikeToSendEvidenceData{
 			App:     appData,
 			Options: pay.EvidenceDeliveryValues,

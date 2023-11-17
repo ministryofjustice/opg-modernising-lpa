@@ -44,7 +44,7 @@ func ContextWithSessionData(ctx context.Context, data *SessionData) context.Cont
 	return context.WithValue(ctx, (*SessionData)(nil), data)
 }
 
-func CanGoTo(l *actor.Lpa, url string) bool {
+func CanGoTo(l *actor.DonorProvidedDetails, url string) bool {
 	path, _, _ := strings.Cut(url, "?")
 	if path == "" {
 		return false
@@ -74,7 +74,7 @@ func ChooseAttorneysState(attorneys actor.Attorneys, decisions actor.AttorneyDec
 	return actor.TaskCompleted
 }
 
-func ChooseReplacementAttorneysState(lpa *actor.Lpa) actor.TaskState {
+func ChooseReplacementAttorneysState(lpa *actor.DonorProvidedDetails) actor.TaskState {
 	if lpa.WantReplacementAttorneys == form.No {
 		return actor.TaskCompleted
 	}

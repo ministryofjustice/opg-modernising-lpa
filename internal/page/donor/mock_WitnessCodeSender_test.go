@@ -18,11 +18,11 @@ type mockWitnessCodeSender struct {
 }
 
 // SendToCertificateProvider provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockWitnessCodeSender) SendToCertificateProvider(_a0 context.Context, _a1 *actor.Lpa, _a2 page.Localizer) error {
+func (_m *mockWitnessCodeSender) SendToCertificateProvider(_a0 context.Context, _a1 *actor.DonorProvidedDetails, _a2 page.Localizer) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *actor.Lpa, page.Localizer) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *actor.DonorProvidedDetails, page.Localizer) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
@@ -32,11 +32,11 @@ func (_m *mockWitnessCodeSender) SendToCertificateProvider(_a0 context.Context, 
 }
 
 // SendToIndependentWitness provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockWitnessCodeSender) SendToIndependentWitness(_a0 context.Context, _a1 *actor.Lpa, _a2 page.Localizer) error {
+func (_m *mockWitnessCodeSender) SendToIndependentWitness(_a0 context.Context, _a1 *actor.DonorProvidedDetails, _a2 page.Localizer) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *actor.Lpa, page.Localizer) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *actor.DonorProvidedDetails, page.Localizer) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)

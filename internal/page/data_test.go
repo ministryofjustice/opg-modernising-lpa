@@ -13,22 +13,22 @@ import (
 
 func TestCanGoTo(t *testing.T) {
 	testCases := map[string]struct {
-		lpa      *actor.Lpa
+		lpa      *actor.DonorProvidedDetails
 		url      string
 		expected bool
 	}{
 		"empty path": {
-			lpa:      &actor.Lpa{},
+			lpa:      &actor.DonorProvidedDetails{},
 			url:      "",
 			expected: false,
 		},
 		"unexpected path": {
-			lpa:      &actor.Lpa{},
+			lpa:      &actor.DonorProvidedDetails{},
 			url:      "/whatever",
 			expected: true,
 		},
 		"getting help signing no certificate provider": {
-			lpa: &actor.Lpa{
+			lpa: &actor.DonorProvidedDetails{
 				Type: actor.LpaTypeHealthWelfare,
 				Tasks: actor.DonorTasks{
 					YourDetails: actor.TaskCompleted,
@@ -38,7 +38,7 @@ func TestCanGoTo(t *testing.T) {
 			expected: false,
 		},
 		"getting help signing": {
-			lpa: &actor.Lpa{
+			lpa: &actor.DonorProvidedDetails{
 				Type: actor.LpaTypeHealthWelfare,
 				Tasks: actor.DonorTasks{
 					CertificateProvider: actor.TaskCompleted,
@@ -48,7 +48,7 @@ func TestCanGoTo(t *testing.T) {
 			expected: true,
 		},
 		"check your lpa when unsure if can sign": {
-			lpa: &actor.Lpa{
+			lpa: &actor.DonorProvidedDetails{
 				Type: actor.LpaTypeHealthWelfare,
 				Tasks: actor.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
@@ -64,7 +64,7 @@ func TestCanGoTo(t *testing.T) {
 			expected: false,
 		},
 		"check your lpa when can sign": {
-			lpa: &actor.Lpa{
+			lpa: &actor.DonorProvidedDetails{
 				Donor: actor.Donor{CanSign: form.Yes},
 				Type:  actor.LpaTypeHealthWelfare,
 				Tasks: actor.DonorTasks{
@@ -81,12 +81,12 @@ func TestCanGoTo(t *testing.T) {
 			expected: true,
 		},
 		"about payment without task": {
-			lpa:      &actor.Lpa{ID: "123"},
+			lpa:      &actor.DonorProvidedDetails{ID: "123"},
 			url:      Paths.AboutPayment.Format("123"),
 			expected: false,
 		},
 		"about payment with tasks": {
-			lpa: &actor.Lpa{
+			lpa: &actor.DonorProvidedDetails{
 				Donor: actor.Donor{
 					CanSign: form.Yes,
 				},
@@ -106,12 +106,12 @@ func TestCanGoTo(t *testing.T) {
 			expected: true,
 		},
 		"identity without task": {
-			lpa:      &actor.Lpa{},
+			lpa:      &actor.DonorProvidedDetails{},
 			url:      Paths.IdentityWithOneLogin.Format("123"),
 			expected: false,
 		},
 		"identity with tasks": {
-			lpa: &actor.Lpa{
+			lpa: &actor.DonorProvidedDetails{
 				Donor: actor.Donor{
 					CanSign: form.Yes,
 				},
@@ -144,13 +144,13 @@ func TestLpaProgress(t *testing.T) {
 	lpaSignedAt := time.Now()
 
 	testCases := map[string]struct {
-		lpa                 *actor.Lpa
+		lpa                 *actor.DonorProvidedDetails
 		certificateProvider *actor.CertificateProviderProvidedDetails
 		attorneys           []*actor.AttorneyProvidedDetails
 		expectedProgress    actor.Progress
 	}{
 		"initial state": {
-			lpa:                 &actor.Lpa{},
+			lpa:                 &actor.DonorProvidedDetails{},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{},
 			expectedProgress: actor.Progress{
 				DonorSigned:               actor.TaskInProgress,
@@ -162,7 +162,7 @@ func TestLpaProgress(t *testing.T) {
 			},
 		},
 		"lpa signed": {
-			lpa:                 &actor.Lpa{SignedAt: lpaSignedAt},
+			lpa:                 &actor.DonorProvidedDetails{SignedAt: lpaSignedAt},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{},
 			expectedProgress: actor.Progress{
 				DonorSigned:               actor.TaskCompleted,
@@ -174,7 +174,7 @@ func TestLpaProgress(t *testing.T) {
 			},
 		},
 		"certificate provider signed": {
-			lpa:                 &actor.Lpa{SignedAt: lpaSignedAt},
+			lpa:                 &actor.DonorProvidedDetails{SignedAt: lpaSignedAt},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
 			expectedProgress: actor.Progress{
 				DonorSigned:               actor.TaskCompleted,
@@ -186,7 +186,7 @@ func TestLpaProgress(t *testing.T) {
 			},
 		},
 		"attorneys signed": {
-			lpa: &actor.Lpa{
+			lpa: &actor.DonorProvidedDetails{
 				SignedAt:  lpaSignedAt,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "a1"}, {ID: "a2"}}},
 			},
@@ -205,7 +205,7 @@ func TestLpaProgress(t *testing.T) {
 			},
 		},
 		"submitted": {
-			lpa: &actor.Lpa{
+			lpa: &actor.DonorProvidedDetails{
 				SignedAt:    lpaSignedAt,
 				SubmittedAt: lpaSignedAt.Add(time.Hour),
 				Attorneys:   actor.Attorneys{Attorneys: []actor.Attorney{{ID: "a1"}, {ID: "a2"}}},
@@ -225,7 +225,7 @@ func TestLpaProgress(t *testing.T) {
 			},
 		},
 		"registered": {
-			lpa: &actor.Lpa{
+			lpa: &actor.DonorProvidedDetails{
 				SignedAt:     lpaSignedAt,
 				SubmittedAt:  lpaSignedAt.Add(time.Hour),
 				RegisteredAt: lpaSignedAt.Add(2 * time.Hour),
@@ -585,7 +585,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.taskState, ChooseReplacementAttorneysState(&actor.Lpa{
+			assert.Equal(t, tc.taskState, ChooseReplacementAttorneysState(&actor.DonorProvidedDetails{
 				WantReplacementAttorneys:            tc.want,
 				AttorneyDecisions:                   tc.attorneyDecisions,
 				ReplacementAttorneys:                tc.replacementAttorneys,
@@ -598,15 +598,15 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 
 func TestLpaCost(t *testing.T) {
 	testCases := map[string]struct {
-		lpa      *actor.Lpa
+		lpa      *actor.DonorProvidedDetails
 		expected int
 	}{
 		"denied": {
-			lpa:      &actor.Lpa{FeeType: pay.HalfFee, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
+			lpa:      &actor.DonorProvidedDetails{FeeType: pay.HalfFee, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
 			expected: 8200,
 		},
 		"half": {
-			lpa:      &actor.Lpa{FeeType: pay.HalfFee},
+			lpa:      &actor.DonorProvidedDetails{FeeType: pay.HalfFee},
 			expected: 4100,
 		},
 	}
@@ -620,23 +620,23 @@ func TestLpaCost(t *testing.T) {
 
 func TestFeeAmount(t *testing.T) {
 	testCases := map[string]struct {
-		Lpa          *actor.Lpa
+		Lpa          *actor.DonorProvidedDetails
 		ExpectedCost int
 	}{
 		"not paid": {
-			Lpa:          &actor.Lpa{FeeType: pay.HalfFee},
+			Lpa:          &actor.DonorProvidedDetails{FeeType: pay.HalfFee},
 			ExpectedCost: 4100,
 		},
 		"fully paid": {
-			Lpa:          &actor.Lpa{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}},
+			Lpa:          &actor.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}},
 			ExpectedCost: 0,
 		},
 		"denied partially paid": {
-			Lpa:          &actor.Lpa{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
+			Lpa:          &actor.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
 			ExpectedCost: 4100,
 		},
 		"denied fully paid": {
-			Lpa:          &actor.Lpa{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}, {Amount: 4100}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
+			Lpa:          &actor.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}, {Amount: 4100}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
 			ExpectedCost: 0,
 		},
 	}
@@ -741,7 +741,7 @@ func TestCertificateProviderSharesDetailsNames(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			lpa := &actor.Lpa{
+			lpa := &actor.DonorProvidedDetails{
 				Donor:               actor.Donor{LastName: tc.donor},
 				CertificateProvider: actor.CertificateProvider{LastName: tc.certificateProvider, Address: place.Address{Line1: "x"}},
 			}
@@ -795,7 +795,7 @@ func TestCertificateProviderSharesDetailsAddresses(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			lpa := &actor.Lpa{
+			lpa := &actor.DonorProvidedDetails{
 				Donor:               actor.Donor{Address: tc.donor},
 				CertificateProvider: actor.CertificateProvider{LastName: "x", Address: tc.certificateProvider},
 			}

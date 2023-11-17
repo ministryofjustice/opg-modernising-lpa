@@ -24,12 +24,12 @@ func TestGetWitnessingAsIndependentWitness(t *testing.T) {
 	template.
 		On("Execute", w, &witnessingAsIndependentWitnessData{
 			App:  testAppData,
-			Lpa:  &actor.Lpa{},
+			Lpa:  &actor.DonorProvidedDetails{},
 			Form: &witnessingAsIndependentWitnessForm{},
 		}).
 		Return(nil)
 
-	err := WitnessingAsIndependentWitness(template.Execute, nil, time.Now)(testAppData, w, r, &actor.Lpa{})
+	err := WitnessingAsIndependentWitness(template.Execute, nil, time.Now)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -44,14 +44,14 @@ func TestGetWitnessingAsIndependentWitnessFromStore(t *testing.T) {
 	template.
 		On("Execute", w, &witnessingAsIndependentWitnessData{
 			App: testAppData,
-			Lpa: &actor.Lpa{
+			Lpa: &actor.DonorProvidedDetails{
 				IndependentWitness: actor.IndependentWitness{FirstNames: "Joan"},
 			},
 			Form: &witnessingAsIndependentWitnessForm{},
 		}).
 		Return(nil)
 
-	err := WitnessingAsIndependentWitness(template.Execute, nil, time.Now)(testAppData, w, r, &actor.Lpa{
+	err := WitnessingAsIndependentWitness(template.Execute, nil, time.Now)(testAppData, w, r, &actor.DonorProvidedDetails{
 		IndependentWitness: actor.IndependentWitness{FirstNames: "Joan"},
 	})
 	resp := w.Result()
@@ -68,12 +68,12 @@ func TestGetWitnessingAsIndependentWitnessWhenTemplateErrors(t *testing.T) {
 	template.
 		On("Execute", w, &witnessingAsIndependentWitnessData{
 			App:  testAppData,
-			Lpa:  &actor.Lpa{},
+			Lpa:  &actor.DonorProvidedDetails{},
 			Form: &witnessingAsIndependentWitnessForm{},
 		}).
 		Return(expectedError)
 
-	err := WitnessingAsIndependentWitness(template.Execute, nil, time.Now)(testAppData, w, r, &actor.Lpa{})
+	err := WitnessingAsIndependentWitness(template.Execute, nil, time.Now)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -92,7 +92,7 @@ func TestPostWitnessingAsIndependentWitness(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &actor.Lpa{
+		On("Put", r.Context(), &actor.DonorProvidedDetails{
 			ID:                              "lpa-id",
 			DonorIdentityUserData:           identity.UserData{OK: true},
 			IndependentWitnessCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
@@ -100,7 +100,7 @@ func TestPostWitnessingAsIndependentWitness(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WitnessingAsIndependentWitness(nil, donorStore, func() time.Time { return now })(testAppData, w, r, &actor.Lpa{
+	err := WitnessingAsIndependentWitness(nil, donorStore, func() time.Time { return now })(testAppData, w, r, &actor.DonorProvidedDetails{
 		ID:                      "lpa-id",
 		DonorIdentityUserData:   identity.UserData{OK: true},
 		IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
@@ -127,7 +127,7 @@ func TestPostWitnessingAsIndependentWitnessWhenDonorStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := WitnessingAsIndependentWitness(nil, donorStore, func() time.Time { return now })(testAppData, w, r, &actor.Lpa{
+	err := WitnessingAsIndependentWitness(nil, donorStore, func() time.Time { return now })(testAppData, w, r, &actor.DonorProvidedDetails{
 		ID:                      "lpa-id",
 		DonorIdentityUserData:   identity.UserData{OK: true},
 		IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
@@ -149,9 +149,9 @@ func TestPostWitnessingAsIndependentWitnessCodeTooOld(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), mock.MatchedBy(func(lpa *actor.Lpa) bool {
+		On("Put", r.Context(), mock.MatchedBy(func(lpa *actor.DonorProvidedDetails) bool {
 			lpa.WitnessCodeLimiter = nil
-			return assert.Equal(t, lpa, &actor.Lpa{
+			return assert.Equal(t, lpa, &actor.DonorProvidedDetails{
 				IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 			})
 		})).
@@ -161,7 +161,7 @@ func TestPostWitnessingAsIndependentWitnessCodeTooOld(t *testing.T) {
 	template.
 		On("Execute", w, &witnessingAsIndependentWitnessData{
 			App: testAppData,
-			Lpa: &actor.Lpa{
+			Lpa: &actor.DonorProvidedDetails{
 				IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 			},
 			Errors: validation.With("witness-code", validation.CustomError{Label: "witnessCodeExpired"}),
@@ -169,7 +169,7 @@ func TestPostWitnessingAsIndependentWitnessCodeTooOld(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WitnessingAsIndependentWitness(template.Execute, donorStore, time.Now)(testAppData, w, r, &actor.Lpa{
+	err := WitnessingAsIndependentWitness(template.Execute, donorStore, time.Now)(testAppData, w, r, &actor.DonorProvidedDetails{
 		IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 	})
 	resp := w.Result()
@@ -191,9 +191,9 @@ func TestPostWitnessingAsIndependentWitnessCodeDoesNotMatch(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), mock.MatchedBy(func(lpa *actor.Lpa) bool {
+		On("Put", r.Context(), mock.MatchedBy(func(lpa *actor.DonorProvidedDetails) bool {
 			lpa.WitnessCodeLimiter = nil
-			return assert.Equal(t, lpa, &actor.Lpa{
+			return assert.Equal(t, lpa, &actor.DonorProvidedDetails{
 				IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 			})
 		})).
@@ -203,7 +203,7 @@ func TestPostWitnessingAsIndependentWitnessCodeDoesNotMatch(t *testing.T) {
 	template.
 		On("Execute", w, &witnessingAsIndependentWitnessData{
 			App: testAppData,
-			Lpa: &actor.Lpa{
+			Lpa: &actor.DonorProvidedDetails{
 				IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 			},
 			Errors: validation.With("witness-code", validation.CustomError{Label: "witnessCodeDoesNotMatch"}),
@@ -211,7 +211,7 @@ func TestPostWitnessingAsIndependentWitnessCodeDoesNotMatch(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WitnessingAsIndependentWitness(template.Execute, donorStore, time.Now)(testAppData, w, r, &actor.Lpa{
+	err := WitnessingAsIndependentWitness(template.Execute, donorStore, time.Now)(testAppData, w, r, &actor.DonorProvidedDetails{
 		IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 	})
 	resp := w.Result()
@@ -234,9 +234,9 @@ func TestPostWitnessingAsIndependentWitnessWhenCodeExpired(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), mock.MatchedBy(func(lpa *actor.Lpa) bool {
+		On("Put", r.Context(), mock.MatchedBy(func(lpa *actor.DonorProvidedDetails) bool {
 			lpa.WitnessCodeLimiter = nil
-			return assert.Equal(t, lpa, &actor.Lpa{
+			return assert.Equal(t, lpa, &actor.DonorProvidedDetails{
 				IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 			})
 		})).
@@ -246,7 +246,7 @@ func TestPostWitnessingAsIndependentWitnessWhenCodeExpired(t *testing.T) {
 	template.
 		On("Execute", w, &witnessingAsIndependentWitnessData{
 			App: testAppData,
-			Lpa: &actor.Lpa{
+			Lpa: &actor.DonorProvidedDetails{
 				IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 			},
 			Errors: validation.With("witness-code", validation.CustomError{Label: "witnessCodeExpired"}),
@@ -254,7 +254,7 @@ func TestPostWitnessingAsIndependentWitnessWhenCodeExpired(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WitnessingAsIndependentWitness(template.Execute, donorStore, time.Now)(testAppData, w, r, &actor.Lpa{
+	err := WitnessingAsIndependentWitness(template.Execute, donorStore, time.Now)(testAppData, w, r, &actor.DonorProvidedDetails{
 		IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 	})
 	resp := w.Result()
@@ -276,9 +276,9 @@ func TestPostWitnessingAsIndependentWitnessCodeLimitBreached(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), mock.MatchedBy(func(lpa *actor.Lpa) bool {
+		On("Put", r.Context(), mock.MatchedBy(func(lpa *actor.DonorProvidedDetails) bool {
 			lpa.WitnessCodeLimiter = nil
-			return assert.Equal(t, lpa, &actor.Lpa{
+			return assert.Equal(t, lpa, &actor.DonorProvidedDetails{
 				IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 			})
 		})).
@@ -288,7 +288,7 @@ func TestPostWitnessingAsIndependentWitnessCodeLimitBreached(t *testing.T) {
 	template.
 		On("Execute", w, &witnessingAsIndependentWitnessData{
 			App: testAppData,
-			Lpa: &actor.Lpa{
+			Lpa: &actor.DonorProvidedDetails{
 				IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 			},
 			Errors: validation.With("witness-code", validation.CustomError{Label: "tooManyWitnessCodeAttempts"}),
@@ -296,7 +296,7 @@ func TestPostWitnessingAsIndependentWitnessCodeLimitBreached(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WitnessingAsIndependentWitness(template.Execute, donorStore, time.Now)(testAppData, w, r, &actor.Lpa{
+	err := WitnessingAsIndependentWitness(template.Execute, donorStore, time.Now)(testAppData, w, r, &actor.DonorProvidedDetails{
 		WitnessCodeLimiter:      actor.NewLimiter(time.Minute, 0, 10),
 		IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 	})

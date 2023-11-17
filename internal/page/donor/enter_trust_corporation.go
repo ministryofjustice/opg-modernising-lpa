@@ -17,7 +17,7 @@ type enterTrustCorporationData struct {
 }
 
 func EnterTrustCorporation(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
 		trustCorporation := lpa.Attorneys.TrustCorporation
 
 		data := &enterTrustCorporationData{

@@ -17,7 +17,7 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 		"identity": true,
 		"sign in":  false,
 	}
-	lpa := &actor.Lpa{
+	lpa := &actor.DonorProvidedDetails{
 		CertificateProvider: actor.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
@@ -98,7 +98,7 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 		},
 	}
 
-	lpa := &actor.Lpa{
+	lpa := &actor.DonorProvidedDetails{
 		CertificateProvider: actor.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
@@ -200,7 +200,7 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 func TestShareCodeSenderSendCertificateProviderWhenEmailErrors(t *testing.T) {
 	ctx := context.Background()
 
-	lpa := &actor.Lpa{
+	lpa := &actor.DonorProvidedDetails{
 		CertificateProvider: actor.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
@@ -263,13 +263,13 @@ func TestShareCodeSenderSendCertificateProviderWhenShareCodeStoreErrors(t *testi
 		Return(ExpectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", MockRandom)
-	err := sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, true, &actor.Lpa{})
+	err := sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, true, &actor.DonorProvidedDetails{})
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))
 }
 
 func TestShareCodeSenderSendAttorneys(t *testing.T) {
-	lpa := &actor.Lpa{
+	lpa := &actor.DonorProvidedDetails{
 		Attorneys: actor.Attorneys{
 			TrustCorporation: actor.TrustCorporation{
 				Name:  "Trusty",
@@ -460,7 +460,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 		},
 	}
 
-	lpa := &actor.Lpa{
+	lpa := &actor.DonorProvidedDetails{
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{
 				FirstNames: "Joanna",
@@ -550,7 +550,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 	ctx := context.Background()
 
-	lpa := &actor.Lpa{
+	lpa := &actor.DonorProvidedDetails{
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{
 				FirstNames: "Joanna",
@@ -603,7 +603,7 @@ func TestShareCodeSenderSendAttorneysWhenShareCodeStoreErrors(t *testing.T) {
 		Return(ExpectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", MockRandom)
-	err := sender.SendAttorneys(ctx, TestAppData, &actor.Lpa{
+	err := sender.SendAttorneys(ctx, TestAppData, &actor.DonorProvidedDetails{
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{Email: "hey@example.com"}}},
 	})
 

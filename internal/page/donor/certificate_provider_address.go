@@ -1,6 +1,5 @@
 package donor
 
-
 import (
 	"net/http"
 
@@ -12,7 +11,7 @@ import (
 )
 
 func CertificateProviderAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
 		data := newChooseAddressData(
 			appData,
 			"certificateProvider",

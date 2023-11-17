@@ -12,7 +12,7 @@ import (
 type progressData struct {
 	App             page.AppData
 	Errors          validation.List
-	Lpa             *actor.Lpa
+	Lpa             *actor.DonorProvidedDetails
 	Signed          bool
 	AttorneysSigned bool
 }

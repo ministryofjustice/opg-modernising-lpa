@@ -1,6 +1,5 @@
 package donor
 
-
 import (
 	"net/http"
 	"net/http/httptest"
@@ -41,7 +40,7 @@ func TestGetChooseReplacementAttorneysAddress(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{ra}}})
+	err := ChooseReplacementAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{ra}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -73,7 +72,7 @@ func TestGetChooseReplacementAttorneysAddressFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{ra}}})
+	err := ChooseReplacementAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{ra}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -105,7 +104,7 @@ func TestGetChooseReplacementAttorneysAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{ra}}})
+	err := ChooseReplacementAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{ra}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -134,7 +133,7 @@ func TestGetChooseReplacementAttorneysAddressWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := ChooseReplacementAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{ra}}})
+	err := ChooseReplacementAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{ra}}})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -157,14 +156,14 @@ func TestPostChooseReplacementAttorneysAddressSkip(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &actor.Lpa{
+		On("Put", r.Context(), &actor.DonorProvidedDetails{
 			ID:                   "lpa-id",
 			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123", FirstNames: "a", Email: "a"}}},
 			Tasks:                actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.Lpa{
+	err := ChooseReplacementAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		ID: "lpa-id",
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 			ID:         "123",
@@ -196,7 +195,7 @@ func TestPostChooseReplacementAttorneysAddressManual(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &actor.Lpa{
+		On("Put", r.Context(), &actor.DonorProvidedDetails{
 			ID: "lpa-id",
 			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				ID:         "123",
@@ -207,7 +206,7 @@ func TestPostChooseReplacementAttorneysAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.Lpa{
+	err := ChooseReplacementAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		ID:                   "lpa-id",
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123", FirstNames: "a"}}},
 	})
@@ -237,7 +236,7 @@ func TestPostChooseReplacementAttorneysAddressManualWhenStoreErrors(t *testing.T
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ChooseReplacementAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.Lpa{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}}})
+	err := ChooseReplacementAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}}})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -258,7 +257,7 @@ func TestPostChooseReplacementAttorneysAddressManualFromStore(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &actor.Lpa{
+		On("Put", r.Context(), &actor.DonorProvidedDetails{
 			ID: "lpa-id",
 			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				ID:         "123",
@@ -269,7 +268,7 @@ func TestPostChooseReplacementAttorneysAddressManualFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.Lpa{
+	err := ChooseReplacementAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		ID: "lpa-id",
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 			ID:         "123",
@@ -320,7 +319,7 @@ func TestPostChooseReplacementAttorneysAddressManualWhenValidationError(t *testi
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}}})
+	err := ChooseReplacementAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -355,7 +354,7 @@ func TestPostChooseReplacementAttorneysPostcodeSelect(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}}})
+	err := ChooseReplacementAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -399,7 +398,7 @@ func TestPostChooseReplacementAttorneysPostcodeSelectWhenValidationError(t *test
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.Lpa{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}}})
+	err := ChooseReplacementAttorneysAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -442,7 +441,7 @@ func TestPostChooseReplacementAttorneysPostcodeLookup(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.Lpa{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}}})
+	err := ChooseReplacementAttorneysAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -486,7 +485,7 @@ func TestPostChooseReplacementAttorneysPostcodeLookupError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.Lpa{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}}})
+	err := ChooseReplacementAttorneysAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -535,7 +534,7 @@ func TestPostChooseReplacementAttorneysPostcodeLookupInvalidPostcodeError(t *tes
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.Lpa{
+	err := ChooseReplacementAttorneysAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}},
 	})
 	resp := w.Result()
@@ -580,7 +579,7 @@ func TestPostChooseReplacementAttorneysPostcodeLookupValidPostcodeNoAddresses(t 
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.Lpa{
+	err := ChooseReplacementAttorneysAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}},
 	})
 	resp := w.Result()
@@ -614,7 +613,7 @@ func TestPostChooseReplacementAttorneysPostcodeLookupWhenValidationError(t *test
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}}})
+	err := ChooseReplacementAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -646,7 +645,7 @@ func TestPostChooseReplacementAttorneysAddressReuse(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{
+	err := ChooseReplacementAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor:                actor.Donor{Address: place.Address{Line1: "donor lane"}},
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}},
 	})
@@ -680,14 +679,14 @@ func TestPostChooseReplacementAttorneysAddressReuseSelect(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &actor.Lpa{
+		On("Put", r.Context(), &actor.DonorProvidedDetails{
 			ID:                   "lpa-id",
 			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{updatedAttorney}},
 			Tasks:                actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskInProgress},
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.Lpa{
+	err := ChooseReplacementAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		ID:                   "lpa-id",
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}},
 	})
@@ -724,7 +723,7 @@ func TestPostChooseReplacementAttorneysAddressReuseSelectWhenValidationError(t *
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.Lpa{
+	err := ChooseReplacementAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor:                actor.Donor{Address: place.Address{Line1: "donor lane"}},
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}},
 	})

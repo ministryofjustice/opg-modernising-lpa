@@ -175,42 +175,42 @@ func TestReplacementAttorneysStepIn(t *testing.T) {
 }
 
 func TestGenerateHash(t *testing.T) {
-	lpa := &Lpa{}
+	lpa := &DonorProvidedDetails{}
 	hash, err := lpa.GenerateHash()
 	assert.Nil(t, err)
-	assert.Equal(t, uint64(0x4b37df4a36f24c8), hash)
+	assert.Equal(t, uint64(0x931d231a586cee71), hash)
 
 	lpa.ID = "1"
 	hash, err = lpa.GenerateHash()
 	assert.Nil(t, err)
-	assert.Equal(t, uint64(0xb058317f6e9a325b), hash)
+	assert.Equal(t, uint64(0x625ac1b5d9f7beeb), hash)
 }
 
 func TestIdentityConfirmed(t *testing.T) {
 	testCases := map[string]struct {
-		lpa      *Lpa
+		lpa      *DonorProvidedDetails
 		expected bool
 	}{
 		"set": {
-			lpa: &Lpa{
+			lpa: &DonorProvidedDetails{
 				Donor:                 Donor{FirstNames: "a", LastName: "b"},
 				DonorIdentityUserData: identity.UserData{OK: true, FirstNames: "a", LastName: "b"},
 			},
 			expected: true,
 		},
 		"not ok": {
-			lpa:      &Lpa{DonorIdentityUserData: identity.UserData{}},
+			lpa:      &DonorProvidedDetails{DonorIdentityUserData: identity.UserData{}},
 			expected: false,
 		},
 		"no match": {
-			lpa: &Lpa{
+			lpa: &DonorProvidedDetails{
 				Donor:                 Donor{FirstNames: "a", LastName: "b"},
 				DonorIdentityUserData: identity.UserData{},
 			},
 			expected: false,
 		},
 		"none": {
-			lpa:      &Lpa{},
+			lpa:      &DonorProvidedDetails{},
 			expected: false,
 		},
 	}
@@ -223,7 +223,7 @@ func TestIdentityConfirmed(t *testing.T) {
 }
 
 func TestAttorneysSigningDeadline(t *testing.T) {
-	lpa := Lpa{
+	lpa := DonorProvidedDetails{
 		SignedAt: time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC),
 	}
 
@@ -237,7 +237,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 	attorneySigned := lpaSignedAt.Add(time.Second)
 
 	testcases := map[string]struct {
-		lpa       *Lpa
+		lpa       *DonorProvidedDetails
 		attorneys []*AttorneyProvidedDetails
 		expected  bool
 	}{
@@ -245,7 +245,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 			expected: false,
 		},
 		"need attorney to sign": {
-			lpa: &Lpa{
+			lpa: &DonorProvidedDetails{
 				SignedAt:             lpaSignedAt,
 				Attorneys:            Attorneys{Attorneys: []Attorney{{ID: "a1"}, {ID: "a2"}}},
 				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{ID: "r1"}}},
@@ -258,7 +258,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 			expected: false,
 		},
 		"need replacement attorney to sign": {
-			lpa: &Lpa{
+			lpa: &DonorProvidedDetails{
 				SignedAt:             lpaSignedAt,
 				Attorneys:            Attorneys{Attorneys: []Attorney{{ID: "a1"}}},
 				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{ID: "r1"}, {ID: "r2"}}},
@@ -271,7 +271,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 			expected: false,
 		},
 		"all attorneys signed": {
-			lpa: &Lpa{
+			lpa: &DonorProvidedDetails{
 				SignedAt:             lpaSignedAt,
 				Attorneys:            Attorneys{Attorneys: []Attorney{{ID: "a1"}, {ID: "a2"}}},
 				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{ID: "r1"}}},
@@ -284,7 +284,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 			expected: true,
 		},
 		"more attorneys signed": {
-			lpa: &Lpa{
+			lpa: &DonorProvidedDetails{
 				SignedAt:  lpaSignedAt,
 				Attorneys: Attorneys{Attorneys: []Attorney{{ID: "a1"}, {ID: "a2"}}},
 			},
@@ -296,7 +296,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 			expected: true,
 		},
 		"waiting for attorney to re-sign": {
-			lpa: &Lpa{
+			lpa: &DonorProvidedDetails{
 				SignedAt:  lpaSignedAt,
 				Attorneys: Attorneys{Attorneys: []Attorney{{ID: "a1"}, {ID: "a2"}}},
 			},
@@ -307,7 +307,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 			expected: false,
 		},
 		"trust corporations not signed": {
-			lpa: &Lpa{
+			lpa: &DonorProvidedDetails{
 				SignedAt:             lpaSignedAt,
 				Attorneys:            Attorneys{TrustCorporation: TrustCorporation{Name: "a"}},
 				ReplacementAttorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "r"}},
@@ -315,7 +315,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 			expected: false,
 		},
 		"replacement trust corporations not signed": {
-			lpa: &Lpa{
+			lpa: &DonorProvidedDetails{
 				SignedAt:             lpaSignedAt,
 				Attorneys:            Attorneys{TrustCorporation: TrustCorporation{Name: "a"}},
 				ReplacementAttorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "r"}},
@@ -335,7 +335,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 			expected: false,
 		},
 		"trust corporations signed": {
-			lpa: &Lpa{
+			lpa: &DonorProvidedDetails{
 				SignedAt:             lpaSignedAt,
 				Attorneys:            Attorneys{TrustCorporation: TrustCorporation{Name: "a"}},
 				ReplacementAttorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "r"}},
@@ -365,7 +365,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 }
 
 func TestActorAddresses(t *testing.T) {
-	lpa := &Lpa{
+	lpa := &DonorProvidedDetails{
 		Donor: Donor{Address: place.Address{Line1: "1"}},
 		Attorneys: Attorneys{Attorneys: []Attorney{
 			{Address: place.Address{Line1: "2"}},
@@ -391,7 +391,7 @@ func TestActorAddresses(t *testing.T) {
 }
 
 func TestActorAddressesActorWithNoAddressIgnored(t *testing.T) {
-	lpa := &Lpa{
+	lpa := &DonorProvidedDetails{
 		Donor: Donor{FirstNames: "Donor", LastName: "Actor", Address: address},
 		Attorneys: Attorneys{Attorneys: []Attorney{
 			{FirstNames: "Attorney One", LastName: "Actor", Address: address},
@@ -410,7 +410,7 @@ func TestActorAddressesActorWithNoAddressIgnored(t *testing.T) {
 }
 
 func TestAllLayAttorneysFirstNames(t *testing.T) {
-	lpa := &Lpa{
+	lpa := &DonorProvidedDetails{
 		Attorneys: Attorneys{
 			Attorneys: []Attorney{
 				{FirstNames: "John", LastName: "Smith"},
@@ -429,7 +429,7 @@ func TestAllLayAttorneysFirstNames(t *testing.T) {
 }
 
 func TestAllLayAttorneysFullNames(t *testing.T) {
-	lpa := &Lpa{
+	lpa := &DonorProvidedDetails{
 		Attorneys: Attorneys{
 			Attorneys: []Attorney{
 				{FirstNames: "John", LastName: "Smith"},
@@ -448,7 +448,7 @@ func TestAllLayAttorneysFullNames(t *testing.T) {
 }
 
 func TestTrustCorporationOriginal(t *testing.T) {
-	lpa := &Lpa{
+	lpa := &DonorProvidedDetails{
 		Attorneys:            Attorneys{TrustCorporation: TrustCorporation{Name: "Corp"}},
 		ReplacementAttorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "Trust"}},
 	}

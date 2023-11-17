@@ -51,7 +51,7 @@ type s3Client interface {
 
 //go:generate mockery --testonly --inpackage --name shareCodeSender --structname mockShareCodeSender
 type shareCodeSender interface {
-	SendCertificateProvider(context.Context, notify.Template, page.AppData, bool, *actor.Lpa) error
+	SendCertificateProvider(context.Context, notify.Template, page.AppData, bool, *actor.DonorProvidedDetails) error
 }
 
 //go:generate mockery --testonly --inpackage --name DocumentStore --structname mockDocumentStore

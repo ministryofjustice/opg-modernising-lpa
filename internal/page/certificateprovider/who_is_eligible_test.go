@@ -16,7 +16,7 @@ func TestWhoIsEligible(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&actor.Lpa{Donor: actor.Donor{FirstNames: "Full", LastName: "Name"}}, nil)
+		Return(&actor.DonorProvidedDetails{Donor: actor.Donor{FirstNames: "Full", LastName: "Name"}}, nil)
 
 	template := newMockTemplate(t)
 	template.
@@ -41,7 +41,7 @@ func TestWhoIsEligibleWhenDonorStoreError(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&actor.Lpa{}, expectedError)
+		Return(&actor.DonorProvidedDetails{}, expectedError)
 
 	err := WhoIsEligible(nil, donorStore)(testAppData, w, r)
 	resp := w.Result()
@@ -57,7 +57,7 @@ func TestWhoIsEligibleOnTemplateError(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&actor.Lpa{Donor: actor.Donor{FirstNames: "Full", LastName: "Name"}}, nil)
+		Return(&actor.DonorProvidedDetails{Donor: actor.Donor{FirstNames: "Full", LastName: "Name"}}, nil)
 
 	template := newMockTemplate(t)
 	template.
