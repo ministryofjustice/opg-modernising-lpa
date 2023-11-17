@@ -29,16 +29,8 @@ type AppData struct {
 }
 
 func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, url string) error {
-	http.Redirect(w, r, d.BuildUrl(url), http.StatusFound)
+	http.Redirect(w, r, d.Lang.URL(url), http.StatusFound)
 	return nil
-}
-
-func (d AppData) BuildUrl(url string) string {
-	if d.Lang == localize.Cy {
-		return "/" + localize.Cy.String() + url
-	}
-
-	return url
 }
 
 func ContextWithAppData(ctx context.Context, appData AppData) context.Context {
