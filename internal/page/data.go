@@ -59,7 +59,7 @@ type Lpa struct {
 	// Used to show the task list
 	Tasks Tasks
 	// PaymentDetails are records of payments made for the LPA via GOV.UK Pay
-	PaymentDetails []Payment
+	PaymentDetails []actor.Payment
 	// Information returned by the identity service related to the applicant
 	DonorIdentityUserData identity.UserData
 	// Replacement attorneys named in the LPA
@@ -120,15 +120,6 @@ type Lpa struct {
 	HasSentUidRequestedEvent              bool `hash:"-"`
 	HasSentApplicationUpdatedEvent        bool `hash:"-"`
 	HasSentPreviousApplicationLinkedEvent bool `hash:"-"`
-}
-
-type Payment struct {
-	// Reference generated for the payment
-	PaymentReference string
-	// ID returned from GOV.UK Pay
-	PaymentId string
-	// Amount is the amount paid in pence
-	Amount int
 }
 
 type Tasks struct {

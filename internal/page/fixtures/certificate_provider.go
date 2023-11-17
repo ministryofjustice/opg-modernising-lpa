@@ -91,7 +91,7 @@ func CertificateProvider(
 		}
 
 		if progress >= slices.Index(progressValues, "paid") {
-			lpa.PaymentDetails = append(lpa.PaymentDetails, page.Payment{
+			lpa.PaymentDetails = append(lpa.PaymentDetails, actor.Payment{
 				PaymentReference: random.String(12),
 				PaymentId:        random.String(12),
 			})
