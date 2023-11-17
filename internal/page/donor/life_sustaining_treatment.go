@@ -13,7 +13,7 @@ type lifeSustainingTreatmentData struct {
 	App     page.AppData
 	Errors  validation.List
 	Form    *lifeSustainingTreatmentForm
-	Options page.LifeSustainingTreatmentOptions
+	Options actor.LifeSustainingTreatmentOptions
 }
 
 func LifeSustainingTreatment(tmpl template.Template, donorStore DonorStore) Handler {
@@ -23,7 +23,7 @@ func LifeSustainingTreatment(tmpl template.Template, donorStore DonorStore) Hand
 			Form: &lifeSustainingTreatmentForm{
 				Option: lpa.LifeSustainingTreatmentOption,
 			},
-			Options: page.LifeSustainingTreatmentValues,
+			Options: actor.LifeSustainingTreatmentValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -46,12 +46,12 @@ func LifeSustainingTreatment(tmpl template.Template, donorStore DonorStore) Hand
 }
 
 type lifeSustainingTreatmentForm struct {
-	Option page.LifeSustainingTreatment
+	Option actor.LifeSustainingTreatment
 	Error  error
 }
 
 func readLifeSustainingTreatmentForm(r *http.Request) *lifeSustainingTreatmentForm {
-	option, err := page.ParseLifeSustainingTreatment(page.PostFormString(r, "option"))
+	option, err := actor.ParseLifeSustainingTreatment(page.PostFormString(r, "option"))
 
 	return &lifeSustainingTreatmentForm{
 		Option: option,

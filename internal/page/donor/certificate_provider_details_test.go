@@ -181,7 +181,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 						LastName:   "Doe",
 					},
 					CertificateProvider: tc.certificateProviderDetails,
-					Tasks:               page.Tasks{CertificateProvider: actor.TaskInProgress},
+					Tasks:               actor.DonorTasks{CertificateProvider: actor.TaskInProgress},
 				}).
 				Return(nil)
 
@@ -225,7 +225,7 @@ func TestPostCertificateProviderDetailsWhenAmendingDetailsAfterStateComplete(t *
 				LastName:   "Rey",
 				Mobile:     "07535111111",
 			},
-			Tasks: page.Tasks{CertificateProvider: actor.TaskCompleted},
+			Tasks: actor.DonorTasks{CertificateProvider: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -235,7 +235,7 @@ func TestPostCertificateProviderDetailsWhenAmendingDetailsAfterStateComplete(t *
 			FirstNames: "Jane",
 			LastName:   "Doe",
 		},
-		Tasks: page.Tasks{CertificateProvider: actor.TaskCompleted},
+		Tasks: actor.DonorTasks{CertificateProvider: actor.TaskCompleted},
 	})
 	resp := w.Result()
 
@@ -307,23 +307,6 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 			},
 			dataMatcher: func(t *testing.T, data *certificateProviderDetailsData) bool {
 				return assert.Equal(t, actor.NewSameNameWarning(actor.TypeCertificateProvider, actor.TypeDonor, "John", "Doe"), data.NameWarning)
-			},
-		},
-		"same last name as donor warning": {
-			form: url.Values{
-				"first-names": {"Joyce"},
-				"last-name":   {"Doe"},
-				"mobile":      {"07535111111"},
-			},
-			existingLpa: &page.Lpa{
-				Donor: actor.Donor{
-					FirstNames: "John",
-					LastName:   "Doe",
-				},
-			},
-			dataMatcher: func(t *testing.T, data *certificateProviderDetailsData) bool {
-				assert.True(t, data.SameLastnameAsDonor)
-				return assert.Equal(t, (*actor.SameNameWarning)(nil), data.NameWarning)
 			},
 		},
 	}

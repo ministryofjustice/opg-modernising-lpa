@@ -159,7 +159,7 @@ func TestPostChooseReplacementAttorneysAddressSkip(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			ID:                   "lpa-id",
 			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123", FirstNames: "a", Email: "a"}}},
-			Tasks:                page.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
+			Tasks:                actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -202,7 +202,7 @@ func TestPostChooseReplacementAttorneysAddressManual(t *testing.T) {
 				FirstNames: "a",
 				Address:    testAddress,
 			}}},
-			Tasks: page.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
+			Tasks: actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -264,7 +264,7 @@ func TestPostChooseReplacementAttorneysAddressManualFromStore(t *testing.T) {
 				FirstNames: "John",
 				Address:    testAddress,
 			}}},
-			Tasks: page.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
+			Tasks: actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
 
@@ -682,7 +682,7 @@ func TestPostChooseReplacementAttorneysAddressReuseSelect(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			ID:                   "lpa-id",
 			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{updatedAttorney}},
-			Tasks:                page.Tasks{ChooseReplacementAttorneys: actor.TaskInProgress},
+			Tasks:                actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskInProgress},
 		}).
 		Return(nil)
 

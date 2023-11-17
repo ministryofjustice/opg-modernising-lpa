@@ -106,7 +106,7 @@ func TestPostEnterReplacementTrustCorporationAddressManual(t *testing.T) {
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			ID:    "lpa-id",
-			Tasks: page.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
+			Tasks: actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 			ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
 				Name:    "a",
 				Address: testAddress,
@@ -172,7 +172,7 @@ func TestPostEnterReplacementTrustCorporationAddressManualFromStore(t *testing.T
 	donorStore.
 		On("Put", r.Context(), &page.Lpa{
 			ID:    "lpa-id",
-			Tasks: page.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
+			Tasks: actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 			ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
 				Name:    "John",
 				Address: testAddress,
@@ -576,7 +576,7 @@ func TestPostEnterReplacementTrustCorporationAddressReuseSelect(t *testing.T) {
 		On("Put", r.Context(), &page.Lpa{
 			ID:                   "lpa-id",
 			ReplacementAttorneys: actor.Attorneys{TrustCorporation: updatedTrustCorporation},
-			Tasks:                page.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
+			Tasks:                actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
 

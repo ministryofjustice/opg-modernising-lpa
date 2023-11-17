@@ -192,7 +192,6 @@
     "certificateProviderDetailsHint": "Your certificate provider’s identity will be checked. You should enter their name as it appears on official documents, such as their passport or driving licence.",
     "certificateProviderMobileContext": "We need your certificate provider’s mobile number so we can send them a code to use when they witness you signing your LPA.",
     "mobile": "Mobile number",
-    "donorAndCertificateProviderShareLastnameWarning": "<strong class=\"govuk-warning-text__text govuk-!-padding-bottom-3\">Your certificate provider’s last name is the same as yours or very similar. Please check that they are not any of the following as these people cannot be your certificate provider:</strong> <ul class=\"govuk-list govuk-list--bullet\"> <strong class=\"govuk-warning-text__text\"><li>a member of your family (this includes step-relations and in-laws) or of the attorneys’ families</li></strong> <strong class=\"govuk-warning-text__text\"><li>a spouse or partner</li></strong> </ul> </strong>",
     "howWouldCertificateProviderPreferToCarryOutTheirRole": "How would {{.FirstNames}} like us to contact them?",
     "howWouldCertificateProviderPreferToCarryOutTheirRoleTitle": "How would your certificate provider like us to contact them?",
     "howYourCertificateProviderWouldPreferToCarryOutTheirRole": "how your certificate provider would prefer to carry out their role",
