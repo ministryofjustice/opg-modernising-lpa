@@ -149,6 +149,7 @@ func App(
 		errorHandler,
 		certificateProviderStore,
 		notFoundHandler,
+		addressClient,
 	)
 
 	attorney.Register(
