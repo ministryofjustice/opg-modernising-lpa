@@ -25,7 +25,7 @@ func TestGetSign(t *testing.T) {
 			appData: testAppData,
 			lpa: &page.Lpa{
 				SignedAt:            time.Now(),
-				WhenCanTheLpaBeUsed: page.CanBeUsedWhenHasCapacity,
+				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
@@ -42,7 +42,7 @@ func TestGetSign(t *testing.T) {
 			appData: testAppData,
 			lpa: &page.Lpa{
 				SignedAt:            time.Now(),
-				WhenCanTheLpaBeUsed: page.CanBeUsedWhenCapacityLost,
+				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenCapacityLost,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
@@ -58,7 +58,7 @@ func TestGetSign(t *testing.T) {
 			appData: testReplacementAppData,
 			lpa: &page.Lpa{
 				SignedAt:            time.Now(),
-				WhenCanTheLpaBeUsed: page.CanBeUsedWhenHasCapacity,
+				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity,
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
@@ -76,7 +76,7 @@ func TestGetSign(t *testing.T) {
 			appData: testReplacementAppData,
 			lpa: &page.Lpa{
 				SignedAt:            time.Now(),
-				WhenCanTheLpaBeUsed: page.CanBeUsedWhenCapacityLost,
+				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenCapacityLost,
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
@@ -93,7 +93,7 @@ func TestGetSign(t *testing.T) {
 			appData: testTrustCorporationAppData,
 			lpa: &page.Lpa{
 				SignedAt:            time.Now(),
-				WhenCanTheLpaBeUsed: page.CanBeUsedWhenHasCapacity,
+				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity,
 				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
 					Name: "Corp",
 				}},
@@ -158,7 +158,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 		"certified but not submitted": {
 			appData: testAppData,
 			lpa: &page.Lpa{
-				WhenCanTheLpaBeUsed: page.CanBeUsedWhenCapacityLost,
+				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenCapacityLost,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
 					{ID: "other", FirstNames: "Dave", LastName: "Smith"},

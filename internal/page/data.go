@@ -25,14 +25,6 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-//go:generate enumerator -type CanBeUsedWhen -linecomment -trimprefix -empty
-type CanBeUsedWhen uint8
-
-const (
-	CanBeUsedWhenCapacityLost CanBeUsedWhen = iota + 1 // when-capacity-lost
-	CanBeUsedWhenHasCapacity                           // when-has-capacity
-)
-
 //go:generate enumerator -type LifeSustainingTreatment -linecomment -trimprefix -empty
 type LifeSustainingTreatment uint8
 
@@ -76,7 +68,7 @@ type Lpa struct {
 	// Whether the applicant wants to add replacement attorneys
 	WantReplacementAttorneys form.YesNo
 	// When the LPA can be used
-	WhenCanTheLpaBeUsed CanBeUsedWhen
+	WhenCanTheLpaBeUsed actor.CanBeUsedWhen
 	// Preferences on life sustaining treatment (applicable to personal welfare LPAs only)
 	LifeSustainingTreatmentOption LifeSustainingTreatment
 	// Restrictions on attorneys actions
