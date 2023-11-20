@@ -27,16 +27,16 @@ func ChangeMobileNumber(tmpl template.Template, witnessCodeSender WitnessCodeSen
 		redirect = page.Paths.WitnessingAsIndependentWitness
 	}
 
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &changeMobileNumberData{
 			App:        appData,
 			Form:       &changeMobileNumberForm{},
 			ActorType:  actorType,
-			FirstNames: lpa.CertificateProvider.FirstNames,
+			FirstNames: donor.CertificateProvider.FirstNames,
 		}
 
 		if actorType == actor.TypeIndependentWitness {
-			data.FirstNames = lpa.IndependentWitness.FirstNames
+			data.FirstNames = donor.IndependentWitness.FirstNames
 		}
 
 		if r.Method == http.MethodPost {
@@ -45,22 +45,22 @@ func ChangeMobileNumber(tmpl template.Template, witnessCodeSender WitnessCodeSen
 
 			if data.Errors.None() {
 				if actorType == actor.TypeIndependentWitness {
-					lpa.IndependentWitness.HasNonUKMobile = data.Form.HasNonUKMobile
+					donor.IndependentWitness.HasNonUKMobile = data.Form.HasNonUKMobile
 					if data.Form.HasNonUKMobile {
-						lpa.IndependentWitness.Mobile = data.Form.NonUKMobile
+						donor.IndependentWitness.Mobile = data.Form.NonUKMobile
 					} else {
-						lpa.IndependentWitness.Mobile = data.Form.Mobile
+						donor.IndependentWitness.Mobile = data.Form.Mobile
 					}
 				} else {
-					lpa.CertificateProvider.HasNonUKMobile = data.Form.HasNonUKMobile
+					donor.CertificateProvider.HasNonUKMobile = data.Form.HasNonUKMobile
 					if data.Form.HasNonUKMobile {
-						lpa.CertificateProvider.Mobile = data.Form.NonUKMobile
+						donor.CertificateProvider.Mobile = data.Form.NonUKMobile
 					} else {
-						lpa.CertificateProvider.Mobile = data.Form.Mobile
+						donor.CertificateProvider.Mobile = data.Form.Mobile
 					}
 				}
 
-				if err := send(r.Context(), lpa, appData.Localizer); err != nil {
+				if err := send(r.Context(), donor, appData.Localizer); err != nil {
 					if errors.Is(err, page.ErrTooManyWitnessCodeRequests) {
 						data.Errors.Add("request", validation.CustomError{Label: "pleaseWaitOneMinute"})
 						return tmpl(w, data)
@@ -69,7 +69,7 @@ func ChangeMobileNumber(tmpl template.Template, witnessCodeSender WitnessCodeSen
 					return err
 				}
 
-				return redirect.Redirect(w, r, appData, lpa)
+				return redirect.Redirect(w, r, appData, donor)
 			}
 		}
 

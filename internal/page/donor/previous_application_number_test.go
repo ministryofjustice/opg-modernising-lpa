@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -25,7 +26,7 @@ func TestGetPreviousApplicationNumber(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := PreviousApplicationNumber(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := PreviousApplicationNumber(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -46,7 +47,7 @@ func TestGetPreviousApplicationNumberFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := PreviousApplicationNumber(template.Execute, nil)(testAppData, w, r, &page.Lpa{PreviousApplicationNumber: "ABC"})
+	err := PreviousApplicationNumber(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{PreviousApplicationNumber: "ABC"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -62,7 +63,7 @@ func TestGetPreviousApplicationNumberWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := PreviousApplicationNumber(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := PreviousApplicationNumber(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -87,16 +88,16 @@ func TestPostPreviousApplicationNumber(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), &page.Lpa{
-					ID:                        "lpa-id",
-					UID:                       "lpa-uid",
+				On("Put", r.Context(), &actor.DonorProvidedDetails{
+					LpaID:                     "lpa-id",
+					LpaUID:                    "lpa-uid",
 					PreviousApplicationNumber: start,
 				}).
 				Return(nil)
 
-			err := PreviousApplicationNumber(nil, donorStore)(testAppData, w, r, &page.Lpa{
-				ID:  "lpa-id",
-				UID: "lpa-uid",
+			err := PreviousApplicationNumber(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+				LpaID:  "lpa-id",
+				LpaUID: "lpa-uid",
 			})
 			resp := w.Result()
 
@@ -116,9 +117,9 @@ func TestPostPreviousApplicationNumberWhenNotChanged(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := PreviousApplicationNumber(nil, nil)(testAppData, w, r, &page.Lpa{
-		ID:                        "lpa-id",
-		UID:                       "lpa-uid",
+	err := PreviousApplicationNumber(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+		LpaID:                     "lpa-id",
+		LpaUID:                    "lpa-uid",
 		PreviousApplicationNumber: "M-0000",
 	})
 	resp := w.Result()
@@ -142,7 +143,7 @@ func TestPostPreviousApplicationNumberWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := PreviousApplicationNumber(nil, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := PreviousApplicationNumber(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -158,7 +159,7 @@ func TestPostPreviousApplicationNumberWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := PreviousApplicationNumber(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := PreviousApplicationNumber(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

@@ -9,7 +9,7 @@
 
       <div class="govuk-summary-card">
         <div class="govuk-summary-card__title-wrapper">
-          <h2 class="govuk-summary-card__title">{{ tr .App "lpaNumber" }}: <span class="govuk-!-font-weight-regular">{{ .Lpa.UID }}</span></h2>
+          <h2 class="govuk-summary-card__title">{{ tr .App "lpaNumber" }}: <span class="govuk-!-font-weight-regular">{{ .Donor.LpaUID }}</span></h2>
           <ul class="govuk-summary-card__actions">
             <li class="govuk-summary-card__action">
               <a class="govuk-link" href="#">View full LPA</a>
@@ -20,15 +20,15 @@
           <dl class="govuk-summary-list">
             <div class="govuk-summary-list__row">
               <dt class="govuk-summary-list__key">{{ tr .App "donorName" }}</dt>
-              <dd class="govuk-summary-list__value">{{ .Lpa.Donor.FullName }}</dd>
+              <dd class="govuk-summary-list__value">{{ .Donor.Donor.FullName }}</dd>
             </div>
             <div class="govuk-summary-list__row">
               <dt class="govuk-summary-list__key">{{ tr .App "lpaType" }}</dt>
-              <dd class="govuk-summary-list__value">{{ if .Lpa.Type.IsPropertyFinance }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}</dd>
+              <dd class="govuk-summary-list__value">{{ if .Donor.Type.IsPropertyFinance }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}</dd>
             </div>
             <div class="govuk-summary-list__row">
               <dt class="govuk-summary-list__key">{{ tr .App "lastUpdated" }}</dt>
-              <dd class="govuk-summary-list__value">{{ formatDateTime .App .Lpa.UpdatedAt }}</dd>
+              <dd class="govuk-summary-list__value">{{ formatDateTime .App .Donor.UpdatedAt }}</dd>
             </div>
           </dl>
         </div>

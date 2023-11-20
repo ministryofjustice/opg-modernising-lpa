@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -16,8 +17,8 @@ type enterReplacementTrustCorporationData struct {
 }
 
 func EnterReplacementTrustCorporation(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
-		trustCorporation := lpa.ReplacementAttorneys.TrustCorporation
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+		trustCorporation := donor.ReplacementAttorneys.TrustCorporation
 
 		data := &enterReplacementTrustCorporationData{
 			App: appData,
@@ -26,7 +27,7 @@ func EnterReplacementTrustCorporation(tmpl template.Template, donorStore DonorSt
 				CompanyNumber: trustCorporation.CompanyNumber,
 				Email:         trustCorporation.Email,
 			},
-			LpaID: lpa.ID,
+			LpaID: donor.LpaID,
 		}
 
 		if r.Method == http.MethodPost {
@@ -37,15 +38,15 @@ func EnterReplacementTrustCorporation(tmpl template.Template, donorStore DonorSt
 				trustCorporation.Name = data.Form.Name
 				trustCorporation.CompanyNumber = data.Form.CompanyNumber
 				trustCorporation.Email = data.Form.Email
-				lpa.ReplacementAttorneys.TrustCorporation = trustCorporation
+				donor.ReplacementAttorneys.TrustCorporation = trustCorporation
 
-				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
+				donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
 
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				return appData.Paths.EnterReplacementTrustCorporationAddress.Redirect(w, r, appData, lpa)
+				return appData.Paths.EnterReplacementTrustCorporationAddress.Redirect(w, r, appData, donor)
 			}
 		}
 

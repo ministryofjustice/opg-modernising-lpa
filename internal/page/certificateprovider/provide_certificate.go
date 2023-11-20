@@ -16,13 +16,13 @@ type provideCertificateData struct {
 	App                 page.AppData
 	Errors              validation.List
 	CertificateProvider *actor.CertificateProviderProvidedDetails
-	Lpa                 *page.Lpa
+	Donor               *actor.DonorProvidedDetails
 	Form                *provideCertificateForm
 }
 
 func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func() time.Time, certificateProviderStore CertificateProviderStore, notifyClient NotifyClient) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.GetAny(r.Context())
+		donor, err := donorStore.GetAny(r.Context())
 		if err != nil {
 			return err
 		}
@@ -32,14 +32,14 @@ func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func(
 			return err
 		}
 
-		if lpa.SignedAt.IsZero() {
-			return page.Paths.CertificateProvider.TaskList.Redirect(w, r, appData, lpa.ID)
+		if donor.SignedAt.IsZero() {
+			return page.Paths.CertificateProvider.TaskList.Redirect(w, r, appData, donor.LpaID)
 		}
 
 		data := &provideCertificateData{
 			App:                 appData,
 			CertificateProvider: certificateProvider,
-			Lpa:                 lpa,
+			Donor:               donor,
 			Form: &provideCertificateForm{
 				AgreeToStatement: certificateProvider.Certificate.AgreeToStatement,
 			},
@@ -58,12 +58,12 @@ func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func(
 				}
 
 				if _, err := notifyClient.Email(r.Context(), notify.Email{
-					EmailAddress: lpa.CertificateProvider.Email,
+					EmailAddress: donor.CertificateProvider.Email,
 					TemplateID:   notifyClient.TemplateID(notify.CertificateProviderCertificateProvidedEmail),
 					Personalisation: map[string]string{
-						"donorFullNamePossessive":     appData.Localizer.Possessive(lpa.Donor.FullName()),
-						"lpaLegalTerm":                appData.Localizer.T(lpa.Type.LegalTermTransKey()),
-						"certificateProviderFullName": lpa.CertificateProvider.FullName(),
+						"donorFullNamePossessive":     appData.Localizer.Possessive(donor.Donor.FullName()),
+						"lpaLegalTerm":                appData.Localizer.T(donor.Type.LegalTermTransKey()),
+						"certificateProviderFullName": donor.CertificateProvider.FullName(),
 						"certificateProvidedDateTime": appData.Localizer.FormatDateTime(certificateProvider.Certificate.Agreed),
 					},
 				}); err != nil {

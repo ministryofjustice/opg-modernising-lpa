@@ -27,7 +27,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{
+		On("Put", r.Context(), &actor.DonorProvidedDetails{
 			Donor:                 actor.Donor{FirstNames: "John", LastName: "Doe"},
 			DonorIdentityUserData: userData,
 		}).
@@ -63,7 +63,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := IdentityWithOneLoginCallback(template.Execute, oneLoginClient, sessionStore, donorStore)(testAppData, w, r, &page.Lpa{
+	err := IdentityWithOneLoginCallback(template.Execute, oneLoginClient, sessionStore, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "John", LastName: "Doe"},
 	})
 	resp := w.Result()
@@ -198,7 +198,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			oneLoginClient := tc.oneLoginClient(t)
 			template := tc.template(t, w)
 
-			err := IdentityWithOneLoginCallback(template.Execute, oneLoginClient, sessionStore, nil)(testAppData, w, r, &page.Lpa{})
+			err := IdentityWithOneLoginCallback(template.Execute, oneLoginClient, sessionStore, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 			resp := w.Result()
 
 			assert.Equal(t, tc.error, err)
@@ -237,7 +237,7 @@ func TestGetIdentityWithOneLoginCallbackWhenPutDonorStoreError(t *testing.T) {
 		On("ParseIdentityClaim", mock.Anything, mock.Anything).
 		Return(identity.UserData{OK: true}, nil)
 
-	err := IdentityWithOneLoginCallback(nil, oneLoginClient, sessionStore, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := IdentityWithOneLoginCallback(nil, oneLoginClient, sessionStore, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -258,7 +258,7 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := IdentityWithOneLoginCallback(template.Execute, nil, nil, nil)(testAppData, w, r, &page.Lpa{
+	err := IdentityWithOneLoginCallback(template.Execute, nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor:                 actor.Donor{FirstNames: "first-name", LastName: "last-name"},
 		DonorIdentityUserData: userData,
 	})
@@ -272,8 +272,8 @@ func TestPostIdentityWithOneLoginCallback(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	err := IdentityWithOneLoginCallback(nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{
-		ID:                    "lpa-id",
+	err := IdentityWithOneLoginCallback(nil, nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+		LpaID:                 "lpa-id",
 		DonorIdentityUserData: identity.UserData{OK: true},
 	})
 	resp := w.Result()
@@ -287,8 +287,8 @@ func TestPostIdentityWithOneLoginCallbackNotConfirmed(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	err := IdentityWithOneLoginCallback(nil, nil, nil, nil)(testAppData, w, r, &page.Lpa{
-		ID: "lpa-id",
+	err := IdentityWithOneLoginCallback(nil, nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+		LpaID: "lpa-id",
 		Donor: actor.Donor{
 			CanSign: form.Yes,
 		},

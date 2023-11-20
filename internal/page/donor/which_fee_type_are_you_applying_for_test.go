@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	pay "github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -27,7 +28,7 @@ func TestGetWhichFeeTypeAreYouApplyingFor(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WhichFeeTypeAreYouApplyingFor(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := WhichFeeTypeAreYouApplyingFor(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -47,7 +48,7 @@ func TestGetWhichFeeTypeAreYouApplyingForWithLpaData(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WhichFeeTypeAreYouApplyingFor(template.Execute, nil)(testAppData, w, r, &page.Lpa{FeeType: pay.HalfFee})
+	err := WhichFeeTypeAreYouApplyingFor(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{FeeType: pay.HalfFee})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -67,7 +68,7 @@ func TestGetWhichFeeTypeAreYouApplyingForOnTemplateError(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := WhichFeeTypeAreYouApplyingFor(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := WhichFeeTypeAreYouApplyingFor(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -94,10 +95,10 @@ func TestPostWhichFeeTypeAreYouApplyingFor(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), &page.Lpa{ID: "lpa-id", FeeType: feeType}).
+				On("Put", r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", FeeType: feeType}).
 				Return(nil)
 
-			err := WhichFeeTypeAreYouApplyingFor(nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+			err := WhichFeeTypeAreYouApplyingFor(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -118,10 +119,10 @@ func TestPostWhichFeeTypeAreYouApplyingForOnStoreError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{ID: "lpa-id", FeeType: pay.HalfFee}).
+		On("Put", r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", FeeType: pay.HalfFee}).
 		Return(expectedError)
 
-	err := WhichFeeTypeAreYouApplyingFor(nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+	err := WhichFeeTypeAreYouApplyingFor(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -146,7 +147,7 @@ func TestPostWhichFeeTypeAreYouApplyingForOnInvalidForm(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := WhichFeeTypeAreYouApplyingFor(template.Execute, nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+	err := WhichFeeTypeAreYouApplyingFor(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)

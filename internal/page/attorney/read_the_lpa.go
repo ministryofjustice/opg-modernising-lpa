@@ -12,7 +12,7 @@ import (
 type readTheLpaData struct {
 	App    page.AppData
 	Errors validation.List
-	Lpa    *page.Lpa
+	Donor  *actor.DonorProvidedDetails
 }
 
 func ReadTheLpa(tmpl template.Template, donorStore DonorStore, attorneyStore AttorneyStore) Handler {
@@ -27,14 +27,14 @@ func ReadTheLpa(tmpl template.Template, donorStore DonorStore, attorneyStore Att
 			return page.Paths.Attorney.RightsAndResponsibilities.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 		}
 
-		lpa, err := donorStore.GetAny(r.Context())
+		donor, err := donorStore.GetAny(r.Context())
 		if err != nil {
 			return err
 		}
 
 		data := &readTheLpaData{
-			App: appData,
-			Lpa: lpa,
+			App:   appData,
+			Donor: donor,
 		}
 
 		return tmpl(w, data)

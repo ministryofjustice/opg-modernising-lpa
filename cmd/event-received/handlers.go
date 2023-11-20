@@ -62,7 +62,7 @@ func handleFeeApproved(ctx context.Context, dynamoClient dynamodbClient, event e
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
 	}
 
-	lpa, err := getLpaByUID(ctx, dynamoClient, v.UID)
+	lpa, err := getDonorByLpaUID(ctx, dynamoClient, v.UID)
 	if err != nil {
 		return err
 	}
@@ -87,15 +87,15 @@ func handleMoreEvidenceRequired(ctx context.Context, client dynamodbClient, even
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
 	}
 
-	lpa, err := getLpaByUID(ctx, client, v.UID)
+	donor, err := getDonorByLpaUID(ctx, client, v.UID)
 	if err != nil {
 		return err
 	}
 
-	lpa.Tasks.PayForLpa = actor.PaymentTaskMoreEvidenceRequired
-	lpa.UpdatedAt = now()
+	donor.Tasks.PayForLpa = actor.PaymentTaskMoreEvidenceRequired
+	donor.UpdatedAt = now()
 
-	if err := client.Put(ctx, lpa); err != nil {
+	if err := client.Put(ctx, donor); err != nil {
 		return fmt.Errorf("failed to update LPA task status: %w", err)
 	}
 
@@ -108,15 +108,15 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.Cl
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
 	}
 
-	lpa, err := getLpaByUID(ctx, client, v.UID)
+	donor, err := getDonorByLpaUID(ctx, client, v.UID)
 	if err != nil {
 		return err
 	}
 
-	lpa.Tasks.PayForLpa = actor.PaymentTaskDenied
-	lpa.UpdatedAt = now()
+	donor.Tasks.PayForLpa = actor.PaymentTaskDenied
+	donor.UpdatedAt = now()
 
-	if err := client.Put(ctx, lpa); err != nil {
+	if err := client.Put(ctx, donor); err != nil {
 		return fmt.Errorf("failed to update LPA task status: %w", err)
 	}
 
@@ -151,12 +151,12 @@ func handleObjectTagsAdded(ctx context.Context, dynamodbClient dynamodbClient, e
 
 	parts := strings.Split(objectKey, "/")
 
-	lpa, err := getLpaByUID(ctx, dynamodbClient, parts[0])
+	donor, err := getDonorByLpaUID(ctx, dynamodbClient, parts[0])
 	if err != nil {
 		return err
 	}
 
-	err = documentStore.UpdateScanResults(ctx, lpa.ID, objectKey, hasVirus)
+	err = documentStore.UpdateScanResults(ctx, donor.LpaID, objectKey, hasVirus)
 	if err != nil {
 		return fmt.Errorf("failed to update scan results: %w", err)
 	}
@@ -164,20 +164,20 @@ func handleObjectTagsAdded(ctx context.Context, dynamodbClient dynamodbClient, e
 	return nil
 }
 
-func getLpaByUID(ctx context.Context, client dynamodbClient, uid string) (page.Lpa, error) {
+func getDonorByLpaUID(ctx context.Context, client dynamodbClient, uid string) (actor.DonorProvidedDetails, error) {
 	var key dynamo.Key
 	if err := client.OneByUID(ctx, uid, &key); err != nil {
-		return page.Lpa{}, fmt.Errorf("failed to resolve uid: %w", err)
+		return actor.DonorProvidedDetails{}, fmt.Errorf("failed to resolve uid: %w", err)
 	}
 
 	if key.PK == "" {
-		return page.Lpa{}, fmt.Errorf("PK missing from LPA in response")
+		return actor.DonorProvidedDetails{}, fmt.Errorf("PK missing from LPA in response")
 	}
 
-	var lpa page.Lpa
-	if err := client.One(ctx, key.PK, key.SK, &lpa); err != nil {
-		return page.Lpa{}, fmt.Errorf("failed to get LPA: %w", err)
+	var donor actor.DonorProvidedDetails
+	if err := client.One(ctx, key.PK, key.SK, &donor); err != nil {
+		return actor.DonorProvidedDetails{}, fmt.Errorf("failed to get LPA: %w", err)
 	}
 
-	return lpa, nil
+	return donor, nil
 }

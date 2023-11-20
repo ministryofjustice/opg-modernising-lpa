@@ -11,7 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/smithy-go"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -98,18 +98,18 @@ func TestOneByUID(t *testing.T) {
 		}).
 		Return(&dynamodb.QueryOutput{
 			Items: []map[string]types.AttributeValue{{
-				"PK":  &types.AttributeValueMemberS{Value: "LPA#123"},
-				"UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
+				"PK":     &types.AttributeValueMemberS{Value: "LPA#123"},
+				"LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
 			}},
 		}, nil)
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v page.Lpa
+	var v actor.DonorProvidedDetails
 	err := c.OneByUID(ctx, "M-1111-2222-3333", &v)
 
 	assert.Nil(t, err)
-	assert.Equal(t, page.Lpa{PK: "LPA#123", UID: "M-1111-2222-3333"}, v)
+	assert.Equal(t, actor.DonorProvidedDetails{PK: "LPA#123", LpaUID: "M-1111-2222-3333"}, v)
 }
 
 func TestOneByUIDWhenQueryError(t *testing.T) {

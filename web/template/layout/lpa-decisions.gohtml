@@ -1,5 +1,5 @@
 {{ define "lpa-decisions" }}
-  {{ $canChange := and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
+  {{ $canChange := and (not $.Donor.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
 
   <dl class="govuk-summary-list">
     <div class="govuk-summary-list__row">
@@ -7,9 +7,9 @@
         {{ tr .App "typeOfLpa" }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ if .Lpa.Type.IsPropertyFinance }}
+        {{ if .Donor.Type.IsPropertyFinance }}
           {{ tr .App "lpaTypePfa" }}
-        {{ else if .Lpa.Type.IsHealthWelfare }}
+        {{ else if .Donor.Type.IsHealthWelfare }}
           {{ tr .App "lpaTypeHw" }}
         {{ end }}
       </dd>
@@ -31,13 +31,9 @@
         {{ end }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ if .Lpa.Type.IsPropertyFinance }}
-          {{ tr .App .Lpa.WhenCanTheLpaBeUsed.String }}
-        {{ else if .Lpa.Type.IsHealthWelfare }}
-          {{ tr .App "when-capacity-lost" }}
-        {{ end }}
+        {{ tr .App .Donor.WhenCanTheLpaBeUsed.String }}
       </dd>
-      {{ if and $canChange .Lpa.Type.IsPropertyFinance }}
+      {{ if and $canChange .Donor.Type.IsPropertyFinance }}
         <dd class="govuk-summary-list__actions">
           <a class="govuk-link" href="{{ link .App (.App.Paths.WhenCanTheLpaBeUsed.Format .App.LpaID) }}">
             {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "whenYourAttorneysCanUseYourLpa" }}</span>
@@ -49,15 +45,15 @@
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">
         {{ if .App.IsDonor }}
-          {{ trCount .App "whoAreYourAttorneys" .Lpa.Attorneys.Len }}
+          {{ trCount .App "whoAreYourAttorneys" .Donor.Attorneys.Len }}
         {{ else if .App.IsCertificateProvider }}
-          {{ trCount .App "theirAttorneys" .Lpa.Attorneys.Len }}
+          {{ trCount .App "theirAttorneys" .Donor.Attorneys.Len }}
         {{ else }}
-          {{ trCount .App "attorneyNames" .Lpa.Attorneys.Len }}
+          {{ trCount .App "attorneyNames" .Donor.Attorneys.Len }}
         {{ end }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ concatAnd .App .Lpa.Attorneys.FullNames }}
+        {{ concatAnd .App .Donor.Attorneys.FullNames }}
       </dd>
       {{ if $canChange }}
         <dd class="govuk-summary-list__actions">
@@ -68,7 +64,7 @@
       {{ end }}
     </div>
 
-    {{ if gt .Lpa.Attorneys.Len 1 }}
+    {{ if gt .Donor.Attorneys.Len 1 }}
       {{ $title := "howAttorneysMustMakeDecisions" }}
       {{ if .App.IsDonor }}
         {{ $title = "howYourAttorneysMustMakeDecisions" }}
@@ -80,11 +76,11 @@
         </dt>
         <dd class="govuk-summary-list__value">
           {{ if .App.IsDonor }}
-            {{ trHtml .App .Lpa.AttorneyDecisions.How.String }}
+            {{ trHtml .App .Donor.AttorneyDecisions.How.String }}
           {{ else }}
-            {{ if .Lpa.AttorneyDecisions.How.IsJointly }}
+            {{ if .Donor.AttorneyDecisions.How.IsJointly }}
               {{ trHtml .App "jointlyExplanation" }}
-            {{ else if .Lpa.AttorneyDecisions.How.IsJointlyAndSeverally }}
+            {{ else if .Donor.AttorneyDecisions.How.IsJointlyAndSeverally }}
               {{ trHtml .App "jointlyAndSeverallyExplanation" }}
             {{ else }}
               {{ trHtml .App "jointlyForSomeSeverallyForOthersExplanation" }}
@@ -104,18 +100,18 @@
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">
         {{ if .App.IsDonor }}
-          {{ trCount .App "whoAreYourReplacementAttorneys" .Lpa.ReplacementAttorneys.Len }}
+          {{ trCount .App "whoAreYourReplacementAttorneys" .Donor.ReplacementAttorneys.Len }}
         {{ else if .App.IsCertificateProvider }}
-          {{ trCount .App "theirReplacementAttorneys" .Lpa.ReplacementAttorneys.Len }}
+          {{ trCount .App "theirReplacementAttorneys" .Donor.ReplacementAttorneys.Len }}
         {{ else }}
-          {{ trCount .App "replacementAttorneyNames" .Lpa.ReplacementAttorneys.Len }}
+          {{ trCount .App "replacementAttorneyNames" .Donor.ReplacementAttorneys.Len }}
         {{ end }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ if eq .Lpa.ReplacementAttorneys.Len 0 }}
+        {{ if eq .Donor.ReplacementAttorneys.Len 0 }}
           {{ tr .App "replacementAttorneysNotAppointed" }}
         {{ else }}
-          {{ concatAnd .App .Lpa.ReplacementAttorneys.FullNames }}
+          {{ concatAnd .App .Donor.ReplacementAttorneys.FullNames }}
         {{ end }}
       </dd>
       {{ if $canChange }}
@@ -127,7 +123,7 @@
       {{ end }}
     </div>
 
-    {{ if .Lpa.ReplacementAttorneyDecisions.How }}
+    {{ if .Donor.ReplacementAttorneyDecisions.How }}
       {{ $title := "howReplacementAttorneysMustMakeDecisions" }}
       {{ if .App.IsDonor }}
         {{ $title = "howYourReplacementAttorneysMustMakeDecisions" }}
@@ -138,19 +134,19 @@
         </dt>
         <dd class="govuk-summary-list__value">
           {{ if .App.IsDonor }}
-            {{ if .Lpa.ReplacementAttorneyDecisions.How.IsJointly }}
+            {{ if .Donor.ReplacementAttorneyDecisions.How.IsJointly }}
               {{ trHtml .App "replacement-jointly" }}
-            {{ else if .Lpa.ReplacementAttorneyDecisions.How.IsJointlyAndSeverally }}
+            {{ else if .Donor.ReplacementAttorneyDecisions.How.IsJointlyAndSeverally }}
               {{ trHtml .App "replacement-jointly-and-severally" }}
-            {{ else if .Lpa.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
+            {{ else if .Donor.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
               {{ trHtml .App "replacement-mixed" }}
             {{ end }}
           {{ else }}
-            {{ if .Lpa.ReplacementAttorneyDecisions.How.IsJointly }}
+            {{ if .Donor.ReplacementAttorneyDecisions.How.IsJointly }}
               {{ trHtml .App "replacementJointlyExplanation" }}
-            {{ else if .Lpa.ReplacementAttorneyDecisions.How.IsJointlyAndSeverally }}
+            {{ else if .Donor.ReplacementAttorneyDecisions.How.IsJointlyAndSeverally }}
               {{ trHtml .App "replacementJointlyAndSeverallyExplanation" }}
-            {{ else if .Lpa.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
+            {{ else if .Donor.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
               {{ trHtml .App "replacementJointlyForSomeSeverallyForOthersExplanation" }}
             {{ end }}
           {{ end }}
@@ -165,7 +161,7 @@
       </div>
     {{ end }}
 
-    {{ if .Lpa.HowShouldReplacementAttorneysStepIn }}
+    {{ if .Donor.HowShouldReplacementAttorneysStepIn }}
       {{ $title := "howReplacementAttorneysShouldStepIn" }}
       {{ if .App.IsDonor }}
         {{ $title = "howYourReplacementAttorneysShouldStepIn" }}
@@ -175,9 +171,9 @@
           {{ tr .App $title }}
         </dt>
         <dd class="govuk-summary-list__value">
-          {{ if .Lpa.HowShouldReplacementAttorneysStepIn.IsWhenOneCanNoLongerAct }}
+          {{ if .Donor.HowShouldReplacementAttorneysStepIn.IsWhenOneCanNoLongerAct }}
             {{ trHtml .App "whenOneCanNoLongerAct" }}
-          {{ else if .Lpa.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct }}
+          {{ else if .Donor.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct }}
             {{ trHtml .App "whenNoneCanNoLongerAct" }}
           {{ else }}
             {{ trHtml .App "otherWay" }}
@@ -193,13 +189,13 @@
       </div>
     {{ end }}
 
-    {{ if .Lpa.Type.IsHealthWelfare }}
+    {{ if .Donor.Type.IsHealthWelfare }}
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">
           {{ tr .App "lifeSustainingTreatment" }}
         </dt>
         <dd class="govuk-summary-list__value">
-          {{ if .Lpa.LifeSustainingTreatmentOption.IsOptionA }}
+          {{ if .Donor.LifeSustainingTreatmentOption.IsOptionA }}
             <p class="govuk-body">{{ trHtml .App "optionA" }}</p>
           {{ else }}
             <p class="govuk-body">{{ trHtml .App "optionB" }}</p>
@@ -220,7 +216,7 @@
         {{ tr .App "restrictions" }}
       </dt>
       <dd class="govuk-summary-list__value">
-        <p class="govuk-body">{{ .Lpa.Restrictions }}</p>
+        <p class="govuk-body">{{ .Donor.Restrictions }}</p>
       </dd>
       {{ if $canChange }}
         <dd class="govuk-summary-list__actions">

@@ -17,19 +17,19 @@ type yourIndependentWitnessMobileData struct {
 }
 
 func YourIndependentWitnessMobile(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &yourIndependentWitnessMobileData{
 			App:                 appData,
-			AuthorisedSignatory: lpa.AuthorisedSignatory,
+			AuthorisedSignatory: donor.AuthorisedSignatory,
 			Form: &yourIndependentWitnessMobileForm{
-				HasNonUKMobile: lpa.IndependentWitness.HasNonUKMobile,
+				HasNonUKMobile: donor.IndependentWitness.HasNonUKMobile,
 			},
 		}
 
-		if lpa.IndependentWitness.HasNonUKMobile {
-			data.Form.NonUKMobile = lpa.IndependentWitness.Mobile
+		if donor.IndependentWitness.HasNonUKMobile {
+			data.Form.NonUKMobile = donor.IndependentWitness.Mobile
 		} else {
-			data.Form.Mobile = lpa.IndependentWitness.Mobile
+			data.Form.Mobile = donor.IndependentWitness.Mobile
 		}
 
 		if r.Method == http.MethodPost {
@@ -37,18 +37,18 @@ func YourIndependentWitnessMobile(tmpl template.Template, donorStore DonorStore)
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.IndependentWitness.HasNonUKMobile = data.Form.HasNonUKMobile
+				donor.IndependentWitness.HasNonUKMobile = data.Form.HasNonUKMobile
 				if data.Form.HasNonUKMobile {
-					lpa.IndependentWitness.Mobile = data.Form.NonUKMobile
+					donor.IndependentWitness.Mobile = data.Form.NonUKMobile
 				} else {
-					lpa.IndependentWitness.Mobile = data.Form.Mobile
+					donor.IndependentWitness.Mobile = data.Form.Mobile
 				}
 
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				return page.Paths.YourIndependentWitnessAddress.Redirect(w, r, appData, lpa)
+				return page.Paths.YourIndependentWitnessAddress.Redirect(w, r, appData, donor)
 			}
 		}
 

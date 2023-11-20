@@ -14,15 +14,15 @@ type confirmYourCertificateProviderIsNotRelatedData struct {
 	App    page.AppData
 	Errors validation.List
 	Yes    form.YesNo
-	Lpa    *page.Lpa
+	Donor  *actor.DonorProvidedDetails
 }
 
 func ConfirmYourCertificateProviderIsNotRelated(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &confirmYourCertificateProviderIsNotRelatedData{
-			App: appData,
-			Yes: form.Yes,
-			Lpa: lpa,
+			App:   appData,
+			Yes:   form.Yes,
+			Donor: donor,
 		}
 
 		if r.Method == http.MethodPost {
@@ -30,13 +30,13 @@ func ConfirmYourCertificateProviderIsNotRelated(tmpl template.Template, donorSto
 			data.Errors = form.Validate()
 
 			if data.Errors.None() && form.YesNo.IsYes() {
-				lpa.Tasks.CheckYourLpa = actor.TaskInProgress
+				donor.Tasks.CheckYourLpa = actor.TaskInProgress
 
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				return page.Paths.CheckYourLpa.Redirect(w, r, appData, lpa)
+				return page.Paths.CheckYourLpa.Redirect(w, r, appData, donor)
 			}
 		}
 

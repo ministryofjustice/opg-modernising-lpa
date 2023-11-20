@@ -23,7 +23,7 @@ type paymentConfirmationData struct {
 }
 
 func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore sessions.Store) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		paymentSession, err := sesh.Payment(sessionStore, r)
 		if err != nil {
 			return err
@@ -37,7 +37,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 			return err
 		}
 
-		lpa.PaymentDetails = append(lpa.PaymentDetails, actor.Payment{
+		donor.PaymentDetails = append(donor.PaymentDetails, actor.Payment{
 			PaymentReference: payment.Reference,
 			PaymentId:        payment.PaymentId,
 			Amount:           payment.Amount,
@@ -46,22 +46,22 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 		data := &paymentConfirmationData{
 			App:              appData,
 			PaymentReference: payment.Reference,
-			FeeType:          lpa.FeeType,
-			PreviousFee:      lpa.PreviousFee,
-			EvidenceDelivery: lpa.EvidenceDelivery,
+			FeeType:          donor.FeeType,
+			PreviousFee:      donor.PreviousFee,
+			EvidenceDelivery: donor.EvidenceDelivery,
 		}
 
 		if err := sesh.ClearPayment(sessionStore, r, w); err != nil {
 			logger.Print(fmt.Sprintf("unable to expire cookie in session: %s", err.Error()))
 		}
 
-		if lpa.FeeType.IsFullFee() {
-			lpa.Tasks.PayForLpa = actor.PaymentTaskCompleted
+		if donor.FeeType.IsFullFee() {
+			donor.Tasks.PayForLpa = actor.PaymentTaskCompleted
 		} else {
-			lpa.Tasks.PayForLpa = actor.PaymentTaskPending
+			donor.Tasks.PayForLpa = actor.PaymentTaskPending
 		}
 
-		if err := donorStore.Put(r.Context(), lpa); err != nil {
+		if err := donorStore.Put(r.Context(), donor); err != nil {
 			logger.Print(fmt.Sprintf("unable to update lpa in donorStore: %s", err.Error()))
 			return err
 		}

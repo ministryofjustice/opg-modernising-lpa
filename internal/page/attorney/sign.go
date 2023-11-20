@@ -13,8 +13,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-func canSign(ctx context.Context, certificateProviderStore CertificateProviderStore, lpa *page.Lpa) (bool, error) {
-	ctx = page.ContextWithSessionData(ctx, &page.SessionData{LpaID: lpa.ID})
+func canSign(ctx context.Context, certificateProviderStore CertificateProviderStore, donor *actor.DonorProvidedDetails) (bool, error) {
+	ctx = page.ContextWithSessionData(ctx, &page.SessionData{LpaID: donor.LpaID})
 
 	certificateProvider, err := certificateProviderStore.GetAny(ctx)
 	if err != nil {
@@ -25,7 +25,7 @@ func canSign(ctx context.Context, certificateProviderStore CertificateProviderSt
 		}
 	}
 
-	return !lpa.SignedAt.IsZero() && certificateProvider.Signed(lpa.SignedAt), nil
+	return !donor.SignedAt.IsZero() && certificateProvider.Signed(donor.SignedAt), nil
 }
 
 type signData struct {
@@ -58,10 +58,10 @@ func Sign(tmpl template.Template, donorStore DonorStore, certificateProviderStor
 
 		data := &signData{
 			App:                         appData,
-			LpaID:                       lpa.ID,
+			LpaID:                       lpa.LpaID,
 			IsReplacement:               appData.IsReplacementAttorney(),
 			IsSecondSignatory:           signatoryIndex == 1,
-			LpaCanBeUsedWhenHasCapacity: lpa.WhenCanTheLpaBeUsed == actor.CanBeUsedWhenHasCapacity,
+			LpaCanBeUsedWhenHasCapacity: lpa.WhenCanTheLpaBeUsed.IsHasCapacity(),
 			Form: &signForm{
 				Confirm: !attorneyProvidedDetails.Confirmed.IsZero(),
 			},

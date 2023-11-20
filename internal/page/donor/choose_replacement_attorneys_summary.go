@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -14,19 +15,19 @@ type chooseReplacementAttorneysSummaryData struct {
 	App     page.AppData
 	Errors  validation.List
 	Form    *form.YesNoForm
-	Lpa     *page.Lpa
+	Donor   *actor.DonorProvidedDetails
 	Options form.YesNoOptions
 }
 
 func ChooseReplacementAttorneysSummary(tmpl template.Template) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
-		if lpa.ReplacementAttorneys.Len() == 0 {
-			return page.Paths.DoYouWantReplacementAttorneys.Redirect(w, r, appData, lpa)
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+		if donor.ReplacementAttorneys.Len() == 0 {
+			return page.Paths.DoYouWantReplacementAttorneys.Redirect(w, r, appData, donor)
 		}
 
 		data := &chooseReplacementAttorneysSummaryData{
 			App:     appData,
-			Lpa:     lpa,
+			Donor:   donor,
 			Form:    &form.YesNoForm{},
 			Options: form.YesNoValues,
 		}
@@ -37,13 +38,13 @@ func ChooseReplacementAttorneysSummary(tmpl template.Template) Handler {
 
 			if data.Errors.None() {
 				if data.Form.YesNo == form.Yes {
-					return appData.Paths.ChooseReplacementAttorneys.RedirectQuery(w, r, appData, lpa, url.Values{"addAnother": {"1"}})
-				} else if lpa.ReplacementAttorneys.Len() > 1 && (lpa.Attorneys.Len() == 1 || lpa.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers() || lpa.AttorneyDecisions.How.IsJointly()) {
-					return appData.Paths.HowShouldReplacementAttorneysMakeDecisions.Redirect(w, r, appData, lpa)
-				} else if lpa.AttorneyDecisions.How.IsJointlyAndSeverally() {
-					return appData.Paths.HowShouldReplacementAttorneysStepIn.Redirect(w, r, appData, lpa)
+					return appData.Paths.ChooseReplacementAttorneys.RedirectQuery(w, r, appData, donor, url.Values{"addAnother": {"1"}})
+				} else if donor.ReplacementAttorneys.Len() > 1 && (donor.Attorneys.Len() == 1 || donor.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers() || donor.AttorneyDecisions.How.IsJointly()) {
+					return appData.Paths.HowShouldReplacementAttorneysMakeDecisions.Redirect(w, r, appData, donor)
+				} else if donor.AttorneyDecisions.How.IsJointlyAndSeverally() {
+					return appData.Paths.HowShouldReplacementAttorneysStepIn.Redirect(w, r, appData, donor)
 				} else {
-					return page.Paths.TaskList.Redirect(w, r, appData, lpa)
+					return page.Paths.TaskList.Redirect(w, r, appData, donor)
 				}
 			}
 

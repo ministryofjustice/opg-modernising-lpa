@@ -27,7 +27,7 @@ func TestGetYourAuthorisedSignatory(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -48,7 +48,7 @@ func TestGetYourAuthorisedSignatoryFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &page.Lpa{
+	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		AuthorisedSignatory: actor.AuthorisedSignatory{
 			FirstNames: "John",
 		},
@@ -68,7 +68,7 @@ func TestGetYourAuthorisedSignatoryWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -112,16 +112,16 @@ func TestPostYourAuthorisedSignatory(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), &page.Lpa{
-					ID:                  "lpa-id",
+				On("Put", r.Context(), &actor.DonorProvidedDetails{
+					LpaID:               "lpa-id",
 					Donor:               actor.Donor{FirstNames: "John", LastName: "Smith"},
 					AuthorisedSignatory: tc.person,
 					Tasks:               actor.DonorTasks{ChooseYourSignatory: actor.TaskInProgress},
 				}).
 				Return(nil)
 
-			err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &page.Lpa{
-				ID:    "lpa-id",
+			err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+				LpaID: "lpa-id",
 				Donor: actor.Donor{FirstNames: "John", LastName: "Smith"},
 			})
 			resp := w.Result()
@@ -146,8 +146,8 @@ func TestPostYourAuthorisedSignatoryWhenTaskCompleted(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{
-			ID: "lpa-id",
+		On("Put", r.Context(), &actor.DonorProvidedDetails{
+			LpaID: "lpa-id",
 			AuthorisedSignatory: actor.AuthorisedSignatory{
 				FirstNames: "John",
 				LastName:   "Doe",
@@ -156,8 +156,8 @@ func TestPostYourAuthorisedSignatoryWhenTaskCompleted(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &page.Lpa{
-		ID: "lpa-id",
+	err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+		LpaID: "lpa-id",
 		AuthorisedSignatory: actor.AuthorisedSignatory{
 			FirstNames: "John",
 		},
@@ -226,7 +226,7 @@ func TestPostYourAuthorisedSignatoryWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &page.Lpa{
+			err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 				Donor: actor.Donor{
 					FirstNames: "John",
 					LastName:   "Doe",
@@ -255,7 +255,7 @@ func TestPostYourAuthorisedSignatoryWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &page.Lpa{
+	err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor: actor.Donor{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
@@ -326,7 +326,7 @@ func TestYourAuthorisedSignatoryFormValidate(t *testing.T) {
 }
 
 func TestSignatoryMatches(t *testing.T) {
-	lpa := &page.Lpa{
+	donor := &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{FirstNames: "c", LastName: "d"},
@@ -345,25 +345,25 @@ func TestSignatoryMatches(t *testing.T) {
 		IndependentWitness:  actor.IndependentWitness{FirstNames: "i", LastName: "w"},
 	}
 
-	assert.Equal(t, actor.TypeNone, signatoryMatches(lpa, "x", "y"))
-	assert.Equal(t, actor.TypeDonor, signatoryMatches(lpa, "a", "b"))
-	assert.Equal(t, actor.TypeAttorney, signatoryMatches(lpa, "C", "D"))
-	assert.Equal(t, actor.TypeAttorney, signatoryMatches(lpa, "e", "f"))
-	assert.Equal(t, actor.TypeReplacementAttorney, signatoryMatches(lpa, "G", "H"))
-	assert.Equal(t, actor.TypeReplacementAttorney, signatoryMatches(lpa, "i", "j"))
-	assert.Equal(t, actor.TypeCertificateProvider, signatoryMatches(lpa, "k", "l"))
-	assert.Equal(t, actor.TypeNone, signatoryMatches(lpa, "m", "n"))
-	assert.Equal(t, actor.TypeNone, signatoryMatches(lpa, "O", "P"))
-	assert.Equal(t, actor.TypeNone, signatoryMatches(lpa, "a", "s"))
-	assert.Equal(t, actor.TypeIndependentWitness, signatoryMatches(lpa, "i", "w"))
+	assert.Equal(t, actor.TypeNone, signatoryMatches(donor, "x", "y"))
+	assert.Equal(t, actor.TypeDonor, signatoryMatches(donor, "a", "b"))
+	assert.Equal(t, actor.TypeAttorney, signatoryMatches(donor, "C", "D"))
+	assert.Equal(t, actor.TypeAttorney, signatoryMatches(donor, "e", "f"))
+	assert.Equal(t, actor.TypeReplacementAttorney, signatoryMatches(donor, "G", "H"))
+	assert.Equal(t, actor.TypeReplacementAttorney, signatoryMatches(donor, "i", "j"))
+	assert.Equal(t, actor.TypeCertificateProvider, signatoryMatches(donor, "k", "l"))
+	assert.Equal(t, actor.TypeNone, signatoryMatches(donor, "m", "n"))
+	assert.Equal(t, actor.TypeNone, signatoryMatches(donor, "O", "P"))
+	assert.Equal(t, actor.TypeNone, signatoryMatches(donor, "a", "s"))
+	assert.Equal(t, actor.TypeIndependentWitness, signatoryMatches(donor, "i", "w"))
 }
 
 func TestSignatoryMatchesEmptyNamesIgnored(t *testing.T) {
-	lpa := &page.Lpa{
+	donor := &actor.DonorProvidedDetails{
 		Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 		PeopleToNotify:       actor.PeopleToNotify{{}},
 	}
 
-	assert.Equal(t, actor.TypeNone, signatoryMatches(lpa, "", ""))
+	assert.Equal(t, actor.TypeNone, signatoryMatches(donor, "", ""))
 }

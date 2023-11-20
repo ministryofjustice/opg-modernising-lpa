@@ -21,12 +21,12 @@ type removeAttorneyData struct {
 }
 
 func RemoveAttorney(logger Logger, tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		id := r.FormValue("id")
-		attorney, found := lpa.Attorneys.Get(id)
+		attorney, found := donor.Attorneys.Get(id)
 
 		if found == false {
-			return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, lpa)
+			return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, donor)
 		}
 
 		data := &removeAttorneyData{
@@ -43,21 +43,21 @@ func RemoveAttorney(logger Logger, tmpl template.Template, donorStore DonorStore
 
 			if data.Errors.None() {
 				if data.Form.YesNo == form.Yes {
-					lpa.Attorneys.Delete(attorney)
-					if lpa.Attorneys.Len() == 1 {
-						lpa.AttorneyDecisions = actor.AttorneyDecisions{}
+					donor.Attorneys.Delete(attorney)
+					if donor.Attorneys.Len() == 1 {
+						donor.AttorneyDecisions = actor.AttorneyDecisions{}
 					}
 
-					lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
-					lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
+					donor.Tasks.ChooseAttorneys = page.ChooseAttorneysState(donor.Attorneys, donor.AttorneyDecisions)
+					donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
 
-					if err := donorStore.Put(r.Context(), lpa); err != nil {
+					if err := donorStore.Put(r.Context(), donor); err != nil {
 						logger.Print(fmt.Sprintf("error removing Attorney from LPA: %s", err.Error()))
 						return err
 					}
 				}
 
-				return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, lpa)
+				return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, donor)
 			}
 		}
 

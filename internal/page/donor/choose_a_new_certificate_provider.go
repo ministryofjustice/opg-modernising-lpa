@@ -10,23 +10,23 @@ import (
 )
 
 type chooseNewCertificateProviderData struct {
-	Lpa    *page.Lpa
+	Donor  *actor.DonorProvidedDetails
 	Errors validation.List
 	App    page.AppData
 }
 
 func ChooseNewCertificateProvider(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
-		data := &chooseNewCertificateProviderData{Lpa: lpa, App: appData}
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+		data := &chooseNewCertificateProviderData{Donor: donor, App: appData}
 
 		if r.Method == http.MethodPost {
-			lpa.CertificateProvider = actor.CertificateProvider{}
+			donor.CertificateProvider = actor.CertificateProvider{}
 
-			if err := donorStore.Put(r.Context(), lpa); err != nil {
+			if err := donorStore.Put(r.Context(), donor); err != nil {
 				return err
 			}
 
-			return page.Paths.ChooseYourCertificateProvider.Redirect(w, r, appData, lpa)
+			return page.Paths.ChooseYourCertificateProvider.Redirect(w, r, appData, donor)
 		}
 
 		return tmpl(w, data)

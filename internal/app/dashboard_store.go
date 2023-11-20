@@ -99,22 +99,22 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		}
 
 		if ks.isLpa() {
-			lpa := &page.Lpa{}
-			if err := attributevalue.UnmarshalMap(item, lpa); err != nil {
+			donorDetails := &actor.DonorProvidedDetails{}
+			if err := attributevalue.UnmarshalMap(item, donorDetails); err != nil {
 				return nil, nil, nil, err
 			}
 
-			if lpa.UID == "" {
+			if donorDetails.LpaUID == "" {
 				continue
 			}
 
-			switch keyMap[lpa.ID] {
+			switch keyMap[donorDetails.LpaID] {
 			case actor.TypeDonor:
-				donor = append(donor, page.LpaAndActorTasks{Lpa: lpa})
+				donor = append(donor, page.LpaAndActorTasks{Donor: donorDetails})
 			case actor.TypeAttorney:
-				attorneyMap[lpa.ID] = page.LpaAndActorTasks{Lpa: lpa}
+				attorneyMap[donorDetails.LpaID] = page.LpaAndActorTasks{Donor: donorDetails}
 			case actor.TypeCertificateProvider:
-				certificateProviderMap[lpa.ID] = page.LpaAndActorTasks{Lpa: lpa}
+				certificateProviderMap[donorDetails.LpaID] = page.LpaAndActorTasks{Donor: donorDetails}
 			}
 		}
 	}
@@ -134,7 +134,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 			lpaID := attorneyProvidedDetails.LpaID
 
 			if entry, ok := attorneyMap[lpaID]; ok {
-				if attorneyProvidedDetails.IsReplacement && !entry.Lpa.SubmittedAt.IsZero() {
+				if attorneyProvidedDetails.IsReplacement && !entry.Donor.SubmittedAt.IsZero() {
 					delete(attorneyMap, lpaID)
 					continue
 				}
@@ -168,7 +168,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 	attorney = maps.Values(attorneyMap)
 
 	byUpdatedAt := func(a, b page.LpaAndActorTasks) int {
-		if a.Lpa.UpdatedAt.After(b.Lpa.UpdatedAt) {
+		if a.Donor.UpdatedAt.After(b.Donor.UpdatedAt) {
 			return -1
 		}
 		return 1

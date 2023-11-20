@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -27,7 +28,7 @@ func TestGetPreviousFee(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := PreviousFee(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
+	err := PreviousFee(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -49,7 +50,7 @@ func TestGetPreviousFeeFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := PreviousFee(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{PreviousFee: pay.PreviousFeeHalf})
+	err := PreviousFee(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{PreviousFee: pay.PreviousFeeHalf})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -65,7 +66,7 @@ func TestGetPreviousFeeWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := PreviousFee(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
+	err := PreviousFee(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -81,22 +82,22 @@ func TestPostPreviousFeeWhenFullFee(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpa := &page.Lpa{
-		ID:          "lpa-id",
+	donor := &actor.DonorProvidedDetails{
+		LpaID:       "lpa-id",
 		PreviousFee: pay.PreviousFeeFull,
 	}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), lpa).
+		On("Put", r.Context(), donor).
 		Return(nil)
 
 	payer := newMockPayer(t)
 	payer.
-		On("Pay", testAppData, w, r, lpa).
+		On("Pay", testAppData, w, r, donor).
 		Return(nil)
 
-	err := PreviousFee(nil, payer, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+	err := PreviousFee(nil, payer, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 	assert.Nil(t, err)
 }
 
@@ -111,13 +112,13 @@ func TestPostPreviousFeeWhenOtherFee(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{
-			ID:          "lpa-id",
+		On("Put", r.Context(), &actor.DonorProvidedDetails{
+			LpaID:       "lpa-id",
 			PreviousFee: pay.PreviousFeeHalf,
 		}).
 		Return(nil)
 
-	err := PreviousFee(nil, nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+	err := PreviousFee(nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -134,8 +135,8 @@ func TestPostPreviousFeeWhenNotChanged(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := PreviousFee(nil, nil, nil)(testAppData, w, r, &page.Lpa{
-		ID:          "lpa-id",
+	err := PreviousFee(nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+		LpaID:       "lpa-id",
 		PreviousFee: pay.PreviousFeeHalf,
 	})
 	resp := w.Result()
@@ -159,7 +160,7 @@ func TestPostPreviousFeeWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := PreviousFee(nil, nil, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := PreviousFee(nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -176,7 +177,7 @@ func TestPostPreviousFeeWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := PreviousFee(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
+	err := PreviousFee(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

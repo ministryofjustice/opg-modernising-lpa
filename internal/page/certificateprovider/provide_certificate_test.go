@@ -21,12 +21,12 @@ func TestGetProvideCertificate(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &page.Lpa{SignedAt: time.Now()}
+	donor := &actor.DonorProvidedDetails{SignedAt: time.Now()}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(lpa, nil)
+		Return(donor, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -38,7 +38,7 @@ func TestGetProvideCertificate(t *testing.T) {
 		On("Execute", w, &provideCertificateData{
 			App:                 testAppData,
 			CertificateProvider: &actor.CertificateProviderProvidedDetails{},
-			Lpa:                 lpa,
+			Donor:               donor,
 			Form:                &provideCertificateForm{},
 		}).
 		Return(nil)
@@ -57,7 +57,7 @@ func TestGetProvideCertificateRedirectsToStartOnLpaNotSubmitted(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{ID: "lpa-id"}, nil)
+		Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -79,7 +79,7 @@ func TestGetProvideCertificateWhenDonorStoreErrors(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{}, expectedError)
+		Return(&actor.DonorProvidedDetails{}, expectedError)
 
 	err := ProvideCertificate(nil, donorStore, nil, nil, nil)(testAppData, w, r)
 	resp := w.Result()
@@ -95,7 +95,7 @@ func TestGetProvideCertificateWhenCertificateProviderStoreErrors(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&actor.DonorProvidedDetails{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -123,7 +123,7 @@ func TestPostProvideCertificate(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{
+		Return(&actor.DonorProvidedDetails{
 			SignedAt: now,
 			CertificateProvider: actor.CertificateProvider{
 				Email:      "cp@example.org",
@@ -203,7 +203,7 @@ func TestPostProvideCertificateOnStoreError(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{SignedAt: now}, nil)
+		Return(&actor.DonorProvidedDetails{SignedAt: now}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -234,7 +234,7 @@ func TestPostProvideCertificateOnNoticyClientError(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{
+		Return(&actor.DonorProvidedDetails{
 			SignedAt: now,
 			CertificateProvider: actor.CertificateProvider{
 				Email:      "cp@example.org",
@@ -295,7 +295,7 @@ func TestPostProvideCertificateWhenValidationErrors(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{SignedAt: now}, nil)
+		Return(&actor.DonorProvidedDetails{SignedAt: now}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.

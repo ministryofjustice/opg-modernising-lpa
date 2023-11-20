@@ -49,8 +49,8 @@ type OneLoginClient interface {
 
 //go:generate mockery --testonly --inpackage --name DonorStore --structname mockDonorStore
 type DonorStore interface {
-	Create(context.Context) (*Lpa, error)
-	Put(context.Context, *Lpa) error
+	Create(context.Context) (*actor.DonorProvidedDetails, error)
+	Put(context.Context, *actor.DonorProvidedDetails) error
 }
 
 //go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore
@@ -81,8 +81,8 @@ type Localizer interface {
 
 //go:generate mockery --testonly --inpackage --name shareCodeSender --structname mockShareCodeSender
 type shareCodeSender interface {
-	SendCertificateProvider(ctx context.Context, template notify.Template, appData AppData, identity bool, lpa *Lpa) error
-	SendAttorneys(ctx context.Context, appData AppData, lpa *Lpa) error
+	SendCertificateProvider(ctx context.Context, template notify.Template, appData AppData, identity bool, donor *actor.DonorProvidedDetails) error
+	SendAttorneys(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails) error
 }
 
 func PostFormString(r *http.Request, name string) string {

@@ -18,13 +18,13 @@ type howWouldCertificateProviderPreferToCarryOutTheirRoleData struct {
 }
 
 func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:                 appData,
-			CertificateProvider: lpa.CertificateProvider,
+			CertificateProvider: donor.CertificateProvider,
 			Form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: lpa.CertificateProvider.CarryOutBy,
-				Email:      lpa.CertificateProvider.Email,
+				CarryOutBy: donor.CertificateProvider.CarryOutBy,
+				Email:      donor.CertificateProvider.Email,
 			},
 			Options: actor.CertificateProviderCarryOutByValues,
 		}
@@ -34,14 +34,14 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.CertificateProvider.CarryOutBy = data.Form.CarryOutBy
-				lpa.CertificateProvider.Email = data.Form.Email
+				donor.CertificateProvider.CarryOutBy = data.Form.CarryOutBy
+				donor.CertificateProvider.Email = data.Form.Email
 
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				return page.Paths.CertificateProviderAddress.Redirect(w, r, appData, lpa)
+				return page.Paths.CertificateProviderAddress.Redirect(w, r, appData, donor)
 			}
 		}
 

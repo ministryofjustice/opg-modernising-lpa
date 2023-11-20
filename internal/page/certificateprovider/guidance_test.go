@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,13 +13,13 @@ func TestGuidance(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &page.Lpa{}
+	donor := &actor.DonorProvidedDetails{}
 	certificateProvider := &actor.CertificateProviderProvidedDetails{}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(lpa, nil)
+		Return(donor, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -29,7 +28,7 @@ func TestGuidance(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &guidanceData{App: testAppData, Lpa: lpa, CertificateProvider: certificateProvider}).
+		On("Execute", w, &guidanceData{App: testAppData, Donor: donor, CertificateProvider: certificateProvider}).
 		Return(nil)
 
 	err := Guidance(template.Execute, donorStore, certificateProviderStore)(testAppData, w, r)
@@ -60,12 +59,10 @@ func TestGuidanceWhenDonorStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &page.Lpa{}
-
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(lpa, expectedError)
+		Return(&actor.DonorProvidedDetails{}, expectedError)
 
 	err := Guidance(nil, donorStore, nil)(testAppData, w, r)
 
@@ -76,12 +73,10 @@ func TestGuidanceWhenCertificateProviderStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &page.Lpa{}
-
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(lpa, nil)
+		Return(&actor.DonorProvidedDetails{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -100,11 +95,11 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&page.Lpa{}, nil)
+		Return(&actor.DonorProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &guidanceData{App: testAppData, Lpa: &page.Lpa{}}).
+		On("Execute", w, &guidanceData{App: testAppData, Donor: &actor.DonorProvidedDetails{}}).
 		Return(expectedError)
 
 	err := Guidance(template.Execute, donorStore, nil)(testAppData, w, r)

@@ -5,7 +5,8 @@ package certificateprovider
 import (
 	context "context"
 
-	page "github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -15,19 +16,19 @@ type mockDonorStore struct {
 }
 
 // GetAny provides a mock function with given fields: _a0
-func (_m *mockDonorStore) GetAny(_a0 context.Context) (*page.Lpa, error) {
+func (_m *mockDonorStore) GetAny(_a0 context.Context) (*actor.DonorProvidedDetails, error) {
 	ret := _m.Called(_a0)
 
-	var r0 *page.Lpa
+	var r0 *actor.DonorProvidedDetails
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*page.Lpa, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*actor.DonorProvidedDetails, error)); ok {
 		return rf(_a0)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *page.Lpa); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *actor.DonorProvidedDetails); ok {
 		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*page.Lpa)
+			r0 = ret.Get(0).(*actor.DonorProvidedDetails)
 		}
 	}
 

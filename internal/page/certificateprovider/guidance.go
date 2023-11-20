@@ -12,7 +12,7 @@ import (
 type guidanceData struct {
 	App                 page.AppData
 	Errors              validation.List
-	Lpa                 *page.Lpa
+	Donor               *actor.DonorProvidedDetails
 	CertificateProvider *actor.CertificateProviderProvidedDetails
 }
 
@@ -23,11 +23,11 @@ func Guidance(tmpl template.Template, donorStore DonorStore, certificateProvider
 		}
 
 		if donorStore != nil {
-			lpa, err := donorStore.GetAny(r.Context())
+			donor, err := donorStore.GetAny(r.Context())
 			if err != nil {
 				return err
 			}
-			data.Lpa = lpa
+			data.Donor = donor
 		}
 
 		if certificateProviderStore != nil {

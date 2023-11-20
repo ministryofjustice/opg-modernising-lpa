@@ -27,7 +27,7 @@ func TestGetYourIndependentWitness(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -48,7 +48,7 @@ func TestGetYourIndependentWitnessFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &page.Lpa{
+	err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		IndependentWitness: actor.IndependentWitness{
 			FirstNames: "John",
 		},
@@ -68,7 +68,7 @@ func TestGetYourIndependentWitnessWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -112,16 +112,16 @@ func TestPostYourIndependentWitness(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), &page.Lpa{
-					ID:                 "lpa-id",
+				On("Put", r.Context(), &actor.DonorProvidedDetails{
+					LpaID:              "lpa-id",
 					Donor:              actor.Donor{FirstNames: "John", LastName: "Smith"},
 					IndependentWitness: tc.person,
 					Tasks:              actor.DonorTasks{ChooseYourSignatory: actor.TaskInProgress},
 				}).
 				Return(nil)
 
-			err := YourIndependentWitness(nil, donorStore)(testAppData, w, r, &page.Lpa{
-				ID:    "lpa-id",
+			err := YourIndependentWitness(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+				LpaID: "lpa-id",
 				Donor: actor.Donor{FirstNames: "John", LastName: "Smith"},
 			})
 			resp := w.Result()
@@ -146,8 +146,8 @@ func TestPostYourIndependentWitnessWhenTaskCompleted(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{
-			ID: "lpa-id",
+		On("Put", r.Context(), &actor.DonorProvidedDetails{
+			LpaID: "lpa-id",
 			IndependentWitness: actor.IndependentWitness{
 				FirstNames: "John",
 				LastName:   "Doe",
@@ -156,8 +156,8 @@ func TestPostYourIndependentWitnessWhenTaskCompleted(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourIndependentWitness(nil, donorStore)(testAppData, w, r, &page.Lpa{
-		ID: "lpa-id",
+	err := YourIndependentWitness(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+		LpaID: "lpa-id",
 		IndependentWitness: actor.IndependentWitness{
 			FirstNames: "John",
 		},
@@ -226,7 +226,7 @@ func TestPostYourIndependentWitnessWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &page.Lpa{
+			err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 				Donor: actor.Donor{
 					FirstNames: "John",
 					LastName:   "Doe",
@@ -255,7 +255,7 @@ func TestPostYourIndependentWitnessWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourIndependentWitness(nil, donorStore)(testAppData, w, r, &page.Lpa{
+	err := YourIndependentWitness(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor: actor.Donor{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
@@ -326,7 +326,7 @@ func TestYourIndependentWitnessFormValidate(t *testing.T) {
 }
 
 func TestIndependentWitnessMatches(t *testing.T) {
-	lpa := &page.Lpa{
+	donor := &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{FirstNames: "c", LastName: "d"},
@@ -345,25 +345,25 @@ func TestIndependentWitnessMatches(t *testing.T) {
 		IndependentWitness:  actor.IndependentWitness{FirstNames: "i", LastName: "w"},
 	}
 
-	assert.Equal(t, actor.TypeNone, independentWitnessMatches(lpa, "x", "y"))
-	assert.Equal(t, actor.TypeDonor, independentWitnessMatches(lpa, "a", "b"))
-	assert.Equal(t, actor.TypeAttorney, independentWitnessMatches(lpa, "C", "D"))
-	assert.Equal(t, actor.TypeAttorney, independentWitnessMatches(lpa, "e", "f"))
-	assert.Equal(t, actor.TypeReplacementAttorney, independentWitnessMatches(lpa, "G", "H"))
-	assert.Equal(t, actor.TypeReplacementAttorney, independentWitnessMatches(lpa, "i", "j"))
-	assert.Equal(t, actor.TypeCertificateProvider, independentWitnessMatches(lpa, "k", "l"))
-	assert.Equal(t, actor.TypeNone, independentWitnessMatches(lpa, "m", "n"))
-	assert.Equal(t, actor.TypeNone, independentWitnessMatches(lpa, "O", "P"))
-	assert.Equal(t, actor.TypeAuthorisedSignatory, independentWitnessMatches(lpa, "a", "s"))
-	assert.Equal(t, actor.TypeNone, independentWitnessMatches(lpa, "i", "w"))
+	assert.Equal(t, actor.TypeNone, independentWitnessMatches(donor, "x", "y"))
+	assert.Equal(t, actor.TypeDonor, independentWitnessMatches(donor, "a", "b"))
+	assert.Equal(t, actor.TypeAttorney, independentWitnessMatches(donor, "C", "D"))
+	assert.Equal(t, actor.TypeAttorney, independentWitnessMatches(donor, "e", "f"))
+	assert.Equal(t, actor.TypeReplacementAttorney, independentWitnessMatches(donor, "G", "H"))
+	assert.Equal(t, actor.TypeReplacementAttorney, independentWitnessMatches(donor, "i", "j"))
+	assert.Equal(t, actor.TypeCertificateProvider, independentWitnessMatches(donor, "k", "l"))
+	assert.Equal(t, actor.TypeNone, independentWitnessMatches(donor, "m", "n"))
+	assert.Equal(t, actor.TypeNone, independentWitnessMatches(donor, "O", "P"))
+	assert.Equal(t, actor.TypeAuthorisedSignatory, independentWitnessMatches(donor, "a", "s"))
+	assert.Equal(t, actor.TypeNone, independentWitnessMatches(donor, "i", "w"))
 }
 
 func TestIndependentWitnessMatchesEmptyNamesIgnored(t *testing.T) {
-	lpa := &page.Lpa{
+	donor := &actor.DonorProvidedDetails{
 		Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 		PeopleToNotify:       actor.PeopleToNotify{{}},
 	}
 
-	assert.Equal(t, actor.TypeNone, independentWitnessMatches(lpa, "", ""))
+	assert.Equal(t, actor.TypeNone, independentWitnessMatches(donor, "", ""))
 }

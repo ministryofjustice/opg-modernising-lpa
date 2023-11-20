@@ -21,7 +21,7 @@ import (
 type DocumentStore interface {
 	GetAll(context.Context) (page.Documents, error)
 	Put(context.Context, page.Document) error
-	Create(ctx context.Context, lpa *page.Lpa, filename string, data []byte) (page.Document, error)
+	Create(ctx context.Context, donor *actor.DonorProvidedDetails, filename string, data []byte) (page.Document, error)
 }
 
 func Donor(
@@ -89,8 +89,9 @@ func Donor(
 			lpa.Type = actor.LpaTypePropertyFinance
 			if lpaType == "hw" {
 				lpa.Type = actor.LpaTypeHealthWelfare
+				lpa.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
 			}
-			lpa.UID = makeUid()
+			lpa.LpaUID = makeUid()
 
 			if donor == "cannot-sign" {
 				lpa.Donor.ThinksCanSign = actor.No
@@ -267,7 +268,7 @@ func Donor(
 		}
 
 		if progress >= slices.Index(progressValues, "signedByCertificateProvider") {
-			ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: lpa.ID})
+			ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: lpa.LpaID})
 
 			certificateProvider, err := certificateProviderStore.Create(ctx, donorSessionID)
 			if err != nil {
@@ -284,7 +285,7 @@ func Donor(
 		if progress >= slices.Index(progressValues, "signedByAttorneys") {
 			for isReplacement, list := range map[bool]actor.Attorneys{false: lpa.Attorneys, true: lpa.ReplacementAttorneys} {
 				for _, a := range list.Attorneys {
-					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: lpa.ID})
+					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: lpa.LpaID})
 
 					attorney, err := attorneyStore.Create(ctx, donorSessionID, a.ID, isReplacement, false)
 					if err != nil {
@@ -304,7 +305,7 @@ func Donor(
 				}
 
 				if list.TrustCorporation.Name != "" {
-					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: lpa.ID})
+					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: lpa.LpaID})
 
 					attorney, err := attorneyStore.Create(ctx, donorSessionID, "", isReplacement, true)
 					if err != nil {
@@ -343,7 +344,7 @@ func Donor(
 			lpa.RegisteredAt = time.Now()
 		}
 
-		donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: lpa.ID})
+		donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: lpa.LpaID})
 
 		if err := donorStore.Put(donorCtx, lpa); err != nil {
 			return err
@@ -352,7 +353,7 @@ func Donor(
 		if redirect == "" {
 			redirect = page.Paths.Dashboard.Format()
 		} else {
-			redirect = "/lpa/" + lpa.ID + redirect
+			redirect = "/lpa/" + lpa.LpaID + redirect
 		}
 
 		random.UseTestCode = true

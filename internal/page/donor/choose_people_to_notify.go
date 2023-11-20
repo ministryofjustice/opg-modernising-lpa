@@ -19,16 +19,16 @@ type choosePeopleToNotifyData struct {
 }
 
 func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, uuidString func() string) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
-		if len(lpa.PeopleToNotify) > 4 {
-			return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, lpa)
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+		if len(donor.PeopleToNotify) > 4 {
+			return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, donor)
 		}
 
 		addAnother := r.FormValue("addAnother") == "1"
-		personToNotify, personFound := lpa.PeopleToNotify.Get(r.URL.Query().Get("id"))
+		personToNotify, personFound := donor.PeopleToNotify.Get(r.URL.Query().Get("id"))
 
-		if r.Method == http.MethodGet && len(lpa.PeopleToNotify) > 0 && personFound == false && addAnother == false {
-			return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, lpa)
+		if r.Method == http.MethodGet && len(donor.PeopleToNotify) > 0 && personFound == false && addAnother == false {
+			return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, donor)
 		}
 
 		data := &choosePeopleToNotifyData{
@@ -46,7 +46,7 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, uuidStr
 
 			nameWarning := actor.NewSameNameWarning(
 				actor.TypePersonToNotify,
-				personToNotifyMatches(lpa, personToNotify.ID, data.Form.FirstNames, data.Form.LastName),
+				personToNotifyMatches(donor, personToNotify.ID, data.Form.FirstNames, data.Form.LastName),
 				data.Form.FirstNames,
 				data.Form.LastName,
 			)
@@ -64,24 +64,24 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, uuidStr
 						ID:         uuidString(),
 					}
 
-					lpa.PeopleToNotify = append(lpa.PeopleToNotify, personToNotify)
+					donor.PeopleToNotify = append(donor.PeopleToNotify, personToNotify)
 				} else {
 					personToNotify.FirstNames = data.Form.FirstNames
 					personToNotify.LastName = data.Form.LastName
 					personToNotify.Email = data.Form.Email
 
-					lpa.PeopleToNotify.Put(personToNotify)
+					donor.PeopleToNotify.Put(personToNotify)
 				}
 
-				if !lpa.Tasks.PeopleToNotify.Completed() {
-					lpa.Tasks.PeopleToNotify = actor.TaskInProgress
+				if !donor.Tasks.PeopleToNotify.Completed() {
+					donor.Tasks.PeopleToNotify = actor.TaskInProgress
 				}
 
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				return appData.Paths.ChoosePeopleToNotifyAddress.RedirectQuery(w, r, appData, lpa, url.Values{"id": {personToNotify.ID}})
+				return appData.Paths.ChoosePeopleToNotifyAddress.RedirectQuery(w, r, appData, donor, url.Values{"id": {personToNotify.ID}})
 			}
 		}
 
@@ -123,28 +123,28 @@ func (f *choosePeopleToNotifyForm) Validate() validation.List {
 	return errors
 }
 
-func personToNotifyMatches(lpa *page.Lpa, id, firstNames, lastName string) actor.Type {
+func personToNotifyMatches(donor *actor.DonorProvidedDetails, id, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}
 
-	if strings.EqualFold(lpa.Donor.FirstNames, firstNames) && strings.EqualFold(lpa.Donor.LastName, lastName) {
+	if strings.EqualFold(donor.Donor.FirstNames, firstNames) && strings.EqualFold(donor.Donor.LastName, lastName) {
 		return actor.TypeDonor
 	}
 
-	for _, attorney := range lpa.Attorneys.Attorneys {
+	for _, attorney := range donor.Attorneys.Attorneys {
 		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeAttorney
 		}
 	}
 
-	for _, attorney := range lpa.ReplacementAttorneys.Attorneys {
+	for _, attorney := range donor.ReplacementAttorneys.Attorneys {
 		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeReplacementAttorney
 		}
 	}
 
-	for _, person := range lpa.PeopleToNotify {
+	for _, person := range donor.PeopleToNotify {
 		if person.ID != id && strings.EqualFold(person.FirstNames, firstNames) && strings.EqualFold(person.LastName, lastName) {
 			return actor.TypePersonToNotify
 		}

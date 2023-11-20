@@ -22,11 +22,11 @@ type lpaTypeData struct {
 }
 
 func LpaType(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &lpaTypeData{
 			App: appData,
 			Form: &lpaTypeForm{
-				LpaType: lpa.Type,
+				LpaType: donor.Type,
 			},
 			Options: lpaTypeOptions{
 				PropertyFinance: actor.LpaTypePropertyFinance,
@@ -39,17 +39,22 @@ func LpaType(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				if lpa.Type != data.Form.LpaType {
-					lpa.Type = data.Form.LpaType
-					lpa.Tasks.YourDetails = actor.TaskCompleted
-					lpa.HasSentApplicationUpdatedEvent = false
+				if donor.Type != data.Form.LpaType {
+					donor.Type = data.Form.LpaType
+					if donor.Type.IsHealthWelfare() {
+						donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
+					} else {
+						donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenUnknown
+					}
+					donor.Tasks.YourDetails = actor.TaskCompleted
+					donor.HasSentApplicationUpdatedEvent = false
 
-					if err := donorStore.Put(r.Context(), lpa); err != nil {
+					if err := donorStore.Put(r.Context(), donor); err != nil {
 						return err
 					}
 				}
 
-				return page.Paths.TaskList.Redirect(w, r, appData, lpa)
+				return page.Paths.TaskList.Redirect(w, r, appData, donor)
 			}
 		}
 

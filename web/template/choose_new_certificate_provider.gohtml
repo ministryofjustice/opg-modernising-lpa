@@ -7,7 +7,7 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ tr .App "youMustChooseANewCertificateProvider" }}</h1>
 
-            {{ trFormatHtml .App "youMustChooseANewCertificateProviderContent" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
+            {{ trFormatHtml .App "youMustChooseANewCertificateProviderContent" "CertificateProviderFullName" .Donor.CertificateProvider.FullName }}
 
             <form novalidate method="post">
                 {{ template "continue-and-return-buttons" . }}

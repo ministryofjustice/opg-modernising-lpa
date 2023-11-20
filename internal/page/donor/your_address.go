@@ -4,13 +4,14 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
 func YourAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := newChooseAddressData(
 			appData,
 			"",
@@ -19,9 +20,9 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 			false,
 		)
 
-		if lpa.Donor.Address.Line1 != "" {
+		if donor.Donor.Address.Line1 != "" {
 			data.Form.Action = "manual"
-			data.Form.Address = &lpa.Donor.Address
+			data.Form.Address = &donor.Donor.Address
 		}
 
 		if r.Method == http.MethodPost {
@@ -31,17 +32,17 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 			switch data.Form.Action {
 			case "manual":
 				if data.Errors.None() {
-					if lpa.Donor.Address.Postcode != data.Form.Address.Postcode {
-						lpa.HasSentApplicationUpdatedEvent = false
+					if donor.Donor.Address.Postcode != data.Form.Address.Postcode {
+						donor.HasSentApplicationUpdatedEvent = false
 					}
 
-					lpa.Donor.Address = *data.Form.Address
+					donor.Donor.Address = *data.Form.Address
 
-					if err := donorStore.Put(r.Context(), lpa); err != nil {
+					if err := donorStore.Put(r.Context(), donor); err != nil {
 						return err
 					}
 
-					return page.Paths.LpaType.Redirect(w, r, appData, lpa)
+					return page.Paths.LpaType.Redirect(w, r, appData, donor)
 				}
 
 			case "postcode-select":

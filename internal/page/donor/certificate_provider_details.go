@@ -18,20 +18,20 @@ type certificateProviderDetailsData struct {
 }
 
 func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &certificateProviderDetailsData{
 			App: appData,
 			Form: &certificateProviderDetailsForm{
-				FirstNames:     lpa.CertificateProvider.FirstNames,
-				LastName:       lpa.CertificateProvider.LastName,
-				HasNonUKMobile: lpa.CertificateProvider.HasNonUKMobile,
+				FirstNames:     donor.CertificateProvider.FirstNames,
+				LastName:       donor.CertificateProvider.LastName,
+				HasNonUKMobile: donor.CertificateProvider.HasNonUKMobile,
 			},
 		}
 
-		if lpa.CertificateProvider.HasNonUKMobile {
-			data.Form.NonUKMobile = lpa.CertificateProvider.Mobile
+		if donor.CertificateProvider.HasNonUKMobile {
+			data.Form.NonUKMobile = donor.CertificateProvider.Mobile
 		} else {
-			data.Form.Mobile = lpa.CertificateProvider.Mobile
+			data.Form.Mobile = donor.CertificateProvider.Mobile
 		}
 
 		if r.Method == http.MethodPost {
@@ -40,7 +40,7 @@ func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore) H
 
 			sameNameWarning := actor.NewSameNameWarning(
 				actor.TypeCertificateProvider,
-				certificateProviderMatches(lpa, data.Form.FirstNames, data.Form.LastName),
+				certificateProviderMatches(donor, data.Form.FirstNames, data.Form.LastName),
 				data.Form.FirstNames,
 				data.Form.LastName,
 			)
@@ -50,24 +50,24 @@ func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore) H
 			}
 
 			if data.Errors.None() && data.NameWarning == nil {
-				lpa.CertificateProvider.FirstNames = data.Form.FirstNames
-				lpa.CertificateProvider.LastName = data.Form.LastName
-				lpa.CertificateProvider.HasNonUKMobile = data.Form.HasNonUKMobile
+				donor.CertificateProvider.FirstNames = data.Form.FirstNames
+				donor.CertificateProvider.LastName = data.Form.LastName
+				donor.CertificateProvider.HasNonUKMobile = data.Form.HasNonUKMobile
 				if data.Form.HasNonUKMobile {
-					lpa.CertificateProvider.Mobile = data.Form.NonUKMobile
+					donor.CertificateProvider.Mobile = data.Form.NonUKMobile
 				} else {
-					lpa.CertificateProvider.Mobile = data.Form.Mobile
+					donor.CertificateProvider.Mobile = data.Form.Mobile
 				}
 
-				if !lpa.Tasks.CertificateProvider.Completed() {
-					lpa.Tasks.CertificateProvider = actor.TaskInProgress
+				if !donor.Tasks.CertificateProvider.Completed() {
+					donor.Tasks.CertificateProvider = actor.TaskInProgress
 				}
 
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				return page.Paths.HowDoYouKnowYourCertificateProvider.Redirect(w, r, appData, lpa)
+				return page.Paths.HowDoYouKnowYourCertificateProvider.Redirect(w, r, appData, donor)
 			}
 		}
 
@@ -119,32 +119,32 @@ func (d *certificateProviderDetailsForm) Validate() validation.List {
 	return errors
 }
 
-func certificateProviderMatches(lpa *page.Lpa, firstNames, lastName string) actor.Type {
+func certificateProviderMatches(donor *actor.DonorProvidedDetails, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}
 
-	if strings.EqualFold(lpa.Donor.FirstNames, firstNames) && strings.EqualFold(lpa.Donor.LastName, lastName) {
+	if strings.EqualFold(donor.Donor.FirstNames, firstNames) && strings.EqualFold(donor.Donor.LastName, lastName) {
 		return actor.TypeDonor
 	}
 
-	for _, attorney := range lpa.Attorneys.Attorneys {
+	for _, attorney := range donor.Attorneys.Attorneys {
 		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeAttorney
 		}
 	}
 
-	for _, attorney := range lpa.ReplacementAttorneys.Attorneys {
+	for _, attorney := range donor.ReplacementAttorneys.Attorneys {
 		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeReplacementAttorney
 		}
 	}
 
-	if strings.EqualFold(lpa.AuthorisedSignatory.FirstNames, firstNames) && strings.EqualFold(lpa.AuthorisedSignatory.LastName, lastName) {
+	if strings.EqualFold(donor.AuthorisedSignatory.FirstNames, firstNames) && strings.EqualFold(donor.AuthorisedSignatory.LastName, lastName) {
 		return actor.TypeAuthorisedSignatory
 	}
 
-	if strings.EqualFold(lpa.IndependentWitness.FirstNames, firstNames) && strings.EqualFold(lpa.IndependentWitness.LastName, lastName) {
+	if strings.EqualFold(donor.IndependentWitness.FirstNames, firstNames) && strings.EqualFold(donor.IndependentWitness.LastName, lastName) {
 		return actor.TypeIndependentWitness
 	}
 

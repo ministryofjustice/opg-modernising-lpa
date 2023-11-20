@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -15,18 +16,18 @@ type choosePeopleToNotifySummaryData struct {
 	Errors  validation.List
 	Form    *form.YesNoForm
 	Options form.YesNoOptions
-	Lpa     *page.Lpa
+	Donor   *actor.DonorProvidedDetails
 }
 
 func ChoosePeopleToNotifySummary(tmpl template.Template) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
-		if len(lpa.PeopleToNotify) == 0 {
-			return page.Paths.DoYouWantToNotifyPeople.Redirect(w, r, appData, lpa)
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+		if len(donor.PeopleToNotify) == 0 {
+			return page.Paths.DoYouWantToNotifyPeople.Redirect(w, r, appData, donor)
 		}
 
 		data := &choosePeopleToNotifySummaryData{
 			App:     appData,
-			Lpa:     lpa,
+			Donor:   donor,
 			Form:    &form.YesNoForm{},
 			Options: form.YesNoValues,
 		}
@@ -37,9 +38,9 @@ func ChoosePeopleToNotifySummary(tmpl template.Template) Handler {
 
 			if data.Errors.None() {
 				if data.Form.YesNo == form.No {
-					return appData.Paths.TaskList.Redirect(w, r, appData, lpa)
+					return appData.Paths.TaskList.Redirect(w, r, appData, donor)
 				} else {
-					return appData.Paths.ChoosePeopleToNotify.RedirectQuery(w, r, appData, lpa, url.Values{"addAnother": {"1"}})
+					return appData.Paths.ChoosePeopleToNotify.RedirectQuery(w, r, appData, donor, url.Values{"addAnother": {"1"}})
 				}
 			}
 		}

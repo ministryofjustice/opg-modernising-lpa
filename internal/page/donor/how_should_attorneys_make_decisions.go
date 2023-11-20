@@ -13,19 +13,19 @@ type howShouldAttorneysMakeDecisionsData struct {
 	App     page.AppData
 	Errors  validation.List
 	Form    *howShouldAttorneysMakeDecisionsForm
-	Lpa     *page.Lpa
+	Donor   *actor.DonorProvidedDetails
 	Options actor.AttorneysActOptions
 }
 
 func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &howShouldAttorneysMakeDecisionsData{
 			App: appData,
 			Form: &howShouldAttorneysMakeDecisionsForm{
-				DecisionsType:    lpa.AttorneyDecisions.How,
-				DecisionsDetails: lpa.AttorneyDecisions.Details,
+				DecisionsType:    donor.AttorneyDecisions.How,
+				DecisionsDetails: donor.AttorneyDecisions.Details,
 			},
-			Lpa:     lpa,
+			Donor:   donor,
 			Options: actor.AttorneysActValues,
 		}
 
@@ -34,18 +34,18 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorSto
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.AttorneyDecisions = actor.MakeAttorneyDecisions(
-					lpa.AttorneyDecisions,
+				donor.AttorneyDecisions = actor.MakeAttorneyDecisions(
+					donor.AttorneyDecisions,
 					data.Form.DecisionsType,
 					data.Form.DecisionsDetails)
-				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
-				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
+				donor.Tasks.ChooseAttorneys = page.ChooseAttorneysState(donor.Attorneys, donor.AttorneyDecisions)
+				donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
 
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				return page.Paths.TaskList.Redirect(w, r, appData, lpa)
+				return page.Paths.TaskList.Redirect(w, r, appData, donor)
 			}
 		}
 

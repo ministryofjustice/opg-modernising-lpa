@@ -19,8 +19,8 @@ import (
 )
 
 type DonorStore interface {
-	Create(context.Context) (*page.Lpa, error)
-	Put(context.Context, *page.Lpa) error
+	Create(context.Context) (*actor.DonorProvidedDetails, error)
+	Put(context.Context, *actor.DonorProvidedDetails) error
 }
 
 type CertificateProviderStore interface {
@@ -87,9 +87,9 @@ func Attorney(
 		}
 
 		var (
-			donorCtx               = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: lpa.ID})
-			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: certificateProviderSessionID, LpaID: lpa.ID})
-			attorneyCtx            = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: attorneySessionID, LpaID: lpa.ID})
+			donorCtx               = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: lpa.LpaID})
+			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: certificateProviderSessionID, LpaID: lpa.LpaID})
+			attorneyCtx            = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: attorneySessionID, LpaID: lpa.LpaID})
 		)
 
 		lpa.Donor = actor.Donor{
@@ -108,10 +108,14 @@ func Attorney(
 			CanSign:       form.Yes,
 		}
 
-		lpa.UID = makeUid()
-		lpa.Type = actor.LpaTypePropertyFinance
+		lpa.LpaUID = makeUid()
 		if lpaType == "hw" && !isTrustCorporation {
 			lpa.Type = actor.LpaTypeHealthWelfare
+			lpa.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
+			lpa.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
+		} else {
+			lpa.Type = actor.LpaTypePropertyFinance
+			lpa.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
 		}
 
 		lpa.CertificateProvider = makeCertificateProvider()
@@ -124,9 +128,6 @@ func Attorney(
 			Attorneys:        []actor.Attorney{makeAttorney(replacementAttorneyNames[0])},
 			TrustCorporation: makeTrustCorporation("Second Choice Trust Corporation Ltd."),
 		}
-
-		lpa.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
-		lpa.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
 
 		if email != "" {
 			if isTrustCorporation {
@@ -191,7 +192,7 @@ func Attorney(
 		if progress >= slices.Index(progressValues, "signedByAllAttorneys") {
 			for isReplacement, list := range map[bool]actor.Attorneys{false: lpa.Attorneys, true: lpa.ReplacementAttorneys} {
 				for _, a := range list.Attorneys {
-					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: lpa.ID})
+					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: lpa.LpaID})
 
 					attorney, err := attorneyStore.Create(ctx, donorSessionID, a.ID, isReplacement, false)
 					if err != nil {
@@ -211,7 +212,7 @@ func Attorney(
 				}
 
 				if list.TrustCorporation.Name != "" {
-					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: lpa.ID})
+					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: lpa.LpaID})
 
 					attorney, err := attorneyStore.Create(ctx, donorSessionID, "", isReplacement, true)
 					if err != nil {
@@ -268,7 +269,7 @@ func Attorney(
 		if email != "" {
 			shareCodeSender.SendAttorneys(donorCtx, page.AppData{
 				SessionID: donorSessionID,
-				LpaID:     lpa.ID,
+				LpaID:     lpa.LpaID,
 				Localizer: appData.Localizer,
 			}, lpa)
 
@@ -279,7 +280,7 @@ func Attorney(
 		if redirect == "" {
 			redirect = page.Paths.Dashboard.Format()
 		} else {
-			redirect = "/attorney/" + lpa.ID + redirect
+			redirect = "/attorney/" + lpa.LpaID + redirect
 		}
 
 		http.Redirect(w, r, redirect, http.StatusFound)

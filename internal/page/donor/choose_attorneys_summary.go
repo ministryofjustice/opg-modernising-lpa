@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -14,19 +15,19 @@ type chooseAttorneysSummaryData struct {
 	App     page.AppData
 	Errors  validation.List
 	Form    *form.YesNoForm
-	Lpa     *page.Lpa
+	Donor   *actor.DonorProvidedDetails
 	Options form.YesNoOptions
 }
 
 func ChooseAttorneysSummary(tmpl template.Template) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
-		if lpa.Attorneys.Len() == 0 {
-			return appData.Paths.ChooseAttorneys.RedirectQuery(w, r, appData, lpa, url.Values{"addAnother": {"1"}})
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+		if donor.Attorneys.Len() == 0 {
+			return appData.Paths.ChooseAttorneys.RedirectQuery(w, r, appData, donor, url.Values{"addAnother": {"1"}})
 		}
 
 		data := &chooseAttorneysSummaryData{
 			App:     appData,
-			Lpa:     lpa,
+			Donor:   donor,
 			Form:    &form.YesNoForm{},
 			Options: form.YesNoValues,
 		}
@@ -37,14 +38,14 @@ func ChooseAttorneysSummary(tmpl template.Template) Handler {
 
 			if data.Errors.None() {
 				redirectUrl := appData.Paths.TaskList
-				if lpa.Attorneys.Len() > 1 {
+				if donor.Attorneys.Len() > 1 {
 					redirectUrl = appData.Paths.HowShouldAttorneysMakeDecisions
 				}
 
 				if data.Form.YesNo == form.Yes {
-					return appData.Paths.ChooseAttorneys.RedirectQuery(w, r, appData, lpa, url.Values{"addAnother": {"1"}})
+					return appData.Paths.ChooseAttorneys.RedirectQuery(w, r, appData, donor, url.Values{"addAnother": {"1"}})
 				} else {
-					return redirectUrl.Redirect(w, r, appData, lpa)
+					return redirectUrl.Redirect(w, r, appData, donor)
 				}
 			}
 		}

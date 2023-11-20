@@ -61,15 +61,19 @@ func CertificateProvider(
 		}
 
 		var (
-			donorCtx               = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: lpa.ID})
-			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: certificateProviderSessionID, LpaID: lpa.ID})
+			donorCtx               = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: lpa.LpaID})
+			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: certificateProviderSessionID, LpaID: lpa.LpaID})
 		)
 
-		lpa.UID = makeUid()
+		lpa.LpaUID = makeUid()
 		lpa.Donor = makeDonor()
 		lpa.Type = actor.LpaTypePropertyFinance
 		if lpaType == "hw" {
 			lpa.Type = actor.LpaTypeHealthWelfare
+			lpa.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
+			lpa.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
+		} else {
+			lpa.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
 		}
 
 		lpa.Attorneys = actor.Attorneys{
@@ -143,7 +147,7 @@ func CertificateProvider(
 		if email != "" {
 			shareCodeSender.SendCertificateProvider(donorCtx, notify.CertificateProviderInviteEmail, page.AppData{
 				SessionID: donorSessionID,
-				LpaID:     lpa.ID,
+				LpaID:     lpa.LpaID,
 				Localizer: appData.Localizer,
 			}, true, lpa)
 
@@ -157,7 +161,7 @@ func CertificateProvider(
 		case page.Paths.CertificateProviderStart.Format():
 			redirect = page.Paths.CertificateProviderStart.Format()
 		default:
-			redirect = "/certificate-provider/" + lpa.ID + redirect
+			redirect = "/certificate-provider/" + lpa.LpaID + redirect
 		}
 
 		http.Redirect(w, r, redirect, http.StatusFound)

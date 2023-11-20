@@ -24,11 +24,11 @@ func TestGetHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 			App:     testAppData,
 			Form:    &howShouldAttorneysMakeDecisionsForm{},
 			Options: actor.AttorneysActValues,
-			Lpa:     &page.Lpa{},
+			Donor:   &actor.DonorProvidedDetails{},
 		}).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -48,11 +48,11 @@ func TestGetHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 				DecisionsDetails: "some decisions",
 			},
 			Options: actor.AttorneysActValues,
-			Lpa:     &page.Lpa{ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "some decisions", How: actor.Jointly}},
+			Donor:   &actor.DonorProvidedDetails{ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "some decisions", How: actor.Jointly}},
 		}).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &page.Lpa{ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "some decisions", How: actor.Jointly}})
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "some decisions", How: actor.Jointly}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -68,7 +68,7 @@ func TestGetHowShouldReplacementAttorneysMakeDecisionsWhenTemplateErrors(t *test
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -87,12 +87,12 @@ func TestPostHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{ID: "lpa-id", ReplacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly}}).
+		On("Put", r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly}}).
 		Return(nil)
 
 	template := newMockTemplate(t)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -141,8 +141,8 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), &page.Lpa{
-					ID:                           "lpa-id",
+				On("Put", r.Context(), &actor.DonorProvidedDetails{
+					LpaID:                        "lpa-id",
 					ReplacementAttorneys:         tc.attorneys,
 					ReplacementAttorneyDecisions: tc.updated,
 					Tasks:                        actor.DonorTasks{ChooseReplacementAttorneys: tc.taskState},
@@ -151,8 +151,8 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 
 			template := newMockTemplate(t)
 
-			err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, donorStore)(testAppData, w, r, &page.Lpa{
-				ID:                           "lpa-id",
+			err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+				LpaID:                        "lpa-id",
 				ReplacementAttorneys:         tc.attorneys,
 				ReplacementAttorneyDecisions: tc.existing,
 			})
@@ -180,7 +180,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsWhenStoreErrors(t *testin
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(nil, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := HowShouldReplacementAttorneysMakeDecisions(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -203,7 +203,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsWhenValidationErrors(t *t
 		})).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -222,12 +222,12 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsErrorOnPutStore(t *testin
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "", How: actor.Jointly}}).
+		On("Put", r.Context(), &actor.DonorProvidedDetails{ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "", How: actor.Jointly}}).
 		Return(expectedError)
 
 	template := newMockTemplate(t)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
