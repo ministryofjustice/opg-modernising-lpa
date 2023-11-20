@@ -54,19 +54,19 @@ func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, e
 
 	lpaID := s.uuidString()
 
-	lpa := &actor.DonorProvidedDetails{
+	donor := &actor.DonorProvidedDetails{
 		PK:        lpaKey(lpaID),
 		SK:        donorKey(data.SessionID),
-		ID:        lpaID,
+		LpaID:     lpaID,
 		CreatedAt: s.now(),
 		Version:   1,
 	}
 
-	if lpa.Hash, err = lpa.GenerateHash(); err != nil {
+	if donor.Hash, err = donor.GenerateHash(); err != nil {
 		return nil, err
 	}
 
-	if err := s.dynamoClient.Create(ctx, lpa); err != nil {
+	if err := s.dynamoClient.Create(ctx, donor); err != nil {
 		return nil, err
 	}
 
@@ -80,7 +80,7 @@ func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, e
 		return nil, err
 	}
 
-	return lpa, err
+	return donor, err
 }
 
 func (s *donorStore) GetAny(ctx context.Context) (*actor.DonorProvidedDetails, error) {
@@ -93,12 +93,12 @@ func (s *donorStore) GetAny(ctx context.Context) (*actor.DonorProvidedDetails, e
 		return nil, errors.New("donorStore.Get requires LpaID")
 	}
 
-	var lpa *actor.DonorProvidedDetails
-	if err := s.dynamoClient.OneByPartialSk(ctx, lpaKey(data.LpaID), "#DONOR#", &lpa); err != nil {
+	var donor *actor.DonorProvidedDetails
+	if err := s.dynamoClient.OneByPartialSk(ctx, lpaKey(data.LpaID), "#DONOR#", &donor); err != nil {
 		return nil, err
 	}
 
-	return lpa, nil
+	return donor, nil
 }
 
 func (s *donorStore) Get(ctx context.Context) (*actor.DonorProvidedDetails, error) {
@@ -111,9 +111,9 @@ func (s *donorStore) Get(ctx context.Context) (*actor.DonorProvidedDetails, erro
 		return nil, errors.New("donorStore.Get requires LpaID and SessionID")
 	}
 
-	var lpa *actor.DonorProvidedDetails
-	err = s.dynamoClient.One(ctx, lpaKey(data.LpaID), donorKey(data.SessionID), &lpa)
-	return lpa, err
+	var donor *actor.DonorProvidedDetails
+	err = s.dynamoClient.One(ctx, lpaKey(data.LpaID), donorKey(data.SessionID), &donor)
+	return donor, err
 }
 
 func (s *donorStore) Latest(ctx context.Context) (*actor.DonorProvidedDetails, error) {
@@ -126,80 +126,80 @@ func (s *donorStore) Latest(ctx context.Context) (*actor.DonorProvidedDetails, e
 		return nil, errors.New("donorStore.Get requires SessionID")
 	}
 
-	var lpa *actor.DonorProvidedDetails
-	if err := s.dynamoClient.LatestForActor(ctx, donorKey(data.SessionID), &lpa); err != nil {
+	var donor *actor.DonorProvidedDetails
+	if err := s.dynamoClient.LatestForActor(ctx, donorKey(data.SessionID), &donor); err != nil {
 		return nil, err
 	}
 
-	return lpa, nil
+	return donor, nil
 }
 
-func (s *donorStore) Put(ctx context.Context, lpa *actor.DonorProvidedDetails) error {
-	newHash, err := lpa.GenerateHash()
-	if newHash == lpa.Hash || err != nil {
+func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails) error {
+	newHash, err := donor.GenerateHash()
+	if newHash == donor.Hash || err != nil {
 		return err
 	}
 
-	lpa.Hash = newHash
+	donor.Hash = newHash
 
 	// By not setting UpdatedAt until a UID exists, queries for SK=#DONOR#xyz on
 	// ActorUpdatedAtIndex will not return UID-less LPAs.
-	if lpa.UID != "" {
-		lpa.UpdatedAt = s.now()
+	if donor.LpaUID != "" {
+		donor.UpdatedAt = s.now()
 	}
 
-	if lpa.UID == "" && !lpa.Type.Empty() && !lpa.HasSentUidRequestedEvent {
+	if donor.LpaUID == "" && !donor.Type.Empty() && !donor.HasSentUidRequestedEvent {
 		data, err := page.SessionDataFromContext(ctx)
 		if err != nil {
 			return err
 		}
 
 		if err := s.eventClient.SendUidRequested(ctx, event.UidRequested{
-			LpaID:          lpa.ID,
+			LpaID:          donor.LpaID,
 			DonorSessionID: data.SessionID,
-			Type:           lpa.Type.String(),
+			Type:           donor.Type.String(),
 			Donor: uid.DonorDetails{
-				Name:     lpa.Donor.FullName(),
-				Dob:      lpa.Donor.DateOfBirth,
-				Postcode: lpa.Donor.Address.Postcode,
+				Name:     donor.Donor.FullName(),
+				Dob:      donor.Donor.DateOfBirth,
+				Postcode: donor.Donor.Address.Postcode,
 			},
 		}); err != nil {
 			return err
 		}
 
-		lpa.HasSentUidRequestedEvent = true
+		donor.HasSentUidRequestedEvent = true
 	}
 
-	if lpa.UID != "" && !lpa.HasSentApplicationUpdatedEvent {
+	if donor.LpaUID != "" && !donor.HasSentApplicationUpdatedEvent {
 		if err := s.eventClient.SendApplicationUpdated(ctx, event.ApplicationUpdated{
-			UID:       lpa.UID,
-			Type:      lpa.Type.String(),
-			CreatedAt: lpa.CreatedAt,
+			UID:       donor.LpaUID,
+			Type:      donor.Type.String(),
+			CreatedAt: donor.CreatedAt,
 			Donor: event.ApplicationUpdatedDonor{
-				FirstNames:  lpa.Donor.FirstNames,
-				LastName:    lpa.Donor.LastName,
-				DateOfBirth: lpa.Donor.DateOfBirth,
-				Address:     lpa.Donor.Address,
+				FirstNames:  donor.Donor.FirstNames,
+				LastName:    donor.Donor.LastName,
+				DateOfBirth: donor.Donor.DateOfBirth,
+				Address:     donor.Donor.Address,
 			},
 		}); err != nil {
 			return err
 		}
 
-		lpa.HasSentApplicationUpdatedEvent = true
+		donor.HasSentApplicationUpdatedEvent = true
 	}
 
-	if lpa.UID != "" && lpa.PreviousApplicationNumber != "" && !lpa.HasSentPreviousApplicationLinkedEvent {
+	if donor.LpaUID != "" && donor.PreviousApplicationNumber != "" && !donor.HasSentPreviousApplicationLinkedEvent {
 		if err := s.eventClient.SendPreviousApplicationLinked(ctx, event.PreviousApplicationLinked{
-			UID:                       lpa.UID,
-			PreviousApplicationNumber: lpa.PreviousApplicationNumber,
+			UID:                       donor.LpaUID,
+			PreviousApplicationNumber: donor.PreviousApplicationNumber,
 		}); err != nil {
 			return err
 		}
 
-		lpa.HasSentPreviousApplicationLinkedEvent = true
+		donor.HasSentPreviousApplicationLinkedEvent = true
 	}
 
-	return s.dynamoClient.Put(ctx, lpa)
+	return s.dynamoClient.Put(ctx, donor)
 }
 
 func (s *donorStore) Delete(ctx context.Context) error {

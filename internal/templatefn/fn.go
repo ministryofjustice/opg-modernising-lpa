@@ -300,39 +300,39 @@ type attorneySummaryData struct {
 	HeadingLevel int
 }
 
-func listAttorneys(attorneys actor.Attorneys, app page.AppData, attorneyType string, headingLevel int, lpa *actor.DonorProvidedDetails) attorneySummaryData {
+func listAttorneys(attorneys actor.Attorneys, app page.AppData, attorneyType string, headingLevel int, donor *actor.DonorProvidedDetails) attorneySummaryData {
 	data := attorneySummaryData{
 		App:              app,
-		CanChange:        !lpa.Tasks.ConfirmYourIdentityAndSign.Completed() && app.IsDonor(),
+		CanChange:        !donor.Tasks.ConfirmYourIdentityAndSign.Completed() && app.IsDonor(),
 		TrustCorporation: attorneys.TrustCorporation,
 		Attorneys:        attorneys.Attorneys,
 		HeadingLevel:     headingLevel,
 	}
 
 	if attorneyType == "replacement" {
-		data.Link.Attorney = fmt.Sprintf("%s?from=%s", app.Paths.ChooseReplacementAttorneys.Format(lpa.ID), app.Page)
-		data.Link.AttorneyAddress = fmt.Sprintf("%s?from=%s", app.Paths.ChooseReplacementAttorneysAddress.Format(lpa.ID), app.Page)
-		data.Link.RemoveAttorney = fmt.Sprintf("%s?from=%s", app.Paths.RemoveReplacementAttorney.Format(lpa.ID), app.Page)
-		data.Link.TrustCorporation = fmt.Sprintf("%s?from=%s", app.Paths.EnterReplacementTrustCorporation.Format(lpa.ID), app.Page)
-		data.Link.TrustCorporationAddress = fmt.Sprintf("%s?from=%s", app.Paths.EnterReplacementTrustCorporationAddress.Format(lpa.ID), app.Page)
-		data.Link.RemoveTrustCorporation = fmt.Sprintf("%s?from=%s", app.Paths.RemoveReplacementTrustCorporation.Format(lpa.ID), app.Page)
+		data.Link.Attorney = fmt.Sprintf("%s?from=%s", app.Paths.ChooseReplacementAttorneys.Format(donor.LpaID), app.Page)
+		data.Link.AttorneyAddress = fmt.Sprintf("%s?from=%s", app.Paths.ChooseReplacementAttorneysAddress.Format(donor.LpaID), app.Page)
+		data.Link.RemoveAttorney = fmt.Sprintf("%s?from=%s", app.Paths.RemoveReplacementAttorney.Format(donor.LpaID), app.Page)
+		data.Link.TrustCorporation = fmt.Sprintf("%s?from=%s", app.Paths.EnterReplacementTrustCorporation.Format(donor.LpaID), app.Page)
+		data.Link.TrustCorporationAddress = fmt.Sprintf("%s?from=%s", app.Paths.EnterReplacementTrustCorporationAddress.Format(donor.LpaID), app.Page)
+		data.Link.RemoveTrustCorporation = fmt.Sprintf("%s?from=%s", app.Paths.RemoveReplacementTrustCorporation.Format(donor.LpaID), app.Page)
 	} else {
-		data.Link.Attorney = fmt.Sprintf("%s?from=%s", app.Paths.ChooseAttorneys.Format(lpa.ID), app.Page)
-		data.Link.AttorneyAddress = fmt.Sprintf("%s?from=%s", app.Paths.ChooseAttorneysAddress.Format(lpa.ID), app.Page)
-		data.Link.RemoveAttorney = fmt.Sprintf("%s?from=%s", app.Paths.RemoveAttorney.Format(lpa.ID), app.Page)
-		data.Link.TrustCorporation = fmt.Sprintf("%s?from=%s", app.Paths.EnterTrustCorporation.Format(lpa.ID), app.Page)
-		data.Link.TrustCorporationAddress = fmt.Sprintf("%s?from=%s", app.Paths.EnterTrustCorporationAddress.Format(lpa.ID), app.Page)
-		data.Link.RemoveTrustCorporation = fmt.Sprintf("%s?from=%s", app.Paths.RemoveTrustCorporation.Format(lpa.ID), app.Page)
+		data.Link.Attorney = fmt.Sprintf("%s?from=%s", app.Paths.ChooseAttorneys.Format(donor.LpaID), app.Page)
+		data.Link.AttorneyAddress = fmt.Sprintf("%s?from=%s", app.Paths.ChooseAttorneysAddress.Format(donor.LpaID), app.Page)
+		data.Link.RemoveAttorney = fmt.Sprintf("%s?from=%s", app.Paths.RemoveAttorney.Format(donor.LpaID), app.Page)
+		data.Link.TrustCorporation = fmt.Sprintf("%s?from=%s", app.Paths.EnterTrustCorporation.Format(donor.LpaID), app.Page)
+		data.Link.TrustCorporationAddress = fmt.Sprintf("%s?from=%s", app.Paths.EnterTrustCorporationAddress.Format(donor.LpaID), app.Page)
+		data.Link.RemoveTrustCorporation = fmt.Sprintf("%s?from=%s", app.Paths.RemoveTrustCorporation.Format(donor.LpaID), app.Page)
 	}
 
 	return data
 }
 
-func listPeopleToNotify(app page.AppData, headingLevel int, lpa *actor.DonorProvidedDetails) map[string]interface{} {
+func listPeopleToNotify(app page.AppData, headingLevel int, donor *actor.DonorProvidedDetails) map[string]interface{} {
 	return map[string]interface{}{
 		"App":          app,
 		"HeadingLevel": headingLevel,
-		"Lpa":          lpa,
+		"Donor":        donor,
 	}
 }
 

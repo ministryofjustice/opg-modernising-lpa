@@ -77,8 +77,8 @@ type Localizer interface {
 
 //go:generate mockery --testonly --inpackage --name shareCodeSender --structname mockShareCodeSender
 type shareCodeSender interface {
-	SendCertificateProvider(ctx context.Context, template notify.Template, appData AppData, identity bool, lpa *actor.DonorProvidedDetails) error
-	SendAttorneys(ctx context.Context, appData AppData, lpa *actor.DonorProvidedDetails) error
+	SendCertificateProvider(ctx context.Context, template notify.Template, appData AppData, identity bool, donor *actor.DonorProvidedDetails) error
+	SendAttorneys(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails) error
 }
 
 func PostFormString(r *http.Request, name string) string {

@@ -32,10 +32,10 @@ type DonorProvidedDetails struct {
 	PK, SK string
 	// Hash is used to determine whether the Lpa has been changed since last read
 	Hash uint64 `hash:"-"`
-	// Identifies the LPA being drafted
-	ID string
-	// A unique identifier created after sending basic LPA details to the UID service
-	UID string `dynamodbav:",omitempty"`
+	// LpaID identifies the LPA being drafted
+	LpaID string
+	// LpaUID is a unique identifier created after sending basic LPA details to the UID service
+	LpaUID string `dynamodbav:",omitempty"`
 	// CreatedAt is when the LPA was created
 	CreatedAt time.Time
 	// UpdatedAt is when the LPA was last updated

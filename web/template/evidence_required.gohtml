@@ -1,10 +1,10 @@
 {{ template "page" . }}
 
 {{ define "pageTitle" }}
-  {{ if .Lpa.FeeType.IsRepeatApplicationFee }}
-    {{ tr .App (printf "newEvidenceRequired%s" .Lpa.PreviousFee.String) }}
+  {{ if .Donor.FeeType.IsRepeatApplicationFee }}
+    {{ tr .App (printf "newEvidenceRequired%s" .Donor.PreviousFee.String) }}
   {{ else }}
-    {{ tr .App (printf "evidenceRequired%s" .Lpa.FeeType.String) }}
+    {{ tr .App (printf "evidenceRequired%s" .Donor.FeeType.String) }}
   {{ end }}
 {{ end }}
 
@@ -13,8 +13,8 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
 
-      {{ if or .Lpa.FeeType.IsHalfFee .Lpa.PreviousFee.IsPreviousFeeHalf }}
-        {{ if .Lpa.FeeType.IsRepeatApplicationFee }}
+      {{ if or .Donor.FeeType.IsHalfFee .Donor.PreviousFee.IsPreviousFeeHalf }}
+        {{ if .Donor.FeeType.IsRepeatApplicationFee }}
           {{ trHtml .App "newEvidenceRequiredHalfFeeIntroContent" }}
         {{ else }}
           {{ trHtml .App "evidenceRequiredHalfFeeIntroContent" }}
@@ -25,8 +25,8 @@
         {{ template "details" (details . "ifYouHaveNoIncome" "ifYouHaveNoIncomeDetail" false) }}
         {{ trHtml .App "evidenceRequiredHalfFeeUniversalCreditContent" }}
 
-      {{ else if or .Lpa.FeeType.IsNoFee .Lpa.PreviousFee.IsPreviousFeeExemption }}
-        {{ if .Lpa.FeeType.IsRepeatApplicationFee }}
+      {{ else if or .Donor.FeeType.IsNoFee .Donor.PreviousFee.IsPreviousFeeExemption }}
+        {{ if .Donor.FeeType.IsRepeatApplicationFee }}
           {{ trHtml .App "newEvidenceRequiredNoFeeIntroContent" }}
         {{ else }}
           {{ trHtml .App "evidenceRequiredNoFeeIntroContent" }}
@@ -34,8 +34,8 @@
         {{ template "details" (details . "eligibleMeansTestedBenefits" "eligibleMeansTestedBenefitsDetail" false) }}
         {{ trHtml .App "evidenceRequiredNoFeeEvidenceContent" }}
 
-      {{ else if or .Lpa.FeeType.IsHardshipFee .Lpa.PreviousFee.IsPreviousFeeHardship }}
-        {{ if .Lpa.FeeType.IsRepeatApplicationFee }}
+      {{ else if or .Donor.FeeType.IsHardshipFee .Donor.PreviousFee.IsPreviousFeeHardship }}
+        {{ if .Donor.FeeType.IsRepeatApplicationFee }}
           {{ trHtml .App "newEvidenceRequiredHardshipFeeContent" }}
         {{ else }}
           {{ trHtml .App "evidenceRequiredHardshipFeeContent" }}

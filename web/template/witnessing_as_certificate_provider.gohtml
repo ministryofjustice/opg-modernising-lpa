@@ -8,11 +8,11 @@
       <h1 class="govuk-heading-xl">{{ tr .App "confirmYouWitnessedTheDonorSign" }}</h1>
 
       <p class="govuk-inset-text">
-        {{ trFormatHtml .App "weHaveSentACodeTo" "Mobile" .Lpa.CertificateProvider.Mobile }}
+        {{ trFormatHtml .App "weHaveSentACodeTo" "Mobile" .Donor.CertificateProvider.Mobile }}
       </p>
 
       <p class="govuk-body">
-        {{ trFormat .App "asTheCertificateProviderTypeTheCode" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames "DonorFullName" .Lpa.Donor.FullName }}
+        {{ trFormat .App "asTheCertificateProviderTypeTheCode" "CertificateProviderFirstNames" .Donor.CertificateProvider.FirstNames "DonorFullName" .Donor.Donor.FullName }}
       </p>
       
       <form novalidate method="post">
@@ -24,8 +24,8 @@
 
       {{ template "details" (details . "imHavingProblemWithCode" (
         trFormat .App "imHavingProblemWithCodeContent"
-        "ResendLink" (link .App (.App.Paths.ResendCertificateProviderCode.Format .Lpa.ID))
-        "ChangeLink" (link .App (.App.Paths.ChangeCertificateProviderMobileNumber.Format .Lpa.ID))
+        "ResendLink" (link .App (.App.Paths.ResendCertificateProviderCode.Format .Donor.LpaID))
+        "ChangeLink" (link .App (.App.Paths.ChangeCertificateProviderMobileNumber.Format .Donor.LpaID))
       ) false) }}
     </div>
   </div>

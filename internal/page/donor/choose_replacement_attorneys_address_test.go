@@ -157,14 +157,14 @@ func TestPostChooseReplacementAttorneysAddressSkip(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID:                   "lpa-id",
+			LpaID:                "lpa-id",
 			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123", FirstNames: "a", Email: "a"}}},
 			Tasks:                actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
 
 	err := ChooseReplacementAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 			ID:         "123",
 			FirstNames: "a",
@@ -196,7 +196,7 @@ func TestPostChooseReplacementAttorneysAddressManual(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID: "lpa-id",
+			LpaID: "lpa-id",
 			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				ID:         "123",
 				FirstNames: "a",
@@ -207,7 +207,7 @@ func TestPostChooseReplacementAttorneysAddressManual(t *testing.T) {
 		Return(nil)
 
 	err := ChooseReplacementAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID:                   "lpa-id",
+		LpaID:                "lpa-id",
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123", FirstNames: "a"}}},
 	})
 	resp := w.Result()
@@ -258,7 +258,7 @@ func TestPostChooseReplacementAttorneysAddressManualFromStore(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID: "lpa-id",
+			LpaID: "lpa-id",
 			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				ID:         "123",
 				FirstNames: "John",
@@ -269,7 +269,7 @@ func TestPostChooseReplacementAttorneysAddressManualFromStore(t *testing.T) {
 		Return(nil)
 
 	err := ChooseReplacementAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 			ID:         "123",
 			FirstNames: "John",
@@ -680,14 +680,14 @@ func TestPostChooseReplacementAttorneysAddressReuseSelect(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID:                   "lpa-id",
+			LpaID:                "lpa-id",
 			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{updatedAttorney}},
 			Tasks:                actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskInProgress},
 		}).
 		Return(nil)
 
 	err := ChooseReplacementAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID:                   "lpa-id",
+		LpaID:                "lpa-id",
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}},
 	})
 	resp := w.Result()

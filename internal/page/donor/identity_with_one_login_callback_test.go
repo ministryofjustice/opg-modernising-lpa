@@ -273,7 +273,7 @@ func TestPostIdentityWithOneLoginCallback(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 	err := IdentityWithOneLoginCallback(nil, nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID:                    "lpa-id",
+		LpaID:                 "lpa-id",
 		DonorIdentityUserData: identity.UserData{OK: true},
 	})
 	resp := w.Result()
@@ -288,7 +288,7 @@ func TestPostIdentityWithOneLoginCallbackNotConfirmed(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 	err := IdentityWithOneLoginCallback(nil, nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		Donor: actor.Donor{
 			CanSign: form.Yes,
 		},

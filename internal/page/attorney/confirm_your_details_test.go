@@ -16,17 +16,17 @@ func TestGetConfirmYourDetails(t *testing.T) {
 
 	testcases := map[string]struct {
 		appData page.AppData
-		lpa     *actor.DonorProvidedDetails
+		donor   *actor.DonorProvidedDetails
 		data    *confirmYourDetailsData
 	}{
 		"attorney": {
 			appData: testAppData,
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123", FirstNames: "John"}}},
 			},
 			data: &confirmYourDetailsData{
 				App: testAppData,
-				Lpa: &actor.DonorProvidedDetails{
+				Donor: &actor.DonorProvidedDetails{
 					Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123", FirstNames: "John"}}},
 				},
 				Attorney:                actor.Attorney{ID: "123", FirstNames: "John"},
@@ -35,12 +35,12 @@ func TestGetConfirmYourDetails(t *testing.T) {
 		},
 		"trust corporation": {
 			appData: testTrustCorporationAppData,
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "company"}},
 			},
 			data: &confirmYourDetailsData{
 				App: testTrustCorporationAppData,
-				Lpa: &actor.DonorProvidedDetails{
+				Donor: &actor.DonorProvidedDetails{
 					Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "company"}},
 				},
 				TrustCorporation:        actor.TrustCorporation{Name: "company"},
@@ -57,7 +57,7 @@ func TestGetConfirmYourDetails(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("GetAny", r.Context()).
-				Return(tc.lpa, nil)
+				Return(tc.donor, nil)
 
 			template := newMockTemplate(t)
 			template.
@@ -77,12 +77,12 @@ func TestGetConfirmYourDetailsWhenDonorStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &actor.DonorProvidedDetails{}
+	donor := &actor.DonorProvidedDetails{}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(lpa, expectedError)
+		Return(donor, expectedError)
 
 	err := ConfirmYourDetails(nil, nil, donorStore)(testAppData, w, r, nil)
 

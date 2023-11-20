@@ -59,9 +59,9 @@ type uploadEvidenceData struct {
 }
 
 func UploadEvidence(tmpl template.Template, logger Logger, payer Payer, documentStore DocumentStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
-		if lpa.Tasks.PayForLpa.IsPending() {
-			return page.Paths.TaskList.Redirect(w, r, appData, lpa)
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+		if donor.Tasks.PayForLpa.IsPending() {
+			return page.Paths.TaskList.Redirect(w, r, appData, donor)
 		}
 
 		documents, err := documentStore.GetAll(r.Context())
@@ -72,7 +72,7 @@ func UploadEvidence(tmpl template.Template, logger Logger, payer Payer, document
 		data := &uploadEvidenceData{
 			App:                  appData,
 			NumberOfAllowedFiles: numberOfAllowedFiles,
-			FeeType:              lpa.FeeType,
+			FeeType:              donor.FeeType,
 			Documents:            documents,
 			MimeTypes:            acceptedMimeTypes(),
 		}
@@ -88,7 +88,7 @@ func UploadEvidence(tmpl template.Template, logger Logger, payer Payer, document
 					var uploadedDocuments []page.Document
 
 					for _, file := range form.Files {
-						document, err := documentStore.Create(r.Context(), lpa, file.Filename, file.Data)
+						document, err := documentStore.Create(r.Context(), donor, file.Filename, file.Data)
 						if err != nil {
 							return err
 						}
@@ -120,16 +120,16 @@ func UploadEvidence(tmpl template.Template, logger Logger, payer Payer, document
 
 				case "pay":
 					if len(documents.NotScanned()) > 0 {
-						logger.Print("attempt to pay with unscanned documents on lpa:", lpa.UID)
+						logger.Print("attempt to pay with unscanned documents on lpa:", donor.LpaUID)
 						data.Errors = validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"})
 						return tmpl(w, data)
 					}
 
-					if err := documentStore.Submit(r.Context(), lpa, documents); err != nil {
+					if err := documentStore.Submit(r.Context(), donor, documents); err != nil {
 						return err
 					}
 
-					return payer.Pay(appData, w, r, lpa)
+					return payer.Pay(appData, w, r, donor)
 
 				case "delete":
 					document := documents.Get(form.DeleteKey)

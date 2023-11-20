@@ -201,13 +201,13 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 			DateOfBirth: date.New("2000", "1", "2"),
 			Address:     place.Address{Postcode: "ABC123"},
 		},
-			Type:  actor.LpaTypePropertyFinance,
-			Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted},
-			UID:   "a-uid",
+			Type:   actor.LpaTypePropertyFinance,
+			Tasks:  actor.DonorTasks{YourDetails: actor.TaskCompleted},
+			LpaUID: "a-uid",
 		}, nil)
 
 	handle := makeLpaHandle(mux, sessionStore, RequireSession, nil, donorStore)
-	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, lpa *actor.DonorProvidedDetails) error {
+	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, _ *actor.DonorProvidedDetails) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/lpa//path",
 			ActorType: actor.TypeDonor,
@@ -241,7 +241,7 @@ func TestMakeLpaHandleWhenSessionStoreError(t *testing.T) {
 		Return(&sessions.Session{}, expectedError)
 
 	handle := makeLpaHandle(mux, sessionStore, RequireSession, nil, nil)
-	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, lpa *actor.DonorProvidedDetails) error {
+	handle("/path", None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.DonorProvidedDetails) error {
 		return expectedError
 	})
 
@@ -273,7 +273,7 @@ func TestMakeLpaHandleWhenLpaStoreError(t *testing.T) {
 		On("Execute", w, r, expectedError)
 
 	handle := makeLpaHandle(mux, sessionStore, RequireSession, errorHandler.Execute, donorStore)
-	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, lpa *actor.DonorProvidedDetails) error {
+	handle("/path", None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.DonorProvidedDetails) error {
 		return expectedError
 	})
 
@@ -300,7 +300,7 @@ func TestMakeLpaHandleSessionExistingSessionData(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeLpaHandle(mux, sessionStore, None, nil, donorStore)
-	handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, lpa *actor.DonorProvidedDetails) error {
+	handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, _ *actor.DonorProvidedDetails) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/lpa/123/path",
 			SessionID: "cmFuZG9t",
@@ -343,7 +343,7 @@ func TestMakeLpaHandleErrors(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeLpaHandle(mux, sessionStore, None, errorHandler.Execute, donorStore)
-	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, lpa *actor.DonorProvidedDetails) error {
+	handle("/path", RequireSession, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.DonorProvidedDetails) error {
 		return expectedError
 	})
 
@@ -410,7 +410,7 @@ func TestPayHelperPay(t *testing.T) {
 				payClient:    payClient,
 				appPublicURL: "http://example.org",
 				randomString: func(int) string { return "123456789012" },
-			}).Pay(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, FeeType: pay.FullFee})
+			}).Pay(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, FeeType: pay.FullFee})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -434,7 +434,7 @@ func TestPayHelperPayWhenPaymentNotRequired(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &actor.DonorProvidedDetails{
-					ID:               "lpa-id",
+					LpaID:            "lpa-id",
 					FeeType:          feeType,
 					Tasks:            actor.DonorTasks{PayForLpa: actor.PaymentTaskPending},
 					EvidenceDelivery: pay.Upload,
@@ -444,7 +444,7 @@ func TestPayHelperPayWhenPaymentNotRequired(t *testing.T) {
 			err := (&payHelper{
 				donorStore: donorStore,
 			}).Pay(testAppData, w, r, &actor.DonorProvidedDetails{
-				ID:               "lpa-id",
+				LpaID:            "lpa-id",
 				FeeType:          feeType,
 				EvidenceDelivery: pay.Upload,
 			})
@@ -471,7 +471,7 @@ func TestPayHelperPayWhenPostingEvidence(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &actor.DonorProvidedDetails{
-					ID:               "lpa-id",
+					LpaID:            "lpa-id",
 					FeeType:          feeType,
 					Tasks:            actor.DonorTasks{PayForLpa: actor.PaymentTaskPending},
 					EvidenceDelivery: pay.Post,
@@ -481,7 +481,7 @@ func TestPayHelperPayWhenPostingEvidence(t *testing.T) {
 			err := (&payHelper{
 				donorStore: donorStore,
 			}).Pay(testAppData, w, r, &actor.DonorProvidedDetails{
-				ID:               "lpa-id",
+				LpaID:            "lpa-id",
 				FeeType:          feeType,
 				EvidenceDelivery: pay.Post,
 			})
@@ -501,7 +501,7 @@ func TestPayHelperPayWhenMoreEvidenceProvided(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID:               "lpa-id",
+			LpaID:            "lpa-id",
 			FeeType:          pay.HalfFee,
 			Tasks:            actor.DonorTasks{PayForLpa: actor.PaymentTaskPending},
 			EvidenceDelivery: pay.Upload,
@@ -511,7 +511,7 @@ func TestPayHelperPayWhenMoreEvidenceProvided(t *testing.T) {
 	err := (&payHelper{
 		donorStore: donorStore,
 	}).Pay(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID:               "lpa-id",
+		LpaID:            "lpa-id",
 		FeeType:          pay.HalfFee,
 		Tasks:            actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired},
 		EvidenceDelivery: pay.Upload,
@@ -530,7 +530,7 @@ func TestPayHelperPayWhenPaymentNotRequiredWhenDonorStorePutError(t *testing.T) 
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID:      "lpa-id",
+			LpaID:   "lpa-id",
 			FeeType: pay.NoFee,
 			Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskPending},
 		}).
@@ -539,7 +539,7 @@ func TestPayHelperPayWhenPaymentNotRequiredWhenDonorStorePutError(t *testing.T) 
 	err := (&payHelper{
 		donorStore: donorStore,
 	}).Pay(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID:      "lpa-id",
+		LpaID:   "lpa-id",
 		FeeType: pay.NoFee,
 	})
 	resp := w.Result()
@@ -590,7 +590,7 @@ func TestPayHelperPayWhenFeeDenied(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID:             "lpa-id",
+			LpaID:          "lpa-id",
 			Donor:          actor.Donor{Email: "a@b.com"},
 			FeeType:        pay.FullFee,
 			Tasks:          actor.DonorTasks{PayForLpa: actor.PaymentTaskInProgress},
@@ -605,7 +605,7 @@ func TestPayHelperPayWhenFeeDenied(t *testing.T) {
 		appPublicURL: "http://example.org",
 		randomString: func(int) string { return "123456789012" },
 	}).Pay(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID:             "lpa-id",
+		LpaID:          "lpa-id",
 		Donor:          actor.Donor{Email: "a@b.com"},
 		FeeType:        pay.HalfFee,
 		Tasks:          actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied},
@@ -660,7 +660,7 @@ func TestPayHelperPayWhenFeeDeniedAndPutStoreError(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID:             "lpa-id",
+			LpaID:          "lpa-id",
 			Donor:          actor.Donor{Email: "a@b.com"},
 			FeeType:        pay.FullFee,
 			Tasks:          actor.DonorTasks{PayForLpa: actor.PaymentTaskInProgress},
@@ -675,7 +675,7 @@ func TestPayHelperPayWhenFeeDeniedAndPutStoreError(t *testing.T) {
 		appPublicURL: "http://example.org",
 		randomString: func(int) string { return "123456789012" },
 	}).Pay(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID:             "lpa-id",
+		LpaID:          "lpa-id",
 		Donor:          actor.Donor{Email: "a@b.com"},
 		FeeType:        pay.HalfFee,
 		Tasks:          actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied},

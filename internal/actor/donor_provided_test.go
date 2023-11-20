@@ -19,15 +19,15 @@ var address = place.Address{
 }
 
 func TestGenerateHash(t *testing.T) {
-	lpa := &DonorProvidedDetails{}
-	hash, err := lpa.GenerateHash()
+	donor := &DonorProvidedDetails{}
+	hash, err := donor.GenerateHash()
 	assert.Nil(t, err)
-	assert.Equal(t, uint64(0x931d231a586cee71), hash)
+	assert.Equal(t, uint64(0xbeafc7085d987a), hash)
 
-	lpa.ID = "1"
-	hash, err = lpa.GenerateHash()
+	donor.LpaID = "1"
+	hash, err = donor.GenerateHash()
 	assert.Nil(t, err)
-	assert.Equal(t, uint64(0x625ac1b5d9f7beeb), hash)
+	assert.Equal(t, uint64(0x93c20ebaf17ef3d6), hash)
 }
 
 func TestIdentityConfirmed(t *testing.T) {
@@ -67,12 +67,12 @@ func TestIdentityConfirmed(t *testing.T) {
 }
 
 func TestAttorneysSigningDeadline(t *testing.T) {
-	lpa := DonorProvidedDetails{
+	donor := DonorProvidedDetails{
 		SignedAt: time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC),
 	}
 
 	expected := time.Date(2020, time.January, 30, 3, 4, 5, 6, time.UTC)
-	assert.Equal(t, expected, lpa.AttorneysAndCpSigningDeadline())
+	assert.Equal(t, expected, donor.AttorneysAndCpSigningDeadline())
 }
 
 func TestAllAttorneysSigned(t *testing.T) {
@@ -209,7 +209,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 }
 
 func TestActorAddresses(t *testing.T) {
-	lpa := &DonorProvidedDetails{
+	donor := &DonorProvidedDetails{
 		Donor: Donor{Address: place.Address{Line1: "1"}},
 		Attorneys: Attorneys{Attorneys: []Attorney{
 			{Address: place.Address{Line1: "2"}},
@@ -231,11 +231,11 @@ func TestActorAddresses(t *testing.T) {
 		{Line1: "5"},
 	}
 
-	assert.Equal(t, want, lpa.ActorAddresses())
+	assert.Equal(t, want, donor.ActorAddresses())
 }
 
 func TestActorAddressesActorWithNoAddressIgnored(t *testing.T) {
-	lpa := &DonorProvidedDetails{
+	donor := &DonorProvidedDetails{
 		Donor: Donor{FirstNames: "Donor", LastName: "Actor", Address: address},
 		Attorneys: Attorneys{Attorneys: []Attorney{
 			{FirstNames: "Attorney One", LastName: "Actor", Address: address},
@@ -250,11 +250,11 @@ func TestActorAddressesActorWithNoAddressIgnored(t *testing.T) {
 
 	want := []place.Address{address}
 
-	assert.Equal(t, want, lpa.ActorAddresses())
+	assert.Equal(t, want, donor.ActorAddresses())
 }
 
 func TestAllLayAttorneysFirstNames(t *testing.T) {
-	lpa := &DonorProvidedDetails{
+	donor := &DonorProvidedDetails{
 		Attorneys: Attorneys{
 			Attorneys: []Attorney{
 				{FirstNames: "John", LastName: "Smith"},
@@ -269,11 +269,11 @@ func TestAllLayAttorneysFirstNames(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, []string{"John", "Barry", "John2", "Barry2"}, lpa.AllLayAttorneysFirstNames())
+	assert.Equal(t, []string{"John", "Barry", "John2", "Barry2"}, donor.AllLayAttorneysFirstNames())
 }
 
 func TestAllLayAttorneysFullNames(t *testing.T) {
-	lpa := &DonorProvidedDetails{
+	donor := &DonorProvidedDetails{
 		Attorneys: Attorneys{
 			Attorneys: []Attorney{
 				{FirstNames: "John", LastName: "Smith"},
@@ -288,14 +288,14 @@ func TestAllLayAttorneysFullNames(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, []string{"John Smith", "Barry Smith", "John2 Smithe", "Barry2 Smithe"}, lpa.AllLayAttorneysFullNames())
+	assert.Equal(t, []string{"John Smith", "Barry Smith", "John2 Smithe", "Barry2 Smithe"}, donor.AllLayAttorneysFullNames())
 }
 
 func TestTrustCorporationOriginal(t *testing.T) {
-	lpa := &DonorProvidedDetails{
+	donor := &DonorProvidedDetails{
 		Attorneys:            Attorneys{TrustCorporation: TrustCorporation{Name: "Corp"}},
 		ReplacementAttorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "Trust"}},
 	}
 
-	assert.Equal(t, []string{"Corp", "Trust"}, lpa.TrustCorporationsNames())
+	assert.Equal(t, []string{"Corp", "Trust"}, donor.TrustCorporationsNames())
 }

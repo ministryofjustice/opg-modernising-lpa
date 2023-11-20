@@ -19,8 +19,8 @@ func TestGetDeleteLpa(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &deleteLpaData{
-			App: testAppData,
-			Lpa: &actor.DonorProvidedDetails{},
+			App:   testAppData,
+			Donor: &actor.DonorProvidedDetails{},
 		}).
 		Return(nil)
 
@@ -57,7 +57,7 @@ func TestPostDeleteLpa(t *testing.T) {
 		On("Delete", r.Context()).
 		Return(nil)
 
-	err := DeleteLpa(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{UID: "lpa-uid"})
+	err := DeleteLpa(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
