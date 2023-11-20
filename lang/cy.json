@@ -956,5 +956,7 @@
     "yourHomeAddress": "Welsh",
     "changeHomeAddressLink": "Welsh<span class=\"govuk-visually-hidden\"> Welsh</span>",
     "homeAddress": "Welsh",
-    "goToDashboard": "Welsh"
+    "goToDashboard": "Welsh",
+    "yourDateOfBirthWillNotBeShown": "Welsh"
+
 }
