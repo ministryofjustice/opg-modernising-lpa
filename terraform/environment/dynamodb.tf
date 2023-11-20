@@ -26,8 +26,8 @@ resource "aws_dynamodb_table" "lpas_table" {
   }
 
   global_secondary_index {
-    name            = "UidIndex"
-    hash_key        = "UID"
+    name            = "LpaUIDIndex"
+    hash_key        = "LpaUID"
     projection_type = "KEYS_ONLY"
   }
 
@@ -47,7 +47,7 @@ resource "aws_dynamodb_table" "lpas_table" {
   }
 
   attribute {
-    name = "UID"
+    name = "LpaUID"
     type = "S"
   }
 
