@@ -59,7 +59,7 @@
                         </a>
                       </span>
                       <strong class="govuk-tag app-task-list__tag govuk-tag--blue">{{ tr $.App "evidenceRequired" }}</strong>
-                    {{ else if not ($.Lpa.CanGoTo .Path) }}
+                    {{ else if not (canGoTo $.Lpa .Path) }}
                       <span class="app-task-list__task-name govuk-hint govuk-!-margin-bottom-0">
                         {{ tr $.App .Name }}
                       </span>

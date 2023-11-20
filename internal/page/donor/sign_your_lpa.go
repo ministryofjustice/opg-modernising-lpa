@@ -12,7 +12,7 @@ import (
 type signYourLpaData struct {
 	App                  page.AppData
 	Errors               validation.List
-	Lpa                  *page.Lpa
+	Lpa                  *actor.DonorProvidedDetails
 	Form                 *signYourLpaForm
 	WantToSignFormValue  string
 	WantToApplyFormValue string
@@ -24,7 +24,7 @@ const (
 )
 
 func SignYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
 		data := &signYourLpaData{
 			App: appData,
 			Lpa: lpa,

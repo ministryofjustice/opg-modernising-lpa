@@ -34,7 +34,7 @@ func TestGetChangeMobileNumber(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ChangeMobileNumber(template.Execute, newMockWitnessCodeSender(t), actorType)(testAppData, w, r, &page.Lpa{
+			err := ChangeMobileNumber(template.Execute, newMockWitnessCodeSender(t), actorType)(testAppData, w, r, &actor.DonorProvidedDetails{
 				CertificateProvider: actor.CertificateProvider{FirstNames: "Certificate", LastName: "Provided"},
 				IndependentWitness:  actor.IndependentWitness{FirstNames: "Independent", LastName: "Witness"},
 			})
@@ -48,11 +48,11 @@ func TestGetChangeMobileNumber(t *testing.T) {
 
 func TestGetChangeMobileNumberFromStore(t *testing.T) {
 	testcases := map[string]struct {
-		lpa       *page.Lpa
+		lpa       *actor.DonorProvidedDetails
 		actorType actor.Type
 	}{
 		"certificate provider uk mobile": {
-			lpa: &page.Lpa{
+			lpa: &actor.DonorProvidedDetails{
 				CertificateProvider: actor.CertificateProvider{
 					Mobile: "07777",
 				},
@@ -60,7 +60,7 @@ func TestGetChangeMobileNumberFromStore(t *testing.T) {
 			actorType: actor.TypeCertificateProvider,
 		},
 		"certificate provider non-uk mobile": {
-			lpa: &page.Lpa{
+			lpa: &actor.DonorProvidedDetails{
 				CertificateProvider: actor.CertificateProvider{
 					Mobile:         "07777",
 					HasNonUKMobile: true,
@@ -69,7 +69,7 @@ func TestGetChangeMobileNumberFromStore(t *testing.T) {
 			actorType: actor.TypeCertificateProvider,
 		},
 		"independent witness uk mobile": {
-			lpa: &page.Lpa{
+			lpa: &actor.DonorProvidedDetails{
 				IndependentWitness: actor.IndependentWitness{
 					Mobile: "07777",
 				},
@@ -77,7 +77,7 @@ func TestGetChangeMobileNumberFromStore(t *testing.T) {
 			actorType: actor.TypeIndependentWitness,
 		},
 		"independent witness non-uk mobile": {
-			lpa: &page.Lpa{
+			lpa: &actor.DonorProvidedDetails{
 				IndependentWitness: actor.IndependentWitness{
 					Mobile:         "07777",
 					HasNonUKMobile: true,
@@ -119,7 +119,7 @@ func TestGetChangeMobileNumberWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := ChangeMobileNumber(template.Execute, newMockWitnessCodeSender(t), actor.TypeCertificateProvider)(testAppData, w, r, &page.Lpa{})
+	err := ChangeMobileNumber(template.Execute, newMockWitnessCodeSender(t), actor.TypeCertificateProvider)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -130,7 +130,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 	testCases := map[string]struct {
 		form      url.Values
 		actorType actor.Type
-		lpa       *page.Lpa
+		lpa       *actor.DonorProvidedDetails
 		send      string
 		redirect  page.LpaPath
 	}{
@@ -139,7 +139,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 				"mobile": {"07535111111"},
 			},
 			actorType: actor.TypeCertificateProvider,
-			lpa: &page.Lpa{
+			lpa: &actor.DonorProvidedDetails{
 				ID: "lpa-id",
 				CertificateProvider: actor.CertificateProvider{
 					Mobile: "07535111111",
@@ -155,7 +155,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 				"non-uk-mobile":     {"+337575757"},
 			},
 			actorType: actor.TypeCertificateProvider,
-			lpa: &page.Lpa{
+			lpa: &actor.DonorProvidedDetails{
 				ID: "lpa-id",
 				CertificateProvider: actor.CertificateProvider{
 					Mobile:         "+337575757",
@@ -171,7 +171,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 				"mobile": {"07535111111"},
 			},
 			actorType: actor.TypeIndependentWitness,
-			lpa: &page.Lpa{
+			lpa: &actor.DonorProvidedDetails{
 				ID: "lpa-id",
 				IndependentWitness: actor.IndependentWitness{
 					Mobile: "07535111111",
@@ -187,7 +187,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 				"non-uk-mobile":     {"+337575757"},
 			},
 			actorType: actor.TypeIndependentWitness,
-			lpa: &page.Lpa{
+			lpa: &actor.DonorProvidedDetails{
 				ID: "lpa-id",
 				IndependentWitness: actor.IndependentWitness{
 					Mobile:         "+337575757",
@@ -211,7 +211,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 				On(tc.send, r.Context(), tc.lpa, testAppData.Localizer).
 				Return(nil)
 
-			err := ChangeMobileNumber(nil, witnessCodeSender, tc.actorType)(testAppData, w, r, &page.Lpa{
+			err := ChangeMobileNumber(nil, witnessCodeSender, tc.actorType)(testAppData, w, r, &actor.DonorProvidedDetails{
 				ID:                    "lpa-id",
 				DonorIdentityUserData: identity.UserData{OK: true},
 			})
@@ -238,7 +238,7 @@ func TestPostChangeMobileNumberWhenSendErrors(t *testing.T) {
 		On("SendToCertificateProvider", mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := ChangeMobileNumber(nil, witnessCodeSender, actor.TypeCertificateProvider)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+	err := ChangeMobileNumber(nil, witnessCodeSender, actor.TypeCertificateProvider)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -263,7 +263,7 @@ func TestPostChangeMobileNumberWhenSendErrorsWithTooManyRequests(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ChangeMobileNumber(template.Execute, witnessCodeSender, actor.TypeCertificateProvider)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+	err := ChangeMobileNumber(template.Execute, witnessCodeSender, actor.TypeCertificateProvider)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -286,7 +286,7 @@ func TestPostChangeMobileNumberWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ChangeMobileNumber(template.Execute, newMockWitnessCodeSender(t), actor.TypeCertificateProvider)(testAppData, w, r, &page.Lpa{})
+	err := ChangeMobileNumber(template.Execute, newMockWitnessCodeSender(t), actor.TypeCertificateProvider)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

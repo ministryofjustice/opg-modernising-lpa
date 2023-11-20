@@ -19,7 +19,7 @@ func TestGetChoosePeopleToNotifySummary(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &page.Lpa{PeopleToNotify: actor.PeopleToNotify{{}}}
+	lpa := &actor.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{{}}}
 
 	template := newMockTemplate(t)
 	template.
@@ -42,7 +42,7 @@ func TestGetChoosePeopleToNotifySummaryWhenNoPeopleToNotify(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &page.Lpa{
+	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		ID: "lpa-id",
 		Tasks: actor.DonorTasks{
 			YourDetails:                actor.TaskCompleted,
@@ -70,7 +70,7 @@ func TestPostChoosePeopleToNotifySummaryAddPersonToNotify(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &page.Lpa{ID: "lpa-id", PeopleToNotify: actor.PeopleToNotify{{ID: "123"}}})
+	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id", PeopleToNotify: actor.PeopleToNotify{{ID: "123"}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -87,7 +87,7 @@ func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &page.Lpa{
+	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		ID:             "lpa-id",
 		PeopleToNotify: actor.PeopleToNotify{{ID: "123"}},
 		Tasks: actor.DonorTasks{
@@ -125,7 +125,7 @@ func TestPostChoosePeopleToNotifySummaryFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ChoosePeopleToNotifySummary(template.Execute)(testAppData, w, r, &page.Lpa{PeopleToNotify: actor.PeopleToNotify{{}}})
+	err := ChoosePeopleToNotifySummary(template.Execute)(testAppData, w, r, &actor.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{{}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

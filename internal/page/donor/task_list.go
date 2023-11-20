@@ -12,7 +12,7 @@ import (
 type taskListData struct {
 	App              page.AppData
 	Errors           validation.List
-	Lpa              *page.Lpa
+	Lpa              *actor.DonorProvidedDetails
 	Sections         []taskListSection
 	EvidenceReceived bool
 }
@@ -32,7 +32,7 @@ type taskListSection struct {
 }
 
 func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
 		signTaskPage := page.Paths.HowToConfirmYourIdentityAndSign
 		if lpa.DonorIdentityConfirmed() {
 			signTaskPage = page.Paths.ReadYourLpa

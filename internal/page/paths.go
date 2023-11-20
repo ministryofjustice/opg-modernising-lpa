@@ -3,6 +3,8 @@ package page
 import (
 	"net/http"
 	"net/url"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 )
 
 type Path string
@@ -35,13 +37,13 @@ func (p LpaPath) Format(id string) string {
 	return "/lpa/" + id + string(p)
 }
 
-func (p LpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData, lpa *Lpa) error {
+func (p LpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData, lpa *actor.DonorProvidedDetails) error {
 	rurl := p.Format(lpa.ID)
 	if fromURL := r.FormValue("from"); fromURL != "" {
 		rurl = fromURL
 	}
 
-	if lpa.CanGoTo(rurl) {
+	if CanGoTo(lpa, rurl) {
 		http.Redirect(w, r, appData.Lang.URL(rurl), http.StatusFound)
 	} else {
 		http.Redirect(w, r, appData.Lang.URL(Paths.TaskList.Format(lpa.ID)), http.StatusFound)
@@ -50,13 +52,13 @@ func (p LpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppDat
 	return nil
 }
 
-func (p LpaPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, lpa *Lpa, query url.Values) error {
+func (p LpaPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, lpa *actor.DonorProvidedDetails, query url.Values) error {
 	rurl := p.Format(lpa.ID) + "?" + query.Encode()
 	if fromURL := r.FormValue("from"); fromURL != "" {
 		rurl = fromURL
 	}
 
-	if lpa.CanGoTo(rurl) {
+	if CanGoTo(lpa, rurl) {
 		http.Redirect(w, r, appData.Lang.URL(rurl), http.StatusFound)
 	} else {
 		http.Redirect(w, r, appData.Lang.URL(Paths.TaskList.Format(lpa.ID)), http.StatusFound)
@@ -401,7 +403,7 @@ var Paths = AppPaths{
 	YourLegalRightsAndResponsibilities:                   "/your-legal-rights-and-responsibilities",
 }
 
-func canGoToLpaPath(lpa *Lpa, path string) bool {
+func canGoToLpaPath(lpa *actor.DonorProvidedDetails, path string) bool {
 	section1Completed := lpa.Tasks.YourDetails.Completed() &&
 		lpa.Tasks.ChooseAttorneys.Completed() &&
 		lpa.Tasks.ChooseReplacementAttorneys.Completed() &&
