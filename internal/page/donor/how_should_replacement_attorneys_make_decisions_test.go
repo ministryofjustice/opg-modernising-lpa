@@ -24,7 +24,7 @@ func TestGetHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 			App:     testAppData,
 			Form:    &howShouldAttorneysMakeDecisionsForm{},
 			Options: actor.AttorneysActValues,
-			Lpa:     &actor.DonorProvidedDetails{},
+			Donor:   &actor.DonorProvidedDetails{},
 		}).
 		Return(nil)
 
@@ -48,7 +48,7 @@ func TestGetHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 				DecisionsDetails: "some decisions",
 			},
 			Options: actor.AttorneysActValues,
-			Lpa:     &actor.DonorProvidedDetails{ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "some decisions", How: actor.Jointly}},
+			Donor:   &actor.DonorProvidedDetails{ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "some decisions", How: actor.Jointly}},
 		}).
 		Return(nil)
 
@@ -87,12 +87,12 @@ func TestPostHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{ID: "lpa-id", ReplacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly}}).
+		On("Put", r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly}}).
 		Return(nil)
 
 	template := newMockTemplate(t)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id"})
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -142,7 +142,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &actor.DonorProvidedDetails{
-					ID:                           "lpa-id",
+					LpaID:                        "lpa-id",
 					ReplacementAttorneys:         tc.attorneys,
 					ReplacementAttorneyDecisions: tc.updated,
 					Tasks:                        actor.DonorTasks{ChooseReplacementAttorneys: tc.taskState},
@@ -152,7 +152,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 			template := newMockTemplate(t)
 
 			err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-				ID:                           "lpa-id",
+				LpaID:                        "lpa-id",
 				ReplacementAttorneys:         tc.attorneys,
 				ReplacementAttorneyDecisions: tc.existing,
 			})

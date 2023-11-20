@@ -26,7 +26,7 @@ func TestGetChooseAttorneys(t *testing.T) {
 	template.
 		On("Execute", w, &chooseAttorneysData{
 			App:         testAppData,
-			Lpa:         &actor.DonorProvidedDetails{},
+			Donor:       &actor.DonorProvidedDetails{},
 			Form:        &chooseAttorneysForm{},
 			ShowDetails: true,
 		}).
@@ -44,7 +44,7 @@ func TestGetChooseAttorneysFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := ChooseAttorneys(nil, nil, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{FirstNames: "John", ID: "1"},
 		}},
@@ -143,7 +143,7 @@ func TestPostChooseAttorneysAttorneyDoesNotExist(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &actor.DonorProvidedDetails{
-					ID: "lpa-id",
+					LpaID: "lpa-id",
 					Donor: actor.Donor{
 						FirstNames: "Jane",
 						LastName:   "Doe",
@@ -154,7 +154,7 @@ func TestPostChooseAttorneysAttorneyDoesNotExist(t *testing.T) {
 				Return(nil)
 
 			err := ChooseAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{
-				ID: "lpa-id",
+				LpaID: "lpa-id",
 				Donor: actor.Donor{
 					FirstNames: "Jane",
 					LastName:   "Doe",
@@ -243,7 +243,7 @@ func TestPostChooseAttorneysAttorneyExists(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &actor.DonorProvidedDetails{
-					ID:        "lpa-id",
+					LpaID:     "lpa-id",
 					Donor:     actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{tc.attorney}},
 					Tasks:     actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
@@ -251,7 +251,7 @@ func TestPostChooseAttorneysAttorneyExists(t *testing.T) {
 				Return(nil)
 
 			err := ChooseAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{
-				ID:    "lpa-id",
+				LpaID: "lpa-id",
 				Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{
@@ -584,7 +584,7 @@ func TestChooseAttorneysFormDobWarning(t *testing.T) {
 }
 
 func TestAttorneyMatches(t *testing.T) {
-	lpa := &actor.DonorProvidedDetails{
+	donor := &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{FirstNames: "c", LastName: "d"},
@@ -603,21 +603,21 @@ func TestAttorneyMatches(t *testing.T) {
 		IndependentWitness:  actor.IndependentWitness{FirstNames: "i", LastName: "w"},
 	}
 
-	assert.Equal(t, actor.TypeNone, attorneyMatches(lpa, "123", "x", "y"))
-	assert.Equal(t, actor.TypeDonor, attorneyMatches(lpa, "123", "a", "b"))
-	assert.Equal(t, actor.TypeAttorney, attorneyMatches(lpa, "123", "c", "d"))
-	assert.Equal(t, actor.TypeNone, attorneyMatches(lpa, "123", "e", "f"))
-	assert.Equal(t, actor.TypeReplacementAttorney, attorneyMatches(lpa, "123", "g", "h"))
-	assert.Equal(t, actor.TypeReplacementAttorney, attorneyMatches(lpa, "123", "I", "J"))
-	assert.Equal(t, actor.TypeCertificateProvider, attorneyMatches(lpa, "123", "k", "l"))
-	assert.Equal(t, actor.TypePersonToNotify, attorneyMatches(lpa, "123", "M", "N"))
-	assert.Equal(t, actor.TypePersonToNotify, attorneyMatches(lpa, "123", "o", "p"))
-	assert.Equal(t, actor.TypeAuthorisedSignatory, attorneyMatches(lpa, "123", "a", "s"))
-	assert.Equal(t, actor.TypeIndependentWitness, attorneyMatches(lpa, "123", "i", "w"))
+	assert.Equal(t, actor.TypeNone, attorneyMatches(donor, "123", "x", "y"))
+	assert.Equal(t, actor.TypeDonor, attorneyMatches(donor, "123", "a", "b"))
+	assert.Equal(t, actor.TypeAttorney, attorneyMatches(donor, "123", "c", "d"))
+	assert.Equal(t, actor.TypeNone, attorneyMatches(donor, "123", "e", "f"))
+	assert.Equal(t, actor.TypeReplacementAttorney, attorneyMatches(donor, "123", "g", "h"))
+	assert.Equal(t, actor.TypeReplacementAttorney, attorneyMatches(donor, "123", "I", "J"))
+	assert.Equal(t, actor.TypeCertificateProvider, attorneyMatches(donor, "123", "k", "l"))
+	assert.Equal(t, actor.TypePersonToNotify, attorneyMatches(donor, "123", "M", "N"))
+	assert.Equal(t, actor.TypePersonToNotify, attorneyMatches(donor, "123", "o", "p"))
+	assert.Equal(t, actor.TypeAuthorisedSignatory, attorneyMatches(donor, "123", "a", "s"))
+	assert.Equal(t, actor.TypeIndependentWitness, attorneyMatches(donor, "123", "i", "w"))
 }
 
 func TestAttorneyMatchesEmptyNamesIgnored(t *testing.T) {
-	lpa := &actor.DonorProvidedDetails{
+	donor := &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "", LastName: ""},
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{ID: "123", FirstNames: "", LastName: ""},
@@ -632,5 +632,5 @@ func TestAttorneyMatchesEmptyNamesIgnored(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, actor.TypeNone, attorneyMatches(lpa, "123", "", ""))
+	assert.Equal(t, actor.TypeNone, attorneyMatches(donor, "123", "", ""))
 }

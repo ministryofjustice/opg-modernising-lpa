@@ -23,7 +23,7 @@ func TestGetWantReplacementAttorneys(t *testing.T) {
 	template.
 		On("Execute", w, &wantReplacementAttorneysData{
 			App:     testAppData,
-			Lpa:     &actor.DonorProvidedDetails{},
+			Donor:   &actor.DonorProvidedDetails{},
 			Form:    &form.YesNoForm{},
 			Options: form.YesNoValues,
 		}).
@@ -42,7 +42,7 @@ func TestGetWantReplacementAttorneysWithExistingReplacementAttorneys(t *testing.
 
 	template := newMockTemplate(t)
 
-	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "this"}}}})
+	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "this"}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -57,8 +57,8 @@ func TestGetWantReplacementAttorneysFromStore(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &wantReplacementAttorneysData{
-			App: testAppData,
-			Lpa: &actor.DonorProvidedDetails{WantReplacementAttorneys: form.Yes},
+			App:   testAppData,
+			Donor: &actor.DonorProvidedDetails{WantReplacementAttorneys: form.Yes},
 			Form: &form.YesNoForm{
 				YesNo: form.Yes,
 			},
@@ -129,7 +129,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &actor.DonorProvidedDetails{
-					ID:                       "lpa-id",
+					LpaID:                    "lpa-id",
 					WantReplacementAttorneys: tc.yesNo,
 					ReplacementAttorneys:     tc.expectedReplacementAttorneys,
 					Tasks:                    actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, ChooseReplacementAttorneys: tc.taskState},
@@ -137,7 +137,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 				Return(nil)
 
 			err := WantReplacementAttorneys(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-				ID:                   "lpa-id",
+				LpaID:                "lpa-id",
 				ReplacementAttorneys: tc.existingReplacementAttorneys,
 				Tasks:                actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 			})

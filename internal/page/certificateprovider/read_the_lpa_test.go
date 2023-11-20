@@ -16,13 +16,13 @@ func TestGetReadTheLpa(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &actor.DonorProvidedDetails{}
+	donor := &actor.DonorProvidedDetails{}
 	certificateProvider := &actor.CertificateProviderProvidedDetails{}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(lpa, nil)
+		Return(donor, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -31,7 +31,7 @@ func TestGetReadTheLpa(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &readTheLpaData{App: testAppData, Lpa: lpa, CertificateProvider: certificateProvider}).
+		On("Execute", w, &readTheLpaData{App: testAppData, Donor: donor, CertificateProvider: certificateProvider}).
 		Return(nil)
 
 	err := ReadTheLpa(template.Execute, donorStore, certificateProviderStore)(testAppData, w, r)
@@ -45,12 +45,12 @@ func TestGetReadTheLpaWhenDonorStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &actor.DonorProvidedDetails{}
+	donor := &actor.DonorProvidedDetails{}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(lpa, expectedError)
+		Return(donor, expectedError)
 
 	err := ReadTheLpa(nil, donorStore, nil)(testAppData, w, r)
 
@@ -108,7 +108,7 @@ func TestPostReadTheLpa(t *testing.T) {
 	donorStore.
 		On("GetAny", r.Context()).
 		Return(&actor.DonorProvidedDetails{
-			ID:       "lpa-id",
+			LpaID:    "lpa-id",
 			SignedAt: time.Now(),
 			Tasks: actor.DonorTasks{
 				PayForLpa: actor.PaymentTaskCompleted,
@@ -138,18 +138,18 @@ func TestPostReadTheLpa(t *testing.T) {
 func TestPostReadTheLpaWhenNotReady(t *testing.T) {
 	testcases := map[string]*actor.DonorProvidedDetails{
 		"not submitted": {
-			ID: "lpa-id",
+			LpaID: "lpa-id",
 			Tasks: actor.DonorTasks{
 				PayForLpa: actor.PaymentTaskCompleted,
 			},
 		},
 		"not paid": {
-			ID:       "lpa-id",
+			LpaID:    "lpa-id",
 			SignedAt: time.Now(),
 		},
 	}
 
-	for name, lpa := range testcases {
+	for name, donor := range testcases {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", nil)
@@ -157,7 +157,7 @@ func TestPostReadTheLpaWhenNotReady(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("GetAny", r.Context()).
-				Return(lpa, nil)
+				Return(donor, nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.
@@ -182,7 +182,7 @@ func TestPostReadTheLpaWithAttorneyOnCertificateStoreError(t *testing.T) {
 	donorStore.
 		On("GetAny", r.Context()).
 		Return(&actor.DonorProvidedDetails{
-			ID:       "lpa-id",
+			LpaID:    "lpa-id",
 			SignedAt: time.Now(),
 			Tasks: actor.DonorTasks{
 				PayForLpa: actor.PaymentTaskCompleted,

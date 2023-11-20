@@ -125,7 +125,7 @@ func TestPostYourAddressManual(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID: "lpa-id",
+			LpaID: "lpa-id",
 			Donor: actor.Donor{
 				Address: testAddress,
 			},
@@ -133,7 +133,7 @@ func TestPostYourAddressManual(t *testing.T) {
 		Return(nil)
 
 	err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		Donor: actor.Donor{
 			Address: place.Address{Line1: "a", Line2: "b", Line3: "c", TownOrCity: "d"},
 		},
@@ -163,7 +163,7 @@ func TestPostYourAddressManualWhenPostcodeNotChanged(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID: "lpa-id",
+			LpaID: "lpa-id",
 			Donor: actor.Donor{
 				Address: testAddress,
 			},
@@ -172,7 +172,7 @@ func TestPostYourAddressManualWhenPostcodeNotChanged(t *testing.T) {
 		Return(nil)
 
 	err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		Donor: actor.Donor{
 			Address: place.Address{Postcode: "E"},
 		},
@@ -230,7 +230,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID: "lpa-id",
+			LpaID: "lpa-id",
 			Donor: actor.Donor{
 				FirstNames: "John",
 				Address:    testAddress,
@@ -239,7 +239,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 		Return(nil)
 
 	err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		Donor: actor.Donor{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},

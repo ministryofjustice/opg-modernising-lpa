@@ -22,9 +22,9 @@ func TestGetConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &confirmYourCertificateProviderIsNotRelatedData{
-			App: testAppData,
-			Yes: form.Yes,
-			Lpa: &actor.DonorProvidedDetails{},
+			App:   testAppData,
+			Yes:   form.Yes,
+			Donor: &actor.DonorProvidedDetails{},
 		}).
 		Return(nil)
 
@@ -42,9 +42,9 @@ func TestGetConfirmYourCertificateProviderIsNotRelatedFromStore(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &confirmYourCertificateProviderIsNotRelatedData{
-			App: testAppData,
-			Yes: form.Yes,
-			Lpa: &actor.DonorProvidedDetails{},
+			App:   testAppData,
+			Yes:   form.Yes,
+			Donor: &actor.DonorProvidedDetails{},
 		}).
 		Return(nil)
 
@@ -83,7 +83,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID:                             "lpa-id",
+			LpaID:                          "lpa-id",
 			Donor:                          actor.Donor{CanSign: form.Yes},
 			HasSentApplicationUpdatedEvent: true,
 			Tasks: actor.DonorTasks{
@@ -100,7 +100,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 		Return(nil)
 
 	err := ConfirmYourCertificateProviderIsNotRelated(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID:                             "lpa-id",
+		LpaID:                          "lpa-id",
 		Donor:                          actor.Donor{CanSign: form.Yes},
 		HasSentApplicationUpdatedEvent: true,
 		Tasks: actor.DonorTasks{

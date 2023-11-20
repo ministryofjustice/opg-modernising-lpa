@@ -48,7 +48,7 @@ func TestPostSendUsYourEvidenceByPost(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
-	lpa := &actor.DonorProvidedDetails{ID: "lpa-id", UID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Post}
+	donor := &actor.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Post}
 
 	eventClient := newMockEventClient(t)
 	eventClient.
@@ -61,10 +61,10 @@ func TestPostSendUsYourEvidenceByPost(t *testing.T) {
 
 	payer := newMockPayer(t)
 	payer.
-		On("Pay", testAppData, w, r, lpa).
+		On("Pay", testAppData, w, r, donor).
 		Return(nil)
 
-	err := SendUsYourEvidenceByPost(nil, payer, eventClient)(testAppData, w, r, lpa)
+	err := SendUsYourEvidenceByPost(nil, payer, eventClient)(testAppData, w, r, donor)
 	assert.Nil(t, err)
 }
 

@@ -89,15 +89,15 @@ func TestPostPreviousApplicationNumber(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &actor.DonorProvidedDetails{
-					ID:                        "lpa-id",
-					UID:                       "lpa-uid",
+					LpaID:                     "lpa-id",
+					LpaUID:                    "lpa-uid",
 					PreviousApplicationNumber: start,
 				}).
 				Return(nil)
 
 			err := PreviousApplicationNumber(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-				ID:  "lpa-id",
-				UID: "lpa-uid",
+				LpaID:  "lpa-id",
+				LpaUID: "lpa-uid",
 			})
 			resp := w.Result()
 
@@ -118,8 +118,8 @@ func TestPostPreviousApplicationNumberWhenNotChanged(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	err := PreviousApplicationNumber(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID:                        "lpa-id",
-		UID:                       "lpa-uid",
+		LpaID:                     "lpa-id",
+		LpaUID:                    "lpa-uid",
 		PreviousApplicationNumber: "M-0000",
 	})
 	resp := w.Result()

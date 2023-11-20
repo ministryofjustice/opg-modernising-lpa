@@ -18,22 +18,22 @@ type sendUsYourEvidenceByPostData struct {
 }
 
 func SendUsYourEvidenceByPost(tmpl template.Template, payer Payer, eventClient EventClient) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &sendUsYourEvidenceByPostData{
 			App:     appData,
-			FeeType: lpa.FeeType,
+			FeeType: donor.FeeType,
 		}
 
 		if r.Method == http.MethodPost {
 			if err := eventClient.SendReducedFeeRequested(r.Context(), event.ReducedFeeRequested{
-				UID:              lpa.UID,
-				RequestType:      lpa.FeeType.String(),
-				EvidenceDelivery: lpa.EvidenceDelivery.String(),
+				UID:              donor.LpaUID,
+				RequestType:      donor.FeeType.String(),
+				EvidenceDelivery: donor.EvidenceDelivery.String(),
 			}); err != nil {
 				return err
 			}
 
-			return payer.Pay(appData, w, r, lpa)
+			return payer.Pay(appData, w, r, donor)
 		}
 
 		return tmpl(w, data)

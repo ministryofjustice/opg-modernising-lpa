@@ -23,7 +23,7 @@ func TestGetDoYouWantToNotifyPeople(t *testing.T) {
 	template.
 		On("Execute", w, &doYouWantToNotifyPeopleData{
 			App:     testAppData,
-			Lpa:     &actor.DonorProvidedDetails{},
+			Donor:   &actor.DonorProvidedDetails{},
 			Form:    &form.YesNoForm{},
 			Options: form.YesNoValues,
 		}).
@@ -44,7 +44,7 @@ func TestGetDoYouWantToNotifyPeopleFromStore(t *testing.T) {
 	template.
 		On("Execute", w, &doYouWantToNotifyPeopleData{
 			App: testAppData,
-			Lpa: &actor.DonorProvidedDetails{
+			Donor: &actor.DonorProvidedDetails{
 				DoYouWantToNotifyPeople: form.Yes,
 			},
 			Form: &form.YesNoForm{
@@ -91,7 +91,7 @@ func TestGetDoYouWantToNotifyPeopleHowAttorneysWorkTogether(t *testing.T) {
 			template.
 				On("Execute", w, &doYouWantToNotifyPeopleData{
 					App: testAppData,
-					Lpa: &actor.DonorProvidedDetails{
+					Donor: &actor.DonorProvidedDetails{
 						DoYouWantToNotifyPeople: form.Yes,
 						AttorneyDecisions:       actor.AttorneyDecisions{How: tc.howWorkTogether},
 					},
@@ -122,7 +122,7 @@ func TestGetDoYouWantToNotifyPeopleFromStoreWithPeople(t *testing.T) {
 	template := newMockTemplate(t)
 
 	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		PeopleToNotify: actor.PeopleToNotify{
 			{ID: "123"},
 		},
@@ -184,7 +184,7 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &actor.DonorProvidedDetails{
-					ID:                      "lpa-id",
+					LpaID:                   "lpa-id",
 					DoYouWantToNotifyPeople: tc.YesNo,
 					Tasks: actor.DonorTasks{
 						YourDetails:                actor.TaskCompleted,
@@ -199,7 +199,7 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 				Return(nil)
 
 			err := DoYouWantToNotifyPeople(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-				ID:                      "lpa-id",
+				LpaID:                   "lpa-id",
 				DoYouWantToNotifyPeople: tc.ExistingAnswer,
 				Tasks: actor.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
