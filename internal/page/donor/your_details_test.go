@@ -226,7 +226,7 @@ func TestPostYourDetails(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &actor.DonorProvidedDetails{
-					ID:    "lpa-id",
+					LpaID: "lpa-id",
 					Donor: tc.person,
 					Tasks: actor.DonorTasks{YourDetails: actor.TaskInProgress},
 				}).
@@ -238,7 +238,7 @@ func TestPostYourDetails(t *testing.T) {
 				Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
 			err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-				ID: "lpa-id",
+				LpaID: "lpa-id",
 				Donor: actor.Donor{
 					FirstNames: "John",
 					Address:    place.Address{Line1: "abc"},
@@ -273,7 +273,7 @@ func TestPostYourDetailsWhenDetailsNotChanged(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID: "lpa-id",
+			LpaID: "lpa-id",
 			Donor: actor.Donor{
 				FirstNames:    "John",
 				LastName:      "Doe",
@@ -293,7 +293,7 @@ func TestPostYourDetailsWhenDetailsNotChanged(t *testing.T) {
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
 	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		Donor: actor.Donor{
 			FirstNames:  "John",
 			LastName:    "Doe",
@@ -328,7 +328,7 @@ func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID: "lpa-id",
+			LpaID: "lpa-id",
 			Donor: actor.Donor{
 				FirstNames:    "John",
 				LastName:      "Doe",
@@ -348,7 +348,7 @@ func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
 	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		Donor: actor.Donor{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
@@ -690,7 +690,7 @@ func TestYourDetailsFormDobWarning(t *testing.T) {
 }
 
 func TestDonorMatches(t *testing.T) {
-	lpa := &actor.DonorProvidedDetails{
+	donor := &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{FirstNames: "c", LastName: "d"},
@@ -709,21 +709,21 @@ func TestDonorMatches(t *testing.T) {
 		IndependentWitness:  actor.IndependentWitness{FirstNames: "i", LastName: "w"},
 	}
 
-	assert.Equal(t, actor.TypeNone, donorMatches(lpa, "x", "y"))
-	assert.Equal(t, actor.TypeNone, donorMatches(lpa, "a", "b"))
-	assert.Equal(t, actor.TypeAttorney, donorMatches(lpa, "C", "D"))
-	assert.Equal(t, actor.TypeAttorney, donorMatches(lpa, "e", "f"))
-	assert.Equal(t, actor.TypeReplacementAttorney, donorMatches(lpa, "G", "H"))
-	assert.Equal(t, actor.TypeReplacementAttorney, donorMatches(lpa, "i", "j"))
-	assert.Equal(t, actor.TypeCertificateProvider, donorMatches(lpa, "k", "l"))
-	assert.Equal(t, actor.TypePersonToNotify, donorMatches(lpa, "m", "n"))
-	assert.Equal(t, actor.TypePersonToNotify, donorMatches(lpa, "O", "P"))
-	assert.Equal(t, actor.TypeAuthorisedSignatory, donorMatches(lpa, "a", "s"))
-	assert.Equal(t, actor.TypeIndependentWitness, donorMatches(lpa, "i", "w"))
+	assert.Equal(t, actor.TypeNone, donorMatches(donor, "x", "y"))
+	assert.Equal(t, actor.TypeNone, donorMatches(donor, "a", "b"))
+	assert.Equal(t, actor.TypeAttorney, donorMatches(donor, "C", "D"))
+	assert.Equal(t, actor.TypeAttorney, donorMatches(donor, "e", "f"))
+	assert.Equal(t, actor.TypeReplacementAttorney, donorMatches(donor, "G", "H"))
+	assert.Equal(t, actor.TypeReplacementAttorney, donorMatches(donor, "i", "j"))
+	assert.Equal(t, actor.TypeCertificateProvider, donorMatches(donor, "k", "l"))
+	assert.Equal(t, actor.TypePersonToNotify, donorMatches(donor, "m", "n"))
+	assert.Equal(t, actor.TypePersonToNotify, donorMatches(donor, "O", "P"))
+	assert.Equal(t, actor.TypeAuthorisedSignatory, donorMatches(donor, "a", "s"))
+	assert.Equal(t, actor.TypeIndependentWitness, donorMatches(donor, "i", "w"))
 }
 
 func TestDonorMatchesEmptyNamesIgnored(t *testing.T) {
-	lpa := &actor.DonorProvidedDetails{
+	donor := &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "", LastName: ""},
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{FirstNames: "", LastName: ""},
@@ -737,5 +737,5 @@ func TestDonorMatchesEmptyNamesIgnored(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, actor.TypeNone, donorMatches(lpa, "", ""))
+	assert.Equal(t, actor.TypeNone, donorMatches(donor, "", ""))
 }

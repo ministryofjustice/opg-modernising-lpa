@@ -12,7 +12,7 @@ import (
 type confirmYourDetailsData struct {
 	App                 page.AppData
 	Errors              validation.List
-	Lpa                 *actor.DonorProvidedDetails
+	Donor               *actor.DonorProvidedDetails
 	CertificateProvider *actor.CertificateProviderProvidedDetails
 }
 
@@ -23,14 +23,14 @@ func ConfirmYourDetails(tmpl template.Template, donorStore DonorStore, certifica
 			return err
 		}
 
-		lpa, err := donorStore.GetAny(r.Context())
+		donor, err := donorStore.GetAny(r.Context())
 		if err != nil {
 			return err
 		}
 
 		if r.Method == http.MethodPost {
 			redirect := page.Paths.CertificateProvider.YourRole
-			if certificateProvider.Tasks.ConfirmYourDetails.Completed() || !lpa.SignedAt.IsZero() {
+			if certificateProvider.Tasks.ConfirmYourDetails.Completed() || !donor.SignedAt.IsZero() {
 				redirect = page.Paths.CertificateProvider.TaskList
 			}
 
@@ -46,7 +46,7 @@ func ConfirmYourDetails(tmpl template.Template, donorStore DonorStore, certifica
 		data := &confirmYourDetailsData{
 			App:                 appData,
 			CertificateProvider: certificateProvider,
-			Lpa:                 lpa,
+			Donor:               donor,
 		}
 
 		return tmpl(w, data)

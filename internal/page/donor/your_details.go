@@ -25,27 +25,27 @@ type yourDetailsData struct {
 }
 
 func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore sessions.Store) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &yourDetailsData{
 			App: appData,
 			Form: &yourDetailsForm{
-				FirstNames: lpa.Donor.FirstNames,
-				LastName:   lpa.Donor.LastName,
-				OtherNames: lpa.Donor.OtherNames,
-				Dob:        lpa.Donor.DateOfBirth,
-				CanSign:    lpa.Donor.ThinksCanSign,
+				FirstNames: donor.Donor.FirstNames,
+				LastName:   donor.Donor.LastName,
+				OtherNames: donor.Donor.OtherNames,
+				Dob:        donor.Donor.DateOfBirth,
+				CanSign:    donor.Donor.ThinksCanSign,
 			},
 			YesNoMaybeOptions: actor.YesNoMaybeValues,
 		}
 
 		if r.Method == http.MethodGet && data.Form.FirstNames == "" {
-			if latestLpa, _ := donorStore.Latest(r.Context()); latestLpa != nil {
+			if latestDonor, _ := donorStore.Latest(r.Context()); latestDonor != nil {
 				data.Form = &yourDetailsForm{
-					FirstNames: latestLpa.Donor.FirstNames,
-					LastName:   latestLpa.Donor.LastName,
-					OtherNames: latestLpa.Donor.OtherNames,
-					Dob:        latestLpa.Donor.DateOfBirth,
-					CanSign:    latestLpa.Donor.ThinksCanSign,
+					FirstNames: latestDonor.Donor.FirstNames,
+					LastName:   latestDonor.Donor.LastName,
+					OtherNames: latestDonor.Donor.OtherNames,
+					Dob:        latestDonor.Donor.DateOfBirth,
+					CanSign:    latestDonor.Donor.ThinksCanSign,
 				}
 			}
 		}
@@ -65,7 +65,7 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 
 			nameWarning := actor.NewSameNameWarning(
 				actor.TypeDonor,
-				donorMatches(lpa, data.Form.FirstNames, data.Form.LastName),
+				donorMatches(donor, data.Form.FirstNames, data.Form.LastName),
 				data.Form.FirstNames,
 				data.Form.LastName,
 			)
@@ -81,33 +81,33 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 			if !data.Errors.Any() && data.DobWarning == "" && data.NameWarning == nil {
 				redirect := page.Paths.YourAddress
 
-				if lpa.Donor.FirstNames != data.Form.FirstNames || lpa.Donor.LastName != data.Form.LastName || lpa.Donor.DateOfBirth != data.Form.Dob {
-					lpa.Donor.FirstNames = data.Form.FirstNames
-					lpa.Donor.LastName = data.Form.LastName
-					lpa.Donor.DateOfBirth = data.Form.Dob
+				if donor.Donor.FirstNames != data.Form.FirstNames || donor.Donor.LastName != data.Form.LastName || donor.Donor.DateOfBirth != data.Form.Dob {
+					donor.Donor.FirstNames = data.Form.FirstNames
+					donor.Donor.LastName = data.Form.LastName
+					donor.Donor.DateOfBirth = data.Form.Dob
 
-					lpa.HasSentApplicationUpdatedEvent = false
+					donor.HasSentApplicationUpdatedEvent = false
 				}
 
-				lpa.Donor.OtherNames = data.Form.OtherNames
-				lpa.Donor.ThinksCanSign = data.Form.CanSign
-				lpa.Donor.Email = loginSession.Email
+				donor.Donor.OtherNames = data.Form.OtherNames
+				donor.Donor.ThinksCanSign = data.Form.CanSign
+				donor.Donor.Email = loginSession.Email
 
-				if lpa.Donor.ThinksCanSign.IsYes() {
-					lpa.Donor.CanSign = form.Yes
+				if donor.Donor.ThinksCanSign.IsYes() {
+					donor.Donor.CanSign = form.Yes
 				} else {
 					redirect = page.Paths.CheckYouCanSign
 				}
 
-				if !lpa.Tasks.YourDetails.Completed() {
-					lpa.Tasks.YourDetails = actor.TaskInProgress
+				if !donor.Tasks.YourDetails.Completed() {
+					donor.Tasks.YourDetails = actor.TaskInProgress
 				}
 
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				return redirect.Redirect(w, r, appData, lpa)
+				return redirect.Redirect(w, r, appData, donor)
 			}
 		}
 
@@ -190,38 +190,38 @@ func (f *yourDetailsForm) DobWarning() string {
 	return ""
 }
 
-func donorMatches(lpa *actor.DonorProvidedDetails, firstNames, lastName string) actor.Type {
+func donorMatches(donor *actor.DonorProvidedDetails, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}
 
-	for _, attorney := range lpa.Attorneys.Attorneys {
+	for _, attorney := range donor.Attorneys.Attorneys {
 		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeAttorney
 		}
 	}
 
-	for _, attorney := range lpa.ReplacementAttorneys.Attorneys {
+	for _, attorney := range donor.ReplacementAttorneys.Attorneys {
 		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeReplacementAttorney
 		}
 	}
 
-	if strings.EqualFold(lpa.CertificateProvider.FirstNames, firstNames) && strings.EqualFold(lpa.CertificateProvider.LastName, lastName) {
+	if strings.EqualFold(donor.CertificateProvider.FirstNames, firstNames) && strings.EqualFold(donor.CertificateProvider.LastName, lastName) {
 		return actor.TypeCertificateProvider
 	}
 
-	for _, person := range lpa.PeopleToNotify {
+	for _, person := range donor.PeopleToNotify {
 		if strings.EqualFold(person.FirstNames, firstNames) && strings.EqualFold(person.LastName, lastName) {
 			return actor.TypePersonToNotify
 		}
 	}
 
-	if strings.EqualFold(lpa.AuthorisedSignatory.FirstNames, firstNames) && strings.EqualFold(lpa.AuthorisedSignatory.LastName, lastName) {
+	if strings.EqualFold(donor.AuthorisedSignatory.FirstNames, firstNames) && strings.EqualFold(donor.AuthorisedSignatory.LastName, lastName) {
 		return actor.TypeAuthorisedSignatory
 	}
 
-	if strings.EqualFold(lpa.IndependentWitness.FirstNames, firstNames) && strings.EqualFold(lpa.IndependentWitness.LastName, lastName) {
+	if strings.EqualFold(donor.IndependentWitness.FirstNames, firstNames) && strings.EqualFold(donor.IndependentWitness.LastName, lastName) {
 		return actor.TypeIndependentWitness
 	}
 

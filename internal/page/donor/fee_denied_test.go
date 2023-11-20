@@ -13,14 +13,14 @@ func TestGetFeeDenied(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &actor.DonorProvidedDetails{Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
+	donor := &actor.DonorProvidedDetails{Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, feeDeniedData{Lpa: lpa, App: testAppData}).
+		On("Execute", w, feeDeniedData{Donor: donor, App: testAppData}).
 		Return(nil)
 
-	err := FeeDenied(template.Execute, nil)(testAppData, w, r, lpa)
+	err := FeeDenied(template.Execute, nil)(testAppData, w, r, donor)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -31,14 +31,14 @@ func TestPostFeeDenied(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpa := &actor.DonorProvidedDetails{Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
+	donor := &actor.DonorProvidedDetails{Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
 
 	payer := newMockPayer(t)
 	payer.
-		On("Pay", testAppData, w, r, lpa).
+		On("Pay", testAppData, w, r, donor).
 		Return(nil)
 
-	err := FeeDenied(nil, payer)(testAppData, w, r, lpa)
+	err := FeeDenied(nil, payer)(testAppData, w, r, donor)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -49,14 +49,14 @@ func TestPostFeeDeniedWhenPayerError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpa := &actor.DonorProvidedDetails{Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
+	donor := &actor.DonorProvidedDetails{Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
 
 	payer := newMockPayer(t)
 	payer.
-		On("Pay", testAppData, w, r, lpa).
+		On("Pay", testAppData, w, r, donor).
 		Return(expectedError)
 
-	err := FeeDenied(nil, payer)(testAppData, w, r, lpa)
+	err := FeeDenied(nil, payer)(testAppData, w, r, donor)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

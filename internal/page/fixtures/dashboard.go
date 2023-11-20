@@ -53,9 +53,9 @@ func Dashboard(
 				return err
 			}
 
-			donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID, LpaID: lpa.ID})
+			donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID, LpaID: lpa.LpaID})
 
-			lpa.UID = makeUid()
+			lpa.LpaUID = makeUid()
 			lpa.Donor = makeDonor()
 			lpa.Type = actor.LpaTypePropertyFinance
 
@@ -74,13 +74,13 @@ func Dashboard(
 				return err
 			}
 			lpa.Donor = makeDonor()
-			lpa.UID = makeUid()
+			lpa.LpaUID = makeUid()
 
-			if err := donorStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: lpa.ID}), lpa); err != nil {
+			if err := donorStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: lpa.LpaID}), lpa); err != nil {
 				return err
 			}
 
-			certificateProviderCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID, LpaID: lpa.ID})
+			certificateProviderCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID, LpaID: lpa.LpaID})
 
 			certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID)
 			if err != nil {
@@ -101,13 +101,13 @@ func Dashboard(
 			lpa.Attorneys = actor.Attorneys{
 				Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},
 			}
-			lpa.UID = makeUid()
+			lpa.LpaUID = makeUid()
 
-			if err := donorStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: lpa.ID}), lpa); err != nil {
+			if err := donorStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: lpa.LpaID}), lpa); err != nil {
 				return err
 			}
 
-			attorneyCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID, LpaID: lpa.ID})
+			attorneyCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID, LpaID: lpa.LpaID})
 
 			attorney, err := attorneyStore.Create(attorneyCtx, donorSessionID, lpa.Attorneys.Attorneys[0].ID, false, false)
 			if err != nil {

@@ -19,12 +19,12 @@ type howDoYouKnowYourCertificateProviderData struct {
 }
 
 func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &howDoYouKnowYourCertificateProviderData{
 			App:                 appData,
-			CertificateProvider: lpa.CertificateProvider,
+			CertificateProvider: donor.CertificateProvider,
 			Form: &howDoYouKnowYourCertificateProviderForm{
-				How: lpa.CertificateProvider.Relationship,
+				How: donor.CertificateProvider.Relationship,
 			},
 			Options: actor.CertificateProviderRelationshipValues,
 		}
@@ -34,26 +34,26 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore Dono
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				if data.Form.How.IsProfessionally() && lpa.CertificateProvider.Relationship.IsPersonally() {
-					lpa.CertificateProvider.RelationshipLength = actor.RelationshipLengthUnknown
+				if data.Form.How.IsProfessionally() && donor.CertificateProvider.Relationship.IsPersonally() {
+					donor.CertificateProvider.RelationshipLength = actor.RelationshipLengthUnknown
 				}
 
-				if !lpa.CertificateProvider.Relationship.Empty() && data.Form.How != lpa.CertificateProvider.Relationship {
-					lpa.Tasks.CertificateProvider = actor.TaskInProgress
-					lpa.CertificateProvider.Address = place.Address{}
+				if !donor.CertificateProvider.Relationship.Empty() && data.Form.How != donor.CertificateProvider.Relationship {
+					donor.Tasks.CertificateProvider = actor.TaskInProgress
+					donor.CertificateProvider.Address = place.Address{}
 				}
 
-				lpa.CertificateProvider.Relationship = data.Form.How
+				donor.CertificateProvider.Relationship = data.Form.How
 
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				if lpa.CertificateProvider.Relationship.IsPersonally() {
-					return page.Paths.HowLongHaveYouKnownCertificateProvider.Redirect(w, r, appData, lpa)
+				if donor.CertificateProvider.Relationship.IsPersonally() {
+					return page.Paths.HowLongHaveYouKnownCertificateProvider.Redirect(w, r, appData, donor)
 				}
 
-				return page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Redirect(w, r, appData, lpa)
+				return page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Redirect(w, r, appData, donor)
 			}
 		}
 

@@ -285,7 +285,7 @@ func TestDocumentStoreSubmit(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
-	lpa := &actor.DonorProvidedDetails{UID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
+	donor := &actor.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
 	documents := page.Documents{
 		{PK: "a-pk", SK: "a-sk", Key: "a-key"},
 		{PK: "b-pk", SK: "b-sk", Key: "b-key"},
@@ -324,19 +324,19 @@ func TestDocumentStoreSubmit(t *testing.T) {
 		now:          func() time.Time { return now },
 	}
 
-	err := documentStore.Submit(ctx, lpa, documents)
+	err := documentStore.Submit(ctx, donor, documents)
 	assert.Nil(t, err)
 }
 
 func TestDocumentStoreSubmitWhenNoUnsentDocuments(t *testing.T) {
 	ctx := context.Background()
 
-	lpa := &actor.DonorProvidedDetails{UID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
+	donor := &actor.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
 	documents := page.Documents{{PK: "a-pk", SK: "a-sk", Key: "a-key", Sent: time.Now()}}
 
 	documentStore := &documentStore{}
 
-	err := documentStore.Submit(ctx, lpa, documents)
+	err := documentStore.Submit(ctx, donor, documents)
 	assert.Nil(t, err)
 }
 
@@ -344,7 +344,7 @@ func TestDocumentStoreSubmitWhenS3ClientErrors(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
-	lpa := &actor.DonorProvidedDetails{UID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
+	donor := &actor.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
 	documents := page.Documents{{PK: "a-pk", SK: "a-sk", Key: "a-key"}}
 
 	s3Client := newMockS3Client(t)
@@ -357,7 +357,7 @@ func TestDocumentStoreSubmitWhenS3ClientErrors(t *testing.T) {
 		now:      func() time.Time { return now },
 	}
 
-	err := documentStore.Submit(ctx, lpa, documents)
+	err := documentStore.Submit(ctx, donor, documents)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -365,7 +365,7 @@ func TestDocumentStoreSubmitWhenEventClientErrors(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
-	lpa := &actor.DonorProvidedDetails{UID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
+	donor := &actor.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
 	documents := page.Documents{{PK: "a-pk", SK: "a-sk", Key: "a-key"}}
 
 	s3Client := newMockS3Client(t)
@@ -384,7 +384,7 @@ func TestDocumentStoreSubmitWhenEventClientErrors(t *testing.T) {
 		now:         func() time.Time { return now },
 	}
 
-	err := documentStore.Submit(ctx, lpa, documents)
+	err := documentStore.Submit(ctx, donor, documents)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -392,7 +392,7 @@ func TestDocumentStoreSubmitWhenDynamoClientErrors(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
-	lpa := &actor.DonorProvidedDetails{UID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
+	donor := &actor.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
 	documents := page.Documents{{PK: "a-pk", SK: "a-sk", Key: "a-key"}}
 
 	s3Client := newMockS3Client(t)
@@ -417,7 +417,7 @@ func TestDocumentStoreSubmitWhenDynamoClientErrors(t *testing.T) {
 		now:          func() time.Time { return now },
 	}
 
-	err := documentStore.Submit(ctx, lpa, documents)
+	err := documentStore.Submit(ctx, donor, documents)
 	assert.Equal(t, expectedError, err)
 }
 

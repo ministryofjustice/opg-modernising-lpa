@@ -15,12 +15,12 @@ func TestGetDashboard(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorLpas := []LpaAndActorTasks{
-		{Lpa: &actor.DonorProvidedDetails{ID: "123"}},
-		{Lpa: &actor.DonorProvidedDetails{ID: "456"}},
+		{Donor: &actor.DonorProvidedDetails{LpaID: "123"}},
+		{Donor: &actor.DonorProvidedDetails{LpaID: "456"}},
 	}
 
-	certificateProviderLpas := []LpaAndActorTasks{{Lpa: &actor.DonorProvidedDetails{ID: "abc"}}}
-	attorneyLpas := []LpaAndActorTasks{{Lpa: &actor.DonorProvidedDetails{ID: "def"}}}
+	certificateProviderLpas := []LpaAndActorTasks{{Donor: &actor.DonorProvidedDetails{LpaID: "abc"}}}
+	attorneyLpas := []LpaAndActorTasks{{Donor: &actor.DonorProvidedDetails{LpaID: "def"}}}
 
 	dashboardStore := newMockDashboardStore(t)
 	dashboardStore.
@@ -50,8 +50,8 @@ func TestGetDashboardOnlyDonor(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorLpas := []LpaAndActorTasks{
-		{Lpa: &actor.DonorProvidedDetails{ID: "123"}},
-		{Lpa: &actor.DonorProvidedDetails{ID: "456"}},
+		{Donor: &actor.DonorProvidedDetails{LpaID: "123"}},
+		{Donor: &actor.DonorProvidedDetails{LpaID: "456"}},
 	}
 
 	dashboardStore := newMockDashboardStore(t)
@@ -115,7 +115,7 @@ func TestPostDashboard(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Create", r.Context()).
-		Return(&actor.DonorProvidedDetails{ID: "lpa-id"}, nil)
+		Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	err := Dashboard(nil, donorStore, nil)(AppData{}, w, r)
 	resp := w.Result()
@@ -132,7 +132,7 @@ func TestPostDashboardWhenDonorStoreError(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Create", r.Context()).
-		Return(&actor.DonorProvidedDetails{ID: "123"}, expectedError)
+		Return(&actor.DonorProvidedDetails{LpaID: "123"}, expectedError)
 
 	err := Dashboard(nil, donorStore, nil)(AppData{}, w, r)
 	resp := w.Result()

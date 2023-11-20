@@ -11,17 +11,17 @@ import (
 )
 
 func CertificateProviderAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := newChooseAddressData(
 			appData,
 			"certificateProvider",
-			lpa.CertificateProvider.FullName(),
+			donor.CertificateProvider.FullName(),
 			"",
 			false,
 		)
 
 		// so keys are set when amending address
-		if lpa.CertificateProvider.Relationship.IsProfessionally() {
+		if donor.CertificateProvider.Relationship.IsProfessionally() {
 			data.overrideTitleKeys(titleKeys{
 				Manual:                          "personsWorkAddress",
 				PostcodeSelectAndPostcodeLookup: "selectPersonsWorkAddress",
@@ -31,10 +31,10 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 			})
 		}
 
-		if lpa.CertificateProvider.Address.Line1 != "" {
+		if donor.CertificateProvider.Address.Line1 != "" {
 			data.Form.Action = "manual"
-			data.Form.Address = &lpa.CertificateProvider.Address
-		} else if lpa.CertificateProvider.Relationship.IsProfessionally() {
+			data.Form.Address = &donor.CertificateProvider.Address
+		} else if donor.CertificateProvider.Relationship.IsProfessionally() {
 			data.Form.Action = "postcode"
 		}
 
@@ -43,10 +43,10 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 			data.Errors = data.Form.Validate(false)
 
 			setAddress := func(address place.Address) error {
-				lpa.CertificateProvider.Address = *data.Form.Address
-				lpa.Tasks.CertificateProvider = actor.TaskCompleted
+				donor.CertificateProvider.Address = *data.Form.Address
+				donor.Tasks.CertificateProvider = actor.TaskCompleted
 
-				return donorStore.Put(r.Context(), lpa)
+				return donorStore.Put(r.Context(), donor)
 			}
 
 			switch data.Form.Action {
@@ -56,7 +56,7 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 						return err
 					}
 
-					return page.Paths.TaskList.Redirect(w, r, appData, lpa)
+					return page.Paths.TaskList.Redirect(w, r, appData, donor)
 				}
 
 			case "postcode-select":
@@ -74,7 +74,7 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 				}
 
 			case "reuse":
-				data.Addresses = lpa.ActorAddresses()
+				data.Addresses = donor.ActorAddresses()
 
 			case "reuse-select":
 				if data.Errors.None() {
@@ -82,9 +82,9 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 						return err
 					}
 
-					return page.Paths.TaskList.Redirect(w, r, appData, lpa)
+					return page.Paths.TaskList.Redirect(w, r, appData, donor)
 				} else {
-					data.Addresses = lpa.ActorAddresses()
+					data.Addresses = donor.ActorAddresses()
 				}
 			}
 		}

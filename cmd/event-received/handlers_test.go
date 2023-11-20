@@ -429,7 +429,7 @@ func TestHandleObjectTagsAdded(t *testing.T) {
 			dynamoClient.
 				On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 				Return(func(ctx context.Context, pk, sk string, v interface{}) error {
-					b, _ := json.Marshal(actor.DonorProvidedDetails{ID: "123", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+					b, _ := json.Marshal(actor.DonorProvidedDetails{LpaID: "123", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
 					json.Unmarshal(b, v)
 					return nil
 				})
@@ -515,7 +515,7 @@ func TestHandleObjectTagsAddedWhenDynamoClientOneByUIDError(t *testing.T) {
 	dynamoClient.
 		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
-			b, _ := json.Marshal(actor.DonorProvidedDetails{ID: "123", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			b, _ := json.Marshal(actor.DonorProvidedDetails{LpaID: "123", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
 			json.Unmarshal(b, v)
 			return expectedError
 		})
@@ -549,7 +549,7 @@ func TestHandleObjectTagsAddedWhenDocumentStoreUpdateScanResultsError(t *testing
 	dynamoClient.
 		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
-			b, _ := json.Marshal(actor.DonorProvidedDetails{ID: "123", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			b, _ := json.Marshal(actor.DonorProvidedDetails{LpaID: "123", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
 			json.Unmarshal(b, v)
 			return nil
 		})
@@ -564,7 +564,7 @@ func TestHandleObjectTagsAddedWhenDocumentStoreUpdateScanResultsError(t *testing
 }
 
 func TestGetLpaByUID(t *testing.T) {
-	expectedLpa := actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456"}
+	expectedDonor := actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456"}
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -577,14 +577,14 @@ func TestGetLpaByUID(t *testing.T) {
 	client.
 		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
-			b, _ := json.Marshal(expectedLpa)
+			b, _ := json.Marshal(expectedDonor)
 			json.Unmarshal(b, v)
 			return nil
 		})
 
-	lpa, err := getLpaByUID(ctx, client, "M-1111-2222-3333")
+	lpa, err := getDonorByLpaUID(ctx, client, "M-1111-2222-3333")
 
-	assert.Equal(t, expectedLpa, lpa)
+	assert.Equal(t, expectedDonor, lpa)
 	assert.Nil(t, err)
 }
 
@@ -594,7 +594,7 @@ func TestGetLpaByUIDWhenClientOneByUidError(t *testing.T) {
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(expectedError)
 
-	lpa, err := getLpaByUID(ctx, client, "M-1111-2222-3333")
+	lpa, err := getDonorByLpaUID(ctx, client, "M-1111-2222-3333")
 
 	assert.Equal(t, actor.DonorProvidedDetails{}, lpa)
 	assert.Equal(t, fmt.Errorf("failed to resolve uid: %w", expectedError), err)
@@ -610,7 +610,7 @@ func TestGetLpaByUIDWhenPKMissing(t *testing.T) {
 			return nil
 		})
 
-	lpa, err := getLpaByUID(ctx, client, "M-1111-2222-3333")
+	lpa, err := getDonorByLpaUID(ctx, client, "M-1111-2222-3333")
 
 	assert.Equal(t, actor.DonorProvidedDetails{}, lpa)
 	assert.Equal(t, errors.New("PK missing from LPA in response"), err)
@@ -629,7 +629,7 @@ func TestGetLpaByUIDWhenClientOneError(t *testing.T) {
 		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(expectedError)
 
-	lpa, err := getLpaByUID(ctx, client, "M-1111-2222-3333")
+	lpa, err := getDonorByLpaUID(ctx, client, "M-1111-2222-3333")
 
 	assert.Equal(t, actor.DonorProvidedDetails{}, lpa)
 	assert.Equal(t, fmt.Errorf("failed to get LPA: %w", expectedError), err)

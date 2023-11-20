@@ -1,7 +1,7 @@
 {{ template "page" . }}
 
 {{ define "pageTitle" }}
-  {{ trFormat .App "myLpa" "LpaType" (tr .App .Lpa.Type.LegalTermTransKey) }}
+  {{ trFormat .App "myLpa" "LpaType" (tr .App .Donor.Type.LegalTermTransKey) }}
 {{ end }}
 
 {{ define "main" }}
@@ -9,7 +9,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
       <div class="govuk-body">
-        <span><strong>{{ tr .App "applicationNumber" }}:</strong> {{ .Lpa.ID }}</span>
+        <span><strong>{{ tr .App "applicationNumber" }}:</strong> {{ .Donor.LpaID }}</span>
       </div>
 
       <div id="progress" class="app-progress-bar" aria-label="progress-label">
@@ -23,8 +23,8 @@
           <li id="certificate-provider-declared" class="app-progress-bar__item" {{ if .Progress.CertificateProviderSigned.InProgress }}aria-current="step"{{ end }}>
             <span class="app-progress-bar__icon {{ if .Progress.CertificateProviderSigned.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
             <span class="app-progress-bar__label">
-              {{ if .Lpa.CertificateProvider.FirstNames }}
-                {{ trFormat .App "certificateProviderHasDeclared" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}<span class="govuk-visually-hidden"> {{tr .App .Progress.CertificateProviderSigned.String }}</span>
+              {{ if .Donor.CertificateProvider.FirstNames }}
+                {{ trFormat .App "certificateProviderHasDeclared" "CertificateProviderFullName" .Donor.CertificateProvider.FullName }}<span class="govuk-visually-hidden"> {{tr .App .Progress.CertificateProviderSigned.String }}</span>
               {{ else }}
                 {{ tr .App "yourCertificateProviderHasDeclared" }}<span class="govuk-visually-hidden"> {{tr .App .Progress.CertificateProviderSigned.String }}</span>
               {{ end }}

@@ -12,14 +12,14 @@ import (
 type progressData struct {
 	App             page.AppData
 	Errors          validation.List
-	Lpa             *actor.DonorProvidedDetails
+	Donor           *actor.DonorProvidedDetails
 	Signed          bool
 	AttorneysSigned bool
 }
 
 func Progress(tmpl template.Template, attorneyStore AttorneyStore, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *actor.AttorneyProvidedDetails) error {
-		lpa, err := donorStore.GetAny(r.Context())
+		donor, err := donorStore.GetAny(r.Context())
 		if err != nil {
 			return err
 		}
@@ -31,9 +31,9 @@ func Progress(tmpl template.Template, attorneyStore AttorneyStore, donorStore Do
 
 		data := &progressData{
 			App:             appData,
-			Lpa:             lpa,
-			Signed:          attorneyProvidedDetails.Signed(lpa.SignedAt),
-			AttorneysSigned: lpa.AllAttorneysSigned(attorneys),
+			Donor:           donor,
+			Signed:          attorneyProvidedDetails.Signed(donor.SignedAt),
+			AttorneysSigned: donor.AllAttorneysSigned(attorneys),
 		}
 
 		return tmpl(w, data)

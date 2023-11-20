@@ -26,7 +26,7 @@ func TestGetLpaDetailsSaved(t *testing.T) {
 				On("Execute", w, LpaDetailsSavedData{
 					App:          testAppData,
 					IsFirstCheck: expectedIsFirstCheck,
-					Lpa:          &actor.DonorProvidedDetails{},
+					Donor:        &actor.DonorProvidedDetails{},
 				}).
 				Return(nil)
 

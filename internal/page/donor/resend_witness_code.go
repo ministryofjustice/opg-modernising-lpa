@@ -24,13 +24,13 @@ func ResendWitnessCode(tmpl template.Template, witnessCodeSender WitnessCodeSend
 		redirect = page.Paths.WitnessingAsIndependentWitness
 	}
 
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &resendWitnessCodeData{
 			App: appData,
 		}
 
 		if r.Method == http.MethodPost {
-			if err := send(r.Context(), lpa, appData.Localizer); err != nil {
+			if err := send(r.Context(), donor, appData.Localizer); err != nil {
 				if errors.Is(err, page.ErrTooManyWitnessCodeRequests) {
 					data.Errors.Add("request", validation.CustomError{Label: "pleaseWaitOneMinute"})
 					return tmpl(w, data)
@@ -39,7 +39,7 @@ func ResendWitnessCode(tmpl template.Template, witnessCodeSender WitnessCodeSend
 				return err
 			}
 
-			return redirect.Redirect(w, r, appData, lpa)
+			return redirect.Redirect(w, r, appData, donor)
 		}
 
 		return tmpl(w, data)
