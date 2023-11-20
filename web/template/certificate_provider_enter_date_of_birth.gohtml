@@ -8,13 +8,26 @@
       <form novalidate method="post">
         <h1 class="govuk-heading-xl">{{ tr .App "enterYourDateOfBirth" }}</h1>
 
+        {{ if .Lpa.CertificateProvider.Relationship.IsProfessionally }}
+          <p class="govuk-body">{{ tr .App "thisIsRequiredToCheckAndProtect" }}</p>
+        {{ end }}
+
         {{ template "date" (input . "date-of-birth" "dateOfBirth" .Form.Dob "hint" "dateOfBirthHint") }}
 
         {{ template "dob-warning" . }}
 
-        {{ template "warning" (warning .App "18OrOverWarning") }}
+        {{ if .Lpa.CertificateProvider.Relationship.IsProfessionally }}
+          <div class="govuk-inset-text">{{ tr .App "yourDateOfBirthWillNotBeShown" }}</div>
+        {{ end }}
 
-        {{ template "continue-button" . }}
+        {{ if .Lpa.CertificateProvider.Relationship.IsPersonally }}
+          {{ template "warning" (warning .App "18OrOverWarning") }}
+        {{ end }}
+
+        <div class="govuk-button-group">
+          {{ template "continue-button" . }}
+          <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" id="return-to-tasklist-btn" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+        </div>
 
         {{ template "csrf-field" . }}
       </form>
