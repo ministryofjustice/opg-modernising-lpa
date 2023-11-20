@@ -47,7 +47,7 @@
 
                 <div id="decision-type-3-item-hint" class="govuk-radios__hint">
                   <p>{{ tr .App "jointlyAndSeverallyMixedHint" }}</p>
-                  {{ if .Lpa.Type.IsPropertyFinance }}
+                  {{ if .Donor.Type.IsPropertyFinance }}
                     <p>{{ tr .App "jointlyAndSeverallyMixedHintExamplePA" }}</p>
                   {{ else }}
                     <p>{{ tr .App "jointlyAndSeverallyMixedHintExamplePW" }}</p>

@@ -15,7 +15,7 @@ func TestGetChooseNewCertificateProvider(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &chooseNewCertificateProviderData{Lpa: &actor.DonorProvidedDetails{}, App: testAppData}).
+		On("Execute", w, &chooseNewCertificateProviderData{Donor: &actor.DonorProvidedDetails{}, App: testAppData}).
 		Return(nil)
 
 	err := ChooseNewCertificateProvider(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -31,7 +31,7 @@ func TestGetChooseNewCertificateProviderWhenTemplateError(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &chooseNewCertificateProviderData{Lpa: &actor.DonorProvidedDetails{}, App: testAppData}).
+		On("Execute", w, &chooseNewCertificateProviderData{Donor: &actor.DonorProvidedDetails{}, App: testAppData}).
 		Return(expectedError)
 
 	err := ChooseNewCertificateProvider(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})

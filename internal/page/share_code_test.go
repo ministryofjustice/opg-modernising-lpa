@@ -17,7 +17,7 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 		"identity": true,
 		"sign in":  false,
 	}
-	lpa := &actor.DonorProvidedDetails{
+	donor := &actor.DonorProvidedDetails{
 		CertificateProvider: actor.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
@@ -32,7 +32,7 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", lpa.Type.LegalTermTransKey()).
+		On("T", donor.Type.LegalTermTransKey()).
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Jan").
@@ -76,7 +76,7 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 				Return("", nil)
 
 			sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
-			err := sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, identity, lpa)
+			err := sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, identity, donor)
 
 			assert.Nil(t, err)
 		})
@@ -98,7 +98,7 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 		},
 	}
 
-	lpa := &actor.DonorProvidedDetails{
+	donor := &actor.DonorProvidedDetails{
 		CertificateProvider: actor.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
@@ -113,7 +113,7 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", lpa.Type.LegalTermTransKey()).
+		On("T", donor.Type.LegalTermTransKey()).
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Jan").
@@ -186,11 +186,11 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 				sender.UseTestCode()
 			}
 
-			err := sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, true, lpa)
+			err := sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, true, donor)
 
 			assert.Nil(t, err)
 
-			err = sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, true, lpa)
+			err = sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, true, donor)
 
 			assert.Nil(t, err)
 		})
@@ -200,7 +200,7 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 func TestShareCodeSenderSendCertificateProviderWhenEmailErrors(t *testing.T) {
 	ctx := context.Background()
 
-	lpa := &actor.DonorProvidedDetails{
+	donor := &actor.DonorProvidedDetails{
 		CertificateProvider: actor.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
@@ -215,7 +215,7 @@ func TestShareCodeSenderSendCertificateProviderWhenEmailErrors(t *testing.T) {
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", lpa.Type.LegalTermTransKey()).
+		On("T", donor.Type.LegalTermTransKey()).
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Jan").
@@ -249,7 +249,7 @@ func TestShareCodeSenderSendCertificateProviderWhenEmailErrors(t *testing.T) {
 		Return("", ExpectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
-	err := sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, true, lpa)
+	err := sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, true, donor)
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))
 }
@@ -269,7 +269,7 @@ func TestShareCodeSenderSendCertificateProviderWhenShareCodeStoreErrors(t *testi
 }
 
 func TestShareCodeSenderSendAttorneys(t *testing.T) {
-	lpa := &actor.DonorProvidedDetails{
+	donor := &actor.DonorProvidedDetails{
 		Attorneys: actor.Attorneys{
 			TrustCorporation: actor.TrustCorporation{
 				Name:  "Trusty",
@@ -323,7 +323,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", lpa.Type.LegalTermTransKey()).
+		On("T", donor.Type.LegalTermTransKey()).
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Jan").
@@ -440,7 +440,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 		Return("", nil)
 
 	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
-	err := sender.SendAttorneys(ctx, TestAppData, lpa)
+	err := sender.SendAttorneys(ctx, TestAppData, donor)
 
 	assert.Nil(t, err)
 }
@@ -460,7 +460,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 		},
 	}
 
-	lpa := &actor.DonorProvidedDetails{
+	donor := &actor.DonorProvidedDetails{
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{
 				FirstNames: "Joanna",
@@ -477,7 +477,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", lpa.Type.LegalTermTransKey()).
+		On("T", donor.Type.LegalTermTransKey()).
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Jan").
@@ -538,10 +538,10 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 				sender.UseTestCode()
 			}
 
-			err := sender.SendAttorneys(ctx, TestAppData, lpa)
+			err := sender.SendAttorneys(ctx, TestAppData, donor)
 			assert.Nil(t, err)
 
-			err = sender.SendAttorneys(ctx, TestAppData, lpa)
+			err = sender.SendAttorneys(ctx, TestAppData, donor)
 			assert.Nil(t, err)
 		})
 	}
@@ -550,7 +550,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 	ctx := context.Background()
 
-	lpa := &actor.DonorProvidedDetails{
+	donor := &actor.DonorProvidedDetails{
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{
 				FirstNames: "Joanna",
@@ -567,7 +567,7 @@ func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", lpa.Type.LegalTermTransKey()).
+		On("T", donor.Type.LegalTermTransKey()).
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Jan").
@@ -589,7 +589,7 @@ func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 		Return("", ExpectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
-	err := sender.SendAttorneys(ctx, TestAppData, lpa)
+	err := sender.SendAttorneys(ctx, TestAppData, donor)
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))
 }

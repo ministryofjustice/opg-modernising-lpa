@@ -105,7 +105,7 @@ func TestPostEnterReplacementTrustCorporationAddressManual(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID:    "lpa-id",
+			LpaID: "lpa-id",
 			Tasks: actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 			ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
 				Name:    "a",
@@ -115,7 +115,7 @@ func TestPostEnterReplacementTrustCorporationAddressManual(t *testing.T) {
 		Return(nil)
 
 	err := EnterReplacementTrustCorporationAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
 			Name:    "a",
 			Address: place.Address{},
@@ -171,7 +171,7 @@ func TestPostEnterReplacementTrustCorporationAddressManualFromStore(t *testing.T
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID:    "lpa-id",
+			LpaID: "lpa-id",
 			Tasks: actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 			ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
 				Name:    "John",
@@ -181,7 +181,7 @@ func TestPostEnterReplacementTrustCorporationAddressManualFromStore(t *testing.T
 		Return(nil)
 
 	err := EnterReplacementTrustCorporationAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
 			Name:    "John",
 			Address: place.Address{Line1: "abc"},
@@ -574,14 +574,14 @@ func TestPostEnterReplacementTrustCorporationAddressReuseSelect(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID:                   "lpa-id",
+			LpaID:                "lpa-id",
 			ReplacementAttorneys: actor.Attorneys{TrustCorporation: updatedTrustCorporation},
 			Tasks:                actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
 
 	err := EnterReplacementTrustCorporationAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
 			Name: "a",
 		}},
@@ -658,8 +658,8 @@ func TestPostEnterReplacementTrustCorporationAddressManuallyFromAnotherPage(t *t
 			r, _ := http.NewRequest(http.MethodPost, tc.requestUrl, strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpa := &actor.DonorProvidedDetails{
-				ID: "lpa-id",
+			donor := &actor.DonorProvidedDetails{
+				LpaID: "lpa-id",
 				ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
 					Address: place.Address{
 						Line1:      "a",
@@ -671,10 +671,10 @@ func TestPostEnterReplacementTrustCorporationAddressManuallyFromAnotherPage(t *t
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), lpa).
+				On("Put", r.Context(), donor).
 				Return(nil)
 
-			err := EnterReplacementTrustCorporationAddress(nil, nil, nil, donorStore)(testAppData, w, r, lpa)
+			err := EnterReplacementTrustCorporationAddress(nil, nil, nil, donorStore)(testAppData, w, r, donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)

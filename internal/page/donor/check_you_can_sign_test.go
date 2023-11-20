@@ -58,10 +58,10 @@ func TestPostCheckYouCanSign(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{ID: "lpa-id", Donor: actor.Donor{CanSign: yesNo}}).
+				On("Put", r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{CanSign: yesNo}}).
 				Return(nil)
 
-			err := CheckYouCanSign(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id"})
+			err := CheckYouCanSign(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 
 			resp := w.Result()
 

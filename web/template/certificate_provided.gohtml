@@ -9,7 +9,7 @@
         <h1 class="govuk-panel__title">{{ tr .App "youveProvidedTheCertificateForThisLpa" }}</h1>
       </div>
 
-      {{ trFormatHtml .App "certificateProvidedContent" "DonorFirstNamesPossessive" (possessive .App .Lpa.Donor.FirstNames) }}
+      {{ trFormatHtml .App "certificateProvidedContent" "DonorFirstNamesPossessive" (possessive .App .Donor.Donor.FirstNames) }}
 
       <a href="{{ link .App .App.Paths.Dashboard.Format }}" class="govuk-button">{{ tr .App "goToYourDashboard" }}</a>
     </div>

@@ -7,13 +7,13 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "witnessYourSignature" }}</h1>
 
-      {{ if .Lpa.Donor.CanSign.IsYes }}
-        {{ trFormatHtml .App "witnessYourSignatureContent" "CpFullName" .Lpa.CertificateProvider.FullName "CpFirstNames" .Lpa.CertificateProvider.FirstNames }}
+      {{ if .Donor.Donor.CanSign.IsYes }}
+        {{ trFormatHtml .App "witnessYourSignatureContent" "CpFullName" .Donor.CertificateProvider.FullName "CpFirstNames" .Donor.CertificateProvider.FirstNames }}
 
-        {{ $warningContent := trFormat .App "witnessCodeTimeWarning" "CpFirstNames" .Lpa.CertificateProvider.FirstNames }}
+        {{ $warningContent := trFormat .App "witnessCodeTimeWarning" "CpFirstNames" .Donor.CertificateProvider.FirstNames }}
         {{ template "warning" (warning .App $warningContent)  }}
       {{ else }}
-        {{ trFormatHtml .App "witnessYourSignatureContentCannotSign" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName "IndependentWitnessFullName" .Lpa.IndependentWitness.FullName }}
+        {{ trFormatHtml .App "witnessYourSignatureContentCannotSign" "CertificateProviderFullName" .Donor.CertificateProvider.FullName "IndependentWitnessFullName" .Donor.IndependentWitness.FullName }}
       {{ end }}
 
       <form novalidate method="post">
