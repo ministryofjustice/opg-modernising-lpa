@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -174,6 +175,8 @@ func handler(ctx context.Context, event Event) error {
 		if err != nil {
 			return fmt.Errorf("%s: %w", event.DetailType, err)
 		}
+
+		log.Println("successfully handled ", event.DetailType)
 
 		return nil
 	}
