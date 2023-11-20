@@ -128,7 +128,7 @@ func handler(ctx context.Context, event Event) error {
 	}
 
 	if event.isCloudWatchEvent() {
-		var err error
+		err := fmt.Errorf("unknown cloudwatch event")
 
 		switch event.DetailType {
 		case "uid-requested":
@@ -170,8 +170,6 @@ func handler(ctx context.Context, event Event) error {
 
 		case "move-evidence-required":
 			err = handleMoreEvidenceRequired(ctx, dynamoClient, event.CloudWatchEvent, now)
-		default:
-			err = fmt.Errorf("unknown cloudwatch event")
 		}
 
 		if err != nil {
