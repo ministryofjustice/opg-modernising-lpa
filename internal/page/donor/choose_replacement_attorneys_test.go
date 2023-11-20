@@ -25,9 +25,9 @@ func TestGetChooseReplacementAttorneys(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseReplacementAttorneysData{
-			App:  testAppData,
-			Lpa:  &actor.DonorProvidedDetails{},
-			Form: &chooseAttorneysForm{},
+			App:   testAppData,
+			Donor: &actor.DonorProvidedDetails{},
+			Form:  &chooseAttorneysForm{},
 		}).
 		Return(nil)
 
@@ -42,7 +42,7 @@ func TestGetChooseReplacementAttorneysFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseReplacementAttorneys(nil, nil, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "John", ID: "1"}}}})
+	err := ChooseReplacementAttorneys(nil, nil, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "John", ID: "1"}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -137,14 +137,14 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &actor.DonorProvidedDetails{
-					ID:                   "lpa-id",
+					LpaID:                "lpa-id",
 					Donor:                actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{tc.attorney}},
 					Tasks:                actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 				}).
 				Return(nil)
 
-			err := ChooseReplacementAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id", Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"}})
+			err := ChooseReplacementAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"}})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -228,7 +228,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &actor.DonorProvidedDetails{
-					ID:                   "lpa-id",
+					LpaID:                "lpa-id",
 					Donor:                actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{tc.attorney}},
 					Tasks:                actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskCompleted},
@@ -236,7 +236,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				Return(nil)
 
 			err := ChooseReplacementAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{
-				ID:    "lpa-id",
+				LpaID: "lpa-id",
 				Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{
@@ -402,7 +402,7 @@ func TestPostChooseReplacementAttorneysWhenStoreErrors(t *testing.T) {
 }
 
 func TestReplacementAttorneyMatches(t *testing.T) {
-	lpa := &actor.DonorProvidedDetails{
+	donor := &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{FirstNames: "c", LastName: "d"},
@@ -421,21 +421,21 @@ func TestReplacementAttorneyMatches(t *testing.T) {
 		IndependentWitness:  actor.IndependentWitness{FirstNames: "i", LastName: "w"},
 	}
 
-	assert.Equal(t, actor.TypeNone, replacementAttorneyMatches(lpa, "123", "x", "y"))
-	assert.Equal(t, actor.TypeDonor, replacementAttorneyMatches(lpa, "123", "a", "b"))
-	assert.Equal(t, actor.TypeAttorney, replacementAttorneyMatches(lpa, "123", "C", "D"))
-	assert.Equal(t, actor.TypeAttorney, replacementAttorneyMatches(lpa, "123", "e", "f"))
-	assert.Equal(t, actor.TypeReplacementAttorney, replacementAttorneyMatches(lpa, "123", "g", "h"))
-	assert.Equal(t, actor.TypeNone, replacementAttorneyMatches(lpa, "123", "i", "j"))
-	assert.Equal(t, actor.TypeCertificateProvider, replacementAttorneyMatches(lpa, "123", "K", "l"))
-	assert.Equal(t, actor.TypePersonToNotify, replacementAttorneyMatches(lpa, "123", "m", "n"))
-	assert.Equal(t, actor.TypePersonToNotify, replacementAttorneyMatches(lpa, "123", "O", "P"))
-	assert.Equal(t, actor.TypeAuthorisedSignatory, replacementAttorneyMatches(lpa, "123", "a", "s"))
-	assert.Equal(t, actor.TypeIndependentWitness, replacementAttorneyMatches(lpa, "123", "i", "w"))
+	assert.Equal(t, actor.TypeNone, replacementAttorneyMatches(donor, "123", "x", "y"))
+	assert.Equal(t, actor.TypeDonor, replacementAttorneyMatches(donor, "123", "a", "b"))
+	assert.Equal(t, actor.TypeAttorney, replacementAttorneyMatches(donor, "123", "C", "D"))
+	assert.Equal(t, actor.TypeAttorney, replacementAttorneyMatches(donor, "123", "e", "f"))
+	assert.Equal(t, actor.TypeReplacementAttorney, replacementAttorneyMatches(donor, "123", "g", "h"))
+	assert.Equal(t, actor.TypeNone, replacementAttorneyMatches(donor, "123", "i", "j"))
+	assert.Equal(t, actor.TypeCertificateProvider, replacementAttorneyMatches(donor, "123", "K", "l"))
+	assert.Equal(t, actor.TypePersonToNotify, replacementAttorneyMatches(donor, "123", "m", "n"))
+	assert.Equal(t, actor.TypePersonToNotify, replacementAttorneyMatches(donor, "123", "O", "P"))
+	assert.Equal(t, actor.TypeAuthorisedSignatory, replacementAttorneyMatches(donor, "123", "a", "s"))
+	assert.Equal(t, actor.TypeIndependentWitness, replacementAttorneyMatches(donor, "123", "i", "w"))
 }
 
 func TestReplacementAttorneyMatchesEmptyNamesIgnored(t *testing.T) {
-	lpa := &actor.DonorProvidedDetails{
+	donor := &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "", LastName: ""},
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{FirstNames: "", LastName: ""},
@@ -450,5 +450,5 @@ func TestReplacementAttorneyMatchesEmptyNamesIgnored(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, actor.TypeNone, replacementAttorneyMatches(lpa, "123", "", ""))
+	assert.Equal(t, actor.TypeNone, replacementAttorneyMatches(donor, "123", "", ""))
 }

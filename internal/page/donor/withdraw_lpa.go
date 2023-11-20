@@ -14,23 +14,23 @@ import (
 type withdrawLpaData struct {
 	App    page.AppData
 	Errors validation.List
-	Lpa    *actor.DonorProvidedDetails
+	Donor  *actor.DonorProvidedDetails
 }
 
 func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.Time) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		if r.Method == http.MethodPost {
-			lpa.WithdrawnAt = now()
-			if err := donorStore.Put(r.Context(), lpa); err != nil {
+			donor.WithdrawnAt = now()
+			if err := donorStore.Put(r.Context(), donor); err != nil {
 				return err
 			}
 
-			return page.Paths.LpaWithdrawn.RedirectQuery(w, r, appData, url.Values{"uid": {lpa.UID}})
+			return page.Paths.LpaWithdrawn.RedirectQuery(w, r, appData, url.Values{"uid": {donor.LpaUID}})
 		}
 
 		return tmpl(w, &withdrawLpaData{
-			App: appData,
-			Lpa: lpa,
+			App:   appData,
+			Donor: donor,
 		})
 	}
 }

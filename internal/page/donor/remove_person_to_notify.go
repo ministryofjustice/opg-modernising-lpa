@@ -20,12 +20,12 @@ type removePersonToNotifyData struct {
 }
 
 func RemovePersonToNotify(logger Logger, tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		id := r.FormValue("id")
-		person, found := lpa.PeopleToNotify.Get(id)
+		person, found := donor.PeopleToNotify.Get(id)
 
 		if found == false {
-			return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, lpa)
+			return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, donor)
 		}
 
 		data := &removePersonToNotifyData{
@@ -41,18 +41,18 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, donorStore Dono
 
 			if data.Errors.None() {
 				if data.Form.YesNo == form.Yes {
-					lpa.PeopleToNotify.Delete(person)
-					if len(lpa.PeopleToNotify) == 0 {
-						lpa.Tasks.PeopleToNotify = actor.TaskNotStarted
+					donor.PeopleToNotify.Delete(person)
+					if len(donor.PeopleToNotify) == 0 {
+						donor.Tasks.PeopleToNotify = actor.TaskNotStarted
 					}
 
-					if err := donorStore.Put(r.Context(), lpa); err != nil {
+					if err := donorStore.Put(r.Context(), donor); err != nil {
 						logger.Print(fmt.Sprintf("error removing PersonToNotify from LPA: %s", err.Error()))
 						return err
 					}
 				}
 
-				return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, lpa)
+				return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, donor)
 			}
 		}
 

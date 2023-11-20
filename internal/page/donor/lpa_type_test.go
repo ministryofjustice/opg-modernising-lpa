@@ -81,19 +81,19 @@ func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 func TestPostLpaType(t *testing.T) {
 	testcases := map[actor.LpaType]*actor.DonorProvidedDetails{
 		actor.LpaTypePropertyFinance: {
-			ID:    "lpa-id",
+			LpaID: "lpa-id",
 			Type:  actor.LpaTypePropertyFinance,
 			Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted},
 		},
 		actor.LpaTypeHealthWelfare: {
-			ID:                  "lpa-id",
+			LpaID:               "lpa-id",
 			Type:                actor.LpaTypeHealthWelfare,
 			WhenCanTheLpaBeUsed: actor.CanBeUsedWhenCapacityLost,
 			Tasks:               actor.DonorTasks{YourDetails: actor.TaskCompleted},
 		},
 	}
 
-	for lpaType, lpa := range testcases {
+	for lpaType, donor := range testcases {
 		t.Run(lpaType.String(), func(t *testing.T) {
 			form := url.Values{
 				"lpa-type": {lpaType.String()},
@@ -105,11 +105,11 @@ func TestPostLpaType(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), lpa).
+				On("Put", r.Context(), donor).
 				Return(nil)
 
 			err := LpaType(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-				ID:                             "lpa-id",
+				LpaID:                          "lpa-id",
 				HasSentApplicationUpdatedEvent: true,
 			})
 			resp := w.Result()
@@ -131,8 +131,8 @@ func TestPostLpaTypeWhenNotChanged(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	err := LpaType(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID:   "lpa-id",
-		Type: actor.LpaTypePropertyFinance,
+		LpaID: "lpa-id",
+		Type:  actor.LpaTypePropertyFinance,
 	})
 	resp := w.Result()
 

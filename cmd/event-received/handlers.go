@@ -156,7 +156,7 @@ func handleObjectTagsAdded(ctx context.Context, dynamodbClient dynamodbClient, e
 		return err
 	}
 
-	err = documentStore.UpdateScanResults(ctx, lpa.ID, objectKey, hasVirus)
+	err = documentStore.UpdateScanResults(ctx, lpa.LpaID, objectKey, hasVirus)
 	if err != nil {
 		return fmt.Errorf("failed to update scan results: %w", err)
 	}

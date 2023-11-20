@@ -11,12 +11,12 @@ import (
 )
 
 func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		attorneyId := r.FormValue("id")
-		attorney, found := lpa.Attorneys.Get(attorneyId)
+		attorney, found := donor.Attorneys.Get(attorneyId)
 
 		if found == false {
-			return page.Paths.ChooseAttorneys.Redirect(w, r, appData, lpa)
+			return page.Paths.ChooseAttorneys.Redirect(w, r, appData, donor)
 		}
 
 		data := newChooseAddressData(
@@ -43,11 +43,11 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 
 			setAddress := func(address place.Address) error {
 				attorney.Address = address
-				lpa.Attorneys.Put(attorney)
-				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
-				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
+				donor.Attorneys.Put(attorney)
+				donor.Tasks.ChooseAttorneys = page.ChooseAttorneysState(donor.Attorneys, donor.AttorneyDecisions)
+				donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
 
-				return donorStore.Put(r.Context(), lpa)
+				return donorStore.Put(r.Context(), donor)
 			}
 
 			switch data.Form.Action {
@@ -56,7 +56,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 					return err
 				}
 
-				return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, lpa)
+				return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, donor)
 
 			case "manual":
 				if data.Errors.None() {
@@ -64,7 +64,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 						return err
 					}
 
-					return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, lpa)
+					return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, donor)
 				}
 
 			case "postcode-select":
@@ -82,7 +82,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 				}
 
 			case "reuse":
-				data.Addresses = lpa.ActorAddresses()
+				data.Addresses = donor.ActorAddresses()
 
 			case "reuse-select":
 				if data.Errors.None() {
@@ -90,9 +90,9 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 						return err
 					}
 
-					return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, lpa)
+					return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, donor)
 				} else {
-					data.Addresses = lpa.ActorAddresses()
+					data.Addresses = donor.ActorAddresses()
 				}
 			}
 		}

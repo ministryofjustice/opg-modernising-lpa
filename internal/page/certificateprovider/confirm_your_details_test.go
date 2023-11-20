@@ -16,13 +16,13 @@ func TestConfirmYourDetails(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &actor.DonorProvidedDetails{}
+	donor := &actor.DonorProvidedDetails{}
 	certificateProvider := &actor.CertificateProviderProvidedDetails{}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(lpa, nil)
+		Return(donor, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.
@@ -31,7 +31,7 @@ func TestConfirmYourDetails(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &confirmYourDetailsData{App: testAppData, Lpa: lpa, CertificateProvider: certificateProvider}).
+		On("Execute", w, &confirmYourDetailsData{App: testAppData, Donor: donor, CertificateProvider: certificateProvider}).
 		Return(nil)
 
 	err := ConfirmYourDetails(template.Execute, donorStore, certificateProviderStore)(testAppData, w, r)

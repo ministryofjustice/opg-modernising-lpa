@@ -98,8 +98,8 @@ func TestOneByUID(t *testing.T) {
 		}).
 		Return(&dynamodb.QueryOutput{
 			Items: []map[string]types.AttributeValue{{
-				"PK":  &types.AttributeValueMemberS{Value: "LPA#123"},
-				"UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
+				"PK":     &types.AttributeValueMemberS{Value: "LPA#123"},
+				"LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
 			}},
 		}, nil)
 
@@ -109,7 +109,7 @@ func TestOneByUID(t *testing.T) {
 	err := c.OneByUID(ctx, "M-1111-2222-3333", &v)
 
 	assert.Nil(t, err)
-	assert.Equal(t, actor.DonorProvidedDetails{PK: "LPA#123", UID: "M-1111-2222-3333"}, v)
+	assert.Equal(t, actor.DonorProvidedDetails{PK: "LPA#123", LpaUID: "M-1111-2222-3333"}, v)
 }
 
 func TestOneByUIDWhenQueryError(t *testing.T) {

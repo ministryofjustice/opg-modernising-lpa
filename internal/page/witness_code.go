@@ -28,50 +28,50 @@ func NewWitnessCodeSender(donorStore DonorStore, notifyClient NotifyClient) *Wit
 	}
 }
 
-func (s *WitnessCodeSender) SendToCertificateProvider(ctx context.Context, lpa *actor.DonorProvidedDetails, localizer Localizer) error {
-	if !lpa.CertificateProviderCodes.CanRequest(s.now()) {
+func (s *WitnessCodeSender) SendToCertificateProvider(ctx context.Context, donor *actor.DonorProvidedDetails, localizer Localizer) error {
+	if !donor.CertificateProviderCodes.CanRequest(s.now()) {
 		return ErrTooManyWitnessCodeRequests
 	}
 
 	code := s.randomCode(4)
-	lpa.CertificateProviderCodes = append(lpa.CertificateProviderCodes, actor.WitnessCode{Code: code, Created: s.now()})
+	donor.CertificateProviderCodes = append(donor.CertificateProviderCodes, actor.WitnessCode{Code: code, Created: s.now()})
 
 	_, err := s.notifyClient.Sms(ctx, notify.Sms{
-		PhoneNumber: lpa.CertificateProvider.Mobile,
+		PhoneNumber: donor.CertificateProvider.Mobile,
 		TemplateID:  s.notifyClient.TemplateID(notify.SignatureCodeSMS),
 		Personalisation: map[string]string{
 			"WitnessCode":   code,
-			"DonorFullName": localizer.Possessive(lpa.Donor.FullName()),
-			"LpaType":       localizer.T(lpa.Type.LegalTermTransKey()),
+			"DonorFullName": localizer.Possessive(donor.Donor.FullName()),
+			"LpaType":       localizer.T(donor.Type.LegalTermTransKey()),
 		},
 	})
 	if err != nil {
 		return err
 	}
 
-	return s.donorStore.Put(ctx, lpa)
+	return s.donorStore.Put(ctx, donor)
 }
 
-func (s *WitnessCodeSender) SendToIndependentWitness(ctx context.Context, lpa *actor.DonorProvidedDetails, localizer Localizer) error {
-	if !lpa.IndependentWitnessCodes.CanRequest(s.now()) {
+func (s *WitnessCodeSender) SendToIndependentWitness(ctx context.Context, donor *actor.DonorProvidedDetails, localizer Localizer) error {
+	if !donor.IndependentWitnessCodes.CanRequest(s.now()) {
 		return ErrTooManyWitnessCodeRequests
 	}
 
 	code := s.randomCode(4)
-	lpa.IndependentWitnessCodes = append(lpa.IndependentWitnessCodes, actor.WitnessCode{Code: code, Created: s.now()})
+	donor.IndependentWitnessCodes = append(donor.IndependentWitnessCodes, actor.WitnessCode{Code: code, Created: s.now()})
 
 	_, err := s.notifyClient.Sms(ctx, notify.Sms{
-		PhoneNumber: lpa.IndependentWitness.Mobile,
+		PhoneNumber: donor.IndependentWitness.Mobile,
 		TemplateID:  s.notifyClient.TemplateID(notify.SignatureCodeSMS),
 		Personalisation: map[string]string{
 			"WitnessCode":   code,
-			"DonorFullName": localizer.Possessive(lpa.Donor.FullName()),
-			"LpaType":       localizer.T(lpa.Type.LegalTermTransKey()),
+			"DonorFullName": localizer.Possessive(donor.Donor.FullName()),
+			"LpaType":       localizer.T(donor.Type.LegalTermTransKey()),
 		},
 	})
 	if err != nil {
 		return err
 	}
 
-	return s.donorStore.Put(ctx, lpa)
+	return s.donorStore.Put(ctx, donor)
 }

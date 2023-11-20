@@ -42,7 +42,7 @@ func TestIdentityWithOneLogin(t *testing.T) {
 		On("Save", r, w, session).
 		Return(nil)
 
-	err := IdentityWithOneLogin(nil, client, sessionStore, func(int) string { return "i am random" })(page.AppData{Lang: localize.Cy}, w, r, &actor.DonorProvidedDetails{ID: "lpa-id"})
+	err := IdentityWithOneLogin(nil, client, sessionStore, func(int) string { return "i am random" })(page.AppData{Lang: localize.Cy}, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)

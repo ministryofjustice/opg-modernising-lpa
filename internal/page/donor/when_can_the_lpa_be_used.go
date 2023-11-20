@@ -12,18 +12,18 @@ import (
 type whenCanTheLpaBeUsedData struct {
 	App     page.AppData
 	Errors  validation.List
-	Lpa     *actor.DonorProvidedDetails
+	Donor   *actor.DonorProvidedDetails
 	Form    *whenCanTheLpaBeUsedForm
 	Options actor.CanBeUsedWhenOptions
 }
 
 func WhenCanTheLpaBeUsed(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &whenCanTheLpaBeUsedData{
-			App: appData,
-			Lpa: lpa,
+			App:   appData,
+			Donor: donor,
 			Form: &whenCanTheLpaBeUsedForm{
-				When: lpa.WhenCanTheLpaBeUsed,
+				When: donor.WhenCanTheLpaBeUsed,
 			},
 			Options: actor.CanBeUsedWhenValues,
 		}
@@ -33,13 +33,13 @@ func WhenCanTheLpaBeUsed(tmpl template.Template, donorStore DonorStore) Handler 
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.WhenCanTheLpaBeUsed = data.Form.When
-				lpa.Tasks.WhenCanTheLpaBeUsed = actor.TaskCompleted
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				donor.WhenCanTheLpaBeUsed = data.Form.When
+				donor.Tasks.WhenCanTheLpaBeUsed = actor.TaskCompleted
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				return page.Paths.TaskList.Redirect(w, r, appData, lpa)
+				return page.Paths.TaskList.Redirect(w, r, appData, donor)
 			}
 		}
 

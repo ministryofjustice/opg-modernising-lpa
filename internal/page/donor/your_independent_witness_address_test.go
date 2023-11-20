@@ -138,7 +138,7 @@ func TestPostYourIndependentWitnessAddressManual(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID: "lpa-id",
+			LpaID: "lpa-id",
 			IndependentWitness: actor.IndependentWitness{
 				Address: testAddress,
 			},
@@ -149,7 +149,7 @@ func TestPostYourIndependentWitnessAddressManual(t *testing.T) {
 		Return(nil)
 
 	err := YourIndependentWitnessAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 	})
 	resp := w.Result()
 
@@ -199,7 +199,7 @@ func TestPostYourIndependentWitnessAddressManualFromStore(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID: "lpa-id",
+			LpaID: "lpa-id",
 			IndependentWitness: actor.IndependentWitness{
 				FirstNames: "John",
 				Address:    testAddress,
@@ -211,7 +211,7 @@ func TestPostYourIndependentWitnessAddressManualFromStore(t *testing.T) {
 		Return(nil)
 
 	err := YourIndependentWitnessAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		IndependentWitness: actor.IndependentWitness{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},

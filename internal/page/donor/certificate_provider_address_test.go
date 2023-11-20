@@ -176,13 +176,13 @@ func TestPostCertificateProviderAddressManual(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID:                  "lpa-id",
+			LpaID:               "lpa-id",
 			CertificateProvider: actor.CertificateProvider{Address: testAddress},
 			Tasks:               actor.DonorTasks{CertificateProvider: actor.TaskCompleted},
 		}).
 		Return(nil)
 
-	err := CertificateProviderAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id"})
+	err := CertificateProviderAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -234,7 +234,7 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID: "lpa-id",
+			LpaID: "lpa-id",
 			CertificateProvider: actor.CertificateProvider{
 				FirstNames: "John",
 				Address:    testAddress,
@@ -244,7 +244,7 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 		Return(nil)
 
 	err := CertificateProviderAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		CertificateProvider: actor.CertificateProvider{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
@@ -618,7 +618,7 @@ func TestPostCertificateProviderAddressReuseSelect(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID: "lpa-id",
+			LpaID: "lpa-id",
 			CertificateProvider: actor.CertificateProvider{
 				Address: place.Address{
 					Line1:      "a",
@@ -633,7 +633,7 @@ func TestPostCertificateProviderAddressReuseSelect(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CertificateProviderAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id"})
+	err := CertificateProviderAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)

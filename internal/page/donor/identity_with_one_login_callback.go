@@ -24,22 +24,22 @@ type identityWithOneLoginCallbackData struct {
 }
 
 func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLoginClient, sessionStore sessions.Store, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		if r.Method == http.MethodPost {
-			if lpa.DonorIdentityConfirmed() {
-				return page.Paths.ReadYourLpa.Redirect(w, r, appData, lpa)
+			if donor.DonorIdentityConfirmed() {
+				return page.Paths.ReadYourLpa.Redirect(w, r, appData, donor)
 			} else {
-				return page.Paths.ProveYourIdentity.Redirect(w, r, appData, lpa)
+				return page.Paths.ProveYourIdentity.Redirect(w, r, appData, donor)
 			}
 		}
 
 		data := &identityWithOneLoginCallbackData{App: appData}
 
-		if lpa.DonorIdentityConfirmed() {
-			data.FirstNames = lpa.DonorIdentityUserData.FirstNames
-			data.LastName = lpa.DonorIdentityUserData.LastName
-			data.DateOfBirth = lpa.DonorIdentityUserData.DateOfBirth
-			data.ConfirmedAt = lpa.DonorIdentityUserData.RetrievedAt
+		if donor.DonorIdentityConfirmed() {
+			data.FirstNames = donor.DonorIdentityUserData.FirstNames
+			data.LastName = donor.DonorIdentityUserData.LastName
+			data.DateOfBirth = donor.DonorIdentityUserData.DateOfBirth
+			data.ConfirmedAt = donor.DonorIdentityUserData.RetrievedAt
 
 			return tmpl(w, data)
 		}
@@ -70,10 +70,10 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 			return err
 		}
 
-		lpa.DonorIdentityUserData = userData
+		donor.DonorIdentityUserData = userData
 
-		if lpa.DonorIdentityConfirmed() {
-			if err := donorStore.Put(r.Context(), lpa); err != nil {
+		if donor.DonorIdentityConfirmed() {
+			if err := donorStore.Put(r.Context(), donor); err != nil {
 				return err
 			}
 
