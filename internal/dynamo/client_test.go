@@ -91,10 +91,10 @@ func TestOneByUID(t *testing.T) {
 	dynamoDB.
 		On("Query", ctx, &dynamodb.QueryInput{
 			TableName:                 aws.String("this"),
-			IndexName:                 aws.String(uidIndex),
-			ExpressionAttributeNames:  map[string]string{"#UID": "UID"},
-			ExpressionAttributeValues: map[string]types.AttributeValue{":UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
-			KeyConditionExpression:    aws.String("#UID = :UID"),
+			IndexName:                 aws.String(lpaUIDIndex),
+			ExpressionAttributeNames:  map[string]string{"#LpaUID": "LpaUID"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
+			KeyConditionExpression:    aws.String("#LpaUID = :LpaUID"),
 		}).
 		Return(&dynamodb.QueryOutput{
 			Items: []map[string]types.AttributeValue{{
@@ -119,10 +119,10 @@ func TestOneByUIDWhenQueryError(t *testing.T) {
 	dynamoDB.
 		On("Query", ctx, &dynamodb.QueryInput{
 			TableName:                 aws.String("this"),
-			IndexName:                 aws.String(uidIndex),
-			ExpressionAttributeNames:  map[string]string{"#UID": "UID"},
-			ExpressionAttributeValues: map[string]types.AttributeValue{":UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
-			KeyConditionExpression:    aws.String("#UID = :UID"),
+			IndexName:                 aws.String(lpaUIDIndex),
+			ExpressionAttributeNames:  map[string]string{"#LpaUID": "LpaUID"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
+			KeyConditionExpression:    aws.String("#LpaUID = :LpaUID"),
 		}).
 		Return(&dynamodb.QueryOutput{}, expectedError)
 
@@ -140,20 +140,20 @@ func TestOneByUIDWhenNot1Item(t *testing.T) {
 	dynamoDB.
 		On("Query", ctx, &dynamodb.QueryInput{
 			TableName:                 aws.String("this"),
-			IndexName:                 aws.String(uidIndex),
-			ExpressionAttributeNames:  map[string]string{"#UID": "UID"},
-			ExpressionAttributeValues: map[string]types.AttributeValue{":UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
-			KeyConditionExpression:    aws.String("#UID = :UID"),
+			IndexName:                 aws.String(lpaUIDIndex),
+			ExpressionAttributeNames:  map[string]string{"#LpaUID": "LpaUID"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
+			KeyConditionExpression:    aws.String("#LpaUID = :LpaUID"),
 		}).
 		Return(&dynamodb.QueryOutput{
 			Items: []map[string]types.AttributeValue{
 				{
-					"PK":  &types.AttributeValueMemberS{Value: "LPA#123"},
-					"UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
+					"PK":     &types.AttributeValueMemberS{Value: "LPA#123"},
+					"LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
 				},
 				{
-					"PK":  &types.AttributeValueMemberS{Value: "LPA#123"},
-					"UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
+					"PK":     &types.AttributeValueMemberS{Value: "LPA#123"},
+					"LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
 				},
 			},
 		}, nil)
@@ -162,7 +162,7 @@ func TestOneByUIDWhenNot1Item(t *testing.T) {
 
 	err := c.OneByUID(ctx, "M-1111-2222-3333", mock.Anything)
 
-	assert.Equal(t, errors.New("expected to resolve UID but got 2 items"), err)
+	assert.Equal(t, errors.New("expected to resolve LpaUID but got 2 items"), err)
 }
 
 func TestOneByUIDWhenUnmarshalError(t *testing.T) {
@@ -172,16 +172,16 @@ func TestOneByUIDWhenUnmarshalError(t *testing.T) {
 	dynamoDB.
 		On("Query", ctx, &dynamodb.QueryInput{
 			TableName:                 aws.String("this"),
-			IndexName:                 aws.String(uidIndex),
-			ExpressionAttributeNames:  map[string]string{"#UID": "UID"},
-			ExpressionAttributeValues: map[string]types.AttributeValue{":UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
-			KeyConditionExpression:    aws.String("#UID = :UID"),
+			IndexName:                 aws.String(lpaUIDIndex),
+			ExpressionAttributeNames:  map[string]string{"#LpaUID": "LpaUID"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
+			KeyConditionExpression:    aws.String("#LpaUID = :LpaUID"),
 		}).
 		Return(&dynamodb.QueryOutput{
 			Items: []map[string]types.AttributeValue{
 				{
-					"PK":  &types.AttributeValueMemberS{Value: "LPA#123"},
-					"UID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
+					"PK":     &types.AttributeValueMemberS{Value: "LPA#123"},
+					"LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
 				},
 			},
 		}, nil)
