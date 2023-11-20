@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -70,6 +71,20 @@ type NotifyClient interface {
 //go:generate mockery --testonly --inpackage --name AddressClient --structname mockAddressClient
 type AddressClient interface {
 	LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error)
+}
+
+//go:generate mockery --testonly --inpackage --name Localizer --structname mockLocalizer
+type Localizer interface {
+	Format(string, map[string]any) string
+	T(string) string
+	Count(string, int) string
+	FormatCount(string, int, map[string]interface{}) string
+	ShowTranslationKeys() bool
+	SetShowTranslationKeys(bool)
+	Possessive(string) string
+	Concat([]string, string) string
+	FormatDate(date.TimeOrDate) string
+	FormatDateTime(time.Time) string
 }
 
 func Register(

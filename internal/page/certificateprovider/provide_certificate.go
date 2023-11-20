@@ -59,7 +59,7 @@ func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func(
 
 				if _, err := notifyClient.Email(r.Context(), notify.Email{
 					EmailAddress: lpa.CertificateProvider.Email,
-					TemplateID:   notifyClient.TemplateID(notify.CertificateProviderCertificateProvided),
+					TemplateID:   notifyClient.TemplateID(notify.CertificateProviderCertificateProvidedEmail),
 					Personalisation: map[string]string{
 						"donorFullNamePossessive":     appData.Localizer.Possessive(lpa.Donor.FullName()),
 						"lpaLegalTerm":                appData.Localizer.T(lpa.Type.LegalTermTransKey()),

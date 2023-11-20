@@ -69,14 +69,14 @@ type Bundle interface {
 type Localizer interface {
 	Format(string, map[string]any) string
 	T(string) string
-	Count(messageID string, count int) string
-	FormatCount(messageID string, count int, data map[string]interface{}) string
+	Count(string, int) string
+	FormatCount(string, int, map[string]interface{}) string
 	ShowTranslationKeys() bool
-	SetShowTranslationKeys(s bool)
-	Possessive(s string) string
+	SetShowTranslationKeys(bool)
+	Possessive(string) string
 	Concat([]string, string) string
-	FormatDate(t date.TimeOrDate) string
-	FormatDateTime(t time.Time) string
+	FormatDate(date.TimeOrDate) string
+	FormatDateTime(time.Time) string
 }
 
 //go:generate mockery --testonly --inpackage --name shareCodeSender --structname mockShareCodeSender

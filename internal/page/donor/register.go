@@ -12,6 +12,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -137,6 +138,8 @@ type Localizer interface {
 	SetShowTranslationKeys(s bool)
 	Possessive(s string) string
 	Concat([]string, string) string
+	FormatDate(date.TimeOrDate) string
+	FormatDateTime(time.Time) string
 }
 
 //go:generate mockery --testonly --inpackage --name DocumentStore --structname mockDocumentStore
