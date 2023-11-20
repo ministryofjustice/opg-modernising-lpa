@@ -12,7 +12,7 @@ import (
 type taskListData struct {
 	App    page.AppData
 	Errors validation.List
-	Lpa    *page.Lpa
+	Lpa    *actor.DonorProvidedDetails
 	Items  []taskListItem
 }
 

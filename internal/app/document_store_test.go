@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -284,7 +285,7 @@ func TestDocumentStoreSubmit(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
-	lpa := &page.Lpa{UID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
+	lpa := &actor.DonorProvidedDetails{UID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
 	documents := page.Documents{
 		{PK: "a-pk", SK: "a-sk", Key: "a-key"},
 		{PK: "b-pk", SK: "b-sk", Key: "b-key"},
@@ -330,7 +331,7 @@ func TestDocumentStoreSubmit(t *testing.T) {
 func TestDocumentStoreSubmitWhenNoUnsentDocuments(t *testing.T) {
 	ctx := context.Background()
 
-	lpa := &page.Lpa{UID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
+	lpa := &actor.DonorProvidedDetails{UID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
 	documents := page.Documents{{PK: "a-pk", SK: "a-sk", Key: "a-key", Sent: time.Now()}}
 
 	documentStore := &documentStore{}
@@ -343,7 +344,7 @@ func TestDocumentStoreSubmitWhenS3ClientErrors(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
-	lpa := &page.Lpa{UID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
+	lpa := &actor.DonorProvidedDetails{UID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
 	documents := page.Documents{{PK: "a-pk", SK: "a-sk", Key: "a-key"}}
 
 	s3Client := newMockS3Client(t)
@@ -364,7 +365,7 @@ func TestDocumentStoreSubmitWhenEventClientErrors(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
-	lpa := &page.Lpa{UID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
+	lpa := &actor.DonorProvidedDetails{UID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
 	documents := page.Documents{{PK: "a-pk", SK: "a-sk", Key: "a-key"}}
 
 	s3Client := newMockS3Client(t)
@@ -391,7 +392,7 @@ func TestDocumentStoreSubmitWhenDynamoClientErrors(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
-	lpa := &page.Lpa{UID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
+	lpa := &actor.DonorProvidedDetails{UID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
 	documents := page.Documents{{PK: "a-pk", SK: "a-sk", Key: "a-key"}}
 
 	s3Client := newMockS3Client(t)
