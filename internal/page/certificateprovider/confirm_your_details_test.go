@@ -31,7 +31,7 @@ func TestConfirmYourDetails(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &confirmYourDetailsData{App: testAppData, Lpa: lpa, CertificateProvider: certificateProvider}).
+		On("Execute", w, &confirmYourDetailsData{App: testAppData, Donor: lpa, CertificateProvider: certificateProvider}).
 		Return(nil)
 
 	err := ConfirmYourDetails(template.Execute, donorStore, certificateProviderStore)(testAppData, w, r)

@@ -25,9 +25,9 @@ func TestGetChooseReplacementAttorneys(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &chooseReplacementAttorneysData{
-			App:  testAppData,
-			Lpa:  &actor.DonorProvidedDetails{},
-			Form: &chooseAttorneysForm{},
+			App:   testAppData,
+			Donor: &actor.DonorProvidedDetails{},
+			Form:  &chooseAttorneysForm{},
 		}).
 		Return(nil)
 
@@ -42,7 +42,7 @@ func TestGetChooseReplacementAttorneysFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseReplacementAttorneys(nil, nil, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "John", ID: "1"}}}})
+	err := ChooseReplacementAttorneys(nil, nil, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "John", ID: "1"}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -137,14 +137,14 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &actor.DonorProvidedDetails{
-					ID:                   "lpa-id",
+					LpaID:                "lpa-id",
 					Donor:                actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{tc.attorney}},
 					Tasks:                actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 				}).
 				Return(nil)
 
-			err := ChooseReplacementAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id", Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"}})
+			err := ChooseReplacementAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"}})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -228,7 +228,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &actor.DonorProvidedDetails{
-					ID:                   "lpa-id",
+					LpaID:                "lpa-id",
 					Donor:                actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{tc.attorney}},
 					Tasks:                actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskCompleted},
@@ -236,7 +236,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				Return(nil)
 
 			err := ChooseReplacementAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{
-				ID:    "lpa-id",
+				LpaID: "lpa-id",
 				Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{

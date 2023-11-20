@@ -48,7 +48,7 @@ func TestPostSendUsYourEvidenceByPost(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
-	lpa := &actor.DonorProvidedDetails{ID: "lpa-id", UID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Post}
+	lpa := &actor.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Post}
 
 	eventClient := newMockEventClient(t)
 	eventClient.

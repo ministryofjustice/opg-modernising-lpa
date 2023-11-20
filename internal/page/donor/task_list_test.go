@@ -16,18 +16,18 @@ import (
 
 func TestGetTaskList(t *testing.T) {
 	testCases := map[string]struct {
-		lpa              *actor.DonorProvidedDetails
+		donor            *actor.DonorProvidedDetails
 		evidenceReceived bool
 		expected         func([]taskListSection) []taskListSection
 	}{
 		"empty": {
-			lpa: &actor.DonorProvidedDetails{ID: "lpa-id", Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}}},
+			donor: &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}}},
 			expected: func(sections []taskListSection) []taskListSection {
 				return sections
 			},
 		},
 		"cannot sign": {
-			lpa: &actor.DonorProvidedDetails{ID: "lpa-id", Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}, CanSign: form.No}},
+			donor: &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}, CanSign: form.No}},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items[7].Hidden = false
 
@@ -35,14 +35,14 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"evidence received": {
-			lpa:              &actor.DonorProvidedDetails{ID: "lpa-id", Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}}},
+			donor:            &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}}},
 			evidenceReceived: true,
 			expected: func(sections []taskListSection) []taskListSection {
 				return sections
 			},
 		},
 		"more evidence required": {
-			lpa:              &actor.DonorProvidedDetails{ID: "lpa-id", Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}},
+			donor:            &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}},
 			evidenceReceived: true,
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[1].Items = []taskListItem{
@@ -53,7 +53,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"fee denied": {
-			lpa:              &actor.DonorProvidedDetails{ID: "lpa-id", Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
+			donor:            &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
 			evidenceReceived: true,
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[1].Items = []taskListItem{
@@ -64,7 +64,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"hw": {
-			lpa: &actor.DonorProvidedDetails{ID: "lpa-id", Type: actor.LpaTypeHealthWelfare, Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}}},
+			donor: &actor.DonorProvidedDetails{LpaID: "lpa-id", Type: actor.LpaTypeHealthWelfare, Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}}},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items[3] = taskListItem{
 					Name: "lifeSustainingTreatment",
@@ -75,8 +75,8 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"confirmed identity": {
-			lpa: &actor.DonorProvidedDetails{
-				ID:                    "lpa-id",
+			donor: &actor.DonorProvidedDetails{
+				LpaID:                 "lpa-id",
 				Donor:                 actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
 				DonorIdentityUserData: identity.UserData{OK: true, LastName: "a"},
 			},
@@ -89,8 +89,8 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"certificate provider has similar name": {
-			lpa: &actor.DonorProvidedDetails{
-				ID:                  "lpa-id",
+			donor: &actor.DonorProvidedDetails{
+				LpaID:               "lpa-id",
 				Donor:               actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
 				CertificateProvider: actor.CertificateProvider{LastName: "a"},
 			},
@@ -101,8 +101,8 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"mixed": {
-			lpa: &actor.DonorProvidedDetails{
-				ID:                   "lpa-id",
+			donor: &actor.DonorProvidedDetails{
+				LpaID:                "lpa-id",
 				Donor:                actor.Donor{FirstNames: "this"},
 				CertificateProvider:  actor.CertificateProvider{LastName: "a", Address: place.Address{Line1: "x"}},
 				Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{}, {}}},
@@ -149,7 +149,7 @@ func TestGetTaskList(t *testing.T) {
 			template.
 				On("Execute", w, &taskListData{
 					App:              testAppData,
-					Lpa:              tc.lpa,
+					Donor:            tc.donor,
 					EvidenceReceived: tc.evidenceReceived,
 					Sections: tc.expected([]taskListSection{
 						{
@@ -187,7 +187,7 @@ func TestGetTaskList(t *testing.T) {
 				On("Get", r.Context()).
 				Return(tc.evidenceReceived, nil)
 
-			err := TaskList(template.Execute, evidenceReceivedStore)(testAppData, w, r, tc.lpa)
+			err := TaskList(template.Execute, evidenceReceivedStore)(testAppData, w, r, tc.donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)

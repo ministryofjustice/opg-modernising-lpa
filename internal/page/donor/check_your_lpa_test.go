@@ -22,9 +22,9 @@ func TestGetCheckYourLpa(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &checkYourLpaData{
-			App:  testAppData,
-			Form: &checkYourLpaForm{},
-			Lpa:  &actor.DonorProvidedDetails{},
+			App:   testAppData,
+			Form:  &checkYourLpaForm{},
+			Donor: &actor.DonorProvidedDetails{},
 		}).
 		Return(nil)
 
@@ -46,8 +46,8 @@ func TestGetCheckYourLpaFromStore(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &checkYourLpaData{
-			App: testAppData,
-			Lpa: lpa,
+			App:   testAppData,
+			Donor: lpa,
 			Form: &checkYourLpaForm{
 				CheckedAndHappy: true,
 			},
@@ -71,7 +71,7 @@ func TestPostCheckYourLpaWhenNotChanged(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpa := &actor.DonorProvidedDetails{
-		ID:                  "lpa-id",
+		LpaID:               "lpa-id",
 		Hash:                5,
 		CheckedAt:           testNow,
 		CheckedHash:         5,
@@ -82,8 +82,8 @@ func TestPostCheckYourLpaWhenNotChanged(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &checkYourLpaData{
-			App: testAppData,
-			Lpa: lpa,
+			App:   testAppData,
+			Donor: lpa,
 			Form: &checkYourLpaForm{
 				CheckedAndHappy: true,
 			},
@@ -115,14 +115,14 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpa := &actor.DonorProvidedDetails{
-				ID:                  "lpa-id",
+				LpaID:               "lpa-id",
 				Hash:                5,
 				Tasks:               actor.DonorTasks{CheckYourLpa: existingTaskState},
 				CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Online},
 			}
 
 			updatedLpa := &actor.DonorProvidedDetails{
-				ID:                  "lpa-id",
+				LpaID:               "lpa-id",
 				Hash:                5,
 				CheckedAt:           testNow,
 				Tasks:               actor.DonorTasks{CheckYourLpa: actor.TaskCompleted},
@@ -220,7 +220,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 			testAppData.Localizer = localizer
 
 			lpa := &actor.DonorProvidedDetails{
-				ID:                  "lpa-id",
+				LpaID:               "lpa-id",
 				Hash:                5,
 				Type:                actor.LpaTypePropertyFinance,
 				Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
@@ -279,7 +279,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecksCertificate
 		Return(nil, expectedError)
 
 	err := CheckYourLpa(nil, donorStore, nil, nil, certificateProviderStore, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID:                  "lpa-id",
+		LpaID:               "lpa-id",
 		Hash:                5,
 		Type:                actor.LpaTypePropertyFinance,
 		Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
@@ -309,7 +309,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 			testAppData.Localizer = localizer
 
 			lpa := &actor.DonorProvidedDetails{
-				ID:                  "lpa-id",
+				LpaID:               "lpa-id",
 				Hash:                5,
 				Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
 				Tasks:               actor.DonorTasks{CheckYourLpa: existingTaskState},
@@ -318,7 +318,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 			}
 
 			updatedLpa := &actor.DonorProvidedDetails{
-				ID:                  "lpa-id",
+				LpaID:               "lpa-id",
 				Hash:                5,
 				Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
 				CheckedAt:           testNow,
@@ -369,7 +369,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnSubsequentCheck(t *testing.T)
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpa := &actor.DonorProvidedDetails{
-		ID:                  "lpa-id",
+		LpaID:               "lpa-id",
 		Hash:                5,
 		Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
 		CheckedAt:           testNow,
@@ -438,7 +438,7 @@ func TestPostCheckYourLpaWhenShareCodeSenderErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpa := &actor.DonorProvidedDetails{
-		ID:    "lpa-id",
+		LpaID: "lpa-id",
 		Hash:  5,
 		Tasks: actor.DonorTasks{CheckYourLpa: actor.TaskInProgress},
 	}

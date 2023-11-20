@@ -13,22 +13,22 @@ import (
 
 func TestCanGoTo(t *testing.T) {
 	testCases := map[string]struct {
-		lpa      *actor.DonorProvidedDetails
+		donor    *actor.DonorProvidedDetails
 		url      string
 		expected bool
 	}{
 		"empty path": {
-			lpa:      &actor.DonorProvidedDetails{},
+			donor:    &actor.DonorProvidedDetails{},
 			url:      "",
 			expected: false,
 		},
 		"unexpected path": {
-			lpa:      &actor.DonorProvidedDetails{},
+			donor:    &actor.DonorProvidedDetails{},
 			url:      "/whatever",
 			expected: true,
 		},
 		"getting help signing no certificate provider": {
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				Type: actor.LpaTypeHealthWelfare,
 				Tasks: actor.DonorTasks{
 					YourDetails: actor.TaskCompleted,
@@ -38,7 +38,7 @@ func TestCanGoTo(t *testing.T) {
 			expected: false,
 		},
 		"getting help signing": {
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				Type: actor.LpaTypeHealthWelfare,
 				Tasks: actor.DonorTasks{
 					CertificateProvider: actor.TaskCompleted,
@@ -48,7 +48,7 @@ func TestCanGoTo(t *testing.T) {
 			expected: true,
 		},
 		"check your lpa when unsure if can sign": {
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				Type: actor.LpaTypeHealthWelfare,
 				Tasks: actor.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
@@ -64,7 +64,7 @@ func TestCanGoTo(t *testing.T) {
 			expected: false,
 		},
 		"check your lpa when can sign": {
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				Donor: actor.Donor{CanSign: form.Yes},
 				Type:  actor.LpaTypeHealthWelfare,
 				Tasks: actor.DonorTasks{
@@ -81,12 +81,12 @@ func TestCanGoTo(t *testing.T) {
 			expected: true,
 		},
 		"about payment without task": {
-			lpa:      &actor.DonorProvidedDetails{ID: "123"},
+			donor:    &actor.DonorProvidedDetails{LpaID: "123"},
 			url:      Paths.AboutPayment.Format("123"),
 			expected: false,
 		},
 		"about payment with tasks": {
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				Donor: actor.Donor{
 					CanSign: form.Yes,
 				},
@@ -106,12 +106,12 @@ func TestCanGoTo(t *testing.T) {
 			expected: true,
 		},
 		"identity without task": {
-			lpa:      &actor.DonorProvidedDetails{},
+			donor:    &actor.DonorProvidedDetails{},
 			url:      Paths.IdentityWithOneLogin.Format("123"),
 			expected: false,
 		},
 		"identity with tasks": {
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				Donor: actor.Donor{
 					CanSign: form.Yes,
 				},
@@ -135,7 +135,7 @@ func TestCanGoTo(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expected, CanGoTo(tc.lpa, tc.url))
+			assert.Equal(t, tc.expected, CanGoTo(tc.donor, tc.url))
 		})
 	}
 }
@@ -144,13 +144,13 @@ func TestLpaProgress(t *testing.T) {
 	lpaSignedAt := time.Now()
 
 	testCases := map[string]struct {
-		lpa                 *actor.DonorProvidedDetails
+		donor               *actor.DonorProvidedDetails
 		certificateProvider *actor.CertificateProviderProvidedDetails
 		attorneys           []*actor.AttorneyProvidedDetails
 		expectedProgress    actor.Progress
 	}{
 		"initial state": {
-			lpa:                 &actor.DonorProvidedDetails{},
+			donor:               &actor.DonorProvidedDetails{},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{},
 			expectedProgress: actor.Progress{
 				DonorSigned:               actor.TaskInProgress,
@@ -162,7 +162,7 @@ func TestLpaProgress(t *testing.T) {
 			},
 		},
 		"lpa signed": {
-			lpa:                 &actor.DonorProvidedDetails{SignedAt: lpaSignedAt},
+			donor:               &actor.DonorProvidedDetails{SignedAt: lpaSignedAt},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{},
 			expectedProgress: actor.Progress{
 				DonorSigned:               actor.TaskCompleted,
@@ -174,7 +174,7 @@ func TestLpaProgress(t *testing.T) {
 			},
 		},
 		"certificate provider signed": {
-			lpa:                 &actor.DonorProvidedDetails{SignedAt: lpaSignedAt},
+			donor:               &actor.DonorProvidedDetails{SignedAt: lpaSignedAt},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
 			expectedProgress: actor.Progress{
 				DonorSigned:               actor.TaskCompleted,
@@ -186,7 +186,7 @@ func TestLpaProgress(t *testing.T) {
 			},
 		},
 		"attorneys signed": {
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				SignedAt:  lpaSignedAt,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "a1"}, {ID: "a2"}}},
 			},
@@ -205,7 +205,7 @@ func TestLpaProgress(t *testing.T) {
 			},
 		},
 		"submitted": {
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				SignedAt:    lpaSignedAt,
 				SubmittedAt: lpaSignedAt.Add(time.Hour),
 				Attorneys:   actor.Attorneys{Attorneys: []actor.Attorney{{ID: "a1"}, {ID: "a2"}}},
@@ -225,7 +225,7 @@ func TestLpaProgress(t *testing.T) {
 			},
 		},
 		"registered": {
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				SignedAt:     lpaSignedAt,
 				SubmittedAt:  lpaSignedAt.Add(time.Hour),
 				RegisteredAt: lpaSignedAt.Add(2 * time.Hour),
@@ -249,7 +249,7 @@ func TestLpaProgress(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expectedProgress, tc.lpa.Progress(tc.certificateProvider, tc.attorneys))
+			assert.Equal(t, tc.expectedProgress, tc.donor.Progress(tc.certificateProvider, tc.attorneys))
 		})
 	}
 }
@@ -598,52 +598,52 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 
 func TestLpaCost(t *testing.T) {
 	testCases := map[string]struct {
-		lpa      *actor.DonorProvidedDetails
+		donor    *actor.DonorProvidedDetails
 		expected int
 	}{
 		"denied": {
-			lpa:      &actor.DonorProvidedDetails{FeeType: pay.HalfFee, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
+			donor:    &actor.DonorProvidedDetails{FeeType: pay.HalfFee, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
 			expected: 8200,
 		},
 		"half": {
-			lpa:      &actor.DonorProvidedDetails{FeeType: pay.HalfFee},
+			donor:    &actor.DonorProvidedDetails{FeeType: pay.HalfFee},
 			expected: 4100,
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expected, tc.lpa.Cost())
+			assert.Equal(t, tc.expected, tc.donor.Cost())
 		})
 	}
 }
 
 func TestFeeAmount(t *testing.T) {
 	testCases := map[string]struct {
-		Lpa          *actor.DonorProvidedDetails
+		Donor        *actor.DonorProvidedDetails
 		ExpectedCost int
 	}{
 		"not paid": {
-			Lpa:          &actor.DonorProvidedDetails{FeeType: pay.HalfFee},
+			Donor:        &actor.DonorProvidedDetails{FeeType: pay.HalfFee},
 			ExpectedCost: 4100,
 		},
 		"fully paid": {
-			Lpa:          &actor.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}},
+			Donor:        &actor.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}},
 			ExpectedCost: 0,
 		},
 		"denied partially paid": {
-			Lpa:          &actor.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
+			Donor:        &actor.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
 			ExpectedCost: 4100,
 		},
 		"denied fully paid": {
-			Lpa:          &actor.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}, {Amount: 4100}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
+			Donor:        &actor.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}, {Amount: 4100}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
 			ExpectedCost: 0,
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.ExpectedCost, tc.Lpa.FeeAmount())
+			assert.Equal(t, tc.ExpectedCost, tc.Donor.FeeAmount())
 		})
 	}
 

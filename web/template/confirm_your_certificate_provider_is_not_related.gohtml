@@ -17,7 +17,7 @@
 
       <h1 class="govuk-heading-xl">{{ tr .App "confirmYourCertificateProviderIsNotRelated" }}</h1>
 
-      {{ trFormatHtml .App "confirmYourCertificateProviderIsNotRelatedContent" "Link" (link .App (.App.Paths.CertificateProviderDetails.Format .Lpa.ID)) }}
+      {{ trFormatHtml .App "confirmYourCertificateProviderIsNotRelatedContent" "Link" (link .App (.App.Paths.CertificateProviderDetails.Format .Donor.LpaID)) }}
 
       <form novalidate method="post">
         <div class="govuk-form-group {{ if .Errors.Has "yes-no" }}govuk-form-group--error{{ end }}">

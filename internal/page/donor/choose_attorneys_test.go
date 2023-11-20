@@ -26,7 +26,7 @@ func TestGetChooseAttorneys(t *testing.T) {
 	template.
 		On("Execute", w, &chooseAttorneysData{
 			App:         testAppData,
-			Lpa:         &actor.DonorProvidedDetails{},
+			Donor:       &actor.DonorProvidedDetails{},
 			Form:        &chooseAttorneysForm{},
 			ShowDetails: true,
 		}).
@@ -44,7 +44,7 @@ func TestGetChooseAttorneysFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := ChooseAttorneys(nil, nil, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{FirstNames: "John", ID: "1"},
 		}},
@@ -143,7 +143,7 @@ func TestPostChooseAttorneysAttorneyDoesNotExist(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &actor.DonorProvidedDetails{
-					ID: "lpa-id",
+					LpaID: "lpa-id",
 					Donor: actor.Donor{
 						FirstNames: "Jane",
 						LastName:   "Doe",
@@ -154,7 +154,7 @@ func TestPostChooseAttorneysAttorneyDoesNotExist(t *testing.T) {
 				Return(nil)
 
 			err := ChooseAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{
-				ID: "lpa-id",
+				LpaID: "lpa-id",
 				Donor: actor.Donor{
 					FirstNames: "Jane",
 					LastName:   "Doe",
@@ -243,7 +243,7 @@ func TestPostChooseAttorneysAttorneyExists(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &actor.DonorProvidedDetails{
-					ID:        "lpa-id",
+					LpaID:     "lpa-id",
 					Donor:     actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{tc.attorney}},
 					Tasks:     actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
@@ -251,7 +251,7 @@ func TestPostChooseAttorneysAttorneyExists(t *testing.T) {
 				Return(nil)
 
 			err := ChooseAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{
-				ID:    "lpa-id",
+				LpaID: "lpa-id",
 				Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{

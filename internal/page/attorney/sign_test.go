@@ -18,12 +18,12 @@ import (
 func TestGetSign(t *testing.T) {
 	testcases := map[string]struct {
 		appData page.AppData
-		lpa     *actor.DonorProvidedDetails
+		donor   *actor.DonorProvidedDetails
 		data    *signData
 	}{
 		"attorney use when registered": {
 			appData: testAppData,
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				SignedAt:            time.Now(),
 				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
@@ -40,7 +40,7 @@ func TestGetSign(t *testing.T) {
 		},
 		"attorney use when capacity lost": {
 			appData: testAppData,
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				SignedAt:            time.Now(),
 				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenCapacityLost,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
@@ -56,7 +56,7 @@ func TestGetSign(t *testing.T) {
 		},
 		"replacement attorney use when registered": {
 			appData: testReplacementAppData,
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				SignedAt:            time.Now(),
 				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity,
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
@@ -74,7 +74,7 @@ func TestGetSign(t *testing.T) {
 		},
 		"replacement attorney use when capacity lost": {
 			appData: testReplacementAppData,
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				SignedAt:            time.Now(),
 				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenCapacityLost,
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
@@ -91,7 +91,7 @@ func TestGetSign(t *testing.T) {
 		},
 		"trust corporation": {
 			appData: testTrustCorporationAppData,
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				SignedAt:            time.Now(),
 				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity,
 				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
@@ -120,7 +120,7 @@ func TestGetSign(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("GetAny", r.Context()).
-				Return(tc.lpa, nil)
+				Return(tc.donor, nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.
@@ -141,12 +141,12 @@ func TestGetSign(t *testing.T) {
 func TestGetSignCantSignYet(t *testing.T) {
 	testcases := map[string]struct {
 		appData             page.AppData
-		lpa                 *actor.DonorProvidedDetails
+		donor               *actor.DonorProvidedDetails
 		certificateProvider *actor.CertificateProviderProvidedDetails
 	}{
 		"submitted but not certified": {
 			appData: testAppData,
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				SignedAt: time.Now(),
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
@@ -157,7 +157,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 		},
 		"certified but not submitted": {
 			appData: testAppData,
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenCapacityLost,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
@@ -178,7 +178,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("GetAny", r.Context()).
-				Return(tc.lpa, nil)
+				Return(tc.donor, nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.
@@ -198,11 +198,11 @@ func TestGetSignCantSignYet(t *testing.T) {
 func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 	testcases := map[string]struct {
 		appData page.AppData
-		lpa     *actor.DonorProvidedDetails
+		donor   *actor.DonorProvidedDetails
 	}{
 		"attorney": {
 			appData: testAppData,
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				SignedAt: time.Now(),
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
@@ -211,7 +211,7 @@ func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 		},
 		"replacement attorney": {
 			appData: testReplacementAppData,
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				SignedAt: time.Now(),
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
@@ -228,7 +228,7 @@ func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("GetAny", r.Context()).
-				Return(tc.lpa, nil)
+				Return(tc.donor, nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.
@@ -304,14 +304,14 @@ func TestPostSign(t *testing.T) {
 		url             string
 		appData         page.AppData
 		form            url.Values
-		lpa             *actor.DonorProvidedDetails
+		donor           *actor.DonorProvidedDetails
 		updatedAttorney *actor.AttorneyProvidedDetails
 		redirect        page.AttorneyPath
 	}{
 		"attorney": {
 			appData: testAppData,
 			form:    url.Values{"confirm": {"1"}},
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				SignedAt:  lpaSignedAt,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}}},
 			},
@@ -326,7 +326,7 @@ func TestPostSign(t *testing.T) {
 		"replacement attorney": {
 			appData: testReplacementAppData,
 			form:    url.Values{"confirm": {"1"}},
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				SignedAt:             lpaSignedAt,
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}}},
 			},
@@ -346,7 +346,7 @@ func TestPostSign(t *testing.T) {
 				"professional-title": {"c"},
 				"confirm":            {"1"},
 			},
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				SignedAt:  lpaSignedAt,
 				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "Corp"}},
 			},
@@ -371,7 +371,7 @@ func TestPostSign(t *testing.T) {
 				"professional-title": {"c"},
 				"confirm":            {"1"},
 			},
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				SignedAt:             lpaSignedAt,
 				ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "Corp"}},
 			},
@@ -397,7 +397,7 @@ func TestPostSign(t *testing.T) {
 				"professional-title": {"c"},
 				"confirm":            {"1"},
 			},
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				SignedAt:  lpaSignedAt,
 				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "Corp"}},
 			},
@@ -423,7 +423,7 @@ func TestPostSign(t *testing.T) {
 				"professional-title": {"c"},
 				"confirm":            {"1"},
 			},
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				SignedAt:             lpaSignedAt,
 				ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "Corp"}},
 			},
@@ -452,7 +452,7 @@ func TestPostSign(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("GetAny", r.Context()).
-				Return(tc.lpa, nil)
+				Return(tc.donor, nil)
 
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.
