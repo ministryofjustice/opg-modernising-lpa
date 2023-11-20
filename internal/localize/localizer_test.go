@@ -2,7 +2,9 @@ package localize
 
 import (
 	"testing"
+	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -134,4 +136,24 @@ func TestConcat(t *testing.T) {
 	assert.Equal(t, "Bob Smith a John Doe", cy.Concat([]string{"Bob Smith", "John Doe"}, "and"))
 	assert.Equal(t, "Bob Smith", cy.Concat([]string{"Bob Smith"}, "and"))
 	assert.Equal(t, "", cy.Concat([]string{}, "and"))
+}
+
+func TestFormatDate(t *testing.T) {
+	en := Localizer{Lang: En}
+	cy := Localizer{Lang: Cy}
+
+	assert.Equal(t, "7 March 2020", en.FormatDate(time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
+	assert.Equal(t, "7 March 2020", en.FormatDate(date.New("2020", "3", "7")))
+
+	assert.Equal(t, "7 Mawrth 2020", cy.FormatDate(time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
+	assert.Equal(t, "7 Mawrth 2020", cy.FormatDate(date.New("2020", "3", "7")))
+}
+
+func TestFormatDateTime(t *testing.T) {
+	en := Localizer{Lang: En}
+	cy := Localizer{Lang: Cy}
+
+	assert.Equal(t, "7 March 2020 at 03:04", en.FormatDateTime(time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
+
+	assert.Equal(t, "7 Mawrth 2020 am 03:04", cy.FormatDateTime(time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
 }

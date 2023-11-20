@@ -5,13 +5,21 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <div class="govuk-panel govuk-panel--confirmation">
+      <div class="govuk-panel govuk-panel--confirmation app-hide-print">
         <h1 class="govuk-panel__title">{{ tr .App "youveProvidedTheCertificateForThisLpa" }}</h1>
       </div>
 
-      {{ trFormatHtml .App "certificateProvidedContent" "DonorFirstNamesPossessive" (possessive .App .Donor.Donor.FirstNames) }}
+      {{ trFormatHtml .App "certificateProvidedContent" "DonorFullName" .Donor.Donor.FullName "DonorFirstNamesPossessive" (possessive .App .Donor.Donor.FirstNames) "CertificateProviderFullName" .Donor.CertificateProvider.FullName  }}
 
-      <a href="{{ link .App .App.Paths.Dashboard.Format }}" class="govuk-button">{{ tr .App "goToYourDashboard" }}</a>
+      {{ trFormatHtml .App "certificateDetails" "AgreedTimeStamp" (formatDateTime .App .CertificateProvider.Certificate.Agreed) "LpaUID" .Donor.LpaUID "DonorFullName" .Donor.Donor.FullName }}
+
+      {{ trFormatHtml .App "thisMeansYouveDoneEverythingContent" "DonorFullNamePossessive" (possessive .App .Donor.Donor.FullName) "CertificateProviderEmail" .Donor.CertificateProvider.Email }}
+
+      {{ template "print-this-page" . }}
+
+      {{ trFormatHtml .App "certificateProvidedConcerns" "DonorFirstNamesPossessive" (possessive .App .Donor.Donor.FirstNames) }}
+
+      <a href="{{ link .App .App.Paths.Dashboard.Format }}" class="govuk-button app-hide-print">{{ tr .App "goToYourDashboard" }}</a>
     </div>
   </div>
 {{ end }}

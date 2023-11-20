@@ -14,18 +14,24 @@ func TestGuidance(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donor := &actor.DonorProvidedDetails{}
+	certificateProvider := &actor.CertificateProviderProvidedDetails{}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
 		Return(donor, nil)
 
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
+		On("Get", r.Context()).
+		Return(certificateProvider, nil)
+
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &guidanceData{App: testAppData, Donor: donor}).
+		On("Execute", w, &guidanceData{App: testAppData, Donor: donor, CertificateProvider: certificateProvider}).
 		Return(nil)
 
-	err := Guidance(template.Execute, donorStore)(testAppData, w, r)
+	err := Guidance(template.Execute, donorStore, certificateProviderStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -42,7 +48,7 @@ func TestGuidanceWhenNilDataStores(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := Guidance(template.Execute, nil)(testAppData, w, r)
+	err := Guidance(template.Execute, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -53,14 +59,31 @@ func TestGuidanceWhenDonorStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &actor.DonorProvidedDetails{}
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
+		Return(&actor.DonorProvidedDetails{}, expectedError)
+
+	err := Guidance(nil, donorStore, nil)(testAppData, w, r)
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestGuidanceWhenCertificateProviderStoreErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(donor, expectedError)
+		Return(&actor.DonorProvidedDetails{}, nil)
 
-	err := Guidance(nil, donorStore)(testAppData, w, r)
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
+		On("Get", r.Context()).
+		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
+
+	err := Guidance(nil, donorStore, certificateProviderStore)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -79,7 +102,7 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, &guidanceData{App: testAppData, Donor: &actor.DonorProvidedDetails{}}).
 		Return(expectedError)
 
-	err := Guidance(template.Execute, donorStore)(testAppData, w, r)
+	err := Guidance(template.Execute, donorStore, nil)(testAppData, w, r)
 
 	assert.Equal(t, expectedError, err)
 }
