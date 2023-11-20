@@ -62,7 +62,7 @@ func TestPostAreYouApplyingForFeeDiscountOrExemption(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpa := &actor.DonorProvidedDetails{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}}
+	lpa := &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}}
 
 	payer := newMockPayer(t)
 	payer.
@@ -72,7 +72,7 @@ func TestPostAreYouApplyingForFeeDiscountOrExemption(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID:    "lpa-id",
+			LpaID: "lpa-id",
 			Donor: actor.Donor{Email: "a@b.com"},
 			Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskInProgress},
 		}).
@@ -135,13 +135,13 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenYes(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID:    "lpa-id",
+			LpaID: "lpa-id",
 			Donor: actor.Donor{Email: "a@b.com"},
 			Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskInProgress},
 		}).
 		Return(nil)
 
-	err := AreYouApplyingForFeeDiscountOrExemption(nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}})
+	err := AreYouApplyingForFeeDiscountOrExemption(nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -167,7 +167,7 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenValidationError(t *testi
 		})).
 		Return(nil)
 
-	err := AreYouApplyingForFeeDiscountOrExemption(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}})
+	err := AreYouApplyingForFeeDiscountOrExemption(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

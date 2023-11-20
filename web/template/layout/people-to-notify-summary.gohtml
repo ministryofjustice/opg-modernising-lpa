@@ -1,7 +1,7 @@
 {{ define "people-to-notify-summary" }}
-  {{ $canChange := and (not $.Lpa.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
+  {{ $canChange := and (not $.Donor.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
 
-  {{ range .Lpa.PeopleToNotify }}
+  {{ range .Donor.PeopleToNotify }}
     {{ $detailsLink := printf "%s?from=%s&id=%s" (link $.App ($.App.Paths.ChoosePeopleToNotify.Format $.App.LpaID)) $.App.Page .ID }}
     {{ $addressLink := printf "%s?from=%s&id=%s" (link $.App ($.App.Paths.ChoosePeopleToNotifyAddress.Format $.App.LpaID)) $.App.Page .ID }}
     {{ $removeLink := printf "%s?from=%s&id=%s" (link $.App ($.App.Paths.RemovePersonToNotify.Format $.App.LpaID)) $.App.Page .ID }}

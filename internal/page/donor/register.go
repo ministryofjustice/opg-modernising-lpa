@@ -24,7 +24,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
-type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, details *actor.DonorProvidedDetails) error
+type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error
 
 //go:generate mockery --testonly --inpackage --name Template --structname mockTemplate
 type Template func(io.Writer, interface{}) error
@@ -80,8 +80,8 @@ type AddressClient interface {
 
 //go:generate mockery --testonly --inpackage --name ShareCodeSender --structname mockShareCodeSender
 type ShareCodeSender interface {
-	SendCertificateProvider(ctx context.Context, template notify.Template, appData page.AppData, identity bool, lpa *actor.DonorProvidedDetails) error
-	SendAttorneys(ctx context.Context, appData page.AppData, lpa *actor.DonorProvidedDetails) error
+	SendCertificateProvider(ctx context.Context, template notify.Template, appData page.AppData, identity bool, donor *actor.DonorProvidedDetails) error
+	SendAttorneys(ctx context.Context, appData page.AppData, donor *actor.DonorProvidedDetails) error
 }
 
 //go:generate mockery --testonly --inpackage --name OneLoginClient --structname mockOneLoginClient
@@ -483,26 +483,26 @@ type payHelper struct {
 	randomString func(int) string
 }
 
-func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
-	if lpa.FeeType.IsNoFee() || lpa.FeeType.IsHardshipFee() || lpa.Tasks.PayForLpa.IsMoreEvidenceRequired() {
-		lpa.Tasks.PayForLpa = actor.PaymentTaskPending
-		if err := p.donorStore.Put(r.Context(), lpa); err != nil {
+func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	if donor.FeeType.IsNoFee() || donor.FeeType.IsHardshipFee() || donor.Tasks.PayForLpa.IsMoreEvidenceRequired() {
+		donor.Tasks.PayForLpa = actor.PaymentTaskPending
+		if err := p.donorStore.Put(r.Context(), donor); err != nil {
 			return err
 		}
 
-		if lpa.EvidenceDelivery.IsPost() {
-			return page.Paths.WhatHappensNextPostEvidence.Redirect(w, r, appData, lpa)
+		if donor.EvidenceDelivery.IsPost() {
+			return page.Paths.WhatHappensNextPostEvidence.Redirect(w, r, appData, donor)
 		}
 
-		return page.Paths.EvidenceSuccessfullyUploaded.Redirect(w, r, appData, lpa)
+		return page.Paths.EvidenceSuccessfullyUploaded.Redirect(w, r, appData, donor)
 	}
 
 	createPaymentBody := pay.CreatePaymentBody{
-		Amount:      lpa.FeeAmount(),
+		Amount:      donor.FeeAmount(),
 		Reference:   p.randomString(12),
 		Description: "Property and Finance LPA",
-		ReturnUrl:   p.appPublicURL + appData.Lang.URL(page.Paths.PaymentConfirmation.Format(lpa.ID)),
-		Email:       lpa.Donor.Email,
+		ReturnUrl:   p.appPublicURL + appData.Lang.URL(page.Paths.PaymentConfirmation.Format(donor.LpaID)),
+		Email:       donor.Donor.Email,
 		Language:    appData.Lang.String(),
 	}
 
@@ -516,10 +516,10 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 		return err
 	}
 
-	if lpa.Tasks.PayForLpa.IsDenied() {
-		lpa.FeeType = pay.FullFee
-		lpa.Tasks.PayForLpa = actor.PaymentTaskInProgress
-		if err := p.donorStore.Put(r.Context(), lpa); err != nil {
+	if donor.Tasks.PayForLpa.IsDenied() {
+		donor.FeeType = pay.FullFee
+		donor.Tasks.PayForLpa = actor.PaymentTaskInProgress
+		if err := p.donorStore.Put(r.Context(), donor); err != nil {
 			return err
 		}
 	}
@@ -532,5 +532,5 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 		return nil
 	}
 
-	return page.Paths.PaymentConfirmation.Redirect(w, r, appData, lpa)
+	return page.Paths.PaymentConfirmation.Redirect(w, r, appData, donor)
 }

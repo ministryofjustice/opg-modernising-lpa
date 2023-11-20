@@ -113,7 +113,7 @@ func TestPostYourIndependentWitness(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &actor.DonorProvidedDetails{
-					ID:                 "lpa-id",
+					LpaID:              "lpa-id",
 					Donor:              actor.Donor{FirstNames: "John", LastName: "Smith"},
 					IndependentWitness: tc.person,
 					Tasks:              actor.DonorTasks{ChooseYourSignatory: actor.TaskInProgress},
@@ -121,7 +121,7 @@ func TestPostYourIndependentWitness(t *testing.T) {
 				Return(nil)
 
 			err := YourIndependentWitness(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-				ID:    "lpa-id",
+				LpaID: "lpa-id",
 				Donor: actor.Donor{FirstNames: "John", LastName: "Smith"},
 			})
 			resp := w.Result()
@@ -147,7 +147,7 @@ func TestPostYourIndependentWitnessWhenTaskCompleted(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID: "lpa-id",
+			LpaID: "lpa-id",
 			IndependentWitness: actor.IndependentWitness{
 				FirstNames: "John",
 				LastName:   "Doe",
@@ -157,7 +157,7 @@ func TestPostYourIndependentWitnessWhenTaskCompleted(t *testing.T) {
 		Return(nil)
 
 	err := YourIndependentWitness(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		IndependentWitness: actor.IndependentWitness{
 			FirstNames: "John",
 		},

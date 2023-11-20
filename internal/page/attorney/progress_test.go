@@ -63,7 +63,7 @@ func TestProgress(t *testing.T) {
 
 			template := newMockTemplate(t)
 			template.
-				On("Execute", w, &progressData{App: testAppData, Lpa: lpa, Signed: tc.signed, AttorneysSigned: tc.attorneysSigned}).
+				On("Execute", w, &progressData{App: testAppData, Donor: lpa, Signed: tc.signed, AttorneysSigned: tc.attorneysSigned}).
 				Return(nil)
 
 			err := Progress(template.Execute, attorneyStore, donorStore)(testAppData, w, r, tc.attorney)
@@ -124,7 +124,7 @@ func TestProgressWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &progressData{App: testAppData, Lpa: &actor.DonorProvidedDetails{}}).
+		On("Execute", w, &progressData{App: testAppData, Donor: &actor.DonorProvidedDetails{}}).
 		Return(expectedError)
 
 	err := Progress(template.Execute, attorneyStore, donorStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{})

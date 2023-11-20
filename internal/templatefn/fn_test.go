@@ -269,7 +269,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 
 	app := page.AppData{SessionID: "abc", Page: "/here", ActorType: actor.TypeDonor}
 	headingLevel := 3
-	lpa := &actor.DonorProvidedDetails{ID: "lpa-id"}
+	lpa := &actor.DonorProvidedDetails{LpaID: "lpa-id"}
 	attorneyType := "attorney"
 
 	want := attorneySummaryData{
@@ -301,7 +301,7 @@ func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
 
 	app := page.AppData{SessionID: "abc", Page: "/here"}
 	headingLevel := 3
-	lpa := &actor.DonorProvidedDetails{ID: "lpa-id"}
+	lpa := &actor.DonorProvidedDetails{LpaID: "lpa-id"}
 	attorneyType := "replacement"
 
 	want := attorneySummaryData{
@@ -336,15 +336,15 @@ func TestWarning(t *testing.T) {
 func TestListPeopleToNotify(t *testing.T) {
 	app := page.AppData{SessionID: "abc"}
 	headingLevel := 3
-	lpa := &actor.DonorProvidedDetails{}
+	donor := &actor.DonorProvidedDetails{}
 
 	want := map[string]interface{}{
 		"App":          app,
 		"HeadingLevel": headingLevel,
-		"Lpa":          lpa,
+		"Donor":        donor,
 	}
 
-	got := listPeopleToNotify(app, headingLevel, lpa)
+	got := listPeopleToNotify(app, headingLevel, donor)
 
 	assert.Equal(t, want, got)
 }

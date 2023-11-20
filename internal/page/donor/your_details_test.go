@@ -226,7 +226,7 @@ func TestPostYourDetails(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &actor.DonorProvidedDetails{
-					ID:    "lpa-id",
+					LpaID: "lpa-id",
 					Donor: tc.person,
 					Tasks: actor.DonorTasks{YourDetails: actor.TaskInProgress},
 				}).
@@ -238,7 +238,7 @@ func TestPostYourDetails(t *testing.T) {
 				Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
 			err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-				ID: "lpa-id",
+				LpaID: "lpa-id",
 				Donor: actor.Donor{
 					FirstNames: "John",
 					Address:    place.Address{Line1: "abc"},
@@ -273,7 +273,7 @@ func TestPostYourDetailsWhenDetailsNotChanged(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID: "lpa-id",
+			LpaID: "lpa-id",
 			Donor: actor.Donor{
 				FirstNames:    "John",
 				LastName:      "Doe",
@@ -293,7 +293,7 @@ func TestPostYourDetailsWhenDetailsNotChanged(t *testing.T) {
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
 	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		Donor: actor.Donor{
 			FirstNames:  "John",
 			LastName:    "Doe",
@@ -328,7 +328,7 @@ func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID: "lpa-id",
+			LpaID: "lpa-id",
 			Donor: actor.Donor{
 				FirstNames:    "John",
 				LastName:      "Doe",
@@ -348,7 +348,7 @@ func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
 	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		Donor: actor.Donor{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},

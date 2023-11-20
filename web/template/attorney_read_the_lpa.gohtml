@@ -1,11 +1,11 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ trFormat .App "readDonorNameLpa" "DonorFullName" .Lpa.Donor.FullName }}{{ end }}
+{{ define "pageTitle" }}{{ trFormat .App "readDonorNameLpa" "DonorFullName" .Donor.Donor.FullName }}{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ trFormat .App "readDonorNameLpa" "DonorFullName" .Lpa.Donor.FullName }}</h1>
+      <h1 class="govuk-heading-xl">{{ trFormat .App "readDonorNameLpa" "DonorFullName" .Donor.Donor.FullName }}</h1>
 
       {{ template "warning" (warning .App "youMustReadLpaCarefully") }}
 

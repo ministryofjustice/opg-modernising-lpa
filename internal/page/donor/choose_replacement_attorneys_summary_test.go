@@ -34,7 +34,7 @@ func TestGetChooseReplacementAttorneysSummary(t *testing.T) {
 			template.
 				On("Execute", w, &chooseReplacementAttorneysSummaryData{
 					App:     testAppData,
-					Lpa:     lpa,
+					Donor:   lpa,
 					Form:    &form.YesNoForm{},
 					Options: form.YesNoValues,
 				}).
@@ -54,7 +54,7 @@ func TestGetChooseReplacementAttorneysSummaryWhenNoReplacementAttorneys(t *testi
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := ChooseReplacementAttorneysSummary(nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID:    "lpa-id",
+		LpaID: "lpa-id",
 		Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 	})
 	resp := w.Result()
@@ -73,7 +73,7 @@ func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := ChooseReplacementAttorneysSummary(nil)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}}})
+	err := ChooseReplacementAttorneysSummary(nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -143,7 +143,7 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			err := ChooseReplacementAttorneysSummary(nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-				ID:                   "lpa-id",
+				LpaID:                "lpa-id",
 				ReplacementAttorneys: tc.replacementAttorneys,
 				AttorneyDecisions: actor.AttorneyDecisions{
 					How:     tc.howAttorneysAct,

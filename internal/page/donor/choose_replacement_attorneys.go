@@ -14,24 +14,24 @@ import (
 type chooseReplacementAttorneysData struct {
 	App         page.AppData
 	Errors      validation.List
-	Lpa         *actor.DonorProvidedDetails
+	Donor       *actor.DonorProvidedDetails
 	Form        *chooseAttorneysForm
 	DobWarning  string
 	NameWarning *actor.SameNameWarning
 }
 
 func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, uuidString func() string) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		addAnother := r.FormValue("addAnother") == "1"
-		attorney, attorneyFound := lpa.ReplacementAttorneys.Get(r.URL.Query().Get("id"))
+		attorney, attorneyFound := donor.ReplacementAttorneys.Get(r.URL.Query().Get("id"))
 
-		if r.Method == http.MethodGet && lpa.ReplacementAttorneys.Len() > 0 && !attorneyFound && !addAnother {
-			return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, lpa)
+		if r.Method == http.MethodGet && donor.ReplacementAttorneys.Len() > 0 && !attorneyFound && !addAnother {
+			return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, donor)
 		}
 
 		data := &chooseReplacementAttorneysData{
-			App: appData,
-			Lpa: lpa,
+			App:   appData,
+			Donor: donor,
 			Form: &chooseAttorneysForm{
 				FirstNames: attorney.FirstNames,
 				LastName:   attorney.LastName,
@@ -47,7 +47,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, u
 
 			nameWarning := actor.NewSameNameWarning(
 				actor.TypeReplacementAttorney,
-				replacementAttorneyMatches(lpa, attorney.ID, data.Form.FirstNames, data.Form.LastName),
+				replacementAttorneyMatches(donor, attorney.ID, data.Form.FirstNames, data.Form.LastName),
 				data.Form.FirstNames,
 				data.Form.LastName,
 			)
@@ -70,15 +70,15 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, u
 				attorney.Email = data.Form.Email
 				attorney.DateOfBirth = data.Form.Dob
 
-				lpa.ReplacementAttorneys.Put(attorney)
+				donor.ReplacementAttorneys.Put(attorney)
 
-				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
+				donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
 
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				return appData.Paths.ChooseReplacementAttorneysAddress.RedirectQuery(w, r, appData, lpa, url.Values{"id": {attorney.ID}})
+				return appData.Paths.ChooseReplacementAttorneysAddress.RedirectQuery(w, r, appData, donor, url.Values{"id": {attorney.ID}})
 			}
 		}
 
@@ -86,42 +86,42 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, u
 	}
 }
 
-func replacementAttorneyMatches(lpa *actor.DonorProvidedDetails, id, firstNames, lastName string) actor.Type {
+func replacementAttorneyMatches(donor *actor.DonorProvidedDetails, id, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}
 
-	if strings.EqualFold(lpa.Donor.FirstNames, firstNames) && strings.EqualFold(lpa.Donor.LastName, lastName) {
+	if strings.EqualFold(donor.Donor.FirstNames, firstNames) && strings.EqualFold(donor.Donor.LastName, lastName) {
 		return actor.TypeDonor
 	}
 
-	for _, attorney := range lpa.Attorneys.Attorneys {
+	for _, attorney := range donor.Attorneys.Attorneys {
 		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeAttorney
 		}
 	}
 
-	for _, attorney := range lpa.ReplacementAttorneys.Attorneys {
+	for _, attorney := range donor.ReplacementAttorneys.Attorneys {
 		if attorney.ID != id && strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeReplacementAttorney
 		}
 	}
 
-	if strings.EqualFold(lpa.CertificateProvider.FirstNames, firstNames) && strings.EqualFold(lpa.CertificateProvider.LastName, lastName) {
+	if strings.EqualFold(donor.CertificateProvider.FirstNames, firstNames) && strings.EqualFold(donor.CertificateProvider.LastName, lastName) {
 		return actor.TypeCertificateProvider
 	}
 
-	for _, person := range lpa.PeopleToNotify {
+	for _, person := range donor.PeopleToNotify {
 		if strings.EqualFold(person.FirstNames, firstNames) && strings.EqualFold(person.LastName, lastName) {
 			return actor.TypePersonToNotify
 		}
 	}
 
-	if strings.EqualFold(lpa.AuthorisedSignatory.FirstNames, firstNames) && strings.EqualFold(lpa.AuthorisedSignatory.LastName, lastName) {
+	if strings.EqualFold(donor.AuthorisedSignatory.FirstNames, firstNames) && strings.EqualFold(donor.AuthorisedSignatory.LastName, lastName) {
 		return actor.TypeAuthorisedSignatory
 	}
 
-	if strings.EqualFold(lpa.IndependentWitness.FirstNames, firstNames) && strings.EqualFold(lpa.IndependentWitness.LastName, lastName) {
+	if strings.EqualFold(donor.IndependentWitness.FirstNames, firstNames) && strings.EqualFold(donor.IndependentWitness.LastName, lastName) {
 		return actor.TypeIndependentWitness
 	}
 
