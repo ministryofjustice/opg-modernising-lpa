@@ -13,12 +13,12 @@
 
       <p class="govuk-body">{{ tr .App "chooseSomeoneYoureComfortableHavingAConversationWith" }}</p>
 
-      {{ if eq (len .Lpa.TrustCorporationsNames) 0 }}
-        {{ trFormatHtml .App "whoCannotBeACertificateProviderAttorneys" "AttorneysFirstNamesOr" (concatOr .App .Lpa.AllLayAttorneysFirstNames) }}
-      {{ else if eq (len .Lpa.AllLayAttorneysFirstNames) 0 }}
-        {{ trFormatHtml .App "whoCannotBeACertificateProviderTrustCorporation" "TrustCorporationsNames" (concatOr .App .Lpa.TrustCorporationsNames) }}
+      {{ if eq (len .Donor.TrustCorporationsNames) 0 }}
+        {{ trFormatHtml .App "whoCannotBeACertificateProviderAttorneys" "AttorneysFirstNamesOr" (concatOr .App .Donor.AllLayAttorneysFirstNames) }}
+      {{ else if eq (len .Donor.AllLayAttorneysFirstNames) 0 }}
+        {{ trFormatHtml .App "whoCannotBeACertificateProviderTrustCorporation" "TrustCorporationsNames" (concatOr .App .Donor.TrustCorporationsNames) }}
       {{ else }}
-        {{ trFormatHtml .App "whoCannotBeACertificateProviderAttorneysAndTrustCorporation" "AttorneysNames" (concatComma .Lpa.AllLayAttorneysFullNames) "TrustCorporationsNames" (concatOr .App .Lpa.TrustCorporationsNames) }}
+        {{ trFormatHtml .App "whoCannotBeACertificateProviderAttorneysAndTrustCorporation" "AttorneysNames" (concatComma .Donor.AllLayAttorneysFullNames) "TrustCorporationsNames" (concatOr .App .Donor.TrustCorporationsNames) }}
       {{ end }}
       {{ trHtml .App "detailsYoullNeedAboutYourCertificateProvider" }}
       

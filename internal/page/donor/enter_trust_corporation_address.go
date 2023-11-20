@@ -11,8 +11,8 @@ import (
 )
 
 func EnterTrustCorporationAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
-		trustCorporation := lpa.Attorneys.TrustCorporation
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+		trustCorporation := donor.Attorneys.TrustCorporation
 
 		data := newChooseAddressData(
 			appData,
@@ -33,12 +33,12 @@ func EnterTrustCorporationAddress(logger Logger, tmpl template.Template, address
 
 			setAddress := func(address place.Address) error {
 				trustCorporation.Address = address
-				lpa.Attorneys.TrustCorporation = trustCorporation
+				donor.Attorneys.TrustCorporation = trustCorporation
 
-				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
-				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
+				donor.Tasks.ChooseAttorneys = page.ChooseAttorneysState(donor.Attorneys, donor.AttorneyDecisions)
+				donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
 
-				return donorStore.Put(r.Context(), lpa)
+				return donorStore.Put(r.Context(), donor)
 			}
 
 			switch data.Form.Action {
@@ -48,7 +48,7 @@ func EnterTrustCorporationAddress(logger Logger, tmpl template.Template, address
 						return err
 					}
 
-					return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, lpa)
+					return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, donor)
 				}
 
 			case "postcode-select":
@@ -66,7 +66,7 @@ func EnterTrustCorporationAddress(logger Logger, tmpl template.Template, address
 				}
 
 			case "reuse":
-				data.Addresses = lpa.ActorAddresses()
+				data.Addresses = donor.ActorAddresses()
 
 			case "reuse-select":
 				if data.Errors.None() {
@@ -74,9 +74,9 @@ func EnterTrustCorporationAddress(logger Logger, tmpl template.Template, address
 						return err
 					}
 
-					return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, lpa)
+					return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, donor)
 				} else {
-					data.Addresses = lpa.ActorAddresses()
+					data.Addresses = donor.ActorAddresses()
 				}
 			}
 		}

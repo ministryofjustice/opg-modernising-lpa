@@ -17,12 +17,12 @@ type howShouldReplacementAttorneysStepInData struct {
 }
 
 func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &howShouldReplacementAttorneysStepInData{
 			App: appData,
 			Form: &howShouldReplacementAttorneysStepInForm{
-				WhenToStepIn: lpa.HowShouldReplacementAttorneysStepIn,
-				OtherDetails: lpa.HowShouldReplacementAttorneysStepInDetails,
+				WhenToStepIn: donor.HowShouldReplacementAttorneysStepIn,
+				OtherDetails: donor.HowShouldReplacementAttorneysStepInDetails,
 			},
 			Options: actor.ReplacementAttorneysStepInValues,
 		}
@@ -32,24 +32,24 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore Dono
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.HowShouldReplacementAttorneysStepIn = data.Form.WhenToStepIn
+				donor.HowShouldReplacementAttorneysStepIn = data.Form.WhenToStepIn
 
-				if lpa.HowShouldReplacementAttorneysStepIn != actor.ReplacementAttorneysStepInAnotherWay {
-					lpa.HowShouldReplacementAttorneysStepInDetails = ""
+				if donor.HowShouldReplacementAttorneysStepIn != actor.ReplacementAttorneysStepInAnotherWay {
+					donor.HowShouldReplacementAttorneysStepInDetails = ""
 				} else {
-					lpa.HowShouldReplacementAttorneysStepInDetails = data.Form.OtherDetails
+					donor.HowShouldReplacementAttorneysStepInDetails = data.Form.OtherDetails
 				}
 
-				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
+				donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
 
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				if lpa.ReplacementAttorneys.Len() > 1 && lpa.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct() {
-					return appData.Paths.HowShouldReplacementAttorneysMakeDecisions.Redirect(w, r, appData, lpa)
+				if donor.ReplacementAttorneys.Len() > 1 && donor.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct() {
+					return appData.Paths.HowShouldReplacementAttorneysMakeDecisions.Redirect(w, r, appData, donor)
 				} else {
-					return appData.Paths.TaskList.Redirect(w, r, appData, lpa)
+					return appData.Paths.TaskList.Redirect(w, r, appData, donor)
 				}
 			}
 		}

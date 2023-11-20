@@ -25,9 +25,9 @@ func TestGetWitnessingAsCertificateProvider(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &witnessingAsCertificateProviderData{
-			App:  testAppData,
-			Lpa:  &actor.DonorProvidedDetails{},
-			Form: &witnessingAsCertificateProviderForm{},
+			App:   testAppData,
+			Donor: &actor.DonorProvidedDetails{},
+			Form:  &witnessingAsCertificateProviderForm{},
 		}).
 		Return(nil)
 
@@ -46,7 +46,7 @@ func TestGetWitnessingAsCertificateProviderFromStore(t *testing.T) {
 	template.
 		On("Execute", w, &witnessingAsCertificateProviderData{
 			App: testAppData,
-			Lpa: &actor.DonorProvidedDetails{
+			Donor: &actor.DonorProvidedDetails{
 				CertificateProvider: actor.CertificateProvider{FirstNames: "Joan"},
 			},
 			Form: &witnessingAsCertificateProviderForm{},
@@ -69,9 +69,9 @@ func TestGetWitnessingAsCertificateProviderWhenTemplateErrors(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &witnessingAsCertificateProviderData{
-			App:  testAppData,
-			Lpa:  &actor.DonorProvidedDetails{},
-			Form: &witnessingAsCertificateProviderForm{},
+			App:   testAppData,
+			Donor: &actor.DonorProvidedDetails{},
+			Form:  &witnessingAsCertificateProviderForm{},
 		}).
 		Return(expectedError)
 
@@ -113,8 +113,8 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 			now := time.Now()
 
-			lpa := &actor.DonorProvidedDetails{
-				ID:                               "lpa-id",
+			donor := &actor.DonorProvidedDetails{
+				LpaID:                            "lpa-id",
 				DonorIdentityUserData:            identity.UserData{OK: true},
 				CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
 				CertificateProvider:              actor.CertificateProvider{FirstNames: "Fred"},
@@ -124,12 +124,12 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 
 			shareCodeSender := newMockShareCodeSender(t)
 			shareCodeSender.
-				On("SendAttorneys", r.Context(), testAppData, lpa).
+				On("SendAttorneys", r.Context(), testAppData, donor).
 				Return(nil)
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), lpa).
+				On("Put", r.Context(), donor).
 				Return(nil)
 
 			ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
@@ -143,7 +143,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 				Return(tc.certificateProvider, tc.err)
 
 			err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-				ID:                       "lpa-id",
+				LpaID:                    "lpa-id",
 				DonorIdentityUserData:    identity.UserData{OK: true},
 				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 				CertificateProvider:      actor.CertificateProvider{FirstNames: "Fred"},
@@ -167,8 +167,8 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 	now := time.Now()
 
-	lpa := &actor.DonorProvidedDetails{
-		ID:                               "lpa-id",
+	donor := &actor.DonorProvidedDetails{
+		LpaID:                            "lpa-id",
 		DonorIdentityUserData:            identity.UserData{OK: true},
 		CertificateProvider:              actor.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
@@ -177,7 +177,7 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 	}
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), lpa).
+		On("Put", r.Context(), donor).
 		Return(nil)
 
 	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
@@ -192,14 +192,14 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("SendCertificateProvider", r.Context(), notify.CertificateProviderReturnEmail, testAppData, false, lpa).
+		On("SendCertificateProvider", r.Context(), notify.CertificateProviderReturnEmail, testAppData, false, donor).
 		Return(nil)
 	shareCodeSender.
-		On("SendAttorneys", r.Context(), testAppData, lpa).
+		On("SendAttorneys", r.Context(), testAppData, donor).
 		Return(nil)
 
 	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID:                       "lpa-id",
+		LpaID:                    "lpa-id",
 		DonorIdentityUserData:    identity.UserData{OK: true},
 		CertificateProvider:      actor.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
@@ -221,8 +221,8 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToAttorneysErrors(t
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 	now := time.Now()
 
-	lpa := &actor.DonorProvidedDetails{
-		ID:                               "lpa-id",
+	donor := &actor.DonorProvidedDetails{
+		LpaID:                            "lpa-id",
 		DonorIdentityUserData:            identity.UserData{OK: true},
 		CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
 		CertificateProvider:              actor.CertificateProvider{FirstNames: "Fred"},
@@ -232,12 +232,12 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToAttorneysErrors(t
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("SendAttorneys", r.Context(), testAppData, lpa).
+		On("SendAttorneys", r.Context(), testAppData, donor).
 		Return(expectedError)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), lpa).
+		On("Put", r.Context(), donor).
 		Return(nil)
 
 	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
@@ -251,7 +251,7 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToAttorneysErrors(t
 		Return(nil, dynamo.NotFoundError{})
 
 	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID:                       "lpa-id",
+		LpaID:                    "lpa-id",
 		DonorIdentityUserData:    identity.UserData{OK: true},
 		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 		CertificateProvider:      actor.CertificateProvider{FirstNames: "Fred"},
@@ -269,7 +269,7 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToCertificateProvid
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 	now := time.Now()
 
-	lpa := &actor.DonorProvidedDetails{
+	donor := &actor.DonorProvidedDetails{
 		CertificateProvider:              actor.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
 		WitnessedByCertificateProviderAt: now,
@@ -277,7 +277,7 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToCertificateProvid
 	}
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), lpa).
+		On("Put", r.Context(), donor).
 		Return(nil)
 
 	ctx := page.ContextWithSessionData(
@@ -295,7 +295,7 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToCertificateProvid
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("SendCertificateProvider", r.Context(), notify.CertificateProviderReturnEmail, testAppData, false, lpa).
+		On("SendCertificateProvider", r.Context(), notify.CertificateProviderReturnEmail, testAppData, false, donor).
 		Return(expectedError)
 
 	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r, &actor.DonorProvidedDetails{
@@ -320,9 +320,9 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), mock.MatchedBy(func(lpa *actor.DonorProvidedDetails) bool {
-			lpa.WitnessCodeLimiter = nil
-			return assert.Equal(t, lpa, &actor.DonorProvidedDetails{
+		On("Put", r.Context(), mock.MatchedBy(func(donor *actor.DonorProvidedDetails) bool {
+			donor.WitnessCodeLimiter = nil
+			return assert.Equal(t, donor, &actor.DonorProvidedDetails{
 				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 			})
 		})).
@@ -332,7 +332,7 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 	template.
 		On("Execute", w, &witnessingAsCertificateProviderData{
 			App: testAppData,
-			Lpa: &actor.DonorProvidedDetails{
+			Donor: &actor.DonorProvidedDetails{
 				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 			},
 			Errors: validation.With("witness-code", validation.CustomError{Label: "witnessCodeExpired"}),
@@ -362,9 +362,9 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), mock.MatchedBy(func(lpa *actor.DonorProvidedDetails) bool {
-			lpa.WitnessCodeLimiter = nil
-			return assert.Equal(t, lpa, &actor.DonorProvidedDetails{
+		On("Put", r.Context(), mock.MatchedBy(func(donor *actor.DonorProvidedDetails) bool {
+			donor.WitnessCodeLimiter = nil
+			return assert.Equal(t, donor, &actor.DonorProvidedDetails{
 				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 			})
 		})).
@@ -374,7 +374,7 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 	template.
 		On("Execute", w, &witnessingAsCertificateProviderData{
 			App: testAppData,
-			Lpa: &actor.DonorProvidedDetails{
+			Donor: &actor.DonorProvidedDetails{
 				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 			},
 			Errors: validation.With("witness-code", validation.CustomError{Label: "witnessCodeDoesNotMatch"}),
@@ -405,9 +405,9 @@ func TestPostWitnessingAsCertificateProviderWhenCodeExpired(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), mock.MatchedBy(func(lpa *actor.DonorProvidedDetails) bool {
-			lpa.WitnessCodeLimiter = nil
-			return assert.Equal(t, lpa, &actor.DonorProvidedDetails{
+		On("Put", r.Context(), mock.MatchedBy(func(donor *actor.DonorProvidedDetails) bool {
+			donor.WitnessCodeLimiter = nil
+			return assert.Equal(t, donor, &actor.DonorProvidedDetails{
 				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 			})
 		})).
@@ -417,7 +417,7 @@ func TestPostWitnessingAsCertificateProviderWhenCodeExpired(t *testing.T) {
 	template.
 		On("Execute", w, &witnessingAsCertificateProviderData{
 			App: testAppData,
-			Lpa: &actor.DonorProvidedDetails{
+			Donor: &actor.DonorProvidedDetails{
 				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 			},
 			Errors: validation.With("witness-code", validation.CustomError{Label: "witnessCodeExpired"}),
@@ -447,9 +447,9 @@ func TestPostWitnessingAsCertificateProviderCodeLimitBreached(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), mock.MatchedBy(func(lpa *actor.DonorProvidedDetails) bool {
-			lpa.WitnessCodeLimiter = nil
-			return assert.Equal(t, lpa, &actor.DonorProvidedDetails{
+		On("Put", r.Context(), mock.MatchedBy(func(donor *actor.DonorProvidedDetails) bool {
+			donor.WitnessCodeLimiter = nil
+			return assert.Equal(t, donor, &actor.DonorProvidedDetails{
 				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 			})
 		})).
@@ -459,7 +459,7 @@ func TestPostWitnessingAsCertificateProviderCodeLimitBreached(t *testing.T) {
 	template.
 		On("Execute", w, &witnessingAsCertificateProviderData{
 			App: testAppData,
-			Lpa: &actor.DonorProvidedDetails{
+			Donor: &actor.DonorProvidedDetails{
 				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 			},
 			Errors: validation.With("witness-code", validation.CustomError{Label: "tooManyWitnessCodeAttempts"}),

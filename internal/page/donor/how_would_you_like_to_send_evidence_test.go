@@ -87,10 +87,10 @@ func TestPostHowWouldYouLikeToSendEvidence(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{ID: "lpa-id", EvidenceDelivery: evidenceDelivery}).
+				On("Put", r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", EvidenceDelivery: evidenceDelivery}).
 				Return(nil)
 
-			err := HowWouldYouLikeToSendEvidence(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id"})
+			err := HowWouldYouLikeToSendEvidence(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -114,7 +114,7 @@ func TestPostHowWouldYouLikeToSendEvidenceWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := HowWouldYouLikeToSendEvidence(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id"})
+	err := HowWouldYouLikeToSendEvidence(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 	assert.Equal(t, expectedError, err)
 }
 

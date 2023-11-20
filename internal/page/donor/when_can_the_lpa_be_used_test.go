@@ -22,7 +22,7 @@ func TestGetWhenCanTheLpaBeUsed(t *testing.T) {
 	template.
 		On("Execute", w, &whenCanTheLpaBeUsedData{
 			App:     testAppData,
-			Lpa:     &actor.DonorProvidedDetails{},
+			Donor:   &actor.DonorProvidedDetails{},
 			Form:    &whenCanTheLpaBeUsedForm{},
 			Options: actor.CanBeUsedWhenValues,
 		}).
@@ -42,8 +42,8 @@ func TestGetWhenCanTheLpaBeUsedFromStore(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &whenCanTheLpaBeUsedData{
-			App: testAppData,
-			Lpa: &actor.DonorProvidedDetails{WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity},
+			App:   testAppData,
+			Donor: &actor.DonorProvidedDetails{WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity},
 			Form: &whenCanTheLpaBeUsedForm{
 				When: actor.CanBeUsedWhenHasCapacity,
 			},
@@ -86,14 +86,14 @@ func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID:                  "lpa-id",
+			LpaID:               "lpa-id",
 			WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity,
 			Tasks:               actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, WhenCanTheLpaBeUsed: actor.TaskCompleted},
 		}).
 		Return(nil)
 
 	err := WhenCanTheLpaBeUsed(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID:    "lpa-id",
+		LpaID: "lpa-id",
 		Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 	})
 	resp := w.Result()

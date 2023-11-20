@@ -46,7 +46,7 @@ func TestProgress(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			lpa := &actor.DonorProvidedDetails{
+			donor := &actor.DonorProvidedDetails{
 				SignedAt:  lpaSignedAt,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 			}
@@ -54,7 +54,7 @@ func TestProgress(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("GetAny", r.Context()).
-				Return(lpa, nil)
+				Return(donor, nil)
 
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.
@@ -63,7 +63,7 @@ func TestProgress(t *testing.T) {
 
 			template := newMockTemplate(t)
 			template.
-				On("Execute", w, &progressData{App: testAppData, Lpa: lpa, Signed: tc.signed, AttorneysSigned: tc.attorneysSigned}).
+				On("Execute", w, &progressData{App: testAppData, Donor: donor, Signed: tc.signed, AttorneysSigned: tc.attorneysSigned}).
 				Return(nil)
 
 			err := Progress(template.Execute, attorneyStore, donorStore)(testAppData, w, r, tc.attorney)
@@ -97,12 +97,12 @@ func TestProgressWhenDonorStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &actor.DonorProvidedDetails{}
+	donor := &actor.DonorProvidedDetails{}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(lpa, expectedError)
+		Return(donor, expectedError)
 
 	err := Progress(nil, nil, donorStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	assert.Equal(t, expectedError, err)
@@ -124,7 +124,7 @@ func TestProgressWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &progressData{App: testAppData, Lpa: &actor.DonorProvidedDetails{}}).
+		On("Execute", w, &progressData{App: testAppData, Donor: &actor.DonorProvidedDetails{}}).
 		Return(expectedError)
 
 	err := Progress(template.Execute, attorneyStore, donorStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
