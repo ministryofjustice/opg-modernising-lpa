@@ -12,14 +12,14 @@ import (
 type restrictionsData struct {
 	App    page.AppData
 	Errors validation.List
-	Lpa    *actor.DonorProvidedDetails
+	Donor  *actor.DonorProvidedDetails
 }
 
 func Restrictions(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &restrictionsData{
-			App: appData,
-			Lpa: lpa,
+			App:   appData,
+			Donor: donor,
 		}
 
 		if r.Method == http.MethodPost {
@@ -27,14 +27,14 @@ func Restrictions(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = form.Validate()
 
 			if data.Errors.None() {
-				lpa.Tasks.Restrictions = actor.TaskCompleted
-				lpa.Restrictions = form.Restrictions
+				donor.Tasks.Restrictions = actor.TaskCompleted
+				donor.Restrictions = form.Restrictions
 
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				return page.Paths.TaskList.Redirect(w, r, appData, lpa)
+				return page.Paths.TaskList.Redirect(w, r, appData, donor)
 			}
 		}
 

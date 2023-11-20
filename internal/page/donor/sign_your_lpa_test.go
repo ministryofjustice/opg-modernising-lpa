@@ -24,7 +24,7 @@ func TestGetSignYourLpa(t *testing.T) {
 		On("Execute", w, &signYourLpaData{
 			App:                  testAppData,
 			Form:                 &signYourLpaForm{},
-			Lpa:                  &actor.DonorProvidedDetails{},
+			Donor:                &actor.DonorProvidedDetails{},
 			WantToSignFormValue:  WantToSignLpa,
 			WantToApplyFormValue: WantToApplyForLpa,
 		}).
@@ -49,8 +49,8 @@ func TestGetSignYourLpaFromStore(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &signYourLpaData{
-			App: testAppData,
-			Lpa: lpa,
+			App:   testAppData,
+			Donor: lpa,
 			Form: &signYourLpaForm{
 				WantToSign:  true,
 				WantToApply: false,
@@ -79,7 +79,7 @@ func TestPostSignYourLpa(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID:                    "lpa-id",
+			LpaID:                 "lpa-id",
 			DonorIdentityUserData: identity.UserData{OK: true},
 			Tasks: actor.DonorTasks{
 				ConfirmYourIdentityAndSign: actor.TaskCompleted,
@@ -89,7 +89,7 @@ func TestPostSignYourLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := SignYourLpa(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id", DonorIdentityUserData: identity.UserData{OK: true}})
+	err := SignYourLpa(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", DonorIdentityUserData: identity.UserData{OK: true}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

@@ -40,7 +40,7 @@ func TestGetChoosePeopleToNotifyFromStore(t *testing.T) {
 	template := newMockTemplate(t)
 
 	err := ChoosePeopleToNotify(template.Execute, nil, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		PeopleToNotify: actor.PeopleToNotify{
 			{
 				ID:         "123",
@@ -118,7 +118,7 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 			err := ChoosePeopleToNotify(nil, nil, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{
-				ID:             "lpa-id",
+				LpaID:          "lpa-id",
 				PeopleToNotify: tc.addedPeople,
 			})
 			resp := w.Result()
@@ -173,7 +173,7 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &actor.DonorProvidedDetails{
-					ID:             "lpa-id",
+					LpaID:          "lpa-id",
 					Donor:          actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					PeopleToNotify: actor.PeopleToNotify{tc.personToNotify},
 					Tasks:          actor.DonorTasks{PeopleToNotify: actor.TaskInProgress},
@@ -181,7 +181,7 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 				Return(nil)
 
 			err := ChoosePeopleToNotify(nil, donorStore, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{
-				ID:    "lpa-id",
+				LpaID: "lpa-id",
 				Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 			})
 			resp := w.Result()
@@ -207,7 +207,7 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID: "lpa-id",
+			LpaID: "lpa-id",
 			PeopleToNotify: actor.PeopleToNotify{{
 				FirstNames: "Johnny",
 				LastName:   "Dear",
@@ -219,7 +219,7 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 		Return(nil)
 
 	err := ChoosePeopleToNotify(nil, donorStore, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		PeopleToNotify: actor.PeopleToNotify{{
 			FirstNames: "John",
 			LastName:   "Doe",

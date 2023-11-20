@@ -113,7 +113,7 @@ func TestPostYourAuthorisedSignatory(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &actor.DonorProvidedDetails{
-					ID:                  "lpa-id",
+					LpaID:               "lpa-id",
 					Donor:               actor.Donor{FirstNames: "John", LastName: "Smith"},
 					AuthorisedSignatory: tc.person,
 					Tasks:               actor.DonorTasks{ChooseYourSignatory: actor.TaskInProgress},
@@ -121,7 +121,7 @@ func TestPostYourAuthorisedSignatory(t *testing.T) {
 				Return(nil)
 
 			err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-				ID:    "lpa-id",
+				LpaID: "lpa-id",
 				Donor: actor.Donor{FirstNames: "John", LastName: "Smith"},
 			})
 			resp := w.Result()
@@ -147,7 +147,7 @@ func TestPostYourAuthorisedSignatoryWhenTaskCompleted(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID: "lpa-id",
+			LpaID: "lpa-id",
 			AuthorisedSignatory: actor.AuthorisedSignatory{
 				FirstNames: "John",
 				LastName:   "Doe",
@@ -157,7 +157,7 @@ func TestPostYourAuthorisedSignatoryWhenTaskCompleted(t *testing.T) {
 		Return(nil)
 
 	err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		AuthorisedSignatory: actor.AuthorisedSignatory{
 			FirstNames: "John",
 		},

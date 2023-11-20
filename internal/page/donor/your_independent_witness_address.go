@@ -11,18 +11,18 @@ import (
 )
 
 func YourIndependentWitnessAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := newChooseAddressData(
 			appData,
 			"independentWitness",
-			lpa.IndependentWitness.FullName(),
+			donor.IndependentWitness.FullName(),
 			"",
 			false,
 		)
 
-		if lpa.IndependentWitness.Address.Line1 != "" {
+		if donor.IndependentWitness.Address.Line1 != "" {
 			data.Form.Action = "manual"
-			data.Form.Address = &lpa.IndependentWitness.Address
+			data.Form.Address = &donor.IndependentWitness.Address
 		}
 
 		if r.Method == http.MethodPost {
@@ -30,10 +30,10 @@ func YourIndependentWitnessAddress(logger Logger, tmpl template.Template, addres
 			data.Errors = data.Form.Validate(false)
 
 			setAddress := func(address place.Address) error {
-				lpa.Tasks.ChooseYourSignatory = actor.TaskCompleted
-				lpa.IndependentWitness.Address = *data.Form.Address
+				donor.Tasks.ChooseYourSignatory = actor.TaskCompleted
+				donor.IndependentWitness.Address = *data.Form.Address
 
-				return donorStore.Put(r.Context(), lpa)
+				return donorStore.Put(r.Context(), donor)
 			}
 
 			switch data.Form.Action {
@@ -43,7 +43,7 @@ func YourIndependentWitnessAddress(logger Logger, tmpl template.Template, addres
 						return err
 					}
 
-					return page.Paths.TaskList.Redirect(w, r, appData, lpa)
+					return page.Paths.TaskList.Redirect(w, r, appData, donor)
 				}
 
 			case "postcode-select":
@@ -61,7 +61,7 @@ func YourIndependentWitnessAddress(logger Logger, tmpl template.Template, addres
 				}
 
 			case "reuse":
-				data.Addresses = lpa.ActorAddresses()
+				data.Addresses = donor.ActorAddresses()
 
 			case "reuse-select":
 				if data.Errors.None() {
@@ -69,9 +69,9 @@ func YourIndependentWitnessAddress(logger Logger, tmpl template.Template, addres
 						return err
 					}
 
-					return page.Paths.TaskList.Redirect(w, r, appData, lpa)
+					return page.Paths.TaskList.Redirect(w, r, appData, donor)
 				} else {
-					data.Addresses = lpa.ActorAddresses()
+					data.Addresses = donor.ActorAddresses()
 				}
 			}
 		}

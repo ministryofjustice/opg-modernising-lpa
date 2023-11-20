@@ -12,14 +12,14 @@ import (
 type guidanceData struct {
 	App    page.AppData
 	Errors validation.List
-	Lpa    *actor.DonorProvidedDetails
+	Donor  *actor.DonorProvidedDetails
 }
 
 func Guidance(tmpl template.Template) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &guidanceData{
-			App: appData,
-			Lpa: lpa,
+			App:   appData,
+			Donor: donor,
 		}
 
 		return tmpl(w, data)

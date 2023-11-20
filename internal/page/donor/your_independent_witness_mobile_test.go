@@ -35,11 +35,11 @@ func TestGetYourIndependentWitnessMobile(t *testing.T) {
 
 func TestGetYourIndependentWitnessMobileFromStore(t *testing.T) {
 	testcases := map[string]struct {
-		lpa  *actor.DonorProvidedDetails
-		form *yourIndependentWitnessMobileForm
+		donor *actor.DonorProvidedDetails
+		form  *yourIndependentWitnessMobileForm
 	}{
 		"uk mobile": {
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				IndependentWitness: actor.IndependentWitness{
 					Mobile: "07777",
 				},
@@ -49,7 +49,7 @@ func TestGetYourIndependentWitnessMobileFromStore(t *testing.T) {
 			},
 		},
 		"non-uk mobile": {
-			lpa: &actor.DonorProvidedDetails{
+			donor: &actor.DonorProvidedDetails{
 				IndependentWitness: actor.IndependentWitness{
 					Mobile:         "07777",
 					HasNonUKMobile: true,
@@ -75,7 +75,7 @@ func TestGetYourIndependentWitnessMobileFromStore(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := YourIndependentWitnessMobile(template.Execute, nil)(testAppData, w, r, tc.lpa)
+			err := YourIndependentWitnessMobile(template.Execute, nil)(testAppData, w, r, tc.donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -137,12 +137,12 @@ func TestPostYourIndependentWitnessMobile(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &actor.DonorProvidedDetails{
-					ID:                 "lpa-id",
+					LpaID:              "lpa-id",
 					IndependentWitness: tc.yourIndependentWitnessMobile,
 				}).
 				Return(nil)
 
-			err := YourIndependentWitnessMobile(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id"})
+			err := YourIndependentWitnessMobile(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)

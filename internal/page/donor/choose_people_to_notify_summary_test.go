@@ -25,7 +25,7 @@ func TestGetChoosePeopleToNotifySummary(t *testing.T) {
 	template.
 		On("Execute", w, &choosePeopleToNotifySummaryData{
 			App:     testAppData,
-			Lpa:     lpa,
+			Donor:   lpa,
 			Form:    &form.YesNoForm{},
 			Options: form.YesNoValues,
 		}).
@@ -43,7 +43,7 @@ func TestGetChoosePeopleToNotifySummaryWhenNoPeopleToNotify(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		Tasks: actor.DonorTasks{
 			YourDetails:                actor.TaskCompleted,
 			ChooseAttorneys:            actor.TaskCompleted,
@@ -70,7 +70,7 @@ func TestPostChoosePeopleToNotifySummaryAddPersonToNotify(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id", PeopleToNotify: actor.PeopleToNotify{{ID: "123"}}})
+	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", PeopleToNotify: actor.PeopleToNotify{{ID: "123"}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -88,7 +88,7 @@ func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID:             "lpa-id",
+		LpaID:          "lpa-id",
 		PeopleToNotify: actor.PeopleToNotify{{ID: "123"}},
 		Tasks: actor.DonorTasks{
 			YourDetails:                actor.TaskCompleted,

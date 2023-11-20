@@ -14,13 +14,13 @@ type provideCertificateData struct {
 	App                 page.AppData
 	Errors              validation.List
 	CertificateProvider *actor.CertificateProviderProvidedDetails
-	Lpa                 *actor.DonorProvidedDetails
+	Donor               *actor.DonorProvidedDetails
 	Form                *provideCertificateForm
 }
 
 func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func() time.Time, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := donorStore.GetAny(r.Context())
+		donor, err := donorStore.GetAny(r.Context())
 		if err != nil {
 			return err
 		}
@@ -30,14 +30,14 @@ func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func(
 			return err
 		}
 
-		if lpa.SignedAt.IsZero() {
-			return page.Paths.CertificateProvider.TaskList.Redirect(w, r, appData, lpa.ID)
+		if donor.SignedAt.IsZero() {
+			return page.Paths.CertificateProvider.TaskList.Redirect(w, r, appData, donor.LpaID)
 		}
 
 		data := &provideCertificateData{
 			App:                 appData,
 			CertificateProvider: certificateProvider,
-			Lpa:                 lpa,
+			Donor:               donor,
 			Form: &provideCertificateForm{
 				AgreeToStatement: certificateProvider.Certificate.AgreeToStatement,
 			},

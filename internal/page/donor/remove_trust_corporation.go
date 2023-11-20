@@ -17,26 +17,26 @@ func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, isRep
 		titleLabel = "removeReplacementTrustCorporation"
 	}
 
-	updateLpa := func(lpa *actor.DonorProvidedDetails) {
-		lpa.Attorneys.TrustCorporation = actor.TrustCorporation{}
-		if lpa.Attorneys.Len() == 1 {
-			lpa.AttorneyDecisions = actor.AttorneyDecisions{}
+	updateDonor := func(donor *actor.DonorProvidedDetails) {
+		donor.Attorneys.TrustCorporation = actor.TrustCorporation{}
+		if donor.Attorneys.Len() == 1 {
+			donor.AttorneyDecisions = actor.AttorneyDecisions{}
 		}
 	}
 
 	if isReplacement {
-		updateLpa = func(lpa *actor.DonorProvidedDetails) {
-			lpa.ReplacementAttorneys.TrustCorporation = actor.TrustCorporation{}
-			if lpa.ReplacementAttorneys.Len() == 1 {
-				lpa.ReplacementAttorneyDecisions = actor.AttorneyDecisions{}
+		updateDonor = func(donor *actor.DonorProvidedDetails) {
+			donor.ReplacementAttorneys.TrustCorporation = actor.TrustCorporation{}
+			if donor.ReplacementAttorneys.Len() == 1 {
+				donor.ReplacementAttorneyDecisions = actor.AttorneyDecisions{}
 			}
 		}
 	}
 
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
-		name := lpa.Attorneys.TrustCorporation.Name
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+		name := donor.Attorneys.TrustCorporation.Name
 		if isReplacement {
-			name = lpa.ReplacementAttorneys.TrustCorporation.Name
+			name = donor.ReplacementAttorneys.TrustCorporation.Name
 		}
 
 		data := &removeAttorneyData{
@@ -53,17 +53,17 @@ func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, isRep
 
 			if data.Errors.None() {
 				if data.Form.YesNo.IsYes() {
-					updateLpa(lpa)
+					updateDonor(donor)
 
-					lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
-					lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
+					donor.Tasks.ChooseAttorneys = page.ChooseAttorneysState(donor.Attorneys, donor.AttorneyDecisions)
+					donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
 
-					if err := donorStore.Put(r.Context(), lpa); err != nil {
+					if err := donorStore.Put(r.Context(), donor); err != nil {
 						return err
 					}
 				}
 
-				return redirect.Redirect(w, r, appData, lpa)
+				return redirect.Redirect(w, r, appData, donor)
 			}
 		}
 

@@ -10,7 +10,7 @@ import (
 )
 
 func IdentityWithOneLogin(logger Logger, oneLoginClient OneLoginClient, store sesh.Store, randomString func(int) string) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		locale := ""
 		if appData.Lang == localize.Cy {
 			locale = "cy"
@@ -25,8 +25,8 @@ func IdentityWithOneLogin(logger Logger, oneLoginClient OneLoginClient, store se
 			State:    state,
 			Nonce:    nonce,
 			Locale:   locale,
-			LpaID:    lpa.ID,
-			Redirect: page.Paths.IdentityWithOneLoginCallback.Format(lpa.ID),
+			LpaID:    donor.LpaID,
+			Redirect: page.Paths.IdentityWithOneLoginCallback.Format(donor.LpaID),
 		}); err != nil {
 			logger.Print(err)
 			return nil

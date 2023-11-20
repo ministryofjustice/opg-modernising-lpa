@@ -44,7 +44,7 @@ func ContextWithSessionData(ctx context.Context, data *SessionData) context.Cont
 	return context.WithValue(ctx, (*SessionData)(nil), data)
 }
 
-func CanGoTo(l *actor.DonorProvidedDetails, url string) bool {
+func CanGoTo(donor *actor.DonorProvidedDetails, url string) bool {
 	path, _, _ := strings.Cut(url, "?")
 	if path == "" {
 		return false
@@ -52,7 +52,7 @@ func CanGoTo(l *actor.DonorProvidedDetails, url string) bool {
 
 	if strings.HasPrefix(path, "/lpa/") {
 		_, lpaPath, _ := strings.Cut(strings.TrimPrefix(path, "/lpa/"), "/")
-		return canGoToLpaPath(l, "/"+lpaPath)
+		return canGoToLpaPath(donor, "/"+lpaPath)
 	}
 
 	return true
@@ -74,37 +74,37 @@ func ChooseAttorneysState(attorneys actor.Attorneys, decisions actor.AttorneyDec
 	return actor.TaskCompleted
 }
 
-func ChooseReplacementAttorneysState(lpa *actor.DonorProvidedDetails) actor.TaskState {
-	if lpa.WantReplacementAttorneys == form.No {
+func ChooseReplacementAttorneysState(donor *actor.DonorProvidedDetails) actor.TaskState {
+	if donor.WantReplacementAttorneys == form.No {
 		return actor.TaskCompleted
 	}
 
-	if lpa.ReplacementAttorneys.Len() == 0 {
-		if lpa.WantReplacementAttorneys.Empty() {
+	if donor.ReplacementAttorneys.Len() == 0 {
+		if donor.WantReplacementAttorneys.Empty() {
 			return actor.TaskNotStarted
 		}
 
 		return actor.TaskInProgress
 	}
 
-	if !lpa.ReplacementAttorneys.Complete() {
+	if !donor.ReplacementAttorneys.Complete() {
 		return actor.TaskInProgress
 	}
 
-	if lpa.ReplacementAttorneys.Len() > 1 &&
-		(lpa.Attorneys.Len() == 1 || lpa.AttorneyDecisions.How.IsJointly() || lpa.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers()) &&
-		!lpa.ReplacementAttorneyDecisions.IsComplete() {
+	if donor.ReplacementAttorneys.Len() > 1 &&
+		(donor.Attorneys.Len() == 1 || donor.AttorneyDecisions.How.IsJointly() || donor.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers()) &&
+		!donor.ReplacementAttorneyDecisions.IsComplete() {
 		return actor.TaskInProgress
 	}
 
-	if lpa.AttorneyDecisions.How.IsJointlyAndSeverally() {
-		if lpa.HowShouldReplacementAttorneysStepIn.Empty() {
+	if donor.AttorneyDecisions.How.IsJointlyAndSeverally() {
+		if donor.HowShouldReplacementAttorneysStepIn.Empty() {
 			return actor.TaskInProgress
 		}
 
-		if lpa.ReplacementAttorneys.Len() > 1 &&
-			lpa.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct() &&
-			!lpa.ReplacementAttorneyDecisions.IsComplete() {
+		if donor.ReplacementAttorneys.Len() > 1 &&
+			donor.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct() &&
+			!donor.ReplacementAttorneyDecisions.IsComplete() {
 			return actor.TaskInProgress
 		}
 	}
