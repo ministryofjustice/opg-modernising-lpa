@@ -24,7 +24,7 @@ func TestGetWitnessingYourSignature(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &witnessingYourSignatureData{App: testAppData, Lpa: lpa}).
+		On("Execute", w, &witnessingYourSignatureData{App: testAppData, Donor: lpa}).
 		Return(nil)
 
 	err := WitnessingYourSignature(template.Execute, nil, nil)(testAppData, w, r, lpa)
@@ -42,7 +42,7 @@ func TestGetWitnessingYourSignatureWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &witnessingYourSignatureData{App: testAppData, Lpa: lpa}).
+		On("Execute", w, &witnessingYourSignatureData{App: testAppData, Donor: lpa}).
 		Return(expectedError)
 
 	err := WitnessingYourSignature(template.Execute, nil, nil)(testAppData, w, r, lpa)
@@ -55,7 +55,7 @@ func TestPostWitnessingYourSignature(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 	lpa := &actor.DonorProvidedDetails{
-		ID:                    "lpa-id",
+		LpaID:                 "lpa-id",
 		Donor:                 actor.Donor{CanSign: form.Yes},
 		DonorIdentityUserData: identity.UserData{OK: true},
 		CertificateProvider:   actor.CertificateProvider{Mobile: "07535111111"},
@@ -79,7 +79,7 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 	lpa := &actor.DonorProvidedDetails{
-		ID:                    "lpa-id",
+		LpaID:                 "lpa-id",
 		Donor:                 actor.Donor{CanSign: form.No},
 		DonorIdentityUserData: identity.UserData{OK: true},
 		CertificateProvider:   actor.CertificateProvider{Mobile: "07535111111"},
@@ -91,7 +91,7 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 		Return(nil)
 	witnessCodeSender.
 		On("SendToIndependentWitness", r.Context(), &actor.DonorProvidedDetails{
-			ID:                    "lpa-id",
+			LpaID:                 "lpa-id",
 			Donor:                 actor.Donor{CanSign: form.No},
 			DonorIdentityUserData: identity.UserData{OK: true},
 			CertificateProvider:   actor.CertificateProvider{Mobile: "07535111111"},
@@ -102,7 +102,7 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 	donorStore.
 		On("Get", r.Context()).
 		Return(&actor.DonorProvidedDetails{
-			ID:                    "lpa-id",
+			LpaID:                 "lpa-id",
 			Donor:                 actor.Donor{CanSign: form.No},
 			DonorIdentityUserData: identity.UserData{OK: true},
 			CertificateProvider:   actor.CertificateProvider{Mobile: "07535111111"},

@@ -36,7 +36,7 @@ func TestGetProvideCertificate(t *testing.T) {
 		On("Execute", w, &provideCertificateData{
 			App:                 testAppData,
 			CertificateProvider: &actor.CertificateProviderProvidedDetails{},
-			Lpa:                 lpa,
+			Donor:               lpa,
 			Form:                &provideCertificateForm{},
 		}).
 		Return(nil)
@@ -55,7 +55,7 @@ func TestGetProvideCertificateRedirectsToStartOnLpaNotSubmitted(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("GetAny", r.Context()).
-		Return(&actor.DonorProvidedDetails{ID: "lpa-id"}, nil)
+		Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.

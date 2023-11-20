@@ -145,14 +145,14 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID:             "lpa-id",
+			LpaID:          "lpa-id",
 			PeopleToNotify: actor.PeopleToNotify{{ID: "123", Address: testAddress}},
 			Tasks:          actor.DonorTasks{PeopleToNotify: actor.TaskCompleted},
 		}).
 		Return(nil)
 
 	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID:             "lpa-id",
+		LpaID:          "lpa-id",
 		PeopleToNotify: actor.PeopleToNotify{{ID: "123"}},
 		Tasks:          actor.DonorTasks{PeopleToNotify: actor.TaskInProgress},
 	})
@@ -208,7 +208,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID: "lpa-id",
+			LpaID: "lpa-id",
 			PeopleToNotify: actor.PeopleToNotify{actor.PersonToNotify{
 				ID:         "123",
 				FirstNames: "John",
@@ -219,7 +219,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 		Return(nil)
 
 	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		PeopleToNotify: actor.PeopleToNotify{actor.PersonToNotify{
 			ID:         "123",
 			FirstNames: "John",
@@ -576,7 +576,7 @@ func TestPostChoosePeopleToNotifyAddressReuseSelect(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID: "lpa-id",
+			LpaID: "lpa-id",
 			PeopleToNotify: actor.PeopleToNotify{{
 				ID: "123",
 				Address: place.Address{
@@ -592,7 +592,7 @@ func TestPostChoosePeopleToNotifyAddressReuseSelect(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id", PeopleToNotify: actor.PeopleToNotify{{ID: "123"}}})
+	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", PeopleToNotify: actor.PeopleToNotify{{ID: "123"}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

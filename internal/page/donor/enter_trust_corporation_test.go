@@ -66,7 +66,7 @@ func TestPostEnterTrustCorporation(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID: "lpa-id",
+			LpaID: "lpa-id",
 			Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
 				Name:          "Co co.",
 				CompanyNumber: "453345",
@@ -77,7 +77,7 @@ func TestPostEnterTrustCorporation(t *testing.T) {
 		Return(nil)
 
 	err := EnterTrustCorporation(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 	})
 	resp := w.Result()
 

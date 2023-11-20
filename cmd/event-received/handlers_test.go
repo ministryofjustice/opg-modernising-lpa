@@ -429,7 +429,7 @@ func TestHandleObjectTagsAdded(t *testing.T) {
 			dynamoClient.
 				On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 				Return(func(ctx context.Context, pk, sk string, v interface{}) error {
-					b, _ := json.Marshal(actor.DonorProvidedDetails{ID: "123", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+					b, _ := json.Marshal(actor.DonorProvidedDetails{LpaID: "123", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
 					json.Unmarshal(b, v)
 					return nil
 				})
@@ -515,7 +515,7 @@ func TestHandleObjectTagsAddedWhenDynamoClientOneByUIDError(t *testing.T) {
 	dynamoClient.
 		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
-			b, _ := json.Marshal(actor.DonorProvidedDetails{ID: "123", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			b, _ := json.Marshal(actor.DonorProvidedDetails{LpaID: "123", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
 			json.Unmarshal(b, v)
 			return expectedError
 		})
@@ -549,7 +549,7 @@ func TestHandleObjectTagsAddedWhenDocumentStoreUpdateScanResultsError(t *testing
 	dynamoClient.
 		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
-			b, _ := json.Marshal(actor.DonorProvidedDetails{ID: "123", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			b, _ := json.Marshal(actor.DonorProvidedDetails{LpaID: "123", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
 			json.Unmarshal(b, v)
 			return nil
 		})

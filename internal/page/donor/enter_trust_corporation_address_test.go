@@ -105,7 +105,7 @@ func TestPostEnterTrustCorporationAddressManual(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID:    "lpa-id",
+			LpaID: "lpa-id",
 			Tasks: actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
 			Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
 				Name:    "a",
@@ -115,7 +115,7 @@ func TestPostEnterTrustCorporationAddressManual(t *testing.T) {
 		Return(nil)
 
 	err := EnterTrustCorporationAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
 			Name:    "a",
 			Address: place.Address{},
@@ -171,7 +171,7 @@ func TestPostEnterTrustCorporationAddressManualFromStore(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID:    "lpa-id",
+			LpaID: "lpa-id",
 			Tasks: actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
 			Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
 				Name:    "John",
@@ -181,7 +181,7 @@ func TestPostEnterTrustCorporationAddressManualFromStore(t *testing.T) {
 		Return(nil)
 
 	err := EnterTrustCorporationAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
 			Name:    "John",
 			Address: place.Address{Line1: "abc"},
@@ -574,14 +574,14 @@ func TestPostEnterTrustCorporationAddressReuseSelect(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID:        "lpa-id",
+			LpaID:     "lpa-id",
 			Attorneys: actor.Attorneys{TrustCorporation: updatedTrustCorporation},
 			Tasks:     actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
 
 	err := EnterTrustCorporationAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID: "lpa-id",
+		LpaID: "lpa-id",
 		Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
 			Name: "a",
 		}},
@@ -659,7 +659,7 @@ func TestPostEnterTrustCorporationAddressManuallyFromAnotherPage(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			lpa := &actor.DonorProvidedDetails{
-				ID: "lpa-id",
+				LpaID: "lpa-id",
 				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
 					Address: place.Address{
 						Line1:      "a",

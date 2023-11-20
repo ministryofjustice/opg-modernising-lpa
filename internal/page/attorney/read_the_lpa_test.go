@@ -22,8 +22,8 @@ func TestGetReadTheLpaWithAttorney(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &readTheLpaData{
-			App: testAppData,
-			Lpa: &actor.DonorProvidedDetails{Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}},
+			App:   testAppData,
+			Donor: &actor.DonorProvidedDetails{Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}},
 		}).
 		Return(nil)
 
@@ -46,8 +46,8 @@ func TestGetReadTheLpaWithReplacementAttorney(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &readTheLpaData{
-			App: testReplacementAppData,
-			Lpa: &actor.DonorProvidedDetails{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}},
+			App:   testReplacementAppData,
+			Donor: &actor.DonorProvidedDetails{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}},
 		}).
 		Return(nil)
 
@@ -86,8 +86,8 @@ func TestGetReadTheLpaWhenTemplateError(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &readTheLpaData{
-			App: testAppData,
-			Lpa: &actor.DonorProvidedDetails{Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}},
+			App:   testAppData,
+			Donor: &actor.DonorProvidedDetails{Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "attorney-id"}}}},
 		}).
 		Return(expectedError)
 

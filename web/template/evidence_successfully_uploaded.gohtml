@@ -9,7 +9,7 @@
         <h1 class="govuk-panel__title">{{ tr .App "evidenceSuccessfullyUploaded" }}</h1>
       </div>
 
-      {{ trFormatHtml .App "weWillReviewYourLpaApplicationAndSupportingEvidence" "Application" (printf "application%s" .Lpa.FeeType.String | tr .App) }}
+      {{ trFormatHtml .App "weWillReviewYourLpaApplicationAndSupportingEvidence" "Application" (printf "application%s" .Donor.FeeType.String | tr .App) }}
       {{ template "details" (details . "appealingTheDecision" "appealingTheDecisionDetails" false) }}
       
       <div class="govuk-button-group">

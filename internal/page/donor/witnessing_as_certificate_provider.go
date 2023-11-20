@@ -17,29 +17,29 @@ type witnessingAsCertificateProviderData struct {
 	App    page.AppData
 	Errors validation.List
 	Form   *witnessingAsCertificateProviderForm
-	Lpa    *actor.DonorProvidedDetails
+	Donor  *actor.DonorProvidedDetails
 }
 
 func WitnessingAsCertificateProvider(tmpl template.Template, donorStore DonorStore, shareCodeSender ShareCodeSender, now func() time.Time, certificateProviderStore CertificateProviderStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &witnessingAsCertificateProviderData{
-			App:  appData,
-			Lpa:  lpa,
-			Form: &witnessingAsCertificateProviderForm{},
+			App:   appData,
+			Donor: donor,
+			Form:  &witnessingAsCertificateProviderForm{},
 		}
 
 		if r.Method == http.MethodPost {
 			data.Form = readWitnessingAsCertificateProviderForm(r)
 			data.Errors = data.Form.Validate()
 
-			if lpa.WitnessCodeLimiter == nil {
-				lpa.WitnessCodeLimiter = actor.NewLimiter(time.Minute, 5, 10)
+			if donor.WitnessCodeLimiter == nil {
+				donor.WitnessCodeLimiter = actor.NewLimiter(time.Minute, 5, 10)
 			}
 
-			if !lpa.WitnessCodeLimiter.Allow(now()) {
+			if !donor.WitnessCodeLimiter.Allow(now()) {
 				data.Errors.Add("witness-code", validation.CustomError{Label: "tooManyWitnessCodeAttempts"})
 			} else {
-				code, found := lpa.CertificateProviderCodes.Find(data.Form.Code)
+				code, found := donor.CertificateProviderCodes.Find(data.Form.Code)
 				if !found {
 					data.Errors.Add("witness-code", validation.CustomError{Label: "witnessCodeDoesNotMatch"})
 				} else if code.HasExpired() {
@@ -48,12 +48,12 @@ func WitnessingAsCertificateProvider(tmpl template.Template, donorStore DonorSto
 			}
 
 			if data.Errors.None() {
-				lpa.WitnessCodeLimiter = nil
-				lpa.WitnessedByCertificateProviderAt = now()
-				lpa.SignedAt = now()
+				donor.WitnessCodeLimiter = nil
+				donor.WitnessedByCertificateProviderAt = now()
+				donor.SignedAt = now()
 			}
 
-			if err := donorStore.Put(r.Context(), lpa); err != nil {
+			if err := donorStore.Put(r.Context(), donor); err != nil {
 				return err
 			}
 
@@ -68,17 +68,17 @@ func WitnessingAsCertificateProvider(tmpl template.Template, donorStore DonorSto
 					return err
 				}
 
-				if err == nil && certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
-					if err := shareCodeSender.SendCertificateProvider(r.Context(), notify.CertificateProviderReturnEmail, appData, false, lpa); err != nil {
+				if err == nil && certificateProvider.CertificateProviderIdentityConfirmed(donor.CertificateProvider.FirstNames, donor.CertificateProvider.LastName) {
+					if err := shareCodeSender.SendCertificateProvider(r.Context(), notify.CertificateProviderReturnEmail, appData, false, donor); err != nil {
 						return err
 					}
 				}
 
-				if err := shareCodeSender.SendAttorneys(r.Context(), appData, lpa); err != nil {
+				if err := shareCodeSender.SendAttorneys(r.Context(), appData, donor); err != nil {
 					return err
 				}
 
-				return page.Paths.YouHaveSubmittedYourLpa.Redirect(w, r, appData, lpa)
+				return page.Paths.YouHaveSubmittedYourLpa.Redirect(w, r, appData, donor)
 			}
 		}
 

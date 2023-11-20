@@ -11,7 +11,7 @@ import (
 
 type mobileNumberData struct {
 	App    page.AppData
-	Lpa    *actor.DonorProvidedDetails
+	Donor  *actor.DonorProvidedDetails
 	Form   *mobileNumberForm
 	Errors validation.List
 }

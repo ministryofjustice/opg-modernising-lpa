@@ -17,11 +17,11 @@ type lifeSustainingTreatmentData struct {
 }
 
 func LifeSustainingTreatment(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &lifeSustainingTreatmentData{
 			App: appData,
 			Form: &lifeSustainingTreatmentForm{
-				Option: lpa.LifeSustainingTreatmentOption,
+				Option: donor.LifeSustainingTreatmentOption,
 			},
 			Options: actor.LifeSustainingTreatmentValues,
 		}
@@ -31,13 +31,13 @@ func LifeSustainingTreatment(tmpl template.Template, donorStore DonorStore) Hand
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.LifeSustainingTreatmentOption = data.Form.Option
-				lpa.Tasks.LifeSustainingTreatment = actor.TaskCompleted
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				donor.LifeSustainingTreatmentOption = data.Form.Option
+				donor.Tasks.LifeSustainingTreatment = actor.TaskCompleted
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				return page.Paths.TaskList.Redirect(w, r, appData, lpa)
+				return page.Paths.TaskList.Redirect(w, r, appData, donor)
 			}
 		}
 

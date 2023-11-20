@@ -83,7 +83,7 @@ func TestPostPreviousFeeWhenFullFee(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpa := &actor.DonorProvidedDetails{
-		ID:          "lpa-id",
+		LpaID:       "lpa-id",
 		PreviousFee: pay.PreviousFeeFull,
 	}
 
@@ -97,7 +97,7 @@ func TestPostPreviousFeeWhenFullFee(t *testing.T) {
 		On("Pay", testAppData, w, r, lpa).
 		Return(nil)
 
-	err := PreviousFee(nil, payer, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id"})
+	err := PreviousFee(nil, payer, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 	assert.Nil(t, err)
 }
 
@@ -113,12 +113,12 @@ func TestPostPreviousFeeWhenOtherFee(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			ID:          "lpa-id",
+			LpaID:       "lpa-id",
 			PreviousFee: pay.PreviousFeeHalf,
 		}).
 		Return(nil)
 
-	err := PreviousFee(nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{ID: "lpa-id"})
+	err := PreviousFee(nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -136,7 +136,7 @@ func TestPostPreviousFeeWhenNotChanged(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	err := PreviousFee(nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ID:          "lpa-id",
+		LpaID:       "lpa-id",
 		PreviousFee: pay.PreviousFeeHalf,
 	})
 	resp := w.Result()

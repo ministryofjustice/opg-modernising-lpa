@@ -18,11 +18,11 @@ type whichFeeTypeAreYouApplyingForData struct {
 }
 
 func WhichFeeTypeAreYouApplyingFor(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &whichFeeTypeAreYouApplyingForData{
 			App: appData,
 			Form: &whichFeeTypeAreYouApplyingForForm{
-				FeeType: lpa.FeeType,
+				FeeType: donor.FeeType,
 			},
 			Options: pay.FeeTypeValues,
 		}
@@ -32,15 +32,15 @@ func WhichFeeTypeAreYouApplyingFor(tmpl template.Template, donorStore DonorStore
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.FeeType = data.Form.FeeType
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				donor.FeeType = data.Form.FeeType
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				if lpa.FeeType.IsRepeatApplicationFee() {
-					return page.Paths.PreviousApplicationNumber.Redirect(w, r, appData, lpa)
+				if donor.FeeType.IsRepeatApplicationFee() {
+					return page.Paths.PreviousApplicationNumber.Redirect(w, r, appData, donor)
 				} else {
-					return page.Paths.EvidenceRequired.Redirect(w, r, appData, lpa)
+					return page.Paths.EvidenceRequired.Redirect(w, r, appData, donor)
 				}
 			}
 		}
