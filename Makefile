@@ -99,13 +99,13 @@ get-documents:  ##@app dumps all documents in the lpas dynamodb table that are r
 emit-evidence-received: ##@app emits an evidence-received event with the given UID e.g. emit-evidence-received uid=abc-123
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"evidence-received","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
 
-emit-reduced-fee-approved: ##@app emits a reduced-fee-approved event with the given UID e.g. emit-reduced-fee-approved uid=abc-123
+emit-reduced-fee-approved: ##@app emits a reduced-fee-approved event with the given LpaUID e.g. emit-reduced-fee-approved uid=abc-123
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"reduced-fee-approved","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
 
-emit-reduced-fee-declined: ##@app emits a reduced-fee-declined event with the given UID e.g. emit-reduced-fee-declined uid=abc-123
+emit-reduced-fee-declined: ##@app emits a reduced-fee-declined event with the given LpaUID e.g. emit-reduced-fee-declined uid=abc-123
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"reduced-fee-declined","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
 
-emit-more-evidence-required: ##@app emits a more-evidence-required event with the given UID e.g. emit-more-evidence-required uid=abc-123
+emit-more-evidence-required: ##@app emits a more-evidence-required event with the given LpaUID e.g. emit-more-evidence-required uid=abc-123
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"more-evidence-required","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
 
 emit-object-tags-added-with-virus: ##@app emits a ObjectTagging:Put event with the given S3 key e.g. emit-object-tags-added-with-virus key=doc/key. Also ensures a tag with virus-scan-status exists on an existing object set to infected

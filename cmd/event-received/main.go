@@ -80,7 +80,7 @@ func (e Event) isS3Event() bool {
 }
 
 func (e Event) isCloudWatchEvent() bool {
-	return e.Source == "aws.cloudwatch" || e.Source == "opg.poas.makeregister"
+	return e.Source == "aws.cloudwatch" || e.Source == "opg.poas.makeregister" || e.Source == "opg.poas.sirius"
 }
 
 func handler(ctx context.Context, event Event) error {
@@ -128,7 +128,7 @@ func handler(ctx context.Context, event Event) error {
 	}
 
 	if event.isCloudWatchEvent() {
-		err := fmt.Errorf("unknown cloudwatch event")
+		var err error
 
 		switch event.DetailType {
 		case "uid-requested":
@@ -170,6 +170,8 @@ func handler(ctx context.Context, event Event) error {
 
 		case "move-evidence-required":
 			err = handleMoreEvidenceRequired(ctx, dynamoClient, event.CloudWatchEvent, now)
+		default:
+			err = fmt.Errorf("unknown cloudwatch event")
 		}
 
 		if err != nil {
