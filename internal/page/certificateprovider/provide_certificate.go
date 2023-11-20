@@ -1,11 +1,13 @@
 package certificateprovider
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -18,7 +20,7 @@ type provideCertificateData struct {
 	Form                *provideCertificateForm
 }
 
-func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func() time.Time, certificateProviderStore CertificateProviderStore) page.Handler {
+func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func() time.Time, certificateProviderStore CertificateProviderStore, notifyClient NotifyClient) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := donorStore.GetAny(r.Context())
 		if err != nil {
@@ -53,6 +55,19 @@ func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func(
 				certificateProvider.Tasks.ProvideTheCertificate = actor.TaskCompleted
 				if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 					return err
+				}
+
+				if _, err := notifyClient.Email(r.Context(), notify.Email{
+					EmailAddress: lpa.CertificateProvider.Email,
+					TemplateID:   notifyClient.TemplateID(notify.CertificateProviderCertificateProvided),
+					Personalisation: map[string]string{
+						"donorFullNamePossessive":     appData.Localizer.Possessive(lpa.Donor.FullName()),
+						"lpaLegalTerm":                appData.Localizer.T(lpa.Type.LegalTermTransKey()),
+						"certificateProviderFullName": lpa.CertificateProvider.FullName(),
+						"certificateProvidedDateTime": appData.Localizer.FormatDateTime(certificateProvider.Certificate.Agreed),
+					},
+				}); err != nil {
+					return fmt.Errorf("email failed: %w", err)
 				}
 
 				return page.Paths.CertificateProvider.CertificateProvided.Redirect(w, r, appData, certificateProvider.LpaID)

@@ -84,6 +84,7 @@ func Register(
 	certificateProviderStore CertificateProviderStore,
 	notFoundHandler page.Handler,
 	addressClient AddressClient,
+	notifyClient NotifyClient,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -123,7 +124,7 @@ func Register(
 	handleCertificateProvider(page.Paths.CertificateProvider.WhatHappensNext,
 		Guidance(tmpls.Get("certificate_provider_what_happens_next.gohtml"), donorStore, nil))
 	handleCertificateProvider(page.Paths.CertificateProvider.ProvideCertificate,
-		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), donorStore, time.Now, certificateProviderStore))
+		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), donorStore, time.Now, certificateProviderStore, notifyClient))
 	handleCertificateProvider(page.Paths.CertificateProvider.CertificateProvided,
 		Guidance(tmpls.Get("certificate_provided.gohtml"), donorStore, certificateProviderStore))
 }

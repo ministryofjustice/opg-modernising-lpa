@@ -5,9 +5,11 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -73,6 +75,8 @@ type Localizer interface {
 	SetShowTranslationKeys(s bool)
 	Possessive(s string) string
 	Concat([]string, string) string
+	FormatDate(t date.TimeOrDate) string
+	FormatDateTime(t time.Time) string
 }
 
 //go:generate mockery --testonly --inpackage --name shareCodeSender --structname mockShareCodeSender
