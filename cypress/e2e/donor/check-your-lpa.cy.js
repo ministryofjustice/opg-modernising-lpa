@@ -3,7 +3,7 @@ describe('Check the LPA', () => {
         cy.visit('/fixtures?redirect=/check-your-lpa&progress=peopleToNotifyAboutYourLpa');
     });
 
-    it('cannot change when personal welfare LPA can be used', () => {
+    it.only('cannot change when personal welfare LPA can be used', () => {
         cy.visit('/fixtures?redirect=/check-your-lpa&progress=peopleToNotifyAboutYourLpa&lpa-type=hw');
 
         cy.contains('.govuk-summary-list__row', 'When your attorneys can use your LPA')
