@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	uidIndex            = "UidIndex"
+	lpaUIDIndex         = "LpaUIDIndex"
 	actorUpdatedAtIndex = "ActorUpdatedAtIndex"
 )
 
@@ -82,12 +82,12 @@ func (c *Client) One(ctx context.Context, pk, sk string, v interface{}) error {
 func (c *Client) OneByUID(ctx context.Context, uid string, v interface{}) error {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName:                aws.String(c.table),
-		IndexName:                aws.String(uidIndex),
-		ExpressionAttributeNames: map[string]string{"#UID": "UID"},
+		IndexName:                aws.String(lpaUIDIndex),
+		ExpressionAttributeNames: map[string]string{"#LpaUID": "LpaUID"},
 		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":UID": &types.AttributeValueMemberS{Value: uid},
+			":LpaUID": &types.AttributeValueMemberS{Value: uid},
 		},
-		KeyConditionExpression: aws.String("#UID = :UID"),
+		KeyConditionExpression: aws.String("#LpaUID = :LpaUID"),
 	})
 
 	if err != nil {
@@ -95,7 +95,7 @@ func (c *Client) OneByUID(ctx context.Context, uid string, v interface{}) error 
 	}
 
 	if len(response.Items) != 1 {
-		return fmt.Errorf("expected to resolve UID but got %d items", len(response.Items))
+		return fmt.Errorf("expected to resolve LpaUID but got %d items", len(response.Items))
 	}
 
 	return attributevalue.UnmarshalMap(response.Items[0], v)
