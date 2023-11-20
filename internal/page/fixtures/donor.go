@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -16,6 +17,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
 type DocumentStore interface {
@@ -31,6 +33,7 @@ func Donor(
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
 	documentStore DocumentStore,
+	eventClient *event.Client,
 ) page.Handler {
 	progressValues := []string{
 		"provideYourDetails",
@@ -64,6 +67,7 @@ func Donor(
 			feeType              = r.FormValue("feeType")
 			paymentTaskProgress  = r.FormValue("paymentTaskProgress")
 			withVirus            = r.FormValue("withVirus") == "1"
+			fakeUID              = r.FormValue("uid") == "fake"
 		)
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
@@ -91,7 +95,23 @@ func Donor(
 				lpa.Type = actor.LpaTypeHealthWelfare
 				lpa.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
 			}
-			lpa.UID = makeUid()
+
+			if fakeUID {
+				lpa.UID = makeUid()
+			} else {
+				if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
+					LpaID:          lpa.ID,
+					DonorSessionID: donorSessionID,
+					Type:           lpa.Type.String(),
+					Donor: uid.DonorDetails{
+						Name:     lpa.Donor.FullName(),
+						Dob:      lpa.Donor.DateOfBirth,
+						Postcode: lpa.Donor.Address.Postcode,
+					},
+				}); err != nil {
+					return err
+				}
+			}
 
 			if donor == "cannot-sign" {
 				lpa.Donor.ThinksCanSign = actor.No
