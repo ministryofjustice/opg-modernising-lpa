@@ -26,6 +26,14 @@ type Date struct {
 	err error
 }
 
+type TimeOrDate interface {
+	IsZero() bool
+	Format(string) string
+	Day() int
+	Month() time.Month
+	Year() int
+}
+
 func New(year, month, day string) Date {
 	t, err := time.Parse(unpaddedDate, year+"-"+month+"-"+day)
 
