@@ -55,7 +55,7 @@ func Dashboard(
 
 			donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID, LpaID: lpa.ID})
 
-			lpa.UID = makeUid()
+			lpa.UID = makeUID()
 			lpa.Donor = makeDonor()
 			lpa.Type = actor.LpaTypePropertyFinance
 
@@ -74,7 +74,7 @@ func Dashboard(
 				return err
 			}
 			lpa.Donor = makeDonor()
-			lpa.UID = makeUid()
+			lpa.UID = makeUID()
 
 			if err := donorStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: lpa.ID}), lpa); err != nil {
 				return err
@@ -101,7 +101,7 @@ func Dashboard(
 			lpa.Attorneys = actor.Attorneys{
 				Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},
 			}
-			lpa.UID = makeUid()
+			lpa.UID = makeUID()
 
 			if err := donorStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: lpa.ID}), lpa); err != nil {
 				return err

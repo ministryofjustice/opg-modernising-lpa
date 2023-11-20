@@ -108,7 +108,7 @@ func Attorney(
 			CanSign:       form.Yes,
 		}
 
-		lpa.UID = makeUid()
+		lpa.UID = makeUID()
 		if lpaType == "hw" && !isTrustCorporation {
 			lpa.Type = actor.LpaTypeHealthWelfare
 			lpa.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
