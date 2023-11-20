@@ -164,19 +164,19 @@ func handleObjectTagsAdded(ctx context.Context, dynamodbClient dynamodbClient, e
 	return nil
 }
 
-func getLpaByUID(ctx context.Context, client dynamodbClient, uid string) (page.Lpa, error) {
+func getLpaByUID(ctx context.Context, client dynamodbClient, uid string) (actor.DonorProvidedDetails, error) {
 	var key dynamo.Key
 	if err := client.OneByUID(ctx, uid, &key); err != nil {
-		return page.Lpa{}, fmt.Errorf("failed to resolve uid: %w", err)
+		return actor.DonorProvidedDetails{}, fmt.Errorf("failed to resolve uid: %w", err)
 	}
 
 	if key.PK == "" {
-		return page.Lpa{}, fmt.Errorf("PK missing from LPA in response")
+		return actor.DonorProvidedDetails{}, fmt.Errorf("PK missing from LPA in response")
 	}
 
-	var lpa page.Lpa
+	var lpa actor.DonorProvidedDetails
 	if err := client.One(ctx, key.PK, key.SK, &lpa); err != nil {
-		return page.Lpa{}, fmt.Errorf("failed to get LPA: %w", err)
+		return actor.DonorProvidedDetails{}, fmt.Errorf("failed to get LPA: %w", err)
 	}
 
 	return lpa, nil

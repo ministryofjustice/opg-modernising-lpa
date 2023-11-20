@@ -11,6 +11,7 @@ import (
 
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -58,7 +59,7 @@ type uploadEvidenceData struct {
 }
 
 func UploadEvidence(tmpl template.Template, logger Logger, payer Payer, documentStore DocumentStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *actor.DonorProvidedDetails) error {
 		if lpa.Tasks.PayForLpa.IsPending() {
 			return page.Paths.TaskList.Redirect(w, r, appData, lpa)
 		}

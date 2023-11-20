@@ -5,6 +5,8 @@ package page
 import (
 	context "context"
 
+	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -14,19 +16,19 @@ type mockDonorStore struct {
 }
 
 // Create provides a mock function with given fields: _a0
-func (_m *mockDonorStore) Create(_a0 context.Context) (*Lpa, error) {
+func (_m *mockDonorStore) Create(_a0 context.Context) (*actor.DonorProvidedDetails, error) {
 	ret := _m.Called(_a0)
 
-	var r0 *Lpa
+	var r0 *actor.DonorProvidedDetails
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*Lpa, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*actor.DonorProvidedDetails, error)); ok {
 		return rf(_a0)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *Lpa); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *actor.DonorProvidedDetails); ok {
 		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*Lpa)
+			r0 = ret.Get(0).(*actor.DonorProvidedDetails)
 		}
 	}
 
@@ -40,11 +42,11 @@ func (_m *mockDonorStore) Create(_a0 context.Context) (*Lpa, error) {
 }
 
 // Put provides a mock function with given fields: _a0, _a1
-func (_m *mockDonorStore) Put(_a0 context.Context, _a1 *Lpa) error {
+func (_m *mockDonorStore) Put(_a0 context.Context, _a1 *actor.DonorProvidedDetails) error {
 	ret := _m.Called(_a0, _a1)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *Lpa) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *actor.DonorProvidedDetails) error); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		r0 = ret.Error(0)

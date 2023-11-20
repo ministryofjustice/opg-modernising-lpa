@@ -21,7 +21,7 @@ import (
 type DocumentStore interface {
 	GetAll(context.Context) (page.Documents, error)
 	Put(context.Context, page.Document) error
-	Create(ctx context.Context, lpa *page.Lpa, filename string, data []byte) (page.Document, error)
+	Create(ctx context.Context, lpa *actor.DonorProvidedDetails, filename string, data []byte) (page.Document, error)
 }
 
 func Donor(
@@ -89,6 +89,7 @@ func Donor(
 			lpa.Type = actor.LpaTypePropertyFinance
 			if lpaType == "hw" {
 				lpa.Type = actor.LpaTypeHealthWelfare
+				lpa.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
 			}
 			lpa.UID = makeUid()
 

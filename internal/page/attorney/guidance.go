@@ -12,7 +12,7 @@ import (
 type guidanceData struct {
 	App    page.AppData
 	Errors validation.List
-	Lpa    *page.Lpa
+	Lpa    *actor.DonorProvidedDetails
 }
 
 func Guidance(tmpl template.Template, donorStore DonorStore) Handler {
