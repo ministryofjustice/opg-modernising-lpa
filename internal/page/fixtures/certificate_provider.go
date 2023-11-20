@@ -70,6 +70,10 @@ func CertificateProvider(
 		lpa.Type = actor.LpaTypePropertyFinance
 		if lpaType == "hw" {
 			lpa.Type = actor.LpaTypeHealthWelfare
+			lpa.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
+			lpa.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
+		} else {
+			lpa.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
 		}
 
 		lpa.Attorneys = actor.Attorneys{

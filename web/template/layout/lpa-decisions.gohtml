@@ -31,11 +31,7 @@
         {{ end }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ if .Lpa.Type.IsPropertyFinance }}
-          {{ tr .App .Lpa.WhenCanTheLpaBeUsed.String }}
-        {{ else if .Lpa.Type.IsHealthWelfare }}
-          {{ tr .App "when-capacity-lost" }}
-        {{ end }}
+        {{ tr .App .Lpa.WhenCanTheLpaBeUsed.String }}
       </dd>
       {{ if and $canChange .Lpa.Type.IsPropertyFinance }}
         <dd class="govuk-summary-list__actions">
