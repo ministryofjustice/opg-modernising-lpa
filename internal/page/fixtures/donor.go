@@ -89,6 +89,7 @@ func Donor(
 			lpa.Type = actor.LpaTypePropertyFinance
 			if lpaType == "hw" {
 				lpa.Type = actor.LpaTypeHealthWelfare
+				lpa.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
 			}
 			lpa.UID = makeUid()
 
