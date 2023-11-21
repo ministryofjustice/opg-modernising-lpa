@@ -242,17 +242,23 @@ func TestAddDays(t *testing.T) {
 }
 
 func TestFormatDate(t *testing.T) {
-	assert.Equal(t, "7 March 2020", formatDate(page.AppData{}, time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
-	assert.Equal(t, "7 March 2020", formatDate(page.AppData{}, date.New("2020", "3", "7")))
+	appEn := page.AppData{Localizer: localize.NewBundle("testdata/en.json").For(localize.En)}
+	appCy := page.AppData{Localizer: localize.NewBundle("testdata/cy.json").For(localize.Cy)}
 
-	assert.Equal(t, "7 Mawrth 2020", formatDate(page.AppData{Lang: localize.Cy}, time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
-	assert.Equal(t, "7 Mawrth 2020", formatDate(page.AppData{Lang: localize.Cy}, date.New("2020", "3", "7")))
+	assert.Equal(t, "7 March 2020", formatDate(appEn, time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
+	assert.Equal(t, "7 March 2020", formatDate(appEn, date.New("2020", "3", "7")))
+
+	assert.Equal(t, "7 Mawrth 2020", formatDate(appCy, time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
+	assert.Equal(t, "7 Mawrth 2020", formatDate(appCy, date.New("2020", "3", "7")))
 }
 
 func TestFormatDateTime(t *testing.T) {
-	assert.Equal(t, "7 March 2020 at 03:04", formatDateTime(page.AppData{}, time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
+	appEn := page.AppData{Localizer: localize.NewBundle("testdata/en.json").For(localize.En)}
+	appCy := page.AppData{Localizer: localize.NewBundle("testdata/cy.json").For(localize.Cy)}
 
-	assert.Equal(t, "7 Mawrth 2020 am 03:04", formatDateTime(page.AppData{Lang: localize.Cy}, time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
+	assert.Equal(t, "7 March 2020 at 03:04", formatDateTime(appEn, time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
+
+	assert.Equal(t, "7 Mawrth 2020 am 03:04", formatDateTime(appCy, time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
 }
 
 func TestLowerFirst(t *testing.T) {
@@ -269,7 +275,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 
 	app := page.AppData{SessionID: "abc", Page: "/here", ActorType: actor.TypeDonor}
 	headingLevel := 3
-	lpa := &page.Lpa{ID: "lpa-id"}
+	donor := &actor.DonorProvidedDetails{LpaID: "lpa-id"}
 	attorneyType := "attorney"
 
 	want := attorneySummaryData{
@@ -287,7 +293,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 	want.Link.TrustCorporationAddress = app.Paths.EnterTrustCorporationAddress.Format("lpa-id") + "?from=/here"
 	want.Link.RemoveTrustCorporation = app.Paths.RemoveTrustCorporation.Format("lpa-id") + "?from=/here"
 
-	got := listAttorneys(actor.Attorneys{TrustCorporation: trustCorporation, Attorneys: attorneys}, app, attorneyType, headingLevel, lpa)
+	got := listAttorneys(actor.Attorneys{TrustCorporation: trustCorporation, Attorneys: attorneys}, app, attorneyType, headingLevel, donor)
 
 	assert.Equal(t, want, got)
 }
@@ -301,7 +307,7 @@ func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
 
 	app := page.AppData{SessionID: "abc", Page: "/here"}
 	headingLevel := 3
-	lpa := &page.Lpa{ID: "lpa-id"}
+	donor := &actor.DonorProvidedDetails{LpaID: "lpa-id"}
 	attorneyType := "replacement"
 
 	want := attorneySummaryData{
@@ -318,7 +324,7 @@ func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
 	want.Link.TrustCorporationAddress = app.Paths.EnterReplacementTrustCorporationAddress.Format("lpa-id") + "?from=/here"
 	want.Link.RemoveTrustCorporation = app.Paths.RemoveReplacementTrustCorporation.Format("lpa-id") + "?from=/here"
 
-	got := listAttorneys(actor.Attorneys{TrustCorporation: trustCorporation, Attorneys: attorneys}, app, attorneyType, headingLevel, lpa)
+	got := listAttorneys(actor.Attorneys{TrustCorporation: trustCorporation, Attorneys: attorneys}, app, attorneyType, headingLevel, donor)
 
 	assert.Equal(t, want, got)
 }
@@ -336,15 +342,15 @@ func TestWarning(t *testing.T) {
 func TestListPeopleToNotify(t *testing.T) {
 	app := page.AppData{SessionID: "abc"}
 	headingLevel := 3
-	lpa := &page.Lpa{}
+	donor := &actor.DonorProvidedDetails{}
 
 	want := map[string]interface{}{
 		"App":          app,
 		"HeadingLevel": headingLevel,
-		"Lpa":          lpa,
+		"Donor":        donor,
 	}
 
-	got := listPeopleToNotify(app, headingLevel, lpa)
+	got := listPeopleToNotify(app, headingLevel, donor)
 
 	assert.Equal(t, want, got)
 }

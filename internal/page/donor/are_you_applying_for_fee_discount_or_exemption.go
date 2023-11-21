@@ -19,10 +19,10 @@ type areYouApplyingForFeeDiscountOrExemption struct {
 }
 
 func AreYouApplyingForFeeDiscountOrExemption(tmpl template.Template, payer Payer, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &areYouApplyingForFeeDiscountOrExemption{
 			App:                 appData,
-			CertificateProvider: lpa.CertificateProvider,
+			CertificateProvider: donor.CertificateProvider,
 			Options:             form.YesNoValues,
 		}
 
@@ -31,15 +31,15 @@ func AreYouApplyingForFeeDiscountOrExemption(tmpl template.Template, payer Payer
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.Tasks.PayForLpa = actor.PaymentTaskInProgress
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				donor.Tasks.PayForLpa = actor.PaymentTaskInProgress
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
 				if data.Form.YesNo.IsNo() {
-					return payer.Pay(appData, w, r, lpa)
+					return payer.Pay(appData, w, r, donor)
 				} else {
-					return page.Paths.WhichFeeTypeAreYouApplyingFor.Redirect(w, r, appData, lpa)
+					return page.Paths.WhichFeeTypeAreYouApplyingFor.Redirect(w, r, appData, donor)
 				}
 			}
 		}

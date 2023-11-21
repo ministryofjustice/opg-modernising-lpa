@@ -5,9 +5,11 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -47,8 +49,8 @@ type OneLoginClient interface {
 
 //go:generate mockery --testonly --inpackage --name DonorStore --structname mockDonorStore
 type DonorStore interface {
-	Create(context.Context) (*Lpa, error)
-	Put(context.Context, *Lpa) error
+	Create(context.Context) (*actor.DonorProvidedDetails, error)
+	Put(context.Context, *actor.DonorProvidedDetails) error
 }
 
 //go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore
@@ -67,18 +69,20 @@ type Bundle interface {
 type Localizer interface {
 	Format(string, map[string]any) string
 	T(string) string
-	Count(messageID string, count int) string
-	FormatCount(messageID string, count int, data map[string]interface{}) string
+	Count(string, int) string
+	FormatCount(string, int, map[string]interface{}) string
 	ShowTranslationKeys() bool
-	SetShowTranslationKeys(s bool)
-	Possessive(s string) string
+	SetShowTranslationKeys(bool)
+	Possessive(string) string
 	Concat([]string, string) string
+	FormatDate(date.TimeOrDate) string
+	FormatDateTime(time.Time) string
 }
 
 //go:generate mockery --testonly --inpackage --name shareCodeSender --structname mockShareCodeSender
 type shareCodeSender interface {
-	SendCertificateProvider(ctx context.Context, template notify.Template, appData AppData, identity bool, lpa *Lpa) error
-	SendAttorneys(ctx context.Context, appData AppData, lpa *Lpa) error
+	SendCertificateProvider(ctx context.Context, template notify.Template, appData AppData, identity bool, donor *actor.DonorProvidedDetails) error
+	SendAttorneys(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails) error
 }
 
 func PostFormString(r *http.Request, name string) string {

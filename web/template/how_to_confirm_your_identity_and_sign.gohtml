@@ -9,35 +9,35 @@
 
       <p class="govuk-body-l">{{ tr .App "howToConfirmYourIdentityAndSignIntro" }}</p>
 
-      {{ if .Lpa.Donor.CanSign.IsYes }}
-        {{ template "warning" (warning .App (trFormat .App "yourCertificateProviderMustBeWithYou" "CertificateProviderName" .Lpa.CertificateProvider.FullName)) }}
+      {{ if .Donor.Donor.CanSign.IsYes }}
+        {{ template "warning" (warning .App (trFormat .App "yourCertificateProviderMustBeWithYou" "CertificateProviderName" .Donor.CertificateProvider.FullName)) }}
       {{ end }}
 
       <div class="moj-ticket-panel govuk-!-margin-bottom-6">
         <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
-          {{ if .Lpa.Donor.CanSign.IsYes }}
+          {{ if .Donor.Donor.CanSign.IsYes }}
             {{ trHtml .App "confirmYourIdentityStep" }}
           {{ else }}
             {{ trHtml .App "confirmYourIdentityStepCannotSign" }}
           {{ end }}
 
-          {{ if eq (len .Lpa.TrustCorporationsNames) 0 }}
-            {{ trFormatHtml .App "discussWithCertificateProviderStepAttorneys" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames "AttorneysFullNames" (concatAnd .App .Lpa.AllLayAttorneysFullNames) }}
-          {{ else if eq (len .Lpa.AllLayAttorneysFullNames) 0 }}
-            {{ trFormatHtml .App "discussWithCertificateProviderStepTrustCorporation" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames "TrustCorporationsNames" (concatAnd .App .Lpa.TrustCorporationsNames) }}
+          {{ if eq (len .Donor.TrustCorporationsNames) 0 }}
+            {{ trFormatHtml .App "discussWithCertificateProviderStepAttorneys" "CertificateProviderFirstNames" .Donor.CertificateProvider.FirstNames "AttorneysFullNames" (concatAnd .App .Donor.AllLayAttorneysFullNames) }}
+          {{ else if eq (len .Donor.AllLayAttorneysFullNames) 0 }}
+            {{ trFormatHtml .App "discussWithCertificateProviderStepTrustCorporation" "CertificateProviderFirstNames" .Donor.CertificateProvider.FirstNames "TrustCorporationsNames" (concatAnd .App .Donor.TrustCorporationsNames) }}
           {{ else }}
-            {{ trFormatHtml .App "discussWithCertificateProviderStepAttorneysAndTrustCorporation" "CertificateProviderFirstNames" .Lpa.CertificateProvider.FirstNames  "TrustCorporationsNames" (concatAnd .App .Lpa.TrustCorporationsNames) "AttorneysFullNames" (concatAnd .App .Lpa.AllLayAttorneysFullNames) }}
+            {{ trFormatHtml .App "discussWithCertificateProviderStepAttorneysAndTrustCorporation" "CertificateProviderFirstNames" .Donor.CertificateProvider.FirstNames  "TrustCorporationsNames" (concatAnd .App .Donor.TrustCorporationsNames) "AttorneysFullNames" (concatAnd .App .Donor.AllLayAttorneysFullNames) }}
           {{ end }}
 
-          {{ if .Lpa.Donor.CanSign.IsYes }}
-            {{ trFormatHtml .App "signYourLpaStep" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName }}
+          {{ if .Donor.Donor.CanSign.IsYes }}
+            {{ trFormatHtml .App "signYourLpaStep" "CertificateProviderFullName" .Donor.CertificateProvider.FullName }}
           {{ else }}
-            {{ trFormatHtml .App "signYourLpaStepCannotSign" "CertificateProviderFullName" .Lpa.CertificateProvider.FullName "AuthorisedSignatoryFullName" .Lpa.AuthorisedSignatory.FullName "IndependentWitnessFullName" .Lpa.IndependentWitness.FullName }}
+            {{ trFormatHtml .App "signYourLpaStepCannotSign" "CertificateProviderFullName" .Donor.CertificateProvider.FullName "AuthorisedSignatoryFullName" .Donor.AuthorisedSignatory.FullName "IndependentWitnessFullName" .Donor.IndependentWitness.FullName }}
           {{ end }}
         </div>
       </div>
 
-      {{ if .Lpa.Donor.CanSign.IsNo }}
+      {{ if .Donor.Donor.CanSign.IsNo }}
         {{ template "warning" (warning .App "yourCertificateProviderAndIndependentWitnessMustBeWithYou") }}
       {{ end }}
 

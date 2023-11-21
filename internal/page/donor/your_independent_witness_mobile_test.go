@@ -26,7 +26,7 @@ func TestGetYourIndependentWitnessMobile(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourIndependentWitnessMobile(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := YourIndependentWitnessMobile(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -35,11 +35,11 @@ func TestGetYourIndependentWitnessMobile(t *testing.T) {
 
 func TestGetYourIndependentWitnessMobileFromStore(t *testing.T) {
 	testcases := map[string]struct {
-		lpa  *page.Lpa
-		form *yourIndependentWitnessMobileForm
+		donor *actor.DonorProvidedDetails
+		form  *yourIndependentWitnessMobileForm
 	}{
 		"uk mobile": {
-			lpa: &page.Lpa{
+			donor: &actor.DonorProvidedDetails{
 				IndependentWitness: actor.IndependentWitness{
 					Mobile: "07777",
 				},
@@ -49,7 +49,7 @@ func TestGetYourIndependentWitnessMobileFromStore(t *testing.T) {
 			},
 		},
 		"non-uk mobile": {
-			lpa: &page.Lpa{
+			donor: &actor.DonorProvidedDetails{
 				IndependentWitness: actor.IndependentWitness{
 					Mobile:         "07777",
 					HasNonUKMobile: true,
@@ -75,7 +75,7 @@ func TestGetYourIndependentWitnessMobileFromStore(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := YourIndependentWitnessMobile(template.Execute, nil)(testAppData, w, r, tc.lpa)
+			err := YourIndependentWitnessMobile(template.Execute, nil)(testAppData, w, r, tc.donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -96,7 +96,7 @@ func TestGetYourIndependentWitnessMobileWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := YourIndependentWitnessMobile(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := YourIndependentWitnessMobile(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -136,13 +136,13 @@ func TestPostYourIndependentWitnessMobile(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), &page.Lpa{
-					ID:                 "lpa-id",
+				On("Put", r.Context(), &actor.DonorProvidedDetails{
+					LpaID:              "lpa-id",
 					IndependentWitness: tc.yourIndependentWitnessMobile,
 				}).
 				Return(nil)
 
-			err := YourIndependentWitnessMobile(nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+			err := YourIndependentWitnessMobile(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -168,7 +168,7 @@ func TestPostYourIndependentWitnessMobileWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := YourIndependentWitnessMobile(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := YourIndependentWitnessMobile(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -189,7 +189,7 @@ func TestPostYourIndependentWitnessMobileWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourIndependentWitnessMobile(nil, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := YourIndependentWitnessMobile(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }

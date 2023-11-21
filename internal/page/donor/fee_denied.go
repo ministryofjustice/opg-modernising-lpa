@@ -4,22 +4,23 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type feeDeniedData struct {
-	Lpa    *page.Lpa
+	Donor  *actor.DonorProvidedDetails
 	Errors validation.List
 	App    page.AppData
 }
 
 func FeeDenied(tmpl template.Template, payer Payer) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		if r.Method == http.MethodPost {
-			return payer.Pay(appData, w, r, lpa)
+			return payer.Pay(appData, w, r, donor)
 		}
 
-		return tmpl(w, feeDeniedData{Lpa: lpa, App: appData})
+		return tmpl(w, feeDeniedData{Donor: donor, App: appData})
 	}
 }

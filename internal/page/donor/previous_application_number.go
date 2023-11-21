@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -15,11 +16,11 @@ type previousApplicationNumberData struct {
 }
 
 func PreviousApplicationNumber(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &previousApplicationNumberData{
 			App: appData,
 			Form: &previousApplicationNumberForm{
-				PreviousApplicationNumber: lpa.PreviousApplicationNumber,
+				PreviousApplicationNumber: donor.PreviousApplicationNumber,
 			},
 		}
 
@@ -28,18 +29,18 @@ func PreviousApplicationNumber(tmpl template.Template, donorStore DonorStore) Ha
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				if lpa.PreviousApplicationNumber != data.Form.PreviousApplicationNumber {
-					lpa.PreviousApplicationNumber = data.Form.PreviousApplicationNumber
+				if donor.PreviousApplicationNumber != data.Form.PreviousApplicationNumber {
+					donor.PreviousApplicationNumber = data.Form.PreviousApplicationNumber
 
-					if err := donorStore.Put(r.Context(), lpa); err != nil {
+					if err := donorStore.Put(r.Context(), donor); err != nil {
 						return err
 					}
 				}
 
-				if lpa.PreviousApplicationNumber[0] == '7' {
-					return page.Paths.PreviousFee.Redirect(w, r, appData, lpa)
+				if donor.PreviousApplicationNumber[0] == '7' {
+					return page.Paths.PreviousFee.Redirect(w, r, appData, donor)
 				} else {
-					return page.Paths.EvidenceSuccessfullyUploaded.Redirect(w, r, appData, lpa)
+					return page.Paths.EvidenceSuccessfullyUploaded.Redirect(w, r, appData, donor)
 				}
 			}
 		}

@@ -15,26 +15,26 @@ type doYouWantToNotifyPeopleData struct {
 	Errors          validation.List
 	Options         form.YesNoOptions
 	Form            *form.YesNoForm
-	Lpa             *page.Lpa
+	Donor           *actor.DonorProvidedDetails
 	HowWorkTogether string
 }
 
 func DoYouWantToNotifyPeople(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
-		if len(lpa.PeopleToNotify) > 0 {
-			return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, lpa)
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+		if len(donor.PeopleToNotify) > 0 {
+			return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, donor)
 		}
 
 		data := &doYouWantToNotifyPeopleData{
-			App: appData,
-			Lpa: lpa,
+			App:   appData,
+			Donor: donor,
 			Form: &form.YesNoForm{
-				YesNo: lpa.DoYouWantToNotifyPeople,
+				YesNo: donor.DoYouWantToNotifyPeople,
 			},
 			Options: form.YesNoValues,
 		}
 
-		switch lpa.AttorneyDecisions.How {
+		switch donor.AttorneyDecisions.How {
 		case actor.Jointly:
 			data.HowWorkTogether = "jointlyDescription"
 		case actor.JointlyAndSeverally:
@@ -48,21 +48,21 @@ func DoYouWantToNotifyPeople(tmpl template.Template, donorStore DonorStore) Hand
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.DoYouWantToNotifyPeople = data.Form.YesNo
-				lpa.Tasks.PeopleToNotify = actor.TaskInProgress
+				donor.DoYouWantToNotifyPeople = data.Form.YesNo
+				donor.Tasks.PeopleToNotify = actor.TaskInProgress
 
 				redirectPath := appData.Paths.ChoosePeopleToNotify
 
-				if lpa.DoYouWantToNotifyPeople == form.No {
+				if donor.DoYouWantToNotifyPeople == form.No {
 					redirectPath = appData.Paths.TaskList
-					lpa.Tasks.PeopleToNotify = actor.TaskCompleted
+					donor.Tasks.PeopleToNotify = actor.TaskCompleted
 				}
 
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				return redirectPath.Redirect(w, r, appData, lpa)
+				return redirectPath.Redirect(w, r, appData, donor)
 			}
 		}
 

@@ -27,7 +27,7 @@ func TestGetHowShouldReplacementAttorneysStepIn(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysStepIn(template.Execute, nil)(testAppData, w, r, &page.Lpa{
+	err := HowShouldReplacementAttorneysStepIn(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 	})
 	resp := w.Result()
@@ -52,7 +52,7 @@ func TestGetHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysStepIn(template.Execute, nil)(testAppData, w, r, &page.Lpa{
+	err := HowShouldReplacementAttorneysStepIn(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		HowShouldReplacementAttorneysStepIn:        actor.ReplacementAttorneysStepInAnotherWay,
 		HowShouldReplacementAttorneysStepInDetails: "some details",
 	})
@@ -74,15 +74,15 @@ func TestPostHowShouldReplacementAttorneysStepIn(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{
-			ID:                                  "lpa-id",
+		On("Put", r.Context(), &actor.DonorProvidedDetails{
+			LpaID:                               "lpa-id",
 			HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInAnotherWay,
 			HowShouldReplacementAttorneysStepInDetails: "some details"}).
 		Return(nil)
 
 	template := newMockTemplate(t)
 
-	err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+	err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -163,8 +163,8 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), &page.Lpa{
-					ID:                                  "lpa-id",
+				On("Put", r.Context(), &actor.DonorProvidedDetails{
+					LpaID:                               "lpa-id",
 					Attorneys:                           tc.Attorneys,
 					AttorneyDecisions:                   actor.AttorneyDecisions{How: tc.HowAttorneysMakeDecisions},
 					ReplacementAttorneys:                tc.ReplacementAttorneys,
@@ -176,8 +176,8 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 
 			template := newMockTemplate(t)
 
-			err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &page.Lpa{
-				ID:                           "lpa-id",
+			err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+				LpaID:                        "lpa-id",
 				Attorneys:                    tc.Attorneys,
 				AttorneyDecisions:            actor.AttorneyDecisions{How: tc.HowAttorneysMakeDecisions},
 				ReplacementAttorneys:         tc.ReplacementAttorneys,
@@ -228,16 +228,16 @@ func TestPostHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), &page.Lpa{
-					ID:                                  "lpa-id",
+				On("Put", r.Context(), &actor.DonorProvidedDetails{
+					LpaID:                               "lpa-id",
 					HowShouldReplacementAttorneysStepIn: tc.updatedWhenStepIn,
 					HowShouldReplacementAttorneysStepInDetails: tc.updatedOtherDetails}).
 				Return(nil)
 
 			template := newMockTemplate(t)
 
-			err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &page.Lpa{
-				ID:                                  "lpa-id",
+			err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+				LpaID:                               "lpa-id",
 				HowShouldReplacementAttorneysStepIn: tc.existingWhenStepIn,
 				HowShouldReplacementAttorneysStepInDetails: tc.existingOtherDetails,
 			})
@@ -267,7 +267,7 @@ func TestPostHowShouldReplacementAttorneysStepInFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysStepIn(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := HowShouldReplacementAttorneysStepIn(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -286,14 +286,14 @@ func TestPostHowShouldReplacementAttorneysStepInWhenPutStoreError(t *testing.T) 
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &page.Lpa{
+		On("Put", r.Context(), &actor.DonorProvidedDetails{
 			HowShouldReplacementAttorneysStepIn:        actor.ReplacementAttorneysStepInAnotherWay,
 			HowShouldReplacementAttorneysStepInDetails: "some details"}).
 		Return(expectedError)
 
 	template := newMockTemplate(t)
 
-	err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

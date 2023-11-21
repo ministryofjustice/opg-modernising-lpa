@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -16,8 +17,8 @@ type enterTrustCorporationData struct {
 }
 
 func EnterTrustCorporation(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
-		trustCorporation := lpa.Attorneys.TrustCorporation
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+		trustCorporation := donor.Attorneys.TrustCorporation
 
 		data := &enterTrustCorporationData{
 			App: appData,
@@ -26,7 +27,7 @@ func EnterTrustCorporation(tmpl template.Template, donorStore DonorStore) Handle
 				CompanyNumber: trustCorporation.CompanyNumber,
 				Email:         trustCorporation.Email,
 			},
-			LpaID: lpa.ID,
+			LpaID: donor.LpaID,
 		}
 
 		if r.Method == http.MethodPost {
@@ -37,16 +38,16 @@ func EnterTrustCorporation(tmpl template.Template, donorStore DonorStore) Handle
 				trustCorporation.Name = data.Form.Name
 				trustCorporation.CompanyNumber = data.Form.CompanyNumber
 				trustCorporation.Email = data.Form.Email
-				lpa.Attorneys.TrustCorporation = trustCorporation
+				donor.Attorneys.TrustCorporation = trustCorporation
 
-				lpa.Tasks.ChooseAttorneys = page.ChooseAttorneysState(lpa.Attorneys, lpa.AttorneyDecisions)
-				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
+				donor.Tasks.ChooseAttorneys = page.ChooseAttorneysState(donor.Attorneys, donor.AttorneyDecisions)
+				donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
 
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				return appData.Paths.EnterTrustCorporationAddress.Redirect(w, r, appData, lpa)
+				return appData.Paths.EnterTrustCorporationAddress.Redirect(w, r, appData, donor)
 			}
 		}
 

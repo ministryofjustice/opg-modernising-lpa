@@ -15,8 +15,8 @@ import (
 )
 
 type ShareCodeSender interface {
-	SendCertificateProvider(ctx context.Context, template notify.Template, appData page.AppData, identity bool, lpa *page.Lpa) error
-	SendAttorneys(ctx context.Context, appData page.AppData, lpa *page.Lpa) error
+	SendCertificateProvider(ctx context.Context, template notify.Template, appData page.AppData, identity bool, donor *actor.DonorProvidedDetails) error
+	SendAttorneys(ctx context.Context, appData page.AppData, donor *actor.DonorProvidedDetails) error
 	UseTestCode()
 }
 
@@ -143,6 +143,6 @@ func makePersonToNotify(name Name) actor.PersonToNotify {
 	}
 }
 
-func makeUid() string {
+func makeUID() string {
 	return strings.ToUpper("N-" + random.String(4) + "-" + random.String(4) + "-" + random.String(4))
 }

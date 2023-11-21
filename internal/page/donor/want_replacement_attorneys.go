@@ -15,16 +15,16 @@ type wantReplacementAttorneysData struct {
 	Errors  validation.List
 	Form    *form.YesNoForm
 	Options form.YesNoOptions
-	Lpa     *page.Lpa
+	Donor   *actor.DonorProvidedDetails
 }
 
 func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &wantReplacementAttorneysData{
-			App: appData,
-			Lpa: lpa,
+			App:   appData,
+			Donor: donor,
 			Form: &form.YesNoForm{
-				YesNo: lpa.WantReplacementAttorneys,
+				YesNo: donor.WantReplacementAttorneys,
 			},
 			Options: form.YesNoValues,
 		}
@@ -34,28 +34,28 @@ func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Han
 			data.Errors = f.Validate()
 
 			if data.Errors.None() {
-				lpa.WantReplacementAttorneys = f.YesNo
+				donor.WantReplacementAttorneys = f.YesNo
 				var redirectUrl page.LpaPath
 
-				if lpa.WantReplacementAttorneys == form.No {
-					lpa.ReplacementAttorneys = actor.Attorneys{}
+				if donor.WantReplacementAttorneys == form.No {
+					donor.ReplacementAttorneys = actor.Attorneys{}
 					redirectUrl = page.Paths.TaskList
 				} else {
 					redirectUrl = page.Paths.ChooseReplacementAttorneys
 				}
 
-				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
+				donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
 
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				return redirectUrl.Redirect(w, r, appData, lpa)
+				return redirectUrl.Redirect(w, r, appData, donor)
 			}
 		}
 
-		if lpa.ReplacementAttorneys.Len() > 0 {
-			return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, lpa)
+		if donor.ReplacementAttorneys.Len() > 0 {
+			return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, donor)
 		}
 
 		return tmpl(w, data)

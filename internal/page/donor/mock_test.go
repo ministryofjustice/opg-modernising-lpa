@@ -39,7 +39,7 @@ var (
 func (m *mockDonorStore) willReturnEmptyLpa(r *http.Request) *mockDonorStore {
 	m.
 		On("Get", r.Context()).
-		Return(&page.Lpa{
+		Return(&actor.DonorProvidedDetails{
 			CertificateProvider: actor.CertificateProvider{
 				Email: "certificateprovider@example.com",
 			},
@@ -50,7 +50,7 @@ func (m *mockDonorStore) willReturnEmptyLpa(r *http.Request) *mockDonorStore {
 
 func (m *mockDonorStore) withCompletedPaymentLpaData(r *http.Request, paymentId, paymentReference string, paymentAmount int) *mockDonorStore {
 	m.
-		On("Put", r.Context(), &page.Lpa{
+		On("Put", r.Context(), &actor.DonorProvidedDetails{
 			CertificateProvider: actor.CertificateProvider{
 				Email: "certificateprovider@example.com",
 			},

@@ -20,6 +20,7 @@ const (
 	AttorneyNameChangeEmail
 	CertificateProviderDigitalLpaDetailsChangedNotSeenLpaSMS
 	CertificateProviderDigitalLpaDetailsChangedSeenLpaSMS
+	CertificateProviderCertificateProvidedEmail
 	CertificateProviderInviteEmail
 	CertificateProviderNameChangeEmail
 	CertificateProviderPaperLpaDetailsChangedSMS
@@ -34,8 +35,9 @@ const (
 
 var (
 	productionTemplates = map[Template]string{
-		AttorneyInviteEmail:     "9aaedb70-df4a-42a8-9c28-de435cb3d453",
-		AttorneyNameChangeEmail: "1e0950c5-63fa-487e-8bf3-f40445412a12",
+		AttorneyInviteEmail:                                      "9aaedb70-df4a-42a8-9c28-de435cb3d453",
+		AttorneyNameChangeEmail:                                  "1e0950c5-63fa-487e-8bf3-f40445412a12",
+		CertificateProviderCertificateProvidedEmail:              "2915acb9-2a52-4b62-812a-b31b19c6a94b",
 		CertificateProviderDigitalLpaDetailsChangedNotSeenLpaSMS: "19948d7d-a2df-4e85-930b-5d800978f41f",
 		CertificateProviderDigitalLpaDetailsChangedSeenLpaSMS:    "71d21daa-11f9-4a2a-9ae2-bb5c2247bfb7",
 		CertificateProviderInviteEmail:                           "a10341e3-3bbd-4452-b52f-ebb4f51a4d73",
@@ -50,8 +52,9 @@ var (
 		TrustCorporationInviteEmail:                              "9aaedb70-df4a-42a8-9c28-de435cb3d453",
 	}
 	testingTemplates = map[Template]string{
-		AttorneyInviteEmail:     "9be88a99-21c0-4808-8d6a-52af366e44aa",
-		AttorneyNameChangeEmail: "685bbdcc-71b8-48b9-b773-03941472d3b1",
+		AttorneyInviteEmail:                                      "9be88a99-21c0-4808-8d6a-52af366e44aa",
+		AttorneyNameChangeEmail:                                  "685bbdcc-71b8-48b9-b773-03941472d3b1",
+		CertificateProviderCertificateProvidedEmail:              "c916f964-bf30-4dee-a9f3-b9bf0043e64d",
 		CertificateProviderDigitalLpaDetailsChangedNotSeenLpaSMS: "d7513751-49ba-4276-aef5-ad67361d29c4",
 		CertificateProviderDigitalLpaDetailsChangedSeenLpaSMS:    "359fffa0-e1ec-444c-a886-6f046af374ab",
 		CertificateProviderInviteEmail:                           "dd864a1a-64b4-4b4e-b810-86267ebd6476",

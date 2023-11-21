@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -21,7 +21,7 @@ func TestGetSendUsYourEvidenceByPost(t *testing.T) {
 		On("Execute", w, &sendUsYourEvidenceByPostData{App: testAppData}).
 		Return(nil)
 
-	err := SendUsYourEvidenceByPost(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
+	err := SendUsYourEvidenceByPost(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -37,7 +37,7 @@ func TestGetSendUsYourEvidenceByPostWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, &sendUsYourEvidenceByPostData{App: testAppData}).
 		Return(expectedError)
 
-	err := SendUsYourEvidenceByPost(template.Execute, nil, nil)(testAppData, w, r, &page.Lpa{})
+	err := SendUsYourEvidenceByPost(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -48,7 +48,7 @@ func TestPostSendUsYourEvidenceByPost(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
-	lpa := &page.Lpa{ID: "lpa-id", UID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Post}
+	donor := &actor.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Post}
 
 	eventClient := newMockEventClient(t)
 	eventClient.
@@ -61,10 +61,10 @@ func TestPostSendUsYourEvidenceByPost(t *testing.T) {
 
 	payer := newMockPayer(t)
 	payer.
-		On("Pay", testAppData, w, r, lpa).
+		On("Pay", testAppData, w, r, donor).
 		Return(nil)
 
-	err := SendUsYourEvidenceByPost(nil, payer, eventClient)(testAppData, w, r, lpa)
+	err := SendUsYourEvidenceByPost(nil, payer, eventClient)(testAppData, w, r, donor)
 	assert.Nil(t, err)
 }
 
@@ -77,7 +77,7 @@ func TestPostSendUsYourEvidenceByPostWhenEventClientErrors(t *testing.T) {
 		On("SendReducedFeeRequested", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := SendUsYourEvidenceByPost(nil, nil, eventClient)(testAppData, w, r, &page.Lpa{})
+	err := SendUsYourEvidenceByPost(nil, nil, eventClient)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -95,6 +95,6 @@ func TestPostSendUsYourEvidenceByPostWhenPayerErrors(t *testing.T) {
 		On("Pay", testAppData, w, r, mock.Anything).
 		Return(expectedError)
 
-	err := SendUsYourEvidenceByPost(nil, payer, eventClient)(testAppData, w, r, &page.Lpa{})
+	err := SendUsYourEvidenceByPost(nil, payer, eventClient)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	assert.Equal(t, expectedError, err)
 }

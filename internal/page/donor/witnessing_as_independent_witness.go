@@ -14,29 +14,29 @@ type witnessingAsIndependentWitnessData struct {
 	App    page.AppData
 	Errors validation.List
 	Form   *witnessingAsIndependentWitnessForm
-	Lpa    *page.Lpa
+	Donor  *actor.DonorProvidedDetails
 }
 
 func WitnessingAsIndependentWitness(tmpl template.Template, donorStore DonorStore, now func() time.Time) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &witnessingAsIndependentWitnessData{
-			App:  appData,
-			Lpa:  lpa,
-			Form: &witnessingAsIndependentWitnessForm{},
+			App:   appData,
+			Donor: donor,
+			Form:  &witnessingAsIndependentWitnessForm{},
 		}
 
 		if r.Method == http.MethodPost {
 			data.Form = readWitnessingAsIndependentWitnessForm(r)
 			data.Errors = data.Form.Validate()
 
-			if lpa.WitnessCodeLimiter == nil {
-				lpa.WitnessCodeLimiter = actor.NewLimiter(time.Minute, 5, 10)
+			if donor.WitnessCodeLimiter == nil {
+				donor.WitnessCodeLimiter = actor.NewLimiter(time.Minute, 5, 10)
 			}
 
-			if !lpa.WitnessCodeLimiter.Allow(now()) {
+			if !donor.WitnessCodeLimiter.Allow(now()) {
 				data.Errors.Add("witness-code", validation.CustomError{Label: "tooManyWitnessCodeAttempts"})
 			} else {
-				code, found := lpa.IndependentWitnessCodes.Find(data.Form.Code)
+				code, found := donor.IndependentWitnessCodes.Find(data.Form.Code)
 				if !found {
 					data.Errors.Add("witness-code", validation.CustomError{Label: "witnessCodeDoesNotMatch"})
 				} else if code.HasExpired() {
@@ -45,16 +45,16 @@ func WitnessingAsIndependentWitness(tmpl template.Template, donorStore DonorStor
 			}
 
 			if data.Errors.None() {
-				lpa.WitnessCodeLimiter = nil
-				lpa.WitnessedByIndependentWitnessAt = now()
+				donor.WitnessCodeLimiter = nil
+				donor.WitnessedByIndependentWitnessAt = now()
 			}
 
-			if err := donorStore.Put(r.Context(), lpa); err != nil {
+			if err := donorStore.Put(r.Context(), donor); err != nil {
 				return err
 			}
 
 			if data.Errors.None() {
-				return page.Paths.WitnessingAsCertificateProvider.Redirect(w, r, appData, lpa)
+				return page.Paths.WitnessingAsCertificateProvider.Redirect(w, r, appData, donor)
 			}
 		}
 

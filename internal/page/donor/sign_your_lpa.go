@@ -12,7 +12,7 @@ import (
 type signYourLpaData struct {
 	App                  page.AppData
 	Errors               validation.List
-	Lpa                  *page.Lpa
+	Donor                *actor.DonorProvidedDetails
 	Form                 *signYourLpaForm
 	WantToSignFormValue  string
 	WantToApplyFormValue string
@@ -24,13 +24,13 @@ const (
 )
 
 func SignYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &signYourLpaData{
-			App: appData,
-			Lpa: lpa,
+			App:   appData,
+			Donor: donor,
 			Form: &signYourLpaForm{
-				WantToApply: lpa.WantToApplyForLpa,
-				WantToSign:  lpa.WantToSignLpa,
+				WantToApply: donor.WantToApplyForLpa,
+				WantToSign:  donor.WantToSignLpa,
 			},
 			WantToSignFormValue:  WantToSignLpa,
 			WantToApplyFormValue: WantToApplyForLpa,
@@ -42,19 +42,19 @@ func SignYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Form = readSignYourLpaForm(r)
 			data.Errors = data.Form.Validate()
 
-			lpa.WantToApplyForLpa = data.Form.WantToApply
-			lpa.WantToSignLpa = data.Form.WantToSign
+			donor.WantToApplyForLpa = data.Form.WantToApply
+			donor.WantToSignLpa = data.Form.WantToSign
 
 			if data.Errors.None() {
-				lpa.Tasks.ConfirmYourIdentityAndSign = actor.TaskCompleted
+				donor.Tasks.ConfirmYourIdentityAndSign = actor.TaskCompleted
 			}
 
-			if err := donorStore.Put(r.Context(), lpa); err != nil {
+			if err := donorStore.Put(r.Context(), donor); err != nil {
 				return err
 			}
 
 			if data.Errors.None() {
-				return page.Paths.WitnessingYourSignature.Redirect(w, r, appData, lpa)
+				return page.Paths.WitnessingYourSignature.Redirect(w, r, appData, donor)
 			}
 		}
 

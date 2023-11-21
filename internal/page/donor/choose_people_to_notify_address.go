@@ -11,12 +11,12 @@ import (
 )
 
 func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		personId := r.FormValue("id")
-		personToNotify, found := lpa.PeopleToNotify.Get(personId)
+		personToNotify, found := donor.PeopleToNotify.Get(personId)
 
 		if found == false {
-			return page.Paths.ChoosePeopleToNotify.Redirect(w, r, appData, lpa)
+			return page.Paths.ChoosePeopleToNotify.Redirect(w, r, appData, donor)
 		}
 
 		data := newChooseAddressData(
@@ -38,10 +38,10 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 
 			setAddress := func(address place.Address) error {
 				personToNotify.Address = *data.Form.Address
-				lpa.PeopleToNotify.Put(personToNotify)
-				lpa.Tasks.PeopleToNotify = actor.TaskCompleted
+				donor.PeopleToNotify.Put(personToNotify)
+				donor.Tasks.PeopleToNotify = actor.TaskCompleted
 
-				return donorStore.Put(r.Context(), lpa)
+				return donorStore.Put(r.Context(), donor)
 			}
 
 			switch data.Form.Action {
@@ -51,7 +51,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 						return err
 					}
 
-					return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, lpa)
+					return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, donor)
 				}
 
 			case "postcode-select":
@@ -69,7 +69,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 				}
 
 			case "reuse":
-				data.Addresses = lpa.ActorAddresses()
+				data.Addresses = donor.ActorAddresses()
 
 			case "reuse-select":
 				if data.Errors.None() {
@@ -77,9 +77,9 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 						return err
 					}
 
-					return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, lpa)
+					return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, donor)
 				} else {
-					data.Addresses = lpa.ActorAddresses()
+					data.Addresses = donor.ActorAddresses()
 				}
 			}
 		}

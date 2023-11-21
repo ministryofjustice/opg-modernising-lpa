@@ -29,7 +29,7 @@ func TestGetCheckYouCanSign(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CheckYouCanSign(template.Execute, nil)(testAppData, w, r, &page.Lpa{
+	err := CheckYouCanSign(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor: actor.Donor{CanSign: form.No},
 	})
 
@@ -58,10 +58,10 @@ func TestPostCheckYouCanSign(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), &page.Lpa{ID: "lpa-id", Donor: actor.Donor{CanSign: yesNo}}).
+				On("Put", r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{CanSign: yesNo}}).
 				Return(nil)
 
-			err := CheckYouCanSign(nil, donorStore)(testAppData, w, r, &page.Lpa{ID: "lpa-id"})
+			err := CheckYouCanSign(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 
 			resp := w.Result()
 
@@ -86,7 +86,7 @@ func TestPostCheckYouCanSignErrorOnPutStore(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := CheckYouCanSign(nil, donorStore)(testAppData, w, r, &page.Lpa{})
+	err := CheckYouCanSign(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 
 	resp := w.Result()
 
@@ -112,7 +112,7 @@ func TestCheckYouCanSignFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := CheckYouCanSign(template.Execute, nil)(testAppData, w, r, &page.Lpa{})
+	err := CheckYouCanSign(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

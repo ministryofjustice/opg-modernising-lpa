@@ -3,13 +3,14 @@ package donor
 import (
 	"net/http"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
 func IdentityWithOneLogin(logger Logger, oneLoginClient OneLoginClient, store sesh.Store, randomString func(int) string) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		locale := ""
 		if appData.Lang == localize.Cy {
 			locale = "cy"
@@ -24,8 +25,8 @@ func IdentityWithOneLogin(logger Logger, oneLoginClient OneLoginClient, store se
 			State:    state,
 			Nonce:    nonce,
 			Locale:   locale,
-			LpaID:    lpa.ID,
-			Redirect: page.Paths.IdentityWithOneLoginCallback.Format(lpa.ID),
+			LpaID:    donor.LpaID,
+			Redirect: page.Paths.IdentityWithOneLoginCallback.Format(donor.LpaID),
 		}); err != nil {
 			logger.Print(err)
 			return nil

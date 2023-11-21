@@ -38,7 +38,7 @@
       {{ if .App.IsReplacementAttorney }}
         {{ if .App.IsTrustCorporation }}
           {{ $content = "replacementTrustCorporationCodeOfConductPfa" }}
-        {{ else if .Lpa.Type.IsPropertyFinance }}
+        {{ else if .Donor.Type.IsPropertyFinance }}
           {{ $content = "replacementAttorneyCodeOfConductPfa" }}
         {{ else }}
           {{ $content = "replacementAttorneyCodeOfConductHw" }}
@@ -46,7 +46,7 @@
       {{ else }}
         {{ if .App.IsTrustCorporation }}
             {{ $content = "trustCorporationCodeOfConductPfa" }}
-        {{ else if .Lpa.Type.IsPropertyFinance }}
+        {{ else if .Donor.Type.IsPropertyFinance }}
           {{ $content = "attorneyCodeOfConductPfa" }}
         {{ else }}
           {{ $content = "attorneyCodeOfConductHw" }}
@@ -54,9 +54,9 @@
       {{ end }}
 
       {{ trFormatHtml .App $content
-      "DonorFullName" .Lpa.Donor.FullName
-      "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName)
-      "DonorFirstNamesPossessive" (possessive .App .Lpa.Donor.FirstNames) }}
+      "DonorFullName" .Donor.Donor.FullName
+      "DonorFullNamePossessive" (possessive .App .Donor.Donor.FullName)
+      "DonorFirstNamesPossessive" (possessive .App .Donor.Donor.FirstNames) }}
 
       <a class="govuk-button" href="{{ link .App (.App.Paths.Attorney.TaskList.Format .App.LpaID) }}">{{ tr .App "continue" }}</a>
     </div>

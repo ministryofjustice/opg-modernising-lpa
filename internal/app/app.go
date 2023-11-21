@@ -116,7 +116,7 @@ func App(
 	handleRoot(paths.SignOut, None,
 		page.SignOut(logger, sessionStore, oneLoginClient, appPublicURL))
 	handleRoot(paths.Fixtures, None,
-		fixtures.Donor(tmpls.Get("fixtures.gohtml"), sessionStore, donorStore, certificateProviderStore, attorneyStore, documentStore))
+		fixtures.Donor(tmpls.Get("fixtures.gohtml"), sessionStore, donorStore, certificateProviderStore, attorneyStore, documentStore, eventClient))
 	handleRoot(paths.CertificateProviderFixtures, None,
 		fixtures.CertificateProvider(tmpls.Get("certificate_provider_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore))
 	handleRoot(paths.AttorneyFixtures, None,
@@ -150,6 +150,7 @@ func App(
 		certificateProviderStore,
 		notFoundHandler,
 		addressClient,
+		notifyClient,
 	)
 
 	attorney.Register(

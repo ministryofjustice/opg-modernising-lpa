@@ -12,7 +12,7 @@ import (
 type confirmYourDetailsData struct {
 	App                     page.AppData
 	Errors                  validation.List
-	Lpa                     *page.Lpa
+	Donor                   *actor.DonorProvidedDetails
 	Attorney                actor.Attorney
 	TrustCorporation        actor.TrustCorporation
 	AttorneyProvidedDetails *actor.AttorneyProvidedDetails
@@ -30,20 +30,20 @@ func ConfirmYourDetails(tmpl template.Template, attorneyStore AttorneyStore, don
 			return page.Paths.Attorney.ReadTheLpa.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 		}
 
-		lpa, err := donorStore.GetAny(r.Context())
+		donor, err := donorStore.GetAny(r.Context())
 		if err != nil {
 			return err
 		}
 
 		data := &confirmYourDetailsData{
 			App:                     appData,
-			Lpa:                     lpa,
+			Donor:                   donor,
 			AttorneyProvidedDetails: attorneyProvidedDetails,
 		}
 
-		attorneys := lpa.Attorneys
+		attorneys := donor.Attorneys
 		if appData.IsReplacementAttorney() {
-			attorneys = lpa.ReplacementAttorneys
+			attorneys = donor.ReplacementAttorneys
 		}
 
 		if appData.IsTrustCorporation() {

@@ -18,12 +18,12 @@ type yourIndependentWitnessData struct {
 }
 
 func YourIndependentWitness(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &yourIndependentWitnessData{
 			App: appData,
 			Form: &yourIndependentWitnessForm{
-				FirstNames: lpa.IndependentWitness.FirstNames,
-				LastName:   lpa.IndependentWitness.LastName,
+				FirstNames: donor.IndependentWitness.FirstNames,
+				LastName:   donor.IndependentWitness.LastName,
 			},
 		}
 
@@ -33,7 +33,7 @@ func YourIndependentWitness(tmpl template.Template, donorStore DonorStore) Handl
 
 			nameWarning := actor.NewSameNameWarning(
 				actor.TypeIndependentWitness,
-				independentWitnessMatches(lpa, data.Form.FirstNames, data.Form.LastName),
+				independentWitnessMatches(donor, data.Form.FirstNames, data.Form.LastName),
 				data.Form.FirstNames,
 				data.Form.LastName,
 			)
@@ -43,18 +43,18 @@ func YourIndependentWitness(tmpl template.Template, donorStore DonorStore) Handl
 			}
 
 			if !data.Errors.Any() && data.NameWarning == nil {
-				lpa.IndependentWitness.FirstNames = data.Form.FirstNames
-				lpa.IndependentWitness.LastName = data.Form.LastName
+				donor.IndependentWitness.FirstNames = data.Form.FirstNames
+				donor.IndependentWitness.LastName = data.Form.LastName
 
-				if !lpa.Tasks.ChooseYourSignatory.Completed() {
-					lpa.Tasks.ChooseYourSignatory = actor.TaskInProgress
+				if !donor.Tasks.ChooseYourSignatory.Completed() {
+					donor.Tasks.ChooseYourSignatory = actor.TaskInProgress
 				}
 
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				return page.Paths.YourIndependentWitnessMobile.Redirect(w, r, appData, lpa)
+				return page.Paths.YourIndependentWitnessMobile.Redirect(w, r, appData, donor)
 			}
 		}
 
@@ -90,32 +90,32 @@ func (f *yourIndependentWitnessForm) Validate() validation.List {
 	return errors
 }
 
-func independentWitnessMatches(lpa *page.Lpa, firstNames, lastName string) actor.Type {
+func independentWitnessMatches(donor *actor.DonorProvidedDetails, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}
 
-	if strings.EqualFold(lpa.Donor.FirstNames, firstNames) && strings.EqualFold(lpa.Donor.LastName, lastName) {
+	if strings.EqualFold(donor.Donor.FirstNames, firstNames) && strings.EqualFold(donor.Donor.LastName, lastName) {
 		return actor.TypeDonor
 	}
 
-	for _, attorney := range lpa.Attorneys.Attorneys {
+	for _, attorney := range donor.Attorneys.Attorneys {
 		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeAttorney
 		}
 	}
 
-	for _, attorney := range lpa.ReplacementAttorneys.Attorneys {
+	for _, attorney := range donor.ReplacementAttorneys.Attorneys {
 		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeReplacementAttorney
 		}
 	}
 
-	if strings.EqualFold(lpa.CertificateProvider.FirstNames, firstNames) && strings.EqualFold(lpa.CertificateProvider.LastName, lastName) {
+	if strings.EqualFold(donor.CertificateProvider.FirstNames, firstNames) && strings.EqualFold(donor.CertificateProvider.LastName, lastName) {
 		return actor.TypeCertificateProvider
 	}
 
-	if strings.EqualFold(lpa.AuthorisedSignatory.FirstNames, firstNames) && strings.EqualFold(lpa.AuthorisedSignatory.LastName, lastName) {
+	if strings.EqualFold(donor.AuthorisedSignatory.FirstNames, firstNames) && strings.EqualFold(donor.AuthorisedSignatory.LastName, lastName) {
 		return actor.TypeAuthorisedSignatory
 	}
 

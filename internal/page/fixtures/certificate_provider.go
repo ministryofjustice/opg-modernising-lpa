@@ -55,34 +55,38 @@ func CertificateProvider(
 			return err
 		}
 
-		lpa, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}))
+		donor, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}))
 		if err != nil {
 			return err
 		}
 
 		var (
-			donorCtx               = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: lpa.ID})
-			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: certificateProviderSessionID, LpaID: lpa.ID})
+			donorCtx               = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: donor.LpaID})
+			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: certificateProviderSessionID, LpaID: donor.LpaID})
 		)
 
-		lpa.UID = makeUid()
-		lpa.Donor = makeDonor()
-		lpa.Type = actor.LpaTypePropertyFinance
+		donor.LpaUID = makeUID()
+		donor.Donor = makeDonor()
+		donor.Type = actor.LpaTypePropertyFinance
 		if lpaType == "hw" {
-			lpa.Type = actor.LpaTypeHealthWelfare
+			donor.Type = actor.LpaTypeHealthWelfare
+			donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
+			donor.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
+		} else {
+			donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
 		}
 
-		lpa.Attorneys = actor.Attorneys{
+		donor.Attorneys = actor.Attorneys{
 			Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])},
 		}
 
-		lpa.CertificateProvider = makeCertificateProvider()
+		donor.CertificateProvider = makeCertificateProvider()
 		if email != "" {
-			lpa.CertificateProvider.Email = email
+			donor.CertificateProvider.Email = email
 		}
 
 		if asProfessionalCertificateProvider {
-			lpa.CertificateProvider.Relationship = actor.Professionally
+			donor.CertificateProvider.Relationship = actor.Professionally
 		}
 
 		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID)
@@ -91,15 +95,15 @@ func CertificateProvider(
 		}
 
 		if progress >= slices.Index(progressValues, "paid") {
-			lpa.PaymentDetails = append(lpa.PaymentDetails, actor.Payment{
+			donor.PaymentDetails = append(donor.PaymentDetails, actor.Payment{
 				PaymentReference: random.String(12),
 				PaymentId:        random.String(12),
 			})
-			lpa.Tasks.PayForLpa = actor.PaymentTaskCompleted
+			donor.Tasks.PayForLpa = actor.PaymentTaskCompleted
 		}
 
 		if progress >= slices.Index(progressValues, "signedByDonor") {
-			lpa.SignedAt = time.Now()
+			donor.SignedAt = time.Now()
 		}
 
 		if progress >= slices.Index(progressValues, "confirmYourDetails") {
@@ -121,14 +125,14 @@ func CertificateProvider(
 			certificateProvider.IdentityUserData = identity.UserData{
 				OK:          true,
 				RetrievedAt: time.Now(),
-				FirstNames:  lpa.CertificateProvider.FirstNames,
-				LastName:    lpa.CertificateProvider.LastName,
+				FirstNames:  donor.CertificateProvider.FirstNames,
+				LastName:    donor.CertificateProvider.LastName,
 				DateOfBirth: certificateProvider.DateOfBirth,
 			}
 			certificateProvider.Tasks.ConfirmYourIdentity = actor.TaskCompleted
 		}
 
-		if err := donorStore.Put(donorCtx, lpa); err != nil {
+		if err := donorStore.Put(donorCtx, donor); err != nil {
 			return err
 		}
 		if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {
@@ -143,9 +147,9 @@ func CertificateProvider(
 		if email != "" {
 			shareCodeSender.SendCertificateProvider(donorCtx, notify.CertificateProviderInviteEmail, page.AppData{
 				SessionID: donorSessionID,
-				LpaID:     lpa.ID,
+				LpaID:     donor.LpaID,
 				Localizer: appData.Localizer,
-			}, true, lpa)
+			}, true, donor)
 
 			http.Redirect(w, r, page.Paths.CertificateProviderStart.Format(), http.StatusFound)
 			return nil
@@ -157,7 +161,7 @@ func CertificateProvider(
 		case page.Paths.CertificateProviderStart.Format():
 			redirect = page.Paths.CertificateProviderStart.Format()
 		default:
-			redirect = "/certificate-provider/" + lpa.ID + redirect
+			redirect = "/certificate-provider/" + donor.LpaID + redirect
 		}
 
 		http.Redirect(w, r, redirect, http.StatusFound)

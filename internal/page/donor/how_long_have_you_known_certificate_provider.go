@@ -18,11 +18,11 @@ type howLongHaveYouKnownCertificateProviderData struct {
 }
 
 func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &howLongHaveYouKnownCertificateProviderData{
 			App:                 appData,
-			CertificateProvider: lpa.CertificateProvider,
-			RelationshipLength:  lpa.CertificateProvider.RelationshipLength,
+			CertificateProvider: donor.CertificateProvider,
+			RelationshipLength:  donor.CertificateProvider.RelationshipLength,
 			Options:             actor.CertificateProviderRelationshipLengthValues,
 		}
 
@@ -32,15 +32,15 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore D
 
 			if data.Errors.None() {
 				if form.RelationshipLength == actor.LessThanTwoYears {
-					return page.Paths.ChooseNewCertificateProvider.Redirect(w, r, appData, lpa)
+					return page.Paths.ChooseNewCertificateProvider.Redirect(w, r, appData, donor)
 				}
 
-				lpa.CertificateProvider.RelationshipLength = form.RelationshipLength
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				donor.CertificateProvider.RelationshipLength = form.RelationshipLength
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				return page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Redirect(w, r, appData, lpa)
+				return page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Redirect(w, r, appData, donor)
 			}
 		}
 

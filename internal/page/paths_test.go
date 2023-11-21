@@ -57,13 +57,13 @@ func TestLpaPathFormat(t *testing.T) {
 func TestLpaPathRedirect(t *testing.T) {
 	testCases := map[string]struct {
 		url      string
-		lpa      *Lpa
+		donor    *actor.DonorProvidedDetails
 		expected string
 	}{
 		"allowed": {
 			url: "/",
-			lpa: &Lpa{
-				ID: "lpa-id",
+			donor: &actor.DonorProvidedDetails{
+				LpaID: "lpa-id",
 				Donor: actor.Donor{
 					CanSign: form.Yes,
 				},
@@ -84,17 +84,17 @@ func TestLpaPathRedirect(t *testing.T) {
 		},
 		"allowed from": {
 			url:      "/?from=" + Paths.Restrictions.Format("lpa-id"),
-			lpa:      &Lpa{ID: "lpa-id", Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted}},
+			donor:    &actor.DonorProvidedDetails{LpaID: "lpa-id", Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted}},
 			expected: Paths.Restrictions.Format("lpa-id"),
 		},
 		"not allowed": {
 			url:      "/",
-			lpa:      &Lpa{ID: "lpa-id"},
+			donor:    &actor.DonorProvidedDetails{LpaID: "lpa-id"},
 			expected: Paths.TaskList.Format("lpa-id"),
 		},
 		"not allowed from": {
 			url:      "/?from=" + Paths.Restrictions.Format("lpa-id"),
-			lpa:      &Lpa{ID: "lpa-id"},
+			donor:    &actor.DonorProvidedDetails{LpaID: "lpa-id"},
 			expected: Paths.TaskList.Format("lpa-id"),
 		},
 	}
@@ -104,7 +104,7 @@ func TestLpaPathRedirect(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
 			w := httptest.NewRecorder()
 
-			err := Paths.HowToConfirmYourIdentityAndSign.Redirect(w, r, AppData{Lang: localize.En}, tc.lpa)
+			err := Paths.HowToConfirmYourIdentityAndSign.Redirect(w, r, AppData{Lang: localize.En}, tc.donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -118,7 +118,7 @@ func TestLpaPathRedirectQuery(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 
-	err := Paths.TaskList.RedirectQuery(w, r, AppData{Lang: localize.En}, &Lpa{ID: "lpa-id"}, url.Values{"q": {"1"}})
+	err := Paths.TaskList.RedirectQuery(w, r, AppData{Lang: localize.En}, &actor.DonorProvidedDetails{LpaID: "lpa-id"}, url.Values{"q": {"1"}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

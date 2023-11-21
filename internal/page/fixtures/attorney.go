@@ -19,8 +19,8 @@ import (
 )
 
 type DonorStore interface {
-	Create(context.Context) (*page.Lpa, error)
-	Put(context.Context, *page.Lpa) error
+	Create(context.Context) (*actor.DonorProvidedDetails, error)
+	Put(context.Context, *actor.DonorProvidedDetails) error
 }
 
 type CertificateProviderStore interface {
@@ -81,18 +81,18 @@ func Attorney(
 			return err
 		}
 
-		lpa, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}))
+		donor, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}))
 		if err != nil {
 			return err
 		}
 
 		var (
-			donorCtx               = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: lpa.ID})
-			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: certificateProviderSessionID, LpaID: lpa.ID})
-			attorneyCtx            = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: attorneySessionID, LpaID: lpa.ID})
+			donorCtx               = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: donor.LpaID})
+			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: certificateProviderSessionID, LpaID: donor.LpaID})
+			attorneyCtx            = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: attorneySessionID, LpaID: donor.LpaID})
 		)
 
-		lpa.Donor = actor.Donor{
+		donor.Donor = actor.Donor{
 			FirstNames: "Sam",
 			LastName:   "Smith",
 			Address: place.Address{
@@ -108,47 +108,48 @@ func Attorney(
 			CanSign:       form.Yes,
 		}
 
-		lpa.UID = makeUid()
-		lpa.Type = actor.LpaTypePropertyFinance
+		donor.LpaUID = makeUID()
 		if lpaType == "hw" && !isTrustCorporation {
-			lpa.Type = actor.LpaTypeHealthWelfare
+			donor.Type = actor.LpaTypeHealthWelfare
+			donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
+			donor.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
+		} else {
+			donor.Type = actor.LpaTypePropertyFinance
+			donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
 		}
 
-		lpa.CertificateProvider = makeCertificateProvider()
+		donor.CertificateProvider = makeCertificateProvider()
 
-		lpa.Attorneys = actor.Attorneys{
+		donor.Attorneys = actor.Attorneys{
 			Attorneys:        []actor.Attorney{makeAttorney(attorneyNames[0])},
 			TrustCorporation: makeTrustCorporation("First Choice Trust Corporation Ltd."),
 		}
-		lpa.ReplacementAttorneys = actor.Attorneys{
+		donor.ReplacementAttorneys = actor.Attorneys{
 			Attorneys:        []actor.Attorney{makeAttorney(replacementAttorneyNames[0])},
 			TrustCorporation: makeTrustCorporation("Second Choice Trust Corporation Ltd."),
 		}
 
-		lpa.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
-		lpa.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
-
 		if email != "" {
 			if isTrustCorporation {
 				if isReplacement {
-					lpa.ReplacementAttorneys.TrustCorporation.Email = email
+					donor.ReplacementAttorneys.TrustCorporation.Email = email
 				} else {
-					lpa.Attorneys.TrustCorporation.Email = email
+					donor.Attorneys.TrustCorporation.Email = email
 				}
 			}
 			if isReplacement {
-				lpa.ReplacementAttorneys.Attorneys[0].Email = email
+				donor.ReplacementAttorneys.Attorneys[0].Email = email
 			} else {
-				lpa.Attorneys.Attorneys[0].Email = email
+				donor.Attorneys.Attorneys[0].Email = email
 			}
 		}
 
 		var attorneyID string
 		if !isTrustCorporation {
 			if isReplacement {
-				attorneyID = lpa.ReplacementAttorneys.Attorneys[0].ID
+				attorneyID = donor.ReplacementAttorneys.Attorneys[0].ID
 			} else {
-				attorneyID = lpa.Attorneys.Attorneys[0].ID
+				attorneyID = donor.Attorneys.Attorneys[0].ID
 			}
 		}
 
@@ -163,8 +164,8 @@ func Attorney(
 		}
 
 		if progress >= slices.Index(progressValues, "signedByCertificateProvider") {
-			lpa.SignedAt = time.Now()
-			certificateProvider.Certificate = actor.Certificate{Agreed: lpa.SignedAt.Add(time.Hour)}
+			donor.SignedAt = time.Now()
+			certificateProvider.Certificate = actor.Certificate{Agreed: donor.SignedAt.Add(time.Hour)}
 		}
 
 		if progress >= slices.Index(progressValues, "signedByAttorney") {
@@ -179,19 +180,19 @@ func Attorney(
 					FirstNames:        "A",
 					LastName:          "Sign",
 					ProfessionalTitle: "Assistant to the signer",
-					LpaSignedAt:       lpa.SignedAt,
-					Confirmed:         lpa.SignedAt.Add(2 * time.Hour),
+					LpaSignedAt:       donor.SignedAt,
+					Confirmed:         donor.SignedAt.Add(2 * time.Hour),
 				}}
 			} else {
-				attorney.LpaSignedAt = lpa.SignedAt
-				attorney.Confirmed = lpa.SignedAt.Add(2 * time.Hour)
+				attorney.LpaSignedAt = donor.SignedAt
+				attorney.Confirmed = donor.SignedAt.Add(2 * time.Hour)
 			}
 		}
 
 		if progress >= slices.Index(progressValues, "signedByAllAttorneys") {
-			for isReplacement, list := range map[bool]actor.Attorneys{false: lpa.Attorneys, true: lpa.ReplacementAttorneys} {
+			for isReplacement, list := range map[bool]actor.Attorneys{false: donor.Attorneys, true: donor.ReplacementAttorneys} {
 				for _, a := range list.Attorneys {
-					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: lpa.ID})
+					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donor.LpaID})
 
 					attorney, err := attorneyStore.Create(ctx, donorSessionID, a.ID, isReplacement, false)
 					if err != nil {
@@ -202,8 +203,8 @@ func Attorney(
 					attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
 					attorney.Tasks.ReadTheLpa = actor.TaskCompleted
 					attorney.Tasks.SignTheLpa = actor.TaskCompleted
-					attorney.LpaSignedAt = lpa.SignedAt
-					attorney.Confirmed = lpa.SignedAt.Add(2 * time.Hour)
+					attorney.LpaSignedAt = donor.SignedAt
+					attorney.Confirmed = donor.SignedAt.Add(2 * time.Hour)
 
 					if err := attorneyStore.Put(ctx, attorney); err != nil {
 						return err
@@ -211,7 +212,7 @@ func Attorney(
 				}
 
 				if list.TrustCorporation.Name != "" {
-					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: lpa.ID})
+					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donor.LpaID})
 
 					attorney, err := attorneyStore.Create(ctx, donorSessionID, "", isReplacement, true)
 					if err != nil {
@@ -227,8 +228,8 @@ func Attorney(
 						FirstNames:        "A",
 						LastName:          "Sign",
 						ProfessionalTitle: "Assistant to the signer",
-						LpaSignedAt:       lpa.SignedAt,
-						Confirmed:         lpa.SignedAt.Add(2 * time.Hour),
+						LpaSignedAt:       donor.SignedAt,
+						Confirmed:         donor.SignedAt.Add(2 * time.Hour),
 					}}
 
 					if err := attorneyStore.Put(ctx, attorney); err != nil {
@@ -239,18 +240,18 @@ func Attorney(
 		}
 
 		if progress >= slices.Index(progressValues, "submitted") {
-			lpa.SubmittedAt = time.Now()
+			donor.SubmittedAt = time.Now()
 		}
 
 		if progress == slices.Index(progressValues, "withdrawn") {
-			lpa.WithdrawnAt = time.Now()
+			donor.WithdrawnAt = time.Now()
 		}
 
 		if progress >= slices.Index(progressValues, "registered") {
-			lpa.RegisteredAt = time.Now()
+			donor.RegisteredAt = time.Now()
 		}
 
-		if err := donorStore.Put(donorCtx, lpa); err != nil {
+		if err := donorStore.Put(donorCtx, donor); err != nil {
 			return err
 		}
 		if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {
@@ -268,9 +269,9 @@ func Attorney(
 		if email != "" {
 			shareCodeSender.SendAttorneys(donorCtx, page.AppData{
 				SessionID: donorSessionID,
-				LpaID:     lpa.ID,
+				LpaID:     donor.LpaID,
 				Localizer: appData.Localizer,
-			}, lpa)
+			}, donor)
 
 			http.Redirect(w, r, page.Paths.Attorney.Start.Format(), http.StatusFound)
 			return nil
@@ -279,7 +280,7 @@ func Attorney(
 		if redirect == "" {
 			redirect = page.Paths.Dashboard.Format()
 		} else {
-			redirect = "/attorney/" + lpa.ID + redirect
+			redirect = "/attorney/" + donor.LpaID + redirect
 		}
 
 		http.Redirect(w, r, redirect, http.StatusFound)

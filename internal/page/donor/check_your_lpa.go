@@ -18,7 +18,7 @@ import (
 type checkYourLpaData struct {
 	App         page.AppData
 	Errors      validation.List
-	Lpa         *page.Lpa
+	Donor       *actor.DonorProvidedDetails
 	Form        *checkYourLpaForm
 	Completed   bool
 	CanContinue bool
@@ -30,38 +30,38 @@ type checkYourLpaNotifier struct {
 	certificateProviderStore CertificateProviderStore
 }
 
-func (n *checkYourLpaNotifier) Notify(ctx context.Context, appData page.AppData, lpa *page.Lpa, wasCompleted bool) error {
-	if lpa.CertificateProvider.CarryOutBy.IsPaper() {
-		return n.sendPaperNotification(ctx, appData, lpa, wasCompleted)
+func (n *checkYourLpaNotifier) Notify(ctx context.Context, appData page.AppData, donor *actor.DonorProvidedDetails, wasCompleted bool) error {
+	if donor.CertificateProvider.CarryOutBy.IsPaper() {
+		return n.sendPaperNotification(ctx, appData, donor, wasCompleted)
 	}
 
-	return n.sendOnlineNotification(ctx, appData, lpa, wasCompleted)
+	return n.sendOnlineNotification(ctx, appData, donor, wasCompleted)
 }
 
-func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appData page.AppData, lpa *page.Lpa, wasCompleted bool) error {
+func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appData page.AppData, donor *actor.DonorProvidedDetails, wasCompleted bool) error {
 	sms := notify.Sms{
-		PhoneNumber: lpa.CertificateProvider.Mobile,
+		PhoneNumber: donor.CertificateProvider.Mobile,
 		Personalisation: map[string]string{
-			"donorFullName":   lpa.Donor.FullName(),
-			"donorFirstNames": lpa.Donor.FirstNames,
+			"donorFullName":   donor.Donor.FullName(),
+			"donorFirstNames": donor.Donor.FirstNames,
 		},
 	}
 
 	if wasCompleted {
 		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderPaperLpaDetailsChangedSMS)
-		sms.Personalisation["lpaId"] = lpa.ID
+		sms.Personalisation["lpaId"] = donor.LpaID
 	} else {
 		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderPaperMeetingPromptSMS)
-		sms.Personalisation["lpaType"] = appData.Localizer.T(lpa.Type.LegalTermTransKey())
+		sms.Personalisation["lpaType"] = appData.Localizer.T(donor.Type.LegalTermTransKey())
 	}
 
 	_, err := n.notifyClient.Sms(ctx, sms)
 	return err
 }
 
-func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appData page.AppData, lpa *page.Lpa, wasCompleted bool) error {
+func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appData page.AppData, donor *actor.DonorProvidedDetails, wasCompleted bool) error {
 	if !wasCompleted {
-		return n.shareCodeSender.SendCertificateProvider(ctx, notify.CertificateProviderInviteEmail, appData, true, lpa)
+		return n.shareCodeSender.SendCertificateProvider(ctx, notify.CertificateProviderInviteEmail, appData, true, donor)
 	}
 
 	certificateProvider, err := n.certificateProviderStore.GetAny(ctx)
@@ -70,22 +70,22 @@ func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appDa
 	}
 
 	sms := notify.Sms{
-		PhoneNumber: lpa.CertificateProvider.Mobile,
+		PhoneNumber: donor.CertificateProvider.Mobile,
 	}
 
 	if certificateProvider.Tasks.ConfirmYourDetails.NotStarted() {
 		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderDigitalLpaDetailsChangedNotSeenLpaSMS)
 		sms.Personalisation = map[string]string{
-			"donorFullName": lpa.Donor.FullName(),
-			"lpaType":       appData.Localizer.T(lpa.Type.LegalTermTransKey()),
+			"donorFullName": donor.Donor.FullName(),
+			"lpaType":       appData.Localizer.T(donor.Type.LegalTermTransKey()),
 		}
 	} else {
 		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderDigitalLpaDetailsChangedSeenLpaSMS)
 		sms.Personalisation = map[string]string{
-			"donorFullNamePossessive": appData.Localizer.Possessive(lpa.Donor.FullName()),
-			"lpaType":                 appData.Localizer.T(lpa.Type.LegalTermTransKey()),
-			"lpaId":                   lpa.ID,
-			"donorFirstNames":         lpa.Donor.FirstNames,
+			"donorFullNamePossessive": appData.Localizer.Possessive(donor.Donor.FullName()),
+			"lpaType":                 appData.Localizer.T(donor.Type.LegalTermTransKey()),
+			"lpaId":                   donor.LpaID,
+			"donorFirstNames":         donor.Donor.FirstNames,
 		}
 	}
 
@@ -100,15 +100,15 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 		certificateProviderStore: certificateProviderStore,
 	}
 
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &checkYourLpaData{
-			App: appData,
-			Lpa: lpa,
+			App:   appData,
+			Donor: donor,
 			Form: &checkYourLpaForm{
-				CheckedAndHappy: !lpa.CheckedAt.IsZero(),
+				CheckedAndHappy: !donor.CheckedAt.IsZero(),
 			},
-			Completed:   lpa.Tasks.CheckYourLpa.Completed(),
-			CanContinue: lpa.CheckedHash != lpa.Hash,
+			Completed:   donor.Tasks.CheckYourLpa.Completed(),
+			CanContinue: donor.CheckedHash != donor.Hash,
 		}
 
 		if r.Method == http.MethodPost && data.CanContinue {
@@ -116,28 +116,28 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.Tasks.CheckYourLpa = actor.TaskCompleted
-				lpa.CheckedAt = now()
+				donor.Tasks.CheckYourLpa = actor.TaskCompleted
+				donor.CheckedAt = now()
 
-				newHash, err := lpa.GenerateHash()
+				newHash, err := donor.GenerateHash()
 				if err != nil {
 					return err
 				}
-				lpa.CheckedHash = newHash
+				donor.CheckedHash = newHash
 
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				if err := notifier.Notify(r.Context(), appData, lpa, data.Completed); err != nil {
+				if err := notifier.Notify(r.Context(), appData, donor, data.Completed); err != nil {
 					return err
 				}
 
 				if !data.Completed {
-					return page.Paths.LpaDetailsSaved.RedirectQuery(w, r, appData, lpa, url.Values{"firstCheck": {"1"}})
+					return page.Paths.LpaDetailsSaved.RedirectQuery(w, r, appData, donor, url.Values{"firstCheck": {"1"}})
 				}
 
-				return page.Paths.LpaDetailsSaved.Redirect(w, r, appData, lpa)
+				return page.Paths.LpaDetailsSaved.Redirect(w, r, appData, donor)
 			}
 		}
 

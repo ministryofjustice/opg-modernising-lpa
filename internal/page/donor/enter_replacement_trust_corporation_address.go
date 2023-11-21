@@ -4,14 +4,15 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
 func EnterReplacementTrustCorporationAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
-		trustCorporation := lpa.ReplacementAttorneys.TrustCorporation
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+		trustCorporation := donor.ReplacementAttorneys.TrustCorporation
 
 		data := newChooseAddressData(
 			appData,
@@ -32,11 +33,11 @@ func EnterReplacementTrustCorporationAddress(logger Logger, tmpl template.Templa
 
 			setAddress := func(address place.Address) error {
 				trustCorporation.Address = address
-				lpa.ReplacementAttorneys.TrustCorporation = trustCorporation
+				donor.ReplacementAttorneys.TrustCorporation = trustCorporation
 
-				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
+				donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
 
-				return donorStore.Put(r.Context(), lpa)
+				return donorStore.Put(r.Context(), donor)
 			}
 
 			switch data.Form.Action {
@@ -46,7 +47,7 @@ func EnterReplacementTrustCorporationAddress(logger Logger, tmpl template.Templa
 						return err
 					}
 
-					return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, lpa)
+					return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, donor)
 				}
 
 			case "postcode-select":
@@ -64,7 +65,7 @@ func EnterReplacementTrustCorporationAddress(logger Logger, tmpl template.Templa
 				}
 
 			case "reuse":
-				data.Addresses = lpa.ActorAddresses()
+				data.Addresses = donor.ActorAddresses()
 
 			case "reuse-select":
 				if data.Errors.None() {
@@ -72,9 +73,9 @@ func EnterReplacementTrustCorporationAddress(logger Logger, tmpl template.Templa
 						return err
 					}
 
-					return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, lpa)
+					return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, donor)
 				} else {
-					data.Addresses = lpa.ActorAddresses()
+					data.Addresses = donor.ActorAddresses()
 				}
 			}
 		}

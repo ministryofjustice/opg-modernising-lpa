@@ -17,18 +17,18 @@ func TestDashboardStoreGetAll(t *testing.T) {
 	sessionID := "an-id"
 	aTime := time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)
 
-	lpa0 := &page.Lpa{ID: "0", UID: "M", UpdatedAt: aTime, SK: donorKey(sessionID), PK: lpaKey("0")}
-	lpa123 := &page.Lpa{ID: "123", UID: "M", UpdatedAt: aTime, SK: donorKey(sessionID), PK: lpaKey("123")}
-	lpa456 := &page.Lpa{ID: "456", UID: "M", SK: donorKey("another-id"), PK: lpaKey("456")}
+	lpa0 := &actor.DonorProvidedDetails{LpaID: "0", LpaUID: "M", UpdatedAt: aTime, SK: donorKey(sessionID), PK: lpaKey("0")}
+	lpa123 := &actor.DonorProvidedDetails{LpaID: "123", LpaUID: "M", UpdatedAt: aTime, SK: donorKey(sessionID), PK: lpaKey("123")}
+	lpa456 := &actor.DonorProvidedDetails{LpaID: "456", LpaUID: "M", SK: donorKey("another-id"), PK: lpaKey("456")}
 	lpa456CpProvidedDetails := &actor.CertificateProviderProvidedDetails{
 		LpaID: "456", Tasks: actor.CertificateProviderTasks{ConfirmYourDetails: actor.TaskCompleted}, SK: certificateProviderKey(sessionID),
 	}
-	lpa789 := &page.Lpa{ID: "789", UID: "M", SK: donorKey("different-id"), PK: lpaKey("789")}
+	lpa789 := &actor.DonorProvidedDetails{LpaID: "789", LpaUID: "M", SK: donorKey("different-id"), PK: lpaKey("789")}
 	lpa789AttorneyProvidedDetails := &actor.AttorneyProvidedDetails{
 		LpaID: "789", Tasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskInProgress}, SK: attorneyKey(sessionID),
 	}
-	lpaNoUID := &page.Lpa{ID: "999", UpdatedAt: aTime, SK: donorKey(sessionID), PK: lpaKey("0")}
-	lpaSignedByCp := &page.Lpa{ID: "signed-by-cp", UID: "M", SK: donorKey("another-id"), PK: lpaKey("signed-by-cp")}
+	lpaNoUID := &actor.DonorProvidedDetails{LpaID: "999", UpdatedAt: aTime, SK: donorKey(sessionID), PK: lpaKey("0")}
+	lpaSignedByCp := &actor.DonorProvidedDetails{LpaID: "signed-by-cp", LpaUID: "M", SK: donorKey("another-id"), PK: lpaKey("signed-by-cp")}
 	lpaSignedByCpProvidedDetails := &actor.CertificateProviderProvidedDetails{
 		LpaID: "signed-by-cp", SK: certificateProviderKey(sessionID), Certificate: actor.Certificate{AgreeToStatement: true},
 	}
@@ -88,9 +88,9 @@ func TestDashboardStoreGetAll(t *testing.T) {
 			donor, attorney, certificateProvider, err := dashboardStore.GetAll(ctx)
 			assert.Nil(t, err)
 
-			assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa123}, {Lpa: lpa0}}, donor)
-			assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa456, CertificateProvider: lpa456CpProvidedDetails}}, certificateProvider)
-			assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa789, Attorney: lpa789AttorneyProvidedDetails}}, attorney)
+			assert.Equal(t, []page.LpaAndActorTasks{{Donor: lpa123}, {Donor: lpa0}}, donor)
+			assert.Equal(t, []page.LpaAndActorTasks{{Donor: lpa456, CertificateProvider: lpa456CpProvidedDetails}}, certificateProvider)
+			assert.Equal(t, []page.LpaAndActorTasks{{Donor: lpa789, Attorney: lpa789AttorneyProvidedDetails}}, attorney)
 		})
 	}
 }
@@ -99,9 +99,9 @@ func TestDashboardStoreGetAllSubmittedForAttorneys(t *testing.T) {
 	sessionID := "an-id"
 	aTime := time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)
 
-	lpaSubmitted := &page.Lpa{ID: "submitted", UID: "M", SK: donorKey("another-id"), PK: lpaKey("submitted"), SubmittedAt: aTime}
+	lpaSubmitted := &actor.DonorProvidedDetails{LpaID: "submitted", LpaUID: "M", SK: donorKey("another-id"), PK: lpaKey("submitted"), SubmittedAt: aTime}
 	lpaSubmittedAttorneyDetails := &actor.AttorneyProvidedDetails{LpaID: "submitted", SK: attorneyKey(sessionID)}
-	lpaSubmittedReplacement := &page.Lpa{ID: "submitted-replacement", UID: "M", SK: donorKey("another-id"), PK: lpaKey("submitted-replacement"), SubmittedAt: aTime}
+	lpaSubmittedReplacement := &actor.DonorProvidedDetails{LpaID: "submitted-replacement", LpaUID: "M", SK: donorKey("another-id"), PK: lpaKey("submitted-replacement"), SubmittedAt: aTime}
 	lpaSubmittedReplacementAttorneyDetails := &actor.AttorneyProvidedDetails{LpaID: "submitted-replacement", SK: attorneyKey(sessionID), IsReplacement: true}
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: sessionID})
 
@@ -129,7 +129,7 @@ func TestDashboardStoreGetAllSubmittedForAttorneys(t *testing.T) {
 	assert.Nil(t, err)
 
 	assert.Equal(t, []page.LpaAndActorTasks{
-		{Lpa: lpaSubmitted, Attorney: lpaSubmittedAttorneyDetails},
+		{Donor: lpaSubmitted, Attorney: lpaSubmittedAttorneyDetails},
 	}, attorney)
 }
 

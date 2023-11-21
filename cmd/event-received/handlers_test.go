@@ -189,17 +189,17 @@ func TestHandleFeeApproved(t *testing.T) {
 	client.
 		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
-			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			b, _ := json.Marshal(actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
 			json.Unmarshal(b, v)
 			return nil
 		})
 	client.
-		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
+		On("Put", ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, page.AppData{}, false, &page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
+		On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, page.AppData{}, false, &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
 		Return(nil)
 
 	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{}, func() time.Time { return now })
@@ -218,19 +218,19 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 	client.
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456"})
+			b, _ := json.Marshal(actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456"})
 			json.Unmarshal(b, v)
 			return nil
 		})
 	client.
 		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
-			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			b, _ := json.Marshal(actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
 			json.Unmarshal(b, v)
 			return nil
 		})
 	client.
-		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
+		On("Put", ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
 		Return(expectedError)
 
 	err := handleFeeApproved(ctx, client, event, nil, page.AppData{}, func() time.Time { return now })
@@ -256,17 +256,17 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 	client.
 		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
-			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			b, _ := json.Marshal(actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
 			json.Unmarshal(b, v)
 			return nil
 		})
 	client.
-		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
+		On("Put", ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, page.AppData{}, false, &page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
+		On("SendCertificateProvider", ctx, notify.CertificateProviderInviteEmail, page.AppData{}, false, &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
 		Return(expectedError)
 
 	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{}, func() time.Time { return now })
@@ -292,12 +292,12 @@ func TestHandleMoreEvidenceRequired(t *testing.T) {
 	client.
 		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
-			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			b, _ := json.Marshal(actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
 			json.Unmarshal(b, v)
 			return nil
 		})
 	client.
-		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}).
+		On("Put", ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}).
 		Return(nil)
 
 	err := handleMoreEvidenceRequired(ctx, client, event, func() time.Time { return now })
@@ -323,12 +323,12 @@ func TestHandleMoreEvidenceRequiredWhenPutError(t *testing.T) {
 	client.
 		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
-			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			b, _ := json.Marshal(actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
 			json.Unmarshal(b, v)
 			return nil
 		})
 	client.
-		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}).
+		On("Put", ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}).
 		Return(expectedError)
 
 	err := handleMoreEvidenceRequired(ctx, client, event, func() time.Time { return now })
@@ -354,12 +354,12 @@ func TestHandleFeeDenied(t *testing.T) {
 	client.
 		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
-			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			b, _ := json.Marshal(actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
 			json.Unmarshal(b, v)
 			return nil
 		})
 	client.
-		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}, UpdatedAt: now}).
+		On("Put", ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}, UpdatedAt: now}).
 		Return(nil)
 
 	err := handleFeeDenied(ctx, client, event, func() time.Time { return now })
@@ -385,12 +385,12 @@ func TestHandleFeeDeniedWhenPutError(t *testing.T) {
 	client.
 		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
-			b, _ := json.Marshal(page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			b, _ := json.Marshal(actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
 			json.Unmarshal(b, v)
 			return nil
 		})
 	client.
-		On("Put", ctx, page.Lpa{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}, UpdatedAt: now}).
+		On("Put", ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}, UpdatedAt: now}).
 		Return(expectedError)
 
 	err := handleFeeDenied(ctx, client, event, func() time.Time { return now })
@@ -429,7 +429,7 @@ func TestHandleObjectTagsAdded(t *testing.T) {
 			dynamoClient.
 				On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 				Return(func(ctx context.Context, pk, sk string, v interface{}) error {
-					b, _ := json.Marshal(page.Lpa{ID: "123", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+					b, _ := json.Marshal(actor.DonorProvidedDetails{LpaID: "123", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
 					json.Unmarshal(b, v)
 					return nil
 				})
@@ -515,7 +515,7 @@ func TestHandleObjectTagsAddedWhenDynamoClientOneByUIDError(t *testing.T) {
 	dynamoClient.
 		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
-			b, _ := json.Marshal(page.Lpa{ID: "123", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			b, _ := json.Marshal(actor.DonorProvidedDetails{LpaID: "123", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
 			json.Unmarshal(b, v)
 			return expectedError
 		})
@@ -549,7 +549,7 @@ func TestHandleObjectTagsAddedWhenDocumentStoreUpdateScanResultsError(t *testing
 	dynamoClient.
 		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
-			b, _ := json.Marshal(page.Lpa{ID: "123", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			b, _ := json.Marshal(actor.DonorProvidedDetails{LpaID: "123", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
 			json.Unmarshal(b, v)
 			return nil
 		})
@@ -564,7 +564,7 @@ func TestHandleObjectTagsAddedWhenDocumentStoreUpdateScanResultsError(t *testing
 }
 
 func TestGetLpaByUID(t *testing.T) {
-	expectedLpa := page.Lpa{PK: "LPA#123", SK: "#DONOR#456"}
+	expectedDonor := actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456"}
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -577,14 +577,14 @@ func TestGetLpaByUID(t *testing.T) {
 	client.
 		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
-			b, _ := json.Marshal(expectedLpa)
+			b, _ := json.Marshal(expectedDonor)
 			json.Unmarshal(b, v)
 			return nil
 		})
 
-	lpa, err := getLpaByUID(ctx, client, "M-1111-2222-3333")
+	lpa, err := getDonorByLpaUID(ctx, client, "M-1111-2222-3333")
 
-	assert.Equal(t, expectedLpa, lpa)
+	assert.Equal(t, expectedDonor, lpa)
 	assert.Nil(t, err)
 }
 
@@ -594,9 +594,9 @@ func TestGetLpaByUIDWhenClientOneByUidError(t *testing.T) {
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(expectedError)
 
-	lpa, err := getLpaByUID(ctx, client, "M-1111-2222-3333")
+	lpa, err := getDonorByLpaUID(ctx, client, "M-1111-2222-3333")
 
-	assert.Equal(t, page.Lpa{}, lpa)
+	assert.Equal(t, actor.DonorProvidedDetails{}, lpa)
 	assert.Equal(t, fmt.Errorf("failed to resolve uid: %w", expectedError), err)
 }
 
@@ -610,9 +610,9 @@ func TestGetLpaByUIDWhenPKMissing(t *testing.T) {
 			return nil
 		})
 
-	lpa, err := getLpaByUID(ctx, client, "M-1111-2222-3333")
+	lpa, err := getDonorByLpaUID(ctx, client, "M-1111-2222-3333")
 
-	assert.Equal(t, page.Lpa{}, lpa)
+	assert.Equal(t, actor.DonorProvidedDetails{}, lpa)
 	assert.Equal(t, errors.New("PK missing from LPA in response"), err)
 }
 
@@ -629,8 +629,8 @@ func TestGetLpaByUIDWhenClientOneError(t *testing.T) {
 		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(expectedError)
 
-	lpa, err := getLpaByUID(ctx, client, "M-1111-2222-3333")
+	lpa, err := getDonorByLpaUID(ctx, client, "M-1111-2222-3333")
 
-	assert.Equal(t, page.Lpa{}, lpa)
+	assert.Equal(t, actor.DonorProvidedDetails{}, lpa)
 	assert.Equal(t, fmt.Errorf("failed to get LPA: %w", expectedError), err)
 }

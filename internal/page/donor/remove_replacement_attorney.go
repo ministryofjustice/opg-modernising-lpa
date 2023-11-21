@@ -11,12 +11,12 @@ import (
 )
 
 func RemoveReplacementAttorney(logger Logger, tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		id := r.FormValue("id")
-		attorney, found := lpa.ReplacementAttorneys.Get(id)
+		attorney, found := donor.ReplacementAttorneys.Get(id)
 
 		if found == false {
-			return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, lpa)
+			return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, donor)
 		}
 
 		data := &removeAttorneyData{
@@ -33,20 +33,20 @@ func RemoveReplacementAttorney(logger Logger, tmpl template.Template, donorStore
 
 			if data.Errors.None() {
 				if data.Form.YesNo == form.Yes {
-					lpa.ReplacementAttorneys.Delete(attorney)
-					if lpa.ReplacementAttorneys.Len() == 1 {
-						lpa.ReplacementAttorneyDecisions = actor.AttorneyDecisions{}
+					donor.ReplacementAttorneys.Delete(attorney)
+					if donor.ReplacementAttorneys.Len() == 1 {
+						donor.ReplacementAttorneyDecisions = actor.AttorneyDecisions{}
 					}
 
-					lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
+					donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
 
-					if err := donorStore.Put(r.Context(), lpa); err != nil {
+					if err := donorStore.Put(r.Context(), donor); err != nil {
 						logger.Print(fmt.Sprintf("error removing replacement Attorney from LPA: %s", err.Error()))
 						return err
 					}
 				}
 
-				return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, lpa)
+				return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, donor)
 			}
 		}
 

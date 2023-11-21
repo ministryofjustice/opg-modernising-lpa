@@ -9,9 +9,9 @@
 
       {{ trHtml .App "weCanNotifyUpTo5PeopleContent" }}
 
-        {{ template "people-to-notify-summary" (listPeopleToNotify .App 2 .Lpa) }}
+        {{ template "people-to-notify-summary" (listPeopleToNotify .App 2 .Donor) }}
 
-      {{ if eq 5 (len .Lpa.PeopleToNotify) }}
+      {{ if eq 5 (len .Donor.PeopleToNotify) }}
         {{ template "warning" (warning .App "addedMaxPeople") }}
 
         <form novalidate method="post">

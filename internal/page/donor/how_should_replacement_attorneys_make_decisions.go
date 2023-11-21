@@ -14,19 +14,19 @@ type howShouldReplacementAttorneysMakeDecisionsData struct {
 	Errors  validation.List
 	Form    *howShouldAttorneysMakeDecisionsForm
 	Options actor.AttorneysActOptions
-	Lpa     *page.Lpa
+	Donor   *actor.DonorProvidedDetails
 }
 
 func HowShouldReplacementAttorneysMakeDecisions(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, lpa *page.Lpa) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &howShouldReplacementAttorneysMakeDecisionsData{
 			App: appData,
 			Form: &howShouldAttorneysMakeDecisionsForm{
-				DecisionsType:    lpa.ReplacementAttorneyDecisions.How,
-				DecisionsDetails: lpa.ReplacementAttorneyDecisions.Details,
+				DecisionsType:    donor.ReplacementAttorneyDecisions.How,
+				DecisionsDetails: donor.ReplacementAttorneyDecisions.Details,
 			},
 			Options: actor.AttorneysActValues,
-			Lpa:     lpa,
+			Donor:   donor,
 		}
 
 		if r.Method == http.MethodPost {
@@ -34,17 +34,17 @@ func HowShouldReplacementAttorneysMakeDecisions(tmpl template.Template, donorSto
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				lpa.ReplacementAttorneyDecisions = actor.MakeAttorneyDecisions(
-					lpa.ReplacementAttorneyDecisions,
+				donor.ReplacementAttorneyDecisions = actor.MakeAttorneyDecisions(
+					donor.ReplacementAttorneyDecisions,
 					data.Form.DecisionsType,
 					data.Form.DecisionsDetails)
-				lpa.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(lpa)
+				donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
 
-				if err := donorStore.Put(r.Context(), lpa); err != nil {
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				return page.Paths.TaskList.Redirect(w, r, appData, lpa)
+				return page.Paths.TaskList.Redirect(w, r, appData, donor)
 			}
 		}
 

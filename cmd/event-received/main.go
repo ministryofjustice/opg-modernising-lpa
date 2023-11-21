@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -15,6 +16,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -50,7 +52,7 @@ type s3Client interface {
 
 //go:generate mockery --testonly --inpackage --name shareCodeSender --structname mockShareCodeSender
 type shareCodeSender interface {
-	SendCertificateProvider(context.Context, notify.Template, page.AppData, bool, *page.Lpa) error
+	SendCertificateProvider(context.Context, notify.Template, page.AppData, bool, *actor.DonorProvidedDetails) error
 }
 
 //go:generate mockery --testonly --inpackage --name DocumentStore --structname mockDocumentStore
@@ -78,7 +80,7 @@ func (e Event) isS3Event() bool {
 }
 
 func (e Event) isCloudWatchEvent() bool {
-	return e.Source == "aws.cloudwatch" || e.Source == "opg.poas.makeregister"
+	return e.Source == "aws.cloudwatch" || e.Source == "opg.poas.makeregister" || e.Source == "opg.poas.sirius"
 }
 
 func handler(ctx context.Context, event Event) error {
@@ -173,6 +175,8 @@ func handler(ctx context.Context, event Event) error {
 		if err != nil {
 			return fmt.Errorf("%s: %w", event.DetailType, err)
 		}
+
+		log.Println("successfully handled ", event.DetailType)
 
 		return nil
 	}

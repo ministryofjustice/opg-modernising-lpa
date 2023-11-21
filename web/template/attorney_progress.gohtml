@@ -1,7 +1,7 @@
 {{ template "page" . }}
 
 {{ define "pageTitle" }}
-  {{ trFormat .App "theirLpa" "FullNamePossessive" (possessive .App .Lpa.Donor.FullName) "LpaType" (tr .App .Lpa.Type.LegalTermTransKey) }}
+  {{ trFormat .App "theirLpa" "FullNamePossessive" (possessive .App .Donor.Donor.FullName) "LpaType" (tr .App .Donor.Type.LegalTermTransKey) }}
 {{ end }}
 
 {{ define "main" }}
@@ -9,7 +9,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
       <div class="govuk-body">
-        <span><strong>{{ tr .App "applicationNumber" }}:</strong> {{ .Lpa.ID }}</span>
+        <span><strong>{{ tr .App "applicationNumber" }}:</strong> {{ .Donor.LpaID }}</span>
       </div>
 
       <div class="app-progress-bar">

@@ -85,13 +85,13 @@ func TestDonorStoreGetAny(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOneByPartialSk(ctx, "LPA#an-id", "#DONOR#", &page.Lpa{ID: "an-id"}, nil)
+	dynamoClient.ExpectOneByPartialSk(ctx, "LPA#an-id", "#DONOR#", &actor.DonorProvidedDetails{LpaID: "an-id"}, nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
 	lpa, err := donorStore.GetAny(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, &page.Lpa{ID: "an-id"}, lpa)
+	assert.Equal(t, &actor.DonorProvidedDetails{LpaID: "an-id"}, lpa)
 }
 
 func TestDonorStoreGetAnyWithSessionMissing(t *testing.T) {
@@ -107,7 +107,7 @@ func TestDonorStoreGetAnyWhenDataStoreError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOneByPartialSk(ctx, "LPA#an-id", "#DONOR#", &page.Lpa{ID: "an-id"}, expectedError)
+	dynamoClient.ExpectOneByPartialSk(ctx, "LPA#an-id", "#DONOR#", &actor.DonorProvidedDetails{LpaID: "an-id"}, expectedError)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
@@ -119,13 +119,13 @@ func TestDonorStoreGet(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOne(ctx, "LPA#an-id", "#DONOR#456", &page.Lpa{ID: "an-id"}, nil)
+	dynamoClient.ExpectOne(ctx, "LPA#an-id", "#DONOR#456", &actor.DonorProvidedDetails{LpaID: "an-id"}, nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
 	lpa, err := donorStore.Get(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, &page.Lpa{ID: "an-id"}, lpa)
+	assert.Equal(t, &actor.DonorProvidedDetails{LpaID: "an-id"}, lpa)
 }
 
 func TestDonorStoreGetWithSessionMissing(t *testing.T) {
@@ -141,7 +141,7 @@ func TestDonorStoreGetWhenDataStoreError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOne(ctx, "LPA#an-id", "#DONOR#456", &page.Lpa{ID: "an-id"}, expectedError)
+	dynamoClient.ExpectOne(ctx, "LPA#an-id", "#DONOR#456", &actor.DonorProvidedDetails{LpaID: "an-id"}, expectedError)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
@@ -153,13 +153,13 @@ func TestDonorStoreLatest(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectLatestForActor(ctx, "#DONOR#456", &page.Lpa{ID: "an-id"}, nil)
+	dynamoClient.ExpectLatestForActor(ctx, "#DONOR#456", &actor.DonorProvidedDetails{LpaID: "an-id"}, nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
 	lpa, err := donorStore.Latest(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, &page.Lpa{ID: "an-id"}, lpa)
+	assert.Equal(t, &actor.DonorProvidedDetails{LpaID: "an-id"}, lpa)
 }
 
 func TestDonorStoreLatestWithSessionMissing(t *testing.T) {
@@ -175,7 +175,7 @@ func TestDonorStoreLatestWhenDataStoreError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectLatestForActor(ctx, "#DONOR#456", &page.Lpa{ID: "an-id"}, expectedError)
+	dynamoClient.ExpectLatestForActor(ctx, "#DONOR#456", &actor.DonorProvidedDetails{LpaID: "an-id"}, expectedError)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
@@ -187,15 +187,15 @@ func TestDonorStorePut(t *testing.T) {
 	ctx := context.Background()
 
 	testcases := map[string]struct {
-		input, saved *page.Lpa
+		input, saved *actor.DonorProvidedDetails
 	}{
 		"no uid": {
-			input: &page.Lpa{PK: "LPA#5", Hash: 5, SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true},
-			saved: &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true},
+			input: &actor.DonorProvidedDetails{PK: "LPA#5", Hash: 5, SK: "#DONOR#an-id", LpaID: "5", HasSentApplicationUpdatedEvent: true},
+			saved: &actor.DonorProvidedDetails{PK: "LPA#5", SK: "#DONOR#an-id", LpaID: "5", HasSentApplicationUpdatedEvent: true},
 		},
 		"with uid": {
-			input: &page.Lpa{PK: "LPA#5", Hash: 5, SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true, UID: "M"},
-			saved: &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5", HasSentApplicationUpdatedEvent: true, UID: "M", UpdatedAt: testNow},
+			input: &actor.DonorProvidedDetails{PK: "LPA#5", Hash: 5, SK: "#DONOR#an-id", LpaID: "5", HasSentApplicationUpdatedEvent: true, LpaUID: "M"},
+			saved: &actor.DonorProvidedDetails{PK: "LPA#5", SK: "#DONOR#an-id", LpaID: "5", HasSentApplicationUpdatedEvent: true, LpaUID: "M", UpdatedAt: testNow},
 		},
 	}
 
@@ -220,10 +220,10 @@ func TestDonorStorePutWhenNoChange(t *testing.T) {
 	ctx := context.Background()
 	donorStore := &donorStore{}
 
-	lpa := &page.Lpa{ID: "an-id"}
-	lpa.Hash, _ = hashstructure.Hash(lpa, hashstructure.FormatV2, nil)
+	donor := &actor.DonorProvidedDetails{LpaID: "an-id"}
+	donor.Hash, _ = hashstructure.Hash(donor, hashstructure.FormatV2, nil)
 
-	err := donorStore.Put(ctx, lpa)
+	err := donorStore.Put(ctx, donor)
 	assert.Nil(t, err)
 }
 
@@ -235,7 +235,7 @@ func TestDonorStorePutWhenError(t *testing.T) {
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, now: time.Now}
 
-	err := donorStore.Put(ctx, &page.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", ID: "5"})
+	err := donorStore.Put(ctx, &actor.DonorProvidedDetails{PK: "LPA#5", SK: "#DONOR#an-id", LpaID: "5"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -256,10 +256,10 @@ func TestDonorStorePutWhenUIDNeeded(t *testing.T) {
 		}).
 		Return(nil)
 
-	updatedLpa := &page.Lpa{
-		PK: "LPA#5",
-		SK: "#DONOR#an-id",
-		ID: "5",
+	updatedDonor := &actor.DonorProvidedDetails{
+		PK:    "LPA#5",
+		SK:    "#DONOR#an-id",
+		LpaID: "5",
 		Donor: actor.Donor{
 			FirstNames:  "John",
 			LastName:    "Smith",
@@ -272,19 +272,19 @@ func TestDonorStorePutWhenUIDNeeded(t *testing.T) {
 		Type:                     actor.LpaTypeHealthWelfare,
 		HasSentUidRequestedEvent: true,
 	}
-	updatedLpa.Hash, _ = updatedLpa.GenerateHash()
+	updatedDonor.Hash, _ = updatedDonor.GenerateHash()
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		On("Put", ctx, updatedLpa).
+		On("Put", ctx, updatedDonor).
 		Return(nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient}
 
-	err := donorStore.Put(ctx, &page.Lpa{
-		PK: "LPA#5",
-		SK: "#DONOR#an-id",
-		ID: "5",
+	err := donorStore.Put(ctx, &actor.DonorProvidedDetails{
+		PK:    "LPA#5",
+		SK:    "#DONOR#an-id",
+		LpaID: "5",
 		Donor: actor.Donor{
 			FirstNames:  "John",
 			LastName:    "Smith",
@@ -305,10 +305,10 @@ func TestDonorStorePutWhenUIDNeededMissingSessionData(t *testing.T) {
 
 	donorStore := &donorStore{}
 
-	err := donorStore.Put(ctx, &page.Lpa{
-		PK: "LPA#5",
-		SK: "#DONOR#an-id",
-		ID: "5",
+	err := donorStore.Put(ctx, &actor.DonorProvidedDetails{
+		PK:    "LPA#5",
+		SK:    "#DONOR#an-id",
+		LpaID: "5",
 		Donor: actor.Donor{
 			FirstNames:  "John",
 			LastName:    "Smith",
@@ -334,10 +334,10 @@ func TestDonorStorePutWhenUIDFails(t *testing.T) {
 
 	donorStore := &donorStore{eventClient: eventClient, now: time.Now}
 
-	err := donorStore.Put(ctx, &page.Lpa{
-		PK: "LPA#5",
-		SK: "#DONOR#an-id",
-		ID: "5",
+	err := donorStore.Put(ctx, &actor.DonorProvidedDetails{
+		PK:    "LPA#5",
+		SK:    "#DONOR#an-id",
+		LpaID: "5",
 		Donor: actor.Donor{
 			FirstNames:  "John",
 			LastName:    "Smith",
@@ -362,11 +362,11 @@ func TestDonorStorePutWhenApplicationUpdatedWhenError(t *testing.T) {
 
 	donorStore := &donorStore{eventClient: eventClient, now: testNowFn}
 
-	err := donorStore.Put(ctx, &page.Lpa{
-		PK:  "LPA#5",
-		SK:  "#DONOR#an-id",
-		ID:  "5",
-		UID: "M-1111",
+	err := donorStore.Put(ctx, &actor.DonorProvidedDetails{
+		PK:     "LPA#5",
+		SK:     "#DONOR#an-id",
+		LpaID:  "5",
+		LpaUID: "M-1111",
 		Donor: actor.Donor{
 			FirstNames:  "John",
 			LastName:    "Smith",
@@ -392,30 +392,30 @@ func TestDonorStorePutWhenPreviousApplicationLinked(t *testing.T) {
 		}).
 		Return(nil)
 
-	updatedLpa := &page.Lpa{
+	updatedDonor := &actor.DonorProvidedDetails{
 		PK:                                    "LPA#5",
 		SK:                                    "#DONOR#an-id",
-		ID:                                    "5",
-		UID:                                   "M-1111",
+		LpaID:                                 "5",
+		LpaUID:                                "M-1111",
 		UpdatedAt:                             testNow,
 		PreviousApplicationNumber:             "5555",
 		HasSentApplicationUpdatedEvent:        true,
 		HasSentPreviousApplicationLinkedEvent: true,
 	}
-	updatedLpa.Hash, _ = updatedLpa.GenerateHash()
+	updatedDonor.Hash, _ = updatedDonor.GenerateHash()
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		On("Put", ctx, updatedLpa).
+		On("Put", ctx, updatedDonor).
 		Return(nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, now: testNowFn}
 
-	err := donorStore.Put(ctx, &page.Lpa{
+	err := donorStore.Put(ctx, &actor.DonorProvidedDetails{
 		PK:                             "LPA#5",
 		SK:                             "#DONOR#an-id",
-		ID:                             "5",
-		UID:                            "M-1111",
+		LpaID:                          "5",
+		LpaUID:                         "M-1111",
 		PreviousApplicationNumber:      "5555",
 		HasSentApplicationUpdatedEvent: true,
 	})
@@ -433,11 +433,11 @@ func TestDonorStorePutWhenPreviousApplicationLinkedWontResend(t *testing.T) {
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, now: testNowFn}
 
-	err := donorStore.Put(ctx, &page.Lpa{
+	err := donorStore.Put(ctx, &actor.DonorProvidedDetails{
 		PK:                                    "LPA#5",
 		SK:                                    "#DONOR#an-id",
-		ID:                                    "5",
-		UID:                                   "M-1111",
+		LpaID:                                 "5",
+		LpaUID:                                "M-1111",
 		PreviousApplicationNumber:             "5555",
 		HasSentApplicationUpdatedEvent:        true,
 		HasSentPreviousApplicationLinkedEvent: true,
@@ -456,11 +456,11 @@ func TestDonorStorePutWhenPreviousApplicationLinkedWhenError(t *testing.T) {
 
 	donorStore := &donorStore{eventClient: eventClient, now: testNowFn}
 
-	err := donorStore.Put(ctx, &page.Lpa{
+	err := donorStore.Put(ctx, &actor.DonorProvidedDetails{
 		PK:                             "LPA#5",
 		SK:                             "#DONOR#an-id",
-		ID:                             "5",
-		UID:                            "M-1111",
+		LpaID:                          "5",
+		LpaUID:                         "M-1111",
 		PreviousApplicationNumber:      "5555",
 		HasSentApplicationUpdatedEvent: true,
 	})
@@ -469,12 +469,12 @@ func TestDonorStorePutWhenPreviousApplicationLinkedWhenError(t *testing.T) {
 
 func TestDonorStoreCreate(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
-	lpa := &page.Lpa{PK: "LPA#10100000", SK: "#DONOR#an-id", ID: "10100000", CreatedAt: testNow, Version: 1}
-	lpa.Hash, _ = lpa.GenerateHash()
+	donor := &actor.DonorProvidedDetails{PK: "LPA#10100000", SK: "#DONOR#an-id", LpaID: "10100000", CreatedAt: testNow, Version: 1}
+	donor.Hash, _ = donor.GenerateHash()
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		On("Create", ctx, lpa).
+		On("Create", ctx, donor).
 		Return(nil)
 	dynamoClient.
 		On("Create", ctx, lpaLink{PK: "LPA#10100000", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor, UpdatedAt: testNow}).
@@ -484,7 +484,7 @@ func TestDonorStoreCreate(t *testing.T) {
 
 	result, err := donorStore.Create(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, lpa, result)
+	assert.Equal(t, donor, result)
 }
 
 func TestDonorStoreCreateWithSessionMissing(t *testing.T) {

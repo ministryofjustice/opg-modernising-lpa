@@ -48,39 +48,39 @@ func Dashboard(
 		}
 
 		if asDonor {
-			lpa, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID}))
+			donor, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID}))
 			if err != nil {
 				return err
 			}
 
-			donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID, LpaID: lpa.ID})
+			donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID, LpaID: donor.LpaID})
 
-			lpa.UID = makeUid()
-			lpa.Donor = makeDonor()
-			lpa.Type = actor.LpaTypePropertyFinance
+			donor.LpaUID = makeUID()
+			donor.Donor = makeDonor()
+			donor.Type = actor.LpaTypePropertyFinance
 
-			lpa.Attorneys = actor.Attorneys{
+			donor.Attorneys = actor.Attorneys{
 				Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},
 			}
 
-			if err := donorStore.Put(donorCtx, lpa); err != nil {
+			if err := donorStore.Put(donorCtx, donor); err != nil {
 				return err
 			}
 		}
 
 		if asCertificateProvider {
-			lpa, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}))
+			donor, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}))
 			if err != nil {
 				return err
 			}
-			lpa.Donor = makeDonor()
-			lpa.UID = makeUid()
+			donor.Donor = makeDonor()
+			donor.LpaUID = makeUID()
 
-			if err := donorStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: lpa.ID}), lpa); err != nil {
+			if err := donorStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: donor.LpaID}), donor); err != nil {
 				return err
 			}
 
-			certificateProviderCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID, LpaID: lpa.ID})
+			certificateProviderCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID, LpaID: donor.LpaID})
 
 			certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID)
 			if err != nil {
@@ -93,23 +93,23 @@ func Dashboard(
 		}
 
 		if asAttorney {
-			lpa, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}))
+			donor, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}))
 			if err != nil {
 				return err
 			}
-			lpa.Donor = makeDonor()
-			lpa.Attorneys = actor.Attorneys{
+			donor.Donor = makeDonor()
+			donor.Attorneys = actor.Attorneys{
 				Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},
 			}
-			lpa.UID = makeUid()
+			donor.LpaUID = makeUID()
 
-			if err := donorStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: lpa.ID}), lpa); err != nil {
+			if err := donorStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: donor.LpaID}), donor); err != nil {
 				return err
 			}
 
-			attorneyCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID, LpaID: lpa.ID})
+			attorneyCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID, LpaID: donor.LpaID})
 
-			attorney, err := attorneyStore.Create(attorneyCtx, donorSessionID, lpa.Attorneys.Attorneys[0].ID, false, false)
+			attorney, err := attorneyStore.Create(attorneyCtx, donorSessionID, donor.Attorneys.Attorneys[0].ID, false, false)
 			if err != nil {
 				return err
 			}
