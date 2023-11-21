@@ -471,6 +471,7 @@
     },
     "readDonorNameLpa": "Read {{ .DonorFullName }}’s LPA",
     "youMustReadLpaCarefully": "You must read this LPA carefully.",
+    "youShouldReadLpaCarefully": "You should read this LPA carefully.",
     "peopleToNotifyAboutTheLpa": "People to notify about the LPA",
     "getANewCode": "Get a new code",
     "textMessagesSometimesTakeAFewMinutes": "Text messages sometimes take a few minutes to arrive. If you have not received the text message, you can get a new one.",

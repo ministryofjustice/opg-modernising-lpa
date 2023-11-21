@@ -521,6 +521,7 @@
     },
     "readDonorNameLpa": "Darllen LPA {{ .DonorFullName }}",
     "youMustReadLpaCarefully": "Rhaid i chi ddarllen yr LPA hon yn ofalus.",
+    "youShouldReadLpaCarefully": "Welsh",
     "peopleToNotifyAboutTheLpa": "Pobl i’w hysbysu ynglŷn â’r LPA",
     "pleaseWaitOneMinute": "welsh",
     "tooManyWitnessCodeAttempts": "welsh",
