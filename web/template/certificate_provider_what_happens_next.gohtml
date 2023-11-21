@@ -7,7 +7,11 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "whatHappensNext" }}</h1>
 
-      {{ trFormatHtml .App "whatHappensNextContent" "DonorFirstNames" .Donor.Donor.FirstNames }}
+      {{ trFormatHtml .App "whatHappensNextContent" "DonorFirstNames" .Donor.Donor.FirstNames "DonorFullName" .Donor.Donor.FullName }}
+
+      <p class="govuk-inset-text">
+        {{ tr .App "ifYouHaveConcerns" }}
+      </p>
 
       <div class="govuk-button-group govuk-!-margin-top-4">
         <a class="govuk-button" href="{{ link .App (.App.Paths.CertificateProvider.ProvideCertificate.Format .App.LpaID) }}">{{ tr .App "provideYourCertificate" }}</a>

@@ -24,19 +24,15 @@
             {{ tr .App "whoIsEligibleToBeCertificateProvider" }}
         </h1>
 
-        {{ $donorFullNamePossessive := possessive .App .DonorFullName }}
-
-        {{ trFormatHtml .App "whoIsEligibleToBeCertificateProviderContent" "DonorFullNamePossessive" $donorFullNamePossessive "DonorFirstName" .DonorFirstNames  }}
+        {{ trFormatHtml .App "whoIsEligibleToBeCertificateProviderContent" "DonorFullNamePossessive" (possessive .App .DonorFullName) "DonorFirstName" .DonorFirstNames  }}
 
         {{ template "details" (details . "whoIsEligibleToBeCertificateProviderDetails" "whoIsEligibleToBeCertificateProviderDetailsContent" false) }}
 
         <h2 class="govuk-heading-m">{{ tr .App "whoCannotBeCertificateProvider" }}</h2>
 
-        {{ $donorFirstNamePossessive := possessive .App .DonorFirstNames }}
+        {{ trFormatHtml .App "whoCannotBeCertificateProviderContent" "DonorFirstName" .DonorFirstNames "DonorFirstNamePossessive" (possessive .App .DonorFirstNames) }}
 
-        {{ trFormatHtml .App "whoCannotBeCertificateProviderContent" "DonorFirstName" .DonorFirstNames "DonorFirstNamePossessive" $donorFirstNamePossessive }}
-
-        {{ template "warning" (warning .App "ifAnyStatementsApplyYouCannotBeACertificateProvider") }}
+        <p class="govuk-inset-text">{{ trFormatHtml .App "theCourtOfProtectionCanAlsoMakeDecisions" }} </p>
 
         <a class="govuk-button" href="{{ link .App (.App.Paths.CertificateProvider.EnterDateOfBirth.Format .App.LpaID) }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
     </div>
