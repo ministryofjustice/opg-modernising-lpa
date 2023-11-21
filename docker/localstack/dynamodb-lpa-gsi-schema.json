@@ -11,8 +11,8 @@
     }
   },
   {
-    "IndexName": "UidIndex",
-    "KeySchema": [{"AttributeName":"UID","KeyType":"HASH"}],
+    "IndexName": "LpaUIDIndex",
+    "KeySchema": [{"AttributeName":"LpaUID","KeyType":"HASH"}],
     "Projection": {
       "ProjectionType":"KEYS_ONLY"
     },

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -79,7 +80,7 @@ func (e Event) isS3Event() bool {
 }
 
 func (e Event) isCloudWatchEvent() bool {
-	return e.Source == "aws.cloudwatch" || e.Source == "opg.poas.makeregister"
+	return e.Source == "aws.cloudwatch" || e.Source == "opg.poas.makeregister" || e.Source == "opg.poas.sirius"
 }
 
 func handler(ctx context.Context, event Event) error {
@@ -174,6 +175,8 @@ func handler(ctx context.Context, event Event) error {
 		if err != nil {
 			return fmt.Errorf("%s: %w", event.DetailType, err)
 		}
+
+		log.Println("successfully handled ", event.DetailType)
 
 		return nil
 	}
