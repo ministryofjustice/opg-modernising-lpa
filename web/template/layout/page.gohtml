@@ -92,7 +92,7 @@
       {{ end }}
 
       <div class="govuk-width-container app-width-container">
-        <div class="govuk-phase-banner">
+        <div class="govuk-phase-banner app-hide-print">
           <p class="govuk-phase-banner__content">
             <strong class="govuk-tag govuk-phase-banner__content__tag">
               beta
@@ -108,7 +108,7 @@
             <a class="govuk-back-link" href="#">Back</a>
           {{ end }}
 
-          <ul class="trans-switch" id="language-switch" aria-label="Change your language">
+          <ul class="trans-switch app-hide-print" id="language-switch" aria-label="Change your language">
             <li class="govuk-list trans-switch__list govuk-body-s" id="language-switch-en" lang="en-gb">
               {{ if isWelsh .App.Lang }}<a href="{{ .App.Path }}{{ .App.Query }}" class="govuk-link"><span class="govuk-visually-hidden">Change language to </span>{{ end }}
                 {{ if isEnglish .App.Lang }}<span class="govuk-visually-hidden">Current language is </span>{{ end }}
@@ -130,7 +130,7 @@
         </main>
       </div>
 
-      <footer class="govuk-footer " role="contentinfo">
+      <footer class="govuk-footer app-hide-print" role="contentinfo">
         <div class="govuk-width-container ">
           <div class="govuk-footer__meta">
             <div class="govuk-footer__meta-item govuk-footer__meta-item--grow">

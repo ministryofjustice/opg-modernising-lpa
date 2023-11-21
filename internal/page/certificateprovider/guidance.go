@@ -10,12 +10,13 @@ import (
 )
 
 type guidanceData struct {
-	App    page.AppData
-	Errors validation.List
-	Donor  *actor.DonorProvidedDetails
+	App                 page.AppData
+	Errors              validation.List
+	Donor               *actor.DonorProvidedDetails
+	CertificateProvider *actor.CertificateProviderProvidedDetails
 }
 
-func Guidance(tmpl template.Template, donorStore DonorStore) page.Handler {
+func Guidance(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := &guidanceData{
 			App: appData,
@@ -27,6 +28,14 @@ func Guidance(tmpl template.Template, donorStore DonorStore) page.Handler {
 				return err
 			}
 			data.Donor = donor
+		}
+
+		if certificateProviderStore != nil {
+			certificateProvider, err := certificateProviderStore.Get(r.Context())
+			if err != nil {
+				return err
+			}
+			data.CertificateProvider = certificateProvider
 		}
 
 		return tmpl(w, data)
