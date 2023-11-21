@@ -31,7 +31,11 @@
         {{ end }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ tr .App .Donor.WhenCanTheLpaBeUsed.String }}
+        {{ if .App.IsDonor }}
+          {{ tr .App .Donor.WhenCanTheLpaBeUsed.String }}
+        {{ else }}
+          {{ tr .App (printf "%s:3rd" .Donor.WhenCanTheLpaBeUsed.String) }}
+        {{ end }}
       </dd>
       {{ if and $canChange .Donor.Type.IsPropertyFinance }}
         <dd class="govuk-summary-list__actions">
