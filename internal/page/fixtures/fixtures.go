@@ -143,6 +143,6 @@ func makePersonToNotify(name Name) actor.PersonToNotify {
 	}
 }
 
-func makeUid() string {
+func makeUID() string {
 	return strings.ToUpper("N-" + random.String(4) + "-" + random.String(4) + "-" + random.String(4))
 }
