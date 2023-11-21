@@ -150,6 +150,7 @@ func App(
 		certificateProviderStore,
 		notFoundHandler,
 		addressClient,
+		notifyClient,
 	)
 
 	attorney.Register(

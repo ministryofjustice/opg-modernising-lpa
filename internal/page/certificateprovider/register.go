@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -72,6 +73,20 @@ type AddressClient interface {
 	LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error)
 }
 
+//go:generate mockery --testonly --inpackage --name Localizer --structname mockLocalizer
+type Localizer interface {
+	Format(string, map[string]any) string
+	T(string) string
+	Count(string, int) string
+	FormatCount(string, int, map[string]interface{}) string
+	ShowTranslationKeys() bool
+	SetShowTranslationKeys(bool)
+	Possessive(string) string
+	Concat([]string, string) string
+	FormatDate(date.TimeOrDate) string
+	FormatDateTime(time.Time) string
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -84,6 +99,7 @@ func Register(
 	certificateProviderStore CertificateProviderStore,
 	notFoundHandler page.Handler,
 	addressClient AddressClient,
+	notifyClient NotifyClient,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -109,10 +125,10 @@ func Register(
 	handleCertificateProvider(page.Paths.CertificateProvider.ConfirmYourDetails,
 		ConfirmYourDetails(tmpls.Get("certificate_provider_confirm_your_details.gohtml"), donorStore, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.YourRole,
-		Guidance(tmpls.Get("certificate_provider_your_role.gohtml"), donorStore))
+		Guidance(tmpls.Get("certificate_provider_your_role.gohtml"), donorStore, nil))
 
 	handleCertificateProvider(page.Paths.CertificateProvider.ProveYourIdentity,
-		Guidance(tmpls.Get("certificate_provider_prove_your_identity.gohtml"), nil))
+		Guidance(tmpls.Get("certificate_provider_prove_your_identity.gohtml"), nil, nil))
 	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLogin,
 		IdentityWithOneLogin(logger, oneLoginClient, sessionStore, random.String))
 	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLoginCallback,
@@ -121,11 +137,11 @@ func Register(
 	handleCertificateProvider(page.Paths.CertificateProvider.ReadTheLpa,
 		ReadTheLpa(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), donorStore, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.WhatHappensNext,
-		Guidance(tmpls.Get("certificate_provider_what_happens_next.gohtml"), donorStore))
+		Guidance(tmpls.Get("certificate_provider_what_happens_next.gohtml"), donorStore, nil))
 	handleCertificateProvider(page.Paths.CertificateProvider.ProvideCertificate,
-		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), donorStore, time.Now, certificateProviderStore))
+		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), donorStore, time.Now, certificateProviderStore, notifyClient))
 	handleCertificateProvider(page.Paths.CertificateProvider.CertificateProvided,
-		Guidance(tmpls.Get("certificate_provided.gohtml"), donorStore))
+		Guidance(tmpls.Get("certificate_provided.gohtml"), donorStore, certificateProviderStore))
 }
 
 func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler) func(page.Path, page.Handler) {
