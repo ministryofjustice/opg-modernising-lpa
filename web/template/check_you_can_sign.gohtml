@@ -1,6 +1,6 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "yourDetails" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "checkThatYouCanSignYourLpa" }}{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
@@ -32,8 +32,8 @@
             {{ template "error-message" (errorMessage . "yes-no") }}
             
             {{ template "radios" (items . "yes-no" .Form.YesNo.String
-              (item .Options.Yes.String "yes")
-              (item .Options.No.String "no" "hint" "wellGiveYouMoreInformationAboutWhatToDo")
+              (item .Options.Yes.String "yesByddaf")
+              (item .Options.No.String "noNaFyddaf" "hint" "wellGiveYouMoreInformationAboutWhatToDo")
             ) }}
           </fieldset>
         </div>
