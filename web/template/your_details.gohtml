@@ -31,8 +31,8 @@
             {{ template "error-message" (errorMessage . "can-sign") }}
             
             {{ template "radios" (items . "can-sign" .Form.CanSign.String
-              (item .YesNoMaybeOptions.Yes.String "yes")
-              (item .YesNoMaybeOptions.No.String "no")
+              (item .YesNoMaybeOptions.Yes.String "yesGallaf")
+              (item .YesNoMaybeOptions.No.String "noNaAllaf")
               (item .YesNoMaybeOptions.Maybe.String "iDontKnow")
             ) }}
           </fieldset>
