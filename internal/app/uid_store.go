@@ -31,5 +31,5 @@ func (s *uidStore) Set(ctx context.Context, lpaID, sessionID, uid string) error 
 	}
 
 	return s.dynamoClient.Update(ctx, lpaKey(lpaID), donorKey(sessionID), values,
-		"set UID = :uid, UpdatedAt = :now")
+		"set LpaUID = :uid, UpdatedAt = :now")
 }
