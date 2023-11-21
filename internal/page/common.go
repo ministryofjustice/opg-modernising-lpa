@@ -5,9 +5,11 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -67,12 +69,14 @@ type Bundle interface {
 type Localizer interface {
 	Format(string, map[string]any) string
 	T(string) string
-	Count(messageID string, count int) string
-	FormatCount(messageID string, count int, data map[string]interface{}) string
+	Count(string, int) string
+	FormatCount(string, int, map[string]interface{}) string
 	ShowTranslationKeys() bool
-	SetShowTranslationKeys(s bool)
-	Possessive(s string) string
+	SetShowTranslationKeys(bool)
+	Possessive(string) string
 	Concat([]string, string) string
+	FormatDate(date.TimeOrDate) string
+	FormatDateTime(time.Time) string
 }
 
 //go:generate mockery --testonly --inpackage --name shareCodeSender --structname mockShareCodeSender

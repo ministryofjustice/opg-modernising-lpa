@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"golang.org/x/text/language"
 )
@@ -100,4 +102,43 @@ func (l *Localizer) Concat(list []string, joiner string) string {
 		last := len(list) - 1
 		return fmt.Sprintf("%s %s %s", strings.Join(list[:last], ", "), l.T(joiner), list[last])
 	}
+}
+
+var monthsCy = map[time.Month]string{
+	time.January:   "Ionawr",
+	time.February:  "Chwefror",
+	time.March:     "Mawrth",
+	time.April:     "Ebrill",
+	time.May:       "Mai",
+	time.June:      "Mehefin",
+	time.July:      "Gorffennaf",
+	time.August:    "Awst",
+	time.September: "Medi",
+	time.October:   "Hydref",
+	time.November:  "Tachwedd",
+	time.December:  "Rhagfyr",
+}
+
+func (l *Localizer) FormatDate(t date.TimeOrDate) string {
+	if t.IsZero() {
+		return ""
+	}
+
+	if l.Lang == Cy {
+		return fmt.Sprintf("%d %s %d", t.Day(), monthsCy[t.Month()], t.Year())
+	}
+
+	return t.Format("2 January 2006")
+}
+
+func (l *Localizer) FormatDateTime(t time.Time) string {
+	if t.IsZero() {
+		return ""
+	}
+
+	if l.Lang == Cy {
+		return fmt.Sprintf("%d %s %d am %s", t.Day(), monthsCy[t.Month()], t.Year(), t.Format("15:04"))
+	}
+
+	return t.Format("2 January 2006 at 15:04")
 }
