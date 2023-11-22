@@ -19,8 +19,8 @@
             {{ template "error-message" (errorMessage . "when") }}
 
             {{ template "radios" (items . "when" .Form.When.String
-              (item .Options.HasCapacity.String "whenIHaveMentalCapacity")
-              (item .Options.CapacityLost.String "onlyWhenIDoNotHaveMentalCapacity")
+              (item .Options.HasCapacity.String .Options.HasCapacity.String)
+              (item .Options.CapacityLost.String .Options.CapacityLost.String)
             ) }}
           </fieldset>
         </div>
