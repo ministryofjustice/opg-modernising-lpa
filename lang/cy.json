@@ -23,6 +23,12 @@
     "thereIsAProblem": "Mae yna broblem",
     "yes": "Ydw",
     "no": "Nac ydw",
+    "yesByddwn": "Byddwn",
+    "noNaFyddwn": "Na fyddwn",
+    "yesGallaf": "Gallaf",
+    "noNaAllaf": "Na allaf",
+    "yesByddaf": "Byddaf",
+    "noNaFyddaf": "Na fyddaf",
     "confirm": "Cadarnhau",
     "skip": "Symud ymlaen",
     "yourDetails": "Eich manylion",
@@ -750,7 +756,7 @@
     "onceConfirmedNotAbleToMakeChanges": "Ar ôl i chi ddewis y botwm cadarnhau, ni fyddwch yn gallu gwneud mwy o newidiadau.",
     "canYouSignYourselfOnline": "Allwch chi lofnodi’r atwrneiaeth arhosol eich hun ar-lein?",
     "canYouSignYourselfGuidance": "Pan fydd hi’n amser i chi lofnodi eich atwrneiaeth arhosol, rhaid i chi ddewis 2 flwch er mwyn ei llofnodi ar-lein. Rhaid i chi allu gwneud hyn eich hun, hyd yn oed os oes rhywun yn eich helpu i wneud eich atwrneiaeth arhosol.",
-    "iDontKnow": "Welsh",
+    "iDontKnow": "Dydw i ddim yn gwybod",
     "yesIfCanSign": "Welsh",
     "evidenceRequired": "Welsh",
     "checkThatYouCanSignYourLpa": "Gwneud yn siŵr eich bod yn gallu llofnodi eich atwrneiaeth arhosol",
@@ -836,7 +842,6 @@
     "readyToSign": "Welsh",
     "lpaNumber": "Welsh",
     "makeNewLpa": "Welsh",
-    "youCanMakeNewLpa": "Welsh",
     "startNow": "Welsh",
     "youCanIncludeRestrictionsAboutLst": "Gallwch hefyd gynnwys unrhyw gyfyngiadau ac amodau sydd gennych am thriniaeth cynnal bywyd.",
     "youMustChooseANewCertificateProvider": "Welsh",
@@ -970,5 +975,6 @@
     "homeAddress": "Welsh",
     "goToDashboard": "Welsh",
     "printThisPage": "Welsh",
-    "printerIcon": "Welsh"
+    "printerIcon": "Welsh",
+    "yourDateOfBirthWillNotBeShown": "Welsh"
 }

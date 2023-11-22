@@ -153,7 +153,6 @@
 
       <div class="app-dashboard-card app-dashboard-card--dashed">
         <p class="govuk-heading-m">{{ tr .App "makeNewLpa" }}</p>
-        <p class="govuk-body">{{ tr .App "youCanMakeNewLpa" }}</p>
         <form novalidate method="post">
           <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "startNow" }}</button>
           {{ template "csrf-field" . }}
@@ -165,8 +164,7 @@
   <div class="govuk-grid-row govuk-!-margin-top-4">
     <div class="govuk-grid-column-full">
       {{ if .UseTabs }}
-        <div class="govuk-tabs" data-module="govuk-tabs">
-          <h2 class="govuk-tabs__title">{{ tr .App "yourLpas" }}</h2>
+        <div class="govuk-tabs app-tabs-no-border" data-module="govuk-tabs">
           <ul class="govuk-tabs__list">
             {{ if .DonorLpas }}
               <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">

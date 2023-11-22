@@ -23,6 +23,12 @@
     "hwLegalTerm": "personal welfare",
     "yes": "Yes",
     "no": "No",
+    "yesByddwn": "Yes",
+    "noNaFyddwn": "No",
+    "yesGallaf": "Yes",
+    "noNaAllaf": "No",
+    "yesByddaf": "Yes",
+    "noNaFyddaf": "No",
     "confirm": "Confirm",
     "skip": "Skip",
     "yourDetails": "Your details",
@@ -780,7 +786,6 @@
     "readyToSign": "Ready to sign",
     "lpaNumber": "LPA number",
     "makeNewLpa": "Make a new lasting power of attorney (LPA)",
-    "youCanMakeNewLpa": "You can make a new LPA for yourself.",
     "startNow": "Start now",
     "youCanIncludeRestrictionsAboutLst": "You can also include any restrictions and conditions you have about life-sustaining treatment.",
     "youMustChooseANewCertificateProvider": "You must choose a different certificate provider",
@@ -914,5 +919,6 @@
     "homeAddress": "Home address",
     "goToDashboard": "Go to dashboard",
     "printThisPage": "Print this page",
-    "printerIcon": "Icon of a printer"
+    "printerIcon": "Icon of a printer",
+    "yourDateOfBirthWillNotBeShown": "Your date of birth will not be shown to the donor or appear on the completed LPA."
 }

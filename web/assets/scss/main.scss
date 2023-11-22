@@ -70,6 +70,14 @@ body:not(.js-enabled) .govuk-back-link {
     color: $govuk-link-colour;
 }
 
+.app-tabs-no-border .govuk-tabs__panel {
+    border-left: none;
+    border-bottom: none;
+    border-right: none;
+    padding-left: 0;
+    padding-right: 0;
+}
+
 @media print {
     .app-hide-print {
         display: none !important;
