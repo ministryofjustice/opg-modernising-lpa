@@ -58,16 +58,10 @@ func TaskList(tmpl template.Template, donorStore DonorStore, certificateProvider
 					Disabled: !donor.Tasks.PayForLpa.IsCompleted() || donor.SignedAt.IsZero(),
 				},
 				{
-					Name:     "readTheLpa",
+					Name:     "provideYourCertificate",
 					Path:     page.Paths.CertificateProvider.ReadTheLpa.Format(donor.LpaID),
-					State:    tasks.ReadTheLpa,
-					Disabled: donor.SignedAt.IsZero(),
-				},
-				{
-					Name:     "provideTheCertificateForThisLpa",
-					Path:     page.Paths.CertificateProvider.ProvideCertificate.Format(donor.LpaID),
 					State:    tasks.ProvideTheCertificate,
-					Disabled: donor.SignedAt.IsZero() || !tasks.ConfirmYourDetails.Completed() || !tasks.ConfirmYourIdentity.Completed() || !tasks.ReadTheLpa.Completed(),
+					Disabled: donor.SignedAt.IsZero() || !tasks.ConfirmYourDetails.Completed() || !tasks.ConfirmYourIdentity.Completed(),
 				},
 			},
 		}
