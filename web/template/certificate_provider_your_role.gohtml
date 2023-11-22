@@ -7,7 +7,11 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ tr .App "yourRoleAsTheCertificateProvider" }}</h1>
 
-            {{ trFormatHtml .App "yourRoleAsCertificateProviderContent" "DonorFullName" .Donor.Donor.FullName "DonorFirstNames" .Donor.Donor.FirstNames  }}
+            {{ trFormatHtml .App "readLPAAndDiscussWthDonorContent" "DonorFullName" .Donor.Donor.FullName "DonorFirstNames" .Donor.Donor.FirstNames  }}
+
+            {{ trFormatHtml .App "witnessTheDonorSiginingTheLPAContent" "DonorFirstNames" .Donor.Donor.FirstNames  }}
+
+            {{ trFormatHtml .App "provideYourCertificateContent" "DonorFirstNames" .Donor.Donor.FirstNames  }}
 
             <div class="govuk-button-group">
                 <a href="{{ link .App (.App.Paths.CertificateProvider.TaskList.Format .App.LpaID) }}" class="govuk-button">{{ tr .App "goToYourTaskList" }}</a>

@@ -7,7 +7,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "provideTheCertificateForThisLpa" }}</h1>
 
-      {{ trFormatHtml .App "provideTheCertificateForThisLpaContent" "DonorFullName" .Donor.Donor.FullName }}
+      {{ trHtml .App "provideTheCertificateForThisLpaContent" }}
 
       <form novalidate method="post">
         <div class="govuk-summary-card">
@@ -26,11 +26,17 @@
                   </label>
                 </div>
               </div>
+
+              <p class="govuk-body govuk-!-margin-top-3">{{ tr .App "whenYouTickTheBoxToConfirmAndSign" }}</p>
             </div>
           </div>
         </div>
 
-        <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "submitSignature" }}</button>
+        <div class="govuk-button-group">
+          <button type="submit" class="govuk-button" data-module="govuk-button" value="submit">{{ tr .App "submitSignature" }}</button>
+          <button type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button" value="cannot-submit">{{ tr .App "iCannotProvideTheCertificate" }}</button>
+        </div>
+
         {{ template "csrf-field" . }}
       </form>
     </div>

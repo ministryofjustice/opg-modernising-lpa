@@ -56,18 +56,20 @@ func Donor(
 
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		var (
-			lpaType              = r.FormValue("lpa-type")
-			progress             = slices.Index(progressValues, r.FormValue("progress"))
-			redirect             = r.FormValue("redirect")
-			donor                = r.FormValue("donor")
-			certificateProvider  = r.FormValue("certificateProvider")
-			attorneys            = r.FormValue("attorneys")
-			peopleToNotify       = r.FormValue("peopleToNotify")
-			replacementAttorneys = r.FormValue("replacementAttorneys")
-			feeType              = r.FormValue("feeType")
-			paymentTaskProgress  = r.FormValue("paymentTaskProgress")
-			withVirus            = r.FormValue("withVirus") == "1"
-			useRealUID           = r.FormValue("uid") == "real"
+			lpaType                   = r.FormValue("lpa-type")
+			progress                  = slices.Index(progressValues, r.FormValue("progress"))
+			redirect                  = r.FormValue("redirect")
+			donor                     = r.FormValue("donor")
+			certificateProvider       = r.FormValue("certificateProvider")
+			attorneys                 = r.FormValue("attorneys")
+			peopleToNotify            = r.FormValue("peopleToNotify")
+			replacementAttorneys      = r.FormValue("replacementAttorneys")
+			feeType                   = r.FormValue("feeType")
+			paymentTaskProgress       = r.FormValue("paymentTaskProgress")
+			withVirus                 = r.FormValue("withVirus") == "1"
+			useRealUID                = r.FormValue("uid") == "real"
+			certificateProviderEmail  = r.FormValue("certificateProviderEmail")
+			certificateProviderMobile = r.FormValue("certificateProviderMobile")
 		)
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
@@ -197,6 +199,14 @@ func Donor(
 			donorDetails.CertificateProvider = makeCertificateProvider()
 			if certificateProvider == "paper" {
 				donorDetails.CertificateProvider.CarryOutBy = actor.Paper
+			}
+
+			if certificateProviderEmail != "" {
+				donorDetails.CertificateProvider.Email = certificateProviderEmail
+			}
+
+			if certificateProviderMobile != "" {
+				donorDetails.CertificateProvider.Mobile = certificateProviderMobile
 			}
 
 			donorDetails.Tasks.CertificateProvider = actor.TaskCompleted

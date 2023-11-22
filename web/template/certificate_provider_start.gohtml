@@ -5,7 +5,10 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "beACertificateProvider" }}</h1>
 
-      {{ trHtml .App "beACertificateProviderContent" }}
+      {{ trHtml .App "beACertificateProviderIntroContent" }}
+      {{ trHtml .App "whatCertificateProvidersDoContent" }}
+      {{ trHtml .App "whoCanBeACertificateProviderContent" }}
+      {{ trHtml .App "beforeYouStartContent" }}
 
       <p class="govuk-body">
         <a href="{{ link .App .App.Paths.CertificateProvider.Login.Format }}" role="button" draggable="false" class="govuk-button govuk-button--start" data-module="govuk-button">
