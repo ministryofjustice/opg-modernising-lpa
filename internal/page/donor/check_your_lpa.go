@@ -53,6 +53,7 @@ func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appDat
 	} else {
 		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderPaperMeetingPromptSMS)
 		sms.Personalisation["lpaType"] = appData.Localizer.T(donor.Type.LegalTermTransKey())
+		sms.Personalisation["CPLandingPageLink"] = "www.gov.uk/opg/certificate-provider"
 	}
 
 	_, err := n.notifyClient.Sms(ctx, sms)

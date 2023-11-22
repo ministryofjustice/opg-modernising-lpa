@@ -342,9 +342,10 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 					PhoneNumber: "07700900000",
 					TemplateID:  "template-id",
 					Personalisation: map[string]string{
-						"donorFullName":   "Teneil Throssell",
-						"lpaType":         "property and affairs",
-						"donorFirstNames": "Teneil",
+						"donorFullName":     "Teneil Throssell",
+						"lpaType":           "property and affairs",
+						"donorFirstNames":   "Teneil",
+						"CPLandingPageLink": "www.gov.uk/opg/certificate-provider",
 					},
 				}).
 				Return("", nil)
