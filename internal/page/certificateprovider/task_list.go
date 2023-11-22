@@ -58,7 +58,7 @@ func TaskList(tmpl template.Template, donorStore DonorStore, certificateProvider
 					Disabled: !donor.Tasks.PayForLpa.IsCompleted() || donor.SignedAt.IsZero(),
 				},
 				{
-					Name:     "provideTheCertificateForThisLpa",
+					Name:     "provideYourCertificate",
 					Path:     page.Paths.CertificateProvider.ReadTheLpa.Format(donor.LpaID),
 					State:    tasks.ProvideTheCertificate,
 					Disabled: donor.SignedAt.IsZero() || !tasks.ConfirmYourDetails.Completed() || !tasks.ConfirmYourIdentity.Completed(),
