@@ -27,7 +27,6 @@ func TestGetTaskList(t *testing.T) {
 			expected: func(items []taskListItem) []taskListItem {
 				items[1].Disabled = true
 				items[2].Disabled = true
-				items[3].Disabled = true
 
 				return items
 			},
@@ -49,7 +48,6 @@ func TestGetTaskList(t *testing.T) {
 				items[0].State = actor.TaskCompleted
 				items[1].Disabled = true
 				items[2].Disabled = true
-				items[3].Disabled = true
 
 				return items
 			},
@@ -68,7 +66,7 @@ func TestGetTaskList(t *testing.T) {
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = actor.TaskCompleted
 				items[1].Disabled = true
-				items[3].Disabled = true
+				items[2].Disabled = true
 
 				return items
 			},
@@ -86,7 +84,6 @@ func TestGetTaskList(t *testing.T) {
 				Tasks: actor.CertificateProviderTasks{
 					ConfirmYourDetails:    actor.TaskCompleted,
 					ConfirmYourIdentity:   actor.TaskCompleted,
-					ReadTheLpa:            actor.TaskCompleted,
 					ProvideTheCertificate: actor.TaskCompleted,
 				},
 			},
@@ -96,7 +93,6 @@ func TestGetTaskList(t *testing.T) {
 				items[1].State = actor.TaskCompleted
 				items[1].Path = page.Paths.CertificateProvider.ReadTheLpa.Format("lpa-id")
 				items[2].State = actor.TaskCompleted
-				items[3].State = actor.TaskCompleted
 
 				return items
 			},
@@ -113,7 +109,6 @@ func TestGetTaskList(t *testing.T) {
 				Tasks: actor.CertificateProviderTasks{
 					ConfirmYourDetails:    actor.TaskCompleted,
 					ConfirmYourIdentity:   actor.TaskCompleted,
-					ReadTheLpa:            actor.TaskCompleted,
 					ProvideTheCertificate: actor.TaskCompleted,
 				},
 			},
@@ -122,7 +117,6 @@ func TestGetTaskList(t *testing.T) {
 				items[0].State = actor.TaskCompleted
 				items[1].State = actor.TaskCompleted
 				items[2].State = actor.TaskCompleted
-				items[3].State = actor.TaskCompleted
 
 				return items
 			},
@@ -152,8 +146,7 @@ func TestGetTaskList(t *testing.T) {
 					Items: tc.expected([]taskListItem{
 						{Name: "confirmYourDetails", Path: page.Paths.CertificateProvider.EnterDateOfBirth.Format("lpa-id")},
 						{Name: "confirmYourIdentity", Path: page.Paths.CertificateProvider.ProveYourIdentity.Format("lpa-id")},
-						{Name: "readTheLpa", Path: page.Paths.CertificateProvider.ReadTheLpa.Format("lpa-id")},
-						{Name: "provideTheCertificateForThisLpa", Path: page.Paths.CertificateProvider.ProvideCertificate.Format("lpa-id")},
+						{Name: "provideYourCertificate", Path: page.Paths.CertificateProvider.ReadTheLpa.Format("lpa-id")},
 					}),
 				}).
 				Return(nil)
