@@ -66,3 +66,32 @@ func TestTypeLegalTermTransKey(t *testing.T) {
 		})
 	}
 }
+
+func TestTypeWhatLPACoversTransKey(t *testing.T) {
+	testCases := map[string]struct {
+		LpaType            LpaType
+		ExpectedWhatCovers string
+	}{
+		"PFA": {
+			LpaType:            LpaTypePropertyFinance,
+			ExpectedWhatCovers: "whatPFACovers",
+		},
+		"HW": {
+			LpaType:            LpaTypeHealthWelfare,
+			ExpectedWhatCovers: "whatHWCovers",
+		},
+		"unexpected": {
+			LpaType:            LpaType(5),
+			ExpectedWhatCovers: "",
+		},
+		"empty": {
+			ExpectedWhatCovers: "",
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.ExpectedWhatCovers, tc.LpaType.WhatLPACoversTransKey())
+		})
+	}
+}

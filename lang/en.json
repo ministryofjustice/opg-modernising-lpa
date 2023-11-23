@@ -923,5 +923,7 @@
     "goToDashboard": "Go to dashboard",
     "printThisPage": "Print this page",
     "printerIcon": "Icon of a printer",
-    "yourDateOfBirthWillNotBeShown": "Your date of birth will not be shown to the donor or appear on the completed LPA."
+    "yourDateOfBirthWillNotBeShown": "Your date of birth will not be shown to the donor or appear on the completed LPA.",
+    "whatPACovers" : "money, finances and any property they might own",
+    "whatPWCovers" : "health care and personal welfare"
 }

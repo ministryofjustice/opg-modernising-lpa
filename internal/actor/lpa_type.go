@@ -17,3 +17,13 @@ func (e LpaType) LegalTermTransKey() string {
 	}
 	return ""
 }
+
+func (e LpaType) WhatLPACoversTransKey() string {
+	switch e {
+	case LpaTypePropertyFinance:
+		return "whatPFACovers"
+	case LpaTypeHealthWelfare:
+		return "whatHWCovers"
+	}
+	return ""
+}

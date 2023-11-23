@@ -57,6 +57,7 @@ func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template 
 			"certificateProviderStartURL": fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderStart),
 			"donorFirstNamesPossessive":   appData.Localizer.Possessive(donor.Donor.FirstNames),
 			"shareCode":                   shareCode,
+			"whatLPACovers":               appData.Localizer.T(donor.Type.WhatLPACoversTransKey()),
 		},
 	}); err != nil {
 		return fmt.Errorf("email failed: %w", err)
