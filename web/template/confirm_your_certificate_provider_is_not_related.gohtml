@@ -17,7 +17,7 @@
 
       <h1 class="govuk-heading-xl">{{ tr .App "confirmYourCertificateProviderIsNotRelated" }}</h1>
 
-      {{ trFormatHtml .App "confirmYourCertificateProviderIsNotRelatedContent" "Link" (link .App (.App.Paths.CertificateProviderDetails.Format .Donor.LpaID)) }}
+      {{ trHtml .App "confirmYourCertificateProviderIsNotRelatedContent" }}
 
       <form novalidate method="post">
         <div class="govuk-form-group {{ if .Errors.Has "yes-no" }}govuk-form-group--error{{ end }}">
@@ -27,6 +27,8 @@
             (item .Yes.String "iConfirmThatMyCertificateProviderIsNotRelated")
           ) }}
         </div>
+
+        <p class="govuk-body">{{ tr .App "ifYourCertificateProviderIsRelated" }} <button name="action" value="choose-new" class="app-button-link"><span>{{ tr .App "deleteYourCurrentCertificateProvider" }}</span></button>.</p>
 
         {{ template "continue-and-return-buttons" . }}
         {{ template "csrf-field" . }}
