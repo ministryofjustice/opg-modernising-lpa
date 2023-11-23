@@ -345,7 +345,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 						"donorFullName":     "Teneil Throssell",
 						"lpaType":           "property and affairs",
 						"donorFirstNames":   "Teneil",
-						"CPLandingPageLink": "www.gov.uk/opg/certificate-provider",
+						"CPLandingPageLink": "http://example.org/certificate-provider-start",
 					},
 				}).
 				Return("", nil)

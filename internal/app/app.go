@@ -185,7 +185,6 @@ func App(
 		attorneyStore,
 		notifyClient,
 		evidenceReceivedStore,
-		s3Client,
 		documentStore,
 		eventClient,
 	)
