@@ -25,7 +25,23 @@ func ConfirmYourCertificateProviderIsNotRelated(tmpl template.Template, donorSto
 			Donor: donor,
 		}
 
+		// To prevent going back from 'choose-new' and submitting without having
+		// picked a new certificate provider
+		if !donor.Tasks.CertificateProvider.Completed() {
+			return page.Paths.TaskList.Redirect(w, r, appData, donor)
+		}
+
 		if r.Method == http.MethodPost {
+			if r.PostFormValue("action") == "choose-new" {
+				donor.CertificateProvider = actor.CertificateProvider{}
+				donor.Tasks.CertificateProvider = actor.TaskNotStarted
+				if err := donorStore.Put(r.Context(), donor); err != nil {
+					return err
+				}
+
+				return page.Paths.CertificateProviderDetails.Redirect(w, r, appData, donor)
+			}
+
 			form := form.ReadYesNoForm(r, "theBoxToConfirmYourCertificateProviderIsNotRelated")
 			data.Errors = form.Validate()
 
