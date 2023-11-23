@@ -23,7 +23,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, &place.Client{}, "http://public.url", &pay.Client{}, nil, &mockWitnessCodeSender{}, nil, nil, nil, nil, &notify.Client{}, nil, nil, nil, nil)
+	Register(mux, &log.Logger{}, template.Templates{}, nil, nil, &onelogin.Client{}, &place.Client{}, "http://example.org", &pay.Client{}, nil, &mockWitnessCodeSender{}, nil, nil, nil, nil, &notify.Client{}, nil, nil, nil)
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
@@ -38,13 +38,14 @@ func TestMakeHandle(t *testing.T) {
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, None, nil)
+	handle := makeHandle(mux, sessionStore, None, nil, "http://example.org")
 	handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
-			Page:      "/path",
-			CanGoBack: true,
-			SessionID: "cmFuZG9t",
-			ActorType: actor.TypeDonor,
+			Page:         "/path",
+			CanGoBack:    true,
+			SessionID:    "cmFuZG9t",
+			ActorType:    actor.TypeDonor,
+			AppPublicURL: "http://example.org",
 		}, appData)
 		assert.Equal(t, w, hw)
 
@@ -72,14 +73,15 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, None, nil)
+	handle := makeHandle(mux, sessionStore, None, nil, "http://example.org")
 	handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
-			Page:      "/path",
-			SessionID: "cmFuZG9t",
-			CanGoBack: true,
-			LpaID:     "123",
-			ActorType: actor.TypeDonor,
+			Page:         "/path",
+			SessionID:    "cmFuZG9t",
+			CanGoBack:    true,
+			LpaID:        "123",
+			ActorType:    actor.TypeDonor,
+			AppPublicURL: "http://example.org",
 		}, appData)
 		assert.Equal(t, w, hw)
 
@@ -110,7 +112,7 @@ func TestMakeHandleErrors(t *testing.T) {
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, None, errorHandler.Execute)
+	handle := makeHandle(mux, sessionStore, None, errorHandler.Execute, "")
 	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
@@ -128,7 +130,7 @@ func TestMakeHandleSessionError(t *testing.T) {
 		Return(&sessions.Session{}, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, None, nil)
+	handle := makeHandle(mux, sessionStore, None, nil, "")
 	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
@@ -148,7 +150,7 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 		Return(&sessions.Session{Values: map[any]any{}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, None, nil)
+	handle := makeHandle(mux, sessionStore, None, nil, "")
 	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
@@ -163,7 +165,7 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, None, nil)
+	handle := makeHandle(mux, nil, None, nil, "")
 	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/path",
@@ -206,12 +208,13 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 			LpaUID: "a-uid",
 		}, nil)
 
-	handle := makeLpaHandle(mux, sessionStore, RequireSession, nil, donorStore)
+	handle := makeLpaHandle(mux, sessionStore, RequireSession, nil, donorStore, "http://example.org")
 	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, _ *actor.DonorProvidedDetails) error {
 		assert.Equal(t, page.AppData{
-			Page:      "/lpa//path",
-			ActorType: actor.TypeDonor,
-			SessionID: "cmFuZG9t",
+			Page:         "/lpa//path",
+			ActorType:    actor.TypeDonor,
+			SessionID:    "cmFuZG9t",
+			AppPublicURL: "http://example.org",
 		}, appData)
 
 		assert.Equal(t, w, hw)
@@ -240,7 +243,7 @@ func TestMakeLpaHandleWhenSessionStoreError(t *testing.T) {
 		On("Get", r, "session").
 		Return(&sessions.Session{}, expectedError)
 
-	handle := makeLpaHandle(mux, sessionStore, RequireSession, nil, nil)
+	handle := makeLpaHandle(mux, sessionStore, RequireSession, nil, nil, "")
 	handle("/path", None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.DonorProvidedDetails) error {
 		return expectedError
 	})
@@ -272,7 +275,7 @@ func TestMakeLpaHandleWhenLpaStoreError(t *testing.T) {
 	errorHandler.
 		On("Execute", w, r, expectedError)
 
-	handle := makeLpaHandle(mux, sessionStore, RequireSession, errorHandler.Execute, donorStore)
+	handle := makeLpaHandle(mux, sessionStore, RequireSession, errorHandler.Execute, donorStore, "")
 	handle("/path", None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.DonorProvidedDetails) error {
 		return expectedError
 	})
@@ -299,14 +302,15 @@ func TestMakeLpaHandleSessionExistingSessionData(t *testing.T) {
 		Return(&actor.DonorProvidedDetails{}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeLpaHandle(mux, sessionStore, None, nil, donorStore)
+	handle := makeLpaHandle(mux, sessionStore, None, nil, donorStore, "http://example.org")
 	handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, _ *actor.DonorProvidedDetails) error {
 		assert.Equal(t, page.AppData{
-			Page:      "/lpa/123/path",
-			SessionID: "cmFuZG9t",
-			CanGoBack: true,
-			LpaID:     "123",
-			ActorType: actor.TypeDonor,
+			Page:         "/lpa/123/path",
+			SessionID:    "cmFuZG9t",
+			CanGoBack:    true,
+			LpaID:        "123",
+			ActorType:    actor.TypeDonor,
+			AppPublicURL: "http://example.org",
 		}, appData)
 		assert.Equal(t, w, hw)
 
@@ -342,7 +346,7 @@ func TestMakeLpaHandleErrors(t *testing.T) {
 		Return(&actor.DonorProvidedDetails{}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeLpaHandle(mux, sessionStore, None, errorHandler.Execute, donorStore)
+	handle := makeLpaHandle(mux, sessionStore, None, errorHandler.Execute, donorStore, "")
 	handle("/path", RequireSession, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.DonorProvidedDetails) error {
 		return expectedError
 	})
@@ -408,7 +412,6 @@ func TestPayHelperPay(t *testing.T) {
 			err := (&payHelper{
 				sessionStore: sessionStore,
 				payClient:    payClient,
-				appPublicURL: "http://example.org",
 				randomString: func(int) string { return "123456789012" },
 			}).Pay(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, FeeType: pay.FullFee})
 			resp := w.Result()
@@ -602,7 +605,6 @@ func TestPayHelperPayWhenFeeDenied(t *testing.T) {
 		sessionStore: sessionStore,
 		donorStore:   donorStore,
 		payClient:    payClient,
-		appPublicURL: "http://example.org",
 		randomString: func(int) string { return "123456789012" },
 	}).Pay(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID:          "lpa-id",
@@ -672,7 +674,6 @@ func TestPayHelperPayWhenFeeDeniedAndPutStoreError(t *testing.T) {
 		sessionStore: sessionStore,
 		donorStore:   donorStore,
 		payClient:    payClient,
-		appPublicURL: "http://example.org",
 		randomString: func(int) string { return "123456789012" },
 	}).Pay(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID:          "lpa-id",
@@ -703,7 +704,6 @@ func TestPayHelperPayWhenCreatePaymentErrors(t *testing.T) {
 	err := (&payHelper{
 		logger:       logger,
 		payClient:    payClient,
-		appPublicURL: "http://example.org",
 		randomString: func(int) string { return "123456789012" },
 	}).Pay(testAppData, w, r, &actor.DonorProvidedDetails{})
 
@@ -734,7 +734,6 @@ func TestPayHelperPayWhenSessionErrors(t *testing.T) {
 	err := (&payHelper{
 		sessionStore: sessionStore,
 		payClient:    payClient,
-		appPublicURL: "http://example.org",
 		randomString: func(int) string { return "123456789012" },
 	}).Pay(testAppData, w, r, &actor.DonorProvidedDetails{})
 
