@@ -259,7 +259,7 @@ describe('Pay for LPA', () => {
         cy.url().should('contain', '/upload-evidence');
 
         cy.get('.govuk-summary-list').within(() => {
-            cy.contains('supporting-evidence.png').parent().contains('button', 'Delete').click();
+            cy.contains('supporting-evidence.png').parent().contains('button span', 'Delete').click();
         });
 
         cy.url().should('contain', '/upload-evidence');

@@ -76,7 +76,7 @@
                   {{ if $d.Sent.IsZero }}
                     <input type="hidden" id="f-delete-evidence-{{ $i }}" name="delete" value="{{ $d.Key }}" />
                       <button class="app-button-link">
-                        {{ tr $.App "delete" }}<span class="govuk-visually-hidden"> {{ $d.Filename }}</span>
+                        <span>{{ tr $.App "delete" }}<span class="govuk-visually-hidden"> {{ $d.Filename }}</span></span>
                       </button>
                   {{ end }}
                 </dd>
