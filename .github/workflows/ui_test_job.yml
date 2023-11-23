@@ -125,7 +125,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.github_access_token }}
 
       - name: docker-compose logs
-        if: inputs.run_against_image
+        if: always()
         run: docker compose -f docker/docker-compose.yml -f docker/docker-compose.ci.yml logs --no-color
 
       - name: Persist Cypress failure screenshots as artifacts
