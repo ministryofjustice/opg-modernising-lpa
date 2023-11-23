@@ -27,10 +27,11 @@ var (
 	}
 	expectedError = errors.New("err")
 	testAppData   = page.AppData{
-		SessionID: "session-id",
-		LpaID:     "lpa-id",
-		Lang:      localize.En,
-		Paths:     page.Paths,
+		SessionID:    "session-id",
+		LpaID:        "lpa-id",
+		Lang:         localize.En,
+		Paths:        page.Paths,
+		AppPublicURL: "http://example.org",
 	}
 	testNow   = time.Date(2023, time.July, 3, 4, 5, 6, 1, time.UTC)
 	testNowFn = func() time.Time { return testNow }
