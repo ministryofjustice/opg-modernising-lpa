@@ -118,13 +118,13 @@ func Register(
 		WhoIsEligible(tmpls.Get("certificate_provider_who_is_eligible.gohtml"), donorStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.TaskList, page.None,
 		TaskList(tmpls.Get("certificate_provider_task_list.gohtml"), donorStore, certificateProviderStore))
-	handleCertificateProvider(page.Paths.CertificateProvider.EnterDateOfBirth, page.None,
+	handleCertificateProvider(page.Paths.CertificateProvider.EnterDateOfBirth, page.CanGoBack,
 		EnterDateOfBirth(tmpls.Get("certificate_provider_enter_date_of_birth.gohtml"), donorStore, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.WhatIsYourHomeAddress, page.None,
 		WhatIsYourHomeAddress(logger, tmpls.Get("certificate_provider_what_is_your_home_address.gohtml"), addressClient, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.ConfirmYourDetails, page.None,
 		ConfirmYourDetails(tmpls.Get("certificate_provider_confirm_your_details.gohtml"), donorStore, certificateProviderStore))
-	handleCertificateProvider(page.Paths.CertificateProvider.YourRole, page.None,
+	handleCertificateProvider(page.Paths.CertificateProvider.YourRole, page.CanGoBack,
 		Guidance(tmpls.Get("certificate_provider_your_role.gohtml"), donorStore, nil))
 
 	handleCertificateProvider(page.Paths.CertificateProvider.ProveYourIdentity, page.None,
@@ -136,9 +136,9 @@ func Register(
 
 	handleCertificateProvider(page.Paths.CertificateProvider.ReadTheLpa, page.None,
 		ReadTheLpa(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), donorStore, certificateProviderStore))
-	handleCertificateProvider(page.Paths.CertificateProvider.WhatHappensNext, page.None,
+	handleCertificateProvider(page.Paths.CertificateProvider.WhatHappensNext, page.CanGoBack,
 		Guidance(tmpls.Get("certificate_provider_what_happens_next.gohtml"), donorStore, nil))
-	handleCertificateProvider(page.Paths.CertificateProvider.ProvideCertificate, page.None,
+	handleCertificateProvider(page.Paths.CertificateProvider.ProvideCertificate, page.CanGoBack,
 		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), donorStore, time.Now, certificateProviderStore, notifyClient))
 	handleCertificateProvider(page.Paths.CertificateProvider.CertificateProvided, page.None,
 		Guidance(tmpls.Get("certificate_provided.gohtml"), donorStore, certificateProviderStore))

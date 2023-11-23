@@ -27,6 +27,7 @@
 
       <form novalidate method="post">
         {{ template "continue-button" . }}
+        <a href="{{ link .App (.App.Paths.CertificateProvider.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
         {{ template "csrf-field" . }}
       </form>
     </div>
