@@ -47,8 +47,11 @@ services:
     container_name: localstack
     ports:
       - "4566:4566"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
-      - SERVICES=s3,secretsmanager,sqs
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - SERVICES=s3,secretsmanager,sqs,dynamodb,events
       - DATA_DIR=/tmp/localstack/data
       - DEFAULT_REGION=eu-west-1
       - USE_SINGLE_REGION=1
