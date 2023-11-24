@@ -46,12 +46,14 @@ services:
       dockerfile: Dockerfile
     container_name: localstack
     ports:
-      - "4566:4566"
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559"  # external services port range
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
-      - SERVICES=s3,secretsmanager,sqs
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - SERVICES=s3,secretsmanager,sqs,dynamodb,events,kms
       - DATA_DIR=/tmp/localstack/data
-      - DEFAULT_REGION=eu-west-1
-      - USE_SINGLE_REGION=1
       - DEBUG=1
 
   mock-onelogin:
