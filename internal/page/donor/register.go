@@ -276,7 +276,7 @@ func Register(
 	handleWithDonor(page.Paths.CertificateProviderDetails, CanGoBack,
 		CertificateProviderDetails(tmpls.Get("certificate_provider_details.gohtml"), donorStore))
 	handleWithDonor(page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole, CanGoBack,
-		HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpls.Get("how_would_certificate_provider_prefer_to_carry_out_their_role.gohtml"), donorStore))
+		HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpls.Get("how_would_certificate_provider_prefer_to_carry_out_their_role.gohtml"), donorStore, notifyClient, shareCodeSender))
 	handleWithDonor(page.Paths.CertificateProviderAddress, CanGoBack,
 		CertificateProviderAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleWithDonor(page.Paths.HowDoYouKnowYourCertificateProvider, CanGoBack,
