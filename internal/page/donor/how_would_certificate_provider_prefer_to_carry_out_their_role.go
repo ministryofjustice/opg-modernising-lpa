@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -17,7 +18,7 @@ type howWouldCertificateProviderPreferToCarryOutTheirRoleData struct {
 	Options             actor.CertificateProviderCarryOutByOptions
 }
 
-func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template, donorStore DonorStore) Handler {
+func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template, donorStore DonorStore, notifyClient NotifyClient, shareCodeSender ShareCodeSender) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:                 appData,
@@ -34,8 +35,27 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
+				shouldSendNotifications := donor.CertificateProvider.Email != data.Form.Email && data.Form.CarryOutBy.IsOnline() &&
+					donor.Tasks.CheckYourLpa.Completed() && !donor.Tasks.ConfirmYourIdentityAndSign.Completed()
 				donor.CertificateProvider.CarryOutBy = data.Form.CarryOutBy
 				donor.CertificateProvider.Email = data.Form.Email
+
+				if shouldSendNotifications {
+					if err := shareCodeSender.SendCertificateProvider(r.Context(), notify.CertificateProviderInviteEmail, appData, true, donor); err != nil {
+						return err
+					}
+
+					if _, err := notifyClient.Sms(r.Context(), notify.Sms{
+						PhoneNumber: donor.CertificateProvider.Mobile,
+						TemplateID:  notifyClient.TemplateID(notify.CertificateProviderDigitalLpaDetailsChangedNotSeenLpaSMS),
+						Personalisation: map[string]string{
+							"donorFullName": donor.Donor.FullName(),
+							"lpaType":       appData.Localizer.T(donor.Type.LegalTermTransKey()),
+						},
+					}); err != nil {
+						return err
+					}
+				}
 
 				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err

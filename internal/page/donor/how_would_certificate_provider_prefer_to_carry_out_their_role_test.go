@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -27,7 +28,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -48,7 +49,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleFromStore(t *tes
 		}).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Paper},
 	})
 	resp := w.Result()
@@ -70,7 +71,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenTemplateErro
 		}).
 		Return(expectedError)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -110,7 +111,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) 
 				}).
 				Return(nil)
 
-			err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
+			err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -134,7 +135,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenStoreErrors
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -151,11 +152,130 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenValidationE
 		})).
 		Return(nil)
 
-	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleChangedEmail(t *testing.T) {
+	form := url.Values{
+		"carry-out-by": {actor.Online.String()},
+		"email":        {"john@example.com"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	donor := &actor.DonorProvidedDetails{
+		LpaID:               "lpa-id",
+		Donor:               actor.Donor{FirstNames: "John", LastName: "Smith"},
+		CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Online, Mobile: "077777777", Email: "john@example.com"},
+		Tasks: actor.DonorTasks{
+			CheckYourLpa: actor.TaskCompleted,
+		},
+	}
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.
+		On("SendCertificateProvider", r.Context(), notify.CertificateProviderInviteEmail, testAppData, true, donor).
+		Return(nil)
+
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.
+		On("TemplateID", notify.CertificateProviderDigitalLpaDetailsChangedNotSeenLpaSMS).
+		Return("template-id")
+	notifyClient.
+		On("Sms", r.Context(), notify.Sms{
+			PhoneNumber: "077777777",
+			TemplateID:  "template-id",
+			Personalisation: map[string]string{
+				"donorFullName": "John Smith",
+				"lpaType":       "property and affairs",
+			},
+		}).
+		Return("", nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), donor).
+		Return(nil)
+
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore, notifyClient, shareCodeSender)(testAppData, w, r, &actor.DonorProvidedDetails{
+		LpaID:               "lpa-id",
+		Donor:               actor.Donor{FirstNames: "John", LastName: "Smith"},
+		CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Online, Mobile: "077777777", Email: "dave@example.com"},
+		Tasks: actor.DonorTasks{
+			CheckYourLpa: actor.TaskCompleted,
+		},
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.CertificateProviderAddress.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleChangedEmailWhenShareCodeSenderErrors(t *testing.T) {
+	form := url.Values{
+		"carry-out-by": {actor.Online.String()},
+		"email":        {"john@example.com"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.
+		On("SendCertificateProvider", r.Context(), notify.CertificateProviderInviteEmail, testAppData, true, mock.Anything).
+		Return(expectedError)
+
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, nil, nil, shareCodeSender)(testAppData, w, r, &actor.DonorProvidedDetails{
+		LpaID:               "lpa-id",
+		CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Online, Mobile: "077777777", Email: "dave@example.com"},
+		Tasks: actor.DonorTasks{
+			CheckYourLpa: actor.TaskCompleted,
+		},
+	})
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleChangedEmailWhenNotifyClientErrors(t *testing.T) {
+	form := url.Values{
+		"carry-out-by": {actor.Online.String()},
+		"email":        {"john@example.com"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.
+		On("SendCertificateProvider", r.Context(), notify.CertificateProviderInviteEmail, testAppData, true, mock.Anything).
+		Return(nil)
+
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.
+		On("TemplateID", notify.CertificateProviderDigitalLpaDetailsChangedNotSeenLpaSMS).
+		Return("template-id")
+	notifyClient.
+		On("Sms", r.Context(), mock.Anything).
+		Return("", expectedError)
+
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, nil, notifyClient, shareCodeSender)(testAppData, w, r, &actor.DonorProvidedDetails{
+		LpaID:               "lpa-id",
+		CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Online, Mobile: "077777777", Email: "dave@example.com"},
+		Tasks: actor.DonorTasks{
+			CheckYourLpa: actor.TaskCompleted,
+		},
+	})
+
+	assert.Equal(t, expectedError, err)
 }
 
 func TestReadHowWouldCertificateProviderPreferToCarryOutTheirRoleForm(t *testing.T) {
