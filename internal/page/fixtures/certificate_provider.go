@@ -80,6 +80,8 @@ func CertificateProvider(
 			Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])},
 		}
 
+		donor.AttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
+
 		donor.CertificateProvider = makeCertificateProvider()
 		if email != "" {
 			donor.CertificateProvider.Email = email
