@@ -192,7 +192,7 @@ func TestPostWitnessingAsCertificateProviderWhenIdentityConfirmed(t *testing.T) 
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("SendCertificateProvider", r.Context(), notify.CertificateProviderReturnEmail, testAppData, false, donor).
+		On("SendCertificateProvider", r.Context(), notify.CertificateProviderProvideCertificatePromptEmail, testAppData, false, donor).
 		Return(nil)
 	shareCodeSender.
 		On("SendAttorneys", r.Context(), testAppData, donor).
@@ -295,7 +295,7 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToCertificateProvid
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("SendCertificateProvider", r.Context(), notify.CertificateProviderReturnEmail, testAppData, false, donor).
+		On("SendCertificateProvider", r.Context(), notify.CertificateProviderProvideCertificatePromptEmail, testAppData, false, donor).
 		Return(expectedError)
 
 	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, func() time.Time { return now }, certificateProviderStore)(testAppData, w, r, &actor.DonorProvidedDetails{
