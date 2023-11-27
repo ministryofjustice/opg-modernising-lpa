@@ -151,7 +151,7 @@ func CertificateProvider(
 				SessionID: donorSessionID,
 				LpaID:     donor.LpaID,
 				Localizer: appData.Localizer,
-			}, true, donor)
+			}, donor)
 
 			http.Redirect(w, r, page.Paths.CertificateProviderStart.Format(), http.StatusFound)
 			return nil

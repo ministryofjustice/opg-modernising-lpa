@@ -158,7 +158,7 @@ func TestPostEnterReferenceNumberOnDonorStoreError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.
 		On("Get", r.Context(), actor.TypeAttorney, "aRefNumber12").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", Identity: true}, expectedError)
+		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, expectedError)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, nil, nil)(testAppData, w, r)
 
@@ -191,7 +191,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.
 		On("Get", r.Context(), actor.TypeAttorney, "aRefNumber12").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", Identity: true}, dynamo.NotFoundError{})
+		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, dynamo.NotFoundError{})
 
 	err := EnterReferenceNumber(template.Execute, shareCodeStore, nil, nil)(testAppData, w, r)
 
@@ -213,7 +213,7 @@ func TestPostEnterReferenceNumberOnSessionGetError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.
 		On("Get", r.Context(), actor.TypeAttorney, "aRefNumber12").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", Identity: true}, nil)
+		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
@@ -237,7 +237,7 @@ func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.
 		On("Get", r.Context(), actor.TypeAttorney, "aRefNumber12").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", Identity: true}, nil)
+		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.
