@@ -175,7 +175,6 @@ func Register(
 	attorneyStore AttorneyStore,
 	notifyClient NotifyClient,
 	evidenceReceivedStore EvidenceReceivedStore,
-	evidenceS3Client S3Client,
 	documentStore DocumentStore,
 	eventClient EventClient,
 ) {
@@ -184,11 +183,10 @@ func Register(
 		sessionStore: sessionStore,
 		donorStore:   donorStore,
 		payClient:    payClient,
-		appPublicURL: appPublicURL,
 		randomString: random.String,
 	}
 
-	handleRoot := makeHandle(rootMux, sessionStore, page.None, errorHandler)
+	handleRoot := makeHandle(rootMux, sessionStore, page.None, errorHandler, appPublicURL)
 
 	handleRoot(page.Paths.Login, page.None,
 		page.Login(logger, oneLoginClient, sessionStore, random.String, page.Paths.LoginCallback))
@@ -198,8 +196,8 @@ func Register(
 	lpaMux := http.NewServeMux()
 	rootMux.Handle("/lpa/", page.RouteToPrefix("/lpa/", lpaMux, notFoundHandler))
 
-	handleDonor := makeHandle(lpaMux, sessionStore, page.RequireSession, errorHandler)
-	handleWithDonor := makeLpaHandle(lpaMux, sessionStore, page.RequireSession, errorHandler, donorStore)
+	handleDonor := makeHandle(lpaMux, sessionStore, page.RequireSession, errorHandler, appPublicURL)
+	handleWithDonor := makeLpaHandle(lpaMux, sessionStore, page.RequireSession, errorHandler, donorStore, appPublicURL)
 
 	handleDonor(page.Paths.Root, page.None, notFoundHandler)
 
@@ -383,7 +381,7 @@ func Register(
 		UploadEvidenceSSE(documentStore, 3*time.Minute, 2*time.Second, time.Now))
 }
 
-func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.HandleOpt, errorHandler page.ErrorHandler) func(page.Path, page.HandleOpt, page.Handler) {
+func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.HandleOpt, errorHandler page.ErrorHandler, appPublicURL string) func(page.Path, page.HandleOpt, page.Handler) {
 	return func(path page.Path, opt page.HandleOpt, h page.Handler) {
 		opt = opt | defaultOptions
 
@@ -394,6 +392,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.Handle
 			appData.Page = path.Format()
 			appData.CanGoBack = opt&page.CanGoBack != 0
 			appData.ActorType = actor.TypeDonor
+			appData.AppPublicURL = appPublicURL
 
 			if opt&page.RequireSession != 0 {
 				donorSession, err := sesh.Login(store, r)
@@ -423,7 +422,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.Handle
 	}
 }
 
-func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.HandleOpt, errorHandler page.ErrorHandler, donorStore DonorStore) func(page.LpaPath, page.HandleOpt, Handler) {
+func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.HandleOpt, errorHandler page.ErrorHandler, donorStore DonorStore, appPublicURL string) func(page.LpaPath, page.HandleOpt, Handler) {
 	return func(path page.LpaPath, opt page.HandleOpt, h Handler) {
 
 		opt = opt | defaultOptions
@@ -434,6 +433,7 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.Han
 			appData := page.AppDataFromContext(ctx)
 			appData.CanGoBack = opt&page.CanGoBack != 0
 			appData.ActorType = actor.TypeDonor
+			appData.AppPublicURL = appPublicURL
 
 			donorSession, err := sesh.Login(store, r)
 			if err != nil {
@@ -474,7 +474,6 @@ type payHelper struct {
 	sessionStore sessions.Store
 	donorStore   DonorStore
 	payClient    PayClient
-	appPublicURL string
 	randomString func(int) string
 }
 
@@ -496,7 +495,7 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 		Amount:      donor.FeeAmount(),
 		Reference:   p.randomString(12),
 		Description: "Property and Finance LPA",
-		ReturnUrl:   p.appPublicURL + appData.Lang.URL(page.Paths.PaymentConfirmation.Format(donor.LpaID)),
+		ReturnUrl:   appData.AppPublicURL + appData.Lang.URL(page.Paths.PaymentConfirmation.Format(donor.LpaID)),
 		Email:       donor.Donor.Email,
 		Language:    appData.Lang.String(),
 	}
