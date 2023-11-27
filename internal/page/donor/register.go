@@ -186,211 +186,203 @@ func Register(
 		randomString: random.String,
 	}
 
-	handleRoot := makeHandle(rootMux, sessionStore, None, errorHandler, appPublicURL)
+	handleRoot := makeHandle(rootMux, sessionStore, page.None, errorHandler, appPublicURL)
 
-	handleRoot(page.Paths.Login, None,
+	handleRoot(page.Paths.Login, page.None,
 		page.Login(logger, oneLoginClient, sessionStore, random.String, page.Paths.LoginCallback))
-	handleRoot(page.Paths.LoginCallback, None,
+	handleRoot(page.Paths.LoginCallback, page.None,
 		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.Dashboard))
 
 	lpaMux := http.NewServeMux()
 	rootMux.Handle("/lpa/", page.RouteToPrefix("/lpa/", lpaMux, notFoundHandler))
 
-	handleDonor := makeHandle(lpaMux, sessionStore, RequireSession, errorHandler, appPublicURL)
-	handleWithDonor := makeLpaHandle(lpaMux, sessionStore, RequireSession, errorHandler, donorStore, appPublicURL)
+	handleDonor := makeHandle(lpaMux, sessionStore, page.RequireSession, errorHandler, appPublicURL)
+	handleWithDonor := makeLpaHandle(lpaMux, sessionStore, page.RequireSession, errorHandler, donorStore, appPublicURL)
 
-	handleDonor(page.Paths.Root, None, notFoundHandler)
+	handleDonor(page.Paths.Root, page.None, notFoundHandler)
 
-	handleWithDonor(page.Paths.DeleteThisLpa, None,
+	handleWithDonor(page.Paths.DeleteThisLpa, page.None,
 		DeleteLpa(tmpls.Get("delete_this_lpa.gohtml"), donorStore))
-	handleWithDonor(page.Paths.WithdrawThisLpa, None,
+	handleWithDonor(page.Paths.WithdrawThisLpa, page.None,
 		WithdrawLpa(tmpls.Get("withdraw_this_lpa.gohtml"), donorStore, time.Now))
 
-	handleWithDonor(page.Paths.YourDetails, None,
+	handleWithDonor(page.Paths.YourDetails, page.None,
 		YourDetails(tmpls.Get("your_details.gohtml"), donorStore, sessionStore))
-	handleWithDonor(page.Paths.YourAddress, None,
+	handleWithDonor(page.Paths.YourAddress, page.None,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, donorStore))
-	handleWithDonor(page.Paths.LpaType, None,
+	handleWithDonor(page.Paths.LpaType, page.None,
 		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore))
-	handleWithDonor(page.Paths.CheckYouCanSign, None,
+	handleWithDonor(page.Paths.CheckYouCanSign, page.None,
 		CheckYouCanSign(tmpls.Get("check_you_can_sign.gohtml"), donorStore))
-	handleWithDonor(page.Paths.NeedHelpSigningConfirmation, None,
+	handleWithDonor(page.Paths.NeedHelpSigningConfirmation, page.None,
 		Guidance(tmpls.Get("need_help_signing_confirmation.gohtml")))
 
-	handleWithDonor(page.Paths.TaskList, None,
+	handleWithDonor(page.Paths.TaskList, page.None,
 		TaskList(tmpls.Get("task_list.gohtml"), evidenceReceivedStore))
 
-	handleWithDonor(page.Paths.ChooseAttorneysGuidance, None,
+	handleWithDonor(page.Paths.ChooseAttorneysGuidance, page.None,
 		Guidance(tmpls.Get("choose_attorneys_guidance.gohtml")))
-	handleWithDonor(page.Paths.ChooseAttorneys, CanGoBack,
+	handleWithDonor(page.Paths.ChooseAttorneys, page.CanGoBack,
 		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), donorStore, random.UuidString))
-	handleWithDonor(page.Paths.ChooseAttorneysAddress, CanGoBack,
+	handleWithDonor(page.Paths.ChooseAttorneysAddress, page.CanGoBack,
 		ChooseAttorneysAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
-	handleWithDonor(page.Paths.EnterTrustCorporation, CanGoBack,
+	handleWithDonor(page.Paths.EnterTrustCorporation, page.CanGoBack,
 		EnterTrustCorporation(tmpls.Get("enter_trust_corporation.gohtml"), donorStore))
-	handleWithDonor(page.Paths.EnterTrustCorporationAddress, CanGoBack,
+	handleWithDonor(page.Paths.EnterTrustCorporationAddress, page.CanGoBack,
 		EnterTrustCorporationAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
-	handleWithDonor(page.Paths.ChooseAttorneysSummary, CanGoBack,
+	handleWithDonor(page.Paths.ChooseAttorneysSummary, page.CanGoBack,
 		ChooseAttorneysSummary(tmpls.Get("choose_attorneys_summary.gohtml")))
-	handleWithDonor(page.Paths.RemoveAttorney, CanGoBack,
+	handleWithDonor(page.Paths.RemoveAttorney, page.CanGoBack,
 		RemoveAttorney(logger, tmpls.Get("remove_attorney.gohtml"), donorStore))
-	handleWithDonor(page.Paths.RemoveTrustCorporation, CanGoBack,
+	handleWithDonor(page.Paths.RemoveTrustCorporation, page.CanGoBack,
 		RemoveTrustCorporation(tmpls.Get("remove_attorney.gohtml"), donorStore, false))
-	handleWithDonor(page.Paths.HowShouldAttorneysMakeDecisions, CanGoBack,
+	handleWithDonor(page.Paths.HowShouldAttorneysMakeDecisions, page.CanGoBack,
 		HowShouldAttorneysMakeDecisions(tmpls.Get("how_should_attorneys_make_decisions.gohtml"), donorStore))
 
-	handleWithDonor(page.Paths.DoYouWantReplacementAttorneys, None,
+	handleWithDonor(page.Paths.DoYouWantReplacementAttorneys, page.None,
 		WantReplacementAttorneys(tmpls.Get("do_you_want_replacement_attorneys.gohtml"), donorStore))
-	handleWithDonor(page.Paths.ChooseReplacementAttorneys, CanGoBack,
+	handleWithDonor(page.Paths.ChooseReplacementAttorneys, page.CanGoBack,
 		ChooseReplacementAttorneys(tmpls.Get("choose_replacement_attorneys.gohtml"), donorStore, random.UuidString))
-	handleWithDonor(page.Paths.ChooseReplacementAttorneysAddress, CanGoBack,
+	handleWithDonor(page.Paths.ChooseReplacementAttorneysAddress, page.CanGoBack,
 		ChooseReplacementAttorneysAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
-	handleWithDonor(page.Paths.EnterReplacementTrustCorporation, CanGoBack,
+	handleWithDonor(page.Paths.EnterReplacementTrustCorporation, page.CanGoBack,
 		EnterReplacementTrustCorporation(tmpls.Get("enter_replacement_trust_corporation.gohtml"), donorStore))
-	handleWithDonor(page.Paths.EnterReplacementTrustCorporationAddress, CanGoBack,
+	handleWithDonor(page.Paths.EnterReplacementTrustCorporationAddress, page.CanGoBack,
 		EnterReplacementTrustCorporationAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
-	handleWithDonor(page.Paths.ChooseReplacementAttorneysSummary, CanGoBack,
+	handleWithDonor(page.Paths.ChooseReplacementAttorneysSummary, page.CanGoBack,
 		ChooseReplacementAttorneysSummary(tmpls.Get("choose_replacement_attorneys_summary.gohtml")))
-	handleWithDonor(page.Paths.RemoveReplacementAttorney, CanGoBack,
+	handleWithDonor(page.Paths.RemoveReplacementAttorney, page.CanGoBack,
 		RemoveReplacementAttorney(logger, tmpls.Get("remove_attorney.gohtml"), donorStore))
-	handleWithDonor(page.Paths.RemoveReplacementTrustCorporation, CanGoBack,
+	handleWithDonor(page.Paths.RemoveReplacementTrustCorporation, page.CanGoBack,
 		RemoveTrustCorporation(tmpls.Get("remove_attorney.gohtml"), donorStore, true))
-	handleWithDonor(page.Paths.HowShouldReplacementAttorneysStepIn, CanGoBack,
+	handleWithDonor(page.Paths.HowShouldReplacementAttorneysStepIn, page.CanGoBack,
 		HowShouldReplacementAttorneysStepIn(tmpls.Get("how_should_replacement_attorneys_step_in.gohtml"), donorStore))
-	handleWithDonor(page.Paths.HowShouldReplacementAttorneysMakeDecisions, CanGoBack,
+	handleWithDonor(page.Paths.HowShouldReplacementAttorneysMakeDecisions, page.CanGoBack,
 		HowShouldReplacementAttorneysMakeDecisions(tmpls.Get("how_should_replacement_attorneys_make_decisions.gohtml"), donorStore))
 
-	handleWithDonor(page.Paths.WhenCanTheLpaBeUsed, None,
+	handleWithDonor(page.Paths.WhenCanTheLpaBeUsed, page.None,
 		WhenCanTheLpaBeUsed(tmpls.Get("when_can_the_lpa_be_used.gohtml"), donorStore))
-	handleWithDonor(page.Paths.LifeSustainingTreatment, None,
+	handleWithDonor(page.Paths.LifeSustainingTreatment, page.None,
 		LifeSustainingTreatment(tmpls.Get("life_sustaining_treatment.gohtml"), donorStore))
-	handleWithDonor(page.Paths.Restrictions, None,
+	handleWithDonor(page.Paths.Restrictions, page.None,
 		Restrictions(tmpls.Get("restrictions.gohtml"), donorStore))
 
-	handleWithDonor(page.Paths.WhatACertificateProviderDoes, None,
+	handleWithDonor(page.Paths.WhatACertificateProviderDoes, page.None,
 		Guidance(tmpls.Get("what_a_certificate_provider_does.gohtml")))
-	handleWithDonor(page.Paths.ChooseYourCertificateProvider, None,
+	handleWithDonor(page.Paths.ChooseYourCertificateProvider, page.None,
 		Guidance(tmpls.Get("choose_your_certificate_provider.gohtml")))
-	handleWithDonor(page.Paths.ChooseNewCertificateProvider, None,
+	handleWithDonor(page.Paths.ChooseNewCertificateProvider, page.None,
 		ChooseNewCertificateProvider(tmpls.Get("choose_new_certificate_provider.gohtml"), donorStore))
-	handleWithDonor(page.Paths.CertificateProviderDetails, CanGoBack,
+	handleWithDonor(page.Paths.CertificateProviderDetails, page.CanGoBack,
 		CertificateProviderDetails(tmpls.Get("certificate_provider_details.gohtml"), donorStore))
-	handleWithDonor(page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole, CanGoBack,
+	handleWithDonor(page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole, page.CanGoBack,
 		HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpls.Get("how_would_certificate_provider_prefer_to_carry_out_their_role.gohtml"), donorStore))
-	handleWithDonor(page.Paths.CertificateProviderAddress, CanGoBack,
+	handleWithDonor(page.Paths.CertificateProviderAddress, page.CanGoBack,
 		CertificateProviderAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
-	handleWithDonor(page.Paths.HowDoYouKnowYourCertificateProvider, CanGoBack,
+	handleWithDonor(page.Paths.HowDoYouKnowYourCertificateProvider, page.CanGoBack,
 		HowDoYouKnowYourCertificateProvider(tmpls.Get("how_do_you_know_your_certificate_provider.gohtml"), donorStore))
-	handleWithDonor(page.Paths.HowLongHaveYouKnownCertificateProvider, CanGoBack,
+	handleWithDonor(page.Paths.HowLongHaveYouKnownCertificateProvider, page.CanGoBack,
 		HowLongHaveYouKnownCertificateProvider(tmpls.Get("how_long_have_you_known_certificate_provider.gohtml"), donorStore))
 
-	handleWithDonor(page.Paths.DoYouWantToNotifyPeople, CanGoBack,
+	handleWithDonor(page.Paths.DoYouWantToNotifyPeople, page.CanGoBack,
 		DoYouWantToNotifyPeople(tmpls.Get("do_you_want_to_notify_people.gohtml"), donorStore))
-	handleWithDonor(page.Paths.ChoosePeopleToNotify, CanGoBack,
+	handleWithDonor(page.Paths.ChoosePeopleToNotify, page.CanGoBack,
 		ChoosePeopleToNotify(tmpls.Get("choose_people_to_notify.gohtml"), donorStore, random.UuidString))
-	handleWithDonor(page.Paths.ChoosePeopleToNotifyAddress, CanGoBack,
+	handleWithDonor(page.Paths.ChoosePeopleToNotifyAddress, page.CanGoBack,
 		ChoosePeopleToNotifyAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
-	handleWithDonor(page.Paths.ChoosePeopleToNotifySummary, CanGoBack,
+	handleWithDonor(page.Paths.ChoosePeopleToNotifySummary, page.CanGoBack,
 		ChoosePeopleToNotifySummary(tmpls.Get("choose_people_to_notify_summary.gohtml")))
-	handleWithDonor(page.Paths.RemovePersonToNotify, CanGoBack,
+	handleWithDonor(page.Paths.RemovePersonToNotify, page.CanGoBack,
 		RemovePersonToNotify(logger, tmpls.Get("remove_person_to_notify.gohtml"), donorStore))
 
-	handleWithDonor(page.Paths.GettingHelpSigning, CanGoBack,
+	handleWithDonor(page.Paths.GettingHelpSigning, page.CanGoBack,
 		Guidance(tmpls.Get("getting_help_signing.gohtml")))
-	handleWithDonor(page.Paths.YourAuthorisedSignatory, CanGoBack,
+	handleWithDonor(page.Paths.YourAuthorisedSignatory, page.CanGoBack,
 		YourAuthorisedSignatory(tmpls.Get("your_authorised_signatory.gohtml"), donorStore))
-	handleWithDonor(page.Paths.YourIndependentWitness, CanGoBack,
+	handleWithDonor(page.Paths.YourIndependentWitness, page.CanGoBack,
 		YourIndependentWitness(tmpls.Get("your_independent_witness.gohtml"), donorStore))
-	handleWithDonor(page.Paths.YourIndependentWitnessMobile, CanGoBack,
+	handleWithDonor(page.Paths.YourIndependentWitnessMobile, page.CanGoBack,
 		YourIndependentWitnessMobile(tmpls.Get("your_independent_witness_mobile.gohtml"), donorStore))
-	handleWithDonor(page.Paths.YourIndependentWitnessAddress, CanGoBack,
+	handleWithDonor(page.Paths.YourIndependentWitnessAddress, page.CanGoBack,
 		YourIndependentWitnessAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 
-	handleWithDonor(page.Paths.ConfirmYourCertificateProviderIsNotRelated, CanGoBack,
+	handleWithDonor(page.Paths.ConfirmYourCertificateProviderIsNotRelated, page.CanGoBack,
 		ConfirmYourCertificateProviderIsNotRelated(tmpls.Get("confirm_your_certificate_provider_is_not_related.gohtml"), donorStore))
-	handleWithDonor(page.Paths.CheckYourLpa, CanGoBack,
+	handleWithDonor(page.Paths.CheckYourLpa, page.CanGoBack,
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, notifyClient, certificateProviderStore, time.Now))
-	handleWithDonor(page.Paths.LpaDetailsSaved, CanGoBack,
+	handleWithDonor(page.Paths.LpaDetailsSaved, page.CanGoBack,
 		LpaDetailsSaved(tmpls.Get("lpa_details_saved.gohtml")))
 
-	handleWithDonor(page.Paths.AboutPayment, None,
+	handleWithDonor(page.Paths.AboutPayment, page.None,
 		Guidance(tmpls.Get("about_payment.gohtml")))
-	handleWithDonor(page.Paths.AreYouApplyingForFeeDiscountOrExemption, CanGoBack,
+	handleWithDonor(page.Paths.AreYouApplyingForFeeDiscountOrExemption, page.CanGoBack,
 		AreYouApplyingForFeeDiscountOrExemption(tmpls.Get("are_you_applying_for_a_different_fee_type.gohtml"), payer, donorStore))
-	handleWithDonor(page.Paths.WhichFeeTypeAreYouApplyingFor, CanGoBack,
+	handleWithDonor(page.Paths.WhichFeeTypeAreYouApplyingFor, page.CanGoBack,
 		WhichFeeTypeAreYouApplyingFor(tmpls.Get("which_fee_type_are_you_applying_for.gohtml"), donorStore))
-	handleWithDonor(page.Paths.PreviousApplicationNumber, None,
+	handleWithDonor(page.Paths.PreviousApplicationNumber, page.None,
 		PreviousApplicationNumber(tmpls.Get("previous_application_number.gohtml"), donorStore))
-	handleWithDonor(page.Paths.PreviousFee, CanGoBack,
+	handleWithDonor(page.Paths.PreviousFee, page.CanGoBack,
 		PreviousFee(tmpls.Get("previous_fee.gohtml"), payer, donorStore))
-	handleWithDonor(page.Paths.EvidenceRequired, CanGoBack,
+	handleWithDonor(page.Paths.EvidenceRequired, page.CanGoBack,
 		Guidance(tmpls.Get("evidence_required.gohtml")))
-	handleWithDonor(page.Paths.HowWouldYouLikeToSendEvidence, CanGoBack,
+	handleWithDonor(page.Paths.HowWouldYouLikeToSendEvidence, page.CanGoBack,
 		HowWouldYouLikeToSendEvidence(tmpls.Get("how_would_you_like_to_send_evidence.gohtml"), donorStore))
-	handleWithDonor(page.Paths.UploadEvidence, CanGoBack,
+	handleWithDonor(page.Paths.UploadEvidence, page.CanGoBack,
 		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), logger, payer, documentStore))
-	handleWithDonor(page.Paths.SendUsYourEvidenceByPost, CanGoBack,
+	handleWithDonor(page.Paths.SendUsYourEvidenceByPost, page.CanGoBack,
 		SendUsYourEvidenceByPost(tmpls.Get("send_us_your_evidence_by_post.gohtml"), payer, eventClient))
-	handleWithDonor(page.Paths.FeeDenied, None,
+	handleWithDonor(page.Paths.FeeDenied, page.None,
 		FeeDenied(tmpls.Get("fee_denied.gohtml"), payer))
-	handleWithDonor(page.Paths.PaymentConfirmation, None,
+	handleWithDonor(page.Paths.PaymentConfirmation, page.None,
 		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore))
-	handleWithDonor(page.Paths.EvidenceSuccessfullyUploaded, None,
+	handleWithDonor(page.Paths.EvidenceSuccessfullyUploaded, page.None,
 		Guidance(tmpls.Get("evidence_successfully_uploaded.gohtml")))
-	handleWithDonor(page.Paths.WhatHappensNextPostEvidence, None,
+	handleWithDonor(page.Paths.WhatHappensNextPostEvidence, page.None,
 		Guidance(tmpls.Get("what_happens_next_post_evidence.gohtml")))
 
-	handleWithDonor(page.Paths.HowToConfirmYourIdentityAndSign, None,
+	handleWithDonor(page.Paths.HowToConfirmYourIdentityAndSign, page.None,
 		Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml")))
-	handleWithDonor(page.Paths.ProveYourIdentity, CanGoBack,
+	handleWithDonor(page.Paths.ProveYourIdentity, page.CanGoBack,
 		Guidance(tmpls.Get("prove_your_identity.gohtml")))
-	handleWithDonor(page.Paths.IdentityWithOneLogin, CanGoBack,
+	handleWithDonor(page.Paths.IdentityWithOneLogin, page.CanGoBack,
 		IdentityWithOneLogin(logger, oneLoginClient, sessionStore, random.String))
-	handleWithDonor(page.Paths.IdentityWithOneLoginCallback, CanGoBack,
+	handleWithDonor(page.Paths.IdentityWithOneLoginCallback, page.CanGoBack,
 		IdentityWithOneLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, donorStore))
 
-	handleWithDonor(page.Paths.ReadYourLpa, None,
+	handleWithDonor(page.Paths.ReadYourLpa, page.None,
 		Guidance(tmpls.Get("read_your_lpa.gohtml")))
-	handleWithDonor(page.Paths.LpaYourLegalRightsAndResponsibilities, CanGoBack,
+	handleWithDonor(page.Paths.LpaYourLegalRightsAndResponsibilities, page.CanGoBack,
 		Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml")))
-	handleWithDonor(page.Paths.SignYourLpa, CanGoBack,
+	handleWithDonor(page.Paths.SignYourLpa, page.CanGoBack,
 		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), donorStore))
-	handleWithDonor(page.Paths.SignTheLpaOnBehalf, CanGoBack,
+	handleWithDonor(page.Paths.SignTheLpaOnBehalf, page.CanGoBack,
 		SignYourLpa(tmpls.Get("sign_the_lpa_on_behalf.gohtml"), donorStore))
-	handleWithDonor(page.Paths.WitnessingYourSignature, None,
+	handleWithDonor(page.Paths.WitnessingYourSignature, page.None,
 		WitnessingYourSignature(tmpls.Get("witnessing_your_signature.gohtml"), witnessCodeSender, donorStore))
-	handleWithDonor(page.Paths.WitnessingAsIndependentWitness, None,
+	handleWithDonor(page.Paths.WitnessingAsIndependentWitness, page.None,
 		WitnessingAsIndependentWitness(tmpls.Get("witnessing_as_independent_witness.gohtml"), donorStore, time.Now))
-	handleWithDonor(page.Paths.ResendIndependentWitnessCode, CanGoBack,
+	handleWithDonor(page.Paths.ResendIndependentWitnessCode, page.CanGoBack,
 		ResendWitnessCode(tmpls.Get("resend_witness_code.gohtml"), witnessCodeSender, actor.TypeIndependentWitness))
-	handleWithDonor(page.Paths.ChangeIndependentWitnessMobileNumber, CanGoBack,
+	handleWithDonor(page.Paths.ChangeIndependentWitnessMobileNumber, page.CanGoBack,
 		ChangeMobileNumber(tmpls.Get("change_mobile_number.gohtml"), witnessCodeSender, actor.TypeIndependentWitness))
-	handleWithDonor(page.Paths.WitnessingAsCertificateProvider, None,
+	handleWithDonor(page.Paths.WitnessingAsCertificateProvider, page.None,
 		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), donorStore, shareCodeSender, time.Now, certificateProviderStore))
-	handleWithDonor(page.Paths.ResendCertificateProviderCode, CanGoBack,
+	handleWithDonor(page.Paths.ResendCertificateProviderCode, page.CanGoBack,
 		ResendWitnessCode(tmpls.Get("resend_witness_code.gohtml"), witnessCodeSender, actor.TypeCertificateProvider))
-	handleWithDonor(page.Paths.ChangeCertificateProviderMobileNumber, CanGoBack,
+	handleWithDonor(page.Paths.ChangeCertificateProviderMobileNumber, page.CanGoBack,
 		ChangeMobileNumber(tmpls.Get("change_mobile_number.gohtml"), witnessCodeSender, actor.TypeCertificateProvider))
-	handleWithDonor(page.Paths.YouHaveSubmittedYourLpa, None,
+	handleWithDonor(page.Paths.YouHaveSubmittedYourLpa, page.None,
 		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml")))
 
-	handleWithDonor(page.Paths.Progress, CanGoBack,
+	handleWithDonor(page.Paths.Progress, page.CanGoBack,
 		LpaProgress(tmpls.Get("lpa_progress.gohtml"), certificateProviderStore, attorneyStore))
 
-	handleWithDonor(page.Paths.UploadEvidenceSSE, None,
+	handleWithDonor(page.Paths.UploadEvidenceSSE, page.None,
 		UploadEvidenceSSE(documentStore, 3*time.Minute, 2*time.Second, time.Now))
 }
 
-type handleOpt byte
-
-const (
-	None handleOpt = 1 << iota
-	RequireSession
-	CanGoBack
-)
-
-func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, errorHandler page.ErrorHandler, appPublicURL string) func(page.Path, handleOpt, page.Handler) {
-	return func(path page.Path, opt handleOpt, h page.Handler) {
+func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.HandleOpt, errorHandler page.ErrorHandler, appPublicURL string) func(page.Path, page.HandleOpt, page.Handler) {
+	return func(path page.Path, opt page.HandleOpt, h page.Handler) {
 		opt = opt | defaultOptions
 
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
@@ -398,11 +390,11 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, 
 
 			appData := page.AppDataFromContext(ctx)
 			appData.Page = path.Format()
-			appData.CanGoBack = opt&CanGoBack != 0
+			appData.CanGoBack = opt&page.CanGoBack != 0
 			appData.ActorType = actor.TypeDonor
 			appData.AppPublicURL = appPublicURL
 
-			if opt&RequireSession != 0 {
+			if opt&page.RequireSession != 0 {
 				donorSession, err := sesh.Login(store, r)
 				if err != nil {
 					http.Redirect(w, r, page.Paths.Start.Format(), http.StatusFound)
@@ -430,8 +422,8 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, 
 	}
 }
 
-func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOpt, errorHandler page.ErrorHandler, donorStore DonorStore, appPublicURL string) func(page.LpaPath, handleOpt, Handler) {
-	return func(path page.LpaPath, opt handleOpt, h Handler) {
+func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.HandleOpt, errorHandler page.ErrorHandler, donorStore DonorStore, appPublicURL string) func(page.LpaPath, page.HandleOpt, Handler) {
+	return func(path page.LpaPath, opt page.HandleOpt, h Handler) {
 
 		opt = opt | defaultOptions
 
@@ -439,7 +431,7 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions handleOp
 			ctx := r.Context()
 
 			appData := page.AppDataFromContext(ctx)
-			appData.CanGoBack = opt&CanGoBack != 0
+			appData.CanGoBack = opt&page.CanGoBack != 0
 			appData.ActorType = actor.TypeDonor
 			appData.AppPublicURL = appPublicURL
 
