@@ -30,7 +30,7 @@ func HowShouldReplacementAttorneysMakeDecisions(tmpl template.Template, donorSto
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readHowShouldAttorneysMakeDecisionsForm(r, "howReplacementAttorneysShouldMakeDecisions")
+			data.Form = readHowShouldAttorneysMakeDecisionsForm(r, "howReplacementAttorneysShouldMakeDecisions", "detailsAboutTheDecisionsYourReplacementAttorneysMustMakeTogether")
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
