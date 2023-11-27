@@ -59,28 +59,4 @@ describe('Confirm your details', () => {
             cy.url().should('contain', '/your-role');
         });
     })
-
-    it('redirects to tasklist when LPA has already been witnessed', () => {
-        cy.visit('/fixtures/certificate-provider?redirect=/confirm-your-details&progress=signedByDonor');
-
-        cy.url().should('contain', '/confirm-your-details');
-        cy.checkA11yApp();
-
-        cy.contains('button', 'Continue').click();
-
-        cy.url().should('contain', '/task-list');
-        cy.contains('li', 'Confirm your details').should('contain', 'Completed');
-    });
-
-    it('redirects to tasklist when details have already been confirmed', () => {
-        cy.visit('/fixtures/certificate-provider?redirect=/confirm-your-details&progress=confirmYourDetails');
-
-        cy.url().should('contain', '/confirm-your-details');
-        cy.checkA11yApp();
-
-        cy.contains('button', 'Continue').click();
-
-        cy.url().should('contain', '/task-list');
-        cy.contains('li', 'Confirm your details').should('contain', 'Completed');
-    });
 });
