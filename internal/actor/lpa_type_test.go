@@ -39,59 +39,31 @@ func TestLpaType(t *testing.T) {
 }
 
 func TestTypeLegalTermTransKey(t *testing.T) {
-	testCases := map[string]struct {
-		LpaType           LpaType
-		ExpectedLegalTerm string
-	}{
-		"PFA": {
-			LpaType:           LpaTypePropertyFinance,
-			ExpectedLegalTerm: "pfaLegalTerm",
-		},
-		"HW": {
-			LpaType:           LpaTypeHealthWelfare,
-			ExpectedLegalTerm: "hwLegalTerm",
-		},
-		"unexpected": {
-			LpaType:           LpaType(5),
-			ExpectedLegalTerm: "",
-		},
-		"empty": {
-			ExpectedLegalTerm: "",
-		},
+	testCases := map[LpaType]string{
+		LpaTypePropertyFinance: "pfaLegalTerm",
+		LpaTypeHealthWelfare:   "hwLegalTerm",
+		LpaType(99):            "",
+		LpaType(0):             "",
 	}
 
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.ExpectedLegalTerm, tc.LpaType.LegalTermTransKey())
+	for lpaType, translationKey := range testCases {
+		t.Run(lpaType.String(), func(t *testing.T) {
+			assert.Equal(t, translationKey, lpaType.LegalTermTransKey())
 		})
 	}
 }
 
 func TestTypeWhatLPACoversTransKey(t *testing.T) {
-	testCases := map[string]struct {
-		LpaType            LpaType
-		ExpectedWhatCovers string
-	}{
-		"PFA": {
-			LpaType:            LpaTypePropertyFinance,
-			ExpectedWhatCovers: "whatPFACovers",
-		},
-		"HW": {
-			LpaType:            LpaTypeHealthWelfare,
-			ExpectedWhatCovers: "whatHWCovers",
-		},
-		"unexpected": {
-			LpaType:            LpaType(5),
-			ExpectedWhatCovers: "",
-		},
-		"empty": {
-			ExpectedWhatCovers: "",
-		},
+	testCases := map[LpaType]string{
+		LpaTypePropertyFinance: "whatPersonalAffairsCovers",
+		LpaTypeHealthWelfare:   "whatPersonalWelfareCovers",
+		LpaType(99):            "",
+		LpaType(0):             "",
 	}
 
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.ExpectedWhatCovers, tc.LpaType.WhatLPACoversTransKey())
+	for lpaType, translationKey := range testCases {
+		t.Run(lpaType.String(), func(t *testing.T) {
+			assert.Equal(t, translationKey, lpaType.WhatLPACoversTransKey())
 		})
 	}
 }

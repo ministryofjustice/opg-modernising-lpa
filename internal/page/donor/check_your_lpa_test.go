@@ -158,7 +158,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 	}{
 		"cp not started": {
 			certificateProviderDetailsTaskState: actor.TaskNotStarted,
-			expectedTemplateId:                  notify.CertificateProviderDigitalLpaDetailsChangedNotSeenLpaSMS,
+			expectedTemplateId:                  notify.CertificateProviderActingDigitallyDetailsChangedNotSeenLpaSMS,
 			expectedSms: notify.Sms{
 				PhoneNumber: "07700900000",
 				TemplateID:  "template-id",
@@ -170,7 +170,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 		},
 		"cp in progress": {
 			certificateProviderDetailsTaskState: actor.TaskInProgress,
-			expectedTemplateId:                  notify.CertificateProviderDigitalLpaDetailsChangedSeenLpaSMS,
+			expectedTemplateId:                  notify.CertificateProviderActingDigitallyDetailsChangedSeenLpaSMS,
 			expectedSms: notify.Sms{
 				PhoneNumber: "07700900000",
 				TemplateID:  "template-id",
@@ -184,7 +184,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 		},
 		"cp completed": {
 			certificateProviderDetailsTaskState: actor.TaskCompleted,
-			expectedTemplateId:                  notify.CertificateProviderDigitalLpaDetailsChangedSeenLpaSMS,
+			expectedTemplateId:                  notify.CertificateProviderActingDigitallyDetailsChangedSeenLpaSMS,
 			expectedSms: notify.Sms{
 				PhoneNumber: "07700900000",
 				TemplateID:  "template-id",
@@ -335,7 +335,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.
-				On("TemplateID", notify.CertificateProviderPaperMeetingPromptSMS).
+				On("TemplateID", notify.CertificateProviderActingOnPaperMeetingPromptSMS).
 				Return("template-id")
 			notifyClient.
 				On("Sms", r.Context(), notify.Sms{
@@ -386,7 +386,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnSubsequentCheck(t *testing.T)
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
-		On("TemplateID", notify.CertificateProviderPaperLpaDetailsChangedSMS).
+		On("TemplateID", notify.CertificateProviderActingOnPaperDetailsChangedSMS).
 		Return("template-id")
 	notifyClient.
 		On("Sms", r.Context(), notify.Sms{

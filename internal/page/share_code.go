@@ -46,19 +46,24 @@ func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template 
 		return fmt.Errorf("creating sharecode failed: %w", err)
 	}
 
+	personalisation := map[string]string{
+		"cpFullName":                  donor.CertificateProvider.FullName(),
+		"donorFullName":               donor.Donor.FullName(),
+		"lpaLegalTerm":                appData.Localizer.T(donor.Type.LegalTermTransKey()),
+		"certificateProviderStartURL": fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderStart),
+		"shareCode":                   shareCode,
+	}
+
+	if template == notify.CertificateProviderInviteEmail {
+		personalisation["donorFirstNames"] = donor.Donor.FirstNames
+		personalisation["donorFirstNamesPossessive"] = appData.Localizer.Possessive(donor.Donor.FirstNames)
+		personalisation["whatLPACovers"] = appData.Localizer.T(donor.Type.WhatLPACoversTransKey())
+	}
+
 	if _, err := s.notifyClient.Email(ctx, notify.Email{
-		TemplateID:   s.notifyClient.TemplateID(template),
-		EmailAddress: donor.CertificateProvider.Email,
-		Personalisation: map[string]string{
-			"cpFullName":                  donor.CertificateProvider.FullName(),
-			"donorFullName":               donor.Donor.FullName(),
-			"lpaLegalTerm":                appData.Localizer.T(donor.Type.LegalTermTransKey()),
-			"donorFirstNames":             donor.Donor.FirstNames,
-			"certificateProviderStartURL": fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderStart),
-			"donorFirstNamesPossessive":   appData.Localizer.Possessive(donor.Donor.FirstNames),
-			"shareCode":                   shareCode,
-			"whatLPACovers":               appData.Localizer.T(donor.Type.WhatLPACoversTransKey()),
-		},
+		TemplateID:      s.notifyClient.TemplateID(template),
+		EmailAddress:    donor.CertificateProvider.Email,
+		Personalisation: personalisation,
 	}); err != nil {
 		return fmt.Errorf("email failed: %w", err)
 	}
