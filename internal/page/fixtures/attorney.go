@@ -153,6 +153,9 @@ func Attorney(
 			}
 		}
 
+		donor.AttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
+		donor.ReplacementAttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
+
 		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID)
 		if err != nil {
 			return err

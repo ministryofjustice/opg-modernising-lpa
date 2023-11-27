@@ -242,10 +242,10 @@ func TestHowShouldAttorneysMakeDecisionsFormValidate(t *testing.T) {
 		},
 		"missing decision detail when mixed": {
 			form: &howShouldAttorneysMakeDecisionsForm{
-				DecisionsType: actor.JointlyForSomeSeverallyForOthers,
-				errorLabel:    "xyz",
+				DecisionsType:     actor.JointlyForSomeSeverallyForOthers,
+				detailsErrorLabel: "xyz",
 			},
-			errors: validation.With("mixed-details", validation.EnterError{Label: "details"}),
+			errors: validation.With("mixed-details", validation.EnterError{Label: "xyz"}),
 		},
 	}
 
