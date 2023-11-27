@@ -79,21 +79,11 @@
           {{ tr .App $title }}
         </dt>
         <dd class="govuk-summary-list__value">
-          {{ if .App.IsDonor }}
-            {{ trHtml .App .Donor.AttorneyDecisions.How.String }}
-          {{ else }}
-            {{ if .Donor.AttorneyDecisions.How.IsJointly }}
-              {{ trHtml .App "jointlyExplanation" }}
-            {{ else if .Donor.AttorneyDecisions.How.IsJointlyAndSeverally }}
-              {{ trHtml .App "jointlyAndSeverallyExplanation" }}
-            {{ else }}
-              {{ trHtml .App "jointlyForSomeSeverallyForOthersExplanation" }}
-            {{ end }}
-          {{ end }}
+          {{ trHtml .App .Donor.AttorneyDecisions.How.String }}
         </dd>
         {{ if $canChange }}
           <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App (.App.Paths.HowShouldAttorneysMakeDecisions.Format .App.LpaID) }}">
+            <a class="govuk-link" href="{{ link .App (.App.Paths.HowShouldAttorneysMakeDecisions.Format .App.LpaID) }}?from={{ .App.Page }}">
               {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ lowerFirst (tr .App $title) }}</span>
             </a>
           </dd>
@@ -101,6 +91,29 @@
       </div>
     {{ end }}
 
+    {{ if .Donor.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
+      {{ $title := "decisionsAttorneysMustMakeTogether" }}
+      {{ if .App.IsDonor }}
+        {{ $title = "decisionsYourAttorneysMustMakeTogether" }}
+      {{ end }}
+
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+          {{ tr .App $title }}
+        </dt>
+        <dd class="govuk-summary-list__value">
+          {{ trHtml .App .Donor.AttorneyDecisions.Details }}
+        </dd>
+        {{ if $canChange }}
+          <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="{{ link .App (.App.Paths.HowShouldAttorneysMakeDecisions.Format .App.LpaID) }}?from={{ .App.Page }}#f-mixed-details">
+              {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ lowerFirst (tr .App $title) }}</span>
+            </a>
+          </dd>
+        {{ end }}
+      </div>
+    {{ end }}
+    
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">
         {{ if .App.IsDonor }}
@@ -137,27 +150,34 @@
           {{ tr .App $title }}
         </dt>
         <dd class="govuk-summary-list__value">
-          {{ if .App.IsDonor }}
-            {{ if .Donor.ReplacementAttorneyDecisions.How.IsJointly }}
-              {{ trHtml .App "replacement-jointly" }}
-            {{ else if .Donor.ReplacementAttorneyDecisions.How.IsJointlyAndSeverally }}
-              {{ trHtml .App "replacement-jointly-and-severally" }}
-            {{ else if .Donor.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
-              {{ trHtml .App "replacement-mixed" }}
-            {{ end }}
-          {{ else }}
-            {{ if .Donor.ReplacementAttorneyDecisions.How.IsJointly }}
-              {{ trHtml .App "replacementJointlyExplanation" }}
-            {{ else if .Donor.ReplacementAttorneyDecisions.How.IsJointlyAndSeverally }}
-              {{ trHtml .App "replacementJointlyAndSeverallyExplanation" }}
-            {{ else if .Donor.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
-              {{ trHtml .App "replacementJointlyForSomeSeverallyForOthersExplanation" }}
-            {{ end }}
-          {{ end }}
+          {{ trHtml .App (printf "replacement-%s" .Donor.AttorneyDecisions.How.String) }}
         </dd>
         {{ if $canChange }}
           <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App (.App.Paths.HowShouldReplacementAttorneysMakeDecisions.Format .App.LpaID) }}">
+            <a class="govuk-link" href="{{ link .App (.App.Paths.HowShouldReplacementAttorneysMakeDecisions.Format .App.LpaID) }}?from={{ .App.Page }}">
+              {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ lowerFirst (tr .App $title) }}</span>
+            </a>
+          </dd>
+        {{ end }}
+      </div>
+    {{ end }}
+
+    {{ if .Donor.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
+      {{ $title := "decisionsReplacementAttorneysMustMakeTogether" }}
+      {{ if .App.IsDonor }}
+        {{ $title = "decisionsYourReplacementAttorneysMustMakeTogether" }}
+      {{ end }}
+
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+          {{ tr .App $title }}
+        </dt>
+        <dd class="govuk-summary-list__value">
+          {{ trHtml .App .Donor.ReplacementAttorneyDecisions.Details }}
+        </dd>
+        {{ if $canChange }}
+          <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="{{ link .App (.App.Paths.HowShouldReplacementAttorneysMakeDecisions.Format .App.LpaID) }}?from={{ .App.Page }}#f-mixed-details">
               {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ lowerFirst (tr .App $title) }}</span>
             </a>
           </dd>
