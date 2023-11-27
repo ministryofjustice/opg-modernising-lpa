@@ -20,7 +20,7 @@
               <div class="govuk-radios__item govuk-!-margin-top-6">
                 <input class="govuk-radios__input" id="f-decision-type" name="decision-type" type="radio" value="{{ .Options.JointlyAndSeverally.String }}" aria-describedby="decision-type-item-hint" {{ if .Form.DecisionsType.IsJointlyAndSeverally }}checked{{ end }}>
                 <label class="govuk-label govuk-radios__label govuk-label--s" for="f-decision-type">
-                  {{ tr .App "jointlyAndSeverallyHumanisedReplacement" }}
+                  {{ tr .App "replacement-jointly-and-severally" }}
                 </label>
 
                 <div id="decision-type-item-hint" class="govuk-radios__hint">
@@ -30,7 +30,7 @@
               <div class="govuk-radios__item govuk-!-margin-top-6">
                 <input class="govuk-radios__input" id="f-decision-type-2" name="decision-type" type="radio" value="{{ .Options.Jointly.String }}" aria-describedby="decision-type-2-item-hint" {{ if .Form.DecisionsType.IsJointly }}checked{{ end }}>
                 <label class="govuk-label govuk-radios__label govuk-label--s" for="f-decision-type-2">
-                  {{ tr .App "jointlyHumanisedReplacement" }}
+                  {{ tr .App "replacement-jointly" }}
                 </label>
 
                 <div id="decision-type-2-item-hint" class="govuk-radios__hint">
@@ -40,7 +40,7 @@
               <div class="govuk-radios__item govuk-!-margin-top-6">
                 <input class="govuk-radios__input" id="f-decision-type-3" name="decision-type" type="radio" value="{{ .Options.JointlyForSomeSeverallyForOthers.String }}" aria-describedby="decision-type-3-item-hint" aria-controls="decision-type-3-conditional-div" {{ if or .Form.DecisionsType.IsJointlyForSomeSeverallyForOthers (.Errors.Has "mixed-details") }}checked{{ end }}>
                 <label class="govuk-label govuk-radios__label govuk-label--s" for="f-decision-type-3">
-                  {{ tr .App "jointlyAndSeverallyMixedHumanisedReplacement" }}
+                  {{ tr .App "replacement-mixed" }}
                 </label>
 
                 <div id="decision-type-3-item-hint" class="govuk-radios__hint">

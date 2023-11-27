@@ -30,7 +30,7 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorSto
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readHowShouldAttorneysMakeDecisionsForm(r, "howAttorneysShouldMakeDecisions")
+			data.Form = readHowShouldAttorneysMakeDecisionsForm(r, "howAttorneysShouldMakeDecisions", "detailsAboutTheDecisionsYourAttorneysMustMakeTogether")
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
@@ -54,20 +54,22 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorSto
 }
 
 type howShouldAttorneysMakeDecisionsForm struct {
-	DecisionsType    actor.AttorneysAct
-	Error            error
-	DecisionsDetails string
-	errorLabel       string
+	DecisionsType     actor.AttorneysAct
+	Error             error
+	DecisionsDetails  string
+	errorLabel        string
+	detailsErrorLabel string
 }
 
-func readHowShouldAttorneysMakeDecisionsForm(r *http.Request, errorLabel string) *howShouldAttorneysMakeDecisionsForm {
+func readHowShouldAttorneysMakeDecisionsForm(r *http.Request, errorLabel, detailsErrorLabel string) *howShouldAttorneysMakeDecisionsForm {
 	how, err := actor.ParseAttorneysAct(page.PostFormString(r, "decision-type"))
 
 	return &howShouldAttorneysMakeDecisionsForm{
-		DecisionsType:    how,
-		Error:            err,
-		DecisionsDetails: page.PostFormString(r, "mixed-details"),
-		errorLabel:       errorLabel,
+		DecisionsType:     how,
+		Error:             err,
+		DecisionsDetails:  page.PostFormString(r, "mixed-details"),
+		errorLabel:        errorLabel,
+		detailsErrorLabel: detailsErrorLabel,
 	}
 }
 
@@ -78,7 +80,7 @@ func (f *howShouldAttorneysMakeDecisionsForm) Validate() validation.List {
 		validation.Selected())
 
 	if f.DecisionsType == actor.JointlyForSomeSeverallyForOthers {
-		errors.String("mixed-details", "details", f.DecisionsDetails,
+		errors.String("mixed-details", f.detailsErrorLabel, f.DecisionsDetails,
 			validation.Empty())
 	}
 
