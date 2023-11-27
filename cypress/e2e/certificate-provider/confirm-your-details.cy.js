@@ -7,7 +7,7 @@ describe('Confirm your details', () => {
             cy.get('#f-date-of-birth-month').type('2');
             cy.get('#f-date-of-birth-year').type('1990');
 
-            cy.contains('button', 'Continue').click();
+            cy.contains('button', 'Save and continue').click();
 
             cy.url().should('contain', '/confirm-your-details');
             cy.checkA11yApp();
@@ -28,7 +28,7 @@ describe('Confirm your details', () => {
             cy.get('#f-date-of-birth-month').type('2');
             cy.get('#f-date-of-birth-year').type('1990');
 
-            cy.contains('button', 'Continue').click();
+            cy.contains('button', 'Save and continue').click();
 
             cy.url().should('contain', '/what-is-your-home-address');
             cy.checkA11yApp();
