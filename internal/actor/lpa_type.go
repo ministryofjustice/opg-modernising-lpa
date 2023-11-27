@@ -21,9 +21,9 @@ func (e LpaType) LegalTermTransKey() string {
 func (e LpaType) WhatLPACoversTransKey() string {
 	switch e {
 	case LpaTypePropertyFinance:
-		return "whatPFACovers"
+		return "whatPersonalAffairsCovers"
 	case LpaTypeHealthWelfare:
-		return "whatHWCovers"
+		return "whatPersonalWelfareCovers"
 	}
 	return ""
 }
