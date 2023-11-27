@@ -19,13 +19,13 @@ type mockShareCodeSender struct {
 	mock.Mock
 }
 
-// SendCertificateProvider provides a mock function with given fields: _a0, _a1, _a2, _a3, _a4
-func (_m *mockShareCodeSender) SendCertificateProvider(_a0 context.Context, _a1 notify.Template, _a2 page.AppData, _a3 bool, _a4 *actor.DonorProvidedDetails) error {
-	ret := _m.Called(_a0, _a1, _a2, _a3, _a4)
+// SendCertificateProvider provides a mock function with given fields: _a0, _a1, _a2, _a3
+func (_m *mockShareCodeSender) SendCertificateProvider(_a0 context.Context, _a1 notify.Template, _a2 page.AppData, _a3 *actor.DonorProvidedDetails) error {
+	ret := _m.Called(_a0, _a1, _a2, _a3)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, notify.Template, page.AppData, bool, *actor.DonorProvidedDetails) error); ok {
-		r0 = rf(_a0, _a1, _a2, _a3, _a4)
+	if rf, ok := ret.Get(0).(func(context.Context, notify.Template, page.AppData, *actor.DonorProvidedDetails) error); ok {
+		r0 = rf(_a0, _a1, _a2, _a3)
 	} else {
 		r0 = ret.Error(0)
 	}
