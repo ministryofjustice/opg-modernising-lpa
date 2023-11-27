@@ -1,13 +1,11 @@
 package donor
 
 import (
-	"errors"
 	"net/http"
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -20,7 +18,7 @@ type witnessingAsCertificateProviderData struct {
 	Donor  *actor.DonorProvidedDetails
 }
 
-func WitnessingAsCertificateProvider(tmpl template.Template, donorStore DonorStore, shareCodeSender ShareCodeSender, now func() time.Time, certificateProviderStore CertificateProviderStore) Handler {
+func WitnessingAsCertificateProvider(tmpl template.Template, donorStore DonorStore, shareCodeSender ShareCodeSender, now func() time.Time) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &witnessingAsCertificateProviderData{
 			App:   appData,
@@ -58,18 +56,8 @@ func WitnessingAsCertificateProvider(tmpl template.Template, donorStore DonorSto
 			}
 
 			if data.Errors.None() {
-				ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
-					SessionID: appData.SessionID,
-					LpaID:     appData.LpaID,
-				})
-
-				certificateProvider, err := certificateProviderStore.GetAny(ctx)
-				if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
-					return err
-				}
-
-				if err == nil && certificateProvider.CertificateProviderIdentityConfirmed(donor.CertificateProvider.FirstNames, donor.CertificateProvider.LastName) {
-					if err := shareCodeSender.SendCertificateProvider(r.Context(), notify.CertificateProviderReturnEmail, appData, false, donor); err != nil {
+				if donor.Tasks.PayForLpa.IsCompleted() {
+					if err := shareCodeSender.SendCertificateProvider(r.Context(), notify.CertificateProviderReturnEmail, appData, donor); err != nil {
 						return err
 					}
 				}

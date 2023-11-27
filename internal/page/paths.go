@@ -448,8 +448,15 @@ func canGoToLpaPath(donor *actor.DonorProvidedDetails, path string) bool {
 	case Paths.AboutPayment.String():
 		return section1Completed
 
-	case Paths.HowToConfirmYourIdentityAndSign.String(), Paths.IdentityWithOneLogin.String():
-		return section1Completed && donor.Tasks.PayForLpa.IsCompleted()
+	case Paths.HowToConfirmYourIdentityAndSign.String(),
+		Paths.IdentityWithOneLogin.String(),
+		Paths.ReadYourLpa.String(),
+		Paths.SignYourLpa.String(),
+		Paths.SignTheLpaOnBehalf.String(),
+		Paths.WitnessingYourSignature.String(),
+		Paths.WitnessingAsIndependentWitness.String(),
+		Paths.WitnessingAsCertificateProvider.String():
+		return section1Completed && (donor.Tasks.PayForLpa.IsCompleted() || donor.Tasks.PayForLpa.IsPending())
 
 	case "":
 		return false

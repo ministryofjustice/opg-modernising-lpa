@@ -81,8 +81,8 @@ type AddressClient interface {
 
 //go:generate mockery --testonly --inpackage --name ShareCodeSender --structname mockShareCodeSender
 type ShareCodeSender interface {
-	SendCertificateProvider(ctx context.Context, template notify.Template, appData page.AppData, identity bool, donor *actor.DonorProvidedDetails) error
-	SendAttorneys(ctx context.Context, appData page.AppData, donor *actor.DonorProvidedDetails) error
+	SendCertificateProvider(context.Context, notify.Template, page.AppData, *actor.DonorProvidedDetails) error
+	SendAttorneys(context.Context, page.AppData, *actor.DonorProvidedDetails) error
 }
 
 //go:generate mockery --testonly --inpackage --name OneLoginClient --structname mockOneLoginClient
@@ -366,7 +366,7 @@ func Register(
 	handleWithDonor(page.Paths.ChangeIndependentWitnessMobileNumber, CanGoBack,
 		ChangeMobileNumber(tmpls.Get("change_mobile_number.gohtml"), witnessCodeSender, actor.TypeIndependentWitness))
 	handleWithDonor(page.Paths.WitnessingAsCertificateProvider, None,
-		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), donorStore, shareCodeSender, time.Now, certificateProviderStore))
+		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), donorStore, shareCodeSender, time.Now))
 	handleWithDonor(page.Paths.ResendCertificateProviderCode, CanGoBack,
 		ResendWitnessCode(tmpls.Get("resend_witness_code.gohtml"), witnessCodeSender, actor.TypeCertificateProvider))
 	handleWithDonor(page.Paths.ChangeCertificateProviderMobileNumber, CanGoBack,
