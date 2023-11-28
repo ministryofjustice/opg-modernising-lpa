@@ -1,5 +1,3 @@
-import { TestEmail, TestEmail2 } from "../../support/e2e";
-
 describe('People to notify', () => {
     it('can add people to notify', () => {
         cy.visit('/fixtures?redirect=/do-you-want-to-notify-people&progress=chooseYourAttorneys');
@@ -15,7 +13,6 @@ describe('People to notify', () => {
 
         cy.get('#f-first-names').type("Brian")
         cy.get('#f-last-name').type("Gooding")
-        cy.get('#f-email').type(TestEmail2)
 
         cy.contains('button', 'Save and continue').click();
 
@@ -76,13 +73,12 @@ describe('People to notify', () => {
 
         cy.get('#f-first-names').clear().type('Changed')
         cy.get('#f-last-name').clear().type('Altered')
-        cy.get('#f-email').clear().type(TestEmail2)
 
         cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/choose-people-to-notify-summary');
 
-        cy.contains('.govuk-summary-card', 'Changed Altered').contains(TestEmail2);
+        cy.contains('.govuk-summary-card', 'Changed Altered');
         cy.contains('.govuk-summary-list__row', '4 RICHMOND PLACE').contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-people-to-notify-address');
@@ -172,12 +168,10 @@ describe('People to notify', () => {
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Enter first names');
             cy.contains('Enter last name');
-            cy.contains('Enter email address');
         });
 
         cy.contains('[for=f-first-names] + .govuk-error-message', 'Enter first names');
         cy.contains('[for=f-last-name] + .govuk-error-message', 'Enter last name');
-        cy.contains('[for=f-email] + .govuk-error-message', 'Enter email address');
     });
 
     it('errors when people to notify details invalid', () => {
@@ -185,12 +179,10 @@ describe('People to notify', () => {
 
         cy.get('#f-first-names').invoke('val', 'a'.repeat(54));
         cy.get('#f-last-name').invoke('val', 'b'.repeat(62));
-        cy.get('#f-email').type('not-an-email');
         cy.contains('button', 'Save and continue').click();
 
         cy.contains('[for=f-first-names] + .govuk-error-message', 'First names must be 53 characters or less');
         cy.contains('[for=f-last-name] + .govuk-error-message', 'Last name must be 61 characters or less');
-        cy.contains('[for=f-email] + .govuk-error-message', 'Email address must be in the correct format, like name@example.com');
     });
 
     it('errors when another not selected', () => {
@@ -212,7 +204,6 @@ describe('People to notify', () => {
 
         cy.get('#f-first-names').type('Sam');
         cy.get('#f-last-name').type('Smith');
-        cy.get('#f-email').type(TestEmail);
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/choose-people-to-notify');
 

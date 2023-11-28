@@ -13,8 +13,6 @@
 
         {{ template "name-warning" . }}
 
-        {{ template "input" (input . "email" "email" .Form.Email "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
-
         {{ template "save-and-return-buttons" . }}
         {{ template "csrf-field" . }}
       </form>

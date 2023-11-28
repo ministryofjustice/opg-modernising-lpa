@@ -12,8 +12,6 @@ type PersonToNotify struct {
 	FirstNames string
 	// Last name of the person to notify
 	LastName string
-	// Email of the person to notify
-	Email string
 	// Address of the person to notify
 	Address place.Address
 	// Identifies the person to notify being edited
