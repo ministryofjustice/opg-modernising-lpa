@@ -42,7 +42,7 @@ var (
 		CertificateProviderActingDigitallyDetailsChangedSeenLpaSMS:    "71d21daa-11f9-4a2a-9ae2-bb5c2247bfb7",
 		CertificateProviderInviteEmail:                                "13df4493-20b0-4c20-b742-cab3844e69b2",
 		CertificateProviderNameChangeEmail:                            "9f8be86f-864a-4cda-a58a-5768522bd325",
-		CertificateProviderActingOnPaperDetailsChangedSMS:             "d363a56f-e802-4f88-bd09-80b8c9e9d650",
+		CertificateProviderActingOnPaperDetailsChangedSMS:             "ab90c6be-806e-411a-a354-de10f7a70c47",
 		CertificateProviderActingOnPaperMeetingPromptSMS:              "b5cd2c1b-e9b4-4f3e-8cf1-504aff93b16d",
 		CertificateProviderProvideCertificatePromptEmail:              "eada8a4f-5e7c-4f6b-b3fb-d4e92eeeb0ed",
 		ReplacementAttorneyInviteEmail:                                "1c4d5b24-fc7d-45ee-be40-f1ccda96f101",

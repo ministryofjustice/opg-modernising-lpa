@@ -177,7 +177,6 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 				Personalisation: map[string]string{
 					"donorFullNamePossessive": "Teneil Throssell’s",
 					"lpaType":                 "property and affairs",
-					"lpaId":                   "lpa-id",
 					"donorFirstNames":         "Teneil",
 				},
 			},
@@ -191,7 +190,6 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 				Personalisation: map[string]string{
 					"donorFullNamePossessive": "Teneil Throssell’s",
 					"lpaType":                 "property and affairs",
-					"lpaId":                   "lpa-id",
 					"donorFirstNames":         "Teneil",
 				},
 			},
@@ -384,6 +382,12 @@ func TestPostCheckYourLpaPaperCertificateProviderOnSubsequentCheck(t *testing.T)
 		On("Put", r.Context(), donor).
 		Return(nil)
 
+	localizer := newMockLocalizer(t)
+	localizer.
+		On("T", "pfaLegalTerm").
+		Return("property and affairs")
+	testAppData.Localizer = localizer
+
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
 		On("TemplateID", notify.CertificateProviderActingOnPaperDetailsChangedSMS).
@@ -393,9 +397,8 @@ func TestPostCheckYourLpaPaperCertificateProviderOnSubsequentCheck(t *testing.T)
 			PhoneNumber: "07700900000",
 			TemplateID:  "template-id",
 			Personalisation: map[string]string{
-				"donorFullName":   "Teneil Throssell",
-				"lpaId":           "lpa-id",
-				"donorFirstNames": "Teneil",
+				"donorFullName": "Teneil Throssell",
+				"lpaType":       "property and affairs",
 			},
 		}).
 		Return("", nil)
