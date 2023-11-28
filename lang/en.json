@@ -923,5 +923,7 @@
     "decisionsReplacementAttorneysMustMakeTogether": "Decisions replacement attorneys must make together",
     "decisionsYourReplacementAttorneysMustMakeTogether": "Decisions your replacement attorneys must make together",
     "detailsAboutTheDecisionsYourAttorneysMustMakeTogether": "details about the decisions your attorneys must make together",
-    "detailsAboutTheDecisionsYourReplacementAttorneysMustMakeTogether": "details about the decisions your replacement attorneys must make together"
+    "detailsAboutTheDecisionsYourReplacementAttorneysMustMakeTogether": "details about the decisions your replacement attorneys must make together",
+    "whatPersonalAffairsCovers" : "money, finances and any property they might own",
+    "whatPersonalWelfareCovers" : "health care and personal welfare"
 }

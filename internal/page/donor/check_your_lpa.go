@@ -48,10 +48,10 @@ func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appDat
 	}
 
 	if wasCompleted {
-		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderPaperLpaDetailsChangedSMS)
+		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderActingOnPaperDetailsChangedSMS)
 		sms.Personalisation["lpaId"] = donor.LpaID
 	} else {
-		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderPaperMeetingPromptSMS)
+		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderActingOnPaperMeetingPromptSMS)
 		sms.Personalisation["lpaType"] = appData.Localizer.T(donor.Type.LegalTermTransKey())
 		sms.Personalisation["CPLandingPageLink"] = appData.AppPublicURL + appData.Lang.URL(page.Paths.CertificateProviderStart.Format())
 	}
@@ -75,13 +75,13 @@ func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appDa
 	}
 
 	if certificateProvider.Tasks.ConfirmYourDetails.NotStarted() {
-		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderDigitalLpaDetailsChangedNotSeenLpaSMS)
+		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderActingDigitallyDetailsChangedNotSeenLpaSMS)
 		sms.Personalisation = map[string]string{
 			"donorFullName": donor.Donor.FullName(),
 			"lpaType":       appData.Localizer.T(donor.Type.LegalTermTransKey()),
 		}
 	} else {
-		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderDigitalLpaDetailsChangedSeenLpaSMS)
+		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderActingDigitallyDetailsChangedSeenLpaSMS)
 		sms.Personalisation = map[string]string{
 			"donorFullNamePossessive": appData.Localizer.Possessive(donor.Donor.FullName()),
 			"lpaType":                 appData.Localizer.T(donor.Type.LegalTermTransKey()),
