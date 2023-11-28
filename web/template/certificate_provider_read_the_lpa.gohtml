@@ -30,7 +30,7 @@
           {{ if not .Donor.SignedAt.IsZero }}
             {{ template "continue-button" . }}
           {{ end }}
-          <a href="{{ link .App (.App.Paths.CertificateProvider.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+          <a href="{{ link .App (.App.Paths.CertificateProvider.TaskList.Format .App.LpaID) }}" class="govuk-button {{ if not .Donor.SignedAt.IsZero }}govuk-button--secondary{{ end }}">{{ tr .App "returnToTaskList" }}</a>
         </div>
         {{ template "csrf-field" . }}
       </form>
