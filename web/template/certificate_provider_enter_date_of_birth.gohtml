@@ -25,8 +25,7 @@
         {{ end }}
 
         <div class="govuk-button-group">
-          {{ template "continue-button" . }}
-          <a href="{{ link .App (.App.Paths.CertificateProvider.TaskList.Format .App.LpaID) }}" id="return-to-tasklist-btn" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+          <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "saveAndContinue" }}</button>
         </div>
 
         {{ template "csrf-field" . }}

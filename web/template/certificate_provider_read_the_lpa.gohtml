@@ -26,7 +26,12 @@
       {{ template "people-named-on-lpa" . }}
 
       <form novalidate method="post">
-        {{ template "continue-button" . }}
+        <div class="govuk-button-group">
+          {{ if not .Donor.SignedAt.IsZero }}
+            {{ template "continue-button" . }}
+          {{ end }}
+          <a href="{{ link .App (.App.Paths.CertificateProvider.TaskList.Format .App.LpaID) }}" class="govuk-button {{ if not .Donor.SignedAt.IsZero }}govuk-button--secondary{{ end }}">{{ tr .App "returnToTaskList" }}</a>
+        </div>
         {{ template "csrf-field" . }}
       </form>
     </div>

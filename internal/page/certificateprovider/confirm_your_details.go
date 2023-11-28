@@ -29,18 +29,13 @@ func ConfirmYourDetails(tmpl template.Template, donorStore DonorStore, certifica
 		}
 
 		if r.Method == http.MethodPost {
-			redirect := page.Paths.CertificateProvider.YourRole
-			if certificateProvider.Tasks.ConfirmYourDetails.Completed() || !donor.SignedAt.IsZero() {
-				redirect = page.Paths.CertificateProvider.TaskList
-			}
-
 			certificateProvider.Tasks.ConfirmYourDetails = actor.TaskCompleted
 
 			if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 				return err
 			}
 
-			return redirect.Redirect(w, r, appData, certificateProvider.LpaID)
+			return page.Paths.CertificateProvider.YourRole.Redirect(w, r, appData, certificateProvider.LpaID)
 		}
 
 		data := &confirmYourDetailsData{
