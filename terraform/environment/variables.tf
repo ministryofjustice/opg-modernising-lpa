@@ -44,6 +44,7 @@ variable "environments" {
           maximum = number
         })
       })
+      mock_onelogin = bool
       uid_service = object({
         base_url = string
         api_arns = list(string)
