@@ -42,6 +42,7 @@ func All(tag, region string) map[string]any {
 		"addDays":            addDays,
 		"formatDate":         formatDate,
 		"formatDateTime":     formatDateTime,
+		"formatMobile":       formatMobile,
 		"lowerFirst":         lowerFirst,
 		"listAttorneys":      listAttorneys,
 		"warning":            warning,
@@ -243,6 +244,22 @@ func formatDate(app page.AppData, t date.TimeOrDate) string {
 
 func formatDateTime(app page.AppData, t time.Time) string {
 	return app.Localizer.FormatDateTime(t)
+}
+
+func formatMobile(s string) string {
+	stripped := strings.ReplaceAll(s, " ", "")
+
+	// 07005 060 702
+	if stripped[0] == '0' && len(stripped) == 11 {
+		return stripped[:5] + " " + stripped[5:8] + " " + stripped[8:]
+	}
+
+	// +44 7005 060 702
+	if stripped[:3] == "+44" && len(stripped) == 13 {
+		return stripped[:3] + " " + stripped[3:7] + " " + stripped[7:10] + " " + stripped[10:]
+	}
+
+	return s
 }
 
 func lowerFirst(s string) string {
