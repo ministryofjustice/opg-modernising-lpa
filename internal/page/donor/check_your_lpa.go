@@ -42,17 +42,16 @@ func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appDat
 	sms := notify.Sms{
 		PhoneNumber: donor.CertificateProvider.Mobile,
 		Personalisation: map[string]string{
-			"donorFullName":   donor.Donor.FullName(),
-			"donorFirstNames": donor.Donor.FirstNames,
+			"donorFullName": donor.Donor.FullName(),
+			"lpaType":       appData.Localizer.T(donor.Type.LegalTermTransKey()),
 		},
 	}
 
 	if wasCompleted {
 		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderActingOnPaperDetailsChangedSMS)
-		sms.Personalisation["lpaId"] = donor.LpaID
 	} else {
 		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderActingOnPaperMeetingPromptSMS)
-		sms.Personalisation["lpaType"] = appData.Localizer.T(donor.Type.LegalTermTransKey())
+		sms.Personalisation["donorFirstNames"] = donor.Donor.FirstNames
 		sms.Personalisation["CPLandingPageLink"] = appData.AppPublicURL + appData.Lang.URL(page.Paths.CertificateProviderStart.Format())
 	}
 
@@ -72,22 +71,18 @@ func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appDa
 
 	sms := notify.Sms{
 		PhoneNumber: donor.CertificateProvider.Mobile,
+		Personalisation: map[string]string{
+			"lpaType": appData.Localizer.T(donor.Type.LegalTermTransKey()),
+		},
 	}
 
 	if certificateProvider.Tasks.ConfirmYourDetails.NotStarted() {
 		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderActingDigitallyDetailsChangedNotSeenLpaSMS)
-		sms.Personalisation = map[string]string{
-			"donorFullName": donor.Donor.FullName(),
-			"lpaType":       appData.Localizer.T(donor.Type.LegalTermTransKey()),
-		}
+		sms.Personalisation["donorFullName"] = donor.Donor.FullName()
 	} else {
 		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderActingDigitallyDetailsChangedSeenLpaSMS)
-		sms.Personalisation = map[string]string{
-			"donorFullNamePossessive": appData.Localizer.Possessive(donor.Donor.FullName()),
-			"lpaType":                 appData.Localizer.T(donor.Type.LegalTermTransKey()),
-			"lpaId":                   donor.LpaID,
-			"donorFirstNames":         donor.Donor.FirstNames,
-		}
+		sms.Personalisation["donorFullNamePossessive"] = appData.Localizer.Possessive(donor.Donor.FullName())
+		sms.Personalisation["donorFirstNames"] = donor.Donor.FirstNames
 	}
 
 	_, err = n.notifyClient.Sms(ctx, sms)
