@@ -47,7 +47,6 @@ func TestGetChoosePeopleToNotifyFromStore(t *testing.T) {
 				Address:    testAddress,
 				FirstNames: "Johnny",
 				LastName:   "Jones",
-				Email:      "user@example.org",
 			},
 		},
 	})
@@ -81,7 +80,6 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 	personToNotify := actor.PersonToNotify{
 		FirstNames: "John",
 		LastName:   "Doe",
-		Email:      "johnny@example.com",
 		ID:         "123",
 	}
 
@@ -139,12 +137,10 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 			form: url.Values{
 				"first-names": {"John"},
 				"last-name":   {"Doe"},
-				"email":       {"johnny@example.com"},
 			},
 			personToNotify: actor.PersonToNotify{
 				FirstNames: "John",
 				LastName:   "Doe",
-				Email:      "johnny@example.com",
 				ID:         "123",
 			},
 		},
@@ -152,13 +148,11 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 			form: url.Values{
 				"first-names":         {"Jane"},
 				"last-name":           {"Doe"},
-				"email":               {"johnny@example.com"},
 				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypePersonToNotify, actor.TypeDonor, "Jane", "Doe").String()},
 			},
 			personToNotify: actor.PersonToNotify{
 				FirstNames: "Jane",
 				LastName:   "Doe",
-				Email:      "johnny@example.com",
 				ID:         "123",
 			},
 		},
@@ -197,7 +191,6 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 	form := url.Values{
 		"first-names": {"Johnny"},
 		"last-name":   {"Dear"},
-		"email":       {"johnny.d@example.com"},
 	}
 
 	w := httptest.NewRecorder()
@@ -211,7 +204,6 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 			PeopleToNotify: actor.PeopleToNotify{{
 				FirstNames: "Johnny",
 				LastName:   "Dear",
-				Email:      "johnny.d@example.com",
 				ID:         "123",
 			}},
 			Tasks: actor.DonorTasks{PeopleToNotify: actor.TaskInProgress},
@@ -223,7 +215,6 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 		PeopleToNotify: actor.PeopleToNotify{{
 			FirstNames: "John",
 			LastName:   "Doe",
-			Email:      "johnny@example.com",
 			ID:         "123",
 		}},
 	})
@@ -242,7 +233,6 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 		"validation error": {
 			form: url.Values{
 				"last-name": {"Doe"},
-				"email":     {"name@example.com"},
 			},
 			dataMatcher: func(t *testing.T, data *choosePeopleToNotifyData) bool {
 				return assert.Nil(t, data.NameWarning) &&
@@ -253,29 +243,16 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 			form: url.Values{
 				"first-names": {"Jane"},
 				"last-name":   {"Doe"},
-				"email":       {"name@example.com"},
 			},
 			dataMatcher: func(t *testing.T, data *choosePeopleToNotifyData) bool {
 				return assert.Equal(t, actor.NewSameNameWarning(actor.TypePersonToNotify, actor.TypeDonor, "Jane", "Doe"), data.NameWarning) &&
 					assert.True(t, data.Errors.None())
 			},
 		},
-		"name warning ignored but other errors": {
-			form: url.Values{
-				"first-names":         {"Jane"},
-				"last-name":           {"Doe"},
-				"ignore-name-warning": {"errorDonorMatchesActor|aPersonToNotify|Jane|Doe"},
-			},
-			dataMatcher: func(t *testing.T, data *choosePeopleToNotifyData) bool {
-				return assert.Equal(t, actor.NewSameNameWarning(actor.TypePersonToNotify, actor.TypeDonor, "Jane", "Doe"), data.NameWarning) &&
-					assert.Equal(t, validation.With("email", validation.EnterError{Label: "email"}), data.Errors)
-			},
-		},
 		"other name warning ignored": {
 			form: url.Values{
 				"first-names":         {"Jane"},
 				"last-name":           {"Doe"},
-				"email":               {"name@example.com"},
 				"ignore-name-warning": {"errorDonorMatchesActor|aPersonToNotify|John|Doe"},
 			},
 			dataMatcher: func(t *testing.T, data *choosePeopleToNotifyData) bool {
@@ -313,7 +290,6 @@ func TestPostChoosePeopleToNotifyWhenStoreErrors(t *testing.T) {
 	form := url.Values{
 		"first-names": {"John"},
 		"last-name":   {"Doe"},
-		"email":       {"john@example.com"},
 	}
 
 	w := httptest.NewRecorder()
@@ -336,7 +312,6 @@ func TestReadChoosePeopleToNotifyForm(t *testing.T) {
 	form := url.Values{
 		"first-names": {"  John "},
 		"last-name":   {"Doe"},
-		"email":       {"john@example.com"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -346,7 +321,6 @@ func TestReadChoosePeopleToNotifyForm(t *testing.T) {
 
 	assert.Equal("John", result.FirstNames)
 	assert.Equal("Doe", result.LastName)
-	assert.Equal("john@example.com", result.Email)
 }
 
 func TestChoosePeopleToNotifyFormValidate(t *testing.T) {
@@ -358,40 +332,28 @@ func TestChoosePeopleToNotifyFormValidate(t *testing.T) {
 			form: &choosePeopleToNotifyForm{
 				FirstNames: "A",
 				LastName:   "B",
-				Email:      "person@example.com",
 			},
 		},
 		"max length": {
 			form: &choosePeopleToNotifyForm{
 				FirstNames: strings.Repeat("x", 53),
 				LastName:   strings.Repeat("x", 61),
-				Email:      "person@example.com",
 			},
 		},
 		"missing all": {
 			form: &choosePeopleToNotifyForm{},
 			errors: validation.
 				With("first-names", validation.EnterError{Label: "firstNames"}).
-				With("last-name", validation.EnterError{Label: "lastName"}).
-				With("email", validation.EnterError{Label: "email"}),
+				With("last-name", validation.EnterError{Label: "lastName"}),
 		},
 		"too long": {
 			form: &choosePeopleToNotifyForm{
 				FirstNames: strings.Repeat("x", 54),
 				LastName:   strings.Repeat("x", 62),
-				Email:      "person@example.com",
 			},
 			errors: validation.
 				With("first-names", validation.StringTooLongError{Label: "firstNames", Length: 53}).
 				With("last-name", validation.StringTooLongError{Label: "lastName", Length: 61}),
-		},
-		"invalid email": {
-			form: &choosePeopleToNotifyForm{
-				FirstNames: "A",
-				LastName:   "B",
-				Email:      "person@",
-			},
-			errors: validation.With("email", validation.EmailError{Label: "email"}),
 		},
 	}
 
