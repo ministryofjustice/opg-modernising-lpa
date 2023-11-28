@@ -98,6 +98,9 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 		CertificateProvider:              actor.CertificateProvider{FirstNames: "Fred"},
 		WitnessedByCertificateProviderAt: now,
 		SignedAt:                         now,
+		Tasks: actor.DonorTasks{
+			ConfirmYourIdentityAndSign: actor.TaskCompleted,
+		},
 	}
 
 	shareCodeSender := newMockShareCodeSender(t)
@@ -140,7 +143,10 @@ func TestPostWitnessingAsCertificateProviderWhenPaymentPending(t *testing.T) {
 		CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
 		WitnessedByCertificateProviderAt: now,
 		SignedAt:                         now,
-		Tasks:                            actor.DonorTasks{PayForLpa: actor.PaymentTaskPending},
+		Tasks: actor.DonorTasks{
+			PayForLpa:                  actor.PaymentTaskPending,
+			ConfirmYourIdentityAndSign: actor.TaskCompleted,
+		},
 	}
 	donorStore := newMockDonorStore(t)
 	donorStore.
@@ -176,23 +182,14 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToAttorneysErrors(t
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 	now := time.Now()
 
-	donor := &actor.DonorProvidedDetails{
-		LpaID:                            "lpa-id",
-		DonorIdentityUserData:            identity.UserData{OK: true},
-		CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
-		CertificateProvider:              actor.CertificateProvider{FirstNames: "Fred"},
-		WitnessedByCertificateProviderAt: now,
-		SignedAt:                         now,
-	}
-
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("SendAttorneys", r.Context(), testAppData, donor).
+		On("SendAttorneys", r.Context(), testAppData, mock.Anything).
 		Return(expectedError)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), donor).
+		On("Put", r.Context(), mock.Anything).
 		Return(nil)
 
 	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, func() time.Time { return now })(testAppData, w, r, &actor.DonorProvidedDetails{
@@ -214,21 +211,14 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToCertificateProvid
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 	now := time.Now()
 
-	donor := &actor.DonorProvidedDetails{
-		CertificateProvider:              actor.CertificateProvider{Email: "name@example.com"},
-		CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
-		WitnessedByCertificateProviderAt: now,
-		SignedAt:                         now,
-		Tasks:                            actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
-	}
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), donor).
+		On("Put", r.Context(), mock.Anything).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("SendCertificateProvider", r.Context(), notify.CertificateProviderProvideCertificatePromptEmail, testAppData, donor).
+		On("SendCertificateProvider", r.Context(), notify.CertificateProviderProvideCertificatePromptEmail, testAppData, mock.Anything).
 		Return(expectedError)
 
 	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, func() time.Time { return now })(testAppData, w, r, &actor.DonorProvidedDetails{

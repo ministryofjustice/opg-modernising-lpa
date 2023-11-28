@@ -46,6 +46,7 @@ func WitnessingAsCertificateProvider(tmpl template.Template, donorStore DonorSto
 			}
 
 			if data.Errors.None() {
+				donor.Tasks.ConfirmYourIdentityAndSign = actor.TaskCompleted
 				donor.WitnessCodeLimiter = nil
 				donor.WitnessedByCertificateProviderAt = now()
 				donor.SignedAt = now()
