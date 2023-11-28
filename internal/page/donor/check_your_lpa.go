@@ -77,10 +77,10 @@ func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appDa
 	}
 
 	if certificateProvider.Tasks.ConfirmYourDetails.NotStarted() {
-		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderActingDigitallyDetailsChangedNotSeenLpaSMS)
+		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderActingDigitallyHasNotConfirmedPersonalDetailsLPADetailsChangedPromptSMS)
 		sms.Personalisation["donorFullName"] = donor.Donor.FullName()
 	} else {
-		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderActingDigitallyDetailsChangedSeenLpaSMS)
+		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS)
 		sms.Personalisation["donorFullNamePossessive"] = appData.Localizer.Possessive(donor.Donor.FullName())
 		sms.Personalisation["donorFirstNames"] = donor.Donor.FirstNames
 	}

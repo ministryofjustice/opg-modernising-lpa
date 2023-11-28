@@ -158,7 +158,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 	}{
 		"cp not started": {
 			certificateProviderDetailsTaskState: actor.TaskNotStarted,
-			expectedTemplateId:                  notify.CertificateProviderActingDigitallyDetailsChangedNotSeenLpaSMS,
+			expectedTemplateId:                  notify.CertificateProviderActingDigitallyHasNotConfirmedPersonalDetailsLPADetailsChangedPromptSMS,
 			expectedSms: notify.Sms{
 				PhoneNumber: "07700900000",
 				TemplateID:  "template-id",
@@ -170,7 +170,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 		},
 		"cp in progress": {
 			certificateProviderDetailsTaskState: actor.TaskInProgress,
-			expectedTemplateId:                  notify.CertificateProviderActingDigitallyDetailsChangedSeenLpaSMS,
+			expectedTemplateId:                  notify.CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS,
 			expectedSms: notify.Sms{
 				PhoneNumber: "07700900000",
 				TemplateID:  "template-id",
@@ -183,7 +183,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 		},
 		"cp completed": {
 			certificateProviderDetailsTaskState: actor.TaskCompleted,
-			expectedTemplateId:                  notify.CertificateProviderActingDigitallyDetailsChangedSeenLpaSMS,
+			expectedTemplateId:                  notify.CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS,
 			expectedSms: notify.Sms{
 				PhoneNumber: "07700900000",
 				TemplateID:  "template-id",
