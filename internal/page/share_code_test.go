@@ -88,7 +88,6 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 			shareCodeStore.
 				On("Put", ctx, actor.TypeCertificateProvider, "123", actor.ShareCodeData{
 					LpaID:           "lpa-id",
-					Identity:        true,
 					DonorFullname:   "Jan Smith",
 					DonorFirstNames: "Jan",
 					SessionID:       "session-id",
@@ -108,7 +107,7 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 				Return("", nil)
 
 			sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
-			err := sender.SendCertificateProvider(ctx, template, TestAppData, true, donor)
+			err := sender.SendCertificateProvider(ctx, template, TestAppData, donor)
 
 			assert.Nil(t, err)
 		})
@@ -159,7 +158,6 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 			shareCodeStore.
 				On("Put", ctx, actor.TypeCertificateProvider, tc.expectedTestCode, actor.ShareCodeData{
 					LpaID:           "lpa-id",
-					Identity:        true,
 					DonorFullname:   "Jan Smith",
 					DonorFirstNames: "Jan",
 					SessionID:       "session-id",
@@ -170,7 +168,6 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 			shareCodeStore.
 				On("Put", ctx, actor.TypeCertificateProvider, "123", actor.ShareCodeData{
 					LpaID:           "lpa-id",
-					Identity:        true,
 					DonorFullname:   "Jan Smith",
 					DonorFirstNames: "Jan",
 					SessionID:       "session-id",
@@ -217,11 +214,11 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 				sender.UseTestCode()
 			}
 
-			err := sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, true, donor)
+			err := sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, donor)
 
 			assert.Nil(t, err)
 
-			err = sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, true, donor)
+			err = sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, donor)
 
 			assert.Nil(t, err)
 		})
@@ -265,7 +262,7 @@ func TestShareCodeSenderSendCertificateProviderWhenEmailErrors(t *testing.T) {
 		Return("", ExpectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
-	err := sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, true, donor)
+	err := sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, donor)
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))
 }
@@ -279,7 +276,7 @@ func TestShareCodeSenderSendCertificateProviderWhenShareCodeStoreErrors(t *testi
 		Return(ExpectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", MockRandom)
-	err := sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, true, &actor.DonorProvidedDetails{})
+	err := sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, &actor.DonorProvidedDetails{})
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))
 }

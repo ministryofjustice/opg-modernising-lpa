@@ -132,7 +132,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 
 			shareCodeSender := newMockShareCodeSender(t)
 			shareCodeSender.
-				On("SendCertificateProvider", r.Context(), notify.CertificateProviderInviteEmail, testAppData, true, updatedDonor).
+				On("SendCertificateProvider", r.Context(), notify.CertificateProviderInviteEmail, testAppData, updatedDonor).
 				Return(nil)
 
 			donorStore := newMockDonorStore(t)
@@ -451,7 +451,7 @@ func TestPostCheckYourLpaWhenShareCodeSenderErrors(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("SendCertificateProvider", r.Context(), notify.CertificateProviderInviteEmail, testAppData, true, mock.Anything).
+		On("SendCertificateProvider", r.Context(), notify.CertificateProviderInviteEmail, testAppData, mock.Anything).
 		Return(expectedError)
 
 	err := CheckYourLpa(nil, donorStore, shareCodeSender, nil, nil, testNowFn)(testAppData, w, r, donor)

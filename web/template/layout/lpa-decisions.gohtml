@@ -155,9 +155,9 @@
         </dt>
         <dd class="govuk-summary-list__value">
           {{ if .App.IsDonor }}
-            {{ trHtml .App (printf "your-replacement-%s" .Donor.AttorneyDecisions.How.String) }}
+            {{ trHtml .App (printf "your-replacement-%s" .Donor.ReplacementAttorneyDecisions.How.String) }}
           {{ else }}
-            {{ trHtml .App (printf "replacement-%s" .Donor.AttorneyDecisions.How.String) }}
+            {{ trHtml .App (printf "replacement-%s" .Donor.ReplacementAttorneyDecisions.How.String) }}
           {{ end }}
         </dd>
         {{ if $canChange }}

@@ -28,7 +28,8 @@ describe('Read the LPA', () => {
             cy.contains('dt', "Their attorneys")
             cy.contains('dt', "Their replacement attorneys")
 
-            cy.contains('Continue').click();
+            cy.get('button').should('not.contain', 'Continue');
+            cy.contains('Return to task list').click();
             cy.url().should('contain', '/task-list');
         });
     });

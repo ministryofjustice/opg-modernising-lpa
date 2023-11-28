@@ -96,9 +96,9 @@ describe('Pay for LPA', () => {
                 const uid = text.split(':')[1].trim();
                 cy.visit(`http://localhost:9001/?detail-type=reduced-fee-requested&detail=${uid}`);
 
-                cy.contains('"requestType":"HalfFee"');
-                cy.contains(`"evidence":["${uid}`);
-                cy.contains('"evidenceDelivery":"upload"');
+                cy.contains('"requestType": "HalfFee"');
+                cy.contains(`"evidence": ["${uid}`);
+                cy.contains('"evidenceDelivery": "upload"');
             });
     });
 
@@ -171,9 +171,9 @@ describe('Pay for LPA', () => {
                 const uid = text.split(':')[1].trim();
                 cy.visit(`http://localhost:9001/?detail-type=reduced-fee-requested&detail=${uid}`);
 
-                cy.contains('"requestType":"NoFee"');
-                cy.contains(`"evidence":["${uid}`);
-                cy.contains('"evidenceDelivery":"upload"');
+                cy.contains('"requestType": "NoFee"');
+                cy.contains(`"evidence": ["${uid}`);
+                cy.contains('"evidenceDelivery": "upload"');
             });
     });
 
@@ -246,9 +246,9 @@ describe('Pay for LPA', () => {
                 const uid = text.split(':')[1].trim();
                 cy.visit(`http://localhost:9001/?detail-type=reduced-fee-requested&detail=${uid}`);
 
-                cy.contains('"requestType":"NoFee"');
-                cy.contains(`"evidence":["${uid}`);
-                cy.contains('"evidenceDelivery":"upload"');
+                cy.contains('"requestType": "NoFee"');
+                cy.contains(`"evidence": ["${uid}`);
+                cy.contains('"evidenceDelivery": "upload"');
             });
     });
 
@@ -316,9 +316,9 @@ describe('Pay for LPA', () => {
                 const uid = text.split(':')[1].trim();
                 cy.visit(`http://localhost:9001/?detail-type=reduced-fee-requested&detail=${uid}`);
 
-                cy.contains('"requestType":"HardshipFee"');
+                cy.contains('"requestType": "HardshipFee"');
                 cy.contains('"evidence"').should('not.exist');
-                cy.contains('"evidenceDelivery":"post"');
+                cy.contains('"evidenceDelivery": "post"');
             });
     });
 });

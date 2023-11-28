@@ -29,7 +29,7 @@ func (s *ShareCodeSender) UseTestCode() {
 	s.useTestCode = true
 }
 
-func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template notify.Template, appData AppData, identity bool, donor *actor.DonorProvidedDetails) error {
+func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template notify.Template, appData AppData, donor *actor.DonorProvidedDetails) error {
 	shareCode := s.randomString(12)
 	if s.useTestCode {
 		shareCode = "abcdef123456"
@@ -38,7 +38,6 @@ func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template 
 
 	if err := s.shareCodeStore.Put(ctx, actor.TypeCertificateProvider, shareCode, actor.ShareCodeData{
 		LpaID:           appData.LpaID,
-		Identity:        identity,
 		DonorFullname:   donor.Donor.FullName(),
 		DonorFirstNames: donor.Donor.FirstNames,
 		SessionID:       appData.SessionID,
