@@ -734,7 +734,7 @@
     "signTheLpaOnBehalfOfTheDonor": "Sign the LPA on behalf of the donor",
     "signTheLpaOnBehalfOf": "Sign the LPA on behalf of {{.DonorFullName}}",
     "signingAnLpaIsAnImportant": "Signing an LPA is an important and powerful legal step.",
-    "bySigningOnBehalfIConfirm": "By signing on behalf of the donor, {{.DonorFullName}}, I understand and confirm all of the following:",
+    "bySigningOnBehalfIConfirm": "By signing, I, {{.DonorFullName}}, understand and confirm all of the following:",
     "theDonorHasReadLpa": "The donor has read their LPA or has had it read to them. This includes their legal rights and responsibilities.",
     "theDonorGivesAttorneysAuthorityWhenRegistered": "The donor gives their attorneys authority to make decisions about their property and affairs, once this LPA is registered.",
     "theDonorGivesAttorneysAuthorityWhenLostMentalCapacity": "The donor gives their attorneys authority to make decisions about their property and affairs when they cannot act because they do not have mental capacity.",

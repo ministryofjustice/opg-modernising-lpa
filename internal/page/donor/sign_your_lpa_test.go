@@ -81,11 +81,8 @@ func TestPostSignYourLpa(t *testing.T) {
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
 			LpaID:                 "lpa-id",
 			DonorIdentityUserData: identity.UserData{OK: true},
-			Tasks: actor.DonorTasks{
-				ConfirmYourIdentityAndSign: actor.TaskCompleted,
-			},
-			WantToSignLpa:     true,
-			WantToApplyForLpa: true,
+			WantToSignLpa:         true,
+			WantToApplyForLpa:     true,
 		}).
 		Return(nil)
 

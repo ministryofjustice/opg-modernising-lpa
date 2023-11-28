@@ -22,7 +22,7 @@ describe('Signing on behalf of the donor', () => {
         cy.url().should('contain', '/sign-the-lpa-on-behalf');
         cy.checkA11yApp();
 
-        cy.contains('h1', "Sign the LPA on behalf of Sam Smith");
+        cy.contains('h1', "Sign your LPA");
         cy.contains('label', 'Sam Smith wants to sign this LPA as a deed').click();
         cy.contains('label', 'Sam Smith wants to apply to register this LPA').click();
         cy.contains('button', 'Submit signature').click();
