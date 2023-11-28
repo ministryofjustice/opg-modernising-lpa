@@ -28,7 +28,6 @@ const (
 	CertificateProviderProvideCertificatePromptEmail
 	ReplacementAttorneyInviteEmail
 	ReplacementTrustCorporationInviteEmail
-	SignatureCodeEmail
 	SignatureCodeSMS
 	TrustCorporationInviteEmail
 )
@@ -47,7 +46,6 @@ var (
 		CertificateProviderProvideCertificatePromptEmail:  "eada8a4f-5e7c-4f6b-b3fb-d4e92eeeb0ed",
 		ReplacementAttorneyInviteEmail:                    "1c4d5b24-fc7d-45ee-be40-f1ccda96f101",
 		ReplacementTrustCorporationInviteEmail:            "1c4d5b24-fc7d-45ee-be40-f1ccda96f101",
-		SignatureCodeEmail:                                "95f7b0a2-1c3a-4ad9-818b-b358c549c88b",
 		SignatureCodeSMS:                                  "e39849c0-ecab-4e16-87ec-6b22afb9d535",
 		TrustCorporationInviteEmail:                       "9aaedb70-df4a-42a8-9c28-de435cb3d453",
 	}
@@ -64,7 +62,6 @@ var (
 		CertificateProviderProvideCertificatePromptEmail:  "a445edda-dea1-4554-be9b-ad11adad9e89",
 		ReplacementAttorneyInviteEmail:                    "bf79859b-72b7-4701-bfd3-22ac6f0908c8",
 		ReplacementTrustCorporationInviteEmail:            "bf79859b-72b7-4701-bfd3-22ac6f0908c8",
-		SignatureCodeEmail:                                "7e8564a0-2635-4f61-9155-0166ddbe5607",
 		SignatureCodeSMS:                                  "dfa15e16-1f23-494a-bffb-a475513df6cc",
 		TrustCorporationInviteEmail:                       "9be88a99-21c0-4808-8d6a-52af366e44aa",
 	}
