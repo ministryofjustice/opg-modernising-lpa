@@ -78,55 +78,40 @@ func TestGetEnterReferenceNumberOnTemplateError(t *testing.T) {
 }
 
 func TestPostEnterReferenceNumber(t *testing.T) {
-	testCases := map[string]struct {
-		Identity bool
-	}{
-		"with identity": {
-			Identity: true,
-		},
-		"without identity": {
-			Identity: false,
-		},
+	form := url.Values{
+		"reference-number": {"a Ref-Number12"},
 	}
 
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			form := url.Values{
-				"reference-number": {"a Ref-Number12"},
-			}
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-			r.Header.Add("Content-Type", page.FormUrlEncoded)
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.
+		On("Get", r.Context(), actor.TypeCertificateProvider, "aRefNumber12").
+		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id"}, nil)
 
-			shareCodeStore := newMockShareCodeStore(t)
-			shareCodeStore.
-				On("Get", r.Context(), actor.TypeCertificateProvider, "aRefNumber12").
-				Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: tc.Identity}, nil)
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		ExpectGet(r,
+			map[any]any{"session": &sesh.LoginSession{Sub: "hey"}}, nil)
 
-			sessionStore := newMockSessionStore(t)
-			sessionStore.
-				ExpectGet(r,
-					map[any]any{"session": &sesh.LoginSession{Sub: "hey"}}, nil)
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
+		On("Create", mock.MatchedBy(func(ctx context.Context) bool {
+			session, _ := page.SessionDataFromContext(ctx)
 
-			certificateProviderStore := newMockCertificateProviderStore(t)
-			certificateProviderStore.
-				On("Create", mock.MatchedBy(func(ctx context.Context) bool {
-					session, _ := page.SessionDataFromContext(ctx)
+			return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
+		}), "session-id").
+		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
-					return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
-				}), "session-id").
-				Return(&actor.CertificateProviderProvidedDetails{}, nil)
+	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, certificateProviderStore)(testAppData, w, r)
 
-			err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, certificateProviderStore)(testAppData, w, r)
+	resp := w.Result()
 
-			resp := w.Result()
-
-			assert.Nil(t, err)
-			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.CertificateProvider.WhoIsEligible.Format("lpa-id"), resp.Header.Get("Location"))
-		})
-	}
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.CertificateProvider.WhoIsEligible.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostEnterReferenceNumberOnShareCodeStoreError(t *testing.T) {
@@ -141,7 +126,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.
 		On("Get", r.Context(), actor.TypeCertificateProvider, "aRefNumber12").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, expectedError)
+		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id"}, expectedError)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, nil, nil)(testAppData, w, r)
 
@@ -174,7 +159,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.
 		On("Get", r.Context(), actor.TypeCertificateProvider, "aRefNumber12").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", Identity: true}, dynamo.NotFoundError{})
+		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id"}, dynamo.NotFoundError{})
 
 	err := EnterReferenceNumber(template.Execute, shareCodeStore, nil, nil)(testAppData, w, r)
 
