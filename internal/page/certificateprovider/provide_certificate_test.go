@@ -153,8 +153,11 @@ func TestPostProvideCertificate(t *testing.T) {
 
 	localizer := newMockLocalizer(t)
 	localizer.
+		On("Possessive", "c").
+		Return("the possessive first names")
+	localizer.
 		On("Possessive", "c d").
-		Return("the possessive name")
+		Return("the possessive full name")
 	localizer.
 		On("T", "pfaLegalTerm").
 		Return("the translated term")
@@ -168,7 +171,8 @@ func TestPostProvideCertificate(t *testing.T) {
 			EmailAddress: "cp@example.org",
 			TemplateID:   "the-template-id",
 			Personalisation: map[string]string{
-				"donorFullNamePossessive":     "the possessive name",
+				"donorFullNamePossessive":     "the possessive full name",
+				"donorFirstNamesPossessive":   "the possessive first names",
 				"lpaLegalTerm":                "the translated term",
 				"certificateProviderFullName": "a b",
 				"certificateProvidedDateTime": "the formatted date",
@@ -254,6 +258,9 @@ func TestPostProvideCertificateOnNoticyClientError(t *testing.T) {
 		Return(nil)
 
 	localizer := newMockLocalizer(t)
+	localizer.
+		On("Possessive", mock.Anything).
+		Return("")
 	localizer.
 		On("Possessive", mock.Anything).
 		Return("")
