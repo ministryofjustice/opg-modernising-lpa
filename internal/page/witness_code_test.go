@@ -17,7 +17,7 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
-		On("TemplateID", notify.SignatureCodeSMS).
+		On("TemplateID", notify.WitnessCodeSMS).
 		Return("template-id")
 	notifyClient.
 		On("Sms", ctx, notify.Sms{
@@ -150,7 +150,7 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
-		On("TemplateID", notify.SignatureCodeSMS).
+		On("TemplateID", notify.WitnessCodeSMS).
 		Return("template-id")
 	notifyClient.
 		On("Sms", ctx, notify.Sms{
