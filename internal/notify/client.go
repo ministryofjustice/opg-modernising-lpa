@@ -18,8 +18,8 @@ type Template uint8
 const (
 	AttorneyInviteEmail Template = iota
 	AttorneyNameChangeEmail
-	CertificateProviderActingDigitallyDetailsChangedNotSeenLpaSMS
-	CertificateProviderActingDigitallyDetailsChangedSeenLpaSMS
+	CertificateProviderActingDigitallyHasNotConfirmedPersonalDetailsLPADetailsChangedPromptSMS
+	CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS
 	CertificateProviderCertificateProvidedEmail
 	CertificateProviderInviteEmail
 	CertificateProviderNameChangeEmail
@@ -35,38 +35,38 @@ const (
 
 var (
 	productionTemplates = map[Template]string{
-		AttorneyInviteEmail:                                           "9aaedb70-df4a-42a8-9c28-de435cb3d453",
-		AttorneyNameChangeEmail:                                       "1e0950c5-63fa-487e-8bf3-f40445412a12",
-		CertificateProviderCertificateProvidedEmail:                   "2915acb9-2a52-4b62-812a-b31b19c6a94b",
-		CertificateProviderActingDigitallyDetailsChangedNotSeenLpaSMS: "19948d7d-a2df-4e85-930b-5d800978f41f",
-		CertificateProviderActingDigitallyDetailsChangedSeenLpaSMS:    "71d21daa-11f9-4a2a-9ae2-bb5c2247bfb7",
-		CertificateProviderInviteEmail:                                "13df4493-20b0-4c20-b742-cab3844e69b2",
-		CertificateProviderNameChangeEmail:                            "9f8be86f-864a-4cda-a58a-5768522bd325",
-		CertificateProviderActingOnPaperDetailsChangedSMS:             "d363a56f-e802-4f88-bd09-80b8c9e9d650",
-		CertificateProviderActingOnPaperMeetingPromptSMS:              "b5cd2c1b-e9b4-4f3e-8cf1-504aff93b16d",
-		CertificateProviderProvideCertificatePromptEmail:              "eada8a4f-5e7c-4f6b-b3fb-d4e92eeeb0ed",
-		ReplacementAttorneyInviteEmail:                                "1c4d5b24-fc7d-45ee-be40-f1ccda96f101",
-		ReplacementTrustCorporationInviteEmail:                        "1c4d5b24-fc7d-45ee-be40-f1ccda96f101",
-		SignatureCodeEmail:                                            "95f7b0a2-1c3a-4ad9-818b-b358c549c88b",
-		SignatureCodeSMS:                                              "e39849c0-ecab-4e16-87ec-6b22afb9d535",
-		TrustCorporationInviteEmail:                                   "9aaedb70-df4a-42a8-9c28-de435cb3d453",
+		AttorneyInviteEmail:                         "9aaedb70-df4a-42a8-9c28-de435cb3d453",
+		AttorneyNameChangeEmail:                     "1e0950c5-63fa-487e-8bf3-f40445412a12",
+		CertificateProviderCertificateProvidedEmail: "2915acb9-2a52-4b62-812a-b31b19c6a94b",
+		CertificateProviderActingDigitallyHasNotConfirmedPersonalDetailsLPADetailsChangedPromptSMS: "19948d7d-a2df-4e85-930b-5d800978f41f",
+		CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS:    "71d21daa-11f9-4a2a-9ae2-bb5c2247bfb7",
+		CertificateProviderInviteEmail:                    "13df4493-20b0-4c20-b742-cab3844e69b2",
+		CertificateProviderNameChangeEmail:                "9f8be86f-864a-4cda-a58a-5768522bd325",
+		CertificateProviderActingOnPaperDetailsChangedSMS: "ab90c6be-806e-411a-a354-de10f7a70c47",
+		CertificateProviderActingOnPaperMeetingPromptSMS:  "b5cd2c1b-e9b4-4f3e-8cf1-504aff93b16d",
+		CertificateProviderProvideCertificatePromptEmail:  "eada8a4f-5e7c-4f6b-b3fb-d4e92eeeb0ed",
+		ReplacementAttorneyInviteEmail:                    "1c4d5b24-fc7d-45ee-be40-f1ccda96f101",
+		ReplacementTrustCorporationInviteEmail:            "1c4d5b24-fc7d-45ee-be40-f1ccda96f101",
+		SignatureCodeEmail:                                "95f7b0a2-1c3a-4ad9-818b-b358c549c88b",
+		SignatureCodeSMS:                                  "e39849c0-ecab-4e16-87ec-6b22afb9d535",
+		TrustCorporationInviteEmail:                       "9aaedb70-df4a-42a8-9c28-de435cb3d453",
 	}
 	testingTemplates = map[Template]string{
-		AttorneyInviteEmail:                                           "9be88a99-21c0-4808-8d6a-52af366e44aa",
-		AttorneyNameChangeEmail:                                       "685bbdcc-71b8-48b9-b773-03941472d3b1",
-		CertificateProviderCertificateProvidedEmail:                   "c916f964-bf30-4dee-a9f3-b9bf0043e64d",
-		CertificateProviderActingDigitallyDetailsChangedNotSeenLpaSMS: "d7513751-49ba-4276-aef5-ad67361d29c4",
-		CertificateProviderActingDigitallyDetailsChangedSeenLpaSMS:    "359fffa0-e1ec-444c-a886-6f046af374ab",
-		CertificateProviderInviteEmail:                                "4ab51290-5ac6-44ea-88f4-a27c37f285f8",
-		CertificateProviderNameChangeEmail:                            "0f111ed1-5c58-47eb-a13f-931f2077523b",
-		CertificateProviderActingOnPaperDetailsChangedSMS:             "94477364-281a-4032-9a88-b215f969cd12",
-		CertificateProviderActingOnPaperMeetingPromptSMS:              "ee39cd81-5802-44bb-b967-27da7e25e897",
-		CertificateProviderProvideCertificatePromptEmail:              "a445edda-dea1-4554-be9b-ad11adad9e89",
-		ReplacementAttorneyInviteEmail:                                "bf79859b-72b7-4701-bfd3-22ac6f0908c8",
-		ReplacementTrustCorporationInviteEmail:                        "bf79859b-72b7-4701-bfd3-22ac6f0908c8",
-		SignatureCodeEmail:                                            "7e8564a0-2635-4f61-9155-0166ddbe5607",
-		SignatureCodeSMS:                                              "dfa15e16-1f23-494a-bffb-a475513df6cc",
-		TrustCorporationInviteEmail:                                   "9be88a99-21c0-4808-8d6a-52af366e44aa",
+		AttorneyInviteEmail:                         "9be88a99-21c0-4808-8d6a-52af366e44aa",
+		AttorneyNameChangeEmail:                     "685bbdcc-71b8-48b9-b773-03941472d3b1",
+		CertificateProviderCertificateProvidedEmail: "c916f964-bf30-4dee-a9f3-b9bf0043e64d",
+		CertificateProviderActingDigitallyHasNotConfirmedPersonalDetailsLPADetailsChangedPromptSMS: "d7513751-49ba-4276-aef5-ad67361d29c4",
+		CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS:    "359fffa0-e1ec-444c-a886-6f046af374ab",
+		CertificateProviderInviteEmail:                    "4ab51290-5ac6-44ea-88f4-a27c37f285f8",
+		CertificateProviderNameChangeEmail:                "0f111ed1-5c58-47eb-a13f-931f2077523b",
+		CertificateProviderActingOnPaperDetailsChangedSMS: "94477364-281a-4032-9a88-b215f969cd12",
+		CertificateProviderActingOnPaperMeetingPromptSMS:  "ee39cd81-5802-44bb-b967-27da7e25e897",
+		CertificateProviderProvideCertificatePromptEmail:  "a445edda-dea1-4554-be9b-ad11adad9e89",
+		ReplacementAttorneyInviteEmail:                    "bf79859b-72b7-4701-bfd3-22ac6f0908c8",
+		ReplacementTrustCorporationInviteEmail:            "bf79859b-72b7-4701-bfd3-22ac6f0908c8",
+		SignatureCodeEmail:                                "7e8564a0-2635-4f61-9155-0166ddbe5607",
+		SignatureCodeSMS:                                  "dfa15e16-1f23-494a-bffb-a475513df6cc",
+		TrustCorporationInviteEmail:                       "9be88a99-21c0-4808-8d6a-52af366e44aa",
 	}
 )
 
