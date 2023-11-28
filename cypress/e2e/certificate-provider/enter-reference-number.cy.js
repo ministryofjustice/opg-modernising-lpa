@@ -11,7 +11,7 @@ describe('Enter reference number', () => {
         cy.checkA11yApp();
 
         cy.get('#f-reference-number').type('abcdef123456');
-        cy.contains('Continue').click();
+        cy.contains('Save and continue').click();
 
         cy.url().should('contain', '/certificate-provider-who-is-eligible')
     });
@@ -21,7 +21,7 @@ describe('Enter reference number', () => {
 
         cy.checkA11yApp();
 
-        cy.contains('Continue').click();
+        cy.contains('Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Enter your 12 character reference number');
@@ -36,7 +36,7 @@ describe('Enter reference number', () => {
         cy.checkA11yApp();
 
         cy.get('#f-reference-number').type('notATestCode');
-        cy.contains('Continue').click();
+        cy.contains('Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('The reference number you entered is incorrect, please check it and try again');
@@ -51,7 +51,7 @@ describe('Enter reference number', () => {
         cy.checkA11yApp();
 
         cy.get('#f-reference-number').type('tooShort');
-        cy.contains('Continue').click();
+        cy.contains('Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('The reference number you enter must be 12 characters');
