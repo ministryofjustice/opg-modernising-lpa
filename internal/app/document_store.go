@@ -110,7 +110,7 @@ func (s *documentStore) Delete(ctx context.Context, document page.Document) erro
 
 func (s *documentStore) Submit(ctx context.Context, donor *actor.DonorProvidedDetails, documents page.Documents) error {
 	var unsentDocuments []any
-	var unsentDocumentKeys []string
+	var unsentEvidence []event.Evidence
 
 	tags := map[string]string{
 		"replicate":         "true",
@@ -121,7 +121,10 @@ func (s *documentStore) Submit(ctx context.Context, donor *actor.DonorProvidedDe
 		if document.Sent.IsZero() && !document.VirusDetected {
 			document.Sent = s.now()
 			unsentDocuments = append(unsentDocuments, document)
-			unsentDocumentKeys = append(unsentDocumentKeys, document.Key)
+			unsentEvidence = append(unsentEvidence, event.Evidence{
+				Path:     document.Key,
+				Filename: document.Filename,
+			})
 
 			if err := s.s3Client.PutObjectTagging(ctx, document.Key, tags); err != nil {
 				return err
@@ -133,7 +136,7 @@ func (s *documentStore) Submit(ctx context.Context, donor *actor.DonorProvidedDe
 		if err := s.eventClient.SendReducedFeeRequested(ctx, event.ReducedFeeRequested{
 			UID:              donor.LpaUID,
 			RequestType:      donor.FeeType.String(),
-			Evidence:         unsentDocumentKeys,
+			Evidence:         unsentEvidence,
 			EvidenceDelivery: donor.EvidenceDelivery.String(),
 		}); err != nil {
 			return err

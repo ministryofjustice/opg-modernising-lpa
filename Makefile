@@ -29,6 +29,9 @@ go-test: ##@testing Runs full go test suite
 go-generate: ##@testing Runs go generate
 	go generate ./...
 
+update-event-schemas: ##@testing Gets the latest event schemas from OPG event catalog that we have tests for
+	sh ./scripts/get_event_schemas.sh
+
 coverage: ##@testing Produces coverage report and launches browser line based coverage explorer. To test a specific internal package pass in the package name e.g. make coverage package=page
 ifdef package
 	$(eval t="/tmp/go-cover.$(package).tmp")
