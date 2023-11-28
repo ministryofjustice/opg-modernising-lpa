@@ -36,7 +36,6 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, uuidStr
 			Form: &choosePeopleToNotifyForm{
 				FirstNames: personToNotify.FirstNames,
 				LastName:   personToNotify.LastName,
-				Email:      personToNotify.Email,
 			},
 		}
 
@@ -60,7 +59,6 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, uuidStr
 					personToNotify = actor.PersonToNotify{
 						FirstNames: data.Form.FirstNames,
 						LastName:   data.Form.LastName,
-						Email:      data.Form.Email,
 						ID:         uuidString(),
 					}
 
@@ -68,7 +66,6 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, uuidStr
 				} else {
 					personToNotify.FirstNames = data.Form.FirstNames
 					personToNotify.LastName = data.Form.LastName
-					personToNotify.Email = data.Form.Email
 
 					donor.PeopleToNotify.Put(personToNotify)
 				}
@@ -92,7 +89,6 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, uuidStr
 type choosePeopleToNotifyForm struct {
 	FirstNames        string
 	LastName          string
-	Email             string
 	IgnoreNameWarning string
 }
 
@@ -100,7 +96,6 @@ func readChoosePeopleToNotifyForm(r *http.Request) *choosePeopleToNotifyForm {
 	return &choosePeopleToNotifyForm{
 		FirstNames:        page.PostFormString(r, "first-names"),
 		LastName:          page.PostFormString(r, "last-name"),
-		Email:             page.PostFormString(r, "email"),
 		IgnoreNameWarning: page.PostFormString(r, "ignore-name-warning"),
 	}
 }
@@ -115,10 +110,6 @@ func (f *choosePeopleToNotifyForm) Validate() validation.List {
 	errors.String("last-name", "lastName", f.LastName,
 		validation.Empty(),
 		validation.StringTooLong(61))
-
-	errors.String("email", "email", f.Email,
-		validation.Empty(),
-		validation.Email())
 
 	return errors
 }
