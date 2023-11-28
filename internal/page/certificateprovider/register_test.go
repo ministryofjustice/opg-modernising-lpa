@@ -80,7 +80,7 @@ func TestMakeCertificateProviderHandle(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeCertificateProviderHandle(mux, sessionStore, nil)
-	handle("/path", func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/certificate-provider/123/path",
 			SessionID: "cmFuZG9t",
@@ -113,7 +113,7 @@ func TestMakeCertificateProviderHandleSessionError(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeCertificateProviderHandle(mux, sessionStore, nil)
-	handle("/path", func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
+	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
@@ -133,7 +133,7 @@ func TestMakeCertificateProviderHandleSessionMissing(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeCertificateProviderHandle(mux, sessionStore, nil)
-	handle("/path", func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
+	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
