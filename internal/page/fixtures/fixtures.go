@@ -132,7 +132,6 @@ func makePersonToNotify(name Name) actor.PersonToNotify {
 		ID:         name.Firstnames + name.Lastname,
 		FirstNames: name.Firstnames,
 		LastName:   name.Lastname,
-		Email:      testEmail,
 		Address: place.Address{
 			Line1:      "4 RICHMOND PLACE",
 			Line2:      "KINGS HEATH",
