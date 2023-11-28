@@ -13,6 +13,7 @@ import (
 )
 
 func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
+	localizer := newMockLocalizer(t)
 	donor := &actor.DonorProvidedDetails{
 		CertificateProvider: actor.CertificateProvider{
 			FirstNames: "Joanna",
@@ -26,37 +27,12 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 		Type: actor.LpaTypePropertyFinance,
 	}
 
-	localizer := newMockLocalizer(t)
-	localizer.
-		On("T", donor.Type.LegalTermTransKey()).
-		Return("property and affairs")
-	localizer.
-		On("Possessive", "Jan").
-		Return("Jan’s")
-
-	TestAppData.Localizer = localizer
-
-	ctx := context.Background()
-
-	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.
-		On("Put", ctx, actor.TypeCertificateProvider, "123", actor.ShareCodeData{
-			LpaID:           "lpa-id",
-			DonorFullname:   "Jan Smith",
-			DonorFirstNames: "Jan",
-			SessionID:       "session-id",
-		}).
-		Return(nil)
-
-	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("TemplateID", notify.Template(99)).
-		Return("template-id")
-	notifyClient.
-		On("Email", ctx, notify.Email{
-			TemplateID:   "template-id",
-			EmailAddress: "name@example.org",
-			Personalisation: map[string]string{
+	testcases := map[notify.Template]struct {
+		personalisation map[string]string
+		localizerSetup  func(*mockLocalizer) *mockLocalizer
+	}{
+		notify.CertificateProviderInviteEmail: {
+			personalisation: map[string]string{
 				"shareCode":                   "123",
 				"cpFullName":                  "Joanna Jones",
 				"donorFirstNames":             "Jan",
@@ -64,14 +40,78 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 				"lpaLegalTerm":                "property and affairs",
 				"certificateProviderStartURL": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
 				"donorFirstNamesPossessive":   "Jan’s",
+				"whatLPACovers":               "houses and stuff",
 			},
-		}).
-		Return("", nil)
+			localizerSetup: func(localizer *mockLocalizer) *mockLocalizer {
+				localizer.
+					On("T", donor.Type.LegalTermTransKey()).
+					Return("property and affairs").
+					Once()
+				localizer.
+					On("T", donor.Type.WhatLPACoversTransKey()).
+					Return("houses and stuff").
+					Once()
+				localizer.
+					On("Possessive", "Jan").
+					Return("Jan’s")
 
-	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
-	err := sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, donor)
+				return localizer
+			},
+		},
+		notify.Template(99): {
+			personalisation: map[string]string{
+				"shareCode":                   "123",
+				"cpFullName":                  "Joanna Jones",
+				"donorFullName":               "Jan Smith",
+				"lpaLegalTerm":                "property and affairs",
+				"certificateProviderStartURL": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+			},
+			localizerSetup: func(localizer *mockLocalizer) *mockLocalizer {
+				localizer.
+					On("T", donor.Type.LegalTermTransKey()).
+					Return("property and affairs").
+					Once()
 
-	assert.Nil(t, err)
+				return localizer
+			},
+		},
+	}
+
+	for template, tc := range testcases {
+		t.Run(string(template), func(t *testing.T) {
+			tc.localizerSetup(localizer)
+			TestAppData.Localizer = localizer
+
+			ctx := context.Background()
+
+			shareCodeStore := newMockShareCodeStore(t)
+			shareCodeStore.
+				On("Put", ctx, actor.TypeCertificateProvider, "123", actor.ShareCodeData{
+					LpaID:           "lpa-id",
+					DonorFullname:   "Jan Smith",
+					DonorFirstNames: "Jan",
+					SessionID:       "session-id",
+				}).
+				Return(nil)
+
+			notifyClient := newMockNotifyClient(t)
+			notifyClient.
+				On("TemplateID", template).
+				Return("template-id")
+			notifyClient.
+				On("Email", ctx, notify.Email{
+					TemplateID:      "template-id",
+					EmailAddress:    "name@example.org",
+					Personalisation: tc.personalisation,
+				}).
+				Return("", nil)
+
+			sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
+			err := sender.SendCertificateProvider(ctx, template, TestAppData, donor)
+
+			assert.Nil(t, err)
+		})
+	}
 }
 
 func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
@@ -102,18 +142,16 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 		Type: actor.LpaTypePropertyFinance,
 	}
 
-	localizer := newMockLocalizer(t)
-	localizer.
-		On("T", donor.Type.LegalTermTransKey()).
-		Return("property and affairs")
-	localizer.
-		On("Possessive", "Jan").
-		Return("Jan’s")
-
-	TestAppData.Localizer = localizer
-
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
+			localizer := newMockLocalizer(t)
+			localizer.
+				On("T", donor.Type.LegalTermTransKey()).
+				Return("property and affairs").
+				Twice()
+
+			TestAppData.Localizer = localizer
+
 			ctx := context.Background()
 
 			shareCodeStore := newMockShareCodeStore(t)
@@ -124,7 +162,9 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 					DonorFirstNames: "Jan",
 					SessionID:       "session-id",
 				}).
+				Once().
 				Return(nil)
+
 			shareCodeStore.
 				On("Put", ctx, actor.TypeCertificateProvider, "123", actor.ShareCodeData{
 					LpaID:           "lpa-id",
@@ -132,6 +172,7 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 					DonorFirstNames: "Jan",
 					SessionID:       "session-id",
 				}).
+				Once().
 				Return(nil)
 
 			notifyClient := newMockNotifyClient(t)
@@ -143,30 +184,28 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 					TemplateID:   "template-id",
 					EmailAddress: "name@example.org",
 					Personalisation: map[string]string{
-						"shareCode":                   tc.expectedTestCode,
 						"cpFullName":                  "Joanna Jones",
-						"donorFirstNames":             "Jan",
 						"donorFullName":               "Jan Smith",
 						"lpaLegalTerm":                "property and affairs",
 						"certificateProviderStartURL": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
-						"donorFirstNamesPossessive":   "Jan’s",
+						"shareCode":                   tc.expectedTestCode,
 					},
 				}).
+				Once().
 				Return("", nil)
 			notifyClient.
 				On("Email", ctx, notify.Email{
 					TemplateID:   "template-id",
 					EmailAddress: "name@example.org",
 					Personalisation: map[string]string{
-						"shareCode":                   "123",
 						"cpFullName":                  "Joanna Jones",
-						"donorFirstNames":             "Jan",
 						"donorFullName":               "Jan Smith",
 						"lpaLegalTerm":                "property and affairs",
 						"certificateProviderStartURL": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
-						"donorFirstNamesPossessive":   "Jan’s",
+						"shareCode":                   "123",
 					},
 				}).
+				Once().
 				Return("", nil)
 
 			sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
@@ -204,11 +243,8 @@ func TestShareCodeSenderSendCertificateProviderWhenEmailErrors(t *testing.T) {
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", donor.Type.LegalTermTransKey()).
-		Return("property and affairs")
-	localizer.
-		On("Possessive", "Jan").
-		Return("Jan’s")
+		On("T", mock.Anything).
+		Return("")
 
 	TestAppData.Localizer = localizer
 
@@ -220,21 +256,9 @@ func TestShareCodeSenderSendCertificateProviderWhenEmailErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
 		On("TemplateID", notify.Template(99)).
-		Return("template-id")
+		Return("")
 	notifyClient.
-		On("Email", ctx, notify.Email{
-			TemplateID:   "template-id",
-			EmailAddress: "name@example.org",
-			Personalisation: map[string]string{
-				"shareCode":                   "123",
-				"cpFullName":                  "Joanna Jones",
-				"donorFirstNames":             "Jan",
-				"donorFullName":               "Jan Smith",
-				"lpaLegalTerm":                "property and affairs",
-				"certificateProviderStartURL": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
-				"donorFirstNamesPossessive":   "Jan’s",
-			},
-		}).
+		On("Email", ctx, mock.Anything).
 		Return("", ExpectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)

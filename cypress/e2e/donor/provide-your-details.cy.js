@@ -26,10 +26,10 @@ describe('Provide your details', () => {
                 const id = url.split('/')[4];
 
                 cy.visit(`http://localhost:9001/?detail-type=uid-requested&detail=${id}`);
-                cy.contains('"Type":"pfa"');
-                cy.contains(`"name":"John${rnd} Doe${rnd}"`);
-                cy.contains('"dob":"1990-02-01"');
-                cy.contains('"postcode":"B14 7ED"');
+                cy.contains('"Type": "pfa"');
+                cy.contains(`"name": "John${rnd} Doe${rnd}"`);
+                cy.contains('"dob": "1990-02-01"');
+                cy.contains('"postcode": "B14 7ED"');
             });
     });
 });
