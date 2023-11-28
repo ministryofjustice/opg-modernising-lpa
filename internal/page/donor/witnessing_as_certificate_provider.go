@@ -57,7 +57,7 @@ func WitnessingAsCertificateProvider(tmpl template.Template, donorStore DonorSto
 
 			if data.Errors.None() {
 				if donor.Tasks.PayForLpa.IsCompleted() {
-					if err := shareCodeSender.SendCertificateProvider(r.Context(), notify.CertificateProviderReturnEmail, appData, donor); err != nil {
+					if err := shareCodeSender.SendCertificateProvider(r.Context(), notify.CertificateProviderProvideCertificatePromptEmail, appData, donor); err != nil {
 						return err
 					}
 				}
