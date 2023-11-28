@@ -80,11 +80,11 @@ func TestEmailWhenError(t *testing.T) {
 
 func TestTemplateID(t *testing.T) {
 	production, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", nil)
-	assert.Equal(t, "e39849c0-ecab-4e16-87ec-6b22afb9d535", production.TemplateID(SignatureCodeSMS))
+	assert.Equal(t, "e39849c0-ecab-4e16-87ec-6b22afb9d535", production.TemplateID(WitnessCodeSMS))
 	assert.Equal(t, "", production.TemplateID(Template(200)))
 
 	test, _ := New(false, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", nil)
-	assert.Equal(t, "dfa15e16-1f23-494a-bffb-a475513df6cc", test.TemplateID(SignatureCodeSMS))
+	assert.Equal(t, "dfa15e16-1f23-494a-bffb-a475513df6cc", test.TemplateID(WitnessCodeSMS))
 	assert.Equal(t, "", test.TemplateID(Template(200)))
 }
 

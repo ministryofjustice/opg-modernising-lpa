@@ -38,7 +38,7 @@ func (s *WitnessCodeSender) SendToCertificateProvider(ctx context.Context, donor
 
 	_, err := s.notifyClient.Sms(ctx, notify.Sms{
 		PhoneNumber: donor.CertificateProvider.Mobile,
-		TemplateID:  s.notifyClient.TemplateID(notify.SignatureCodeSMS),
+		TemplateID:  s.notifyClient.TemplateID(notify.WitnessCodeSMS),
 		Personalisation: map[string]string{
 			"WitnessCode":   code,
 			"DonorFullName": localizer.Possessive(donor.Donor.FullName()),
@@ -62,7 +62,7 @@ func (s *WitnessCodeSender) SendToIndependentWitness(ctx context.Context, donor 
 
 	_, err := s.notifyClient.Sms(ctx, notify.Sms{
 		PhoneNumber: donor.IndependentWitness.Mobile,
-		TemplateID:  s.notifyClient.TemplateID(notify.SignatureCodeSMS),
+		TemplateID:  s.notifyClient.TemplateID(notify.WitnessCodeSMS),
 		Personalisation: map[string]string{
 			"WitnessCode":   code,
 			"DonorFullName": localizer.Possessive(donor.Donor.FullName()),
