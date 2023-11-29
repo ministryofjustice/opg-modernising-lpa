@@ -7,11 +7,16 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 )
 
-type shareCodeStore struct {
-	dynamoClient DynamoClient
+type ShareCodeStoreDynamoClient interface {
+	One(ctx context.Context, pk, sk string, v interface{}) error
+	Put(ctx context.Context, v interface{}) error
 }
 
-func NewShareCodeStore(dynamoClient DynamoClient) *shareCodeStore {
+type shareCodeStore struct {
+	dynamoClient ShareCodeStoreDynamoClient
+}
+
+func NewShareCodeStore(dynamoClient ShareCodeStoreDynamoClient) *shareCodeStore {
 	return &shareCodeStore{dynamoClient: dynamoClient}
 }
 

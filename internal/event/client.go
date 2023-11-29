@@ -7,6 +7,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/eventbridge"
 	"github.com/aws/aws-sdk-go-v2/service/eventbridge/types"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/trace"
 )
 
 const source = "opg.poas.makeregister"
@@ -45,6 +47,12 @@ func (c *Client) SendReducedFeeRequested(ctx context.Context, event ReducedFeeRe
 }
 
 func (c *Client) send(ctx context.Context, detailType string, detail any) error {
+	tracer := otel.GetTracerProvider().Tracer("mlpab")
+	ctx, span := tracer.Start(ctx, detailType,
+		trace.WithSpanKind(trace.SpanKindInternal),
+	)
+	defer span.End()
+
 	v, err := json.Marshal(detail)
 	if err != nil {
 		return err
