@@ -30,13 +30,14 @@ type cloudWatchEventHandler struct {
 	notifyIsProduction bool
 	notifyBaseURL      string
 	appPublicURL       string
+	httpClient         *http.Client
 }
 
 func (h *cloudWatchEventHandler) Handle(ctx context.Context, event events.CloudWatchEvent) error {
 	switch event.DetailType {
 	case "uid-requested":
 		uidStore := app.NewUidStore(h.dynamoClient, h.now)
-		uidClient := uid.New(h.uidBaseURL, &http.Client{Timeout: 10 * time.Second}, h.cfg, v4.NewSigner(), time.Now)
+		uidClient := uid.New(h.uidBaseURL, h.httpClient, h.cfg, v4.NewSigner(), time.Now)
 
 		return handleUidRequested(ctx, uidStore, uidClient, event)
 
