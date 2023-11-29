@@ -1,11 +1,16 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"testing"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/stretchr/testify/assert"
 )
+
+var expectedError = errors.New("err")
+var ctx = context.Background()
 
 func TestIsS3Event(t *testing.T) {
 	s3Event := Event{S3Event: events.S3Event{Records: []events.S3EventRecord{{}, {}}}}
