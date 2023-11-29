@@ -1,13 +1,11 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "signTheLpaOnBehalfOfTheDonor" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "signYourLpa" }}{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">
-        {{ trFormat .App "signTheLpaOnBehalfOf" "DonorFullName" .Donor.Donor.FullName }}
-      </h1>
+      <h1 class="govuk-heading-xl">{{ tr .App "signYourLpa" }}</h1>
 
       <h2 class="govuk-heading-m">{{ tr .App "signingAnLpaIsAnImportant" }}</h2>
 
@@ -18,29 +16,29 @@
       <p class="govuk-body govuk-!-font-weight-bold">{{ trFormat .App "bySigningOnBehalfIConfirm" "DonorFullName" .Donor.Donor.FullName }}</p>
 
       <ul class="govuk-list govuk-list--bullet">
-        <li>{{ tr .App "theDonorHasReadLpa" }}</li>
+        <li>{{ tr .App "iHaveReadLpa" }}</li>
         {{ if .Donor.Type.IsHealthWelfare }}
           <li>{{ trFormat .App "iGiveAttorneysAuthority" "LpaType" $lpaTypeLegalTerm }}</li>
         {{ else }}
           {{ if .Donor.WhenCanTheLpaBeUsed.IsHasCapacity }}
-            <li>{{ tr .App "theDonorGivesAttorneysAuthorityWhenRegistered" }}</li>
+            <li>{{ tr .App "iGiveAttorneysAuthorityWhenRegistered" }}</li>
           {{ else }}
-            <li>{{ tr .App "theDonorGivesAttorneysAuthorityWhenLostMentalCapacity" }}</li>
+            <li>{{ tr .App "iGiveAttorneysAuthorityWhenLostMentalCapacity" }}</li>
           {{ end }}
         {{ end }}
         {{ if .Donor.Type.IsHealthWelfare }}
           {{ if .Donor.LifeSustainingTreatmentOption.IsOptionA }}
-            <li>{{ tr .App "theDonorGivesAttorneysAuthorityLifeSustainingTreatment" }}</li>
+            <li>{{ tr .App "iGiveMyAttorneysAuthorityLifeSustainingTreatment" }}</li>
           {{ else }}
-            <li>{{ trHtml .App "theDonorDoesNotGiveAttorneysAuthorityLifeSustainingTreatment" }}</li>
+            <li>{{ trHtml .App "iDoNotGiveMyAttorneysAuthorityLifeSustainingTreatment" }}</li>
           {{ end }}
         {{ end }}
         {{ if gt (len .Donor.PeopleToNotify) 0 }}
-          <li>{{ trFormatCount .App "theyHaveChosenNPeopleToNotify" (len .Donor.PeopleToNotify) }}</li>
+          <li>{{ trFormatCount .App "iHaveChosenNPeopleToNotify" (len .Donor.PeopleToNotify) }}</li>
         {{ else }}
-          <li>{{ tr .App "theyHaveNotChosenToNotifyAnyone" }}</li>
+          <li>{{ tr .App "iHaveNotChosenToNotifyAnyone" }}</li>
         {{ end }}
-        <li>{{ tr .App "infoTheyProvidedCanBeUsedByOpg" }}</li>
+        <li>{{ tr .App "infoIProvidedCanBeUsedByOpg" }}</li>
       </ul>
 
       <form novalidate method="post">
