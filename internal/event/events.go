@@ -35,8 +35,13 @@ type PreviousApplicationLinked struct {
 }
 
 type ReducedFeeRequested struct {
-	UID              string   `json:"uid"`
-	RequestType      string   `json:"requestType"`
-	Evidence         []string `json:"evidence,omitempty"`
-	EvidenceDelivery string   `json:"evidenceDelivery"`
+	UID              string     `json:"uid"`
+	RequestType      string     `json:"requestType"`
+	Evidence         []Evidence `json:"evidence,omitempty"`
+	EvidenceDelivery string     `json:"evidenceDelivery"`
+}
+
+type Evidence struct {
+	Path     string `json:"path"`
+	Filename string `json:"filename"`
 }
