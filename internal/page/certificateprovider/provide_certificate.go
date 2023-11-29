@@ -62,6 +62,7 @@ func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func(
 					TemplateID:   notifyClient.TemplateID(notify.CertificateProviderCertificateProvidedEmail),
 					Personalisation: map[string]string{
 						"donorFullNamePossessive":     appData.Localizer.Possessive(donor.Donor.FullName()),
+						"donorFirstNamesPossessive":   appData.Localizer.Possessive(donor.Donor.FirstNames),
 						"lpaLegalTerm":                appData.Localizer.T(donor.Type.LegalTermTransKey()),
 						"certificateProviderFullName": donor.CertificateProvider.FullName(),
 						"certificateProvidedDateTime": appData.Localizer.FormatDateTime(certificateProvider.Certificate.Agreed),
