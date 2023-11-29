@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
@@ -20,7 +21,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
+	detector "go.opentelemetry.io/contrib/detectors/aws/lambda"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 const (
@@ -87,7 +91,18 @@ func handler(ctx context.Context, event Event) error {
 		notifyBaseURL      = os.Getenv("GOVUK_NOTIFY_BASE_URL")
 		evidenceBucketName = os.Getenv("UPLOADS_S3_BUCKET_NAME")
 		uidBaseURL         = os.Getenv("UID_BASE_URL")
+		xrayEnabled        = true //os.Getenv("XRAY_ENABLED") == "1"
 	)
+
+	httpClient := &http.Client{Timeout: 10 * time.Second}
+
+	if xrayEnabled {
+		shutdown, err := setupTelemetry(ctx, httpClient)
+		if err != nil {
+			log.Println("failed to setup telemetry:", err)
+		}
+		defer shutdown(ctx)
+	}
 
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
@@ -129,6 +144,7 @@ func handler(ctx context.Context, event Event) error {
 			notifyIsProduction: notifyIsProduction,
 			notifyBaseURL:      notifyBaseURL,
 			appPublicURL:       appPublicURL,
+			httpClient:         httpClient,
 		}
 
 		if err := handler.Handle(ctx, event.CloudWatchEvent); err != nil {
@@ -141,6 +157,21 @@ func handler(ctx context.Context, event Event) error {
 
 	eJson, _ := json.Marshal(event)
 	return fmt.Errorf("unknown event type received: %s", string(eJson))
+}
+
+func setupTelemetry(ctx context.Context, httpClient *http.Client) (func(context.Context) error, error) {
+	resource, err := detector.NewResourceDetector().Detect(ctx)
+	if err != nil {
+		return func(context.Context) error { return nil }, err
+	}
+
+	shutdown, err := telemetry.Setup(ctx, resource)
+	if err != nil {
+		return func(context.Context) error { return nil }, err
+	}
+
+	httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
+	return shutdown, nil
 }
 
 func main() {
