@@ -287,8 +287,8 @@ func TestDocumentStoreSubmit(t *testing.T) {
 
 	donor := &actor.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
 	documents := page.Documents{
-		{PK: "a-pk", SK: "a-sk", Key: "a-key"},
-		{PK: "b-pk", SK: "b-sk", Key: "b-key"},
+		{PK: "a-pk", SK: "a-sk", Key: "a-key", Filename: "a-filename.pdf"},
+		{PK: "b-pk", SK: "b-sk", Key: "b-key", Filename: "b-filename.png"},
 	}
 
 	s3Client := newMockS3Client(t)
@@ -302,9 +302,12 @@ func TestDocumentStoreSubmit(t *testing.T) {
 	eventClient := newMockEventClient(t)
 	eventClient.
 		On("SendReducedFeeRequested", ctx, event.ReducedFeeRequested{
-			UID:              "lpa-uid",
-			RequestType:      pay.HalfFee.String(),
-			Evidence:         []string{"a-key", "b-key"},
+			UID:         "lpa-uid",
+			RequestType: pay.HalfFee.String(),
+			Evidence: []event.Evidence{
+				{Path: "a-key", Filename: "a-filename.pdf"},
+				{Path: "b-key", Filename: "b-filename.png"},
+			},
 			EvidenceDelivery: pay.Upload.String(),
 		}).
 		Return(nil)
@@ -312,8 +315,8 @@ func TestDocumentStoreSubmit(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
 		On("BatchPut", ctx, []any{
-			page.Document{PK: "a-pk", SK: "a-sk", Key: "a-key", Sent: now},
-			page.Document{PK: "b-pk", SK: "b-sk", Key: "b-key", Sent: now},
+			page.Document{PK: "a-pk", SK: "a-sk", Key: "a-key", Sent: now, Filename: "a-filename.pdf"},
+			page.Document{PK: "b-pk", SK: "b-sk", Key: "b-key", Sent: now, Filename: "b-filename.png"},
 		}).
 		Return(nil)
 
