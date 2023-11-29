@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/eventbridge"
 	"github.com/aws/aws-sdk-go-v2/service/eventbridge/types"
 	"github.com/stretchr/testify/assert"
+	mock "github.com/stretchr/testify/mock"
 )
 
 var expectedError = errors.New("err")
@@ -47,7 +48,7 @@ func TestClientSendApplicationUpdated(t *testing.T) {
 
 			svc := newMockEventbridgeClient(t)
 			svc.
-				On("PutEvents", ctx, &eventbridge.PutEventsInput{
+				On("PutEvents", mock.Anything, &eventbridge.PutEventsInput{
 					Entries: []types.PutEventsRequestEntry{{
 						EventBusName: aws.String("my-bus"),
 						Source:       aws.String("opg.poas.makeregister"),
