@@ -45,10 +45,6 @@ func SignYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
 			donor.WantToApplyForLpa = data.Form.WantToApply
 			donor.WantToSignLpa = data.Form.WantToSign
 
-			if data.Errors.None() {
-				donor.Tasks.ConfirmYourIdentityAndSign = actor.TaskCompleted
-			}
-
 			if err := donorStore.Put(r.Context(), donor); err != nil {
 				return err
 			}
