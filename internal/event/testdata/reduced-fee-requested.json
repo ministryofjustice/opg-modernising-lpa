@@ -16,9 +16,20 @@
     },
     "evidence": {
       "type": "array",
-      "description": "An array of absolute paths to evidence files in S3",
+      "description": "An array of objects containing filenames and absolute paths to evidence files in S3",
       "items": {
-        "type": "string"
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "The absolute path to the evidence file in S3. The first item in the path will always be the UID of the LPA the evidence is associated with.",
+            "pattern": "M(-[A-Z0-9]{4}){3}/evidence/.+"
+          },
+          "filename": {
+            "type": "string",
+            "description": "The filename of the evidence file"
+          }
+        }
       }
     },
     "evidenceDelivery": {
@@ -27,5 +38,11 @@
       "enum": ["upload", "post"]
     }
   },
-  "required": ["uid", "requestType", "evidence", "evidenceDelivery"]
+  "if": {
+    "properties": {
+      "evidenceDelivery": { "const": "upload" }
+    }
+  },
+  "then": { "required": ["uid", "requestType", "evidence", "evidenceDelivery"] },
+  "else": { "required": ["uid", "requestType", "evidenceDelivery"] }
 }

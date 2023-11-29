@@ -97,7 +97,7 @@ describe('Pay for LPA', () => {
                 cy.visit(`http://localhost:9001/?detail-type=reduced-fee-requested&detail=${uid}`);
 
                 cy.contains('"requestType":"HalfFee"');
-                cy.contains(`"evidence":["${uid}`);
+                cy.contains(new RegExp(`{"path":"${uid}/evidence/.+","filename":"supporting-evidence.png"}`))
                 cy.contains('"evidenceDelivery":"upload"');
             });
     });
@@ -172,7 +172,7 @@ describe('Pay for LPA', () => {
                 cy.visit(`http://localhost:9001/?detail-type=reduced-fee-requested&detail=${uid}`);
 
                 cy.contains('"requestType":"NoFee"');
-                cy.contains(`"evidence":["${uid}`);
+                cy.contains(new RegExp(`{"path":"${uid}/evidence/.+","filename":"supporting-evidence.png"}`))
                 cy.contains('"evidenceDelivery":"upload"');
             });
     });
@@ -247,7 +247,7 @@ describe('Pay for LPA', () => {
                 cy.visit(`http://localhost:9001/?detail-type=reduced-fee-requested&detail=${uid}`);
 
                 cy.contains('"requestType":"NoFee"');
-                cy.contains(`"evidence":["${uid}`);
+                cy.contains(new RegExp(`{"path":"${uid}/evidence/.+","filename":"supporting-evidence.png"}`))
                 cy.contains('"evidenceDelivery":"upload"');
             });
     });
