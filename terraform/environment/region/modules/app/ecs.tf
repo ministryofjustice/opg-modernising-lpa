@@ -334,7 +334,7 @@ locals {
         },
         {
           name  = "ISSUER",
-          value = "https://oidc.integration.account.gov.uk"
+          value = var.app_env_vars.issuer == "" ? "https://${local.name_prefix}-mock-onelogin.app.modernising.opg.service.justice.gov.uk" : var.app_env_vars.issuer
         },
         {
           name  = "APP_PUBLIC_URL",
