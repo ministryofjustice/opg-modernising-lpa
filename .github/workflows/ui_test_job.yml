@@ -88,7 +88,6 @@ jobs:
         if: inputs.run_against_image
         env:
           ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
-          ECR_REPOSITORY: modernising-lpa/app
           TAG: ${{ inputs.tag }}
         run: |
           docker compose -f docker/docker-compose.yml -f docker/docker-compose.ci.yml pull

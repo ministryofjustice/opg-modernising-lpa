@@ -2,4 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: ${ECR_REGISTRY}/${ECR_REPOSITORY}:${TAG}
+    image: ${ECR_REGISTRY}/modernising-lpa/app:${TAG}
+
+  mock-onelogin:
+    image: ${ECR_REGISTRY}/modernising-lpa/mock-onelogin:${TAG}

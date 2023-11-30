@@ -21,7 +21,7 @@ import (
 
 const (
 	charset    = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	signingKid = "my-kid"
+	signingKid = "my-kid2"
 )
 
 var (
