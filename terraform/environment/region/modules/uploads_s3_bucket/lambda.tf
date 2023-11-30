@@ -66,7 +66,7 @@ resource "aws_scheduler_schedule" "invoke_lambda_every_15_minutes" {
     mode = "OFF"
   }
 
-  schedule_expression = "rate(2 minutes)"
+  schedule_expression = "rate(20 minutes)"
   state               = var.s3_replication.enable_s3_batch_job_replication_scheduler ? "ENABLED" : "DISABLED"
 
   target {
