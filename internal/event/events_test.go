@@ -33,9 +33,12 @@ func TestEventSchema(t *testing.T) {
 			},
 		},
 		"reduced-fee-requested": ReducedFeeRequested{
-			UID:              "M-0000-0000-0000",
-			RequestType:      "NoFee",
-			Evidence:         []string{"key"},
+			UID:         "M-0000-0000-0000",
+			RequestType: "NoFee",
+			Evidence: []Evidence{
+				{Path: "M-0000-0000-0000/evidence/a-uid", Filename: "a-file.pdf"},
+				{Path: "M-0000-0000-0000/evidence/b-uid", Filename: "b-file.pdf"},
+			},
 			EvidenceDelivery: "upload",
 		},
 	}

@@ -15,7 +15,7 @@ import (
 
 var expectedError = errors.New("err")
 
-func TestClientSendApplicationUpdated(t *testing.T) {
+func TestClientSendEvents(t *testing.T) {
 	ctx := context.Background()
 
 	testcases := map[string]func() (func(*Client) error, any){
