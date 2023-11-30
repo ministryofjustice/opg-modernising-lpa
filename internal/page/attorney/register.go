@@ -112,6 +112,8 @@ func Register(
 		TaskList(tmpls.Get("attorney_task_list.gohtml"), donorStore, certificateProviderStore))
 	handleAttorney(page.Paths.Attorney.MobileNumber, RequireAttorney,
 		MobileNumber(tmpls.Get("attorney_mobile_number.gohtml"), attorneyStore))
+	handleAttorney(page.Paths.Attorney.YourPreferredLanguage, RequireAttorney,
+		YourPreferredLanguage(tmpls.Get("your_language_preferences.gohtml"), attorneyStore))
 	handleAttorney(page.Paths.Attorney.ConfirmYourDetails, RequireAttorney,
 		ConfirmYourDetails(tmpls.Get("attorney_confirm_your_details.gohtml"), attorneyStore, donorStore))
 	handleAttorney(page.Paths.Attorney.ReadTheLpa, RequireAttorney,
