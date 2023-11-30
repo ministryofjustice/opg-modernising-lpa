@@ -285,6 +285,8 @@ data "aws_iam_policy_document" "task_role_access_policy" {
 
 
 locals {
+  app_url = "https://${data.aws_default_tags.current.tags.environment-name}.app.modernising.opg.service.justice.gov.uk"
+
   app = jsonencode(
     {
       cpu                    = 1,
@@ -334,11 +336,11 @@ locals {
         },
         {
           name  = "ISSUER",
-          value = "https://oidc.integration.account.gov.uk"
+          value = var.app_env_vars.issuer == "" ? "https://${data.aws_default_tags.current.tags.environment-name}-mock-onelogin.app.modernising.opg.service.justice.gov.uk" : var.app_env_vars.issuer
         },
         {
           name  = "APP_PUBLIC_URL",
-          value = var.app_env_vars.app_public_url == "" ? "https://${local.dev_app_fqdn}" : var.app_env_vars.app_public_url
+          value = var.app_env_vars.app_public_url == "" ? local.app_url : var.app_env_vars.app_public_url
         },
         {
           # this is not the final value, but will allow signin to be tested while the real redirectURL is changed
