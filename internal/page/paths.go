@@ -254,6 +254,7 @@ type AppPaths struct {
 	YourIndependentWitness                               LpaPath
 	YourIndependentWitnessAddress                        LpaPath
 	YourIndependentWitnessMobile                         LpaPath
+	YourPreferredLanguage                                LpaPath
 }
 
 var Paths = AppPaths{
@@ -401,6 +402,7 @@ var Paths = AppPaths{
 	YourIndependentWitnessAddress:                        "/your-independent-witness-address",
 	YourIndependentWitnessMobile:                         "/your-independent-witness-mobile",
 	YourLegalRightsAndResponsibilities:                   "/your-legal-rights-and-responsibilities",
+	YourPreferredLanguage:                                "/your-preferred-language",
 }
 
 func canGoToLpaPath(donor *actor.DonorProvidedDetails, path string) bool {

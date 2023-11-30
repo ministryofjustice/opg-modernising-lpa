@@ -965,5 +965,13 @@
     "detailsAboutTheDecisionsYourAttorneysMustMakeTogether": "Welsh",
     "detailsAboutTheDecisionsYourReplacementAttorneysMustMakeTogether": "Welsh",
     "whatPersonalAffairsCovers" : "Welsh",
-    "whatPersonalWelfareCovers" : "Welsh"
+    "whatPersonalWelfareCovers" : "Welsh",
+    "yourPreferredLanguage": "Eich dewis iaith",
+    "yourPreferredLanguageIntroContent": "<p class=\"govuk-body\">Mae’r gwasanaeth hwn ar gael yn Gymraeg a Saesneg. Gallwch newid rhwng yr ieithoedd hyn ar unrhyw dudalen.</p>",
+    "howToChangeLanguageToWelsh": "Sut i newid yr iaith i Saesneg",
+    "howToChangeLanguageToWelshContent": "<p class=\"govuk-body\">I weld fersiwn Saesneg unrhyw dudalen, dewiswch y ddolen sy’n dweud <span class=\"govuk-!-font-weight-bold\">English</span>. I’r rhan fwyaf o bobl, mae hwn i’w weld ar ochr dde uchaf unrhyw dudalen.</p> <p class=\"govuk-body\">Os byddwch yn newid i’r Saesneg, byddwn yn cofio hyn ar y dudalen nesaf. Gallwch newid yn ôl i’r Gymraeg unrhyw bryd.</p>",
+    "gettingInTouchWithYouContent": "<h2 class=\"govuk-heading-m\">Cysylltu â chi</h2> <p class=\"govuk-body\">Efallai y bydd angen i ni gysylltu â chi tra byddwch yn gwneud LPA. Dywedwch wrthym pa iaith yr hoffech i ni ei defnyddio.</p>",
+    "whichLanguageWouldYouPreferWhenWeContactYou": "Pa iaith fyddai orau gennych i ni ei defnyddio pan fyddwn yn cysylltu â chi?",
+    "en": "Saesneg",
+    "cy": "Cymraeg"
 }
