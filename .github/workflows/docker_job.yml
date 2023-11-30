@@ -34,6 +34,8 @@ jobs:
             path: ./lambda/create_s3_replication_job/Dockerfile
           - ecr_repository: modernising-lpa/event-received
             path: ./docker/event-received/Dockerfile
+          - ecr_repository: modernising-lpa/mock-onelogin
+            path: ./docker/mock-onelogin/Dockerfile
     runs-on: ubuntu-latest
     name: ${{ matrix.ecr_repository }}
     steps:
