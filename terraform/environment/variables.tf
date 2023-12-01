@@ -37,6 +37,7 @@ variable "environments" {
           app_public_url         = string
           auth_redirect_base_url = string
           notify_is_production   = string
+          issuer                 = string
           onelogin_url           = string
         })
         autoscaling = object({

@@ -19,10 +19,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/env"
 )
 
-const (
-	charset    = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	signingKid = "my-kid2"
-)
+const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 var (
 	port               = env.Get("PORT", "8080")
@@ -32,6 +29,7 @@ var (
 	serviceRedirectUrl = env.Get("REDIRECT_RUL", "http://localhost:5050/auth/redirect")
 
 	signingKey, _ = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	signingKeyID  = randomString("key-", 8)
 
 	sessions = map[string]sessionData{}
 	tokens   = map[string]sessionData{}
@@ -85,7 +83,7 @@ func jwks() http.HandlerFunc {
 					"kty": "EC",
 					"use": "sig",
 					"crv": "P-256",
-					"kid": signingKid,
+					"kid": signingKeyID,
 					"x":   base64.URLEncoding.EncodeToString(publicKey.X.Bytes()),
 					"y":   base64.URLEncoding.EncodeToString(publicKey.Y.Bytes()),
 					"alg": "ES256",
@@ -98,7 +96,7 @@ func jwks() http.HandlerFunc {
 func token(clientId, issuer string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		code := r.PostFormValue("code")
-		accessToken := randomString(10)
+		accessToken := randomString("token-", 10)
 
 		session := sessions[code]
 		delete(sessions, code)
@@ -150,7 +148,7 @@ func authorize() http.HandlerFunc {
 
 		q := u.Query()
 
-		code := randomString(10)
+		code := randomString("code-", 10)
 		q.Set("code", code)
 		q.Set("state", r.FormValue("state"))
 
@@ -169,7 +167,7 @@ func authorize() http.HandlerFunc {
 func userInfo(privateKey *ecdsa.PrivateKey) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userInfo := UserInfoResponse{
-			Sub:           randomString(12),
+			Sub:           randomString("sub-", 12),
 			Email:         "simulate-delivered@notifications.service.gov.uk",
 			EmailVerified: true,
 			Phone:         "01406946277",
@@ -256,14 +254,14 @@ func stringWithCharset(length int, charset string) string {
 	return string(bytes)
 }
 
-func randomString(length int) string {
-	return stringWithCharset(length, charset)
+func randomString(prefix string, length int) string {
+	return prefix + stringWithCharset(length, charset)
 }
 
 func createSignedToken(nonce, clientId, issuer string) (string, error) {
 	t := jwt.New(jwt.SigningMethodES256)
 
-	t.Header["kid"] = signingKid
+	t.Header["kid"] = signingKeyID
 
 	t.Claims = jwt.MapClaims{
 		"sub":   fmt.Sprintf("%s-sub", randomString(10)),
