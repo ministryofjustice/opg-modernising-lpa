@@ -2,6 +2,7 @@ package onelogin
 
 import (
 	"context"
+	"crypto/ecdsa"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -39,28 +40,32 @@ type SecretsClient interface {
 	SecretBytes(ctx context.Context, name string) ([]byte, error)
 }
 
+type IdentityPublicKeyFunc func(context.Context) (*ecdsa.PublicKey, error)
+
 type Client struct {
-	ctx                 context.Context
-	logger              Logger
-	httpClient          Doer
-	openidConfiguration openidConfiguration
-	secretsClient       SecretsClient
-	randomString        func(int) string
-	jwks                *keyfunc.JWKS
+	ctx                   context.Context
+	logger                Logger
+	httpClient            Doer
+	openidConfiguration   openidConfiguration
+	secretsClient         SecretsClient
+	randomString          func(int) string
+	jwks                  *keyfunc.JWKS
+	identityPublicKeyFunc IdentityPublicKeyFunc
 
 	clientID    string
 	redirectURL string
 }
 
-func Discover(ctx context.Context, logger Logger, httpClient *http.Client, secretsClient SecretsClient, issuer, clientID, redirectURL string) (*Client, error) {
+func Discover(ctx context.Context, logger Logger, httpClient *http.Client, secretsClient SecretsClient, issuer, clientID, redirectURL string, identityPublicKeyFunc IdentityPublicKeyFunc) (*Client, error) {
 	c := &Client{
-		ctx:           ctx,
-		logger:        logger,
-		httpClient:    httpClient,
-		secretsClient: secretsClient,
-		randomString:  random.String,
-		clientID:      clientID,
-		redirectURL:   redirectURL,
+		ctx:                   ctx,
+		logger:                logger,
+		httpClient:            httpClient,
+		secretsClient:         secretsClient,
+		randomString:          random.String,
+		identityPublicKeyFunc: identityPublicKeyFunc,
+		clientID:              clientID,
+		redirectURL:           redirectURL,
 	}
 
 	req, err := http.NewRequest("GET", issuer+openidConfigurationEndpoint, nil)
