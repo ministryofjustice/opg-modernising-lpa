@@ -2,8 +2,10 @@ package onelogin
 
 import (
 	"context"
+	"crypto/ecdsa"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -82,6 +84,8 @@ func (c *Client) Exchange(ctx context.Context, code, nonce string) (idToken, acc
 		return "", "", fmt.Errorf("could not read token body: %w", err)
 	}
 
+	log.Println(tokenResponse.IDToken)
+
 	if err := c.validateToken(tokenResponse.IDToken, nonce); err != nil {
 		return "", "", fmt.Errorf("id token not valid: %w", err)
 	}
@@ -90,7 +94,11 @@ func (c *Client) Exchange(ctx context.Context, code, nonce string) (idToken, acc
 }
 
 func (c *Client) validateToken(idToken, nonce string) error {
-	token, err := jwt.ParseWithClaims(idToken, jwt.MapClaims{}, c.jwks.Keyfunc)
+	token, err := jwt.ParseWithClaims(idToken, jwt.MapClaims{}, func(t *jwt.Token) (any, error) {
+		k, e := c.jwks.Keyfunc(t)
+		log.Println(*(k.(*ecdsa.PublicKey)))
+		return k, e
+	})
 	if err != nil {
 		return err
 	}
