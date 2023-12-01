@@ -67,11 +67,12 @@ func main() {
 			IdentityPoolID:    env.Get("AWS_RUM_IDENTITY_POOL_ID", ""),
 			ApplicationID:     env.Get("AWS_RUM_APPLICATION_ID", ""),
 		}
-		uidBaseURL         = env.Get("UID_BASE_URL", "http://mock-uid:8080")
-		metadataURL        = env.Get("ECS_CONTAINER_METADATA_URI_V4", "")
-		oneloginURL        = env.Get("ONELOGIN_URL", "https://home.integration.account.gov.uk")
-		evidenceBucketName = env.Get("UPLOADS_S3_BUCKET_NAME", "evidence")
-		eventBusName       = env.Get("EVENT_BUS_NAME", "default")
+		uidBaseURL                = env.Get("UID_BASE_URL", "http://mock-uid:8080")
+		metadataURL               = env.Get("ECS_CONTAINER_METADATA_URI_V4", "")
+		oneloginURL               = env.Get("ONELOGIN_URL", "https://home.integration.account.gov.uk")
+		oneloginIdentityPublicKey = env.Get("ONELOGIN_IDENTITY_PUBLIC_KEY", secrets.GovUkOneLoginIdentityPublicKey)
+		evidenceBucketName        = env.Get("UPLOADS_S3_BUCKET_NAME", "evidence")
+		eventBusName              = env.Get("EVENT_BUS_NAME", "default")
 	)
 
 	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
@@ -150,7 +151,7 @@ func main() {
 
 	redirectURL := authRedirectBaseURL + page.Paths.AuthRedirect.Format()
 
-	signInClient, err := onelogin.Discover(ctx, logger, httpClient, secretsClient, issuer, clientID, redirectURL)
+	signInClient, err := onelogin.Discover(ctx, logger, httpClient, secretsClient, issuer, clientID, redirectURL, oneloginIdentityPublicKey)
 	if err != nil {
 		logger.Fatal(err)
 	}

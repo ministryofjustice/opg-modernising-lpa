@@ -12,7 +12,6 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 )
 
 type UserInfo struct {
@@ -111,7 +110,7 @@ func (c *Client) UserInfo(ctx context.Context, idToken string) (UserInfo, error)
 }
 
 func (c *Client) ParseIdentityClaim(ctx context.Context, u UserInfo) (identity.UserData, error) {
-	publicKeyBytes, err := c.secretsClient.SecretBytes(ctx, secrets.GovUkOneLoginIdentityPublicKey)
+	publicKeyBytes, err := c.secretsClient.SecretBytes(ctx, c.identityPublicKey)
 	if err != nil {
 		return identity.UserData{}, err
 	}

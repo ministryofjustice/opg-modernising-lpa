@@ -18,7 +18,6 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -77,7 +76,7 @@ func TestParseIdentityClaim(t *testing.T) {
 
 	secretsClient := newMockSecretsClient(t)
 	secretsClient.
-		On("SecretBytes", ctx, secrets.GovUkOneLoginIdentityPublicKey).
+		On("SecretBytes", ctx, "xyz").
 		Return(pem.EncodeToMemory(
 			&pem.Block{
 				Type:  "PUBLIC KEY",
@@ -85,7 +84,7 @@ func TestParseIdentityClaim(t *testing.T) {
 			},
 		), nil)
 
-	c := &Client{secretsClient: secretsClient}
+	c := &Client{secretsClient: secretsClient, identityPublicKey: "xyz"}
 
 	namePart := []map[string]any{
 		{
@@ -246,10 +245,10 @@ func TestParseIdentityClaim(t *testing.T) {
 func TestParseIdentityClaimWhenSecretBytesError(t *testing.T) {
 	secretsClient := newMockSecretsClient(t)
 	secretsClient.
-		On("SecretBytes", ctx, secrets.GovUkOneLoginIdentityPublicKey).
+		On("SecretBytes", ctx, "xyz").
 		Return([]byte{}, expectedError)
 
-	c := &Client{secretsClient: secretsClient}
+	c := &Client{secretsClient: secretsClient, identityPublicKey: "xyz"}
 
 	_, err := c.ParseIdentityClaim(context.Background(), UserInfo{})
 	assert.Equal(t, expectedError, err)
@@ -258,10 +257,10 @@ func TestParseIdentityClaimWhenSecretBytesError(t *testing.T) {
 func TestParseIdentityClaimWhenPublicKeyInvalid(t *testing.T) {
 	secretsClient := newMockSecretsClient(t)
 	secretsClient.
-		On("SecretBytes", ctx, secrets.GovUkOneLoginIdentityPublicKey).
+		On("SecretBytes", ctx, "xyz").
 		Return([]byte("not a key"), nil)
 
-	c := &Client{secretsClient: secretsClient}
+	c := &Client{secretsClient: secretsClient, identityPublicKey: "xyz"}
 
 	_, err := c.ParseIdentityClaim(context.Background(), UserInfo{})
 	assert.NotNil(t, err)
