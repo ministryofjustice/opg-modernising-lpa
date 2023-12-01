@@ -1,6 +1,7 @@
 package donor
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -57,17 +58,17 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 
 		_, accessToken, err := oneLoginClient.Exchange(r.Context(), r.FormValue("code"), oneLoginSession.Nonce)
 		if err != nil {
-			return err
+			return fmt.Errorf("exchange: %w", err)
 		}
 
 		userInfo, err := oneLoginClient.UserInfo(r.Context(), accessToken)
 		if err != nil {
-			return err
+			return fmt.Errorf("userinfo: %w", err)
 		}
 
 		userData, err := oneLoginClient.ParseIdentityClaim(r.Context(), userInfo)
 		if err != nil {
-			return err
+			return fmt.Errorf("parse identity claim: %w", err)
 		}
 
 		donor.DonorIdentityUserData = userData

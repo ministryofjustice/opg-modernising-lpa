@@ -339,6 +339,10 @@ locals {
           value = var.app_env_vars.issuer == "" ? "https://${data.aws_default_tags.current.tags.environment-name}-mock-onelogin.app.modernising.opg.service.justice.gov.uk" : var.app_env_vars.issuer
         },
         {
+          name  = "MOCK_IDENTITY_PUBLIC_KEY",
+          value = var.app_env_vars.issuer == "" ? "1" : ""
+        },
+        {
           name  = "APP_PUBLIC_URL",
           value = var.app_env_vars.app_public_url == "" ? local.app_url : var.app_env_vars.app_public_url
         },
