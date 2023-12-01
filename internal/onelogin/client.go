@@ -1,9 +1,14 @@
 package onelogin
 
 import (
+	"bytes"
 	"context"
+	"crypto/ecdsa"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -39,28 +44,32 @@ type SecretsClient interface {
 	SecretBytes(ctx context.Context, name string) ([]byte, error)
 }
 
+type IdentityPublicKeyProvider func(context.Context) (*ecdsa.PublicKey, error)
+
 type Client struct {
-	ctx                 context.Context
-	logger              Logger
-	httpClient          Doer
-	openidConfiguration openidConfiguration
-	secretsClient       SecretsClient
-	randomString        func(int) string
-	jwks                *keyfunc.JWKS
+	ctx                       context.Context
+	logger                    Logger
+	httpClient                Doer
+	openidConfiguration       openidConfiguration
+	secretsClient             SecretsClient
+	randomString              func(int) string
+	jwks                      *keyfunc.JWKS
+	identityPublicKeyProvider IdentityPublicKeyProvider
 
 	clientID    string
 	redirectURL string
 }
 
-func Discover(ctx context.Context, logger Logger, httpClient *http.Client, secretsClient SecretsClient, issuer, clientID, redirectURL string) (*Client, error) {
+func Discover(ctx context.Context, logger Logger, httpClient *http.Client, secretsClient SecretsClient, issuer, clientID, redirectURL string, identityPublicKeyProvider IdentityPublicKeyProvider) (*Client, error) {
 	c := &Client{
-		ctx:           ctx,
-		logger:        logger,
-		httpClient:    httpClient,
-		secretsClient: secretsClient,
-		randomString:  random.String,
-		clientID:      clientID,
-		redirectURL:   redirectURL,
+		ctx:                       ctx,
+		logger:                    logger,
+		httpClient:                httpClient,
+		secretsClient:             secretsClient,
+		randomString:              random.String,
+		identityPublicKeyProvider: identityPublicKeyProvider,
+		clientID:                  clientID,
+		redirectURL:               redirectURL,
 	}
 
 	req, err := http.NewRequest("GET", issuer+openidConfigurationEndpoint, nil)
@@ -83,6 +92,21 @@ func Discover(ctx context.Context, logger Logger, httpClient *http.Client, secre
 		Ctx:    c.ctx,
 		RefreshErrorHandler: func(err error) {
 			c.logger.Print("error refreshing jwks:", err)
+		},
+		RequestFactory: func(ctx context.Context, url string) (*http.Request, error) {
+			log.Println("keyfunc making request, GET", url)
+			return http.NewRequestWithContext(ctx, http.MethodGet, url, bytes.NewReader(nil))
+		},
+		ResponseExtractor: func(ctx context.Context, resp *http.Response) (json.RawMessage, error) {
+			defer resp.Body.Close()
+			if resp.StatusCode != http.StatusOK {
+				return nil, fmt.Errorf("%w: %d", keyfunc.ErrInvalidHTTPStatusCode, resp.StatusCode)
+			}
+
+			x, err := io.ReadAll(resp.Body)
+			log.Println("keyfunc made request", x)
+
+			return x, err
 		},
 		RefreshInterval:   24 * time.Hour,
 		RefreshRateLimit:  5 * time.Minute,
