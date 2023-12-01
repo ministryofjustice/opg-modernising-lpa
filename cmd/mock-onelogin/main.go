@@ -19,10 +19,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/env"
 )
 
-const (
-	charset    = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	signingKid = "my-kid2"
-)
+const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 var (
 	port               = env.Get("PORT", "8080")
@@ -31,7 +28,8 @@ var (
 	clientId           = env.Get("CLIENT_ID", "theClientId")
 	serviceRedirectUrl = env.Get("REDIRECT_RUL", "http://localhost:5050/auth/redirect")
 
-	signingKey, _ = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	tokenSigningKey, _ = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	tokenSigningKeyID  = randomString("key-", 8)
 
 	sessions = map[string]sessionData{}
 	tokens   = map[string]sessionData{}
@@ -76,7 +74,7 @@ func openIDConfig(c OpenIdConfig) http.HandlerFunc {
 
 func jwks() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		publicKey := signingKey.PublicKey
+		publicKey := tokenSigningKey.PublicKey
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{
@@ -85,7 +83,7 @@ func jwks() http.HandlerFunc {
 					"kty": "EC",
 					"use": "sig",
 					"crv": "P-256",
-					"kid": signingKid,
+					"kid": tokenSigningKeyID,
 					"x":   base64.URLEncoding.EncodeToString(publicKey.X.Bytes()),
 					"y":   base64.URLEncoding.EncodeToString(publicKey.Y.Bytes()),
 					"alg": "ES256",
@@ -98,7 +96,7 @@ func jwks() http.HandlerFunc {
 func token(clientId, issuer string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		code := r.PostFormValue("code")
-		accessToken := randomString(10)
+		accessToken := randomString("token-", 10)
 
 		session := sessions[code]
 		delete(sessions, code)
@@ -150,7 +148,7 @@ func authorize() http.HandlerFunc {
 
 		q := u.Query()
 
-		code := randomString(10)
+		code := randomString("code-", 10)
 		q.Set("code", code)
 		q.Set("state", r.FormValue("state"))
 
@@ -169,7 +167,7 @@ func authorize() http.HandlerFunc {
 func userInfo(privateKey *ecdsa.PrivateKey) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userInfo := UserInfoResponse{
-			Sub:           randomString(12),
+			Sub:           randomString("sub-", 12),
 			Email:         "simulate-delivered@notifications.service.gov.uk",
 			EmailVerified: true,
 			Phone:         "01406946277",
@@ -221,14 +219,14 @@ func main() {
 		JwksURI:               internalURL + "/.well-known/jwks",
 	}
 
-	privateKeyBytes, _ := base64.StdEncoding.DecodeString("LS0tLS1CRUdJTiBFQyBQUklWQVRFIEtFWS0tLS0tCk1IY0NBUUVFSVBheDJBYW92aXlQWDF3cndmS2FWckxEOHdQbkpJcUlicTMzZm8rWHdBZDdvQW9HQ0NxR1NNNDkKQXdFSG9VUURRZ0FFSlEyVmtpZWtzNW9rSTIxY1Jma0FhOXVxN0t4TTZtMmpaWUJ4cHJsVVdCWkNFZnhxMjdwVQp0Qzd5aXplVlRiZUVqUnlJaStYalhPQjFBbDhPbHFtaXJnPT0KLS0tLS1FTkQgRUMgUFJJVkFURSBLRVktLS0tLQo=")
-	privateKey, _ := jwt.ParseECPrivateKeyFromPEM(privateKeyBytes)
+	identityPrivateKeyBytes, _ := base64.StdEncoding.DecodeString("LS0tLS1CRUdJTiBFQyBQUklWQVRFIEtFWS0tLS0tCk1IY0NBUUVFSVBheDJBYW92aXlQWDF3cndmS2FWckxEOHdQbkpJcUlicTMzZm8rWHdBZDdvQW9HQ0NxR1NNNDkKQXdFSG9VUURRZ0FFSlEyVmtpZWtzNW9rSTIxY1Jma0FhOXVxN0t4TTZtMmpaWUJ4cHJsVVdCWkNFZnhxMjdwVQp0Qzd5aXplVlRiZUVqUnlJaStYalhPQjFBbDhPbHFtaXJnPT0KLS0tLS1FTkQgRUMgUFJJVkFURSBLRVktLS0tLQo=")
+	identityPrivateKey, _ := jwt.ParseECPrivateKeyFromPEM(identityPrivateKeyBytes)
 
 	http.HandleFunc("/.well-known/openid-configuration", openIDConfig(c))
 	http.HandleFunc("/.well-known/jwks", jwks())
 	http.HandleFunc("/authorize", authorize())
 	http.HandleFunc("/token", token(clientId, c.Issuer))
-	http.HandleFunc("/userinfo", userInfo(privateKey))
+	http.HandleFunc("/userinfo", userInfo(identityPrivateKey))
 
 	log.Println("GOV UK Sign in mock initialized")
 
@@ -256,17 +254,17 @@ func stringWithCharset(length int, charset string) string {
 	return string(bytes)
 }
 
-func randomString(length int) string {
-	return stringWithCharset(length, charset)
+func randomString(prefix string, length int) string {
+	return prefix + stringWithCharset(length, charset)
 }
 
 func createSignedToken(nonce, clientId, issuer string) (string, error) {
 	t := jwt.New(jwt.SigningMethodES256)
 
-	t.Header["kid"] = signingKid
+	t.Header["kid"] = tokenSigningKeyID
 
 	t.Claims = jwt.MapClaims{
-		"sub":   fmt.Sprintf("%s-sub", randomString(10)),
+		"sub":   randomString("sub-", 10),
 		"iss":   issuer,
 		"nonce": nonce,
 		"aud":   clientId,
@@ -274,7 +272,7 @@ func createSignedToken(nonce, clientId, issuer string) (string, error) {
 		"iat":   time.Now().Unix(),
 	}
 
-	return t.SignedString(signingKey)
+	return t.SignedString(tokenSigningKey)
 }
 
 func userDetails(key string) (givenName, familyName, birthDate string) {
