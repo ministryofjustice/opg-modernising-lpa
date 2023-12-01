@@ -1,9 +1,13 @@
 package onelogin
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -83,6 +87,21 @@ func Discover(ctx context.Context, logger Logger, httpClient *http.Client, secre
 		Ctx:    c.ctx,
 		RefreshErrorHandler: func(err error) {
 			c.logger.Print("error refreshing jwks:", err)
+		},
+		RequestFactory: func(ctx context.Context, url string) (*http.Request, error) {
+			log.Println("keyfunc making request, GET", url)
+			return http.NewRequestWithContext(ctx, http.MethodGet, url, bytes.NewReader(nil))
+		},
+		ResponseExtractor: func(ctx context.Context, resp *http.Response) (json.RawMessage, error) {
+			defer resp.Body.Close()
+			if resp.StatusCode != http.StatusOK {
+				return nil, fmt.Errorf("%w: %d", keyfunc.ErrInvalidHTTPStatusCode, resp.StatusCode)
+			}
+
+			x, err := io.ReadAll(resp.Body)
+			log.Println("keyfunc made request", x)
+
+			return x, err
 		},
 		RefreshInterval:   24 * time.Hour,
 		RefreshRateLimit:  5 * time.Minute,
