@@ -11,7 +11,11 @@
 
             {{ template "details" (details . "howToChangeLanguageToWelsh" "howToChangeLanguageToWelshContent" false) }}
 
-            {{ trHtml .App "gettingInTouchWithYouContent" }}
+            {{ if .App.IsDonor }}
+                {{ trHtml .App "gettingInTouchWithYouContentIsDonor" }}
+            {{ else }}
+                {{ trFormatHtml .App "gettingInTouchWithYouContentIsNotDonor" "DonorFirstNames" .Donor.Donor.FirstNames }}
+            {{ end }}
 
             <form novalidate method="post">
                 <div class="govuk-form-group {{ if .Errors.Has .FieldNames.Preference }}govuk-form-group--error{{ end }}">
@@ -22,7 +26,7 @@
 
                         {{ template "error-message" (errorMessage . .FieldNames.Preference) }}
 
-                        {{ template "radios" (items . .FieldNames.Preference ""
+                        {{ template "radios" (items . .FieldNames.Preference .Form.Preference.String
                         (item .Options.En.String .Options.En.String)
                         (item .Options.Cy.String .Options.Cy.String)
                         ) }}

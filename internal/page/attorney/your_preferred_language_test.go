@@ -21,6 +21,11 @@ func TestGetYourPreferredLanguage(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
+		Return(&actor.DonorProvidedDetails{}, nil)
+
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &yourPreferredLanguageData{
@@ -30,10 +35,11 @@ func TestGetYourPreferredLanguage(t *testing.T) {
 			},
 			Options:    localize.LangValues,
 			FieldNames: form.FieldNames,
+			Donor:      &actor.DonorProvidedDetails{},
 		}).
 		Return(nil)
 
-	err := YourPreferredLanguage(template.Execute, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy})
+	err := YourPreferredLanguage(template.Execute, nil, donorStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy})
 
 	resp := w.Result()
 
@@ -41,16 +47,38 @@ func TestGetYourPreferredLanguage(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
+func TestGetYourPreferredLanguageWhenDonorStoreError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
+		Return(&actor.DonorProvidedDetails{}, expectedError)
+
+	err := YourPreferredLanguage(nil, nil, donorStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy})
+
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
 func TestGetYourPreferredLanguageWhenTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
+		Return(&actor.DonorProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := YourPreferredLanguage(template.Execute, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy})
+	err := YourPreferredLanguage(template.Execute, nil, donorStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy})
 
 	resp := w.Result()
 
@@ -69,12 +97,17 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(formValues.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+			donorStore := newMockDonorStore(t)
+			donorStore.
+				On("GetAny", r.Context()).
+				Return(&actor.DonorProvidedDetails{}, nil)
+
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.
 				On("Put", r.Context(), &actor.AttorneyProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: lang}).
 				Return(nil)
 
-			err := YourPreferredLanguage(nil, attorneyStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id"})
+			err := YourPreferredLanguage(nil, attorneyStore, donorStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id"})
 
 			resp := w.Result()
 
@@ -92,12 +125,17 @@ func TestPostYourPreferredLanguageWhenAttorneyStoreError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(formValues.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
+		Return(&actor.DonorProvidedDetails{}, nil)
+
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourPreferredLanguage(nil, attorneyStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id"})
+	err := YourPreferredLanguage(nil, attorneyStore, donorStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id"})
 
 	resp := w.Result()
 
@@ -112,6 +150,11 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(formValues.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
+		Return(&actor.DonorProvidedDetails{}, nil)
+
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &yourPreferredLanguageData{
@@ -123,10 +166,11 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 			Options:    localize.LangValues,
 			FieldNames: form.FieldNames,
 			Errors:     validation.With(form.FieldNames.Preference, validation.SelectError{Label: "yourPreferredLanguage"}),
+			Donor:      &actor.DonorProvidedDetails{},
 		}).
 		Return(nil)
 
-	err := YourPreferredLanguage(template.Execute, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id"})
+	err := YourPreferredLanguage(template.Execute, nil, donorStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id"})
 
 	resp := w.Result()
 

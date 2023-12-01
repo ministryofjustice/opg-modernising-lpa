@@ -17,10 +17,16 @@ type yourPreferredLanguageData struct {
 	Form       *form.LanguagePreferenceForm
 	Options    localize.LangOptions
 	FieldNames form.Names
+	Donor      *actor.DonorProvidedDetails
 }
 
-func YourPreferredLanguage(tmpl template.Template, attorneyStore AttorneyStore) Handler {
+func YourPreferredLanguage(tmpl template.Template, attorneyStore AttorneyStore, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *actor.AttorneyProvidedDetails) error {
+		donor, err := donorStore.GetAny(r.Context())
+		if err != nil {
+			return err
+		}
+
 		data := &yourPreferredLanguageData{
 			App: appData,
 			Form: &form.LanguagePreferenceForm{
@@ -28,6 +34,7 @@ func YourPreferredLanguage(tmpl template.Template, attorneyStore AttorneyStore) 
 			},
 			Options:    localize.LangValues,
 			FieldNames: form.FieldNames,
+			Donor:      donor,
 		}
 
 		if r.Method == http.MethodPost {

@@ -26,6 +26,11 @@ func TestGetYourPreferredLanguage(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy}, nil)
 
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
+		Return(&actor.DonorProvidedDetails{}, nil)
+
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &yourPreferredLanguageData{
@@ -35,10 +40,11 @@ func TestGetYourPreferredLanguage(t *testing.T) {
 			},
 			Options:    localize.LangValues,
 			FieldNames: form.FieldNames,
+			Donor:      &actor.DonorProvidedDetails{},
 		}).
 		Return(nil)
 
-	err := YourPreferredLanguage(template.Execute, certificateProviderStore)(testAppData, w, r)
+	err := YourPreferredLanguage(template.Execute, certificateProviderStore, donorStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -55,7 +61,29 @@ func TestGetYourPreferredLanguageWhenCertificateProviderStoreError(t *testing.T)
 		On("Get", r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
-	err := YourPreferredLanguage(nil, certificateProviderStore)(testAppData, w, r)
+	err := YourPreferredLanguage(nil, certificateProviderStore, nil)(testAppData, w, r)
+
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestGetYourPreferredLanguageWhenDonorStoreError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.
+		On("Get", r.Context()).
+		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy}, nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
+		Return(&actor.DonorProvidedDetails{}, expectedError)
+
+	err := YourPreferredLanguage(nil, certificateProviderStore, donorStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -72,12 +100,17 @@ func TestGetYourPreferredLanguageWhenTemplateError(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy}, nil)
 
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
+		Return(&actor.DonorProvidedDetails{}, nil)
+
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := YourPreferredLanguage(template.Execute, certificateProviderStore)(testAppData, w, r)
+	err := YourPreferredLanguage(template.Execute, certificateProviderStore, donorStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -104,7 +137,12 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 				On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: lang}).
 				Return(nil)
 
-			err := YourPreferredLanguage(nil, certificateProviderStore)(testAppData, w, r)
+			donorStore := newMockDonorStore(t)
+			donorStore.
+				On("GetAny", r.Context()).
+				Return(&actor.DonorProvidedDetails{}, nil)
+
+			err := YourPreferredLanguage(nil, certificateProviderStore, donorStore)(testAppData, w, r)
 
 			resp := w.Result()
 
@@ -130,7 +168,12 @@ func TestPostYourPreferredLanguageWhenAttorneyStoreError(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourPreferredLanguage(nil, certificateProviderStore)(testAppData, w, r)
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
+		Return(&actor.DonorProvidedDetails{}, nil)
+
+	err := YourPreferredLanguage(nil, certificateProviderStore, donorStore)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -150,6 +193,11 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 		On("Get", r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("GetAny", r.Context()).
+		Return(&actor.DonorProvidedDetails{}, nil)
+
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &yourPreferredLanguageData{
@@ -161,10 +209,11 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 			Options:    localize.LangValues,
 			FieldNames: form.FieldNames,
 			Errors:     validation.With(form.FieldNames.Preference, validation.SelectError{Label: "yourPreferredLanguage"}),
+			Donor:      &actor.DonorProvidedDetails{},
 		}).
 		Return(nil)
 
-	err := YourPreferredLanguage(template.Execute, certificateProviderStore)(testAppData, w, r)
+	err := YourPreferredLanguage(template.Execute, certificateProviderStore, donorStore)(testAppData, w, r)
 
 	resp := w.Result()
 

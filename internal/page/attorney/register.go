@@ -113,7 +113,7 @@ func Register(
 	handleAttorney(page.Paths.Attorney.MobileNumber, RequireAttorney,
 		MobileNumber(tmpls.Get("attorney_mobile_number.gohtml"), attorneyStore))
 	handleAttorney(page.Paths.Attorney.YourPreferredLanguage, RequireAttorney,
-		YourPreferredLanguage(tmpls.Get("your_preferred_language.gohtml"), attorneyStore))
+		YourPreferredLanguage(tmpls.Get("your_preferred_language.gohtml"), attorneyStore, donorStore))
 	handleAttorney(page.Paths.Attorney.ConfirmYourDetails, RequireAttorney,
 		ConfirmYourDetails(tmpls.Get("attorney_confirm_your_details.gohtml"), attorneyStore, donorStore))
 	handleAttorney(page.Paths.Attorney.ReadTheLpa, RequireAttorney,

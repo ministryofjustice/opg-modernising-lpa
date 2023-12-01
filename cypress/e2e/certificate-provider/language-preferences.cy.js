@@ -1,8 +1,11 @@
 describe('Your preferred language', () => {
-    it('can choose a language contact preference', () => {
+    beforeEach(() => {
         cy.visit('/fixtures/certificate-provider?redirect=/your-preferred-language');
+        cy.url().should('contain', '/your-preferred-language')
+    });
 
-        cy.get('#f-language-preference').check('en')
+    it('can choose a language contact preference', () => {
+        cy.get('[name="language-preference"]').check('en')
 
         cy.checkA11yApp();
 
@@ -12,8 +15,6 @@ describe('Your preferred language', () => {
     })
 
     it('errors when preference not selected', () => {
-        cy.visit('/fixtures/certificate-provider?redirect=/your-preferred-language');
-
         cy.contains('button', 'Save and continue').click()
         cy.url().should('contain', '/your-preferred-language')
 

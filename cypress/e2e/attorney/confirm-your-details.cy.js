@@ -6,6 +6,9 @@ describe('Confirm your details', () => {
 
         cy.get('#f-mobile').type(TestMobile);
         cy.contains('Continue').click();
+
+        cy.get('[name="language-preference"]').check('cy')
+        cy.contains('button', 'Save and continue').click()
     });
 
     it('shows details', () => {
@@ -16,6 +19,7 @@ describe('Confirm your details', () => {
         cy.contains('Jessie Jones');
         cy.contains('2 RICHMOND PLACE');
         cy.contains('07700900000');
+        cy.contains('Welsh');
 
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/read-the-lpa');
