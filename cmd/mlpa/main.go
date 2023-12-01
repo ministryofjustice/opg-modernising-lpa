@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"crypto/ecdsa"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -15,6 +17,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/env"
@@ -67,11 +70,12 @@ func main() {
 			IdentityPoolID:    env.Get("AWS_RUM_IDENTITY_POOL_ID", ""),
 			ApplicationID:     env.Get("AWS_RUM_APPLICATION_ID", ""),
 		}
-		uidBaseURL         = env.Get("UID_BASE_URL", "http://mock-uid:8080")
-		metadataURL        = env.Get("ECS_CONTAINER_METADATA_URI_V4", "")
-		oneloginURL        = env.Get("ONELOGIN_URL", "https://home.integration.account.gov.uk")
-		evidenceBucketName = env.Get("UPLOADS_S3_BUCKET_NAME", "evidence")
-		eventBusName       = env.Get("EVENT_BUS_NAME", "default")
+		uidBaseURL            = env.Get("UID_BASE_URL", "http://mock-uid:8080")
+		metadataURL           = env.Get("ECS_CONTAINER_METADATA_URI_V4", "")
+		oneloginURL           = env.Get("ONELOGIN_URL", "https://home.integration.account.gov.uk")
+		mockIdentityPublicKey = env.Get("MOCK_IDENTITY_PUBLIC_KEY", "") == "1"
+		evidenceBucketName    = env.Get("UPLOADS_S3_BUCKET_NAME", "evidence")
+		eventBusName          = env.Get("EVENT_BUS_NAME", "default")
 	)
 
 	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
@@ -150,7 +154,24 @@ func main() {
 
 	redirectURL := authRedirectBaseURL + page.Paths.AuthRedirect.Format()
 
-	signInClient, err := onelogin.Discover(ctx, logger, httpClient, secretsClient, issuer, clientID, redirectURL)
+	identityPublicKeyProvider := func(ctx context.Context) (*ecdsa.PublicKey, error) {
+		bytes, err := secretsClient.SecretBytes(ctx, secrets.GovUkOneLoginIdentityPublicKey)
+		if err != nil {
+			return nil, err
+		}
+
+		return jwt.ParseECPublicKeyFromPEM(bytes)
+	}
+	if mockIdentityPublicKey {
+		identityPublicKeyProvider = func(ctx context.Context) (*ecdsa.PublicKey, error) {
+			bytes, _ := base64.StdEncoding.DecodeString("LS0tLS1CRUdJTiBFQyBQUklWQVRFIEtFWS0tLS0tCk1IY0NBUUVFSVBheDJBYW92aXlQWDF3cndmS2FWckxEOHdQbkpJcUlicTMzZm8rWHdBZDdvQW9HQ0NxR1NNNDkKQXdFSG9VUURRZ0FFSlEyVmtpZWtzNW9rSTIxY1Jma0FhOXVxN0t4TTZtMmpaWUJ4cHJsVVdCWkNFZnhxMjdwVQp0Qzd5aXplVlRiZUVqUnlJaStYalhPQjFBbDhPbHFtaXJnPT0KLS0tLS1FTkQgRUMgUFJJVkFURSBLRVktLS0tLQo=")
+			privateKey, _ := jwt.ParseECPrivateKeyFromPEM(bytes)
+
+			return &privateKey.PublicKey, nil
+		}
+	}
+
+	signInClient, err := onelogin.Discover(ctx, logger, httpClient, secretsClient, issuer, clientID, redirectURL, identityPublicKeyProvider)
 	if err != nil {
 		logger.Fatal(err)
 	}

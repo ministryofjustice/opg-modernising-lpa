@@ -117,6 +117,11 @@ data "aws_secretsmanager_secret" "gov_uk_onelogin_identity_public_key" {
   provider = aws.region
 }
 
+data "aws_secretsmanager_secret" "mock_onelogin_identity_public_key" {
+  name     = "mock-onelogin-identity-public-key"
+  provider = aws.region
+}
+
 data "aws_secretsmanager_secret" "cookie_session_keys" {
   name     = "cookie-session-keys"
   provider = aws.region
@@ -221,6 +226,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
       data.aws_secretsmanager_secret.gov_uk_notify_api_key.arn,
       data.aws_secretsmanager_secret.gov_uk_onelogin_identity_public_key.arn,
       data.aws_secretsmanager_secret.gov_uk_pay_api_key.arn,
+      data.aws_secretsmanager_secret.mock_onelogin_identity_public_key.arn,
       data.aws_secretsmanager_secret.os_postcode_lookup_api_key.arn,
       data.aws_secretsmanager_secret.private_jwt_key.arn,
     ]
@@ -337,6 +343,10 @@ locals {
         {
           name  = "ISSUER",
           value = var.app_env_vars.issuer == "" ? "https://${data.aws_default_tags.current.tags.environment-name}-mock-onelogin.app.modernising.opg.service.justice.gov.uk" : var.app_env_vars.issuer
+        },
+        {
+          name  = "MOCK_IDENTITY_PUBLIC_KEY",
+          value = var.app_env_vars.issuer == "" ? "1" : ""
         },
         {
           name  = "APP_PUBLIC_URL",
