@@ -6,9 +6,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
-	"crypto/x509"
 	"encoding/json"
-	"encoding/pem"
 	"errors"
 	"io/ioutil"
 	"net/http"
@@ -18,7 +16,6 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -73,19 +70,11 @@ func TestParseIdentityClaim(t *testing.T) {
 	privateKey, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	issuedAt := time.Now().Add(-time.Minute).Round(time.Second)
 
-	publicKeyBytes, _ := x509.MarshalPKIXPublicKey(&privateKey.PublicKey)
-
-	secretsClient := newMockSecretsClient(t)
-	secretsClient.
-		On("SecretBytes", ctx, secrets.GovUkOneLoginIdentityPublicKey).
-		Return(pem.EncodeToMemory(
-			&pem.Block{
-				Type:  "PUBLIC KEY",
-				Bytes: publicKeyBytes,
-			},
-		), nil)
-
-	c := &Client{secretsClient: secretsClient}
+	c := &Client{
+		identityPublicKeyProvider: func(_ context.Context) (*ecdsa.PublicKey, error) {
+			return &privateKey.PublicKey, nil
+		},
+	}
 
 	namePart := []map[string]any{
 		{
@@ -243,26 +232,13 @@ func TestParseIdentityClaim(t *testing.T) {
 	}
 }
 
-func TestParseIdentityClaimWhenSecretBytesError(t *testing.T) {
-	secretsClient := newMockSecretsClient(t)
-	secretsClient.
-		On("SecretBytes", ctx, secrets.GovUkOneLoginIdentityPublicKey).
-		Return([]byte{}, expectedError)
-
-	c := &Client{secretsClient: secretsClient}
+func TestParseIdentityClaimWhenIdentityPublicKeyProviderError(t *testing.T) {
+	c := &Client{
+		identityPublicKeyProvider: func(_ context.Context) (*ecdsa.PublicKey, error) {
+			return nil, expectedError
+		},
+	}
 
 	_, err := c.ParseIdentityClaim(context.Background(), UserInfo{})
 	assert.Equal(t, expectedError, err)
-}
-
-func TestParseIdentityClaimWhenPublicKeyInvalid(t *testing.T) {
-	secretsClient := newMockSecretsClient(t)
-	secretsClient.
-		On("SecretBytes", ctx, secrets.GovUkOneLoginIdentityPublicKey).
-		Return([]byte("not a key"), nil)
-
-	c := &Client{secretsClient: secretsClient}
-
-	_, err := c.ParseIdentityClaim(context.Background(), UserInfo{})
-	assert.NotNil(t, err)
 }
