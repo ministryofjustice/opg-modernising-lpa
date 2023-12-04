@@ -38,7 +38,7 @@ func TestDiscover(t *testing.T) {
 
 	expectedConfiguration.JwksURI = oidcServer.URL + "/.well-known/jwks"
 
-	c, err := Discover(context.Background(), nil, http.DefaultClient, nil, oidcServer.URL, "client-id", "http://redirect")
+	c, err := Discover(context.Background(), nil, http.DefaultClient, nil, oidcServer.URL, "client-id", "http://redirect", nil)
 
 	assert.Nil(t, err)
 	assert.Equal(t, expectedConfiguration, c.openidConfiguration)
