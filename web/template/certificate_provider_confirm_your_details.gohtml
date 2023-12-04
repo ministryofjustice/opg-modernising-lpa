@@ -51,7 +51,7 @@
         </div>
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">{{ tr .App "mobileNumber" }}</dt>
-          <dd class="govuk-summary-list__value">{{ .Donor.CertificateProvider.Mobile }}</dd>
+          <dd class="govuk-summary-list__value">{{ formatPhone .Donor.CertificateProvider.Mobile }}</dd>
         </div>
       </dl>
 
