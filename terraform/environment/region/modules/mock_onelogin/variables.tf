@@ -78,3 +78,8 @@ variable "redirect_base_url" {
   type        = string
   description = "Base URL expected for redirect_url"
 }
+
+variable "app_security_group" {
+  type        = any
+  description = "Security group to allow communication from the app"
+}

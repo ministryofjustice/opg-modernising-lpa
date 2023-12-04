@@ -112,6 +112,17 @@ resource "aws_security_group_rule" "mock_onelogin_loadbalancer_ingress" {
   provider          = aws.region
 }
 
+resource "aws_security_group_rule" "mock_onelogin_app_ingress" {
+  description              = "Allow Port 443 ingress from the app"
+  type                     = "ingress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.mock_onelogin_loadbalancer.id
+  source_security_group_id = var.app_security_group.id
+  provider                 = aws.region
+}
+
 resource "aws_security_group_rule" "loadbalancer_ingress_route53_healthchecks" {
   description       = "Loadbalancer ingresss from Route53 healthchecks"
   type              = "ingress"
