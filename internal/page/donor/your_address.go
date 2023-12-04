@@ -42,7 +42,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 						return err
 					}
 
-					return page.Paths.LpaType.Redirect(w, r, appData, donor)
+					return page.Paths.YourPreferredLanguage.Redirect(w, r, appData, donor)
 				}
 
 			case "postcode-select":

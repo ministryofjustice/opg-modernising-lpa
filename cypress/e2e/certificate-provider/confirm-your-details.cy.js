@@ -9,6 +9,13 @@ describe('Confirm your details', () => {
 
             cy.contains('button', 'Save and continue').click();
 
+            cy.url().should('contain', '/your-preferred-language');
+            cy.checkA11yApp();
+
+            cy.get('[name="language-preference"]').check('cy')
+
+            cy.contains('button', 'Save and continue').click()
+
             cy.url().should('contain', '/confirm-your-details');
             cy.checkA11yApp();
 
@@ -43,6 +50,12 @@ describe('Confirm your details', () => {
             cy.get('#f-address-postcode').type('B14 7ED');
 
             cy.contains('button', 'Continue').click();
+
+            cy.url().should('contain', '/your-preferred-language');
+
+            cy.get('[name="language-preference"]').check('cy')
+
+            cy.contains('button', 'Save and continue').click()
 
             cy.url().should('contain', '/confirm-your-details');
             cy.checkA11yApp();
