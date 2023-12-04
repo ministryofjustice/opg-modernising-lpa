@@ -11,9 +11,14 @@ resource "aws_cloudwatch_event_archive" "main" {
   provider         = aws.region
 }
 
+data "aws_kms_alias" "sqs" {
+  name     = "alias/${data.aws_default_tags.current.tags.application}_sqs_secret_encryption_key"
+  provider = aws.region
+}
+
 resource "aws_sqs_queue" "event_bus_dead_letter_queue" {
   name                              = "${data.aws_default_tags.current.tags.environment-name}-event-bus-dead-letter-queue"
-  kms_master_key_id                 = "alias/aws/sqs" #tfsec:ignore:aws-sqs-queue-encryption-use-cmk
+  kms_master_key_id                 = data.aws_kms_alias.sqs.target_key_id
   kms_data_key_reuse_period_seconds = 300
   policy                            = data.aws_iam_policy_document.sqs.json
   provider                          = aws.region
