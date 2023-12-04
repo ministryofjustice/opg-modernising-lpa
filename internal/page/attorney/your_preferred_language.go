@@ -1,0 +1,56 @@
+package attorney
+
+import (
+	"net/http"
+
+	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
+)
+
+type yourPreferredLanguageData struct {
+	App        page.AppData
+	Errors     validation.List
+	Form       *form.LanguagePreferenceForm
+	Options    localize.LangOptions
+	FieldNames form.Names
+	Donor      *actor.DonorProvidedDetails
+}
+
+func YourPreferredLanguage(tmpl template.Template, attorneyStore AttorneyStore, donorStore DonorStore) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *actor.AttorneyProvidedDetails) error {
+		donor, err := donorStore.GetAny(r.Context())
+		if err != nil {
+			return err
+		}
+
+		data := &yourPreferredLanguageData{
+			App: appData,
+			Form: &form.LanguagePreferenceForm{
+				Preference: attorneyProvidedDetails.ContactLanguagePreference,
+			},
+			Options:    localize.LangValues,
+			FieldNames: form.FieldNames,
+			Donor:      donor,
+		}
+
+		if r.Method == http.MethodPost {
+			data.Form = form.ReadLanguagePreferenceForm(r, "whichLanguageYoudLikeUsToUseWhenWeContactYou")
+			data.Errors = data.Form.Validate()
+
+			if data.Errors.None() {
+				attorneyProvidedDetails.ContactLanguagePreference = data.Form.Preference
+				if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
+					return err
+				}
+
+				return page.Paths.Attorney.ConfirmYourDetails.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
+			}
+		}
+
+		return tmpl(w, data)
+	}
+}

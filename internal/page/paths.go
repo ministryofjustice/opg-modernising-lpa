@@ -119,6 +119,7 @@ type AttorneyPaths struct {
 	WhatHappensNext           AttorneyPath
 	WhatHappensWhenYouSign    AttorneyPath
 	WouldLikeSecondSignatory  AttorneyPath
+	YourPreferredLanguage     AttorneyPath
 }
 
 type CertificateProviderPaths struct {
@@ -138,6 +139,7 @@ type CertificateProviderPaths struct {
 	WhatHappensNext              CertificateProviderPath
 	WhatIsYourHomeAddress        CertificateProviderPath
 	WhoIsEligible                CertificateProviderPath
+	YourPreferredLanguage        CertificateProviderPath
 	YourRole                     CertificateProviderPath
 }
 
@@ -254,6 +256,7 @@ type AppPaths struct {
 	YourIndependentWitness                               LpaPath
 	YourIndependentWitnessAddress                        LpaPath
 	YourIndependentWitnessMobile                         LpaPath
+	YourPreferredLanguage                                LpaPath
 }
 
 var Paths = AppPaths{
@@ -273,6 +276,7 @@ var Paths = AppPaths{
 		WhatHappensNext:              "/what-happens-next",
 		WhatIsYourHomeAddress:        "/what-is-your-home-address",
 		WhoIsEligible:                "/certificate-provider-who-is-eligible",
+		YourPreferredLanguage:        "/your-preferred-language",
 		YourRole:                     "/your-role",
 	},
 
@@ -292,6 +296,7 @@ var Paths = AppPaths{
 		WhatHappensNext:           "/what-happens-next",
 		WhatHappensWhenYouSign:    "/what-happens-when-you-sign-the-lpa",
 		WouldLikeSecondSignatory:  "/would-like-second-signatory",
+		YourPreferredLanguage:     "/your-preferred-language",
 	},
 
 	HealthCheck: HealthCheckPaths{
@@ -401,6 +406,7 @@ var Paths = AppPaths{
 	YourIndependentWitnessAddress:                        "/your-independent-witness-address",
 	YourIndependentWitnessMobile:                         "/your-independent-witness-mobile",
 	YourLegalRightsAndResponsibilities:                   "/your-legal-rights-and-responsibilities",
+	YourPreferredLanguage:                                "/your-preferred-language",
 }
 
 func canGoToLpaPath(donor *actor.DonorProvidedDetails, path string) bool {

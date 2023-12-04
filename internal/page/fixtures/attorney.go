@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -173,6 +174,7 @@ func Attorney(
 
 		if progress >= slices.Index(progressValues, "signedByAttorney") {
 			attorney.Mobile = testMobile
+			attorney.ContactLanguagePreference = localize.En
 			attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
 			attorney.Tasks.ReadTheLpa = actor.TaskCompleted
 			attorney.Tasks.SignTheLpa = actor.TaskCompleted
