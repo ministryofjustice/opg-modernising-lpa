@@ -22,7 +22,7 @@ describe('Confirm your details', () => {
             cy.contains('1 February 1990');
             cy.contains('Charlie Cooper');
             cy.contains('dt', 'Address').parent().contains('5 RICHMOND PLACE')
-            cy.contains('07700900000');
+            cy.contains('07700 900 000');
 
             cy.contains('button', 'Continue').click();
             cy.url().should('contain', '/your-role');
@@ -66,7 +66,7 @@ describe('Confirm your details', () => {
             cy.contains('dt', 'Work address').parent().contains('5 RICHMOND PLACE')
             cy.contains('Charlie Cooper');
             cy.contains('5 RICHMOND PLACE');
-            cy.contains('07700900000');
+            cy.contains('07700 900 000');
 
             cy.contains('button', 'Continue').click();
             cy.url().should('contain', '/your-role');

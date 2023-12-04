@@ -18,7 +18,7 @@ describe('Confirm your details', () => {
         cy.contains('2 January 2000');
         cy.contains('Jessie Jones');
         cy.contains('2 RICHMOND PLACE');
-        cy.contains('07700900000');
+        cy.contains('07700 900 000');
         cy.contains('Welsh');
 
         cy.contains('button', 'Continue').click();

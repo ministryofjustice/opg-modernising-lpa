@@ -27,7 +27,7 @@ describe('As a trust corporation', () => {
         cy.contains('button', 'Save and continue').click()
 
         // confirm your company details
-        cy.contains(TestMobile);
+        cy.contains('07700 900 000');
         cy.contains('Welsh');
         cy.contains('Confirm your company details');
         cy.contains('First Choice Trust Corporation Ltd.');

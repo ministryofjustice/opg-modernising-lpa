@@ -261,10 +261,10 @@ func TestFormatDateTime(t *testing.T) {
 	assert.Equal(t, "7 Mawrth 2020 am 03:04", formatDateTime(appCy, time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
 }
 
-func TestFormatMobile(t *testing.T) {
-	assert.Equal(t, "07123 456 789", formatMobile("07 12 34 56 78 9"))
-	assert.Equal(t, "+44 7123 456 789", formatMobile("+44 71 23 45 67 89"))
-	assert.Equal(t, "+44 something else", formatMobile("+44 something else"))
+func TestFormatPhone(t *testing.T) {
+	assert.Equal(t, "07123 456 789", formatPhone("07 12 34 56 78 9"))
+	assert.Equal(t, "+44 7123 456 789", formatPhone("+44 71 23 45 67 89"))
+	assert.Equal(t, "+44 something else", formatPhone("+44 something else"))
 }
 
 func TestLowerFirst(t *testing.T) {
