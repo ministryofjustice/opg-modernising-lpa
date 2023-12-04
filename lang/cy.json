@@ -781,7 +781,6 @@
     "aMobilePhoneNumber": "Welsh",
     "aUKMobileNumber": "Welsh",
     "yourCertificateProviderAndIndependentWitnessMustBeWithYou": "Rhaid i’ch darparwr tystysgrif a’ch tyst annibynnol fod gyda chi’n bersonol pan fydd eich llofnodwr awdurdodedig yn llofnodi eich atwrneiaeth arhosol.",
-    "signingAnLpaIsAnImportant": "Welsh",
     "bySigningOnBehalfIConfirm": "Drwy lofnodi ar ran y rhoddwr, {{.DonorFullName}}, rwy’n deall ac yn cadarnhau pob un o’r canlynol:",
     "iConfirmAsAuthorisedSignatoryThat": "Rwyf i, {{.SignatoryFullName}}, fel y llofnodwr awdurdodedig, yn cadarnhau:",
     "donorWantsToSignThisLpa": "Welsh",
