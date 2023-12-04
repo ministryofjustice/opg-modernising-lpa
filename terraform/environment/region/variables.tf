@@ -37,6 +37,16 @@ variable "app_service_container_version" {
   description = "(optional) describe your variable"
 }
 
+variable "mock_onelogin_service_repository_url" {
+  type        = string
+  description = "(optional) describe your variable"
+}
+
+variable "mock_onelogin_service_container_version" {
+  type        = string
+  description = "(optional) describe your variable"
+}
+
 variable "ingress_allow_list_cidr" {
   type        = list(string)
   description = "List of CIDR ranges permitted to access the service"
@@ -107,4 +117,8 @@ variable "uid_service" {
     base_url = string
     api_arns = list(string)
   })
+}
+
+variable "mock_onelogin" {
+  type = bool
 }
