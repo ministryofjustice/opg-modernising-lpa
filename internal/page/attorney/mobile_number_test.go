@@ -179,7 +179,7 @@ func TestPostMobileNumber(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Attorney.ConfirmYourDetails.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.Attorney.YourPreferredLanguage.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }

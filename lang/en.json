@@ -911,5 +911,15 @@
     "detailsAboutTheDecisionsYourAttorneysMustMakeTogether": "details about the decisions your attorneys must make together",
     "detailsAboutTheDecisionsYourReplacementAttorneysMustMakeTogether": "details about the decisions your replacement attorneys must make together",
     "whatPersonalAffairsCovers" : "money, finances and any property they might own",
-    "whatPersonalWelfareCovers" : "health care and personal welfare"
+    "whatPersonalWelfareCovers" : "health care and personal welfare",
+    "yourPreferredLanguage": "Your preferred language",
+    "yourPreferredLanguageIntroContent": "<p class=\"govuk-body\">This service is available in English and Welsh (Cymraeg). You can switch between these languages on any page.</p>",
+    "howToChangeLanguageToWelsh": "How to change the language to Welsh",
+    "howToChangeLanguageToWelshContent": "<p class=\"govuk-body\">To see the Welsh version of any page, select the link that says <span class=\"govuk-!-font-weight-bold\">Cymraeg</span>. For most people, this can be found at the top right hand-side of any page.</p> <p class=\"govuk-body\">If you switch to Welsh, we will remember this on the next page. You can switch back to English at any time.</p>",
+    "gettingInTouchWithYouContentIsDonor": "<h2 class=\"govuk-heading-m\">Getting in touch with you</h2> <p class=\"govuk-body\">We may need to contact you while you are making an LPA. Please tell us which language you would prefer us to use.</p>",
+    "gettingInTouchWithYouContentIsNotDonor": "<h2 class=\"govuk-heading-m\">Getting in touch with you</h2> <p class=\"govuk-body\">We may need to contact you while {{ .DonorFirstNames }} is making an LPA. Please tell us which language you would prefer us to use.</p>",
+    "whichLanguageWouldYouPreferWhenWeContactYou": "Which language would you prefer us to use when we contact you?",
+    "en": "English",
+    "cy": "Welsh",
+    "whichLanguageYoudLikeUsToUseWhenWeContactYou": "which language you’d like us to use when we contact you"
 }

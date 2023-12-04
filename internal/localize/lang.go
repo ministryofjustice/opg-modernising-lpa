@@ -1,17 +1,10 @@
 package localize
 
-type Lang int
+//go:generate enumerator -type Lang -linecomment -empty
+type Lang byte
 
-func (l Lang) String() string {
-	if l == Cy {
-		return welshAbbreviation
-	}
-
-	return englishAbbreviation
-}
-
-func (l Lang) URL(path string) string {
-	if l == Cy {
+func (i Lang) URL(path string) string {
+	if i == Cy {
 		return "/" + Cy.String() + path
 	}
 
@@ -19,8 +12,6 @@ func (l Lang) URL(path string) string {
 }
 
 const (
-	En Lang = iota
-	Cy
-	englishAbbreviation = "en"
-	welshAbbreviation   = "cy"
+	En Lang = iota + 1 // en
+	Cy                 // cy
 )

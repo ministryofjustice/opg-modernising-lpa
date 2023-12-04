@@ -18,6 +18,9 @@ describe('Provide your details', () => {
 
         AddressFormAssertions.assertCanAddAddressFromSelect()
 
+        cy.get('[name="language-preference"]').check('en')
+        cy.contains('button', 'Save and continue').click()
+
         cy.get('#f-lpa-type').check('pfa');
         cy.contains('button', 'Continue').click();
 

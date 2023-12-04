@@ -10,7 +10,7 @@ describe('Enter date of birth', () => {
 
             cy.contains('button', 'Save and continue').click();
 
-            cy.url().should('contain', '/confirm-your-details');
+            cy.url().should('contain', '/your-preferred-language');
         });
 
 
@@ -49,7 +49,7 @@ describe('Enter date of birth', () => {
 
             cy.contains('button', 'Save and continue').click();
 
-            cy.url().should('contain', '/confirm-your-details');
+            cy.url().should('contain', '/your-preferred-language');
         });
 
         it('errors when empty', () => {

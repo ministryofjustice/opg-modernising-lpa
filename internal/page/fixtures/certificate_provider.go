@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -110,6 +111,7 @@ func CertificateProvider(
 
 		if progress >= slices.Index(progressValues, "confirmYourDetails") {
 			certificateProvider.DateOfBirth = date.New("1990", "1", "2")
+			certificateProvider.ContactLanguagePreference = localize.En
 			certificateProvider.Tasks.ConfirmYourDetails = actor.TaskCompleted
 
 			if asProfessionalCertificateProvider {

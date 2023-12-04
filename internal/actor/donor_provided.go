@@ -7,6 +7,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/mitchellh/hashstructure/v2"
@@ -98,6 +99,8 @@ type DonorProvidedDetails struct {
 	WithdrawnAt time.Time
 	// Version is the number of times the LPA has been updated (auto-incremented on PUT)
 	Version int `hash:"-"`
+	// ContactLanguagePreference is the language the donor prefers to receive notifications in
+	ContactLanguagePreference localize.Lang
 
 	// Codes used for the certificate provider to witness signing
 	CertificateProviderCodes WitnessCodes
