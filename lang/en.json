@@ -731,7 +731,6 @@
     "aMobilePhoneNumber": "a mobile phone number",
     "aUKMobileNumber": "a UK mobile number",
     "yourCertificateProviderAndIndependentWitnessMustBeWithYou": "Your certificate provider and independent witness must be with you in person when your authorised signatory signs your LPA.",
-    "signingAnLpaIsAnImportant": "Signing an LPA is an important and powerful legal step.",
     "bySigningOnBehalfIConfirm": "By signing, I, {{.DonorFullName}}, understand and confirm all of the following:",
     "iConfirmAsAuthorisedSignatoryThat": "I, {{.SignatoryFullName}}, confirm as the authorised signatory, that:",
     "donorWantsToSignThisLpa": "{{.DonorFullName}} wants to sign this LPA as a deed",
