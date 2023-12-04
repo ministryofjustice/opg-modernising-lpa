@@ -204,11 +204,11 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 			App: testAppData,
 			Form: &form.LanguagePreferenceForm{
 				Error:      errors.New("invalid Lang 'not-a-lang'"),
-				ErrorLabel: "yourPreferredLanguage",
+				ErrorLabel: "whichLanguageYoudLikeUsToUseWhenWeContactYou",
 			},
 			Options:    localize.LangValues,
 			FieldNames: form.FieldNames,
-			Errors:     validation.With(form.FieldNames.Preference, validation.SelectError{Label: "yourPreferredLanguage"}),
+			Errors:     validation.With(form.FieldNames.Preference, validation.SelectError{Label: "whichLanguageYoudLikeUsToUseWhenWeContactYou"}),
 			Donor:      &actor.DonorProvidedDetails{},
 		}).
 		Return(nil)
