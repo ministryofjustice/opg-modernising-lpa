@@ -1,25 +1,48 @@
 describe('Confirm your details', () => {
     describe('shows details for', () => {
-        it('lay certificate providers', () => {
-            cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth');
+        describe('lay certificate provider', () => {
+            it('LPA has been signed and witnessed', () => {
+                cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth&progress=signedByDonor');
 
-            cy.get('#f-date-of-birth').type('1');
-            cy.get('#f-date-of-birth-month').type('2');
-            cy.get('#f-date-of-birth-year').type('1990');
+                cy.get('#f-date-of-birth').type('1');
+                cy.get('#f-date-of-birth-month').type('2');
+                cy.get('#f-date-of-birth-year').type('1990');
 
-            cy.contains('button', 'Save and continue').click();
+                cy.contains('button', 'Save and continue').click();
 
-            cy.url().should('contain', '/confirm-your-details');
-            cy.checkA11yApp();
+                cy.url().should('contain', '/confirm-your-details');
+                cy.checkA11yApp();
 
-            cy.contains('1 February 1990');
-            cy.contains('Charlie Cooper');
-            cy.contains('dt', 'Address').parent().contains('5 RICHMOND PLACE')
-            cy.contains('07700 900 000');
+                cy.contains('1 February 1990');
+                cy.contains('Charlie Cooper');
+                cy.contains('dt', 'Address').parent().contains('5 RICHMOND PLACE')
+                cy.contains('07700 900 000');
 
-            cy.contains('button', 'Continue').click();
-            cy.url().should('contain', '/your-role');
-        });
+                cy.contains('button', 'Continue').click();
+                cy.url().should('contain', '/task-list');
+            })
+
+            it('LPA has not been signed and witnessed', () => {
+                cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth');
+
+                cy.get('#f-date-of-birth').type('1');
+                cy.get('#f-date-of-birth-month').type('2');
+                cy.get('#f-date-of-birth-year').type('1990');
+
+                cy.contains('button', 'Save and continue').click();
+
+                cy.url().should('contain', '/confirm-your-details');
+                cy.checkA11yApp();
+
+                cy.contains('1 February 1990');
+                cy.contains('Charlie Cooper');
+                cy.contains('dt', 'Address').parent().contains('5 RICHMOND PLACE')
+                cy.contains('07700 900 000');
+
+                cy.contains('button', 'Continue').click();
+                cy.url().should('contain', '/your-role');
+            })
+        })
 
         it('professional certificate providers', () => {
             cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth&relationship=professional');

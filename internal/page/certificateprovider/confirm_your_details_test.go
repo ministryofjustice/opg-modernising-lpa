@@ -98,34 +98,43 @@ func TestConfirmYourDetailsWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostConfirmYourDetails(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+	testCases := map[actor.TaskState]page.CertificateProviderPath{
+		actor.TaskCompleted:  page.Paths.CertificateProvider.TaskList,
+		actor.TaskInProgress: page.Paths.CertificateProvider.YourRole,
+		actor.TaskNotStarted: page.Paths.CertificateProvider.YourRole,
+	}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
-		Return(&actor.DonorProvidedDetails{}, nil)
+	for confirmYourIdentityAndSignTaskState, expectedPath := range testCases {
+		t.Run(confirmYourIdentityAndSignTaskState.String(), func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
-	certificateProviderStore.
-		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{
-			LpaID: "lpa-id",
-			Tasks: actor.CertificateProviderTasks{
-				ConfirmYourDetails: actor.TaskCompleted,
-			},
-		}).
-		Return(nil)
+			donorStore := newMockDonorStore(t)
+			donorStore.
+				On("GetAny", r.Context()).
+				Return(&actor.DonorProvidedDetails{Tasks: actor.DonorTasks{ConfirmYourIdentityAndSign: confirmYourIdentityAndSignTaskState}}, nil)
 
-	err := ConfirmYourDetails(nil, donorStore, certificateProviderStore)(testAppData, w, r)
-	resp := w.Result()
+			certificateProviderStore := newMockCertificateProviderStore(t)
+			certificateProviderStore.
+				On("Get", r.Context()).
+				Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
+			certificateProviderStore.
+				On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{
+					LpaID: "lpa-id",
+					Tasks: actor.CertificateProviderTasks{
+						ConfirmYourDetails: actor.TaskCompleted,
+					},
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProvider.YourRole.Format("lpa-id"), resp.Header.Get("Location"))
+			err := ConfirmYourDetails(nil, donorStore, certificateProviderStore)(testAppData, w, r)
+			resp := w.Result()
 
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, expectedPath.Format("lpa-id"), resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestPostConfirmYourDetailsWhenStoreErrors(t *testing.T) {
