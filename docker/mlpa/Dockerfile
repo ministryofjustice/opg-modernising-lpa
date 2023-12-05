@@ -1,6 +1,6 @@
 FROM golang:1.21.4-alpine as base
 
-ARG ARCH=amd64
+ARG ARCH=
 
 WORKDIR /app
 
