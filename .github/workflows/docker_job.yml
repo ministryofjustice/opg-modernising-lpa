@@ -53,7 +53,7 @@ jobs:
       - name: Build ${{ matrix.ecr_repository }} Image
         id: build_image
         run: |
-          docker build -f ${{ matrix.path }} -t ${{ matrix.ecr_repository }} --build-arg TAG=${{inputs.tag}} .
+          docker buildx build -f ${{ matrix.path }} -t ${{ matrix.ecr_repository }} --build-arg TAG=${{inputs.tag}} .
       - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
         id: trivy_scan
         uses: aquasecurity/trivy-action@0.14.0
