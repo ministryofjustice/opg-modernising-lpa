@@ -74,7 +74,8 @@ data "aws_iam_policy_document" "sqs_kms" {
     principals {
       type = "Service"
       identifiers = [
-        "sqs.amazonaws.com"
+        "sqs.amazonaws.com",
+        "events.amazonaws.com"
       ]
     }
   }
