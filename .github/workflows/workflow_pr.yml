@@ -107,10 +107,10 @@ jobs:
 
   pr_deploy:
       name: PR Environment Deploy
-      if: always() &&
-        (needs.go_unit_tests.result == 'success' || needs.go_unit_tests.result == 'skipped') &&
-        (needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped') &&
-        (needs.ui_tests_image.result == 'success' || needs.ui_tests_image.result == 'skipped')
+      # if: always() &&
+      #   # (needs.go_unit_tests.result == 'success' || needs.go_unit_tests.result == 'skipped') &&
+      #   (needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped') &&
+      #   (needs.ui_tests_image.result == 'success' || needs.ui_tests_image.result == 'skipped')
       needs: [
         create_tags,
         # go_unit_tests,
