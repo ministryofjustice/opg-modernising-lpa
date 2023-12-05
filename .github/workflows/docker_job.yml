@@ -30,18 +30,26 @@ jobs:
         include:
           - ecr_repository: modernising-lpa/app
             path: ./docker/mlpa/Dockerfile
-          - ecr_repository: modernising-lpa/create-s3-batch-replication-job
-            path: ./lambda/create_s3_replication_job/Dockerfile
-          - ecr_repository: modernising-lpa/event-received
-            path: ./docker/event-received/Dockerfile
-          - ecr_repository: modernising-lpa/mock-onelogin
-            path: ./docker/mock-onelogin/Dockerfile
+          # - ecr_repository: modernising-lpa/create-s3-batch-replication-job
+          #   path: ./lambda/create_s3_replication_job/Dockerfile
+          # - ecr_repository: modernising-lpa/event-received
+          #   path: ./docker/event-received/Dockerfile
+          # - ecr_repository: modernising-lpa/mock-onelogin
+          #   path: ./docker/mock-onelogin/Dockerfile
     runs-on: ubuntu-latest
     name: ${{ matrix.ecr_repository }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.checkout_tag }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3.0.0
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.0.0
+        with:
+          version: v0.12.0
+
       - name: Build ${{ matrix.ecr_repository }} Image
         id: build_image
         run: |
