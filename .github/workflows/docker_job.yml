@@ -26,6 +26,7 @@ permissions:
 jobs:
   docker_build_scan_push:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - ecr_repository: modernising-lpa/app
