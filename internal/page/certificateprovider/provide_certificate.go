@@ -20,7 +20,7 @@ type provideCertificateData struct {
 	Form                *provideCertificateForm
 }
 
-func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func() time.Time, certificateProviderStore CertificateProviderStore, notifyClient NotifyClient) page.Handler {
+func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func() time.Time, certificateProviderStore CertificateProviderStore, notifyClient NotifyClient, shareCodeSender ShareCodeSender) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		donor, err := donorStore.GetAny(r.Context())
 		if err != nil {
@@ -69,6 +69,10 @@ func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func(
 					},
 				}); err != nil {
 					return fmt.Errorf("email failed: %w", err)
+				}
+
+				if err := shareCodeSender.SendAttorneys(r.Context(), appData, donor); err != nil {
+					return err
 				}
 
 				return page.Paths.CertificateProvider.CertificateProvided.Redirect(w, r, appData, certificateProvider.LpaID)
