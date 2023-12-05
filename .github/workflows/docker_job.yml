@@ -51,11 +51,21 @@ jobs:
           version: v0.12.0
           platforms: linux/amd64,linux/arm64
 
-      - name: Build ${{ matrix.ecr_repository }} Image
-        id: build_image
-        run: |
-          docker buildx build \
-            -f ${{ matrix.path }} -t ${{ matrix.ecr_repository }} --build-arg TAG=${{inputs.tag}} .
+      # - name: Build ${{ matrix.ecr_repository }} Image
+      #   uses: docker/build-push-action@v5.1.0
+      #   with:
+      #     context: .
+      #     file: ${{ matrix.path }}
+      #     push: false
+      #     tags: |
+      #       ${{ matrix.ecr_repository }}:${{ inputs.tag }}
+      #     build-args: |
+      #       TAG=${{inputs.tag}}
+
+        # id: build_image
+        # run: |
+        #   docker buildx build \
+        #     -f ${{ matrix.path }} -t ${{ matrix.ecr_repository }} --build-arg TAG=${{inputs.tag}} .
       # - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
       #   id: trivy_scan
       #   uses: aquasecurity/trivy-action@0.14.0
@@ -70,6 +80,7 @@ jobs:
       #   if: always()
       #   with:
       #     sarif_file: 'trivy-results.sarif'
+
       - uses: unfor19/install-aws-cli-action@v1
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.1
@@ -84,19 +95,42 @@ jobs:
         with:
           mask-password: true
           registries: 311462405659
-      - name: Push ${{ matrix.ecr_repository }} Image to ECR
-        env:
-          ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ matrix.ecr_repository }}
-        run: |
-          if ${{ github.workflow == 'Path To Live' }}; then
-            docker buildx build \
-              --push \
-              -f ${{ matrix.path }} -t $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ inputs.tag }} -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
-              --build-arg TAG=${{inputs.tag}}  --build-arg TAG=${{inputs.tag}} .
-          else
-            docker buildx build \
-              --push \
-              -f ${{ matrix.path }} -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.tag }} \
-              --build-arg TAG=${{inputs.tag}} --build-arg TAG=${{inputs.tag}} .
-          fi
+      - name: Push ${{ matrix.ecr_repository }} Image to ECR for PR
+        if: ${{ github.workflow != 'Path To Live' }}
+        uses: docker/build-push-action@v5.1.0
+        with:
+          context: .
+          file: ${{ matrix.path }}
+          push: true
+          tags: |
+            ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:${{ inputs.tag }}
+          build-args: |
+            TAG=${{inputs.tag}}
+
+      - name: Push ${{ matrix.ecr_repository }} Image to ECR for Path to Live
+        if: ${{ github.workflow == 'Path To Live' }}
+        uses: docker/build-push-action@v5.1.0
+        with:
+          context: .
+          file: ${{ matrix.path }}
+          push: true
+          tags: |
+            ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:main-${{ inputs.tag }}
+            ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:latest
+          build-args: |
+            TAG=${{inputs.tag}}
+        # env:
+        #   ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
+        #   ECR_REPOSITORY: ${{ matrix.ecr_repository }}
+        # run: |
+        #   if ${{ github.workflow == 'Path To Live' }}; then
+        #     docker buildx build \
+        #       --push \
+        #       -f ${{ matrix.path }} -t $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ inputs.tag }} -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+        #       --build-arg TAG=${{inputs.tag}} .
+        #   else
+        #     docker buildx build \
+        #       --push \
+        #       -f ${{ matrix.path }} -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.tag }} \
+        #       --build-arg TAG=${{inputs.tag}} .
+        #   fi
