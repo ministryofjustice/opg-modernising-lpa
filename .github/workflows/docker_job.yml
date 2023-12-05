@@ -89,9 +89,16 @@ jobs:
           ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ matrix.ecr_repository }}
         run: |
-          docker tag ${{ matrix.ecr_repository }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.tag }}
           if ${{ github.workflow == 'Path To Live' }}; then
-            docker tag ${{ matrix.ecr_repository }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
-            docker tag ${{ matrix.ecr_repository }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ inputs.tag }}
+            docker buildx build \
+              --push \
+              --platform linux/amd64,linux/arm64 \
+              -f ${{ matrix.path }} -t $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ inputs.tag }} -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+              --build-arg TAG=${{inputs.tag}}
+          else
+            docker buildx build \
+              --push \
+              --platform linux/amd64,linux/arm64 \
+              -f ${{ matrix.path }} -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.tag }} \
+              --build-arg TAG=${{inputs.tag}}
           fi
-          docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
