@@ -31,7 +31,7 @@ jobs:
         include:
           - ecr_repository: modernising-lpa/app
             path: ./docker/mlpa/Dockerfile
-            platforms: linux/arm64
+            platforms: linux/arm64, linux/amd64
           - ecr_repository: modernising-lpa/create-s3-batch-replication-job
             path: ./lambda/create_s3_replication_job/Dockerfile
             platforms: linux/amd64
@@ -63,7 +63,7 @@ jobs:
           context: .
           file: ${{ matrix.path }}
           # builder: ${{ steps.buildx_setup.outputs.name }}
-          platforms:  ${{ matrix.platforms }}
+          platforms: linux/arm64
           push: false
           load: true
           tags: |
@@ -113,8 +113,8 @@ jobs:
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:${{ inputs.tag }}
           build-args: |
             TAG=${{inputs.tag}}
-          sbom: true
-          provenance: true
+          sbom: false
+          provenance: false
 
       - name: Push ${{ matrix.ecr_repository }} Image to ECR for Path to Live
         if: ${{ github.workflow == 'Path To Live' }}
@@ -130,5 +130,5 @@ jobs:
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:latest
           build-args: |
             TAG=${{inputs.tag}}
-          sbom: true
-          provenance: true
+          sbom: false
+          provenance: false
