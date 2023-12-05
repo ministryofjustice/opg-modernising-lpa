@@ -71,13 +71,21 @@ jobs:
       #   with:
       #     sarif_file: 'trivy-results.sarif'
       - uses: unfor19/install-aws-cli-action@v1
-      - name: Configure AWS Credentials
+      # - name: Configure AWS Credentials
+      #   uses: aws-actions/configure-aws-credentials@v4.0.1
+      #   with:
+      #     aws-region: eu-west-1
+      #     role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ecr-push
+      #     role-duration-seconds: 900
+      #     role-session-name: GithubActionsECRPushMLPAB
+      - name: Configure AWS Credentials For Terraform
         uses: aws-actions/configure-aws-credentials@v4.0.1
         with:
+          aws-access-key-id: ${{ secrets.aws_access_key_id }}
+          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
           aws-region: eu-west-1
-          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ecr-push
-          role-duration-seconds: 900
-          role-session-name: GithubActionsECRPushMLPAB
+          role-duration-seconds: 3600
+          role-session-name: OPGModernisingLPATerraformGithubAction
       - name: ECR Login
         id: login_ecr
         uses: aws-actions/amazon-ecr-login@v1.7.1
