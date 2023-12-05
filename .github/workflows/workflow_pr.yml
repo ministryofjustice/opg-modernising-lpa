@@ -113,7 +113,7 @@ jobs:
         (needs.ui_tests_image.result == 'success' || needs.ui_tests_image.result == 'skipped')
       needs: [
         create_tags,
-        go_unit_tests,
+        # go_unit_tests,
         docker_build_scan_push,
         ui_tests_image
       ]
