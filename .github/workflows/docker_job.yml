@@ -94,11 +94,11 @@ jobs:
               --push \
               --platform linux/amd64,linux/arm64 \
               -f ${{ matrix.path }} -t $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ inputs.tag }} -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
-              --build-arg TAG=${{inputs.tag}}
+              --build-arg TAG=${{inputs.tag}} .
           else
             docker buildx build \
               --push \
               --platform linux/amd64,linux/arm64 \
               -f ${{ matrix.path }} -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.tag }} \
-              --build-arg TAG=${{inputs.tag}}
+              --build-arg TAG=${{inputs.tag}} .
           fi
