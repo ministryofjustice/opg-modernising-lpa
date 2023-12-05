@@ -24,9 +24,9 @@ ARG FUNCTION_DIR
 RUN mkdir -p ${FUNCTION_DIR}
 
 # Copy function code
-COPY --link lambda/create_s3_replication_job/src/main.py ${FUNCTION_DIR}
+COPY lambda/create_s3_replication_job/src/main.py ${FUNCTION_DIR}
 
-COPY --link lambda/create_s3_replication_job/src/requirements.txt requirements.txt
+COPY lambda/create_s3_replication_job/src/requirements.txt requirements.txt
 
 # Install the runtime interface client
 RUN python -m pip install --upgrade pip
