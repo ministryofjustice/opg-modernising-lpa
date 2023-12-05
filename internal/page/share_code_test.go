@@ -365,90 +365,58 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
-		On("TemplateID", notify.TrustCorporationInviteEmail).
-		Return("trust-template-id")
-	notifyClient.
-		On("TemplateID", notify.ReplacementTrustCorporationInviteEmail).
-		Return("trust-template-id2")
-	notifyClient.
-		On("TemplateID", notify.AttorneyInviteEmail).
-		Return("template-id")
-	notifyClient.
-		On("TemplateID", notify.ReplacementAttorneyInviteEmail).
-		Return("template-id2")
-	notifyClient.
-		On("Email", ctx, notify.Email{
-			TemplateID:   "trust-template-id",
-			EmailAddress: "trusted@example.com",
-			Personalisation: map[string]string{
-				"shareCode":                 "123",
-				"attorneyFullName":          "Trusty",
-				"donorFirstNames":           "Jan",
-				"donorFullName":             "Jan Smith",
-				"donorFirstNamesPossessive": "Jan's",
-				"lpaLegalTerm":              "property and affairs",
-				"landingPageLink":           fmt.Sprintf("http://app%s", Paths.Attorney.Start),
-			},
+		On("SendEmail", ctx, "trusted@example.com", notify.InitialOriginalAttorneyEmail{
+			ShareCode:                 "123",
+			AttorneyFullName:          "Trusty",
+			DonorFirstNames:           "Jan",
+			DonorFullName:             "Jan Smith",
+			DonorFirstNamesPossessive: "Jan's",
+			LpaType:                   "property and affairs",
+			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 		}).
 		Return("", nil)
 	notifyClient.
-		On("Email", ctx, notify.Email{
-			TemplateID:   "trust-template-id2",
-			EmailAddress: "untrusted@example.com",
-			Personalisation: map[string]string{
-				"shareCode":                 "123",
-				"attorneyFullName":          "Untrusty",
-				"donorFirstNames":           "Jan",
-				"donorFullName":             "Jan Smith",
-				"donorFirstNamesPossessive": "Jan's",
-				"lpaLegalTerm":              "property and affairs",
-				"landingPageLink":           fmt.Sprintf("http://app%s", Paths.Attorney.Start),
-			},
+		On("SendEmail", ctx, "untrusted@example.com", notify.InitialOriginalAttorneyEmail{
+			ShareCode:                 "123",
+			AttorneyFullName:          "Untrusty",
+			DonorFirstNames:           "Jan",
+			DonorFullName:             "Jan Smith",
+			DonorFirstNamesPossessive: "Jan's",
+			LpaType:                   "property and affairs",
+			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 		}).
 		Return("", nil)
 	notifyClient.
-		On("Email", ctx, notify.Email{
-			TemplateID:   "template-id",
-			EmailAddress: "name@example.org",
-			Personalisation: map[string]string{
-				"shareCode":                 "123",
-				"attorneyFullName":          "Joanna Jones",
-				"donorFirstNames":           "Jan",
-				"donorFullName":             "Jan Smith",
-				"donorFirstNamesPossessive": "Jan's",
-				"lpaLegalTerm":              "property and affairs",
-				"landingPageLink":           fmt.Sprintf("http://app%s", Paths.Attorney.Start),
-			},
+		On("SendEmail", ctx, "name@example.org", notify.InitialOriginalAttorneyEmail{
+			ShareCode:                 "123",
+			AttorneyFullName:          "Joanna Jones",
+			DonorFirstNames:           "Jan",
+			DonorFullName:             "Jan Smith",
+			DonorFirstNamesPossessive: "Jan's",
+			LpaType:                   "property and affairs",
+			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 		}).
 		Return("", nil)
 	notifyClient.
-		On("Email", ctx, notify.Email{
-			TemplateID:   "template-id",
-			EmailAddress: "name2@example.org",
-			Personalisation: map[string]string{
-				"shareCode":                 "123",
-				"attorneyFullName":          "John Jones",
-				"donorFirstNames":           "Jan",
-				"donorFullName":             "Jan Smith",
-				"donorFirstNamesPossessive": "Jan's",
-				"lpaLegalTerm":              "property and affairs",
-				"landingPageLink":           fmt.Sprintf("http://app%s", Paths.Attorney.Start),
-			},
+		On("SendEmail", ctx, "name2@example.org", notify.InitialOriginalAttorneyEmail{
+			ShareCode:                 "123",
+			AttorneyFullName:          "John Jones",
+			DonorFirstNames:           "Jan",
+			DonorFullName:             "Jan Smith",
+			DonorFirstNamesPossessive: "Jan's",
+			LpaType:                   "property and affairs",
+			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 		}).
 		Return("", nil)
 	notifyClient.
-		On("Email", ctx, notify.Email{
-			TemplateID:   "template-id2",
-			EmailAddress: "dave@example.com",
-			Personalisation: map[string]string{
-				"shareCode":                 "123",
-				"attorneyFullName":          "Dave Davis",
-				"donorFirstNames":           "Jan",
-				"donorFullName":             "Jan Smith",
-				"donorFirstNamesPossessive": "Jan's",
-				"lpaLegalTerm":              "property and affairs",
-				"landingPageLink":           fmt.Sprintf("http://app%s", Paths.Attorney.Start),
-			},
+		On("SendEmail", ctx, "dave@example.com", notify.InitialOriginalAttorneyEmail{
+			ShareCode:                 "123",
+			AttorneyFullName:          "Dave Davis",
+			DonorFirstNames:           "Jan",
+			DonorFullName:             "Jan Smith",
+			DonorFirstNamesPossessive: "Jan's",
+			LpaType:                   "property and affairs",
+			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 		}).
 		Return("", nil)
 
@@ -512,36 +480,25 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.
-				On("TemplateID", notify.Template(notify.AttorneyInviteEmail)).
-				Return("template-id")
-			notifyClient.
-				On("Email", ctx, notify.Email{
-					TemplateID:   "template-id",
-					EmailAddress: "name@example.org",
-					Personalisation: map[string]string{
-						"shareCode":                 tc.expectedTestCode,
-						"attorneyFullName":          "Joanna Jones",
-						"donorFirstNames":           "Jan",
-						"donorFullName":             "Jan Smith",
-						"donorFirstNamesPossessive": "Jan's",
-						"lpaLegalTerm":              "property and affairs",
-						"landingPageLink":           fmt.Sprintf("http://app%s", Paths.Attorney.Start),
-					},
+				On("SendEmail", ctx, "name@example.org", notify.InitialOriginalAttorneyEmail{
+					ShareCode:                 tc.expectedTestCode,
+					AttorneyFullName:          "Joanna Jones",
+					DonorFirstNames:           "Jan",
+					DonorFullName:             "Jan Smith",
+					DonorFirstNamesPossessive: "Jan's",
+					LpaType:                   "property and affairs",
+					AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 				}).
 				Return("", nil)
 			notifyClient.
-				On("Email", ctx, notify.Email{
-					TemplateID:   "template-id",
-					EmailAddress: "name@example.org",
-					Personalisation: map[string]string{
-						"shareCode":                 "123",
-						"attorneyFullName":          "Joanna Jones",
-						"donorFirstNames":           "Jan",
-						"donorFullName":             "Jan Smith",
-						"donorFirstNamesPossessive": "Jan's",
-						"lpaLegalTerm":              "property and affairs",
-						"landingPageLink":           fmt.Sprintf("http://app%s", Paths.Attorney.Start),
-					},
+				On("SendEmail", ctx, "name@example.org", notify.InitialOriginalAttorneyEmail{
+					ShareCode:                 "123",
+					AttorneyFullName:          "Joanna Jones",
+					DonorFirstNames:           "Jan",
+					DonorFullName:             "Jan Smith",
+					DonorFirstNamesPossessive: "Jan's",
+					LpaType:                   "property and affairs",
+					AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 				}).
 				Return("", nil)
 
@@ -595,10 +552,7 @@ func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
-		On("TemplateID", mock.Anything).
-		Return("template-id")
-	notifyClient.
-		On("Email", ctx, mock.Anything).
+		On("SendEmail", ctx, mock.Anything, mock.Anything).
 		Return("", ExpectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
