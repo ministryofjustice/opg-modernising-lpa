@@ -106,6 +106,7 @@ jobs:
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:${{ inputs.tag }}
           build-args: |
             TAG=${{inputs.tag}}
+          provenance: false
 
       - name: Push ${{ matrix.ecr_repository }} Image to ECR for Path to Live
         if: ${{ github.workflow == 'Path To Live' }}
@@ -119,6 +120,7 @@ jobs:
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:latest
           build-args: |
             TAG=${{inputs.tag}}
+          provenance: false
         # env:
         #   ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
         #   ECR_REPOSITORY: ${{ matrix.ecr_repository }}
