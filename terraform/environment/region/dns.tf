@@ -33,7 +33,7 @@ resource "aws_route53_record" "app" {
 
 resource "aws_route53_record" "mock_onelogin" {
   # *-mock-onelogin.app.modernising.opg.service.justice.gov.uk
-  count          = data.aws_default_tags.current.tags.environment-name != "production" && var.mock_onelogin_enabled ? 1 : 0
+  count          = length(module.mock_onelogin)
   provider       = aws.management_global
   zone_id        = data.aws_route53_zone.modernising_lpa.zone_id
   name           = "${local.dns_namespace_for_environment_mock_onelogin}app.${data.aws_route53_zone.modernising_lpa.name}"
@@ -42,8 +42,8 @@ resource "aws_route53_record" "mock_onelogin" {
 
   alias {
     evaluate_target_health = false
-    name                   = module.mock_onelogin.load_balancer.dns_name
-    zone_id                = module.mock_onelogin.load_balancer.zone_id
+    name                   = module.mock_onelogin[0].load_balancer.dns_name
+    zone_id                = module.mock_onelogin[0].load_balancer.zone_id
   }
 
   weighted_routing_policy {

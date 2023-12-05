@@ -60,11 +60,12 @@ module "app" {
 }
 
 module "mock_onelogin" {
+  count                           = data.aws_default_tags.current.tags.environment-name != "production" && var.mock_onelogin_enabled ? 1 : 0
   source                          = "./modules/mock_onelogin"
   ecs_cluster                     = aws_ecs_cluster.main.id
   ecs_execution_role              = var.iam_roles.ecs_execution_role
   ecs_task_role                   = var.iam_roles.app_ecs_task_role
-  ecs_service_desired_count       = data.aws_default_tags.current.tags.environment-name != "production" && var.mock_onelogin_enabled ? 1 : 0
+  ecs_service_desired_count       = 1
   ecs_application_log_group_name  = module.application_logs.cloudwatch_log_group.name
   ecs_capacity_provider           = var.ecs_capacity_provider
   ingress_allow_list_cidr         = concat(var.ingress_allow_list_cidr, split(",", data.aws_ssm_parameter.additional_allowed_ingress_cidrs.value))
