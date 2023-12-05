@@ -78,6 +78,59 @@ func TestEmailWhenError(t *testing.T) {
 	assert.Equal(`error sending message: This happened: Plus this`, err.Error())
 }
 
+type testSendableEmail struct {
+	A string
+}
+
+func (e testSendableEmail) emailID(bool) string { return "template-id" }
+
+func TestSendEmail(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+
+	doer := newMockDoer(t)
+	doer.
+		On("Do", mock.MatchedBy(func(req *http.Request) bool {
+			var buf bytes.Buffer
+			io.Copy(&buf, req.Body)
+			req.Body = ioutil.NopCloser(&buf)
+
+			var v map[string]any
+			json.Unmarshal(buf.Bytes(), &v)
+
+			return assert.Equal("me@example.com", v["email_address"].(string)) &&
+				assert.Equal("template-id", v["template_id"].(string)) &&
+				assert.Equal(map[string]any{"A": "value"}, v["personalisation"].(map[string]any))
+		})).
+		Return(&http.Response{
+			Body: io.NopCloser(strings.NewReader(`{"id":"xyz"}`)),
+		}, nil)
+
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
+
+	id, err := client.SendEmail(ctx, "me@example.com", testSendableEmail{A: "value"})
+	assert.Nil(err)
+	assert.Equal("xyz", id)
+}
+
+func TestSendEmailWhenError(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+
+	doer := newMockDoer(t)
+	doer.
+		On("Do", mock.Anything).
+		Return(&http.Response{
+			Body: io.NopCloser(strings.NewReader(`{"errors":[{"error":"SomeError","message":"This happened"}, {"error":"AndError","message":"Plus this"}]}`)),
+		}, nil)
+
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+
+	_, err := client.SendEmail(ctx, "me@example.com", testSendableEmail{})
+	assert.Equal(`error sending message: This happened: Plus this`, err.Error())
+}
+
 func TestTemplateID(t *testing.T) {
 	production, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", nil)
 	assert.Equal(t, "e39849c0-ecab-4e16-87ec-6b22afb9d535", production.TemplateID(WitnessCodeSMS))
