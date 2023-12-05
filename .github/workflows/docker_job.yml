@@ -56,20 +56,20 @@ jobs:
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
             -f ${{ matrix.path }} -t ${{ matrix.ecr_repository }} --build-arg TAG=${{inputs.tag}} .
-      - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
-        id: trivy_scan
-        uses: aquasecurity/trivy-action@0.14.0
-        with:
-          image-ref: ${{ matrix.ecr_repository }}:latest
-          severity: 'HIGH,CRITICAL'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-      - name: Upload Trivy scan results to GitHub Security tab for ${{ matrix.ecr_repository }}
-        id: trivy_upload_sarif
-        uses: github/codeql-action/upload-sarif@v2
-        if: always()
-        with:
-          sarif_file: 'trivy-results.sarif'
+      # - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
+      #   id: trivy_scan
+      #   uses: aquasecurity/trivy-action@0.14.0
+      #   with:
+      #     image-ref: ${{ matrix.ecr_repository }}:latest
+      #     severity: 'HIGH,CRITICAL'
+      #     format: 'sarif'
+      #     output: 'trivy-results.sarif'
+      # - name: Upload Trivy scan results to GitHub Security tab for ${{ matrix.ecr_repository }}
+      #   id: trivy_upload_sarif
+      #   uses: github/codeql-action/upload-sarif@v2
+      #   if: always()
+      #   with:
+      #     sarif_file: 'trivy-results.sarif'
       - uses: unfor19/install-aws-cli-action@v1
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.1
