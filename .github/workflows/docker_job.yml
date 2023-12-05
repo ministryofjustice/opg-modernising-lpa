@@ -31,12 +31,16 @@ jobs:
         include:
           - ecr_repository: modernising-lpa/app
             path: ./docker/mlpa/Dockerfile
+            platforms: linux/amd64,linux/arm64
           - ecr_repository: modernising-lpa/create-s3-batch-replication-job
             path: ./lambda/create_s3_replication_job/Dockerfile
+            platforms: linux/amd64
           - ecr_repository: modernising-lpa/event-received
             path: ./docker/event-received/Dockerfile
+            platforms: linux/amd64
           - ecr_repository: modernising-lpa/mock-onelogin
             path: ./docker/mock-onelogin/Dockerfile
+            platforms: linux/amd64
     runs-on: ubuntu-latest
     name: ${{ matrix.ecr_repository }}
     steps:
@@ -103,7 +107,7 @@ jobs:
           file: ${{ matrix.path }}
           builder: ${{ steps.buildx_setup.outputs.name }}
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms:  ${{ matrix.platforms }}
           tags: |
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:${{ inputs.tag }}
           build-args: |
@@ -119,7 +123,7 @@ jobs:
           file: ${{ matrix.path }}
           builder: ${{ steps.buildx_setup.outputs.name }}
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms:  ${{ matrix.platforms }}
           tags: |
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:main-${{ inputs.tag }}
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:latest
