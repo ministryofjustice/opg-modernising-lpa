@@ -1,7 +1,5 @@
 FROM golang:1.21.4-alpine as base
 
-ARG ARCH=
-
 WORKDIR /app
 
 FROM node:18.16.0-alpine3.16 as asset-env
@@ -26,7 +24,7 @@ COPY internal ./internal
 
 COPY --from=asset-env /app/web/static web/static
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go install github.com/cosmtrek/air@latest && go install github.com/go-delve/delve/cmd/dlv@latest
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETPLATFORM} go install github.com/cosmtrek/air@latest && go install github.com/go-delve/delve/cmd/dlv@latest
 
 ENTRYPOINT ["air"]
 
@@ -42,7 +40,7 @@ RUN go mod download
 COPY cmd/mlpa ./cmd/mlpa
 COPY internal ./internal
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -ldflags="-X main.Tag=${TAG}" -o /go/bin/mlpab ./cmd/mlpa
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETPLATFORM} go build -ldflags="-X main.Tag=${TAG}" -o /go/bin/mlpab ./cmd/mlpa
 
 FROM alpine:3.18.5 as production
 
