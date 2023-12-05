@@ -57,11 +57,11 @@ jobs:
           context: .
           file: ${{ matrix.path }}
           push: false
+          load: true
           tags: |
             ${{ matrix.ecr_repository }}:${{ inputs.tag }}
           build-args: |
             TAG=${{inputs.tag}}
-          outputs: image
 
       - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
         id: trivy_scan
