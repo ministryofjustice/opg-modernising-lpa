@@ -49,7 +49,7 @@ jobs:
         uses: docker/setup-buildx-action@v3.0.0
         with:
           version: v0.12.0
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
 
       - name: Build ${{ matrix.ecr_repository }} Image
         uses: docker/build-push-action@v5.1.0
