@@ -57,9 +57,8 @@ jobs:
         with:
           context: .
           file: ${{ matrix.path }}
-          builder: ${{ steps.buildx_setup.outputs.name }}
+          # builder: ${{ steps.buildx_setup.outputs.name }}
           push: false
-          platforms: linux/amd64,linux/arm64
           load: true
           tags: |
             ${{ matrix.ecr_repository }}:${{ inputs.tag }}
