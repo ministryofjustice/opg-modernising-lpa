@@ -51,16 +51,16 @@ jobs:
           version: v0.12.0
           platforms: linux/amd64,linux/arm64
 
-      # - name: Build ${{ matrix.ecr_repository }} Image
-      #   uses: docker/build-push-action@v5.1.0
-      #   with:
-      #     context: .
-      #     file: ${{ matrix.path }}
-      #     push: false
-      #     tags: |
-      #       ${{ matrix.ecr_repository }}:${{ inputs.tag }}
-      #     build-args: |
-      #       TAG=${{inputs.tag}}
+      - name: Build ${{ matrix.ecr_repository }} Image
+        uses: docker/build-push-action@v5.1.0
+        with:
+          context: .
+          file: ${{ matrix.path }}
+          push: false
+          tags: |
+            ${{ matrix.ecr_repository }}:${{ inputs.tag }}
+          build-args: |
+            TAG=${{inputs.tag}}
 
         # id: build_image
         # run: |
@@ -121,18 +121,3 @@ jobs:
           build-args: |
             TAG=${{inputs.tag}}
           provenance: false
-        # env:
-        #   ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
-        #   ECR_REPOSITORY: ${{ matrix.ecr_repository }}
-        # run: |
-        #   if ${{ github.workflow == 'Path To Live' }}; then
-        #     docker buildx build \
-        #       --push \
-        #       -f ${{ matrix.path }} -t $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ inputs.tag }} -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
-        #       --build-arg TAG=${{inputs.tag}} .
-        #   else
-        #     docker buildx build \
-        #       --push \
-        #       -f ${{ matrix.path }} -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.tag }} \
-        #       --build-arg TAG=${{inputs.tag}} .
-        #   fi
