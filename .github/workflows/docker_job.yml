@@ -30,8 +30,8 @@ jobs:
         include:
           - ecr_repository: modernising-lpa/app
             path: ./docker/mlpa/Dockerfile
-          # - ecr_repository: modernising-lpa/create-s3-batch-replication-job
-          #   path: ./lambda/create_s3_replication_job/Dockerfile
+          - ecr_repository: modernising-lpa/create-s3-batch-replication-job
+            path: ./lambda/create_s3_replication_job/Dockerfile
           - ecr_repository: modernising-lpa/event-received
             path: ./docker/event-received/Dockerfile
           - ecr_repository: modernising-lpa/mock-onelogin
