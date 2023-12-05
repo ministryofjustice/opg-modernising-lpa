@@ -8,7 +8,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY cmd/mock-onelogin ./cmd/mock-onelogin
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o mock-onelogin ./cmd/mock-onelogin
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETPLATFORM} go build -a -installsuffix cgo -o mock-onelogin ./cmd/mock-onelogin
 
 RUN addgroup --system app && \
   adduser --system --gecos app app && \
