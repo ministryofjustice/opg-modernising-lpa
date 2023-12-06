@@ -82,7 +82,7 @@ variable "redirect_base_url" {
 variable "aws_service_discovery_private_dns_namespace" {
   type = object({
     id   = string
-    name = list(string)
+    name = string
   })
   description = "ID and name of the AWS Service Discovery private DNS namespace"
 }
