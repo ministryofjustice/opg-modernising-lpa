@@ -35,7 +35,12 @@ func ConfirmYourDetails(tmpl template.Template, donorStore DonorStore, certifica
 				return err
 			}
 
-			return page.Paths.CertificateProvider.YourRole.Redirect(w, r, appData, certificateProvider.LpaID)
+			redirect := page.Paths.CertificateProvider.YourRole
+			if donor.Tasks.ConfirmYourIdentityAndSign.Completed() {
+				redirect = page.Paths.CertificateProvider.TaskList
+			}
+
+			return redirect.Redirect(w, r, appData, certificateProvider.LpaID)
 		}
 
 		data := &confirmYourDetailsData{
