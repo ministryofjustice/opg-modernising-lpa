@@ -18,33 +18,24 @@ type Template uint8
 const (
 	CertificateProviderActingDigitallyHasNotConfirmedPersonalDetailsLPADetailsChangedPromptSMS Template = iota
 	CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS
-	CertificateProviderCertificateProvidedEmail
-	CertificateProviderInviteEmail
 	CertificateProviderActingOnPaperDetailsChangedSMS
 	CertificateProviderActingOnPaperMeetingPromptSMS
-	CertificateProviderProvideCertificatePromptEmail
 	WitnessCodeSMS
 )
 
 var (
 	productionTemplates = map[Template]string{
-		CertificateProviderCertificateProvidedEmail:                                                "2915acb9-2a52-4b62-812a-b31b19c6a94b",
 		CertificateProviderActingDigitallyHasNotConfirmedPersonalDetailsLPADetailsChangedPromptSMS: "19948d7d-a2df-4e85-930b-5d800978f41f",
 		CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS:    "71d21daa-11f9-4a2a-9ae2-bb5c2247bfb7",
-		CertificateProviderInviteEmail:                                                             "13df4493-20b0-4c20-b742-cab3844e69b2",
 		CertificateProviderActingOnPaperDetailsChangedSMS:                                          "ab90c6be-806e-411a-a354-de10f7a70c47",
 		CertificateProviderActingOnPaperMeetingPromptSMS:                                           "b5cd2c1b-e9b4-4f3e-8cf1-504aff93b16d",
-		CertificateProviderProvideCertificatePromptEmail:                                           "eada8a4f-5e7c-4f6b-b3fb-d4e92eeeb0ed",
 		WitnessCodeSMS: "e39849c0-ecab-4e16-87ec-6b22afb9d535",
 	}
 	testingTemplates = map[Template]string{
-		CertificateProviderCertificateProvidedEmail:                                                "c916f964-bf30-4dee-a9f3-b9bf0043e64d",
 		CertificateProviderActingDigitallyHasNotConfirmedPersonalDetailsLPADetailsChangedPromptSMS: "d7513751-49ba-4276-aef5-ad67361d29c4",
 		CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS:    "359fffa0-e1ec-444c-a886-6f046af374ab",
-		CertificateProviderInviteEmail:                                                             "4ab51290-5ac6-44ea-88f4-a27c37f285f8",
 		CertificateProviderActingOnPaperDetailsChangedSMS:                                          "94477364-281a-4032-9a88-b215f969cd12",
 		CertificateProviderActingOnPaperMeetingPromptSMS:                                           "ee39cd81-5802-44bb-b967-27da7e25e897",
-		CertificateProviderProvideCertificatePromptEmail:                                           "a445edda-dea1-4554-be9b-ad11adad9e89",
 		WitnessCodeSMS: "dfa15e16-1f23-494a-bffb-a475513df6cc",
 	}
 )

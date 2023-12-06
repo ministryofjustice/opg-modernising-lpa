@@ -57,16 +57,12 @@ func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func(
 					return err
 				}
 
-				if _, err := notifyClient.Email(r.Context(), notify.Email{
-					EmailAddress: donor.CertificateProvider.Email,
-					TemplateID:   notifyClient.TemplateID(notify.CertificateProviderCertificateProvidedEmail),
-					Personalisation: map[string]string{
-						"donorFullNamePossessive":     appData.Localizer.Possessive(donor.Donor.FullName()),
-						"donorFirstNamesPossessive":   appData.Localizer.Possessive(donor.Donor.FirstNames),
-						"lpaLegalTerm":                appData.Localizer.T(donor.Type.LegalTermTransKey()),
-						"certificateProviderFullName": donor.CertificateProvider.FullName(),
-						"certificateProvidedDateTime": appData.Localizer.FormatDateTime(certificateProvider.Certificate.Agreed),
-					},
+				if _, err := notifyClient.SendEmail(r.Context(), donor.CertificateProvider.Email, notify.CertificateProviderCertificateProvidedEmail{
+					DonorFullNamePossessive:     appData.Localizer.Possessive(donor.Donor.FullName()),
+					DonorFirstNamesPossessive:   appData.Localizer.Possessive(donor.Donor.FirstNames),
+					LpaType:                     appData.Localizer.T(donor.Type.LegalTermTransKey()),
+					CertificateProviderFullName: donor.CertificateProvider.FullName(),
+					CertificateProvidedDateTime: appData.Localizer.FormatDateTime(certificateProvider.Certificate.Agreed),
 				}); err != nil {
 					return fmt.Errorf("email failed: %w", err)
 				}
