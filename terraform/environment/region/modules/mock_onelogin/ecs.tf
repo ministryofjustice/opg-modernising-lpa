@@ -88,6 +88,22 @@ resource "aws_security_group_rule" "mock_onelogin_ecs_service_ingress" {
   provider = aws.region
 }
 
+
+resource "aws_security_group_rule" "mock_one_login_service_app_ingress" {
+  description              = "Allow Port 80 ingress from the View service"
+  type                     = "ingress"
+  from_port                = 80
+  to_port                  = 80
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.mock_onelogin_ecs_service.id
+  source_security_group_id = var.app_ecs_service_security_group_id
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  provider = aws.region
+}
+
 resource "aws_security_group_rule" "mock_onelogin_ecs_service_egress" {
   description       = "Allow any egress from service"
   type              = "egress"
