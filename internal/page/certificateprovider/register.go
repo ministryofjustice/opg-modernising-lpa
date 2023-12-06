@@ -68,6 +68,11 @@ type NotifyClient interface {
 	TemplateID(id notify.Template) string
 }
 
+//go:generate mockery --testonly --inpackage --name ShareCodeSender --structname mockShareCodeSender
+type ShareCodeSender interface {
+	SendAttorneys(context.Context, page.AppData, *actor.DonorProvidedDetails) error
+}
+
 //go:generate mockery --testonly --inpackage --name AddressClient --structname mockAddressClient
 type AddressClient interface {
 	LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error)
@@ -100,6 +105,7 @@ func Register(
 	notFoundHandler page.Handler,
 	addressClient AddressClient,
 	notifyClient NotifyClient,
+	shareCodeSender ShareCodeSender,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -139,7 +145,7 @@ func Register(
 	handleCertificateProvider(page.Paths.CertificateProvider.WhatHappensNext, page.CanGoBack,
 		Guidance(tmpls.Get("certificate_provider_what_happens_next.gohtml"), donorStore, nil))
 	handleCertificateProvider(page.Paths.CertificateProvider.ProvideCertificate, page.CanGoBack,
-		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), donorStore, time.Now, certificateProviderStore, notifyClient))
+		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), donorStore, time.Now, certificateProviderStore, notifyClient, shareCodeSender))
 	handleCertificateProvider(page.Paths.CertificateProvider.CertificateProvided, page.None,
 		Guidance(tmpls.Get("certificate_provided.gohtml"), donorStore, certificateProviderStore))
 }
