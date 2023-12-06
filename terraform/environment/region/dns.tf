@@ -56,7 +56,7 @@ resource "aws_route53_record" "mock_onelogin" {
 }
 
 resource "aws_service_discovery_private_dns_namespace" "mock_one_login" {
-  name        = "${local.dns_namespace_for_environment_mock_onelogin}internal.modernising.ecs"
+  name        = "${data.aws_default_tags.current.tags.environment-name}.internal.modernising.ecs"
   description = "Private DNS namespace for the mock-onelogin service"
   vpc         = data.aws_vpc.main.id
   provider    = aws.region
