@@ -44,18 +44,14 @@ variable "ecs_application_log_group_name" {
   description = "The AWS Cloudwatch Log Group resource for application logging"
 }
 
-variable "app_service_repository_url" {
+variable "repository_url" {
   type        = string
-  description = "(optional) describe your variable"
+  description = "URL of the repository for the container to use"
 }
 
-variable "app_service_container_version" {
+variable "container_version" {
   type        = string
-  description = "(optional) describe your variable"
-}
-
-variable "app_allowed_api_arns" {
-  type = list(string)
+  description = "Version of the container to use"
 }
 
 variable "ingress_allow_list_cidr" {
@@ -73,53 +69,12 @@ variable "container_port" {
   description = "Port on the container to associate with."
 }
 
-variable "lpas_table" {
-  type        = any
-  description = "DynamoDB table for storing LPAs"
-}
-
-variable "app_env_vars" {
-  type        = any
-  description = "Environment variable values for app"
-}
-
 variable "public_access_enabled" {
   type        = bool
   description = "Enable access to the Modernising LPA service from the public internet"
 }
 
-variable "aws_rum_guest_role_arn" {
+variable "redirect_base_url" {
   type        = string
-  description = "ARN of the AWS RUM guest role"
-  nullable    = true
-}
-
-variable "rum_monitor_application_id_secretsmanager_secret_arn" {
-  type        = string
-  description = "ARN of the AWS Secrets Manager secret containing the RUM monitor application ID"
-  nullable    = true
-}
-
-variable "uploads_s3_bucket" {
-  type = object({
-    bucket_name = string
-    bucket_arn  = string
-  })
-  description = "Name and ARN of the S3 bucket for uploads"
-}
-
-variable "event_bus" {
-  type = object({
-    name = string
-    arn  = string
-  })
-  description = "Name and ARN of the event bus to send events to"
-}
-
-variable "uid_base_url" {
-  type = string
-}
-
-variable "mock_onelogin_enabled" {
-  type = bool
+  description = "Base URL expected for redirect_url"
 }

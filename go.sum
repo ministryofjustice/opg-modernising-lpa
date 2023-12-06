@@ -164,6 +164,8 @@ github.com/leodido/go-urn v1.2.0/go.mod h1:+8+nEpDfqqsY+g338gtMEUOtuK+4dEMhiQEgx
 github.com/mattn/go-isatty v0.0.12/go.mod h1:cbi8OIDigv2wuxKPP5vlRcQ1OAZbq2CE4Kysco4FUpU=
 github.com/ministryofjustice/opg-go-common v0.0.0-20231106092059-b3dcf8bd1eeb h1:nZ2pEcU9r5sAewHyQ0ZrXnPNLSHgfvxa7xf7rpZpbno=
 github.com/ministryofjustice/opg-go-common v0.0.0-20231106092059-b3dcf8bd1eeb/go.mod h1:qktwZb46YkojkLVHU2QNnVK6yVktXkNpBuJ+TyobvuY=
+github.com/ministryofjustice/opg-go-common v0.0.0-20231128145056-24628fba649c h1:598i3upKVEHRLW+eSkGmCaV7+yIaFTV6lMiHOC3tXDY=
+github.com/ministryofjustice/opg-go-common v0.0.0-20231128145056-24628fba649c/go.mod h1:qktwZb46YkojkLVHU2QNnVK6yVktXkNpBuJ+TyobvuY=
 github.com/mitchellh/hashstructure/v2 v2.0.2 h1:vGKWl0YJqUNxE8d+h8f6NJLcCJrgbhC4NcD46KavDd4=
 github.com/mitchellh/hashstructure/v2 v2.0.2/go.mod h1:MG3aRVU/N29oo/V/IhBX8GR/zz4kQkprJgF2EVszyDE=
 github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
