@@ -81,6 +81,11 @@ module "mock_onelogin" {
     application_subnets = data.aws_subnet.application.*.id
     public_subnets      = data.aws_subnet.public.*.id
   }
+  aws_service_discovery_private_dns_namespace = {
+    id   = aws_service_discovery_private_dns_namespace.mock_one_login.id
+    name = aws_service_discovery_private_dns_namespace.mock_one_login.name
+  }
+
   providers = {
     aws.region = aws.region
   }

@@ -12,6 +12,10 @@ resource "aws_ecs_service" "mock_onelogin" {
     weight            = 100
   }
 
+  service_registries {
+    registry_arn = aws_service_discovery_service.mock_onelogin.arn
+  }
+
   network_configuration {
     security_groups  = [aws_security_group.mock_onelogin_ecs_service.id]
     subnets          = var.network.application_subnets
@@ -33,6 +37,31 @@ resource "aws_ecs_service" "mock_onelogin" {
     update = "4m"
   }
   provider = aws.region
+}
+
+resource "aws_service_discovery_service" "mock_onelogin" {
+  name = "mock_onelogin"
+
+  dns_config {
+    namespace_id = var.aws_service_discovery_private_dns_namespace.id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+
+    routing_policy = "MULTIVALUE"
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+
+  provider = aws.region
+}
+
+locals {
+  mock_onelogin_service_discovery_fqdn = "${aws_service_discovery_service.mock_onelogin.name}.${var.aws_service_discovery_private_dns_namespace.name}"
 }
 
 resource "aws_security_group" "mock_onelogin_ecs_service" {
@@ -123,7 +152,7 @@ locals {
         },
         {
           name  = "INTERNAL_URL",
-          value = local.mock_onelogin_url
+          value = local.mock_onelogin_service_discovery_fqdn
         },
         {
           name  = "CLIENT_ID",
