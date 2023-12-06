@@ -40,7 +40,7 @@ resource "aws_ecs_service" "mock_onelogin" {
 }
 
 resource "aws_service_discovery_service" "mock_onelogin" {
-  name = "mock_onelogin"
+  name = "mock-onelogin"
 
   dns_config {
     namespace_id = var.aws_service_discovery_private_dns_namespace.id
