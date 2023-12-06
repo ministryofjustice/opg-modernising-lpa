@@ -921,5 +921,6 @@
     "whichLanguageWouldYouPreferWhenWeContactYou": "Which language would you prefer us to use when we contact you?",
     "en": "English",
     "cy": "Welsh",
-    "whichLanguageYoudLikeUsToUseWhenWeContactYou": "which language you’d like us to use when we contact you"
+    "whichLanguageYoudLikeUsToUseWhenWeContactYou": "which language you’d like us to use when we contact you",
+    "preferredContactLanguage": "Preferred contact language"
 }
