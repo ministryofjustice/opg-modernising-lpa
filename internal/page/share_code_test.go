@@ -27,20 +27,20 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 		Type: actor.LpaTypePropertyFinance,
 	}
 
-	testcases := map[notify.Template]struct {
-		personalisation map[string]string
-		localizerSetup  func(*mockLocalizer) *mockLocalizer
+	testcases := map[bool]struct {
+		email          notify.SendableEmail
+		localizerSetup func(*mockLocalizer) *mockLocalizer
 	}{
-		notify.CertificateProviderInviteEmail: {
-			personalisation: map[string]string{
-				"shareCode":                   "123",
-				"cpFullName":                  "Joanna Jones",
-				"donorFirstNames":             "Jan",
-				"donorFullName":               "Jan Smith",
-				"lpaLegalTerm":                "property and affairs",
-				"certificateProviderStartURL": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
-				"donorFirstNamesPossessive":   "Jan’s",
-				"whatLPACovers":               "houses and stuff",
+		true: {
+			email: notify.CertificateProviderInviteEmail{
+				ShareCode:                   "123",
+				CertificateProviderFullName: "Joanna Jones",
+				DonorFirstNames:             "Jan",
+				DonorFullName:               "Jan Smith",
+				LpaType:                     "property and affairs",
+				CertificateProviderStartURL: fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+				DonorFirstNamesPossessive:   "Jan’s",
+				WhatLpaCovers:               "houses and stuff",
 			},
 			localizerSetup: func(localizer *mockLocalizer) *mockLocalizer {
 				localizer.
@@ -58,27 +58,35 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 				return localizer
 			},
 		},
-		notify.Template(99): {
-			personalisation: map[string]string{
-				"shareCode":                   "123",
-				"cpFullName":                  "Joanna Jones",
-				"donorFullName":               "Jan Smith",
-				"lpaLegalTerm":                "property and affairs",
-				"certificateProviderStartURL": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+		false: {
+			email: notify.CertificateProviderProvideCertificatePromptEmail{
+				ShareCode:                   "123",
+				CertificateProviderFullName: "Joanna Jones",
+				DonorFullName:               "Jan Smith",
+				LpaType:                     "property and affairs",
+				CertificateProviderStartURL: fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
 			},
 			localizerSetup: func(localizer *mockLocalizer) *mockLocalizer {
 				localizer.
 					On("T", donor.Type.LegalTermTransKey()).
 					Return("property and affairs").
 					Once()
+				localizer.
+					On("Possessive", "Jan").
+					Return("Jan’s")
 
 				return localizer
 			},
 		},
 	}
 
-	for template, tc := range testcases {
-		t.Run(string(template), func(t *testing.T) {
+	for isFirstContact, tc := range testcases {
+		name := "second"
+		if isFirstContact {
+			name = "first"
+		}
+
+		t.Run(name, func(t *testing.T) {
 			tc.localizerSetup(localizer)
 			TestAppData.Localizer = localizer
 
@@ -96,18 +104,11 @@ func TestShareCodeSenderSendCertificateProvider(t *testing.T) {
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.
-				On("TemplateID", template).
-				Return("template-id")
-			notifyClient.
-				On("Email", ctx, notify.Email{
-					TemplateID:      "template-id",
-					EmailAddress:    "name@example.org",
-					Personalisation: tc.personalisation,
-				}).
+				On("SendEmail", ctx, "name@example.org", tc.email).
 				Return("", nil)
 
 			sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
-			err := sender.SendCertificateProvider(ctx, template, TestAppData, donor)
+			err := sender.SendCertificateProvider(ctx, isFirstContact, TestAppData, donor)
 
 			assert.Nil(t, err)
 		})
@@ -177,33 +178,22 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.
-				On("TemplateID", notify.Template(99)).
-				Return("template-id")
-			notifyClient.
-				On("Email", ctx, notify.Email{
-					TemplateID:   "template-id",
-					EmailAddress: "name@example.org",
-					Personalisation: map[string]string{
-						"cpFullName":                  "Joanna Jones",
-						"donorFullName":               "Jan Smith",
-						"lpaLegalTerm":                "property and affairs",
-						"certificateProviderStartURL": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
-						"shareCode":                   tc.expectedTestCode,
-					},
+				On("SendEmail", ctx, "name@example.org", notify.CertificateProviderProvideCertificatePromptEmail{
+					CertificateProviderFullName: "Joanna Jones",
+					DonorFullName:               "Jan Smith",
+					LpaType:                     "property and affairs",
+					CertificateProviderStartURL: fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+					ShareCode:                   tc.expectedTestCode,
 				}).
 				Once().
 				Return("", nil)
 			notifyClient.
-				On("Email", ctx, notify.Email{
-					TemplateID:   "template-id",
-					EmailAddress: "name@example.org",
-					Personalisation: map[string]string{
-						"cpFullName":                  "Joanna Jones",
-						"donorFullName":               "Jan Smith",
-						"lpaLegalTerm":                "property and affairs",
-						"certificateProviderStartURL": fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
-						"shareCode":                   "123",
-					},
+				On("SendEmail", ctx, "name@example.org", notify.CertificateProviderProvideCertificatePromptEmail{
+					CertificateProviderFullName: "Joanna Jones",
+					DonorFullName:               "Jan Smith",
+					LpaType:                     "property and affairs",
+					CertificateProviderStartURL: fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+					ShareCode:                   "123",
 				}).
 				Once().
 				Return("", nil)
@@ -214,12 +204,10 @@ func TestShareCodeSenderSendCertificateProviderWithTestCode(t *testing.T) {
 				sender.UseTestCode()
 			}
 
-			err := sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, donor)
-
+			err := sender.SendCertificateProvider(ctx, false, TestAppData, donor)
 			assert.Nil(t, err)
 
-			err = sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, donor)
-
+			err = sender.SendCertificateProvider(ctx, false, TestAppData, donor)
 			assert.Nil(t, err)
 		})
 	}
@@ -255,14 +243,11 @@ func TestShareCodeSenderSendCertificateProviderWhenEmailErrors(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
-		On("TemplateID", notify.Template(99)).
-		Return("")
-	notifyClient.
-		On("Email", ctx, mock.Anything).
+		On("SendEmail", ctx, mock.Anything, mock.Anything).
 		Return("", ExpectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
-	err := sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, donor)
+	err := sender.SendCertificateProvider(ctx, false, TestAppData, donor)
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))
 }
@@ -276,7 +261,7 @@ func TestShareCodeSenderSendCertificateProviderWhenShareCodeStoreErrors(t *testi
 		Return(ExpectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", MockRandom)
-	err := sender.SendCertificateProvider(ctx, notify.Template(99), TestAppData, &actor.DonorProvidedDetails{})
+	err := sender.SendCertificateProvider(ctx, false, TestAppData, &actor.DonorProvidedDetails{})
 
 	assert.Equal(t, ExpectedError, errors.Unwrap(err))
 }
