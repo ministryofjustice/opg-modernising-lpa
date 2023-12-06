@@ -12,11 +12,11 @@ import (
 )
 
 type yourPreferredLanguageData struct {
-	App        page.AppData
-	Errors     validation.List
-	Form       *form.LanguagePreferenceForm
-	Options    localize.LangOptions
-	FieldNames form.Names
+	App       page.AppData
+	Errors    validation.List
+	Form      *form.LanguagePreferenceForm
+	Options   localize.LangOptions
+	FieldName string
 }
 
 func YourPreferredLanguage(tmpl template.Template, donorStore DonorStore) Handler {
@@ -26,8 +26,8 @@ func YourPreferredLanguage(tmpl template.Template, donorStore DonorStore) Handle
 			Form: &form.LanguagePreferenceForm{
 				Preference: donor.ContactLanguagePreference,
 			},
-			Options:    localize.LangValues,
-			FieldNames: form.FieldNames,
+			Options:   localize.LangValues,
+			FieldName: form.FieldNames.LanguagePreference,
 		}
 
 		if r.Method == http.MethodPost {
