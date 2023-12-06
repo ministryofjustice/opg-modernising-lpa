@@ -31,13 +31,13 @@ jobs:
         include:
           - ecr_repository: modernising-lpa/app
             path: ./docker/mlpa/Dockerfile
-            platforms: linux/arm64
+            platforms: linux/arm64, linux/amd64
           - ecr_repository: modernising-lpa/create-s3-batch-replication-job
             path: ./lambda/create_s3_replication_job/Dockerfile
             platforms: linux/amd64
           - ecr_repository: modernising-lpa/event-received
             path: ./docker/event-received/Dockerfile
-            platforms: linux/amd64
+            platforms: linux/amd64, linux/arm64
           - ecr_repository: modernising-lpa/mock-onelogin
             path: ./docker/mock-onelogin/Dockerfile
             platforms: linux/amd64
