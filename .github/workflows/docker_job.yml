@@ -26,31 +26,56 @@ permissions:
 jobs:
   docker_build_scan_push:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - ecr_repository: modernising-lpa/app
             path: ./docker/mlpa/Dockerfile
+            platforms: linux/arm64, linux/amd64
           - ecr_repository: modernising-lpa/create-s3-batch-replication-job
             path: ./lambda/create_s3_replication_job/Dockerfile
+            platforms: linux/amd64
           - ecr_repository: modernising-lpa/event-received
             path: ./docker/event-received/Dockerfile
+            platforms: linux/amd64, linux/arm64
           - ecr_repository: modernising-lpa/mock-onelogin
             path: ./docker/mock-onelogin/Dockerfile
+            platforms: linux/amd64
     runs-on: ubuntu-latest
     name: ${{ matrix.ecr_repository }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.checkout_tag }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3.0.0
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.0.0
+        id: buildx_setup
+        with:
+          version: v0.12.0
+          platforms: linux/amd64,linux/arm64
+
       - name: Build ${{ matrix.ecr_repository }} Image
-        id: build_image
-        run: |
-          docker build -f ${{ matrix.path }} -t ${{ matrix.ecr_repository }} --build-arg TAG=${{inputs.tag}} .
+        uses: docker/build-push-action@v5.1.0
+        with:
+          context: .
+          file: ${{ matrix.path }}
+          # builder: ${{ steps.buildx_setup.outputs.name }}
+          platforms: linux/amd64
+          push: false
+          load: true
+          tags: |
+            ${{ matrix.ecr_repository }}:${{ inputs.tag }}
+          build-args: |
+            TAG=${{inputs.tag}}
+
       - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
         id: trivy_scan
         uses: aquasecurity/trivy-action@0.14.0
         with:
-          image-ref: ${{ matrix.ecr_repository }}:latest
+          image-ref: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
           severity: 'HIGH,CRITICAL'
           format: 'sarif'
           output: 'trivy-results.sarif'
@@ -60,6 +85,7 @@ jobs:
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
+
       - uses: unfor19/install-aws-cli-action@v1
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.1
@@ -74,14 +100,35 @@ jobs:
         with:
           mask-password: true
           registries: 311462405659
-      - name: Push ${{ matrix.ecr_repository }} Image to ECR
-        env:
-          ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ matrix.ecr_repository }}
-        run: |
-          docker tag ${{ matrix.ecr_repository }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.tag }}
-          if ${{ github.workflow == 'Path To Live' }}; then
-            docker tag ${{ matrix.ecr_repository }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
-            docker tag ${{ matrix.ecr_repository }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ inputs.tag }}
-          fi
-          docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
+      - name: Push ${{ matrix.ecr_repository }} Image to ECR for PR
+        if: ${{ github.workflow != 'Path To Live' }}
+        uses: docker/build-push-action@v5.1.0
+        with:
+          context: .
+          file: ${{ matrix.path }}
+          builder: ${{ steps.buildx_setup.outputs.name }}
+          push: true
+          platforms:  ${{ matrix.platforms }}
+          tags: |
+            ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:${{ inputs.tag }}
+          build-args: |
+            TAG=${{inputs.tag}}
+          sbom: false
+          provenance: false
+
+      - name: Push ${{ matrix.ecr_repository }} Image to ECR for Path to Live
+        if: ${{ github.workflow == 'Path To Live' }}
+        uses: docker/build-push-action@v5.1.0
+        with:
+          context: .
+          file: ${{ matrix.path }}
+          builder: ${{ steps.buildx_setup.outputs.name }}
+          push: true
+          platforms:  ${{ matrix.platforms }}
+          tags: |
+            ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:main-${{ inputs.tag }}
+            ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:latest
+          build-args: |
+            TAG=${{inputs.tag}}
+          sbom: false
+          provenance: false
