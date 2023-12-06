@@ -1,9 +1,9 @@
 package form
 
 var FieldNames = Names{
-	Preference: "language-preference",
+	LanguagePreference: "language-preference",
 }
 
 type Names struct {
-	Preference string
+	LanguagePreference string
 }

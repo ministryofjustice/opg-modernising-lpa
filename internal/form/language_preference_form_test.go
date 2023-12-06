@@ -13,7 +13,7 @@ import (
 )
 
 func TestReadLanguagePreferenceForm(t *testing.T) {
-	form := url.Values{FieldNames.Preference: {localize.En.String()}}
+	form := url.Values{FieldNames.LanguagePreference: {localize.En.String()}}
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
@@ -30,7 +30,7 @@ func TestLanguagePreferenceFormValidate(t *testing.T) {
 		},
 		"invalid": {
 			form:   &LanguagePreferenceForm{Error: errors.New("err"), ErrorLabel: "a-label"},
-			errors: validation.With(FieldNames.Preference, validation.SelectError{Label: "a-label"}),
+			errors: validation.With(FieldNames.LanguagePreference, validation.SelectError{Label: "a-label"}),
 		},
 	}
 
