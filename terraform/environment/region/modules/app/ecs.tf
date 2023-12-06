@@ -79,10 +79,14 @@ resource "aws_ecs_task_definition" "app" {
   network_mode             = "awsvpc"
   cpu                      = 512
   memory                   = 1024
-  container_definitions    = "[${local.app}, ${local.aws_otel_collector}]"
-  task_role_arn            = var.ecs_task_role.arn
-  execution_role_arn       = var.ecs_execution_role.arn
-  provider                 = aws.region
+  runtime_platform {
+    operating_system_family = "LINUX"
+    cpu_architecture        = var.ecs_capacity_provider == "FARGATE_SPOT" ? "X86_64" : "ARM64"
+  }
+  container_definitions = "[${local.app}, ${local.aws_otel_collector}]"
+  task_role_arn         = var.ecs_task_role.arn
+  execution_role_arn    = var.ecs_execution_role.arn
+  provider              = aws.region
 }
 
 resource "aws_iam_role_policy" "app_task_role" {
@@ -340,7 +344,7 @@ locals {
         },
         {
           name  = "MOCK_IDENTITY_PUBLIC_KEY",
-          value = var.mock_onelogin_enabled ? "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZrd0V3WUhLb1pJemowQ0FRWUlLb1pJemowREFRY0RRZ0FFSlEyVmtpZWtzNW9rSTIxY1Jma0FhOXVxN0t4TQo2bTJqWllCeHBybFVXQlpDRWZ4cTI3cFV0Qzd5aXplVlRiZUVqUnlJaStYalhPQjFBbDhPbHFtaXJnPT0KLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==" : ""
+          value = var.mock_onelogin_enabled ? "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZrd0V3WUhLb1pJemowQ0FRWUlLb1pJemowREFRY0RRZ0FFSlEyVmtpZWtzNW9rSTIxY1Jma0FhOXVxN0t4TQo2bTJqWllCeHBybFVXQlpDRWZ4cTI3cFV0Qzd5aXplVlRiZUVqUnlJaStYalhPQjFBbDhPbHFtaXJnPT0KLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==" : "" #pragma: allowlist secret
         },
         {
           name  = "APP_PUBLIC_URL",
