@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -93,6 +94,8 @@ func Donor(
 		if progress >= slices.Index(progressValues, "provideYourDetails") {
 			donorDetails.Donor = makeDonor()
 			donorDetails.Type = actor.LpaTypePropertyFinance
+			donorDetails.ContactLanguagePreference = localize.En
+
 			if lpaType == "hw" {
 				donorDetails.Type = actor.LpaTypeHealthWelfare
 				donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost

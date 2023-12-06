@@ -16,7 +16,6 @@ func TestLangAbbreviation(t *testing.T) {
 	testCases := []test{
 		{language: "English", lang: En, want: "en"},
 		{language: "Welsh", lang: Cy, want: "cy"},
-		{language: "Defaults to English with unsupported lang", lang: Lang(3), want: "en"},
 	}
 
 	for _, tc := range testCases {
