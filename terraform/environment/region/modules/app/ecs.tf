@@ -83,11 +83,10 @@ resource "aws_ecs_task_definition" "app" {
     operating_system_family = "LINUX"
     cpu_architecture        = var.ecs_capacity_provider == "FARGATE_SPOT" ? "X86_64" : "ARM64"
   }
-  container_definitions = "[${local.app}]"
-  # container_definitions = "[${local.app}, ${local.aws_otel_collector}]"
-  task_role_arn      = var.ecs_task_role.arn
-  execution_role_arn = var.ecs_execution_role.arn
-  provider           = aws.region
+  container_definitions = "[${local.app}, ${local.aws_otel_collector}]"
+  task_role_arn         = var.ecs_task_role.arn
+  execution_role_arn    = var.ecs_execution_role.arn
+  provider              = aws.region
 }
 
 resource "aws_iam_role_policy" "app_task_role" {
@@ -294,10 +293,9 @@ locals {
 
   app = jsonencode(
     {
-      cpu       = 1,
-      essential = true,
-      image     = "${var.app_service_repository_url}:test",
-      # image                  = "${var.app_service_repository_url}:${var.app_service_container_version}",
+      cpu                    = 1,
+      essential              = true,
+      image                  = "${var.app_service_repository_url}:${var.app_service_container_version}",
       mountPoints            = [],
       readonlyRootFilesystem = true
       name                   = "app",
