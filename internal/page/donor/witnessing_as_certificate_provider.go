@@ -63,10 +63,6 @@ func WitnessingAsCertificateProvider(tmpl template.Template, donorStore DonorSto
 					}
 				}
 
-				if err := shareCodeSender.SendAttorneys(r.Context(), appData, donor); err != nil {
-					return err
-				}
-
 				return page.Paths.YouHaveSubmittedYourLpa.Redirect(w, r, appData, donor)
 			}
 		}

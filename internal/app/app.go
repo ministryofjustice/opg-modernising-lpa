@@ -151,6 +151,7 @@ func App(
 		notFoundHandler,
 		addressClient,
 		notifyClient,
+		shareCodeSender,
 	)
 
 	attorney.Register(
