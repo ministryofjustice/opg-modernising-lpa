@@ -18,15 +18,15 @@
             {{ end }}
 
             <form novalidate method="post">
-                <div class="govuk-form-group {{ if .Errors.Has .FieldNames.Preference }}govuk-form-group--error{{ end }}">
+                <div class="govuk-form-group {{ if .Errors.Has .FieldName }}govuk-form-group--error{{ end }}">
                     <fieldset class="govuk-fieldset">
                         <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
                             <h2 class="govuk-fieldset__heading">{{ tr .App "whichLanguageWouldYouPreferWhenWeContactYou" }}</h2>
                         </legend>
 
-                        {{ template "error-message" (errorMessage . .FieldNames.Preference) }}
+                        {{ template "error-message" (errorMessage . .FieldName) }}
 
-                        {{ template "radios" (items . .FieldNames.Preference .Form.Preference.String
+                        {{ template "radios" (items . .FieldName .Form.Preference.String
                         (item .Options.En.String .Options.En.String)
                         (item .Options.Cy.String .Options.Cy.String)
                         ) }}
