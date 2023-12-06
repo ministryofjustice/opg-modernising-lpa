@@ -35,3 +35,55 @@ func (e InitialReplacementAttorneyEmail) emailID(isProduction bool) string {
 
 	return "738d500f-b674-4e1e-8039-a7be53fce528"
 }
+
+type CertificateProviderCertificateProvidedEmail struct {
+	DonorFullNamePossessive     string
+	LpaType                     string
+	CertificateProviderFullName string
+	CertificateProvidedDateTime string
+	DonorFirstNamesPossessive   string
+}
+
+func (e CertificateProviderCertificateProvidedEmail) emailID(isProduction bool) string {
+	if isProduction {
+		return "64d7d56b-966b-464f-8084-1ac5d91c3d58"
+	}
+
+	return "76f4370f-1a78-4488-9029-b00fbc292386"
+}
+
+type CertificateProviderInviteEmail struct {
+	DonorFullName               string
+	LpaType                     string
+	CertificateProviderFullName string
+	DonorFirstNames             string
+	DonorFirstNamesPossessive   string
+	WhatLpaCovers               string
+	CertificateProviderStartURL string
+	ShareCode                   string
+}
+
+func (e CertificateProviderInviteEmail) emailID(isProduction bool) string {
+	if isProduction {
+		return "e54a553b-68e3-46f2-b2bd-4465ee85062d"
+	}
+
+	return "829c2aab-a8bd-4fd4-a1e2-9dd03b142e7c"
+}
+
+type CertificateProviderProvideCertificatePromptEmail struct {
+	DonorFullName               string
+	DonorFullNamePossessive     string
+	LpaType                     string
+	CertificateProviderFullName string
+	CertificateProviderStartURL string
+	ShareCode                   string
+}
+
+func (e CertificateProviderProvideCertificatePromptEmail) emailID(isProduction bool) string {
+	if isProduction {
+		return "eac04624-f058-411a-be48-854a77022ac8"
+	}
+
+	return "3ad5a806-6789-4687-8731-49ff7357372f"
+}
