@@ -7,7 +7,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -15,7 +14,7 @@ import (
 )
 
 type ShareCodeSender interface {
-	SendCertificateProvider(context.Context, notify.Template, page.AppData, *actor.DonorProvidedDetails) error
+	SendCertificateProviderInvite(context.Context, page.AppData, *actor.DonorProvidedDetails) error
 	SendAttorneys(context.Context, page.AppData, *actor.DonorProvidedDetails) error
 	UseTestCode()
 }

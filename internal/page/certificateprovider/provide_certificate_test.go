@@ -171,21 +171,14 @@ func TestPostProvideCertificate(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
-		On("Email", r.Context(), notify.Email{
-			EmailAddress: "cp@example.org",
-			TemplateID:   "the-template-id",
-			Personalisation: map[string]string{
-				"donorFullNamePossessive":     "the possessive full name",
-				"donorFirstNamesPossessive":   "the possessive first names",
-				"lpaLegalTerm":                "the translated term",
-				"certificateProviderFullName": "a b",
-				"certificateProvidedDateTime": "the formatted date",
-			},
+		On("SendEmail", r.Context(), "cp@example.org", notify.CertificateProviderCertificateProvidedEmail{
+			DonorFullNamePossessive:     "the possessive full name",
+			DonorFirstNamesPossessive:   "the possessive first names",
+			LpaType:                     "the translated term",
+			CertificateProviderFullName: "a b",
+			CertificateProvidedDateTime: "the formatted date",
 		}).
 		Return("", nil)
-	notifyClient.
-		On("TemplateID", notify.CertificateProviderCertificateProvidedEmail).
-		Return("the-template-id")
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
@@ -280,11 +273,8 @@ func TestPostProvideCertificateOnNotifyClientError(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
-		On("Email", r.Context(), mock.Anything).
+		On("SendEmail", r.Context(), mock.Anything, mock.Anything).
 		Return("", expectedError)
-	notifyClient.
-		On("TemplateID", mock.Anything).
-		Return("")
 
 	testAppData.Localizer = localizer
 
@@ -341,11 +331,8 @@ func TestPostProvideCertificateWhenShareCodeSenderErrors(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
-		On("Email", r.Context(), mock.Anything).
+		On("SendEmail", r.Context(), mock.Anything, mock.Anything).
 		Return("", nil)
-	notifyClient.
-		On("TemplateID", notify.CertificateProviderCertificateProvidedEmail).
-		Return("the-template-id")
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
