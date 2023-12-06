@@ -52,9 +52,9 @@ data "aws_iam_policy_document" "sqs_kms" {
     ]
 
     principals {
-      type = "AWS"
+      type = "Service"
       identifiers = [
-        aws_iam_role.aws_backup_role.arn,
+        "events.amazonaws.com"
       ]
     }
   }
@@ -74,7 +74,8 @@ data "aws_iam_policy_document" "sqs_kms" {
     principals {
       type = "Service"
       identifiers = [
-        "sqs.amazonaws.com"
+        "sqs.amazonaws.com",
+        "events.amazonaws.com"
       ]
     }
   }
