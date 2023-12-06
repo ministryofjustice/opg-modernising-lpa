@@ -29,7 +29,7 @@ func (s *ShareCodeSender) UseTestCode() {
 	s.useTestCode = true
 }
 
-func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template notify.Template, appData AppData, donor *actor.DonorProvidedDetails) error {
+func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, isFirstContact bool, appData AppData, donor *actor.DonorProvidedDetails) error {
 	shareCode := s.randomString(12)
 	if s.useTestCode {
 		shareCode = "abcdef123456"
@@ -45,25 +45,29 @@ func (s *ShareCodeSender) SendCertificateProvider(ctx context.Context, template 
 		return fmt.Errorf("creating sharecode failed: %w", err)
 	}
 
-	personalisation := map[string]string{
-		"cpFullName":                  donor.CertificateProvider.FullName(),
-		"donorFullName":               donor.Donor.FullName(),
-		"lpaLegalTerm":                appData.Localizer.T(donor.Type.LegalTermTransKey()),
-		"certificateProviderStartURL": fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderStart),
-		"shareCode":                   shareCode,
+	var email notify.SendableEmail
+	if isFirstContact {
+		email = notify.CertificateProviderInviteEmail{
+			CertificateProviderFullName: donor.CertificateProvider.FullName(),
+			DonorFullName:               donor.Donor.FullName(),
+			LpaType:                     appData.Localizer.T(donor.Type.LegalTermTransKey()),
+			CertificateProviderStartURL: fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderStart),
+			ShareCode:                   shareCode,
+			DonorFirstNames:             donor.Donor.FirstNames,
+			DonorFirstNamesPossessive:   appData.Localizer.Possessive(donor.Donor.FirstNames),
+			WhatLpaCovers:               appData.Localizer.T(donor.Type.WhatLPACoversTransKey()),
+		}
+	} else {
+		email = notify.CertificateProviderProvideCertificatePromptEmail{
+			CertificateProviderFullName: donor.CertificateProvider.FullName(),
+			DonorFullName:               donor.Donor.FullName(),
+			LpaType:                     appData.Localizer.T(donor.Type.LegalTermTransKey()),
+			CertificateProviderStartURL: fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderStart),
+			ShareCode:                   shareCode,
+		}
 	}
 
-	if template == notify.CertificateProviderInviteEmail {
-		personalisation["donorFirstNames"] = donor.Donor.FirstNames
-		personalisation["donorFirstNamesPossessive"] = appData.Localizer.Possessive(donor.Donor.FirstNames)
-		personalisation["whatLPACovers"] = appData.Localizer.T(donor.Type.WhatLPACoversTransKey())
-	}
-
-	if _, err := s.notifyClient.Email(ctx, notify.Email{
-		TemplateID:      s.notifyClient.TemplateID(template),
-		EmailAddress:    donor.CertificateProvider.Email,
-		Personalisation: personalisation,
-	}); err != nil {
+	if _, err := s.notifyClient.SendEmail(ctx, donor.CertificateProvider.Email, email); err != nil {
 		return fmt.Errorf("email failed: %w", err)
 	}
 

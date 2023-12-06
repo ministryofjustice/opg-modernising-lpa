@@ -63,7 +63,7 @@ func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appDat
 
 func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appData page.AppData, donor *actor.DonorProvidedDetails, wasCompleted bool) error {
 	if !wasCompleted {
-		return n.shareCodeSender.SendCertificateProvider(ctx, notify.CertificateProviderInviteEmail, appData, donor)
+		return n.shareCodeSender.SendCertificateProvider(ctx, true, appData, donor)
 	}
 
 	certificateProvider, err := n.certificateProviderStore.GetAny(ctx)

@@ -137,7 +137,7 @@ func handleFeeApproved(ctx context.Context, dynamoClient dynamodbClient, event e
 		return fmt.Errorf("failed to update LPA task status: %w", err)
 	}
 
-	if err := shareCodeSender.SendCertificateProvider(ctx, notify.CertificateProviderProvideCertificatePromptEmail, appData, &lpa); err != nil {
+	if err := shareCodeSender.SendCertificateProvider(ctx, false, appData, &lpa); err != nil {
 		return fmt.Errorf("failed to send share code to certificate provider: %w", err)
 	}
 
