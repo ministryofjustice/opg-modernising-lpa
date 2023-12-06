@@ -90,10 +90,10 @@ resource "aws_security_group_rule" "mock_onelogin_ecs_service_ingress" {
 
 
 resource "aws_security_group_rule" "mock_one_login_service_app_ingress" {
-  description              = "Allow Port 80 ingress from the View service"
+  description              = "Allow Port 80 ingress from the app service"
   type                     = "ingress"
   from_port                = 80
-  to_port                  = 80
+  to_port                  = var.container_port
   protocol                 = "tcp"
   security_group_id        = aws_security_group.mock_onelogin_ecs_service.id
   source_security_group_id = var.app_ecs_service_security_group_id
