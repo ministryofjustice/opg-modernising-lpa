@@ -23,10 +23,11 @@ ENTRYPOINT ["./event-received"]
 FROM public.ecr.aws/lambda/provided:al2 AS production
 
 WORKDIR /app
+COPY --link  docker/event-received/install_lambda_insights.sh /app/
 
-RUN curl -O https://lambda-insights-extension.s3-ap-northeast-1.amazonaws.com/amazon_linux/lambda-insights-extension.rpm && \
-    rpm -U lambda-insights-extension.rpm && \
-    rm -f lambda-insights-extension.rpm ;
+
+RUN chmod +x /app/install_lambda_insights.sh \
+  && /app/install_lambda_insights.sh ${TARGETPLATFORM}
 
 COPY --from=build /app/event-received ./event-received
 COPY --link lang ./lang
