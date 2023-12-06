@@ -376,7 +376,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 		}).
 		Return("", nil)
 	notifyClient.
-		On("SendEmail", ctx, "untrusted@example.com", notify.InitialOriginalAttorneyEmail{
+		On("SendEmail", ctx, "untrusted@example.com", notify.InitialReplacementAttorneyEmail{
 			ShareCode:                 "123",
 			AttorneyFullName:          "Untrusty",
 			DonorFirstNames:           "Jan",
@@ -409,7 +409,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 		}).
 		Return("", nil)
 	notifyClient.
-		On("SendEmail", ctx, "dave@example.com", notify.InitialOriginalAttorneyEmail{
+		On("SendEmail", ctx, "dave@example.com", notify.InitialReplacementAttorneyEmail{
 			ShareCode:                 "123",
 			AttorneyFullName:          "Dave Davis",
 			DonorFirstNames:           "Jan",
