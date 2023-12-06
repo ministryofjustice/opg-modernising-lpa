@@ -29,12 +29,22 @@ variable "ecs_task_autoscaling" {
 
 variable "app_service_repository_url" {
   type        = string
-  description = "(optional) describe your variable"
+  description = "Repository URL for the app service"
 }
 
 variable "app_service_container_version" {
   type        = string
-  description = "(optional) describe your variable"
+  description = "Container version the app service"
+}
+
+variable "mock_onelogin_service_repository_url" {
+  type        = string
+  description = "Repository URL for the mock-onelogin service"
+}
+
+variable "mock_onelogin_service_container_version" {
+  type        = string
+  description = "Container version for the mock-onelogin service"
 }
 
 variable "ingress_allow_list_cidr" {
@@ -107,4 +117,8 @@ variable "uid_service" {
     base_url = string
     api_arns = list(string)
   })
+}
+
+variable "mock_onelogin_enabled" {
+  type = bool
 }
