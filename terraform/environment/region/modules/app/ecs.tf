@@ -81,7 +81,7 @@ resource "aws_ecs_task_definition" "app" {
   memory                   = 1024
   runtime_platform {
     operating_system_family = "LINUX"
-    cpu_architecture        = "ARM64"
+    cpu_architecture        = var.ecs_capacity_provider == "FARGATE_SPOT" ? "X86_64" : "ARM64"
   }
   container_definitions = "[${local.app}]"
   # container_definitions = "[${local.app}, ${local.aws_otel_collector}]"
@@ -294,9 +294,10 @@ locals {
 
   app = jsonencode(
     {
-      cpu                    = 1,
-      essential              = true,
-      image                  = "${var.app_service_repository_url}:${var.app_service_container_version}",
+      cpu       = 1,
+      essential = true,
+      image     = "${var.app_service_repository_url}:test",
+      # image                  = "${var.app_service_repository_url}:${var.app_service_container_version}",
       mountPoints            = [],
       readonlyRootFilesystem = true
       name                   = "app",
