@@ -32,9 +32,9 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &guidanceData{App: TestAppData, Query: url.Values{}}).
-		Return(ExpectedError)
+		Return(expectedError)
 
 	err := Guidance(template.Execute)(TestAppData, w, r)
 
-	assert.Equal(t, ExpectedError, err)
+	assert.Equal(t, expectedError, err)
 }

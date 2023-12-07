@@ -17,14 +17,14 @@ func TestError(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.
-		On("Request", r, ExpectedError)
+		On("Request", r, expectedError)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &errorData{App: TestAppData}).
 		Return(nil)
 
-	Error(template.Execute, logger)(w, r, ExpectedError)
+	Error(template.Execute, logger)(w, r, expectedError)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
@@ -57,7 +57,7 @@ func TestErrorWhenTemplateErrors(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.
-		On("Request", r, ExpectedError)
+		On("Request", r, expectedError)
 	logger.
 		On("Request", r, fmt.Errorf("Error rendering page: %w", templateError))
 
@@ -66,7 +66,7 @@ func TestErrorWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, &errorData{App: TestAppData}).
 		Return(templateError)
 
-	Error(template.Execute, logger)(w, r, ExpectedError)
+	Error(template.Execute, logger)(w, r, expectedError)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
