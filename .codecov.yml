@@ -5,16 +5,17 @@ coverage:
   ignore:
     - "**/*_test.go"
     - "**/enum_*.go"
-    - "./mocks/*"
-    - "./internal/identity/yoti*"
-    - "./internal/telemetry"
-    - "./internal/page/fixtures"
     - "./cmd/event-logger/main.go"
     - "./cmd/event-received/main.go"
     - "./cmd/mlpa/main.go"
     - "./cmd/mock-notify/main.go"
     - "./cmd/mock-onelogin/main.go"
     - "./cmd/mock-os-api/main.go"
+    - "./internal/identity/yoti*"
+    - "./internal/notify/emails.go"
+    - "./internal/page/fixtures"
+    - "./internal/telemetry"
+    - "./mocks/*"
   status:
     project:
       default:

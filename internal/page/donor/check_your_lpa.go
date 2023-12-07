@@ -42,16 +42,18 @@ func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appDat
 	sms := notify.Sms{
 		PhoneNumber: donor.CertificateProvider.Mobile,
 		Personalisation: map[string]string{
-			"donorFullName": donor.Donor.FullName(),
-			"lpaType":       appData.Localizer.T(donor.Type.LegalTermTransKey()),
+			"donorFullName":   donor.Donor.FullName(),
+			"donorFirstNames": donor.Donor.FirstNames,
 		},
 	}
 
 	if wasCompleted {
 		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderActingOnPaperDetailsChangedSMS)
+		sms.Personalisation["lpaId"] = donor.LpaUID
 	} else {
 		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderActingOnPaperMeetingPromptSMS)
 		sms.Personalisation["donorFirstNames"] = donor.Donor.FirstNames
+		sms.Personalisation["lpaType"] = appData.Localizer.T(donor.Type.LegalTermTransKey())
 		sms.Personalisation["CPLandingPageLink"] = appData.AppPublicURL + appData.Lang.URL(page.Paths.CertificateProviderStart.Format())
 	}
 
@@ -61,7 +63,7 @@ func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appDat
 
 func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appData page.AppData, donor *actor.DonorProvidedDetails, wasCompleted bool) error {
 	if !wasCompleted {
-		return n.shareCodeSender.SendCertificateProvider(ctx, notify.CertificateProviderInviteEmail, appData, donor)
+		return n.shareCodeSender.SendCertificateProviderInvite(ctx, appData, donor)
 	}
 
 	certificateProvider, err := n.certificateProviderStore.GetAny(ctx)

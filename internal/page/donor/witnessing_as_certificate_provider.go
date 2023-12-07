@@ -6,7 +6,6 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -58,13 +57,9 @@ func WitnessingAsCertificateProvider(tmpl template.Template, donorStore DonorSto
 
 			if data.Errors.None() {
 				if donor.Tasks.PayForLpa.IsCompleted() {
-					if err := shareCodeSender.SendCertificateProvider(r.Context(), notify.CertificateProviderProvideCertificatePromptEmail, appData, donor); err != nil {
+					if err := shareCodeSender.SendCertificateProviderPrompt(r.Context(), appData, donor); err != nil {
 						return err
 					}
-				}
-
-				if err := shareCodeSender.SendAttorneys(r.Context(), appData, donor); err != nil {
-					return err
 				}
 
 				return page.Paths.YouHaveSubmittedYourLpa.Redirect(w, r, appData, donor)

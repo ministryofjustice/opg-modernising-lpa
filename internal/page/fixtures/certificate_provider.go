@@ -10,7 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -105,11 +105,14 @@ func CertificateProvider(
 		}
 
 		if progress >= slices.Index(progressValues, "signedByDonor") {
+			donor.Tasks.ConfirmYourIdentityAndSign = actor.TaskCompleted
+			donor.WitnessedByCertificateProviderAt = time.Now()
 			donor.SignedAt = time.Now()
 		}
 
 		if progress >= slices.Index(progressValues, "confirmYourDetails") {
 			certificateProvider.DateOfBirth = date.New("1990", "1", "2")
+			certificateProvider.ContactLanguagePreference = localize.En
 			certificateProvider.Tasks.ConfirmYourDetails = actor.TaskCompleted
 
 			if asProfessionalCertificateProvider {
@@ -147,7 +150,7 @@ func CertificateProvider(
 		}
 
 		if email != "" {
-			shareCodeSender.SendCertificateProvider(donorCtx, notify.CertificateProviderInviteEmail, page.AppData{
+			shareCodeSender.SendCertificateProviderInvite(donorCtx, page.AppData{
 				SessionID: donorSessionID,
 				LpaID:     donor.LpaID,
 				Localizer: appData.Localizer,

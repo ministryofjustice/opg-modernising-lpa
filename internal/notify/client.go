@@ -16,48 +16,27 @@ import (
 type Template uint8
 
 const (
-	AttorneyInviteEmail Template = iota
-	CertificateProviderActingDigitallyHasNotConfirmedPersonalDetailsLPADetailsChangedPromptSMS
+	CertificateProviderActingDigitallyHasNotConfirmedPersonalDetailsLPADetailsChangedPromptSMS Template = iota
 	CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS
-	CertificateProviderCertificateProvidedEmail
-	CertificateProviderInviteEmail
 	CertificateProviderActingOnPaperDetailsChangedSMS
 	CertificateProviderActingOnPaperMeetingPromptSMS
-	CertificateProviderProvideCertificatePromptEmail
-	ReplacementAttorneyInviteEmail
-	ReplacementTrustCorporationInviteEmail
-	TrustCorporationInviteEmail
 	WitnessCodeSMS
 )
 
 var (
 	productionTemplates = map[Template]string{
-		AttorneyInviteEmail:                         "9aaedb70-df4a-42a8-9c28-de435cb3d453",
-		CertificateProviderCertificateProvidedEmail: "2915acb9-2a52-4b62-812a-b31b19c6a94b",
 		CertificateProviderActingDigitallyHasNotConfirmedPersonalDetailsLPADetailsChangedPromptSMS: "19948d7d-a2df-4e85-930b-5d800978f41f",
 		CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS:    "71d21daa-11f9-4a2a-9ae2-bb5c2247bfb7",
-		CertificateProviderInviteEmail:                    "13df4493-20b0-4c20-b742-cab3844e69b2",
-		CertificateProviderActingOnPaperDetailsChangedSMS: "ab90c6be-806e-411a-a354-de10f7a70c47",
-		CertificateProviderActingOnPaperMeetingPromptSMS:  "b5cd2c1b-e9b4-4f3e-8cf1-504aff93b16d",
-		CertificateProviderProvideCertificatePromptEmail:  "eada8a4f-5e7c-4f6b-b3fb-d4e92eeeb0ed",
-		ReplacementAttorneyInviteEmail:                    "1c4d5b24-fc7d-45ee-be40-f1ccda96f101",
-		ReplacementTrustCorporationInviteEmail:            "1c4d5b24-fc7d-45ee-be40-f1ccda96f101",
-		TrustCorporationInviteEmail:                       "9aaedb70-df4a-42a8-9c28-de435cb3d453",
-		WitnessCodeSMS:                                    "e39849c0-ecab-4e16-87ec-6b22afb9d535",
+		CertificateProviderActingOnPaperDetailsChangedSMS:                                          "ab90c6be-806e-411a-a354-de10f7a70c47",
+		CertificateProviderActingOnPaperMeetingPromptSMS:                                           "b5cd2c1b-e9b4-4f3e-8cf1-504aff93b16d",
+		WitnessCodeSMS: "e39849c0-ecab-4e16-87ec-6b22afb9d535",
 	}
 	testingTemplates = map[Template]string{
-		AttorneyInviteEmail:                         "9be88a99-21c0-4808-8d6a-52af366e44aa",
-		CertificateProviderCertificateProvidedEmail: "c916f964-bf30-4dee-a9f3-b9bf0043e64d",
 		CertificateProviderActingDigitallyHasNotConfirmedPersonalDetailsLPADetailsChangedPromptSMS: "d7513751-49ba-4276-aef5-ad67361d29c4",
 		CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS:    "359fffa0-e1ec-444c-a886-6f046af374ab",
-		CertificateProviderInviteEmail:                    "4ab51290-5ac6-44ea-88f4-a27c37f285f8",
-		CertificateProviderActingOnPaperDetailsChangedSMS: "94477364-281a-4032-9a88-b215f969cd12",
-		CertificateProviderActingOnPaperMeetingPromptSMS:  "ee39cd81-5802-44bb-b967-27da7e25e897",
-		CertificateProviderProvideCertificatePromptEmail:  "a445edda-dea1-4554-be9b-ad11adad9e89",
-		ReplacementAttorneyInviteEmail:                    "bf79859b-72b7-4701-bfd3-22ac6f0908c8",
-		ReplacementTrustCorporationInviteEmail:            "bf79859b-72b7-4701-bfd3-22ac6f0908c8",
-		TrustCorporationInviteEmail:                       "9be88a99-21c0-4808-8d6a-52af366e44aa",
-		WitnessCodeSMS:                                    "dfa15e16-1f23-494a-bffb-a475513df6cc",
+		CertificateProviderActingOnPaperDetailsChangedSMS:                                          "94477364-281a-4032-9a88-b215f969cd12",
+		CertificateProviderActingOnPaperMeetingPromptSMS:                                           "ee39cd81-5802-44bb-b967-27da7e25e897",
+		WitnessCodeSMS: "dfa15e16-1f23-494a-bffb-a475513df6cc",
 	}
 )
 
@@ -67,12 +46,13 @@ type Doer interface {
 }
 
 type Client struct {
-	baseURL   string
-	doer      Doer
-	issuer    string
-	secretKey []byte
-	now       func() time.Time
-	templates map[Template]string
+	baseURL      string
+	doer         Doer
+	issuer       string
+	secretKey    []byte
+	now          func() time.Time
+	templates    map[Template]string
+	isProduction bool
 }
 
 func New(isProduction bool, baseURL, apiKey string, httpClient Doer) (*Client, error) {
@@ -87,21 +67,14 @@ func New(isProduction bool, baseURL, apiKey string, httpClient Doer) (*Client, e
 	}
 
 	return &Client{
-		baseURL:   baseURL,
-		doer:      httpClient,
-		issuer:    strings.Join(keyParts[1:6], "-"),
-		secretKey: []byte(strings.Join(keyParts[6:11], "-")),
-		now:       time.Now,
-		templates: templates,
+		baseURL:      baseURL,
+		doer:         httpClient,
+		issuer:       strings.Join(keyParts[1:6], "-"),
+		secretKey:    []byte(strings.Join(keyParts[6:11], "-")),
+		now:          time.Now,
+		templates:    templates,
+		isProduction: isProduction,
 	}, nil
-}
-
-type Email struct {
-	EmailAddress    string            `json:"email_address"`
-	TemplateID      string            `json:"template_id"`
-	Personalisation map[string]string `json:"personalisation,omitempty"`
-	Reference       string            `json:"reference,omitempty"`
-	EmailReplyToID  string            `json:"email_reply_to_id,omitempty"`
 }
 
 type Sms struct {
@@ -136,9 +109,25 @@ func (c *Client) TemplateID(id Template) string {
 	return c.templates[id]
 }
 
-func (c *Client) Email(ctx context.Context, email Email) (string, error) {
+type Email interface {
+	emailID(bool) string
+}
+
+type emailWrapper struct {
+	EmailAddress    string `json:"email_address"`
+	TemplateID      string `json:"template_id"`
+	Personalisation any    `json:"personalisation,omitempty"`
+}
+
+func (c *Client) SendEmail(ctx context.Context, to string, email Email) (string, error) {
+	wrapper := emailWrapper{
+		EmailAddress:    to,
+		TemplateID:      email.emailID(c.isProduction),
+		Personalisation: email,
+	}
+
 	var buf bytes.Buffer
-	if err := json.NewEncoder(&buf).Encode(email); err != nil {
+	if err := json.NewEncoder(&buf).Encode(wrapper); err != nil {
 		return "", err
 	}
 

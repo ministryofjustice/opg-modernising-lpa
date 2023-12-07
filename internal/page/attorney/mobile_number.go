@@ -43,7 +43,7 @@ func MobileNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler {
 					return err
 				}
 
-				return page.Paths.Attorney.ConfirmYourDetails.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
+				return page.Paths.Attorney.YourPreferredLanguage.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 			}
 		}
 

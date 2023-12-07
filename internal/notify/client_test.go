@@ -32,7 +32,13 @@ func TestNewWithInvalidApiKey(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestEmail(t *testing.T) {
+type testEmail struct {
+	A string
+}
+
+func (e testEmail) emailID(bool) string { return "template-id" }
+
+func TestSendEmail(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
 
@@ -43,11 +49,12 @@ func TestEmail(t *testing.T) {
 			io.Copy(&buf, req.Body)
 			req.Body = ioutil.NopCloser(&buf)
 
-			var v map[string]string
+			var v map[string]any
 			json.Unmarshal(buf.Bytes(), &v)
 
-			return assert.Equal("me@example.com", v["email_address"]) &&
-				assert.Equal("template-123", v["template_id"])
+			return assert.Equal("me@example.com", v["email_address"].(string)) &&
+				assert.Equal("template-id", v["template_id"].(string)) &&
+				assert.Equal(map[string]any{"A": "value"}, v["personalisation"].(map[string]any))
 		})).
 		Return(&http.Response{
 			Body: io.NopCloser(strings.NewReader(`{"id":"xyz"}`)),
@@ -56,12 +63,12 @@ func TestEmail(t *testing.T) {
 	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	id, err := client.Email(ctx, Email{EmailAddress: "me@example.com", TemplateID: "template-123"})
+	id, err := client.SendEmail(ctx, "me@example.com", testEmail{A: "value"})
 	assert.Nil(err)
 	assert.Equal("xyz", id)
 }
 
-func TestEmailWhenError(t *testing.T) {
+func TestSendEmailWhenError(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
 
@@ -74,7 +81,7 @@ func TestEmailWhenError(t *testing.T) {
 
 	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
 
-	_, err := client.Email(ctx, Email{EmailAddress: "me@example.com", TemplateID: "template-123"})
+	_, err := client.SendEmail(ctx, "me@example.com", testEmail{})
 	assert.Equal(`error sending message: This happened: Plus this`, err.Error())
 }
 

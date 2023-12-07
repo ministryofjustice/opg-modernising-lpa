@@ -132,7 +132,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 
 			shareCodeSender := newMockShareCodeSender(t)
 			shareCodeSender.
-				On("SendCertificateProvider", r.Context(), notify.CertificateProviderInviteEmail, testAppData, updatedDonor).
+				On("SendCertificateProviderInvite", r.Context(), testAppData, updatedDonor).
 				Return(nil)
 
 			donorStore := newMockDonorStore(t)
@@ -369,6 +369,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnSubsequentCheck(t *testing.T)
 
 	donor := &actor.DonorProvidedDetails{
 		LpaID:               "lpa-id",
+		LpaUID:              "lpa-uid",
 		Hash:                5,
 		Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
 		CheckedAt:           testNow,
@@ -382,12 +383,6 @@ func TestPostCheckYourLpaPaperCertificateProviderOnSubsequentCheck(t *testing.T)
 		On("Put", r.Context(), donor).
 		Return(nil)
 
-	localizer := newMockLocalizer(t)
-	localizer.
-		On("T", "pfaLegalTerm").
-		Return("property and affairs")
-	testAppData.Localizer = localizer
-
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
 		On("TemplateID", notify.CertificateProviderActingOnPaperDetailsChangedSMS).
@@ -397,8 +392,9 @@ func TestPostCheckYourLpaPaperCertificateProviderOnSubsequentCheck(t *testing.T)
 			PhoneNumber: "07700900000",
 			TemplateID:  "template-id",
 			Personalisation: map[string]string{
-				"donorFullName": "Teneil Throssell",
-				"lpaType":       "property and affairs",
+				"donorFullName":   "Teneil Throssell",
+				"donorFirstNames": "Teneil",
+				"lpaId":           "lpa-uid",
 			},
 		}).
 		Return("", nil)
@@ -454,7 +450,7 @@ func TestPostCheckYourLpaWhenShareCodeSenderErrors(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.
-		On("SendCertificateProvider", r.Context(), notify.CertificateProviderInviteEmail, testAppData, mock.Anything).
+		On("SendCertificateProviderInvite", r.Context(), testAppData, mock.Anything).
 		Return(expectedError)
 
 	err := CheckYourLpa(nil, donorStore, shareCodeSender, nil, nil, testNowFn)(testAppData, w, r, donor)
