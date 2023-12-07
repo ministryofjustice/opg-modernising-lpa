@@ -9,7 +9,7 @@ import (
 )
 
 type shareCodeEmail interface {
-	WithShareCode(string) notify.SendableEmail
+	WithShareCode(string) notify.Email
 }
 
 type ShareCodeSender struct {
