@@ -90,7 +90,7 @@ resource "aws_security_group_rule" "mock_onelogin_ecs_service_ingress" {
 
 
 resource "aws_security_group_rule" "mock_one_login_service_app_ingress" {
-  description              = "Allow Port 80 ingress from the app ecs service"
+  description              = "Allow Port 8080 ingress from the app ecs service"
   type                     = "ingress"
   from_port                = var.container_port
   to_port                  = var.container_port
@@ -167,9 +167,8 @@ locals {
           value = local.mock_onelogin_url
         },
         {
-          name = "INTERNAL_URL",
-          # value = local.mock_onelogin_url
-          value = "http://${local.mock_onelogin_service_discovery_fqdn}:8080"
+          name  = "INTERNAL_URL",
+          value = "http://${local.mock_onelogin_service_discovery_fqdn}:${var.container_port}"
         },
         {
           name  = "CLIENT_ID",
