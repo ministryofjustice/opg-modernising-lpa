@@ -67,7 +67,7 @@ func TestRecoverWhenTemplateErrors(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, mock.Anything).
-		Return(ExpectedError)
+		Return(expectedError)
 
 	logger := newMockLogger(t)
 	logger.
