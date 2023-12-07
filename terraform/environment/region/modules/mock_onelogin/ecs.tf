@@ -89,20 +89,20 @@ resource "aws_security_group_rule" "mock_onelogin_ecs_service_ingress" {
 }
 
 
-# resource "aws_security_group_rule" "mock_one_login_service_app_ingress" {
-#   description              = "Allow Port 80 ingress from the app ecs service"
-#   type                     = "ingress"
-#   from_port                = 80
-#   to_port                  = var.container_port
-#   protocol                 = "tcp"
-#   security_group_id        = aws_security_group.mock_onelogin_ecs_service.id
-#   source_security_group_id = var.app_ecs_service_security_group_id
-#   lifecycle {
-#     create_before_destroy = true
-#   }
+resource "aws_security_group_rule" "mock_one_login_service_app_ingress" {
+  description              = "Allow Port 80 ingress from the app ecs service"
+  type                     = "ingress"
+  from_port                = var.container_port
+  to_port                  = var.container_port
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.mock_onelogin_ecs_service.id
+  source_security_group_id = var.app_ecs_service_security_group_id
+  lifecycle {
+    create_before_destroy = true
+  }
 
-#   provider = aws.region
-# }
+  provider = aws.region
+}
 
 resource "aws_security_group_rule" "mock_onelogin_ecs_service_egress" {
   description       = "Allow any egress from service"
@@ -169,7 +169,7 @@ locals {
         {
           name = "INTERNAL_URL",
           # value = local.mock_onelogin_url
-          value = "http://${local.mock_onelogin_service_discovery_fqdn}"
+          value = "http://${local.mock_onelogin_service_discovery_fqdn}:8080"
         },
         {
           name  = "CLIENT_ID",
