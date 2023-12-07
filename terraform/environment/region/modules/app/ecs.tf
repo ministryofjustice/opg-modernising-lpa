@@ -337,6 +337,7 @@ locals {
         {
           name  = "ISSUER",
           value = var.mock_onelogin_enabled ? "http://mock-onelogin.${data.aws_default_tags.current.tags.environment-name}.internal.modernising.ecs" : "https://oidc.integration.account.gov.uk"
+          # value = var.mock_onelogin_enabled ? "https://${data.aws_default_tags.current.tags.environment-name}-mock-onelogin.app.modernising.opg.service.justice.gov.uk" : "https://oidc.integration.account.gov.uk"
         },
         {
           name  = "MOCK_IDENTITY_PUBLIC_KEY",
