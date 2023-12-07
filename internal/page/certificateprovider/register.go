@@ -63,9 +63,7 @@ type SessionStore interface {
 
 //go:generate mockery --testonly --inpackage --name NotifyClient --structname mockNotifyClient
 type NotifyClient interface {
-	Email(ctx context.Context, email notify.Email) (string, error)
-	Sms(ctx context.Context, sms notify.Sms) (string, error)
-	TemplateID(id notify.Template) string
+	SendEmail(context.Context, string, notify.Email) (string, error)
 }
 
 //go:generate mockery --testonly --inpackage --name ShareCodeSender --structname mockShareCodeSender
