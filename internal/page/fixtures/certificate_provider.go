@@ -11,7 +11,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -151,7 +150,7 @@ func CertificateProvider(
 		}
 
 		if email != "" {
-			shareCodeSender.SendCertificateProvider(donorCtx, notify.CertificateProviderInviteEmail, page.AppData{
+			shareCodeSender.SendCertificateProviderInvite(donorCtx, page.AppData{
 				SessionID: donorSessionID,
 				LpaID:     donor.LpaID,
 				Localizer: appData.Localizer,
