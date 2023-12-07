@@ -91,9 +91,3 @@ variable "app_ecs_service_security_group_id" {
   type        = string
   description = "ID of the security group for the app ECS service"
 }
-
-
-variable "app_alb_security_group_id" {
-  type        = string
-  description = "ID of the security group for the app ALB"
-}

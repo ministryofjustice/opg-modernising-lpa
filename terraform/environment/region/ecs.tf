@@ -86,7 +86,6 @@ module "mock_onelogin" {
     name = aws_service_discovery_private_dns_namespace.mock_one_login.name
   }
   app_ecs_service_security_group_id = module.app.ecs_service_security_group.id
-  app_alb_security_group_id         = module.app.load_balancer_security_group.id
 
   providers = {
     aws.region = aws.region
