@@ -18,6 +18,10 @@ resource "aws_ecs_service" "mock_onelogin" {
     assign_public_ip = false
   }
 
+  service_registries {
+    registry_arn = aws_service_discovery_service.mock_onelogin.arn
+  }
+
   load_balancer {
     target_group_arn = aws_lb_target_group.mock_onelogin.arn
     container_name   = "mock_onelogin"
@@ -35,6 +39,31 @@ resource "aws_ecs_service" "mock_onelogin" {
   provider = aws.region
 }
 
+resource "aws_service_discovery_service" "mock_onelogin" {
+  name = "mock-onelogin"
+
+  dns_config {
+    namespace_id = var.aws_service_discovery_private_dns_namespace.id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+
+    routing_policy = "MULTIVALUE"
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+
+  provider = aws.region
+}
+
+locals {
+  mock_onelogin_service_discovery_fqdn = "${aws_service_discovery_service.mock_onelogin.name}.${var.aws_service_discovery_private_dns_namespace.name}"
+}
+
 resource "aws_security_group" "mock_onelogin_ecs_service" {
   name_prefix = "${local.name_prefix}-ecs-service"
   description = "mock-onelogin service security group"
@@ -46,7 +75,7 @@ resource "aws_security_group" "mock_onelogin_ecs_service" {
 }
 
 resource "aws_security_group_rule" "mock_onelogin_ecs_service_ingress" {
-  description              = "Allow Port 80 ingress from the application load balancer"
+  description              = "Allow Port 80 ingress from the mock-onelogin load balancer"
   type                     = "ingress"
   from_port                = 80
   to_port                  = var.container_port
@@ -56,6 +85,22 @@ resource "aws_security_group_rule" "mock_onelogin_ecs_service_ingress" {
   lifecycle {
     create_before_destroy = true
   }
+  provider = aws.region
+}
+
+
+resource "aws_security_group_rule" "mock_one_login_service_app_ingress" {
+  description              = "Allow Port 8080 ingress from the app ecs service"
+  type                     = "ingress"
+  from_port                = var.container_port
+  to_port                  = var.container_port
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.mock_onelogin_ecs_service.id
+  source_security_group_id = var.app_ecs_service_security_group_id
+  lifecycle {
+    create_before_destroy = true
+  }
+
   provider = aws.region
 }
 
@@ -123,7 +168,7 @@ locals {
         },
         {
           name  = "INTERNAL_URL",
-          value = local.mock_onelogin_url
+          value = "http://${local.mock_onelogin_service_discovery_fqdn}:${var.container_port}"
         },
         {
           name  = "CLIENT_ID",
