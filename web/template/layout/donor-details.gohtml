@@ -47,6 +47,20 @@
             </dd>
           {{ end }}
         </div>
+
+        {{ if $.App.IsDonor }}
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "preferredContactLanguage" }}</dt>
+            <dd class="govuk-summary-list__value">{{ if not .Donor.ContactLanguagePreference.Empty }} {{ tr .App .Donor.ContactLanguagePreference.String }} {{ end }}</dd>
+            {{ if $canChange }}
+              <dd class="govuk-summary-list__actions">
+                <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (.App.Paths.YourPreferredLanguage.Format .App.LpaID) }}?from={{.App.Page}}">
+                  {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "preferredContactLanguage" }}</span>
+                </a>
+              </dd>
+            {{ end }}
+          </div>
+        {{ end }}
       </dl>
     </div>
   </div>

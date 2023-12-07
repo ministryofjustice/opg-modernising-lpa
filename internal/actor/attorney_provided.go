@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
 
 // AttorneyProvidedDetails contains details about an attorney or replacement
@@ -37,6 +38,8 @@ type AttorneyProvidedDetails struct {
 	AuthorisedSignatories [2]TrustCorporationSignatory
 	// Used to show attorney task list
 	Tasks AttorneyTasks
+	// ContactLanguagePreference is the language the attorney or replacement attorney prefers to receive notifications in
+	ContactLanguagePreference localize.Lang
 }
 
 // Signed checks whether the attorney has confirmed and if that confirmation is

@@ -63,9 +63,7 @@ type SessionStore interface {
 
 //go:generate mockery --testonly --inpackage --name NotifyClient --structname mockNotifyClient
 type NotifyClient interface {
-	Email(ctx context.Context, email notify.Email) (string, error)
-	Sms(ctx context.Context, sms notify.Sms) (string, error)
-	TemplateID(id notify.Template) string
+	SendEmail(context.Context, string, notify.Email) (string, error)
 }
 
 //go:generate mockery --testonly --inpackage --name ShareCodeSender --structname mockShareCodeSender
@@ -126,6 +124,8 @@ func Register(
 		TaskList(tmpls.Get("certificate_provider_task_list.gohtml"), donorStore, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.EnterDateOfBirth, page.CanGoBack,
 		EnterDateOfBirth(tmpls.Get("certificate_provider_enter_date_of_birth.gohtml"), donorStore, certificateProviderStore))
+	handleCertificateProvider(page.Paths.CertificateProvider.YourPreferredLanguage, page.CanGoBack,
+		YourPreferredLanguage(tmpls.Get("your_preferred_language.gohtml"), certificateProviderStore, donorStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.WhatIsYourHomeAddress, page.None,
 		WhatIsYourHomeAddress(logger, tmpls.Get("certificate_provider_what_is_your_home_address.gohtml"), addressClient, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.ConfirmYourDetails, page.None,
