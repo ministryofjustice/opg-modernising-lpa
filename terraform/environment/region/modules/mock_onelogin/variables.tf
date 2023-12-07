@@ -78,3 +78,16 @@ variable "redirect_base_url" {
   type        = string
   description = "Base URL expected for redirect_url"
 }
+
+variable "aws_service_discovery_private_dns_namespace" {
+  type = object({
+    id   = string
+    name = string
+  })
+  description = "ID and name of the AWS Service Discovery private DNS namespace"
+}
+
+variable "app_ecs_service_security_group_id" {
+  type        = string
+  description = "ID of the security group for the app ECS service"
+}

@@ -73,14 +73,19 @@ module "mock_onelogin" {
   container_version               = var.mock_onelogin_service_container_version
   alb_deletion_protection_enabled = var.alb_deletion_protection_enabled
   container_port                  = 8080
-  # TODO: figure out how to internally reference this
-  public_access_enabled = true # var.public_access_enabled
-  redirect_base_url     = var.app_env_vars.auth_redirect_base_url
+  public_access_enabled           = var.public_access_enabled
+  redirect_base_url               = var.app_env_vars.auth_redirect_base_url
   network = {
     vpc_id              = data.aws_vpc.main.id
     application_subnets = data.aws_subnet.application.*.id
     public_subnets      = data.aws_subnet.public.*.id
   }
+  aws_service_discovery_private_dns_namespace = {
+    id   = aws_service_discovery_private_dns_namespace.mock_one_login.id
+    name = aws_service_discovery_private_dns_namespace.mock_one_login.name
+  }
+  app_ecs_service_security_group_id = module.app.ecs_service_security_group.id
+
   providers = {
     aws.region = aws.region
   }

@@ -336,11 +336,11 @@ locals {
         },
         {
           name  = "ISSUER",
-          value = var.mock_onelogin_enabled ? "https://${data.aws_default_tags.current.tags.environment-name}-mock-onelogin.app.modernising.opg.service.justice.gov.uk" : "https://oidc.integration.account.gov.uk"
+          value = var.mock_onelogin_enabled ? "http://mock-onelogin.${data.aws_default_tags.current.tags.environment-name}.internal.modernising.ecs:8080" : "https://oidc.integration.account.gov.uk"
         },
         {
           name  = "MOCK_IDENTITY_PUBLIC_KEY",
-          value = var.mock_onelogin_enabled ? "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZrd0V3WUhLb1pJemowQ0FRWUlLb1pJemowREFRY0RRZ0FFSlEyVmtpZWtzNW9rSTIxY1Jma0FhOXVxN0t4TQo2bTJqWllCeHBybFVXQlpDRWZ4cTI3cFV0Qzd5aXplVlRiZUVqUnlJaStYalhPQjFBbDhPbHFtaXJnPT0KLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==" : ""
+          value = var.mock_onelogin_enabled ? "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZrd0V3WUhLb1pJemowQ0FRWUlLb1pJemowREFRY0RRZ0FFSlEyVmtpZWtzNW9rSTIxY1Jma0FhOXVxN0t4TQo2bTJqWllCeHBybFVXQlpDRWZ4cTI3cFV0Qzd5aXplVlRiZUVqUnlJaStYalhPQjFBbDhPbHFtaXJnPT0KLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==" : "" #pragma: allowlist secret
         },
         {
           name  = "APP_PUBLIC_URL",
