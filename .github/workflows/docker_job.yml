@@ -62,7 +62,6 @@ jobs:
         with:
           context: .
           file: ${{ matrix.path }}
-          # builder: ${{ steps.buildx_setup.outputs.name }}
           platforms: linux/amd64
           push: false
           load: true
