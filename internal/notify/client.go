@@ -77,14 +77,6 @@ func New(isProduction bool, baseURL, apiKey string, httpClient Doer) (*Client, e
 	}, nil
 }
 
-type Email struct {
-	EmailAddress    string            `json:"email_address"`
-	TemplateID      string            `json:"template_id"`
-	Personalisation map[string]string `json:"personalisation,omitempty"`
-	Reference       string            `json:"reference,omitempty"`
-	EmailReplyToID  string            `json:"email_reply_to_id,omitempty"`
-}
-
 type Sms struct {
 	PhoneNumber     string            `json:"phone_number"`
 	TemplateID      string            `json:"template_id"`
@@ -117,26 +109,7 @@ func (c *Client) TemplateID(id Template) string {
 	return c.templates[id]
 }
 
-func (c *Client) Email(ctx context.Context, email Email) (string, error) {
-	var buf bytes.Buffer
-	if err := json.NewEncoder(&buf).Encode(email); err != nil {
-		return "", err
-	}
-
-	req, err := c.request(ctx, "/v2/notifications/email", &buf)
-	if err != nil {
-		return "", err
-	}
-
-	resp, err := c.doRequest(req)
-	if err != nil {
-		return "", err
-	}
-
-	return resp.ID, nil
-}
-
-type SendableEmail interface {
+type Email interface {
 	emailID(bool) string
 }
 
@@ -146,7 +119,7 @@ type emailWrapper struct {
 	Personalisation any    `json:"personalisation,omitempty"`
 }
 
-func (c *Client) SendEmail(ctx context.Context, to string, email SendableEmail) (string, error) {
+func (c *Client) SendEmail(ctx context.Context, to string, email Email) (string, error) {
 	wrapper := emailWrapper{
 		EmailAddress:    to,
 		TemplateID:      email.emailID(c.isProduction),

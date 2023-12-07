@@ -32,52 +32,6 @@ func TestNewWithInvalidApiKey(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestEmail(t *testing.T) {
-	assert := assert.New(t)
-	ctx := context.Background()
-
-	doer := newMockDoer(t)
-	doer.
-		On("Do", mock.MatchedBy(func(req *http.Request) bool {
-			var buf bytes.Buffer
-			io.Copy(&buf, req.Body)
-			req.Body = ioutil.NopCloser(&buf)
-
-			var v map[string]string
-			json.Unmarshal(buf.Bytes(), &v)
-
-			return assert.Equal("me@example.com", v["email_address"]) &&
-				assert.Equal("template-123", v["template_id"])
-		})).
-		Return(&http.Response{
-			Body: io.NopCloser(strings.NewReader(`{"id":"xyz"}`)),
-		}, nil)
-
-	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
-	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
-
-	id, err := client.Email(ctx, Email{EmailAddress: "me@example.com", TemplateID: "template-123"})
-	assert.Nil(err)
-	assert.Equal("xyz", id)
-}
-
-func TestEmailWhenError(t *testing.T) {
-	assert := assert.New(t)
-	ctx := context.Background()
-
-	doer := newMockDoer(t)
-	doer.
-		On("Do", mock.Anything).
-		Return(&http.Response{
-			Body: io.NopCloser(strings.NewReader(`{"errors":[{"error":"SomeError","message":"This happened"}, {"error":"AndError","message":"Plus this"}]}`)),
-		}, nil)
-
-	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
-
-	_, err := client.Email(ctx, Email{EmailAddress: "me@example.com", TemplateID: "template-123"})
-	assert.Equal(`error sending message: This happened: Plus this`, err.Error())
-}
-
 type testSendableEmail struct {
 	A string
 }
