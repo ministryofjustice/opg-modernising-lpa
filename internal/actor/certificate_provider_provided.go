@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
@@ -25,6 +26,8 @@ type CertificateProviderProvidedDetails struct {
 	Certificate Certificate
 	// Tasks the certificate provider will complete
 	Tasks CertificateProviderTasks
+	// ContactLanguagePreference is the language the certificate provider prefers to receive notifications in
+	ContactLanguagePreference localize.Lang
 }
 
 func (c CertificateProviderProvidedDetails) Signed(after time.Time) bool {

@@ -209,6 +209,8 @@ func Register(
 		YourDetails(tmpls.Get("your_details.gohtml"), donorStore, sessionStore))
 	handleWithDonor(page.Paths.YourAddress, page.None,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, donorStore))
+	handleWithDonor(page.Paths.YourPreferredLanguage, page.None,
+		YourPreferredLanguage(tmpls.Get("your_preferred_language.gohtml"), donorStore))
 	handleWithDonor(page.Paths.LpaType, page.None,
 		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore))
 	handleWithDonor(page.Paths.CheckYouCanSign, page.None,

@@ -22,7 +22,17 @@
             <a class="govuk-link" href="{{ link .App (.App.Paths.Attorney.MobileNumber.Format .Donor.LpaID) }}">{{ trHtml .App "changeTelephoneNumberLink" }}</a>
           </dd>
         </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">{{ tr .App "preferredContactLanguage" }}</dt>
+          <dd class="govuk-summary-list__value">{{ if not .AttorneyProvidedDetails.ContactLanguagePreference.Empty }}{{ tr .App .AttorneyProvidedDetails.ContactLanguagePreference.String }}{{ end }}</dd>
+          <dd class="govuk-summary-list__actions">
+            <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (.App.Paths.Attorney.YourPreferredLanguage.Format .App.LpaID) }}?from={{.App.Page}}">
+              {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "preferredContactLanguage" }}</span>
+            </a>
+          </dd>
+        </div>
       </dl>
+
 
       {{ if .TrustCorporation.Name }}
         <h2 class="govuk-heading-m">{{ tr .App "detailsTheDonorHasGivenAboutYourCompany" }}</h2>
