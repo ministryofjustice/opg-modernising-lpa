@@ -17,17 +17,27 @@ type mockOneLoginClient struct {
 }
 
 // AuthCodeURL provides a mock function with given fields: state, nonce, locale, _a3
-func (_m *mockOneLoginClient) AuthCodeURL(state string, nonce string, locale string, _a3 bool) string {
+func (_m *mockOneLoginClient) AuthCodeURL(state string, nonce string, locale string, _a3 bool) (string, error) {
 	ret := _m.Called(state, nonce, locale, _a3)
 
 	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string, string, bool) (string, error)); ok {
+		return rf(state, nonce, locale, _a3)
+	}
 	if rf, ok := ret.Get(0).(func(string, string, string, bool) string); ok {
 		r0 = rf(state, nonce, locale, _a3)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(string, string, string, bool) error); ok {
+		r1 = rf(state, nonce, locale, _a3)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // Exchange provides a mock function with given fields: ctx, code, nonce
