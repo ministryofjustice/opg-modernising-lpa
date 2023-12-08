@@ -39,8 +39,10 @@ func TestUserInfo(t *testing.T) {
 
 	c := &Client{
 		httpClient: httpClient,
-		openidConfiguration: openidConfiguration{
-			UserinfoEndpoint: "http://user-info",
+		openidConfiguration: &configurationClient{
+			currentConfiguration: &openidConfiguration{
+				UserinfoEndpoint: "http://user-info",
+			},
 		},
 	}
 
@@ -57,8 +59,10 @@ func TestUserInfoWhenRequestError(t *testing.T) {
 
 	c := &Client{
 		httpClient: httpClient,
-		openidConfiguration: openidConfiguration{
-			UserinfoEndpoint: "http://user-info",
+		openidConfiguration: &configurationClient{
+			currentConfiguration: &openidConfiguration{
+				UserinfoEndpoint: "http://user-info",
+			},
 		},
 	}
 

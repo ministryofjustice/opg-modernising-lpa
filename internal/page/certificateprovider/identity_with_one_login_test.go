@@ -20,7 +20,7 @@ func TestIdentityWithOneLogin(t *testing.T) {
 	client := newMockOneLoginClient(t)
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "cy", true).
-		Return("http://auth")
+		Return("http://auth", nil)
 
 	sessionStore := newMockSessionStore(t)
 
@@ -41,7 +41,7 @@ func TestIdentityWithOneLogin(t *testing.T) {
 		On("Save", r, w, session).
 		Return(nil)
 
-	err := IdentityWithOneLogin(nil, client, sessionStore, func(int) string { return "i am random" })(page.AppData{LpaID: "lpa-id", Lang: localize.Cy}, w, r)
+	err := IdentityWithOneLogin(client, sessionStore, func(int) string { return "i am random" })(page.AppData{LpaID: "lpa-id", Lang: localize.Cy}, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -49,27 +49,39 @@ func TestIdentityWithOneLogin(t *testing.T) {
 	assert.Equal(t, "http://auth", resp.Header.Get("Location"))
 }
 
-func TestIdentityWithOneLoginWhenStoreSaveError(t *testing.T) {
+func TestIdentityWithOneLoginWhenAuthCodeURLError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	logger := newMockLogger(t)
-	logger.
-		On("Print", expectedError)
 
 	client := newMockOneLoginClient(t)
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "", true).
-		Return("http://auth?locale=en")
+		Return("http://auth?locale=en", expectedError)
+
+	err := IdentityWithOneLogin(client, nil, func(int) string { return "i am random" })(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestIdentityWithOneLoginWhenStoreSaveError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	client := newMockOneLoginClient(t)
+	client.
+		On("AuthCodeURL", "i am random", "i am random", "", true).
+		Return("http://auth?locale=en", nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Save", r, w, mock.Anything).
 		Return(expectedError)
 
-	err := IdentityWithOneLogin(logger, client, sessionStore, func(int) string { return "i am random" })(testAppData, w, r)
+	err := IdentityWithOneLogin(client, sessionStore, func(int) string { return "i am random" })(testAppData, w, r)
 	resp := w.Result()
 
-	assert.Nil(t, err)
+	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
