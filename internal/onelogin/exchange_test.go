@@ -91,14 +91,16 @@ func TestExchange(t *testing.T) {
 	client := &Client{
 		httpClient:    httpClient,
 		secretsClient: secretsClient,
-		openidConfiguration: openidConfiguration{
-			Issuer:        "http://issuer",
-			TokenEndpoint: "http://token",
+		openidConfiguration: &configurationClient{
+			currentConfiguration: &openidConfiguration{
+				Issuer:        "http://issuer",
+				TokenEndpoint: "http://token",
+			},
+			currentJwks: jwks,
 		},
 		clientID:     "client-id",
 		redirectURL:  "http://redirect",
 		randomString: func(i int) string { return "this-is-random" },
-		jwks:         jwks,
 	}
 
 	idToken, accessToken, err := client.Exchange(ctx, "my-code", "my-nonce")
@@ -115,6 +117,10 @@ func TestExchangeWhenPrivateKeyError(t *testing.T) {
 
 	client := &Client{
 		secretsClient: secretsClient,
+		openidConfiguration: &configurationClient{
+			currentConfiguration: &openidConfiguration{},
+			currentJwks:          &keyfunc.JWKS{},
+		},
 	}
 
 	_, _, err := client.Exchange(ctx, "my-code", "my-nonce")
@@ -142,8 +148,11 @@ func TestExchangeWhenTokenRequestError(t *testing.T) {
 	client := &Client{
 		httpClient:    httpClient,
 		secretsClient: secretsClient,
-		openidConfiguration: openidConfiguration{
-			TokenEndpoint: "http://token",
+		openidConfiguration: &configurationClient{
+			currentConfiguration: &openidConfiguration{
+				TokenEndpoint: "http://token",
+			},
+			currentJwks: &keyfunc.JWKS{},
 		},
 		randomString: func(i int) string { return "this-is-random" },
 	}
@@ -295,14 +304,16 @@ func TestExchangeWhenInvalidToken(t *testing.T) {
 			client := &Client{
 				httpClient:    httpClient,
 				secretsClient: secretsClient,
-				openidConfiguration: openidConfiguration{
-					Issuer:        "http://issuer",
-					TokenEndpoint: "http://token",
+				openidConfiguration: &configurationClient{
+					currentConfiguration: &openidConfiguration{
+						Issuer:        "http://issuer",
+						TokenEndpoint: "http://token",
+					},
+					currentJwks: jwks,
 				},
 				clientID:     "client-id",
 				redirectURL:  "http://redirect",
 				randomString: func(i int) string { return "this-is-random" },
-				jwks:         jwks,
 			}
 
 			_, _, err = client.Exchange(ctx, "my-code", "my-nonce")

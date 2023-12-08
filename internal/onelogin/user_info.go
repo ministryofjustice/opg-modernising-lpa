@@ -91,7 +91,12 @@ func (d *Date) UnmarshalText(text []byte) error {
 }
 
 func (c *Client) UserInfo(ctx context.Context, idToken string) (UserInfo, error) {
-	req, err := http.NewRequestWithContext(ctx, "GET", c.openidConfiguration.UserinfoEndpoint, nil)
+	endpoint, err := c.openidConfiguration.UserinfoEndpoint()
+	if err != nil {
+		return UserInfo{}, err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "GET", endpoint, nil)
 	if err != nil {
 		return UserInfo{}, err
 	}
