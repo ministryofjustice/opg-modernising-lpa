@@ -24,6 +24,8 @@ COPY --link internal ./internal
 
 COPY --from=asset-env /app/web/static web/static
 
+ARG TARGETOS TARGETARCH
+
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go install github.com/cosmtrek/air@latest && go install github.com/go-delve/delve/cmd/dlv@latest
 
 ENTRYPOINT ["air"]
