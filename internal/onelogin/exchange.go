@@ -28,6 +28,11 @@ type tokenResponseBody struct {
 }
 
 func (c *Client) Exchange(ctx context.Context, code, nonce string) (idToken, accessToken string, err error) {
+	tokenEndpoint, keyfunc, issuer, err := c.openidConfiguration.ForExchange()
+	if err != nil {
+		return "", "", err
+	}
+
 	privateKeyBytes, err := c.secretsClient.SecretBytes(ctx, secrets.GovUkOneLoginPrivateKey)
 	if err != nil {
 		return "", "", err
@@ -61,7 +66,7 @@ func (c *Client) Exchange(ctx context.Context, code, nonce string) (idToken, acc
 		"code":                  {code},
 	}
 
-	req, err := http.NewRequest("POST", c.openidConfiguration.TokenEndpoint, strings.NewReader(form.Encode()))
+	req, err := http.NewRequestWithContext(ctx, "POST", tokenEndpoint, strings.NewReader(form.Encode()))
 	if err != nil {
 		return "", "", err
 	}
@@ -82,15 +87,15 @@ func (c *Client) Exchange(ctx context.Context, code, nonce string) (idToken, acc
 		return "", "", fmt.Errorf("could not read token body: %w", err)
 	}
 
-	if err := c.validateToken(tokenResponse.IDToken, nonce); err != nil {
+	if err := c.validateToken(keyfunc, issuer, tokenResponse.IDToken, nonce); err != nil {
 		return "", "", fmt.Errorf("id token not valid: %w", err)
 	}
 
 	return tokenResponse.IDToken, tokenResponse.AccessToken, err
 }
 
-func (c *Client) validateToken(idToken, nonce string) error {
-	token, err := jwt.ParseWithClaims(idToken, jwt.MapClaims{}, c.jwks.Keyfunc)
+func (c *Client) validateToken(keyfunc jwt.Keyfunc, issuer, idToken, nonce string) error {
+	token, err := jwt.ParseWithClaims(idToken, jwt.MapClaims{}, keyfunc)
 	if err != nil {
 		return err
 	}
@@ -100,7 +105,7 @@ func (c *Client) validateToken(idToken, nonce string) error {
 	}
 
 	claims := token.Claims.(jwt.MapClaims)
-	if !claims.VerifyIssuer(c.openidConfiguration.Issuer, true) {
+	if !claims.VerifyIssuer(issuer, true) {
 		return jwt.ErrTokenInvalidIssuer
 	}
 	if !claims.VerifyAudience(c.clientID, true) {

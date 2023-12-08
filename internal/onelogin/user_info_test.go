@@ -39,14 +39,25 @@ func TestUserInfo(t *testing.T) {
 
 	c := &Client{
 		httpClient: httpClient,
-		openidConfiguration: openidConfiguration{
-			UserinfoEndpoint: "http://user-info",
+		openidConfiguration: &configurationClient{
+			currentConfiguration: &openidConfiguration{
+				UserinfoEndpoint: "http://user-info",
+			},
 		},
 	}
 
 	userinfo, err := c.UserInfo(context.Background(), "hey")
 	assert.Nil(t, err)
 	assert.Equal(t, expectedUserInfo, userinfo)
+}
+
+func TestUserInfoWhenConfigurationError(t *testing.T) {
+	c := &Client{
+		openidConfiguration: &configurationClient{},
+	}
+
+	_, err := c.UserInfo(context.Background(), "hey")
+	assert.Equal(t, ErrConfigurationMissing, err)
 }
 
 func TestUserInfoWhenRequestError(t *testing.T) {
@@ -57,8 +68,10 @@ func TestUserInfoWhenRequestError(t *testing.T) {
 
 	c := &Client{
 		httpClient: httpClient,
-		openidConfiguration: openidConfiguration{
-			UserinfoEndpoint: "http://user-info",
+		openidConfiguration: &configurationClient{
+			currentConfiguration: &openidConfiguration{
+				UserinfoEndpoint: "http://user-info",
+			},
 		},
 	}
 

@@ -174,10 +174,7 @@ func main() {
 		}
 	}
 
-	signInClient, err := onelogin.Discover(ctx, logger, httpClient, secretsClient, issuer, clientID, redirectURL, identityPublicKeyFunc)
-	if err != nil {
-		logger.Fatal(err)
-	}
+	oneloginClient := onelogin.New(ctx, logger, httpClient, secretsClient, issuer, clientID, redirectURL, identityPublicKeyFunc)
 
 	payApiKey, err := secretsClient.Secret(ctx, secrets.GovUkPay)
 	if err != nil {
@@ -235,7 +232,7 @@ func main() {
 		rumConfig,
 		staticHash,
 		page.Paths,
-		signInClient,
+		oneloginClient,
 		oneloginURL,
 		evidenceS3Client,
 		eventClient,
@@ -254,7 +251,7 @@ func main() {
 		rumConfig,
 		staticHash,
 		page.Paths,
-		signInClient,
+		oneloginClient,
 		oneloginURL,
 		evidenceS3Client,
 		eventClient,
