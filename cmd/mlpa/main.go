@@ -210,7 +210,10 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc(page.Paths.HealthCheck.Service.String(), func(w http.ResponseWriter, r *http.Request) {})
-	mux.Handle(page.Paths.HealthCheck.Dependency.String(), page.DependencyHealthCheck(logger, uidClient))
+	mux.Handle(page.Paths.HealthCheck.Dependency.String(), page.DependencyHealthCheck(logger, map[string]page.HealthChecker{
+		"uid":      uidClient,
+		"onelogin": oneloginClient,
+	}))
 	mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, webDir+"/robots.txt")
 	})
