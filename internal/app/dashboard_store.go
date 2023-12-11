@@ -51,7 +51,7 @@ func (k keys) isAttorneyDetails() bool {
 func (s *dashboardStore) SubExists(ctx context.Context, sub string) (bool, error) {
 	var links []lpaLink
 	if err := s.dynamoClient.AllForActor(ctx, subKey(sub), &links); err != nil {
-		return false, nil
+		return false, err
 	}
 
 	return len(links) > 0, nil

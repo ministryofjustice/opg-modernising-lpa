@@ -1,6 +1,7 @@
 package page
 
 import (
+	"encoding/base64"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -70,7 +71,7 @@ func TestLoginCallback(t *testing.T) {
 
 			dashboardStore := newMockDashboardStore(t)
 			dashboardStore.
-				On("SubExists", r.Context(), "random").
+				On("SubExists", r.Context(), base64.StdEncoding.EncodeToString([]byte("random"))).
 				Return(tc.subExists, nil)
 
 			err := LoginCallback(client, sessionStore, Paths.Attorney.EnterReferenceNumber, dashboardStore)(AppData{}, w, r)
