@@ -15,31 +15,51 @@ type mockOneLoginClient struct {
 }
 
 // AuthCodeURL provides a mock function with given fields: state, nonce, locale, identity
-func (_m *mockOneLoginClient) AuthCodeURL(state string, nonce string, locale string, identity bool) string {
+func (_m *mockOneLoginClient) AuthCodeURL(state string, nonce string, locale string, identity bool) (string, error) {
 	ret := _m.Called(state, nonce, locale, identity)
 
 	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string, string, bool) (string, error)); ok {
+		return rf(state, nonce, locale, identity)
+	}
 	if rf, ok := ret.Get(0).(func(string, string, string, bool) string); ok {
 		r0 = rf(state, nonce, locale, identity)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(string, string, string, bool) error); ok {
+		r1 = rf(state, nonce, locale, identity)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // EndSessionURL provides a mock function with given fields: idToken, postLogoutURL
-func (_m *mockOneLoginClient) EndSessionURL(idToken string, postLogoutURL string) string {
+func (_m *mockOneLoginClient) EndSessionURL(idToken string, postLogoutURL string) (string, error) {
 	ret := _m.Called(idToken, postLogoutURL)
 
 	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string) (string, error)); ok {
+		return rf(idToken, postLogoutURL)
+	}
 	if rf, ok := ret.Get(0).(func(string, string) string); ok {
 		r0 = rf(idToken, postLogoutURL)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(idToken, postLogoutURL)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // Exchange provides a mock function with given fields: ctx, code, nonce
