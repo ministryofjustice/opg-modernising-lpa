@@ -9,7 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func IdentityWithOneLogin(logger Logger, oneLoginClient OneLoginClient, store sesh.Store, randomString func(int) string) Handler {
+func IdentityWithOneLogin(oneLoginClient OneLoginClient, store sesh.Store, randomString func(int) string) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		locale := ""
 		if appData.Lang == localize.Cy {
@@ -19,7 +19,10 @@ func IdentityWithOneLogin(logger Logger, oneLoginClient OneLoginClient, store se
 		state := randomString(12)
 		nonce := randomString(12)
 
-		authCodeURL := oneLoginClient.AuthCodeURL(state, nonce, locale, true)
+		authCodeURL, err := oneLoginClient.AuthCodeURL(state, nonce, locale, true)
+		if err != nil {
+			return err
+		}
 
 		if err := sesh.SetOneLogin(store, r, w, &sesh.OneLoginSession{
 			State:    state,
@@ -28,8 +31,7 @@ func IdentityWithOneLogin(logger Logger, oneLoginClient OneLoginClient, store se
 			LpaID:    donor.LpaID,
 			Redirect: page.Paths.IdentityWithOneLoginCallback.Format(donor.LpaID),
 		}); err != nil {
-			logger.Print(err)
-			return nil
+			return err
 		}
 
 		http.Redirect(w, r, authCodeURL, http.StatusFound)

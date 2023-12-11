@@ -3,34 +3,21 @@ package onelogin
 import (
 	"context"
 	"crypto/ecdsa"
-	"encoding/json"
 	"errors"
 	"net/http"
 	"net/url"
-	"time"
 
-	"github.com/MicahParks/keyfunc"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 )
 
 var expectedError = errors.New("err")
-
-const openidConfigurationEndpoint = "/.well-known/openid-configuration"
-
-type openidConfiguration struct {
-	AuthorizationEndpoint string `json:"authorization_endpoint"`
-	TokenEndpoint         string `json:"token_endpoint"`
-	Issuer                string `json:"issuer"`
-	UserinfoEndpoint      string `json:"userinfo_endpoint"`
-	JwksURI               string `json:"jwks_uri"`
-	EndSessionEndpoint    string `json:"end_session_endpoint"`
-}
 
 //go:generate mockery --testonly --inpackage --name Doer --structname mockHttpClient
 type Doer interface {
 	Do(r *http.Request) (*http.Response, error)
 }
 
+//go:generate mockery --testonly --inpackage --name Logger --structname mockLogger
 type Logger interface {
 	Print(v ...interface{})
 }
@@ -46,18 +33,17 @@ type Client struct {
 	ctx                   context.Context
 	logger                Logger
 	httpClient            Doer
-	openidConfiguration   openidConfiguration
+	openidConfiguration   *configurationClient
 	secretsClient         SecretsClient
 	randomString          func(int) string
-	jwks                  *keyfunc.JWKS
 	identityPublicKeyFunc IdentityPublicKeyFunc
 
 	clientID    string
 	redirectURL string
 }
 
-func Discover(ctx context.Context, logger Logger, httpClient *http.Client, secretsClient SecretsClient, issuer, clientID, redirectURL string, identityPublicKeyFunc IdentityPublicKeyFunc) (*Client, error) {
-	c := &Client{
+func New(ctx context.Context, logger Logger, httpClient *http.Client, secretsClient SecretsClient, issuer, clientID, redirectURL string, identityPublicKeyFunc IdentityPublicKeyFunc) *Client {
+	return &Client{
 		ctx:                   ctx,
 		logger:                logger,
 		httpClient:            httpClient,
@@ -66,39 +52,11 @@ func Discover(ctx context.Context, logger Logger, httpClient *http.Client, secre
 		identityPublicKeyFunc: identityPublicKeyFunc,
 		clientID:              clientID,
 		redirectURL:           redirectURL,
+		openidConfiguration:   getConfiguration(ctx, logger, httpClient, issuer),
 	}
-
-	req, err := http.NewRequest("GET", issuer+openidConfigurationEndpoint, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	if err := json.NewDecoder(res.Body).Decode(&c.openidConfiguration); err != nil {
-		return nil, err
-	}
-
-	c.jwks, err = keyfunc.Get(c.openidConfiguration.JwksURI, keyfunc.Options{
-		Client: httpClient,
-		Ctx:    c.ctx,
-		RefreshErrorHandler: func(err error) {
-			c.logger.Print("error refreshing jwks:", err)
-		},
-		RefreshInterval:   24 * time.Hour,
-		RefreshRateLimit:  5 * time.Minute,
-		RefreshTimeout:    30 * time.Second,
-		RefreshUnknownKID: true,
-	})
-
-	return c, err
 }
 
-func (c *Client) AuthCodeURL(state, nonce, locale string, identity bool) string {
+func (c *Client) AuthCodeURL(state, nonce, locale string, identity bool) (string, error) {
 	q := url.Values{
 		"response_type": {"code"},
 		"scope":         {"openid email"},
@@ -114,12 +72,36 @@ func (c *Client) AuthCodeURL(state, nonce, locale string, identity bool) string 
 		q.Add("claims", `{"userinfo":{"https://vocab.account.gov.uk/v1/coreIdentityJWT": null}}`)
 	}
 
-	return c.openidConfiguration.AuthorizationEndpoint + "?" + q.Encode()
+	endpoint, err := c.openidConfiguration.AuthorizationEndpoint()
+	if err != nil {
+		return "", err
+	}
+
+	return endpoint + "?" + q.Encode(), nil
 }
 
-func (c *Client) EndSessionURL(idToken, postLogoutURL string) string {
-	return c.openidConfiguration.EndSessionEndpoint + "?" + url.Values{
+func (c *Client) EndSessionURL(idToken, postLogoutURL string) (string, error) {
+	endpoint, err := c.openidConfiguration.EndSessionEndpoint()
+	if err != nil {
+		return "", err
+	}
+
+	return endpoint + "?" + url.Values{
 		"id_token_hint":            {idToken},
 		"post_logout_redirect_uri": {postLogoutURL},
-	}.Encode()
+	}.Encode(), nil
+}
+
+func (c *Client) CheckHealth(ctx context.Context) error {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.openidConfiguration.issuer, nil)
+	if err != nil {
+		return err
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+
+	return resp.Body.Close()
 }

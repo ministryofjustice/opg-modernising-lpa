@@ -17,17 +17,10 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
-		On("TemplateID", notify.WitnessCodeSMS).
-		Return("template-id")
-	notifyClient.
-		On("Sms", ctx, notify.Sms{
-			PhoneNumber: "0777",
-			TemplateID:  "template-id",
-			Personalisation: map[string]string{
-				"WitnessCode":   "1234",
-				"DonorFullName": "Joe Jones’",
-				"LpaType":       "property and affairs",
-			},
+		On("SendSMS", ctx, "0777", notify.WitnessCodeSMS{
+			WitnessCode:   "1234",
+			DonorFullName: "Joe Jones’",
+			LpaType:       "property and affairs",
 		}).
 		Return("sms-id", nil)
 
@@ -79,11 +72,8 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenTooRecentlySent(t *testin
 func TestWitnessCodeSenderSendToCertificateProviderWhenNotifyClientErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
-		On("TemplateID", mock.Anything).
-		Return("template-id")
-	notifyClient.
-		On("Sms", mock.Anything, mock.Anything).
-		Return("", ExpectedError)
+		On("SendSMS", mock.Anything, mock.Anything, mock.Anything).
+		Return("", expectedError)
 
 	localizer := newMockLocalizer(t)
 	localizer.
@@ -104,22 +94,19 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenNotifyClientErrors(t *tes
 		Type:                actor.LpaTypePropertyFinance,
 	}, localizer)
 
-	assert.Equal(t, ExpectedError, err)
+	assert.Equal(t, expectedError, err)
 }
 
 func TestWitnessCodeSenderSendToCertificateProviderWhenDonorStoreErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
-		On("TemplateID", mock.Anything).
-		Return("template-id")
-	notifyClient.
-		On("Sms", mock.Anything, mock.Anything).
+		On("SendSMS", mock.Anything, mock.Anything, mock.Anything).
 		Return("sms-id", nil)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", mock.Anything, mock.Anything).
-		Return(ExpectedError)
+		Return(expectedError)
 
 	localizer := newMockLocalizer(t)
 	localizer.
@@ -141,7 +128,7 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenDonorStoreErrors(t *testi
 		Type:                actor.LpaTypePropertyFinance,
 	}, localizer)
 
-	assert.Equal(t, ExpectedError, err)
+	assert.Equal(t, expectedError, err)
 }
 
 func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
@@ -150,17 +137,10 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
-		On("TemplateID", notify.WitnessCodeSMS).
-		Return("template-id")
-	notifyClient.
-		On("Sms", ctx, notify.Sms{
-			PhoneNumber: "0777",
-			TemplateID:  "template-id",
-			Personalisation: map[string]string{
-				"WitnessCode":   "1234",
-				"DonorFullName": "Joe Jones’",
-				"LpaType":       "property and affairs",
-			},
+		On("SendSMS", ctx, "0777", notify.WitnessCodeSMS{
+			WitnessCode:   "1234",
+			DonorFullName: "Joe Jones’",
+			LpaType:       "property and affairs",
 		}).
 		Return("sms-id", nil)
 
@@ -212,11 +192,8 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenTooRecentlySent(t *testing
 func TestWitnessCodeSenderSendToIndependentWitnessWhenNotifyClientErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
-		On("TemplateID", mock.Anything).
-		Return("template-id")
-	notifyClient.
-		On("Sms", mock.Anything, mock.Anything).
-		Return("", ExpectedError)
+		On("SendSMS", mock.Anything, mock.Anything, mock.Anything).
+		Return("", expectedError)
 
 	localizer := newMockLocalizer(t)
 	localizer.
@@ -237,22 +214,19 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenNotifyClientErrors(t *test
 		Type:               actor.LpaTypePropertyFinance,
 	}, localizer)
 
-	assert.Equal(t, ExpectedError, err)
+	assert.Equal(t, expectedError, err)
 }
 
 func TestWitnessCodeSenderSendToIndependentWitnessWhenDonorStoreErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
-		On("TemplateID", mock.Anything).
-		Return("template-id")
-	notifyClient.
-		On("Sms", mock.Anything, mock.Anything).
+		On("SendSMS", mock.Anything, mock.Anything, mock.Anything).
 		Return("sms-id", nil)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", mock.Anything, mock.Anything).
-		Return(ExpectedError)
+		Return(expectedError)
 
 	localizer := newMockLocalizer(t)
 	localizer.
@@ -274,5 +248,5 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenDonorStoreErrors(t *testin
 		Type:               actor.LpaTypePropertyFinance,
 	}, localizer)
 
-	assert.Equal(t, ExpectedError, err)
+	assert.Equal(t, expectedError, err)
 }

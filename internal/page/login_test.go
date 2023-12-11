@@ -1,7 +1,6 @@
 package page
 
 import (
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,8 +12,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-var expectedError = errors.New("err")
-
 func TestLogin(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?sessionId=session-id&lpaId=lpa-id", nil)
@@ -22,7 +19,7 @@ func TestLogin(t *testing.T) {
 	client := newMockOneLoginClient(t)
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "cy", false).
-		Return("http://auth")
+		Return("http://auth", nil)
 
 	sessionStore := newMockSessionStore(t)
 
@@ -48,7 +45,7 @@ func TestLogin(t *testing.T) {
 		On("Save", r, w, session).
 		Return(nil)
 
-	Login(nil, client, sessionStore, func(int) string { return "i am random" }, "/redirect")(AppData{Lang: localize.Cy, Paths: Paths}, w, r)
+	Login(client, sessionStore, func(int) string { return "i am random" }, "/redirect")(AppData{Lang: localize.Cy, Paths: Paths}, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -62,7 +59,7 @@ func TestLoginDefaultLocale(t *testing.T) {
 	client := newMockOneLoginClient(t)
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "en", false).
-		Return("http://auth")
+		Return("http://auth", nil)
 
 	sessionStore := newMockSessionStore(t)
 
@@ -88,33 +85,46 @@ func TestLoginDefaultLocale(t *testing.T) {
 		On("Save", r, w, session).
 		Return(nil)
 
-	Login(nil, client, sessionStore, func(int) string { return "i am random" }, "/redirect")(AppData{}, w, r)
+	Login(client, sessionStore, func(int) string { return "i am random" }, "/redirect")(AppData{}, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "http://auth", resp.Header.Get("Location"))
 }
 
-func TestLoginWhenStoreSaveError(t *testing.T) {
+func TestLoginWhenAuthCodeURLError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	logger := newMockLogger(t)
-	logger.
-		On("Print", expectedError)
 
 	client := newMockOneLoginClient(t)
 	client.
 		On("AuthCodeURL", "i am random", "i am random", "en", false).
-		Return("http://auth?locale=en")
+		Return("http://auth?locale=en", expectedError)
+
+	err := Login(client, nil, func(int) string { return "i am random" }, "/redirect")(AppData{}, w, r)
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestLoginWhenStoreSaveError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	client := newMockOneLoginClient(t)
+	client.
+		On("AuthCodeURL", "i am random", "i am random", "en", false).
+		Return("http://auth?locale=en", nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Save", r, w, mock.Anything).
 		Return(expectedError)
 
-	Login(logger, client, sessionStore, func(int) string { return "i am random" }, "/redirect")(AppData{}, w, r)
+	err := Login(client, sessionStore, func(int) string { return "i am random" }, "/redirect")(AppData{}, w, r)
 	resp := w.Result()
 
+	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
