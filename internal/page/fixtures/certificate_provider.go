@@ -86,7 +86,10 @@ func CertificateProvider(
 			state := "abc123"
 			nonce := "xyz456"
 
-			authCodeURL := oneloginClient.AuthCodeURL(state, nonce, localize.En.String(), false)
+			authCodeURL, err := oneloginClient.AuthCodeURL(state, nonce, localize.En.String(), false)
+			if err != nil {
+				return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
+			}
 
 			if err := sesh.SetOneLogin(sessionStore, r, w, &sesh.OneLoginSession{
 				State:    state,
