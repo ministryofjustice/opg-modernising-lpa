@@ -5,8 +5,11 @@ services:
     build:
       context: ..
       dockerfile: docker/mlpa/Dockerfile
-      args:
-        ARCH: ${ARCH:-amd64}
+      # args:
+      #   ARCH: ${ARCH:-amd64}
+      platforms:
+        - linux/amd64
+        - linux/arm64
     container_name: app
     depends_on:
       - event-logger
