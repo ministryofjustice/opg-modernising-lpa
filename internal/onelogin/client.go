@@ -91,3 +91,17 @@ func (c *Client) EndSessionURL(idToken, postLogoutURL string) (string, error) {
 		"post_logout_redirect_uri": {postLogoutURL},
 	}.Encode(), nil
 }
+
+func (c *Client) CheckHealth(ctx context.Context) error {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.openidConfiguration.issuer, nil)
+	if err != nil {
+		return err
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+
+	return resp.Body.Close()
+}
