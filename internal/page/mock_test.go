@@ -14,7 +14,7 @@ import (
 var MockRandom = func(int) string { return "123" }
 
 var (
-	ExpectedError = errors.New("err")
+	expectedError = errors.New("err")
 	TestAppData   = AppData{
 		SessionID: "session-id",
 		LpaID:     "lpa-id",

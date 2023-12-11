@@ -41,11 +41,11 @@ func TestRootNotFoundTemplateErrors(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &rootData{App: TestAppData}).
-		Return(ExpectedError)
+		Return(expectedError)
 
 	logger := newMockLogger(t)
 	logger.
-		On("Print", "Error rendering page: "+ExpectedError.Error())
+		On("Print", "Error rendering page: "+expectedError.Error())
 
 	Root(template.Execute, logger)(TestAppData, w, r)
 }

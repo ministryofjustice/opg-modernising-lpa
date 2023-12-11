@@ -1,7 +1,6 @@
 package page
 
 import (
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,8 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
-
-var expectedError = errors.New("err")
 
 func TestLogin(t *testing.T) {
 	w := httptest.NewRecorder()

@@ -85,28 +85,15 @@ func TestSendEmailWhenError(t *testing.T) {
 	assert.Equal(`error sending message: This happened: Plus this`, err.Error())
 }
 
-func TestTemplateID(t *testing.T) {
-	production, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", nil)
-	assert.Equal(t, "e39849c0-ecab-4e16-87ec-6b22afb9d535", production.TemplateID(WitnessCodeSMS))
-	assert.Equal(t, "", production.TemplateID(Template(200)))
-
-	test, _ := New(false, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", nil)
-	assert.Equal(t, "dfa15e16-1f23-494a-bffb-a475513df6cc", test.TemplateID(WitnessCodeSMS))
-	assert.Equal(t, "", test.TemplateID(Template(200)))
-}
-
-func TestRequest(t *testing.T) {
+func TestNewRequest(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
 	doer := newMockDoer(t)
 
-	var jsonBody bytes.Buffer
-	jsonBody.WriteString(`{"some": "json"}`)
-
 	client, _ := New(true, "http://base", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	req, err := client.request(ctx, "/an/url", &jsonBody)
+	req, err := client.newRequest(ctx, "/an/url", map[string]string{"some": "json"})
 
 	assert.Nil(err)
 	assert.Equal(http.MethodPost, req.Method)
@@ -115,22 +102,19 @@ func TestRequest(t *testing.T) {
 	assert.Equal("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmMzM1MTdmZi0yYTg4LTRmNmUtYjg1NS1jNTUwMjY4Y2UwOGEiLCJpYXQiOjE1Nzc5MzQyNDV9.V0iR-Foo_twZdWttAxy4koJoSYJzyZHMr-tJIBwZj8k", req.Header.Get("Authorization"))
 }
 
-func TestRequestWhenNewRequestError(t *testing.T) {
+func TestNewRequestWhenNewRequestError(t *testing.T) {
 	assert := assert.New(t)
 	doer := newMockDoer(t)
-
-	var jsonBody bytes.Buffer
-	jsonBody.WriteString(`{"some": "json"}`)
 
 	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
 	client.now = func() time.Time { return time.Now().Add(-time.Minute) }
 
-	_, err := client.request(nil, "/an/url", &jsonBody)
+	_, err := client.newRequest(nil, "/an/url", map[string]string{"some": "json"})
 
 	assert.Equal(errors.New("net/http: nil Context"), err)
 }
 
-func TestDoRequest(t *testing.T) {
+func TestDo(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
 	jsonString := `{"id": "123", "status_code": 400}`
@@ -148,16 +132,16 @@ func TestDoRequest(t *testing.T) {
 	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	req, _ := client.request(ctx, "/an/url", &jsonBody)
+	req, _ := client.newRequest(ctx, "/an/url", &jsonBody)
 
-	response, err := client.doRequest(req)
+	response, err := client.do(req)
 
 	assert.Nil(err)
 	assert.Equal(response.ID, "123")
 	assert.Equal(response.StatusCode, 400)
 }
 
-func TestDoRequestWhenContainsErrorList(t *testing.T) {
+func TestDoWhenContainsErrorList(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
 	jsonString := `{"id": "123", "status_code": 400, "errors": [{"error":"SomeError","message":"This happened"}, {"error":"AndError","message":"Plus this"}]}`
@@ -175,9 +159,9 @@ func TestDoRequestWhenContainsErrorList(t *testing.T) {
 	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	req, _ := client.request(ctx, "/an/url", &jsonBody)
+	req, _ := client.newRequest(ctx, "/an/url", &jsonBody)
 
-	response, err := client.doRequest(req)
+	response, err := client.do(req)
 
 	assert.Equal(errorsList{
 		errorItem{
@@ -220,9 +204,9 @@ func TestDoRequestWhenRequestError(t *testing.T) {
 	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	req, _ := client.request(ctx, "/an/url", &jsonBody)
+	req, _ := client.newRequest(ctx, "/an/url", &jsonBody)
 
-	resp, err := client.doRequest(req)
+	resp, err := client.do(req)
 
 	assert.Equal(errors.New("err"), err)
 	assert.Equal(response{}, resp)
@@ -245,15 +229,21 @@ func TestDoRequestWhenJsonDecodeFails(t *testing.T) {
 	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	req, _ := client.request(ctx, "/an/url", &jsonBody)
+	req, _ := client.newRequest(ctx, "/an/url", &jsonBody)
 
-	resp, err := client.doRequest(req)
+	resp, err := client.do(req)
 
 	assert.IsType(&json.SyntaxError{}, err)
 	assert.Equal(response{}, resp)
 }
 
-func TestSms(t *testing.T) {
+type testSMS struct {
+	A string
+}
+
+func (e testSMS) smsID(bool) string { return "template-id" }
+
+func TestSendSMS(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
 
@@ -264,11 +254,13 @@ func TestSms(t *testing.T) {
 			io.Copy(&buf, req.Body)
 			req.Body = ioutil.NopCloser(&buf)
 
-			var v map[string]string
+			var v map[string]any
 			json.Unmarshal(buf.Bytes(), &v)
 
-			return assert.Equal("+447535111111", v["phone_number"]) &&
-				assert.Equal("template-123", v["template_id"])
+			return assert.Equal("+447535111111", v["phone_number"].(string)) &&
+				assert.Equal("template-id", v["template_id"].(string)) &&
+				assert.Equal(map[string]any{"A": "value"}, v["personalisation"].(map[string]any))
+
 		})).
 		Return(&http.Response{
 			Body: io.NopCloser(strings.NewReader(`{"id":"xyz"}`)),
@@ -277,13 +269,13 @@ func TestSms(t *testing.T) {
 	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	id, err := client.Sms(ctx, Sms{PhoneNumber: "+447535111111", TemplateID: "template-123"})
+	id, err := client.SendSMS(ctx, "+447535111111", testSMS{A: "value"})
 
 	assert.Nil(err)
 	assert.Equal("xyz", id)
 }
 
-func TestSmsWhenError(t *testing.T) {
+func TestSendSMSWhenError(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
 
@@ -296,6 +288,6 @@ func TestSmsWhenError(t *testing.T) {
 
 	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
 
-	_, err := client.Sms(ctx, Sms{PhoneNumber: "+447535111111", TemplateID: "template-123"})
+	_, err := client.SendSMS(ctx, "+447535111111", testSMS{})
 	assert.Equal(`error sending message: This happened: Plus this`, err.Error())
 }
