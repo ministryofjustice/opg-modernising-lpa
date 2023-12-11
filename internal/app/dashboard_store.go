@@ -70,8 +70,6 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		return nil, nil, nil, errors.New("donorStore.GetAll requires SessionID")
 	}
 
-	log.Printf("donorstore sessionID is %s", data.SessionID)
-
 	var links []lpaLink
 	if err := s.dynamoClient.AllForActor(ctx, subKey(data.SessionID), &links); err != nil {
 		return nil, nil, nil, err

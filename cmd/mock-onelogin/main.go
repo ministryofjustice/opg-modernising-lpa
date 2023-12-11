@@ -164,7 +164,7 @@ func authorize() http.HandlerFunc {
 			identity: wantsIdentity,
 		}
 
-		if sub := r.FormValue("loginWithSub"); sub != "" {
+		if sub := r.FormValue("sub"); sub != "" {
 			loginWithSub[code] = sub
 		}
 

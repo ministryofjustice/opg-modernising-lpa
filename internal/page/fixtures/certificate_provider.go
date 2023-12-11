@@ -25,7 +25,7 @@ func CertificateProvider(
 	shareCodeSender ShareCodeSender,
 	donorStore page.DonorStore,
 	certificateProviderStore CertificateProviderStore,
-	oneLoginClient *onelogin.Client,
+	oneloginClient *onelogin.Client,
 ) page.Handler {
 	progressValues := []string{
 		"paid",
@@ -41,8 +41,27 @@ func CertificateProvider(
 			email                             = r.FormValue("email")
 			redirect                          = r.FormValue("redirect")
 			asProfessionalCertificateProvider = r.FormValue("relationship") == "professional"
-			withSub                           = r.FormValue("loginWithSub")
+			withLpaUID                        = r.FormValue("loginWithLpaUID")
 		)
+
+		if withLpaUID != "" {
+			state := "abc123"
+			nonce := "xyz456"
+
+			authCodeURL := oneloginClient.AuthCodeURL(state, nonce, localize.En.String(), false)
+
+			if err := sesh.SetOneLogin(sessionStore, r, w, &sesh.OneLoginSession{
+				State:    state,
+				Nonce:    nonce,
+				Redirect: page.Paths.CertificateProvider.LoginCallback.Format(),
+			}); err != nil {
+				return nil
+			}
+
+			http.Redirect(w, r, authCodeURL+"&loginWithSub="+withSub, http.StatusFound)
+
+			return nil
+		}
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
 			return tmpl(w, &fixturesData{App: appData})
@@ -54,42 +73,6 @@ func CertificateProvider(
 			donorSessionID               = base64.StdEncoding.EncodeToString([]byte(donorSub))
 			certificateProviderSessionID = base64.StdEncoding.EncodeToString([]byte(certificateProviderSub))
 		)
-
-		if withSub != "" {
-			//certificateProviderSub = withSub
-
-			//if err := sesh.SetLoginSession(sessionStore, r, w, &sesh.LoginSession{Sub: withSub, Email: testEmail}); err != nil {
-			//	return err
-			//}
-
-			//if _, err := sesh.Login(sessionStore, r); err != nil {
-			//	return err
-			//}
-
-			//if redirect == "" {
-			//	redirect = page.Paths.Dashboard.Format()
-			//}
-
-			// BASICALLY - do the steps from CP login handler to make sure the state and nonce are the same
-
-			state := "abc123"
-			nonce := "xyz456"
-
-			authCodeURL := oneLoginClient.AuthCodeURL(state, nonce, localize.En.String(), false)
-
-			if err := sesh.SetOneLogin(sessionStore, r, w, &sesh.OneLoginSession{
-				State:    state,
-				Nonce:    nonce,
-				Redirect: page.Paths.CertificateProvider.LoginCallback.Format(),
-			}); err != nil {
-				return nil
-			}
-
-			log.Printf("Redirecting to %s", authCodeURL+"&loginWithSub="+withSub)
-			http.Redirect(w, r, authCodeURL+"&loginWithSub="+withSub, http.StatusFound)
-
-			return nil
-		}
 
 		log.Printf("Certificate provider sub is %s", certificateProviderSub)
 

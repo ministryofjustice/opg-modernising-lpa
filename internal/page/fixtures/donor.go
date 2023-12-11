@@ -3,8 +3,10 @@ package fixtures
 import (
 	"context"
 	"encoding/base64"
+	"log"
 	"net/http"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -13,6 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -20,6 +23,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
+
+type DynamoClient interface {
+	One(ctx context.Context, pk, sk string, v interface{}) error
+	OneByUID(ctx context.Context, uid string, v interface{}) error
+}
 
 type DocumentStore interface {
 	GetAll(context.Context) (page.Documents, error)
@@ -35,6 +43,8 @@ func Donor(
 	attorneyStore AttorneyStore,
 	documentStore DocumentStore,
 	eventClient *event.Client,
+	oneloginClient *onelogin.Client,
+	dynamodbClient DynamoClient,
 ) page.Handler {
 	progressValues := []string{
 		"provideYourDetails",
@@ -71,7 +81,40 @@ func Donor(
 			useRealUID                = r.FormValue("uid") == "real"
 			certificateProviderEmail  = r.FormValue("certificateProviderEmail")
 			certificateProviderMobile = r.FormValue("certificateProviderMobile")
+			withLpaUID                = r.FormValue("loginWithLpaUID")
 		)
+
+		if withLpaUID != "" {
+			var donor actor.DonorProvidedDetails
+			if err := dynamodbClient.OneByUID(context.Background(), withLpaUID, &donor); err != nil {
+				return err
+			}
+
+			state := "abc123"
+			nonce := "xyz456"
+
+			authCodeURL := oneloginClient.AuthCodeURL(state, nonce, localize.En.String(), false)
+
+			if err := sesh.SetOneLogin(sessionStore, r, w, &sesh.OneLoginSession{
+				State:    state,
+				Nonce:    nonce,
+				Redirect: page.Paths.LoginCallback.Format(),
+			}); err != nil {
+				return nil
+			}
+
+			sub := strings.Split(donor.SK, "#DONOR#")[1]
+			decodedSub, err := base64.StdEncoding.DecodeString(sub)
+			if err != nil {
+				return err
+			}
+
+			log.Println(string(decodedSub))
+
+			http.Redirect(w, r, authCodeURL+"&sub="+string(decodedSub), http.StatusFound)
+
+			return nil
+		}
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
 			return tmpl(w, &fixturesData{App: appData})

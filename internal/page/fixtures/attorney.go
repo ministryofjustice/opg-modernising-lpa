@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -41,6 +42,7 @@ func Attorney(
 	donorStore DonorStore,
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
+	oneloginClient *onelogin.Client,
 ) page.Handler {
 	progressValues := []string{
 		"signedByCertificateProvider",
@@ -59,7 +61,27 @@ func Attorney(
 			progress           = slices.Index(progressValues, r.FormValue("progress"))
 			email              = r.FormValue("email")
 			redirect           = r.FormValue("redirect")
+			withSub            = r.FormValue("loginWithSub")
 		)
+
+		if withSub != "" {
+			state := "abc123"
+			nonce := "xyz456"
+
+			authCodeURL := oneloginClient.AuthCodeURL(state, nonce, localize.En.String(), false)
+
+			if err := sesh.SetOneLogin(sessionStore, r, w, &sesh.OneLoginSession{
+				State:    state,
+				Nonce:    nonce,
+				Redirect: page.Paths.LoginCallback.Format(),
+			}); err != nil {
+				return nil
+			}
+
+			http.Redirect(w, r, authCodeURL+"&loginWithSub="+withSub, http.StatusFound)
+
+			return nil
+		}
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
 			return tmpl(w, &fixturesData{App: appData})
