@@ -975,5 +975,7 @@
     "en": "Saesneg",
     "cy": "Cymraeg",
     "whichLanguageYoudLikeUsToUseWhenWeContactYou": "Welsh",
-    "preferredContactLanguage": "Welsh"
+    "preferredContactLanguage": "Welsh",
+    "addAnotherLpaIfInvited": "Welsh {{ .ActorType }}.",
+    "addAnLpa": "Welsh"
 }
