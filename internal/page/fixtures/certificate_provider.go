@@ -1,10 +1,13 @@
 package fixtures
 
 import (
+	"context"
 	"encoding/base64"
+	"fmt"
 	"log"
 	"net/http"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -19,6 +22,16 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
+type DashboardStore interface {
+	GetAll(ctx context.Context) (donor, attorney, certificateProvider []page.LpaAndActorTasks, err error)
+}
+
+type lpaLink struct {
+	PK        string
+	SK        string
+	ActorType actor.Type
+}
+
 func CertificateProvider(
 	tmpl template.Template,
 	sessionStore sesh.Store,
@@ -26,6 +39,8 @@ func CertificateProvider(
 	donorStore page.DonorStore,
 	certificateProviderStore CertificateProviderStore,
 	oneloginClient *onelogin.Client,
+	dynamodbClient DynamoClient,
+	dashboardStore DashboardStore,
 ) page.Handler {
 	progressValues := []string{
 		"paid",
@@ -45,6 +60,33 @@ func CertificateProvider(
 		)
 
 		if withLpaUID != "" {
+			var donor actor.DonorProvidedDetails
+			if err := dynamodbClient.OneByUID(context.Background(), withLpaUID, &donor); err != nil {
+				return err
+			}
+
+			var links []*lpaLink
+			if err := dynamodbClient.AllByPartialSk(context.Background(), donor.PK, "#SUB#", &links); err != nil {
+				return err
+			}
+
+			sub := ""
+			for _, link := range links {
+				if link.ActorType == actor.TypeCertificateProvider {
+					decodedSub, err := base64.StdEncoding.DecodeString(strings.Split(link.SK, "#SUB#")[1])
+					if err != nil {
+						return err
+					}
+
+					sub = string(decodedSub)
+					break
+				}
+			}
+
+			if sub == "" {
+				return fmt.Errorf("certificate provider not found for LPA UID %s", withLpaUID)
+			}
+
 			state := "abc123"
 			nonce := "xyz456"
 
@@ -58,7 +100,7 @@ func CertificateProvider(
 				return nil
 			}
 
-			http.Redirect(w, r, authCodeURL+"&loginWithSub="+withSub, http.StatusFound)
+			http.Redirect(w, r, authCodeURL+"&sub="+sub, http.StatusFound)
 
 			return nil
 		}

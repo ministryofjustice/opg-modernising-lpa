@@ -3,7 +3,6 @@ package fixtures
 import (
 	"context"
 	"encoding/base64"
-	"log"
 	"net/http"
 	"slices"
 	"strings"
@@ -27,6 +26,7 @@ import (
 type DynamoClient interface {
 	One(ctx context.Context, pk, sk string, v interface{}) error
 	OneByUID(ctx context.Context, uid string, v interface{}) error
+	AllByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
 }
 
 type DocumentStore interface {
@@ -103,13 +103,10 @@ func Donor(
 				return nil
 			}
 
-			sub := strings.Split(donor.SK, "#DONOR#")[1]
-			decodedSub, err := base64.StdEncoding.DecodeString(sub)
+			decodedSub, err := base64.StdEncoding.DecodeString(strings.Split(donor.SK, "#DONOR#")[1])
 			if err != nil {
 				return err
 			}
-
-			log.Println(string(decodedSub))
 
 			http.Redirect(w, r, authCodeURL+"&sub="+string(decodedSub), http.StatusFound)
 
