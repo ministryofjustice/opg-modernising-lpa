@@ -1,6 +1,7 @@
 package page
 
 import (
+	"encoding/base64"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,57 +14,74 @@ import (
 )
 
 func TestLoginCallback(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
-
-	client := newMockOneLoginClient(t)
-	client.
-		On("Exchange", r.Context(), "auth-code", "my-nonce").
-		Return("id-token", "a JWT", nil)
-	client.
-		On("UserInfo", r.Context(), "a JWT").
-		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
-
-	sessionStore := newMockSessionStore(t)
-
-	session := sessions.NewSession(sessionStore, "session")
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   86400,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   true,
-	}
-	session.Values = map[any]any{
-		"session": &sesh.LoginSession{
-			IDToken: "id-token",
-			Sub:     "random",
-			Email:   "name@example.com",
-		},
+	testCases := map[string]struct {
+		subExists        bool
+		expectedRedirect Path
+	}{
+		"Sub exists":         {subExists: true, expectedRedirect: Paths.Dashboard},
+		"Sub does not exist": {subExists: false, expectedRedirect: Paths.Attorney.EnterReferenceNumber},
 	}
 
-	sessionStore.
-		On("Get", r, "params").
-		Return(&sessions.Session{
-			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{
-					State:    "my-state",
-					Nonce:    "my-nonce",
-					Locale:   "en",
-					Redirect: "/redirect",
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
+
+			client := newMockOneLoginClient(t)
+			client.
+				On("Exchange", r.Context(), "auth-code", "my-nonce").
+				Return("id-token", "a JWT", nil)
+			client.
+				On("UserInfo", r.Context(), "a JWT").
+				Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
+
+			sessionStore := newMockSessionStore(t)
+
+			session := sessions.NewSession(sessionStore, "session")
+			session.Options = &sessions.Options{
+				Path:     "/",
+				MaxAge:   86400,
+				SameSite: http.SameSiteLaxMode,
+				HttpOnly: true,
+				Secure:   true,
+			}
+			session.Values = map[any]any{
+				"session": &sesh.LoginSession{
+					IDToken: "id-token",
+					Sub:     "random",
+					Email:   "name@example.com",
 				},
-			},
-		}, nil)
-	sessionStore.
-		On("Save", r, w, session).
-		Return(nil)
+			}
 
-	err := LoginCallback(client, sessionStore, Paths.Attorney.EnterReferenceNumber)(AppData{}, w, r)
-	assert.Nil(t, err)
-	resp := w.Result()
+			sessionStore.
+				On("Get", r, "params").
+				Return(&sessions.Session{
+					Values: map[any]any{
+						"one-login": &sesh.OneLoginSession{
+							State:    "my-state",
+							Nonce:    "my-nonce",
+							Locale:   "en",
+							Redirect: "/redirect",
+						},
+					},
+				}, nil)
+			sessionStore.
+				On("Save", r, w, session).
+				Return(nil)
 
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, Paths.Attorney.EnterReferenceNumber.Format(), resp.Header.Get("Location"))
+			dashboardStore := newMockDashboardStore(t)
+			dashboardStore.
+				On("SubExists", r.Context(), base64.StdEncoding.EncodeToString([]byte("random"))).
+				Return(tc.subExists, nil)
+
+			err := LoginCallback(client, sessionStore, Paths.Attorney.EnterReferenceNumber, dashboardStore)(AppData{}, w, r)
+			assert.Nil(t, err)
+			resp := w.Result()
+
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.expectedRedirect.Format(), resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestLoginCallbackSessionMissing(t *testing.T) {
@@ -114,7 +132,7 @@ func TestLoginCallbackSessionMissing(t *testing.T) {
 				On("Get", r, "params").
 				Return(tc.session, tc.getErr)
 
-			err := LoginCallback(nil, sessionStore, Paths.Attorney.LoginCallback)(AppData{}, w, r)
+			err := LoginCallback(nil, sessionStore, Paths.Attorney.LoginCallback, nil)(AppData{}, w, r)
 			assert.Equal(t, tc.expectedErr, err)
 		})
 	}
@@ -138,7 +156,7 @@ func TestLoginCallbackWhenExchangeErrors(t *testing.T) {
 			},
 		}, nil)
 
-	err := LoginCallback(client, sessionStore, Paths.LoginCallback)(AppData{}, w, r)
+	err := LoginCallback(client, sessionStore, Paths.LoginCallback, nil)(AppData{}, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -163,7 +181,7 @@ func TestLoginCallbackWhenUserInfoError(t *testing.T) {
 			},
 		}, nil)
 
-	err := LoginCallback(client, sessionStore, Paths.LoginCallback)(AppData{}, w, r)
+	err := LoginCallback(client, sessionStore, Paths.LoginCallback, nil)(AppData{}, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -196,6 +214,44 @@ func TestLoginCallbackWhenSessionError(t *testing.T) {
 		On("Save", r, w, mock.Anything).
 		Return(expectedError)
 
-	err := LoginCallback(client, sessionStore, Paths.LoginCallback)(AppData{}, w, r)
+	err := LoginCallback(client, sessionStore, Paths.LoginCallback, nil)(AppData{}, w, r)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestLoginCallbackWhenDashboardStoreError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
+
+	client := newMockOneLoginClient(t)
+	client.
+		On("Exchange", r.Context(), "auth-code", "my-nonce").
+		Return("id-token", "a JWT", nil)
+	client.
+		On("UserInfo", r.Context(), "a JWT").
+		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", r, "params").
+		Return(&sessions.Session{
+			Values: map[any]any{
+				"one-login": &sesh.OneLoginSession{
+					State:    "my-state",
+					Nonce:    "my-nonce",
+					Locale:   "en",
+					Redirect: Paths.LoginCallback.Format(),
+				},
+			},
+		}, nil)
+	sessionStore.
+		On("Save", r, w, mock.Anything).
+		Return(nil)
+
+	dashboardStore := newMockDashboardStore(t)
+	dashboardStore.
+		On("SubExists", r.Context(), mock.Anything).
+		Return(false, expectedError)
+
+	err := LoginCallback(client, sessionStore, Paths.LoginCallback, dashboardStore)(AppData{}, w, r)
 	assert.Equal(t, expectedError, err)
 }

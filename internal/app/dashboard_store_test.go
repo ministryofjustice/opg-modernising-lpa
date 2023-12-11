@@ -182,3 +182,44 @@ func TestDashboardStoreGetAllWhenAllByKeysErrors(t *testing.T) {
 	_, _, _, err := dashboardStore.GetAll(ctx)
 	assert.Equal(t, expectedError, err)
 }
+
+func TestDashboardStoreSubExists(t *testing.T) {
+	testCases := map[string]struct {
+		lpas           []lpaLink
+		expectedExists bool
+	}{
+		"lpas exist": {
+			lpas:           []lpaLink{{PK: "LPA#123", SK: "#SUB#a-sub-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor}},
+			expectedExists: true,
+		},
+		"lpas do not exist": {
+			expectedExists: false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.ExpectAllForActor(context.Background(), "#SUB#a-sub-id",
+				tc.lpas, nil)
+
+			dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
+			exists, err := dashboardStore.SubExists(context.Background(), "a-sub-id")
+
+			assert.Nil(t, err)
+			assert.Equal(t, tc.expectedExists, exists)
+		})
+	}
+}
+
+func TestDashboardStoreSubExistsWhenDynamoError(t *testing.T) {
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectAllForActor(context.Background(), "#SUB#a-sub-id",
+		[]lpaLink{}, expectedError)
+
+	dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
+	exists, err := dashboardStore.SubExists(context.Background(), "a-sub-id")
+
+	assert.Equal(t, expectedError, err)
+	assert.False(t, exists)
+}

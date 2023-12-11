@@ -194,6 +194,20 @@ func (_m *mockDynamoClient) OneByPartialSk(ctx context.Context, pk string, parti
 	return r0
 }
 
+// OneByUID provides a mock function with given fields: ctx, uid, v
+func (_m *mockDynamoClient) OneByUID(ctx context.Context, uid string, v interface{}) error {
+	ret := _m.Called(ctx, uid, v)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, interface{}) error); ok {
+		r0 = rf(ctx, uid, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Put provides a mock function with given fields: ctx, v
 func (_m *mockDynamoClient) Put(ctx context.Context, v interface{}) error {
 	ret := _m.Called(ctx, v)
