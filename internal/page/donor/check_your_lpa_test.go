@@ -153,45 +153,29 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing.T) {
 	testCases := map[string]struct {
 		certificateProviderDetailsTaskState actor.TaskState
-		expectedTemplateId                  notify.Template
-		expectedSms                         notify.Sms
+		expectedSms                         notify.SMS
 	}{
 		"cp not started": {
 			certificateProviderDetailsTaskState: actor.TaskNotStarted,
-			expectedTemplateId:                  notify.CertificateProviderActingDigitallyHasNotConfirmedPersonalDetailsLPADetailsChangedPromptSMS,
-			expectedSms: notify.Sms{
-				PhoneNumber: "07700900000",
-				TemplateID:  "template-id",
-				Personalisation: map[string]string{
-					"donorFullName": "Teneil Throssell",
-					"lpaType":       "property and affairs",
-				},
+			expectedSms: notify.CertificateProviderActingDigitallyHasNotConfirmedPersonalDetailsLPADetailsChangedPromptSMS{
+				DonorFullName: "Teneil Throssell",
+				LpaType:       "property and affairs",
 			},
 		},
 		"cp in progress": {
 			certificateProviderDetailsTaskState: actor.TaskInProgress,
-			expectedTemplateId:                  notify.CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS,
-			expectedSms: notify.Sms{
-				PhoneNumber: "07700900000",
-				TemplateID:  "template-id",
-				Personalisation: map[string]string{
-					"donorFullNamePossessive": "Teneil Throssell’s",
-					"lpaType":                 "property and affairs",
-					"donorFirstNames":         "Teneil",
-				},
+			expectedSms: notify.CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS{
+				DonorFullNamePossessive: "Teneil Throssell’s",
+				LpaType:                 "property and affairs",
+				DonorFirstNames:         "Teneil",
 			},
 		},
 		"cp completed": {
 			certificateProviderDetailsTaskState: actor.TaskCompleted,
-			expectedTemplateId:                  notify.CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS,
-			expectedSms: notify.Sms{
-				PhoneNumber: "07700900000",
-				TemplateID:  "template-id",
-				Personalisation: map[string]string{
-					"donorFullNamePossessive": "Teneil Throssell’s",
-					"lpaType":                 "property and affairs",
-					"donorFirstNames":         "Teneil",
-				},
+			expectedSms: notify.CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS{
+				DonorFullNamePossessive: "Teneil Throssell’s",
+				LpaType:                 "property and affairs",
+				DonorFirstNames:         "Teneil",
 			},
 		},
 	}
@@ -229,10 +213,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.
-				On("TemplateID", tc.expectedTemplateId).
-				Return("template-id")
-			notifyClient.
-				On("Sms", r.Context(), tc.expectedSms).
+				On("SendSMS", r.Context(), "07700900000", tc.expectedSms).
 				Return("", nil)
 
 			donorStore := newMockDonorStore(t)
@@ -333,18 +314,11 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.
-				On("TemplateID", notify.CertificateProviderActingOnPaperMeetingPromptSMS).
-				Return("template-id")
-			notifyClient.
-				On("Sms", r.Context(), notify.Sms{
-					PhoneNumber: "07700900000",
-					TemplateID:  "template-id",
-					Personalisation: map[string]string{
-						"donorFullName":     "Teneil Throssell",
-						"lpaType":           "property and affairs",
-						"donorFirstNames":   "Teneil",
-						"CPLandingPageLink": "http://example.org/certificate-provider-start",
-					},
+				On("SendSMS", r.Context(), "07700900000", notify.CertificateProviderActingOnPaperMeetingPromptSMS{
+					DonorFullName:                   "Teneil Throssell",
+					LpaType:                         "property and affairs",
+					DonorFirstNames:                 "Teneil",
+					CertificateProviderStartPageURL: "http://example.org/certificate-provider-start",
 				}).
 				Return("", nil)
 
@@ -385,17 +359,10 @@ func TestPostCheckYourLpaPaperCertificateProviderOnSubsequentCheck(t *testing.T)
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
-		On("TemplateID", notify.CertificateProviderActingOnPaperDetailsChangedSMS).
-		Return("template-id")
-	notifyClient.
-		On("Sms", r.Context(), notify.Sms{
-			PhoneNumber: "07700900000",
-			TemplateID:  "template-id",
-			Personalisation: map[string]string{
-				"donorFullName":   "Teneil Throssell",
-				"donorFirstNames": "Teneil",
-				"lpaId":           "lpa-uid",
-			},
+		On("SendSMS", r.Context(), "07700900000", notify.CertificateProviderActingOnPaperDetailsChangedSMS{
+			DonorFullName:   "Teneil Throssell",
+			DonorFirstNames: "Teneil",
+			LpaUID:          "lpa-uid",
 		}).
 		Return("", nil)
 
@@ -483,10 +450,7 @@ func TestPostCheckYourLpaWhenNotifyClientErrors(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.
-		On("TemplateID", mock.Anything).
-		Return("template-id")
-	notifyClient.
-		On("Sms", mock.Anything, mock.Anything).
+		On("SendSMS", mock.Anything, mock.Anything, mock.Anything).
 		Return("", expectedError)
 
 	err := CheckYourLpa(nil, donorStore, nil, notifyClient, nil, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{Hash: 5, CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Paper}})
