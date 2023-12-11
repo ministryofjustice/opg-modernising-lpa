@@ -9,7 +9,7 @@ RUN go mod download
 
 COPY cmd/mock-notify ./cmd/mock-notify
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o mock-notify ./cmd/mock-notify
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -a -installsuffix cgo -o mock-notify ./cmd/mock-notify
 
 RUN addgroup --system app && \
   adduser --system --gecos app app && \
