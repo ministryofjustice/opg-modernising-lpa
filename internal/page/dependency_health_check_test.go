@@ -2,55 +2,54 @@ package page
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestDependencyHealthCheck(t *testing.T) {
-	testCases := []int{
-		200,
-		403,
-		503,
-	}
-
-	for _, status := range testCases {
-		r, _ := http.NewRequest(http.MethodGet, "/", nil)
-		w := httptest.NewRecorder()
-
-		uidClient := newMockHealthChecker(t)
-		uidClient.
-			On("Health", mock.Anything).
-			Return(&http.Response{StatusCode: status}, nil)
-
-		DependencyHealthCheck(nil, uidClient)(w, r)
-
-		resp := w.Result()
-
-		assert.Equal(t, status, resp.StatusCode)
-	}
-}
-
-func TestDependencyHealthCheckUidOnRequestError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 
-	uidClient := newMockHealthChecker(t)
-	uidClient.
-		On("Health", mock.Anything).
-		Return(&http.Response{}, expectedError)
+	service := newMockHealthChecker(t)
+	service.On("CheckHealth", r.Context()).Return(nil)
 
-	logger := newMockLogger(t)
-	logger.
-		On("Print", fmt.Sprintf("Error while getting UID service status: %s", expectedError)).
-		Return(nil)
+	services := map[string]HealthChecker{
+		"service": service,
+	}
 
-	DependencyHealthCheck(logger, uidClient)(w, r)
+	DependencyHealthCheck(nil, services)(w, r)
 
 	resp := w.Result()
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
+	body, _ := io.ReadAll(resp.Body)
+	assert.Equal(t, "{}\n", string(body))
+}
+
+func TestDependencyHealthCheckWhenError(t *testing.T) {
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	w := httptest.NewRecorder()
+
+	service := newMockHealthChecker(t)
+	service.On("CheckHealth", r.Context()).Return(nil)
+
+	badService := newMockHealthChecker(t)
+	badService.On("CheckHealth", r.Context()).Return(expectedError)
+
+	services := map[string]HealthChecker{
+		"service":    service,
+		"badService": badService,
+	}
+
+	DependencyHealthCheck(nil, services)(w, r)
+
+	resp := w.Result()
 	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
+
+	body, _ := io.ReadAll(resp.Body)
+	assert.Equal(t, fmt.Sprintf("{\"badService\":\"%s\"}\n", expectedError.Error()), string(body))
 }
