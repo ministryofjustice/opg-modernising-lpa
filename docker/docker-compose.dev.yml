@@ -6,6 +6,9 @@ services:
       context: ..
       dockerfile: docker/mlpa/Dockerfile
       target: dev
+      platforms:
+        - "linux/amd64"
+        - "linux/arm64"
     container_name: app-dev
     depends_on:
       - events-lambda
@@ -28,6 +31,9 @@ services:
       context: ..
       dockerfile: docker/event-received/Dockerfile
       target: dev
+      platforms:
+        - "linux/amd64"
+        - "linux/arm64"
     container_name: events-lambda
     environment:
       - AWS_ACCESS_KEY_ID=fakeKeyId
