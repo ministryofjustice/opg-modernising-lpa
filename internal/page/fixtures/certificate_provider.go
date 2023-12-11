@@ -1,9 +1,11 @@
 package fixtures
 
 import (
+	"context"
 	"encoding/base64"
 	"net/http"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -11,11 +13,19 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
+
+type lpaLink struct {
+	PK        string
+	SK        string
+	ActorType actor.Type
+}
 
 func CertificateProvider(
 	tmpl template.Template,
@@ -23,6 +33,8 @@ func CertificateProvider(
 	shareCodeSender ShareCodeSender,
 	donorStore page.DonorStore,
 	certificateProviderStore CertificateProviderStore,
+	oneloginClient *onelogin.Client,
+	dynamodbClient DynamoClient,
 ) page.Handler {
 	progressValues := []string{
 		"paid",
@@ -38,7 +50,56 @@ func CertificateProvider(
 			email                             = r.FormValue("email")
 			redirect                          = r.FormValue("redirect")
 			asProfessionalCertificateProvider = r.FormValue("relationship") == "professional"
+			withLpaUID                        = r.FormValue("loginWithLpaUID")
 		)
+
+		if withLpaUID != "" {
+			notFoundError := validation.With("loginWithLpaUID", validation.CustomError{Label: "Certificate provider not found for LPA UID " + withLpaUID})
+
+			var donor actor.DonorProvidedDetails
+			if err := dynamodbClient.OneByUID(context.Background(), withLpaUID, &donor); err != nil {
+				return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
+			}
+
+			var links []*lpaLink
+			if err := dynamodbClient.AllByPartialSk(context.Background(), donor.PK, "#SUB#", &links); err != nil {
+				return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
+			}
+
+			sub := ""
+			for _, link := range links {
+				if link.ActorType == actor.TypeCertificateProvider {
+					decodedSub, err := base64.StdEncoding.DecodeString(strings.Split(link.SK, "#SUB#")[1])
+					if err != nil {
+						return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
+					}
+
+					sub = string(decodedSub)
+					break
+				}
+			}
+
+			if sub == "" {
+				return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
+			}
+
+			state := "abc123"
+			nonce := "xyz456"
+
+			authCodeURL := oneloginClient.AuthCodeURL(state, nonce, localize.En.String(), false)
+
+			if err := sesh.SetOneLogin(sessionStore, r, w, &sesh.OneLoginSession{
+				State:    state,
+				Nonce:    nonce,
+				Redirect: page.Paths.CertificateProvider.LoginCallback.Format(),
+			}); err != nil {
+				return nil
+			}
+
+			http.Redirect(w, r, authCodeURL+"&sub="+sub, http.StatusFound)
+
+			return nil
+		}
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
 			return tmpl(w, &fixturesData{App: appData})

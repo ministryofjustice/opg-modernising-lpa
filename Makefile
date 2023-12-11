@@ -85,18 +85,18 @@ run-structurizr-export:
 	export -workspace /usr/local/structurizr/workspace.dsl -format mermaid
 
 scan-lpas: ##@app dumps all entries in the lpas dynamodb table
-	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb scan --table-name lpas
+	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 scan --table-name lpas
 
 get-lpa: ##@app dumps all entries in the lpas dynamodb table that are related to the LPA id supplied e.g. get-lpa id=abc-123
-	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb \
+	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 \
 		query --table-name lpas --key-condition-expression 'PK = :pk' --expression-attribute-values '{":pk": {"S": "LPA#$(id)"}}'
 
 get-donor-session-id: ##@app get donor session id by the LPA id supplied e.g. get-donor-session-id lpaId=abc-123
-	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb \
+	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 \
 		query --table-name lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "LPA#$(lpaId)"}, ":sk": {"S": "#DONOR#"}}' | jq -r .Items[0].SK.S | sed 's/#DONOR#//g'
 
 get-documents:  ##@app dumps all documents in the lpas dynamodb table that are related to the LPA id supplied e.g. get-documents lpaId=abc-123
-	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb \
+	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 \
 		query --table-name lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "LPA#$(lpaId)"}, ":sk": {"S": "#DOCUMENT#"}}'
 
 emit-evidence-received: ##@app emits an evidence-received event with the given LpaUID e.g. emit-evidence-received uid=abc-123

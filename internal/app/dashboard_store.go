@@ -48,6 +48,15 @@ func (k keys) isAttorneyDetails() bool {
 	return strings.HasPrefix(k.SK, attorneyKey(""))
 }
 
+func (s *dashboardStore) SubExists(ctx context.Context, sub string) (bool, error) {
+	var links []lpaLink
+	if err := s.dynamoClient.AllForActor(ctx, subKey(sub), &links); err != nil {
+		return false, nil
+	}
+
+	return len(links) > 0, nil
+}
+
 func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certificateProvider []page.LpaAndActorTasks, err error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
