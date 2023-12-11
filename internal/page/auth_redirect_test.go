@@ -79,8 +79,8 @@ func TestAuthRedirectSessionMissing(t *testing.T) {
 		"missing session": {
 			url:         "/?code=auth-code&state=my-state",
 			session:     nil,
-			getErr:      ExpectedError,
-			expectedErr: ExpectedError,
+			getErr:      expectedError,
+			expectedErr: expectedError,
 		},
 		"missing state": {
 			url:         "/?code=auth-code&state=my-state",

@@ -36,14 +36,10 @@ func (s *WitnessCodeSender) SendToCertificateProvider(ctx context.Context, donor
 	code := s.randomCode(4)
 	donor.CertificateProviderCodes = append(donor.CertificateProviderCodes, actor.WitnessCode{Code: code, Created: s.now()})
 
-	_, err := s.notifyClient.Sms(ctx, notify.Sms{
-		PhoneNumber: donor.CertificateProvider.Mobile,
-		TemplateID:  s.notifyClient.TemplateID(notify.WitnessCodeSMS),
-		Personalisation: map[string]string{
-			"WitnessCode":   code,
-			"DonorFullName": localizer.Possessive(donor.Donor.FullName()),
-			"LpaType":       localizer.T(donor.Type.LegalTermTransKey()),
-		},
+	_, err := s.notifyClient.SendSMS(ctx, donor.CertificateProvider.Mobile, notify.WitnessCodeSMS{
+		WitnessCode:   code,
+		DonorFullName: localizer.Possessive(donor.Donor.FullName()),
+		LpaType:       localizer.T(donor.Type.LegalTermTransKey()),
 	})
 	if err != nil {
 		return err
@@ -60,14 +56,10 @@ func (s *WitnessCodeSender) SendToIndependentWitness(ctx context.Context, donor 
 	code := s.randomCode(4)
 	donor.IndependentWitnessCodes = append(donor.IndependentWitnessCodes, actor.WitnessCode{Code: code, Created: s.now()})
 
-	_, err := s.notifyClient.Sms(ctx, notify.Sms{
-		PhoneNumber: donor.IndependentWitness.Mobile,
-		TemplateID:  s.notifyClient.TemplateID(notify.WitnessCodeSMS),
-		Personalisation: map[string]string{
-			"WitnessCode":   code,
-			"DonorFullName": localizer.Possessive(donor.Donor.FullName()),
-			"LpaType":       localizer.T(donor.Type.LegalTermTransKey()),
-		},
+	_, err := s.notifyClient.SendSMS(ctx, donor.IndependentWitness.Mobile, notify.WitnessCodeSMS{
+		WitnessCode:   code,
+		DonorFullName: localizer.Possessive(donor.Donor.FullName()),
+		LpaType:       localizer.T(donor.Type.LegalTermTransKey()),
 	})
 	if err != nil {
 		return err
