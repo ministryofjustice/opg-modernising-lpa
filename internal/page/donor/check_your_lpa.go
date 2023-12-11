@@ -39,25 +39,23 @@ func (n *checkYourLpaNotifier) Notify(ctx context.Context, appData page.AppData,
 }
 
 func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appData page.AppData, donor *actor.DonorProvidedDetails, wasCompleted bool) error {
-	sms := notify.Sms{
-		PhoneNumber: donor.CertificateProvider.Mobile,
-		Personalisation: map[string]string{
-			"donorFullName":   donor.Donor.FullName(),
-			"donorFirstNames": donor.Donor.FirstNames,
-		},
-	}
-
+	var sms notify.SMS
 	if wasCompleted {
-		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderActingOnPaperDetailsChangedSMS)
-		sms.Personalisation["lpaId"] = donor.LpaUID
+		sms = notify.CertificateProviderActingOnPaperDetailsChangedSMS{
+			DonorFullName:   donor.Donor.FullName(),
+			DonorFirstNames: donor.Donor.FirstNames,
+			LpaUID:          donor.LpaUID,
+		}
 	} else {
-		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderActingOnPaperMeetingPromptSMS)
-		sms.Personalisation["donorFirstNames"] = donor.Donor.FirstNames
-		sms.Personalisation["lpaType"] = appData.Localizer.T(donor.Type.LegalTermTransKey())
-		sms.Personalisation["CPLandingPageLink"] = appData.AppPublicURL + appData.Lang.URL(page.Paths.CertificateProviderStart.Format())
+		sms = notify.CertificateProviderActingOnPaperMeetingPromptSMS{
+			DonorFullName:                   donor.Donor.FullName(),
+			DonorFirstNames:                 donor.Donor.FirstNames,
+			LpaType:                         appData.Localizer.T(donor.Type.LegalTermTransKey()),
+			CertificateProviderStartPageURL: appData.AppPublicURL + appData.Lang.URL(page.Paths.CertificateProviderStart.Format()),
+		}
 	}
 
-	_, err := n.notifyClient.Sms(ctx, sms)
+	_, err := n.notifyClient.SendSMS(ctx, donor.CertificateProvider.Mobile, sms)
 	return err
 }
 
@@ -71,23 +69,22 @@ func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appDa
 		return err
 	}
 
-	sms := notify.Sms{
-		PhoneNumber: donor.CertificateProvider.Mobile,
-		Personalisation: map[string]string{
-			"lpaType": appData.Localizer.T(donor.Type.LegalTermTransKey()),
-		},
-	}
+	var sms notify.SMS
 
 	if certificateProvider.Tasks.ConfirmYourDetails.NotStarted() {
-		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderActingDigitallyHasNotConfirmedPersonalDetailsLPADetailsChangedPromptSMS)
-		sms.Personalisation["donorFullName"] = donor.Donor.FullName()
+		sms = notify.CertificateProviderActingDigitallyHasNotConfirmedPersonalDetailsLPADetailsChangedPromptSMS{
+			LpaType:       appData.Localizer.T(donor.Type.LegalTermTransKey()),
+			DonorFullName: donor.Donor.FullName(),
+		}
 	} else {
-		sms.TemplateID = n.notifyClient.TemplateID(notify.CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS)
-		sms.Personalisation["donorFullNamePossessive"] = appData.Localizer.Possessive(donor.Donor.FullName())
-		sms.Personalisation["donorFirstNames"] = donor.Donor.FirstNames
+		sms = notify.CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS{
+			LpaType:                 appData.Localizer.T(donor.Type.LegalTermTransKey()),
+			DonorFullNamePossessive: appData.Localizer.Possessive(donor.Donor.FullName()),
+			DonorFirstNames:         donor.Donor.FirstNames,
+		}
 	}
 
-	_, err = n.notifyClient.Sms(ctx, sms)
+	_, err = n.notifyClient.SendSMS(ctx, donor.CertificateProvider.Mobile, sms)
 	return err
 }
 

@@ -87,7 +87,7 @@ type ShareCodeSender interface {
 
 //go:generate mockery --testonly --inpackage --name OneLoginClient --structname mockOneLoginClient
 type OneLoginClient interface {
-	AuthCodeURL(state, nonce, locale string, identity bool) string
+	AuthCodeURL(state, nonce, locale string, identity bool) (string, error)
 	Exchange(ctx context.Context, code, nonce string) (idToken, accessToken string, err error)
 	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
 	ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error)
@@ -95,8 +95,7 @@ type OneLoginClient interface {
 
 //go:generate mockery --testonly --inpackage --name NotifyClient --structname mockNotifyClient
 type NotifyClient interface {
-	Sms(ctx context.Context, sms notify.Sms) (string, error)
-	TemplateID(id notify.Template) string
+	SendSMS(context.Context, string, notify.SMS) (string, error)
 }
 
 //go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore
@@ -195,7 +194,7 @@ func Register(
 	handleRoot := makeHandle(rootMux, sessionStore, page.None, errorHandler, appPublicURL)
 
 	handleRoot(page.Paths.Login, page.None,
-		page.Login(logger, oneLoginClient, sessionStore, random.String, page.Paths.LoginCallback))
+		page.Login(oneLoginClient, sessionStore, random.String, page.Paths.LoginCallback))
 	handleRoot(page.Paths.LoginCallback, page.None,
 		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.Dashboard, dashboardStore))
 
@@ -353,7 +352,7 @@ func Register(
 	handleWithDonor(page.Paths.ProveYourIdentity, page.CanGoBack,
 		Guidance(tmpls.Get("prove_your_identity.gohtml")))
 	handleWithDonor(page.Paths.IdentityWithOneLogin, page.CanGoBack,
-		IdentityWithOneLogin(logger, oneLoginClient, sessionStore, random.String))
+		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleWithDonor(page.Paths.IdentityWithOneLoginCallback, page.CanGoBack,
 		IdentityWithOneLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, donorStore))
 

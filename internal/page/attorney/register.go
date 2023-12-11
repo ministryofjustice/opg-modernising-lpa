@@ -10,7 +10,6 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -37,10 +36,9 @@ type SessionStore interface {
 
 //go:generate mockery --testonly --inpackage --name OneLoginClient --structname mockOneLoginClient
 type OneLoginClient interface {
-	AuthCodeURL(state, nonce, locale string, identity bool) string
+	AuthCodeURL(state, nonce, locale string, identity bool) (string, error)
 	Exchange(ctx context.Context, code, nonce string) (idToken, accessToken string, err error)
 	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
-	ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error)
 }
 
 //go:generate mockery --testonly --inpackage --name DonorStore --structname mockDonorStore
@@ -95,7 +93,7 @@ func Register(
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
 	handleRoot(page.Paths.Attorney.Login, None,
-		page.Login(logger, oneLoginClient, sessionStore, random.String, page.Paths.Attorney.LoginCallback))
+		page.Login(oneLoginClient, sessionStore, random.String, page.Paths.Attorney.LoginCallback))
 	handleRoot(page.Paths.Attorney.LoginCallback, None,
 		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.Attorney.EnterReferenceNumber, dashboardStore))
 	handleRoot(page.Paths.Attorney.EnterReferenceNumber, RequireSession,

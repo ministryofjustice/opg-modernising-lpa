@@ -174,10 +174,7 @@ func main() {
 		}
 	}
 
-	signInClient, err := onelogin.Discover(ctx, logger, httpClient, secretsClient, issuer, clientID, redirectURL, identityPublicKeyFunc)
-	if err != nil {
-		logger.Fatal(err)
-	}
+	oneloginClient := onelogin.New(ctx, logger, httpClient, secretsClient, issuer, clientID, redirectURL, identityPublicKeyFunc)
 
 	payApiKey, err := secretsClient.Secret(ctx, secrets.GovUkPay)
 	if err != nil {
@@ -213,7 +210,10 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc(page.Paths.HealthCheck.Service.String(), func(w http.ResponseWriter, r *http.Request) {})
-	mux.Handle(page.Paths.HealthCheck.Dependency.String(), page.DependencyHealthCheck(logger, uidClient))
+	mux.Handle(page.Paths.HealthCheck.Dependency.String(), page.DependencyHealthCheck(logger, map[string]page.HealthChecker{
+		"uid":      uidClient,
+		"onelogin": oneloginClient,
+	}))
 	mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, webDir+"/robots.txt")
 	})
@@ -235,7 +235,7 @@ func main() {
 		rumConfig,
 		staticHash,
 		page.Paths,
-		signInClient,
+		oneloginClient,
 		oneloginURL,
 		evidenceS3Client,
 		eventClient,
@@ -254,7 +254,7 @@ func main() {
 		rumConfig,
 		staticHash,
 		page.Paths,
-		signInClient,
+		oneloginClient,
 		oneloginURL,
 		evidenceS3Client,
 		eventClient,

@@ -164,11 +164,11 @@ func TestPostValidateCsrfErrorWhenDecodingSession(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
 		On("Get", r, "csrf").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{}}, ExpectedError)
+		Return(&sessions.Session{Values: map[interface{}]interface{}{}}, expectedError)
 
 	errorHandler := newMockErrorHandler(t)
 	errorHandler.
-		On("Execute", w, r, ExpectedError).
+		On("Execute", w, r, expectedError).
 		Return(nil)
 
 	ValidateCsrf(http.NotFoundHandler(), sessionStore, MockRandom, errorHandler.Execute).ServeHTTP(w, r)

@@ -39,7 +39,7 @@ type CertificateProviderStore interface {
 
 //go:generate mockery --testonly --inpackage --name OneLoginClient --structname mockOneLoginClient
 type OneLoginClient interface {
-	AuthCodeURL(state, nonce, locale string, identity bool) string
+	AuthCodeURL(state, nonce, locale string, identity bool) (string, error)
 	Exchange(ctx context.Context, code, nonce string) (idToken, accessToken string, err error)
 	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
 	ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error)
@@ -115,7 +115,7 @@ func Register(
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
 	handleRoot(page.Paths.CertificateProvider.Login,
-		page.Login(logger, oneLoginClient, sessionStore, random.String, page.Paths.CertificateProvider.LoginCallback))
+		page.Login(oneLoginClient, sessionStore, random.String, page.Paths.CertificateProvider.LoginCallback))
 	handleRoot(page.Paths.CertificateProvider.LoginCallback,
 		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.CertificateProvider.EnterReferenceNumber, dashboardStore))
 	handleRoot(page.Paths.CertificateProvider.EnterReferenceNumber,
@@ -143,7 +143,7 @@ func Register(
 	handleCertificateProvider(page.Paths.CertificateProvider.ProveYourIdentity, page.None,
 		Guidance(tmpls.Get("certificate_provider_prove_your_identity.gohtml"), nil, nil))
 	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLogin, page.None,
-		IdentityWithOneLogin(logger, oneLoginClient, sessionStore, random.String))
+		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLoginCallback, page.None,
 		IdentityWithOneLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, certificateProviderStore, donorStore))
 
