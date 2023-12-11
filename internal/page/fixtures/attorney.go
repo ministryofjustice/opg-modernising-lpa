@@ -3,7 +3,6 @@ package fixtures
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
 	"net/http"
 	"slices"
 	"strings"
@@ -68,14 +67,16 @@ func Attorney(
 		)
 
 		if withLpaUID != "" {
+			notFoundError := validation.With("loginWithLpaUID", validation.CustomError{Label: "Attorney not found for LPA UID " + withLpaUID})
+
 			var donor actor.DonorProvidedDetails
 			if err := dynamodbClient.OneByUID(context.Background(), withLpaUID, &donor); err != nil {
-				return err
+				return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
 			}
 
 			var links []*lpaLink
 			if err := dynamodbClient.AllByPartialSk(context.Background(), donor.PK, "#SUB#", &links); err != nil {
-				return err
+				return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
 			}
 
 			sub := ""
@@ -83,7 +84,7 @@ func Attorney(
 				if link.ActorType == actor.TypeAttorney {
 					decodedSub, err := base64.StdEncoding.DecodeString(strings.Split(link.SK, "#SUB#")[1])
 					if err != nil {
-						return err
+						return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
 					}
 
 					sub = string(decodedSub)
@@ -92,7 +93,7 @@ func Attorney(
 			}
 
 			if sub == "" {
-				return fmt.Errorf("attorney not found for LPA UID %s", withLpaUID)
+				return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
 			}
 
 			state := "abc123"

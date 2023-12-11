@@ -21,10 +21,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type DynamoClient interface {
-	One(ctx context.Context, pk, sk string, v interface{}) error
 	OneByUID(ctx context.Context, uid string, v interface{}) error
 	AllByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
 }
@@ -85,9 +85,11 @@ func Donor(
 		)
 
 		if withLpaUID != "" {
+			notFoundError := validation.With("loginWithLpaUID", validation.CustomError{Label: "Donor not found for LPA UID " + withLpaUID})
+
 			var donor actor.DonorProvidedDetails
 			if err := dynamodbClient.OneByUID(context.Background(), withLpaUID, &donor); err != nil {
-				return err
+				return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
 			}
 
 			state := "abc123"
@@ -105,7 +107,7 @@ func Donor(
 
 			decodedSub, err := base64.StdEncoding.DecodeString(strings.Split(donor.SK, "#DONOR#")[1])
 			if err != nil {
-				return err
+				return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
 			}
 
 			http.Redirect(w, r, authCodeURL+"&sub="+string(decodedSub), http.StatusFound)

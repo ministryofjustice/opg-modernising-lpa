@@ -3,8 +3,6 @@ package fixtures
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
-	"log"
 	"net/http"
 	"slices"
 	"strings"
@@ -20,11 +18,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
-
-type DashboardStore interface {
-	GetAll(ctx context.Context) (donor, attorney, certificateProvider []page.LpaAndActorTasks, err error)
-}
 
 type lpaLink struct {
 	PK        string
@@ -59,14 +54,16 @@ func CertificateProvider(
 		)
 
 		if withLpaUID != "" {
+			notFoundError := validation.With("loginWithLpaUID", validation.CustomError{Label: "Certificate provider not found for LPA UID " + withLpaUID})
+
 			var donor actor.DonorProvidedDetails
 			if err := dynamodbClient.OneByUID(context.Background(), withLpaUID, &donor); err != nil {
-				return err
+				return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
 			}
 
 			var links []*lpaLink
 			if err := dynamodbClient.AllByPartialSk(context.Background(), donor.PK, "#SUB#", &links); err != nil {
-				return err
+				return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
 			}
 
 			sub := ""
@@ -74,7 +71,7 @@ func CertificateProvider(
 				if link.ActorType == actor.TypeCertificateProvider {
 					decodedSub, err := base64.StdEncoding.DecodeString(strings.Split(link.SK, "#SUB#")[1])
 					if err != nil {
-						return err
+						return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
 					}
 
 					sub = string(decodedSub)
@@ -83,7 +80,7 @@ func CertificateProvider(
 			}
 
 			if sub == "" {
-				return fmt.Errorf("certificate provider not found for LPA UID %s", withLpaUID)
+				return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
 			}
 
 			state := "abc123"
@@ -114,8 +111,6 @@ func CertificateProvider(
 			donorSessionID               = base64.StdEncoding.EncodeToString([]byte(donorSub))
 			certificateProviderSessionID = base64.StdEncoding.EncodeToString([]byte(certificateProviderSub))
 		)
-
-		log.Printf("Certificate provider sub is %s", certificateProviderSub)
 
 		if err := sesh.SetLoginSession(sessionStore, r, w, &sesh.LoginSession{Sub: certificateProviderSub, Email: testEmail}); err != nil {
 			return err

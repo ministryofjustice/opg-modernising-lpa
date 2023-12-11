@@ -3,7 +3,6 @@ package page
 import (
 	"context"
 	"encoding/base64"
-	"log"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -39,8 +38,6 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 		}); err != nil {
 			return err
 		}
-
-		log.Printf("checking sub '%s' exists", userInfo.Sub)
 
 		exists, err := dashboardStore.SubExists(r.Context(), base64.StdEncoding.EncodeToString([]byte(userInfo.Sub)))
 		if err != nil {

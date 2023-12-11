@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"errors"
-	"log"
 	"slices"
 	"strings"
 	"time"
@@ -54,8 +53,6 @@ func (s *dashboardStore) SubExists(ctx context.Context, sub string) (bool, error
 	if err := s.dynamoClient.AllForActor(ctx, subKey(sub), &links); err != nil {
 		return false, nil
 	}
-
-	log.Printf("%v", links)
 
 	return len(links) > 0, nil
 }
