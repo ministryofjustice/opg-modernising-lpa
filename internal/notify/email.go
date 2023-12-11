@@ -1,5 +1,9 @@
 package notify
 
+type Email interface {
+	emailID(bool) string
+}
+
 type InitialOriginalAttorneyEmail struct {
 	DonorFullName             string
 	LpaType                   string
