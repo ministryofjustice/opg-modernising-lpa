@@ -113,23 +113,29 @@ func (c *Client) CreateCase(ctx context.Context, body *CreateCaseRequestBody) (s
 	return createCaseResponse.UID, nil
 }
 
-func (c *Client) Health(ctx context.Context) (*http.Response, error) {
-	r, err := http.NewRequest(http.MethodGet, c.baseURL+"/health", nil)
+func (c *Client) CheckHealth(ctx context.Context) error {
+	req, err := http.NewRequest(http.MethodGet, c.baseURL+"/health", nil)
 	if err != nil {
-		return &http.Response{}, err
+		return err
 	}
 
-	err = c.sign(ctx, r, apiGatewayServiceName)
-	if err != nil {
-		return &http.Response{}, err
+	if err = c.sign(ctx, req, apiGatewayServiceName); err != nil {
+		return err
 	}
 
-	resp, err := c.httpClient.Do(r)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return &http.Response{}, err
+		return err
+	}
+	if err := resp.Body.Close(); err != nil {
+		return err
 	}
 
-	return resp, nil
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("expected 200 but got %d", resp.StatusCode)
+	}
+
+	return nil
 }
 
 func (b CreateCaseRequestBody) Valid() bool {

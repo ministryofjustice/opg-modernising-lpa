@@ -1,6 +1,9 @@
 package onelogin
 
 import (
+	"context"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -75,4 +78,29 @@ func TestEndSessionURLWhenConfigurationMissing(t *testing.T) {
 	_, err := c.EndSessionURL("id-token", "http://after")
 
 	assert.Equal(t, ErrConfigurationMissing, err)
+}
+
+func TestCheckHealth(t *testing.T) {
+	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+	defer s.Close()
+
+	c := &Client{
+		httpClient: http.DefaultClient,
+		openidConfiguration: &configurationClient{
+			issuer: s.URL,
+		},
+	}
+
+	assert.Nil(t, c.CheckHealth(context.Background()))
+}
+
+func TestCheckHealthWhenError(t *testing.T) {
+	c := &Client{
+		httpClient: http.DefaultClient,
+		openidConfiguration: &configurationClient{
+			issuer: "some-rubbish",
+		},
+	}
+
+	assert.NotNil(t, c.CheckHealth(context.Background()))
 }
