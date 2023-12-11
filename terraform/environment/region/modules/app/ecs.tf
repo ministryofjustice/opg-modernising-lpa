@@ -79,10 +79,14 @@ resource "aws_ecs_task_definition" "app" {
   network_mode             = "awsvpc"
   cpu                      = 512
   memory                   = 1024
-  container_definitions    = "[${local.app}, ${local.aws_otel_collector}]"
-  task_role_arn            = var.ecs_task_role.arn
-  execution_role_arn       = var.ecs_execution_role.arn
-  provider                 = aws.region
+  runtime_platform {
+    operating_system_family = "LINUX"
+    cpu_architecture        = "X86_64"
+  }
+  container_definitions = "[${local.app}, ${local.aws_otel_collector}]"
+  task_role_arn         = var.ecs_task_role.arn
+  execution_role_arn    = var.ecs_execution_role.arn
+  provider              = aws.region
 }
 
 resource "aws_iam_role_policy" "app_task_role" {
