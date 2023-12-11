@@ -95,8 +95,7 @@ type OneLoginClient interface {
 
 //go:generate mockery --testonly --inpackage --name NotifyClient --structname mockNotifyClient
 type NotifyClient interface {
-	Sms(ctx context.Context, sms notify.Sms) (string, error)
-	TemplateID(id notify.Template) string
+	SendSMS(context.Context, string, notify.SMS) (string, error)
 }
 
 //go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore

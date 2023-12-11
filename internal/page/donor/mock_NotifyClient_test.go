@@ -14,42 +14,28 @@ type mockNotifyClient struct {
 	mock.Mock
 }
 
-// Sms provides a mock function with given fields: ctx, sms
-func (_m *mockNotifyClient) Sms(ctx context.Context, sms notify.Sms) (string, error) {
-	ret := _m.Called(ctx, sms)
+// SendSMS provides a mock function with given fields: _a0, _a1, _a2
+func (_m *mockNotifyClient) SendSMS(_a0 context.Context, _a1 string, _a2 notify.SMS) (string, error) {
+	ret := _m.Called(_a0, _a1, _a2)
 
 	var r0 string
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, notify.Sms) (string, error)); ok {
-		return rf(ctx, sms)
+	if rf, ok := ret.Get(0).(func(context.Context, string, notify.SMS) (string, error)); ok {
+		return rf(_a0, _a1, _a2)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, notify.Sms) string); ok {
-		r0 = rf(ctx, sms)
+	if rf, ok := ret.Get(0).(func(context.Context, string, notify.SMS) string); ok {
+		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, notify.Sms) error); ok {
-		r1 = rf(ctx, sms)
+	if rf, ok := ret.Get(1).(func(context.Context, string, notify.SMS) error); ok {
+		r1 = rf(_a0, _a1, _a2)
 	} else {
 		r1 = ret.Error(1)
 	}
 
 	return r0, r1
-}
-
-// TemplateID provides a mock function with given fields: id
-func (_m *mockNotifyClient) TemplateID(id notify.Template) string {
-	ret := _m.Called(id)
-
-	var r0 string
-	if rf, ok := ret.Get(0).(func(notify.Template) string); ok {
-		r0 = rf(id)
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	return r0
 }
 
 type mockConstructorTestingTnewMockNotifyClient interface {
