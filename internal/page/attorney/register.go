@@ -72,6 +72,12 @@ type AddressClient interface {
 	LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error)
 }
 
+//go:generate mockery --testonly --inpackage --name DashboardStore --structname mockDashboardStore
+type DashboardStore interface {
+	GetAll(ctx context.Context) (donor, attorney, certificateProvider []page.LpaAndActorTasks, err error)
+	SubExists(ctx context.Context, sub string) (bool, error)
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -84,13 +90,14 @@ func Register(
 	shareCodeStore ShareCodeStore,
 	errorHandler page.ErrorHandler,
 	notFoundHandler page.Handler,
+	dashboardStore DashboardStore,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
 	handleRoot(page.Paths.Attorney.Login, None,
 		page.Login(logger, oneLoginClient, sessionStore, random.String, page.Paths.Attorney.LoginCallback))
 	handleRoot(page.Paths.Attorney.LoginCallback, None,
-		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.Attorney.EnterReferenceNumber))
+		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.Attorney.EnterReferenceNumber, dashboardStore))
 	handleRoot(page.Paths.Attorney.EnterReferenceNumber, RequireSession,
 		EnterReferenceNumber(tmpls.Get("attorney_enter_reference_number.gohtml"), shareCodeStore, sessionStore, attorneyStore))
 

@@ -31,8 +31,9 @@ var (
 	tokenSigningKey, _ = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	tokenSigningKid    = randomString("kid-", 8)
 
-	sessions = map[string]sessionData{}
-	tokens   = map[string]sessionData{}
+	sessions     = map[string]sessionData{}
+	tokens       = map[string]sessionData{}
+	loginWithSub = map[string]string{}
 )
 
 type sessionData struct {
@@ -98,6 +99,11 @@ func token(clientId, issuer string) http.HandlerFunc {
 		code := r.PostFormValue("code")
 		accessToken := randomString("token-", 10)
 
+		if loginWithSub[code] != "" {
+			loginWithSub[accessToken] = loginWithSub[code]
+			delete(loginWithSub, code)
+		}
+
 		session := sessions[code]
 		delete(sessions, code)
 		tokens[accessToken] = session
@@ -157,6 +163,11 @@ func authorize() http.HandlerFunc {
 			user:     r.FormValue("user"),
 			identity: wantsIdentity,
 		}
+
+		if sub := r.FormValue("loginWithSub"); sub != "" {
+			loginWithSub[code] = sub
+		}
+
 		u.RawQuery = q.Encode()
 
 		log.Printf("Redirecting to %s", u.String())
@@ -166,8 +177,16 @@ func authorize() http.HandlerFunc {
 
 func userInfo(privateKey *ecdsa.PrivateKey) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		accessToken := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
+
+		sub := randomString("sub-", 12)
+		if loginWithSub[accessToken] != "" {
+			sub = loginWithSub[accessToken]
+			delete(loginWithSub, accessToken)
+		}
+
 		userInfo := UserInfoResponse{
-			Sub:           randomString("sub-", 12),
+			Sub:           sub,
 			Email:         "simulate-delivered@notifications.service.gov.uk",
 			EmailVerified: true,
 			Phone:         "01406946277",
@@ -175,7 +194,7 @@ func userInfo(privateKey *ecdsa.PrivateKey) http.HandlerFunc {
 			UpdatedAt:     1311280970,
 		}
 
-		token := tokens[strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")]
+		token := tokens[accessToken]
 
 		if token.identity {
 			givenName, familyName, birthDate := userDetails(token.user)
@@ -204,6 +223,7 @@ func userInfo(privateKey *ecdsa.PrivateKey) http.HandlerFunc {
 			}).SignedString(privateKey)
 		}
 
+		log.Printf("Logging in with sub %s", sub)
 		json.NewEncoder(w).Encode(userInfo)
 	}
 }

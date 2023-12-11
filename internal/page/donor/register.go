@@ -156,6 +156,12 @@ type EventClient interface {
 	SendReducedFeeRequested(context.Context, event.ReducedFeeRequested) error
 }
 
+//go:generate mockery --testonly --inpackage --name DashboardStore --structname mockDashboardStore
+type DashboardStore interface {
+	GetAll(ctx context.Context) (donor, attorney, certificateProvider []page.LpaAndActorTasks, err error)
+	SubExists(ctx context.Context, sub string) (bool, error)
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -176,6 +182,7 @@ func Register(
 	evidenceReceivedStore EvidenceReceivedStore,
 	documentStore DocumentStore,
 	eventClient EventClient,
+	dashboardStore DashboardStore,
 ) {
 	payer := &payHelper{
 		logger:       logger,
@@ -190,7 +197,7 @@ func Register(
 	handleRoot(page.Paths.Login, page.None,
 		page.Login(logger, oneLoginClient, sessionStore, random.String, page.Paths.LoginCallback))
 	handleRoot(page.Paths.LoginCallback, page.None,
-		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.Dashboard))
+		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.Dashboard, dashboardStore))
 
 	lpaMux := http.NewServeMux()
 	rootMux.Handle("/lpa/", page.RouteToPrefix("/lpa/", lpaMux, notFoundHandler))

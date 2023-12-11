@@ -118,7 +118,7 @@ func App(
 	handleRoot(paths.Fixtures, None,
 		fixtures.Donor(tmpls.Get("fixtures.gohtml"), sessionStore, donorStore, certificateProviderStore, attorneyStore, documentStore, eventClient))
 	handleRoot(paths.CertificateProviderFixtures, None,
-		fixtures.CertificateProvider(tmpls.Get("certificate_provider_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore))
+		fixtures.CertificateProvider(tmpls.Get("certificate_provider_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, oneLoginClient))
 	handleRoot(paths.AttorneyFixtures, None,
 		fixtures.Attorney(tmpls.Get("attorney_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore))
 	handleRoot(paths.DashboardFixtures, None,
@@ -152,6 +152,7 @@ func App(
 		addressClient,
 		notifyClient,
 		shareCodeSender,
+		dashboardStore,
 	)
 
 	attorney.Register(
@@ -166,6 +167,7 @@ func App(
 		shareCodeStore,
 		errorHandler,
 		notFoundHandler,
+		dashboardStore,
 	)
 
 	donor.Register(
@@ -188,6 +190,7 @@ func App(
 		evidenceReceivedStore,
 		documentStore,
 		eventClient,
+		dashboardStore,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang, rumConfig, staticHash, oneloginURL)
