@@ -40,7 +40,6 @@ func CertificateProvider(
 	certificateProviderStore CertificateProviderStore,
 	oneloginClient *onelogin.Client,
 	dynamodbClient DynamoClient,
-	dashboardStore DashboardStore,
 ) page.Handler {
 	progressValues := []string{
 		"paid",

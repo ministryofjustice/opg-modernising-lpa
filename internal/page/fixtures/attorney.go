@@ -3,8 +3,10 @@ package fixtures
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"net/http"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -43,6 +45,7 @@ func Attorney(
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
 	oneloginClient *onelogin.Client,
+	dynamodbClient DynamoClient,
 ) page.Handler {
 	progressValues := []string{
 		"signedByCertificateProvider",
@@ -61,10 +64,37 @@ func Attorney(
 			progress           = slices.Index(progressValues, r.FormValue("progress"))
 			email              = r.FormValue("email")
 			redirect           = r.FormValue("redirect")
-			withSub            = r.FormValue("loginWithSub")
+			withLpaUID         = r.FormValue("loginWithLpaUID")
 		)
 
-		if withSub != "" {
+		if withLpaUID != "" {
+			var donor actor.DonorProvidedDetails
+			if err := dynamodbClient.OneByUID(context.Background(), withLpaUID, &donor); err != nil {
+				return err
+			}
+
+			var links []*lpaLink
+			if err := dynamodbClient.AllByPartialSk(context.Background(), donor.PK, "#SUB#", &links); err != nil {
+				return err
+			}
+
+			sub := ""
+			for _, link := range links {
+				if link.ActorType == actor.TypeAttorney {
+					decodedSub, err := base64.StdEncoding.DecodeString(strings.Split(link.SK, "#SUB#")[1])
+					if err != nil {
+						return err
+					}
+
+					sub = string(decodedSub)
+					break
+				}
+			}
+
+			if sub == "" {
+				return fmt.Errorf("attorney not found for LPA UID %s", withLpaUID)
+			}
+
 			state := "abc123"
 			nonce := "xyz456"
 
@@ -73,12 +103,12 @@ func Attorney(
 			if err := sesh.SetOneLogin(sessionStore, r, w, &sesh.OneLoginSession{
 				State:    state,
 				Nonce:    nonce,
-				Redirect: page.Paths.LoginCallback.Format(),
+				Redirect: page.Paths.Attorney.LoginCallback.Format(),
 			}); err != nil {
 				return nil
 			}
 
-			http.Redirect(w, r, authCodeURL+"&loginWithSub="+withSub, http.StatusFound)
+			http.Redirect(w, r, authCodeURL+"&sub="+sub, http.StatusFound)
 
 			return nil
 		}
