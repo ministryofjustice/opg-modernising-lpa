@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -36,7 +37,7 @@ func (h *cloudWatchEventHandler) Handle(ctx context.Context, event events.CloudW
 	switch event.DetailType {
 	case "uid-requested":
 		uidStore := app.NewUidStore(h.dynamoClient, h.now)
-		uidClient := uid.New(h.uidBaseURL, &http.Client{Timeout: 10 * time.Second}, h.cfg, v4.NewSigner(), time.Now)
+		uidClient := uid.New(h.uidBaseURL, lambda.New(h.cfg, v4.NewSigner(), &http.Client{Timeout: 10 * time.Second}, time.Now))
 
 		return handleUidRequested(ctx, uidStore, uidClient, event)
 
