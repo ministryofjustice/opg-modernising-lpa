@@ -203,10 +203,10 @@
             {{ trHtml .App "registeredLpasContent" }}
 
             {{ template "details" (details . "whatIsTheUseService" "whatIsTheUseServiceDetails" false) }}
-            
+
             {{ range .DonorLpas }}
               {{ if not .Donor.RegisteredAt.IsZero }}
-                {{ template "donorCard" (card $.App .) }}                
+                {{ template "donorCard" (card $.App .) }}
               {{ end }}
             {{ end }}
           {{ end }}
@@ -216,6 +216,13 @@
       {{ if .AttorneyLpas }}
         {{ if .UseTabs }}<div class="govuk-tabs__panel" id="attorney">{{ end }}
           <h2 class="govuk-heading-l">{{ tr .App "imAnAttorney" }}</h2>
+
+          <div class="app-dashboard-card app-dashboard-card--dashed">
+              {{ $attorney := tr .App .App.ActorTypes.Attorney.String }}
+              <p class="govuk-body">{{ trFormat .App "addAnotherLpaIfInvited" "ActorType" ( lowerFirst $attorney) }}</p>
+              <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.Attorney.EnterReferenceNumber.Format ) }}" data-module="govuk-button">{{ tr .App "addAnLpa" }}</a>
+          </div>
+
           <p class="govuk-body">{{ tr .App "viewAndManageAttorney" }}</p>
           {{ $hasRegistered := false }}
           {{ range .AttorneyLpas }}
@@ -232,19 +239,26 @@
             {{ trHtml .App "registeredLpasContentAttorney" }}
 
             {{ template "details" (details . "whatIsTheUseService" "whatIsTheUseServiceDetails" false) }}
-          
+
             {{ range .AttorneyLpas }}
               {{ if not .Donor.RegisteredAt.IsZero }}
-                {{ template "donorCard" (card $.App .) }}                
+                {{ template "donorCard" (card $.App .) }}
               {{ end }}
             {{ end }}
-          {{ end }}          
+          {{ end }}
         {{ if .UseTabs }}</div>{{ end }}
       {{ end }}
 
       {{ if .CertificateProviderLpas }}
         {{ if .UseTabs }}<div class="govuk-tabs__panel" id="certificate-provider">{{ end }}
           <h2 class="govuk-heading-l">{{ tr .App "imACertificateProvider" }}</h2>
+
+          <div class="app-dashboard-card app-dashboard-card--dashed">
+              {{ $certificateProvider := tr .App .App.ActorTypes.CertificateProvider.String }}
+              <p class="govuk-body">{{ trFormat .App "addAnotherLpaIfInvited" "ActorType" ( lowerFirst $certificateProvider) }}</p>
+              <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.CertificateProvider.EnterReferenceNumber.Format ) }}" data-module="govuk-button">{{ tr .App "addAnLpa" }}</a>
+          </div>
+
           <p class="govuk-body">{{ tr .App "viewAndManageCertificateProvider" }}</p>
           {{ range .CertificateProviderLpas }}
             {{ template "certificateProviderCard" (card $.App .) }}

@@ -3,6 +3,7 @@ package fixtures
 import (
 	"context"
 	"encoding/base64"
+	"log"
 	"net/http"
 	"slices"
 	"time"
@@ -59,10 +60,66 @@ func Attorney(
 			progress           = slices.Index(progressValues, r.FormValue("progress"))
 			email              = r.FormValue("email")
 			redirect           = r.FormValue("redirect")
+			attorneySub        = r.FormValue("sub")
 		)
 
+		//if withLpaUID != "" {
+		//	notFoundError := validation.With("loginWithLpaUID", validation.CustomError{Label: "Attorney not found for LPA UID " + withLpaUID})
+		//
+		//	var donor actor.DonorProvidedDetails
+		//	if err := dynamodbClient.OneByUID(context.Background(), withLpaUID, &donor); err != nil {
+		//		return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
+		//	}
+		//
+		//	var links []*lpaLink
+		//	if err := dynamodbClient.AllByPartialSk(context.Background(), donor.PK, "#SUB#", &links); err != nil {
+		//		return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
+		//	}
+		//
+		//	sub := ""
+		//	for _, link := range links {
+		//		if link.ActorType == actor.TypeAttorney {
+		//			decodedSub, err := base64.StdEncoding.DecodeString(strings.Split(link.SK, "#SUB#")[1])
+		//			if err != nil {
+		//				return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
+		//			}
+		//
+		//			sub = string(decodedSub)
+		//			break
+		//		}
+		//	}
+
+		//	if sub == "" {
+		//		return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
+		//	}
+		//
+		//	state := "abc123"
+		//	nonce := "xyz456"
+		//
+		//	authCodeURL, err := oneloginClient.AuthCodeURL(state, nonce, localize.En.String(), false)
+		//	if err != nil {
+		//		return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
+		//	}
+		//
+		//	if err := sesh.SetOneLogin(sessionStore, r, w, &sesh.OneLoginSession{
+		//		State:    state,
+		//		Nonce:    nonce,
+		//		Redirect: page.Paths.Attorney.LoginCallback.Format(),
+		//	}); err != nil {
+		//		return nil
+		//	}
+		//
+		//	http.Redirect(w, r, authCodeURL+"&sub="+sub, http.StatusFound)
+		//
+		//	return nil
+		//}
+
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
-			return tmpl(w, &fixturesData{App: appData})
+			return tmpl(w, &fixturesData{App: appData, Sub: random.String(16)})
+		}
+
+		if attorneySub == "" {
+			attorneySub = random.String(16)
 		}
 
 		if lpaType == "hw" && isTrustCorporation {
@@ -71,7 +128,6 @@ func Attorney(
 
 		var (
 			donorSub                     = random.String(16)
-			attorneySub                  = random.String(16)
 			certificateProviderSub       = random.String(16)
 			donorSessionID               = base64.StdEncoding.EncodeToString([]byte(donorSub))
 			certificateProviderSessionID = base64.StdEncoding.EncodeToString([]byte(certificateProviderSub))
@@ -287,6 +343,8 @@ func Attorney(
 		} else {
 			redirect = "/attorney/" + donor.LpaID + redirect
 		}
+
+		log.Println("Logging in with sub", attorneySub)
 
 		http.Redirect(w, r, redirect, http.StatusFound)
 		return nil
