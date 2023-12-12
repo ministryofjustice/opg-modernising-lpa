@@ -10,7 +10,7 @@ RUN go mod download
 COPY cmd/mock-os-api ./cmd/mock-os-api
 COPY docker/mock-os-api/data ./data
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o mock-os-api ./cmd/mock-os-api
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -a -installsuffix cgo -o mock-os-api ./cmd/mock-os-api
 
 RUN addgroup --system app && \
   adduser --system --gecos app app && \
