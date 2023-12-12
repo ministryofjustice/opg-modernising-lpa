@@ -6,6 +6,7 @@ describe('As a trust corporation', () => {
 
         // start
         cy.contains('a', 'Start').click();
+        cy.contains('button', 'Sign in').click();
 
         // enter reference number
         cy.get('#f-reference-number').type('abcdef123456');
