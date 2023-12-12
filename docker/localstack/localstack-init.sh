@@ -11,6 +11,7 @@ awslocal secretsmanager create-secret --region eu-west-1 --name "cookie-session-
 awslocal secretsmanager create-secret --region eu-west-1 --name "gov-uk-pay-api-key" --secret-string "totally-fake-key"
 awslocal secretsmanager create-secret --region eu-west-1 --name "os-postcode-lookup-api-key" --secret-string "another-fake-key"
 awslocal secretsmanager create-secret --region eu-west-1 --name "gov-uk-notify-api-key" --secret-string "extremely_fake-a-b-c-d-e-f-g-h-i-j"
+awslocal secretsmanager create-secret --region eu-west-1 --name "lpa-store-jwt-secret-key" --secret-string "more-fake-keys"
 
 echo 'creating tables'
 awslocal dynamodb create-table \
