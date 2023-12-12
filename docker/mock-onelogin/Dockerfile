@@ -4,11 +4,11 @@ RUN apk --no-cache add openssl
 
 WORKDIR /app
 
-COPY go.mod go.sum ./
+COPY --link go.mod go.sum ./
 RUN go mod download
 
-COPY cmd/mock-onelogin ./cmd/mock-onelogin
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o mock-onelogin ./cmd/mock-onelogin
+COPY --link cmd/mock-onelogin ./cmd/mock-onelogin
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -a -installsuffix cgo -o mock-onelogin ./cmd/mock-onelogin
 
 RUN addgroup --system app && \
   adduser --system --gecos app app && \
