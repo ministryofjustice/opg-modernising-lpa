@@ -3,7 +3,6 @@ package page
 import (
 	"context"
 	"encoding/base64"
-	"log"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -52,7 +51,6 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 				return err
 			}
 
-			log.Println(exists)
 			if exists {
 				redirect = Paths.Dashboard
 			}

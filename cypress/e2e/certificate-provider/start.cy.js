@@ -3,7 +3,7 @@ describe('Start', () => {
         cy.visit('/certificate-provider-start');
     });
 
-    it.only('can be completed', () => {
+    it('can be completed', () => {
         cy.contains('a', 'Start').click();
 
         if (Cypress.config().baseUrl.includes('localhost')) {
