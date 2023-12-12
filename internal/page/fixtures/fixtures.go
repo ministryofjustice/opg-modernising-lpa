@@ -142,5 +142,5 @@ func makePersonToNotify(name Name) actor.PersonToNotify {
 }
 
 func makeUID() string {
-	return strings.ToUpper("N-" + random.String(4) + "-" + random.String(4) + "-" + random.String(4))
+	return strings.ToUpper("M-" + random.String(4) + "-" + random.String(4) + "-" + random.String(4))
 }
