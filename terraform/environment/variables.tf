@@ -49,6 +49,10 @@ variable "environments" {
         base_url = string
         api_arns = list(string)
       })
+      lpa_store_service = object({
+        base_url = string
+        api_arns = list(string)
+      })
       backups = object({
         backup_plan_enabled = bool
         copy_action_enabled = bool

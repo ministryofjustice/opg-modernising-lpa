@@ -119,6 +119,13 @@ variable "uid_service" {
   })
 }
 
+variable "lpa_store_service" {
+  type = object({
+    base_url = string
+    api_arns = list(string)
+  })
+}
+
 variable "mock_onelogin_enabled" {
   type = bool
 }
