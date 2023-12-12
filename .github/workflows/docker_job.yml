@@ -125,6 +125,7 @@ jobs:
           push: true
           platforms:  ${{ matrix.platforms }}
           tags: |
+            ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:${{ inputs.tag }}
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:main-${{ inputs.tag }}
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:latest
           build-args: |
