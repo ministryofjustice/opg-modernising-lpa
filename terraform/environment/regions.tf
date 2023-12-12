@@ -52,6 +52,10 @@ module "eu_west_1" {
     base_url = local.environment.uid_service.base_url
     api_arns = local.environment.uid_service.api_arns
   }
+  lpa_store_service = {
+    base_url = local.environment.lpa_store_service.base_url
+    api_arns = local.environment.lpa_store_service.api_arns
+  }
   mock_onelogin_enabled = local.environment.mock_onelogin_enabled
   providers = {
     aws.region            = aws.eu_west_1
@@ -100,6 +104,10 @@ module "eu_west_2" {
   uid_service = {
     base_url = local.environment.uid_service.base_url
     api_arns = local.environment.uid_service.api_arns
+  }
+  lpa_store_service = {
+    base_url = local.environment.lpa_store_service.base_url
+    api_arns = local.environment.lpa_store_service.api_arns
   }
   mock_onelogin_enabled = local.environment.mock_onelogin_enabled
   providers = {
