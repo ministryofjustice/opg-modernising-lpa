@@ -60,7 +60,7 @@ jobs:
 
       - name: Publish pacts
         run: |
-          pact-broker publish ./internal/uid/pacts/modernising-lpa-data-lpa-uid.json \
+          pact-broker publish ./pacts \
             --consumer-app-version ${{ inputs.commit_sha }} \
             --branch ${{ inputs.branch }} \
             --tag ${{ inputs.tag }} \
