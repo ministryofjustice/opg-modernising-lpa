@@ -12,6 +12,7 @@ services:
     depends_on:
       - event-logger
       - localstack
+      - mock-lpa-store
       - mock-onelogin
       - mock-pay
       - mock-os-api
@@ -56,6 +57,14 @@ services:
       - SERVICES=s3,secretsmanager,sqs,dynamodb,events,kms
       - DATA_DIR=/tmp/localstack/data
       - DEBUG=1
+
+  mock-lpa-store:
+    image: outofcoffee/imposter:latest
+    volumes:
+      - ./mock-lpa-store/mock-lpa-store-config.yaml:/opt/imposter/config/mock-lpa-store-config.yaml
+    container_name: mock-lpa-store
+    ports:
+      - "8081:8080"
 
   mock-onelogin:
     build:
