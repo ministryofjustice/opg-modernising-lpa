@@ -16,6 +16,7 @@ on:
         required: true
 jobs:
   terraform_account_workflow:
+    name: "${{ inputs.workspace_name }} account deployment"
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.bump_version.outputs.tag }}

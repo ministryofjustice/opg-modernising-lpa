@@ -57,6 +57,7 @@ permissions:
 
 jobs:
   terraform_environment_workflow:
+    name: "${{ inputs.workspace_name }} environment deployment"
     runs-on: ubuntu-latest
     outputs:
       terraform_workspace_name: ${{ steps.terraform_outputs.outputs.workspace_name }}
