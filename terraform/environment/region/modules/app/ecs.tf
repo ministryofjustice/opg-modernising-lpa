@@ -407,6 +407,10 @@ locals {
           name  = "EVENT_BUS_NAME",
           value = var.event_bus.name
         },
+        {
+          name = "LPA_STORE_BASE_URL",
+          value = var.lpa_store_base_url
+        }
       ]
     }
   )
