@@ -120,6 +120,10 @@ variable "uid_base_url" {
   type = string
 }
 
+variable "lpa_store_base_url" {
+  type = string
+}
+
 variable "mock_onelogin_enabled" {
   type = bool
 }
