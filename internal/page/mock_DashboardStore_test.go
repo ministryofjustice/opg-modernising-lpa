@@ -5,6 +5,8 @@ package page
 import (
 	context "context"
 
+	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -57,23 +59,23 @@ func (_m *mockDashboardStore) GetAll(ctx context.Context) ([]LpaAndActorTasks, [
 	return r0, r1, r2, r3
 }
 
-// SubExists provides a mock function with given fields: ctx, sub
-func (_m *mockDashboardStore) SubExists(ctx context.Context, sub string) (bool, error) {
-	ret := _m.Called(ctx, sub)
+// SubExistsForActorType provides a mock function with given fields: ctx, sub, actorType
+func (_m *mockDashboardStore) SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error) {
+	ret := _m.Called(ctx, sub, actorType)
 
 	var r0 bool
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (bool, error)); ok {
-		return rf(ctx, sub)
+	if rf, ok := ret.Get(0).(func(context.Context, string, actor.Type) (bool, error)); ok {
+		return rf(ctx, sub, actorType)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) bool); ok {
-		r0 = rf(ctx, sub)
+	if rf, ok := ret.Get(0).(func(context.Context, string, actor.Type) bool); ok {
+		r0 = rf(ctx, sub, actorType)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, sub)
+	if rf, ok := ret.Get(1).(func(context.Context, string, actor.Type) error); ok {
+		r1 = rf(ctx, sub, actorType)
 	} else {
 		r1 = ret.Error(1)
 	}

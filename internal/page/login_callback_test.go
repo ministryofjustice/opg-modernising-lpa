@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/gorilla/sessions"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
@@ -71,10 +72,10 @@ func TestLoginCallback(t *testing.T) {
 
 			dashboardStore := newMockDashboardStore(t)
 			dashboardStore.
-				On("SubExists", r.Context(), base64.StdEncoding.EncodeToString([]byte("random"))).
+				On("SubExistsForActorType", r.Context(), base64.StdEncoding.EncodeToString([]byte("random")), actor.TypeAttorney).
 				Return(tc.subExists, nil)
 
-			err := LoginCallback(client, sessionStore, Paths.Attorney.EnterReferenceNumber, dashboardStore)(AppData{}, w, r)
+			err := LoginCallback(client, sessionStore, Paths.Attorney.EnterReferenceNumber, dashboardStore, actor.TypeAttorney)(AppData{}, w, r)
 			assert.Nil(t, err)
 			resp := w.Result()
 
@@ -132,7 +133,7 @@ func TestLoginCallbackSessionMissing(t *testing.T) {
 				On("Get", r, "params").
 				Return(tc.session, tc.getErr)
 
-			err := LoginCallback(nil, sessionStore, Paths.Attorney.LoginCallback, nil)(AppData{}, w, r)
+			err := LoginCallback(nil, sessionStore, Paths.Attorney.LoginCallback, nil, actor.TypeAttorney)(AppData{}, w, r)
 			assert.Equal(t, tc.expectedErr, err)
 		})
 	}
@@ -156,7 +157,7 @@ func TestLoginCallbackWhenExchangeErrors(t *testing.T) {
 			},
 		}, nil)
 
-	err := LoginCallback(client, sessionStore, Paths.LoginCallback, nil)(AppData{}, w, r)
+	err := LoginCallback(client, sessionStore, Paths.LoginCallback, nil, actor.TypeAttorney)(AppData{}, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -181,7 +182,7 @@ func TestLoginCallbackWhenUserInfoError(t *testing.T) {
 			},
 		}, nil)
 
-	err := LoginCallback(client, sessionStore, Paths.LoginCallback, nil)(AppData{}, w, r)
+	err := LoginCallback(client, sessionStore, Paths.LoginCallback, nil, actor.TypeAttorney)(AppData{}, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -214,7 +215,7 @@ func TestLoginCallbackWhenSessionError(t *testing.T) {
 		On("Save", r, w, mock.Anything).
 		Return(expectedError)
 
-	err := LoginCallback(client, sessionStore, Paths.LoginCallback, nil)(AppData{}, w, r)
+	err := LoginCallback(client, sessionStore, Paths.LoginCallback, nil, actor.TypeAttorney)(AppData{}, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -249,9 +250,9 @@ func TestLoginCallbackWhenDashboardStoreError(t *testing.T) {
 
 	dashboardStore := newMockDashboardStore(t)
 	dashboardStore.
-		On("SubExists", r.Context(), mock.Anything).
+		On("SubExistsForActorType", r.Context(), mock.Anything, mock.Anything).
 		Return(false, expectedError)
 
-	err := LoginCallback(client, sessionStore, Paths.LoginCallback, dashboardStore)(AppData{}, w, r)
+	err := LoginCallback(client, sessionStore, Paths.LoginCallback, dashboardStore, actor.TypeAttorney)(AppData{}, w, r)
 	assert.Equal(t, expectedError, err)
 }

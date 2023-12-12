@@ -84,46 +84,58 @@ run-structurizr-export:
 	docker run --rm -v $(PWD)/docs/architecture/dsl/local:/usr/local/structurizr structurizr/cli \
 	export -workspace /usr/local/structurizr/workspace.dsl -format mermaid
 
-scan-lpas: ##@app dumps all entries in the lpas dynamodb table
+scan-lpas: ##@dynamodb dumps all entries in the lpas dynamodb table
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 scan --table-name lpas
 
-get-lpa: ##@app dumps all entries in the lpas dynamodb table that are related to the LPA id supplied e.g. get-lpa id=abc-123
+get-lpa: ##@dynamodb dumps all entries in the lpas dynamodb table that are related to the LPA id supplied e.g. get-lpa id=abc-123
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 \
 		query --table-name lpas --key-condition-expression 'PK = :pk' --expression-attribute-values '{":pk": {"S": "LPA#$(id)"}}'
 
-get-donor-session-id: ##@app get donor session id by the LPA id supplied e.g. get-donor-session-id lpaId=abc-123
+get-donor-session-id: ##@dynamodb get donor session id by the LPA id supplied e.g. get-donor-session-id lpaId=abc-123
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 \
 		query --table-name lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "LPA#$(lpaId)"}, ":sk": {"S": "#DONOR#"}}' | jq -r .Items[0].SK.S | sed 's/#DONOR#//g'
 
-get-documents:  ##@app dumps all documents in the lpas dynamodb table that are related to the LPA id supplied e.g. get-documents lpaId=abc-123
+get-documents:  ##@dynamodb dumps all documents in the lpas dynamodb table that are related to the LPA id supplied e.g. get-documents lpaId=abc-123
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 \
 		query --table-name lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "LPA#$(lpaId)"}, ":sk": {"S": "#DOCUMENT#"}}'
 
-emit-evidence-received: ##@app emits an evidence-received event with the given LpaUID e.g. emit-evidence-received uid=abc-123
+delete-all-items: ##@dynamodb deletes and recreates lpas dynamodb table
+	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 \
+		delete-table --table-name lpas
+
+	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb create-table \
+             --region eu-west-1 \
+             --table-name lpas \
+             --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S AttributeName=LpaUID,AttributeType=S AttributeName=UpdatedAt,AttributeType=S \
+             --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE \
+             --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000 \
+             --global-secondary-indexes file://dynamodb-lpa-gsi-schema.json
+
+emit-evidence-received: ##@events emits an evidence-received event with the given LpaUID e.g. emit-evidence-received uid=abc-123
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"evidence-received","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
 
-emit-reduced-fee-approved: ##@app emits a reduced-fee-approved event with the given LpaUID e.g. emit-reduced-fee-approved uid=abc-123
+emit-reduced-fee-approved: ##@events emits a reduced-fee-approved event with the given LpaUID e.g. emit-reduced-fee-approved uid=abc-123
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"reduced-fee-approved","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
 
-emit-reduced-fee-declined: ##@app emits a reduced-fee-declined event with the given LpaUID e.g. emit-reduced-fee-declined uid=abc-123
+emit-reduced-fee-declined: ##@events emits a reduced-fee-declined event with the given LpaUID e.g. emit-reduced-fee-declined uid=abc-123
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"reduced-fee-declined","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
 
-emit-more-evidence-required: ##@app emits a more-evidence-required event with the given LpaUID e.g. emit-more-evidence-required uid=abc-123
+emit-more-evidence-required: ##@events emits a more-evidence-required event with the given LpaUID e.g. emit-more-evidence-required uid=abc-123
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"more-evidence-required","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
 
-emit-object-tags-added-with-virus: ##@app emits a ObjectTagging:Put event with the given S3 key e.g. emit-object-tags-added-with-virus key=doc/key. Also ensures a tag with virus-scan-status exists on an existing object set to infected
+emit-object-tags-added-with-virus: ##@events emits a ObjectTagging:Put event with the given S3 key e.g. emit-object-tags-added-with-virus key=doc/key. Also ensures a tag with virus-scan-status exists on an existing object set to infected
 	docker compose -f docker/docker-compose.yml exec localstack awslocal s3api \
 		put-object-tagging --bucket evidence --key $(key) --tagging '{"TagSet": [{ "Key": "virus-scan-status", "Value": "infected" }]}'
 
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"Records":[{"eventSource":"aws:s3","eventTime":"2023-10-23T15:58:33.081Z","eventName":"ObjectTagging:Put","s3":{"bucket":{"name":"uploads-opg-modernising-lpa-eu-west-1"},"object":{"key":"$(key)"}}}]}'
 
-emit-object-tags-added-without-virus: ##@app emits a ObjectTagging:Put event with the given S3 key e.g. emit-object-tags-added-with-virus key=doc/key. Also ensures a tag with virus-scan-status exists on an existing object set to ok
+emit-object-tags-added-without-virus: ##@events emits a ObjectTagging:Put event with the given S3 key e.g. emit-object-tags-added-with-virus key=doc/key. Also ensures a tag with virus-scan-status exists on an existing object set to ok
 	docker compose -f docker/docker-compose.yml exec localstack awslocal s3api \
 		put-object-tagging --bucket evidence --key $(key) --tagging '{"TagSet": [{ "Key": "virus-scan-status", "Value": "ok" }]}'
 
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"Records":[{"eventSource":"aws:s3","eventTime":"2023-10-23T15:58:33.081Z","eventName":"ObjectTagging:Put","s3":{"bucket":{"name":"uploads-opg-modernising-lpa-eu-west-1"},"object":{"key":"$(key)"}}}]}'
 
-emit-uid-requested: ##@app emits a uid-requested event with the given detail e.g. emit-uid-requested lpaId=abc sessionId=xyz
+emit-uid-requested: ##@events emits a uid-requested event with the given detail e.g. emit-uid-requested lpaId=abc sessionId=xyz
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"uid-requested","source":"opg.poas.makeregister","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"LpaID":"$(lpaId)","DonorSessionID":"$(sessionId)","Type":"pfa","Donor":{"Name":"abc","Dob":"2000-01-01","Postcode":"F1 1FF"}}}'
 
 logs: ##@app tails logs for all containers running

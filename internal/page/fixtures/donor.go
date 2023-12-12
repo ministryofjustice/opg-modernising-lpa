@@ -3,9 +3,9 @@ package fixtures
 import (
 	"context"
 	"encoding/base64"
+	"log"
 	"net/http"
 	"slices"
-	"strings"
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -14,14 +14,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type DynamoClient interface {
@@ -43,8 +41,6 @@ func Donor(
 	attorneyStore AttorneyStore,
 	documentStore DocumentStore,
 	eventClient *event.Client,
-	oneloginClient *onelogin.Client,
-	dynamodbClient DynamoClient,
 ) page.Handler {
 	progressValues := []string{
 		"provideYourDetails",
@@ -81,51 +77,18 @@ func Donor(
 			useRealUID                = r.FormValue("uid") == "real"
 			certificateProviderEmail  = r.FormValue("certificateProviderEmail")
 			certificateProviderMobile = r.FormValue("certificateProviderMobile")
-			withLpaUID                = r.FormValue("loginWithLpaUID")
+			donorSub                  = r.FormValue("sub")
 		)
-
-		if withLpaUID != "" {
-			notFoundError := validation.With("loginWithLpaUID", validation.CustomError{Label: "Donor not found for LPA UID " + withLpaUID})
-
-			var donor actor.DonorProvidedDetails
-			if err := dynamodbClient.OneByUID(context.Background(), withLpaUID, &donor); err != nil {
-				return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
-			}
-
-			state := "abc123"
-			nonce := "xyz456"
-
-			authCodeURL, err := oneloginClient.AuthCodeURL(state, nonce, localize.En.String(), false)
-			if err != nil {
-				return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
-			}
-
-			if err := sesh.SetOneLogin(sessionStore, r, w, &sesh.OneLoginSession{
-				State:    state,
-				Nonce:    nonce,
-				Redirect: page.Paths.LoginCallback.Format(),
-			}); err != nil {
-				return nil
-			}
-
-			decodedSub, err := base64.StdEncoding.DecodeString(strings.Split(donor.SK, "#DONOR#")[1])
-			if err != nil {
-				return tmpl(w, &fixturesData{App: appData, Errors: notFoundError})
-			}
-
-			http.Redirect(w, r, authCodeURL+"&sub="+string(decodedSub), http.StatusFound)
-
-			return nil
-		}
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
-			return tmpl(w, &fixturesData{App: appData})
+			return tmpl(w, &fixturesData{App: appData, Sub: random.String(16)})
 		}
 
-		var (
-			donorSub       = random.String(16)
-			donorSessionID = base64.StdEncoding.EncodeToString([]byte(donorSub))
-		)
+		if donorSub == "" {
+			donorSub = random.String(16)
+		}
+
+		donorSessionID := base64.StdEncoding.EncodeToString([]byte(donorSub))
 
 		if err := sesh.SetLoginSession(sessionStore, r, w, &sesh.LoginSession{Sub: donorSub, Email: testEmail}); err != nil {
 			return err
@@ -434,6 +397,7 @@ func Donor(
 			redirect = "/lpa/" + donorDetails.LpaID + redirect
 		}
 
+		log.Println("Logging in with sub", donorSub)
 		random.UseTestCode = true
 		http.Redirect(w, r, redirect, http.StatusFound)
 		return nil

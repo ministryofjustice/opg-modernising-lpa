@@ -31,15 +31,15 @@ var (
 	tokenSigningKey, _ = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	tokenSigningKid    = randomString("kid-", 8)
 
-	sessions     = map[string]sessionData{}
-	tokens       = map[string]sessionData{}
-	loginWithSub = map[string]string{}
+	sessions = map[string]sessionData{}
+	tokens   = map[string]sessionData{}
 )
 
 type sessionData struct {
 	user     string
 	nonce    string
 	identity bool
+	sub      string
 }
 
 type OpenIdConfig struct {
@@ -99,11 +99,6 @@ func token(clientId, issuer string) http.HandlerFunc {
 		code := r.PostFormValue("code")
 		accessToken := randomString("token-", 10)
 
-		if loginWithSub[code] != "" {
-			loginWithSub[accessToken] = loginWithSub[code]
-			delete(loginWithSub, code)
-		}
-
 		session := sessions[code]
 		delete(sessions, code)
 		tokens[accessToken] = session
@@ -138,6 +133,19 @@ func authorize() http.HandlerFunc {
 			return
 		}
 
+		if r.Method == http.MethodGet {
+			io.WriteString(w, `<!doctype html>
+<style>body { font-family: sans-serif; font-size: 21px; margin: 2rem; } label { padding: .5rem 0; display: block; } button { font-family: inherit; font-size: 21px; padding: .3rem .5rem; margin-top: 1rem; display: block; }</style>
+<h1>Mock GOV.UK One Login</h1>
+<form method="post">
+<p>Sign in using a OneLogin sub (to ignore, leave empty)</p>
+<label for="sub">OneLogin sub</label>
+<input type="text" name="sub" id=f-sub />
+<button type="submit">Sign in</button>
+</form>`)
+			return
+		}
+
 		redirectUri := r.FormValue("redirect_uri")
 		if redirectUri == "" {
 			log.Fatal("Required query param 'redirect_uri' missing from request")
@@ -162,10 +170,7 @@ func authorize() http.HandlerFunc {
 			nonce:    r.FormValue("nonce"),
 			user:     r.FormValue("user"),
 			identity: wantsIdentity,
-		}
-
-		if sub := r.FormValue("sub"); sub != "" {
-			loginWithSub[code] = sub
+			sub:      r.FormValue("sub"),
 		}
 
 		u.RawQuery = q.Encode()
@@ -177,12 +182,12 @@ func authorize() http.HandlerFunc {
 
 func userInfo(privateKey *ecdsa.PrivateKey) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		accessToken := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
+		token := tokens[strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")]
 
 		sub := randomString("sub-", 12)
-		if loginWithSub[accessToken] != "" {
-			sub = loginWithSub[accessToken]
-			delete(loginWithSub, accessToken)
+
+		if token.sub != "" {
+			sub = token.sub
 		}
 
 		userInfo := UserInfoResponse{
@@ -193,8 +198,6 @@ func userInfo(privateKey *ecdsa.PrivateKey) http.HandlerFunc {
 			PhoneVerified: true,
 			UpdatedAt:     1311280970,
 		}
-
-		token := tokens[accessToken]
 
 		if token.identity {
 			givenName, familyName, birthDate := userDetails(token.user)

@@ -158,7 +158,7 @@ type EventClient interface {
 //go:generate mockery --testonly --inpackage --name DashboardStore --structname mockDashboardStore
 type DashboardStore interface {
 	GetAll(ctx context.Context) (donor, attorney, certificateProvider []page.LpaAndActorTasks, err error)
-	SubExists(ctx context.Context, sub string) (bool, error)
+	SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error)
 }
 
 func Register(
@@ -196,7 +196,7 @@ func Register(
 	handleRoot(page.Paths.Login, page.None,
 		page.Login(oneLoginClient, sessionStore, random.String, page.Paths.LoginCallback))
 	handleRoot(page.Paths.LoginCallback, page.None,
-		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.Dashboard, dashboardStore))
+		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.Dashboard, dashboardStore, actor.TypeDonor))
 
 	lpaMux := http.NewServeMux()
 	rootMux.Handle("/lpa/", page.RouteToPrefix("/lpa/", lpaMux, notFoundHandler))

@@ -73,7 +73,7 @@ type AddressClient interface {
 //go:generate mockery --testonly --inpackage --name DashboardStore --structname mockDashboardStore
 type DashboardStore interface {
 	GetAll(ctx context.Context) (donor, attorney, certificateProvider []page.LpaAndActorTasks, err error)
-	SubExists(ctx context.Context, sub string) (bool, error)
+	SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error)
 }
 
 func Register(
@@ -95,7 +95,7 @@ func Register(
 	handleRoot(page.Paths.Attorney.Login, None,
 		page.Login(oneLoginClient, sessionStore, random.String, page.Paths.Attorney.LoginCallback))
 	handleRoot(page.Paths.Attorney.LoginCallback, None,
-		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.Attorney.EnterReferenceNumber, dashboardStore))
+		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.Attorney.EnterReferenceNumber, dashboardStore, actor.TypeAttorney))
 	handleRoot(page.Paths.Attorney.EnterReferenceNumber, RequireSession,
 		EnterReferenceNumber(tmpls.Get("attorney_enter_reference_number.gohtml"), shareCodeStore, sessionStore, attorneyStore))
 

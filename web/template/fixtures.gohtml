@@ -35,7 +35,10 @@
     </div>
   </div>
 
-  {{ template "input" (input . "loginWithLpaUID" "Login with LPA UID" "" "classes" "govuk-input--width-20") }}
+  {{ template "input" (input . "donorSub" "Donor OneLogin sub" .Sub "classes" "govuk-input--width-20") }}
+  <div class="govuk-hint govuk-!-padding-bottom-2">
+    Either copy this value or change to your own if you need to log back in to an existing LPA from the <a class="govuk-link" href="{{ .App.Paths.Start.Format }}">start page</a>
+  </div>
 
   {{ template "input" (input . "certificateProviderEmail" "Certificate provider email" "" "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
   {{ template "input" (input . "certificateProviderMobile" "Certificate provider mobile" "" "classes" "govuk-input--width-20" "type" "tel" "spellcheck" "false" "autocomplete" "tel") }}

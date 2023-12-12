@@ -93,7 +93,7 @@ type Localizer interface {
 //go:generate mockery --testonly --inpackage --name DashboardStore --structname mockDashboardStore
 type DashboardStore interface {
 	GetAll(ctx context.Context) (donor, attorney, certificateProvider []page.LpaAndActorTasks, err error)
-	SubExists(ctx context.Context, sub string) (bool, error)
+	SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error)
 }
 
 func Register(
@@ -117,7 +117,7 @@ func Register(
 	handleRoot(page.Paths.CertificateProvider.Login,
 		page.Login(oneLoginClient, sessionStore, random.String, page.Paths.CertificateProvider.LoginCallback))
 	handleRoot(page.Paths.CertificateProvider.LoginCallback,
-		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.CertificateProvider.EnterReferenceNumber, dashboardStore))
+		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.CertificateProvider.EnterReferenceNumber, dashboardStore, actor.TypeCertificateProvider))
 	handleRoot(page.Paths.CertificateProvider.EnterReferenceNumber,
 		EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), shareCodeStore, sessionStore, certificateProviderStore))
 
