@@ -26,7 +26,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -71,6 +73,7 @@ func main() {
 			ApplicationID:     env.Get("AWS_RUM_APPLICATION_ID", ""),
 		}
 		uidBaseURL            = env.Get("UID_BASE_URL", "http://mock-uid:8080")
+		lpaStoreBaseURL       = env.Get("LPA_STORE_BASE_URL", "http://mock-lpa-store:8080")
 		metadataURL           = env.Get("ECS_CONTAINER_METADATA_URI_V4", "")
 		oneloginURL           = env.Get("ONELOGIN_URL", "https://home.integration.account.gov.uk")
 		evidenceBucketName    = env.Get("UPLOADS_S3_BUCKET_NAME", "evidence")
@@ -204,9 +207,11 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	uidClient := uid.New(uidBaseURL, httpClient, cfg, v4.NewSigner(), time.Now)
-
 	evidenceS3Client := s3.NewClient(cfg, evidenceBucketName)
+
+	lambdaClient := lambda.New(cfg, v4.NewSigner(), httpClient, time.Now)
+	uidClient := uid.New(uidBaseURL, lambdaClient)
+	lpaStoreClient := lpastore.New(lpaStoreBaseURL, lambdaClient)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc(page.Paths.HealthCheck.Service.String(), func(w http.ResponseWriter, r *http.Request) {})
@@ -239,6 +244,7 @@ func main() {
 		oneloginURL,
 		evidenceS3Client,
 		eventClient,
+		lpaStoreClient,
 	)))
 	mux.Handle("/", app.App(
 		logger,
@@ -258,6 +264,7 @@ func main() {
 		oneloginURL,
 		evidenceS3Client,
 		eventClient,
+		lpaStoreClient,
 	))
 
 	var handler http.Handler = mux
