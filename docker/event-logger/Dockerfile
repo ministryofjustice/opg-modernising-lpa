@@ -9,7 +9,7 @@ RUN go mod download
 
 COPY cmd/event-logger ./cmd/event-logger
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -o /go/bin/event-logger ./cmd/event-logger
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /go/bin/event-logger ./cmd/event-logger
 
 FROM scratch as production
 
