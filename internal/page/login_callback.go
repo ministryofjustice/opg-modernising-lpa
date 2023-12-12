@@ -2,8 +2,10 @@ package page
 
 import (
 	"context"
+	"encoding/base64"
 	"net/http"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
@@ -13,7 +15,7 @@ type LoginCallbackOneLoginClient interface {
 	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
 }
 
-func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh.Store, redirect Path) Handler {
+func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh.Store, redirect Path, dashboardStore DashboardStore, actorType actor.Type) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		oneLoginSession, err := sesh.OneLogin(sessionStore, r)
 		if err != nil {
@@ -36,6 +38,22 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 			Email:   userInfo.Email,
 		}); err != nil {
 			return err
+		}
+
+		if actorType != actor.TypeDonor {
+			exists, err := dashboardStore.SubExistsForActorType(
+				r.Context(),
+				base64.StdEncoding.EncodeToString([]byte(userInfo.Sub)),
+				actorType,
+			)
+
+			if err != nil {
+				return err
+			}
+
+			if exists {
+				redirect = Paths.Dashboard
+			}
 		}
 
 		return appData.Redirect(w, r, redirect.Format())

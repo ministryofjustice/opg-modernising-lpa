@@ -2,6 +2,7 @@ package fixtures
 
 import (
 	"encoding/base64"
+	"log"
 	"net/http"
 	"slices"
 	"time"
@@ -16,6 +17,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
+
+type lpaLink struct {
+	PK        string
+	SK        string
+	ActorType actor.Type
+}
 
 func CertificateProvider(
 	tmpl template.Template,
@@ -38,15 +45,19 @@ func CertificateProvider(
 			email                             = r.FormValue("email")
 			redirect                          = r.FormValue("redirect")
 			asProfessionalCertificateProvider = r.FormValue("relationship") == "professional"
+			certificateProviderSub            = r.FormValue("sub")
 		)
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
-			return tmpl(w, &fixturesData{App: appData})
+			return tmpl(w, &fixturesData{App: appData, Sub: random.String(16)})
+		}
+
+		if certificateProviderSub == "" {
+			certificateProviderSub = random.String(16)
 		}
 
 		var (
 			donorSub                     = random.String(16)
-			certificateProviderSub       = random.String(16)
 			donorSessionID               = base64.StdEncoding.EncodeToString([]byte(donorSub))
 			certificateProviderSessionID = base64.StdEncoding.EncodeToString([]byte(certificateProviderSub))
 		)
@@ -168,6 +179,8 @@ func CertificateProvider(
 		default:
 			redirect = "/certificate-provider/" + donor.LpaID + redirect
 		}
+
+		log.Println("Logging in with sub", certificateProviderSub)
 
 		http.Redirect(w, r, redirect, http.StatusFound)
 		return nil
