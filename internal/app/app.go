@@ -50,6 +50,7 @@ type DynamoClient interface {
 	DeleteOne(ctx context.Context, pk, sk string) error
 	Update(ctx context.Context, pk, sk string, values map[string]dynamodbtypes.AttributeValue, expression string) error
 	BatchPut(ctx context.Context, items []interface{}) error
+	OneByUID(ctx context.Context, uid string, v interface{}) error
 }
 
 //go:generate mockery --testonly --inpackage --name S3Client --structname mockS3Client
@@ -152,6 +153,7 @@ func App(
 		addressClient,
 		notifyClient,
 		shareCodeSender,
+		dashboardStore,
 	)
 
 	attorney.Register(
@@ -166,6 +168,7 @@ func App(
 		shareCodeStore,
 		errorHandler,
 		notFoundHandler,
+		dashboardStore,
 	)
 
 	donor.Register(
@@ -188,6 +191,7 @@ func App(
 		evidenceReceivedStore,
 		documentStore,
 		eventClient,
+		dashboardStore,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang, rumConfig, staticHash, oneloginURL)
