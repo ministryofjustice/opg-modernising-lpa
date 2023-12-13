@@ -48,12 +48,12 @@ func CertificateProvider(
 			certificateProviderSub            = r.FormValue("sub")
 		)
 
-		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
-			return tmpl(w, &fixturesData{App: appData, Sub: random.String(16)})
-		}
-
 		if certificateProviderSub == "" {
 			certificateProviderSub = random.String(16)
+		}
+
+		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
+			return tmpl(w, &fixturesData{App: appData, Sub: certificateProviderSub})
 		}
 
 		var (

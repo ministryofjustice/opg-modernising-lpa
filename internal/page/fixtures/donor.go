@@ -80,12 +80,12 @@ func Donor(
 			donorSub                  = r.FormValue("sub")
 		)
 
-		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
-			return tmpl(w, &fixturesData{App: appData, Sub: random.String(16)})
-		}
-
 		if donorSub == "" {
 			donorSub = random.String(16)
+		}
+
+		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
+			return tmpl(w, &fixturesData{App: appData, Sub: donorSub})
 		}
 
 		donorSessionID := base64.StdEncoding.EncodeToString([]byte(donorSub))
