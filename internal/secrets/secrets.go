@@ -18,6 +18,7 @@ const (
 	GovUkOneLoginPrivateKey        = "private-jwt-key-base64"
 	GovUkOneLoginIdentityPublicKey = "gov-uk-onelogin-identity-public-key"
 	OrdnanceSurvey                 = "os-postcode-lookup-api-key"
+	LpaStoreJwtSecretKey           = "lpa-store-jwt-secret-key"
 
 	cookieSessionKeys = "cookie-session-keys"
 
