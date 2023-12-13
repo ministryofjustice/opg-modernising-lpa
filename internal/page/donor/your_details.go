@@ -157,7 +157,7 @@ func (f *yourDetailsForm) Validate() validation.List {
 		validation.Empty(),
 		validation.StringTooLong(61))
 
-	errors.String("other-names", "otherNamesLabel", f.OtherNames,
+	errors.String("other-names", "otherNamesYouAreKnownBy", f.OtherNames,
 		validation.StringTooLong(50))
 
 	errors.Date("date-of-birth", "dateOfBirth", f.Dob,
