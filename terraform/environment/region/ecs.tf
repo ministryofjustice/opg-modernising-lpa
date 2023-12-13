@@ -31,7 +31,7 @@ module "app" {
   app_env_vars                    = var.app_env_vars
   app_service_repository_url      = var.app_service_repository_url
   app_service_container_version   = var.app_service_container_version
-  app_allowed_api_arns            = var.uid_service.api_arns
+  app_allowed_api_arns            = concat(var.uid_service.api_arns, var.lpa_store_service.api_arns)
   ingress_allow_list_cidr         = concat(var.ingress_allow_list_cidr, split(",", data.aws_ssm_parameter.additional_allowed_ingress_cidrs.value))
   alb_deletion_protection_enabled = var.alb_deletion_protection_enabled
   lpas_table                      = var.lpas_table
@@ -53,6 +53,7 @@ module "app" {
   aws_rum_guest_role_arn                               = data.aws_iam_role.rum_monitor_unauthenticated.arn
   rum_monitor_application_id_secretsmanager_secret_arn = aws_secretsmanager_secret.rum_monitor_application_id.id
   uid_base_url                                         = var.uid_service.base_url
+  lpa_store_base_url = var.lpa_store_service.base_url
   mock_onelogin_enabled                                = data.aws_default_tags.current.tags.environment-name != "production" && var.mock_onelogin_enabled
   providers = {
     aws.region = aws.region
