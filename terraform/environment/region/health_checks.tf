@@ -71,7 +71,6 @@ resource "aws_cloudwatch_metric_alarm" "dependency_health_check" {
 
 resource "aws_sns_topic" "health_checks" {
   name     = "${data.aws_default_tags.current.tags.environment-name}-health-checks-${data.aws_region.current.name}"
-  tags     = data.aws_default_tags.current.tags
   provider = aws.region
 }
 
