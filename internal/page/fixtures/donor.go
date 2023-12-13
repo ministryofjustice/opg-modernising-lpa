@@ -3,6 +3,7 @@ package fixtures
 import (
 	"context"
 	"encoding/base64"
+	"log"
 	"net/http"
 	"slices"
 	"time"
@@ -20,6 +21,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
+
+type DynamoClient interface {
+	OneByUID(ctx context.Context, uid string, v interface{}) error
+	AllByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
+}
 
 type DocumentStore interface {
 	GetAll(context.Context) (page.Documents, error)
@@ -71,16 +77,18 @@ func Donor(
 			useRealUID                = r.FormValue("uid") == "real"
 			certificateProviderEmail  = r.FormValue("certificateProviderEmail")
 			certificateProviderMobile = r.FormValue("certificateProviderMobile")
+			donorSub                  = r.FormValue("donorSub")
 		)
 
-		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
-			return tmpl(w, &fixturesData{App: appData})
+		if donorSub == "" {
+			donorSub = random.String(16)
 		}
 
-		var (
-			donorSub       = random.String(16)
-			donorSessionID = base64.StdEncoding.EncodeToString([]byte(donorSub))
-		)
+		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
+			return tmpl(w, &fixturesData{App: appData, Sub: donorSub})
+		}
+
+		donorSessionID := base64.StdEncoding.EncodeToString([]byte(donorSub))
 
 		if err := sesh.SetLoginSession(sessionStore, r, w, &sesh.LoginSession{Sub: donorSub, Email: testEmail}); err != nil {
 			return err
@@ -389,6 +397,7 @@ func Donor(
 			redirect = "/lpa/" + donorDetails.LpaID + redirect
 		}
 
+		log.Println("Logging in with sub", donorSub)
 		random.UseTestCode = true
 		http.Redirect(w, r, redirect, http.StatusFound)
 		return nil
