@@ -70,8 +70,8 @@ resource "aws_cloudwatch_metric_alarm" "dependency_health_check" {
 }
 
 resource "aws_sns_topic" "health_checks" {
-  name     = "${data.aws_default_tags.current.tags.environment-name}-health-checks-${data.aws_region.current.name}"
-  provider = aws.region
+  name     = "${data.aws_default_tags.current.tags.environment-name}-health-checks"
+  provider = aws.global
 }
 
 resource "pagerduty_service_integration" "service_health_check" {
@@ -85,7 +85,7 @@ resource "aws_sns_topic_subscription" "service_health_check" {
   protocol               = "https"
   endpoint_auto_confirms = true
   endpoint               = "https://events.pagerduty.com/integration/${pagerduty_service_integration.service_health_check.integration_key}/enqueue"
-  provider               = aws.region
+  provider               = aws.global
 }
 
 resource "pagerduty_service_integration" "dependency_health_check" {
@@ -99,5 +99,5 @@ resource "aws_sns_topic_subscription" "dependency_health_check" {
   protocol               = "https"
   endpoint_auto_confirms = true
   endpoint               = "https://events.pagerduty.com/integration/${pagerduty_service_integration.service_health_check.integration_key}/enqueue"
-  provider               = aws.region
+  provider               = aws.global
 }
