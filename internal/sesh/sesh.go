@@ -27,10 +27,9 @@ func (e InvalidSessionError) Error() string {
 // (e.g. session+pay, so you can be signed in and pay for something), but others
 // shouldn't (i.e. the reuse of session as you can't be signed in twice).
 const (
-	cookieSignIn    = "params"
-	cookieSession   = "session"
-	cookiePay       = "pay"
-	cookieShareCode = "shareCode"
+	cookieSignIn  = "params"
+	cookieSession = "session"
+	cookiePay     = "pay"
 )
 
 var (
@@ -62,7 +61,6 @@ func init() {
 	gob.Register(&OneLoginSession{})
 	gob.Register(&LoginSession{})
 	gob.Register(&PaymentSession{})
-	gob.Register(&ShareCodeSession{})
 }
 
 type OneLoginSession struct {
@@ -200,46 +198,5 @@ func ClearPayment(store Store, r *http.Request, w http.ResponseWriter) error {
 	}
 	session.Values = map[any]any{}
 	session.Options.MaxAge = -1
-	return store.Save(r, w, session)
-}
-
-type ShareCodeSession struct {
-	LpaID           string
-	SessionID       string
-	Identity        bool
-	DonorFullName   string
-	DonorFirstNames string
-}
-
-func (s ShareCodeSession) Valid() bool {
-	return s.LpaID != ""
-}
-
-func ShareCode(store sessions.Store, r *http.Request) (*ShareCodeSession, error) {
-	params, err := store.Get(r, cookieShareCode)
-	if err != nil {
-		return nil, err
-	}
-
-	session, ok := params.Values["share-code"]
-	if !ok {
-		return nil, MissingSessionError("share-code")
-	}
-
-	shareCodeSession, ok := session.(*ShareCodeSession)
-	if !ok {
-		return nil, MissingSessionError("share-code")
-	}
-	if !shareCodeSession.Valid() {
-		return nil, InvalidSessionError("share-code")
-	}
-
-	return shareCodeSession, nil
-}
-
-func SetShareCode(store sessions.Store, r *http.Request, w http.ResponseWriter, shareCodeSession *ShareCodeSession) error {
-	session := sessions.NewSession(store, cookieShareCode)
-	session.Values = map[any]any{"share-code": shareCodeSession}
-	session.Options = sessionCookieOptions
 	return store.Save(r, w, session)
 }
