@@ -9,14 +9,14 @@ resource "aws_route53_health_check" "service_health_check" {
   measure_latency   = true
   regions           = ["us-east-1", "eu-west-1", "ap-southeast-1"]
   tags = {
-    Name = "${data.aws_default_tags.current.tags.environment-name}-service-health-check-${data.aws_region.current.name}"
+    Name = "${data.aws_default_tags.current.tags.environment-name} service health check"
   }
   provider = aws.global
 }
 
 resource "aws_cloudwatch_metric_alarm" "service_health_check" {
-  alarm_description   = "${data.aws_default_tags.current.tags.environment-name} service health check for ${data.aws_region.current.name}}"
-  alarm_name          = "${data.aws_default_tags.current.tags.environment-name}-health-check-alarm-${data.aws_region.current.name}"
+  alarm_description   = "${data.aws_default_tags.current.tags.environment-name} service health check for"
+  alarm_name          = "${data.aws_default_tags.current.tags.environment-name}-health-check-alarm"
   alarm_actions       = [aws_sns_topic_subscription.service_health_check.arn]
   ok_actions          = [aws_sns_topic_subscription.service_health_check.arn]
   comparison_operator = "LessThanThreshold"
@@ -45,14 +45,14 @@ resource "aws_route53_health_check" "dependency_health_check" {
   measure_latency   = true
   regions           = ["us-east-1", "eu-west-1", "ap-southeast-1"]
   tags = {
-    Name = "${data.aws_default_tags.current.tags.environment-name}-dependency-health-check-${data.aws_region.current.name}"
+    Name = "${data.aws_default_tags.current.tags.environment-name} dependency health check"
   }
   provider = aws.global
 }
 
 resource "aws_cloudwatch_metric_alarm" "dependency_health_check" {
-  alarm_description   = "${data.aws_default_tags.current.tags.environment-name} dependency health check for ${data.aws_region.current.name}}"
-  alarm_name          = "${data.aws_default_tags.current.tags.environment-name}-dependency-health-check-alarm-${data.aws_region.current.name}"
+  alarm_description   = "${data.aws_default_tags.current.tags.environment-name} dependency health check for}"
+  alarm_name          = "${data.aws_default_tags.current.tags.environment-name}-dependency-health-check-alarm"
   alarm_actions       = [aws_sns_topic_subscription.dependency_health_check.arn]
   ok_actions          = [aws_sns_topic_subscription.dependency_health_check.arn]
   comparison_operator = "LessThanThreshold"
@@ -69,19 +69,19 @@ resource "aws_cloudwatch_metric_alarm" "dependency_health_check" {
   provider = aws.global
 }
 
-resource "aws_sns_topic" "health_checks" {
-  name     = "${data.aws_default_tags.current.tags.environment-name}-health-checks"
+data "aws_sns_topic" "health_checks" {
+  name     = "health_checks"
   provider = aws.global
 }
 
 resource "pagerduty_service_integration" "service_health_check" {
-  name    = "Modernising LPA ${data.aws_default_tags.current.tags.environment-name} ${data.aws_region.current.name} Service Health Check Alarm"
+  name    = "Modernising LPA ${data.aws_default_tags.current.tags.environment-name} Service Health Check Alarm"
   service = data.pagerduty_service.main.id
   vendor  = data.pagerduty_vendor.cloudwatch.id
 }
 
 resource "aws_sns_topic_subscription" "service_health_check" {
-  topic_arn              = aws_sns_topic.health_checks.arn
+  topic_arn              = data.aws_sns_topic.health_checks.arn
   protocol               = "https"
   endpoint_auto_confirms = true
   endpoint               = "https://events.pagerduty.com/integration/${pagerduty_service_integration.service_health_check.integration_key}/enqueue"
@@ -89,13 +89,13 @@ resource "aws_sns_topic_subscription" "service_health_check" {
 }
 
 resource "pagerduty_service_integration" "dependency_health_check" {
-  name    = "Modernising LPA ${data.aws_default_tags.current.tags.environment-name} ${data.aws_region.current.name} Service Health Check Alarm"
+  name    = "Modernising LPA ${data.aws_default_tags.current.tags.environment-name} Service Health Check Alarm"
   service = data.pagerduty_service.main.id
   vendor  = data.pagerduty_vendor.cloudwatch.id
 }
 
 resource "aws_sns_topic_subscription" "dependency_health_check" {
-  topic_arn              = aws_sns_topic.health_checks.arn
+  topic_arn              = data.aws_sns_topic.health_checks.arn
   protocol               = "https"
   endpoint_auto_confirms = true
   endpoint               = "https://events.pagerduty.com/integration/${pagerduty_service_integration.service_health_check.integration_key}/enqueue"
