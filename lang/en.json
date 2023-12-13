@@ -276,7 +276,7 @@
     "thankYouHeader": "Thank you for your payment.",
     "paymentConfirmationContent": "<p class=\"govuk-body\">You have successfully paid for your property and affairs LPA.</p><p class=\"govuk-body\">We’ve sent you an email to confirm we’ve received your LPA application fee.</p><p class=\"govuk-body\">If the email has not arrived in a few minutes, check your spam folder.</p>",
     "readYourLpa": "Read your LPA",
-    "readAndCheckYourLpa": "You must read and check your LPA carefully before you sign it.",
+    "readAndCheckYourLpa": "You must read and check your LPA carefully before you sign it. You cannot make changes to it after signing.",
     "whatHappensIfIWantToMakeChanges": "What happens once I’ve signed?",
     "whatHappensIfIWantToMakeChangesContent": "<p class=\"govuk-body\">When you sign your LPA, you are forming a legally binding deed.</p><p class=\"govuk-body\">If you want to make changes after you’ve signed…[REST OF CONTENT HERE TBC]</p><p class=\"govuk-body\">If you have any questions or concerns about signing your LPA, you may wish to get legal advice.</p>",
     "continueToSigningPage": "Continue to signing page",
