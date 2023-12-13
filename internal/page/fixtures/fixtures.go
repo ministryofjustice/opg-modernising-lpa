@@ -26,6 +26,7 @@ const (
 
 type fixturesData struct {
 	App    page.AppData
+	Sub    string
 	Errors validation.List
 }
 
@@ -70,6 +71,7 @@ func makeAttorney(name Name) actor.Attorney {
 			Line3:      "WEST MIDLANDS",
 			TownOrCity: "BIRMINGHAM",
 			Postcode:   "B14 7ED",
+			Country:    "GB",
 		},
 	}
 }
@@ -85,6 +87,7 @@ func makeTrustCorporation(name string) actor.TrustCorporation {
 			Line3:      "WEST MIDLANDS",
 			TownOrCity: "BIRMINGHAM",
 			Postcode:   "B14 7ED",
+			Country:    "GB",
 		},
 	}
 }
@@ -99,6 +102,7 @@ func makeDonor() actor.Donor {
 			Line3:      "WEST MIDLANDS",
 			TownOrCity: "BIRMINGHAM",
 			Postcode:   "B14 7ED",
+			Country:    "GB",
 		},
 		Email:         testEmail,
 		DateOfBirth:   date.New("2000", "1", "2"),
@@ -122,6 +126,7 @@ func makeCertificateProvider() actor.CertificateProvider {
 			Line3:      "WEST MIDLANDS",
 			TownOrCity: "BIRMINGHAM",
 			Postcode:   "B14 7ED",
+			Country:    "GB",
 		},
 	}
 }
@@ -137,10 +142,11 @@ func makePersonToNotify(name Name) actor.PersonToNotify {
 			Line3:      "WEST MIDLANDS",
 			TownOrCity: "BIRMINGHAM",
 			Postcode:   "B14 7ED",
+			Country:    "GB",
 		},
 	}
 }
 
 func makeUID() string {
-	return strings.ToUpper("N-" + random.String(4) + "-" + random.String(4) + "-" + random.String(4))
+	return strings.ToUpper("M-" + random.String(4) + "-" + random.String(4) + "-" + random.String(4))
 }

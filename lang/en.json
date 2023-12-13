@@ -922,5 +922,7 @@
     "en": "English",
     "cy": "Welsh",
     "whichLanguageYoudLikeUsToUseWhenWeContactYou": "which language you’d like us to use when we contact you",
-    "preferredContactLanguage": "Preferred contact language"
+    "preferredContactLanguage": "Preferred contact language",
+    "addAnotherLpaIfInvited": "Add another LPA if you have been sent an email inviting you to be a {{ .ActorType }}.",
+    "addAnLpa": "Add an LPA"
 }

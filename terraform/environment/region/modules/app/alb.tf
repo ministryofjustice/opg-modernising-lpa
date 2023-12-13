@@ -200,6 +200,19 @@ resource "aws_security_group_rule" "app_loadbalancer_public_access_ingress" {
   provider          = aws.region
 }
 
+# this has a listener rule in the alb to redirect to :443
+resource "aws_security_group_rule" "app_loadbalancer_public_access_ingress_port_80" {
+  count             = var.public_access_enabled ? 1 : 0
+  description       = "Port 80 production public ingress to the application load balancer"
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"] #tfsec:ignore:aws-vpc-no-public-ingress-sgr - open ingress for production
+  security_group_id = aws_security_group.app_loadbalancer.id
+  provider          = aws.region
+}
+
 resource "aws_security_group_rule" "app_loadbalancer_egress" {
   description       = "Allow any egress from service load balancer"
   type              = "egress"

@@ -105,7 +105,7 @@ func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData AppD
 		return nil
 	}
 
-	return s.sendAttorney(ctx, appData, attorney.Email,
+	return s.sendAttorney(ctx, attorney.Email,
 		notify.InitialOriginalAttorneyEmail{
 			AttorneyFullName:          attorney.FullName(),
 			DonorFirstNames:           donor.Donor.FirstNames,
@@ -126,7 +126,7 @@ func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData A
 		return nil
 	}
 
-	return s.sendAttorney(ctx, appData, attorney.Email,
+	return s.sendAttorney(ctx, attorney.Email,
 		notify.InitialReplacementAttorneyEmail{
 			AttorneyFullName:          attorney.FullName(),
 			DonorFirstNames:           donor.Donor.FirstNames,
@@ -147,7 +147,7 @@ func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData AppD
 		return nil
 	}
 
-	return s.sendAttorney(ctx, appData, trustCorporation.Email,
+	return s.sendAttorney(ctx, trustCorporation.Email,
 		notify.InitialOriginalAttorneyEmail{
 			AttorneyFullName:          trustCorporation.Name,
 			DonorFirstNames:           donor.Donor.FirstNames,
@@ -168,7 +168,7 @@ func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, a
 		return nil
 	}
 
-	return s.sendAttorney(ctx, appData, trustCorporation.Email,
+	return s.sendAttorney(ctx, trustCorporation.Email,
 		notify.InitialReplacementAttorneyEmail{
 			AttorneyFullName:          trustCorporation.Name,
 			DonorFirstNames:           donor.Donor.FirstNames,
@@ -185,7 +185,7 @@ func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, a
 		})
 }
 
-func (s *ShareCodeSender) sendAttorney(ctx context.Context, appData AppData, to string, email shareCodeEmail, shareCodeData actor.ShareCodeData) error {
+func (s *ShareCodeSender) sendAttorney(ctx context.Context, to string, email shareCodeEmail, shareCodeData actor.ShareCodeData) error {
 	shareCode := s.randomString(12)
 	if s.useTestCode {
 		shareCode = "abcdef123456"

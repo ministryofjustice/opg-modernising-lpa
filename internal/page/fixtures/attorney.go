@@ -3,6 +3,7 @@ package fixtures
 import (
 	"context"
 	"encoding/base64"
+	"log"
 	"net/http"
 	"slices"
 	"time"
@@ -59,10 +60,15 @@ func Attorney(
 			progress           = slices.Index(progressValues, r.FormValue("progress"))
 			email              = r.FormValue("email")
 			redirect           = r.FormValue("redirect")
+			attorneySub        = r.FormValue("attorneySub")
 		)
 
+		if attorneySub == "" {
+			attorneySub = random.String(16)
+		}
+
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
-			return tmpl(w, &fixturesData{App: appData})
+			return tmpl(w, &fixturesData{App: appData, Sub: attorneySub})
 		}
 
 		if lpaType == "hw" && isTrustCorporation {
@@ -71,7 +77,6 @@ func Attorney(
 
 		var (
 			donorSub                     = random.String(16)
-			attorneySub                  = random.String(16)
 			certificateProviderSub       = random.String(16)
 			donorSessionID               = base64.StdEncoding.EncodeToString([]byte(donorSub))
 			certificateProviderSessionID = base64.StdEncoding.EncodeToString([]byte(certificateProviderSub))
@@ -287,6 +292,8 @@ func Attorney(
 		} else {
 			redirect = "/attorney/" + donor.LpaID + redirect
 		}
+
+		log.Println("Logging in with sub", attorneySub)
 
 		http.Redirect(w, r, redirect, http.StatusFound)
 		return nil
