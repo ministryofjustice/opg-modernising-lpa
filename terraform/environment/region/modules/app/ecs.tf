@@ -74,7 +74,7 @@ resource "aws_security_group_rule" "app_ecs_service_egress" {
 }
 
 resource "aws_ecs_task_definition" "app" {
-  family                   = local.name_prefix
+  family                   = "${local.name_prefix}-app"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 512
