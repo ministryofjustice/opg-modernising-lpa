@@ -74,7 +74,7 @@ resource "aws_security_group_rule" "app_ecs_service_egress" {
 }
 
 resource "aws_ecs_task_definition" "app" {
-  family                   = local.name_prefix
+  family                   = "${local.name_prefix}-app"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 512
@@ -138,6 +138,11 @@ data "aws_secretsmanager_secret" "gov_uk_notify_api_key" {
 
 data "aws_secretsmanager_secret" "os_postcode_lookup_api_key" {
   name     = "os-postcode-lookup-api-key"
+  provider = aws.region
+}
+
+data "aws_secretsmanager_secret" "lpa_store_jwt_secret_key" {
+  name     = "lpa-store-jwt-secret-key"
   provider = aws.region
 }
 
@@ -225,6 +230,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
       data.aws_secretsmanager_secret.gov_uk_notify_api_key.arn,
       data.aws_secretsmanager_secret.gov_uk_onelogin_identity_public_key.arn,
       data.aws_secretsmanager_secret.gov_uk_pay_api_key.arn,
+      data.aws_secretsmanager_secret.lpa_store_jwt_secret_key.arn,
       data.aws_secretsmanager_secret.os_postcode_lookup_api_key.arn,
       data.aws_secretsmanager_secret.private_jwt_key.arn,
     ]
@@ -407,6 +413,10 @@ locals {
           name  = "EVENT_BUS_NAME",
           value = var.event_bus.name
         },
+        {
+          name = "LPA_STORE_BASE_URL",
+          value = var.lpa_store_base_url
+        }
       ]
     }
   )
