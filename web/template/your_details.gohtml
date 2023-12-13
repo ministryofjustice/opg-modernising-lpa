@@ -15,7 +15,7 @@
 
         {{ template "name-warning" . }}
 
-        {{ template "input" (input . "other-names" "otherNames" .Form.OtherNames "hint" "otherNamesHint" "classes" "govuk-input--width-20") }}
+        {{ template "input" (input . "other-names" "otherNamesYouAreKnownByOptional" .Form.OtherNames "hint" "otherNamesHint" "classes" "govuk-input--width-20") }}
 
         {{ template "date" (input . "date-of-birth" "dateOfBirth" .Form.Dob "hint" "dateOfBirthHint") }}
 
@@ -29,7 +29,7 @@
             <p class="govuk-body">{{ tr .App "canYouSignYourselfGuidance" }}</p>
 
             {{ template "error-message" (errorMessage . "can-sign") }}
-            
+
             {{ template "radios" (items . "can-sign" .Form.CanSign.String
               (item .YesNoMaybeOptions.Yes.String "yesGallaf")
               (item .YesNoMaybeOptions.No.String "noNaAllaf")
@@ -37,7 +37,7 @@
             ) }}
           </fieldset>
         </div>
-        
+
         {{ template "continue-button" . }}
         {{ template "csrf-field" . }}
       </form>
