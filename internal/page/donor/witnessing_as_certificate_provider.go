@@ -17,7 +17,13 @@ type witnessingAsCertificateProviderData struct {
 	Donor  *actor.DonorProvidedDetails
 }
 
-func WitnessingAsCertificateProvider(tmpl template.Template, donorStore DonorStore, shareCodeSender ShareCodeSender, now func() time.Time) Handler {
+func WitnessingAsCertificateProvider(
+	tmpl template.Template,
+	donorStore DonorStore,
+	shareCodeSender ShareCodeSender,
+	lpaStoreClient LpaStoreClient,
+	now func() time.Time,
+) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &witnessingAsCertificateProviderData{
 			App:   appData,
@@ -56,6 +62,10 @@ func WitnessingAsCertificateProvider(tmpl template.Template, donorStore DonorSto
 			}
 
 			if data.Errors.None() {
+				if err := lpaStoreClient.SendLpa(r.Context(), donor); err != nil {
+					return err
+				}
+
 				if donor.Tasks.PayForLpa.IsCompleted() {
 					if err := shareCodeSender.SendCertificateProviderPrompt(r.Context(), appData, donor); err != nil {
 						return err
