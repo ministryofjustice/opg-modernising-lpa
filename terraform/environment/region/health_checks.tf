@@ -1,6 +1,6 @@
 resource "aws_route53_health_check" "service_health_check" {
   fqdn              = aws_route53_record.app.fqdn
-  reference_name    = "${substr(data.aws_default_tags.current.tags.environment-name, 0, 20)}-health-check"
+  reference_name    = "${substr(data.aws_default_tags.current.tags.environment-name, 0, 20)}-service-hc"
   port              = 443
   type              = "HTTPS"
   failure_threshold = 1
@@ -36,7 +36,7 @@ resource "aws_cloudwatch_metric_alarm" "service_health_check" {
 
 resource "aws_route53_health_check" "dependency_health_check" {
   fqdn              = aws_route53_record.app.fqdn
-  reference_name    = "${substr(data.aws_default_tags.current.tags.environment-name, 0, 20)}-dependency-health-check"
+  reference_name    = "${substr(data.aws_default_tags.current.tags.environment-name, 0, 20)}-dependency-hc"
   port              = 443
   type              = "HTTPS"
   failure_threshold = 1
