@@ -60,7 +60,7 @@ func Attorney(
 			progress           = slices.Index(progressValues, r.FormValue("progress"))
 			email              = r.FormValue("email")
 			redirect           = r.FormValue("redirect")
-			attorneySub        = r.FormValue("sub")
+			attorneySub        = r.FormValue("attorneySub")
 		)
 
 		if attorneySub == "" {

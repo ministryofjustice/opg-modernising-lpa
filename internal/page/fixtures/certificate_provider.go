@@ -45,7 +45,7 @@ func CertificateProvider(
 			email                             = r.FormValue("email")
 			redirect                          = r.FormValue("redirect")
 			asProfessionalCertificateProvider = r.FormValue("relationship") == "professional"
-			certificateProviderSub            = r.FormValue("sub")
+			certificateProviderSub            = r.FormValue("certificateProviderSub")
 		)
 
 		if certificateProviderSub == "" {

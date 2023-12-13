@@ -77,7 +77,7 @@ func Donor(
 			useRealUID                = r.FormValue("uid") == "real"
 			certificateProviderEmail  = r.FormValue("certificateProviderEmail")
 			certificateProviderMobile = r.FormValue("certificateProviderMobile")
-			donorSub                  = r.FormValue("sub")
+			donorSub                  = r.FormValue("donorSub")
 		)
 
 		if donorSub == "" {
