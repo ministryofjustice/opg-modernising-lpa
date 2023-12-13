@@ -596,7 +596,7 @@ func TestYourDetailsFormValidate(t *testing.T) {
 			errors: validation.
 				With("first-names", validation.StringTooLongError{Label: "firstNames", Length: 53}).
 				With("last-name", validation.StringTooLongError{Label: "lastName", Length: 61}).
-				With("other-names", validation.StringTooLongError{Label: "otherNamesLabel", Length: 50}),
+				With("other-names", validation.StringTooLongError{Label: "otherNamesYouAreKnownBy", Length: 50}),
 		},
 		"future dob": {
 			form: &yourDetailsForm{
