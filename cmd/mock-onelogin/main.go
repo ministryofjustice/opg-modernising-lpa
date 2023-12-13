@@ -39,6 +39,7 @@ type sessionData struct {
 	user     string
 	nonce    string
 	identity bool
+	sub      string
 }
 
 type OpenIdConfig struct {
@@ -132,6 +133,19 @@ func authorize() http.HandlerFunc {
 			return
 		}
 
+		if r.Method == http.MethodGet {
+			io.WriteString(w, `<!doctype html>
+<style>body { font-family: sans-serif; font-size: 21px; margin: 2rem; } label { padding: .5rem 0; display: block; } button { font-family: inherit; font-size: 21px; padding: .3rem .5rem; margin-top: 1rem; display: block; }</style>
+<h1>Mock GOV.UK One Login</h1>
+<form method="post">
+<p>Sign in using a OneLogin sub (to ignore, leave empty)</p>
+<label for="sub">OneLogin sub</label>
+<input type="text" name="sub" id=f-sub />
+<button type="submit">Sign in</button>
+</form>`)
+			return
+		}
+
 		redirectUri := r.FormValue("redirect_uri")
 		if redirectUri == "" {
 			log.Fatal("Required query param 'redirect_uri' missing from request")
@@ -156,7 +170,9 @@ func authorize() http.HandlerFunc {
 			nonce:    r.FormValue("nonce"),
 			user:     r.FormValue("user"),
 			identity: wantsIdentity,
+			sub:      r.FormValue("sub"),
 		}
+
 		u.RawQuery = q.Encode()
 
 		log.Printf("Redirecting to %s", u.String())
@@ -166,16 +182,22 @@ func authorize() http.HandlerFunc {
 
 func userInfo(privateKey *ecdsa.PrivateKey) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		token := tokens[strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")]
+
+		sub := randomString("sub-", 12)
+
+		if token.sub != "" {
+			sub = token.sub
+		}
+
 		userInfo := UserInfoResponse{
-			Sub:           randomString("sub-", 12),
+			Sub:           sub,
 			Email:         "simulate-delivered@notifications.service.gov.uk",
 			EmailVerified: true,
 			Phone:         "01406946277",
 			PhoneVerified: true,
 			UpdatedAt:     1311280970,
 		}
-
-		token := tokens[strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")]
 
 		if token.identity {
 			givenName, familyName, birthDate := userDetails(token.user)
@@ -204,6 +226,7 @@ func userInfo(privateKey *ecdsa.PrivateKey) http.HandlerFunc {
 			}).SignedString(privateKey)
 		}
 
+		log.Printf("Logging in with sub %s", sub)
 		json.NewEncoder(w).Encode(userInfo)
 	}
 }

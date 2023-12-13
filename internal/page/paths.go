@@ -160,6 +160,7 @@ type AppPaths struct {
 	CookiesConsent                     Path
 	Dashboard                          Path
 	DashboardFixtures                  Path
+	DonorSubByLpaUID                   Path
 	Fixtures                           Path
 	Login                              Path
 	LoginCallback                      Path
