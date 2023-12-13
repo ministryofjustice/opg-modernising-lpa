@@ -75,10 +75,9 @@ resource "aws_sns_topic" "health_checks" {
 }
 
 resource "pagerduty_service_integration" "service_health_check" {
-  name     = "Modernising LPA ${data.aws_default_tags.current.tags.environment-name} ${data.aws_region.current.name} Service Health Check Alarm"
-  service  = data.pagerduty_service.main.id
-  vendor   = data.pagerduty_vendor.cloudwatch.id
-  provider = aws.region
+  name    = "Modernising LPA ${data.aws_default_tags.current.tags.environment-name} ${data.aws_region.current.name} Service Health Check Alarm"
+  service = data.pagerduty_service.main.id
+  vendor  = data.pagerduty_vendor.cloudwatch.id
 }
 
 resource "aws_sns_topic_subscription" "service_health_check" {
