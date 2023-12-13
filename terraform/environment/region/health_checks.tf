@@ -1,3 +1,8 @@
+data "aws_sns_topic" "health_checks" {
+  name     = "health_checks"
+  provider = aws.global
+}
+
 resource "aws_route53_health_check" "service_health_check" {
   fqdn              = aws_route53_record.app.fqdn
   reference_name    = "${substr(data.aws_default_tags.current.tags.environment-name, 0, 20)}-service-hc"
@@ -34,6 +39,20 @@ resource "aws_cloudwatch_metric_alarm" "service_health_check" {
   provider = aws.global
 }
 
+resource "pagerduty_service_integration" "service_health_check" {
+  name    = "Modernising LPA ${data.aws_default_tags.current.tags.environment-name} Service Health Check Alarm"
+  service = data.pagerduty_service.main.id
+  vendor  = data.pagerduty_vendor.cloudwatch.id
+}
+
+resource "aws_sns_topic_subscription" "service_health_check" {
+  topic_arn              = data.aws_sns_topic.health_checks.arn
+  protocol               = "https"
+  endpoint_auto_confirms = true
+  endpoint               = "https://events.pagerduty.com/integration/${pagerduty_service_integration.service_health_check.integration_key}/enqueue"
+  provider               = aws.global
+}
+
 resource "aws_route53_health_check" "dependency_health_check" {
   fqdn              = aws_route53_record.app.fqdn
   reference_name    = "${substr(data.aws_default_tags.current.tags.environment-name, 0, 20)}-dependency-hc"
@@ -67,25 +86,6 @@ resource "aws_cloudwatch_metric_alarm" "dependency_health_check" {
     HealthCheckId = aws_route53_health_check.dependency_health_check.id
   }
   provider = aws.global
-}
-
-data "aws_sns_topic" "health_checks" {
-  name     = "health_checks"
-  provider = aws.global
-}
-
-resource "pagerduty_service_integration" "service_health_check" {
-  name    = "Modernising LPA ${data.aws_default_tags.current.tags.environment-name} Service Health Check Alarm"
-  service = data.pagerduty_service.main.id
-  vendor  = data.pagerduty_vendor.cloudwatch.id
-}
-
-resource "aws_sns_topic_subscription" "service_health_check" {
-  topic_arn              = data.aws_sns_topic.health_checks.arn
-  protocol               = "https"
-  endpoint_auto_confirms = true
-  endpoint               = "https://events.pagerduty.com/integration/${pagerduty_service_integration.service_health_check.integration_key}/enqueue"
-  provider               = aws.global
 }
 
 resource "pagerduty_service_integration" "dependency_health_check" {
