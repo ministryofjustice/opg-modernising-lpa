@@ -161,6 +161,11 @@ type DashboardStore interface {
 	SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error)
 }
 
+//go:generate mockery --testonly --inpackage --name LpaStoreClient --structname mockLpaStoreClient
+type LpaStoreClient interface {
+	SendLpa(context.Context, *actor.DonorProvidedDetails) error
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -182,6 +187,7 @@ func Register(
 	documentStore DocumentStore,
 	eventClient EventClient,
 	dashboardStore DashboardStore,
+	lpaStoreClient LpaStoreClient,
 ) {
 	payer := &payHelper{
 		logger:       logger,
@@ -373,7 +379,7 @@ func Register(
 	handleWithDonor(page.Paths.ChangeIndependentWitnessMobileNumber, page.CanGoBack,
 		ChangeMobileNumber(tmpls.Get("change_mobile_number.gohtml"), witnessCodeSender, actor.TypeIndependentWitness))
 	handleWithDonor(page.Paths.WitnessingAsCertificateProvider, page.None,
-		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), donorStore, shareCodeSender, time.Now))
+		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), donorStore, shareCodeSender, lpaStoreClient, time.Now))
 	handleWithDonor(page.Paths.ResendCertificateProviderCode, page.CanGoBack,
 		ResendWitnessCode(tmpls.Get("resend_witness_code.gohtml"), witnessCodeSender, actor.TypeCertificateProvider))
 	handleWithDonor(page.Paths.ChangeCertificateProviderMobileNumber, page.CanGoBack,

@@ -3,47 +3,29 @@ package uid
 import (
 	"bytes"
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
-	"time"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 )
-
-const apiGatewayServiceName = "execute-api"
 
 //go:generate mockery --testonly --inpackage --name Doer --structname mockDoer
 type Doer interface {
 	Do(*http.Request) (*http.Response, error)
 }
 
-//go:generate mockery --testonly --inpackage --name v4Signer --structname mockV4Signer
-type v4Signer interface {
-	SignHTTP(context.Context, aws.Credentials, *http.Request, string, string, string, time.Time, ...func(options *v4.SignerOptions)) error
-}
-
 type Client struct {
-	baseURL    string
-	httpClient Doer
-	cfg        aws.Config
-	signer     v4Signer
-	now        func() time.Time
+	baseURL string
+	doer    Doer
 }
 
-func New(baseURL string, httpClient Doer, cfg aws.Config, signer v4Signer, now func() time.Time) *Client {
+func New(baseURL string, lambdaClient Doer) *Client {
 	return &Client{
-		baseURL:    baseURL,
-		httpClient: httpClient,
-		cfg:        cfg,
-		signer:     signer,
-		now:        now,
+		baseURL: baseURL,
+		doer:    lambdaClient,
 	}
 }
 
@@ -77,19 +59,13 @@ func (c *Client) CreateCase(ctx context.Context, body *CreateCaseRequestBody) (s
 	body.Source = "APPLICANT"
 	data, _ := json.Marshal(body)
 
-	r, err := http.NewRequest(http.MethodPost, c.baseURL+"/cases", bytes.NewReader(data))
+	r, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/cases", bytes.NewReader(data))
 	if err != nil {
 		return "", err
 	}
-
 	r.Header.Add("Content-Type", "application/json")
 
-	err = c.sign(ctx, r, apiGatewayServiceName)
-	if err != nil {
-		return "", err
-	}
-
-	resp, err := c.httpClient.Do(r)
+	resp, err := c.doer.Do(r)
 	if err != nil {
 		return "", err
 	}
@@ -119,11 +95,7 @@ func (c *Client) CheckHealth(ctx context.Context) error {
 		return err
 	}
 
-	if err = c.sign(ctx, req, apiGatewayServiceName); err != nil {
-		return err
-	}
-
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.doer.Do(req)
 	if err != nil {
 		return err
 	}
@@ -157,27 +129,4 @@ func (c *CreateCaseResponse) Error() error {
 	}
 
 	return errors.New(detail)
-}
-
-func (c *Client) sign(ctx context.Context, req *http.Request, serviceName string) error {
-	hash := sha256.New()
-
-	if req.Body != nil {
-		var reqBody bytes.Buffer
-
-		if _, err := io.Copy(hash, io.TeeReader(req.Body, &reqBody)); err != nil {
-			return err
-		}
-
-		req.Body = io.NopCloser(&reqBody)
-	}
-
-	encodedBody := hex.EncodeToString(hash.Sum(nil))
-
-	credentials, err := c.cfg.Credentials.Retrieve(ctx)
-	if err != nil {
-		return err
-	}
-
-	return c.signer.SignHTTP(ctx, credentials, req, encodedBody, serviceName, c.cfg.Region, c.now().UTC())
 }
