@@ -19,6 +19,20 @@
           {{ end }}
         </div>
 
+        {{ if .Donor.Donor.OtherNames }}
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "otherNamesYouAreKnownBy" }}</dt>
+            <dd class="govuk-summary-list__value">{{ .Donor.Donor.OtherNames }}</dd>
+            {{ if $canChange }}
+              <dd class="govuk-summary-list__actions">
+                <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (.App.Paths.YourDetails.Format .App.LpaID) }}?from={{.App.Page}}#f-other-names">
+                  {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "otherNamesYouAreKnownBy" }}</span>
+                </a>
+              </dd>
+            {{ end }}
+          </div>
+        {{ end }}
+
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">{{ tr .App "dateOfBirth" }}</dt>
           <dd class="govuk-summary-list__value">{{ formatDate .App .Donor.Donor.DateOfBirth }}</dd>
