@@ -37,18 +37,6 @@ var (
 	testNowFn = func() time.Time { return testNow }
 )
 
-func (m *mockDonorStore) willReturnEmptyLpa(r *http.Request) *mockDonorStore {
-	m.
-		On("Get", r.Context()).
-		Return(&actor.DonorProvidedDetails{
-			CertificateProvider: actor.CertificateProvider{
-				Email: "certificateprovider@example.com",
-			},
-		}, nil)
-
-	return m
-}
-
 func (m *mockDonorStore) withCompletedPaymentLpaData(r *http.Request, paymentId, paymentReference string, paymentAmount int) *mockDonorStore {
 	m.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
