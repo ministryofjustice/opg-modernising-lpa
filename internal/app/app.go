@@ -17,6 +17,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -86,6 +87,7 @@ func App(
 	oneloginURL string,
 	s3Client S3Client,
 	eventClient *event.Client,
+	lpaStoreClient *lpastore.Client,
 ) http.Handler {
 	documentStore := NewDocumentStore(lpaDynamoClient, s3Client, eventClient, random.UuidString, time.Now)
 
@@ -192,6 +194,7 @@ func App(
 		documentStore,
 		eventClient,
 		dashboardStore,
+		lpaStoreClient,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang, rumConfig, staticHash, oneloginURL)

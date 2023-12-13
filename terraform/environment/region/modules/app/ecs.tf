@@ -141,6 +141,11 @@ data "aws_secretsmanager_secret" "os_postcode_lookup_api_key" {
   provider = aws.region
 }
 
+data "aws_secretsmanager_secret" "lpa_store_jwt_secret_key" {
+  name     = "lpa-store-jwt-secret-key"
+  provider = aws.region
+}
+
 data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id" {
   name     = "rum-monitor-identity-pool-id-${data.aws_region.current.name}"
   provider = aws.region
@@ -225,6 +230,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
       data.aws_secretsmanager_secret.gov_uk_notify_api_key.arn,
       data.aws_secretsmanager_secret.gov_uk_onelogin_identity_public_key.arn,
       data.aws_secretsmanager_secret.gov_uk_pay_api_key.arn,
+      data.aws_secretsmanager_secret.lpa_store_jwt_secret_key.arn,
       data.aws_secretsmanager_secret.os_postcode_lookup_api_key.arn,
       data.aws_secretsmanager_secret.private_jwt_key.arn,
     ]
@@ -407,6 +413,10 @@ locals {
           name  = "EVENT_BUS_NAME",
           value = var.event_bus.name
         },
+        {
+          name = "LPA_STORE_BASE_URL",
+          value = var.lpa_store_base_url
+        }
       ]
     }
   )
