@@ -62,7 +62,7 @@ resource "pagerduty_service_integration" "service_health_check" {
 }
 
 resource "aws_sns_topic_subscription" "service_health_check" {
-  topic_arn              = data.aws_sns_topic.health_checks.arn
+  topic_arn              = aws_sns_topic.service_health_checks_global.arn
   protocol               = "https"
   endpoint_auto_confirms = true
   endpoint               = "https://events.pagerduty.com/integration/${pagerduty_service_integration.service_health_check.integration_key}/enqueue"
@@ -132,7 +132,7 @@ resource "pagerduty_service_integration" "dependency_health_check" {
 }
 
 resource "aws_sns_topic_subscription" "dependency_health_check" {
-  topic_arn              = data.aws_sns_topic.health_checks.arn
+  topic_arn              = aws_sns_topic.dependency_health_checks_global.arn
   protocol               = "https"
   endpoint_auto_confirms = true
   endpoint               = "https://events.pagerduty.com/integration/${pagerduty_service_integration.service_health_check.integration_key}/enqueue"
