@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -139,6 +140,28 @@ func (l *DonorProvidedDetails) DonorIdentityConfirmed() bool {
 
 func (l *DonorProvidedDetails) AttorneysAndCpSigningDeadline() time.Time {
 	return l.SignedAt.Add((24 * time.Hour) * 28)
+}
+
+func (l *DonorProvidedDetails) AttorneysUnder18() (attorneys []Attorney, replacementAttorneys []Attorney) {
+	for _, a := range l.Attorneys.Attorneys {
+		if a.DateOfBirth.Before(date.Today().AddDate(-18, 0, 0)) {
+			attorneys = append(attorneys, a)
+		}
+	}
+
+	for _, ra := range l.ReplacementAttorneys.Attorneys {
+		if ra.DateOfBirth.Before(date.Today().AddDate(-18, 0, 0)) {
+			replacementAttorneys = append(replacementAttorneys, ra)
+		}
+	}
+
+	return attorneys, replacementAttorneys
+}
+
+type Under18Attorneys struct {
+	Name        string
+	DateOfBirth date.Date
+	ChangeLink  string
 }
 
 type Progress struct {

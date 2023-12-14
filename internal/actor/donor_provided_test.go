@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -73,6 +74,28 @@ func TestAttorneysSigningDeadline(t *testing.T) {
 
 	expected := time.Date(2020, time.January, 30, 3, 4, 5, 6, time.UTC)
 	assert.Equal(t, expected, donor.AttorneysAndCpSigningDeadline())
+}
+
+func TestAttorneysUnder18(t *testing.T) {
+	now := date.Today()
+	Under18YearsAgo := date.New(now.AddDate(-17, 0, 0).YearString(), "1", "2")
+	Over18YearsAgo := date.New(now.AddDate(-19, 0, 0).YearString(), "1", "2")
+
+	donor := DonorProvidedDetails{
+		Attorneys: Attorneys{Attorneys: []Attorney{
+			{FirstNames: "a", LastName: "b", DateOfBirth: Under18YearsAgo},
+			{FirstNames: "c", LastName: "d", DateOfBirth: Over18YearsAgo},
+		}},
+		ReplacementAttorneys: Attorneys{Attorneys: []Attorney{
+			{FirstNames: "e", LastName: "f", DateOfBirth: Under18YearsAgo},
+			{FirstNames: "g", LastName: "h", DateOfBirth: Over18YearsAgo},
+		}},
+	}
+
+	attorneys, replacementAttorneys := donor.AttorneysUnder18()
+
+	assert.Equal(t, []Attorney{{FirstNames: "c", LastName: "d", DateOfBirth: Over18YearsAgo}}, attorneys)
+	assert.Equal(t, []Attorney{{FirstNames: "g", LastName: "h", DateOfBirth: Over18YearsAgo}}, replacementAttorneys)
 }
 
 func TestAllAttorneysSigned(t *testing.T) {
