@@ -37,7 +37,7 @@ resource "aws_route53_health_check" "service_health_check" {
 
 resource "aws_cloudwatch_metric_alarm" "service_health_check" {
   alarm_description   = "${data.aws_default_tags.current.tags.environment-name} service health check for"
-  alarm_name          = "${data.aws_default_tags.current.tags.environment-name}-health-check-alarm"
+  alarm_name          = "${data.aws_default_tags.current.tags.environment-name}-service-health-check-alarm"
   alarm_actions       = [aws_sns_topic.service_health_checks_global.arn]
   ok_actions          = [aws_sns_topic.service_health_checks_global.arn]
   comparison_operator = "LessThanThreshold"
