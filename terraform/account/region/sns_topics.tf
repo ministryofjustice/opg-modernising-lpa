@@ -25,7 +25,7 @@ resource "aws_sns_topic" "ecs_autoscaling_alarms" {
 }
 
 resource "aws_sns_topic" "health_checks_global" {
-  name                                     = "health_checks"
+  name                                     = "health-checks"
   kms_master_key_id                        = data.aws_kms_alias.sns_kms_key_alias.target_key_id
   application_failure_feedback_role_arn    = data.aws_iam_role.sns_failure_feedback.arn
   application_success_feedback_role_arn    = data.aws_iam_role.sns_success_feedback.arn
