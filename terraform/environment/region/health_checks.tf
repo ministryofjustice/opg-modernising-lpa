@@ -1,5 +1,5 @@
-data "aws_sns_topic" "health_checks" {
-  name     = "health_checks"
+data "aws_sns_topic" "service_health_checks" {
+  name     = "health-checks"
   provider = aws.global
 }
 
@@ -22,8 +22,8 @@ resource "aws_route53_health_check" "service_health_check" {
 resource "aws_cloudwatch_metric_alarm" "service_health_check" {
   alarm_description   = "${data.aws_default_tags.current.tags.environment-name} service health check for"
   alarm_name          = "${data.aws_default_tags.current.tags.environment-name}-health-check-alarm"
-  alarm_actions       = [aws_sns_topic_subscription.service_health_check.arn]
-  ok_actions          = [aws_sns_topic_subscription.service_health_check.arn]
+  alarm_actions       = [data.aws_sns_topic.health_checks.arn]
+  ok_actions          = [data.aws_sns_topic.health_checks.arn]
   comparison_operator = "LessThanThreshold"
   datapoints_to_alarm = 1
   evaluation_periods  = 1
@@ -53,6 +53,11 @@ resource "aws_sns_topic_subscription" "service_health_check" {
   provider               = aws.global
 }
 
+data "aws_sns_topic" "dependency_health_checks" {
+  name     = "dependency-health-checks"
+  provider = aws.global
+}
+
 resource "aws_route53_health_check" "dependency_health_check" {
   fqdn              = aws_route53_record.app.fqdn
   reference_name    = "${substr(data.aws_default_tags.current.tags.environment-name, 0, 20)}-dependency-hc"
@@ -72,8 +77,8 @@ resource "aws_route53_health_check" "dependency_health_check" {
 resource "aws_cloudwatch_metric_alarm" "dependency_health_check" {
   alarm_description   = "${data.aws_default_tags.current.tags.environment-name} dependency health check for}"
   alarm_name          = "${data.aws_default_tags.current.tags.environment-name}-dependency-health-check-alarm"
-  alarm_actions       = [aws_sns_topic_subscription.dependency_health_check.arn]
-  ok_actions          = [aws_sns_topic_subscription.dependency_health_check.arn]
+  alarm_actions       = [aws_sns_topic.dependency_health_check.arn]
+  ok_actions          = [aws_sns_topic.dependency_health_check.arn]
   comparison_operator = "LessThanThreshold"
   datapoints_to_alarm = 1
   evaluation_periods  = 1
