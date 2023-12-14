@@ -129,3 +129,15 @@ variable "lpa_store_service" {
 variable "mock_onelogin_enabled" {
   type = bool
 }
+
+variable "dependency_health_check_alarm_enabled" {
+  type        = bool
+  description = "Enable the dependency health check alert actions"
+  default     = false
+}
+
+variable "service_health_check_alarm_enabled" {
+  type        = bool
+  description = "Enable the service health check alert actions"
+  default     = false
+}

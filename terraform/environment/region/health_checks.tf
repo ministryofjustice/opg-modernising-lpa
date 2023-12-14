@@ -111,6 +111,7 @@ resource "aws_cloudwatch_metric_alarm" "dependency_health_check" {
   alarm_name          = "${data.aws_default_tags.current.tags.environment-name}-dependency-health-check-alarm"
   alarm_actions       = [aws_sns_topic.dependency_health_checks_global.arn]
   ok_actions          = [aws_sns_topic.dependency_health_checks_global.arn]
+  actions_enabled     = var.enable_dependency_health_check_alarm
   comparison_operator = "LessThanThreshold"
   datapoints_to_alarm = 1
   evaluation_periods  = 1
