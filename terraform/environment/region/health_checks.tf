@@ -38,8 +38,8 @@ resource "aws_route53_health_check" "service_health_check" {
 resource "aws_cloudwatch_metric_alarm" "service_health_check" {
   alarm_description   = "${data.aws_default_tags.current.tags.environment-name} service health check for"
   alarm_name          = "${data.aws_default_tags.current.tags.environment-name}-health-check-alarm"
-  alarm_actions       = [data.aws_sns_topic.health_checks.arn]
-  ok_actions          = [data.aws_sns_topic.health_checks.arn]
+  alarm_actions       = [aws_sns_topic.service_health_checks_global.arn]
+  ok_actions          = [aws_sns_topic.service_health_checks_global.arn]
   comparison_operator = "LessThanThreshold"
   datapoints_to_alarm = 1
   evaluation_periods  = 1
@@ -109,8 +109,8 @@ resource "aws_route53_health_check" "dependency_health_check" {
 resource "aws_cloudwatch_metric_alarm" "dependency_health_check" {
   alarm_description   = "${data.aws_default_tags.current.tags.environment-name} dependency health check for}"
   alarm_name          = "${data.aws_default_tags.current.tags.environment-name}-dependency-health-check-alarm"
-  alarm_actions       = [aws_sns_topic.dependency_health_check.arn]
-  ok_actions          = [aws_sns_topic.dependency_health_check.arn]
+  alarm_actions       = [aws_sns_topic.dependency_health_checks_global.arn]
+  ok_actions          = [aws_sns_topic.dependency_health_checks_global.arn]
   comparison_operator = "LessThanThreshold"
   datapoints_to_alarm = 1
   evaluation_periods  = 1
