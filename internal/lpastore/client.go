@@ -47,13 +47,27 @@ func New(baseURL string, secretsClient SecretsClient, lambdaClient Doer) *Client
 }
 
 type lpaRequest struct {
-	Donor     lpaRequestDonor      `json:"donor"`
-	Attorneys []lpaRequestAttorney `json:"attorneys"`
+	Type                                        string                        `json:"type"`
+	Donor                                       lpaRequestDonor               `json:"donor"`
+	Attorneys                                   []lpaRequestAttorney          `json:"attorneys"`
+	HowAttorneysMakeDecisions                   string                        `json:"howAttorneysMakeDecisions"`
+	HowAttorneysMakeDecisionsDetails            string                        `json:"howAttorneysMakeDecisionsDetails"`
+	HowReplacementAttorneysMakeDecisions        string                        `json:"howReplacementAttorneysMakeDecisions"`
+	HowReplacementAttorneysMakeDecisionsDetails string                        `json:"howReplacementAttorneysMakeDecisionsDetails"`
+	HowReplacementAttorneysStepIn               string                        `json:"howReplacementAttorneysStepIn"`
+	HowReplacementAttorneysStepInDetails        string                        `json:"howReplacementAttorneysStepInDetails"`
+	CertificateProvider                         lpaRequestCertificateProvider `json:"certificateProvider"`
+	PeopleToNotify                              []lpaRequestPersonToNotify    `json:"peopleToNotify"`
+	Restrictions                                string                        `json:"restrictions"`
+	WhenTheLpaCanBeUsed                         string                        `json:"whenTheLpaCanBeUsed,omitempty"`
+	LifeSustainingTreatmentOption               string                        `json:"lifeSustainingTreatmentOption,omitempty"`
+	SignedAt                                    time.Time                     `json:"signedAt"`
 }
 
 type lpaRequestDonor struct {
 	FirstNames        string        `json:"firstNames"`
-	Surname           string        `json:"surname"`
+	Surname           string        `json:"surname"` // TODO: remove when API is changed to take lastName
+	LastName          string        `json:"lastName"`
 	DateOfBirth       date.Date     `json:"dateOfBirth"`
 	Email             string        `json:"email"`
 	Address           place.Address `json:"address"`
@@ -69,16 +83,54 @@ type lpaRequestAttorney struct {
 	Status      string        `json:"status"`
 }
 
+type lpaRequestCertificateProvider struct {
+	FirstNames string        `json:"firstNames"`
+	LastName   string        `json:"lastName"`
+	Email      string        `json:"email"`
+	Address    place.Address `json:"address"`
+	CarryOutBy string        `json:"carryOutBy"`
+}
+
+type lpaRequestPersonToNotify struct {
+	FirstNames string        `json:"firstNames"`
+	LastName   string        `json:"lastName"`
+	Address    place.Address `json:"address"`
+}
+
 func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails) error {
 	body := lpaRequest{
+		Type: donor.Type.String(),
 		Donor: lpaRequestDonor{
 			FirstNames:        donor.Donor.FirstNames,
 			Surname:           donor.Donor.LastName,
+			LastName:          donor.Donor.LastName,
 			DateOfBirth:       donor.Donor.DateOfBirth,
 			Email:             donor.Donor.Email,
 			Address:           donor.Donor.Address,
 			OtherNamesKnownBy: donor.Donor.OtherNames,
 		},
+		CertificateProvider: lpaRequestCertificateProvider{
+			FirstNames: donor.CertificateProvider.FirstNames,
+			LastName:   donor.CertificateProvider.LastName,
+			Email:      donor.CertificateProvider.Email,
+			Address:    donor.CertificateProvider.Address,
+			CarryOutBy: donor.CertificateProvider.CarryOutBy.String(),
+		},
+		HowAttorneysMakeDecisions:                   donor.AttorneyDecisions.How.String(),
+		HowAttorneysMakeDecisionsDetails:            donor.AttorneyDecisions.Details,
+		HowReplacementAttorneysMakeDecisions:        donor.ReplacementAttorneyDecisions.How.String(),
+		HowReplacementAttorneysMakeDecisionsDetails: donor.ReplacementAttorneyDecisions.Details,
+		HowReplacementAttorneysStepIn:               donor.HowShouldReplacementAttorneysStepIn.String(),
+		HowReplacementAttorneysStepInDetails:        donor.HowShouldReplacementAttorneysStepInDetails,
+		Restrictions:                                donor.Restrictions,
+		SignedAt:                                    donor.SignedAt,
+	}
+
+	switch donor.Type {
+	case actor.LpaTypePropertyFinance:
+		body.WhenTheLpaCanBeUsed = donor.WhenCanTheLpaBeUsed.String()
+	case actor.LpaTypeHealthWelfare:
+		body.LifeSustainingTreatmentOption = donor.LifeSustainingTreatmentOption.String()
 	}
 
 	for _, attorney := range donor.Attorneys.Attorneys {
@@ -100,6 +152,14 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 			Email:       attorney.Email,
 			Address:     attorney.Address,
 			Status:      "replacement",
+		})
+	}
+
+	for _, person := range donor.PeopleToNotify {
+		body.PeopleToNotify = append(body.PeopleToNotify, lpaRequestPersonToNotify{
+			FirstNames: person.FirstNames,
+			LastName:   person.LastName,
+			Address:    person.Address,
 		})
 	}
 
