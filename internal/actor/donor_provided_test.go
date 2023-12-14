@@ -77,25 +77,24 @@ func TestAttorneysSigningDeadline(t *testing.T) {
 }
 
 func TestAttorneysUnder18(t *testing.T) {
-	now := date.Today()
-	Under18YearsAgo := date.New(now.AddDate(-17, 0, 0).YearString(), "1", "2")
-	Over18YearsAgo := date.New(now.AddDate(-19, 0, 0).YearString(), "1", "2")
+	under18 := date.Today().AddDate(0, 0, -1)
+	over18 := date.Today().AddDate(-18, 0, -1)
 
 	donor := DonorProvidedDetails{
 		Attorneys: Attorneys{Attorneys: []Attorney{
-			{FirstNames: "a", LastName: "b", DateOfBirth: Under18YearsAgo},
-			{FirstNames: "c", LastName: "d", DateOfBirth: Over18YearsAgo},
+			{FirstNames: "a", LastName: "b", DateOfBirth: under18},
+			{FirstNames: "c", LastName: "d", DateOfBirth: over18},
 		}},
 		ReplacementAttorneys: Attorneys{Attorneys: []Attorney{
-			{FirstNames: "e", LastName: "f", DateOfBirth: Under18YearsAgo},
-			{FirstNames: "g", LastName: "h", DateOfBirth: Over18YearsAgo},
+			{FirstNames: "e", LastName: "f", DateOfBirth: under18},
+			{FirstNames: "g", LastName: "h", DateOfBirth: over18},
 		}},
 	}
 
 	attorneys, replacementAttorneys := donor.AttorneysUnder18()
 
-	assert.Equal(t, []Attorney{{FirstNames: "c", LastName: "d", DateOfBirth: Over18YearsAgo}}, attorneys)
-	assert.Equal(t, []Attorney{{FirstNames: "g", LastName: "h", DateOfBirth: Over18YearsAgo}}, replacementAttorneys)
+	assert.Equal(t, []Attorney{{FirstNames: "a", LastName: "b", DateOfBirth: under18}}, attorneys)
+	assert.Equal(t, []Attorney{{FirstNames: "e", LastName: "f", DateOfBirth: under18}}, replacementAttorneys)
 }
 
 func TestAllAttorneysSigned(t *testing.T) {

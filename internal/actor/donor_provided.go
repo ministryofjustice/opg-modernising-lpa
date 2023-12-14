@@ -143,14 +143,16 @@ func (l *DonorProvidedDetails) AttorneysAndCpSigningDeadline() time.Time {
 }
 
 func (l *DonorProvidedDetails) AttorneysUnder18() (attorneys []Attorney, replacementAttorneys []Attorney) {
+	eighteenYearsAgo := date.Today().AddDate(-18, 0, 0)
+
 	for _, a := range l.Attorneys.Attorneys {
-		if a.DateOfBirth.Before(date.Today().AddDate(-18, 0, 0)) {
+		if a.DateOfBirth.After(eighteenYearsAgo) {
 			attorneys = append(attorneys, a)
 		}
 	}
 
 	for _, ra := range l.ReplacementAttorneys.Attorneys {
-		if ra.DateOfBirth.Before(date.Today().AddDate(-18, 0, 0)) {
+		if ra.DateOfBirth.After(eighteenYearsAgo) {
 			replacementAttorneys = append(replacementAttorneys, ra)
 		}
 	}
