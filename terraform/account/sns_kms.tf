@@ -26,6 +26,12 @@ resource "aws_kms_alias" "sns_alias_eu_west_2" {
   provider      = aws.eu_west_2
 }
 
+resource "aws_kms_alias" "sns_alias_global" {
+  name          = "alias/${local.default_tags.application}_sns_secret_encryption_key"
+  target_key_id = aws_kms_replica_key.sns_replica.key_id
+  provider      = aws.global
+}
+
 # See the following link for further information
 # https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html
 data "aws_iam_policy_document" "sns_kms_merged" {
