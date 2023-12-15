@@ -924,5 +924,11 @@
     "whichLanguageYoudLikeUsToUseWhenWeContactYou": "which language you’d like us to use when we contact you",
     "preferredContactLanguage": "Preferred contact language",
     "addAnotherLpaIfInvited": "Add another LPA if you have been sent an email inviting you to be a {{ .ActorType }}.",
-    "addAnLpa": "Add an LPA"
+    "addAnLpa": "Add an LPA",
+    "youCannotSignYourLpaYet": "You cannot sign your LPA yet",
+    "actorsMustBeOver18WarningBanner": "Everyone named on this LPA must be 18 years old before you can sign it.",
+    "singularActorYouCannotSignYourLpaYetContent": "<p class=\"govuk-body\">The details you have given indicate that someone named on your LPA is under 18 years old.</p> <p class=\"govuk-body\">You cannot sign your LPA until they are 18. If you made a mistake, you can change the date.</p>",
+    "multipleActorsYouCannotSignYourLpaYetContent": "<p class=\"govuk-body\">The details you have given indicate that some people named on your LPA are under 18 years old.</p> <p class=\"govuk-body\">You cannot sign your LPA until they are all 18. If you made a mistake, you can change these dates.</p>",
+    "singularActorIfDateYouEnteredIsCorrectYouMustWaitContent": "<p class=\"govuk-body\">If the date you entered is correct, you must wait until this person is 18 years old before you can sign it.</p>",
+    "multipleActorsIfDateYouEnteredIsCorrectYouMustWaitContent": "<p class=\"govuk-body\">If the dates you entered are correct, you must wait until everyone named on your LPA is 18 years old before you can sign it.</p>"
 }
