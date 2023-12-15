@@ -23,12 +23,12 @@ func TestGenerateHash(t *testing.T) {
 	donor := &DonorProvidedDetails{}
 	hash, err := donor.GenerateHash()
 	assert.Nil(t, err)
-	assert.Equal(t, uint64(0xfc0fd048c2122462), hash)
+	assert.Equal(t, uint64(0x96585b7186793860), hash)
 
 	donor.LpaID = "1"
 	hash, err = donor.GenerateHash()
 	assert.Nil(t, err)
-	assert.Equal(t, uint64(0x5ebbfe89cc2fbb8), hash)
+	assert.Equal(t, uint64(0x230ccd460fa054f0), hash)
 }
 
 func TestIdentityConfirmed(t *testing.T) {
