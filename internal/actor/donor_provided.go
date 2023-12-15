@@ -142,7 +142,7 @@ func (l *DonorProvidedDetails) AttorneysAndCpSigningDeadline() time.Time {
 	return l.SignedAt.Add((24 * time.Hour) * 28)
 }
 
-func (l *DonorProvidedDetails) AttorneysUnder18() (attorneys []Attorney, replacementAttorneys []Attorney) {
+func (l *DonorProvidedDetails) AttorneysUnder18() (attorneys []Attorney) {
 	eighteenYearsAgo := date.Today().AddDate(-18, 0, 0)
 
 	for _, a := range l.Attorneys.Attorneys {
@@ -151,13 +151,19 @@ func (l *DonorProvidedDetails) AttorneysUnder18() (attorneys []Attorney, replace
 		}
 	}
 
+	return attorneys
+}
+
+func (l *DonorProvidedDetails) ReplacementAttorneysUnder18() (replacementAttorneys []Attorney) {
+	eighteenYearsAgo := date.Today().AddDate(-18, 0, 0)
+
 	for _, ra := range l.ReplacementAttorneys.Attorneys {
 		if ra.DateOfBirth.After(eighteenYearsAgo) {
 			replacementAttorneys = append(replacementAttorneys, ra)
 		}
 	}
 
-	return attorneys, replacementAttorneys
+	return replacementAttorneys
 }
 
 type Under18Attorneys struct {

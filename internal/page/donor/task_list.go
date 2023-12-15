@@ -35,12 +35,8 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		signTaskPage := page.Paths.HowToConfirmYourIdentityAndSign
 
-		under18Attorneys, under18ReplacementAttorneys := donor.AttorneysUnder18()
-
 		if donor.DonorIdentityConfirmed() {
 			signTaskPage = page.Paths.ReadYourLpa
-		} else if len(under18Attorneys) > 0 || len(under18ReplacementAttorneys) > 0 {
-			signTaskPage = page.Paths.YouCannotSignYourLpaYet
 		}
 
 		typeSpecificStep := taskListItem{
@@ -71,8 +67,14 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 			paymentPath = page.Paths.AboutPayment.Format(donor.LpaID)
 		}
 
+		under18Attorneys := donor.AttorneysUnder18()
+		under18ReplacementAttorneys := donor.ReplacementAttorneysUnder18()
+
 		checkPath := page.Paths.CheckYourLpa
-		if donor.CertificateProviderSharesDetails() {
+
+		if len(under18Attorneys) > 0 || len(under18ReplacementAttorneys) > 0 {
+			checkPath = page.Paths.YouCannotSignYourLpaYet
+		} else if donor.CertificateProviderSharesDetails() {
 			checkPath = page.Paths.ConfirmYourCertificateProviderIsNotRelated
 		}
 

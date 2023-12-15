@@ -105,9 +105,7 @@ func TestGetTaskList(t *testing.T) {
 					Count: 1,
 				}
 
-				sections[2].Items = []taskListItem{
-					{Name: "confirmYourIdentityAndSign", Path: page.Paths.YouCannotSignYourLpaYet.Format("lpa-id")},
-				}
+				sections[0].Items[8] = taskListItem{Name: "checkAndSendToYourCertificateProvider", Path: page.Paths.YouCannotSignYourLpaYet.Format("lpa-id")}
 
 				return sections
 			},

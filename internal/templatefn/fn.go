@@ -55,6 +55,7 @@ func All(tag, region string) map[string]any {
 		"concatComma":        concatComma,
 		"penceToPounds":      penceToPounds,
 		"canGoTo":            page.CanGoTo,
+		"listUnder18Actors":  listUnder18Actors,
 	}
 }
 
@@ -367,4 +368,32 @@ func concatComma(list []string) string {
 
 func penceToPounds(pence int) string {
 	return humanize.CommafWithDigits(float64(pence)/100, 2)
+}
+
+type under18ActorDetails struct {
+	FullName    string
+	DateOfBirth date.Date
+	ChangeLink  string
+}
+
+func listUnder18Actors(appData page.AppData, attorneys []actor.Attorney, replacementAttorneys []actor.Attorney) []under18ActorDetails {
+	var data []under18ActorDetails
+
+	for _, a := range attorneys {
+		data = append(data, under18ActorDetails{
+			FullName:    a.FullName(),
+			DateOfBirth: a.DateOfBirth,
+			ChangeLink:  appData.Paths.ChooseAttorneys.Format(appData.LpaID) + "?id=" + a.ID,
+		})
+	}
+
+	for _, ra := range replacementAttorneys {
+		data = append(data, under18ActorDetails{
+			FullName:    ra.FullName(),
+			DateOfBirth: ra.DateOfBirth,
+			ChangeLink:  appData.Paths.ChooseReplacementAttorneys.Format(appData.LpaID) + "?id=" + ra.ID,
+		})
+	}
+
+	return data
 }
