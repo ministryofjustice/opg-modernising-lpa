@@ -251,6 +251,7 @@ type AppPaths struct {
 	WitnessingAsIndependentWitness                       LpaPath
 	WitnessingYourSignature                              LpaPath
 	YouHaveSubmittedYourLpa                              LpaPath
+	YouCannotSignYourLpaYet                              LpaPath
 	YourAddress                                          LpaPath
 	YourAuthorisedSignatory                              LpaPath
 	YourDetails                                          LpaPath
@@ -400,6 +401,7 @@ var Paths = AppPaths{
 	WitnessingAsIndependentWitness:                       "/witnessing-as-independent-witness",
 	WitnessingYourSignature:                              "/witnessing-your-signature",
 	YouHaveSubmittedYourLpa:                              "/you-have-submitted-your-lpa",
+	YouCannotSignYourLpaYet:                              "/you-cannot-sign-your-lpa-yet",
 	YourAddress:                                          "/your-address",
 	YourAuthorisedSignatory:                              "/your-authorised-signatory",
 	YourDetails:                                          "/your-details",

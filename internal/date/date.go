@@ -22,7 +22,7 @@ type Date struct {
 	month string
 	day   string
 
-	t   time.Time
+	T   time.Time
 	err error
 }
 
@@ -41,7 +41,7 @@ func New(year, month, day string) Date {
 		year:  year,
 		month: month,
 		day:   day,
-		t:     t,
+		T:     t,
 		err:   err,
 	}
 }
@@ -55,20 +55,20 @@ func FromTime(t time.Time) Date {
 		year:  t.Format("2006"),
 		month: t.Format("1"),
 		day:   t.Format("2"),
-		t:     t.Truncate(24 * time.Hour),
+		T:     t.Truncate(24 * time.Hour),
 	}
 }
 
 func (d Date) Year() int {
-	return d.t.Year()
+	return d.T.Year()
 }
 
 func (d Date) Month() time.Month {
-	return d.t.Month()
+	return d.T.Month()
 }
 
 func (d Date) Day() int {
-	return d.t.Day()
+	return d.T.Day()
 }
 
 func (d Date) YearString() string {
@@ -88,15 +88,15 @@ func (d Date) Valid() bool {
 }
 
 func (d Date) IsZero() bool {
-	return d.t.IsZero()
+	return d.T.IsZero()
 }
 
 func (d Date) Format(format string) string {
-	return d.t.Format(format)
+	return d.T.Format(format)
 }
 
 func (d Date) String() string {
-	return d.t.Format(unpaddedDate)
+	return d.T.Format(unpaddedDate)
 }
 
 func (d Date) Equals(other Date) bool {
@@ -104,15 +104,15 @@ func (d Date) Equals(other Date) bool {
 }
 
 func (d Date) Before(other Date) bool {
-	return d.t.Before(other.t)
+	return d.T.Before(other.T)
 }
 
 func (d Date) After(other Date) bool {
-	return d.t.After(other.t)
+	return d.T.After(other.T)
 }
 
 func (d Date) AddDate(years, months, days int) Date {
-	return FromTime(d.t.AddDate(years, months, days))
+	return FromTime(d.T.AddDate(years, months, days))
 }
 
 func (d *Date) UnmarshalText(text []byte) error {
@@ -137,7 +137,7 @@ func (d Date) MarshalText() ([]byte, error) {
 		return []byte{}, nil
 	}
 
-	return []byte(d.t.Format(time.DateOnly)), nil
+	return []byte(d.T.Format(time.DateOnly)), nil
 }
 
 func (d *Date) UnmarshalDynamoDBAttributeValue(av types.AttributeValue) error {
@@ -152,12 +152,12 @@ func (d *Date) UnmarshalDynamoDBAttributeValue(av types.AttributeValue) error {
 func (d Date) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) {
 	text := ""
 	if !d.IsZero() {
-		text = d.t.Format(unpaddedDate)
+		text = d.T.Format(unpaddedDate)
 	}
 
 	return attributevalue.Marshal(text)
 }
 
 func (d Date) Time() time.Time {
-	return d.t
+	return d.T
 }

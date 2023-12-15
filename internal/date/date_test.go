@@ -21,13 +21,13 @@ func TestNew(t *testing.T) {
 			year:  "2000",
 			month: "3",
 			day:   "4",
-			date:  Date{day: "4", month: "3", year: "2000", t: expected},
+			date:  Date{day: "4", month: "3", year: "2000", T: expected},
 		},
 		"padded": {
 			year:  "2000",
 			month: "03",
 			day:   "04",
-			date:  Date{day: "04", month: "03", year: "2000", t: expected},
+			date:  Date{day: "04", month: "03", year: "2000", T: expected},
 		},
 	}
 
