@@ -10,9 +10,11 @@
             <h1 class="govuk-heading-xl">{{ tr .App "youCannotSignYourLpaYet" }}</h1>
 
             {{ $actorsData := .Donor.Under18ActorDetails }}
+            {{ $from := printf "%s%s" $.App.Page "#f-date-of-birth" }}
 
             {{ if eq 1 (len $actorsData) }}
                 {{ trHtml .App "singularActorYouCannotSignYourLpaYetContent" }}
+                {{ $from = .App.Paths.TaskList.Format .App.LpaID }}
             {{ else }}
                 {{ trHtml .App "multipleActorsYouCannotSignYourLpaYetContent" }}
             {{ end }}
@@ -32,7 +34,7 @@
                             {{ (formatDate $.App $actor.DateOfBirth.Time) }}
                         </dd>
                         <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link" href="{{ $changeLink }}&from={{ $.App.Page }}#f-date-of-birth">{{ tr $.App "change" }}
+                            <a class="govuk-link" href="{{ $changeLink }}&from={{ $from }}">{{ tr $.App "change" }}
                                 <span class="govuk-visually-hidden"> {{ $actor.FullName | possessive $.App }} {{ lowerFirst (tr $.App "dateOfBirth") }}</span>
                             </a>
                         </dd>

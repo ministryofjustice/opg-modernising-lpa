@@ -21,19 +21,15 @@ describe('You cannot sign your LPA yet', () => {
         cy.contains('dt', 'Jessie Jones’ date of birth').parent().contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-attorneys')
-        cy.contains('button', 'Save and continue').click()
+        cy.get('#f-date-of-birth-year').clear().type("2000")
         cy.contains('button', 'Save and continue').click()
         cy.url().should('contain', '/you-cannot-sign-your-lpa-yet')
 
         cy.contains('dt', 'Blake Buckley’s date of birth').parent().contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-replacement-attorneys')
+        cy.get('#f-date-of-birth-year').clear().type("2000")
         cy.contains('button', 'Save and continue').click()
-        cy.contains('button', 'Save and continue').click()
-        cy.url().should('contain', '/you-cannot-sign-your-lpa-yet')
-
-        cy.contains('a', 'Return to task list').click()
-
         cy.url().should('contain', '/task-list')
     });
 });
