@@ -1,0 +1,54 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "youCannotSignYourLpaYet" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {{ template "warning-banner" (warning .App "actorsMustBeOver18WarningBanner") }}
+
+            <h1 class="govuk-heading-xl">{{ tr .App "youCannotSignYourLpaYet" }}</h1>
+
+            {{ $actorsData := .Donor.Under18ActorDetails }}
+            {{ $from := printf "%s%s" $.App.Page "#f-date-of-birth" }}
+
+            {{ if eq 1 (len $actorsData) }}
+                {{ trHtml .App "singularActorYouCannotSignYourLpaYetContent" }}
+                {{ $from = .App.Paths.TaskList.Format .App.LpaID }}
+            {{ else }}
+                {{ trHtml .App "multipleActorsYouCannotSignYourLpaYetContent" }}
+            {{ end }}
+
+            <dl class="govuk-summary-list">
+                {{range $i, $actor := $actorsData }}
+                    {{ $changeLink := printf "%s?id=%s" (link $.App ($.App.Paths.ChooseReplacementAttorneys.Format $.App.LpaID)) $actor.ID }}
+                    {{ if eq $.App.ActorTypes.Attorney $actor.Type }}
+                        {{ $changeLink = printf "%s?id=%s" (link $.App ($.App.Paths.ChooseAttorneys.Format $.App.LpaID)) $actor.ID }}
+                    {{ end }}
+
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            {{ $actor.FullName | possessive $.App }} {{ lowerFirst (tr $.App "dateOfBirth") }}
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            {{ (formatDate $.App $actor.DateOfBirth.Time) }}
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="{{ $changeLink }}&from={{ $from }}">{{ tr $.App "change" }}
+                                <span class="govuk-visually-hidden"> {{ $actor.FullName | possessive $.App }} {{ lowerFirst (tr $.App "dateOfBirth") }}</span>
+                            </a>
+                        </dd>
+                    </div>
+                {{ end }}
+            </dl>
+
+            {{ if eq 1 (len $actorsData) }}
+                {{ trHtml .App "singularActorIfDateYouEnteredIsCorrectYouMustWaitContent" }}
+            {{ else }}
+                {{ trHtml .App "multipleActorsIfDateYouEnteredIsCorrectYouMustWaitContent" }}
+            {{ end }}
+
+            <a href="{{ .App.Paths.TaskList.Format .App.LpaID }}" class="govuk-link govuk-button">{{ tr .App "returnToTaskList" }}</a>
+        </div>
+    </div>
+{{ end }}
