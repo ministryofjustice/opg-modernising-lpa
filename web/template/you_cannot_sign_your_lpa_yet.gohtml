@@ -9,9 +9,7 @@
 
             <h1 class="govuk-heading-xl">{{ tr .App "youCannotSignYourLpaYet" }}</h1>
 
-            {{ $attorneys := .Donor.AttorneysUnder18 }}
-            {{ $replacementAttorneys := .Donor.ReplacementAttorneysUnder18 }}
-            {{ $actorsData := (listUnder18Actors .App $attorneys $replacementAttorneys) }}
+            {{ $actorsData := .Donor.Under18ActorDetails }}
 
             {{ if eq 1 (len $actorsData) }}
                 {{ trHtml .App "singularActorYouCannotSignYourLpaYetContent" }}
@@ -21,6 +19,11 @@
 
             <dl class="govuk-summary-list">
                 {{range $i, $actor := $actorsData }}
+                    {{ $changeLink := printf "%s?id=%s" (link $.App ($.App.Paths.ChooseReplacementAttorneys.Format $.App.LpaID)) $actor.ID }}
+                    {{ if eq $.App.ActorTypes.Attorney $actor.Type }}
+                        {{ $changeLink = printf "%s?id=%s" (link $.App ($.App.Paths.ChooseAttorneys.Format $.App.LpaID)) $actor.ID }}
+                    {{ end }}
+
                     <div class="govuk-summary-list__row">
                         <dt class="govuk-summary-list__key">
                             {{ $actor.FullName | possessive $.App }} {{ lowerFirst (tr $.App "dateOfBirth") }}
@@ -29,7 +32,7 @@
                             {{ (formatDate $.App $actor.DateOfBirth.Time) }}
                         </dd>
                         <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link" href="{{ $actor.ChangeLink }}&from={{ $.App.Page }}">{{ tr $.App "change" }}
+                            <a class="govuk-link" href="{{ $changeLink }}&from={{ $.App.Page }}#f-date-of-birth">{{ tr $.App "change" }}
                                 <span class="govuk-visually-hidden"> {{ $actor.FullName | possessive $.App }} {{ lowerFirst (tr $.App "dateOfBirth") }}</span>
                             </a>
                         </dd>

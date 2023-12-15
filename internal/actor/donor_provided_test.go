@@ -76,36 +76,28 @@ func TestAttorneysSigningDeadline(t *testing.T) {
 	assert.Equal(t, expected, donor.AttorneysAndCpSigningDeadline())
 }
 
-func TestAttorneysUnder18(t *testing.T) {
+func TestUnder18ActorDetails(t *testing.T) {
 	under18 := date.Today().AddDate(0, 0, -1)
 	over18 := date.Today().AddDate(-18, 0, -1)
 
 	donor := DonorProvidedDetails{
+		LpaID: "lpa-id",
 		Attorneys: Attorneys{Attorneys: []Attorney{
-			{FirstNames: "a", LastName: "b", DateOfBirth: under18},
-			{FirstNames: "c", LastName: "d", DateOfBirth: over18},
+			{FirstNames: "a", LastName: "b", DateOfBirth: under18, ID: "1"},
+			{FirstNames: "c", LastName: "d", DateOfBirth: over18, ID: "2"},
 		}},
-	}
-
-	attorneys := donor.AttorneysUnder18()
-
-	assert.Equal(t, []Attorney{{FirstNames: "a", LastName: "b", DateOfBirth: under18}}, attorneys)
-}
-
-func TestReplacementAttorneysUnder18(t *testing.T) {
-	under18 := date.Today().AddDate(0, 0, -1)
-	over18 := date.Today().AddDate(-18, 0, -1)
-
-	donor := DonorProvidedDetails{
 		ReplacementAttorneys: Attorneys{Attorneys: []Attorney{
-			{FirstNames: "e", LastName: "f", DateOfBirth: under18},
-			{FirstNames: "g", LastName: "h", DateOfBirth: over18},
+			{FirstNames: "e", LastName: "f", DateOfBirth: under18, ID: "3"},
+			{FirstNames: "g", LastName: "h", DateOfBirth: over18, ID: "4"},
 		}},
 	}
 
-	replacementAttorneys := donor.ReplacementAttorneysUnder18()
+	actors := donor.Under18ActorDetails()
 
-	assert.Equal(t, []Attorney{{FirstNames: "e", LastName: "f", DateOfBirth: under18}}, replacementAttorneys)
+	assert.Equal(t, []Under18ActorDetails{
+		{FullName: "a b", DateOfBirth: under18, ID: "1", Type: TypeAttorney},
+		{FullName: "e f", DateOfBirth: under18, ID: "3", Type: TypeReplacementAttorney},
+	}, actors)
 }
 
 func TestAllAttorneysSigned(t *testing.T) {

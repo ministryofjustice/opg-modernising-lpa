@@ -142,34 +142,40 @@ func (l *DonorProvidedDetails) AttorneysAndCpSigningDeadline() time.Time {
 	return l.SignedAt.Add((24 * time.Hour) * 28)
 }
 
-func (l *DonorProvidedDetails) AttorneysUnder18() (attorneys []Attorney) {
+type Under18ActorDetails struct {
+	FullName    string
+	DateOfBirth date.Date
+	ID          string
+	Type        Type
+}
+
+func (l *DonorProvidedDetails) Under18ActorDetails() []Under18ActorDetails {
+	var data []Under18ActorDetails
 	eighteenYearsAgo := date.Today().AddDate(-18, 0, 0)
 
 	for _, a := range l.Attorneys.Attorneys {
 		if a.DateOfBirth.After(eighteenYearsAgo) {
-			attorneys = append(attorneys, a)
+			data = append(data, Under18ActorDetails{
+				FullName:    a.FullName(),
+				DateOfBirth: a.DateOfBirth,
+				ID:          a.ID,
+				Type:        TypeAttorney,
+			})
 		}
 	}
-
-	return attorneys
-}
-
-func (l *DonorProvidedDetails) ReplacementAttorneysUnder18() (replacementAttorneys []Attorney) {
-	eighteenYearsAgo := date.Today().AddDate(-18, 0, 0)
 
 	for _, ra := range l.ReplacementAttorneys.Attorneys {
 		if ra.DateOfBirth.After(eighteenYearsAgo) {
-			replacementAttorneys = append(replacementAttorneys, ra)
+			data = append(data, Under18ActorDetails{
+				FullName:    ra.FullName(),
+				DateOfBirth: ra.DateOfBirth,
+				ID:          ra.ID,
+				Type:        TypeReplacementAttorney,
+			})
 		}
 	}
 
-	return replacementAttorneys
-}
-
-type Under18Attorneys struct {
-	Name        string
-	DateOfBirth date.Date
-	ChangeLink  string
+	return data
 }
 
 type Progress struct {

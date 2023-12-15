@@ -67,12 +67,9 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 			paymentPath = page.Paths.AboutPayment.Format(donor.LpaID)
 		}
 
-		under18Attorneys := donor.AttorneysUnder18()
-		under18ReplacementAttorneys := donor.ReplacementAttorneysUnder18()
-
 		checkPath := page.Paths.CheckYourLpa
 
-		if len(under18Attorneys) > 0 || len(under18ReplacementAttorneys) > 0 {
+		if len(donor.Under18ActorDetails()) > 0 {
 			checkPath = page.Paths.YouCannotSignYourLpaYet
 		} else if donor.CertificateProviderSharesDetails() {
 			checkPath = page.Paths.ConfirmYourCertificateProviderIsNotRelated
