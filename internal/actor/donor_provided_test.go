@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -73,6 +74,30 @@ func TestAttorneysSigningDeadline(t *testing.T) {
 
 	expected := time.Date(2020, time.January, 30, 3, 4, 5, 6, time.UTC)
 	assert.Equal(t, expected, donor.AttorneysAndCpSigningDeadline())
+}
+
+func TestUnder18ActorDetails(t *testing.T) {
+	under18 := date.Today().AddDate(0, 0, -1)
+	over18 := date.Today().AddDate(-18, 0, -1)
+
+	donor := DonorProvidedDetails{
+		LpaID: "lpa-id",
+		Attorneys: Attorneys{Attorneys: []Attorney{
+			{FirstNames: "a", LastName: "b", DateOfBirth: under18, ID: "1"},
+			{FirstNames: "c", LastName: "d", DateOfBirth: over18, ID: "2"},
+		}},
+		ReplacementAttorneys: Attorneys{Attorneys: []Attorney{
+			{FirstNames: "e", LastName: "f", DateOfBirth: under18, ID: "3"},
+			{FirstNames: "g", LastName: "h", DateOfBirth: over18, ID: "4"},
+		}},
+	}
+
+	actors := donor.Under18ActorDetails()
+
+	assert.Equal(t, []Under18ActorDetails{
+		{FullName: "a b", DateOfBirth: under18, ID: "1", Type: TypeAttorney},
+		{FullName: "e f", DateOfBirth: under18, ID: "3", Type: TypeReplacementAttorney},
+	}, actors)
 }
 
 func TestAllAttorneysSigned(t *testing.T) {

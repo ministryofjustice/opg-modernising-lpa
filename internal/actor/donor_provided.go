@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -139,6 +140,42 @@ func (l *DonorProvidedDetails) DonorIdentityConfirmed() bool {
 
 func (l *DonorProvidedDetails) AttorneysAndCpSigningDeadline() time.Time {
 	return l.SignedAt.Add((24 * time.Hour) * 28)
+}
+
+type Under18ActorDetails struct {
+	FullName    string
+	DateOfBirth date.Date
+	ID          string
+	Type        Type
+}
+
+func (l *DonorProvidedDetails) Under18ActorDetails() []Under18ActorDetails {
+	var data []Under18ActorDetails
+	eighteenYearsAgo := date.Today().AddDate(-18, 0, 0)
+
+	for _, a := range l.Attorneys.Attorneys {
+		if a.DateOfBirth.After(eighteenYearsAgo) {
+			data = append(data, Under18ActorDetails{
+				FullName:    a.FullName(),
+				DateOfBirth: a.DateOfBirth,
+				ID:          a.ID,
+				Type:        TypeAttorney,
+			})
+		}
+	}
+
+	for _, ra := range l.ReplacementAttorneys.Attorneys {
+		if ra.DateOfBirth.After(eighteenYearsAgo) {
+			data = append(data, Under18ActorDetails{
+				FullName:    ra.FullName(),
+				DateOfBirth: ra.DateOfBirth,
+				ID:          ra.ID,
+				Type:        TypeReplacementAttorney,
+			})
+		}
+	}
+
+	return data
 }
 
 type Progress struct {

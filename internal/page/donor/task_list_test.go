@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -88,6 +89,27 @@ func TestGetTaskList(t *testing.T) {
 				return sections
 			},
 		},
+		"attorneys under 18": {
+			donor: &actor.DonorProvidedDetails{
+				LpaID: "lpa-id",
+				Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "xx"}},
+				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+					{FirstNames: "aa", LastName: "bb", DateOfBirth: date.Today().AddDate(-17, 0, 0), Address: place.Address{Line1: "zz"}},
+				}},
+			},
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[0].Items[1] = taskListItem{
+					Name:  "chooseYourAttorneys",
+					Path:  page.Paths.ChooseAttorneysGuidance.Format("lpa-id"),
+					State: actor.TaskNotStarted,
+					Count: 1,
+				}
+
+				sections[0].Items[8] = taskListItem{Name: "checkAndSendToYourCertificateProvider", Path: page.Paths.YouCannotSignYourLpaYet.Format("lpa-id")}
+
+				return sections
+			},
+		},
 		"certificate provider has similar name": {
 			donor: &actor.DonorProvidedDetails{
 				LpaID:               "lpa-id",
@@ -102,11 +124,16 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"mixed": {
 			donor: &actor.DonorProvidedDetails{
-				LpaID:                "lpa-id",
-				Donor:                actor.Donor{FirstNames: "this"},
-				CertificateProvider:  actor.CertificateProvider{LastName: "a", Address: place.Address{Line1: "x"}},
-				Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{}, {}}},
-				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
+				LpaID:               "lpa-id",
+				Donor:               actor.Donor{FirstNames: "this"},
+				CertificateProvider: actor.CertificateProvider{LastName: "a", Address: place.Address{Line1: "x"}},
+				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+					{DateOfBirth: date.Today().AddDate(-20, 0, 0)},
+					{DateOfBirth: date.Today().AddDate(-20, 0, 0)},
+				}},
+				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+					{DateOfBirth: date.Today().AddDate(-20, 0, 0)},
+				}},
 				Tasks: actor.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,

@@ -34,6 +34,7 @@ type taskListSection struct {
 func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		signTaskPage := page.Paths.HowToConfirmYourIdentityAndSign
+
 		if donor.DonorIdentityConfirmed() {
 			signTaskPage = page.Paths.ReadYourLpa
 		}
@@ -67,7 +68,10 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 		}
 
 		checkPath := page.Paths.CheckYourLpa
-		if donor.CertificateProviderSharesDetails() {
+
+		if len(donor.Under18ActorDetails()) > 0 {
+			checkPath = page.Paths.YouCannotSignYourLpaYet
+		} else if donor.CertificateProviderSharesDetails() {
 			checkPath = page.Paths.ConfirmYourCertificateProviderIsNotRelated
 		}
 

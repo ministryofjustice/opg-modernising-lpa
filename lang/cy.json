@@ -977,5 +977,11 @@
     "whichLanguageYoudLikeUsToUseWhenWeContactYou": "Welsh",
     "preferredContactLanguage": "Welsh",
     "addAnotherLpaIfInvited": "Welsh {{ .ActorType }}.",
-    "addAnLpa": "Welsh"
+    "addAnLpa": "Welsh",
+    "youCannotSignYourLpaYet": "Welsh",
+    "actorsMustBeOver18WarningBanner": "Welsh",
+    "singularActorYouCannotSignYourLpaYetContent": "<p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh</p>",
+    "multipleActorsYouCannotSignYourLpaYetContent": "<p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh</p>",
+    "singularActorIfDateYouEnteredIsCorrectYouMustWaitContent": "<p class=\"govuk-body\">Welsh</p>",
+    "multipleActorsIfDateYouEnteredIsCorrectYouMustWaitContent": "<p class=\"govuk-body\">Welsh</p>"
 }
