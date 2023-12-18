@@ -28,6 +28,10 @@ func (i PreviousFee) String() string {
 	return _PreviousFee_name[_PreviousFee_index[i]:_PreviousFee_index[i+1]]
 }
 
+func (i PreviousFee) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
+}
+
 func (i PreviousFee) IsPreviousFeeFull() bool {
 	return i == PreviousFeeFull
 }
