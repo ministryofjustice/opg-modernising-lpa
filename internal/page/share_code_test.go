@@ -23,13 +23,13 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyFinance,
+		Type: actor.LpaTypePropertyAndAffairs,
 	}
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", donor.Type.LegalTermTransKey()).
-		Return("property and affairs").
+		On("T", donor.Type.String()).
+		Return("Property and affairs").
 		Once()
 	localizer.
 		On("T", donor.Type.WhatLPACoversTransKey()).
@@ -97,15 +97,15 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyFinance,
+		Type: actor.LpaTypePropertyAndAffairs,
 	}
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			localizer := newMockLocalizer(t)
 			localizer.
-				On("T", donor.Type.LegalTermTransKey()).
-				Return("property and affairs").
+				On("T", donor.Type.String()).
+				Return("Property and affairs").
 				Twice()
 			localizer.
 				On("Possessive", "Jan").
@@ -194,7 +194,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenEmailErrors(t *testing.
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyFinance,
+		Type: actor.LpaTypePropertyAndAffairs,
 	}
 
 	localizer := newMockLocalizer(t)
@@ -256,13 +256,13 @@ func TestShareCodeSenderSendCertificateProviderPrompt(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyFinance,
+		Type: actor.LpaTypePropertyAndAffairs,
 	}
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", donor.Type.LegalTermTransKey()).
-		Return("property and affairs").
+		On("T", donor.Type.String()).
+		Return("Property and affairs").
 		Once()
 	TestAppData.Localizer = localizer
 
@@ -320,15 +320,15 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyFinance,
+		Type: actor.LpaTypePropertyAndAffairs,
 	}
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			localizer := newMockLocalizer(t)
 			localizer.
-				On("T", donor.Type.LegalTermTransKey()).
-				Return("property and affairs").
+				On("T", donor.Type.String()).
+				Return("Property and affairs").
 				Twice()
 
 			TestAppData.Localizer = localizer
@@ -406,7 +406,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWhenEmailErrors(t *testing.
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyFinance,
+		Type: actor.LpaTypePropertyAndAffairs,
 	}
 
 	localizer := newMockLocalizer(t)
@@ -496,12 +496,12 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyFinance,
+		Type: actor.LpaTypePropertyAndAffairs,
 	}
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", donor.Type.LegalTermTransKey()).
+		On("T", donor.Type.String()).
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Jan").
@@ -618,12 +618,12 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyFinance,
+		Type: actor.LpaTypePropertyAndAffairs,
 	}
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", donor.Type.LegalTermTransKey()).
+		On("T", donor.Type.String()).
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Jan").
@@ -697,12 +697,12 @@ func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyFinance,
+		Type: actor.LpaTypePropertyAndAffairs,
 	}
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", donor.Type.LegalTermTransKey()).
+		On("T", donor.Type.String()).
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Jan").
@@ -730,10 +730,10 @@ func TestShareCodeSenderSendAttorneysWhenShareCodeStoreErrors(t *testing.T) {
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", "").
+		On("T", mock.Anything).
 		Return("property and affairs")
 	localizer.
-		On("Possessive", "").
+		On("Possessive", mock.Anything).
 		Return("Jan's")
 	TestAppData.Localizer = localizer
 

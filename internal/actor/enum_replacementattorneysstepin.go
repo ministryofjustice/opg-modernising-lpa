@@ -15,9 +15,9 @@ func _() {
 	_ = x[ReplacementAttorneysStepInAnotherWay-3]
 }
 
-const _ReplacementAttorneysStepIn_name = "alloneother"
+const _ReplacementAttorneysStepIn_name = "all-can-no-longer-actone-can-no-longer-actanother-way"
 
-var _ReplacementAttorneysStepIn_index = [...]uint8{0, 3, 6, 11}
+var _ReplacementAttorneysStepIn_index = [...]uint8{0, 21, 42, 53}
 
 func (i ReplacementAttorneysStepIn) String() string {
 	i -= 1
@@ -25,6 +25,10 @@ func (i ReplacementAttorneysStepIn) String() string {
 		return "ReplacementAttorneysStepIn(" + strconv.FormatInt(int64(i+1), 10) + ")"
 	}
 	return _ReplacementAttorneysStepIn_name[_ReplacementAttorneysStepIn_index[i]:_ReplacementAttorneysStepIn_index[i+1]]
+}
+
+func (i ReplacementAttorneysStepIn) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
 }
 
 func (i ReplacementAttorneysStepIn) IsWhenAllCanNoLongerAct() bool {
@@ -41,11 +45,11 @@ func (i ReplacementAttorneysStepIn) IsAnotherWay() bool {
 
 func ParseReplacementAttorneysStepIn(s string) (ReplacementAttorneysStepIn, error) {
 	switch s {
-	case "all":
+	case "all-can-no-longer-act":
 		return ReplacementAttorneysStepInWhenAllCanNoLongerAct, nil
-	case "one":
+	case "one-can-no-longer-act":
 		return ReplacementAttorneysStepInWhenOneCanNoLongerAct, nil
-	case "other":
+	case "another-way":
 		return ReplacementAttorneysStepInAnotherWay, nil
 	default:
 		return ReplacementAttorneysStepIn(0), fmt.Errorf("invalid ReplacementAttorneysStepIn '%s'", s)
