@@ -120,7 +120,7 @@ func (d *Date) UnmarshalText(text []byte) error {
 		return nil
 	}
 
-	datePart, _, _ := strings.Cut(string(text), "t")
+	datePart, _, _ := strings.Cut(string(text), "T")
 
 	parts := strings.Split(datePart, "-")
 	if len(parts) != 3 {
