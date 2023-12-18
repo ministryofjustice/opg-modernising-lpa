@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 	"github.com/ministryofjustice/opg-go-common/env"
 )
 
@@ -94,28 +95,6 @@ func jwks() http.HandlerFunc {
 	}
 }
 
-func token(clientId, issuer string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		code := r.PostFormValue("code")
-		accessToken := randomString("token-", 10)
-
-		session := sessions[code]
-		delete(sessions, code)
-		tokens[accessToken] = session
-
-		t, err := createSignedToken(session.nonce, clientId, issuer)
-		if err != nil {
-			log.Fatalf("Error creating JWT: %s", err)
-		}
-
-		json.NewEncoder(w).Encode(TokenResponse{
-			AccessToken: accessToken,
-			TokenType:   "Bearer",
-			IDToken:     t,
-		})
-	}
-}
-
 func authorize() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		wantsIdentity := r.FormValue("vtr") == "[Cl.Cm.P2]" && r.FormValue("claims") == `{"userinfo":{"https://vocab.account.gov.uk/v1/coreIdentityJWT": null}}`
@@ -166,11 +145,16 @@ func authorize() http.HandlerFunc {
 		q.Set("code", code)
 		q.Set("state", r.FormValue("state"))
 
+		sub := r.FormValue("sub")
+		if sub == "" {
+			sub = "sub-" + uuid.New().String()
+		}
+
 		sessions[code] = sessionData{
 			nonce:    r.FormValue("nonce"),
 			user:     r.FormValue("user"),
 			identity: wantsIdentity,
-			sub:      r.FormValue("sub"),
+			sub:      sub,
 		}
 
 		u.RawQuery = q.Encode()
@@ -180,18 +164,34 @@ func authorize() http.HandlerFunc {
 	}
 }
 
+func token(clientId, issuer string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		code := r.PostFormValue("code")
+		accessToken := randomString("token-", 10)
+
+		session := sessions[code]
+		delete(sessions, code)
+		tokens[accessToken] = session
+
+		t, err := createSignedToken(session.nonce, clientId, issuer, session.sub)
+		if err != nil {
+			log.Fatalf("Error creating JWT: %s", err)
+		}
+
+		json.NewEncoder(w).Encode(TokenResponse{
+			AccessToken: accessToken,
+			TokenType:   "Bearer",
+			IDToken:     t,
+		})
+	}
+}
+
 func userInfo(privateKey *ecdsa.PrivateKey) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		token := tokens[strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")]
 
-		sub := randomString("sub-", 12)
-
-		if token.sub != "" {
-			sub = token.sub
-		}
-
 		userInfo := UserInfoResponse{
-			Sub:           sub,
+			Sub:           token.sub,
 			Email:         "simulate-delivered@notifications.service.gov.uk",
 			EmailVerified: true,
 			Phone:         "01406946277",
@@ -226,7 +226,7 @@ func userInfo(privateKey *ecdsa.PrivateKey) http.HandlerFunc {
 			}).SignedString(privateKey)
 		}
 
-		log.Printf("Logging in with sub %s", sub)
+		log.Printf("Logging in with sub %s", token.sub)
 		json.NewEncoder(w).Encode(userInfo)
 	}
 }
@@ -281,13 +281,13 @@ func randomString(prefix string, length int) string {
 	return prefix + stringWithCharset(length, charset)
 }
 
-func createSignedToken(nonce, clientId, issuer string) (string, error) {
+func createSignedToken(nonce, clientId, issuer, sub string) (string, error) {
 	t := jwt.New(jwt.SigningMethodES256)
 
 	t.Header["kid"] = tokenSigningKid
 
 	t.Claims = jwt.MapClaims{
-		"sub":   randomString("sub-", 10),
+		"sub":   sub,
 		"iss":   issuer,
 		"nonce": nonce,
 		"aud":   clientId,
