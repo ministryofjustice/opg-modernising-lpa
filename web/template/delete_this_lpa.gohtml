@@ -36,7 +36,7 @@
 
       {{ trHtml .App "whatHappensWhenYouDeleteYourLpa" }}
 
-      {{ template "warning" (warning .App "deletingThisLpaIsPermanent") }}
+      {{ template "warning" (content .App "deletingThisLpaIsPermanent") }}
 
       <form novalidate method="post">
         <div class="govuk-button-group">

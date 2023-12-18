@@ -23,9 +23,9 @@
         {{ trHtml .App "pwDecisionsBullets"}}
 
         {{ if .App.IsTrustCorporation }}
-          {{ template "warning" (warning .App "pwWhatHappensWhenYouSignWarningTrustCorporation") }}
+          {{ template "warning" (content .App "pwWhatHappensWhenYouSignWarningTrustCorporation") }}
         {{ else }}
-          {{ template "warning" (warning .App "pwWhatHappensWhenYouSignWarning") }}
+          {{ template "warning" (content .App "pwWhatHappensWhenYouSignWarning") }}
         {{ end }}
       {{ else }}
         {{ if and .App.IsReplacementAttorney .App.IsTrustCorporation }}
@@ -41,9 +41,9 @@
         {{  trFormatHtml .App "paPowersBullets" "DonorFirstNames" .Donor.Donor.FirstNames }}
 
         {{ if .App.IsTrustCorporation }}
-          {{ template "warning" (warning .App "paWhatHappensWhenYouSignWarningTrustCorporation") }}
+          {{ template "warning" (content .App "paWhatHappensWhenYouSignWarningTrustCorporation") }}
         {{ else }}
-          {{ template "warning" (warning .App "paWhatHappensWhenYouSignWarning") }}
+          {{ template "warning" (content .App "paWhatHappensWhenYouSignWarning") }}
         {{ end }}
       {{ end }}
 

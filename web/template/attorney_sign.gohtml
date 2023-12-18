@@ -29,7 +29,7 @@
         {{ end }}
       {{ end }}
 
-      {{ template "warning" (warning .App "lpaCantBeRegisteredUntilAttorneysSign") }}
+      {{ template "warning" (content .App "lpaCantBeRegisteredUntilAttorneysSign") }}
 
       <form novalidate method="post">
         {{ if .App.IsTrustCorporation }}

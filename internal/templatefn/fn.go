@@ -45,7 +45,6 @@ func All(tag, region string) map[string]any {
 		"formatPhone":        formatPhone,
 		"lowerFirst":         lowerFirst,
 		"listAttorneys":      listAttorneys,
-		"warning":            warning,
 		"listPeopleToNotify": listPeopleToNotify,
 		"possessive":         possessive,
 		"card":               card,
@@ -55,6 +54,7 @@ func All(tag, region string) map[string]any {
 		"concatComma":        concatComma,
 		"penceToPounds":      penceToPounds,
 		"canGoTo":            page.CanGoTo,
+		"content":            content,
 	}
 }
 
@@ -367,4 +367,11 @@ func concatComma(list []string) string {
 
 func penceToPounds(pence int) string {
 	return humanize.CommafWithDigits(float64(pence)/100, 2)
+}
+
+func content(app page.AppData, content string) map[string]interface{} {
+	return map[string]interface{}{
+		"App":     app,
+		"Content": content,
+	}
 }

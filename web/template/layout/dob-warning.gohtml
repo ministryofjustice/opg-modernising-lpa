@@ -1,13 +1,8 @@
 {{ define "dob-warning" }}
   {{ if .DobWarning }}
-    <div class="govuk-warning-text">
-      <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-      <strong class="govuk-warning-text__text">
-        <span class="govuk-warning-text__assistive">Warning</span>
-        {{ tr .App .DobWarning }}
-      </strong>
-    </div>
-
     <input type="hidden" name="ignore-dob-warning" value="{{ .DobWarning }}" />
+    {{ template "information-banner" (content .App .DobWarning) }}
+
+    <input type="hidden" name="ignore-name-warning" value="{{ .DobWarning }}" />
   {{ end }}
 {{ end }}
