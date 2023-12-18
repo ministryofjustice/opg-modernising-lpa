@@ -20,15 +20,19 @@ var address = place.Address{
 }
 
 func TestGenerateHash(t *testing.T) {
-	donor := &DonorProvidedDetails{}
+	donor := &DonorProvidedDetails{Attorneys: Attorneys{
+		Attorneys: []Attorney{
+			{DateOfBirth: date.New("2000", "1", "2")},
+		},
+	}}
 	hash, err := donor.GenerateHash()
 	assert.Nil(t, err)
-	assert.Equal(t, uint64(0x96585b7186793860), hash)
+	assert.Equal(t, uint64(0xabd65d97f7772933), hash)
 
-	donor.LpaID = "1"
+	donor.Attorneys.Attorneys[0].DateOfBirth = date.New("2001", "1", "2")
 	hash, err = donor.GenerateHash()
 	assert.Nil(t, err)
-	assert.Equal(t, uint64(0x230ccd460fa054f0), hash)
+	assert.Equal(t, uint64(0xc5b170c4ed718e61), hash)
 }
 
 func TestIdentityConfirmed(t *testing.T) {
