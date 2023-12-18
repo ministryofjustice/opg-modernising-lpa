@@ -9,9 +9,9 @@ import (
 
 func TestReplacementAttorneysStepIn(t *testing.T) {
 	values := map[ReplacementAttorneysStepIn]string{
-		ReplacementAttorneysStepInWhenAllCanNoLongerAct: "all",
-		ReplacementAttorneysStepInWhenOneCanNoLongerAct: "one",
-		ReplacementAttorneysStepInAnotherWay:            "other",
+		ReplacementAttorneysStepInWhenAllCanNoLongerAct: "all-can-no-longer-act",
+		ReplacementAttorneysStepInWhenOneCanNoLongerAct: "one-can-no-longer-act",
+		ReplacementAttorneysStepInAnotherWay:            "another-way",
 	}
 
 	for value, s := range values {

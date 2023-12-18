@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -50,7 +51,7 @@ func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appDat
 		sms = notify.CertificateProviderActingOnPaperMeetingPromptSMS{
 			DonorFullName:                   donor.Donor.FullName(),
 			DonorFirstNames:                 donor.Donor.FirstNames,
-			LpaType:                         appData.Localizer.T(donor.Type.LegalTermTransKey()),
+			LpaType:                         localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
 			CertificateProviderStartPageURL: appData.AppPublicURL + appData.Lang.URL(page.Paths.CertificateProviderStart.Format()),
 		}
 	}
@@ -73,12 +74,12 @@ func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appDa
 
 	if certificateProvider.Tasks.ConfirmYourDetails.NotStarted() {
 		sms = notify.CertificateProviderActingDigitallyHasNotConfirmedPersonalDetailsLPADetailsChangedPromptSMS{
-			LpaType:       appData.Localizer.T(donor.Type.LegalTermTransKey()),
+			LpaType:       localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
 			DonorFullName: donor.Donor.FullName(),
 		}
 	} else {
 		sms = notify.CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS{
-			LpaType:                 appData.Localizer.T(donor.Type.LegalTermTransKey()),
+			LpaType:                 localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
 			DonorFullNamePossessive: appData.Localizer.Possessive(donor.Donor.FullName()),
 			DonorFirstNames:         donor.Donor.FirstNames,
 		}
