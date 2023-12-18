@@ -29,8 +29,8 @@ func LpaType(tmpl template.Template, donorStore DonorStore) Handler {
 				LpaType: donor.Type,
 			},
 			Options: lpaTypeOptions{
-				PropertyFinance: actor.LpaTypePropertyFinance,
-				HealthWelfare:   actor.LpaTypeHealthWelfare,
+				PropertyFinance: actor.LpaTypePropertyAndAffairs,
+				HealthWelfare:   actor.LpaTypePersonalWelfare,
 			},
 		}
 
@@ -41,7 +41,7 @@ func LpaType(tmpl template.Template, donorStore DonorStore) Handler {
 			if data.Errors.None() {
 				if donor.Type != data.Form.LpaType {
 					donor.Type = data.Form.LpaType
-					if donor.Type.IsHealthWelfare() {
+					if donor.Type.IsPersonalWelfare() {
 						donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
 					} else {
 						donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenUnknown

@@ -10,7 +10,7 @@
 
         {{ $detailsContent := "whoWouldYouLikeToBeTheAttorneysDetailsContentPW" }}
 
-        {{ if .Donor.Type.IsPropertyFinance }}
+        {{ if .Donor.Type.IsPropertyAndAffairs }}
           <p class="govuk-body">
             <a href="{{ link .App (.App.Paths.EnterTrustCorporation.Format .Donor.LpaID) }}" class="govuk-link govuk-link--no-visited-state">
               {{ tr .App "myAttorneyIsTrustCorporation" }}

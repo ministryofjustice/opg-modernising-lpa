@@ -12,7 +12,7 @@
 
         {{ trFormatHtml .App "restrictionsOnYourAttorneysPowerContent" "AllAttorneysFirstNames" (concatAnd .App .Donor.Attorneys.FirstNames) }}
 
-        {{ if .Donor.Type.IsHealthWelfare }}
+        {{ if .Donor.Type.IsPersonalWelfare }}
           {{ template "details" (details . "restrictionExamples" "restrictionExamplesContentHw" false) }}
         {{ else }}
           {{ template "details" (details . "restrictionExamples" "restrictionExamplesContentPfa" false) }}

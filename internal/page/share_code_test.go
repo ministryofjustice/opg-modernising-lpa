@@ -23,7 +23,7 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyFinance,
+		Type: actor.LpaTypePropertyAndAffairs,
 	}
 
 	localizer := newMockLocalizer(t)
@@ -97,7 +97,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyFinance,
+		Type: actor.LpaTypePropertyAndAffairs,
 	}
 
 	for name, tc := range testcases {
@@ -194,7 +194,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenEmailErrors(t *testing.
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyFinance,
+		Type: actor.LpaTypePropertyAndAffairs,
 	}
 
 	localizer := newMockLocalizer(t)
@@ -256,7 +256,7 @@ func TestShareCodeSenderSendCertificateProviderPrompt(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyFinance,
+		Type: actor.LpaTypePropertyAndAffairs,
 	}
 
 	localizer := newMockLocalizer(t)
@@ -320,7 +320,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyFinance,
+		Type: actor.LpaTypePropertyAndAffairs,
 	}
 
 	for name, tc := range testcases {
@@ -406,7 +406,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWhenEmailErrors(t *testing.
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyFinance,
+		Type: actor.LpaTypePropertyAndAffairs,
 	}
 
 	localizer := newMockLocalizer(t)
@@ -496,7 +496,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyFinance,
+		Type: actor.LpaTypePropertyAndAffairs,
 	}
 
 	localizer := newMockLocalizer(t)
@@ -618,7 +618,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyFinance,
+		Type: actor.LpaTypePropertyAndAffairs,
 	}
 
 	localizer := newMockLocalizer(t)
@@ -697,7 +697,7 @@ func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyFinance,
+		Type: actor.LpaTypePropertyAndAffairs,
 	}
 
 	localizer := newMockLocalizer(t)
