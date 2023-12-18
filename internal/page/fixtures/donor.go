@@ -8,6 +8,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -81,7 +82,7 @@ func Donor(
 		)
 
 		if donorSub == "" {
-			donorSub = random.String(16)
+			donorSub = "sub-" + uuid.New().String()
 		}
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {

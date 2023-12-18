@@ -7,6 +7,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
@@ -49,7 +50,7 @@ func CertificateProvider(
 		)
 
 		if certificateProviderSub == "" {
-			certificateProviderSub = random.String(16)
+			certificateProviderSub = "sub-" + uuid.New().String()
 		}
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {

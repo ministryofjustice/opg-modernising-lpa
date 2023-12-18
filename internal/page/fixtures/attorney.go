@@ -8,6 +8,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
@@ -64,7 +65,7 @@ func Attorney(
 		)
 
 		if attorneySub == "" {
-			attorneySub = random.String(16)
+			attorneySub = "sub-" + uuid.New().String()
 		}
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
