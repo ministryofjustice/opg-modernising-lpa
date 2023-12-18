@@ -36,7 +36,7 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("t", "pfaLegalTerm").
+		On("T", "pfaLegalTerm").
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Joe Jones").
@@ -77,7 +77,7 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenNotifyClientErrors(t *tes
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("t", "pfaLegalTerm").
+		On("T", "pfaLegalTerm").
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Joe Jones").
@@ -110,7 +110,7 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenDonorStoreErrors(t *testi
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("t", "pfaLegalTerm").
+		On("T", "pfaLegalTerm").
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Joe Jones").
@@ -156,7 +156,7 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("t", "pfaLegalTerm").
+		On("T", "pfaLegalTerm").
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Joe Jones").
@@ -197,7 +197,7 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenNotifyClientErrors(t *test
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("t", "pfaLegalTerm").
+		On("T", "pfaLegalTerm").
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Joe Jones").
@@ -230,7 +230,7 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenDonorStoreErrors(t *testin
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("t", "pfaLegalTerm").
+		On("T", "pfaLegalTerm").
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Joe Jones").

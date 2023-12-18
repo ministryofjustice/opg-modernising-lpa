@@ -161,7 +161,7 @@ func TestPostProvideCertificate(t *testing.T) {
 		On("Possessive", "c d").
 		Return("the possessive full name")
 	localizer.
-		On("t", "pfaLegalTerm").
+		On("T", "pfaLegalTerm").
 		Return("the translated term")
 	localizer.
 		On("FormatDateTime", now).
@@ -265,7 +265,7 @@ func TestPostProvideCertificateOnNotifyClientError(t *testing.T) {
 		On("Possessive", mock.Anything).
 		Return("")
 	localizer.
-		On("t", mock.Anything).
+		On("T", mock.Anything).
 		Return("")
 	localizer.
 		On("FormatDateTime", mock.Anything).
@@ -321,7 +321,7 @@ func TestPostProvideCertificateWhenShareCodeSenderErrors(t *testing.T) {
 		On("Possessive", "c d").
 		Return("the possessive full name")
 	localizer.
-		On("t", "pfaLegalTerm").
+		On("T", "pfaLegalTerm").
 		Return("the translated term")
 	localizer.
 		On("FormatDateTime", now).
