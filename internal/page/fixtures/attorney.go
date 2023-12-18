@@ -71,7 +71,7 @@ func Attorney(
 			return tmpl(w, &fixturesData{App: appData, Sub: attorneySub})
 		}
 
-		if lpaType == "hw" && isTrustCorporation {
+		if lpaType == "personal-welfare" && isTrustCorporation {
 			return tmpl(w, &fixturesData{App: appData, Errors: validation.With("", validation.CustomError{Label: "Can't add a trust corporation to a personal welfare LPA"})})
 		}
 
@@ -115,12 +115,12 @@ func Attorney(
 		}
 
 		donor.LpaUID = makeUID()
-		if lpaType == "hw" && !isTrustCorporation {
-			donor.Type = actor.LpaTypeHealthWelfare
+		if lpaType == "personal-welfare" && !isTrustCorporation {
+			donor.Type = actor.LpaTypePersonalWelfare
 			donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
 			donor.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
 		} else {
-			donor.Type = actor.LpaTypePropertyFinance
+			donor.Type = actor.LpaTypePropertyAndAffairs
 			donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
 		}
 
