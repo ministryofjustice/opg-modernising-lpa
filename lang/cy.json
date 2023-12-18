@@ -977,5 +977,28 @@
     "whichLanguageYoudLikeUsToUseWhenWeContactYou": "Welsh",
     "preferredContactLanguage": "Welsh",
     "addAnotherLpaIfInvited": "Welsh {{ .ActorType }}.",
-    "addAnLpa": "Welsh"
+    "addAnLpa": "Welsh",
+    "youCannotSignYourLpaYet": "Welsh",
+    "actorsMustBeOver18WarningBanner": "Welsh",
+    "theDetailsYouHaveGivenIndicateUnder18": {
+        "one": "Welsh",
+        "two": "Welsh",
+        "few": "Welsh",
+        "many": "Welsh",
+        "other": "Welsh"
+    },
+    "youCannotSignYourLpaYetContent": {
+        "one": "Welsh",
+        "two": "Welsh",
+        "few": "Welsh",
+        "many": "Welsh",
+        "other": "Welsh"
+    },
+    "ifDateYouEnteredIsCorrectYouMustWaitContent": {
+        "one": "Welsh",
+        "two": "Welsh",
+        "few": "Welsh",
+        "many": "Welsh",
+        "other": "Welsh"
+    }
 }
