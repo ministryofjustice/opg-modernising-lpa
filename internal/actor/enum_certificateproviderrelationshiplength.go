@@ -26,6 +26,10 @@ func (i CertificateProviderRelationshipLength) String() string {
 	return _CertificateProviderRelationshipLength_name[_CertificateProviderRelationshipLength_index[i]:_CertificateProviderRelationshipLength_index[i+1]]
 }
 
+func (i CertificateProviderRelationshipLength) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
+}
+
 func (i CertificateProviderRelationshipLength) IsRelationshipLengthUnknown() bool {
 	return i == RelationshipLengthUnknown
 }
