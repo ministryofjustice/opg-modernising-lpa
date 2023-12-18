@@ -14,7 +14,7 @@ const (
 	// JointlyForSomeSeverallyForOthers indicates attorneys or replacement
 	// attorneys should act jointly for some decisions, and jointly and severally
 	// for other decisions
-	JointlyForSomeSeverallyForOthers // mixed
+	JointlyForSomeSeverallyForOthers // jointly-for-some-severally-for-others
 )
 
 // AttorneyDecisions contains details about how an attorney or replacement attorney should act, provided by the applicant

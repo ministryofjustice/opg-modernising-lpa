@@ -78,9 +78,9 @@ func CertificateProvider(
 
 		donor.LpaUID = makeUID()
 		donor.Donor = makeDonor()
-		donor.Type = actor.LpaTypePropertyFinance
-		if lpaType == "hw" {
-			donor.Type = actor.LpaTypeHealthWelfare
+		donor.Type = actor.LpaTypePropertyAndAffairs
+		if lpaType == "personal-welfare" {
+			donor.Type = actor.LpaTypePersonalWelfare
 			donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
 			donor.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
 		} else {

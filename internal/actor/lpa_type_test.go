@@ -8,7 +8,7 @@ import (
 )
 
 func TestLpaType(t *testing.T) {
-	values := map[LpaType]string{LpaTypeHealthWelfare: "hw", LpaTypePropertyFinance: "pfa"}
+	values := map[LpaType]string{LpaTypePersonalWelfare: "personal-welfare", LpaTypePropertyAndAffairs: "property-and-affairs"}
 
 	for value, s := range values {
 		t.Run(fmt.Sprintf("parse %s", s), func(t *testing.T) {
@@ -27,38 +27,23 @@ func TestLpaType(t *testing.T) {
 		assert.NotNil(t, err)
 	})
 
-	t.Run("IsHealthWelfare", func(t *testing.T) {
-		assert.True(t, LpaTypeHealthWelfare.IsHealthWelfare())
-		assert.False(t, LpaTypePropertyFinance.IsHealthWelfare())
+	t.Run("IsPersonalWelfare", func(t *testing.T) {
+		assert.True(t, LpaTypePersonalWelfare.IsPersonalWelfare())
+		assert.False(t, LpaTypePropertyAndAffairs.IsPersonalWelfare())
 	})
 
-	t.Run("IsPropertyFinance", func(t *testing.T) {
-		assert.True(t, LpaTypePropertyFinance.IsPropertyFinance())
-		assert.False(t, LpaTypeHealthWelfare.IsPropertyFinance())
+	t.Run("IsPropertyAndAffairs", func(t *testing.T) {
+		assert.True(t, LpaTypePropertyAndAffairs.IsPropertyAndAffairs())
+		assert.False(t, LpaTypePersonalWelfare.IsPropertyAndAffairs())
 	})
-}
-
-func TestTypeLegalTermTransKey(t *testing.T) {
-	testCases := map[LpaType]string{
-		LpaTypePropertyFinance: "pfaLegalTerm",
-		LpaTypeHealthWelfare:   "hwLegalTerm",
-		LpaType(99):            "",
-		LpaType(0):             "",
-	}
-
-	for lpaType, translationKey := range testCases {
-		t.Run(lpaType.String(), func(t *testing.T) {
-			assert.Equal(t, translationKey, lpaType.LegalTermTransKey())
-		})
-	}
 }
 
 func TestTypeWhatLPACoversTransKey(t *testing.T) {
 	testCases := map[LpaType]string{
-		LpaTypePropertyFinance: "whatPersonalAffairsCovers",
-		LpaTypeHealthWelfare:   "whatPersonalWelfareCovers",
-		LpaType(99):            "",
-		LpaType(0):             "",
+		LpaTypePropertyAndAffairs: "whatPropertyAndAffairsCovers",
+		LpaTypePersonalWelfare:    "whatPersonalWelfareCovers",
+		LpaType(99):               "",
+		LpaType(0):                "",
 	}
 
 	for lpaType, translationKey := range testCases {

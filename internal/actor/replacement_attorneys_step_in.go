@@ -4,7 +4,7 @@ package actor
 type ReplacementAttorneysStepIn uint8
 
 const (
-	ReplacementAttorneysStepInWhenAllCanNoLongerAct ReplacementAttorneysStepIn = iota + 1 // all
-	ReplacementAttorneysStepInWhenOneCanNoLongerAct                                       // one
-	ReplacementAttorneysStepInAnotherWay                                                  // other
+	ReplacementAttorneysStepInWhenAllCanNoLongerAct ReplacementAttorneysStepIn = iota + 1 // all-can-no-longer-act
+	ReplacementAttorneysStepInWhenOneCanNoLongerAct                                       // one-can-no-longer-act
+	ReplacementAttorneysStepInAnotherWay                                                  // another-way
 )
