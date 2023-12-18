@@ -13,7 +13,7 @@ describe('What happens when you sign the LPA', () => {
     });
 
     it('as a personal welfare attorney', () => {
-        cy.visit('/fixtures/attorney?redirect=/what-happens-when-you-sign-the-lpa&lpa-type=hw&progress=signedByCertificateProvider');
+        cy.visit('/fixtures/attorney?redirect=/what-happens-when-you-sign-the-lpa&lpa-type=personal-welfare&progress=signedByCertificateProvider');
 
         cy.contains('p', "you’re officially saying that you want to be an attorney on")
         cy.contains('li', "their personal and medical care")
@@ -29,7 +29,7 @@ describe('What happens when you sign the LPA', () => {
     });
 
     it('as a personal welfare replacement attorney', () => {
-        cy.visit('/fixtures/attorney?redirect=/what-happens-when-you-sign-the-lpa&lpa-type=hw&progress=signedByCertificateProvider&is-replacement=1');
+        cy.visit('/fixtures/attorney?redirect=/what-happens-when-you-sign-the-lpa&lpa-type=personal-welfare&progress=signedByCertificateProvider&is-replacement=1');
 
         cy.contains('p', "you’re saying that you want to be a replacement attorney ")
         cy.contains('li', "their personal and medical care")

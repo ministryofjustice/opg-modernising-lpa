@@ -5,7 +5,7 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <span class="govuk-caption-xl">{{ trFormat .App "makeYourTypeLpa" "Type" (tr .App .Donor.Type.LegalTermTransKey) }}</span>
+      <span class="govuk-caption-xl">{{ trFormat .App "makeYourTypeLpa" "Type" (tr .App .Donor.Type.String | lowerFirst) }}</span>
       <h1 class="govuk-heading-xl">{{ tr .App "yourTaskList" }}</h1>
 
       {{ template "details" (details . "taskListHelp" "taskListHelpContent" false) }}

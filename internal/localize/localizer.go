@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -141,4 +143,9 @@ func (l *Localizer) FormatDateTime(t time.Time) string {
 	}
 
 	return t.Format("2 January 2006 at 15:04")
+}
+
+func LowerFirst(s string) string {
+	r, n := utf8.DecodeRuneInString(s)
+	return string(unicode.ToLower(r)) + s[n:]
 }

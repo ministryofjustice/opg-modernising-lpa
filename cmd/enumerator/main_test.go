@@ -80,6 +80,10 @@ func (i Day) String() string {
 	return _Day_name[_Day_index[i]:_Day_index[i+1]]
 }
 
+func (i Day) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
+}
+
 func (i Day) IsMonday() bool {
 	return i == Monday
 }
@@ -187,6 +191,10 @@ func (i Number) String() string {
 	return _Number_name[_Number_index[i]:_Number_index[i+1]]
 }
 
+func (i Number) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
+}
+
 func (i Number) IsOne() bool {
 	return i == One
 }
@@ -277,6 +285,10 @@ func (i Gap) String() string {
 	default:
 		return "Gap(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
+}
+
+func (i Gap) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
 }
 
 func (i Gap) IsTwo() bool {
@@ -391,6 +403,10 @@ func (i Num) String() string {
 	return _Num_name[_Num_index[i]:_Num_index[i+1]]
 }
 
+func (i Num) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
+}
+
 func (i Num) Ism_2() bool {
 	return i == m_2
 }
@@ -490,6 +506,10 @@ func (i Unum) String() string {
 	default:
 		return "Unum(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
+}
+
+func (i Unum) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
 }
 
 func (i Unum) Ism0() bool {
@@ -592,6 +612,10 @@ func (i Unumpos) String() string {
 	default:
 		return "Unumpos(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
+}
+
+func (i Unumpos) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
 }
 
 func (i Unumpos) Ism1() bool {
@@ -712,6 +736,10 @@ func (i Prime) String() string {
 		return str
 	}
 	return "Prime(" + strconv.FormatInt(int64(i), 10) + ")"
+}
+
+func (i Prime) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
 }
 
 func (i Prime) Isp2() bool {
@@ -868,6 +896,10 @@ func (i Type) String() string {
 	return _Type_name[_Type_index[i]:_Type_index[i+1]]
 }
 
+func (i Type) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
+}
+
 func (i Type) IsInt() bool {
 	return i == TypeInt
 }
@@ -979,6 +1011,10 @@ func (i Token) String() string {
 		return "Token(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
 	return _Token_name[_Token_index[i]:_Token_index[i+1]]
+}
+
+func (i Token) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
 }
 
 func (i Token) IsAnd() bool {
