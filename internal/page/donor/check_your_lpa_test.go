@@ -192,7 +192,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 
 			localizer := newMockLocalizer(t)
 			localizer.
-				On("T", "pfaLegalTerm").
+				On("t", "pfaLegalTerm").
 				Return("property and affairs")
 			localizer.
 				On("Possessive", "Teneil Throssell").
@@ -282,7 +282,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 
 			localizer := newMockLocalizer(t)
 			localizer.
-				On("T", "pfaLegalTerm").
+				On("t", "pfaLegalTerm").
 				Return("property and affairs")
 
 			testAppData.Localizer = localizer
@@ -438,7 +438,7 @@ func TestPostCheckYourLpaWhenNotifyClientErrors(t *testing.T) {
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", mock.Anything).
+		On("t", mock.Anything).
 		Return("property and affairs")
 
 	testAppData.Localizer = localizer

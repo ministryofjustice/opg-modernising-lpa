@@ -29,18 +29,18 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 // Enumerator is a tool to automate the creation of simple enums. Given the name
-// of a (signed or unsigned) integer type T that has constants defined,
+// of a (signed or unsigned) integer type t that has constants defined,
 // enumerator will create a new self-contained Go source file implementing
 //
-//	func ParseT(string) (T, error)
-//	func (t T) String() string
+//	func ParseT(string) (t, error)
+//	func (t t) String() string
 //
 // and for each value X
 //
-//	func (t T) IsX() bool
+//	func (t t) IsX() bool
 //
 // The file is created in the same package and directory as the package that
-// defines T. This tool is designed to be used with go generate.
+// defines t. This tool is designed to be used with go generate.
 //
 // For example, given this snippet,
 //
@@ -143,7 +143,7 @@ var (
 // Usage is a replacement usage function for the flags package.
 func Usage() {
 	fmt.Fprintf(os.Stderr, "Usage of enumerator:\n")
-	fmt.Fprintf(os.Stderr, "\tenumerator [flags] -type T\n")
+	fmt.Fprintf(os.Stderr, "\tenumerator [flags] -type t\n")
 	fmt.Fprintf(os.Stderr, "Flags:\n")
 	flag.PrintDefaults()
 }
@@ -431,7 +431,7 @@ func (f *File) genDecl(node ast.Node) bool {
 			typ = id.Name
 		}
 		if vspec.Type != nil {
-			// "X T". We have a type. Remember it.
+			// "X t". We have a type. Remember it.
 			ident, ok := vspec.Type.(*ast.Ident)
 			if !ok {
 				continue
