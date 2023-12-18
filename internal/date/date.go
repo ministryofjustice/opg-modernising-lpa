@@ -161,3 +161,7 @@ func (d Date) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) {
 func (d Date) Time() time.Time {
 	return d.t
 }
+
+func (d Date) Hash() (uint64, error) {
+	return uint64(d.t.Unix()), nil
+}
