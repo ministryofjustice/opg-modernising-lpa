@@ -220,3 +220,15 @@ func TestTime(t *testing.T) {
 	date := New("2000", "1", "2")
 	assert.Equal(t, time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC), date.Time())
 }
+
+func TestHash(t *testing.T) {
+	date := New("2000", "1", "2")
+	hash, err := date.Hash()
+	assert.Nil(t, err)
+	assert.Equal(t, uint64(0x386e9500), hash)
+
+	date = New("2001", "1", "2")
+	hash, err = date.Hash()
+	assert.Nil(t, err)
+	assert.Equal(t, uint64(0x3a511a00), hash)
+}
