@@ -51,6 +51,7 @@ func TestClientSendLpa(t *testing.T) {
 
 	donor := &actor.DonorProvidedDetails{
 		LpaUID: "M-0000-1111-2222",
+		Type:   actor.LpaTypeHealthWelfare,
 		Donor: actor.Donor{
 			FirstNames:  "John Johnson",
 			LastName:    "Smith",
@@ -95,6 +96,9 @@ func TestClientSendLpa(t *testing.T) {
 				},
 			}},
 		},
+		AttorneyDecisions: actor.AttorneyDecisions{
+			How: actor.Jointly,
+		},
 		ReplacementAttorneys: actor.Attorneys{
 			Attorneys: []actor.Attorney{{
 				FirstNames:  "Richard",
@@ -124,9 +128,43 @@ func TestClientSendLpa(t *testing.T) {
 				},
 			}},
 		},
+		ReplacementAttorneyDecisions: actor.AttorneyDecisions{
+			How:     actor.JointlyForSomeSeverallyForOthers,
+			Details: "umm",
+		},
+		HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+		LifeSustainingTreatmentOption:       actor.LifeSustainingTreatmentOptionA,
+		Restrictions:                        "do not do this",
+		CertificateProvider: actor.CertificateProvider{
+			FirstNames: "Carol",
+			LastName:   "Cert",
+			Email:      "carol@example.com",
+			Address: place.Address{
+				Line1:      "c-line-1",
+				Line2:      "c-line-2",
+				Line3:      "c-line-3",
+				TownOrCity: "c-town",
+				Postcode:   "C1 1FF",
+				Country:    "GB",
+			},
+			CarryOutBy: actor.Online,
+		},
+		PeopleToNotify: actor.PeopleToNotify{{
+			FirstNames: "Peter",
+			LastName:   "Notify",
+			Address: place.Address{
+				Line1:      "p-line-1",
+				Line2:      "p-line-2",
+				Line3:      "p-line-3",
+				TownOrCity: "p-town",
+				Postcode:   "P1 1FF",
+				Country:    "GB",
+			},
+		}},
+		SignedAt: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 	}
 
-	expectedBody := `{"donor":{"firstNames":"John Johnson","surname":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"line-2","line3":"line-3","town":"town","postcode":"F1 1FF","country":"GB"},"otherNamesKnownBy":"JJ"},"attorneys":[{"firstNames":"Adam","surname":"Attorney","dateOfBirth":"1999-01-02","email":"adam@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active"},{"firstNames":"Alice","surname":"Attorney","dateOfBirth":"1998-01-02","email":"alice@example.com","address":{"line1":"aa-line-1","line2":"aa-line-2","line3":"aa-line-3","town":"aa-town","postcode":"A1 1AF","country":"GB"},"status":"active"},{"firstNames":"Richard","surname":"Attorney","dateOfBirth":"1999-11-12","email":"richard@example.com","address":{"line1":"r-line-1","line2":"r-line-2","line3":"r-line-3","town":"r-town","postcode":"R1 1FF","country":"GB"},"status":"replacement"},{"firstNames":"Rachel","surname":"Attorney","dateOfBirth":"1998-11-12","email":"rachel@example.com","address":{"line1":"rr-line-1","line2":"rr-line-2","line3":"rr-line-3","town":"rr-town","postcode":"R1 1RF","country":"GB"},"status":"replacement"}]}`
+	expectedBody := `{"lpaType":"personal-welfare","donor":{"firstNames":"John Johnson","surname":"Smith","lastName":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"line-2","line3":"line-3","town":"town","postcode":"F1 1FF","country":"GB"},"otherNamesKnownBy":"JJ"},"attorneys":[{"firstNames":"Adam","surname":"Attorney","lastName":"Attorney","dateOfBirth":"1999-01-02","email":"adam@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active"},{"firstNames":"Alice","surname":"Attorney","lastName":"Attorney","dateOfBirth":"1998-01-02","email":"alice@example.com","address":{"line1":"aa-line-1","line2":"aa-line-2","line3":"aa-line-3","town":"aa-town","postcode":"A1 1AF","country":"GB"},"status":"active"},{"firstNames":"Richard","surname":"Attorney","lastName":"Attorney","dateOfBirth":"1999-11-12","email":"richard@example.com","address":{"line1":"r-line-1","line2":"r-line-2","line3":"r-line-3","town":"r-town","postcode":"R1 1FF","country":"GB"},"status":"replacement"},{"firstNames":"Rachel","surname":"Attorney","lastName":"Attorney","dateOfBirth":"1998-11-12","email":"rachel@example.com","address":{"line1":"rr-line-1","line2":"rr-line-2","line3":"rr-line-3","town":"rr-town","postcode":"R1 1RF","country":"GB"},"status":"replacement"}],"howAttorneysMakeDecisions":"jointly","howAttorneysMakeDecisionsDetails":"","howReplacementAttorneysMakeDecisions":"jointly-for-some-severally-for-others","howReplacementAttorneysMakeDecisionsDetails":"umm","howReplacementAttorneysStepIn":"all-can-no-longer-act","howReplacementAttorneysStepInDetails":"","certificateProvider":{"firstNames":"Carol","lastName":"Cert","email":"carol@example.com","address":{"line1":"c-line-1","line2":"c-line-2","line3":"c-line-3","town":"c-town","postcode":"C1 1FF","country":"GB"},"channel":"online"},"peopleToNotify":[{"firstNames":"Peter","lastName":"Notify","address":{"line1":"p-line-1","line2":"p-line-2","line3":"p-line-3","town":"p-town","postcode":"P1 1FF","country":"GB"}}],"restrictions":"do not do this","lifeSustainingTreatmentOption":"option-a","signedAt":"2000-01-02T03:04:05.000000006Z"}`
 
 	secretsClient := newMockSecretsClient(t)
 	secretsClient.
@@ -230,7 +268,7 @@ func TestClientServiceContract(t *testing.T) {
 	pact.
 		AddInteraction().
 		Given("The lpa store is available").
-		UponReceiving("A request for a new case").
+		UponReceiving("A request to create a case with existing UID").
 		WithRequest(dsl.Request{
 			Method: http.MethodPut,
 			Path:   dsl.String("/lpas/M-0000-1111-2222"),
@@ -241,9 +279,11 @@ func TestClientServiceContract(t *testing.T) {
 				"X-Jwt-Authorization": dsl.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+"),
 			},
 			Body: dsl.Like(map[string]any{
+				"lpaType": dsl.Regex("personal-welfare", "personal-welfare|property-and-affairs"),
 				"donor": dsl.Like(map[string]any{
 					"firstNames":  dsl.String("John Johnson"),
 					"surname":     dsl.String("Smith"),
+					"lastName":    dsl.String("Smith"),
 					"dateOfBirth": dsl.Regex("2000-01-02", "\\d{4}-\\d{2}-\\d{2}"),
 					"email":       dsl.String("john@example.com"),
 					"address": dsl.Like(map[string]any{
@@ -259,6 +299,7 @@ func TestClientServiceContract(t *testing.T) {
 				"attorneys": dsl.EachLike(map[string]any{
 					"firstNames":  dsl.String("Adam"),
 					"surname":     dsl.String("Attorney"),
+					"lastName":    dsl.String("Attorney"),
 					"dateOfBirth": dsl.Regex("1999-01-02", "\\d{4}-\\d{2}-\\d{2}"),
 					"email":       dsl.String("adam@example.com"),
 					"address": dsl.Like(map[string]any{
@@ -271,6 +312,14 @@ func TestClientServiceContract(t *testing.T) {
 					}),
 					"status": dsl.Regex("active", "active|replacement"),
 				}, 1),
+				"howAttorneysMakeDecisions":                   dsl.Regex("jointly", "jointly|jointly-and-severally|jointly-for-some-severally-for-others"),
+				"howAttorneysMakeDecisionsDetails":            dsl.String("hmm"),
+				"howReplacementAttorneysMakeDecisions":        dsl.Regex("jointly", "jointly|jointly-and-severally|jointly-for-some-severally-for-others"),
+				"howReplacementAttorneysMakeDecisionsDetails": dsl.String("hmm"),
+				"howReplacementAttorneysStepIn":               dsl.Regex("all", "all-can-no-longer-act|one-can-no-longer-act|another-way"),
+				"howReplacementAttorneysStepInDetails":        dsl.String("hmm"),
+				"restrictions":                                dsl.String("hmm"),
+				"signedAt":                                    dsl.Regex("2000-01-02T12:13:14.00000Z", `\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d+)?Z`),
 			}),
 		}).
 		WillRespondWith(dsl.Response{
