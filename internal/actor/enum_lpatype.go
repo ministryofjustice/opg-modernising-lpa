@@ -10,13 +10,13 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
-	_ = x[LpaTypeHealthWelfare-1]
-	_ = x[LpaTypePropertyFinance-2]
+	_ = x[LpaTypePersonalWelfare-1]
+	_ = x[LpaTypePropertyAndAffairs-2]
 }
 
-const _LpaType_name = "hwpfa"
+const _LpaType_name = "personal-welfareproperty-and-affairs"
 
-var _LpaType_index = [...]uint8{0, 2, 5}
+var _LpaType_index = [...]uint8{0, 16, 36}
 
 func (i LpaType) String() string {
 	i -= 1
@@ -26,33 +26,37 @@ func (i LpaType) String() string {
 	return _LpaType_name[_LpaType_index[i]:_LpaType_index[i+1]]
 }
 
-func (i LpaType) IsHealthWelfare() bool {
-	return i == LpaTypeHealthWelfare
+func (i LpaType) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
 }
 
-func (i LpaType) IsPropertyFinance() bool {
-	return i == LpaTypePropertyFinance
+func (i LpaType) IsPersonalWelfare() bool {
+	return i == LpaTypePersonalWelfare
+}
+
+func (i LpaType) IsPropertyAndAffairs() bool {
+	return i == LpaTypePropertyAndAffairs
 }
 
 func ParseLpaType(s string) (LpaType, error) {
 	switch s {
-	case "hw":
-		return LpaTypeHealthWelfare, nil
-	case "pfa":
-		return LpaTypePropertyFinance, nil
+	case "personal-welfare":
+		return LpaTypePersonalWelfare, nil
+	case "property-and-affairs":
+		return LpaTypePropertyAndAffairs, nil
 	default:
 		return LpaType(0), fmt.Errorf("invalid LpaType '%s'", s)
 	}
 }
 
 type LpaTypeOptions struct {
-	HealthWelfare   LpaType
-	PropertyFinance LpaType
+	PersonalWelfare    LpaType
+	PropertyAndAffairs LpaType
 }
 
 var LpaTypeValues = LpaTypeOptions{
-	HealthWelfare:   LpaTypeHealthWelfare,
-	PropertyFinance: LpaTypePropertyFinance,
+	PersonalWelfare:    LpaTypePersonalWelfare,
+	PropertyAndAffairs: LpaTypePropertyAndAffairs,
 }
 
 func (i LpaType) Empty() bool {

@@ -7,13 +7,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "choosingYourAttorneys" }}</h1>
 
-      {{ $content := "choosingYourAttorneysContentPW" }}
-
-      {{ if .Donor.Type.IsPropertyFinance }}
-        {{ $content = "choosingYourAttorneysContentPA" }}
-      {{ end }}
-
-      {{ trHtml .App $content }}
+      {{ trHtml .App (printf "choosingYourAttorneysContent:%s" .Donor.Type.String) }}
 
       <div class="govuk-button-group">
         <a class="govuk-button" href="{{ link .App (.App.Paths.ChooseAttorneys.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
