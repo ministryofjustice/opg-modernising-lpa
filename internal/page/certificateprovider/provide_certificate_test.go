@@ -128,7 +128,7 @@ func TestPostProvideCertificate(t *testing.T) {
 			LastName:   "b",
 		},
 		Donor: actor.Donor{FirstNames: "c", LastName: "d"},
-		Type:  actor.LpaTypePropertyFinance,
+		Type:  actor.LpaTypePropertyAndAffairs,
 	}
 
 	donorStore := newMockDonorStore(t)
@@ -246,7 +246,7 @@ func TestPostProvideCertificateOnNotifyClientError(t *testing.T) {
 				LastName:   "b",
 			},
 			Donor: actor.Donor{FirstNames: "c", LastName: "d"},
-			Type:  actor.LpaTypePropertyFinance,
+			Type:  actor.LpaTypePropertyAndAffairs,
 		}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -302,7 +302,7 @@ func TestPostProvideCertificateWhenShareCodeSenderErrors(t *testing.T) {
 		Return(&actor.DonorProvidedDetails{
 			SignedAt: now,
 			Donor:    actor.Donor{FirstNames: "c", LastName: "d"},
-			Type:     actor.LpaTypePropertyFinance,
+			Type:     actor.LpaTypePropertyAndAffairs,
 		}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)

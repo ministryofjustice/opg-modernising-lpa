@@ -101,11 +101,11 @@ func Donor(
 
 		if progress >= slices.Index(progressValues, "provideYourDetails") {
 			donorDetails.Donor = makeDonor()
-			donorDetails.Type = actor.LpaTypePropertyFinance
+			donorDetails.Type = actor.LpaTypePropertyAndAffairs
 			donorDetails.ContactLanguagePreference = localize.En
 
 			if lpaType == "hw" {
-				donorDetails.Type = actor.LpaTypeHealthWelfare
+				donorDetails.Type = actor.LpaTypePersonalWelfare
 				donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
 			}
 
@@ -113,7 +113,7 @@ func Donor(
 				if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
 					LpaID:          donorDetails.LpaID,
 					DonorSessionID: donorSessionID,
-					Type:           donorDetails.Type.String(),
+					Type:           donorDetails.Type.LegacyString(),
 					Donor: uid.DonorDetails{
 						Name:     donorDetails.Donor.FullName(),
 						Dob:      donorDetails.Donor.DateOfBirth,
@@ -192,7 +192,7 @@ func Donor(
 		}
 
 		if progress >= slices.Index(progressValues, "chooseWhenTheLpaCanBeUsed") {
-			if donorDetails.Type == actor.LpaTypeHealthWelfare {
+			if donorDetails.Type == actor.LpaTypePersonalWelfare {
 				donorDetails.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
 				donorDetails.Tasks.LifeSustainingTreatment = actor.TaskCompleted
 			} else {

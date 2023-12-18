@@ -29,7 +29,7 @@ func TestCanGoTo(t *testing.T) {
 		},
 		"getting help signing no certificate provider": {
 			donor: &actor.DonorProvidedDetails{
-				Type: actor.LpaTypeHealthWelfare,
+				Type: actor.LpaTypePersonalWelfare,
 				Tasks: actor.DonorTasks{
 					YourDetails: actor.TaskCompleted,
 				},
@@ -39,7 +39,7 @@ func TestCanGoTo(t *testing.T) {
 		},
 		"getting help signing": {
 			donor: &actor.DonorProvidedDetails{
-				Type: actor.LpaTypeHealthWelfare,
+				Type: actor.LpaTypePersonalWelfare,
 				Tasks: actor.DonorTasks{
 					CertificateProvider: actor.TaskCompleted,
 				},
@@ -49,7 +49,7 @@ func TestCanGoTo(t *testing.T) {
 		},
 		"check your lpa when unsure if can sign": {
 			donor: &actor.DonorProvidedDetails{
-				Type: actor.LpaTypeHealthWelfare,
+				Type: actor.LpaTypePersonalWelfare,
 				Tasks: actor.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
@@ -66,7 +66,7 @@ func TestCanGoTo(t *testing.T) {
 		"check your lpa when can sign": {
 			donor: &actor.DonorProvidedDetails{
 				Donor: actor.Donor{CanSign: form.Yes},
-				Type:  actor.LpaTypeHealthWelfare,
+				Type:  actor.LpaTypePersonalWelfare,
 				Tasks: actor.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
@@ -90,7 +90,7 @@ func TestCanGoTo(t *testing.T) {
 				Donor: actor.Donor{
 					CanSign: form.Yes,
 				},
-				Type: actor.LpaTypePropertyFinance,
+				Type: actor.LpaTypePropertyAndAffairs,
 				Tasks: actor.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
@@ -115,7 +115,7 @@ func TestCanGoTo(t *testing.T) {
 				Donor: actor.Donor{
 					CanSign: form.Yes,
 				},
-				Type: actor.LpaTypeHealthWelfare,
+				Type: actor.LpaTypePersonalWelfare,
 				Tasks: actor.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,

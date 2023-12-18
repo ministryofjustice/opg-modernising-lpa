@@ -65,6 +65,7 @@
 //
 //	func ParsePill() (Pill, error)
 //	func (Pill) String() string
+//	func (Pill) MarshalText() ([]byte, error)
 //	func (Pill) IsPlacebo() bool
 //	func (Pill) IsAspirin() bool
 //	func (Pill) IsIbuprofen() bool
@@ -309,6 +310,7 @@ func (g *Generator) generate(typeName string) {
 		g.buildMap(runs, typeName)
 	}
 
+	g.buildMarshalTextMethod(typeName)
 	g.buildIsMethods(runs, typeName)
 	g.buildParseMethod(runs, typeName)
 	g.buildValues(runs, typeName)
@@ -571,6 +573,16 @@ func (g *Generator) createIndexAndNameDecl(run []Value, typeName string, suffix 
 	fmt.Fprintf(b, "}")
 	return b.String(), nameConst
 }
+
+func (g *Generator) buildMarshalTextMethod(typeName string) {
+	g.Printf(marshalTextMethod, typeName)
+}
+
+const marshalTextMethod = `
+func (i %[1]s) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
+}
+`
 
 func (g *Generator) buildIsMethods(runs [][]Value, typeName string) {
 	for _, values := range runs {
