@@ -416,7 +416,7 @@ func canGoToLpaPath(donor *actor.DonorProvidedDetails, path string) bool {
 	section1Completed := donor.Tasks.YourDetails.Completed() &&
 		donor.Tasks.ChooseAttorneys.Completed() &&
 		donor.Tasks.ChooseReplacementAttorneys.Completed() &&
-		(donor.Type.IsHealthWelfare() && donor.Tasks.LifeSustainingTreatment.Completed() || donor.Type.IsPropertyFinance() && donor.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
+		(donor.Type.IsPersonalWelfare() && donor.Tasks.LifeSustainingTreatment.Completed() || donor.Type.IsPropertyAndAffairs() && donor.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
 		donor.Tasks.Restrictions.Completed() &&
 		donor.Tasks.CertificateProvider.Completed() &&
 		donor.Tasks.PeopleToNotify.Completed() &&
@@ -448,7 +448,7 @@ func canGoToLpaPath(donor *actor.DonorProvidedDetails, path string) bool {
 		return donor.Tasks.YourDetails.Completed() &&
 			donor.Tasks.ChooseAttorneys.Completed() &&
 			donor.Tasks.ChooseReplacementAttorneys.Completed() &&
-			(donor.Type.IsHealthWelfare() && donor.Tasks.LifeSustainingTreatment.Completed() || donor.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
+			(donor.Type.IsPersonalWelfare() && donor.Tasks.LifeSustainingTreatment.Completed() || donor.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
 			donor.Tasks.Restrictions.Completed() &&
 			donor.Tasks.CertificateProvider.Completed() &&
 			donor.Tasks.PeopleToNotify.Completed() &&
