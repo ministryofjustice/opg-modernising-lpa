@@ -320,7 +320,7 @@ func Register(
 		YourIndependentWitnessAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 
 	handleWithDonor(page.Paths.YouCannotSignYourLpaYet, page.CanGoBack,
-		Guidance(tmpls.Get("you_cannot_sign_your_lpa_yet.gohtml")))
+		YouCannotSignYourLpaYet(tmpls.Get("you_cannot_sign_your_lpa_yet.gohtml")))
 	handleWithDonor(page.Paths.ConfirmYourCertificateProviderIsNotRelated, page.CanGoBack,
 		ConfirmYourCertificateProviderIsNotRelated(tmpls.Get("confirm_your_certificate_provider_is_not_related.gohtml"), donorStore))
 	handleWithDonor(page.Paths.CheckYourLpa, page.CanGoBack,

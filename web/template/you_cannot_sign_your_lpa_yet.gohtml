@@ -10,14 +10,9 @@
             <h1 class="govuk-heading-xl">{{ tr .App "youCannotSignYourLpaYet" }}</h1>
 
             {{ $actorsData := .Donor.Under18ActorDetails }}
-            {{ $from := printf "%s%s" $.App.Page "#f-date-of-birth" }}
 
-            {{ if eq 1 (len $actorsData) }}
-                {{ trHtml .App "singularActorYouCannotSignYourLpaYetContent" }}
-                {{ $from = .App.Paths.TaskList.Format .App.LpaID }}
-            {{ else }}
-                {{ trHtml .App "multipleActorsYouCannotSignYourLpaYetContent" }}
-            {{ end }}
+            <p class="govuk-body">{{ trCount .App "theDetailsYouHaveGivenIndicateUnder18" (len $actorsData) }}</p>
+            <p class="govuk-body">{{ trCount .App "youCannotSignYourLpaYetContent" (len $actorsData) }}</p>
 
             <dl class="govuk-summary-list">
                 {{range $i, $actor := $actorsData }}
@@ -34,7 +29,7 @@
                             {{ (formatDate $.App $actor.DateOfBirth.Time) }}
                         </dd>
                         <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link" href="{{ $changeLink }}&from={{ $from }}">{{ tr $.App "change" }}
+                            <a class="govuk-link" href="{{ $changeLink }}&from={{ $.App.Page }}#f-date-of-birth">{{ tr $.App "change" }}
                                 <span class="govuk-visually-hidden"> {{ $actor.FullName | possessive $.App }} {{ lowerFirst (tr $.App "dateOfBirth") }}</span>
                             </a>
                         </dd>
@@ -42,11 +37,7 @@
                 {{ end }}
             </dl>
 
-            {{ if eq 1 (len $actorsData) }}
-                {{ trHtml .App "singularActorIfDateYouEnteredIsCorrectYouMustWaitContent" }}
-            {{ else }}
-                {{ trHtml .App "multipleActorsIfDateYouEnteredIsCorrectYouMustWaitContent" }}
-            {{ end }}
+            <p class="govuk-body">{{ trCount .App "ifDateYouEnteredIsCorrectYouMustWaitContent" (len $actorsData) }}</p>
 
             <a href="{{ .App.Paths.TaskList.Format .App.LpaID }}" class="govuk-link govuk-button">{{ tr .App "returnToTaskList" }}</a>
         </div>
