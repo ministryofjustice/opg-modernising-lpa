@@ -10,7 +10,7 @@ resource "aws_fis_experiment_template" "ecs_app" {
     start_after = ["wait_before_stop_task"]
     target {
       key   = "Tasks"
-      value = "${data.aws_default_tags.current.tags.environment-name}-app-ecs-tasks"
+      value = "app-ecs-tasks-${data.aws_default_tags.current.tags.environment-name}"
     }
   }
 
@@ -25,7 +25,7 @@ resource "aws_fis_experiment_template" "ecs_app" {
     }
     target {
       key   = "Tasks"
-      value = "${data.aws_default_tags.current.tags.environment-name}-app-ecs-tasks"
+      value = "app-ecs-tasks-${data.aws_default_tags.current.tags.environment-name}"
     }
   }
 
@@ -40,7 +40,7 @@ resource "aws_fis_experiment_template" "ecs_app" {
     }
     target {
       key   = "Tasks"
-      value = "${data.aws_default_tags.current.tags.environment-name}-app-ecs-tasks"
+      value = "app-ecs-tasks-${data.aws_default_tags.current.tags.environment-name}"
     }
   }
 
@@ -72,10 +72,14 @@ resource "aws_fis_experiment_template" "ecs_app" {
   }
 
   target {
-    name = "${data.aws_default_tags.current.tags.environment-name}-app-ecs-tasks"
+    name = "app-ecs-tasks-${data.aws_default_tags.current.tags.environment-name}"
     parameters = {
       "cluster" : var.ecs_cluster,
       "service" : aws_ecs_service.app.name,
+    }
+    resource_tag {
+      key   = "aws:ecs:cluster-name"
+      value = var.ecs_cluster
     }
     resource_type  = "aws:ecs:task"
     selection_mode = "ALL"
