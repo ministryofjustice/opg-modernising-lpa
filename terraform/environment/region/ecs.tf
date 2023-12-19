@@ -21,23 +21,23 @@ data "aws_ssm_parameter" "additional_allowed_ingress_cidrs" {
 }
 
 module "app" {
-  source                          = "./modules/app"
-  ecs_cluster                     = aws_ecs_cluster.main.id
-  ecs_execution_role              = var.iam_roles.ecs_execution_role
-  ecs_task_role                   = var.iam_roles.app_ecs_task_role
-  ecs_service_desired_count       = 1
-  ecs_application_log_group_name  = module.application_logs.cloudwatch_log_group.name
-  ecs_capacity_provider           = var.ecs_capacity_provider
-  app_env_vars                    = var.app_env_vars
-  app_service_repository_url      = var.app_service_repository_url
-  app_service_container_version   = var.app_service_container_version
-  app_allowed_api_arns            = concat(var.uid_service.api_arns, var.lpa_store_service.api_arns)
-  ingress_allow_list_cidr         = concat(var.ingress_allow_list_cidr, split(",", data.aws_ssm_parameter.additional_allowed_ingress_cidrs.value))
-  alb_deletion_protection_enabled = var.alb_deletion_protection_enabled
-  fis_role_arn                    = var.iam_roles.fis.arn
-  lpas_table                      = var.lpas_table
-  container_port                  = 8080
-  public_access_enabled           = var.public_access_enabled
+  source                             = "./modules/app"
+  ecs_cluster                        = aws_ecs_cluster.main.id
+  ecs_execution_role                 = var.iam_roles.ecs_execution_role
+  ecs_task_role                      = var.iam_roles.app_ecs_task_role
+  ecs_service_desired_count          = 1
+  ecs_application_log_group_name     = module.application_logs.cloudwatch_log_group.name
+  ecs_capacity_provider              = var.ecs_capacity_provider
+  app_env_vars                       = var.app_env_vars
+  app_service_repository_url         = var.app_service_repository_url
+  app_service_container_version      = var.app_service_container_version
+  app_allowed_api_arns               = concat(var.uid_service.api_arns, var.lpa_store_service.api_arns)
+  ingress_allow_list_cidr            = concat(var.ingress_allow_list_cidr, split(",", data.aws_ssm_parameter.additional_allowed_ingress_cidrs.value))
+  alb_deletion_protection_enabled    = var.alb_deletion_protection_enabled
+  fault_injection_simulator_role_arn = var.iam_roles.fault_injection_simulator.arn
+  lpas_table                         = var.lpas_table
+  container_port                     = 8080
+  public_access_enabled              = var.public_access_enabled
   network = {
     vpc_id              = data.aws_vpc.main.id
     application_subnets = data.aws_subnet.application.*.id
