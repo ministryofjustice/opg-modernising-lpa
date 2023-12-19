@@ -26,6 +26,10 @@ func (i CertificateProviderRelationship) String() string {
 	return _CertificateProviderRelationship_name[_CertificateProviderRelationship_index[i]:_CertificateProviderRelationship_index[i+1]]
 }
 
+func (i CertificateProviderRelationship) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
+}
+
 func (i CertificateProviderRelationship) IsPersonally() bool {
 	return i == Personally
 }

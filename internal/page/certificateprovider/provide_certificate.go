@@ -7,6 +7,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -60,7 +61,7 @@ func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func(
 				if _, err := notifyClient.SendEmail(r.Context(), donor.CertificateProvider.Email, notify.CertificateProviderCertificateProvidedEmail{
 					DonorFullNamePossessive:     appData.Localizer.Possessive(donor.Donor.FullName()),
 					DonorFirstNamesPossessive:   appData.Localizer.Possessive(donor.Donor.FirstNames),
-					LpaType:                     appData.Localizer.T(donor.Type.LegalTermTransKey()),
+					LpaType:                     localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
 					CertificateProviderFullName: donor.CertificateProvider.FullName(),
 					CertificateProvidedDateTime: appData.Localizer.FormatDateTime(certificateProvider.Certificate.Agreed),
 				}); err != nil {

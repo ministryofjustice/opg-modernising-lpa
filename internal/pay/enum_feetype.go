@@ -28,6 +28,10 @@ func (i FeeType) String() string {
 	return _FeeType_name[_FeeType_index[i]:_FeeType_index[i+1]]
 }
 
+func (i FeeType) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
+}
+
 func (i FeeType) IsFullFee() bool {
 	return i == FullFee
 }
