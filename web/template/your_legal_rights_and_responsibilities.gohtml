@@ -7,11 +7,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "yourLegalRightsAndResponsibilities" }}</h1>
 
-      {{ if .Donor.Type.IsHealthWelfare }}
-        {{ trHtml .App "yourLegalRightsAndResponsibilitiesContentHw" }}
-      {{ else }}
-        {{ trHtml .App "yourLegalRightsAndResponsibilitiesContentPfa" }}
-      {{ end }}
+      {{ trHtml .App (printf "yourLegalRightsAndResponsibilitiesContent:%s" .Donor.Type.String) }}
 
       <p class="govuk-button-group govuk-!-margin-top-8">
         <a href="{{ if .Donor.Donor.CanSign.IsYes }}{{ link .App (.App.Paths.SignYourLpa.Format .App.LpaID) }}{{ else }}{{ link .App (.App.Paths.SignTheLpaOnBehalf.Format .App.LpaID) }}{{ end }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">

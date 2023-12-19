@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 )
@@ -39,7 +40,7 @@ func (s *WitnessCodeSender) SendToCertificateProvider(ctx context.Context, donor
 	_, err := s.notifyClient.SendSMS(ctx, donor.CertificateProvider.Mobile, notify.WitnessCodeSMS{
 		WitnessCode:   code,
 		DonorFullName: localizer.Possessive(donor.Donor.FullName()),
-		LpaType:       localizer.T(donor.Type.LegalTermTransKey()),
+		LpaType:       localize.LowerFirst(localizer.T(donor.Type.String())),
 	})
 	if err != nil {
 		return err
@@ -59,7 +60,7 @@ func (s *WitnessCodeSender) SendToIndependentWitness(ctx context.Context, donor 
 	_, err := s.notifyClient.SendSMS(ctx, donor.IndependentWitness.Mobile, notify.WitnessCodeSMS{
 		WitnessCode:   code,
 		DonorFullName: localizer.Possessive(donor.Donor.FullName()),
-		LpaType:       localizer.T(donor.Type.LegalTermTransKey()),
+		LpaType:       localize.LowerFirst(localizer.T(donor.Type.String())),
 	})
 	if err != nil {
 		return err

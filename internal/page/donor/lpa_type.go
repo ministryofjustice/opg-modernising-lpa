@@ -9,16 +9,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type lpaTypeOptions struct {
-	PropertyFinance actor.LpaType
-	HealthWelfare   actor.LpaType
-}
-
 type lpaTypeData struct {
 	App     page.AppData
 	Errors  validation.List
 	Form    *lpaTypeForm
-	Options lpaTypeOptions
+	Options actor.LpaTypeOptions
 }
 
 func LpaType(tmpl template.Template, donorStore DonorStore) Handler {
@@ -28,10 +23,7 @@ func LpaType(tmpl template.Template, donorStore DonorStore) Handler {
 			Form: &lpaTypeForm{
 				LpaType: donor.Type,
 			},
-			Options: lpaTypeOptions{
-				PropertyFinance: actor.LpaTypePropertyFinance,
-				HealthWelfare:   actor.LpaTypeHealthWelfare,
-			},
+			Options: actor.LpaTypeValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -41,7 +33,7 @@ func LpaType(tmpl template.Template, donorStore DonorStore) Handler {
 			if data.Errors.None() {
 				if donor.Type != data.Form.LpaType {
 					donor.Type = data.Form.LpaType
-					if donor.Type.IsHealthWelfare() {
+					if donor.Type.IsPersonalWelfare() {
 						donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
 					} else {
 						donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenUnknown

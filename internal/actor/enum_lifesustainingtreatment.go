@@ -26,6 +26,10 @@ func (i LifeSustainingTreatment) String() string {
 	return _LifeSustainingTreatment_name[_LifeSustainingTreatment_index[i]:_LifeSustainingTreatment_index[i+1]]
 }
 
+func (i LifeSustainingTreatment) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
+}
+
 func (i LifeSustainingTreatment) IsOptionA() bool {
 	return i == LifeSustainingTreatmentOptionA
 }
