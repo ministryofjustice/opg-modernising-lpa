@@ -240,7 +240,7 @@ func TestHowShouldAttorneysMakeDecisionsFormValidate(t *testing.T) {
 			},
 			errors: validation.With("decision-type", validation.SelectError{Label: "xyz"}),
 		},
-		"missing decision detail when mixed": {
+		"missing decision detail when jointly for some severally for others": {
 			form: &howShouldAttorneysMakeDecisionsForm{
 				DecisionsType:     actor.JointlyForSomeSeverallyForOthers,
 				detailsErrorLabel: "xyz",
