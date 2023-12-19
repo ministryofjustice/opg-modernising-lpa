@@ -2,7 +2,5 @@
   {{ if .DobWarning }}
     <input type="hidden" name="ignore-dob-warning" value="{{ .DobWarning }}" />
     {{ template "information-banner" (content .App .DobWarning) }}
-
-{{/*    <input type="hidden" name="ignore-name-warning" value="{{ .DobWarning }}" />*/}}
   {{ end }}
 {{ end }}

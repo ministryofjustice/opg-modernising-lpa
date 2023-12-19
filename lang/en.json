@@ -46,7 +46,6 @@
     "or": "or",
     "dateOfBirthIsUnder18": "You are under 18. By continuing, you understand that you must be at least 18 years old on the date you sign the LPA, or it will be rejected.",
     "dateOfBirthIsOver100": "By continuing, you confirm that this person is more than 100 years old. If not, please change their date of birth.",
-    "firstPersonDateOfBirthIsOver100": "By continuing, you confirm that you are more than 100 years old. If not, please change your date of birth.",
     "errorEnter": "Enter {{.Label}}",
     "errorStringTooLong": "{{.Label}} must be {{.Length}} characters or less",
     "errorStringLength": "{{.Label}} must be {{.Length}} characters",

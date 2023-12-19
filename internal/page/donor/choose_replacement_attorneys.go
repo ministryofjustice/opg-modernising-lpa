@@ -1,6 +1,7 @@
 package donor
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -40,10 +41,6 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, u
 			},
 		}
 
-		if !attorney.DateOfBirth.IsZero() {
-			data.DobWarning = data.Form.DobWarning()
-		}
-
 		if r.Method == http.MethodPost {
 			data.Form = readChooseAttorneysForm(r)
 			data.Errors = data.Form.Validate()
@@ -56,15 +53,17 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, u
 				data.Form.LastName,
 			)
 
-			if data.Errors.Any() || dobWarning != "" {
+			if data.Errors.Any() || data.Form.IgnoreDobWarning != dobWarning {
 				data.DobWarning = dobWarning
 			}
 
-			if data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String() {
+			if data.Errors.Any() ||
+				data.Form.IgnoreNameWarning != nameWarning.String() &&
+					attorney.FullName() != fmt.Sprintf("%s %s", data.Form.FirstNames, data.Form.LastName) {
 				data.NameWarning = nameWarning
 			}
 
-			if data.Errors.None() && data.NameWarning == nil {
+			if data.Errors.None() && data.DobWarning == "" && data.NameWarning == nil {
 				if attorneyFound == false {
 					attorney = actor.Attorney{ID: uuidString()}
 				}
@@ -84,6 +83,10 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, u
 
 				return appData.Paths.ChooseReplacementAttorneysAddress.RedirectQuery(w, r, appData, donor, url.Values{"id": {attorney.ID}})
 			}
+		}
+
+		if !attorney.DateOfBirth.IsZero() {
+			data.DobWarning = data.Form.DobWarning()
 		}
 
 		return tmpl(w, data)
