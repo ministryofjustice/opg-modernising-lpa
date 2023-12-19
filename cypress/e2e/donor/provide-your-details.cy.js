@@ -21,7 +21,7 @@ describe('Provide your details', () => {
         cy.get('[name="language-preference"]').check('en')
         cy.contains('button', 'Save and continue').click()
 
-        cy.get('#f-lpa-type').check('pfa');
+        cy.get('#f-lpa-type').check('property-and-affairs');
         cy.contains('button', 'Continue').click();
 
         cy.url()

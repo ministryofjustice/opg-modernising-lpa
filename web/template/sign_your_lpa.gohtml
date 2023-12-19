@@ -13,13 +13,13 @@
 
       {{ template "details" (details . "whatHappensIfIWantToMakeChanges" "whatHappensIfIWantToMakeChangesContent" false) }}
 
-      {{ $lpaTypeLegalTerm := tr .App .Donor.Type.LegalTermTransKey }}
+      {{ $lpaTypeLegalTerm := lowerFirst (tr .App .Donor.Type.String) }}
 
       <p class="govuk-body">{{ trFormat .App "bySigningIConfirm" "LpaType" $lpaTypeLegalTerm }}</p>
 
       <ul class="govuk-list govuk-list--bullet">
         <li>{{ tr .App "iHaveReadLpa" }}</li>
-        {{ if .Donor.Type.IsHealthWelfare }}
+        {{ if .Donor.Type.IsPersonalWelfare }}
           <li>{{ trFormat .App "iGiveAttorneysAuthority" "LpaType" $lpaTypeLegalTerm }}</li>
         {{ else }}
           {{ if .Donor.WhenCanTheLpaBeUsed.IsHasCapacity }}
@@ -28,7 +28,7 @@
             <li>{{ tr .App "iGiveAttorneysAuthorityWhenLostMentalCapacity" }}</li>
           {{ end }}
         {{ end }}
-        {{ if .Donor.Type.IsHealthWelfare }}
+        {{ if .Donor.Type.IsPersonalWelfare }}
           {{ if .Donor.LifeSustainingTreatmentOption.IsOptionA }}
             <li>{{ tr .App "iGiveMyAttorneysAuthorityLifeSustainingTreatment" }}</li>
           {{ else }}

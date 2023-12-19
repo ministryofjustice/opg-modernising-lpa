@@ -42,16 +42,12 @@
               <div class="govuk-radios__item govuk-!-margin-top-6">
                 <input class="govuk-radios__input" id="f-decision-type-3" name="decision-type" type="radio" value="{{ .Options.JointlyForSomeSeverallyForOthers.String }}" aria-describedby="decision-type-3-item-hint" aria-controls="decision-type-3-conditional-div" {{ if or .Form.DecisionsType.IsJointlyForSomeSeverallyForOthers (.Errors.Has "mixed-details") }}checked{{ end }}>
                 <label class="govuk-label govuk-radios__label govuk-label--s" for="f-decision-type-3">
-                  {{ tr .App "your-mixed" }}
+                  {{ tr .App "your-jointly-for-some-severally-for-others" }}
                 </label>
 
                 <div id="decision-type-3-item-hint" class="govuk-radios__hint">
                   <p>{{ tr .App "jointlyAndSeverallyMixedHint" }}</p>
-                  {{ if .Donor.Type.IsPropertyFinance }}
-                    <p>{{ tr .App "jointlyAndSeverallyMixedHintExamplePA" }}</p>
-                  {{ else }}
-                    <p>{{ tr .App "jointlyAndSeverallyMixedHintExamplePW" }}</p>
-                  {{ end }}
+                  <p>{{ tr .App (printf "jointlyAndSeverallyMixedHintExample:%s" .Donor.Type.String) }}</p>
                   <p>{{ tr .App "ifYouChooseThisOptionMustStateDecisionsAgreedTogether" }}</p>
                 </div>
 

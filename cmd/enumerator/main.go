@@ -34,6 +34,7 @@
 //
 //	func ParseT(string) (T, error)
 //	func (t T) String() string
+//	func (t T) MarshalText() ([]byte, error)
 //
 // and for each value X
 //
@@ -60,11 +61,12 @@
 //
 //	enumerator -type=Pill
 //
-// in the same directory will create the file pill_string.go, in package painkiller,
+// in the same directory will create the file enum_pill.go, in package painkiller,
 // containing definitions of
 //
 //	func ParsePill() (Pill, error)
 //	func (Pill) String() string
+//	func (Pill) MarshalText() ([]byte, error)
 //	func (Pill) IsPlacebo() bool
 //	func (Pill) IsAspirin() bool
 //	func (Pill) IsIbuprofen() bool
@@ -97,9 +99,9 @@
 //
 //	PillAspirin
 //
-// a IsAspirin() method would still be generated, painkiller.Aspirin.String()
-// would return "Aspirin" and ParsePill("Aspirin") would return
-// painkiller.Aspirin.
+// an IsAspirin() method would still be generated,
+// painkiller.PillAspirin.String() would return "Aspirin" and
+// ParsePill("Aspirin") would return painkiller.PillAspirin.
 //
 // The -empty flag tells enumerator to generate a method to check whether the
 // underlying value is 0. This is useful when an enum is defined using iota+1.
@@ -309,6 +311,7 @@ func (g *Generator) generate(typeName string) {
 		g.buildMap(runs, typeName)
 	}
 
+	g.buildMarshalTextMethod(typeName)
 	g.buildIsMethods(runs, typeName)
 	g.buildParseMethod(runs, typeName)
 	g.buildValues(runs, typeName)
@@ -571,6 +574,16 @@ func (g *Generator) createIndexAndNameDecl(run []Value, typeName string, suffix 
 	fmt.Fprintf(b, "}")
 	return b.String(), nameConst
 }
+
+func (g *Generator) buildMarshalTextMethod(typeName string) {
+	g.Printf(marshalTextMethod, typeName)
+}
+
+const marshalTextMethod = `
+func (i %[1]s) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
+}
+`
 
 func (g *Generator) buildIsMethods(runs [][]Value, typeName string) {
 	for _, values := range runs {

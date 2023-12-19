@@ -18,8 +18,8 @@ type DonorTasks struct {
 	YourDetails                TaskState
 	ChooseAttorneys            TaskState
 	ChooseReplacementAttorneys TaskState
-	WhenCanTheLpaBeUsed        TaskState // pfa only
-	LifeSustainingTreatment    TaskState // hw only
+	WhenCanTheLpaBeUsed        TaskState // property and affairs only
+	LifeSustainingTreatment    TaskState // personal welfare only
 	Restrictions               TaskState
 	CertificateProvider        TaskState
 	CheckYourLpa               TaskState

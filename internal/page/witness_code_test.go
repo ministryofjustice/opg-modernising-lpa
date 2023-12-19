@@ -30,13 +30,13 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 			Donor:                    actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 			CertificateProvider:      actor.CertificateProvider{Mobile: "0777"},
 			CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
-			Type:                     actor.LpaTypePropertyFinance,
+			Type:                     actor.LpaTypePropertyAndAffairs,
 		}).
 		Return(nil)
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", "pfaLegalTerm").
+		On("T", "property-and-affairs").
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Joe Jones").
@@ -51,7 +51,7 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 	err := sender.SendToCertificateProvider(ctx, &actor.DonorProvidedDetails{
 		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
-		Type:                actor.LpaTypePropertyFinance,
+		Type:                actor.LpaTypePropertyAndAffairs,
 	}, localizer)
 
 	assert.Nil(t, err)
@@ -77,7 +77,7 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenNotifyClientErrors(t *tes
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", "pfaLegalTerm").
+		On("T", "property-and-affairs").
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Joe Jones").
@@ -91,7 +91,7 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenNotifyClientErrors(t *tes
 	err := sender.SendToCertificateProvider(context.Background(), &actor.DonorProvidedDetails{
 		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
 		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:                actor.LpaTypePropertyFinance,
+		Type:                actor.LpaTypePropertyAndAffairs,
 	}, localizer)
 
 	assert.Equal(t, expectedError, err)
@@ -110,7 +110,7 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenDonorStoreErrors(t *testi
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", "pfaLegalTerm").
+		On("T", "property-and-affairs").
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Joe Jones").
@@ -125,7 +125,7 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenDonorStoreErrors(t *testi
 	err := sender.SendToCertificateProvider(context.Background(), &actor.DonorProvidedDetails{
 		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
 		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:                actor.LpaTypePropertyFinance,
+		Type:                actor.LpaTypePropertyAndAffairs,
 	}, localizer)
 
 	assert.Equal(t, expectedError, err)
@@ -150,13 +150,13 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 			Donor:                   actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 			IndependentWitness:      actor.IndependentWitness{Mobile: "0777"},
 			IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
-			Type:                    actor.LpaTypePropertyFinance,
+			Type:                    actor.LpaTypePropertyAndAffairs,
 		}).
 		Return(nil)
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", "pfaLegalTerm").
+		On("T", "property-and-affairs").
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Joe Jones").
@@ -171,7 +171,7 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 	err := sender.SendToIndependentWitness(ctx, &actor.DonorProvidedDetails{
 		Donor:              actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 		IndependentWitness: actor.IndependentWitness{Mobile: "0777"},
-		Type:               actor.LpaTypePropertyFinance,
+		Type:               actor.LpaTypePropertyAndAffairs,
 	}, localizer)
 
 	assert.Nil(t, err)
@@ -197,7 +197,7 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenNotifyClientErrors(t *test
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", "pfaLegalTerm").
+		On("T", "property-and-affairs").
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Joe Jones").
@@ -211,7 +211,7 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenNotifyClientErrors(t *test
 	err := sender.SendToIndependentWitness(context.Background(), &actor.DonorProvidedDetails{
 		IndependentWitness: actor.IndependentWitness{Mobile: "0777"},
 		Donor:              actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:               actor.LpaTypePropertyFinance,
+		Type:               actor.LpaTypePropertyAndAffairs,
 	}, localizer)
 
 	assert.Equal(t, expectedError, err)
@@ -230,7 +230,7 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenDonorStoreErrors(t *testin
 
 	localizer := newMockLocalizer(t)
 	localizer.
-		On("T", "pfaLegalTerm").
+		On("T", "property-and-affairs").
 		Return("property and affairs")
 	localizer.
 		On("Possessive", "Joe Jones").
@@ -245,7 +245,7 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenDonorStoreErrors(t *testin
 	err := sender.SendToIndependentWitness(context.Background(), &actor.DonorProvidedDetails{
 		IndependentWitness: actor.IndependentWitness{Mobile: "0777"},
 		Donor:              actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:               actor.LpaTypePropertyFinance,
+		Type:               actor.LpaTypePropertyAndAffairs,
 	}, localizer)
 
 	assert.Equal(t, expectedError, err)

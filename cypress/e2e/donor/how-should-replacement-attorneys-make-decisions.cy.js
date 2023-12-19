@@ -17,7 +17,7 @@ describe('How should replacement attorneys make decisions', () => {
     });
 
     it('can choose how replacement attorneys act - Jointly for some decisions, and jointly and severally for other decisions', () => {
-        cy.get('input[name="decision-type"]').check('mixed');
+        cy.get('input[name="decision-type"]').check('jointly-for-some-severally-for-others');
         cy.get('#f-mixed-details').type('some details on attorneys');
 
         cy.contains('button', 'Save and continue').click();
@@ -36,7 +36,7 @@ describe('How should replacement attorneys make decisions', () => {
     });
 
     it('errors when details empty', () => {
-        cy.get('input[name="decision-type"]').check('mixed');
+        cy.get('input[name="decision-type"]').check('jointly-for-some-severally-for-others');
         cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
