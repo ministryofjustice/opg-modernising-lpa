@@ -182,7 +182,7 @@ func (f *yourDetailsForm) DobWarning() string {
 
 	if !f.Dob.IsZero() {
 		if f.Dob.Before(hundredYearsEarlier) {
-			return "dateOfBirthIsOver100"
+			return "firstPersonDateOfBirthIsOver100"
 		}
 		if f.Dob.Before(today) && f.Dob.After(eighteenYearsEarlier) {
 			return "dateOfBirthIsUnder18"
