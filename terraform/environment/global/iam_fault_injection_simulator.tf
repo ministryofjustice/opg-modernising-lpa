@@ -1,6 +1,6 @@
 resource "aws_iam_role" "fault_injection_simulator" {
   name               = "fault-injection-simulator-${data.aws_default_tags.current.tags.environment-name}"
-  assume_role_policy = data.aws_iam_policy_document.lambda_assume.json
+  assume_role_policy = data.aws_iam_policy_document.fault_injection_simulator_assume.json
   provider           = aws.global
 }
 
