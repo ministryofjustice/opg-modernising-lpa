@@ -67,3 +67,9 @@ moved {
   from = module.eu_west_1[0].module.events.aws_cloudwatch_event_archive.reduced_fees
   to   = module.eu_west_1[0].module.events.aws_cloudwatch_event_archive.main
 }
+
+import {
+  to       = aws_fis_experiment_template.template
+  id       = "EXT28aThorqMvmJp"
+  provider = aws.eu_west_1
+}
