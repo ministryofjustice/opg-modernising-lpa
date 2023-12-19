@@ -15,9 +15,9 @@ func _() {
 	_ = x[JointlyForSomeSeverallyForOthers-3]
 }
 
-const _AttorneysAct_name = "jointlyjointly-and-severallymixed"
+const _AttorneysAct_name = "jointlyjointly-and-severallyjointly-for-some-severally-for-others"
 
-var _AttorneysAct_index = [...]uint8{0, 7, 28, 33}
+var _AttorneysAct_index = [...]uint8{0, 7, 28, 65}
 
 func (i AttorneysAct) String() string {
 	i -= 1
@@ -25,6 +25,10 @@ func (i AttorneysAct) String() string {
 		return "AttorneysAct(" + strconv.FormatInt(int64(i+1), 10) + ")"
 	}
 	return _AttorneysAct_name[_AttorneysAct_index[i]:_AttorneysAct_index[i+1]]
+}
+
+func (i AttorneysAct) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
 }
 
 func (i AttorneysAct) IsJointly() bool {
@@ -45,7 +49,7 @@ func ParseAttorneysAct(s string) (AttorneysAct, error) {
 		return Jointly, nil
 	case "jointly-and-severally":
 		return JointlyAndSeverally, nil
-	case "mixed":
+	case "jointly-for-some-severally-for-others":
 		return JointlyForSomeSeverallyForOthers, nil
 	default:
 		return AttorneysAct(0), fmt.Errorf("invalid AttorneysAct '%s'", s)

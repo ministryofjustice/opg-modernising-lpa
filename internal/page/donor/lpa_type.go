@@ -29,8 +29,8 @@ func LpaType(tmpl template.Template, donorStore DonorStore) Handler {
 				LpaType: donor.Type,
 			},
 			Options: lpaTypeOptions{
-				PropertyFinance: actor.LpaTypePropertyFinance,
-				HealthWelfare:   actor.LpaTypeHealthWelfare,
+				PropertyFinance: actor.LpaTypePropertyAndAffairs,
+				HealthWelfare:   actor.LpaTypePersonalWelfare,
 			},
 		}
 

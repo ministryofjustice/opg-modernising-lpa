@@ -4,15 +4,25 @@ package actor
 type LpaType uint8
 
 const (
-	LpaTypeHealthWelfare   LpaType = iota + 1 // hw
-	LpaTypePropertyFinance                    // pfa
+	LpaTypePersonalWelfare    LpaType = iota + 1 // personal-welfare
+	LpaTypePropertyAndAffairs                    // property-and-affairs
 )
+
+func (e LpaType) LegacyString() string {
+	switch e {
+	case LpaTypePropertyAndAffairs:
+		return "pfa"
+	case LpaTypePersonalWelfare:
+		return "hw"
+	}
+	return ""
+}
 
 func (e LpaType) LegalTermTransKey() string {
 	switch e {
-	case LpaTypePropertyFinance:
+	case LpaTypePropertyAndAffairs:
 		return "pfaLegalTerm"
-	case LpaTypeHealthWelfare:
+	case LpaTypePersonalWelfare:
 		return "hwLegalTerm"
 	}
 	return ""
@@ -20,9 +30,9 @@ func (e LpaType) LegalTermTransKey() string {
 
 func (e LpaType) WhatLPACoversTransKey() string {
 	switch e {
-	case LpaTypePropertyFinance:
-		return "whatPersonalAffairsCovers"
-	case LpaTypeHealthWelfare:
+	case LpaTypePropertyAndAffairs:
+		return "whatPropertyAndAffairsCovers"
+	case LpaTypePersonalWelfare:
 		return "whatPersonalWelfareCovers"
 	}
 	return ""
