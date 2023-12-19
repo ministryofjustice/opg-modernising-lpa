@@ -8,5 +8,6 @@ output "iam_roles" {
     app_ecs_task_role  = aws_iam_role.app_task_role,
     s3_antivirus       = aws_iam_role.s3_antivirus,
     cross_account_put  = aws_iam_role.cross_account_put,
+    fis                = aws_iam_role.fis,
   }
 }

@@ -34,6 +34,7 @@ module "app" {
   app_allowed_api_arns            = concat(var.uid_service.api_arns, var.lpa_store_service.api_arns)
   ingress_allow_list_cidr         = concat(var.ingress_allow_list_cidr, split(",", data.aws_ssm_parameter.additional_allowed_ingress_cidrs.value))
   alb_deletion_protection_enabled = var.alb_deletion_protection_enabled
+  fis_role_arn                    = var.iam_roles.fis.arn
   lpas_table                      = var.lpas_table
   container_port                  = 8080
   public_access_enabled           = var.public_access_enabled
