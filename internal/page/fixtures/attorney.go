@@ -116,11 +116,11 @@ func Attorney(
 
 		donor.LpaUID = makeUID()
 		if lpaType == "hw" && !isTrustCorporation {
-			donor.Type = actor.LpaTypeHealthWelfare
+			donor.Type = actor.LpaTypePersonalWelfare
 			donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
 			donor.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
 		} else {
-			donor.Type = actor.LpaTypePropertyFinance
+			donor.Type = actor.LpaTypePropertyAndAffairs
 			donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
 		}
 

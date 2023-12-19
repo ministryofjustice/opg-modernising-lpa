@@ -38,7 +38,7 @@
       {{ if .App.IsReplacementAttorney }}
         {{ if .App.IsTrustCorporation }}
           {{ $content = "replacementTrustCorporationCodeOfConductPfa" }}
-        {{ else if .Donor.Type.IsPropertyFinance }}
+        {{ else if .Donor.Type.IsPropertyAndAffairs }}
           {{ $content = "replacementAttorneyCodeOfConductPfa" }}
         {{ else }}
           {{ $content = "replacementAttorneyCodeOfConductHw" }}
@@ -46,7 +46,7 @@
       {{ else }}
         {{ if .App.IsTrustCorporation }}
             {{ $content = "trustCorporationCodeOfConductPfa" }}
-        {{ else if .Donor.Type.IsPropertyFinance }}
+        {{ else if .Donor.Type.IsPropertyAndAffairs }}
           {{ $content = "attorneyCodeOfConductPfa" }}
         {{ else }}
           {{ $content = "attorneyCodeOfConductHw" }}

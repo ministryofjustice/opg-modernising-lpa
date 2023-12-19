@@ -24,7 +24,7 @@
             </div>
             <div class="govuk-summary-list__row">
               <dt class="govuk-summary-list__key">{{ tr .App "lpaType" }}</dt>
-              <dd class="govuk-summary-list__value">{{ if .Donor.Type.IsPropertyFinance }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}</dd>
+              <dd class="govuk-summary-list__value">{{ if .Donor.Type.IsPropertyAndAffairs }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}</dd>
             </div>
             <div class="govuk-summary-list__row">
               <dt class="govuk-summary-list__key">{{ tr .App "lastUpdated" }}</dt>

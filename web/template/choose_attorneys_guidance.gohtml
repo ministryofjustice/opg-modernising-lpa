@@ -9,7 +9,7 @@
 
       {{ $content := "choosingYourAttorneysContentPW" }}
 
-      {{ if .Donor.Type.IsPropertyFinance }}
+      {{ if .Donor.Type.IsPropertyAndAffairs }}
         {{ $content = "choosingYourAttorneysContentPA" }}
       {{ end }}
 
