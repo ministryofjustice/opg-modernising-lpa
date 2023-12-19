@@ -315,13 +315,6 @@ func listPeopleToNotify(app page.AppData, headingLevel int, donor *actor.DonorPr
 	}
 }
 
-func warning(app page.AppData, content string) map[string]interface{} {
-	return map[string]interface{}{
-		"app":     app,
-		"content": content,
-	}
-}
-
 func card(app page.AppData, item any) map[string]any {
 	return map[string]interface{}{
 		"App":  app,
