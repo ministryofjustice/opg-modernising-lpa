@@ -172,7 +172,7 @@ func Donor(
 
 		if progress >= slices.Index(progressValues, "chooseYourReplacementAttorneys") {
 			donorDetails.ReplacementAttorneys.Attorneys = []actor.Attorney{makeAttorney(replacementAttorneyNames[0]), makeAttorney(replacementAttorneyNames[1])}
-			donorDetails.ReplacementAttorneyDecisions.How = actor.JointlyAndSeverally
+			donorDetails.HowShouldReplacementAttorneysStepIn = actor.ReplacementAttorneysStepInWhenOneCanNoLongerAct
 
 			switch replacementAttorneys {
 			case "without-address":
@@ -185,7 +185,7 @@ func Donor(
 				donorDetails.ReplacementAttorneys.TrustCorporation = makeTrustCorporation("First Choice Trust Corporation Ltd.")
 			case "single":
 				donorDetails.ReplacementAttorneys.Attorneys = donorDetails.ReplacementAttorneys.Attorneys[:1]
-				donorDetails.ReplacementAttorneyDecisions = actor.AttorneyDecisions{}
+				donorDetails.HowShouldReplacementAttorneysStepIn = actor.ReplacementAttorneysStepIn(0)
 			}
 
 			donorDetails.Tasks.ChooseReplacementAttorneys = actor.TaskCompleted
