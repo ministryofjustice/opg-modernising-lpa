@@ -204,7 +204,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 			donor := &actor.DonorProvidedDetails{
 				LpaID:               "lpa-id",
 				Hash:                5,
-				Type:                actor.LpaTypePropertyFinance,
+				Type:                actor.LpaTypePropertyAndAffairs,
 				Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
 				CheckedAt:           testNow,
 				Tasks:               actor.DonorTasks{CheckYourLpa: actor.TaskCompleted},
@@ -260,7 +260,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecksCertificate
 	err := CheckYourLpa(nil, donorStore, nil, nil, certificateProviderStore, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID:               "lpa-id",
 		Hash:                5,
-		Type:                actor.LpaTypePropertyFinance,
+		Type:                actor.LpaTypePropertyAndAffairs,
 		Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
 		CheckedAt:           testNow,
 		Tasks:               actor.DonorTasks{CheckYourLpa: actor.TaskCompleted},
@@ -293,7 +293,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 				Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
 				Tasks:               actor.DonorTasks{CheckYourLpa: existingTaskState},
 				CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Paper, Mobile: "07700900000"},
-				Type:                actor.LpaTypePropertyFinance,
+				Type:                actor.LpaTypePropertyAndAffairs,
 			}
 
 			updatedDonor := &actor.DonorProvidedDetails{
@@ -303,7 +303,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 				CheckedAt:           testNow,
 				Tasks:               actor.DonorTasks{CheckYourLpa: actor.TaskCompleted},
 				CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Paper, Mobile: "07700900000"},
-				Type:                actor.LpaTypePropertyFinance,
+				Type:                actor.LpaTypePropertyAndAffairs,
 			}
 			updatedDonor.CheckedHash, _ = updatedDonor.GenerateHash()
 
@@ -349,7 +349,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnSubsequentCheck(t *testing.T)
 		CheckedAt:           testNow,
 		Tasks:               actor.DonorTasks{CheckYourLpa: actor.TaskCompleted},
 		CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Paper, Mobile: "07700900000"},
-		Type:                actor.LpaTypePropertyFinance,
+		Type:                actor.LpaTypePropertyAndAffairs,
 	}
 
 	donorStore := newMockDonorStore(t)
