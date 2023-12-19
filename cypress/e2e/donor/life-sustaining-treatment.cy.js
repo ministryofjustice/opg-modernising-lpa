@@ -1,6 +1,6 @@
 describe('Life sustaining treatment', () => {
     beforeEach(() => {
-        cy.visit('/fixtures?redirect=/life-sustaining-treatment&lpa-type=hw');
+        cy.visit('/fixtures?redirect=/life-sustaining-treatment&lpa-type=personal-welfare');
     });
 
     it('can be agreed to', () => {

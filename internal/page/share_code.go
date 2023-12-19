@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 )
 
@@ -37,7 +38,7 @@ func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, app
 	return s.sendCertificateProvider(ctx, appData, donor, notify.CertificateProviderInviteEmail{
 		CertificateProviderFullName: donor.CertificateProvider.FullName(),
 		DonorFullName:               donor.Donor.FullName(),
-		LpaType:                     appData.Localizer.T(donor.Type.LegalTermTransKey()),
+		LpaType:                     localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
 		CertificateProviderStartURL: fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderStart),
 		DonorFirstNames:             donor.Donor.FirstNames,
 		DonorFirstNamesPossessive:   appData.Localizer.Possessive(donor.Donor.FirstNames),
@@ -49,7 +50,7 @@ func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, app
 	return s.sendCertificateProvider(ctx, appData, donor, notify.CertificateProviderProvideCertificatePromptEmail{
 		CertificateProviderFullName: donor.CertificateProvider.FullName(),
 		DonorFullName:               donor.Donor.FullName(),
-		LpaType:                     appData.Localizer.T(donor.Type.LegalTermTransKey()),
+		LpaType:                     localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
 		CertificateProviderStartURL: fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderStart),
 	})
 }
@@ -111,7 +112,7 @@ func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData AppD
 			DonorFirstNames:           donor.Donor.FirstNames,
 			DonorFirstNamesPossessive: appData.Localizer.Possessive(donor.Donor.FirstNames),
 			DonorFullName:             donor.Donor.FullName(),
-			LpaType:                   appData.Localizer.T(donor.Type.LegalTermTransKey()),
+			LpaType:                   localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
 			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
 		},
 		actor.ShareCodeData{
@@ -132,7 +133,7 @@ func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData A
 			DonorFirstNames:           donor.Donor.FirstNames,
 			DonorFirstNamesPossessive: appData.Localizer.Possessive(donor.Donor.FirstNames),
 			DonorFullName:             donor.Donor.FullName(),
-			LpaType:                   appData.Localizer.T(donor.Type.LegalTermTransKey()),
+			LpaType:                   localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
 			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
 		}, actor.ShareCodeData{
 			SessionID:             appData.SessionID,
@@ -153,7 +154,7 @@ func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData AppD
 			DonorFirstNames:           donor.Donor.FirstNames,
 			DonorFirstNamesPossessive: appData.Localizer.Possessive(donor.Donor.FirstNames),
 			DonorFullName:             donor.Donor.FullName(),
-			LpaType:                   appData.Localizer.T(donor.Type.LegalTermTransKey()),
+			LpaType:                   localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
 			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
 		},
 		actor.ShareCodeData{
@@ -174,7 +175,7 @@ func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, a
 			DonorFirstNames:           donor.Donor.FirstNames,
 			DonorFirstNamesPossessive: appData.Localizer.Possessive(donor.Donor.FirstNames),
 			DonorFullName:             donor.Donor.FullName(),
-			LpaType:                   appData.Localizer.T(donor.Type.LegalTermTransKey()),
+			LpaType:                   localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
 			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
 		},
 		actor.ShareCodeData{

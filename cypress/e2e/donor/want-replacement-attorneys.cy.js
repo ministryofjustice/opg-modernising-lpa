@@ -13,7 +13,7 @@ describe('Do you want replacement attorneys', () => {
     });
 
     it('wants replacement attorneys - acting jointly for some and severally for others', () => {
-        cy.visit('/fixtures?redirect=/do-you-want-replacement-attorneys&progress=chooseYourAttorneys&attorneys=mixed');
+        cy.visit('/fixtures?redirect=/do-you-want-replacement-attorneys&progress=chooseYourAttorneys&attorneys=jointly-for-some-severally-for-others');
 
         cy.get('div.govuk-warning-text').should('contain', 'You appointed your attorneys to act jointly for some decisions, and jointly and severally for others.')
 
