@@ -50,6 +50,38 @@ func TestGetChooseReplacementAttorneysFromStore(t *testing.T) {
 	assert.Equal(t, page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
+func TestGetChooseReplacementAttorneysDobWarningIsAlwaysShown(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?id=1", nil)
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &chooseReplacementAttorneysData{
+			App: testAppData,
+			Donor: &actor.DonorProvidedDetails{
+				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+					{ID: "1", DateOfBirth: date.New("1900", "1", "2")},
+				}},
+			},
+			Form: &chooseAttorneysForm{
+				Dob: date.New("1900", "1", "2"),
+			},
+			DobWarning: "dateOfBirthIsOver100",
+		}).
+		Return(nil)
+
+	err := ChooseReplacementAttorneys(template.Execute, nil, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{
+		Donor: actor.Donor{},
+		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+			{ID: "1", DateOfBirth: date.New("1900", "1", "2")},
+		}},
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
 func TestGetChooseReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
@@ -87,24 +119,6 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 				LastName:    "Doe",
 				Email:       "john@example.com",
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
-				ID:          "123",
-			},
-		},
-		"dob warning ignored": {
-			form: url.Values{
-				"first-names":         {"John"},
-				"last-name":           {"Doe"},
-				"email":               {"john@example.com"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1900"},
-				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
-			},
-			attorney: actor.Attorney{
-				FirstNames:  "John",
-				LastName:    "Doe",
-				Email:       "john@example.com",
-				DateOfBirth: date.New("1900", "1", "2"),
 				ID:          "123",
 			},
 		},
@@ -179,25 +193,6 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				ID:          "123",
 			},
 		},
-		"dob warning ignored": {
-			form: url.Values{
-				"first-names":         {"John"},
-				"last-name":           {"Doe"},
-				"email":               {"john@example.com"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1900"},
-				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
-			},
-			attorney: actor.Attorney{
-				FirstNames:  "John",
-				LastName:    "Doe",
-				Email:       "john@example.com",
-				DateOfBirth: date.New("1900", "1", "2"),
-				Address:     place.Address{Line1: "abc"},
-				ID:          "123",
-			},
-		},
 		"name warning ignored": {
 			form: url.Values{
 				"first-names":         {"Jane"},
@@ -213,6 +208,24 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				LastName:    "Doe",
 				Email:       "john@example.com",
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
+				Address:     place.Address{Line1: "abc"},
+				ID:          "123",
+			},
+		},
+		"dob warning does not require input": {
+			form: url.Values{
+				"first-names":         {"Does not"},
+				"last-name":           {"Match"},
+				"email":               {"john@example.com"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {"1900"},
+			},
+			attorney: actor.Attorney{
+				FirstNames:  "Does not",
+				LastName:    "Match",
+				Email:       "john@example.com",
+				DateOfBirth: date.New("1900", "1", "2"),
 				Address:     place.Address{Line1: "abc"},
 				ID:          "123",
 			},
@@ -273,18 +286,6 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 				return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
 			},
 		},
-		"dob warning": {
-			form: url.Values{
-				"first-names":         {"John"},
-				"last-name":           {"Doe"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1900"},
-			},
-			dataMatcher: func(t *testing.T, data *chooseReplacementAttorneysData) bool {
-				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
-			},
-		},
 		"dob warning ignored but other errors": {
 			form: url.Values{
 				"first-names":         {"John"},
@@ -292,19 +293,6 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {"1900"},
 				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
-			},
-			dataMatcher: func(t *testing.T, data *chooseReplacementAttorneysData) bool {
-				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
-			},
-		},
-		"other dob warning ignored": {
-			form: url.Values{
-				"first-names":         {"John"},
-				"last-name":           {"Doe"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1900"},
-				"ignore-dob-warning":  {"attorneyDateOfBirthIsUnder18"},
 			},
 			dataMatcher: func(t *testing.T, data *chooseReplacementAttorneysData) bool {
 				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)

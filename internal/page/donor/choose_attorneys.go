@@ -95,11 +95,10 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore, uuidString f
 }
 
 type chooseAttorneysForm struct {
-	FirstNames string
-	LastName   string
-	Email      string
-	Dob        date.Date
-	//IgnoreDobWarning  string
+	FirstNames        string
+	LastName          string
+	Email             string
+	Dob               date.Date
 	IgnoreNameWarning string
 }
 
@@ -113,7 +112,6 @@ func readChooseAttorneysForm(r *http.Request) *chooseAttorneysForm {
 		page.PostFormString(r, "date-of-birth-month"),
 		page.PostFormString(r, "date-of-birth-day"))
 
-	//d.IgnoreDobWarning = page.PostFormString(r, "ignore-dob-warning")
 	d.IgnoreNameWarning = page.PostFormString(r, "ignore-name-warning")
 
 	return d

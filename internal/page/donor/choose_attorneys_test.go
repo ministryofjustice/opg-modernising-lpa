@@ -129,24 +129,6 @@ func TestPostChooseAttorneysAttorneyDoesNotExist(t *testing.T) {
 				ID:          "123",
 			},
 		},
-		"dob warning ignored": {
-			form: url.Values{
-				"first-names":         {"John"},
-				"last-name":           {"Doe"},
-				"email":               {"john@example.com"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1900"},
-				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
-			},
-			attorney: actor.Attorney{
-				FirstNames:  "John",
-				LastName:    "Doe",
-				Email:       "john@example.com",
-				DateOfBirth: date.New("1900", "1", "2"),
-				ID:          "123",
-			},
-		},
 		"name warning ignored": {
 			form: url.Values{
 				"first-names":         {"Jane"},
