@@ -203,7 +203,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 			DateOfBirth: date.New("2000", "1", "2"),
 			Address:     place.Address{Postcode: "ABC123"},
 		},
-			Type:   actor.LpaTypePropertyFinance,
+			Type:   actor.LpaTypePropertyAndAffairs,
 			Tasks:  actor.DonorTasks{YourDetails: actor.TaskCompleted},
 			LpaUID: "a-uid",
 		}, nil)

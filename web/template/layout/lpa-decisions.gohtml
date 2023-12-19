@@ -7,11 +7,7 @@
         {{ tr .App "typeOfLpa" }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ if .Donor.Type.IsPropertyFinance }}
-          {{ tr .App "lpaTypePfa" }}
-        {{ else if .Donor.Type.IsHealthWelfare }}
-          {{ tr .App "lpaTypeHw" }}
-        {{ end }}
+        {{ tr .App .Donor.Type.String }}
       </dd>
       {{ if $canChange }}
         <dd class="govuk-summary-list__actions">
@@ -37,7 +33,7 @@
           {{ tr .App (printf "%s:3rd" .Donor.WhenCanTheLpaBeUsed.String) }}
         {{ end }}
       </dd>
-      {{ if and $canChange .Donor.Type.IsPropertyFinance }}
+      {{ if and $canChange .Donor.Type.IsPropertyAndAffairs }}
         <dd class="govuk-summary-list__actions">
           <a class="govuk-link" href="{{ link .App (.App.Paths.WhenCanTheLpaBeUsed.Format .App.LpaID) }}">
             {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "whenYourAttorneysCanUseYourLpa" }}</span>
@@ -221,7 +217,7 @@
       </div>
     {{ end }}
 
-    {{ if .Donor.Type.IsHealthWelfare }}
+    {{ if .Donor.Type.IsPersonalWelfare }}
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">
           {{ tr .App "lifeSustainingTreatment" }}

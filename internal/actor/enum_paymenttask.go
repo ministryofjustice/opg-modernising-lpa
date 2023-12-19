@@ -29,6 +29,10 @@ func (i PaymentTask) String() string {
 	return _PaymentTask_name[_PaymentTask_index[i]:_PaymentTask_index[i+1]]
 }
 
+func (i PaymentTask) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
+}
+
 func (i PaymentTask) IsNotStarted() bool {
 	return i == PaymentTaskNotStarted
 }
