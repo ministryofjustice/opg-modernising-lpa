@@ -1,3 +1,15 @@
+data "aws_kms_alias" "cloudwatch_application_logs_encryption" {
+  name     = "alias/${data.aws_default_tags.current.tags.application}_cloudwatch_application_logs_encryption"
+  provider = aws.region
+}
+
+resource "aws_cloudwatch_log_group" "fis_app_ecs_tasks" {
+  name              = "/aws/fis/app-ecs-tasks-experiment-${data.aws_default_tags.current.tags.environment-name}"
+  retention_in_days = 7
+  kms_key_id        = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
+  provider          = aws.region
+}
+
 resource "aws_fis_experiment_template" "ecs_app" {
   count       = data.aws_default_tags.current.tags.environment-name == "production" ? 0 : 1
   provider    = aws.region
@@ -67,6 +79,13 @@ resource "aws_fis_experiment_template" "ecs_app" {
     parameter {
       key   = "duration"
       value = "PT5M"
+    }
+  }
+  log_configuration {
+    log_schema_version = 2
+
+    cloudwatch_logs_configuration {
+      log_group_arn = "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*"
     }
   }
 
