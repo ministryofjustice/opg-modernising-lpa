@@ -58,13 +58,13 @@ type lpaRequest struct {
 	Attorneys                                   []lpaRequestAttorney             `json:"attorneys"`
 	TrustCorporations                           []lpaRequestTrustCorporation     `json:"trustCorporations,omitempty"`
 	CertificateProvider                         lpaRequestCertificateProvider    `json:"certificateProvider"`
-	PeopleToNotify                              []lpaRequestPersonToNotify       `json:"peopleToNotify"`
-	HowAttorneysMakeDecisions                   actor.AttorneysAct               `json:"howAttorneysMakeDecisions"`
-	HowAttorneysMakeDecisionsDetails            string                           `json:"howAttorneysMakeDecisionsDetails"`
-	HowReplacementAttorneysMakeDecisions        actor.AttorneysAct               `json:"howReplacementAttorneysMakeDecisions"`
-	HowReplacementAttorneysMakeDecisionsDetails string                           `json:"howReplacementAttorneysMakeDecisionsDetails"`
-	HowReplacementAttorneysStepIn               actor.ReplacementAttorneysStepIn `json:"howReplacementAttorneysStepIn"`
-	HowReplacementAttorneysStepInDetails        string                           `json:"howReplacementAttorneysStepInDetails"`
+	PeopleToNotify                              []lpaRequestPersonToNotify       `json:"peopleToNotify,omitempty"`
+	HowAttorneysMakeDecisions                   actor.AttorneysAct               `json:"howAttorneysMakeDecisions,omitempty"`
+	HowAttorneysMakeDecisionsDetails            string                           `json:"howAttorneysMakeDecisionsDetails,omitempty"`
+	HowReplacementAttorneysMakeDecisions        actor.AttorneysAct               `json:"howReplacementAttorneysMakeDecisions,omitempty"`
+	HowReplacementAttorneysMakeDecisionsDetails string                           `json:"howReplacementAttorneysMakeDecisionsDetails,omitempty"`
+	HowReplacementAttorneysStepIn               actor.ReplacementAttorneysStepIn `json:"howReplacementAttorneysStepIn,omitempty"`
+	HowReplacementAttorneysStepInDetails        string                           `json:"howReplacementAttorneysStepInDetails,omitempty"`
 	Restrictions                                string                           `json:"restrictions"`
 	WhenTheLpaCanBeUsed                         actor.CanBeUsedWhen              `json:"whenTheLpaCanBeUsed,omitempty"`
 	LifeSustainingTreatmentOption               actor.LifeSustainingTreatment    `json:"lifeSustainingTreatmentOption,omitempty"`
@@ -100,7 +100,7 @@ type lpaRequestTrustCorporation struct {
 type lpaRequestCertificateProvider struct {
 	FirstNames string                              `json:"firstNames"`
 	LastName   string                              `json:"lastName"`
-	Email      string                              `json:"email"`
+	Email      string                              `json:"email,omitempty"`
 	Address    place.Address                       `json:"address"`
 	Channel    actor.CertificateProviderCarryOutBy `json:"channel"`
 }
@@ -129,14 +129,8 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 			Address:    donor.CertificateProvider.Address,
 			Channel:    donor.CertificateProvider.CarryOutBy,
 		},
-		HowAttorneysMakeDecisions:                   donor.AttorneyDecisions.How,
-		HowAttorneysMakeDecisionsDetails:            donor.AttorneyDecisions.Details,
-		HowReplacementAttorneysMakeDecisions:        donor.ReplacementAttorneyDecisions.How,
-		HowReplacementAttorneysMakeDecisionsDetails: donor.ReplacementAttorneyDecisions.Details,
-		HowReplacementAttorneysStepIn:               donor.HowShouldReplacementAttorneysStepIn,
-		HowReplacementAttorneysStepInDetails:        donor.HowShouldReplacementAttorneysStepInDetails,
-		Restrictions:                                donor.Restrictions,
-		SignedAt:                                    donor.SignedAt,
+		Restrictions: donor.Restrictions,
+		SignedAt:     donor.SignedAt,
 	}
 
 	switch donor.Type {
@@ -144,6 +138,21 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 		body.WhenTheLpaCanBeUsed = donor.WhenCanTheLpaBeUsed
 	case actor.LpaTypePersonalWelfare:
 		body.LifeSustainingTreatmentOption = donor.LifeSustainingTreatmentOption
+	}
+
+	if donor.Attorneys.Len() > 1 {
+		body.HowAttorneysMakeDecisions = donor.AttorneyDecisions.How
+		body.HowAttorneysMakeDecisionsDetails = donor.AttorneyDecisions.Details
+	}
+
+	if donor.ReplacementAttorneys.Len() > 0 && donor.AttorneyDecisions.How.IsJointlyAndSeverally() {
+		body.HowReplacementAttorneysStepIn = donor.HowShouldReplacementAttorneysStepIn
+		body.HowReplacementAttorneysStepInDetails = donor.HowShouldReplacementAttorneysStepInDetails
+	}
+
+	if donor.ReplacementAttorneys.Len() > 1 && (donor.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct() || !donor.AttorneyDecisions.How.IsJointlyAndSeverally()) {
+		body.HowReplacementAttorneysMakeDecisions = donor.ReplacementAttorneyDecisions.How
+		body.HowReplacementAttorneysMakeDecisionsDetails = donor.ReplacementAttorneyDecisions.Details
 	}
 
 	for _, attorney := range donor.Attorneys.Attorneys {
