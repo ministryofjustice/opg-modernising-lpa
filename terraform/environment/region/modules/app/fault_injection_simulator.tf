@@ -1,4 +1,5 @@
 resource "aws_fis_experiment_template" "ecs_app" {
+  count       = data.aws_default_tags.current.tags.environment-name == "production" ? 0 : 1
   provider    = aws.region
   description = "Run ECS task experiments for the app service"
   role_arn    = var.fault_injection_simulator_role_arn
