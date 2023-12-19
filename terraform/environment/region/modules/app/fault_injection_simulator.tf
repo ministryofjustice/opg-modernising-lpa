@@ -1,7 +1,10 @@
 resource "aws_fis_experiment_template" "ecs_app" {
   provider    = aws.region
-  description = "${data.aws_default_tags.current.tags.environment-name} - APP ECS Task Experiments"
+  description = "Run ECS task experiments for the app service"
   role_arn    = var.fault_injection_simulator_role_arn
+  tags = {
+    Name = "${data.aws_default_tags.current.tags.environment-name} - APP ECS Task Experiments"
+  }
 
   action {
     action_id   = "aws:ecs:stop-task"
