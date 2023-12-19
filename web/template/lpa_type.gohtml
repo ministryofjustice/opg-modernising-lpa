@@ -18,8 +18,8 @@
             {{ template "error-message" (errorMessage . "lpa-type") }}
 
             {{ template "radios" (items . "lpa-type" .Form.LpaType.String
-              (item .Options.PropertyFinance.String "lpaTypePfa" "hint" "lpaTypePfaHint")
-              (item .Options.HealthWelfare.String "lpaTypeHw" "hint" "lpaTypeHwHint")
+              (item .Options.PropertyAndAffairs.String .Options.PropertyAndAffairs.String "hint" "propertyAndAffairsHint")
+              (item .Options.PersonalWelfare.String .Options.PersonalWelfare.String "hint" "personalWelfareHint")
             ) }}
           </fieldset>
         </div>

@@ -37,19 +37,15 @@
       {{ $content := "" }}
       {{ if .App.IsReplacementAttorney }}
         {{ if .App.IsTrustCorporation }}
-          {{ $content = "replacementTrustCorporationCodeOfConductPfa" }}
-        {{ else if .Donor.Type.IsPropertyFinance }}
-          {{ $content = "replacementAttorneyCodeOfConductPfa" }}
+          {{ $content = "replacementTrustCorporationCodeOfConduct" }}
         {{ else }}
-          {{ $content = "replacementAttorneyCodeOfConductHw" }}
+          {{ $content = printf "replacementAttorneyCodeOfConduct:%s" .Donor.Type.String }}
         {{ end }}
       {{ else }}
         {{ if .App.IsTrustCorporation }}
-            {{ $content = "trustCorporationCodeOfConductPfa" }}
-        {{ else if .Donor.Type.IsPropertyFinance }}
-          {{ $content = "attorneyCodeOfConductPfa" }}
+            {{ $content = "trustCorporationCodeOfConduct" }}
         {{ else }}
-          {{ $content = "attorneyCodeOfConductHw" }}
+          {{ $content = printf "attorneyCodeOfConduct:%s" .Donor.Type.String }}
         {{ end }}
       {{ end }}
 
