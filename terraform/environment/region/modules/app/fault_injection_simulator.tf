@@ -81,6 +81,7 @@ resource "aws_fis_experiment_template" "ecs_app" {
       value = "PT5M"
     }
   }
+
   log_configuration {
     log_schema_version = 2
 
