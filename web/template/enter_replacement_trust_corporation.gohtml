@@ -20,7 +20,7 @@
         {{ template "input" (input . "company-number" "companyNumber" .Form.CompanyNumber "hint" "companyNumberHint" "classes" "govuk-input--width-20") }}
         {{ template "input" (input . "email" "companyEmailAddress" .Form.Email "hint" "companyEmailHint" "classes" "govuk-input--width-20") }}
 
-        {{ template "warning" (warning .App "ifTheDetailsYouProvideAreNotCorrect") }}
+        {{ template "warning" (content .App "ifTheDetailsYouProvideAreNotCorrect") }}
 
         {{ template "save-and-return-buttons" . }}
         {{ template "csrf-field" . }}

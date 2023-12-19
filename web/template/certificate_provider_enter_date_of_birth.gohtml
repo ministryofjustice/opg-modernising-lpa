@@ -21,7 +21,7 @@
         {{ end }}
 
         {{ if .Donor.CertificateProvider.Relationship.IsPersonally }}
-          {{ template "warning" (warning .App "18OrOverWarning") }}
+          {{ template "warning" (content .App "18OrOverWarning") }}
         {{ end }}
 
         <div class="govuk-button-group">

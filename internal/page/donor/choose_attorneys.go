@@ -43,6 +43,10 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore, uuidString f
 			ShowDetails: attorneyFound == false && addAnother == false,
 		}
 
+		if !attorney.DateOfBirth.IsZero() {
+			data.DobWarning = data.Form.DobWarning()
+		}
+
 		if r.Method == http.MethodPost {
 			data.Form = readChooseAttorneysForm(r)
 			data.Errors = data.Form.Validate()
@@ -55,7 +59,7 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore, uuidString f
 				data.Form.LastName,
 			)
 
-			if data.Errors.Any() || data.Form.IgnoreDobWarning != dobWarning {
+			if data.Errors.Any() || dobWarning != "" {
 				data.DobWarning = dobWarning
 			}
 
@@ -63,7 +67,7 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore, uuidString f
 				data.NameWarning = nameWarning
 			}
 
-			if data.Errors.None() && data.DobWarning == "" && data.NameWarning == nil {
+			if data.Errors.None() && data.NameWarning == nil {
 				if attorneyFound == false {
 					attorney = actor.Attorney{ID: uuidString()}
 				}
@@ -95,7 +99,6 @@ type chooseAttorneysForm struct {
 	LastName          string
 	Email             string
 	Dob               date.Date
-	IgnoreDobWarning  string
 	IgnoreNameWarning string
 }
 
@@ -109,7 +112,6 @@ func readChooseAttorneysForm(r *http.Request) *chooseAttorneysForm {
 		page.PostFormString(r, "date-of-birth-month"),
 		page.PostFormString(r, "date-of-birth-day"))
 
-	d.IgnoreDobWarning = page.PostFormString(r, "ignore-dob-warning")
 	d.IgnoreNameWarning = page.PostFormString(r, "ignore-name-warning")
 
 	return d

@@ -1,13 +1,7 @@
 {{ define "name-warning" }}
   {{ if .NameWarning }}
-    <div class="govuk-warning-text">
-      <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-      <strong class="govuk-warning-text__text">
-        <span class="govuk-warning-text__assistive">Warning</span>
-        {{ .NameWarning.Format .App.Localizer }}
-        {{ tr .App "bySavingThisSectionDifferentPeople" }}
-      </strong>
-    </div>
+    {{ $warning := printf "%s %s" (.NameWarning.Format .App.Localizer) (tr .App "bySavingThisSectionDifferentPeople") }}
+    {{ template "information-banner" (content .App $warning) }}
 
     <input type="hidden" name="ignore-name-warning" value="{{ .NameWarning.String }}" />
   {{ end }}

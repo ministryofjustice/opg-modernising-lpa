@@ -50,6 +50,10 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 			}
 		}
 
+		if !donor.Donor.DateOfBirth.IsZero() {
+			data.DobWarning = data.Form.DobWarning()
+		}
+
 		if r.Method == http.MethodPost {
 			loginSession, err := sesh.Login(sessionStore, r)
 			if err != nil {
@@ -70,7 +74,7 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 				data.Form.LastName,
 			)
 
-			if data.Errors.Any() || data.Form.IgnoreDobWarning != dobWarning {
+			if data.Errors.Any() || dobWarning != "" {
 				data.DobWarning = dobWarning
 			}
 
@@ -78,7 +82,7 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 				data.NameWarning = nameWarning
 			}
 
-			if !data.Errors.Any() && data.DobWarning == "" && data.NameWarning == nil {
+			if !data.Errors.Any() && data.NameWarning == nil {
 				redirect := page.Paths.YourAddress
 
 				if donor.Donor.FirstNames != data.Form.FirstNames || donor.Donor.LastName != data.Form.LastName || donor.Donor.DateOfBirth != data.Form.Dob {
@@ -122,7 +126,6 @@ type yourDetailsForm struct {
 	Dob               date.Date
 	CanSign           actor.YesNoMaybe
 	CanSignError      error
-	IgnoreDobWarning  string
 	IgnoreNameWarning string
 }
 
@@ -140,7 +143,6 @@ func readYourDetailsForm(r *http.Request) *yourDetailsForm {
 
 	d.CanSign, d.CanSignError = actor.ParseYesNoMaybe(page.PostFormString(r, "can-sign"))
 
-	d.IgnoreDobWarning = page.PostFormString(r, "ignore-dob-warning")
 	d.IgnoreNameWarning = page.PostFormString(r, "ignore-name-warning")
 
 	return d
