@@ -111,6 +111,41 @@ func TestGetYourDetailsFromLatest(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
+func TestGetYourDetailsDobWarningIsAlwaysShown(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &yourDetailsData{
+			App: testAppData,
+			Form: &yourDetailsForm{
+				FirstNames: "John",
+				LastName:   "Doe",
+				OtherNames: "J",
+				Dob:        date.New("1900", "01", "02"),
+				CanSign:    actor.Yes,
+			},
+			DobWarning:        "dateOfBirthIsOver100",
+			YesNoMaybeOptions: actor.YesNoMaybeValues,
+		}).
+		Return(nil)
+
+	err := YourDetails(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+		Donor: actor.Donor{
+			FirstNames:    "John",
+			LastName:      "Doe",
+			OtherNames:    "J",
+			DateOfBirth:   date.New("1900", "01", "02"),
+			ThinksCanSign: actor.Yes,
+		},
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
 func TestGetYourDetailsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
@@ -157,18 +192,18 @@ func TestPostYourDetails(t *testing.T) {
 		},
 		"warning ignored": {
 			form: url.Values{
-				"first-names":         {"John"},
-				"last-name":           {"Doe"},
+				"first-names":         {"Joanna"},
+				"last-name":           {"Ode"},
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1900"},
-				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
+				"date-of-birth-year":  {validBirthYear},
+				"ignore-name-warning": {"1|4|Joanna|Ode"},
 				"can-sign":            {actor.Yes.String()},
 			},
 			person: actor.Donor{
-				FirstNames:    "John",
-				LastName:      "Doe",
-				DateOfBirth:   date.New("1900", "1", "2"),
+				FirstNames:    "Joanna",
+				LastName:      "Ode",
+				DateOfBirth:   date.New(validBirthYear, "1", "2"),
 				Address:       place.Address{Line1: "abc"},
 				Email:         "name@example.com",
 				ThinksCanSign: actor.Yes,
@@ -226,9 +261,10 @@ func TestPostYourDetails(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.
 				On("Put", r.Context(), &actor.DonorProvidedDetails{
-					LpaID: "lpa-id",
-					Donor: tc.person,
-					Tasks: actor.DonorTasks{YourDetails: actor.TaskInProgress},
+					LpaID:               "lpa-id",
+					Donor:               tc.person,
+					CertificateProvider: actor.CertificateProvider{FirstNames: "Joanna", LastName: "Ode"},
+					Tasks:               actor.DonorTasks{YourDetails: actor.TaskInProgress},
 				}).
 				Return(nil)
 
@@ -240,9 +276,10 @@ func TestPostYourDetails(t *testing.T) {
 			err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 				LpaID: "lpa-id",
 				Donor: actor.Donor{
-					FirstNames: "John",
+					FirstNames: tc.person.FirstNames,
 					Address:    place.Address{Line1: "abc"},
 				},
+				CertificateProvider:            actor.CertificateProvider{FirstNames: "Joanna", LastName: "Ode"},
 				HasSentApplicationUpdatedEvent: true,
 			})
 			resp := w.Result()
@@ -379,44 +416,19 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 				return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
 			},
 		},
-		"dob warning": {
+		"name warning ignored but other errors": {
 			form: url.Values{
 				"first-names":         {"John"},
 				"last-name":           {"Doe"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1900"},
+				"date-of-birth-day":   {""},
+				"date-of-birth-month": {""},
+				"date-of-birth-year":  {""},
+				"ignore-name-warning": {"donorMatchesActorWarning"},
 				"can-sign":            {actor.Yes.String()},
 			},
 			dataMatcher: func(t *testing.T, data *yourDetailsData) bool {
-				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
-			},
-		},
-		"dob warning ignored but other errors": {
-			form: url.Values{
-				"first-names":         {"John"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1900"},
-				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
-				"can-sign":            {actor.Yes.String()},
-			},
-			dataMatcher: func(t *testing.T, data *yourDetailsData) bool {
-				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
-			},
-		},
-		"other dob warning ignored": {
-			form: url.Values{
-				"first-names":         {"John"},
-				"last-name":           {"Doe"},
-				"date-of-birth-day":   {"2"},
-				"date-of-birth-month": {"1"},
-				"date-of-birth-year":  {"1900"},
-				"ignore-dob-warning":  {"dateOfBirthIsUnder18"},
-				"can-sign":            {actor.Yes.String()},
-			},
-			dataMatcher: func(t *testing.T, data *yourDetailsData) bool {
-				return assert.Equal(t, "dateOfBirthIsOver100", data.DobWarning)
+				return assert.Equal(t, actor.NewSameNameWarning(actor.TypeDonor, actor.TypeCertificateProvider, "John", "Doe"), data.NameWarning) &&
+					assert.Equal(t, validation.With("date-of-birth", validation.EnterError{Label: "dateOfBirth"}), data.Errors)
 			},
 		},
 	}
@@ -439,7 +451,9 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 				On("Get", mock.Anything, "session").
 				Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
-			err := YourDetails(template.Execute, nil, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+			err := YourDetails(template.Execute, nil, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+				CertificateProvider: actor.CertificateProvider{FirstNames: "John", LastName: "Doe"},
+			})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -538,7 +552,6 @@ func TestReadYourDetailsForm(t *testing.T) {
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
 		"date-of-birth-year":  {"1990"},
-		"ignore-dob-warning":  {"xyz"},
 		"can-sign":            {actor.Yes.String()},
 	}
 
@@ -551,7 +564,6 @@ func TestReadYourDetailsForm(t *testing.T) {
 	assert.Equal("Doe", result.LastName)
 	assert.Equal("Somebody", result.OtherNames)
 	assert.Equal(date.New("1990", "1", "2"), result.Dob)
-	assert.Equal("xyz", result.IgnoreDobWarning)
 	assert.Equal(actor.Yes, result.CanSign)
 	assert.Nil(result.CanSignError)
 }
