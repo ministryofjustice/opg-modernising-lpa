@@ -2,7 +2,7 @@ describe('LPA type', () => {
     it('can be submitted', () => {
         cy.visit('/fixtures?redirect=/lpa-type&progress=provideYourDetails');
 
-        cy.get('#f-lpa-type').check('pfa');
+        cy.get('#f-lpa-type').check('property-and-affairs');
 
         cy.checkA11yApp();
 

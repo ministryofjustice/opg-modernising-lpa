@@ -16,6 +16,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 )
 
+const (
+	issuer            = "opg.poas.makeregister"
+	statusActive      = "active"
+	statusReplacement = "replacement"
+)
+
 type responseError struct {
 	name string
 	body any
@@ -47,27 +53,26 @@ func New(baseURL string, secretsClient SecretsClient, lambdaClient Doer) *Client
 }
 
 type lpaRequest struct {
-	LpaType                                     string                        `json:"lpaType"`
-	Donor                                       lpaRequestDonor               `json:"donor"`
-	Attorneys                                   []lpaRequestAttorney          `json:"attorneys"`
-	TrustCorporations                           []lpaRequestTrustCorporation  `json:"trustCorporations,omitempty"`
-	CertificateProvider                         lpaRequestCertificateProvider `json:"certificateProvider"`
-	PeopleToNotify                              []lpaRequestPersonToNotify    `json:"peopleToNotify"`
-	HowAttorneysMakeDecisions                   string                        `json:"howAttorneysMakeDecisions"`
-	HowAttorneysMakeDecisionsDetails            string                        `json:"howAttorneysMakeDecisionsDetails"`
-	HowReplacementAttorneysMakeDecisions        string                        `json:"howReplacementAttorneysMakeDecisions"`
-	HowReplacementAttorneysMakeDecisionsDetails string                        `json:"howReplacementAttorneysMakeDecisionsDetails"`
-	HowReplacementAttorneysStepIn               string                        `json:"howReplacementAttorneysStepIn"`
-	HowReplacementAttorneysStepInDetails        string                        `json:"howReplacementAttorneysStepInDetails"`
-	Restrictions                                string                        `json:"restrictions"`
-	WhenTheLpaCanBeUsed                         string                        `json:"whenTheLpaCanBeUsed,omitempty"`
-	LifeSustainingTreatmentOption               string                        `json:"lifeSustainingTreatmentOption,omitempty"`
-	SignedAt                                    time.Time                     `json:"signedAt"`
+	LpaType                                     actor.LpaType                    `json:"lpaType"`
+	Donor                                       lpaRequestDonor                  `json:"donor"`
+	Attorneys                                   []lpaRequestAttorney             `json:"attorneys"`
+	TrustCorporations                           []lpaRequestTrustCorporation     `json:"trustCorporations,omitempty"`
+	CertificateProvider                         lpaRequestCertificateProvider    `json:"certificateProvider"`
+	PeopleToNotify                              []lpaRequestPersonToNotify       `json:"peopleToNotify"`
+	HowAttorneysMakeDecisions                   actor.AttorneysAct               `json:"howAttorneysMakeDecisions"`
+	HowAttorneysMakeDecisionsDetails            string                           `json:"howAttorneysMakeDecisionsDetails"`
+	HowReplacementAttorneysMakeDecisions        actor.AttorneysAct               `json:"howReplacementAttorneysMakeDecisions"`
+	HowReplacementAttorneysMakeDecisionsDetails string                           `json:"howReplacementAttorneysMakeDecisionsDetails"`
+	HowReplacementAttorneysStepIn               actor.ReplacementAttorneysStepIn `json:"howReplacementAttorneysStepIn"`
+	HowReplacementAttorneysStepInDetails        string                           `json:"howReplacementAttorneysStepInDetails"`
+	Restrictions                                string                           `json:"restrictions"`
+	WhenTheLpaCanBeUsed                         actor.CanBeUsedWhen              `json:"whenTheLpaCanBeUsed,omitempty"`
+	LifeSustainingTreatmentOption               actor.LifeSustainingTreatment    `json:"lifeSustainingTreatmentOption,omitempty"`
+	SignedAt                                    time.Time                        `json:"signedAt"`
 }
 
 type lpaRequestDonor struct {
 	FirstNames        string        `json:"firstNames"`
-	Surname           string        `json:"surname"` // TODO: remove when API is changed to take lastName
 	LastName          string        `json:"lastName"`
 	DateOfBirth       date.Date     `json:"dateOfBirth"`
 	Email             string        `json:"email"`
@@ -77,7 +82,6 @@ type lpaRequestDonor struct {
 
 type lpaRequestAttorney struct {
 	FirstNames  string        `json:"firstNames"`
-	Surname     string        `json:"surname"`
 	LastName    string        `json:"lastName"`
 	DateOfBirth date.Date     `json:"dateOfBirth"`
 	Email       string        `json:"email"`
@@ -94,11 +98,11 @@ type lpaRequestTrustCorporation struct {
 }
 
 type lpaRequestCertificateProvider struct {
-	FirstNames string        `json:"firstNames"`
-	LastName   string        `json:"lastName"`
-	Email      string        `json:"email"`
-	Address    place.Address `json:"address"`
-	Channel    string        `json:"channel"`
+	FirstNames string                              `json:"firstNames"`
+	LastName   string                              `json:"lastName"`
+	Email      string                              `json:"email"`
+	Address    place.Address                       `json:"address"`
+	Channel    actor.CertificateProviderCarryOutBy `json:"channel"`
 }
 
 type lpaRequestPersonToNotify struct {
@@ -108,39 +112,10 @@ type lpaRequestPersonToNotify struct {
 }
 
 func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails) error {
-	var lpaType string
-	switch donor.Type {
-	case actor.LpaTypeHealthWelfare:
-		lpaType = "personal-welfare"
-	case actor.LpaTypePropertyFinance:
-		lpaType = "property-and-affairs"
-	}
-
-	howAttorneysMakeDecisions := donor.AttorneyDecisions.How.String()
-	if howAttorneysMakeDecisions == "mixed" {
-		howAttorneysMakeDecisions = "jointly-for-some-severally-for-others"
-	}
-
-	howReplacementAttorneysMakeDecisions := donor.ReplacementAttorneyDecisions.How.String()
-	if howReplacementAttorneysMakeDecisions == "mixed" {
-		howReplacementAttorneysMakeDecisions = "jointly-for-some-severally-for-others"
-	}
-
-	var howReplacementAttorneysStepIn string
-	switch donor.HowShouldReplacementAttorneysStepIn {
-	case actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct:
-		howReplacementAttorneysStepIn = "all-can-no-longer-act"
-	case actor.ReplacementAttorneysStepInWhenOneCanNoLongerAct:
-		howReplacementAttorneysStepIn = "one-can-no-longer-act"
-	case actor.ReplacementAttorneysStepInAnotherWay:
-		howReplacementAttorneysStepIn = "another-way"
-	}
-
 	body := lpaRequest{
-		LpaType: lpaType,
+		LpaType: donor.Type,
 		Donor: lpaRequestDonor{
 			FirstNames:        donor.Donor.FirstNames,
-			Surname:           donor.Donor.LastName,
 			LastName:          donor.Donor.LastName,
 			DateOfBirth:       donor.Donor.DateOfBirth,
 			Email:             donor.Donor.Email,
@@ -152,34 +127,33 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 			LastName:   donor.CertificateProvider.LastName,
 			Email:      donor.CertificateProvider.Email,
 			Address:    donor.CertificateProvider.Address,
-			Channel:    donor.CertificateProvider.CarryOutBy.String(),
+			Channel:    donor.CertificateProvider.CarryOutBy,
 		},
-		HowAttorneysMakeDecisions:                   howAttorneysMakeDecisions,
+		HowAttorneysMakeDecisions:                   donor.AttorneyDecisions.How,
 		HowAttorneysMakeDecisionsDetails:            donor.AttorneyDecisions.Details,
-		HowReplacementAttorneysMakeDecisions:        howReplacementAttorneysMakeDecisions,
+		HowReplacementAttorneysMakeDecisions:        donor.ReplacementAttorneyDecisions.How,
 		HowReplacementAttorneysMakeDecisionsDetails: donor.ReplacementAttorneyDecisions.Details,
-		HowReplacementAttorneysStepIn:               howReplacementAttorneysStepIn,
+		HowReplacementAttorneysStepIn:               donor.HowShouldReplacementAttorneysStepIn,
 		HowReplacementAttorneysStepInDetails:        donor.HowShouldReplacementAttorneysStepInDetails,
 		Restrictions:                                donor.Restrictions,
 		SignedAt:                                    donor.SignedAt,
 	}
 
 	switch donor.Type {
-	case actor.LpaTypePropertyFinance:
-		body.WhenTheLpaCanBeUsed = donor.WhenCanTheLpaBeUsed.String()
-	case actor.LpaTypeHealthWelfare:
-		body.LifeSustainingTreatmentOption = donor.LifeSustainingTreatmentOption.String()
+	case actor.LpaTypePropertyAndAffairs:
+		body.WhenTheLpaCanBeUsed = donor.WhenCanTheLpaBeUsed
+	case actor.LpaTypePersonalWelfare:
+		body.LifeSustainingTreatmentOption = donor.LifeSustainingTreatmentOption
 	}
 
 	for _, attorney := range donor.Attorneys.Attorneys {
 		body.Attorneys = append(body.Attorneys, lpaRequestAttorney{
 			FirstNames:  attorney.FirstNames,
-			Surname:     attorney.LastName,
 			LastName:    attorney.LastName,
 			DateOfBirth: attorney.DateOfBirth,
 			Email:       attorney.Email,
 			Address:     attorney.Address,
-			Status:      "active",
+			Status:      statusActive,
 		})
 	}
 
@@ -189,19 +163,18 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 			CompanyNumber: trustCorporation.CompanyNumber,
 			Email:         trustCorporation.Email,
 			Address:       trustCorporation.Address,
-			Status:        "active",
+			Status:        statusActive,
 		})
 	}
 
 	for _, attorney := range donor.ReplacementAttorneys.Attorneys {
 		body.Attorneys = append(body.Attorneys, lpaRequestAttorney{
 			FirstNames:  attorney.FirstNames,
-			Surname:     attorney.LastName,
 			LastName:    attorney.LastName,
 			DateOfBirth: attorney.DateOfBirth,
 			Email:       attorney.Email,
 			Address:     attorney.Address,
-			Status:      "replacement",
+			Status:      statusReplacement,
 		})
 	}
 
@@ -211,7 +184,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 			CompanyNumber: trustCorporation.CompanyNumber,
 			Email:         trustCorporation.Email,
 			Address:       trustCorporation.Address,
-			Status:        "replacement",
+			Status:        statusReplacement,
 		})
 	}
 
@@ -235,7 +208,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 	req.Header.Add("Content-Type", "application/json")
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
-		Issuer:   "opg.poas.makeregister",
+		Issuer:   issuer,
 		IssuedAt: jwt.NewNumericDate(c.now()),
 		Subject:  "todo",
 	})

@@ -6,7 +6,7 @@
   <div class="app-dashboard-card">
     <div class="app-dashboard-row">
       {{ if .Item.Donor.RegisteredAt.IsZero }}<h3 class="govuk-heading-m">{{ else }}<h4 class="govuk-heading-m">{{ end }}
-        {{ if .Item.Donor.Type.IsPropertyFinance }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}:
+        {{ tr .App .Item.Donor.Type.String }}:
         <span class="govuk-!-font-weight-regular">{{ .Item.Donor.Donor.FullName }}</span>
         {{ if .Item.Donor.RegisteredAt.IsZero }}</h3>{{ else }}</h4>{{ end }}
         <div>
@@ -68,7 +68,7 @@
   <div class="app-dashboard-card">
     <div class="app-dashboard-row">
       {{ if .Item.Donor.RegisteredAt.IsZero }}<h3 class="govuk-heading-m">{{ else }}<h4 class="govuk-heading-m">{{ end }}
-        {{ if .Item.Donor.Type.IsPropertyFinance }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}:
+        {{ tr .App .Item.Donor.Type.String }}:
         <span class="govuk-!-font-weight-regular">{{ .Item.Donor.Donor.FullName }}</span>
         {{ if .Item.Donor.RegisteredAt.IsZero }}</h3>{{ else }}</h4>{{ end }}
         <div>
@@ -123,7 +123,7 @@
   <div class="app-dashboard-card">
     <div class="app-dashboard-row">
       <h3 class="govuk-heading-m">
-        {{ if .Item.Donor.Type.IsPropertyFinance }}{{ tr .App "lpaTypePfa" }}{{ else }}{{ tr .App "lpaTypeHw" }}{{ end }}:
+        {{ tr .App .Item.Donor.Type.String }}:
         <span class="govuk-!-font-weight-regular">{{ .Item.Donor.Donor.FullName }}</span>
       </h3>
       <div>

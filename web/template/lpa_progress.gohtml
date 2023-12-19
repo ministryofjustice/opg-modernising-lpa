@@ -1,7 +1,7 @@
 {{ template "page" . }}
 
 {{ define "pageTitle" }}
-  {{ trFormat .App "myLpa" "LpaType" (tr .App .Donor.Type.LegalTermTransKey) }}
+  {{ trFormat .App "myLpa" "LpaType" (lowerFirst (tr .App .Donor.Type.String)) }}
 {{ end }}
 
 {{ define "main" }}

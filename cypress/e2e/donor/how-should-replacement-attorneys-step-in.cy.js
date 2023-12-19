@@ -9,7 +9,7 @@ describe('How should replacement attorneys step in', () => {
         // see https://github.com/alphagov/govuk-frontend/issues/979
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
-        cy.get('input[name="when-to-step-in"]').check('one');
+        cy.get('input[name="when-to-step-in"]').check('one-can-no-longer-act');
 
         cy.contains('button', 'Save and continue').click();
 
@@ -19,7 +19,7 @@ describe('How should replacement attorneys step in', () => {
     });
 
     it('can choose how replacement attorneys step in - some other way', () => {
-        cy.get('input[name="when-to-step-in"]').check('other');
+        cy.get('input[name="when-to-step-in"]').check('another-way');
         cy.get('#f-other-details').type('some details on when to step in');
 
         cy.contains('button', 'Save and continue').click();
@@ -38,7 +38,7 @@ describe('How should replacement attorneys step in', () => {
     });
 
     it('errors when other and details empty', () => {
-        cy.get('input[name="when-to-step-in"]').check('other');
+        cy.get('input[name="when-to-step-in"]').check('another-way');
         cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
