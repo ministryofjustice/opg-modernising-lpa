@@ -30,7 +30,7 @@
 
         {{ template "input" (input . "email" "emailOptional" .Form.Email "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email" "labelClasses" "govuk-label--m") }}
 
-        {{ template "warning" (warning .App "organisationsMightNotAcceptAttorney") }}
+        {{ template "warning" (content .App "organisationsMightNotAcceptAttorney") }}
 
         {{ template "save-and-return-buttons" . }}
 
