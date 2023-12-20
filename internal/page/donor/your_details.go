@@ -74,7 +74,9 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 				data.DobWarning = dobWarning
 			}
 
-			if data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String() {
+			if data.Errors.Any() ||
+				data.Form.IgnoreNameWarning != nameWarning.String() &&
+					donor.Donor.FullName() != fmt.Sprintf("%s %s", data.Form.FirstNames, data.Form.LastName) {
 				data.NameWarning = nameWarning
 			}
 
@@ -109,6 +111,10 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 
 				return redirect.Redirect(w, r, appData, donor)
 			}
+		}
+
+		if !donor.Donor.DateOfBirth.IsZero() {
+			data.DobWarning = data.Form.DobWarning()
 		}
 
 		return tmpl(w, data)
