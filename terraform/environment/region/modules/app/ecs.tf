@@ -84,6 +84,7 @@ resource "aws_ecs_task_definition" "app" {
     operating_system_family = "LINUX"
     cpu_architecture        = "X86_64"
   }
+  # conditionally add ssm agent container
   container_definitions = "[${local.app}, ${local.aws_otel_collector}, ${local.amazon_ssm_agent}]"
   task_role_arn         = var.ecs_task_role.arn
   execution_role_arn    = var.ecs_execution_role.arn
