@@ -58,7 +58,7 @@
     "donorMatchesActorWarning": "The donor’s name is also {{.FirstNames}} {{.LastName}}. The donor cannot also be {{.ArticleAndType}}.",
     "attorneyMatchesActorWarning": "There is also an attorney called {{.FirstNames}} {{.LastName}}. An attorney cannot also be {{.ArticleAndType}}.",
     "attorneyMatchesAttorneyWarning": "There is already an attorney called {{.FirstNames}} {{.LastName}}.",
-    "replacementAttorneyMatchesActorWarning": "There is also replacement attorney called {{.FirstNames}} {{.LastName}}. A replacement attorney cannot also be {{.ArticleAndType}}.",
+    "replacementAttorneyMatchesActorWarning": "There is also a replacement attorney called {{.FirstNames}} {{.LastName}}. A replacement attorney cannot also be {{.ArticleAndType}}.",
     "replacementAttorneyMatchesReplacementAttorneyWarning": "There is already a replacement attorney called {{.FirstNames}} {{.LastName}}.",
     "certificateProviderMatchesActorWarning": "The certificate provider’s name is also {{.FirstNames}} {{.LastName}}. The certificate provider cannot also be {{.ArticleAndType}}.",
     "personToNotifyMatchesActorWarning": "There is also a person to notify called {{.FirstNames}} {{.LastName}}. A person to notify cannot also be {{.ArticleAndType}}.",
