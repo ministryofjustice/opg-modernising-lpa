@@ -32,6 +32,7 @@ resource "aws_ecs_service" "app" {
     create = "7m"
     update = "4m"
   }
+
   provider = aws.region
 }
 
