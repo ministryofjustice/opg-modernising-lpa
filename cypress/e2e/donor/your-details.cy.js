@@ -96,7 +96,7 @@ describe('Donor details', () => {
         cy.contains('You are under 18. By continuing, you understand that you must be at least 18 years old on the date you sign the LPA, or it will be rejected.');
     });
 
-    it.only('warns when date of birth is over 100', () => {
+    it('warns when date of birth is over 100', () => {
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
         cy.get('#f-date-of-birth').type('1');

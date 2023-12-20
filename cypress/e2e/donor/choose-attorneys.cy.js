@@ -95,13 +95,13 @@ describe('Choose attorneys', () => {
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/choose-attorneys');
 
-        cy.contains('The donor’s name is also Sam Smith. By saving this section, you are confirming that these are two different people with the same name.');
+        cy.contains('The donor’s name is also Sam Smith. The donor cannot also be an attorney. By saving this section, you are confirming that these are two different people with the same name.');
 
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/choose-attorneys-address');
     });
 
-    it.only('permanently warns when date of birth is under 18', () => {
+    it('permanently warns when date of birth is under 18', () => {
         cy.visit('/fixtures?redirect=/choose-replacement-attorneys&progress=provideYourDetails');
 
         cy.get('#f-first-names').type('John');
@@ -124,7 +124,7 @@ describe('Choose attorneys', () => {
         cy.contains('This attorney is under 18 years old. You can continue making your LPA but you will not be able to sign it until they are 18.');
     });
 
-    it.only('warns when date of birth is over 100', () => {
+    it('warns when date of birth is over 100', () => {
         cy.visit('/fixtures?redirect=/choose-attorneys&progress=provideYourDetails');
 
         cy.get('#f-first-names').type('John');
