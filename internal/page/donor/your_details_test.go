@@ -111,6 +111,41 @@ func TestGetYourDetailsFromLatest(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
+func TestGetYourDetailsDobWarningIsAlwaysShown(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	template := newMockTemplate(t)
+	template.
+		On("Execute", w, &yourDetailsData{
+			App: testAppData,
+			Form: &yourDetailsForm{
+				FirstNames: "John",
+				LastName:   "Doe",
+				OtherNames: "J",
+				Dob:        date.New("1900", "01", "02"),
+				CanSign:    actor.Yes,
+			},
+			DobWarning:        "dateOfBirthIsOver100",
+			YesNoMaybeOptions: actor.YesNoMaybeValues,
+		}).
+		Return(nil)
+
+	err := YourDetails(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+		Donor: actor.Donor{
+			FirstNames:    "John",
+			LastName:      "Doe",
+			OtherNames:    "J",
+			DateOfBirth:   date.New("1900", "01", "02"),
+			ThinksCanSign: actor.Yes,
+		},
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
 func TestGetYourDetailsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
@@ -448,6 +483,58 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 	}
 }
 
+func TestPostYourDetailsNameWarningOnlyShownWhenDonorAndFormNamesAreDifferent(t *testing.T) {
+	f := url.Values{
+		"first-names":         {"Jane"},
+		"last-name":           {"Doe"},
+		"date-of-birth-day":   {"2"},
+		"date-of-birth-month": {"1"},
+		"date-of-birth-year":  {"1999"},
+		"can-sign":            {actor.Yes.String()},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.
+		On("Put", r.Context(), &actor.DonorProvidedDetails{
+			LpaID: "lpa-id",
+			Donor: actor.Donor{
+				FirstNames:    "Jane",
+				LastName:      "Doe",
+				DateOfBirth:   date.New("1999", "1", "2"),
+				Email:         "name@example.com",
+				ThinksCanSign: actor.Yes,
+				CanSign:       form.Yes,
+			},
+			Tasks: actor.DonorTasks{YourDetails: actor.TaskInProgress},
+			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+				{FirstNames: "Jane", LastName: "Doe", ID: "123", Address: place.Address{Line1: "abc"}},
+			}},
+		}).
+		Return(nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		On("Get", mock.Anything, "session").
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
+
+	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+		LpaID: "lpa-id",
+		Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
+		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+			{FirstNames: "Jane", LastName: "Doe", ID: "123", Address: place.Address{Line1: "abc"}},
+		}},
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.YourAddress.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
 func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 	form := url.Values{
 		"first-names":         {"John"},
@@ -538,7 +625,6 @@ func TestReadYourDetailsForm(t *testing.T) {
 		"date-of-birth-day":   {"2"},
 		"date-of-birth-month": {"1"},
 		"date-of-birth-year":  {"1990"},
-		"ignore-dob-warning":  {"xyz"},
 		"can-sign":            {actor.Yes.String()},
 	}
 
@@ -551,7 +637,6 @@ func TestReadYourDetailsForm(t *testing.T) {
 	assert.Equal("Doe", result.LastName)
 	assert.Equal("Somebody", result.OtherNames)
 	assert.Equal(date.New("1990", "1", "2"), result.Dob)
-	assert.Equal("xyz", result.IgnoreDobWarning)
 	assert.Equal(actor.Yes, result.CanSign)
 	assert.Nil(result.CanSignError)
 }

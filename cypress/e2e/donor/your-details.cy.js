@@ -67,9 +67,47 @@ describe('Donor details', () => {
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/your-details');
 
-        cy.contains('There is also an attorney called Jessie Jones.');
+        cy.contains('There is also an attorney called Jessie Jones. By saving this section, you are confirming that these are two different people with the same name.');
 
         cy.get('#f-can-sign').check();
+        cy.contains('button', 'Continue').click();
+        cy.url().should('contain', '/your-address');
+    });
+
+    it('permanently warns when date of birth is under 18', () => {
+        cy.get('#f-first-names').type('John');
+        cy.get('#f-last-name').type('Doe');
+        cy.get('#f-date-of-birth').type('1');
+        cy.get('#f-date-of-birth-month').type('2');
+        cy.get('#f-date-of-birth-year').type(new Date().getFullYear());
+        cy.get('#f-can-sign').check();
+        cy.contains('button', 'Continue').click();
+        cy.url().should('contain', '/your-details');
+
+        cy.contains('You are under 18. By continuing, you understand that you must be at least 18 years old on the date you sign the LPA, or it will be rejected.');
+
+        cy.contains('button', 'Continue').click();
+        cy.url().should('contain', '/your-address');
+
+        cy.visitLpa("/task-list")
+        cy.contains('a', 'Provide your details').click()
+        cy.url().should('contain', '/your-details');
+
+        cy.contains('You are under 18. By continuing, you understand that you must be at least 18 years old on the date you sign the LPA, or it will be rejected.');
+    });
+
+    it('warns when date of birth is over 100', () => {
+        cy.get('#f-first-names').type('John');
+        cy.get('#f-last-name').type('Doe');
+        cy.get('#f-date-of-birth').type('1');
+        cy.get('#f-date-of-birth-month').type('2');
+        cy.get('#f-date-of-birth-year').type('1900');
+        cy.get('#f-can-sign').check();
+        cy.contains('button', 'Continue').click();
+        cy.url().should('contain', '/your-details');
+
+        cy.contains('By continuing, you confirm that this person is more than 100 years old. If not, please change their date of birth.');
+
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/your-address');
     });
