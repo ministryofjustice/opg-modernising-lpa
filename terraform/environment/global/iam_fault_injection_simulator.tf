@@ -32,6 +32,7 @@ resource "aws_iam_role_policy" "additional_permissions" {
 data "aws_iam_policy_document" "additional_permissions" {
 
   statement {
+    sid       = "AllowServiceLinkedRole"
     effect    = "Allow"
     resources = ["*"] #tfsec:ignore:aws-iam-no-policy-wildcards
     actions = [
@@ -45,6 +46,7 @@ data "aws_iam_policy_document" "additional_permissions" {
   }
 
   statement {
+    sid       = "AllowCloudWatchLogs"
     effect    = "Allow"
     resources = ["*"] #tfsec:ignore:aws-iam-no-policy-wildcards
     actions = [
@@ -52,6 +54,16 @@ data "aws_iam_policy_document" "additional_permissions" {
       "logs:DescribeLogGroups",
       "logs:CreateLogStream",
       "logs:PutLogEvents",
+    ]
+  }
+  statement {
+    sid       = "AllowSSMCommands"
+    effect    = "Allow"
+    resources = ["*"] #tfsec:ignore:aws-iam-no-policy-wildcards
+    actions = [
+      "ssm:SendCommand",
+      "ssm:ListCommands",
+      "ssm:CancelCommand",
     ]
   }
 }
