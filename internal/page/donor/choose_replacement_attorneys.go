@@ -1,6 +1,7 @@
 package donor
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -56,7 +57,9 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, u
 				data.DobWarning = dobWarning
 			}
 
-			if data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String() {
+			if data.Errors.Any() ||
+				data.Form.IgnoreNameWarning != nameWarning.String() &&
+					attorney.FullName() != fmt.Sprintf("%s %s", data.Form.FirstNames, data.Form.LastName) {
 				data.NameWarning = nameWarning
 			}
 
@@ -80,6 +83,10 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, u
 
 				return appData.Paths.ChooseReplacementAttorneysAddress.RedirectQuery(w, r, appData, donor, url.Values{"id": {attorney.ID}})
 			}
+		}
+
+		if !attorney.DateOfBirth.IsZero() {
+			data.DobWarning = data.Form.DobWarning()
 		}
 
 		return tmpl(w, data)
