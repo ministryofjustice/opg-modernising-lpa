@@ -99,3 +99,24 @@ locals {
       systemControls        = []
   })
 }
+
+data "aws_iam_policy_document" "fis_allow" {
+  statement {
+    sid       = "AllowSSMCommands"
+    effect    = "Allow"
+    resources = ["*"] #tfsec:ignore:aws-iam-no-policy-wildcards
+    actions = [
+      "ssm:CreateActivation",
+      "ssm:AddTagsToResource",
+    ]
+  }
+
+  statement {
+    sid       = "AllowPassRole"
+    effect    = "Allow"
+    resources = ["*"] #tfsec:ignore:aws-iam-no-policy-wildcards
+    actions = [
+      "iam:PassRole",
+    ]
+  }
+}
