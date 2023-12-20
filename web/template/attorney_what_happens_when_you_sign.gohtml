@@ -9,7 +9,7 @@
 
       {{ $donorFullNamePossessive := possessive .App .Donor.Donor.FullName }}
 
-      {{ if .Donor.Type.IsHealthWelfare }}
+      {{ if .Donor.Type.IsPersonalWelfare }}
         {{ if and .App.IsReplacementAttorney .App.IsTrustCorporation }}
           {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentReplacementTrustCorporationPw" "DonorFullNamePossessive" $donorFullNamePossessive "TrustCorporationName" .Donor.ReplacementAttorneys.TrustCorporation.Name }}
         {{ else if .App.IsTrustCorporation }}

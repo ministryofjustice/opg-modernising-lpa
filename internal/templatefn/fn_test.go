@@ -267,11 +267,6 @@ func TestFormatPhone(t *testing.T) {
 	assert.Equal(t, "+44 something else", formatPhone("+44 something else"))
 }
 
-func TestLowerFirst(t *testing.T) {
-	assert.Equal(t, "hELLO", lowerFirst("HELLO"))
-	assert.Equal(t, "hello", lowerFirst("hello"))
-}
-
 func TestListAttorneysWithAttorneys(t *testing.T) {
 	trustCorporation := actor.TrustCorporation{Name: "a"}
 	attorneys := []actor.Attorney{

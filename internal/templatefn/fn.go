@@ -7,8 +7,6 @@ import (
 	"slices"
 	"strings"
 	"time"
-	"unicode"
-	"unicode/utf8"
 
 	humanize "github.com/dustin/go-humanize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -43,7 +41,7 @@ func All(tag, region string) map[string]any {
 		"formatDate":         formatDate,
 		"formatDateTime":     formatDateTime,
 		"formatPhone":        formatPhone,
-		"lowerFirst":         lowerFirst,
+		"lowerFirst":         localize.LowerFirst,
 		"listAttorneys":      listAttorneys,
 		"listPeopleToNotify": listPeopleToNotify,
 		"possessive":         possessive,
@@ -260,11 +258,6 @@ func formatPhone(s string) string {
 	}
 
 	return s
-}
-
-func lowerFirst(s string) string {
-	r, n := utf8.DecodeRuneInString(s)
-	return string(unicode.ToLower(r)) + s[n:]
 }
 
 type attorneySummaryData struct {

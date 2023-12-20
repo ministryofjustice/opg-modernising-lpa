@@ -1,7 +1,7 @@
 {{ template "page" . }}
 
 {{ define "pageTitle" }}
-  {{ trFormat .App "theirLpa" "FullNamePossessive" (possessive .App .Donor.Donor.FullName) "LpaType" (tr .App .Donor.Type.LegalTermTransKey) }}
+  {{ trFormat .App "theirLpa" "FullNamePossessive" (possessive .App .Donor.Donor.FullName) "LpaType" (tr .App .Donor.Type.String | lowerFirst) }}
 {{ end }}
 
 {{ define "main" }}
