@@ -67,7 +67,7 @@ describe('Donor details', () => {
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/your-details');
 
-        cy.contains('There is also an attorney called Jessie Jones. By saving this section, you are confirming that these are two different people with the same name.');
+        cy.contains('There is also an attorney called Jessie Jones. An attorney cannot also be the donor. By saving this section, you are confirming that these are two different people with the same name.');
 
         cy.get('#f-can-sign').check();
         cy.contains('button', 'Continue').click();
