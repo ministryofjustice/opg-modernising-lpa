@@ -16,10 +16,11 @@ module "eu_west_1" {
   source = "./region"
   count  = contains(local.environment.regions, "eu-west-1") ? 1 : 0
   iam_roles = {
-    ecs_execution_role = module.global.iam_roles.ecs_execution_role
-    app_ecs_task_role  = module.global.iam_roles.app_ecs_task_role
-    s3_antivirus       = module.global.iam_roles.s3_antivirus
-    cross_account_put  = module.global.iam_roles.cross_account_put
+    ecs_execution_role        = module.global.iam_roles.ecs_execution_role
+    app_ecs_task_role         = module.global.iam_roles.app_ecs_task_role
+    s3_antivirus              = module.global.iam_roles.s3_antivirus
+    cross_account_put         = module.global.iam_roles.cross_account_put
+    fault_injection_simulator = module.global.iam_roles.fault_injection_simulator
   }
   application_log_retention_days          = local.environment.cloudwatch_log_groups.application_log_retention_days
   ecs_capacity_provider                   = local.ecs_capacity_provider
@@ -71,10 +72,11 @@ module "eu_west_2" {
   source = "./region"
   count  = contains(local.environment.regions, "eu-west-2") ? 1 : 0
   iam_roles = {
-    ecs_execution_role = module.global.iam_roles.ecs_execution_role
-    app_ecs_task_role  = module.global.iam_roles.app_ecs_task_role
-    s3_antivirus       = module.global.iam_roles.s3_antivirus
-    cross_account_put  = module.global.iam_roles.cross_account_put
+    ecs_execution_role        = module.global.iam_roles.ecs_execution_role
+    app_ecs_task_role         = module.global.iam_roles.app_ecs_task_role
+    s3_antivirus              = module.global.iam_roles.s3_antivirus
+    cross_account_put         = module.global.iam_roles.cross_account_put
+    fault_injection_simulator = module.global.iam_roles.fault_injection_simulator
   }
   application_log_retention_days          = local.environment.cloudwatch_log_groups.application_log_retention_days
   ecs_capacity_provider                   = local.ecs_capacity_provider

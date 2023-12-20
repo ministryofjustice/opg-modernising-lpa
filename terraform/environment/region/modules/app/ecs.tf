@@ -32,6 +32,7 @@ resource "aws_ecs_service" "app" {
     create = "7m"
     update = "4m"
   }
+
   provider = aws.region
 }
 
@@ -414,7 +415,7 @@ locals {
           value = var.event_bus.name
         },
         {
-          name = "LPA_STORE_BASE_URL",
+          name  = "LPA_STORE_BASE_URL",
           value = var.lpa_store_base_url
         }
       ]

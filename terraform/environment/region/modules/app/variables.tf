@@ -15,6 +15,11 @@ variable "ecs_task_role" {
   description = "ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services."
 }
 
+variable "fault_injection_simulator_role_arn" {
+  type        = any
+  description = "ARN of IAM role that allows AWS FIS to make calls to other AWS services."
+}
+
 variable "ecs_cluster" {
   type        = string
   description = "ARN of an ECS cluster."
