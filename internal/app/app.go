@@ -156,6 +156,7 @@ func App(
 		notifyClient,
 		shareCodeSender,
 		dashboardStore,
+		lpaStoreClient,
 	)
 
 	attorney.Register(
