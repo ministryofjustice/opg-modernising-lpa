@@ -100,7 +100,8 @@ locals {
   })
 }
 
-data "aws_iam_policy_document" "fis_allow" {
+data "aws_iam_policy_document" "fis_related_task_permissions" {
+  policy_id = "${local.policy_region_prefix}_fis_ecs_task_actions"
   statement {
     sid       = "AllowSSMCommands"
     effect    = "Allow"
