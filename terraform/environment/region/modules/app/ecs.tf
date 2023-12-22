@@ -109,11 +109,13 @@ data "aws_iam_policy_document" "combined" {
 data "aws_iam_policy_document" "fis_related_task_permissions" {
   policy_id = "${local.policy_region_prefix}_fis_related_task_permissions"
   statement {
-    sid    = local.policy_region_prefix
+    sid    = "${local.policy_region_prefix}_fis_ecs_task_actions"
     effect = "Allow"
 
     actions = [
-      "xray:PutTraceSegments",
+      "ssm:CreateActivation",
+      "ssm:AddTagsToResource",
+      "iam:PassRole",
     ]
 
     resources = ["*"]

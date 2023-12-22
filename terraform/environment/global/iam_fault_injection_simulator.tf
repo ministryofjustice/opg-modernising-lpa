@@ -38,7 +38,7 @@ data "aws_iam_policy_document" "fault_injection_simulator_combined" {
 }
 
 data "aws_iam_policy_document" "fault_injection_simulator_additional_permissions" {
-
+  policy_id = "fix experiment permissions"
   statement {
     sid       = "AllowServiceLinkedRole"
     effect    = "Allow"
@@ -124,12 +124,13 @@ data "aws_iam_policy_document" "fis_autocreated_role" {
     ]
   }
 
-  statement {
-    effect = "Allow"
-    actions = [
-      "ssm:ListCommands",
-      "ssm:CancelCommand"
-    ]
-    resources = ["*"]
-  }
+  #duplicate of above
+  # statement {
+  #   effect = "Allow"
+  #   actions = [
+  #     "ssm:ListCommands",
+  #     "ssm:CancelCommand"
+  #   ]
+  #   resources = ["*"]
+  # }
 }
