@@ -75,7 +75,7 @@ locals {
       environment = [
         {
           name  = "MANAGED_INSTANCE_ROLE_NAME",
-          value = "SSMManagedInstanceRole"
+          value = "${data.aws_default_tags.current.tags.environment-name}-app-task-role"
         }
       ],
       logConfiguration = {
@@ -109,6 +109,17 @@ data "aws_iam_policy_document" "fis_related_task_permissions" {
     actions = [
       "ssm:CreateActivation",
       "ssm:AddTagsToResource",
+    ]
+  }
+
+  statement {
+    sid       = "ManagedInstancePermissions"
+    effect    = "Allow"
+    resources = ["*"] #tfsec:ignore:aws-iam-no-policy-wildcards
+    actions = [
+      "ssm:DeleteActivation",
+      "ssm:DeregisterManagedInstance",
+      "ssm:CreateActivation",
     ]
   }
 
