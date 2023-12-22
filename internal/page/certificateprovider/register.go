@@ -96,6 +96,11 @@ type DashboardStore interface {
 	SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error)
 }
 
+//go:generate mockery --testonly --inpackage --name LpaStoreClient --structname mockLpaStoreClient
+type LpaStoreClient interface {
+	SendCertificateProvider(context.Context, string, *actor.CertificateProviderProvidedDetails) error
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -111,6 +116,7 @@ func Register(
 	notifyClient NotifyClient,
 	shareCodeSender ShareCodeSender,
 	dashboardStore DashboardStore,
+	lpaStoreClient LpaStoreClient,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -152,7 +158,7 @@ func Register(
 	handleCertificateProvider(page.Paths.CertificateProvider.WhatHappensNext, page.CanGoBack,
 		Guidance(tmpls.Get("certificate_provider_what_happens_next.gohtml"), donorStore, nil))
 	handleCertificateProvider(page.Paths.CertificateProvider.ProvideCertificate, page.CanGoBack,
-		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), donorStore, time.Now, certificateProviderStore, notifyClient, shareCodeSender))
+		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), donorStore, certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, time.Now))
 	handleCertificateProvider(page.Paths.CertificateProvider.CertificateProvided, page.None,
 		Guidance(tmpls.Get("certificate_provided.gohtml"), donorStore, certificateProviderStore))
 }
