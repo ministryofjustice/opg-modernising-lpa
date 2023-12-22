@@ -214,6 +214,37 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 	if err != nil {
 		return err
 	}
+
+	return c.do(ctx, req)
+}
+
+type certificateProviderRequest struct {
+	Address                   place.Address `json:"address"`
+	SignedAt                  time.Time     `json:"signedAt"`
+	ContactLanguagePreference string        `json:"contactLanguagePreference"`
+}
+
+func (c *Client) SendCertificateProvider(ctx context.Context, lpaUID string, certificateProvider *actor.CertificateProviderProvidedDetails) error {
+	body := certificateProviderRequest{
+		Address:                   certificateProvider.HomeAddress,
+		SignedAt:                  certificateProvider.Certificate.Agreed,
+		ContactLanguagePreference: certificateProvider.ContactLanguagePreference.String(),
+	}
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(body); err != nil {
+		return err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, c.baseURL+"/lpas/"+lpaUID+"/certificate-provider", &buf)
+	if err != nil {
+		return err
+	}
+
+	return c.do(ctx, req)
+}
+
+func (c *Client) do(ctx context.Context, req *http.Request) error {
 	req.Header.Add("Content-Type", "application/json")
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
