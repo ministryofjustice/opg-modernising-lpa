@@ -9,6 +9,7 @@
         "build:fonts": "mkdir -p web/static/assets/fonts && cp node_modules/govuk-frontend/govuk/assets/fonts/* web/static/assets/fonts",
         "cypress:open": "node_modules/.bin/cypress open",
         "cypress:run": "node_modules/.bin/cypress run -vvv",
+        "cypress:parallel" : "cypress-parallel -s cypress:run -t 3 -d cypress/e2e ",
         "test": "jest"
     },
     "license": "MIT",
@@ -26,6 +27,7 @@
         "cypress-axe": "^1.4",
         "cypress-file-upload": "^5.0.8",
         "cypress-multi-reporters": "^1.6.1",
+        "cypress-parallel": "^0.14.0",
         "cypress-real-events": "^1.8.1"
     }
 }
