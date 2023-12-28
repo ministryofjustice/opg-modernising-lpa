@@ -31,6 +31,10 @@ on:
         description: 'Environment config JSON'
         required: false
         type: string
+      specs:
+        description: 'A list of cypress specs or directories containing specs to run in format ["<filepath,filepath>"]'
+        required: true
+        type: string
     secrets:
       aws_access_key_id:
         description: 'AWS Access Key ID'
@@ -111,7 +115,7 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.cypress_record_key }}
           GITHUB_TOKEN: ${{ secrets.github_access_token }}
         with:
-          command: npm run cypress:parallel
+          command: npm run cypress:parallel --spec ${{ fromJSON(inputs.specs) }}
 
       - name: Persist Cypress failure screenshots as artifacts
         if: failure()
