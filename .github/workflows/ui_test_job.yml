@@ -31,8 +31,8 @@ on:
         description: 'Environment config JSON'
         required: false
         type: string
-      matrixSpecs:
-        description: 'A list of cypress specs in format ["<filepath,filepath>","<filepath>"] with each array value triggering an additional matrix job'
+      specs:
+        description: 'A list of cypress specs or directories containing specs to run in format ["<filepath,filepath>"]'
         required: true
         type: string
     secrets:
@@ -56,12 +56,6 @@ defaults:
 jobs:
   run_ui_tests:
     runs-on: ubuntu-latest
-    strategy:
-      # don't fail the entire matrix on failure
-      fail-fast: false
-      matrix:
-        # run copies of the current job in parallel
-        specs: ${{ fromJSON(inputs.matrixSpecs) }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -114,14 +108,15 @@ jobs:
         run: python ./scripts/ci_ingress/ci_ingress.py ${{ inputs.environment_config_json}} --add
 
       - name: Cypress run
-        if: inputs.skip != true
         uses: cypress-io/github-action@v6
-        with:
-          spec: ${{ matrix.specs }}
+        if: inputs.skip != true
         env:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
           CYPRESS_RECORD_KEY: ${{ secrets.cypress_record_key }}
           GITHUB_TOKEN: ${{ secrets.github_access_token }}
+        with:
+          command: npm run cypress:parallel
+          spec: ${{ fromJSON(inputs.specs) }}
 
       - name: Persist Cypress failure screenshots as artifacts
         if: failure()
