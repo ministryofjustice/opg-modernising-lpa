@@ -1,7 +1,6 @@
 package donor
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -53,13 +52,11 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, u
 				data.Form.LastName,
 			)
 
-			if data.Errors.Any() || data.Form.IgnoreDobWarning != dobWarning {
+			if data.Form.Dob != attorney.DateOfBirth && (data.Errors.Any() || data.Form.IgnoreDobWarning != dobWarning) {
 				data.DobWarning = dobWarning
 			}
 
-			if data.Errors.Any() ||
-				data.Form.IgnoreNameWarning != nameWarning.String() &&
-					attorney.FullName() != fmt.Sprintf("%s %s", data.Form.FirstNames, data.Form.LastName) {
+			if data.Form.NameHasChanged(attorney) && (data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String()) {
 				data.NameWarning = nameWarning
 			}
 
