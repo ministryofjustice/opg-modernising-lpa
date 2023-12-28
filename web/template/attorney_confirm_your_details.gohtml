@@ -56,7 +56,7 @@
         </dl>
 
         {{ template "details" (details . "whatToDoIfAnyDetailsAboutCompanyAreIncorrect" "whatToDoIfAnyDetailsAboutCompanyAreIncorrectAttorneyContent" false) }}
-        {{ template "warning" (warning .App "ifTheDetailsYouProvideAreNotCorrect") }}
+        {{ template "warning" (content .App "ifTheDetailsYouProvideAreNotCorrect") }}
       {{ else }}
         <h2 class="govuk-heading-m govuk-!-margin-top-8">{{ tr .App "detailsTheDonorHasGivenAboutYou" }}</h2>
         <dl class="govuk-summary-list">
@@ -75,7 +75,7 @@
         </dl>
 
         {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" "whatToDoIfAnyDetailsAreIncorrectAttorneyContent" false) }}
-        {{ template "warning" (warning .App "anyErrorsInYourDetailsCanMakeLpaDifficultToUse") }}
+        {{ template "warning" (content .App "anyErrorsInYourDetailsCanMakeLpaDifficultToUse") }}
       {{ end }}
 
       <form novalidate method="post">

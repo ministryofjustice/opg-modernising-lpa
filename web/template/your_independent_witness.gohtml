@@ -15,7 +15,7 @@
 
         {{ template "name-warning" . }}
 
-        {{ template "warning" (warning .App "independentWitnessThisPersonCannotBeWarning") }}
+        {{ template "warning" (content .App "independentWitnessThisPersonCannotBeWarning") }}
 
         {{ template "continue-button" . }}
         {{ template "csrf-field" . }}

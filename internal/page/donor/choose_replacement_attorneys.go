@@ -52,11 +52,11 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, u
 				data.Form.LastName,
 			)
 
-			if data.Errors.Any() || data.Form.IgnoreDobWarning != dobWarning {
+			if data.Form.Dob != attorney.DateOfBirth && (data.Errors.Any() || data.Form.IgnoreDobWarning != dobWarning) {
 				data.DobWarning = dobWarning
 			}
 
-			if data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String() {
+			if data.Form.NameHasChanged(attorney) && (data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String()) {
 				data.NameWarning = nameWarning
 			}
 
@@ -80,6 +80,10 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, u
 
 				return appData.Paths.ChooseReplacementAttorneysAddress.RedirectQuery(w, r, appData, donor, url.Values{"id": {attorney.ID}})
 			}
+		}
+
+		if !attorney.DateOfBirth.IsZero() {
+			data.DobWarning = data.Form.DobWarning()
 		}
 
 		return tmpl(w, data)
