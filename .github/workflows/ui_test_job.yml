@@ -115,7 +115,8 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.cypress_record_key }}
           GITHUB_TOKEN: ${{ secrets.github_access_token }}
         with:
-          command: npm run cypress:parallel --spec ${{ fromJSON(inputs.specs) }}
+          command: npm run cypress:parallel
+          spec: ${{ fromJSON(inputs.specs) }}
 
       - name: Persist Cypress failure screenshots as artifacts
         if: failure()
