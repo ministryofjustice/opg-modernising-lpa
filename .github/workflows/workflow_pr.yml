@@ -97,7 +97,7 @@ jobs:
       run_against_image: true
       tag: ${{ needs.create_tags.outputs.version_tag }}
       skip: ${{ contains(fromJSON('["weblate-pr"]'), github.head_ref) }}
-      matrixSpecs: '["cypress/e2e/donor/*","cypress/e2e/attorney/*,cypress/e2e/certificate-provider/*,cypress/e2e/accessibility/*,cypress/e2e/dev-features.cy.js,cypress/e2e/error-pages.cy.js"]'
+      specs: '["cypress/e2e/*"]'
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
@@ -138,7 +138,7 @@ jobs:
       base_url: "https://${{ needs.pr_deploy.outputs.url }}"
       tag: ${{ needs.create_tags.outputs.version_tag }}
       environment_config_json: ${{ needs.pr_deploy.outputs.environment_config_json }}
-      matrixSpecs: '["cypress/e2e/donor/start.cy.js,cypress/e2e/smoke/external.cy.js"]'
+      specs: '["cypress/e2e/donor/start.cy.js,cypress/smoke/*"]'
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
