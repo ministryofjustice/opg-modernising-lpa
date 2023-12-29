@@ -392,7 +392,7 @@ func TestPayHelperPay(t *testing.T) {
 
 			payClient := newMockPayClient(t)
 			payClient.
-				On("CreatePayment", pay.CreatePaymentBody{
+				On("CreatePayment", r.Context(), pay.CreatePaymentBody{
 					Amount:      8200,
 					Reference:   "123456789012",
 					Description: "Property and Finance LPA",
@@ -573,7 +573,7 @@ func TestPayHelperPayWhenFeeDenied(t *testing.T) {
 
 	payClient := newMockPayClient(t)
 	payClient.
-		On("CreatePayment", pay.CreatePaymentBody{
+		On("CreatePayment", r.Context(), pay.CreatePaymentBody{
 			Amount:      4100,
 			Reference:   "123456789012",
 			Description: "Property and Finance LPA",
@@ -642,7 +642,7 @@ func TestPayHelperPayWhenFeeDeniedAndPutStoreError(t *testing.T) {
 
 	payClient := newMockPayClient(t)
 	payClient.
-		On("CreatePayment", pay.CreatePaymentBody{
+		On("CreatePayment", r.Context(), pay.CreatePaymentBody{
 			Amount:      4100,
 			Reference:   "123456789012",
 			Description: "Property and Finance LPA",
@@ -698,7 +698,7 @@ func TestPayHelperPayWhenCreatePaymentErrors(t *testing.T) {
 
 	payClient := newMockPayClient(t)
 	payClient.
-		On("CreatePayment", mock.Anything).
+		On("CreatePayment", mock.Anything, mock.Anything).
 		Return(pay.CreatePaymentResponse{}, expectedError)
 
 	err := (&payHelper{
@@ -721,7 +721,7 @@ func TestPayHelperPayWhenSessionErrors(t *testing.T) {
 
 	payClient := newMockPayClient(t)
 	payClient.
-		On("CreatePayment", mock.Anything).
+		On("CreatePayment", mock.Anything, mock.Anything).
 		Return(pay.CreatePaymentResponse{
 			PaymentId: "a-fake-id",
 			Links: map[string]pay.Link{

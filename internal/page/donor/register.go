@@ -70,8 +70,8 @@ type S3Client interface {
 
 //go:generate mockery --testonly --inpackage --name PayClient --structname mockPayClient
 type PayClient interface {
-	CreatePayment(body pay.CreatePaymentBody) (pay.CreatePaymentResponse, error)
-	GetPayment(paymentId string) (pay.GetPaymentResponse, error)
+	CreatePayment(context.Context, pay.CreatePaymentBody) (pay.CreatePaymentResponse, error)
+	GetPayment(context.Context, string) (pay.GetPaymentResponse, error)
 }
 
 //go:generate mockery --testonly --inpackage --name AddressClient --structname mockAddressClient
@@ -515,7 +515,7 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 		Language:    appData.Lang.String(),
 	}
 
-	resp, err := p.payClient.CreatePayment(createPaymentBody)
+	resp, err := p.payClient.CreatePayment(r.Context(), createPaymentBody)
 	if err != nil {
 		p.logger.Print(fmt.Sprintf("Error creating payment: %s", err.Error()))
 		return err

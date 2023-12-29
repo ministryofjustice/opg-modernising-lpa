@@ -31,7 +31,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 
 		paymentId := paymentSession.PaymentID
 
-		payment, err := payClient.GetPayment(paymentId)
+		payment, err := payClient.GetPayment(r.Context(), paymentId)
 		if err != nil {
 			logger.Print(fmt.Sprintf("unable to retrieve payment info: %s", err.Error()))
 			return err

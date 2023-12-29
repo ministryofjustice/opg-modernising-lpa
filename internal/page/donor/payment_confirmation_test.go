@@ -1,6 +1,7 @@
 package donor
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -18,7 +19,7 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
 	payClient := newMockPayClient(t).
-		withASuccessfulPayment("abc123", "123456789012", 8200)
+		withASuccessfulPayment("abc123", "123456789012", 8200, r.Context())
 
 	template := newMockTemplate(t)
 	template.
@@ -68,7 +69,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
 	payClient := newMockPayClient(t).
-		withASuccessfulPayment("abc123", "123456789012", 4100)
+		withASuccessfulPayment("abc123", "123456789012", 4100, r.Context())
 
 	template := newMockTemplate(t)
 	template.
@@ -145,7 +146,7 @@ func TestGetPaymentConfirmationWhenErrorGettingPayment(t *testing.T) {
 
 	payClient := newMockPayClient(t)
 	payClient.
-		On("GetPayment", "abc123").
+		On("GetPayment", r.Context(), "abc123").
 		Return(pay.GetPaymentResponse{}, expectedError)
 
 	template := newMockTemplate(t)
@@ -177,7 +178,7 @@ func TestGetPaymentConfirmationWhenErrorExpiringSession(t *testing.T) {
 		Return(nil)
 
 	payClient := newMockPayClient(t).
-		withASuccessfulPayment("abc123", "123456789012", 8200)
+		withASuccessfulPayment("abc123", "123456789012", 8200, r.Context())
 
 	template := newMockTemplate(t)
 	template.
@@ -198,7 +199,7 @@ func TestGetPaymentConfirmationHalfFeeWhenDonorStorePutError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
 	payClient := newMockPayClient(t).
-		withASuccessfulPayment("abc123", "123456789012", 4100)
+		withASuccessfulPayment("abc123", "123456789012", 4100, r.Context())
 
 	sessionStore := newMockSessionStore(t).
 		withPaySession(r).
@@ -225,9 +226,9 @@ func TestGetPaymentConfirmationHalfFeeWhenDonorStorePutError(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func (m *mockPayClient) withASuccessfulPayment(paymentId, reference string, amount int) *mockPayClient {
+func (m *mockPayClient) withASuccessfulPayment(paymentId, reference string, amount int, ctx context.Context) *mockPayClient {
 	m.
-		On("GetPayment", paymentId).
+		On("GetPayment", ctx, paymentId).
 		Return(pay.GetPaymentResponse{
 			State: pay.State{
 				Status:   "success",
