@@ -107,8 +107,11 @@ jobs:
         if: inputs.run_against_image != true
         run: python ./scripts/ci_ingress/ci_ingress.py ${{ inputs.environment_config_json}} --add
 
-      - name: Cypress run
+      - name: Setup node
         uses: actions/setup-node@v4
+        if: inputs.skip != true
+
+      - name: Cypress run
         if: inputs.skip != true
         env:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
