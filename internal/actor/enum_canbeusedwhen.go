@@ -26,10 +26,6 @@ func (i CanBeUsedWhen) String() string {
 	return _CanBeUsedWhen_name[_CanBeUsedWhen_index[i]:_CanBeUsedWhen_index[i+1]]
 }
 
-func (i CanBeUsedWhen) MarshalText() ([]byte, error) {
-	return []byte(i.String()), nil
-}
-
 func (i CanBeUsedWhen) IsUnknown() bool {
 	return i == CanBeUsedWhenUnknown
 }

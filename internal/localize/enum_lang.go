@@ -26,10 +26,6 @@ func (i Lang) String() string {
 	return _Lang_name[_Lang_index[i]:_Lang_index[i+1]]
 }
 
-func (i Lang) MarshalText() ([]byte, error) {
-	return []byte(i.String()), nil
-}
-
 func (i Lang) IsEn() bool {
 	return i == En
 }

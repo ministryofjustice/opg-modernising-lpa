@@ -26,10 +26,6 @@ func (i CertificateProviderCarryOutBy) String() string {
 	return _CertificateProviderCarryOutBy_name[_CertificateProviderCarryOutBy_index[i]:_CertificateProviderCarryOutBy_index[i+1]]
 }
 
-func (i CertificateProviderCarryOutBy) MarshalText() ([]byte, error) {
-	return []byte(i.String()), nil
-}
-
 func (i CertificateProviderCarryOutBy) IsPaper() bool {
 	return i == Paper
 }
