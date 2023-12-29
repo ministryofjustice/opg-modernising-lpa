@@ -111,6 +111,10 @@ jobs:
         uses: actions/setup-node@v4
         if: inputs.skip != true
 
+      - name: Install dependencies
+        if: inputs.skip != true
+        run: yarn install
+
       - name: Cypress run
         if: inputs.skip != true
         env:
