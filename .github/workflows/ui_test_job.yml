@@ -32,7 +32,7 @@ on:
         required: false
         type: string
       specs:
-        description: 'A list of cypress specs or directories containing specs to run in format ["<filepath,filepath>"]'
+        description: 'A list of cypress specs, directories or globs containing specs to run in format "filepath filepath"'
         required: true
         type: string
     secrets:
@@ -108,15 +108,14 @@ jobs:
         run: python ./scripts/ci_ingress/ci_ingress.py ${{ inputs.environment_config_json}} --add
 
       - name: Cypress run
-        uses: cypress-io/github-action@v6
+        uses: actions/setup-node@v4
         if: inputs.skip != true
         env:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
           CYPRESS_RECORD_KEY: ${{ secrets.cypress_record_key }}
           GITHUB_TOKEN: ${{ secrets.github_access_token }}
-        with:
-          spec: ${{ fromJSON(inputs.specs) }}
-          command: npm run cypress:parallel
+        run:
+          yarn run cypress:parallel-with-specs --spec ${{ inputs.specs }}
 
       - name: Persist Cypress failure screenshots as artifacts
         if: failure()
