@@ -26,10 +26,6 @@ func (i YesNo) String() string {
 	return _YesNo_name[_YesNo_index[i]:_YesNo_index[i+1]]
 }
 
-func (i YesNo) MarshalText() ([]byte, error) {
-	return []byte(i.String()), nil
-}
-
 func (i YesNo) IsYes() bool {
 	return i == Yes
 }

@@ -26,10 +26,6 @@ func (i EvidenceDelivery) String() string {
 	return _EvidenceDelivery_name[_EvidenceDelivery_index[i]:_EvidenceDelivery_index[i+1]]
 }
 
-func (i EvidenceDelivery) MarshalText() ([]byte, error) {
-	return []byte(i.String()), nil
-}
-
 func (i EvidenceDelivery) IsUpload() bool {
 	return i == Upload
 }
