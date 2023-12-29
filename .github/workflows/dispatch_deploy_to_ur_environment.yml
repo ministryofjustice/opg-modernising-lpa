@@ -41,7 +41,7 @@ jobs:
       run_against_image: true
       tag: ur-${{ inputs.tag_to_deploy}}
       checkout_tag: ${{ inputs.tag_to_deploy}}
-      matrixSpecs: '["cypress/e2e/donor/*","cypress/e2e/attorney/*,cypress/e2e/certificate-provider/*,cypress/e2e/accessibility/*,cypress/e2e/dev-features.cy.js,cypress/e2e/error-pages.cy.js"]'
+      specs: 'cypress/e2e/**/*.js'
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
@@ -73,7 +73,7 @@ jobs:
       tag: ur-${{ inputs.tag_to_deploy}}
       checkout_tag: ${{ inputs.tag_to_deploy}}
       environment_config_json: ${{ needs.deploy.outputs.environment_config_json }}
-      matrixSpecs: '["cypress/e2e/donor/start.cy.js,cypress/e2e/smoke/external.cy.js"]'
+      specs: 'cypress/smoke/*.cy.js'
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
