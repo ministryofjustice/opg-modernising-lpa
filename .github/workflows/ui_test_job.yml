@@ -113,7 +113,7 @@ jobs:
 
       - name: Install dependencies
         if: inputs.skip != true
-        run: yarn install
+        run: yarn install --frozen-lockfile --ignore-optional
 
       - name: Cypress run
         if: inputs.skip != true
