@@ -11,6 +11,7 @@ type Document struct {
 	VirusDetected bool
 	Scanned       bool
 	Key           string
+	Uploaded      time.Time
 	Sent          time.Time
 }
 
