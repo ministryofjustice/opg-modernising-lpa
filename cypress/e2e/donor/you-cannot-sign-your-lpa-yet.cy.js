@@ -4,13 +4,13 @@ describe('You cannot sign your LPA yet', () => {
         cy.visit('/fixtures?redirect=/choose-attorneys-summary&progress=peopleToNotifyAboutYourLpa');
 
         cy.contains('.govuk-summary-card', 'Jessie Jones').contains('a', 'Change').click();
-        cy.get('#f-date-of-birth-year').clear().type(today.getFullYear())
+        cy.get('#f-date-of-birth-year').clear().type(today.getFullYear() - 1)
         cy.contains('button', 'Save and continue').click()
         cy.contains('button', 'Save and continue').click()
         cy.visitLpa('/choose-replacement-attorneys-summary')
 
         cy.contains('.govuk-summary-card', 'Blake Buckley').contains('a', 'Change').click();
-        cy.get('#f-date-of-birth-year').clear().type(today.getFullYear())
+        cy.get('#f-date-of-birth-year').clear().type(today.getFullYear() - 1)
         cy.contains('button', 'Save and continue').click()
         cy.contains('button', 'Save and continue').click()
         cy.contains('a', 'Return to task list').click()

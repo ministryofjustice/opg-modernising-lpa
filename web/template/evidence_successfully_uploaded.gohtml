@@ -9,9 +9,16 @@
         <h1 class="govuk-panel__title">{{ tr .App "evidenceSuccessfullyUploaded" }}</h1>
       </div>
 
-      {{ trFormatHtml .App "weWillReviewYourLpaApplicationAndSupportingEvidence" "Application" (printf "application%s" .Donor.FeeType.String | tr .App) }}
+      {{ trHtml .App "weWillReviewYourLpaApplicationAndSupportingEvidence" }}
+
+      {{ if .Donor.SignedAt.IsZero }}
+        {{ trFormatHtml .App "youCanStillSignYourLpa" "Application" (printf "application%s" .Donor.FeeType.String | tr .App) }}
+      {{ end }}
+
+      {{ trHtml .App "ifYourApplicationIsSuccessful" }}
+
       {{ template "details" (details . "appealingTheDecision" "appealingTheDecisionDetails" false) }}
-      
+
       <div class="govuk-button-group">
         <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "returnToTaskList" }}</a>
       </div>
