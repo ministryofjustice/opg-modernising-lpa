@@ -2,7 +2,42 @@
 
 {{ define "pageTitle" }}{{ tr .App "uploadYourEvidence" }}{{ end }}
 
+{{ define "uploadedList" }}
+  {{ trHtml .App "uploadedFilesContent" }}
+
+  <form novalidate method="post" enctype="multipart/form-data" id="delete-form">
+    {{ template "csrf-field" . }}
+
+    <input type="hidden" id="f-delete-action" name="action" value="delete" />
+
+    <dl class="govuk-summary-list">
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+          {{ tr .App "fileName" }}
+        </dt>
+        <dd class="govuk-summary-list__actions"></dd>
+      </div>
+      {{ range $i, $d := .Documents.ScannedNotSent }}
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__value">
+            {{ $d.Filename }}
+          </dt>
+          <dd class="govuk-summary-list__actions">
+            <input type="hidden" id="f-delete-evidence-{{ $i }}" name="delete" value="{{ $d.Key }}" />
+            <button class="app-button-link">
+              <span>{{ tr $.App "delete" }}<span class="govuk-visually-hidden"> {{ $d.Filename }}</span></span>
+            </button>
+          </dd>
+        </div>
+      {{ end }}
+    </dl>
+  </form>
+{{ end }}
+
 {{ define "previouslyUploadedList" }}
+  <h2 class="govuk-heading-m">{{ tr .App "previouslyUploadedFiles" }}</h2>
+  <p class="govuk-body">{{ tr .App "theseFilesHaveAlreadyBeenUploaded" }}</p>
+
   <dl class="govuk-summary-list">
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">
@@ -86,45 +121,19 @@
           </ul>
 
           <div class="govuk-tabs__panel" id="uploaded">
-            {{ trHtml .App "uploadedFilesContent" }}
-
-            <form novalidate method="post" enctype="multipart/form-data" id="delete-form">
-              {{ template "csrf-field" . }}
-
-              <input type="hidden" id="f-delete-action" name="action" value="delete" />
-
-              <dl class="govuk-summary-list">
-                <div class="govuk-summary-list__row">
-                  <dt class="govuk-summary-list__key">
-                    {{ tr .App "fileName" }}
-                  </dt>
-                  <dd class="govuk-summary-list__actions"></dd>
-                </div>
-                {{ range $i, $d := .Documents.ScannedNotSent }}
-                  <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__value">
-                      {{ $d.Filename }}
-                    </dt>
-                    <dd class="govuk-summary-list__actions">
-                      <input type="hidden" id="f-delete-evidence-{{ $i }}" name="delete" value="{{ $d.Key }}" />
-                      <button class="app-button-link">
-                        <span>{{ tr $.App "delete" }}<span class="govuk-visually-hidden"> {{ $d.Filename }}</span></span>
-                      </button>
-                    </dd>
-                  </div>
-                {{ end }}
-              </dl>
-            </form>
+            {{ template "uploadedList" . }}
           </div>
 
           <div class="govuk-tabs__panel govuk-tabs__panel--hidden" id="previouslyUploaded">
-            <h2 class="govuk-heading-m">Previously uploaded files</h2>
-            <p class="govuk-body">{{ tr .App "theseFilesHaveAlreadyBeenUploaded" }}</p>
             {{ template "previouslyUploadedList" . }}
           </div>
         </div>
       {{ else }}
-        {{ template "previouslyUploadedList" . }}
+        {{ if gt $scannedDocumentsNotSentCount 0 }}
+          {{ template "uploadedList" . }}
+        {{ else }}
+          <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+        {{ end }}
       {{ end }}
 
       <form novalidate method="post" enctype="multipart/form-data" id="pay-form">
