@@ -79,7 +79,7 @@ describe('Donor details', () => {
         cy.get('#f-last-name').type('Doe');
         cy.get('#f-date-of-birth').type('1');
         cy.get('#f-date-of-birth-month').type('2');
-        cy.get('#f-date-of-birth-year').type(new Date().getFullYear());
+        cy.get('#f-date-of-birth-year').type(new Date().getFullYear() - 1);
         cy.get('#f-can-sign').check();
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/your-details');
