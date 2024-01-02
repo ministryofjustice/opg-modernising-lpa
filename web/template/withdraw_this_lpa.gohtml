@@ -36,7 +36,7 @@
 
       {{ trHtml .App "whatHappensWhenYouWithdrawYourLpa" }}
 
-      {{ template "warning" (warning .App "withdrawingThisLpaIsPermanent") }}
+      {{ template "warning" (content .App "withdrawingThisLpaIsPermanent") }}
 
       <form novalidate method="post">
         <div class="govuk-button-group">
