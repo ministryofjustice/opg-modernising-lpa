@@ -936,5 +936,9 @@
     "ifDateYouEnteredIsCorrectYouMustWaitContent": {
         "one": "If the date you entered is correct, you must wait until this person is 18 years old before you can sign it.",
         "other": "If the dates you entered are correct, you must wait until everyone named on your LPA is 18 years old before you can sign it."
-    }
+    },
+    "uploadedFilesContent": "<h2 class=\"govuk-heading-m\">Uploaded files</h2><p class=\"govuk-body\">These files will be sent to a case worker for review.</p>",
+    "previouslyUploadedFiles": "Previously uploaded files",
+    "theseFilesHaveAlreadyBeenUploaded": "These files have already been uploaded and seen by a case worker. They cannot be deleted.",
+    "uploadDateAndTime": "Upload date and time"
 }

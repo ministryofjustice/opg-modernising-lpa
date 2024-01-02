@@ -998,5 +998,9 @@
         "few": "Welsh",
         "many": "Welsh",
         "other": "Welsh"
-    }
+    },
+    "uploadedFilesContent": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh</p>",
+    "previouslyUploadedFiles": "Welsh",
+    "theseFilesHaveAlreadyBeenUploaded": "Welsh",
+    "uploadDateAndTime": "Welsh"
 }
