@@ -77,12 +77,15 @@ describe('Pay for LPA', () => {
 
         cy.get('#uploaded .govuk-summary-list').should('not.exist');
 
-        // spoofing virus scan completing
-        cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&paymentTaskProgress=InProgress&feeType=HalfFee');
-        cy.url().should('contain', '/upload-evidence');
+        cy.get('input[type="file"]').attachFile(['dummy.pdf', 'dummy.png']);
 
-        cy.get('#uploaded .govuk-summary-list').within(() => {
-            cy.contains('supporting-evidence.png');
+        cy.contains('button', 'Upload files').click()
+
+        cy.setUploadsClean()
+
+        cy.get('form#delete-form .govuk-summary-list', {timeout: 5000}).within(() => {
+            cy.contains('dummy.png');
+            cy.contains('dummy.pdf');
         });
 
         cy.contains('button', 'Continue').click()
@@ -97,7 +100,8 @@ describe('Pay for LPA', () => {
                 cy.visit(`http://localhost:9001/?detail-type=reduced-fee-requested&detail=${uid}`);
 
                 cy.contains('"requestType":"HalfFee"');
-                cy.contains(new RegExp(`{"path":"${uid}/evidence/.+","filename":"supporting-evidence.png"}`))
+                cy.contains(new RegExp(`{"path":"${uid}/evidence/.+","filename":"dummy.png"}`))
+                cy.contains(new RegExp(`{"path":"${uid}/evidence/.+","filename":"dummy.pdf"}`))
                 cy.contains('"evidenceDelivery":"upload"');
             });
     });
@@ -334,4 +338,23 @@ describe('Pay for LPA', () => {
                 cy.contains('"evidenceDelivery":"post"');
             });
     });
+
+    it('errors when files contain viruses', () => {
+        cy.visit('/fixtures?redirect=/upload-evidence&progress=checkAndSendToYourCertificateProvider&feeType=HalfFee');
+        cy.checkA11yApp();
+
+        cy.url().should('contain', '/upload-evidence');
+
+        cy.get('input[type="file"]').attachFile(['dummy.pdf', 'dummy.png']);
+
+        cy.contains('button', 'Upload files').click()
+
+        cy.setUploadsInfected()
+
+        cy.get('.govuk-error-summary', {timeout: 5000}).within(() => {
+            cy.contains('dummy.pdf and dummy.png cannot be uploaded as they contain a virus');
+        });
+
+        cy.contains('#upload-form .govuk-error-message', 'dummy.pdf and dummy.png cannot be uploaded as they contain a virus');
+    })
 });
