@@ -8,9 +8,9 @@
       <h1 class="govuk-heading-xl">{{ trFormat .App "readDonorNameLpa" "DonorFullName" .Donor.Donor.FullName }}</h1>
 
       {{ if and .App.IsCertificateProvider .Donor.SignedAt.IsZero }}
-        {{ template "warning" (warning .App "youShouldReadLpaCarefully") }}
+        {{ template "warning" (content .App "youShouldReadLpaCarefully") }}
       {{ else }}
-        {{ template "warning" (warning .App "youMustReadLpaCarefully") }}
+        {{ template "warning" (content .App "youMustReadLpaCarefully") }}
       {{ end }}
 
       <h2 id="decisions" class="govuk-heading-l govuk-!-margin-bottom-2">

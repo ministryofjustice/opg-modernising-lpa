@@ -28,9 +28,9 @@ func NewSameNameWarning(actor, matches Type, firstNames, lastName string) *SameN
 
 func (w *SameNameWarning) Format(l localize.Localizer) string {
 	return l.Format(w.translationKey(), map[string]any{
-		"Type":       l.T(w.actorType()),
-		"FirstNames": w.firstNames,
-		"LastName":   w.lastName,
+		"ArticleAndType": l.T(w.actorType()),
+		"FirstNames":     w.firstNames,
+		"LastName":       w.lastName,
 	})
 }
 
