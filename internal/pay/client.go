@@ -2,6 +2,7 @@ package pay
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -37,11 +38,11 @@ func (g GovUKPayTime) Format(s string) string {
 	return time.Time(g).Format(s)
 }
 
-func (c *Client) CreatePayment(body CreatePaymentBody) (CreatePaymentResponse, error) {
+func (c *Client) CreatePayment(ctx context.Context, body CreatePaymentBody) (CreatePaymentResponse, error) {
 	data, _ := json.Marshal(body)
 	reader := bytes.NewReader(data)
 
-	req, err := http.NewRequest("POST", c.BaseURL+"/v1/payments", reader)
+	req, err := http.NewRequestWithContext(ctx, "POST", c.BaseURL+"/v1/payments", reader)
 	if err != nil {
 		return CreatePaymentResponse{}, err
 	}
@@ -65,8 +66,8 @@ func (c *Client) CreatePayment(body CreatePaymentBody) (CreatePaymentResponse, e
 	return createPaymentResp, nil
 }
 
-func (c *Client) GetPayment(paymentId string) (GetPaymentResponse, error) {
-	req, err := http.NewRequest("GET", c.BaseURL+"/v1/payments/"+paymentId, nil)
+func (c *Client) GetPayment(ctx context.Context, paymentId string) (GetPaymentResponse, error) {
+	req, err := http.NewRequestWithContext(ctx, "GET", c.BaseURL+"/v1/payments/"+paymentId, nil)
 	if err != nil {
 		return GetPaymentResponse{}, err
 	}
