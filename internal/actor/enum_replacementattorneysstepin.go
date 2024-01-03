@@ -27,6 +27,10 @@ func (i ReplacementAttorneysStepIn) String() string {
 	return _ReplacementAttorneysStepIn_name[_ReplacementAttorneysStepIn_index[i]:_ReplacementAttorneysStepIn_index[i+1]]
 }
 
+func (i ReplacementAttorneysStepIn) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
+}
+
 func (i ReplacementAttorneysStepIn) IsWhenAllCanNoLongerAct() bool {
 	return i == ReplacementAttorneysStepInWhenAllCanNoLongerAct
 }

@@ -26,6 +26,10 @@ func (i LpaType) String() string {
 	return _LpaType_name[_LpaType_index[i]:_LpaType_index[i+1]]
 }
 
+func (i LpaType) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
+}
+
 func (i LpaType) IsPersonalWelfare() bool {
 	return i == LpaTypePersonalWelfare
 }

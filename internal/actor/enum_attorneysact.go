@@ -27,6 +27,10 @@ func (i AttorneysAct) String() string {
 	return _AttorneysAct_name[_AttorneysAct_index[i]:_AttorneysAct_index[i+1]]
 }
 
+func (i AttorneysAct) MarshalText() ([]byte, error) {
+	return []byte(i.String()), nil
+}
+
 func (i AttorneysAct) IsJointly() bool {
 	return i == Jointly
 }
