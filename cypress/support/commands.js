@@ -60,11 +60,11 @@ Cypress.Commands.add('visitLpa', (path, opts = {}) => {
 });
 
 Cypress.Commands.add('setUploadsClean', (opts = {}) => {
-    cy.url().then(u => cy.exec(`(make set-uploads-clean lpaId=${getLpaIDFromURL(u)})`));
+    cy.url().then(u => cy.exec(`(make set-uploads-clean lpaId=${getLpaIDFromURL(u)})`, {timeout: 30000}));
 });
 
 Cypress.Commands.add('setUploadsInfected', (opts = {}) => {
-    cy.url().then(u => cy.exec(`(make set-uploads-infected lpaId=${getLpaIDFromURL(u)})`));
+    cy.url().then(u => cy.exec(`(make set-uploads-infected lpaId=${getLpaIDFromURL(u)})`, {timeout: 30000}));
 });
 
 function getLpaIDFromURL(url) {
