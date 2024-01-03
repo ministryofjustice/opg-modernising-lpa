@@ -251,7 +251,7 @@ func Donor(
 
 				donorDetails.FeeType = feeType
 
-				document, err := documentStore.Create(
+				stagedForUpload, err := documentStore.Create(
 					page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}),
 					donorDetails,
 					"supporting-evidence.png",
@@ -262,9 +262,29 @@ func Donor(
 					return err
 				}
 
-				document.Scanned = true
-				document.VirusDetected = withVirus
-				if err := documentStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}), document); err != nil {
+				stagedForUpload.Scanned = true
+				stagedForUpload.VirusDetected = withVirus
+
+				if err := documentStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}), stagedForUpload); err != nil {
+					return err
+				}
+
+				previouslyUploaded, err := documentStore.Create(
+					page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}),
+					donorDetails,
+					"previously-uploaded-evidence.png",
+					make([]byte, 64),
+				)
+
+				if err != nil {
+					return err
+				}
+
+				previouslyUploaded.Scanned = true
+				previouslyUploaded.VirusDetected = false
+				previouslyUploaded.Sent = time.Now()
+
+				if err := documentStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}), previouslyUploaded); err != nil {
 					return err
 				}
 			} else {
