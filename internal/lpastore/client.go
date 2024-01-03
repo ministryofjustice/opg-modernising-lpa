@@ -214,6 +214,68 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 	if err != nil {
 		return err
 	}
+
+	return c.do(ctx, req)
+}
+
+type updateRequest struct {
+	Type    string                `json:"type"`
+	Changes []updateRequestChange `json:"changes"`
+}
+
+type updateRequestChange struct {
+	Key string `json:"key"`
+	Old any    `json:"old,omitempty"`
+	New any    `json:"new"`
+}
+
+func (c *Client) SendCertificateProvider(ctx context.Context, lpaUID string, certificateProvider *actor.CertificateProviderProvidedDetails) error {
+	body := updateRequest{
+		Type: "CERTIFICATE_PROVIDER_SIGN",
+		Changes: []updateRequestChange{
+			{Key: "/certificateProvider/signedAt", New: certificateProvider.Certificate.Agreed},
+			{Key: "/certificateProvider/contactLanguagePreference", New: certificateProvider.ContactLanguagePreference.String()},
+		},
+	}
+
+	if certificateProvider.HomeAddress.Line1 != "" {
+		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/address/line1", New: certificateProvider.HomeAddress.Line1})
+	}
+
+	if certificateProvider.HomeAddress.Line2 != "" {
+		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/address/line2", New: certificateProvider.HomeAddress.Line2})
+	}
+
+	if certificateProvider.HomeAddress.Line3 != "" {
+		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/address/line3", New: certificateProvider.HomeAddress.Line3})
+	}
+
+	if certificateProvider.HomeAddress.TownOrCity != "" {
+		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/address/town", New: certificateProvider.HomeAddress.TownOrCity})
+	}
+
+	if certificateProvider.HomeAddress.Postcode != "" {
+		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/address/postcode", New: certificateProvider.HomeAddress.Postcode})
+	}
+
+	if certificateProvider.HomeAddress.Country != "" {
+		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/address/country", New: certificateProvider.HomeAddress.Country})
+	}
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(body); err != nil {
+		return err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/lpas/"+lpaUID+"/updates", &buf)
+	if err != nil {
+		return err
+	}
+
+	return c.do(ctx, req)
+}
+
+func (c *Client) do(ctx context.Context, req *http.Request) error {
 	req.Header.Add("Content-Type", "application/json")
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
