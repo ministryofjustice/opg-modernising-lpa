@@ -38,6 +38,7 @@ func (s *documentStore) Create(ctx context.Context, donor *actor.DonorProvidedDe
 		SK:       documentKey(key),
 		Filename: filename,
 		Key:      key,
+		Uploaded: s.now(),
 	}
 
 	if err := s.s3Client.PutObject(ctx, document.Key, data); err != nil {
