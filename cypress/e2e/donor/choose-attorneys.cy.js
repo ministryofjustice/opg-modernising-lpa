@@ -95,7 +95,47 @@ describe('Choose attorneys', () => {
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/choose-attorneys');
 
-        cy.contains('The donor’s name is also Sam Smith.');
+        cy.contains('The donor’s name is also Sam Smith. The donor cannot also be an attorney. By saving this section, you are confirming that these are two different people with the same name.');
+
+        cy.contains('button', 'Save and continue').click();
+        cy.url().should('contain', '/choose-attorneys-address');
+    });
+
+    it('permanently warns when date of birth is under 18', () => {
+        cy.visit('/fixtures?redirect=/choose-replacement-attorneys&progress=provideYourDetails');
+
+        cy.get('#f-first-names').type('John');
+        cy.get('#f-last-name').type('Doe');
+        cy.get('#f-date-of-birth').type('1');
+        cy.get('#f-date-of-birth-month').type('2');
+        cy.get('#f-date-of-birth-year').type(new Date().getFullYear() - 1);
+        cy.contains('button', 'Save and continue').click();
+        cy.url().should('contain', '/choose-replacement-attorneys');
+
+        cy.contains('This attorney is under 18 years old. You can continue making your LPA but you will not be able to sign it until they are 18.');
+
+        cy.contains('button', 'Save and continue').click();
+        cy.url().should('contain', '/choose-replacement-attorneys-address');
+
+        cy.visitLpa("/choose-replacement-attorneys-summary")
+        cy.contains('a', 'Change').click()
+        cy.url().should('contain', '/choose-replacement-attorneys');
+
+        cy.contains('This attorney is under 18 years old. You can continue making your LPA but you will not be able to sign it until they are 18.');
+    });
+
+    it('warns when date of birth is over 100', () => {
+        cy.visit('/fixtures?redirect=/choose-attorneys&progress=provideYourDetails');
+
+        cy.get('#f-first-names').type('John');
+        cy.get('#f-last-name').type('Doe');
+        cy.get('#f-date-of-birth').type('1');
+        cy.get('#f-date-of-birth-month').type('2');
+        cy.get('#f-date-of-birth-year').type('1900');
+        cy.contains('button', 'Save and continue').click();
+        cy.url().should('contain', '/choose-attorneys');
+
+        cy.contains('By continuing, you confirm that this person is more than 100 years old. If not, please change their date of birth.');
 
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/choose-attorneys-address');

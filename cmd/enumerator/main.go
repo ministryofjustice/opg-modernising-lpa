@@ -181,7 +181,6 @@ import (
 
 	// Run generate for the type.
 	g.generate(*typeName)
-
 	// Format the output.
 	src := g.format()
 

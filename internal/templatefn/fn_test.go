@@ -330,16 +330,6 @@ func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
 	assert.Equal(t, want, got)
 }
 
-func TestWarning(t *testing.T) {
-	app := page.AppData{SessionID: "abc"}
-	content := "content"
-
-	v := warning(app, content)
-
-	assert.Equal(t, app, v["app"])
-	assert.Equal(t, content, v["content"])
-}
-
 func TestListPeopleToNotify(t *testing.T) {
 	app := page.AppData{SessionID: "abc"}
 	headingLevel := 3
@@ -422,4 +412,14 @@ func TestPenceToPounds(t *testing.T) {
 	assert.Equal(t, "15", penceToPounds(1500))
 	assert.Equal(t, "103.27", penceToPounds(10327))
 	assert.Equal(t, "945,678.99", penceToPounds(94567899))
+}
+
+func TestContent(t *testing.T) {
+	app := page.AppData{SessionID: "abc"}
+	componentContent := "content"
+
+	v := content(app, componentContent)
+
+	assert.Equal(t, app, v["App"])
+	assert.Equal(t, componentContent, v["Content"])
 }
