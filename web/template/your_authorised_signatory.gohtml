@@ -15,7 +15,7 @@
 
         {{ template "name-warning" . }}
 
-        {{ template "warning" (warning .App "authorisedSignatoryThisPersonCannotBeWarning") }}
+        {{ template "warning" (content .App "authorisedSignatoryThisPersonCannotBeWarning") }}
 
         {{ template "continue-button" . }}
         {{ template "csrf-field" . }}

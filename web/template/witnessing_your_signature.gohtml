@@ -11,7 +11,7 @@
         {{ trFormatHtml .App "witnessYourSignatureContent" "CpFullName" .Donor.CertificateProvider.FullName "CpFirstNames" .Donor.CertificateProvider.FirstNames }}
 
         {{ $warningContent := trFormat .App "witnessCodeTimeWarning" "CpFirstNames" .Donor.CertificateProvider.FirstNames }}
-        {{ template "warning" (warning .App $warningContent)  }}
+        {{ template "warning" (content .App $warningContent)  }}
       {{ else }}
         {{ trFormatHtml .App "witnessYourSignatureContentCannotSign" "CertificateProviderFullName" .Donor.CertificateProvider.FullName "IndependentWitnessFullName" .Donor.IndependentWitness.FullName }}
       {{ end }}
