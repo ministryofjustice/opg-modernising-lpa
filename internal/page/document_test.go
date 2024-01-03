@@ -2,6 +2,7 @@ package page
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -96,4 +97,35 @@ func TestDocumentsFilenames(t *testing.T) {
 	}
 
 	assert.Equal(t, []string{"a-filename", "another-filename"}, documents.Filenames())
+}
+
+func TestDocumentsSent(t *testing.T) {
+	now := time.Now()
+
+	documents := Documents{
+		{Key: "a-key", Filename: "a-filename"},
+		{Key: "another-key", Filename: "another-filename", Scanned: true},
+		{Key: "more-key", Filename: "more-filename", Sent: now},
+		{Key: "further-key", Filename: "further-filename", Scanned: true},
+	}
+
+	assert.Equal(t, Documents{
+		{Key: "more-key", Filename: "more-filename", Sent: now},
+	}, documents.Sent())
+}
+
+func TestDocumentsScannedNotSent(t *testing.T) {
+	now := time.Now()
+
+	documents := Documents{
+		{Key: "a-key", Filename: "a-filename"},
+		{Key: "another-key", Filename: "another-filename", Scanned: true},
+		{Key: "more-key", Filename: "more-filename", Sent: now},
+		{Key: "further-key", Filename: "further-filename", Scanned: true},
+	}
+
+	assert.Equal(t, Documents{
+		{Key: "another-key", Filename: "another-filename", Scanned: true},
+		{Key: "further-key", Filename: "further-filename", Scanned: true},
+	}, documents.ScannedNotSent())
 }

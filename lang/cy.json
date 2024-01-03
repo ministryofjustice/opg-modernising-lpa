@@ -926,7 +926,9 @@
     "nothingHardship": "Welsh",
     "howMuchYouPreviouslyPaid": "Welsh",
     "evidenceSuccessfullyUploaded": "Welsh",
-    "weWillReviewYourLpaApplicationAndSupportingEvidence": "<p class=\"govuk-body\">Welsh</p>",
+    "weWillReviewYourLpaApplicationAndSupportingEvidence": "<p class=\"govuk-body\">Welsh</h2>",
+    "youCanStillSignYourLpa": "<h3 class=\"govuk-heading-s\">Welsh</h3><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh {{ .Application }} Welsh</p>",
+    "ifYourApplicationIsSuccessful": "<h3 class=\"govuk-heading-s\">Welsh</h3><p class=\"govuk-body\">Welsh</p><h3 class=\"govuk-heading-s\">Welsh</h3><p class=\"govuk-body\">Welsh</p>",
     "applicationNoFee": "welsh",
     "applicationHalfFee": "welsh",
     "applicationHardshipFee": "welsh",
@@ -998,5 +1000,9 @@
         "few": "Welsh",
         "many": "Welsh",
         "other": "Welsh"
-    }
+    },
+    "uploadedFilesContent": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh</p>",
+    "previouslyUploadedFiles": "Welsh",
+    "theseFilesHaveAlreadyBeenUploaded": "Welsh",
+    "uploadDateAndTime": "Welsh"
 }
