@@ -31,7 +31,7 @@
           </div>
         </div>
 
-        {{ template "warning" (warning .App "youreResponsibleForMakingSureTheseDetailsAreCorrect") }}
+        {{ template "warning" (content .App "youreResponsibleForMakingSureTheseDetailsAreCorrect") }}
 
         {{ template "save-and-return-buttons" . }}
         {{ template "csrf-field" . }}

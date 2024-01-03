@@ -7,7 +7,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "lifeSustainingTreatment" }}</h1>
 
-      {{ template "warning" (warning .App "thisIsAnImportantDecision") }}
+      {{ template "warning" (content .App "thisIsAnImportantDecision") }}
 
       {{ trHtml .App "lifeSustainingTreatmentContent" }}
 

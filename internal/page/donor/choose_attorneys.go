@@ -55,11 +55,11 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore, uuidString f
 				data.Form.LastName,
 			)
 
-			if data.Errors.Any() || data.Form.IgnoreDobWarning != dobWarning {
+			if data.Form.Dob != attorney.DateOfBirth && (data.Errors.Any() || data.Form.IgnoreDobWarning != dobWarning) {
 				data.DobWarning = dobWarning
 			}
 
-			if data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String() {
+			if data.Form.NameHasChanged(attorney) && (data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String()) {
 				data.NameWarning = nameWarning
 			}
 
@@ -84,6 +84,10 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore, uuidString f
 
 				return appData.Paths.ChooseAttorneysAddress.RedirectQuery(w, r, appData, donor, url.Values{"id": {attorney.ID}})
 			}
+		}
+
+		if !attorney.DateOfBirth.IsZero() {
+			data.DobWarning = data.Form.DobWarning()
 		}
 
 		return tmpl(w, data)
@@ -137,18 +141,18 @@ func (f *chooseAttorneysForm) Validate() validation.List {
 	return errors
 }
 
-func (d *chooseAttorneysForm) DobWarning() string {
+func (f *chooseAttorneysForm) DobWarning() string {
 	var (
 		today                = date.Today()
 		hundredYearsEarlier  = today.AddDate(-100, 0, 0)
 		eighteenYearsEarlier = today.AddDate(-18, 0, 0)
 	)
 
-	if !d.Dob.IsZero() {
-		if d.Dob.Before(hundredYearsEarlier) {
+	if !f.Dob.IsZero() {
+		if f.Dob.Before(hundredYearsEarlier) {
 			return "dateOfBirthIsOver100"
 		}
-		if d.Dob.Before(today) && d.Dob.After(eighteenYearsEarlier) {
+		if f.Dob.Before(today) && f.Dob.After(eighteenYearsEarlier) {
 			return "attorneyDateOfBirthIsUnder18"
 		}
 	}
@@ -196,4 +200,8 @@ func attorneyMatches(donor *actor.DonorProvidedDetails, id, firstNames, lastName
 	}
 
 	return actor.TypeNone
+}
+
+func (f *chooseAttorneysForm) NameHasChanged(attorney actor.Attorney) bool {
+	return attorney.FirstNames != f.FirstNames || attorney.LastName != f.LastName
 }

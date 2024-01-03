@@ -29,7 +29,7 @@
 
       <p class="govuk-body">{{ tr .App "youllBeAskedIfYouWantToPayInFullOrNot" }}</p>
 
-      {{ template "warning" (warning .App "mustProvideEvidenceWarning") }}
+      {{ template "warning" (content .App "mustProvideEvidenceWarning") }}
 
       <div class="govuk-button-group">
         <a href="{{ link .App (.App.Paths.AreYouApplyingForFeeDiscountOrExemption.Format .App.LpaID) }}" class="govuk-button">{{ tr .App "continue" }}</a>

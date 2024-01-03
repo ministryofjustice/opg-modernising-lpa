@@ -10,7 +10,7 @@
       <p class="govuk-body-l">{{ tr .App "howToConfirmYourIdentityAndSignIntro" }}</p>
 
       {{ if .Donor.Donor.CanSign.IsYes }}
-        {{ template "warning" (warning .App (trFormat .App "yourCertificateProviderMustBeWithYou" "CertificateProviderName" .Donor.CertificateProvider.FullName)) }}
+        {{ template "warning" (content .App (trFormat .App "yourCertificateProviderMustBeWithYou" "CertificateProviderName" .Donor.CertificateProvider.FullName)) }}
       {{ end }}
 
       <div class="moj-ticket-panel govuk-!-margin-bottom-6">
@@ -38,7 +38,7 @@
       </div>
 
       {{ if .Donor.Donor.CanSign.IsNo }}
-        {{ template "warning" (warning .App "yourCertificateProviderAndIndependentWitnessMustBeWithYou") }}
+        {{ template "warning" (content .App "yourCertificateProviderAndIndependentWitnessMustBeWithYou") }}
       {{ end }}
 
       <div class="govuk-button-group">
