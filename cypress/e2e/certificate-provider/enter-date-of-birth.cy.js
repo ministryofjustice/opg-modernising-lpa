@@ -43,7 +43,7 @@ describe('Enter date of birth', () => {
             cy.contains('button', 'Save and continue').click();
 
             cy.url().should('contain', '/enter-date-of-birth');
-            cy.contains('By saving this section, you confirm that the person is more than 100 years old')
+            cy.contains('By continuing, you confirm that this person is more than 100 years old. If not, please change their date of birth.')
 
             cy.checkA11yApp();
 

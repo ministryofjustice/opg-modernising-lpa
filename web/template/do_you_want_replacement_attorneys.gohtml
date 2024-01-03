@@ -21,10 +21,10 @@
             {{ trHtml .App "findOutMoreAboutReplacementAttorneysContent" }}
 
             {{ if .Donor.AttorneyDecisions.How.IsJointly }}
-              {{ template "warning" (warning .App "jointlyReplacementWarning") }}
+              {{ template "warning" (content .App "jointlyReplacementWarning") }}
               {{ trHtml .App "jointlyReplacementWarningContent" }}
             {{ else if .Donor.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
-              {{ template "warning" (warning .App "mixedReplacementWarning") }}
+              {{ template "warning" (content .App "mixedReplacementWarning") }}
               {{ trHtml .App "mixedReplacementWarningContent" }}
             {{ end }}
 

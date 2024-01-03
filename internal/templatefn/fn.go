@@ -43,7 +43,6 @@ func All(tag, region string) map[string]any {
 		"formatPhone":        formatPhone,
 		"lowerFirst":         localize.LowerFirst,
 		"listAttorneys":      listAttorneys,
-		"warning":            warning,
 		"listPeopleToNotify": listPeopleToNotify,
 		"possessive":         possessive,
 		"card":               card,
@@ -53,6 +52,7 @@ func All(tag, region string) map[string]any {
 		"concatComma":        concatComma,
 		"penceToPounds":      penceToPounds,
 		"canGoTo":            page.CanGoTo,
+		"content":            content,
 	}
 }
 
@@ -308,13 +308,6 @@ func listPeopleToNotify(app page.AppData, headingLevel int, donor *actor.DonorPr
 	}
 }
 
-func warning(app page.AppData, content string) map[string]interface{} {
-	return map[string]interface{}{
-		"app":     app,
-		"content": content,
-	}
-}
-
 func card(app page.AppData, item any) map[string]any {
 	return map[string]interface{}{
 		"App":  app,
@@ -360,4 +353,11 @@ func concatComma(list []string) string {
 
 func penceToPounds(pence int) string {
 	return humanize.CommafWithDigits(float64(pence)/100, 2)
+}
+
+func content(app page.AppData, content string) map[string]interface{} {
+	return map[string]interface{}{
+		"App":     app,
+		"Content": content,
+	}
 }
