@@ -427,3 +427,94 @@ func TestDocumentStoreSubmitWhenDynamoClientErrors(t *testing.T) {
 func TestDocumentKey(t *testing.T) {
 	assert.Equal(t, "#DOCUMENT#key", documentKey("key"))
 }
+
+func TestDocumentCreate(t *testing.T) {
+	ctx := context.Background()
+	now := time.Now()
+
+	donor := &actor.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload, LpaID: "lpa-id"}
+
+	data := []byte("some-data")
+
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("PutObject", ctx, "lpa-uid/evidence/a-uuid", data).
+		Return(nil)
+
+	expectedDocument := page.Document{
+		PK:       "LPA#lpa-id",
+		SK:       "#DOCUMENT#lpa-uid/evidence/a-uuid",
+		Filename: "a-filename",
+		Key:      "lpa-uid/evidence/a-uuid",
+		Uploaded: now,
+	}
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("Create", ctx, expectedDocument).
+		Return(nil)
+
+	documentStore := &documentStore{
+		dynamoClient: dynamoClient,
+		s3Client:     s3Client,
+		now:          func() time.Time { return now },
+		randomUUID:   func() string { return "a-uuid" },
+	}
+
+	document, err := documentStore.Create(ctx, donor, "a-filename", data)
+
+	assert.Nil(t, err)
+	assert.Equal(t, expectedDocument, document)
+}
+
+func TestDocumentCreateWhenS3Error(t *testing.T) {
+	ctx := context.Background()
+	now := time.Now()
+
+	donor := &actor.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload, LpaID: "lpa-id"}
+
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("PutObject", ctx, "lpa-uid/evidence/a-uuid", mock.Anything).
+		Return(expectedError)
+
+	documentStore := &documentStore{
+		s3Client:   s3Client,
+		now:        func() time.Time { return now },
+		randomUUID: func() string { return "a-uuid" },
+	}
+
+	_, err := documentStore.Create(ctx, donor, "a-filename", []byte("some-data"))
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestDocumentCreateWhenDynamoError(t *testing.T) {
+	ctx := context.Background()
+	now := time.Now()
+
+	donor := &actor.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload, LpaID: "lpa-id"}
+
+	data := []byte("some-data")
+
+	s3Client := newMockS3Client(t)
+	s3Client.
+		On("PutObject", ctx, "lpa-uid/evidence/a-uuid", data).
+		Return(nil)
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		On("Create", ctx, mock.Anything).
+		Return(expectedError)
+
+	documentStore := &documentStore{
+		dynamoClient: dynamoClient,
+		s3Client:     s3Client,
+		now:          func() time.Time { return now },
+		randomUUID:   func() string { return "a-uuid" },
+	}
+
+	_, err := documentStore.Create(ctx, donor, "a-filename", data)
+
+	assert.Equal(t, expectedError, err)
+}

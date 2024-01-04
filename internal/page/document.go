@@ -11,6 +11,7 @@ type Document struct {
 	VirusDetected bool
 	Scanned       bool
 	Key           string
+	Uploaded      time.Time
 	Sent          time.Time
 }
 
@@ -100,4 +101,28 @@ func (ds *Documents) Get(documentKey string) Document {
 	}
 
 	return Document{}
+}
+
+func (ds *Documents) Sent() Documents {
+	var documents Documents
+
+	for _, d := range *ds {
+		if !d.Sent.IsZero() {
+			documents = append(documents, d)
+		}
+	}
+
+	return documents
+}
+
+func (ds *Documents) ScannedNotSent() Documents {
+	var documents Documents
+
+	for _, d := range *ds {
+		if d.Sent.IsZero() && d.Scanned {
+			documents = append(documents, d)
+		}
+	}
+
+	return documents
 }
