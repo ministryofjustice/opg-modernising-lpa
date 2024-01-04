@@ -81,7 +81,7 @@ describe('Pay for LPA', () => {
         cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&paymentTaskProgress=InProgress&feeType=HalfFee');
         cy.url().should('contain', '/upload-evidence');
 
-        cy.get('form#delete-form .govuk-summary-list', {timeout: 5000}).within(() => {
+        cy.get('form#delete-form .govuk-summary-list').within(() => {
             cy.contains('supporting-evidence.png');
         });
 
