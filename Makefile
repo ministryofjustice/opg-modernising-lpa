@@ -1,5 +1,3 @@
-SHELL=/bin/bash
-
 #COLORS
 GREEN  := $(shell tput -Txterm setaf 2)
 WHITE  := $(shell tput -Txterm setaf 7)
