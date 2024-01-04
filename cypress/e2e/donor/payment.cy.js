@@ -88,8 +88,16 @@ describe('Pay for LPA', () => {
         cy.contains('button', 'Continue').click()
 
         cy.url().should('contain', '/payment-confirmation');
+        cy.contains('a', 'Continue').click()
+
+        cy.url().should('contain', '/evidence-successfully-uploaded');
+        cy.contains('a', 'Return to task list').click()
+
+        cy.url().should('contain', '/task-list');
+        cy.contains('li', "Pay for the LPA").should('contain', 'pending');
 
         cy.visit('/dashboard');
+
         cy.contains('.govuk-body-s', 'Reference number:')
             .invoke('text')
             .then((text) => {
