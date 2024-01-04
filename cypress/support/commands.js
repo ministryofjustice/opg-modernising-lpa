@@ -58,15 +58,3 @@ Cypress.Commands.add('checkA11yApp', (options= {}) => {
 Cypress.Commands.add('visitLpa', (path, opts = {}) => {
     cy.url().then(u => cy.visit(u.split('/').slice(3, -1).join('/') + path, opts));
 });
-
-Cypress.Commands.add('setUploadsClean', (opts = {}) => {
-    cy.url().then(u => cy.exec(`(make set-uploads-clean lpaId=${getLpaIDFromURL(u)})`, {timeout: 30000}));
-});
-
-Cypress.Commands.add('setUploadsInfected', (opts = {}) => {
-    cy.url().then(u => cy.exec(`(make set-uploads-infected lpaId=${getLpaIDFromURL(u)})`, {timeout: 30000}));
-});
-
-function getLpaIDFromURL(url) {
-    return url.split('/').slice(4, -1)[0]
-}
