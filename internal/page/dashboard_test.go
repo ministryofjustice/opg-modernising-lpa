@@ -109,32 +109,65 @@ func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostDashboard(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+	testCases := map[string]struct {
+		DonorLPAs        []LpaAndActorTasks
+		ExpectedRedirect LpaPath
+	}{
+		"no donor LPAs": {
+			ExpectedRedirect: Paths.YourDetails,
+		},
+		"with donor LPAs": {
+			DonorLPAs: []LpaAndActorTasks{
+				{Donor: &actor.DonorProvidedDetails{LpaID: "123"}},
+				{Donor: &actor.DonorProvidedDetails{LpaID: "456"}},
+			},
+			ExpectedRedirect: Paths.MakeANewLPA,
+		},
+	}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Create", r.Context()).
-		Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	err := Dashboard(nil, donorStore, nil)(AppData{}, w, r)
-	resp := w.Result()
+			certificateProviderLpas := []LpaAndActorTasks{{Donor: &actor.DonorProvidedDetails{LpaID: "abc"}}}
+			attorneyLpas := []LpaAndActorTasks{{Donor: &actor.DonorProvidedDetails{LpaID: "def"}}}
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, Paths.YourDetails.Format("lpa-id"), resp.Header.Get("Location"))
+			dashboardStore := newMockDashboardStore(t)
+			dashboardStore.
+				On("GetAll", r.Context()).
+				Return(tc.DonorLPAs, attorneyLpas, certificateProviderLpas, nil)
+
+			donorStore := newMockDonorStore(t)
+			donorStore.
+				On("Create", r.Context()).
+				Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
+
+			err := Dashboard(nil, donorStore, dashboardStore)(AppData{}, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.ExpectedRedirect.Format("lpa-id"), resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestPostDashboardWhenDonorStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
+	dashboardStore := newMockDashboardStore(t)
+	dashboardStore.
+		On("GetAll", r.Context()).
+		Return([]LpaAndActorTasks{}, []LpaAndActorTasks{}, []LpaAndActorTasks{}, nil)
+
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Create", r.Context()).
 		Return(&actor.DonorProvidedDetails{LpaID: "123"}, expectedError)
 
-	err := Dashboard(nil, donorStore, nil)(AppData{}, w, r)
+	err := Dashboard(nil, donorStore, dashboardStore)(AppData{}, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

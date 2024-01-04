@@ -220,6 +220,7 @@ type AppPaths struct {
 	LpaDetailsSaved                                      LpaPath
 	LpaType                                              LpaPath
 	LpaYourLegalRightsAndResponsibilities                LpaPath
+	MakeANewLPA                                          LpaPath
 	NeedHelpSigningConfirmation                          LpaPath
 	PaymentConfirmation                                  LpaPath
 	PreviousApplicationNumber                            LpaPath
@@ -367,6 +368,7 @@ var Paths = AppPaths{
 	LpaType:                                              "/lpa-type",
 	LpaWithdrawn:                                         "/lpa-withdrawn",
 	LpaYourLegalRightsAndResponsibilities:                "/your-legal-rights-and-responsibilities",
+	MakeANewLPA:                                          "/make-a-new-lpa",
 	NeedHelpSigningConfirmation:                          "/need-help-signing-confirmation",
 	PaymentConfirmation:                                  "/payment-confirmation",
 	PreviousApplicationNumber:                            "/previous-application-number",
