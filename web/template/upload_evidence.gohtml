@@ -131,6 +131,8 @@
       {{ else }}
         {{ if gt $scannedDocumentsNotSentCount 0 }}
           {{ template "uploadedList" . }}
+        {{ else if gt $sentDocumentsCount 0 }}
+          {{ template "previouslyUploadedList" . }}
         {{ else }}
           <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
         {{ end }}
