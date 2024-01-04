@@ -72,7 +72,7 @@ func (h *cloudWatchEventHandler) Handle(ctx context.Context, event events.CloudW
 	case "reduced-fee-declined":
 		return handleFeeDenied(ctx, h.dynamoClient, event, h.now)
 
-	case "move-evidence-required":
+	case "more-evidence-required":
 		return handleMoreEvidenceRequired(ctx, h.dynamoClient, event, h.now)
 
 	default:
