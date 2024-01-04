@@ -10,7 +10,7 @@
         "cypress:open": "node_modules/.bin/cypress open",
         "cypress:run": "node_modules/.bin/cypress run -vvv",
         "cypress:parallel" : "cypress-parallel -s cypress:run -t 6 --spec cypress/e2e/**/*.cy.js cypress/smoke/*.cy.js",
-        "cypress:parallel-with-specs" : "cypress-parallel -s cypress:run -t 6",
+        "cypress:parallel-with-specs" : "cypress-parallel -s cypress:run -t 4",
         "test": "jest"
     },
     "license": "MIT",
