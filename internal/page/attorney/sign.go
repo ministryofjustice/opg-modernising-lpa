@@ -40,7 +40,14 @@ type signData struct {
 	Form                        *signForm
 }
 
-func Sign(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, now func() time.Time) Handler {
+func Sign(
+	tmpl template.Template,
+	donorStore DonorStore,
+	certificateProviderStore CertificateProviderStore,
+	attorneyStore AttorneyStore,
+	lpaStoreClient LpaStoreClient,
+	now func() time.Time,
+) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *actor.AttorneyProvidedDetails) error {
 		signatoryIndex := 0
 		if r.URL.Query().Has("second") {
@@ -127,6 +134,10 @@ func Sign(tmpl template.Template, donorStore DonorStore, certificateProviderStor
 				if appData.IsTrustCorporation() && signatoryIndex == 0 {
 					return page.Paths.Attorney.WouldLikeSecondSignatory.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 				} else {
+					if err := lpaStoreClient.SendAttorney(r.Context(), lpa, attorneyProvidedDetails); err != nil {
+						return err
+					}
+
 					return page.Paths.Attorney.WhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 				}
 			}
