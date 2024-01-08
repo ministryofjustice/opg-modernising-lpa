@@ -24,7 +24,7 @@ url = https://moj.weblate.cloud/api/
 https://moj.weblate.cloud/api/ = APIKEY
 ```
 
-Your api key can be found in the weblate admin interface under `https://moj.weblate.cloud/accounts/profile/#api`
+Your api key can be found in the weblate account page under `https://moj.weblate.cloud/accounts/profile/#api`
 
 ## Managing translations
 
