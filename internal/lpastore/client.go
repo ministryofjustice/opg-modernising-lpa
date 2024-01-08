@@ -262,12 +262,59 @@ func (c *Client) SendCertificateProvider(ctx context.Context, lpaUID string, cer
 		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/address/country", New: certificateProvider.HomeAddress.Country})
 	}
 
+	return c.sendUpdate(ctx, lpaUID, body)
+}
+
+func (c *Client) SendAttorney(ctx context.Context, donor *actor.DonorProvidedDetails, attorney *actor.AttorneyProvidedDetails) error {
+	var attorneyKey string
+	if attorney.IsTrustCorporation && attorney.IsReplacement {
+		attorneyKey = "/trustCorporations/1"
+	} else if attorney.IsTrustCorporation {
+		attorneyKey = "/trustCorporations/0"
+	} else if attorney.IsReplacement {
+		attorneyKey = fmt.Sprintf("/attorneys/%d", len(donor.Attorneys.Attorneys)+donor.ReplacementAttorneys.Index(attorney.ID))
+	} else {
+		attorneyKey = fmt.Sprintf("/attorneys/%d", donor.Attorneys.Index(attorney.ID))
+	}
+
+	body := updateRequest{
+		Type: "ATTORNEY_SIGN",
+		Changes: []updateRequestChange{
+			{Key: attorneyKey + "/mobile", New: attorney.Mobile},
+			{Key: attorneyKey + "/contactLanguagePreference", New: attorney.ContactLanguagePreference.String()},
+		},
+	}
+
+	if attorney.IsTrustCorporation {
+		body.Changes = append(body.Changes,
+			updateRequestChange{Key: attorneyKey + "/signatories/0/firstNames", New: attorney.AuthorisedSignatories[0].FirstNames},
+			updateRequestChange{Key: attorneyKey + "/signatories/0/lastName", New: attorney.AuthorisedSignatories[0].LastName},
+			updateRequestChange{Key: attorneyKey + "/signatories/0/professionalTitle", New: attorney.AuthorisedSignatories[0].ProfessionalTitle},
+			updateRequestChange{Key: attorneyKey + "/signatories/0/signedAt", New: attorney.AuthorisedSignatories[0].Confirmed},
+		)
+
+		if !attorney.AuthorisedSignatories[1].Confirmed.IsZero() {
+			body.Changes = append(body.Changes,
+				updateRequestChange{Key: attorneyKey + "/signatories/1/firstNames", New: attorney.AuthorisedSignatories[1].FirstNames},
+				updateRequestChange{Key: attorneyKey + "/signatories/1/lastName", New: attorney.AuthorisedSignatories[1].LastName},
+				updateRequestChange{Key: attorneyKey + "/signatories/1/professionalTitle", New: attorney.AuthorisedSignatories[1].ProfessionalTitle},
+				updateRequestChange{Key: attorneyKey + "/signatories/1/signedAt", New: attorney.AuthorisedSignatories[1].Confirmed},
+			)
+		}
+	} else {
+		body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/signedAt", New: attorney.Confirmed})
+	}
+
+	return c.sendUpdate(ctx, donor.LpaUID, body)
+}
+
+func (c *Client) sendUpdate(ctx context.Context, uid string, body updateRequest) error {
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(body); err != nil {
 		return err
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/lpas/"+lpaUID+"/updates", &buf)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/lpas/"+uid+"/updates", &buf)
 	if err != nil {
 		return err
 	}
