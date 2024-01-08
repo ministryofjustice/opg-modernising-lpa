@@ -33,7 +33,7 @@ The repository has a `.weblate` file which contains the configuration for our tr
 That means from the repository root you can run weblate cli commands like:
 
 ```sh
-wcl ls
+wlc ls
 ```
 
 or
