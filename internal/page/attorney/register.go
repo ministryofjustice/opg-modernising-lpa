@@ -76,6 +76,11 @@ type DashboardStore interface {
 	SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error)
 }
 
+//go:generate mockery --testonly --inpackage --name LpaStoreClient --structname mockLpaStoreClient
+type LpaStoreClient interface {
+	SendAttorney(context.Context, *actor.DonorProvidedDetails, *actor.AttorneyProvidedDetails) error
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -89,6 +94,7 @@ func Register(
 	errorHandler page.ErrorHandler,
 	notFoundHandler page.Handler,
 	dashboardStore DashboardStore,
+	lpaStoreClient LpaStoreClient,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -120,9 +126,9 @@ func Register(
 	handleAttorney(page.Paths.Attorney.WhatHappensWhenYouSign, RequireAttorney,
 		Guidance(tmpls.Get("attorney_what_happens_when_you_sign.gohtml"), donorStore))
 	handleAttorney(page.Paths.Attorney.Sign, RequireAttorney,
-		Sign(tmpls.Get("attorney_sign.gohtml"), donorStore, certificateProviderStore, attorneyStore, time.Now))
+		Sign(tmpls.Get("attorney_sign.gohtml"), donorStore, certificateProviderStore, attorneyStore, lpaStoreClient, time.Now))
 	handleAttorney(page.Paths.Attorney.WouldLikeSecondSignatory, RequireAttorney,
-		WouldLikeSecondSignatory(tmpls.Get("attorney_would_like_second_signatory.gohtml"), attorneyStore))
+		WouldLikeSecondSignatory(tmpls.Get("attorney_would_like_second_signatory.gohtml"), attorneyStore, donorStore, lpaStoreClient))
 	handleAttorney(page.Paths.Attorney.WhatHappensNext, RequireAttorney,
 		Guidance(tmpls.Get("attorney_what_happens_next.gohtml"), donorStore))
 	handleAttorney(page.Paths.Attorney.Progress, RequireAttorney,

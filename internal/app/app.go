@@ -172,6 +172,7 @@ func App(
 		errorHandler,
 		notFoundHandler,
 		dashboardStore,
+		lpaStoreClient,
 	)
 
 	donor.Register(

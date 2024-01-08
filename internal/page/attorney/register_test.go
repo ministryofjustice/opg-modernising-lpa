@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
@@ -17,7 +18,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, nil, template.Templates{}, nil, nil, nil, nil, nil, nil, nil, nil, &mockDashboardStore{})
+	Register(mux, nil, template.Templates{}, nil, nil, nil, nil, nil, nil, nil, nil, &mockDashboardStore{}, &lpastore.Client{})
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
