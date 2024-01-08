@@ -84,7 +84,7 @@ func (as Attorneys) Addresses() []place.Address {
 }
 
 func (as Attorneys) Get(id string) (Attorney, bool) {
-	idx := slices.IndexFunc(as.Attorneys, func(a Attorney) bool { return a.ID == id })
+	idx := as.Index(id)
 	if idx == -1 {
 		return Attorney{}, false
 	}
@@ -93,7 +93,7 @@ func (as Attorneys) Get(id string) (Attorney, bool) {
 }
 
 func (as *Attorneys) Put(attorney Attorney) {
-	idx := slices.IndexFunc(as.Attorneys, func(a Attorney) bool { return a.ID == attorney.ID })
+	idx := as.Index(attorney.ID)
 	if idx == -1 {
 		as.Attorneys = append(as.Attorneys, attorney)
 	} else {
@@ -102,13 +102,17 @@ func (as *Attorneys) Put(attorney Attorney) {
 }
 
 func (as *Attorneys) Delete(attorney Attorney) bool {
-	idx := slices.IndexFunc(as.Attorneys, func(a Attorney) bool { return a.ID == attorney.ID })
+	idx := as.Index(attorney.ID)
 	if idx == -1 {
 		return false
 	}
 
 	as.Attorneys = slices.Delete(as.Attorneys, idx, idx+1)
 	return true
+}
+
+func (as *Attorneys) Index(id string) int {
+	return slices.IndexFunc(as.Attorneys, func(a Attorney) bool { return a.ID == id })
 }
 
 func (as Attorneys) FullNames() []string {
