@@ -18,7 +18,7 @@ type wouldLikeSecondSignatoryData struct {
 	Options form.YesNoOptions
 }
 
-func WouldLikeSecondSignatory(tmpl template.Template, attorneyStore AttorneyStore) Handler {
+func WouldLikeSecondSignatory(tmpl template.Template, attorneyStore AttorneyStore, donorStore DonorStore, lpaStoreClient LpaStoreClient) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *actor.AttorneyProvidedDetails) error {
 		data := &wouldLikeSecondSignatoryData{
 			App:     appData,
@@ -40,6 +40,15 @@ func WouldLikeSecondSignatory(tmpl template.Template, attorneyStore AttorneyStor
 				if form.YesNo.IsYes() {
 					return page.Paths.Attorney.Sign.RedirectQuery(w, r, appData, attorneyProvidedDetails.LpaID, url.Values{"second": {""}})
 				} else {
+					lpa, err := donorStore.GetAny(r.Context())
+					if err != nil {
+						return err
+					}
+
+					if err := lpaStoreClient.SendAttorney(r.Context(), lpa, attorneyProvidedDetails); err != nil {
+						return err
+					}
+
 					return page.Paths.Attorney.WhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 				}
 			}
