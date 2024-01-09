@@ -41,3 +41,62 @@ or
 ```sh
 wlc lock
 ```
+
+## adding weblate remote
+
+You can add a weblate remote to your local repository.
+
+```sh
+git remote add weblate https://moj.weblate.cloud/git/opg-modernising-lpa/opg-modernising-lpa/
+git remote update weblate
+```
+
+to set the remote back to origin run:
+
+```sh
+git remote update origin
+```
+
+## resolving merge conflicts
+
+Commit all pending changes in Weblate and lock the translation component.
+
+```sh
+wlc commit; wlc lock
+```
+
+Switch to the weblate remote
+
+```sh
+git remote update weblate
+```
+
+Merge Weblate changes and resolve any conflicts.
+
+```sh
+git merge weblate/main
+```
+
+Rebase Weblate changes on top of upstream and resolve any conflicts.
+
+```sh
+git rebase origin/main
+```
+
+Push changes into upstream repository.
+
+```sh
+git push origin main
+```
+
+Weblate should now be able to see updated repository and you can unlock it.
+
+```sh
+wlc pull ; wlc unlock
+```
+
+switch back to origin
+
+```sh
+git remote update origin
+```
