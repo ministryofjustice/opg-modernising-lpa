@@ -14,6 +14,14 @@ type mockS3Client struct {
 	mock.Mock
 }
 
+type mockS3Client_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockS3Client) EXPECT() *mockS3Client_Expecter {
+	return &mockS3Client_Expecter{mock: &_m.Mock}
+}
+
 // GetObjectTags provides a mock function with given fields: ctx, key
 func (_m *mockS3Client) GetObjectTags(ctx context.Context, key string) ([]types.Tag, error) {
 	ret := _m.Called(ctx, key)
@@ -42,6 +50,35 @@ func (_m *mockS3Client) GetObjectTags(ctx context.Context, key string) ([]types.
 	}
 
 	return r0, r1
+}
+
+// mockS3Client_GetObjectTags_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetObjectTags'
+type mockS3Client_GetObjectTags_Call struct {
+	*mock.Call
+}
+
+// GetObjectTags is a helper method to define mock.On call
+//   - ctx context.Context
+//   - key string
+func (_e *mockS3Client_Expecter) GetObjectTags(ctx interface{}, key interface{}) *mockS3Client_GetObjectTags_Call {
+	return &mockS3Client_GetObjectTags_Call{Call: _e.mock.On("GetObjectTags", ctx, key)}
+}
+
+func (_c *mockS3Client_GetObjectTags_Call) Run(run func(ctx context.Context, key string)) *mockS3Client_GetObjectTags_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *mockS3Client_GetObjectTags_Call) Return(_a0 []types.Tag, _a1 error) *mockS3Client_GetObjectTags_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockS3Client_GetObjectTags_Call) RunAndReturn(run func(context.Context, string) ([]types.Tag, error)) *mockS3Client_GetObjectTags_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockS3Client creates a new instance of mockS3Client. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

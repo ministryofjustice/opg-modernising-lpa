@@ -15,6 +15,14 @@ type mockCertificateProviderStore struct {
 	mock.Mock
 }
 
+type mockCertificateProviderStore_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockCertificateProviderStore) EXPECT() *mockCertificateProviderStore_Expecter {
+	return &mockCertificateProviderStore_Expecter{mock: &_m.Mock}
+}
+
 // Create provides a mock function with given fields: ctx, sessionID
 func (_m *mockCertificateProviderStore) Create(ctx context.Context, sessionID string) (*actor.CertificateProviderProvidedDetails, error) {
 	ret := _m.Called(ctx, sessionID)
@@ -43,6 +51,35 @@ func (_m *mockCertificateProviderStore) Create(ctx context.Context, sessionID st
 	}
 
 	return r0, r1
+}
+
+// mockCertificateProviderStore_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
+type mockCertificateProviderStore_Create_Call struct {
+	*mock.Call
+}
+
+// Create is a helper method to define mock.On call
+//   - ctx context.Context
+//   - sessionID string
+func (_e *mockCertificateProviderStore_Expecter) Create(ctx interface{}, sessionID interface{}) *mockCertificateProviderStore_Create_Call {
+	return &mockCertificateProviderStore_Create_Call{Call: _e.mock.On("Create", ctx, sessionID)}
+}
+
+func (_c *mockCertificateProviderStore_Create_Call) Run(run func(ctx context.Context, sessionID string)) *mockCertificateProviderStore_Create_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *mockCertificateProviderStore_Create_Call) Return(_a0 *actor.CertificateProviderProvidedDetails, _a1 error) *mockCertificateProviderStore_Create_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockCertificateProviderStore_Create_Call) RunAndReturn(run func(context.Context, string) (*actor.CertificateProviderProvidedDetails, error)) *mockCertificateProviderStore_Create_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // Get provides a mock function with given fields: ctx
@@ -75,6 +112,34 @@ func (_m *mockCertificateProviderStore) Get(ctx context.Context) (*actor.Certifi
 	return r0, r1
 }
 
+// mockCertificateProviderStore_Get_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Get'
+type mockCertificateProviderStore_Get_Call struct {
+	*mock.Call
+}
+
+// Get is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *mockCertificateProviderStore_Expecter) Get(ctx interface{}) *mockCertificateProviderStore_Get_Call {
+	return &mockCertificateProviderStore_Get_Call{Call: _e.mock.On("Get", ctx)}
+}
+
+func (_c *mockCertificateProviderStore_Get_Call) Run(run func(ctx context.Context)) *mockCertificateProviderStore_Get_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *mockCertificateProviderStore_Get_Call) Return(_a0 *actor.CertificateProviderProvidedDetails, _a1 error) *mockCertificateProviderStore_Get_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockCertificateProviderStore_Get_Call) RunAndReturn(run func(context.Context) (*actor.CertificateProviderProvidedDetails, error)) *mockCertificateProviderStore_Get_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Put provides a mock function with given fields: ctx, certificateProvider
 func (_m *mockCertificateProviderStore) Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error {
 	ret := _m.Called(ctx, certificateProvider)
@@ -91,6 +156,35 @@ func (_m *mockCertificateProviderStore) Put(ctx context.Context, certificateProv
 	}
 
 	return r0
+}
+
+// mockCertificateProviderStore_Put_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Put'
+type mockCertificateProviderStore_Put_Call struct {
+	*mock.Call
+}
+
+// Put is a helper method to define mock.On call
+//   - ctx context.Context
+//   - certificateProvider *actor.CertificateProviderProvidedDetails
+func (_e *mockCertificateProviderStore_Expecter) Put(ctx interface{}, certificateProvider interface{}) *mockCertificateProviderStore_Put_Call {
+	return &mockCertificateProviderStore_Put_Call{Call: _e.mock.On("Put", ctx, certificateProvider)}
+}
+
+func (_c *mockCertificateProviderStore_Put_Call) Run(run func(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails)) *mockCertificateProviderStore_Put_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*actor.CertificateProviderProvidedDetails))
+	})
+	return _c
+}
+
+func (_c *mockCertificateProviderStore_Put_Call) Return(_a0 error) *mockCertificateProviderStore_Put_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockCertificateProviderStore_Put_Call) RunAndReturn(run func(context.Context, *actor.CertificateProviderProvidedDetails) error) *mockCertificateProviderStore_Put_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockCertificateProviderStore creates a new instance of mockCertificateProviderStore. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
