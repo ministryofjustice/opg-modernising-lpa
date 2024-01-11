@@ -144,6 +144,8 @@ type LpaStoreClient interface {
 	SendLpa(context.Context, *actor.DonorProvidedDetails) error
 }
 
+type ErrorHandler func(http.ResponseWriter, *http.Request, error)
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,

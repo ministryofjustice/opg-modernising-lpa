@@ -20,8 +20,8 @@ func TestGetHowWouldYouLikeToSendEvidence(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &howWouldYouLikeToSendEvidenceData{
+	template.EXPECT().
+		Execute(w, &howWouldYouLikeToSendEvidenceData{
 			App:     testAppData,
 			Options: pay.EvidenceDeliveryValues,
 		}).
@@ -39,8 +39,8 @@ func TestGetHowWouldYouLikeToSendEvidenceFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &howWouldYouLikeToSendEvidenceData{
+	template.EXPECT().
+		Execute(w, &howWouldYouLikeToSendEvidenceData{
 			App:     testAppData,
 			Options: pay.EvidenceDeliveryValues,
 		}).
@@ -58,8 +58,8 @@ func TestGetHowWouldYouLikeToSendEvidenceWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := HowWouldYouLikeToSendEvidence(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -86,8 +86,8 @@ func TestPostHowWouldYouLikeToSendEvidence(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", EvidenceDelivery: evidenceDelivery}).
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", EvidenceDelivery: evidenceDelivery}).
 				Return(nil)
 
 			err := HowWouldYouLikeToSendEvidence(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
@@ -110,8 +110,8 @@ func TestPostHowWouldYouLikeToSendEvidenceWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := HowWouldYouLikeToSendEvidence(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
@@ -124,8 +124,8 @@ func TestPostHowWouldYouLikeToSendEvidenceWhenValidationErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *howWouldYouLikeToSendEvidenceData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *howWouldYouLikeToSendEvidenceData) bool {
 			return assert.Equal(t, validation.With("evidence-delivery", validation.SelectError{Label: "howYouWouldLikeToSendUsYourEvidence"}), data.Errors)
 		})).
 		Return(nil)

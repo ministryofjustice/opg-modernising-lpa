@@ -18,8 +18,8 @@ func TestGetWithdrawLpa(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &withdrawLpaData{
+	template.EXPECT().
+		Execute(w, &withdrawLpaData{
 			App:   testAppData,
 			Donor: &actor.DonorProvidedDetails{},
 		}).
@@ -37,8 +37,8 @@ func TestGetWithdrawLpaWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := WithdrawLpa(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -56,8 +56,8 @@ func TestPostWithdrawLpa(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaUID:      "lpa-uid",
 			WithdrawnAt: now,
 		}).
@@ -77,8 +77,8 @@ func TestPostWithdrawLpaWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := WithdrawLpa(nil, donorStore, time.Now)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})

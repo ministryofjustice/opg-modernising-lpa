@@ -52,8 +52,8 @@ func TestGetWhatIsYourHomeAddress(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
-			certificateProviderStore.
-				On("Get", r.Context()).
+			certificateProviderStore.EXPECT().
+				Get(r.Context()).
 				Return(tc.certificateProvider, nil)
 
 			data := &whatIsYourHomeAddressData{
@@ -65,8 +65,8 @@ func TestGetWhatIsYourHomeAddress(t *testing.T) {
 			}
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, data).
+			template.EXPECT().
+				Execute(w, data).
 				Return(nil)
 
 			err := WhatIsYourHomeAddress(nil, template.Execute, nil, certificateProviderStore)(testAppData, w, r)
@@ -83,8 +83,8 @@ func TestGetWhatIsYourHomeAddressWhenCertificateProviderStoreError(t *testing.T)
 	w := httptest.NewRecorder()
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
 	err := WhatIsYourHomeAddress(nil, nil, nil, certificateProviderStore)(testAppData, w, r)
@@ -99,13 +99,13 @@ func TestGetWhatIsYourHomeAddressWhenTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := WhatIsYourHomeAddress(nil, template.Execute, nil, certificateProviderStore)(testAppData, w, r)
@@ -130,11 +130,11 @@ func TestPostWhatIsYourHomeAddressManual(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
-	certificateProviderStore.
-		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{
+	certificateProviderStore.EXPECT().
+		Put(r.Context(), &actor.CertificateProviderProvidedDetails{
 			LpaID: "lpa-id",
 			HomeAddress: place.Address{
 				Line1:      "a",
@@ -170,11 +170,11 @@ func TestPostWhatIsYourHomeAddressManualWhenCertificateProviderStoreError(t *tes
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
-	certificateProviderStore.
-		On("Put", r.Context(), mock.Anything).
+	certificateProviderStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := WhatIsYourHomeAddress(nil, nil, nil, certificateProviderStore)(testAppData, w, r)
@@ -196,13 +196,13 @@ func TestPostWhatIsYourHomeAddressPostcodeSelect(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &whatIsYourHomeAddressData{
+	template.EXPECT().
+		Execute(w, &whatIsYourHomeAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "manual",
@@ -230,8 +230,8 @@ func TestPostWhatIsYourHomeAddressPostcodeSelectWhenValidationError(t *testing.T
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	addresses := []place.Address{
@@ -239,13 +239,13 @@ func TestPostWhatIsYourHomeAddressPostcodeSelectWhenValidationError(t *testing.T
 	}
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "NG1").
 		Return(addresses, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &whatIsYourHomeAddressData{
+	template.EXPECT().
+		Execute(w, &whatIsYourHomeAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode-select",
@@ -274,8 +274,8 @@ func TestPostWhatIsYourHomeAddressPostcodeLookup(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	addresses := []place.Address{
@@ -283,13 +283,13 @@ func TestPostWhatIsYourHomeAddressPostcodeLookup(t *testing.T) {
 	}
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "NG1").
 		Return(addresses, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &whatIsYourHomeAddressData{
+	template.EXPECT().
+		Execute(w, &whatIsYourHomeAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode-lookup",
@@ -317,18 +317,18 @@ func TestPostWhatIsYourHomeAddressPostcodeLookupWhenPostcodeNotFound(t *testing.
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "NG1").
 		Return([]place.Address{}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &whatIsYourHomeAddressData{
+	template.EXPECT().
+		Execute(w, &whatIsYourHomeAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode",
@@ -357,23 +357,22 @@ func TestPostWhatIsYourHomeAddressPostcodeLookupWhenInvalidPostcode(t *testing.T
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "NG1").
 		Return([]place.Address{}, &place.BadRequestError{})
 
 	logger := newMockLogger(t)
-	logger.
-		On("Print", &place.BadRequestError{}).
-		Return(nil)
+	logger.EXPECT().
+		Print(&place.BadRequestError{})
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &whatIsYourHomeAddressData{
+	template.EXPECT().
+		Execute(w, &whatIsYourHomeAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode",

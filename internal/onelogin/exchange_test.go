@@ -52,8 +52,8 @@ func TestExchange(t *testing.T) {
 	data, _ := json.Marshal(response)
 
 	secretsClient := newMockSecretsClient(t)
-	secretsClient.
-		On("SecretBytes", ctx, secrets.GovUkOneLoginPrivateKey).
+	secretsClient.EXPECT().
+		SecretBytes(ctx, secrets.GovUkOneLoginPrivateKey).
 		Return(pem.EncodeToMemory(
 			&pem.Block{
 				Type:  "RSA PRIVATE KEY",
@@ -62,8 +62,8 @@ func TestExchange(t *testing.T) {
 		), nil)
 
 	httpClient := newMockDoer(t)
-	httpClient.
-		On("Do", mock.MatchedBy(func(r *http.Request) bool {
+	httpClient.EXPECT().
+		Do(mock.MatchedBy(func(r *http.Request) bool {
 			clientAssertion, _ := jwt.Parse(r.FormValue("client_assertion"), func(token *jwt.Token) (interface{}, error) {
 				return &privateKey.PublicKey, nil
 			})
@@ -120,8 +120,8 @@ func TestExchangeWhenConfigurationMissing(t *testing.T) {
 
 func TestExchangeWhenPrivateKeyError(t *testing.T) {
 	secretsClient := newMockSecretsClient(t)
-	secretsClient.
-		On("SecretBytes", ctx, secrets.GovUkOneLoginPrivateKey).
+	secretsClient.EXPECT().
+		SecretBytes(ctx, secrets.GovUkOneLoginPrivateKey).
 		Return([]byte{}, expectedError)
 
 	client := &Client{
@@ -140,8 +140,8 @@ func TestExchangeWhenTokenRequestError(t *testing.T) {
 	privateKey, _ := rsa.GenerateKey(rand.New(rand.NewSource(99)), 2048)
 
 	secretsClient := newMockSecretsClient(t)
-	secretsClient.
-		On("SecretBytes", ctx, secrets.GovUkOneLoginPrivateKey).
+	secretsClient.EXPECT().
+		SecretBytes(ctx, secrets.GovUkOneLoginPrivateKey).
 		Return(pem.EncodeToMemory(
 			&pem.Block{
 				Type:  "RSA PRIVATE KEY",
@@ -150,8 +150,8 @@ func TestExchangeWhenTokenRequestError(t *testing.T) {
 		), nil)
 
 	httpClient := newMockDoer(t)
-	httpClient.
-		On("Do", mock.Anything).
+	httpClient.EXPECT().
+		Do(mock.Anything).
 		Return(&http.Response{}, expectedError)
 
 	client := &Client{
@@ -274,8 +274,8 @@ func TestExchangeWhenInvalidToken(t *testing.T) {
 			data, _ := json.Marshal(response)
 
 			secretsClient := newMockSecretsClient(t)
-			secretsClient.
-				On("SecretBytes", ctx, secrets.GovUkOneLoginPrivateKey).
+			secretsClient.EXPECT().
+				SecretBytes(ctx, secrets.GovUkOneLoginPrivateKey).
 				Return(pem.EncodeToMemory(
 					&pem.Block{
 						Type:  "RSA PRIVATE KEY",
@@ -284,8 +284,8 @@ func TestExchangeWhenInvalidToken(t *testing.T) {
 				), nil)
 
 			httpClient := newMockDoer(t)
-			httpClient.
-				On("Do", mock.MatchedBy(func(r *http.Request) bool {
+			httpClient.EXPECT().
+				Do(mock.MatchedBy(func(r *http.Request) bool {
 					clientAssertion, _ := jwt.Parse(r.FormValue("client_assertion"), func(token *jwt.Token) (interface{}, error) {
 						return &privateKey.PublicKey, nil
 					})

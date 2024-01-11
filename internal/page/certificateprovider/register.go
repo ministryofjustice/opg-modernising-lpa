@@ -88,6 +88,8 @@ type LpaStoreClient interface {
 	SendCertificateProvider(context.Context, string, *actor.CertificateProviderProvidedDetails) error
 }
 
+type ErrorHandler func(http.ResponseWriter, *http.Request, error)
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,

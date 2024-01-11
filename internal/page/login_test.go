@@ -17,8 +17,8 @@ func TestLogin(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/?sessionId=session-id&lpaId=lpa-id", nil)
 
 	client := newMockOneLoginClient(t)
-	client.
-		On("AuthCodeURL", "i am random", "i am random", "cy", false).
+	client.EXPECT().
+		AuthCodeURL("i am random", "i am random", "cy", false).
 		Return("http://auth", nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -41,8 +41,8 @@ func TestLogin(t *testing.T) {
 		},
 	}
 
-	sessionStore.
-		On("Save", r, w, session).
+	sessionStore.EXPECT().
+		Save(r, w, session).
 		Return(nil)
 
 	Login(client, sessionStore, func(int) string { return "i am random" }, "/redirect")(AppData{Lang: localize.Cy, Paths: Paths}, w, r)
@@ -57,8 +57,8 @@ func TestLoginDefaultLocale(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/?sessionId=session-id&lpaId=lpa-id&identity=1", nil)
 
 	client := newMockOneLoginClient(t)
-	client.
-		On("AuthCodeURL", "i am random", "i am random", "en", false).
+	client.EXPECT().
+		AuthCodeURL("i am random", "i am random", "en", false).
 		Return("http://auth", nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -81,8 +81,8 @@ func TestLoginDefaultLocale(t *testing.T) {
 		},
 	}
 
-	sessionStore.
-		On("Save", r, w, session).
+	sessionStore.EXPECT().
+		Save(r, w, session).
 		Return(nil)
 
 	Login(client, sessionStore, func(int) string { return "i am random" }, "/redirect")(AppData{}, w, r)
@@ -97,8 +97,8 @@ func TestLoginWhenAuthCodeURLError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	client := newMockOneLoginClient(t)
-	client.
-		On("AuthCodeURL", "i am random", "i am random", "en", false).
+	client.EXPECT().
+		AuthCodeURL("i am random", "i am random", "en", false).
 		Return("http://auth?locale=en", expectedError)
 
 	err := Login(client, nil, func(int) string { return "i am random" }, "/redirect")(AppData{}, w, r)
@@ -113,13 +113,13 @@ func TestLoginWhenStoreSaveError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	client := newMockOneLoginClient(t)
-	client.
-		On("AuthCodeURL", "i am random", "i am random", "en", false).
+	client.EXPECT().
+		AuthCodeURL("i am random", "i am random", "en", false).
 		Return("http://auth?locale=en", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Save", r, w, mock.Anything).
+	sessionStore.EXPECT().
+		Save(r, w, mock.Anything).
 		Return(expectedError)
 
 	err := Login(client, sessionStore, func(int) string { return "i am random" }, "/redirect")(AppData{}, w, r)

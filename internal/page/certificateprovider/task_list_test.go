@@ -129,18 +129,18 @@ func TestGetTaskList(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("GetAny", r.Context()).
+			donorStore.EXPECT().
+				GetAny(r.Context()).
 				Return(tc.donor, nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
-			certificateProviderStore.
-				On("Get", r.Context()).
+			certificateProviderStore.EXPECT().
+				Get(r.Context()).
 				Return(tc.certificateProvider, nil)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, &taskListData{
+			template.EXPECT().
+				Execute(w, &taskListData{
 					App:   tc.appData,
 					Donor: tc.donor,
 					Items: tc.expected([]taskListItem{
@@ -165,8 +165,8 @@ func TestGetTaskListWhenDonorStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, expectedError)
 
 	err := TaskList(nil, donorStore, nil)(testAppData, w, r)
@@ -179,13 +179,13 @@ func TestGetTaskListWhenCertificateProviderStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", mock.Anything).
+	certificateProviderStore.EXPECT().
+		Get(mock.Anything).
 		Return(nil, expectedError)
 
 	err := TaskList(nil, donorStore, certificateProviderStore)(testAppData, w, r)
@@ -198,18 +198,18 @@ func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := TaskList(template.Execute, donorStore, certificateProviderStore)(testAppData, w, r)

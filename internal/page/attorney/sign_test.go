@@ -113,18 +113,18 @@ func TestGetSign(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, tc.data).
+			template.EXPECT().
+				Execute(w, tc.data).
 				Return(nil)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("GetAny", r.Context()).
+			donorStore.EXPECT().
+				GetAny(r.Context()).
 				Return(tc.donor, nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
-			certificateProviderStore.
-				On("GetAny", mock.Anything).
+			certificateProviderStore.EXPECT().
+				GetAny(mock.Anything).
 				Return(&actor.CertificateProviderProvidedDetails{
 					Certificate: actor.Certificate{Agreed: time.Now()},
 				}, nil)
@@ -176,13 +176,13 @@ func TestGetSignCantSignYet(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("GetAny", r.Context()).
+			donorStore.EXPECT().
+				GetAny(r.Context()).
 				Return(tc.donor, nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
-			certificateProviderStore.
-				On("GetAny", mock.Anything).
+			certificateProviderStore.EXPECT().
+				GetAny(mock.Anything).
 				Return(tc.certificateProvider, nil)
 
 			err := Sign(nil, donorStore, certificateProviderStore, nil, nil, nil)(tc.appData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id"})
@@ -226,13 +226,13 @@ func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("GetAny", r.Context()).
+			donorStore.EXPECT().
+				GetAny(r.Context()).
 				Return(tc.donor, nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
-			certificateProviderStore.
-				On("GetAny", mock.Anything).
+			certificateProviderStore.EXPECT().
+				GetAny(mock.Anything).
 				Return(&actor.CertificateProviderProvidedDetails{
 					Certificate: actor.Certificate{Agreed: time.Now()},
 				}, nil)
@@ -254,8 +254,8 @@ func TestGetSignOnDonorStoreError(t *testing.T) {
 	template := newMockTemplate(t)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, expectedError)
 
 	err := Sign(template.Execute, donorStore, nil, nil, nil, nil)(testAppData, w, r, nil)
@@ -270,21 +270,21 @@ func TestGetSignOnTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{
 			SignedAt:  time.Now(),
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "attorney-id"}}},
 		}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("GetAny", mock.Anything).
+	certificateProviderStore.EXPECT().
+		GetAny(mock.Anything).
 		Return(&actor.CertificateProviderProvidedDetails{
 			Certificate: actor.Certificate{Agreed: time.Now()},
 		}, nil)
@@ -395,25 +395,25 @@ func TestPostSign(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("GetAny", r.Context()).
+			donorStore.EXPECT().
+				GetAny(r.Context()).
 				Return(tc.donor, nil)
 
 			attorneyStore := newMockAttorneyStore(t)
-			attorneyStore.
-				On("Put", r.Context(), tc.updatedAttorney).
+			attorneyStore.EXPECT().
+				Put(r.Context(), tc.updatedAttorney).
 				Return(nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
-			certificateProviderStore.
-				On("GetAny", mock.Anything).
+			certificateProviderStore.EXPECT().
+				GetAny(mock.Anything).
 				Return(&actor.CertificateProviderProvidedDetails{
 					Certificate: actor.Certificate{Agreed: time.Now()},
 				}, nil)
 
 			lpaStoreClient := newMockLpaStoreClient(t)
-			lpaStoreClient.
-				On("SendAttorney", r.Context(), tc.donor, tc.updatedAttorney).
+			lpaStoreClient.EXPECT().
+				SendAttorney(r.Context(), tc.donor, tc.updatedAttorney).
 				Return(nil)
 
 			err := Sign(nil, donorStore, certificateProviderStore, attorneyStore, lpaStoreClient, func() time.Time { return now })(tc.appData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id"})
@@ -495,18 +495,18 @@ func TestPostSignWhenWantSecondSignatory(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("GetAny", r.Context()).
+			donorStore.EXPECT().
+				GetAny(r.Context()).
 				Return(tc.donor, nil)
 
 			attorneyStore := newMockAttorneyStore(t)
-			attorneyStore.
-				On("Put", r.Context(), tc.updatedAttorney).
+			attorneyStore.EXPECT().
+				Put(r.Context(), tc.updatedAttorney).
 				Return(nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
-			certificateProviderStore.
-				On("GetAny", mock.Anything).
+			certificateProviderStore.EXPECT().
+				GetAny(mock.Anything).
 				Return(&actor.CertificateProviderProvidedDetails{
 					Certificate: actor.Certificate{Agreed: time.Now()},
 				}, nil)
@@ -530,28 +530,28 @@ func TestPostSignWhenLpaStoreClientErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{
 			SignedAt:  time.Now(),
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}}},
 		}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Put", r.Context(), mock.Anything).
+	attorneyStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("GetAny", mock.Anything).
+	certificateProviderStore.EXPECT().
+		GetAny(mock.Anything).
 		Return(&actor.CertificateProviderProvidedDetails{
 			Certificate: actor.Certificate{Agreed: time.Now()},
 		}, nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.
-		On("SendAttorney", r.Context(), mock.Anything, mock.Anything).
+	lpaStoreClient.EXPECT().
+		SendAttorney(r.Context(), mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := Sign(nil, donorStore, certificateProviderStore, attorneyStore, lpaStoreClient, time.Now)(testAppData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id"})
@@ -569,23 +569,23 @@ func TestPostSignWhenStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{
 			SignedAt:  time.Now(),
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}}},
 		}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("GetAny", mock.Anything).
+	certificateProviderStore.EXPECT().
+		GetAny(mock.Anything).
 		Return(&actor.CertificateProviderProvidedDetails{
 			Certificate: actor.Certificate{Agreed: time.Now()},
 		}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Put", r.Context(), mock.Anything).
+	attorneyStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := Sign(nil, donorStore, certificateProviderStore, attorneyStore, nil, time.Now)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
@@ -604,23 +604,23 @@ func TestPostSignOnValidationError(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{
 			SignedAt:  time.Now(),
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}}},
 		}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("GetAny", mock.Anything).
+	certificateProviderStore.EXPECT().
+		GetAny(mock.Anything).
 		Return(&actor.CertificateProviderProvidedDetails{
 			Certificate: actor.Certificate{Agreed: time.Now()},
 		}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &signData{
+	template.EXPECT().
+		Execute(w, &signData{
 			App:      testAppData,
 			Form:     &signForm{},
 			Attorney: actor.Attorney{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},

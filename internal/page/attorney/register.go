@@ -70,6 +70,8 @@ type LpaStoreClient interface {
 	SendAttorney(context.Context, *actor.DonorProvidedDetails, *actor.AttorneyProvidedDetails) error
 }
 
+type ErrorHandler func(http.ResponseWriter, *http.Request, error)
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,

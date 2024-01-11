@@ -19,8 +19,8 @@ func TestGetCertificateProviderDetails(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &certificateProviderDetailsData{
+	template.EXPECT().
+		Execute(w, &certificateProviderDetailsData{
 			App:  testAppData,
 			Form: &certificateProviderDetailsForm{},
 		}).
@@ -72,8 +72,8 @@ func TestGetCertificateProviderDetailsFromStore(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, &certificateProviderDetailsData{
+			template.EXPECT().
+				Execute(w, &certificateProviderDetailsData{
 					App:  testAppData,
 					Form: tc.form,
 				}).
@@ -93,8 +93,8 @@ func TestGetCertificateProviderDetailsWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &certificateProviderDetailsData{
+	template.EXPECT().
+		Execute(w, &certificateProviderDetailsData{
 			App:  testAppData,
 			Form: &certificateProviderDetailsForm{},
 		}).
@@ -173,8 +173,8 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID: "lpa-id",
 					Donor: actor.Donor{
 						FirstNames: "Jane",
@@ -213,8 +213,8 @@ func TestPostCertificateProviderDetailsWhenAmendingDetailsAfterStateComplete(t *
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Donor: actor.Donor{
 				FirstNames: "Jane",
@@ -318,8 +318,8 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, mock.MatchedBy(func(data *certificateProviderDetailsData) bool {
+			template.EXPECT().
+				Execute(w, mock.MatchedBy(func(data *certificateProviderDetailsData) bool {
 					return tc.dataMatcher(t, data)
 				})).
 				Return(nil)
@@ -345,8 +345,8 @@ func TestPostCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := CertificateProviderDetails(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})

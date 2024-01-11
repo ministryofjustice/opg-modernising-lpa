@@ -22,13 +22,13 @@ func TestGetYourPreferredLanguage(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &yourPreferredLanguageData{
+	template.EXPECT().
+		Execute(w, &yourPreferredLanguageData{
 			App: testAppData,
 			Form: &form.LanguagePreferenceForm{
 				Preference: localize.Cy,
@@ -52,8 +52,8 @@ func TestGetYourPreferredLanguageWhenDonorStoreError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, expectedError)
 
 	err := YourPreferredLanguage(nil, nil, donorStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy})
@@ -69,13 +69,13 @@ func TestGetYourPreferredLanguageWhenTemplateError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := YourPreferredLanguage(template.Execute, nil, donorStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy})
@@ -98,13 +98,13 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("GetAny", r.Context()).
+			donorStore.EXPECT().
+				GetAny(r.Context()).
 				Return(&actor.DonorProvidedDetails{}, nil)
 
 			attorneyStore := newMockAttorneyStore(t)
-			attorneyStore.
-				On("Put", r.Context(), &actor.AttorneyProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: lang}).
+			attorneyStore.EXPECT().
+				Put(r.Context(), &actor.AttorneyProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: lang}).
 				Return(nil)
 
 			err := YourPreferredLanguage(nil, attorneyStore, donorStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id"})
@@ -126,13 +126,13 @@ func TestPostYourPreferredLanguageWhenAttorneyStoreError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Put", r.Context(), mock.Anything).
+	attorneyStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := YourPreferredLanguage(nil, attorneyStore, donorStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{LpaID: "lpa-id"})
@@ -151,13 +151,13 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &yourPreferredLanguageData{
+	template.EXPECT().
+		Execute(w, &yourPreferredLanguageData{
 			App: testAppData,
 			Form: &form.LanguagePreferenceForm{
 				Error:      errors.New("invalid Lang 'not-a-lang'"),

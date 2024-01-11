@@ -31,6 +31,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
+type ErrorHandler func(http.ResponseWriter, *http.Request, error)
+
 type Logger interface {
 	Print(v ...interface{})
 }
