@@ -14,6 +14,14 @@ type mockEventbridgeClient struct {
 	mock.Mock
 }
 
+type mockEventbridgeClient_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockEventbridgeClient) EXPECT() *mockEventbridgeClient_Expecter {
+	return &mockEventbridgeClient_Expecter{mock: &_m.Mock}
+}
+
 // PutEvents provides a mock function with given fields: ctx, params, optFns
 func (_m *mockEventbridgeClient) PutEvents(ctx context.Context, params *eventbridge.PutEventsInput, optFns ...func(*eventbridge.Options)) (*eventbridge.PutEventsOutput, error) {
 	_va := make([]interface{}, len(optFns))
@@ -49,6 +57,43 @@ func (_m *mockEventbridgeClient) PutEvents(ctx context.Context, params *eventbri
 	}
 
 	return r0, r1
+}
+
+// mockEventbridgeClient_PutEvents_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PutEvents'
+type mockEventbridgeClient_PutEvents_Call struct {
+	*mock.Call
+}
+
+// PutEvents is a helper method to define mock.On call
+//   - ctx context.Context
+//   - params *eventbridge.PutEventsInput
+//   - optFns ...func(*eventbridge.Options)
+func (_e *mockEventbridgeClient_Expecter) PutEvents(ctx interface{}, params interface{}, optFns ...interface{}) *mockEventbridgeClient_PutEvents_Call {
+	return &mockEventbridgeClient_PutEvents_Call{Call: _e.mock.On("PutEvents",
+		append([]interface{}{ctx, params}, optFns...)...)}
+}
+
+func (_c *mockEventbridgeClient_PutEvents_Call) Run(run func(ctx context.Context, params *eventbridge.PutEventsInput, optFns ...func(*eventbridge.Options))) *mockEventbridgeClient_PutEvents_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]func(*eventbridge.Options), len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(func(*eventbridge.Options))
+			}
+		}
+		run(args[0].(context.Context), args[1].(*eventbridge.PutEventsInput), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *mockEventbridgeClient_PutEvents_Call) Return(_a0 *eventbridge.PutEventsOutput, _a1 error) *mockEventbridgeClient_PutEvents_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockEventbridgeClient_PutEvents_Call) RunAndReturn(run func(context.Context, *eventbridge.PutEventsInput, ...func(*eventbridge.Options)) (*eventbridge.PutEventsOutput, error)) *mockEventbridgeClient_PutEvents_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockEventbridgeClient creates a new instance of mockEventbridgeClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

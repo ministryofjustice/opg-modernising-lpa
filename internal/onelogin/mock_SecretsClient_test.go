@@ -13,6 +13,14 @@ type mockSecretsClient struct {
 	mock.Mock
 }
 
+type mockSecretsClient_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockSecretsClient) EXPECT() *mockSecretsClient_Expecter {
+	return &mockSecretsClient_Expecter{mock: &_m.Mock}
+}
+
 // SecretBytes provides a mock function with given fields: ctx, name
 func (_m *mockSecretsClient) SecretBytes(ctx context.Context, name string) ([]byte, error) {
 	ret := _m.Called(ctx, name)
@@ -41,6 +49,35 @@ func (_m *mockSecretsClient) SecretBytes(ctx context.Context, name string) ([]by
 	}
 
 	return r0, r1
+}
+
+// mockSecretsClient_SecretBytes_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SecretBytes'
+type mockSecretsClient_SecretBytes_Call struct {
+	*mock.Call
+}
+
+// SecretBytes is a helper method to define mock.On call
+//   - ctx context.Context
+//   - name string
+func (_e *mockSecretsClient_Expecter) SecretBytes(ctx interface{}, name interface{}) *mockSecretsClient_SecretBytes_Call {
+	return &mockSecretsClient_SecretBytes_Call{Call: _e.mock.On("SecretBytes", ctx, name)}
+}
+
+func (_c *mockSecretsClient_SecretBytes_Call) Run(run func(ctx context.Context, name string)) *mockSecretsClient_SecretBytes_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *mockSecretsClient_SecretBytes_Call) Return(_a0 []byte, _a1 error) *mockSecretsClient_SecretBytes_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockSecretsClient_SecretBytes_Call) RunAndReturn(run func(context.Context, string) ([]byte, error)) *mockSecretsClient_SecretBytes_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockSecretsClient creates a new instance of mockSecretsClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

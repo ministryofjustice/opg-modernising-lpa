@@ -15,6 +15,14 @@ type mockLpaStoreClient struct {
 	mock.Mock
 }
 
+type mockLpaStoreClient_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockLpaStoreClient) EXPECT() *mockLpaStoreClient_Expecter {
+	return &mockLpaStoreClient_Expecter{mock: &_m.Mock}
+}
+
 // SendLpa provides a mock function with given fields: _a0, _a1
 func (_m *mockLpaStoreClient) SendLpa(_a0 context.Context, _a1 *actor.DonorProvidedDetails) error {
 	ret := _m.Called(_a0, _a1)
@@ -31,6 +39,35 @@ func (_m *mockLpaStoreClient) SendLpa(_a0 context.Context, _a1 *actor.DonorProvi
 	}
 
 	return r0
+}
+
+// mockLpaStoreClient_SendLpa_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendLpa'
+type mockLpaStoreClient_SendLpa_Call struct {
+	*mock.Call
+}
+
+// SendLpa is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 *actor.DonorProvidedDetails
+func (_e *mockLpaStoreClient_Expecter) SendLpa(_a0 interface{}, _a1 interface{}) *mockLpaStoreClient_SendLpa_Call {
+	return &mockLpaStoreClient_SendLpa_Call{Call: _e.mock.On("SendLpa", _a0, _a1)}
+}
+
+func (_c *mockLpaStoreClient_SendLpa_Call) Run(run func(_a0 context.Context, _a1 *actor.DonorProvidedDetails)) *mockLpaStoreClient_SendLpa_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*actor.DonorProvidedDetails))
+	})
+	return _c
+}
+
+func (_c *mockLpaStoreClient_SendLpa_Call) Return(_a0 error) *mockLpaStoreClient_SendLpa_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockLpaStoreClient_SendLpa_Call) RunAndReturn(run func(context.Context, *actor.DonorProvidedDetails) error) *mockLpaStoreClient_SendLpa_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockLpaStoreClient creates a new instance of mockLpaStoreClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
