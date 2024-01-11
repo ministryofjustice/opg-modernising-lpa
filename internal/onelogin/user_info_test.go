@@ -25,7 +25,7 @@ func TestUserInfo(t *testing.T) {
 
 	data, _ := json.Marshal(expectedUserInfo)
 
-	httpClient := newMockHttpClient(t)
+	httpClient := newMockDoer(t)
 	httpClient.
 		On("Do", mock.MatchedBy(func(r *http.Request) bool {
 			return assert.Equal(t, http.MethodGet, r.Method) &&
@@ -61,7 +61,7 @@ func TestUserInfoWhenConfigurationError(t *testing.T) {
 }
 
 func TestUserInfoWhenRequestError(t *testing.T) {
-	httpClient := newMockHttpClient(t)
+	httpClient := newMockDoer(t)
 	httpClient.
 		On("Do", mock.Anything).
 		Return(&http.Response{}, expectedError)

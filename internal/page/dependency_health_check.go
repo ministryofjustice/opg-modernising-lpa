@@ -6,7 +6,6 @@ import (
 	"net/http"
 )
 
-//go:generate mockery --testonly --inpackage --name HealthChecker --structname mockHealthChecker
 type HealthChecker interface {
 	CheckHealth(context.Context) error
 }

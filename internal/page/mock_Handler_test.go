@@ -13,6 +13,14 @@ type mockHandler struct {
 	mock.Mock
 }
 
+type mockHandler_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockHandler) EXPECT() *mockHandler_Expecter {
+	return &mockHandler_Expecter{mock: &_m.Mock}
+}
+
 // Execute provides a mock function with given fields: data, w, r
 func (_m *mockHandler) Execute(data AppData, w http.ResponseWriter, r *http.Request) error {
 	ret := _m.Called(data, w, r)
@@ -29,6 +37,36 @@ func (_m *mockHandler) Execute(data AppData, w http.ResponseWriter, r *http.Requ
 	}
 
 	return r0
+}
+
+// mockHandler_Execute_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Execute'
+type mockHandler_Execute_Call struct {
+	*mock.Call
+}
+
+// Execute is a helper method to define mock.On call
+//   - data AppData
+//   - w http.ResponseWriter
+//   - r *http.Request
+func (_e *mockHandler_Expecter) Execute(data interface{}, w interface{}, r interface{}) *mockHandler_Execute_Call {
+	return &mockHandler_Execute_Call{Call: _e.mock.On("Execute", data, w, r)}
+}
+
+func (_c *mockHandler_Execute_Call) Run(run func(data AppData, w http.ResponseWriter, r *http.Request)) *mockHandler_Execute_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(AppData), args[1].(http.ResponseWriter), args[2].(*http.Request))
+	})
+	return _c
+}
+
+func (_c *mockHandler_Execute_Call) Return(_a0 error) *mockHandler_Execute_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockHandler_Execute_Call) RunAndReturn(run func(AppData, http.ResponseWriter, *http.Request) error) *mockHandler_Execute_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockHandler creates a new instance of mockHandler. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

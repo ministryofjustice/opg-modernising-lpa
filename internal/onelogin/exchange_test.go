@@ -61,7 +61,7 @@ func TestExchange(t *testing.T) {
 			},
 		), nil)
 
-	httpClient := newMockHttpClient(t)
+	httpClient := newMockDoer(t)
 	httpClient.
 		On("Do", mock.MatchedBy(func(r *http.Request) bool {
 			clientAssertion, _ := jwt.Parse(r.FormValue("client_assertion"), func(token *jwt.Token) (interface{}, error) {
@@ -149,7 +149,7 @@ func TestExchangeWhenTokenRequestError(t *testing.T) {
 			},
 		), nil)
 
-	httpClient := newMockHttpClient(t)
+	httpClient := newMockDoer(t)
 	httpClient.
 		On("Do", mock.Anything).
 		Return(&http.Response{}, expectedError)
@@ -283,7 +283,7 @@ func TestExchangeWhenInvalidToken(t *testing.T) {
 					},
 				), nil)
 
-			httpClient := newMockHttpClient(t)
+			httpClient := newMockDoer(t)
 			httpClient.
 				On("Do", mock.MatchedBy(func(r *http.Request) bool {
 					clientAssertion, _ := jwt.Parse(r.FormValue("client_assertion"), func(token *jwt.Token) (interface{}, error) {
