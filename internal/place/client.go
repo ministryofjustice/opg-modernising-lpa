@@ -11,7 +11,6 @@ import (
 
 const postcodeEndpoint = "/search/places/v1/postcode?"
 
-//go:generate mockery --testonly --inpackage --name Doer --structname mockDoer
 type Doer interface {
 	Do(*http.Request) (*http.Response, error)
 }

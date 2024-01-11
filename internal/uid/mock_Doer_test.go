@@ -13,6 +13,14 @@ type mockDoer struct {
 	mock.Mock
 }
 
+type mockDoer_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockDoer) EXPECT() *mockDoer_Expecter {
+	return &mockDoer_Expecter{mock: &_m.Mock}
+}
+
 // Do provides a mock function with given fields: _a0
 func (_m *mockDoer) Do(_a0 *http.Request) (*http.Response, error) {
 	ret := _m.Called(_a0)
@@ -41,6 +49,34 @@ func (_m *mockDoer) Do(_a0 *http.Request) (*http.Response, error) {
 	}
 
 	return r0, r1
+}
+
+// mockDoer_Do_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Do'
+type mockDoer_Do_Call struct {
+	*mock.Call
+}
+
+// Do is a helper method to define mock.On call
+//   - _a0 *http.Request
+func (_e *mockDoer_Expecter) Do(_a0 interface{}) *mockDoer_Do_Call {
+	return &mockDoer_Do_Call{Call: _e.mock.On("Do", _a0)}
+}
+
+func (_c *mockDoer_Do_Call) Run(run func(_a0 *http.Request)) *mockDoer_Do_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*http.Request))
+	})
+	return _c
+}
+
+func (_c *mockDoer_Do_Call) Return(_a0 *http.Response, _a1 error) *mockDoer_Do_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockDoer_Do_Call) RunAndReturn(run func(*http.Request) (*http.Response, error)) *mockDoer_Do_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockDoer creates a new instance of mockDoer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

@@ -13,6 +13,14 @@ type mockHealthChecker struct {
 	mock.Mock
 }
 
+type mockHealthChecker_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockHealthChecker) EXPECT() *mockHealthChecker_Expecter {
+	return &mockHealthChecker_Expecter{mock: &_m.Mock}
+}
+
 // CheckHealth provides a mock function with given fields: _a0
 func (_m *mockHealthChecker) CheckHealth(_a0 context.Context) error {
 	ret := _m.Called(_a0)
@@ -29,6 +37,34 @@ func (_m *mockHealthChecker) CheckHealth(_a0 context.Context) error {
 	}
 
 	return r0
+}
+
+// mockHealthChecker_CheckHealth_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CheckHealth'
+type mockHealthChecker_CheckHealth_Call struct {
+	*mock.Call
+}
+
+// CheckHealth is a helper method to define mock.On call
+//   - _a0 context.Context
+func (_e *mockHealthChecker_Expecter) CheckHealth(_a0 interface{}) *mockHealthChecker_CheckHealth_Call {
+	return &mockHealthChecker_CheckHealth_Call{Call: _e.mock.On("CheckHealth", _a0)}
+}
+
+func (_c *mockHealthChecker_CheckHealth_Call) Run(run func(_a0 context.Context)) *mockHealthChecker_CheckHealth_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *mockHealthChecker_CheckHealth_Call) Return(_a0 error) *mockHealthChecker_CheckHealth_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockHealthChecker_CheckHealth_Call) RunAndReturn(run func(context.Context) error) *mockHealthChecker_CheckHealth_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockHealthChecker creates a new instance of mockHealthChecker. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

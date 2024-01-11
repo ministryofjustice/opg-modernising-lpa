@@ -14,6 +14,14 @@ type mockNotifyClient struct {
 	mock.Mock
 }
 
+type mockNotifyClient_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockNotifyClient) EXPECT() *mockNotifyClient_Expecter {
+	return &mockNotifyClient_Expecter{mock: &_m.Mock}
+}
+
 // SendEmail provides a mock function with given fields: _a0, _a1, _a2
 func (_m *mockNotifyClient) SendEmail(_a0 context.Context, _a1 string, _a2 notify.Email) (string, error) {
 	ret := _m.Called(_a0, _a1, _a2)
@@ -40,6 +48,36 @@ func (_m *mockNotifyClient) SendEmail(_a0 context.Context, _a1 string, _a2 notif
 	}
 
 	return r0, r1
+}
+
+// mockNotifyClient_SendEmail_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendEmail'
+type mockNotifyClient_SendEmail_Call struct {
+	*mock.Call
+}
+
+// SendEmail is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 string
+//   - _a2 notify.Email
+func (_e *mockNotifyClient_Expecter) SendEmail(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockNotifyClient_SendEmail_Call {
+	return &mockNotifyClient_SendEmail_Call{Call: _e.mock.On("SendEmail", _a0, _a1, _a2)}
+}
+
+func (_c *mockNotifyClient_SendEmail_Call) Run(run func(_a0 context.Context, _a1 string, _a2 notify.Email)) *mockNotifyClient_SendEmail_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(notify.Email))
+	})
+	return _c
+}
+
+func (_c *mockNotifyClient_SendEmail_Call) Return(_a0 string, _a1 error) *mockNotifyClient_SendEmail_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockNotifyClient_SendEmail_Call) RunAndReturn(run func(context.Context, string, notify.Email) (string, error)) *mockNotifyClient_SendEmail_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockNotifyClient creates a new instance of mockNotifyClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

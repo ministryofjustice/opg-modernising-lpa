@@ -13,7 +13,6 @@ import (
 
 const source = "opg.poas.makeregister"
 
-//go:generate mockery --testonly --inpackage --name eventbridgeClient --structname mockEventbridgeClient
 type eventbridgeClient interface {
 	PutEvents(ctx context.Context, params *eventbridge.PutEventsInput, optFns ...func(*eventbridge.Options)) (*eventbridge.PutEventsOutput, error)
 }

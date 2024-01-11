@@ -16,6 +16,14 @@ type mockOneLoginClient struct {
 	mock.Mock
 }
 
+type mockOneLoginClient_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockOneLoginClient) EXPECT() *mockOneLoginClient_Expecter {
+	return &mockOneLoginClient_Expecter{mock: &_m.Mock}
+}
+
 // AuthCodeURL provides a mock function with given fields: state, nonce, locale, _a3
 func (_m *mockOneLoginClient) AuthCodeURL(state string, nonce string, locale string, _a3 bool) (string, error) {
 	ret := _m.Called(state, nonce, locale, _a3)
@@ -42,6 +50,37 @@ func (_m *mockOneLoginClient) AuthCodeURL(state string, nonce string, locale str
 	}
 
 	return r0, r1
+}
+
+// mockOneLoginClient_AuthCodeURL_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AuthCodeURL'
+type mockOneLoginClient_AuthCodeURL_Call struct {
+	*mock.Call
+}
+
+// AuthCodeURL is a helper method to define mock.On call
+//   - state string
+//   - nonce string
+//   - locale string
+//   - _a3 bool
+func (_e *mockOneLoginClient_Expecter) AuthCodeURL(state interface{}, nonce interface{}, locale interface{}, _a3 interface{}) *mockOneLoginClient_AuthCodeURL_Call {
+	return &mockOneLoginClient_AuthCodeURL_Call{Call: _e.mock.On("AuthCodeURL", state, nonce, locale, _a3)}
+}
+
+func (_c *mockOneLoginClient_AuthCodeURL_Call) Run(run func(state string, nonce string, locale string, _a3 bool)) *mockOneLoginClient_AuthCodeURL_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string), args[2].(string), args[3].(bool))
+	})
+	return _c
+}
+
+func (_c *mockOneLoginClient_AuthCodeURL_Call) Return(_a0 string, _a1 error) *mockOneLoginClient_AuthCodeURL_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockOneLoginClient_AuthCodeURL_Call) RunAndReturn(run func(string, string, string, bool) (string, error)) *mockOneLoginClient_AuthCodeURL_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // Exchange provides a mock function with given fields: ctx, code, nonce
@@ -79,6 +118,36 @@ func (_m *mockOneLoginClient) Exchange(ctx context.Context, code string, nonce s
 	return r0, r1, r2
 }
 
+// mockOneLoginClient_Exchange_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Exchange'
+type mockOneLoginClient_Exchange_Call struct {
+	*mock.Call
+}
+
+// Exchange is a helper method to define mock.On call
+//   - ctx context.Context
+//   - code string
+//   - nonce string
+func (_e *mockOneLoginClient_Expecter) Exchange(ctx interface{}, code interface{}, nonce interface{}) *mockOneLoginClient_Exchange_Call {
+	return &mockOneLoginClient_Exchange_Call{Call: _e.mock.On("Exchange", ctx, code, nonce)}
+}
+
+func (_c *mockOneLoginClient_Exchange_Call) Run(run func(ctx context.Context, code string, nonce string)) *mockOneLoginClient_Exchange_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *mockOneLoginClient_Exchange_Call) Return(idToken string, accessToken string, err error) *mockOneLoginClient_Exchange_Call {
+	_c.Call.Return(idToken, accessToken, err)
+	return _c
+}
+
+func (_c *mockOneLoginClient_Exchange_Call) RunAndReturn(run func(context.Context, string, string) (string, string, error)) *mockOneLoginClient_Exchange_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ParseIdentityClaim provides a mock function with given fields: ctx, userInfo
 func (_m *mockOneLoginClient) ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error) {
 	ret := _m.Called(ctx, userInfo)
@@ -107,6 +176,35 @@ func (_m *mockOneLoginClient) ParseIdentityClaim(ctx context.Context, userInfo o
 	return r0, r1
 }
 
+// mockOneLoginClient_ParseIdentityClaim_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ParseIdentityClaim'
+type mockOneLoginClient_ParseIdentityClaim_Call struct {
+	*mock.Call
+}
+
+// ParseIdentityClaim is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userInfo onelogin.UserInfo
+func (_e *mockOneLoginClient_Expecter) ParseIdentityClaim(ctx interface{}, userInfo interface{}) *mockOneLoginClient_ParseIdentityClaim_Call {
+	return &mockOneLoginClient_ParseIdentityClaim_Call{Call: _e.mock.On("ParseIdentityClaim", ctx, userInfo)}
+}
+
+func (_c *mockOneLoginClient_ParseIdentityClaim_Call) Run(run func(ctx context.Context, userInfo onelogin.UserInfo)) *mockOneLoginClient_ParseIdentityClaim_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(onelogin.UserInfo))
+	})
+	return _c
+}
+
+func (_c *mockOneLoginClient_ParseIdentityClaim_Call) Return(_a0 identity.UserData, _a1 error) *mockOneLoginClient_ParseIdentityClaim_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockOneLoginClient_ParseIdentityClaim_Call) RunAndReturn(run func(context.Context, onelogin.UserInfo) (identity.UserData, error)) *mockOneLoginClient_ParseIdentityClaim_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UserInfo provides a mock function with given fields: ctx, accessToken
 func (_m *mockOneLoginClient) UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error) {
 	ret := _m.Called(ctx, accessToken)
@@ -133,6 +231,35 @@ func (_m *mockOneLoginClient) UserInfo(ctx context.Context, accessToken string) 
 	}
 
 	return r0, r1
+}
+
+// mockOneLoginClient_UserInfo_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UserInfo'
+type mockOneLoginClient_UserInfo_Call struct {
+	*mock.Call
+}
+
+// UserInfo is a helper method to define mock.On call
+//   - ctx context.Context
+//   - accessToken string
+func (_e *mockOneLoginClient_Expecter) UserInfo(ctx interface{}, accessToken interface{}) *mockOneLoginClient_UserInfo_Call {
+	return &mockOneLoginClient_UserInfo_Call{Call: _e.mock.On("UserInfo", ctx, accessToken)}
+}
+
+func (_c *mockOneLoginClient_UserInfo_Call) Run(run func(ctx context.Context, accessToken string)) *mockOneLoginClient_UserInfo_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *mockOneLoginClient_UserInfo_Call) Return(_a0 onelogin.UserInfo, _a1 error) *mockOneLoginClient_UserInfo_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockOneLoginClient_UserInfo_Call) RunAndReturn(run func(context.Context, string) (onelogin.UserInfo, error)) *mockOneLoginClient_UserInfo_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockOneLoginClient creates a new instance of mockOneLoginClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
