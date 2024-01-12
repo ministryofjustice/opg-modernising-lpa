@@ -24,7 +24,7 @@
                 </label>
 
                 <div id="decision-type-item-hint" class="govuk-radios__hint">
-                  {{ tr .App "jointlyAndSeverallyHintReplacementAttorneys" }}
+                  <p class="govuk-body">{{ tr .App "jointlyAndSeverallyHintReplacementAttorneys" }}</p>
                 </div>
               </div>
               <div class="govuk-radios__item govuk-!-margin-top-6">
@@ -34,7 +34,7 @@
                 </label>
 
                 <div id="decision-type-2-item-hint" class="govuk-radios__hint">
-                  {{ tr .App "jointlyHintReplacementAttorneys" }}
+                  <p class="govuk-body">{{ tr .App "jointlyHintReplacementAttorneys" }}</p>
                 </div>
               </div>
               <div class="govuk-radios__item govuk-!-margin-top-6">
@@ -44,9 +44,9 @@
                 </label>
 
                 <div id="decision-type-3-item-hint" class="govuk-radios__hint">
-                  <p>{{ tr .App "jointlyAndSeverallyMixedHintReplacementAttorneys" }}</p>
-                  <p>{{ tr .App (printf "jointlyAndSeverallyMixedHintReplacementAttorneysExample:%s" .Donor.Type.String) }}</p>
-                  <p>{{ tr .App "ifYouChooseThisOptionMustStateDecisionsAgreedTogether" }}</p>
+                  <p class="govuk-body">{{ tr .App "jointlyAndSeverallyMixedHintReplacementAttorneys" }}</p>
+                  <p class="govuk-body">{{ tr .App (printf "jointlyAndSeverallyMixedHintReplacementAttorneysExample:%s" .Donor.Type.String) }}</p>
+                  <p class="govuk-body">{{ tr .App "ifYouChooseThisOptionMustStateDecisionsAgreedTogether" }}</p>
                 </div>
 
                 <div class="govuk-radios__conditional" id="decision-type-3-conditional-div">
