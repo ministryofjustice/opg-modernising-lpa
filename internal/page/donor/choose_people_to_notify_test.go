@@ -19,8 +19,8 @@ func TestGetChoosePeopleToNotify(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &choosePeopleToNotifyData{
+	template.EXPECT().
+		Execute(w, &choosePeopleToNotifyData{
 			App:  testAppData,
 			Form: &choosePeopleToNotifyForm{},
 		}).
@@ -62,8 +62,8 @@ func TestGetChoosePeopleToNotifyWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &choosePeopleToNotifyData{
+	template.EXPECT().
+		Execute(w, &choosePeopleToNotifyData{
 			App:  testAppData,
 			Form: &choosePeopleToNotifyForm{},
 		}).
@@ -165,8 +165,8 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID:          "lpa-id",
 					Donor:          actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					PeopleToNotify: actor.PeopleToNotify{tc.personToNotify},
@@ -198,8 +198,8 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			PeopleToNotify: actor.PeopleToNotify{{
 				FirstNames: "Johnny",
@@ -269,8 +269,8 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, mock.MatchedBy(func(data *choosePeopleToNotifyData) bool {
+			template.EXPECT().
+				Execute(w, mock.MatchedBy(func(data *choosePeopleToNotifyData) bool {
 					return tc.dataMatcher(t, data)
 				})).
 				Return(nil)
@@ -297,8 +297,8 @@ func TestPostChoosePeopleToNotifyWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := ChoosePeopleToNotify(nil, donorStore, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{})

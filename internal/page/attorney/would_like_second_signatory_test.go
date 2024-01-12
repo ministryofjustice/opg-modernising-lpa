@@ -21,8 +21,8 @@ func TestGetWouldLikeSecondSignatory(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &wouldLikeSecondSignatoryData{
+	template.EXPECT().
+		Execute(w, &wouldLikeSecondSignatoryData{
 			App:     testAppData,
 			Options: form.YesNoValues,
 		}).
@@ -40,8 +40,8 @@ func TestGetWouldLikeSecondSignatoryWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &wouldLikeSecondSignatoryData{
+	template.EXPECT().
+		Execute(w, &wouldLikeSecondSignatoryData{
 			App:     testAppData,
 			Options: form.YesNoValues,
 		}).
@@ -64,8 +64,8 @@ func TestPostWouldLikeSecondSignatoryWhenYes(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Put", r.Context(), &actor.AttorneyProvidedDetails{
+	attorneyStore.EXPECT().
+		Put(r.Context(), &actor.AttorneyProvidedDetails{
 			LpaID:                    "lpa-id",
 			WouldLikeSecondSignatory: form.Yes,
 		}).
@@ -97,18 +97,18 @@ func TestPostWouldLikeSecondSignatoryWhenNo(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Put", r.Context(), updatedAttorney).
+	attorneyStore.EXPECT().
+		Put(r.Context(), updatedAttorney).
 		Return(nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(donor, nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.
-		On("SendAttorney", r.Context(), donor, updatedAttorney).
+	lpaStoreClient.EXPECT().
+		SendAttorney(r.Context(), donor, updatedAttorney).
 		Return(nil)
 
 	err := WouldLikeSecondSignatory(nil, attorneyStore, donorStore, lpaStoreClient)(testAppData, w, r, &actor.AttorneyProvidedDetails{
@@ -133,18 +133,18 @@ func TestPostWouldLikeSecondSignatoryWhenLpaStoreClientErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Put", r.Context(), mock.Anything).
+	attorneyStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(donor, nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.
-		On("SendAttorney", r.Context(), mock.Anything, mock.Anything).
+	lpaStoreClient.EXPECT().
+		SendAttorney(r.Context(), mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := WouldLikeSecondSignatory(nil, attorneyStore, donorStore, lpaStoreClient)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
@@ -161,13 +161,13 @@ func TestPostWouldLikeSecondSignatoryWhenDonorStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Put", r.Context(), mock.Anything).
+	attorneyStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(nil, expectedError)
 
 	err := WouldLikeSecondSignatory(nil, attorneyStore, donorStore, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
@@ -184,8 +184,8 @@ func TestPostWouldLikeSecondSignatoryWhenAttorneyStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Put", r.Context(), mock.Anything).
+	attorneyStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := WouldLikeSecondSignatory(nil, attorneyStore, nil, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
@@ -204,8 +204,8 @@ func TestPostWouldLikeSecondSignatoryWhenValidationError(t *testing.T) {
 	validationError := validation.With("yes-no", validation.SelectError{Label: "yesIfWouldLikeSecondSignatory"})
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *wouldLikeSecondSignatoryData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *wouldLikeSecondSignatoryData) bool {
 			return assert.Equal(t, validationError, data.Errors)
 		})).
 		Return(nil)

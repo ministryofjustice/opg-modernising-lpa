@@ -31,12 +31,10 @@ func (e responseError) Error() string { return e.name }
 func (e responseError) Title() string { return e.name }
 func (e responseError) Data() any     { return e.body }
 
-//go:generate mockery --testonly --inpackage --name Doer --structname mockDoer
 type Doer interface {
 	Do(*http.Request) (*http.Response, error)
 }
 
-//go:generate mockery --testonly --inpackage --name SecretsClient --structname mockSecretsClient
 type SecretsClient interface {
 	Secret(ctx context.Context, name string) (string, error)
 }

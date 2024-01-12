@@ -20,8 +20,8 @@ func TestGetPreviousFee(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &previousFeeData{
+	template.EXPECT().
+		Execute(w, &previousFeeData{
 			App:     testAppData,
 			Form:    &previousFeeForm{},
 			Options: pay.PreviousFeeValues,
@@ -40,8 +40,8 @@ func TestGetPreviousFeeFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &previousFeeData{
+	template.EXPECT().
+		Execute(w, &previousFeeData{
 			App: testAppData,
 			Form: &previousFeeForm{
 				PreviousFee: pay.PreviousFeeHalf,
@@ -62,8 +62,8 @@ func TestGetPreviousFeeWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := PreviousFee(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -88,13 +88,13 @@ func TestPostPreviousFeeWhenFullFee(t *testing.T) {
 	}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), donor).
+	donorStore.EXPECT().
+		Put(r.Context(), donor).
 		Return(nil)
 
 	payer := newMockPayer(t)
-	payer.
-		On("Pay", testAppData, w, r, donor).
+	payer.EXPECT().
+		Pay(testAppData, w, r, donor).
 		Return(nil)
 
 	err := PreviousFee(nil, payer, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
@@ -111,8 +111,8 @@ func TestPostPreviousFeeWhenOtherFee(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:       "lpa-id",
 			PreviousFee: pay.PreviousFeeHalf,
 		}).
@@ -156,8 +156,8 @@ func TestPostPreviousFeeWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := PreviousFee(nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -171,8 +171,8 @@ func TestPostPreviousFeeWhenValidationErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *previousFeeData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *previousFeeData) bool {
 			return assert.Equal(t, validation.With("previous-fee", validation.SelectError{Label: "howMuchYouPreviouslyPaid"}), data.Errors)
 		})).
 		Return(nil)

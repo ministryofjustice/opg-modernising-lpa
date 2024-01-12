@@ -21,8 +21,8 @@ func TestGetWitnessingAsCertificateProvider(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &witnessingAsCertificateProviderData{
+	template.EXPECT().
+		Execute(w, &witnessingAsCertificateProviderData{
 			App:   testAppData,
 			Donor: &actor.DonorProvidedDetails{},
 			Form:  &witnessingAsCertificateProviderForm{},
@@ -41,8 +41,8 @@ func TestGetWitnessingAsCertificateProviderFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &witnessingAsCertificateProviderData{
+	template.EXPECT().
+		Execute(w, &witnessingAsCertificateProviderData{
 			App: testAppData,
 			Donor: &actor.DonorProvidedDetails{
 				CertificateProvider: actor.CertificateProvider{FirstNames: "Joan"},
@@ -65,8 +65,8 @@ func TestGetWitnessingAsCertificateProviderWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &witnessingAsCertificateProviderData{
+	template.EXPECT().
+		Execute(w, &witnessingAsCertificateProviderData{
 			App:   testAppData,
 			Donor: &actor.DonorProvidedDetails{},
 			Form:  &witnessingAsCertificateProviderForm{},
@@ -103,13 +103,13 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 	}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), donor).
+	donorStore.EXPECT().
+		Put(r.Context(), donor).
 		Return(nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.
-		On("SendLpa", r.Context(), donor).
+	lpaStoreClient.EXPECT().
+		SendLpa(r.Context(), donor).
 		Return(nil)
 
 	err := WitnessingAsCertificateProvider(nil, donorStore, nil, lpaStoreClient, func() time.Time { return now })(testAppData, w, r, &actor.DonorProvidedDetails{
@@ -148,13 +148,13 @@ func TestPostWitnessingAsCertificateProviderWhenPaymentPending(t *testing.T) {
 		},
 	}
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), donor).
+	donorStore.EXPECT().
+		Put(r.Context(), donor).
 		Return(nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.
-		On("SendLpa", r.Context(), donor).
+	lpaStoreClient.EXPECT().
+		SendLpa(r.Context(), donor).
 		Return(nil)
 
 	err := WitnessingAsCertificateProvider(nil, donorStore, nil, lpaStoreClient, func() time.Time { return now })(testAppData, w, r, &actor.DonorProvidedDetails{
@@ -194,13 +194,13 @@ func TestPostWitnessingAsCertificateProviderWhenSendLpaErrors(t *testing.T) {
 	}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), donor).
+	donorStore.EXPECT().
+		Put(r.Context(), donor).
 		Return(nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.
-		On("SendLpa", r.Context(), donor).
+	lpaStoreClient.EXPECT().
+		SendLpa(r.Context(), donor).
 		Return(expectedError)
 
 	err := WitnessingAsCertificateProvider(nil, donorStore, nil, lpaStoreClient, func() time.Time { return now })(testAppData, w, r, &actor.DonorProvidedDetails{
@@ -223,18 +223,18 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToCertificateProvid
 	now := time.Now()
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.
-		On("SendLpa", r.Context(), mock.Anything).
+	lpaStoreClient.EXPECT().
+		SendLpa(r.Context(), mock.Anything).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.
-		On("SendCertificateProviderPrompt", r.Context(), testAppData, mock.Anything).
+	shareCodeSender.EXPECT().
+		SendCertificateProviderPrompt(r.Context(), testAppData, mock.Anything).
 		Return(expectedError)
 
 	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, lpaStoreClient, func() time.Time { return now })(testAppData, w, r, &actor.DonorProvidedDetails{
@@ -259,8 +259,8 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 	invalidCreated := now.Add(-45 * time.Minute)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.MatchedBy(func(donor *actor.DonorProvidedDetails) bool {
+	donorStore.EXPECT().
+		Put(r.Context(), mock.MatchedBy(func(donor *actor.DonorProvidedDetails) bool {
 			donor.WitnessCodeLimiter = nil
 			return assert.Equal(t, donor, &actor.DonorProvidedDetails{
 				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
@@ -269,8 +269,8 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 		Return(nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &witnessingAsCertificateProviderData{
+	template.EXPECT().
+		Execute(w, &witnessingAsCertificateProviderData{
 			App: testAppData,
 			Donor: &actor.DonorProvidedDetails{
 				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
@@ -301,8 +301,8 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 	now := time.Now()
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.MatchedBy(func(donor *actor.DonorProvidedDetails) bool {
+	donorStore.EXPECT().
+		Put(r.Context(), mock.MatchedBy(func(donor *actor.DonorProvidedDetails) bool {
 			donor.WitnessCodeLimiter = nil
 			return assert.Equal(t, donor, &actor.DonorProvidedDetails{
 				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
@@ -311,8 +311,8 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 		Return(nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &witnessingAsCertificateProviderData{
+	template.EXPECT().
+		Execute(w, &witnessingAsCertificateProviderData{
 			App: testAppData,
 			Donor: &actor.DonorProvidedDetails{
 				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
@@ -344,8 +344,8 @@ func TestPostWitnessingAsCertificateProviderWhenCodeExpired(t *testing.T) {
 	invalidCreated := now.Add(-45 * time.Minute)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.MatchedBy(func(donor *actor.DonorProvidedDetails) bool {
+	donorStore.EXPECT().
+		Put(r.Context(), mock.MatchedBy(func(donor *actor.DonorProvidedDetails) bool {
 			donor.WitnessCodeLimiter = nil
 			return assert.Equal(t, donor, &actor.DonorProvidedDetails{
 				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
@@ -354,8 +354,8 @@ func TestPostWitnessingAsCertificateProviderWhenCodeExpired(t *testing.T) {
 		Return(nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &witnessingAsCertificateProviderData{
+	template.EXPECT().
+		Execute(w, &witnessingAsCertificateProviderData{
 			App: testAppData,
 			Donor: &actor.DonorProvidedDetails{
 				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
@@ -386,8 +386,8 @@ func TestPostWitnessingAsCertificateProviderCodeLimitBreached(t *testing.T) {
 	now := time.Now()
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.MatchedBy(func(donor *actor.DonorProvidedDetails) bool {
+	donorStore.EXPECT().
+		Put(r.Context(), mock.MatchedBy(func(donor *actor.DonorProvidedDetails) bool {
 			donor.WitnessCodeLimiter = nil
 			return assert.Equal(t, donor, &actor.DonorProvidedDetails{
 				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
@@ -396,8 +396,8 @@ func TestPostWitnessingAsCertificateProviderCodeLimitBreached(t *testing.T) {
 		Return(nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &witnessingAsCertificateProviderData{
+	template.EXPECT().
+		Execute(w, &witnessingAsCertificateProviderData{
 			App: testAppData,
 			Donor: &actor.DonorProvidedDetails{
 				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},

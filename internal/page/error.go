@@ -8,7 +8,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-//go:generate mockery --testonly --inpackage --name ErrorHandler --structname mockErrorHandler
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type errorData struct {

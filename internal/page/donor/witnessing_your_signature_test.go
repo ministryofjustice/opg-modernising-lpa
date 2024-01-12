@@ -23,8 +23,8 @@ func TestGetWitnessingYourSignature(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{CertificateProvider: actor.CertificateProvider{Mobile: "07535111111"}}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &witnessingYourSignatureData{App: testAppData, Donor: donor}).
+	template.EXPECT().
+		Execute(w, &witnessingYourSignatureData{App: testAppData, Donor: donor}).
 		Return(nil)
 
 	err := WitnessingYourSignature(template.Execute, nil, nil)(testAppData, w, r, donor)
@@ -41,8 +41,8 @@ func TestGetWitnessingYourSignatureWhenTemplateErrors(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{CertificateProvider: actor.CertificateProvider{Mobile: "07535111111"}}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &witnessingYourSignatureData{App: testAppData, Donor: donor}).
+	template.EXPECT().
+		Execute(w, &witnessingYourSignatureData{App: testAppData, Donor: donor}).
 		Return(expectedError)
 
 	err := WitnessingYourSignature(template.Execute, nil, nil)(testAppData, w, r, donor)
@@ -62,8 +62,8 @@ func TestPostWitnessingYourSignature(t *testing.T) {
 	}
 
 	witnessCodeSender := newMockWitnessCodeSender(t)
-	witnessCodeSender.
-		On("SendToCertificateProvider", r.Context(), donor, mock.Anything).
+	witnessCodeSender.EXPECT().
+		SendToCertificateProvider(r.Context(), donor, mock.Anything).
 		Return(nil)
 
 	err := WitnessingYourSignature(nil, witnessCodeSender, nil)(testAppData, w, r, donor)
@@ -86,11 +86,11 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 	}
 
 	witnessCodeSender := newMockWitnessCodeSender(t)
-	witnessCodeSender.
-		On("SendToCertificateProvider", r.Context(), donor, mock.Anything).
+	witnessCodeSender.EXPECT().
+		SendToCertificateProvider(r.Context(), donor, mock.Anything).
 		Return(nil)
-	witnessCodeSender.
-		On("SendToIndependentWitness", r.Context(), &actor.DonorProvidedDetails{
+	witnessCodeSender.EXPECT().
+		SendToIndependentWitness(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:                 "lpa-id",
 			Donor:                 actor.Donor{CanSign: form.No},
 			DonorIdentityUserData: identity.UserData{OK: true},
@@ -99,8 +99,8 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 		Return(nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", r.Context()).
+	donorStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.DonorProvidedDetails{
 			LpaID:                 "lpa-id",
 			Donor:                 actor.Donor{CanSign: form.No},
@@ -125,24 +125,24 @@ func TestPostWitnessingYourSignatureWhenWitnessCodeSenderErrors(t *testing.T) {
 	}{
 		"SendToCertificateProvider": {
 			setupWitnessCodeSender: func(witnessCodeSender *mockWitnessCodeSender) {
-				witnessCodeSender.
-					On("SendToCertificateProvider", mock.Anything, mock.Anything, mock.Anything).
+				witnessCodeSender.EXPECT().
+					SendToCertificateProvider(mock.Anything, mock.Anything, mock.Anything).
 					Return(expectedError)
 			},
 			setupDonorStore: func(donorStore *mockDonorStore) {},
 		},
 		"SendToIndependentWitness": {
 			setupWitnessCodeSender: func(witnessCodeSender *mockWitnessCodeSender) {
-				witnessCodeSender.
-					On("SendToCertificateProvider", mock.Anything, mock.Anything, mock.Anything).
+				witnessCodeSender.EXPECT().
+					SendToCertificateProvider(mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
-				witnessCodeSender.
-					On("SendToIndependentWitness", mock.Anything, mock.Anything, mock.Anything).
+				witnessCodeSender.EXPECT().
+					SendToIndependentWitness(mock.Anything, mock.Anything, mock.Anything).
 					Return(expectedError)
 			},
 			setupDonorStore: func(donorStore *mockDonorStore) {
-				donorStore.
-					On("Get", mock.Anything, mock.Anything, mock.Anything).
+				donorStore.EXPECT().
+					Get(mock.Anything).
 					Return(donor, nil)
 			},
 		},

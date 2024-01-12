@@ -20,8 +20,8 @@ func TestGetAreYouApplyingForFeeDiscountOrExemption(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &areYouApplyingForFeeDiscountOrExemption{
+	template.EXPECT().
+		Execute(w, &areYouApplyingForFeeDiscountOrExemption{
 			App:     testAppData,
 			Options: form.YesNoValues,
 		}).
@@ -39,8 +39,8 @@ func TestGetAreYouApplyingForFeeDiscountOrExemptionWhenTemplateErrors(t *testing
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &areYouApplyingForFeeDiscountOrExemption{
+	template.EXPECT().
+		Execute(w, &areYouApplyingForFeeDiscountOrExemption{
 			App:     testAppData,
 			Options: form.YesNoValues,
 		}).
@@ -65,13 +65,13 @@ func TestPostAreYouApplyingForFeeDiscountOrExemption(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}}
 
 	payer := newMockPayer(t)
-	payer.
-		On("Pay", testAppData, w, r, donor).
+	payer.EXPECT().
+		Pay(testAppData, w, r, donor).
 		Return(nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Donor: actor.Donor{Email: "a@b.com"},
 			Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskInProgress},
@@ -92,8 +92,8 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenDonorStoreErrors(t *test
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := AreYouApplyingForFeeDiscountOrExemption(nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -110,13 +110,13 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenPayerErrors(t *testing.T
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	payer := newMockPayer(t)
-	payer.
-		On("Pay", testAppData, w, r, mock.Anything).
+	payer.EXPECT().
+		Pay(testAppData, w, r, mock.Anything).
 		Return(expectedError)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(nil)
 
 	err := AreYouApplyingForFeeDiscountOrExemption(nil, payer, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -133,8 +133,8 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenYes(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Donor: actor.Donor{Email: "a@b.com"},
 			Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskInProgress},
@@ -161,8 +161,8 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenValidationError(t *testi
 	validationError := validation.With("yes-no", validation.SelectError{Label: "whetherApplyingForDifferentFeeType"})
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *areYouApplyingForFeeDiscountOrExemption) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *areYouApplyingForFeeDiscountOrExemption) bool {
 			return assert.Equal(t, validationError, data.Errors)
 		})).
 		Return(nil)

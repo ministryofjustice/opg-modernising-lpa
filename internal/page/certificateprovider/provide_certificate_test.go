@@ -24,18 +24,18 @@ func TestGetProvideCertificate(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{SignedAt: time.Now()}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(donor, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &provideCertificateData{
+	template.EXPECT().
+		Execute(w, &provideCertificateData{
 			App:                 testAppData,
 			CertificateProvider: &actor.CertificateProviderProvidedDetails{},
 			Donor:               donor,
@@ -55,13 +55,13 @@ func TestGetProvideCertificateRedirectsToStartOnLpaNotSubmitted(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	err := ProvideCertificate(nil, donorStore, certificateProviderStore, nil, nil, nil, nil)(testAppData, w, r)
@@ -77,8 +77,8 @@ func TestGetProvideCertificateWhenDonorStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, expectedError)
 
 	err := ProvideCertificate(nil, donorStore, nil, nil, nil, nil, nil)(testAppData, w, r)
@@ -93,13 +93,13 @@ func TestGetProvideCertificateWhenCertificateProviderStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
 	err := ProvideCertificate(nil, donorStore, certificateProviderStore, nil, nil, nil, nil)(testAppData, w, r)
@@ -144,37 +144,37 @@ func TestPostProvideCertificate(t *testing.T) {
 	}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(donor, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
-	certificateProviderStore.
-		On("Put", r.Context(), certificateProvider).
+	certificateProviderStore.EXPECT().
+		Put(r.Context(), certificateProvider).
 		Return(nil)
 
 	localizer := newMockLocalizer(t)
-	localizer.
-		On("Possessive", "c").
+	localizer.EXPECT().
+		Possessive("c").
 		Return("the possessive first names")
-	localizer.
-		On("Possessive", "c d").
+	localizer.EXPECT().
+		Possessive("c d").
 		Return("the possessive full name")
-	localizer.
-		On("T", "property-and-affairs").
+	localizer.EXPECT().
+		T("property-and-affairs").
 		Return("the translated term")
-	localizer.
-		On("FormatDateTime", now).
+	localizer.EXPECT().
+		FormatDateTime(now).
 		Return("the formatted date")
 
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("SendEmail", r.Context(), "cp@example.org", notify.CertificateProviderCertificateProvidedEmail{
+	notifyClient.EXPECT().
+		SendEmail(r.Context(), "cp@example.org", notify.CertificateProviderCertificateProvidedEmail{
 			DonorFullNamePossessive:     "the possessive full name",
 			DonorFirstNamesPossessive:   "the possessive first names",
 			LpaType:                     "the translated term",
@@ -184,13 +184,13 @@ func TestPostProvideCertificate(t *testing.T) {
 		Return("", nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.
-		On("SendAttorneys", r.Context(), testAppData, donor).
+	shareCodeSender.EXPECT().
+		SendAttorneys(r.Context(), testAppData, donor).
 		Return(nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.
-		On("SendCertificateProvider", r.Context(), "lpa-uid", certificateProvider).
+	lpaStoreClient.EXPECT().
+		SendCertificateProvider(r.Context(), "lpa-uid", certificateProvider).
 		Return(nil)
 
 	err := ProvideCertificate(nil, donorStore, certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, func() time.Time { return now })(testAppData, w, r)
@@ -213,16 +213,16 @@ func TestPostProvideCertificateOnStoreError(t *testing.T) {
 	now := time.Now()
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{SignedAt: now}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
-	certificateProviderStore.
-		On("Put", r.Context(), mock.Anything).
+	certificateProviderStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := ProvideCertificate(nil, donorStore, certificateProviderStore, nil, nil, nil, func() time.Time { return now })(testAppData, w, r)
@@ -267,21 +267,21 @@ func TestPostProvideCertificateWhenLpaStoreClientError(t *testing.T) {
 	}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(donor, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
-	certificateProviderStore.
-		On("Put", r.Context(), certificateProvider).
+	certificateProviderStore.EXPECT().
+		Put(r.Context(), certificateProvider).
 		Return(nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.
-		On("SendCertificateProvider", mock.Anything, mock.Anything, mock.Anything).
+	lpaStoreClient.EXPECT().
+		SendCertificateProvider(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := ProvideCertificate(nil, donorStore, certificateProviderStore, nil, nil, lpaStoreClient, func() time.Time { return now })(testAppData, w, r)
@@ -300,8 +300,8 @@ func TestPostProvideCertificateOnNotifyClientError(t *testing.T) {
 	now := time.Now()
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{
 			SignedAt: now,
 			CertificateProvider: actor.CertificateProvider{
@@ -314,37 +314,37 @@ func TestPostProvideCertificateOnNotifyClientError(t *testing.T) {
 		}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
-	certificateProviderStore.
-		On("Put", r.Context(), mock.Anything).
+	certificateProviderStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(nil)
 
 	localizer := newMockLocalizer(t)
-	localizer.
-		On("Possessive", mock.Anything).
+	localizer.EXPECT().
+		Possessive(mock.Anything).
 		Return("")
-	localizer.
-		On("Possessive", mock.Anything).
+	localizer.EXPECT().
+		Possessive(mock.Anything).
 		Return("")
-	localizer.
-		On("T", mock.Anything).
+	localizer.EXPECT().
+		T(mock.Anything).
 		Return("")
-	localizer.
-		On("FormatDateTime", mock.Anything).
+	localizer.EXPECT().
+		FormatDateTime(mock.Anything).
 		Return("")
 
 	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("SendEmail", r.Context(), mock.Anything, mock.Anything).
+	notifyClient.EXPECT().
+		SendEmail(r.Context(), mock.Anything, mock.Anything).
 		Return("", expectedError)
 
 	testAppData.Localizer = localizer
 
 	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.
-		On("SendCertificateProvider", mock.Anything, mock.Anything, mock.Anything).
+	lpaStoreClient.EXPECT().
+		SendCertificateProvider(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	err := ProvideCertificate(nil, donorStore, certificateProviderStore, notifyClient, nil, lpaStoreClient, func() time.Time { return now })(testAppData, w, r)
@@ -366,8 +366,8 @@ func TestPostProvideCertificateWhenShareCodeSenderErrors(t *testing.T) {
 	now := time.Now()
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{
 			SignedAt: now,
 			Donor:    actor.Donor{FirstNames: "c", LastName: "d"},
@@ -375,42 +375,42 @@ func TestPostProvideCertificateWhenShareCodeSenderErrors(t *testing.T) {
 		}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
-	certificateProviderStore.
-		On("Put", r.Context(), mock.Anything).
+	certificateProviderStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(nil)
 
 	localizer := newMockLocalizer(t)
-	localizer.
-		On("Possessive", "c").
+	localizer.EXPECT().
+		Possessive("c").
 		Return("the possessive first names")
-	localizer.
-		On("Possessive", "c d").
+	localizer.EXPECT().
+		Possessive("c d").
 		Return("the possessive full name")
-	localizer.
-		On("T", "property-and-affairs").
+	localizer.EXPECT().
+		T("property-and-affairs").
 		Return("the translated term")
-	localizer.
-		On("FormatDateTime", now).
+	localizer.EXPECT().
+		FormatDateTime(now).
 		Return("the formatted date")
 
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("SendEmail", r.Context(), mock.Anything, mock.Anything).
+	notifyClient.EXPECT().
+		SendEmail(r.Context(), mock.Anything, mock.Anything).
 		Return("", nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.
-		On("SendAttorneys", r.Context(), testAppData, mock.Anything).
+	shareCodeSender.EXPECT().
+		SendAttorneys(r.Context(), testAppData, mock.Anything).
 		Return(expectedError)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.
-		On("SendCertificateProvider", mock.Anything, mock.Anything, mock.Anything).
+	lpaStoreClient.EXPECT().
+		SendCertificateProvider(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	err := ProvideCertificate(nil, donorStore, certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, func() time.Time { return now })(testAppData, w, r)
@@ -429,18 +429,18 @@ func TestPostProvideCertificateWhenValidationErrors(t *testing.T) {
 	now := time.Now()
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{SignedAt: now}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *provideCertificateData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *provideCertificateData) bool {
 			return assert.Equal(t, validation.With("agree-to-statement", validation.SelectError{Label: "toSignAsCertificateProvider"}), data.Errors)
 		})).
 		Return(nil)

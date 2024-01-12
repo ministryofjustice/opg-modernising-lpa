@@ -16,12 +16,12 @@ func TestError(t *testing.T) {
 	r, _ := http.NewRequestWithContext(ContextWithAppData(context.Background(), TestAppData), http.MethodGet, "/", nil)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Request", r, expectedError)
+	logger.EXPECT().
+		Request(r, expectedError)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &errorData{App: TestAppData}).
+	template.EXPECT().
+		Execute(w, &errorData{App: TestAppData}).
 		Return(nil)
 
 	Error(template.Execute, logger)(w, r, expectedError)
@@ -35,12 +35,12 @@ func TestErrorWithErrCsrfInvalid(t *testing.T) {
 	r, _ := http.NewRequestWithContext(ContextWithAppData(context.Background(), TestAppData), http.MethodGet, "/", nil)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Request", r, ErrCsrfInvalid)
+	logger.EXPECT().
+		Request(r, ErrCsrfInvalid)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &errorData{App: TestAppData}).
+	template.EXPECT().
+		Execute(w, &errorData{App: TestAppData}).
 		Return(nil)
 
 	Error(template.Execute, logger)(w, r, ErrCsrfInvalid)
@@ -56,14 +56,14 @@ func TestErrorWhenTemplateErrors(t *testing.T) {
 	templateError := errors.New("template error")
 
 	logger := newMockLogger(t)
-	logger.
-		On("Request", r, expectedError)
-	logger.
-		On("Request", r, fmt.Errorf("Error rendering page: %w", templateError))
+	logger.EXPECT().
+		Request(r, expectedError)
+	logger.EXPECT().
+		Request(r, fmt.Errorf("Error rendering page: %w", templateError))
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &errorData{App: TestAppData}).
+	template.EXPECT().
+		Execute(w, &errorData{App: TestAppData}).
 		Return(templateError)
 
 	Error(template.Execute, logger)(w, r, expectedError)

@@ -17,6 +17,14 @@ type mockShareCodeSender struct {
 	mock.Mock
 }
 
+type mockShareCodeSender_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockShareCodeSender) EXPECT() *mockShareCodeSender_Expecter {
+	return &mockShareCodeSender_Expecter{mock: &_m.Mock}
+}
+
 // SendCertificateProviderPrompt provides a mock function with given fields: _a0, _a1, _a2
 func (_m *mockShareCodeSender) SendCertificateProviderPrompt(_a0 context.Context, _a1 page.AppData, _a2 *actor.DonorProvidedDetails) error {
 	ret := _m.Called(_a0, _a1, _a2)
@@ -33,6 +41,36 @@ func (_m *mockShareCodeSender) SendCertificateProviderPrompt(_a0 context.Context
 	}
 
 	return r0
+}
+
+// mockShareCodeSender_SendCertificateProviderPrompt_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendCertificateProviderPrompt'
+type mockShareCodeSender_SendCertificateProviderPrompt_Call struct {
+	*mock.Call
+}
+
+// SendCertificateProviderPrompt is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 page.AppData
+//   - _a2 *actor.DonorProvidedDetails
+func (_e *mockShareCodeSender_Expecter) SendCertificateProviderPrompt(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockShareCodeSender_SendCertificateProviderPrompt_Call {
+	return &mockShareCodeSender_SendCertificateProviderPrompt_Call{Call: _e.mock.On("SendCertificateProviderPrompt", _a0, _a1, _a2)}
+}
+
+func (_c *mockShareCodeSender_SendCertificateProviderPrompt_Call) Run(run func(_a0 context.Context, _a1 page.AppData, _a2 *actor.DonorProvidedDetails)) *mockShareCodeSender_SendCertificateProviderPrompt_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(page.AppData), args[2].(*actor.DonorProvidedDetails))
+	})
+	return _c
+}
+
+func (_c *mockShareCodeSender_SendCertificateProviderPrompt_Call) Return(_a0 error) *mockShareCodeSender_SendCertificateProviderPrompt_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockShareCodeSender_SendCertificateProviderPrompt_Call) RunAndReturn(run func(context.Context, page.AppData, *actor.DonorProvidedDetails) error) *mockShareCodeSender_SendCertificateProviderPrompt_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockShareCodeSender creates a new instance of mockShareCodeSender. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

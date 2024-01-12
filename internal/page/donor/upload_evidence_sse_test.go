@@ -17,20 +17,20 @@ func TestUploadEvidenceSSE(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	documentStore := newMockDocumentStore(t)
-	documentStore.
-		On("GetAll", r.Context()).
+	documentStore.EXPECT().
+		GetAll(r.Context()).
 		Return(page.Documents{
 			{Scanned: false},
 			{Scanned: true},
 		}, nil).Once()
-	documentStore.
-		On("GetAll", r.Context()).
+	documentStore.EXPECT().
+		GetAll(r.Context()).
 		Return(page.Documents{
 			{Scanned: false},
 			{Scanned: true},
 		}, nil).Once()
-	documentStore.
-		On("GetAll", r.Context()).
+	documentStore.EXPECT().
+		GetAll(r.Context()).
 		Return(page.Documents{
 			{Scanned: true},
 			{Scanned: true},
@@ -53,8 +53,8 @@ func TestUploadEvidenceSSEOnDonorStoreError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	documentStore := newMockDocumentStore(t)
-	documentStore.
-		On("GetAll", r.Context()).
+	documentStore.EXPECT().
+		GetAll(r.Context()).
 		Return(page.Documents{
 			{Scanned: false},
 			{Scanned: true},
@@ -75,16 +75,16 @@ func TestUploadEvidenceSSEOnDonorStoreErrorWhenRefreshingDocuments(t *testing.T)
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	documentStore := newMockDocumentStore(t)
-	documentStore.
-		On("GetAll", r.Context()).
+	documentStore.EXPECT().
+		GetAll(r.Context()).
 		Return(page.Documents{
 			{Scanned: false},
 			{Scanned: true},
 		}, nil).
 		Once()
 
-	documentStore.
-		On("GetAll", r.Context()).
+	documentStore.EXPECT().
+		GetAll(r.Context()).
 		Return(page.Documents{
 			{Scanned: false},
 			{Scanned: true},

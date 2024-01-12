@@ -14,6 +14,14 @@ type mockRequestSigner struct {
 	mock.Mock
 }
 
+type mockRequestSigner_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockRequestSigner) EXPECT() *mockRequestSigner_Expecter {
+	return &mockRequestSigner_Expecter{mock: &_m.Mock}
+}
+
 // Sign provides a mock function with given fields: _a0, _a1, _a2
 func (_m *mockRequestSigner) Sign(_a0 context.Context, _a1 *http.Request, _a2 string) error {
 	ret := _m.Called(_a0, _a1, _a2)
@@ -30,6 +38,36 @@ func (_m *mockRequestSigner) Sign(_a0 context.Context, _a1 *http.Request, _a2 st
 	}
 
 	return r0
+}
+
+// mockRequestSigner_Sign_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Sign'
+type mockRequestSigner_Sign_Call struct {
+	*mock.Call
+}
+
+// Sign is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 *http.Request
+//   - _a2 string
+func (_e *mockRequestSigner_Expecter) Sign(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockRequestSigner_Sign_Call {
+	return &mockRequestSigner_Sign_Call{Call: _e.mock.On("Sign", _a0, _a1, _a2)}
+}
+
+func (_c *mockRequestSigner_Sign_Call) Run(run func(_a0 context.Context, _a1 *http.Request, _a2 string)) *mockRequestSigner_Sign_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*http.Request), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *mockRequestSigner_Sign_Call) Return(_a0 error) *mockRequestSigner_Sign_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockRequestSigner_Sign_Call) RunAndReturn(run func(context.Context, *http.Request, string) error) *mockRequestSigner_Sign_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockRequestSigner creates a new instance of mockRequestSigner. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

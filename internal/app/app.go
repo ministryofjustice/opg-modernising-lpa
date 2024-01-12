@@ -31,12 +31,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-//go:generate mockery --testonly --inpackage --name Logger --structname mockLogger
+type ErrorHandler func(http.ResponseWriter, *http.Request, error)
+
 type Logger interface {
 	Print(v ...interface{})
 }
 
-//go:generate mockery --testonly --inpackage --name DynamoClient --structname mockDynamoClient
 type DynamoClient interface {
 	One(ctx context.Context, pk, sk string, v interface{}) error
 	OneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
@@ -54,7 +54,6 @@ type DynamoClient interface {
 	OneByUID(ctx context.Context, uid string, v interface{}) error
 }
 
-//go:generate mockery --testonly --inpackage --name S3Client --structname mockS3Client
 type S3Client interface {
 	PutObject(context.Context, string, []byte) error
 	DeleteObject(context.Context, string) error
@@ -62,7 +61,6 @@ type S3Client interface {
 	PutObjectTagging(context.Context, string, map[string]string) error
 }
 
-//go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore
 type SessionStore interface {
 	Get(r *http.Request, name string) (*sessions.Session, error)
 	New(r *http.Request, name string) (*sessions.Session, error)

@@ -14,8 +14,8 @@ func TestGetChooseNewCertificateProvider(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseNewCertificateProviderData{Donor: &actor.DonorProvidedDetails{}, App: testAppData}).
+	template.EXPECT().
+		Execute(w, &chooseNewCertificateProviderData{Donor: &actor.DonorProvidedDetails{}, App: testAppData}).
 		Return(nil)
 
 	err := ChooseNewCertificateProvider(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -30,8 +30,8 @@ func TestGetChooseNewCertificateProviderWhenTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseNewCertificateProviderData{Donor: &actor.DonorProvidedDetails{}, App: testAppData}).
+	template.EXPECT().
+		Execute(w, &chooseNewCertificateProviderData{Donor: &actor.DonorProvidedDetails{}, App: testAppData}).
 		Return(expectedError)
 
 	err := ChooseNewCertificateProvider(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -46,8 +46,8 @@ func TestPostChooseNewCertificateProvider(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{CertificateProvider: actor.CertificateProvider{}}).
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{CertificateProvider: actor.CertificateProvider{}}).
 		Return(nil)
 
 	err := ChooseNewCertificateProvider(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{CertificateProvider: actor.CertificateProvider{FirstNames: "first-names"}})
@@ -63,8 +63,8 @@ func TestPostChooseNewCertificateProviderWhenStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{CertificateProvider: actor.CertificateProvider{}}).
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{CertificateProvider: actor.CertificateProvider{}}).
 		Return(expectedError)
 
 	err := ChooseNewCertificateProvider(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{CertificateProvider: actor.CertificateProvider{FirstNames: "first-names"}})

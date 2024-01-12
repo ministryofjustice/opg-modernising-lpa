@@ -26,8 +26,8 @@ func TestGetConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 	}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &confirmYourCertificateProviderIsNotRelatedData{
+	template.EXPECT().
+		Execute(w, &confirmYourCertificateProviderIsNotRelatedData{
 			App:   testAppData,
 			Yes:   form.Yes,
 			Donor: donor,
@@ -60,8 +60,8 @@ func TestGetConfirmYourCertificateProviderIsNotRelatedWhenTemplateErrors(t *test
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := ConfirmYourCertificateProviderIsNotRelated(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
@@ -85,8 +85,8 @@ func TestPostConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:                          "lpa-id",
 			Donor:                          actor.Donor{CanSign: form.Yes},
 			HasSentApplicationUpdatedEvent: true,
@@ -134,8 +134,8 @@ func TestPostConfirmYourCertificateProviderIsNotRelatedChooseNew(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Tasks: actor.DonorTasks{
 				CertificateProvider: actor.TaskNotStarted,
@@ -176,8 +176,8 @@ func TestPostConfirmYourCertificateProviderIsNotRelatedWhenStoreErrors(t *testin
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), mock.Anything).
+			donorStore.EXPECT().
+				Put(r.Context(), mock.Anything).
 				Return(expectedError)
 
 			err := ConfirmYourCertificateProviderIsNotRelated(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
@@ -197,8 +197,8 @@ func TestPostConfirmYourCertificateProviderIsNotRelatedWhenValidationErrors(t *t
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *confirmYourCertificateProviderIsNotRelatedData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *confirmYourCertificateProviderIsNotRelatedData) bool {
 			return assert.Equal(t, validation.With("yes-no", validation.SelectError{Label: "theBoxToConfirmYourCertificateProviderIsNotRelated"}), data.Errors)
 		})).
 		Return(nil)

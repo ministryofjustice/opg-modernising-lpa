@@ -26,18 +26,18 @@ func TestGetEnterDateOfBirth(t *testing.T) {
 	}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(donor, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &dateOfBirthData{
+	template.EXPECT().
+		Execute(w, &dateOfBirthData{
 			App:   testAppData,
 			Donor: donor,
 			Form:  &dateOfBirthForm{},
@@ -56,18 +56,18 @@ func TestGetEnterDateOfBirthFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{DateOfBirth: date.New("1997", "1", "2")}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &dateOfBirthData{
+	template.EXPECT().
+		Execute(w, &dateOfBirthData{
 			App:   testAppData,
 			Donor: &actor.DonorProvidedDetails{},
 			Form: &dateOfBirthForm{
@@ -88,8 +88,8 @@ func TestGetEnterDateOfBirthWhenDonorStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, expectedError)
 
 	err := EnterDateOfBirth(nil, donorStore, nil)(testAppData, w, r)
@@ -104,13 +104,13 @@ func TestGetEnterDateOfBirthWhenCertificateProviderStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
 	err := EnterDateOfBirth(nil, donorStore, certificateProviderStore)(testAppData, w, r)
@@ -129,18 +129,18 @@ func TestGetEnterDateOfBirthWhenTemplateErrors(t *testing.T) {
 	}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(donor, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &dateOfBirthData{
+	template.EXPECT().
+		Execute(w, &dateOfBirthData{
 			App:   testAppData,
 			Donor: donor,
 			Form:  &dateOfBirthForm{},
@@ -223,16 +223,16 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("GetAny", r.Context()).
+			donorStore.EXPECT().
+				GetAny(r.Context()).
 				Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
-			certificateProviderStore.
-				On("Get", r.Context()).
+			certificateProviderStore.EXPECT().
+				Get(r.Context()).
 				Return(tc.retrieved, nil)
-			certificateProviderStore.
-				On("Put", r.Context(), tc.updated).
+			certificateProviderStore.EXPECT().
+				Put(r.Context(), tc.updated).
 				Return(nil)
 
 			err := EnterDateOfBirth(nil, donorStore, certificateProviderStore)(testAppData, w, r)
@@ -258,16 +258,16 @@ func TestPostEnterDateOfBirthWhenProfessionalCertificateProvider(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{LpaID: "lpa-id", CertificateProvider: actor.CertificateProvider{Relationship: actor.Professionally}}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
-	certificateProviderStore.
-		On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{
+	certificateProviderStore.EXPECT().
+		Put(r.Context(), &actor.CertificateProviderProvidedDetails{
 			LpaID:       "lpa-id",
 			DateOfBirth: date.New("1980", "1", "2"),
 			Tasks: actor.CertificateProviderTasks{
@@ -321,20 +321,20 @@ func TestPostEnterDateOfBirthWhenInputRequired(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("GetAny", r.Context()).
+			donorStore.EXPECT().
+				GetAny(r.Context()).
 				Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, mock.MatchedBy(func(data *dateOfBirthData) bool {
+			template.EXPECT().
+				Execute(w, mock.MatchedBy(func(data *dateOfBirthData) bool {
 					return tc.dataMatcher(t, data)
 				})).
 				Return(nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
-			certificateProviderStore.
-				On("Get", r.Context()).
+			certificateProviderStore.EXPECT().
+				Get(r.Context()).
 				Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 			err := EnterDateOfBirth(template.Execute, donorStore, certificateProviderStore)(testAppData, w, r)
@@ -359,8 +359,8 @@ func TestPostYourDetailsWhenDonorStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, expectedError)
 
 	err := EnterDateOfBirth(nil, donorStore, nil)(testAppData, w, r)

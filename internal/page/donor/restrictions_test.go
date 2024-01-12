@@ -19,8 +19,8 @@ func TestGetRestrictions(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &restrictionsData{
+	template.EXPECT().
+		Execute(w, &restrictionsData{
 			App:   testAppData,
 			Donor: &actor.DonorProvidedDetails{},
 		}).
@@ -38,8 +38,8 @@ func TestGetRestrictionsFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &restrictionsData{
+	template.EXPECT().
+		Execute(w, &restrictionsData{
 			App:   testAppData,
 			Donor: &actor.DonorProvidedDetails{Restrictions: "blah"},
 		}).
@@ -57,8 +57,8 @@ func TestGetRestrictionsWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &restrictionsData{
+	template.EXPECT().
+		Execute(w, &restrictionsData{
 			App:   testAppData,
 			Donor: &actor.DonorProvidedDetails{},
 		}).
@@ -81,8 +81,8 @@ func TestPostRestrictions(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:        "lpa-id",
 			Restrictions: "blah",
 			Tasks:        actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, Restrictions: actor.TaskCompleted},
@@ -110,8 +110,8 @@ func TestPostRestrictionsWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{Restrictions: "blah", Tasks: actor.DonorTasks{Restrictions: actor.TaskCompleted}}).
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{Restrictions: "blah", Tasks: actor.DonorTasks{Restrictions: actor.TaskCompleted}}).
 		Return(expectedError)
 
 	err := Restrictions(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -129,8 +129,8 @@ func TestPostRestrictionsWhenValidationErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &restrictionsData{
+	template.EXPECT().
+		Execute(w, &restrictionsData{
 			App:    testAppData,
 			Errors: validation.With("restrictions", validation.StringTooLongError{Label: "restrictions", Length: 10000}),
 			Donor:  &actor.DonorProvidedDetails{},

@@ -56,8 +56,8 @@ func TestMakeHandleErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	errorHandler := newMockErrorHandler(t)
-	errorHandler.
-		On("Execute", w, r, expectedError)
+	errorHandler.EXPECT().
+		Execute(w, r, expectedError)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, errorHandler.Execute)
@@ -74,8 +74,8 @@ func TestMakeCertificateProviderHandle(t *testing.T) {
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
@@ -107,8 +107,8 @@ func TestMakeCertificateProviderHandleSessionError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{}, expectedError)
 
 	mux := http.NewServeMux()
@@ -127,8 +127,8 @@ func TestMakeCertificateProviderHandleSessionMissing(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{Values: map[any]any{}}, nil)
 
 	mux := http.NewServeMux()

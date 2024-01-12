@@ -19,8 +19,8 @@ func TestSet(t *testing.T) {
 	})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Update", ctx, "LPA#lpa-id", "#DONOR#session-id", values,
+	dynamoClient.EXPECT().
+		Update(ctx, "LPA#lpa-id", "#DONOR#session-id", values,
 			"set LpaUID = :uid, UpdatedAt = :now").
 		Return(nil)
 
@@ -39,8 +39,8 @@ func TestSetWhenDynamoClientError(t *testing.T) {
 	})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Update", ctx, "LPA#lpa-id", "#DONOR#session-id", values,
+	dynamoClient.EXPECT().
+		Update(ctx, "LPA#lpa-id", "#DONOR#session-id", values,
 			"set LpaUID = :uid, UpdatedAt = :now").
 		Return(expectedError)
 

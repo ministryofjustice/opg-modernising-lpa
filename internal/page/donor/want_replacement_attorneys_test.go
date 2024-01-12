@@ -20,8 +20,8 @@ func TestGetWantReplacementAttorneys(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &wantReplacementAttorneysData{
+	template.EXPECT().
+		Execute(w, &wantReplacementAttorneysData{
 			App:     testAppData,
 			Donor:   &actor.DonorProvidedDetails{},
 			Form:    &form.YesNoForm{},
@@ -55,8 +55,8 @@ func TestGetWantReplacementAttorneysFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &wantReplacementAttorneysData{
+	template.EXPECT().
+		Execute(w, &wantReplacementAttorneysData{
 			App:   testAppData,
 			Donor: &actor.DonorProvidedDetails{WantReplacementAttorneys: form.Yes},
 			Form: &form.YesNoForm{
@@ -78,8 +78,8 @@ func TestGetWantReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -127,8 +127,8 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID:                    "lpa-id",
 					WantReplacementAttorneys: tc.yesNo,
 					ReplacementAttorneys:     tc.expectedReplacementAttorneys,
@@ -160,8 +160,8 @@ func TestPostWantReplacementAttorneysWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := WantReplacementAttorneys(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -175,8 +175,8 @@ func TestPostWantReplacementAttorneysWhenValidationErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *wantReplacementAttorneysData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *wantReplacementAttorneysData) bool {
 			return assert.Equal(t, validation.With("yes-no", validation.SelectError{Label: "yesToAddReplacementAttorneys"}), data.Errors)
 		})).
 		Return(nil)

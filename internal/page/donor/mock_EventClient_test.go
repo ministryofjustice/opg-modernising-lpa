@@ -14,6 +14,14 @@ type mockEventClient struct {
 	mock.Mock
 }
 
+type mockEventClient_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockEventClient) EXPECT() *mockEventClient_Expecter {
+	return &mockEventClient_Expecter{mock: &_m.Mock}
+}
+
 // SendReducedFeeRequested provides a mock function with given fields: _a0, _a1
 func (_m *mockEventClient) SendReducedFeeRequested(_a0 context.Context, _a1 event.ReducedFeeRequested) error {
 	ret := _m.Called(_a0, _a1)
@@ -30,6 +38,35 @@ func (_m *mockEventClient) SendReducedFeeRequested(_a0 context.Context, _a1 even
 	}
 
 	return r0
+}
+
+// mockEventClient_SendReducedFeeRequested_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendReducedFeeRequested'
+type mockEventClient_SendReducedFeeRequested_Call struct {
+	*mock.Call
+}
+
+// SendReducedFeeRequested is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 event.ReducedFeeRequested
+func (_e *mockEventClient_Expecter) SendReducedFeeRequested(_a0 interface{}, _a1 interface{}) *mockEventClient_SendReducedFeeRequested_Call {
+	return &mockEventClient_SendReducedFeeRequested_Call{Call: _e.mock.On("SendReducedFeeRequested", _a0, _a1)}
+}
+
+func (_c *mockEventClient_SendReducedFeeRequested_Call) Run(run func(_a0 context.Context, _a1 event.ReducedFeeRequested)) *mockEventClient_SendReducedFeeRequested_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(event.ReducedFeeRequested))
+	})
+	return _c
+}
+
+func (_c *mockEventClient_SendReducedFeeRequested_Call) Return(_a0 error) *mockEventClient_SendReducedFeeRequested_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockEventClient_SendReducedFeeRequested_Call) RunAndReturn(run func(context.Context, event.ReducedFeeRequested) error) *mockEventClient_SendReducedFeeRequested_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockEventClient creates a new instance of mockEventClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

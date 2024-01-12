@@ -204,8 +204,8 @@ func TestDonorStorePut(t *testing.T) {
 			tc.saved.Hash, _ = tc.saved.GenerateHash()
 
 			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.
-				On("Put", ctx, tc.saved).
+			dynamoClient.EXPECT().
+				Put(ctx, tc.saved).
 				Return(nil)
 
 			donorStore := &donorStore{dynamoClient: dynamoClient, now: testNowFn}
@@ -231,7 +231,7 @@ func TestDonorStorePutWhenError(t *testing.T) {
 	ctx := context.Background()
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.On("Put", ctx, mock.Anything).Return(expectedError)
+	dynamoClient.EXPECT().Put(ctx, mock.Anything).Return(expectedError)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, now: time.Now}
 
@@ -243,8 +243,8 @@ func TestDonorStorePutWhenUIDNeeded(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
 
 	eventClient := newMockEventClient(t)
-	eventClient.
-		On("SendUidRequested", ctx, event.UidRequested{
+	eventClient.EXPECT().
+		SendUidRequested(ctx, event.UidRequested{
 			LpaID:          "5",
 			DonorSessionID: "an-id",
 			Type:           "hw",
@@ -275,8 +275,8 @@ func TestDonorStorePutWhenUIDNeeded(t *testing.T) {
 	updatedDonor.Hash, _ = updatedDonor.GenerateHash()
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Put", ctx, updatedDonor).
+	dynamoClient.EXPECT().
+		Put(ctx, updatedDonor).
 		Return(nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient}
@@ -328,8 +328,8 @@ func TestDonorStorePutWhenUIDFails(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
 
 	eventClient := newMockEventClient(t)
-	eventClient.
-		On("SendUidRequested", ctx, mock.Anything).
+	eventClient.EXPECT().
+		SendUidRequested(ctx, mock.Anything).
 		Return(expectedError)
 
 	donorStore := &donorStore{eventClient: eventClient, now: time.Now}
@@ -356,8 +356,8 @@ func TestDonorStorePutWhenApplicationUpdatedWhenError(t *testing.T) {
 	ctx := context.Background()
 
 	eventClient := newMockEventClient(t)
-	eventClient.
-		On("SendApplicationUpdated", ctx, mock.Anything).
+	eventClient.EXPECT().
+		SendApplicationUpdated(ctx, mock.Anything).
 		Return(expectedError)
 
 	donorStore := &donorStore{eventClient: eventClient, now: testNowFn}
@@ -385,8 +385,8 @@ func TestDonorStorePutWhenPreviousApplicationLinked(t *testing.T) {
 	ctx := context.Background()
 
 	eventClient := newMockEventClient(t)
-	eventClient.
-		On("SendPreviousApplicationLinked", ctx, event.PreviousApplicationLinked{
+	eventClient.EXPECT().
+		SendPreviousApplicationLinked(ctx, event.PreviousApplicationLinked{
 			UID:                       "M-1111",
 			PreviousApplicationNumber: "5555",
 		}).
@@ -405,8 +405,8 @@ func TestDonorStorePutWhenPreviousApplicationLinked(t *testing.T) {
 	updatedDonor.Hash, _ = updatedDonor.GenerateHash()
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Put", ctx, updatedDonor).
+	dynamoClient.EXPECT().
+		Put(ctx, updatedDonor).
 		Return(nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, now: testNowFn}
@@ -427,8 +427,8 @@ func TestDonorStorePutWhenPreviousApplicationLinkedWontResend(t *testing.T) {
 	ctx := context.Background()
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Put", ctx, mock.Anything).
+	dynamoClient.EXPECT().
+		Put(ctx, mock.Anything).
 		Return(nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, now: testNowFn}
@@ -450,8 +450,8 @@ func TestDonorStorePutWhenPreviousApplicationLinkedWhenError(t *testing.T) {
 	ctx := context.Background()
 
 	eventClient := newMockEventClient(t)
-	eventClient.
-		On("SendPreviousApplicationLinked", ctx, mock.Anything).
+	eventClient.EXPECT().
+		SendPreviousApplicationLinked(ctx, mock.Anything).
 		Return(expectedError)
 
 	donorStore := &donorStore{eventClient: eventClient, now: testNowFn}
@@ -473,11 +473,11 @@ func TestDonorStoreCreate(t *testing.T) {
 	donor.Hash, _ = donor.GenerateHash()
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Create", ctx, donor).
+	dynamoClient.EXPECT().
+		Create(ctx, donor).
 		Return(nil)
-	dynamoClient.
-		On("Create", ctx, lpaLink{PK: "LPA#10100000", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor, UpdatedAt: testNow}).
+	dynamoClient.EXPECT().
+		Create(ctx, lpaLink{PK: "LPA#10100000", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor, UpdatedAt: testNow}).
 		Return(nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }, now: testNowFn}
@@ -502,20 +502,20 @@ func TestDonorStoreCreateWhenError(t *testing.T) {
 	testcases := map[string]func(*testing.T) *mockDynamoClient{
 		"certificate provider record": func(t *testing.T) *mockDynamoClient {
 			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.
-				On("Create", ctx, mock.Anything).
+			dynamoClient.EXPECT().
+				Create(ctx, mock.Anything).
 				Return(expectedError)
 
 			return dynamoClient
 		},
 		"link record": func(t *testing.T) *mockDynamoClient {
 			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.
-				On("Create", ctx, mock.Anything).
+			dynamoClient.EXPECT().
+				Create(ctx, mock.Anything).
 				Return(nil).
 				Once()
-			dynamoClient.
-				On("Create", ctx, mock.Anything).
+			dynamoClient.EXPECT().
+				Create(ctx, mock.Anything).
 				Return(expectedError)
 
 			return dynamoClient
@@ -548,11 +548,11 @@ func TestDonorStoreDelete(t *testing.T) {
 	}
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("AllKeysByPk", ctx, "LPA#123").
+	dynamoClient.EXPECT().
+		AllKeysByPk(ctx, "LPA#123").
 		Return(keys, nil)
-	dynamoClient.
-		On("DeleteKeys", ctx, keys).
+	dynamoClient.EXPECT().
+		DeleteKeys(ctx, keys).
 		Return(nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient}
@@ -571,8 +571,8 @@ func TestDonorStoreDeleteWhenOtherDonor(t *testing.T) {
 	}
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("AllKeysByPk", ctx, "LPA#123").
+	dynamoClient.EXPECT().
+		AllKeysByPk(ctx, "LPA#123").
 		Return(keys, nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient}
@@ -585,8 +585,8 @@ func TestDonorStoreDeleteWhenAllKeysByPkErrors(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", LpaID: "123"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("AllKeysByPk", ctx, "LPA#123").
+	dynamoClient.EXPECT().
+		AllKeysByPk(ctx, "LPA#123").
 		Return(nil, expectedError)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient}
@@ -599,11 +599,11 @@ func TestDonorStoreDeleteWhenDeleteKeysErrors(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", LpaID: "123"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("AllKeysByPk", ctx, "LPA#123").
+	dynamoClient.EXPECT().
+		AllKeysByPk(ctx, "LPA#123").
 		Return([]dynamo.Key{{PK: "LPA#123", SK: "#DONOR#an-id"}}, nil)
-	dynamoClient.
-		On("DeleteKeys", ctx, mock.Anything).
+	dynamoClient.EXPECT().
+		DeleteKeys(ctx, mock.Anything).
 		Return(expectedError)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient}

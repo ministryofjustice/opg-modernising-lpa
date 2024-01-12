@@ -17,6 +17,14 @@ type mockDashboardStore struct {
 	mock.Mock
 }
 
+type mockDashboardStore_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockDashboardStore) EXPECT() *mockDashboardStore_Expecter {
+	return &mockDashboardStore_Expecter{mock: &_m.Mock}
+}
+
 // GetAll provides a mock function with given fields: ctx
 func (_m *mockDashboardStore) GetAll(ctx context.Context) ([]page.LpaAndActorTasks, []page.LpaAndActorTasks, []page.LpaAndActorTasks, error) {
 	ret := _m.Called(ctx)
@@ -65,6 +73,34 @@ func (_m *mockDashboardStore) GetAll(ctx context.Context) ([]page.LpaAndActorTas
 	return r0, r1, r2, r3
 }
 
+// mockDashboardStore_GetAll_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAll'
+type mockDashboardStore_GetAll_Call struct {
+	*mock.Call
+}
+
+// GetAll is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *mockDashboardStore_Expecter) GetAll(ctx interface{}) *mockDashboardStore_GetAll_Call {
+	return &mockDashboardStore_GetAll_Call{Call: _e.mock.On("GetAll", ctx)}
+}
+
+func (_c *mockDashboardStore_GetAll_Call) Run(run func(ctx context.Context)) *mockDashboardStore_GetAll_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *mockDashboardStore_GetAll_Call) Return(donor []page.LpaAndActorTasks, attorney []page.LpaAndActorTasks, certificateProvider []page.LpaAndActorTasks, err error) *mockDashboardStore_GetAll_Call {
+	_c.Call.Return(donor, attorney, certificateProvider, err)
+	return _c
+}
+
+func (_c *mockDashboardStore_GetAll_Call) RunAndReturn(run func(context.Context) ([]page.LpaAndActorTasks, []page.LpaAndActorTasks, []page.LpaAndActorTasks, error)) *mockDashboardStore_GetAll_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SubExistsForActorType provides a mock function with given fields: ctx, sub, actorType
 func (_m *mockDashboardStore) SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error) {
 	ret := _m.Called(ctx, sub, actorType)
@@ -91,6 +127,36 @@ func (_m *mockDashboardStore) SubExistsForActorType(ctx context.Context, sub str
 	}
 
 	return r0, r1
+}
+
+// mockDashboardStore_SubExistsForActorType_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SubExistsForActorType'
+type mockDashboardStore_SubExistsForActorType_Call struct {
+	*mock.Call
+}
+
+// SubExistsForActorType is a helper method to define mock.On call
+//   - ctx context.Context
+//   - sub string
+//   - actorType actor.Type
+func (_e *mockDashboardStore_Expecter) SubExistsForActorType(ctx interface{}, sub interface{}, actorType interface{}) *mockDashboardStore_SubExistsForActorType_Call {
+	return &mockDashboardStore_SubExistsForActorType_Call{Call: _e.mock.On("SubExistsForActorType", ctx, sub, actorType)}
+}
+
+func (_c *mockDashboardStore_SubExistsForActorType_Call) Run(run func(ctx context.Context, sub string, actorType actor.Type)) *mockDashboardStore_SubExistsForActorType_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(actor.Type))
+	})
+	return _c
+}
+
+func (_c *mockDashboardStore_SubExistsForActorType_Call) Return(_a0 bool, _a1 error) *mockDashboardStore_SubExistsForActorType_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockDashboardStore_SubExistsForActorType_Call) RunAndReturn(run func(context.Context, string, actor.Type) (bool, error)) *mockDashboardStore_SubExistsForActorType_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockDashboardStore creates a new instance of mockDashboardStore. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
