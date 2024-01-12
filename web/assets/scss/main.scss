@@ -85,3 +85,10 @@ body:not(.js-enabled) .govuk-back-link {
     }
     .govuk-grid-column-two-thirds { width: 100% !important; }
 }
+
+.app-summary-list--no-vertical-padding {
+    .govuk-summary-list__key, .govuk-summary-list__value {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+}
