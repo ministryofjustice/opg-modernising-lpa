@@ -1,345 +1,345 @@
 describe('Pay for LPA', () => {
-    it('can pay full fee', () => {
-        cy.clearCookie('pay');
-        cy.getCookie('pay').should('not.exist')
+  it('can pay full fee', () => {
+    cy.clearCookie('pay');
+    cy.getCookie('pay').should('not.exist')
 
-        cy.visit('/fixtures?redirect=/about-payment&progress=checkAndSendToYourCertificateProvider');
-        cy.checkA11yApp();
+    cy.visit('/fixtures?redirect=/about-payment&progress=checkAndSendToYourCertificateProvider');
+    cy.checkA11yApp();
 
-        cy.get('h1').should('contain', 'Paying for your LPA');
-        cy.contains('a', 'Continue').click();
+    cy.get('h1').should('contain', 'Paying for your LPA');
+    cy.contains('a', 'Continue').click();
 
-        cy.url().should('contains', '/are-you-applying-for-fee-discount-or-exemption')
-        cy.checkA11yApp();
+    cy.url().should('contains', '/are-you-applying-for-fee-discount-or-exemption')
+    cy.checkA11yApp();
 
-        cy.get('input[name="yes-no"]').check('no');
+    cy.get('input[name="yes-no"]').check('no');
 
-        cy.intercept('**/v1/payments', (req) => {
-            cy.getCookie('pay').should('exist');
-        });
-
-        cy.contains('button', 'Save and continue').click();
-
-        cy.get('h1').should('contain', 'Payment received');
-        cy.checkA11yApp();
-        cy.getCookie('pay').should('not.exist');
+    cy.intercept('**/v1/payments', (req) => {
+      cy.getCookie('pay').should('exist');
     });
 
-    it('can apply for a half fee', () => {
-        cy.visit('/fixtures?redirect=/about-payment&progress=checkAndSendToYourCertificateProvider');
-        cy.checkA11yApp();
+    cy.contains('button', 'Save and continue').click();
 
-        cy.get('h1').should('contain', 'Paying for your LPA');
-        cy.contains('a', 'Continue').click();
+    cy.get('h1').should('contain', 'Payment received');
+    cy.checkA11yApp();
+    cy.getCookie('pay').should('not.exist');
+  });
 
-        cy.url().should('contains', '/are-you-applying-for-fee-discount-or-exemption')
-        cy.checkA11yApp();
+  it('can apply for a half fee', () => {
+    cy.visit('/fixtures?redirect=/about-payment&progress=checkAndSendToYourCertificateProvider');
+    cy.checkA11yApp();
 
-        cy.get('input[name="yes-no"]').check('yes');
-        cy.contains('button', 'Save and continue').click();
+    cy.get('h1').should('contain', 'Paying for your LPA');
+    cy.contains('a', 'Continue').click();
 
-        cy.url().should('contains', '/which-fee-type-are-you-applying-for')
-        cy.checkA11yApp();
+    cy.url().should('contains', '/are-you-applying-for-fee-discount-or-exemption')
+    cy.checkA11yApp();
 
-        cy.get('input[name="fee-type"]').check('HalfFee');
-        cy.contains('button', 'Save and continue').click();
+    cy.get('input[name="yes-no"]').check('yes');
+    cy.contains('button', 'Save and continue').click();
 
-        cy.url().should('contains', '/evidence-required')
-        cy.checkA11yApp();
+    cy.url().should('contains', '/which-fee-type-are-you-applying-for')
+    cy.checkA11yApp();
 
-        cy.get('h1').should('contain', 'Evidence required to pay a half fee');
-        cy.contains('a', 'Continue').click();
+    cy.get('input[name="fee-type"]').check('HalfFee');
+    cy.contains('button', 'Save and continue').click();
 
-        cy.url().should('contains', '/how-would-you-like-to-send-evidence')
-        cy.checkA11yApp();
+    cy.url().should('contains', '/evidence-required')
+    cy.checkA11yApp();
 
-        cy.get('input[name="evidence-delivery"]').check('upload');
-        cy.contains('button', 'Continue').click();
+    cy.get('h1').should('contain', 'Evidence required to pay a half fee');
+    cy.contains('a', 'Continue').click();
 
-        cy.url().should('contains', '/upload-evidence')
-        cy.checkA11yApp();
+    cy.url().should('contains', '/how-would-you-like-to-send-evidence')
+    cy.checkA11yApp();
 
-        cy.get('input[type="file"]').attachFile(['dummy.pdf', 'dummy.png']);
+    cy.get('input[name="evidence-delivery"]').check('upload');
+    cy.contains('button', 'Continue').click();
 
-        cy.contains('button', 'Upload files').click()
+    cy.url().should('contains', '/upload-evidence')
+    cy.checkA11yApp();
 
-        cy.url().should('contain', '/upload-evidence');
+    cy.get('input[type="file"]').attachFile(['dummy.pdf', 'dummy.png']);
 
-        cy.checkA11yApp();
+    cy.contains('button', 'Upload files').click()
 
-        cy.get('#dialog').should('not.have.class', 'govuk-!-display-none');
-        cy.get('#dialog-overlay').should('not.have.class', 'govuk-!-display-none');
-        cy.get('#file-count').should('contain', '0 of 2 files uploaded');
+    cy.url().should('contain', '/upload-evidence');
 
-        cy.contains('button', 'Cancel upload').click()
-        cy.get('#dialog').should('have.class', 'govuk-!-display-none');
-        cy.get('#dialog-overlay').should('have.class', 'govuk-!-display-none');
+    cy.checkA11yApp();
 
-        cy.get('#uploaded .govuk-summary-list').should('not.exist');
+    cy.get('#dialog').should('not.have.class', 'govuk-!-display-none');
+    cy.get('#dialog-overlay').should('not.have.class', 'govuk-!-display-none');
+    cy.get('#file-count').should('contain', '0 of 2 files uploaded');
 
-        // spoofing virus scan completing
-        cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&paymentTaskProgress=InProgress&feeType=HalfFee');
-        cy.url().should('contain', '/upload-evidence');
+    cy.contains('button', 'Cancel upload').click()
+    cy.get('#dialog').should('have.class', 'govuk-!-display-none');
+    cy.get('#dialog-overlay').should('have.class', 'govuk-!-display-none');
 
-        cy.get('form#delete-form .govuk-summary-list').within(() => {
-            cy.contains('supporting-evidence.png');
-        });
+    cy.get('#uploaded .govuk-summary-list').should('not.exist');
 
-        cy.contains('button', 'Continue').click()
+    // spoofing virus scan completing
+    cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&paymentTaskProgress=InProgress&feeType=HalfFee');
+    cy.url().should('contain', '/upload-evidence');
 
-        cy.url().should('contain', '/payment-confirmation');
-        cy.contains('a', 'Continue').click()
-
-        cy.url().should('contain', '/evidence-successfully-uploaded');
-        cy.contains('a', 'Return to task list').click()
-
-        cy.url().should('contain', '/task-list');
-        cy.contains('li', "Pay for the LPA").should('contain', 'pending');
-
-        cy.visit('/dashboard');
-
-        cy.contains('.govuk-body-s', 'Reference number:')
-            .invoke('text')
-            .then((text) => {
-                const uid = text.split(':')[1].trim();
-                cy.visit(`http://localhost:9001/?detail-type=reduced-fee-requested&detail=${uid}`);
-
-                cy.contains('"requestType":"HalfFee"');
-                cy.contains(new RegExp(`{"path":"${uid}/evidence/.+","filename":"supporting-evidence.png"}`))
-                cy.contains('"evidenceDelivery":"upload"');
-            });
+    cy.get('form#delete-form .govuk-summary-list').within(() => {
+      cy.contains('supporting-evidence.png');
     });
 
-    it('can apply for a no fee remission', () => {
-        cy.visit('/fixtures?redirect=/about-payment&progress=checkAndSendToYourCertificateProvider');
-        cy.checkA11yApp();
+    cy.contains('button', 'Continue').click()
 
-        cy.get('h1').should('contain', 'Paying for your LPA');
-        cy.contains('a', 'Continue').click();
+    cy.url().should('contain', '/payment-confirmation');
+    cy.contains('a', 'Continue').click()
 
-        cy.url().should('contains', '/are-you-applying-for-fee-discount-or-exemption')
-        cy.checkA11yApp();
+    cy.url().should('contain', '/evidence-successfully-uploaded');
+    cy.contains('a', 'Return to task list').click()
 
-        cy.get('input[name="yes-no"]').check('yes');
-        cy.contains('button', 'Save and continue').click();
+    cy.url().should('contain', '/task-list');
+    cy.contains('li', "Pay for the LPA").should('contain', 'Pending');
 
-        cy.url().should('contains', '/which-fee-type-are-you-applying-for')
-        cy.checkA11yApp();
+    cy.visit('/dashboard');
 
-        cy.get('input[name="fee-type"]').check('NoFee');
-        cy.contains('button', 'Save and continue').click();
+    cy.contains('.govuk-body-s', 'Reference number:')
+      .invoke('text')
+      .then((text) => {
+        const uid = text.split(':')[1].trim();
+        cy.visit(`http://localhost:9001/?detail-type=reduced-fee-requested&detail=${uid}`);
 
-        cy.url().should('contains', '/evidence-required')
-        cy.checkA11yApp();
+        cy.contains('"requestType":"HalfFee"');
+        cy.contains(new RegExp(`{"path":"${uid}/evidence/.+","filename":"supporting-evidence.png"}`))
+        cy.contains('"evidenceDelivery":"upload"');
+      });
+  });
 
-        cy.get('h1').should('contain', 'Evidence required to pay no fee');
-        cy.contains('a', 'Continue').click();
+  it('can apply for a no fee remission', () => {
+    cy.visit('/fixtures?redirect=/about-payment&progress=checkAndSendToYourCertificateProvider');
+    cy.checkA11yApp();
 
-        cy.url().should('contains', '/how-would-you-like-to-send-evidence')
-        cy.checkA11yApp();
+    cy.get('h1').should('contain', 'Paying for your LPA');
+    cy.contains('a', 'Continue').click();
 
-        cy.get('input[name="evidence-delivery"]').check('upload');
-        cy.contains('button', 'Continue').click();
+    cy.url().should('contains', '/are-you-applying-for-fee-discount-or-exemption')
+    cy.checkA11yApp();
 
-        cy.url().should('contains', '/upload-evidence')
-        cy.checkA11yApp();
+    cy.get('input[name="yes-no"]').check('yes');
+    cy.contains('button', 'Save and continue').click();
 
-        cy.get('input[type="file"]').attachFile(['dummy.pdf']);
+    cy.url().should('contains', '/which-fee-type-are-you-applying-for')
+    cy.checkA11yApp();
 
-        cy.contains('button', 'Upload files').click()
+    cy.get('input[name="fee-type"]').check('NoFee');
+    cy.contains('button', 'Save and continue').click();
 
-        cy.url().should('contain', '/upload-evidence');
-        cy.checkA11yApp();
+    cy.url().should('contains', '/evidence-required')
+    cy.checkA11yApp();
 
-        cy.get('#dialog').should('not.have.class', 'govuk-!-display-none');
-        cy.get('#dialog-overlay').should('not.have.class', 'govuk-!-display-none');
-        cy.get('#file-count').should('contain', '0 of 1 files uploaded');
+    cy.get('h1').should('contain', 'Evidence required to pay no fee');
+    cy.contains('a', 'Continue').click();
 
-        cy.contains('button', 'Cancel upload').click()
-        cy.get('#dialog').should('have.class', 'govuk-!-display-none');
-        cy.get('#dialog-overlay').should('have.class', 'govuk-!-display-none');
+    cy.url().should('contains', '/how-would-you-like-to-send-evidence')
+    cy.checkA11yApp();
 
-        // spoofing virus scan completing
-        cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&paymentTaskProgress=InProgress&feeType=NoFee');
-        cy.url().should('contain', '/upload-evidence');
+    cy.get('input[name="evidence-delivery"]').check('upload');
+    cy.contains('button', 'Continue').click();
 
-        cy.get('#uploaded .govuk-summary-list').within(() => {
-            cy.contains('supporting-evidence.png');
-        });
+    cy.url().should('contains', '/upload-evidence')
+    cy.checkA11yApp();
 
-        cy.contains('button', 'Continue').click()
+    cy.get('input[type="file"]').attachFile(['dummy.pdf']);
 
-        cy.url().should('contain', '/evidence-successfully-uploaded');
-        cy.checkA11yApp();
+    cy.contains('button', 'Upload files').click()
 
-        cy.visit('/dashboard');
-        cy.contains('.govuk-body-s', 'Reference number:')
-            .invoke('text')
-            .then((text) => {
-                const uid = text.split(':')[1].trim();
-                cy.visit(`http://localhost:9001/?detail-type=reduced-fee-requested&detail=${uid}`);
+    cy.url().should('contain', '/upload-evidence');
+    cy.checkA11yApp();
 
-                cy.contains('"requestType":"NoFee"');
-                cy.contains(new RegExp(`{"path":"${uid}/evidence/.+","filename":"supporting-evidence.png"}`))
-                cy.contains('"evidenceDelivery":"upload"');
-            });
+    cy.get('#dialog').should('not.have.class', 'govuk-!-display-none');
+    cy.get('#dialog-overlay').should('not.have.class', 'govuk-!-display-none');
+    cy.get('#file-count').should('contain', '0 of 1 files uploaded');
+
+    cy.contains('button', 'Cancel upload').click()
+    cy.get('#dialog').should('have.class', 'govuk-!-display-none');
+    cy.get('#dialog-overlay').should('have.class', 'govuk-!-display-none');
+
+    // spoofing virus scan completing
+    cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&paymentTaskProgress=InProgress&feeType=NoFee');
+    cy.url().should('contain', '/upload-evidence');
+
+    cy.get('#uploaded .govuk-summary-list').within(() => {
+      cy.contains('supporting-evidence.png');
     });
 
-    it('can apply for a hardship fee exemption', () => {
-        cy.visit('/fixtures?redirect=/about-payment&progress=checkAndSendToYourCertificateProvider');
-        cy.checkA11yApp();
+    cy.contains('button', 'Continue').click()
 
-        cy.get('h1').should('contain', 'Paying for your LPA');
-        cy.contains('a', 'Continue').click();
+    cy.url().should('contain', '/evidence-successfully-uploaded');
+    cy.checkA11yApp();
 
-        cy.url().should('contains', '/are-you-applying-for-fee-discount-or-exemption')
-        cy.checkA11yApp();
+    cy.visit('/dashboard');
+    cy.contains('.govuk-body-s', 'Reference number:')
+      .invoke('text')
+      .then((text) => {
+        const uid = text.split(':')[1].trim();
+        cy.visit(`http://localhost:9001/?detail-type=reduced-fee-requested&detail=${uid}`);
 
-        cy.get('input[name="yes-no"]').check('yes');
-        cy.contains('button', 'Save and continue').click();
+        cy.contains('"requestType":"NoFee"');
+        cy.contains(new RegExp(`{"path":"${uid}/evidence/.+","filename":"supporting-evidence.png"}`))
+        cy.contains('"evidenceDelivery":"upload"');
+      });
+  });
 
-        cy.url().should('contains', '/which-fee-type-are-you-applying-for')
-        cy.checkA11yApp();
+  it('can apply for a hardship fee exemption', () => {
+    cy.visit('/fixtures?redirect=/about-payment&progress=checkAndSendToYourCertificateProvider');
+    cy.checkA11yApp();
 
-        cy.get('input[name="fee-type"]').check('HardshipFee');
-        cy.contains('button', 'Save and continue').click();
+    cy.get('h1').should('contain', 'Paying for your LPA');
+    cy.contains('a', 'Continue').click();
 
-        cy.url().should('contains', '/evidence-required')
-        cy.checkA11yApp();
+    cy.url().should('contains', '/are-you-applying-for-fee-discount-or-exemption')
+    cy.checkA11yApp();
 
-        cy.get('h1').should('contain', 'Evidence required for a hardship application');
-        cy.contains('a', 'Continue').click();
+    cy.get('input[name="yes-no"]').check('yes');
+    cy.contains('button', 'Save and continue').click();
 
-        cy.url().should('contains', '/how-would-you-like-to-send-evidence')
-        cy.checkA11yApp();
+    cy.url().should('contains', '/which-fee-type-are-you-applying-for')
+    cy.checkA11yApp();
 
-        cy.get('input[name="evidence-delivery"]').check('upload');
-        cy.contains('button', 'Continue').click();
+    cy.get('input[name="fee-type"]').check('HardshipFee');
+    cy.contains('button', 'Save and continue').click();
 
-        cy.url().should('contains', '/upload-evidence')
-        cy.checkA11yApp();
+    cy.url().should('contains', '/evidence-required')
+    cy.checkA11yApp();
 
-        cy.get('input[type="file"]').attachFile(['dummy.pdf']);
+    cy.get('h1').should('contain', 'Evidence required for a hardship application');
+    cy.contains('a', 'Continue').click();
 
-        cy.contains('button', 'Upload files').click()
+    cy.url().should('contains', '/how-would-you-like-to-send-evidence')
+    cy.checkA11yApp();
 
-        cy.url().should('contain', '/upload-evidence');
-        cy.checkA11yApp();
+    cy.get('input[name="evidence-delivery"]').check('upload');
+    cy.contains('button', 'Continue').click();
 
-        cy.get('#dialog').should('not.have.class', 'govuk-!-display-none');
-        cy.get('#dialog-overlay').should('not.have.class', 'govuk-!-display-none');
-        cy.get('#file-count').should('contain', '0 of 1 files uploaded');
+    cy.url().should('contains', '/upload-evidence')
+    cy.checkA11yApp();
 
-        cy.contains('button', 'Cancel upload').click()
-        cy.get('#dialog').should('have.class', 'govuk-!-display-none');
-        cy.get('#dialog-overlay').should('have.class', 'govuk-!-display-none');
+    cy.get('input[type="file"]').attachFile(['dummy.pdf']);
 
-        // spoofing virus scan completing
-        cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&paymentTaskProgress=InProgress&feeType=NoFee');
-        cy.url().should('contain', '/upload-evidence');
+    cy.contains('button', 'Upload files').click()
 
-        cy.get('#uploaded .govuk-summary-list').within(() => {
-            cy.contains('supporting-evidence.png');
-        });
+    cy.url().should('contain', '/upload-evidence');
+    cy.checkA11yApp();
 
-        cy.contains('button', 'Continue').click()
+    cy.get('#dialog').should('not.have.class', 'govuk-!-display-none');
+    cy.get('#dialog-overlay').should('not.have.class', 'govuk-!-display-none');
+    cy.get('#file-count').should('contain', '0 of 1 files uploaded');
 
-        cy.url().should('contain', '/evidence-successfully-uploaded');
-        cy.checkA11yApp();
+    cy.contains('button', 'Cancel upload').click()
+    cy.get('#dialog').should('have.class', 'govuk-!-display-none');
+    cy.get('#dialog-overlay').should('have.class', 'govuk-!-display-none');
 
-        cy.visit('/dashboard');
-        cy.contains('.govuk-body-s', 'Reference number:')
-            .invoke('text')
-            .then((text) => {
-                const uid = text.split(':')[1].trim();
-                cy.visit(`http://localhost:9001/?detail-type=reduced-fee-requested&detail=${uid}`);
+    // spoofing virus scan completing
+    cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&paymentTaskProgress=InProgress&feeType=NoFee');
+    cy.url().should('contain', '/upload-evidence');
 
-                cy.contains('"requestType":"NoFee"');
-                cy.contains(new RegExp(`{"path":"${uid}/evidence/.+","filename":"supporting-evidence.png"}`))
-                cy.contains('"evidenceDelivery":"upload"');
-            });
+    cy.get('#uploaded .govuk-summary-list').within(() => {
+      cy.contains('supporting-evidence.png');
     });
 
-    it('can delete evidence that has not been sent to OPG', () => {
-        cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&feeType=HalfFee');
-        cy.checkA11yApp();
+    cy.contains('button', 'Continue').click()
 
-        cy.url().should('contain', '/upload-evidence');
+    cy.url().should('contain', '/evidence-successfully-uploaded');
+    cy.checkA11yApp();
 
-        cy.get('#uploaded .govuk-summary-list').within(() => {
-            cy.contains('supporting-evidence.png').parent().contains('button span', 'Delete').click();
-        });
+    cy.visit('/dashboard');
+    cy.contains('.govuk-body-s', 'Reference number:')
+      .invoke('text')
+      .then((text) => {
+        const uid = text.split(':')[1].trim();
+        cy.visit(`http://localhost:9001/?detail-type=reduced-fee-requested&detail=${uid}`);
 
-        cy.url().should('contain', '/upload-evidence');
-        cy.checkA11yApp();
+        cy.contains('"requestType":"NoFee"');
+        cy.contains(new RegExp(`{"path":"${uid}/evidence/.+","filename":"supporting-evidence.png"}`))
+        cy.contains('"evidenceDelivery":"upload"');
+      });
+  });
 
-        cy.get('.moj-banner').within(() => {
-            cy.contains('supporting-evidence.png');
-        });
+  it('can delete evidence that has not been sent to OPG', () => {
+    cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&feeType=HalfFee');
+    cy.checkA11yApp();
+
+    cy.url().should('contain', '/upload-evidence');
+
+    cy.get('#uploaded .govuk-summary-list').within(() => {
+      cy.contains('supporting-evidence.png').parent().contains('button span', 'Delete').click();
     });
 
-    it('can see evidence that has previously been sent to OPG', () => {
-        cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&feeType=HalfFee');
-        cy.checkA11yApp();
+    cy.url().should('contain', '/upload-evidence');
+    cy.checkA11yApp();
 
-        cy.url().should('contain', '/upload-evidence');
-
-        cy.contains('a', 'Previously uploaded files').click()
-
-        cy.get('#previouslyUploaded').within(() => {
-            cy.contains('previously-uploaded-evidence.png');
-        });
+    cy.get('.moj-banner').within(() => {
+      cy.contains('supporting-evidence.png');
     });
+  });
 
-    it('can apply for a reduced fee by posting evidence', () => {
-        cy.visit('/fixtures?redirect=/about-payment&progress=checkAndSendToYourCertificateProvider');
-        cy.checkA11yApp();
+  it('can see evidence that has previously been sent to OPG', () => {
+    cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&feeType=HalfFee');
+    cy.checkA11yApp();
 
-        cy.get('h1').should('contain', 'Paying for your LPA');
-        cy.contains('a', 'Continue').click();
+    cy.url().should('contain', '/upload-evidence');
 
-        cy.url().should('contains', '/are-you-applying-for-fee-discount-or-exemption')
-        cy.checkA11yApp();
+    cy.contains('a', 'Previously uploaded files').click()
 
-        cy.get('input[name="yes-no"]').check('yes');
-        cy.contains('button', 'Save and continue').click();
-
-        cy.url().should('contains', '/which-fee-type-are-you-applying-for')
-        cy.checkA11yApp();
-
-        cy.get('input[name="fee-type"]').check('HardshipFee');
-        cy.contains('button', 'Save and continue').click();
-
-        cy.url().should('contains', '/evidence-required')
-        cy.checkA11yApp();
-
-        cy.get('h1').should('contain', 'Evidence required for a hardship application');
-        cy.contains('a', 'Continue').click();
-
-        cy.url().should('contains', '/how-would-you-like-to-send-evidence')
-        cy.checkA11yApp();
-
-        cy.get('input[name="evidence-delivery"]').check('post');
-        cy.contains('button', 'Continue').click();
-
-        cy.url().should('contains', '/send-us-your-evidence-by-post')
-        cy.checkA11yApp();
-
-        cy.contains('button', 'Continue').click()
-
-        cy.url().should('contain', '/what-happens-next-post-evidence');
-        cy.checkA11yApp();
-
-        cy.visit('/dashboard');
-        cy.contains('.govuk-body-s', 'Reference number:')
-            .invoke('text')
-            .then((text) => {
-                const uid = text.split(':')[1].trim();
-                cy.visit(`http://localhost:9001/?detail-type=reduced-fee-requested&detail=${uid}`);
-
-                cy.contains('"requestType":"HardshipFee"');
-                cy.contains('"evidence"').should('not.exist');
-                cy.contains('"evidenceDelivery":"post"');
-            });
+    cy.get('#previouslyUploaded').within(() => {
+      cy.contains('previously-uploaded-evidence.png');
     });
+  });
+
+  it('can apply for a reduced fee by posting evidence', () => {
+    cy.visit('/fixtures?redirect=/about-payment&progress=checkAndSendToYourCertificateProvider');
+    cy.checkA11yApp();
+
+    cy.get('h1').should('contain', 'Paying for your LPA');
+    cy.contains('a', 'Continue').click();
+
+    cy.url().should('contains', '/are-you-applying-for-fee-discount-or-exemption')
+    cy.checkA11yApp();
+
+    cy.get('input[name="yes-no"]').check('yes');
+    cy.contains('button', 'Save and continue').click();
+
+    cy.url().should('contains', '/which-fee-type-are-you-applying-for')
+    cy.checkA11yApp();
+
+    cy.get('input[name="fee-type"]').check('HardshipFee');
+    cy.contains('button', 'Save and continue').click();
+
+    cy.url().should('contains', '/evidence-required')
+    cy.checkA11yApp();
+
+    cy.get('h1').should('contain', 'Evidence required for a hardship application');
+    cy.contains('a', 'Continue').click();
+
+    cy.url().should('contains', '/how-would-you-like-to-send-evidence')
+    cy.checkA11yApp();
+
+    cy.get('input[name="evidence-delivery"]').check('post');
+    cy.contains('button', 'Continue').click();
+
+    cy.url().should('contains', '/send-us-your-evidence-by-post')
+    cy.checkA11yApp();
+
+    cy.contains('button', 'Continue').click()
+
+    cy.url().should('contain', '/what-happens-next-post-evidence');
+    cy.checkA11yApp();
+
+    cy.visit('/dashboard');
+    cy.contains('.govuk-body-s', 'Reference number:')
+      .invoke('text')
+      .then((text) => {
+        const uid = text.split(':')[1].trim();
+        cy.visit(`http://localhost:9001/?detail-type=reduced-fee-requested&detail=${uid}`);
+
+        cy.contains('"requestType":"HardshipFee"');
+        cy.contains('"evidence"').should('not.exist');
+        cy.contains('"evidenceDelivery":"post"');
+      });
+  });
 });
