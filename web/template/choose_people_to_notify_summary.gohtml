@@ -12,7 +12,7 @@
         {{ template "people-to-notify-summary" (listPeopleToNotify .App 2 .Donor) }}
 
       {{ if eq 5 (len .Donor.PeopleToNotify) }}
-        {{ template "warning" (content .App "addedMaxPeople") }}
+        {{ template "information-banner" (content .App "addedMaxPeople") }}
 
         <form novalidate method="post">
           <input type="hidden" name="yes-no" value="{{ .Options.No.String }}">
