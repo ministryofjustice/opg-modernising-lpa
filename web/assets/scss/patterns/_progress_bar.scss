@@ -12,13 +12,6 @@
   padding: 0;
   position: relative;
 
-  // IE8 does not support the text justify approach for spacing
-  @include govuk-if-ie8 {
-    display: table;
-    table-layout: fixed;
-    width: 100%;
-  }
-
   &::before {
     border-left: 6px solid govuk-colour("green");
     content: "";
@@ -35,11 +28,6 @@
   position: relative;
   flex-wrap: nowrap;
   padding-bottom: 0.3rem;
-
-  // IE8 does not support the text justify approach for spacing
-  @include govuk-if-ie8 {
-    display: table-cell;
-  }
 
   &:first-child {
     &::before {
@@ -68,7 +56,7 @@
   position: relative;
   background-color: govuk-colour("white");
   border: 6px solid govuk-colour("green");
-  border-radius: 50%; // IE8 does not support border radius but we’re ok with that
+  border-radius: 50%;
   box-sizing: border-box;
   height: 32px;
   width: 32px;
@@ -82,11 +70,6 @@
   background-image: url(#{$moj-assets-path}images/icon-progress-tick.svg);
   background-position: 50% 50%;
   background-repeat: no-repeat;
-
-  // IE8 does not support box shadow, so use a standard border.
-  @include govuk-if-ie8 {
-    background-image: url(#{$moj-assets-path}images/icon-progress-tick.png);
-  }
 }
 
 .app-progress-bar__label {
