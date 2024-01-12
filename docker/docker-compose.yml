@@ -62,12 +62,6 @@ services:
       - AWS_BASE_URL=http://localstack:4566
       - AWS_REGION=eu-west-1
       - AWS_SECRET_ACCESS_KEY=fakeAccessKey
-      - LPAS_TABLE=lpas
-      - GOVUK_NOTIFY_IS_PRODUCTION=0
-      - APP_PUBLIC_URL=http://localhost:5050
-      - GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080
-      - UPLOADS_S3_BUCKET_NAME=evidence
-      - UID_BASE_URL=http://mock-uid:8080
 
   mock-lpa-store:
     image: outofcoffee/imposter:latest
@@ -111,6 +105,7 @@ services:
     image: outofcoffee/imposter-all:latest
     volumes:
       - ./mock-uid/mock-uid-config.yaml:/opt/imposter/config/mock-uid-config.yaml
+      - ./mock-uid/uid.js:/opt/imposter/config/uid.js
     container_name: mock-uid
     ports:
       - "8080:8080"
