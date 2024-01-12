@@ -19,8 +19,8 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
+	template.EXPECT().
+		Execute(w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:     testAppData,
 			Form:    &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
 			Options: actor.CertificateProviderCarryOutByValues,
@@ -39,8 +39,8 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleFromStore(t *tes
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
+	template.EXPECT().
+		Execute(w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:                 testAppData,
 			CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Paper},
 			Form:                &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{CarryOutBy: actor.Paper},
@@ -62,8 +62,8 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenTemplateErro
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
+	template.EXPECT().
+		Execute(w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:     testAppData,
 			Form:    &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
 			Options: actor.CertificateProviderCarryOutByValues,
@@ -103,8 +103,8 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) 
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID:               "lpa-id",
 					CertificateProvider: actor.CertificateProvider{CarryOutBy: tc.carryOutBy, Email: tc.email},
 				}).
@@ -130,8 +130,8 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenStoreErrors
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -145,8 +145,8 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenValidationE
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *howWouldCertificateProviderPreferToCarryOutTheirRoleData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *howWouldCertificateProviderPreferToCarryOutTheirRoleData) bool {
 			return assert.Equal(t, validation.With("carry-out-by", validation.SelectError{Label: "howYourCertificateProviderWouldPreferToCarryOutTheirRole"}), data.Errors)
 		})).
 		Return(nil)

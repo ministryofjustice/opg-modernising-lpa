@@ -16,8 +16,8 @@ func TestGetFeeDenied(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, feeDeniedData{Donor: donor, App: testAppData}).
+	template.EXPECT().
+		Execute(w, feeDeniedData{Donor: donor, App: testAppData}).
 		Return(nil)
 
 	err := FeeDenied(template.Execute, nil)(testAppData, w, r, donor)
@@ -34,8 +34,8 @@ func TestPostFeeDenied(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
 
 	payer := newMockPayer(t)
-	payer.
-		On("Pay", testAppData, w, r, donor).
+	payer.EXPECT().
+		Pay(testAppData, w, r, donor).
 		Return(nil)
 
 	err := FeeDenied(nil, payer)(testAppData, w, r, donor)
@@ -52,8 +52,8 @@ func TestPostFeeDeniedWhenPayerError(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
 
 	payer := newMockPayer(t)
-	payer.
-		On("Pay", testAppData, w, r, donor).
+	payer.EXPECT().
+		Pay(testAppData, w, r, donor).
 		Return(expectedError)
 
 	err := FeeDenied(nil, payer)(testAppData, w, r, donor)

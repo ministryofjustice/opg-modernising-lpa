@@ -20,8 +20,8 @@ func TestGetSignYourLpa(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &signYourLpaData{
+	template.EXPECT().
+		Execute(w, &signYourLpaData{
 			App:                  testAppData,
 			Form:                 &signYourLpaForm{},
 			Donor:                &actor.DonorProvidedDetails{},
@@ -47,8 +47,8 @@ func TestGetSignYourLpaFromStore(t *testing.T) {
 	}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &signYourLpaData{
+	template.EXPECT().
+		Execute(w, &signYourLpaData{
 			App:   testAppData,
 			Donor: donor,
 			Form: &signYourLpaForm{
@@ -77,8 +77,8 @@ func TestPostSignYourLpa(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:                 "lpa-id",
 			DonorIdentityUserData: identity.UserData{OK: true},
 			WantToSignLpa:         true,
@@ -104,8 +104,8 @@ func TestPostSignYourLpaWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := SignYourLpa(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -123,16 +123,16 @@ func TestPostSignYourLpaWhenValidationErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			WantToSignLpa:     false,
 			WantToApplyForLpa: false,
 		}).
 		Return(nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *signYourLpaData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *signYourLpaData) bool {
 			return assert.Equal(t, validation.With("sign-lpa", validation.SelectError{Label: "bothBoxesToSignAndApply"}), data.Errors)
 		})).
 		Return(nil)

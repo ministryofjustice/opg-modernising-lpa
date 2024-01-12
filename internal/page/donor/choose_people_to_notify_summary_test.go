@@ -22,8 +22,8 @@ func TestGetChoosePeopleToNotifySummary(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{{}}}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &choosePeopleToNotifySummaryData{
+	template.EXPECT().
+		Execute(w, &choosePeopleToNotifySummaryData{
 			App:     testAppData,
 			Donor:   donor,
 			Form:    &form.YesNoForm{},
@@ -119,8 +119,8 @@ func TestPostChoosePeopleToNotifySummaryFormValidation(t *testing.T) {
 	validationError := validation.With("yes-no", validation.SelectError{Label: "yesToAddAnotherPersonToNotify"})
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *choosePeopleToNotifySummaryData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *choosePeopleToNotifySummaryData) bool {
 			return assert.Equal(t, validationError, data.Errors)
 		})).
 		Return(nil)

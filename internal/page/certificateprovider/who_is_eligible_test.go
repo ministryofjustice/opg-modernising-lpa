@@ -14,13 +14,13 @@ func TestWhoIsEligible(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{Donor: actor.Donor{FirstNames: "Full", LastName: "Name"}}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, whoIsEligibleData{
+	template.EXPECT().
+		Execute(w, whoIsEligibleData{
 			DonorFullName:   "Full Name",
 			DonorFirstNames: "Full",
 			App:             testAppData,
@@ -39,8 +39,8 @@ func TestWhoIsEligibleWhenDonorStoreError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, expectedError)
 
 	err := WhoIsEligible(nil, donorStore)(testAppData, w, r)
@@ -55,13 +55,13 @@ func TestWhoIsEligibleOnTemplateError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{Donor: actor.Donor{FirstNames: "Full", LastName: "Name"}}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, whoIsEligibleData{
+	template.EXPECT().
+		Execute(w, whoIsEligibleData{
 			DonorFullName:   "Full Name",
 			DonorFirstNames: "Full",
 			App:             testAppData,

@@ -52,8 +52,8 @@ func TestAuthRedirect(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
 			sessionStore := newMockSessionStore(t)
-			sessionStore.
-				On("Get", r, "params").
+			sessionStore.EXPECT().
+				Get(r, "params").
 				Return(&sessions.Session{
 					Values: map[any]any{
 						"one-login": tc.session,
@@ -113,12 +113,12 @@ func TestAuthRedirectSessionMissing(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
 
 			logger := newMockLogger(t)
-			logger.
-				On("Print", tc.expectedErr)
+			logger.EXPECT().
+				Print(tc.expectedErr)
 
 			sessionStore := newMockSessionStore(t)
-			sessionStore.
-				On("Get", r, "params").
+			sessionStore.EXPECT().
+				Get(r, "params").
 				Return(tc.session, tc.getErr)
 
 			AuthRedirect(logger, sessionStore)(w, r)
@@ -134,12 +134,12 @@ func TestAuthRedirectStateIncorrect(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=hello", nil)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Print", "state incorrect")
+	logger.EXPECT().
+		Print("state incorrect")
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "params").
+	sessionStore.EXPECT().
+		Get(r, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
 				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Redirect: Paths.LoginCallback.Format()},

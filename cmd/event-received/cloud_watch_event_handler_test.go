@@ -32,8 +32,8 @@ func TestHandleUidRequested(t *testing.T) {
 	}
 
 	uidClient := newMockUidClient(t)
-	uidClient.
-		On("CreateCase", ctx, &uid.CreateCaseRequestBody{
+	uidClient.EXPECT().
+		CreateCase(ctx, &uid.CreateCaseRequestBody{
 			Type: "hw",
 			Donor: uid.DonorDetails{
 				Name:     "a donor",
@@ -44,8 +44,8 @@ func TestHandleUidRequested(t *testing.T) {
 		Return("M-1111-2222-3333", nil)
 
 	uidStore := newMockUidStore(t)
-	uidStore.
-		On("Set", ctx, "an-id", "donor-id", "M-1111-2222-3333").
+	uidStore.EXPECT().
+		Set(ctx, "an-id", "donor-id", "M-1111-2222-3333").
 		Return(nil)
 
 	err := handleUidRequested(ctx, uidStore, uidClient, event)
@@ -59,8 +59,8 @@ func TestHandleUidRequestedWhenUidClientErrors(t *testing.T) {
 	}
 
 	uidClient := newMockUidClient(t)
-	uidClient.
-		On("CreateCase", ctx, mock.Anything).
+	uidClient.EXPECT().
+		CreateCase(ctx, mock.Anything).
 		Return("", expectedError)
 
 	err := handleUidRequested(ctx, nil, uidClient, event)
@@ -74,13 +74,13 @@ func TestHandleUidRequestedWhenUidStoreErrors(t *testing.T) {
 	}
 
 	uidClient := newMockUidClient(t)
-	uidClient.
-		On("CreateCase", ctx, mock.Anything).
+	uidClient.EXPECT().
+		CreateCase(ctx, mock.Anything).
 		Return("M-1111-2222-3333", nil)
 
 	uidStore := newMockUidStore(t)
-	uidStore.
-		On("Set", ctx, "an-id", "donor-id", "M-1111-2222-3333").
+	uidStore.EXPECT().
+		Set(ctx, "an-id", "donor-id", "M-1111-2222-3333").
 		Return(expectedError)
 
 	err := handleUidRequested(ctx, uidStore, uidClient, event)
@@ -101,8 +101,8 @@ func TestHandleEvidenceReceived(t *testing.T) {
 			json.Unmarshal(b, v)
 			return nil
 		})
-	client.
-		On("Put", ctx, map[string]string{
+	client.EXPECT().
+		Put(ctx, map[string]string{
 			"PK": "LPA#123",
 			"SK": "#EVIDENCE_RECEIVED",
 		}).
@@ -119,8 +119,8 @@ func TestHandleEvidenceReceivedWhenClientGetError(t *testing.T) {
 	}
 
 	client := newMockDynamodbClient(t)
-	client.
-		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+	client.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
 		Return(expectedError)
 
 	err := handleEvidenceReceived(ctx, client, event)
@@ -160,8 +160,8 @@ func TestHandleEvidenceReceivedWhenClientPutError(t *testing.T) {
 			json.Unmarshal(b, v)
 			return nil
 		})
-	client.
-		On("Put", ctx, map[string]string{
+	client.EXPECT().
+		Put(ctx, map[string]string{
 			"PK": "LPA#123",
 			"SK": "#EVIDENCE_RECEIVED",
 		}).
@@ -194,13 +194,13 @@ func TestHandleFeeApproved(t *testing.T) {
 			json.Unmarshal(b, v)
 			return nil
 		})
-	client.
-		On("Put", ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
+	client.EXPECT().
+		Put(ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.
-		On("SendCertificateProviderPrompt", ctx, page.AppData{}, &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
+	shareCodeSender.EXPECT().
+		SendCertificateProviderPrompt(ctx, page.AppData{}, &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
 		Return(nil)
 
 	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{}, func() time.Time { return now })
@@ -230,8 +230,8 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 			json.Unmarshal(b, v)
 			return nil
 		})
-	client.
-		On("Put", ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
+	client.EXPECT().
+		Put(ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
 		Return(expectedError)
 
 	err := handleFeeApproved(ctx, client, event, nil, page.AppData{}, func() time.Time { return now })
@@ -261,13 +261,13 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 			json.Unmarshal(b, v)
 			return nil
 		})
-	client.
-		On("Put", ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
+	client.EXPECT().
+		Put(ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.
-		On("SendCertificateProviderPrompt", ctx, page.AppData{}, &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
+	shareCodeSender.EXPECT().
+		SendCertificateProviderPrompt(ctx, page.AppData{}, &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
 		Return(expectedError)
 
 	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{}, func() time.Time { return now })
@@ -297,8 +297,8 @@ func TestHandleMoreEvidenceRequired(t *testing.T) {
 			json.Unmarshal(b, v)
 			return nil
 		})
-	client.
-		On("Put", ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}).
+	client.EXPECT().
+		Put(ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}).
 		Return(nil)
 
 	err := handleMoreEvidenceRequired(ctx, client, event, func() time.Time { return now })
@@ -328,8 +328,8 @@ func TestHandleMoreEvidenceRequiredWhenPutError(t *testing.T) {
 			json.Unmarshal(b, v)
 			return nil
 		})
-	client.
-		On("Put", ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}).
+	client.EXPECT().
+		Put(ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}).
 		Return(expectedError)
 
 	err := handleMoreEvidenceRequired(ctx, client, event, func() time.Time { return now })
@@ -359,8 +359,8 @@ func TestHandleFeeDenied(t *testing.T) {
 			json.Unmarshal(b, v)
 			return nil
 		})
-	client.
-		On("Put", ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}, UpdatedAt: now}).
+	client.EXPECT().
+		Put(ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}, UpdatedAt: now}).
 		Return(nil)
 
 	err := handleFeeDenied(ctx, client, event, func() time.Time { return now })
@@ -390,8 +390,8 @@ func TestHandleFeeDeniedWhenPutError(t *testing.T) {
 			json.Unmarshal(b, v)
 			return nil
 		})
-	client.
-		On("Put", ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}, UpdatedAt: now}).
+	client.EXPECT().
+		Put(ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}, UpdatedAt: now}).
 		Return(expectedError)
 
 	err := handleFeeDenied(ctx, client, event, func() time.Time { return now })

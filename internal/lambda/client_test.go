@@ -91,13 +91,13 @@ func TestClientDo(t *testing.T) {
 			expectedResponse := &http.Response{StatusCode: http.StatusTeapot}
 
 			signer := newMockSigner(t)
-			signer.
-				On("SignHTTP", req.Context(), credentials, req, tc.encodedBody, "execute-api", region, testNow).
+			signer.EXPECT().
+				SignHTTP(req.Context(), credentials, req, tc.encodedBody, "execute-api", region, testNow).
 				Return(nil)
 
 			doer := newMockDoer(t)
-			doer.
-				On("Do", req).
+			doer.EXPECT().
+				Do(req).
 				Return(expectedResponse, expectedError)
 
 			client := New(createTestConfig(false), signer, doer, now)
@@ -151,8 +151,8 @@ func TestClientDoWhenSignerError(t *testing.T) {
 	req.Header.Set("a-header", "with-a-value")
 
 	v4Signer := newMockSigner(t)
-	v4Signer.
-		On("SignHTTP", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+	v4Signer.EXPECT().
+		SignHTTP(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	client := &Client{

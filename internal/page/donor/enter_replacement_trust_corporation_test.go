@@ -19,8 +19,8 @@ func TestGetEnterReplacementTrustCorporation(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &enterReplacementTrustCorporationData{
+	template.EXPECT().
+		Execute(w, &enterReplacementTrustCorporationData{
 			App:  testAppData,
 			Form: &enterTrustCorporationForm{},
 		}).
@@ -38,8 +38,8 @@ func TestGetEnterReplacementTrustCorporationWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &enterReplacementTrustCorporationData{
+	template.EXPECT().
+		Execute(w, &enterReplacementTrustCorporationData{
 			App:  testAppData,
 			Form: &enterTrustCorporationForm{},
 		}).
@@ -64,8 +64,8 @@ func TestPostEnterReplacementTrustCorporation(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			ReplacementAttorneys: actor.Attorneys{
 				TrustCorporation: actor.TrustCorporation{
@@ -101,8 +101,8 @@ func TestPostEnterReplacementTrustCorporationWhenValidationError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *enterReplacementTrustCorporationData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *enterReplacementTrustCorporationData) bool {
 			return assert.Equal(t, validation.With("name", validation.EnterError{Label: "companyName"}), data.Errors)
 		})).
 		Return(nil)
@@ -128,8 +128,8 @@ func TestPostEnterReplacementTrustCorporationWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := EnterReplacementTrustCorporation(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})

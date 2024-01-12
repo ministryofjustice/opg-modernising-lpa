@@ -17,8 +17,8 @@ func TestGetDeleteLpa(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &deleteLpaData{
+	template.EXPECT().
+		Execute(w, &deleteLpaData{
 			App:   testAppData,
 			Donor: &actor.DonorProvidedDetails{},
 		}).
@@ -36,8 +36,8 @@ func TestGetDeleteLpaWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := DeleteLpa(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -53,8 +53,8 @@ func TestPostDeleteLpa(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Delete", r.Context()).
+	donorStore.EXPECT().
+		Delete(r.Context()).
 		Return(nil)
 
 	err := DeleteLpa(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
@@ -71,8 +71,8 @@ func TestPostDeleteLpaWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Delete", r.Context()).
+	donorStore.EXPECT().
+		Delete(r.Context()).
 		Return(expectedError)
 
 	err := DeleteLpa(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})

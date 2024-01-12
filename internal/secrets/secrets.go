@@ -25,7 +25,6 @@ const (
 	delay = time.Second
 )
 
-//go:generate mockery --testonly --inpackage --name secretsManager --structname mockSecretsManager
 type secretsManager interface {
 	GetSecretValue(ctx context.Context, params *secretsmanager.GetSecretValueInput, optFns ...func(*secretsmanager.Options)) (*secretsmanager.GetSecretValueOutput, error)
 }

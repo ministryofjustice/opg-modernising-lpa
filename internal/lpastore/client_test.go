@@ -247,14 +247,14 @@ func TestClientSendLpa(t *testing.T) {
 			ctx := context.Background()
 
 			secretsClient := newMockSecretsClient(t)
-			secretsClient.
-				On("Secret", ctx, secrets.LpaStoreJwtSecretKey).
+			secretsClient.EXPECT().
+				Secret(ctx, secrets.LpaStoreJwtSecretKey).
 				Return("secret", nil)
 
 			var body []byte
 			doer := newMockDoer(t)
-			doer.
-				On("Do", mock.MatchedBy(func(req *http.Request) bool {
+			doer.EXPECT().
+				Do(mock.MatchedBy(func(req *http.Request) bool {
 					if body == nil {
 						body, _ = io.ReadAll(req.Body)
 					}
@@ -288,8 +288,8 @@ func TestClientSendLpaWhenSecretsClientError(t *testing.T) {
 	ctx := context.Background()
 
 	secretsClient := newMockSecretsClient(t)
-	secretsClient.
-		On("Secret", mock.Anything, mock.Anything).
+	secretsClient.EXPECT().
+		Secret(mock.Anything, mock.Anything).
 		Return("", expectedError)
 
 	client := New("http://base", secretsClient, nil)
@@ -302,13 +302,13 @@ func TestClientSendLpaWhenDoerError(t *testing.T) {
 	ctx := context.Background()
 
 	secretsClient := newMockSecretsClient(t)
-	secretsClient.
-		On("Secret", mock.Anything, mock.Anything).
+	secretsClient.EXPECT().
+		Secret(mock.Anything, mock.Anything).
 		Return("secret", nil)
 
 	doer := newMockDoer(t)
-	doer.
-		On("Do", mock.Anything).
+	doer.EXPECT().
+		Do(mock.Anything).
 		Return(nil, expectedError)
 
 	client := New("http://base", secretsClient, doer)
@@ -321,13 +321,13 @@ func TestClientSendLpaWhenStatusCodeIsNotCreated(t *testing.T) {
 	ctx := context.Background()
 
 	secretsClient := newMockSecretsClient(t)
-	secretsClient.
-		On("Secret", mock.Anything, mock.Anything).
+	secretsClient.EXPECT().
+		Secret(mock.Anything, mock.Anything).
 		Return("secret", nil)
 
 	doer := newMockDoer(t)
-	doer.
-		On("Do", mock.Anything).
+	doer.EXPECT().
+		Do(mock.Anything).
 		Return(&http.Response{StatusCode: http.StatusBadRequest, Body: io.NopCloser(strings.NewReader("hey"))}, nil)
 
 	client := New("http://base", secretsClient, doer)
@@ -356,14 +356,14 @@ func TestClientSendCertificateProvider(t *testing.T) {
 	ctx := context.Background()
 
 	secretsClient := newMockSecretsClient(t)
-	secretsClient.
-		On("Secret", ctx, secrets.LpaStoreJwtSecretKey).
+	secretsClient.EXPECT().
+		Secret(ctx, secrets.LpaStoreJwtSecretKey).
 		Return("secret", nil)
 
 	var body []byte
 	doer := newMockDoer(t)
-	doer.
-		On("Do", mock.MatchedBy(func(req *http.Request) bool {
+	doer.EXPECT().
+		Do(mock.MatchedBy(func(req *http.Request) bool {
 			if body == nil {
 				body, _ = io.ReadAll(req.Body)
 			}
@@ -479,14 +479,14 @@ func TestClientSendAttorney(t *testing.T) {
 			ctx := context.Background()
 
 			secretsClient := newMockSecretsClient(t)
-			secretsClient.
-				On("Secret", ctx, secrets.LpaStoreJwtSecretKey).
+			secretsClient.EXPECT().
+				Secret(ctx, secrets.LpaStoreJwtSecretKey).
 				Return("secret", nil)
 
 			var body []byte
 			doer := newMockDoer(t)
-			doer.
-				On("Do", mock.MatchedBy(func(req *http.Request) bool {
+			doer.EXPECT().
+				Do(mock.MatchedBy(func(req *http.Request) bool {
 					if body == nil {
 						body, _ = io.ReadAll(req.Body)
 					}
@@ -642,8 +642,8 @@ func TestClientServiceContract(t *testing.T) {
 			baseURL := fmt.Sprintf("http://localhost:%d", pact.Server.Port)
 
 			secretsClient := newMockSecretsClient(t)
-			secretsClient.
-				On("Secret", mock.Anything, mock.Anything).
+			secretsClient.EXPECT().
+				Secret(mock.Anything, mock.Anything).
 				Return("secret", nil)
 
 			client := &Client{
@@ -732,8 +732,8 @@ func TestClientServiceContract(t *testing.T) {
 			baseURL := fmt.Sprintf("http://localhost:%d", pact.Server.Port)
 
 			secretsClient := newMockSecretsClient(t)
-			secretsClient.
-				On("Secret", mock.Anything, mock.Anything).
+			secretsClient.EXPECT().
+				Secret(mock.Anything, mock.Anything).
 				Return("secret", nil)
 
 			client := &Client{
@@ -790,8 +790,8 @@ func TestCheckHealthOnNewRequestError(t *testing.T) {
 
 func TestCheckHealthOnDoRequestError(t *testing.T) {
 	httpClient := newMockDoer(t)
-	httpClient.
-		On("Do", mock.Anything).
+	httpClient.EXPECT().
+		Do(mock.Anything).
 		Return(nil, expectedError)
 
 	client := New("/", nil, httpClient)

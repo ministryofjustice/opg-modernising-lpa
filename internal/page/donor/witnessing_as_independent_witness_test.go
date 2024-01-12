@@ -21,8 +21,8 @@ func TestGetWitnessingAsIndependentWitness(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &witnessingAsIndependentWitnessData{
+	template.EXPECT().
+		Execute(w, &witnessingAsIndependentWitnessData{
 			App:   testAppData,
 			Donor: &actor.DonorProvidedDetails{},
 			Form:  &witnessingAsIndependentWitnessForm{},
@@ -41,8 +41,8 @@ func TestGetWitnessingAsIndependentWitnessFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &witnessingAsIndependentWitnessData{
+	template.EXPECT().
+		Execute(w, &witnessingAsIndependentWitnessData{
 			App: testAppData,
 			Donor: &actor.DonorProvidedDetails{
 				IndependentWitness: actor.IndependentWitness{FirstNames: "Joan"},
@@ -65,8 +65,8 @@ func TestGetWitnessingAsIndependentWitnessWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &witnessingAsIndependentWitnessData{
+	template.EXPECT().
+		Execute(w, &witnessingAsIndependentWitnessData{
 			App:   testAppData,
 			Donor: &actor.DonorProvidedDetails{},
 			Form:  &witnessingAsIndependentWitnessForm{},
@@ -91,8 +91,8 @@ func TestPostWitnessingAsIndependentWitness(t *testing.T) {
 	now := time.Now()
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:                           "lpa-id",
 			DonorIdentityUserData:           identity.UserData{OK: true},
 			IndependentWitnessCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
@@ -123,8 +123,8 @@ func TestPostWitnessingAsIndependentWitnessWhenDonorStoreErrors(t *testing.T) {
 	now := time.Now()
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := WitnessingAsIndependentWitness(nil, donorStore, func() time.Time { return now })(testAppData, w, r, &actor.DonorProvidedDetails{
@@ -148,8 +148,8 @@ func TestPostWitnessingAsIndependentWitnessCodeTooOld(t *testing.T) {
 	invalidCreated := now.Add(-45 * time.Minute)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.MatchedBy(func(donor *actor.DonorProvidedDetails) bool {
+	donorStore.EXPECT().
+		Put(r.Context(), mock.MatchedBy(func(donor *actor.DonorProvidedDetails) bool {
 			donor.WitnessCodeLimiter = nil
 			return assert.Equal(t, donor, &actor.DonorProvidedDetails{
 				IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
@@ -158,8 +158,8 @@ func TestPostWitnessingAsIndependentWitnessCodeTooOld(t *testing.T) {
 		Return(nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &witnessingAsIndependentWitnessData{
+	template.EXPECT().
+		Execute(w, &witnessingAsIndependentWitnessData{
 			App: testAppData,
 			Donor: &actor.DonorProvidedDetails{
 				IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
@@ -190,8 +190,8 @@ func TestPostWitnessingAsIndependentWitnessCodeDoesNotMatch(t *testing.T) {
 	now := time.Now()
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.MatchedBy(func(donor *actor.DonorProvidedDetails) bool {
+	donorStore.EXPECT().
+		Put(r.Context(), mock.MatchedBy(func(donor *actor.DonorProvidedDetails) bool {
 			donor.WitnessCodeLimiter = nil
 			return assert.Equal(t, donor, &actor.DonorProvidedDetails{
 				IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
@@ -200,8 +200,8 @@ func TestPostWitnessingAsIndependentWitnessCodeDoesNotMatch(t *testing.T) {
 		Return(nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &witnessingAsIndependentWitnessData{
+	template.EXPECT().
+		Execute(w, &witnessingAsIndependentWitnessData{
 			App: testAppData,
 			Donor: &actor.DonorProvidedDetails{
 				IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
@@ -233,8 +233,8 @@ func TestPostWitnessingAsIndependentWitnessWhenCodeExpired(t *testing.T) {
 	invalidCreated := now.Add(-45 * time.Minute)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.MatchedBy(func(donor *actor.DonorProvidedDetails) bool {
+	donorStore.EXPECT().
+		Put(r.Context(), mock.MatchedBy(func(donor *actor.DonorProvidedDetails) bool {
 			donor.WitnessCodeLimiter = nil
 			return assert.Equal(t, donor, &actor.DonorProvidedDetails{
 				IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
@@ -243,8 +243,8 @@ func TestPostWitnessingAsIndependentWitnessWhenCodeExpired(t *testing.T) {
 		Return(nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &witnessingAsIndependentWitnessData{
+	template.EXPECT().
+		Execute(w, &witnessingAsIndependentWitnessData{
 			App: testAppData,
 			Donor: &actor.DonorProvidedDetails{
 				IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
@@ -275,8 +275,8 @@ func TestPostWitnessingAsIndependentWitnessCodeLimitBreached(t *testing.T) {
 	now := time.Now()
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.MatchedBy(func(donor *actor.DonorProvidedDetails) bool {
+	donorStore.EXPECT().
+		Put(r.Context(), mock.MatchedBy(func(donor *actor.DonorProvidedDetails) bool {
 			donor.WitnessCodeLimiter = nil
 			return assert.Equal(t, donor, &actor.DonorProvidedDetails{
 				IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
@@ -285,8 +285,8 @@ func TestPostWitnessingAsIndependentWitnessCodeLimitBreached(t *testing.T) {
 		Return(nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &witnessingAsIndependentWitnessData{
+	template.EXPECT().
+		Execute(w, &witnessingAsIndependentWitnessData{
 			App: testAppData,
 			Donor: &actor.DonorProvidedDetails{
 				IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: now}},

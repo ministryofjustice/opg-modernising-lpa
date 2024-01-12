@@ -19,8 +19,8 @@ func TestGetWhenCanTheLpaBeUsed(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &whenCanTheLpaBeUsedData{
+	template.EXPECT().
+		Execute(w, &whenCanTheLpaBeUsedData{
 			App:     testAppData,
 			Donor:   &actor.DonorProvidedDetails{},
 			Form:    &whenCanTheLpaBeUsedForm{},
@@ -40,8 +40,8 @@ func TestGetWhenCanTheLpaBeUsedFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &whenCanTheLpaBeUsedData{
+	template.EXPECT().
+		Execute(w, &whenCanTheLpaBeUsedData{
 			App:   testAppData,
 			Donor: &actor.DonorProvidedDetails{WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity},
 			Form: &whenCanTheLpaBeUsedForm{
@@ -63,8 +63,8 @@ func TestGetWhenCanTheLpaBeUsedWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -84,8 +84,8 @@ func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:               "lpa-id",
 			WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity,
 			Tasks:               actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, WhenCanTheLpaBeUsed: actor.TaskCompleted},
@@ -113,8 +113,8 @@ func TestPostWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity, Tasks: actor.DonorTasks{WhenCanTheLpaBeUsed: actor.TaskCompleted}}).
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity, Tasks: actor.DonorTasks{WhenCanTheLpaBeUsed: actor.TaskCompleted}}).
 		Return(expectedError)
 
 	err := WhenCanTheLpaBeUsed(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -128,8 +128,8 @@ func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *whenCanTheLpaBeUsedData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *whenCanTheLpaBeUsedData) bool {
 			return assert.Equal(t, validation.With("when", validation.SelectError{Label: "whenYourAttorneysCanUseYourLpa"}), data.Errors)
 		})).
 		Return(nil)

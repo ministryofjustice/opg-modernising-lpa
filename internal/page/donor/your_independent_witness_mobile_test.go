@@ -19,8 +19,8 @@ func TestGetYourIndependentWitnessMobile(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &yourIndependentWitnessMobileData{
+	template.EXPECT().
+		Execute(w, &yourIndependentWitnessMobileData{
 			App:  testAppData,
 			Form: &yourIndependentWitnessMobileForm{},
 		}).
@@ -68,8 +68,8 @@ func TestGetYourIndependentWitnessMobileFromStore(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, &yourIndependentWitnessMobileData{
+			template.EXPECT().
+				Execute(w, &yourIndependentWitnessMobileData{
 					App:  testAppData,
 					Form: tc.form,
 				}).
@@ -89,8 +89,8 @@ func TestGetYourIndependentWitnessMobileWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &yourIndependentWitnessMobileData{
+	template.EXPECT().
+		Execute(w, &yourIndependentWitnessMobileData{
 			App:  testAppData,
 			Form: &yourIndependentWitnessMobileForm{},
 		}).
@@ -135,8 +135,8 @@ func TestPostYourIndependentWitnessMobile(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID:              "lpa-id",
 					IndependentWitness: tc.yourIndependentWitnessMobile,
 				}).
@@ -162,8 +162,8 @@ func TestPostYourIndependentWitnessMobileWhenValidationError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *yourIndependentWitnessMobileData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *yourIndependentWitnessMobileData) bool {
 			return assert.Equal(t, validation.With("mobile", validation.CustomError{Label: "enterAMobileNumberInTheCorrectFormat"}), data.Errors)
 		})).
 		Return(nil)
@@ -185,8 +185,8 @@ func TestPostYourIndependentWitnessMobileWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := YourIndependentWitnessMobile(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})

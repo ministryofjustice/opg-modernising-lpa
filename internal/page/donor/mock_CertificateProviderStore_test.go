@@ -15,6 +15,14 @@ type mockCertificateProviderStore struct {
 	mock.Mock
 }
 
+type mockCertificateProviderStore_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockCertificateProviderStore) EXPECT() *mockCertificateProviderStore_Expecter {
+	return &mockCertificateProviderStore_Expecter{mock: &_m.Mock}
+}
+
 // GetAny provides a mock function with given fields: ctx
 func (_m *mockCertificateProviderStore) GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error) {
 	ret := _m.Called(ctx)
@@ -43,6 +51,34 @@ func (_m *mockCertificateProviderStore) GetAny(ctx context.Context) (*actor.Cert
 	}
 
 	return r0, r1
+}
+
+// mockCertificateProviderStore_GetAny_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAny'
+type mockCertificateProviderStore_GetAny_Call struct {
+	*mock.Call
+}
+
+// GetAny is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *mockCertificateProviderStore_Expecter) GetAny(ctx interface{}) *mockCertificateProviderStore_GetAny_Call {
+	return &mockCertificateProviderStore_GetAny_Call{Call: _e.mock.On("GetAny", ctx)}
+}
+
+func (_c *mockCertificateProviderStore_GetAny_Call) Run(run func(ctx context.Context)) *mockCertificateProviderStore_GetAny_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *mockCertificateProviderStore_GetAny_Call) Return(_a0 *actor.CertificateProviderProvidedDetails, _a1 error) *mockCertificateProviderStore_GetAny_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockCertificateProviderStore_GetAny_Call) RunAndReturn(run func(context.Context) (*actor.CertificateProviderProvidedDetails, error)) *mockCertificateProviderStore_GetAny_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockCertificateProviderStore creates a new instance of mockCertificateProviderStore. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

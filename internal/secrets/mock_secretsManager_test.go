@@ -14,6 +14,14 @@ type mockSecretsManager struct {
 	mock.Mock
 }
 
+type mockSecretsManager_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockSecretsManager) EXPECT() *mockSecretsManager_Expecter {
+	return &mockSecretsManager_Expecter{mock: &_m.Mock}
+}
+
 // GetSecretValue provides a mock function with given fields: ctx, params, optFns
 func (_m *mockSecretsManager) GetSecretValue(ctx context.Context, params *secretsmanager.GetSecretValueInput, optFns ...func(*secretsmanager.Options)) (*secretsmanager.GetSecretValueOutput, error) {
 	_va := make([]interface{}, len(optFns))
@@ -49,6 +57,43 @@ func (_m *mockSecretsManager) GetSecretValue(ctx context.Context, params *secret
 	}
 
 	return r0, r1
+}
+
+// mockSecretsManager_GetSecretValue_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSecretValue'
+type mockSecretsManager_GetSecretValue_Call struct {
+	*mock.Call
+}
+
+// GetSecretValue is a helper method to define mock.On call
+//   - ctx context.Context
+//   - params *secretsmanager.GetSecretValueInput
+//   - optFns ...func(*secretsmanager.Options)
+func (_e *mockSecretsManager_Expecter) GetSecretValue(ctx interface{}, params interface{}, optFns ...interface{}) *mockSecretsManager_GetSecretValue_Call {
+	return &mockSecretsManager_GetSecretValue_Call{Call: _e.mock.On("GetSecretValue",
+		append([]interface{}{ctx, params}, optFns...)...)}
+}
+
+func (_c *mockSecretsManager_GetSecretValue_Call) Run(run func(ctx context.Context, params *secretsmanager.GetSecretValueInput, optFns ...func(*secretsmanager.Options))) *mockSecretsManager_GetSecretValue_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]func(*secretsmanager.Options), len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(func(*secretsmanager.Options))
+			}
+		}
+		run(args[0].(context.Context), args[1].(*secretsmanager.GetSecretValueInput), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *mockSecretsManager_GetSecretValue_Call) Return(_a0 *secretsmanager.GetSecretValueOutput, _a1 error) *mockSecretsManager_GetSecretValue_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockSecretsManager_GetSecretValue_Call) RunAndReturn(run func(context.Context, *secretsmanager.GetSecretValueInput, ...func(*secretsmanager.Options)) (*secretsmanager.GetSecretValueOutput, error)) *mockSecretsManager_GetSecretValue_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockSecretsManager creates a new instance of mockSecretsManager. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

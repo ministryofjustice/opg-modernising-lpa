@@ -17,6 +17,14 @@ type mockWitnessCodeSender struct {
 	mock.Mock
 }
 
+type mockWitnessCodeSender_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockWitnessCodeSender) EXPECT() *mockWitnessCodeSender_Expecter {
+	return &mockWitnessCodeSender_Expecter{mock: &_m.Mock}
+}
+
 // SendToCertificateProvider provides a mock function with given fields: _a0, _a1, _a2
 func (_m *mockWitnessCodeSender) SendToCertificateProvider(_a0 context.Context, _a1 *actor.DonorProvidedDetails, _a2 page.Localizer) error {
 	ret := _m.Called(_a0, _a1, _a2)
@@ -35,6 +43,36 @@ func (_m *mockWitnessCodeSender) SendToCertificateProvider(_a0 context.Context, 
 	return r0
 }
 
+// mockWitnessCodeSender_SendToCertificateProvider_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendToCertificateProvider'
+type mockWitnessCodeSender_SendToCertificateProvider_Call struct {
+	*mock.Call
+}
+
+// SendToCertificateProvider is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 *actor.DonorProvidedDetails
+//   - _a2 page.Localizer
+func (_e *mockWitnessCodeSender_Expecter) SendToCertificateProvider(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockWitnessCodeSender_SendToCertificateProvider_Call {
+	return &mockWitnessCodeSender_SendToCertificateProvider_Call{Call: _e.mock.On("SendToCertificateProvider", _a0, _a1, _a2)}
+}
+
+func (_c *mockWitnessCodeSender_SendToCertificateProvider_Call) Run(run func(_a0 context.Context, _a1 *actor.DonorProvidedDetails, _a2 page.Localizer)) *mockWitnessCodeSender_SendToCertificateProvider_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*actor.DonorProvidedDetails), args[2].(page.Localizer))
+	})
+	return _c
+}
+
+func (_c *mockWitnessCodeSender_SendToCertificateProvider_Call) Return(_a0 error) *mockWitnessCodeSender_SendToCertificateProvider_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockWitnessCodeSender_SendToCertificateProvider_Call) RunAndReturn(run func(context.Context, *actor.DonorProvidedDetails, page.Localizer) error) *mockWitnessCodeSender_SendToCertificateProvider_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SendToIndependentWitness provides a mock function with given fields: _a0, _a1, _a2
 func (_m *mockWitnessCodeSender) SendToIndependentWitness(_a0 context.Context, _a1 *actor.DonorProvidedDetails, _a2 page.Localizer) error {
 	ret := _m.Called(_a0, _a1, _a2)
@@ -51,6 +89,36 @@ func (_m *mockWitnessCodeSender) SendToIndependentWitness(_a0 context.Context, _
 	}
 
 	return r0
+}
+
+// mockWitnessCodeSender_SendToIndependentWitness_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendToIndependentWitness'
+type mockWitnessCodeSender_SendToIndependentWitness_Call struct {
+	*mock.Call
+}
+
+// SendToIndependentWitness is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 *actor.DonorProvidedDetails
+//   - _a2 page.Localizer
+func (_e *mockWitnessCodeSender_Expecter) SendToIndependentWitness(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockWitnessCodeSender_SendToIndependentWitness_Call {
+	return &mockWitnessCodeSender_SendToIndependentWitness_Call{Call: _e.mock.On("SendToIndependentWitness", _a0, _a1, _a2)}
+}
+
+func (_c *mockWitnessCodeSender_SendToIndependentWitness_Call) Run(run func(_a0 context.Context, _a1 *actor.DonorProvidedDetails, _a2 page.Localizer)) *mockWitnessCodeSender_SendToIndependentWitness_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*actor.DonorProvidedDetails), args[2].(page.Localizer))
+	})
+	return _c
+}
+
+func (_c *mockWitnessCodeSender_SendToIndependentWitness_Call) Return(_a0 error) *mockWitnessCodeSender_SendToIndependentWitness_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockWitnessCodeSender_SendToIndependentWitness_Call) RunAndReturn(run func(context.Context, *actor.DonorProvidedDetails, page.Localizer) error) *mockWitnessCodeSender_SendToIndependentWitness_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockWitnessCodeSender creates a new instance of mockWitnessCodeSender. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

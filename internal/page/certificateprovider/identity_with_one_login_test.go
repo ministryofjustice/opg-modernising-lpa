@@ -18,8 +18,8 @@ func TestIdentityWithOneLogin(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	client := newMockOneLoginClient(t)
-	client.
-		On("AuthCodeURL", "i am random", "i am random", "cy", true).
+	client.EXPECT().
+		AuthCodeURL("i am random", "i am random", "cy", true).
 		Return("http://auth", nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -37,8 +37,8 @@ func TestIdentityWithOneLogin(t *testing.T) {
 		"one-login": &sesh.OneLoginSession{State: "i am random", Nonce: "i am random", Locale: "cy", Redirect: page.Paths.CertificateProvider.IdentityWithOneLoginCallback.Format("lpa-id")},
 	}
 
-	sessionStore.
-		On("Save", r, w, session).
+	sessionStore.EXPECT().
+		Save(r, w, session).
 		Return(nil)
 
 	err := IdentityWithOneLogin(client, sessionStore, func(int) string { return "i am random" })(page.AppData{LpaID: "lpa-id", Lang: localize.Cy}, w, r)
@@ -54,8 +54,8 @@ func TestIdentityWithOneLoginWhenAuthCodeURLError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	client := newMockOneLoginClient(t)
-	client.
-		On("AuthCodeURL", "i am random", "i am random", "", true).
+	client.EXPECT().
+		AuthCodeURL("i am random", "i am random", "", true).
 		Return("http://auth?locale=en", expectedError)
 
 	err := IdentityWithOneLogin(client, nil, func(int) string { return "i am random" })(testAppData, w, r)
@@ -70,13 +70,13 @@ func TestIdentityWithOneLoginWhenStoreSaveError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	client := newMockOneLoginClient(t)
-	client.
-		On("AuthCodeURL", "i am random", "i am random", "", true).
+	client.EXPECT().
+		AuthCodeURL("i am random", "i am random", "", true).
 		Return("http://auth?locale=en", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Save", r, w, mock.Anything).
+	sessionStore.EXPECT().
+		Save(r, w, mock.Anything).
 		Return(expectedError)
 
 	err := IdentityWithOneLogin(client, sessionStore, func(int) string { return "i am random" })(testAppData, w, r)

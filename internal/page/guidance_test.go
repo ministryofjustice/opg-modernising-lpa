@@ -14,8 +14,8 @@ func TestGuidance(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &guidanceData{App: TestAppData, Query: url.Values{}}).
+	template.EXPECT().
+		Execute(w, &guidanceData{App: TestAppData, Query: url.Values{}}).
 		Return(nil)
 
 	err := Guidance(template.Execute)(TestAppData, w, r)
@@ -30,8 +30,8 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &guidanceData{App: TestAppData, Query: url.Values{}}).
+	template.EXPECT().
+		Execute(w, &guidanceData{App: TestAppData, Query: url.Values{}}).
 		Return(expectedError)
 
 	err := Guidance(template.Execute)(TestAppData, w, r)
