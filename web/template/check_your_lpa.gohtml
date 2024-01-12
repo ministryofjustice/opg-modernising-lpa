@@ -42,13 +42,7 @@
           </div>
 
           {{ if .Completed }}
-            <div class="govuk-warning-text">
-              <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-              <strong class="govuk-warning-text__text">
-                <span class="govuk-warning-text__assistive"></span>
-                {{ tr .App "onceYouClickCertificateProviderWillBeSentText" }}
-              </strong>
-            </div>
+            {{ template "warning" (content .App "onceYouClickCertificateProviderWillBeSentText") }}
           {{ else }}
             {{ template "details" (details . "whatHappensIfIChange" "whatHappensIfIChangeDetails" false) }}
           {{ end }}
