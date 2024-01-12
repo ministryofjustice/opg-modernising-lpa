@@ -1006,5 +1006,7 @@
     "theseFilesHaveAlreadyBeenUploaded": "Welsh",
     "uploadDateAndTime": "Welsh",
     "makeANewLPA": "Welsh",
-    "youShouldOnlyChangeYourDetailsIfTheyNeedToBeUpdated": "<p class=\"govuk-body\">Welsh. <a href=\"#\" class=\"govuk-link\">Welsh</a>.</p>"
+    "youShouldOnlyChangeYourDetailsIfTheyNeedToBeUpdated": "<p class=\"govuk-body\">Welsh. <a href=\"#\" class=\"govuk-link\">Welsh</a>.</p>",
+    "yourName": "Welsh",
+    "yourNameWarning": "Welsh"
 }

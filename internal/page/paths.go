@@ -256,9 +256,11 @@ type AppPaths struct {
 	YourAddress                                          LpaPath
 	YourAuthorisedSignatory                              LpaPath
 	YourDetails                                          LpaPath
+	YourDateOfBirth                                      LpaPath
 	YourIndependentWitness                               LpaPath
 	YourIndependentWitnessAddress                        LpaPath
 	YourIndependentWitnessMobile                         LpaPath
+	YourName                                             LpaPath
 	YourPreferredLanguage                                LpaPath
 }
 
@@ -407,10 +409,12 @@ var Paths = AppPaths{
 	YourAddress:                                          "/your-address",
 	YourAuthorisedSignatory:                              "/your-authorised-signatory",
 	YourDetails:                                          "/your-details",
+	YourDateOfBirth:                                      "/your-date-of-birth",
 	YourIndependentWitness:                               "/your-independent-witness",
 	YourIndependentWitnessAddress:                        "/your-independent-witness-address",
 	YourIndependentWitnessMobile:                         "/your-independent-witness-mobile",
 	YourLegalRightsAndResponsibilities:                   "/your-legal-rights-and-responsibilities",
+	YourName:                                             "/your-name",
 	YourPreferredLanguage:                                "/your-preferred-language",
 }
 

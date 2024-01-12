@@ -221,6 +221,8 @@ func Register(
 		MakeANewLPA(tmpls.Get("make_a_new_lpa.gohtml"), donorStore))
 	handleWithDonor(page.Paths.YourDetails, page.None,
 		YourDetails(tmpls.Get("your_details.gohtml"), donorStore, sessionStore))
+	handleWithDonor(page.Paths.YourName, page.None,
+		YourName(tmpls.Get("your_name.gohtml"), donorStore, sessionStore))
 	handleWithDonor(page.Paths.YourAddress, page.None,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, donorStore))
 	handleWithDonor(page.Paths.YourPreferredLanguage, page.None,

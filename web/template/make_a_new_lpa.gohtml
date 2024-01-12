@@ -11,15 +11,15 @@
 
       <div class="govuk-summary-card">
         <div class="govuk-summary-card__title-wrapper">
-          <h2 class="govuk-summary-card__title">{{ .LatestDonorDetails.Donor.FullName }}</h2>
+          <h2 class="govuk-summary-card__title">{{ .FullName }}</h2>
         </div>
         <div class="govuk-summary-card__content">
           <dl class="govuk-summary-list">
             <div class="govuk-summary-list__row">
               <dt class="govuk-summary-list__key">{{ tr .App "name" }}</dt>
-              <dd class="govuk-summary-list__value">{{ .LatestDonorDetails.Donor.FullName }}</dd>
+              <dd class="govuk-summary-list__value">{{ .FullName }}</dd>
                 <dd class="govuk-summary-list__actions">
-                  <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (.App.Paths.YourDetails.Format .App.LpaID) }}?from={{.App.Page}}#f-first-names">
+                  <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (.App.Paths.YourName.Format .App.LpaID) }}?from={{.App.Page}}#f-first-names">
                     {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "name" }}</span>
                   </a>
                 </dd>
@@ -27,7 +27,7 @@
 
             <div class="govuk-summary-list__row">
               <dt class="govuk-summary-list__key">{{ tr .App "dateOfBirth" }}</dt>
-              <dd class="govuk-summary-list__value">{{ formatDate .App .LatestDonorDetails.Donor.DateOfBirth }}</dd>
+              <dd class="govuk-summary-list__value">{{ formatDate .App .DateOfBirth }}</dd>
                 <dd class="govuk-summary-list__actions">
                   <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (.App.Paths.YourDetails.Format .App.LpaID) }}?from={{.App.Page}}#f-date-of-birth">
                     {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "dateOfBirth" }}</span>
@@ -37,7 +37,7 @@
 
             <div class="govuk-summary-list__row">
               <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
-              <dd class="govuk-summary-list__value">{{ template "address-lines" .LatestDonorDetails.Donor.Address }}</dd>
+              <dd class="govuk-summary-list__value">{{ template "address-lines" .Address }}</dd>
                 <dd class="govuk-summary-list__actions">
                   <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (.App.Paths.YourAddress.Format .App.LpaID) }}?from={{.App.Page}}#f-address-line-1">
                     {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "address" }}</span>
