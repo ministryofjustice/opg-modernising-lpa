@@ -23,8 +23,7 @@ import (
 )
 
 const (
-	virusFound               = "infected"
-	objectTagsAddedEventName = "ObjectTagging:Put"
+	virusFound = "infected"
 )
 
 type uidEvent struct {

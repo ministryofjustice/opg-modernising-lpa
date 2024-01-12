@@ -942,5 +942,7 @@
     "uploadedFilesContent": "<h2 class=\"govuk-heading-m\">Uploaded files</h2><p class=\"govuk-body\">These files will be sent to a case worker for review.</p>",
     "previouslyUploadedFiles": "Previously uploaded files",
     "theseFilesHaveAlreadyBeenUploaded": "These files have already been uploaded and seen by a case worker. They cannot be deleted.",
-    "uploadDateAndTime": "Upload date and time"
+    "uploadDateAndTime": "Upload date and time",
+    "makeANewLPA": "Make a new LPA",
+    "youShouldOnlyChangeYourDetailsIfTheyNeedToBeUpdated": "<p class=\"govuk-body\">You should only change your details if they need to be updated. You cannot make an LPA for someone else using your own account. <a href=\"#\" class=\"govuk-link\">Find out more about how to make an LPA for someone else</a>.</p>"
 }

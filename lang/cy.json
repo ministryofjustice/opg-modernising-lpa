@@ -1004,5 +1004,7 @@
     "uploadedFilesContent": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh</p>",
     "previouslyUploadedFiles": "Welsh",
     "theseFilesHaveAlreadyBeenUploaded": "Welsh",
-    "uploadDateAndTime": "Welsh"
+    "uploadDateAndTime": "Welsh",
+    "makeANewLPA": "Welsh",
+    "youShouldOnlyChangeYourDetailsIfTheyNeedToBeUpdated": "<p class=\"govuk-body\">Welsh. <a href=\"#\" class=\"govuk-link\">Welsh</a>.</p>"
 }
