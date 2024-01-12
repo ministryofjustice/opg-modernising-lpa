@@ -16,8 +16,8 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 	ctx := context.Background()
 
 	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("SendSMS", ctx, "0777", notify.WitnessCodeSMS{
+	notifyClient.EXPECT().
+		SendSMS(ctx, "0777", notify.WitnessCodeSMS{
 			WitnessCode:   "1234",
 			DonorFullName: "Joe Jones’",
 			LpaType:       "property and affairs",
@@ -25,8 +25,8 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 		Return("sms-id", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", ctx, &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(ctx, &actor.DonorProvidedDetails{
 			Donor:                    actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 			CertificateProvider:      actor.CertificateProvider{Mobile: "0777"},
 			CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
@@ -35,11 +35,11 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 		Return(nil)
 
 	localizer := newMockLocalizer(t)
-	localizer.
-		On("T", "property-and-affairs").
+	localizer.EXPECT().
+		T("property-and-affairs").
 		Return("property and affairs")
-	localizer.
-		On("Possessive", "Joe Jones").
+	localizer.EXPECT().
+		Possessive("Joe Jones").
 		Return("Joe Jones’")
 
 	sender := &WitnessCodeSender{
@@ -71,16 +71,16 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenTooRecentlySent(t *testin
 
 func TestWitnessCodeSenderSendToCertificateProviderWhenNotifyClientErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("SendSMS", mock.Anything, mock.Anything, mock.Anything).
+	notifyClient.EXPECT().
+		SendSMS(mock.Anything, mock.Anything, mock.Anything).
 		Return("", expectedError)
 
 	localizer := newMockLocalizer(t)
-	localizer.
-		On("T", "property-and-affairs").
+	localizer.EXPECT().
+		T("property-and-affairs").
 		Return("property and affairs")
-	localizer.
-		On("Possessive", "Joe Jones").
+	localizer.EXPECT().
+		Possessive("Joe Jones").
 		Return("Joe Jones’")
 
 	sender := &WitnessCodeSender{
@@ -99,21 +99,21 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenNotifyClientErrors(t *tes
 
 func TestWitnessCodeSenderSendToCertificateProviderWhenDonorStoreErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("SendSMS", mock.Anything, mock.Anything, mock.Anything).
+	notifyClient.EXPECT().
+		SendSMS(mock.Anything, mock.Anything, mock.Anything).
 		Return("sms-id", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", mock.Anything, mock.Anything).
+	donorStore.EXPECT().
+		Put(mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	localizer := newMockLocalizer(t)
-	localizer.
-		On("T", "property-and-affairs").
+	localizer.EXPECT().
+		T("property-and-affairs").
 		Return("property and affairs")
-	localizer.
-		On("Possessive", "Joe Jones").
+	localizer.EXPECT().
+		Possessive("Joe Jones").
 		Return("Joe Jones’")
 
 	sender := &WitnessCodeSender{
@@ -136,8 +136,8 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 	ctx := context.Background()
 
 	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("SendSMS", ctx, "0777", notify.WitnessCodeSMS{
+	notifyClient.EXPECT().
+		SendSMS(ctx, "0777", notify.WitnessCodeSMS{
 			WitnessCode:   "1234",
 			DonorFullName: "Joe Jones’",
 			LpaType:       "property and affairs",
@@ -145,8 +145,8 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 		Return("sms-id", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", ctx, &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(ctx, &actor.DonorProvidedDetails{
 			Donor:                   actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 			IndependentWitness:      actor.IndependentWitness{Mobile: "0777"},
 			IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
@@ -155,11 +155,11 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 		Return(nil)
 
 	localizer := newMockLocalizer(t)
-	localizer.
-		On("T", "property-and-affairs").
+	localizer.EXPECT().
+		T("property-and-affairs").
 		Return("property and affairs")
-	localizer.
-		On("Possessive", "Joe Jones").
+	localizer.EXPECT().
+		Possessive("Joe Jones").
 		Return("Joe Jones’")
 
 	sender := &WitnessCodeSender{
@@ -191,16 +191,16 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenTooRecentlySent(t *testing
 
 func TestWitnessCodeSenderSendToIndependentWitnessWhenNotifyClientErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("SendSMS", mock.Anything, mock.Anything, mock.Anything).
+	notifyClient.EXPECT().
+		SendSMS(mock.Anything, mock.Anything, mock.Anything).
 		Return("", expectedError)
 
 	localizer := newMockLocalizer(t)
-	localizer.
-		On("T", "property-and-affairs").
+	localizer.EXPECT().
+		T("property-and-affairs").
 		Return("property and affairs")
-	localizer.
-		On("Possessive", "Joe Jones").
+	localizer.EXPECT().
+		Possessive("Joe Jones").
 		Return("Joe Jones’")
 
 	sender := &WitnessCodeSender{
@@ -219,21 +219,21 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenNotifyClientErrors(t *test
 
 func TestWitnessCodeSenderSendToIndependentWitnessWhenDonorStoreErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("SendSMS", mock.Anything, mock.Anything, mock.Anything).
+	notifyClient.EXPECT().
+		SendSMS(mock.Anything, mock.Anything, mock.Anything).
 		Return("sms-id", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", mock.Anything, mock.Anything).
+	donorStore.EXPECT().
+		Put(mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	localizer := newMockLocalizer(t)
-	localizer.
-		On("T", "property-and-affairs").
+	localizer.EXPECT().
+		T("property-and-affairs").
 		Return("property and affairs")
-	localizer.
-		On("Possessive", "Joe Jones").
+	localizer.EXPECT().
+		Possessive("Joe Jones").
 		Return("Joe Jones’")
 
 	sender := &WitnessCodeSender{

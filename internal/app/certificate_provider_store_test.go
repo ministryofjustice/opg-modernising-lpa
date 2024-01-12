@@ -18,11 +18,11 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 	details := &actor.CertificateProviderProvidedDetails{PK: "LPA#123", SK: "#CERTIFICATE_PROVIDER#456", LpaID: "123", UpdatedAt: now}
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Create", ctx, details).
+	dynamoClient.EXPECT().
+		Create(ctx, details).
 		Return(nil)
-	dynamoClient.
-		On("Create", ctx, lpaLink{PK: "LPA#123", SK: "#SUB#456", DonorKey: "#DONOR#session-id", ActorType: actor.TypeCertificateProvider, UpdatedAt: now}).
+	dynamoClient.EXPECT().
+		Create(ctx, lpaLink{PK: "LPA#123", SK: "#SUB#456", DonorKey: "#DONOR#session-id", ActorType: actor.TypeCertificateProvider, UpdatedAt: now}).
 		Return(nil)
 
 	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
@@ -66,20 +66,20 @@ func TestCertificateProviderStoreCreateWhenCreateError(t *testing.T) {
 	testcases := map[string]func(*testing.T) *mockDynamoClient{
 		"certificate provider record": func(t *testing.T) *mockDynamoClient {
 			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.
-				On("Create", ctx, mock.Anything).
+			dynamoClient.EXPECT().
+				Create(ctx, mock.Anything).
 				Return(expectedError)
 
 			return dynamoClient
 		},
 		"link record": func(t *testing.T) *mockDynamoClient {
 			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.
-				On("Create", ctx, mock.Anything).
+			dynamoClient.EXPECT().
+				Create(ctx, mock.Anything).
 				Return(nil).
 				Once()
-			dynamoClient.
-				On("Create", ctx, mock.Anything).
+			dynamoClient.EXPECT().
+				Create(ctx, mock.Anything).
 				Return(expectedError)
 
 			return dynamoClient
@@ -202,8 +202,8 @@ func TestCertificateProviderStorePut(t *testing.T) {
 	now := time.Now()
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Put", ctx, &actor.CertificateProviderProvidedDetails{PK: "LPA#123", SK: "#CERTIFICATE_PROVIDER#456", LpaID: "123", UpdatedAt: now}).
+	dynamoClient.EXPECT().
+		Put(ctx, &actor.CertificateProviderProvidedDetails{PK: "LPA#123", SK: "#CERTIFICATE_PROVIDER#456", LpaID: "123", UpdatedAt: now}).
 		Return(nil)
 
 	certificateProviderStore := &certificateProviderStore{
@@ -220,8 +220,8 @@ func TestCertificateProviderStorePutOnError(t *testing.T) {
 	now := time.Now()
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Put", ctx, &actor.CertificateProviderProvidedDetails{PK: "LPA#123", SK: "#CERTIFICATE_PROVIDER#456", LpaID: "123", UpdatedAt: now}).
+	dynamoClient.EXPECT().
+		Put(ctx, &actor.CertificateProviderProvidedDetails{PK: "LPA#123", SK: "#CERTIFICATE_PROVIDER#456", LpaID: "123", UpdatedAt: now}).
 		Return(expectedError)
 
 	certificateProviderStore := &certificateProviderStore{

@@ -26,16 +26,16 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	userData := identity.UserData{OK: true, FirstNames: "John", LastName: "Doe", RetrievedAt: now}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			Donor:                 actor.Donor{FirstNames: "John", LastName: "Doe"},
 			DonorIdentityUserData: userData,
 		}).
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", mock.Anything, "params").
+	sessionStore.EXPECT().
+		Get(mock.Anything, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
 				"one-login": &sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce", Redirect: "/redirect"},
@@ -43,19 +43,19 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 		}, nil)
 
 	oneLoginClient := newMockOneLoginClient(t)
-	oneLoginClient.
-		On("Exchange", r.Context(), "a-code", "a-nonce").
+	oneLoginClient.EXPECT().
+		Exchange(r.Context(), "a-code", "a-nonce").
 		Return("id-token", "a-jwt", nil)
-	oneLoginClient.
-		On("UserInfo", r.Context(), "a-jwt").
+	oneLoginClient.EXPECT().
+		UserInfo(r.Context(), "a-jwt").
 		Return(userInfo, nil)
-	oneLoginClient.
-		On("ParseIdentityClaim", r.Context(), userInfo).
+	oneLoginClient.EXPECT().
+		ParseIdentityClaim(r.Context(), userInfo).
 		Return(userData, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &identityWithOneLoginCallbackData{
+	template.EXPECT().
+		Execute(w, &identityWithOneLoginCallbackData{
 			App:         testAppData,
 			FirstNames:  "John",
 			LastName:    "Doe",
@@ -77,8 +77,8 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 
 	templateCalled := func(t *testing.T, w io.Writer) *mockTemplate {
 		template := newMockTemplate(t)
-		template.
-			On("Execute", w, &identityWithOneLoginCallbackData{
+		template.EXPECT().
+			Execute(w, &identityWithOneLoginCallbackData{
 				App:             testAppData,
 				CouldNotConfirm: true,
 			}).
@@ -92,8 +92,8 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 
 	sessionRetrieved := func(t *testing.T) *mockSessionStore {
 		sessionStore := newMockSessionStore(t)
-		sessionStore.
-			On("Get", mock.Anything, "params").
+		sessionStore.EXPECT().
+			Get(mock.Anything, "params").
 			Return(&sessions.Session{
 				Values: map[any]any{
 					"one-login": &sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce", Redirect: "/redirect"},
@@ -117,14 +117,14 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			url: "/?code=a-code",
 			oneLoginClient: func(t *testing.T) *mockOneLoginClient {
 				oneLoginClient := newMockOneLoginClient(t)
-				oneLoginClient.
-					On("Exchange", mock.Anything, mock.Anything, mock.Anything).
+				oneLoginClient.EXPECT().
+					Exchange(mock.Anything, mock.Anything, mock.Anything).
 					Return("id-token", "a-jwt", nil)
-				oneLoginClient.
-					On("UserInfo", mock.Anything, mock.Anything).
+				oneLoginClient.EXPECT().
+					UserInfo(mock.Anything, mock.Anything).
 					Return(userInfo, nil)
-				oneLoginClient.
-					On("ParseIdentityClaim", mock.Anything, mock.Anything).
+				oneLoginClient.EXPECT().
+					ParseIdentityClaim(mock.Anything, mock.Anything).
 					Return(identity.UserData{}, nil)
 				return oneLoginClient
 			},
@@ -135,14 +135,14 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			url: "/?code=a-code",
 			oneLoginClient: func(t *testing.T) *mockOneLoginClient {
 				oneLoginClient := newMockOneLoginClient(t)
-				oneLoginClient.
-					On("Exchange", mock.Anything, mock.Anything, mock.Anything).
+				oneLoginClient.EXPECT().
+					Exchange(mock.Anything, mock.Anything, mock.Anything).
 					Return("id-token", "a-jwt", nil)
-				oneLoginClient.
-					On("UserInfo", mock.Anything, mock.Anything).
+				oneLoginClient.EXPECT().
+					UserInfo(mock.Anything, mock.Anything).
 					Return(userInfo, nil)
-				oneLoginClient.
-					On("ParseIdentityClaim", mock.Anything, mock.Anything).
+				oneLoginClient.EXPECT().
+					ParseIdentityClaim(mock.Anything, mock.Anything).
 					Return(identity.UserData{OK: true}, expectedError)
 				return oneLoginClient
 			},
@@ -154,11 +154,11 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			url: "/?code=a-code",
 			oneLoginClient: func(t *testing.T) *mockOneLoginClient {
 				oneLoginClient := newMockOneLoginClient(t)
-				oneLoginClient.
-					On("Exchange", mock.Anything, mock.Anything, mock.Anything).
+				oneLoginClient.EXPECT().
+					Exchange(mock.Anything, mock.Anything, mock.Anything).
 					Return("id-token", "a-jwt", nil)
-				oneLoginClient.
-					On("UserInfo", mock.Anything, mock.Anything).
+				oneLoginClient.EXPECT().
+					UserInfo(mock.Anything, mock.Anything).
 					Return(onelogin.UserInfo{}, expectedError)
 				return oneLoginClient
 			},
@@ -170,8 +170,8 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			url: "/?code=a-code",
 			oneLoginClient: func(t *testing.T) *mockOneLoginClient {
 				oneLoginClient := newMockOneLoginClient(t)
-				oneLoginClient.
-					On("Exchange", mock.Anything, mock.Anything, mock.Anything).
+				oneLoginClient.EXPECT().
+					Exchange(mock.Anything, mock.Anything, mock.Anything).
 					Return("", "", expectedError)
 				return oneLoginClient
 			},
@@ -213,13 +213,13 @@ func TestGetIdentityWithOneLoginCallbackWhenPutDonorStoreError(t *testing.T) {
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", mock.Anything, "params").
+	sessionStore.EXPECT().
+		Get(mock.Anything, "params").
 		Return(&sessions.Session{
 			Values: map[any]any{
 				"one-login": &sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce", Redirect: "/redirect"},
@@ -227,14 +227,14 @@ func TestGetIdentityWithOneLoginCallbackWhenPutDonorStoreError(t *testing.T) {
 		}, nil)
 
 	oneLoginClient := newMockOneLoginClient(t)
-	oneLoginClient.
-		On("Exchange", mock.Anything, mock.Anything, mock.Anything).
+	oneLoginClient.EXPECT().
+		Exchange(mock.Anything, mock.Anything, mock.Anything).
 		Return("id-token", "a-jwt", nil)
-	oneLoginClient.
-		On("UserInfo", mock.Anything, mock.Anything).
+	oneLoginClient.EXPECT().
+		UserInfo(mock.Anything, mock.Anything).
 		Return(userInfo, nil)
-	oneLoginClient.
-		On("ParseIdentityClaim", mock.Anything, mock.Anything).
+	oneLoginClient.EXPECT().
+		ParseIdentityClaim(mock.Anything, mock.Anything).
 		Return(identity.UserData{OK: true}, nil)
 
 	err := IdentityWithOneLoginCallback(nil, oneLoginClient, sessionStore, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -249,8 +249,8 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 	userData := identity.UserData{OK: true, FirstNames: "first-name", LastName: "last-name", RetrievedAt: now}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &identityWithOneLoginCallbackData{
+	template.EXPECT().
+		Execute(w, &identityWithOneLoginCallbackData{
 			App:         testAppData,
 			FirstNames:  "first-name",
 			LastName:    "last-name",

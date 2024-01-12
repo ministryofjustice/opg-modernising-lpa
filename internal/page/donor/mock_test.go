@@ -38,8 +38,8 @@ var (
 )
 
 func (m *mockDonorStore) withCompletedPaymentLpaData(r *http.Request, paymentId, paymentReference string, paymentAmount int) *mockDonorStore {
-	m.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	m.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			CertificateProvider: actor.CertificateProvider{
 				Email: "certificateprovider@example.com",
 			},
@@ -69,7 +69,7 @@ func (m *mockSessionStore) withPaySession(r *http.Request) *mockSessionStore {
 	}
 	getSession.Values = map[any]any{"payment": &sesh.PaymentSession{PaymentID: "abc123"}}
 
-	m.On("Get", r, "pay").Return(getSession, nil)
+	m.EXPECT().Get(r, "pay").Return(getSession, nil)
 
 	return m
 }
@@ -86,7 +86,7 @@ func (m *mockSessionStore) withExpiredPaySession(r *http.Request, w *httptest.Re
 		Secure:   true,
 	}
 	storeSession.Values = map[any]any{}
-	m.On("Save", r, w, storeSession).Return(nil)
+	m.EXPECT().Save(r, w, storeSession).Return(nil)
 
 	return m
 }

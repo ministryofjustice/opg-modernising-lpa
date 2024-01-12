@@ -20,8 +20,8 @@ func TestSecret(t *testing.T) {
 	secret := "a-fake-key"
 
 	secretsManager := newMockSecretsManager(t)
-	secretsManager.
-		On("GetSecretValue", ctx, &secretsmanager.GetSecretValueInput{SecretId: &name}).
+	secretsManager.EXPECT().
+		GetSecretValue(ctx, &secretsmanager.GetSecretValueInput{SecretId: &name}).
 		Return(&secretsmanager.GetSecretValueOutput{SecretString: &secret}, nil)
 
 	cache := map[string]*cacheItem{}
@@ -59,8 +59,8 @@ func TestSecretWhenCachedNotFresh(t *testing.T) {
 	secret := "a-fake-key"
 
 	secretsManager := newMockSecretsManager(t)
-	secretsManager.
-		On("GetSecretValue", ctx, &secretsmanager.GetSecretValueInput{SecretId: &name}).
+	secretsManager.EXPECT().
+		GetSecretValue(ctx, &secretsmanager.GetSecretValueInput{SecretId: &name}).
 		Return(&secretsmanager.GetSecretValueOutput{SecretString: &secret}, nil)
 
 	c := &Client{
@@ -82,8 +82,8 @@ func TestSecretWhenCachedNotFreshButServiceErrors(t *testing.T) {
 	name := "a-test"
 
 	secretsManager := newMockSecretsManager(t)
-	secretsManager.
-		On("GetSecretValue", ctx, &secretsmanager.GetSecretValueInput{SecretId: &name}).
+	secretsManager.EXPECT().
+		GetSecretValue(ctx, &secretsmanager.GetSecretValueInput{SecretId: &name}).
 		Return(nil, expectedError)
 
 	item := &cacheItem{
@@ -116,8 +116,8 @@ func TestSecretWhenCachedAndErroredSuccessResets(t *testing.T) {
 	secret := "a-fake-key"
 
 	secretsManager := newMockSecretsManager(t)
-	secretsManager.
-		On("GetSecretValue", ctx, &secretsmanager.GetSecretValueInput{SecretId: &name}).
+	secretsManager.EXPECT().
+		GetSecretValue(ctx, &secretsmanager.GetSecretValueInput{SecretId: &name}).
 		Return(&secretsmanager.GetSecretValueOutput{SecretString: &secret}, nil)
 
 	item := &cacheItem{
@@ -145,8 +145,8 @@ func TestSecretWhenError(t *testing.T) {
 	name := "a-test"
 
 	secretsManager := newMockSecretsManager(t)
-	secretsManager.
-		On("GetSecretValue", ctx, &secretsmanager.GetSecretValueInput{SecretId: &name}).
+	secretsManager.EXPECT().
+		GetSecretValue(ctx, &secretsmanager.GetSecretValueInput{SecretId: &name}).
 		Return(nil, expectedError)
 
 	c := &Client{svc: secretsManager, cache: map[string]*cacheItem{}}
@@ -162,8 +162,8 @@ func TestSecretBytes(t *testing.T) {
 	secret := base64.StdEncoding.EncodeToString(key)
 
 	secretsManager := newMockSecretsManager(t)
-	secretsManager.
-		On("GetSecretValue", ctx, &secretsmanager.GetSecretValueInput{SecretId: &name}).
+	secretsManager.EXPECT().
+		GetSecretValue(ctx, &secretsmanager.GetSecretValueInput{SecretId: &name}).
 		Return(&secretsmanager.GetSecretValueOutput{SecretString: &secret}, nil)
 
 	c := &Client{svc: secretsManager, cache: map[string]*cacheItem{}}
@@ -191,8 +191,8 @@ func TestSecretBytesWhenError(t *testing.T) {
 			name := "a-test"
 
 			secretsManager := newMockSecretsManager(t)
-			secretsManager.
-				On("GetSecretValue", ctx, &secretsmanager.GetSecretValueInput{SecretId: &name}).
+			secretsManager.EXPECT().
+				GetSecretValue(ctx, &secretsmanager.GetSecretValueInput{SecretId: &name}).
 				Return(tc.output, tc.err)
 
 			c := &Client{svc: secretsManager, cache: map[string]*cacheItem{}}
@@ -208,8 +208,8 @@ func TestCookieSessionKeys(t *testing.T) {
 	secret := `["aGV5","YW5vdGhlcg=="]`
 
 	secretsManager := newMockSecretsManager(t)
-	secretsManager.
-		On("GetSecretValue", ctx, &secretsmanager.GetSecretValueInput{SecretId: &name}).
+	secretsManager.EXPECT().
+		GetSecretValue(ctx, &secretsmanager.GetSecretValueInput{SecretId: &name}).
 		Return(&secretsmanager.GetSecretValueOutput{SecretString: &secret}, nil)
 
 	c := &Client{svc: secretsManager, cache: map[string]*cacheItem{}}
@@ -240,8 +240,8 @@ func TestCookieSessionKeysWhenGetSecretError(t *testing.T) {
 			name := "cookie-session-keys"
 
 			secretsManager := newMockSecretsManager(t)
-			secretsManager.
-				On("GetSecretValue", ctx, &secretsmanager.GetSecretValueInput{SecretId: &name}).
+			secretsManager.EXPECT().
+				GetSecretValue(ctx, &secretsmanager.GetSecretValueInput{SecretId: &name}).
 				Return(tc.output, tc.err)
 
 			c := &Client{svc: secretsManager, cache: map[string]*cacheItem{}}

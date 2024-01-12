@@ -23,8 +23,8 @@ func TestGetChooseReplacementAttorneys(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseReplacementAttorneysData{
+	template.EXPECT().
+		Execute(w, &chooseReplacementAttorneysData{
 			App:   testAppData,
 			Donor: &actor.DonorProvidedDetails{},
 			Form:  &chooseAttorneysForm{},
@@ -55,8 +55,8 @@ func TestGetChooseReplacementAttorneysDobWarningIsAlwaysShown(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/?id=1", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseReplacementAttorneysData{
+	template.EXPECT().
+		Execute(w, &chooseReplacementAttorneysData{
 			App: testAppData,
 			Donor: &actor.DonorProvidedDetails{
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
@@ -87,8 +87,8 @@ func TestGetChooseReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := ChooseReplacementAttorneys(template.Execute, nil, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -167,8 +167,8 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID:                "lpa-id",
 					Donor:                actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{tc.attorney}},
@@ -258,8 +258,8 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID:                "lpa-id",
 					Donor:                actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{tc.attorney}},
@@ -301,8 +301,8 @@ func TestPostChooseReplacementAttorneysNameWarningOnlyShownWhenAttorneyAndFormNa
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
@@ -445,8 +445,8 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, mock.MatchedBy(func(data *chooseReplacementAttorneysData) bool {
+			template.EXPECT().
+				Execute(w, mock.MatchedBy(func(data *chooseReplacementAttorneysData) bool {
 					return tc.dataMatcher(t, data)
 				})).
 				Return(nil)
@@ -475,8 +475,8 @@ func TestPostChooseReplacementAttorneysWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := ChooseReplacementAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{})

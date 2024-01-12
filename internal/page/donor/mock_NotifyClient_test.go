@@ -14,6 +14,14 @@ type mockNotifyClient struct {
 	mock.Mock
 }
 
+type mockNotifyClient_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockNotifyClient) EXPECT() *mockNotifyClient_Expecter {
+	return &mockNotifyClient_Expecter{mock: &_m.Mock}
+}
+
 // SendSMS provides a mock function with given fields: _a0, _a1, _a2
 func (_m *mockNotifyClient) SendSMS(_a0 context.Context, _a1 string, _a2 notify.SMS) (string, error) {
 	ret := _m.Called(_a0, _a1, _a2)
@@ -40,6 +48,36 @@ func (_m *mockNotifyClient) SendSMS(_a0 context.Context, _a1 string, _a2 notify.
 	}
 
 	return r0, r1
+}
+
+// mockNotifyClient_SendSMS_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendSMS'
+type mockNotifyClient_SendSMS_Call struct {
+	*mock.Call
+}
+
+// SendSMS is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 string
+//   - _a2 notify.SMS
+func (_e *mockNotifyClient_Expecter) SendSMS(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockNotifyClient_SendSMS_Call {
+	return &mockNotifyClient_SendSMS_Call{Call: _e.mock.On("SendSMS", _a0, _a1, _a2)}
+}
+
+func (_c *mockNotifyClient_SendSMS_Call) Run(run func(_a0 context.Context, _a1 string, _a2 notify.SMS)) *mockNotifyClient_SendSMS_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(notify.SMS))
+	})
+	return _c
+}
+
+func (_c *mockNotifyClient_SendSMS_Call) Return(_a0 string, _a1 error) *mockNotifyClient_SendSMS_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockNotifyClient_SendSMS_Call) RunAndReturn(run func(context.Context, string, notify.SMS) (string, error)) *mockNotifyClient_SendSMS_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockNotifyClient creates a new instance of mockNotifyClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

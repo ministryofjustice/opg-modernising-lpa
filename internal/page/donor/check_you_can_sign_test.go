@@ -20,8 +20,8 @@ func TestGetCheckYouCanSign(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &checkYouCanSignData{
+	template.EXPECT().
+		Execute(w, &checkYouCanSignData{
 			App:     testAppData,
 			Errors:  nil,
 			Form:    &form.YesNoForm{YesNo: form.No},
@@ -57,8 +57,8 @@ func TestPostCheckYouCanSign(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{CanSign: yesNo}}).
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{CanSign: yesNo}}).
 				Return(nil)
 
 			err := CheckYouCanSign(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
@@ -82,8 +82,8 @@ func TestPostCheckYouCanSignErrorOnPutStore(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := CheckYouCanSign(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -106,8 +106,8 @@ func TestCheckYouCanSignFormValidation(t *testing.T) {
 	validationError := validation.With("yes-no", validation.SelectError{Label: "yesIfYouWillBeAbleToSignYourself"})
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *checkYouCanSignData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *checkYouCanSignData) bool {
 			return assert.Equal(t, validationError, data.Errors)
 		})).
 		Return(nil)

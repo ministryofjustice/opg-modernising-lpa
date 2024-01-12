@@ -12,7 +12,6 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-//go:generate mockery --testonly --inpackage --name Doer --structname mockDoer
 type Doer interface {
 	Do(*http.Request) (*http.Response, error)
 }

@@ -15,7 +15,7 @@ func TestDependencyHealthCheck(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	service := newMockHealthChecker(t)
-	service.On("CheckHealth", r.Context()).Return(nil)
+	service.EXPECT().CheckHealth(r.Context()).Return(nil)
 
 	services := map[string]HealthChecker{
 		"service": service,
@@ -35,10 +35,10 @@ func TestDependencyHealthCheckWhenError(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	service := newMockHealthChecker(t)
-	service.On("CheckHealth", r.Context()).Return(nil)
+	service.EXPECT().CheckHealth(r.Context()).Return(nil)
 
 	badService := newMockHealthChecker(t)
-	badService.On("CheckHealth", r.Context()).Return(expectedError)
+	badService.EXPECT().CheckHealth(r.Context()).Return(expectedError)
 
 	services := map[string]HealthChecker{
 		"service":    service,

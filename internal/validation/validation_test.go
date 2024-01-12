@@ -9,10 +9,10 @@ import (
 
 func TestValidation(t *testing.T) {
 	l := newMockLocalizer(t)
-	l.On("T", "a").Return("A")
-	l.On("T", "c").Return("C")
-	l.On("Format", "errorStringTooLong", map[string]any{"Label": "A", "Length": 4}).Return("a-tooLong")
-	l.On("Format", "errorStringTooLong", map[string]any{"Label": "C", "Length": 3}).Return("c-tooLong")
+	l.EXPECT().T("a").Return("A")
+	l.EXPECT().T("c").Return("C")
+	l.EXPECT().Format("errorStringTooLong", map[string]any{"Label": "A", "Length": 4}).Return("a-tooLong")
+	l.EXPECT().Format("errorStringTooLong", map[string]any{"Label": "C", "Length": 3}).Return("c-tooLong")
 
 	// default state
 	var list List

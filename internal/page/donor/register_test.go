@@ -33,8 +33,8 @@ func TestMakeHandle(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
@@ -68,8 +68,8 @@ func TestMakeHandleExistingSessionData(t *testing.T) {
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
@@ -103,12 +103,12 @@ func TestMakeHandleErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	errorHandler := newMockErrorHandler(t)
-	errorHandler.
-		On("Execute", w, r, expectedError)
+	errorHandler.EXPECT().
+		Execute(w, r, expectedError)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
@@ -125,8 +125,8 @@ func TestMakeHandleSessionError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{}, expectedError)
 
 	mux := http.NewServeMux()
@@ -145,8 +145,8 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{Values: map[any]any{}}, nil)
 
 	mux := http.NewServeMux()
@@ -190,13 +190,13 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 	mux := http.NewServeMux()
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", mock.Anything).
+	donorStore.EXPECT().
+		Get(mock.Anything).
 		Return(&actor.DonorProvidedDetails{Donor: actor.Donor{
 			FirstNames:  "Jane",
 			LastName:    "Smith",
@@ -239,8 +239,8 @@ func TestMakeLpaHandleWhenSessionStoreError(t *testing.T) {
 	mux := http.NewServeMux()
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{}, expectedError)
 
 	handle := makeLpaHandle(mux, sessionStore, page.RequireSession, nil, nil, "")
@@ -262,18 +262,18 @@ func TestMakeLpaHandleWhenLpaStoreError(t *testing.T) {
 	mux := http.NewServeMux()
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", mock.Anything).
+	donorStore.EXPECT().
+		Get(mock.Anything).
 		Return(&actor.DonorProvidedDetails{}, expectedError)
 
 	errorHandler := newMockErrorHandler(t)
-	errorHandler.
-		On("Execute", w, r, expectedError)
+	errorHandler.EXPECT().
+		Execute(w, r, expectedError)
 
 	handle := makeLpaHandle(mux, sessionStore, page.RequireSession, errorHandler.Execute, donorStore, "")
 	handle("/path", page.None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.DonorProvidedDetails) error {
@@ -292,13 +292,13 @@ func TestMakeLpaHandleSessionExistingSessionData(t *testing.T) {
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", mock.Anything).
+	donorStore.EXPECT().
+		Get(mock.Anything).
 		Return(&actor.DonorProvidedDetails{}, nil)
 
 	mux := http.NewServeMux()
@@ -332,17 +332,17 @@ func TestMakeLpaHandleErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	errorHandler := newMockErrorHandler(t)
-	errorHandler.
-		On("Execute", w, r, expectedError)
+	errorHandler.EXPECT().
+		Execute(w, r, expectedError)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Get", mock.Anything).
+	donorStore.EXPECT().
+		Get(mock.Anything).
 		Return(&actor.DonorProvidedDetails{}, nil)
 
 	mux := http.NewServeMux()
@@ -386,13 +386,13 @@ func TestPayHelperPay(t *testing.T) {
 			}
 			session.Values = map[any]any{"payment": &sesh.PaymentSession{PaymentID: "a-fake-id"}}
 
-			sessionStore.
-				On("Save", r, w, session).
+			sessionStore.EXPECT().
+				Save(r, w, session).
 				Return(nil)
 
 			payClient := newMockPayClient(t)
-			payClient.
-				On("CreatePayment", r.Context(), pay.CreatePaymentBody{
+			payClient.EXPECT().
+				CreatePayment(r.Context(), pay.CreatePaymentBody{
 					Amount:      8200,
 					Reference:   "123456789012",
 					Description: "Property and Finance LPA",
@@ -435,8 +435,8 @@ func TestPayHelperPayWhenPaymentNotRequired(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID:            "lpa-id",
 					FeeType:          feeType,
 					Tasks:            actor.DonorTasks{PayForLpa: actor.PaymentTaskPending},
@@ -472,8 +472,8 @@ func TestPayHelperPayWhenPostingEvidence(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID:            "lpa-id",
 					FeeType:          feeType,
 					Tasks:            actor.DonorTasks{PayForLpa: actor.PaymentTaskPending},
@@ -502,8 +502,8 @@ func TestPayHelperPayWhenMoreEvidenceProvided(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:            "lpa-id",
 			FeeType:          pay.HalfFee,
 			Tasks:            actor.DonorTasks{PayForLpa: actor.PaymentTaskPending},
@@ -531,8 +531,8 @@ func TestPayHelperPayWhenPaymentNotRequiredWhenDonorStorePutError(t *testing.T) 
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:   "lpa-id",
 			FeeType: pay.NoFee,
 			Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskPending},
@@ -567,13 +567,13 @@ func TestPayHelperPayWhenFeeDenied(t *testing.T) {
 	}
 	session.Values = map[any]any{"payment": &sesh.PaymentSession{PaymentID: "a-fake-id"}}
 
-	sessionStore.
-		On("Save", r, w, session).
+	sessionStore.EXPECT().
+		Save(r, w, session).
 		Return(nil)
 
 	payClient := newMockPayClient(t)
-	payClient.
-		On("CreatePayment", r.Context(), pay.CreatePaymentBody{
+	payClient.EXPECT().
+		CreatePayment(r.Context(), pay.CreatePaymentBody{
 			Amount:      4100,
 			Reference:   "123456789012",
 			Description: "Property and Finance LPA",
@@ -591,8 +591,8 @@ func TestPayHelperPayWhenFeeDenied(t *testing.T) {
 		}, nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:          "lpa-id",
 			Donor:          actor.Donor{Email: "a@b.com"},
 			FeeType:        pay.FullFee,
@@ -636,13 +636,13 @@ func TestPayHelperPayWhenFeeDeniedAndPutStoreError(t *testing.T) {
 	}
 	session.Values = map[any]any{"payment": &sesh.PaymentSession{PaymentID: "a-fake-id"}}
 
-	sessionStore.
-		On("Save", r, w, session).
+	sessionStore.EXPECT().
+		Save(r, w, session).
 		Return(nil)
 
 	payClient := newMockPayClient(t)
-	payClient.
-		On("CreatePayment", r.Context(), pay.CreatePaymentBody{
+	payClient.EXPECT().
+		CreatePayment(r.Context(), pay.CreatePaymentBody{
 			Amount:      4100,
 			Reference:   "123456789012",
 			Description: "Property and Finance LPA",
@@ -660,8 +660,8 @@ func TestPayHelperPayWhenFeeDeniedAndPutStoreError(t *testing.T) {
 		}, nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:          "lpa-id",
 			Donor:          actor.Donor{Email: "a@b.com"},
 			FeeType:        pay.FullFee,
@@ -693,12 +693,12 @@ func TestPayHelperPayWhenCreatePaymentErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Print", "Error creating payment: err")
+	logger.EXPECT().
+		Print("Error creating payment: err")
 
 	payClient := newMockPayClient(t)
-	payClient.
-		On("CreatePayment", mock.Anything, mock.Anything).
+	payClient.EXPECT().
+		CreatePayment(mock.Anything, mock.Anything).
 		Return(pay.CreatePaymentResponse{}, expectedError)
 
 	err := (&payHelper{
@@ -715,13 +715,13 @@ func TestPayHelperPayWhenSessionErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Save", r, w, mock.Anything).
+	sessionStore.EXPECT().
+		Save(r, w, mock.Anything).
 		Return(expectedError)
 
 	payClient := newMockPayClient(t)
-	payClient.
-		On("CreatePayment", mock.Anything, mock.Anything).
+	payClient.EXPECT().
+		CreatePayment(mock.Anything, mock.Anything).
 		Return(pay.CreatePaymentResponse{
 			PaymentId: "a-fake-id",
 			Links: map[string]pay.Link{

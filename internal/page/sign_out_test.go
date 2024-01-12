@@ -17,22 +17,22 @@ func TestSignOut(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{
 			Options: &sessions.Options{},
 			Values:  map[any]any{"session": &sesh.LoginSession{IDToken: "id-token", Sub: "abc"}},
 		}, nil)
-	sessionStore.
-		On("Save", r, w, &sessions.Session{
+	sessionStore.EXPECT().
+		Save(r, w, &sessions.Session{
 			Options: &sessions.Options{MaxAge: -1},
 			Values:  map[any]any{},
 		}).
 		Return(nil)
 
 	oneLoginClient := newMockOneLoginClient(t)
-	oneLoginClient.
-		On("EndSessionURL", "id-token", "http://public"+Paths.Start.Format()).
+	oneLoginClient.EXPECT().
+		EndSessionURL("id-token", "http://public"+Paths.Start.Format()).
 		Return("http://end-session", nil)
 
 	err := SignOut(nil, sessionStore, oneLoginClient, "http://public")(TestAppData, w, r)
@@ -48,23 +48,23 @@ func TestSignOutWhenEndSessionURLFails(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Print", "unable to end onelogin session: err")
+	logger.EXPECT().
+		Print("unable to end onelogin session: err")
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{
 			Options: &sessions.Options{},
 			Values:  map[any]any{"session": &sesh.LoginSession{IDToken: "id-token", Sub: "abc"}},
 		}, nil)
-	sessionStore.
-		On("Save", r, w, mock.Anything).
+	sessionStore.EXPECT().
+		Save(r, w, mock.Anything).
 		Return(nil)
 
 	oneLoginClient := newMockOneLoginClient(t)
-	oneLoginClient.
-		On("EndSessionURL", "id-token", "http://public"+Paths.Start.Format()).
+	oneLoginClient.EXPECT().
+		EndSessionURL("id-token", "http://public"+Paths.Start.Format()).
 		Return("", expectedError)
 
 	err := SignOut(logger, sessionStore, oneLoginClient, "http://public")(TestAppData, w, r)
@@ -80,23 +80,23 @@ func TestSignOutWhenClearSessionFails(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Print", "unable to expire session: err")
+	logger.EXPECT().
+		Print("unable to expire session: err")
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{
 			Options: &sessions.Options{},
 			Values:  map[any]any{"session": &sesh.LoginSession{IDToken: "id-token", Sub: "abc"}},
 		}, nil)
-	sessionStore.
-		On("Save", r, w, mock.Anything).
+	sessionStore.EXPECT().
+		Save(r, w, mock.Anything).
 		Return(errors.New("err"))
 
 	oneLoginClient := newMockOneLoginClient(t)
-	oneLoginClient.
-		On("EndSessionURL", "id-token", "http://public"+Paths.Start.Format()).
+	oneLoginClient.EXPECT().
+		EndSessionURL("id-token", "http://public"+Paths.Start.Format()).
 		Return("http://end-session", nil)
 
 	err := SignOut(logger, sessionStore, oneLoginClient, "http://public")(TestAppData, w, r)

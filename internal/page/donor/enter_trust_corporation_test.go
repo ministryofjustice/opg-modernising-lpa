@@ -19,8 +19,8 @@ func TestGetEnterTrustCorporation(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &enterTrustCorporationData{
+	template.EXPECT().
+		Execute(w, &enterTrustCorporationData{
 			App:  testAppData,
 			Form: &enterTrustCorporationForm{},
 		}).
@@ -38,8 +38,8 @@ func TestGetEnterTrustCorporationWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &enterTrustCorporationData{
+	template.EXPECT().
+		Execute(w, &enterTrustCorporationData{
 			App:  testAppData,
 			Form: &enterTrustCorporationForm{},
 		}).
@@ -64,8 +64,8 @@ func TestPostEnterTrustCorporation(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
 				Name:          "Co co.",
@@ -97,8 +97,8 @@ func TestPostEnterTrustCorporationWhenValidationError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *enterTrustCorporationData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *enterTrustCorporationData) bool {
 			return assert.Equal(t, validation.With("name", validation.EnterError{Label: "companyName"}), data.Errors)
 		})).
 		Return(nil)
@@ -124,8 +124,8 @@ func TestPostEnterTrustCorporationWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := EnterTrustCorporation(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})

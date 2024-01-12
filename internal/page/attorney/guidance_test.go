@@ -16,13 +16,13 @@ func TestGuidance(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(donor, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &guidanceData{App: testAppData, Donor: donor}).
+	template.EXPECT().
+		Execute(w, &guidanceData{App: testAppData, Donor: donor}).
 		Return(nil)
 
 	err := Guidance(template.Execute, donorStore)(testAppData, w, r, nil)
@@ -36,8 +36,8 @@ func TestGuidanceWhenNilDataStores(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &guidanceData{App: testAppData}).
+	template.EXPECT().
+		Execute(w, &guidanceData{App: testAppData}).
 		Return(nil)
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
@@ -56,8 +56,8 @@ func TestGuidanceWhenDonorStoreErrors(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(donor, expectedError)
 
 	err := Guidance(nil, donorStore)(testAppData, w, r, nil)
@@ -70,13 +70,13 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &guidanceData{App: testAppData, Donor: &actor.DonorProvidedDetails{}}).
+	template.EXPECT().
+		Execute(w, &guidanceData{App: testAppData, Donor: &actor.DonorProvidedDetails{}}).
 		Return(expectedError)
 
 	err := Guidance(template.Execute, donorStore)(testAppData, w, r, nil)

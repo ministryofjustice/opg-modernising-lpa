@@ -22,8 +22,8 @@ func TestGetYourPreferredLanguage(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &yourPreferredLanguageData{
+	template.EXPECT().
+		Execute(w, &yourPreferredLanguageData{
 			App: testAppData,
 			Form: &form.LanguagePreferenceForm{
 				Preference: localize.Cy,
@@ -46,8 +46,8 @@ func TestGetYourPreferredLanguageWhenTemplateError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := YourPreferredLanguage(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy})
@@ -70,8 +70,8 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: lang}).
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: lang}).
 				Return(nil)
 
 			err := YourPreferredLanguage(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
@@ -93,8 +93,8 @@ func TestPostYourPreferredLanguageWhenAttorneyStoreError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := YourPreferredLanguage(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
@@ -113,8 +113,8 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &yourPreferredLanguageData{
+	template.EXPECT().
+		Execute(w, &yourPreferredLanguageData{
 			App: testAppData,
 			Form: &form.LanguagePreferenceForm{
 				Error:      errors.New("invalid Lang 'not-a-lang'"),

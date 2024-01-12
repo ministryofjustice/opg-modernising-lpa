@@ -55,13 +55,13 @@ func TestGetConfirmYourDetails(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("GetAny", r.Context()).
+			donorStore.EXPECT().
+				GetAny(r.Context()).
 				Return(tc.donor, nil)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, tc.data).
+			template.EXPECT().
+				Execute(w, tc.data).
 				Return(nil)
 
 			err := ConfirmYourDetails(template.Execute, nil, donorStore)(tc.appData, w, r, attorneyProvidedDetails)
@@ -80,8 +80,8 @@ func TestGetConfirmYourDetailsWhenDonorStoreErrors(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(donor, expectedError)
 
 	err := ConfirmYourDetails(nil, nil, donorStore)(testAppData, w, r, nil)
@@ -94,13 +94,13 @@ func TestGetConfirmYourDetailsWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := ConfirmYourDetails(template.Execute, nil, donorStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
@@ -113,8 +113,8 @@ func TestPostConfirmYourDetails(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Put", r.Context(), &actor.AttorneyProvidedDetails{
+	attorneyStore.EXPECT().
+		Put(r.Context(), &actor.AttorneyProvidedDetails{
 			ID:    "123",
 			LpaID: "lpa-id",
 			Tasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskCompleted},
@@ -134,8 +134,8 @@ func TestPostConfirmYourDetailsWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Put", r.Context(), mock.Anything).
+	attorneyStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := ConfirmYourDetails(nil, attorneyStore, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{ID: "123", LpaID: "lpa-id"})

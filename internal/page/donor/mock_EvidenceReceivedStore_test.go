@@ -13,6 +13,14 @@ type mockEvidenceReceivedStore struct {
 	mock.Mock
 }
 
+type mockEvidenceReceivedStore_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockEvidenceReceivedStore) EXPECT() *mockEvidenceReceivedStore_Expecter {
+	return &mockEvidenceReceivedStore_Expecter{mock: &_m.Mock}
+}
+
 // Get provides a mock function with given fields: _a0
 func (_m *mockEvidenceReceivedStore) Get(_a0 context.Context) (bool, error) {
 	ret := _m.Called(_a0)
@@ -39,6 +47,34 @@ func (_m *mockEvidenceReceivedStore) Get(_a0 context.Context) (bool, error) {
 	}
 
 	return r0, r1
+}
+
+// mockEvidenceReceivedStore_Get_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Get'
+type mockEvidenceReceivedStore_Get_Call struct {
+	*mock.Call
+}
+
+// Get is a helper method to define mock.On call
+//   - _a0 context.Context
+func (_e *mockEvidenceReceivedStore_Expecter) Get(_a0 interface{}) *mockEvidenceReceivedStore_Get_Call {
+	return &mockEvidenceReceivedStore_Get_Call{Call: _e.mock.On("Get", _a0)}
+}
+
+func (_c *mockEvidenceReceivedStore_Get_Call) Run(run func(_a0 context.Context)) *mockEvidenceReceivedStore_Get_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *mockEvidenceReceivedStore_Get_Call) Return(_a0 bool, _a1 error) *mockEvidenceReceivedStore_Get_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockEvidenceReceivedStore_Get_Call) RunAndReturn(run func(context.Context) (bool, error)) *mockEvidenceReceivedStore_Get_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockEvidenceReceivedStore creates a new instance of mockEvidenceReceivedStore. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

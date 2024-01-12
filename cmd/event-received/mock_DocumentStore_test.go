@@ -13,6 +13,14 @@ type mockDocumentStore struct {
 	mock.Mock
 }
 
+type mockDocumentStore_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockDocumentStore) EXPECT() *mockDocumentStore_Expecter {
+	return &mockDocumentStore_Expecter{mock: &_m.Mock}
+}
+
 // UpdateScanResults provides a mock function with given fields: ctx, lpaID, objectKey, virusDetected
 func (_m *mockDocumentStore) UpdateScanResults(ctx context.Context, lpaID string, objectKey string, virusDetected bool) error {
 	ret := _m.Called(ctx, lpaID, objectKey, virusDetected)
@@ -29,6 +37,37 @@ func (_m *mockDocumentStore) UpdateScanResults(ctx context.Context, lpaID string
 	}
 
 	return r0
+}
+
+// mockDocumentStore_UpdateScanResults_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateScanResults'
+type mockDocumentStore_UpdateScanResults_Call struct {
+	*mock.Call
+}
+
+// UpdateScanResults is a helper method to define mock.On call
+//   - ctx context.Context
+//   - lpaID string
+//   - objectKey string
+//   - virusDetected bool
+func (_e *mockDocumentStore_Expecter) UpdateScanResults(ctx interface{}, lpaID interface{}, objectKey interface{}, virusDetected interface{}) *mockDocumentStore_UpdateScanResults_Call {
+	return &mockDocumentStore_UpdateScanResults_Call{Call: _e.mock.On("UpdateScanResults", ctx, lpaID, objectKey, virusDetected)}
+}
+
+func (_c *mockDocumentStore_UpdateScanResults_Call) Run(run func(ctx context.Context, lpaID string, objectKey string, virusDetected bool)) *mockDocumentStore_UpdateScanResults_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(bool))
+	})
+	return _c
+}
+
+func (_c *mockDocumentStore_UpdateScanResults_Call) Return(_a0 error) *mockDocumentStore_UpdateScanResults_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDocumentStore_UpdateScanResults_Call) RunAndReturn(run func(context.Context, string, string, bool) error) *mockDocumentStore_UpdateScanResults_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockDocumentStore creates a new instance of mockDocumentStore. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

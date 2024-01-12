@@ -22,18 +22,18 @@ func TestGetYourPreferredLanguage(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy}, nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &yourPreferredLanguageData{
+	template.EXPECT().
+		Execute(w, &yourPreferredLanguageData{
 			App: testAppData,
 			Form: &form.LanguagePreferenceForm{
 				Preference: localize.Cy,
@@ -57,8 +57,8 @@ func TestGetYourPreferredLanguageWhenCertificateProviderStoreError(t *testing.T)
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
 
 	err := YourPreferredLanguage(nil, certificateProviderStore, nil)(testAppData, w, r)
@@ -74,13 +74,13 @@ func TestGetYourPreferredLanguageWhenDonorStoreError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy}, nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, expectedError)
 
 	err := YourPreferredLanguage(nil, certificateProviderStore, donorStore)(testAppData, w, r)
@@ -96,18 +96,18 @@ func TestGetYourPreferredLanguageWhenTemplateError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy}, nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := YourPreferredLanguage(template.Execute, certificateProviderStore, donorStore)(testAppData, w, r)
@@ -130,16 +130,16 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
-			certificateProviderStore.
-				On("Get", r.Context()).
+			certificateProviderStore.EXPECT().
+				Get(r.Context()).
 				Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
-			certificateProviderStore.
-				On("Put", r.Context(), &actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: lang}).
+			certificateProviderStore.EXPECT().
+				Put(r.Context(), &actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: lang}).
 				Return(nil)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("GetAny", r.Context()).
+			donorStore.EXPECT().
+				GetAny(r.Context()).
 				Return(&actor.DonorProvidedDetails{}, nil)
 
 			err := YourPreferredLanguage(nil, certificateProviderStore, donorStore)(testAppData, w, r)
@@ -161,16 +161,16 @@ func TestPostYourPreferredLanguageWhenAttorneyStoreError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
-	certificateProviderStore.
-		On("Put", r.Context(), mock.Anything).
+	certificateProviderStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, nil)
 
 	err := YourPreferredLanguage(nil, certificateProviderStore, donorStore)(testAppData, w, r)
@@ -189,18 +189,18 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("Get", r.Context()).
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &yourPreferredLanguageData{
+	template.EXPECT().
+		Execute(w, &yourPreferredLanguageData{
 			App: testAppData,
 			Form: &form.LanguagePreferenceForm{
 				Error:      errors.New("invalid Lang 'not-a-lang'"),

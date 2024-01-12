@@ -21,8 +21,8 @@ func TestGetChooseAttorneysAddress(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App:        testAppData,
 			Form:       &form.AddressForm{},
 			ID:         "123",
@@ -57,8 +57,8 @@ func TestGetChooseAttorneysAddressFromStore(t *testing.T) {
 	}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:  "manual",
@@ -86,8 +86,8 @@ func TestGetChooseAttorneysAddressManual(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/?action=manual&id=123", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:  "manual",
@@ -115,8 +115,8 @@ func TestGetChooseAttorneysAddressWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App:        testAppData,
 			Form:       &form.AddressForm{},
 			ID:         "123",
@@ -151,8 +151,8 @@ func TestPostChooseAttorneysAddressSkip(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:     "lpa-id",
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123", FirstNames: "a", Email: "a"}}},
 			Tasks:     actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
@@ -190,8 +190,8 @@ func TestPostChooseAttorneysAddressSkipWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
@@ -219,8 +219,8 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Tasks: actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
@@ -261,8 +261,8 @@ func TestPostChooseAttorneysAddressManualWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
@@ -290,8 +290,8 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Tasks: actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
@@ -342,8 +342,8 @@ func TestPostChooseAttorneysAddressManualWhenValidationError(t *testing.T) {
 	}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:  "manual",
@@ -379,8 +379,8 @@ func TestPostChooseAttorneysAddressPostcodeSelect(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "manual",
@@ -419,13 +419,13 @@ func TestPostChooseAttorneysAddressPostcodeSelectWhenValidationError(t *testing.
 	}
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "NG1").
 		Return(addresses, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode-select",
@@ -465,13 +465,13 @@ func TestPostChooseAttorneysPostcodeLookup(t *testing.T) {
 	}
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "NG1").
 		Return(addresses, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode-lookup",
@@ -506,17 +506,17 @@ func TestPostChooseAttorneysPostcodeLookupError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Print", expectedError)
+	logger.EXPECT().
+		Print(expectedError)
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "NG1").
 		Return([]place.Address{}, expectedError)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode",
@@ -557,17 +557,17 @@ func TestPostChooseAttorneysPostcodeLookupInvalidPostcodeError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Print", invalidPostcodeErr)
+	logger.EXPECT().
+		Print(invalidPostcodeErr)
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "XYZ").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "XYZ").
 		Return([]place.Address{}, invalidPostcodeErr)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode",
@@ -604,13 +604,13 @@ func TestPostChooseAttorneysPostcodeLookupValidPostcodeNoAddresses(t *testing.T)
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "XYZ").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "XYZ").
 		Return([]place.Address{}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode",
@@ -645,8 +645,8 @@ func TestPostChooseAttorneysPostcodeLookupWhenValidationError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action: "postcode",
@@ -679,8 +679,8 @@ func TestPostChooseAttorneysAddressReuse(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action: "reuse",
@@ -727,8 +727,8 @@ func TestPostChooseAttorneysAddressReuseSelect(t *testing.T) {
 	}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:     "lpa-id",
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{updatedAttorney}},
 			Tasks:     actor.DonorTasks{ChooseAttorneys: actor.TaskInProgress},
@@ -756,8 +756,8 @@ func TestPostChooseAttorneysAddressReuseSelectWhenValidationError(t *testing.T) 
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action: "reuse-select",
@@ -829,8 +829,8 @@ func TestPostChooseAttorneysManuallyFromAnotherPage(t *testing.T) {
 			}
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), donor).
+			donorStore.EXPECT().
+				Put(r.Context(), donor).
 				Return(nil)
 
 			err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, donor)

@@ -17,8 +17,8 @@ func TestGetSendUsYourEvidenceByPost(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/about-payment", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &sendUsYourEvidenceByPostData{App: testAppData}).
+	template.EXPECT().
+		Execute(w, &sendUsYourEvidenceByPostData{App: testAppData}).
 		Return(nil)
 
 	err := SendUsYourEvidenceByPost(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -33,8 +33,8 @@ func TestGetSendUsYourEvidenceByPostWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/about-payment", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &sendUsYourEvidenceByPostData{App: testAppData}).
+	template.EXPECT().
+		Execute(w, &sendUsYourEvidenceByPostData{App: testAppData}).
 		Return(expectedError)
 
 	err := SendUsYourEvidenceByPost(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -51,8 +51,8 @@ func TestPostSendUsYourEvidenceByPost(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Post}
 
 	eventClient := newMockEventClient(t)
-	eventClient.
-		On("SendReducedFeeRequested", r.Context(), event.ReducedFeeRequested{
+	eventClient.EXPECT().
+		SendReducedFeeRequested(r.Context(), event.ReducedFeeRequested{
 			UID:              "lpa-uid",
 			RequestType:      pay.HalfFee.String(),
 			EvidenceDelivery: pay.Post.String(),
@@ -60,8 +60,8 @@ func TestPostSendUsYourEvidenceByPost(t *testing.T) {
 		Return(nil)
 
 	payer := newMockPayer(t)
-	payer.
-		On("Pay", testAppData, w, r, donor).
+	payer.EXPECT().
+		Pay(testAppData, w, r, donor).
 		Return(nil)
 
 	err := SendUsYourEvidenceByPost(nil, payer, eventClient)(testAppData, w, r, donor)
@@ -73,8 +73,8 @@ func TestPostSendUsYourEvidenceByPostWhenEventClientErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
 	eventClient := newMockEventClient(t)
-	eventClient.
-		On("SendReducedFeeRequested", r.Context(), mock.Anything).
+	eventClient.EXPECT().
+		SendReducedFeeRequested(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := SendUsYourEvidenceByPost(nil, nil, eventClient)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -86,13 +86,13 @@ func TestPostSendUsYourEvidenceByPostWhenPayerErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
 	eventClient := newMockEventClient(t)
-	eventClient.
-		On("SendReducedFeeRequested", r.Context(), mock.Anything).
+	eventClient.EXPECT().
+		SendReducedFeeRequested(r.Context(), mock.Anything).
 		Return(nil)
 
 	payer := newMockPayer(t)
-	payer.
-		On("Pay", testAppData, w, r, mock.Anything).
+	payer.EXPECT().
+		Pay(testAppData, w, r, mock.Anything).
 		Return(expectedError)
 
 	err := SendUsYourEvidenceByPost(nil, payer, eventClient)(testAppData, w, r, &actor.DonorProvidedDetails{})

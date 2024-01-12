@@ -19,8 +19,8 @@ func TestGetLpaType(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &lpaTypeData{
+	template.EXPECT().
+		Execute(w, &lpaTypeData{
 			App:     testAppData,
 			Form:    &lpaTypeForm{},
 			Options: actor.LpaTypeValues,
@@ -39,8 +39,8 @@ func TestGetLpaTypeFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &lpaTypeData{
+	template.EXPECT().
+		Execute(w, &lpaTypeData{
 			App: testAppData,
 			Form: &lpaTypeForm{
 				LpaType: actor.LpaTypePropertyAndAffairs,
@@ -61,8 +61,8 @@ func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := LpaType(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -98,8 +98,8 @@ func TestPostLpaType(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), donor).
+			donorStore.EXPECT().
+				Put(r.Context(), donor).
 				Return(nil)
 
 			err := LpaType(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
@@ -145,8 +145,8 @@ func TestPostLpaTypeWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := LpaType(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -160,8 +160,8 @@ func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *lpaTypeData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *lpaTypeData) bool {
 			return assert.Equal(t, validation.With("lpa-type", validation.SelectError{Label: "theTypeOfLpaToMake"}), data.Errors)
 		})).
 		Return(nil)
