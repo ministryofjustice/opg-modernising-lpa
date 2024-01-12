@@ -5,9 +5,9 @@ $govuk-new-link-styles: true;
 // dependencies from GOVUK frontend
 // if this is throwing errors, check that you have govuk-frontend installed and that the load paths are correct
 
-@import "node_modules/govuk-frontend/govuk/base";
-@import "node_modules/govuk-frontend/govuk/objects/width-container";
-@import "node_modules/govuk-frontend/govuk/objects/grid";
+@import "node_modules/govuk-frontend/dist/govuk/base";
+@import "node_modules/govuk-frontend/dist/govuk/objects/width-container";
+@import "node_modules/govuk-frontend/dist/govuk/objects/grid";
 
 // end dependencies from GOVUK frontend
 
@@ -266,8 +266,6 @@ $govuk-header-link-underline-thickness: 3px;
   &:active {
     // Negate the added border
     margin-bottom: $govuk-header-link-underline-thickness * -1;
-    // Omitting colour will use default value of currentColor – if we
-    // specified currentColor explicitly IE8 would ignore this rule.
     border-bottom: $govuk-header-link-underline-thickness solid;
   }
 
