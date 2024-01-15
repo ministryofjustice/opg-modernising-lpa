@@ -1013,6 +1013,7 @@
     "yourDateOfBirthWarning": "Welsh",
     "detailUpdated": "{{ .Detail }} Welsh",
     "weHaveUpdatedYourDetail" : "Welsh {{ .Detail }}.",
+    "weHaveUpdatedYourDetails" : "Welsh",
     "yourDetailHasBeenUpdated" : "Welsh {{ .Detail }} Welsh",
     "howeverItWillNotApplyToAnySignedOrRegisteredLPAs": "<p class=\"govuk-body\">Welsh <a href=\"#\" class=\"gov-link\">Welsh</a> Welsh {{ .Detail }} Welsh</p>",
     "ifYoureInProcessOfMakingAnotherLPACheckIfDetailIsCorrect": "Welsh {{ .Detail }} Welsh"
