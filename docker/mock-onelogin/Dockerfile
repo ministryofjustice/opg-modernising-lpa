@@ -1,4 +1,4 @@
-FROM golang:1.21.5-alpine as build-env
+FROM golang:1.21.6-alpine as build-env
 
 RUN apk --no-cache add openssl
 

@@ -25,8 +25,8 @@ func TestGetChangeMobileNumber(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, &changeMobileNumberData{
+			template.EXPECT().
+				Execute(w, &changeMobileNumberData{
 					App:        testAppData,
 					Form:       &changeMobileNumberForm{},
 					ActorType:  actorType,
@@ -93,8 +93,8 @@ func TestGetChangeMobileNumberFromStore(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, &changeMobileNumberData{
+			template.EXPECT().
+				Execute(w, &changeMobileNumberData{
 					App:       testAppData,
 					Form:      &changeMobileNumberForm{},
 					ActorType: tc.actorType,
@@ -115,8 +115,8 @@ func TestGetChangeMobileNumberWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := ChangeMobileNumber(template.Execute, newMockWitnessCodeSender(t), actor.TypeCertificateProvider)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -234,8 +234,8 @@ func TestPostChangeMobileNumberWhenSendErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	witnessCodeSender := newMockWitnessCodeSender(t)
-	witnessCodeSender.
-		On("SendToCertificateProvider", mock.Anything, mock.Anything, mock.Anything).
+	witnessCodeSender.EXPECT().
+		SendToCertificateProvider(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := ChangeMobileNumber(nil, witnessCodeSender, actor.TypeCertificateProvider)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
@@ -252,13 +252,13 @@ func TestPostChangeMobileNumberWhenSendErrorsWithTooManyRequests(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	witnessCodeSender := newMockWitnessCodeSender(t)
-	witnessCodeSender.
-		On("SendToCertificateProvider", mock.Anything, mock.Anything, mock.Anything).
+	witnessCodeSender.EXPECT().
+		SendToCertificateProvider(mock.Anything, mock.Anything, mock.Anything).
 		Return(page.ErrTooManyWitnessCodeRequests)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *changeMobileNumberData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *changeMobileNumberData) bool {
 			return assert.Equal(t, validation.With("request", validation.CustomError{Label: "pleaseWaitOneMinute"}), data.Errors)
 		})).
 		Return(nil)
@@ -280,8 +280,8 @@ func TestPostChangeMobileNumberWhenValidationError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *changeMobileNumberData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *changeMobileNumberData) bool {
 			return assert.Equal(t, validation.With("mobile", validation.CustomError{Label: "enterAMobileNumberInTheCorrectFormat"}), data.Errors)
 		})).
 		Return(nil)

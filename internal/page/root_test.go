@@ -24,8 +24,8 @@ func TestRootNotFound(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/what", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &rootData{App: TestAppData}).
+	template.EXPECT().
+		Execute(w, &rootData{App: TestAppData}).
 		Return(nil)
 
 	Root(template.Execute, nil)(TestAppData, w, r)
@@ -39,13 +39,13 @@ func TestRootNotFoundTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/what", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &rootData{App: TestAppData}).
+	template.EXPECT().
+		Execute(w, &rootData{App: TestAppData}).
 		Return(expectedError)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Print", "Error rendering page: "+expectedError.Error())
+	logger.EXPECT().
+		Print("Error rendering page: " + expectedError.Error())
 
 	Root(template.Execute, logger)(TestAppData, w, r)
 }

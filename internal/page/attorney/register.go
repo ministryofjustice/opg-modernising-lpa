@@ -19,45 +19,37 @@ import (
 
 type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, details *actor.AttorneyProvidedDetails) error
 
-//go:generate mockery --testonly --inpackage --name Template --structname mockTemplate
 type Template func(io.Writer, interface{}) error
 
-//go:generate mockery --testonly --inpackage --name Logger --structname mockLogger
 type Logger interface {
 	Print(v ...interface{})
 }
 
-//go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore
 type SessionStore interface {
 	Get(r *http.Request, name string) (*sessions.Session, error)
 	New(r *http.Request, name string) (*sessions.Session, error)
 	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
 }
 
-//go:generate mockery --testonly --inpackage --name OneLoginClient --structname mockOneLoginClient
 type OneLoginClient interface {
 	AuthCodeURL(state, nonce, locale string, identity bool) (string, error)
 	Exchange(ctx context.Context, code, nonce string) (idToken, accessToken string, err error)
 	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
 }
 
-//go:generate mockery --testonly --inpackage --name DonorStore --structname mockDonorStore
 type DonorStore interface {
 	GetAny(context.Context) (*actor.DonorProvidedDetails, error)
 }
 
-//go:generate mockery --testonly --inpackage --name ShareCodeStore --structname mockShareCodeStore
 type ShareCodeStore interface {
 	Get(context.Context, actor.Type, string) (actor.ShareCodeData, error)
 	Put(ctx context.Context, actorType actor.Type, shareCode string, data actor.ShareCodeData) error
 }
 
-//go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
 type CertificateProviderStore interface {
 	GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
 }
 
-//go:generate mockery --testonly --inpackage --name AttorneyStore --structname mockAttorneyStore
 type AttorneyStore interface {
 	Create(context.Context, string, string, bool, bool) (*actor.AttorneyProvidedDetails, error)
 	Get(context.Context) (*actor.AttorneyProvidedDetails, error)
@@ -65,16 +57,20 @@ type AttorneyStore interface {
 	Put(context.Context, *actor.AttorneyProvidedDetails) error
 }
 
-//go:generate mockery --testonly --inpackage --name AddressClient --structname mockAddressClient
 type AddressClient interface {
 	LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error)
 }
 
-//go:generate mockery --testonly --inpackage --name DashboardStore --structname mockDashboardStore
 type DashboardStore interface {
 	GetAll(ctx context.Context) (donor, attorney, certificateProvider []page.LpaAndActorTasks, err error)
 	SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error)
 }
+
+type LpaStoreClient interface {
+	SendAttorney(context.Context, *actor.DonorProvidedDetails, *actor.AttorneyProvidedDetails) error
+}
+
+type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 func Register(
 	rootMux *http.ServeMux,
@@ -89,6 +85,7 @@ func Register(
 	errorHandler page.ErrorHandler,
 	notFoundHandler page.Handler,
 	dashboardStore DashboardStore,
+	lpaStoreClient LpaStoreClient,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -120,9 +117,9 @@ func Register(
 	handleAttorney(page.Paths.Attorney.WhatHappensWhenYouSign, RequireAttorney,
 		Guidance(tmpls.Get("attorney_what_happens_when_you_sign.gohtml"), donorStore))
 	handleAttorney(page.Paths.Attorney.Sign, RequireAttorney,
-		Sign(tmpls.Get("attorney_sign.gohtml"), donorStore, certificateProviderStore, attorneyStore, time.Now))
+		Sign(tmpls.Get("attorney_sign.gohtml"), donorStore, certificateProviderStore, attorneyStore, lpaStoreClient, time.Now))
 	handleAttorney(page.Paths.Attorney.WouldLikeSecondSignatory, RequireAttorney,
-		WouldLikeSecondSignatory(tmpls.Get("attorney_would_like_second_signatory.gohtml"), attorneyStore))
+		WouldLikeSecondSignatory(tmpls.Get("attorney_would_like_second_signatory.gohtml"), attorneyStore, donorStore, lpaStoreClient))
 	handleAttorney(page.Paths.Attorney.WhatHappensNext, RequireAttorney,
 		Guidance(tmpls.Get("attorney_what_happens_next.gohtml"), donorStore))
 	handleAttorney(page.Paths.Attorney.Progress, RequireAttorney,

@@ -47,8 +47,8 @@ func TestClientSendEvents(t *testing.T) {
 			data, _ := json.Marshal(event)
 
 			svc := newMockEventbridgeClient(t)
-			svc.
-				On("PutEvents", mock.Anything, &eventbridge.PutEventsInput{
+			svc.EXPECT().
+				PutEvents(mock.Anything, &eventbridge.PutEventsInput{
 					Entries: []types.PutEventsRequestEntry{{
 						EventBusName: aws.String("my-bus"),
 						Source:       aws.String("opg.poas.makeregister"),

@@ -20,8 +20,8 @@ func TestGetDoYouWantToNotifyPeople(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &doYouWantToNotifyPeopleData{
+	template.EXPECT().
+		Execute(w, &doYouWantToNotifyPeopleData{
 			App:     testAppData,
 			Donor:   &actor.DonorProvidedDetails{},
 			Form:    &form.YesNoForm{},
@@ -41,8 +41,8 @@ func TestGetDoYouWantToNotifyPeopleFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &doYouWantToNotifyPeopleData{
+	template.EXPECT().
+		Execute(w, &doYouWantToNotifyPeopleData{
 			App: testAppData,
 			Donor: &actor.DonorProvidedDetails{
 				DoYouWantToNotifyPeople: form.Yes,
@@ -88,8 +88,8 @@ func TestGetDoYouWantToNotifyPeopleHowAttorneysWorkTogether(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, &doYouWantToNotifyPeopleData{
+			template.EXPECT().
+				Execute(w, &doYouWantToNotifyPeopleData{
 					App: testAppData,
 					Donor: &actor.DonorProvidedDetails{
 						DoYouWantToNotifyPeople: form.Yes,
@@ -139,8 +139,8 @@ func TestGetDoYouWantToNotifyPeopleWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -182,8 +182,8 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID:                   "lpa-id",
 					DoYouWantToNotifyPeople: tc.YesNo,
 					Tasks: actor.DonorTasks{
@@ -229,8 +229,8 @@ func TestPostDoYouWantToNotifyPeopleWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			DoYouWantToNotifyPeople: form.Yes,
 			Tasks:                   actor.DonorTasks{PeopleToNotify: actor.TaskInProgress},
 		}).
@@ -247,8 +247,8 @@ func TestPostDoYouWantToNotifyPeopleWhenValidationErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *doYouWantToNotifyPeopleData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *doYouWantToNotifyPeopleData) bool {
 			return assert.Equal(t, validation.With("yes-no", validation.SelectError{Label: "yesToNotifySomeoneAboutYourLpa"}), data.Errors)
 		})).
 		Return(nil)

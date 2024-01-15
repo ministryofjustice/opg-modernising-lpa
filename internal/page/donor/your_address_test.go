@@ -21,8 +21,8 @@ func TestGetYourAddress(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App:       testAppData,
 			Form:      &form.AddressForm{},
 			TitleKeys: testTitleKeys,
@@ -43,8 +43,8 @@ func TestGetYourAddressFromStore(t *testing.T) {
 	address := place.Address{Line1: "abc"}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:  "manual",
@@ -70,8 +70,8 @@ func TestGetYourAddressManual(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/?action=manual", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:  "manual",
@@ -93,8 +93,8 @@ func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App:       testAppData,
 			Form:      &form.AddressForm{},
 			TitleKeys: testTitleKeys,
@@ -123,8 +123,8 @@ func TestPostYourAddressManual(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Donor: actor.Donor{
 				Address: testAddress,
@@ -161,8 +161,8 @@ func TestPostYourAddressManualWhenPostcodeNotChanged(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Donor: actor.Donor{
 				Address: testAddress,
@@ -200,8 +200,8 @@ func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			Donor: actor.Donor{
 				Address: testAddress,
 			},
@@ -228,8 +228,8 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Donor: actor.Donor{
 				FirstNames: "John",
@@ -265,8 +265,8 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action: "manual",
@@ -308,8 +308,8 @@ func TestPostYourAddressSelect(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "manual",
@@ -342,13 +342,13 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 	}
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "NG1").
 		Return(addresses, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode-select",
@@ -382,13 +382,13 @@ func TestPostYourAddressLookup(t *testing.T) {
 	}
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "NG1").
 		Return(addresses, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode-lookup",
@@ -417,17 +417,17 @@ func TestPostYourAddressLookupError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Print", expectedError)
+	logger.EXPECT().
+		Print(expectedError)
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "NG1").
 		Return([]place.Address{}, expectedError)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode",
@@ -462,17 +462,17 @@ func TestPostYourAddressInvalidPostcodeError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Print", invalidPostcodeErr)
+	logger.EXPECT().
+		Print(invalidPostcodeErr)
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "XYZ").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "XYZ").
 		Return([]place.Address{}, invalidPostcodeErr)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode",
@@ -505,13 +505,13 @@ func TestPostYourAddressValidPostcodeNoAddresses(t *testing.T) {
 	logger := newMockLogger(t)
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "XYZ").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "XYZ").
 		Return([]place.Address{}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode",
@@ -540,8 +540,8 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action: "postcode",

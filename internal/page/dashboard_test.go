@@ -23,13 +23,13 @@ func TestGetDashboard(t *testing.T) {
 	attorneyLpas := []LpaAndActorTasks{{Donor: &actor.DonorProvidedDetails{LpaID: "def"}}}
 
 	dashboardStore := newMockDashboardStore(t)
-	dashboardStore.
-		On("GetAll", r.Context()).
+	dashboardStore.EXPECT().
+		GetAll(r.Context()).
 		Return(donorLpas, attorneyLpas, certificateProviderLpas, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &dashboardData{
+	template.EXPECT().
+		Execute(w, &dashboardData{
 			App:                     AppData{},
 			UseTabs:                 true,
 			DonorLpas:               donorLpas,
@@ -55,13 +55,13 @@ func TestGetDashboardOnlyDonor(t *testing.T) {
 	}
 
 	dashboardStore := newMockDashboardStore(t)
-	dashboardStore.
-		On("GetAll", r.Context()).
+	dashboardStore.EXPECT().
+		GetAll(r.Context()).
 		Return(donorLpas, nil, nil, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &dashboardData{
+	template.EXPECT().
+		Execute(w, &dashboardData{
 			App:       AppData{},
 			DonorLpas: donorLpas,
 		}).
@@ -79,8 +79,8 @@ func TestGetDashboardWhenDashboardStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	dashboardStore := newMockDashboardStore(t)
-	dashboardStore.
-		On("GetAll", r.Context()).
+	dashboardStore.EXPECT().
+		GetAll(r.Context()).
 		Return(nil, nil, nil, expectedError)
 
 	err := Dashboard(nil, nil, dashboardStore)(AppData{}, w, r)
@@ -95,13 +95,13 @@ func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	dashboardStore := newMockDashboardStore(t)
-	dashboardStore.
-		On("GetAll", r.Context()).
+	dashboardStore.EXPECT().
+		GetAll(r.Context()).
 		Return(nil, nil, nil, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := Dashboard(template.Execute, nil, dashboardStore)(AppData{}, w, r)
@@ -134,13 +134,13 @@ func TestPostDashboard(t *testing.T) {
 			attorneyLpas := []LpaAndActorTasks{{Donor: &actor.DonorProvidedDetails{LpaID: "def"}}}
 
 			dashboardStore := newMockDashboardStore(t)
-			dashboardStore.
-				On("GetAll", r.Context()).
+			dashboardStore.EXPECT().
+				GetAll(r.Context()).
 				Return(tc.DonorLPAs, attorneyLpas, certificateProviderLpas, nil)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Create", r.Context()).
+			donorStore.EXPECT().
+				Create(r.Context()).
 				Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
 
 			err := Dashboard(nil, donorStore, dashboardStore)(AppData{}, w, r)
@@ -163,8 +163,8 @@ func TestPostDashboardWhenDonorStoreError(t *testing.T) {
 		Return([]LpaAndActorTasks{}, []LpaAndActorTasks{}, []LpaAndActorTasks{}, nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Create", r.Context()).
+	donorStore.EXPECT().
+		Create(r.Context()).
 		Return(&actor.DonorProvidedDetails{LpaID: "123"}, expectedError)
 
 	err := Dashboard(nil, donorStore, dashboardStore)(AppData{}, w, r)

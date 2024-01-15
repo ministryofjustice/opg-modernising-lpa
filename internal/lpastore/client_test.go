@@ -247,14 +247,14 @@ func TestClientSendLpa(t *testing.T) {
 			ctx := context.Background()
 
 			secretsClient := newMockSecretsClient(t)
-			secretsClient.
-				On("Secret", ctx, secrets.LpaStoreJwtSecretKey).
+			secretsClient.EXPECT().
+				Secret(ctx, secrets.LpaStoreJwtSecretKey).
 				Return("secret", nil)
 
 			var body []byte
 			doer := newMockDoer(t)
-			doer.
-				On("Do", mock.MatchedBy(func(req *http.Request) bool {
+			doer.EXPECT().
+				Do(mock.MatchedBy(func(req *http.Request) bool {
 					if body == nil {
 						body, _ = io.ReadAll(req.Body)
 					}
@@ -288,8 +288,8 @@ func TestClientSendLpaWhenSecretsClientError(t *testing.T) {
 	ctx := context.Background()
 
 	secretsClient := newMockSecretsClient(t)
-	secretsClient.
-		On("Secret", mock.Anything, mock.Anything).
+	secretsClient.EXPECT().
+		Secret(mock.Anything, mock.Anything).
 		Return("", expectedError)
 
 	client := New("http://base", secretsClient, nil)
@@ -302,13 +302,13 @@ func TestClientSendLpaWhenDoerError(t *testing.T) {
 	ctx := context.Background()
 
 	secretsClient := newMockSecretsClient(t)
-	secretsClient.
-		On("Secret", mock.Anything, mock.Anything).
+	secretsClient.EXPECT().
+		Secret(mock.Anything, mock.Anything).
 		Return("secret", nil)
 
 	doer := newMockDoer(t)
-	doer.
-		On("Do", mock.Anything).
+	doer.EXPECT().
+		Do(mock.Anything).
 		Return(nil, expectedError)
 
 	client := New("http://base", secretsClient, doer)
@@ -321,13 +321,13 @@ func TestClientSendLpaWhenStatusCodeIsNotCreated(t *testing.T) {
 	ctx := context.Background()
 
 	secretsClient := newMockSecretsClient(t)
-	secretsClient.
-		On("Secret", mock.Anything, mock.Anything).
+	secretsClient.EXPECT().
+		Secret(mock.Anything, mock.Anything).
 		Return("secret", nil)
 
 	doer := newMockDoer(t)
-	doer.
-		On("Do", mock.Anything).
+	doer.EXPECT().
+		Do(mock.Anything).
 		Return(&http.Response{StatusCode: http.StatusBadRequest, Body: io.NopCloser(strings.NewReader("hey"))}, nil)
 
 	client := New("http://base", secretsClient, doer)
@@ -356,14 +356,14 @@ func TestClientSendCertificateProvider(t *testing.T) {
 	ctx := context.Background()
 
 	secretsClient := newMockSecretsClient(t)
-	secretsClient.
-		On("Secret", ctx, secrets.LpaStoreJwtSecretKey).
+	secretsClient.EXPECT().
+		Secret(ctx, secrets.LpaStoreJwtSecretKey).
 		Return("secret", nil)
 
 	var body []byte
 	doer := newMockDoer(t)
-	doer.
-		On("Do", mock.MatchedBy(func(req *http.Request) bool {
+	doer.EXPECT().
+		Do(mock.MatchedBy(func(req *http.Request) bool {
 			if body == nil {
 				body, _ = io.ReadAll(req.Body)
 			}
@@ -382,6 +382,131 @@ func TestClientSendCertificateProvider(t *testing.T) {
 	err := client.SendCertificateProvider(ctx, "lpa-uid", certificateProvider)
 
 	assert.Nil(t, err)
+}
+
+func TestClientSendAttorney(t *testing.T) {
+	testcases := map[string]struct {
+		attorney *actor.AttorneyProvidedDetails
+		donor    *actor.DonorProvidedDetails
+		json     string
+	}{
+		"attorney": {
+			attorney: &actor.AttorneyProvidedDetails{
+				ID:                        "xyz",
+				Mobile:                    "07777",
+				Confirmed:                 time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				ContactLanguagePreference: localize.Cy,
+			},
+			donor: &actor.DonorProvidedDetails{
+				LpaUID: "lpa-uid",
+				Attorneys: actor.Attorneys{
+					Attorneys: []actor.Attorney{
+						{ID: "abc"}, {ID: "xyz"},
+					},
+				},
+			},
+			json: `{"type":"ATTORNEY_SIGN","changes":[{"key":"/attorneys/1/mobile","old":null,"new":"07777"},{"key":"/attorneys/1/contactLanguagePreference","old":null,"new":"cy"},{"key":"/attorneys/1/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"}]}`,
+		},
+		"replacement attorney": {
+			attorney: &actor.AttorneyProvidedDetails{
+				ID:                        "xyz",
+				IsReplacement:             true,
+				Mobile:                    "07777",
+				Confirmed:                 time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				ContactLanguagePreference: localize.Cy,
+			},
+			donor: &actor.DonorProvidedDetails{
+				LpaUID: "lpa-uid",
+				Attorneys: actor.Attorneys{
+					Attorneys: []actor.Attorney{
+						{ID: "abc"}, {ID: "xyz"},
+					},
+				},
+				ReplacementAttorneys: actor.Attorneys{
+					Attorneys: []actor.Attorney{
+						{ID: "abc"}, {ID: "xyz"},
+					},
+				},
+			},
+			json: `{"type":"ATTORNEY_SIGN","changes":[{"key":"/attorneys/3/mobile","old":null,"new":"07777"},{"key":"/attorneys/3/contactLanguagePreference","old":null,"new":"cy"},{"key":"/attorneys/3/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"}]}`,
+		},
+		"trust corporation": {
+			attorney: &actor.AttorneyProvidedDetails{
+				ID:                 "xyz",
+				IsTrustCorporation: true,
+				Mobile:             "07777",
+				AuthorisedSignatories: [2]actor.TrustCorporationSignatory{{
+					FirstNames:        "John",
+					LastName:          "Signer",
+					ProfessionalTitle: "Director",
+					Confirmed:         time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				}, {
+					FirstNames:        "Dave",
+					LastName:          "Signer",
+					ProfessionalTitle: "Assistant to the Director",
+					Confirmed:         time.Date(2000, time.January, 2, 3, 4, 5, 7, time.UTC),
+				}},
+				ContactLanguagePreference: localize.En,
+			},
+			donor: &actor.DonorProvidedDetails{
+				LpaUID: "lpa-uid",
+			},
+			json: `{"type":"ATTORNEY_SIGN","changes":[{"key":"/trustCorporations/0/mobile","old":null,"new":"07777"},{"key":"/trustCorporations/0/contactLanguagePreference","old":null,"new":"en"},{"key":"/trustCorporations/0/signatories/0/firstNames","old":null,"new":"John"},{"key":"/trustCorporations/0/signatories/0/lastName","old":null,"new":"Signer"},{"key":"/trustCorporations/0/signatories/0/professionalTitle","old":null,"new":"Director"},{"key":"/trustCorporations/0/signatories/0/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"},{"key":"/trustCorporations/0/signatories/1/firstNames","old":null,"new":"Dave"},{"key":"/trustCorporations/0/signatories/1/lastName","old":null,"new":"Signer"},{"key":"/trustCorporations/0/signatories/1/professionalTitle","old":null,"new":"Assistant to the Director"},{"key":"/trustCorporations/0/signatories/1/signedAt","old":null,"new":"2000-01-02T03:04:05.000000007Z"}]}`,
+		},
+		"replacement trust corporation": {
+			attorney: &actor.AttorneyProvidedDetails{
+				ID:                 "xyz",
+				IsTrustCorporation: true,
+				IsReplacement:      true,
+				Mobile:             "07777",
+				AuthorisedSignatories: [2]actor.TrustCorporationSignatory{{
+					FirstNames:        "John",
+					LastName:          "Signer",
+					ProfessionalTitle: "Director",
+					Confirmed:         time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				}},
+				ContactLanguagePreference: localize.En,
+			},
+			donor: &actor.DonorProvidedDetails{
+				LpaUID: "lpa-uid",
+			},
+			json: `{"type":"ATTORNEY_SIGN","changes":[{"key":"/trustCorporations/1/mobile","old":null,"new":"07777"},{"key":"/trustCorporations/1/contactLanguagePreference","old":null,"new":"en"},{"key":"/trustCorporations/1/signatories/0/firstNames","old":null,"new":"John"},{"key":"/trustCorporations/1/signatories/0/lastName","old":null,"new":"Signer"},{"key":"/trustCorporations/1/signatories/0/professionalTitle","old":null,"new":"Director"},{"key":"/trustCorporations/1/signatories/0/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"}]}`,
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			ctx := context.Background()
+
+			secretsClient := newMockSecretsClient(t)
+			secretsClient.EXPECT().
+				Secret(ctx, secrets.LpaStoreJwtSecretKey).
+				Return("secret", nil)
+
+			var body []byte
+			doer := newMockDoer(t)
+			doer.EXPECT().
+				Do(mock.MatchedBy(func(req *http.Request) bool {
+					if body == nil {
+						body, _ = io.ReadAll(req.Body)
+					}
+
+					return assert.Equal(t, ctx, req.Context()) &&
+						assert.Equal(t, http.MethodPost, req.Method) &&
+						assert.Equal(t, "http://base/lpas/lpa-uid/updates", req.URL.String()) &&
+						assert.Equal(t, "application/json", req.Header.Get("Content-Type")) &&
+						assert.Equal(t, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3ODIyNDV9.6XFN3faS16wZf0garTwR4NSBxjFrAGKK3I04nK0ItMk", req.Header.Get("X-Jwt-Authorization")) &&
+						assert.JSONEq(t, tc.json, string(body))
+				})).
+				Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
+
+			client := New("http://base", secretsClient, doer)
+			client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
+			err := client.SendAttorney(ctx, tc.donor, tc.attorney)
+
+			assert.Nil(t, err)
+		})
+	}
 }
 
 func TestClientServiceContract(t *testing.T) {
@@ -517,8 +642,8 @@ func TestClientServiceContract(t *testing.T) {
 			baseURL := fmt.Sprintf("http://localhost:%d", pact.Server.Port)
 
 			secretsClient := newMockSecretsClient(t)
-			secretsClient.
-				On("Secret", mock.Anything, mock.Anything).
+			secretsClient.EXPECT().
+				Secret(mock.Anything, mock.Anything).
 				Return("secret", nil)
 
 			client := &Client{
@@ -575,11 +700,11 @@ func TestClientServiceContract(t *testing.T) {
 		})
 	})
 
-	t.Run("SendCertificateProvider", func(t *testing.T) {
+	t.Run("sendUpdate", func(t *testing.T) {
 		pact.
 			AddInteraction().
 			Given("The lpa store is available").
-			UponReceiving("A request to create a certificate provider for a case").
+			UponReceiving("A request to update the lpa").
 			WithRequest(dsl.Request{
 				Method: http.MethodPost,
 				Path:   dsl.String("/lpas/M-0000-1111-2222/updates"),
@@ -590,10 +715,11 @@ func TestClientServiceContract(t *testing.T) {
 					"X-Jwt-Authorization": dsl.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+"),
 				},
 				Body: dsl.Like(map[string]any{
-					"type": dsl.Like("CERTIFICATE_PROVIDER_SIGN"),
+					"type": dsl.Like("A_TYPE"),
 					"changes": dsl.EachLike(map[string]any{
-						"key": dsl.Like("/path"),
-						"new": dsl.Like("value"),
+						"key": dsl.Like("/a/key"),
+						"old": dsl.Like("old"),
+						"new": dsl.Like("new"),
 					}, 1),
 				}),
 			}).
@@ -606,8 +732,8 @@ func TestClientServiceContract(t *testing.T) {
 			baseURL := fmt.Sprintf("http://localhost:%d", pact.Server.Port)
 
 			secretsClient := newMockSecretsClient(t)
-			secretsClient.
-				On("Secret", mock.Anything, mock.Anything).
+			secretsClient.EXPECT().
+				Secret(mock.Anything, mock.Anything).
 				Return("secret", nil)
 
 			client := &Client{
@@ -617,10 +743,11 @@ func TestClientServiceContract(t *testing.T) {
 				now:           now,
 			}
 
-			err := client.SendCertificateProvider(context.Background(), "M-0000-1111-2222", &actor.CertificateProviderProvidedDetails{
-				HomeAddress:               address,
-				Certificate:               actor.Certificate{Agreed: now()},
-				ContactLanguagePreference: localize.Cy,
+			err := client.sendUpdate(context.Background(), "M-0000-1111-2222", updateRequest{
+				Type: "A_TYPE",
+				Changes: []updateRequestChange{
+					{Key: "/a/key", Old: "old", New: "new"},
+				},
 			})
 			assert.Nil(t, err)
 			return nil
@@ -663,8 +790,8 @@ func TestCheckHealthOnNewRequestError(t *testing.T) {
 
 func TestCheckHealthOnDoRequestError(t *testing.T) {
 	httpClient := newMockDoer(t)
-	httpClient.
-		On("Do", mock.Anything).
+	httpClient.EXPECT().
+		Do(mock.Anything).
 		Return(nil, expectedError)
 
 	client := New("/", nil, httpClient)

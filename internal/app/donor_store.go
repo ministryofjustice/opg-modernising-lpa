@@ -12,12 +12,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
-//go:generate mockery --testonly --inpackage --name UidClient --structname mockUidClient
 type UidClient interface {
 	CreateCase(context.Context, *uid.CreateCaseRequestBody) (uid.CreateCaseResponse, error)
 }
 
-//go:generate mockery --testonly --inpackage --name EventClient --structname mockEventClient
 type EventClient interface {
 	SendUidRequested(context.Context, event.UidRequested) error
 	SendApplicationUpdated(context.Context, event.ApplicationUpdated) error
@@ -25,7 +23,6 @@ type EventClient interface {
 	SendReducedFeeRequested(context.Context, event.ReducedFeeRequested) error
 }
 
-//go:generate mockery --testonly --inpackage --name DocumentStore --structname mockDocumentStore
 type DocumentStore interface {
 	GetAll(context.Context) (page.Documents, error)
 	Put(context.Context, page.Document) error

@@ -29,8 +29,8 @@ func TestRouteToPrefixWithoutID(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/lpa/", nil)
 
 	notFoundHandler := newMockHandler(t)
-	notFoundHandler.
-		On("Execute", AppData{}, w, r).
+	notFoundHandler.EXPECT().
+		Execute(AppData{}, w, r).
 		Return(nil)
 
 	RouteToPrefix("/lpa/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

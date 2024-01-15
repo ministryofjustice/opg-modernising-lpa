@@ -21,8 +21,8 @@ func TestGetHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &howLongHaveYouKnownCertificateProviderData{
+	template.EXPECT().
+		Execute(w, &howLongHaveYouKnownCertificateProviderData{
 			App:     testAppData,
 			Options: actor.CertificateProviderRelationshipLengthValues,
 		}).
@@ -42,8 +42,8 @@ func TestGetHowLongHaveYouKnownCertificateProviderFromStore(t *testing.T) {
 	certificateProvider := actor.CertificateProvider{RelationshipLength: actor.GreaterThanEqualToTwoYears}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &howLongHaveYouKnownCertificateProviderData{
+	template.EXPECT().
+		Execute(w, &howLongHaveYouKnownCertificateProviderData{
 			App:                 testAppData,
 			CertificateProvider: certificateProvider,
 			RelationshipLength:  actor.GreaterThanEqualToTwoYears,
@@ -63,8 +63,8 @@ func TestGetHowLongHaveYouKnownCertificateProviderWhenTemplateErrors(t *testing.
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &howLongHaveYouKnownCertificateProviderData{
+	template.EXPECT().
+		Execute(w, &howLongHaveYouKnownCertificateProviderData{
 			App:     testAppData,
 			Options: actor.CertificateProviderRelationshipLengthValues,
 		}).
@@ -87,8 +87,8 @@ func TestPostHowLongHaveYouKnownCertificateProviderMoreThan2Years(t *testing.T) 
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:               "lpa-id",
 			Attorneys:           actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}}},
 			AttorneyDecisions:   actor.AttorneyDecisions{How: actor.Jointly},
@@ -137,8 +137,8 @@ func TestPostHowLongHaveYouKnownCertificateProviderWhenStoreErrors(t *testing.T)
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := HowLongHaveYouKnownCertificateProvider(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -152,8 +152,8 @@ func TestPostHowLongHaveYouKnownCertificateProviderWhenValidationErrors(t *testi
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &howLongHaveYouKnownCertificateProviderData{
+	template.EXPECT().
+		Execute(w, &howLongHaveYouKnownCertificateProviderData{
 			App:     testAppData,
 			Errors:  validation.With("relationship-length", validation.SelectError{Label: "howLongYouHaveKnownCertificateProvider"}),
 			Options: actor.CertificateProviderRelationshipLengthValues,

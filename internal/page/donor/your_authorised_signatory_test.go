@@ -20,8 +20,8 @@ func TestGetYourAuthorisedSignatory(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &yourAuthorisedSignatoryData{
+	template.EXPECT().
+		Execute(w, &yourAuthorisedSignatoryData{
 			App:  testAppData,
 			Form: &yourAuthorisedSignatoryForm{},
 		}).
@@ -39,8 +39,8 @@ func TestGetYourAuthorisedSignatoryFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &yourAuthorisedSignatoryData{
+	template.EXPECT().
+		Execute(w, &yourAuthorisedSignatoryData{
 			App: testAppData,
 			Form: &yourAuthorisedSignatoryForm{
 				FirstNames: "John",
@@ -64,8 +64,8 @@ func TestGetYourAuthorisedSignatoryWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -111,8 +111,8 @@ func TestPostYourAuthorisedSignatory(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID:               "lpa-id",
 					Donor:               actor.Donor{FirstNames: "John", LastName: "Smith"},
 					AuthorisedSignatory: tc.person,
@@ -145,8 +145,8 @@ func TestPostYourAuthorisedSignatoryWhenTaskCompleted(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			AuthorisedSignatory: actor.AuthorisedSignatory{
 				FirstNames: "John",
@@ -220,8 +220,8 @@ func TestPostYourAuthorisedSignatoryWhenInputRequired(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, mock.MatchedBy(func(data *yourAuthorisedSignatoryData) bool {
+			template.EXPECT().
+				Execute(w, mock.MatchedBy(func(data *yourAuthorisedSignatoryData) bool {
 					return tc.dataMatcher(t, data)
 				})).
 				Return(nil)
@@ -251,8 +251,8 @@ func TestPostYourAuthorisedSignatoryWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{

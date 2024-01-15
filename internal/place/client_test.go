@@ -105,8 +105,8 @@ func TestLookupPostcode(t *testing.T) {
 		defer server.Close()
 
 		mockDoer := newMockDoer(t)
-		mockDoer.
-			On("Do", mock.Anything).
+		mockDoer.EXPECT().
+			Do(mock.Anything).
 			Return(&http.Response{}, errors.New("an error occurred"))
 
 		client := NewClient(server.URL, "fake-api-key", mockDoer)

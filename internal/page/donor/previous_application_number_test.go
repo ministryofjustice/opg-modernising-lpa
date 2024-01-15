@@ -19,8 +19,8 @@ func TestGetPreviousApplicationNumber(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &previousApplicationNumberData{
+	template.EXPECT().
+		Execute(w, &previousApplicationNumberData{
 			App:  testAppData,
 			Form: &previousApplicationNumberForm{},
 		}).
@@ -38,8 +38,8 @@ func TestGetPreviousApplicationNumberFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &previousApplicationNumberData{
+	template.EXPECT().
+		Execute(w, &previousApplicationNumberData{
 			App: testAppData,
 			Form: &previousApplicationNumberForm{
 				PreviousApplicationNumber: "ABC",
@@ -59,8 +59,8 @@ func TestGetPreviousApplicationNumberWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := PreviousApplicationNumber(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -87,8 +87,8 @@ func TestPostPreviousApplicationNumber(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID:                     "lpa-id",
 					LpaUID:                    "lpa-uid",
 					PreviousApplicationNumber: start,
@@ -139,8 +139,8 @@ func TestPostPreviousApplicationNumberWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := PreviousApplicationNumber(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -153,8 +153,8 @@ func TestPostPreviousApplicationNumberWhenValidationErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *previousApplicationNumberData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *previousApplicationNumberData) bool {
 			return assert.Equal(t, validation.With("previous-application-number", validation.EnterError{Label: "previousApplicationNumber"}), data.Errors)
 		})).
 		Return(nil)

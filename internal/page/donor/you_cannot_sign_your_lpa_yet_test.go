@@ -23,8 +23,8 @@ func TestGetYouCannotSignYourLpaYetWithUnder18Actors(t *testing.T) {
 	}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, guidanceData{App: testAppData, Donor: donor}).
+	template.EXPECT().
+		Execute(w, guidanceData{App: testAppData, Donor: donor}).
 		Return(nil)
 
 	err := YouCannotSignYourLpaYet(template.Execute)(testAppData, w, r, donor)
@@ -46,8 +46,8 @@ func TestGetYouCannotSignYourLpaYetWithUnder18ActorsWhenTemplateError(t *testing
 	}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, guidanceData{App: testAppData, Donor: donor}).
+	template.EXPECT().
+		Execute(w, guidanceData{App: testAppData, Donor: donor}).
 		Return(expectedError)
 
 	err := YouCannotSignYourLpaYet(template.Execute)(testAppData, w, r, donor)

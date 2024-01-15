@@ -38,8 +38,8 @@ func TestGetYourDateOfBirth(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &yourDateOfBirthData{
+	template.EXPECT().
+		Execute(w, &yourDateOfBirthData{
 			App:  testAppData,
 			Form: &yourDateOfBirthForm{},
 		}).
@@ -57,8 +57,8 @@ func TestGetYourDateOfBirthFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &yourDateOfBirthData{
+	template.EXPECT().
+		Execute(w, &yourDateOfBirthData{
 			App: testAppData,
 			Form: &yourDateOfBirthForm{
 				Dob: date.New("2000", "1", "2"),
@@ -82,8 +82,8 @@ func TestGetYourDateOfBirthDobWarningIsAlwaysShown(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &yourDateOfBirthData{
+	template.EXPECT().
+		Execute(w, &yourDateOfBirthData{
 			App: testAppData,
 			Form: &yourDateOfBirthForm{
 				Dob: date.New("1900", "01", "02"),
@@ -108,8 +108,8 @@ func TestGetYourDateOfBirthWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := YourDateOfBirth(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{Donor: actor.Donor{FirstNames: "John"}})
@@ -160,8 +160,8 @@ func TestPostYourDateOfBirth(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID: "lpa-id",
 					Donor: tc.person,
 				}).
@@ -198,8 +198,8 @@ func TestPostYourDateOfBirthWhenDetailsNotChanged(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Donor: actor.Donor{
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
@@ -267,8 +267,8 @@ func TestPostYourDateOfBirthWhenInputRequired(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, mock.MatchedBy(func(data *yourDateOfBirthData) bool {
+			template.EXPECT().
+				Execute(w, mock.MatchedBy(func(data *yourDateOfBirthData) bool {
 					return tc.dataMatcher(t, data)
 				})).
 				Return(nil)
@@ -294,8 +294,8 @@ func TestPostYourDateOfBirthWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := YourDateOfBirth(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{

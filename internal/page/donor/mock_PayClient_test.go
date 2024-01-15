@@ -14,6 +14,14 @@ type mockPayClient struct {
 	mock.Mock
 }
 
+type mockPayClient_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockPayClient) EXPECT() *mockPayClient_Expecter {
+	return &mockPayClient_Expecter{mock: &_m.Mock}
+}
+
 // CreatePayment provides a mock function with given fields: _a0, _a1
 func (_m *mockPayClient) CreatePayment(_a0 context.Context, _a1 pay.CreatePaymentBody) (pay.CreatePaymentResponse, error) {
 	ret := _m.Called(_a0, _a1)
@@ -42,6 +50,35 @@ func (_m *mockPayClient) CreatePayment(_a0 context.Context, _a1 pay.CreatePaymen
 	return r0, r1
 }
 
+// mockPayClient_CreatePayment_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreatePayment'
+type mockPayClient_CreatePayment_Call struct {
+	*mock.Call
+}
+
+// CreatePayment is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 pay.CreatePaymentBody
+func (_e *mockPayClient_Expecter) CreatePayment(_a0 interface{}, _a1 interface{}) *mockPayClient_CreatePayment_Call {
+	return &mockPayClient_CreatePayment_Call{Call: _e.mock.On("CreatePayment", _a0, _a1)}
+}
+
+func (_c *mockPayClient_CreatePayment_Call) Run(run func(_a0 context.Context, _a1 pay.CreatePaymentBody)) *mockPayClient_CreatePayment_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(pay.CreatePaymentBody))
+	})
+	return _c
+}
+
+func (_c *mockPayClient_CreatePayment_Call) Return(_a0 pay.CreatePaymentResponse, _a1 error) *mockPayClient_CreatePayment_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockPayClient_CreatePayment_Call) RunAndReturn(run func(context.Context, pay.CreatePaymentBody) (pay.CreatePaymentResponse, error)) *mockPayClient_CreatePayment_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetPayment provides a mock function with given fields: _a0, _a1
 func (_m *mockPayClient) GetPayment(_a0 context.Context, _a1 string) (pay.GetPaymentResponse, error) {
 	ret := _m.Called(_a0, _a1)
@@ -68,6 +105,35 @@ func (_m *mockPayClient) GetPayment(_a0 context.Context, _a1 string) (pay.GetPay
 	}
 
 	return r0, r1
+}
+
+// mockPayClient_GetPayment_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPayment'
+type mockPayClient_GetPayment_Call struct {
+	*mock.Call
+}
+
+// GetPayment is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 string
+func (_e *mockPayClient_Expecter) GetPayment(_a0 interface{}, _a1 interface{}) *mockPayClient_GetPayment_Call {
+	return &mockPayClient_GetPayment_Call{Call: _e.mock.On("GetPayment", _a0, _a1)}
+}
+
+func (_c *mockPayClient_GetPayment_Call) Run(run func(_a0 context.Context, _a1 string)) *mockPayClient_GetPayment_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *mockPayClient_GetPayment_Call) Return(_a0 pay.GetPaymentResponse, _a1 error) *mockPayClient_GetPayment_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockPayClient_GetPayment_Call) RunAndReturn(run func(context.Context, string) (pay.GetPaymentResponse, error)) *mockPayClient_GetPayment_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockPayClient creates a new instance of mockPayClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

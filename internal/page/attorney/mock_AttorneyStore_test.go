@@ -15,6 +15,14 @@ type mockAttorneyStore struct {
 	mock.Mock
 }
 
+type mockAttorneyStore_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockAttorneyStore) EXPECT() *mockAttorneyStore_Expecter {
+	return &mockAttorneyStore_Expecter{mock: &_m.Mock}
+}
+
 // Create provides a mock function with given fields: _a0, _a1, _a2, _a3, _a4
 func (_m *mockAttorneyStore) Create(_a0 context.Context, _a1 string, _a2 string, _a3 bool, _a4 bool) (*actor.AttorneyProvidedDetails, error) {
 	ret := _m.Called(_a0, _a1, _a2, _a3, _a4)
@@ -43,6 +51,38 @@ func (_m *mockAttorneyStore) Create(_a0 context.Context, _a1 string, _a2 string,
 	}
 
 	return r0, r1
+}
+
+// mockAttorneyStore_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
+type mockAttorneyStore_Create_Call struct {
+	*mock.Call
+}
+
+// Create is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 string
+//   - _a2 string
+//   - _a3 bool
+//   - _a4 bool
+func (_e *mockAttorneyStore_Expecter) Create(_a0 interface{}, _a1 interface{}, _a2 interface{}, _a3 interface{}, _a4 interface{}) *mockAttorneyStore_Create_Call {
+	return &mockAttorneyStore_Create_Call{Call: _e.mock.On("Create", _a0, _a1, _a2, _a3, _a4)}
+}
+
+func (_c *mockAttorneyStore_Create_Call) Run(run func(_a0 context.Context, _a1 string, _a2 string, _a3 bool, _a4 bool)) *mockAttorneyStore_Create_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(bool), args[4].(bool))
+	})
+	return _c
+}
+
+func (_c *mockAttorneyStore_Create_Call) Return(_a0 *actor.AttorneyProvidedDetails, _a1 error) *mockAttorneyStore_Create_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockAttorneyStore_Create_Call) RunAndReturn(run func(context.Context, string, string, bool, bool) (*actor.AttorneyProvidedDetails, error)) *mockAttorneyStore_Create_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // Get provides a mock function with given fields: _a0
@@ -75,6 +115,34 @@ func (_m *mockAttorneyStore) Get(_a0 context.Context) (*actor.AttorneyProvidedDe
 	return r0, r1
 }
 
+// mockAttorneyStore_Get_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Get'
+type mockAttorneyStore_Get_Call struct {
+	*mock.Call
+}
+
+// Get is a helper method to define mock.On call
+//   - _a0 context.Context
+func (_e *mockAttorneyStore_Expecter) Get(_a0 interface{}) *mockAttorneyStore_Get_Call {
+	return &mockAttorneyStore_Get_Call{Call: _e.mock.On("Get", _a0)}
+}
+
+func (_c *mockAttorneyStore_Get_Call) Run(run func(_a0 context.Context)) *mockAttorneyStore_Get_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *mockAttorneyStore_Get_Call) Return(_a0 *actor.AttorneyProvidedDetails, _a1 error) *mockAttorneyStore_Get_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockAttorneyStore_Get_Call) RunAndReturn(run func(context.Context) (*actor.AttorneyProvidedDetails, error)) *mockAttorneyStore_Get_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetAny provides a mock function with given fields: _a0
 func (_m *mockAttorneyStore) GetAny(_a0 context.Context) ([]*actor.AttorneyProvidedDetails, error) {
 	ret := _m.Called(_a0)
@@ -105,6 +173,34 @@ func (_m *mockAttorneyStore) GetAny(_a0 context.Context) ([]*actor.AttorneyProvi
 	return r0, r1
 }
 
+// mockAttorneyStore_GetAny_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAny'
+type mockAttorneyStore_GetAny_Call struct {
+	*mock.Call
+}
+
+// GetAny is a helper method to define mock.On call
+//   - _a0 context.Context
+func (_e *mockAttorneyStore_Expecter) GetAny(_a0 interface{}) *mockAttorneyStore_GetAny_Call {
+	return &mockAttorneyStore_GetAny_Call{Call: _e.mock.On("GetAny", _a0)}
+}
+
+func (_c *mockAttorneyStore_GetAny_Call) Run(run func(_a0 context.Context)) *mockAttorneyStore_GetAny_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *mockAttorneyStore_GetAny_Call) Return(_a0 []*actor.AttorneyProvidedDetails, _a1 error) *mockAttorneyStore_GetAny_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockAttorneyStore_GetAny_Call) RunAndReturn(run func(context.Context) ([]*actor.AttorneyProvidedDetails, error)) *mockAttorneyStore_GetAny_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Put provides a mock function with given fields: _a0, _a1
 func (_m *mockAttorneyStore) Put(_a0 context.Context, _a1 *actor.AttorneyProvidedDetails) error {
 	ret := _m.Called(_a0, _a1)
@@ -121,6 +217,35 @@ func (_m *mockAttorneyStore) Put(_a0 context.Context, _a1 *actor.AttorneyProvide
 	}
 
 	return r0
+}
+
+// mockAttorneyStore_Put_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Put'
+type mockAttorneyStore_Put_Call struct {
+	*mock.Call
+}
+
+// Put is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 *actor.AttorneyProvidedDetails
+func (_e *mockAttorneyStore_Expecter) Put(_a0 interface{}, _a1 interface{}) *mockAttorneyStore_Put_Call {
+	return &mockAttorneyStore_Put_Call{Call: _e.mock.On("Put", _a0, _a1)}
+}
+
+func (_c *mockAttorneyStore_Put_Call) Run(run func(_a0 context.Context, _a1 *actor.AttorneyProvidedDetails)) *mockAttorneyStore_Put_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*actor.AttorneyProvidedDetails))
+	})
+	return _c
+}
+
+func (_c *mockAttorneyStore_Put_Call) Return(_a0 error) *mockAttorneyStore_Put_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockAttorneyStore_Put_Call) RunAndReturn(run func(context.Context, *actor.AttorneyProvidedDetails) error) *mockAttorneyStore_Put_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockAttorneyStore creates a new instance of mockAttorneyStore. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

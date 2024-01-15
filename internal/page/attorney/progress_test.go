@@ -52,18 +52,18 @@ func TestProgress(t *testing.T) {
 			}
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("GetAny", r.Context()).
+			donorStore.EXPECT().
+				GetAny(r.Context()).
 				Return(donor, nil)
 
 			attorneyStore := newMockAttorneyStore(t)
-			attorneyStore.
-				On("GetAny", r.Context()).
+			attorneyStore.EXPECT().
+				GetAny(r.Context()).
 				Return(tc.attorneys, nil)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, &progressData{App: testAppData, Donor: donor, Signed: tc.signed, AttorneysSigned: tc.attorneysSigned}).
+			template.EXPECT().
+				Execute(w, &progressData{App: testAppData, Donor: donor, Signed: tc.signed, AttorneysSigned: tc.attorneysSigned}).
 				Return(nil)
 
 			err := Progress(template.Execute, attorneyStore, donorStore)(testAppData, w, r, tc.attorney)
@@ -80,13 +80,13 @@ func TestProgressWhenAttorneyStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("GetAny", r.Context()).
+	attorneyStore.EXPECT().
+		GetAny(r.Context()).
 		Return(nil, expectedError)
 
 	err := Progress(nil, attorneyStore, donorStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
@@ -100,8 +100,8 @@ func TestProgressWhenDonorStoreErrors(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(donor, expectedError)
 
 	err := Progress(nil, nil, donorStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
@@ -113,18 +113,18 @@ func TestProgressWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("GetAny", r.Context()).
+	attorneyStore.EXPECT().
+		GetAny(r.Context()).
 		Return([]*actor.AttorneyProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &progressData{App: testAppData, Donor: &actor.DonorProvidedDetails{}}).
+	template.EXPECT().
+		Execute(w, &progressData{App: testAppData, Donor: &actor.DonorProvidedDetails{}}).
 		Return(expectedError)
 
 	err := Progress(template.Execute, attorneyStore, donorStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{})

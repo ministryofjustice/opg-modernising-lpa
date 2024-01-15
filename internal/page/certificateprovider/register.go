@@ -20,24 +20,20 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-//go:generate mockery --testonly --inpackage --name Logger --structname mockLogger
 type Logger interface {
 	Print(v ...interface{})
 }
 
-//go:generate mockery --testonly --inpackage --name DonorStore --structname mockDonorStore
 type DonorStore interface {
 	GetAny(context.Context) (*actor.DonorProvidedDetails, error)
 }
 
-//go:generate mockery --testonly --inpackage --name CertificateProviderStore --structname mockCertificateProviderStore
 type CertificateProviderStore interface {
 	Create(ctx context.Context, sessionID string) (*actor.CertificateProviderProvidedDetails, error)
 	Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
 	Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error
 }
 
-//go:generate mockery --testonly --inpackage --name OneLoginClient --structname mockOneLoginClient
 type OneLoginClient interface {
 	AuthCodeURL(state, nonce, locale string, identity bool) (string, error)
 	Exchange(ctx context.Context, code, nonce string) (idToken, accessToken string, err error)
@@ -45,38 +41,31 @@ type OneLoginClient interface {
 	ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error)
 }
 
-//go:generate mockery --testonly --inpackage --name ShareCodeStore --structname mockShareCodeStore
 type ShareCodeStore interface {
 	Get(context.Context, actor.Type, string) (actor.ShareCodeData, error)
 	Put(context.Context, actor.Type, string, actor.ShareCodeData) error
 }
 
-//go:generate mockery --testonly --inpackage --name Template --structname mockTemplate
 type Template func(io.Writer, interface{}) error
 
-//go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore
 type SessionStore interface {
 	Get(r *http.Request, name string) (*sessions.Session, error)
 	New(r *http.Request, name string) (*sessions.Session, error)
 	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
 }
 
-//go:generate mockery --testonly --inpackage --name NotifyClient --structname mockNotifyClient
 type NotifyClient interface {
 	SendEmail(context.Context, string, notify.Email) (string, error)
 }
 
-//go:generate mockery --testonly --inpackage --name ShareCodeSender --structname mockShareCodeSender
 type ShareCodeSender interface {
 	SendAttorneys(context.Context, page.AppData, *actor.DonorProvidedDetails) error
 }
 
-//go:generate mockery --testonly --inpackage --name AddressClient --structname mockAddressClient
 type AddressClient interface {
 	LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error)
 }
 
-//go:generate mockery --testonly --inpackage --name Localizer --structname mockLocalizer
 type Localizer interface {
 	Format(string, map[string]any) string
 	T(string) string
@@ -90,16 +79,16 @@ type Localizer interface {
 	FormatDateTime(time.Time) string
 }
 
-//go:generate mockery --testonly --inpackage --name DashboardStore --structname mockDashboardStore
 type DashboardStore interface {
 	GetAll(ctx context.Context) (donor, attorney, certificateProvider []page.LpaAndActorTasks, err error)
 	SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error)
 }
 
-//go:generate mockery --testonly --inpackage --name LpaStoreClient --structname mockLpaStoreClient
 type LpaStoreClient interface {
 	SendCertificateProvider(context.Context, string, *actor.CertificateProviderProvidedDetails) error
 }
+
+type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 func Register(
 	rootMux *http.ServeMux,
