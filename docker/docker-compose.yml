@@ -41,7 +41,6 @@ services:
       - AWS_BASE_URL=http://localstack:4566
       - AWS_REGION=eu-west-1
       - AWS_SECRET_ACCESS_KEY=fakeAccessKey
-      - LPAS_TABLE=lpas
 
   localstack:
     build:
