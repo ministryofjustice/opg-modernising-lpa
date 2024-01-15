@@ -102,7 +102,7 @@ services:
     container_name: mock-pay
 
   mock-uid:
-    image: outofcoffee/imposter-all:latest
+    image: outofcoffee/imposter:latest
     volumes:
       - ./mock-uid/mock-uid-config.yaml:/opt/imposter/config/mock-uid-config.yaml
       - ./mock-uid/uid.js:/opt/imposter/config/uid.js
