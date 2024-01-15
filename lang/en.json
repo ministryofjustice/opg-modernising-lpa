@@ -853,7 +853,7 @@
     "lpaDeleted": "LPA deleted",
     "lpaNumberHasBeenDeleted": "LPA number <span class=\"govuk-!-font-weight-bold\">{{.UID}}</span> has been deleted.",
     "withdrawThisLpa": "Withdraw this LPA",
-    "whatHappensWhenYouWithdrawYourLpa": "<h2 class=\"govuk-heading-m\">What happens when you withdraw your LPA</h2><p class=\"govuk-body\">If you withdraw your LPA, OPG will notify anyone who has already been contacted in relation to your LPA about your decision to withdraw.</p><p class=\"govuk-body\">OPG will store some information about you that you’ve entered on this or other LPAs. You can reuse this information to make new LPAs in the future.</p><p class=\"govuk-body\">You can read more about how we use your data on the <a href=\"#\">privacy notice</a>.</p><h3 class=\"govuk-heading-s\">If you have already paid</h3><p class=\"govuk-body\">If you withdraw your LPA after you have paid for it, you will lose your fee. This cannot be refunded.</p>",
+    "whatHappensWhenYouWithdrawYourLpa": "<h2 class=\"govuk-heading-m\">What happens when you withdraw your LPA</h2><p class=\"govuk-body\">If you withdraw your LPA, OPG will notify anyone who has already been contacted in relation to your LPA about your decision to withdraw.</p><p class=\"govuk-body\">OPG will store some information about you that you’ve entered on this or other LPAs. You can reuse this information to make new LPAs in the future.</p><p class=\"govuk-body\">You can read more about how we use your data on the <a class=\"govuk-link\" href=\"#\">privacy notice</a>.</p><h3 class=\"govuk-heading-s\">If you have already paid</h3><p class=\"govuk-body\">If you withdraw your LPA after you have paid for it, you will lose your fee. This cannot be refunded.</p>",
     "withdrawingThisLpaIsPermanent": "Withdrawing this LPA is permanent and cannot be undone.",
     "lpaWithdrawn": "LPA withdrawn",
     "youHaveWithdrawnLpaNumber": "You have withdrawn LPA number <span class=\"govuk-!-font-weight-bold\">{{.UID}}</span>.",
@@ -942,5 +942,8 @@
     "uploadedFilesContent": "<h2 class=\"govuk-heading-m\">Uploaded files</h2><p class=\"govuk-body\">These files will be sent to a case worker for review.</p>",
     "previouslyUploadedFiles": "Previously uploaded files",
     "theseFilesHaveAlreadyBeenUploaded": "These files have already been uploaded and seen by a case worker. They cannot be deleted.",
-    "uploadDateAndTime": "Upload date and time"
+    "uploadDateAndTime": "Upload date and time",
+    "added": "added",
+    "pending": "Pending",
+    "denied": "Denied"
 }
