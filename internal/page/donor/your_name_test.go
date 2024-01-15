@@ -118,9 +118,8 @@ func TestGetYourNameWhenTemplateErrors(t *testing.T) {
 
 func TestPostYourName(t *testing.T) {
 	testCases := map[string]struct {
-		form     url.Values
-		person   actor.Donor
-		redirect page.LpaPath
+		form   url.Values
+		person actor.Donor
 	}{
 		"valid": {
 			form: url.Values{
@@ -134,7 +133,6 @@ func TestPostYourName(t *testing.T) {
 				OtherNames: "Deer",
 				Email:      "name@example.com",
 			},
-			redirect: page.Paths.MakeANewLPA,
 		},
 		"warning ignored": {
 			form: url.Values{
@@ -146,7 +144,6 @@ func TestPostYourName(t *testing.T) {
 				LastName:   "Doe",
 				Email:      "name@example.com",
 			},
-			redirect: page.Paths.MakeANewLPA,
 		},
 	}
 
@@ -181,7 +178,7 @@ func TestPostYourName(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, tc.redirect.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.WeHaveUpdatedYourDetails.Format("lpa-id")+"?detail=name", resp.Header.Get("Location"))
 		})
 	}
 }

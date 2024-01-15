@@ -3,6 +3,7 @@ package donor
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -66,7 +67,9 @@ func YourName(tmpl template.Template, donorStore DonorStore, sessionStore sessio
 			}
 
 			if !data.Errors.Any() && data.NameWarning == nil {
-				if donor.Donor.FirstNames != data.Form.FirstNames || donor.Donor.LastName != data.Form.LastName {
+				changesMade := donor.Donor.FirstNames != data.Form.FirstNames || donor.Donor.LastName != data.Form.LastName
+
+				if changesMade {
 					donor.Donor.FirstNames = data.Form.FirstNames
 					donor.Donor.LastName = data.Form.LastName
 
@@ -80,7 +83,11 @@ func YourName(tmpl template.Template, donorStore DonorStore, sessionStore sessio
 					return err
 				}
 
-				return page.Paths.MakeANewLPA.Redirect(w, r, appData, donor)
+				if !changesMade {
+					return page.Paths.MakeANewLPA.Redirect(w, r, appData, donor)
+				}
+
+				return page.Paths.WeHaveUpdatedYourDetails.RedirectQuery(w, r, appData, donor, url.Values{"detail": {"name"}})
 			}
 		}
 

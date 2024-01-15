@@ -33,16 +33,32 @@ func MakeANewLPA(tmpl template.Template, donorStore DonorStore) Handler {
 			Address:     previouslyProvidedDetails.Donor.Address,
 		}
 
-		if previouslyProvidedDetails.Donor.FullName() != donor.Donor.FullName() && donor.Donor.FirstNames != "" {
+		if data.FullName != donor.Donor.FullName() && donor.Donor.FirstNames != "" {
 			data.FullName = donor.Donor.FullName()
+		} else {
+			donor.Donor.FirstNames = previouslyProvidedDetails.Donor.FirstNames
+			donor.Donor.LastName = previouslyProvidedDetails.Donor.LastName
+			donor.Donor.OtherNames = previouslyProvidedDetails.Donor.OtherNames
 		}
 
-		if previouslyProvidedDetails.Donor.DateOfBirth != donor.Donor.DateOfBirth && !donor.Donor.DateOfBirth.IsZero() {
+		if data.DateOfBirth != donor.Donor.DateOfBirth && !donor.Donor.DateOfBirth.IsZero() {
 			data.DateOfBirth = donor.Donor.DateOfBirth
+		} else {
+			donor.Donor.DateOfBirth = previouslyProvidedDetails.Donor.DateOfBirth
 		}
 
-		if previouslyProvidedDetails.Donor.Address != donor.Donor.Address && donor.Donor.Address.String() != "" {
+		if data.Address != donor.Donor.Address && donor.Donor.Address.Line1 != "" {
 			data.Address = donor.Donor.Address
+		} else {
+			donor.Donor.Address = previouslyProvidedDetails.Donor.Address
+		}
+
+		if r.Method == http.MethodPost {
+			if err := donorStore.Put(r.Context(), donor); err != nil {
+				return err
+			}
+
+			return page.Paths.YourDetails.Redirect(w, r, appData, donor)
 		}
 
 		return tmpl(w, data)
