@@ -2,6 +2,7 @@ package donor
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -19,6 +20,18 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 			"",
 			false,
 		)
+
+		makingAnotherLPA := r.URL.Query().Get("from") == page.Paths.MakeANewLPA.Format(donor.LpaID)
+
+		if makingAnotherLPA {
+			previousDetails, err := donorStore.Latest(r.Context())
+			if err != nil {
+				return err
+			}
+
+			data.Form.Action = "manual"
+			data.Form.Address = &previousDetails.Donor.Address
+		}
 
 		if donor.Donor.Address.Line1 != "" {
 			data.Form.Action = "manual"
@@ -42,6 +55,11 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 						return err
 					}
 
+					if makingAnotherLPA {
+						r.Form.Del("from")
+						return page.Paths.WeHaveUpdatedYourDetails.RedirectQuery(w, r, appData, donor, url.Values{"detail": {"address"}})
+					}
+
 					return page.Paths.YourPreferredLanguage.Redirect(w, r, appData, donor)
 				}
 
@@ -61,7 +79,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 			}
 		}
 
-		if r.Method == http.MethodGet {
+		if r.Method == http.MethodGet && data.Form.Address == nil {
 			action := r.FormValue("action")
 			if action == "manual" {
 				data.Form.Action = "manual"

@@ -41,11 +41,12 @@ services:
       - AWS_BASE_URL=http://localstack:4566
       - AWS_REGION=eu-west-1
       - AWS_SECRET_ACCESS_KEY=fakeAccessKey
+      - LPAS_TABLE=lpas
 
   localstack:
     build:
-      context: localstack
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/localstack/Dockerfile
     container_name: localstack
     ports:
       - "127.0.0.1:4566:4566"            # LocalStack Gateway
@@ -54,9 +55,13 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
       - DOCKER_HOST=unix:///var/run/docker.sock
-      - SERVICES=s3,secretsmanager,sqs,dynamodb,events,kms
+      - SERVICES=s3,secretsmanager,sqs,dynamodb,events,kms,lambda
       - DATA_DIR=/tmp/localstack/data
       - DEBUG=1
+      - AWS_ACCESS_KEY_ID=fakeKeyId
+      - AWS_BASE_URL=http://localstack:4566
+      - AWS_REGION=eu-west-1
+      - AWS_SECRET_ACCESS_KEY=fakeAccessKey
 
   mock-lpa-store:
     image: outofcoffee/imposter:latest
@@ -100,6 +105,7 @@ services:
     image: outofcoffee/imposter:latest
     volumes:
       - ./mock-uid/mock-uid-config.yaml:/opt/imposter/config/mock-uid-config.yaml
+      - ./mock-uid/uid.js:/opt/imposter/config/uid.js
     container_name: mock-uid
     ports:
       - "8080:8080"
