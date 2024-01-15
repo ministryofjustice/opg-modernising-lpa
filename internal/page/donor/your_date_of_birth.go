@@ -59,9 +59,7 @@ func YourDateOfBirth(tmpl template.Template, donorStore DonorStore) Handler {
 			}
 		}
 
-		if !donor.Donor.DateOfBirth.IsZero() {
-			data.DobWarning = data.Form.DobWarning()
-		}
+		data.DobWarning = data.Form.DobWarning()
 
 		return tmpl(w, data)
 	}
