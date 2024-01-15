@@ -942,5 +942,17 @@
     "uploadedFilesContent": "<h2 class=\"govuk-heading-m\">Uploaded files</h2><p class=\"govuk-body\">These files will be sent to a case worker for review.</p>",
     "previouslyUploadedFiles": "Previously uploaded files",
     "theseFilesHaveAlreadyBeenUploaded": "These files have already been uploaded and seen by a case worker. They cannot be deleted.",
-    "uploadDateAndTime": "Upload date and time"
+    "uploadDateAndTime": "Upload date and time",
+    "makeANewLPA": "Make a new LPA",
+    "youShouldOnlyChangeYourDetailsIfTheyNeedToBeUpdated": "<p class=\"govuk-body\">You should only change your details if they need to be updated. You cannot make an LPA for someone else using your own account. <a href=\"#\" class=\"govuk-link\">Find out more about how to make an LPA for someone else</a>.</p>",
+    "yourName": "Your name",
+    "yourNameWarning": "You should only enter your details. You cannot make an LPA for someone else using your account.",
+    "yourDateOfBirth": "Your name",
+    "yourDateOfBirthWarning": "You should only enter your date of birth. You cannot make an LPA for someone else using your account.",
+    "detailUpdated": "{{ .Detail }} updated",
+    "weHaveUpdatedYourDetail" : "We have updated your {{ .Detail }}.",
+    "weHaveUpdatedYourDetails" : "We have updated your details",
+    "yourDetailHasBeenUpdated" : "Your {{ .Detail }} has been updated in your account and will be saved for any new LPAs you make in the future.",
+    "howeverItWillNotApplyToAnySignedOrRegisteredLPAs": "<p class=\"govuk-body\">However, it will not apply to any signed or registered LPAs you already have. You should <a href=\"#\" class=\"gov-link\">contact OPG</a> to correct your {{ .Detail }} on an existing LPA.</p>",
+    "ifYoureInProcessOfMakingAnotherLPACheckIfDetailIsCorrect": "If you’re in the process of making another LPA, you should check if your {{ .Detail }} is correct and update it if necessary."
 }

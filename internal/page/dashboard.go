@@ -31,15 +31,6 @@ type dashboardData struct {
 
 func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore DashboardStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		if r.Method == http.MethodPost {
-			lpa, err := donorStore.Create(r.Context())
-			if err != nil {
-				return err
-			}
-
-			return Paths.YourDetails.Redirect(w, r, appData, lpa)
-		}
-
 		donorLpas, attorneyLpas, certificateProviderLpas, err := dashboardStore.GetAll(r.Context())
 		if err != nil {
 			return err
@@ -54,6 +45,20 @@ func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore Das
 		}
 		if len(attorneyLpas) > 0 {
 			tabCount++
+		}
+
+		if r.Method == http.MethodPost {
+			lpa, err := donorStore.Create(r.Context())
+			if err != nil {
+				return err
+			}
+
+			path := Paths.YourDetails
+			if len(donorLpas) > 0 {
+				path = Paths.MakeANewLPA
+			}
+
+			return path.Redirect(w, r, appData, lpa)
 		}
 
 		data := &dashboardData{
