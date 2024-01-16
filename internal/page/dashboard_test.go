@@ -3,6 +3,8 @@ package page
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -110,17 +112,14 @@ func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 
 func TestPostDashboard(t *testing.T) {
 	testCases := map[string]struct {
-		DonorLPAs        []LpaAndActorTasks
+		Form             url.Values
 		ExpectedRedirect LpaPath
 	}{
 		"no donor LPAs": {
 			ExpectedRedirect: Paths.YourDetails,
 		},
 		"with donor LPAs": {
-			DonorLPAs: []LpaAndActorTasks{
-				{Donor: &actor.DonorProvidedDetails{LpaID: "123"}},
-				{Donor: &actor.DonorProvidedDetails{LpaID: "456"}},
-			},
+			Form:             url.Values{"has-existing-donor-lpas": {"true"}},
 			ExpectedRedirect: Paths.MakeANewLPA,
 		},
 	}
@@ -128,22 +127,15 @@ func TestPostDashboard(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", nil)
-
-			certificateProviderLpas := []LpaAndActorTasks{{Donor: &actor.DonorProvidedDetails{LpaID: "abc"}}}
-			attorneyLpas := []LpaAndActorTasks{{Donor: &actor.DonorProvidedDetails{LpaID: "def"}}}
-
-			dashboardStore := newMockDashboardStore(t)
-			dashboardStore.EXPECT().
-				GetAll(r.Context()).
-				Return(tc.DonorLPAs, attorneyLpas, certificateProviderLpas, nil)
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.Form.Encode()))
+			r.Header.Add("Content-Type", FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
 				Create(r.Context()).
 				Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
 
-			err := Dashboard(nil, donorStore, dashboardStore)(AppData{}, w, r)
+			err := Dashboard(nil, donorStore, nil)(AppData{}, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -157,19 +149,27 @@ func TestPostDashboardWhenDonorStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	dashboardStore := newMockDashboardStore(t)
-	dashboardStore.
-		On("GetAll", r.Context()).
-		Return([]LpaAndActorTasks{}, []LpaAndActorTasks{}, []LpaAndActorTasks{}, nil)
-
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Create(r.Context()).
 		Return(&actor.DonorProvidedDetails{LpaID: "123"}, expectedError)
 
-	err := Dashboard(nil, donorStore, dashboardStore)(AppData{}, w, r)
+	err := Dashboard(nil, donorStore, nil)(AppData{}, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestReadDashboardForm(t *testing.T) {
+	f := url.Values{
+		"has-existing-donor-lpas": {"true"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", FormUrlEncoded)
+
+	result := readDashboardForm(r)
+
+	assert.True(t, result.hasExistingDonorLPAs)
 }
