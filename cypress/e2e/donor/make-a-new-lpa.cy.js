@@ -61,7 +61,7 @@ describe('Make a new LPA', () => {
         cy.contains("dd", "2 RICHMOND PLACE");
         cy.get('main').should('not.contain', 'KINGS HEATH');
         cy.get('main').should('not.contain', 'WEST MIDLANDS');
-        cy.contains("button", "Continue").click();
+        cy.contains("a", "Continue").click();
 
         // TODO for now, so the donor can answer can you sign online. When we revisit donor flow we will fix the
         //   ordering and use single question pages for initial LPA creation (and move error/warning e2e to own files).
