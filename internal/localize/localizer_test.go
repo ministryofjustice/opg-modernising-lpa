@@ -10,7 +10,8 @@ import (
 
 func TestNewBundle(t *testing.T) {
 	assert := assert.New(t)
-	bundle := NewBundle("testdata/en.json", "testdata/cy.json")
+	bundle, err := NewBundle("testdata/en.json", "testdata/cy.json")
+	assert.Nil(err)
 
 	en := bundle.For(En)
 	assert.Equal("A", en.T("a"))
@@ -20,6 +21,7 @@ func TestNewBundle(t *testing.T) {
 
 	assert.Equal("1 ONE", en.Count("c", 1))
 	assert.Equal("2 OTHER", en.Count("c", 2))
+	assert.Equal("key does not exist", en.Count("key does not exist", 3))
 
 	assert.Equal("1 ONE FORMATTED", en.FormatCount("d", 1, map[string]interface{}{"x": "FORMATTED"}))
 	assert.Equal("2 OTHER FORMATTED", en.FormatCount("d", 2, map[string]interface{}{"x": "FORMATTED"}))
@@ -46,9 +48,27 @@ func TestNewBundle(t *testing.T) {
 	assert.Equal("7 other formatted", cy.FormatCount("d", 7, map[string]interface{}{"x": "formatted"}))
 }
 
+func TestNewBundleWhenBadFormat(t *testing.T) {
+	_, err := NewBundle("testdata/bad/en.json")
+	assert.NotNil(t, err)
+
+	_, err = NewBundle("testdata/bad/cy.json")
+	assert.NotNil(t, err)
+}
+
+func TestNewBundleWhenMissingFile(t *testing.T) {
+	_, err := NewBundle("testdata/a.json")
+	assert.NotNil(t, err)
+}
+
+func TestNewBundleWhenOtherLang(t *testing.T) {
+	_, err := NewBundle("testdata/zz.json")
+	assert.NotNil(t, err)
+}
+
 func TestNewBundleWithTransKeys(t *testing.T) {
 	assert := assert.New(t)
-	bundle := NewBundle("testdata/en.json", "testdata/cy.json")
+	bundle, _ := NewBundle("testdata/en.json", "testdata/cy.json")
 
 	en := bundle.For(En)
 	en.SetShowTranslationKeys(true)
@@ -121,7 +141,7 @@ func TestPossessive(t *testing.T) {
 }
 
 func TestConcat(t *testing.T) {
-	bundle := NewBundle("testdata/en.json", "testdata/cy.json")
+	bundle, _ := NewBundle("testdata/en.json", "testdata/cy.json")
 	en := bundle.For(En)
 
 	assert.Equal(t, "Bob Smith, Alice Jones, John Doe or Paul Compton", en.Concat([]string{"Bob Smith", "Alice Jones", "John Doe", "Paul Compton"}, "or"))
