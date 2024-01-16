@@ -152,8 +152,9 @@ func TestContains(t *testing.T) {
 }
 
 func TestTr(t *testing.T) {
+	bundle, _ := localize.NewBundle("testdata/en.json")
 	app := page.AppData{
-		Localizer: localize.NewBundle("testdata/en.json").For(localize.En),
+		Localizer: bundle.For(localize.En),
 	}
 
 	assert.Equal(t, "hi", tr(app, "message-id"))
@@ -161,8 +162,9 @@ func TestTr(t *testing.T) {
 }
 
 func TestTrFormat(t *testing.T) {
+	bundle, _ := localize.NewBundle("testdata/en.json")
 	app := page.AppData{
-		Localizer: localize.NewBundle("testdata/en.json").For(localize.En),
+		Localizer: bundle.For(localize.En),
 	}
 
 	assert.Equal(t, "hi Person", trFormat(app, "with-format", "name", "Person"))
@@ -170,8 +172,9 @@ func TestTrFormat(t *testing.T) {
 }
 
 func TestTrHtml(t *testing.T) {
+	bundle, _ := localize.NewBundle("testdata/en.json")
 	app := page.AppData{
-		Localizer: localize.NewBundle("testdata/en.json").For(localize.En),
+		Localizer: bundle.For(localize.En),
 	}
 
 	assert.Equal(t, template.HTML("hi"), trHtml(app, "message-id"))
@@ -179,25 +182,30 @@ func TestTrHtml(t *testing.T) {
 }
 
 func TestTrFormatHtml(t *testing.T) {
+	bundle, _ := localize.NewBundle("testdata/en.json")
 	app := page.AppData{
-		Localizer: localize.NewBundle("testdata/en.json").For(localize.En),
+		Localizer: bundle.For(localize.En),
 	}
 
 	assert.Equal(t, template.HTML("hi Person"), trFormatHtml(app, "with-format", "name", "Person"))
 	assert.Equal(t, template.HTML(""), trFormatHtml(app, "", "name", "Person"))
+
+	assert.Equal(t, template.HTML("hi &lt;script&gt;alert(&#39;hi&#39;);&lt;/script&gt;"), trFormatHtml(app, "with-format", "name", "<script>alert('hi');</script>"))
 }
 
 func TestTrCount(t *testing.T) {
+	bundle, _ := localize.NewBundle("testdata/en.json")
 	enApp := page.AppData{
-		Localizer: localize.NewBundle("testdata/en.json").For(localize.En),
+		Localizer: bundle.For(localize.En),
 	}
 
 	assert.Equal(t, "hi one", trCount(enApp, "with-count", 1))
 	assert.Equal(t, "hi other", trCount(enApp, "with-count", 2))
 	assert.Equal(t, "", trCount(enApp, "", 2))
 
+	bundle, _ = localize.NewBundle("testdata/cy.json")
 	cyApp := page.AppData{
-		Localizer: localize.NewBundle("testdata/cy.json").For(localize.Cy),
+		Localizer: bundle.For(localize.Cy),
 	}
 
 	assert.Equal(t, "cy one", trCount(cyApp, "with-count", 1))
@@ -211,16 +219,18 @@ func TestTrCount(t *testing.T) {
 }
 
 func TestTrFormatCount(t *testing.T) {
+	bundle, _ := localize.NewBundle("testdata/en.json")
 	enApp := page.AppData{
-		Localizer: localize.NewBundle("testdata/en.json").For(localize.En),
+		Localizer: bundle.For(localize.En),
 	}
 
 	assert.Equal(t, "hi 1 one Person", trFormatCount(enApp, "with-format-count", 1, "name", "Person"))
 	assert.Equal(t, "hi 2 other Person", trFormatCount(enApp, "with-format-count", 2, "name", "Person"))
 	assert.Equal(t, "", trFormatCount(enApp, "", 2, "name", "Person"))
 
+	bundle, _ = localize.NewBundle("testdata/cy.json")
 	cyApp := page.AppData{
-		Localizer: localize.NewBundle("testdata/cy.json").For(localize.Cy),
+		Localizer: bundle.For(localize.Cy),
 	}
 
 	assert.Equal(t, "cy hi 1 one Person", trFormatCount(cyApp, "with-format-count", 1, "name", "Person"))
@@ -242,8 +252,9 @@ func TestAddDays(t *testing.T) {
 }
 
 func TestFormatDate(t *testing.T) {
-	appEn := page.AppData{Localizer: localize.NewBundle("testdata/en.json").For(localize.En)}
-	appCy := page.AppData{Localizer: localize.NewBundle("testdata/cy.json").For(localize.Cy)}
+	bundle, _ := localize.NewBundle("testdata/en.json", "testdata/cy.json")
+	appEn := page.AppData{Localizer: bundle.For(localize.En)}
+	appCy := page.AppData{Localizer: bundle.For(localize.Cy)}
 
 	assert.Equal(t, "7 March 2020", formatDate(appEn, time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
 	assert.Equal(t, "7 March 2020", formatDate(appEn, date.New("2020", "3", "7")))
@@ -253,8 +264,9 @@ func TestFormatDate(t *testing.T) {
 }
 
 func TestFormatDateTime(t *testing.T) {
-	appEn := page.AppData{Localizer: localize.NewBundle("testdata/en.json").For(localize.En)}
-	appCy := page.AppData{Localizer: localize.NewBundle("testdata/cy.json").For(localize.Cy)}
+	bundle, _ := localize.NewBundle("testdata/en.json", "testdata/cy.json")
+	appEn := page.AppData{Localizer: bundle.For(localize.En)}
+	appCy := page.AppData{Localizer: bundle.For(localize.Cy)}
 
 	assert.Equal(t, "7 March 2020 at 3:04am", formatDateTime(appEn, time.Date(2020, time.March, 7, 3, 4, 0, 0, time.UTC)))
 
@@ -372,16 +384,18 @@ func TestPrintStruct(t *testing.T) {
 }
 
 func TestPossessive(t *testing.T) {
+	bundle, _ := localize.NewBundle("testdata/en.json")
 	app := page.AppData{
-		Localizer: localize.NewBundle("testdata/en.json").For(localize.En),
+		Localizer: bundle.For(localize.En),
 	}
 
 	assert.Equal(t, "John’s", possessive(app, "John"))
 }
 
 func TestConcatAnd(t *testing.T) {
+	bundle, _ := localize.NewBundle("testdata/en.json")
 	app := page.AppData{
-		Localizer: localize.NewBundle("testdata/en.json").For(localize.En),
+		Localizer: bundle.For(localize.En),
 	}
 
 	assert.Equal(t, "", concatAnd(app, []string{}))
@@ -391,8 +405,9 @@ func TestConcatAnd(t *testing.T) {
 }
 
 func TestConcatOr(t *testing.T) {
+	bundle, _ := localize.NewBundle("testdata/en.json")
 	app := page.AppData{
-		Localizer: localize.NewBundle("testdata/en.json").For(localize.En),
+		Localizer: bundle.For(localize.En),
 	}
 
 	assert.Equal(t, "", concatOr(app, []string{}))

@@ -57,16 +57,16 @@ type Bundle interface {
 }
 
 type Localizer interface {
-	Format(string, map[string]any) string
-	T(string) string
-	Count(string, int) string
-	FormatCount(string, int, map[string]interface{}) string
-	ShowTranslationKeys() bool
-	SetShowTranslationKeys(bool)
-	Possessive(string) string
 	Concat([]string, string) string
+	Count(string, int) string
+	Format(string, map[string]any) string
+	FormatCount(string, int, map[string]interface{}) string
 	FormatDate(date.TimeOrDate) string
 	FormatDateTime(time.Time) string
+	Possessive(string) string
+	SetShowTranslationKeys(bool)
+	ShowTranslationKeys() bool
+	T(string) string
 }
 
 func PostFormString(r *http.Request, name string) string {
