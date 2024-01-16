@@ -185,6 +185,8 @@ func TestTrFormatHtml(t *testing.T) {
 
 	assert.Equal(t, template.HTML("hi Person"), trFormatHtml(app, "with-format", "name", "Person"))
 	assert.Equal(t, template.HTML(""), trFormatHtml(app, "", "name", "Person"))
+
+	assert.Equal(t, template.HTML("hi &lt;script&gt;alert(&#39;hi&#39;);&lt;/script&gt;"), trFormatHtml(app, "with-format", "name", "<script>alert('hi');</script>"))
 }
 
 func TestTrCount(t *testing.T) {

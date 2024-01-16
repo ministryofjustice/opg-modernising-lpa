@@ -1,50 +1,177 @@
 package localize
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"html/template"
+	"os"
+	"path"
 	"strings"
 	"time"
 	"unicode"
 	"unicode/utf8"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"golang.org/x/text/language"
 )
 
-type Bundle struct {
-	*i18n.Bundle
+type Message struct {
+	S string
+
+	// when plural
+	One   string
+	Other string
+
+	// for Welsh only
+	Two  string
+	Few  string
+	Many string
 }
 
-func NewBundle(paths ...string) Bundle {
-	bundle := i18n.NewBundle(language.English)
-	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
+func (m *Message) UnmarshalJSON(text []byte) error {
+	var s string
+	if err := json.Unmarshal(text, &s); err == nil {
+		m.S = s
+		return nil
+	}
+
+	var v map[string]string
+	if err := json.Unmarshal(text, &v); err == nil {
+		m.One = v["one"]
+		m.Other = v["other"]
+		m.Two = v["two"]
+		m.Few = v["few"]
+		m.Many = v["many"]
+		return nil
+	}
+
+	return errors.New("message malformed")
+}
+
+type Messages map[string]Message
+
+func (m Messages) Find(key string) (string, bool) {
+	if msg, ok := m[key]; ok {
+		return msg.S, true
+	}
+
+	return "", false
+}
+
+func (m Messages) FindPlural(key string, count int) (string, bool) {
+	msg, ok := m[key]
+	if !ok {
+		return "", false
+	}
+
+	if count == 1 {
+		return msg.One, true
+	}
+
+	if count == 2 && msg.Two != "" {
+		return msg.Two, true
+	}
+
+	if count == 3 && msg.Few != "" {
+		return msg.Few, true
+	}
+
+	if count == 6 && msg.Many != "" {
+		return msg.Many, true
+	}
+
+	return msg.Other, true
+}
+
+type Bundle struct {
+	messages map[string]Messages
+}
+
+func NewBundle(paths ...string) *Bundle {
+	bundle := &Bundle{messages: map[string]Messages{}}
+
 	for _, path := range paths {
 		bundle.LoadMessageFile(path)
 	}
 
-	return Bundle{bundle}
+	return bundle
 }
 
-func (b Bundle) For(lang Lang) *Localizer {
-	return &Localizer{
-		i18n.NewLocalizer(b.Bundle, lang.String()),
-		false,
-		lang,
+func (b *Bundle) LoadMessageFile(p string) error {
+	data, err := os.ReadFile(p)
+	if err != nil {
+		return err
 	}
+
+	var v map[string]Message
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	lang, _ := strings.CutSuffix(path.Base(p), ".json")
+
+	if lang == "en" {
+		if err := verifyEn(v); err != nil {
+			return err
+		}
+	} else if lang == "cy" {
+		if err := verifyCy(v); err != nil {
+			return err
+		}
+	} else {
+		return errors.New("only supports en or cy")
+	}
+
+	b.messages[lang] = v
+	return nil
+}
+
+func verifyEn(v map[string]Message) error {
+	for key, message := range v {
+		if message.S != "" {
+			continue
+		}
+
+		if message.One != "" && message.Other != "" && message.Two == "" && message.Few == "" && message.Many == "" {
+			continue
+		}
+
+		return fmt.Errorf("problem with key: %s", key)
+	}
+
+	return nil
+}
+
+func verifyCy(v map[string]Message) error {
+	for key, message := range v {
+		if message.S != "" {
+			continue
+		}
+
+		if message.One != "" && message.Other != "" && message.Two != "" && message.Few != "" && message.Many != "" {
+			continue
+		}
+
+		return fmt.Errorf("problem with key: %s", key)
+	}
+
+	return nil
+}
+
+func (b *Bundle) For(lang Lang) *Localizer {
+	return &Localizer{b.messages[lang.String()], false, lang}
 }
 
 type Localizer struct {
-	*i18n.Localizer
+	messages            Messages
 	showTranslationKeys bool
 	Lang                Lang
 }
 
-func (l Localizer) T(messageID string) string {
-	msg, err := l.Localize(&i18n.LocalizeConfig{MessageID: messageID})
-
-	if err != nil {
+func (l *Localizer) T(messageID string) string {
+	msg, ok := l.messages.Find(messageID)
+	if !ok {
 		return l.translate(messageID, messageID)
 	}
 
@@ -52,16 +179,37 @@ func (l Localizer) T(messageID string) string {
 }
 
 func (l Localizer) Format(messageID string, data map[string]interface{}) string {
-	return l.translate(l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, TemplateData: data}), messageID)
+	msg, ok := l.messages.Find(messageID)
+	if !ok {
+		return l.translate(messageID, messageID)
+	}
+
+	var buf bytes.Buffer
+	template.Must(template.New("").Parse(msg)).Execute(&buf, data)
+	return l.translate(buf.String(), messageID)
 }
 
 func (l Localizer) Count(messageID string, count int) string {
-	return l.translate(l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, PluralCount: count}), messageID)
+	msg, ok := l.messages.FindPlural(messageID, count)
+	if !ok {
+		return l.translate(messageID, messageID)
+	}
+
+	var buf bytes.Buffer
+	template.Must(template.New("").Parse(msg)).Execute(&buf, map[string]int{"PluralCount": count})
+	return l.translate(buf.String(), messageID)
 }
 
-func (l Localizer) FormatCount(messageID string, count int, data map[string]interface{}) string {
+func (l Localizer) FormatCount(messageID string, count int, data map[string]any) string {
+	msg, ok := l.messages.FindPlural(messageID, count)
+	if !ok {
+		return l.translate(messageID, messageID)
+	}
+
 	data["PluralCount"] = count
-	return l.translate(l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, PluralCount: count, TemplateData: data}), messageID)
+	var buf bytes.Buffer
+	template.Must(template.New("").Parse(msg)).Execute(&buf, data)
+	return l.translate(buf.String(), messageID)
 }
 
 func (l Localizer) translate(translation, messageID string) string {
