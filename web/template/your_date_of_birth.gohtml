@@ -1,0 +1,22 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "yourDateOfBirth" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form novalidate method="post">
+                <h1 class="govuk-heading-xl">{{ tr .App "yourDateOfBirth" }}</h1>
+
+                {{ template "warning" (content .App "yourDateOfBirthWarning") }}
+
+                {{ template "date" (input . "date-of-birth" "dateOfBirth" .Form.Dob "hint" "dateOfBirthHint") }}
+
+                {{ template "dob-warning" . }}
+
+                {{ template "continue-button" . }}
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
+    </div>
+{{ end }}

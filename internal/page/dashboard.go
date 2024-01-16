@@ -20,6 +20,10 @@ type LpaAndActorTasks struct {
 	Attorney            *actor.AttorneyProvidedDetails
 }
 
+type dashboardForm struct {
+	hasExistingDonorLPAs bool
+}
+
 type dashboardData struct {
 	App                     AppData
 	Errors                  validation.List
@@ -32,12 +36,19 @@ type dashboardData struct {
 func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore DashboardStore) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		if r.Method == http.MethodPost {
+			form := readDashboardForm(r)
+
 			lpa, err := donorStore.Create(r.Context())
 			if err != nil {
 				return err
 			}
 
-			return Paths.YourDetails.Redirect(w, r, appData, lpa)
+			path := Paths.YourDetails
+			if form.hasExistingDonorLPAs {
+				path = Paths.MakeANewLPA
+			}
+
+			return path.Redirect(w, r, appData, lpa)
 		}
 
 		donorLpas, attorneyLpas, certificateProviderLpas, err := dashboardStore.GetAll(r.Context())
@@ -66,4 +77,10 @@ func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore Das
 
 		return tmpl(w, data)
 	}
+}
+
+func readDashboardForm(r *http.Request) *dashboardForm {
+	f := &dashboardForm{}
+	f.hasExistingDonorLPAs = r.PostFormValue("has-existing-donor-lpas") == "true"
+	return f
 }

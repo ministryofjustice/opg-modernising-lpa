@@ -14,11 +14,11 @@ describe('Dashboard', () => {
             cy.url().should('contain', '/task-list');
         });
 
-        it('can create another reusing some previous details', () => {
+        it('can create another LPA', () => {
             cy.contains('button', 'Start now').click();
 
-            cy.get('#f-first-names').should('have.value', 'Sam');
-            cy.get('#f-last-name').should('have.value', 'Smith');
+            cy.url().should('contain', '/make-a-new-lpa');
+            cy.checkA11yApp();
         });
     })
 
