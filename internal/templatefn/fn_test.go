@@ -256,9 +256,9 @@ func TestFormatDateTime(t *testing.T) {
 	appEn := page.AppData{Localizer: localize.NewBundle("testdata/en.json").For(localize.En)}
 	appCy := page.AppData{Localizer: localize.NewBundle("testdata/cy.json").For(localize.Cy)}
 
-	assert.Equal(t, "7 March 2020 at 03:04", formatDateTime(appEn, time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
+	assert.Equal(t, "7 March 2020 at 3:04am", formatDateTime(appEn, time.Date(2020, time.March, 7, 3, 4, 0, 0, time.UTC)))
 
-	assert.Equal(t, "7 Mawrth 2020 am 03:04", formatDateTime(appCy, time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
+	assert.Equal(t, "7 Mawrth 2020 am 3:04yb", formatDateTime(appCy, time.Date(2020, time.March, 7, 3, 4, 0, 0, time.UTC)))
 }
 
 func TestFormatPhone(t *testing.T) {
