@@ -11,7 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type MakeANewLPAData struct {
+type makeANewLPAData struct {
 	App         page.AppData
 	Errors      validation.List
 	FullName    string
@@ -26,7 +26,7 @@ func MakeANewLPA(tmpl template.Template, donorStore DonorStore) Handler {
 			return err
 		}
 
-		data := MakeANewLPAData{
+		data := makeANewLPAData{
 			App:         appData,
 			FullName:    previouslyProvidedDetails.Donor.FullName(),
 			DateOfBirth: previouslyProvidedDetails.Donor.DateOfBirth,
