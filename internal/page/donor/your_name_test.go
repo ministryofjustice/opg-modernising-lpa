@@ -151,20 +151,7 @@ func TestPostYourNameWhenDetailsNotChanged(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			LpaID: "lpa-id",
-			Donor: actor.Donor{
-				FirstNames: "John",
-				LastName:   "Doe",
-				OtherNames: "Fawn",
-			},
-			HasSentApplicationUpdatedEvent: true,
-		}).
-		Return(nil)
-
-	err := YourName(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := YourName(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
 		Donor: actor.Donor{
 			FirstNames: "John",
@@ -215,48 +202,6 @@ func TestPostYourNameWhenInputRequired(t *testing.T) {
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
 		})
 	}
-}
-
-func TestPostYourNameNameWarningOnlyShownWhenDonorAndFormNamesAreDifferent(t *testing.T) {
-	f := url.Values{
-		"first-names": {"Jane"},
-		"last-name":   {"Doe"},
-		"other-names": {"Fawn"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	donor := actor.Donor{
-		FirstNames: "Jane",
-		LastName:   "Doe",
-		OtherNames: "Fawn",
-	}
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			LpaID: "lpa-id",
-			Donor: donor,
-			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-				{FirstNames: "Jane", LastName: "Doe", ID: "123", Address: place.Address{Line1: "abc"}},
-			}},
-		}).
-		Return(nil)
-
-	err := YourName(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		LpaID: "lpa-id",
-		Donor: donor,
-		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-			{FirstNames: "Jane", LastName: "Doe", ID: "123", Address: place.Address{Line1: "abc"}},
-		}},
-	})
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.MakeANewLPA.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostYourNameWhenStoreErrors(t *testing.T) {

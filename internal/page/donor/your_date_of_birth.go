@@ -37,18 +37,18 @@ func YourDateOfBirth(tmpl template.Template, donorStore DonorStore) Handler {
 			}
 
 			if !data.Errors.Any() && data.DobWarning == "" {
-				if donor.Donor.DateOfBirth != data.Form.Dob {
-					donor.Donor.DateOfBirth = data.Form.Dob
-					donor.HasSentApplicationUpdatedEvent = false
-
-					if err := donorStore.Put(r.Context(), donor); err != nil {
-						return err
-					}
-
-					return page.Paths.WeHaveUpdatedYourDetails.RedirectQuery(w, r, appData, donor, url.Values{"detail": {"dateOfBirth"}})
-				} else {
+				if donor.Donor.DateOfBirth == data.Form.Dob {
 					return page.Paths.MakeANewLPA.Redirect(w, r, appData, donor)
 				}
+
+				donor.Donor.DateOfBirth = data.Form.Dob
+				donor.HasSentApplicationUpdatedEvent = false
+
+				if err := donorStore.Put(r.Context(), donor); err != nil {
+					return err
+				}
+
+				return page.Paths.WeHaveUpdatedYourDetails.RedirectQuery(w, r, appData, donor, url.Values{"detail": {"dateOfBirth"}})
 			}
 		}
 

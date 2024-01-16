@@ -290,13 +290,6 @@ func (l *DonorProvidedDetails) AllAttorneysSigned(attorneys []*AttorneyProvidedD
 	return true
 }
 
-type AddressDetail struct {
-	Name    string
-	Role    Type
-	Address place.Address
-	ID      string
-}
-
 func (l *DonorProvidedDetails) ActorAddresses() []place.Address {
 	var addresses []place.Address
 

@@ -35,12 +35,12 @@
                 </dd>
             </div>
 
-            {{ $addressLink := printf "%s?action=manual" (.App.Paths.YourAddress.Format .App.LpaID) }}
+            {{ $addressLink := printf "%s?action=manual&makingAnotherLPA=1#f-address-line-1" (.App.Paths.YourAddress.Format .App.LpaID) }}
             <div class="govuk-summary-list__row">
               <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
               <dd class="govuk-summary-list__value">{{ template "address-lines" .Donor.Donor.Address }}</dd>
                 <dd class="govuk-summary-list__actions">
-                  <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App $addressLink }}&from={{.App.Page}}#f-address-line-1">
+                  <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App $addressLink }}">
                     {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "address" }}</span>
                   </a>
                 </dd>

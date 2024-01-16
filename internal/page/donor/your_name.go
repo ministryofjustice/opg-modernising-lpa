@@ -47,21 +47,20 @@ func YourName(tmpl template.Template, donorStore DonorStore) Handler {
 			}
 
 			if !data.Errors.Any() && data.NameWarning == nil {
-				if donor.NamesChanged(data.Form.FirstNames, data.Form.LastName, data.Form.OtherNames) {
-					donor.Donor.FirstNames = data.Form.FirstNames
-					donor.Donor.LastName = data.Form.LastName
-					donor.Donor.OtherNames = data.Form.OtherNames
-
-					donor.HasSentApplicationUpdatedEvent = false
-
-					if err := donorStore.Put(r.Context(), donor); err != nil {
-						return err
-					}
-
-					return page.Paths.WeHaveUpdatedYourDetails.RedirectQuery(w, r, appData, donor, url.Values{"detail": {"name"}})
-				} else {
+				if !donor.NamesChanged(data.Form.FirstNames, data.Form.LastName, data.Form.OtherNames) {
 					return page.Paths.MakeANewLPA.Redirect(w, r, appData, donor)
 				}
+
+				donor.Donor.FirstNames = data.Form.FirstNames
+				donor.Donor.LastName = data.Form.LastName
+				donor.Donor.OtherNames = data.Form.OtherNames
+				donor.HasSentApplicationUpdatedEvent = false
+
+				if err := donorStore.Put(r.Context(), donor); err != nil {
+					return err
+				}
+
+				return page.Paths.WeHaveUpdatedYourDetails.RedirectQuery(w, r, appData, donor, url.Values{"detail": {"name"}})
 			}
 		}
 

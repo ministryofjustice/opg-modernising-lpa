@@ -21,18 +21,6 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 			false,
 		)
 
-		makingAnotherLPA := r.URL.Query().Get("from") == page.Paths.MakeANewLPA.Format(donor.LpaID)
-
-		if makingAnotherLPA {
-			previousDetails, err := donorStore.Latest(r.Context())
-			if err != nil {
-				return err
-			}
-
-			data.Form.Action = "manual"
-			data.Form.Address = &previousDetails.Donor.Address
-		}
-
 		if donor.Donor.Address.Line1 != "" {
 			data.Form.Action = "manual"
 			data.Form.Address = &donor.Donor.Address
@@ -45,18 +33,25 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 			switch data.Form.Action {
 			case "manual":
 				if data.Errors.None() {
-					if donor.Donor.Address.Postcode != data.Form.Address.Postcode {
+					addressChangesMade := donor.Donor.Address.Line1 != data.Form.Address.Line1 ||
+						donor.Donor.Address.Line2 != data.Form.Address.Line2 ||
+						donor.Donor.Address.Line3 != data.Form.Address.Line3 ||
+						donor.Donor.Address.TownOrCity != data.Form.Address.TownOrCity ||
+						donor.Donor.Address.Postcode != data.Form.Address.Postcode
+
+					if addressChangesMade {
 						donor.HasSentApplicationUpdatedEvent = false
+						donor.Donor.Address = *data.Form.Address
+						if err := donorStore.Put(r.Context(), donor); err != nil {
+							return err
+						}
 					}
 
-					donor.Donor.Address = *data.Form.Address
+					if r.URL.Query().Get("makingAnotherLPA") != "" {
+						if !addressChangesMade {
+							return page.Paths.MakeANewLPA.Redirect(w, r, appData, donor)
+						}
 
-					if err := donorStore.Put(r.Context(), donor); err != nil {
-						return err
-					}
-
-					if makingAnotherLPA {
-						r.Form.Del("from")
 						return page.Paths.WeHaveUpdatedYourDetails.RedirectQuery(w, r, appData, donor, url.Values{"detail": {"address"}})
 					}
 
