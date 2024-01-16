@@ -19,11 +19,6 @@ func TestGetYourName(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Latest", r.Context()).
-		Return(nil, expectedError)
-
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &yourNameData{
@@ -32,7 +27,7 @@ func TestGetYourName(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourName(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := YourName(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -49,6 +44,8 @@ func TestGetYourNameFromStore(t *testing.T) {
 			App: testAppData,
 			Form: &yourNameForm{
 				FirstNames: "John",
+				LastName:   "Doe",
+				OtherNames: "Fawn",
 			},
 		}).
 		Return(nil)
@@ -56,42 +53,10 @@ func TestGetYourNameFromStore(t *testing.T) {
 	err := YourName(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor: actor.Donor{
 			FirstNames: "John",
+			LastName:   "Doe",
+			OtherNames: "Fawn",
 		},
 	})
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestGetYourNameFromLatest(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Latest", r.Context()).
-		Return(&actor.DonorProvidedDetails{
-			Donor: actor.Donor{
-				FirstNames: "John",
-				LastName:   "Doe",
-				OtherNames: "J",
-			},
-		}, nil)
-
-	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &yourNameData{
-			App: testAppData,
-			Form: &yourNameForm{
-				FirstNames: "John",
-				LastName:   "Doe",
-				OtherNames: "J",
-			},
-		}).
-		Return(nil)
-
-	err := YourName(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -123,12 +88,12 @@ func TestPostYourName(t *testing.T) {
 			form: url.Values{
 				"first-names": {"John"},
 				"last-name":   {"Doe"},
-				"other-names": {"Deer"},
+				"other-names": {"Fawn"},
 			},
 			person: actor.Donor{
 				FirstNames: "John",
 				LastName:   "Doe",
-				OtherNames: "Deer",
+				OtherNames: "Fawn",
 			},
 		},
 		"warning ignored": {
@@ -204,6 +169,7 @@ func TestPostYourNameWhenDetailsNotChanged(t *testing.T) {
 		Donor: actor.Donor{
 			FirstNames: "John",
 			LastName:   "Doe",
+			OtherNames: "Fawn",
 		},
 		HasSentApplicationUpdatedEvent: true,
 	})
@@ -255,20 +221,24 @@ func TestPostYourNameNameWarningOnlyShownWhenDonorAndFormNamesAreDifferent(t *te
 	f := url.Values{
 		"first-names": {"Jane"},
 		"last-name":   {"Doe"},
+		"other-names": {"Fawn"},
 	}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	donor := actor.Donor{
+		FirstNames: "Jane",
+		LastName:   "Doe",
+		OtherNames: "Fawn",
+	}
+
 	donorStore := newMockDonorStore(t)
 	donorStore.
 		On("Put", r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
-			Donor: actor.Donor{
-				FirstNames: "Jane",
-				LastName:   "Doe",
-			},
+			Donor: donor,
 			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 				{FirstNames: "Jane", LastName: "Doe", ID: "123", Address: place.Address{Line1: "abc"}},
 			}},
@@ -277,7 +247,7 @@ func TestPostYourNameNameWarningOnlyShownWhenDonorAndFormNamesAreDifferent(t *te
 
 	err := YourName(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
+		Donor: donor,
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{FirstNames: "Jane", LastName: "Doe", ID: "123", Address: place.Address{Line1: "abc"}},
 		}},

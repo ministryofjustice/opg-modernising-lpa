@@ -128,6 +128,10 @@ type DonorProvidedDetails struct {
 	HasSentPreviousApplicationLinkedEvent bool `hash:"-"`
 }
 
+func (l *DonorProvidedDetails) NamesChanged(firstNames, lastName, otherNames string) bool {
+	return l.Donor.FirstNames != firstNames || l.Donor.LastName != lastName || l.Donor.OtherNames != otherNames
+}
+
 func (l *DonorProvidedDetails) GenerateHash() (uint64, error) {
 	return hashstructure.Hash(l, hashstructure.FormatV2, nil)
 }

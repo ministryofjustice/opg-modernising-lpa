@@ -29,16 +29,6 @@ func YourName(tmpl template.Template, donorStore DonorStore) Handler {
 			},
 		}
 
-		if r.Method == http.MethodGet && data.Form.FirstNames == "" {
-			if latestDonor, _ := donorStore.Latest(r.Context()); latestDonor != nil {
-				data.Form = &yourNameForm{
-					FirstNames: latestDonor.Donor.FirstNames,
-					LastName:   latestDonor.Donor.LastName,
-					OtherNames: latestDonor.Donor.OtherNames,
-				}
-			}
-		}
-
 		if r.Method == http.MethodPost {
 			data.Form = readYourNameForm(r)
 			data.Errors = data.Form.Validate()
@@ -57,16 +47,15 @@ func YourName(tmpl template.Template, donorStore DonorStore) Handler {
 			}
 
 			if !data.Errors.Any() && data.NameWarning == nil {
-				changesMade := donor.Donor.FirstNames != data.Form.FirstNames || donor.Donor.LastName != data.Form.LastName
+				changesMade := donor.NamesChanged(data.Form.FirstNames, data.Form.LastName, data.Form.OtherNames)
 
 				if changesMade {
 					donor.Donor.FirstNames = data.Form.FirstNames
 					donor.Donor.LastName = data.Form.LastName
+					donor.Donor.OtherNames = data.Form.OtherNames
 
 					donor.HasSentApplicationUpdatedEvent = false
 				}
-
-				donor.Donor.OtherNames = data.Form.OtherNames
 
 				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
