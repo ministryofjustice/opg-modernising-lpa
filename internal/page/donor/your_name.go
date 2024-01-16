@@ -5,11 +5,9 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -20,7 +18,7 @@ type yourNameData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func YourName(tmpl template.Template, donorStore DonorStore, sessionStore sessions.Store) Handler {
+func YourName(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &yourNameData{
 			App: appData,
@@ -42,14 +40,6 @@ func YourName(tmpl template.Template, donorStore DonorStore, sessionStore sessio
 		}
 
 		if r.Method == http.MethodPost {
-			loginSession, err := sesh.Login(sessionStore, r)
-			if err != nil {
-				return err
-			}
-			if loginSession.Email == "" {
-				return fmt.Errorf("no email in login session")
-			}
-
 			data.Form = readYourNameForm(r)
 			data.Errors = data.Form.Validate()
 
@@ -77,7 +67,6 @@ func YourName(tmpl template.Template, donorStore DonorStore, sessionStore sessio
 				}
 
 				donor.Donor.OtherNames = data.Form.OtherNames
-				donor.Donor.Email = loginSession.Email
 
 				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err

@@ -202,7 +202,7 @@ func Register(
 	handleWithDonor(page.Paths.YourDetails, page.None,
 		YourDetails(tmpls.Get("your_details.gohtml"), donorStore, sessionStore))
 	handleWithDonor(page.Paths.YourName, page.None,
-		YourName(tmpls.Get("your_name.gohtml"), donorStore, sessionStore))
+		YourName(tmpls.Get("your_name.gohtml"), donorStore))
 	handleWithDonor(page.Paths.YourDateOfBirth, page.None,
 		YourDateOfBirth(tmpls.Get("your_date_of_birth.gohtml"), donorStore))
 	handleWithDonor(page.Paths.YourAddress, page.None,

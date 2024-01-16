@@ -7,11 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -34,7 +32,7 @@ func TestGetYourName(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourName(template.Execute, donorStore, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := YourName(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -55,7 +53,7 @@ func TestGetYourNameFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourName(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := YourName(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor: actor.Donor{
 			FirstNames: "John",
 		},
@@ -93,7 +91,7 @@ func TestGetYourNameFromLatest(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourName(template.Execute, donorStore, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := YourName(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -109,7 +107,7 @@ func TestGetYourNameWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := YourName(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{Donor: actor.Donor{FirstNames: "John"}})
+	err := YourName(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{Donor: actor.Donor{FirstNames: "John"}})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -131,7 +129,6 @@ func TestPostYourName(t *testing.T) {
 				FirstNames: "John",
 				LastName:   "Doe",
 				OtherNames: "Deer",
-				Email:      "name@example.com",
 			},
 		},
 		"warning ignored": {
@@ -142,7 +139,6 @@ func TestPostYourName(t *testing.T) {
 			person: actor.Donor{
 				FirstNames: "John",
 				LastName:   "Doe",
-				Email:      "name@example.com",
 			},
 		},
 	}
@@ -162,12 +158,7 @@ func TestPostYourName(t *testing.T) {
 				}).
 				Return(nil)
 
-			sessionStore := newMockSessionStore(t)
-			sessionStore.
-				On("Get", r, "session").
-				Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
-
-			err := YourName(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := YourName(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 				LpaID: "lpa-id",
 				Donor: actor.Donor{
 					FirstNames: "John",
@@ -187,6 +178,7 @@ func TestPostYourNameWhenDetailsNotChanged(t *testing.T) {
 	f := url.Values{
 		"first-names": {"John"},
 		"last-name":   {"Doe"},
+		"other-names": {"Fawn"},
 	}
 
 	w := httptest.NewRecorder()
@@ -201,18 +193,13 @@ func TestPostYourNameWhenDetailsNotChanged(t *testing.T) {
 			Donor: actor.Donor{
 				FirstNames: "John",
 				LastName:   "Doe",
-				Email:      "name@example.com",
+				OtherNames: "Fawn",
 			},
 			HasSentApplicationUpdatedEvent: true,
 		}).
 		Return(nil)
 
-	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
-
-	err := YourName(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := YourName(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
 		Donor: actor.Donor{
 			FirstNames: "John",
@@ -255,12 +242,7 @@ func TestPostYourNameWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			sessionStore := newMockSessionStore(t)
-			sessionStore.
-				On("Get", mock.Anything, "session").
-				Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
-
-			err := YourName(template.Execute, nil, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+			err := YourName(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -286,7 +268,6 @@ func TestPostYourNameNameWarningOnlyShownWhenDonorAndFormNamesAreDifferent(t *te
 			Donor: actor.Donor{
 				FirstNames: "Jane",
 				LastName:   "Doe",
-				Email:      "name@example.com",
 			},
 			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 				{FirstNames: "Jane", LastName: "Doe", ID: "123", Address: place.Address{Line1: "abc"}},
@@ -294,12 +275,7 @@ func TestPostYourNameNameWarningOnlyShownWhenDonorAndFormNamesAreDifferent(t *te
 		}).
 		Return(nil)
 
-	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", mock.Anything, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
-
-	err := YourName(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := YourName(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
 		Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
@@ -328,12 +304,7 @@ func TestPostYourNameWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", mock.Anything, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
-
-	err := YourName(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := YourName(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor: actor.Donor{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
