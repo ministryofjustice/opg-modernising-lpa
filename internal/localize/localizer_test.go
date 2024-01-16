@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewBundle(t *testing.T) {
+func TestNewBundleOnly(t *testing.T) {
 	assert := assert.New(t)
 	bundle := NewBundle("testdata/en.json", "testdata/cy.json")
 
