@@ -768,7 +768,7 @@
     "startNow": "Start now",
     "youCanIncludeRestrictionsAboutLst": "You can also include any restrictions and conditions you have about life-sustaining treatment.",
     "youMustChooseANewCertificateProvider": "You must choose a different certificate provider",
-    "youMustChooseANewCertificateProviderContent": "<p class=\"govuk-body\">As you’ve known {{ .CertificateProviderFullName }} for less than 2 years, they cannot be your certificate provider.</p> <p class=\"govuk-body\">Select Continue to choose a different certificate provider.</p>",
+    "youMustChooseANewCertificateProviderContent": "<p class=\"govuk-body\">As you’ve known {{ .CertificateProviderFullName }} for less than 2 years, they cannot be your certificate provider.</p> <p class=\"govuk-body\">Select <span class=\"govuk-!-font-weight-bold\">Continue</span> to choose a different certificate provider.</p>",
     "uploadYourEvidence": "Upload your evidence",
     "uploadEvidenceContent": "<p class=\"govuk-body\">You can upload scans and photographs of your paper documents. We accept most common image and document file formats.</p>",
     "uploadGuidance": "<span class=\"govuk-caption-m govuk-!-padding-top-2 govuk-!-padding-bottom-2\">You can upload a maximum of {{.NumberOfAllowedFiles}} files. The maximum file size is 20MB.</span>",
