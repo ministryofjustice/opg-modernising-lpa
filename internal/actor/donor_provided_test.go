@@ -328,3 +328,21 @@ func TestTrustCorporationOriginal(t *testing.T) {
 
 	assert.Equal(t, []string{"Corp", "Trust"}, donor.TrustCorporationsNames())
 }
+
+func TestNamesChanged(t *testing.T) {
+	testCases := map[string]*Donor{
+		"FirstNames": {FirstNames: "d", LastName: "b", OtherNames: "c"},
+		"LastName":   {FirstNames: "a", LastName: "d", OtherNames: "c"},
+		"OtherNames": {FirstNames: "a", LastName: "b", OtherNames: "d"},
+	}
+
+	donor := &DonorProvidedDetails{Donor: Donor{FirstNames: "a", LastName: "b", OtherNames: "c"}}
+
+	for name, updatedDonor := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.True(t, donor.NamesChanged(updatedDonor.FirstNames, updatedDonor.LastName, updatedDonor.OtherNames))
+		})
+	}
+
+	assert.False(t, donor.NamesChanged("a", "b", "c"))
+}

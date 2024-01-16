@@ -2,6 +2,7 @@ package donor
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -32,14 +33,26 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 			switch data.Form.Action {
 			case "manual":
 				if data.Errors.None() {
-					if donor.Donor.Address.Postcode != data.Form.Address.Postcode {
+					addressChangesMade := donor.Donor.Address.Line1 != data.Form.Address.Line1 ||
+						donor.Donor.Address.Line2 != data.Form.Address.Line2 ||
+						donor.Donor.Address.Line3 != data.Form.Address.Line3 ||
+						donor.Donor.Address.TownOrCity != data.Form.Address.TownOrCity ||
+						donor.Donor.Address.Postcode != data.Form.Address.Postcode
+
+					if addressChangesMade {
 						donor.HasSentApplicationUpdatedEvent = false
+						donor.Donor.Address = *data.Form.Address
+						if err := donorStore.Put(r.Context(), donor); err != nil {
+							return err
+						}
 					}
 
-					donor.Donor.Address = *data.Form.Address
+					if r.URL.Query().Get("makingAnotherLPA") != "" {
+						if !addressChangesMade {
+							return page.Paths.MakeANewLPA.Redirect(w, r, appData, donor)
+						}
 
-					if err := donorStore.Put(r.Context(), donor); err != nil {
-						return err
+						return page.Paths.WeHaveUpdatedYourDetails.RedirectQuery(w, r, appData, donor, url.Values{"detail": {"address"}})
 					}
 
 					return page.Paths.YourPreferredLanguage.Redirect(w, r, appData, donor)
@@ -61,7 +74,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 			}
 		}
 
-		if r.Method == http.MethodGet {
+		if r.Method == http.MethodGet && data.Form.Address == nil {
 			action := r.FormValue("action")
 			if action == "manual" {
 				data.Form.Action = "manual"

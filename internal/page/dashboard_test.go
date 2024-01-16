@@ -3,6 +3,8 @@ package page
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -109,20 +111,38 @@ func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostDashboard(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+	testCases := map[string]struct {
+		Form             url.Values
+		ExpectedRedirect LpaPath
+	}{
+		"no donor LPAs": {
+			ExpectedRedirect: Paths.YourDetails,
+		},
+		"with donor LPAs": {
+			Form:             url.Values{"has-existing-donor-lpas": {"true"}},
+			ExpectedRedirect: Paths.MakeANewLPA,
+		},
+	}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Create(r.Context()).
-		Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.Form.Encode()))
+			r.Header.Add("Content-Type", FormUrlEncoded)
 
-	err := Dashboard(nil, donorStore, nil)(AppData{}, w, r)
-	resp := w.Result()
+			donorStore := newMockDonorStore(t)
+			donorStore.EXPECT().
+				Create(r.Context()).
+				Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, Paths.YourDetails.Format("lpa-id"), resp.Header.Get("Location"))
+			err := Dashboard(nil, donorStore, nil)(AppData{}, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.ExpectedRedirect.Format("lpa-id"), resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestPostDashboardWhenDonorStoreError(t *testing.T) {
@@ -139,4 +159,17 @@ func TestPostDashboardWhenDonorStoreError(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestReadDashboardForm(t *testing.T) {
+	f := url.Values{
+		"has-existing-donor-lpas": {"true"},
+	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", FormUrlEncoded)
+
+	result := readDashboardForm(r)
+
+	assert.True(t, result.hasExistingDonorLPAs)
 }

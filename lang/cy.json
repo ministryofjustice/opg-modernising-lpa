@@ -821,7 +821,7 @@
     "startNow": "Dechrau nawr",
     "youCanIncludeRestrictionsAboutLst": "Gallwch hefyd gynnwys unrhyw gyfyngiadau ac amodau sydd gennych am thriniaeth cynnal bywyd.",
     "youMustChooseANewCertificateProvider": "Rhaid i chi ddewis darparwr tystysgrif gwahanol",
-    "youMustChooseANewCertificateProviderContent": "<p class=\"govuk-body\">Am eich bod wedi adnabod {{ .CertificateProviderFullName }} am lai na 2 flynedd, ni all fod yn ddarparwr tystysgrif i chi.</p> <p class=\"govuk-body\">Dewiswch Mynd ymlaen i ddewis darparwr tystysgrif gwahanol.</p>",
+    "youMustChooseANewCertificateProviderContent": "<p class=\"govuk-body\">Am eich bod wedi adnabod {{ .CertificateProviderFullName }} am lai na 2 flynedd, ni all fod yn ddarparwr tystysgrif i chi.</p> <p class=\"govuk-body\">Dewiswch <span class=\"govuk-!-font-weight-bold\">Mynd ymlaen</span> i ddewis darparwr tystysgrif gwahanol.</p>",
     "uploadYourEvidence": "Upload your evidence",
     "uploadEvidenceContent": "<p class=\"govuk-body\">Gallwch uwchlwytho sganiau a ffotograffau o’ch dogfennau papur. Rydym yn derbyn y rhan fwyaf o’r fformatau ffeil cyffredin ar gyfer delweddau a dogfennau.</p>",
     "uploadGuidance": "<span class=\"govuk-caption-m govuk-!-padding-top-2 govuk-!-padding-bottom-2\">Gallwch uwchlwytho hyd at {{.NumberOfAllowedFiles}} ffeil. Y maint ffeil mwyaf a ganiateir yw 20MB.</span>",
@@ -1007,5 +1007,17 @@
     "uploadDateAndTime": "Welsh",
     "added": "Welsh",
     "pending": "Welsh",
-    "denied": "Welsh"
+    "denied": "Welsh",
+    "makeANewLPA": "Welsh",
+    "youShouldOnlyChangeYourDetailsIfTheyNeedToBeUpdated": "<p class=\"govuk-body\">Welsh. <a href=\"#\" class=\"govuk-link\">Welsh</a>.</p>",
+    "yourName": "Welsh",
+    "yourNameWarning": "Welsh",
+    "yourDateOfBirth": "Welsh",
+    "yourDateOfBirthWarning": "Welsh",
+    "detailUpdated": "{{ .Detail }} Welsh",
+    "weHaveUpdatedYourDetail" : "Welsh {{ .Detail }}.",
+    "weHaveUpdatedYourDetails" : "Welsh",
+    "yourDetailHasBeenUpdated" : "Welsh {{ .Detail }} Welsh",
+    "howeverItWillNotApplyToAnySignedOrRegisteredLPAs": "<p class=\"govuk-body\">Welsh <a href=\"#\" class=\"gov-link\">Welsh</a> Welsh {{ .Detail }} Welsh</p>",
+    "ifYoureInProcessOfMakingAnotherLPACheckIfDetailIsCorrect": "Welsh {{ .Detail }} Welsh"
 }
