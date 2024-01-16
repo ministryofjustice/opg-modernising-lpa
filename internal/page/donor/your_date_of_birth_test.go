@@ -21,46 +21,19 @@ func TestGetYourDateOfBirth(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Latest(r.Context()).
-		Return(&actor.DonorProvidedDetails{Donor: actor.Donor{DateOfBirth: date.New("2000", "1", "2")}}, nil)
+	template := newMockTemplate(t)
+	template.EXPECT().
+		Execute(w, &yourDateOfBirthData{
+			App:  testAppData,
+			Form: &yourDateOfBirthForm{},
+		}).
+		Return(nil)
 
-	testCases := map[string]struct {
-		existingDob     date.Date
-		expectedFormDob date.Date
-		donorStore      *mockDonorStore
-	}{
-		"with existing dob": {
-			existingDob:     date.New("2000", "1", "2"),
-			expectedFormDob: date.New("2000", "1", "2"),
-		},
-		"without existing dob": {
-			existingDob:     date.Date{},
-			expectedFormDob: date.New("2000", "1", "2"),
-			donorStore:      donorStore,
-		},
-	}
+	err := YourDateOfBirth(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	resp := w.Result()
 
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			template := newMockTemplate(t)
-			template.EXPECT().
-				Execute(w, &yourDateOfBirthData{
-					App: testAppData,
-					Form: &yourDateOfBirthForm{
-						Dob: tc.expectedFormDob,
-					},
-				}).
-				Return(nil)
-
-			err := YourDateOfBirth(template.Execute, tc.donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{Donor: actor.Donor{DateOfBirth: tc.existingDob}})
-			resp := w.Result()
-
-			assert.Nil(t, err)
-			assert.Equal(t, http.StatusOK, resp.StatusCode)
-		})
-	}
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestGetYourDateOfBirthFromStore(t *testing.T) {
@@ -124,22 +97,6 @@ func TestGetYourDateOfBirthWhenTemplateErrors(t *testing.T) {
 		Return(expectedError)
 
 	err := YourDateOfBirth(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{Donor: actor.Donor{FirstNames: "John", DateOfBirth: date.New("2000", "1", "2")}})
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestGetYourDateOfBirthWhenDonorStoreError(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Latest(r.Context()).
-		Return(&actor.DonorProvidedDetails{}, expectedError)
-
-	err := YourDateOfBirth(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{Donor: actor.Donor{FirstNames: "John"}})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -220,18 +177,7 @@ func TestPostYourDateOfBirthWhenDetailsNotChanged(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
-			LpaID: "lpa-id",
-			Donor: actor.Donor{
-				DateOfBirth: date.New(validBirthYear, "1", "2"),
-			},
-			HasSentApplicationUpdatedEvent: true,
-		}).
-		Return(nil)
-
-	err := YourDateOfBirth(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := YourDateOfBirth(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
 		Donor: actor.Donor{
 			DateOfBirth: date.New(validBirthYear, "1", "2"),
@@ -242,7 +188,7 @@ func TestPostYourDateOfBirthWhenDetailsNotChanged(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.WeHaveUpdatedYourDetails.Format("lpa-id")+"?detail=dateOfBirth", resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.MakeANewLPA.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostYourDateOfBirthWhenInputRequired(t *testing.T) {

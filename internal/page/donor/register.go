@@ -198,7 +198,7 @@ func Register(
 		WithdrawLpa(tmpls.Get("withdraw_this_lpa.gohtml"), donorStore, time.Now))
 
 	handleWithDonor(page.Paths.MakeANewLPA, page.None,
-		MakeANewLPA(tmpls.Get("make_a_new_lpa.gohtml"), donorStore))
+		Guidance(tmpls.Get("make_a_new_lpa.gohtml")))
 	handleWithDonor(page.Paths.YourDetails, page.None,
 		YourDetails(tmpls.Get("your_details.gohtml"), donorStore, sessionStore))
 	handleWithDonor(page.Paths.YourName, page.None,

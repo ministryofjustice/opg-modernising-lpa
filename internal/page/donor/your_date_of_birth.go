@@ -20,15 +20,6 @@ type yourDateOfBirthData struct {
 
 func YourDateOfBirth(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
-		if donor.Donor.DateOfBirth.IsZero() {
-			previousDetails, err := donorStore.Latest(r.Context())
-			if err != nil {
-				return err
-			}
-
-			donor.Donor.DateOfBirth = previousDetails.Donor.DateOfBirth
-		}
-
 		data := &yourDateOfBirthData{
 			App: appData,
 			Form: &yourDateOfBirthForm{
@@ -49,13 +40,15 @@ func YourDateOfBirth(tmpl template.Template, donorStore DonorStore) Handler {
 				if donor.Donor.DateOfBirth != data.Form.Dob {
 					donor.Donor.DateOfBirth = data.Form.Dob
 					donor.HasSentApplicationUpdatedEvent = false
-				}
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
-					return err
-				}
+					if err := donorStore.Put(r.Context(), donor); err != nil {
+						return err
+					}
 
-				return page.Paths.WeHaveUpdatedYourDetails.RedirectQuery(w, r, appData, donor, url.Values{"detail": {"dateOfBirth"}})
+					return page.Paths.WeHaveUpdatedYourDetails.RedirectQuery(w, r, appData, donor, url.Values{"detail": {"dateOfBirth"}})
+				} else {
+					return page.Paths.MakeANewLPA.Redirect(w, r, appData, donor)
+				}
 			}
 		}
 
