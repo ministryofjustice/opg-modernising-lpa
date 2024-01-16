@@ -139,10 +139,15 @@ func (l *Localizer) FormatDateTime(t time.Time) string {
 	}
 
 	if l.Lang == Cy {
-		return fmt.Sprintf("%d %s %d am %s", t.Day(), monthsCy[t.Month()], t.Year(), t.Format("15:04"))
+		amPm := "yb"
+		if t.Hour() >= 12 {
+			amPm = "yp"
+		}
+
+		return fmt.Sprintf("%d %s %d am %s%s", t.Day(), monthsCy[t.Month()], t.Year(), t.Format("3:04"), amPm)
 	}
 
-	return t.Format("2 January 2006 at 15:04")
+	return t.Format("2 January 2006 at 3:04pm")
 }
 
 func LowerFirst(s string) string {
