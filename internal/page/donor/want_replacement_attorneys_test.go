@@ -24,7 +24,7 @@ func TestGetWantReplacementAttorneys(t *testing.T) {
 		Execute(w, &wantReplacementAttorneysData{
 			App:     testAppData,
 			Donor:   &actor.DonorProvidedDetails{},
-			Form:    &form.YesNoForm{},
+			Form:    form.NewYesNoForm(form.YesNoUnknown),
 			Options: form.YesNoValues,
 		}).
 		Return(nil)
@@ -57,11 +57,9 @@ func TestGetWantReplacementAttorneysFromStore(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &wantReplacementAttorneysData{
-			App:   testAppData,
-			Donor: &actor.DonorProvidedDetails{WantReplacementAttorneys: form.Yes},
-			Form: &form.YesNoForm{
-				YesNo: form.Yes,
-			},
+			App:     testAppData,
+			Donor:   &actor.DonorProvidedDetails{WantReplacementAttorneys: form.Yes},
+			Form:    form.NewYesNoForm(form.Yes),
 			Options: form.YesNoValues,
 		}).
 		Return(nil)
