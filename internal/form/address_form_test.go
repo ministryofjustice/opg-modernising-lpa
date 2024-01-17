@@ -33,6 +33,7 @@ func TestReadAddressForm(t *testing.T) {
 			result: &AddressForm{
 				Action:         "postcode-lookup",
 				LookupPostcode: "NG1",
+				FieldNames:     FieldNames.Address,
 			},
 		},
 		"postcode-select": {
@@ -41,8 +42,9 @@ func TestReadAddressForm(t *testing.T) {
 				"select-address": {expectedAddress.Encode()},
 			},
 			result: &AddressForm{
-				Action:  "postcode-select",
-				Address: expectedAddress,
+				Action:     "postcode-select",
+				Address:    expectedAddress,
+				FieldNames: FieldNames.Address,
 			},
 		},
 		"postcode-select not selected": {
@@ -51,8 +53,9 @@ func TestReadAddressForm(t *testing.T) {
 				"select-address": {""},
 			},
 			result: &AddressForm{
-				Action:  "postcode-select",
-				Address: nil,
+				Action:     "postcode-select",
+				Address:    nil,
+				FieldNames: FieldNames.Address,
 			},
 		},
 		"reuse-select": {
@@ -61,8 +64,9 @@ func TestReadAddressForm(t *testing.T) {
 				"select-address": {expectedAddress.Encode()},
 			},
 			result: &AddressForm{
-				Action:  "reuse-select",
-				Address: expectedAddress,
+				Action:     "reuse-select",
+				Address:    expectedAddress,
+				FieldNames: FieldNames.Address,
 			},
 		},
 		"reuse-select not selected": {
@@ -71,8 +75,9 @@ func TestReadAddressForm(t *testing.T) {
 				"select-address": {""},
 			},
 			result: &AddressForm{
-				Action:  "reuse-select",
-				Address: nil,
+				Action:     "reuse-select",
+				Address:    nil,
+				FieldNames: FieldNames.Address,
 			},
 		},
 		"manual": {
@@ -85,8 +90,9 @@ func TestReadAddressForm(t *testing.T) {
 				FieldNames.Address.Postcode:   {"e"},
 			},
 			result: &AddressForm{
-				Action:  "manual",
-				Address: expectedAddress,
+				Action:     "manual",
+				Address:    expectedAddress,
+				FieldNames: FieldNames.Address,
 			},
 		},
 	}
