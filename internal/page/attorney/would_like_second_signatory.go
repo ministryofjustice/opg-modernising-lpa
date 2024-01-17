@@ -12,18 +12,16 @@ import (
 )
 
 type wouldLikeSecondSignatoryData struct {
-	App     page.AppData
-	Errors  validation.List
-	YesNo   form.YesNo
-	Options form.YesNoOptions
+	App    page.AppData
+	Errors validation.List
+	Form   *form.YesNoForm
 }
 
 func WouldLikeSecondSignatory(tmpl template.Template, attorneyStore AttorneyStore, donorStore DonorStore, lpaStoreClient LpaStoreClient) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *actor.AttorneyProvidedDetails) error {
 		data := &wouldLikeSecondSignatoryData{
-			App:     appData,
-			YesNo:   attorneyProvidedDetails.WouldLikeSecondSignatory,
-			Options: form.YesNoValues,
+			App:  appData,
+			Form: form.NewYesNoForm(attorneyProvidedDetails.WouldLikeSecondSignatory),
 		}
 
 		if r.Method == http.MethodPost {

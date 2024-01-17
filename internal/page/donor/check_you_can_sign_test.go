@@ -22,10 +22,11 @@ func TestGetCheckYouCanSign(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &checkYouCanSignData{
-			App:     testAppData,
-			Errors:  nil,
-			Form:    &form.YesNoForm{YesNo: form.No},
-			Options: form.YesNoValues,
+			FieldNames: form.FieldNames.YesNo,
+			App:        testAppData,
+			Errors:     nil,
+			Form:       &form.YesNoForm{YesNo: form.No},
+			Options:    form.YesNoValues,
 		}).
 		Return(nil)
 

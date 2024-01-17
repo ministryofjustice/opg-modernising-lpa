@@ -23,8 +23,8 @@ func TestGetWouldLikeSecondSignatory(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &wouldLikeSecondSignatoryData{
-			App:     testAppData,
-			Options: form.YesNoValues,
+			App:  testAppData,
+			Form: form.NewYesNoForm(form.YesNoUnknown),
 		}).
 		Return(nil)
 
@@ -42,8 +42,8 @@ func TestGetWouldLikeSecondSignatoryWhenTemplateErrors(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &wouldLikeSecondSignatoryData{
-			App:     testAppData,
-			Options: form.YesNoValues,
+			App:  testAppData,
+			Form: form.NewYesNoForm(form.YesNoUnknown),
 		}).
 		Return(expectedError)
 

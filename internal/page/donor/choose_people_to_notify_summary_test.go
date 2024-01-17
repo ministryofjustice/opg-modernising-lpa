@@ -24,10 +24,9 @@ func TestGetChoosePeopleToNotifySummary(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &choosePeopleToNotifySummaryData{
-			App:     testAppData,
-			Donor:   donor,
-			Form:    &form.YesNoForm{},
-			Options: form.YesNoValues,
+			App:   testAppData,
+			Donor: donor,
+			Form:  form.NewYesNoForm(form.YesNoUnknown),
 		}).
 		Return(nil)
 

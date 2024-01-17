@@ -12,11 +12,10 @@ import (
 )
 
 type choosePeopleToNotifySummaryData struct {
-	App     page.AppData
-	Errors  validation.List
-	Form    *form.YesNoForm
-	Options form.YesNoOptions
-	Donor   *actor.DonorProvidedDetails
+	App    page.AppData
+	Errors validation.List
+	Form   *form.YesNoForm
+	Donor  *actor.DonorProvidedDetails
 }
 
 func ChoosePeopleToNotifySummary(tmpl template.Template) Handler {
@@ -26,10 +25,9 @@ func ChoosePeopleToNotifySummary(tmpl template.Template) Handler {
 		}
 
 		data := &choosePeopleToNotifySummaryData{
-			App:     appData,
-			Donor:   donor,
-			Form:    &form.YesNoForm{},
-			Options: form.YesNoValues,
+			App:   appData,
+			Donor: donor,
+			Form:  form.NewYesNoForm(form.YesNoUnknown),
 		}
 
 		if r.Method == http.MethodPost {
