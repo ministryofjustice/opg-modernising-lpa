@@ -26,7 +26,7 @@ func TestGetYourIndependentWitnessAddress(t *testing.T) {
 			App:        testAppData,
 			ActorLabel: "independentWitness",
 			FullName:   "John Smith",
-			Form:       &form.AddressForm{},
+			Form:       form.NewAddressForm(),
 			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
@@ -56,8 +56,9 @@ func TestGetYourIndependentWitnessAddressFromStore(t *testing.T) {
 			ActorLabel: "independentWitness",
 			FullName:   " ",
 			Form: &form.AddressForm{
-				Action:  "manual",
-				Address: &address,
+				Action:     "manual",
+				Address:    &address,
+				FieldNames: form.FieldNames.Address,
 			},
 			TitleKeys: testTitleKeys,
 		}).
@@ -85,8 +86,9 @@ func TestGetYourIndependentWitnessAddressManual(t *testing.T) {
 			ActorLabel: "independentWitness",
 			FullName:   " ",
 			Form: &form.AddressForm{
-				Action:  "manual",
-				Address: &place.Address{},
+				Action:     "manual",
+				Address:    &place.Address{},
+				FieldNames: form.FieldNames.Address,
 			},
 			TitleKeys: testTitleKeys,
 		}).
@@ -109,7 +111,7 @@ func TestGetYourIndependentWitnessAddressWhenTemplateErrors(t *testing.T) {
 			App:        testAppData,
 			ActorLabel: "independentWitness",
 			FullName:   " ",
-			Form:       &form.AddressForm{},
+			Form:       form.NewAddressForm(),
 			TitleKeys:  testTitleKeys,
 		}).
 		Return(expectedError)
@@ -250,6 +252,7 @@ func TestPostYourIndependentWitnessAddressManualWhenValidationError(t *testing.T
 					Postcode:   "D",
 					Country:    "GB",
 				},
+				FieldNames: form.FieldNames.Address,
 			},
 			Errors:    validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
 			TitleKeys: testTitleKeys,
@@ -291,6 +294,7 @@ func TestPostYourIndependentWitnessAddressSelect(t *testing.T) {
 				Action:         "manual",
 				LookupPostcode: "NG1",
 				Address:        expectedAddress,
+				FieldNames:     form.FieldNames.Address,
 			},
 			TitleKeys: testTitleKeys,
 		}).
@@ -331,6 +335,7 @@ func TestPostYourIndependentWitnessAddressSelectWhenValidationError(t *testing.T
 			Form: &form.AddressForm{
 				Action:         "postcode-select",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses: addresses,
 			Errors:    validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
@@ -373,6 +378,7 @@ func TestPostYourIndependentWitnessAddressLookup(t *testing.T) {
 			Form: &form.AddressForm{
 				Action:         "postcode-lookup",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses: addresses,
 			TitleKeys: testTitleKeys,
@@ -414,6 +420,7 @@ func TestPostYourIndependentWitnessAddressLookupError(t *testing.T) {
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses: []place.Address{},
 			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
@@ -461,6 +468,7 @@ func TestPostYourIndependentWitnessAddressInvalidPostcodeError(t *testing.T) {
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "XYZ",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses: []place.Address{},
 			Errors:    validation.With("lookup-postcode", validation.EnterError{Label: "invalidPostcode"}),
@@ -502,6 +510,7 @@ func TestPostYourIndependentWitnessAddressValidPostcodeNoAddresses(t *testing.T)
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "XYZ",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses: []place.Address{},
 			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "noAddressesFound"}),
@@ -532,7 +541,8 @@ func TestPostYourIndependentWitnessAddressLookupWhenValidationError(t *testing.T
 			ActorLabel: "independentWitness",
 			FullName:   " ",
 			Form: &form.AddressForm{
-				Action: "postcode",
+				Action:     "postcode",
+				FieldNames: form.FieldNames.Address,
 			},
 			Errors:    validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
 			TitleKeys: testTitleKeys,
