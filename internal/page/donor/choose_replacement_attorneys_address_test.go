@@ -31,7 +31,7 @@ func TestGetChooseReplacementAttorneysAddress(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &chooseAddressData{
 			App:        testAppData,
-			Form:       &form.AddressForm{},
+			Form:       form.NewAddressForm(),
 			ID:         "123",
 			FullName:   "John Smith",
 			CanSkip:    true,
@@ -61,8 +61,9 @@ func TestGetChooseReplacementAttorneysAddressFromStore(t *testing.T) {
 		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action:  "manual",
-				Address: &testAddress,
+				Action:     "manual",
+				Address:    &testAddress,
+				FieldNames: form.FieldNames.Address,
 			},
 			ID:         "123",
 			FullName:   " ",
@@ -93,8 +94,9 @@ func TestGetChooseReplacementAttorneysAddressManual(t *testing.T) {
 		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action:  "manual",
-				Address: &place.Address{},
+				Action:     "manual",
+				Address:    &place.Address{},
+				FieldNames: form.FieldNames.Address,
 			},
 			ID:         "123",
 			FullName:   " ",
@@ -124,7 +126,7 @@ func TestGetChooseReplacementAttorneysAddressWhenTemplateErrors(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &chooseAddressData{
 			App:        testAppData,
-			Form:       &form.AddressForm{},
+			Form:       form.NewAddressForm(),
 			ID:         "123",
 			FullName:   " ",
 			CanSkip:    true,
@@ -307,8 +309,9 @@ func TestPostChooseReplacementAttorneysAddressManualWhenValidationError(t *testi
 		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action:  "manual",
-				Address: invalidAddress,
+				Action:     "manual",
+				Address:    invalidAddress,
+				FieldNames: form.FieldNames.Address,
 			},
 			Errors:     validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
 			ID:         "123",
@@ -345,6 +348,7 @@ func TestPostChooseReplacementAttorneysPostcodeSelect(t *testing.T) {
 				Action:         "manual",
 				LookupPostcode: "NG1",
 				Address:        &testAddress,
+				FieldNames:     form.FieldNames.Address,
 			},
 			ID:         "123",
 			FullName:   " ",
@@ -387,6 +391,7 @@ func TestPostChooseReplacementAttorneysPostcodeSelectWhenValidationError(t *test
 			Form: &form.AddressForm{
 				Action:         "postcode-select",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses:  addresses,
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
@@ -431,6 +436,7 @@ func TestPostChooseReplacementAttorneysPostcodeLookup(t *testing.T) {
 			Form: &form.AddressForm{
 				Action:         "postcode-lookup",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses:  addresses,
 			ID:         "123",
@@ -474,6 +480,7 @@ func TestPostChooseReplacementAttorneysPostcodeLookupError(t *testing.T) {
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses:  []place.Address{},
 			Errors:     validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
@@ -523,6 +530,7 @@ func TestPostChooseReplacementAttorneysPostcodeLookupInvalidPostcodeError(t *tes
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "XYZ",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses:  []place.Address{},
 			Errors:     validation.With("lookup-postcode", validation.EnterError{Label: "invalidPostcode"}),
@@ -568,6 +576,7 @@ func TestPostChooseReplacementAttorneysPostcodeLookupValidPostcodeNoAddresses(t 
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "XYZ",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses:  []place.Address{},
 			Errors:     validation.With("lookup-postcode", validation.CustomError{Label: "noAddressesFound"}),
@@ -602,7 +611,8 @@ func TestPostChooseReplacementAttorneysPostcodeLookupWhenValidationError(t *test
 		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action: "postcode",
+				Action:     "postcode",
+				FieldNames: form.FieldNames.Address,
 			},
 			Errors:     validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
 			ID:         "123",
@@ -634,7 +644,8 @@ func TestPostChooseReplacementAttorneysAddressReuse(t *testing.T) {
 		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action: "reuse",
+				Action:     "reuse",
+				FieldNames: form.FieldNames.Address,
 			},
 			ID:         "123",
 			FullName:   " ",
@@ -711,7 +722,8 @@ func TestPostChooseReplacementAttorneysAddressReuseSelectWhenValidationError(t *
 		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action: "reuse-select",
+				Action:     "reuse-select",
+				FieldNames: form.FieldNames.Address,
 			},
 			Addresses:  []place.Address{{Line1: "donor lane"}},
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
