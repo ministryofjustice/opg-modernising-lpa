@@ -23,8 +23,7 @@ func RemoveReplacementAttorney(logger Logger, tmpl template.Template, donorStore
 			App:        appData,
 			TitleLabel: "doYouWantToRemoveReplacementAttorney",
 			Name:       attorney.FullName(),
-			Form:       &form.YesNoForm{},
-			Options:    form.YesNoValues,
+			Form:       form.NewYesNoForm(form.YesNoUnknown),
 		}
 
 		if r.Method == http.MethodPost {

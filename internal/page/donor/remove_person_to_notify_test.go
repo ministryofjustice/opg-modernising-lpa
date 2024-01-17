@@ -35,8 +35,7 @@ func TestGetRemovePersonToNotify(t *testing.T) {
 			App:            testAppData,
 			PersonToNotify: personToNotify,
 			Errors:         nil,
-			Form:           &form.YesNoForm{},
-			Options:        form.YesNoValues,
+			Form:           form.NewYesNoForm(form.YesNoUnknown),
 		}).
 		Return(nil)
 
