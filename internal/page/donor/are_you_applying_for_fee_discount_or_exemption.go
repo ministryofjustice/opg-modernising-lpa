@@ -10,20 +10,19 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type areYouApplyingForFeeDiscountOrExemption struct {
+type areYouApplyingForFeeDiscountOrExemptionData struct {
 	App                 page.AppData
 	Errors              validation.List
 	CertificateProvider actor.CertificateProvider
-	Options             form.YesNoOptions
 	Form                *form.YesNoForm
 }
 
 func AreYouApplyingForFeeDiscountOrExemption(tmpl template.Template, payer Payer, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
-		data := &areYouApplyingForFeeDiscountOrExemption{
+		data := &areYouApplyingForFeeDiscountOrExemptionData{
 			App:                 appData,
 			CertificateProvider: donor.CertificateProvider,
-			Options:             form.YesNoValues,
+			Form:                form.NewYesNoForm(form.YesNoUnknown),
 		}
 
 		if r.Method == http.MethodPost {

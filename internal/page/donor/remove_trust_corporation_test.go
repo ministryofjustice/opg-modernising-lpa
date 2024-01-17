@@ -46,8 +46,7 @@ func TestGetRemoveTrustCorporation(t *testing.T) {
 					App:        testAppData,
 					TitleLabel: tc.titleLabel,
 					Name:       "hey ltd",
-					Form:       &form.YesNoForm{},
-					Options:    form.YesNoValues,
+					Form:       form.NewYesNoForm(form.YesNoUnknown),
 				}).
 				Return(nil)
 

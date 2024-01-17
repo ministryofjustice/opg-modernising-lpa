@@ -11,6 +11,7 @@ type YesNoForm struct {
 	YesNo      YesNo
 	Error      error
 	ErrorLabel string
+	Options    YesNoOptions
 }
 
 func ReadYesNoForm(r *http.Request, errorLabel string) *YesNoForm {
@@ -20,6 +21,7 @@ func ReadYesNoForm(r *http.Request, errorLabel string) *YesNoForm {
 		YesNo:      yesNo,
 		Error:      err,
 		ErrorLabel: errorLabel,
+		Options:    YesNoValues,
 	}
 }
 
@@ -34,4 +36,11 @@ func (f *YesNoForm) Validate() validation.List {
 
 func PostFormString(r *http.Request, name string) string {
 	return strings.TrimSpace(r.PostFormValue(name))
+}
+
+func NewYesNoForm(yesNo YesNo) *YesNoForm {
+	return &YesNoForm{
+		YesNo:   yesNo,
+		Options: YesNoValues,
+	}
 }
