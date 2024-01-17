@@ -12,11 +12,11 @@
           </legend>
 
           {{ if eq .Form.Action "manual" }}
-            {{ template "input" (input . .FieldNames.Line1 "addressLine1" .Form.Address.Line1 "autocomplete" "address-line1") }}
-            {{ template "input" (input . .FieldNames.Line2 "addressLine2" .Form.Address.Line2 "autocomplete" "address-line2") }}
-            {{ template "input" (input . .FieldNames.Line3 "addressLine3" .Form.Address.Line3 "autocomplete" "address-line3") }}
-            {{ template "input" (input . .FieldNames.TownOrCity "townOrCity" .Form.Address.TownOrCity "classes" "govuk-!-width-two-thirds" "autocomplete" "address-level1") }}
-            {{ template "input" (input . .FieldNames.Postcode "postcode" .Form.Address.Postcode "classes" "govuk-input--width-10" "autocomplete" "postal-code") }}
+            {{ template "input" (input . .Form.FieldNames.Line1 "addressLine1" .Form.Address.Line1 "autocomplete" "address-line1") }}
+            {{ template "input" (input . .Form.FieldNames.Line2 "addressLine2" .Form.Address.Line2 "autocomplete" "address-line2") }}
+            {{ template "input" (input . .Form.FieldNames.Line3 "addressLine3" .Form.Address.Line3 "autocomplete" "address-line3") }}
+            {{ template "input" (input . .Form.FieldNames.TownOrCity "townOrCity" .Form.Address.TownOrCity "classes" "govuk-!-width-two-thirds" "autocomplete" "address-level1") }}
+            {{ template "input" (input . .Form.FieldNames.Postcode "postcode" .Form.Address.Postcode "classes" "govuk-input--width-10" "autocomplete" "postal-code") }}
 
             <button name="action" value="manual" class="govuk-button govuk-!-margin-top-6" data-module="govuk-button">
               {{ tr .App "continue" }}
