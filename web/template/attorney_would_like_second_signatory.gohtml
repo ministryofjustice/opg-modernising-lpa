@@ -14,9 +14,9 @@
 
             {{ template "error-message" (errorMessage . "yes-no") }}
 
-            {{ template "radios" (items . "yes-no" .YesNo.String
-              (item .Options.Yes.String "yesByddwn")
-              (item .Options.No.String "noNaFyddwn")
+            {{ template "radios" (items . "yes-no" .Form.YesNo.String
+              (item .Form.Options.Yes.String "yesByddwn")
+              (item .Form.Options.No.String "noNaFyddwn")
             ) }}
           </fieldset>
         </div>

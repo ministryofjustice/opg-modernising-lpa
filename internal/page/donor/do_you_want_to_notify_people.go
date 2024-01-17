@@ -13,7 +13,6 @@ import (
 type doYouWantToNotifyPeopleData struct {
 	App             page.AppData
 	Errors          validation.List
-	Options         form.YesNoOptions
 	Form            *form.YesNoForm
 	Donor           *actor.DonorProvidedDetails
 	HowWorkTogether string
@@ -28,10 +27,7 @@ func DoYouWantToNotifyPeople(tmpl template.Template, donorStore DonorStore) Hand
 		data := &doYouWantToNotifyPeopleData{
 			App:   appData,
 			Donor: donor,
-			Form: &form.YesNoForm{
-				YesNo: donor.DoYouWantToNotifyPeople,
-			},
-			Options: form.YesNoValues,
+			Form:  form.NewYesNoForm(donor.DoYouWantToNotifyPeople),
 		}
 
 		switch donor.AttorneyDecisions.How {
