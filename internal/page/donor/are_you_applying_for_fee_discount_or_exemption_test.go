@@ -21,9 +21,9 @@ func TestGetAreYouApplyingForFeeDiscountOrExemption(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &areYouApplyingForFeeDiscountOrExemption{
-			App:     testAppData,
-			Options: form.YesNoValues,
+		Execute(w, &areYouApplyingForFeeDiscountOrExemptionData{
+			App:  testAppData,
+			Form: form.NewYesNoForm(form.YesNoUnknown),
 		}).
 		Return(nil)
 
@@ -40,9 +40,9 @@ func TestGetAreYouApplyingForFeeDiscountOrExemptionWhenTemplateErrors(t *testing
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &areYouApplyingForFeeDiscountOrExemption{
-			App:     testAppData,
-			Options: form.YesNoValues,
+		Execute(w, &areYouApplyingForFeeDiscountOrExemptionData{
+			App:  testAppData,
+			Form: form.NewYesNoForm(form.YesNoUnknown),
 		}).
 		Return(expectedError)
 
@@ -162,7 +162,7 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenValidationError(t *testi
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, mock.MatchedBy(func(data *areYouApplyingForFeeDiscountOrExemption) bool {
+		Execute(w, mock.MatchedBy(func(data *areYouApplyingForFeeDiscountOrExemptionData) bool {
 			return assert.Equal(t, validationError, data.Errors)
 		})).
 		Return(nil)
