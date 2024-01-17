@@ -19,8 +19,8 @@
             {{ template "error-message" (errorMessage . "yes-no") }}
 
             {{ template "radios" (items . "yes-no" ""
-              (item .Form.FieldNames.Yes "yes")
-              (item .Form.FieldNames.No "no")
+              (item .Form.FieldNames.Yes.String "yes")
+              (item .Form.FieldNames.No.String "no")
             ) }}
           </fieldset>
         </div>
