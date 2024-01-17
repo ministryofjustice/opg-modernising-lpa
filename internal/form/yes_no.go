@@ -4,6 +4,7 @@ package form
 type YesNo uint8
 
 const (
-	Yes YesNo = iota + 1 // yes
-	No                   // no
+	YesNoUnknown YesNo = iota
+	Yes                // yes
+	No                 // no
 )
