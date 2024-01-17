@@ -59,8 +59,9 @@ func TestGetWhatIsYourHomeAddress(t *testing.T) {
 			data := &whatIsYourHomeAddressData{
 				App: testAppData,
 				Form: &form.AddressForm{
-					Action:  tc.expectedAction,
-					Address: tc.expectedFormAddress,
+					Action:     tc.expectedAction,
+					Address:    tc.expectedFormAddress,
+					FieldNames: form.FieldNames.Address,
 				},
 			}
 
@@ -208,6 +209,7 @@ func TestPostWhatIsYourHomeAddressPostcodeSelect(t *testing.T) {
 				Action:         "manual",
 				LookupPostcode: "NG1",
 				Address:        &testAddress,
+				FieldNames:     form.FieldNames.Address,
 			},
 		}).
 		Return(nil)
@@ -250,6 +252,7 @@ func TestPostWhatIsYourHomeAddressPostcodeSelectWhenValidationError(t *testing.T
 			Form: &form.AddressForm{
 				Action:         "postcode-select",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses: addresses,
 			Errors:    validation.With("select-address", validation.SelectError{Label: "yourAddressFromTheList"}),
@@ -294,6 +297,7 @@ func TestPostWhatIsYourHomeAddressPostcodeLookup(t *testing.T) {
 			Form: &form.AddressForm{
 				Action:         "postcode-lookup",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses: addresses,
 		}).
@@ -333,6 +337,7 @@ func TestPostWhatIsYourHomeAddressPostcodeLookupWhenPostcodeNotFound(t *testing.
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses: []place.Address{},
 			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "noYourAddressesFound"}),
@@ -377,6 +382,7 @@ func TestPostWhatIsYourHomeAddressPostcodeLookupWhenInvalidPostcode(t *testing.T
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses: []place.Address{},
 			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
