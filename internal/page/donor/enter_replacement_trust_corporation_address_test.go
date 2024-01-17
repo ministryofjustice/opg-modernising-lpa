@@ -24,7 +24,7 @@ func TestGetEnterReplacementTrustCorporationAddress(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &chooseAddressData{
 			App:        testAppData,
-			Form:       &form.AddressForm{},
+			Form:       form.NewAddressForm(),
 			ActorLabel: "theTrustCorporation",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -48,8 +48,9 @@ func TestGetEnterReplacementTrustCorporationAddressManual(t *testing.T) {
 		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action:  "manual",
-				Address: &place.Address{},
+				Action: "manual",
+
+				FieldNames: form.FieldNames.Address, Address: &place.Address{},
 			},
 			ActorLabel: "theTrustCorporation",
 			TitleKeys:  testTitleKeys,
@@ -73,7 +74,7 @@ func TestGetEnterReplacementTrustCorporationAddressWhenTemplateErrors(t *testing
 	template.EXPECT().
 		Execute(w, &chooseAddressData{
 			App:        testAppData,
-			Form:       &form.AddressForm{},
+			Form:       form.NewAddressForm(),
 			ActorLabel: "theTrustCorporation",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -218,8 +219,9 @@ func TestPostEnterReplacementTrustCorporationAddressManualWhenValidationError(t 
 		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action:  "manual",
-				Address: invalidAddress,
+				Action: "manual",
+
+				FieldNames: form.FieldNames.Address, Address: invalidAddress,
 			},
 			Errors:     validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
 			ActorLabel: "theTrustCorporation",
@@ -255,6 +257,7 @@ func TestPostEnterReplacementTrustCorporationAddressPostcodeSelect(t *testing.T)
 				Action:         "manual",
 				LookupPostcode: "NG1",
 				Address:        &testAddress,
+				FieldNames:     form.FieldNames.Address,
 			},
 			ActorLabel: "theTrustCorporation",
 			TitleKeys:  testTitleKeys,
@@ -296,6 +299,7 @@ func TestPostEnterReplacementTrustCorporationAddressPostcodeSelectWhenValidation
 			Form: &form.AddressForm{
 				Action:         "postcode-select",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses:  addresses,
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
@@ -339,6 +343,7 @@ func TestPostEnterReplacementTrustCorporationPostcodeLookup(t *testing.T) {
 			Form: &form.AddressForm{
 				Action:         "postcode-lookup",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses:  addresses,
 			ActorLabel: "theTrustCorporation",
@@ -381,6 +386,7 @@ func TestPostEnterReplacementTrustCorporationPostcodeLookupError(t *testing.T) {
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses:  []place.Address{},
 			Errors:     validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
@@ -429,6 +435,7 @@ func TestPostEnterReplacementTrustCorporationAddressPostcodeLookupInvalidPostcod
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "XYZ",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses:  []place.Address{},
 			Errors:     validation.With("lookup-postcode", validation.EnterError{Label: "invalidPostcode"}),
@@ -469,6 +476,7 @@ func TestPostEnterReplacementTrustCorporationAddressPostcodeLookupValidPostcodeN
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "XYZ",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses:  []place.Address{},
 			Errors:     validation.With("lookup-postcode", validation.CustomError{Label: "noAddressesFound"}),
@@ -500,7 +508,8 @@ func TestPostEnterReplacementTrustCorporationAddressPostcodeLookupWhenValidation
 		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action: "postcode",
+				Action:     "postcode",
+				FieldNames: form.FieldNames.Address,
 			},
 			Errors:     validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
 			ActorLabel: "theTrustCorporation",
@@ -531,7 +540,8 @@ func TestPostEnterReplacementTrustCorporationAddressReuse(t *testing.T) {
 		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action: "reuse",
+				Action:     "reuse",
+				FieldNames: form.FieldNames.Address,
 			},
 			ActorLabel: "theTrustCorporation",
 			Addresses:  []place.Address{{Line1: "donor lane"}},
@@ -607,7 +617,8 @@ func TestPostEnterReplacementTrustCorporationAddressReuseSelectWhenValidationErr
 		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action: "reuse-select",
+				Action:     "reuse-select",
+				FieldNames: form.FieldNames.Address,
 			},
 			Addresses:  []place.Address{{Line1: "donor lane"}},
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
