@@ -39,3 +39,12 @@ func TestYesNoFormValidate(t *testing.T) {
 		})
 	}
 }
+
+func TestNewYesNoForm(t *testing.T) {
+	for _, yesNo := range []YesNo{Yes, No, YesNoUnknown} {
+		assert.Equal(t, &YesNoForm{
+			YesNo:   yesNo,
+			Options: YesNoValues,
+		}, NewYesNoForm(yesNo))
+	}
+}
