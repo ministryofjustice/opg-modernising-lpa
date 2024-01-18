@@ -109,80 +109,112 @@ func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostYourAddressManual(t *testing.T) {
-	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+	testCases := map[string]struct {
+		url              string
+		expectedRedirect string
+	}{
+		"making first LPA": {
+			url:              "/",
+			expectedRedirect: page.Paths.YourPreferredLanguage.Format("lpa-id"),
+		},
+		"making another LPA": {
+			url:              "/?makingAnotherLPA=1",
+			expectedRedirect: page.Paths.WeHaveUpdatedYourDetails.Format("lpa-id") + "?detail=address",
+		},
 	}
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			f := url.Values{
+				"action":           {"manual"},
+				"address-line-1":   {"a"},
+				"address-line-2":   {"b"},
+				"address-line-3":   {"c"},
+				"address-town":     {"d"},
+				"address-postcode": {"e"},
+			}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
-			LpaID: "lpa-id",
-			Donor: actor.Donor{
-				Address: testAddress,
-			},
-		}).
-		Return(nil)
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, tc.url, strings.NewReader(f.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		LpaID: "lpa-id",
-		Donor: actor.Donor{
-			Address: place.Address{Line1: "a", Line2: "b", Line3: "c", TownOrCity: "d"},
-		},
-		HasSentApplicationUpdatedEvent: true,
-	})
-	resp := w.Result()
+			donorStore := newMockDonorStore(t)
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
+					LpaID: "lpa-id",
+					Donor: actor.Donor{
+						Address: testAddress,
+					},
+					HasSentApplicationUpdatedEvent: false,
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.YourPreferredLanguage.Format("lpa-id"), resp.Header.Get("Location"))
+			err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+				LpaID: "lpa-id",
+				Donor: actor.Donor{
+					Address: place.Address{Line1: "a", Line2: "b", Line3: "c", TownOrCity: "d"},
+				},
+				HasSentApplicationUpdatedEvent: true,
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.expectedRedirect, resp.Header.Get("Location"))
+		})
+	}
 }
 
-func TestPostYourAddressManualWhenPostcodeNotChanged(t *testing.T) {
-	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+func TestPostYourAddressManualWhenAddressNotChanged(t *testing.T) {
+	testCases := map[string]struct {
+		url              string
+		expectedRedirect string
+	}{
+		"making first LPA": {
+			url:              "/",
+			expectedRedirect: page.Paths.YourPreferredLanguage.Format("lpa-id"),
+		},
+		"making another LPA": {
+			url:              "/?makingAnotherLPA=1",
+			expectedRedirect: page.Paths.MakeANewLPA.Format("lpa-id"),
+		},
 	}
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			f := url.Values{
+				"action":           {"manual"},
+				"address-line-1":   {"a"},
+				"address-line-2":   {"b"},
+				"address-line-3":   {"c"},
+				"address-town":     {"d"},
+				"address-postcode": {"e"},
+			}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
-			LpaID: "lpa-id",
-			Donor: actor.Donor{
-				Address: testAddress,
-			},
-			HasSentApplicationUpdatedEvent: true,
-		}).
-		Return(nil)
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, tc.url, strings.NewReader(f.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		LpaID: "lpa-id",
-		Donor: actor.Donor{
-			Address: place.Address{Postcode: "E"},
-		},
-		HasSentApplicationUpdatedEvent: true,
-	})
-	resp := w.Result()
+			err := YourAddress(nil, nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+				LpaID: "lpa-id",
+				Donor: actor.Donor{
+					Address: place.Address{
+						Line1:      "a",
+						Line2:      "b",
+						Line3:      "c",
+						TownOrCity: "d",
+						Postcode:   "E",
+					},
+				},
+				HasSentApplicationUpdatedEvent: true,
+			})
+			resp := w.Result()
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.YourPreferredLanguage.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.expectedRedirect, resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
