@@ -15,7 +15,7 @@
         {{ template "information-banner" (content .App "addedMaxPeople") }}
 
         <form novalidate method="post">
-          <input type="hidden" name="yes-no" value="{{ .Options.No.String }}">
+          <input type="hidden" name="yes-no" value="{{ .Form.Options.No.String }}">
 
           {{ template "continue-and-return-buttons" . }}
           {{ template "csrf-field" . }}
