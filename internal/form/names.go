@@ -10,11 +10,13 @@ var FieldNames = SharedFieldNames{
 		Postcode:   "address-postcode",
 		Action:     "action",
 	},
+	YesNo: "yes-no",
 }
 
 type SharedFieldNames struct {
 	Address            AddressFieldNames
 	LanguagePreference string
+	YesNo              string
 }
 
 type AddressFieldNames struct {

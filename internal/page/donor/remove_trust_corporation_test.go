@@ -46,8 +46,7 @@ func TestGetRemoveTrustCorporation(t *testing.T) {
 					App:        testAppData,
 					TitleLabel: tc.titleLabel,
 					Name:       "hey ltd",
-					Form:       &form.YesNoForm{},
-					Options:    form.YesNoValues,
+					Form:       form.NewYesNoForm(form.YesNoUnknown),
 				}).
 				Return(nil)
 
@@ -148,12 +147,12 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			form := url.Values{
-				"yes-no": {form.Yes.String()},
+			f := url.Values{
+				form.FieldNames.YesNo: {form.Yes.String()},
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			template := newMockTemplate(t)
@@ -175,12 +174,12 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 }
 
 func TestPostRemoveTrustCorporationWithFormValueNo(t *testing.T) {
-	form := url.Values{
-		"yes-no": {form.No.String()},
+	f := url.Values{
+		form.FieldNames.YesNo: {form.No.String()},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
@@ -207,12 +206,12 @@ func TestPostRemoveTrustCorporationWithFormValueNo(t *testing.T) {
 }
 
 func TestPostRemoveTrustCorporationErrorOnPutStore(t *testing.T) {
-	form := url.Values{
-		"yes-no": {form.Yes.String()},
+	f := url.Values{
+		form.FieldNames.YesNo: {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
@@ -243,12 +242,12 @@ func TestPostRemoveTrustCorporationErrorOnPutStore(t *testing.T) {
 }
 
 func TestRemoveTrustCorporationFormValidation(t *testing.T) {
-	form := url.Values{
+	f := url.Values{
 		"yes-no": {""},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	attorneyWithoutAddress := actor.Attorney{

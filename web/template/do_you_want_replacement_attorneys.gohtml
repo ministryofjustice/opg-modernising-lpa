@@ -31,8 +31,8 @@
             {{ template "error-message" (errorMessage . "yes-no") }}
 
             {{ template "radios" (items . "yes-no" .Form.YesNo.String
-              (item .Options.Yes.String "yesReplacementAttorneys")
-              (item .Options.No.String "noReplacementAttorneys")
+              (item .Form.Options.Yes.String "yesReplacementAttorneys")
+              (item .Form.Options.No.String "noReplacementAttorneys")
             ) }}
           </fieldset>
         </div>
