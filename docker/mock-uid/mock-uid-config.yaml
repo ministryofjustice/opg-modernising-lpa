@@ -3,3 +3,9 @@ specFile: https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-uid/m
 
 validation:
   request: true
+
+resources:
+  - path: "/cases"
+    method: POST
+    response:
+      scriptFile: uid.js
