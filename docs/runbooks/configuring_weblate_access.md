@@ -96,8 +96,14 @@ Push changes to a new branch, and follow the usual steps to get it merged by rai
 git push weblate-resolve-merge-conflicts
 ```
 
-When the PR is merged, Weblate should now be able to see updated repository and you can unlock it.
+When the PR is merged, Weblate should now be able to pull the changes or reset Weblate and unlock it.
 
 ```sh
 wlc pull; wlc unlock
+```
+
+or
+
+```sh
+wlc reset; wlc unlock
 ```
