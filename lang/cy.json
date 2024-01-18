@@ -1019,5 +1019,7 @@
     "weHaveUpdatedYourDetails" : "Welsh",
     "yourDetailHasBeenUpdated" : "Welsh {{ .Detail }} Welsh",
     "howeverItWillNotApplyToAnySignedOrRegisteredLPAs": "<p class=\"govuk-body\">Welsh <a href=\"#\" class=\"gov-link\">Welsh</a> Welsh {{ .Detail }} Welsh</p>",
-    "ifYoureInProcessOfMakingAnotherLPACheckIfDetailIsCorrect": "Welsh {{ .Detail }} Welsh"
+    "ifYoureInProcessOfMakingAnotherLPACheckIfDetailIsCorrect": "Welsh {{ .Detail }} Welsh",
+    "helpSomeoneMakeLastingPowerOfAttorney": "Welsh",
+    "helpSomeoneMakeLastingPowerOfAttorneyContent": "Welsh"
 }
