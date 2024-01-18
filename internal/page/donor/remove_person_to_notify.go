@@ -16,7 +16,6 @@ type removePersonToNotifyData struct {
 	PersonToNotify actor.PersonToNotify
 	Errors         validation.List
 	Form           *form.YesNoForm
-	Options        form.YesNoOptions
 }
 
 func RemovePersonToNotify(logger Logger, tmpl template.Template, donorStore DonorStore) Handler {
@@ -31,8 +30,7 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, donorStore Dono
 		data := &removePersonToNotifyData{
 			App:            appData,
 			PersonToNotify: person,
-			Form:           &form.YesNoForm{},
-			Options:        form.YesNoValues,
+			Form:           form.NewYesNoForm(form.YesNoUnknown),
 		}
 
 		if r.Method == http.MethodPost {

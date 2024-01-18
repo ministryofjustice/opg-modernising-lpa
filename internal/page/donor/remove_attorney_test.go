@@ -37,8 +37,7 @@ func TestGetRemoveAttorney(t *testing.T) {
 			App:        testAppData,
 			TitleLabel: "removeAnAttorney",
 			Name:       "John Smith",
-			Form:       &form.YesNoForm{},
-			Options:    form.YesNoValues,
+			Form:       form.NewYesNoForm(form.YesNoUnknown),
 		}).
 		Return(nil)
 
@@ -123,12 +122,12 @@ func TestPostRemoveAttorney(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			form := url.Values{
-				"yes-no": {form.Yes.String()},
+			f := url.Values{
+				form.FieldNames.YesNo: {form.Yes.String()},
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			logger := newMockLogger(t)
@@ -151,12 +150,12 @@ func TestPostRemoveAttorney(t *testing.T) {
 }
 
 func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
-	form := url.Values{
-		"yes-no": {form.No.String()},
+	f := url.Values{
+		form.FieldNames.YesNo: {form.No.String()},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := newMockLogger(t)
@@ -184,12 +183,12 @@ func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
 }
 
 func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
-	form := url.Values{
-		"yes-no": {form.Yes.String()},
+	f := url.Values{
+		form.FieldNames.YesNo: {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
@@ -225,12 +224,12 @@ func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
 }
 
 func TestRemoveAttorneyFormValidation(t *testing.T) {
-	form := url.Values{
-		"yes-no": {""},
+	f := url.Values{
+		form.FieldNames.YesNo: {""},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	attorneyWithoutAddress := actor.Attorney{
@@ -238,7 +237,7 @@ func TestRemoveAttorneyFormValidation(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	validationError := validation.With("yes-no", validation.SelectError{Label: "yesToRemoveAttorney"})
+	validationError := validation.With(form.FieldNames.YesNo, validation.SelectError{Label: "yesToRemoveAttorney"})
 
 	template := newMockTemplate(t)
 	template.EXPECT().
