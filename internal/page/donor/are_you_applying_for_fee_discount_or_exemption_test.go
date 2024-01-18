@@ -158,7 +158,7 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenValidationError(t *testi
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	validationError := validation.With("yes-no", validation.SelectError{Label: "whetherApplyingForDifferentFeeType"})
+	validationError := validation.With(form.FieldNames.YesNo, validation.SelectError{Label: "whetherApplyingForDifferentFeeType"})
 
 	template := newMockTemplate(t)
 	template.EXPECT().

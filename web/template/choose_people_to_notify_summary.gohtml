@@ -15,22 +15,22 @@
         {{ template "information-banner" (content .App "addedMaxPeople") }}
 
         <form novalidate method="post">
-          <input type="hidden" name="yes-no" value="{{ .Form.Options.No.String }}">
+          <input type="hidden" name="{{ .Form.FieldName }}" value="{{ .Form.Options.No.String }}">
 
           {{ template "continue-and-return-buttons" . }}
           {{ template "csrf-field" . }}
         </form>
       {{ else }}
         <form novalidate method="post">
-          <div class="govuk-form-group {{ if .Errors.Has "yes-no" }}govuk-form-group--error{{ end }}">
+          <div class="govuk-form-group {{ if .Errors.Has .Form.FieldName }}govuk-form-group--error{{ end }}">
             <fieldset class="govuk-fieldset">
               <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                 {{ tr .App "doYouWantToAddAnotherPersonToNotify" }}
               </legend>
 
-              {{ template "error-message" (errorMessage . "yes-no") }}
+              {{ template "error-message" (errorMessage . .Form.FieldName) }}
 
-              {{ template "radios" (items . "yes-no" ""
+              {{ template "radios" (items . .Form.FieldName ""
                 (item .Form.Options.Yes.String "yes")
                 (item .Form.Options.No.String "no")
               ) }}

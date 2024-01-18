@@ -243,7 +243,7 @@ func TestPostRemoveTrustCorporationErrorOnPutStore(t *testing.T) {
 
 func TestRemoveTrustCorporationFormValidation(t *testing.T) {
 	f := url.Values{
-		"yes-no": {""},
+		form.FieldNames.YesNo: {""},
 	}
 
 	w := httptest.NewRecorder()
@@ -255,7 +255,7 @@ func TestRemoveTrustCorporationFormValidation(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	validationError := validation.With("yes-no", validation.SelectError{Label: "yesToRemoveTrustCorporation"})
+	validationError := validation.With(form.FieldNames.YesNo, validation.SelectError{Label: "yesToRemoveTrustCorporation"})
 
 	template := newMockTemplate(t)
 	template.EXPECT().
