@@ -27,7 +27,7 @@ func YourPreferredLanguage(tmpl template.Template, donorStore DonorStore) Handle
 				Preference: donor.ContactLanguagePreference,
 			},
 			Options:   localize.LangValues,
-			FieldName: form.FieldNames.LanguagePreference,
+			FieldName: form.FieldNames.LanguagePreference.LanguagePreference,
 		}
 
 		if r.Method == http.MethodPost {

@@ -30,11 +30,11 @@
               </h1>
             </legend>
 
-            {{ template "input" (input . "address-line-1" "addressLine1" .Form.Address.Line1 "autocomplete" "address-line1") }}
-            {{ template "input" (input . "address-line-2" "addressLine2" .Form.Address.Line2 "autocomplete" "address-line2") }}
-            {{ template "input" (input . "address-line-3" "addressLine3" .Form.Address.Line3 "autocomplete" "address-line3") }}
-            {{ template "input" (input . "address-town" "townOrCity" .Form.Address.TownOrCity "classes" "govuk-!-width-two-thirds" "autocomplete" "address-level1") }}
-            {{ template "input" (input . "address-postcode" "postcode" .Form.Address.Postcode "classes" "govuk-input--width-10" "autocomplete" "postal-code") }}
+            {{ template "input" (input . .Form.FieldNames.Line1 "addressLine1" .Form.Address.Line1 "autocomplete" "address-line1") }}
+            {{ template "input" (input . .Form.FieldNames.Line2 "addressLine2" .Form.Address.Line2 "autocomplete" "address-line2") }}
+            {{ template "input" (input . .Form.FieldNames.Line3 "addressLine3" .Form.Address.Line3 "autocomplete" "address-line3") }}
+            {{ template "input" (input . .Form.FieldNames.TownOrCity "townOrCity" .Form.Address.TownOrCity "classes" "govuk-!-width-two-thirds" "autocomplete" "address-level1") }}
+            {{ template "input" (input . .Form.FieldNames.Postcode "postcode" .Form.Address.Postcode "classes" "govuk-input--width-10" "autocomplete" "postal-code") }}
           </fieldset>
 
           <div class="govuk-button-group">
