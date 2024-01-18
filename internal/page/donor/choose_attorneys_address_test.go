@@ -140,12 +140,12 @@ func TestGetChooseAttorneysAddressWhenTemplateErrors(t *testing.T) {
 
 func TestPostChooseAttorneysAddressSkip(t *testing.T) {
 	f := url.Values{
-		"action":           {"skip"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"action":                           {"skip"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -179,12 +179,12 @@ func TestPostChooseAttorneysAddressSkip(t *testing.T) {
 
 func TestPostChooseAttorneysAddressSkipWhenStoreErrors(t *testing.T) {
 	f := url.Values{
-		"action":           {"skip"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"action":                           {"skip"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -208,12 +208,12 @@ func TestPostChooseAttorneysAddressSkipWhenStoreErrors(t *testing.T) {
 
 func TestPostChooseAttorneysAddressManual(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -250,12 +250,12 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 
 func TestPostChooseAttorneysAddressManualWhenStoreErrors(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -279,12 +279,12 @@ func TestPostChooseAttorneysAddressManualWhenStoreErrors(t *testing.T) {
 
 func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -321,10 +321,10 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 
 func TestPostChooseAttorneysAddressManualWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-2":   {"b"},
-		"address-town":     {"c"},
-		"address-postcode": {"d"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.TownOrCity: {"c"},
+		form.FieldNames.Address.Postcode:   {"d"},
 	}
 
 	w := httptest.NewRecorder()
@@ -352,7 +352,7 @@ func TestPostChooseAttorneysAddressManualWhenValidationError(t *testing.T) {
 				Address:    invalidAddress,
 				FieldNames: form.FieldNames.Address,
 			},
-			Errors:     validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
+			Errors:     validation.With(form.FieldNames.Address.Line1, validation.EnterError{Label: "addressLine1"}),
 			ID:         "123",
 			FullName:   " ",
 			CanSkip:    true,
@@ -816,10 +816,10 @@ func TestPostChooseAttorneysManuallyFromAnotherPage(t *testing.T) {
 	for testname, tc := range testcases {
 		t.Run(testname, func(t *testing.T) {
 			f := url.Values{
-				"action":           {"manual"},
-				"address-line-1":   {"a"},
-				"address-town":     {"b"},
-				"address-postcode": {"c"},
+				"action":                           {"manual"},
+				form.FieldNames.Address.Line1:      {"a"},
+				form.FieldNames.Address.TownOrCity: {"b"},
+				form.FieldNames.Address.Postcode:   {"c"},
 			}
 
 			w := httptest.NewRecorder()

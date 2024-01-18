@@ -132,12 +132,12 @@ func TestGetChoosePeopleToNotifyAddressWhenTemplateErrors(t *testing.T) {
 
 func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -167,12 +167,12 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 
 func TestPostChoosePeopleToNotifyAddressManualWhenStoreErrors(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -194,12 +194,12 @@ func TestPostChoosePeopleToNotifyAddressManualWhenStoreErrors(t *testing.T) {
 
 func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()

@@ -91,12 +91,12 @@ func TestGetEnterTrustCorporationAddressWhenTemplateErrors(t *testing.T) {
 
 func TestPostEnterTrustCorporationAddressManual(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -131,12 +131,12 @@ func TestPostEnterTrustCorporationAddressManual(t *testing.T) {
 
 func TestPostEnterTrustCorporationAddressManualWhenStoreErrors(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -157,12 +157,12 @@ func TestPostEnterTrustCorporationAddressManualWhenStoreErrors(t *testing.T) {
 
 func TestPostEnterTrustCorporationAddressManualFromStore(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -197,10 +197,10 @@ func TestPostEnterTrustCorporationAddressManualFromStore(t *testing.T) {
 
 func TestPostEnterTrustCorporationAddressManualWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-2":   {"b"},
-		"address-town":     {"c"},
-		"address-postcode": {"d"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.TownOrCity: {"c"},
+		form.FieldNames.Address.Postcode:   {"d"},
 	}
 
 	w := httptest.NewRecorder()
@@ -223,7 +223,7 @@ func TestPostEnterTrustCorporationAddressManualWhenValidationError(t *testing.T)
 				Address:    invalidAddress,
 				FieldNames: form.FieldNames.Address,
 			},
-			Errors:     validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
+			Errors:     validation.With(form.FieldNames.Address.Line1, validation.EnterError{Label: "addressLine1"}),
 			ActorLabel: "theTrustCorporation",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -659,10 +659,10 @@ func TestPostEnterTrustCorporationAddressManuallyFromAnotherPage(t *testing.T) {
 	for testname, tc := range testcases {
 		t.Run(testname, func(t *testing.T) {
 			f := url.Values{
-				"action":           {"manual"},
-				"address-line-1":   {"a"},
-				"address-town":     {"b"},
-				"address-postcode": {"c"},
+				"action":                           {"manual"},
+				form.FieldNames.Address.Line1:      {"a"},
+				form.FieldNames.Address.TownOrCity: {"b"},
+				form.FieldNames.Address.Postcode:   {"c"},
 			}
 
 			w := httptest.NewRecorder()

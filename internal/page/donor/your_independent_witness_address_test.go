@@ -125,12 +125,12 @@ func TestGetYourIndependentWitnessAddressWhenTemplateErrors(t *testing.T) {
 
 func TestPostYourIndependentWitnessAddressManual(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -162,12 +162,12 @@ func TestPostYourIndependentWitnessAddressManual(t *testing.T) {
 
 func TestPostYourIndependentWitnessAddressManualWhenStoreErrors(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -186,12 +186,12 @@ func TestPostYourIndependentWitnessAddressManualWhenStoreErrors(t *testing.T) {
 
 func TestPostYourIndependentWitnessAddressManualFromStore(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -228,10 +228,10 @@ func TestPostYourIndependentWitnessAddressManualFromStore(t *testing.T) {
 
 func TestPostYourIndependentWitnessAddressManualWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-2":   {"b"},
-		"address-town":     {"c"},
-		"address-postcode": {"d"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.TownOrCity: {"c"},
+		form.FieldNames.Address.Postcode:   {"d"},
 	}
 
 	w := httptest.NewRecorder()
@@ -254,7 +254,7 @@ func TestPostYourIndependentWitnessAddressManualWhenValidationError(t *testing.T
 				},
 				FieldNames: form.FieldNames.Address,
 			},
-			Errors:    validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
+			Errors:    validation.With(form.FieldNames.Address.Line1, validation.EnterError{Label: "addressLine1"}),
 			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)

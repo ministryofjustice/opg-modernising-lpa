@@ -163,12 +163,12 @@ func TestGetCertificateProviderAddressWhenTemplateErrors(t *testing.T) {
 
 func TestPostCertificateProviderAddressManual(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -194,12 +194,12 @@ func TestPostCertificateProviderAddressManual(t *testing.T) {
 
 func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -221,12 +221,12 @@ func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
 
 func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -261,10 +261,10 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 
 func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-2":   {"b"},
-		"address-town":     {"c"},
-		"address-postcode": {"d"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.TownOrCity: {"c"},
+		form.FieldNames.Address.Postcode:   {"d"},
 	}
 
 	w := httptest.NewRecorder()
@@ -289,7 +289,7 @@ func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
 			},
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
-			Errors:     validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
+			Errors:     validation.With(form.FieldNames.Address.Line1, validation.EnterError{Label: "addressLine1"}),
 			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
