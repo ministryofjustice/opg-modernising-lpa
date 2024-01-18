@@ -123,7 +123,7 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 
 	for _, lang := range testCases {
 		t.Run(lang.String(), func(t *testing.T) {
-			formValues := url.Values{"language-preference": {lang.String()}}
+			formValues := url.Values{form.FieldNames.LanguagePreference.LanguagePreference: {lang.String()}}
 
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(formValues.Encode()))
@@ -154,7 +154,7 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 }
 
 func TestPostYourPreferredLanguageWhenAttorneyStoreError(t *testing.T) {
-	formValues := url.Values{"language-preference": {localize.En.String()}}
+	formValues := url.Values{form.FieldNames.LanguagePreference.LanguagePreference: {localize.En.String()}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(formValues.Encode()))
@@ -182,7 +182,7 @@ func TestPostYourPreferredLanguageWhenAttorneyStoreError(t *testing.T) {
 }
 
 func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
-	formValues := url.Values{"language-preference": {"not-a-lang"}}
+	formValues := url.Values{form.FieldNames.LanguagePreference.LanguagePreference: {"not-a-lang"}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(formValues.Encode()))
