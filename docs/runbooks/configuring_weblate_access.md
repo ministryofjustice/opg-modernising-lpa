@@ -59,44 +59,42 @@ git remote update origin
 
 ## resolving merge conflicts
 
+The way to resolve merge conflicts is to retrieve the changes from weblate onto a new branch and merge them. After they're on main, we can either refresh or reset the project in weblate.
+
 Commit all pending changes in Weblate and lock the translation component.
 
 ```sh
 wlc commit; wlc lock
 ```
 
-Switch to the weblate remote
+Create a new branch for Weblate changes (name is arbitrary).
+
+```sh
+git checkout -b weblate-resolve-merge-conflicts
+```
+
+Switch to the weblate remote, and merge Weblate changes and resolve any conflicts.
 
 ```sh
 git remote update weblate
-```
-
-Merge Weblate changes and resolve any conflicts.
-
-```sh
 git merge weblate/main
 ```
 
-Rebase Weblate changes on top of upstream and resolve any conflicts.
+set the remote back to origin, rebase Weblate changes on top of main and resolve any conflicts.
 
 ```sh
-git rebase origin/main
+git remote update origin
+git rebase main
 ```
 
 Push changes into upstream repository.
 
 ```sh
-git push origin main
+git push weblate-resolve-merge-conflicts
 ```
 
-Weblate should now be able to see updated repository and you can unlock it.
+When the PR is merged, Weblate should now be able to see updated repository and you can unlock it.
 
 ```sh
 wlc pull ; wlc unlock
-```
-
-switch back to origin
-
-```sh
-git remote update origin
 ```
