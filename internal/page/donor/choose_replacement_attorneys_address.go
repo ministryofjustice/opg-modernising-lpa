@@ -88,7 +88,7 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 		}
 
 		if r.Method == http.MethodGet {
-			action := r.FormValue("action")
+			action := r.FormValue(data.Form.FieldNames.Action)
 			if action == "manual" {
 				data.Form.Action = "manual"
 				data.Form.Address = &place.Address{}
