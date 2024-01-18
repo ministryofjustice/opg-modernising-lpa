@@ -16,7 +16,7 @@ func TestReadYesNoForm(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
-	assert.Equal(t, &YesNoForm{YesNo: Yes, ErrorLabel: "a-label"}, ReadYesNoForm(r, "a-label"))
+	assert.Equal(t, &YesNoForm{YesNo: Yes, ErrorLabel: "a-label", Options: YesNoValues}, ReadYesNoForm(r, "a-label"))
 }
 
 func TestYesNoFormValidate(t *testing.T) {
@@ -37,5 +37,14 @@ func TestYesNoFormValidate(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert.Equal(t, tc.errors, tc.form.Validate())
 		})
+	}
+}
+
+func TestNewYesNoForm(t *testing.T) {
+	for _, yesNo := range []YesNo{Yes, No, YesNoUnknown} {
+		assert.Equal(t, &YesNoForm{
+			YesNo:   yesNo,
+			Options: YesNoValues,
+		}, NewYesNoForm(yesNo))
 	}
 }

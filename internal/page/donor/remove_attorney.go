@@ -17,7 +17,6 @@ type removeAttorneyData struct {
 	Name       string
 	Errors     validation.List
 	Form       *form.YesNoForm
-	Options    form.YesNoOptions
 }
 
 func RemoveAttorney(logger Logger, tmpl template.Template, donorStore DonorStore) Handler {
@@ -33,8 +32,7 @@ func RemoveAttorney(logger Logger, tmpl template.Template, donorStore DonorStore
 			App:        appData,
 			TitleLabel: "removeAnAttorney",
 			Name:       attorney.FullName(),
-			Form:       &form.YesNoForm{},
-			Options:    form.YesNoValues,
+			Form:       form.NewYesNoForm(form.YesNoUnknown),
 		}
 
 		if r.Method == http.MethodPost {

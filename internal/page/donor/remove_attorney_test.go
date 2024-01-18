@@ -37,8 +37,7 @@ func TestGetRemoveAttorney(t *testing.T) {
 			App:        testAppData,
 			TitleLabel: "removeAnAttorney",
 			Name:       "John Smith",
-			Form:       &form.YesNoForm{},
-			Options:    form.YesNoValues,
+			Form:       form.NewYesNoForm(form.YesNoUnknown),
 		}).
 		Return(nil)
 

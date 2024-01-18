@@ -22,7 +22,7 @@
         </div>
 
         {{ trHtml .App "ifYouCannotTickTheBoxGuidance" }}
-        
+
         <div class="govuk-form-group {{ if .Errors.Has "yes-no" }}govuk-form-group--error{{ end }}">
           <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
@@ -30,14 +30,14 @@
             </legend>
 
             {{ template "error-message" (errorMessage . "yes-no") }}
-            
+
             {{ template "radios" (items . "yes-no" .Form.YesNo.String
-              (item .Options.Yes.String "yesByddaf")
-              (item .Options.No.String "noNaFyddaf" "hint" "wellGiveYouMoreInformationAboutWhatToDo")
+              (item .Form.Options.Yes.String "yesByddaf")
+              (item .Form.Options.No.String "noNaFyddaf" "hint" "wellGiveYouMoreInformationAboutWhatToDo")
             ) }}
           </fieldset>
         </div>
-        
+
         {{ template "continue-button" . }}
         {{ template "csrf-field" . }}
       </form>
