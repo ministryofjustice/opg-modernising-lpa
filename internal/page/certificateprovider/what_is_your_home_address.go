@@ -13,10 +13,11 @@ import (
 )
 
 type whatIsYourHomeAddressData struct {
-	App       page.AppData
-	Addresses []place.Address
-	Form      *form.AddressForm
-	Errors    validation.List
+	App        page.AppData
+	Addresses  []place.Address
+	Form       *form.AddressForm
+	Errors     validation.List
+	FieldNames form.AddressFieldNames
 }
 
 func WhatIsYourHomeAddress(logger Logger, tmpl template.Template, addressClient AddressClient, certificateProviderStore CertificateProviderStore) page.Handler {
@@ -26,11 +27,12 @@ func WhatIsYourHomeAddress(logger Logger, tmpl template.Template, addressClient 
 			return err
 		}
 
+		f := form.NewAddressForm()
+		f.Action = "postcode"
+
 		data := &whatIsYourHomeAddressData{
-			App: appData,
-			Form: &form.AddressForm{
-				Action: "postcode",
-			},
+			App:  appData,
+			Form: f,
 		}
 
 		if certificateProvider.HomeAddress.Line1 != "" {
