@@ -66,5 +66,8 @@ jobs:
           TF_WORKSPACE: ur
           TF_VAR_pagerduty_api_key: ${{ secrets.pagerduty_api_key }}
         run: |
-          terraform apply -lock-timeout=300s  -input=false -auto-approve -var public_access_enabled=${{ inputs.public_access_enabled }} -target 'module.eu_west_1[0].module.app.aws_security_group_rule.app_loadbalancer_public_access_ingress[0]'
+          terraform apply -lock-timeout=300s  -input=false -auto-approve -var public_access_enabled=${{ inputs.public_access_enabled }} \
+            -target 'module.eu_west_1[0].module.app.aws_security_group_rule.app_loadbalancer_public_access_ingress[0]' \
+            -target 'module.eu_west_1[0].module.app.aws_security_group_rule.app_loadbalancer_public_access_ingress_port_80[0]' \
+            -target 'module.eu_west_1[0].module.mock_onelogin[0].aws_security_group_rule.mock_onelogin_loadbalancer_public_access_ingress[0]' \
         working-directory: ./terraform/environment
