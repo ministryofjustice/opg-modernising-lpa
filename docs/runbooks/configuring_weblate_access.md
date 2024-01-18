@@ -67,9 +67,11 @@ Commit all pending changes in Weblate and lock the translation component.
 wlc commit; wlc lock
 ```
 
-Create a new branch for Weblate changes (name is arbitrary).
+Make sure main is up to date, and create a new branch for Weblate changes (name is arbitrary).
 
 ```sh
+git checkout main
+git pull
 git checkout -b weblate-resolve-merge-conflicts
 ```
 
