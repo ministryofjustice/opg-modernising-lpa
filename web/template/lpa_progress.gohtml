@@ -33,7 +33,7 @@
           <li id="attorneys-declared" class="app-progress-bar__item" {{ if .Progress.AttorneysSigned.InProgress }}aria-current="step"{{ end }}>
             <span class="app-progress-bar__icon {{ if .Progress.AttorneysSigned.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
             <span class="app-progress-bar__label">
-              {{ tr .App "attorneysHaveDeclared" }}<span class="govuk-visually-hidden"> {{tr .App .Progress.AttorneysSigned.String }}</span>
+              {{ trCount .App "attorneysHaveDeclared" .Donor.Attorneys.Len }}<span class="govuk-visually-hidden"> {{tr .App .Progress.AttorneysSigned.String }}</span>
             </span>
           </li>
           <li id="lpa-submitted" class="app-progress-bar__item" {{ if .Progress.LpaSubmitted.InProgress }}aria-current="step"{{ end }}>
