@@ -155,6 +155,7 @@ data "aws_ip_ranges" "route53_healthchecks" {
 }
 
 resource "aws_security_group_rule" "app_loadbalancer_port_80_redirect_ingress" {
+  count             = var.public_access_enabled ? 0 : 1
   description       = "Port 80 ingress for redirection to port 443"
   type              = "ingress"
   from_port         = 80
@@ -166,6 +167,7 @@ resource "aws_security_group_rule" "app_loadbalancer_port_80_redirect_ingress" {
 }
 
 resource "aws_security_group_rule" "app_loadbalancer_ingress" {
+  count             = var.public_access_enabled ? 0 : 1
   description       = "Port 443 ingress from the allow list to the application load balancer"
   type              = "ingress"
   from_port         = 443
