@@ -22,8 +22,8 @@ func TestGetResendWitnessCode(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, &resendWitnessCodeData{
+			template.EXPECT().
+				Execute(w, &resendWitnessCodeData{
 					App: testAppData,
 				}).
 				Return(nil)
@@ -42,8 +42,8 @@ func TestGetResendWitnessCodeWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, actor.TypeCertificateProvider)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -102,8 +102,8 @@ func TestPostResendWitnessCodeWhenSendErrors(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{Donor: actor.Donor{FirstNames: "john"}}
 
 	witnessCodeSender := newMockWitnessCodeSender(t)
-	witnessCodeSender.
-		On("SendToCertificateProvider", r.Context(), donor, mock.Anything).
+	witnessCodeSender.EXPECT().
+		SendToCertificateProvider(r.Context(), donor, mock.Anything).
 		Return(expectedError)
 
 	err := ResendWitnessCode(nil, witnessCodeSender, actor.TypeCertificateProvider)(testAppData, w, r, donor)
@@ -144,8 +144,8 @@ func TestPostResendWitnessCodeWhenTooRecentlySent(t *testing.T) {
 				Return(page.ErrTooManyWitnessCodeRequests)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, &resendWitnessCodeData{
+			template.EXPECT().
+				Execute(w, &resendWitnessCodeData{
 					App:    testAppData,
 					Errors: validation.With("request", validation.CustomError{Label: "pleaseWaitOneMinute"}),
 				}).

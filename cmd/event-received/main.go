@@ -23,15 +23,13 @@ import (
 )
 
 const (
-	virusFound               = "infected"
-	objectTagsAddedEventName = "ObjectTagging:Put"
+	virusFound = "infected"
 )
 
 type uidEvent struct {
 	UID string `json:"uid"`
 }
 
-//go:generate mockery --testonly --inpackage --name dynamodbClient --structname mockDynamodbClient
 type dynamodbClient interface {
 	One(ctx context.Context, pk, sk string, v interface{}) error
 	OneByUID(ctx context.Context, uid string, v interface{}) error
@@ -39,27 +37,22 @@ type dynamodbClient interface {
 	Update(ctx context.Context, pk, sk string, values map[string]dynamodbtypes.AttributeValue, expression string) error
 }
 
-//go:generate mockery --testonly --inpackage --name s3Client --structname mockS3Client
 type s3Client interface {
 	GetObjectTags(ctx context.Context, key string) ([]types.Tag, error)
 }
 
-//go:generate mockery --testonly --inpackage --name shareCodeSender --structname mockShareCodeSender
 type shareCodeSender interface {
 	SendCertificateProviderPrompt(context.Context, page.AppData, *actor.DonorProvidedDetails) error
 }
 
-//go:generate mockery --testonly --inpackage --name DocumentStore --structname mockDocumentStore
 type DocumentStore interface {
 	UpdateScanResults(ctx context.Context, lpaID, objectKey string, virusDetected bool) error
 }
 
-//go:generate mockery --testonly --inpackage --name UidStore --structname mockUidStore
 type UidStore interface {
 	Set(ctx context.Context, lpaID, sessionID, uid string) error
 }
 
-//go:generate mockery --testonly --inpackage --name UidClient --structname mockUidClient
 type UidClient interface {
 	CreateCase(context.Context, *uid.CreateCaseRequestBody) (string, error)
 }

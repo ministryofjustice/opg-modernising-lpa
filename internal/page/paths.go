@@ -102,6 +102,21 @@ func (p CertificateProviderPath) Redirect(w http.ResponseWriter, r *http.Request
 	return nil
 }
 
+type SupporterPath string
+
+func (p SupporterPath) String() string {
+	return string(p)
+}
+
+func (p SupporterPath) Format() string {
+	return "/supporter" + string(p)
+}
+
+func (p SupporterPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData) error {
+	http.Redirect(w, r, appData.Lang.URL(p.Format()), http.StatusFound)
+	return nil
+}
+
 type AttorneyPaths struct {
 	EnterReferenceNumber Path
 	Login                Path
@@ -148,9 +163,18 @@ type HealthCheckPaths struct {
 	Dependency Path
 }
 
+type SupporterPaths struct {
+	Start         Path
+	Login         Path
+	LoginCallback Path
+
+	YourOrganisation SupporterPath
+}
+
 type AppPaths struct {
 	Attorney            AttorneyPaths
 	CertificateProvider CertificateProviderPaths
+	Supporter           SupporterPaths
 	HealthCheck         HealthCheckPaths
 
 	AttorneyFixtures                   Path
@@ -220,6 +244,7 @@ type AppPaths struct {
 	LpaDetailsSaved                                      LpaPath
 	LpaType                                              LpaPath
 	LpaYourLegalRightsAndResponsibilities                LpaPath
+	MakeANewLPA                                          LpaPath
 	NeedHelpSigningConfirmation                          LpaPath
 	PaymentConfirmation                                  LpaPath
 	PreviousApplicationNumber                            LpaPath
@@ -242,6 +267,7 @@ type AppPaths struct {
 	UploadEvidence                                       LpaPath
 	UploadEvidenceSSE                                    LpaPath
 	UseExistingAddress                                   LpaPath
+	WeHaveUpdatedYourDetails                             LpaPath
 	WhatACertificateProviderDoes                         LpaPath
 	WhatHappensNextPostEvidence                          LpaPath
 	WhenCanTheLpaBeUsed                                  LpaPath
@@ -255,9 +281,11 @@ type AppPaths struct {
 	YourAddress                                          LpaPath
 	YourAuthorisedSignatory                              LpaPath
 	YourDetails                                          LpaPath
+	YourDateOfBirth                                      LpaPath
 	YourIndependentWitness                               LpaPath
 	YourIndependentWitnessAddress                        LpaPath
 	YourIndependentWitnessMobile                         LpaPath
+	YourName                                             LpaPath
 	YourPreferredLanguage                                LpaPath
 }
 
@@ -299,6 +327,14 @@ var Paths = AppPaths{
 		WhatHappensWhenYouSign:    "/what-happens-when-you-sign-the-lpa",
 		WouldLikeSecondSignatory:  "/would-like-second-signatory",
 		YourPreferredLanguage:     "/your-preferred-language",
+	},
+
+	Supporter: SupporterPaths{
+		Start:         "/supporter-start",
+		Login:         "/supporter-login",
+		LoginCallback: "/supporter-login-callback",
+
+		YourOrganisation: "/your-organisation",
 	},
 
 	HealthCheck: HealthCheckPaths{
@@ -367,6 +403,7 @@ var Paths = AppPaths{
 	LpaType:                                              "/lpa-type",
 	LpaWithdrawn:                                         "/lpa-withdrawn",
 	LpaYourLegalRightsAndResponsibilities:                "/your-legal-rights-and-responsibilities",
+	MakeANewLPA:                                          "/make-a-new-lpa",
 	NeedHelpSigningConfirmation:                          "/need-help-signing-confirmation",
 	PaymentConfirmation:                                  "/payment-confirmation",
 	PreviousApplicationNumber:                            "/previous-application-number",
@@ -392,6 +429,7 @@ var Paths = AppPaths{
 	UploadEvidence:                                       "/upload-evidence",
 	UploadEvidenceSSE:                                    "/upload-evidence-sse",
 	UseExistingAddress:                                   "/use-existing-address",
+	WeHaveUpdatedYourDetails:                             "/we-have-updated-your-details",
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
 	WhatHappensNextPostEvidence:                          "/what-happens-next-post-evidence",
 	WhenCanTheLpaBeUsed:                                  "/when-can-the-lpa-be-used",
@@ -405,10 +443,12 @@ var Paths = AppPaths{
 	YourAddress:                                          "/your-address",
 	YourAuthorisedSignatory:                              "/your-authorised-signatory",
 	YourDetails:                                          "/your-details",
+	YourDateOfBirth:                                      "/your-date-of-birth",
 	YourIndependentWitness:                               "/your-independent-witness",
 	YourIndependentWitnessAddress:                        "/your-independent-witness-address",
 	YourIndependentWitnessMobile:                         "/your-independent-witness-mobile",
 	YourLegalRightsAndResponsibilities:                   "/your-legal-rights-and-responsibilities",
+	YourName:                                             "/your-name",
 	YourPreferredLanguage:                                "/your-preferred-language",
 }
 

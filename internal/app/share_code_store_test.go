@@ -95,8 +95,8 @@ func TestShareCodeStorePut(t *testing.T) {
 			data := actor.ShareCodeData{PK: tc.pk, SK: "#METADATA#123", LpaID: "lpa-id"}
 
 			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.
-				On("Put", ctx, data).
+			dynamoClient.EXPECT().
+				Put(ctx, data).
 				Return(nil)
 
 			shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}
@@ -119,8 +119,8 @@ func TestShareCodeStorePutOnError(t *testing.T) {
 	ctx := context.Background()
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Put", ctx, mock.Anything).
+	dynamoClient.EXPECT().
+		Put(ctx, mock.Anything).
 		Return(expectedError)
 
 	shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}

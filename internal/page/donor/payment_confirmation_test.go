@@ -1,6 +1,7 @@
 package donor
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -18,11 +19,11 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
 	payClient := newMockPayClient(t).
-		withASuccessfulPayment("abc123", "123456789012", 8200)
+		withASuccessfulPayment("abc123", "123456789012", 8200, r.Context())
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &paymentConfirmationData{
+	template.EXPECT().
+		Execute(w, &paymentConfirmationData{
 			App:              testAppData,
 			PaymentReference: "123456789012",
 			FeeType:          pay.FullFee,
@@ -34,8 +35,8 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 		withExpiredPaySession(r, w)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			FeeType: pay.FullFee,
 			CertificateProvider: actor.CertificateProvider{
 				Email: "certificateprovider@example.com",
@@ -68,11 +69,11 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
 	payClient := newMockPayClient(t).
-		withASuccessfulPayment("abc123", "123456789012", 4100)
+		withASuccessfulPayment("abc123", "123456789012", 4100, r.Context())
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &paymentConfirmationData{
+	template.EXPECT().
+		Execute(w, &paymentConfirmationData{
 			App:              testAppData,
 			PaymentReference: "123456789012",
 			FeeType:          pay.HalfFee,
@@ -84,8 +85,8 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 		withExpiredPaySession(r, w)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			FeeType: pay.HalfFee,
 			CertificateProvider: actor.CertificateProvider{
 				Email: "certificateprovider@example.com",
@@ -120,8 +121,8 @@ func TestGetPaymentConfirmationWhenErrorGettingSession(t *testing.T) {
 	template := newMockTemplate(t)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "pay").
+	sessionStore.EXPECT().
+		Get(r, "pay").
 		Return(&sessions.Session{}, expectedError)
 
 	err := PaymentConfirmation(nil, template.Execute, newMockPayClient(t), nil, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -139,13 +140,13 @@ func TestGetPaymentConfirmationWhenErrorGettingPayment(t *testing.T) {
 		withPaySession(r)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Print", fmt.Sprintf("unable to retrieve payment info: %s", expectedError.Error())).
-		Return(nil)
+	logger.EXPECT().
+		Print(fmt.Sprintf("unable to retrieve payment info: %s", expectedError.Error())).
+		Return()
 
 	payClient := newMockPayClient(t)
-	payClient.
-		On("GetPayment", "abc123").
+	payClient.EXPECT().
+		GetPayment(r.Context(), "abc123").
 		Return(pay.GetPaymentResponse{}, expectedError)
 
 	template := newMockTemplate(t)
@@ -167,21 +168,21 @@ func TestGetPaymentConfirmationWhenErrorExpiringSession(t *testing.T) {
 	sessionStore := newMockSessionStore(t).
 		withPaySession(r)
 
-	sessionStore.
-		On("Save", r, w, mock.Anything).
+	sessionStore.EXPECT().
+		Save(r, w, mock.Anything).
 		Return(expectedError)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Print", fmt.Sprintf("unable to expire cookie in session: %s", expectedError.Error())).
-		Return(nil)
+	logger.EXPECT().
+		Print(fmt.Sprintf("unable to expire cookie in session: %s", expectedError.Error())).
+		Return()
 
 	payClient := newMockPayClient(t).
-		withASuccessfulPayment("abc123", "123456789012", 8200)
+		withASuccessfulPayment("abc123", "123456789012", 8200, r.Context())
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(nil)
 
 	err := PaymentConfirmation(logger, template.Execute, payClient, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{CertificateProvider: actor.CertificateProvider{
@@ -198,20 +199,20 @@ func TestGetPaymentConfirmationHalfFeeWhenDonorStorePutError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
 	payClient := newMockPayClient(t).
-		withASuccessfulPayment("abc123", "123456789012", 4100)
+		withASuccessfulPayment("abc123", "123456789012", 4100, r.Context())
 
 	sessionStore := newMockSessionStore(t).
 		withPaySession(r).
 		withExpiredPaySession(r, w)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Print", fmt.Sprintf("unable to update lpa in donorStore: %s", expectedError))
+	logger.EXPECT().
+		Print(fmt.Sprintf("unable to update lpa in donorStore: %s", expectedError))
 
 	err := PaymentConfirmation(logger, nil, payClient, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		FeeType: pay.HalfFee,
@@ -225,9 +226,9 @@ func TestGetPaymentConfirmationHalfFeeWhenDonorStorePutError(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func (m *mockPayClient) withASuccessfulPayment(paymentId, reference string, amount int) *mockPayClient {
-	m.
-		On("GetPayment", paymentId).
+func (m *mockPayClient) withASuccessfulPayment(paymentId, reference string, amount int, ctx context.Context) *mockPayClient {
+	m.EXPECT().
+		GetPayment(ctx, paymentId).
 		Return(pay.GetPaymentResponse{
 			State: pay.State{
 				Status:   "success",

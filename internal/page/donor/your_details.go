@@ -38,18 +38,6 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 			YesNoMaybeOptions: actor.YesNoMaybeValues,
 		}
 
-		if r.Method == http.MethodGet && data.Form.FirstNames == "" {
-			if latestDonor, _ := donorStore.Latest(r.Context()); latestDonor != nil {
-				data.Form = &yourDetailsForm{
-					FirstNames: latestDonor.Donor.FirstNames,
-					LastName:   latestDonor.Donor.LastName,
-					OtherNames: latestDonor.Donor.OtherNames,
-					Dob:        latestDonor.Donor.DateOfBirth,
-					CanSign:    latestDonor.Donor.ThinksCanSign,
-				}
-			}
-		}
-
 		if r.Method == http.MethodPost {
 			loginSession, err := sesh.Login(sessionStore, r)
 			if err != nil {
@@ -74,7 +62,9 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 				data.DobWarning = dobWarning
 			}
 
-			if data.Errors.Any() || data.Form.IgnoreNameWarning != nameWarning.String() {
+			if data.Errors.Any() ||
+				data.Form.IgnoreNameWarning != nameWarning.String() &&
+					donor.Donor.FullName() != fmt.Sprintf("%s %s", data.Form.FirstNames, data.Form.LastName) {
 				data.NameWarning = nameWarning
 			}
 
@@ -109,6 +99,10 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 
 				return redirect.Redirect(w, r, appData, donor)
 			}
+		}
+
+		if !donor.Donor.DateOfBirth.IsZero() {
+			data.DobWarning = data.Form.DobWarning()
 		}
 
 		return tmpl(w, data)

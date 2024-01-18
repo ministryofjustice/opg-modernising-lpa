@@ -32,8 +32,8 @@ func TestGetRemoveReplacementAttorney(t *testing.T) {
 	}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &removeAttorneyData{
+	template.EXPECT().
+		Execute(w, &removeAttorneyData{
 			App:        testAppData,
 			TitleLabel: "doYouWantToRemoveReplacementAttorney",
 			Name:       "John Smith",
@@ -135,8 +135,8 @@ func TestPostRemoveReplacementAttorney(t *testing.T) {
 			template := newMockTemplate(t)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), tc.updatedDonor).
+			donorStore.EXPECT().
+				Put(r.Context(), tc.updatedDonor).
 				Return(nil)
 
 			err := RemoveReplacementAttorney(logger, template.Execute, donorStore)(testAppData, w, r, tc.donor)
@@ -195,9 +195,9 @@ func TestPostRemoveReplacementAttorneyErrorOnPutStore(t *testing.T) {
 	template := newMockTemplate(t)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Print", "error removing replacement Attorney from LPA: err").
-		Return(nil)
+	logger.EXPECT().
+		Print("error removing replacement Attorney from LPA: err").
+		Return()
 
 	attorneyWithAddress := actor.Attorney{
 		ID: "with-address",
@@ -212,8 +212,8 @@ func TestPostRemoveReplacementAttorneyErrorOnPutStore(t *testing.T) {
 	}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := RemoveReplacementAttorney(logger, template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
@@ -244,8 +244,8 @@ func TestRemoveReplacementAttorneyFormValidation(t *testing.T) {
 	validationError := validation.With("yes-no", validation.SelectError{Label: "yesToRemoveReplacementAttorney"})
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *removeAttorneyData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *removeAttorneyData) bool {
 			return assert.Equal(t, validationError, data.Errors)
 		})).
 		Return(nil)

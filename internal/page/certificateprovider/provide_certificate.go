@@ -21,7 +21,15 @@ type provideCertificateData struct {
 	Form                *provideCertificateForm
 }
 
-func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func() time.Time, certificateProviderStore CertificateProviderStore, notifyClient NotifyClient, shareCodeSender ShareCodeSender) page.Handler {
+func ProvideCertificate(
+	tmpl template.Template,
+	donorStore DonorStore,
+	certificateProviderStore CertificateProviderStore,
+	notifyClient NotifyClient,
+	shareCodeSender ShareCodeSender,
+	lpaStoreClient LpaStoreClient,
+	now func() time.Time,
+) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		donor, err := donorStore.GetAny(r.Context())
 		if err != nil {
@@ -55,6 +63,10 @@ func ProvideCertificate(tmpl template.Template, donorStore DonorStore, now func(
 				certificateProvider.Certificate.Agreed = now()
 				certificateProvider.Tasks.ProvideTheCertificate = actor.TaskCompleted
 				if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
+					return err
+				}
+
+				if err := lpaStoreClient.SendCertificateProvider(r.Context(), donor.LpaUID, certificateProvider); err != nil {
 					return err
 				}
 

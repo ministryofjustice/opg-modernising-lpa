@@ -2,6 +2,62 @@
 
 {{ define "pageTitle" }}{{ tr .App "uploadYourEvidence" }}{{ end }}
 
+{{ define "uploadedList" }}
+  {{ trHtml .App "uploadedFilesContent" }}
+
+  <form novalidate method="post" enctype="multipart/form-data" id="delete-form">
+    {{ template "csrf-field" . }}
+
+    <input type="hidden" id="f-delete-action" name="action" value="delete" />
+
+    <dl class="govuk-summary-list">
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+          {{ tr .App "fileName" }}
+        </dt>
+        <dd class="govuk-summary-list__actions"></dd>
+      </div>
+      {{ range $i, $d := .Documents.ScannedNotSent }}
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__value">
+            {{ $d.Filename }}
+          </dt>
+          <dd class="govuk-summary-list__actions">
+            <input type="hidden" id="f-delete-evidence-{{ $i }}" name="delete" value="{{ $d.Key }}" />
+            <button class="app-button-link">
+              <span>{{ tr $.App "delete" }}<span class="govuk-visually-hidden"> {{ $d.Filename }}</span></span>
+            </button>
+          </dd>
+        </div>
+      {{ end }}
+    </dl>
+  </form>
+{{ end }}
+
+{{ define "previouslyUploadedList" }}
+  <h2 class="govuk-heading-m">{{ tr .App "previouslyUploadedFiles" }}</h2>
+  <p class="govuk-body">{{ tr .App "theseFilesHaveAlreadyBeenUploaded" }}</p>
+
+  <dl class="govuk-summary-list">
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        {{ tr .App "fileName" }}
+      </dt>
+      <dd class="govuk-summary-list__actions govuk-!-font-weight-bold">{{ tr .App "uploadDateAndTime" }}</dd>
+    </div>
+    {{ range $i, $d := .Documents.Sent }}
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__value">
+          {{ $d.Filename }}
+        </dt>
+        <dd class="govuk-summary-list__actions">
+          {{ formatDateTime $.App $d.Uploaded }}
+        </dd>
+      </div>
+    {{ end }}
+  </dl>
+{{ end }}
+
 {{ define "main" }}
   {{ if .Deleted }}
     <div class="moj-banner" role="region" aria-label="information">
@@ -34,7 +90,7 @@
           <input type="hidden" id="f-upload-action" name="action" value="upload" />
 
           <div class="govuk-form-group {{ if .Errors.Has "upload" }}govuk-form-group--error{{ end }}">
-            <label class="govuk-label--m" for="f-upload">{{ tr .App "uploadAFile" }}</label>
+            <label class="govuk-label govuk-label--m" for="f-upload">{{ tr .App "uploadAFile" }}</label>
 
             {{ template "error-message" (errorMessage . "upload") }}
 
@@ -49,41 +105,37 @@
         </form>
       </div>
 
-      <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+      {{ $scannedDocumentsNotSentCount := (len .Documents.ScannedNotSent) }}
+      {{ $sentDocumentsCount := (len .Documents.Sent) }}
+      {{ $useTabs := and (gt $scannedDocumentsNotSentCount 0) (gt $sentDocumentsCount 0) }}
 
-      {{ $scannedDocumentsCount := (len .Documents.Scanned) }}
-      {{ if gt $scannedDocumentsCount 0 }}
-        <h2 class="govuk-heading-m">{{ tr .App "uploadedFiles" }}</h2>
+      {{ if $useTabs }}
+        <div class="govuk-tabs" data-module="govuk-tabs">
+          <ul class="govuk-tabs__list">
+            <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
+              <a class="govuk-tabs__tab" href="#uploaded">{{ tr .App "uploadedFiles" }}</a>
+            </li>
+            <li class="govuk-tabs__list-item">
+              <a class="govuk-tabs__tab" href="#previouslyUploaded">{{ tr .App "previouslyUploadedFiles" }}</a>
+            </li>
+          </ul>
 
-        <form novalidate method="post" enctype="multipart/form-data" id="delete-form">
-          {{ template "csrf-field" . }}
+          <div class="govuk-tabs__panel" id="uploaded">
+            {{ template "uploadedList" . }}
+          </div>
 
-          <input type="hidden" id="f-delete-action" name="action" value="delete" />
-
-          <dl class="govuk-summary-list">
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key">
-                {{ tr .App "fileName" }}
-              </dt>
-              <dd class="govuk-summary-list__actions"></dd>
-            </div>
-            {{ range $i, $d := .Documents.Scanned }}
-              <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__value">
-                  {{ $d.Filename }}
-                </dt>
-                <dd class="govuk-summary-list__actions">
-                  {{ if $d.Sent.IsZero }}
-                    <input type="hidden" id="f-delete-evidence-{{ $i }}" name="delete" value="{{ $d.Key }}" />
-                      <button class="app-button-link">
-                        <span>{{ tr $.App "delete" }}<span class="govuk-visually-hidden"> {{ $d.Filename }}</span></span>
-                      </button>
-                  {{ end }}
-                </dd>
-              </div>
-            {{ end }}
-          </dl>
-        </form>
+          <div class="govuk-tabs__panel govuk-tabs__panel--hidden" id="previouslyUploaded">
+            {{ template "previouslyUploadedList" . }}
+          </div>
+        </div>
+      {{ else }}
+        {{ if gt $scannedDocumentsNotSentCount 0 }}
+          {{ template "uploadedList" . }}
+        {{ else if gt $sentDocumentsCount 0 }}
+          {{ template "previouslyUploadedList" . }}
+        {{ else }}
+          <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+        {{ end }}
       {{ end }}
 
       <form novalidate method="post" enctype="multipart/form-data" id="pay-form">
@@ -92,7 +144,7 @@
         <input type="hidden" id="f-pay-action" name="action" value="pay" />
 
         <div class="govuk-button-group">
-          {{ if gt $scannedDocumentsCount 0 }}
+          {{ if gt $scannedDocumentsNotSentCount 0 }}
             <button type="submit" class="govuk-button" id="continue-or-pay" data-module="govuk-button">{{ if or .FeeType.IsFullFee .FeeType.IsHalfFee }} {{ tr .App "continueToPayment" }} {{ else }} {{ tr .App "continue" }} {{ end }}</button>
           {{ end }}
           <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>

@@ -1,7 +1,6 @@
 /* Modernising Patterns */
 @import "patterns/progress_bar";
 @import "patterns/service_header";
-@import "patterns/task_list";
 @import "patterns/trans_switch";
 @import "patterns/data_loss_warning";
 @import "patterns/loading_spinner";
@@ -84,4 +83,11 @@ body:not(.js-enabled) .govuk-back-link {
         display: none !important;
     }
     .govuk-grid-column-two-thirds { width: 100% !important; }
+}
+
+.app-summary-list--no-vertical-padding {
+    .govuk-summary-list__key, .govuk-summary-list__value {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
 }

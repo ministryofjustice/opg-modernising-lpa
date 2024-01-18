@@ -15,12 +15,10 @@ import (
 
 const apiGatewayServiceName = "execute-api"
 
-//go:generate mockery --testonly --inpackage --name Signer --structname mockSigner
 type Signer interface {
 	SignHTTP(context.Context, aws.Credentials, *http.Request, string, string, string, time.Time, ...func(options *v4.SignerOptions)) error
 }
 
-//go:generate mockery --testonly --inpackage --name Doer --structname mockDoer
 type Doer interface {
 	Do(*http.Request) (*http.Response, error)
 }

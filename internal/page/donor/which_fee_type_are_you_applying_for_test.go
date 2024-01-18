@@ -20,8 +20,8 @@ func TestGetWhichFeeTypeAreYouApplyingFor(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &whichFeeTypeAreYouApplyingForData{
+	template.EXPECT().
+		Execute(w, &whichFeeTypeAreYouApplyingForData{
 			App:     testAppData,
 			Form:    &whichFeeTypeAreYouApplyingForForm{},
 			Options: pay.FeeTypeValues,
@@ -40,8 +40,8 @@ func TestGetWhichFeeTypeAreYouApplyingForWithLpaData(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &whichFeeTypeAreYouApplyingForData{
+	template.EXPECT().
+		Execute(w, &whichFeeTypeAreYouApplyingForData{
 			App:     testAppData,
 			Form:    &whichFeeTypeAreYouApplyingForForm{FeeType: pay.HalfFee},
 			Options: pay.FeeTypeValues,
@@ -60,8 +60,8 @@ func TestGetWhichFeeTypeAreYouApplyingForOnTemplateError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &whichFeeTypeAreYouApplyingForData{
+	template.EXPECT().
+		Execute(w, &whichFeeTypeAreYouApplyingForData{
 			App:     testAppData,
 			Form:    &whichFeeTypeAreYouApplyingForForm{},
 			Options: pay.FeeTypeValues,
@@ -94,8 +94,8 @@ func TestPostWhichFeeTypeAreYouApplyingFor(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", FeeType: feeType}).
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", FeeType: feeType}).
 				Return(nil)
 
 			err := WhichFeeTypeAreYouApplyingFor(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
@@ -118,8 +118,8 @@ func TestPostWhichFeeTypeAreYouApplyingForOnStoreError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", FeeType: pay.HalfFee}).
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", FeeType: pay.HalfFee}).
 		Return(expectedError)
 
 	err := WhichFeeTypeAreYouApplyingFor(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
@@ -141,8 +141,8 @@ func TestPostWhichFeeTypeAreYouApplyingForOnInvalidForm(t *testing.T) {
 	validationError := validation.With("fee-type", validation.SelectError{Label: "whichFeeTypeYouAreApplyingFor"})
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *whichFeeTypeAreYouApplyingForData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *whichFeeTypeAreYouApplyingForData) bool {
 			return assert.Equal(t, validationError, data.Errors)
 		})).
 		Return(nil)

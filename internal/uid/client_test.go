@@ -101,8 +101,8 @@ func TestCreateCaseOnNewRequestError(t *testing.T) {
 
 func TestCreateCaseOnDoRequestError(t *testing.T) {
 	httpClient := newMockDoer(t)
-	httpClient.
-		On("Do", mock.Anything).
+	httpClient.EXPECT().
+		Do(mock.Anything).
 		Return(nil, expectedError)
 
 	client := New("/", httpClient)
@@ -393,8 +393,8 @@ func TestCheckHealthOnNewRequestError(t *testing.T) {
 
 func TestCheckHealthOnDoRequestError(t *testing.T) {
 	httpClient := newMockDoer(t)
-	httpClient.
-		On("Do", mock.Anything).
+	httpClient.EXPECT().
+		Do(mock.Anything).
 		Return(nil, expectedError)
 
 	client := New("/", httpClient)

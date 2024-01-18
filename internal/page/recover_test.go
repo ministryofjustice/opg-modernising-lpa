@@ -27,8 +27,8 @@ func TestRecover(t *testing.T) {
 			})
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, &errorData{App: AppData{
+			template.EXPECT().
+				Execute(w, &errorData{App: AppData{
 					CookieConsentSet: true,
 					Paths:            Paths,
 					Lang:             lang,
@@ -37,8 +37,8 @@ func TestRecover(t *testing.T) {
 				Return(nil)
 
 			logger := newMockLogger(t)
-			logger.
-				On("Request", r, mock.MatchedBy(func(e recoverError) bool {
+			logger.EXPECT().
+				Request(r, mock.MatchedBy(func(e recoverError) bool {
 					return assert.Equal(t, "recover error", e.Error()) &&
 						assert.Equal(t, "runtime error: invalid memory address or nil pointer dereference", e.Title()) &&
 						assert.Contains(t, e.Data(), "github.com/ministryofjustice/opg-modernising-lpa/internal/page.TestRecover") &&
@@ -46,8 +46,8 @@ func TestRecover(t *testing.T) {
 				}))
 
 			bundle := newMockBundle(t)
-			bundle.
-				On("For", lang).
+			bundle.EXPECT().
+				For(lang).
 				Return(nil)
 
 			Recover(template.Execute, logger, bundle, badHandler).ServeHTTP(w, r)
@@ -65,19 +65,19 @@ func TestRecoverWhenTemplateErrors(t *testing.T) {
 	})
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Request", r, mock.Anything)
-	logger.
-		On("Print", "Error rendering page: err")
+	logger.EXPECT().
+		Request(r, mock.Anything)
+	logger.EXPECT().
+		Print("Error rendering page: err")
 
 	bundle := newMockBundle(t)
-	bundle.
-		On("For", mock.Anything).
+	bundle.EXPECT().
+		For(mock.Anything).
 		Return(nil)
 
 	Recover(template.Execute, logger, bundle, badHandler).ServeHTTP(w, r)

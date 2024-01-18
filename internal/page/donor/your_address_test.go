@@ -21,10 +21,10 @@ func TestGetYourAddress(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App:       testAppData,
-			Form:      &form.AddressForm{},
+			Form:      form.NewAddressForm(),
 			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
@@ -43,12 +43,13 @@ func TestGetYourAddressFromStore(t *testing.T) {
 	address := place.Address{Line1: "abc"}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action:  "manual",
-				Address: &address,
+				Action:     "manual",
+				Address:    &address,
+				FieldNames: form.FieldNames.Address,
 			},
 			TitleKeys: testTitleKeys,
 		}).
@@ -70,12 +71,13 @@ func TestGetYourAddressManual(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/?action=manual", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action:  "manual",
-				Address: &place.Address{},
+				Action:     "manual",
+				Address:    &place.Address{},
+				FieldNames: form.FieldNames.Address,
 			},
 			TitleKeys: testTitleKeys,
 		}).
@@ -93,10 +95,10 @@ func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App:       testAppData,
-			Form:      &form.AddressForm{},
+			Form:      form.NewAddressForm(),
 			TitleKeys: testTitleKeys,
 		}).
 		Return(expectedError)
@@ -109,90 +111,122 @@ func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostYourAddressManual(t *testing.T) {
-	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+	testCases := map[string]struct {
+		url              string
+		expectedRedirect string
+	}{
+		"making first LPA": {
+			url:              "/",
+			expectedRedirect: page.Paths.YourPreferredLanguage.Format("lpa-id"),
+		},
+		"making another LPA": {
+			url:              "/?makingAnotherLPA=1",
+			expectedRedirect: page.Paths.WeHaveUpdatedYourDetails.Format("lpa-id") + "?detail=address",
+		},
 	}
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			f := url.Values{
+				form.FieldNames.Address.Action:     {"manual"},
+				form.FieldNames.Address.Line1:      {"a"},
+				form.FieldNames.Address.Line2:      {"b"},
+				form.FieldNames.Address.Line3:      {"c"},
+				form.FieldNames.Address.TownOrCity: {"d"},
+				form.FieldNames.Address.Postcode:   {"e"},
+			}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			LpaID: "lpa-id",
-			Donor: actor.Donor{
-				Address: testAddress,
-			},
-		}).
-		Return(nil)
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, tc.url, strings.NewReader(f.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		LpaID: "lpa-id",
-		Donor: actor.Donor{
-			Address: place.Address{Line1: "a", Line2: "b", Line3: "c", TownOrCity: "d"},
-		},
-		HasSentApplicationUpdatedEvent: true,
-	})
-	resp := w.Result()
+			donorStore := newMockDonorStore(t)
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
+					LpaID: "lpa-id",
+					Donor: actor.Donor{
+						Address: testAddress,
+					},
+					HasSentApplicationUpdatedEvent: false,
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.YourPreferredLanguage.Format("lpa-id"), resp.Header.Get("Location"))
+			err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+				LpaID: "lpa-id",
+				Donor: actor.Donor{
+					Address: place.Address{Line1: "a", Line2: "b", Line3: "c", TownOrCity: "d"},
+				},
+				HasSentApplicationUpdatedEvent: true,
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.expectedRedirect, resp.Header.Get("Location"))
+		})
+	}
 }
 
-func TestPostYourAddressManualWhenPostcodeNotChanged(t *testing.T) {
-	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+func TestPostYourAddressManualWhenAddressNotChanged(t *testing.T) {
+	testCases := map[string]struct {
+		url              string
+		expectedRedirect string
+	}{
+		"making first LPA": {
+			url:              "/",
+			expectedRedirect: page.Paths.YourPreferredLanguage.Format("lpa-id"),
+		},
+		"making another LPA": {
+			url:              "/?makingAnotherLPA=1",
+			expectedRedirect: page.Paths.MakeANewLPA.Format("lpa-id"),
+		},
 	}
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			f := url.Values{
+				form.FieldNames.Address.Action:     {"manual"},
+				form.FieldNames.Address.Line1:      {"a"},
+				form.FieldNames.Address.Line2:      {"b"},
+				form.FieldNames.Address.Line3:      {"c"},
+				form.FieldNames.Address.TownOrCity: {"d"},
+				form.FieldNames.Address.Postcode:   {"e"},
+			}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
-			LpaID: "lpa-id",
-			Donor: actor.Donor{
-				Address: testAddress,
-			},
-			HasSentApplicationUpdatedEvent: true,
-		}).
-		Return(nil)
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, tc.url, strings.NewReader(f.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		LpaID: "lpa-id",
-		Donor: actor.Donor{
-			Address: place.Address{Postcode: "E"},
-		},
-		HasSentApplicationUpdatedEvent: true,
-	})
-	resp := w.Result()
+			err := YourAddress(nil, nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+				LpaID: "lpa-id",
+				Donor: actor.Donor{
+					Address: place.Address{
+						Line1:      "a",
+						Line2:      "b",
+						Line3:      "c",
+						TownOrCity: "d",
+						Postcode:   "E",
+					},
+				},
+				HasSentApplicationUpdatedEvent: true,
+			})
+			resp := w.Result()
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.YourPreferredLanguage.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.expectedRedirect, resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		form.FieldNames.Address.Action:     {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -200,8 +234,8 @@ func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			Donor: actor.Donor{
 				Address: testAddress,
 			},
@@ -215,12 +249,12 @@ func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 
 func TestPostYourAddressManualFromStore(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		form.FieldNames.Address.Action:     {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -228,8 +262,8 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Donor: actor.Donor{
 				FirstNames: "John",
@@ -254,10 +288,10 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 
 func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-2":   {"b"},
-		"address-town":     {"c"},
-		"address-postcode": {"d"},
+		form.FieldNames.Address.Action:     {"manual"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.TownOrCity: {"c"},
+		form.FieldNames.Address.Postcode:   {"d"},
 	}
 
 	w := httptest.NewRecorder()
@@ -265,8 +299,8 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action: "manual",
@@ -276,8 +310,9 @@ func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 					Postcode:   "D",
 					Country:    "GB",
 				},
+				FieldNames: form.FieldNames.Address,
 			},
-			Errors:    validation.With("address-line-1", validation.EnterError{Label: "addressLine1OfYourAddress"}),
+			Errors:    validation.With(form.FieldNames.Address.Line1, validation.EnterError{Label: "addressLine1OfYourAddress"}),
 			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
@@ -298,9 +333,9 @@ func TestPostYourAddressSelect(t *testing.T) {
 	}
 
 	f := url.Values{
-		"action":          {"postcode-select"},
-		"lookup-postcode": {"NG1"},
-		"select-address":  {expectedAddress.Encode()},
+		form.FieldNames.Address.Action: {"postcode-select"},
+		"lookup-postcode":              {"NG1"},
+		"select-address":               {expectedAddress.Encode()},
 	}
 
 	w := httptest.NewRecorder()
@@ -308,13 +343,14 @@ func TestPostYourAddressSelect(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "manual",
 				LookupPostcode: "NG1",
 				Address:        expectedAddress,
+				FieldNames:     form.FieldNames.Address,
 			},
 			TitleKeys: testTitleKeys,
 		}).
@@ -329,8 +365,8 @@ func TestPostYourAddressSelect(t *testing.T) {
 
 func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-select"},
-		"lookup-postcode": {"NG1"},
+		form.FieldNames.Address.Action: {"postcode-select"},
+		"lookup-postcode":              {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -342,17 +378,18 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 	}
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "NG1").
 		Return(addresses, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode-select",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses: addresses,
 			Errors:    validation.With("select-address", validation.SelectError{Label: "yourAddressFromTheList"}),
@@ -369,8 +406,8 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 
 func TestPostYourAddressLookup(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"NG1"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -382,17 +419,18 @@ func TestPostYourAddressLookup(t *testing.T) {
 	}
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "NG1").
 		Return(addresses, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode-lookup",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses: addresses,
 			TitleKeys: testTitleKeys,
@@ -408,8 +446,8 @@ func TestPostYourAddressLookup(t *testing.T) {
 
 func TestPostYourAddressLookupError(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"NG1"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -417,21 +455,22 @@ func TestPostYourAddressLookupError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Print", expectedError)
+	logger.EXPECT().
+		Print(expectedError)
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "NG1").
 		Return([]place.Address{}, expectedError)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses: []place.Address{},
 			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
@@ -454,29 +493,30 @@ func TestPostYourAddressInvalidPostcodeError(t *testing.T) {
 	}
 
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"XYZ"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"XYZ"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Print", invalidPostcodeErr)
+	logger.EXPECT().
+		Print(invalidPostcodeErr)
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "XYZ").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "XYZ").
 		Return([]place.Address{}, invalidPostcodeErr)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "XYZ",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses: []place.Address{},
 			Errors:    validation.With("lookup-postcode", validation.EnterError{Label: "invalidPostcode"}),
@@ -495,8 +535,8 @@ func TestPostYourAddressValidPostcodeNoAddresses(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"XYZ"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"XYZ"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
@@ -505,17 +545,18 @@ func TestPostYourAddressValidPostcodeNoAddresses(t *testing.T) {
 	logger := newMockLogger(t)
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "XYZ").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "XYZ").
 		Return([]place.Address{}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "XYZ",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses: []place.Address{},
 			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "noYourAddressesFound"}),
@@ -532,7 +573,7 @@ func TestPostYourAddressValidPostcodeNoAddresses(t *testing.T) {
 
 func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action": {"postcode-lookup"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
 	}
 
 	w := httptest.NewRecorder()
@@ -540,11 +581,12 @@ func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action: "postcode",
+				Action:     "postcode",
+				FieldNames: form.FieldNames.Address,
 			},
 			Errors:    validation.With("lookup-postcode", validation.EnterError{Label: "yourPostcode"}),
 			TitleKeys: testTitleKeys,

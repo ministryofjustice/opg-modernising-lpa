@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
@@ -17,7 +18,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, nil, template.Templates{}, nil, nil, nil, nil, nil, nil, nil, nil, &mockDashboardStore{})
+	Register(mux, nil, template.Templates{}, nil, nil, nil, nil, nil, nil, nil, nil, &mockDashboardStore{}, &lpastore.Client{})
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
@@ -27,8 +28,8 @@ func TestMakeHandle(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{
 			Values: map[any]any{
 				"session": &sesh.LoginSession{
@@ -63,8 +64,8 @@ func TestMakeHandleRequireSessionExistingSessionData(t *testing.T) {
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
@@ -95,8 +96,8 @@ func TestMakeHandleErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	errorHandler := newMockErrorHandler(t)
-	errorHandler.
-		On("Execute", w, r, expectedError)
+	errorHandler.EXPECT().
+		Execute(w, r, expectedError)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, errorHandler.Execute)
@@ -112,8 +113,8 @@ func TestMakeHandleSessionError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{}, expectedError)
 
 	mux := http.NewServeMux()
@@ -132,8 +133,8 @@ func TestMakeHandleSessionMissing(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{Values: map[any]any{}}, nil)
 
 	mux := http.NewServeMux()
@@ -152,8 +153,8 @@ func TestMakeHandleLpaMissing(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{}, nil)
 
 	mux := http.NewServeMux()
@@ -196,13 +197,13 @@ func TestMakeAttorneyHandleExistingSessionData(t *testing.T) {
 	expectedDetails := &actor.AttorneyProvidedDetails{ID: "123"}
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Get", mock.Anything).
+	attorneyStore.EXPECT().
+		Get(mock.Anything).
 		Return(expectedDetails, nil)
 
 	mux := http.NewServeMux()
@@ -255,13 +256,13 @@ func TestMakeAttorneyHandleExistingLpaData(t *testing.T) {
 			r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
 
 			sessionStore := newMockSessionStore(t)
-			sessionStore.
-				On("Get", r, "session").
+			sessionStore.EXPECT().
+				Get(r, "session").
 				Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 			attorneyStore := newMockAttorneyStore(t)
-			attorneyStore.
-				On("Get", mock.Anything).
+			attorneyStore.EXPECT().
+				Get(mock.Anything).
 				Return(tc.details, nil)
 
 			mux := http.NewServeMux()
@@ -298,18 +299,18 @@ func TestMakeAttorneyHandleErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Get", mock.Anything).
+	attorneyStore.EXPECT().
+		Get(mock.Anything).
 		Return(&actor.AttorneyProvidedDetails{}, nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	errorHandler := newMockErrorHandler(t)
-	errorHandler.
-		On("Execute", w, r, expectedError)
+	errorHandler.EXPECT().
+		Execute(w, r, expectedError)
 
 	mux := http.NewServeMux()
 	handle := makeAttorneyHandle(mux, sessionStore, errorHandler.Execute, attorneyStore)
@@ -325,18 +326,18 @@ func TestMakeAttorneyHandleAttorneyStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Get", mock.Anything).
+	attorneyStore.EXPECT().
+		Get(mock.Anything).
 		Return(nil, expectedError)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	errorHandler := newMockErrorHandler(t)
-	errorHandler.
-		On("Execute", w, r, expectedError)
+	errorHandler.EXPECT().
+		Execute(w, r, expectedError)
 
 	mux := http.NewServeMux()
 	handle := makeAttorneyHandle(mux, sessionStore, errorHandler.Execute, attorneyStore)
@@ -352,8 +353,8 @@ func TestMakeAttorneyHandleSessionError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{}, expectedError)
 
 	mux := http.NewServeMux()
@@ -374,8 +375,8 @@ func TestMakeAttorneyHandleSessionMissing(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{Values: map[any]any{}}, nil)
 
 	mux := http.NewServeMux()
@@ -396,8 +397,8 @@ func TestMakeAttorneyHandleLpaMissing(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{}, nil)
 
 	mux := http.NewServeMux()

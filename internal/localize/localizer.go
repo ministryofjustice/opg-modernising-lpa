@@ -1,7 +1,6 @@
 package localize
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -9,62 +8,47 @@ import (
 	"unicode/utf8"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"golang.org/x/text/language"
 )
 
-type Bundle struct {
-	*i18n.Bundle
-}
-
-func NewBundle(paths ...string) Bundle {
-	bundle := i18n.NewBundle(language.English)
-	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
-	for _, path := range paths {
-		bundle.LoadMessageFile(path)
-	}
-
-	return Bundle{bundle}
-}
-
-func (b Bundle) For(lang Lang) *Localizer {
-	return &Localizer{
-		i18n.NewLocalizer(b.Bundle, lang.String()),
-		false,
-		lang,
-	}
-}
-
 type Localizer struct {
-	*i18n.Localizer
+	messages            Messages
 	showTranslationKeys bool
 	Lang                Lang
 }
 
-func (l Localizer) T(messageID string) string {
-	msg, err := l.Localize(&i18n.LocalizeConfig{MessageID: messageID})
-
-	if err != nil {
+func (l *Localizer) T(messageID string) string {
+	msg, ok := l.messages.Find(messageID)
+	if !ok {
 		return l.translate(messageID, messageID)
 	}
 
-	return l.translate(msg, messageID)
+	return l.translate(msg.S, messageID)
 }
 
-func (l Localizer) Format(messageID string, data map[string]interface{}) string {
-	return l.translate(l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, TemplateData: data}), messageID)
+func (l *Localizer) Format(messageID string, data map[string]interface{}) string {
+	msg, ok := l.messages.Find(messageID)
+	if !ok {
+		return l.translate(messageID, messageID)
+	}
+
+	return l.translate(msg.Execute(data), messageID)
 }
 
-func (l Localizer) Count(messageID string, count int) string {
-	return l.translate(l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, PluralCount: count}), messageID)
+func (l *Localizer) Count(messageID string, count int) string {
+	return l.FormatCount(messageID, count, map[string]any{})
 }
 
-func (l Localizer) FormatCount(messageID string, count int, data map[string]interface{}) string {
+func (l *Localizer) FormatCount(messageID string, count int, data map[string]any) string {
+	msg, ok := l.messages.FindPlural(messageID, count)
+	if !ok {
+		return l.translate(messageID, messageID)
+	}
+
 	data["PluralCount"] = count
-	return l.translate(l.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, PluralCount: count, TemplateData: data}), messageID)
+	return l.translate(msg.Execute(data), messageID)
 }
 
-func (l Localizer) translate(translation, messageID string) string {
+func (l *Localizer) translate(translation, messageID string) string {
 	if l.showTranslationKeys {
 		return fmt.Sprintf("{%s} [%s]", translation, messageID)
 	} else {
@@ -72,7 +56,7 @@ func (l Localizer) translate(translation, messageID string) string {
 	}
 }
 
-func (l Localizer) ShowTranslationKeys() bool {
+func (l *Localizer) ShowTranslationKeys() bool {
 	return l.showTranslationKeys
 }
 
@@ -139,10 +123,15 @@ func (l *Localizer) FormatDateTime(t time.Time) string {
 	}
 
 	if l.Lang == Cy {
-		return fmt.Sprintf("%d %s %d am %s", t.Day(), monthsCy[t.Month()], t.Year(), t.Format("15:04"))
+		amPm := "yb"
+		if t.Hour() >= 12 {
+			amPm = "yp"
+		}
+
+		return fmt.Sprintf("%d %s %d am %s%s", t.Day(), monthsCy[t.Month()], t.Year(), t.Format("3:04"), amPm)
 	}
 
-	return t.Format("2 January 2006 at 15:04")
+	return t.Format("2 January 2006 at 3:04pm")
 }
 
 func LowerFirst(s string) string {

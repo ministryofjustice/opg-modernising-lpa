@@ -102,8 +102,8 @@ func TestDocumentStoreGetAllWhenNoResults(t *testing.T) {
 func TestDocumentStoreUpdateScanResults(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Update",
+	dynamoClient.EXPECT().
+		Update(
 			ctx,
 			"LPA#123",
 			"#DOCUMENT#object/key",
@@ -123,8 +123,8 @@ func TestDocumentStoreUpdateScanResults(t *testing.T) {
 func TestDocumentStoreUpdateScanResultsWhenUpdateError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Update",
+	dynamoClient.EXPECT().
+		Update(
 			ctx,
 			"LPA#123",
 			"#DOCUMENT#object/key",
@@ -145,8 +145,8 @@ func TestDocumentStorePut(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Put", ctx, page.Document{Key: "a-key"}).
+	dynamoClient.EXPECT().
+		Put(ctx, page.Document{Key: "a-key"}).
 		Return(nil)
 
 	documentStore := documentStore{dynamoClient: dynamoClient}
@@ -160,8 +160,8 @@ func TestDocumentStorePutWhenDynamoClientError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("Put", ctx, page.Document{Key: "a-key"}).
+	dynamoClient.EXPECT().
+		Put(ctx, page.Document{Key: "a-key"}).
 		Return(expectedError)
 
 	documentStore := documentStore{dynamoClient: dynamoClient}
@@ -175,8 +175,8 @@ func TestDeleteInfectedDocuments(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("DeleteKeys", ctx, []dynamo.Key{
+	dynamoClient.EXPECT().
+		DeleteKeys(ctx, []dynamo.Key{
 			{PK: "a-pk", SK: "a-sk"},
 			{PK: "another-pk", SK: "another-sk"},
 		}).
@@ -196,8 +196,8 @@ func TestDeleteInfectedDocumentsWhenDynamoClientError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("DeleteKeys", ctx, []dynamo.Key{
+	dynamoClient.EXPECT().
+		DeleteKeys(ctx, []dynamo.Key{
 			{PK: "a-pk", SK: "a-sk"},
 			{PK: "another-pk", SK: "another-sk"},
 		}).
@@ -230,13 +230,13 @@ func TestDelete(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
 
 	s3Client := newMockS3Client(t)
-	s3Client.
-		On("DeleteObject", ctx, "a-key").
+	s3Client.EXPECT().
+		DeleteObject(ctx, "a-key").
 		Return(nil)
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("DeleteOne", ctx, "a-pk", "a-sk").
+	dynamoClient.EXPECT().
+		DeleteOne(ctx, "a-pk", "a-sk").
 		Return(nil)
 
 	documentStore := documentStore{s3Client: s3Client, dynamoClient: dynamoClient}
@@ -250,8 +250,8 @@ func TestDeleteWhenS3ClientError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
 
 	s3Client := newMockS3Client(t)
-	s3Client.
-		On("DeleteObject", ctx, "a-key").
+	s3Client.EXPECT().
+		DeleteObject(ctx, "a-key").
 		Return(expectedError)
 
 	documentStore := documentStore{s3Client: s3Client}
@@ -265,13 +265,13 @@ func TestDeleteWhenDynamoClientError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
 
 	s3Client := newMockS3Client(t)
-	s3Client.
-		On("DeleteObject", ctx, "a-key").
+	s3Client.EXPECT().
+		DeleteObject(ctx, "a-key").
 		Return(nil)
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("DeleteOne", ctx, "a-pk", "a-sk").
+	dynamoClient.EXPECT().
+		DeleteOne(ctx, "a-pk", "a-sk").
 		Return(expectedError)
 
 	documentStore := documentStore{s3Client: s3Client, dynamoClient: dynamoClient}
@@ -292,16 +292,16 @@ func TestDocumentStoreSubmit(t *testing.T) {
 	}
 
 	s3Client := newMockS3Client(t)
-	s3Client.
-		On("PutObjectTagging", ctx, "a-key", map[string]string{"replicate": "true", "virus-scan-status": "ok"}).
+	s3Client.EXPECT().
+		PutObjectTagging(ctx, "a-key", map[string]string{"replicate": "true", "virus-scan-status": "ok"}).
 		Return(nil)
-	s3Client.
-		On("PutObjectTagging", ctx, "b-key", map[string]string{"replicate": "true", "virus-scan-status": "ok"}).
+	s3Client.EXPECT().
+		PutObjectTagging(ctx, "b-key", map[string]string{"replicate": "true", "virus-scan-status": "ok"}).
 		Return(nil)
 
 	eventClient := newMockEventClient(t)
-	eventClient.
-		On("SendReducedFeeRequested", ctx, event.ReducedFeeRequested{
+	eventClient.EXPECT().
+		SendReducedFeeRequested(ctx, event.ReducedFeeRequested{
 			UID:         "lpa-uid",
 			RequestType: pay.HalfFee.String(),
 			Evidence: []event.Evidence{
@@ -313,8 +313,8 @@ func TestDocumentStoreSubmit(t *testing.T) {
 		Return(nil)
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("BatchPut", ctx, []any{
+	dynamoClient.EXPECT().
+		BatchPut(ctx, []any{
 			page.Document{PK: "a-pk", SK: "a-sk", Key: "a-key", Sent: now, Filename: "a-filename.pdf"},
 			page.Document{PK: "b-pk", SK: "b-sk", Key: "b-key", Sent: now, Filename: "b-filename.png"},
 		}).
@@ -351,8 +351,8 @@ func TestDocumentStoreSubmitWhenS3ClientErrors(t *testing.T) {
 	documents := page.Documents{{PK: "a-pk", SK: "a-sk", Key: "a-key"}}
 
 	s3Client := newMockS3Client(t)
-	s3Client.
-		On("PutObjectTagging", ctx, "a-key", mock.Anything).
+	s3Client.EXPECT().
+		PutObjectTagging(ctx, "a-key", mock.Anything).
 		Return(expectedError)
 
 	documentStore := &documentStore{
@@ -372,13 +372,13 @@ func TestDocumentStoreSubmitWhenEventClientErrors(t *testing.T) {
 	documents := page.Documents{{PK: "a-pk", SK: "a-sk", Key: "a-key"}}
 
 	s3Client := newMockS3Client(t)
-	s3Client.
-		On("PutObjectTagging", ctx, "a-key", mock.Anything).
+	s3Client.EXPECT().
+		PutObjectTagging(ctx, "a-key", mock.Anything).
 		Return(nil)
 
 	eventClient := newMockEventClient(t)
-	eventClient.
-		On("SendReducedFeeRequested", ctx, mock.Anything).
+	eventClient.EXPECT().
+		SendReducedFeeRequested(ctx, mock.Anything).
 		Return(expectedError)
 
 	documentStore := &documentStore{
@@ -399,18 +399,18 @@ func TestDocumentStoreSubmitWhenDynamoClientErrors(t *testing.T) {
 	documents := page.Documents{{PK: "a-pk", SK: "a-sk", Key: "a-key"}}
 
 	s3Client := newMockS3Client(t)
-	s3Client.
-		On("PutObjectTagging", ctx, "a-key", mock.Anything).
+	s3Client.EXPECT().
+		PutObjectTagging(ctx, "a-key", mock.Anything).
 		Return(nil)
 
 	eventClient := newMockEventClient(t)
-	eventClient.
-		On("SendReducedFeeRequested", ctx, mock.Anything).
+	eventClient.EXPECT().
+		SendReducedFeeRequested(ctx, mock.Anything).
 		Return(nil)
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		On("BatchPut", ctx, mock.Anything).
+	dynamoClient.EXPECT().
+		BatchPut(ctx, mock.Anything).
 		Return(expectedError)
 
 	documentStore := &documentStore{
@@ -426,4 +426,95 @@ func TestDocumentStoreSubmitWhenDynamoClientErrors(t *testing.T) {
 
 func TestDocumentKey(t *testing.T) {
 	assert.Equal(t, "#DOCUMENT#key", documentKey("key"))
+}
+
+func TestDocumentCreate(t *testing.T) {
+	ctx := context.Background()
+	now := time.Now()
+
+	donor := &actor.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload, LpaID: "lpa-id"}
+
+	data := []byte("some-data")
+
+	s3Client := newMockS3Client(t)
+	s3Client.EXPECT().
+		PutObject(ctx, "lpa-uid/evidence/a-uuid", data).
+		Return(nil)
+
+	expectedDocument := page.Document{
+		PK:       "LPA#lpa-id",
+		SK:       "#DOCUMENT#lpa-uid/evidence/a-uuid",
+		Filename: "a-filename",
+		Key:      "lpa-uid/evidence/a-uuid",
+		Uploaded: now,
+	}
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		Create(ctx, expectedDocument).
+		Return(nil)
+
+	documentStore := &documentStore{
+		dynamoClient: dynamoClient,
+		s3Client:     s3Client,
+		now:          func() time.Time { return now },
+		randomUUID:   func() string { return "a-uuid" },
+	}
+
+	document, err := documentStore.Create(ctx, donor, "a-filename", data)
+
+	assert.Nil(t, err)
+	assert.Equal(t, expectedDocument, document)
+}
+
+func TestDocumentCreateWhenS3Error(t *testing.T) {
+	ctx := context.Background()
+	now := time.Now()
+
+	donor := &actor.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload, LpaID: "lpa-id"}
+
+	s3Client := newMockS3Client(t)
+	s3Client.EXPECT().
+		PutObject(ctx, "lpa-uid/evidence/a-uuid", mock.Anything).
+		Return(expectedError)
+
+	documentStore := &documentStore{
+		s3Client:   s3Client,
+		now:        func() time.Time { return now },
+		randomUUID: func() string { return "a-uuid" },
+	}
+
+	_, err := documentStore.Create(ctx, donor, "a-filename", []byte("some-data"))
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestDocumentCreateWhenDynamoError(t *testing.T) {
+	ctx := context.Background()
+	now := time.Now()
+
+	donor := &actor.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload, LpaID: "lpa-id"}
+
+	data := []byte("some-data")
+
+	s3Client := newMockS3Client(t)
+	s3Client.EXPECT().
+		PutObject(ctx, "lpa-uid/evidence/a-uuid", data).
+		Return(nil)
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		Create(ctx, mock.Anything).
+		Return(expectedError)
+
+	documentStore := &documentStore{
+		dynamoClient: dynamoClient,
+		s3Client:     s3Client,
+		now:          func() time.Time { return now },
+		randomUUID:   func() string { return "a-uuid" },
+	}
+
+	_, err := documentStore.Create(ctx, donor, "a-filename", data)
+
+	assert.Equal(t, expectedError, err)
 }

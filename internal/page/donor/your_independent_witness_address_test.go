@@ -21,12 +21,12 @@ func TestGetYourIndependentWitnessAddress(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App:        testAppData,
 			ActorLabel: "independentWitness",
 			FullName:   "John Smith",
-			Form:       &form.AddressForm{},
+			Form:       form.NewAddressForm(),
 			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
@@ -50,14 +50,15 @@ func TestGetYourIndependentWitnessAddressFromStore(t *testing.T) {
 	address := place.Address{Line1: "abc"}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App:        testAppData,
 			ActorLabel: "independentWitness",
 			FullName:   " ",
 			Form: &form.AddressForm{
-				Action:  "manual",
-				Address: &address,
+				Action:     "manual",
+				Address:    &address,
+				FieldNames: form.FieldNames.Address,
 			},
 			TitleKeys: testTitleKeys,
 		}).
@@ -79,14 +80,15 @@ func TestGetYourIndependentWitnessAddressManual(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/?action=manual", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App:        testAppData,
 			ActorLabel: "independentWitness",
 			FullName:   " ",
 			Form: &form.AddressForm{
-				Action:  "manual",
-				Address: &place.Address{},
+				Action:     "manual",
+				Address:    &place.Address{},
+				FieldNames: form.FieldNames.Address,
 			},
 			TitleKeys: testTitleKeys,
 		}).
@@ -104,12 +106,12 @@ func TestGetYourIndependentWitnessAddressWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App:        testAppData,
 			ActorLabel: "independentWitness",
 			FullName:   " ",
-			Form:       &form.AddressForm{},
+			Form:       form.NewAddressForm(),
 			TitleKeys:  testTitleKeys,
 		}).
 		Return(expectedError)
@@ -123,12 +125,12 @@ func TestGetYourIndependentWitnessAddressWhenTemplateErrors(t *testing.T) {
 
 func TestPostYourIndependentWitnessAddressManual(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		form.FieldNames.Address.Action:     {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -136,8 +138,8 @@ func TestPostYourIndependentWitnessAddressManual(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			IndependentWitness: actor.IndependentWitness{
 				Address: testAddress,
@@ -160,12 +162,12 @@ func TestPostYourIndependentWitnessAddressManual(t *testing.T) {
 
 func TestPostYourIndependentWitnessAddressManualWhenStoreErrors(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		form.FieldNames.Address.Action:     {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -173,8 +175,8 @@ func TestPostYourIndependentWitnessAddressManualWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := YourIndependentWitnessAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -184,12 +186,12 @@ func TestPostYourIndependentWitnessAddressManualWhenStoreErrors(t *testing.T) {
 
 func TestPostYourIndependentWitnessAddressManualFromStore(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		form.FieldNames.Address.Action:     {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -197,8 +199,8 @@ func TestPostYourIndependentWitnessAddressManualFromStore(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			IndependentWitness: actor.IndependentWitness{
 				FirstNames: "John",
@@ -226,10 +228,10 @@ func TestPostYourIndependentWitnessAddressManualFromStore(t *testing.T) {
 
 func TestPostYourIndependentWitnessAddressManualWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-2":   {"b"},
-		"address-town":     {"c"},
-		"address-postcode": {"d"},
+		form.FieldNames.Address.Action:     {"manual"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.TownOrCity: {"c"},
+		form.FieldNames.Address.Postcode:   {"d"},
 	}
 
 	w := httptest.NewRecorder()
@@ -237,8 +239,8 @@ func TestPostYourIndependentWitnessAddressManualWhenValidationError(t *testing.T
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App:        testAppData,
 			ActorLabel: "independentWitness",
 			FullName:   " ",
@@ -250,8 +252,9 @@ func TestPostYourIndependentWitnessAddressManualWhenValidationError(t *testing.T
 					Postcode:   "D",
 					Country:    "GB",
 				},
+				FieldNames: form.FieldNames.Address,
 			},
-			Errors:    validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
+			Errors:    validation.With(form.FieldNames.Address.Line1, validation.EnterError{Label: "addressLine1"}),
 			TitleKeys: testTitleKeys,
 		}).
 		Return(nil)
@@ -272,9 +275,9 @@ func TestPostYourIndependentWitnessAddressSelect(t *testing.T) {
 	}
 
 	f := url.Values{
-		"action":          {"postcode-select"},
-		"lookup-postcode": {"NG1"},
-		"select-address":  {expectedAddress.Encode()},
+		form.FieldNames.Address.Action: {"postcode-select"},
+		"lookup-postcode":              {"NG1"},
+		"select-address":               {expectedAddress.Encode()},
 	}
 
 	w := httptest.NewRecorder()
@@ -282,8 +285,8 @@ func TestPostYourIndependentWitnessAddressSelect(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App:        testAppData,
 			ActorLabel: "independentWitness",
 			FullName:   " ",
@@ -291,6 +294,7 @@ func TestPostYourIndependentWitnessAddressSelect(t *testing.T) {
 				Action:         "manual",
 				LookupPostcode: "NG1",
 				Address:        expectedAddress,
+				FieldNames:     form.FieldNames.Address,
 			},
 			TitleKeys: testTitleKeys,
 		}).
@@ -305,8 +309,8 @@ func TestPostYourIndependentWitnessAddressSelect(t *testing.T) {
 
 func TestPostYourIndependentWitnessAddressSelectWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-select"},
-		"lookup-postcode": {"NG1"},
+		form.FieldNames.Address.Action: {"postcode-select"},
+		"lookup-postcode":              {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -318,19 +322,20 @@ func TestPostYourIndependentWitnessAddressSelectWhenValidationError(t *testing.T
 	}
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "NG1").
 		Return(addresses, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App:        testAppData,
 			ActorLabel: "independentWitness",
 			FullName:   " ",
 			Form: &form.AddressForm{
 				Action:         "postcode-select",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses: addresses,
 			Errors:    validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
@@ -347,8 +352,8 @@ func TestPostYourIndependentWitnessAddressSelectWhenValidationError(t *testing.T
 
 func TestPostYourIndependentWitnessAddressLookup(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"NG1"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -360,19 +365,20 @@ func TestPostYourIndependentWitnessAddressLookup(t *testing.T) {
 	}
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "NG1").
 		Return(addresses, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App:        testAppData,
 			ActorLabel: "independentWitness",
 			FullName:   " ",
 			Form: &form.AddressForm{
 				Action:         "postcode-lookup",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses: addresses,
 			TitleKeys: testTitleKeys,
@@ -388,8 +394,8 @@ func TestPostYourIndependentWitnessAddressLookup(t *testing.T) {
 
 func TestPostYourIndependentWitnessAddressLookupError(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"NG1"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -397,23 +403,24 @@ func TestPostYourIndependentWitnessAddressLookupError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Print", expectedError)
+	logger.EXPECT().
+		Print(expectedError)
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "NG1").
 		Return([]place.Address{}, expectedError)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App:        testAppData,
 			ActorLabel: "independentWitness",
 			FullName:   " ",
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses: []place.Address{},
 			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
@@ -436,31 +443,32 @@ func TestPostYourIndependentWitnessAddressInvalidPostcodeError(t *testing.T) {
 	}
 
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"XYZ"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"XYZ"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Print", invalidPostcodeErr)
+	logger.EXPECT().
+		Print(invalidPostcodeErr)
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "XYZ").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "XYZ").
 		Return([]place.Address{}, invalidPostcodeErr)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App:        testAppData,
 			ActorLabel: "independentWitness",
 			FullName:   " ",
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "XYZ",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses: []place.Address{},
 			Errors:    validation.With("lookup-postcode", validation.EnterError{Label: "invalidPostcode"}),
@@ -479,8 +487,8 @@ func TestPostYourIndependentWitnessAddressValidPostcodeNoAddresses(t *testing.T)
 	w := httptest.NewRecorder()
 
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"XYZ"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"XYZ"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
@@ -489,19 +497,20 @@ func TestPostYourIndependentWitnessAddressValidPostcodeNoAddresses(t *testing.T)
 	logger := newMockLogger(t)
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "XYZ").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "XYZ").
 		Return([]place.Address{}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App:        testAppData,
 			ActorLabel: "independentWitness",
 			FullName:   " ",
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "XYZ",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses: []place.Address{},
 			Errors:    validation.With("lookup-postcode", validation.CustomError{Label: "noAddressesFound"}),
@@ -518,7 +527,7 @@ func TestPostYourIndependentWitnessAddressValidPostcodeNoAddresses(t *testing.T)
 
 func TestPostYourIndependentWitnessAddressLookupWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action": {"postcode-lookup"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
 	}
 
 	w := httptest.NewRecorder()
@@ -526,13 +535,14 @@ func TestPostYourIndependentWitnessAddressLookupWhenValidationError(t *testing.T
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App:        testAppData,
 			ActorLabel: "independentWitness",
 			FullName:   " ",
 			Form: &form.AddressForm{
-				Action: "postcode",
+				Action:     "postcode",
+				FieldNames: form.FieldNames.Address,
 			},
 			Errors:    validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
 			TitleKeys: testTitleKeys,

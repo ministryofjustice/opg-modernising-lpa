@@ -25,18 +25,19 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/fixtures"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-//go:generate mockery --testonly --inpackage --name Logger --structname mockLogger
+type ErrorHandler func(http.ResponseWriter, *http.Request, error)
+
 type Logger interface {
 	Print(v ...interface{})
 }
 
-//go:generate mockery --testonly --inpackage --name DynamoClient --structname mockDynamoClient
 type DynamoClient interface {
 	One(ctx context.Context, pk, sk string, v interface{}) error
 	OneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
@@ -54,7 +55,6 @@ type DynamoClient interface {
 	OneByUID(ctx context.Context, uid string, v interface{}) error
 }
 
-//go:generate mockery --testonly --inpackage --name S3Client --structname mockS3Client
 type S3Client interface {
 	PutObject(context.Context, string, []byte) error
 	DeleteObject(context.Context, string) error
@@ -62,7 +62,6 @@ type S3Client interface {
 	PutObjectTagging(context.Context, string, map[string]string) error
 }
 
-//go:generate mockery --testonly --inpackage --name SessionStore --structname mockSessionStore
 type SessionStore interface {
 	Get(r *http.Request, name string) (*sessions.Session, error)
 	New(r *http.Request, name string) (*sessions.Session, error)
@@ -74,6 +73,7 @@ func App(
 	localizer page.Localizer,
 	lang localize.Lang,
 	tmpls template.Templates,
+	supporterTmpls template.Templates,
 	sessionStore SessionStore,
 	lpaDynamoClient DynamoClient,
 	appPublicURL string,
@@ -134,12 +134,23 @@ func App(
 		page.Guidance(tmpls.Get("certificate_provider_start.gohtml")))
 	handleRoot(page.Paths.Attorney.Start, None,
 		page.Guidance(tmpls.Get("attorney_start.gohtml")))
+	handleRoot(page.Paths.Supporter.Start, None,
+		page.Guidance(supporterTmpls.Get("start.gohtml")))
 	handleRoot(page.Paths.Dashboard, RequireSession,
 		page.Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, dashboardStore))
 	handleRoot(page.Paths.LpaDeleted, RequireSession,
 		page.Guidance(tmpls.Get("lpa_deleted.gohtml")))
 	handleRoot(page.Paths.LpaWithdrawn, RequireSession,
 		page.Guidance(tmpls.Get("lpa_withdrawn.gohtml")))
+
+	supporter.Register(
+		rootMux,
+		supporterTmpls,
+		oneLoginClient,
+		sessionStore,
+		notFoundHandler,
+		errorHandler,
+	)
 
 	certificateprovider.Register(
 		rootMux,
@@ -156,6 +167,7 @@ func App(
 		notifyClient,
 		shareCodeSender,
 		dashboardStore,
+		lpaStoreClient,
 	)
 
 	attorney.Register(
@@ -171,6 +183,7 @@ func App(
 		errorHandler,
 		notFoundHandler,
 		dashboardStore,
+		lpaStoreClient,
 	)
 
 	donor.Register(

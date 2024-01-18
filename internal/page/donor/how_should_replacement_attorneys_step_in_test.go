@@ -19,8 +19,8 @@ func TestGetHowShouldReplacementAttorneysStepIn(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &howShouldReplacementAttorneysStepInData{
+	template.EXPECT().
+		Execute(w, &howShouldReplacementAttorneysStepInData{
 			App:     testAppData,
 			Form:    &howShouldReplacementAttorneysStepInForm{},
 			Options: actor.ReplacementAttorneysStepInValues,
@@ -41,8 +41,8 @@ func TestGetHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &howShouldReplacementAttorneysStepInData{
+	template.EXPECT().
+		Execute(w, &howShouldReplacementAttorneysStepInData{
 			App: testAppData,
 			Form: &howShouldReplacementAttorneysStepInForm{
 				WhenToStepIn: actor.ReplacementAttorneysStepInAnotherWay,
@@ -73,8 +73,8 @@ func TestPostHowShouldReplacementAttorneysStepIn(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:                               "lpa-id",
 			HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInAnotherWay,
 			HowShouldReplacementAttorneysStepInDetails: "some details"}).
@@ -162,8 +162,8 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID:                               "lpa-id",
 					Attorneys:                           tc.Attorneys,
 					AttorneyDecisions:                   actor.AttorneyDecisions{How: tc.HowAttorneysMakeDecisions},
@@ -227,8 +227,8 @@ func TestPostHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID:                               "lpa-id",
 					HowShouldReplacementAttorneysStepIn: tc.updatedWhenStepIn,
 					HowShouldReplacementAttorneysStepInDetails: tc.updatedOtherDetails}).
@@ -261,8 +261,8 @@ func TestPostHowShouldReplacementAttorneysStepInFormValidation(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *howShouldReplacementAttorneysStepInData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *howShouldReplacementAttorneysStepInData) bool {
 			return assert.Equal(t, validation.With("when-to-step-in", validation.SelectError{Label: "whenYourReplacementAttorneysStepIn"}), data.Errors)
 		})).
 		Return(nil)
@@ -285,8 +285,8 @@ func TestPostHowShouldReplacementAttorneysStepInWhenPutStoreError(t *testing.T) 
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			HowShouldReplacementAttorneysStepIn:        actor.ReplacementAttorneysStepInAnotherWay,
 			HowShouldReplacementAttorneysStepInDetails: "some details"}).
 		Return(expectedError)

@@ -28,8 +28,8 @@ func (m *mockSessionStore) ExpectGet(r *http.Request, values map[any]any, err er
 		Secure:   true,
 	}
 	session.Values = values
-	m.
-		On("Get", r, "session").
+	m.EXPECT().
+		Get(r, "session").
 		Return(session, err)
 }
 
@@ -43,8 +43,8 @@ func TestGetEnterReferenceNumber(t *testing.T) {
 	}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, data).
+	template.EXPECT().
+		Execute(w, data).
 		Return(nil)
 
 	err := EnterReferenceNumber(template.Execute, nil, nil, nil)(testAppData, w, r)
@@ -65,8 +65,8 @@ func TestGetEnterReferenceNumberOnTemplateError(t *testing.T) {
 	}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, data).
+	template.EXPECT().
+		Execute(w, data).
 		Return(expectedError)
 
 	err := EnterReferenceNumber(template.Execute, nil, nil, nil)(testAppData, w, r)
@@ -117,13 +117,13 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			shareCodeStore := newMockShareCodeStore(t)
-			shareCodeStore.
-				On("Get", r.Context(), actor.TypeAttorney, "aRefNumber12").
+			shareCodeStore.EXPECT().
+				Get(r.Context(), actor.TypeAttorney, "aRefNumber12").
 				Return(tc.shareCode, nil)
 
 			attorneyStore := newMockAttorneyStore(t)
-			attorneyStore.
-				On("Create", mock.MatchedBy(func(ctx context.Context) bool {
+			attorneyStore.EXPECT().
+				Create(mock.MatchedBy(func(ctx context.Context) bool {
 					session, _ := page.SessionDataFromContext(ctx)
 
 					return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
@@ -156,8 +156,8 @@ func TestPostEnterReferenceNumberOnDonorStoreError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.
-		On("Get", r.Context(), actor.TypeAttorney, "aRefNumber12").
+	shareCodeStore.EXPECT().
+		Get(r.Context(), actor.TypeAttorney, "aRefNumber12").
 		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, expectedError)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, nil, nil)(testAppData, w, r)
@@ -184,13 +184,13 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 	}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, data).
+	template.EXPECT().
+		Execute(w, data).
 		Return(nil)
 
 	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.
-		On("Get", r.Context(), actor.TypeAttorney, "aRefNumber12").
+	shareCodeStore.EXPECT().
+		Get(r.Context(), actor.TypeAttorney, "aRefNumber12").
 		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, dynamo.NotFoundError{})
 
 	err := EnterReferenceNumber(template.Execute, shareCodeStore, nil, nil)(testAppData, w, r)
@@ -211,8 +211,8 @@ func TestPostEnterReferenceNumberOnSessionGetError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.
-		On("Get", r.Context(), actor.TypeAttorney, "aRefNumber12").
+	shareCodeStore.EXPECT().
+		Get(r.Context(), actor.TypeAttorney, "aRefNumber12").
 		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -235,13 +235,13 @@ func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.
-		On("Get", r.Context(), actor.TypeAttorney, "aRefNumber12").
+	shareCodeStore.EXPECT().
+		Get(r.Context(), actor.TypeAttorney, "aRefNumber12").
 		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Create", mock.Anything, mock.Anything, mock.Anything, false, false).
+	attorneyStore.EXPECT().
+		Create(mock.Anything, mock.Anything, mock.Anything, false, false).
 		Return(&actor.AttorneyProvidedDetails{}, expectedError)
 
 	sessionStore := newMockSessionStore(t)
@@ -273,8 +273,8 @@ func TestPostEnterReferenceNumberOnValidationError(t *testing.T) {
 	}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, data).
+	template.EXPECT().
+		Execute(w, data).
 		Return(nil)
 
 	err := EnterReferenceNumber(template.Execute, nil, nil, nil)(testAppData, w, r)

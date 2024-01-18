@@ -45,7 +45,7 @@ func (h *cloudWatchEventHandler) Handle(ctx context.Context, event events.CloudW
 		return handleEvidenceReceived(ctx, h.dynamoClient, event)
 
 	case "reduced-fee-approved":
-		bundle := localize.NewBundle("./lang/en.json", "./lang/cy.json")
+		bundle, _ := localize.NewBundle("./lang/en.json", "./lang/cy.json")
 
 		//TODO do this in handleFeeApproved when/if we save lang preference in LPA
 		appData := page.AppData{Localizer: bundle.For(localize.En)}
@@ -72,7 +72,7 @@ func (h *cloudWatchEventHandler) Handle(ctx context.Context, event events.CloudW
 	case "reduced-fee-declined":
 		return handleFeeDenied(ctx, h.dynamoClient, event, h.now)
 
-	case "move-evidence-required":
+	case "more-evidence-required":
 		return handleMoreEvidenceRequired(ctx, h.dynamoClient, event, h.now)
 
 	default:

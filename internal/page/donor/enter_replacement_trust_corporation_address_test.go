@@ -21,10 +21,10 @@ func TestGetEnterReplacementTrustCorporationAddress(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App:        testAppData,
-			Form:       &form.AddressForm{},
+			Form:       form.NewAddressForm(),
 			ActorLabel: "theTrustCorporation",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -44,12 +44,13 @@ func TestGetEnterReplacementTrustCorporationAddressManual(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/?action=manual", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action:  "manual",
-				Address: &place.Address{},
+				Action: "manual",
+
+				FieldNames: form.FieldNames.Address, Address: &place.Address{},
 			},
 			ActorLabel: "theTrustCorporation",
 			TitleKeys:  testTitleKeys,
@@ -70,10 +71,10 @@ func TestGetEnterReplacementTrustCorporationAddressWhenTemplateErrors(t *testing
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App:        testAppData,
-			Form:       &form.AddressForm{},
+			Form:       form.NewAddressForm(),
 			ActorLabel: "theTrustCorporation",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -90,12 +91,12 @@ func TestGetEnterReplacementTrustCorporationAddressWhenTemplateErrors(t *testing
 
 func TestPostEnterReplacementTrustCorporationAddressManual(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		form.FieldNames.Address.Action:     {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -103,8 +104,8 @@ func TestPostEnterReplacementTrustCorporationAddressManual(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Tasks: actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 			ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
@@ -130,12 +131,12 @@ func TestPostEnterReplacementTrustCorporationAddressManual(t *testing.T) {
 
 func TestPostEnterReplacementTrustCorporationAddressManualWhenStoreErrors(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		form.FieldNames.Address.Action:     {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -143,8 +144,8 @@ func TestPostEnterReplacementTrustCorporationAddressManualWhenStoreErrors(t *tes
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := EnterReplacementTrustCorporationAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
@@ -156,12 +157,12 @@ func TestPostEnterReplacementTrustCorporationAddressManualWhenStoreErrors(t *tes
 
 func TestPostEnterReplacementTrustCorporationAddressManualFromStore(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		form.FieldNames.Address.Action:     {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -169,8 +170,8 @@ func TestPostEnterReplacementTrustCorporationAddressManualFromStore(t *testing.T
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Tasks: actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskCompleted},
 			ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
@@ -196,10 +197,10 @@ func TestPostEnterReplacementTrustCorporationAddressManualFromStore(t *testing.T
 
 func TestPostEnterReplacementTrustCorporationAddressManualWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-2":   {"b"},
-		"address-town":     {"c"},
-		"address-postcode": {"d"},
+		form.FieldNames.Address.Action:     {"manual"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.TownOrCity: {"c"},
+		form.FieldNames.Address.Postcode:   {"d"},
 	}
 
 	w := httptest.NewRecorder()
@@ -214,14 +215,15 @@ func TestPostEnterReplacementTrustCorporationAddressManualWhenValidationError(t 
 	}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action:  "manual",
-				Address: invalidAddress,
+				Action: "manual",
+
+				FieldNames: form.FieldNames.Address, Address: invalidAddress,
 			},
-			Errors:     validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
+			Errors:     validation.With(form.FieldNames.Address.Line1, validation.EnterError{Label: "addressLine1"}),
 			ActorLabel: "theTrustCorporation",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -238,9 +240,9 @@ func TestPostEnterReplacementTrustCorporationAddressManualWhenValidationError(t 
 
 func TestPostEnterReplacementTrustCorporationAddressPostcodeSelect(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-select"},
-		"lookup-postcode": {"NG1"},
-		"select-address":  {testAddress.Encode()},
+		form.FieldNames.Address.Action: {"postcode-select"},
+		"lookup-postcode":              {"NG1"},
+		"select-address":               {testAddress.Encode()},
 	}
 
 	w := httptest.NewRecorder()
@@ -248,13 +250,14 @@ func TestPostEnterReplacementTrustCorporationAddressPostcodeSelect(t *testing.T)
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "manual",
 				LookupPostcode: "NG1",
 				Address:        &testAddress,
+				FieldNames:     form.FieldNames.Address,
 			},
 			ActorLabel: "theTrustCorporation",
 			TitleKeys:  testTitleKeys,
@@ -272,8 +275,8 @@ func TestPostEnterReplacementTrustCorporationAddressPostcodeSelect(t *testing.T)
 
 func TestPostEnterReplacementTrustCorporationAddressPostcodeSelectWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-select"},
-		"lookup-postcode": {"NG1"},
+		form.FieldNames.Address.Action: {"postcode-select"},
+		"lookup-postcode":              {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -285,17 +288,18 @@ func TestPostEnterReplacementTrustCorporationAddressPostcodeSelectWhenValidation
 	}
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "NG1").
 		Return(addresses, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode-select",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses:  addresses,
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
@@ -315,8 +319,8 @@ func TestPostEnterReplacementTrustCorporationAddressPostcodeSelectWhenValidation
 
 func TestPostEnterReplacementTrustCorporationPostcodeLookup(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"NG1"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -328,17 +332,18 @@ func TestPostEnterReplacementTrustCorporationPostcodeLookup(t *testing.T) {
 	}
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "NG1").
 		Return(addresses, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode-lookup",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses:  addresses,
 			ActorLabel: "theTrustCorporation",
@@ -357,8 +362,8 @@ func TestPostEnterReplacementTrustCorporationPostcodeLookup(t *testing.T) {
 
 func TestPostEnterReplacementTrustCorporationPostcodeLookupError(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"NG1"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -366,21 +371,22 @@ func TestPostEnterReplacementTrustCorporationPostcodeLookupError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Print", expectedError)
+	logger.EXPECT().
+		Print(expectedError)
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "NG1").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "NG1").
 		Return([]place.Address{}, expectedError)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses:  []place.Address{},
 			Errors:     validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
@@ -406,29 +412,30 @@ func TestPostEnterReplacementTrustCorporationAddressPostcodeLookupInvalidPostcod
 	}
 
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"XYZ"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"XYZ"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Print", invalidPostcodeErr)
+	logger.EXPECT().
+		Print(invalidPostcodeErr)
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "XYZ").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "XYZ").
 		Return([]place.Address{}, invalidPostcodeErr)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "XYZ",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses:  []place.Address{},
 			Errors:     validation.With("lookup-postcode", validation.EnterError{Label: "invalidPostcode"}),
@@ -450,25 +457,26 @@ func TestPostEnterReplacementTrustCorporationAddressPostcodeLookupValidPostcodeN
 	w := httptest.NewRecorder()
 
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"XYZ"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"XYZ"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	addressClient := newMockAddressClient(t)
-	addressClient.
-		On("LookupPostcode", mock.Anything, "XYZ").
+	addressClient.EXPECT().
+		LookupPostcode(mock.Anything, "XYZ").
 		Return([]place.Address{}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "XYZ",
+				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses:  []place.Address{},
 			Errors:     validation.With("lookup-postcode", validation.CustomError{Label: "noAddressesFound"}),
@@ -488,7 +496,7 @@ func TestPostEnterReplacementTrustCorporationAddressPostcodeLookupValidPostcodeN
 
 func TestPostEnterReplacementTrustCorporationAddressPostcodeLookupWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action": {"postcode-lookup"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
 	}
 
 	w := httptest.NewRecorder()
@@ -496,11 +504,12 @@ func TestPostEnterReplacementTrustCorporationAddressPostcodeLookupWhenValidation
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action: "postcode",
+				Action:     "postcode",
+				FieldNames: form.FieldNames.Address,
 			},
 			Errors:     validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
 			ActorLabel: "theTrustCorporation",
@@ -519,7 +528,7 @@ func TestPostEnterReplacementTrustCorporationAddressPostcodeLookupWhenValidation
 
 func TestPostEnterReplacementTrustCorporationAddressReuse(t *testing.T) {
 	f := url.Values{
-		"action": {"reuse"},
+		form.FieldNames.Address.Action: {"reuse"},
 	}
 
 	w := httptest.NewRecorder()
@@ -527,11 +536,12 @@ func TestPostEnterReplacementTrustCorporationAddressReuse(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action: "reuse",
+				Action:     "reuse",
+				FieldNames: form.FieldNames.Address,
 			},
 			ActorLabel: "theTrustCorporation",
 			Addresses:  []place.Address{{Line1: "donor lane"}},
@@ -551,8 +561,8 @@ func TestPostEnterReplacementTrustCorporationAddressReuse(t *testing.T) {
 
 func TestPostEnterReplacementTrustCorporationAddressReuseSelect(t *testing.T) {
 	f := url.Values{
-		"action":         {"reuse-select"},
-		"select-address": {testAddress.Encode()},
+		form.FieldNames.Address.Action: {"reuse-select"},
+		"select-address":               {testAddress.Encode()},
 	}
 
 	w := httptest.NewRecorder()
@@ -572,8 +582,8 @@ func TestPostEnterReplacementTrustCorporationAddressReuseSelect(t *testing.T) {
 	}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:                "lpa-id",
 			ReplacementAttorneys: actor.Attorneys{TrustCorporation: updatedTrustCorporation},
 			Tasks:                actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskCompleted},
@@ -595,7 +605,7 @@ func TestPostEnterReplacementTrustCorporationAddressReuseSelect(t *testing.T) {
 
 func TestPostEnterReplacementTrustCorporationAddressReuseSelectWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action": {"reuse-select"},
+		form.FieldNames.Address.Action: {"reuse-select"},
 	}
 
 	w := httptest.NewRecorder()
@@ -603,11 +613,12 @@ func TestPostEnterReplacementTrustCorporationAddressReuseSelectWhenValidationErr
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &chooseAddressData{
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action: "reuse-select",
+				Action:     "reuse-select",
+				FieldNames: form.FieldNames.Address,
 			},
 			Addresses:  []place.Address{{Line1: "donor lane"}},
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
@@ -648,10 +659,10 @@ func TestPostEnterReplacementTrustCorporationAddressManuallyFromAnotherPage(t *t
 	for testname, tc := range testcases {
 		t.Run(testname, func(t *testing.T) {
 			f := url.Values{
-				"action":           {"manual"},
-				"address-line-1":   {"a"},
-				"address-town":     {"b"},
-				"address-postcode": {"c"},
+				form.FieldNames.Address.Action:     {"manual"},
+				form.FieldNames.Address.Line1:      {"a"},
+				form.FieldNames.Address.TownOrCity: {"b"},
+				form.FieldNames.Address.Postcode:   {"c"},
 			}
 
 			w := httptest.NewRecorder()
@@ -670,8 +681,8 @@ func TestPostEnterReplacementTrustCorporationAddressManuallyFromAnotherPage(t *t
 			}
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), donor).
+			donorStore.EXPECT().
+				Put(r.Context(), donor).
 				Return(nil)
 
 			err := EnterReplacementTrustCorporationAddress(nil, nil, nil, donorStore)(testAppData, w, r, donor)

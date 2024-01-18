@@ -1,0 +1,3 @@
+; see docs/runbooks/configuring_weblate_access.md
+[weblate]
+translation = opg-modernising-lpa/opg-modernising-lpa

@@ -19,7 +19,7 @@ import (
 )
 
 func TestApp(t *testing.T) {
-	app := App(&logging.Logger{}, &localize.Localizer{}, localize.En, template.Templates{}, nil, nil, "http://public.url", &pay.Client{}, &notify.Client{}, &place.Client{}, page.RumConfig{}, "?%3fNEI0t9MN", page.Paths, &onelogin.Client{}, "http://onelogin.url", nil, nil, nil)
+	app := App(&logging.Logger{}, &localize.Localizer{}, localize.En, template.Templates{}, template.Templates{}, nil, nil, "http://public.url", &pay.Client{}, &notify.Client{}, &place.Client{}, page.RumConfig{}, "?%3fNEI0t9MN", page.Paths, &onelogin.Client{}, "http://onelogin.url", nil, nil, nil)
 
 	assert.Implements(t, (*http.Handler)(nil), app)
 }
@@ -78,8 +78,8 @@ func TestMakeHandleRequireSession(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
@@ -109,8 +109,8 @@ func TestMakeHandleRequireSessionMissing(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{}, nil)
 
 	mux := http.NewServeMux()
@@ -129,8 +129,8 @@ func TestMakeHandleRequireSessionError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{}, expectedError)
 
 	mux := http.NewServeMux()
@@ -149,8 +149,8 @@ func TestMakeHandleWhenError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
 
 	errorHandler := newMockErrorHandler(t)
-	errorHandler.
-		On("Execute", w, r, expectedError)
+	errorHandler.EXPECT().
+		Execute(w, r, expectedError)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, errorHandler.Execute, nil)
