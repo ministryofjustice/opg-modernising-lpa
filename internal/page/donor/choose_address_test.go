@@ -1,6 +1,5 @@
 package donor
 
-
 import (
 	"testing"
 
@@ -18,7 +17,7 @@ var testTitleKeys = titleKeys{
 
 func TestNewChooseAddressData(t *testing.T) {
 	assert.Equal(t, &chooseAddressData{
-		Form:       &form.AddressForm{},
+		Form:       &form.AddressForm{FieldNames: form.FieldNames.Address},
 		TitleKeys:  testTitleKeys,
 		App:        testAppData,
 		ActorLabel: "a",
@@ -40,7 +39,7 @@ func TestOverrideProfessionalCertificateProviderKeys(t *testing.T) {
 	})
 
 	assert.Equal(t, &chooseAddressData{
-		Form: &form.AddressForm{},
+		Form: &form.AddressForm{FieldNames: form.FieldNames.Address},
 		TitleKeys: titleKeys{
 			Manual:                          "a",
 			PostcodeSelectAndPostcodeLookup: "b",
