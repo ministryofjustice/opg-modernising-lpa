@@ -208,7 +208,7 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 			},
 			Options:   localize.LangValues,
 			FieldName: form.FieldNames.LanguagePreference.LanguagePreference,
-			Errors:    validation.With("language-preference", validation.SelectError{Label: "whichLanguageYoudLikeUsToUseWhenWeContactYou"}),
+			Errors:    validation.With(form.FieldNames.LanguagePreference.LanguagePreference, validation.SelectError{Label: "whichLanguageYoudLikeUsToUseWhenWeContactYou"}),
 			Donor:     &actor.DonorProvidedDetails{},
 		}).
 		Return(nil)
