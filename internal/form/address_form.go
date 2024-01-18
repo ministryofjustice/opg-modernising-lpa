@@ -84,29 +84,29 @@ func (f *AddressForm) Validate(useYour bool) validation.List {
 
 	case "manual":
 		if useYour {
-			errors.String(FieldNames.Address.Line1, "addressLine1OfYourAddress", f.Address.Line1,
+			errors.String(f.FieldNames.Line1, "addressLine1OfYourAddress", f.Address.Line1,
 				validation.Empty(),
 				validation.StringTooLong(50))
-			errors.String(FieldNames.Address.Line2, "addressLine2OfYourAddress", f.Address.Line2,
+			errors.String(f.FieldNames.Line2, "addressLine2OfYourAddress", f.Address.Line2,
 				validation.StringTooLong(50))
-			errors.String(FieldNames.Address.Line3, "addressLine3OfYourAddress", f.Address.Line3,
+			errors.String(f.FieldNames.Line3, "addressLine3OfYourAddress", f.Address.Line3,
 				validation.StringTooLong(50))
-			errors.String(FieldNames.Address.TownOrCity, "yourTownOrCity", f.Address.TownOrCity,
+			errors.String(f.FieldNames.TownOrCity, "yourTownOrCity", f.Address.TownOrCity,
 				validation.Empty())
-			errors.String(FieldNames.Address.Postcode, "yourPostcode", f.Address.Postcode,
+			errors.String(f.FieldNames.Postcode, "yourPostcode", f.Address.Postcode,
 				validation.Empty(),
 				validation.Postcode())
 		} else {
-			errors.String(FieldNames.Address.Line1, "addressLine1", f.Address.Line1,
+			errors.String(f.FieldNames.Line1, "addressLine1", f.Address.Line1,
 				validation.Empty(),
 				validation.StringTooLong(50))
-			errors.String(FieldNames.Address.Line2, "addressLine2Label", f.Address.Line2,
+			errors.String(f.FieldNames.Line2, "addressLine2Label", f.Address.Line2,
 				validation.StringTooLong(50))
-			errors.String(FieldNames.Address.Line3, "addressLine3Label", f.Address.Line3,
+			errors.String(f.FieldNames.Line3, "addressLine3Label", f.Address.Line3,
 				validation.StringTooLong(50))
-			errors.String(FieldNames.Address.TownOrCity, "townOrCity", f.Address.TownOrCity,
+			errors.String(f.FieldNames.TownOrCity, "townOrCity", f.Address.TownOrCity,
 				validation.Empty())
-			errors.String(FieldNames.Address.Postcode, "aPostcode", f.Address.Postcode,
+			errors.String(f.FieldNames.Postcode, "aPostcode", f.Address.Postcode,
 				validation.Empty(),
 				validation.Postcode())
 		}

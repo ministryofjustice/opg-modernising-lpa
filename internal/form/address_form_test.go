@@ -115,66 +115,77 @@ func TestAddressFormValidate(t *testing.T) {
 		useYour bool
 	}{
 		"action missing": {
-			form:   &AddressForm{},
+			form: &AddressForm{
+				FieldNames: FieldNames.Address,
+			},
 			errors: validation.With("action", validation.SelectError{Label: "ifUsePreviousAddressOrEnterNew"}),
 		},
 		"postcode-lookup valid": {
 			form: &AddressForm{
 				Action:         "postcode-lookup",
 				LookupPostcode: "NG1",
+				FieldNames:     FieldNames.Address,
 			},
 		},
 		"postcode-lookup missing postcode": {
 			form: &AddressForm{
-				Action: "postcode-lookup",
+				Action:     "postcode-lookup",
+				FieldNames: FieldNames.Address,
 			},
 			errors: validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
 		},
 		"postcode-lookup your missing postcode": {
 			form: &AddressForm{
-				Action: "postcode-lookup",
+				Action:     "postcode-lookup",
+				FieldNames: FieldNames.Address,
 			},
 			errors:  validation.With("lookup-postcode", validation.EnterError{Label: "yourPostcode"}),
 			useYour: true,
 		},
 		"postcode-select valid": {
 			form: &AddressForm{
-				Action:  "postcode-select",
-				Address: &place.Address{},
+				Action:     "postcode-select",
+				Address:    &place.Address{},
+				FieldNames: FieldNames.Address,
 			},
 		},
 		"postcode-select not selected": {
 			form: &AddressForm{
-				Action:  "postcode-select",
-				Address: nil,
+				Action:     "postcode-select",
+				Address:    nil,
+				FieldNames: FieldNames.Address,
 			},
 			errors: validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
 		},
 		"postcode-select your address not selected": {
 			form: &AddressForm{
-				Action:  "postcode-select",
-				Address: nil,
+				Action:     "postcode-select",
+				Address:    nil,
+				FieldNames: FieldNames.Address,
 			},
 			errors:  validation.With("select-address", validation.SelectError{Label: "yourAddressFromTheList"}),
 			useYour: true,
 		},
 		"reuse-select valid": {
 			form: &AddressForm{
-				Action:  "reuse-select",
-				Address: &place.Address{},
+				Action:     "reuse-select",
+				Address:    &place.Address{},
+				FieldNames: FieldNames.Address,
 			},
 		},
 		"reuse-select not selected": {
 			form: &AddressForm{
-				Action:  "reuse-select",
-				Address: nil,
+				Action:     "reuse-select",
+				Address:    nil,
+				FieldNames: FieldNames.Address,
 			},
 			errors: validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
 		},
 		"reuse-select your address not selected": {
 			form: &AddressForm{
-				Action:  "reuse-select",
-				Address: nil,
+				Action:     "reuse-select",
+				Address:    nil,
+				FieldNames: FieldNames.Address,
 			},
 			errors:  validation.With("select-address", validation.SelectError{Label: "yourAddressFromTheList"}),
 			useYour: true,
@@ -187,12 +198,14 @@ func TestAddressFormValidate(t *testing.T) {
 					TownOrCity: "b",
 					Postcode:   "C12 1CC",
 				},
+				FieldNames: FieldNames.Address,
 			},
 		},
 		"manual missing all": {
 			form: &AddressForm{
-				Action:  "manual",
-				Address: &place.Address{},
+				Action:     "manual",
+				Address:    &place.Address{},
+				FieldNames: FieldNames.Address,
 			},
 			errors: validation.
 				With(FieldNames.Address.Line1, validation.EnterError{Label: "addressLine1"}).
@@ -201,8 +214,9 @@ func TestAddressFormValidate(t *testing.T) {
 		},
 		"manual missing all your": {
 			form: &AddressForm{
-				Action:  "manual",
-				Address: &place.Address{},
+				Action:     "manual",
+				Address:    &place.Address{},
+				FieldNames: FieldNames.Address,
 			},
 			errors: validation.
 				With(FieldNames.Address.Line1, validation.EnterError{Label: "addressLine1OfYourAddress"}).
@@ -220,6 +234,7 @@ func TestAddressFormValidate(t *testing.T) {
 					TownOrCity: "b",
 					Postcode:   "C",
 				},
+				FieldNames: FieldNames.Address,
 			},
 		},
 		"manual too long": {
@@ -232,6 +247,7 @@ func TestAddressFormValidate(t *testing.T) {
 					TownOrCity: "b",
 					Postcode:   "C",
 				},
+				FieldNames: FieldNames.Address,
 			},
 			errors: validation.
 				With(FieldNames.Address.Line1, validation.StringTooLongError{Label: "addressLine1", Length: 50}).
@@ -248,6 +264,7 @@ func TestAddressFormValidate(t *testing.T) {
 					TownOrCity: "b",
 					Postcode:   "C",
 				},
+				FieldNames: FieldNames.Address,
 			},
 			errors: validation.
 				With(FieldNames.Address.Line1, validation.StringTooLongError{Label: "addressLine1OfYourAddress", Length: 50}).
