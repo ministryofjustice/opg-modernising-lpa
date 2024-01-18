@@ -155,6 +155,7 @@
         <p class="govuk-heading-m">{{ tr .App "makeNewLpa" }}</p>
         <form novalidate method="post">
           <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "startNow" }}</button>
+          <input type="hidden" name="has-existing-donor-lpas" value="{{ gt (len .DonorLpas) 0 }}" />
           {{ template "csrf-field" . }}
         </form>
       </div>

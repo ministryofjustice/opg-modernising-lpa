@@ -468,23 +468,53 @@ func TestDonorStorePutWhenPreviousApplicationLinkedWhenError(t *testing.T) {
 }
 
 func TestDonorStoreCreate(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
-	donor := &actor.DonorProvidedDetails{PK: "LPA#10100000", SK: "#DONOR#an-id", LpaID: "10100000", CreatedAt: testNow, Version: 1}
-	donor.Hash, _ = donor.GenerateHash()
+	testCases := map[string]actor.DonorProvidedDetails{
+		"with previous details": {Donor: actor.Donor{
+			FirstNames:  "a",
+			LastName:    "b",
+			OtherNames:  "c",
+			DateOfBirth: date.New("2000", "01", "02"),
+			Address:     place.Address{Line1: "d"}},
+		},
+		"no previous details": {},
+	}
 
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.EXPECT().
-		Create(ctx, donor).
-		Return(nil)
-	dynamoClient.EXPECT().
-		Create(ctx, lpaLink{PK: "LPA#10100000", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor, UpdatedAt: testNow}).
-		Return(nil)
+	for name, previousDetails := range testCases {
+		t.Run(name, func(t *testing.T) {
+			ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
+			donor := &actor.DonorProvidedDetails{
+				PK:        "LPA#10100000",
+				SK:        "#DONOR#an-id",
+				LpaID:     "10100000",
+				CreatedAt: testNow,
+				Version:   1,
+				Donor: actor.Donor{
+					FirstNames:  previousDetails.Donor.FirstNames,
+					LastName:    previousDetails.Donor.LastName,
+					OtherNames:  previousDetails.Donor.OtherNames,
+					DateOfBirth: previousDetails.Donor.DateOfBirth,
+					Address:     previousDetails.Donor.Address,
+				},
+			}
+			donor.Hash, _ = donor.GenerateHash()
 
-	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }, now: testNowFn}
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.
+				ExpectLatestForActor(ctx, "#DONOR#an-id", previousDetails, nil)
+			dynamoClient.EXPECT().
+				Create(ctx, donor).
+				Return(nil)
+			dynamoClient.EXPECT().
+				Create(ctx, lpaLink{PK: "LPA#10100000", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor, UpdatedAt: testNow}).
+				Return(nil)
 
-	result, err := donorStore.Create(ctx)
-	assert.Nil(t, err)
-	assert.Equal(t, donor, result)
+			donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }, now: testNowFn}
+
+			result, err := donorStore.Create(ctx)
+			assert.Nil(t, err)
+			assert.Equal(t, donor, result)
+		})
+	}
 }
 
 func TestDonorStoreCreateWithSessionMissing(t *testing.T) {
@@ -500,8 +530,17 @@ func TestDonorStoreCreateWhenError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
 
 	testcases := map[string]func(*testing.T) *mockDynamoClient{
-		"certificate provider record": func(t *testing.T) *mockDynamoClient {
+		"latest": func(t *testing.T) *mockDynamoClient {
 			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.
+				ExpectLatestForActor(ctx, "#DONOR#an-id", actor.DonorProvidedDetails{}, expectedError)
+
+			return dynamoClient
+		},
+		"donor record": func(t *testing.T) *mockDynamoClient {
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.
+				ExpectLatestForActor(ctx, "#DONOR#an-id", actor.DonorProvidedDetails{}, nil)
 			dynamoClient.EXPECT().
 				Create(ctx, mock.Anything).
 				Return(expectedError)
@@ -510,6 +549,8 @@ func TestDonorStoreCreateWhenError(t *testing.T) {
 		},
 		"link record": func(t *testing.T) *mockDynamoClient {
 			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.
+				ExpectLatestForActor(ctx, "#DONOR#an-id", actor.DonorProvidedDetails{}, nil)
 			dynamoClient.EXPECT().
 				Create(ctx, mock.Anything).
 				Return(nil).
