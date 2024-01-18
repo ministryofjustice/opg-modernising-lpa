@@ -30,7 +30,7 @@ func TestGetCertificateProviderAddress(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &chooseAddressData{
 			App:        testAppData,
-			Form:       &form.AddressForm{},
+			Form:       form.NewAddressForm(),
 			FullName:   "John Smith",
 			ActorLabel: "certificateProvider",
 			TitleKeys:  testTitleKeys,
@@ -59,7 +59,7 @@ func TestGetCertificateProviderAddressWhenProfessionalCertificateProvider(t *tes
 	template.EXPECT().
 		Execute(w, &chooseAddressData{
 			App:        testAppData,
-			Form:       &form.AddressForm{Action: "postcode"},
+			Form:       &form.AddressForm{Action: "postcode", FieldNames: form.FieldNames.Address},
 			FullName:   "John Smith",
 			ActorLabel: "certificateProvider",
 			TitleKeys: titleKeys{
@@ -92,8 +92,9 @@ func TestGetCertificateProviderAddressFromStore(t *testing.T) {
 		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action:  "manual",
-				Address: &testAddress,
+				Action:     "manual",
+				Address:    &testAddress,
+				FieldNames: form.FieldNames.Address,
 			},
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
@@ -121,8 +122,9 @@ func TestGetCertificateProviderAddressManual(t *testing.T) {
 		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action:  "manual",
-				Address: &place.Address{},
+				Action:     "manual",
+				Address:    &place.Address{},
+				FieldNames: form.FieldNames.Address,
 			},
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
@@ -145,7 +147,7 @@ func TestGetCertificateProviderAddressWhenTemplateErrors(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &chooseAddressData{
 			App:        testAppData,
-			Form:       &form.AddressForm{},
+			Form:       form.NewAddressForm(),
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
 			TitleKeys:  testTitleKeys,
@@ -161,12 +163,12 @@ func TestGetCertificateProviderAddressWhenTemplateErrors(t *testing.T) {
 
 func TestPostCertificateProviderAddressManual(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -192,12 +194,12 @@ func TestPostCertificateProviderAddressManual(t *testing.T) {
 
 func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -219,12 +221,12 @@ func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
 
 func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-1":   {"a"},
-		"address-line-2":   {"b"},
-		"address-line-3":   {"c"},
-		"address-town":     {"d"},
-		"address-postcode": {"e"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
 	w := httptest.NewRecorder()
@@ -259,10 +261,10 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 
 func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action":           {"manual"},
-		"address-line-2":   {"b"},
-		"address-town":     {"c"},
-		"address-postcode": {"d"},
+		"action":                           {"manual"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.TownOrCity: {"c"},
+		form.FieldNames.Address.Postcode:   {"d"},
 	}
 
 	w := httptest.NewRecorder()
@@ -281,12 +283,13 @@ func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
 		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action:  "manual",
-				Address: invalidAddress,
+				Action:     "manual",
+				Address:    invalidAddress,
+				FieldNames: form.FieldNames.Address,
 			},
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
-			Errors:     validation.With("address-line-1", validation.EnterError{Label: "addressLine1"}),
+			Errors:     validation.With(form.FieldNames.Address.Line1, validation.EnterError{Label: "addressLine1"}),
 			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
@@ -317,6 +320,7 @@ func TestPostCertificateProviderPostcodeSelect(t *testing.T) {
 				Action:         "manual",
 				LookupPostcode: "NG1",
 				Address:        &testAddress,
+				FieldNames:     form.FieldNames.Address,
 			},
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
@@ -357,6 +361,7 @@ func TestPostCertificateProviderPostcodeSelectWhenValidationError(t *testing.T) 
 			Form: &form.AddressForm{
 				Action:         "postcode-select",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
@@ -399,6 +404,7 @@ func TestPostCertificateProviderPostcodeLookup(t *testing.T) {
 			Form: &form.AddressForm{
 				Action:         "postcode-lookup",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
@@ -440,6 +446,7 @@ func TestPostCertificateProviderPostcodeLookupError(t *testing.T) {
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "NG1",
+				FieldNames:     form.FieldNames.Address,
 			},
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
@@ -487,6 +494,7 @@ func TestPostCertificateProviderPostcodeLookupInvalidPostcodeError(t *testing.T)
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "XYZ",
+				FieldNames:     form.FieldNames.Address,
 			},
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
@@ -528,6 +536,7 @@ func TestPostCertificateProviderPostcodeLookupValidPostcodeNoAddresses(t *testin
 			Form: &form.AddressForm{
 				Action:         "postcode",
 				LookupPostcode: "XYZ",
+				FieldNames:     form.FieldNames.Address,
 			},
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
@@ -558,7 +567,8 @@ func TestPostCertificateProviderPostcodeLookupWhenValidationError(t *testing.T) 
 		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action: "postcode",
+				Action:     "postcode",
+				FieldNames: form.FieldNames.Address,
 			},
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
@@ -587,7 +597,8 @@ func TestPostCertificateProviderAddressReuse(t *testing.T) {
 		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action: "reuse",
+				Action:     "reuse",
+				FieldNames: form.FieldNames.Address,
 			},
 			FullName:   " ",
 			ActorLabel: "certificateProvider",
@@ -655,7 +666,8 @@ func TestPostCertificateProviderAddressReuseSelectWhenValidationError(t *testing
 		Execute(w, &chooseAddressData{
 			App: testAppData,
 			Form: &form.AddressForm{
-				Action: "reuse-select",
+				Action:     "reuse-select",
+				FieldNames: form.FieldNames.Address,
 			},
 			Addresses:  []place.Address{{Line1: "donor lane"}},
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
