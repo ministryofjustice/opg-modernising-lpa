@@ -13,6 +13,14 @@ type mockUidStore struct {
 	mock.Mock
 }
 
+type mockUidStore_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockUidStore) EXPECT() *mockUidStore_Expecter {
+	return &mockUidStore_Expecter{mock: &_m.Mock}
+}
+
 // Set provides a mock function with given fields: ctx, lpaID, sessionID, uid
 func (_m *mockUidStore) Set(ctx context.Context, lpaID string, sessionID string, uid string) error {
 	ret := _m.Called(ctx, lpaID, sessionID, uid)
@@ -29,6 +37,37 @@ func (_m *mockUidStore) Set(ctx context.Context, lpaID string, sessionID string,
 	}
 
 	return r0
+}
+
+// mockUidStore_Set_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Set'
+type mockUidStore_Set_Call struct {
+	*mock.Call
+}
+
+// Set is a helper method to define mock.On call
+//   - ctx context.Context
+//   - lpaID string
+//   - sessionID string
+//   - uid string
+func (_e *mockUidStore_Expecter) Set(ctx interface{}, lpaID interface{}, sessionID interface{}, uid interface{}) *mockUidStore_Set_Call {
+	return &mockUidStore_Set_Call{Call: _e.mock.On("Set", ctx, lpaID, sessionID, uid)}
+}
+
+func (_c *mockUidStore_Set_Call) Run(run func(ctx context.Context, lpaID string, sessionID string, uid string)) *mockUidStore_Set_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(string))
+	})
+	return _c
+}
+
+func (_c *mockUidStore_Set_Call) Return(_a0 error) *mockUidStore_Set_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockUidStore_Set_Call) RunAndReturn(run func(context.Context, string, string, string) error) *mockUidStore_Set_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockUidStore creates a new instance of mockUidStore. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

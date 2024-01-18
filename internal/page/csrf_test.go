@@ -25,8 +25,8 @@ func TestPostValidateCsrf(t *testing.T) {
 	r.Header.Add("Content-Type", FormUrlEncoded)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "csrf").
+	sessionStore.EXPECT().
+		Get(r, "csrf").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}, nil)
 
 	ValidateCsrf(http.NotFoundHandler(), sessionStore, MockRandom, nil).ServeHTTP(w, r)
@@ -54,8 +54,8 @@ func TestPostValidateCsrfWhenMultipartForm(t *testing.T) {
 	r.Header.Add("Content-Type", writer.FormDataContentType())
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "csrf").
+	sessionStore.EXPECT().
+		Get(r, "csrf").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{"token": "123"}}, nil)
 
 	ValidateCsrf(http.NotFoundHandler(), sessionStore, MockRandom, nil).ServeHTTP(w, r)
@@ -90,14 +90,14 @@ func TestPostValidateCsrfInvalid(t *testing.T) {
 			r.Header.Add("Content-Type", FormUrlEncoded)
 
 			sessionStore := newMockSessionStore(t)
-			sessionStore.
-				On("Get", r, "csrf").
+			sessionStore.EXPECT().
+				Get(r, "csrf").
 				Return(&sessions.Session{Values: map[interface{}]interface{}{tc.cookie: "123"}}, nil)
 
 			errorHandler := newMockErrorHandler(t)
-			errorHandler.
-				On("Execute", w, r, ErrCsrfInvalid).
-				Return(nil)
+			errorHandler.EXPECT().
+				Execute(w, r, ErrCsrfInvalid).
+				Return()
 
 			ValidateCsrf(http.NotFoundHandler(), sessionStore, MockRandom, errorHandler.Execute).ServeHTTP(w, r)
 		})
@@ -138,14 +138,14 @@ func TestPostValidateCsrfWhenInvalidMultipartForm(t *testing.T) {
 			r.Header.Set("Content-Type", writer.FormDataContentType())
 
 			sessionStore := newMockSessionStore(t)
-			sessionStore.
-				On("Get", r, "csrf").
+			sessionStore.EXPECT().
+				Get(r, "csrf").
 				Return(&sessions.Session{Values: map[any]any{"token": "123456789012"}}, nil)
 
 			errorHandler := newMockErrorHandler(t)
-			errorHandler.
-				On("Execute", w, r, ErrCsrfInvalid).
-				Return(nil)
+			errorHandler.EXPECT().
+				Execute(w, r, ErrCsrfInvalid).
+				Return()
 
 			ValidateCsrf(http.NotFoundHandler(), sessionStore, MockRandom, errorHandler.Execute).ServeHTTP(w, r)
 		})
@@ -162,14 +162,14 @@ func TestPostValidateCsrfErrorWhenDecodingSession(t *testing.T) {
 	r.Header.Add("Content-Type", FormUrlEncoded)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "csrf").
+	sessionStore.EXPECT().
+		Get(r, "csrf").
 		Return(&sessions.Session{Values: map[interface{}]interface{}{}}, expectedError)
 
 	errorHandler := newMockErrorHandler(t)
-	errorHandler.
-		On("Execute", w, r, expectedError).
-		Return(nil)
+	errorHandler.EXPECT().
+		Execute(w, r, expectedError).
+		Return()
 
 	ValidateCsrf(http.NotFoundHandler(), sessionStore, MockRandom, errorHandler.Execute).ServeHTTP(w, r)
 }
@@ -180,11 +180,11 @@ func TestGetValidateCsrfSessionSavedWhenNew(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "csrf").
+	sessionStore.EXPECT().
+		Get(r, "csrf").
 		Return(&sessions.Session{IsNew: true}, nil)
-	sessionStore.
-		On("Save", r, w, &sessions.Session{
+	sessionStore.EXPECT().
+		Save(r, w, &sessions.Session{
 			IsNew:  true,
 			Values: map[interface{}]interface{}{"token": "123"},
 			Options: &sessions.Options{

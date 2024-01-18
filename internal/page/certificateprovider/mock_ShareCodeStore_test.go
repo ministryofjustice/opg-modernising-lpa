@@ -15,6 +15,14 @@ type mockShareCodeStore struct {
 	mock.Mock
 }
 
+type mockShareCodeStore_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockShareCodeStore) EXPECT() *mockShareCodeStore_Expecter {
+	return &mockShareCodeStore_Expecter{mock: &_m.Mock}
+}
+
 // Get provides a mock function with given fields: _a0, _a1, _a2
 func (_m *mockShareCodeStore) Get(_a0 context.Context, _a1 actor.Type, _a2 string) (actor.ShareCodeData, error) {
 	ret := _m.Called(_a0, _a1, _a2)
@@ -43,6 +51,36 @@ func (_m *mockShareCodeStore) Get(_a0 context.Context, _a1 actor.Type, _a2 strin
 	return r0, r1
 }
 
+// mockShareCodeStore_Get_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Get'
+type mockShareCodeStore_Get_Call struct {
+	*mock.Call
+}
+
+// Get is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 actor.Type
+//   - _a2 string
+func (_e *mockShareCodeStore_Expecter) Get(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockShareCodeStore_Get_Call {
+	return &mockShareCodeStore_Get_Call{Call: _e.mock.On("Get", _a0, _a1, _a2)}
+}
+
+func (_c *mockShareCodeStore_Get_Call) Run(run func(_a0 context.Context, _a1 actor.Type, _a2 string)) *mockShareCodeStore_Get_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(actor.Type), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *mockShareCodeStore_Get_Call) Return(_a0 actor.ShareCodeData, _a1 error) *mockShareCodeStore_Get_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockShareCodeStore_Get_Call) RunAndReturn(run func(context.Context, actor.Type, string) (actor.ShareCodeData, error)) *mockShareCodeStore_Get_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Put provides a mock function with given fields: _a0, _a1, _a2, _a3
 func (_m *mockShareCodeStore) Put(_a0 context.Context, _a1 actor.Type, _a2 string, _a3 actor.ShareCodeData) error {
 	ret := _m.Called(_a0, _a1, _a2, _a3)
@@ -59,6 +97,37 @@ func (_m *mockShareCodeStore) Put(_a0 context.Context, _a1 actor.Type, _a2 strin
 	}
 
 	return r0
+}
+
+// mockShareCodeStore_Put_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Put'
+type mockShareCodeStore_Put_Call struct {
+	*mock.Call
+}
+
+// Put is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 actor.Type
+//   - _a2 string
+//   - _a3 actor.ShareCodeData
+func (_e *mockShareCodeStore_Expecter) Put(_a0 interface{}, _a1 interface{}, _a2 interface{}, _a3 interface{}) *mockShareCodeStore_Put_Call {
+	return &mockShareCodeStore_Put_Call{Call: _e.mock.On("Put", _a0, _a1, _a2, _a3)}
+}
+
+func (_c *mockShareCodeStore_Put_Call) Run(run func(_a0 context.Context, _a1 actor.Type, _a2 string, _a3 actor.ShareCodeData)) *mockShareCodeStore_Put_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(actor.Type), args[2].(string), args[3].(actor.ShareCodeData))
+	})
+	return _c
+}
+
+func (_c *mockShareCodeStore_Put_Call) Return(_a0 error) *mockShareCodeStore_Put_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockShareCodeStore_Put_Call) RunAndReturn(run func(context.Context, actor.Type, string, actor.ShareCodeData) error) *mockShareCodeStore_Put_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockShareCodeStore creates a new instance of mockShareCodeStore. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

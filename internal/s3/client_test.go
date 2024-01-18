@@ -17,8 +17,8 @@ var expectedError = errors.New("err")
 
 func TestDeleteObject(t *testing.T) {
 	s3Service := newMockS3Service(t)
-	s3Service.
-		On("DeleteObject", context.Background(), &s3.DeleteObjectInput{
+	s3Service.EXPECT().
+		DeleteObject(context.Background(), &s3.DeleteObjectInput{
 			Bucket: aws.String("a-bucket"),
 			Key:    aws.String("a-key"),
 		}).
@@ -32,8 +32,8 @@ func TestDeleteObject(t *testing.T) {
 
 func TestDeleteObjectOnServiceError(t *testing.T) {
 	s3Service := newMockS3Service(t)
-	s3Service.
-		On("DeleteObject", context.Background(), &s3.DeleteObjectInput{
+	s3Service.EXPECT().
+		DeleteObject(context.Background(), &s3.DeleteObjectInput{
 			Bucket: aws.String("a-bucket"),
 			Key:    aws.String("a-key"),
 		}).
@@ -47,8 +47,8 @@ func TestDeleteObjectOnServiceError(t *testing.T) {
 
 func TestPutObject(t *testing.T) {
 	s3Service := newMockS3Service(t)
-	s3Service.
-		On("PutObject", context.Background(), &s3.PutObjectInput{
+	s3Service.EXPECT().
+		PutObject(context.Background(), &s3.PutObjectInput{
 			Bucket:               aws.String("a-bucket"),
 			Key:                  aws.String("a-object-key"),
 			Body:                 bytes.NewReader([]byte("a-body")),
@@ -64,8 +64,8 @@ func TestPutObject(t *testing.T) {
 
 func TestPutObjectOnServiceError(t *testing.T) {
 	s3Service := newMockS3Service(t)
-	s3Service.
-		On("PutObject", context.Background(), mock.Anything).
+	s3Service.EXPECT().
+		PutObject(context.Background(), mock.Anything).
 		Return(nil, expectedError)
 
 	client := Client{bucket: "a-bucket", svc: s3Service}
@@ -81,8 +81,8 @@ func TestGetObjectTags(t *testing.T) {
 	}
 
 	s3Service := newMockS3Service(t)
-	s3Service.
-		On("GetObjectTagging", context.Background(), &s3.GetObjectTaggingInput{
+	s3Service.EXPECT().
+		GetObjectTagging(context.Background(), &s3.GetObjectTaggingInput{
 			Bucket: aws.String("a-bucket"),
 			Key:    aws.String("a-object-key"),
 		}).
@@ -99,8 +99,8 @@ func TestGetObjectTags(t *testing.T) {
 
 func TestGetObjectTagsOnServiceError(t *testing.T) {
 	s3Service := newMockS3Service(t)
-	s3Service.
-		On("GetObjectTagging", context.Background(), &s3.GetObjectTaggingInput{
+	s3Service.EXPECT().
+		GetObjectTagging(context.Background(), &s3.GetObjectTaggingInput{
 			Bucket: aws.String("a-bucket"),
 			Key:    aws.String("a-object-key"),
 		}).
@@ -114,8 +114,8 @@ func TestGetObjectTagsOnServiceError(t *testing.T) {
 
 func TestPutObjectTagging(t *testing.T) {
 	s3Service := newMockS3Service(t)
-	s3Service.
-		On("PutObjectTagging", context.Background(), &s3.PutObjectTaggingInput{
+	s3Service.EXPECT().
+		PutObjectTagging(context.Background(), &s3.PutObjectTaggingInput{
 			Bucket: aws.String("a-bucket"),
 			Key:    aws.String("a-object-key"),
 			Tagging: &types.Tagging{

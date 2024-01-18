@@ -20,8 +20,8 @@ func TestGetHowDoYouKnowYourCertificateProvider(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &howDoYouKnowYourCertificateProviderData{
+	template.EXPECT().
+		Execute(w, &howDoYouKnowYourCertificateProviderData{
 			App:     testAppData,
 			Form:    &howDoYouKnowYourCertificateProviderForm{},
 			Options: actor.CertificateProviderRelationshipValues,
@@ -44,8 +44,8 @@ func TestGetHowDoYouKnowYourCertificateProviderFromStore(t *testing.T) {
 	}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &howDoYouKnowYourCertificateProviderData{
+	template.EXPECT().
+		Execute(w, &howDoYouKnowYourCertificateProviderData{
 			App:                 testAppData,
 			CertificateProvider: certificateProvider,
 			Form:                &howDoYouKnowYourCertificateProviderForm{How: actor.Personally},
@@ -67,8 +67,8 @@ func TestGetHowDoYouKnowYourCertificateProviderWhenTemplateErrors(t *testing.T) 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -109,8 +109,8 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID:               "lpa-id",
 					CertificateProvider: tc.certificateProviderDetails,
 					Tasks: actor.DonorTasks{
@@ -179,8 +179,8 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenSwitchingRelationship(t *tes
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID:               "lpa-id",
 					CertificateProvider: tc.updatedCertificateProviderDetails,
 					Tasks: actor.DonorTasks{
@@ -219,8 +219,8 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -234,8 +234,8 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenValidationErrors(t *testing.
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *howDoYouKnowYourCertificateProviderData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *howDoYouKnowYourCertificateProviderData) bool {
 			return assert.Equal(t, validation.With("how", validation.SelectError{Label: "howYouKnowCertificateProvider"}), data.Errors)
 		})).
 		Return(nil)

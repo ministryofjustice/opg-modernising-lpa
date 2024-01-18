@@ -14,6 +14,14 @@ type mockDynamodbClient struct {
 	mock.Mock
 }
 
+type mockDynamodbClient_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockDynamodbClient) EXPECT() *mockDynamodbClient_Expecter {
+	return &mockDynamodbClient_Expecter{mock: &_m.Mock}
+}
+
 // One provides a mock function with given fields: ctx, pk, sk, v
 func (_m *mockDynamodbClient) One(ctx context.Context, pk string, sk string, v interface{}) error {
 	ret := _m.Called(ctx, pk, sk, v)
@@ -30,6 +38,37 @@ func (_m *mockDynamodbClient) One(ctx context.Context, pk string, sk string, v i
 	}
 
 	return r0
+}
+
+// mockDynamodbClient_One_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'One'
+type mockDynamodbClient_One_Call struct {
+	*mock.Call
+}
+
+// One is a helper method to define mock.On call
+//   - ctx context.Context
+//   - pk string
+//   - sk string
+//   - v interface{}
+func (_e *mockDynamodbClient_Expecter) One(ctx interface{}, pk interface{}, sk interface{}, v interface{}) *mockDynamodbClient_One_Call {
+	return &mockDynamodbClient_One_Call{Call: _e.mock.On("One", ctx, pk, sk, v)}
+}
+
+func (_c *mockDynamodbClient_One_Call) Run(run func(ctx context.Context, pk string, sk string, v interface{})) *mockDynamodbClient_One_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(interface{}))
+	})
+	return _c
+}
+
+func (_c *mockDynamodbClient_One_Call) Return(_a0 error) *mockDynamodbClient_One_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDynamodbClient_One_Call) RunAndReturn(run func(context.Context, string, string, interface{}) error) *mockDynamodbClient_One_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // OneByUID provides a mock function with given fields: ctx, uid, v
@@ -50,6 +89,36 @@ func (_m *mockDynamodbClient) OneByUID(ctx context.Context, uid string, v interf
 	return r0
 }
 
+// mockDynamodbClient_OneByUID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'OneByUID'
+type mockDynamodbClient_OneByUID_Call struct {
+	*mock.Call
+}
+
+// OneByUID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - uid string
+//   - v interface{}
+func (_e *mockDynamodbClient_Expecter) OneByUID(ctx interface{}, uid interface{}, v interface{}) *mockDynamodbClient_OneByUID_Call {
+	return &mockDynamodbClient_OneByUID_Call{Call: _e.mock.On("OneByUID", ctx, uid, v)}
+}
+
+func (_c *mockDynamodbClient_OneByUID_Call) Run(run func(ctx context.Context, uid string, v interface{})) *mockDynamodbClient_OneByUID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(interface{}))
+	})
+	return _c
+}
+
+func (_c *mockDynamodbClient_OneByUID_Call) Return(_a0 error) *mockDynamodbClient_OneByUID_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDynamodbClient_OneByUID_Call) RunAndReturn(run func(context.Context, string, interface{}) error) *mockDynamodbClient_OneByUID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Put provides a mock function with given fields: ctx, v
 func (_m *mockDynamodbClient) Put(ctx context.Context, v interface{}) error {
 	ret := _m.Called(ctx, v)
@@ -68,6 +137,35 @@ func (_m *mockDynamodbClient) Put(ctx context.Context, v interface{}) error {
 	return r0
 }
 
+// mockDynamodbClient_Put_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Put'
+type mockDynamodbClient_Put_Call struct {
+	*mock.Call
+}
+
+// Put is a helper method to define mock.On call
+//   - ctx context.Context
+//   - v interface{}
+func (_e *mockDynamodbClient_Expecter) Put(ctx interface{}, v interface{}) *mockDynamodbClient_Put_Call {
+	return &mockDynamodbClient_Put_Call{Call: _e.mock.On("Put", ctx, v)}
+}
+
+func (_c *mockDynamodbClient_Put_Call) Run(run func(ctx context.Context, v interface{})) *mockDynamodbClient_Put_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(interface{}))
+	})
+	return _c
+}
+
+func (_c *mockDynamodbClient_Put_Call) Return(_a0 error) *mockDynamodbClient_Put_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDynamodbClient_Put_Call) RunAndReturn(run func(context.Context, interface{}) error) *mockDynamodbClient_Put_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Update provides a mock function with given fields: ctx, pk, sk, values, expression
 func (_m *mockDynamodbClient) Update(ctx context.Context, pk string, sk string, values map[string]types.AttributeValue, expression string) error {
 	ret := _m.Called(ctx, pk, sk, values, expression)
@@ -84,6 +182,38 @@ func (_m *mockDynamodbClient) Update(ctx context.Context, pk string, sk string, 
 	}
 
 	return r0
+}
+
+// mockDynamodbClient_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
+type mockDynamodbClient_Update_Call struct {
+	*mock.Call
+}
+
+// Update is a helper method to define mock.On call
+//   - ctx context.Context
+//   - pk string
+//   - sk string
+//   - values map[string]types.AttributeValue
+//   - expression string
+func (_e *mockDynamodbClient_Expecter) Update(ctx interface{}, pk interface{}, sk interface{}, values interface{}, expression interface{}) *mockDynamodbClient_Update_Call {
+	return &mockDynamodbClient_Update_Call{Call: _e.mock.On("Update", ctx, pk, sk, values, expression)}
+}
+
+func (_c *mockDynamodbClient_Update_Call) Run(run func(ctx context.Context, pk string, sk string, values map[string]types.AttributeValue, expression string)) *mockDynamodbClient_Update_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(map[string]types.AttributeValue), args[4].(string))
+	})
+	return _c
+}
+
+func (_c *mockDynamodbClient_Update_Call) Return(_a0 error) *mockDynamodbClient_Update_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDynamodbClient_Update_Call) RunAndReturn(run func(context.Context, string, string, map[string]types.AttributeValue, string) error) *mockDynamodbClient_Update_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockDynamodbClient creates a new instance of mockDynamodbClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

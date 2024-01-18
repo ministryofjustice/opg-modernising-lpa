@@ -41,8 +41,8 @@ func TestGetRemoveTrustCorporation(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, &removeAttorneyData{
+			template.EXPECT().
+				Execute(w, &removeAttorneyData{
 					App:        testAppData,
 					TitleLabel: tc.titleLabel,
 					Name:       "hey ltd",
@@ -159,8 +159,8 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 			template := newMockTemplate(t)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), tc.updatedDonor).
+			donorStore.EXPECT().
+				Put(r.Context(), tc.updatedDonor).
 				Return(nil)
 
 			err := RemoveTrustCorporation(template.Execute, donorStore, tc.isReplacement)(testAppData, w, r, tc.donor)
@@ -230,8 +230,8 @@ func TestPostRemoveTrustCorporationErrorOnPutStore(t *testing.T) {
 	}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := RemoveTrustCorporation(template.Execute, donorStore, false)(testAppData, w, r, &actor.DonorProvidedDetails{Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
@@ -259,8 +259,8 @@ func TestRemoveTrustCorporationFormValidation(t *testing.T) {
 	validationError := validation.With("yes-no", validation.SelectError{Label: "yesToRemoveTrustCorporation"})
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *removeAttorneyData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *removeAttorneyData) bool {
 			return assert.Equal(t, validationError, data.Errors)
 		})).
 		Return(nil)

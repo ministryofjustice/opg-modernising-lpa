@@ -32,8 +32,8 @@ func TestGetMobileNumber(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, &mobileNumberData{
+			template.EXPECT().
+				Execute(w, &mobileNumberData{
 					App:  tc.appData,
 					Form: &mobileNumberForm{},
 				}).
@@ -67,8 +67,8 @@ func TestGetMobileNumberFromStore(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, &mobileNumberData{
+			template.EXPECT().
+				Execute(w, &mobileNumberData{
 					App: tc.appData,
 					Form: &mobileNumberForm{
 						Mobile: "07535111222",
@@ -90,8 +90,8 @@ func TestGetMobileNumberWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := MobileNumber(template.Execute, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
@@ -170,8 +170,8 @@ func TestPostMobileNumber(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			attorneyStore := newMockAttorneyStore(t)
-			attorneyStore.
-				On("Put", r.Context(), tc.updatedAttorney).
+			attorneyStore.EXPECT().
+				Put(r.Context(), tc.updatedAttorney).
 				Return(nil)
 
 			err := MobileNumber(nil, attorneyStore)(tc.appData, w, r, tc.attorney)
@@ -198,8 +198,8 @@ func TestPostMobileNumberWhenValidationError(t *testing.T) {
 	}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *mobileNumberData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *mobileNumberData) bool {
 			return dataMatcher(t, data)
 		})).
 		Return(nil)
@@ -222,8 +222,8 @@ func TestPostMobileNumberWhenAttorneyStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.
-		On("Put", r.Context(), mock.Anything).
+	attorneyStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := MobileNumber(nil, attorneyStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{})

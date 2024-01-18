@@ -25,21 +25,16 @@ func TestGetYourDetails(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Latest", r.Context()).
-		Return(nil, expectedError)
-
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &yourDetailsData{
+	template.EXPECT().
+		Execute(w, &yourDetailsData{
 			App:               testAppData,
 			Form:              &yourDetailsForm{},
 			YesNoMaybeOptions: actor.YesNoMaybeValues,
 		}).
 		Return(nil)
 
-	err := YourDetails(template.Execute, donorStore, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := YourDetails(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -51,8 +46,8 @@ func TestGetYourDetailsFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &yourDetailsData{
+	template.EXPECT().
+		Execute(w, &yourDetailsData{
 			App: testAppData,
 			Form: &yourDetailsForm{
 				FirstNames: "John",
@@ -72,52 +67,13 @@ func TestGetYourDetailsFromStore(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetYourDetailsFromLatest(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Latest", r.Context()).
-		Return(&actor.DonorProvidedDetails{
-			Donor: actor.Donor{
-				FirstNames:    "John",
-				LastName:      "Doe",
-				OtherNames:    "J",
-				DateOfBirth:   date.New("2000", "01", "02"),
-				ThinksCanSign: actor.Yes,
-			},
-		}, nil)
-
-	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &yourDetailsData{
-			App: testAppData,
-			Form: &yourDetailsForm{
-				FirstNames: "John",
-				LastName:   "Doe",
-				OtherNames: "J",
-				Dob:        date.New("2000", "01", "02"),
-				CanSign:    actor.Yes,
-			},
-			YesNoMaybeOptions: actor.YesNoMaybeValues,
-		}).
-		Return(nil)
-
-	err := YourDetails(template.Execute, donorStore, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestGetYourDetailsDobWarningIsAlwaysShown(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &yourDetailsData{
+	template.EXPECT().
+		Execute(w, &yourDetailsData{
 			App: testAppData,
 			Form: &yourDetailsForm{
 				FirstNames: "John",
@@ -151,8 +107,8 @@ func TestGetYourDetailsWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := YourDetails(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{Donor: actor.Donor{FirstNames: "John"}})
@@ -259,8 +215,8 @@ func TestPostYourDetails(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID: "lpa-id",
 					Donor: tc.person,
 					Tasks: actor.DonorTasks{YourDetails: actor.TaskInProgress},
@@ -268,8 +224,8 @@ func TestPostYourDetails(t *testing.T) {
 				Return(nil)
 
 			sessionStore := newMockSessionStore(t)
-			sessionStore.
-				On("Get", r, "session").
+			sessionStore.EXPECT().
+				Get(r, "session").
 				Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
 			err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
@@ -306,8 +262,8 @@ func TestPostYourDetailsWhenDetailsNotChanged(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Donor: actor.Donor{
 				FirstNames:    "John",
@@ -323,8 +279,8 @@ func TestPostYourDetailsWhenDetailsNotChanged(t *testing.T) {
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
 	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
@@ -361,8 +317,8 @@ func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Donor: actor.Donor{
 				FirstNames:    "John",
@@ -378,8 +334,8 @@ func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", r, "session").
+	sessionStore.EXPECT().
+		Get(r, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
 	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
@@ -463,15 +419,15 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, mock.MatchedBy(func(data *yourDetailsData) bool {
+			template.EXPECT().
+				Execute(w, mock.MatchedBy(func(data *yourDetailsData) bool {
 					return tc.dataMatcher(t, data)
 				})).
 				Return(nil)
 
 			sessionStore := newMockSessionStore(t)
-			sessionStore.
-				On("Get", mock.Anything, "session").
+			sessionStore.EXPECT().
+				Get(mock.Anything, "session").
 				Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
 			err := YourDetails(template.Execute, nil, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -498,8 +454,8 @@ func TestPostYourDetailsNameWarningOnlyShownWhenDonorAndFormNamesAreDifferent(t 
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Donor: actor.Donor{
 				FirstNames:    "Jane",
@@ -517,8 +473,8 @@ func TestPostYourDetailsNameWarningOnlyShownWhenDonorAndFormNamesAreDifferent(t 
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", mock.Anything, "session").
+	sessionStore.EXPECT().
+		Get(mock.Anything, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
 	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
@@ -550,13 +506,13 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		On("Get", mock.Anything, "session").
+	sessionStore.EXPECT().
+		Get(mock.Anything, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
 
 	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
@@ -604,8 +560,8 @@ func TestPostYourDetailsWhenSessionProblem(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			sessionStore := newMockSessionStore(t)
-			sessionStore.
-				On("Get", mock.Anything, "session").
+			sessionStore.EXPECT().
+				Get(mock.Anything, "session").
 				Return(tc.session, tc.error)
 
 			err := YourDetails(nil, nil, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{})

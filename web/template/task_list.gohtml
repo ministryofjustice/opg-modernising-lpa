@@ -8,6 +8,19 @@
       <span class="govuk-caption-xl">{{ trFormat .App "makeYourTypeLpa" "Type" (tr .App .Donor.Type.String | lowerFirst) }}</span>
       <h1 class="govuk-heading-xl">{{ tr .App "yourTaskList" }}</h1>
 
+      <div class="govuk-inset-text">
+        <dl class="govuk-summary-list govuk-summary-list--no-border app-summary-list--no-vertical-padding">
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "donor" }}</dt>
+            <dd class="govuk-summary-list__value">{{ .Donor.Donor.FullName }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "referenceNumber" }}</dt>
+            <dd class="govuk-summary-list__value">{{ .Donor.LpaUID }}</dd>
+          </div>
+        </dl>
+      </div>
+
       {{ template "details" (details . "taskListHelp" "taskListHelpContent" false) }}
 
       {{ if .EvidenceReceived }}
@@ -16,69 +29,48 @@
         </p>
       {{ end }}
 
-      <ol class="app-task-list govuk-!-margin-top-0" style="position: relative;">
-        {{ range $i, $e := .Sections }}
-          <li>
-            <h2 class="app-task-list__section">
-              <span class="app-task-list__section-number">{{ inc $i }}. </span> {{ tr $.App $e.Heading }}
-            </h2>
-            <ul class="app-task-list__items">
-              {{ range $e.Items }}
-                {{ if not .Hidden }}
-                  <li class="app-task-list__item">
-                    {{ if or .State.Completed .PaymentState.IsCompleted }}
-                      <span class="app-task-list__task-name">
-                        <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
-                          {{ tr $.App .Name }}
-                        </a>
-                      </span>
-                      <strong class="govuk-tag app-task-list__tag">{{ tr $.App "completed" }} {{if gt .Count 0}}({{ .Count }}){{ end }}</strong>
-                    {{ else if or .State.InProgress .PaymentState.IsInProgress }}
-                      <span class="app-task-list__task-name">
-                        <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
-                          {{ tr $.App .Name }}
-                        </a>
-                      </span>
-                      <strong class="govuk-tag app-task-list__tag govuk-tag--blue">{{ tr $.App "inProgress" }} {{if gt .Count 0}}({{ .Count }}){{ end }}</strong>
-                    {{ else if .PaymentState.IsPending }}
-                      <span class="app-task-list__task-name govuk-hint govuk-!-margin-bottom-0">
-                        {{ tr $.App .Name }}
-                      </span>
-                      <strong class="govuk-tag app-task-list__tag govuk-tag--yellow">{{ tr $.App "pending" }}</strong>
-                    {{ else if .PaymentState.IsDenied }}
-                      <span class="app-task-list__task-name">
-                        <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
-                          {{ tr $.App .Name }}
-                        </a>
-                      </span>
-                      <strong class="govuk-tag app-task-list__tag govuk-tag--red">{{ tr $.App "denied" }}</strong>
-                    {{ else if .PaymentState.IsMoreEvidenceRequired }}
-                      <span class="app-task-list__task-name">
-                        <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
-                          {{ tr $.App .Name }}
-                        </a>
-                      </span>
-                      <strong class="govuk-tag app-task-list__tag govuk-tag--blue">{{ tr $.App "evidenceRequired" }}</strong>
-                    {{ else if not (canGoTo $.Donor .Path) }}
-                      <span class="app-task-list__task-name govuk-hint govuk-!-margin-bottom-0">
-                        {{ tr $.App .Name }}
-                      </span>
-                      <strong class="govuk-tag govuk-tag--grey app-task-list__tag">{{ tr $.App "cannotStartYet" }}</strong>
-                    {{ else }}
-                      <span class="app-task-list__task-name">
-                        <a href="{{ link $.App .Path }}" class="govuk-link govuk-link--no-visited-state">
-                          {{ tr $.App .Name }}
-                        </a>
-                      </span>
-                      <strong class="govuk-tag govuk-tag--grey app-task-list__tag">{{ tr $.App "notStarted" }}</strong>
-                    {{ end }}
-                  </li>
-                {{ end }}
-              {{ end }}
-            </ul>
-          </li>
-        {{ end }}
-      </ol>
+      {{ range $i, $e := .Sections }}
+        <h2 class="govuk-heading-m">{{ inc $i }}. {{ tr $.App $e.Heading }}</h2>
+        <ul class="govuk-task-list">
+          {{ range $e.Items }}
+            {{ if not .Hidden }}
+              {{ $hasLink := and (not .PaymentState.IsPending) (canGoTo $.Donor .Path) }}
+              
+              <li class="govuk-task-list__item {{ if $hasLink }}govuk-task-list__item--with-link{{ end }}">
+                <span class="govuk-task-list__name-and-hint">
+                  {{ if $hasLink }}
+                    <a href="{{ link $.App .Path }}" class="govuk-link govuk-task-list__link">{{ tr $.App .Name }}</a>
+                  {{ else }}
+                    <div>{{ tr $.App .Name }}</div>
+                  {{ end }}
+
+                  {{ if gt .Count 0 }}
+                    <div class="govuk-task-list__hint">{{ .Count }} {{ tr $.App "added" }}</div>
+                  {{ end }}
+                </span>
+                
+                <div class="govuk-task-list__status">
+                  {{ if or .State.Completed .PaymentState.IsCompleted }}
+                    {{ tr $.App "completed" }}
+                  {{ else if or .State.InProgress .PaymentState.IsInProgress }}
+                    <strong class="govuk-tag govuk-tag--light-blue">{{ tr $.App "inProgress" }}</strong>
+                  {{ else if .PaymentState.IsPending }}
+                    <strong class="govuk-tag govuk-tag--yellow">{{ tr $.App "pending" }}</strong>
+                  {{ else if .PaymentState.IsDenied }}
+                    <strong class="govuk-tag govuk-tag--red">{{ tr $.App "denied" }}</strong>
+                  {{ else if .PaymentState.IsMoreEvidenceRequired }}
+                    <strong class="govuk-tag govuk-tag--light-blue">{{ tr $.App "evidenceRequired" }}</strong>
+                  {{ else if not (canGoTo $.Donor .Path) }}
+                    <span class="govuk-hint">{{ tr $.App "cannotStartYet" }}</span>
+                  {{ else }}
+                    <strong class="govuk-tag govuk-tag--blue">{{ tr $.App "notStarted" }}</strong>
+                  {{ end }}
+                </div>
+              </li>
+            {{ end }}
+          {{ end }}
+        </ul>
+      {{ end }}
     </div>
   </div>
 {{ end }}

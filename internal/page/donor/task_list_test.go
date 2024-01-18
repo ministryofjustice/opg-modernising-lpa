@@ -173,8 +173,8 @@ func TestGetTaskList(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, &taskListData{
+			template.EXPECT().
+				Execute(w, &taskListData{
 					App:              testAppData,
 					Donor:            tc.donor,
 					EvidenceReceived: tc.evidenceReceived,
@@ -210,8 +210,8 @@ func TestGetTaskList(t *testing.T) {
 				Return(nil)
 
 			evidenceReceivedStore := newMockEvidenceReceivedStore(t)
-			evidenceReceivedStore.
-				On("Get", r.Context()).
+			evidenceReceivedStore.EXPECT().
+				Get(r.Context()).
 				Return(tc.evidenceReceived, nil)
 
 			err := TaskList(template.Execute, evidenceReceivedStore)(testAppData, w, r, tc.donor)
@@ -228,8 +228,8 @@ func TestGetTaskListWhenEvidenceReceivedStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	evidenceReceivedStore := newMockEvidenceReceivedStore(t)
-	evidenceReceivedStore.
-		On("Get", r.Context()).
+	evidenceReceivedStore.EXPECT().
+		Get(r.Context()).
 		Return(false, expectedError)
 
 	err := TaskList(nil, evidenceReceivedStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -244,13 +244,13 @@ func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	evidenceReceivedStore := newMockEvidenceReceivedStore(t)
-	evidenceReceivedStore.
-		On("Get", r.Context()).
+	evidenceReceivedStore.EXPECT().
+		Get(r.Context()).
 		Return(false, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := TaskList(template.Execute, evidenceReceivedStore)(testAppData, w, r, &actor.DonorProvidedDetails{})

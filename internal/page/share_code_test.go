@@ -27,24 +27,24 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 	}
 
 	localizer := newMockLocalizer(t)
-	localizer.
-		On("T", donor.Type.String()).
+	localizer.EXPECT().
+		T(donor.Type.String()).
 		Return("Property and affairs").
 		Once()
-	localizer.
-		On("T", donor.Type.WhatLPACoversTransKey()).
+	localizer.EXPECT().
+		T(donor.Type.WhatLPACoversTransKey()).
 		Return("houses and stuff").
 		Once()
-	localizer.
-		On("Possessive", "Jan").
+	localizer.EXPECT().
+		Possessive("Jan").
 		Return("Jan’s")
 	TestAppData.Localizer = localizer
 
 	ctx := context.Background()
 
 	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.
-		On("Put", ctx, actor.TypeCertificateProvider, "123", actor.ShareCodeData{
+	shareCodeStore.EXPECT().
+		Put(ctx, actor.TypeCertificateProvider, "123", actor.ShareCodeData{
 			LpaID:           "lpa-id",
 			DonorFullname:   "Jan Smith",
 			DonorFirstNames: "Jan",
@@ -53,8 +53,8 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("SendEmail", ctx, "name@example.org", notify.CertificateProviderInviteEmail{
+	notifyClient.EXPECT().
+		SendEmail(ctx, "name@example.org", notify.CertificateProviderInviteEmail{
 			ShareCode:                   "123",
 			CertificateProviderFullName: "Joanna Jones",
 			DonorFirstNames:             "Jan",
@@ -103,23 +103,23 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			localizer := newMockLocalizer(t)
-			localizer.
-				On("T", donor.Type.String()).
+			localizer.EXPECT().
+				T(donor.Type.String()).
 				Return("Property and affairs").
 				Twice()
-			localizer.
-				On("Possessive", "Jan").
+			localizer.EXPECT().
+				Possessive("Jan").
 				Return("Jan’s")
-			localizer.
-				On("T", donor.Type.WhatLPACoversTransKey()).
+			localizer.EXPECT().
+				T(donor.Type.WhatLPACoversTransKey()).
 				Return("houses and stuff")
 			TestAppData.Localizer = localizer
 
 			ctx := context.Background()
 
 			shareCodeStore := newMockShareCodeStore(t)
-			shareCodeStore.
-				On("Put", ctx, actor.TypeCertificateProvider, tc.expectedTestCode, actor.ShareCodeData{
+			shareCodeStore.EXPECT().
+				Put(ctx, actor.TypeCertificateProvider, tc.expectedTestCode, actor.ShareCodeData{
 					LpaID:           "lpa-id",
 					DonorFullname:   "Jan Smith",
 					DonorFirstNames: "Jan",
@@ -128,8 +128,8 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 				Once().
 				Return(nil)
 
-			shareCodeStore.
-				On("Put", ctx, actor.TypeCertificateProvider, "123", actor.ShareCodeData{
+			shareCodeStore.EXPECT().
+				Put(ctx, actor.TypeCertificateProvider, "123", actor.ShareCodeData{
 					LpaID:           "lpa-id",
 					DonorFullname:   "Jan Smith",
 					DonorFirstNames: "Jan",
@@ -139,8 +139,8 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 				Return(nil)
 
 			notifyClient := newMockNotifyClient(t)
-			notifyClient.
-				On("SendEmail", ctx, "name@example.org", notify.CertificateProviderInviteEmail{
+			notifyClient.EXPECT().
+				SendEmail(ctx, "name@example.org", notify.CertificateProviderInviteEmail{
 					CertificateProviderFullName: "Joanna Jones",
 					DonorFirstNames:             "Jan",
 					DonorFullName:               "Jan Smith",
@@ -152,8 +152,8 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 				}).
 				Once().
 				Return("", nil)
-			notifyClient.
-				On("SendEmail", ctx, "name@example.org", notify.CertificateProviderInviteEmail{
+			notifyClient.EXPECT().
+				SendEmail(ctx, "name@example.org", notify.CertificateProviderInviteEmail{
 					CertificateProviderFullName: "Joanna Jones",
 					DonorFirstNames:             "Jan",
 					DonorFullName:               "Jan Smith",
@@ -198,22 +198,22 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenEmailErrors(t *testing.
 	}
 
 	localizer := newMockLocalizer(t)
-	localizer.
-		On("T", mock.Anything).
+	localizer.EXPECT().
+		T(mock.Anything).
 		Return("")
-	localizer.
-		On("Possessive", "Jan").
+	localizer.EXPECT().
+		Possessive("Jan").
 		Return("Jan’s")
 	TestAppData.Localizer = localizer
 
 	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.
-		On("Put", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+	shareCodeStore.EXPECT().
+		Put(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("SendEmail", ctx, mock.Anything, mock.Anything).
+	notifyClient.EXPECT().
+		SendEmail(ctx, mock.Anything, mock.Anything).
 		Return("", expectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
@@ -226,17 +226,17 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenShareCodeStoreErrors(t 
 	ctx := context.Background()
 
 	localizer := newMockLocalizer(t)
-	localizer.
-		On("T", mock.Anything).
+	localizer.EXPECT().
+		T(mock.Anything).
 		Return("")
-	localizer.
-		On("Possessive", mock.Anything).
+	localizer.EXPECT().
+		Possessive(mock.Anything).
 		Return("")
 	TestAppData.Localizer = localizer
 
 	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.
-		On("Put", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+	shareCodeStore.EXPECT().
+		Put(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", MockRandom)
@@ -260,8 +260,8 @@ func TestShareCodeSenderSendCertificateProviderPrompt(t *testing.T) {
 	}
 
 	localizer := newMockLocalizer(t)
-	localizer.
-		On("T", donor.Type.String()).
+	localizer.EXPECT().
+		T(donor.Type.String()).
 		Return("Property and affairs").
 		Once()
 	TestAppData.Localizer = localizer
@@ -269,8 +269,8 @@ func TestShareCodeSenderSendCertificateProviderPrompt(t *testing.T) {
 	ctx := context.Background()
 
 	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.
-		On("Put", ctx, actor.TypeCertificateProvider, "123", actor.ShareCodeData{
+	shareCodeStore.EXPECT().
+		Put(ctx, actor.TypeCertificateProvider, "123", actor.ShareCodeData{
 			LpaID:           "lpa-id",
 			DonorFullname:   "Jan Smith",
 			DonorFirstNames: "Jan",
@@ -279,8 +279,8 @@ func TestShareCodeSenderSendCertificateProviderPrompt(t *testing.T) {
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("SendEmail", ctx, "name@example.org", notify.CertificateProviderProvideCertificatePromptEmail{
+	notifyClient.EXPECT().
+		SendEmail(ctx, "name@example.org", notify.CertificateProviderProvideCertificatePromptEmail{
 			ShareCode:                   "123",
 			CertificateProviderFullName: "Joanna Jones",
 			DonorFullName:               "Jan Smith",
@@ -326,8 +326,8 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			localizer := newMockLocalizer(t)
-			localizer.
-				On("T", donor.Type.String()).
+			localizer.EXPECT().
+				T(donor.Type.String()).
 				Return("Property and affairs").
 				Twice()
 
@@ -336,8 +336,8 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 			ctx := context.Background()
 
 			shareCodeStore := newMockShareCodeStore(t)
-			shareCodeStore.
-				On("Put", ctx, actor.TypeCertificateProvider, tc.expectedTestCode, actor.ShareCodeData{
+			shareCodeStore.EXPECT().
+				Put(ctx, actor.TypeCertificateProvider, tc.expectedTestCode, actor.ShareCodeData{
 					LpaID:           "lpa-id",
 					DonorFullname:   "Jan Smith",
 					DonorFirstNames: "Jan",
@@ -346,8 +346,8 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 				Once().
 				Return(nil)
 
-			shareCodeStore.
-				On("Put", ctx, actor.TypeCertificateProvider, "123", actor.ShareCodeData{
+			shareCodeStore.EXPECT().
+				Put(ctx, actor.TypeCertificateProvider, "123", actor.ShareCodeData{
 					LpaID:           "lpa-id",
 					DonorFullname:   "Jan Smith",
 					DonorFirstNames: "Jan",
@@ -357,8 +357,8 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 				Return(nil)
 
 			notifyClient := newMockNotifyClient(t)
-			notifyClient.
-				On("SendEmail", ctx, "name@example.org", notify.CertificateProviderProvideCertificatePromptEmail{
+			notifyClient.EXPECT().
+				SendEmail(ctx, "name@example.org", notify.CertificateProviderProvideCertificatePromptEmail{
 					CertificateProviderFullName: "Joanna Jones",
 					DonorFullName:               "Jan Smith",
 					LpaType:                     "property and affairs",
@@ -367,8 +367,8 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 				}).
 				Once().
 				Return("", nil)
-			notifyClient.
-				On("SendEmail", ctx, "name@example.org", notify.CertificateProviderProvideCertificatePromptEmail{
+			notifyClient.EXPECT().
+				SendEmail(ctx, "name@example.org", notify.CertificateProviderProvideCertificatePromptEmail{
 					CertificateProviderFullName: "Joanna Jones",
 					DonorFullName:               "Jan Smith",
 					LpaType:                     "property and affairs",
@@ -410,20 +410,20 @@ func TestShareCodeSenderSendCertificateProviderPromptWhenEmailErrors(t *testing.
 	}
 
 	localizer := newMockLocalizer(t)
-	localizer.
-		On("T", mock.Anything).
+	localizer.EXPECT().
+		T(mock.Anything).
 		Return("")
 
 	TestAppData.Localizer = localizer
 
 	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.
-		On("Put", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+	shareCodeStore.EXPECT().
+		Put(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("SendEmail", ctx, mock.Anything, mock.Anything).
+	notifyClient.EXPECT().
+		SendEmail(ctx, mock.Anything, mock.Anything).
 		Return("", expectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
@@ -436,8 +436,8 @@ func TestShareCodeSenderSendCertificateProviderPromptWhenShareCodeStoreErrors(t 
 	ctx := context.Background()
 
 	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.
-		On("Put", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+	shareCodeStore.EXPECT().
+		Put(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", MockRandom)
@@ -500,11 +500,11 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 	}
 
 	localizer := newMockLocalizer(t)
-	localizer.
-		On("T", donor.Type.String()).
+	localizer.EXPECT().
+		T(donor.Type.String()).
 		Return("property and affairs")
-	localizer.
-		On("Possessive", "Jan").
+	localizer.EXPECT().
+		Possessive("Jan").
 		Return("Jan's")
 
 	TestAppData.Localizer = localizer
@@ -512,25 +512,25 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 	ctx := context.Background()
 
 	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.
-		On("Put", ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", IsTrustCorporation: true}).
+	shareCodeStore.EXPECT().
+		Put(ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", IsTrustCorporation: true}).
 		Return(nil)
-	shareCodeStore.
-		On("Put", ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", IsTrustCorporation: true, IsReplacementAttorney: true}).
+	shareCodeStore.EXPECT().
+		Put(ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", IsTrustCorporation: true, IsReplacementAttorney: true}).
 		Return(nil)
-	shareCodeStore.
-		On("Put", ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", AttorneyID: "1"}).
+	shareCodeStore.EXPECT().
+		Put(ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", AttorneyID: "1"}).
 		Return(nil)
-	shareCodeStore.
-		On("Put", ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", AttorneyID: "2"}).
+	shareCodeStore.EXPECT().
+		Put(ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", AttorneyID: "2"}).
 		Return(nil)
-	shareCodeStore.
-		On("Put", ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", AttorneyID: "4", IsReplacementAttorney: true}).
+	shareCodeStore.EXPECT().
+		Put(ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", AttorneyID: "4", IsReplacementAttorney: true}).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("SendEmail", ctx, "trusted@example.com", notify.InitialOriginalAttorneyEmail{
+	notifyClient.EXPECT().
+		SendEmail(ctx, "trusted@example.com", notify.InitialOriginalAttorneyEmail{
 			ShareCode:                 "123",
 			AttorneyFullName:          "Trusty",
 			DonorFirstNames:           "Jan",
@@ -540,8 +540,8 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 		}).
 		Return("", nil)
-	notifyClient.
-		On("SendEmail", ctx, "untrusted@example.com", notify.InitialReplacementAttorneyEmail{
+	notifyClient.EXPECT().
+		SendEmail(ctx, "untrusted@example.com", notify.InitialReplacementAttorneyEmail{
 			ShareCode:                 "123",
 			AttorneyFullName:          "Untrusty",
 			DonorFirstNames:           "Jan",
@@ -551,8 +551,8 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 		}).
 		Return("", nil)
-	notifyClient.
-		On("SendEmail", ctx, "name@example.org", notify.InitialOriginalAttorneyEmail{
+	notifyClient.EXPECT().
+		SendEmail(ctx, "name@example.org", notify.InitialOriginalAttorneyEmail{
 			ShareCode:                 "123",
 			AttorneyFullName:          "Joanna Jones",
 			DonorFirstNames:           "Jan",
@@ -562,8 +562,8 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 		}).
 		Return("", nil)
-	notifyClient.
-		On("SendEmail", ctx, "name2@example.org", notify.InitialOriginalAttorneyEmail{
+	notifyClient.EXPECT().
+		SendEmail(ctx, "name2@example.org", notify.InitialOriginalAttorneyEmail{
 			ShareCode:                 "123",
 			AttorneyFullName:          "John Jones",
 			DonorFirstNames:           "Jan",
@@ -573,8 +573,8 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 		}).
 		Return("", nil)
-	notifyClient.
-		On("SendEmail", ctx, "dave@example.com", notify.InitialReplacementAttorneyEmail{
+	notifyClient.EXPECT().
+		SendEmail(ctx, "dave@example.com", notify.InitialReplacementAttorneyEmail{
 			ShareCode:                 "123",
 			AttorneyFullName:          "Dave Davis",
 			DonorFirstNames:           "Jan",
@@ -622,11 +622,11 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 	}
 
 	localizer := newMockLocalizer(t)
-	localizer.
-		On("T", donor.Type.String()).
+	localizer.EXPECT().
+		T(donor.Type.String()).
 		Return("property and affairs")
-	localizer.
-		On("Possessive", "Jan").
+	localizer.EXPECT().
+		Possessive("Jan").
 		Return("Jan's")
 
 	TestAppData.Localizer = localizer
@@ -636,16 +636,16 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 			ctx := context.Background()
 
 			shareCodeStore := newMockShareCodeStore(t)
-			shareCodeStore.
-				On("Put", ctx, actor.TypeAttorney, tc.expectedTestCode, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id"}).
+			shareCodeStore.EXPECT().
+				Put(ctx, actor.TypeAttorney, tc.expectedTestCode, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id"}).
 				Return(nil)
-			shareCodeStore.
-				On("Put", ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id"}).
+			shareCodeStore.EXPECT().
+				Put(ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id"}).
 				Return(nil)
 
 			notifyClient := newMockNotifyClient(t)
-			notifyClient.
-				On("SendEmail", ctx, "name@example.org", notify.InitialOriginalAttorneyEmail{
+			notifyClient.EXPECT().
+				SendEmail(ctx, "name@example.org", notify.InitialOriginalAttorneyEmail{
 					ShareCode:                 tc.expectedTestCode,
 					AttorneyFullName:          "Joanna Jones",
 					DonorFirstNames:           "Jan",
@@ -655,8 +655,8 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 					AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 				}).
 				Return("", nil)
-			notifyClient.
-				On("SendEmail", ctx, "name@example.org", notify.InitialOriginalAttorneyEmail{
+			notifyClient.EXPECT().
+				SendEmail(ctx, "name@example.org", notify.InitialOriginalAttorneyEmail{
 					ShareCode:                 "123",
 					AttorneyFullName:          "Joanna Jones",
 					DonorFirstNames:           "Jan",
@@ -701,22 +701,22 @@ func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 	}
 
 	localizer := newMockLocalizer(t)
-	localizer.
-		On("T", donor.Type.String()).
+	localizer.EXPECT().
+		T(donor.Type.String()).
 		Return("property and affairs")
-	localizer.
-		On("Possessive", "Jan").
+	localizer.EXPECT().
+		Possessive("Jan").
 		Return("Jan's")
 	TestAppData.Localizer = localizer
 
 	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.
-		On("Put", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+	shareCodeStore.EXPECT().
+		Put(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("SendEmail", ctx, mock.Anything, mock.Anything).
+	notifyClient.EXPECT().
+		SendEmail(ctx, mock.Anything, mock.Anything).
 		Return("", expectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
@@ -729,17 +729,17 @@ func TestShareCodeSenderSendAttorneysWhenShareCodeStoreErrors(t *testing.T) {
 	ctx := context.Background()
 
 	localizer := newMockLocalizer(t)
-	localizer.
-		On("T", mock.Anything).
+	localizer.EXPECT().
+		T(mock.Anything).
 		Return("property and affairs")
-	localizer.
-		On("Possessive", mock.Anything).
+	localizer.EXPECT().
+		Possessive(mock.Anything).
 		Return("Jan's")
 	TestAppData.Localizer = localizer
 
 	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.
-		On("Put", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+	shareCodeStore.EXPECT().
+		Put(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", MockRandom)

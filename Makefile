@@ -27,6 +27,7 @@ go-test: ##@testing Runs full go test suite
 	go test ./... -race -covermode=atomic -coverprofile=coverage.out
 
 go-generate: ##@testing Runs go generate
+	mockery
 	go generate ./...
 
 update-event-schemas: ##@testing Gets the latest event schemas from OPG event catalog that we have tests for

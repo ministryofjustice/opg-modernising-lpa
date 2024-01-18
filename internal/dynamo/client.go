@@ -16,7 +16,6 @@ const (
 	actorUpdatedAtIndex = "ActorUpdatedAtIndex"
 )
 
-//go:generate mockery --testonly --inpackage --name dynamoDB --structname mockDynamoDB
 type dynamoDB interface {
 	Query(context.Context, *dynamodb.QueryInput, ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error)
 	GetItem(context.Context, *dynamodb.GetItemInput, ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error)
@@ -28,7 +27,6 @@ type dynamoDB interface {
 	BatchWriteItem(ctx context.Context, params *dynamodb.BatchWriteItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.BatchWriteItemOutput, error)
 }
 
-//go:generate mockery --testonly --inpackage --name Logger --structname mockLogger
 type Logger interface {
 	Print(v ...interface{})
 }

@@ -22,8 +22,8 @@ func TestGetLpaDetailsSaved(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, url, nil)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, LpaDetailsSavedData{
+			template.EXPECT().
+				Execute(w, LpaDetailsSavedData{
 					App:          testAppData,
 					IsFirstCheck: expectedIsFirstCheck,
 					Donor:        &actor.DonorProvidedDetails{},
@@ -44,8 +44,8 @@ func TestGetLpaDetailsSavedOnTemplateError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", mock.Anything, mock.Anything).
+	template.EXPECT().
+		Execute(mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := LpaDetailsSaved(template.Execute)(testAppData, w, r, &actor.DonorProvidedDetails{})

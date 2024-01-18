@@ -20,8 +20,8 @@ func TestGetCheckYourLpa(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &checkYourLpaData{
+	template.EXPECT().
+		Execute(w, &checkYourLpaData{
 			App:   testAppData,
 			Form:  &checkYourLpaForm{},
 			Donor: &actor.DonorProvidedDetails{},
@@ -44,8 +44,8 @@ func TestGetCheckYourLpaFromStore(t *testing.T) {
 	}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &checkYourLpaData{
+	template.EXPECT().
+		Execute(w, &checkYourLpaData{
 			App:   testAppData,
 			Donor: donor,
 			Form: &checkYourLpaForm{
@@ -80,8 +80,8 @@ func TestPostCheckYourLpaWhenNotChanged(t *testing.T) {
 	}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &checkYourLpaData{
+	template.EXPECT().
+		Execute(w, &checkYourLpaData{
 			App:   testAppData,
 			Donor: donor,
 			Form: &checkYourLpaForm{
@@ -131,13 +131,13 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 			updatedDonor.CheckedHash, _ = updatedDonor.GenerateHash()
 
 			shareCodeSender := newMockShareCodeSender(t)
-			shareCodeSender.
-				On("SendCertificateProviderInvite", r.Context(), testAppData, updatedDonor).
+			shareCodeSender.EXPECT().
+				SendCertificateProviderInvite(r.Context(), testAppData, updatedDonor).
 				Return(nil)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), updatedDonor).
+			donorStore.EXPECT().
+				Put(r.Context(), updatedDonor).
 				Return(nil)
 
 			err := CheckYourLpa(nil, donorStore, shareCodeSender, nil, nil, testNowFn)(testAppData, w, r, donor)
@@ -191,11 +191,11 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			localizer := newMockLocalizer(t)
-			localizer.
-				On("T", "property-and-affairs").
+			localizer.EXPECT().
+				T("property-and-affairs").
 				Return("property and affairs")
-			localizer.
-				On("Possessive", "Teneil Throssell").
+			localizer.EXPECT().
+				Possessive("Teneil Throssell").
 				Return("Teneil Throssell’s").
 				Maybe()
 
@@ -212,18 +212,18 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 			}
 
 			notifyClient := newMockNotifyClient(t)
-			notifyClient.
-				On("SendSMS", r.Context(), "07700900000", tc.expectedSms).
+			notifyClient.EXPECT().
+				SendSMS(r.Context(), "07700900000", tc.expectedSms).
 				Return("", nil)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), donor).
+			donorStore.EXPECT().
+				Put(r.Context(), donor).
 				Return(nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
-			certificateProviderStore.
-				On("GetAny", r.Context()).
+			certificateProviderStore.EXPECT().
+				GetAny(r.Context()).
 				Return(&actor.CertificateProviderProvidedDetails{
 					Tasks: actor.CertificateProviderTasks{ConfirmYourDetails: tc.certificateProviderDetailsTaskState},
 				}, nil)
@@ -248,13 +248,13 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecksCertificate
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("GetAny", r.Context()).
+	certificateProviderStore.EXPECT().
+		GetAny(r.Context()).
 		Return(nil, expectedError)
 
 	err := CheckYourLpa(nil, donorStore, nil, nil, certificateProviderStore, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{
@@ -281,8 +281,8 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			localizer := newMockLocalizer(t)
-			localizer.
-				On("T", "property-and-affairs").
+			localizer.EXPECT().
+				T("property-and-affairs").
 				Return("property and affairs")
 
 			testAppData.Localizer = localizer
@@ -308,13 +308,13 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 			updatedDonor.CheckedHash, _ = updatedDonor.GenerateHash()
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), updatedDonor).
+			donorStore.EXPECT().
+				Put(r.Context(), updatedDonor).
 				Return(nil)
 
 			notifyClient := newMockNotifyClient(t)
-			notifyClient.
-				On("SendSMS", r.Context(), "07700900000", notify.CertificateProviderActingOnPaperMeetingPromptSMS{
+			notifyClient.EXPECT().
+				SendSMS(r.Context(), "07700900000", notify.CertificateProviderActingOnPaperMeetingPromptSMS{
 					DonorFullName:                   "Teneil Throssell",
 					LpaType:                         "property and affairs",
 					DonorFirstNames:                 "Teneil",
@@ -353,13 +353,13 @@ func TestPostCheckYourLpaPaperCertificateProviderOnSubsequentCheck(t *testing.T)
 	}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), donor).
+	donorStore.EXPECT().
+		Put(r.Context(), donor).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("SendSMS", r.Context(), "07700900000", notify.CertificateProviderActingOnPaperDetailsChangedSMS{
+	notifyClient.EXPECT().
+		SendSMS(r.Context(), "07700900000", notify.CertificateProviderActingOnPaperDetailsChangedSMS{
 			DonorFullName:   "Teneil Throssell",
 			DonorFirstNames: "Teneil",
 			LpaUID:          "lpa-uid",
@@ -384,8 +384,8 @@ func TestPostCheckYourLpaWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := CheckYourLpa(nil, donorStore, nil, nil, nil, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{Hash: 5})
@@ -411,13 +411,13 @@ func TestPostCheckYourLpaWhenShareCodeSenderErrors(t *testing.T) {
 	}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.
-		On("SendCertificateProviderInvite", r.Context(), testAppData, mock.Anything).
+	shareCodeSender.EXPECT().
+		SendCertificateProviderInvite(r.Context(), testAppData, mock.Anything).
 		Return(expectedError)
 
 	err := CheckYourLpa(nil, donorStore, shareCodeSender, nil, nil, testNowFn)(testAppData, w, r, donor)
@@ -437,20 +437,20 @@ func TestPostCheckYourLpaWhenNotifyClientErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	localizer := newMockLocalizer(t)
-	localizer.
-		On("T", mock.Anything).
+	localizer.EXPECT().
+		T(mock.Anything).
 		Return("property and affairs")
 
 	testAppData.Localizer = localizer
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", mock.Anything, mock.Anything).
+	donorStore.EXPECT().
+		Put(mock.Anything, mock.Anything).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
-	notifyClient.
-		On("SendSMS", mock.Anything, mock.Anything, mock.Anything).
+	notifyClient.EXPECT().
+		SendSMS(mock.Anything, mock.Anything, mock.Anything).
 		Return("", expectedError)
 
 	err := CheckYourLpa(nil, donorStore, nil, notifyClient, nil, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{Hash: 5, CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Paper}})
@@ -470,8 +470,8 @@ func TestPostCheckYourLpaWhenValidationErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *checkYourLpaData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *checkYourLpaData) bool {
 			return assert.Equal(t, validation.With("checked-and-happy", validation.SelectError{Label: "theBoxIfYouHaveCheckedAndHappyToShareLpa"}), data.Errors)
 		})).
 		Return(nil)

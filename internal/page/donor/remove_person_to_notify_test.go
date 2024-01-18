@@ -30,8 +30,8 @@ func TestGetRemovePersonToNotify(t *testing.T) {
 	}
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &removePersonToNotifyData{
+	template.EXPECT().
+		Execute(w, &removePersonToNotifyData{
 			App:            testAppData,
 			PersonToNotify: personToNotify,
 			Errors:         nil,
@@ -97,8 +97,8 @@ func TestPostRemovePersonToNotify(t *testing.T) {
 	}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", PeopleToNotify: actor.PeopleToNotify{personToNotifyWithAddress}}).
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", PeopleToNotify: actor.PeopleToNotify{personToNotifyWithAddress}}).
 		Return(nil)
 
 	err := RemovePersonToNotify(logger, template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}})
@@ -155,9 +155,9 @@ func TestPostRemovePersonToNotifyErrorOnPutStore(t *testing.T) {
 	template := newMockTemplate(t)
 
 	logger := newMockLogger(t)
-	logger.
-		On("Print", "error removing PersonToNotify from LPA: err").
-		Return(nil)
+	logger.EXPECT().
+		Print("error removing PersonToNotify from LPA: err").
+		Return()
 
 	personToNotifyWithAddress := actor.PersonToNotify{
 		ID: "with-address",
@@ -172,8 +172,8 @@ func TestPostRemovePersonToNotifyErrorOnPutStore(t *testing.T) {
 	}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithAddress}}).
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithAddress}}).
 		Return(expectedError)
 
 	err := RemovePersonToNotify(logger, template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}})
@@ -201,8 +201,8 @@ func TestRemovePersonToNotifyFormValidation(t *testing.T) {
 	validationError := validation.With("yes-no", validation.SelectError{Label: "yesToRemoveThisPerson"})
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *removePersonToNotifyData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *removePersonToNotifyData) bool {
 			return assert.Equal(t, validationError, data.Errors)
 		})).
 		Return(nil)
@@ -232,8 +232,8 @@ func TestRemovePersonToNotifyRemoveLastPerson(t *testing.T) {
 	}
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:          "lpa-id",
 			PeopleToNotify: actor.PeopleToNotify{},
 			Tasks:          actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, PeopleToNotify: actor.TaskNotStarted},

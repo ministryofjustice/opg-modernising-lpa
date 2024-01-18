@@ -19,8 +19,8 @@ func TestGetHowShouldAttorneysMakeDecisions(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &howShouldAttorneysMakeDecisionsData{
+	template.EXPECT().
+		Execute(w, &howShouldAttorneysMakeDecisionsData{
 			App:     testAppData,
 			Form:    &howShouldAttorneysMakeDecisionsForm{},
 			Donor:   &actor.DonorProvidedDetails{},
@@ -40,8 +40,8 @@ func TestGetHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &howShouldAttorneysMakeDecisionsData{
+	template.EXPECT().
+		Execute(w, &howShouldAttorneysMakeDecisionsData{
 			App: testAppData,
 			Form: &howShouldAttorneysMakeDecisionsForm{
 				DecisionsType:    actor.Jointly,
@@ -64,8 +64,8 @@ func TestGetHowShouldAttorneysMakeDecisionsWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := HowShouldAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -86,8 +86,8 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:             "lpa-id",
 			Attorneys:         actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}}},
 			AttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
@@ -144,8 +144,8 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID:             "lpa-id",
 					Attorneys:         actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}}},
 					AttorneyDecisions: actor.AttorneyDecisions{Details: tc.updatedDetails, How: tc.updatedType},
@@ -179,8 +179,8 @@ func TestPostHowShouldAttorneysMakeDecisionsWhenValidationErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *howShouldAttorneysMakeDecisionsData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *howShouldAttorneysMakeDecisionsData) bool {
 			return assert.Equal(t, validation.With("decision-type", validation.SelectError{Label: "howAttorneysShouldMakeDecisions"}), data.Errors)
 		})).
 		Return(nil)
@@ -203,8 +203,8 @@ func TestPostHowShouldAttorneysMakeDecisionsErrorOnPutStore(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), mock.Anything).
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	template := newMockTemplate(t)

@@ -31,8 +31,8 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, &chooseAttorneysSummaryData{
+			template.EXPECT().
+				Execute(w, &chooseAttorneysSummaryData{
 					App:     testAppData,
 					Donor:   donor,
 					Form:    &form.YesNoForm{},
@@ -116,8 +116,8 @@ func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 	validationError := validation.With("yes-no", validation.SelectError{Label: "yesToAddAnotherAttorney"})
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *chooseAttorneysSummaryData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *chooseAttorneysSummaryData) bool {
 			return assert.Equal(t, validationError, data.Errors)
 		})).
 		Return(nil)

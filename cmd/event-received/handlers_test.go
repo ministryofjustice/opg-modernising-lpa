@@ -31,8 +31,8 @@ func TestHandleObjectTagsAdded(t *testing.T) {
 			}
 
 			s3Client := newMockS3Client(t)
-			s3Client.
-				On("GetObjectTags", ctx, "M-1111-2222-3333/evidence/a-uid").
+			s3Client.EXPECT().
+				GetObjectTags(ctx, "M-1111-2222-3333/evidence/a-uid").
 				Return([]types.Tag{
 					{Key: aws.String("virus-scan-status"), Value: aws.String(scanResult)},
 				}, nil)
@@ -54,8 +54,8 @@ func TestHandleObjectTagsAdded(t *testing.T) {
 				})
 
 			documentStore := newMockDocumentStore(t)
-			documentStore.
-				On("UpdateScanResults", ctx, "123", "M-1111-2222-3333/evidence/a-uid", hasVirus).
+			documentStore.EXPECT().
+				UpdateScanResults(ctx, "123", "M-1111-2222-3333/evidence/a-uid", hasVirus).
 				Return(nil)
 
 			err := handleObjectTagsAdded(ctx, dynamoClient, event.S3Event, s3Client, documentStore)
@@ -72,8 +72,8 @@ func TestHandleObjectTagsAddedWhenScannedTagMissing(t *testing.T) {
 	}
 
 	s3Client := newMockS3Client(t)
-	s3Client.
-		On("GetObjectTags", ctx, "M-1111-2222-3333/evidence/a-uid").
+	s3Client.EXPECT().
+		GetObjectTags(ctx, "M-1111-2222-3333/evidence/a-uid").
 		Return([]types.Tag{
 			{Key: aws.String("not-virus-scan-status"), Value: aws.String("ok")},
 		}, nil)
@@ -101,8 +101,8 @@ func TestHandleObjectTagsAddedWhenS3ClientGetObjectTagsError(t *testing.T) {
 	}
 
 	s3Client := newMockS3Client(t)
-	s3Client.
-		On("GetObjectTags", ctx, "M-1111-2222-3333/evidence/a-uid").
+	s3Client.EXPECT().
+		GetObjectTags(ctx, "M-1111-2222-3333/evidence/a-uid").
 		Return([]types.Tag{}, expectedError)
 
 	err := handleObjectTagsAdded(ctx, nil, event.S3Event, s3Client, nil)
@@ -117,8 +117,8 @@ func TestHandleObjectTagsAddedWhenDynamoClientOneByUIDError(t *testing.T) {
 	}
 
 	s3Client := newMockS3Client(t)
-	s3Client.
-		On("GetObjectTags", ctx, "M-1111-2222-3333/evidence/a-uid").
+	s3Client.EXPECT().
+		GetObjectTags(ctx, "M-1111-2222-3333/evidence/a-uid").
 		Return([]types.Tag{
 			{Key: aws.String("virus-scan-status"), Value: aws.String("ok")},
 		}, nil)
@@ -151,8 +151,8 @@ func TestHandleObjectTagsAddedWhenDocumentStoreUpdateScanResultsError(t *testing
 	}
 
 	s3Client := newMockS3Client(t)
-	s3Client.
-		On("GetObjectTags", ctx, "M-1111-2222-3333/evidence/a-uid").
+	s3Client.EXPECT().
+		GetObjectTags(ctx, "M-1111-2222-3333/evidence/a-uid").
 		Return([]types.Tag{
 			{Key: aws.String("virus-scan-status"), Value: aws.String("ok")},
 		}, nil)
@@ -174,8 +174,8 @@ func TestHandleObjectTagsAddedWhenDocumentStoreUpdateScanResultsError(t *testing
 		})
 
 	documentStore := newMockDocumentStore(t)
-	documentStore.
-		On("UpdateScanResults", ctx, "123", "M-1111-2222-3333/evidence/a-uid", false).
+	documentStore.EXPECT().
+		UpdateScanResults(ctx, "123", "M-1111-2222-3333/evidence/a-uid", false).
 		Return(expectedError)
 
 	err := handleObjectTagsAdded(ctx, dynamoClient, event.S3Event, s3Client, documentStore)
@@ -209,8 +209,8 @@ func TestGetLpaByUID(t *testing.T) {
 
 func TestGetLpaByUIDWhenClientOneByUidError(t *testing.T) {
 	client := newMockDynamodbClient(t)
-	client.
-		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+	client.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
 		Return(expectedError)
 
 	lpa, err := getDonorByLpaUID(ctx, client, "M-1111-2222-3333")
@@ -244,8 +244,8 @@ func TestGetLpaByUIDWhenClientOneError(t *testing.T) {
 			json.Unmarshal(b, v)
 			return nil
 		})
-	client.
-		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+	client.EXPECT().
+		One(ctx, "LPA#123", "#DONOR#456", mock.Anything).
 		Return(expectedError)
 
 	lpa, err := getDonorByLpaUID(ctx, client, "M-1111-2222-3333")

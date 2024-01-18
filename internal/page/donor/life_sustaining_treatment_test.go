@@ -19,8 +19,8 @@ func TestGetLifeSustainingTreatment(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &lifeSustainingTreatmentData{
+	template.EXPECT().
+		Execute(w, &lifeSustainingTreatmentData{
 			App:     testAppData,
 			Form:    &lifeSustainingTreatmentForm{},
 			Options: actor.LifeSustainingTreatmentValues,
@@ -39,8 +39,8 @@ func TestGetLifeSustainingTreatmentFromStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, &lifeSustainingTreatmentData{
+	template.EXPECT().
+		Execute(w, &lifeSustainingTreatmentData{
 			App: testAppData,
 			Form: &lifeSustainingTreatmentForm{
 				Option: actor.LifeSustainingTreatmentOptionA,
@@ -61,8 +61,8 @@ func TestGetLifeSustainingTreatmentWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := LifeSustainingTreatment(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -82,8 +82,8 @@ func TestPostLifeSustainingTreatment(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:                         "lpa-id",
 			LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA,
 			Tasks:                         actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, LifeSustainingTreatment: actor.TaskCompleted},
@@ -111,8 +111,8 @@ func TestPostLifeSustainingTreatmentWhenStoreErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA, Tasks: actor.DonorTasks{LifeSustainingTreatment: actor.TaskCompleted}}).
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA, Tasks: actor.DonorTasks{LifeSustainingTreatment: actor.TaskCompleted}}).
 		Return(expectedError)
 
 	err := LifeSustainingTreatment(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
@@ -126,8 +126,8 @@ func TestPostLifeSustainingTreatmentWhenValidationErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.MatchedBy(func(data *lifeSustainingTreatmentData) bool {
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *lifeSustainingTreatmentData) bool {
 			return assert.Equal(t, validation.With("option", validation.SelectError{Label: "ifTheDonorGivesConsentToLifeSustainingTreatment"}), data.Errors)
 		})).
 		Return(nil)

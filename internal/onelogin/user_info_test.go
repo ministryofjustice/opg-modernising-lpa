@@ -8,7 +8,7 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 	"time"
@@ -25,16 +25,16 @@ func TestUserInfo(t *testing.T) {
 
 	data, _ := json.Marshal(expectedUserInfo)
 
-	httpClient := newMockHttpClient(t)
-	httpClient.
-		On("Do", mock.MatchedBy(func(r *http.Request) bool {
+	httpClient := newMockDoer(t)
+	httpClient.EXPECT().
+		Do(mock.MatchedBy(func(r *http.Request) bool {
 			return assert.Equal(t, http.MethodGet, r.Method) &&
 				assert.Equal(t, "http://user-info", r.URL.String()) &&
 				assert.Equal(t, "Bearer hey", r.Header.Get("Authorization"))
 		})).
 		Return(&http.Response{
 			StatusCode: http.StatusOK,
-			Body:       ioutil.NopCloser(bytes.NewReader(data)),
+			Body:       io.NopCloser(bytes.NewReader(data)),
 		}, nil)
 
 	c := &Client{
@@ -61,9 +61,9 @@ func TestUserInfoWhenConfigurationError(t *testing.T) {
 }
 
 func TestUserInfoWhenRequestError(t *testing.T) {
-	httpClient := newMockHttpClient(t)
-	httpClient.
-		On("Do", mock.Anything).
+	httpClient := newMockDoer(t)
+	httpClient.EXPECT().
+		Do(mock.Anything).
 		Return(&http.Response{}, expectedError)
 
 	c := &Client{

@@ -9,6 +9,14 @@ type mockLocalizer struct {
 	mock.Mock
 }
 
+type mockLocalizer_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockLocalizer) EXPECT() *mockLocalizer_Expecter {
+	return &mockLocalizer_Expecter{mock: &_m.Mock}
+}
+
 // Concat provides a mock function with given fields: _a0, _a1
 func (_m *mockLocalizer) Concat(_a0 []string, _a1 string) string {
 	ret := _m.Called(_a0, _a1)
@@ -25,6 +33,35 @@ func (_m *mockLocalizer) Concat(_a0 []string, _a1 string) string {
 	}
 
 	return r0
+}
+
+// mockLocalizer_Concat_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Concat'
+type mockLocalizer_Concat_Call struct {
+	*mock.Call
+}
+
+// Concat is a helper method to define mock.On call
+//   - _a0 []string
+//   - _a1 string
+func (_e *mockLocalizer_Expecter) Concat(_a0 interface{}, _a1 interface{}) *mockLocalizer_Concat_Call {
+	return &mockLocalizer_Concat_Call{Call: _e.mock.On("Concat", _a0, _a1)}
+}
+
+func (_c *mockLocalizer_Concat_Call) Run(run func(_a0 []string, _a1 string)) *mockLocalizer_Concat_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].([]string), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *mockLocalizer_Concat_Call) Return(_a0 string) *mockLocalizer_Concat_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockLocalizer_Concat_Call) RunAndReturn(run func([]string, string) string) *mockLocalizer_Concat_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // Format provides a mock function with given fields: _a0, _a1
@@ -45,6 +82,35 @@ func (_m *mockLocalizer) Format(_a0 string, _a1 map[string]interface{}) string {
 	return r0
 }
 
+// mockLocalizer_Format_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Format'
+type mockLocalizer_Format_Call struct {
+	*mock.Call
+}
+
+// Format is a helper method to define mock.On call
+//   - _a0 string
+//   - _a1 map[string]interface{}
+func (_e *mockLocalizer_Expecter) Format(_a0 interface{}, _a1 interface{}) *mockLocalizer_Format_Call {
+	return &mockLocalizer_Format_Call{Call: _e.mock.On("Format", _a0, _a1)}
+}
+
+func (_c *mockLocalizer_Format_Call) Run(run func(_a0 string, _a1 map[string]interface{})) *mockLocalizer_Format_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(map[string]interface{}))
+	})
+	return _c
+}
+
+func (_c *mockLocalizer_Format_Call) Return(_a0 string) *mockLocalizer_Format_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockLocalizer_Format_Call) RunAndReturn(run func(string, map[string]interface{}) string) *mockLocalizer_Format_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // FormatCount provides a mock function with given fields: _a0, _a1, _a2
 func (_m *mockLocalizer) FormatCount(_a0 string, _a1 int, _a2 map[string]interface{}) string {
 	ret := _m.Called(_a0, _a1, _a2)
@@ -63,6 +129,36 @@ func (_m *mockLocalizer) FormatCount(_a0 string, _a1 int, _a2 map[string]interfa
 	return r0
 }
 
+// mockLocalizer_FormatCount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FormatCount'
+type mockLocalizer_FormatCount_Call struct {
+	*mock.Call
+}
+
+// FormatCount is a helper method to define mock.On call
+//   - _a0 string
+//   - _a1 int
+//   - _a2 map[string]interface{}
+func (_e *mockLocalizer_Expecter) FormatCount(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockLocalizer_FormatCount_Call {
+	return &mockLocalizer_FormatCount_Call{Call: _e.mock.On("FormatCount", _a0, _a1, _a2)}
+}
+
+func (_c *mockLocalizer_FormatCount_Call) Run(run func(_a0 string, _a1 int, _a2 map[string]interface{})) *mockLocalizer_FormatCount_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(int), args[2].(map[string]interface{}))
+	})
+	return _c
+}
+
+func (_c *mockLocalizer_FormatCount_Call) Return(_a0 string) *mockLocalizer_FormatCount_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockLocalizer_FormatCount_Call) RunAndReturn(run func(string, int, map[string]interface{}) string) *mockLocalizer_FormatCount_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // T provides a mock function with given fields: _a0
 func (_m *mockLocalizer) T(_a0 string) string {
 	ret := _m.Called(_a0)
@@ -79,6 +175,34 @@ func (_m *mockLocalizer) T(_a0 string) string {
 	}
 
 	return r0
+}
+
+// mockLocalizer_T_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'T'
+type mockLocalizer_T_Call struct {
+	*mock.Call
+}
+
+// T is a helper method to define mock.On call
+//   - _a0 string
+func (_e *mockLocalizer_Expecter) T(_a0 interface{}) *mockLocalizer_T_Call {
+	return &mockLocalizer_T_Call{Call: _e.mock.On("T", _a0)}
+}
+
+func (_c *mockLocalizer_T_Call) Run(run func(_a0 string)) *mockLocalizer_T_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *mockLocalizer_T_Call) Return(_a0 string) *mockLocalizer_T_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockLocalizer_T_Call) RunAndReturn(run func(string) string) *mockLocalizer_T_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // newMockLocalizer creates a new instance of mockLocalizer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

@@ -43,8 +43,8 @@ func TestSendEmail(t *testing.T) {
 	ctx := context.Background()
 
 	doer := newMockDoer(t)
-	doer.
-		On("Do", mock.MatchedBy(func(req *http.Request) bool {
+	doer.EXPECT().
+		Do(mock.MatchedBy(func(req *http.Request) bool {
 			var buf bytes.Buffer
 			io.Copy(&buf, req.Body)
 			req.Body = ioutil.NopCloser(&buf)
@@ -73,8 +73,8 @@ func TestSendEmailWhenError(t *testing.T) {
 	ctx := context.Background()
 
 	doer := newMockDoer(t)
-	doer.
-		On("Do", mock.Anything).
+	doer.EXPECT().
+		Do(mock.Anything).
 		Return(&http.Response{
 			Body: io.NopCloser(strings.NewReader(`{"errors":[{"error":"SomeError","message":"This happened"}, {"error":"AndError","message":"Plus this"}]}`)),
 		}, nil)
@@ -120,8 +120,8 @@ func TestDo(t *testing.T) {
 	jsonString := `{"id": "123", "status_code": 400}`
 
 	doer := newMockDoer(t)
-	doer.
-		On("Do", mock.Anything).
+	doer.EXPECT().
+		Do(mock.Anything).
 		Return(&http.Response{
 			Body: io.NopCloser(strings.NewReader(jsonString)),
 		}, nil)
@@ -147,8 +147,8 @@ func TestDoWhenContainsErrorList(t *testing.T) {
 	jsonString := `{"id": "123", "status_code": 400, "errors": [{"error":"SomeError","message":"This happened"}, {"error":"AndError","message":"Plus this"}]}`
 
 	doer := newMockDoer(t)
-	doer.
-		On("Do", mock.Anything).
+	doer.EXPECT().
+		Do(mock.Anything).
 		Return(&http.Response{
 			Body: io.NopCloser(strings.NewReader(jsonString)),
 		}, nil)
@@ -192,8 +192,8 @@ func TestDoRequestWhenRequestError(t *testing.T) {
 	ctx := context.Background()
 
 	doer := newMockDoer(t)
-	doer.
-		On("Do", mock.Anything).
+	doer.EXPECT().
+		Do(mock.Anything).
 		Return(&http.Response{
 			Body: io.NopCloser(strings.NewReader(`{"id": "123"}`)),
 		}, errors.New("err"))
@@ -217,8 +217,8 @@ func TestDoRequestWhenJsonDecodeFails(t *testing.T) {
 	ctx := context.Background()
 
 	doer := newMockDoer(t)
-	doer.
-		On("Do", mock.Anything).
+	doer.EXPECT().
+		Do(mock.Anything).
 		Return(&http.Response{
 			Body: io.NopCloser(strings.NewReader(`not json`)),
 		}, nil)
@@ -248,8 +248,8 @@ func TestSendSMS(t *testing.T) {
 	ctx := context.Background()
 
 	doer := newMockDoer(t)
-	doer.
-		On("Do", mock.MatchedBy(func(req *http.Request) bool {
+	doer.EXPECT().
+		Do(mock.MatchedBy(func(req *http.Request) bool {
 			var buf bytes.Buffer
 			io.Copy(&buf, req.Body)
 			req.Body = ioutil.NopCloser(&buf)
@@ -280,8 +280,8 @@ func TestSendSMSWhenError(t *testing.T) {
 	ctx := context.Background()
 
 	doer := newMockDoer(t)
-	doer.
-		On("Do", mock.Anything).
+	doer.EXPECT().
+		Do(mock.Anything).
 		Return(&http.Response{
 			Body: io.NopCloser(strings.NewReader(`{"errors":[{"error":"SomeError","message":"This happened"}, {"error":"AndError","message":"Plus this"}]}`)),
 		}, nil)

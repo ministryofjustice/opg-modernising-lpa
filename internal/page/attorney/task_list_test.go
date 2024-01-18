@@ -17,8 +17,8 @@ import (
 func TestGetTaskList(t *testing.T) {
 	certificateProviderAgreed := func(t *testing.T, r *http.Request) *mockCertificateProviderStore {
 		certificateProviderStore := newMockCertificateProviderStore(t)
-		certificateProviderStore.
-			On("GetAny", page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
+		certificateProviderStore.EXPECT().
+			GetAny(page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
 			Return(&actor.CertificateProviderProvidedDetails{
 				Certificate: actor.Certificate{Agreed: time.Now()},
 			}, nil)
@@ -97,8 +97,8 @@ func TestGetTaskList(t *testing.T) {
 			},
 			certificateProviderStore: func(t *testing.T, r *http.Request) *mockCertificateProviderStore {
 				certificateProviderStore := newMockCertificateProviderStore(t)
-				certificateProviderStore.
-					On("GetAny", page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
+				certificateProviderStore.EXPECT().
+					GetAny(page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
 					Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 				return certificateProviderStore
@@ -186,13 +186,13 @@ func TestGetTaskList(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 			donorStore := newMockDonorStore(t)
-			donorStore.
-				On("GetAny", r.Context()).
+			donorStore.EXPECT().
+				GetAny(r.Context()).
 				Return(tc.donor, nil)
 
 			template := newMockTemplate(t)
-			template.
-				On("Execute", w, &taskListData{
+			template.EXPECT().
+				Execute(w, &taskListData{
 					App:   tc.appData,
 					Donor: tc.donor,
 					Items: tc.expected([]taskListItem{
@@ -217,8 +217,8 @@ func TestGetTaskListWhenDonorStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, expectedError)
 
 	err := TaskList(nil, donorStore, nil)(testAppData, w, r, nil)
@@ -231,13 +231,13 @@ func TestGetTaskListWhenCertificateProviderStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("GetAny", page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
+	certificateProviderStore.EXPECT().
+		GetAny(page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
 		Return(nil, expectedError)
 
 	err := TaskList(nil, donorStore, certificateProviderStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{Tasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskCompleted, ReadTheLpa: actor.TaskCompleted}})
@@ -250,18 +250,18 @@ func TestGetTaskListWhenCertificateProviderNotFound(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.
-		On("GetAny", page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
+	certificateProviderStore.EXPECT().
+		GetAny(page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
 		Return(nil, dynamo.NotFoundError{})
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(nil)
 
 	err := TaskList(template.Execute, donorStore, certificateProviderStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{Tasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskCompleted, ReadTheLpa: actor.TaskCompleted}})
@@ -276,13 +276,13 @@ func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("GetAny", r.Context()).
+	donorStore.EXPECT().
+		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	template := newMockTemplate(t)
-	template.
-		On("Execute", w, mock.Anything).
+	template.EXPECT().
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := TaskList(template.Execute, donorStore, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
