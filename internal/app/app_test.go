@@ -19,7 +19,7 @@ import (
 )
 
 func TestApp(t *testing.T) {
-	app := App(&logging.Logger{}, &localize.Localizer{}, localize.En, template.Templates{}, nil, nil, "http://public.url", &pay.Client{}, &notify.Client{}, &place.Client{}, page.RumConfig{}, "?%3fNEI0t9MN", page.Paths, &onelogin.Client{}, "http://onelogin.url", nil, nil, nil)
+	app := App(&logging.Logger{}, &localize.Localizer{}, localize.En, template.Templates{}, template.Templates{}, nil, nil, "http://public.url", &pay.Client{}, &notify.Client{}, &place.Client{}, page.RumConfig{}, "?%3fNEI0t9MN", page.Paths, &onelogin.Client{}, "http://onelogin.url", nil, nil, nil)
 
 	assert.Implements(t, (*http.Handler)(nil), app)
 }

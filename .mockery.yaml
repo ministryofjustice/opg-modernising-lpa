@@ -17,6 +17,7 @@ packages:
   github.com/ministryofjustice/opg-modernising-lpa/internal/page/attorney:
   github.com/ministryofjustice/opg-modernising-lpa/internal/page/certificateprovider:
   github.com/ministryofjustice/opg-modernising-lpa/internal/page/donor:
+  github.com/ministryofjustice/opg-modernising-lpa/internal/page/supporter:
   github.com/ministryofjustice/opg-modernising-lpa/internal/page:
   github.com/ministryofjustice/opg-modernising-lpa/internal/place:
   github.com/ministryofjustice/opg-modernising-lpa/internal/s3:
