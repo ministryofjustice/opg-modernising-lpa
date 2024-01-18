@@ -20,10 +20,10 @@
       {{ trHtml .App "confirmYourCertificateProviderIsNotRelatedContent" }}
 
       <form novalidate method="post">
-        <div class="govuk-form-group {{ if .Errors.Has "yes-no" }}govuk-form-group--error{{ end }}">
-          {{ template "error-message" (errorMessage . "yes-no") }}
+        <div class="govuk-form-group {{ if .Errors.Has .Form.FieldName }}govuk-form-group--error{{ end }}">
+          {{ template "error-message" (errorMessage . .Form.FieldName) }}
 
-          {{ template "checkboxes" (items . "yes-no" nil
+          {{ template "checkboxes" (items . .Form.FieldName nil
             (item .Yes.String "iConfirmThatMyCertificateProviderIsNotRelated")
           ) }}
         </div>

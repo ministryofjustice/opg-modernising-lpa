@@ -43,8 +43,7 @@ func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, isRep
 			App:        appData,
 			TitleLabel: titleLabel,
 			Name:       name,
-			Form:       &form.YesNoForm{},
-			Options:    form.YesNoValues,
+			Form:       form.NewYesNoForm(form.YesNoUnknown),
 		}
 
 		if r.Method == http.MethodPost {

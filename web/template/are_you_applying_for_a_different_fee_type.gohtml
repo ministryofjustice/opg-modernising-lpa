@@ -11,12 +11,12 @@
 
             <form novalidate method="post">
                 <fieldset class="govuk-fieldset">
-                    <div class="govuk-form-group {{ if .Errors.Has "yes-no" }}govuk-form-group--error{{ end }}">
-                        {{ template "error-message" (errorMessage . "yes-no") }}
+                    <div class="govuk-form-group {{ if .Errors.Has .Form.FieldName }}govuk-form-group--error{{ end }}">
+                        {{ template "error-message" (errorMessage . .Form.FieldName) }}
 
-                        {{ template "radios" (items . "yes-no" ""
-                        (item .Options.Yes.String "yes")
-                        (item .Options.No.String "no" "hint" "chooseThisIfYouWantToPayForYourLpaInFull")
+                        {{ template "radios" (items . .Form.FieldName ""
+                        (item .Form.Options.Yes.String "yes")
+                        (item .Form.Options.No.String "no" "hint" "chooseThisIfYouWantToPayForYourLpaInFull")
                         ) }}
                     </div>
                 </fieldset>

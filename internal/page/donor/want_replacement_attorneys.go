@@ -11,11 +11,10 @@ import (
 )
 
 type wantReplacementAttorneysData struct {
-	App     page.AppData
-	Errors  validation.List
-	Form    *form.YesNoForm
-	Options form.YesNoOptions
-	Donor   *actor.DonorProvidedDetails
+	App    page.AppData
+	Errors validation.List
+	Form   *form.YesNoForm
+	Donor  *actor.DonorProvidedDetails
 }
 
 func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
@@ -23,10 +22,7 @@ func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Han
 		data := &wantReplacementAttorneysData{
 			App:   appData,
 			Donor: donor,
-			Form: &form.YesNoForm{
-				YesNo: donor.WantReplacementAttorneys,
-			},
-			Options: form.YesNoValues,
+			Form:  form.NewYesNoForm(donor.WantReplacementAttorneys),
 		}
 
 		if r.Method == http.MethodPost {
