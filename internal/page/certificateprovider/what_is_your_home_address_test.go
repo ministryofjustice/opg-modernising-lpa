@@ -118,7 +118,7 @@ func TestGetWhatIsYourHomeAddressWhenTemplateError(t *testing.T) {
 
 func TestPostWhatIsYourHomeAddressManual(t *testing.T) {
 	f := url.Values{
-		"action":                           {"manual"},
+		form.FieldNames.Address.Action:     {"manual"},
 		form.FieldNames.Address.Line1:      {"a"},
 		form.FieldNames.Address.Line2:      {"b"},
 		form.FieldNames.Address.Line3:      {"c"},
@@ -158,7 +158,7 @@ func TestPostWhatIsYourHomeAddressManual(t *testing.T) {
 
 func TestPostWhatIsYourHomeAddressManualWhenCertificateProviderStoreError(t *testing.T) {
 	f := url.Values{
-		"action":                           {"manual"},
+		form.FieldNames.Address.Action:     {"manual"},
 		form.FieldNames.Address.Line1:      {"a"},
 		form.FieldNames.Address.Line2:      {"b"},
 		form.FieldNames.Address.Line3:      {"c"},
@@ -187,9 +187,9 @@ func TestPostWhatIsYourHomeAddressManualWhenCertificateProviderStoreError(t *tes
 
 func TestPostWhatIsYourHomeAddressPostcodeSelect(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-select"},
-		"lookup-postcode": {"NG1"},
-		"select-address":  {testAddress.Encode()},
+		form.FieldNames.Address.Action: {"postcode-select"},
+		"lookup-postcode":              {"NG1"},
+		"select-address":               {testAddress.Encode()},
 	}
 
 	w := httptest.NewRecorder()
@@ -223,8 +223,8 @@ func TestPostWhatIsYourHomeAddressPostcodeSelect(t *testing.T) {
 
 func TestPostWhatIsYourHomeAddressPostcodeSelectWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-select"},
-		"lookup-postcode": {"NG1"},
+		form.FieldNames.Address.Action: {"postcode-select"},
+		"lookup-postcode":              {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -268,8 +268,8 @@ func TestPostWhatIsYourHomeAddressPostcodeSelectWhenValidationError(t *testing.T
 
 func TestPostWhatIsYourHomeAddressPostcodeLookup(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"NG1"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -312,8 +312,8 @@ func TestPostWhatIsYourHomeAddressPostcodeLookup(t *testing.T) {
 
 func TestPostWhatIsYourHomeAddressPostcodeLookupWhenPostcodeNotFound(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"NG1"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -353,8 +353,8 @@ func TestPostWhatIsYourHomeAddressPostcodeLookupWhenPostcodeNotFound(t *testing.
 
 func TestPostWhatIsYourHomeAddressPostcodeLookupWhenInvalidPostcode(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"NG1"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"NG1"},
 	}
 
 	w := httptest.NewRecorder()

@@ -167,7 +167,7 @@
           <input type="hidden" name="{{ .Form.FieldNames.Action }}" value="reuse-select" />
 
         {{ else }}
-          <div class="govuk-form-group {{ if .Errors.Has "action" }}govuk-form-group--error{{ end }}">
+          <div class="govuk-form-group {{ if .Errors.Has .Form.FieldNames.Action }}govuk-form-group--error{{ end }}">
             <fieldset class="govuk-fieldset">
               <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
                 <h1 class="govuk-fieldset__heading">
@@ -178,9 +178,9 @@
                   {{ end }}
                 </h1>
               </legend>
-              {{ template "error-message" (errorMessage . "action") }}
+              {{ template "error-message" (errorMessage . .Form.FieldNames.Action) }}
 
-              {{ template "radios" (items . "action" .Form.Action
+              {{ template "radios" (items . .Form.FieldNames.Action .Form.Action
                 (item "reuse" "useAnAddressYouAlreadyEntered")
                 (item "postcode" "enterNewAddress")
               ) }}

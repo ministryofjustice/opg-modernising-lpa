@@ -163,7 +163,7 @@ func TestGetCertificateProviderAddressWhenTemplateErrors(t *testing.T) {
 
 func TestPostCertificateProviderAddressManual(t *testing.T) {
 	f := url.Values{
-		"action":                           {"manual"},
+		form.FieldNames.Address.Action:     {"manual"},
 		form.FieldNames.Address.Line1:      {"a"},
 		form.FieldNames.Address.Line2:      {"b"},
 		form.FieldNames.Address.Line3:      {"c"},
@@ -194,7 +194,7 @@ func TestPostCertificateProviderAddressManual(t *testing.T) {
 
 func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
 	f := url.Values{
-		"action":                           {"manual"},
+		form.FieldNames.Address.Action:     {"manual"},
 		form.FieldNames.Address.Line1:      {"a"},
 		form.FieldNames.Address.Line2:      {"b"},
 		form.FieldNames.Address.Line3:      {"c"},
@@ -221,7 +221,7 @@ func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
 
 func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 	f := url.Values{
-		"action":                           {"manual"},
+		form.FieldNames.Address.Action:     {"manual"},
 		form.FieldNames.Address.Line1:      {"a"},
 		form.FieldNames.Address.Line2:      {"b"},
 		form.FieldNames.Address.Line3:      {"c"},
@@ -261,7 +261,7 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 
 func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action":                           {"manual"},
+		form.FieldNames.Address.Action:     {"manual"},
 		form.FieldNames.Address.Line2:      {"b"},
 		form.FieldNames.Address.TownOrCity: {"c"},
 		form.FieldNames.Address.Postcode:   {"d"},
@@ -303,9 +303,9 @@ func TestPostCertificateProviderAddressManualWhenValidationError(t *testing.T) {
 
 func TestPostCertificateProviderPostcodeSelect(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-select"},
-		"lookup-postcode": {"NG1"},
-		"select-address":  {testAddress.Encode()},
+		form.FieldNames.Address.Action: {"postcode-select"},
+		"lookup-postcode":              {"NG1"},
+		"select-address":               {testAddress.Encode()},
 	}
 
 	w := httptest.NewRecorder()
@@ -337,8 +337,8 @@ func TestPostCertificateProviderPostcodeSelect(t *testing.T) {
 
 func TestPostCertificateProviderPostcodeSelectWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-select"},
-		"lookup-postcode": {"NG1"},
+		form.FieldNames.Address.Action: {"postcode-select"},
+		"lookup-postcode":              {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -380,8 +380,8 @@ func TestPostCertificateProviderPostcodeSelectWhenValidationError(t *testing.T) 
 
 func TestPostCertificateProviderPostcodeLookup(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"NG1"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -422,8 +422,8 @@ func TestPostCertificateProviderPostcodeLookup(t *testing.T) {
 
 func TestPostCertificateProviderPostcodeLookupError(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"NG1"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -471,8 +471,8 @@ func TestPostCertificateProviderPostcodeLookupInvalidPostcodeError(t *testing.T)
 	}
 
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"XYZ"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"XYZ"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
@@ -515,8 +515,8 @@ func TestPostCertificateProviderPostcodeLookupValidPostcodeNoAddresses(t *testin
 	w := httptest.NewRecorder()
 
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"XYZ"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"XYZ"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
@@ -555,7 +555,7 @@ func TestPostCertificateProviderPostcodeLookupValidPostcodeNoAddresses(t *testin
 
 func TestPostCertificateProviderPostcodeLookupWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action": {"postcode-lookup"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
 	}
 
 	w := httptest.NewRecorder()
@@ -585,7 +585,7 @@ func TestPostCertificateProviderPostcodeLookupWhenValidationError(t *testing.T) 
 }
 func TestPostCertificateProviderAddressReuse(t *testing.T) {
 	f := url.Values{
-		"action": {"reuse"},
+		form.FieldNames.Address.Action: {"reuse"},
 	}
 
 	w := httptest.NewRecorder()
@@ -618,8 +618,8 @@ func TestPostCertificateProviderAddressReuse(t *testing.T) {
 
 func TestPostCertificateProviderAddressReuseSelect(t *testing.T) {
 	f := url.Values{
-		"action":         {"reuse-select"},
-		"select-address": {testAddress.Encode()},
+		form.FieldNames.Address.Action: {"reuse-select"},
+		"select-address":               {testAddress.Encode()},
 	}
 
 	w := httptest.NewRecorder()
@@ -654,7 +654,7 @@ func TestPostCertificateProviderAddressReuseSelect(t *testing.T) {
 
 func TestPostCertificateProviderAddressReuseSelectWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action": {"reuse-select"},
+		form.FieldNames.Address.Action: {"reuse-select"},
 	}
 
 	w := httptest.NewRecorder()
