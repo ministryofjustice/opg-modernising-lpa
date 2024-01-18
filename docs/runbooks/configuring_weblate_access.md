@@ -89,7 +89,7 @@ git remote update origin
 git rebase main
 ```
 
-Push changes into upstream repository.
+Push changes to a new branch, and follow the usual steps to get it merged by raising a PR.
 
 ```sh
 git push weblate-resolve-merge-conflicts
