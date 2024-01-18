@@ -197,10 +197,18 @@ func Register(
 	handleWithDonor(page.Paths.WithdrawThisLpa, page.None,
 		WithdrawLpa(tmpls.Get("withdraw_this_lpa.gohtml"), donorStore, time.Now))
 
+	handleWithDonor(page.Paths.MakeANewLPA, page.None,
+		Guidance(tmpls.Get("make_a_new_lpa.gohtml")))
 	handleWithDonor(page.Paths.YourDetails, page.None,
 		YourDetails(tmpls.Get("your_details.gohtml"), donorStore, sessionStore))
+	handleWithDonor(page.Paths.YourName, page.None,
+		YourName(tmpls.Get("your_name.gohtml"), donorStore))
+	handleWithDonor(page.Paths.YourDateOfBirth, page.None,
+		YourDateOfBirth(tmpls.Get("your_date_of_birth.gohtml"), donorStore))
 	handleWithDonor(page.Paths.YourAddress, page.None,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, donorStore))
+	handleWithDonor(page.Paths.WeHaveUpdatedYourDetails, page.None,
+		Guidance(tmpls.Get("we_have_updated_your_details.gohtml")))
 	handleWithDonor(page.Paths.YourPreferredLanguage, page.None,
 		YourPreferredLanguage(tmpls.Get("your_preferred_language.gohtml"), donorStore))
 	handleWithDonor(page.Paths.LpaType, page.None,

@@ -59,6 +59,19 @@ func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, e
 		Version:   1,
 	}
 
+	latest, err := s.Latest(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if latest != nil {
+		donor.Donor.FirstNames = latest.Donor.FirstNames
+		donor.Donor.LastName = latest.Donor.LastName
+		donor.Donor.OtherNames = latest.Donor.OtherNames
+		donor.Donor.DateOfBirth = latest.Donor.DateOfBirth
+		donor.Donor.Address = latest.Donor.Address
+	}
+
 	if donor.Hash, err = donor.GenerateHash(); err != nil {
 		return nil, err
 	}
