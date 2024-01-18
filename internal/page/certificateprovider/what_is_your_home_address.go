@@ -26,11 +26,12 @@ func WhatIsYourHomeAddress(logger Logger, tmpl template.Template, addressClient 
 			return err
 		}
 
+		f := form.NewAddressForm()
+		f.Action = "postcode"
+
 		data := &whatIsYourHomeAddressData{
-			App: appData,
-			Form: &form.AddressForm{
-				Action: "postcode",
-			},
+			App:  appData,
+			Form: f,
 		}
 
 		if certificateProvider.HomeAddress.Line1 != "" {
@@ -71,7 +72,7 @@ func WhatIsYourHomeAddress(logger Logger, tmpl template.Template, addressClient 
 		}
 
 		if r.Method == http.MethodGet {
-			action := r.FormValue("action")
+			action := r.FormValue(data.Form.FieldNames.Action)
 			if action == "manual" {
 				data.Form.Action = "manual"
 				data.Form.Address = &place.Address{}

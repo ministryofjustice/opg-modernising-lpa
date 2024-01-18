@@ -30,20 +30,20 @@
               </h1>
             </legend>
 
-            {{ template "input" (input . "address-line-1" "addressLine1" .Form.Address.Line1 "autocomplete" "address-line1") }}
-            {{ template "input" (input . "address-line-2" "addressLine2" .Form.Address.Line2 "autocomplete" "address-line2") }}
-            {{ template "input" (input . "address-line-3" "addressLine3" .Form.Address.Line3 "autocomplete" "address-line3") }}
-            {{ template "input" (input . "address-town" "townOrCity" .Form.Address.TownOrCity "classes" "govuk-!-width-two-thirds" "autocomplete" "address-level1") }}
-            {{ template "input" (input . "address-postcode" "postcode" .Form.Address.Postcode "classes" "govuk-input--width-10" "autocomplete" "postal-code") }}
+            {{ template "input" (input . .Form.FieldNames.Line1 "addressLine1" .Form.Address.Line1 "autocomplete" "address-line1") }}
+            {{ template "input" (input . .Form.FieldNames.Line2 "addressLine2" .Form.Address.Line2 "autocomplete" "address-line2") }}
+            {{ template "input" (input . .Form.FieldNames.Line3 "addressLine3" .Form.Address.Line3 "autocomplete" "address-line3") }}
+            {{ template "input" (input . .Form.FieldNames.TownOrCity "townOrCity" .Form.Address.TownOrCity "classes" "govuk-!-width-two-thirds" "autocomplete" "address-level1") }}
+            {{ template "input" (input . .Form.FieldNames.Postcode "postcode" .Form.Address.Postcode "classes" "govuk-input--width-10" "autocomplete" "postal-code") }}
           </fieldset>
 
           <div class="govuk-button-group">
-            <button name="action" value="manual" class="govuk-button" data-module="govuk-button">
+            <button name="{{ .Form.FieldNames.Action }}" value="manual" class="govuk-button" data-module="govuk-button">
               {{ tr .App "continue" }}
             </button>
 
             {{ if .CanSkip }}
-              <button name="action" value="skip" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+              <button name="{{ .Form.FieldNames.Action }}" value="skip" class="govuk-button govuk-button--secondary" data-module="govuk-button">
                 {{ tr .App "skip" }}
               </button>
             {{ end }}
@@ -85,12 +85,12 @@
           </p>
 
           <div class="govuk-button-group">
-            <button name="action" value="postcode-select" class="govuk-button" data-module="govuk-button">
+            <button name="{{ .Form.FieldNames.Action }}" value="postcode-select" class="govuk-button" data-module="govuk-button">
               {{ tr .App "continue" }}
             </button>
 
             {{ if .CanSkip }}
-              <button name="action" value="skip" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+              <button name="{{ .Form.FieldNames.Action }}" value="skip" class="govuk-button govuk-button--secondary" data-module="govuk-button">
                 {{ tr .App "skip" }}
               </button>
             {{ end }}
@@ -125,12 +125,12 @@
           </p>
 
           <div class="govuk-button-group">
-            <button name="action" value="postcode-lookup" class="govuk-button" data-module="govuk-button">
+            <button name="{{ .Form.FieldNames.Action }}" value="postcode-lookup" class="govuk-button" data-module="govuk-button">
               {{ tr .App "findAddress" }}
             </button>
 
             {{ if .CanSkip }}
-              <button name="action" value="skip" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+              <button name="{{ .Form.FieldNames.Action }}" value="skip" class="govuk-button govuk-button--secondary" data-module="govuk-button">
                 {{ tr .App "skip" }}
               </button>
             {{ end }}
@@ -164,10 +164,10 @@
           </div>
 
           {{ template "save-and-return-buttons" . }}
-          <input type="hidden" name="action" value="reuse-select" />
+          <input type="hidden" name="{{ .Form.FieldNames.Action }}" value="reuse-select" />
 
         {{ else }}
-          <div class="govuk-form-group {{ if .Errors.Has "action" }}govuk-form-group--error{{ end }}">
+          <div class="govuk-form-group {{ if .Errors.Has .Form.FieldNames.Action }}govuk-form-group--error{{ end }}">
             <fieldset class="govuk-fieldset">
               <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
                 <h1 class="govuk-fieldset__heading">
@@ -178,9 +178,9 @@
                   {{ end }}
                 </h1>
               </legend>
-              {{ template "error-message" (errorMessage . "action") }}
+              {{ template "error-message" (errorMessage . .Form.FieldNames.Action) }}
 
-              {{ template "radios" (items . "action" .Form.Action
+              {{ template "radios" (items . .Form.FieldNames.Action .Form.Action
                 (item "reuse" "useAnAddressYouAlreadyEntered")
                 (item "postcode" "enterNewAddress")
               ) }}
