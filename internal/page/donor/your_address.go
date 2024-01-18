@@ -75,7 +75,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 		}
 
 		if r.Method == http.MethodGet && data.Form.Address == nil {
-			action := r.FormValue("action")
+			action := r.FormValue(data.Form.FieldNames.Action)
 			if action == "manual" {
 				data.Form.Action = "manual"
 				data.Form.Address = &place.Address{}
