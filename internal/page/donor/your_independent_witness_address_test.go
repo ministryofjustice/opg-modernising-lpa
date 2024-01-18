@@ -125,7 +125,7 @@ func TestGetYourIndependentWitnessAddressWhenTemplateErrors(t *testing.T) {
 
 func TestPostYourIndependentWitnessAddressManual(t *testing.T) {
 	f := url.Values{
-		"action":                           {"manual"},
+		form.FieldNames.Address.Action:     {"manual"},
 		form.FieldNames.Address.Line1:      {"a"},
 		form.FieldNames.Address.Line2:      {"b"},
 		form.FieldNames.Address.Line3:      {"c"},
@@ -162,7 +162,7 @@ func TestPostYourIndependentWitnessAddressManual(t *testing.T) {
 
 func TestPostYourIndependentWitnessAddressManualWhenStoreErrors(t *testing.T) {
 	f := url.Values{
-		"action":                           {"manual"},
+		form.FieldNames.Address.Action:     {"manual"},
 		form.FieldNames.Address.Line1:      {"a"},
 		form.FieldNames.Address.Line2:      {"b"},
 		form.FieldNames.Address.Line3:      {"c"},
@@ -186,7 +186,7 @@ func TestPostYourIndependentWitnessAddressManualWhenStoreErrors(t *testing.T) {
 
 func TestPostYourIndependentWitnessAddressManualFromStore(t *testing.T) {
 	f := url.Values{
-		"action":                           {"manual"},
+		form.FieldNames.Address.Action:     {"manual"},
 		form.FieldNames.Address.Line1:      {"a"},
 		form.FieldNames.Address.Line2:      {"b"},
 		form.FieldNames.Address.Line3:      {"c"},
@@ -228,7 +228,7 @@ func TestPostYourIndependentWitnessAddressManualFromStore(t *testing.T) {
 
 func TestPostYourIndependentWitnessAddressManualWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action":                           {"manual"},
+		form.FieldNames.Address.Action:     {"manual"},
 		form.FieldNames.Address.Line2:      {"b"},
 		form.FieldNames.Address.TownOrCity: {"c"},
 		form.FieldNames.Address.Postcode:   {"d"},
@@ -275,9 +275,9 @@ func TestPostYourIndependentWitnessAddressSelect(t *testing.T) {
 	}
 
 	f := url.Values{
-		"action":          {"postcode-select"},
-		"lookup-postcode": {"NG1"},
-		"select-address":  {expectedAddress.Encode()},
+		form.FieldNames.Address.Action: {"postcode-select"},
+		"lookup-postcode":              {"NG1"},
+		"select-address":               {expectedAddress.Encode()},
 	}
 
 	w := httptest.NewRecorder()
@@ -309,8 +309,8 @@ func TestPostYourIndependentWitnessAddressSelect(t *testing.T) {
 
 func TestPostYourIndependentWitnessAddressSelectWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-select"},
-		"lookup-postcode": {"NG1"},
+		form.FieldNames.Address.Action: {"postcode-select"},
+		"lookup-postcode":              {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -352,8 +352,8 @@ func TestPostYourIndependentWitnessAddressSelectWhenValidationError(t *testing.T
 
 func TestPostYourIndependentWitnessAddressLookup(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"NG1"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -394,8 +394,8 @@ func TestPostYourIndependentWitnessAddressLookup(t *testing.T) {
 
 func TestPostYourIndependentWitnessAddressLookupError(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"NG1"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -443,8 +443,8 @@ func TestPostYourIndependentWitnessAddressInvalidPostcodeError(t *testing.T) {
 	}
 
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"XYZ"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"XYZ"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
@@ -487,8 +487,8 @@ func TestPostYourIndependentWitnessAddressValidPostcodeNoAddresses(t *testing.T)
 	w := httptest.NewRecorder()
 
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"XYZ"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"XYZ"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
@@ -527,7 +527,7 @@ func TestPostYourIndependentWitnessAddressValidPostcodeNoAddresses(t *testing.T)
 
 func TestPostYourIndependentWitnessAddressLookupWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action": {"postcode-lookup"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
 	}
 
 	w := httptest.NewRecorder()

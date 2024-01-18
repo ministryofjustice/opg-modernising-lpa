@@ -24,7 +24,7 @@ func NewAddressForm() *AddressForm {
 
 func ReadAddressForm(r *http.Request) *AddressForm {
 	f := NewAddressForm()
-	f.Action = r.PostFormValue("action")
+	f.Action = r.PostFormValue(f.FieldNames.Action)
 
 	switch f.Action {
 	case "postcode-lookup":
@@ -60,7 +60,7 @@ func ReadAddressForm(r *http.Request) *AddressForm {
 func (f *AddressForm) Validate(useYour bool) validation.List {
 	var errors validation.List
 
-	errors.String("action", "ifUsePreviousAddressOrEnterNew", f.Action,
+	errors.String(f.FieldNames.Action, "ifUsePreviousAddressOrEnterNew", f.Action,
 		validation.Select("reuse", "reuse-select", "postcode", "postcode-lookup", "postcode-select", "manual", "skip"))
 
 	switch f.Action {

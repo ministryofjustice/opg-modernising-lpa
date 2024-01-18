@@ -10,6 +10,7 @@ var FieldNames = SharedFieldNames{
 		Line3:      "address-line-3",
 		TownOrCity: "address-town",
 		Postcode:   "address-postcode",
+		Action:     "action",
 	},
 }
 
@@ -24,6 +25,7 @@ type AddressFieldNames struct {
 	Line3      string
 	TownOrCity string
 	Postcode   string
+	Action     string
 }
 
 type LanguagePreferenceFieldNames struct {

@@ -38,12 +38,12 @@
           </fieldset>
 
           <div class="govuk-button-group">
-            <button name="action" value="manual" class="govuk-button" data-module="govuk-button">
+            <button name="{{ .Form.FieldNames.Action }}" value="manual" class="govuk-button" data-module="govuk-button">
               {{ tr .App "continue" }}
             </button>
 
             {{ if .CanSkip }}
-              <button name="action" value="skip" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+              <button name="{{ .Form.FieldNames.Action }}" value="skip" class="govuk-button govuk-button--secondary" data-module="govuk-button">
                 {{ tr .App "skip" }}
               </button>
             {{ end }}
@@ -85,12 +85,12 @@
           </p>
 
           <div class="govuk-button-group">
-            <button name="action" value="postcode-select" class="govuk-button" data-module="govuk-button">
+            <button name="{{ .Form.FieldNames.Action }}" value="postcode-select" class="govuk-button" data-module="govuk-button">
               {{ tr .App "continue" }}
             </button>
 
             {{ if .CanSkip }}
-              <button name="action" value="skip" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+              <button name="{{ .Form.FieldNames.Action }}" value="skip" class="govuk-button govuk-button--secondary" data-module="govuk-button">
                 {{ tr .App "skip" }}
               </button>
             {{ end }}
@@ -125,12 +125,12 @@
           </p>
 
           <div class="govuk-button-group">
-            <button name="action" value="postcode-lookup" class="govuk-button" data-module="govuk-button">
+            <button name="{{ .Form.FieldNames.Action }}" value="postcode-lookup" class="govuk-button" data-module="govuk-button">
               {{ tr .App "findAddress" }}
             </button>
 
             {{ if .CanSkip }}
-              <button name="action" value="skip" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+              <button name="{{ .Form.FieldNames.Action }}" value="skip" class="govuk-button govuk-button--secondary" data-module="govuk-button">
                 {{ tr .App "skip" }}
               </button>
             {{ end }}
@@ -164,7 +164,7 @@
           </div>
 
           {{ template "save-and-return-buttons" . }}
-          <input type="hidden" name="action" value="reuse-select" />
+          <input type="hidden" name="{{ .Form.FieldNames.Action }}" value="reuse-select" />
 
         {{ else }}
           <div class="govuk-form-group {{ if .Errors.Has "action" }}govuk-form-group--error{{ end }}">

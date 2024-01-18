@@ -128,7 +128,7 @@ func TestPostYourAddressManual(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			f := url.Values{
-				"action":                           {"manual"},
+				form.FieldNames.Address.Action:     {"manual"},
 				form.FieldNames.Address.Line1:      {"a"},
 				form.FieldNames.Address.Line2:      {"b"},
 				form.FieldNames.Address.Line3:      {"c"},
@@ -185,7 +185,7 @@ func TestPostYourAddressManualWhenAddressNotChanged(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			f := url.Values{
-				"action":                           {"manual"},
+				form.FieldNames.Address.Action:     {"manual"},
 				form.FieldNames.Address.Line1:      {"a"},
 				form.FieldNames.Address.Line2:      {"b"},
 				form.FieldNames.Address.Line3:      {"c"},
@@ -221,7 +221,7 @@ func TestPostYourAddressManualWhenAddressNotChanged(t *testing.T) {
 
 func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 	f := url.Values{
-		"action":                           {"manual"},
+		form.FieldNames.Address.Action:     {"manual"},
 		form.FieldNames.Address.Line1:      {"a"},
 		form.FieldNames.Address.Line2:      {"b"},
 		form.FieldNames.Address.Line3:      {"c"},
@@ -249,7 +249,7 @@ func TestPostYourAddressManualWhenStoreErrors(t *testing.T) {
 
 func TestPostYourAddressManualFromStore(t *testing.T) {
 	f := url.Values{
-		"action":                           {"manual"},
+		form.FieldNames.Address.Action:     {"manual"},
 		form.FieldNames.Address.Line1:      {"a"},
 		form.FieldNames.Address.Line2:      {"b"},
 		form.FieldNames.Address.Line3:      {"c"},
@@ -288,7 +288,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 
 func TestPostYourAddressManualWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action":                           {"manual"},
+		form.FieldNames.Address.Action:     {"manual"},
 		form.FieldNames.Address.Line2:      {"b"},
 		form.FieldNames.Address.TownOrCity: {"c"},
 		form.FieldNames.Address.Postcode:   {"d"},
@@ -333,9 +333,9 @@ func TestPostYourAddressSelect(t *testing.T) {
 	}
 
 	f := url.Values{
-		"action":          {"postcode-select"},
-		"lookup-postcode": {"NG1"},
-		"select-address":  {expectedAddress.Encode()},
+		form.FieldNames.Address.Action: {"postcode-select"},
+		"lookup-postcode":              {"NG1"},
+		"select-address":               {expectedAddress.Encode()},
 	}
 
 	w := httptest.NewRecorder()
@@ -365,8 +365,8 @@ func TestPostYourAddressSelect(t *testing.T) {
 
 func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-select"},
-		"lookup-postcode": {"NG1"},
+		form.FieldNames.Address.Action: {"postcode-select"},
+		"lookup-postcode":              {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -406,8 +406,8 @@ func TestPostYourAddressSelectWhenValidationError(t *testing.T) {
 
 func TestPostYourAddressLookup(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"NG1"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -446,8 +446,8 @@ func TestPostYourAddressLookup(t *testing.T) {
 
 func TestPostYourAddressLookupError(t *testing.T) {
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"NG1"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"NG1"},
 	}
 
 	w := httptest.NewRecorder()
@@ -493,8 +493,8 @@ func TestPostYourAddressInvalidPostcodeError(t *testing.T) {
 	}
 
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"XYZ"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"XYZ"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
@@ -535,8 +535,8 @@ func TestPostYourAddressValidPostcodeNoAddresses(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	f := url.Values{
-		"action":          {"postcode-lookup"},
-		"lookup-postcode": {"XYZ"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
+		"lookup-postcode":              {"XYZ"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
@@ -573,7 +573,7 @@ func TestPostYourAddressValidPostcodeNoAddresses(t *testing.T) {
 
 func TestPostYourAddressLookupWhenValidationError(t *testing.T) {
 	f := url.Values{
-		"action": {"postcode-lookup"},
+		form.FieldNames.Address.Action: {"postcode-lookup"},
 	}
 
 	w := httptest.NewRecorder()

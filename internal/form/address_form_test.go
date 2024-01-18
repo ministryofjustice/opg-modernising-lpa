@@ -27,8 +27,8 @@ func TestReadAddressForm(t *testing.T) {
 	}{
 		"postcode-lookup": {
 			form: url.Values{
-				"action":          {"postcode-lookup"},
-				"lookup-postcode": {"NG1"},
+				FieldNames.Address.Action: {"postcode-lookup"},
+				"lookup-postcode":         {"NG1"},
 			},
 			result: &AddressForm{
 				Action:         "postcode-lookup",
@@ -38,8 +38,8 @@ func TestReadAddressForm(t *testing.T) {
 		},
 		"postcode-select": {
 			form: url.Values{
-				"action":         {"postcode-select"},
-				"select-address": {expectedAddress.Encode()},
+				FieldNames.Address.Action: {"postcode-select"},
+				"select-address":          {expectedAddress.Encode()},
 			},
 			result: &AddressForm{
 				Action:     "postcode-select",
@@ -49,8 +49,8 @@ func TestReadAddressForm(t *testing.T) {
 		},
 		"postcode-select not selected": {
 			form: url.Values{
-				"action":         {"postcode-select"},
-				"select-address": {""},
+				FieldNames.Address.Action: {"postcode-select"},
+				"select-address":          {""},
 			},
 			result: &AddressForm{
 				Action:     "postcode-select",
@@ -60,8 +60,8 @@ func TestReadAddressForm(t *testing.T) {
 		},
 		"reuse-select": {
 			form: url.Values{
-				"action":         {"reuse-select"},
-				"select-address": {expectedAddress.Encode()},
+				FieldNames.Address.Action: {"reuse-select"},
+				"select-address":          {expectedAddress.Encode()},
 			},
 			result: &AddressForm{
 				Action:     "reuse-select",
@@ -71,8 +71,8 @@ func TestReadAddressForm(t *testing.T) {
 		},
 		"reuse-select not selected": {
 			form: url.Values{
-				"action":         {"reuse-select"},
-				"select-address": {""},
+				FieldNames.Address.Action: {"reuse-select"},
+				"select-address":          {""},
 			},
 			result: &AddressForm{
 				Action:     "reuse-select",
@@ -82,7 +82,7 @@ func TestReadAddressForm(t *testing.T) {
 		},
 		"manual": {
 			form: url.Values{
-				"action":                      {"manual"},
+				FieldNames.Address.Action:     {"manual"},
 				FieldNames.Address.Line1:      {"a"},
 				FieldNames.Address.Line2:      {"b"},
 				FieldNames.Address.Line3:      {"c"},
@@ -118,7 +118,7 @@ func TestAddressFormValidate(t *testing.T) {
 			form: &AddressForm{
 				FieldNames: FieldNames.Address,
 			},
-			errors: validation.With("action", validation.SelectError{Label: "ifUsePreviousAddressOrEnterNew"}),
+			errors: validation.With(FieldNames.Address.Action, validation.SelectError{Label: "ifUsePreviousAddressOrEnterNew"}),
 		},
 		"postcode-lookup valid": {
 			form: &AddressForm{
