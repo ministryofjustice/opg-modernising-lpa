@@ -6,10 +6,12 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	gotemplate "html/template"
 	"net/http"
 	"net/url"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
@@ -112,7 +114,17 @@ func main() {
 		}
 	}
 
-	tmpls, err := template.Parse(webDir+"/template", templatefn.All(Tag, region))
+	layouts, err := parseLayoutTemplates(webDir+"/template/layout", templatefn.All(Tag, region))
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	tmpls, err := parseTemplates(webDir+"/template", layouts)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	supporterTmpls, err := parseTemplates(webDir+"/template/supporter", layouts)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -235,6 +247,7 @@ func main() {
 		bundle.For(localize.Cy),
 		localize.Cy,
 		tmpls,
+		supporterTmpls,
 		sessionStore,
 		lpasDynamoClient,
 		appPublicURL,
@@ -255,6 +268,7 @@ func main() {
 		bundle.For(localize.En),
 		localize.En,
 		tmpls,
+		supporterTmpls,
 		sessionStore,
 		lpasDynamoClient,
 		appPublicURL,
@@ -322,4 +336,32 @@ func awsRegion(metadataURL string) (string, error) {
 	}
 
 	return parts[3], nil
+}
+
+func parseLayoutTemplates(layoutDir string, funcs gotemplate.FuncMap) (*gotemplate.Template, error) {
+	return gotemplate.New("").Funcs(funcs).ParseGlob(filepath.Join(layoutDir, "*.*"))
+}
+
+func parseTemplates(templateDir string, layouts *gotemplate.Template) (template.Templates, error) {
+	files, err := filepath.Glob(filepath.Join(templateDir, "*.*"))
+	if err != nil {
+		return nil, err
+	}
+
+	tmpls := map[string]*gotemplate.Template{}
+	for _, file := range files {
+		clone, err := layouts.Clone()
+		if err != nil {
+			return nil, err
+		}
+
+		tmpl, err := clone.ParseFiles(file)
+		if err != nil {
+			return nil, err
+		}
+
+		tmpls[filepath.Base(file)] = tmpl
+	}
+
+	return tmpls, nil
 }
