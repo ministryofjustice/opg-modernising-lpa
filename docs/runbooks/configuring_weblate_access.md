@@ -99,5 +99,5 @@ git push weblate-resolve-merge-conflicts
 When the PR is merged, Weblate should now be able to see updated repository and you can unlock it.
 
 ```sh
-wlc pull ; wlc unlock
+wlc pull; wlc unlock
 ```
