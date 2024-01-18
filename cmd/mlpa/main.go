@@ -117,7 +117,10 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	bundle := localize.NewBundle("lang/en.json", "lang/cy.json")
+	bundle, err := localize.NewBundle("lang/en.json", "lang/cy.json")
+	if err != nil {
+		logger.Fatal(err)
+	}
 
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
