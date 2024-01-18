@@ -10,24 +10,28 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
+	_ = x[YesNoUnknown-0]
 	_ = x[Yes-1]
 	_ = x[No-2]
 }
 
-const _YesNo_name = "yesno"
+const _YesNo_name = "Unknownyesno"
 
-var _YesNo_index = [...]uint8{0, 3, 5}
+var _YesNo_index = [...]uint8{0, 7, 10, 12}
 
 func (i YesNo) String() string {
-	i -= 1
 	if i >= YesNo(len(_YesNo_index)-1) {
-		return "YesNo(" + strconv.FormatInt(int64(i+1), 10) + ")"
+		return "YesNo(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
 	return _YesNo_name[_YesNo_index[i]:_YesNo_index[i+1]]
 }
 
 func (i YesNo) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
+}
+
+func (i YesNo) IsYesNoUnknown() bool {
+	return i == YesNoUnknown
 }
 
 func (i YesNo) IsYes() bool {
@@ -40,6 +44,8 @@ func (i YesNo) IsNo() bool {
 
 func ParseYesNo(s string) (YesNo, error) {
 	switch s {
+	case "Unknown":
+		return YesNoUnknown, nil
 	case "yes":
 		return Yes, nil
 	case "no":
@@ -50,13 +56,15 @@ func ParseYesNo(s string) (YesNo, error) {
 }
 
 type YesNoOptions struct {
-	Yes YesNo
-	No  YesNo
+	YesNoUnknown YesNo
+	Yes          YesNo
+	No           YesNo
 }
 
 var YesNoValues = YesNoOptions{
-	Yes: Yes,
-	No:  No,
+	YesNoUnknown: YesNoUnknown,
+	Yes:          Yes,
+	No:           No,
 }
 
 func (i YesNo) Empty() bool {

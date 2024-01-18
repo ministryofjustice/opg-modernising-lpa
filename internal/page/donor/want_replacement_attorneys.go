@@ -21,11 +21,9 @@ type wantReplacementAttorneysData struct {
 func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &wantReplacementAttorneysData{
-			App:   appData,
-			Donor: donor,
-			Form: &form.YesNoForm{
-				YesNo: donor.WantReplacementAttorneys,
-			},
+			App:     appData,
+			Donor:   donor,
+			Form:    form.NewYesNoForm(donor.WantReplacementAttorneys),
 			Options: form.YesNoValues,
 		}
 

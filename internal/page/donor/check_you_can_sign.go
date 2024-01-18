@@ -11,20 +11,16 @@ import (
 )
 
 type checkYouCanSignData struct {
-	App     page.AppData
-	Errors  validation.List
-	Form    *form.YesNoForm
-	Options form.YesNoOptions
+	App    page.AppData
+	Errors validation.List
+	Form   *form.YesNoForm
 }
 
 func CheckYouCanSign(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &checkYouCanSignData{
-			App: appData,
-			Form: &form.YesNoForm{
-				YesNo: donor.Donor.CanSign,
-			},
-			Options: form.YesNoValues,
+			App:  appData,
+			Form: form.NewYesNoForm(donor.Donor.CanSign),
 		}
 
 		if r.Method == http.MethodPost {

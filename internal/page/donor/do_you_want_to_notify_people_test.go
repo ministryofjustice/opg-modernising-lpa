@@ -22,10 +22,9 @@ func TestGetDoYouWantToNotifyPeople(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &doYouWantToNotifyPeopleData{
-			App:     testAppData,
-			Donor:   &actor.DonorProvidedDetails{},
-			Form:    &form.YesNoForm{},
-			Options: form.YesNoValues,
+			App:   testAppData,
+			Donor: &actor.DonorProvidedDetails{},
+			Form:  form.NewYesNoForm(form.YesNoUnknown),
 		}).
 		Return(nil)
 
@@ -47,10 +46,7 @@ func TestGetDoYouWantToNotifyPeopleFromStore(t *testing.T) {
 			Donor: &actor.DonorProvidedDetails{
 				DoYouWantToNotifyPeople: form.Yes,
 			},
-			Form: &form.YesNoForm{
-				YesNo: form.Yes,
-			},
-			Options: form.YesNoValues,
+			Form: form.NewYesNoForm(form.Yes),
 		}).
 		Return(nil)
 
@@ -95,10 +91,7 @@ func TestGetDoYouWantToNotifyPeopleHowAttorneysWorkTogether(t *testing.T) {
 						DoYouWantToNotifyPeople: form.Yes,
 						AttorneyDecisions:       actor.AttorneyDecisions{How: tc.howWorkTogether},
 					},
-					Form: &form.YesNoForm{
-						YesNo: form.Yes,
-					},
-					Options:         form.YesNoValues,
+					Form:            form.NewYesNoForm(form.Yes),
 					HowWorkTogether: tc.expectedTransKey,
 				}).
 				Return(nil)
