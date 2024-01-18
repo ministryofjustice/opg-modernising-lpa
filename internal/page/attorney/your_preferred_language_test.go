@@ -34,7 +34,7 @@ func TestGetYourPreferredLanguage(t *testing.T) {
 				Preference: localize.Cy,
 			},
 			Options:   localize.LangValues,
-			FieldName: form.FieldNames.LanguagePreference,
+			FieldName: form.FieldNames.LanguagePreference.LanguagePreference,
 			Donor:     &actor.DonorProvidedDetails{},
 		}).
 		Return(nil)
@@ -91,7 +91,7 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 
 	for _, lang := range testCases {
 		t.Run(lang.String(), func(t *testing.T) {
-			formValues := url.Values{form.FieldNames.LanguagePreference: {lang.String()}}
+			formValues := url.Values{"language-preference": {lang.String()}}
 
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(formValues.Encode()))
@@ -119,7 +119,7 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 }
 
 func TestPostYourPreferredLanguageWhenAttorneyStoreError(t *testing.T) {
-	formValues := url.Values{form.FieldNames.LanguagePreference: {localize.En.String()}}
+	formValues := url.Values{"language-preference": {localize.En.String()}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(formValues.Encode()))
@@ -144,7 +144,7 @@ func TestPostYourPreferredLanguageWhenAttorneyStoreError(t *testing.T) {
 }
 
 func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
-	formValues := url.Values{form.FieldNames.LanguagePreference: {"not-a-lang"}}
+	formValues := url.Values{"language-preference": {"not-a-lang"}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(formValues.Encode()))
@@ -164,8 +164,8 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 				ErrorLabel: "whichLanguageYoudLikeUsToUseWhenWeContactYou",
 			},
 			Options:   localize.LangValues,
-			FieldName: form.FieldNames.LanguagePreference,
-			Errors:    validation.With(form.FieldNames.LanguagePreference, validation.SelectError{Label: "whichLanguageYoudLikeUsToUseWhenWeContactYou"}),
+			FieldName: form.FieldNames.LanguagePreference.LanguagePreference,
+			Errors:    validation.With("language-preference", validation.SelectError{Label: "whichLanguageYoudLikeUsToUseWhenWeContactYou"}),
 			Donor:     &actor.DonorProvidedDetails{},
 		}).
 		Return(nil)
