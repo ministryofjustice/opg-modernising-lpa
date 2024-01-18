@@ -1,9 +1,7 @@
 package form
 
 var FieldNames = SharedFieldNames{
-	LanguagePreference: LanguagePreferenceFieldNames{
-		LanguagePreference: "language-preference",
-	},
+	LanguagePreference: "language-preference",
 	Address: AddressFieldNames{
 		Line1:      "address-line-1",
 		Line2:      "address-line-2",
@@ -16,7 +14,7 @@ var FieldNames = SharedFieldNames{
 
 type SharedFieldNames struct {
 	Address            AddressFieldNames
-	LanguagePreference LanguagePreferenceFieldNames
+	LanguagePreference string
 }
 
 type AddressFieldNames struct {
@@ -26,8 +24,4 @@ type AddressFieldNames struct {
 	TownOrCity string
 	Postcode   string
 	Action     string
-}
-
-type LanguagePreferenceFieldNames struct {
-	LanguagePreference string
 }
