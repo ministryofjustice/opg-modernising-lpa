@@ -167,7 +167,7 @@
         "other": "Mae cael atwrneiod wrth gefn yn ddewisol. Serch hynny, mae cael un neu fwy o atwrneiod wrth gefn yn helpu i sicrhau y bydd eich LPA yn parhau i weithio os na all {{.AttorneysFullNames}} (eich atwrneiod gwreiddiol) weithredu mwyach."
     },
     "replacementAttorneyRequirements": "Rhaid i atwrnai wrth gefn fodloni’r un gofynion ag atwrnai gwreiddiol. Mae hyn cynnwys bod yn 18 oed neu’n hŷn.",
-    "findOutMoreAboutReplacementAttorneysContent": "<p class=\"govuk-body\"><a href=\"#\" class=\"govuk-link\">Darllenwch fwy am atwrneiod wrth gefn</a>.</p>",
+    "findOutMoreAboutReplacementAttorneysContent": "<p class=\"govuk-body\"><a href=\"#\" class=\"govuk-link\">Darllenwch fwy am atwrneiod wrth gefn.</a></p>",
     "yesReplacementAttorneys": "Ydw, rydw i eisiau atwrneiod wrth gefn",
     "noReplacementAttorneys": "Na, nid ydw i eisiau atwrneiod wrth gefn",
     "replacementAttorneys": "Atwrneiod wrth gefn",
