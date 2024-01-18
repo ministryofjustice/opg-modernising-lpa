@@ -25,6 +25,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/fixtures"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -72,6 +73,7 @@ func App(
 	localizer page.Localizer,
 	lang localize.Lang,
 	tmpls template.Templates,
+	supporterTmpls template.Templates,
 	sessionStore SessionStore,
 	lpaDynamoClient DynamoClient,
 	appPublicURL string,
@@ -132,12 +134,23 @@ func App(
 		page.Guidance(tmpls.Get("certificate_provider_start.gohtml")))
 	handleRoot(page.Paths.Attorney.Start, None,
 		page.Guidance(tmpls.Get("attorney_start.gohtml")))
+	handleRoot(page.Paths.Supporter.Start, None,
+		page.Guidance(supporterTmpls.Get("start.gohtml")))
 	handleRoot(page.Paths.Dashboard, RequireSession,
 		page.Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, dashboardStore))
 	handleRoot(page.Paths.LpaDeleted, RequireSession,
 		page.Guidance(tmpls.Get("lpa_deleted.gohtml")))
 	handleRoot(page.Paths.LpaWithdrawn, RequireSession,
 		page.Guidance(tmpls.Get("lpa_withdrawn.gohtml")))
+
+	supporter.Register(
+		rootMux,
+		supporterTmpls,
+		oneLoginClient,
+		sessionStore,
+		notFoundHandler,
+		errorHandler,
+	)
 
 	certificateprovider.Register(
 		rootMux,
