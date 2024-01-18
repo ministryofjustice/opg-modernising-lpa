@@ -124,6 +124,21 @@ func main() {
 		logger.Fatal(err)
 	}
 
+	donorTmpls, err := parseTemplates(webDir+"/template/donor", layouts)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	certificateProviderTmpls, err := parseTemplates(webDir+"/template/certificateprovider", layouts)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	attorneyTmpls, err := parseTemplates(webDir+"/template/attorney", layouts)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
 	supporterTmpls, err := parseTemplates(webDir+"/template/supporter", layouts)
 	if err != nil {
 		logger.Fatal(err)
@@ -247,6 +262,9 @@ func main() {
 		bundle.For(localize.Cy),
 		localize.Cy,
 		tmpls,
+		donorTmpls,
+		certificateProviderTmpls,
+		attorneyTmpls,
 		supporterTmpls,
 		sessionStore,
 		lpasDynamoClient,
@@ -263,11 +281,15 @@ func main() {
 		eventClient,
 		lpaStoreClient,
 	)))
+
 	mux.Handle("/", app.App(
 		logger,
 		bundle.For(localize.En),
 		localize.En,
 		tmpls,
+		donorTmpls,
+		certificateProvider,
+		attorneyTmpls,
 		supporterTmpls,
 		sessionStore,
 		lpasDynamoClient,
