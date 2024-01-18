@@ -180,3 +180,24 @@ func TestCertificateProviderPathRedirect(t *testing.T) {
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, p.Format("lpa-id"), resp.Header.Get("Location"))
 }
+
+func TestSupporterPathString(t *testing.T) {
+	assert.Equal(t, "/anything", SupporterPath("/anything").String())
+}
+
+func TestSupporterPathFormat(t *testing.T) {
+	assert.Equal(t, "/supporter/anything", SupporterPath("/anything").Format())
+}
+
+func TestSupporterPathRedirect(t *testing.T) {
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	w := httptest.NewRecorder()
+	p := SupporterPath("/something")
+
+	err := p.Redirect(w, r, AppData{Lang: localize.En})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, p.Format(), resp.Header.Get("Location"))
+}
