@@ -17,7 +17,7 @@ func newChooseAddressData(appData page.AppData, actorLabel, fullName, ID string,
 		FullName:   fullName,
 		ID:         ID,
 		CanSkip:    canSkip,
-		Form:       &form.AddressForm{},
+		Form:       form.NewAddressForm(),
 		TitleKeys: titleKeys{
 			Manual:                          "personsAddress",
 			Postcode:                        "whatIsPersonsPostcode",
@@ -38,6 +38,7 @@ type chooseAddressData struct {
 	Addresses  []place.Address
 	Form       *form.AddressForm
 	TitleKeys  titleKeys
+	FieldNames form.AddressFieldNames
 }
 
 type titleKeys struct {

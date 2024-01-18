@@ -33,7 +33,7 @@ func YourPreferredLanguage(tmpl template.Template, attorneyStore AttorneyStore, 
 				Preference: attorneyProvidedDetails.ContactLanguagePreference,
 			},
 			Options:   localize.LangValues,
-			FieldName: form.FieldNames.LanguagePreference,
+			FieldName: form.FieldNames.LanguagePreference.LanguagePreference,
 			Donor:     donor,
 		}
 
