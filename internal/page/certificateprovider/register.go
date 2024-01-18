@@ -93,7 +93,7 @@ type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
-	tmpls template.Templates,
+	commonTmpls, tmpls template.Templates,
 	sessionStore SessionStore,
 	donorStore DonorStore,
 	oneLoginClient OneLoginClient,
@@ -114,38 +114,38 @@ func Register(
 	handleRoot(page.Paths.CertificateProvider.LoginCallback,
 		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.CertificateProvider.EnterReferenceNumber, dashboardStore, actor.TypeCertificateProvider))
 	handleRoot(page.Paths.CertificateProvider.EnterReferenceNumber,
-		EnterReferenceNumber(tmpls.Get("certificate_provider_enter_reference_number.gohtml"), shareCodeStore, sessionStore, certificateProviderStore))
+		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, certificateProviderStore))
 
 	certificateProviderMux := http.NewServeMux()
 	rootMux.Handle("/certificate-provider/", page.RouteToPrefix("/certificate-provider/", certificateProviderMux, notFoundHandler))
 	handleCertificateProvider := makeCertificateProviderHandle(certificateProviderMux, sessionStore, errorHandler)
 
 	handleCertificateProvider(page.Paths.CertificateProvider.WhoIsEligible, page.None,
-		WhoIsEligible(tmpls.Get("certificate_provider_who_is_eligible.gohtml"), donorStore))
+		WhoIsEligible(tmpls.Get("who_is_eligible.gohtml"), donorStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.TaskList, page.None,
-		TaskList(tmpls.Get("certificate_provider_task_list.gohtml"), donorStore, certificateProviderStore))
+		TaskList(tmpls.Get("task_list.gohtml"), donorStore, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.EnterDateOfBirth, page.CanGoBack,
-		EnterDateOfBirth(tmpls.Get("certificate_provider_enter_date_of_birth.gohtml"), donorStore, certificateProviderStore))
+		EnterDateOfBirth(tmpls.Get("enter_date_of_birth.gohtml"), donorStore, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.YourPreferredLanguage, page.CanGoBack,
-		YourPreferredLanguage(tmpls.Get("your_preferred_language.gohtml"), certificateProviderStore, donorStore))
+		YourPreferredLanguage(commonTmpls.Get("your_preferred_language.gohtml"), certificateProviderStore, donorStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.WhatIsYourHomeAddress, page.None,
-		WhatIsYourHomeAddress(logger, tmpls.Get("certificate_provider_what_is_your_home_address.gohtml"), addressClient, certificateProviderStore))
+		WhatIsYourHomeAddress(logger, tmpls.Get("what_is_your_home_address.gohtml"), addressClient, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.ConfirmYourDetails, page.None,
-		ConfirmYourDetails(tmpls.Get("certificate_provider_confirm_your_details.gohtml"), donorStore, certificateProviderStore))
+		ConfirmYourDetails(tmpls.Get("confirm_your_details.gohtml"), donorStore, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.YourRole, page.CanGoBack,
-		Guidance(tmpls.Get("certificate_provider_your_role.gohtml"), donorStore, nil))
+		Guidance(tmpls.Get("your_role.gohtml"), donorStore, nil))
 
 	handleCertificateProvider(page.Paths.CertificateProvider.ProveYourIdentity, page.None,
-		Guidance(tmpls.Get("certificate_provider_prove_your_identity.gohtml"), nil, nil))
+		Guidance(tmpls.Get("prove_your_identity.gohtml"), nil, nil))
 	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLogin, page.None,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLoginCallback, page.None,
-		IdentityWithOneLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, certificateProviderStore, donorStore))
+		IdentityWithOneLoginCallback(commonTmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, certificateProviderStore, donorStore))
 
 	handleCertificateProvider(page.Paths.CertificateProvider.ReadTheLpa, page.None,
-		ReadTheLpa(tmpls.Get("certificate_provider_read_the_lpa.gohtml"), donorStore, certificateProviderStore))
+		ReadTheLpa(tmpls.Get("read_the_lpa.gohtml"), donorStore, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.WhatHappensNext, page.CanGoBack,
-		Guidance(tmpls.Get("certificate_provider_what_happens_next.gohtml"), donorStore, nil))
+		Guidance(tmpls.Get("what_happens_next.gohtml"), donorStore, nil))
 	handleCertificateProvider(page.Paths.CertificateProvider.ProvideCertificate, page.CanGoBack,
 		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), donorStore, certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, time.Now))
 	handleCertificateProvider(page.Paths.CertificateProvider.CertificateProvided, page.None,

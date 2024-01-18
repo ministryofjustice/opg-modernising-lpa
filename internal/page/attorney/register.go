@@ -75,7 +75,7 @@ type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
-	tmpls template.Templates,
+	commonTmpls, tmpls template.Templates,
 	sessionStore SessionStore,
 	donorStore DonorStore,
 	certificateProviderStore CertificateProviderStore,
@@ -94,36 +94,36 @@ func Register(
 	handleRoot(page.Paths.Attorney.LoginCallback, None,
 		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.Attorney.EnterReferenceNumber, dashboardStore, actor.TypeAttorney))
 	handleRoot(page.Paths.Attorney.EnterReferenceNumber, RequireSession,
-		EnterReferenceNumber(tmpls.Get("attorney_enter_reference_number.gohtml"), shareCodeStore, sessionStore, attorneyStore))
+		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, attorneyStore))
 
 	attorneyMux := http.NewServeMux()
 	rootMux.Handle("/attorney/", page.RouteToPrefix("/attorney/", attorneyMux, notFoundHandler))
 	handleAttorney := makeAttorneyHandle(attorneyMux, sessionStore, errorHandler, attorneyStore)
 
 	handleAttorney(page.Paths.Attorney.CodeOfConduct, RequireAttorney,
-		Guidance(tmpls.Get("attorney_code_of_conduct.gohtml"), donorStore))
+		Guidance(tmpls.Get("code_of_conduct.gohtml"), donorStore))
 	handleAttorney(page.Paths.Attorney.TaskList, RequireAttorney,
-		TaskList(tmpls.Get("attorney_task_list.gohtml"), donorStore, certificateProviderStore))
+		TaskList(tmpls.Get("task_list.gohtml"), donorStore, certificateProviderStore))
 	handleAttorney(page.Paths.Attorney.MobileNumber, RequireAttorney,
-		MobileNumber(tmpls.Get("attorney_mobile_number.gohtml"), attorneyStore))
+		MobileNumber(tmpls.Get("mobile_number.gohtml"), attorneyStore))
 	handleAttorney(page.Paths.Attorney.YourPreferredLanguage, RequireAttorney,
-		YourPreferredLanguage(tmpls.Get("your_preferred_language.gohtml"), attorneyStore, donorStore))
+		YourPreferredLanguage(commonTmpls.Get("your_preferred_language.gohtml"), attorneyStore, donorStore))
 	handleAttorney(page.Paths.Attorney.ConfirmYourDetails, RequireAttorney,
-		ConfirmYourDetails(tmpls.Get("attorney_confirm_your_details.gohtml"), attorneyStore, donorStore))
+		ConfirmYourDetails(tmpls.Get("confirm_your_details.gohtml"), attorneyStore, donorStore))
 	handleAttorney(page.Paths.Attorney.ReadTheLpa, RequireAttorney,
-		ReadTheLpa(tmpls.Get("attorney_read_the_lpa.gohtml"), donorStore, attorneyStore))
+		ReadTheLpa(tmpls.Get("read_the_lpa.gohtml"), donorStore, attorneyStore))
 	handleAttorney(page.Paths.Attorney.RightsAndResponsibilities, RequireAttorney,
-		Guidance(tmpls.Get("attorney_legal_rights_and_responsibilities.gohtml"), nil))
+		Guidance(tmpls.Get("legal_rights_and_responsibilities.gohtml"), nil))
 	handleAttorney(page.Paths.Attorney.WhatHappensWhenYouSign, RequireAttorney,
-		Guidance(tmpls.Get("attorney_what_happens_when_you_sign.gohtml"), donorStore))
+		Guidance(tmpls.Get("what_happens_when_you_sign.gohtml"), donorStore))
 	handleAttorney(page.Paths.Attorney.Sign, RequireAttorney,
-		Sign(tmpls.Get("attorney_sign.gohtml"), donorStore, certificateProviderStore, attorneyStore, lpaStoreClient, time.Now))
+		Sign(tmpls.Get("sign.gohtml"), donorStore, certificateProviderStore, attorneyStore, lpaStoreClient, time.Now))
 	handleAttorney(page.Paths.Attorney.WouldLikeSecondSignatory, RequireAttorney,
-		WouldLikeSecondSignatory(tmpls.Get("attorney_would_like_second_signatory.gohtml"), attorneyStore, donorStore, lpaStoreClient))
+		WouldLikeSecondSignatory(tmpls.Get("would_like_second_signatory.gohtml"), attorneyStore, donorStore, lpaStoreClient))
 	handleAttorney(page.Paths.Attorney.WhatHappensNext, RequireAttorney,
-		Guidance(tmpls.Get("attorney_what_happens_next.gohtml"), donorStore))
+		Guidance(tmpls.Get("what_happens_next.gohtml"), donorStore))
 	handleAttorney(page.Paths.Attorney.Progress, RequireAttorney,
-		Progress(tmpls.Get("attorney_progress.gohtml"), attorneyStore, donorStore))
+		Progress(tmpls.Get("progress.gohtml"), attorneyStore, donorStore))
 }
 
 type handleOpt byte
