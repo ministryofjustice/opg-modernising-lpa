@@ -122,12 +122,12 @@ func TestPostRemoveReplacementAttorney(t *testing.T) {
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 
-			form := url.Values{
-				"yes-no": {form.Yes.String()},
+			f := url.Values{
+				form.FieldNames.YesNo: {form.Yes.String()},
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			logger := newMockLogger(t)
@@ -150,12 +150,12 @@ func TestPostRemoveReplacementAttorney(t *testing.T) {
 }
 
 func TestPostRemoveReplacementAttorneyWithFormValueNo(t *testing.T) {
-	form := url.Values{
-		"yes-no": {form.No.String()},
+	f := url.Values{
+		form.FieldNames.YesNo: {form.No.String()},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := newMockLogger(t)
@@ -184,7 +184,7 @@ func TestPostRemoveReplacementAttorneyWithFormValueNo(t *testing.T) {
 
 func TestPostRemoveReplacementAttorneyErrorOnPutStore(t *testing.T) {
 	f := url.Values{
-		"yes-no": {form.Yes.String()},
+		form.FieldNames.YesNo: {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -228,7 +228,7 @@ func TestPostRemoveReplacementAttorneyErrorOnPutStore(t *testing.T) {
 
 func TestRemoveReplacementAttorneyFormValidation(t *testing.T) {
 	f := url.Values{
-		"yes-no": {""},
+		form.FieldNames.YesNo: {""},
 	}
 
 	w := httptest.NewRecorder()
@@ -240,7 +240,7 @@ func TestRemoveReplacementAttorneyFormValidation(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	validationError := validation.With("yes-no", validation.SelectError{Label: "yesToRemoveReplacementAttorney"})
+	validationError := validation.With(form.FieldNames.YesNo, validation.SelectError{Label: "yesToRemoveReplacementAttorney"})
 
 	template := newMockTemplate(t)
 	template.EXPECT().

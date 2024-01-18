@@ -85,12 +85,12 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 
 	for testname, tc := range testcases {
 		t.Run(testname, func(t *testing.T) {
-			form := url.Values{
-				"yes-no": {tc.addMoreFormValue.String()},
+			f := url.Values{
+				form.FieldNames.YesNo: {tc.addMoreFormValue.String()},
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			err := ChooseAttorneysSummary(nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Attorneys: tc.Attorneys})
@@ -104,15 +104,15 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 }
 
 func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
-	form := url.Values{
-		"yes-no": {""},
+	f := url.Values{
+		form.FieldNames.YesNo: {""},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	validationError := validation.With("yes-no", validation.SelectError{Label: "yesToAddAnotherAttorney"})
+	validationError := validation.With(form.FieldNames.YesNo, validation.SelectError{Label: "yesToAddAnotherAttorney"})
 
 	template := newMockTemplate(t)
 	template.EXPECT().

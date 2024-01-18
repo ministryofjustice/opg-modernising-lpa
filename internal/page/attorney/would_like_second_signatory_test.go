@@ -56,7 +56,7 @@ func TestGetWouldLikeSecondSignatoryWhenTemplateErrors(t *testing.T) {
 
 func TestPostWouldLikeSecondSignatoryWhenYes(t *testing.T) {
 	f := url.Values{
-		"yes-no": {form.Yes.String()},
+		form.FieldNames.YesNo: {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -89,7 +89,7 @@ func TestPostWouldLikeSecondSignatoryWhenNo(t *testing.T) {
 	}
 
 	f := url.Values{
-		"yes-no": {form.No.String()},
+		form.FieldNames.YesNo: {form.No.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -125,7 +125,7 @@ func TestPostWouldLikeSecondSignatoryWhenLpaStoreClientErrors(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{SignedAt: time.Now()}
 
 	f := url.Values{
-		"yes-no": {form.No.String()},
+		form.FieldNames.YesNo: {form.No.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -153,7 +153,7 @@ func TestPostWouldLikeSecondSignatoryWhenLpaStoreClientErrors(t *testing.T) {
 
 func TestPostWouldLikeSecondSignatoryWhenDonorStoreErrors(t *testing.T) {
 	f := url.Values{
-		"yes-no": {form.No.String()},
+		form.FieldNames.YesNo: {form.No.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -176,7 +176,7 @@ func TestPostWouldLikeSecondSignatoryWhenDonorStoreErrors(t *testing.T) {
 
 func TestPostWouldLikeSecondSignatoryWhenAttorneyStoreErrors(t *testing.T) {
 	form := url.Values{
-		"yes-no": {form.No.String()},
+		form.FieldNames.YesNo: {form.No.String()},
 	}
 
 	w := httptest.NewRecorder()

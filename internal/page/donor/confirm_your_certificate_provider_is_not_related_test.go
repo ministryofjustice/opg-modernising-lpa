@@ -77,7 +77,7 @@ func TestGetConfirmYourCertificateProviderIsNotRelatedWhenTemplateErrors(t *test
 
 func TestPostConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 	f := url.Values{
-		"yes-no": {form.Yes.String()},
+		form.FieldNames.YesNo: {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -165,7 +165,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelatedWhenStoreErrors(t *testin
 			"action": {"choose-new"},
 		},
 		"submit": {
-			"yes-no": {form.Yes.String()},
+			form.FieldNames.YesNo: {form.Yes.String()},
 		},
 	}
 
@@ -199,7 +199,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelatedWhenValidationErrors(t *t
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.MatchedBy(func(data *confirmYourCertificateProviderIsNotRelatedData) bool {
-			return assert.Equal(t, validation.With("yes-no", validation.SelectError{Label: "theBoxToConfirmYourCertificateProviderIsNotRelated"}), data.Errors)
+			return assert.Equal(t, validation.With(form.FieldNames.YesNo, validation.SelectError{Label: "theBoxToConfirmYourCertificateProviderIsNotRelated"}), data.Errors)
 		})).
 		Return(nil)
 

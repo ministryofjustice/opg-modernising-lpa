@@ -64,12 +64,12 @@ func TestGetChooseReplacementAttorneysSummaryWhenNoReplacementAttorneys(t *testi
 }
 
 func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
-	form := url.Values{
-		"yes-no": {form.Yes.String()},
+	f := url.Values{
+		form.FieldNames.YesNo: {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	err := ChooseReplacementAttorneysSummary(nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}}})
@@ -133,12 +133,12 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 
 	for testname, tc := range testcases {
 		t.Run(testname, func(t *testing.T) {
-			form := url.Values{
-				"yes-no": {form.No.String()},
+			f := url.Values{
+				form.FieldNames.YesNo: {form.No.String()},
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			err := ChooseReplacementAttorneysSummary(nil)(testAppData, w, r, &actor.DonorProvidedDetails{
@@ -164,15 +164,15 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 }
 
 func TestPostChooseReplacementAttorneySummaryFormValidation(t *testing.T) {
-	form := url.Values{
-		"yes-no": {""},
+	f := url.Values{
+		form.FieldNames.YesNo: {""},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	validationError := validation.With("yes-no", validation.SelectError{Label: "yesToAddAnotherReplacementAttorney"})
+	validationError := validation.With(form.FieldNames.YesNo, validation.SelectError{Label: "yesToAddAnotherReplacementAttorney"})
 
 	template := newMockTemplate(t)
 	template.EXPECT().

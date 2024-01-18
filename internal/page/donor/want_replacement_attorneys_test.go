@@ -22,10 +22,9 @@ func TestGetWantReplacementAttorneys(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &wantReplacementAttorneysData{
-			App:     testAppData,
-			Donor:   &actor.DonorProvidedDetails{},
-			Form:    form.NewYesNoForm(form.YesNoUnknown),
-			Options: form.YesNoValues,
+			App:   testAppData,
+			Donor: &actor.DonorProvidedDetails{},
+			Form:  form.NewYesNoForm(form.YesNoUnknown),
 		}).
 		Return(nil)
 
@@ -57,10 +56,9 @@ func TestGetWantReplacementAttorneysFromStore(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &wantReplacementAttorneysData{
-			App:     testAppData,
-			Donor:   &actor.DonorProvidedDetails{WantReplacementAttorneys: form.Yes},
-			Form:    form.NewYesNoForm(form.Yes),
-			Options: form.YesNoValues,
+			App:   testAppData,
+			Donor: &actor.DonorProvidedDetails{WantReplacementAttorneys: form.Yes},
+			Form:  form.NewYesNoForm(form.Yes),
 		}).
 		Return(nil)
 
@@ -150,7 +148,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 
 func TestPostWantReplacementAttorneysWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"yes-no": {form.Yes.String()},
+		form.FieldNames.YesNo: {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()

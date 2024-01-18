@@ -55,7 +55,7 @@ func TestGetAreYouApplyingForFeeDiscountOrExemptionWhenTemplateErrors(t *testing
 
 func TestPostAreYouApplyingForFeeDiscountOrExemption(t *testing.T) {
 	f := url.Values{
-		"yes-no": {form.No.String()},
+		form.FieldNames.YesNo: {form.No.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -83,12 +83,12 @@ func TestPostAreYouApplyingForFeeDiscountOrExemption(t *testing.T) {
 }
 
 func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenDonorStoreErrors(t *testing.T) {
-	form := url.Values{
-		"yes-no": {form.No.String()},
+	f := url.Values{
+		form.FieldNames.YesNo: {form.No.String()},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
@@ -101,12 +101,12 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenDonorStoreErrors(t *test
 }
 
 func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenPayerErrors(t *testing.T) {
-	form := url.Values{
-		"yes-no": {form.No.String()},
+	f := url.Values{
+		form.FieldNames.YesNo: {form.No.String()},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	payer := newMockPayer(t)
@@ -125,7 +125,7 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenPayerErrors(t *testing.T
 
 func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenYes(t *testing.T) {
 	f := url.Values{
-		"yes-no": {form.Yes.String()},
+		form.FieldNames.YesNo: {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -150,12 +150,12 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenYes(t *testing.T) {
 }
 
 func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenValidationError(t *testing.T) {
-	form := url.Values{
-		"yes-no": {""},
+	f := url.Values{
+		form.FieldNames.YesNo: {""},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	validationError := validation.With("yes-no", validation.SelectError{Label: "whetherApplyingForDifferentFeeType"})

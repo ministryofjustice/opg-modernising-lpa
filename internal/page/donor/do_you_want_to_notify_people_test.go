@@ -166,12 +166,12 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.YesNo.String(), func(t *testing.T) {
-			form := url.Values{
-				"yes-no": {tc.YesNo.String()},
+			f := url.Values{
+				form.FieldNames.YesNo: {tc.YesNo.String()},
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
@@ -214,7 +214,7 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 
 func TestPostDoYouWantToNotifyPeopleWhenStoreErrors(t *testing.T) {
 	f := url.Values{
-		"yes-no": {form.Yes.String()},
+		form.FieldNames.YesNo: {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -242,7 +242,7 @@ func TestPostDoYouWantToNotifyPeopleWhenValidationErrors(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.MatchedBy(func(data *doYouWantToNotifyPeopleData) bool {
-			return assert.Equal(t, validation.With("yes-no", validation.SelectError{Label: "yesToNotifySomeoneAboutYourLpa"}), data.Errors)
+			return assert.Equal(t, validation.With(form.FieldNames.YesNo, validation.SelectError{Label: "yesToNotifySomeoneAboutYourLpa"}), data.Errors)
 		})).
 		Return(nil)
 
