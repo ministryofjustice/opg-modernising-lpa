@@ -38,7 +38,7 @@ func YourPreferredLanguage(tmpl template.Template, certificateProviderStore Cert
 				Preference: certificateProvider.ContactLanguagePreference,
 			},
 			Options:   localize.LangValues,
-			FieldName: "language-preference",
+			FieldName: form.FieldNames.LanguagePreference.LanguagePreference,
 			Donor:     donor,
 		}
 

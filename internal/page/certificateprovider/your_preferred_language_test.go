@@ -39,7 +39,7 @@ func TestGetYourPreferredLanguage(t *testing.T) {
 				Preference: localize.Cy,
 			},
 			Options:   localize.LangValues,
-			FieldName: "language-preference",
+			FieldName: form.FieldNames.LanguagePreference.LanguagePreference,
 			Donor:     &actor.DonorProvidedDetails{},
 		}).
 		Return(nil)
@@ -207,7 +207,7 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 				ErrorLabel: "whichLanguageYoudLikeUsToUseWhenWeContactYou",
 			},
 			Options:   localize.LangValues,
-			FieldName: "language-preference",
+			FieldName: form.FieldNames.LanguagePreference.LanguagePreference,
 			Errors:    validation.With("language-preference", validation.SelectError{Label: "whichLanguageYoudLikeUsToUseWhenWeContactYou"}),
 			Donor:     &actor.DonorProvidedDetails{},
 		}).
