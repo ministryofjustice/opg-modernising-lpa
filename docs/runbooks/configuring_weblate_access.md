@@ -78,6 +78,7 @@ git checkout -b weblate-resolve-merge-conflicts
 Switch to the weblate remote, and merge Weblate changes and resolve any conflicts.
 
 ```sh
+git remote add weblate https://moj.weblate.cloud/git/opg-modernising-lpa/opg-modernising-lpa/
 git remote update weblate
 git merge weblate/main
 ```
