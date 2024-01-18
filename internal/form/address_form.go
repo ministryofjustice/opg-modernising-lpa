@@ -13,11 +13,18 @@ type AddressForm struct {
 	Action         string
 	LookupPostcode string
 	Address        *place.Address
+	FieldNames     AddressFieldNames
+}
+
+func NewAddressForm() *AddressForm {
+	return &AddressForm{
+		FieldNames: FieldNames.Address,
+	}
 }
 
 func ReadAddressForm(r *http.Request) *AddressForm {
-	f := &AddressForm{}
-	f.Action = r.PostFormValue("action")
+	f := NewAddressForm()
+	f.Action = r.PostFormValue(f.FieldNames.Action)
 
 	switch f.Action {
 	case "postcode-lookup":
@@ -38,11 +45,11 @@ func ReadAddressForm(r *http.Request) *AddressForm {
 
 	case "manual":
 		f.Address = &place.Address{
-			Line1:      PostFormString(r, "address-line-1"),
-			Line2:      PostFormString(r, "address-line-2"),
-			Line3:      PostFormString(r, "address-line-3"),
-			TownOrCity: PostFormString(r, "address-town"),
-			Postcode:   strings.ToUpper(PostFormString(r, "address-postcode")),
+			Line1:      PostFormString(r, FieldNames.Address.Line1),
+			Line2:      PostFormString(r, FieldNames.Address.Line2),
+			Line3:      PostFormString(r, FieldNames.Address.Line3),
+			TownOrCity: PostFormString(r, FieldNames.Address.TownOrCity),
+			Postcode:   strings.ToUpper(PostFormString(r, FieldNames.Address.Postcode)),
 			Country:    "GB",
 		}
 	}
@@ -53,7 +60,7 @@ func ReadAddressForm(r *http.Request) *AddressForm {
 func (f *AddressForm) Validate(useYour bool) validation.List {
 	var errors validation.List
 
-	errors.String("action", "ifUsePreviousAddressOrEnterNew", f.Action,
+	errors.String(f.FieldNames.Action, "ifUsePreviousAddressOrEnterNew", f.Action,
 		validation.Select("reuse", "reuse-select", "postcode", "postcode-lookup", "postcode-select", "manual", "skip"))
 
 	switch f.Action {
@@ -77,29 +84,29 @@ func (f *AddressForm) Validate(useYour bool) validation.List {
 
 	case "manual":
 		if useYour {
-			errors.String("address-line-1", "addressLine1OfYourAddress", f.Address.Line1,
+			errors.String(f.FieldNames.Line1, "addressLine1OfYourAddress", f.Address.Line1,
 				validation.Empty(),
 				validation.StringTooLong(50))
-			errors.String("address-line-2", "addressLine2OfYourAddress", f.Address.Line2,
+			errors.String(f.FieldNames.Line2, "addressLine2OfYourAddress", f.Address.Line2,
 				validation.StringTooLong(50))
-			errors.String("address-line-3", "addressLine3OfYourAddress", f.Address.Line3,
+			errors.String(f.FieldNames.Line3, "addressLine3OfYourAddress", f.Address.Line3,
 				validation.StringTooLong(50))
-			errors.String("address-town", "yourTownOrCity", f.Address.TownOrCity,
+			errors.String(f.FieldNames.TownOrCity, "yourTownOrCity", f.Address.TownOrCity,
 				validation.Empty())
-			errors.String("address-postcode", "yourPostcode", f.Address.Postcode,
+			errors.String(f.FieldNames.Postcode, "yourPostcode", f.Address.Postcode,
 				validation.Empty(),
 				validation.Postcode())
 		} else {
-			errors.String("address-line-1", "addressLine1", f.Address.Line1,
+			errors.String(f.FieldNames.Line1, "addressLine1", f.Address.Line1,
 				validation.Empty(),
 				validation.StringTooLong(50))
-			errors.String("address-line-2", "addressLine2Label", f.Address.Line2,
+			errors.String(f.FieldNames.Line2, "addressLine2Label", f.Address.Line2,
 				validation.StringTooLong(50))
-			errors.String("address-line-3", "addressLine3Label", f.Address.Line3,
+			errors.String(f.FieldNames.Line3, "addressLine3Label", f.Address.Line3,
 				validation.StringTooLong(50))
-			errors.String("address-town", "townOrCity", f.Address.TownOrCity,
+			errors.String(f.FieldNames.TownOrCity, "townOrCity", f.Address.TownOrCity,
 				validation.Empty())
-			errors.String("address-postcode", "aPostcode", f.Address.Postcode,
+			errors.String(f.FieldNames.Postcode, "aPostcode", f.Address.Postcode,
 				validation.Empty(),
 				validation.Postcode())
 		}

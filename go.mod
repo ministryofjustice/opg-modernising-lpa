@@ -23,7 +23,6 @@ require (
 	github.com/gorilla/sessions v1.2.2
 	github.com/ministryofjustice/opg-go-common v0.0.0-20231128145056-24628fba649c
 	github.com/mitchellh/hashstructure/v2 v2.0.2
-	github.com/nicksnyder/go-i18n/v2 v2.3.0
 	github.com/pact-foundation/pact-go v1.8.0
 	github.com/stretchr/testify v1.8.4
 	github.com/vektra/mockery v1.1.2
@@ -38,7 +37,6 @@ require (
 	go.opentelemetry.io/otel/trace v1.21.0
 	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3
 	golang.org/x/mod v0.14.0
-	golang.org/x/text v0.14.0
 	golang.org/x/tools v0.17.0
 	google.golang.org/grpc v1.60.1
 )
@@ -80,6 +78,7 @@ require (
 	go.opentelemetry.io/proto/otlp v1.0.0 // indirect
 	golang.org/x/net v0.20.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20231002182017-d307bd883b97 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231002182017-d307bd883b97 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
