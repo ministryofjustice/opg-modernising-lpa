@@ -13,11 +13,10 @@ import (
 )
 
 type whatIsYourHomeAddressData struct {
-	App        page.AppData
-	Addresses  []place.Address
-	Form       *form.AddressForm
-	Errors     validation.List
-	FieldNames form.AddressFieldNames
+	App       page.AppData
+	Addresses []place.Address
+	Form      *form.AddressForm
+	Errors    validation.List
 }
 
 func WhatIsYourHomeAddress(logger Logger, tmpl template.Template, addressClient AddressClient, certificateProviderStore CertificateProviderStore) page.Handler {

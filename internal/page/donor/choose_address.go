@@ -38,7 +38,6 @@ type chooseAddressData struct {
 	Addresses  []place.Address
 	Form       *form.AddressForm
 	TitleKeys  titleKeys
-	FieldNames form.AddressFieldNames
 }
 
 type titleKeys struct {
