@@ -832,7 +832,7 @@
     "beforeYouSignYourLpa": "Before you sign your LPA, you need to prove your identity with GOV.UK One Login.",
     "beforeYouCanProvideYourCertificateForThisLpa": "Before you can provide your certificate for this LPA, you need to prove your identity with GOV.UK One Login.",
     "confirmYourCertificateProviderIsNotRelated": "Confirm your certificate provider is not related to you or your attorneys",
-    "confirmYourCertificateProviderIsNotRelatedContent": "<p class=\"govuk-body\">The details you have given indicate that your certificate provider may be related to you or one of your attorneys.</p><p class=\"govuk-body\">Your certificate provider cannot be related to you or any of your attorneys (on this LPA or any other LPA for you).</p><p class=\"govuk-body\">If they are not related, you can tick the box to confirm this and continue.</p>",
+    "confirmYourCertificateProviderIsNotRelatedContent": "<p class=\"govuk-body\">The details you have given indicate that your certificate provider may be related to you or one of your attorneys.</p><p class=\"govuk-body\">Your certificate provider cannot be related to you or any of your attorneys (on this LPA or any other LPA you have).</p><p class=\"govuk-body\">If they are not related, you can tick the box to confirm this and continue.</p>",
     "ifYourCertificateProviderIsRelated": "If your certificate provider is related to you or one of your attorneys, you must",
     "deleteYourCurrentCertificateProvider": "delete your current certificate provider and choose a new one",
     "iConfirmThatMyCertificateProviderIsNotRelated": "I confirm that my certificate provider is not related to me or any of my attorneys",
