@@ -16,3 +16,4 @@ data "aws_iam_policy_document" "task_role_assume_policy" {
   }
   provider = aws.global
 }
+
