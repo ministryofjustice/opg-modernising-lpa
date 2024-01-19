@@ -149,7 +149,7 @@ type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
-	tmpls template.Templates,
+	commonTmpls, tmpls template.Templates,
 	sessionStore SessionStore,
 	donorStore DonorStore,
 	oneLoginClient OneLoginClient,
@@ -210,7 +210,7 @@ func Register(
 	handleWithDonor(page.Paths.WeHaveUpdatedYourDetails, page.None,
 		Guidance(tmpls.Get("we_have_updated_your_details.gohtml")))
 	handleWithDonor(page.Paths.YourPreferredLanguage, page.None,
-		YourPreferredLanguage(tmpls.Get("your_preferred_language.gohtml"), donorStore))
+		YourPreferredLanguage(commonTmpls.Get("your_preferred_language.gohtml"), donorStore))
 	handleWithDonor(page.Paths.LpaType, page.None,
 		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore))
 	handleWithDonor(page.Paths.CheckYouCanSign, page.None,
@@ -350,7 +350,7 @@ func Register(
 	handleWithDonor(page.Paths.IdentityWithOneLogin, page.CanGoBack,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleWithDonor(page.Paths.IdentityWithOneLoginCallback, page.CanGoBack,
-		IdentityWithOneLoginCallback(tmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, donorStore))
+		IdentityWithOneLoginCallback(commonTmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, donorStore))
 
 	handleWithDonor(page.Paths.ReadYourLpa, page.None,
 		Guidance(tmpls.Get("read_your_lpa.gohtml")))
