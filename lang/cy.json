@@ -1021,5 +1021,8 @@
     "howeverItWillNotApplyToAnySignedOrRegisteredLPAs": "<p class=\"govuk-body\">Welsh <a href=\"#\" class=\"gov-link\">Welsh</a> Welsh {{ .Detail }} Welsh</p>",
     "ifYoureInProcessOfMakingAnotherLPACheckIfDetailIsCorrect": "Welsh {{ .Detail }} Welsh",
     "helpSomeoneMakeLastingPowerOfAttorney": "Welsh",
-    "helpSomeoneMakeLastingPowerOfAttorneyContent": "Welsh"
+    "helpSomeoneMakeLastingPowerOfAttorneyContent": "Welsh",
+    "enterTheNameOfYourOrganisationOrCompany": "Welsh",
+    "fullOrganisationOrCompanyName": "Welsh",
+    "forExampleCharityOrSolicitor": "Welsh"
 }
