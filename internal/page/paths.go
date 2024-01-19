@@ -168,7 +168,8 @@ type SupporterPaths struct {
 	Login         Path
 	LoginCallback Path
 
-	YourOrganisation SupporterPath
+	EnterGroupName SupporterPath
+	GroupCreated   SupporterPath
 }
 
 type AppPaths struct {
@@ -193,6 +194,7 @@ type AppPaths struct {
 	Root                               Path
 	SignOut                            Path
 	Start                              Path
+	SupporterFixtures                  Path
 	YourLegalRightsAndResponsibilities Path
 
 	AboutPayment                                         LpaPath
@@ -334,7 +336,8 @@ var Paths = AppPaths{
 		Login:         "/supporter-login",
 		LoginCallback: "/supporter-login-callback",
 
-		YourOrganisation: "/your-organisation",
+		EnterGroupName: "/enter-the-name-of-your-organisation-or-company",
+		GroupCreated:   "/organisation-or-company-created",
 	},
 
 	HealthCheck: HealthCheckPaths{
@@ -425,6 +428,7 @@ var Paths = AppPaths{
 	SignTheLpaOnBehalf:                                   "/sign-the-lpa-on-behalf",
 	SignYourLpa:                                          "/sign-your-lpa",
 	Start:                                                "/start",
+	SupporterFixtures:                                    "/fixtures/supporter",
 	TaskList:                                             "/task-list",
 	UploadEvidence:                                       "/upload-evidence",
 	UploadEvidenceSSE:                                    "/upload-evidence-sse",
@@ -438,12 +442,12 @@ var Paths = AppPaths{
 	WitnessingAsCertificateProvider:                      "/witnessing-as-certificate-provider",
 	WitnessingAsIndependentWitness:                       "/witnessing-as-independent-witness",
 	WitnessingYourSignature:                              "/witnessing-your-signature",
-	YouHaveSubmittedYourLpa:                              "/you-have-submitted-your-lpa",
 	YouCannotSignYourLpaYet:                              "/you-cannot-sign-your-lpa-yet",
+	YouHaveSubmittedYourLpa:                              "/you-have-submitted-your-lpa",
 	YourAddress:                                          "/your-address",
 	YourAuthorisedSignatory:                              "/your-authorised-signatory",
-	YourDetails:                                          "/your-details",
 	YourDateOfBirth:                                      "/your-date-of-birth",
+	YourDetails:                                          "/your-details",
 	YourIndependentWitness:                               "/your-independent-witness",
 	YourIndependentWitnessAddress:                        "/your-independent-witness-address",
 	YourIndependentWitnessMobile:                         "/your-independent-witness-mobile",
