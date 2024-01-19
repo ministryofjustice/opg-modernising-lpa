@@ -13,35 +13,35 @@ resource "aws_cloudwatch_log_group" "fis_app_ecs_tasks" {
 }
 
 # Add resource policy to allow FIS or the FIS role to write logs - not working
-# data "aws_iam_policy_document" "fis_app_ecs_tasks" {
-#   provider  = aws.region
-#   policy_id = "fis_app_ecs_tasks"
-#   statement {
-#     actions = [
-#       "logs:CreateLogDelivery",
-#       "logs:DescribeLogGroups",
-#       "logs:CreateLogStream",
-#       "logs:PutLogEvents",
-#       "logs:DescribeResourcePolicies",
-#     ]
+data "aws_iam_policy_document" "fis_app_ecs_tasks" {
+  provider  = aws.region
+  policy_id = "fis_app_ecs_tasks"
+  statement {
+    actions = [
+      "logs:CreateLogDelivery",
+      "logs:DescribeLogGroups",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+      "logs:DescribeResourcePolicies",
+    ]
 
-#     resources = [
-#       "arn:aws:logs:*:*:log-group:/fis/*",
-#       "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:fis/app-ecs-tasks-experiment-936mlpab157:*"
-#     ]
+    resources = [
+      "arn:aws:logs:*:*:log-group:/fis/*",
+      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:fis/app-ecs-tasks-experiment-936mlpab157:*"
+    ]
 
-#     principals {
-#       identifiers = [data.aws_caller_identity.current.account_id]
-#       type        = "AWS"
-#     }
-#   }
-# }
+    principals {
+      identifiers = [data.aws_caller_identity.current.account_id]
+      type        = "AWS"
+    }
+  }
+}
 
-# resource "aws_cloudwatch_log_resource_policy" "fis_app_ecs_tasks" {
-#   provider        = aws.region
-#   policy_document = data.aws_iam_policy_document.fis_app_ecs_tasks.json
-#   policy_name     = "fis_app_ecs_tasks"
-# }
+resource "aws_cloudwatch_log_resource_policy" "fis_app_ecs_tasks" {
+  provider        = aws.region
+  policy_document = data.aws_iam_policy_document.fis_app_ecs_tasks.json
+  policy_name     = "fis_app_ecs_tasks"
+}
 
 # Create experiment template for ECS tasks
 
@@ -74,7 +74,7 @@ resource "aws_fis_experiment_template" "ecs_app" {
   }
 
   # log_configuration {
-  #   log_schema_version = 2
+  #   log_schema_version = 1
 
   #   cloudwatch_logs_configuration {
   #     log_group_arn = "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*" # tfsec:ignore:aws-cloudwatch-log-group-wildcard
