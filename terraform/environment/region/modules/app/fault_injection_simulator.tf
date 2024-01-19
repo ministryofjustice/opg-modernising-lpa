@@ -6,11 +6,36 @@ data "aws_kms_alias" "cloudwatch_application_logs_encryption" {
 }
 
 resource "aws_cloudwatch_log_group" "fis_app_ecs_tasks" {
-  name              = "/aws/fis/app-ecs-tasks-experiment-${data.aws_default_tags.current.tags.environment-name}"
+  name              = "fis/app-ecs-tasks-experiment-${data.aws_default_tags.current.tags.environment-name}"
   retention_in_days = 7
   # kms_key_id        = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
   provider = aws.region
 }
+data "aws_iam_policy_document" "fis_app_ecs_tasks" {
+  provider  = aws.region
+  policy_id = "fis_app_ecs_tasks"
+  statement {
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+      "logs:PutLogEventsBatch",
+    ]
+
+    resources = ["arn:aws:logs:*:*:log-group:/fis/*"]
+
+    principals {
+      identifiers = ["fis.amazonaws.com"]
+      type        = "Service"
+    }
+  }
+}
+
+resource "aws_cloudwatch_log_resource_policy" "fis_app_ecs_tasks" {
+  provider        = aws.region
+  policy_document = data.aws_iam_policy_document.fis_app_ecs_tasks.json
+  policy_name     = "fis_app_ecs_tasks"
+}
+
 
 # Create experiment template for ECS tasks
 
@@ -53,7 +78,7 @@ resource "aws_fis_experiment_template" "ecs_app" {
   target {
     name = "app-ecs-tasks-${data.aws_default_tags.current.tags.environment-name}"
     resource_arns = [
-      "arn:aws:ecs:eu-west-1:653761790766:task/936mlpab157-eu-west-1/0d3c81896ebb4f90aba341b512f90c4e",
+      "arn:aws:ecs:eu-west-1:653761790766:task/936mlpab157-eu-west-1/6abd833098024a9280dd4f392a2659b6",
       # aws_ecs_task_definition.mock_onelogin.arn,
     ]
     # parameters = {
@@ -89,7 +114,7 @@ locals {
       environment = [
         {
           name  = "MANAGED_INSTANCE_ROLE_NAME",
-          value = "service-role/AmazonEC2RunCommandRoleForManagedInstances"
+          value = "ssm-register-instance-${data.aws_default_tags.current.tags.environment-name}"
         }
       ],
       logConfiguration = {
