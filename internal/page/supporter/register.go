@@ -3,6 +3,7 @@ package supporter
 import (
 	"context"
 	"encoding/base64"
+	"io"
 	"net/http"
 
 	"github.com/gorilla/sessions"
@@ -12,6 +13,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
+
+type GroupStore interface {
+	Create(context.Context, string) error
+}
 
 type OneLoginClient interface {
 	AuthCodeURL(state, nonce, locale string, identity bool) (string, error)
@@ -25,6 +30,8 @@ type SessionStore interface {
 	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
 }
 
+type Template func(io.Writer, interface{}) error
+
 type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request) error
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
@@ -34,6 +41,7 @@ func Register(
 	tmpls template.Templates,
 	oneLoginClient OneLoginClient,
 	sessionStore SessionStore,
+	groupStore GroupStore,
 	notFoundHandler page.Handler,
 	errorHandler page.ErrorHandler,
 ) {
@@ -53,7 +61,9 @@ func Register(
 
 	handleSupporter(page.Paths.Root, notFoundHandler)
 
-	handleWithSupporter(paths.YourOrganisation,
+	handleWithSupporter(paths.EnterGroupName,
+		EnterGroupName(tmpls.Get("enter_group_name.gohtml"), groupStore))
+	handleWithSupporter(paths.GroupCreated,
 		TODO())
 }
 
