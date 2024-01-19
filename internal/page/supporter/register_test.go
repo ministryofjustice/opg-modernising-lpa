@@ -15,6 +15,7 @@ import (
 )
 
 var expectedError = errors.New("err")
+var testAppData = page.AppData{}
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
