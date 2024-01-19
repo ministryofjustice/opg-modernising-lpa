@@ -78,3 +78,54 @@ data "aws_iam_policy_document" "fault_injection_simulator_additional_permissions
     ]
   }
 }
+
+
+# Create role for registering instance
+
+resource "aws_iam_role" "ssm_register_instance" {
+  name               = "ssm-register-instance-${data.aws_default_tags.current.tags.environment-name}"
+  assume_role_policy = data.aws_iam_policy_document.ssm_register_instance_assume.json
+  provider           = aws.global
+}
+
+data "aws_iam_policy_document" "ssm_register_instance_assume" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ssm.amazonaws.com"]
+    }
+  }
+  provider = aws.global
+}
+
+resource "aws_iam_role_policy" "ssm_register_instance_permissions" {
+  name     = "ssm-register-instance-permissions"
+  role     = aws_iam_role.fault_injection_simulator.name
+  policy   = data.aws_iam_policy_document.ssm_register_instance_permissions.json
+  provider = aws.global
+}
+
+data "aws_iam_policy_document" "ssm_register_instance_permissions" {
+  policy_id = "ssm instance activation permissions"
+  statement {
+    sid       = "AllowSSMCommands"
+    effect    = "Allow"
+    resources = ["*"] #tfsec:ignore:aws-iam-no-policy-wildcards
+    actions = [
+      "ssm:CreateActivation",
+      "ssm:AddTagsToResource",
+    ]
+  }
+
+  statement {
+    sid       = "ManagedInstancePermissions"
+    effect    = "Allow"
+    resources = ["*"] #tfsec:ignore:aws-iam-no-policy-wildcards
+    actions = [
+      "ssm:DeleteActivation",
+      "ssm:DeregisterManagedInstance",
+    ]
+  }
+}
