@@ -8,8 +8,8 @@ data "aws_kms_alias" "cloudwatch_application_logs_encryption" {
 resource "aws_cloudwatch_log_group" "fis_app_ecs_tasks" {
   name              = "fis/app-ecs-tasks-experiment-${data.aws_default_tags.current.tags.environment-name}"
   retention_in_days = 7
-  # kms_key_id        = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
-  provider = aws.region
+  kms_key_id        = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
+  provider          = aws.region
 }
 
 # Add resource policy to allow FIS or the FIS role to write logs - not working
@@ -41,6 +41,30 @@ resource "aws_cloudwatch_log_resource_policy" "fis_app_ecs_tasks" {
   provider        = aws.region
   policy_document = data.aws_iam_policy_document.fis_app_ecs_tasks.json
   policy_name     = "fis_app_ecs_tasks"
+}
+
+# Add log encryption permissions to the FIS role
+
+data "aws_iam_policy_document" "fis_role_log_encryption" {
+  provider  = aws.region
+  policy_id = "fis_role_log_encryption"
+  statement {
+    actions = [
+      "kms:Encrypt",
+      "kms:GenerateDataKey",
+    ]
+
+    resources = [
+      data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "fis_role_log_encryption" {
+  provider = aws.region
+  name     = "fis_role_log_encryption"
+  role     = var.fault_injection_simulator_role_arn
+  policy   = data.aws_iam_policy_document.fis_role_log_encryption.json
 }
 
 # Create experiment template for ECS tasks
