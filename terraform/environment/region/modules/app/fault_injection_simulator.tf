@@ -1,3 +1,5 @@
+# Create encrypted logging for fault injection experiments
+
 data "aws_kms_alias" "cloudwatch_application_logs_encryption" {
   name     = "alias/${data.aws_default_tags.current.tags.application}_cloudwatch_application_logs_encryption"
   provider = aws.region
@@ -9,6 +11,8 @@ resource "aws_cloudwatch_log_group" "fis_app_ecs_tasks" {
   # kms_key_id        = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
   provider = aws.region
 }
+
+# Create experiment template for ECS tasks
 
 resource "aws_fis_experiment_template" "ecs_app" {
   count       = data.aws_default_tags.current.tags.environment-name == "production" ? 0 : 1
@@ -38,10 +42,18 @@ resource "aws_fis_experiment_template" "ecs_app" {
     value  = null
   }
 
+  log_configuration {
+    log_schema_version = 2
+
+    cloudwatch_logs_configuration {
+      log_group_arn = "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*" # tfsec:ignore:aws-cloudwatch-log-group-wildcard
+    }
+  }
+
   target {
     name = "app-ecs-tasks-${data.aws_default_tags.current.tags.environment-name}"
     resource_arns = [
-      "arn:aws:ecs:eu-west-1:653761790766:task/936mlpab157-eu-west-1/1b1aedd43f94458d9ef3475479e19169",
+      "arn:aws:ecs:eu-west-1:653761790766:task/936mlpab157-eu-west-1/0d3c81896ebb4f90aba341b512f90c4e",
       # aws_ecs_task_definition.mock_onelogin.arn,
     ]
     # parameters = {
@@ -56,6 +68,8 @@ resource "aws_fis_experiment_template" "ecs_app" {
     selection_mode = "ALL"
   }
 }
+
+# Create ECS task definition for ssm agent, used to run experiments
 
 locals {
   amazon_ssm_agent = jsonencode(
@@ -75,7 +89,7 @@ locals {
       environment = [
         {
           name  = "MANAGED_INSTANCE_ROLE_NAME",
-          value = "${data.aws_default_tags.current.tags.environment-name}-app-task-role"
+          value = "service-role/AmazonEC2RunCommandRoleForManagedInstances"
         }
       ],
       logConfiguration = {
@@ -100,7 +114,9 @@ locals {
   })
 }
 
-data "aws_iam_policy_document" "fis_related_task_permissions" {
+# Additional permissions for the ECS task role to run experiments
+
+data "aws_iam_policy_document" "ecs_task_role_fis_related_task_permissions" {
   policy_id = "${local.policy_region_prefix}_fis_ecs_task_actions"
   statement {
     sid       = "AllowSSMCommands"
@@ -119,7 +135,6 @@ data "aws_iam_policy_document" "fis_related_task_permissions" {
     actions = [
       "ssm:DeleteActivation",
       "ssm:DeregisterManagedInstance",
-      "ssm:CreateActivation",
     ]
   }
 
