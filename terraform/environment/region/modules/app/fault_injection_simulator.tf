@@ -11,31 +11,37 @@ resource "aws_cloudwatch_log_group" "fis_app_ecs_tasks" {
   # kms_key_id        = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
   provider = aws.region
 }
-data "aws_iam_policy_document" "fis_app_ecs_tasks" {
-  provider  = aws.region
-  policy_id = "fis_app_ecs_tasks"
-  statement {
-    actions = [
-      "logs:CreateLogStream",
-      "logs:PutLogEvents",
-      "logs:PutLogEventsBatch",
-    ]
 
-    resources = ["arn:aws:logs:*:*:log-group:/fis/*"]
+# Add resource policy to allow FIS or the FIS role to write logs - not working
+# data "aws_iam_policy_document" "fis_app_ecs_tasks" {
+#   provider  = aws.region
+#   policy_id = "fis_app_ecs_tasks"
+#   statement {
+#     actions = [
+#       "logs:CreateLogDelivery",
+#       "logs:DescribeLogGroups",
+#       "logs:CreateLogStream",
+#       "logs:PutLogEvents",
+#       "logs:DescribeResourcePolicies",
+#     ]
 
-    principals {
-      identifiers = ["fis.amazonaws.com"]
-      type        = "Service"
-    }
-  }
-}
+#     resources = [
+#       "arn:aws:logs:*:*:log-group:/fis/*",
+#       "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:fis/app-ecs-tasks-experiment-936mlpab157:*"
+#     ]
 
-resource "aws_cloudwatch_log_resource_policy" "fis_app_ecs_tasks" {
-  provider        = aws.region
-  policy_document = data.aws_iam_policy_document.fis_app_ecs_tasks.json
-  policy_name     = "fis_app_ecs_tasks"
-}
+#     principals {
+#       identifiers = [data.aws_caller_identity.current.account_id]
+#       type        = "AWS"
+#     }
+#   }
+# }
 
+# resource "aws_cloudwatch_log_resource_policy" "fis_app_ecs_tasks" {
+#   provider        = aws.region
+#   policy_document = data.aws_iam_policy_document.fis_app_ecs_tasks.json
+#   policy_name     = "fis_app_ecs_tasks"
+# }
 
 # Create experiment template for ECS tasks
 
@@ -67,28 +73,20 @@ resource "aws_fis_experiment_template" "ecs_app" {
     value  = null
   }
 
-  log_configuration {
-    log_schema_version = 2
+  # log_configuration {
+  #   log_schema_version = 2
 
-    cloudwatch_logs_configuration {
-      log_group_arn = "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*" # tfsec:ignore:aws-cloudwatch-log-group-wildcard
-    }
-  }
+  #   cloudwatch_logs_configuration {
+  #     log_group_arn = "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*" # tfsec:ignore:aws-cloudwatch-log-group-wildcard
+  #   }
+  # }
 
   target {
     name = "app-ecs-tasks-${data.aws_default_tags.current.tags.environment-name}"
-    resource_arns = [
-      "arn:aws:ecs:eu-west-1:653761790766:task/936mlpab157-eu-west-1/6abd833098024a9280dd4f392a2659b6",
-      # aws_ecs_task_definition.mock_onelogin.arn,
-    ]
-    # parameters = {
-    #   "cluster" : var.ecs_cluster,
-    #   "service" : aws_ecs_service.app.name,
-    # }
-    # resource_tag {
-    #   key   = "aws:ecs:service"
-    #   value = aws_ecs_service.app.name
-    # }
+    resource_tag {
+      key   = "environment-name"
+      value = data.aws_default_tags.current.tags.environment-name
+    }
     resource_type  = "aws:ecs:task"
     selection_mode = "ALL"
   }
