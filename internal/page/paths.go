@@ -168,7 +168,8 @@ type SupporterPaths struct {
 	Login         Path
 	LoginCallback Path
 
-	YourOrganisation SupporterPath
+	EnterGroupName SupporterPath
+	GroupCreated   SupporterPath
 }
 
 type AppPaths struct {
@@ -334,7 +335,8 @@ var Paths = AppPaths{
 		Login:         "/supporter-login",
 		LoginCallback: "/supporter-login-callback",
 
-		YourOrganisation: "/your-organisation",
+		EnterGroupName: "/enter-the-name-of-your-organisation-or-company",
+		GroupCreated:   "/organisation-or-comapny-created",
 	},
 
 	HealthCheck: HealthCheckPaths{
