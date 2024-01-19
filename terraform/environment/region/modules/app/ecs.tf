@@ -94,7 +94,8 @@ resource "aws_ecs_task_definition" "app" {
 resource "aws_iam_role_policy" "app_task_role" {
   name = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}-app-task-role"
   #TODO: make fis policy conditional using the combined policy document
-  policy   = data.aws_iam_policy_document.task_role_access_policy.json
+  # policy   = data.aws_iam_policy_document.task_role_access_policy.json
+  policy   = data.aws_iam_policy_document.combined.json
   role     = var.ecs_task_role.name
   provider = aws.region
 }
@@ -102,7 +103,7 @@ resource "aws_iam_role_policy" "app_task_role" {
 data "aws_iam_policy_document" "combined" {
   source_policy_documents = [
     data.aws_iam_policy_document.task_role_access_policy.json,
-    data.aws_iam_policy_document.fis_related_task_permissions.json
+    data.aws_iam_policy_document.ecs_task_role_fis_related_task_permissions.json
   ]
 }
 
