@@ -63,7 +63,7 @@ data "aws_iam_policy_document" "fis_role_log_encryption" {
 resource "aws_iam_role_policy" "fis_role_log_encryption" {
   provider = aws.region
   name     = "fis_role_log_encryption"
-  role     = var.fault_injection_simulator_role_arn
+  role     = var.fault_injection_simulator_role.name
   policy   = data.aws_iam_policy_document.fis_role_log_encryption.json
 }
 
@@ -73,7 +73,7 @@ resource "aws_fis_experiment_template" "ecs_app" {
   count       = data.aws_default_tags.current.tags.environment-name == "production" ? 0 : 1
   provider    = aws.region
   description = "Run ECS task experiments for the app service"
-  role_arn    = var.fault_injection_simulator_role_arn
+  role_arn    = var.fault_injection_simulator_role.arn
   tags = {
     Name = "${data.aws_default_tags.current.tags.environment-name} - APP ECS Task Experiments"
   }
