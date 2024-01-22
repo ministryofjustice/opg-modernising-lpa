@@ -72,8 +72,7 @@ func App(
 	logger *logging.Logger,
 	localizer page.Localizer,
 	lang localize.Lang,
-	tmpls template.Templates,
-	supporterTmpls template.Templates,
+	tmpls, donorTmpls, certificateProviderTmpls, attorneyTmpls, supporterTmpls template.Templates,
 	sessionStore SessionStore,
 	lpaDynamoClient DynamoClient,
 	appPublicURL string,
@@ -104,6 +103,7 @@ func App(
 	shareCodeStore := &shareCodeStore{dynamoClient: lpaDynamoClient}
 	dashboardStore := &dashboardStore{dynamoClient: lpaDynamoClient}
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: lpaDynamoClient}
+	organisationStore := &organisationStore{dynamoClient: lpaDynamoClient, now: time.Now, uuidString: uuid.NewString}
 
 	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicURL, random.String)
 	witnessCodeSender := page.NewWitnessCodeSender(donorStore, notifyClient)
@@ -124,6 +124,8 @@ func App(
 		fixtures.CertificateProvider(tmpls.Get("certificate_provider_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore))
 	handleRoot(paths.AttorneyFixtures, None,
 		fixtures.Attorney(tmpls.Get("attorney_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore))
+	handleRoot(paths.SupporterFixtures, None,
+		fixtures.Supporter(sessionStore))
 	handleRoot(paths.DashboardFixtures, None,
 		fixtures.Dashboard(tmpls.Get("dashboard_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore))
 	handleRoot(paths.YourLegalRightsAndResponsibilities, None,
@@ -148,6 +150,7 @@ func App(
 		supporterTmpls,
 		oneLoginClient,
 		sessionStore,
+		organisationStore,
 		notFoundHandler,
 		errorHandler,
 	)
@@ -156,6 +159,7 @@ func App(
 		rootMux,
 		logger,
 		tmpls,
+		certificateProviderTmpls,
 		sessionStore,
 		donorStore,
 		oneLoginClient,
@@ -174,6 +178,7 @@ func App(
 		rootMux,
 		logger,
 		tmpls,
+		attorneyTmpls,
 		sessionStore,
 		donorStore,
 		certificateProviderStore,
@@ -190,6 +195,7 @@ func App(
 		rootMux,
 		logger,
 		tmpls,
+		donorTmpls,
 		sessionStore,
 		donorStore,
 		oneLoginClient,
