@@ -22,10 +22,9 @@ func TestGetWantReplacementAttorneys(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &wantReplacementAttorneysData{
-			App:     testAppData,
-			Donor:   &actor.DonorProvidedDetails{},
-			Form:    &form.YesNoForm{},
-			Options: form.YesNoValues,
+			App:   testAppData,
+			Donor: &actor.DonorProvidedDetails{},
+			Form:  form.NewYesNoForm(form.YesNoUnknown),
 		}).
 		Return(nil)
 
@@ -59,10 +58,7 @@ func TestGetWantReplacementAttorneysFromStore(t *testing.T) {
 		Execute(w, &wantReplacementAttorneysData{
 			App:   testAppData,
 			Donor: &actor.DonorProvidedDetails{WantReplacementAttorneys: form.Yes},
-			Form: &form.YesNoForm{
-				YesNo: form.Yes,
-			},
-			Options: form.YesNoValues,
+			Form:  form.NewYesNoForm(form.Yes),
 		}).
 		Return(nil)
 
@@ -118,12 +114,12 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			form := url.Values{
-				"yes-no": {tc.yesNo.String()},
+			f := url.Values{
+				form.FieldNames.YesNo: {tc.yesNo.String()},
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
@@ -151,12 +147,12 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 }
 
 func TestPostWantReplacementAttorneysWhenStoreErrors(t *testing.T) {
-	form := url.Values{
-		"yes-no": {form.Yes.String()},
+	f := url.Values{
+		form.FieldNames.YesNo: {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
@@ -177,7 +173,7 @@ func TestPostWantReplacementAttorneysWhenValidationErrors(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.MatchedBy(func(data *wantReplacementAttorneysData) bool {
-			return assert.Equal(t, validation.With("yes-no", validation.SelectError{Label: "yesToAddReplacementAttorneys"}), data.Errors)
+			return assert.Equal(t, validation.With(form.FieldNames.YesNo, validation.SelectError{Label: "yesToAddReplacementAttorneys"}), data.Errors)
 		})).
 		Return(nil)
 

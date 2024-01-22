@@ -22,10 +22,9 @@ func TestGetCheckYouCanSign(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &checkYouCanSignData{
-			App:     testAppData,
-			Errors:  nil,
-			Form:    &form.YesNoForm{YesNo: form.No},
-			Options: form.YesNoValues,
+			App:    testAppData,
+			Errors: nil,
+			Form:   form.NewYesNoForm(form.No),
 		}).
 		Return(nil)
 
@@ -48,12 +47,12 @@ func TestPostCheckYouCanSign(t *testing.T) {
 	for yesNo, redirect := range testcases {
 		t.Run(yesNo.String(), func(t *testing.T) {
 
-			form := url.Values{
-				"yes-no": {yesNo.String()},
+			f := url.Values{
+				form.FieldNames.YesNo: {yesNo.String()},
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
@@ -73,12 +72,12 @@ func TestPostCheckYouCanSign(t *testing.T) {
 }
 
 func TestPostCheckYouCanSignErrorOnPutStore(t *testing.T) {
-	form := url.Values{
-		"yes-no": {form.Yes.String()},
+	f := url.Values{
+		form.FieldNames.YesNo: {form.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
@@ -95,15 +94,15 @@ func TestPostCheckYouCanSignErrorOnPutStore(t *testing.T) {
 }
 
 func TestCheckYouCanSignFormValidation(t *testing.T) {
-	form := url.Values{
-		"yes-no": {""},
+	f := url.Values{
+		form.FieldNames.YesNo: {""},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	validationError := validation.With("yes-no", validation.SelectError{Label: "yesIfYouWillBeAbleToSignYourself"})
+	validationError := validation.With(form.FieldNames.YesNo, validation.SelectError{Label: "yesIfYouWillBeAbleToSignYourself"})
 
 	template := newMockTemplate(t)
 	template.EXPECT().

@@ -12,11 +12,10 @@ import (
 )
 
 type chooseAttorneysSummaryData struct {
-	App     page.AppData
-	Errors  validation.List
-	Form    *form.YesNoForm
-	Donor   *actor.DonorProvidedDetails
-	Options form.YesNoOptions
+	App    page.AppData
+	Errors validation.List
+	Form   *form.YesNoForm
+	Donor  *actor.DonorProvidedDetails
 }
 
 func ChooseAttorneysSummary(tmpl template.Template) Handler {
@@ -26,10 +25,9 @@ func ChooseAttorneysSummary(tmpl template.Template) Handler {
 		}
 
 		data := &chooseAttorneysSummaryData{
-			App:     appData,
-			Donor:   donor,
-			Form:    &form.YesNoForm{},
-			Options: form.YesNoValues,
+			App:   appData,
+			Donor: donor,
+			Form:  form.NewYesNoForm(form.YesNoUnknown),
 		}
 
 		if r.Method == http.MethodPost {
