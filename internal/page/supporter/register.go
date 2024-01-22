@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -16,6 +17,7 @@ import (
 
 type OrganisationStore interface {
 	Create(context.Context, string) error
+	Get(context.Context) (*actor.Organisation, error)
 }
 
 type OneLoginClient interface {
@@ -64,6 +66,8 @@ func Register(
 	handleWithSupporter(paths.EnterOrganisationName,
 		EnterOrganisationName(tmpls.Get("enter_organisation_name.gohtml"), organisationStore))
 	handleWithSupporter(paths.OrganisationCreated,
+		OrganisationCreated(tmpls.Get("organisation_created.gohtml"), organisationStore))
+	handleWithSupporter(paths.Dashboard,
 		TODO())
 }
 

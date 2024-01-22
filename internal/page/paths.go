@@ -170,6 +170,7 @@ type SupporterPaths struct {
 
 	EnterOrganisationName SupporterPath
 	OrganisationCreated   SupporterPath
+	Dashboard             SupporterPath
 }
 
 type AppPaths struct {
@@ -338,6 +339,7 @@ var Paths = AppPaths{
 
 		EnterOrganisationName: "/enter-the-name-of-your-organisation-or-company",
 		OrganisationCreated:   "/organisation-or-company-created",
+		Dashboard:             "/supporter-dashboard",
 	},
 
 	HealthCheck: HealthCheckPaths{
