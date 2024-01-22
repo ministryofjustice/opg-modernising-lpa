@@ -8,14 +8,14 @@ data "aws_kms_alias" "cloudwatch_application_logs_encryption" {
 resource "aws_cloudwatch_log_group" "fis_app_ecs_tasks" {
   name              = "fis/app-ecs-tasks-experiment-${data.aws_default_tags.current.tags.environment-name}"
   retention_in_days = 7
-  kms_key_id        = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
-  provider          = aws.region
+  # kms_key_id        = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
+  provider = aws.region
 }
 
 # Add resource policy to allow FIS or the FIS role to write logs - not working
 data "aws_iam_policy_document" "fis_app_ecs_tasks" {
   provider  = aws.region
-  policy_id = "fis_app_ecs_tasks"
+  policy_id = "fis_app_ecs_tasks_service"
   statement {
     actions = [
       "logs:CreateLogDelivery",
@@ -26,15 +26,35 @@ data "aws_iam_policy_document" "fis_app_ecs_tasks" {
     ]
 
     resources = [
-      "arn:aws:logs:*:*:log-group:/fis/*",
-      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:fis/app-ecs-tasks-experiment-936mlpab157:*"
+      "arn:aws:logs:*:*:log-group:/aws/fis/*",
+      # "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:fis/*"
     ]
 
     principals {
-      identifiers = [data.aws_caller_identity.current.account_id]
-      type        = "AWS"
+      identifiers = ["fis.amazonaws.com"]
+      type        = "Service"
     }
   }
+  # statement {
+  #   actions = [
+  #     "logs:CreateLogDelivery",
+  #     "logs:DescribeLogGroups",
+  #     "logs:CreateLogStream",
+  #     "logs:PutLogEvents",
+  #     "logs:DescribeResourcePolicies",
+  #   ]
+
+  #   resources = [
+  #     "arn:aws:logs:*:*:log-group:/aws/fis/*",
+  #     # "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:fis/*",
+  #     # "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*"
+  #   ]
+
+  #   principals {
+  #     identifiers = [data.aws_caller_identity.current.account_id]
+  #     type        = "AWS"
+  #   }
+  # }
 }
 
 resource "aws_cloudwatch_log_resource_policy" "fis_app_ecs_tasks" {
@@ -56,6 +76,21 @@ data "aws_iam_policy_document" "fis_role_log_encryption" {
 
     resources = [
       data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
+    ]
+  }
+
+  statement {
+    actions = [
+      "logs:CreateLogDelivery",
+      "logs:DescribeLogGroups",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+      "logs:DescribeResourcePolicies",
+    ]
+
+    resources = [
+      aws_cloudwatch_log_group.fis_app_ecs_tasks.arn,
+      "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*"
     ]
   }
 }
@@ -97,13 +132,14 @@ resource "aws_fis_experiment_template" "ecs_app" {
     value  = null
   }
 
-  # log_configuration {
-  #   log_schema_version = 1
+  log_configuration {
+    log_schema_version = 2
 
-  #   cloudwatch_logs_configuration {
-  #     log_group_arn = "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*" # tfsec:ignore:aws-cloudwatch-log-group-wildcard
-  #   }
-  # }
+    cloudwatch_logs_configuration {
+      log_group_arn = "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:aws/fis/app-ecs-tasks-experiment-${data.aws_default_tags.current.tags.environment-name}:*" # tfsec:ignore:aws-cloudwatch-log-group-wildcard
+      # log_group_arn = "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*" # tfsec:ignore:aws-cloudwatch-log-group-wildcard
+    }
+  }
 
   target {
     name = "app-ecs-tasks-${data.aws_default_tags.current.tags.environment-name}"
