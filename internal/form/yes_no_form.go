@@ -18,10 +18,7 @@ type YesNoForm struct {
 func ReadYesNoForm(r *http.Request, errorLabel string) *YesNoForm {
 	form := NewYesNoForm(YesNoUnknown)
 
-	yesNo, err := ParseYesNo(PostFormString(r, form.FieldName))
-
-	form.YesNo = yesNo
-	form.Error = err
+	form.YesNo, form.Error = ParseYesNo(PostFormString(r, form.FieldName))
 	form.ErrorLabel = errorLabel
 
 	return form

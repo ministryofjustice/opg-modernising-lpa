@@ -80,7 +80,7 @@ func ChooseReplacementAttorneysState(donor *actor.DonorProvidedDetails) actor.Ta
 	}
 
 	if donor.ReplacementAttorneys.Len() == 0 {
-		if donor.WantReplacementAttorneys.Empty() {
+		if donor.WantReplacementAttorneys.IsUnknown() {
 			return actor.TaskNotStarted
 		}
 
