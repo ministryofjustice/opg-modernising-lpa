@@ -41,8 +41,8 @@ func (s *organisationStore) Create(ctx context.Context, name string) error {
 	}
 
 	member := &actor.Member{
-		PK:        organisationKey(organisationID),
-		SK:        subKey(data.SessionID),
+		PK:        memberKey(data.SessionID),
+		SK:        organisationKey(organisationID),
 		CreatedAt: s.now(),
 	}
 
@@ -53,6 +53,33 @@ func (s *organisationStore) Create(ctx context.Context, name string) error {
 	return nil
 }
 
+func (s *organisationStore) Get(ctx context.Context) (*actor.Organisation, error) {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.SessionID == "" {
+		return nil, errors.New("organisationStore.Get requires SessionID")
+	}
+
+	var member actor.Member
+	if err := s.dynamoClient.OneByPartialSk(ctx, memberKey(data.SessionID), organisationKey(""), &member); err != nil {
+		return nil, err
+	}
+
+	var organisation actor.Organisation
+	if err := s.dynamoClient.One(ctx, member.SK, member.SK, &organisation); err != nil {
+		return nil, err
+	}
+
+	return &organisation, nil
+}
+
 func organisationKey(s string) string {
 	return "ORGANISATION#" + s
+}
+
+func memberKey(s string) string {
+	return "MEMBER#" + s
 }

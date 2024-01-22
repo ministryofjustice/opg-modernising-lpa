@@ -5,6 +5,8 @@ package supporter
 import (
 	context "context"
 
+	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -64,6 +66,64 @@ func (_c *mockOrganisationStore_Create_Call) Return(_a0 error) *mockOrganisation
 }
 
 func (_c *mockOrganisationStore_Create_Call) RunAndReturn(run func(context.Context, string) error) *mockOrganisationStore_Create_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Get provides a mock function with given fields: _a0
+func (_m *mockOrganisationStore) Get(_a0 context.Context) (*actor.Organisation, error) {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Get")
+	}
+
+	var r0 *actor.Organisation
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (*actor.Organisation, error)); ok {
+		return rf(_a0)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) *actor.Organisation); ok {
+		r0 = rf(_a0)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*actor.Organisation)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockOrganisationStore_Get_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Get'
+type mockOrganisationStore_Get_Call struct {
+	*mock.Call
+}
+
+// Get is a helper method to define mock.On call
+//   - _a0 context.Context
+func (_e *mockOrganisationStore_Expecter) Get(_a0 interface{}) *mockOrganisationStore_Get_Call {
+	return &mockOrganisationStore_Get_Call{Call: _e.mock.On("Get", _a0)}
+}
+
+func (_c *mockOrganisationStore_Get_Call) Run(run func(_a0 context.Context)) *mockOrganisationStore_Get_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *mockOrganisationStore_Get_Call) Return(_a0 *actor.Organisation, _a1 error) *mockOrganisationStore_Get_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockOrganisationStore_Get_Call) RunAndReturn(run func(context.Context) (*actor.Organisation, error)) *mockOrganisationStore_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
