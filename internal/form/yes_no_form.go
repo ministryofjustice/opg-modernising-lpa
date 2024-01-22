@@ -11,22 +11,23 @@ type YesNoForm struct {
 	YesNo      YesNo
 	Error      error
 	ErrorLabel string
+	Options    YesNoOptions
+	FieldName  string
 }
 
 func ReadYesNoForm(r *http.Request, errorLabel string) *YesNoForm {
-	yesNo, err := ParseYesNo(PostFormString(r, "yes-no"))
+	form := NewYesNoForm(YesNoUnknown)
 
-	return &YesNoForm{
-		YesNo:      yesNo,
-		Error:      err,
-		ErrorLabel: errorLabel,
-	}
+	form.YesNo, form.Error = ParseYesNo(PostFormString(r, form.FieldName))
+	form.ErrorLabel = errorLabel
+
+	return form
 }
 
 func (f *YesNoForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.Error("yes-no", f.ErrorLabel, f.Error,
+	errors.Error(f.FieldName, f.ErrorLabel, f.Error,
 		validation.Selected())
 
 	return errors
@@ -34,4 +35,12 @@ func (f *YesNoForm) Validate() validation.List {
 
 func PostFormString(r *http.Request, name string) string {
 	return strings.TrimSpace(r.PostFormValue(name))
+}
+
+func NewYesNoForm(yesNo YesNo) *YesNoForm {
+	return &YesNoForm{
+		YesNo:     yesNo,
+		Options:   YesNoValues,
+		FieldName: FieldNames.YesNo,
+	}
 }
