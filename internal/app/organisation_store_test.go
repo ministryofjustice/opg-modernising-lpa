@@ -38,19 +38,19 @@ func TestOrganisationStoreCreate(t *testing.T) {
 }
 
 func TestOrganisationStoreCreateWithSessionMissing(t *testing.T) {
-	ctx := context.Background()
-	organisationStore := &organisationStore{dynamoClient: nil, now: testNowFn}
+	testcases := map[string]context.Context{
+		"no session id":   page.ContextWithSessionData(context.Background(), &page.SessionData{}),
+		"no session data": context.Background(),
+	}
 
-	err := organisationStore.Create(ctx, "A name")
-	assert.Equal(t, page.SessionMissingError{}, err)
-}
+	for name, ctx := range testcases {
+		t.Run(name, func(t *testing.T) {
+			organisationStore := &organisationStore{}
 
-func TestOrganisationStoreCreateWithMissingSessionID(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{})
-	organisationStore := &organisationStore{dynamoClient: nil, now: testNowFn}
-
-	err := organisationStore.Create(ctx, "A name")
-	assert.Error(t, err)
+			err := organisationStore.Create(ctx, "A name")
+			assert.Error(t, err)
+		})
+	}
 }
 
 func TestOrganisationStoreCreateWhenErrors(t *testing.T) {
@@ -159,4 +159,38 @@ func TestOrganisationStoreGetWhenErrors(t *testing.T) {
 			assert.Equal(t, expectedError, err)
 		})
 	}
+}
+
+func TestOrganisationStoreCreateMemberInvite(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		Create(ctx, &actor.MemberInvite{
+			PK:             "MEMBERINVITE#abcde",
+			SK:             "MEMBERINVITE#abcde",
+			CreatedAt:      testNow,
+			OrganisationID: "a-uuid",
+			Email:          "email@example.com",
+		}).
+		Return(nil)
+
+	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn}
+
+	err := organisationStore.CreateMemberInvite(ctx, &actor.Organisation{ID: "a-uuid"}, "email@example.com", "abcde")
+	assert.Nil(t, err)
+}
+
+func TestOrganisationStoreCreateMemberInviteWhenErrors(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		Create(ctx, mock.Anything).
+		Return(expectedError)
+
+	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn}
+
+	err := organisationStore.CreateMemberInvite(ctx, &actor.Organisation{}, "email@example.com", "abcde")
+	assert.ErrorIs(t, err, expectedError)
 }

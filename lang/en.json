@@ -965,5 +965,9 @@
     "forExampleCharityOrSolicitor": "For example, Age UK York, Alzheimer’s Society, or Joe Bloggs Solicitors.",
     "organisationCreated": "Organisation created",
     "yourOrganisationHasBeenCreated": "Your organisation <span class=\"govuk-!-font-weight-bold\">{{.Name}}</span> has been successfully created.",
-    "organisationCreatedContent": "<h2 class=\"govuk-heading-l\">What happens now</h2><p class=\"govuk-body\">You can continue to your dashboard where you can:<p><ul class=\"govuk-list govuk-list--bullet\"><li>invite team members to join your organisation</li><li>use this service to help someone make an LPA</li></ul><p class=\"govuk-body\">We have also sent you a confirmation email with a link to your dashboard.</p><p class=\"govuk-body\">Each time you use this service, you’ll be asked to sign in with GOV.UK One Login.</p>"
+    "organisationCreatedContent": "<h2 class=\"govuk-heading-l\">What happens now</h2><p class=\"govuk-body\">You can continue to your dashboard where you can:<p><ul class=\"govuk-list govuk-list--bullet\"><li>invite team members to join your organisation</li><li>use this service to help someone make an LPA</li></ul><p class=\"govuk-body\">We have also sent you a confirmation email with a link to your dashboard.</p><p class=\"govuk-body\">Each time you use this service, you’ll be asked to sign in with GOV.UK One Login.</p>",
+    "inviteTeamMemberToYourOrganisation": "Invite a team member to your organisation",
+    "whenYouSelectSendInvite": "When you select <span class=\"govuk-!-font-weight-bold\">Send invite</span>, we will send this person an email inviting them to join your organisation.",
+    "sendInvite": "Send invite",
+    "enterTheirWorkEmailAddress": "Enter their work email address."
 }
