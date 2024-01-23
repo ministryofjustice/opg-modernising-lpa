@@ -13,6 +13,7 @@ import (
 type organisationStore struct {
 	dynamoClient DynamoClient
 	uuidString   func() string
+	randomString func(int) string
 	now          func() time.Time
 }
 
@@ -76,10 +77,30 @@ func (s *organisationStore) Get(ctx context.Context) (*actor.Organisation, error
 	return &organisation, nil
 }
 
+func (s *organisationStore) CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, email, code string) error {
+	invite := &actor.MemberInvite{
+		PK:             memberInviteKey(code),
+		SK:             memberInviteKey(code),
+		CreatedAt:      s.now(),
+		OrganisationID: organisation.ID,
+		Email:          email,
+	}
+
+	if err := s.dynamoClient.Create(ctx, invite); err != nil {
+		return fmt.Errorf("error creating member invite: %w", err)
+	}
+
+	return nil
+}
+
 func organisationKey(s string) string {
 	return "ORGANISATION#" + s
 }
 
 func memberKey(s string) string {
 	return "MEMBER#" + s
+}
+
+func memberInviteKey(s string) string {
+	return "MEMBERINVITE#" + s
 }

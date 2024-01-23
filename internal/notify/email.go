@@ -111,3 +111,16 @@ func (e CertificateProviderProvideCertificatePromptEmail) WithShareCode(shareCod
 	e.ShareCode = shareCode
 	return e
 }
+
+type MemberInviteEmail struct {
+	OrganisationName string
+	InviteCode       string
+}
+
+func (e MemberInviteEmail) emailID(isProduction bool) string {
+	if isProduction {
+		return "-"
+	}
+
+	return "-"
+}
