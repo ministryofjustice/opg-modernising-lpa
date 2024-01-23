@@ -64,19 +64,6 @@ data "aws_iam_policy_document" "fault_injection_simulator_additional_permissions
       values   = ["arn:aws:fis:${data.aws_region.global.name}:${data.aws_caller_identity.global.account_id}:experiment/*"]
     }
   }
-
-  statement {
-    sid       = "AllowCloudWatchLogs"
-    effect    = "Allow"
-    resources = ["*"] #tfsec:ignore:aws-iam-no-policy-wildcards
-    actions = [
-      "logs:CreateLogDelivery",
-      "logs:DescribeLogGroups",
-      "logs:CreateLogStream",
-      "logs:PutLogEvents",
-      "logs:DescribeResourcePolicies",
-    ]
-  }
 }
 
 
