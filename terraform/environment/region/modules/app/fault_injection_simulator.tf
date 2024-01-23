@@ -52,6 +52,7 @@ data "aws_iam_policy_document" "cloudwatch_log_group_policy_fis_app_ecs_tasks" {
   }
 }
 
+#  Add resource policy to allow FIS or the FIS role to write logs - not working
 resource "aws_cloudwatch_log_resource_policy" "fis_app_ecs_tasks" {
   provider        = aws.region
   policy_document = data.aws_iam_policy_document.cloudwatch_log_group_policy_fis_app_ecs_tasks.json
