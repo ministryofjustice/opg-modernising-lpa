@@ -153,6 +153,7 @@ func App(
 		organisationStore,
 		notFoundHandler,
 		errorHandler,
+		notifyClient,
 	)
 
 	certificateprovider.Register(

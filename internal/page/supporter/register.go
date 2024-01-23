@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -17,6 +18,7 @@ import (
 
 type OrganisationStore interface {
 	Create(context.Context, string) error
+	CreateMemberInvite(context.Context, *actor.Organisation, string, string) error
 	Get(context.Context) (*actor.Organisation, error)
 }
 
@@ -30,6 +32,10 @@ type SessionStore interface {
 	Get(r *http.Request, name string) (*sessions.Session, error)
 	New(r *http.Request, name string) (*sessions.Session, error)
 	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
+}
+
+type NotifyClient interface {
+	SendEmail(context.Context, string, notify.Email) (string, error)
 }
 
 type Template func(io.Writer, interface{}) error
@@ -46,6 +52,7 @@ func Register(
 	organisationStore OrganisationStore,
 	notFoundHandler page.Handler,
 	errorHandler page.ErrorHandler,
+	notifyClient NotifyClient,
 ) {
 	paths := page.Paths.Supporter
 	handleRoot := makeHandle(rootMux, errorHandler)
@@ -69,6 +76,8 @@ func Register(
 		OrganisationCreated(tmpls.Get("organisation_created.gohtml"), organisationStore))
 	handleWithSupporter(paths.Dashboard,
 		TODO())
+	handleWithSupporter(paths.InviteMember,
+		InviteMember(tmpls.Get("invite_member.gohtml"), organisationStore, notifyClient, random.String))
 }
 
 func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler) func(page.Path, page.Handler) {

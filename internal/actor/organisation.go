@@ -2,6 +2,8 @@ package actor
 
 import "time"
 
+const memberInviteExpireAfter = time.Hour * 48
+
 // An Organisation contains users associated with a set of permissions that work on the
 // same set of LPAs.
 type Organisation struct {
@@ -23,4 +25,19 @@ type Member struct {
 	CreatedAt time.Time
 	// UpdatedAt is when the Member was last updated
 	UpdatedAt time.Time
+}
+
+// A MemberInvite is created to allow a new Member to join an Organisation
+type MemberInvite struct {
+	PK, SK string
+	// CreatedAt is when the MemberInvite was created
+	CreatedAt time.Time
+	// OrganisationID identifies the organisation the invite is for
+	OrganisationID string
+	// Email is the address the new Member must signin as for the invite
+	Email string
+}
+
+func (i MemberInvite) HasExpired() bool {
+	return i.CreatedAt.Add(memberInviteExpireAfter).Before(time.Now())
 }
