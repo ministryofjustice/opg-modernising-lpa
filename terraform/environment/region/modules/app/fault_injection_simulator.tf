@@ -6,69 +6,65 @@ data "aws_kms_alias" "cloudwatch_application_logs_encryption" {
 }
 
 resource "aws_cloudwatch_log_group" "fis_app_ecs_tasks" {
-  name              = "fis/app-ecs-tasks-experiment-${data.aws_default_tags.current.tags.environment-name}"
+  name              = "/aws/fis/app-ecs-tasks-experiment-${data.aws_default_tags.current.tags.environment-name}"
   retention_in_days = 7
   # kms_key_id        = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
   provider = aws.region
 }
 
 # Add resource policy to allow FIS or the FIS role to write logs - not working
-data "aws_iam_policy_document" "fis_app_ecs_tasks" {
+
+data "aws_iam_policy_document" "cloudwatch_log_group_policy_fis_app_ecs_tasks" {
   provider  = aws.region
   policy_id = "fis_app_ecs_tasks_service"
   statement {
+    sid    = "AWSLogDeliveryWrite20150319"
+    effect = "Allow"
+
+    principals {
+      identifiers = [
+        "fis.amazonaws.com"
+      ]
+      type = "Service"
+    }
+
     actions = [
-      "logs:CreateLogDelivery",
-      "logs:DescribeLogGroups",
       "logs:CreateLogStream",
-      "logs:PutLogEvents",
-      "logs:DescribeResourcePolicies",
+      "logs:PutLogEvents"
     ]
 
     resources = [
       "arn:aws:logs:*:*:log-group:/aws/fis/*",
-      # "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:fis/*"
+      "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*"
     ]
 
-    principals {
-      identifiers = ["fis.amazonaws.com"]
-      type        = "Service"
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = [":${data.aws_caller_identity.current.account_id}"]
+    }
+
+    condition {
+      test     = "ArnLike"
+      variable = "aws:SourceArn"
+      values   = ["arn:aws:logs:${data.aws_region.current.name}::${data.aws_caller_identity.current.account_id}:*"]
     }
   }
-  # statement {
-  #   actions = [
-  #     "logs:CreateLogDelivery",
-  #     "logs:DescribeLogGroups",
-  #     "logs:CreateLogStream",
-  #     "logs:PutLogEvents",
-  #     "logs:DescribeResourcePolicies",
-  #   ]
-
-  #   resources = [
-  #     "arn:aws:logs:*:*:log-group:/aws/fis/*",
-  #     # "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:fis/*",
-  #     # "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*"
-  #   ]
-
-  #   principals {
-  #     identifiers = [data.aws_caller_identity.current.account_id]
-  #     type        = "AWS"
-  #   }
-  # }
 }
 
 resource "aws_cloudwatch_log_resource_policy" "fis_app_ecs_tasks" {
   provider        = aws.region
-  policy_document = data.aws_iam_policy_document.fis_app_ecs_tasks.json
+  policy_document = data.aws_iam_policy_document.cloudwatch_log_group_policy_fis_app_ecs_tasks.json
   policy_name     = "fis_app_ecs_tasks"
 }
 
-# Add log encryption permissions to the FIS role
+# Add log encryption and log write/delivery permissions to the FIS role
 
 data "aws_iam_policy_document" "fis_role_log_encryption" {
   provider  = aws.region
-  policy_id = "fis_role_log_encryption"
+  policy_id = "log_access"
   statement {
+    sid = "AllowCloudWatchLogsEncryption"
     actions = [
       "kms:Encrypt",
       "kms:GenerateDataKey",
@@ -80,6 +76,7 @@ data "aws_iam_policy_document" "fis_role_log_encryption" {
   }
 
   statement {
+    sid = "AllowCloudWatchLogs"
     actions = [
       "logs:CreateLogDelivery",
       "logs:DescribeLogGroups",
@@ -93,11 +90,51 @@ data "aws_iam_policy_document" "fis_role_log_encryption" {
       "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*"
     ]
   }
+
+  statement {
+    sid    = "AllowLogDeliveryActions"
+    effect = "Allow"
+    actions = [
+      "logs:PutDeliverySource",
+      "logs:GetDeliverySource",
+      "logs:DeleteDeliverySource",
+      "logs:DescribeDeliverySources",
+      "logs:PutDeliveryDestination",
+      "logs:GetDeliveryDestination",
+      "logs:DeleteDeliveryDestination",
+      "logs:DescribeDeliveryDestinations",
+      "logs:CreateDelivery",
+      "logs:GetDelivery",
+      "logs:DeleteDelivery",
+      "logs:DescribeDeliveries",
+      "logs:PutDeliveryDestinationPolicy",
+      "logs:GetDeliveryDestinationPolicy",
+      "logs:DeleteDeliveryDestinationPolicy"
+    ]
+    resources = [
+      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:delivery-source:*",
+      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:delivery:*",
+      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:delivery-destination:*"
+    ]
+  }
+  statement {
+    sid    = "AllowUpdatesToResourcePolicyCWL"
+    effect = "Allow"
+    actions = [
+      "logs:PutResourcePolicy",
+      "logs:DescribeResourcePolicies",
+      "logs:DescribeLogGroups"
+    ]
+    resources = [
+      aws_cloudwatch_log_group.fis_app_ecs_tasks.arn,
+      "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*"
+    ]
+  }
 }
 
 resource "aws_iam_role_policy" "fis_role_log_encryption" {
   provider = aws.region
-  name     = "fis_role_log_encryption"
+  name     = "fis-role-log-permissions"
   role     = var.fault_injection_simulator_role.name
   policy   = data.aws_iam_policy_document.fis_role_log_encryption.json
 }
@@ -136,8 +173,7 @@ resource "aws_fis_experiment_template" "ecs_app" {
     log_schema_version = 2
 
     cloudwatch_logs_configuration {
-      log_group_arn = "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:aws/fis/app-ecs-tasks-experiment-${data.aws_default_tags.current.tags.environment-name}:*" # tfsec:ignore:aws-cloudwatch-log-group-wildcard
-      # log_group_arn = "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*" # tfsec:ignore:aws-cloudwatch-log-group-wildcard
+      log_group_arn = "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*" # tfsec:ignore:aws-cloudwatch-log-group-wildcard
     }
   }
 
