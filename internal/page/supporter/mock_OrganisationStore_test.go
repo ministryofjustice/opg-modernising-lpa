@@ -70,6 +70,55 @@ func (_c *mockOrganisationStore_Create_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
+// CreateMemberInvite provides a mock function with given fields: _a0, _a1, _a2, _a3
+func (_m *mockOrganisationStore) CreateMemberInvite(_a0 context.Context, _a1 *actor.Organisation, _a2 string, _a3 string) error {
+	ret := _m.Called(_a0, _a1, _a2, _a3)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateMemberInvite")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *actor.Organisation, string, string) error); ok {
+		r0 = rf(_a0, _a1, _a2, _a3)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockOrganisationStore_CreateMemberInvite_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateMemberInvite'
+type mockOrganisationStore_CreateMemberInvite_Call struct {
+	*mock.Call
+}
+
+// CreateMemberInvite is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 *actor.Organisation
+//   - _a2 string
+//   - _a3 string
+func (_e *mockOrganisationStore_Expecter) CreateMemberInvite(_a0 interface{}, _a1 interface{}, _a2 interface{}, _a3 interface{}) *mockOrganisationStore_CreateMemberInvite_Call {
+	return &mockOrganisationStore_CreateMemberInvite_Call{Call: _e.mock.On("CreateMemberInvite", _a0, _a1, _a2, _a3)}
+}
+
+func (_c *mockOrganisationStore_CreateMemberInvite_Call) Run(run func(_a0 context.Context, _a1 *actor.Organisation, _a2 string, _a3 string)) *mockOrganisationStore_CreateMemberInvite_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*actor.Organisation), args[2].(string), args[3].(string))
+	})
+	return _c
+}
+
+func (_c *mockOrganisationStore_CreateMemberInvite_Call) Return(_a0 error) *mockOrganisationStore_CreateMemberInvite_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockOrganisationStore_CreateMemberInvite_Call) RunAndReturn(run func(context.Context, *actor.Organisation, string, string) error) *mockOrganisationStore_CreateMemberInvite_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Get provides a mock function with given fields: _a0
 func (_m *mockOrganisationStore) Get(_a0 context.Context) (*actor.Organisation, error) {
 	ret := _m.Called(_a0)

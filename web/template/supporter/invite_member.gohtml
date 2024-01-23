@@ -1,0 +1,23 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "inviteTeamMemberToYourOrganisation" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <form novalidate method="post">
+        <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+
+        {{ template "input" (input . "email" "email" .Form.Email "hint" "enterTheirWorkEmailAddress" "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
+
+        <p class="govuk-body">{{ trHtml .App "whenYouSelectSendInvite" }}</p>
+
+        <div class="govuk-button-group">
+          <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "sendInvite" }}</button>
+          <a href="{{ link .App .App.Paths.Supporter.Dashboard.Format }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToDashboard" }}</a>
+        </div>
+        {{ template "csrf-field" . }}
+      </form>
+    </div>
+  </div>
+{{ end }}
