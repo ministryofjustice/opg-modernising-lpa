@@ -795,6 +795,7 @@
     "errorFileTooBig": "{{.Filename}}: Y ffeil yn rhy fawr",
     "errorFileIncorrectType": "{{.Filename}}: Ni dderbynnir ffeiliau o’r math hwn",
     "errorFileEmpty": "{{.Filename}}: Mae’r ffeil yn wag",
+    "errorFileNotSelected": "Welsh",
     "errorGenericUploadProblemFile": "{{.Filename}}: Gwall ffeil cyffredinol",
     "errorFilesInfected": {
         "one": "Ni ellir uwchlwytho {{.Filenames}} am ei bod yn cynnwys feirws",
