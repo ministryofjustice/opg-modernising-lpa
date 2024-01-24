@@ -35,9 +35,11 @@ variable "s3_replication" {
 }
 
 variable "events_received_lambda_function" {
+  type        = any
   description = "Lambda function ARN for events received"
 }
 
 variable "s3_antivirus_lambda_function" {
+  type        = any
   description = "Lambda function ARN for events received"
 }
