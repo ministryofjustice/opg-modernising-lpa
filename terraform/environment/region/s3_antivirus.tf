@@ -21,7 +21,6 @@ module "s3_antivirus" {
   data_store_bucket                    = module.uploads_s3_bucket.bucket
   definition_bucket                    = data.aws_s3_bucket.antivirus_definitions
   ecr_image_uri                        = "${data.aws_ecr_repository.s3_antivirus.repository_url}@${data.aws_ecr_image.s3_antivirus.image_digest}"
-  enable_autoscan                      = true
   lambda_task_role                     = var.iam_roles.s3_antivirus
   s3_antivirus_provisioned_concurrency = var.s3_antivirus_provisioned_concurrency
 
