@@ -55,6 +55,9 @@ permissions:
   pull-requests: write
   issues: write
 
+env:
+  TFLINT_VERSION: 0.50.1
+
 jobs:
   terraform_environment_workflow:
     name: "${{ inputs.workspace_name }} environment deployment"
@@ -97,12 +100,20 @@ jobs:
       - uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.ssh_deploy_key }}
+      - uses: terraform-linters/setup-tflint@v4
+        name: Setup TFLint
+        with:
+          tflint_version: v${{ env.TFLINT_VERSION }}
 
-      - name: Lint Terraform
+      - name: Check formatting
         id: tf_lint
         run: terraform fmt -check -recursive
         working-directory: ./terraform/environment
         continue-on-error: true
+
+      - name: Lint Terraform
+        id: tf_lint
+        run: tflint --recursive
 
       - name: Terraform Init
         run: terraform init -input=false
