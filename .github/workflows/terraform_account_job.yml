@@ -71,7 +71,7 @@ jobs:
       - name: Terraform Apply
         env:
           TF_WORKSPACE: ${{ inputs.workspace_name }}
-        if: github.ref == 'refs/heads/main'
+        # if: github.ref == 'refs/heads/main'
         run: |
           terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30 terraform.plan
         working-directory: ./terraform/account
