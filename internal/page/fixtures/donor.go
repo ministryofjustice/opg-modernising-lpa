@@ -115,7 +115,7 @@ func Donor(
 				if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
 					LpaID:          donorDetails.LpaID,
 					DonorSessionID: donorSessionID,
-					Type:           donorDetails.Type.LegacyString(),
+					Type:           donorDetails.Type.String(),
 					Donor: uid.DonorDetails{
 						Name:     donorDetails.Donor.FullName(),
 						Dob:      donorDetails.Donor.DateOfBirth,
