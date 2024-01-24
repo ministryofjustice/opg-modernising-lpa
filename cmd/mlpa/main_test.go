@@ -66,7 +66,7 @@ func TestApostrophesAreCurly(t *testing.T) {
 	}
 }
 
-func TestVariablesMustMatch(t *testing.T) {
+func TestTranslationVariablesMustMatch(t *testing.T) {
 	en := loadTranslations("../../lang/en.json")
 	cy := loadTranslations("../../lang/cy.json")
 
