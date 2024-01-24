@@ -67,7 +67,7 @@ data "aws_iam_policy_document" "fault_injection_simulator_additional_permissions
     condition {
       test     = "ArnLike"
       variable = "aws:SourceArn"
-      values   = ["arn:aws:fis:${data.aws_region.global.name}:${data.aws_caller_identity.global.account_id}:experiment/*"]
+      values   = ["arn:aws:fis:*:${data.aws_caller_identity.global.account_id}:experiment/*"]
     }
   }
 }
