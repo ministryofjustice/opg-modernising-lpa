@@ -8,7 +8,7 @@ Health checks are defined in the [adr-007](https://docs.opg.service.justice.gov.
 
 We have metrics for the `/health-check/service` endpoint and the `/health-check/dependencies` endpoint.
 
-Both endpoints are monitored by a Route53 health check that runs every 30 seconds. The health check is configured to send a notification to the team via Slack if the endpoint is down.
+Both endpoints are monitored by a Route53 health check that runs every 30 seconds. Checks are configured to send a notification to the team via Slack if the endpoint is down for key environments like Production.
 
 The [Route53 Health checks](https://us-east-1.console.aws.amazon.com/route53/healthchecks/home?region=us-east-1#/) are in the AWS us-east-1 region, and check from locations in the US, EU and Asia.
 
