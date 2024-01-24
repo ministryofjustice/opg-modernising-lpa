@@ -29,11 +29,3 @@ data "aws_caller_identity" "current" {
 data "aws_default_tags" "current" {
   provider = aws.region
 }
-
-data "aws_caller_identity" "global" {
-  provider = aws.global
-}
-
-data "aws_region" "global" {
-  provider = aws.global
-}
