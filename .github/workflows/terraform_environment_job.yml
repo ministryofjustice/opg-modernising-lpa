@@ -114,6 +114,7 @@ jobs:
       - name: Lint Terraform
         id: tf_lint
         run: tflint --recursive
+        working-directory: ./terraform/environment
 
       - name: Terraform Init
         run: terraform init -input=false

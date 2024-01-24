@@ -61,12 +61,13 @@ jobs:
       - name: Check formatting
         id: tf_fmt
         run: terraform fmt -check -recursive
-        working-directory: ./terraform/environment
+        working-directory: ./terraform/account
         continue-on-error: true
 
       - name: Lint Terraform
         id: tf_lint
         run: tflint --recursive
+        working-directory: ./terraform/account
 
       - name: Terraform Init
         run: terraform init -input=false
