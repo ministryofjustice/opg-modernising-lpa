@@ -175,7 +175,7 @@ jobs:
           TF_VAR_container_version: ${{ inputs.version_tag }}
           TF_VAR_pagerduty_api_key: ${{ secrets.pagerduty_api_key }}
         run: |
-          terraform apply -var public_access_enabled=${{ inputs.public_access_enabled }} -lock-timeout=300s -input=false -auto-approve -parallelism=30 terraform.plan
+          terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30 terraform.plan
         working-directory: ./terraform/environment
 
       - name: Terraform Outputs
