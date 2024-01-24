@@ -83,7 +83,7 @@ data "aws_iam_policy_document" "fis_role_log_encryption" {
 
     resources = [
       aws_cloudwatch_log_group.fis_app_ecs_tasks.arn,
-      "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*"
+      "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*",
     ]
   }
 
@@ -139,7 +139,7 @@ data "aws_iam_policy_document" "fis_role_log_encryption" {
     ]
     resources = [
       aws_cloudwatch_log_group.fis_app_ecs_tasks.arn,
-      "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*"
+      "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*",
     ]
   }
 }
