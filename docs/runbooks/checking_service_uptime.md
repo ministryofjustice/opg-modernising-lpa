@@ -16,6 +16,6 @@ The [Route53 Health checks](https://us-east-1.console.aws.amazon.com/route53/hea
 
 Each environment has a Cloudwatch dashboard that shows the uptime of the service and it's dependencies, named `health-checks-<environment-name>-environment`.
 
-You can access them here:
+You can access them here, after logging in and assuming role into the relevant AWS account:
 
 - [Cloudwatch Dashboards](https://eu-west-1.console.aws.amazon.com/cloudwatch/home?region=eu-west-1#dashboards)
