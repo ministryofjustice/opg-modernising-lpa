@@ -13,10 +13,6 @@ variable "default_role" {
   type    = string
   default = "modernising-lpa-ci"
 }
-variable "management_role" {
-  type    = string
-  default = "modernising-lpa-ci"
-}
 
 provider "aws" {
   alias  = "eu_west_1"
