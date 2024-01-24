@@ -23,7 +23,7 @@ resource "aws_lambda_function" "lambda_function" {
   }
 
   vpc_config {
-    subnet_ids = data.aws_subnet.application.*.id
+    subnet_ids = data.aws_subnet.application[*].id
     security_group_ids = [
       data.aws_security_group.lambda_egress.id
     ]
