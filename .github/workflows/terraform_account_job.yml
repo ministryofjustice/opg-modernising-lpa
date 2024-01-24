@@ -65,7 +65,7 @@ jobs:
           TF_WORKSPACE: ${{ inputs.workspace_name }}
         run: |
           terraform workspace show
-          terraform plan -input=false -parallelism=30 -lock-timeout=300s
+          terraform plan -input=false -parallelism=30 -lock-timeout=300s -out=terraform.plan
         working-directory: ./terraform/account
 
       - name: Terraform Apply
@@ -73,5 +73,5 @@ jobs:
           TF_WORKSPACE: ${{ inputs.workspace_name }}
         if: github.ref == 'refs/heads/main'
         run: |
-          terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30
+          terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30 terraform.plan
         working-directory: ./terraform/account
