@@ -3,7 +3,8 @@ terraform {
 
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
+      version = "~> 5.32.0"
       configuration_aliases = [
         aws.region,
         aws.global,
@@ -13,19 +14,7 @@ terraform {
     }
     pagerduty = {
       source  = "PagerDuty/pagerduty"
-      version = ">= 2.16.0"
+      version = "~> 3.4.0"
     }
   }
-}
-
-data "aws_region" "current" {
-  provider = aws.region
-}
-
-data "aws_caller_identity" "current" {
-  provider = aws.region
-}
-
-data "aws_default_tags" "current" {
-  provider = aws.region
 }

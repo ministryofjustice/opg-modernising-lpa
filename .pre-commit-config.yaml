@@ -25,7 +25,6 @@ repos:
       - id: terraform_tflint
         args:
           - --args=--recursive
-          - --args=--config __GIT_WORKING_DIR__/.tflint.hcl
 
   - repo: https://github.com/dnephin/pre-commit-golang
     rev: v0.5.1
