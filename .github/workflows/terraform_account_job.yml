@@ -59,7 +59,7 @@ jobs:
           tflint_version: v${{ env.TFLINT_VERSION }}
 
       - name: Check formatting
-        id: tf_lint
+        id: tf_fmt
         run: terraform fmt -check -recursive
         working-directory: ./terraform/environment
         continue-on-error: true
