@@ -23,7 +23,6 @@
         {{ template "details" (details . "whereYourIncomeCanComeFrom" "whereYourIncomeCanComeFromDetail" false) }}
         {{ trHtml .App "evidenceRequiredHalfFeeEvidenceContent" }}
         {{ template "details" (details . "ifYouHaveNoIncome" "ifYouHaveNoIncomeDetail" false) }}
-        {{ trHtml .App "evidenceRequiredHalfFeeUniversalCreditContent" }}
 
       {{ else if or .Donor.FeeType.IsNoFee .Donor.PreviousFee.IsPreviousFeeExemption }}
         {{ if .Donor.FeeType.IsRepeatApplicationFee }}
