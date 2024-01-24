@@ -15,8 +15,7 @@ resource "aws_cloudwatch_log_group" "fis_app_ecs_tasks" {
 # Add resource policy to allow FIS or the FIS role to write logs - not working
 
 data "aws_iam_policy_document" "cloudwatch_log_group_policy_fis_app_ecs_tasks" {
-  provider  = aws.region
-  policy_id = "fis_app_ecs_tasks_service"
+  provider = aws.region
   statement {
     sid    = "AWSLogDeliveryWrite20150319"
     effect = "Allow"
@@ -35,19 +34,14 @@ data "aws_iam_policy_document" "cloudwatch_log_group_policy_fis_app_ecs_tasks" {
 
     resources = [
       "arn:aws:logs:*:*:log-group:/aws/fis/*",
-      "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*"
+      "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*",
+      "*"
     ]
 
     condition {
       test     = "StringEquals"
       variable = "aws:SourceAccount"
-      values   = [":${data.aws_caller_identity.current.account_id}"]
-    }
-
-    condition {
-      test     = "ArnLike"
-      variable = "aws:SourceArn"
-      values   = ["arn:aws:logs:${data.aws_region.current.name}::${data.aws_caller_identity.current.account_id}:*"]
+      values   = [data.aws_caller_identity.current.account_id]
     }
   }
 }
@@ -77,7 +71,8 @@ data "aws_iam_policy_document" "fis_role_log_encryption" {
   }
 
   statement {
-    sid = "AllowCloudWatchLogs"
+    sid    = "AllowCloudWatchLogs"
+    effect = "Allow"
     actions = [
       "logs:CreateLogDelivery",
       "logs:DescribeLogGroups",
@@ -89,6 +84,22 @@ data "aws_iam_policy_document" "fis_role_log_encryption" {
     resources = [
       aws_cloudwatch_log_group.fis_app_ecs_tasks.arn,
       "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*"
+    ]
+  }
+
+  statement {
+    sid    = "AllowFISExperimentRoleCloudwatch"
+    effect = "Allow"
+    actions = [
+      "logs:Describe*",
+      "logs:CreateLogDelivery",
+      "logs:PutLogEvents",
+      "logs:CreateLogStream",
+      "logs:PutResourcePolicy"
+    ]
+
+    resources = [
+      "*"
     ]
   }
 
