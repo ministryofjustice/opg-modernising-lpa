@@ -9,8 +9,7 @@ module "event_received" {
     UPLOADS_S3_BUCKET_NAME     = var.uploads_bucket.bucket
     UID_BASE_URL               = var.uid_base_url
   }
-  image_uri = "${var.lambda_function_image_ecr_url}:${var.lambda_function_image_tag}"
-  # ecr_arn              = var.lambda_function_image_ecr_arn
+  image_uri            = "${var.lambda_function_image_ecr_url}:${var.lambda_function_image_tag}"
   environment          = data.aws_default_tags.current.tags.environment-name
   kms_key              = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
   iam_policy_documents = [data.aws_iam_policy_document.api_access_policy.json]
