@@ -167,7 +167,7 @@ func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails)
 		if err := s.eventClient.SendUidRequested(ctx, event.UidRequested{
 			LpaID:          donor.LpaID,
 			DonorSessionID: data.SessionID,
-			Type:           donor.Type.LegacyString(),
+			Type:           donor.Type.String(),
 			Donor: uid.DonorDetails{
 				Name:     donor.Donor.FullName(),
 				Dob:      donor.Donor.DateOfBirth,
@@ -183,7 +183,7 @@ func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails)
 	if donor.LpaUID != "" && !donor.HasSentApplicationUpdatedEvent {
 		if err := s.eventClient.SendApplicationUpdated(ctx, event.ApplicationUpdated{
 			UID:       donor.LpaUID,
-			Type:      donor.Type.LegacyString(),
+			Type:      donor.Type.String(),
 			CreatedAt: donor.CreatedAt,
 			Donor: event.ApplicationUpdatedDonor{
 				FirstNames:  donor.Donor.FirstNames,
