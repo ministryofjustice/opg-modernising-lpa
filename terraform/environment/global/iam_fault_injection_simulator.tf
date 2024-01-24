@@ -38,14 +38,14 @@ resource "aws_iam_role_policy_attachment" "cloudwatch_logs_full_access" {
   provider   = aws.global
 }
 
-resource "aws_iam_role_policy" "fault_injection_simulator_additional_permissions" {
-  name     = "additional-permissions"
+resource "aws_iam_role_policy" "fault_injection_simulator_create_fis_service_linked_role" {
+  name     = "create-fis-service-linked-role-permissions"
   role     = aws_iam_role.fault_injection_simulator.name
-  policy   = data.aws_iam_policy_document.fault_injection_simulator_additional_permissions.json
+  policy   = data.aws_iam_policy_document.fault_injection_simulator_create_fis_service_linked_role.json
   provider = aws.global
 }
 
-data "aws_iam_policy_document" "fault_injection_simulator_additional_permissions" {
+data "aws_iam_policy_document" "fault_injection_simulator_create_fis_service_linked_role" {
   policy_id = "fix experiment permissions"
   statement {
     sid       = "AllowServiceLinkedRole"
@@ -71,7 +71,6 @@ data "aws_iam_policy_document" "fault_injection_simulator_additional_permissions
     }
   }
 }
-
 
 # Create role for registering instance
 
