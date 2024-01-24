@@ -90,28 +90,8 @@ data "aws_region" "eu_west_1" {
   provider = aws.eu_west_1
 }
 
-data "aws_caller_identity" "eu_west_1" {
-  provider = aws.eu_west_1
-}
-
-data "aws_default_tags" "eu_west_1" {
-  provider = aws.eu_west_1
-}
-
 data "aws_region" "eu_west_2" {
   provider = aws.eu_west_2
-}
-
-data "aws_caller_identity" "eu_west_2" {
-  provider = aws.eu_west_2
-}
-
-data "aws_default_tags" "eu_west_2" {
-  provider = aws.eu_west_2
-}
-
-data "aws_region" "global" {
-  provider = aws.global
 }
 
 data "aws_caller_identity" "global" {
