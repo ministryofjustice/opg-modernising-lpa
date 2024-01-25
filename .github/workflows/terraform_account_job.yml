@@ -14,6 +14,10 @@ on:
       aws_secret_access_key:
         description: 'AWS Secret Access Key'
         required: true
+
+env:
+  TFLINT_VERSION: 0.50.1
+
 jobs:
   terraform_account_workflow:
     name: "${{ inputs.workspace_name }} account deployment"
@@ -49,12 +53,21 @@ jobs:
           aws-region: eu-west-1
           role-duration-seconds: 3600
           role-session-name: OPGModernisingLPATerraformGithubAction
+      - uses: terraform-linters/setup-tflint@v4
+        name: Setup TFLint
+        with:
+          tflint_version: v${{ env.TFLINT_VERSION }}
 
-      - name: Lint Terraform
-        id: tf_lint
+      - name: Check formatting
+        id: tf_fmt
         run: terraform fmt -check -recursive
         working-directory: ./terraform/account
         continue-on-error: true
+
+      - name: Lint Terraform
+        id: tf_lint
+        run: tflint --recursive
+        working-directory: ./terraform/account
 
       - name: Terraform Init
         run: terraform init -input=false

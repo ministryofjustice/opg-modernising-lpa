@@ -17,11 +17,10 @@ data "aws_s3_bucket" "antivirus_definitions" {
 module "s3_antivirus" {
   source                               = "./modules/s3_antivirus"
   alarm_sns_topic_arn                  = data.aws_sns_topic.custom_cloudwatch_alarms.arn
-  aws_subnet_ids                       = data.aws_subnet.application.*.id
+  aws_subnet_ids                       = data.aws_subnet.application[*].id
   data_store_bucket                    = module.uploads_s3_bucket.bucket
   definition_bucket                    = data.aws_s3_bucket.antivirus_definitions
   ecr_image_uri                        = "${data.aws_ecr_repository.s3_antivirus.repository_url}@${data.aws_ecr_image.s3_antivirus.image_digest}"
-  enable_autoscan                      = true
   lambda_task_role                     = var.iam_roles.s3_antivirus
   s3_antivirus_provisioned_concurrency = var.s3_antivirus_provisioned_concurrency
 
