@@ -12,13 +12,13 @@ data "aws_iam_policy_document" "assume_replication_role" {
 
     actions = ["sts:AssumeRole"]
   }
-  provider = aws.global
+  provider = aws.region
 }
 
 resource "aws_iam_role" "replication" {
   name               = "${data.aws_default_tags.current.tags.environment-name}-reduced-fees-uploads-replication"
   assume_role_policy = data.aws_iam_policy_document.assume_replication_role.json
-  provider           = aws.global
+  provider           = aws.region
 }
 
 
@@ -191,7 +191,7 @@ resource "aws_ssm_parameter" "s3_batch_configuration" {
     "aws_account_id" : data.aws_caller_identity.current.account_id,
     "report_and_manifests_bucket" : "arn:aws:s3:::batch-manifests-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.name}",
     "source_bucket" : aws_s3_bucket.bucket.arn,
-    "role_arn" : data.aws_iam_role.replication.arn,
+    "role_arn" : aws_iam_role.replication.arn,
     "aws_region" : data.aws_region.current.name,
   })
   provider = aws.region
