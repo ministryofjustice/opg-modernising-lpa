@@ -2,6 +2,7 @@ package donor
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -17,7 +18,7 @@ type confirmYourCertificateProviderIsNotRelatedData struct {
 	Donor  *actor.DonorProvidedDetails
 }
 
-func ConfirmYourCertificateProviderIsNotRelated(tmpl template.Template, donorStore DonorStore) Handler {
+func ConfirmYourCertificateProviderIsNotRelated(tmpl template.Template, donorStore DonorStore, now func() time.Time) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &confirmYourCertificateProviderIsNotRelatedData{
 			App:   appData,
@@ -46,6 +47,7 @@ func ConfirmYourCertificateProviderIsNotRelated(tmpl template.Template, donorSto
 			data.Errors = form.Validate()
 
 			if data.Errors.None() && form.YesNo.IsYes() {
+				donor.CertificateProviderNotRelatedConfirmedAt = now()
 				donor.Tasks.CheckYourLpa = actor.TaskInProgress
 
 				if err := donorStore.Put(r.Context(), donor); err != nil {
