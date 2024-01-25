@@ -1,5 +1,5 @@
 data "aws_iam_role" "replication" {
-  name     = "reduced-fees-uploads-replication"
+  name     = "${data.aws_default_tags.current.tags.environment-name}-reduced-fees-uploads-replication"
   provider = aws.region
 }
 
