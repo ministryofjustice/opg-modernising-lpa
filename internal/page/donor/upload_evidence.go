@@ -30,6 +30,7 @@ const (
 	errUnexpectedContentType = uploadError(2)
 	errFileTooBig            = uploadError(3)
 	errTooManyFiles          = uploadError(4)
+	errFileNotSelected       = uploadError(5)
 )
 
 func acceptedMimeTypes() []string {
@@ -245,7 +246,11 @@ func readUploadEvidenceForm(r *http.Request) *uploadEvidenceForm {
 			filename := html.EscapeString(part.FileName())
 
 			if len(sniff) == 0 {
-				files = append(files, File{Error: errEmptyFile, Filename: filename})
+				if filename == "" {
+					files = append(files, File{Error: errFileNotSelected})
+				} else {
+					files = append(files, File{Error: errEmptyFile, Filename: filename})
+				}
 				continue
 			}
 
@@ -320,6 +325,8 @@ func (f *uploadEvidenceForm) Validate() validation.List {
 				errors.Add("upload", validation.FileError{Label: "errorFileTooBig", Filename: file.Filename})
 			case errEmptyFile:
 				errors.Add("upload", validation.FileError{Label: "errorFileEmpty", Filename: file.Filename})
+			case errFileNotSelected:
+				errors.Add("upload", validation.FileError{Label: "errorFileNotSelected"})
 			default:
 				errors.Add("upload", validation.FileError{Label: "errorGenericUploadProblemFile", Filename: file.Filename})
 			}
