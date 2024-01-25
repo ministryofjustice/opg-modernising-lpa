@@ -48,7 +48,7 @@ data "aws_iam_policy_document" "s3_create_batch_replication_jobs" {
     sid    = "Passrole"
     effect = "Allow"
     resources = [
-      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/reduced-fees-uploads-replication",
+      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${data.aws_default_tags.current.tags.environment-name}-reduced-fees-uploads-replication",
     ]
     actions = [
       "iam:GetRole",

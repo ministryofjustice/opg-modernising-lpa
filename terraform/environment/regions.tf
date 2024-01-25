@@ -56,9 +56,10 @@ module "eu_west_1" {
     base_url = local.environment.lpa_store_service.base_url
     api_arns = local.environment.lpa_store_service.api_arns
   }
-  mock_onelogin_enabled                 = local.environment.mock_onelogin_enabled
-  dependency_health_check_alarm_enabled = local.environment.app.dependency_health_check_alarm_enabled
-  service_health_check_alarm_enabled    = local.environment.app.service_health_check_alarm_enabled
+  mock_onelogin_enabled                   = local.environment.mock_onelogin_enabled
+  dependency_health_check_alarm_enabled   = local.environment.app.dependency_health_check_alarm_enabled
+  service_health_check_alarm_enabled      = local.environment.app.service_health_check_alarm_enabled
+  cloudwatch_application_insights_enabled = local.environment.app.cloudwatch_application_insights_enabled
   providers = {
     aws.region            = aws.eu_west_1
     aws.global            = aws.global
@@ -111,9 +112,10 @@ module "eu_west_2" {
     base_url = local.environment.lpa_store_service.base_url
     api_arns = local.environment.lpa_store_service.api_arns
   }
-  mock_onelogin_enabled                 = local.environment.mock_onelogin_enabled
-  dependency_health_check_alarm_enabled = local.environment.app.dependency_health_check_alarm_enabled
-  service_health_check_alarm_enabled    = local.environment.app.service_health_check_alarm_enabled
+  mock_onelogin_enabled                   = local.environment.mock_onelogin_enabled
+  dependency_health_check_alarm_enabled   = local.environment.app.dependency_health_check_alarm_enabled
+  service_health_check_alarm_enabled      = local.environment.app.service_health_check_alarm_enabled
+  cloudwatch_application_insights_enabled = local.environment.app.cloudwatch_application_insights_enabled
   providers = {
     aws.region            = aws.eu_west_2
     aws.global            = aws.global
