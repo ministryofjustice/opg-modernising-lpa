@@ -34,7 +34,7 @@ func TestGetConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ConfirmYourCertificateProviderIsNotRelated(template.Execute, nil)(testAppData, w, r, donor)
+	err := ConfirmYourCertificateProviderIsNotRelated(template.Execute, nil, nil)(testAppData, w, r, donor)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -45,7 +45,7 @@ func TestGetConfirmYourCertificateProviderIsNotRelatedWhenNoCertificateProvider(
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ConfirmYourCertificateProviderIsNotRelated(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := ConfirmYourCertificateProviderIsNotRelated(nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
 	})
 	resp := w.Result()
@@ -64,7 +64,7 @@ func TestGetConfirmYourCertificateProviderIsNotRelatedWhenTemplateErrors(t *test
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ConfirmYourCertificateProviderIsNotRelated(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := ConfirmYourCertificateProviderIsNotRelated(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Tasks: actor.DonorTasks{
 			CertificateProvider: actor.TaskCompleted,
 		},
@@ -100,10 +100,11 @@ func TestPostConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 				PeopleToNotify:             actor.TaskCompleted,
 				CheckYourLpa:               actor.TaskInProgress,
 			},
+			CertificateProviderNotRelatedConfirmedAt: testNow,
 		}).
 		Return(nil)
 
-	err := ConfirmYourCertificateProviderIsNotRelated(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := ConfirmYourCertificateProviderIsNotRelated(nil, donorStore, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID:                          "lpa-id",
 		Donor:                          actor.Donor{CanSign: form.Yes},
 		HasSentApplicationUpdatedEvent: true,
@@ -143,7 +144,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelatedChooseNew(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ConfirmYourCertificateProviderIsNotRelated(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := ConfirmYourCertificateProviderIsNotRelated(nil, donorStore, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
 		CertificateProvider: actor.CertificateProvider{
 			FirstNames: "John",
@@ -180,7 +181,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelatedWhenStoreErrors(t *testin
 				Put(r.Context(), mock.Anything).
 				Return(expectedError)
 
-			err := ConfirmYourCertificateProviderIsNotRelated(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := ConfirmYourCertificateProviderIsNotRelated(nil, donorStore, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{
 				Tasks: actor.DonorTasks{
 					CertificateProvider: actor.TaskCompleted,
 				},
@@ -203,7 +204,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelatedWhenValidationErrors(t *t
 		})).
 		Return(nil)
 
-	err := ConfirmYourCertificateProviderIsNotRelated(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := ConfirmYourCertificateProviderIsNotRelated(template.Execute, nil, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Tasks: actor.DonorTasks{
 			CertificateProvider: actor.TaskCompleted,
 		},
