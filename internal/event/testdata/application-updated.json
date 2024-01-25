@@ -12,7 +12,7 @@
     "type": {
       "type": "string",
       "description": "The type of LPA being applied for",
-      "enum": ["hw", "pfa"]
+      "enum": ["hw", "pfa", "personal-welfare", "property-and-affairs"]
     },
     "createdAt": {
       "type": "string",
