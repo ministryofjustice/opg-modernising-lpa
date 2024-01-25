@@ -4,7 +4,7 @@ resource "aws_s3_bucket_metric" "virus_infections" {
 
   filter {
     tags = {
-      "${var.environment_variables.ANTIVIRUS_TAG_KEY}" = var.environment_variables.ANTIVIRUS_TAG_VALUE_FAIL
+      tostring(var.environment_variables.ANTIVIRUS_TAG_KEY) = var.environment_variables.ANTIVIRUS_TAG_VALUE_FAIL
     }
   }
   provider = aws.region

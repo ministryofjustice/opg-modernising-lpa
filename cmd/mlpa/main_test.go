@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"regexp"
+	"slices"
 	"strings"
 	"testing"
 
@@ -60,6 +62,35 @@ func TestApostrophesAreCurly(t *testing.T) {
 		if strings.Contains(v, "'") {
 			t.Fail()
 			t.Log("lang/cy.json: ", k)
+		}
+	}
+}
+
+func TestTranslationVariablesMustMatch(t *testing.T) {
+	en := loadTranslations("../../lang/en.json")
+	cy := loadTranslations("../../lang/cy.json")
+
+	for k, enTranslation := range en {
+		if strings.Contains(enTranslation, "{{") {
+			cyTranslation, _ := cy[k]
+
+			r := regexp.MustCompile(`{{[^{}]*}}`)
+			enMatches := r.FindAllString(enTranslation, -1)
+			cyMatches := r.FindAllString(cyTranslation, -1)
+
+			// Account for white space in var
+			for enK, _ := range enMatches {
+				enMatches[enK] = strings.ReplaceAll(enMatches[enK], " ", "")
+			}
+
+			for cyK, _ := range cyMatches {
+				cyMatches[cyK] = strings.ReplaceAll(cyMatches[cyK], " ", "")
+			}
+
+			if !slices.Equal(enMatches, cyMatches) {
+				t.Fail()
+				t.Logf("missing translation variable in %s en: %v | cy: %v", k, enMatches, cyMatches)
+			}
 		}
 	}
 }

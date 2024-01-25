@@ -39,8 +39,8 @@ module "app" {
   public_access_enabled           = var.public_access_enabled
   network = {
     vpc_id              = data.aws_vpc.main.id
-    application_subnets = data.aws_subnet.application.*.id
-    public_subnets      = data.aws_subnet.public.*.id
+    application_subnets = data.aws_subnet.application[*].id
+    public_subnets      = data.aws_subnet.public[*].id
   }
   uploads_s3_bucket = {
     bucket_name = module.uploads_s3_bucket.bucket.id
@@ -78,8 +78,8 @@ module "mock_onelogin" {
   redirect_base_url               = var.app_env_vars.auth_redirect_base_url
   network = {
     vpc_id              = data.aws_vpc.main.id
-    application_subnets = data.aws_subnet.application.*.id
-    public_subnets      = data.aws_subnet.public.*.id
+    application_subnets = data.aws_subnet.application[*].id
+    public_subnets      = data.aws_subnet.public[*].id
   }
   aws_service_discovery_private_dns_namespace = {
     id   = aws_service_discovery_private_dns_namespace.mock_one_login.id

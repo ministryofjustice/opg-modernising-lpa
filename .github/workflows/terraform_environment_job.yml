@@ -55,6 +55,9 @@ permissions:
   pull-requests: write
   issues: write
 
+env:
+  TFLINT_VERSION: 0.50.1
+
 jobs:
   terraform_environment_workflow:
     name: "${{ inputs.workspace_name }} environment deployment"
@@ -97,12 +100,21 @@ jobs:
       - uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.ssh_deploy_key }}
+      - uses: terraform-linters/setup-tflint@v4
+        name: Setup TFLint
+        with:
+          tflint_version: v${{ env.TFLINT_VERSION }}
 
-      - name: Lint Terraform
-        id: tf_lint
+      - name: Check formatting
+        id: tf_fmt
         run: terraform fmt -check -recursive
         working-directory: ./terraform/environment
         continue-on-error: true
+
+      - name: Lint Terraform
+        id: tf_lint
+        run: tflint --recursive
+        working-directory: ./terraform/environment
 
       - name: Terraform Init
         run: terraform init -input=false
@@ -116,46 +128,8 @@ jobs:
           TF_VAR_pagerduty_api_key: ${{ secrets.pagerduty_api_key }}
         run: |
           terraform workspace show
-          echo "plan_summary=$(terraform plan -var public_access_enabled=${{ inputs.public_access_enabled }} -no-color -lock-timeout=300s -input=false -parallelism=30 | grep -ioE 'Plan: [[:digit:]]+ to add, [[:digit:]]+ to change, [[:digit:]]+ to destroy|No changes. Your infrastructure matches the configuration.')" >> $GITHUB_OUTPUT
-          terraform plan -var public_access_enabled=${{ inputs.public_access_enabled }} -lock-timeout=300s -input=false -parallelism=30
+          terraform plan -var public_access_enabled=${{ inputs.public_access_enabled }} -lock-timeout=300s -input=false -parallelism=30 -out=terraform.plan
         working-directory: ./terraform/environment
-
-      - uses: actions/github-script@v6
-        name: Add plan summary to PR comment
-        if: github.workflow == '[Workflow] PR'
-        with:
-          github-token: ${{ secrets.github_access_token }}
-          script: |
-            // 1. Retrieve existing bot comments for the PR
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            })
-            const botComment = comments.find(comment => {
-              return comment.user.type === 'Bot' && comment.body.includes('PR Environment Terraform Plan Summary')
-            })
-
-            const output = `### PR Environment Terraform Plan Summary
-            \n
-            ${{ steps.terraform_plan.outputs.plan_summary }}`;
-
-            // 3. If we have a comment, update it, otherwise create a new one
-            if (botComment) {
-              github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: botComment.id,
-                body: output
-              })
-            } else {
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: output
-              })
-            }
 
       - name: Protect environment workspace
         if: github.event_name == 'pull_request' && inputs.workspace_name != 'weblate'
@@ -175,7 +149,7 @@ jobs:
           TF_VAR_container_version: ${{ inputs.version_tag }}
           TF_VAR_pagerduty_api_key: ${{ secrets.pagerduty_api_key }}
         run: |
-          terraform apply -var public_access_enabled=${{ inputs.public_access_enabled }} -lock-timeout=300s -input=false -auto-approve -parallelism=30
+          terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30 terraform.plan
         working-directory: ./terraform/environment
 
       - name: Terraform Outputs

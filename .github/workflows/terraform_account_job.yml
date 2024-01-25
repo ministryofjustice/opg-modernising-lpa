@@ -14,6 +14,10 @@ on:
       aws_secret_access_key:
         description: 'AWS Secret Access Key'
         required: true
+
+env:
+  TFLINT_VERSION: 0.50.1
+
 jobs:
   terraform_account_workflow:
     name: "${{ inputs.workspace_name }} account deployment"
@@ -49,12 +53,21 @@ jobs:
           aws-region: eu-west-1
           role-duration-seconds: 3600
           role-session-name: OPGModernisingLPATerraformGithubAction
+      - uses: terraform-linters/setup-tflint@v4
+        name: Setup TFLint
+        with:
+          tflint_version: v${{ env.TFLINT_VERSION }}
 
-      - name: Lint Terraform
-        id: tf_lint
+      - name: Check formatting
+        id: tf_fmt
         run: terraform fmt -check -recursive
         working-directory: ./terraform/account
         continue-on-error: true
+
+      - name: Lint Terraform
+        id: tf_lint
+        run: tflint --recursive
+        working-directory: ./terraform/account
 
       - name: Terraform Init
         run: terraform init -input=false
@@ -65,7 +78,7 @@ jobs:
           TF_WORKSPACE: ${{ inputs.workspace_name }}
         run: |
           terraform workspace show
-          terraform plan -input=false -parallelism=30 -lock-timeout=300s
+          terraform plan -input=false -parallelism=30 -lock-timeout=300s -out=terraform.plan
         working-directory: ./terraform/account
 
       - name: Terraform Apply
@@ -73,5 +86,5 @@ jobs:
           TF_WORKSPACE: ${{ inputs.workspace_name }}
         if: github.ref == 'refs/heads/main'
         run: |
-          terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30
+          terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30 terraform.plan
         working-directory: ./terraform/account

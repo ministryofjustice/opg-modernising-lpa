@@ -738,26 +738,36 @@ func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
 		fieldName     string
 		fieldContent  io.Reader
 		expectedError validation.FormattableError
+		fileName      string
 	}{
-		"missing": {
+		"file with no data": {
 			fieldName:     "upload",
 			fieldContent:  strings.NewReader(""),
 			expectedError: validation.FileError{Label: "errorFileEmpty", Filename: "dummy.pdf"},
+			fileName:      "dummy.pdf",
 		},
 		"not pdf": {
 			fieldName:     "upload",
 			fieldContent:  strings.NewReader("I am just text"),
 			expectedError: validation.FileError{Label: "errorFileIncorrectType", Filename: "dummy.pdf"},
+			fileName:      "dummy.pdf",
 		},
 		"wrong field": {
 			fieldName:     "file",
 			fieldContent:  bytes.NewReader(dummyData),
 			expectedError: validation.CustomError{Label: "errorGenericUploadProblem"},
+			fileName:      "dummy.pdf",
 		},
 		"over size pdf": {
 			fieldName:     "upload",
 			fieldContent:  io.MultiReader(bytes.NewReader(dummyData), randomReader),
 			expectedError: validation.FileError{Label: "errorFileTooBig", Filename: "dummy.pdf"},
+			fileName:      "dummy.pdf",
+		},
+		"missing": {
+			fieldName:     "upload",
+			fieldContent:  strings.NewReader(""),
+			expectedError: validation.FileError{Label: "errorFileNotSelected"},
 		},
 	}
 
@@ -772,7 +782,7 @@ func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
 			part, _ = writer.CreateFormField("action")
 			io.WriteString(part, "upload")
 
-			part, _ = writer.CreateFormFile(tc.fieldName, "dummy.pdf")
+			part, _ = writer.CreateFormFile(tc.fieldName, tc.fileName)
 			io.Copy(part, tc.fieldContent)
 
 			writer.Close()
