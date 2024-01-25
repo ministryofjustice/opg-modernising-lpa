@@ -2,7 +2,7 @@ resource "aws_kms_key" "sqs" {
   description             = "${local.default_tags.application} SQS encryption key"
   deletion_window_in_days = 10
   enable_key_rotation     = true
-  policy                  = local.account.account_name == "development" ? data.aws_iam_policy_document.sns_kms_merged.json : data.aws_iam_policy_document.sns_kms.json
+  policy                  = local.account.account_name == "development" ? data.aws_iam_policy_document.sqs_kms_merged.json : data.aws_iam_policy_document.sns_kms.json
   multi_region            = true
   provider                = aws.eu_west_1
 }

@@ -4,25 +4,23 @@ variable "alarm_sns_topic_arn" {
 }
 
 variable "aws_subnet_ids" {
+  type        = list(string)
   description = "List of Sirius private subnet Ids"
 }
 
 variable "data_store_bucket" {
+  type        = any
   description = "Data store bucket to scan for viruses"
 }
 
 variable "definition_bucket" {
+  type        = any
   description = "Bucket containing virus definitions"
 }
 
 variable "ecr_image_uri" {
+  type        = string
   description = "URI of ECR image to use for Lambda"
-}
-
-variable "enable_autoscan" {
-  description = "Whether to enable the automatic scan of newly uploaded objects"
-  type        = bool
-  default     = false
 }
 
 variable "environment_variables" {
@@ -32,6 +30,7 @@ variable "environment_variables" {
 }
 
 variable "lambda_task_role" {
+  type        = any
   description = "Execution role for Lambda"
 }
 

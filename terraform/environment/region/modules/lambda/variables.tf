@@ -21,12 +21,6 @@ variable "description" {
   default     = null
 }
 
-variable "lambda_role_policy_document" {
-  description = "The policy JSON for the lambda IAM role. This policy JSON is merged with Logging and ECR access included in the module."
-  type        = string
-  default     = null
-}
-
 variable "environment_variables" {
   description = "A map that defines environment variables for the Lambda Function."
   type        = map(string)
@@ -50,13 +44,8 @@ variable "timeout" {
   default     = 30
 }
 
-variable "ecr_arn" {
-  description = "The ECR arn for lambda image."
-  type        = string
-  default     = null
-}
-
 variable "kms_key" {
+  type        = any
   description = "KMS key for the lambda log group"
 }
 

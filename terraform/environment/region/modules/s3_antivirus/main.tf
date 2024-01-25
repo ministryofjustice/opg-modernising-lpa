@@ -12,6 +12,7 @@ resource "aws_cloudwatch_log_group" "lambda" {
 
 resource "aws_lambda_function" "lambda_function" {
   function_name = "s3-antivirus-${data.aws_default_tags.current.tags.environment-name}"
+  description   = "Function to scan S3 objects for viruses"
   image_uri     = var.ecr_image_uri
   package_type  = "Image"
   role          = var.lambda_task_role.arn
