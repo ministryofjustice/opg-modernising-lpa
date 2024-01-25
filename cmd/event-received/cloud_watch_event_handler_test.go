@@ -195,12 +195,12 @@ func TestHandleFeeApproved(t *testing.T) {
 			return nil
 		})
 	client.EXPECT().
-		Put(ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
+		Put(ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now, Hash: 13171477638077665116}).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendCertificateProviderPrompt(ctx, page.AppData{}, &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
+		SendCertificateProviderPrompt(ctx, page.AppData{}, &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}}).
 		Return(nil)
 
 	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{}, func() time.Time { return now })
@@ -231,7 +231,7 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 			return nil
 		})
 	client.EXPECT().
-		Put(ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
+		Put(ctx, mock.Anything).
 		Return(expectedError)
 
 	err := handleFeeApproved(ctx, client, event, nil, page.AppData{}, func() time.Time { return now })
@@ -262,12 +262,12 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 			return nil
 		})
 	client.EXPECT().
-		Put(ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
+		Put(ctx, mock.Anything).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendCertificateProviderPrompt(ctx, page.AppData{}, &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}).
+		SendCertificateProviderPrompt(ctx, page.AppData{}, mock.Anything).
 		Return(expectedError)
 
 	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{}, func() time.Time { return now })
@@ -298,7 +298,7 @@ func TestHandleMoreEvidenceRequired(t *testing.T) {
 			return nil
 		})
 	client.EXPECT().
-		Put(ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}).
+		Put(ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now, Hash: 2420797377841961994}).
 		Return(nil)
 
 	err := handleMoreEvidenceRequired(ctx, client, event, func() time.Time { return now })
@@ -329,7 +329,7 @@ func TestHandleMoreEvidenceRequiredWhenPutError(t *testing.T) {
 			return nil
 		})
 	client.EXPECT().
-		Put(ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}).
+		Put(ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now, Hash: 2420797377841961994}).
 		Return(expectedError)
 
 	err := handleMoreEvidenceRequired(ctx, client, event, func() time.Time { return now })
@@ -360,7 +360,7 @@ func TestHandleFeeDenied(t *testing.T) {
 			return nil
 		})
 	client.EXPECT().
-		Put(ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}, UpdatedAt: now}).
+		Put(ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}, UpdatedAt: now, Hash: 3695518532056580250}).
 		Return(nil)
 
 	err := handleFeeDenied(ctx, client, event, func() time.Time { return now })
@@ -391,7 +391,7 @@ func TestHandleFeeDeniedWhenPutError(t *testing.T) {
 			return nil
 		})
 	client.EXPECT().
-		Put(ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}, UpdatedAt: now}).
+		Put(ctx, mock.Anything).
 		Return(expectedError)
 
 	err := handleFeeDenied(ctx, client, event, func() time.Time { return now })
