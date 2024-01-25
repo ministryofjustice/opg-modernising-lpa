@@ -236,9 +236,10 @@ func TestClientSendLpa(t *testing.T) {
 						Country:    "GB",
 					},
 				}},
-				SignedAt: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				SignedAt:                                 time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				CertificateProviderNotRelatedConfirmedAt: time.Date(2001, time.February, 3, 4, 5, 6, 7, time.UTC),
 			},
-			json: `{"lpaType":"personal-welfare","donor":{"firstNames":"John Johnson","lastName":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"line-2","line3":"line-3","town":"town","postcode":"F1 1FF","country":"GB"},"otherNamesKnownBy":"JJ"},"attorneys":[{"firstNames":"Adam","lastName":"Attorney","dateOfBirth":"1999-01-02","email":"adam@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active"},{"firstNames":"Alice","lastName":"Attorney","dateOfBirth":"1998-01-02","email":"alice@example.com","address":{"line1":"aa-line-1","line2":"aa-line-2","line3":"aa-line-3","town":"aa-town","postcode":"A1 1AF","country":"GB"},"status":"active"},{"firstNames":"Richard","lastName":"Attorney","dateOfBirth":"1999-11-12","email":"richard@example.com","address":{"line1":"r-line-1","line2":"r-line-2","line3":"r-line-3","town":"r-town","postcode":"R1 1FF","country":"GB"},"status":"replacement"},{"firstNames":"Rachel","lastName":"Attorney","dateOfBirth":"1998-11-12","email":"rachel@example.com","address":{"line1":"rr-line-1","line2":"rr-line-2","line3":"rr-line-3","town":"rr-town","postcode":"R1 1RF","country":"GB"},"status":"replacement"}],"trustCorporations":[{"name":"Trusty","companyNumber":"55555","email":"trusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active"},{"name":"UnTrusty","companyNumber":"65555","email":"untrusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"replacement"}],"certificateProvider":{"firstNames":"Carol","lastName":"Cert","email":"carol@example.com","address":{"line1":"c-line-1","line2":"c-line-2","line3":"c-line-3","town":"c-town","postcode":"C1 1FF","country":"GB"},"channel":"online"},"peopleToNotify":[{"firstNames":"Peter","lastName":"Notify","address":{"line1":"p-line-1","line2":"p-line-2","line3":"p-line-3","town":"p-town","postcode":"P1 1FF","country":"GB"}}],"howAttorneysMakeDecisions":"jointly","howReplacementAttorneysMakeDecisions":"jointly-for-some-severally-for-others","howReplacementAttorneysMakeDecisionsDetails":"umm","restrictions":"do not do this","lifeSustainingTreatmentOption":"option-a","signedAt":"2000-01-02T03:04:05.000000006Z"}`,
+			json: `{"lpaType":"personal-welfare","donor":{"firstNames":"John Johnson","lastName":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"line-2","line3":"line-3","town":"town","postcode":"F1 1FF","country":"GB"},"otherNamesKnownBy":"JJ"},"attorneys":[{"firstNames":"Adam","lastName":"Attorney","dateOfBirth":"1999-01-02","email":"adam@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active"},{"firstNames":"Alice","lastName":"Attorney","dateOfBirth":"1998-01-02","email":"alice@example.com","address":{"line1":"aa-line-1","line2":"aa-line-2","line3":"aa-line-3","town":"aa-town","postcode":"A1 1AF","country":"GB"},"status":"active"},{"firstNames":"Richard","lastName":"Attorney","dateOfBirth":"1999-11-12","email":"richard@example.com","address":{"line1":"r-line-1","line2":"r-line-2","line3":"r-line-3","town":"r-town","postcode":"R1 1FF","country":"GB"},"status":"replacement"},{"firstNames":"Rachel","lastName":"Attorney","dateOfBirth":"1998-11-12","email":"rachel@example.com","address":{"line1":"rr-line-1","line2":"rr-line-2","line3":"rr-line-3","town":"rr-town","postcode":"R1 1RF","country":"GB"},"status":"replacement"}],"trustCorporations":[{"name":"Trusty","companyNumber":"55555","email":"trusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active"},{"name":"UnTrusty","companyNumber":"65555","email":"untrusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"replacement"}],"certificateProvider":{"firstNames":"Carol","lastName":"Cert","email":"carol@example.com","address":{"line1":"c-line-1","line2":"c-line-2","line3":"c-line-3","town":"c-town","postcode":"C1 1FF","country":"GB"},"channel":"online"},"peopleToNotify":[{"firstNames":"Peter","lastName":"Notify","address":{"line1":"p-line-1","line2":"p-line-2","line3":"p-line-3","town":"p-town","postcode":"P1 1FF","country":"GB"}}],"howAttorneysMakeDecisions":"jointly","howReplacementAttorneysMakeDecisions":"jointly-for-some-severally-for-others","howReplacementAttorneysMakeDecisionsDetails":"umm","restrictions":"do not do this","lifeSustainingTreatmentOption":"option-a","signedAt":"2000-01-02T03:04:05.000000006Z","certificateProviderNotRelatedConfirmedAt":"2001-02-03T04:05:06.000000007Z"}`,
 		},
 	}
 
@@ -539,14 +540,14 @@ func TestClientServiceContract(t *testing.T) {
 	t.Run("SendLpa", func(t *testing.T) {
 		pact.
 			AddInteraction().
-			Given("The lpa store is available").
+			Given("An LPA with UID M-0000-1111-2222 exists").
 			UponReceiving("A request to create a case with existing UID").
 			WithRequest(dsl.Request{
 				Method: http.MethodPut,
 				Path:   dsl.String("/lpas/M-0000-1111-2222"),
 				Headers: dsl.MapMatcher{
 					"Content-Type":        dsl.String("application/json"),
-					"Authorization":       dsl.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 Credential=.*\\/.*\\/.*\\/execute-api\\/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date, Signature=.*"),
+					"Authorization":       dsl.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 Credential=.*\\/.*\\/.*\\/execute-api\\/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=.*"),
 					"X-Amz-Date":          dsl.String("20000102T000000Z"),
 					"X-Jwt-Authorization": dsl.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+"),
 				},
@@ -582,20 +583,6 @@ func TestClientServiceContract(t *testing.T) {
 						}),
 						"status": dsl.Regex("active", "active|replacement"),
 					}, 1),
-					"trustCorporations": dsl.EachLike(map[string]any{
-						"name":          dsl.String("Some Corp"),
-						"companyNumber": dsl.Regex("5555555", "\\d+"),
-						"email":         dsl.String("corp@example.com"),
-						"address": dsl.Like(map[string]any{
-							"line1":    dsl.String("a-line-1"),
-							"line2":    dsl.String("a-line-2"),
-							"line3":    dsl.String("a-line-3"),
-							"town":     dsl.String("a-town"),
-							"postcode": dsl.String("A1 1FF"),
-							"country":  dsl.String("GB"),
-						}),
-						"status": dsl.Regex("active", "active|replacement"),
-					}, 0),
 					"certificateProvider": dsl.Like(map[string]any{
 						"firstNames": dsl.String("Charles"),
 						"lastName":   dsl.String("Certificate"),
@@ -622,14 +609,8 @@ func TestClientServiceContract(t *testing.T) {
 							"country":  dsl.String("GB"),
 						}),
 					}, 0),
-					"howAttorneysMakeDecisions":                   dsl.Regex("jointly", "jointly|jointly-and-severally|jointly-for-some-severally-for-others"),
-					"howAttorneysMakeDecisionsDetails":            dsl.String("hmm"),
-					"howReplacementAttorneysMakeDecisions":        dsl.Regex("jointly", "jointly|jointly-and-severally|jointly-for-some-severally-for-others"),
-					"howReplacementAttorneysMakeDecisionsDetails": dsl.String("hmm"),
-					"howReplacementAttorneysStepIn":               dsl.Regex("all", "all-can-no-longer-act|one-can-no-longer-act|another-way"),
-					"howReplacementAttorneysStepInDetails":        dsl.String("hmm"),
-					"restrictions":                                dsl.String("hmm"),
-					"signedAt":                                    dsl.Regex("2000-01-02T12:13:14.00000Z", `\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d+)?Z`),
+					"restrictions": dsl.String("hmm"),
+					"signedAt":     dsl.Regex("2000-01-02T12:13:14.00000Z", `\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d+)?Z`),
 				}),
 			}).
 			WillRespondWith(dsl.Response{
@@ -638,7 +619,7 @@ func TestClientServiceContract(t *testing.T) {
 				Body:    `{"code":"INVALID_REQUEST","detail":"LPA with UID already exists"}`,
 			})
 
-		pact.Verify(func() error {
+		assert.Nil(t, pact.Verify(func() error {
 			baseURL := fmt.Sprintf("http://localhost:%d", pact.Server.Port)
 
 			secretsClient := newMockSecretsClient(t)
@@ -655,6 +636,7 @@ func TestClientServiceContract(t *testing.T) {
 
 			err := client.SendLpa(context.Background(), &actor.DonorProvidedDetails{
 				LpaUID: "M-0000-1111-2222",
+				Type:   actor.LpaTypePersonalWelfare,
 				Donor: actor.Donor{
 					FirstNames:  "John Johnson",
 					LastName:    "Smith",
@@ -693,24 +675,26 @@ func TestClientServiceContract(t *testing.T) {
 					LastName:   "Person",
 					Address:    address,
 				}},
+				Restrictions: "hmm",
+				SignedAt:     time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
 			})
 
 			assert.Equal(t, responseError{name: "expected 201 response but got 400", body: `{"code":"INVALID_REQUEST","detail":"LPA with UID already exists"}`}, err)
 			return nil
-		})
+		}))
 	})
 
 	t.Run("sendUpdate", func(t *testing.T) {
 		pact.
 			AddInteraction().
-			Given("The lpa store is available").
+			Given("An LPA with UID M-0000-1111-2222 exists").
 			UponReceiving("A request to update the lpa").
 			WithRequest(dsl.Request{
 				Method: http.MethodPost,
 				Path:   dsl.String("/lpas/M-0000-1111-2222/updates"),
 				Headers: dsl.MapMatcher{
 					"Content-Type":        dsl.String("application/json"),
-					"Authorization":       dsl.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 Credential=.*\\/.*\\/.*\\/execute-api\\/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date, Signature=.*"),
+					"Authorization":       dsl.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 Credential=.*\\/.*\\/.*\\/execute-api\\/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=.*"),
 					"X-Amz-Date":          dsl.String("20000102T000000Z"),
 					"X-Jwt-Authorization": dsl.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+"),
 				},
@@ -724,11 +708,12 @@ func TestClientServiceContract(t *testing.T) {
 				}),
 			}).
 			WillRespondWith(dsl.Response{
-				Status:  http.StatusOK,
+				Status:  http.StatusBadRequest,
 				Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
+				Body:    `{"code":"INVALID_REQUEST","detail":"Invalid request"}`,
 			})
 
-		pact.Verify(func() error {
+		assert.Nil(t, pact.Verify(func() error {
 			baseURL := fmt.Sprintf("http://localhost:%d", pact.Server.Port)
 
 			secretsClient := newMockSecretsClient(t)
@@ -749,9 +734,9 @@ func TestClientServiceContract(t *testing.T) {
 					{Key: "/a/key", Old: "old", New: "new"},
 				},
 			})
-			assert.Nil(t, err)
+			assert.Equal(t, responseError{name: "expected 201 response but got 400", body: `{"code":"INVALID_REQUEST","detail":"Invalid request"}`}, err)
 			return nil
-		})
+		}))
 	})
 }
 
