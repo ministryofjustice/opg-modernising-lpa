@@ -5,7 +5,6 @@ data "aws_ecr_repository" "event_received" {
 
 module "event_received" {
   source                        = "./modules/event_received"
-  lambda_function_image_ecr_arn = data.aws_ecr_repository.event_received.arn
   lambda_function_image_ecr_url = data.aws_ecr_repository.event_received.repository_url
   lambda_function_image_tag     = var.app_service_container_version
   event_bus_name                = module.event_bus.event_bus.name

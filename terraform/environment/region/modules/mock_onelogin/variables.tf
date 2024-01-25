@@ -41,6 +41,7 @@ variable "ecs_capacity_provider" {
 }
 
 variable "ecs_application_log_group_name" {
+  type        = string
   description = "The AWS Cloudwatch Log Group resource for application logging"
 }
 
