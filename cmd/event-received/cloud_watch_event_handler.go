@@ -120,25 +120,24 @@ func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event ev
 	return nil
 }
 
-func handleFeeApproved(ctx context.Context, dynamoClient dynamodbClient, event events.CloudWatchEvent, shareCodeSender shareCodeSender, appData page.AppData, now func() time.Time) error {
+func handleFeeApproved(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, shareCodeSender shareCodeSender, appData page.AppData, now func() time.Time) error {
 	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
 	}
 
-	lpa, err := getDonorByLpaUID(ctx, dynamoClient, v.UID)
+	donor, err := getDonorByLpaUID(ctx, client, v.UID)
 	if err != nil {
 		return err
 	}
 
-	lpa.Tasks.PayForLpa = actor.PaymentTaskCompleted
-	lpa.UpdatedAt = now()
+	donor.Tasks.PayForLpa = actor.PaymentTaskCompleted
 
-	if err := dynamoClient.Put(ctx, lpa); err != nil {
+	if err := putDonor(ctx, donor, now, client); err != nil {
 		return fmt.Errorf("failed to update LPA task status: %w", err)
 	}
 
-	if err := shareCodeSender.SendCertificateProviderPrompt(ctx, appData, &lpa); err != nil {
+	if err := shareCodeSender.SendCertificateProviderPrompt(ctx, appData, &donor); err != nil {
 		return fmt.Errorf("failed to send share code to certificate provider: %w", err)
 	}
 
@@ -157,9 +156,8 @@ func handleMoreEvidenceRequired(ctx context.Context, client dynamodbClient, even
 	}
 
 	donor.Tasks.PayForLpa = actor.PaymentTaskMoreEvidenceRequired
-	donor.UpdatedAt = now()
 
-	if err := client.Put(ctx, donor); err != nil {
+	if err := putDonor(ctx, donor, now, client); err != nil {
 		return fmt.Errorf("failed to update LPA task status: %w", err)
 	}
 
@@ -178,9 +176,8 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.Cl
 	}
 
 	donor.Tasks.PayForLpa = actor.PaymentTaskDenied
-	donor.UpdatedAt = now()
 
-	if err := client.Put(ctx, donor); err != nil {
+	if err := putDonor(ctx, donor, now, client); err != nil {
 		return fmt.Errorf("failed to update LPA task status: %w", err)
 	}
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -49,6 +50,19 @@ func handleObjectTagsAdded(ctx context.Context, dynamodbClient dynamodbClient, e
 	}
 
 	return nil
+}
+
+func putDonor(ctx context.Context, donor actor.DonorProvidedDetails, now func() time.Time, client dynamodbClient) error {
+	donor.UpdatedAt = now()
+
+	hash, err := donor.GenerateHash()
+	if err != nil {
+		return err
+	}
+
+	donor.Hash = hash
+
+	return client.Put(ctx, donor)
 }
 
 func getDonorByLpaUID(ctx context.Context, client dynamodbClient, uid string) (actor.DonorProvidedDetails, error) {
