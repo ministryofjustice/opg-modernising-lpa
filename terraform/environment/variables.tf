@@ -43,8 +43,9 @@ variable "environments" {
           minimum = number
           maximum = number
         })
-        dependency_health_check_alarm_enabled = bool
-        service_health_check_alarm_enabled    = bool
+        dependency_health_check_alarm_enabled   = bool
+        service_health_check_alarm_enabled      = bool
+        cloudwatch_application_insights_enabled = bool
       })
       mock_onelogin_enabled = bool
       uid_service = object({
