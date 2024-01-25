@@ -45,7 +45,11 @@ provider "registry.terraform.io/hashicorp/local" {
 
 provider "registry.terraform.io/pagerduty/pagerduty" {
   version     = "3.4.1"
+<<<<<<< HEAD
   constraints = "3.4.1"
+=======
+  constraints = ">= 2.16.0, ~> 3.4.0"
+>>>>>>> 1c4530c2 (update lock)
   hashes = [
     "h1:ntsWamEgQsmFukTV3vtgj6NFowleLE7V3l6U4dW2nOo=",
     "zh:0ac31f1a07ed501a1d14025b3d1196cfe06f9c96da010da50bc360c5186a514f",
