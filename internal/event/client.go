@@ -45,6 +45,10 @@ func (c *Client) SendReducedFeeRequested(ctx context.Context, event ReducedFeeRe
 	return c.send(ctx, "reduced-fee-requested", event)
 }
 
+func (c *Client) SendNotificationSent(ctx context.Context, event NotificationSent) error {
+	return c.send(ctx, "notification-sent", event)
+}
+
 func (c *Client) send(ctx context.Context, detailType string, detail any) error {
 	tracer := otel.GetTracerProvider().Tracer("mlpab")
 	ctx, span := tracer.Start(ctx, detailType,

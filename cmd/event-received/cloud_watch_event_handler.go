@@ -31,18 +31,19 @@ type cloudWatchEventHandler struct {
 	notifyIsProduction bool
 	notifyBaseURL      string
 	appPublicURL       string
+	eventBusName       string
 }
 
-func (h *cloudWatchEventHandler) Handle(ctx context.Context, event events.CloudWatchEvent) error {
-	switch event.DetailType {
+func (h *cloudWatchEventHandler) Handle(ctx context.Context, cloudWatchEvent events.CloudWatchEvent) error {
+	switch cloudWatchEvent.DetailType {
 	case "uid-requested":
 		uidStore := app.NewUidStore(h.dynamoClient, h.now)
 		uidClient := uid.New(h.uidBaseURL, lambda.New(h.cfg, v4.NewSigner(), &http.Client{Timeout: 10 * time.Second}, time.Now))
 
-		return handleUidRequested(ctx, uidStore, uidClient, event)
+		return handleUidRequested(ctx, uidStore, uidClient, cloudWatchEvent)
 
 	case "evidence-received":
-		return handleEvidenceReceived(ctx, h.dynamoClient, event)
+		return handleEvidenceReceived(ctx, h.dynamoClient, cloudWatchEvent)
 
 	case "reduced-fee-approved":
 		bundle, _ := localize.NewBundle("./lang/en.json", "./lang/cy.json")
@@ -65,15 +66,15 @@ func (h *cloudWatchEventHandler) Handle(ctx context.Context, event events.CloudW
 			return err
 		}
 
-		shareCodeSender := page.NewShareCodeSender(app.NewShareCodeStore(h.dynamoClient), notifyClient, h.appPublicURL, random.String)
+		shareCodeSender := page.NewShareCodeSender(app.NewShareCodeStore(h.dynamoClient), notifyClient, h.appPublicURL, random.String, event.NewClient(h.cfg, h.eventBusName))
 
-		return handleFeeApproved(ctx, h.dynamoClient, event, shareCodeSender, appData, h.now)
+		return handleFeeApproved(ctx, h.dynamoClient, cloudWatchEvent, shareCodeSender, appData, h.now)
 
 	case "reduced-fee-declined":
-		return handleFeeDenied(ctx, h.dynamoClient, event, h.now)
+		return handleFeeDenied(ctx, h.dynamoClient, cloudWatchEvent, h.now)
 
 	case "more-evidence-required":
-		return handleMoreEvidenceRequired(ctx, h.dynamoClient, event, h.now)
+		return handleMoreEvidenceRequired(ctx, h.dynamoClient, cloudWatchEvent, h.now)
 
 	default:
 		return fmt.Errorf("unknown cloudwatch event")
