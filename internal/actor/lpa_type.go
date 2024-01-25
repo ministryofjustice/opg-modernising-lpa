@@ -8,16 +8,6 @@ const (
 	LpaTypePropertyAndAffairs                    // property-and-affairs
 )
 
-func (e LpaType) LegacyString() string {
-	switch e {
-	case LpaTypePropertyAndAffairs:
-		return "pfa"
-	case LpaTypePersonalWelfare:
-		return "hw"
-	}
-	return ""
-}
-
 func (e LpaType) WhatLPACoversTransKey() string {
 	switch e {
 	case LpaTypePropertyAndAffairs:
