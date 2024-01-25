@@ -32,6 +32,18 @@ describe('Check the LPA', () => {
     cy.contains('button', 'Confirm').click();
 
     cy.url().should('contain', '/lpa-details-saved');
+
+    cy.visit('/dashboard');
+
+    cy.contains('.govuk-body-s', 'Reference number:')
+        .invoke('text')
+        .then((text) => {
+          const uid = text.split(':')[1].trim();
+          cy.visit(`http://localhost:9001/?detail-type=notification-sent&detail=${uid}`);
+
+          cy.contains(`"uid":"${uid}"`)
+          cy.contains('"notificationId":"an-email-id"');
+        });
   });
 
   it('does not allow checking when no changes', () => {
