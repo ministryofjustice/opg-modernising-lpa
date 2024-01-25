@@ -29,10 +29,6 @@ type DonorTasks struct {
 	PeopleToNotify             TaskState
 }
 
-func (dt DonorTasks) Hash() (uint64, error) {
-	return uint64(dt.YourDetails) + uint64(dt.ChooseAttorneys) + uint64(dt.ChooseReplacementAttorneys) + uint64(dt.WhenCanTheLpaBeUsed) + uint64(dt.LifeSustainingTreatment) + uint64(dt.Restrictions) + uint64(dt.CertificateProvider) + uint64(dt.CheckYourLpa) + uint64(dt.PayForLpa) + uint64(dt.ConfirmYourIdentityAndSign) + uint64(dt.ChooseYourSignatory) + uint64(dt.PeopleToNotify), nil
-}
-
 // DonorProvidedDetails contains all the data related to the LPA application
 type DonorProvidedDetails struct {
 	PK, SK string
