@@ -60,13 +60,11 @@ func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, app
 }
 
 func (s *ShareCodeSender) sendCertificateProvider(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, email shareCodeEmail) error {
-	randomCode := s.randomCode(8)
+	shareCode := s.randomCode(8)
 	if s.useTestCode {
-		randomCode = testCode
+		shareCode = testCode
 		s.useTestCode = false
 	}
-
-	shareCode := formatShareCode(randomCode)
 
 	if err := s.shareCodeStore.Put(ctx, actor.TypeCertificateProvider, shareCode, actor.ShareCodeData{
 		LpaID:           appData.LpaID,
@@ -77,7 +75,7 @@ func (s *ShareCodeSender) sendCertificateProvider(ctx context.Context, appData A
 		return fmt.Errorf("creating sharecode failed: %w", err)
 	}
 
-	if err := s.notifyClient.SendActorEmail(ctx, donor.CertificateProvider.Email, donor.LpaUID, email.WithShareCode(shareCode)); err != nil {
+	if err := s.notifyClient.SendActorEmail(ctx, donor.CertificateProvider.Email, donor.LpaUID, email.WithShareCode(FormatShareCode(shareCode))); err != nil {
 		return fmt.Errorf("email failed: %w", err)
 	}
 
@@ -193,25 +191,23 @@ func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, a
 }
 
 func (s *ShareCodeSender) sendAttorney(ctx context.Context, to string, email shareCodeEmail, shareCodeData actor.ShareCodeData, donor *actor.DonorProvidedDetails) error {
-	randomCode := s.randomCode(8)
+	shareCode := s.randomCode(8)
 	if s.useTestCode {
-		randomCode = testCode
+		shareCode = testCode
 		s.useTestCode = false
 	}
-
-	shareCode := formatShareCode(randomCode)
 
 	if err := s.shareCodeStore.Put(ctx, actor.TypeAttorney, shareCode, shareCodeData); err != nil {
 		return fmt.Errorf("creating attorney share failed: %w", err)
 	}
 
-	if err := s.notifyClient.SendActorEmail(ctx, to, donor.LpaUID, email.WithShareCode(shareCode)); err != nil {
+	if err := s.notifyClient.SendActorEmail(ctx, to, donor.LpaUID, email.WithShareCode(FormatShareCode(shareCode))); err != nil {
 		return fmt.Errorf("email failed: %w", err)
 	}
 
 	return nil
 }
 
-func formatShareCode(shareCode string) string {
-	return "S-" + shareCode[:4] + "-" + shareCode[4:]
+func FormatShareCode(shareCode string) string {
+	return shareCode[:4] + "-" + shareCode[4:]
 }
