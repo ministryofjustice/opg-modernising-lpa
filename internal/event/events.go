@@ -45,3 +45,8 @@ type Evidence struct {
 	Path     string `json:"path"`
 	Filename string `json:"filename"`
 }
+
+type NotificationSent struct {
+	UID            string `json:"uid"`
+	NotificationID string `json:"notificationId"`
+}

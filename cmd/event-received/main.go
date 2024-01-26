@@ -14,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"github.com/ministryofjustice/opg-go-common/env"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -79,6 +80,7 @@ func handler(ctx context.Context, event Event) error {
 		notifyBaseURL      = os.Getenv("GOVUK_NOTIFY_BASE_URL")
 		evidenceBucketName = os.Getenv("UPLOADS_S3_BUCKET_NAME")
 		uidBaseURL         = os.Getenv("UID_BASE_URL")
+		eventBusName       = env.Get("EVENT_BUS_NAME", "default")
 	)
 
 	cfg, err := config.LoadDefaultConfig(ctx)
@@ -121,6 +123,7 @@ func handler(ctx context.Context, event Event) error {
 			notifyIsProduction: notifyIsProduction,
 			notifyBaseURL:      notifyBaseURL,
 			appPublicURL:       appPublicURL,
+			eventBusName:       eventBusName,
 		}
 
 		if err := handler.Handle(ctx, event.CloudWatchEvent); err != nil {
