@@ -10,6 +10,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 )
 
+const testCode = "12345678"
+
 type shareCodeEmail interface {
 	WithShareCode(string) notify.Email
 }
@@ -19,16 +21,16 @@ type ShareCodeSender struct {
 	shareCodeStore ShareCodeStore
 	notifyClient   NotifyClient
 	appPublicURL   string
-	randomString   func(int) string
+	randomCode     func(int) string
 	eventClient    EventClient
 }
 
-func NewShareCodeSender(shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, randomString func(int) string, eventClient EventClient) *ShareCodeSender {
+func NewShareCodeSender(shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, randomCode func(int) string, eventClient EventClient) *ShareCodeSender {
 	return &ShareCodeSender{
 		shareCodeStore: shareCodeStore,
 		notifyClient:   notifyClient,
 		appPublicURL:   appPublicURL,
-		randomString:   randomString,
+		randomCode:     randomCode,
 		eventClient:    eventClient,
 	}
 }
@@ -70,11 +72,13 @@ func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, app
 }
 
 func (s *ShareCodeSender) sendCertificateProvider(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, email shareCodeEmail) (string, error) {
-	shareCode := s.randomString(12)
+	randomCode := s.randomCode(8)
 	if s.useTestCode {
-		shareCode = "abcdef123456"
+		randomCode = testCode
 		s.useTestCode = false
 	}
+
+	shareCode := formatShareCode(randomCode)
 
 	if err := s.shareCodeStore.Put(ctx, actor.TypeCertificateProvider, shareCode, actor.ShareCodeData{
 		LpaID:           appData.LpaID,
@@ -202,11 +206,13 @@ func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, a
 }
 
 func (s *ShareCodeSender) sendAttorney(ctx context.Context, to string, email shareCodeEmail, shareCodeData actor.ShareCodeData) error {
-	shareCode := s.randomString(12)
+	randomCode := s.randomCode(8)
 	if s.useTestCode {
-		shareCode = "abcdef123456"
+		randomCode = testCode
 		s.useTestCode = false
 	}
+
+	shareCode := formatShareCode(randomCode)
 
 	if err := s.shareCodeStore.Put(ctx, actor.TypeAttorney, shareCode, shareCodeData); err != nil {
 		return fmt.Errorf("creating attorney share failed: %w", err)
@@ -217,4 +223,8 @@ func (s *ShareCodeSender) sendAttorney(ctx context.Context, to string, email sha
 	}
 
 	return nil
+}
+
+func formatShareCode(shareCode string) string {
+	return "S-" + shareCode[:4] + "-" + shareCode[4:]
 }
