@@ -86,11 +86,11 @@ func readEnterReferenceNumberForm(r *http.Request) *enterReferenceNumberForm {
 func (f *enterReferenceNumberForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("reference-number", "twelveCharactersReferenceNumber", f.ReferenceNumber,
+	errors.String("reference-number", "eightCharactersReferenceNumber", f.ReferenceNumber,
 		validation.Empty())
 
 	errors.String("reference-number", "theReferenceNumberYouEnter", f.ReferenceNumber,
-		validation.StringLength(12))
+		validation.StringLength(8))
 
 	return errors
 }

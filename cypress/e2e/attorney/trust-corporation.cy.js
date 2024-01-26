@@ -9,7 +9,7 @@ describe('As a trust corporation', () => {
         cy.contains('button', 'Sign in').click();
 
         // enter reference number
-        cy.get('#f-reference-number').type('abcdef123456');
+        cy.get('#f-reference-number').type('1234-5678');
         cy.contains('button', 'Continue').click();
 
         // acting as an attorney
