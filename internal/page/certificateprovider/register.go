@@ -55,7 +55,8 @@ type SessionStore interface {
 }
 
 type NotifyClient interface {
-	SendEmail(context.Context, string, notify.Email) (string, error)
+	SendEmail(context.Context, string, notify.Email) error
+	SendActorEmail(context.Context, string, string, notify.Email) error
 }
 
 type ShareCodeSender interface {

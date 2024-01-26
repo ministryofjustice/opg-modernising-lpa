@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 )
@@ -40,7 +39,7 @@ func (s *ShareCodeSender) UseTestCode() {
 }
 
 func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails) error {
-	id, err := s.sendCertificateProvider(ctx, appData, donor, notify.CertificateProviderInviteEmail{
+	return s.sendCertificateProvider(ctx, appData, donor, notify.CertificateProviderInviteEmail{
 		CertificateProviderFullName: donor.CertificateProvider.FullName(),
 		DonorFullName:               donor.Donor.FullName(),
 		LpaType:                     localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
@@ -49,29 +48,18 @@ func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, app
 		DonorFirstNamesPossessive:   appData.Localizer.Possessive(donor.Donor.FirstNames),
 		WhatLpaCovers:               appData.Localizer.T(donor.Type.WhatLPACoversTransKey()),
 	})
-
-	if err != nil {
-		return err
-	}
-
-	return s.eventClient.SendNotificationSent(ctx, event.NotificationSent{
-		UID:            donor.LpaUID,
-		NotificationID: id,
-	})
 }
 
 func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails) error {
-	_, err := s.sendCertificateProvider(ctx, appData, donor, notify.CertificateProviderProvideCertificatePromptEmail{
+	return s.sendCertificateProvider(ctx, appData, donor, notify.CertificateProviderProvideCertificatePromptEmail{
 		CertificateProviderFullName: donor.CertificateProvider.FullName(),
 		DonorFullName:               donor.Donor.FullName(),
 		LpaType:                     localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
 		CertificateProviderStartURL: fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderStart),
 	})
-
-	return err
 }
 
-func (s *ShareCodeSender) sendCertificateProvider(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, email shareCodeEmail) (string, error) {
+func (s *ShareCodeSender) sendCertificateProvider(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, email shareCodeEmail) error {
 	randomCode := s.randomCode(8)
 	if s.useTestCode {
 		randomCode = testCode
@@ -86,15 +74,14 @@ func (s *ShareCodeSender) sendCertificateProvider(ctx context.Context, appData A
 		DonorFirstNames: donor.Donor.FirstNames,
 		SessionID:       appData.SessionID,
 	}); err != nil {
-		return "", fmt.Errorf("creating sharecode failed: %w", err)
+		return fmt.Errorf("creating sharecode failed: %w", err)
 	}
 
-	id, err := s.notifyClient.SendEmail(ctx, donor.CertificateProvider.Email, email.WithShareCode(shareCode))
-	if err != nil {
-		return "", fmt.Errorf("email failed: %w", err)
+	if err := s.notifyClient.SendActorEmail(ctx, donor.CertificateProvider.Email, donor.LpaUID, email.WithShareCode(shareCode)); err != nil {
+		return fmt.Errorf("email failed: %w", err)
 	}
 
-	return id, nil
+	return nil
 }
 
 func (s *ShareCodeSender) SendAttorneys(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails) error {
@@ -138,7 +125,7 @@ func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData AppD
 			SessionID:  appData.SessionID,
 			LpaID:      appData.LpaID,
 			AttorneyID: attorney.ID,
-		})
+		}, donor)
 }
 
 func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, attorney actor.Attorney) error {
@@ -159,7 +146,7 @@ func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData A
 			LpaID:                 appData.LpaID,
 			AttorneyID:            attorney.ID,
 			IsReplacementAttorney: true,
-		})
+		}, donor)
 }
 
 func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, trustCorporation actor.TrustCorporation) error {
@@ -180,7 +167,7 @@ func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData AppD
 			SessionID:          appData.SessionID,
 			LpaID:              appData.LpaID,
 			IsTrustCorporation: true,
-		})
+		}, donor)
 }
 
 func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, trustCorporation actor.TrustCorporation) error {
@@ -202,10 +189,10 @@ func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, a
 			LpaID:                 appData.LpaID,
 			IsTrustCorporation:    true,
 			IsReplacementAttorney: true,
-		})
+		}, donor)
 }
 
-func (s *ShareCodeSender) sendAttorney(ctx context.Context, to string, email shareCodeEmail, shareCodeData actor.ShareCodeData) error {
+func (s *ShareCodeSender) sendAttorney(ctx context.Context, to string, email shareCodeEmail, shareCodeData actor.ShareCodeData, donor *actor.DonorProvidedDetails) error {
 	randomCode := s.randomCode(8)
 	if s.useTestCode {
 		randomCode = testCode
@@ -218,7 +205,7 @@ func (s *ShareCodeSender) sendAttorney(ctx context.Context, to string, email sha
 		return fmt.Errorf("creating attorney share failed: %w", err)
 	}
 
-	if _, err := s.notifyClient.SendEmail(ctx, to, email.WithShareCode(shareCode)); err != nil {
+	if err := s.notifyClient.SendActorEmail(ctx, to, donor.LpaUID, email.WithShareCode(shareCode)); err != nil {
 		return fmt.Errorf("email failed: %w", err)
 	}
 

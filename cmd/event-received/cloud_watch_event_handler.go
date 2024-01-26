@@ -61,7 +61,7 @@ func (h *cloudWatchEventHandler) Handle(ctx context.Context, cloudWatchEvent eve
 			return fmt.Errorf("failed to get notify API secret: %w", err)
 		}
 
-		notifyClient, err := notify.New(h.notifyIsProduction, h.notifyBaseURL, notifyApiKey, http.DefaultClient)
+		notifyClient, err := notify.New(h.notifyIsProduction, h.notifyBaseURL, notifyApiKey, http.DefaultClient, event.NewClient(h.cfg, h.eventBusName))
 		if err != nil {
 			return err
 		}

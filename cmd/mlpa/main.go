@@ -232,7 +232,7 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	notifyClient, err := notify.New(notifyIsProduction, notifyBaseURL, notifyApiKey, httpClient)
+	notifyClient, err := notify.New(notifyIsProduction, notifyBaseURL, notifyApiKey, httpClient, eventClient)
 	if err != nil {
 		logger.Fatal(err)
 	}
