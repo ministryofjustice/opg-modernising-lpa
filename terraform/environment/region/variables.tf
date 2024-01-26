@@ -141,3 +141,8 @@ variable "service_health_check_alarm_enabled" {
   description = "Enable the service health check alert actions"
   default     = false
 }
+
+variable "cloudwatch_application_insights_enabled" {
+  type        = bool
+  description = "Enable CloudWatch Application Insights"
+}
