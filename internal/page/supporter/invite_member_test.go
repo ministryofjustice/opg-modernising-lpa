@@ -73,7 +73,7 @@ func TestPostInviteMember(t *testing.T) {
 			OrganisationName: "My organisation",
 			InviteCode:       "abcde",
 		}).
-		Return("", nil)
+		Return(nil)
 
 	err := InviteMember(nil, organisationStore, notifyClient, func(int) string { return "abcde" })(testAppData, w, r)
 	resp := w.Result()
@@ -161,7 +161,7 @@ func TestPostInviteMemberWhenNotifySendErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
 		SendEmail(r.Context(), mock.Anything, mock.Anything).
-		Return("", expectedError)
+		Return(expectedError)
 
 	err := InviteMember(nil, organisationStore, notifyClient, func(int) string { return "abcde" })(testAppData, w, r)
 	assert.Equal(t, expectedError, err)
