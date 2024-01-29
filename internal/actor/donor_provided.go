@@ -86,6 +86,9 @@ type DonorProvidedDetails struct {
 	WantToApplyForLpa bool
 	// Confirmation that the applicant wants to sign the LPA
 	WantToSignLpa bool
+	// CertificateProviderNotRelatedConfirmedAt is when the donor confirmed the
+	// certificate provider is not related to another similar actor
+	CertificateProviderNotRelatedConfirmedAt time.Time
 	// CheckedAt is when the donor checked their LPA
 	CheckedAt time.Time
 	// CheckedHash is the Hash value of the LPA when last checked
