@@ -74,7 +74,7 @@ jobs:
       - name: Run Against Image/ECR Login
         if: inputs.run_against_image
         id: login_ecr
-        uses: aws-actions/amazon-ecr-login@v1.7.1
+        uses: aws-actions/amazon-ecr-login@v2.0.1
         with:
           mask-password: true
           registries: 311462405659
@@ -96,7 +96,7 @@ jobs:
           aws-region: eu-west-1
           role-duration-seconds: 900
           role-session-name: OPGModernisingLPATerraformGithubActionTestInfra
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5.0.0
         if: inputs.run_against_image != true
         with:
           python-version: '3.9'
