@@ -13,7 +13,7 @@ import (
 type confirmYourCertificateProviderIsNotRelatedData struct {
 	App    page.AppData
 	Errors validation.List
-	Yes    form.YesNo
+	Form   *form.YesNoForm
 	Donor  *actor.DonorProvidedDetails
 }
 
@@ -21,7 +21,7 @@ func ConfirmYourCertificateProviderIsNotRelated(tmpl template.Template, donorSto
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &confirmYourCertificateProviderIsNotRelatedData{
 			App:   appData,
-			Yes:   form.Yes,
+			Form:  form.NewYesNoForm(form.YesNoUnknown),
 			Donor: donor,
 		}
 
@@ -42,10 +42,10 @@ func ConfirmYourCertificateProviderIsNotRelated(tmpl template.Template, donorSto
 				return page.Paths.CertificateProviderDetails.Redirect(w, r, appData, donor)
 			}
 
-			form := form.ReadYesNoForm(r, "theBoxToConfirmYourCertificateProviderIsNotRelated")
-			data.Errors = form.Validate()
+			data.Form = form.ReadYesNoForm(r, "theBoxToConfirmYourCertificateProviderIsNotRelated")
+			data.Errors = data.Form.Validate()
 
-			if data.Errors.None() && form.YesNo.IsYes() {
+			if data.Errors.None() && data.Form.YesNo.IsYes() {
 				donor.Tasks.CheckYourLpa = actor.TaskInProgress
 
 				if err := donorStore.Put(r.Context(), donor); err != nil {
