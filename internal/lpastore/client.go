@@ -67,6 +67,7 @@ type lpaRequest struct {
 	WhenTheLpaCanBeUsed                         actor.CanBeUsedWhen              `json:"whenTheLpaCanBeUsed,omitempty"`
 	LifeSustainingTreatmentOption               actor.LifeSustainingTreatment    `json:"lifeSustainingTreatmentOption,omitempty"`
 	SignedAt                                    time.Time                        `json:"signedAt"`
+	CertificateProviderNotRelatedConfirmedAt    *time.Time                       `json:"certificateProviderNotRelatedConfirmedAt,omitempty"`
 }
 
 type lpaRequestDonor struct {
@@ -129,6 +130,10 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 		},
 		Restrictions: donor.Restrictions,
 		SignedAt:     donor.SignedAt,
+	}
+
+	if !donor.CertificateProviderNotRelatedConfirmedAt.IsZero() {
+		body.CertificateProviderNotRelatedConfirmedAt = &donor.CertificateProviderNotRelatedConfirmedAt
 	}
 
 	switch donor.Type {
@@ -265,7 +270,7 @@ func (c *Client) SendCertificateProvider(ctx context.Context, lpaUID string, cer
 
 func (c *Client) SendAttorney(ctx context.Context, donor *actor.DonorProvidedDetails, attorney *actor.AttorneyProvidedDetails) error {
 	var attorneyKey string
-	if attorney.IsTrustCorporation && attorney.IsReplacement {
+	if attorney.IsTrustCorporation && attorney.IsReplacement && donor.Attorneys.TrustCorporation.Name != "" {
 		attorneyKey = "/trustCorporations/1"
 	} else if attorney.IsTrustCorporation {
 		attorneyKey = "/trustCorporations/0"
