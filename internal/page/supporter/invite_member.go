@@ -37,7 +37,7 @@ func InviteMember(tmpl template.Template, organisationStore OrganisationStore, n
 					return err
 				}
 
-				if _, err := notifyClient.SendEmail(r.Context(), data.Form.Email, notify.MemberInviteEmail{
+				if err := notifyClient.SendEmail(r.Context(), data.Form.Email, notify.MemberInviteEmail{
 					OrganisationName: organisation.Name,
 					InviteCode:       inviteCode,
 				}); err != nil {
