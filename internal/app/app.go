@@ -105,7 +105,7 @@ func App(
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: lpaDynamoClient}
 	organisationStore := &organisationStore{dynamoClient: lpaDynamoClient, now: time.Now, uuidString: uuid.NewString}
 
-	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicURL, random.String, eventClient)
+	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicURL, random.Code, eventClient)
 	witnessCodeSender := page.NewWitnessCodeSender(donorStore, notifyClient)
 
 	errorHandler := page.Error(tmpls.Get("error-500.gohtml"), logger)

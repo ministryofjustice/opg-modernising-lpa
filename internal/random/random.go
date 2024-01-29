@@ -13,7 +13,9 @@ func String(length int) string {
 }
 
 func Code(length int) string {
-	if UseTestCode {
+	if UseTestCode && length == 8 {
+		return "12345678"
+	} else if UseTestCode {
 		return "1234"
 	}
 
