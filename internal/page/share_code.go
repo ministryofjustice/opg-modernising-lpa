@@ -9,14 +9,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 )
 
-const testCode = "12345678"
-
 type shareCodeEmail interface {
 	WithShareCode(string) notify.Email
 }
 
 type ShareCodeSender struct {
-	useTestCode    bool
+	testCode       string
 	shareCodeStore ShareCodeStore
 	notifyClient   NotifyClient
 	appPublicURL   string
@@ -34,8 +32,8 @@ func NewShareCodeSender(shareCodeStore ShareCodeStore, notifyClient NotifyClient
 	}
 }
 
-func (s *ShareCodeSender) UseTestCode() {
-	s.useTestCode = true
+func (s *ShareCodeSender) UseTestCode(shareCode string) {
+	s.testCode = shareCode
 }
 
 func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails) error {
@@ -61,9 +59,9 @@ func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, app
 
 func (s *ShareCodeSender) sendCertificateProvider(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, email shareCodeEmail) error {
 	shareCode := s.randomCode(8)
-	if s.useTestCode {
-		shareCode = testCode
-		s.useTestCode = false
+	if s.testCode != "" {
+		shareCode = s.testCode
+		s.testCode = ""
 	}
 
 	if err := s.shareCodeStore.Put(ctx, actor.TypeCertificateProvider, shareCode, actor.ShareCodeData{
@@ -192,9 +190,9 @@ func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, a
 
 func (s *ShareCodeSender) sendAttorney(ctx context.Context, to string, email shareCodeEmail, shareCodeData actor.ShareCodeData, donor *actor.DonorProvidedDetails) error {
 	shareCode := s.randomCode(8)
-	if s.useTestCode {
-		shareCode = testCode
-		s.useTestCode = false
+	if s.testCode != "" {
+		shareCode = s.testCode
+		s.testCode = ""
 	}
 
 	if err := s.shareCodeStore.Put(ctx, actor.TypeAttorney, shareCode, shareCodeData); err != nil {

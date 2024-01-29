@@ -16,7 +16,7 @@ import (
 type ShareCodeSender interface {
 	SendCertificateProviderInvite(context.Context, page.AppData, *actor.DonorProvidedDetails) error
 	SendAttorneys(context.Context, page.AppData, *actor.DonorProvidedDetails) error
-	UseTestCode()
+	UseTestCode(shareCode string)
 }
 
 const (

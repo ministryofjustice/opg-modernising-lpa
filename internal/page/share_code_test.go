@@ -84,7 +84,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 	}{
 		"with test code": {
 			useTestCode:               true,
-			expectedTestCode:          testCode,
+			expectedTestCode:          "12345678",
 			expectedFormattedTestCode: formattedTestShareCode,
 		},
 		"without test code": {
@@ -177,7 +177,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 			sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandomCode, nil)
 
 			if tc.useTestCode {
-				sender.UseTestCode()
+				sender.UseTestCode("12345678")
 			}
 
 			err := sender.SendCertificateProviderInvite(ctx, TestAppData, donor)
@@ -312,7 +312,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 	}{
 		"with test code": {
 			useTestCode:               true,
-			expectedTestCode:          testCode,
+			expectedTestCode:          "12345678",
 			expectedFormattedTestCode: formattedTestShareCode,
 		},
 		"without test code": {
@@ -394,7 +394,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 			sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandomCode, nil)
 
 			if tc.useTestCode {
-				sender.UseTestCode()
+				sender.UseTestCode("12345678")
 			}
 
 			err := sender.SendCertificateProviderPrompt(ctx, TestAppData, donor)
@@ -620,7 +620,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 	}{
 		"with test code": {
 			useTestCode:               true,
-			expectedTestCode:          testCode,
+			expectedTestCode:          "12345678",
 			expectedFormattedTestCode: formattedTestShareCode,
 		},
 		"without test code": {
@@ -695,7 +695,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 			sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandomCode, nil)
 
 			if tc.useTestCode {
-				sender.UseTestCode()
+				sender.UseTestCode("12345678")
 			}
 
 			err := sender.SendAttorneys(ctx, TestAppData, donor)
