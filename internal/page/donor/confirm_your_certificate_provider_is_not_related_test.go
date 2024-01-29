@@ -29,7 +29,7 @@ func TestGetConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &confirmYourCertificateProviderIsNotRelatedData{
 			App:   testAppData,
-			Yes:   form.Yes,
+			Form:  form.NewYesNoForm(form.YesNoUnknown),
 			Donor: donor,
 		}).
 		Return(nil)
