@@ -16,7 +16,8 @@ import (
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
-	"github.com/pact-foundation/pact-go/dsl"
+	"github.com/pact-foundation/pact-go/v2/consumer"
+	"github.com/pact-foundation/pact-go/v2/matchers"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -295,40 +296,35 @@ func TestPactContract(t *testing.T) {
 		},
 	}
 
-	pact := &dsl.Pact{
-		Consumer:          "modernising-lpa",
-		Provider:          "data-lpa-uid",
-		Host:              "localhost",
-		PactFileWriteMode: "merge",
-		LogDir:            "../../logs",
-		PactDir:           "../../pacts",
-	}
-	defer pact.Teardown()
+	mockProvider, err := consumer.NewV2Pact(consumer.MockHTTPProviderConfig{
+		Consumer: "modernising-lpa",
+		Provider: "data-lpa-uid",
+		Host:     "localhost",
+		LogDir:   "../../logs",
+		PactDir:  "../../pacts",
+	})
+	assert.Nil(t, err)
 
 	for name, tc := range testCases {
 		t.Run(fmt.Sprintf(name, tc.ResponseStatus), func(t *testing.T) {
-			pact.
+			mockProvider.
 				AddInteraction().
 				Given("The UID service is available").
 				UponReceiving(tc.UponReceiving).
-				WithRequest(dsl.Request{
-					Method: http.MethodPost,
-					Path:   dsl.String("/cases"),
-					Headers: dsl.MapMatcher{
-						"Content-Type":  dsl.String("application/json"),
-						"Authorization": dsl.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date, Signature=98fe2cb1c34c6de900d291351991ba8aa948ca05b7bff969d781edce9b75ee20", "AWS4-HMAC-SHA256 Credential=.*\\/.*\\/.*\\/execute-api\\/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date, Signature=.*"),
-						"X-Amz-Date":    dsl.String("20000102T000000Z"),
-					},
-					Body: tc.ExpectedRequestBody,
+				WithRequest(http.MethodPost, "/cases", func(b *consumer.V2RequestBuilder) {
+					b.
+						Header("Content-Type", matchers.String("application/json")).
+						Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date, Signature=98fe2cb1c34c6de900d291351991ba8aa948ca05b7bff969d781edce9b75ee20", "AWS4-HMAC-SHA256 Credential=.*\\/.*\\/.*\\/execute-api\\/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date, Signature=.*")).
+						Header("X-Amz-Date", matchers.String("20000102T000000Z")).
+						JSONBody(tc.ExpectedRequestBody)
 				}).
-				WillRespondWith(dsl.Response{
-					Status:  tc.ResponseStatus,
-					Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
-					Body:    dsl.Like(tc.ResponseBody),
+				WillRespondWith(tc.ResponseStatus, func(b *consumer.V2ResponseBuilder) {
+					b.Header("Content-Type", matchers.String("application/json"))
+					b.JSONBody(matchers.Like(tc.ResponseBody))
 				})
 
-			var test = func() (err error) {
-				baseURL := fmt.Sprintf("http://localhost:%d", pact.Server.Port)
+			err := mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+				baseURL := fmt.Sprintf("http://%s:%d", config.Host, config.Port)
 
 				now := func() time.Time { return time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC) }
 
@@ -350,9 +346,8 @@ func TestPactContract(t *testing.T) {
 				}
 
 				return err
-			}
-
-			pact.Verify(test)
+			})
+			assert.Nil(t, err)
 		})
 	}
 }
