@@ -7,6 +7,17 @@ export const
     TestEmail2 = 'simulate-delivered-2@notifications.service.gov.uk',
     TestMobile = '07700900000'
 
+export function randomShareCode() {
+    const characters = '0123456789'
+    let result = [];
+
+    for(let i = 0; i < 8; i++) {
+        result.push(characters.charAt(Math.floor(Math.random() * characters.length)));
+    }
+
+    return result.join('');
+}
+
 export const AddressFormAssertions = {
     assertCanAddAddressManually(manualAddressLinkText, withInvalidPostcode = false) {
         cy.checkA11yApp();

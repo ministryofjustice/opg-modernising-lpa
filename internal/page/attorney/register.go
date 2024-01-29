@@ -42,8 +42,9 @@ type DonorStore interface {
 }
 
 type ShareCodeStore interface {
-	Get(context.Context, actor.Type, string) (actor.ShareCodeData, error)
+	Get(ctx context.Context, actorType actor.Type, shareCode string) (actor.ShareCodeData, error)
 	Put(ctx context.Context, actorType actor.Type, shareCode string, data actor.ShareCodeData) error
+	Delete(ctx context.Context, shareCode actor.ShareCodeData) error
 }
 
 type CertificateProviderStore interface {
