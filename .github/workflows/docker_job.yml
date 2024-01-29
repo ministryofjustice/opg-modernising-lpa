@@ -95,7 +95,7 @@ jobs:
           role-session-name: GithubActionsECRPushMLPAB
       - name: ECR Login
         id: login_ecr
-        uses: aws-actions/amazon-ecr-login@v1.7.1
+        uses: aws-actions/amazon-ecr-login@v2.0.1
         with:
           mask-password: true
           registries: 311462405659
