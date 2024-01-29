@@ -31,32 +31,18 @@ jobs:
           go-version: '^1.20'
           cache-dependency-path: "**/*.sum"
 
-      - name: Set Pact Standalone version
-        run: |
-          echo "pact_version=1.88.82" >> $GITHUB_ENV
-
-      - name: Cache Pact
-        id: cache-pact
-        uses: actions/cache@v4.0.0
-        with:
-          path: ./pact/
-          key: ${{ runner.os }}-pact-${{ env.pact_version }}
-
-      - name: Add Pact to Path
-        if: steps.cache-pact.outputs.cache-hit == 'true'
-        run: |
-          echo "$PWD/pact/bin" >> $GITHUB_PATH
-
-      - name: Download pact tools
-        if: steps.cache-pact.outputs.cache-hit != 'true'
-        run: |
-          curl -LO https://github.com/pact-foundation/pact-ruby-standalone/releases/download/v${{ env.pact_version }}/pact-${{ env.pact_version }}-linux-x86_64.tar.gz
-          tar xzf pact-${{ env.pact_version }}-linux-x86_64.tar.gz
-          echo "$PWD/pact/bin" >> $GITHUB_PATH
-
       - name: Run tests and generate coverage report
         run: |
+          go install github.com/pact-foundation/pact-go/v2
+          mkdir /tmp/pact-lib
+          pact-go -l DEBUG -d /tmp/pact-lib install
+          echo "LD_LIBRARY_PATH"
+          echo $LD_LIBRARY_PATH
+          echo "ls /tmp/pact-lib"
+          ls /tmp/pact-lib
           make go-test
+        env:
+          LD_LIBRARY_PATH: "/usr/local/lib:/tmp/pact-lib"
 
       - name: Publish pacts
         run: |
