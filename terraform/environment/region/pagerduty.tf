@@ -21,7 +21,8 @@ resource "aws_sns_topic_subscription" "ecs_autoscaling_alarms" {
 }
 
 data "aws_sns_topic" "cloudwatch_application_insights" {
-  name = "cloudwatch_application_insights"
+  name     = "cloudwatch_application_insights"
+  provider = aws.region
 }
 
 resource "pagerduty_service_integration" "cloudwatch_application_insights" {
