@@ -26,12 +26,14 @@ data "aws_sns_topic" "cloudwatch_application_insights" {
 }
 
 resource "pagerduty_service_integration" "cloudwatch_application_insights" {
+  count   = var.cloudwatch_application_insights_enabled ? 1 : 0
   name    = "Modernising LPA ${data.aws_default_tags.current.tags.environment-name} ${data.aws_region.current.name} Cloudwatch Application Insights Ops Item Alarm"
   service = data.pagerduty_service.main.id
   vendor  = data.pagerduty_vendor.cloudwatch.id
 }
 
 resource "aws_sns_topic_subscription" "cloudwatch_application_insights" {
+  count                  = var.cloudwatch_application_insights_enabled ? 1 : 0
   topic_arn              = data.aws_sns_topic.cloudwatch_application_insights.arn
   protocol               = "https"
   endpoint_auto_confirms = true
