@@ -71,6 +71,16 @@ localhost. Example VSCode debug config:
 }
 ```
 
+#### Pact
+
+We use [Pact](https://pact.io/) for contract tests. To install the necessary
+tools to run the tests do:
+
+```
+go install github.com/pact-foundation/pact-go/v2
+pact-go install
+```
+
 #### Code generation
 
 We make use of [mockery](https://github.com/vektra/mockery) for generating mocks
