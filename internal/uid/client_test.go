@@ -303,7 +303,6 @@ func TestPactContract(t *testing.T) {
 		LogDir:            "../../logs",
 		PactDir:           "../../pacts",
 	}
-
 	defer pact.Teardown()
 
 	for name, tc := range testCases {
