@@ -21,6 +21,54 @@ func (_m *mockShareCodeStoreDynamoClient) EXPECT() *mockShareCodeStoreDynamoClie
 	return &mockShareCodeStoreDynamoClient_Expecter{mock: &_m.Mock}
 }
 
+// DeleteOne provides a mock function with given fields: ctx, pk, sk
+func (_m *mockShareCodeStoreDynamoClient) DeleteOne(ctx context.Context, pk string, sk string) error {
+	ret := _m.Called(ctx, pk, sk)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteOne")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
+		r0 = rf(ctx, pk, sk)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockShareCodeStoreDynamoClient_DeleteOne_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteOne'
+type mockShareCodeStoreDynamoClient_DeleteOne_Call struct {
+	*mock.Call
+}
+
+// DeleteOne is a helper method to define mock.On call
+//   - ctx context.Context
+//   - pk string
+//   - sk string
+func (_e *mockShareCodeStoreDynamoClient_Expecter) DeleteOne(ctx interface{}, pk interface{}, sk interface{}) *mockShareCodeStoreDynamoClient_DeleteOne_Call {
+	return &mockShareCodeStoreDynamoClient_DeleteOne_Call{Call: _e.mock.On("DeleteOne", ctx, pk, sk)}
+}
+
+func (_c *mockShareCodeStoreDynamoClient_DeleteOne_Call) Run(run func(ctx context.Context, pk string, sk string)) *mockShareCodeStoreDynamoClient_DeleteOne_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *mockShareCodeStoreDynamoClient_DeleteOne_Call) Return(_a0 error) *mockShareCodeStoreDynamoClient_DeleteOne_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockShareCodeStoreDynamoClient_DeleteOne_Call) RunAndReturn(run func(context.Context, string, string) error) *mockShareCodeStoreDynamoClient_DeleteOne_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // One provides a mock function with given fields: ctx, pk, sk, v
 func (_m *mockShareCodeStoreDynamoClient) One(ctx context.Context, pk string, sk string, v interface{}) error {
 	ret := _m.Called(ctx, pk, sk, v)

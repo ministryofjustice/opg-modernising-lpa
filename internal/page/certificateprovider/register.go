@@ -44,6 +44,7 @@ type OneLoginClient interface {
 type ShareCodeStore interface {
 	Get(context.Context, actor.Type, string) (actor.ShareCodeData, error)
 	Put(context.Context, actor.Type, string, actor.ShareCodeData) error
+	Delete(ctx context.Context, shareCode actor.ShareCodeData) error
 }
 
 type Template func(io.Writer, interface{}) error

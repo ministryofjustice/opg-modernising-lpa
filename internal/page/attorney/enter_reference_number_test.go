@@ -120,6 +120,9 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 			shareCodeStore.EXPECT().
 				Get(r.Context(), actor.TypeAttorney, "12345678").
 				Return(tc.shareCode, nil)
+			shareCodeStore.EXPECT().
+				Delete(r.Context(), tc.shareCode).
+				Return(nil)
 
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.EXPECT().
@@ -243,6 +246,42 @@ func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
 	attorneyStore.EXPECT().
 		Create(mock.Anything, mock.Anything, mock.Anything, false, false).
 		Return(&actor.AttorneyProvidedDetails{}, expectedError)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		ExpectGet(r,
+			map[any]any{"session": &sesh.LoginSession{Sub: "hey"}}, nil)
+
+	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, attorneyStore)(testAppData, w, r)
+
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostEnterReferenceNumberOnShareCodeStoreDeleteError(t *testing.T) {
+	form := url.Values{
+		"reference-number": {"1 23-45678"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	shareCode := actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		Get(r.Context(), actor.TypeAttorney, mock.Anything).
+		Return(shareCode, nil)
+	shareCodeStore.EXPECT().
+		Delete(r.Context(), shareCode).
+		Return(expectedError)
+
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.EXPECT().
+		Create(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(&actor.AttorneyProvidedDetails{}, nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
