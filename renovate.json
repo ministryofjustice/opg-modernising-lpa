@@ -41,7 +41,7 @@
         "Dependencies",
         "Renovate"
     ],
-    "prCreation": "not-pending",
+    "prCreation": "immediate",
     "stabilityDays": 3,
     "prPriority": 0
   },
