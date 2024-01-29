@@ -178,6 +178,8 @@ func TestHandleFeeApproved(t *testing.T) {
 	}
 
 	now := time.Now()
+	updated := actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}
+	updated.Hash, _ = updated.GenerateHash()
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -195,7 +197,7 @@ func TestHandleFeeApproved(t *testing.T) {
 			return nil
 		})
 	client.EXPECT().
-		Put(ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now, Hash: 13171477638077665116}).
+		Put(ctx, updated).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
@@ -281,6 +283,8 @@ func TestHandleMoreEvidenceRequired(t *testing.T) {
 	}
 
 	now := time.Now()
+	updated := actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}
+	updated.Hash, _ = updated.GenerateHash()
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -298,7 +302,7 @@ func TestHandleMoreEvidenceRequired(t *testing.T) {
 			return nil
 		})
 	client.EXPECT().
-		Put(ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now, Hash: 2420797377841961994}).
+		Put(ctx, updated).
 		Return(nil)
 
 	err := handleMoreEvidenceRequired(ctx, client, event, func() time.Time { return now })
@@ -312,6 +316,8 @@ func TestHandleMoreEvidenceRequiredWhenPutError(t *testing.T) {
 	}
 
 	now := time.Now()
+	updated := actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}
+	updated.Hash, _ = updated.GenerateHash()
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -329,7 +335,7 @@ func TestHandleMoreEvidenceRequiredWhenPutError(t *testing.T) {
 			return nil
 		})
 	client.EXPECT().
-		Put(ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now, Hash: 2420797377841961994}).
+		Put(ctx, updated).
 		Return(expectedError)
 
 	err := handleMoreEvidenceRequired(ctx, client, event, func() time.Time { return now })
@@ -343,6 +349,8 @@ func TestHandleFeeDenied(t *testing.T) {
 	}
 
 	now := time.Now()
+	updated := actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}, UpdatedAt: now}
+	updated.Hash, _ = updated.GenerateHash()
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -360,7 +368,7 @@ func TestHandleFeeDenied(t *testing.T) {
 			return nil
 		})
 	client.EXPECT().
-		Put(ctx, actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}, UpdatedAt: now, Hash: 3695518532056580250}).
+		Put(ctx, updated).
 		Return(nil)
 
 	err := handleFeeDenied(ctx, client, event, func() time.Time { return now })
