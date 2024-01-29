@@ -24,7 +24,7 @@
           {{ template "error-message" (errorMessage . .Form.FieldName) }}
 
           {{ template "checkboxes" (items . .Form.FieldName nil
-            (item .Yes.String "iConfirmThatMyCertificateProviderIsNotRelated")
+            (item .Form.Options.Yes.String "iConfirmThatMyCertificateProviderIsNotRelated")
           ) }}
         </div>
 
