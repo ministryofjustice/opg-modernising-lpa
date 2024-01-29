@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"net/url"
 	"time"
 
-	"github.com/MicahParks/keyfunc"
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/MicahParks/jwkset"
+	"github.com/MicahParks/keyfunc/v3"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 const (
@@ -38,7 +40,7 @@ type configurationClient struct {
 	refreshRequest chan (struct{})
 
 	currentConfiguration *openidConfiguration
-	currentJwks          *keyfunc.JWKS
+	currentJwks          keyfunc.Keyfunc
 }
 
 func getConfiguration(ctx context.Context, logger Logger, httpClient *http.Client, issuer string) *configurationClient {
@@ -126,18 +128,23 @@ func (c *configurationClient) refresh() error {
 		return err
 	}
 
-	c.currentConfiguration = &v
-	c.currentJwks, err = keyfunc.Get(c.currentConfiguration.JwksURI, keyfunc.Options{
-		Client: c.httpClient,
-		Ctx:    c.ctx,
-		RefreshErrorHandler: func(err error) {
-			c.logger.Print("error refreshing jwks: ", err)
-		},
-		RefreshInterval:   refreshInterval,
-		RefreshRateLimit:  refreshRateLimit,
-		RefreshTimeout:    refreshTimeout,
-		RefreshUnknownKID: true,
+	uri, err := url.Parse(v.JwksURI)
+	if err != nil {
+		return err
+	}
+
+	storage, err := jwkset.NewStorageFromHTTP(uri, jwkset.HTTPClientStorageOptions{
+		Ctx:             c.ctx,
+		Client:          c.httpClient,
+		RefreshInterval: refreshInterval,
+		HTTPTimeout:     refreshTimeout,
 	})
+	if err != nil {
+		return err
+	}
+
+	c.currentConfiguration = &v
+	c.currentJwks, err = keyfunc.New(keyfunc.Options{Ctx: c.ctx, Storage: storage})
 
 	return err
 }

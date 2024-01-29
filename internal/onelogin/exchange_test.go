@@ -7,14 +7,14 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"encoding/pem"
-	"io/ioutil"
+	"io"
 	"math/rand"
 	"net/http"
 	"testing"
 	"time"
 
-	"github.com/MicahParks/keyfunc"
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/MicahParks/jwkset"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -22,11 +22,13 @@ import (
 
 var ctx = context.Background()
 
+type mockKeyfunc struct{}
+
+func (*mockKeyfunc) Keyfunc(*jwt.Token) (any, error) { return []byte("my-key"), nil }
+func (*mockKeyfunc) Storage() jwkset.Storage         { return (jwkset.Storage)(nil) }
+
 func TestExchange(t *testing.T) {
 	privateKey, _ := rsa.GenerateKey(rand.New(rand.NewSource(99)), 2048)
-	jwks := keyfunc.NewGiven(map[string]keyfunc.GivenKey{
-		"myKey": keyfunc.NewGivenHMAC([]byte("my-key")),
-	})
 
 	token, err := (&jwt.Token{
 		Header: map[string]interface{}{
@@ -85,7 +87,7 @@ func TestExchange(t *testing.T) {
 		})).
 		Return(&http.Response{
 			StatusCode: http.StatusOK,
-			Body:       ioutil.NopCloser(bytes.NewReader(data)),
+			Body:       io.NopCloser(bytes.NewReader(data)),
 		}, nil)
 
 	client := &Client{
@@ -96,7 +98,7 @@ func TestExchange(t *testing.T) {
 				Issuer:        "http://issuer",
 				TokenEndpoint: "http://token",
 			},
-			currentJwks: jwks,
+			currentJwks: &mockKeyfunc{},
 		},
 		clientID:     "client-id",
 		redirectURL:  "http://redirect",
@@ -128,7 +130,7 @@ func TestExchangeWhenPrivateKeyError(t *testing.T) {
 		secretsClient: secretsClient,
 		openidConfiguration: &configurationClient{
 			currentConfiguration: &openidConfiguration{},
-			currentJwks:          &keyfunc.JWKS{},
+			currentJwks:          &mockKeyfunc{},
 		},
 	}
 
@@ -161,7 +163,7 @@ func TestExchangeWhenTokenRequestError(t *testing.T) {
 			currentConfiguration: &openidConfiguration{
 				TokenEndpoint: "http://token",
 			},
-			currentJwks: &keyfunc.JWKS{},
+			currentJwks: &mockKeyfunc{},
 		},
 		randomString: func(i int) string { return "this-is-random" },
 	}
@@ -172,9 +174,6 @@ func TestExchangeWhenTokenRequestError(t *testing.T) {
 
 func TestExchangeWhenInvalidToken(t *testing.T) {
 	privateKey, _ := rsa.GenerateKey(rand.New(rand.NewSource(99)), 2048)
-	jwks := keyfunc.NewGiven(map[string]keyfunc.GivenKey{
-		"myKey": keyfunc.NewGivenHMAC([]byte("my-key")),
-	})
 
 	testCases := map[string]struct {
 		claims jwt.MapClaims
@@ -307,7 +306,7 @@ func TestExchangeWhenInvalidToken(t *testing.T) {
 				})).
 				Return(&http.Response{
 					StatusCode: http.StatusOK,
-					Body:       ioutil.NopCloser(bytes.NewReader(data)),
+					Body:       io.NopCloser(bytes.NewReader(data)),
 				}, nil)
 
 			client := &Client{
@@ -318,7 +317,7 @@ func TestExchangeWhenInvalidToken(t *testing.T) {
 						Issuer:        "http://issuer",
 						TokenEndpoint: "http://token",
 					},
-					currentJwks: jwks,
+					currentJwks: &mockKeyfunc{},
 				},
 				clientID:     "client-id",
 				redirectURL:  "http://redirect",
