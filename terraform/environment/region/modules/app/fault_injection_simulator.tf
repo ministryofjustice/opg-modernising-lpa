@@ -205,13 +205,14 @@ resource "aws_fis_experiment_template" "ecs_app" {
 locals {
   amazon_ssm_agent = jsonencode(
     {
-      name         = "amazon-ssm-agent",
-      image        = "public.ecr.aws/amazon-ssm-agent/amazon-ssm-agent:latest",
-      cpu          = 0,
-      links        = [],
-      portMappings = [],
-      essential    = false,
-      entryPoint   = [],
+      name                   = "amazon-ssm-agent",
+      image                  = "public.ecr.aws/amazon-ssm-agent/amazon-ssm-agent:latest",
+      cpu                    = 0,
+      links                  = [],
+      portMappings           = [],
+      essential              = false,
+      entryPoint             = [],
+      readonlyRootFilesystem = true
       command = [
         "/bin/bash",
         "-c",
