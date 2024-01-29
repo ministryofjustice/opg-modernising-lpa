@@ -20,7 +20,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
-	"github.com/pact-foundation/pact-go/dsl"
+	"github.com/pact-foundation/pact-go/v2/consumer"
+	"github.com/pact-foundation/pact-go/v2/matchers"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -547,101 +548,82 @@ func TestClientServiceContract(t *testing.T) {
 		Country:    "GB",
 	}
 
-	pact := &dsl.Pact{
-		Consumer:          "modernising-lpa",
-		Provider:          "data-lpa-store",
-		Host:              "localhost",
-		PactFileWriteMode: "merge",
-		LogDir:            "../../logs",
-		PactDir:           "../../pacts",
-	}
-	defer pact.Teardown()
+	mockProvider, err := consumer.NewV2Pact(consumer.MockHTTPProviderConfig{
+		Consumer: "modernising-lpa",
+		Provider: "data-lpa-store",
+		LogDir:   "../../logs",
+		PactDir:  "../../pacts",
+	})
+	assert.Nil(t, err)
 
 	t.Run("SendLpa", func(t *testing.T) {
-		pact.
+		mockProvider.
 			AddInteraction().
 			Given("An LPA with UID M-0000-1111-2222 does not exist").
 			UponReceiving("A request to create a new case").
-			WithRequest(dsl.Request{
-				Method: http.MethodPut,
-				Path:   dsl.String("/lpas/M-0000-1111-2222"),
-				Headers: dsl.MapMatcher{
-					"Content-Type":        dsl.String("application/json"),
-					"Authorization":       dsl.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 Credential=.*\\/.*\\/.*\\/execute-api\\/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=.*"),
-					"X-Amz-Date":          dsl.String("20000102T000000Z"),
-					"X-Jwt-Authorization": dsl.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+"),
-				},
-				Body: dsl.Like(map[string]any{
-					"lpaType":                       dsl.Regex("personal-welfare", "personal-welfare|property-and-affairs"),
-					"lifeSustainingTreatmentOption": dsl.Regex("option-a", "option-a|option-b"),
-					"donor": dsl.Like(map[string]any{
-						"firstNames":  dsl.String("John Johnson"),
-						"lastName":    dsl.String("Smith"),
-						"dateOfBirth": dsl.Regex("2000-01-02", "\\d{4}-\\d{2}-\\d{2}"),
-						"email":       dsl.String("john@example.com"),
-						"address": dsl.Like(map[string]any{
-							"line1":    dsl.String("line-1"),
-							"line2":    dsl.String("line-2"),
-							"line3":    dsl.String("line-3"),
-							"town":     dsl.String("town"),
-							"postcode": dsl.String("F1 1FF"),
-							"country":  dsl.String("GB"),
+			WithRequest(http.MethodPut, "/lpas/M-0000-1111-2222", func(b *consumer.V2RequestBuilder) {
+				b.
+					Header("Content-Type", matchers.String("application/json")).
+					Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 .*")).
+					Header("X-Amz-Date", matchers.String("20000102T000000Z")).
+					Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
+					JSONBody(matchers.Like(map[string]any{
+						"lpaType":                       matchers.Regex("personal-welfare", "personal-welfare|property-and-affairs"),
+						"lifeSustainingTreatmentOption": matchers.Regex("option-a", "option-a|option-b"),
+						"donor": matchers.Like(map[string]any{
+							"firstNames":  matchers.String("John Johnson"),
+							"lastName":    matchers.String("Smith"),
+							"dateOfBirth": matchers.Regex("2000-01-02", "\\d{4}-\\d{2}-\\d{2}"),
+							"email":       matchers.String("john@example.com"),
+							"address": matchers.Like(map[string]any{
+								"line1":    matchers.String("line-1"),
+								"line2":    matchers.String("line-2"),
+								"line3":    matchers.String("line-3"),
+								"town":     matchers.String("town"),
+								"postcode": matchers.String("F1 1FF"),
+								"country":  matchers.String("GB"),
+							}),
 						}),
-						"otherNamesKnownBy": dsl.String("JJ"),
-					}),
-					"attorneys": dsl.EachLike(map[string]any{
-						"firstNames":  dsl.String("Adam"),
-						"lastName":    dsl.String("Attorney"),
-						"dateOfBirth": dsl.Regex("1999-01-02", "\\d{4}-\\d{2}-\\d{2}"),
-						"email":       dsl.String("adam@example.com"),
-						"address": dsl.Like(map[string]any{
-							"line1":    dsl.String("a-line-1"),
-							"line2":    dsl.String("a-line-2"),
-							"line3":    dsl.String("a-line-3"),
-							"town":     dsl.String("a-town"),
-							"postcode": dsl.String("A1 1FF"),
-							"country":  dsl.String("GB"),
+						"attorneys": matchers.EachLike(map[string]any{
+							"firstNames":  matchers.String("Adam"),
+							"lastName":    matchers.String("Attorney"),
+							"dateOfBirth": matchers.Regex("1999-01-02", "\\d{4}-\\d{2}-\\d{2}"),
+							"email":       matchers.String("adam@example.com"),
+							"address": matchers.Like(map[string]any{
+								"line1":    matchers.String("a-line-1"),
+								"line2":    matchers.String("a-line-2"),
+								"line3":    matchers.String("a-line-3"),
+								"town":     matchers.String("a-town"),
+								"postcode": matchers.String("A1 1FF"),
+								"country":  matchers.String("GB"),
+							}),
+							"status": matchers.Regex("active", "active|replacement"),
+						}, 1),
+						"certificateProvider": matchers.Like(map[string]any{
+							"firstNames": matchers.String("Charles"),
+							"lastName":   matchers.String("Certificate"),
+							"email":      matchers.String("charles@example.com"),
+							"address": matchers.Like(map[string]any{
+								"line1":    matchers.String("a-line-1"),
+								"line2":    matchers.String("a-line-2"),
+								"line3":    matchers.String("a-line-3"),
+								"town":     matchers.String("a-town"),
+								"postcode": matchers.String("A1 1FF"),
+								"country":  matchers.String("GB"),
+							}),
+							"channel": matchers.Regex("online", "online|post"),
 						}),
-						"status": dsl.Regex("active", "active|replacement"),
-					}, 1),
-					"certificateProvider": dsl.Like(map[string]any{
-						"firstNames": dsl.String("Charles"),
-						"lastName":   dsl.String("Certificate"),
-						"email":      dsl.String("charles@example.com"),
-						"address": dsl.Like(map[string]any{
-							"line1":    dsl.String("a-line-1"),
-							"line2":    dsl.String("a-line-2"),
-							"line3":    dsl.String("a-line-3"),
-							"town":     dsl.String("a-town"),
-							"postcode": dsl.String("A1 1FF"),
-							"country":  dsl.String("GB"),
-						}),
-						"channel": dsl.Regex("online", "online|post"),
-					}),
-					"peopleToNotify": dsl.EachLike(map[string]any{
-						"firstNames": dsl.String("Peter"),
-						"lastName":   dsl.String("Person"),
-						"address": dsl.Like(map[string]any{
-							"line1":    dsl.String("a-line-1"),
-							"line2":    dsl.String("a-line-2"),
-							"line3":    dsl.String("a-line-3"),
-							"town":     dsl.String("a-town"),
-							"postcode": dsl.String("A1 1FF"),
-							"country":  dsl.String("GB"),
-						}),
-					}, 0),
-					"restrictions": dsl.String("hmm"),
-					"signedAt":     dsl.Regex("2000-01-02T12:13:14.00000Z", `\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d+)?Z`),
-				}),
+						"restrictions": matchers.String("hmm"),
+						"signedAt":     matchers.Regex("2000-01-02T12:13:14.00000Z", `\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d+)?Z`),
+					}))
 			}).
-			WillRespondWith(dsl.Response{
-				Status:  http.StatusCreated,
-				Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
-				Body:    `{}`,
+			WillRespondWith(http.StatusCreated, func(b *consumer.V2ResponseBuilder) {
+				b.Header("Content-Type", matchers.String("application/json"))
+				b.JSONBody(`{}`)
 			})
 
-		assert.Nil(t, pact.Verify(func() error {
-			baseURL := fmt.Sprintf("http://localhost:%d", pact.Server.Port)
+		assert.Nil(t, mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+			baseURL := fmt.Sprintf("http://%s:%d", config.Host, config.Port)
 
 			secretsClient := newMockSecretsClient(t)
 			secretsClient.EXPECT().
@@ -665,7 +647,6 @@ func TestClientServiceContract(t *testing.T) {
 					DateOfBirth: date.New("2000", "1", "2"),
 					Email:       "john@example.com",
 					Address:     address,
-					OtherNames:  "JJ",
 				},
 				Attorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{{
@@ -692,11 +673,6 @@ func TestClientServiceContract(t *testing.T) {
 					Address:    address,
 					CarryOutBy: actor.Online,
 				},
-				PeopleToNotify: actor.PeopleToNotify{{
-					FirstNames: "Peter",
-					LastName:   "Person",
-					Address:    address,
-				}},
 				Restrictions: "hmm",
 				SignedAt:     time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
 			})
@@ -707,89 +683,85 @@ func TestClientServiceContract(t *testing.T) {
 	})
 
 	t.Run("SendLpa when already exists", func(t *testing.T) {
-		pact.
+		mockProvider.
 			AddInteraction().
 			Given("An LPA with UID M-0000-1111-2222 exists").
 			UponReceiving("A request to create a case with existing UID").
-			WithRequest(dsl.Request{
-				Method: http.MethodPut,
-				Path:   dsl.String("/lpas/M-0000-1111-2222"),
-				Headers: dsl.MapMatcher{
-					"Content-Type":        dsl.String("application/json"),
-					"Authorization":       dsl.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 Credential=.*\\/.*\\/.*\\/execute-api\\/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=.*"),
-					"X-Amz-Date":          dsl.String("20000102T000000Z"),
-					"X-Jwt-Authorization": dsl.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+"),
-				},
-				Body: dsl.Like(map[string]any{
-					"lpaType": dsl.Regex("personal-welfare", "personal-welfare|property-and-affairs"),
-					"donor": dsl.Like(map[string]any{
-						"firstNames":  dsl.String("John Johnson"),
-						"lastName":    dsl.String("Smith"),
-						"dateOfBirth": dsl.Regex("2000-01-02", "\\d{4}-\\d{2}-\\d{2}"),
-						"email":       dsl.String("john@example.com"),
-						"address": dsl.Like(map[string]any{
-							"line1":    dsl.String("line-1"),
-							"line2":    dsl.String("line-2"),
-							"line3":    dsl.String("line-3"),
-							"town":     dsl.String("town"),
-							"postcode": dsl.String("F1 1FF"),
-							"country":  dsl.String("GB"),
+			WithRequest(http.MethodPut, "/lpas/M-0000-1111-2222", func(b *consumer.V2RequestBuilder) {
+				b.
+					Header("Content-Type", matchers.String("application/json")).
+					Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 .*")).
+					Header("X-Amz-Date", matchers.String("20000102T000000Z")).
+					Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
+					JSONBody(matchers.Like(map[string]any{
+						"lpaType": matchers.Regex("personal-welfare", "personal-welfare|property-and-affairs"),
+						"donor": matchers.Like(map[string]any{
+							"firstNames":  matchers.String("John Johnson"),
+							"lastName":    matchers.String("Smith"),
+							"dateOfBirth": matchers.Regex("2000-01-02", "\\d{4}-\\d{2}-\\d{2}"),
+							"email":       matchers.String("john@example.com"),
+							"address": matchers.Like(map[string]any{
+								"line1":    matchers.String("line-1"),
+								"line2":    matchers.String("line-2"),
+								"line3":    matchers.String("line-3"),
+								"town":     matchers.String("town"),
+								"postcode": matchers.String("F1 1FF"),
+								"country":  matchers.String("GB"),
+							}),
+							"otherNamesKnownBy": matchers.String("JJ"),
 						}),
-						"otherNamesKnownBy": dsl.String("JJ"),
-					}),
-					"attorneys": dsl.EachLike(map[string]any{
-						"firstNames":  dsl.String("Adam"),
-						"lastName":    dsl.String("Attorney"),
-						"dateOfBirth": dsl.Regex("1999-01-02", "\\d{4}-\\d{2}-\\d{2}"),
-						"email":       dsl.String("adam@example.com"),
-						"address": dsl.Like(map[string]any{
-							"line1":    dsl.String("a-line-1"),
-							"line2":    dsl.String("a-line-2"),
-							"line3":    dsl.String("a-line-3"),
-							"town":     dsl.String("a-town"),
-							"postcode": dsl.String("A1 1FF"),
-							"country":  dsl.String("GB"),
+						"attorneys": matchers.EachLike(map[string]any{
+							"firstNames":  matchers.String("Adam"),
+							"lastName":    matchers.String("Attorney"),
+							"dateOfBirth": matchers.Regex("1999-01-02", "\\d{4}-\\d{2}-\\d{2}"),
+							"email":       matchers.String("adam@example.com"),
+							"address": matchers.Like(map[string]any{
+								"line1":    matchers.String("a-line-1"),
+								"line2":    matchers.String("a-line-2"),
+								"line3":    matchers.String("a-line-3"),
+								"town":     matchers.String("a-town"),
+								"postcode": matchers.String("A1 1FF"),
+								"country":  matchers.String("GB"),
+							}),
+							"status": matchers.Regex("active", "active|replacement"),
+						}, 1),
+						"certificateProvider": matchers.Like(map[string]any{
+							"firstNames": matchers.String("Charles"),
+							"lastName":   matchers.String("Certificate"),
+							"email":      matchers.String("charles@example.com"),
+							"address": matchers.Like(map[string]any{
+								"line1":    matchers.String("a-line-1"),
+								"line2":    matchers.String("a-line-2"),
+								"line3":    matchers.String("a-line-3"),
+								"town":     matchers.String("a-town"),
+								"postcode": matchers.String("A1 1FF"),
+								"country":  matchers.String("GB"),
+							}),
+							"channel": matchers.Regex("online", "online|post"),
 						}),
-						"status": dsl.Regex("active", "active|replacement"),
-					}, 1),
-					"certificateProvider": dsl.Like(map[string]any{
-						"firstNames": dsl.String("Charles"),
-						"lastName":   dsl.String("Certificate"),
-						"email":      dsl.String("charles@example.com"),
-						"address": dsl.Like(map[string]any{
-							"line1":    dsl.String("a-line-1"),
-							"line2":    dsl.String("a-line-2"),
-							"line3":    dsl.String("a-line-3"),
-							"town":     dsl.String("a-town"),
-							"postcode": dsl.String("A1 1FF"),
-							"country":  dsl.String("GB"),
-						}),
-						"channel": dsl.Regex("online", "online|post"),
-					}),
-					"peopleToNotify": dsl.EachLike(map[string]any{
-						"firstNames": dsl.String("Peter"),
-						"lastName":   dsl.String("Person"),
-						"address": dsl.Like(map[string]any{
-							"line1":    dsl.String("a-line-1"),
-							"line2":    dsl.String("a-line-2"),
-							"line3":    dsl.String("a-line-3"),
-							"town":     dsl.String("a-town"),
-							"postcode": dsl.String("A1 1FF"),
-							"country":  dsl.String("GB"),
-						}),
-					}, 0),
-					"restrictions": dsl.String("hmm"),
-					"signedAt":     dsl.Regex("2000-01-02T12:13:14.00000Z", `\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d+)?Z`),
-				}),
+						"peopleToNotify": matchers.EachLike(map[string]any{
+							"firstNames": matchers.String("Peter"),
+							"lastName":   matchers.String("Person"),
+							"address": matchers.Like(map[string]any{
+								"line1":    matchers.String("a-line-1"),
+								"line2":    matchers.String("a-line-2"),
+								"line3":    matchers.String("a-line-3"),
+								"town":     matchers.String("a-town"),
+								"postcode": matchers.String("A1 1FF"),
+								"country":  matchers.String("GB"),
+							}),
+						}, 0),
+						"restrictions": matchers.String("hmm"),
+						"signedAt":     matchers.Regex("2000-01-02T12:13:14.00000Z", `\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d+)?Z`),
+					}))
 			}).
-			WillRespondWith(dsl.Response{
-				Status:  http.StatusBadRequest,
-				Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
-				Body:    `{"code":"INVALID_REQUEST","detail":"LPA with UID already exists"}`,
+			WillRespondWith(http.StatusBadRequest, func(b *consumer.V2ResponseBuilder) {
+				b.Header("Content-Type", matchers.String("application/json"))
+				b.JSONBody(`{"code":"INVALID_REQUEST","detail":"LPA with UID already exists"}`)
 			})
 
-		assert.Nil(t, pact.Verify(func() error {
-			baseURL := fmt.Sprintf("http://localhost:%d", pact.Server.Port)
+		assert.Nil(t, mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+			baseURL := fmt.Sprintf("http://%s:%d", config.Host, config.Port)
 
 			secretsClient := newMockSecretsClient(t)
 			secretsClient.EXPECT().
@@ -854,44 +826,40 @@ func TestClientServiceContract(t *testing.T) {
 	})
 
 	t.Run("SendAttorney", func(t *testing.T) {
-		pact.
+		mockProvider.
 			AddInteraction().
 			Given("An LPA with UID M-0000-1111-2222 exists").
 			UponReceiving("A request to send the attorney data").
-			WithRequest(dsl.Request{
-				Method: http.MethodPost,
-				Path:   dsl.String("/lpas/M-0000-1111-2222/updates"),
-				Headers: dsl.MapMatcher{
-					"Content-Type":        dsl.String("application/json"),
-					"Authorization":       dsl.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 Credential=.*\\/.*\\/.*\\/execute-api\\/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=.*"),
-					"X-Amz-Date":          dsl.String("20000102T000000Z"),
-					"X-Jwt-Authorization": dsl.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+"),
-				},
-				Body: dsl.Like(map[string]any{
-					"type": dsl.Like("ATTORNEY_SIGN"),
-					"changes": dsl.Like([]map[string]any{{
-						"key": dsl.Like("/attorneys/0/mobile"),
-						"old": dsl.Like(nil),
-						"new": dsl.Like("07777777"),
-					}, {
-						"key": dsl.Like("/attorneys/0/contactLanguagePreference"),
-						"old": dsl.Like(nil),
-						"new": dsl.Like("cy"),
-					}, {
-						"key": dsl.Like("/attorneys/0/signedAt"),
-						"old": dsl.Like(nil),
-						"new": dsl.Like("2020-01-01T12:13:14Z"),
-					}}),
-				}),
+			WithRequest(http.MethodPost, "/lpas/M-0000-1111-2222/updates", func(b *consumer.V2RequestBuilder) {
+				b.
+					Header("Content-Type", matchers.String("application/json")).
+					Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 .*")).
+					Header("X-Amz-Date", matchers.String("20000102T000000Z")).
+					Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
+					JSONBody(matchers.Like(map[string]any{
+						"type": matchers.Like("ATTORNEY_SIGN"),
+						"changes": matchers.Like([]map[string]any{{
+							"key": matchers.Like("/attorneys/0/mobile"),
+							"old": matchers.Like(nil),
+							"new": matchers.Like("07777777"),
+						}, {
+							"key": matchers.Like("/attorneys/0/contactLanguagePreference"),
+							"old": matchers.Like(nil),
+							"new": matchers.Like("cy"),
+						}, {
+							"key": matchers.Like("/attorneys/0/signedAt"),
+							"old": matchers.Like(nil),
+							"new": matchers.Like("2020-01-01T12:13:14Z"),
+						}}),
+					}))
 			}).
-			WillRespondWith(dsl.Response{
-				Status:  http.StatusCreated,
-				Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
-				Body:    `{}`,
+			WillRespondWith(http.StatusCreated, func(b *consumer.V2ResponseBuilder) {
+				b.Header("Content-Type", matchers.String("application/json"))
+				b.JSONBody(`{}`)
 			})
 
-		assert.Nil(t, pact.Verify(func() error {
-			baseURL := fmt.Sprintf("http://localhost:%d", pact.Server.Port)
+		assert.Nil(t, mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+			baseURL := fmt.Sprintf("http://%s:%d", config.Host, config.Port)
 
 			secretsClient := newMockSecretsClient(t)
 			secretsClient.EXPECT().
@@ -924,40 +892,36 @@ func TestClientServiceContract(t *testing.T) {
 	})
 
 	t.Run("SendCertificateProvider", func(t *testing.T) {
-		pact.
+		mockProvider.
 			AddInteraction().
 			Given("An LPA with UID M-0000-1111-2222 exists").
 			UponReceiving("A request to send the certificate provider data").
-			WithRequest(dsl.Request{
-				Method: http.MethodPost,
-				Path:   dsl.String("/lpas/M-0000-1111-2222/updates"),
-				Headers: dsl.MapMatcher{
-					"Content-Type":        dsl.String("application/json"),
-					"Authorization":       dsl.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 Credential=.*\\/.*\\/.*\\/execute-api\\/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=.*"),
-					"X-Amz-Date":          dsl.String("20000102T000000Z"),
-					"X-Jwt-Authorization": dsl.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+"),
-				},
-				Body: dsl.Like(map[string]any{
-					"type": dsl.Like("CERTIFICATE_PROVIDER_SIGN"),
-					"changes": dsl.Like([]map[string]any{{
-						"key": dsl.Like("/certificateProvider/contactLanguagePreference"),
-						"old": dsl.Like(nil),
-						"new": dsl.Like("cy"),
-					}, {
-						"key": dsl.Like("/certificateProvider/signedAt"),
-						"old": dsl.Like(nil),
-						"new": dsl.Like("2020-01-01T12:13:14Z"),
-					}}),
-				}),
+			WithRequest(http.MethodPost, "/lpas/M-0000-1111-2222/updates", func(b *consumer.V2RequestBuilder) {
+				b.
+					Header("Content-Type", matchers.String("application/json")).
+					Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 .*")).
+					Header("X-Amz-Date", matchers.String("20000102T000000Z")).
+					Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
+					JSONBody(matchers.Like(map[string]any{
+						"type": matchers.Like("CERTIFICATE_PROVIDER_SIGN"),
+						"changes": matchers.Like([]map[string]any{{
+							"key": matchers.Like("/certificateProvider/contactLanguagePreference"),
+							"old": matchers.Like(nil),
+							"new": matchers.Like("cy"),
+						}, {
+							"key": matchers.Like("/certificateProvider/signedAt"),
+							"old": matchers.Like(nil),
+							"new": matchers.Like("2020-01-01T12:13:14Z"),
+						}}),
+					}))
 			}).
-			WillRespondWith(dsl.Response{
-				Status:  http.StatusCreated,
-				Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
-				Body:    `{}`,
+			WillRespondWith(http.StatusCreated, func(b *consumer.V2ResponseBuilder) {
+				b.Header("Content-Type", matchers.String("application/json"))
+				b.JSONBody(`{}`)
 			})
 
-		assert.Nil(t, pact.Verify(func() error {
-			baseURL := fmt.Sprintf("http://localhost:%d", pact.Server.Port)
+		assert.Nil(t, mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+			baseURL := fmt.Sprintf("http://%s:%d", config.Host, config.Port)
 
 			secretsClient := newMockSecretsClient(t)
 			secretsClient.EXPECT().
@@ -984,52 +948,48 @@ func TestClientServiceContract(t *testing.T) {
 	})
 
 	t.Run("SendCertificateProvider when professional", func(t *testing.T) {
-		pact.
+		mockProvider.
 			AddInteraction().
 			Given("An LPA with UID M-0000-1111-2222 exists").
 			UponReceiving("A request to send the certificate provider data for a professional").
-			WithRequest(dsl.Request{
-				Method: http.MethodPost,
-				Path:   dsl.String("/lpas/M-0000-1111-2222/updates"),
-				Headers: dsl.MapMatcher{
-					"Content-Type":        dsl.String("application/json"),
-					"Authorization":       dsl.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 Credential=.*\\/.*\\/.*\\/execute-api\\/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=.*"),
-					"X-Amz-Date":          dsl.String("20000102T000000Z"),
-					"X-Jwt-Authorization": dsl.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+"),
-				},
-				Body: dsl.Like(map[string]any{
-					"type": dsl.Like("CERTIFICATE_PROVIDER_SIGN"),
-					"changes": dsl.Like([]map[string]any{{
-						"key": dsl.Like("/certificateProvider/contactLanguagePreference"),
-						"old": dsl.Like(nil),
-						"new": dsl.Like("cy"),
-					}, {
-						"key": dsl.Like("/certificateProvider/signedAt"),
-						"old": dsl.Like(nil),
-						"new": dsl.Like("2020-01-01T12:13:14Z"),
-					}, {
-						"key": dsl.Like("/certificateProvider/address/line1"),
-						"old": dsl.Like(nil),
-						"new": dsl.Like("123 Fake Street"),
-					}, {
-						"key": dsl.Like("/certificateProvider/address/town"),
-						"old": dsl.Like(nil),
-						"new": dsl.Like("Faketon"),
-					}, {
-						"key": dsl.Like("/certificateProvider/address/country"),
-						"old": dsl.Like(nil),
-						"new": dsl.Like("GB"),
-					}}),
-				}),
+			WithRequest(http.MethodPost, "/lpas/M-0000-1111-2222/updates", func(b *consumer.V2RequestBuilder) {
+				b.
+					Header("Content-Type", matchers.String("application/json")).
+					Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 .*")).
+					Header("X-Amz-Date", matchers.String("20000102T000000Z")).
+					Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
+					JSONBody(matchers.Like(map[string]any{
+						"type": matchers.Like("CERTIFICATE_PROVIDER_SIGN"),
+						"changes": matchers.Like([]map[string]any{{
+							"key": matchers.Like("/certificateProvider/contactLanguagePreference"),
+							"old": matchers.Like(nil),
+							"new": matchers.Like("cy"),
+						}, {
+							"key": matchers.Like("/certificateProvider/signedAt"),
+							"old": matchers.Like(nil),
+							"new": matchers.Like("2020-01-01T12:13:14Z"),
+						}, {
+							"key": matchers.Like("/certificateProvider/address/line1"),
+							"old": matchers.Like(nil),
+							"new": matchers.Like("123 Fake Street"),
+						}, {
+							"key": matchers.Like("/certificateProvider/address/town"),
+							"old": matchers.Like(nil),
+							"new": matchers.Like("Faketon"),
+						}, {
+							"key": matchers.Like("/certificateProvider/address/country"),
+							"old": matchers.Like(nil),
+							"new": matchers.Like("GB"),
+						}}),
+					}))
 			}).
-			WillRespondWith(dsl.Response{
-				Status:  http.StatusCreated,
-				Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
-				Body:    `{}`,
+			WillRespondWith(http.StatusCreated, func(b *consumer.V2ResponseBuilder) {
+				b.Header("Content-Type", matchers.String("application/json"))
+				b.JSONBody(`{}`)
 			})
 
-		assert.Nil(t, pact.Verify(func() error {
-			baseURL := fmt.Sprintf("http://localhost:%d", pact.Server.Port)
+		assert.Nil(t, mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+			baseURL := fmt.Sprintf("http://%s:%d", config.Host, config.Port)
 
 			secretsClient := newMockSecretsClient(t)
 			secretsClient.EXPECT().
@@ -1043,7 +1003,7 @@ func TestClientServiceContract(t *testing.T) {
 				now:           now,
 			}
 
-			err := client.SendCertificateProvider(context.Background(), "M-0000-1111-2222",
+			return client.SendCertificateProvider(context.Background(), "M-0000-1111-2222",
 				&actor.CertificateProviderProvidedDetails{
 					Certificate: actor.Certificate{
 						Agreed: time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
@@ -1055,42 +1015,36 @@ func TestClientServiceContract(t *testing.T) {
 						Country:    "GB",
 					},
 				})
-			assert.Nil(t, err)
-			return nil
 		}))
 	})
 
 	t.Run("sendUpdate", func(t *testing.T) {
-		pact.
+		mockProvider.
 			AddInteraction().
 			Given("An LPA with UID M-0000-1111-2222 exists").
 			UponReceiving("A request to update the lpa").
-			WithRequest(dsl.Request{
-				Method: http.MethodPost,
-				Path:   dsl.String("/lpas/M-0000-1111-2222/updates"),
-				Headers: dsl.MapMatcher{
-					"Content-Type":        dsl.String("application/json"),
-					"Authorization":       dsl.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 Credential=.*\\/.*\\/.*\\/execute-api\\/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=.*"),
-					"X-Amz-Date":          dsl.String("20000102T000000Z"),
-					"X-Jwt-Authorization": dsl.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+"),
-				},
-				Body: dsl.Like(map[string]any{
-					"type": dsl.Like("A_TYPE"),
-					"changes": dsl.EachLike(map[string]any{
-						"key": dsl.Like("/a/key"),
-						"old": dsl.Like("old"),
-						"new": dsl.Like("new"),
-					}, 1),
-				}),
+			WithRequest(http.MethodPost, "/lpas/M-0000-1111-2222/updates", func(b *consumer.V2RequestBuilder) {
+				b.
+					Header("Content-Type", matchers.String("application/json")).
+					Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 .*")).
+					Header("X-Amz-Date", matchers.String("20000102T000000Z")).
+					Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
+					JSONBody(matchers.Like(map[string]any{
+						"type": matchers.Like("A_TYPE"),
+						"changes": matchers.EachLike(map[string]any{
+							"key": matchers.Like("/a/key"),
+							"old": matchers.Like("old"),
+							"new": matchers.Like("new"),
+						}, 1),
+					}))
 			}).
-			WillRespondWith(dsl.Response{
-				Status:  http.StatusBadRequest,
-				Headers: dsl.MapMatcher{"Content-Type": dsl.String("application/json")},
-				Body:    `{"code":"INVALID_REQUEST","detail":"Invalid request"}`,
+			WillRespondWith(http.StatusBadRequest, func(b *consumer.V2ResponseBuilder) {
+				b.Header("Content-Type", matchers.String("application/json"))
+				b.JSONBody(`{"code":"INVALID_REQUEST","detail":"Invalid request"}`)
 			})
 
-		assert.Nil(t, pact.Verify(func() error {
-			baseURL := fmt.Sprintf("http://localhost:%d", pact.Server.Port)
+		err := mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+			baseURL := fmt.Sprintf("http://%s:%d", config.Host, config.Port)
 
 			secretsClient := newMockSecretsClient(t)
 			secretsClient.EXPECT().
@@ -1104,15 +1058,15 @@ func TestClientServiceContract(t *testing.T) {
 				now:           now,
 			}
 
-			err := client.sendUpdate(context.Background(), "M-0000-1111-2222", updateRequest{
+			return client.sendUpdate(context.Background(), "M-0000-1111-2222", updateRequest{
 				Type: "A_TYPE",
 				Changes: []updateRequestChange{
 					{Key: "/a/key", Old: "old", New: "new"},
 				},
 			})
-			assert.Equal(t, responseError{name: "expected 201 response but got 400", body: `{"code":"INVALID_REQUEST","detail":"Invalid request"}`}, err)
-			return nil
-		}))
+		})
+
+		assert.Equal(t, responseError{name: "expected 201 response but got 400", body: `{"code":"INVALID_REQUEST","detail":"Invalid request"}`}, err)
 	})
 }
 
