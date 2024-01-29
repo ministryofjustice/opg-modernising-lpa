@@ -212,7 +212,7 @@ locals {
       portMappings           = [],
       essential              = false,
       entryPoint             = [],
-      readonlyRootFilesystem = true
+      readonlyRootFilesystem = false
       command = [
         "/bin/bash",
         "-c",
