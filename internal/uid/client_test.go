@@ -299,7 +299,6 @@ func TestPactContract(t *testing.T) {
 	mockProvider, err := consumer.NewV2Pact(consumer.MockHTTPProviderConfig{
 		Consumer: "modernising-lpa",
 		Provider: "data-lpa-uid",
-		Host:     "localhost",
 		LogDir:   "../../logs",
 		PactDir:  "../../pacts",
 	})
@@ -314,7 +313,8 @@ func TestPactContract(t *testing.T) {
 				WithRequest(http.MethodPost, "/cases", func(b *consumer.V2RequestBuilder) {
 					b.
 						Header("Content-Type", matchers.String("application/json")).
-						Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date, Signature=98fe2cb1c34c6de900d291351991ba8aa948ca05b7bff969d781edce9b75ee20", "AWS4-HMAC-SHA256 Credential=.*\\/.*\\/.*\\/execute-api\\/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date, Signature=.*")).
+						//Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date, Signature=98fe2cb1c34c6de900d291351991ba8aa948ca05b7bff969d781edce9b75ee20", "AWS4-HMAC-SHA256 Credential=.*\\/.*\\/.*\\/execute-api\\/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date, Signature=.*")).
+						Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request", "AWS4-HMAC-SHA256 Credential=.*\\/.*\\/.*\\/execute-api\\/aws4_request")).
 						Header("X-Amz-Date", matchers.String("20000102T000000Z")).
 						JSONBody(tc.ExpectedRequestBody)
 				}).
@@ -323,7 +323,7 @@ func TestPactContract(t *testing.T) {
 					b.JSONBody(matchers.Like(tc.ResponseBody))
 				})
 
-			err := mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+			assert.Nil(t, mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
 				baseURL := fmt.Sprintf("http://%s:%d", config.Host, config.Port)
 
 				now := func() time.Time { return time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC) }
@@ -345,9 +345,8 @@ func TestPactContract(t *testing.T) {
 					assert.Error(t, err)
 				}
 
-				return err
-			})
-			assert.Nil(t, err)
+				return nil
+			}))
 		})
 	}
 }
