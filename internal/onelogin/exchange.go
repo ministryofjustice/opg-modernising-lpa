@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 )
 
@@ -95,23 +95,18 @@ func (c *Client) Exchange(ctx context.Context, code, nonce string) (idToken, acc
 }
 
 func (c *Client) validateToken(keyfunc jwt.Keyfunc, issuer, idToken, nonce string) error {
-	token, err := jwt.ParseWithClaims(idToken, jwt.MapClaims{}, keyfunc)
+	token, err := jwt.ParseWithClaims(idToken, jwt.MapClaims{}, keyfunc,
+		jwt.WithIssuer(issuer),
+		jwt.WithAudience(c.clientID),
+		jwt.WithIssuedAt())
 	if err != nil {
 		return err
 	}
-
 	if !token.Valid {
 		return fmt.Errorf("idToken not valid")
 	}
 
-	claims := token.Claims.(jwt.MapClaims)
-	if !claims.VerifyIssuer(issuer, true) {
-		return jwt.ErrTokenInvalidIssuer
-	}
-	if !claims.VerifyAudience(c.clientID, true) {
-		return jwt.ErrTokenInvalidAudience
-	}
-	if claims["nonce"] != nonce {
+	if claims := token.Claims.(jwt.MapClaims); claims["nonce"] != nonce {
 		return fmt.Errorf("nonce is invalid")
 	}
 

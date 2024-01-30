@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/ministryofjustice/opg-go-common/env"
 )
 
@@ -85,8 +85,8 @@ func jwks() http.HandlerFunc {
 					"use": "sig",
 					"crv": "P-256",
 					"kid": tokenSigningKid,
-					"x":   base64.URLEncoding.EncodeToString(publicKey.X.Bytes()),
-					"y":   base64.URLEncoding.EncodeToString(publicKey.Y.Bytes()),
+					"x":   base64.RawURLEncoding.EncodeToString(publicKey.X.Bytes()),
+					"y":   base64.RawURLEncoding.EncodeToString(publicKey.Y.Bytes()),
 					"alg": "ES256",
 				},
 			},
