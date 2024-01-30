@@ -8,10 +8,10 @@ export const
     TestMobile = '07700900000'
 
 export function randomShareCode() {
-    const characters = '0123456789'
+    const characters = 'abcdefghijklmnpqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789'
     let result = [];
 
-    for(let i = 0; i < 8; i++) {
+    for(let i = 0; i < 12; i++) {
         result.push(characters.charAt(Math.floor(Math.random() * characters.length)));
     }
 

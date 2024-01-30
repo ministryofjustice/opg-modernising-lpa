@@ -451,9 +451,9 @@
     "enterYourReferenceNumber": "Enter your certificate provider reference number",
     "certificateProviderReferenceNumberContent": "<p class=\"govuk-body\">You can find this in the email inviting you to be a certificate provider.</p>",
     "certificateProviderReferenceNumber": "Certificate provider reference number",
-    "referenceNumberHint": "This will be made up of 8 characters. For example, 1234-5678.",
+    "referenceNumberHint": "This will be made up of 12 characters. For example, ABCD-1234-5678.",
     "incorrectReferenceNumber": "The reference number you entered is incorrect, please check it and try again",
-    "eightCharactersReferenceNumber": "your 8 character reference number",
+    "twelveCharactersReferenceNumber": "your 12 character reference number",
     "theReferenceNumberYouEnter": "The reference number you enter",
     "whenAttorneysCanUseTheLpa": "When attorneys can use the LPA",
     "theirAttorneys": {

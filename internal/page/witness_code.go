@@ -24,8 +24,6 @@ type WitnessCodeSender struct {
 	now          func() time.Time
 }
 
-// is it worth making random.Code a struct and control everything there?
-
 func NewWitnessCodeSender(donorStore DonorStore, notifyClient NotifyClient) *WitnessCodeSender {
 	return &WitnessCodeSender{
 		donorStore:   donorStore,

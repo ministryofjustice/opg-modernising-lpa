@@ -18,16 +18,16 @@ type ShareCodeSender struct {
 	shareCodeStore ShareCodeStore
 	notifyClient   NotifyClient
 	appPublicURL   string
-	randomCode     func(int) string
+	randomString   func(int) string
 	eventClient    EventClient
 }
 
-func NewShareCodeSender(shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, randomCode func(int) string, eventClient EventClient) *ShareCodeSender {
+func NewShareCodeSender(shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, randomString func(int) string, eventClient EventClient) *ShareCodeSender {
 	return &ShareCodeSender{
 		shareCodeStore: shareCodeStore,
 		notifyClient:   notifyClient,
 		appPublicURL:   appPublicURL,
-		randomCode:     randomCode,
+		randomString:   randomString,
 		eventClient:    eventClient,
 	}
 }
@@ -58,7 +58,7 @@ func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, app
 }
 
 func (s *ShareCodeSender) sendCertificateProvider(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, email shareCodeEmail) error {
-	shareCode := s.randomCode(8)
+	shareCode := s.randomString(12)
 	if s.testCode != "" {
 		shareCode = s.testCode
 		s.testCode = ""
@@ -73,7 +73,7 @@ func (s *ShareCodeSender) sendCertificateProvider(ctx context.Context, appData A
 		return fmt.Errorf("creating sharecode failed: %w", err)
 	}
 
-	if err := s.notifyClient.SendActorEmail(ctx, donor.CertificateProvider.Email, donor.LpaUID, email.WithShareCode(FormatShareCode(shareCode))); err != nil {
+	if err := s.notifyClient.SendActorEmail(ctx, donor.CertificateProvider.Email, donor.LpaUID, email.WithShareCode(shareCode)); err != nil {
 		return fmt.Errorf("email failed: %w", err)
 	}
 
@@ -189,7 +189,7 @@ func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, a
 }
 
 func (s *ShareCodeSender) sendAttorney(ctx context.Context, to string, email shareCodeEmail, shareCodeData actor.ShareCodeData, donor *actor.DonorProvidedDetails) error {
-	shareCode := s.randomCode(8)
+	shareCode := s.randomString(12)
 	if s.testCode != "" {
 		shareCode = s.testCode
 		s.testCode = ""
@@ -199,13 +199,9 @@ func (s *ShareCodeSender) sendAttorney(ctx context.Context, to string, email sha
 		return fmt.Errorf("creating attorney share failed: %w", err)
 	}
 
-	if err := s.notifyClient.SendActorEmail(ctx, to, donor.LpaUID, email.WithShareCode(FormatShareCode(shareCode))); err != nil {
+	if err := s.notifyClient.SendActorEmail(ctx, to, donor.LpaUID, email.WithShareCode(shareCode)); err != nil {
 		return fmt.Errorf("email failed: %w", err)
 	}
 
 	return nil
-}
-
-func FormatShareCode(shareCode string) string {
-	return shareCode[:4] + "-" + shareCode[4:]
 }

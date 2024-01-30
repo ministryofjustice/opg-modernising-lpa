@@ -27,14 +27,14 @@ describe('Enter reference number', () => {
         cy.checkA11yApp();
 
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('Enter your 8 character reference number');
+            cy.contains('Enter your 12 character reference number');
         });
 
-        cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'Enter your 8 character reference number');
+        cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'Enter your 12 character reference number');
     });
 
     it('errors when incorrect code', () => {
-        cy.get('#f-reference-number').type('not-right');
+        cy.get('#f-reference-number').type('i-am-very-wrong');
         cy.contains('Save and continue').click();
 
         cy.checkA11yApp();
@@ -53,10 +53,10 @@ describe('Enter reference number', () => {
         cy.checkA11yApp();
 
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('The reference number you enter must be 8 characters');
+            cy.contains('The reference number you enter must be 12 characters');
         });
 
-        cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'The reference number you enter must be 8 characters');
+        cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'The reference number you enter must be 12 characters');
     });
 
 });

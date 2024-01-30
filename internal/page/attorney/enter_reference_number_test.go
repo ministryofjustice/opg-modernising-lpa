@@ -109,7 +109,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			form := url.Values{
-				"reference-number": {"12345678"},
+				"reference-number": {"abcdef123456"},
 			}
 
 			w := httptest.NewRecorder()
@@ -118,7 +118,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 
 			shareCodeStore := newMockShareCodeStore(t)
 			shareCodeStore.EXPECT().
-				Get(r.Context(), actor.TypeAttorney, "12345678").
+				Get(r.Context(), actor.TypeAttorney, "abcdef123456").
 				Return(tc.shareCode, nil)
 			shareCodeStore.EXPECT().
 				Delete(r.Context(), tc.shareCode).
@@ -151,7 +151,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnDonorStoreError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {" 12345678  "},
+		"reference-number": {" abcdef123456  "},
 	}
 
 	w := httptest.NewRecorder()
@@ -160,7 +160,7 @@ func TestPostEnterReferenceNumberOnDonorStoreError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, "12345678").
+		Get(r.Context(), actor.TypeAttorney, "abcdef123456").
 		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, expectedError)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, nil, nil)(testAppData, w, r)
@@ -173,7 +173,7 @@ func TestPostEnterReferenceNumberOnDonorStoreError(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"12 34-5678"},
+		"reference-number": {"abcde f-123456 "},
 	}
 
 	w := httptest.NewRecorder()
@@ -182,7 +182,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 
 	data := enterReferenceNumberData{
 		App:    testAppData,
-		Form:   &enterReferenceNumberForm{ReferenceNumber: "12345678", ReferenceNumberRaw: "12 34-5678"},
+		Form:   &enterReferenceNumberForm{ReferenceNumber: "abcdef123456", ReferenceNumberRaw: "abcde f-123456"},
 		Errors: validation.With("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"}),
 	}
 
@@ -193,7 +193,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, "12345678").
+		Get(r.Context(), actor.TypeAttorney, "abcdef123456").
 		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, dynamo.NotFoundError{})
 
 	err := EnterReferenceNumber(template.Execute, shareCodeStore, nil, nil)(testAppData, w, r)
@@ -206,7 +206,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnSessionGetError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"12345678"},
+		"reference-number": {"abcdef123456"},
 	}
 
 	w := httptest.NewRecorder()
@@ -215,7 +215,7 @@ func TestPostEnterReferenceNumberOnSessionGetError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, "12345678").
+		Get(r.Context(), actor.TypeAttorney, "abcdef123456").
 		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -230,7 +230,7 @@ func TestPostEnterReferenceNumberOnSessionGetError(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"1 23-45678"},
+		"reference-number": {"abcdef123456"},
 	}
 
 	w := httptest.NewRecorder()
@@ -239,7 +239,7 @@ func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, "12345678").
+		Get(r.Context(), actor.TypeAttorney, "abcdef123456").
 		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
@@ -262,7 +262,7 @@ func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnShareCodeStoreDeleteError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"1 23-45678"},
+		"reference-number": {"abcdef123456"},
 	}
 
 	w := httptest.NewRecorder()
@@ -308,7 +308,7 @@ func TestPostEnterReferenceNumberOnValidationError(t *testing.T) {
 	data := enterReferenceNumberData{
 		App:    testAppData,
 		Form:   &enterReferenceNumberForm{},
-		Errors: validation.With("reference-number", validation.EnterError{Label: "eightCharactersReferenceNumber"}),
+		Errors: validation.With("reference-number", validation.EnterError{Label: "twelveCharactersReferenceNumber"}),
 	}
 
 	template := newMockTemplate(t)
@@ -330,27 +330,27 @@ func TestValidateEnterReferenceNumberForm(t *testing.T) {
 		errors validation.List
 	}{
 		"valid": {
-			form:   &enterReferenceNumberForm{ReferenceNumber: "12345678"},
+			form:   &enterReferenceNumberForm{ReferenceNumber: "abcdef123456"},
 			errors: nil,
 		},
 		"too short": {
 			form: &enterReferenceNumberForm{ReferenceNumber: "1"},
 			errors: validation.With("reference-number", validation.StringLengthError{
 				Label:  "theReferenceNumberYouEnter",
-				Length: 8,
+				Length: 12,
 			}),
 		},
 		"too long": {
-			form: &enterReferenceNumberForm{ReferenceNumber: "123456789"},
+			form: &enterReferenceNumberForm{ReferenceNumber: "123456789ABCD"},
 			errors: validation.With("reference-number", validation.StringLengthError{
 				Label:  "theReferenceNumberYouEnter",
-				Length: 8,
+				Length: 12,
 			}),
 		},
 		"empty": {
 			form: &enterReferenceNumberForm{},
 			errors: validation.With("reference-number", validation.EnterError{
-				Label: "eightCharactersReferenceNumber",
+				Label: "twelveCharactersReferenceNumber",
 			}),
 		},
 	}
