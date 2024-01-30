@@ -42,8 +42,8 @@ type OneLoginClient interface {
 }
 
 type ShareCodeStore interface {
-	Get(context.Context, actor.Type, string) (actor.ShareCodeData, error)
-	Put(context.Context, actor.Type, string, actor.ShareCodeData) error
+	Get(ctx context.Context, actorType actor.Type, shareCode string) (actor.ShareCodeData, error)
+	Put(ctx context.Context, actorType actor.Type, shareCode string, shareCodeData actor.ShareCodeData) error
 	Delete(ctx context.Context, shareCode actor.ShareCodeData) error
 }
 
@@ -56,8 +56,8 @@ type SessionStore interface {
 }
 
 type NotifyClient interface {
-	SendEmail(context.Context, string, notify.Email) error
-	SendActorEmail(context.Context, string, string, notify.Email) error
+	SendEmail(ctx context.Context, to string, email notify.Email) error
+	SendActorEmail(ctx context.Context, to, lpaUID string, email notify.Email) error
 }
 
 type ShareCodeSender interface {

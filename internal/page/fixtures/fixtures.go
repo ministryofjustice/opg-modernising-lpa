@@ -14,8 +14,8 @@ import (
 )
 
 type ShareCodeSender interface {
-	SendCertificateProviderInvite(context.Context, page.AppData, *actor.DonorProvidedDetails) error
-	SendAttorneys(context.Context, page.AppData, *actor.DonorProvidedDetails) error
+	SendCertificateProviderInvite(context context.Context, appData page.AppData, donorProvided *actor.DonorProvidedDetails) error
+	SendAttorneys(context context.Context, appData page.AppData, donorProvided *actor.DonorProvidedDetails) error
 	UseTestCode(shareCode string)
 }
 

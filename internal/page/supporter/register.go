@@ -35,7 +35,7 @@ type SessionStore interface {
 }
 
 type NotifyClient interface {
-	SendEmail(context.Context, string, notify.Email) error
+	SendEmail(context context.Context, to string, email notify.Email) error
 }
 
 type Template func(io.Writer, interface{}) error
