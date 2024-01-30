@@ -174,14 +174,14 @@ func TestPostProvideCertificate(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendEmail(r.Context(), "cp@example.org", notify.CertificateProviderCertificateProvidedEmail{
+		SendActorEmail(r.Context(), "cp@example.org", "lpa-uid", notify.CertificateProviderCertificateProvidedEmail{
 			DonorFullNamePossessive:     "the possessive full name",
 			DonorFirstNamesPossessive:   "the possessive first names",
 			LpaType:                     "the translated term",
 			CertificateProviderFullName: "a b",
 			CertificateProvidedDateTime: "the formatted date",
 		}).
-		Return("", nil)
+		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
@@ -337,8 +337,8 @@ func TestPostProvideCertificateOnNotifyClientError(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendEmail(r.Context(), mock.Anything, mock.Anything).
-		Return("", expectedError)
+		SendActorEmail(r.Context(), mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
 
 	testAppData.Localizer = localizer
 
@@ -400,8 +400,8 @@ func TestPostProvideCertificateWhenShareCodeSenderErrors(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendEmail(r.Context(), mock.Anything, mock.Anything).
-		Return("", nil)
+		SendActorEmail(r.Context(), mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().

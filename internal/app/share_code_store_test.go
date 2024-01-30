@@ -134,3 +134,31 @@ func TestNewShareCodeStore(t *testing.T) {
 
 	assert.Equal(t, &shareCodeStore{dynamoClient: client}, NewShareCodeStore(client))
 }
+
+func TestShareCodeStoreDelete(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		DeleteOne(ctx, "a-pk", "a-sk").
+		Return(nil)
+
+	shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}
+
+	err := shareCodeStore.Delete(ctx, actor.ShareCodeData{LpaID: "123", PK: "a-pk", SK: "a-sk"})
+	assert.Nil(t, err)
+}
+
+func TestShareCodeStoreDeleteOnError(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		DeleteOne(ctx, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}
+
+	err := shareCodeStore.Delete(ctx, actor.ShareCodeData{})
+	assert.Equal(t, expectedError, err)
+}
