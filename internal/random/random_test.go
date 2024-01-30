@@ -21,9 +21,3 @@ func TestRandomCode(t *testing.T) {
 		assert.Len(t, got, length)
 	}
 }
-
-func TestRandomCodeUseTestCode(t *testing.T) {
-	UseTestCode = true
-
-	assert.Equal(t, "1234", Code(10))
-}

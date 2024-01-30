@@ -23,9 +23,56 @@ func (_m *mockShareCodeStore) EXPECT() *mockShareCodeStore_Expecter {
 	return &mockShareCodeStore_Expecter{mock: &_m.Mock}
 }
 
-// Get provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockShareCodeStore) Get(_a0 context.Context, _a1 actor.Type, _a2 string) (actor.ShareCodeData, error) {
-	ret := _m.Called(_a0, _a1, _a2)
+// Delete provides a mock function with given fields: ctx, shareCode
+func (_m *mockShareCodeStore) Delete(ctx context.Context, shareCode actor.ShareCodeData) error {
+	ret := _m.Called(ctx, shareCode)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Delete")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, actor.ShareCodeData) error); ok {
+		r0 = rf(ctx, shareCode)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockShareCodeStore_Delete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Delete'
+type mockShareCodeStore_Delete_Call struct {
+	*mock.Call
+}
+
+// Delete is a helper method to define mock.On call
+//   - ctx context.Context
+//   - shareCode actor.ShareCodeData
+func (_e *mockShareCodeStore_Expecter) Delete(ctx interface{}, shareCode interface{}) *mockShareCodeStore_Delete_Call {
+	return &mockShareCodeStore_Delete_Call{Call: _e.mock.On("Delete", ctx, shareCode)}
+}
+
+func (_c *mockShareCodeStore_Delete_Call) Run(run func(ctx context.Context, shareCode actor.ShareCodeData)) *mockShareCodeStore_Delete_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(actor.ShareCodeData))
+	})
+	return _c
+}
+
+func (_c *mockShareCodeStore_Delete_Call) Return(_a0 error) *mockShareCodeStore_Delete_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockShareCodeStore_Delete_Call) RunAndReturn(run func(context.Context, actor.ShareCodeData) error) *mockShareCodeStore_Delete_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Get provides a mock function with given fields: ctx, actorType, shareCode
+func (_m *mockShareCodeStore) Get(ctx context.Context, actorType actor.Type, shareCode string) (actor.ShareCodeData, error) {
+	ret := _m.Called(ctx, actorType, shareCode)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
@@ -34,16 +81,16 @@ func (_m *mockShareCodeStore) Get(_a0 context.Context, _a1 actor.Type, _a2 strin
 	var r0 actor.ShareCodeData
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, actor.Type, string) (actor.ShareCodeData, error)); ok {
-		return rf(_a0, _a1, _a2)
+		return rf(ctx, actorType, shareCode)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, actor.Type, string) actor.ShareCodeData); ok {
-		r0 = rf(_a0, _a1, _a2)
+		r0 = rf(ctx, actorType, shareCode)
 	} else {
 		r0 = ret.Get(0).(actor.ShareCodeData)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, actor.Type, string) error); ok {
-		r1 = rf(_a0, _a1, _a2)
+		r1 = rf(ctx, actorType, shareCode)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -57,14 +104,14 @@ type mockShareCodeStore_Get_Call struct {
 }
 
 // Get is a helper method to define mock.On call
-//   - _a0 context.Context
-//   - _a1 actor.Type
-//   - _a2 string
-func (_e *mockShareCodeStore_Expecter) Get(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockShareCodeStore_Get_Call {
-	return &mockShareCodeStore_Get_Call{Call: _e.mock.On("Get", _a0, _a1, _a2)}
+//   - ctx context.Context
+//   - actorType actor.Type
+//   - shareCode string
+func (_e *mockShareCodeStore_Expecter) Get(ctx interface{}, actorType interface{}, shareCode interface{}) *mockShareCodeStore_Get_Call {
+	return &mockShareCodeStore_Get_Call{Call: _e.mock.On("Get", ctx, actorType, shareCode)}
 }
 
-func (_c *mockShareCodeStore_Get_Call) Run(run func(_a0 context.Context, _a1 actor.Type, _a2 string)) *mockShareCodeStore_Get_Call {
+func (_c *mockShareCodeStore_Get_Call) Run(run func(ctx context.Context, actorType actor.Type, shareCode string)) *mockShareCodeStore_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(actor.Type), args[2].(string))
 	})

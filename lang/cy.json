@@ -489,9 +489,9 @@
     "enterYourReferenceNumber": "Rhowch eich cyfeirnod darparwr tystysgrif",
     "certificateProviderReferenceNumberContent": "<p class=\"govuk-body\">Gallwch weld y cyfeirnod yn yr ebost sy’n eich gwahodd i fod yn ddarparwr tystysgrif.</p>",
     "certificateProviderReferenceNumber": "Cyfeirnod darparwr tystysgrif",
-    "referenceNumberHint": "Bydd y cyfeirnod yn cynnwys 12 nod. Er enghraifft, ABCD-1234-5678.",
+    "referenceNumberHint": "Bydd y cyfeirnod yn cynnwys 8 nod. Er enghraifft, 1234-5678.",
     "incorrectReferenceNumber": "Mae’r cyfeirnod rydych wedi’i roi yn anghywir. Gwiriwch y cyfeirnod a rhowch gynnig arni eto",
-    "twelveCharactersReferenceNumber": "eich cyfeirnod 12 nod",
+    "eightCharactersReferenceNumber": "eich cyfeirnod 8 nod",
     "theReferenceNumberYouEnter": "Y cyfeirnod rydych yn ei roi",
     "whenAttorneysCanUseTheLpa": "Pryd y gall atwrneiod ddefnyddio’r LPA",
     "theirAttorneys": {

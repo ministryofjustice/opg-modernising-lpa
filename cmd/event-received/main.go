@@ -36,6 +36,7 @@ type dynamodbClient interface {
 	OneByUID(ctx context.Context, uid string, v interface{}) error
 	Put(ctx context.Context, v interface{}) error
 	Update(ctx context.Context, pk, sk string, values map[string]dynamodbtypes.AttributeValue, expression string) error
+	DeleteOne(ctx context.Context, pk, sk string) error
 }
 
 type s3Client interface {

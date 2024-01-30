@@ -11,7 +11,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 )
 
-var ErrTooManyWitnessCodeRequests = errors.New("too many witness code requests")
+var (
+	testWitnessCode               = "1234"
+	UseTestWitnessCode            = false
+	ErrTooManyWitnessCodeRequests = errors.New("too many witness code requests")
+)
 
 type WitnessCodeSender struct {
 	donorStore   DonorStore
@@ -19,6 +23,8 @@ type WitnessCodeSender struct {
 	randomCode   func(int) string
 	now          func() time.Time
 }
+
+// is it worth making random.Code a struct and control everything there?
 
 func NewWitnessCodeSender(donorStore DonorStore, notifyClient NotifyClient) *WitnessCodeSender {
 	return &WitnessCodeSender{
@@ -35,6 +41,10 @@ func (s *WitnessCodeSender) SendToCertificateProvider(ctx context.Context, donor
 	}
 
 	code := s.randomCode(4)
+	if UseTestWitnessCode {
+		code = testWitnessCode
+	}
+
 	donor.CertificateProviderCodes = append(donor.CertificateProviderCodes, actor.WitnessCode{Code: code, Created: s.now()})
 
 	_, err := s.notifyClient.SendSMS(ctx, donor.CertificateProvider.Mobile, notify.WitnessCodeSMS{
@@ -55,6 +65,10 @@ func (s *WitnessCodeSender) SendToIndependentWitness(ctx context.Context, donor 
 	}
 
 	code := s.randomCode(4)
+	if UseTestWitnessCode {
+		code = testWitnessCode
+	}
+
 	donor.IndependentWitnessCodes = append(donor.IndependentWitnessCodes, actor.WitnessCode{Code: code, Created: s.now()})
 
 	_, err := s.notifyClient.SendSMS(ctx, donor.IndependentWitness.Mobile, notify.WitnessCodeSMS{
