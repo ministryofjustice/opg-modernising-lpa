@@ -61,6 +61,7 @@ func Attorney(
 			email              = r.FormValue("email")
 			redirect           = r.FormValue("redirect")
 			attorneySub        = r.FormValue("attorneySub")
+			shareCode          = r.FormValue("withShareCode")
 		)
 
 		if attorneySub == "" {
@@ -272,8 +273,8 @@ func Attorney(
 		}
 
 		// should only be used in tests as otherwise people can read their emails...
-		if r.FormValue("use-test-code") == "1" {
-			shareCodeSender.UseTestCode()
+		if shareCode != "" {
+			shareCodeSender.UseTestCode(shareCode)
 		}
 
 		if email != "" {

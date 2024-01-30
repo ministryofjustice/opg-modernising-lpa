@@ -10,10 +10,15 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 )
 
 type Doer interface {
 	Do(*http.Request) (*http.Response, error)
+}
+
+type EventClient interface {
+	SendNotificationSent(ctx context.Context, event event.NotificationSent) error
 }
 
 type Client struct {
@@ -23,9 +28,10 @@ type Client struct {
 	secretKey    []byte
 	now          func() time.Time
 	isProduction bool
+	eventClient  EventClient
 }
 
-func New(isProduction bool, baseURL, apiKey string, httpClient Doer) (*Client, error) {
+func New(isProduction bool, baseURL, apiKey string, httpClient Doer, eventClient EventClient) (*Client, error) {
 	keyParts := strings.Split(apiKey, "-")
 	if len(keyParts) != 11 {
 		return nil, errors.New("invalid apiKey format")
@@ -38,6 +44,7 @@ func New(isProduction bool, baseURL, apiKey string, httpClient Doer) (*Client, e
 		secretKey:    []byte(strings.Join(keyParts[6:11], "-")),
 		now:          time.Now,
 		isProduction: isProduction,
+		eventClient:  eventClient,
 	}, nil
 }
 
@@ -75,22 +82,47 @@ type emailWrapper struct {
 	Personalisation any    `json:"personalisation,omitempty"`
 }
 
-func (c *Client) SendEmail(ctx context.Context, to string, email Email) (string, error) {
+func (c *Client) SendEmail(ctx context.Context, to string, email Email) error {
 	req, err := c.newRequest(ctx, "/v2/notifications/email", emailWrapper{
 		EmailAddress:    to,
 		TemplateID:      email.emailID(c.isProduction),
 		Personalisation: email,
 	})
 	if err != nil {
-		return "", err
+		return err
+	}
+
+	_, err = c.do(req)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Client) SendActorEmail(ctx context.Context, to, lpaUID string, email Email) error {
+	req, err := c.newRequest(ctx, "/v2/notifications/email", emailWrapper{
+		EmailAddress:    to,
+		TemplateID:      email.emailID(c.isProduction),
+		Personalisation: email,
+	})
+	if err != nil {
+		return err
 	}
 
 	resp, err := c.do(req)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	return resp.ID, nil
+	if err := c.eventClient.SendNotificationSent(ctx, event.NotificationSent{
+		UID:            lpaUID,
+		NotificationID: resp.ID,
+	}); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 type smsWrapper struct {
