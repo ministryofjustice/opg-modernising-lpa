@@ -21,11 +21,3 @@ func TestRandomCode(t *testing.T) {
 		assert.Len(t, got, length)
 	}
 }
-
-func TestRandomCodeUseTestCode(t *testing.T) {
-	for length, expectedCode := range map[int]string{1: "1234", 8: "12345678", 9: "1234"} {
-		UseTestCode = true
-
-		assert.Equal(t, expectedCode, Code(length))
-	}
-}

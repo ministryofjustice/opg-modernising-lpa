@@ -12,49 +12,70 @@ import (
 )
 
 func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
-	now := time.Now()
-	ctx := context.Background()
-
-	notifyClient := newMockNotifyClient(t)
-	notifyClient.EXPECT().
-		SendSMS(ctx, "0777", notify.WitnessCodeSMS{
-			WitnessCode:   "1234",
-			DonorFullName: "Joe Jones’",
-			LpaType:       "property and affairs",
-		}).
-		Return("sms-id", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(ctx, &actor.DonorProvidedDetails{
-			Donor:                    actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-			CertificateProvider:      actor.CertificateProvider{Mobile: "0777"},
-			CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
-			Type:                     actor.LpaTypePropertyAndAffairs,
-		}).
-		Return(nil)
-
-	localizer := newMockLocalizer(t)
-	localizer.EXPECT().
-		T("property-and-affairs").
-		Return("property and affairs")
-	localizer.EXPECT().
-		Possessive("Joe Jones").
-		Return("Joe Jones’")
-
-	sender := &WitnessCodeSender{
-		donorStore:   donorStore,
-		notifyClient: notifyClient,
-		randomCode:   func(int) string { return "1234" },
-		now:          func() time.Time { return now },
+	testCases := map[string]struct {
+		randomCode          string
+		expectedWitnessCode string
+		useTestCode         bool
+	}{
+		"random code": {
+			randomCode:          "4321",
+			expectedWitnessCode: "4321",
+		},
+		"test code": {
+			randomCode:          "4321",
+			expectedWitnessCode: "1234",
+			useTestCode:         true,
+		},
 	}
-	err := sender.SendToCertificateProvider(ctx, &actor.DonorProvidedDetails{
-		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
-		Type:                actor.LpaTypePropertyAndAffairs,
-	}, localizer)
 
-	assert.Nil(t, err)
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			now := time.Now()
+			ctx := context.Background()
+			UseTestWitnessCode = tc.useTestCode
+
+			notifyClient := newMockNotifyClient(t)
+			notifyClient.EXPECT().
+				SendSMS(ctx, "0777", notify.WitnessCodeSMS{
+					WitnessCode:   tc.expectedWitnessCode,
+					DonorFullName: "Joe Jones’",
+					LpaType:       "property and affairs",
+				}).
+				Return("sms-id", nil)
+
+			donorStore := newMockDonorStore(t)
+			donorStore.EXPECT().
+				Put(ctx, &actor.DonorProvidedDetails{
+					Donor:                    actor.Donor{FirstNames: "Joe", LastName: "Jones"},
+					CertificateProvider:      actor.CertificateProvider{Mobile: "0777"},
+					CertificateProviderCodes: actor.WitnessCodes{{Code: tc.expectedWitnessCode, Created: now}},
+					Type:                     actor.LpaTypePropertyAndAffairs,
+				}).
+				Return(nil)
+
+			localizer := newMockLocalizer(t)
+			localizer.EXPECT().
+				T("property-and-affairs").
+				Return("property and affairs")
+			localizer.EXPECT().
+				Possessive("Joe Jones").
+				Return("Joe Jones’")
+
+			sender := &WitnessCodeSender{
+				donorStore:   donorStore,
+				notifyClient: notifyClient,
+				randomCode:   func(int) string { return tc.randomCode },
+				now:          func() time.Time { return now },
+			}
+			err := sender.SendToCertificateProvider(ctx, &actor.DonorProvidedDetails{
+				Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
+				CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
+				Type:                actor.LpaTypePropertyAndAffairs,
+			}, localizer)
+
+			assert.Nil(t, err)
+		})
+	}
 }
 
 func TestWitnessCodeSenderSendToCertificateProviderWhenTooRecentlySent(t *testing.T) {

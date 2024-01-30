@@ -9,24 +9,25 @@ import (
 )
 
 type AppData struct {
-	Page             string
-	Path             string
-	Query            string
-	Localizer        Localizer
-	Lang             localize.Lang
-	CookieConsentSet bool
-	CanGoBack        bool
-	SessionID        string
-	RumConfig        RumConfig
-	StaticHash       string
-	Paths            AppPaths
-	LpaID            string
-	CsrfToken        string
-	ActorTypes       actor.Types
-	ActorType        actor.Type
-	AttorneyID       string
-	OneloginURL      string
-	AppPublicURL     string
+	Page               string
+	Path               string
+	Query              string
+	Localizer          Localizer
+	Lang               localize.Lang
+	CookieConsentSet   bool
+	CanGoBack          bool
+	SessionID          string
+	RumConfig          RumConfig
+	StaticHash         string
+	Paths              AppPaths
+	LpaID              string
+	CsrfToken          string
+	ActorTypes         actor.Types
+	ActorType          actor.Type
+	AttorneyID         string
+	OneloginURL        string
+	AppPublicURL       string
+	UseTestWitnessCode bool
 }
 
 func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, url string) error {
