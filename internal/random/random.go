@@ -6,17 +6,11 @@ import (
 	"github.com/google/uuid"
 )
 
-var UseTestCode = false
-
 func String(length int) string {
 	return fromCharset(length, "abcdefghijklmnpqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789")
 }
 
 func Code(length int) string {
-	if UseTestCode {
-		return "1234"
-	}
-
 	return fromCharset(length, "0123456789")
 }
 

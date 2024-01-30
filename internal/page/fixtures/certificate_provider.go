@@ -46,6 +46,7 @@ func CertificateProvider(
 			redirect                          = r.FormValue("redirect")
 			asProfessionalCertificateProvider = r.FormValue("relationship") == "professional"
 			certificateProviderSub            = r.FormValue("certificateProviderSub")
+			shareCode                         = r.FormValue("withShareCode")
 		)
 
 		if certificateProviderSub == "" {
@@ -156,8 +157,8 @@ func CertificateProvider(
 		}
 
 		// should only be used in tests as otherwise people can read their emails...
-		if r.FormValue("use-test-code") == "1" {
-			shareCodeSender.UseTestCode()
+		if shareCode != "" {
+			shareCodeSender.UseTestCode(shareCode)
 		}
 
 		if email != "" {

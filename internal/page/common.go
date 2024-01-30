@@ -31,8 +31,8 @@ type ShareCodeStore interface {
 }
 
 type NotifyClient interface {
-	SendEmail(context.Context, string, notify.Email) (string, error)
-	SendSMS(context.Context, string, notify.SMS) (string, error)
+	SendActorEmail(context context.Context, to string, lpaUID string, email notify.Email) error
+	SendSMS(context context.Context, to string, sms notify.SMS) (string, error)
 }
 
 type OneLoginClient interface {

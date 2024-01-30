@@ -44,6 +44,7 @@ type OneLoginClient interface {
 type ShareCodeStore interface {
 	Get(context.Context, actor.Type, string) (actor.ShareCodeData, error)
 	Put(context.Context, actor.Type, string, actor.ShareCodeData) error
+	Delete(ctx context.Context, shareCode actor.ShareCodeData) error
 }
 
 type Template func(io.Writer, interface{}) error
@@ -55,7 +56,8 @@ type SessionStore interface {
 }
 
 type NotifyClient interface {
-	SendEmail(context.Context, string, notify.Email) (string, error)
+	SendEmail(context.Context, string, notify.Email) error
+	SendActorEmail(context.Context, string, string, notify.Email) error
 }
 
 type ShareCodeSender interface {

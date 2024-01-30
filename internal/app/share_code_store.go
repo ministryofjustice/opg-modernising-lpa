@@ -10,6 +10,7 @@ import (
 type ShareCodeStoreDynamoClient interface {
 	One(ctx context.Context, pk, sk string, v interface{}) error
 	Put(ctx context.Context, v interface{}) error
+	DeleteOne(ctx context.Context, pk, sk string) error
 }
 
 type shareCodeStore struct {
@@ -42,6 +43,10 @@ func (s *shareCodeStore) Put(ctx context.Context, actorType actor.Type, shareCod
 	data.SK = sk
 
 	return s.dynamoClient.Put(ctx, data)
+}
+
+func (s *shareCodeStore) Delete(ctx context.Context, shareCode actor.ShareCodeData) error {
+	return s.dynamoClient.DeleteOne(ctx, shareCode.PK, shareCode.SK)
 }
 
 func shareCodeKeys(actorType actor.Type, shareCode string) (pk, sk string, err error) {
