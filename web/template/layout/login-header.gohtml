@@ -90,7 +90,7 @@
     <div class="govuk-width-container">
       <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-          <h2 class="service-header__heading">{{ tr .App "serviceName" }}</h2>
+          <h2 class="service-header__heading">{{ if .App.IsSupporter }}{{ tr .App "helpSomeoneMakeLastingPowerOfAttorney" }}{{ else }}{{ tr .App "serviceName" }}{{ end }}</h2>
         </div>
         <div class="govuk-grid-column-one-third app-hide-print">
           <button type="button"
@@ -107,10 +107,21 @@
           </button>
           <nav aria-label="{{ trFormat .App "serviceNameNavigationMenu" "ServiceName" (tr .App "serviceName") }}">
             <ul class="service-header__nav-list service-header__nav" id="service-header__nav" data-open-class="service-header__nav--open">
-              <li class="service-header__nav-list-item service-header__nav-list-item--active">
-                <a class="service-header__nav-list-item-link" aria-current="page" href="{{ link .App .App.Paths.Dashboard.Format }}">{{ tr .App "manageYourLpas" }}</a>
-              </li>
-              <li class="service-header__nav-list-item"><a class="service-header__nav-list-item-link" href="#">{{ tr .App "helpAndSupport" }}</a></li>
+              {{ if .App.IsSupporter }}
+                <li class="service-header__nav-list-item service-header__nav-list-item--active">
+                  <a class="service-header__nav-list-item-link" aria-current="page" href="{{ link .App .App.Paths.Supporter.Dashboard.Format }}">{{ tr .App "dashboard" }}</a>
+                </li>
+                <li class="service-header__nav-list-item">
+                  <a class="service-header__nav-list-item-link" href="#">{{ tr .App "manageOrganisation" }}</a>
+                </li>
+              {{ else }}
+                <li class="service-header__nav-list-item service-header__nav-list-item--active">
+                  <a class="service-header__nav-list-item-link" aria-current="page" href="{{ link .App .App.Paths.Dashboard.Format }}">{{ tr .App "manageYourLpas" }}</a>
+                </li>
+                <li class="service-header__nav-list-item">
+                  <a class="service-header__nav-list-item-link" href="#">{{ tr .App "helpAndSupport" }}</a>
+                </li>
+              {{ end }}
             </ul>
           </nav>
         </div>
