@@ -1031,5 +1031,7 @@
     "sendInvite": "Welsh",
     "enterTheirWorkEmailAddress": "Welsh",
     "invitationSent": "Welsh",
-    "weHaveSentInvite": "Welsh {{.Email}}"
+    "weHaveSentInvite": "Welsh {{.Email}}",
+    "inviteTeamMember": "Welsh",
+    "dashboard": "Welsh"
 }
