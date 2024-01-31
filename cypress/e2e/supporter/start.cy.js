@@ -4,6 +4,7 @@ describe('Start', () => {
   });
 
   it('can be started', () => {
+    cy.checkA11yApp();
     cy.contains("Help someone to make a lasting power of attorney");
     cy.contains('a', 'Start').click();
 

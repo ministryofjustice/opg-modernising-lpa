@@ -1029,5 +1029,10 @@
     "inviteTeamMemberToYourOrganisation": "Welsh",
     "whenYouSelectSendInvite": "Welsh",
     "sendInvite": "Welsh",
-    "enterTheirWorkEmailAddress": "Welsh"
+    "enterTheirWorkEmailAddress": "Welsh",
+    "invitationSent": "Welsh",
+    "weHaveSentInvite": "Welsh {{.Email}}",
+    "inviteTeamMember": "Welsh",
+    "dashboard": "Welsh",
+    "manageOrganisation": "Welsh"
 }

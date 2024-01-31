@@ -73,14 +73,14 @@ func TestPostInviteMember(t *testing.T) {
 			OrganisationName: "My organisation",
 			InviteCode:       "abcde",
 		}).
-		Return("", nil)
+		Return(nil)
 
 	err := InviteMember(nil, organisationStore, notifyClient, func(int) string { return "abcde" })(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.Dashboard.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.Supporter.InviteMemberConfirmation.Format()+"?email=email%40example.com", resp.Header.Get("Location"))
 }
 
 func TestPostInviteMemberWhenValidationError(t *testing.T) {
@@ -161,7 +161,7 @@ func TestPostInviteMemberWhenNotifySendErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
 		SendEmail(r.Context(), mock.Anything, mock.Anything).
-		Return("", expectedError)
+		Return(expectedError)
 
 	err := InviteMember(nil, organisationStore, notifyClient, func(int) string { return "abcde" })(testAppData, w, r)
 	assert.Equal(t, expectedError, err)

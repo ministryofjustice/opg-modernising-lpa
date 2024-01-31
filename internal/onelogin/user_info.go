@@ -9,10 +9,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 )
+
+var ErrMissingCoreIdentityJWT = errors.New("UserInfo missing CoreIdentityJWT property")
 
 type UserInfo struct {
 	Sub             string `json:"sub"`
@@ -121,16 +123,16 @@ func (c *Client) ParseIdentityClaim(ctx context.Context, u UserInfo) (identity.U
 	}
 
 	if u.CoreIdentityJWT == "" {
-		return identity.UserData{}, errors.New("UserInfo missing CoreIdentityJWT property")
+		return identity.UserData{}, ErrMissingCoreIdentityJWT
 	}
 
 	token, err := jwt.ParseWithClaims(u.CoreIdentityJWT, &CoreIdentityClaims{}, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodECDSA); !ok {
-			return nil, jwt.NewValidationError(fmt.Sprintf("signing method %v is invalid", token.Header["alg"]), jwt.ValidationErrorSignatureInvalid)
+			return nil, fmt.Errorf("signing method %v is invalid", token.Header["alg"])
 		}
 
 		return publicKey, nil
-	})
+	}, jwt.WithIssuedAt())
 	if err != nil {
 		return identity.UserData{}, err
 	}

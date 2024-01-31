@@ -19,7 +19,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/env"
@@ -232,7 +232,7 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	notifyClient, err := notify.New(notifyIsProduction, notifyBaseURL, notifyApiKey, httpClient)
+	notifyClient, err := notify.New(notifyIsProduction, notifyBaseURL, notifyApiKey, httpClient, eventClient)
 	if err != nil {
 		logger.Fatal(err)
 	}

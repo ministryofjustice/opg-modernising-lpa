@@ -418,7 +418,8 @@ func Donor(
 		}
 
 		log.Println("Logging in with sub", donorSub)
-		random.UseTestCode = true
+		page.UseTestWitnessCode = true
+
 		http.Redirect(w, r, redirect, http.StatusFound)
 		return nil
 	}

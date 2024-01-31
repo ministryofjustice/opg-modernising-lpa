@@ -967,5 +967,10 @@
     "inviteTeamMemberToYourOrganisation": "Invite a team member to your organisation",
     "whenYouSelectSendInvite": "When you select <span class=\"govuk-!-font-weight-bold\">Send invite</span>, we will send this person an email inviting them to join your organisation. They will have 48 hours to join.",
     "sendInvite": "Send invite",
-    "enterTheirWorkEmailAddress": "Enter their work email address."
+    "enterTheirWorkEmailAddress": "Enter their work email address.",
+    "invitationSent": "Invitation sent",
+    "weHaveSentInvite": "We have sent an email to <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span> inviting them to join your organisation.",
+    "inviteTeamMember": "Invite a team member",
+    "dashboard": "Dashboard",
+    "manageOrganisation": "Manage organisation"
 }
