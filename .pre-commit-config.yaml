@@ -33,7 +33,7 @@ repos:
         args: ["--config", "terraform/environment/.terraform-docs.yml", "./terraform/environment"]
       - id: terraform-docs-go
         name: terraform-docs-account-root
-        args: ["--config", "terraform/environment/.terraform-docs.yml", "./terraform/environment"]
+        args: ["--config", "terraform/account/.terraform-docs.yml", "./terraform/account"]
 
   - repo: https://github.com/dnephin/pre-commit-golang
     rev: v0.5.1
