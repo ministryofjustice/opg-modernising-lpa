@@ -17,9 +17,9 @@ variable "pagerduty_api_key" {
   sensitive = true
 }
 
-# output "container_version" {
-#   value = var.container_version
-# }
+output "container_version" {
+  value = var.container_version
+}
 
 output "public_access_enabled" {
   value = var.public_access_enabled
