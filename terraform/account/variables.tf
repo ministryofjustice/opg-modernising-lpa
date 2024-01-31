@@ -1,6 +1,6 @@
-output "workspace_name" {
-  value = terraform.workspace
-}
+# output "workspace_name" {
+#   value = terraform.workspace
+# }
 
 variable "accounts" {
   type = map(
