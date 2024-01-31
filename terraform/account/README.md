@@ -192,4 +192,5 @@ For terraform_environment, this will be based on your PR and can be found in the
 | Name | Description |
 |------|-------------|
 | <a name="output_resource_group_arns"></a> [resource\_group\_arns](#output\_resource\_group\_arns) | n/a |
+| <a name="output_workspace_name"></a> [workspace\_name](#output\_workspace\_name) | n/a |
 <!-- END_TF_DOCS -->
