@@ -1033,5 +1033,6 @@
     "invitationSent": "Welsh",
     "weHaveSentInvite": "Welsh {{.Email}}",
     "inviteTeamMember": "Welsh",
-    "dashboard": "Welsh"
+    "dashboard": "Welsh",
+    "manageOrganisation": "Welsh"
 }
