@@ -44,7 +44,7 @@ func (p LpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppDat
 	}
 
 	if CanGoTo(donor, rurl) {
-		http.Redirect(w, r, appData.Lang.URL(rurl), http.StatusFound)
+		http.Redirect(w, r.WithContext(ContextWithAppData(r.Context(), appData)), appData.Lang.URL(rurl), http.StatusFound)
 	} else {
 		http.Redirect(w, r, appData.Lang.URL(Paths.TaskList.Format(donor.LpaID)), http.StatusFound)
 	}
@@ -168,7 +168,7 @@ type SupporterPaths struct {
 	Login         Path
 	LoginCallback Path
 
-	EnterOrganisationName SupporterPath
+	EnterOrganisationName Path
 	OrganisationCreated   SupporterPath
 	Dashboard             SupporterPath
 	InviteMember          SupporterPath
@@ -334,14 +334,14 @@ var Paths = AppPaths{
 	},
 
 	Supporter: SupporterPaths{
-		Start:         "/supporter-start",
-		Login:         "/supporter-login",
-		LoginCallback: "/supporter-login-callback",
-
+		Start:                 "/supporter-start",
+		Login:                 "/supporter-login",
+		LoginCallback:         "/supporter-login-callback",
 		EnterOrganisationName: "/enter-the-name-of-your-organisation-or-company",
-		OrganisationCreated:   "/organisation-or-company-created",
-		Dashboard:             "/supporter-dashboard",
-		InviteMember:          "/invite-member",
+
+		OrganisationCreated: "/organisation-or-company-created",
+		Dashboard:           "/supporter-dashboard",
+		InviteMember:        "/invite-member",
 	},
 
 	HealthCheck: HealthCheckPaths{

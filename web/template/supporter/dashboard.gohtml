@@ -1,0 +1,22 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "dashboard" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form novalidate method="post">
+                <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-two-thirds">
+                        <h1 class="govuk-heading-xl">{{ tr .App "dashboard" }}</h1>
+
+                        <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "makeNewLpa" }}</button>
+                        {{ template "csrf-field" . }}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{{ end }}
