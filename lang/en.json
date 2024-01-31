@@ -969,5 +969,7 @@
     "sendInvite": "Send invite",
     "enterTheirWorkEmailAddress": "Enter their work email address.",
     "invitationSent": "Invitation sent",
-    "weHaveSentInvite": "We have sent an email to <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span> inviting them to join your organisation."
+    "weHaveSentInvite": "We have sent an email to <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span> inviting them to join your organisation.",
+    "inviteTeamMember": "Invite a team member",
+    "dashboard": "Dashboard"
 }

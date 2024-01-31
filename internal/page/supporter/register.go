@@ -75,7 +75,7 @@ func Register(
 	handleWithSupporter(paths.OrganisationCreated,
 		OrganisationCreated(tmpls.Get("organisation_created.gohtml"), organisationStore))
 	handleWithSupporter(paths.Dashboard,
-		TODO())
+		Guidance(tmpls.Get("dashboard.gohtml")))
 	handleWithSupporter(paths.InviteMember,
 		InviteMember(tmpls.Get("invite_member.gohtml"), organisationStore, notifyClient, random.String))
 	handleWithSupporter(paths.InviteMemberConfirmation,
