@@ -2,6 +2,7 @@
 
 This module deploys a lambda function that scans S3 objects for viruses on put.
 
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name                                                                      | Version   |
@@ -57,3 +58,4 @@ No modules.
 | Name                                                                                | Description |
 |-------------------------------------------------------------------------------------|-------------|
 | <a name="output_lambda_function"></a> [lambda\_function](#output\_lambda\_function) | n/a         |
+<!-- END_TF_DOCS -->

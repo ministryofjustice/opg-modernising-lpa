@@ -2,6 +2,7 @@
 
 This module creates the resources required to deploy an image based Lambda function.
 
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name                                                                      | Version   |
@@ -59,3 +60,4 @@ No modules.
 | <a name="output_lambda"></a> [lambda](#output\_lambda)                  | The lambda function |
 | <a name="output_lambda_log"></a> [lambda\_log](#output\_lambda\_log)    | The lambda logs     |
 | <a name="output_lambda_role"></a> [lambda\_role](#output\_lambda\_role) | The lambda role     |
+<!-- END_TF_DOCS -->

@@ -12,6 +12,7 @@ You can create an incoming reduced fees event by using the following aws cli put
 aws-vault exec mlpa-dev -- aws events put-events --entries file://reduced_fees_update_event.json
 ```
 
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name                                                                      | Version   |
@@ -63,3 +64,4 @@ No modules.
 | Name                                                              | Description |
 |-------------------------------------------------------------------|-------------|
 | <a name="output_event_bus"></a> [event\_bus](#output\_event\_bus) | n/a         |
+<!-- END_TF_DOCS -->

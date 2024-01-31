@@ -2,6 +2,7 @@
 
 This module creates an S3 bucket for storing uploads, triggers for virus scanning, S3 object replication to the case management application account.
 
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name                                                                      | Version   |
@@ -75,3 +76,4 @@ This module creates an S3 bucket for storing uploads, triggers for virus scannin
 | Name                                                   | Description        |
 |--------------------------------------------------------|--------------------|
 | <a name="output_bucket"></a> [bucket](#output\_bucket) | S3 uploads bucket. |
+<!-- END_TF_DOCS -->

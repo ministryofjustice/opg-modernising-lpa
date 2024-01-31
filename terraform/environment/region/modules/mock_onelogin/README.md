@@ -2,6 +2,7 @@
 
 This module creates the resources required to mock One Login.
 
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name                                                                      | Version   |
@@ -75,3 +76,4 @@ No modules.
 | <a name="output_ecs_service"></a> [ecs\_service](#output\_ecs\_service)                                                        | n/a         |
 | <a name="output_load_balancer"></a> [load\_balancer](#output\_load\_balancer)                                                  | n/a         |
 | <a name="output_load_balancer_security_group"></a> [load\_balancer\_security\_group](#output\_load\_balancer\_security\_group) | n/a         |
+<!-- END_TF_DOCS -->

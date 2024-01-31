@@ -2,6 +2,7 @@
 
 This module creates the regional resources for an environment.
 
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name                                                                      | Version   |
@@ -132,3 +133,4 @@ This module creates the regional resources for an environment.
 | <a name="output_app_load_balancer"></a> [app\_load\_balancer](#output\_app\_load\_balancer)                                                  | n/a         |
 | <a name="output_app_load_balancer_security_group"></a> [app\_load\_balancer\_security\_group](#output\_app\_load\_balancer\_security\_group) | n/a         |
 | <a name="output_resource_group_arn"></a> [resource\_group\_arn](#output\_resource\_group\_arn)                                               | n/a         |
+<!-- END_TF_DOCS -->

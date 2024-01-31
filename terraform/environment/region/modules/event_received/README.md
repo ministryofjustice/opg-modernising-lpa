@@ -2,6 +2,7 @@
 
 This module creates the resources required to receive and process events from the event bus.
 
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name                                                                      | Version   |
@@ -62,3 +63,4 @@ This module creates the resources required to receive and process events from th
 | Name                                                                                | Description |
 |-------------------------------------------------------------------------------------|-------------|
 | <a name="output_lambda_function"></a> [lambda\_function](#output\_lambda\_function) | n/a         |
+<!-- END_TF_DOCS -->

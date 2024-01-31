@@ -2,6 +2,7 @@
 
 The module creates a cloudwatch log group and useful log queries for application logs.
 
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name                                                                      | Version   |
@@ -39,3 +40,4 @@ No modules.
 | Name                                                                                                 | Description |
 |------------------------------------------------------------------------------------------------------|-------------|
 | <a name="output_cloudwatch_log_group"></a> [cloudwatch\_log\_group](#output\_cloudwatch\_log\_group) | n/a         |
+<!-- END_TF_DOCS -->

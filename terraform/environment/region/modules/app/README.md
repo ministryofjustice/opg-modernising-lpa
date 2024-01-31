@@ -2,6 +2,7 @@
 
 The module creates an ECS service for the Modernising LPA application, and associated resources including a load balancer, security groups, and a WAFv2 web ACL association.
 
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name                                                                      | Version   |
@@ -99,3 +100,4 @@ No modules.
 | <a name="output_ecs_service_security_group"></a> [ecs\_service\_security\_group](#output\_ecs\_service\_security\_group)       | n/a         |
 | <a name="output_load_balancer"></a> [load\_balancer](#output\_load\_balancer)                                                  | n/a         |
 | <a name="output_load_balancer_security_group"></a> [load\_balancer\_security\_group](#output\_load\_balancer\_security\_group) | n/a         |
+<!-- END_TF_DOCS -->
