@@ -1,14 +1,19 @@
+# Application Logs
+
+The module creates a cloudwatch log group and useful log queries for application logs.
+
 ## Requirements
 
-| Name                                                                      | Version  |
-|---------------------------------------------------------------------------|----------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.2.2 |
+| Name                                                                      | Version   |
+|---------------------------------------------------------------------------|-----------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.2  |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws)                   | ~> 5.34.0 |
 
 ## Providers
 
-| Name                                                                   | Version |
-|------------------------------------------------------------------------|---------|
-| <a name="provider_aws.region"></a> [aws.region](#provider\_aws.region) | n/a     |
+| Name                                                                   | Version   |
+|------------------------------------------------------------------------|-----------|
+| <a name="provider_aws.region"></a> [aws.region](#provider\_aws.region) | ~> 5.34.0 |
 
 ## Modules
 
@@ -20,10 +25,8 @@ No modules.
 |-------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|
 | [aws_cloudwatch_log_group.application_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group)                     | resource    |
 | [aws_cloudwatch_query_definition.app_container_messages](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_query_definition) | resource    |
-| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity)                                     | data source |
 | [aws_default_tags.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/default_tags)                                           | data source |
 | [aws_kms_alias.cloudwatch_application_logs_encryption](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/kms_alias)                  | data source |
-| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region)                                                       | data source |
 
 ## Inputs
 
