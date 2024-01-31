@@ -78,6 +78,8 @@ func Register(
 		TODO())
 	handleWithSupporter(paths.InviteMember,
 		InviteMember(tmpls.Get("invite_member.gohtml"), organisationStore, notifyClient, random.String))
+	handleWithSupporter(paths.InviteMemberConfirmation,
+		Guidance(tmpls.Get("invite_member_confirmation.gohtml")))
 }
 
 func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler) func(page.Path, page.Handler) {

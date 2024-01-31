@@ -117,6 +117,11 @@ func (p SupporterPath) Redirect(w http.ResponseWriter, r *http.Request, appData 
 	return nil
 }
 
+func (p SupporterPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, query url.Values) error {
+	http.Redirect(w, r, appData.Lang.URL(p.Format())+"?"+query.Encode(), http.StatusFound)
+	return nil
+}
+
 type AttorneyPaths struct {
 	EnterReferenceNumber Path
 	Login                Path
@@ -168,10 +173,11 @@ type SupporterPaths struct {
 	Login         Path
 	LoginCallback Path
 
-	EnterOrganisationName SupporterPath
-	OrganisationCreated   SupporterPath
-	Dashboard             SupporterPath
-	InviteMember          SupporterPath
+	EnterOrganisationName    SupporterPath
+	OrganisationCreated      SupporterPath
+	Dashboard                SupporterPath
+	InviteMember             SupporterPath
+	InviteMemberConfirmation SupporterPath
 }
 
 type AppPaths struct {
@@ -338,10 +344,11 @@ var Paths = AppPaths{
 		Login:         "/supporter-login",
 		LoginCallback: "/supporter-login-callback",
 
-		EnterOrganisationName: "/enter-the-name-of-your-organisation-or-company",
-		OrganisationCreated:   "/organisation-or-company-created",
-		Dashboard:             "/supporter-dashboard",
-		InviteMember:          "/invite-member",
+		EnterOrganisationName:    "/enter-the-name-of-your-organisation-or-company",
+		OrganisationCreated:      "/organisation-or-company-created",
+		Dashboard:                "/supporter-dashboard",
+		InviteMember:             "/invite-member",
+		InviteMemberConfirmation: "/invite-member-confirmation",
 	},
 
 	HealthCheck: HealthCheckPaths{
