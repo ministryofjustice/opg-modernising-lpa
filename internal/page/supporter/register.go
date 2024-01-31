@@ -91,6 +91,8 @@ func Register(
 		Dashboard(supporterTmpls.Get("dashboard.gohtml"), organisationStore))
 	handleWithSupporter(supporterPaths.InviteMember,
 		InviteMember(supporterTmpls.Get("invite_member.gohtml"), organisationStore, notifyClient, random.String))
+	handleWithSupporter(supporterPaths.InviteMemberConfirmation,
+		Guidance(supporterTmpls.Get("invite_member_confirmation.gohtml")))
 
 	// do we have another Handler for donor and supporter? Or make new handlers for everything?
 	handleWithSupporterAndDonor(donorPaths.YourDetails,

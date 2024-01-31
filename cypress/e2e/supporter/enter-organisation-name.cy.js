@@ -4,6 +4,7 @@ describe('Enter group name', () => {
   });
 
   it('can be started', () => {
+    cy.checkA11yApp();
     cy.get('#f-name').type('My name' + Math.random());
     cy.contains('button', 'Continue').click();
 

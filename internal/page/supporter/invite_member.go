@@ -2,6 +2,7 @@ package supporter
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -44,7 +45,7 @@ func InviteMember(tmpl template.Template, organisationStore OrganisationStore, n
 					return err
 				}
 
-				return page.Paths.Supporter.Dashboard.Redirect(w, r, appData)
+				return page.Paths.Supporter.InviteMemberConfirmation.RedirectQuery(w, r, appData, url.Values{"email": {data.Form.Email}})
 			}
 		}
 
