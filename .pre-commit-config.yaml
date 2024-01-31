@@ -29,8 +29,11 @@ repos:
     rev: "v0.17.0"
     hooks:
       - id: terraform-docs-go
-        name: terraform-docs-env-root
-        args: ["--config", "terraform/environment/.terraform-docs.yml", "./terraform/environment"]  # e.g. ["--output-file", "README.md", "./mymodule/path"]
+        name: terraform-docs-environment-root
+        args: ["--config", "terraform/environment/.terraform-docs.yml", "./terraform/environment"]
+      - id: terraform-docs-go
+        name: terraform-docs-account-root
+        args: ["--config", "terraform/environment/.terraform-docs.yml", "./terraform/environment"]
 
   - repo: https://github.com/dnephin/pre-commit-golang
     rev: v0.5.1
