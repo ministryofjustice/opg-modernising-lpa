@@ -27,6 +27,7 @@ type AppData struct {
 	AttorneyID       string
 	OneloginURL      string
 	AppPublicURL     string
+	IsSupporter      bool
 	OrganisationID   string
 }
 

@@ -33,7 +33,8 @@ func TestMakeHandle(t *testing.T) {
 	handle := makeHandle(mux, newMockSessionStore(t), nil)
 	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
-			Page: "/path",
+			Page:        "/path",
+			IsSupporter: true,
 		}, appData)
 		assert.Equal(t, w, hw)
 
@@ -78,8 +79,9 @@ func TestMakeSupporterHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 	handle := makeSupporterHandle(mux, sessionStore, nil, nil)
 	handle("/path", func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
-			Page:      "/supporter/path",
-			SessionID: "cmFuZG9t",
+			Page:        "/supporter/path",
+			SessionID:   "cmFuZG9t",
+			IsSupporter: true,
 		}, appData)
 
 		assert.Equal(t, w, hw)

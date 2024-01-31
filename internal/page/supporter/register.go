@@ -106,6 +106,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 
 			appData := page.AppDataFromContext(ctx)
 			appData.Page = path.Format()
+			appData.IsSupporter = true
 
 			if opt&page.RequireSession != 0 {
 				session, err := sesh.Login(store, r)
@@ -142,6 +143,7 @@ func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page
 
 			appData.ActorType = actor.TypeSupporter
 			appData.Page = path.Format()
+			appData.IsSupporter = true
 			appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
 
 			member, err := organisationStore.GetMember(page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID}))

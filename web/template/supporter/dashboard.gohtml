@@ -1,4 +1,4 @@
-{{ template "page" . }}
+{{ template "supporter-page" . }}
 
 {{ define "pageTitle" }}{{ tr .App "dashboard" }}{{ end }}
 
@@ -13,6 +13,7 @@
                         <h1 class="govuk-heading-xl">{{ tr .App "dashboard" }}</h1>
 
                         <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "makeNewLpa" }}</button>
+                        <a class="govuk-button govuk-button--secondary" href="{{ link .App .App.Paths.Supporter.InviteMember.Format }}">{{ tr .App "inviteTeamMember" }}</a>
                         {{ template "csrf-field" . }}
                     </div>
                 </div>
