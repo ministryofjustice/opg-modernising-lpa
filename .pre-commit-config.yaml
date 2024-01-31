@@ -25,6 +25,11 @@ repos:
       - id: terraform_tflint
         args:
           - --args=--recursive
+  - repo: https://github.com/terraform-docs/terraform-docs
+    rev: "v0.17.0"
+    hooks:
+      - id: terraform-docs-go
+        args: ["--config", "terraform/environment/.terraform-docs.yml"]  # e.g. ["--output-file", "README.md", "./mymodule/path"]
 
   - repo: https://github.com/dnephin/pre-commit-golang
     rev: v0.5.1
