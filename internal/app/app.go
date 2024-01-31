@@ -125,7 +125,7 @@ func App(
 	handleRoot(paths.AttorneyFixtures, None,
 		fixtures.Attorney(tmpls.Get("attorney_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore))
 	handleRoot(paths.SupporterFixtures, None,
-		fixtures.Supporter(sessionStore))
+		fixtures.Supporter(sessionStore, organisationStore))
 	handleRoot(paths.DashboardFixtures, None,
 		fixtures.Dashboard(tmpls.Get("dashboard_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore))
 	handleRoot(paths.YourLegalRightsAndResponsibilities, None,

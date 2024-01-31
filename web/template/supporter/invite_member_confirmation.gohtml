@@ -1,0 +1,24 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "invitationSent" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
+           aria-labelledby="govuk-notification-banner-title"
+           data-module="govuk-notification-banner">
+        <div class="govuk-notification-banner__header">
+          <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+            {{ tr .App "invitationSent" }}
+          </h1>
+        </div>
+        <div class="govuk-notification-banner__content">
+          <p class="govuk-body">
+            {{ trFormatHtml .App "weHaveSentInvite" "Email" (.Query.Get "email") }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+{{ end }}
