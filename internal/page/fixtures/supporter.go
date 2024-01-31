@@ -1,6 +1,8 @@
 package fixtures
 
 import (
+	"context"
+	"encoding/base64"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -8,16 +10,29 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func Supporter(sessionStore sesh.Store) page.Handler {
+type OrganisationStore interface {
+	Create(context.Context, string) error
+}
+
+func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		var (
-			redirect = r.FormValue("redirect")
+			organisation = r.FormValue("organisation")
+			redirect     = r.FormValue("redirect")
 
-			supporterSub = random.String(16)
+			supporterSub       = random.String(16)
+			supporterSessionID = base64.StdEncoding.EncodeToString([]byte(supporterSub))
+			ctx                = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: supporterSessionID})
 		)
 
 		if err := sesh.SetLoginSession(sessionStore, r, w, &sesh.LoginSession{Sub: supporterSub, Email: testEmail}); err != nil {
 			return err
+		}
+
+		if organisation == "1" {
+			if err := organisationStore.Create(ctx, random.String(12)); err != nil {
+				return err
+			}
 		}
 
 		http.Redirect(w, r, "/supporter/"+redirect, http.StatusFound)
