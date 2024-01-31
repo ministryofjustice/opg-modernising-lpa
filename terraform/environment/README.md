@@ -11,10 +11,20 @@ It is important to namespace resources to avoid getting errors for creating reso
 There are two namespace variables available.
 
 ```hcl
-"${local.environment_name}"
+"${local.default_tags.environment-name}"
 ```
 
-can return `uml93` or `production`
+is available in the root module. Within modules, we use the default tags data source
+
+```hcl
+data "aws_default_tags" "current" {
+  provider = aws.region
+}
+
+"${data.aws_default_tags.current.tags["environment-name"]}"
+```
+
+They will both return values like `1015mlpab17` or `production`
 
 ## Regional Design Pattern
 
