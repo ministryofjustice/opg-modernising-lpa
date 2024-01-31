@@ -75,7 +75,7 @@ func Register(
 	handleWithSupporter(paths.OrganisationCreated,
 		OrganisationCreated(tmpls.Get("organisation_created.gohtml"), organisationStore))
 	handleWithSupporter(paths.Dashboard,
-		TODO())
+		Guidance(tmpls.Get("dashboard.gohtml")))
 	handleWithSupporter(paths.InviteMember,
 		InviteMember(tmpls.Get("invite_member.gohtml"), organisationStore, notifyClient, random.String))
 	handleWithSupporter(paths.InviteMemberConfirmation,
@@ -89,6 +89,7 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler) func(page.Pa
 
 			appData := page.AppDataFromContext(ctx)
 			appData.Page = path.Format()
+			appData.IsSupporter = true
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
 				errorHandler(w, r, err)
@@ -110,6 +111,7 @@ func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page
 			}
 
 			appData.Page = path.Format()
+			appData.IsSupporter = true
 			appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
 
 			ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID})
