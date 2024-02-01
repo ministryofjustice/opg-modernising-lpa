@@ -2,7 +2,6 @@ package certificateprovider
 
 import (
 	"context"
-	"encoding/base64"
 	"io"
 	"net/http"
 	"time"
@@ -185,7 +184,7 @@ func makeCertificateProviderHandle(mux *http.ServeMux, store sesh.Store, errorHa
 				return
 			}
 
-			appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
+			appData.SessionID = session.SessionID()
 
 			sessionData, err := page.SessionDataFromContext(ctx)
 			if err == nil {
