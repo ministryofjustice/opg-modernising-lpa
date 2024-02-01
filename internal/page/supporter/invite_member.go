@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -17,7 +18,7 @@ type inviteMemberData struct {
 }
 
 func InviteMember(tmpl template.Template, organisationStore OrganisationStore, notifyClient NotifyClient, randomString func(int) string) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
 		data := &inviteMemberData{
 			App:  appData,
 			Form: &inviteMemberForm{},
@@ -28,11 +29,6 @@ func InviteMember(tmpl template.Template, organisationStore OrganisationStore, n
 			data.Errors = data.Form.Validate()
 
 			if !data.Errors.Any() {
-				organisation, err := organisationStore.Get(r.Context())
-				if err != nil {
-					return err
-				}
-
 				inviteCode := randomString(12)
 				if err := organisationStore.CreateMemberInvite(r.Context(), organisation, data.Form.Email, inviteCode); err != nil {
 					return err

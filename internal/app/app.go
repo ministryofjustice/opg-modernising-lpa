@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"encoding/base64"
 	"fmt"
 	"net/http"
 	"strings"
@@ -269,7 +268,7 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, store sesh.S
 					return
 				}
 
-				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(loginSession.Sub))
+				appData.SessionID = loginSession.SessionID()
 				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID})
 			}
 

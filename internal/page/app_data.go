@@ -28,6 +28,7 @@ type AppData struct {
 	OneloginURL      string
 	AppPublicURL     string
 	IsSupporter      bool
+	OrganisationName string
 	OrganisationID   string
 }
 

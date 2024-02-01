@@ -2,7 +2,6 @@ package supporter
 
 import (
 	"context"
-	"encoding/base64"
 	"io"
 	"net/http"
 
@@ -50,7 +49,7 @@ type DonorStore interface {
 
 type Template func(io.Writer, interface{}) error
 
-type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request) error
+type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
@@ -71,7 +70,7 @@ func Register(
 	handleRoot(supporterPaths.Login, page.None,
 		page.Login(oneLoginClient, sessionStore, random.String, supporterPaths.LoginCallback))
 	handleRoot(supporterPaths.LoginCallback, page.None,
-		LoginCallback(oneLoginClient, sessionStore))
+		LoginCallback(oneLoginClient, sessionStore, organisationStore))
 	handleRoot(supporterPaths.EnterOrganisationName, page.RequireSession,
 		EnterOrganisationName(supporterTmpls.Get("enter_organisation_name.gohtml"), organisationStore))
 
@@ -88,7 +87,7 @@ func Register(
 	handleSupporter(page.Paths.Root, page.None, notFoundHandler)
 
 	handleWithSupporter(supporterPaths.OrganisationCreated,
-		OrganisationCreated(supporterTmpls.Get("organisation_created.gohtml"), organisationStore))
+		OrganisationCreated(supporterTmpls.Get("organisation_created.gohtml")))
 	handleWithSupporter(supporterPaths.Dashboard,
 		Dashboard(supporterTmpls.Get("dashboard.gohtml"), organisationStore))
 	handleWithSupporter(supporterPaths.InviteMember,
@@ -116,8 +115,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 					return
 				}
 
-				appData.Page = path.Format()
-				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
+				appData.SessionID = session.SessionID()
 
 				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID})
 			}
@@ -132,7 +130,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler, organisationStore OrganisationStore) func(page.SupporterPath, Handler) {
 	return func(path page.SupporterPath, h Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
-			session, err := sesh.Login(store, r)
+			loginSession, err := sesh.Login(store, r)
 			if err != nil {
 				http.Redirect(w, r, page.Paths.Supporter.Start.Format(), http.StatusFound)
 				return
@@ -141,7 +139,7 @@ func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page
 			ctx := r.Context()
 
 			appData := page.AppDataFromContext(ctx)
-			appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
+			appData.SessionID = loginSession.SessionID()
 
 			sessionData, err := page.SessionDataFromContext(ctx)
 			if err == nil {
@@ -151,19 +149,20 @@ func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page
 				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID})
 			}
 
-			appData.Page = path.Format()
-			appData.IsSupporter = true
-
-			member, err := organisationStore.GetMember(ctx)
+			organisation, err := organisationStore.Get(ctx)
 			if err != nil {
 				errorHandler(w, r, err)
+				return
 			}
 
-			appData.OrganisationID = member.OrganisationID()
+			appData.Page = path.Format()
+			appData.IsSupporter = true
+			appData.OrganisationID = organisation.ID
+			appData.OrganisationName = organisation.Name
 
-			ctx = page.ContextWithAppData(page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, OrganisationID: member.OrganisationID()}), appData)
+			ctx = page.ContextWithAppData(page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, OrganisationID: organisation.ID}), appData)
 
-			if err := h(appData, w, r.WithContext(ctx)); err != nil {
+			if err := h(appData, w, r.WithContext(ctx), organisation); err != nil {
 				errorHandler(w, r, err)
 			}
 		})
@@ -173,7 +172,7 @@ func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page
 func makeSupporterDonorHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler, organisationStore OrganisationStore, donorStore DonorStore) func(page.SupporterPath, donor.Handler) {
 	return func(path page.SupporterPath, h donor.Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
-			session, err := sesh.Login(store, r)
+			loginSession, err := sesh.Login(store, r)
 			if err != nil {
 				http.Redirect(w, r, page.Paths.Supporter.Start.Format(), http.StatusFound)
 				return
@@ -186,12 +185,12 @@ func makeSupporterDonorHandle(mux *http.ServeMux, store sesh.Store, errorHandler
 				errorHandler(w, r, err)
 			}
 
+			sessionData.SessionID = loginSession.SessionID()
+
 			appData := page.AppDataFromContext(ctx)
 			appData.IsSupporter = true
-			appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
+			appData.SessionID = loginSession.SessionID()
 			appData.LpaID = sessionData.LpaID
-
-			sessionData.SessionID = appData.SessionID
 
 			member, err := organisationStore.GetMember(page.ContextWithSessionData(ctx, sessionData))
 			if err != nil {

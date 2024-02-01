@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -14,13 +15,8 @@ type DashboardData struct {
 }
 
 func Dashboard(tmpl template.Template, organisationStore OrganisationStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
 		if r.Method == http.MethodPost {
-			organisation, err := organisationStore.Get(r.Context())
-			if err != nil {
-				return err
-			}
-
 			donorProvided, err := organisationStore.CreateLPA(r.Context(), organisation.ID)
 			if err != nil {
 				return err
