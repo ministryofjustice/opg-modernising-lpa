@@ -1,6 +1,7 @@
 package sesh
 
 import (
+	"encoding/base64"
 	"encoding/gob"
 	"fmt"
 	"net/http"
@@ -109,6 +110,10 @@ type LoginSession struct {
 	IDToken string
 	Sub     string
 	Email   string
+}
+
+func (s LoginSession) SessionID() string {
+	return base64.StdEncoding.EncodeToString([]byte(s.Sub))
 }
 
 func (s LoginSession) Valid() bool {
