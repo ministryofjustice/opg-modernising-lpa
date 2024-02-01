@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/gorilla/sessions"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -16,6 +17,12 @@ import (
 func TestLoginCallback(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
+
+	loginSession := &sesh.LoginSession{
+		IDToken: "id-token",
+		Sub:     "random",
+		Email:   "name@example.com",
+	}
 
 	client := newMockOneLoginClient(t)
 	client.EXPECT().
@@ -35,13 +42,7 @@ func TestLoginCallback(t *testing.T) {
 		HttpOnly: true,
 		Secure:   true,
 	}
-	session.Values = map[any]any{
-		"session": &sesh.LoginSession{
-			IDToken: "id-token",
-			Sub:     "random",
-			Email:   "name@example.com",
-		},
-	}
+	session.Values = map[any]any{"session": loginSession}
 
 	sessionStore.EXPECT().
 		Get(r, "params").
@@ -59,7 +60,12 @@ func TestLoginCallback(t *testing.T) {
 		Save(r, w, session).
 		Return(nil)
 
-	err := LoginCallback(client, sessionStore)(page.AppData{}, w, r)
+	organisationStore := newMockOrganisationStore(t)
+	organisationStore.EXPECT().
+		Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID()})).
+		Return(nil, &dynamo.NotFoundError{})
+
+	err := LoginCallback(client, sessionStore, organisationStore)(page.AppData{}, w, r)
 	assert.Nil(t, err)
 	resp := w.Result()
 
@@ -115,7 +121,7 @@ func TestLoginCallbackSessionMissing(t *testing.T) {
 				Get(r, "params").
 				Return(tc.session, tc.getErr)
 
-			err := LoginCallback(nil, sessionStore)(page.AppData{}, w, r)
+			err := LoginCallback(nil, sessionStore, nil)(page.AppData{}, w, r)
 			assert.Equal(t, tc.expectedErr, err)
 		})
 	}
@@ -139,7 +145,7 @@ func TestLoginCallbackWhenExchangeErrors(t *testing.T) {
 			},
 		}, nil)
 
-	err := LoginCallback(client, sessionStore)(page.AppData{}, w, r)
+	err := LoginCallback(client, sessionStore, nil)(page.AppData{}, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -164,7 +170,7 @@ func TestLoginCallbackWhenUserInfoError(t *testing.T) {
 			},
 		}, nil)
 
-	err := LoginCallback(client, sessionStore)(page.AppData{}, w, r)
+	err := LoginCallback(client, sessionStore, nil)(page.AppData{}, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -197,6 +203,6 @@ func TestLoginCallbackWhenSessionError(t *testing.T) {
 		Save(r, w, mock.Anything).
 		Return(expectedError)
 
-	err := LoginCallback(client, sessionStore)(page.AppData{}, w, r)
+	err := LoginCallback(client, sessionStore, nil)(page.AppData{}, w, r)
 	assert.Equal(t, expectedError, err)
 }

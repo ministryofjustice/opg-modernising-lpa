@@ -1,7 +1,6 @@
 package attorney
 
 import (
-	"encoding/base64"
 	"errors"
 	"net/http"
 
@@ -51,7 +50,7 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 				}
 
 				ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
-					SessionID: base64.StdEncoding.EncodeToString([]byte(session.Sub)),
+					SessionID: session.SessionID(),
 					LpaID:     shareCode.LpaID,
 				})
 
