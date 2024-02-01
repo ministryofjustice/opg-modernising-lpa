@@ -35,22 +35,30 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 
 		session := &sesh.LoginSession{
 			IDToken: idToken,
-			Sub:     userInfo.Sub,
+			Sub:     "supporter-" + userInfo.Sub,
 			Email:   userInfo.Email,
-		}
-
-		if err := sesh.SetLoginSession(sessionStore, r, w, session); err != nil {
-			return err
 		}
 
 		ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: session.SessionID()})
 
-		_, err = organisationStore.Get(ctx)
+		organisation, err := organisationStore.Get(ctx)
 		if err == nil {
+			session.OrganisationID = organisation.ID
+			if err := sesh.SetLoginSession(sessionStore, r, w, session); err != nil {
+				return err
+			}
+
 			return page.Paths.Supporter.Dashboard.Redirect(w, r, appData)
 		}
-		if !errors.Is(err, dynamo.NotFoundError{}) {
-			return err
+
+		if errors.Is(err, dynamo.NotFoundError{}) {
+			if err := sesh.SetLoginSession(sessionStore, r, w, &sesh.LoginSession{
+				IDToken: idToken,
+				Sub:     "supporter-" + userInfo.Sub,
+				Email:   userInfo.Email,
+			}); err != nil {
+				return err
+			}
 		}
 
 		return page.Paths.Supporter.EnterOrganisationName.Redirect(w, r, appData)
