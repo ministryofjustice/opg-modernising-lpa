@@ -229,6 +229,16 @@ func TestOrganisationStoreCreateLPA(t *testing.T) {
 }
 
 func TestOrganisationStoreCreateLPAWithSessionMissing(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: ""})
+
+	organisationStore := &organisationStore{dynamoClient: nil, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+
+	_, err := organisationStore.CreateLPA(ctx, "an-id")
+
+	assert.NotNil(t, err)
+}
+
+func TestOrganisationStoreCreateLPAMissingSessionID(t *testing.T) {
 	ctx := context.Background()
 
 	organisationStore := &organisationStore{dynamoClient: nil, now: testNowFn, uuidString: func() string { return "a-uuid" }}
