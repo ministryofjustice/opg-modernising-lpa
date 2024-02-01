@@ -112,6 +112,10 @@ func (p SupporterPath) Format() string {
 	return "/supporter" + string(p)
 }
 
+func (p SupporterPath) FormatLpa(id string) string {
+	return "/supporter/lpa/" + id + string(p)
+}
+
 func (p SupporterPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData) error {
 	http.Redirect(w, r, appData.Lang.URL(p.Format()), http.StatusFound)
 	return nil
@@ -119,6 +123,11 @@ func (p SupporterPath) Redirect(w http.ResponseWriter, r *http.Request, appData 
 
 func (p SupporterPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, query url.Values) error {
 	http.Redirect(w, r, appData.Lang.URL(p.Format())+"?"+query.Encode(), http.StatusFound)
+	return nil
+}
+
+func (p SupporterPath) RedirectToLpa(w http.ResponseWriter, r *http.Request, appData AppData, donor *actor.DonorProvidedDetails) error {
+	http.Redirect(w, r, appData.Lang.URL(p.FormatLpa(donor.LpaID)), http.StatusFound)
 	return nil
 }
 
@@ -178,6 +187,7 @@ type SupporterPaths struct {
 	Dashboard                SupporterPath
 	InviteMember             SupporterPath
 	InviteMemberConfirmation SupporterPath
+	DonorDetails             SupporterPath
 }
 
 type AppPaths struct {
@@ -340,15 +350,16 @@ var Paths = AppPaths{
 	},
 
 	Supporter: SupporterPaths{
-		Start:         "/supporter-start",
-		Login:         "/supporter-login",
-		LoginCallback: "/supporter-login-callback",
+		Start:                 "/supporter-start",
+		Login:                 "/supporter-login",
+		LoginCallback:         "/supporter-login-callback",
+		EnterOrganisationName: "/enter-the-name-of-your-organisation-or-company",
 
-		EnterOrganisationName:    "/enter-the-name-of-your-organisation-or-company",
 		OrganisationCreated:      "/organisation-or-company-created",
 		Dashboard:                "/supporter-dashboard",
 		InviteMember:             "/invite-member",
 		InviteMemberConfirmation: "/invite-member-confirmation",
+		DonorDetails:             "/donor-details",
 	},
 
 	HealthCheck: HealthCheckPaths{

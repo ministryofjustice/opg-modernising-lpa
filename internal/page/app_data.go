@@ -29,6 +29,7 @@ type AppData struct {
 	AppPublicURL     string
 	IsSupporter      bool
 	OrganisationName string
+	OrganisationID   string
 }
 
 func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, url string) error {
