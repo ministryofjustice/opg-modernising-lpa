@@ -71,60 +71,51 @@ func (_c *mockNotifyClient_SendActorEmail_Call) RunAndReturn(run func(context.Co
 	return _c
 }
 
-// SendSMS provides a mock function with given fields: _a0, to, sms
-func (_m *mockNotifyClient) SendSMS(_a0 context.Context, to string, sms notify.SMS) (string, error) {
-	ret := _m.Called(_a0, to, sms)
+// SendActorSMS provides a mock function with given fields: _a0, to, lpaUID, sms
+func (_m *mockNotifyClient) SendActorSMS(_a0 context.Context, to string, lpaUID string, sms notify.SMS) error {
+	ret := _m.Called(_a0, to, lpaUID, sms)
 
 	if len(ret) == 0 {
-		panic("no return value specified for SendSMS")
+		panic("no return value specified for SendActorSMS")
 	}
 
-	var r0 string
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, notify.SMS) (string, error)); ok {
-		return rf(_a0, to, sms)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, notify.SMS) string); ok {
-		r0 = rf(_a0, to, sms)
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, notify.SMS) error); ok {
+		r0 = rf(_a0, to, lpaUID, sms)
 	} else {
-		r0 = ret.Get(0).(string)
+		r0 = ret.Error(0)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, notify.SMS) error); ok {
-		r1 = rf(_a0, to, sms)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
-// mockNotifyClient_SendSMS_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendSMS'
-type mockNotifyClient_SendSMS_Call struct {
+// mockNotifyClient_SendActorSMS_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendActorSMS'
+type mockNotifyClient_SendActorSMS_Call struct {
 	*mock.Call
 }
 
-// SendSMS is a helper method to define mock.On call
+// SendActorSMS is a helper method to define mock.On call
 //   - _a0 context.Context
 //   - to string
+//   - lpaUID string
 //   - sms notify.SMS
-func (_e *mockNotifyClient_Expecter) SendSMS(_a0 interface{}, to interface{}, sms interface{}) *mockNotifyClient_SendSMS_Call {
-	return &mockNotifyClient_SendSMS_Call{Call: _e.mock.On("SendSMS", _a0, to, sms)}
+func (_e *mockNotifyClient_Expecter) SendActorSMS(_a0 interface{}, to interface{}, lpaUID interface{}, sms interface{}) *mockNotifyClient_SendActorSMS_Call {
+	return &mockNotifyClient_SendActorSMS_Call{Call: _e.mock.On("SendActorSMS", _a0, to, lpaUID, sms)}
 }
 
-func (_c *mockNotifyClient_SendSMS_Call) Run(run func(_a0 context.Context, to string, sms notify.SMS)) *mockNotifyClient_SendSMS_Call {
+func (_c *mockNotifyClient_SendActorSMS_Call) Run(run func(_a0 context.Context, to string, lpaUID string, sms notify.SMS)) *mockNotifyClient_SendActorSMS_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(notify.SMS))
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(notify.SMS))
 	})
 	return _c
 }
 
-func (_c *mockNotifyClient_SendSMS_Call) Return(_a0 string, _a1 error) *mockNotifyClient_SendSMS_Call {
-	_c.Call.Return(_a0, _a1)
+func (_c *mockNotifyClient_SendActorSMS_Call) Return(_a0 error) *mockNotifyClient_SendActorSMS_Call {
+	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *mockNotifyClient_SendSMS_Call) RunAndReturn(run func(context.Context, string, notify.SMS) (string, error)) *mockNotifyClient_SendSMS_Call {
+func (_c *mockNotifyClient_SendActorSMS_Call) RunAndReturn(run func(context.Context, string, string, notify.SMS) error) *mockNotifyClient_SendActorSMS_Call {
 	_c.Call.Return(run)
 	return _c
 }
