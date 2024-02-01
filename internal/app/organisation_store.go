@@ -77,24 +77,6 @@ func (s *organisationStore) Get(ctx context.Context) (*actor.Organisation, error
 	return &organisation, nil
 }
 
-func (s *organisationStore) GetMember(ctx context.Context) (*actor.Member, error) {
-	data, err := page.SessionDataFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	if data.SessionID == "" {
-		return nil, errors.New("organisationStore.GetMember requires SessionID")
-	}
-
-	var member actor.Member
-	if err := s.dynamoClient.OneByPartialSk(ctx, memberKey(data.SessionID), organisationKey(""), &member); err != nil {
-		return nil, err
-	}
-
-	return &member, nil
-}
-
 func (s *organisationStore) CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, email, code string) error {
 	invite := &actor.MemberInvite{
 		PK:             memberInviteKey(code),

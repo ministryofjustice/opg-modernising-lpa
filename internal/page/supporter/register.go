@@ -20,7 +20,6 @@ type OrganisationStore interface {
 	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, email, code string) error
 	Get(ctx context.Context) (*actor.Organisation, error)
 	CreateLPA(ctx context.Context, organisationID string) (*actor.DonorProvidedDetails, error)
-	GetMember(ctx context.Context) (*actor.Member, error)
 }
 
 type OneLoginClient interface {
@@ -39,13 +38,6 @@ type NotifyClient interface {
 	SendEmail(context context.Context, to string, email notify.Email) error
 }
 
-type DonorStore interface {
-	Get(ctx context.Context) (*actor.DonorProvidedDetails, error)
-	Latest(ctx context.Context) (*actor.DonorProvidedDetails, error)
-	Put(ctx context.Context, donor *actor.DonorProvidedDetails) error
-	Delete(ctx context.Context) error
-}
-
 type Template func(io.Writer, interface{}) error
 
 type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error
@@ -54,14 +46,13 @@ type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 func Register(
 	rootMux *http.ServeMux,
-	supporterTmpls, donorTmpls template.Templates,
+	supporterTmpls template.Templates,
 	oneLoginClient OneLoginClient,
 	sessionStore SessionStore,
 	organisationStore OrganisationStore,
 	notFoundHandler page.Handler,
 	errorHandler page.ErrorHandler,
 	notifyClient NotifyClient,
-	donorStore DonorStore,
 ) {
 	supporterPaths := page.Paths.Supporter
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
@@ -149,7 +140,6 @@ func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page
 
 			appData.Page = path.Format()
 			appData.IsSupporter = true
-			appData.OrganisationID = organisation.ID
 			appData.OrganisationName = organisation.Name
 
 			ctx = page.ContextWithAppData(page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, OrganisationID: organisation.ID}), appData)

@@ -1,7 +1,6 @@
 package actor
 
 import (
-	"strings"
 	"time"
 )
 
@@ -28,10 +27,6 @@ type Member struct {
 	CreatedAt time.Time
 	// UpdatedAt is when the Member was last updated
 	UpdatedAt time.Time
-}
-
-func (m *Member) OrganisationID() string {
-	return strings.Split(m.SK, "ORGANISATION#")[1]
 }
 
 // A MemberInvite is created to allow a new Member to join an Organisation

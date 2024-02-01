@@ -8,23 +8,13 @@ import (
 
 func RouteToPrefix(prefix string, mux http.Handler, notFoundHandler Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		n := 4
-		idIndex := 2
-		pathIndex := 3
-
-		if strings.Contains(r.URL.Path, "/supporter/") {
-			n = 5
-			idIndex = 3
-			pathIndex = 4
-		}
-
-		parts := strings.SplitN(r.URL.Path, "/", n)
-		if len(parts) != n {
+		parts := strings.SplitN(r.URL.Path, "/", 4)
+		if len(parts) != 4 {
 			notFoundHandler(AppDataFromContext(r.Context()), w, r)
 			return
 		}
 
-		id, path := parts[idIndex], "/"+parts[pathIndex]
+		id, path := parts[2], "/"+parts[3]
 
 		r2 := new(http.Request)
 		*r2 = *r
