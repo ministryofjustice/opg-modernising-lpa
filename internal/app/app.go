@@ -148,12 +148,14 @@ func App(
 	supporter.Register(
 		rootMux,
 		supporterTmpls,
+		donorTmpls,
 		oneLoginClient,
 		sessionStore,
 		organisationStore,
 		notFoundHandler,
 		errorHandler,
 		notifyClient,
+		donorStore,
 	)
 
 	certificateprovider.Register(

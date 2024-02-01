@@ -1,6 +1,9 @@
 package actor
 
-import "time"
+import (
+	"strings"
+	"time"
+)
 
 const memberInviteExpireAfter = time.Hour * 48
 
@@ -25,6 +28,10 @@ type Member struct {
 	CreatedAt time.Time
 	// UpdatedAt is when the Member was last updated
 	UpdatedAt time.Time
+}
+
+func (m *Member) OrganisationID() string {
+	return strings.Split(m.SK, "ORGANISATION#")[1]
 }
 
 // A MemberInvite is created to allow a new Member to join an Organisation

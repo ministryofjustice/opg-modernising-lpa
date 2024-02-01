@@ -77,6 +77,24 @@ func (s *organisationStore) Get(ctx context.Context) (*actor.Organisation, error
 	return &organisation, nil
 }
 
+func (s *organisationStore) GetMember(ctx context.Context) (*actor.Member, error) {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.SessionID == "" {
+		return nil, errors.New("organisationStore.GetMember requires SessionID")
+	}
+
+	var member actor.Member
+	if err := s.dynamoClient.OneByPartialSk(ctx, memberKey(data.SessionID), organisationKey(""), &member); err != nil {
+		return nil, err
+	}
+
+	return &member, nil
+}
+
 func (s *organisationStore) CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, email, code string) error {
 	invite := &actor.MemberInvite{
 		PK:             memberInviteKey(code),
@@ -91,6 +109,37 @@ func (s *organisationStore) CreateMemberInvite(ctx context.Context, organisation
 	}
 
 	return nil
+}
+
+func (s *organisationStore) CreateLPA(ctx context.Context, organisationID string) (*actor.DonorProvidedDetails, error) {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.SessionID == "" {
+		return nil, errors.New("donorStore.Create requires SessionID")
+	}
+
+	lpaID := s.uuidString()
+
+	donor := &actor.DonorProvidedDetails{
+		PK:        lpaKey(lpaID),
+		SK:        organisationKey(organisationID),
+		LpaID:     lpaID,
+		CreatedAt: s.now(),
+		Version:   1,
+	}
+
+	if donor.Hash, err = donor.GenerateHash(); err != nil {
+		return nil, err
+	}
+
+	if err := s.dynamoClient.Create(ctx, donor); err != nil {
+		return nil, err
+	}
+
+	return donor, err
 }
 
 func organisationKey(s string) string {

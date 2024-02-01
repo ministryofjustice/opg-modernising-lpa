@@ -20,7 +20,7 @@ var testAppData = page.AppData{}
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, template.Templates{}, &onelogin.Client{}, nil, nil, nil, nil, &notify.Client{})
+	Register(mux, template.Templates{}, template.Templates{}, &onelogin.Client{}, nil, nil, nil, nil, &notify.Client{})
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
@@ -30,8 +30,8 @@ func TestMakeHandle(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil)
-	handle("/path", func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle := makeHandle(mux, newMockSessionStore(t), nil)
+	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
 			Page:        "/path",
 			IsSupporter: true,
@@ -57,8 +57,8 @@ func TestMakeHandleErrors(t *testing.T) {
 		Execute(w, r, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, errorHandler.Execute)
-	handle("/path", func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle := makeHandle(mux, newMockSessionStore(t), errorHandler.Execute)
+	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
 
@@ -76,7 +76,7 @@ func TestMakeSupporterHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 		Get(r, "session").
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
-	handle := makeSupporterHandle(mux, sessionStore, nil)
+	handle := makeSupporterHandle(mux, sessionStore, nil, nil)
 	handle("/path", func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
 			Page:        "/supporter/path",
@@ -110,7 +110,7 @@ func TestMakeSupporterHandleWhenSessionStoreError(t *testing.T) {
 		Get(r, "session").
 		Return(&sessions.Session{}, expectedError)
 
-	handle := makeSupporterHandle(mux, sessionStore, nil)
+	handle := makeSupporterHandle(mux, sessionStore, nil, nil)
 	handle("/path", func(_ page.AppData, _ http.ResponseWriter, _ *http.Request) error {
 		return expectedError
 	})
@@ -136,7 +136,7 @@ func TestMakeSupporterHandleErrors(t *testing.T) {
 		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeSupporterHandle(mux, sessionStore, errorHandler.Execute)
+	handle := makeSupporterHandle(mux, sessionStore, errorHandler.Execute, nil)
 	handle("/path", func(_ page.AppData, _ http.ResponseWriter, _ *http.Request) error {
 		return expectedError
 	})
