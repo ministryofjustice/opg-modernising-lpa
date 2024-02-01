@@ -36,16 +36,17 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.EXPECT().
-				SendSMS(ctx, "0777", notify.WitnessCodeSMS{
+				SendActorSMS(ctx, "0777", "lpa-uid", notify.WitnessCodeSMS{
 					WitnessCode:   tc.expectedWitnessCode,
 					DonorFullName: "Joe Jones’",
 					LpaType:       "property and affairs",
 				}).
-				Return("sms-id", nil)
+				Return(nil)
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
 				Put(ctx, &actor.DonorProvidedDetails{
+					LpaUID:                   "lpa-uid",
 					Donor:                    actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 					CertificateProvider:      actor.CertificateProvider{Mobile: "0777"},
 					CertificateProviderCodes: actor.WitnessCodes{{Code: tc.expectedWitnessCode, Created: now}},
@@ -68,6 +69,7 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 				now:          func() time.Time { return now },
 			}
 			err := sender.SendToCertificateProvider(ctx, &actor.DonorProvidedDetails{
+				LpaUID:              "lpa-uid",
 				Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 				CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
 				Type:                actor.LpaTypePropertyAndAffairs,
@@ -93,8 +95,8 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenTooRecentlySent(t *testin
 func TestWitnessCodeSenderSendToCertificateProviderWhenNotifyClientErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendSMS(mock.Anything, mock.Anything, mock.Anything).
-		Return("", expectedError)
+		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
 
 	localizer := newMockLocalizer(t)
 	localizer.EXPECT().
@@ -121,8 +123,8 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenNotifyClientErrors(t *tes
 func TestWitnessCodeSenderSendToCertificateProviderWhenDonorStoreErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendSMS(mock.Anything, mock.Anything, mock.Anything).
-		Return("sms-id", nil)
+		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -158,16 +160,17 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendSMS(ctx, "0777", notify.WitnessCodeSMS{
+		SendActorSMS(ctx, "0777", "lpa-uid", notify.WitnessCodeSMS{
 			WitnessCode:   "1234",
 			DonorFullName: "Joe Jones’",
 			LpaType:       "property and affairs",
 		}).
-		Return("sms-id", nil)
+		Return(nil)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(ctx, &actor.DonorProvidedDetails{
+			LpaUID:                  "lpa-uid",
 			Donor:                   actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 			IndependentWitness:      actor.IndependentWitness{Mobile: "0777"},
 			IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
@@ -190,6 +193,7 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 		now:          func() time.Time { return now },
 	}
 	err := sender.SendToIndependentWitness(ctx, &actor.DonorProvidedDetails{
+		LpaUID:             "lpa-uid",
 		Donor:              actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 		IndependentWitness: actor.IndependentWitness{Mobile: "0777"},
 		Type:               actor.LpaTypePropertyAndAffairs,
@@ -213,8 +217,8 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenTooRecentlySent(t *testing
 func TestWitnessCodeSenderSendToIndependentWitnessWhenNotifyClientErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendSMS(mock.Anything, mock.Anything, mock.Anything).
-		Return("", expectedError)
+		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
 
 	localizer := newMockLocalizer(t)
 	localizer.EXPECT().
@@ -241,8 +245,8 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenNotifyClientErrors(t *test
 func TestWitnessCodeSenderSendToIndependentWitnessWhenDonorStoreErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendSMS(mock.Anything, mock.Anything, mock.Anything).
-		Return("sms-id", nil)
+		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
