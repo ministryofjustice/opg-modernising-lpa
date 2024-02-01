@@ -121,11 +121,10 @@ func (s *donorStore) Get(ctx context.Context) (*actor.DonorProvidedDetails, erro
 		return nil, errors.New("donorStore.Get requires LpaID and SessionID")
 	}
 
-	appData := page.AppDataFromContext(ctx)
 	sk := donorKey(data.SessionID)
 
-	if appData.IsSupporter {
-		sk = organisationKey(appData.OrganisationID)
+	if data.OrganisationID != "" {
+		sk = organisationKey(data.OrganisationID)
 	}
 
 	var donor *actor.DonorProvidedDetails
