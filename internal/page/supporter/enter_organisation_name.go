@@ -14,7 +14,7 @@ type enterOrganisationNameData struct {
 	Form   *enterOrganisationNameForm
 }
 
-func EnterOrganisationName(tmpl template.Template, organisationStore OrganisationStore) Handler {
+func EnterOrganisationName(tmpl template.Template, organisationStore OrganisationStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := &enterOrganisationNameData{
 			App:  appData,
