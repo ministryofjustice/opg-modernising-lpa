@@ -33,8 +33,15 @@ func TestOrganisationStoreCreate(t *testing.T) {
 
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-	err := organisationStore.Create(ctx, "A name")
+	organisation, err := organisationStore.Create(ctx, "A name")
 	assert.Nil(t, err)
+	assert.Equal(t, &actor.Organisation{
+		PK:        "ORGANISATION#a-uuid",
+		SK:        "ORGANISATION#a-uuid",
+		ID:        "a-uuid",
+		CreatedAt: testNow,
+		Name:      "A name",
+	}, organisation)
 }
 
 func TestOrganisationStoreCreateWithSessionMissing(t *testing.T) {
@@ -47,8 +54,9 @@ func TestOrganisationStoreCreateWithSessionMissing(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			organisationStore := &organisationStore{}
 
-			err := organisationStore.Create(ctx, "A name")
+			organisation, err := organisationStore.Create(ctx, "A name")
 			assert.Error(t, err)
+			assert.Nil(t, organisation)
 		})
 	}
 }
@@ -84,8 +92,9 @@ func TestOrganisationStoreCreateWhenErrors(t *testing.T) {
 			dynamoClient := makeMockDynamoClient(t)
 			organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-			err := organisationStore.Create(ctx, "A name")
+			organisation, err := organisationStore.Create(ctx, "A name")
 			assert.ErrorIs(t, err, expectedError)
+			assert.Nil(t, organisation)
 		})
 	}
 }
@@ -193,4 +202,53 @@ func TestOrganisationStoreCreateMemberInviteWhenErrors(t *testing.T) {
 
 	err := organisationStore.CreateMemberInvite(ctx, &actor.Organisation{}, "email@example.com", "abcde")
 	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestOrganisationStoreCreateLPA(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
+	expectedDonor := &actor.DonorProvidedDetails{
+		PK:        "LPA#a-uuid",
+		SK:        "ORGANISATION#an-id",
+		LpaID:     "a-uuid",
+		CreatedAt: testNow,
+		Version:   1,
+	}
+	expectedDonor.Hash, _ = expectedDonor.GenerateHash()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		Create(ctx, expectedDonor).
+		Return(nil)
+
+	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+
+	donor, err := organisationStore.CreateLPA(ctx, "an-id")
+
+	assert.Nil(t, err)
+	assert.Equal(t, expectedDonor, donor)
+}
+
+func TestOrganisationStoreCreateLPAWithSessionMissing(t *testing.T) {
+	ctx := context.Background()
+
+	organisationStore := &organisationStore{dynamoClient: nil, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+
+	_, err := organisationStore.CreateLPA(ctx, "an-id")
+
+	assert.Equal(t, page.SessionMissingError{}, err)
+}
+
+func TestOrganisationStoreCreateLPAWhenDynamoError(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		Create(ctx, mock.Anything).
+		Return(expectedError)
+
+	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+
+	_, err := organisationStore.CreateLPA(ctx, "an-id")
+
+	assert.Equal(t, expectedError, err)
 }

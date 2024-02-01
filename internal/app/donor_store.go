@@ -121,8 +121,14 @@ func (s *donorStore) Get(ctx context.Context) (*actor.DonorProvidedDetails, erro
 		return nil, errors.New("donorStore.Get requires LpaID and SessionID")
 	}
 
+	sk := donorKey(data.SessionID)
+
+	if data.OrganisationID != "" {
+		sk = organisationKey(data.OrganisationID)
+	}
+
 	var donor *actor.DonorProvidedDetails
-	err = s.dynamoClient.One(ctx, lpaKey(data.LpaID), donorKey(data.SessionID), &donor)
+	err = s.dynamoClient.One(ctx, lpaKey(data.LpaID), sk, &donor)
 	return donor, err
 }
 
