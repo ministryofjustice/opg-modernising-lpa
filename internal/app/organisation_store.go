@@ -139,16 +139,6 @@ func (s *organisationStore) CreateLPA(ctx context.Context, organisationID string
 		return nil, err
 	}
 
-	if err := s.dynamoClient.Create(ctx, lpaLink{
-		PK:              lpaKey(lpaID),
-		SK:              subKey(data.SessionID),
-		OrganisationKey: organisationKey(organisationID),
-		ActorType:       actor.TypeSupporter,
-		UpdatedAt:       s.now(),
-	}); err != nil {
-		return nil, err
-	}
-
 	return donor, err
 }
 

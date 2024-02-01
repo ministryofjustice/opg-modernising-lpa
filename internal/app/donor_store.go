@@ -124,7 +124,7 @@ func (s *donorStore) Get(ctx context.Context) (*actor.DonorProvidedDetails, erro
 	appData := page.AppDataFromContext(ctx)
 	sk := donorKey(data.SessionID)
 
-	if appData.ActorType == actor.TypeSupporter {
+	if appData.IsSupporter {
 		sk = organisationKey(appData.OrganisationID)
 	}
 

@@ -20,9 +20,8 @@ import (
 )
 
 type SessionData struct {
-	SessionID      string
-	LpaID          string
-	OrganisationID string
+	SessionID string
+	LpaID     string
 }
 
 type SessionMissingError struct{}

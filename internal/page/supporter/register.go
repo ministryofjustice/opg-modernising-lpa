@@ -66,25 +66,27 @@ func Register(
 	donorStore DonorStore,
 ) {
 	supporterPaths := page.Paths.Supporter
-	donorPaths := page.Paths
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
 	handleRoot(supporterPaths.Login, page.None,
 		page.Login(oneLoginClient, sessionStore, random.String, supporterPaths.LoginCallback))
 	handleRoot(supporterPaths.LoginCallback, page.None,
 		LoginCallback(oneLoginClient, sessionStore))
+	handleRoot(supporterPaths.EnterOrganisationName, page.RequireSession,
+		EnterOrganisationName(supporterTmpls.Get("enter_organisation_name.gohtml"), organisationStore))
 
 	supporterMux := http.NewServeMux()
 	rootMux.Handle("/supporter/", http.StripPrefix("/supporter", supporterMux))
 
+	supporterLpaMux := http.NewServeMux()
+	rootMux.Handle("/supporter/lpa/", page.RouteToPrefix("/supporter/lpa/", supporterLpaMux, notFoundHandler))
+
 	handleSupporter := makeHandle(supporterMux, sessionStore, errorHandler)
 	handleWithSupporter := makeSupporterHandle(supporterMux, sessionStore, errorHandler, organisationStore)
-	handleWithSupporterAndDonor := makeDonorHandle(supporterMux, sessionStore, errorHandler, organisationStore, donorStore)
+	handleWithSupporterAndDonor := makeSupporterDonorHandle(supporterLpaMux, sessionStore, errorHandler, organisationStore, donorStore)
 
 	handleSupporter(page.Paths.Root, page.None, notFoundHandler)
 
-	handleSupporter(supporterPaths.EnterOrganisationName, page.RequireSession,
-		EnterOrganisationName(supporterTmpls.Get("enter_organisation_name.gohtml"), organisationStore))
 	handleWithSupporter(supporterPaths.OrganisationCreated,
 		OrganisationCreated(supporterTmpls.Get("organisation_created.gohtml"), organisationStore))
 	handleWithSupporter(supporterPaths.Dashboard,
@@ -94,8 +96,7 @@ func Register(
 	handleWithSupporter(supporterPaths.InviteMemberConfirmation,
 		Guidance(supporterTmpls.Get("invite_member_confirmation.gohtml")))
 
-	// do we have another Handler for donor and supporter? Or make new handlers for everything?
-	handleWithSupporterAndDonor(donorPaths.YourDetails,
+	handleWithSupporterAndDonor(supporterPaths.DonorDetails,
 		donor.YourDetails(donorTmpls.Get("your_details.gohtml"), donorStore, sessionStore))
 }
 
@@ -115,7 +116,6 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 					return
 				}
 
-				appData.ActorType = actor.TypeSupporter
 				appData.Page = path.Format()
 				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
 
@@ -141,58 +141,62 @@ func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page
 				return
 			}
 
-			appData.ActorType = actor.TypeSupporter
 			appData.Page = path.Format()
 			appData.IsSupporter = true
 			appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
 
-			member, err := organisationStore.GetMember(page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID}))
+			ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID})
+			member, err := organisationStore.GetMember(ctx)
 			if err != nil {
 				errorHandler(w, r, err)
 			}
 
 			appData.OrganisationID = member.OrganisationID()
 
-			if err := h(appData, w, r.WithContext(page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, OrganisationID: appData.OrganisationID}))); err != nil {
+			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
 				errorHandler(w, r, err)
 			}
 		})
 	}
 }
 
-func makeDonorHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler, organisationStore OrganisationStore, donorStore DonorStore) func(page.LpaPath, donor.Handler) {
-	return func(path page.LpaPath, h donor.Handler) {
+func makeSupporterDonorHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler, organisationStore OrganisationStore, donorStore DonorStore) func(page.SupporterPath, donor.Handler) {
+	return func(path page.SupporterPath, h donor.Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
-			ctx := r.Context()
-			appData := page.AppDataFromContext(ctx)
-
 			session, err := sesh.Login(store, r)
 			if err != nil {
 				http.Redirect(w, r, page.Paths.Supporter.Start.Format(), http.StatusFound)
 				return
 			}
 
-			appData.ActorType = actor.TypeSupporter
-			appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
+			ctx := r.Context()
 
-			member, err := organisationStore.GetMember(page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID}))
+			sessionData, err := page.SessionDataFromContext(ctx)
 			if err != nil {
 				errorHandler(w, r, err)
 			}
 
-			appData.OrganisationID = member.SK
+			appData := page.AppDataFromContext(ctx)
+			appData.IsSupporter = true
+			appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
+			appData.LpaID = sessionData.LpaID
 
-			ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, OrganisationID: member.OrganisationID()})
+			sessionData.SessionID = appData.SessionID
+
+			member, err := organisationStore.GetMember(page.ContextWithSessionData(ctx, sessionData))
+			if err != nil {
+				errorHandler(w, r, err)
+			}
+
+			appData.OrganisationID = member.OrganisationID()
+
+			ctx = page.ContextWithAppData(page.ContextWithSessionData(ctx, sessionData), appData)
 			donorProvided, err := donorStore.Get(ctx)
 			if err != nil {
 				errorHandler(w, r, err)
 			}
 
-			appData.LpaID = donorProvided.LpaID
-			appData.Page = path.Format(appData.LpaID)
-			ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, OrganisationID: member.OrganisationID(), LpaID: appData.LpaID})
-
-			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData)), donorProvided); err != nil {
+			if err := h(appData, w, r.WithContext(ctx), donorProvided); err != nil {
 				errorHandler(w, r, err)
 			}
 		})
