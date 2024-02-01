@@ -25,6 +25,6 @@ func Dashboard(tmpl template.Template, organisationStore OrganisationStore) Hand
 			return page.Paths.YourDetails.Redirect(w, r.WithContext(r.Context()), appData, donorProvided)
 		}
 
-		return tmpl(w, DashboardData{App: appData})
+		return tmpl(w, &DashboardData{App: appData})
 	}
 }
