@@ -39,6 +39,6 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 			return err
 		}
 
-		return appData.Redirect(w, r, page.Paths.Supporter.EnterOrganisationName.Format())
+		return page.Paths.Supporter.EnterOrganisationName.Redirect(w, r, appData)
 	}
 }

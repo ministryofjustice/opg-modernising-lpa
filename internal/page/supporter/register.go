@@ -132,20 +132,28 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler, organisationStore OrganisationStore) func(page.SupporterPath, Handler) {
 	return func(path page.SupporterPath, h Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
-			ctx := r.Context()
-			appData := page.AppDataFromContext(ctx)
-
 			session, err := sesh.Login(store, r)
 			if err != nil {
 				http.Redirect(w, r, page.Paths.Supporter.Start.Format(), http.StatusFound)
 				return
 			}
 
-			appData.Page = path.Format()
-			appData.IsSupporter = true
+			ctx := r.Context()
+
+			appData := page.AppDataFromContext(ctx)
 			appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
 
-			ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID})
+			sessionData, err := page.SessionDataFromContext(ctx)
+			if err == nil {
+				sessionData.SessionID = appData.SessionID
+				ctx = page.ContextWithSessionData(ctx, sessionData)
+			} else {
+				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID})
+			}
+
+			appData.Page = path.Format()
+			appData.IsSupporter = true
+
 			member, err := organisationStore.GetMember(ctx)
 			if err != nil {
 				errorHandler(w, r, err)
@@ -153,7 +161,9 @@ func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page
 
 			appData.OrganisationID = member.OrganisationID()
 
-			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
+			ctx = page.ContextWithAppData(page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, OrganisationID: member.OrganisationID()}), appData)
+
+			if err := h(appData, w, r.WithContext(ctx)); err != nil {
 				errorHandler(w, r, err)
 			}
 		})
@@ -189,6 +199,7 @@ func makeSupporterDonorHandle(mux *http.ServeMux, store sesh.Store, errorHandler
 			}
 
 			appData.OrganisationID = member.OrganisationID()
+			sessionData.OrganisationID = member.OrganisationID()
 
 			ctx = page.ContextWithAppData(page.ContextWithSessionData(ctx, sessionData), appData)
 			donorProvided, err := donorStore.Get(ctx)

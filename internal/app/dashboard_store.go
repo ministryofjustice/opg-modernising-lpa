@@ -22,8 +22,6 @@ type lpaLink struct {
 	SK string
 	// DonorKey is the donorKey for the donor
 	DonorKey string
-	// OrganisationKey is the organisationKey for the organisation supporting the donor
-	OrganisationKey string
 	// ActorType is the type for the current user
 	ActorType actor.Type
 	// UpdatedAt is set to allow this data to be queried from ActorUpdatedAtIndex
