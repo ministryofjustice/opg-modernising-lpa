@@ -91,8 +91,11 @@
       <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
           <h2 class="service-header__heading">{{ if .App.IsSupporter }}{{ tr .App "helpSomeoneMakeLastingPowerOfAttorney" }}{{ else }}{{ tr .App "serviceName" }}{{ end }}</h2>
+          {{ if .App.OrganisationName }}
+            <span class="govuk-caption-l govuk-!-padding-top-1 app-padding-bottom-4-non-mobile">{{ .App.OrganisationName }}</span>
+          {{ end }}
         </div>
-        <div class="govuk-grid-column-one-third app-hide-print">
+        <div class="govuk-grid-column-one-third app-hide-print {{ if .App.OrganisationName }}app-padding-top-7-non-mobile{{ end }}">
           <button type="button"
                   aria-controls="service-header__nav"
                   data-open-class="cross-service-header__button--open"
@@ -108,12 +111,16 @@
           <nav aria-label="{{ trFormat .App "serviceNameNavigationMenu" "ServiceName" (tr .App "serviceName") }}">
             <ul class="service-header__nav-list service-header__nav" id="service-header__nav" data-open-class="service-header__nav--open">
               {{ if .App.IsSupporter }}
-                <li class="service-header__nav-list-item service-header__nav-list-item--active">
-                  <a class="service-header__nav-list-item-link" aria-current="page" href="{{ link .App .App.Paths.Supporter.Dashboard.Format }}">{{ tr .App "dashboard" }}</a>
-                </li>
-                <li class="service-header__nav-list-item">
-                  <a class="service-header__nav-list-item-link" href="#">{{ tr .App "manageOrganisation" }}</a>
-                </li>
+                {{ if .App.OrganisationName }}
+                  <li class="service-header__nav-list-item service-header__nav-list-item--active">
+                    <a class="service-header__nav-list-item-link" aria-current="page" href="{{ link .App .App.Paths.Supporter.Dashboard.Format }}">{{ tr .App "dashboard" }}</a>
+                  </li>
+                  <li class="service-header__nav-list-item">
+                    <a class="service-header__nav-list-item-link" href="#">{{ tr .App "manageOrganisation" }}</a>
+                  </li>
+                {{ else }}
+                  <div class="govuk-!-padding-top-9"></div>
+                {{ end }}
               {{ else }}
                 <li class="service-header__nav-list-item service-header__nav-list-item--active">
                   <a class="service-header__nav-list-item-link" aria-current="page" href="{{ link .App .App.Paths.Dashboard.Format }}">{{ tr .App "manageYourLpas" }}</a>

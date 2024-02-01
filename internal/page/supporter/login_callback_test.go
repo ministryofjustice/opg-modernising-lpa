@@ -6,6 +6,8 @@ import (
 	"testing"
 
 	"github.com/gorilla/sessions"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -14,57 +16,89 @@ import (
 )
 
 func TestLoginCallback(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
-
-	client := newMockOneLoginClient(t)
-	client.EXPECT().
-		Exchange(r.Context(), "auth-code", "my-nonce").
-		Return("id-token", "a JWT", nil)
-	client.EXPECT().
-		UserInfo(r.Context(), "a JWT").
-		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
-
-	sessionStore := newMockSessionStore(t)
-
-	session := sessions.NewSession(sessionStore, "session")
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   86400,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   true,
-	}
-	session.Values = map[any]any{
-		"session": &sesh.LoginSession{
-			IDToken: "id-token",
-			Sub:     "random",
-			Email:   "name@example.com",
+	testcases := map[string]struct {
+		getError      error
+		redirect      string
+		expectedError error
+	}{
+		"no organisation": {
+			getError: &dynamo.NotFoundError{},
+			redirect: page.Paths.Supporter.EnterOrganisationName.Format(),
+		},
+		"has organisation": {
+			redirect: page.Paths.Supporter.Dashboard.Format(),
+		},
+		"error getting organisation": {
+			getError:      expectedError,
+			expectedError: expectedError,
 		},
 	}
 
-	sessionStore.EXPECT().
-		Get(r, "params").
-		Return(&sessions.Session{
-			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{
-					State:    "my-state",
-					Nonce:    "my-nonce",
-					Locale:   "en",
-					Redirect: "/redirect",
-				},
-			},
-		}, nil)
-	sessionStore.EXPECT().
-		Save(r, w, session).
-		Return(nil)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
 
-	err := LoginCallback(client, sessionStore)(page.AppData{}, w, r)
-	assert.Nil(t, err)
-	resp := w.Result()
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.EnterOrganisationName.Format(), resp.Header.Get("Location"))
+			loginSession := &sesh.LoginSession{
+				IDToken: "id-token",
+				Sub:     "random",
+				Email:   "name@example.com",
+			}
+
+			client := newMockOneLoginClient(t)
+			client.EXPECT().
+				Exchange(r.Context(), "auth-code", "my-nonce").
+				Return("id-token", "a JWT", nil)
+			client.EXPECT().
+				UserInfo(r.Context(), "a JWT").
+				Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
+
+			sessionStore := newMockSessionStore(t)
+
+			session := sessions.NewSession(sessionStore, "session")
+			session.Options = &sessions.Options{
+				Path:     "/",
+				MaxAge:   86400,
+				SameSite: http.SameSiteLaxMode,
+				HttpOnly: true,
+				Secure:   true,
+			}
+			session.Values = map[any]any{"session": loginSession}
+
+			sessionStore.EXPECT().
+				Get(r, "params").
+				Return(&sessions.Session{
+					Values: map[any]any{
+						"one-login": &sesh.OneLoginSession{
+							State:    "my-state",
+							Nonce:    "my-nonce",
+							Locale:   "en",
+							Redirect: "/redirect",
+						},
+					},
+				}, nil)
+			sessionStore.EXPECT().
+				Save(r, w, session).
+				Return(nil)
+
+			organisationStore := newMockOrganisationStore(t)
+			organisationStore.EXPECT().
+				Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID()})).
+				Return(&actor.Organisation{}, tc.getError)
+
+			err := LoginCallback(client, sessionStore, organisationStore)(page.AppData{}, w, r)
+			if tc.expectedError != nil {
+				assert.Equal(t, tc.expectedError, err)
+			} else {
+				assert.Nil(t, err)
+				resp := w.Result()
+
+				assert.Equal(t, http.StatusFound, resp.StatusCode)
+				assert.Equal(t, tc.redirect, resp.Header.Get("Location"))
+			}
+		})
+	}
 }
 
 func TestLoginCallbackSessionMissing(t *testing.T) {
@@ -115,7 +149,7 @@ func TestLoginCallbackSessionMissing(t *testing.T) {
 				Get(r, "params").
 				Return(tc.session, tc.getErr)
 
-			err := LoginCallback(nil, sessionStore)(page.AppData{}, w, r)
+			err := LoginCallback(nil, sessionStore, nil)(page.AppData{}, w, r)
 			assert.Equal(t, tc.expectedErr, err)
 		})
 	}
@@ -139,7 +173,7 @@ func TestLoginCallbackWhenExchangeErrors(t *testing.T) {
 			},
 		}, nil)
 
-	err := LoginCallback(client, sessionStore)(page.AppData{}, w, r)
+	err := LoginCallback(client, sessionStore, nil)(page.AppData{}, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -164,7 +198,7 @@ func TestLoginCallbackWhenUserInfoError(t *testing.T) {
 			},
 		}, nil)
 
-	err := LoginCallback(client, sessionStore)(page.AppData{}, w, r)
+	err := LoginCallback(client, sessionStore, nil)(page.AppData{}, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -197,6 +231,6 @@ func TestLoginCallbackWhenSessionError(t *testing.T) {
 		Save(r, w, mock.Anything).
 		Return(expectedError)
 
-	err := LoginCallback(client, sessionStore)(page.AppData{}, w, r)
+	err := LoginCallback(client, sessionStore, nil)(page.AppData{}, w, r)
 	assert.Equal(t, expectedError, err)
 }

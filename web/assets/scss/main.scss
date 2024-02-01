@@ -91,3 +91,15 @@ body:not(.js-enabled) .govuk-back-link {
         padding-bottom: 0;
     }
 }
+
+.app-padding-bottom-4-non-mobile {
+     @include govuk-media-query($from: tablet) {
+         @include govuk-responsive-padding(4, "bottom");
+     }
+}
+
+.app-padding-top-7-non-mobile {
+     @include govuk-media-query($from: tablet) {
+         @include govuk-responsive-padding(7, "top");
+     }
+}
