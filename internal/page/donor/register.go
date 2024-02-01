@@ -2,7 +2,6 @@ package donor
 
 import (
 	"context"
-	"encoding/base64"
 	"fmt"
 	"io"
 	"net/http"
@@ -404,10 +403,9 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.Handle
 					return
 				}
 
-				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(donorSession.Sub))
+				appData.SessionID = donorSession.SessionID()
 
 				sessionData, err := page.SessionDataFromContext(ctx)
-
 				if err == nil {
 					sessionData.SessionID = appData.SessionID
 					ctx = page.ContextWithSessionData(ctx, sessionData)
@@ -444,10 +442,9 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.Han
 				return
 			}
 
-			appData.SessionID = base64.StdEncoding.EncodeToString([]byte(donorSession.Sub))
+			appData.SessionID = donorSession.SessionID()
 
 			sessionData, err := page.SessionDataFromContext(ctx)
-
 			if err == nil {
 				sessionData.SessionID = appData.SessionID
 				ctx = page.ContextWithSessionData(ctx, sessionData)

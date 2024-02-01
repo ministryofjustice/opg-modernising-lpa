@@ -27,7 +27,7 @@ func TestGetInviteMember(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := InviteMember(template.Execute, nil, nil, nil)(testAppData, w, r)
+	err := InviteMember(template.Execute, nil, nil, nil)(testAppData, w, r, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -43,7 +43,7 @@ func TestGetInviteMemberWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := InviteMember(template.Execute, nil, nil, nil)(testAppData, w, r)
+	err := InviteMember(template.Execute, nil, nil, nil)(testAppData, w, r, nil)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -61,9 +61,6 @@ func TestPostInviteMember(t *testing.T) {
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		Get(r.Context()).
-		Return(organisation, nil)
-	organisationStore.EXPECT().
 		CreateMemberInvite(r.Context(), organisation, "email@example.com", "abcde").
 		Return(nil)
 
@@ -75,7 +72,7 @@ func TestPostInviteMember(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := InviteMember(nil, organisationStore, notifyClient, func(int) string { return "abcde" })(testAppData, w, r)
+	err := InviteMember(nil, organisationStore, notifyClient, func(int) string { return "abcde" })(testAppData, w, r, organisation)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -101,27 +98,11 @@ func TestPostInviteMemberWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := InviteMember(template.Execute, nil, nil, nil)(testAppData, w, r)
+	err := InviteMember(template.Execute, nil, nil, nil)(testAppData, w, r, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestPostInviteMemberWhenOrganisationGetErrors(t *testing.T) {
-	form := url.Values{"email": {"email@example.com"}}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
-		Get(r.Context()).
-		Return(&actor.Organisation{}, expectedError)
-
-	err := InviteMember(nil, organisationStore, nil, func(int) string { return "abcde" })(testAppData, w, r)
-	assert.Equal(t, expectedError, err)
 }
 
 func TestPostInviteMemberWhenCreateMemberInviteErrors(t *testing.T) {
@@ -133,13 +114,10 @@ func TestPostInviteMemberWhenCreateMemberInviteErrors(t *testing.T) {
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		Get(r.Context()).
-		Return(&actor.Organisation{}, nil)
-	organisationStore.EXPECT().
 		CreateMemberInvite(r.Context(), mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := InviteMember(nil, organisationStore, nil, func(int) string { return "abcde" })(testAppData, w, r)
+	err := InviteMember(nil, organisationStore, nil, func(int) string { return "abcde" })(testAppData, w, r, &actor.Organisation{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -152,9 +130,6 @@ func TestPostInviteMemberWhenNotifySendErrors(t *testing.T) {
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		Get(r.Context()).
-		Return(&actor.Organisation{}, nil)
-	organisationStore.EXPECT().
 		CreateMemberInvite(r.Context(), mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
@@ -163,7 +138,7 @@ func TestPostInviteMemberWhenNotifySendErrors(t *testing.T) {
 		SendEmail(r.Context(), mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := InviteMember(nil, organisationStore, notifyClient, func(int) string { return "abcde" })(testAppData, w, r)
+	err := InviteMember(nil, organisationStore, notifyClient, func(int) string { return "abcde" })(testAppData, w, r, &actor.Organisation{})
 	assert.Equal(t, expectedError, err)
 }
 

@@ -2,7 +2,6 @@ package attorney
 
 import (
 	"context"
-	"encoding/base64"
 	"io"
 	"net/http"
 	"time"
@@ -152,7 +151,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 					return
 				}
 
-				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
+				appData.SessionID = session.SessionID()
 				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
 			}
 
@@ -177,7 +176,7 @@ func makeAttorneyHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.
 				return
 			}
 
-			appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
+			appData.SessionID = session.SessionID()
 
 			sessionData, err := page.SessionDataFromContext(ctx)
 			if err == nil {
