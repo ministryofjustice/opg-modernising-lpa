@@ -169,11 +169,11 @@ type HealthCheckPaths struct {
 }
 
 type SupporterPaths struct {
-	Start         Path
-	Login         Path
-	LoginCallback Path
+	Start                 Path
+	Login                 Path
+	LoginCallback         Path
+	EnterOrganisationName Path
 
-	EnterOrganisationName    SupporterPath
 	OrganisationCreated      SupporterPath
 	Dashboard                SupporterPath
 	InviteMember             SupporterPath
