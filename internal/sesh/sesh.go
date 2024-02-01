@@ -107,9 +107,10 @@ func SetOneLogin(store sessions.Store, r *http.Request, w http.ResponseWriter, o
 }
 
 type LoginSession struct {
-	IDToken string
-	Sub     string
-	Email   string
+	IDToken        string
+	Sub            string
+	Email          string
+	OrganisationID string
 }
 
 func (s LoginSession) SessionID() string {
