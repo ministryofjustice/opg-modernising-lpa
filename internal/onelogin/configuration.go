@@ -11,6 +11,7 @@ import (
 	"github.com/MicahParks/jwkset"
 	"github.com/MicahParks/keyfunc/v3"
 	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/time/rate"
 )
 
 const (
@@ -128,16 +129,17 @@ func (c *configurationClient) refresh() error {
 		return err
 	}
 
-	uri, err := url.Parse(v.JwksURI)
+	uri, err := url.ParseRequestURI(v.JwksURI)
 	if err != nil {
 		return err
 	}
 
 	storage, err := jwkset.NewStorageFromHTTP(uri, jwkset.HTTPClientStorageOptions{
-		Ctx:             c.ctx,
-		Client:          c.httpClient,
-		RefreshInterval: refreshInterval,
-		HTTPTimeout:     refreshTimeout,
+		Ctx:                       c.ctx,
+		Client:                    c.httpClient,
+		RefreshInterval:           refreshInterval,
+		HTTPTimeout:               refreshTimeout,
+		NoErrorReturnFirstHTTPReq: true,
 		RefreshErrorHandler: func(_ context.Context, err error) {
 			c.logger.Print("error refreshing jwks: ", err)
 		},
@@ -146,8 +148,18 @@ func (c *configurationClient) refresh() error {
 		return err
 	}
 
+	client, err := jwkset.NewHTTPClient(jwkset.HTTPClientOptions{
+		HTTPURLs: map[string]jwkset.Storage{
+			uri.String(): storage,
+		},
+		RefreshUnknownKID: rate.NewLimiter(rate.Every(refreshRateLimit), 1),
+	})
+	if err != nil {
+		return err
+	}
+
 	c.currentConfiguration = &v
-	c.currentJwks, err = keyfunc.New(keyfunc.Options{Ctx: c.ctx, Storage: storage})
+	c.currentJwks, err = keyfunc.New(keyfunc.Options{Ctx: c.ctx, Storage: client})
 
 	return err
 }
