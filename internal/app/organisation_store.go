@@ -17,14 +17,14 @@ type organisationStore struct {
 	now          func() time.Time
 }
 
-func (s *organisationStore) Create(ctx context.Context, name string) error {
+func (s *organisationStore) Create(ctx context.Context, name string) (*actor.Organisation, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if data.SessionID == "" {
-		return errors.New("organisationStore.Create requires SessionID")
+		return nil, errors.New("organisationStore.Create requires SessionID")
 	}
 
 	organisationID := s.uuidString()
@@ -38,7 +38,7 @@ func (s *organisationStore) Create(ctx context.Context, name string) error {
 	}
 
 	if err := s.dynamoClient.Create(ctx, organisation); err != nil {
-		return fmt.Errorf("error creating organisation: %w", err)
+		return nil, fmt.Errorf("error creating organisation: %w", err)
 	}
 
 	member := &actor.Member{
@@ -48,10 +48,10 @@ func (s *organisationStore) Create(ctx context.Context, name string) error {
 	}
 
 	if err := s.dynamoClient.Create(ctx, member); err != nil {
-		return fmt.Errorf("error creating organisation member: %w", err)
+		return nil, fmt.Errorf("error creating organisation member: %w", err)
 	}
 
-	return nil
+	return organisation, nil
 }
 
 func (s *organisationStore) Get(ctx context.Context) (*actor.Organisation, error) {

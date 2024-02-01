@@ -43,10 +43,6 @@ func (p LpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppDat
 		rurl = fromURL
 	}
 
-	if appData.IsSupporter {
-		rurl = "/supporter/" + rurl
-	}
-
 	if CanGoTo(donor, rurl) {
 		http.Redirect(w, r, appData.Lang.URL(rurl), http.StatusFound)
 	} else {

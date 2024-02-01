@@ -436,15 +436,21 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.Han
 			appData.ActorType = actor.TypeDonor
 			appData.AppPublicURL = appPublicURL
 
-			donorSession, err := sesh.Login(store, r)
+			loginSession, err := sesh.Login(store, r)
 			if err != nil {
 				http.Redirect(w, r, page.Paths.Start.Format(), http.StatusFound)
 				return
 			}
 
-			appData.SessionID = donorSession.SessionID()
-
 			sessionData, err := page.SessionDataFromContext(ctx)
+
+			appData.SessionID = loginSession.SessionID()
+
+			if loginSession.OrganisationID != "" {
+				appData.IsSupporter = true
+				sessionData.OrganisationID = loginSession.OrganisationID
+			}
+
 			if err == nil {
 				sessionData.SessionID = appData.SessionID
 				ctx = page.ContextWithSessionData(ctx, sessionData)

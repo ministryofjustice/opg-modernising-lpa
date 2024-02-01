@@ -24,21 +24,33 @@ func (_m *mockOrganisationStore) EXPECT() *mockOrganisationStore_Expecter {
 }
 
 // Create provides a mock function with given fields: ctx, name
-func (_m *mockOrganisationStore) Create(ctx context.Context, name string) error {
+func (_m *mockOrganisationStore) Create(ctx context.Context, name string) (*actor.Organisation, error) {
 	ret := _m.Called(ctx, name)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+	var r0 *actor.Organisation
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*actor.Organisation, error)); ok {
+		return rf(ctx, name)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) *actor.Organisation); ok {
 		r0 = rf(ctx, name)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*actor.Organisation)
+		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, name)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // mockOrganisationStore_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
@@ -60,12 +72,12 @@ func (_c *mockOrganisationStore_Create_Call) Run(run func(ctx context.Context, n
 	return _c
 }
 
-func (_c *mockOrganisationStore_Create_Call) Return(_a0 error) *mockOrganisationStore_Create_Call {
-	_c.Call.Return(_a0)
+func (_c *mockOrganisationStore_Create_Call) Return(_a0 *actor.Organisation, _a1 error) *mockOrganisationStore_Create_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockOrganisationStore_Create_Call) RunAndReturn(run func(context.Context, string) error) *mockOrganisationStore_Create_Call {
+func (_c *mockOrganisationStore_Create_Call) RunAndReturn(run func(context.Context, string) (*actor.Organisation, error)) *mockOrganisationStore_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
