@@ -1,8 +1,6 @@
 package actor
 
-import (
-	"time"
-)
+import "time"
 
 const memberInviteExpireAfter = time.Hour * 48
 
