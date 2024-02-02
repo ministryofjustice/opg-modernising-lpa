@@ -22,7 +22,7 @@ data "aws_iam_policy_document" "cloudwatch_log_group_policy_fis_app_ecs_tasks" {
 
     principals {
       identifiers = [
-        "fis.amazonaws.com"
+        "delivery.logs.amazonaws.com"
       ]
       type = "Service"
     }
@@ -33,9 +33,7 @@ data "aws_iam_policy_document" "cloudwatch_log_group_policy_fis_app_ecs_tasks" {
     ]
 
     resources = [
-      "arn:aws:logs:*:*:log-group:/aws/fis/*",
       "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*",
-      "*"
     ]
 
     condition {
@@ -50,7 +48,7 @@ data "aws_iam_policy_document" "cloudwatch_log_group_policy_fis_app_ecs_tasks" {
 resource "aws_cloudwatch_log_resource_policy" "fis_app_ecs_tasks" {
   provider        = aws.region
   policy_document = data.aws_iam_policy_document.cloudwatch_log_group_policy_fis_app_ecs_tasks.json
-  policy_name     = "fis_app_ecs_tasks"
+  policy_name     = "fis_app_ecs_tasks_logging"
 }
 
 # Add log encryption and log write/delivery permissions to the FIS role
