@@ -28,6 +28,7 @@ type AppData struct {
 	OneloginURL      string
 	AppPublicURL     string
 	IsSupporter      bool
+	OrganisationName string
 }
 
 func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, url string) error {

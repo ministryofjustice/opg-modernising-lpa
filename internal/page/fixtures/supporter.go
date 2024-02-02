@@ -35,7 +35,11 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore) pag
 			}
 		}
 
-		http.Redirect(w, r, "/supporter/"+redirect, http.StatusFound)
+		if redirect != page.Paths.Supporter.EnterOrganisationName.Format() {
+			redirect = "/supporter/" + redirect
+		}
+
+		http.Redirect(w, r, redirect, http.StatusFound)
 		return nil
 	}
 }
