@@ -19,6 +19,9 @@ on:
       pact_broker_password:
         description: 'Password for central OPG pact broker'
         required: true
+      codecov_token:
+        description: 'Upload token for codecov'
+        required: true
 
 jobs:
   run:
@@ -59,5 +62,4 @@ jobs:
         with:
           flags: unittests
           files: ./coverage.out
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.codecov_token }}
