@@ -55,7 +55,8 @@ jobs:
             --broker-password ${{ secrets.pact_broker_password }}
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v4.0.1
         with:
           flags: unittests
           files: ./coverage.out
+          token: ${{ secrets.CODECOV_TOKEN }}
