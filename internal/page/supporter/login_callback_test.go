@@ -42,7 +42,7 @@ func TestLoginCallback(t *testing.T) {
 
 			loginSession := &sesh.LoginSession{
 				IDToken: "id-token",
-				Sub:     "random",
+				Sub:     "supporter-random",
 				Email:   "name@example.com",
 			}
 
@@ -78,9 +78,12 @@ func TestLoginCallback(t *testing.T) {
 						},
 					},
 				}, nil)
-			sessionStore.EXPECT().
-				Save(r, w, session).
-				Return(nil)
+
+			if tc.expectedError == nil {
+				sessionStore.EXPECT().
+					Save(r, w, session).
+					Return(nil)
+			}
 
 			organisationStore := newMockOrganisationStore(t)
 			organisationStore.EXPECT().
@@ -231,6 +234,11 @@ func TestLoginCallbackWhenSessionError(t *testing.T) {
 		Save(r, w, mock.Anything).
 		Return(expectedError)
 
-	err := LoginCallback(client, sessionStore, nil)(page.AppData{}, w, r)
+	organisationStore := newMockOrganisationStore(t)
+	organisationStore.EXPECT().
+		Get(mock.Anything).
+		Return(&actor.Organisation{}, nil)
+
+	err := LoginCallback(client, sessionStore, organisationStore)(page.AppData{}, w, r)
 	assert.Equal(t, expectedError, err)
 }
