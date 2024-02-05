@@ -98,6 +98,7 @@ body:not(.js-enabled) .govuk-back-link {
     @include govuk-media-query($from: tablet) {
         @include govuk-responsive-padding(4, "bottom");
     }
+    color: govuk-colour("black");
 }
 
 .app-padding-top-7-non-mobile {
