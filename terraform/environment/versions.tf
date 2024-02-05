@@ -6,11 +6,11 @@ terraform {
     }
     pagerduty = {
       source  = "PagerDuty/pagerduty"
-      version = "3.5.2"
+      version = "3.7.0"
     }
     local = {
       source = "hashicorp/local"
     }
   }
-  required_version = "1.7.1"
+  required_version = "1.7.2"
 }
