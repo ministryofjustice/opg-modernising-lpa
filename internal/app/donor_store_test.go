@@ -116,16 +116,34 @@ func TestDonorStoreGetAnyWhenDataStoreError(t *testing.T) {
 }
 
 func TestDonorStoreGet(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", SessionID: "456"})
+	testCases := map[string]struct {
+		sessionData *page.SessionData
+		expectedSK  string
+	}{
+		"donor": {
+			sessionData: &page.SessionData{LpaID: "an-id", SessionID: "456"},
+			expectedSK:  "#DONOR#456",
+		},
+		"organisation": {
+			sessionData: &page.SessionData{LpaID: "an-id", SessionID: "456", OrganisationID: "789"},
+			expectedSK:  "ORGANISATION#789",
+		},
+	}
 
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOne(ctx, "LPA#an-id", "#DONOR#456", &actor.DonorProvidedDetails{LpaID: "an-id"}, nil)
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			ctx := page.ContextWithSessionData(context.Background(), tc.sessionData)
 
-	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.ExpectOne(ctx, "LPA#an-id", tc.expectedSK, &actor.DonorProvidedDetails{LpaID: "an-id"}, nil)
 
-	lpa, err := donorStore.Get(ctx)
-	assert.Nil(t, err)
-	assert.Equal(t, &actor.DonorProvidedDetails{LpaID: "an-id"}, lpa)
+			donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
+
+			lpa, err := donorStore.Get(ctx)
+			assert.Nil(t, err)
+			assert.Equal(t, &actor.DonorProvidedDetails{LpaID: "an-id"}, lpa)
+		})
+	}
 }
 
 func TestDonorStoreGetWithSessionMissing(t *testing.T) {

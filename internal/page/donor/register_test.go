@@ -184,52 +184,80 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 }
 
 func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
-
-	mux := http.NewServeMux()
-
-	sessionStore := newMockSessionStore(t)
-	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Get(mock.Anything).
-		Return(&actor.DonorProvidedDetails{Donor: actor.Donor{
-			FirstNames:  "Jane",
-			LastName:    "Smith",
-			DateOfBirth: date.New("2000", "1", "2"),
-			Address:     place.Address{Postcode: "ABC123"},
+	testCases := map[string]struct {
+		expectedAppData     page.AppData
+		loginSesh           *sessions.Session
+		expectedSessionData *page.SessionData
+	}{
+		"donor": {
+			expectedAppData: page.AppData{
+				Page:         "/lpa//path",
+				ActorType:    actor.TypeDonor,
+				SessionID:    "cmFuZG9t",
+				AppPublicURL: "http://example.org",
+			},
+			loginSesh:           &sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}},
+			expectedSessionData: &page.SessionData{SessionID: "cmFuZG9t"},
 		},
-			Type:   actor.LpaTypePropertyAndAffairs,
-			Tasks:  actor.DonorTasks{YourDetails: actor.TaskCompleted},
-			LpaUID: "a-uid",
-		}, nil)
+		"organisation": {
+			expectedAppData: page.AppData{
+				Page:         "/lpa//path",
+				ActorType:    actor.TypeDonor,
+				SessionID:    "cmFuZG9t",
+				AppPublicURL: "http://example.org",
+				IsSupporter:  true,
+			},
+			loginSesh:           &sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random", OrganisationID: "org-id"}}},
+			expectedSessionData: &page.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id"},
+		},
+	}
 
-	handle := makeLpaHandle(mux, sessionStore, page.RequireSession, nil, donorStore, "http://example.org")
-	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, _ *actor.DonorProvidedDetails) error {
-		assert.Equal(t, page.AppData{
-			Page:         "/lpa//path",
-			ActorType:    actor.TypeDonor,
-			SessionID:    "cmFuZG9t",
-			AppPublicURL: "http://example.org",
-		}, appData)
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
-		assert.Equal(t, w, hw)
+			mux := http.NewServeMux()
 
-		sessionData, _ := page.SessionDataFromContext(hr.Context())
-		assert.Equal(t, &page.SessionData{SessionID: "cmFuZG9t"}, sessionData)
+			sessionStore := newMockSessionStore(t)
+			sessionStore.EXPECT().
+				Get(r, "session").
+				Return(tc.loginSesh, nil)
 
-		hw.WriteHeader(http.StatusTeapot)
-		return nil
-	})
+			donorStore := newMockDonorStore(t)
+			donorStore.EXPECT().
+				Get(mock.Anything).
+				Return(&actor.DonorProvidedDetails{Donor: actor.Donor{
+					FirstNames:  "Jane",
+					LastName:    "Smith",
+					DateOfBirth: date.New("2000", "1", "2"),
+					Address:     place.Address{Postcode: "ABC123"},
+				},
+					Type:   actor.LpaTypePropertyAndAffairs,
+					Tasks:  actor.DonorTasks{YourDetails: actor.TaskCompleted},
+					LpaUID: "a-uid",
+				}, nil)
 
-	mux.ServeHTTP(w, r)
-	resp := w.Result()
+			handle := makeLpaHandle(mux, sessionStore, page.RequireSession, nil, donorStore, "http://example.org")
+			handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, _ *actor.DonorProvidedDetails) error {
+				assert.Equal(t, tc.expectedAppData, appData)
 
-	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+				assert.Equal(t, w, hw)
+
+				sessionData, _ := page.SessionDataFromContext(hr.Context())
+				assert.Equal(t, tc.expectedSessionData, sessionData)
+
+				hw.WriteHeader(http.StatusTeapot)
+				return nil
+			})
+
+			mux.ServeHTTP(w, r)
+			resp := w.Result()
+
+			assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+		})
+	}
+
 }
 
 func TestMakeLpaHandleWhenSessionStoreError(t *testing.T) {
