@@ -3,9 +3,9 @@ module github.com/ministryofjustice/opg-modernising-lpa
 go 1.21
 
 require (
-	github.com/MicahParks/jwkset v0.5.7
-	github.com/MicahParks/keyfunc/v3 v3.2.4
-	github.com/aws/aws-lambda-go v1.45.0
+	github.com/MicahParks/jwkset v0.5.12
+	github.com/MicahParks/keyfunc/v3 v3.2.5
+	github.com/aws/aws-lambda-go v1.46.0
 	github.com/aws/aws-sdk-go-v2 v1.24.1
 	github.com/aws/aws-sdk-go-v2/config v1.26.6
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.12.16
