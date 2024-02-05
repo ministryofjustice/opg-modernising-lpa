@@ -45,6 +45,7 @@ jobs:
       branch: ${{ github.head_ref }}
     secrets:
       pact_broker_password: ${{ secrets.PACT_BROKER_PASSWORD }}
+      codecov_token: ${{ secrets.CODECOV_TOKEN }}
 
   docker_build_scan_push:
     name: Docker Build, Scan and Push
