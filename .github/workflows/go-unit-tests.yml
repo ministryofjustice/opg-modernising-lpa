@@ -19,6 +19,9 @@ on:
       pact_broker_password:
         description: 'Password for central OPG pact broker'
         required: true
+      codecov_token:
+        description: 'Upload token for codecov'
+        required: true
 
 jobs:
   run:
@@ -55,7 +58,8 @@ jobs:
             --broker-password ${{ secrets.pact_broker_password }}
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4.0.1
         with:
           flags: unittests
           files: ./coverage.out
+          token: ${{ secrets.codecov_token }}
