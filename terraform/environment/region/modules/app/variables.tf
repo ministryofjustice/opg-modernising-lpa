@@ -133,7 +133,7 @@ variable "mock_onelogin_enabled" {
   type = bool
 }
 
-# variable "fault_injection_enabled" {
+# variable "fault_injection_experiments_enabled" {
 #   type        = bool
 #   description = "Enable fault injection"
 # }
