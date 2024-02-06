@@ -85,61 +85,62 @@ data "aws_iam_policy_document" "fis_role_log_encryption" {
     ]
   }
 
-  statement {
-    sid    = "AllowFISExperimentRoleCloudwatch"
-    effect = "Allow"
-    actions = [
-      "logs:Describe*",
-      "logs:CreateLogDelivery",
-      "logs:PutLogEvents",
-      "logs:CreateLogStream",
-      "logs:PutResourcePolicy"
-    ]
+  # statement {
+  #   sid    = "AllowFISExperimentRoleCloudwatch"
+  #   effect = "Allow"
+  #   actions = [
+  #     "logs:Describe*",
+  #     "logs:CreateLogDelivery",
+  #     "logs:PutLogEvents",
+  #     "logs:CreateLogStream",
+  #     "logs:PutResourcePolicy"
+  #   ]
 
-    resources = [
-      "*"
-    ]
-  }
+  #   resources = [
+  #     "*"
+  #   ]
+  # }
 
-  statement {
-    sid    = "AllowLogDeliveryActions"
-    effect = "Allow"
-    actions = [
-      "logs:PutDeliverySource",
-      "logs:GetDeliverySource",
-      "logs:DeleteDeliverySource",
-      "logs:DescribeDeliverySources",
-      "logs:PutDeliveryDestination",
-      "logs:GetDeliveryDestination",
-      "logs:DeleteDeliveryDestination",
-      "logs:DescribeDeliveryDestinations",
-      "logs:CreateDelivery",
-      "logs:GetDelivery",
-      "logs:DeleteDelivery",
-      "logs:DescribeDeliveries",
-      "logs:PutDeliveryDestinationPolicy",
-      "logs:GetDeliveryDestinationPolicy",
-      "logs:DeleteDeliveryDestinationPolicy"
-    ]
-    resources = [
-      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:delivery-source:*",
-      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:delivery:*",
-      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:delivery-destination:*"
-    ]
-  }
-  statement {
-    sid    = "AllowUpdatesToResourcePolicyCWL"
-    effect = "Allow"
-    actions = [
-      "logs:PutResourcePolicy",
-      "logs:DescribeResourcePolicies",
-      "logs:DescribeLogGroups"
-    ]
-    resources = [
-      aws_cloudwatch_log_group.fis_app_ecs_tasks.arn,
-      "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*",
-    ]
-  }
+  # statement {
+  #   sid    = "AllowLogDeliveryActions"
+  #   effect = "Allow"
+  #   actions = [
+  #     "logs:PutDeliverySource",
+  #     "logs:GetDeliverySource",
+  #     "logs:DeleteDeliverySource",
+  #     "logs:DescribeDeliverySources",
+  #     "logs:PutDeliveryDestination",
+  #     "logs:GetDeliveryDestination",
+  #     "logs:DeleteDeliveryDestination",
+  #     "logs:DescribeDeliveryDestinations",
+  #     "logs:CreateDelivery",
+  #     "logs:GetDelivery",
+  #     "logs:DeleteDelivery",
+  #     "logs:DescribeDeliveries",
+  #     "logs:PutDeliveryDestinationPolicy",
+  #     "logs:GetDeliveryDestinationPolicy",
+  #     "logs:DeleteDeliveryDestinationPolicy"
+  #   ]
+  #   resources = [
+  #     "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:delivery-source:*",
+  #     "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:delivery:*",
+  #     "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:delivery-destination:*"
+  #   ]
+  # }
+
+  # statement {
+  #   sid    = "AllowUpdatesToResourcePolicyCWL"
+  #   effect = "Allow"
+  #   actions = [
+  #     "logs:PutResourcePolicy",
+  #     "logs:DescribeResourcePolicies",
+  #     "logs:DescribeLogGroups"
+  #   ]
+  #   resources = [
+  #     aws_cloudwatch_log_group.fis_app_ecs_tasks.arn,
+  #     "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*",
+  #   ]
+  # }
 }
 
 resource "aws_iam_role_policy" "fis_role_log_encryption" {

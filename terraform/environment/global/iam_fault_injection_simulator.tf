@@ -18,7 +18,7 @@ data "aws_iam_policy_document" "fault_injection_simulator_assume" {
   provider = aws.global
 }
 
-# Add permissions for FIS to run experiments (ECS, Logging, SSM)
+# Add permissions for FIS to run experiments (ECS and SSM)
 
 resource "aws_iam_role_policy_attachment" "fault_injection_simulator_ecs_access" {
   role       = aws_iam_role.fault_injection_simulator.name
@@ -29,12 +29,6 @@ resource "aws_iam_role_policy_attachment" "fault_injection_simulator_ecs_access"
 resource "aws_iam_role_policy_attachment" "fault_injection_simulator_ssm_access" {
   role       = aws_iam_role.fault_injection_simulator.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSFaultInjectionSimulatorSSMAccess"
-  provider   = aws.global
-}
-
-resource "aws_iam_role_policy_attachment" "cloudwatch_logs_full_access" {
-  role       = aws_iam_role.fault_injection_simulator.name
-  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
   provider   = aws.global
 }
 
