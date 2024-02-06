@@ -56,6 +56,7 @@ module "app" {
   uid_base_url                                         = var.uid_service.base_url
   lpa_store_base_url                                   = var.lpa_store_service.base_url
   mock_onelogin_enabled                                = data.aws_default_tags.current.tags.environment-name != "production" && var.mock_onelogin_enabled
+  fault_injection_enabled                              = var.fault_injection_enabled
   providers = {
     aws.region = aws.region
   }

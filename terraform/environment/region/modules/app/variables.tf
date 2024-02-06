@@ -2,6 +2,10 @@ locals {
   name_prefix = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
 }
 
+locals {
+  policy_region_prefix = lower(replace(data.aws_region.current.name, "-", ""))
+}
+
 variable "ecs_execution_role" {
   type = object({
     id  = string
@@ -13,11 +17,6 @@ variable "ecs_execution_role" {
 variable "ecs_task_role" {
   type        = any
   description = "ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services."
-}
-
-variable "fault_injection_simulator_role" {
-  type        = any
-  description = "ARN of IAM role that allows AWS FIS to make calls to other AWS services."
 }
 
 variable "ecs_cluster" {
@@ -133,3 +132,8 @@ variable "lpa_store_base_url" {
 variable "mock_onelogin_enabled" {
   type = bool
 }
+
+# variable "fault_injection_enabled" {
+#   type        = bool
+#   description = "Enable fault injection"
+# }

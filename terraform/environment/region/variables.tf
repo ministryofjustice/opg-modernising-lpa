@@ -147,3 +147,8 @@ variable "cloudwatch_application_insights_enabled" {
   type        = bool
   description = "Enable CloudWatch Application Insights"
 }
+
+variable "fault_injection_enabled" {
+  type        = bool
+  description = "Enable fault injection"
+}

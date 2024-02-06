@@ -30,6 +30,7 @@ This module creates the regional resources for an environment.
 | <a name="module_application_logs"></a> [application\_logs](#module\_application\_logs) | ./modules/application_logs | n/a |
 | <a name="module_event_bus"></a> [event\_bus](#module\_event\_bus) | ./modules/event_bus | n/a |
 | <a name="module_event_received"></a> [event\_received](#module\_event\_received) | ./modules/event_received | n/a |
+| <a name="module_fault_injection_simulator_experiments"></a> [fault\_injection\_simulator\_experiments](#module\_fault\_injection\_simulator\_experiments) | ./modules/fault_injection_simulator_experiments | n/a |
 | <a name="module_mock_onelogin"></a> [mock\_onelogin](#module\_mock\_onelogin) | ./modules/mock_onelogin | n/a |
 | <a name="module_s3_antivirus"></a> [s3\_antivirus](#module\_s3\_antivirus) | ./modules/s3_antivirus | n/a |
 | <a name="module_uploads_s3_bucket"></a> [uploads\_s3\_bucket](#module\_uploads\_s3\_bucket) | ./modules/uploads_s3_bucket | n/a |
@@ -109,6 +110,7 @@ This module creates the regional resources for an environment.
 | <a name="input_dns_weighting"></a> [dns\_weighting](#input\_dns\_weighting) | Weighting for DNS records | `number` | n/a | yes |
 | <a name="input_ecs_capacity_provider"></a> [ecs\_capacity\_provider](#input\_ecs\_capacity\_provider) | Name of the capacity provider to use. Valid values are FARGATE\_SPOT and FARGATE | `string` | n/a | yes |
 | <a name="input_ecs_task_autoscaling"></a> [ecs\_task\_autoscaling](#input\_ecs\_task\_autoscaling) | task minimum and maximum values for autoscaling | `any` | n/a | yes |
+| <a name="input_fault_injection_enabled"></a> [fault\_injection\_enabled](#input\_fault\_injection\_enabled) | Enable fault injection | `bool` | n/a | yes |
 | <a name="input_iam_roles"></a> [iam\_roles](#input\_iam\_roles) | ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services. | <pre>object({<br>    ecs_execution_role        = any<br>    app_ecs_task_role         = any<br>    s3_antivirus              = any<br>    cross_account_put         = any<br>    fault_injection_simulator = any<br>  })</pre> | n/a | yes |
 | <a name="input_ingress_allow_list_cidr"></a> [ingress\_allow\_list\_cidr](#input\_ingress\_allow\_list\_cidr) | List of CIDR ranges permitted to access the service | `list(string)` | n/a | yes |
 | <a name="input_lpa_store_service"></a> [lpa\_store\_service](#input\_lpa\_store\_service) | n/a | <pre>object({<br>    base_url = string<br>    api_arns = list(string)<br>  })</pre> | n/a | yes |
