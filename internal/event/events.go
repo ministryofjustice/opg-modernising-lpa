@@ -54,5 +54,5 @@ type NotificationSent struct {
 type PaperFormRequested struct {
 	UID       string `json:"uid"`
 	ActorType string `json:"actorType"`
-	ActorUID  string `json:"actorUID"`
+	ActorUID  string `json:"actorUID,omitempty"`
 }
