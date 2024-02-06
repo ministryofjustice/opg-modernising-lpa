@@ -81,5 +81,6 @@ func PostFormReferenceNumber(r *http.Request, name string) string {
 type Handler func(data AppData, w http.ResponseWriter, r *http.Request) error
 
 type EventClient interface {
-	SendNotificationSent(context.Context, event.NotificationSent) error
+	SendNotificationSent(ctx context.Context, notificationSentEvent event.NotificationSent) error
+	SendPaperFormRequested(ctx context.Context, paperFormRequestedEvent event.PaperFormRequested) error
 }
