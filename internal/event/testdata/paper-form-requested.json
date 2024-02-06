@@ -1,0 +1,30 @@
+{
+  "$id": "https://opg.service.justice.gov.uk/opg.poas.sirius/paper-form-requested.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "opg.poas.makeregister/paper-form-requested",
+  "type": "object",
+  "properties": {
+    "uid": {
+      "type": "string",
+      "description": "The UID of the LPA",
+      "pattern": "M(-[A-Z0-9]{4}){3}"
+    },
+    "actorType": {
+      "type": "string",
+      "description": "The type of actor that needs a paper form",
+      "enum": ["certificateProvider", "attorney", "replacementAttorney"]
+    },
+    "actorUid": {
+      "type": "string",
+      "description": "The UID of the actor that needs a paper form",
+      "pattern": "([a-z0-9]{8}-)([a-z0-9]{4}-){3}([a-z0-9]{12})"
+    }
+  },
+  "if": {
+    "properties": {
+      "actorType": { "const": "certificateProvider" }
+    }
+  },
+  "then": { "required": ["uid", "actorType"] },
+  "else": { "required": ["uid", "actorType", "actorUID"] }
+}
