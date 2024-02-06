@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 )
@@ -49,6 +50,13 @@ func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, app
 }
 
 func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails) error {
+	if donor.CertificateProvider.CarryOutBy.IsPaper() {
+		return s.eventClient.SendPaperFormRequested(ctx, event.PaperFormRequested{
+			UID:       donor.LpaUID,
+			ActorType: actor.TypeCertificateProvider.String(),
+		})
+	}
+
 	return s.sendCertificateProvider(ctx, appData, donor, notify.CertificateProviderProvideCertificatePromptEmail{
 		CertificateProviderFullName: donor.CertificateProvider.FullName(),
 		DonorFullName:               donor.Donor.FullName(),

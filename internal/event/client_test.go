@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/eventbridge"
 	"github.com/aws/aws-sdk-go-v2/service/eventbridge/types"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
@@ -44,6 +45,11 @@ func TestClientSendEvents(t *testing.T) {
 			event := NotificationSent{UID: "a", NotificationID: random.UuidString()}
 
 			return func(client *Client) error { return client.SendNotificationSent(ctx, event) }, event
+		},
+		"paper-form-requested": func() (func(*Client) error, any) {
+			event := PaperFormRequested{UID: "a", ActorType: actor.TypeAttorney.String(), ActorUID: random.UuidString()}
+
+			return func(client *Client) error { return client.SendPaperFormRequested(ctx, event) }, event
 		},
 	}
 
