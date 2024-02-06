@@ -113,19 +113,19 @@ For terraform_environment, this will be based on your PR and can be found in the
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | 1.7.1 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.34.0 |
-| <a name="requirement_pagerduty"></a> [pagerduty](#requirement\_pagerduty) | 3.5.2 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | 1.7.2 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.35.0 |
+| <a name="requirement_pagerduty"></a> [pagerduty](#requirement\_pagerduty) | 3.7.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws.eu_west_1"></a> [aws.eu\_west\_1](#provider\_aws.eu\_west\_1) | 5.34.0 |
-| <a name="provider_aws.eu_west_2"></a> [aws.eu\_west\_2](#provider\_aws.eu\_west\_2) | 5.34.0 |
-| <a name="provider_aws.global"></a> [aws.global](#provider\_aws.global) | 5.34.0 |
-| <a name="provider_aws.management_eu_west_1"></a> [aws.management\_eu\_west\_1](#provider\_aws.management\_eu\_west\_1) | 5.34.0 |
-| <a name="provider_aws.management_global"></a> [aws.management\_global](#provider\_aws.management\_global) | 5.34.0 |
+| <a name="provider_aws.eu_west_1"></a> [aws.eu\_west\_1](#provider\_aws.eu\_west\_1) | 5.35.0 |
+| <a name="provider_aws.eu_west_2"></a> [aws.eu\_west\_2](#provider\_aws.eu\_west\_2) | 5.35.0 |
+| <a name="provider_aws.global"></a> [aws.global](#provider\_aws.global) | 5.35.0 |
+| <a name="provider_aws.management_eu_west_1"></a> [aws.management\_eu\_west\_1](#provider\_aws.management\_eu\_west\_1) | 5.35.0 |
+| <a name="provider_aws.management_global"></a> [aws.management\_global](#provider\_aws.management\_global) | 5.35.0 |
 
 ## Modules
 
@@ -167,7 +167,7 @@ For terraform_environment, this will be based on your PR and can be found in the
 |------|-------------|------|---------|:--------:|
 | <a name="input_container_version"></a> [container\_version](#input\_container\_version) | n/a | `string` | `"latest"` | no |
 | <a name="input_default_role"></a> [default\_role](#input\_default\_role) | n/a | `string` | `"modernising-lpa-ci"` | no |
-| <a name="input_environments"></a> [environments](#input\_environments) | n/a | <pre>map(<br>    object({<br>      account_id    = string<br>      account_name  = string<br>      is_production = bool<br>      regions       = list(string)<br>      app = object({<br>        env = object({<br>          app_public_url         = string<br>          auth_redirect_base_url = string<br>          notify_is_production   = string<br>          onelogin_url           = string<br>        })<br>        autoscaling = object({<br>          minimum = number<br>          maximum = number<br>        })<br>        dependency_health_check_alarm_enabled   = bool<br>        service_health_check_alarm_enabled      = bool<br>        cloudwatch_application_insights_enabled = bool<br>      })<br>      mock_onelogin_enabled = bool<br>      uid_service = object({<br>        base_url = string<br>        api_arns = list(string)<br>      })<br>      lpa_store_service = object({<br>        base_url = string<br>        api_arns = list(string)<br>      })<br>      backups = object({<br>        backup_plan_enabled = bool<br>        copy_action_enabled = bool<br>      })<br>      dynamodb = object({<br>        region_replica_enabled = bool<br>        stream_enabled         = bool<br>      })<br>      ecs = object({<br>        fargate_spot_capacity_provider_enabled = bool<br><br>      })<br>      cloudwatch_log_groups = object({<br>        application_log_retention_days = number<br>      })<br>      application_load_balancer = object({<br>        deletion_protection_enabled = bool<br>      })<br>      cloudwatch_application_insights_enabled = bool<br>      pagerduty_service_name                  = string<br>      event_bus = object({<br>        target_event_bus_arn = string<br>        receive_account_ids  = list(string)<br>      })<br>      reduced_fees = object({<br>        enabled                                   = bool<br>        s3_object_replication_enabled             = bool<br>        target_environment                        = string<br>        destination_account_id                    = string<br>        enable_s3_batch_job_replication_scheduler = bool<br>      })<br>      s3_antivirus_provisioned_concurrency = number<br>    })<br>  )</pre> | n/a | yes |
+| <a name="input_environments"></a> [environments](#input\_environments) | n/a | <pre>map(<br>    object({<br>      account_id    = string<br>      account_name  = string<br>      is_production = bool<br>      regions       = list(string)<br>      app = object({<br>        env = object({<br>          app_public_url         = string<br>          auth_redirect_base_url = string<br>          notify_is_production   = string<br>          onelogin_url           = string<br>        })<br>        autoscaling = object({<br>          minimum = number<br>          maximum = number<br>        })<br>        dependency_health_check_alarm_enabled   = bool<br>        service_health_check_alarm_enabled      = bool<br>        cloudwatch_application_insights_enabled = bool<br>        fault_injection_enabled                 = bool<br>      })<br>      mock_onelogin_enabled = bool<br>      uid_service = object({<br>        base_url = string<br>        api_arns = list(string)<br>      })<br>      lpa_store_service = object({<br>        base_url = string<br>        api_arns = list(string)<br>      })<br>      backups = object({<br>        backup_plan_enabled = bool<br>        copy_action_enabled = bool<br>      })<br>      dynamodb = object({<br>        region_replica_enabled = bool<br>        stream_enabled         = bool<br>      })<br>      ecs = object({<br>        fargate_spot_capacity_provider_enabled = bool<br><br>      })<br>      cloudwatch_log_groups = object({<br>        application_log_retention_days = number<br>      })<br>      application_load_balancer = object({<br>        deletion_protection_enabled = bool<br>      })<br>      cloudwatch_application_insights_enabled = bool<br>      pagerduty_service_name                  = string<br>      event_bus = object({<br>        target_event_bus_arn = string<br>        receive_account_ids  = list(string)<br>      })<br>      reduced_fees = object({<br>        enabled                                   = bool<br>        s3_object_replication_enabled             = bool<br>        target_environment                        = string<br>        destination_account_id                    = string<br>        enable_s3_batch_job_replication_scheduler = bool<br>      })<br>      s3_antivirus_provisioned_concurrency = number<br>    })<br>  )</pre> | n/a | yes |
 | <a name="input_pagerduty_api_key"></a> [pagerduty\_api\_key](#input\_pagerduty\_api\_key) | n/a | `string` | n/a | yes |
 | <a name="input_public_access_enabled"></a> [public\_access\_enabled](#input\_public\_access\_enabled) | n/a | `bool` | `false` | no |
 
