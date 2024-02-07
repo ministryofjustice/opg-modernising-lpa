@@ -44,6 +44,7 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 		organisation, err := organisationStore.Get(ctx)
 		if err == nil {
 			session.OrganisationID = organisation.ID
+			session.OrganisationName = organisation.Name
 			if err := sesh.SetLoginSession(sessionStore, r, w, session); err != nil {
 				return err
 			}

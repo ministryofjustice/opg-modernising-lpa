@@ -20,17 +20,35 @@ func TestLoginCallback(t *testing.T) {
 		getError      error
 		redirect      string
 		expectedError error
+		loginSession  *sesh.LoginSession
 	}{
 		"no organisation": {
 			getError: dynamo.NotFoundError{},
 			redirect: page.Paths.Supporter.EnterOrganisationName.Format(),
+			loginSession: &sesh.LoginSession{
+				IDToken: "id-token",
+				Sub:     "supporter-random",
+				Email:   "name@example.com",
+			},
 		},
 		"has organisation": {
 			redirect: page.Paths.Supporter.Dashboard.Format(),
+			loginSession: &sesh.LoginSession{
+				IDToken:          "id-token",
+				Sub:              "supporter-random",
+				Email:            "name@example.com",
+				OrganisationID:   "org-id",
+				OrganisationName: "org name",
+			},
 		},
 		"error getting organisation": {
 			getError:      expectedError,
 			expectedError: expectedError,
+			loginSession: &sesh.LoginSession{
+				IDToken: "id-token",
+				Sub:     "supporter-random",
+				Email:   "name@example.com",
+			},
 		},
 	}
 
@@ -39,12 +57,6 @@ func TestLoginCallback(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
-
-			loginSession := &sesh.LoginSession{
-				IDToken: "id-token",
-				Sub:     "supporter-random",
-				Email:   "name@example.com",
-			}
 
 			client := newMockOneLoginClient(t)
 			client.EXPECT().
@@ -64,7 +76,7 @@ func TestLoginCallback(t *testing.T) {
 				HttpOnly: true,
 				Secure:   true,
 			}
-			session.Values = map[any]any{"session": loginSession}
+			session.Values = map[any]any{"session": tc.loginSession}
 
 			sessionStore.EXPECT().
 				Get(r, "params").
@@ -87,8 +99,8 @@ func TestLoginCallback(t *testing.T) {
 
 			organisationStore := newMockOrganisationStore(t)
 			organisationStore.EXPECT().
-				Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID()})).
-				Return(&actor.Organisation{}, tc.getError)
+				Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: tc.loginSession.SessionID()})).
+				Return(&actor.Organisation{ID: "org-id", Name: "org name"}, tc.getError)
 
 			err := LoginCallback(client, sessionStore, organisationStore)(page.AppData{}, w, r)
 			if tc.expectedError != nil {

@@ -457,6 +457,8 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.Han
 
 			if loginSession.OrganisationID != "" {
 				appData.IsSupporter = true
+				appData.OrganisationName = loginSession.OrganisationName
+
 				sessionData.OrganisationID = loginSession.OrganisationID
 			}
 
