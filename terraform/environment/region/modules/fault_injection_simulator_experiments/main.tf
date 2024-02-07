@@ -17,7 +17,7 @@ resource "aws_cloudwatch_log_group" "fis_app_ecs_tasks" {
 data "aws_iam_policy_document" "cloudwatch_log_group_policy_fis_app_ecs_tasks" {
   provider = aws.region
   statement {
-    sid    = "AWSLogDeliveryWrite20150319"
+    sid    = "AWSLogDeliveryWrite"
     effect = "Allow"
 
     principals {
@@ -34,6 +34,32 @@ data "aws_iam_policy_document" "cloudwatch_log_group_policy_fis_app_ecs_tasks" {
 
     resources = [
       "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*",
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = [data.aws_caller_identity.current.account_id]
+    }
+  }
+  statement {
+    sid    = "AWSLogEncrypt"
+    effect = "Allow"
+
+    principals {
+      identifiers = [
+        "delivery.logs.amazonaws.com"
+      ]
+      type = "Service"
+    }
+
+    actions = [
+      "kms:Encrypt",
+      "kms:GenerateDataKey",
+    ]
+
+    resources = [
+      data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
     ]
 
     condition {
@@ -77,6 +103,7 @@ data "aws_iam_policy_document" "fis_role_log_encryption" {
       "logs:CreateLogStream",
       "logs:PutLogEvents",
       "logs:DescribeResourcePolicies",
+      "logs:PutResourcePolicy",
     ]
 
     resources = [
@@ -84,63 +111,6 @@ data "aws_iam_policy_document" "fis_role_log_encryption" {
       "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*",
     ]
   }
-
-  # statement {
-  #   sid    = "AllowFISExperimentRoleCloudwatch"
-  #   effect = "Allow"
-  #   actions = [
-  #     "logs:Describe*",
-  #     "logs:CreateLogDelivery",
-  #     "logs:PutLogEvents",
-  #     "logs:CreateLogStream",
-  #     "logs:PutResourcePolicy"
-  #   ]
-
-  #   resources = [
-  #     "*"
-  #   ]
-  # }
-
-  # statement {
-  #   sid    = "AllowLogDeliveryActions"
-  #   effect = "Allow"
-  #   actions = [
-  #     "logs:PutDeliverySource",
-  #     "logs:GetDeliverySource",
-  #     "logs:DeleteDeliverySource",
-  #     "logs:DescribeDeliverySources",
-  #     "logs:PutDeliveryDestination",
-  #     "logs:GetDeliveryDestination",
-  #     "logs:DeleteDeliveryDestination",
-  #     "logs:DescribeDeliveryDestinations",
-  #     "logs:CreateDelivery",
-  #     "logs:GetDelivery",
-  #     "logs:DeleteDelivery",
-  #     "logs:DescribeDeliveries",
-  #     "logs:PutDeliveryDestinationPolicy",
-  #     "logs:GetDeliveryDestinationPolicy",
-  #     "logs:DeleteDeliveryDestinationPolicy"
-  #   ]
-  #   resources = [
-  #     "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:delivery-source:*",
-  #     "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:delivery:*",
-  #     "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:delivery-destination:*"
-  #   ]
-  # }
-
-  # statement {
-  #   sid    = "AllowUpdatesToResourcePolicyCWL"
-  #   effect = "Allow"
-  #   actions = [
-  #     "logs:PutResourcePolicy",
-  #     "logs:DescribeResourcePolicies",
-  #     "logs:DescribeLogGroups"
-  #   ]
-  #   resources = [
-  #     aws_cloudwatch_log_group.fis_app_ecs_tasks.arn,
-  #     "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*",
-  #   ]
-  # }
 }
 
 resource "aws_iam_role_policy" "fis_role_log_encryption" {
@@ -160,19 +130,63 @@ resource "aws_fis_experiment_template" "ecs_app" {
     Name = "${data.aws_default_tags.current.tags.environment-name} - APP ECS Task Experiments"
   }
 
-  action {
+  action { # defaults to 100% CPU
     action_id   = "aws:ecs:task-cpu-stress"
     description = null
     name        = "cpu_stress_100_percent"
     parameter {
       key   = "duration"
-      value = "PT5M"
+      value = "PT10M"
     }
     target {
       key   = "Tasks"
       value = "app-ecs-tasks-${data.aws_default_tags.current.tags.environment-name}"
     }
   }
+
+  action {
+    action_id   = "aws:ecs:task-io-stress"
+    description = null
+    name        = "io_stress"
+    start_after = [
+      "cpu_stress_100_percent"
+    ]
+    parameter {
+      key   = "duration"
+      value = "PT10M"
+    }
+    target {
+      key   = "Tasks"
+      value = "app-ecs-tasks-${data.aws_default_tags.current.tags.environment-name}"
+    }
+  }
+
+  # action {
+  #   action_id   = "aws:ecs:stop-task"
+  #   name        = "stop_task"
+  #   start_after = []
+
+  #   target {
+  #     key   = "Tasks"
+  #     value = "app-ecs-tasks-${data.aws_default_tags.current.tags.environment-name}"
+  #   }
+  # }
+
+  # action { # not supported for FARGATE tasks
+  #   action_id   = "aws:ecs:task-network-latency"
+  #   name        = "network_latency"
+  #   start_after = []
+
+  #   parameter {
+  #     key   = "duration"
+  #     value = "PT5M"
+  #   }
+
+  #   target {
+  #     key   = "Tasks"
+  #     value = "app-ecs-tasks-${data.aws_default_tags.current.tags.environment-name}"
+  #   }
+  # }
 
   stop_condition {
     source = "none"
@@ -193,6 +207,10 @@ resource "aws_fis_experiment_template" "ecs_app" {
       key   = "environment-name"
       value = data.aws_default_tags.current.tags.environment-name
     }
+    # parameters = {
+    #   "cluster" = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
+    #   "service" = "app"
+    # }
     resource_type  = "aws:ecs:task"
     selection_mode = "ALL"
   }
