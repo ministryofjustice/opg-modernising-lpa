@@ -1,26 +1,7 @@
-data "aws_iam_policy_document" "assume_replication_role" {
-  statement {
-    effect = "Allow"
-
-    principals {
-      type = "Service"
-      identifiers = [
-        "s3.amazonaws.com",
-        "batchoperations.s3.amazonaws.com"
-      ]
-    }
-
-    actions = ["sts:AssumeRole"]
-  }
+data "aws_iam_role" "replication" {
+  name     = "reduced-fees-uploads-replication"
   provider = aws.region
 }
-
-resource "aws_iam_role" "replication" {
-  name               = "${data.aws_default_tags.current.tags.environment-name}-reduced-fees-uploads-replication"
-  assume_role_policy = data.aws_iam_policy_document.assume_replication_role.json
-  provider           = aws.region
-}
-
 
 data "aws_iam_policy_document" "replication" {
 
@@ -117,14 +98,14 @@ resource "aws_iam_policy" "replication" {
 }
 
 resource "aws_iam_role_policy_attachment" "replication" {
-  role       = aws_iam_role.replication.name
+  role       = data.aws_iam_role.replication.name
   policy_arn = aws_iam_policy.replication.arn
   provider   = aws.region
 }
 
 resource "aws_s3_bucket_replication_configuration" "replication" {
   depends_on = [aws_s3_bucket_versioning.bucket_versioning]
-  role       = aws_iam_role.replication.arn
+  role       = data.aws_iam_role.replication.arn
   bucket     = aws_s3_bucket.bucket.id
 
   rule {
@@ -191,7 +172,7 @@ resource "aws_ssm_parameter" "s3_batch_configuration" {
     "aws_account_id" : data.aws_caller_identity.current.account_id,
     "report_and_manifests_bucket" : "arn:aws:s3:::batch-manifests-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.name}",
     "source_bucket" : aws_s3_bucket.bucket.arn,
-    "role_arn" : aws_iam_role.replication.arn,
+    "role_arn" : data.aws_iam_role.replication.arn,
     "aws_region" : data.aws_region.current.name,
   })
   provider = aws.region

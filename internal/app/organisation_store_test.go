@@ -170,6 +170,23 @@ func TestOrganisationStoreGetWhenErrors(t *testing.T) {
 	}
 }
 
+func TestOrganisationStorePut(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		Put(ctx, &actor.Organisation{PK: "ORGANISATION#123", SK: "ORGANISATION#456", Name: "Hey", UpdatedAt: testNow}).
+		Return(expectedError)
+
+	store := &organisationStore{
+		dynamoClient: dynamoClient,
+		now:          testNowFn,
+	}
+
+	err := store.Put(ctx, &actor.Organisation{PK: "ORGANISATION#123", SK: "ORGANISATION#456", Name: "Hey"})
+	assert.Equal(t, expectedError, err)
+}
+
 func TestOrganisationStoreCreateMemberInvite(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
 

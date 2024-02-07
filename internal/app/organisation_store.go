@@ -77,6 +77,11 @@ func (s *organisationStore) Get(ctx context.Context) (*actor.Organisation, error
 	return &organisation, nil
 }
 
+func (s *organisationStore) Put(ctx context.Context, organisation *actor.Organisation) error {
+	organisation.UpdatedAt = s.now()
+	return s.dynamoClient.Put(ctx, organisation)
+}
+
 func (s *organisationStore) CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, email, code string) error {
 	invite := &actor.MemberInvite{
 		PK:             memberInviteKey(code),

@@ -92,6 +92,10 @@ body:not(.js-enabled) .govuk-back-link {
     }
 }
 
+.app-summary-list--border-top {
+    border-top: 1px solid $govuk-border-colour;
+}
+
 .app-service-header-caption {
     @include govuk-responsive-padding(1, "top");
 

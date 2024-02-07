@@ -131,22 +131,29 @@ type smsWrapper struct {
 	Personalisation any    `json:"personalisation,omitempty"`
 }
 
-func (c *Client) SendSMS(ctx context.Context, to string, sms SMS) (string, error) {
+func (c *Client) SendActorSMS(ctx context.Context, to, lpaUID string, sms SMS) error {
 	req, err := c.newRequest(ctx, "/v2/notifications/sms", smsWrapper{
 		PhoneNumber:     to,
 		TemplateID:      sms.smsID(c.isProduction),
 		Personalisation: sms,
 	})
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	resp, err := c.do(req)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	return resp.ID, nil
+	if err := c.eventClient.SendNotificationSent(ctx, event.NotificationSent{
+		UID:            lpaUID,
+		NotificationID: resp.ID,
+	}); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (c *Client) newRequest(ctx context.Context, url string, wrapper any) (*http.Request, error) {

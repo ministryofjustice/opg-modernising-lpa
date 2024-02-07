@@ -82,7 +82,7 @@ type OneLoginClient interface {
 }
 
 type NotifyClient interface {
-	SendSMS(context.Context, string, notify.SMS) (string, error)
+	SendActorSMS(ctx context.Context, to, lpaUID string, sms notify.SMS) error
 }
 
 type SessionStore interface {
