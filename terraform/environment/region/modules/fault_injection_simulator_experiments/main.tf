@@ -207,10 +207,10 @@ resource "aws_fis_experiment_template" "ecs_app" {
       key   = "environment-name"
       value = data.aws_default_tags.current.tags.environment-name
     }
-    # parameters = {
-    #   "cluster" = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
-    #   "service" = "app"
-    # }
+    parameters = {
+      "cluster" = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
+      "service" = "app"
+    }
     resource_type  = "aws:ecs:task"
     selection_mode = "ALL"
   }

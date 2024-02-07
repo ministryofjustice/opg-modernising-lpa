@@ -108,6 +108,7 @@ data "aws_iam_policy_document" "ssm_register_instance_permissions" {
     actions = [
       "ssm:CreateActivation",
       "ssm:AddTagsToResource",
+      "iam:PassRole",
     ]
   }
 

@@ -84,18 +84,15 @@ resource "aws_ecs_task_definition" "app" {
     operating_system_family = "LINUX"
     cpu_architecture        = "X86_64"
   }
-  #TODO: conditionally add ssm agent container
-  container_definitions = "[${local.app}, ${local.aws_otel_collector}, ${local.amazon_ssm_agent}]"
+  container_definitions = "[${local.app}, ${local.aws_otel_collector}, ${var.fault_injection_experiments_enabled ? local.amazon_ssm_agent : null}]"
   task_role_arn         = var.ecs_task_role.arn
   execution_role_arn    = var.ecs_execution_role.arn
   provider              = aws.region
 }
 
 resource "aws_iam_role_policy" "app_task_role" {
-  name = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}-app-task-role"
-  #TODO: make fis policy conditional using the combined policy document
-  # policy   = data.aws_iam_policy_document.task_role_access_policy.json
-  policy   = data.aws_iam_policy_document.combined.json
+  name     = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}-app-task-role"
+  policy   = var.fault_injection_experiments_enabled ? data.aws_iam_policy_document.combined.json : data.aws_iam_policy_document.task_role_access_policy.json
   role     = var.ecs_task_role.name
   provider = aws.region
 }
