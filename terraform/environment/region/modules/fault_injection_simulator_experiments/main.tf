@@ -161,7 +161,7 @@ resource "aws_fis_experiment_template" "ecs_app" {
     description = null
     name        = "io_stress_10_mins"
     start_after = [
-      "cpu_stress_100_percent"
+      "cpu_stress_100_percent_10_mins"
     ]
     parameter {
       key   = "duration"
