@@ -16,6 +16,8 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+var expectedError = errors.New("err")
+
 func TestNew(t *testing.T) {
 	client, err := New(true, "http://base", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", http.DefaultClient, newMockEventClient(t))
 
@@ -161,13 +163,13 @@ func TestSendActorEmailWhenEventError(t *testing.T) {
 	eventClient := newMockEventClient(t)
 	eventClient.EXPECT().
 		SendNotificationSent(ctx, event.NotificationSent{UID: "lpa-uid", NotificationID: "xyz"}).
-		Return(errors.New("err"))
+		Return(expectedError)
 
 	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 	err := client.SendActorEmail(ctx, "me@example.com", "lpa-uid", testEmail{A: "value"})
-	assert.Equal(errors.New("err"), err)
+	assert.Equal(expectedError, err)
 }
 
 func TestNewRequest(t *testing.T) {
@@ -279,9 +281,7 @@ func TestDoRequestWhenRequestError(t *testing.T) {
 	doer := newMockDoer(t)
 	doer.EXPECT().
 		Do(mock.Anything).
-		Return(&http.Response{
-			Body: io.NopCloser(strings.NewReader(`{"id": "123"}`)),
-		}, errors.New("err"))
+		Return(&http.Response{Body: io.NopCloser(strings.NewReader(`{"id": "123"}`))}, expectedError)
 
 	var jsonBody bytes.Buffer
 	jsonBody.WriteString(`{"id": "123"}`)
@@ -293,7 +293,7 @@ func TestDoRequestWhenRequestError(t *testing.T) {
 
 	resp, err := client.do(req)
 
-	assert.Equal(errors.New("err"), err)
+	assert.Equal(expectedError, err)
 	assert.Equal(response{}, resp)
 }
 
@@ -328,7 +328,7 @@ type testSMS struct {
 
 func (e testSMS) smsID(bool) string { return "template-id" }
 
-func TestSendSMS(t *testing.T) {
+func TestSendActorSMS(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
 
@@ -351,16 +351,19 @@ func TestSendSMS(t *testing.T) {
 			Body: io.NopCloser(strings.NewReader(`{"id":"xyz"}`)),
 		}, nil)
 
-	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendNotificationSent(ctx, event.NotificationSent{UID: "lpa-uid", NotificationID: "xyz"}).
+		Return(nil)
+
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	id, err := client.SendSMS(ctx, "+447535111111", testSMS{A: "value"})
-
+	err := client.SendActorSMS(ctx, "+447535111111", "lpa-uid", testSMS{A: "value"})
 	assert.Nil(err)
-	assert.Equal("xyz", id)
 }
 
-func TestSendSMSWhenError(t *testing.T) {
+func TestSendActorSMSWhenError(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
 
@@ -373,6 +376,41 @@ func TestSendSMSWhenError(t *testing.T) {
 
 	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
 
-	_, err := client.SendSMS(ctx, "+447535111111", testSMS{})
+	err := client.SendActorSMS(ctx, "+447535111111", "lpa-uid", testSMS{})
 	assert.Equal(`error sending message: This happened: Plus this`, err.Error())
+}
+
+func TestSendActorSMSWhenEventError(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+
+	doer := newMockDoer(t)
+	doer.EXPECT().
+		Do(mock.MatchedBy(func(req *http.Request) bool {
+			var buf bytes.Buffer
+			io.Copy(&buf, req.Body)
+			req.Body = io.NopCloser(&buf)
+
+			var v map[string]any
+			json.Unmarshal(buf.Bytes(), &v)
+
+			return assert.Equal("+447535111111", v["phone_number"].(string)) &&
+				assert.Equal("template-id", v["template_id"].(string)) &&
+				assert.Equal(map[string]any{"A": "value"}, v["personalisation"].(map[string]any))
+
+		})).
+		Return(&http.Response{
+			Body: io.NopCloser(strings.NewReader(`{"id":"xyz"}`)),
+		}, nil)
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendNotificationSent(ctx, event.NotificationSent{UID: "lpa-uid", NotificationID: "xyz"}).
+		Return(expectedError)
+
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient)
+	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
+
+	err := client.SendActorSMS(ctx, "+447535111111", "lpa-uid", testSMS{A: "value"})
+	assert.Equal(expectedError, err)
 }
