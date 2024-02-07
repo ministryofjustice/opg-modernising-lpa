@@ -346,11 +346,11 @@ var Paths = AppPaths{
 	},
 
 	Supporter: SupporterPaths{
-		Start:         "/supporter-start",
-		Login:         "/supporter-login",
-		LoginCallback: "/supporter-login-callback",
+		Start:                 "/supporter-start",
+		Login:                 "/supporter-login",
+		LoginCallback:         "/supporter-login-callback",
+		EnterOrganisationName: "/enter-the-name-of-your-organisation-or-company",
 
-		EnterOrganisationName:    "/enter-the-name-of-your-organisation-or-company",
 		OrganisationCreated:      "/organisation-or-company-created",
 		Dashboard:                "/supporter-dashboard",
 		InviteMember:             "/invite-member",
