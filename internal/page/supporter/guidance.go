@@ -11,16 +11,18 @@ import (
 )
 
 type guidanceData struct {
-	App    page.AppData
-	Query  url.Values
-	Errors validation.List
+	App          page.AppData
+	Query        url.Values
+	Errors       validation.List
+	Organisation *actor.Organisation
 }
 
 func Guidance(tmpl template.Template) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
 		return tmpl(w, &guidanceData{
-			App:   appData,
-			Query: r.URL.Query(),
+			App:          appData,
+			Query:        r.URL.Query(),
+			Organisation: organisation,
 		})
 	}
 }

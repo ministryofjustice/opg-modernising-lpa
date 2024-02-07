@@ -11,18 +11,18 @@ import (
 type enterOrganisationNameData struct {
 	App    page.AppData
 	Errors validation.List
-	Form   *enterOrganisationNameForm
+	Form   *organisationNameForm
 }
 
 func EnterOrganisationName(tmpl template.Template, organisationStore OrganisationStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := &enterOrganisationNameData{
 			App:  appData,
-			Form: &enterOrganisationNameForm{},
+			Form: &organisationNameForm{},
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readEnterOrganisationNameForm(r)
+			data.Form = readOrganisationNameForm(r, "fullOrganisationOrCompanyName")
 			data.Errors = data.Form.Validate()
 
 			if !data.Errors.Any() {
@@ -38,20 +38,22 @@ func EnterOrganisationName(tmpl template.Template, organisationStore Organisatio
 	}
 }
 
-type enterOrganisationNameForm struct {
-	Name string
+type organisationNameForm struct {
+	Name  string
+	Label string
 }
 
-func readEnterOrganisationNameForm(r *http.Request) *enterOrganisationNameForm {
-	return &enterOrganisationNameForm{
-		Name: page.PostFormString(r, "name"),
+func readOrganisationNameForm(r *http.Request, label string) *organisationNameForm {
+	return &organisationNameForm{
+		Name:  page.PostFormString(r, "name"),
+		Label: label,
 	}
 }
 
-func (f *enterOrganisationNameForm) Validate() validation.List {
+func (f *organisationNameForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("name", "fullOrganisationOrCompanyName", f.Name,
+	errors.String("name", f.Label, f.Name,
 		validation.Empty(),
 		validation.StringTooLong(100))
 

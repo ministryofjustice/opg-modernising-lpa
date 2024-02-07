@@ -21,7 +21,7 @@ func TestGetEnterOrganisationName(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &enterOrganisationNameData{
 			App:  testAppData,
-			Form: &enterOrganisationNameForm{},
+			Form: &organisationNameForm{},
 		}).
 		Return(nil)
 
@@ -123,30 +123,31 @@ func TestReadEnterOrganisationNameForm(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	result := readEnterOrganisationNameForm(r)
+	result := readOrganisationNameForm(r, "x")
 
 	assert.Equal(t, "My name", result.Name)
 }
 
 func TestEnterOrganisationNameFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form   *enterOrganisationNameForm
+		form   *organisationNameForm
 		errors validation.List
 	}{
 		"valid": {
-			form: &enterOrganisationNameForm{
+			form: &organisationNameForm{
 				Name: "My name",
 			},
 		},
 		"missing": {
-			form:   &enterOrganisationNameForm{},
-			errors: validation.With("name", validation.EnterError{Label: "fullOrganisationOrCompanyName"}),
+			form:   &organisationNameForm{Label: "xyz"},
+			errors: validation.With("name", validation.EnterError{Label: "xyz"}),
 		},
 		"too long": {
-			form: &enterOrganisationNameForm{
-				Name: strings.Repeat("a", 101),
+			form: &organisationNameForm{
+				Name:  strings.Repeat("a", 101),
+				Label: "xyz",
 			},
-			errors: validation.With("name", validation.StringTooLongError{Label: "fullOrganisationOrCompanyName", Length: 100}),
+			errors: validation.With("name", validation.StringTooLongError{Label: "xyz", Length: 100}),
 		},
 	}
 
