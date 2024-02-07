@@ -29,12 +29,12 @@ No modules.
 | [aws_iam_policy_document.cloudwatch_log_group_policy_fis_app_ecs_tasks](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.fis_role_log_encryption](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_kms_alias.cloudwatch_application_logs_encryption](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/kms_alias) | data source |
-| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_ecs_cluster"></a> [ecs\_cluster](#input\_ecs\_cluster) | Name of the ECS cluster to run the experiments on. | `string` | n/a | yes |
 | <a name="input_fault_injection_simulator_role"></a> [fault\_injection\_simulator\_role](#input\_fault\_injection\_simulator\_role) | ARN of IAM role that allows AWS FIS to make calls to other AWS services. | `any` | n/a | yes |
 
 ## Outputs

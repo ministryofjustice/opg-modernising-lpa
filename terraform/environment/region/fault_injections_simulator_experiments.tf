@@ -5,5 +5,6 @@ module "fault_injection_simulator_experiments" {
     aws.region = aws.region
   }
   fault_injection_simulator_role = var.iam_roles.fault_injection_simulator
+  ecs_cluster                    = aws_ecs_cluster.main.id
 
 }

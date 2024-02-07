@@ -130,24 +130,36 @@ resource "aws_fis_experiment_template" "ecs_app" {
     Name = "${data.aws_default_tags.current.tags.environment-name} - APP ECS Task Experiments"
   }
 
+  action {
+    action_id   = "aws:ecs:stop-task"
+    name        = "stop_tasks"
+    start_after = []
+
+    target {
+      key   = "Tasks"
+      value = "two-tasks"
+    }
+  }
+
   action { # defaults to 100% CPU
     action_id   = "aws:ecs:task-cpu-stress"
     description = null
-    name        = "cpu_stress_100_percent"
+    name        = "cpu_stress_100_percent_10_mins"
+    start_after = ["stop_tasks"]
     parameter {
       key   = "duration"
       value = "PT10M"
     }
     target {
       key   = "Tasks"
-      value = "app-ecs-tasks-${data.aws_default_tags.current.tags.environment-name}"
+      value = "all-tasks"
     }
   }
 
   action {
     action_id   = "aws:ecs:task-io-stress"
     description = null
-    name        = "io_stress"
+    name        = "io_stress_10_mins"
     start_after = [
       "cpu_stress_100_percent"
     ]
@@ -157,36 +169,9 @@ resource "aws_fis_experiment_template" "ecs_app" {
     }
     target {
       key   = "Tasks"
-      value = "app-ecs-tasks-${data.aws_default_tags.current.tags.environment-name}"
+      value = "all-tasks"
     }
   }
-
-  # action {
-  #   action_id   = "aws:ecs:stop-task"
-  #   name        = "stop_task"
-  #   start_after = []
-
-  #   target {
-  #     key   = "Tasks"
-  #     value = "app-ecs-tasks-${data.aws_default_tags.current.tags.environment-name}"
-  #   }
-  # }
-
-  # action { # not supported for FARGATE tasks
-  #   action_id   = "aws:ecs:task-network-latency"
-  #   name        = "network_latency"
-  #   start_after = []
-
-  #   parameter {
-  #     key   = "duration"
-  #     value = "PT5M"
-  #   }
-
-  #   target {
-  #     key   = "Tasks"
-  #     value = "app-ecs-tasks-${data.aws_default_tags.current.tags.environment-name}"
-  #   }
-  # }
 
   stop_condition {
     source = "none"
@@ -202,16 +187,30 @@ resource "aws_fis_experiment_template" "ecs_app" {
   }
 
   target {
-    name = "app-ecs-tasks-${data.aws_default_tags.current.tags.environment-name}"
+    name = "all-tasks"
     resource_tag {
       key   = "environment-name"
       value = data.aws_default_tags.current.tags.environment-name
     }
     parameters = {
-      "cluster" = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
+      "cluster" = var.ecs_cluster
       "service" = "app"
     }
     resource_type  = "aws:ecs:task"
     selection_mode = "ALL"
+  }
+
+  target {
+    name = "two-tasks"
+    resource_tag {
+      key   = "environment-name"
+      value = data.aws_default_tags.current.tags.environment-name
+    }
+    parameters = {
+      "cluster" = var.ecs_cluster
+      "service" = "app"
+    }
+    resource_type  = "aws:ecs:task"
+    selection_mode = "COUNT(2)"
   }
 }
