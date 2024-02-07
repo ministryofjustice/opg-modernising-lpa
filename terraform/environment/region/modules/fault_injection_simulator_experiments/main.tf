@@ -12,7 +12,7 @@ resource "aws_cloudwatch_log_group" "fis_app_ecs_tasks" {
   provider          = aws.region
 }
 
-# Add resource policy to allow FIS or the FIS role to write logs - not working
+# Add resource policy to allow FIS or the FIS role to write logs
 
 data "aws_iam_policy_document" "cloudwatch_log_group_policy_fis_app_ecs_tasks" {
   provider = aws.region
@@ -70,7 +70,6 @@ data "aws_iam_policy_document" "cloudwatch_log_group_policy_fis_app_ecs_tasks" {
   }
 }
 
-#  Add resource policy to allow FIS or the FIS role to write logs - not working
 resource "aws_cloudwatch_log_resource_policy" "fis_app_ecs_tasks" {
   provider        = aws.region
   policy_document = data.aws_iam_policy_document.cloudwatch_log_group_policy_fis_app_ecs_tasks.json
@@ -132,7 +131,7 @@ resource "aws_fis_experiment_template" "ecs_app" {
 
   action {
     action_id   = "aws:ecs:stop-task"
-    name        = "stop_tasks"
+    name        = "stop_two_tasks"
     start_after = []
 
     target {
@@ -141,7 +140,7 @@ resource "aws_fis_experiment_template" "ecs_app" {
     }
   }
 
-  action { # defaults to 100% CPU
+  action {
     action_id   = "aws:ecs:task-cpu-stress"
     description = null
     name        = "cpu_stress_100_percent_10_mins"
