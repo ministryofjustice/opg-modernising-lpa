@@ -201,3 +201,8 @@ func TestSupporterPathRedirect(t *testing.T) {
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, p.Format(), resp.Header.Get("Location"))
 }
+
+func TestSupporterPathIsManageOrganisation(t *testing.T) {
+	assert.False(t, Paths.Supporter.Dashboard.IsManageOrganisation())
+	assert.True(t, Paths.Supporter.OrganisationDetails.IsManageOrganisation())
+}
