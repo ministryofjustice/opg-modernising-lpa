@@ -8,18 +8,18 @@ This module creates the regional resources for an environment.
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.2 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.34.0 |
-| <a name="requirement_pagerduty"></a> [pagerduty](#requirement\_pagerduty) | 3.5.2 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.35.0 |
+| <a name="requirement_pagerduty"></a> [pagerduty](#requirement\_pagerduty) | 3.7.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws.global"></a> [aws.global](#provider\_aws.global) | ~> 5.34.0 |
-| <a name="provider_aws.management"></a> [aws.management](#provider\_aws.management) | ~> 5.34.0 |
-| <a name="provider_aws.management_global"></a> [aws.management\_global](#provider\_aws.management\_global) | ~> 5.34.0 |
-| <a name="provider_aws.region"></a> [aws.region](#provider\_aws.region) | ~> 5.34.0 |
-| <a name="provider_pagerduty"></a> [pagerduty](#provider\_pagerduty) | 3.5.2 |
+| <a name="provider_aws.global"></a> [aws.global](#provider\_aws.global) | ~> 5.35.0 |
+| <a name="provider_aws.management"></a> [aws.management](#provider\_aws.management) | ~> 5.35.0 |
+| <a name="provider_aws.management_global"></a> [aws.management\_global](#provider\_aws.management\_global) | ~> 5.35.0 |
+| <a name="provider_aws.region"></a> [aws.region](#provider\_aws.region) | ~> 5.35.0 |
+| <a name="provider_pagerduty"></a> [pagerduty](#provider\_pagerduty) | 3.7.0 |
 
 ## Modules
 
@@ -30,6 +30,7 @@ This module creates the regional resources for an environment.
 | <a name="module_application_logs"></a> [application\_logs](#module\_application\_logs) | ./modules/application_logs | n/a |
 | <a name="module_event_bus"></a> [event\_bus](#module\_event\_bus) | ./modules/event_bus | n/a |
 | <a name="module_event_received"></a> [event\_received](#module\_event\_received) | ./modules/event_received | n/a |
+| <a name="module_fault_injection_simulator_experiments"></a> [fault\_injection\_simulator\_experiments](#module\_fault\_injection\_simulator\_experiments) | ./modules/fault_injection_simulator_experiments | n/a |
 | <a name="module_mock_onelogin"></a> [mock\_onelogin](#module\_mock\_onelogin) | ./modules/mock_onelogin | n/a |
 | <a name="module_s3_antivirus"></a> [s3\_antivirus](#module\_s3\_antivirus) | ./modules/s3_antivirus | n/a |
 | <a name="module_uploads_s3_bucket"></a> [uploads\_s3\_bucket](#module\_uploads\_s3\_bucket) | ./modules/uploads_s3_bucket | n/a |
@@ -60,10 +61,10 @@ This module creates the regional resources for an environment.
 | [aws_sns_topic_subscription.dependency_health_check](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription) | resource |
 | [aws_sns_topic_subscription.ecs_autoscaling_alarms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription) | resource |
 | [aws_sns_topic_subscription.service_health_check](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription) | resource |
-| [pagerduty_service_integration.cloudwatch_application_insights](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.5.2/docs/resources/service_integration) | resource |
-| [pagerduty_service_integration.dependency_health_check](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.5.2/docs/resources/service_integration) | resource |
-| [pagerduty_service_integration.ecs_autoscaling_alarms](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.5.2/docs/resources/service_integration) | resource |
-| [pagerduty_service_integration.service_health_check](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.5.2/docs/resources/service_integration) | resource |
+| [pagerduty_service_integration.cloudwatch_application_insights](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.7.0/docs/resources/service_integration) | resource |
+| [pagerduty_service_integration.dependency_health_check](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.7.0/docs/resources/service_integration) | resource |
+| [pagerduty_service_integration.ecs_autoscaling_alarms](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.7.0/docs/resources/service_integration) | resource |
+| [pagerduty_service_integration.service_health_check](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.7.0/docs/resources/service_integration) | resource |
 | [aws_availability_zones.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) | data source |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_default_tags.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/default_tags) | data source |
@@ -92,8 +93,8 @@ This module creates the regional resources for an environment.
 | [aws_subnet.application](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet) | data source |
 | [aws_subnet.public](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet) | data source |
 | [aws_vpc.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
-| [pagerduty_service.main](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.5.2/docs/data-sources/service) | data source |
-| [pagerduty_vendor.cloudwatch](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.5.2/docs/data-sources/vendor) | data source |
+| [pagerduty_service.main](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.7.0/docs/data-sources/service) | data source |
+| [pagerduty_vendor.cloudwatch](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.7.0/docs/data-sources/vendor) | data source |
 
 ## Inputs
 
@@ -109,7 +110,8 @@ This module creates the regional resources for an environment.
 | <a name="input_dns_weighting"></a> [dns\_weighting](#input\_dns\_weighting) | Weighting for DNS records | `number` | n/a | yes |
 | <a name="input_ecs_capacity_provider"></a> [ecs\_capacity\_provider](#input\_ecs\_capacity\_provider) | Name of the capacity provider to use. Valid values are FARGATE\_SPOT and FARGATE | `string` | n/a | yes |
 | <a name="input_ecs_task_autoscaling"></a> [ecs\_task\_autoscaling](#input\_ecs\_task\_autoscaling) | task minimum and maximum values for autoscaling | `any` | n/a | yes |
-| <a name="input_iam_roles"></a> [iam\_roles](#input\_iam\_roles) | ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services. | <pre>object({<br>    ecs_execution_role = any<br>    app_ecs_task_role  = any<br>    s3_antivirus       = any<br>    cross_account_put  = any<br>  })</pre> | n/a | yes |
+| <a name="input_fault_injection_experiments_enabled"></a> [fault\_injection\_experiments\_enabled](#input\_fault\_injection\_experiments\_enabled) | Enable fault injection | `bool` | n/a | yes |
+| <a name="input_iam_roles"></a> [iam\_roles](#input\_iam\_roles) | ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services. | <pre>object({<br>    ecs_execution_role        = any<br>    app_ecs_task_role         = any<br>    s3_antivirus              = any<br>    cross_account_put         = any<br>    fault_injection_simulator = any<br>  })</pre> | n/a | yes |
 | <a name="input_ingress_allow_list_cidr"></a> [ingress\_allow\_list\_cidr](#input\_ingress\_allow\_list\_cidr) | List of CIDR ranges permitted to access the service | `list(string)` | n/a | yes |
 | <a name="input_lpa_store_service"></a> [lpa\_store\_service](#input\_lpa\_store\_service) | n/a | <pre>object({<br>    base_url = string<br>    api_arns = list(string)<br>  })</pre> | n/a | yes |
 | <a name="input_lpas_table"></a> [lpas\_table](#input\_lpas\_table) | DynamoDB table for storing LPAs | `any` | n/a | yes |

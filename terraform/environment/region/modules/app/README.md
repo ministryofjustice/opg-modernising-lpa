@@ -8,13 +8,14 @@ The module creates an ECS service for the Modernising LPA application, and assoc
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.2 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.34.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.35.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws.region"></a> [aws.region](#provider\_aws.region) | ~> 5.34.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.35.0 |
+| <a name="provider_aws.region"></a> [aws.region](#provider\_aws.region) | ~> 5.35.0 |
 
 ## Modules
 
@@ -47,6 +48,8 @@ No modules.
 | [aws_wafv2_web_acl_association.app](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/wafv2_web_acl_association) | resource |
 | [aws_acm_certificate.certificate_app](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/acm_certificate) | data source |
 | [aws_default_tags.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/default_tags) | data source |
+| [aws_iam_policy_document.combined](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.ecs_task_role_fis_related_task_permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.task_role_access_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_ip_ranges.route53_healthchecks](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ip_ranges) | data source |
 | [aws_kms_alias.dynamodb_encryption_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/kms_alias) | data source |
@@ -82,6 +85,7 @@ No modules.
 | <a name="input_ecs_service_desired_count"></a> [ecs\_service\_desired\_count](#input\_ecs\_service\_desired\_count) | Number of instances of the task definition to place and keep running. Defaults to 0. Do not specify if using the DAEMON scheduling strategy. | `number` | `0` | no |
 | <a name="input_ecs_task_role"></a> [ecs\_task\_role](#input\_ecs\_task\_role) | ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services. | `any` | n/a | yes |
 | <a name="input_event_bus"></a> [event\_bus](#input\_event\_bus) | Name and ARN of the event bus to send events to | <pre>object({<br>    name = string<br>    arn  = string<br>  })</pre> | n/a | yes |
+| <a name="input_fault_injection_experiments_enabled"></a> [fault\_injection\_experiments\_enabled](#input\_fault\_injection\_experiments\_enabled) | Enable fault injection | `bool` | n/a | yes |
 | <a name="input_ingress_allow_list_cidr"></a> [ingress\_allow\_list\_cidr](#input\_ingress\_allow\_list\_cidr) | List of CIDR ranges permitted to access the service | `list(string)` | n/a | yes |
 | <a name="input_lpa_store_base_url"></a> [lpa\_store\_base\_url](#input\_lpa\_store\_base\_url) | n/a | `string` | n/a | yes |
 | <a name="input_lpas_table"></a> [lpas\_table](#input\_lpas\_table) | DynamoDB table for storing LPAs | `any` | n/a | yes |

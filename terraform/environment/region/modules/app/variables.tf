@@ -2,6 +2,10 @@ locals {
   name_prefix = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
 }
 
+locals {
+  policy_region_prefix = lower(replace(data.aws_region.current.name, "-", ""))
+}
+
 variable "ecs_execution_role" {
   type = object({
     id  = string
@@ -127,4 +131,9 @@ variable "lpa_store_base_url" {
 
 variable "mock_onelogin_enabled" {
   type = bool
+}
+
+variable "fault_injection_experiments_enabled" {
+  type        = bool
+  description = "Enable fault injection"
 }

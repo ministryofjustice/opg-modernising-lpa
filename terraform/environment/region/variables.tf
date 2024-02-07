@@ -4,10 +4,11 @@ locals {
 
 variable "iam_roles" {
   type = object({
-    ecs_execution_role = any
-    app_ecs_task_role  = any
-    s3_antivirus       = any
-    cross_account_put  = any
+    ecs_execution_role        = any
+    app_ecs_task_role         = any
+    s3_antivirus              = any
+    cross_account_put         = any
+    fault_injection_simulator = any
   })
   description = "ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services."
 }
@@ -145,4 +146,9 @@ variable "service_health_check_alarm_enabled" {
 variable "cloudwatch_application_insights_enabled" {
   type        = bool
   description = "Enable CloudWatch Application Insights"
+}
+
+variable "fault_injection_experiments_enabled" {
+  type        = bool
+  description = "Enable fault injection"
 }

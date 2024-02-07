@@ -90,17 +90,17 @@ For terraform_environment, this will be based on your PR and can be found in the
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | 1.7.1 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.34.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | 1.7.2 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.35.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws.eu_west_1"></a> [aws.eu\_west\_1](#provider\_aws.eu\_west\_1) | 5.34.0 |
-| <a name="provider_aws.eu_west_2"></a> [aws.eu\_west\_2](#provider\_aws.eu\_west\_2) | 5.34.0 |
-| <a name="provider_aws.global"></a> [aws.global](#provider\_aws.global) | 5.34.0 |
-| <a name="provider_aws.management_global"></a> [aws.management\_global](#provider\_aws.management\_global) | 5.34.0 |
+| <a name="provider_aws.eu_west_1"></a> [aws.eu\_west\_1](#provider\_aws.eu\_west\_1) | 5.35.0 |
+| <a name="provider_aws.eu_west_2"></a> [aws.eu\_west\_2](#provider\_aws.eu\_west\_2) | 5.35.0 |
+| <a name="provider_aws.global"></a> [aws.global](#provider\_aws.global) | 5.35.0 |
+| <a name="provider_aws.management_global"></a> [aws.management\_global](#provider\_aws.management\_global) | 5.35.0 |
 
 ## Modules
 
