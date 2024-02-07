@@ -972,5 +972,11 @@
     "weHaveSentInvite": "We have sent an email to <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span> inviting them to join your organisation.",
     "inviteTeamMember": "Invite a team member",
     "dashboard": "Dashboard",
-    "manageOrganisation": "Manage organisation"
+    "manageOrganisation": "Manage organisation",
+    "manageTeamMembers": "Manage team members",
+    "organisationDetails": "Organisation details",
+    "enterYourOrganisationName": "Enter your organisation name",
+    "organisationNameSaved": "Organisation name saved",
+    "yourOrganisationNameHasBeenSaved": "Your organisation name has been saved.",
+    "yourOrganisationName": "Your organisation name"
 }
