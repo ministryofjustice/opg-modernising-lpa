@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -247,12 +248,13 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenShareCodeStoreErrors(t 
 	assert.Equal(t, expectedError, errors.Unwrap(err))
 }
 
-func TestShareCodeSenderSendCertificateProviderPrompt(t *testing.T) {
+func TestShareCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{
 		CertificateProvider: actor.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
+			CarryOutBy: actor.Online,
 		},
 		Donor: actor.Donor{
 			FirstNames: "Jan",
@@ -271,16 +273,6 @@ func TestShareCodeSenderSendCertificateProviderPrompt(t *testing.T) {
 
 	ctx := context.Background()
 
-	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeCertificateProvider, RandomString, actor.ShareCodeData{
-			LpaID:           "lpa-id",
-			DonorFullname:   "Jan Smith",
-			DonorFirstNames: "Jan",
-			SessionID:       "session-id",
-		}).
-		Return(nil)
-
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
 		SendActorEmail(ctx, "name@example.org", "lpa-uid", notify.CertificateProviderProvideCertificatePromptEmail{
@@ -292,7 +284,49 @@ func TestShareCodeSenderSendCertificateProviderPrompt(t *testing.T) {
 		}).
 		Return(nil)
 
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		Put(ctx, actor.TypeCertificateProvider, RandomString, actor.ShareCodeData{
+			LpaID:           "lpa-id",
+			DonorFullname:   "Jan Smith",
+			DonorFirstNames: "Jan",
+			SessionID:       "session-id",
+		}).
+		Return(nil)
+
 	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandomString, nil)
+	err := sender.SendCertificateProviderPrompt(ctx, TestAppData, donor)
+
+	assert.Nil(t, err)
+}
+
+func TestShareCodeSenderSendCertificateProviderPromptPaper(t *testing.T) {
+	donor := &actor.DonorProvidedDetails{
+		CertificateProvider: actor.CertificateProvider{
+			FirstNames: "Joanna",
+			LastName:   "Jones",
+			Email:      "name@example.org",
+			CarryOutBy: actor.Paper,
+		},
+		Donor: actor.Donor{
+			FirstNames: "Jan",
+			LastName:   "Smith",
+		},
+		Type:   actor.LpaTypePropertyAndAffairs,
+		LpaUID: "lpa-uid",
+	}
+
+	ctx := context.Background()
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendPaperFormRequested(ctx, event.PaperFormRequested{
+			UID:       "lpa-uid",
+			ActorType: actor.TypeCertificateProvider.String(),
+		}).
+		Return(nil)
+
+	sender := NewShareCodeSender(nil, nil, "http://app", MockRandomString, eventClient)
 	err := sender.SendCertificateProviderPrompt(ctx, TestAppData, donor)
 
 	assert.Nil(t, err)
@@ -395,6 +429,26 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 			assert.Nil(t, err)
 		})
 	}
+}
+
+func TestShareCodeSenderSendCertificateProviderPromptPaperWhenEventClientError(t *testing.T) {
+	donor := &actor.DonorProvidedDetails{
+		CertificateProvider: actor.CertificateProvider{
+			CarryOutBy: actor.Paper,
+		},
+	}
+
+	ctx := context.Background()
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendPaperFormRequested(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	sender := NewShareCodeSender(nil, nil, "http://app", MockRandomString, eventClient)
+	err := sender.SendCertificateProviderPrompt(ctx, TestAppData, donor)
+
+	assert.Equal(t, expectedError, err)
 }
 
 func TestShareCodeSenderSendCertificateProviderPromptWhenEmailErrors(t *testing.T) {

@@ -816,7 +816,7 @@
     "submittedToOpg": "Wedi’i chyflwyno i Swyddfa’r Gwarcheidwad Cyhoeddus",
     "readyToSign": "Yn barod i’w llofnodi",
     "lpaNumber": "Rhif LPA",
-    "makeNewLpa": "Gwneud LPA newydd",
+    "makeNewLastingPowerOfAttorney": "Gwneud LPA newydd",
     "startNow": "Dechrau nawr",
     "youCanIncludeRestrictionsAboutLst": "Gallwch hefyd gynnwys unrhyw gyfyngiadau ac amodau sydd gennych am thriniaeth cynnal bywyd.",
     "youMustChooseANewCertificateProvider": "Rhaid i chi ddewis darparwr tystysgrif gwahanol",
@@ -1034,5 +1034,11 @@
     "weHaveSentInvite": "Welsh {{.Email}}",
     "inviteTeamMember": "Welsh",
     "dashboard": "Welsh",
-    "manageOrganisation": "Welsh"
+    "manageOrganisation": "Welsh",
+    "manageTeamMembers": "Welsh",
+    "organisationDetails": "Welsh",
+    "enterYourOrganisationName": "Welsh",
+    "organisationNameSaved": "Welsh",
+    "yourOrganisationNameHasBeenSaved": "Welsh",
+    "yourOrganisationName": "Welsh"
 }

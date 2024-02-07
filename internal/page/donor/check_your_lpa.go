@@ -56,8 +56,7 @@ func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appDat
 		}
 	}
 
-	_, err := n.notifyClient.SendSMS(ctx, donor.CertificateProvider.Mobile, sms)
-	return err
+	return n.notifyClient.SendActorSMS(ctx, donor.CertificateProvider.Mobile, donor.LpaUID, sms)
 }
 
 func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appData page.AppData, donor *actor.DonorProvidedDetails, wasCompleted bool) error {
@@ -85,8 +84,7 @@ func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appDa
 		}
 	}
 
-	_, err = n.notifyClient.SendSMS(ctx, donor.CertificateProvider.Mobile, sms)
-	return err
+	return n.notifyClient.SendActorSMS(ctx, donor.CertificateProvider.Mobile, donor.LpaUID, sms)
 }
 
 func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender ShareCodeSender, notifyClient NotifyClient, certificateProviderStore CertificateProviderStore, now func() time.Time) Handler {

@@ -49,6 +49,10 @@ func (c *Client) SendNotificationSent(ctx context.Context, event NotificationSen
 	return c.send(ctx, "notification-sent", event)
 }
 
+func (c *Client) SendPaperFormRequested(ctx context.Context, event PaperFormRequested) error {
+	return c.send(ctx, "paper-form-requested", event)
+}
+
 func (c *Client) send(ctx context.Context, detailType string, detail any) error {
 	tracer := otel.GetTracerProvider().Tracer("mlpab")
 	ctx, span := tracer.Start(ctx, detailType,

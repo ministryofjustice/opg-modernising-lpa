@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -45,6 +46,11 @@ func TestEventSchema(t *testing.T) {
 		"notification-sent": NotificationSent{
 			UID:            "M-0000-0000-0000",
 			NotificationID: random.UuidString(),
+		},
+		"paper-form-requested": PaperFormRequested{
+			UID:       "M-0000-0000-0000",
+			ActorUID:  random.UuidString(),
+			ActorType: actor.TypeAttorney.String(),
 		},
 	}
 

@@ -22,9 +22,9 @@ func (_m *mockEventClient) EXPECT() *mockEventClient_Expecter {
 	return &mockEventClient_Expecter{mock: &_m.Mock}
 }
 
-// SendNotificationSent provides a mock function with given fields: _a0, _a1
-func (_m *mockEventClient) SendNotificationSent(_a0 context.Context, _a1 event.NotificationSent) error {
-	ret := _m.Called(_a0, _a1)
+// SendNotificationSent provides a mock function with given fields: ctx, notificationSentEvent
+func (_m *mockEventClient) SendNotificationSent(ctx context.Context, notificationSentEvent event.NotificationSent) error {
+	ret := _m.Called(ctx, notificationSentEvent)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SendNotificationSent")
@@ -32,7 +32,7 @@ func (_m *mockEventClient) SendNotificationSent(_a0 context.Context, _a1 event.N
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, event.NotificationSent) error); ok {
-		r0 = rf(_a0, _a1)
+		r0 = rf(ctx, notificationSentEvent)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -46,13 +46,13 @@ type mockEventClient_SendNotificationSent_Call struct {
 }
 
 // SendNotificationSent is a helper method to define mock.On call
-//   - _a0 context.Context
-//   - _a1 event.NotificationSent
-func (_e *mockEventClient_Expecter) SendNotificationSent(_a0 interface{}, _a1 interface{}) *mockEventClient_SendNotificationSent_Call {
-	return &mockEventClient_SendNotificationSent_Call{Call: _e.mock.On("SendNotificationSent", _a0, _a1)}
+//   - ctx context.Context
+//   - notificationSentEvent event.NotificationSent
+func (_e *mockEventClient_Expecter) SendNotificationSent(ctx interface{}, notificationSentEvent interface{}) *mockEventClient_SendNotificationSent_Call {
+	return &mockEventClient_SendNotificationSent_Call{Call: _e.mock.On("SendNotificationSent", ctx, notificationSentEvent)}
 }
 
-func (_c *mockEventClient_SendNotificationSent_Call) Run(run func(_a0 context.Context, _a1 event.NotificationSent)) *mockEventClient_SendNotificationSent_Call {
+func (_c *mockEventClient_SendNotificationSent_Call) Run(run func(ctx context.Context, notificationSentEvent event.NotificationSent)) *mockEventClient_SendNotificationSent_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(event.NotificationSent))
 	})
@@ -65,6 +65,53 @@ func (_c *mockEventClient_SendNotificationSent_Call) Return(_a0 error) *mockEven
 }
 
 func (_c *mockEventClient_SendNotificationSent_Call) RunAndReturn(run func(context.Context, event.NotificationSent) error) *mockEventClient_SendNotificationSent_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SendPaperFormRequested provides a mock function with given fields: ctx, paperFormRequestedEvent
+func (_m *mockEventClient) SendPaperFormRequested(ctx context.Context, paperFormRequestedEvent event.PaperFormRequested) error {
+	ret := _m.Called(ctx, paperFormRequestedEvent)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendPaperFormRequested")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, event.PaperFormRequested) error); ok {
+		r0 = rf(ctx, paperFormRequestedEvent)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockEventClient_SendPaperFormRequested_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendPaperFormRequested'
+type mockEventClient_SendPaperFormRequested_Call struct {
+	*mock.Call
+}
+
+// SendPaperFormRequested is a helper method to define mock.On call
+//   - ctx context.Context
+//   - paperFormRequestedEvent event.PaperFormRequested
+func (_e *mockEventClient_Expecter) SendPaperFormRequested(ctx interface{}, paperFormRequestedEvent interface{}) *mockEventClient_SendPaperFormRequested_Call {
+	return &mockEventClient_SendPaperFormRequested_Call{Call: _e.mock.On("SendPaperFormRequested", ctx, paperFormRequestedEvent)}
+}
+
+func (_c *mockEventClient_SendPaperFormRequested_Call) Run(run func(ctx context.Context, paperFormRequestedEvent event.PaperFormRequested)) *mockEventClient_SendPaperFormRequested_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(event.PaperFormRequested))
+	})
+	return _c
+}
+
+func (_c *mockEventClient_SendPaperFormRequested_Call) Return(_a0 error) *mockEventClient_SendPaperFormRequested_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockEventClient_SendPaperFormRequested_Call) RunAndReturn(run func(context.Context, event.PaperFormRequested) error) *mockEventClient_SendPaperFormRequested_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -122,6 +122,10 @@ func (p SupporterPath) RedirectQuery(w http.ResponseWriter, r *http.Request, app
 	return nil
 }
 
+func (p SupporterPath) IsManageOrganisation() bool {
+	return p == Paths.Supporter.OrganisationDetails || p == Paths.Supporter.EditOrganisationName
+}
+
 type AttorneyPaths struct {
 	EnterReferenceNumber Path
 	Login                Path
@@ -178,6 +182,8 @@ type SupporterPaths struct {
 	Dashboard                SupporterPath
 	InviteMember             SupporterPath
 	InviteMemberConfirmation SupporterPath
+	OrganisationDetails      SupporterPath
+	EditOrganisationName     SupporterPath
 }
 
 type AppPaths struct {
@@ -340,15 +346,17 @@ var Paths = AppPaths{
 	},
 
 	Supporter: SupporterPaths{
-		Start:         "/supporter-start",
-		Login:         "/supporter-login",
-		LoginCallback: "/supporter-login-callback",
+		Start:                 "/supporter-start",
+		Login:                 "/supporter-login",
+		LoginCallback:         "/supporter-login-callback",
+		EnterOrganisationName: "/enter-the-name-of-your-organisation-or-company",
 
-		EnterOrganisationName:    "/enter-the-name-of-your-organisation-or-company",
 		OrganisationCreated:      "/organisation-or-company-created",
 		Dashboard:                "/supporter-dashboard",
 		InviteMember:             "/invite-member",
 		InviteMemberConfirmation: "/invite-member-confirmation",
+		OrganisationDetails:      "/manage-organisation/organisation-details",
+		EditOrganisationName:     "/manage-organisation/organisation-details/edit-organisation-name",
 	},
 
 	HealthCheck: HealthCheckPaths{

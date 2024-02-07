@@ -23,22 +23,34 @@ func (_m *mockOrganisationStore) EXPECT() *mockOrganisationStore_Expecter {
 	return &mockOrganisationStore_Expecter{mock: &_m.Mock}
 }
 
-// Create provides a mock function with given fields: _a0, _a1
-func (_m *mockOrganisationStore) Create(_a0 context.Context, _a1 string) error {
-	ret := _m.Called(_a0, _a1)
+// Create provides a mock function with given fields: ctx, name
+func (_m *mockOrganisationStore) Create(ctx context.Context, name string) (*actor.Organisation, error) {
+	ret := _m.Called(ctx, name)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
-		r0 = rf(_a0, _a1)
+	var r0 *actor.Organisation
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*actor.Organisation, error)); ok {
+		return rf(ctx, name)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) *actor.Organisation); ok {
+		r0 = rf(ctx, name)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*actor.Organisation)
+		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, name)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // mockOrganisationStore_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
@@ -47,32 +59,91 @@ type mockOrganisationStore_Create_Call struct {
 }
 
 // Create is a helper method to define mock.On call
-//   - _a0 context.Context
-//   - _a1 string
-func (_e *mockOrganisationStore_Expecter) Create(_a0 interface{}, _a1 interface{}) *mockOrganisationStore_Create_Call {
-	return &mockOrganisationStore_Create_Call{Call: _e.mock.On("Create", _a0, _a1)}
+//   - ctx context.Context
+//   - name string
+func (_e *mockOrganisationStore_Expecter) Create(ctx interface{}, name interface{}) *mockOrganisationStore_Create_Call {
+	return &mockOrganisationStore_Create_Call{Call: _e.mock.On("Create", ctx, name)}
 }
 
-func (_c *mockOrganisationStore_Create_Call) Run(run func(_a0 context.Context, _a1 string)) *mockOrganisationStore_Create_Call {
+func (_c *mockOrganisationStore_Create_Call) Run(run func(ctx context.Context, name string)) *mockOrganisationStore_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(string))
 	})
 	return _c
 }
 
-func (_c *mockOrganisationStore_Create_Call) Return(_a0 error) *mockOrganisationStore_Create_Call {
-	_c.Call.Return(_a0)
+func (_c *mockOrganisationStore_Create_Call) Return(_a0 *actor.Organisation, _a1 error) *mockOrganisationStore_Create_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockOrganisationStore_Create_Call) RunAndReturn(run func(context.Context, string) error) *mockOrganisationStore_Create_Call {
+func (_c *mockOrganisationStore_Create_Call) RunAndReturn(run func(context.Context, string) (*actor.Organisation, error)) *mockOrganisationStore_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// CreateMemberInvite provides a mock function with given fields: _a0, _a1, _a2, _a3
-func (_m *mockOrganisationStore) CreateMemberInvite(_a0 context.Context, _a1 *actor.Organisation, _a2 string, _a3 string) error {
-	ret := _m.Called(_a0, _a1, _a2, _a3)
+// CreateLPA provides a mock function with given fields: ctx, organisationID
+func (_m *mockOrganisationStore) CreateLPA(ctx context.Context, organisationID string) (*actor.DonorProvidedDetails, error) {
+	ret := _m.Called(ctx, organisationID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateLPA")
+	}
+
+	var r0 *actor.DonorProvidedDetails
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*actor.DonorProvidedDetails, error)); ok {
+		return rf(ctx, organisationID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) *actor.DonorProvidedDetails); ok {
+		r0 = rf(ctx, organisationID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*actor.DonorProvidedDetails)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, organisationID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockOrganisationStore_CreateLPA_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateLPA'
+type mockOrganisationStore_CreateLPA_Call struct {
+	*mock.Call
+}
+
+// CreateLPA is a helper method to define mock.On call
+//   - ctx context.Context
+//   - organisationID string
+func (_e *mockOrganisationStore_Expecter) CreateLPA(ctx interface{}, organisationID interface{}) *mockOrganisationStore_CreateLPA_Call {
+	return &mockOrganisationStore_CreateLPA_Call{Call: _e.mock.On("CreateLPA", ctx, organisationID)}
+}
+
+func (_c *mockOrganisationStore_CreateLPA_Call) Run(run func(ctx context.Context, organisationID string)) *mockOrganisationStore_CreateLPA_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *mockOrganisationStore_CreateLPA_Call) Return(_a0 *actor.DonorProvidedDetails, _a1 error) *mockOrganisationStore_CreateLPA_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockOrganisationStore_CreateLPA_Call) RunAndReturn(run func(context.Context, string) (*actor.DonorProvidedDetails, error)) *mockOrganisationStore_CreateLPA_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateMemberInvite provides a mock function with given fields: ctx, organisation, email, code
+func (_m *mockOrganisationStore) CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, email string, code string) error {
+	ret := _m.Called(ctx, organisation, email, code)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateMemberInvite")
@@ -80,7 +151,7 @@ func (_m *mockOrganisationStore) CreateMemberInvite(_a0 context.Context, _a1 *ac
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, *actor.Organisation, string, string) error); ok {
-		r0 = rf(_a0, _a1, _a2, _a3)
+		r0 = rf(ctx, organisation, email, code)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -94,15 +165,15 @@ type mockOrganisationStore_CreateMemberInvite_Call struct {
 }
 
 // CreateMemberInvite is a helper method to define mock.On call
-//   - _a0 context.Context
-//   - _a1 *actor.Organisation
-//   - _a2 string
-//   - _a3 string
-func (_e *mockOrganisationStore_Expecter) CreateMemberInvite(_a0 interface{}, _a1 interface{}, _a2 interface{}, _a3 interface{}) *mockOrganisationStore_CreateMemberInvite_Call {
-	return &mockOrganisationStore_CreateMemberInvite_Call{Call: _e.mock.On("CreateMemberInvite", _a0, _a1, _a2, _a3)}
+//   - ctx context.Context
+//   - organisation *actor.Organisation
+//   - email string
+//   - code string
+func (_e *mockOrganisationStore_Expecter) CreateMemberInvite(ctx interface{}, organisation interface{}, email interface{}, code interface{}) *mockOrganisationStore_CreateMemberInvite_Call {
+	return &mockOrganisationStore_CreateMemberInvite_Call{Call: _e.mock.On("CreateMemberInvite", ctx, organisation, email, code)}
 }
 
-func (_c *mockOrganisationStore_CreateMemberInvite_Call) Run(run func(_a0 context.Context, _a1 *actor.Organisation, _a2 string, _a3 string)) *mockOrganisationStore_CreateMemberInvite_Call {
+func (_c *mockOrganisationStore_CreateMemberInvite_Call) Run(run func(ctx context.Context, organisation *actor.Organisation, email string, code string)) *mockOrganisationStore_CreateMemberInvite_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(*actor.Organisation), args[2].(string), args[3].(string))
 	})
@@ -119,9 +190,9 @@ func (_c *mockOrganisationStore_CreateMemberInvite_Call) RunAndReturn(run func(c
 	return _c
 }
 
-// Get provides a mock function with given fields: _a0
-func (_m *mockOrganisationStore) Get(_a0 context.Context) (*actor.Organisation, error) {
-	ret := _m.Called(_a0)
+// Get provides a mock function with given fields: ctx
+func (_m *mockOrganisationStore) Get(ctx context.Context) (*actor.Organisation, error) {
+	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
@@ -130,10 +201,10 @@ func (_m *mockOrganisationStore) Get(_a0 context.Context) (*actor.Organisation, 
 	var r0 *actor.Organisation
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context) (*actor.Organisation, error)); ok {
-		return rf(_a0)
+		return rf(ctx)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context) *actor.Organisation); ok {
-		r0 = rf(_a0)
+		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*actor.Organisation)
@@ -141,7 +212,7 @@ func (_m *mockOrganisationStore) Get(_a0 context.Context) (*actor.Organisation, 
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(_a0)
+		r1 = rf(ctx)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -155,12 +226,12 @@ type mockOrganisationStore_Get_Call struct {
 }
 
 // Get is a helper method to define mock.On call
-//   - _a0 context.Context
-func (_e *mockOrganisationStore_Expecter) Get(_a0 interface{}) *mockOrganisationStore_Get_Call {
-	return &mockOrganisationStore_Get_Call{Call: _e.mock.On("Get", _a0)}
+//   - ctx context.Context
+func (_e *mockOrganisationStore_Expecter) Get(ctx interface{}) *mockOrganisationStore_Get_Call {
+	return &mockOrganisationStore_Get_Call{Call: _e.mock.On("Get", ctx)}
 }
 
-func (_c *mockOrganisationStore_Get_Call) Run(run func(_a0 context.Context)) *mockOrganisationStore_Get_Call {
+func (_c *mockOrganisationStore_Get_Call) Run(run func(ctx context.Context)) *mockOrganisationStore_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context))
 	})
@@ -173,6 +244,53 @@ func (_c *mockOrganisationStore_Get_Call) Return(_a0 *actor.Organisation, _a1 er
 }
 
 func (_c *mockOrganisationStore_Get_Call) RunAndReturn(run func(context.Context) (*actor.Organisation, error)) *mockOrganisationStore_Get_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Put provides a mock function with given fields: _a0, _a1
+func (_m *mockOrganisationStore) Put(_a0 context.Context, _a1 *actor.Organisation) error {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Put")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *actor.Organisation) error); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockOrganisationStore_Put_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Put'
+type mockOrganisationStore_Put_Call struct {
+	*mock.Call
+}
+
+// Put is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 *actor.Organisation
+func (_e *mockOrganisationStore_Expecter) Put(_a0 interface{}, _a1 interface{}) *mockOrganisationStore_Put_Call {
+	return &mockOrganisationStore_Put_Call{Call: _e.mock.On("Put", _a0, _a1)}
+}
+
+func (_c *mockOrganisationStore_Put_Call) Run(run func(_a0 context.Context, _a1 *actor.Organisation)) *mockOrganisationStore_Put_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*actor.Organisation))
+	})
+	return _c
+}
+
+func (_c *mockOrganisationStore_Put_Call) Return(_a0 error) *mockOrganisationStore_Put_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockOrganisationStore_Put_Call) RunAndReturn(run func(context.Context, *actor.Organisation) error) *mockOrganisationStore_Put_Call {
 	_c.Call.Return(run)
 	return _c
 }

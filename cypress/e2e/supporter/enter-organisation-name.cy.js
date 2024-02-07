@@ -1,4 +1,4 @@
-describe('Enter group name', () => {
+describe('Enter organisation name', () => {
   beforeEach(() => {
     cy.visit('/fixtures/supporter?redirect=/enter-the-name-of-your-organisation-or-company');
   });
