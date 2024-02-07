@@ -31,8 +31,8 @@ type ShareCodeStore interface {
 }
 
 type NotifyClient interface {
-	SendActorEmail(context context.Context, to string, lpaUID string, email notify.Email) error
-	SendSMS(context context.Context, to string, sms notify.SMS) (string, error)
+	SendActorEmail(context context.Context, to, lpaUID string, email notify.Email) error
+	SendActorSMS(context context.Context, to, lpaUID string, sms notify.SMS) error
 }
 
 type OneLoginClient interface {
@@ -81,5 +81,6 @@ func PostFormReferenceNumber(r *http.Request, name string) string {
 type Handler func(data AppData, w http.ResponseWriter, r *http.Request) error
 
 type EventClient interface {
-	SendNotificationSent(context.Context, event.NotificationSent) error
+	SendNotificationSent(ctx context.Context, notificationSentEvent event.NotificationSent) error
+	SendPaperFormRequested(ctx context.Context, paperFormRequestedEvent event.PaperFormRequested) error
 }

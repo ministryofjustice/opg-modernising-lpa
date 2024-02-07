@@ -45,7 +45,7 @@ func (s *WitnessCodeSender) SendToCertificateProvider(ctx context.Context, donor
 
 	donor.CertificateProviderCodes = append(donor.CertificateProviderCodes, actor.WitnessCode{Code: code, Created: s.now()})
 
-	_, err := s.notifyClient.SendSMS(ctx, donor.CertificateProvider.Mobile, notify.WitnessCodeSMS{
+	err := s.notifyClient.SendActorSMS(ctx, donor.CertificateProvider.Mobile, donor.LpaUID, notify.WitnessCodeSMS{
 		WitnessCode:   code,
 		DonorFullName: localizer.Possessive(donor.Donor.FullName()),
 		LpaType:       localize.LowerFirst(localizer.T(donor.Type.String())),
@@ -69,7 +69,7 @@ func (s *WitnessCodeSender) SendToIndependentWitness(ctx context.Context, donor 
 
 	donor.IndependentWitnessCodes = append(donor.IndependentWitnessCodes, actor.WitnessCode{Code: code, Created: s.now()})
 
-	_, err := s.notifyClient.SendSMS(ctx, donor.IndependentWitness.Mobile, notify.WitnessCodeSMS{
+	err := s.notifyClient.SendActorSMS(ctx, donor.IndependentWitness.Mobile, donor.LpaUID, notify.WitnessCodeSMS{
 		WitnessCode:   code,
 		DonorFullName: localizer.Possessive(donor.Donor.FullName()),
 		LpaType:       localize.LowerFirst(localizer.T(donor.Type.String())),
