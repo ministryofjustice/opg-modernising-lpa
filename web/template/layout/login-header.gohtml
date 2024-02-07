@@ -116,7 +116,7 @@
                     <a class="service-header__nav-list-item-link" aria-current="page" href="{{ link .App .App.Paths.Supporter.Dashboard.Format }}">{{ tr .App "dashboard" }}</a>
                   </li>
                   <li class="service-header__nav-list-item">
-                    <a class="service-header__nav-list-item-link" href="#">{{ tr .App "manageOrganisation" }}</a>
+                    <a class="service-header__nav-list-item-link" href="{{ link .App .App.Paths.Supporter.OrganisationDetails.Format }}">{{ tr .App "manageOrganisation" }}</a>
                   </li>
                 {{ else }}
                   <li class="govuk-!-padding-top-9"></li>
