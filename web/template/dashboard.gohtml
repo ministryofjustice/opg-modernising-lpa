@@ -152,7 +152,7 @@
       <h1 class="govuk-heading-xl">{{ tr .App "manageYourLpas" }}</h1>
 
       <div class="app-dashboard-card app-dashboard-card--dashed">
-        <p class="govuk-heading-m">{{ tr .App "makeNewLpa" }}</p>
+        <p class="govuk-heading-m">{{ tr .App "makeNewLastingPowerOfAttorney" }}</p>
         <form novalidate method="post">
           <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "startNow" }}</button>
           <input type="hidden" name="has-existing-donor-lpas" value="{{ gt (len .DonorLpas) 0 }}" />
