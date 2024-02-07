@@ -177,6 +177,53 @@ func (_c *mockOrganisationStore_Get_Call) RunAndReturn(run func(context.Context)
 	return _c
 }
 
+// Put provides a mock function with given fields: _a0, _a1
+func (_m *mockOrganisationStore) Put(_a0 context.Context, _a1 *actor.Organisation) error {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Put")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *actor.Organisation) error); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockOrganisationStore_Put_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Put'
+type mockOrganisationStore_Put_Call struct {
+	*mock.Call
+}
+
+// Put is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 *actor.Organisation
+func (_e *mockOrganisationStore_Expecter) Put(_a0 interface{}, _a1 interface{}) *mockOrganisationStore_Put_Call {
+	return &mockOrganisationStore_Put_Call{Call: _e.mock.On("Put", _a0, _a1)}
+}
+
+func (_c *mockOrganisationStore_Put_Call) Run(run func(_a0 context.Context, _a1 *actor.Organisation)) *mockOrganisationStore_Put_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*actor.Organisation))
+	})
+	return _c
+}
+
+func (_c *mockOrganisationStore_Put_Call) Return(_a0 error) *mockOrganisationStore_Put_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockOrganisationStore_Put_Call) RunAndReturn(run func(context.Context, *actor.Organisation) error) *mockOrganisationStore_Put_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // newMockOrganisationStore creates a new instance of mockOrganisationStore. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func newMockOrganisationStore(t interface {

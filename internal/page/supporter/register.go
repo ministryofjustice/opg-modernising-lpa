@@ -19,6 +19,7 @@ type OrganisationStore interface {
 	Create(context.Context, string) error
 	CreateMemberInvite(context.Context, *actor.Organisation, string, string) error
 	Get(context.Context) (*actor.Organisation, error)
+	Put(context.Context, *actor.Organisation) error
 }
 
 type OneLoginClient interface {
@@ -75,10 +76,16 @@ func Register(
 		OrganisationCreated(tmpls.Get("organisation_created.gohtml")))
 	handleWithSupporter(paths.Dashboard,
 		Guidance(tmpls.Get("dashboard.gohtml")))
+
 	handleWithSupporter(paths.InviteMember,
 		InviteMember(tmpls.Get("invite_member.gohtml"), organisationStore, notifyClient, random.String))
 	handleWithSupporter(paths.InviteMemberConfirmation,
 		Guidance(tmpls.Get("invite_member_confirmation.gohtml")))
+
+	handleWithSupporter(paths.OrganisationDetails,
+		Guidance(tmpls.Get("organisation_details.gohtml")))
+	handleWithSupporter(paths.EditOrganisationName,
+		EditOrganisationName(tmpls.Get("edit_organisation_name.gohtml"), organisationStore))
 }
 
 func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler) func(page.Path, page.HandleOpt, page.Handler) {
@@ -132,6 +139,7 @@ func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page
 			appData.Page = path.Format()
 			appData.IsSupporter = true
 			appData.OrganisationName = organisation.Name
+			appData.IsManageOrganisation = path.IsManageOrganisation()
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData)), organisation); err != nil {
 				errorHandler(w, r, err)
