@@ -965,12 +965,15 @@
     "yourOrganisationHasBeenCreated": "Your organisation <span class=\"govuk-!-font-weight-bold\">{{.Name}}</span> has been successfully created.",
     "organisationCreatedContent": "<h2 class=\"govuk-heading-l\">What happens now</h2><p class=\"govuk-body\">You can continue to your dashboard where you can:<p><ul class=\"govuk-list govuk-list--bullet\"><li>invite team members to join your organisation</li><li>use this service to help someone make an LPA</li></ul><p class=\"govuk-body\">We have also sent you a confirmation email with a link to your dashboard.</p><p class=\"govuk-body\">Each time you use this service, you’ll be asked to sign in with GOV.UK One Login.</p>",
     "inviteTeamMemberToYourOrganisation": "Invite a team member to your organisation",
-    "whenYouSelectSendInvite": "When you select <span class=\"govuk-!-font-weight-bold\">Send invite</span>, we will send this person an email inviting them to join your organisation. They will have 48 hours to join.",
+    "whenYouSelectSendInvite": "<p class=\"govuk-body\">You can change these permissions later.</p><p class=\"govuk-body\">When you select <span class=\"govuk-!-font-weight-bold\">Send invite</span>, we will send this person an email inviting them to join your organisation. They will have 48 hours to join.</p>",
     "sendInvite": "Send invite",
     "enterTheirWorkEmailAddress": "Enter their work email address.",
     "invitationSent": "Invitation sent",
     "weHaveSentInvite": "We have sent an email to <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span> inviting them to join your organisation.",
     "inviteTeamMember": "Invite a team member",
     "dashboard": "Dashboard",
-    "manageOrganisation": "Manage organisation"
+    "manageOrganisation": "Manage organisation",
+    "setTheirPermissions": "<h2 class=\"govuk-heading-m\">Set their permissions</h2><p class=\"govuk-body\">All users can create and edit LPAs.</p>",
+    "makeThisPersonAnAdmin": "Make this person an admin",
+    "adminPermissionHint": "Admins can manage team members and change the organisation’s details."
 }

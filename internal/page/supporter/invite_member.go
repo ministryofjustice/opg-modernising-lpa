@@ -20,8 +20,10 @@ type inviteMemberData struct {
 func InviteMember(tmpl template.Template, organisationStore OrganisationStore, notifyClient NotifyClient, randomString func(int) string) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
 		data := &inviteMemberData{
-			App:  appData,
-			Form: &inviteMemberForm{},
+			App: appData,
+			Form: &inviteMemberForm{
+				Options: PermissionValues,
+			},
 		}
 
 		if r.Method == http.MethodPost {
@@ -30,7 +32,15 @@ func InviteMember(tmpl template.Template, organisationStore OrganisationStore, n
 
 			if !data.Errors.Any() {
 				inviteCode := randomString(12)
-				if err := organisationStore.CreateMemberInvite(r.Context(), organisation, data.Form.Email, inviteCode); err != nil {
+				if err := organisationStore.CreateMemberInvite(
+					r.Context(),
+					organisation,
+					data.Form.FirstNames,
+					data.Form.LastName,
+					data.Form.Email,
+					inviteCode,
+					data.Form.Permission,
+				); err != nil {
 					return err
 				}
 
@@ -50,21 +60,43 @@ func InviteMember(tmpl template.Template, organisationStore OrganisationStore, n
 }
 
 type inviteMemberForm struct {
-	Email string
+	FirstNames      string
+	LastName        string
+	Email           string
+	Permission      Permission
+	Options         PermissionOptions
+	PermissionError error
 }
 
 func readInviteMemberForm(r *http.Request) *inviteMemberForm {
-	return &inviteMemberForm{
-		Email: page.PostFormString(r, "email"),
+	form := &inviteMemberForm{
+		Email:      page.PostFormString(r, "email"),
+		FirstNames: page.PostFormString(r, "first-names"),
+		LastName:   page.PostFormString(r, "last-name"),
+		Options:    PermissionValues,
 	}
+
+	form.Permission, form.PermissionError = ParsePermission(page.PostFormString(r, "permission"))
+
+	return form
 }
 
 func (f *inviteMemberForm) Validate() validation.List {
 	var errors validation.List
 
+	errors.String("first-names", "firstNames", f.FirstNames,
+		validation.Empty(),
+		validation.StringTooLong(53))
+
+	errors.String("last-name", "lastName", f.LastName,
+		validation.Empty(),
+		validation.StringTooLong(61))
+
 	errors.String("email", "email", f.Email,
 		validation.Empty(),
 		validation.Email())
+
+	errors.Error("permission", "makeThisPersonAnAdmin", f.PermissionError)
 
 	return errors
 }

@@ -16,9 +16,9 @@ import (
 )
 
 type OrganisationStore interface {
-	Create(context.Context, string) error
-	CreateMemberInvite(context.Context, *actor.Organisation, string, string) error
-	Get(context.Context) (*actor.Organisation, error)
+	Create(ctx context.Context, name string)
+	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission Permission) error
+	Get(ctx context.Context) (*actor.Organisation, error)
 }
 
 type OneLoginClient interface {

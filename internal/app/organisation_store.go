@@ -8,6 +8,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/supporter"
 )
 
 type organisationStore struct {
@@ -53,7 +54,6 @@ func (s *organisationStore) Create(ctx context.Context, name string) error {
 
 	return nil
 }
-
 func (s *organisationStore) Get(ctx context.Context) (*actor.Organisation, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
@@ -77,13 +77,16 @@ func (s *organisationStore) Get(ctx context.Context) (*actor.Organisation, error
 	return &organisation, nil
 }
 
-func (s *organisationStore) CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, email, code string) error {
+func (s *organisationStore) CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission supporter.Permission) error {
 	invite := &actor.MemberInvite{
 		PK:             memberInviteKey(code),
 		SK:             memberInviteKey(code),
 		CreatedAt:      s.now(),
 		OrganisationID: organisation.ID,
 		Email:          email,
+		FirstNames:     firstNames,
+		LastName:       lastname,
+		Permission:     permission,
 	}
 
 	if err := s.dynamoClient.Create(ctx, invite); err != nil {
