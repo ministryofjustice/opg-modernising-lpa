@@ -5,13 +5,14 @@ import (
 	"encoding/base64"
 	"net/http"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
 type OrganisationStore interface {
-	Create(context.Context, string) error
+	Create(context.Context, string) (*actor.Organisation, error)
 }
 
 func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore) page.Handler {
@@ -25,14 +26,20 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore) pag
 			ctx                = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: supporterSessionID})
 		)
 
-		if err := sesh.SetLoginSession(sessionStore, r, w, &sesh.LoginSession{Sub: supporterSub, Email: testEmail}); err != nil {
-			return err
-		}
+		loginSession := &sesh.LoginSession{Sub: supporterSub, Email: testEmail}
 
 		if organisation == "1" {
-			if err := organisationStore.Create(ctx, random.String(12)); err != nil {
+			org, err := organisationStore.Create(ctx, random.String(12))
+
+			if err != nil {
 				return err
 			}
+
+			loginSession.OrganisationID = org.ID
+		}
+
+		if err := sesh.SetLoginSession(sessionStore, r, w, loginSession); err != nil {
+			return err
 		}
 
 		if redirect != page.Paths.Supporter.EnterOrganisationName.Format() {

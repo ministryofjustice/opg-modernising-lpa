@@ -17,14 +17,14 @@ type organisationStore struct {
 	now          func() time.Time
 }
 
-func (s *organisationStore) Create(ctx context.Context, name string) error {
+func (s *organisationStore) Create(ctx context.Context, name string) (*actor.Organisation, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if data.SessionID == "" {
-		return errors.New("organisationStore.Create requires SessionID")
+		return nil, errors.New("organisationStore.Create requires SessionID")
 	}
 
 	organisationID := s.uuidString()
@@ -38,7 +38,7 @@ func (s *organisationStore) Create(ctx context.Context, name string) error {
 	}
 
 	if err := s.dynamoClient.Create(ctx, organisation); err != nil {
-		return fmt.Errorf("error creating organisation: %w", err)
+		return nil, fmt.Errorf("error creating organisation: %w", err)
 	}
 
 	member := &actor.Member{
@@ -48,10 +48,10 @@ func (s *organisationStore) Create(ctx context.Context, name string) error {
 	}
 
 	if err := s.dynamoClient.Create(ctx, member); err != nil {
-		return fmt.Errorf("error creating organisation member: %w", err)
+		return nil, fmt.Errorf("error creating organisation member: %w", err)
 	}
 
-	return nil
+	return organisation, nil
 }
 
 func (s *organisationStore) Get(ctx context.Context) (*actor.Organisation, error) {
@@ -96,6 +96,37 @@ func (s *organisationStore) CreateMemberInvite(ctx context.Context, organisation
 	}
 
 	return nil
+}
+
+func (s *organisationStore) CreateLPA(ctx context.Context, organisationID string) (*actor.DonorProvidedDetails, error) {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.SessionID == "" {
+		return nil, errors.New("donorStore.Create requires SessionID")
+	}
+
+	lpaID := s.uuidString()
+
+	donor := &actor.DonorProvidedDetails{
+		PK:        lpaKey(lpaID),
+		SK:        organisationKey(organisationID),
+		LpaID:     lpaID,
+		CreatedAt: s.now(),
+		Version:   1,
+	}
+
+	if donor.Hash, err = donor.GenerateHash(); err != nil {
+		return nil, err
+	}
+
+	if err := s.dynamoClient.Create(ctx, donor); err != nil {
+		return nil, err
+	}
+
+	return donor, err
 }
 
 func organisationKey(s string) string {
