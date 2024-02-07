@@ -178,6 +178,8 @@ type SupporterPaths struct {
 	Dashboard                SupporterPath
 	InviteMember             SupporterPath
 	InviteMemberConfirmation SupporterPath
+	OrganisationDetails      SupporterPath
+	EditOrganisationName     SupporterPath
 }
 
 type AppPaths struct {
@@ -349,6 +351,8 @@ var Paths = AppPaths{
 		Dashboard:                "/supporter-dashboard",
 		InviteMember:             "/invite-member",
 		InviteMemberConfirmation: "/invite-member-confirmation",
+		OrganisationDetails:      "/manage-organisation/organisation-details",
+		EditOrganisationName:     "/manage-organisation/organisation-details/edit-organisation-name",
 	},
 
 	HealthCheck: HealthCheckPaths{
