@@ -1,0 +1,18 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "signingInWithGovukOneLogin" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <form novalidate method="post">
+        <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+        
+        {{ trHtml .App "signingInWithGovukOneLoginContent" }}
+        
+        <a class="govuk-button" href="{{ link .App global.Paths.Supporter.Login.Format }}">{{ tr .App "continueToGovukOneLogin" }}</a>
+        {{ template "csrf-field" . }}
+      </form>
+    </div>
+  </div>
+{{ end }}
