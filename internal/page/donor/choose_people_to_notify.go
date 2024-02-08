@@ -78,7 +78,7 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, uuidStr
 					return err
 				}
 
-				return appData.Paths.ChoosePeopleToNotifyAddress.RedirectQuery(w, r, appData, donor, url.Values{"id": {personToNotify.ID}})
+				return page.Paths.ChoosePeopleToNotifyAddress.RedirectQuery(w, r, appData, donor, url.Values{"id": {personToNotify.ID}})
 			}
 		}
 

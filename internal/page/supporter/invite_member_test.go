@@ -1,6 +1,7 @@
 package supporter
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -28,7 +29,7 @@ func TestGetInviteMember(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := InviteMember(template.Execute, nil, nil, nil)(testAppData, w, r, nil)
+	err := InviteMember(template.Execute, nil, nil, nil, "http://base")(testAppData, w, r, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -44,7 +45,7 @@ func TestGetInviteMemberWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := InviteMember(template.Execute, nil, nil, nil)(testAppData, w, r, nil)
+	err := InviteMember(template.Execute, nil, nil, nil, "http://base")(testAppData, w, r, nil)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -59,8 +60,9 @@ func TestPostInviteMember(t *testing.T) {
 		"permission":  {"admin"},
 	}
 
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "inviter@example.com"})
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	organisation := &actor.Organisation{Name: "My organisation"}
@@ -72,13 +74,15 @@ func TestPostInviteMember(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendEmail(r.Context(), "email@example.com", notify.MemberInviteEmail{
-			OrganisationName: "My organisation",
-			InviteCode:       "abcde",
+		SendEmail(r.Context(), "email@example.com", notify.OrganisationMemberInviteEmail{
+			OrganisationName:      "My organisation",
+			InviterEmail:          "inviter@example.com",
+			InviteCode:            "abcde",
+			JoinAnOrganisationURL: "http://base" + page.Paths.Supporter.Start.Format(),
 		}).
 		Return(nil)
 
-	err := InviteMember(nil, organisationStore, notifyClient, func(int) string { return "abcde" })(testAppData, w, r, organisation)
+	err := InviteMember(nil, organisationStore, notifyClient, func(int) string { return "abcde" }, "http://base")(testAppData, w, r, organisation)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -113,7 +117,7 @@ func TestPostInviteMemberWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := InviteMember(template.Execute, nil, nil, nil)(testAppData, w, r, nil)
+	err := InviteMember(template.Execute, nil, nil, nil, "http://base")(testAppData, w, r, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -128,8 +132,9 @@ func TestPostInviteMemberWhenCreateMemberInviteErrors(t *testing.T) {
 		"permission":  {"none"},
 	}
 
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "inviter@example.com"})
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	organisationStore := newMockOrganisationStore(t)
@@ -137,7 +142,7 @@ func TestPostInviteMemberWhenCreateMemberInviteErrors(t *testing.T) {
 		CreateMemberInvite(r.Context(), mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := InviteMember(nil, organisationStore, nil, func(int) string { return "abcde" })(testAppData, w, r, &actor.Organisation{})
+	err := InviteMember(nil, organisationStore, nil, func(int) string { return "abcde" }, "http://base")(testAppData, w, r, &actor.Organisation{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -149,8 +154,9 @@ func TestPostInviteMemberWhenNotifySendErrors(t *testing.T) {
 		"permission":  {"admin"},
 	}
 
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "inviter@example.com"})
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	organisationStore := newMockOrganisationStore(t)
@@ -163,7 +169,7 @@ func TestPostInviteMemberWhenNotifySendErrors(t *testing.T) {
 		SendEmail(r.Context(), mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := InviteMember(nil, organisationStore, notifyClient, func(int) string { return "abcde" })(testAppData, w, r, &actor.Organisation{})
+	err := InviteMember(nil, organisationStore, notifyClient, func(int) string { return "abcde" }, "http://base")(testAppData, w, r, &actor.Organisation{})
 	assert.Equal(t, expectedError, err)
 }
 

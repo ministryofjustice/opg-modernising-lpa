@@ -42,7 +42,7 @@ func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore) Hand
 				data.NameWarning = nameWarning
 			}
 
-			if !data.Errors.Any() && data.NameWarning == nil {
+			if data.Errors.None() && data.NameWarning == nil {
 				donor.AuthorisedSignatory.FirstNames = data.Form.FirstNames
 				donor.AuthorisedSignatory.LastName = data.Form.LastName
 
