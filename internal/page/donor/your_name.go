@@ -46,7 +46,7 @@ func YourName(tmpl template.Template, donorStore DonorStore) Handler {
 				data.NameWarning = nameWarning
 			}
 
-			if !data.Errors.Any() && data.NameWarning == nil {
+			if data.Errors.None() && data.NameWarning == nil {
 				if !donor.NamesChanged(data.Form.FirstNames, data.Form.LastName, data.Form.OtherNames) {
 					return page.Paths.MakeANewLPA.Redirect(w, r, appData, donor)
 				}
