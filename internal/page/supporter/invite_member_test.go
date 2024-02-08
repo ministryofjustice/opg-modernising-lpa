@@ -23,8 +23,9 @@ func TestGetInviteMember(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &inviteMemberData{
-			App:  testAppData,
-			Form: &inviteMemberForm{},
+			App:     testAppData,
+			Form:    &inviteMemberForm{},
+			Options: actor.PermissionValues,
 		}).
 		Return(nil)
 
@@ -52,7 +53,12 @@ func TestGetInviteMemberWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostInviteMember(t *testing.T) {
-	form := url.Values{"email": {"email@example.com"}}
+	form := url.Values{
+		"email":       {"email@example.com"},
+		"first-names": {"a"},
+		"last-name":   {"b"},
+		"permission":  {"admin"},
+	}
 
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "inviter@example.com"})
 	w := httptest.NewRecorder()
@@ -63,7 +69,7 @@ func TestPostInviteMember(t *testing.T) {
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		CreateMemberInvite(r.Context(), organisation, "email@example.com", "abcde").
+		CreateMemberInvite(r.Context(), organisation, "a", "b", "email@example.com", "abcde", actor.Admin).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
@@ -85,7 +91,12 @@ func TestPostInviteMember(t *testing.T) {
 }
 
 func TestPostInviteMemberWhenValidationError(t *testing.T) {
-	form := url.Values{"email": {"what"}}
+	form := url.Values{
+		"email":       {"what"},
+		"first-names": {"a"},
+		"last-name":   {"b"},
+		"permission":  {"admin"},
+	}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -97,8 +108,12 @@ func TestPostInviteMemberWhenValidationError(t *testing.T) {
 			App:    testAppData,
 			Errors: validation.With("email", validation.EmailError{Label: "email"}),
 			Form: &inviteMemberForm{
-				Email: "what",
+				FirstNames: "a",
+				LastName:   "b",
+				Email:      "what",
+				Permission: actor.Admin,
 			},
+			Options: actor.PermissionValues,
 		}).
 		Return(nil)
 
@@ -110,7 +125,12 @@ func TestPostInviteMemberWhenValidationError(t *testing.T) {
 }
 
 func TestPostInviteMemberWhenCreateMemberInviteErrors(t *testing.T) {
-	form := url.Values{"email": {"email@example.com"}}
+	form := url.Values{
+		"email":       {"email@example.com"},
+		"first-names": {"a"},
+		"last-name":   {"b"},
+		"permission":  {"none"},
+	}
 
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "inviter@example.com"})
 	w := httptest.NewRecorder()
@@ -119,7 +139,7 @@ func TestPostInviteMemberWhenCreateMemberInviteErrors(t *testing.T) {
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		CreateMemberInvite(r.Context(), mock.Anything, mock.Anything, mock.Anything).
+		CreateMemberInvite(r.Context(), mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := InviteMember(nil, organisationStore, nil, func(int) string { return "abcde" }, "http://base")(testAppData, w, r, &actor.Organisation{})
@@ -127,7 +147,12 @@ func TestPostInviteMemberWhenCreateMemberInviteErrors(t *testing.T) {
 }
 
 func TestPostInviteMemberWhenNotifySendErrors(t *testing.T) {
-	form := url.Values{"email": {"email@example.com"}}
+	form := url.Values{
+		"email":       {"email@example.com"},
+		"first-names": {"a"},
+		"last-name":   {"b"},
+		"permission":  {"admin"},
+	}
 
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "inviter@example.com"})
 	w := httptest.NewRecorder()
@@ -136,7 +161,7 @@ func TestPostInviteMemberWhenNotifySendErrors(t *testing.T) {
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		CreateMemberInvite(r.Context(), mock.Anything, mock.Anything, mock.Anything).
+		CreateMemberInvite(r.Context(), mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
@@ -150,7 +175,10 @@ func TestPostInviteMemberWhenNotifySendErrors(t *testing.T) {
 
 func TestReadInviteMemberForm(t *testing.T) {
 	form := url.Values{
-		"email": {"email@example.com"},
+		"email":       {"email@example.com"},
+		"first-names": {"a"},
+		"last-name":   {"b"},
+		"permission":  {"admin"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -159,6 +187,9 @@ func TestReadInviteMemberForm(t *testing.T) {
 	result := readInviteMemberForm(r)
 
 	assert.Equal(t, "email@example.com", result.Email)
+	assert.Equal(t, "a", result.FirstNames)
+	assert.Equal(t, "b", result.LastName)
+	assert.Equal(t, actor.Admin, result.Permission)
 }
 
 func TestInviteMemberFormValidate(t *testing.T) {
@@ -168,18 +199,48 @@ func TestInviteMemberFormValidate(t *testing.T) {
 	}{
 		"valid": {
 			form: &inviteMemberForm{
-				Email: "email@example.com",
+				Email:      "email@example.com",
+				FirstNames: "a",
+				LastName:   "b",
+				Permission: actor.None,
 			},
 		},
 		"missing": {
-			form:   &inviteMemberForm{},
-			errors: validation.With("email", validation.EnterError{Label: "email"}),
+			form: &inviteMemberForm{},
+			errors: validation.
+				With("first-names", validation.EnterError{Label: "firstNames"}).
+				With("last-name", validation.EnterError{Label: "lastName"}).
+				With("email", validation.EnterError{Label: "email"}),
 		},
 		"invalid": {
 			form: &inviteMemberForm{
-				Email: "what",
+				Email:      "what",
+				FirstNames: "a",
+				LastName:   "b",
+				Permission: actor.None,
 			},
 			errors: validation.With("email", validation.EmailError{Label: "email"}),
+		},
+		"too long": {
+			form: &inviteMemberForm{
+				Email:      "email@example.com",
+				FirstNames: strings.Repeat("x", 54),
+				LastName:   strings.Repeat("x", 62),
+				Permission: actor.None,
+			},
+			errors: validation.
+				With("first-names", validation.StringTooLongError{Label: "firstNames", Length: 53}).
+				With("last-name", validation.StringTooLongError{Label: "lastName", Length: 61}),
+		},
+		"permission error": {
+			form: &inviteMemberForm{
+				Email:      "email@example.com",
+				FirstNames: "a",
+				LastName:   "b",
+				Permission: actor.Permission(99),
+			},
+			errors: validation.
+				With("permission", validation.SelectError{Label: "makeThisPersonAnAdmin"}),
 		},
 	}
 
