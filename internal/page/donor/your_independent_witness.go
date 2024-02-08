@@ -42,7 +42,7 @@ func YourIndependentWitness(tmpl template.Template, donorStore DonorStore) Handl
 				data.NameWarning = nameWarning
 			}
 
-			if !data.Errors.Any() && data.NameWarning == nil {
+			if data.Errors.None() && data.NameWarning == nil {
 				donor.IndependentWitness.FirstNames = data.Form.FirstNames
 				donor.IndependentWitness.LastName = data.Form.LastName
 

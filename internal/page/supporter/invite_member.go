@@ -28,7 +28,7 @@ func InviteMember(tmpl template.Template, organisationStore OrganisationStore, n
 			data.Form = readInviteMemberForm(r)
 			data.Errors = data.Form.Validate()
 
-			if !data.Errors.Any() {
+			if data.Errors.None() {
 				session, err := page.SessionDataFromContext(r.Context())
 				if err != nil {
 					return err
