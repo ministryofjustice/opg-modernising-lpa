@@ -42,8 +42,8 @@
       {{ end }}
 
       <div class="govuk-button-group">
-        <a class="govuk-button" href="{{ link .App (.App.Paths.HowWouldYouLikeToSendEvidence.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
-        <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+        <a class="govuk-button" href="{{ link .App (global.Paths.HowWouldYouLikeToSendEvidence.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
+        <a href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
       </div>
     </div>
   </div>
