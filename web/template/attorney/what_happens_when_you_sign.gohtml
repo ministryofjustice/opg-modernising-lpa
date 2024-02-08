@@ -47,7 +47,7 @@
         {{ end }}
       {{ end }}
 
-      <a class="govuk-button" href="{{ link .App (.App.Paths.Attorney.Sign.Format .App.LpaID) }}" data-module="govuk-button">{{ tr .App "continueToSigningPage" }}</a>
+      <a class="govuk-button" href="{{ link .App (global.Paths.Attorney.Sign.Format .App.LpaID) }}" data-module="govuk-button">{{ tr .App "continueToSigningPage" }}</a>
     </div>
   </div>
 {{ end }}

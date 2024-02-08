@@ -10,7 +10,7 @@
 
         {{ if .Donor.Type.IsPropertyAndAffairs }}
           <p class="govuk-body">
-            <a href="{{ link .App (.App.Paths.EnterReplacementTrustCorporation.Format .Donor.LpaID) }}" class="govuk-link govuk-link--no-visited-state">
+            <a href="{{ link .App (global.Paths.EnterReplacementTrustCorporation.Format .Donor.LpaID) }}" class="govuk-link govuk-link--no-visited-state">
               {{ tr .App "myAttorneyIsTrustCorporation" }}
             </a>
           </p>

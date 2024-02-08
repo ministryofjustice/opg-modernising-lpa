@@ -15,10 +15,29 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
-func All(tag, region string) map[string]any {
+// Globals contains values that are used in templates and do not change as the
+// app runs.
+type Globals struct {
+	Tag         string
+	Region      string
+	OneloginURL string
+	StaticHash  string
+	RumConfig   RumConfig
+	ActorTypes  actor.Types
+	Paths       page.AppPaths
+}
+
+type RumConfig struct {
+	GuestRoleArn      string
+	Endpoint          string
+	ApplicationRegion string
+	IdentityPoolID    string
+	ApplicationID     string
+}
+
+func All(globals *Globals) map[string]any {
 	return map[string]any{
-		"buildTag":           func() string { return tag },
-		"awsRegion":          func() string { return region },
+		"global":             func() *Globals { return globals },
 		"isEnglish":          isEnglish,
 		"isWelsh":            isWelsh,
 		"input":              input,
@@ -282,19 +301,19 @@ func listAttorneys(attorneys actor.Attorneys, app page.AppData, attorneyType str
 	}
 
 	if attorneyType == "replacement" {
-		data.Link.Attorney = fmt.Sprintf("%s?from=%s", app.Paths.ChooseReplacementAttorneys.Format(donor.LpaID), app.Page)
-		data.Link.AttorneyAddress = fmt.Sprintf("%s?from=%s", app.Paths.ChooseReplacementAttorneysAddress.Format(donor.LpaID), app.Page)
-		data.Link.RemoveAttorney = fmt.Sprintf("%s?from=%s", app.Paths.RemoveReplacementAttorney.Format(donor.LpaID), app.Page)
-		data.Link.TrustCorporation = fmt.Sprintf("%s?from=%s", app.Paths.EnterReplacementTrustCorporation.Format(donor.LpaID), app.Page)
-		data.Link.TrustCorporationAddress = fmt.Sprintf("%s?from=%s", app.Paths.EnterReplacementTrustCorporationAddress.Format(donor.LpaID), app.Page)
-		data.Link.RemoveTrustCorporation = fmt.Sprintf("%s?from=%s", app.Paths.RemoveReplacementTrustCorporation.Format(donor.LpaID), app.Page)
+		data.Link.Attorney = fmt.Sprintf("%s?from=%s", page.Paths.ChooseReplacementAttorneys.Format(donor.LpaID), app.Page)
+		data.Link.AttorneyAddress = fmt.Sprintf("%s?from=%s", page.Paths.ChooseReplacementAttorneysAddress.Format(donor.LpaID), app.Page)
+		data.Link.RemoveAttorney = fmt.Sprintf("%s?from=%s", page.Paths.RemoveReplacementAttorney.Format(donor.LpaID), app.Page)
+		data.Link.TrustCorporation = fmt.Sprintf("%s?from=%s", page.Paths.EnterReplacementTrustCorporation.Format(donor.LpaID), app.Page)
+		data.Link.TrustCorporationAddress = fmt.Sprintf("%s?from=%s", page.Paths.EnterReplacementTrustCorporationAddress.Format(donor.LpaID), app.Page)
+		data.Link.RemoveTrustCorporation = fmt.Sprintf("%s?from=%s", page.Paths.RemoveReplacementTrustCorporation.Format(donor.LpaID), app.Page)
 	} else {
-		data.Link.Attorney = fmt.Sprintf("%s?from=%s", app.Paths.ChooseAttorneys.Format(donor.LpaID), app.Page)
-		data.Link.AttorneyAddress = fmt.Sprintf("%s?from=%s", app.Paths.ChooseAttorneysAddress.Format(donor.LpaID), app.Page)
-		data.Link.RemoveAttorney = fmt.Sprintf("%s?from=%s", app.Paths.RemoveAttorney.Format(donor.LpaID), app.Page)
-		data.Link.TrustCorporation = fmt.Sprintf("%s?from=%s", app.Paths.EnterTrustCorporation.Format(donor.LpaID), app.Page)
-		data.Link.TrustCorporationAddress = fmt.Sprintf("%s?from=%s", app.Paths.EnterTrustCorporationAddress.Format(donor.LpaID), app.Page)
-		data.Link.RemoveTrustCorporation = fmt.Sprintf("%s?from=%s", app.Paths.RemoveTrustCorporation.Format(donor.LpaID), app.Page)
+		data.Link.Attorney = fmt.Sprintf("%s?from=%s", page.Paths.ChooseAttorneys.Format(donor.LpaID), app.Page)
+		data.Link.AttorneyAddress = fmt.Sprintf("%s?from=%s", page.Paths.ChooseAttorneysAddress.Format(donor.LpaID), app.Page)
+		data.Link.RemoveAttorney = fmt.Sprintf("%s?from=%s", page.Paths.RemoveAttorney.Format(donor.LpaID), app.Page)
+		data.Link.TrustCorporation = fmt.Sprintf("%s?from=%s", page.Paths.EnterTrustCorporation.Format(donor.LpaID), app.Page)
+		data.Link.TrustCorporationAddress = fmt.Sprintf("%s?from=%s", page.Paths.EnterTrustCorporationAddress.Format(donor.LpaID), app.Page)
+		data.Link.RemoveTrustCorporation = fmt.Sprintf("%s?from=%s", page.Paths.RemoveTrustCorporation.Format(donor.LpaID), app.Page)
 	}
 
 	return data
