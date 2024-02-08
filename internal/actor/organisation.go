@@ -26,12 +26,8 @@ type Member struct {
 	// CreatedAt is when the Member was created
 	CreatedAt time.Time
 	// UpdatedAt is when the Member was last updated
-	UpdatedAt  time.Time
-	FirstNames string
-	LastName   string
-	Email      string
-	// Permission is the type of permissions assigned to the member to set available actions in an Organisation
-	Permission Permission
+	UpdatedAt time.Time
+	Email     string
 }
 
 // A MemberInvite is created to allow a new Member to join an Organisation
