@@ -198,12 +198,15 @@ func TestOrganisationStoreCreateMemberInvite(t *testing.T) {
 			CreatedAt:      testNow,
 			OrganisationID: "a-uuid",
 			Email:          "email@example.com",
+			FirstNames:     "a",
+			LastName:       "b",
+			Permission:     actor.None,
 		}).
 		Return(nil)
 
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn}
 
-	err := organisationStore.CreateMemberInvite(ctx, &actor.Organisation{ID: "a-uuid"}, "email@example.com", "abcde")
+	err := organisationStore.CreateMemberInvite(ctx, &actor.Organisation{ID: "a-uuid"}, "a", "b", "email@example.com", "abcde", actor.None)
 	assert.Nil(t, err)
 }
 
@@ -217,7 +220,7 @@ func TestOrganisationStoreCreateMemberInviteWhenErrors(t *testing.T) {
 
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn}
 
-	err := organisationStore.CreateMemberInvite(ctx, &actor.Organisation{}, "email@example.com", "abcde")
+	err := organisationStore.CreateMemberInvite(ctx, &actor.Organisation{}, "a", "b", "email@example.com", "abcde", actor.None)
 	assert.ErrorIs(t, err, expectedError)
 }
 
