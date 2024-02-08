@@ -26,7 +26,7 @@ func EnterOrganisationName(tmpl template.Template, organisationStore Organisatio
 			data.Form = readOrganisationNameForm(r, "fullOrganisationOrCompanyName")
 			data.Errors = data.Form.Validate()
 
-			if !data.Errors.Any() {
+			if data.Errors.None() {
 				organisation, err := organisationStore.Create(r.Context(), data.Form.Name)
 				if err != nil {
 					return err
