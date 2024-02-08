@@ -27,7 +27,6 @@ type Member struct {
 	CreatedAt time.Time
 	// UpdatedAt is when the Member was last updated
 	UpdatedAt time.Time
-	Email     string
 }
 
 // A MemberInvite is created to allow a new Member to join an Organisation
