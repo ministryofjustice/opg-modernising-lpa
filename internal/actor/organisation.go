@@ -1,6 +1,8 @@
 package actor
 
-import "time"
+import (
+	"time"
+)
 
 const memberInviteExpireAfter = time.Hour * 48
 
@@ -24,7 +26,12 @@ type Member struct {
 	// CreatedAt is when the Member was created
 	CreatedAt time.Time
 	// UpdatedAt is when the Member was last updated
-	UpdatedAt time.Time
+	UpdatedAt  time.Time
+	FirstNames string
+	LastName   string
+	Email      string
+	// Permission is the type of permissions assigned to the member to set available actions in an Organisation
+	Permission Permission
 }
 
 // A MemberInvite is created to allow a new Member to join an Organisation
@@ -35,7 +42,11 @@ type MemberInvite struct {
 	// OrganisationID identifies the organisation the invite is for
 	OrganisationID string
 	// Email is the address the new Member must signin as for the invite
-	Email string
+	Email      string
+	FirstNames string
+	LastName   string
+	// Permission is the type of permissions assigned to the member to set available actions in an Organisation
+	Permission Permission
 }
 
 func (i MemberInvite) HasExpired() bool {

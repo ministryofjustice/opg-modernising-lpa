@@ -17,7 +17,7 @@ import (
 
 type OrganisationStore interface {
 	Create(ctx context.Context, name string) (*actor.Organisation, error)
-	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, email, code string) error
+	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error
 	Get(ctx context.Context) (*actor.Organisation, error)
 	CreateLPA(ctx context.Context, organisationID string) (*actor.DonorProvidedDetails, error)
 	Put(ctx context.Context, organisation *actor.Organisation) error

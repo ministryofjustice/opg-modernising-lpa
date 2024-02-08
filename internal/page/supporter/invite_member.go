@@ -12,16 +12,18 @@ import (
 )
 
 type inviteMemberData struct {
-	App    page.AppData
-	Errors validation.List
-	Form   *inviteMemberForm
+	App     page.AppData
+	Errors  validation.List
+	Form    *inviteMemberForm
+	Options actor.PermissionOptions
 }
 
 func InviteMember(tmpl template.Template, organisationStore OrganisationStore, notifyClient NotifyClient, randomString func(int) string, appPublicURL string) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
 		data := &inviteMemberData{
-			App:  appData,
-			Form: &inviteMemberForm{},
+			App:     appData,
+			Form:    &inviteMemberForm{},
+			Options: actor.PermissionValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -35,7 +37,15 @@ func InviteMember(tmpl template.Template, organisationStore OrganisationStore, n
 				}
 
 				inviteCode := randomString(12)
-				if err := organisationStore.CreateMemberInvite(r.Context(), organisation, data.Form.Email, inviteCode); err != nil {
+				if err := organisationStore.CreateMemberInvite(
+					r.Context(),
+					organisation,
+					data.Form.FirstNames,
+					data.Form.LastName,
+					data.Form.Email,
+					inviteCode,
+					data.Form.Permission,
+				); err != nil {
 					return err
 				}
 
@@ -57,21 +67,40 @@ func InviteMember(tmpl template.Template, organisationStore OrganisationStore, n
 }
 
 type inviteMemberForm struct {
-	Email string
+	FirstNames string
+	LastName   string
+	Email      string
+	Permission actor.Permission
 }
 
 func readInviteMemberForm(r *http.Request) *inviteMemberForm {
-	return &inviteMemberForm{
-		Email: page.PostFormString(r, "email"),
+	form := &inviteMemberForm{
+		Email:      page.PostFormString(r, "email"),
+		FirstNames: page.PostFormString(r, "first-names"),
+		LastName:   page.PostFormString(r, "last-name"),
 	}
+
+	form.Permission, _ = actor.ParsePermission(page.PostFormString(r, "permission"))
+
+	return form
 }
 
 func (f *inviteMemberForm) Validate() validation.List {
 	var errors validation.List
 
+	errors.String("first-names", "firstNames", f.FirstNames,
+		validation.Empty(),
+		validation.StringTooLong(53))
+
+	errors.String("last-name", "lastName", f.LastName,
+		validation.Empty(),
+		validation.StringTooLong(61))
+
 	errors.String("email", "email", f.Email,
 		validation.Empty(),
 		validation.Email())
+
+	errors.Options("permission", "makeThisPersonAnAdmin", []string{f.Permission.String()}, validation.Select(actor.None.String(), actor.Admin.String()))
 
 	return errors
 }
