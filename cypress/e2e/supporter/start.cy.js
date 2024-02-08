@@ -8,6 +8,10 @@ describe('Start', () => {
     cy.contains("Help someone to make a lasting power of attorney");
     cy.contains('a', 'Start').click();
 
+    cy.checkA11yApp();
+    cy.contains("Signing in with GOV.UK One Login");
+    cy.contains('a', 'Continue to GOV.UK One Login').click();
+
     if (Cypress.config().baseUrl.includes('localhost')) {
       cy.url().should('contain', '/authorize')
     } else {
