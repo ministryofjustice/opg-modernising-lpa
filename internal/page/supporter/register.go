@@ -54,6 +54,7 @@ func Register(
 	notFoundHandler page.Handler,
 	errorHandler page.ErrorHandler,
 	notifyClient NotifyClient,
+	appPublicURL string,
 ) {
 	paths := page.Paths.Supporter
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
@@ -78,7 +79,7 @@ func Register(
 	handleWithSupporter(paths.Dashboard,
 		Dashboard(tmpls.Get("dashboard.gohtml"), organisationStore))
 	handleWithSupporter(paths.InviteMember,
-		InviteMember(tmpls.Get("invite_member.gohtml"), organisationStore, notifyClient, random.String))
+		InviteMember(tmpls.Get("invite_member.gohtml"), organisationStore, notifyClient, random.String, appPublicURL))
 	handleWithSupporter(paths.InviteMemberConfirmation,
 		Guidance(tmpls.Get("invite_member_confirmation.gohtml")))
 
