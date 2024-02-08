@@ -15,7 +15,6 @@ var (
 		LpaID:      "lpa-id",
 		AttorneyID: "attorney-id",
 		Lang:       localize.En,
-		Paths:      page.Paths,
 		ActorType:  actor.TypeAttorney,
 	}
 	testReplacementAppData = page.AppData{
@@ -23,21 +22,18 @@ var (
 		LpaID:      "lpa-id",
 		AttorneyID: "attorney-id",
 		Lang:       localize.En,
-		Paths:      page.Paths,
 		ActorType:  actor.TypeReplacementAttorney,
 	}
 	testTrustCorporationAppData = page.AppData{
 		SessionID: "session-id",
 		LpaID:     "lpa-id",
 		Lang:      localize.En,
-		Paths:     page.Paths,
 		ActorType: actor.TypeAttorney,
 	}
 	testReplacementTrustCorporationAppData = page.AppData{
 		SessionID: "session-id",
 		LpaID:     "lpa-id",
 		Lang:      localize.En,
-		Paths:     page.Paths,
 		ActorType: actor.TypeReplacementAttorney,
 	}
 )

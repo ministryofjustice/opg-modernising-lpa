@@ -1,8 +1,8 @@
 {{ define "certificate-provider-details" }}
   {{ $canChange := and (not $.Donor.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
-  {{ $detailsLink := printf "%s?from=%s" (link .App (.App.Paths.CertificateProviderDetails.Format .App.LpaID)) .App.Page }}
-  {{ $carryOutByLink := printf "%s?from=%s" (link .App (.App.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Format .App.LpaID)) .App.Page }}
-  {{ $addressLink := printf "%s?from=%s" (link .App (.App.Paths.CertificateProviderAddress.Format .App.LpaID)) .App.Page }}
+  {{ $detailsLink := printf "%s?from=%s" (link .App (global.Paths.CertificateProviderDetails.Format .App.LpaID)) .App.Page }}
+  {{ $carryOutByLink := printf "%s?from=%s" (link .App (global.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Format .App.LpaID)) .App.Page }}
+  {{ $addressLink := printf "%s?from=%s" (link .App (global.Paths.CertificateProviderAddress.Format .App.LpaID)) .App.Page }}
 
   <div class="govuk-summary-card">
     <div class="govuk-summary-card__title-wrapper">

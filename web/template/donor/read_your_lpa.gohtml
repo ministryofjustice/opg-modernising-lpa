@@ -24,10 +24,10 @@
       {{ template "people-named-on-lpa" . }}
 
       <div class="govuk-button-group">
-        <a href="{{ link .App (.App.Paths.LpaYourLegalRightsAndResponsibilities.Format .App.LpaID) }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
+        <a href="{{ link .App (global.Paths.LpaYourLegalRightsAndResponsibilities.Format .App.LpaID) }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
           {{ tr .App "continue" }}
         </a>
-        <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+        <a href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
       </div>
     </div>
   </div>

@@ -14,8 +14,8 @@
       </p>
 
       <div class="govuk-button-group govuk-!-margin-top-4">
-        <a class="govuk-button" href="{{ link .App (.App.Paths.CertificateProvider.ProvideCertificate.Format .App.LpaID) }}">{{ tr .App "continue" }}</a>
-        <a href="{{ link .App (.App.Paths.CertificateProvider.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+        <a class="govuk-button" href="{{ link .App (global.Paths.CertificateProvider.ProvideCertificate.Format .App.LpaID) }}">{{ tr .App "continue" }}</a>
+        <a href="{{ link .App (global.Paths.CertificateProvider.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
       </div>
     </div>
   </div>

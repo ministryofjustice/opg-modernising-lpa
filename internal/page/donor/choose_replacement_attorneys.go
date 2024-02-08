@@ -78,7 +78,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, u
 					return err
 				}
 
-				return appData.Paths.ChooseReplacementAttorneysAddress.RedirectQuery(w, r, appData, donor, url.Values{"id": {attorney.ID}})
+				return page.Paths.ChooseReplacementAttorneysAddress.RedirectQuery(w, r, appData, donor, url.Values{"id": {attorney.ID}})
 			}
 		}
 
