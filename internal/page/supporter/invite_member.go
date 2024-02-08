@@ -28,14 +28,20 @@ func InviteMember(tmpl template.Template, organisationStore OrganisationStore, n
 			data.Form = readInviteMemberForm(r)
 			data.Errors = data.Form.Validate()
 
-			if !data.Errors.Any() {
+			if data.Errors.None() {
+				session, err := page.SessionDataFromContext(r.Context())
+				if err != nil {
+					return err
+				}
+
 				inviteCode := randomString(12)
 				if err := organisationStore.CreateMemberInvite(r.Context(), organisation, data.Form.Email, inviteCode); err != nil {
 					return err
 				}
 
-				if err := notifyClient.SendEmail(r.Context(), data.Form.Email, notify.MemberInviteEmail{
+				if err := notifyClient.SendEmail(r.Context(), data.Form.Email, notify.OrganisationMemberInviteEmail{
 					OrganisationName: organisation.Name,
+					InviterEmail:     session.Email,
 					InviteCode:       inviteCode,
 				}); err != nil {
 					return err
