@@ -14,7 +14,7 @@
             {{ trFormatHtml .App "provideYourCertificateContent" "DonorFirstNames" .Donor.Donor.FirstNames  }}
 
             <div class="govuk-button-group">
-                <a href="{{ link .App (.App.Paths.CertificateProvider.TaskList.Format .App.LpaID) }}" class="govuk-button">{{ tr .App "goToYourTaskList" }}</a>
+                <a href="{{ link .App (global.Paths.CertificateProvider.TaskList.Format .App.LpaID) }}" class="govuk-button">{{ tr .App "goToYourTaskList" }}</a>
             </div>
         </div>
     </div>

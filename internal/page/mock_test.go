@@ -18,7 +18,6 @@ var (
 		SessionID: "session-id",
 		LpaID:     "lpa-id",
 		Lang:      localize.En,
-		Paths:     Paths,
 	}
 	MockRandomString = func(int) string { return RandomString }
 )

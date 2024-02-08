@@ -10,10 +10,10 @@
       {{ trHtml .App (printf "yourLegalRightsAndResponsibilitiesContent:%s" .Donor.Type.String) }}
 
       <p class="govuk-button-group govuk-!-margin-top-8">
-        <a href="{{ if .Donor.Donor.CanSign.IsYes }}{{ link .App (.App.Paths.SignYourLpa.Format .App.LpaID) }}{{ else }}{{ link .App (.App.Paths.SignTheLpaOnBehalf.Format .App.LpaID) }}{{ end }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
+        <a href="{{ if .Donor.Donor.CanSign.IsYes }}{{ link .App (global.Paths.SignYourLpa.Format .App.LpaID) }}{{ else }}{{ link (global.Paths.SignTheLpaOnBehalf.Format .App.LpaID) }}{{ end }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
           {{ tr .App "continueToSigningPage" }}
         </a>
-        <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+        <a href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
       </p>
     </div>
   </div>

@@ -16,7 +16,7 @@
           <dt class="govuk-summary-list__key">{{ tr .App "dateOfBirth" }}</dt>
           <dd class="govuk-summary-list__value">{{ formatDate .App .CertificateProvider.DateOfBirth }}</dd>
           <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App (.App.Paths.CertificateProvider.EnterDateOfBirth.Format .Donor.LpaID) }}">{{ trHtml .App "changeDateOfBirthLink" }}</a>
+            <a class="govuk-link" href="{{ link .App (global.Paths.CertificateProvider.EnterDateOfBirth.Format .Donor.LpaID) }}">{{ trHtml .App "changeDateOfBirthLink" }}</a>
           </dd>
         </div>
         {{ if .Donor.CertificateProvider.Relationship.IsProfessionally }}
@@ -24,7 +24,7 @@
             <dt class="govuk-summary-list__key">{{ tr .App "homeAddress" }}</dt>
             <dd class="govuk-summary-list__value">{{ template "address-lines" .CertificateProvider.HomeAddress }}</dd>
             <dd class="govuk-summary-list__actions">
-              <a class="govuk-link" href="{{ link .App (.App.Paths.CertificateProvider.WhatIsYourHomeAddress.Format .Donor.LpaID) }}">{{ trHtml .App "changeHomeAddressLink" }}</a>
+              <a class="govuk-link" href="{{ link .App (global.Paths.CertificateProvider.WhatIsYourHomeAddress.Format .Donor.LpaID) }}">{{ trHtml .App "changeHomeAddressLink" }}</a>
             </dd>
           </div>
         {{ end }}
@@ -32,7 +32,7 @@
           <dt class="govuk-summary-list__key">{{ tr .App "preferredContactLanguage" }}</dt>
           <dd class="govuk-summary-list__value">{{ if not .CertificateProvider.ContactLanguagePreference.Empty }} {{ tr .App .CertificateProvider.ContactLanguagePreference.String }} {{ end }}</dd>
             <dd class="govuk-summary-list__actions">
-              <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (.App.Paths.CertificateProvider.YourPreferredLanguage.Format .App.LpaID) }}?from={{.App.Page}}">
+              <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (global.Paths.CertificateProvider.YourPreferredLanguage.Format .App.LpaID) }}?from={{.App.Page}}">
                 {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "preferredContactLanguage" }}</span>
               </a>
             </dd>
@@ -72,7 +72,7 @@
         <div class="govuk-button-group">
           {{ template "csrf-field" . }}
           {{ template "continue-button" . }}
-          <a href="{{ link .App (.App.Paths.Dashboard.Format) }}" class="govuk-button govuk-button--secondary">{{ tr .App "goToDashboard" }}</a>
+          <a href="{{ link .App (global.Paths.Dashboard.Format) }}" class="govuk-button govuk-button--secondary">{{ tr .App "goToDashboard" }}</a>
         </div>
       </form>
     </div>

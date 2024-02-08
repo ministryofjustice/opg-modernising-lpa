@@ -12,7 +12,7 @@
           <dd class="govuk-summary-list__value">{{ .Donor.Donor.FullName }}</dd>
           {{ if $canChange }}
             <dd class="govuk-summary-list__actions">
-              <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (.App.Paths.YourDetails.Format .App.LpaID) }}?from={{.App.Page}}#f-first-names">
+              <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (global.Paths.YourDetails.Format .App.LpaID) }}?from={{.App.Page}}#f-first-names">
                 {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "name" }}</span>
               </a>
             </dd>
@@ -25,7 +25,7 @@
             <dd class="govuk-summary-list__value">{{ .Donor.Donor.OtherNames }}</dd>
             {{ if $canChange }}
               <dd class="govuk-summary-list__actions">
-                <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (.App.Paths.YourDetails.Format .App.LpaID) }}?from={{.App.Page}}#f-other-names">
+                <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (global.Paths.YourDetails.Format .App.LpaID) }}?from={{.App.Page}}#f-other-names">
                   {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "otherNamesYouAreKnownBy" }}</span>
                 </a>
               </dd>
@@ -38,7 +38,7 @@
           <dd class="govuk-summary-list__value">{{ formatDate .App .Donor.Donor.DateOfBirth }}</dd>
           {{ if $canChange }}
             <dd class="govuk-summary-list__actions">
-              <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (.App.Paths.YourDetails.Format .App.LpaID) }}?from={{.App.Page}}#f-date-of-birth">
+              <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (global.Paths.YourDetails.Format .App.LpaID) }}?from={{.App.Page}}#f-date-of-birth">
                 {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "dateOfBirth" }}</span>
               </a>
             </dd>
@@ -55,7 +55,7 @@
           <dd class="govuk-summary-list__value">{{ template "address-lines" .Donor.Donor.Address }}</dd>
           {{ if $canChange }}
             <dd class="govuk-summary-list__actions">
-              <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (.App.Paths.YourAddress.Format .App.LpaID) }}?from={{.App.Page}}#f-address-line-1">
+              <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (global.Paths.YourAddress.Format .App.LpaID) }}?from={{.App.Page}}#f-address-line-1">
                 {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "address" }}</span>
               </a>
             </dd>
@@ -68,7 +68,7 @@
             <dd class="govuk-summary-list__value">{{ if not .Donor.ContactLanguagePreference.Empty }} {{ tr .App .Donor.ContactLanguagePreference.String }} {{ end }}</dd>
             {{ if $canChange }}
               <dd class="govuk-summary-list__actions">
-                <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (.App.Paths.YourPreferredLanguage.Format .App.LpaID) }}?from={{.App.Page}}">
+                <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (global.Paths.YourPreferredLanguage.Format .App.LpaID) }}?from={{.App.Page}}">
                   {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "preferredContactLanguage" }}</span>
                 </a>
               </dd>
