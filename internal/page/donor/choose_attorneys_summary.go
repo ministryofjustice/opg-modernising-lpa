@@ -21,7 +21,7 @@ type chooseAttorneysSummaryData struct {
 func ChooseAttorneysSummary(tmpl template.Template) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		if donor.Attorneys.Len() == 0 {
-			return appData.Paths.ChooseAttorneys.RedirectQuery(w, r, appData, donor, url.Values{"addAnother": {"1"}})
+			return page.Paths.ChooseAttorneys.RedirectQuery(w, r, appData, donor, url.Values{"addAnother": {"1"}})
 		}
 
 		data := &chooseAttorneysSummaryData{
@@ -35,13 +35,13 @@ func ChooseAttorneysSummary(tmpl template.Template) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				redirectUrl := appData.Paths.TaskList
+				redirectUrl := page.Paths.TaskList
 				if donor.Attorneys.Len() > 1 {
-					redirectUrl = appData.Paths.HowShouldAttorneysMakeDecisions
+					redirectUrl = page.Paths.HowShouldAttorneysMakeDecisions
 				}
 
 				if data.Form.YesNo == form.Yes {
-					return appData.Paths.ChooseAttorneys.RedirectQuery(w, r, appData, donor, url.Values{"addAnother": {"1"}})
+					return page.Paths.ChooseAttorneys.RedirectQuery(w, r, appData, donor, url.Values{"addAnother": {"1"}})
 				} else {
 					return redirectUrl.Redirect(w, r, appData, donor)
 				}

@@ -25,7 +25,7 @@ module "app" {
   ecs_cluster                     = aws_ecs_cluster.main.id
   ecs_execution_role              = var.iam_roles.ecs_execution_role
   ecs_task_role                   = var.iam_roles.app_ecs_task_role
-  ecs_service_desired_count       = 1
+  ecs_service_desired_count       = var.ecs_task_autoscaling.minimum
   ecs_application_log_group_name  = module.application_logs.cloudwatch_log_group.name
   ecs_capacity_provider           = var.ecs_capacity_provider
   app_env_vars                    = var.app_env_vars
@@ -55,6 +55,7 @@ module "app" {
   uid_base_url                                         = var.uid_service.base_url
   lpa_store_base_url                                   = var.lpa_store_service.base_url
   mock_onelogin_enabled                                = data.aws_default_tags.current.tags.environment-name != "production" && var.mock_onelogin_enabled
+  fault_injection_experiments_enabled                  = var.fault_injection_experiments_enabled
   providers = {
     aws.region = aws.region
   }

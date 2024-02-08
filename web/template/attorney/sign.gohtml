@@ -20,7 +20,7 @@
       {{ if .App.IsTrustCorporation }}
         {{ if .IsSecondSignatory }}
           <p class="govuk-body">
-            <a href="{{ link .App (.App.Paths.Attorney.WouldLikeSecondSignatory.Format .LpaID) }}" class="govuk-link">
+            <a href="{{ link .App (global.Paths.Attorney.WouldLikeSecondSignatory.Format .LpaID) }}" class="govuk-link">
               {{ tr .App "theTrustCorporationNoLongerRequiresSecondSignatory" }}
             </a>
           </p>
@@ -101,7 +101,7 @@
 
         <div class="govuk-button-group">
           <button class="govuk-button" data-module="govuk-button">{{ tr .App "submitSignature" }}</button>
-          <a href="{{ link .App (.App.Paths.Attorney.TaskList.Format .App.LpaID) }}" id="return-to-tasklist-btn" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+          <a href="{{ link .App (global.Paths.Attorney.TaskList.Format .App.LpaID) }}" id="return-to-tasklist-btn" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
         </div>
 
         {{ template "csrf-field" . }}

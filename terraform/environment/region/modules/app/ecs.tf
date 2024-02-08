@@ -83,7 +83,7 @@ resource "aws_ecs_task_definition" "app" {
     operating_system_family = "LINUX"
     cpu_architecture        = "X86_64"
   }
-  container_definitions = "[${local.app}, ${local.aws_otel_collector}]"
+  container_definitions = var.fault_injection_experiments_enabled ? "[${local.app}, ${local.aws_otel_collector}, ${local.amazon_ssm_agent}]" : "[${local.app}, ${local.aws_otel_collector}]"
   task_role_arn         = var.ecs_task_role.arn
   execution_role_arn    = var.ecs_execution_role.arn
   provider              = aws.region
@@ -91,9 +91,16 @@ resource "aws_ecs_task_definition" "app" {
 
 resource "aws_iam_role_policy" "app_task_role" {
   name     = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}-app-task-role"
-  policy   = data.aws_iam_policy_document.task_role_access_policy.json
+  policy   = var.fault_injection_experiments_enabled ? data.aws_iam_policy_document.combined.json : data.aws_iam_policy_document.task_role_access_policy.json
   role     = var.ecs_task_role.name
   provider = aws.region
+}
+
+data "aws_iam_policy_document" "combined" {
+  source_policy_documents = [
+    data.aws_iam_policy_document.task_role_access_policy.json,
+    data.aws_iam_policy_document.ecs_task_role_fis_related_task_permissions.json
+  ]
 }
 
 data "aws_kms_alias" "secrets_manager_secret_encryption_key" {
@@ -149,10 +156,6 @@ data "aws_secretsmanager_secret" "lpa_store_jwt_secret_key" {
 data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id" {
   name     = "rum-monitor-identity-pool-id-${data.aws_region.current.name}"
   provider = aws.region
-}
-
-locals {
-  policy_region_prefix = lower(replace(data.aws_region.current.name, "-", ""))
 }
 
 data "aws_iam_policy_document" "task_role_access_policy" {
@@ -444,4 +447,80 @@ locals {
       },
       environment = []
   })
+
+  amazon_ssm_agent = jsonencode(
+    {
+      name                   = "amazon-ssm-agent",
+      image                  = "public.ecr.aws/amazon-ssm-agent/amazon-ssm-agent:latest",
+      cpu                    = 0,
+      links                  = [],
+      portMappings           = [],
+      essential              = false,
+      entryPoint             = [],
+      readonlyRootFilesystem = false
+      command = [
+        "/bin/bash",
+        "-c",
+        "set -e; yum upgrade -y; yum install jq procps awscli -y; term_handler() { echo \"Deleting SSM activation $ACTIVATION_ID\"; if ! aws ssm delete-activation --activation-id $ACTIVATION_ID --region $ECS_TASK_REGION; then echo \"SSM activation $ACTIVATION_ID failed to be deleted\" 1>&2; fi; MANAGED_INSTANCE_ID=$(jq -e -r .ManagedInstanceID /var/lib/amazon/ssm/registration); echo \"Deregistering SSM Managed Instance $MANAGED_INSTANCE_ID\"; if ! aws ssm deregister-managed-instance --instance-id $MANAGED_INSTANCE_ID --region $ECS_TASK_REGION; then echo \"SSM Managed Instance $MANAGED_INSTANCE_ID failed to be deregistered\" 1>&2; fi; kill -SIGTERM $SSM_AGENT_PID; }; trap term_handler SIGTERM SIGINT; if [[ -z $MANAGED_INSTANCE_ROLE_NAME ]]; then echo \"Environment variable MANAGED_INSTANCE_ROLE_NAME not set, exiting\" 1>&2; exit 1; fi; if ! ps ax | grep amazon-ssm-agent | grep -v grep > /dev/null; then if [[ -n $ECS_CONTAINER_METADATA_URI_V4 ]] ; then echo \"Found ECS Container Metadata, running activation with metadata\"; TASK_METADATA=$(curl \"$${ECS_CONTAINER_METADATA_URI_V4}/task\"); ECS_TASK_AVAILABILITY_ZONE=$(echo $TASK_METADATA | jq -e -r '.AvailabilityZone'); ECS_TASK_ARN=$(echo $TASK_METADATA | jq -e -r '.TaskARN'); ECS_TASK_REGION=$(echo $ECS_TASK_AVAILABILITY_ZONE | sed 's/.$//'); ECS_TASK_AVAILABILITY_ZONE_REGEX='^(af|ap|ca|cn|eu|me|sa|us|us-gov)-(central|north|(north(east|west))|south|south(east|west)|east|west)-[0-9]{1}[a-z]{1}$'; if ! [[ $ECS_TASK_AVAILABILITY_ZONE =~ $ECS_TASK_AVAILABILITY_ZONE_REGEX ]]; then echo \"Error extracting Availability Zone from ECS Container Metadata, exiting\" 1>&2; exit 1; fi; ECS_TASK_ARN_REGEX='^arn:(aws|aws-cn|aws-us-gov):ecs:[a-z0-9-]+:[0-9]{12}:task/[a-zA-Z0-9_-]+/[a-zA-Z0-9]+$'; if ! [[ $ECS_TASK_ARN =~ $ECS_TASK_ARN_REGEX ]]; then echo \"Error extracting Task ARN from ECS Container Metadata, exiting\" 1>&2; exit 1; fi; CREATE_ACTIVATION_OUTPUT=$(aws ssm create-activation --iam-role $MANAGED_INSTANCE_ROLE_NAME --tags Key=ECS_TASK_AVAILABILITY_ZONE,Value=$ECS_TASK_AVAILABILITY_ZONE Key=ECS_TASK_ARN,Value=$ECS_TASK_ARN Key=FAULT_INJECTION_SIDECAR,Value=true --region $ECS_TASK_REGION); ACTIVATION_CODE=$(echo $CREATE_ACTIVATION_OUTPUT | jq -e -r .ActivationCode); ACTIVATION_ID=$(echo $CREATE_ACTIVATION_OUTPUT | jq -e -r .ActivationId); if ! amazon-ssm-agent -register -code $ACTIVATION_CODE -id $ACTIVATION_ID -region $ECS_TASK_REGION; then echo \"Failed to register with AWS Systems Manager (SSM), exiting\" 1>&2; exit 1; fi; amazon-ssm-agent & SSM_AGENT_PID=$!; wait $SSM_AGENT_PID; else echo \"ECS Container Metadata not found, exiting\" 1>&2; exit 1; fi; else echo \"SSM agent is already running, exiting\" 1>&2; exit 1; fi"
+      ],
+      environment = [
+        {
+          name  = "MANAGED_INSTANCE_ROLE_NAME",
+          value = "ssm-register-instance-${data.aws_default_tags.current.tags.environment-name}"
+        }
+      ],
+      logConfiguration = {
+        logDriver = "awslogs",
+        options = {
+          awslogs-group         = var.ecs_application_log_group_name,
+          awslogs-region        = data.aws_region.current.name,
+          awslogs-stream-prefix = "${data.aws_default_tags.current.tags.environment-name}.otel.app"
+        }
+      },
+      environmentFiles      = [],
+      mountPoints           = [],
+      volumesFrom           = [],
+      secrets               = [],
+      dnsServers            = [],
+      dnsSearchDomains      = [],
+      extraHosts            = [],
+      dockerSecurityOptions = [],
+      dockerLabels          = {},
+      ulimits               = [],
+      systemControls        = []
+  })
+}
+
+# Additional permissions for the ECS task role to run experiments
+
+data "aws_iam_policy_document" "ecs_task_role_fis_related_task_permissions" {
+  policy_id = "${local.policy_region_prefix}_fis_ecs_task_actions"
+  statement {
+    sid       = "AllowSSMCommands"
+    effect    = "Allow"
+    resources = ["*"] #tfsec:ignore:aws-iam-no-policy-wildcards
+    actions = [
+      "ssm:CreateActivation",
+      "ssm:AddTagsToResource",
+    ]
+  }
+
+  statement {
+    sid       = "ManagedInstancePermissions"
+    effect    = "Allow"
+    resources = ["*"] #tfsec:ignore:aws-iam-no-policy-wildcards
+    actions = [
+      "ssm:DeleteActivation",
+      "ssm:DeregisterManagedInstance",
+    ]
+  }
+
+  statement {
+    sid       = "AllowPassRole"
+    effect    = "Allow"
+    resources = ["*"] #tfsec:ignore:aws-iam-no-policy-wildcards
+    actions = [
+      "iam:PassRole",
+    ]
+  }
 }
