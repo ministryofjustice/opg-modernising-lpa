@@ -13,10 +13,10 @@ import (
 )
 
 func TestAll(t *testing.T) {
-	fns := All("a-tag", "a-region")
+	globals := Globals{Tag: "abc"}
 
-	assert.Equal(t, "a-tag", fns["buildTag"].(func() string)())
-	assert.Equal(t, "a-region", fns["awsRegion"].(func() string)())
+	fns := All(globals)
+	assert.Equal(t, globals, fns["globals"].(func() Globals)())
 }
 
 func TestIsEnglish(t *testing.T) {
@@ -293,12 +293,12 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 		CanChange:        true,
 	}
 
-	want.Link.Attorney = app.Paths.ChooseAttorneys.Format("lpa-id") + "?from=/here"
-	want.Link.AttorneyAddress = app.Paths.ChooseAttorneysAddress.Format("lpa-id") + "?from=/here"
-	want.Link.RemoveAttorney = app.Paths.RemoveAttorney.Format("lpa-id") + "?from=/here"
-	want.Link.TrustCorporation = app.Paths.EnterTrustCorporation.Format("lpa-id") + "?from=/here"
-	want.Link.TrustCorporationAddress = app.Paths.EnterTrustCorporationAddress.Format("lpa-id") + "?from=/here"
-	want.Link.RemoveTrustCorporation = app.Paths.RemoveTrustCorporation.Format("lpa-id") + "?from=/here"
+	want.Link.Attorney = page.Paths.ChooseAttorneys.Format("lpa-id") + "?from=/here"
+	want.Link.AttorneyAddress = page.Paths.ChooseAttorneysAddress.Format("lpa-id") + "?from=/here"
+	want.Link.RemoveAttorney = page.Paths.RemoveAttorney.Format("lpa-id") + "?from=/here"
+	want.Link.TrustCorporation = page.Paths.EnterTrustCorporation.Format("lpa-id") + "?from=/here"
+	want.Link.TrustCorporationAddress = page.Paths.EnterTrustCorporationAddress.Format("lpa-id") + "?from=/here"
+	want.Link.RemoveTrustCorporation = page.Paths.RemoveTrustCorporation.Format("lpa-id") + "?from=/here"
 
 	got := listAttorneys(actor.Attorneys{TrustCorporation: trustCorporation, Attorneys: attorneys}, app, attorneyType, headingLevel, donor)
 
@@ -324,12 +324,12 @@ func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
 		HeadingLevel:     headingLevel,
 	}
 
-	want.Link.Attorney = app.Paths.ChooseReplacementAttorneys.Format("lpa-id") + "?from=/here"
-	want.Link.AttorneyAddress = app.Paths.ChooseReplacementAttorneysAddress.Format("lpa-id") + "?from=/here"
-	want.Link.RemoveAttorney = app.Paths.RemoveReplacementAttorney.Format("lpa-id") + "?from=/here"
-	want.Link.TrustCorporation = app.Paths.EnterReplacementTrustCorporation.Format("lpa-id") + "?from=/here"
-	want.Link.TrustCorporationAddress = app.Paths.EnterReplacementTrustCorporationAddress.Format("lpa-id") + "?from=/here"
-	want.Link.RemoveTrustCorporation = app.Paths.RemoveReplacementTrustCorporation.Format("lpa-id") + "?from=/here"
+	want.Link.Attorney = page.Paths.ChooseReplacementAttorneys.Format("lpa-id") + "?from=/here"
+	want.Link.AttorneyAddress = page.Paths.ChooseReplacementAttorneysAddress.Format("lpa-id") + "?from=/here"
+	want.Link.RemoveAttorney = page.Paths.RemoveReplacementAttorney.Format("lpa-id") + "?from=/here"
+	want.Link.TrustCorporation = page.Paths.EnterReplacementTrustCorporation.Format("lpa-id") + "?from=/here"
+	want.Link.TrustCorporationAddress = page.Paths.EnterReplacementTrustCorporationAddress.Format("lpa-id") + "?from=/here"
+	want.Link.RemoveTrustCorporation = page.Paths.RemoveReplacementTrustCorporation.Format("lpa-id") + "?from=/here"
 
 	got := listAttorneys(actor.Attorneys{TrustCorporation: trustCorporation, Attorneys: attorneys}, app, attorneyType, headingLevel, donor)
 

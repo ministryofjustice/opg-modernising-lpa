@@ -7,7 +7,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">{{ tr .App "pageNotFound" }}</h1>
 
-      {{ trFormatHtml .App "pageNotFoundContent" "Start" (link .App .App.Paths.Start.Format) }}
+      {{ trFormatHtml .App "pageNotFoundContent" "Start" (link .App global.Paths.Start.Format) }}
     </div>
   </div>
 {{ end }}
