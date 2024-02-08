@@ -37,8 +37,6 @@ func SignYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
 		}
 
 		if r.Method == http.MethodPost {
-			r.ParseForm()
-
 			data.Form = readSignYourLpaForm(r)
 			data.Errors = data.Form.Validate()
 
