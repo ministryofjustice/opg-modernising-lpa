@@ -3,9 +3,9 @@
   <html lang="{{ .App.Lang.String }}" class="govuk-template app-html-class">
     <head>
       <meta charset="utf-8">
-      <title>{{ if .Errors }}Error: {{ end }} {{ if not (eq .App.Page .App.Paths.Start .App.Paths.CertificateProviderStart .App.Paths.Attorney.Start .App.Paths.Supporter.Start) }}{{ block "pageTitle" . }}{{ end }} - {{ end }}{{ tr .App "serviceName" }}</title>
-      <link rel="preload" href="/static/stylesheets/all.css?{{ .App.StaticHash }}" as="style">
-      <link rel="preload" href="/static/javascript/main.js?{{ .App.StaticHash }}" as="script">
+      <title>{{ if .Errors }}Error: {{ end }} {{ if not (eq .App.Page global.Paths.Start global.Paths.CertificateProviderStart global.Paths.Attorney.Start global.Paths.Supporter.Start) }}{{ block "pageTitle" . }}{{ end }} - {{ end }}{{ tr .App "serviceName" }}</title>
+      <link rel="preload" href="/static/stylesheets/all.css?{{ global.StaticHash }}" as="style">
+      <link rel="preload" href="/static/javascript/main.js?{{ global.StaticHash }}" as="script">
       <link rel="preconnect" href="//dataplane.rum.eu-west-1.amazonaws.com">
       <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
       <meta name="theme-color" content="blue">
@@ -17,13 +17,13 @@
       <link rel="apple-touch-icon" href="/static/assets/images/govuk-icon-180.png">
       <link rel="manifest" href="/static/assets/manifest.json">
 
-      <link href="/static/stylesheets/all.css?{{ .App.StaticHash }}" rel="stylesheet">
-      <script type="module" async src="/static/javascript/main.js?{{ .App.StaticHash }}"></script>
-      <meta name="rum-guest-role-arn" content="{{ .App.RumConfig.GuestRoleArn }}" />
-      <meta name="rum-endpoint" content="{{ .App.RumConfig.Endpoint }}" />
-      <meta name="rum-application-region" content="{{ .App.RumConfig.ApplicationRegion }}" />
-      <meta name="rum-identity-pool-id" content="{{ .App.RumConfig.IdentityPoolID }}" />
-      <meta name="rum-application-id" content="{{ .App.RumConfig.ApplicationID }}" />
+      <link href="/static/stylesheets/all.css?{{ global.StaticHash }}" rel="stylesheet">
+      <script type="module" async src="/static/javascript/main.js?{{ global.StaticHash }}"></script>
+      <meta name="rum-guest-role-arn" content="{{ global.RumConfig.GuestRoleArn }}" />
+      <meta name="rum-endpoint" content="{{ global.RumConfig.Endpoint }}" />
+      <meta name="rum-application-region" content="{{ global.RumConfig.ApplicationRegion }}" />
+      <meta name="rum-identity-pool-id" content="{{ global.RumConfig.IdentityPoolID }}" />
+      <meta name="rum-application-id" content="{{ global.RumConfig.ApplicationID }}" />
     </head>
 
     <body class="govuk-template__body app-body-class">
@@ -156,7 +156,7 @@
                   </a>
                 </li>
                 <li class="govuk-footer__inline-list-item">
-                  <a class="govuk-footer__link" href="{{ link .App .App.Paths.YourLegalRightsAndResponsibilities.Format }}">
+                  <a class="govuk-footer__link" href="{{ link .App global.Paths.YourLegalRightsAndResponsibilities.Format }}">
                     {{ tr .App "yourLegalRightsAndResponsibilities" }}
                   </a>
                 </li>
@@ -168,7 +168,7 @@
               </ul>
 
               <div class="govuk-footer__meta-custom">
-                Running <a class="govuk-footer__link" href="https://github.com/ministryofjustice/opg-modernising-lpa/tree/{{ buildTag }}">{{ buildTag }}</a>{{ if awsRegion }} in {{ awsRegion }}{{ end }}
+                Running <a class="govuk-footer__link" href="https://github.com/ministryofjustice/opg-modernising-lpa/tree/{{ global.Tag }}">{{ global.Tag }}</a>{{ if global.Region }} in {{ global.Region }}{{ end }}
               </div>
 
               <svg aria-hidden="true" focusable="false" class="govuk-footer__licence-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 483.2 195.7" height="17" width="41">

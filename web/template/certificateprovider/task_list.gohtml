@@ -30,10 +30,10 @@
       </div>
 
       {{ if .Donor.SignedAt.IsZero }}
-        {{ $yourRoleURL := link .App (.App.Paths.CertificateProvider.YourRole.Format .Donor.LpaID)}}
+        {{ $yourRoleURL := link .App (global.Paths.CertificateProvider.YourRole.Format .Donor.LpaID)}}
 
         {{ trFormatHtml .App "untilYouHaveWitnessed" "DonorFullName" .Donor.Donor.FullName "YourRoleURL" $yourRoleURL }}
-        <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.CertificateProvider.ReadTheLpa.Format .Donor.LpaID) }}">{{ tr .App "readTheDraftLpa" }}</a>
+        <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.CertificateProvider.ReadTheLpa.Format .Donor.LpaID) }}">{{ tr .App "readTheDraftLpa" }}</a>
         {{ trHtml .App "afterYouHaveWitnessed" }}
       {{ end }}
 

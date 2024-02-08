@@ -19,7 +19,7 @@
 
       {{ trFormatHtml .App "certificateProvidedConcerns" "DonorFirstNamesPossessive" (possessive .App .Donor.Donor.FirstNames) }}
 
-      <a href="{{ link .App .App.Paths.Dashboard.Format }}" class="govuk-button app-hide-print">{{ tr .App "goToYourDashboard" }}</a>
+      <a href="{{ link .App global.Paths.Dashboard.Format }}" class="govuk-button app-hide-print">{{ tr .App "goToYourDashboard" }}</a>
     </div>
   </div>
 {{ end }}

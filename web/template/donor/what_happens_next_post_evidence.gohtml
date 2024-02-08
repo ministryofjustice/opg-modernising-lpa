@@ -10,7 +10,7 @@
       {{ trFormatHtml .App "whatHappensNextPostEvidenceContent" "Application" (printf "application%s" .Donor.FeeType.String | tr .App) }}
       {{ template "details" (details . "appealingTheDecision" "appealingTheDecisionDetails" false) }}
       
-      <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}">{{ tr .App "returnToTaskList" }}</a>
+      <a class="govuk-button" href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}">{{ tr .App "returnToTaskList" }}</a>
     </div>
   </div>
 {{ end }}

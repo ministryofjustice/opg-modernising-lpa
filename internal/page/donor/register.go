@@ -174,9 +174,10 @@ func Register(
 		donorStore:   donorStore,
 		payClient:    payClient,
 		randomString: random.String,
+		appPublicURL: appPublicURL,
 	}
 
-	handleRoot := makeHandle(rootMux, sessionStore, page.None, errorHandler, appPublicURL)
+	handleRoot := makeHandle(rootMux, sessionStore, page.None, errorHandler)
 
 	handleRoot(page.Paths.Login, page.None,
 		page.Login(oneLoginClient, sessionStore, random.String, page.Paths.LoginCallback))
@@ -186,8 +187,8 @@ func Register(
 	lpaMux := http.NewServeMux()
 	rootMux.Handle("/lpa/", page.RouteToPrefix("/lpa/", lpaMux, notFoundHandler))
 
-	handleDonor := makeHandle(lpaMux, sessionStore, page.RequireSession, errorHandler, appPublicURL)
-	handleWithDonor := makeLpaHandle(lpaMux, sessionStore, page.RequireSession, errorHandler, donorStore, appPublicURL)
+	handleDonor := makeHandle(lpaMux, sessionStore, page.RequireSession, errorHandler)
+	handleWithDonor := makeLpaHandle(lpaMux, sessionStore, page.RequireSession, errorHandler, donorStore)
 
 	handleDonor(page.Paths.Root, page.None, notFoundHandler)
 
@@ -311,7 +312,7 @@ func Register(
 	handleWithDonor(page.Paths.ConfirmYourCertificateProviderIsNotRelated, page.CanGoBack,
 		ConfirmYourCertificateProviderIsNotRelated(tmpls.Get("confirm_your_certificate_provider_is_not_related.gohtml"), donorStore, time.Now))
 	handleWithDonor(page.Paths.CheckYourLpa, page.CanGoBack,
-		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, notifyClient, certificateProviderStore, time.Now))
+		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, notifyClient, certificateProviderStore, time.Now, appPublicURL))
 	handleWithDonor(page.Paths.LpaDetailsSaved, page.CanGoBack,
 		LpaDetailsSaved(tmpls.Get("lpa_details_saved.gohtml")))
 
@@ -383,7 +384,7 @@ func Register(
 		UploadEvidenceSSE(documentStore, 3*time.Minute, 2*time.Second, time.Now))
 }
 
-func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.HandleOpt, errorHandler page.ErrorHandler, appPublicURL string) func(page.Path, page.HandleOpt, page.Handler) {
+func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.HandleOpt, errorHandler page.ErrorHandler) func(page.Path, page.HandleOpt, page.Handler) {
 	return func(path page.Path, opt page.HandleOpt, h page.Handler) {
 		opt = opt | defaultOptions
 
@@ -394,7 +395,6 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.Handle
 			appData.Page = path.Format()
 			appData.CanGoBack = opt&page.CanGoBack != 0
 			appData.ActorType = actor.TypeDonor
-			appData.AppPublicURL = appPublicURL
 
 			if opt&page.RequireSession != 0 {
 				donorSession, err := sesh.Login(store, r)
@@ -423,7 +423,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.Handle
 	}
 }
 
-func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.HandleOpt, errorHandler page.ErrorHandler, donorStore DonorStore, appPublicURL string) func(page.LpaPath, page.HandleOpt, Handler) {
+func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.HandleOpt, errorHandler page.ErrorHandler, donorStore DonorStore) func(page.LpaPath, page.HandleOpt, Handler) {
 	return func(path page.LpaPath, opt page.HandleOpt, h Handler) {
 
 		opt = opt | defaultOptions
@@ -434,7 +434,6 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.Han
 			appData := page.AppDataFromContext(ctx)
 			appData.CanGoBack = opt&page.CanGoBack != 0
 			appData.ActorType = actor.TypeDonor
-			appData.AppPublicURL = appPublicURL
 
 			loginSession, err := sesh.Login(store, r)
 			if err != nil {
@@ -484,6 +483,7 @@ type payHelper struct {
 	donorStore   DonorStore
 	payClient    PayClient
 	randomString func(int) string
+	appPublicURL string
 }
 
 func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
@@ -504,7 +504,7 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 		Amount:      donor.FeeAmount(),
 		Reference:   p.randomString(12),
 		Description: "Property and Finance LPA",
-		ReturnUrl:   appData.AppPublicURL + appData.Lang.URL(page.Paths.PaymentConfirmation.Format(donor.LpaID)),
+		ReturnUrl:   p.appPublicURL + appData.Lang.URL(page.Paths.PaymentConfirmation.Format(donor.LpaID)),
 		Email:       donor.Donor.Email,
 		Language:    appData.Lang.String(),
 	}
