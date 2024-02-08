@@ -1041,6 +1041,9 @@
     "organisationNameSaved": "Welsh",
     "yourOrganisationNameHasBeenSaved": "Welsh",
     "yourOrganisationName": "Welsh",
+    "signingInWithGovukOneLogin": "Welsh",
+    "signingInWithGovukOneLoginContent": "<p class=\"govuk-body\">Welsh</p>",
+    "continueToGovukOneLogin": "Welsh",
     "setTheirPermissions": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh</p>",
     "makeThisPersonAnAdmin": "Welsh",
     "adminPermissionHint": "Welsh"

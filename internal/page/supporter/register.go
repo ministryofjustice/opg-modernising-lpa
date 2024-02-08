@@ -59,6 +59,8 @@ func Register(
 	paths := page.Paths.Supporter
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
+	handleRoot(paths.SigningInAdvice, page.None,
+		page.Guidance(tmpls.Get("signing_in_advice.gohtml")))
 	handleRoot(paths.Login, page.None,
 		page.Login(oneLoginClient, sessionStore, random.String, paths.LoginCallback))
 	handleRoot(paths.LoginCallback, page.None,

@@ -177,6 +177,7 @@ type SupporterPaths struct {
 	Login                 Path
 	LoginCallback         Path
 	EnterOrganisationName Path
+	SigningInAdvice       Path
 
 	OrganisationCreated      SupporterPath
 	Dashboard                SupporterPath
@@ -350,6 +351,7 @@ var Paths = AppPaths{
 		Login:                 "/supporter-login",
 		LoginCallback:         "/supporter-login-callback",
 		EnterOrganisationName: "/enter-the-name-of-your-organisation-or-company",
+		SigningInAdvice:       "/signing-in-with-govuk-one-login",
 
 		OrganisationCreated:      "/organisation-or-company-created",
 		Dashboard:                "/supporter-dashboard",
