@@ -1040,5 +1040,8 @@
     "enterYourOrganisationName": "Welsh",
     "organisationNameSaved": "Welsh",
     "yourOrganisationNameHasBeenSaved": "Welsh",
-    "yourOrganisationName": "Welsh"
+    "yourOrganisationName": "Welsh",
+    "signingInWithGovukOneLogin": "Welsh",
+    "signingInWithGovukOneLoginContent": "<p class=\"govuk-body\">Welsh</p>",
+    "continueToGovukOneLogin": "Welsh"
 }
