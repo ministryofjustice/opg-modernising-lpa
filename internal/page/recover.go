@@ -26,7 +26,7 @@ func Recover(tmpl template.Template, logger Logger, bundle Bundle, next http.Han
 				logger.Request(r, recoverError{err: err, stack: debug.Stack()})
 				w.WriteHeader(http.StatusInternalServerError)
 
-				appData := AppData{CookieConsentSet: true, Paths: Paths}
+				appData := AppData{CookieConsentSet: true}
 				if strings.HasPrefix(r.URL.Path, "/cy/") {
 					appData.Lang = localize.Cy
 				} else {

@@ -147,7 +147,7 @@
           {{ if gt $scannedDocumentsNotSentCount 0 }}
             <button type="submit" class="govuk-button" id="continue-or-pay" data-module="govuk-button">{{ if or .FeeType.IsFullFee .FeeType.IsHalfFee }} {{ tr .App "continueToPayment" }} {{ else }} {{ tr .App "continue" }} {{ end }}</button>
           {{ end }}
-          <a href="{{ link .App (.App.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+          <a href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
         </div>
       </form>
 
@@ -164,7 +164,7 @@
 
         <h2 id="dialog-title" class="govuk-heading-l" tabindex="0">{{ tr .App "yourFilesAreUploading" }}</h2>
 
-        <div class="app-loading-spinner" data-sse-url="{{ link .App (.App.Paths.UploadEvidenceSSE.Format .App.LpaID) }}">
+        <div class="app-loading-spinner" data-sse-url="{{ link .App (global.Paths.UploadEvidenceSSE.Format .App.LpaID) }}">
           <div class="app-loading-spinner__spinner" aria-live="polite" role="status"></div>
           <div class="app-loading-spinner__content">
             <h3 id="file-count" class="govuk-heading-s" tabindex="0">{{ trFormat .App "0OfNFilesUploaded" "DocumentsToScanCount" $totalDocumentsCount }}</h3>

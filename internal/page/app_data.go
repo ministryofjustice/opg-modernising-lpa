@@ -17,16 +17,10 @@ type AppData struct {
 	CookieConsentSet     bool
 	CanGoBack            bool
 	SessionID            string
-	RumConfig            RumConfig
-	StaticHash           string
-	Paths                AppPaths
 	LpaID                string
 	CsrfToken            string
-	ActorTypes           actor.Types
 	ActorType            actor.Type
 	AttorneyID           string
-	OneloginURL          string
-	AppPublicURL         string
 	IsSupporter          bool
 	OrganisationName     string
 	IsManageOrganisation bool
