@@ -460,6 +460,7 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.Han
 				appData.OrganisationName = loginSession.OrganisationName
 
 				sessionData.OrganisationID = loginSession.OrganisationID
+				sessionData.Email = loginSession.Email
 			}
 
 			appData.Page = path.Format(appData.LpaID)
