@@ -36,7 +36,7 @@ func YourDateOfBirth(tmpl template.Template, donorStore DonorStore) Handler {
 				data.DobWarning = dobWarning
 			}
 
-			if !data.Errors.Any() && data.DobWarning == "" {
+			if data.Errors.None() && data.DobWarning == "" {
 				if donor.Donor.DateOfBirth == data.Form.Dob {
 					return page.Paths.MakeANewLPA.Redirect(w, r, appData, donor)
 				}

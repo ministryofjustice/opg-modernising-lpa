@@ -68,7 +68,7 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 				data.NameWarning = nameWarning
 			}
 
-			if !data.Errors.Any() && data.DobWarning == "" && data.NameWarning == nil {
+			if data.Errors.None() && data.DobWarning == "" && data.NameWarning == nil {
 				redirect := page.Paths.YourAddress
 
 				if donor.Donor.FirstNames != data.Form.FirstNames || donor.Donor.LastName != data.Form.LastName || donor.Donor.DateOfBirth != data.Form.Dob {
