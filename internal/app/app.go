@@ -12,7 +12,6 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -78,11 +77,7 @@ func App(
 	payClient *pay.Client,
 	notifyClient *notify.Client,
 	addressClient *place.Client,
-	rumConfig page.RumConfig,
-	staticHash string,
-	paths page.AppPaths,
 	oneLoginClient *onelogin.Client,
-	oneloginURL string,
 	s3Client S3Client,
 	eventClient *event.Client,
 	lpaStoreClient *lpastore.Client,
@@ -113,21 +108,21 @@ func App(
 	rootMux := http.NewServeMux()
 	handleRoot := makeHandle(rootMux, errorHandler, sessionStore)
 
-	handleRoot(paths.Root, None,
+	handleRoot(page.Paths.Root, None,
 		notFoundHandler)
-	handleRoot(paths.SignOut, None,
+	handleRoot(page.Paths.SignOut, None,
 		page.SignOut(logger, sessionStore, oneLoginClient, appPublicURL))
-	handleRoot(paths.Fixtures, None,
+	handleRoot(page.Paths.Fixtures, None,
 		fixtures.Donor(tmpls.Get("fixtures.gohtml"), sessionStore, donorStore, certificateProviderStore, attorneyStore, documentStore, eventClient))
-	handleRoot(paths.CertificateProviderFixtures, None,
+	handleRoot(page.Paths.CertificateProviderFixtures, None,
 		fixtures.CertificateProvider(tmpls.Get("certificate_provider_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore))
-	handleRoot(paths.AttorneyFixtures, None,
+	handleRoot(page.Paths.AttorneyFixtures, None,
 		fixtures.Attorney(tmpls.Get("attorney_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore))
-	handleRoot(paths.SupporterFixtures, None,
+	handleRoot(page.Paths.SupporterFixtures, None,
 		fixtures.Supporter(sessionStore, organisationStore))
-	handleRoot(paths.DashboardFixtures, None,
+	handleRoot(page.Paths.DashboardFixtures, None,
 		fixtures.Dashboard(tmpls.Get("dashboard_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore))
-	handleRoot(paths.YourLegalRightsAndResponsibilities, None,
+	handleRoot(page.Paths.YourLegalRightsAndResponsibilities, None,
 		page.Guidance(tmpls.Get("your_legal_rights_and_responsibilities_general.gohtml")))
 	handleRoot(page.Paths.Start, None,
 		page.Guidance(tmpls.Get("start.gohtml")))
@@ -217,10 +212,10 @@ func App(
 		lpaStoreClient,
 	)
 
-	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang, rumConfig, staticHash, oneloginURL)
+	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang)
 }
 
-func withAppData(next http.Handler, localizer page.Localizer, lang localize.Lang, rumConfig page.RumConfig, staticHash, oneloginURL string) http.HandlerFunc {
+func withAppData(next http.Handler, localizer page.Localizer, lang localize.Lang) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		if contentType, _, _ := strings.Cut(r.Header.Get("Content-Type"), ";"); contentType != "multipart/form-data" {
@@ -232,11 +227,6 @@ func withAppData(next http.Handler, localizer page.Localizer, lang localize.Lang
 		appData.Query = queryString(r)
 		appData.Localizer = localizer
 		appData.Lang = lang
-		appData.RumConfig = rumConfig
-		appData.StaticHash = staticHash
-		appData.Paths = page.Paths
-		appData.ActorTypes = actor.ActorTypes
-		appData.OneloginURL = oneloginURL
 
 		_, cookieErr := r.Cookie("cookies-consent")
 		appData.CookieConsentSet = cookieErr != http.ErrNoCookie

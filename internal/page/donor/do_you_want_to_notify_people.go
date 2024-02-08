@@ -47,10 +47,10 @@ func DoYouWantToNotifyPeople(tmpl template.Template, donorStore DonorStore) Hand
 				donor.DoYouWantToNotifyPeople = data.Form.YesNo
 				donor.Tasks.PeopleToNotify = actor.TaskInProgress
 
-				redirectPath := appData.Paths.ChoosePeopleToNotify
+				redirectPath := page.Paths.ChoosePeopleToNotify
 
 				if donor.DoYouWantToNotifyPeople == form.No {
-					redirectPath = appData.Paths.TaskList
+					redirectPath = page.Paths.TaskList
 					donor.Tasks.PeopleToNotify = actor.TaskCompleted
 				}
 
