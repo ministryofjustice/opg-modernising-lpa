@@ -20,8 +20,11 @@ import (
 )
 
 type SessionData struct {
-	SessionID      string
-	LpaID          string
+	SessionID string
+	LpaID     string
+
+	// if a supporter
+	Email          string
 	OrganisationID string
 }
 
