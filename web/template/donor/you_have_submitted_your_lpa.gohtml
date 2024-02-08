@@ -25,7 +25,7 @@
       {{ $signIn4WeeksWarning := trFormatCount .App "signIn4WeeksWarning" .Donor.Attorneys.Len "CpFirstNames" .Donor.CertificateProvider.FirstNames "AttorneysAndCpSigningDeadline" $formattedDeadline}}
       {{ template "warning" (content .App $signIn4WeeksWarning) }}
 
-      <a class="govuk-button" href="{{ link .App .App.Paths.Dashboard.Format }}" data-module="govuk-button">
+      <a class="govuk-button" href="{{ link .App global.Paths.Dashboard.Format }}" data-module="govuk-button">
         {{ tr .App "continue" }}
       </a>
     </div>

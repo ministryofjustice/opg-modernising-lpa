@@ -24,8 +24,8 @@
 
       {{ template "details" (details . "imHavingProblemWithCode" (
         trFormat .App "imHavingProblemWithCodeContent"
-        "ResendLink" (link .App (.App.Paths.ResendIndependentWitnessCode.Format .Donor.LpaID))
-        "ChangeLink" (link .App (.App.Paths.ChangeIndependentWitnessMobileNumber.Format .Donor.LpaID))
+        "ResendLink" (link .App (global.Paths.ResendIndependentWitnessCode.Format .Donor.LpaID))
+        "ChangeLink" (link .App (global.Paths.ChangeIndependentWitnessMobileNumber.Format .Donor.LpaID))
       ) false) }}
     </div>
   </div>

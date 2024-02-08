@@ -47,9 +47,9 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore Dono
 				}
 
 				if donor.ReplacementAttorneys.Len() > 1 && donor.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct() {
-					return appData.Paths.HowShouldReplacementAttorneysMakeDecisions.Redirect(w, r, appData, donor)
+					return page.Paths.HowShouldReplacementAttorneysMakeDecisions.Redirect(w, r, appData, donor)
 				} else {
-					return appData.Paths.TaskList.Redirect(w, r, appData, donor)
+					return page.Paths.TaskList.Redirect(w, r, appData, donor)
 				}
 			}
 		}

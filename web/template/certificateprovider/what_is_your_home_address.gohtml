@@ -55,7 +55,7 @@
 
                         <div class="govuk-button-group">
                             <button name="{{ .Form.FieldNames.Action }}" value="postcode-select" class="govuk-button" data-module="govuk-button">{{ tr .App "continue" }}</button>
-                            <a href="{{ link .App (.App.Paths.CertificateProvider.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+                            <a href="{{ link .App (global.Paths.CertificateProvider.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
                         </div>
                     {{ else }}
                         <p class="govuk-body">{{ tr .App "thisIsRequiredToCheckAndProtect" }}</p>
@@ -78,7 +78,7 @@
 
                         <div class="govuk-button-group">
                             <button name="{{ .Form.FieldNames.Action }}" value="postcode-lookup" class="govuk-button" data-module="govuk-button">{{ tr .App "findAddress" }}</button>
-                            <a href="{{ link .App (.App.Paths.CertificateProvider.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+                            <a href="{{ link .App (global.Paths.CertificateProvider.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
                         </div>
                     {{ end }}
                 </fieldset>

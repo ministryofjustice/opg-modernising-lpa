@@ -9,7 +9,7 @@
         <h1 class="govuk-heading-xl">{{ tr .App "enterTheTrustCorporationsDetails" }}</h1>
 
         <p class="govuk-body">
-          <a href="{{ link .App (.App.Paths.ChooseAttorneys.Format .LpaID) }}" class="govuk-link govuk-link--no-visited-state">
+          <a href="{{ link .App (global.Paths.ChooseAttorneys.Format .LpaID) }}" class="govuk-link govuk-link--no-visited-state">
             {{ tr .App "myAttorneyIsNotTrustCorporation" }}
           </a>
         </p>
