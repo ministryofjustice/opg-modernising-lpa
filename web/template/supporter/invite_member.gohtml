@@ -19,7 +19,7 @@
         <div class="govuk-form-group">
           <fieldset class="govuk-fieldset">
             {{ template "checkboxes" (items . "permission" .Form.Permission.String
-            (item .Form.Options.Admin.String "makeThisPersonAnAdmin" "hint" "adminPermissionHint")
+            (item .Options.Admin.String "makeThisPersonAnAdmin" "hint" "adminPermissionHint")
             ) }}
           </fieldset>
         </div>

@@ -12,18 +12,18 @@ import (
 )
 
 type inviteMemberData struct {
-	App    page.AppData
-	Errors validation.List
-	Form   *inviteMemberForm
+	App     page.AppData
+	Errors  validation.List
+	Form    *inviteMemberForm
+	Options actor.PermissionOptions
 }
 
 func InviteMember(tmpl template.Template, organisationStore OrganisationStore, notifyClient NotifyClient, randomString func(int) string) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
 		data := &inviteMemberData{
-			App: appData,
-			Form: &inviteMemberForm{
-				Options: PermissionValues,
-			},
+			App:     appData,
+			Form:    &inviteMemberForm{},
+			Options: actor.PermissionValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -60,12 +60,10 @@ func InviteMember(tmpl template.Template, organisationStore OrganisationStore, n
 }
 
 type inviteMemberForm struct {
-	FirstNames      string
-	LastName        string
-	Email           string
-	Permission      Permission
-	Options         PermissionOptions
-	PermissionError error
+	FirstNames string
+	LastName   string
+	Email      string
+	Permission actor.Permission
 }
 
 func readInviteMemberForm(r *http.Request) *inviteMemberForm {
@@ -73,10 +71,9 @@ func readInviteMemberForm(r *http.Request) *inviteMemberForm {
 		Email:      page.PostFormString(r, "email"),
 		FirstNames: page.PostFormString(r, "first-names"),
 		LastName:   page.PostFormString(r, "last-name"),
-		Options:    PermissionValues,
 	}
 
-	form.Permission, form.PermissionError = ParsePermission(page.PostFormString(r, "permission"))
+	form.Permission, _ = actor.ParsePermission(page.PostFormString(r, "permission"))
 
 	return form
 }
@@ -96,7 +93,7 @@ func (f *inviteMemberForm) Validate() validation.List {
 		validation.Empty(),
 		validation.Email())
 
-	errors.Error("permission", "makeThisPersonAnAdmin", f.PermissionError)
+	errors.Options("permission", "makeThisPersonAnAdmin", []string{f.Permission.String()}, validation.Select(actor.None.String(), actor.Admin.String()))
 
 	return errors
 }

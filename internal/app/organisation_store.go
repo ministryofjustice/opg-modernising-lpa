@@ -8,7 +8,6 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/supporter"
 )
 
 type organisationStore struct {
@@ -82,7 +81,7 @@ func (s *organisationStore) Put(ctx context.Context, organisation *actor.Organis
 	return s.dynamoClient.Put(ctx, organisation)
 }
 
-func (s *organisationStore) CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission supporter.Permission) error {
+func (s *organisationStore) CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error {
 	invite := &actor.MemberInvite{
 		PK:             memberInviteKey(code),
 		SK:             memberInviteKey(code),

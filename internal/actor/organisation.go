@@ -2,8 +2,6 @@ package actor
 
 import (
 	"time"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/supporter"
 )
 
 const memberInviteExpireAfter = time.Hour * 48
@@ -33,7 +31,7 @@ type Member struct {
 	LastName   string
 	Email      string
 	// Permission is the type of permissions assigned to the member to set available actions in an Organisation
-	Permission supporter.Permission
+	Permission Permission
 }
 
 // A MemberInvite is created to allow a new Member to join an Organisation
@@ -48,7 +46,7 @@ type MemberInvite struct {
 	FirstNames string
 	LastName   string
 	// Permission is the type of permissions assigned to the member to set available actions in an Organisation
-	Permission supporter.Permission
+	Permission Permission
 }
 
 func (i MemberInvite) HasExpired() bool {
