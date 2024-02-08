@@ -66,7 +66,7 @@ func TestPostInviteMember(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendEmail(r.Context(), "email@example.com", notify.MemberInviteEmail{
+		SendEmail(r.Context(), "email@example.com", notify.OrganisationMemberInviteEmail{
 			OrganisationName: "My organisation",
 			InviteCode:       "abcde",
 		}).
