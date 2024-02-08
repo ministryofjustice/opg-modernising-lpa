@@ -1,6 +1,7 @@
 package supporter
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -53,8 +54,9 @@ func TestGetInviteMemberWhenTemplateErrors(t *testing.T) {
 func TestPostInviteMember(t *testing.T) {
 	form := url.Values{"email": {"email@example.com"}}
 
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "inviter@example.com"})
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	organisation := &actor.Organisation{Name: "My organisation"}
@@ -66,8 +68,9 @@ func TestPostInviteMember(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendEmail(r.Context(), "email@example.com", notify.MemberInviteEmail{
+		SendEmail(r.Context(), "email@example.com", notify.OrganisationMemberInviteEmail{
 			OrganisationName: "My organisation",
+			InviterEmail:     "inviter@example.com",
 			InviteCode:       "abcde",
 		}).
 		Return(nil)
@@ -108,8 +111,9 @@ func TestPostInviteMemberWhenValidationError(t *testing.T) {
 func TestPostInviteMemberWhenCreateMemberInviteErrors(t *testing.T) {
 	form := url.Values{"email": {"email@example.com"}}
 
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "inviter@example.com"})
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	organisationStore := newMockOrganisationStore(t)
@@ -124,8 +128,9 @@ func TestPostInviteMemberWhenCreateMemberInviteErrors(t *testing.T) {
 func TestPostInviteMemberWhenNotifySendErrors(t *testing.T) {
 	form := url.Values{"email": {"email@example.com"}}
 
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "inviter@example.com"})
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	organisationStore := newMockOrganisationStore(t)
