@@ -16,7 +16,7 @@
 
       <p class="govuk-body">{{ tr .App "opgWillNowContactAnyoneWhoHasAlreadyBeenContacted" }}</p>
 
-      <a href="{{ link .App .App.Paths.Dashboard.Format }}" class="govuk-button">{{ tr .App "returnToDashboard" }}</a>
+      <a href="{{ link .App global.Paths.Dashboard.Format }}" class="govuk-button">{{ tr .App "returnToDashboard" }}</a>
     </div>
   </div>
 {{ end }}

@@ -50,7 +50,7 @@
       <nav aria-label="GOV.UK One Login menu" class="one-login-header__nav" data-open-class="one-login-header__nav--open" id="one-login-header__nav">
         <ul class="one-login-header__nav__list">
           <li class="one-login-header__nav__list-item">
-            <a class="one-login-header__nav__link one-login-header__nav__link--one-login" href="{{ .App.OneloginURL }}">
+            <a class="one-login-header__nav__link one-login-header__nav__link--one-login" href="{{ global.OneloginURL }}">
               <span class="one-login-header__nav__link-content">
                 GOV.UK One Login
               </span>
@@ -77,7 +77,7 @@
             </a>
           </li>
           <li class="one-login-header__nav__list-item">
-            <a class="one-login-header__nav__link" href="{{ .App.Paths.SignOut }}">
+            <a class="one-login-header__nav__link" href="{{ global.Paths.SignOut }}">
               {{ tr .App "signOut" }}
             </a>
           </li>
@@ -113,17 +113,17 @@
               {{ if .App.IsSupporter }}
                 {{ if .App.OrganisationName }}
                   <li class="service-header__nav-list-item {{ if not .App.IsManageOrganisation }}service-header__nav-list-item--active{{ end }}">
-                    <a class="service-header__nav-list-item-link" aria-current="page" href="{{ link .App .App.Paths.Supporter.Dashboard.Format }}">{{ tr .App "dashboard" }}</a>
+                    <a class="service-header__nav-list-item-link" aria-current="page" href="{{ link .App global.Paths.Supporter.Dashboard.Format }}">{{ tr .App "dashboard" }}</a>
                   </li>
                   <li class="service-header__nav-list-item {{ if .App.IsManageOrganisation }}service-header__nav-list-item--active{{ end }}">
-                    <a class="service-header__nav-list-item-link" href="{{ link .App .App.Paths.Supporter.OrganisationDetails.Format }}">{{ tr .App "manageOrganisation" }}</a>
+                    <a class="service-header__nav-list-item-link" href="{{ link .App global.Paths.Supporter.OrganisationDetails.Format }}">{{ tr .App "manageOrganisation" }}</a>
                   </li>
                 {{ else }}
                   <li class="govuk-!-padding-top-9"></li>
                 {{ end }}
               {{ else }}
                 <li class="service-header__nav-list-item service-header__nav-list-item--active">
-                  <a class="service-header__nav-list-item-link" aria-current="page" href="{{ link .App .App.Paths.Dashboard.Format }}">{{ tr .App "manageYourLpas" }}</a>
+                  <a class="service-header__nav-list-item-link" aria-current="page" href="{{ link .App global.Paths.Dashboard.Format }}">{{ tr .App "manageYourLpas" }}</a>
                 </li>
                 <li class="service-header__nav-list-item">
                   <a class="service-header__nav-list-item-link" href="#">{{ tr .App "helpAndSupport" }}</a>

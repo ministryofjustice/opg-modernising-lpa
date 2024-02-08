@@ -45,7 +45,7 @@ func TestLogin(t *testing.T) {
 		Save(r, w, session).
 		Return(nil)
 
-	Login(client, sessionStore, func(int) string { return "i am random" }, "/redirect")(AppData{Lang: localize.Cy, Paths: Paths}, w, r)
+	Login(client, sessionStore, func(int) string { return "i am random" }, "/redirect")(AppData{Lang: localize.Cy}, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
