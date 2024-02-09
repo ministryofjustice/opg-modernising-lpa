@@ -1047,8 +1047,11 @@
     "setTheirPermissions": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh</p>",
     "makeThisPersonAnAdmin": "Welsh",
     "adminPermissionHint": "Welsh",
-    "invitedTeamMembers": "Welsh",
+    "donorDetails": "Welsh",
     "status": "Welsh",
+    "paid": "Welsh",
+    "signed": "Welsh",
+    "invitedTeamMembers": "Welsh",
     "invitePending": "Welsh",
     "resendInvite": "Welsh",
     "toMemberName": "Welsh {{ .MemberName }}"

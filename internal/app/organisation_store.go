@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -109,6 +111,37 @@ func (s *organisationStore) CreateMemberInvite(ctx context.Context, organisation
 	return nil
 }
 
+func (s *organisationStore) CreateLPA(ctx context.Context) (*actor.DonorProvidedDetails, error) {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.OrganisationID == "" {
+		return nil, errors.New("organisationStore.CreateLPA requires OrganisationID")
+	}
+
+	lpaID := s.uuidString()
+
+	donor := &actor.DonorProvidedDetails{
+		PK:        lpaKey(lpaID),
+		SK:        organisationKey(data.OrganisationID),
+		LpaID:     lpaID,
+		CreatedAt: s.now(),
+		Version:   1,
+	}
+
+	if donor.Hash, err = donor.GenerateHash(); err != nil {
+		return nil, err
+	}
+
+	if err := s.dynamoClient.Create(ctx, donor); err != nil {
+		return nil, err
+	}
+
+	return donor, err
+}
+
 func (s *organisationStore) InvitedMembers(ctx context.Context) ([]*actor.MemberInvite, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
@@ -127,35 +160,30 @@ func (s *organisationStore) InvitedMembers(ctx context.Context) ([]*actor.Member
 	return invitedMembers, nil
 }
 
-func (s *organisationStore) CreateLPA(ctx context.Context, organisationID string) (*actor.DonorProvidedDetails, error) {
+func (s *organisationStore) AllLPAs(ctx context.Context) ([]actor.DonorProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	if data.SessionID == "" {
-		return nil, errors.New("donorStore.Create requires SessionID")
+	if data.OrganisationID == "" {
+		return nil, errors.New("organisationStore.AllLPAs requires OrganisationID")
 	}
 
-	lpaID := s.uuidString()
-
-	donor := &actor.DonorProvidedDetails{
-		PK:        lpaKey(lpaID),
-		SK:        organisationKey(organisationID),
-		LpaID:     lpaID,
-		CreatedAt: s.now(),
-		Version:   1,
+	var donors []actor.DonorProvidedDetails
+	if err := s.dynamoClient.AllForActor(ctx, organisationKey(data.OrganisationID), &donors); err != nil {
+		return nil, fmt.Errorf("organisationStore.AllLPAs error retrieving keys for organisation: %w", err)
 	}
 
-	if donor.Hash, err = donor.GenerateHash(); err != nil {
-		return nil, err
-	}
+	donors = slices.DeleteFunc(donors, func(key actor.DonorProvidedDetails) bool {
+		return !strings.HasPrefix(key.PK, lpaKey(""))
+	})
 
-	if err := s.dynamoClient.Create(ctx, donor); err != nil {
-		return nil, err
-	}
+	slices.SortFunc(donors, func(a, b actor.DonorProvidedDetails) int {
+		return strings.Compare(a.Donor.FullName(), b.Donor.FullName())
+	})
 
-	return donor, err
+	return donors, nil
 }
 
 func organisationKey(s string) string {

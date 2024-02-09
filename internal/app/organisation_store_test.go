@@ -188,12 +188,12 @@ func TestOrganisationStorePut(t *testing.T) {
 }
 
 func TestOrganisationStoreCreateMemberInvite(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
 		Create(ctx, &actor.MemberInvite{
-			PK:             "MEMBERINVITE#abcde",
+			PK:             "ORGANISATION#an-id",
 			SK:             "MEMBERINVITE#abcde",
 			CreatedAt:      testNow,
 			OrganisationID: "a-uuid",
@@ -211,7 +211,7 @@ func TestOrganisationStoreCreateMemberInvite(t *testing.T) {
 }
 
 func TestOrganisationStoreCreateMemberInviteWhenErrors(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -225,7 +225,7 @@ func TestOrganisationStoreCreateMemberInviteWhenErrors(t *testing.T) {
 }
 
 func TestOrganisationStoreCreateLPA(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
 	expectedDonor := &actor.DonorProvidedDetails{
 		PK:        "LPA#a-uuid",
 		SK:        "ORGANISATION#an-id",
@@ -242,34 +242,34 @@ func TestOrganisationStoreCreateLPA(t *testing.T) {
 
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-	donor, err := organisationStore.CreateLPA(ctx, "an-id")
+	donor, err := organisationStore.CreateLPA(ctx)
 
 	assert.Nil(t, err)
 	assert.Equal(t, expectedDonor, donor)
 }
 
 func TestOrganisationStoreCreateLPAWithSessionMissing(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: ""})
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: ""})
 
 	organisationStore := &organisationStore{dynamoClient: nil, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-	_, err := organisationStore.CreateLPA(ctx, "an-id")
+	_, err := organisationStore.CreateLPA(ctx)
 
 	assert.NotNil(t, err)
 }
 
-func TestOrganisationStoreCreateLPAMissingSessionID(t *testing.T) {
+func TestOrganisationStoreCreateLPAMissingOrganisationID(t *testing.T) {
 	ctx := context.Background()
 
 	organisationStore := &organisationStore{dynamoClient: nil, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-	_, err := organisationStore.CreateLPA(ctx, "an-id")
+	_, err := organisationStore.CreateLPA(ctx)
 
 	assert.Equal(t, page.SessionMissingError{}, err)
 }
 
 func TestOrganisationStoreCreateLPAWhenDynamoError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -278,7 +278,84 @@ func TestOrganisationStoreCreateLPAWhenDynamoError(t *testing.T) {
 
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-	_, err := organisationStore.CreateLPA(ctx, "an-id")
+	_, err := organisationStore.CreateLPA(ctx)
 
 	assert.Equal(t, expectedError, err)
+}
+
+func TestOrganisationStoreAllLPAs(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
+	expectedDonorA := actor.DonorProvidedDetails{
+		PK:    "LPA#a-uuid",
+		SK:    "ORGANISATION#an-id",
+		LpaID: "a-uuid",
+		Donor: actor.Donor{
+			FirstNames: "a",
+			LastName:   "a",
+		},
+	}
+	expectedDonorB := actor.DonorProvidedDetails{
+		PK:    "LPA#b-uuid",
+		SK:    "ORGANISATION#an-id",
+		LpaID: "b-uuid",
+		Donor: actor.Donor{
+			FirstNames: "a",
+			LastName:   "b",
+		},
+	}
+	expectedDonorC := actor.DonorProvidedDetails{
+		PK:    "LPA#c-uuid",
+		SK:    "ORGANISATION#an-id",
+		LpaID: "c-uuid",
+		Donor: actor.Donor{
+			FirstNames: "c",
+			LastName:   "a",
+		},
+	}
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectAllForActor(ctx, "ORGANISATION#an-id",
+		[]actor.DonorProvidedDetails{
+			expectedDonorB,
+			expectedDonorC,
+			expectedDonorA,
+			{PK: "ORGANISATION#an-id", SK: "ORGANISATION#an-id"},
+		}, nil)
+
+	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+
+	donors, err := organisationStore.AllLPAs(ctx)
+
+	assert.Nil(t, err)
+	assert.Equal(t, []actor.DonorProvidedDetails{expectedDonorA, expectedDonorB, expectedDonorC}, donors)
+}
+
+func TestOrganisationStoreAllLPAsWithSessionMissing(t *testing.T) {
+	testcases := map[string]context.Context{
+		"no session id":   page.ContextWithSessionData(context.Background(), &page.SessionData{}),
+		"no session data": context.Background(),
+	}
+
+	for name, ctx := range testcases {
+		t.Run(name, func(t *testing.T) {
+			organisationStore := &organisationStore{}
+
+			donors, err := organisationStore.AllLPAs(ctx)
+			assert.Error(t, err)
+			assert.Nil(t, donors)
+		})
+	}
+}
+
+func TestOrganisationStoreAllLPAsWhenErrors(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectAllForActor(ctx, "ORGANISATION#an-id",
+		nil, expectedError)
+
+	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+
+	_, err := organisationStore.AllLPAs(ctx)
+	assert.ErrorIs(t, err, expectedError)
 }

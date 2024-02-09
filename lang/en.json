@@ -985,8 +985,11 @@
     "setTheirPermissions": "<h2 class=\"govuk-heading-m\">Set their permissions</h2><p class=\"govuk-body\">All users can create and edit LPAs.</p>",
     "makeThisPersonAnAdmin": "Make this person an admin",
     "adminPermissionHint": "Admins can manage team members and change the organisation’s details.",
-    "invitedTeamMembers": "Invited team members",
+    "donorDetails": "Donor details",
     "status": "Status",
+    "paid": "Paid",
+    "signed": "Signed",
+    "invitedTeamMembers": "Invited team members",
     "invitePending": "Invite pending",
     "resendInvite": "Resend invite",
     "toMemberName": "to {{ .MemberName }}"

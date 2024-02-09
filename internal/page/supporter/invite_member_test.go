@@ -87,7 +87,7 @@ func TestPostInviteMember(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.InviteMemberConfirmation.Format()+"?email=email%40example.com", resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.Supporter.OrganisationDetails.Format()+"?email=email%40example.com", resp.Header.Get("Location"))
 }
 
 func TestPostInviteMemberWhenValidationError(t *testing.T) {
