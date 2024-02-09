@@ -23,13 +23,13 @@
       <div class="govuk-tabs app-tabs-no-border">
         <ul class="govuk-tabs__list">
           <li class="govuk-tabs__list-item">
-            <a class="govuk-tabs__tab" href="#">{{ tr .App "manageTeamMembers" }}</a>
+            <a class="govuk-tabs__tab" href="{{ link .App global.Paths.Supporter.ManageTeamMembers.Format }}">{{ tr .App "manageTeamMembers" }}</a>
           </li>
           <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
-            <a class="govuk-tabs__tab" href="#">{{ tr .App "organisationDetails" }}</a>
+            <a class="govuk-tabs__tab" href="{{ link .App global.Paths.Supporter.OrganisationDetails.Format }}">{{ tr .App "organisationDetails" }}</a>
           </li>
         </ul>
-        <div class="govuk-tabs__panel">
+        <div class="govuk-tabs__panel" id="organisation-details">
           <dl class="govuk-summary-list app-summary-list--border-top">
             <div class="govuk-summary-list__row">
               <dt class="govuk-summary-list__key">

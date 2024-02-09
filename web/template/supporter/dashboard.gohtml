@@ -10,7 +10,6 @@
       <form novalidate method="post">
         <div class="govuk-button-group">
           <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "makeANewLPA" }}</button>
-          <a class="govuk-button govuk-button--secondary" href="{{ link .App global.Paths.Supporter.InviteMember.Format }}">{{ tr .App "inviteTeamMember" }}</a>
         </div>
         {{ template "csrf-field" . }}
       </form>

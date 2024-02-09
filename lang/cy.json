@@ -1050,5 +1050,9 @@
     "donorDetails": "Welsh",
     "status": "Welsh",
     "paid": "Welsh",
-    "signed": "Welsh"
+    "signed": "Welsh",
+    "invitedTeamMembers": "Welsh",
+    "invitePending": "Welsh",
+    "resendInvite": "Welsh",
+    "toMemberName": "Welsh {{ .MemberName }}"
 }
