@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -358,4 +359,43 @@ func TestOrganisationStoreAllLPAsWhenErrors(t *testing.T) {
 
 	_, err := organisationStore.AllLPAs(ctx)
 	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestOrganisationStoreInvitedMembers(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectAllByPartialSk(ctx, "ORGANISATION#an-id",
+		"MEMBERINVITE#", []*actor.MemberInvite{{OrganisationID: "an-id"}, {OrganisationID: "an-id"}}, nil)
+
+	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+
+	invitedMembers, err := organisationStore.InvitedMembers(ctx)
+
+	assert.Nil(t, err)
+	assert.Equal(t, []*actor.MemberInvite{{OrganisationID: "an-id"}, {OrganisationID: "an-id"}}, invitedMembers)
+}
+
+func TestOrganisationStoreInvitedMembersWhenSessionMissingOrgID(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{})
+
+	organisationStore := &organisationStore{now: testNowFn, uuidString: func() string { return "a-uuid" }}
+
+	_, err := organisationStore.InvitedMembers(ctx)
+
+	assert.Equal(t, errors.New("organisationStore.Get requires OrganisationID"), err)
+}
+
+func TestOrganisationStoreInvitedMembersWhenDynamoClientError(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectAllByPartialSk(ctx, "ORGANISATION#an-id",
+		"MEMBERINVITE#", []*actor.MemberInvite{}, expectedError)
+
+	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+
+	_, err := organisationStore.InvitedMembers(ctx)
+
+	assert.Equal(t, expectedError, err)
 }
