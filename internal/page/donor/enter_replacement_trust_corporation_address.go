@@ -18,7 +18,7 @@ func EnterReplacementTrustCorporationAddress(logger Logger, tmpl template.Templa
 			appData,
 			"theTrustCorporation",
 			"",
-			"",
+			trustCorporation.UID,
 			false,
 		)
 
