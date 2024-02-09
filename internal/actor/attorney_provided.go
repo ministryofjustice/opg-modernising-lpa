@@ -12,7 +12,7 @@ import (
 type AttorneyProvidedDetails struct {
 	PK, SK string
 	// The identifier of the attorney or replacement attorney being edited
-	ID string
+	UID UID
 	// The identifier of the LPA the attorney or replacement attorney is named in
 	LpaID string
 	// Tracking when AttorneyProvidedDetails is updated

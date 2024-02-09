@@ -12,8 +12,7 @@ import (
 
 func RemoveReplacementAttorney(logger Logger, tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
-		id := r.FormValue("id")
-		attorney, found := donor.ReplacementAttorneys.Get(id)
+		attorney, found := donor.ReplacementAttorneys.Get(actor.UIDFromRequest(r))
 
 		if found == false {
 			return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, donor)
