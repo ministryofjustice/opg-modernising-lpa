@@ -38,6 +38,7 @@ func EnterOrganisationName(tmpl template.Template, organisationStore Organisatio
 				}
 
 				loginSession.OrganisationID = organisation.ID
+				loginSession.OrganisationName = organisation.Name
 				if err := sesh.SetLoginSession(sessionStore, r, w, loginSession); err != nil {
 					return err
 				}
