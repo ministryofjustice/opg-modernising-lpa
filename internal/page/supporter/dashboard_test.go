@@ -14,18 +14,39 @@ func TestGetDashboard(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
+	donors := []actor.DonorProvidedDetails{{LpaID: "abc"}}
+
+	organisationStore := newMockOrganisationStore(t)
+	organisationStore.EXPECT().
+		AllLPAs(r.Context()).
+		Return(donors, nil)
+
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &DashboardData{
-			App: testAppData,
+		Execute(w, &dashboardData{
+			App:    testAppData,
+			Donors: donors,
 		}).
-		Return(nil)
+		Return(expectedError)
 
-	err := Dashboard(template.Execute, nil)(testAppData, w, r, nil)
+	err := Dashboard(template.Execute, organisationStore)(testAppData, w, r, nil)
 	resp := w.Result()
 
-	assert.Nil(t, err)
+	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestGetDashboardWhenOrganisationStoreErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	organisationStore := newMockOrganisationStore(t)
+	organisationStore.EXPECT().
+		AllLPAs(r.Context()).
+		Return(nil, expectedError)
+
+	err := Dashboard(nil, organisationStore)(testAppData, w, r, nil)
+	assert.Equal(t, expectedError, err)
 }
 
 func TestPostDashboard(t *testing.T) {
@@ -34,7 +55,7 @@ func TestPostDashboard(t *testing.T) {
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		CreateLPA(r.Context(), "org-id").
+		CreateLPA(r.Context()).
 		Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
 
 	err := Dashboard(nil, organisationStore)(testAppData, w, r, &actor.Organisation{ID: "org-id"})
@@ -51,7 +72,7 @@ func TestPostDashboardWhenOrganisationStoreError(t *testing.T) {
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		CreateLPA(r.Context(), "org-id").
+		CreateLPA(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, expectedError)
 
 	err := Dashboard(nil, organisationStore)(testAppData, w, r, &actor.Organisation{ID: "org-id"})
