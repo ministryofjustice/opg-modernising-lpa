@@ -84,10 +84,11 @@ func TestPostEnterOrganisationName(t *testing.T) {
 		Return(session, nil)
 
 	session.Values = map[any]any{"session": &sesh.LoginSession{
-		IDToken:        "id-token",
-		Sub:            "random",
-		Email:          "name@example.com",
-		OrganisationID: "org-id",
+		IDToken:          "id-token",
+		Sub:              "random",
+		Email:            "name@example.com",
+		OrganisationID:   "org-id",
+		OrganisationName: "My organisation",
 	}}
 
 	sessionStore.EXPECT().
