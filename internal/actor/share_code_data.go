@@ -4,7 +4,7 @@ type ShareCodeData struct {
 	PK, SK                string
 	SessionID             string
 	LpaID                 string
-	AttorneyID            string
+	AttorneyUID           UID
 	IsReplacementAttorney bool
 	IsTrustCorporation    bool
 	DonorFullname         string

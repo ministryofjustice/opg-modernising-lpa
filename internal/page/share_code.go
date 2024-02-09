@@ -126,9 +126,9 @@ func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData AppD
 			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
 		},
 		actor.ShareCodeData{
-			SessionID:  appData.SessionID,
-			LpaID:      appData.LpaID,
-			AttorneyID: attorney.ID,
+			SessionID:   appData.SessionID,
+			LpaID:       appData.LpaID,
+			AttorneyUID: attorney.UID,
 		}, donor)
 }
 
@@ -148,7 +148,7 @@ func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData A
 		}, actor.ShareCodeData{
 			SessionID:             appData.SessionID,
 			LpaID:                 appData.LpaID,
-			AttorneyID:            attorney.ID,
+			AttorneyUID:           attorney.UID,
 			IsReplacementAttorney: true,
 		}, donor)
 }
