@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
@@ -14,7 +15,7 @@ type certificateProviderStore struct {
 	now          func() time.Time
 }
 
-func (s *certificateProviderStore) Create(ctx context.Context, donorSessionID string) (*actor.CertificateProviderProvidedDetails, error) {
+func (s *certificateProviderStore) Create(ctx context.Context, donorSessionID string, certificateProviderUID actoruid.UID) (*actor.CertificateProviderProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -27,6 +28,7 @@ func (s *certificateProviderStore) Create(ctx context.Context, donorSessionID st
 	cp := &actor.CertificateProviderProvidedDetails{
 		PK:        lpaKey(data.LpaID),
 		SK:        certificateProviderKey(data.SessionID),
+		UID:       certificateProviderUID,
 		LpaID:     data.LpaID,
 		UpdatedAt: s.now(),
 	}

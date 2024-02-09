@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/stretchr/testify/assert"
@@ -512,6 +513,12 @@ func TestShareCodeSenderSendCertificateProviderPromptWhenShareCodeStoreErrors(t 
 }
 
 func TestShareCodeSenderSendAttorneys(t *testing.T) {
+	uid1 := actoruid.New()
+	uid2 := actoruid.New()
+	uid3 := actoruid.New()
+	uid4 := actoruid.New()
+	uid5 := actoruid.New()
+
 	donor := &actor.DonorProvidedDetails{
 		Attorneys: actor.Attorneys{
 			TrustCorporation: actor.TrustCorporation{
@@ -520,19 +527,19 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			},
 			Attorneys: []actor.Attorney{
 				{
-					ID:         "1",
+					UID:        uid1,
 					FirstNames: "Joanna",
 					LastName:   "Jones",
 					Email:      "name@example.org",
 				},
 				{
-					ID:         "2",
+					UID:        uid2,
 					FirstNames: "John",
 					LastName:   "Jones",
 					Email:      "name2@example.org",
 				},
 				{
-					ID:         "3",
+					UID:        uid3,
 					FirstNames: "Nope",
 					LastName:   "Jones",
 				},
@@ -545,13 +552,13 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			},
 			Attorneys: []actor.Attorney{
 				{
-					ID:         "4",
+					UID:        uid4,
 					FirstNames: "Dave",
 					LastName:   "Davis",
 					Email:      "dave@example.com",
 				},
 				{
-					ID:         "5",
+					UID:        uid5,
 					FirstNames: "Donny",
 					LastName:   "Davis",
 				},
@@ -585,13 +592,13 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 		Put(ctx, actor.TypeAttorney, RandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", IsTrustCorporation: true, IsReplacementAttorney: true}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeAttorney, RandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", AttorneyID: "1"}).
+		Put(ctx, actor.TypeAttorney, RandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: uid1}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeAttorney, RandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", AttorneyID: "2"}).
+		Put(ctx, actor.TypeAttorney, RandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: uid2}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeAttorney, RandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", AttorneyID: "4", IsReplacementAttorney: true}).
+		Put(ctx, actor.TypeAttorney, RandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: uid4, IsReplacementAttorney: true}).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)

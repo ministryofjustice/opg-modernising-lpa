@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -16,7 +17,7 @@ func YourIndependentWitnessAddress(logger Logger, tmpl template.Template, addres
 			appData,
 			"independentWitness",
 			donor.IndependentWitness.FullName(),
-			"",
+			actoruid.UID{},
 			false,
 		)
 

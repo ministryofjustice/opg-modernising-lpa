@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
@@ -14,7 +15,7 @@ type attorneyStore struct {
 	now          func() time.Time
 }
 
-func (s *attorneyStore) Create(ctx context.Context, donorSessionID, attorneyID string, isReplacement, isTrustCorporation bool) (*actor.AttorneyProvidedDetails, error) {
+func (s *attorneyStore) Create(ctx context.Context, donorSessionID string, attorneyUID actoruid.UID, isReplacement, isTrustCorporation bool) (*actor.AttorneyProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -27,7 +28,7 @@ func (s *attorneyStore) Create(ctx context.Context, donorSessionID, attorneyID s
 	attorney := &actor.AttorneyProvidedDetails{
 		PK:                 lpaKey(data.LpaID),
 		SK:                 attorneyKey(data.SessionID),
-		ID:                 attorneyID,
+		UID:                attorneyUID,
 		LpaID:              data.LpaID,
 		UpdatedAt:          s.now(),
 		IsReplacement:      isReplacement,

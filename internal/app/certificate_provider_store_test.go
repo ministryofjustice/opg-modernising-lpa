@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
@@ -14,8 +15,9 @@ import (
 
 func TestCertificateProviderStoreCreate(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
+	uid := actoruid.New()
 	now := time.Now()
-	details := &actor.CertificateProviderProvidedDetails{PK: "LPA#123", SK: "#CERTIFICATE_PROVIDER#456", LpaID: "123", UpdatedAt: now}
+	details := &actor.CertificateProviderProvidedDetails{PK: "LPA#123", SK: "#CERTIFICATE_PROVIDER#456", LpaID: "123", UpdatedAt: now, UID: uid}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -27,7 +29,7 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 
 	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-	certificateProvider, err := certificateProviderStore.Create(ctx, "session-id")
+	certificateProvider, err := certificateProviderStore.Create(ctx, "session-id", uid)
 	assert.Nil(t, err)
 	assert.Equal(t, details, certificateProvider)
 }
@@ -37,7 +39,7 @@ func TestCertificateProviderStoreCreateWhenSessionMissing(t *testing.T) {
 
 	certificateProviderStore := &certificateProviderStore{dynamoClient: nil, now: nil}
 
-	_, err := certificateProviderStore.Create(ctx, "session-id")
+	_, err := certificateProviderStore.Create(ctx, "session-id", actoruid.New())
 	assert.Equal(t, page.SessionMissingError{}, err)
 }
 
@@ -53,7 +55,7 @@ func TestCertificateProviderStoreCreateWhenSessionDataMissing(t *testing.T) {
 
 			certificateProviderStore := &certificateProviderStore{}
 
-			_, err := certificateProviderStore.Create(ctx, "session-id")
+			_, err := certificateProviderStore.Create(ctx, "session-id", actoruid.New())
 			assert.NotNil(t, err)
 		})
 	}
@@ -92,7 +94,7 @@ func TestCertificateProviderStoreCreateWhenCreateError(t *testing.T) {
 
 			certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-			_, err := certificateProviderStore.Create(ctx, "session-id")
+			_, err := certificateProviderStore.Create(ctx, "session-id", actoruid.New())
 			assert.Equal(t, expectedError, err)
 		})
 	}

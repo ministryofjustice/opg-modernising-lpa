@@ -3,6 +3,7 @@ package actor
 import (
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -11,22 +12,25 @@ func TestPersonToNotifyFullName(t *testing.T) {
 }
 
 func TestPeopleToNotifyGet(t *testing.T) {
+	uid1 := actoruid.New()
+	uid2 := actoruid.New()
+
 	testCases := map[string]struct {
 		peopleToNotify         PeopleToNotify
 		expectedPersonToNotify PersonToNotify
-		id                     string
+		id                     actoruid.UID
 		expectedFound          bool
 	}{
 		"personToNotify exists": {
-			peopleToNotify:         PeopleToNotify{{ID: "1", FirstNames: "Bob"}, {ID: "2"}},
-			expectedPersonToNotify: PersonToNotify{ID: "1", FirstNames: "Bob"},
-			id:                     "1",
+			peopleToNotify:         PeopleToNotify{{UID: uid1, FirstNames: "Bob"}, {UID: uid2}},
+			expectedPersonToNotify: PersonToNotify{UID: uid1, FirstNames: "Bob"},
+			id:                     uid1,
 			expectedFound:          true,
 		},
 		"personToNotify does not exist": {
-			peopleToNotify:         PeopleToNotify{{ID: "1", FirstNames: "Bob"}, {ID: "2"}},
+			peopleToNotify:         PeopleToNotify{{UID: uid1, FirstNames: "Bob"}, {UID: uid2}},
 			expectedPersonToNotify: PersonToNotify{},
-			id:                     "4",
+			id:                     actoruid.New(),
 			expectedFound:          false,
 		},
 	}
@@ -42,6 +46,10 @@ func TestPeopleToNotifyGet(t *testing.T) {
 }
 
 func TestPeopleToNotifyPut(t *testing.T) {
+	uid1 := actoruid.New()
+	uid2 := actoruid.New()
+	uid3 := actoruid.New()
+
 	testCases := map[string]struct {
 		peopleToNotify         PeopleToNotify
 		expectedPeopleToNotify PeopleToNotify
@@ -49,15 +57,15 @@ func TestPeopleToNotifyPut(t *testing.T) {
 		expectedUpdated        bool
 	}{
 		"personToNotify exists": {
-			peopleToNotify:         PeopleToNotify{{ID: "1"}, {ID: "2"}},
-			expectedPeopleToNotify: PeopleToNotify{{ID: "1", FirstNames: "Bob"}, {ID: "2"}},
-			updatedPersonToNotify:  PersonToNotify{ID: "1", FirstNames: "Bob"},
+			peopleToNotify:         PeopleToNotify{{UID: uid1}, {UID: uid2}},
+			expectedPeopleToNotify: PeopleToNotify{{UID: uid1, FirstNames: "Bob"}, {UID: uid2}},
+			updatedPersonToNotify:  PersonToNotify{UID: uid1, FirstNames: "Bob"},
 			expectedUpdated:        true,
 		},
 		"personToNotify does not exist": {
-			peopleToNotify:         PeopleToNotify{{ID: "1"}, {ID: "2"}},
-			expectedPeopleToNotify: PeopleToNotify{{ID: "1"}, {ID: "2"}},
-			updatedPersonToNotify:  PersonToNotify{ID: "3", FirstNames: "Bob"},
+			peopleToNotify:         PeopleToNotify{{UID: uid1}, {UID: uid2}},
+			expectedPeopleToNotify: PeopleToNotify{{UID: uid1}, {UID: uid2}},
+			updatedPersonToNotify:  PersonToNotify{UID: uid3, FirstNames: "Bob"},
 			expectedUpdated:        false,
 		},
 	}
@@ -73,6 +81,10 @@ func TestPeopleToNotifyPut(t *testing.T) {
 }
 
 func TestPeopleToNotifyDelete(t *testing.T) {
+	uid1 := actoruid.New()
+	uid2 := actoruid.New()
+	uid3 := actoruid.New()
+
 	testCases := map[string]struct {
 		peopleToNotify         PeopleToNotify
 		expectedPeopleToNotify PeopleToNotify
@@ -80,15 +92,15 @@ func TestPeopleToNotifyDelete(t *testing.T) {
 		expectedDeleted        bool
 	}{
 		"personToNotify exists": {
-			peopleToNotify:         PeopleToNotify{{ID: "1"}, {ID: "2"}},
-			expectedPeopleToNotify: PeopleToNotify{{ID: "1"}},
-			personToNotifyToDelete: PersonToNotify{ID: "2"},
+			peopleToNotify:         PeopleToNotify{{UID: uid1}, {UID: uid2}},
+			expectedPeopleToNotify: PeopleToNotify{{UID: uid1}},
+			personToNotifyToDelete: PersonToNotify{UID: uid2},
 			expectedDeleted:        true,
 		},
 		"personToNotify does not exist": {
-			peopleToNotify:         PeopleToNotify{{ID: "1"}, {ID: "2"}},
-			expectedPeopleToNotify: PeopleToNotify{{ID: "1"}, {ID: "2"}},
-			personToNotifyToDelete: PersonToNotify{ID: "3"},
+			peopleToNotify:         PeopleToNotify{{UID: uid1}, {UID: uid2}},
+			expectedPeopleToNotify: PeopleToNotify{{UID: uid1}, {UID: uid2}},
+			personToNotifyToDelete: PersonToNotify{UID: uid3},
 			expectedDeleted:        false,
 		},
 	}
