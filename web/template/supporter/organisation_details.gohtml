@@ -52,38 +52,41 @@
           {{ if .InvitedMembers }}
             <h2 class="govuk-heading-m">{{ tr .App "invitedTeamMembers" }}</h2>
 
-            <dl class="govuk-summary-list app-summary-list--border-top">
-              <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__value govuk-!-font-weight-bold">
-                  {{ tr .App "name" }}
-                </dt>
-                <dd class="govuk-summary-list__value govuk-!-font-weight-bold">
-                  {{ tr .App "email" }}
-                </dd>
-                <dd class="govuk-summary-list__value govuk-!-font-weight-bold">
-                  {{ tr .App "status" }}
-                </dd>
-                <dd class="govuk-summary-list__actions">
-                </dd>
-              </div>
-
-              {{ range .InvitedMembers }}
-              <div class="govuk-summary-list__row">
-                <dd class="govuk-summary-list__value app-dark-grey">
-                  {{ .FullName }}
-                </dd>
-                <dd class="govuk-summary-list__value app-dark-grey">
-                  {{ .Email }}
-                </dd>
-                <dd class="govuk-summary-list__value app-dark-grey">
-                  {{ tr $.App "invitePending" }}
-                </dd>
-                <dd class="govuk-summary-list__actions">
-                  <a class="govuk-link" href="#">{{ tr $.App "resendInvite" }}<span class="govuk-visually-hidden"> {{ trFormat $.App "toMemberName" "MemberName" .FullName }}</span></a>
-                </dd>
-              </div>
-              {{ end }}
-            </dl>
+            <table class="govuk-table">
+              <thead class="govuk-table__head">
+                <tr class="govuk-summary-list__row">
+                  <th class="govuk-table__header govuk-!-font-weight-bold">
+                    {{ tr .App "name" }}
+                  </th>
+                  <th class="govuk-table__header govuk-!-font-weight-bold">
+                    {{ tr .App "email" }}
+                  </th>
+                  <th class="govuk-table__header govuk-!-font-weight-bold">
+                    {{ tr .App "status" }}
+                  </th>
+                  <th class="govuk-table__header">
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="govuk-table__body">
+                {{ range .InvitedMembers }}
+                    <tr class="govuk-table__row">
+                      <td class="govuk-table__cell app-dark-grey">
+                        {{ .FullName }}
+                      </td>
+                      <td class="govuk-table__cell app-dark-grey">
+                        {{ .Email }}
+                      </td>
+                      <td class="govuk-table__cell app-dark-grey">
+                        {{ tr $.App "invitePending" }}
+                      </td>
+                      <td class="govuk-table__cell">
+                        <a class="govuk-link" href="#">{{ tr $.App "resendInvite" }}<span class="govuk-visually-hidden"> {{ trFormat $.App "toMemberName" "MemberName" .FullName }}</span></a>
+                      </td>
+                    </tr>
+                {{ end }}
+              </tbody>
+            </table>
           {{ end }}
         </div>
         <div class="govuk-tabs__panel" id="organisation-details">
