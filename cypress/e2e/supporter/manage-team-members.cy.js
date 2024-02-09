@@ -2,7 +2,7 @@ const { TestEmail } = require("../../support/e2e");
 
 describe('Organisation details', () => {
     beforeEach(() => {
-        cy.visit('/fixtures/supporter?organisation=1&redirect=/manage-organisation/organisation-details&inviteMembers=1');
+        cy.visit('/fixtures/supporter?organisation=1&redirect=/manage-organisation/manage-team-members&inviteMembers=1');
     });
 
     it('shows invited members', () => {

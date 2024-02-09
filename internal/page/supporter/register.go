@@ -86,9 +86,11 @@ func Register(
 		InviteMember(tmpls.Get("invite_member.gohtml"), organisationStore, notifyClient, random.String, appPublicURL))
 
 	handleWithSupporter(paths.OrganisationDetails,
-		OrganisationDetails(tmpls.Get("organisation_details.gohtml"), organisationStore))
+		Guidance(tmpls.Get("organisation_details.gohtml")))
 	handleWithSupporter(paths.EditOrganisationName,
 		EditOrganisationName(tmpls.Get("edit_organisation_name.gohtml"), organisationStore))
+	handleWithSupporter(paths.ManageTeamMembers,
+		ManageTeamMembers(tmpls.Get("manage_team_members.gohtml"), organisationStore))
 }
 
 func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler) func(page.Path, page.HandleOpt, page.Handler) {

@@ -14,7 +14,7 @@ describe('Invite member', () => {
 
     cy.contains('button', 'Send invite').click();
 
-    cy.url().should('contain', '/manage-organisation/organisation-details');
+    cy.url().should('contain', '/manage-organisation/manage-team-members');
     cy.checkA11yApp();
 
     cy.get('.govuk-notification-banner--success').within(() => {
@@ -30,7 +30,7 @@ describe('Invite member', () => {
 
     cy.contains('button', 'Send invite').click();
 
-    cy.url().should('contain', '/manage-organisation/organisation-details');
+    cy.url().should('contain', '/manage-organisation/manage-team-members');
     cy.checkA11yApp();
 
     cy.get('.govuk-notification-banner--success').within(() => {
