@@ -12,8 +12,7 @@ import (
 
 func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
-		personId := r.FormValue("id")
-		personToNotify, found := donor.PeopleToNotify.Get(personId)
+		personToNotify, found := donor.PeopleToNotify.Get(actor.UIDFromRequest(r))
 
 		if found == false {
 			return page.Paths.ChoosePeopleToNotify.Redirect(w, r, appData, donor)
@@ -23,7 +22,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 			appData,
 			"personToNotify",
 			personToNotify.FullName(),
-			personToNotify.ID,
+			personToNotify.UID,
 			false,
 		)
 

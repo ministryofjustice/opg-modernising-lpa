@@ -17,15 +17,16 @@ import (
 )
 
 func TestGetChooseAttorneysAddress(t *testing.T) {
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &chooseAddressData{
 			App:        testAppData,
 			Form:       form.NewAddressForm(),
-			ID:         "123",
+			UID:        uid,
 			FullName:   "John Smith",
 			CanSkip:    true,
 			ActorLabel: "attorney",
@@ -35,7 +36,7 @@ func TestGetChooseAttorneysAddress(t *testing.T) {
 
 	err := ChooseAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
-			ID:         "123",
+			UID:        uid,
 			FirstNames: "John",
 			LastName:   "Smith",
 			Address:    place.Address{},
@@ -48,11 +49,12 @@ func TestGetChooseAttorneysAddress(t *testing.T) {
 }
 
 func TestGetChooseAttorneysAddressFromStore(t *testing.T) {
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
 	attorney := actor.Attorney{
-		ID:      "123",
+		UID:     uid,
 		Address: testAddress,
 	}
 
@@ -65,7 +67,7 @@ func TestGetChooseAttorneysAddressFromStore(t *testing.T) {
 				Address:    &testAddress,
 				FieldNames: form.FieldNames.Address,
 			},
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "attorney",
@@ -83,8 +85,9 @@ func TestGetChooseAttorneysAddressFromStore(t *testing.T) {
 }
 
 func TestGetChooseAttorneysAddressManual(t *testing.T) {
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?action=manual&id=123", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?action=manual&id="+uid.String(), nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -95,7 +98,7 @@ func TestGetChooseAttorneysAddressManual(t *testing.T) {
 				Address:    &place.Address{},
 				FieldNames: form.FieldNames.Address,
 			},
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "attorney",
@@ -104,7 +107,7 @@ func TestGetChooseAttorneysAddressManual(t *testing.T) {
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}},
+		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -113,15 +116,16 @@ func TestGetChooseAttorneysAddressManual(t *testing.T) {
 }
 
 func TestGetChooseAttorneysAddressWhenTemplateErrors(t *testing.T) {
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &chooseAddressData{
 			App:        testAppData,
 			Form:       form.NewAddressForm(),
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "attorney",
@@ -130,7 +134,7 @@ func TestGetChooseAttorneysAddressWhenTemplateErrors(t *testing.T) {
 		Return(expectedError)
 
 	err := ChooseAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}},
+		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -148,15 +152,16 @@ func TestPostChooseAttorneysAddressSkip(t *testing.T) {
 		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:     "lpa-id",
-			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123", FirstNames: "a", Email: "a"}}},
+			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid, FirstNames: "a", Email: "a"}}},
 			Tasks:     actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
@@ -164,7 +169,7 @@ func TestPostChooseAttorneysAddressSkip(t *testing.T) {
 	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
-			ID:         "123",
+			UID:        uid,
 			FirstNames: "a",
 			Email:      "a",
 			Address:    place.Address{Line1: "abc"},
@@ -187,8 +192,9 @@ func TestPostChooseAttorneysAddressSkipWhenStoreErrors(t *testing.T) {
 		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
@@ -198,7 +204,7 @@ func TestPostChooseAttorneysAddressSkipWhenStoreErrors(t *testing.T) {
 
 	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
-			ID:      "123",
+			UID:     uid,
 			Address: place.Address{Line1: "abc"},
 		}}},
 	})
@@ -216,8 +222,9 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
@@ -226,7 +233,7 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 			LpaID: "lpa-id",
 			Tasks: actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
-				ID:         "123",
+				UID:        uid,
 				FirstNames: "a",
 				Address:    testAddress,
 			}}},
@@ -236,7 +243,7 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
-			ID:         "123",
+			UID:        uid,
 			FirstNames: "a",
 			Address:    place.Address{},
 		}}},
@@ -258,8 +265,9 @@ func TestPostChooseAttorneysAddressManualWhenStoreErrors(t *testing.T) {
 		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
@@ -269,7 +277,7 @@ func TestPostChooseAttorneysAddressManualWhenStoreErrors(t *testing.T) {
 
 	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
-			ID:      "123",
+			UID:     uid,
 			Address: place.Address{},
 		}}},
 	})
@@ -287,8 +295,9 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
@@ -297,7 +306,7 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 			LpaID: "lpa-id",
 			Tasks: actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
-				ID:         "123",
+				UID:        uid,
 				FirstNames: "John",
 				Address:    testAddress,
 			}}},
@@ -307,7 +316,7 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
-			ID:         "123",
+			UID:        uid,
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
 		}}},
@@ -327,12 +336,13 @@ func TestPostChooseAttorneysAddressManualWhenValidationError(t *testing.T) {
 		form.FieldNames.Address.Postcode:   {"d"},
 	}
 
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	attorney := actor.Attorney{
-		ID:      "123",
+		UID:     uid,
 		Address: place.Address{},
 	}
 
@@ -353,7 +363,7 @@ func TestPostChooseAttorneysAddressManualWhenValidationError(t *testing.T) {
 				FieldNames: form.FieldNames.Address,
 			},
 			Errors:     validation.With(form.FieldNames.Address.Line1, validation.EnterError{Label: "addressLine1"}),
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "attorney",
@@ -377,8 +387,9 @@ func TestPostChooseAttorneysAddressPostcodeSelect(t *testing.T) {
 		"select-address":               {testAddress.Encode()},
 	}
 
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
@@ -391,7 +402,7 @@ func TestPostChooseAttorneysAddressPostcodeSelect(t *testing.T) {
 				Address:        &testAddress,
 				FieldNames:     form.FieldNames.Address,
 			},
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "attorney",
@@ -400,7 +411,7 @@ func TestPostChooseAttorneysAddressPostcodeSelect(t *testing.T) {
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}},
+		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -414,8 +425,9 @@ func TestPostChooseAttorneysAddressPostcodeSelectWhenValidationError(t *testing.
 		"lookup-postcode":              {"NG1"},
 	}
 
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	addresses := []place.Address{
@@ -438,7 +450,7 @@ func TestPostChooseAttorneysAddressPostcodeSelectWhenValidationError(t *testing.
 			},
 			Addresses:  addresses,
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "attorney",
@@ -447,7 +459,7 @@ func TestPostChooseAttorneysAddressPostcodeSelectWhenValidationError(t *testing.
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}},
+		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -461,8 +473,9 @@ func TestPostChooseAttorneysPostcodeLookup(t *testing.T) {
 		"lookup-postcode":              {"NG1"},
 	}
 
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	addresses := []place.Address{
@@ -484,7 +497,7 @@ func TestPostChooseAttorneysPostcodeLookup(t *testing.T) {
 				FieldNames:     form.FieldNames.Address,
 			},
 			Addresses:  addresses,
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "attorney",
@@ -493,7 +506,7 @@ func TestPostChooseAttorneysPostcodeLookup(t *testing.T) {
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}},
+		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -507,8 +520,9 @@ func TestPostChooseAttorneysPostcodeLookupError(t *testing.T) {
 		"lookup-postcode":              {"NG1"},
 	}
 
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := newMockLogger(t)
@@ -531,7 +545,7 @@ func TestPostChooseAttorneysPostcodeLookupError(t *testing.T) {
 			},
 			Addresses:  []place.Address{},
 			Errors:     validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "attorney",
@@ -540,7 +554,7 @@ func TestPostChooseAttorneysPostcodeLookupError(t *testing.T) {
 		Return(nil)
 
 	err := ChooseAttorneysAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}},
+		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -560,7 +574,8 @@ func TestPostChooseAttorneysPostcodeLookupInvalidPostcodeError(t *testing.T) {
 		"lookup-postcode":              {"XYZ"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	uid := actor.NewUID()
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := newMockLogger(t)
@@ -583,7 +598,7 @@ func TestPostChooseAttorneysPostcodeLookupInvalidPostcodeError(t *testing.T) {
 			},
 			Addresses:  []place.Address{},
 			Errors:     validation.With("lookup-postcode", validation.EnterError{Label: "invalidPostcode"}),
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "attorney",
@@ -592,7 +607,7 @@ func TestPostChooseAttorneysPostcodeLookupInvalidPostcodeError(t *testing.T) {
 		Return(nil)
 
 	err := ChooseAttorneysAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}},
+		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -608,7 +623,8 @@ func TestPostChooseAttorneysPostcodeLookupValidPostcodeNoAddresses(t *testing.T)
 		"lookup-postcode":              {"XYZ"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	uid := actor.NewUID()
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	addressClient := newMockAddressClient(t)
@@ -627,7 +643,7 @@ func TestPostChooseAttorneysPostcodeLookupValidPostcodeNoAddresses(t *testing.T)
 			},
 			Addresses:  []place.Address{},
 			Errors:     validation.With("lookup-postcode", validation.CustomError{Label: "noAddressesFound"}),
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "attorney",
@@ -636,7 +652,7 @@ func TestPostChooseAttorneysPostcodeLookupValidPostcodeNoAddresses(t *testing.T)
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}},
+		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -649,8 +665,9 @@ func TestPostChooseAttorneysPostcodeLookupWhenValidationError(t *testing.T) {
 		form.FieldNames.Address.Action: {"postcode-lookup"},
 	}
 
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
@@ -662,7 +679,7 @@ func TestPostChooseAttorneysPostcodeLookupWhenValidationError(t *testing.T) {
 				FieldNames: form.FieldNames.Address,
 			},
 			Errors:     validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "attorney",
@@ -671,7 +688,7 @@ func TestPostChooseAttorneysPostcodeLookupWhenValidationError(t *testing.T) {
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}},
+		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -684,8 +701,9 @@ func TestPostChooseAttorneysAddressReuse(t *testing.T) {
 		form.FieldNames.Address.Action: {"reuse"},
 	}
 
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
@@ -696,7 +714,7 @@ func TestPostChooseAttorneysAddressReuse(t *testing.T) {
 				Action:     "reuse",
 				FieldNames: form.FieldNames.Address,
 			},
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "attorney",
@@ -707,7 +725,7 @@ func TestPostChooseAttorneysAddressReuse(t *testing.T) {
 
 	err := ChooseAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor:     actor.Donor{Address: place.Address{Line1: "donor lane"}},
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}},
+		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -721,12 +739,13 @@ func TestPostChooseAttorneysAddressReuseSelect(t *testing.T) {
 		"select-address":               {testAddress.Encode()},
 	}
 
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	updatedAttorney := actor.Attorney{
-		ID: "123",
+		UID: uid,
 		Address: place.Address{
 			Line1:      "a",
 			Line2:      "b",
@@ -748,7 +767,7 @@ func TestPostChooseAttorneysAddressReuseSelect(t *testing.T) {
 
 	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID:     "lpa-id",
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}},
+		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -762,8 +781,9 @@ func TestPostChooseAttorneysAddressReuseSelectWhenValidationError(t *testing.T) 
 		form.FieldNames.Address.Action: {"reuse-select"},
 	}
 
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
@@ -776,7 +796,7 @@ func TestPostChooseAttorneysAddressReuseSelectWhenValidationError(t *testing.T) 
 			},
 			Addresses:  []place.Address{{Line1: "donor lane"}},
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			CanSkip:    true,
 			ActorLabel: "attorney",
@@ -786,7 +806,7 @@ func TestPostChooseAttorneysAddressReuseSelectWhenValidationError(t *testing.T) 
 
 	err := ChooseAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor:     actor.Donor{Address: place.Address{Line1: "donor lane"}},
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}},
+		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -795,20 +815,22 @@ func TestPostChooseAttorneysAddressReuseSelectWhenValidationError(t *testing.T) 
 }
 
 func TestPostChooseAttorneysManuallyFromAnotherPage(t *testing.T) {
+	uid := actor.NewUID()
+
 	testcases := map[string]struct {
 		requestUrl      string
 		expectedNextUrl string
 	}{
 		"with from value": {
-			"/?from=/test&id=123",
+			"/?from=/test&id=" + uid.String(),
 			"/test",
 		},
 		"without from value": {
-			"/?from=&id=123",
+			"/?from=&id=" + uid.String(),
 			page.Paths.ChooseAttorneysSummary.Format("lpa-id"),
 		},
 		"missing from key": {
-			"/?id=123",
+			"/?id=" + uid.String(),
 			page.Paths.ChooseAttorneysSummary.Format("lpa-id"),
 		},
 	}
@@ -830,7 +852,7 @@ func TestPostChooseAttorneysManuallyFromAnotherPage(t *testing.T) {
 				LpaID: "lpa-id",
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{
-						ID: "123",
+						UID: uid,
 						Address: place.Address{
 							Line1:      "a",
 							TownOrCity: "b",
