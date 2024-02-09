@@ -95,7 +95,7 @@ func Sign(
 				attorneys = lpa.ReplacementAttorneys
 			}
 
-			attorney, ok := attorneys.Get(appData.AttorneyID)
+			attorney, ok := attorneys.Get(appData.AttorneyUID)
 			if !ok {
 				return page.Paths.Attorney.Start.Redirect(w, r, appData)
 			}

@@ -20,10 +20,10 @@ type chooseReplacementAttorneysData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, uuidString func() string) Handler {
+func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, newUID func() actor.UID) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		addAnother := r.FormValue("addAnother") == "1"
-		attorney, attorneyFound := donor.ReplacementAttorneys.Get(r.URL.Query().Get("id"))
+		attorney, attorneyFound := donor.ReplacementAttorneys.Get(actor.UIDFromRequest(r))
 
 		if r.Method == http.MethodGet && donor.ReplacementAttorneys.Len() > 0 && !attorneyFound && !addAnother {
 			return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, donor)
@@ -47,7 +47,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, u
 
 			nameWarning := actor.NewSameNameWarning(
 				actor.TypeReplacementAttorney,
-				replacementAttorneyMatches(donor, attorney.ID, data.Form.FirstNames, data.Form.LastName),
+				replacementAttorneyMatches(donor, attorney.UID, data.Form.FirstNames, data.Form.LastName),
 				data.Form.FirstNames,
 				data.Form.LastName,
 			)
@@ -62,7 +62,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, u
 
 			if data.Errors.None() && data.DobWarning == "" && data.NameWarning == nil {
 				if attorneyFound == false {
-					attorney = actor.Attorney{ID: uuidString()}
+					attorney = actor.Attorney{UID: newUID()}
 				}
 
 				attorney.FirstNames = data.Form.FirstNames
@@ -78,7 +78,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, u
 					return err
 				}
 
-				return page.Paths.ChooseReplacementAttorneysAddress.RedirectQuery(w, r, appData, donor, url.Values{"id": {attorney.ID}})
+				return page.Paths.ChooseReplacementAttorneysAddress.RedirectQuery(w, r, appData, donor, url.Values{"id": {attorney.UID.String()}})
 			}
 		}
 
@@ -90,7 +90,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, u
 	}
 }
 
-func replacementAttorneyMatches(donor *actor.DonorProvidedDetails, id, firstNames, lastName string) actor.Type {
+func replacementAttorneyMatches(donor *actor.DonorProvidedDetails, uid actor.UID, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}
@@ -106,7 +106,7 @@ func replacementAttorneyMatches(donor *actor.DonorProvidedDetails, id, firstName
 	}
 
 	for _, attorney := range donor.ReplacementAttorneys.Attorneys {
-		if attorney.ID != id && strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
+		if attorney.UID != uid && strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeReplacementAttorney
 		}
 	}

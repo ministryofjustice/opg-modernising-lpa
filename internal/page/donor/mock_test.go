@@ -33,6 +33,8 @@ var (
 	}
 	testNow   = time.Date(2023, time.July, 3, 4, 5, 6, 1, time.UTC)
 	testNowFn = func() time.Time { return testNow }
+	testUID   = actor.NewUID()
+	testUIDFn = func() actor.UID { return testUID }
 )
 
 func (m *mockDonorStore) withCompletedPaymentLpaData(r *http.Request, paymentId, paymentReference string, paymentAmount int) *mockDonorStore {

@@ -26,7 +26,7 @@ func TestGetCertificateProviderDetails(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CertificateProviderDetails(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := CertificateProviderDetails(template.Execute, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -79,7 +79,7 @@ func TestGetCertificateProviderDetailsFromStore(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := CertificateProviderDetails(template.Execute, nil)(testAppData, w, r, tc.donor)
+			err := CertificateProviderDetails(template.Execute, nil, testUIDFn)(testAppData, w, r, tc.donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -100,7 +100,7 @@ func TestGetCertificateProviderDetailsWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := CertificateProviderDetails(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := CertificateProviderDetails(template.Execute, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -119,6 +119,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				"mobile":      {"07535111111"},
 			},
 			certificateProviderDetails: actor.CertificateProvider{
+				UID:        testUID,
 				FirstNames: "John",
 				LastName:   "Rey",
 				Mobile:     "07535111111",
@@ -132,6 +133,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				"non-uk-mobile":     {"+337575757"},
 			},
 			certificateProviderDetails: actor.CertificateProvider{
+				UID:            testUID,
 				FirstNames:     "John",
 				LastName:       "Rey",
 				Mobile:         "+337575757",
@@ -146,6 +148,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeCertificateProvider, actor.TypeDonor, "Jane", "Doe").String()},
 			},
 			certificateProviderDetails: actor.CertificateProvider{
+				UID:        testUID,
 				FirstNames: "Jane",
 				LastName:   "Doe",
 				Mobile:     "07535111111",
@@ -159,6 +162,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				"ignore-similar-name-warning": {"yes"},
 			},
 			certificateProviderDetails: actor.CertificateProvider{
+				UID:        testUID,
 				FirstNames: "Joyce",
 				LastName:   "Doe",
 				Mobile:     "07535111111",
@@ -185,7 +189,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := CertificateProviderDetails(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := CertificateProviderDetails(nil, donorStore, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
 				LpaID: "lpa-id",
 				Donor: actor.Donor{
 					FirstNames: "Jane",
@@ -221,6 +225,7 @@ func TestPostCertificateProviderDetailsWhenAmendingDetailsAfterStateComplete(t *
 				LastName:   "Doe",
 			},
 			CertificateProvider: actor.CertificateProvider{
+				UID:        testUID,
 				FirstNames: "John",
 				LastName:   "Rey",
 				Mobile:     "07535111111",
@@ -229,7 +234,7 @@ func TestPostCertificateProviderDetailsWhenAmendingDetailsAfterStateComplete(t *
 		}).
 		Return(nil)
 
-	err := CertificateProviderDetails(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := CertificateProviderDetails(nil, donorStore, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
 		Donor: actor.Donor{
 			FirstNames: "Jane",
@@ -324,7 +329,7 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := CertificateProviderDetails(template.Execute, nil)(testAppData, w, r, tc.existingDonor)
+			err := CertificateProviderDetails(template.Execute, nil, testUIDFn)(testAppData, w, r, tc.existingDonor)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -349,7 +354,7 @@ func TestPostCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := CertificateProviderDetails(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := CertificateProviderDetails(nil, donorStore, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
