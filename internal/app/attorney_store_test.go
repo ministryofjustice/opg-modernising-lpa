@@ -27,7 +27,8 @@ func TestAttorneyStoreCreate(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 			now := time.Now()
-			details := &actor.AttorneyProvidedDetails{PK: "LPA#123", SK: "#ATTORNEY#456", ID: "attorney-id", LpaID: "123", UpdatedAt: now, IsReplacement: tc.replacement, IsTrustCorporation: tc.trustCorporation}
+			uid := actor.NewUID()
+			details := &actor.AttorneyProvidedDetails{PK: "LPA#123", SK: "#ATTORNEY#456", UID: uid, LpaID: "123", UpdatedAt: now, IsReplacement: tc.replacement, IsTrustCorporation: tc.trustCorporation}
 
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.EXPECT().
@@ -39,7 +40,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 
 			attorneyStore := &attorneyStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-			attorney, err := attorneyStore.Create(ctx, "session-id", "attorney-id", tc.replacement, tc.trustCorporation)
+			attorney, err := attorneyStore.Create(ctx, "session-id", uid, tc.replacement, tc.trustCorporation)
 			assert.Nil(t, err)
 			assert.Equal(t, details, attorney)
 		})
@@ -51,7 +52,7 @@ func TestAttorneyStoreCreateWhenSessionMissing(t *testing.T) {
 
 	attorneyStore := &attorneyStore{dynamoClient: nil, now: nil}
 
-	_, err := attorneyStore.Create(ctx, "session-id", "attorney-id", false, false)
+	_, err := attorneyStore.Create(ctx, "session-id", actor.NewUID(), false, false)
 	assert.Equal(t, page.SessionMissingError{}, err)
 }
 
@@ -67,7 +68,7 @@ func TestAttorneyStoreCreateWhenSessionDataMissing(t *testing.T) {
 
 			attorneyStore := &attorneyStore{}
 
-			_, err := attorneyStore.Create(ctx, "session-id", "attorney-id", false, false)
+			_, err := attorneyStore.Create(ctx, "session-id", actor.NewUID(), false, false)
 			assert.NotNil(t, err)
 		})
 	}
@@ -106,7 +107,7 @@ func TestAttorneyStoreCreateWhenCreateError(t *testing.T) {
 
 			attorneyStore := &attorneyStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-			_, err := attorneyStore.Create(ctx, "session-id", "attorney-id", false, false)
+			_, err := attorneyStore.Create(ctx, "session-id", actor.NewUID(), false, false)
 			assert.Equal(t, expectedError, err)
 		})
 	}

@@ -16,7 +16,7 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 			appData,
 			"certificateProvider",
 			donor.CertificateProvider.FullName(),
-			"",
+			donor.CertificateProvider.UID,
 			false,
 		)
 
