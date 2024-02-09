@@ -211,6 +211,15 @@ func TestOrganisationStoreCreateMemberInvite(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestOrganisationStoreCreateMemberInviteWhenMissingOrganisationID(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{})
+
+	organisationStore := &organisationStore{now: testNowFn}
+
+	err := organisationStore.CreateMemberInvite(ctx, &actor.Organisation{}, "a", "b", "email@example.com", "abcde", actor.None)
+	assert.Equal(t, errors.New("organisationStore.Get requires OrganisationID"), err)
+}
+
 func TestOrganisationStoreCreateMemberInviteWhenErrors(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
 

@@ -20,3 +20,7 @@ func TestMemberInviteHasExpired(t *testing.T) {
 		})
 	}
 }
+
+func TestMemberInviteFullName(t *testing.T) {
+	assert.Equal(t, "a b c", MemberInvite{FirstNames: "a b", LastName: "c"}.FullName())
+}
