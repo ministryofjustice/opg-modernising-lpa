@@ -17,9 +17,7 @@ describe('Invite member', () => {
     cy.url().should('contain', '/manage-organisation/manage-team-members');
     cy.checkA11yApp();
 
-    cy.get('.govuk-notification-banner--success').within(() => {
-      cy.contains((TestEmail))
-    });
+    cy.contains('.govuk-notification-banner--success', TestEmail);
   });
 
   it('can invite an admin', () => {
@@ -33,9 +31,7 @@ describe('Invite member', () => {
     cy.url().should('contain', '/manage-organisation/manage-team-members');
     cy.checkA11yApp();
 
-    cy.get('.govuk-notification-banner--success').within(() => {
-      cy.contains((TestEmail))
-    });
+    cy.contains('.govuk-notification-banner--success', TestEmail);
   });
 
   it('errors when empty', () => {
