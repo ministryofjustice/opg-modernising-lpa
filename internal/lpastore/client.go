@@ -275,9 +275,9 @@ func (c *Client) SendAttorney(ctx context.Context, donor *actor.DonorProvidedDet
 	} else if attorney.IsTrustCorporation {
 		attorneyKey = "/trustCorporations/0"
 	} else if attorney.IsReplacement {
-		attorneyKey = fmt.Sprintf("/attorneys/%d", len(donor.Attorneys.Attorneys)+donor.ReplacementAttorneys.Index(attorney.ID))
+		attorneyKey = fmt.Sprintf("/attorneys/%d", len(donor.Attorneys.Attorneys)+donor.ReplacementAttorneys.Index(attorney.UID))
 	} else {
-		attorneyKey = fmt.Sprintf("/attorneys/%d", donor.Attorneys.Index(attorney.ID))
+		attorneyKey = fmt.Sprintf("/attorneys/%d", donor.Attorneys.Index(attorney.UID))
 	}
 
 	body := updateRequest{

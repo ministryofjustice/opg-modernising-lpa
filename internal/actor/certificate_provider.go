@@ -33,6 +33,8 @@ const (
 
 // CertificateProvider contains details about the certificate provider, provided by the applicant
 type CertificateProvider struct {
+	// UID for the actor
+	UID UID
 	// First names of the certificate provider
 	FirstNames string
 	// Last name of the certificate provider
