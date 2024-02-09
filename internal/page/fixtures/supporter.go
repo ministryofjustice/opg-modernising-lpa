@@ -14,14 +14,16 @@ import (
 type OrganisationStore interface {
 	Create(context.Context, string) (*actor.Organisation, error)
 	CreateLPA(context.Context) (*actor.DonorProvidedDetails, error)
+	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error
 }
 
 func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, donorStore DonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		var (
-			organisation = r.FormValue("organisation")
-			lpa          = r.FormValue("lpa")
-			redirect     = r.FormValue("redirect")
+			inviteMembers = r.FormValue("inviteMembers")
+			lpa           = r.FormValue("lpa")
+			organisation  = r.FormValue("organisation")
+			redirect      = r.FormValue("redirect")
 
 			supporterSub       = random.String(16)
 			supporterSessionID = base64.StdEncoding.EncodeToString([]byte(supporterSub))
@@ -56,6 +58,16 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, don
 				}
 
 				if err := donorStore.Put(donorCtx, donor); err != nil {
+					return err
+				}
+			}
+
+			if inviteMembers == "1" {
+				if err = organisationStore.CreateMemberInvite(page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID}), org, "Kamal", "Singh", "kamalsingh@example.org", random.String(12), actor.Admin); err != nil {
+					return err
+				}
+
+				if err = organisationStore.CreateMemberInvite(page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID}), org, "Jo", "Alessi", "jo_alessi@example.org", random.String(12), actor.Admin); err != nil {
 					return err
 				}
 			}

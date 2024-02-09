@@ -988,5 +988,9 @@
     "donorDetails": "Donor details",
     "status": "Status",
     "paid": "Paid",
-    "signed": "Signed"
+    "signed": "Signed",
+    "invitedTeamMembers": "Invited team members",
+    "invitePending": "Invite pending",
+    "resendInvite": "Resend invite",
+    "toMemberName": "to {{ .MemberName }}"
 }

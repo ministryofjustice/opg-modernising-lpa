@@ -110,3 +110,12 @@ body:not(.js-enabled) .govuk-back-link {
          @include govuk-responsive-padding(7, "top");
      }
 }
+
+.app-dark-grey {
+    color: govuk-colour("dark-grey")
+}
+
+// To override some design system max width styles when nesting components
+.app-full-width {
+    max-width: 100%
+}

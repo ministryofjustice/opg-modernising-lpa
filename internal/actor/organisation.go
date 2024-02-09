@@ -1,6 +1,7 @@
 package actor
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -46,4 +47,8 @@ type MemberInvite struct {
 
 func (i MemberInvite) HasExpired() bool {
 	return i.CreatedAt.Add(memberInviteExpireAfter).Before(time.Now())
+}
+
+func (i MemberInvite) FullName() string {
+	return fmt.Sprintf("%s %s", i.FirstNames, i.LastName)
 }

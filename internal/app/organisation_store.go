@@ -84,8 +84,17 @@ func (s *organisationStore) Put(ctx context.Context, organisation *actor.Organis
 }
 
 func (s *organisationStore) CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	if data.OrganisationID == "" {
+		return errors.New("organisationStore.Get requires OrganisationID")
+	}
+
 	invite := &actor.MemberInvite{
-		PK:             memberInviteKey(code),
+		PK:             organisationKey(data.OrganisationID),
 		SK:             memberInviteKey(code),
 		CreatedAt:      s.now(),
 		OrganisationID: organisation.ID,
@@ -131,6 +140,24 @@ func (s *organisationStore) CreateLPA(ctx context.Context) (*actor.DonorProvided
 	}
 
 	return donor, err
+}
+
+func (s *organisationStore) InvitedMembers(ctx context.Context) ([]*actor.MemberInvite, error) {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.OrganisationID == "" {
+		return nil, errors.New("organisationStore.Get requires OrganisationID")
+	}
+
+	var invitedMembers []*actor.MemberInvite
+	if err := s.dynamoClient.AllByPartialSk(ctx, organisationKey(data.OrganisationID), memberInviteKey(""), &invitedMembers); err != nil {
+		return nil, err
+	}
+
+	return invitedMembers, nil
 }
 
 func (s *organisationStore) AllLPAs(ctx context.Context) ([]actor.DonorProvidedDetails, error) {
