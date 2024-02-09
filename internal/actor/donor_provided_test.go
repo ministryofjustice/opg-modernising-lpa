@@ -27,12 +27,12 @@ func TestGenerateHash(t *testing.T) {
 	}}
 	hash, err := donor.GenerateHash()
 	assert.Nil(t, err)
-	assert.Equal(t, uint64(0xdf80e0da44d7fafd), hash)
+	assert.Equal(t, uint64(0x1c746864bd23d82e), hash)
 
 	donor.Attorneys.Attorneys[0].DateOfBirth = date.New("2001", "1", "2")
 	hash, err = donor.GenerateHash()
 	assert.Nil(t, err)
-	assert.Equal(t, uint64(0x1e06941b4d5e138e), hash)
+	assert.Equal(t, uint64(0x80d2d4728e9a797a), hash)
 }
 
 func TestIdentityConfirmed(t *testing.T) {
@@ -83,24 +83,28 @@ func TestAttorneysSigningDeadline(t *testing.T) {
 func TestUnder18ActorDetails(t *testing.T) {
 	under18 := date.Today().AddDate(0, 0, -1)
 	over18 := date.Today().AddDate(-18, 0, -1)
+	uid1 := NewUID()
+	uid2 := NewUID()
+	uid3 := NewUID()
+	uid4 := NewUID()
 
 	donor := DonorProvidedDetails{
 		LpaID: "lpa-id",
 		Attorneys: Attorneys{Attorneys: []Attorney{
-			{FirstNames: "a", LastName: "b", DateOfBirth: under18, ID: "1"},
-			{FirstNames: "c", LastName: "d", DateOfBirth: over18, ID: "2"},
+			{FirstNames: "a", LastName: "b", DateOfBirth: under18, UID: uid1},
+			{FirstNames: "c", LastName: "d", DateOfBirth: over18, UID: uid2},
 		}},
 		ReplacementAttorneys: Attorneys{Attorneys: []Attorney{
-			{FirstNames: "e", LastName: "f", DateOfBirth: under18, ID: "3"},
-			{FirstNames: "g", LastName: "h", DateOfBirth: over18, ID: "4"},
+			{FirstNames: "e", LastName: "f", DateOfBirth: under18, UID: uid3},
+			{FirstNames: "g", LastName: "h", DateOfBirth: over18, UID: uid4},
 		}},
 	}
 
 	actors := donor.Under18ActorDetails()
 
 	assert.Equal(t, []Under18ActorDetails{
-		{FullName: "a b", DateOfBirth: under18, ID: "1", Type: TypeAttorney},
-		{FullName: "e f", DateOfBirth: under18, ID: "3", Type: TypeReplacementAttorney},
+		{FullName: "a b", DateOfBirth: under18, UID: uid1, Type: TypeAttorney},
+		{FullName: "e f", DateOfBirth: under18, UID: uid3, Type: TypeReplacementAttorney},
 	}, actors)
 }
 
@@ -108,6 +112,12 @@ func TestAllAttorneysSigned(t *testing.T) {
 	lpaSignedAt := time.Now()
 	otherLpaSignedAt := lpaSignedAt.Add(time.Minute)
 	attorneySigned := lpaSignedAt.Add(time.Second)
+
+	uid1 := NewUID()
+	uid2 := NewUID()
+	uid3 := NewUID()
+	uid4 := NewUID()
+	uid5 := NewUID()
 
 	testcases := map[string]struct {
 		lpa       *DonorProvidedDetails
@@ -120,62 +130,62 @@ func TestAllAttorneysSigned(t *testing.T) {
 		"need attorney to sign": {
 			lpa: &DonorProvidedDetails{
 				SignedAt:             lpaSignedAt,
-				Attorneys:            Attorneys{Attorneys: []Attorney{{ID: "a1"}, {ID: "a2"}}},
-				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{ID: "r1"}}},
+				Attorneys:            Attorneys{Attorneys: []Attorney{{UID: uid1}, {UID: uid2}}},
+				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{UID: uid3}}},
 			},
 			attorneys: []*AttorneyProvidedDetails{
-				{ID: "a1", LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{ID: "a3", LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySigned},
-				{ID: "r1", IsReplacement: true, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid4, LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid3, IsReplacement: true, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
 			},
 			expected: false,
 		},
 		"need replacement attorney to sign": {
 			lpa: &DonorProvidedDetails{
 				SignedAt:             lpaSignedAt,
-				Attorneys:            Attorneys{Attorneys: []Attorney{{ID: "a1"}}},
-				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{ID: "r1"}, {ID: "r2"}}},
+				Attorneys:            Attorneys{Attorneys: []Attorney{{UID: uid1}}},
+				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{UID: uid3}, {UID: uid5}}},
 			},
 			attorneys: []*AttorneyProvidedDetails{
-				{ID: "a1", LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{ID: "r1", IsReplacement: true},
-				{ID: "r2", IsReplacement: true, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid3, IsReplacement: true},
+				{UID: uid5, IsReplacement: true, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
 			},
 			expected: false,
 		},
 		"all attorneys signed": {
 			lpa: &DonorProvidedDetails{
 				SignedAt:             lpaSignedAt,
-				Attorneys:            Attorneys{Attorneys: []Attorney{{ID: "a1"}, {ID: "a2"}}},
-				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{ID: "r1"}}},
+				Attorneys:            Attorneys{Attorneys: []Attorney{{UID: uid1}, {UID: uid2}}},
+				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{UID: uid3}}},
 			},
 			attorneys: []*AttorneyProvidedDetails{
-				{ID: "a1", LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{ID: "a2", LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{ID: "r1", IsReplacement: true, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid2, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid3, IsReplacement: true, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
 			},
 			expected: true,
 		},
 		"more attorneys signed": {
 			lpa: &DonorProvidedDetails{
 				SignedAt:  lpaSignedAt,
-				Attorneys: Attorneys{Attorneys: []Attorney{{ID: "a1"}, {ID: "a2"}}},
+				Attorneys: Attorneys{Attorneys: []Attorney{{UID: uid1}, {UID: uid2}}},
 			},
 			attorneys: []*AttorneyProvidedDetails{
-				{ID: "a1", LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{ID: "a2", LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{ID: "a3", LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid2, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid4, LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySigned},
 			},
 			expected: true,
 		},
 		"waiting for attorney to re-sign": {
 			lpa: &DonorProvidedDetails{
 				SignedAt:  lpaSignedAt,
-				Attorneys: Attorneys{Attorneys: []Attorney{{ID: "a1"}, {ID: "a2"}}},
+				Attorneys: Attorneys{Attorneys: []Attorney{{UID: uid1}, {UID: uid2}}},
 			},
 			attorneys: []*AttorneyProvidedDetails{
-				{ID: "a1", LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySigned},
-				{ID: "a2", LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid1, LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid2, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
 			},
 			expected: false,
 		},

@@ -31,7 +31,7 @@ type CertificateProviderStore interface {
 }
 
 type AttorneyStore interface {
-	Create(context.Context, string, string, bool, bool) (*actor.AttorneyProvidedDetails, error)
+	Create(context.Context, string, actor.UID, bool, bool) (*actor.AttorneyProvidedDetails, error)
 	Put(context.Context, *actor.AttorneyProvidedDetails) error
 }
 
@@ -151,12 +151,12 @@ func Attorney(
 			}
 		}
 
-		var attorneyID string
+		var attorneyUID actor.UID
 		if !isTrustCorporation {
 			if isReplacement {
-				attorneyID = donor.ReplacementAttorneys.Attorneys[0].ID
+				attorneyUID = donor.ReplacementAttorneys.Attorneys[0].UID
 			} else {
-				attorneyID = donor.Attorneys.Attorneys[0].ID
+				attorneyUID = donor.Attorneys.Attorneys[0].UID
 			}
 		}
 
@@ -168,7 +168,7 @@ func Attorney(
 			return err
 		}
 
-		attorney, err := attorneyStore.Create(attorneyCtx, donorSessionID, attorneyID, isReplacement, isTrustCorporation)
+		attorney, err := attorneyStore.Create(attorneyCtx, donorSessionID, attorneyUID, isReplacement, isTrustCorporation)
 		if err != nil {
 			return err
 		}
@@ -205,7 +205,7 @@ func Attorney(
 				for _, a := range list.Attorneys {
 					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donor.LpaID})
 
-					attorney, err := attorneyStore.Create(ctx, donorSessionID, a.ID, isReplacement, false)
+					attorney, err := attorneyStore.Create(ctx, donorSessionID, a.UID, isReplacement, false)
 					if err != nil {
 						return err
 					}
@@ -225,7 +225,7 @@ func Attorney(
 				if list.TrustCorporation.Name != "" {
 					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donor.LpaID})
 
-					attorney, err := attorneyStore.Create(ctx, donorSessionID, "", isReplacement, true)
+					attorney, err := attorneyStore.Create(ctx, donorSessionID, list.TrustCorporation.UID, isReplacement, true)
 					if err != nil {
 						return err
 					}

@@ -31,7 +31,7 @@ func TestGetChooseReplacementAttorneys(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneys(template.Execute, nil, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := ChooseReplacementAttorneys(template.Execute, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -42,7 +42,7 @@ func TestGetChooseReplacementAttorneysFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseReplacementAttorneys(nil, nil, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "John", ID: "1"}}}})
+	err := ChooseReplacementAttorneys(nil, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "John", UID: actor.NewUID()}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -51,8 +51,9 @@ func TestGetChooseReplacementAttorneysFromStore(t *testing.T) {
 }
 
 func TestGetChooseReplacementAttorneysDobWarningIsAlwaysShown(t *testing.T) {
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?id=1", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -60,7 +61,7 @@ func TestGetChooseReplacementAttorneysDobWarningIsAlwaysShown(t *testing.T) {
 			App: testAppData,
 			Donor: &actor.DonorProvidedDetails{
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-					{ID: "1", DateOfBirth: date.New("1900", "1", "2")},
+					{UID: uid, DateOfBirth: date.New("1900", "1", "2")},
 				}},
 			},
 			Form: &chooseAttorneysForm{
@@ -70,10 +71,10 @@ func TestGetChooseReplacementAttorneysDobWarningIsAlwaysShown(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneys(template.Execute, nil, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := ChooseReplacementAttorneys(template.Execute, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor: actor.Donor{},
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-			{ID: "1", DateOfBirth: date.New("1900", "1", "2")},
+			{UID: uid, DateOfBirth: date.New("1900", "1", "2")},
 		}},
 	})
 	resp := w.Result()
@@ -91,7 +92,7 @@ func TestGetChooseReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ChooseReplacementAttorneys(template.Execute, nil, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := ChooseReplacementAttorneys(template.Execute, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -119,7 +120,7 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 				LastName:    "Doe",
 				Email:       "john@example.com",
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
-				ID:          "123",
+				UID:         testUID,
 			},
 		},
 		"dob warning ignored": {
@@ -137,7 +138,7 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 				LastName:    "Doe",
 				Email:       "john@example.com",
 				DateOfBirth: date.New("1900", "1", "2"),
-				ID:          "123",
+				UID:         testUID,
 			},
 		},
 		"name warning ignored": {
@@ -155,7 +156,7 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 				LastName:    "Doe",
 				Email:       "john@example.com",
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
-				ID:          "123",
+				UID:         testUID,
 			},
 		},
 	}
@@ -176,17 +177,18 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ChooseReplacementAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"}})
+			err := ChooseReplacementAttorneys(nil, donorStore, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"}})
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.ChooseReplacementAttorneysAddress.Format("lpa-id")+"?id=123", resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.ChooseReplacementAttorneysAddress.Format("lpa-id")+"?id="+testUID.String(), resp.Header.Get("Location"))
 		})
 	}
 }
 
 func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
+	uid := actor.NewUID()
 	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
 
 	testCases := map[string]struct {
@@ -208,7 +210,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				Email:       "john@example.com",
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
 				Address:     place.Address{Line1: "abc"},
-				ID:          "123",
+				UID:         uid,
 			},
 		},
 		"dob warning ignored": {
@@ -227,7 +229,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				Email:       "john@example.com",
 				DateOfBirth: date.New("1900", "1", "2"),
 				Address:     place.Address{Line1: "abc"},
-				ID:          "123",
+				UID:         uid,
 			},
 		},
 		"name warning ignored": {
@@ -246,7 +248,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				Email:       "john@example.com",
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
 				Address:     place.Address{Line1: "abc"},
-				ID:          "123",
+				UID:         uid,
 			},
 		},
 	}
@@ -254,7 +256,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(tc.form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
@@ -267,13 +269,13 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ChooseReplacementAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := ChooseReplacementAttorneys(nil, donorStore, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
 				LpaID: "lpa-id",
 				Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{
 						FirstNames: "John",
-						ID:         "123",
+						UID:        uid,
 						Address:    place.Address{Line1: "abc"},
 					},
 				}},
@@ -282,7 +284,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.ChooseReplacementAttorneysAddress.Format("lpa-id")+"?id=123", resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.ChooseReplacementAttorneysAddress.Format("lpa-id")+"?id="+uid.String(), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -296,8 +298,9 @@ func TestPostChooseReplacementAttorneysNameWarningOnlyShownWhenAttorneyAndFormNa
 		"date-of-birth-year":  {"2000"},
 	}
 
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
@@ -309,7 +312,7 @@ func TestPostChooseReplacementAttorneysNameWarningOnlyShownWhenAttorneyAndFormNa
 				{
 					FirstNames:  "Jane",
 					LastName:    "Doe",
-					ID:          "123",
+					UID:         uid,
 					Address:     place.Address{Line1: "abc"},
 					DateOfBirth: date.New("2000", "1", "2"),
 				},
@@ -318,18 +321,18 @@ func TestPostChooseReplacementAttorneysNameWarningOnlyShownWhenAttorneyAndFormNa
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := ChooseReplacementAttorneys(nil, donorStore, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
 		Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-			{FirstNames: "Jane", LastName: "Doe", ID: "123", Address: place.Address{Line1: "abc"}},
+			{FirstNames: "Jane", LastName: "Doe", UID: uid, Address: place.Address{Line1: "abc"}},
 		}},
 	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseReplacementAttorneysAddress.Format("lpa-id")+"?id=123", resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChooseReplacementAttorneysAddress.Format("lpa-id")+"?id="+uid.String(), resp.Header.Get("Location"))
 }
 
 func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
@@ -451,7 +454,7 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := ChooseReplacementAttorneys(template.Execute, nil, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"}})
+			err := ChooseReplacementAttorneys(template.Execute, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"}})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -479,12 +482,13 @@ func TestPostChooseReplacementAttorneysWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ChooseReplacementAttorneys(nil, donorStore, mockUuidString)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := ChooseReplacementAttorneys(nil, donorStore, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
 
 func TestReplacementAttorneyMatches(t *testing.T) {
+	uid := actor.NewUID()
 	donor := &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
@@ -493,7 +497,7 @@ func TestReplacementAttorneyMatches(t *testing.T) {
 		}},
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{FirstNames: "g", LastName: "h"},
-			{ID: "123", FirstNames: "i", LastName: "j"},
+			{UID: uid, FirstNames: "i", LastName: "j"},
 		}},
 		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
 		PeopleToNotify: actor.PeopleToNotify{
@@ -504,20 +508,21 @@ func TestReplacementAttorneyMatches(t *testing.T) {
 		IndependentWitness:  actor.IndependentWitness{FirstNames: "i", LastName: "w"},
 	}
 
-	assert.Equal(t, actor.TypeNone, replacementAttorneyMatches(donor, "123", "x", "y"))
-	assert.Equal(t, actor.TypeDonor, replacementAttorneyMatches(donor, "123", "a", "b"))
-	assert.Equal(t, actor.TypeAttorney, replacementAttorneyMatches(donor, "123", "C", "D"))
-	assert.Equal(t, actor.TypeAttorney, replacementAttorneyMatches(donor, "123", "e", "f"))
-	assert.Equal(t, actor.TypeReplacementAttorney, replacementAttorneyMatches(donor, "123", "g", "h"))
-	assert.Equal(t, actor.TypeNone, replacementAttorneyMatches(donor, "123", "i", "j"))
-	assert.Equal(t, actor.TypeCertificateProvider, replacementAttorneyMatches(donor, "123", "K", "l"))
-	assert.Equal(t, actor.TypePersonToNotify, replacementAttorneyMatches(donor, "123", "m", "n"))
-	assert.Equal(t, actor.TypePersonToNotify, replacementAttorneyMatches(donor, "123", "O", "P"))
-	assert.Equal(t, actor.TypeAuthorisedSignatory, replacementAttorneyMatches(donor, "123", "a", "s"))
-	assert.Equal(t, actor.TypeIndependentWitness, replacementAttorneyMatches(donor, "123", "i", "w"))
+	assert.Equal(t, actor.TypeNone, replacementAttorneyMatches(donor, uid, "x", "y"))
+	assert.Equal(t, actor.TypeDonor, replacementAttorneyMatches(donor, uid, "a", "b"))
+	assert.Equal(t, actor.TypeAttorney, replacementAttorneyMatches(donor, uid, "C", "D"))
+	assert.Equal(t, actor.TypeAttorney, replacementAttorneyMatches(donor, uid, "e", "f"))
+	assert.Equal(t, actor.TypeReplacementAttorney, replacementAttorneyMatches(donor, uid, "g", "h"))
+	assert.Equal(t, actor.TypeNone, replacementAttorneyMatches(donor, uid, "i", "j"))
+	assert.Equal(t, actor.TypeCertificateProvider, replacementAttorneyMatches(donor, uid, "K", "l"))
+	assert.Equal(t, actor.TypePersonToNotify, replacementAttorneyMatches(donor, uid, "m", "n"))
+	assert.Equal(t, actor.TypePersonToNotify, replacementAttorneyMatches(donor, uid, "O", "P"))
+	assert.Equal(t, actor.TypeAuthorisedSignatory, replacementAttorneyMatches(donor, uid, "a", "s"))
+	assert.Equal(t, actor.TypeIndependentWitness, replacementAttorneyMatches(donor, uid, "i", "w"))
 }
 
 func TestReplacementAttorneyMatchesEmptyNamesIgnored(t *testing.T) {
+	uid := actor.NewUID()
 	donor := &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "", LastName: ""},
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
@@ -525,7 +530,7 @@ func TestReplacementAttorneyMatchesEmptyNamesIgnored(t *testing.T) {
 		}},
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{FirstNames: "", LastName: ""},
-			{ID: "123", FirstNames: "", LastName: ""},
+			{UID: uid, FirstNames: "", LastName: ""},
 		}},
 		CertificateProvider: actor.CertificateProvider{FirstNames: "", LastName: ""},
 		PeopleToNotify: actor.PeopleToNotify{
@@ -533,5 +538,5 @@ func TestReplacementAttorneyMatchesEmptyNamesIgnored(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, actor.TypeNone, replacementAttorneyMatches(donor, "123", "", ""))
+	assert.Equal(t, actor.TypeNone, replacementAttorneyMatches(donor, uid, "", ""))
 }
