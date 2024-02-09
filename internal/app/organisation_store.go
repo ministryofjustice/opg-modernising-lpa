@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -100,21 +102,21 @@ func (s *organisationStore) CreateMemberInvite(ctx context.Context, organisation
 	return nil
 }
 
-func (s *organisationStore) CreateLPA(ctx context.Context, organisationID string) (*actor.DonorProvidedDetails, error) {
+func (s *organisationStore) CreateLPA(ctx context.Context) (*actor.DonorProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	if data.SessionID == "" {
-		return nil, errors.New("donorStore.Create requires SessionID")
+	if data.OrganisationID == "" {
+		return nil, errors.New("organisationStore.CreateLPA requires OrganisationID")
 	}
 
 	lpaID := s.uuidString()
 
 	donor := &actor.DonorProvidedDetails{
 		PK:        lpaKey(lpaID),
-		SK:        organisationKey(organisationID),
+		SK:        organisationKey(data.OrganisationID),
 		LpaID:     lpaID,
 		CreatedAt: s.now(),
 		Version:   1,
@@ -129,6 +131,32 @@ func (s *organisationStore) CreateLPA(ctx context.Context, organisationID string
 	}
 
 	return donor, err
+}
+
+func (s *organisationStore) AllLPAs(ctx context.Context) ([]actor.DonorProvidedDetails, error) {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.OrganisationID == "" {
+		return nil, errors.New("organisationStore.AllLPAs requires OrganisationID")
+	}
+
+	var donors []actor.DonorProvidedDetails
+	if err := s.dynamoClient.AllForActor(ctx, organisationKey(data.OrganisationID), &donors); err != nil {
+		return nil, fmt.Errorf("organisationStore.AllLPAs error retrieving keys for organisation: %w", err)
+	}
+
+	donors = slices.DeleteFunc(donors, func(key actor.DonorProvidedDetails) bool {
+		return !strings.HasPrefix(key.PK, lpaKey(""))
+	})
+
+	slices.SortFunc(donors, func(a, b actor.DonorProvidedDetails) int {
+		return strings.Compare(a.Donor.FullName(), b.Donor.FullName())
+	})
+
+	return donors, nil
 }
 
 func organisationKey(s string) string {
