@@ -16,11 +16,12 @@ import (
 )
 
 type OrganisationStore interface {
+	AllLPAs(ctx context.Context) ([]actor.DonorProvidedDetails, error)
 	Create(ctx context.Context, name string) (*actor.Organisation, error)
+	CreateLPA(ctx context.Context) (*actor.DonorProvidedDetails, error)
 	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error
 	Get(ctx context.Context) (*actor.Organisation, error)
-	CreateLPA(ctx context.Context) (*actor.DonorProvidedDetails, error)
-	AllLPAs(ctx context.Context) ([]actor.DonorProvidedDetails, error)
+	InvitedMembers(ctx context.Context) ([]*actor.MemberInvite, error)
 	Put(ctx context.Context, organisation *actor.Organisation) error
 }
 
@@ -83,11 +84,9 @@ func Register(
 		Dashboard(tmpls.Get("dashboard.gohtml"), organisationStore))
 	handleWithSupporter(paths.InviteMember,
 		InviteMember(tmpls.Get("invite_member.gohtml"), organisationStore, notifyClient, random.String, appPublicURL))
-	handleWithSupporter(paths.InviteMemberConfirmation,
-		Guidance(tmpls.Get("invite_member_confirmation.gohtml")))
 
 	handleWithSupporter(paths.OrganisationDetails,
-		Guidance(tmpls.Get("organisation_details.gohtml")))
+		OrganisationDetails(tmpls.Get("organisation_details.gohtml"), organisationStore))
 	handleWithSupporter(paths.EditOrganisationName,
 		EditOrganisationName(tmpls.Get("edit_organisation_name.gohtml"), organisationStore))
 }
