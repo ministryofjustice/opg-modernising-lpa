@@ -7,17 +7,17 @@ describe('Organisation details', () => {
 
     it('shows invited members', () => {
         cy.checkA11yApp();
-        cy.get("#tab_team-members").click()
+        cy.contains("a", "Manage team members").click()
 
         cy.contains("Invited team members")
 
-        cy.contains("dd", "kamalsingh@example.org").parent().within(() => {
+        cy.contains("td", "kamalsingh@example.org").parent().within(() => {
             cy.contains("Kamal Singh")
             cy.contains("Invite pending")
             cy.contains("a", "Resend invite")
         })
 
-        cy.contains("dd", "jo_alessi@example.org").parent().within(() => {
+        cy.contains("td", "jo_alessi@example.org").parent().within(() => {
             cy.contains("Jo Alessi")
             cy.contains("Invite pending")
             cy.contains("a", "Resend invite")
