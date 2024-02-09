@@ -3,17 +3,49 @@
 {{ define "pageTitle" }}{{ tr .App "dashboard" }}{{ end }}
 
 {{ define "main" }}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <form novalidate method="post">
-                <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
 
-                <div class="govuk-button-group">
-                    <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "makeANewLPA" }}</button>
-                    <a class="govuk-button govuk-button--secondary" href="{{ link .App global.Paths.Supporter.InviteMember.Format }}">{{ tr .App "inviteTeamMember" }}</a>
-                </div>
-                {{ template "csrf-field" . }}
-            </form>
+      <form novalidate method="post">
+        <div class="govuk-button-group">
+          <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "makeANewLPA" }}</button>
+          <a class="govuk-button govuk-button--secondary" href="{{ link .App global.Paths.Supporter.InviteMember.Format }}">{{ tr .App "inviteTeamMember" }}</a>
         </div>
+        {{ template "csrf-field" . }}
+      </form>
+
+      <table class="govuk-table">
+        <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header">{{ tr .App "donorDetails" }}</th>
+            <th scope="col" class="govuk-table__header">{{ tr .App "referenceNumber" }}</th>
+            <th scope="col" class="govuk-table__header">{{ tr .App "lpaType" }}</th>
+            <th scope="col" class="govuk-table__header">{{ tr .App "status" }}</th>
+          </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+          {{ range .Donors }}
+            <tr class="govuk-table__row">
+              <td class="govuk-table__cell">
+                <span class="govuk-!-font-weight-bold">{{ .Donor.FullName }}</span><br/>
+                {{ .Donor.Address.Postcode }}
+              </td>
+              <td class="govuk-table__cell"><a class="govuk-link" href="{{ link $.App (global.Paths.TaskList.Format .LpaID) }}">{{ .LpaUID }}</a></td>
+              <td class="govuk-table__cell">{{ tr $.App .Type.String }}</td>
+              <td class="govuk-table__cell">
+                {{ if not .SignedAt.IsZero }}
+                  <strong class="govuk-tag govuk-tag--green">{{ tr $.App "signed" }}</strong>
+                {{ else if .Tasks.PayForLpa.IsCompleted }}
+                  <strong class="govuk-tag govuk-tag--yellow">{{ tr $.App "paid" }}</strong>
+                {{ else }}
+                  <strong class="govuk-tag govuk-tag--light-blue">{{ tr $.App "inProgress" }}</strong>
+                {{ end }}
+              </td>
+            </tr>
+          {{ end }}
+        </tbody>
+      </table>
     </div>
+  </div>
 {{ end }}
