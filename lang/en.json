@@ -984,5 +984,10 @@
     "continueToGovukOneLogin": "Continue to GOV.UK One Login",
     "setTheirPermissions": "<h2 class=\"govuk-heading-m\">Set their permissions</h2><p class=\"govuk-body\">All users can create and edit LPAs.</p>",
     "makeThisPersonAnAdmin": "Make this person an admin",
-    "adminPermissionHint": "Admins can manage team members and change the organisation’s details."
+    "adminPermissionHint": "Admins can manage team members and change the organisation’s details.",
+    "invitedTeamMembers": "Invited team members",
+    "status": "Status",
+    "invitePending": "Invite pending",
+    "resendInvite": "Resend invite",
+    "toMemberName": "to {{ .MemberName }}"
 }
