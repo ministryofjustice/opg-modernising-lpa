@@ -57,7 +57,7 @@ jobs:
             echo "role=${{ secrets.DEVELOPMENT_MAINTENANCE_MODE_ROLE }}" >> $GITHUB_OUTPUT
           fi
       - name: Configure AWS credentials for maintenance mode
-        uses: aws-actions/configure-aws-credentials@v4.0.1
+        uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
           aws-region: ${{ github.event.inputs.region }}
           role-duration-seconds: 3600
