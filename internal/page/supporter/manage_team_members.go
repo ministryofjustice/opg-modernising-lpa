@@ -10,7 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type manageTeamMembers struct {
+type manageTeamMembersData struct {
 	App            page.AppData
 	Query          url.Values
 	Errors         validation.List
@@ -25,7 +25,7 @@ func ManageTeamMembers(tmpl template.Template, organisationStore OrganisationSto
 			return err
 		}
 
-		return tmpl(w, &manageTeamMembers{
+		return tmpl(w, &manageTeamMembersData{
 			App:            appData,
 			Query:          r.URL.Query(),
 			Organisation:   organisation,
