@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -12,8 +13,7 @@ import (
 
 func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
-		attorneyId := r.FormValue("id")
-		attorney, found := donor.Attorneys.Get(attorneyId)
+		attorney, found := donor.Attorneys.Get(actoruid.FromRequest(r))
 
 		if found == false {
 			return page.Paths.ChooseAttorneys.Redirect(w, r, appData, donor)
@@ -23,13 +23,13 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 			appData,
 			"attorney",
 			attorney.FullName(),
-			attorney.ID,
+			attorney.UID,
 			true,
 		)
 
 		data.ActorLabel = "attorney"
 		data.FullName = attorney.FullName()
-		data.ID = attorney.ID
+		data.UID = attorney.UID
 		data.CanSkip = true
 
 		if attorney.Address.Line1 != "" {

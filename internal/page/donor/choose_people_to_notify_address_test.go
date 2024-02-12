@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -17,11 +18,12 @@ import (
 )
 
 func TestGetChoosePeopleToNotifyAddress(t *testing.T) {
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
 	personToNotify := actor.PersonToNotify{
-		ID:         "123",
+		UID:        uid,
 		FirstNames: "John",
 		LastName:   "Smith",
 		Address:    place.Address{},
@@ -32,7 +34,7 @@ func TestGetChoosePeopleToNotifyAddress(t *testing.T) {
 		Execute(w, &chooseAddressData{
 			App:        testAppData,
 			Form:       form.NewAddressForm(),
-			ID:         "123",
+			UID:        uid,
 			FullName:   "John Smith",
 			ActorLabel: "personToNotify",
 			TitleKeys:  testTitleKeys,
@@ -47,8 +49,9 @@ func TestGetChoosePeopleToNotifyAddress(t *testing.T) {
 }
 
 func TestGetChoosePeopleToNotifyAddressFromStore(t *testing.T) {
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -59,7 +62,7 @@ func TestGetChoosePeopleToNotifyAddressFromStore(t *testing.T) {
 				Address:    &testAddress,
 				FieldNames: form.FieldNames.Address,
 			},
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			ActorLabel: "personToNotify",
 			TitleKeys:  testTitleKeys,
@@ -67,7 +70,7 @@ func TestGetChoosePeopleToNotifyAddressFromStore(t *testing.T) {
 		Return(nil)
 
 	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		PeopleToNotify: actor.PeopleToNotify{{ID: "123", Address: testAddress}},
+		PeopleToNotify: actor.PeopleToNotify{{UID: uid, Address: testAddress}},
 	})
 	resp := w.Result()
 
@@ -76,8 +79,9 @@ func TestGetChoosePeopleToNotifyAddressFromStore(t *testing.T) {
 }
 
 func TestGetChoosePeopleToNotifyAddressManual(t *testing.T) {
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?action=manual&id=123", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?action=manual&id="+uid.String(), nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -88,14 +92,14 @@ func TestGetChoosePeopleToNotifyAddressManual(t *testing.T) {
 				Address:    &place.Address{},
 				FieldNames: form.FieldNames.Address,
 			},
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			ActorLabel: "personToNotify",
 			TitleKeys:  testTitleKeys,
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{{ID: "123", Address: testAddress}}})
+	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{{UID: uid, Address: testAddress}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -103,11 +107,12 @@ func TestGetChoosePeopleToNotifyAddressManual(t *testing.T) {
 }
 
 func TestGetChoosePeopleToNotifyAddressWhenTemplateErrors(t *testing.T) {
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
 	personToNotify := actor.PersonToNotify{
-		ID:      "123",
+		UID:     uid,
 		Address: place.Address{},
 	}
 
@@ -116,7 +121,7 @@ func TestGetChoosePeopleToNotifyAddressWhenTemplateErrors(t *testing.T) {
 		Execute(w, &chooseAddressData{
 			App:        testAppData,
 			Form:       form.NewAddressForm(),
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			ActorLabel: "personToNotify",
 			TitleKeys:  testTitleKeys,
@@ -140,22 +145,23 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:          "lpa-id",
-			PeopleToNotify: actor.PeopleToNotify{{ID: "123", Address: testAddress}},
+			PeopleToNotify: actor.PeopleToNotify{{UID: uid, Address: testAddress}},
 			Tasks:          actor.DonorTasks{PeopleToNotify: actor.TaskCompleted},
 		}).
 		Return(nil)
 
 	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID:          "lpa-id",
-		PeopleToNotify: actor.PeopleToNotify{{ID: "123"}},
+		PeopleToNotify: actor.PeopleToNotify{{UID: uid}},
 		Tasks:          actor.DonorTasks{PeopleToNotify: actor.TaskInProgress},
 	})
 	resp := w.Result()
@@ -175,19 +181,20 @@ func TestPostChoosePeopleToNotifyAddressManualWhenStoreErrors(t *testing.T) {
 		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), &actor.DonorProvidedDetails{
-			PeopleToNotify: actor.PeopleToNotify{{ID: "123", Address: testAddress}},
+			PeopleToNotify: actor.PeopleToNotify{{UID: uid, Address: testAddress}},
 			Tasks:          actor.DonorTasks{PeopleToNotify: actor.TaskCompleted},
 		}).
 		Return(expectedError)
 
-	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{{ID: "123"}}})
+	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{{UID: uid}}})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -202,8 +209,9 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
@@ -212,7 +220,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			PeopleToNotify: actor.PeopleToNotify{actor.PersonToNotify{
-				ID:         "123",
+				UID:        uid,
 				FirstNames: "John",
 				Address:    testAddress,
 			}},
@@ -223,7 +231,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
 		PeopleToNotify: actor.PeopleToNotify{actor.PersonToNotify{
-			ID:         "123",
+			UID:        uid,
 			FirstNames: "John",
 			Address:    place.Address{Line1: "line1"},
 		}},
@@ -244,8 +252,9 @@ func TestPostChoosePeopleToNotifyPostcodeSelect(t *testing.T) {
 		"select-address":               {testAddress.Encode()},
 	}
 
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
@@ -258,7 +267,7 @@ func TestPostChoosePeopleToNotifyPostcodeSelect(t *testing.T) {
 				Address:        &testAddress,
 				FieldNames:     form.FieldNames.Address,
 			},
-			ID:         "123",
+			UID:        uid,
 			FullName:   "John ",
 			ActorLabel: "personToNotify",
 			TitleKeys:  testTitleKeys,
@@ -267,7 +276,7 @@ func TestPostChoosePeopleToNotifyPostcodeSelect(t *testing.T) {
 
 	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		PeopleToNotify: actor.PeopleToNotify{{
-			ID:         "123",
+			UID:        uid,
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
 		}},
@@ -284,8 +293,9 @@ func TestPostChoosePeopleToNotifyPostcodeSelectWhenValidationError(t *testing.T)
 		"lookup-postcode":              {"NG1"},
 	}
 
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	addresses := []place.Address{
@@ -306,7 +316,7 @@ func TestPostChoosePeopleToNotifyPostcodeSelectWhenValidationError(t *testing.T)
 				LookupPostcode: "NG1",
 				FieldNames:     form.FieldNames.Address,
 			},
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			ActorLabel: "personToNotify",
 			Addresses:  addresses,
@@ -315,7 +325,7 @@ func TestPostChoosePeopleToNotifyPostcodeSelectWhenValidationError(t *testing.T)
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{{ID: "123"}}})
+	err := ChoosePeopleToNotifyAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{{UID: uid}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -328,8 +338,9 @@ func TestPostChoosePeopleToNotifyPostcodeLookup(t *testing.T) {
 		"lookup-postcode":              {"NG1"},
 	}
 
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	addresses := []place.Address{
@@ -350,7 +361,7 @@ func TestPostChoosePeopleToNotifyPostcodeLookup(t *testing.T) {
 				LookupPostcode: "NG1",
 				FieldNames:     form.FieldNames.Address,
 			},
-			ID:         "123",
+			UID:        uid,
 			FullName:   "John ",
 			ActorLabel: "personToNotify",
 			Addresses:  addresses,
@@ -358,7 +369,7 @@ func TestPostChoosePeopleToNotifyPostcodeLookup(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{{ID: "123", FirstNames: "John"}}})
+	err := ChoosePeopleToNotifyAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{{UID: uid, FirstNames: "John"}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -371,8 +382,9 @@ func TestPostChoosePeopleToNotifyPostcodeLookupError(t *testing.T) {
 		"lookup-postcode":              {"NG1"},
 	}
 
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := newMockLogger(t)
@@ -393,7 +405,7 @@ func TestPostChoosePeopleToNotifyPostcodeLookupError(t *testing.T) {
 				LookupPostcode: "NG1",
 				FieldNames:     form.FieldNames.Address,
 			},
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			ActorLabel: "personToNotify",
 			Addresses:  []place.Address{},
@@ -402,7 +414,7 @@ func TestPostChoosePeopleToNotifyPostcodeLookupError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{{ID: "123"}}})
+	err := ChoosePeopleToNotifyAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{{UID: uid}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -421,7 +433,8 @@ func TestPostChoosePeopleToNotifyPostcodeLookupInvalidPostcodeError(t *testing.T
 		"lookup-postcode":              {"XYZ"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	uid := actoruid.New()
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := newMockLogger(t)
@@ -442,7 +455,7 @@ func TestPostChoosePeopleToNotifyPostcodeLookupInvalidPostcodeError(t *testing.T
 				LookupPostcode: "XYZ",
 				FieldNames:     form.FieldNames.Address,
 			},
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			ActorLabel: "personToNotify",
 			Addresses:  []place.Address{},
@@ -451,7 +464,7 @@ func TestPostChoosePeopleToNotifyPostcodeLookupInvalidPostcodeError(t *testing.T
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{{ID: "123"}}})
+	err := ChoosePeopleToNotifyAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{{UID: uid}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -466,7 +479,8 @@ func TestPostChoosePeopleToNotifyPostcodeLookupValidPostcodeNoAddresses(t *testi
 		"lookup-postcode":              {"XYZ"},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	uid := actoruid.New()
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := newMockLogger(t)
@@ -485,7 +499,7 @@ func TestPostChoosePeopleToNotifyPostcodeLookupValidPostcodeNoAddresses(t *testi
 				LookupPostcode: "XYZ",
 				FieldNames:     form.FieldNames.Address,
 			},
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			ActorLabel: "personToNotify",
 			Addresses:  []place.Address{},
@@ -494,7 +508,7 @@ func TestPostChoosePeopleToNotifyPostcodeLookupValidPostcodeNoAddresses(t *testi
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{{ID: "123"}}})
+	err := ChoosePeopleToNotifyAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{{UID: uid}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -506,12 +520,13 @@ func TestPostChoosePeopleToNotifyPostcodeLookupWhenValidationError(t *testing.T)
 		form.FieldNames.Address.Action: {"postcode-lookup"},
 	}
 
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	personToNotify := actor.PersonToNotify{
-		ID:      "123",
+		UID:     uid,
 		Address: place.Address{},
 	}
 
@@ -523,7 +538,7 @@ func TestPostChoosePeopleToNotifyPostcodeLookupWhenValidationError(t *testing.T)
 				Action:     "postcode",
 				FieldNames: form.FieldNames.Address,
 			},
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			ActorLabel: "personToNotify",
 			Errors:     validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
@@ -543,8 +558,9 @@ func TestPostChoosePeopleToNotifyAddressReuse(t *testing.T) {
 		form.FieldNames.Address.Action: {"reuse"},
 	}
 
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
@@ -555,7 +571,7 @@ func TestPostChoosePeopleToNotifyAddressReuse(t *testing.T) {
 				Action:     "reuse",
 				FieldNames: form.FieldNames.Address,
 			},
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			ActorLabel: "personToNotify",
 			Addresses:  []place.Address{{Line1: "donor lane"}},
@@ -565,7 +581,7 @@ func TestPostChoosePeopleToNotifyAddressReuse(t *testing.T) {
 
 	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor:          actor.Donor{Address: place.Address{Line1: "donor lane"}},
-		PeopleToNotify: actor.PeopleToNotify{{ID: "123"}},
+		PeopleToNotify: actor.PeopleToNotify{{UID: uid}},
 	})
 	resp := w.Result()
 
@@ -579,8 +595,9 @@ func TestPostChoosePeopleToNotifyAddressReuseSelect(t *testing.T) {
 		"select-address":               {testAddress.Encode()},
 	}
 
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
@@ -588,7 +605,7 @@ func TestPostChoosePeopleToNotifyAddressReuseSelect(t *testing.T) {
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			PeopleToNotify: actor.PeopleToNotify{{
-				ID: "123",
+				UID: uid,
 				Address: place.Address{
 					Line1:      "a",
 					Line2:      "b",
@@ -602,7 +619,7 @@ func TestPostChoosePeopleToNotifyAddressReuseSelect(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", PeopleToNotify: actor.PeopleToNotify{{ID: "123"}}})
+	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", PeopleToNotify: actor.PeopleToNotify{{UID: uid}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -615,8 +632,9 @@ func TestPostChoosePeopleToNotifyAddressReuseSelectWhenValidationError(t *testin
 		form.FieldNames.Address.Action: {"reuse-select"},
 	}
 
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=123", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
@@ -629,7 +647,7 @@ func TestPostChoosePeopleToNotifyAddressReuseSelectWhenValidationError(t *testin
 			},
 			Addresses:  []place.Address{{Line1: "donor lane"}},
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
-			ID:         "123",
+			UID:        uid,
 			FullName:   " ",
 			ActorLabel: "personToNotify",
 			TitleKeys:  testTitleKeys,
@@ -638,7 +656,7 @@ func TestPostChoosePeopleToNotifyAddressReuseSelectWhenValidationError(t *testin
 
 	err := ChoosePeopleToNotifyAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor:          actor.Donor{Address: place.Address{Line1: "donor lane"}},
-		PeopleToNotify: actor.PeopleToNotify{{ID: "123"}},
+		PeopleToNotify: actor.PeopleToNotify{{UID: uid}},
 	})
 	resp := w.Result()
 

@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -192,9 +193,10 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 
 func TestMakeAttorneyHandleExistingSessionData(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "lpa-id", SessionID: "ignored-session-id"})
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
-	expectedDetails := &actor.AttorneyProvidedDetails{ID: "123"}
+	expectedDetails := &actor.AttorneyProvidedDetails{UID: uid}
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -212,12 +214,12 @@ func TestMakeAttorneyHandleExistingSessionData(t *testing.T) {
 		assert.Equal(t, expectedDetails, details)
 
 		assert.Equal(t, page.AppData{
-			Page:       "/attorney/lpa-id/path",
-			CanGoBack:  true,
-			SessionID:  "cmFuZG9t",
-			LpaID:      "lpa-id",
-			ActorType:  actor.TypeAttorney,
-			AttorneyID: "123",
+			Page:        "/attorney/lpa-id/path",
+			CanGoBack:   true,
+			SessionID:   "cmFuZG9t",
+			LpaID:       "lpa-id",
+			ActorType:   actor.TypeAttorney,
+			AttorneyUID: uid,
 		}, appData)
 		assert.Equal(t, w, hw)
 
@@ -235,17 +237,26 @@ func TestMakeAttorneyHandleExistingSessionData(t *testing.T) {
 }
 
 func TestMakeAttorneyHandleExistingLpaData(t *testing.T) {
+	uid := actoruid.New()
 	testCases := map[string]struct {
 		details   *actor.AttorneyProvidedDetails
 		actorType actor.Type
 	}{
 		"attorney": {
-			details:   &actor.AttorneyProvidedDetails{ID: "attorney-id"},
+			details:   &actor.AttorneyProvidedDetails{UID: uid},
 			actorType: actor.TypeAttorney,
 		},
 		"replacement attorney": {
-			details:   &actor.AttorneyProvidedDetails{ID: "attorney-id", IsReplacement: true},
+			details:   &actor.AttorneyProvidedDetails{UID: uid, IsReplacement: true},
 			actorType: actor.TypeReplacementAttorney,
+		},
+		"trust corporation": {
+			details:   &actor.AttorneyProvidedDetails{UID: uid, IsTrustCorporation: true},
+			actorType: actor.TypeTrustCorporation,
+		},
+		"replacement trust corporation": {
+			details:   &actor.AttorneyProvidedDetails{UID: uid, IsReplacement: true, IsTrustCorporation: true},
+			actorType: actor.TypeReplacementTrustCorporation,
 		},
 	}
 
@@ -270,12 +281,12 @@ func TestMakeAttorneyHandleExistingLpaData(t *testing.T) {
 			handle("/path", CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, details *actor.AttorneyProvidedDetails) error {
 				assert.Equal(t, tc.details, details)
 				assert.Equal(t, page.AppData{
-					Page:       "/attorney/lpa-id/path",
-					CanGoBack:  true,
-					LpaID:      "lpa-id",
-					SessionID:  "cmFuZG9t",
-					AttorneyID: "attorney-id",
-					ActorType:  tc.actorType,
+					Page:        "/attorney/lpa-id/path",
+					CanGoBack:   true,
+					LpaID:       "lpa-id",
+					SessionID:   "cmFuZG9t",
+					AttorneyUID: uid,
+					ActorType:   tc.actorType,
 				}, appData)
 				assert.Equal(t, w, hw)
 

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -17,13 +18,14 @@ import (
 )
 
 func TestGetRemoveAttorney(t *testing.T) {
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
 	logger := newMockLogger(t)
 
 	attorney := actor.Attorney{
-		ID:         "123",
+		UID:        uid,
 		FirstNames: "John",
 		LastName:   "Smith",
 		Address: place.Address{
@@ -58,7 +60,7 @@ func TestGetRemoveAttorneyAttorneyDoesNotExist(t *testing.T) {
 	template := newMockTemplate(t)
 
 	attorney := actor.Attorney{
-		ID: "123",
+		UID: actoruid.New(),
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
@@ -74,9 +76,9 @@ func TestGetRemoveAttorneyAttorneyDoesNotExist(t *testing.T) {
 }
 
 func TestPostRemoveAttorney(t *testing.T) {
-	attorneyWithEmail := actor.Attorney{ID: "with-email", Email: "a"}
-	attorneyWithAddress := actor.Attorney{ID: "with-address", Address: place.Address{Line1: "1 Road way"}}
-	attorneyWithoutAddress := actor.Attorney{ID: "without-address"}
+	attorneyWithEmail := actor.Attorney{UID: actoruid.New(), Email: "a"}
+	attorneyWithAddress := actor.Attorney{UID: actoruid.New(), Address: place.Address{Line1: "1 Road way"}}
+	attorneyWithoutAddress := actor.Attorney{UID: actoruid.New()}
 
 	testcases := map[string]struct {
 		donor        *actor.DonorProvidedDetails
@@ -127,7 +129,7 @@ func TestPostRemoveAttorney(t *testing.T) {
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/?id="+attorneyWithoutAddress.UID.String(), strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			logger := newMockLogger(t)
@@ -154,24 +156,24 @@ func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
 		form.FieldNames.YesNo: {form.No.String()},
 	}
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	logger := newMockLogger(t)
-	template := newMockTemplate(t)
-
 	attorneyWithAddress := actor.Attorney{
-		ID: "with-address",
+		UID: actoruid.New(),
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
 	}
 
 	attorneyWithoutAddress := actor.Attorney{
-		ID:      "without-address",
+		UID:     actoruid.New(),
 		Address: place.Address{},
 	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+attorneyWithoutAddress.UID.String(), strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	logger := newMockLogger(t)
+	template := newMockTemplate(t)
 
 	err := RemoveAttorney(logger, template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
 
@@ -187,8 +189,20 @@ func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
 		form.FieldNames.YesNo: {form.Yes.String()},
 	}
 
+	attorneyWithAddress := actor.Attorney{
+		UID: actoruid.New(),
+		Address: place.Address{
+			Line1: "1 Road way",
+		},
+	}
+
+	attorneyWithoutAddress := actor.Attorney{
+		UID:     actoruid.New(),
+		Address: place.Address{},
+	}
+
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+attorneyWithoutAddress.UID.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
@@ -197,18 +211,6 @@ func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
 	logger.EXPECT().
 		Print("error removing Attorney from LPA: err").
 		Return()
-
-	attorneyWithAddress := actor.Attorney{
-		ID: "with-address",
-		Address: place.Address{
-			Line1: "1 Road way",
-		},
-	}
-
-	attorneyWithoutAddress := actor.Attorney{
-		ID:      "without-address",
-		Address: place.Address{},
-	}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -228,14 +230,10 @@ func TestRemoveAttorneyFormValidation(t *testing.T) {
 		form.FieldNames.YesNo: {""},
 	}
 
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	attorneyWithoutAddress := actor.Attorney{
-		ID:      "without-address",
-		Address: place.Address{},
-	}
 
 	validationError := validation.With(form.FieldNames.YesNo, validation.SelectError{Label: "yesToRemoveAttorney"})
 
@@ -246,7 +244,14 @@ func TestRemoveAttorneyFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := RemoveAttorney(nil, template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithoutAddress}}})
+	err := RemoveAttorney(nil, template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+		Attorneys: actor.Attorneys{
+			Attorneys: []actor.Attorney{{
+				UID:     uid,
+				Address: place.Address{},
+			}},
+		},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
