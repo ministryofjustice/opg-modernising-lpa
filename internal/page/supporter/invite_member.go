@@ -58,7 +58,7 @@ func InviteMember(tmpl template.Template, organisationStore OrganisationStore, n
 					return err
 				}
 
-				return page.Paths.Supporter.InviteMemberConfirmation.RedirectQuery(w, r, appData, url.Values{"email": {data.Form.Email}})
+				return page.Paths.Supporter.ManageTeamMembers.RedirectQuery(w, r, appData, url.Values{"email": {data.Form.Email}})
 			}
 		}
 

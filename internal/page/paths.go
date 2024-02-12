@@ -123,7 +123,7 @@ func (p SupporterPath) RedirectQuery(w http.ResponseWriter, r *http.Request, app
 }
 
 func (p SupporterPath) IsManageOrganisation() bool {
-	return p == Paths.Supporter.OrganisationDetails || p == Paths.Supporter.EditOrganisationName
+	return p == Paths.Supporter.OrganisationDetails || p == Paths.Supporter.EditOrganisationName || p == Paths.Supporter.ManageTeamMembers
 }
 
 type AttorneyPaths struct {
@@ -173,18 +173,19 @@ type HealthCheckPaths struct {
 }
 
 type SupporterPaths struct {
-	Start                 Path
+	EnterOrganisationName Path
 	Login                 Path
 	LoginCallback         Path
-	EnterOrganisationName Path
 	SigningInAdvice       Path
+	Start                 Path
 
-	OrganisationCreated      SupporterPath
 	Dashboard                SupporterPath
+	EditOrganisationName     SupporterPath
 	InviteMember             SupporterPath
 	InviteMemberConfirmation SupporterPath
+	ManageTeamMembers        SupporterPath
+	OrganisationCreated      SupporterPath
 	OrganisationDetails      SupporterPath
-	EditOrganisationName     SupporterPath
 }
 
 type AppPaths struct {
@@ -347,18 +348,19 @@ var Paths = AppPaths{
 	},
 
 	Supporter: SupporterPaths{
-		Start:                 "/supporter-start",
+		EnterOrganisationName: "/enter-the-name-of-your-organisation-or-company",
 		Login:                 "/supporter-login",
 		LoginCallback:         "/supporter-login-callback",
-		EnterOrganisationName: "/enter-the-name-of-your-organisation-or-company",
 		SigningInAdvice:       "/signing-in-with-govuk-one-login",
+		Start:                 "/supporter-start",
 
-		OrganisationCreated:      "/organisation-or-company-created",
 		Dashboard:                "/supporter-dashboard",
+		EditOrganisationName:     "/manage-organisation/organisation-details/edit-organisation-name",
 		InviteMember:             "/invite-member",
 		InviteMemberConfirmation: "/invite-member-confirmation",
+		ManageTeamMembers:        "/manage-organisation/manage-team-members",
+		OrganisationCreated:      "/organisation-or-company-created",
 		OrganisationDetails:      "/manage-organisation/organisation-details",
-		EditOrganisationName:     "/manage-organisation/organisation-details/edit-organisation-name",
 	},
 
 	HealthCheck: HealthCheckPaths{

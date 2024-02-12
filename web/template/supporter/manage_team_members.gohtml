@@ -1,0 +1,82 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "manageOrganisation" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {{ if .Query.Has "email" }}
+                <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
+                     aria-labelledby="govuk-notification-banner-title"
+                     data-module="govuk-notification-banner">
+                    <div class="govuk-notification-banner__header">
+                        <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                            {{ tr .App "invitationSent" }}
+                        </h1>
+                    </div>
+                    <div class="govuk-notification-banner__content">
+                        <p class="govuk-body">
+                            {{ trFormatHtml .App "weHaveSentInvite" "Email" (.Query.Get "email") }}
+                        </p>
+                    </div>
+                </div>
+            {{ end}}
+
+            <h1 class="govuk-heading-xl">{{ tr .App "manageOrganisation" }}</h1>
+
+            <div class="govuk-tabs app-tabs-no-border">
+                <ul class="govuk-tabs__list">
+                    <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
+                        <a class="govuk-tabs__tab" href="{{ link .App global.Paths.Supporter.ManageTeamMembers.Format }}">{{ tr .App "manageTeamMembers" }}</a>
+                    </li>
+                    <li class="govuk-tabs__list-item">
+                        <a class="govuk-tabs__tab" href="{{ link .App global.Paths.Supporter.OrganisationDetails.Format }}">{{ tr .App "organisationDetails" }}</a>
+                    </li>
+                </ul>
+                <div class="govuk-tabs__panel" id="team-members">
+                    <a class="govuk-button" href="{{ link .App global.Paths.Supporter.InviteMember.Format }}">{{ tr .App "inviteTeamMember" }}</a>
+
+                    {{ if .InvitedMembers }}
+                        <h2 class="govuk-heading-m">{{ tr .App "invitedTeamMembers" }}</h2>
+
+                        <table class="govuk-table">
+                            <thead class="govuk-table__head">
+                            <tr class="govuk-summary-list__row">
+                                <th class="govuk-table__header govuk-!-font-weight-bold">
+                                    {{ tr .App "name" }}
+                                </th>
+                                <th class="govuk-table__header govuk-!-font-weight-bold">
+                                    {{ tr .App "email" }}
+                                </th>
+                                <th class="govuk-table__header govuk-!-font-weight-bold">
+                                    {{ tr .App "status" }}
+                                </th>
+                                <td class="govuk-table__header">
+                                </td>
+                            </tr>
+                            </thead>
+                            <tbody class="govuk-table__body">
+                            {{ range .InvitedMembers }}
+                                <tr class="govuk-table__row">
+                                    <td class="govuk-table__cell app-dark-grey">
+                                        {{ .FullName }}
+                                    </td>
+                                    <td class="govuk-table__cell app-dark-grey">
+                                        {{ .Email }}
+                                    </td>
+                                    <td class="govuk-table__cell app-dark-grey">
+                                        {{ tr $.App "invitePending" }}
+                                    </td>
+                                    <td class="govuk-table__cell">
+                                        <a class="govuk-link" href="#">{{ tr $.App "resendInvite" }}<span class="govuk-visually-hidden"> {{ trFormat $.App "toMemberName" "MemberName" .FullName }}</span></a>
+                                    </td>
+                                </tr>
+                            {{ end }}
+                            </tbody>
+                        </table>
+                    {{ end }}
+                </div>
+            </div>
+        </div>
+    </div>
+{{ end }}
