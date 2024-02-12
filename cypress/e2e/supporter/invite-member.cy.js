@@ -7,19 +7,20 @@ describe('Invite member', () => {
 
   it('can invite a member', () => {
     cy.checkA11yApp();
+
     cy.get('#f-email').type(TestEmail);
     cy.get('#f-first-names').type('John');
     cy.get('#f-last-name').type('Doe');
 
     cy.contains('button', 'Send invite').click();
 
-    cy.url().should('contain', '/invite-member-confirmation');
+    cy.url().should('contain', '/manage-organisation/manage-team-members');
     cy.checkA11yApp();
-    cy.contains(TestEmail);
+
+    cy.contains('.govuk-notification-banner--success', TestEmail);
   });
 
   it('can invite an admin', () => {
-    cy.checkA11yApp();
     cy.get('#f-email').type(TestEmail);
     cy.get('#f-first-names').type('John');
     cy.get('#f-last-name').type('Doe');
@@ -27,9 +28,10 @@ describe('Invite member', () => {
 
     cy.contains('button', 'Send invite').click();
 
-    cy.url().should('contain', '/invite-member-confirmation');
+    cy.url().should('contain', '/manage-organisation/manage-team-members');
     cy.checkA11yApp();
-    cy.contains(TestEmail);
+
+    cy.contains('.govuk-notification-banner--success', TestEmail);
   });
 
   it('errors when empty', () => {
