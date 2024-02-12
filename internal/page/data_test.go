@@ -142,6 +142,8 @@ func TestCanGoTo(t *testing.T) {
 
 func TestLpaProgress(t *testing.T) {
 	lpaSignedAt := time.Now()
+	uid1 := actor.NewUID()
+	uid2 := actor.NewUID()
 
 	testCases := map[string]struct {
 		donor               *actor.DonorProvidedDetails
@@ -188,12 +190,12 @@ func TestLpaProgress(t *testing.T) {
 		"attorneys signed": {
 			donor: &actor.DonorProvidedDetails{
 				SignedAt:  lpaSignedAt,
-				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "a1"}, {ID: "a2"}}},
+				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}, {UID: uid2}}},
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
 			attorneys: []*actor.AttorneyProvidedDetails{
-				{ID: "a1", LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
-				{ID: "a2", LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
+				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
+				{UID: uid2, LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
 			},
 			expectedProgress: actor.Progress{
 				DonorSigned:               actor.TaskCompleted,
@@ -208,12 +210,12 @@ func TestLpaProgress(t *testing.T) {
 			donor: &actor.DonorProvidedDetails{
 				SignedAt:    lpaSignedAt,
 				SubmittedAt: lpaSignedAt.Add(time.Hour),
-				Attorneys:   actor.Attorneys{Attorneys: []actor.Attorney{{ID: "a1"}, {ID: "a2"}}},
+				Attorneys:   actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}, {UID: uid2}}},
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
 			attorneys: []*actor.AttorneyProvidedDetails{
-				{ID: "a1", LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
-				{ID: "a2", LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
+				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
+				{UID: uid2, LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
 			},
 			expectedProgress: actor.Progress{
 				DonorSigned:               actor.TaskCompleted,
@@ -229,12 +231,12 @@ func TestLpaProgress(t *testing.T) {
 				SignedAt:     lpaSignedAt,
 				SubmittedAt:  lpaSignedAt.Add(time.Hour),
 				RegisteredAt: lpaSignedAt.Add(2 * time.Hour),
-				Attorneys:    actor.Attorneys{Attorneys: []actor.Attorney{{ID: "a1"}, {ID: "a2"}}},
+				Attorneys:    actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}, {UID: uid2}}},
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
 			attorneys: []*actor.AttorneyProvidedDetails{
-				{ID: "a1", LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
-				{ID: "a2", LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
+				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
+				{UID: uid2, LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
 			},
 			expectedProgress: actor.Progress{
 				DonorSigned:               actor.TaskCompleted,

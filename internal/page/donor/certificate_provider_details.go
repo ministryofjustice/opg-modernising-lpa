@@ -17,7 +17,7 @@ type certificateProviderDetailsData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore) Handler {
+func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore, newUID func() actor.UID) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &certificateProviderDetailsData{
 			App: appData,
@@ -50,9 +50,14 @@ func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore) H
 			}
 
 			if data.Errors.None() && data.NameWarning == nil {
+				if donor.CertificateProvider.UID.IsZero() {
+					donor.CertificateProvider.UID = newUID()
+				}
+
 				donor.CertificateProvider.FirstNames = data.Form.FirstNames
 				donor.CertificateProvider.LastName = data.Form.LastName
 				donor.CertificateProvider.HasNonUKMobile = data.Form.HasNonUKMobile
+
 				if data.Form.HasNonUKMobile {
 					donor.CertificateProvider.Mobile = data.Form.NonUKMobile
 				} else {

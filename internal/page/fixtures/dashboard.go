@@ -109,7 +109,7 @@ func Dashboard(
 
 			attorneyCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID, LpaID: donor.LpaID})
 
-			attorney, err := attorneyStore.Create(attorneyCtx, donorSessionID, donor.Attorneys.Attorneys[0].ID, false, false)
+			attorney, err := attorneyStore.Create(attorneyCtx, donorSessionID, donor.Attorneys.Attorneys[0].UID, false, false)
 			if err != nil {
 				return err
 			}
