@@ -5,18 +5,22 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {{ if eq (.Query.Get "updated") "name" }}
-                <div class="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+            {{ if .Query.Has "email" }}
+                <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
+                     aria-labelledby="govuk-notification-banner-title"
+                     data-module="govuk-notification-banner">
                     <div class="govuk-notification-banner__header">
                         <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
-                            {{ tr .App "organisationNameSaved" }}
+                            {{ tr .App "invitationSent" }}
                         </h1>
                     </div>
                     <div class="govuk-notification-banner__content">
-                        <p class="govuk-body">{{ tr .App "yourOrganisationNameHasBeenSaved" }}</p>
+                        <p class="govuk-body">
+                            {{ trFormatHtml .App "weHaveSentInvite" "Email" (.Query.Get "email") }}
+                        </p>
                     </div>
                 </div>
-            {{ end }}
+            {{ end}}
 
             <h1 class="govuk-heading-xl">{{ tr .App "manageOrganisation" }}</h1>
 
@@ -30,23 +34,6 @@
                     </li>
                 </ul>
                 <div class="govuk-tabs__panel" id="team-members">
-                    {{ if .Query.Has "email" }}
-                        <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
-                             aria-labelledby="govuk-notification-banner-title"
-                             data-module="govuk-notification-banner">
-                            <div class="govuk-notification-banner__header">
-                                <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
-                                    {{ tr .App "invitationSent" }}
-                                </h1>
-                            </div>
-                            <div class="govuk-notification-banner__content">
-                                <p class="govuk-body app-full-width">
-                                    {{ trFormatHtml .App "weHaveSentInvite" "Email" (.Query.Get "email") }}
-                                </p>
-                            </div>
-                        </div>
-                    {{ end}}
-
                     <a class="govuk-button" href="{{ link .App global.Paths.Supporter.InviteMember.Format }}">{{ tr .App "inviteTeamMember" }}</a>
 
                     {{ if .InvitedMembers }}

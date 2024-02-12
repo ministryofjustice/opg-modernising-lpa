@@ -114,8 +114,3 @@ body:not(.js-enabled) .govuk-back-link {
 .app-dark-grey {
     color: govuk-colour("dark-grey");
 }
-
-// To override some design system max width styles when nesting components
-.app-full-width {
-    max-width: 100% !important;
-}
