@@ -49,7 +49,7 @@ func ConfirmYourDetails(tmpl template.Template, attorneyStore AttorneyStore, don
 		if appData.IsTrustCorporation() {
 			data.TrustCorporation = attorneys.TrustCorporation
 		} else {
-			data.Attorney, _ = attorneys.Get(attorneyProvidedDetails.ID)
+			data.Attorney, _ = attorneys.Get(attorneyProvidedDetails.UID)
 		}
 
 		return tmpl(w, data)

@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
 // Attorney contains details about an attorney or replacement attorney, provided by the applicant
 type Attorney struct {
-	// Identifies the attorney being edited
-	ID string
+	// UID for the actor
+	UID actoruid.UID
 	// First names of the attorney
 	FirstNames string
 	// Last name of the attorney
@@ -30,6 +31,8 @@ func (a Attorney) FullName() string {
 
 // TrustCorporation contains details about a trust corporation, provided by the applicant
 type TrustCorporation struct {
+	// UID for the actor
+	UID actoruid.UID
 	// Name of the company
 	Name string
 	// CompanyNumber as registered by Companies House
@@ -83,8 +86,8 @@ func (as Attorneys) Addresses() []place.Address {
 	return addresses
 }
 
-func (as Attorneys) Get(id string) (Attorney, bool) {
-	idx := as.Index(id)
+func (as Attorneys) Get(uid actoruid.UID) (Attorney, bool) {
+	idx := as.Index(uid)
 	if idx == -1 {
 		return Attorney{}, false
 	}
@@ -93,7 +96,7 @@ func (as Attorneys) Get(id string) (Attorney, bool) {
 }
 
 func (as *Attorneys) Put(attorney Attorney) {
-	idx := as.Index(attorney.ID)
+	idx := as.Index(attorney.UID)
 	if idx == -1 {
 		as.Attorneys = append(as.Attorneys, attorney)
 	} else {
@@ -102,7 +105,7 @@ func (as *Attorneys) Put(attorney Attorney) {
 }
 
 func (as *Attorneys) Delete(attorney Attorney) bool {
-	idx := as.Index(attorney.ID)
+	idx := as.Index(attorney.UID)
 	if idx == -1 {
 		return false
 	}
@@ -111,8 +114,8 @@ func (as *Attorneys) Delete(attorney Attorney) bool {
 	return true
 }
 
-func (as *Attorneys) Index(id string) int {
-	return slices.IndexFunc(as.Attorneys, func(a Attorney) bool { return a.ID == id })
+func (as *Attorneys) Index(uid actoruid.UID) int {
+	return slices.IndexFunc(as.Attorneys, func(a Attorney) bool { return a.UID == uid })
 }
 
 func (as Attorneys) FullNames() []string {

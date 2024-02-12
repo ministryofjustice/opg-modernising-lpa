@@ -1,6 +1,6 @@
 package actor
 
-type Type int
+type Type uint8
 
 const (
 	TypeNone Type = iota
@@ -11,6 +11,8 @@ const (
 	TypePersonToNotify
 	TypeAuthorisedSignatory
 	TypeIndependentWitness
+	TypeTrustCorporation
+	TypeReplacementTrustCorporation
 )
 
 func (t Type) String() string {
@@ -29,29 +31,35 @@ func (t Type) String() string {
 		return "signatory"
 	case TypeIndependentWitness:
 		return "independentWitness"
+	case TypeTrustCorporation:
+		return "trustCorporation"
 	default:
 		return ""
 	}
 }
 
 type Types struct {
-	None                Type
-	Donor               Type
-	Attorney            Type
-	ReplacementAttorney Type
-	CertificateProvider Type
-	PersonToNotify      Type
-	AuthorisedSignatory Type
-	IndependentWitness  Type
+	None                        Type
+	Donor                       Type
+	Attorney                    Type
+	ReplacementAttorney         Type
+	TrustCorporation            Type
+	ReplacementTrustCorporation Type
+	CertificateProvider         Type
+	PersonToNotify              Type
+	AuthorisedSignatory         Type
+	IndependentWitness          Type
 }
 
 var ActorTypes = Types{
-	None:                TypeNone,
-	Donor:               TypeDonor,
-	Attorney:            TypeAttorney,
-	ReplacementAttorney: TypeReplacementAttorney,
-	CertificateProvider: TypeCertificateProvider,
-	PersonToNotify:      TypePersonToNotify,
-	AuthorisedSignatory: TypeAuthorisedSignatory,
-	IndependentWitness:  TypeIndependentWitness,
+	None:                        TypeNone,
+	Donor:                       TypeDonor,
+	Attorney:                    TypeAttorney,
+	ReplacementAttorney:         TypeReplacementAttorney,
+	TrustCorporation:            TypeTrustCorporation,
+	ReplacementTrustCorporation: TypeReplacementTrustCorporation,
+	CertificateProvider:         TypeCertificateProvider,
+	PersonToNotify:              TypePersonToNotify,
+	AuthorisedSignatory:         TypeAuthorisedSignatory,
+	IndependentWitness:          TypeIndependentWitness,
 }

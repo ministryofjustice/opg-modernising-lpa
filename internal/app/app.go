@@ -12,6 +12,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -89,6 +90,7 @@ func App(
 		eventClient:   eventClient,
 		logger:        logger,
 		uuidString:    uuid.NewString,
+		newUID:        actoruid.New,
 		now:           time.Now,
 		documentStore: documentStore,
 	}

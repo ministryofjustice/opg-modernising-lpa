@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -102,12 +103,12 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 	}{
 		"multiple attorneys acting jointly and severally replacements step in when none left": {
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-				{ID: "123"},
-				{ID: "123"},
+				{UID: actoruid.New()},
+				{UID: actoruid.New()},
 			}},
 			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-				{ID: "123"},
-				{ID: "123"},
+				{UID: actoruid.New()},
+				{UID: actoruid.New()},
 			}},
 			HowAttorneysMakeDecisions:           actor.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
@@ -116,8 +117,8 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 		},
 		"multiple attorneys acting jointly": {
 			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-				{ID: "123"},
-				{ID: "123"},
+				{UID: actoruid.New()},
+				{UID: actoruid.New()},
 			}},
 			HowAttorneysMakeDecisions:            actor.Jointly,
 			HowShouldReplacementAttorneysStepIn:  actor.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
@@ -127,8 +128,8 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 		},
 		"multiple attorneys acting jointly and severally replacements step in when one loses capacity": {
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-				{ID: "123"},
-				{ID: "123"},
+				{UID: actoruid.New()},
+				{UID: actoruid.New()},
 			}},
 			HowAttorneysMakeDecisions:           actor.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
@@ -137,12 +138,12 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 		},
 		"multiple attorneys acting jointly and severally": {
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-				{ID: "123"},
-				{ID: "123"},
+				{UID: actoruid.New()},
+				{UID: actoruid.New()},
 			}},
 			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-				{ID: "123"},
-				{ID: "123"},
+				{UID: actoruid.New()},
+				{UID: actoruid.New()},
 			}},
 			HowAttorneysMakeDecisions:           actor.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInWhenOneCanNoLongerAct,

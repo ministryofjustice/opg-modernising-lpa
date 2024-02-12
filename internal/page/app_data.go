@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
 
@@ -20,7 +21,7 @@ type AppData struct {
 	LpaID                string
 	CsrfToken            string
 	ActorType            actor.Type
-	AttorneyID           string
+	AttorneyUID          actoruid.UID
 	IsSupporter          bool
 	OrganisationName     string
 	IsManageOrganisation bool
@@ -54,5 +55,5 @@ func (d AppData) IsReplacementAttorney() bool {
 }
 
 func (d AppData) IsTrustCorporation() bool {
-	return (d.ActorType == actor.TypeAttorney || d.ActorType == actor.TypeReplacementAttorney) && d.AttorneyID == ""
+	return d.ActorType == actor.TypeTrustCorporation || d.ActorType == actor.TypeReplacementTrustCorporation
 }
