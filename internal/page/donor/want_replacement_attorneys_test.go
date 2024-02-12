@@ -86,6 +86,8 @@ func TestGetWantReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostWantReplacementAttorneys(t *testing.T) {
+	uid := actor.NewUID()
+
 	testCases := map[string]struct {
 		yesNo                        form.YesNo
 		existingReplacementAttorneys actor.Attorneys
@@ -95,16 +97,16 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 	}{
 		"yes": {
 			yesNo:                        form.Yes,
-			existingReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}},
-			expectedReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123"}}},
+			existingReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
+			expectedReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
 			taskState:                    actor.TaskInProgress,
 			redirect:                     page.Paths.ChooseReplacementAttorneys,
 		},
 		"no": {
 			yesNo: form.No,
 			existingReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-				{ID: "123"},
-				{ID: "345"},
+				{UID: uid},
+				{UID: actor.NewUID()},
 			}},
 			expectedReplacementAttorneys: actor.Attorneys{},
 			taskState:                    actor.TaskCompleted,

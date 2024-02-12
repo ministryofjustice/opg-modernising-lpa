@@ -21,8 +21,7 @@ type removeAttorneyData struct {
 
 func RemoveAttorney(logger Logger, tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
-		id := r.FormValue("id")
-		attorney, found := donor.Attorneys.Get(id)
+		attorney, found := donor.Attorneys.Get(actor.UIDFromRequest(r))
 
 		if found == false {
 			return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, donor)
