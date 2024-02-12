@@ -10,6 +10,8 @@ import (
 
 // Donor contains details about the donor, provided by the applicant
 type Donor struct {
+	// UID for the actor
+	UID UID
 	// First names of the donor
 	FirstNames string
 	// Last name of the donor

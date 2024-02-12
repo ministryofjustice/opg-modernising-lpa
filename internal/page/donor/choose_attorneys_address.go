@@ -12,8 +12,7 @@ import (
 
 func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
-		attorneyId := r.FormValue("id")
-		attorney, found := donor.Attorneys.Get(attorneyId)
+		attorney, found := donor.Attorneys.Get(actor.UIDFromRequest(r))
 
 		if found == false {
 			return page.Paths.ChooseAttorneys.Redirect(w, r, appData, donor)
@@ -23,13 +22,13 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 			appData,
 			"attorney",
 			attorney.FullName(),
-			attorney.ID,
+			attorney.UID,
 			true,
 		)
 
 		data.ActorLabel = "attorney"
 		data.FullName = attorney.FullName()
-		data.ID = attorney.ID
+		data.UID = attorney.UID
 		data.CanSkip = true
 
 		if attorney.Address.Line1 != "" {

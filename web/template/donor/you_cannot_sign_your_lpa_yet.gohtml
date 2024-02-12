@@ -16,9 +16,9 @@
 
             <dl class="govuk-summary-list">
                 {{range $i, $actor := $actorsData }}
-                    {{ $changeLink := printf "%s?id=%s" (link $.App (global.Paths.ChooseReplacementAttorneys.Format $.App.LpaID)) $actor.ID }}
+                    {{ $changeLink := printf "%s?id=%s" (link $.App (global.Paths.ChooseReplacementAttorneys.Format $.App.LpaID)) $actor.UID }}
                     {{ if eq global.ActorTypes.Attorney $actor.Type }}
-                        {{ $changeLink = printf "%s?id=%s" (link $.App (global.Paths.ChooseAttorneys.Format $.App.LpaID)) $actor.ID }}
+                        {{ $changeLink = printf "%s?id=%s" (link $.App (global.Paths.ChooseAttorneys.Format $.App.LpaID)) $actor.UID }}
                     {{ end }}
 
                     <div class="govuk-summary-list__row">

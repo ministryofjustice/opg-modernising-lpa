@@ -79,7 +79,7 @@
           <input type="hidden" name="lookup-postcode" value="{{ .Form.LookupPostcode }}" />
 
           <p class="govuk-body">
-            <a href="?action=manual{{ if .ID }}&id={{ .ID }}{{ end }}" class="govuk-link govuk-link--no-visited-state">
+            <a href="?action=manual{{ if .UID }}&id={{ .UID }}{{ end }}" class="govuk-link govuk-link--no-visited-state">
               {{ tr .App "cantFindTheirAddressInList" }}
             </a>
           </p>
@@ -119,7 +119,7 @@
           </div>
 
           <p class="govuk-body">
-            <a href="?action=manual{{ if .ID }}&id={{ .ID }}{{ end }}" class="govuk-link govuk-link--no-visited-state">
+            <a href="?action=manual{{ if .UID }}&id={{ .UID }}{{ end }}" class="govuk-link govuk-link--no-visited-state">
               {{ tr .App "enterAddressManually" }}
             </a>
           </p>
