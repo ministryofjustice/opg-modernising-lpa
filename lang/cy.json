@@ -974,7 +974,7 @@
     "cy": "Cymraeg",
     "whichLanguageYoudLikeUsToUseWhenWeContactYou": "Welsh",
     "preferredContactLanguage": "Welsh",
-    "addAnotherLpaIfInvited": "Welsh {{ .ActorType }}.",
+    "addAnotherLpaIfInvited": "Ychwanegwch LPA arall os anfonwyd e-bost atoch yn eich gwahodd i fod yn {{ .ActorType }}.",
     "addAnLpa": "Welsh",
     "youCannotSignYourLpaYet": "Welsh",
     "actorsMustBeOver18WarningBanner": "Welsh",
