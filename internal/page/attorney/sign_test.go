@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -28,7 +29,7 @@ func TestGetSign(t *testing.T) {
 				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
-					{UID: actor.NewUID(), FirstNames: "Dave", LastName: "Smith"},
+					{UID: actoruid.New(), FirstNames: "Dave", LastName: "Smith"},
 				}},
 			},
 			data: &signData{
@@ -45,7 +46,7 @@ func TestGetSign(t *testing.T) {
 				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenCapacityLost,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
-					{UID: actor.NewUID(), FirstNames: "Dave", LastName: "Smith"},
+					{UID: actoruid.New(), FirstNames: "Dave", LastName: "Smith"},
 				}},
 			},
 			data: &signData{
@@ -61,7 +62,7 @@ func TestGetSign(t *testing.T) {
 				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity,
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
-					{UID: actor.NewUID(), FirstNames: "Dave", LastName: "Smith"},
+					{UID: actoruid.New(), FirstNames: "Dave", LastName: "Smith"},
 				}},
 			},
 			data: &signData{
@@ -79,7 +80,7 @@ func TestGetSign(t *testing.T) {
 				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenCapacityLost,
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
-					{UID: actor.NewUID(), FirstNames: "Dave", LastName: "Smith"},
+					{UID: actoruid.New(), FirstNames: "Dave", LastName: "Smith"},
 				}},
 			},
 			data: &signData{
@@ -139,7 +140,7 @@ func TestGetSign(t *testing.T) {
 }
 
 func TestGetSignCantSignYet(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 
 	testcases := map[string]struct {
 		appData             page.AppData
@@ -152,7 +153,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 				SignedAt: time.Now(),
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{UID: uid, FirstNames: "Bob", LastName: "Smith"},
-					{UID: actor.NewUID(), FirstNames: "Dave", LastName: "Smith"},
+					{UID: actoruid.New(), FirstNames: "Dave", LastName: "Smith"},
 				}},
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{},
@@ -163,7 +164,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenCapacityLost,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{UID: uid, FirstNames: "Bob", LastName: "Smith"},
-					{UID: actor.NewUID(), FirstNames: "Dave", LastName: "Smith"},
+					{UID: actoruid.New(), FirstNames: "Dave", LastName: "Smith"},
 				}},
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{
@@ -198,7 +199,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 }
 
 func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 
 	testcases := map[string]struct {
 		appData page.AppData

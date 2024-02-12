@@ -3,6 +3,7 @@ package actor
 import (
 	"fmt"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -11,7 +12,7 @@ import (
 // Donor contains details about the donor, provided by the applicant
 type Donor struct {
 	// UID for the actor
-	UID UID
+	UID actoruid.UID
 	// First names of the donor
 	FirstNames string
 	// Last name of the donor

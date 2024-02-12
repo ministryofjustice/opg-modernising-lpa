@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -152,7 +153,7 @@ func (l *DonorProvidedDetails) AttorneysAndCpSigningDeadline() time.Time {
 type Under18ActorDetails struct {
 	FullName    string
 	DateOfBirth date.Date
-	UID         UID
+	UID         actoruid.UID
 	Type        Type
 }
 
@@ -248,8 +249,8 @@ func (l *DonorProvidedDetails) AllAttorneysSigned(attorneys []*AttorneyProvidedD
 	}
 
 	var (
-		attorneysSigned                   = map[UID]struct{}{}
-		replacementAttorneysSigned        = map[UID]struct{}{}
+		attorneysSigned                   = map[actoruid.UID]struct{}{}
+		replacementAttorneysSigned        = map[actoruid.UID]struct{}{}
 		trustCorporationSigned            = false
 		replacementTrustCorporationSigned = false
 	)

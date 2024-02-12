@@ -3,6 +3,7 @@ package actor
 import (
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -11,13 +12,13 @@ func TestPersonToNotifyFullName(t *testing.T) {
 }
 
 func TestPeopleToNotifyGet(t *testing.T) {
-	uid1 := NewUID()
-	uid2 := NewUID()
+	uid1 := actoruid.New()
+	uid2 := actoruid.New()
 
 	testCases := map[string]struct {
 		peopleToNotify         PeopleToNotify
 		expectedPersonToNotify PersonToNotify
-		id                     UID
+		id                     actoruid.UID
 		expectedFound          bool
 	}{
 		"personToNotify exists": {
@@ -29,7 +30,7 @@ func TestPeopleToNotifyGet(t *testing.T) {
 		"personToNotify does not exist": {
 			peopleToNotify:         PeopleToNotify{{UID: uid1, FirstNames: "Bob"}, {UID: uid2}},
 			expectedPersonToNotify: PersonToNotify{},
-			id:                     NewUID(),
+			id:                     actoruid.New(),
 			expectedFound:          false,
 		},
 	}
@@ -45,9 +46,9 @@ func TestPeopleToNotifyGet(t *testing.T) {
 }
 
 func TestPeopleToNotifyPut(t *testing.T) {
-	uid1 := NewUID()
-	uid2 := NewUID()
-	uid3 := NewUID()
+	uid1 := actoruid.New()
+	uid2 := actoruid.New()
+	uid3 := actoruid.New()
 
 	testCases := map[string]struct {
 		peopleToNotify         PeopleToNotify
@@ -80,9 +81,9 @@ func TestPeopleToNotifyPut(t *testing.T) {
 }
 
 func TestPeopleToNotifyDelete(t *testing.T) {
-	uid1 := NewUID()
-	uid2 := NewUID()
-	uid3 := NewUID()
+	uid1 := actoruid.New()
+	uid2 := actoruid.New()
+	uid3 := actoruid.New()
 
 	testCases := map[string]struct {
 		peopleToNotify         PeopleToNotify

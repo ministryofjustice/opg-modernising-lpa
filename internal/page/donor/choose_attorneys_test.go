@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -46,7 +47,7 @@ func TestGetChooseAttorneysFromStore(t *testing.T) {
 	err := ChooseAttorneys(nil, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-			{FirstNames: "John", UID: actor.NewUID()},
+			{FirstNames: "John", UID: actoruid.New()},
 		}},
 	})
 	resp := w.Result()
@@ -57,7 +58,7 @@ func TestGetChooseAttorneysFromStore(t *testing.T) {
 }
 
 func TestGetChooseAttorneysDobWarningIsAlwaysShown(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
@@ -204,7 +205,7 @@ func TestPostChooseAttorneysAttorneyDoesNotExist(t *testing.T) {
 }
 
 func TestPostChooseAttorneysAttorneyExists(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
 
 	testCases := map[string]struct {
@@ -314,7 +315,7 @@ func TestPostChooseAttorneysNameWarningOnlyShownWhenAttorneyAndFormNamesAreDiffe
 		"date-of-birth-year":  {"2000"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -665,7 +666,7 @@ func TestChooseAttorneysFormDobWarning(t *testing.T) {
 }
 
 func TestAttorneyMatches(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 
 	donor := &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
@@ -700,7 +701,7 @@ func TestAttorneyMatches(t *testing.T) {
 }
 
 func TestAttorneyMatchesEmptyNamesIgnored(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 
 	donor := &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "", LastName: ""},

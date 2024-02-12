@@ -11,6 +11,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -145,7 +146,7 @@ func Donor(
 			donorDetails.Tasks.YourDetails = actor.TaskCompleted
 		}
 
-		var withoutAddressUID actor.UID
+		var withoutAddressUID actoruid.UID
 		json.Unmarshal([]byte(`"urn:opg:poas:makeregister:users:without-address"`), &withoutAddressUID)
 
 		if progress >= slices.Index(progressValues, "chooseYourAttorneys") {

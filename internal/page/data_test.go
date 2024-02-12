@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -142,8 +143,8 @@ func TestCanGoTo(t *testing.T) {
 
 func TestLpaProgress(t *testing.T) {
 	lpaSignedAt := time.Now()
-	uid1 := actor.NewUID()
-	uid2 := actor.NewUID()
+	uid1 := actoruid.New()
+	uid2 := actoruid.New()
 
 	testCases := map[string]struct {
 		donor               *actor.DonorProvidedDetails

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -61,7 +62,7 @@ func TestGetRemoveTrustCorporation(t *testing.T) {
 }
 
 func TestPostRemoveTrustCorporation(t *testing.T) {
-	attorney := actor.Attorney{UID: actor.NewUID(), Email: "a"}
+	attorney := actor.Attorney{UID: actoruid.New(), Email: "a"}
 	trustCorporation := actor.TrustCorporation{Name: "a"}
 
 	testcases := map[string]struct {
@@ -178,7 +179,7 @@ func TestPostRemoveTrustCorporationWithFormValueNo(t *testing.T) {
 		form.FieldNames.YesNo: {form.No.String()},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -186,7 +187,7 @@ func TestPostRemoveTrustCorporationWithFormValueNo(t *testing.T) {
 	template := newMockTemplate(t)
 
 	attorneyWithAddress := actor.Attorney{
-		UID: actor.NewUID(),
+		UID: actoruid.New(),
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
@@ -211,7 +212,7 @@ func TestPostRemoveTrustCorporationErrorOnPutStore(t *testing.T) {
 		form.FieldNames.YesNo: {form.Yes.String()},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -219,7 +220,7 @@ func TestPostRemoveTrustCorporationErrorOnPutStore(t *testing.T) {
 	template := newMockTemplate(t)
 
 	attorneyWithAddress := actor.Attorney{
-		UID: actor.NewUID(),
+		UID: actoruid.New(),
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
@@ -248,7 +249,7 @@ func TestRemoveTrustCorporationFormValidation(t *testing.T) {
 		form.FieldNames.YesNo: {""},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)

@@ -3,7 +3,7 @@ package donor
 import (
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/stretchr/testify/assert"
 )
@@ -17,7 +17,7 @@ var testTitleKeys = titleKeys{
 }
 
 func TestNewChooseAddressData(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 
 	assert.Equal(t, &chooseAddressData{
 		Form:       &form.AddressForm{FieldNames: form.FieldNames.Address},
@@ -31,7 +31,7 @@ func TestNewChooseAddressData(t *testing.T) {
 }
 
 func TestOverrideProfessionalCertificateProviderKeys(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	data := newChooseAddressData(testAppData, "1", "2", uid, true)
 
 	data.overrideTitleKeys(titleKeys{

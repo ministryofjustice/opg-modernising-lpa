@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -43,7 +44,7 @@ func TestGetChoosePeopleToNotifyFromStore(t *testing.T) {
 		LpaID: "lpa-id",
 		PeopleToNotify: actor.PeopleToNotify{
 			{
-				UID:        actor.NewUID(),
+				UID:        actoruid.New(),
 				Address:    testAddress,
 				FirstNames: "Johnny",
 				LastName:   "Jones",
@@ -80,7 +81,7 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 	personToNotify := actor.PersonToNotify{
 		FirstNames: "John",
 		LastName:   "Doe",
-		UID:        actor.NewUID(),
+		UID:        actoruid.New(),
 	}
 
 	testcases := map[string]struct {
@@ -193,7 +194,7 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 		"last-name":   {"Dear"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -366,7 +367,7 @@ func TestChoosePeopleToNotifyFormValidate(t *testing.T) {
 }
 
 func TestPersonToNotifyMatches(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	donor := &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
@@ -396,7 +397,7 @@ func TestPersonToNotifyMatches(t *testing.T) {
 }
 
 func TestPersonToNotifyMatchesEmptyNamesIgnored(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	donor := &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "", LastName: ""},
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{

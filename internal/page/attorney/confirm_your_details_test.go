@@ -6,13 +6,14 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestGetConfirmYourDetails(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	attorneyProvidedDetails := &actor.AttorneyProvidedDetails{UID: uid}
 
 	testcases := map[string]struct {
@@ -110,7 +111,7 @@ func TestGetConfirmYourDetailsWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostConfirmYourDetails(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
@@ -140,6 +141,6 @@ func TestPostConfirmYourDetailsWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ConfirmYourDetails(nil, attorneyStore, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{UID: actor.NewUID(), LpaID: "lpa-id"})
+	err := ConfirmYourDetails(nil, attorneyStore, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{UID: actoruid.New(), LpaID: "lpa-id"})
 	assert.Equal(t, expectedError, err)
 }

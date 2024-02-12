@@ -4,12 +4,13 @@ import (
 	"errors"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
 var (
-	testUID       = actor.NewUID()
+	testUID       = actoruid.New()
 	expectedError = errors.New("err")
 	testAppData   = page.AppData{
 		SessionID:   "session-id",

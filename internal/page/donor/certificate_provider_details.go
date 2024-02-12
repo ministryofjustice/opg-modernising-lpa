@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -17,7 +18,7 @@ type certificateProviderDetailsData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore, newUID func() actor.UID) Handler {
+func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &certificateProviderDetailsData{
 			App: appData,

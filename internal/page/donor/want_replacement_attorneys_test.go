@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -86,7 +87,7 @@ func TestGetWantReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostWantReplacementAttorneys(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 
 	testCases := map[string]struct {
 		yesNo                        form.YesNo
@@ -106,7 +107,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 			yesNo: form.No,
 			existingReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 				{UID: uid},
-				{UID: actor.NewUID()},
+				{UID: actoruid.New()},
 			}},
 			expectedReplacementAttorneys: actor.Attorneys{},
 			taskState:                    actor.TaskCompleted,

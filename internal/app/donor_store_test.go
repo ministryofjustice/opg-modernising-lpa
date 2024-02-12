@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -23,8 +24,8 @@ var (
 	expectedError = errors.New("err")
 	testNow       = time.Date(2023, time.April, 2, 3, 4, 5, 6, time.UTC)
 	testNowFn     = func() time.Time { return testNow }
-	testUID       = actor.NewUID()
-	testUIDFn     = func() actor.UID { return testUID }
+	testUID       = actoruid.New()
+	testUIDFn     = func() actoruid.UID { return testUID }
 )
 
 func (m *mockDynamoClient) ExpectOne(ctx, pk, sk, data interface{}, err error) {
@@ -491,7 +492,7 @@ func TestDonorStoreCreate(t *testing.T) {
 	testCases := map[string]actor.DonorProvidedDetails{
 		"with previous details": {
 			Donor: actor.Donor{
-				UID:         actor.NewUID(),
+				UID:         actoruid.New(),
 				FirstNames:  "a",
 				LastName:    "b",
 				OtherNames:  "c",

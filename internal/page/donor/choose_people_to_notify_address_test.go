@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -17,7 +18,7 @@ import (
 )
 
 func TestGetChoosePeopleToNotifyAddress(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
@@ -48,7 +49,7 @@ func TestGetChoosePeopleToNotifyAddress(t *testing.T) {
 }
 
 func TestGetChoosePeopleToNotifyAddressFromStore(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
@@ -78,7 +79,7 @@ func TestGetChoosePeopleToNotifyAddressFromStore(t *testing.T) {
 }
 
 func TestGetChoosePeopleToNotifyAddressManual(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?action=manual&id="+uid.String(), nil)
 
@@ -106,7 +107,7 @@ func TestGetChoosePeopleToNotifyAddressManual(t *testing.T) {
 }
 
 func TestGetChoosePeopleToNotifyAddressWhenTemplateErrors(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
@@ -144,7 +145,7 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -180,7 +181,7 @@ func TestPostChoosePeopleToNotifyAddressManualWhenStoreErrors(t *testing.T) {
 		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -208,7 +209,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -251,7 +252,7 @@ func TestPostChoosePeopleToNotifyPostcodeSelect(t *testing.T) {
 		"select-address":               {testAddress.Encode()},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -292,7 +293,7 @@ func TestPostChoosePeopleToNotifyPostcodeSelectWhenValidationError(t *testing.T)
 		"lookup-postcode":              {"NG1"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -337,7 +338,7 @@ func TestPostChoosePeopleToNotifyPostcodeLookup(t *testing.T) {
 		"lookup-postcode":              {"NG1"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -381,7 +382,7 @@ func TestPostChoosePeopleToNotifyPostcodeLookupError(t *testing.T) {
 		"lookup-postcode":              {"NG1"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -432,7 +433,7 @@ func TestPostChoosePeopleToNotifyPostcodeLookupInvalidPostcodeError(t *testing.T
 		"lookup-postcode":              {"XYZ"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
@@ -478,7 +479,7 @@ func TestPostChoosePeopleToNotifyPostcodeLookupValidPostcodeNoAddresses(t *testi
 		"lookup-postcode":              {"XYZ"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
@@ -519,7 +520,7 @@ func TestPostChoosePeopleToNotifyPostcodeLookupWhenValidationError(t *testing.T)
 		form.FieldNames.Address.Action: {"postcode-lookup"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -557,7 +558,7 @@ func TestPostChoosePeopleToNotifyAddressReuse(t *testing.T) {
 		form.FieldNames.Address.Action: {"reuse"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -594,7 +595,7 @@ func TestPostChoosePeopleToNotifyAddressReuseSelect(t *testing.T) {
 		"select-address":               {testAddress.Encode()},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -631,7 +632,7 @@ func TestPostChoosePeopleToNotifyAddressReuseSelectWhenValidationError(t *testin
 		form.FieldNames.Address.Action: {"reuse-select"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)

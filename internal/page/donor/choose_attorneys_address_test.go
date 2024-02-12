@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -17,7 +18,7 @@ import (
 )
 
 func TestGetChooseAttorneysAddress(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
@@ -49,7 +50,7 @@ func TestGetChooseAttorneysAddress(t *testing.T) {
 }
 
 func TestGetChooseAttorneysAddressFromStore(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
@@ -85,7 +86,7 @@ func TestGetChooseAttorneysAddressFromStore(t *testing.T) {
 }
 
 func TestGetChooseAttorneysAddressManual(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?action=manual&id="+uid.String(), nil)
 
@@ -116,7 +117,7 @@ func TestGetChooseAttorneysAddressManual(t *testing.T) {
 }
 
 func TestGetChooseAttorneysAddressWhenTemplateErrors(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
@@ -152,7 +153,7 @@ func TestPostChooseAttorneysAddressSkip(t *testing.T) {
 		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -192,7 +193,7 @@ func TestPostChooseAttorneysAddressSkipWhenStoreErrors(t *testing.T) {
 		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -222,7 +223,7 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -265,7 +266,7 @@ func TestPostChooseAttorneysAddressManualWhenStoreErrors(t *testing.T) {
 		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -295,7 +296,7 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 		form.FieldNames.Address.Postcode:   {"e"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -336,7 +337,7 @@ func TestPostChooseAttorneysAddressManualWhenValidationError(t *testing.T) {
 		form.FieldNames.Address.Postcode:   {"d"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -387,7 +388,7 @@ func TestPostChooseAttorneysAddressPostcodeSelect(t *testing.T) {
 		"select-address":               {testAddress.Encode()},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -425,7 +426,7 @@ func TestPostChooseAttorneysAddressPostcodeSelectWhenValidationError(t *testing.
 		"lookup-postcode":              {"NG1"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -473,7 +474,7 @@ func TestPostChooseAttorneysPostcodeLookup(t *testing.T) {
 		"lookup-postcode":              {"NG1"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -520,7 +521,7 @@ func TestPostChooseAttorneysPostcodeLookupError(t *testing.T) {
 		"lookup-postcode":              {"NG1"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -574,7 +575,7 @@ func TestPostChooseAttorneysPostcodeLookupInvalidPostcodeError(t *testing.T) {
 		"lookup-postcode":              {"XYZ"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
@@ -623,7 +624,7 @@ func TestPostChooseAttorneysPostcodeLookupValidPostcodeNoAddresses(t *testing.T)
 		"lookup-postcode":              {"XYZ"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
@@ -665,7 +666,7 @@ func TestPostChooseAttorneysPostcodeLookupWhenValidationError(t *testing.T) {
 		form.FieldNames.Address.Action: {"postcode-lookup"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -701,7 +702,7 @@ func TestPostChooseAttorneysAddressReuse(t *testing.T) {
 		form.FieldNames.Address.Action: {"reuse"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -739,7 +740,7 @@ func TestPostChooseAttorneysAddressReuseSelect(t *testing.T) {
 		"select-address":               {testAddress.Encode()},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -781,7 +782,7 @@ func TestPostChooseAttorneysAddressReuseSelectWhenValidationError(t *testing.T) 
 		form.FieldNames.Address.Action: {"reuse-select"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -815,7 +816,7 @@ func TestPostChooseAttorneysAddressReuseSelectWhenValidationError(t *testing.T) 
 }
 
 func TestPostChooseAttorneysManuallyFromAnotherPage(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 
 	testcases := map[string]struct {
 		requestUrl      string

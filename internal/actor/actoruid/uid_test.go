@@ -1,4 +1,4 @@
-package actor
+package actoruid
 
 import (
 	"encoding/json"
@@ -14,18 +14,18 @@ func TestUID(t *testing.T) {
 	uid := UID{value: "abc"}
 
 	assert.Equal(t, "abc", uid.String())
-	assert.Equal(t, uidPrefix+"abc", uid.PrefixedString())
+	assert.Equal(t, prefix+"abc", uid.PrefixedString())
 }
 
 func TestUIDFromRequest(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/?id=abc", nil)
 
-	assert.Equal(t, UID{value: "abc"}, UIDFromRequest(r))
+	assert.Equal(t, UID{value: "abc"}, FromRequest(r))
 }
 
 func TestUIDZero(t *testing.T) {
 	assert.True(t, UID{}.IsZero())
-	assert.False(t, NewUID().IsZero())
+	assert.False(t, New().IsZero())
 }
 
 func TestUIDJSON(t *testing.T) {

@@ -7,6 +7,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -20,10 +21,10 @@ type chooseReplacementAttorneysData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, newUID func() actor.UID) Handler {
+func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		addAnother := r.FormValue("addAnother") == "1"
-		attorney, attorneyFound := donor.ReplacementAttorneys.Get(actor.UIDFromRequest(r))
+		attorney, attorneyFound := donor.ReplacementAttorneys.Get(actoruid.FromRequest(r))
 
 		if r.Method == http.MethodGet && donor.ReplacementAttorneys.Len() > 0 && !attorneyFound && !addAnother {
 			return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, donor)
@@ -90,7 +91,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, n
 	}
 }
 
-func replacementAttorneyMatches(donor *actor.DonorProvidedDetails, uid actor.UID, firstNames, lastName string) actor.Type {
+func replacementAttorneyMatches(donor *actor.DonorProvidedDetails, uid actoruid.UID, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}

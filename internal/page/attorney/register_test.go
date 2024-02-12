@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -192,7 +193,7 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 
 func TestMakeAttorneyHandleExistingSessionData(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "lpa-id", SessionID: "ignored-session-id"})
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
 	expectedDetails := &actor.AttorneyProvidedDetails{UID: uid}
@@ -236,7 +237,7 @@ func TestMakeAttorneyHandleExistingSessionData(t *testing.T) {
 }
 
 func TestMakeAttorneyHandleExistingLpaData(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	testCases := map[string]struct {
 		details   *actor.AttorneyProvidedDetails
 		actorType actor.Type

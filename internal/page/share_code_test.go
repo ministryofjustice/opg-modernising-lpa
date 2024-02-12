@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/stretchr/testify/assert"
@@ -512,11 +513,11 @@ func TestShareCodeSenderSendCertificateProviderPromptWhenShareCodeStoreErrors(t 
 }
 
 func TestShareCodeSenderSendAttorneys(t *testing.T) {
-	uid1 := actor.NewUID()
-	uid2 := actor.NewUID()
-	uid3 := actor.NewUID()
-	uid4 := actor.NewUID()
-	uid5 := actor.NewUID()
+	uid1 := actoruid.New()
+	uid2 := actoruid.New()
+	uid3 := actoruid.New()
+	uid4 := actoruid.New()
+	uid5 := actoruid.New()
 
 	donor := &actor.DonorProvidedDetails{
 		Attorneys: actor.Attorneys{

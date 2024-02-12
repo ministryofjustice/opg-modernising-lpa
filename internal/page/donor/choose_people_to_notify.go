@@ -7,6 +7,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -18,14 +19,14 @@ type choosePeopleToNotifyData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, newUID func() actor.UID) Handler {
+func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		if len(donor.PeopleToNotify) > 4 {
 			return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, donor)
 		}
 
 		addAnother := r.FormValue("addAnother") == "1"
-		personToNotify, personFound := donor.PeopleToNotify.Get(actor.UIDFromRequest(r))
+		personToNotify, personFound := donor.PeopleToNotify.Get(actoruid.FromRequest(r))
 
 		if r.Method == http.MethodGet && len(donor.PeopleToNotify) > 0 && personFound == false && addAnother == false {
 			return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, donor)
@@ -114,7 +115,7 @@ func (f *choosePeopleToNotifyForm) Validate() validation.List {
 	return errors
 }
 
-func personToNotifyMatches(donor *actor.DonorProvidedDetails, uid actor.UID, firstNames, lastName string) actor.Type {
+func personToNotifyMatches(donor *actor.DonorProvidedDetails, uid actoruid.UID, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}
