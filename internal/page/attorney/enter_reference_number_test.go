@@ -85,21 +85,21 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 		isTrustCorporation bool
 	}{
 		"attorney": {
-			shareCode: actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", AttorneyID: "attorney-id"},
+			shareCode: actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", AttorneyUID: testUID},
 			session:   &sesh.LoginSession{Sub: "hey"},
 		},
 		"replacement": {
-			shareCode:     actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", AttorneyID: "attorney-id", IsReplacementAttorney: true},
+			shareCode:     actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", AttorneyUID: testUID, IsReplacementAttorney: true},
 			session:       &sesh.LoginSession{Sub: "hey"},
 			isReplacement: true,
 		},
 		"trust corporation": {
-			shareCode:          actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", AttorneyID: "attorney-id", IsTrustCorporation: true},
+			shareCode:          actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", AttorneyUID: testUID, IsTrustCorporation: true},
 			session:            &sesh.LoginSession{Sub: "hey"},
 			isTrustCorporation: true,
 		},
 		"replacement trust corporation": {
-			shareCode:          actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", AttorneyID: "attorney-id", IsReplacementAttorney: true, IsTrustCorporation: true},
+			shareCode:          actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", AttorneyUID: testUID, IsReplacementAttorney: true, IsTrustCorporation: true},
 			session:            &sesh.LoginSession{Sub: "hey"},
 			isReplacement:      true,
 			isTrustCorporation: true,
@@ -130,7 +130,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 					session, _ := page.SessionDataFromContext(ctx)
 
 					return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
-				}), "aGV5", "attorney-id", tc.isReplacement, tc.isTrustCorporation).
+				}), "aGV5", testUID, tc.isReplacement, tc.isTrustCorporation).
 				Return(&actor.AttorneyProvidedDetails{}, nil)
 
 			sessionStore := newMockSessionStore(t)

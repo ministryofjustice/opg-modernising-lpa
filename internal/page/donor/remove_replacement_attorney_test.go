@@ -17,13 +17,14 @@ import (
 )
 
 func TestGetRemoveReplacementAttorney(t *testing.T) {
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?id=123", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
 	logger := newMockLogger(t)
 
 	attorney := actor.Attorney{
-		ID:         "123",
+		UID:        uid,
 		FirstNames: "John",
 		LastName:   "Smith",
 		Address: place.Address{
@@ -57,7 +58,7 @@ func TestGetRemoveReplacementAttorneyAttorneyDoesNotExist(t *testing.T) {
 	template := newMockTemplate(t)
 
 	attorney := actor.Attorney{
-		ID: "123",
+		UID: actor.NewUID(),
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
@@ -73,9 +74,9 @@ func TestGetRemoveReplacementAttorneyAttorneyDoesNotExist(t *testing.T) {
 }
 
 func TestPostRemoveReplacementAttorney(t *testing.T) {
-	attorneyWithEmail := actor.Attorney{ID: "with-email", Email: "a"}
-	attorneyWithAddress := actor.Attorney{ID: "with-address", Address: place.Address{Line1: "1 Road way"}}
-	attorneyWithoutAddress := actor.Attorney{ID: "without-address"}
+	attorneyWithEmail := actor.Attorney{UID: actor.NewUID(), Email: "a"}
+	attorneyWithAddress := actor.Attorney{UID: actor.NewUID(), Address: place.Address{Line1: "1 Road way"}}
+	attorneyWithoutAddress := actor.Attorney{UID: actor.NewUID()}
 
 	testcases := map[string]struct {
 		donor        *actor.DonorProvidedDetails
@@ -127,7 +128,7 @@ func TestPostRemoveReplacementAttorney(t *testing.T) {
 			}
 
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/?id="+attorneyWithoutAddress.UID.String(), strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			logger := newMockLogger(t)
@@ -154,22 +155,23 @@ func TestPostRemoveReplacementAttorneyWithFormValueNo(t *testing.T) {
 		form.FieldNames.YesNo: {form.No.String()},
 	}
 
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	logger := newMockLogger(t)
 	template := newMockTemplate(t)
 
 	attorneyWithAddress := actor.Attorney{
-		ID: "with-address",
+		UID: actor.NewUID(),
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
 	}
 
 	attorneyWithoutAddress := actor.Attorney{
-		ID:      "without-address",
+		UID:     uid,
 		Address: place.Address{},
 	}
 
@@ -187,8 +189,9 @@ func TestPostRemoveReplacementAttorneyErrorOnPutStore(t *testing.T) {
 		form.FieldNames.YesNo: {form.Yes.String()},
 	}
 
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
@@ -199,14 +202,14 @@ func TestPostRemoveReplacementAttorneyErrorOnPutStore(t *testing.T) {
 		Return()
 
 	attorneyWithAddress := actor.Attorney{
-		ID: "with-address",
+		UID: actor.NewUID(),
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
 	}
 
 	attorneyWithoutAddress := actor.Attorney{
-		ID:      "without-address",
+		UID:     uid,
 		Address: place.Address{},
 	}
 
@@ -231,12 +234,13 @@ func TestRemoveReplacementAttorneyFormValidation(t *testing.T) {
 		form.FieldNames.YesNo: {""},
 	}
 
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id=without-address", strings.NewReader(f.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	attorneyWithoutAddress := actor.Attorney{
-		ID:      "without-address",
+		UID:     uid,
 		Address: place.Address{},
 	}
 

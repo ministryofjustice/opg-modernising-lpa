@@ -9,31 +9,34 @@ import (
 )
 
 var (
+	testUID       = actor.NewUID()
 	expectedError = errors.New("err")
 	testAppData   = page.AppData{
-		SessionID:  "session-id",
-		LpaID:      "lpa-id",
-		AttorneyID: "attorney-id",
-		Lang:       localize.En,
-		ActorType:  actor.TypeAttorney,
+		SessionID:   "session-id",
+		LpaID:       "lpa-id",
+		AttorneyUID: testUID,
+		Lang:        localize.En,
+		ActorType:   actor.TypeAttorney,
 	}
 	testReplacementAppData = page.AppData{
-		SessionID:  "session-id",
-		LpaID:      "lpa-id",
-		AttorneyID: "attorney-id",
-		Lang:       localize.En,
-		ActorType:  actor.TypeReplacementAttorney,
+		SessionID:   "session-id",
+		LpaID:       "lpa-id",
+		AttorneyUID: testUID,
+		Lang:        localize.En,
+		ActorType:   actor.TypeReplacementAttorney,
 	}
 	testTrustCorporationAppData = page.AppData{
-		SessionID: "session-id",
-		LpaID:     "lpa-id",
-		Lang:      localize.En,
-		ActorType: actor.TypeAttorney,
+		SessionID:   "session-id",
+		LpaID:       "lpa-id",
+		AttorneyUID: testUID,
+		Lang:        localize.En,
+		ActorType:   actor.TypeTrustCorporation,
 	}
 	testReplacementTrustCorporationAppData = page.AppData{
-		SessionID: "session-id",
-		LpaID:     "lpa-id",
-		Lang:      localize.En,
-		ActorType: actor.TypeReplacementAttorney,
+		SessionID:   "session-id",
+		LpaID:       "lpa-id",
+		AttorneyUID: testUID,
+		Lang:        localize.En,
+		ActorType:   actor.TypeReplacementTrustCorporation,
 	}
 )
