@@ -3,6 +3,7 @@ package fixtures
 import (
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"log"
 	"net/http"
 	"slices"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -144,13 +146,16 @@ func Donor(
 			donorDetails.Tasks.YourDetails = actor.TaskCompleted
 		}
 
+		var withoutAddressUID actoruid.UID
+		json.Unmarshal([]byte(`"urn:opg:poas:makeregister:users:without-address"`), &withoutAddressUID)
+
 		if progress >= slices.Index(progressValues, "chooseYourAttorneys") {
 			donorDetails.Attorneys.Attorneys = []actor.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])}
 			donorDetails.AttorneyDecisions.How = actor.JointlyAndSeverally
 
 			switch attorneys {
 			case "without-address":
-				donorDetails.Attorneys.Attorneys[1].ID = "without-address"
+				donorDetails.Attorneys.Attorneys[1].UID = withoutAddressUID
 				donorDetails.Attorneys.Attorneys[1].Address = place.Address{}
 			case "trust-corporation-without-address":
 				donorDetails.Attorneys.TrustCorporation = makeTrustCorporation("First Choice Trust Corporation Ltd.")
@@ -176,7 +181,7 @@ func Donor(
 
 			switch replacementAttorneys {
 			case "without-address":
-				donorDetails.ReplacementAttorneys.Attorneys[1].ID = "without-address"
+				donorDetails.ReplacementAttorneys.Attorneys[1].UID = withoutAddressUID
 				donorDetails.ReplacementAttorneys.Attorneys[1].Address = place.Address{}
 			case "trust-corporation-without-address":
 				donorDetails.ReplacementAttorneys.TrustCorporation = makeTrustCorporation("First Choice Trust Corporation Ltd.")
@@ -228,7 +233,7 @@ func Donor(
 			donorDetails.PeopleToNotify = []actor.PersonToNotify{makePersonToNotify(peopleToNotifyNames[0]), makePersonToNotify(peopleToNotifyNames[1])}
 			switch peopleToNotify {
 			case "without-address":
-				donorDetails.PeopleToNotify[0].ID = "without-address"
+				donorDetails.PeopleToNotify[0].UID = withoutAddressUID
 				donorDetails.PeopleToNotify[0].Address = place.Address{}
 			case "max":
 				donorDetails.PeopleToNotify = append(donorDetails.PeopleToNotify, makePersonToNotify(peopleToNotifyNames[2]), makePersonToNotify(peopleToNotifyNames[3]), makePersonToNotify(peopleToNotifyNames[4]))
@@ -348,7 +353,7 @@ func Donor(
 				for _, a := range list.Attorneys {
 					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
-					attorney, err := attorneyStore.Create(ctx, donorSessionID, a.ID, isReplacement, false)
+					attorney, err := attorneyStore.Create(ctx, donorSessionID, a.UID, isReplacement, false)
 					if err != nil {
 						return err
 					}
@@ -368,7 +373,7 @@ func Donor(
 				if list.TrustCorporation.Name != "" {
 					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
-					attorney, err := attorneyStore.Create(ctx, donorSessionID, "", isReplacement, true)
+					attorney, err := attorneyStore.Create(ctx, donorSessionID, list.TrustCorporation.UID, isReplacement, true)
 					if err != nil {
 						return err
 					}
