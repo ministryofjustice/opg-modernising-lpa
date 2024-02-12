@@ -23,6 +23,8 @@ var (
 	expectedError = errors.New("err")
 	testNow       = time.Date(2023, time.April, 2, 3, 4, 5, 6, time.UTC)
 	testNowFn     = func() time.Time { return testNow }
+	testUID       = actor.NewUID()
+	testUIDFn     = func() actor.UID { return testUID }
 )
 
 func (m *mockDynamoClient) ExpectOne(ctx, pk, sk, data interface{}, err error) {
@@ -487,12 +489,15 @@ func TestDonorStorePutWhenPreviousApplicationLinkedWhenError(t *testing.T) {
 
 func TestDonorStoreCreate(t *testing.T) {
 	testCases := map[string]actor.DonorProvidedDetails{
-		"with previous details": {Donor: actor.Donor{
-			FirstNames:  "a",
-			LastName:    "b",
-			OtherNames:  "c",
-			DateOfBirth: date.New("2000", "01", "02"),
-			Address:     place.Address{Line1: "d"}},
+		"with previous details": {
+			Donor: actor.Donor{
+				UID:         actor.NewUID(),
+				FirstNames:  "a",
+				LastName:    "b",
+				OtherNames:  "c",
+				DateOfBirth: date.New("2000", "01", "02"),
+				Address:     place.Address{Line1: "d"},
+			},
 		},
 		"no previous details": {},
 	}
@@ -507,6 +512,7 @@ func TestDonorStoreCreate(t *testing.T) {
 				CreatedAt: testNow,
 				Version:   1,
 				Donor: actor.Donor{
+					UID:         testUID,
 					FirstNames:  previousDetails.Donor.FirstNames,
 					LastName:    previousDetails.Donor.LastName,
 					OtherNames:  previousDetails.Donor.OtherNames,
@@ -526,7 +532,7 @@ func TestDonorStoreCreate(t *testing.T) {
 				Create(ctx, lpaLink{PK: "LPA#10100000", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor, UpdatedAt: testNow}).
 				Return(nil)
 
-			donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }, now: testNowFn}
+			donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }, now: testNowFn, newUID: testUIDFn}
 
 			result, err := donorStore.Create(ctx)
 			assert.Nil(t, err)
@@ -589,6 +595,7 @@ func TestDonorStoreCreateWhenError(t *testing.T) {
 				dynamoClient: dynamoClient,
 				uuidString:   func() string { return "10100000" },
 				now:          testNowFn,
+				newUID:       testUIDFn,
 			}
 
 			_, err := donorStore.Create(ctx)

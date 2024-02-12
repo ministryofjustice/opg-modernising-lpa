@@ -27,14 +27,14 @@ func TestGetSign(t *testing.T) {
 				SignedAt:            time.Now(),
 				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
-					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
+					{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
+					{UID: actor.NewUID(), FirstNames: "Dave", LastName: "Smith"},
 				}},
 			},
 			data: &signData{
 				App:                         testAppData,
 				Form:                        &signForm{},
-				Attorney:                    actor.Attorney{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
+				Attorney:                    actor.Attorney{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
 				LpaCanBeUsedWhenHasCapacity: true,
 			},
 		},
@@ -44,14 +44,14 @@ func TestGetSign(t *testing.T) {
 				SignedAt:            time.Now(),
 				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenCapacityLost,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
-					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
+					{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
+					{UID: actor.NewUID(), FirstNames: "Dave", LastName: "Smith"},
 				}},
 			},
 			data: &signData{
 				App:      testAppData,
 				Form:     &signForm{},
-				Attorney: actor.Attorney{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
+				Attorney: actor.Attorney{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
 			},
 		},
 		"replacement attorney use when registered": {
@@ -60,14 +60,14 @@ func TestGetSign(t *testing.T) {
 				SignedAt:            time.Now(),
 				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity,
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
-					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
+					{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
+					{UID: actor.NewUID(), FirstNames: "Dave", LastName: "Smith"},
 				}},
 			},
 			data: &signData{
 				App:                         testReplacementAppData,
 				Form:                        &signForm{},
-				Attorney:                    actor.Attorney{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
+				Attorney:                    actor.Attorney{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
 				IsReplacement:               true,
 				LpaCanBeUsedWhenHasCapacity: true,
 			},
@@ -78,14 +78,14 @@ func TestGetSign(t *testing.T) {
 				SignedAt:            time.Now(),
 				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenCapacityLost,
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
-					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
+					{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
+					{UID: actor.NewUID(), FirstNames: "Dave", LastName: "Smith"},
 				}},
 			},
 			data: &signData{
 				App:           testReplacementAppData,
 				Form:          &signForm{},
-				Attorney:      actor.Attorney{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
+				Attorney:      actor.Attorney{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
 				IsReplacement: true,
 			},
 		},
@@ -139,6 +139,8 @@ func TestGetSign(t *testing.T) {
 }
 
 func TestGetSignCantSignYet(t *testing.T) {
+	uid := actor.NewUID()
+
 	testcases := map[string]struct {
 		appData             page.AppData
 		donor               *actor.DonorProvidedDetails
@@ -149,8 +151,8 @@ func TestGetSignCantSignYet(t *testing.T) {
 			donor: &actor.DonorProvidedDetails{
 				SignedAt: time.Now(),
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
-					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
+					{UID: uid, FirstNames: "Bob", LastName: "Smith"},
+					{UID: actor.NewUID(), FirstNames: "Dave", LastName: "Smith"},
 				}},
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{},
@@ -160,8 +162,8 @@ func TestGetSignCantSignYet(t *testing.T) {
 			donor: &actor.DonorProvidedDetails{
 				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenCapacityLost,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
-					{ID: "other", FirstNames: "Dave", LastName: "Smith"},
+					{UID: uid, FirstNames: "Bob", LastName: "Smith"},
+					{UID: actor.NewUID(), FirstNames: "Dave", LastName: "Smith"},
 				}},
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{
@@ -196,6 +198,8 @@ func TestGetSignCantSignYet(t *testing.T) {
 }
 
 func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
+	uid := actor.NewUID()
+
 	testcases := map[string]struct {
 		appData page.AppData
 		donor   *actor.DonorProvidedDetails
@@ -205,7 +209,7 @@ func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 			donor: &actor.DonorProvidedDetails{
 				SignedAt: time.Now(),
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
+					{UID: uid, FirstNames: "Bob", LastName: "Smith"},
 				}},
 			},
 		},
@@ -214,7 +218,7 @@ func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 			donor: &actor.DonorProvidedDetails{
 				SignedAt: time.Now(),
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-					{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
+					{UID: uid, FirstNames: "Bob", LastName: "Smith"},
 				}},
 			},
 		},
@@ -279,7 +283,7 @@ func TestGetSignOnTemplateError(t *testing.T) {
 		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{
 			SignedAt:  time.Now(),
-			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "attorney-id"}}},
+			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: testUID}}},
 		}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -312,7 +316,7 @@ func TestPostSign(t *testing.T) {
 			form:    url.Values{"confirm": {"1"}},
 			donor: &actor.DonorProvidedDetails{
 				SignedAt:  lpaSignedAt,
-				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}}},
+				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith"}}},
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
 				LpaID:       "lpa-id",
@@ -326,7 +330,7 @@ func TestPostSign(t *testing.T) {
 			form:    url.Values{"confirm": {"1"}},
 			donor: &actor.DonorProvidedDetails{
 				SignedAt:             lpaSignedAt,
-				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}}},
+				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith"}}},
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
 				LpaID:       "lpa-id",
@@ -524,17 +528,16 @@ func TestPostSignWhenWantSecondSignatory(t *testing.T) {
 func TestPostSignWhenLpaStoreClientErrors(t *testing.T) {
 	form := url.Values{"confirm": {"1"}}
 
+	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	w := httptest.NewRecorder()
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{
 			SignedAt:  time.Now(),
-			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}}},
+			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith"}}},
 		}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
@@ -563,17 +566,16 @@ func TestPostSignWhenStoreError(t *testing.T) {
 		"confirm": {"1"},
 	}
 
+	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	w := httptest.NewRecorder()
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{
 			SignedAt:  time.Now(),
-			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}}},
+			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith"}}},
 		}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -598,17 +600,16 @@ func TestPostSignWhenStoreError(t *testing.T) {
 func TestPostSignOnValidationError(t *testing.T) {
 	form := url.Values{}
 
+	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	w := httptest.NewRecorder()
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		GetAny(r.Context()).
 		Return(&actor.DonorProvidedDetails{
 			SignedAt:  time.Now(),
-			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"}}},
+			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith"}}},
 		}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -623,7 +624,7 @@ func TestPostSignOnValidationError(t *testing.T) {
 		Execute(w, &signData{
 			App:      testAppData,
 			Form:     &signForm{},
-			Attorney: actor.Attorney{ID: "attorney-id", FirstNames: "Bob", LastName: "Smith"},
+			Attorney: actor.Attorney{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
 			Errors:   validation.With("confirm", validation.CustomError{Label: "youMustSelectTheBoxToSignAttorney"}),
 		}).
 		Return(nil)

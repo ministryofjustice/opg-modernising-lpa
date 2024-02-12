@@ -71,6 +71,7 @@ type lpaRequest struct {
 }
 
 type lpaRequestDonor struct {
+	UID               actor.UID     `json:"uid"`
 	FirstNames        string        `json:"firstNames"`
 	LastName          string        `json:"lastName"`
 	DateOfBirth       date.Date     `json:"dateOfBirth"`
@@ -80,6 +81,7 @@ type lpaRequestDonor struct {
 }
 
 type lpaRequestAttorney struct {
+	UID         actor.UID     `json:"uid"`
 	FirstNames  string        `json:"firstNames"`
 	LastName    string        `json:"lastName"`
 	DateOfBirth date.Date     `json:"dateOfBirth"`
@@ -89,6 +91,7 @@ type lpaRequestAttorney struct {
 }
 
 type lpaRequestTrustCorporation struct {
+	UID           actor.UID     `json:"uid"`
 	Name          string        `json:"name"`
 	CompanyNumber string        `json:"companyNumber"`
 	Email         string        `json:"email"`
@@ -97,6 +100,7 @@ type lpaRequestTrustCorporation struct {
 }
 
 type lpaRequestCertificateProvider struct {
+	UID        actor.UID                           `json:"uid"`
 	FirstNames string                              `json:"firstNames"`
 	LastName   string                              `json:"lastName"`
 	Email      string                              `json:"email,omitempty"`
@@ -105,6 +109,7 @@ type lpaRequestCertificateProvider struct {
 }
 
 type lpaRequestPersonToNotify struct {
+	UID        actor.UID     `json:"uid"`
 	FirstNames string        `json:"firstNames"`
 	LastName   string        `json:"lastName"`
 	Address    place.Address `json:"address"`
@@ -114,6 +119,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 	body := lpaRequest{
 		LpaType: donor.Type,
 		Donor: lpaRequestDonor{
+			UID:               donor.Donor.UID,
 			FirstNames:        donor.Donor.FirstNames,
 			LastName:          donor.Donor.LastName,
 			DateOfBirth:       donor.Donor.DateOfBirth,
@@ -122,6 +128,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 			OtherNamesKnownBy: donor.Donor.OtherNames,
 		},
 		CertificateProvider: lpaRequestCertificateProvider{
+			UID:        donor.CertificateProvider.UID,
 			FirstNames: donor.CertificateProvider.FirstNames,
 			LastName:   donor.CertificateProvider.LastName,
 			Email:      donor.CertificateProvider.Email,
@@ -160,6 +167,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 
 	for _, attorney := range donor.Attorneys.Attorneys {
 		body.Attorneys = append(body.Attorneys, lpaRequestAttorney{
+			UID:         attorney.UID,
 			FirstNames:  attorney.FirstNames,
 			LastName:    attorney.LastName,
 			DateOfBirth: attorney.DateOfBirth,
@@ -171,6 +179,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 
 	if trustCorporation := donor.Attorneys.TrustCorporation; trustCorporation.Name != "" {
 		body.TrustCorporations = append(body.TrustCorporations, lpaRequestTrustCorporation{
+			UID:           trustCorporation.UID,
 			Name:          trustCorporation.Name,
 			CompanyNumber: trustCorporation.CompanyNumber,
 			Email:         trustCorporation.Email,
@@ -181,6 +190,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 
 	for _, attorney := range donor.ReplacementAttorneys.Attorneys {
 		body.Attorneys = append(body.Attorneys, lpaRequestAttorney{
+			UID:         attorney.UID,
 			FirstNames:  attorney.FirstNames,
 			LastName:    attorney.LastName,
 			DateOfBirth: attorney.DateOfBirth,
@@ -192,6 +202,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 
 	if trustCorporation := donor.ReplacementAttorneys.TrustCorporation; trustCorporation.Name != "" {
 		body.TrustCorporations = append(body.TrustCorporations, lpaRequestTrustCorporation{
+			UID:           trustCorporation.UID,
 			Name:          trustCorporation.Name,
 			CompanyNumber: trustCorporation.CompanyNumber,
 			Email:         trustCorporation.Email,
@@ -202,6 +213,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 
 	for _, person := range donor.PeopleToNotify {
 		body.PeopleToNotify = append(body.PeopleToNotify, lpaRequestPersonToNotify{
+			UID:        person.UID,
 			FirstNames: person.FirstNames,
 			LastName:   person.LastName,
 			Address:    person.Address,
@@ -275,9 +287,9 @@ func (c *Client) SendAttorney(ctx context.Context, donor *actor.DonorProvidedDet
 	} else if attorney.IsTrustCorporation {
 		attorneyKey = "/trustCorporations/0"
 	} else if attorney.IsReplacement {
-		attorneyKey = fmt.Sprintf("/attorneys/%d", len(donor.Attorneys.Attorneys)+donor.ReplacementAttorneys.Index(attorney.ID))
+		attorneyKey = fmt.Sprintf("/attorneys/%d", len(donor.Attorneys.Attorneys)+donor.ReplacementAttorneys.Index(attorney.UID))
 	} else {
-		attorneyKey = fmt.Sprintf("/attorneys/%d", donor.Attorneys.Index(attorney.ID))
+		attorneyKey = fmt.Sprintf("/attorneys/%d", donor.Attorneys.Index(attorney.UID))
 	}
 
 	body := updateRequest{

@@ -102,12 +102,12 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 	}{
 		"multiple attorneys acting jointly and severally replacements step in when none left": {
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-				{ID: "123"},
-				{ID: "123"},
+				{UID: actor.NewUID()},
+				{UID: actor.NewUID()},
 			}},
 			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-				{ID: "123"},
-				{ID: "123"},
+				{UID: actor.NewUID()},
+				{UID: actor.NewUID()},
 			}},
 			HowAttorneysMakeDecisions:           actor.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
@@ -116,8 +116,8 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 		},
 		"multiple attorneys acting jointly": {
 			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-				{ID: "123"},
-				{ID: "123"},
+				{UID: actor.NewUID()},
+				{UID: actor.NewUID()},
 			}},
 			HowAttorneysMakeDecisions:            actor.Jointly,
 			HowShouldReplacementAttorneysStepIn:  actor.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
@@ -127,8 +127,8 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 		},
 		"multiple attorneys acting jointly and severally replacements step in when one loses capacity": {
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-				{ID: "123"},
-				{ID: "123"},
+				{UID: actor.NewUID()},
+				{UID: actor.NewUID()},
 			}},
 			HowAttorneysMakeDecisions:           actor.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
@@ -137,12 +137,12 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 		},
 		"multiple attorneys acting jointly and severally": {
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-				{ID: "123"},
-				{ID: "123"},
+				{UID: actor.NewUID()},
+				{UID: actor.NewUID()},
 			}},
 			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-				{ID: "123"},
-				{ID: "123"},
+				{UID: actor.NewUID()},
+				{UID: actor.NewUID()},
 			}},
 			HowAttorneysMakeDecisions:           actor.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInWhenOneCanNoLongerAct,

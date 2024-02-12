@@ -16,7 +16,7 @@ func YourIndependentWitnessAddress(logger Logger, tmpl template.Template, addres
 			appData,
 			"independentWitness",
 			donor.IndependentWitness.FullName(),
-			"",
+			actor.UID{},
 			false,
 		)
 

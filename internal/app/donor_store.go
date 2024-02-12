@@ -34,6 +34,7 @@ type donorStore struct {
 	eventClient   EventClient
 	logger        Logger
 	uuidString    func() string
+	newUID        func() actor.UID
 	now           func() time.Time
 	s3Client      *s3.Client
 	documentStore DocumentStore
@@ -50,6 +51,7 @@ func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, e
 	}
 
 	lpaID := s.uuidString()
+	donorUID := s.newUID()
 
 	donor := &actor.DonorProvidedDetails{
 		PK:        lpaKey(lpaID),
@@ -57,6 +59,9 @@ func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, e
 		LpaID:     lpaID,
 		CreatedAt: s.now(),
 		Version:   1,
+		Donor: actor.Donor{
+			UID: donorUID,
+		},
 	}
 
 	latest, err := s.Latest(ctx)

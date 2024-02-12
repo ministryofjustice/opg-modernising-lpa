@@ -12,7 +12,8 @@ import (
 )
 
 func TestGetConfirmYourDetails(t *testing.T) {
-	attorneyProvidedDetails := &actor.AttorneyProvidedDetails{ID: "123"}
+	uid := actor.NewUID()
+	attorneyProvidedDetails := &actor.AttorneyProvidedDetails{UID: uid}
 
 	testcases := map[string]struct {
 		appData page.AppData
@@ -22,14 +23,14 @@ func TestGetConfirmYourDetails(t *testing.T) {
 		"attorney": {
 			appData: testAppData,
 			donor: &actor.DonorProvidedDetails{
-				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123", FirstNames: "John"}}},
+				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid, FirstNames: "John"}}},
 			},
 			data: &confirmYourDetailsData{
 				App: testAppData,
 				Donor: &actor.DonorProvidedDetails{
-					Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{ID: "123", FirstNames: "John"}}},
+					Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid, FirstNames: "John"}}},
 				},
-				Attorney:                actor.Attorney{ID: "123", FirstNames: "John"},
+				Attorney:                actor.Attorney{UID: uid, FirstNames: "John"},
 				AttorneyProvidedDetails: attorneyProvidedDetails,
 			},
 		},
@@ -109,19 +110,20 @@ func TestGetConfirmYourDetailsWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostConfirmYourDetails(t *testing.T) {
+	uid := actor.NewUID()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.EXPECT().
 		Put(r.Context(), &actor.AttorneyProvidedDetails{
-			ID:    "123",
+			UID:   uid,
 			LpaID: "lpa-id",
 			Tasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskCompleted},
 		}).
 		Return(nil)
 
-	err := ConfirmYourDetails(nil, attorneyStore, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{ID: "123", LpaID: "lpa-id"})
+	err := ConfirmYourDetails(nil, attorneyStore, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{UID: uid, LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -138,6 +140,6 @@ func TestPostConfirmYourDetailsWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ConfirmYourDetails(nil, attorneyStore, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{ID: "123", LpaID: "lpa-id"})
+	err := ConfirmYourDetails(nil, attorneyStore, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{UID: actor.NewUID(), LpaID: "lpa-id"})
 	assert.Equal(t, expectedError, err)
 }

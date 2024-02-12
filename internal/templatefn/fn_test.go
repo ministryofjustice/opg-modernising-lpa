@@ -276,8 +276,8 @@ func TestFormatPhone(t *testing.T) {
 func TestListAttorneysWithAttorneys(t *testing.T) {
 	trustCorporation := actor.TrustCorporation{Name: "a"}
 	attorneys := []actor.Attorney{
-		{ID: "123"},
-		{ID: "123"},
+		{UID: actor.NewUID()},
+		{UID: actor.NewUID()},
 	}
 
 	app := page.AppData{SessionID: "abc", Page: "/here", ActorType: actor.TypeDonor}
@@ -308,8 +308,8 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
 	trustCorporation := actor.TrustCorporation{Name: "a"}
 	attorneys := []actor.Attorney{
-		{ID: "123"},
-		{ID: "123"},
+		{UID: actor.NewUID()},
+		{UID: actor.NewUID()},
 	}
 
 	app := page.AppData{SessionID: "abc", Page: "/here"}

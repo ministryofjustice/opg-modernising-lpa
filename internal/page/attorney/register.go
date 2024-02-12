@@ -51,10 +51,10 @@ type CertificateProviderStore interface {
 }
 
 type AttorneyStore interface {
-	Create(context.Context, string, string, bool, bool) (*actor.AttorneyProvidedDetails, error)
-	Get(context.Context) (*actor.AttorneyProvidedDetails, error)
-	GetAny(context.Context) ([]*actor.AttorneyProvidedDetails, error)
-	Put(context.Context, *actor.AttorneyProvidedDetails) error
+	Create(ctx context.Context, sessionID string, attorneyUID actor.UID, isReplacement, isTrustCorporation bool) (*actor.AttorneyProvidedDetails, error)
+	Get(ctx context.Context) (*actor.AttorneyProvidedDetails, error)
+	GetAny(ctx context.Context) ([]*actor.AttorneyProvidedDetails, error)
+	Put(ctx context.Context, attorney *actor.AttorneyProvidedDetails) error
 }
 
 type AddressClient interface {
@@ -195,8 +195,12 @@ func makeAttorneyHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.
 			}
 
 			appData.Page = path.Format(appData.LpaID)
-			appData.AttorneyID = attorney.ID
-			if attorney.IsReplacement {
+			appData.AttorneyUID = attorney.UID
+			if attorney.IsTrustCorporation && attorney.IsReplacement {
+				appData.ActorType = actor.TypeReplacementTrustCorporation
+			} else if attorney.IsTrustCorporation {
+				appData.ActorType = actor.TypeTrustCorporation
+			} else if attorney.IsReplacement {
 				appData.ActorType = actor.TypeReplacementAttorney
 			} else {
 				appData.ActorType = actor.TypeAttorney

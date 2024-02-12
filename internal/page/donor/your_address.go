@@ -17,7 +17,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 			appData,
 			"",
 			"",
-			"",
+			donor.Donor.UID,
 			false,
 		)
 
