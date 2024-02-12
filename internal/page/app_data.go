@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
 
@@ -20,7 +21,7 @@ type AppData struct {
 	LpaID                string
 	CsrfToken            string
 	ActorType            actor.Type
-	AttorneyUID          actor.UID
+	AttorneyUID          actoruid.UID
 	IsSupporter          bool
 	OrganisationName     string
 	IsManageOrganisation bool

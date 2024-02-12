@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
@@ -27,7 +28,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 			now := time.Now()
-			uid := actor.NewUID()
+			uid := actoruid.New()
 			details := &actor.AttorneyProvidedDetails{PK: "LPA#123", SK: "#ATTORNEY#456", UID: uid, LpaID: "123", UpdatedAt: now, IsReplacement: tc.replacement, IsTrustCorporation: tc.trustCorporation}
 
 			dynamoClient := newMockDynamoClient(t)
@@ -52,7 +53,7 @@ func TestAttorneyStoreCreateWhenSessionMissing(t *testing.T) {
 
 	attorneyStore := &attorneyStore{dynamoClient: nil, now: nil}
 
-	_, err := attorneyStore.Create(ctx, "session-id", actor.NewUID(), false, false)
+	_, err := attorneyStore.Create(ctx, "session-id", actoruid.New(), false, false)
 	assert.Equal(t, page.SessionMissingError{}, err)
 }
 
@@ -68,7 +69,7 @@ func TestAttorneyStoreCreateWhenSessionDataMissing(t *testing.T) {
 
 			attorneyStore := &attorneyStore{}
 
-			_, err := attorneyStore.Create(ctx, "session-id", actor.NewUID(), false, false)
+			_, err := attorneyStore.Create(ctx, "session-id", actoruid.New(), false, false)
 			assert.NotNil(t, err)
 		})
 	}
@@ -107,7 +108,7 @@ func TestAttorneyStoreCreateWhenCreateError(t *testing.T) {
 
 			attorneyStore := &attorneyStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-			_, err := attorneyStore.Create(ctx, "session-id", actor.NewUID(), false, false)
+			_, err := attorneyStore.Create(ctx, "session-id", actoruid.New(), false, false)
 			assert.Equal(t, expectedError, err)
 		})
 	}

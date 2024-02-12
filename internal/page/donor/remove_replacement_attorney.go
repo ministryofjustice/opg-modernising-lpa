@@ -6,13 +6,14 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
 func RemoveReplacementAttorney(logger Logger, tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
-		attorney, found := donor.ReplacementAttorneys.Get(actor.UIDFromRequest(r))
+		attorney, found := donor.ReplacementAttorneys.Get(actoruid.FromRequest(r))
 
 		if found == false {
 			return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, donor)

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -17,7 +18,7 @@ import (
 )
 
 func TestGetRemovePersonToNotify(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
@@ -57,7 +58,7 @@ func TestGetRemovePersonToNotifyAttorneyDoesNotExist(t *testing.T) {
 	template := newMockTemplate(t)
 
 	personToNotify := actor.PersonToNotify{
-		UID: actor.NewUID(),
+		UID: actoruid.New(),
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
@@ -77,7 +78,7 @@ func TestPostRemovePersonToNotify(t *testing.T) {
 		form.FieldNames.YesNo: {form.Yes.String()},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -86,7 +87,7 @@ func TestPostRemovePersonToNotify(t *testing.T) {
 	template := newMockTemplate(t)
 
 	personToNotifyWithAddress := actor.PersonToNotify{
-		UID: actor.NewUID(),
+		UID: actoruid.New(),
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
@@ -116,7 +117,7 @@ func TestPostRemovePersonToNotifyWithFormValueNo(t *testing.T) {
 		form.FieldNames.YesNo: {form.No.String()},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -125,7 +126,7 @@ func TestPostRemovePersonToNotifyWithFormValueNo(t *testing.T) {
 	template := newMockTemplate(t)
 
 	personToNotifyWithAddress := actor.PersonToNotify{
-		UID: actor.NewUID(),
+		UID: actoruid.New(),
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
@@ -150,7 +151,7 @@ func TestPostRemovePersonToNotifyErrorOnPutStore(t *testing.T) {
 		form.FieldNames.YesNo: {form.Yes.String()},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -163,7 +164,7 @@ func TestPostRemovePersonToNotifyErrorOnPutStore(t *testing.T) {
 		Return()
 
 	personToNotifyWithAddress := actor.PersonToNotify{
-		UID: actor.NewUID(),
+		UID: actoruid.New(),
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
@@ -192,7 +193,7 @@ func TestRemovePersonToNotifyFormValidation(t *testing.T) {
 		form.FieldNames.YesNo: {""},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -223,7 +224,7 @@ func TestRemovePersonToNotifyRemoveLastPerson(t *testing.T) {
 		form.FieldNames.YesNo: {form.Yes.String()},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)

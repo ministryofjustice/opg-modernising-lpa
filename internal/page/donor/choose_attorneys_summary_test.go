@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -74,12 +75,12 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 		"do not add attorney - with single attorney": {
 			addMoreFormValue: form.No,
 			expectedUrl:      page.Paths.TaskList.Format("lpa-id"),
-			Attorneys:        actor.Attorneys{Attorneys: []actor.Attorney{{UID: actor.NewUID()}}},
+			Attorneys:        actor.Attorneys{Attorneys: []actor.Attorney{{UID: actoruid.New()}}},
 		},
 		"do not add attorney - with multiple attorneys": {
 			addMoreFormValue: form.No,
 			expectedUrl:      page.Paths.HowShouldAttorneysMakeDecisions.Format("lpa-id"),
-			Attorneys:        actor.Attorneys{Attorneys: []actor.Attorney{{UID: actor.NewUID()}, {UID: actor.NewUID()}}},
+			Attorneys:        actor.Attorneys{Attorneys: []actor.Attorney{{UID: actoruid.New()}, {UID: actoruid.New()}}},
 		},
 	}
 

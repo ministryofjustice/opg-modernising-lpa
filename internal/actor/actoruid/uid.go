@@ -1,4 +1,4 @@
-package actor
+package actoruid
 
 import (
 	"errors"
@@ -9,15 +9,15 @@ import (
 	"github.com/google/uuid"
 )
 
-const uidPrefix = "urn:opg:poas:makeregister:users:"
+const prefix = "urn:opg:poas:makeregister:users:"
 
 type UID struct{ value string }
 
-func NewUID() UID {
+func New() UID {
 	return UID{value: uuid.NewString()}
 }
 
-func UIDFromRequest(r interface{ FormValue(string) string }) UID {
+func FromRequest(r interface{ FormValue(string) string }) UID {
 	return UID{value: r.FormValue("id")}
 }
 
@@ -30,7 +30,7 @@ func (u UID) String() string {
 }
 
 func (u UID) PrefixedString() string {
-	return uidPrefix + u.value
+	return prefix + u.value
 }
 
 func (u UID) MarshalJSON() ([]byte, error) {
@@ -46,7 +46,7 @@ func (u *UID) UnmarshalText(text []byte) error {
 		return nil
 	}
 
-	uid, found := strings.CutPrefix(string(text), uidPrefix)
+	uid, found := strings.CutPrefix(string(text), prefix)
 	if !found {
 		return errors.New("invalid uid prefix")
 	}

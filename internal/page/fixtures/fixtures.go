@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -60,7 +61,7 @@ var (
 
 func makeAttorney(name Name) actor.Attorney {
 	return actor.Attorney{
-		UID:         actor.NewUID(),
+		UID:         actoruid.New(),
 		FirstNames:  name.Firstnames,
 		LastName:    name.Lastname,
 		Email:       testEmail,
@@ -78,7 +79,7 @@ func makeAttorney(name Name) actor.Attorney {
 
 func makeTrustCorporation(name string) actor.TrustCorporation {
 	return actor.TrustCorporation{
-		UID:           actor.NewUID(),
+		UID:           actoruid.New(),
 		Name:          name,
 		CompanyNumber: "555555555",
 		Email:         testEmail,
@@ -95,7 +96,7 @@ func makeTrustCorporation(name string) actor.TrustCorporation {
 
 func makeDonor() actor.Donor {
 	return actor.Donor{
-		UID:        actor.NewUID(),
+		UID:        actoruid.New(),
 		FirstNames: "Sam",
 		LastName:   "Smith",
 		Address: place.Address{
@@ -115,7 +116,7 @@ func makeDonor() actor.Donor {
 
 func makeCertificateProvider() actor.CertificateProvider {
 	return actor.CertificateProvider{
-		UID:                actor.NewUID(),
+		UID:                actoruid.New(),
 		FirstNames:         "Charlie",
 		LastName:           "Cooper",
 		Email:              testEmail,
@@ -136,7 +137,7 @@ func makeCertificateProvider() actor.CertificateProvider {
 
 func makePersonToNotify(name Name) actor.PersonToNotify {
 	return actor.PersonToNotify{
-		UID:        actor.NewUID(),
+		UID:        actoruid.New(),
 		FirstNames: name.Firstnames,
 		LastName:   name.Lastname,
 		Address: place.Address{

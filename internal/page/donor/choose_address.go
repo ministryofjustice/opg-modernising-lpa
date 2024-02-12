@@ -4,14 +4,14 @@ import (
 	"context"
 	"errors"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-func newChooseAddressData(appData page.AppData, actorLabel, fullName string, UID actor.UID, canSkip bool) *chooseAddressData {
+func newChooseAddressData(appData page.AppData, actorLabel, fullName string, UID actoruid.UID, canSkip bool) *chooseAddressData {
 	return &chooseAddressData{
 		App:        appData,
 		ActorLabel: actorLabel,
@@ -34,7 +34,7 @@ type chooseAddressData struct {
 	Errors     validation.List
 	ActorLabel string
 	FullName   string
-	UID        actor.UID
+	UID        actoruid.UID
 	CanSkip    bool
 	Addresses  []place.Address
 	Form       *form.AddressForm

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -42,7 +43,7 @@ func TestGetChooseReplacementAttorneysFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseReplacementAttorneys(nil, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "John", UID: actor.NewUID()}}}})
+	err := ChooseReplacementAttorneys(nil, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "John", UID: actoruid.New()}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -51,7 +52,7 @@ func TestGetChooseReplacementAttorneysFromStore(t *testing.T) {
 }
 
 func TestGetChooseReplacementAttorneysDobWarningIsAlwaysShown(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
@@ -188,7 +189,7 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 }
 
 func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
 
 	testCases := map[string]struct {
@@ -298,7 +299,7 @@ func TestPostChooseReplacementAttorneysNameWarningOnlyShownWhenAttorneyAndFormNa
 		"date-of-birth-year":  {"2000"},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -488,7 +489,7 @@ func TestPostChooseReplacementAttorneysWhenStoreErrors(t *testing.T) {
 }
 
 func TestReplacementAttorneyMatches(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	donor := &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
@@ -522,7 +523,7 @@ func TestReplacementAttorneyMatches(t *testing.T) {
 }
 
 func TestReplacementAttorneyMatchesEmptyNamesIgnored(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	donor := &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "", LastName: ""},
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{

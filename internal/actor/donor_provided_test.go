@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -83,10 +84,10 @@ func TestAttorneysSigningDeadline(t *testing.T) {
 func TestUnder18ActorDetails(t *testing.T) {
 	under18 := date.Today().AddDate(0, 0, -1)
 	over18 := date.Today().AddDate(-18, 0, -1)
-	uid1 := NewUID()
-	uid2 := NewUID()
-	uid3 := NewUID()
-	uid4 := NewUID()
+	uid1 := actoruid.New()
+	uid2 := actoruid.New()
+	uid3 := actoruid.New()
+	uid4 := actoruid.New()
 
 	donor := DonorProvidedDetails{
 		LpaID: "lpa-id",
@@ -113,11 +114,11 @@ func TestAllAttorneysSigned(t *testing.T) {
 	otherLpaSignedAt := lpaSignedAt.Add(time.Minute)
 	attorneySigned := lpaSignedAt.Add(time.Second)
 
-	uid1 := NewUID()
-	uid2 := NewUID()
-	uid3 := NewUID()
-	uid4 := NewUID()
-	uid5 := NewUID()
+	uid1 := actoruid.New()
+	uid2 := actoruid.New()
+	uid3 := actoruid.New()
+	uid4 := actoruid.New()
+	uid5 := actoruid.New()
 
 	testcases := map[string]struct {
 		lpa       *DonorProvidedDetails

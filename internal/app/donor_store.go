@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
@@ -34,7 +35,7 @@ type donorStore struct {
 	eventClient   EventClient
 	logger        Logger
 	uuidString    func() string
-	newUID        func() actor.UID
+	newUID        func() actoruid.UID
 	now           func() time.Time
 	s3Client      *s3.Client
 	documentStore DocumentStore

@@ -3,6 +3,7 @@ package actor
 import (
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 )
@@ -94,13 +95,13 @@ func TestAttorneysAddresses(t *testing.T) {
 }
 
 func TestAttorneysGet(t *testing.T) {
-	uid1 := NewUID()
-	uid2 := NewUID()
+	uid1 := actoruid.New()
+	uid2 := actoruid.New()
 
 	testCases := map[string]struct {
 		attorneys        Attorneys
 		expectedAttorney Attorney
-		uid              UID
+		uid              actoruid.UID
 		expectedFound    bool
 	}{
 		"attorney exists": {
@@ -112,7 +113,7 @@ func TestAttorneysGet(t *testing.T) {
 		"attorney does not exist": {
 			attorneys:        Attorneys{Attorneys: []Attorney{{UID: uid1, FirstNames: "Bob"}, {UID: uid2}}},
 			expectedAttorney: Attorney{},
-			uid:              NewUID(),
+			uid:              actoruid.New(),
 			expectedFound:    false,
 		},
 	}
@@ -128,10 +129,10 @@ func TestAttorneysGet(t *testing.T) {
 }
 
 func TestAttorneysPut(t *testing.T) {
-	uid1 := NewUID()
-	uid2 := NewUID()
+	uid1 := actoruid.New()
+	uid2 := actoruid.New()
 
-	newAttorney := Attorney{UID: NewUID(), FirstNames: "Bob"}
+	newAttorney := Attorney{UID: actoruid.New(), FirstNames: "Bob"}
 
 	testCases := map[string]struct {
 		attorneys         Attorneys
@@ -160,8 +161,8 @@ func TestAttorneysPut(t *testing.T) {
 }
 
 func TestAttorneysDelete(t *testing.T) {
-	uid1 := NewUID()
-	uid2 := NewUID()
+	uid1 := actoruid.New()
+	uid2 := actoruid.New()
 
 	testCases := map[string]struct {
 		attorneys         Attorneys
@@ -178,7 +179,7 @@ func TestAttorneysDelete(t *testing.T) {
 		"attorney does not exist": {
 			attorneys:         Attorneys{Attorneys: []Attorney{{UID: uid1}, {UID: uid2}}},
 			expectedAttorneys: Attorneys{Attorneys: []Attorney{{UID: uid1}, {UID: uid2}}},
-			attorneyToDelete:  Attorney{UID: NewUID()},
+			attorneyToDelete:  Attorney{UID: actoruid.New()},
 			expectedDeleted:   false,
 		},
 	}

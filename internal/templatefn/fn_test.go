@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -276,8 +277,8 @@ func TestFormatPhone(t *testing.T) {
 func TestListAttorneysWithAttorneys(t *testing.T) {
 	trustCorporation := actor.TrustCorporation{Name: "a"}
 	attorneys := []actor.Attorney{
-		{UID: actor.NewUID()},
-		{UID: actor.NewUID()},
+		{UID: actoruid.New()},
+		{UID: actoruid.New()},
 	}
 
 	app := page.AppData{SessionID: "abc", Page: "/here", ActorType: actor.TypeDonor}
@@ -308,8 +309,8 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
 	trustCorporation := actor.TrustCorporation{Name: "a"}
 	attorneys := []actor.Attorney{
-		{UID: actor.NewUID()},
-		{UID: actor.NewUID()},
+		{UID: actoruid.New()},
+		{UID: actoruid.New()},
 	}
 
 	app := page.AppData{SessionID: "abc", Page: "/here"}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
@@ -11,7 +12,7 @@ import (
 // Attorney contains details about an attorney or replacement attorney, provided by the applicant
 type Attorney struct {
 	// UID for the actor
-	UID UID
+	UID actoruid.UID
 	// First names of the attorney
 	FirstNames string
 	// Last name of the attorney
@@ -31,7 +32,7 @@ func (a Attorney) FullName() string {
 // TrustCorporation contains details about a trust corporation, provided by the applicant
 type TrustCorporation struct {
 	// UID for the actor
-	UID UID
+	UID actoruid.UID
 	// Name of the company
 	Name string
 	// CompanyNumber as registered by Companies House
@@ -85,7 +86,7 @@ func (as Attorneys) Addresses() []place.Address {
 	return addresses
 }
 
-func (as Attorneys) Get(uid UID) (Attorney, bool) {
+func (as Attorneys) Get(uid actoruid.UID) (Attorney, bool) {
 	idx := as.Index(uid)
 	if idx == -1 {
 		return Attorney{}, false
@@ -113,7 +114,7 @@ func (as *Attorneys) Delete(attorney Attorney) bool {
 	return true
 }
 
-func (as *Attorneys) Index(uid UID) int {
+func (as *Attorneys) Index(uid actoruid.UID) int {
 	return slices.IndexFunc(as.Attorneys, func(a Attorney) bool { return a.UID == uid })
 }
 

@@ -6,12 +6,13 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetReadTheLpaWithAttorney(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -36,7 +37,7 @@ func TestGetReadTheLpaWithAttorney(t *testing.T) {
 }
 
 func TestGetReadTheLpaWithReplacementAttorney(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -61,7 +62,7 @@ func TestGetReadTheLpaWithReplacementAttorney(t *testing.T) {
 }
 
 func TestGetReadTheLpaWithAttorneyWhenDonorStoreErrors(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -78,7 +79,7 @@ func TestGetReadTheLpaWithAttorneyWhenDonorStoreErrors(t *testing.T) {
 }
 
 func TestGetReadTheLpaWhenTemplateError(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 

@@ -3,9 +3,10 @@
 package attorney
 
 import (
-	context "context"
-
 	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	actoruid "github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+
+	context "context"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -24,7 +25,7 @@ func (_m *mockAttorneyStore) EXPECT() *mockAttorneyStore_Expecter {
 }
 
 // Create provides a mock function with given fields: ctx, sessionID, attorneyUID, isReplacement, isTrustCorporation
-func (_m *mockAttorneyStore) Create(ctx context.Context, sessionID string, attorneyUID actor.UID, isReplacement bool, isTrustCorporation bool) (*actor.AttorneyProvidedDetails, error) {
+func (_m *mockAttorneyStore) Create(ctx context.Context, sessionID string, attorneyUID actoruid.UID, isReplacement bool, isTrustCorporation bool) (*actor.AttorneyProvidedDetails, error) {
 	ret := _m.Called(ctx, sessionID, attorneyUID, isReplacement, isTrustCorporation)
 
 	if len(ret) == 0 {
@@ -33,10 +34,10 @@ func (_m *mockAttorneyStore) Create(ctx context.Context, sessionID string, attor
 
 	var r0 *actor.AttorneyProvidedDetails
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, actor.UID, bool, bool) (*actor.AttorneyProvidedDetails, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, actoruid.UID, bool, bool) (*actor.AttorneyProvidedDetails, error)); ok {
 		return rf(ctx, sessionID, attorneyUID, isReplacement, isTrustCorporation)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, actor.UID, bool, bool) *actor.AttorneyProvidedDetails); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, actoruid.UID, bool, bool) *actor.AttorneyProvidedDetails); ok {
 		r0 = rf(ctx, sessionID, attorneyUID, isReplacement, isTrustCorporation)
 	} else {
 		if ret.Get(0) != nil {
@@ -44,7 +45,7 @@ func (_m *mockAttorneyStore) Create(ctx context.Context, sessionID string, attor
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, actor.UID, bool, bool) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, actoruid.UID, bool, bool) error); ok {
 		r1 = rf(ctx, sessionID, attorneyUID, isReplacement, isTrustCorporation)
 	} else {
 		r1 = ret.Error(1)
@@ -61,16 +62,16 @@ type mockAttorneyStore_Create_Call struct {
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
 //   - sessionID string
-//   - attorneyUID actor.UID
+//   - attorneyUID actoruid.UID
 //   - isReplacement bool
 //   - isTrustCorporation bool
 func (_e *mockAttorneyStore_Expecter) Create(ctx interface{}, sessionID interface{}, attorneyUID interface{}, isReplacement interface{}, isTrustCorporation interface{}) *mockAttorneyStore_Create_Call {
 	return &mockAttorneyStore_Create_Call{Call: _e.mock.On("Create", ctx, sessionID, attorneyUID, isReplacement, isTrustCorporation)}
 }
 
-func (_c *mockAttorneyStore_Create_Call) Run(run func(ctx context.Context, sessionID string, attorneyUID actor.UID, isReplacement bool, isTrustCorporation bool)) *mockAttorneyStore_Create_Call {
+func (_c *mockAttorneyStore_Create_Call) Run(run func(ctx context.Context, sessionID string, attorneyUID actoruid.UID, isReplacement bool, isTrustCorporation bool)) *mockAttorneyStore_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(actor.UID), args[3].(bool), args[4].(bool))
+		run(args[0].(context.Context), args[1].(string), args[2].(actoruid.UID), args[3].(bool), args[4].(bool))
 	})
 	return _c
 }
@@ -80,7 +81,7 @@ func (_c *mockAttorneyStore_Create_Call) Return(_a0 *actor.AttorneyProvidedDetai
 	return _c
 }
 
-func (_c *mockAttorneyStore_Create_Call) RunAndReturn(run func(context.Context, string, actor.UID, bool, bool) (*actor.AttorneyProvidedDetails, error)) *mockAttorneyStore_Create_Call {
+func (_c *mockAttorneyStore_Create_Call) RunAndReturn(run func(context.Context, string, actoruid.UID, bool, bool) (*actor.AttorneyProvidedDetails, error)) *mockAttorneyStore_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }

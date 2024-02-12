@@ -3,6 +3,7 @@ package actor
 import (
 	"fmt"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
@@ -34,7 +35,7 @@ const (
 // CertificateProvider contains details about the certificate provider, provided by the applicant
 type CertificateProvider struct {
 	// UID for the actor
-	UID UID
+	UID actoruid.UID
 	// First names of the certificate provider
 	FirstNames string
 	// Last name of the certificate provider

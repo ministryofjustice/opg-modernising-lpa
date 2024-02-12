@@ -3,12 +3,13 @@ package actor
 import (
 	"slices"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
 // PersonToNotify contains details about a person to notify, provided by the applicant
 type PersonToNotify struct {
-	UID UID
+	UID actoruid.UID
 	// First names of the person to notify
 	FirstNames string
 	// Last name of the person to notify
@@ -23,7 +24,7 @@ func (p PersonToNotify) FullName() string {
 
 type PeopleToNotify []PersonToNotify
 
-func (ps PeopleToNotify) Get(uid UID) (PersonToNotify, bool) {
+func (ps PeopleToNotify) Get(uid actoruid.UID) (PersonToNotify, bool) {
 	idx := slices.IndexFunc(ps, func(p PersonToNotify) bool { return p.UID == uid })
 	if idx == -1 {
 		return PersonToNotify{}, false

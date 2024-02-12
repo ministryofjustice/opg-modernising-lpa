@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -51,7 +52,7 @@ type CertificateProviderStore interface {
 }
 
 type AttorneyStore interface {
-	Create(ctx context.Context, sessionID string, attorneyUID actor.UID, isReplacement, isTrustCorporation bool) (*actor.AttorneyProvidedDetails, error)
+	Create(ctx context.Context, sessionID string, attorneyUID actoruid.UID, isReplacement, isTrustCorporation bool) (*actor.AttorneyProvidedDetails, error)
 	Get(ctx context.Context) (*actor.AttorneyProvidedDetails, error)
 	GetAny(ctx context.Context) ([]*actor.AttorneyProvidedDetails, error)
 	Put(ctx context.Context, attorney *actor.AttorneyProvidedDetails) error

@@ -11,6 +11,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
@@ -71,7 +72,7 @@ type lpaRequest struct {
 }
 
 type lpaRequestDonor struct {
-	UID               actor.UID     `json:"uid"`
+	UID               actoruid.UID  `json:"uid"`
 	FirstNames        string        `json:"firstNames"`
 	LastName          string        `json:"lastName"`
 	DateOfBirth       date.Date     `json:"dateOfBirth"`
@@ -81,7 +82,7 @@ type lpaRequestDonor struct {
 }
 
 type lpaRequestAttorney struct {
-	UID         actor.UID     `json:"uid"`
+	UID         actoruid.UID  `json:"uid"`
 	FirstNames  string        `json:"firstNames"`
 	LastName    string        `json:"lastName"`
 	DateOfBirth date.Date     `json:"dateOfBirth"`
@@ -91,7 +92,7 @@ type lpaRequestAttorney struct {
 }
 
 type lpaRequestTrustCorporation struct {
-	UID           actor.UID     `json:"uid"`
+	UID           actoruid.UID  `json:"uid"`
 	Name          string        `json:"name"`
 	CompanyNumber string        `json:"companyNumber"`
 	Email         string        `json:"email"`
@@ -100,7 +101,7 @@ type lpaRequestTrustCorporation struct {
 }
 
 type lpaRequestCertificateProvider struct {
-	UID        actor.UID                           `json:"uid"`
+	UID        actoruid.UID                        `json:"uid"`
 	FirstNames string                              `json:"firstNames"`
 	LastName   string                              `json:"lastName"`
 	Email      string                              `json:"email,omitempty"`
@@ -109,7 +110,7 @@ type lpaRequestCertificateProvider struct {
 }
 
 type lpaRequestPersonToNotify struct {
-	UID        actor.UID     `json:"uid"`
+	UID        actoruid.UID  `json:"uid"`
 	FirstNames string        `json:"firstNames"`
 	LastName   string        `json:"lastName"`
 	Address    place.Address `json:"address"`

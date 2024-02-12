@@ -15,6 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -53,15 +54,15 @@ func TestResponseError(t *testing.T) {
 }
 
 func TestClientSendLpa(t *testing.T) {
-	donorUID := actor.NewUID()
-	trustCorporationUID := actor.NewUID()
-	attorneyUID := actor.NewUID()
-	attorney2UID := actor.NewUID()
-	replacementTrustCorporationUID := actor.NewUID()
-	replacementAttorneyUID := actor.NewUID()
-	replacementAttorney2UID := actor.NewUID()
-	certificateProviderUID := actor.NewUID()
-	personToNotifyUID := actor.NewUID()
+	donorUID := actoruid.New()
+	trustCorporationUID := actoruid.New()
+	attorneyUID := actoruid.New()
+	attorney2UID := actoruid.New()
+	replacementTrustCorporationUID := actoruid.New()
+	replacementAttorneyUID := actoruid.New()
+	replacementAttorney2UID := actoruid.New()
+	certificateProviderUID := actoruid.New()
+	personToNotifyUID := actoruid.New()
 
 	testcases := map[string]struct {
 		donor *actor.DonorProvidedDetails
@@ -443,8 +444,8 @@ func TestClientSendCertificateProvider(t *testing.T) {
 }
 
 func TestClientSendAttorney(t *testing.T) {
-	uid1 := actor.NewUID()
-	uid2 := actor.NewUID()
+	uid1 := actoruid.New()
+	uid2 := actoruid.New()
 
 	testcases := map[string]struct {
 		attorney *actor.AttorneyProvidedDetails
@@ -704,7 +705,7 @@ func TestClientServiceContract(t *testing.T) {
 				Type:                          actor.LpaTypePersonalWelfare,
 				LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA,
 				Donor: actor.Donor{
-					UID:         actor.NewUID(),
+					UID:         actoruid.New(),
 					FirstNames:  "John Johnson",
 					LastName:    "Smith",
 					DateOfBirth: date.New("2000", "1", "2"),
@@ -713,7 +714,7 @@ func TestClientServiceContract(t *testing.T) {
 				},
 				Attorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{{
-						UID:         actor.NewUID(),
+						UID:         actoruid.New(),
 						FirstNames:  "Alice",
 						LastName:    "Attorney",
 						DateOfBirth: date.New("1998", "1", "2"),
@@ -723,7 +724,7 @@ func TestClientServiceContract(t *testing.T) {
 				},
 				ReplacementAttorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{{
-						UID:         actor.NewUID(),
+						UID:         actoruid.New(),
 						FirstNames:  "Richard",
 						LastName:    "Attorney",
 						DateOfBirth: date.New("1999", "11", "12"),
@@ -732,7 +733,7 @@ func TestClientServiceContract(t *testing.T) {
 					}},
 				},
 				CertificateProvider: actor.CertificateProvider{
-					UID:        actor.NewUID(),
+					UID:        actoruid.New(),
 					FirstNames: "Charles",
 					LastName:   "Certificate",
 					Email:      "charles@example.com",
@@ -852,7 +853,7 @@ func TestClientServiceContract(t *testing.T) {
 				LpaUID: "M-0000-1111-2222",
 				Type:   actor.LpaTypePersonalWelfare,
 				Donor: actor.Donor{
-					UID:         actor.NewUID(),
+					UID:         actoruid.New(),
 					FirstNames:  "John Johnson",
 					LastName:    "Smith",
 					DateOfBirth: date.New("2000", "1", "2"),
@@ -862,7 +863,7 @@ func TestClientServiceContract(t *testing.T) {
 				},
 				Attorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{{
-						UID:         actor.NewUID(),
+						UID:         actoruid.New(),
 						FirstNames:  "Alice",
 						LastName:    "Attorney",
 						DateOfBirth: date.New("1998", "1", "2"),
@@ -872,7 +873,7 @@ func TestClientServiceContract(t *testing.T) {
 				},
 				ReplacementAttorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{{
-						UID:         actor.NewUID(),
+						UID:         actoruid.New(),
 						FirstNames:  "Richard",
 						LastName:    "Attorney",
 						DateOfBirth: date.New("1999", "11", "12"),
@@ -881,7 +882,7 @@ func TestClientServiceContract(t *testing.T) {
 					}},
 				},
 				CertificateProvider: actor.CertificateProvider{
-					UID:        actor.NewUID(),
+					UID:        actoruid.New(),
 					FirstNames: "Charles",
 					LastName:   "Certificate",
 					Email:      "charles@example.com",
@@ -889,7 +890,7 @@ func TestClientServiceContract(t *testing.T) {
 					CarryOutBy: actor.Online,
 				},
 				PeopleToNotify: actor.PeopleToNotify{{
-					UID:        actor.NewUID(),
+					UID:        actoruid.New(),
 					FirstNames: "Peter",
 					LastName:   "Person",
 					Address:    address,
@@ -904,7 +905,7 @@ func TestClientServiceContract(t *testing.T) {
 	})
 
 	t.Run("SendAttorney", func(t *testing.T) {
-		uid := actor.NewUID()
+		uid := actoruid.New()
 
 		mockProvider.
 			AddInteraction().

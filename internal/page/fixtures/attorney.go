@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -31,7 +32,7 @@ type CertificateProviderStore interface {
 }
 
 type AttorneyStore interface {
-	Create(context.Context, string, actor.UID, bool, bool) (*actor.AttorneyProvidedDetails, error)
+	Create(context.Context, string, actoruid.UID, bool, bool) (*actor.AttorneyProvidedDetails, error)
 	Put(context.Context, *actor.AttorneyProvidedDetails) error
 }
 
@@ -151,7 +152,7 @@ func Attorney(
 			}
 		}
 
-		var attorneyUID actor.UID
+		var attorneyUID actoruid.UID
 		if isTrustCorporation && isReplacement {
 			attorneyUID = donor.ReplacementAttorneys.TrustCorporation.UID
 		} else if isTrustCorporation {

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -17,7 +18,7 @@ import (
 )
 
 func TestGetRemoveAttorney(t *testing.T) {
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
@@ -59,7 +60,7 @@ func TestGetRemoveAttorneyAttorneyDoesNotExist(t *testing.T) {
 	template := newMockTemplate(t)
 
 	attorney := actor.Attorney{
-		UID: actor.NewUID(),
+		UID: actoruid.New(),
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
@@ -75,9 +76,9 @@ func TestGetRemoveAttorneyAttorneyDoesNotExist(t *testing.T) {
 }
 
 func TestPostRemoveAttorney(t *testing.T) {
-	attorneyWithEmail := actor.Attorney{UID: actor.NewUID(), Email: "a"}
-	attorneyWithAddress := actor.Attorney{UID: actor.NewUID(), Address: place.Address{Line1: "1 Road way"}}
-	attorneyWithoutAddress := actor.Attorney{UID: actor.NewUID()}
+	attorneyWithEmail := actor.Attorney{UID: actoruid.New(), Email: "a"}
+	attorneyWithAddress := actor.Attorney{UID: actoruid.New(), Address: place.Address{Line1: "1 Road way"}}
+	attorneyWithoutAddress := actor.Attorney{UID: actoruid.New()}
 
 	testcases := map[string]struct {
 		donor        *actor.DonorProvidedDetails
@@ -156,14 +157,14 @@ func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
 	}
 
 	attorneyWithAddress := actor.Attorney{
-		UID: actor.NewUID(),
+		UID: actoruid.New(),
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
 	}
 
 	attorneyWithoutAddress := actor.Attorney{
-		UID:     actor.NewUID(),
+		UID:     actoruid.New(),
 		Address: place.Address{},
 	}
 
@@ -189,14 +190,14 @@ func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
 	}
 
 	attorneyWithAddress := actor.Attorney{
-		UID: actor.NewUID(),
+		UID: actoruid.New(),
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
 	}
 
 	attorneyWithoutAddress := actor.Attorney{
-		UID:     actor.NewUID(),
+		UID:     actoruid.New(),
 		Address: place.Address{},
 	}
 
@@ -229,7 +230,7 @@ func TestRemoveAttorneyFormValidation(t *testing.T) {
 		form.FieldNames.YesNo: {""},
 	}
 
-	uid := actor.NewUID()
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)

@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -224,7 +225,7 @@ func Register(
 	handleWithDonor(page.Paths.ChooseAttorneysGuidance, page.None,
 		Guidance(tmpls.Get("choose_attorneys_guidance.gohtml")))
 	handleWithDonor(page.Paths.ChooseAttorneys, page.CanGoBack,
-		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), donorStore, actor.NewUID))
+		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), donorStore, actoruid.New))
 	handleWithDonor(page.Paths.ChooseAttorneysAddress, page.CanGoBack,
 		ChooseAttorneysAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleWithDonor(page.Paths.EnterTrustCorporation, page.CanGoBack,
@@ -243,7 +244,7 @@ func Register(
 	handleWithDonor(page.Paths.DoYouWantReplacementAttorneys, page.None,
 		WantReplacementAttorneys(tmpls.Get("do_you_want_replacement_attorneys.gohtml"), donorStore))
 	handleWithDonor(page.Paths.ChooseReplacementAttorneys, page.CanGoBack,
-		ChooseReplacementAttorneys(tmpls.Get("choose_replacement_attorneys.gohtml"), donorStore, actor.NewUID))
+		ChooseReplacementAttorneys(tmpls.Get("choose_replacement_attorneys.gohtml"), donorStore, actoruid.New))
 	handleWithDonor(page.Paths.ChooseReplacementAttorneysAddress, page.CanGoBack,
 		ChooseReplacementAttorneysAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleWithDonor(page.Paths.EnterReplacementTrustCorporation, page.CanGoBack,
@@ -275,7 +276,7 @@ func Register(
 	handleWithDonor(page.Paths.ChooseNewCertificateProvider, page.None,
 		ChooseNewCertificateProvider(tmpls.Get("choose_new_certificate_provider.gohtml"), donorStore))
 	handleWithDonor(page.Paths.CertificateProviderDetails, page.CanGoBack,
-		CertificateProviderDetails(tmpls.Get("certificate_provider_details.gohtml"), donorStore, actor.NewUID))
+		CertificateProviderDetails(tmpls.Get("certificate_provider_details.gohtml"), donorStore, actoruid.New))
 	handleWithDonor(page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole, page.CanGoBack,
 		HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpls.Get("how_would_certificate_provider_prefer_to_carry_out_their_role.gohtml"), donorStore))
 	handleWithDonor(page.Paths.CertificateProviderAddress, page.CanGoBack,
@@ -288,7 +289,7 @@ func Register(
 	handleWithDonor(page.Paths.DoYouWantToNotifyPeople, page.CanGoBack,
 		DoYouWantToNotifyPeople(tmpls.Get("do_you_want_to_notify_people.gohtml"), donorStore))
 	handleWithDonor(page.Paths.ChoosePeopleToNotify, page.CanGoBack,
-		ChoosePeopleToNotify(tmpls.Get("choose_people_to_notify.gohtml"), donorStore, actor.NewUID))
+		ChoosePeopleToNotify(tmpls.Get("choose_people_to_notify.gohtml"), donorStore, actoruid.New))
 	handleWithDonor(page.Paths.ChoosePeopleToNotifyAddress, page.CanGoBack,
 		ChoosePeopleToNotifyAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleWithDonor(page.Paths.ChoosePeopleToNotifySummary, page.CanGoBack,
