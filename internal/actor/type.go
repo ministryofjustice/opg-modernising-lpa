@@ -11,6 +11,10 @@ const (
 	TypePersonToNotify
 	TypeAuthorisedSignatory
 	TypeIndependentWitness
+
+	// TODO: figure out if these should be like this, or do we just want to add a bool somewhere?
+	TypeTrustCorporation
+	TypeReplacementTrustCorporation
 )
 
 func (t Type) String() string {

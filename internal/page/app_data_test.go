@@ -64,9 +64,9 @@ func TestIsReplacementAttorney(t *testing.T) {
 }
 
 func TestIsTrustCorporation(t *testing.T) {
-	assert.True(t, AppData{ActorType: actor.TypeAttorney}.IsTrustCorporation())
-	assert.True(t, AppData{ActorType: actor.TypeReplacementAttorney}.IsTrustCorporation())
+	assert.True(t, AppData{ActorType: actor.TypeTrustCorporation, AttorneyUID: actor.NewUID()}.IsTrustCorporation())
+	assert.True(t, AppData{ActorType: actor.TypeReplacementTrustCorporation, AttorneyUID: actor.NewUID()}.IsTrustCorporation())
 
-	assert.False(t, AppData{ActorType: actor.TypeAttorney, AttorneyID: "1"}.IsTrustCorporation())
-	assert.False(t, AppData{ActorType: actor.TypeReplacementAttorney, AttorneyID: "1"}.IsTrustCorporation())
+	assert.False(t, AppData{ActorType: actor.TypeAttorney, AttorneyUID: actor.NewUID()}.IsTrustCorporation())
+	assert.False(t, AppData{ActorType: actor.TypeReplacementAttorney, AttorneyUID: actor.NewUID()}.IsTrustCorporation())
 }
