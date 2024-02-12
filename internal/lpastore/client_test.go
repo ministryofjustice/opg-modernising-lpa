@@ -387,6 +387,9 @@ func TestClientSendCertificateProvider(t *testing.T) {
 }
 
 func TestClientSendAttorney(t *testing.T) {
+	uid1 := actor.NewUID()
+	uid2 := actor.NewUID()
+
 	testcases := map[string]struct {
 		attorney *actor.AttorneyProvidedDetails
 		donor    *actor.DonorProvidedDetails
@@ -394,7 +397,7 @@ func TestClientSendAttorney(t *testing.T) {
 	}{
 		"attorney": {
 			attorney: &actor.AttorneyProvidedDetails{
-				ID:                        "xyz",
+				UID:                       uid2,
 				Mobile:                    "07777",
 				Confirmed:                 time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				ContactLanguagePreference: localize.Cy,
@@ -403,7 +406,7 @@ func TestClientSendAttorney(t *testing.T) {
 				LpaUID: "lpa-uid",
 				Attorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{
-						{ID: "abc"}, {ID: "xyz"},
+						{UID: uid1}, {UID: uid2},
 					},
 				},
 			},
@@ -411,7 +414,7 @@ func TestClientSendAttorney(t *testing.T) {
 		},
 		"replacement attorney": {
 			attorney: &actor.AttorneyProvidedDetails{
-				ID:                        "xyz",
+				UID:                       uid2,
 				IsReplacement:             true,
 				Mobile:                    "07777",
 				Confirmed:                 time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
@@ -421,12 +424,12 @@ func TestClientSendAttorney(t *testing.T) {
 				LpaUID: "lpa-uid",
 				Attorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{
-						{ID: "abc"}, {ID: "xyz"},
+						{UID: uid1}, {UID: uid2},
 					},
 				},
 				ReplacementAttorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{
-						{ID: "abc"}, {ID: "xyz"},
+						{UID: uid1}, {UID: uid2},
 					},
 				},
 			},
@@ -434,7 +437,7 @@ func TestClientSendAttorney(t *testing.T) {
 		},
 		"trust corporation": {
 			attorney: &actor.AttorneyProvidedDetails{
-				ID:                 "xyz",
+				UID:                uid2,
 				IsTrustCorporation: true,
 				Mobile:             "07777",
 				AuthorisedSignatories: [2]actor.TrustCorporationSignatory{{
@@ -457,7 +460,7 @@ func TestClientSendAttorney(t *testing.T) {
 		},
 		"replacement trust corporation": {
 			attorney: &actor.AttorneyProvidedDetails{
-				ID:                 "xyz",
+				UID:                uid2,
 				IsTrustCorporation: true,
 				IsReplacement:      true,
 				Mobile:             "07777",
@@ -476,7 +479,7 @@ func TestClientSendAttorney(t *testing.T) {
 		},
 		"replacement trust corporation when also attorney trust corporation": {
 			attorney: &actor.AttorneyProvidedDetails{
-				ID:                 "xyz",
+				UID:                uid2,
 				IsTrustCorporation: true,
 				IsReplacement:      true,
 				Mobile:             "07777",
@@ -829,6 +832,8 @@ func TestClientServiceContract(t *testing.T) {
 	})
 
 	t.Run("SendAttorney", func(t *testing.T) {
+		uid := actor.NewUID()
+
 		mockProvider.
 			AddInteraction().
 			Given("An LPA with UID M-0000-1111-2222 exists").
@@ -880,11 +885,11 @@ func TestClientServiceContract(t *testing.T) {
 				&actor.DonorProvidedDetails{
 					LpaUID: "M-0000-1111-2222",
 					Attorneys: actor.Attorneys{
-						Attorneys: []actor.Attorney{{ID: "abcde"}},
+						Attorneys: []actor.Attorney{{UID: uid}},
 					},
 				},
 				&actor.AttorneyProvidedDetails{
-					ID:                        "abcde",
+					UID:                       uid,
 					Mobile:                    "07777777",
 					Confirmed:                 time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
 					ContactLanguagePreference: localize.Cy,

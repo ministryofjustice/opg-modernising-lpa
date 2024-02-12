@@ -82,7 +82,7 @@
         {{ if $.CanChange }}
           <ul class="govuk-summary-card__actions">
             <li class="govuk-summary-card__action">
-              <a class="govuk-link govuk-link--no-visited-state" href="{{ link $.App $.Link.RemoveAttorney }}&id={{ .ID }}">{{ tr $.App "removeAttorney" }}</a>
+              <a class="govuk-link govuk-link--no-visited-state" href="{{ link $.App $.Link.RemoveAttorney }}&id={{ .UID }}">{{ tr $.App "removeAttorney" }}</a>
             </li>
           </ul>
         {{ end }}
@@ -94,7 +94,7 @@
             <dd class="govuk-summary-list__value">{{ .FullName }}</dd>
             {{ if $.CanChange }}
               <dd class="govuk-summary-list__actions">
-                <a class="govuk-link govuk-link--no-visited-state" href="{{ link $.App $.Link.Attorney }}&id={{ .ID }}#f-first-names">
+                <a class="govuk-link govuk-link--no-visited-state" href="{{ link $.App $.Link.Attorney }}&id={{ .UID }}#f-first-names">
                   {{ trFormatHtml $.App "changeNameLinkText" "FirstNames" .FirstNames "LastName" .LastName }}
                 </a>
               </dd>
@@ -105,7 +105,7 @@
             <dd class="govuk-summary-list__value">{{ formatDate $.App .DateOfBirth }}</dd>
             {{ if $.CanChange }}
               <dd class="govuk-summary-list__actions">
-                <a class="govuk-link govuk-link--no-visited-state" href="{{ link $.App $.Link.Attorney }}&id={{ .ID }}#f-date-of-birth">
+                <a class="govuk-link govuk-link--no-visited-state" href="{{ link $.App $.Link.Attorney }}&id={{ .UID }}#f-date-of-birth">
                   {{ trFormatHtml $.App "changeDOBLinkText" "FirstNames" .FirstNames "LastName" .LastName }}
                 </a>
               </dd>
@@ -117,7 +117,7 @@
               <dd class="govuk-summary-list__value">{{ .Email }}</dd>
               {{ if $.CanChange }}
                 <dd class="govuk-summary-list__actions">
-                  <a class="govuk-link govuk-link--no-visited-state" href="{{ link $.App $.Link.Attorney }}&id={{ .ID }}#f-email">
+                  <a class="govuk-link govuk-link--no-visited-state" href="{{ link $.App $.Link.Attorney }}&id={{ .UID }}#f-email">
                     {{ trFormatHtml $.App "changeEmailLinkText" "FirstNames" .FirstNames "LastName" .LastName }}
                   </a>
                 </dd>
@@ -129,7 +129,7 @@
             <dd class="govuk-summary-list__value">{{ template "address-lines" .Address }}</dd>
             {{ if $.CanChange }}
               <dd class="govuk-summary-list__actions">
-                <a class="govuk-link govuk-link--no-visited-state" href="{{ link $.App $.Link.AttorneyAddress }}&id={{ .ID }}#f-address-line-1">
+                <a class="govuk-link govuk-link--no-visited-state" href="{{ link $.App $.Link.AttorneyAddress }}&id={{ .UID }}#f-address-line-1">
                   {{ trFormatHtml $.App "changeAddressLink" "FirstNames" .FirstNames "LastName" .LastName }}
                 </a>
               </dd>
