@@ -103,7 +103,7 @@ func CertificateProvider(
 			donor.CertificateProvider.Relationship = actor.Professionally
 		}
 
-		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID)
+		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID, donor.CertificateProvider.UID)
 		if err != nil {
 			return err
 		}

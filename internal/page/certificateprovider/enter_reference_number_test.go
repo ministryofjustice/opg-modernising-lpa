@@ -10,6 +10,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	actoruid "github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -82,6 +83,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 		"reference-number": {"abcdef 123-456"},
 	}
 
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -89,9 +91,9 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeCertificateProvider, "abcdef123456").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id"}, nil)
+		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", ActorUID: uid}, nil)
 	shareCodeStore.EXPECT().
-		Delete(r.Context(), actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id"}).
+		Delete(r.Context(), actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", ActorUID: uid}).
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -105,7 +107,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 			session, _ := page.SessionDataFromContext(ctx)
 
 			return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
-		}), "session-id").
+		}), "session-id", uid).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, certificateProviderStore)(testAppData, w, r)
@@ -177,6 +179,7 @@ func TestPostEnterReferenceNumberWhenShareCodeStoreDeleteError(t *testing.T) {
 		"reference-number": {"abcdef123456"},
 	}
 
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -184,7 +187,7 @@ func TestPostEnterReferenceNumberWhenShareCodeStoreDeleteError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeCertificateProvider, "abcdef123456").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id"}, nil)
+		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", ActorUID: uid}, nil)
 	shareCodeStore.EXPECT().
 		Delete(mock.Anything, mock.Anything).
 		Return(expectedError)
@@ -200,7 +203,7 @@ func TestPostEnterReferenceNumberWhenShareCodeStoreDeleteError(t *testing.T) {
 			session, _ := page.SessionDataFromContext(ctx)
 
 			return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
-		}), "session-id").
+		}), "session-id", uid).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, certificateProviderStore)(testAppData, w, r)
