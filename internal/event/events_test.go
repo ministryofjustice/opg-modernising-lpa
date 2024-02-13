@@ -18,7 +18,7 @@ func TestEventSchema(t *testing.T) {
 	testcases := map[string]any{
 		"application-updated": ApplicationUpdated{
 			UID:       "M-0000-0000-0000",
-			Type:      "hw",
+			Type:      "personal-welfare",
 			CreatedAt: time.Now(),
 			Donor: ApplicationUpdatedDonor{
 				FirstNames:  "syz",

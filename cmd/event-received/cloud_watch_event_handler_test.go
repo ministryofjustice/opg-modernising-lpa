@@ -28,13 +28,13 @@ func TestHandleUnknownEvent(t *testing.T) {
 func TestHandleUidRequested(t *testing.T) {
 	event := events.CloudWatchEvent{
 		DetailType: "uid-requested",
-		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","type":"hw","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
+		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
 	}
 
 	uidClient := newMockUidClient(t)
 	uidClient.EXPECT().
 		CreateCase(ctx, &uid.CreateCaseRequestBody{
-			Type: "hw",
+			Type: "personal-welfare",
 			Donor: uid.DonorDetails{
 				Name:     "a donor",
 				Dob:      date.New("2000", "01", "02"),
@@ -55,7 +55,7 @@ func TestHandleUidRequested(t *testing.T) {
 func TestHandleUidRequestedWhenUidClientErrors(t *testing.T) {
 	event := events.CloudWatchEvent{
 		DetailType: "uid-requested",
-		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","type":"hw","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
+		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
 	}
 
 	uidClient := newMockUidClient(t)
@@ -70,7 +70,7 @@ func TestHandleUidRequestedWhenUidClientErrors(t *testing.T) {
 func TestHandleUidRequestedWhenUidStoreErrors(t *testing.T) {
 	event := events.CloudWatchEvent{
 		DetailType: "uid-requested",
-		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","type":"hw","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
+		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
 	}
 
 	uidClient := newMockUidClient(t)
