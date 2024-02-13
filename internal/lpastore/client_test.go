@@ -3,6 +3,7 @@ package lpastore
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -15,6 +16,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -41,6 +43,10 @@ func (m *mockCredentialsProvider) IsExpired() bool {
 	return false
 }
 
+func ActorUID() matchers.Matcher {
+	return matchers.Regex("urn:opg:poas:makeregister:users:123e4567-e89b-12d3-a456-426655440000", "urn:opg:poas:makeregister:users:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
+}
+
 func TestResponseError(t *testing.T) {
 	err := responseError{name: "name", body: 5}
 	assert.Equal(t, "name", err.Error())
@@ -49,6 +55,17 @@ func TestResponseError(t *testing.T) {
 }
 
 func TestClientSendLpa(t *testing.T) {
+	var donorUID actoruid.UID
+	json.Unmarshal([]byte(`"urn:opg:poas:makeregister:users:uid"`), &donorUID)
+	trustCorporationUID := actoruid.New()
+	attorneyUID := actoruid.New()
+	attorney2UID := actoruid.New()
+	replacementTrustCorporationUID := actoruid.New()
+	replacementAttorneyUID := actoruid.New()
+	replacementAttorney2UID := actoruid.New()
+	certificateProviderUID := actoruid.New()
+	personToNotifyUID := actoruid.New()
+
 	testcases := map[string]struct {
 		donor *actor.DonorProvidedDetails
 		json  string
@@ -58,6 +75,7 @@ func TestClientSendLpa(t *testing.T) {
 				LpaUID: "M-0000-1111-2222",
 				Type:   actor.LpaTypePropertyAndAffairs,
 				Donor: actor.Donor{
+					UID:         donorUID,
 					FirstNames:  "John Johnson",
 					LastName:    "Smith",
 					DateOfBirth: date.New("2000", "1", "2"),
@@ -71,6 +89,7 @@ func TestClientSendLpa(t *testing.T) {
 				},
 				Attorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{{
+						UID:         attorneyUID,
 						FirstNames:  "Adam",
 						LastName:    "Attorney",
 						DateOfBirth: date.New("1999", "1", "2"),
@@ -85,6 +104,7 @@ func TestClientSendLpa(t *testing.T) {
 				ReplacementAttorneys: actor.Attorneys{},
 				WhenCanTheLpaBeUsed:  actor.CanBeUsedWhenCapacityLost,
 				CertificateProvider: actor.CertificateProvider{
+					UID:        certificateProviderUID,
 					FirstNames: "Carol",
 					LastName:   "Cert",
 					Address: place.Address{
@@ -96,13 +116,22 @@ func TestClientSendLpa(t *testing.T) {
 				},
 				SignedAt: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 			},
-			json: `{"lpaType":"property-and-affairs","donor":{"firstNames":"John Johnson","lastName":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"","line3":"","town":"town","postcode":"","country":"GB"},"otherNamesKnownBy":"JJ"},"attorneys":[{"firstNames":"Adam","lastName":"Attorney","dateOfBirth":"1999-01-02","email":"adam@example.com","address":{"line1":"a-line-1","line2":"","line3":"","town":"a-town","postcode":"","country":"GB"},"status":"active"}],"certificateProvider":{"firstNames":"Carol","lastName":"Cert","address":{"line1":"c-line-1","line2":"","line3":"","town":"c-town","postcode":"","country":"GB"},"channel":"paper"},"restrictionsAndConditions":"","whenTheLpaCanBeUsed":"when-capacity-lost","signedAt":"2000-01-02T03:04:05.000000006Z"}`,
+			json: `{
+"lpaType":"property-and-affairs",
+"donor":{"uid":"` + donorUID.PrefixedString() + `","firstNames":"John Johnson","lastName":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"","line3":"","town":"town","postcode":"","country":"GB"},"otherNamesKnownBy":"JJ"},
+"attorneys":[{"uid":"` + attorneyUID.PrefixedString() + `","firstNames":"Adam","lastName":"Attorney","dateOfBirth":"1999-01-02","email":"adam@example.com","address":{"line1":"a-line-1","line2":"","line3":"","town":"a-town","postcode":"","country":"GB"},"status":"active"}],
+"certificateProvider":{"uid":"` + certificateProviderUID.PrefixedString() + `","firstNames":"Carol","lastName":"Cert","address":{"line1":"c-line-1","line2":"","line3":"","town":"c-town","postcode":"","country":"GB"},"channel":"paper"},
+"restrictionsAndConditions":"",
+"whenTheLpaCanBeUsed":"when-capacity-lost",
+"signedAt":"2000-01-02T03:04:05.000000006Z"
+}`,
 		},
 		"everything": {
 			donor: &actor.DonorProvidedDetails{
 				LpaUID: "M-0000-1111-2222",
 				Type:   actor.LpaTypePersonalWelfare,
 				Donor: actor.Donor{
+					UID:         donorUID,
 					FirstNames:  "John Johnson",
 					LastName:    "Smith",
 					DateOfBirth: date.New("2000", "1", "2"),
@@ -119,6 +148,7 @@ func TestClientSendLpa(t *testing.T) {
 				},
 				Attorneys: actor.Attorneys{
 					TrustCorporation: actor.TrustCorporation{
+						UID:           trustCorporationUID,
 						Name:          "Trusty",
 						CompanyNumber: "55555",
 						Email:         "trusty@example.com",
@@ -132,6 +162,7 @@ func TestClientSendLpa(t *testing.T) {
 						},
 					},
 					Attorneys: []actor.Attorney{{
+						UID:         attorneyUID,
 						FirstNames:  "Adam",
 						LastName:    "Attorney",
 						DateOfBirth: date.New("1999", "1", "2"),
@@ -145,6 +176,7 @@ func TestClientSendLpa(t *testing.T) {
 							Country:    "GB",
 						},
 					}, {
+						UID:         attorney2UID,
 						FirstNames:  "Alice",
 						LastName:    "Attorney",
 						DateOfBirth: date.New("1998", "1", "2"),
@@ -164,6 +196,7 @@ func TestClientSendLpa(t *testing.T) {
 				},
 				ReplacementAttorneys: actor.Attorneys{
 					TrustCorporation: actor.TrustCorporation{
+						UID:           replacementTrustCorporationUID,
 						Name:          "UnTrusty",
 						CompanyNumber: "65555",
 						Email:         "untrusty@example.com",
@@ -177,6 +210,7 @@ func TestClientSendLpa(t *testing.T) {
 						},
 					},
 					Attorneys: []actor.Attorney{{
+						UID:         replacementAttorneyUID,
 						FirstNames:  "Richard",
 						LastName:    "Attorney",
 						DateOfBirth: date.New("1999", "11", "12"),
@@ -190,6 +224,7 @@ func TestClientSendLpa(t *testing.T) {
 							Country:    "GB",
 						},
 					}, {
+						UID:         replacementAttorney2UID,
 						FirstNames:  "Rachel",
 						LastName:    "Attorney",
 						DateOfBirth: date.New("1998", "11", "12"),
@@ -212,6 +247,7 @@ func TestClientSendLpa(t *testing.T) {
 				LifeSustainingTreatmentOption:       actor.LifeSustainingTreatmentOptionA,
 				Restrictions:                        "do not do this",
 				CertificateProvider: actor.CertificateProvider{
+					UID:        certificateProviderUID,
 					FirstNames: "Carol",
 					LastName:   "Cert",
 					Email:      "carol@example.com",
@@ -226,6 +262,7 @@ func TestClientSendLpa(t *testing.T) {
 					CarryOutBy: actor.Online,
 				},
 				PeopleToNotify: actor.PeopleToNotify{{
+					UID:        personToNotifyUID,
 					FirstNames: "Peter",
 					LastName:   "Notify",
 					Address: place.Address{
@@ -240,7 +277,29 @@ func TestClientSendLpa(t *testing.T) {
 				SignedAt:                                 time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				CertificateProviderNotRelatedConfirmedAt: time.Date(2001, time.February, 3, 4, 5, 6, 7, time.UTC),
 			},
-			json: `{"lpaType":"personal-welfare","donor":{"firstNames":"John Johnson","lastName":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"line-2","line3":"line-3","town":"town","postcode":"F1 1FF","country":"GB"},"otherNamesKnownBy":"JJ"},"attorneys":[{"firstNames":"Adam","lastName":"Attorney","dateOfBirth":"1999-01-02","email":"adam@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active"},{"firstNames":"Alice","lastName":"Attorney","dateOfBirth":"1998-01-02","email":"alice@example.com","address":{"line1":"aa-line-1","line2":"aa-line-2","line3":"aa-line-3","town":"aa-town","postcode":"A1 1AF","country":"GB"},"status":"active"},{"firstNames":"Richard","lastName":"Attorney","dateOfBirth":"1999-11-12","email":"richard@example.com","address":{"line1":"r-line-1","line2":"r-line-2","line3":"r-line-3","town":"r-town","postcode":"R1 1FF","country":"GB"},"status":"replacement"},{"firstNames":"Rachel","lastName":"Attorney","dateOfBirth":"1998-11-12","email":"rachel@example.com","address":{"line1":"rr-line-1","line2":"rr-line-2","line3":"rr-line-3","town":"rr-town","postcode":"R1 1RF","country":"GB"},"status":"replacement"}],"trustCorporations":[{"name":"Trusty","companyNumber":"55555","email":"trusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active"},{"name":"UnTrusty","companyNumber":"65555","email":"untrusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"replacement"}],"certificateProvider":{"firstNames":"Carol","lastName":"Cert","email":"carol@example.com","address":{"line1":"c-line-1","line2":"c-line-2","line3":"c-line-3","town":"c-town","postcode":"C1 1FF","country":"GB"},"channel":"online"},"peopleToNotify":[{"firstNames":"Peter","lastName":"Notify","address":{"line1":"p-line-1","line2":"p-line-2","line3":"p-line-3","town":"p-town","postcode":"P1 1FF","country":"GB"}}],"howAttorneysMakeDecisions":"jointly","howReplacementAttorneysMakeDecisions":"jointly-for-some-severally-for-others","howReplacementAttorneysMakeDecisionsDetails":"umm","restrictionsAndConditions":"do not do this","lifeSustainingTreatmentOption":"option-a","signedAt":"2000-01-02T03:04:05.000000006Z","certificateProviderNotRelatedConfirmedAt":"2001-02-03T04:05:06.000000007Z"}`,
+			json: `{
+"lpaType":"personal-welfare",
+"donor":{"uid":"` + donorUID.PrefixedString() + `","firstNames":"John Johnson","lastName":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"line-2","line3":"line-3","town":"town","postcode":"F1 1FF","country":"GB"},"otherNamesKnownBy":"JJ"},
+"attorneys":[
+{"uid":"` + attorneyUID.PrefixedString() + `","firstNames":"Adam","lastName":"Attorney","dateOfBirth":"1999-01-02","email":"adam@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active"},
+{"uid":"` + attorney2UID.PrefixedString() + `","firstNames":"Alice","lastName":"Attorney","dateOfBirth":"1998-01-02","email":"alice@example.com","address":{"line1":"aa-line-1","line2":"aa-line-2","line3":"aa-line-3","town":"aa-town","postcode":"A1 1AF","country":"GB"},"status":"active"},
+{"uid":"` + replacementAttorneyUID.PrefixedString() + `","firstNames":"Richard","lastName":"Attorney","dateOfBirth":"1999-11-12","email":"richard@example.com","address":{"line1":"r-line-1","line2":"r-line-2","line3":"r-line-3","town":"r-town","postcode":"R1 1FF","country":"GB"},"status":"replacement"},
+{"uid":"` + replacementAttorney2UID.PrefixedString() + `","firstNames":"Rachel","lastName":"Attorney","dateOfBirth":"1998-11-12","email":"rachel@example.com","address":{"line1":"rr-line-1","line2":"rr-line-2","line3":"rr-line-3","town":"rr-town","postcode":"R1 1RF","country":"GB"},"status":"replacement"}
+],
+"trustCorporations":[
+{"uid":"` + trustCorporationUID.PrefixedString() + `","name":"Trusty","companyNumber":"55555","email":"trusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active"},
+{"uid":"` + replacementTrustCorporationUID.PrefixedString() + `","name":"UnTrusty","companyNumber":"65555","email":"untrusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"replacement"}
+],
+"certificateProvider":{"uid":"` + certificateProviderUID.PrefixedString() + `","firstNames":"Carol","lastName":"Cert","email":"carol@example.com","address":{"line1":"c-line-1","line2":"c-line-2","line3":"c-line-3","town":"c-town","postcode":"C1 1FF","country":"GB"},"channel":"online"},
+"peopleToNotify":[{"uid":"` + personToNotifyUID.PrefixedString() + `","firstNames":"Peter","lastName":"Notify","address":{"line1":"p-line-1","line2":"p-line-2","line3":"p-line-3","town":"p-town","postcode":"P1 1FF","country":"GB"}}],
+"howAttorneysMakeDecisions":"jointly",
+"howReplacementAttorneysMakeDecisions":"jointly-for-some-severally-for-others",
+"howReplacementAttorneysMakeDecisionsDetails":"umm",
+"restrictionsAndConditions":"do not do this",
+"lifeSustainingTreatmentOption":"option-a",
+"signedAt":"2000-01-02T03:04:05.000000006Z",
+"certificateProviderNotRelatedConfirmedAt":"2001-02-03T04:05:06.000000007Z"}
+`,
 		},
 	}
 
@@ -265,7 +324,7 @@ func TestClientSendLpa(t *testing.T) {
 						assert.Equal(t, http.MethodPut, req.Method) &&
 						assert.Equal(t, "http://base/lpas/M-0000-1111-2222", req.URL.String()) &&
 						assert.Equal(t, "application/json", req.Header.Get("Content-Type")) &&
-						assert.Equal(t, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3ODIyNDV9.6XFN3faS16wZf0garTwR4NSBxjFrAGKK3I04nK0ItMk", req.Header.Get("X-Jwt-Authorization")) &&
+						assert.Equal(t, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ1cm46b3BnOnBvYXM6bWFrZXJlZ2lzdGVyOnVzZXJzOnVpZCIsImlhdCI6OTQ2NzgyMjQ1fQ.4uB6hoY67WD6cmx3V-AG4R3s2SzP9gRbiWyEFgqzPJo", req.Header.Get("X-Jwt-Authorization")) &&
 						assert.JSONEq(t, tc.json, string(body))
 				})).
 				Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
@@ -339,7 +398,11 @@ func TestClientSendLpaWhenStatusCodeIsNotCreated(t *testing.T) {
 }
 
 func TestClientSendCertificateProvider(t *testing.T) {
+	var uid actoruid.UID
+	json.Unmarshal([]byte(`"urn:opg:poas:makeregister:users:uid"`), &uid)
+
 	certificateProvider := &actor.CertificateProviderProvidedDetails{
+		UID: uid,
 		HomeAddress: place.Address{
 			Line1:      "line-1",
 			Line2:      "line-2",
@@ -374,7 +437,7 @@ func TestClientSendCertificateProvider(t *testing.T) {
 				assert.Equal(t, http.MethodPost, req.Method) &&
 				assert.Equal(t, "http://base/lpas/lpa-uid/updates", req.URL.String()) &&
 				assert.Equal(t, "application/json", req.Header.Get("Content-Type")) &&
-				assert.Equal(t, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3ODIyNDV9.6XFN3faS16wZf0garTwR4NSBxjFrAGKK3I04nK0ItMk", req.Header.Get("X-Jwt-Authorization")) &&
+				assert.Equal(t, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ1cm46b3BnOnBvYXM6bWFrZXJlZ2lzdGVyOnVzZXJzOnVpZCIsImlhdCI6OTQ2NzgyMjQ1fQ.4uB6hoY67WD6cmx3V-AG4R3s2SzP9gRbiWyEFgqzPJo", req.Header.Get("X-Jwt-Authorization")) &&
 				assert.JSONEq(t, json, string(body))
 		})).
 		Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
@@ -387,6 +450,10 @@ func TestClientSendCertificateProvider(t *testing.T) {
 }
 
 func TestClientSendAttorney(t *testing.T) {
+	var uid1, uid2 actoruid.UID
+	json.Unmarshal([]byte(`"urn:opg:poas:makeregister:users:uid1"`), &uid1)
+	json.Unmarshal([]byte(`"urn:opg:poas:makeregister:users:uid2"`), &uid2)
+
 	testcases := map[string]struct {
 		attorney *actor.AttorneyProvidedDetails
 		donor    *actor.DonorProvidedDetails
@@ -394,7 +461,7 @@ func TestClientSendAttorney(t *testing.T) {
 	}{
 		"attorney": {
 			attorney: &actor.AttorneyProvidedDetails{
-				ID:                        "xyz",
+				UID:                       uid2,
 				Mobile:                    "07777",
 				Confirmed:                 time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				ContactLanguagePreference: localize.Cy,
@@ -403,7 +470,7 @@ func TestClientSendAttorney(t *testing.T) {
 				LpaUID: "lpa-uid",
 				Attorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{
-						{ID: "abc"}, {ID: "xyz"},
+						{UID: uid1}, {UID: uid2},
 					},
 				},
 			},
@@ -411,7 +478,7 @@ func TestClientSendAttorney(t *testing.T) {
 		},
 		"replacement attorney": {
 			attorney: &actor.AttorneyProvidedDetails{
-				ID:                        "xyz",
+				UID:                       uid2,
 				IsReplacement:             true,
 				Mobile:                    "07777",
 				Confirmed:                 time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
@@ -421,12 +488,12 @@ func TestClientSendAttorney(t *testing.T) {
 				LpaUID: "lpa-uid",
 				Attorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{
-						{ID: "abc"}, {ID: "xyz"},
+						{UID: uid1}, {UID: uid2},
 					},
 				},
 				ReplacementAttorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{
-						{ID: "abc"}, {ID: "xyz"},
+						{UID: uid1}, {UID: uid2},
 					},
 				},
 			},
@@ -434,7 +501,7 @@ func TestClientSendAttorney(t *testing.T) {
 		},
 		"trust corporation": {
 			attorney: &actor.AttorneyProvidedDetails{
-				ID:                 "xyz",
+				UID:                uid2,
 				IsTrustCorporation: true,
 				Mobile:             "07777",
 				AuthorisedSignatories: [2]actor.TrustCorporationSignatory{{
@@ -457,7 +524,7 @@ func TestClientSendAttorney(t *testing.T) {
 		},
 		"replacement trust corporation": {
 			attorney: &actor.AttorneyProvidedDetails{
-				ID:                 "xyz",
+				UID:                uid2,
 				IsTrustCorporation: true,
 				IsReplacement:      true,
 				Mobile:             "07777",
@@ -476,7 +543,7 @@ func TestClientSendAttorney(t *testing.T) {
 		},
 		"replacement trust corporation when also attorney trust corporation": {
 			attorney: &actor.AttorneyProvidedDetails{
-				ID:                 "xyz",
+				UID:                uid2,
 				IsTrustCorporation: true,
 				IsReplacement:      true,
 				Mobile:             "07777",
@@ -517,7 +584,7 @@ func TestClientSendAttorney(t *testing.T) {
 						assert.Equal(t, http.MethodPost, req.Method) &&
 						assert.Equal(t, "http://base/lpas/lpa-uid/updates", req.URL.String()) &&
 						assert.Equal(t, "application/json", req.Header.Get("Content-Type")) &&
-						assert.Equal(t, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3ODIyNDV9.6XFN3faS16wZf0garTwR4NSBxjFrAGKK3I04nK0ItMk", req.Header.Get("X-Jwt-Authorization")) &&
+						assert.Equal(t, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ1cm46b3BnOnBvYXM6bWFrZXJlZ2lzdGVyOnVzZXJzOnVpZDIiLCJpYXQiOjk0Njc4MjI0NX0.ZHegwOTVV4PfWMO6k2hrmhM_KYgN0NAPghDrXjS38Do", req.Header.Get("X-Jwt-Authorization")) &&
 						assert.JSONEq(t, tc.json, string(body))
 				})).
 				Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
@@ -571,6 +638,7 @@ func TestClientServiceContract(t *testing.T) {
 						"lpaType":                       matchers.Regex("personal-welfare", "personal-welfare|property-and-affairs"),
 						"lifeSustainingTreatmentOption": matchers.Regex("option-a", "option-a|option-b"),
 						"donor": matchers.Like(map[string]any{
+							"uid":         ActorUID(),
 							"firstNames":  matchers.String("John Johnson"),
 							"lastName":    matchers.String("Smith"),
 							"dateOfBirth": matchers.Regex("2000-01-02", "\\d{4}-\\d{2}-\\d{2}"),
@@ -585,6 +653,7 @@ func TestClientServiceContract(t *testing.T) {
 							}),
 						}),
 						"attorneys": matchers.EachLike(map[string]any{
+							"uid":         ActorUID(),
 							"firstNames":  matchers.String("Adam"),
 							"lastName":    matchers.String("Attorney"),
 							"dateOfBirth": matchers.Regex("1999-01-02", "\\d{4}-\\d{2}-\\d{2}"),
@@ -600,6 +669,7 @@ func TestClientServiceContract(t *testing.T) {
 							"status": matchers.Regex("active", "active|replacement"),
 						}, 1),
 						"certificateProvider": matchers.Like(map[string]any{
+							"uid":        ActorUID(),
 							"firstNames": matchers.String("Charles"),
 							"lastName":   matchers.String("Certificate"),
 							"email":      matchers.String("charles@example.com"),
@@ -642,6 +712,7 @@ func TestClientServiceContract(t *testing.T) {
 				Type:                          actor.LpaTypePersonalWelfare,
 				LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA,
 				Donor: actor.Donor{
+					UID:         actoruid.New(),
 					FirstNames:  "John Johnson",
 					LastName:    "Smith",
 					DateOfBirth: date.New("2000", "1", "2"),
@@ -650,6 +721,7 @@ func TestClientServiceContract(t *testing.T) {
 				},
 				Attorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{{
+						UID:         actoruid.New(),
 						FirstNames:  "Alice",
 						LastName:    "Attorney",
 						DateOfBirth: date.New("1998", "1", "2"),
@@ -659,6 +731,7 @@ func TestClientServiceContract(t *testing.T) {
 				},
 				ReplacementAttorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{{
+						UID:         actoruid.New(),
 						FirstNames:  "Richard",
 						LastName:    "Attorney",
 						DateOfBirth: date.New("1999", "11", "12"),
@@ -667,6 +740,7 @@ func TestClientServiceContract(t *testing.T) {
 					}},
 				},
 				CertificateProvider: actor.CertificateProvider{
+					UID:        actoruid.New(),
 					FirstNames: "Charles",
 					LastName:   "Certificate",
 					Email:      "charles@example.com",
@@ -696,6 +770,7 @@ func TestClientServiceContract(t *testing.T) {
 					JSONBody(matchers.Map{
 						"lpaType": matchers.Regex("personal-welfare", "personal-welfare|property-and-affairs"),
 						"donor": matchers.Like(map[string]any{
+							"uid":         ActorUID(),
 							"firstNames":  matchers.String("John Johnson"),
 							"lastName":    matchers.String("Smith"),
 							"dateOfBirth": matchers.Regex("2000-01-02", "\\d{4}-\\d{2}-\\d{2}"),
@@ -711,6 +786,7 @@ func TestClientServiceContract(t *testing.T) {
 							"otherNamesKnownBy": matchers.String("JJ"),
 						}),
 						"attorneys": matchers.EachLike(map[string]any{
+							"uid":         ActorUID(),
 							"firstNames":  matchers.String("Adam"),
 							"lastName":    matchers.String("Attorney"),
 							"dateOfBirth": matchers.Regex("1999-01-02", "\\d{4}-\\d{2}-\\d{2}"),
@@ -726,6 +802,7 @@ func TestClientServiceContract(t *testing.T) {
 							"status": matchers.Regex("active", "active|replacement"),
 						}, 1),
 						"certificateProvider": matchers.Like(map[string]any{
+							"uid":        ActorUID(),
 							"firstNames": matchers.String("Charles"),
 							"lastName":   matchers.String("Certificate"),
 							"email":      matchers.String("charles@example.com"),
@@ -740,6 +817,7 @@ func TestClientServiceContract(t *testing.T) {
 							"channel": matchers.Regex("online", "online|post"),
 						}),
 						"peopleToNotify": matchers.EachLike(map[string]any{
+							"uid":        ActorUID(),
 							"firstNames": matchers.String("Peter"),
 							"lastName":   matchers.String("Person"),
 							"address": matchers.Like(map[string]any{
@@ -782,6 +860,7 @@ func TestClientServiceContract(t *testing.T) {
 				LpaUID: "M-0000-1111-2222",
 				Type:   actor.LpaTypePersonalWelfare,
 				Donor: actor.Donor{
+					UID:         actoruid.New(),
 					FirstNames:  "John Johnson",
 					LastName:    "Smith",
 					DateOfBirth: date.New("2000", "1", "2"),
@@ -791,6 +870,7 @@ func TestClientServiceContract(t *testing.T) {
 				},
 				Attorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{{
+						UID:         actoruid.New(),
 						FirstNames:  "Alice",
 						LastName:    "Attorney",
 						DateOfBirth: date.New("1998", "1", "2"),
@@ -800,6 +880,7 @@ func TestClientServiceContract(t *testing.T) {
 				},
 				ReplacementAttorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{{
+						UID:         actoruid.New(),
 						FirstNames:  "Richard",
 						LastName:    "Attorney",
 						DateOfBirth: date.New("1999", "11", "12"),
@@ -808,6 +889,7 @@ func TestClientServiceContract(t *testing.T) {
 					}},
 				},
 				CertificateProvider: actor.CertificateProvider{
+					UID:        actoruid.New(),
 					FirstNames: "Charles",
 					LastName:   "Certificate",
 					Email:      "charles@example.com",
@@ -815,6 +897,7 @@ func TestClientServiceContract(t *testing.T) {
 					CarryOutBy: actor.Online,
 				},
 				PeopleToNotify: actor.PeopleToNotify{{
+					UID:        actoruid.New(),
 					FirstNames: "Peter",
 					LastName:   "Person",
 					Address:    address,
@@ -829,6 +912,8 @@ func TestClientServiceContract(t *testing.T) {
 	})
 
 	t.Run("SendAttorney", func(t *testing.T) {
+		uid := actoruid.New()
+
 		mockProvider.
 			AddInteraction().
 			Given("An LPA with UID M-0000-1111-2222 exists").
@@ -880,11 +965,11 @@ func TestClientServiceContract(t *testing.T) {
 				&actor.DonorProvidedDetails{
 					LpaUID: "M-0000-1111-2222",
 					Attorneys: actor.Attorneys{
-						Attorneys: []actor.Attorney{{ID: "abcde"}},
+						Attorneys: []actor.Attorney{{UID: uid}},
 					},
 				},
 				&actor.AttorneyProvidedDetails{
-					ID:                        "abcde",
+					UID:                       uid,
 					Mobile:                    "07777777",
 					Confirmed:                 time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
 					ContactLanguagePreference: localize.Cy,
@@ -1064,7 +1149,7 @@ func TestClientServiceContract(t *testing.T) {
 				now:           now,
 			}
 
-			return client.sendUpdate(context.Background(), "M-0000-1111-2222", updateRequest{
+			return client.sendUpdate(context.Background(), "M-0000-1111-2222", actoruid.New(), updateRequest{
 				Type: "A_TYPE",
 				Changes: []updateRequestChange{
 					{Key: "/a/key", Old: "old", New: "new"},
