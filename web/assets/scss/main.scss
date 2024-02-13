@@ -91,3 +91,26 @@ body:not(.js-enabled) .govuk-back-link {
         padding-bottom: 0;
     }
 }
+
+.app-summary-list--border-top {
+    border-top: 1px solid $govuk-border-colour;
+}
+
+.app-service-header-caption {
+    @include govuk-responsive-padding(1, "top");
+
+    @include govuk-media-query($from: tablet) {
+        @include govuk-responsive-padding(4, "bottom");
+    }
+    color: govuk-colour("black");
+}
+
+.app-padding-top-7-non-mobile {
+     @include govuk-media-query($from: tablet) {
+         @include govuk-responsive-padding(7, "top");
+     }
+}
+
+.app-dark-grey {
+    color: govuk-colour("dark-grey");
+}

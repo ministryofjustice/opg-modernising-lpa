@@ -3,6 +3,7 @@ package actor
 import (
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
@@ -12,7 +13,7 @@ import (
 type AttorneyProvidedDetails struct {
 	PK, SK string
 	// The identifier of the attorney or replacement attorney being edited
-	ID string
+	UID actoruid.UID
 	// The identifier of the LPA the attorney or replacement attorney is named in
 	LpaID string
 	// Tracking when AttorneyProvidedDetails is updated

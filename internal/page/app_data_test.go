@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/stretchr/testify/assert"
 )
@@ -64,9 +65,9 @@ func TestIsReplacementAttorney(t *testing.T) {
 }
 
 func TestIsTrustCorporation(t *testing.T) {
-	assert.True(t, AppData{ActorType: actor.TypeAttorney}.IsTrustCorporation())
-	assert.True(t, AppData{ActorType: actor.TypeReplacementAttorney}.IsTrustCorporation())
+	assert.True(t, AppData{ActorType: actor.TypeTrustCorporation, AttorneyUID: actoruid.New()}.IsTrustCorporation())
+	assert.True(t, AppData{ActorType: actor.TypeReplacementTrustCorporation, AttorneyUID: actoruid.New()}.IsTrustCorporation())
 
-	assert.False(t, AppData{ActorType: actor.TypeAttorney, AttorneyID: "1"}.IsTrustCorporation())
-	assert.False(t, AppData{ActorType: actor.TypeReplacementAttorney, AttorneyID: "1"}.IsTrustCorporation())
+	assert.False(t, AppData{ActorType: actor.TypeAttorney, AttorneyUID: actoruid.New()}.IsTrustCorporation())
+	assert.False(t, AppData{ActorType: actor.TypeReplacementAttorney, AttorneyUID: actoruid.New()}.IsTrustCorporation())
 }

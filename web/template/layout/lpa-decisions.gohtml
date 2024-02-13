@@ -11,7 +11,7 @@
       </dd>
       {{ if $canChange }}
         <dd class="govuk-summary-list__actions">
-          <a class="govuk-link" href="{{ link .App (.App.Paths.LpaType.Format .App.LpaID) }}">
+          <a class="govuk-link" href="{{ link .App (global.Paths.LpaType.Format .App.LpaID) }}">
             {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "typeOfLpa" }}</span>
           </a>
         </dd>
@@ -35,7 +35,7 @@
       </dd>
       {{ if and $canChange .Donor.Type.IsPropertyAndAffairs }}
         <dd class="govuk-summary-list__actions">
-          <a class="govuk-link" href="{{ link .App (.App.Paths.WhenCanTheLpaBeUsed.Format .App.LpaID) }}">
+          <a class="govuk-link" href="{{ link .App (global.Paths.WhenCanTheLpaBeUsed.Format .App.LpaID) }}">
             {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "whenYourAttorneysCanUseYourLpa" }}</span>
           </a>
         </dd>
@@ -57,7 +57,7 @@
       </dd>
       {{ if $canChange }}
         <dd class="govuk-summary-list__actions">
-          <a class="govuk-link" href="{{ link .App (.App.Paths.ChooseAttorneys.Format .App.LpaID) }}">
+          <a class="govuk-link" href="{{ link .App (global.Paths.ChooseAttorneys.Format .App.LpaID) }}">
             {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "yourAttorneys" }}</span>
           </a>
         </dd>
@@ -83,7 +83,7 @@
         </dd>
         {{ if $canChange }}
           <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App (.App.Paths.HowShouldAttorneysMakeDecisions.Format .App.LpaID) }}?from={{ .App.Page }}">
+            <a class="govuk-link" href="{{ link .App (global.Paths.HowShouldAttorneysMakeDecisions.Format .App.LpaID) }}?from={{ .App.Page }}">
               {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ lowerFirst (tr .App $title) }}</span>
             </a>
           </dd>
@@ -106,7 +106,7 @@
         </dd>
         {{ if $canChange }}
           <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App (.App.Paths.HowShouldAttorneysMakeDecisions.Format .App.LpaID) }}?from={{ .App.Page }}#f-mixed-details">
+            <a class="govuk-link" href="{{ link .App (global.Paths.HowShouldAttorneysMakeDecisions.Format .App.LpaID) }}?from={{ .App.Page }}#f-mixed-details">
               {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ lowerFirst (tr .App $title) }}</span>
             </a>
           </dd>
@@ -133,7 +133,7 @@
       </dd>
       {{ if $canChange }}
         <dd class="govuk-summary-list__actions">
-          <a class="govuk-link" href="{{ link .App (.App.Paths.ChooseReplacementAttorneys.Format .App.LpaID) }}">
+          <a class="govuk-link" href="{{ link .App (global.Paths.ChooseReplacementAttorneys.Format .App.LpaID) }}">
             {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ tr .App "yourReplacementAttorneys" }}</span>
           </a>
         </dd>
@@ -158,7 +158,7 @@
         </dd>
         {{ if $canChange }}
           <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App (.App.Paths.HowShouldReplacementAttorneysMakeDecisions.Format .App.LpaID) }}?from={{ .App.Page }}">
+            <a class="govuk-link" href="{{ link .App (global.Paths.HowShouldReplacementAttorneysMakeDecisions.Format .App.LpaID) }}?from={{ .App.Page }}">
               {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ lowerFirst (tr .App $title) }}</span>
             </a>
           </dd>
@@ -181,7 +181,7 @@
         </dd>
         {{ if $canChange }}
           <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App (.App.Paths.HowShouldReplacementAttorneysMakeDecisions.Format .App.LpaID) }}?from={{ .App.Page }}#f-mixed-details">
+            <a class="govuk-link" href="{{ link .App (global.Paths.HowShouldReplacementAttorneysMakeDecisions.Format .App.LpaID) }}?from={{ .App.Page }}#f-mixed-details">
               {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ lowerFirst (tr .App $title) }}</span>
             </a>
           </dd>
@@ -209,7 +209,7 @@
         </dd>
         {{ if $canChange }}
           <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App (.App.Paths.HowShouldReplacementAttorneysStepIn.Format .App.LpaID) }}">
+            <a class="govuk-link" href="{{ link .App (global.Paths.HowShouldReplacementAttorneysStepIn.Format .App.LpaID) }}">
               {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ lowerFirst (tr .App $title) }}</span>
             </a>
           </dd>
@@ -231,7 +231,7 @@
         </dd>
         {{ if $canChange }}
           <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App (.App.Paths.LifeSustainingTreatment.Format .App.LpaID) }}">
+            <a class="govuk-link" href="{{ link .App (global.Paths.LifeSustainingTreatment.Format .App.LpaID) }}">
               {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "lifeSustainingTreatment" }}</span>
             </a>
           </dd>
@@ -248,7 +248,7 @@
       </dd>
       {{ if $canChange }}
         <dd class="govuk-summary-list__actions">
-          <a class="govuk-link" href="{{ link .App (.App.Paths.Restrictions.Format .App.LpaID) }}">
+          <a class="govuk-link" href="{{ link .App (global.Paths.Restrictions.Format .App.LpaID) }}">
             {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "yourRestrictions" }}</span>
           </a>
         </dd>

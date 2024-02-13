@@ -2,7 +2,6 @@ package donor
 
 import (
 	"context"
-	"encoding/base64"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,6 +11,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -83,7 +83,7 @@ type OneLoginClient interface {
 }
 
 type NotifyClient interface {
-	SendSMS(context.Context, string, notify.SMS) (string, error)
+	SendActorSMS(ctx context.Context, to, lpaUID string, sms notify.SMS) error
 }
 
 type SessionStore interface {
@@ -175,9 +175,10 @@ func Register(
 		donorStore:   donorStore,
 		payClient:    payClient,
 		randomString: random.String,
+		appPublicURL: appPublicURL,
 	}
 
-	handleRoot := makeHandle(rootMux, sessionStore, page.None, errorHandler, appPublicURL)
+	handleRoot := makeHandle(rootMux, sessionStore, page.None, errorHandler)
 
 	handleRoot(page.Paths.Login, page.None,
 		page.Login(oneLoginClient, sessionStore, random.String, page.Paths.LoginCallback))
@@ -187,8 +188,8 @@ func Register(
 	lpaMux := http.NewServeMux()
 	rootMux.Handle("/lpa/", page.RouteToPrefix("/lpa/", lpaMux, notFoundHandler))
 
-	handleDonor := makeHandle(lpaMux, sessionStore, page.RequireSession, errorHandler, appPublicURL)
-	handleWithDonor := makeLpaHandle(lpaMux, sessionStore, page.RequireSession, errorHandler, donorStore, appPublicURL)
+	handleDonor := makeHandle(lpaMux, sessionStore, page.RequireSession, errorHandler)
+	handleWithDonor := makeLpaHandle(lpaMux, sessionStore, page.RequireSession, errorHandler, donorStore)
 
 	handleDonor(page.Paths.Root, page.None, notFoundHandler)
 
@@ -224,7 +225,7 @@ func Register(
 	handleWithDonor(page.Paths.ChooseAttorneysGuidance, page.None,
 		Guidance(tmpls.Get("choose_attorneys_guidance.gohtml")))
 	handleWithDonor(page.Paths.ChooseAttorneys, page.CanGoBack,
-		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), donorStore, random.UuidString))
+		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), donorStore, actoruid.New))
 	handleWithDonor(page.Paths.ChooseAttorneysAddress, page.CanGoBack,
 		ChooseAttorneysAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleWithDonor(page.Paths.EnterTrustCorporation, page.CanGoBack,
@@ -243,7 +244,7 @@ func Register(
 	handleWithDonor(page.Paths.DoYouWantReplacementAttorneys, page.None,
 		WantReplacementAttorneys(tmpls.Get("do_you_want_replacement_attorneys.gohtml"), donorStore))
 	handleWithDonor(page.Paths.ChooseReplacementAttorneys, page.CanGoBack,
-		ChooseReplacementAttorneys(tmpls.Get("choose_replacement_attorneys.gohtml"), donorStore, random.UuidString))
+		ChooseReplacementAttorneys(tmpls.Get("choose_replacement_attorneys.gohtml"), donorStore, actoruid.New))
 	handleWithDonor(page.Paths.ChooseReplacementAttorneysAddress, page.CanGoBack,
 		ChooseReplacementAttorneysAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleWithDonor(page.Paths.EnterReplacementTrustCorporation, page.CanGoBack,
@@ -275,7 +276,7 @@ func Register(
 	handleWithDonor(page.Paths.ChooseNewCertificateProvider, page.None,
 		ChooseNewCertificateProvider(tmpls.Get("choose_new_certificate_provider.gohtml"), donorStore))
 	handleWithDonor(page.Paths.CertificateProviderDetails, page.CanGoBack,
-		CertificateProviderDetails(tmpls.Get("certificate_provider_details.gohtml"), donorStore))
+		CertificateProviderDetails(tmpls.Get("certificate_provider_details.gohtml"), donorStore, actoruid.New))
 	handleWithDonor(page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole, page.CanGoBack,
 		HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpls.Get("how_would_certificate_provider_prefer_to_carry_out_their_role.gohtml"), donorStore))
 	handleWithDonor(page.Paths.CertificateProviderAddress, page.CanGoBack,
@@ -288,7 +289,7 @@ func Register(
 	handleWithDonor(page.Paths.DoYouWantToNotifyPeople, page.CanGoBack,
 		DoYouWantToNotifyPeople(tmpls.Get("do_you_want_to_notify_people.gohtml"), donorStore))
 	handleWithDonor(page.Paths.ChoosePeopleToNotify, page.CanGoBack,
-		ChoosePeopleToNotify(tmpls.Get("choose_people_to_notify.gohtml"), donorStore, random.UuidString))
+		ChoosePeopleToNotify(tmpls.Get("choose_people_to_notify.gohtml"), donorStore, actoruid.New))
 	handleWithDonor(page.Paths.ChoosePeopleToNotifyAddress, page.CanGoBack,
 		ChoosePeopleToNotifyAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleWithDonor(page.Paths.ChoosePeopleToNotifySummary, page.CanGoBack,
@@ -310,9 +311,9 @@ func Register(
 	handleWithDonor(page.Paths.YouCannotSignYourLpaYet, page.CanGoBack,
 		YouCannotSignYourLpaYet(tmpls.Get("you_cannot_sign_your_lpa_yet.gohtml")))
 	handleWithDonor(page.Paths.ConfirmYourCertificateProviderIsNotRelated, page.CanGoBack,
-		ConfirmYourCertificateProviderIsNotRelated(tmpls.Get("confirm_your_certificate_provider_is_not_related.gohtml"), donorStore))
+		ConfirmYourCertificateProviderIsNotRelated(tmpls.Get("confirm_your_certificate_provider_is_not_related.gohtml"), donorStore, time.Now))
 	handleWithDonor(page.Paths.CheckYourLpa, page.CanGoBack,
-		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, notifyClient, certificateProviderStore, time.Now))
+		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, notifyClient, certificateProviderStore, time.Now, appPublicURL))
 	handleWithDonor(page.Paths.LpaDetailsSaved, page.CanGoBack,
 		LpaDetailsSaved(tmpls.Get("lpa_details_saved.gohtml")))
 
@@ -384,7 +385,7 @@ func Register(
 		UploadEvidenceSSE(documentStore, 3*time.Minute, 2*time.Second, time.Now))
 }
 
-func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.HandleOpt, errorHandler page.ErrorHandler, appPublicURL string) func(page.Path, page.HandleOpt, page.Handler) {
+func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.HandleOpt, errorHandler page.ErrorHandler) func(page.Path, page.HandleOpt, page.Handler) {
 	return func(path page.Path, opt page.HandleOpt, h page.Handler) {
 		opt = opt | defaultOptions
 
@@ -395,7 +396,6 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.Handle
 			appData.Page = path.Format()
 			appData.CanGoBack = opt&page.CanGoBack != 0
 			appData.ActorType = actor.TypeDonor
-			appData.AppPublicURL = appPublicURL
 
 			if opt&page.RequireSession != 0 {
 				donorSession, err := sesh.Login(store, r)
@@ -404,10 +404,9 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.Handle
 					return
 				}
 
-				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(donorSession.Sub))
+				appData.SessionID = donorSession.SessionID()
 
 				sessionData, err := page.SessionDataFromContext(ctx)
-
 				if err == nil {
 					sessionData.SessionID = appData.SessionID
 					ctx = page.ContextWithSessionData(ctx, sessionData)
@@ -425,7 +424,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.Handle
 	}
 }
 
-func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.HandleOpt, errorHandler page.ErrorHandler, donorStore DonorStore, appPublicURL string) func(page.LpaPath, page.HandleOpt, Handler) {
+func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.HandleOpt, errorHandler page.ErrorHandler, donorStore DonorStore) func(page.LpaPath, page.HandleOpt, Handler) {
 	return func(path page.LpaPath, opt page.HandleOpt, h Handler) {
 
 		opt = opt | defaultOptions
@@ -436,16 +435,14 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.Han
 			appData := page.AppDataFromContext(ctx)
 			appData.CanGoBack = opt&page.CanGoBack != 0
 			appData.ActorType = actor.TypeDonor
-			appData.AppPublicURL = appPublicURL
 
-			donorSession, err := sesh.Login(store, r)
+			loginSession, err := sesh.Login(store, r)
 			if err != nil {
 				http.Redirect(w, r, page.Paths.Start.Format(), http.StatusFound)
 				return
 			}
 
-			appData.SessionID = base64.StdEncoding.EncodeToString([]byte(donorSession.Sub))
-
+			appData.SessionID = loginSession.SessionID()
 			sessionData, err := page.SessionDataFromContext(ctx)
 
 			if err == nil {
@@ -454,7 +451,16 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.Han
 
 				appData.LpaID = sessionData.LpaID
 			} else {
-				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
+				sessionData = &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID}
+				ctx = page.ContextWithSessionData(ctx, sessionData)
+			}
+
+			if loginSession.OrganisationID != "" {
+				appData.IsSupporter = true
+				appData.OrganisationName = loginSession.OrganisationName
+
+				sessionData.OrganisationID = loginSession.OrganisationID
+				sessionData.Email = loginSession.Email
 			}
 
 			appData.Page = path.Format(appData.LpaID)
@@ -478,6 +484,7 @@ type payHelper struct {
 	donorStore   DonorStore
 	payClient    PayClient
 	randomString func(int) string
+	appPublicURL string
 }
 
 func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
@@ -498,7 +505,7 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 		Amount:      donor.FeeAmount(),
 		Reference:   p.randomString(12),
 		Description: "Property and Finance LPA",
-		ReturnUrl:   appData.AppPublicURL + appData.Lang.URL(page.Paths.PaymentConfirmation.Format(donor.LpaID)),
+		ReturnUrl:   p.appPublicURL + appData.Lang.URL(page.Paths.PaymentConfirmation.Format(donor.LpaID)),
 		Email:       donor.Donor.Email,
 		Language:    appData.Lang.String(),
 	}

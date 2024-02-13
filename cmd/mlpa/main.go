@@ -19,12 +19,13 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/env"
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -67,7 +68,7 @@ func main() {
 		payBaseURL            = env.Get("GOVUK_PAY_BASE_URL", "http://mock-pay:8080")
 		port                  = env.Get("APP_PORT", "8080")
 		xrayEnabled           = env.Get("XRAY_ENABLED", "") == "1"
-		rumConfig             = page.RumConfig{
+		rumConfig             = templatefn.RumConfig{
 			GuestRoleArn:      env.Get("AWS_RUM_GUEST_ROLE_ARN", ""),
 			Endpoint:          env.Get("AWS_RUM_ENDPOINT", ""),
 			ApplicationRegion: env.Get("AWS_RUM_APPLICATION_REGION", ""),
@@ -114,7 +115,15 @@ func main() {
 		}
 	}
 
-	layouts, err := parseLayoutTemplates(webDir+"/template/layout", templatefn.All(Tag, region))
+	layouts, err := parseLayoutTemplates(webDir+"/template/layout", templatefn.All(&templatefn.Globals{
+		Tag:         Tag,
+		Region:      region,
+		OneloginURL: oneloginURL,
+		StaticHash:  staticHash,
+		RumConfig:   rumConfig,
+		ActorTypes:  actor.ActorTypes,
+		Paths:       page.Paths,
+	}))
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -232,7 +241,7 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	notifyClient, err := notify.New(notifyIsProduction, notifyBaseURL, notifyApiKey, httpClient)
+	notifyClient, err := notify.New(notifyIsProduction, notifyBaseURL, notifyApiKey, httpClient, eventClient)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -272,11 +281,7 @@ func main() {
 		payClient,
 		notifyClient,
 		addressClient,
-		rumConfig,
-		staticHash,
-		page.Paths,
 		oneloginClient,
-		oneloginURL,
 		evidenceS3Client,
 		eventClient,
 		lpaStoreClient,
@@ -297,11 +302,7 @@ func main() {
 		payClient,
 		notifyClient,
 		addressClient,
-		rumConfig,
-		staticHash,
-		page.Paths,
 		oneloginClient,
-		oneloginURL,
 		evidenceS3Client,
 		eventClient,
 		lpaStoreClient,

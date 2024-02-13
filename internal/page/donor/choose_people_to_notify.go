@@ -7,6 +7,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -18,14 +19,14 @@ type choosePeopleToNotifyData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, uuidString func() string) Handler {
+func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		if len(donor.PeopleToNotify) > 4 {
 			return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, donor)
 		}
 
 		addAnother := r.FormValue("addAnother") == "1"
-		personToNotify, personFound := donor.PeopleToNotify.Get(r.URL.Query().Get("id"))
+		personToNotify, personFound := donor.PeopleToNotify.Get(actoruid.FromRequest(r))
 
 		if r.Method == http.MethodGet && len(donor.PeopleToNotify) > 0 && personFound == false && addAnother == false {
 			return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, donor)
@@ -45,7 +46,7 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, uuidStr
 
 			nameWarning := actor.NewSameNameWarning(
 				actor.TypePersonToNotify,
-				personToNotifyMatches(donor, personToNotify.ID, data.Form.FirstNames, data.Form.LastName),
+				personToNotifyMatches(donor, personToNotify.UID, data.Form.FirstNames, data.Form.LastName),
 				data.Form.FirstNames,
 				data.Form.LastName,
 			)
@@ -57,9 +58,9 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, uuidStr
 			if data.Errors.None() && data.NameWarning == nil {
 				if personFound == false {
 					personToNotify = actor.PersonToNotify{
+						UID:        newUID(),
 						FirstNames: data.Form.FirstNames,
 						LastName:   data.Form.LastName,
-						ID:         uuidString(),
 					}
 
 					donor.PeopleToNotify = append(donor.PeopleToNotify, personToNotify)
@@ -78,7 +79,7 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, uuidStr
 					return err
 				}
 
-				return appData.Paths.ChoosePeopleToNotifyAddress.RedirectQuery(w, r, appData, donor, url.Values{"id": {personToNotify.ID}})
+				return page.Paths.ChoosePeopleToNotifyAddress.RedirectQuery(w, r, appData, donor, url.Values{"id": {personToNotify.UID.String()}})
 			}
 		}
 
@@ -114,7 +115,7 @@ func (f *choosePeopleToNotifyForm) Validate() validation.List {
 	return errors
 }
 
-func personToNotifyMatches(donor *actor.DonorProvidedDetails, id, firstNames, lastName string) actor.Type {
+func personToNotifyMatches(donor *actor.DonorProvidedDetails, uid actoruid.UID, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}
@@ -136,7 +137,7 @@ func personToNotifyMatches(donor *actor.DonorProvidedDetails, id, firstNames, la
 	}
 
 	for _, person := range donor.PeopleToNotify {
-		if person.ID != id && strings.EqualFold(person.FirstNames, firstNames) && strings.EqualFold(person.LastName, lastName) {
+		if person.UID != uid && strings.EqualFold(person.FirstNames, firstNames) && strings.EqualFold(person.LastName, lastName) {
 			return actor.TypePersonToNotify
 		}
 	}

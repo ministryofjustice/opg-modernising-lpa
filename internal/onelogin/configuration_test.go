@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/MicahParks/keyfunc"
+	"github.com/MicahParks/keyfunc/v3"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -105,7 +105,7 @@ func TestConfigurationClientForExchange(t *testing.T) {
 			TokenEndpoint: "TokenEndpoint",
 			Issuer:        "Issuer",
 		},
-		currentJwks: &keyfunc.JWKS{},
+		currentJwks: &mockKeyfunc{},
 	}
 
 	tokenEndpoint, keyfunc, issuer, err := client.ForExchange()
@@ -117,10 +117,11 @@ func TestConfigurationClientForExchange(t *testing.T) {
 
 func TestConfigurationClientForExchangeWhenMissing(t *testing.T) {
 	ch := make(chan struct{}, 1)
+	keys, _ := keyfunc.New(keyfunc.Options{})
 
 	testcases := map[string]*configurationClient{
 		"configuration": {
-			currentJwks:    &keyfunc.JWKS{},
+			currentJwks:    keys,
 			refreshRequest: ch,
 		},
 		"jwks": {

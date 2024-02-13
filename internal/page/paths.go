@@ -117,6 +117,15 @@ func (p SupporterPath) Redirect(w http.ResponseWriter, r *http.Request, appData 
 	return nil
 }
 
+func (p SupporterPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, query url.Values) error {
+	http.Redirect(w, r, appData.Lang.URL(p.Format())+"?"+query.Encode(), http.StatusFound)
+	return nil
+}
+
+func (p SupporterPath) IsManageOrganisation() bool {
+	return p == Paths.Supporter.OrganisationDetails || p == Paths.Supporter.EditOrganisationName || p == Paths.Supporter.ManageTeamMembers
+}
+
 type AttorneyPaths struct {
 	EnterReferenceNumber Path
 	Login                Path
@@ -164,14 +173,19 @@ type HealthCheckPaths struct {
 }
 
 type SupporterPaths struct {
-	Start         Path
-	Login         Path
-	LoginCallback Path
+	EnterOrganisationName Path
+	Login                 Path
+	LoginCallback         Path
+	SigningInAdvice       Path
+	Start                 Path
 
-	EnterOrganisationName SupporterPath
-	OrganisationCreated   SupporterPath
-	Dashboard             SupporterPath
-	InviteMember          SupporterPath
+	Dashboard                SupporterPath
+	EditOrganisationName     SupporterPath
+	InviteMember             SupporterPath
+	InviteMemberConfirmation SupporterPath
+	ManageTeamMembers        SupporterPath
+	OrganisationCreated      SupporterPath
+	OrganisationDetails      SupporterPath
 }
 
 type AppPaths struct {
@@ -334,14 +348,19 @@ var Paths = AppPaths{
 	},
 
 	Supporter: SupporterPaths{
-		Start:         "/supporter-start",
-		Login:         "/supporter-login",
-		LoginCallback: "/supporter-login-callback",
-
 		EnterOrganisationName: "/enter-the-name-of-your-organisation-or-company",
-		OrganisationCreated:   "/organisation-or-company-created",
-		Dashboard:             "/supporter-dashboard",
-		InviteMember:          "/invite-member",
+		Login:                 "/supporter-login",
+		LoginCallback:         "/supporter-login-callback",
+		SigningInAdvice:       "/signing-in-with-govuk-one-login",
+		Start:                 "/supporter-start",
+
+		Dashboard:                "/supporter-dashboard",
+		EditOrganisationName:     "/manage-organisation/organisation-details/edit-organisation-name",
+		InviteMember:             "/invite-member",
+		InviteMemberConfirmation: "/invite-member-confirmation",
+		ManageTeamMembers:        "/manage-organisation/manage-team-members",
+		OrganisationCreated:      "/organisation-or-company-created",
+		OrganisationDetails:      "/manage-organisation/organisation-details",
 	},
 
 	HealthCheck: HealthCheckPaths{

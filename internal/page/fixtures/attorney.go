@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -26,12 +27,12 @@ type DonorStore interface {
 }
 
 type CertificateProviderStore interface {
-	Create(context.Context, string) (*actor.CertificateProviderProvidedDetails, error)
+	Create(context.Context, string, actoruid.UID) (*actor.CertificateProviderProvidedDetails, error)
 	Put(context.Context, *actor.CertificateProviderProvidedDetails) error
 }
 
 type AttorneyStore interface {
-	Create(context.Context, string, string, bool, bool) (*actor.AttorneyProvidedDetails, error)
+	Create(context.Context, string, actoruid.UID, bool, bool) (*actor.AttorneyProvidedDetails, error)
 	Put(context.Context, *actor.AttorneyProvidedDetails) error
 }
 
@@ -61,6 +62,7 @@ func Attorney(
 			email              = r.FormValue("email")
 			redirect           = r.FormValue("redirect")
 			attorneySub        = r.FormValue("attorneySub")
+			shareCode          = r.FormValue("withShareCode")
 		)
 
 		if attorneySub == "" {
@@ -150,24 +152,26 @@ func Attorney(
 			}
 		}
 
-		var attorneyID string
-		if !isTrustCorporation {
-			if isReplacement {
-				attorneyID = donor.ReplacementAttorneys.Attorneys[0].ID
-			} else {
-				attorneyID = donor.Attorneys.Attorneys[0].ID
-			}
+		var attorneyUID actoruid.UID
+		if isTrustCorporation && isReplacement {
+			attorneyUID = donor.ReplacementAttorneys.TrustCorporation.UID
+		} else if isTrustCorporation {
+			attorneyUID = donor.Attorneys.TrustCorporation.UID
+		} else if isReplacement {
+			attorneyUID = donor.ReplacementAttorneys.Attorneys[0].UID
+		} else {
+			attorneyUID = donor.Attorneys.Attorneys[0].UID
 		}
 
 		donor.AttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
 		donor.ReplacementAttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
 
-		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID)
+		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID, donor.CertificateProvider.UID)
 		if err != nil {
 			return err
 		}
 
-		attorney, err := attorneyStore.Create(attorneyCtx, donorSessionID, attorneyID, isReplacement, isTrustCorporation)
+		attorney, err := attorneyStore.Create(attorneyCtx, donorSessionID, attorneyUID, isReplacement, isTrustCorporation)
 		if err != nil {
 			return err
 		}
@@ -204,7 +208,7 @@ func Attorney(
 				for _, a := range list.Attorneys {
 					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donor.LpaID})
 
-					attorney, err := attorneyStore.Create(ctx, donorSessionID, a.ID, isReplacement, false)
+					attorney, err := attorneyStore.Create(ctx, donorSessionID, a.UID, isReplacement, false)
 					if err != nil {
 						return err
 					}
@@ -224,7 +228,7 @@ func Attorney(
 				if list.TrustCorporation.Name != "" {
 					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donor.LpaID})
 
-					attorney, err := attorneyStore.Create(ctx, donorSessionID, "", isReplacement, true)
+					attorney, err := attorneyStore.Create(ctx, donorSessionID, list.TrustCorporation.UID, isReplacement, true)
 					if err != nil {
 						return err
 					}
@@ -272,8 +276,8 @@ func Attorney(
 		}
 
 		// should only be used in tests as otherwise people can read their emails...
-		if r.FormValue("use-test-code") == "1" {
-			shareCodeSender.UseTestCode()
+		if shareCode != "" {
+			shareCodeSender.UseTestCode(shareCode)
 		}
 
 		if email != "" {

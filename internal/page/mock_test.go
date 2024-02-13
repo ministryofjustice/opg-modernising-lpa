@@ -10,7 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-var MockRandom = func(int) string { return "123" }
+const RandomString = "123"
 
 var (
 	expectedError = errors.New("err")
@@ -18,8 +18,8 @@ var (
 		SessionID: "session-id",
 		LpaID:     "lpa-id",
 		Lang:      localize.En,
-		Paths:     Paths,
 	}
+	MockRandomString = func(int) string { return RandomString }
 )
 
 func (m *mockSessionStore) WithPaySession(r *http.Request) *mockSessionStore {

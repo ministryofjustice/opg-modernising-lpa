@@ -30,7 +30,6 @@ func TestRecover(t *testing.T) {
 			template.EXPECT().
 				Execute(w, &errorData{App: AppData{
 					CookieConsentSet: true,
-					Paths:            Paths,
 					Lang:             lang,
 					Localizer:        (*localize.Localizer)(nil),
 				}}).

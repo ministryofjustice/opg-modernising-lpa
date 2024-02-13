@@ -22,6 +22,10 @@ import (
 type SessionData struct {
 	SessionID string
 	LpaID     string
+
+	// if a supporter
+	Email          string
+	OrganisationID string
 }
 
 type SessionMissingError struct{}

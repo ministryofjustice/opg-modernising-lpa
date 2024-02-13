@@ -2,9 +2,9 @@
   {{ $canChange := and (not $.Donor.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
 
   {{ range .Donor.PeopleToNotify }}
-    {{ $detailsLink := printf "%s?from=%s&id=%s" (link $.App ($.App.Paths.ChoosePeopleToNotify.Format $.App.LpaID)) $.App.Page .ID }}
-    {{ $addressLink := printf "%s?from=%s&id=%s" (link $.App ($.App.Paths.ChoosePeopleToNotifyAddress.Format $.App.LpaID)) $.App.Page .ID }}
-    {{ $removeLink := printf "%s?from=%s&id=%s" (link $.App ($.App.Paths.RemovePersonToNotify.Format $.App.LpaID)) $.App.Page .ID }}
+    {{ $detailsLink := printf "%s?from=%s&id=%s" (link $.App (global.Paths.ChoosePeopleToNotify.Format $.App.LpaID)) $.App.Page .UID }}
+    {{ $addressLink := printf "%s?from=%s&id=%s" (link $.App (global.Paths.ChoosePeopleToNotifyAddress.Format $.App.LpaID)) $.App.Page .UID }}
+    {{ $removeLink := printf "%s?from=%s&id=%s" (link $.App (global.Paths.RemovePersonToNotify.Format $.App.LpaID)) $.App.Page .UID }}
 
     <div class="govuk-summary-card">
       <div class="govuk-summary-card__title-wrapper">

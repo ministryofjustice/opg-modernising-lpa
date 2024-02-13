@@ -38,7 +38,7 @@
 
       {{ trFormatHtml .App "attorneyWhatHappensNextContent" "DonorFirstNamesPossessive" (possessive .App .Donor.Donor.FirstNames) }}
 
-      <a class="govuk-button" href="{{ link .App .App.Paths.Dashboard.Format }}">{{ tr .App "goToYourDashboard" }}</a>
+      <a class="govuk-button" href="{{ link .App global.Paths.Dashboard.Format }}">{{ tr .App "goToYourDashboard" }}</a>
     </div>
   </div>
 {{ end }}

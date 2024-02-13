@@ -85,21 +85,21 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 		isTrustCorporation bool
 	}{
 		"attorney": {
-			shareCode: actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", AttorneyID: "attorney-id"},
+			shareCode: actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", ActorUID: testUID},
 			session:   &sesh.LoginSession{Sub: "hey"},
 		},
 		"replacement": {
-			shareCode:     actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", AttorneyID: "attorney-id", IsReplacementAttorney: true},
+			shareCode:     actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", ActorUID: testUID, IsReplacementAttorney: true},
 			session:       &sesh.LoginSession{Sub: "hey"},
 			isReplacement: true,
 		},
 		"trust corporation": {
-			shareCode:          actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", AttorneyID: "attorney-id", IsTrustCorporation: true},
+			shareCode:          actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", ActorUID: testUID, IsTrustCorporation: true},
 			session:            &sesh.LoginSession{Sub: "hey"},
 			isTrustCorporation: true,
 		},
 		"replacement trust corporation": {
-			shareCode:          actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", AttorneyID: "attorney-id", IsReplacementAttorney: true, IsTrustCorporation: true},
+			shareCode:          actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", ActorUID: testUID, IsReplacementAttorney: true, IsTrustCorporation: true},
 			session:            &sesh.LoginSession{Sub: "hey"},
 			isReplacement:      true,
 			isTrustCorporation: true,
@@ -109,7 +109,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			form := url.Values{
-				"reference-number": {"a Ref-Number12"},
+				"reference-number": {"abcdef123456"},
 			}
 
 			w := httptest.NewRecorder()
@@ -118,8 +118,11 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 
 			shareCodeStore := newMockShareCodeStore(t)
 			shareCodeStore.EXPECT().
-				Get(r.Context(), actor.TypeAttorney, "aRefNumber12").
+				Get(r.Context(), actor.TypeAttorney, "abcdef123456").
 				Return(tc.shareCode, nil)
+			shareCodeStore.EXPECT().
+				Delete(r.Context(), tc.shareCode).
+				Return(nil)
 
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.EXPECT().
@@ -127,7 +130,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 					session, _ := page.SessionDataFromContext(ctx)
 
 					return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
-				}), "aGV5", "attorney-id", tc.isReplacement, tc.isTrustCorporation).
+				}), "aGV5", testUID, tc.isReplacement, tc.isTrustCorporation).
 				Return(&actor.AttorneyProvidedDetails{}, nil)
 
 			sessionStore := newMockSessionStore(t)
@@ -148,7 +151,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnDonorStoreError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"  aRefNumber12  "},
+		"reference-number": {" abcdef123456  "},
 	}
 
 	w := httptest.NewRecorder()
@@ -157,7 +160,7 @@ func TestPostEnterReferenceNumberOnDonorStoreError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, "aRefNumber12").
+		Get(r.Context(), actor.TypeAttorney, "abcdef123456").
 		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, expectedError)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, nil, nil)(testAppData, w, r)
@@ -170,7 +173,7 @@ func TestPostEnterReferenceNumberOnDonorStoreError(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"a Ref-Number12"},
+		"reference-number": {"abcde f-123456 "},
 	}
 
 	w := httptest.NewRecorder()
@@ -179,7 +182,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 
 	data := enterReferenceNumberData{
 		App:    testAppData,
-		Form:   &enterReferenceNumberForm{ReferenceNumber: "aRefNumber12", ReferenceNumberRaw: "a Ref-Number12"},
+		Form:   &enterReferenceNumberForm{ReferenceNumber: "abcdef123456", ReferenceNumberRaw: "abcde f-123456"},
 		Errors: validation.With("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"}),
 	}
 
@@ -190,7 +193,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, "aRefNumber12").
+		Get(r.Context(), actor.TypeAttorney, "abcdef123456").
 		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, dynamo.NotFoundError{})
 
 	err := EnterReferenceNumber(template.Execute, shareCodeStore, nil, nil)(testAppData, w, r)
@@ -203,7 +206,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnSessionGetError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"aRefNumber12"},
+		"reference-number": {"abcdef123456"},
 	}
 
 	w := httptest.NewRecorder()
@@ -212,7 +215,7 @@ func TestPostEnterReferenceNumberOnSessionGetError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, "aRefNumber12").
+		Get(r.Context(), actor.TypeAttorney, "abcdef123456").
 		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -227,7 +230,7 @@ func TestPostEnterReferenceNumberOnSessionGetError(t *testing.T) {
 
 func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
 	form := url.Values{
-		"reference-number": {"a Ref-Number12"},
+		"reference-number": {"abcdef123456"},
 	}
 
 	w := httptest.NewRecorder()
@@ -236,13 +239,49 @@ func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, "aRefNumber12").
+		Get(r.Context(), actor.TypeAttorney, "abcdef123456").
 		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.EXPECT().
 		Create(mock.Anything, mock.Anything, mock.Anything, false, false).
 		Return(&actor.AttorneyProvidedDetails{}, expectedError)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.
+		ExpectGet(r,
+			map[any]any{"session": &sesh.LoginSession{Sub: "hey"}}, nil)
+
+	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, attorneyStore)(testAppData, w, r)
+
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostEnterReferenceNumberOnShareCodeStoreDeleteError(t *testing.T) {
+	form := url.Values{
+		"reference-number": {"abcdef123456"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	shareCode := actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		Get(r.Context(), actor.TypeAttorney, mock.Anything).
+		Return(shareCode, nil)
+	shareCodeStore.EXPECT().
+		Delete(r.Context(), shareCode).
+		Return(expectedError)
+
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.EXPECT().
+		Create(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(&actor.AttorneyProvidedDetails{}, nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.
@@ -302,7 +341,7 @@ func TestValidateEnterReferenceNumberForm(t *testing.T) {
 			}),
 		},
 		"too long": {
-			form: &enterReferenceNumberForm{ReferenceNumber: "abcdef1234567"},
+			form: &enterReferenceNumberForm{ReferenceNumber: "123456789ABCD"},
 			errors: validation.With("reference-number", validation.StringLengthError{
 				Label:  "theReferenceNumberYouEnter",
 				Length: 12,

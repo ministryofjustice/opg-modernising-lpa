@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -86,6 +87,9 @@ type DonorProvidedDetails struct {
 	WantToApplyForLpa bool
 	// Confirmation that the applicant wants to sign the LPA
 	WantToSignLpa bool
+	// CertificateProviderNotRelatedConfirmedAt is when the donor confirmed the
+	// certificate provider is not related to another similar actor
+	CertificateProviderNotRelatedConfirmedAt time.Time
 	// CheckedAt is when the donor checked their LPA
 	CheckedAt time.Time
 	// CheckedHash is the Hash value of the LPA when last checked
@@ -149,7 +153,7 @@ func (l *DonorProvidedDetails) AttorneysAndCpSigningDeadline() time.Time {
 type Under18ActorDetails struct {
 	FullName    string
 	DateOfBirth date.Date
-	ID          string
+	UID         actoruid.UID
 	Type        Type
 }
 
@@ -162,7 +166,7 @@ func (l *DonorProvidedDetails) Under18ActorDetails() []Under18ActorDetails {
 			data = append(data, Under18ActorDetails{
 				FullName:    a.FullName(),
 				DateOfBirth: a.DateOfBirth,
-				ID:          a.ID,
+				UID:         a.UID,
 				Type:        TypeAttorney,
 			})
 		}
@@ -173,7 +177,7 @@ func (l *DonorProvidedDetails) Under18ActorDetails() []Under18ActorDetails {
 			data = append(data, Under18ActorDetails{
 				FullName:    ra.FullName(),
 				DateOfBirth: ra.DateOfBirth,
-				ID:          ra.ID,
+				UID:         ra.UID,
 				Type:        TypeReplacementAttorney,
 			})
 		}
@@ -245,8 +249,8 @@ func (l *DonorProvidedDetails) AllAttorneysSigned(attorneys []*AttorneyProvidedD
 	}
 
 	var (
-		attorneysSigned                   = map[string]struct{}{}
-		replacementAttorneysSigned        = map[string]struct{}{}
+		attorneysSigned                   = map[actoruid.UID]struct{}{}
+		replacementAttorneysSigned        = map[actoruid.UID]struct{}{}
 		trustCorporationSigned            = false
 		replacementTrustCorporationSigned = false
 	)
@@ -259,11 +263,11 @@ func (l *DonorProvidedDetails) AllAttorneysSigned(attorneys []*AttorneyProvidedD
 		if a.IsReplacement && a.IsTrustCorporation {
 			replacementTrustCorporationSigned = true
 		} else if a.IsReplacement {
-			replacementAttorneysSigned[a.ID] = struct{}{}
+			replacementAttorneysSigned[a.UID] = struct{}{}
 		} else if a.IsTrustCorporation {
 			trustCorporationSigned = true
 		} else {
-			attorneysSigned[a.ID] = struct{}{}
+			attorneysSigned[a.UID] = struct{}{}
 		}
 	}
 
@@ -272,7 +276,7 @@ func (l *DonorProvidedDetails) AllAttorneysSigned(attorneys []*AttorneyProvidedD
 	}
 
 	for _, a := range l.ReplacementAttorneys.Attorneys {
-		if _, ok := replacementAttorneysSigned[a.ID]; !ok {
+		if _, ok := replacementAttorneysSigned[a.UID]; !ok {
 			return false
 		}
 	}
@@ -282,7 +286,7 @@ func (l *DonorProvidedDetails) AllAttorneysSigned(attorneys []*AttorneyProvidedD
 	}
 
 	for _, a := range l.Attorneys.Attorneys {
-		if _, ok := attorneysSigned[a.ID]; !ok {
+		if _, ok := attorneysSigned[a.UID]; !ok {
 			return false
 		}
 	}

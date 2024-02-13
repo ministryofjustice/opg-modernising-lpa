@@ -2,7 +2,7 @@ FROM golang:1.21.6-alpine as base
 
 WORKDIR /app
 
-FROM node:18.16.0-alpine3.16 as asset-env
+FROM node:20.2.0-alpine3.16 as asset-env
 
 WORKDIR /app
 
@@ -44,7 +44,7 @@ COPY --link internal ./internal
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -ldflags="-X main.Tag=${TAG}" -o /go/bin/mlpab ./cmd/mlpa
 
-FROM alpine:3.19.0 as production
+FROM alpine:3.19.1 as production
 
 WORKDIR /go/bin
 

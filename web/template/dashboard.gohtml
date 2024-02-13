@@ -44,19 +44,19 @@
         {{ else if not .Item.Donor.SubmittedAt.IsZero }}
           <div class="govuk-button-group">
             <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a>
-            <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.Progress.Format .Item.Donor.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
-            <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.WithdrawThisLpa.Format .Item.Donor.LpaID) }}">{{ tr .App "withdrawLpa" }}</a>
+            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Progress.Format .Item.Donor.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
+            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.WithdrawThisLpa.Format .Item.Donor.LpaID) }}">{{ tr .App "withdrawLpa" }}</a>
           </div>
         {{ else if not .Item.Donor.SignedAt.IsZero }}
           <div class="govuk-button-group">
-            <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .Item.Donor.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
-            <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.Progress.Format .Item.Donor.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
-            <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.WithdrawThisLpa.Format .Item.Donor.LpaID) }}">{{ tr .App "withdrawLpa" }}</a>
+            <a class="govuk-button" href="{{ link .App (global.Paths.TaskList.Format .Item.Donor.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
+            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Progress.Format .Item.Donor.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
+            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.WithdrawThisLpa.Format .Item.Donor.LpaID) }}">{{ tr .App "withdrawLpa" }}</a>
           </div>
         {{ else }}
           <div class="govuk-button-group">
-            <a class="govuk-button" href="{{ link .App (.App.Paths.TaskList.Format .Item.Donor.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
-            <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.DeleteThisLpa.Format .Item.Donor.LpaID) }}">{{ tr .App "deleteLpa" }}</a>
+            <a class="govuk-button" href="{{ link .App (global.Paths.TaskList.Format .Item.Donor.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
+            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.DeleteThisLpa.Format .Item.Donor.LpaID) }}">{{ tr .App "deleteLpa" }}</a>
           </div>
         {{ end }}
       </div>
@@ -106,12 +106,12 @@
             <a class="govuk-link" href="#">{{ tr .App "use" }}</a>
           {{ else if not .Item.Donor.SubmittedAt.IsZero }}
             <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a>
-            <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.Attorney.Progress.Format .Item.Donor.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
+            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Attorney.Progress.Format .Item.Donor.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
           {{ else if .Item.Attorney.Signed .Item.Donor.SignedAt }}
-            <a class="govuk-button" href="{{ link .App (.App.Paths.Attorney.TaskList.Format .Item.Donor.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
-            <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.Attorney.Progress.Format .Item.Donor.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
+            <a class="govuk-button" href="{{ link .App (global.Paths.Attorney.TaskList.Format .Item.Donor.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
+            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Attorney.Progress.Format .Item.Donor.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
           {{ else }}
-            <a class="govuk-button" href="{{ link .App (.App.Paths.Attorney.TaskList.Format .Item.Donor.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
+            <a class="govuk-button" href="{{ link .App (global.Paths.Attorney.TaskList.Format .Item.Donor.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
           {{ end }}
         </div>
       </div>
@@ -140,7 +140,7 @@
     </div>
     <div class="app-dashboard-row">
       <div class="govuk-button-group">
-        <a class="govuk-button" href="{{ link .App (.App.Paths.CertificateProvider.TaskList.Format .Item.Donor.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
+        <a class="govuk-button" href="{{ link .App (global.Paths.CertificateProvider.TaskList.Format .Item.Donor.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
       </div>
     </div>
   </div>
@@ -152,7 +152,7 @@
       <h1 class="govuk-heading-xl">{{ tr .App "manageYourLpas" }}</h1>
 
       <div class="app-dashboard-card app-dashboard-card--dashed">
-        <p class="govuk-heading-m">{{ tr .App "makeNewLpa" }}</p>
+        <p class="govuk-heading-m">{{ tr .App "makeNewLastingPowerOfAttorney" }}</p>
         <form novalidate method="post">
           <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "startNow" }}</button>
           <input type="hidden" name="has-existing-donor-lpas" value="{{ gt (len .DonorLpas) 0 }}" />
@@ -219,9 +219,9 @@
           <h2 class="govuk-heading-l">{{ tr .App "imAnAttorney" }}</h2>
 
           <div class="app-dashboard-card app-dashboard-card--dashed">
-              {{ $attorney := tr .App .App.ActorTypes.Attorney.String }}
+              {{ $attorney := tr .App global.ActorTypes.Attorney.String }}
               <p class="govuk-body">{{ trFormat .App "addAnotherLpaIfInvited" "ActorType" ( lowerFirst $attorney) }}</p>
-              <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.Attorney.EnterReferenceNumber.Format ) }}" data-module="govuk-button">{{ tr .App "addAnLpa" }}</a>
+              <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Attorney.EnterReferenceNumber.Format ) }}" data-module="govuk-button">{{ tr .App "addAnLpa" }}</a>
           </div>
 
           <p class="govuk-body">{{ tr .App "viewAndManageAttorney" }}</p>
@@ -255,9 +255,9 @@
           <h2 class="govuk-heading-l">{{ tr .App "imACertificateProvider" }}</h2>
 
           <div class="app-dashboard-card app-dashboard-card--dashed">
-              {{ $certificateProvider := tr .App .App.ActorTypes.CertificateProvider.String }}
+              {{ $certificateProvider := tr .App global.ActorTypes.CertificateProvider.String }}
               <p class="govuk-body">{{ trFormat .App "addAnotherLpaIfInvited" "ActorType" ( lowerFirst $certificateProvider) }}</p>
-              <a class="govuk-button govuk-button--secondary" href="{{ link .App (.App.Paths.CertificateProvider.EnterReferenceNumber.Format ) }}" data-module="govuk-button">{{ tr .App "addAnLpa" }}</a>
+              <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.CertificateProvider.EnterReferenceNumber.Format ) }}" data-module="govuk-button">{{ tr .App "addAnLpa" }}</a>
           </div>
 
           <p class="govuk-body">{{ tr .App "viewAndManageCertificateProvider" }}</p>

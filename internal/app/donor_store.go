@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
@@ -34,6 +35,7 @@ type donorStore struct {
 	eventClient   EventClient
 	logger        Logger
 	uuidString    func() string
+	newUID        func() actoruid.UID
 	now           func() time.Time
 	s3Client      *s3.Client
 	documentStore DocumentStore
@@ -50,6 +52,7 @@ func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, e
 	}
 
 	lpaID := s.uuidString()
+	donorUID := s.newUID()
 
 	donor := &actor.DonorProvidedDetails{
 		PK:        lpaKey(lpaID),
@@ -57,6 +60,9 @@ func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, e
 		LpaID:     lpaID,
 		CreatedAt: s.now(),
 		Version:   1,
+		Donor: actor.Donor{
+			UID: donorUID,
+		},
 	}
 
 	latest, err := s.Latest(ctx)
@@ -121,8 +127,14 @@ func (s *donorStore) Get(ctx context.Context) (*actor.DonorProvidedDetails, erro
 		return nil, errors.New("donorStore.Get requires LpaID and SessionID")
 	}
 
+	sk := donorKey(data.SessionID)
+
+	if data.OrganisationID != "" {
+		sk = organisationKey(data.OrganisationID)
+	}
+
 	var donor *actor.DonorProvidedDetails
-	err = s.dynamoClient.One(ctx, lpaKey(data.LpaID), donorKey(data.SessionID), &donor)
+	err = s.dynamoClient.One(ctx, lpaKey(data.LpaID), sk, &donor)
 	return donor, err
 }
 

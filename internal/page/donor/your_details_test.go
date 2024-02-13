@@ -11,6 +11,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -449,6 +450,7 @@ func TestPostYourDetailsNameWarningOnlyShownWhenDonorAndFormNamesAreDifferent(t 
 		"can-sign":            {actor.Yes.String()},
 	}
 
+	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
@@ -467,7 +469,7 @@ func TestPostYourDetailsNameWarningOnlyShownWhenDonorAndFormNamesAreDifferent(t 
 			},
 			Tasks: actor.DonorTasks{YourDetails: actor.TaskInProgress},
 			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-				{FirstNames: "Jane", LastName: "Doe", ID: "123", Address: place.Address{Line1: "abc"}},
+				{FirstNames: "Jane", LastName: "Doe", UID: uid, Address: place.Address{Line1: "abc"}},
 			}},
 		}).
 		Return(nil)
@@ -481,7 +483,7 @@ func TestPostYourDetailsNameWarningOnlyShownWhenDonorAndFormNamesAreDifferent(t 
 		LpaID: "lpa-id",
 		Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-			{FirstNames: "Jane", LastName: "Doe", ID: "123", Address: place.Address{Line1: "abc"}},
+			{FirstNames: "Jane", LastName: "Doe", UID: uid, Address: place.Address{Line1: "abc"}},
 		}},
 	})
 	resp := w.Result()

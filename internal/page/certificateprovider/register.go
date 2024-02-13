@@ -2,7 +2,6 @@ package certificateprovider
 
 import (
 	"context"
-	"encoding/base64"
 	"io"
 	"net/http"
 	"time"
@@ -10,6 +9,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -29,7 +29,7 @@ type DonorStore interface {
 }
 
 type CertificateProviderStore interface {
-	Create(ctx context.Context, sessionID string) (*actor.CertificateProviderProvidedDetails, error)
+	Create(ctx context.Context, sessionID string, certificateProviderUID actoruid.UID) (*actor.CertificateProviderProvidedDetails, error)
 	Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
 	Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error
 }
@@ -42,8 +42,9 @@ type OneLoginClient interface {
 }
 
 type ShareCodeStore interface {
-	Get(context.Context, actor.Type, string) (actor.ShareCodeData, error)
-	Put(context.Context, actor.Type, string, actor.ShareCodeData) error
+	Get(ctx context.Context, actorType actor.Type, shareCode string) (actor.ShareCodeData, error)
+	Put(ctx context.Context, actorType actor.Type, shareCode string, shareCodeData actor.ShareCodeData) error
+	Delete(ctx context.Context, shareCode actor.ShareCodeData) error
 }
 
 type Template func(io.Writer, interface{}) error
@@ -55,7 +56,8 @@ type SessionStore interface {
 }
 
 type NotifyClient interface {
-	SendEmail(context.Context, string, notify.Email) (string, error)
+	SendEmail(ctx context.Context, to string, email notify.Email) error
+	SendActorEmail(ctx context.Context, to, lpaUID string, email notify.Email) error
 }
 
 type ShareCodeSender interface {
@@ -183,7 +185,7 @@ func makeCertificateProviderHandle(mux *http.ServeMux, store sesh.Store, errorHa
 				return
 			}
 
-			appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
+			appData.SessionID = session.SessionID()
 
 			sessionData, err := page.SessionDataFromContext(ctx)
 			if err == nil {

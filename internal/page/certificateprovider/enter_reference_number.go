@@ -1,7 +1,6 @@
 package certificateprovider
 
 import (
-	"encoding/base64"
 	"errors"
 	"net/http"
 
@@ -52,15 +51,19 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 				}
 
 				ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
-					SessionID: base64.StdEncoding.EncodeToString([]byte(session.Sub)),
+					SessionID: session.SessionID(),
 					LpaID:     shareCode.LpaID,
 				})
 
-				if _, err := certificateProviderStore.Create(ctx, shareCode.SessionID); err != nil {
+				if _, err := certificateProviderStore.Create(ctx, shareCode.SessionID, shareCode.ActorUID); err != nil {
 					var ccf *types.ConditionalCheckFailedException
 					if !errors.As(err, &ccf) {
 						return err
 					}
+				}
+
+				if err := shareCodeStore.Delete(r.Context(), shareCode); err != nil {
+					return err
 				}
 
 				appData.LpaID = shareCode.LpaID

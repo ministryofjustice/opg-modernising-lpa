@@ -7,6 +7,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -22,10 +23,10 @@ type chooseAttorneysData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func ChooseAttorneys(tmpl template.Template, donorStore DonorStore, uuidString func() string) Handler {
+func ChooseAttorneys(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		addAnother := r.FormValue("addAnother") == "1"
-		attorney, attorneyFound := donor.Attorneys.Get(r.URL.Query().Get("id"))
+		attorney, attorneyFound := donor.Attorneys.Get(actoruid.FromRequest(r))
 
 		if r.Method == http.MethodGet && len(donor.Attorneys.Attorneys) > 0 && !attorneyFound && !addAnother {
 			return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, donor)
@@ -50,7 +51,7 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore, uuidString f
 
 			nameWarning := actor.NewSameNameWarning(
 				actor.TypeAttorney,
-				attorneyMatches(donor, attorney.ID, data.Form.FirstNames, data.Form.LastName),
+				attorneyMatches(donor, attorney.UID, data.Form.FirstNames, data.Form.LastName),
 				data.Form.FirstNames,
 				data.Form.LastName,
 			)
@@ -65,7 +66,7 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore, uuidString f
 
 			if data.Errors.None() && data.DobWarning == "" && data.NameWarning == nil {
 				if attorneyFound == false {
-					attorney = actor.Attorney{ID: uuidString()}
+					attorney = actor.Attorney{UID: newUID()}
 				}
 
 				attorney.FirstNames = data.Form.FirstNames
@@ -82,7 +83,7 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore, uuidString f
 					return err
 				}
 
-				return appData.Paths.ChooseAttorneysAddress.RedirectQuery(w, r, appData, donor, url.Values{"id": {attorney.ID}})
+				return page.Paths.ChooseAttorneysAddress.RedirectQuery(w, r, appData, donor, url.Values{"id": {attorney.UID.String()}})
 			}
 		}
 
@@ -160,7 +161,7 @@ func (f *chooseAttorneysForm) DobWarning() string {
 	return ""
 }
 
-func attorneyMatches(donor *actor.DonorProvidedDetails, id, firstNames, lastName string) actor.Type {
+func attorneyMatches(donor *actor.DonorProvidedDetails, uid actoruid.UID, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}
@@ -170,7 +171,7 @@ func attorneyMatches(donor *actor.DonorProvidedDetails, id, firstNames, lastName
 	}
 
 	for _, attorney := range donor.Attorneys.Attorneys {
-		if attorney.ID != id && strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
+		if attorney.UID != uid && strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
 			return actor.TypeAttorney
 		}
 	}

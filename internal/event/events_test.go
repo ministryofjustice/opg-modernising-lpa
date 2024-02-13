@@ -6,8 +6,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/stretchr/testify/assert"
 	"github.com/xeipuuv/gojsonschema"
 )
@@ -40,6 +42,15 @@ func TestEventSchema(t *testing.T) {
 				{Path: "M-0000-0000-0000/evidence/b-uid", Filename: "b-file.pdf"},
 			},
 			EvidenceDelivery: "upload",
+		},
+		"notification-sent": NotificationSent{
+			UID:            "M-0000-0000-0000",
+			NotificationID: random.UuidString(),
+		},
+		"paper-form-requested": PaperFormRequested{
+			UID:       "M-0000-0000-0000",
+			ActorUID:  random.UuidString(),
+			ActorType: actor.TypeAttorney.String(),
 		},
 	}
 

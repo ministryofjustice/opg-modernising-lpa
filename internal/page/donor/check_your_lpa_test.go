@@ -28,7 +28,7 @@ func TestGetCheckYourLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CheckYourLpa(template.Execute, nil, nil, nil, nil, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := CheckYourLpa(template.Execute, nil, nil, nil, nil, testNowFn, "http://example.org")(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -54,7 +54,7 @@ func TestGetCheckYourLpaFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CheckYourLpa(template.Execute, nil, nil, nil, nil, testNowFn)(testAppData, w, r, donor)
+	err := CheckYourLpa(template.Execute, nil, nil, nil, nil, testNowFn, "http://example.org")(testAppData, w, r, donor)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -91,7 +91,7 @@ func TestPostCheckYourLpaWhenNotChanged(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CheckYourLpa(template.Execute, nil, nil, nil, nil, testNowFn)(testAppData, w, r, donor)
+	err := CheckYourLpa(template.Execute, nil, nil, nil, nil, testNowFn, "http://example.org")(testAppData, w, r, donor)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -140,7 +140,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 				Put(r.Context(), updatedDonor).
 				Return(nil)
 
-			err := CheckYourLpa(nil, donorStore, shareCodeSender, nil, nil, testNowFn)(testAppData, w, r, donor)
+			err := CheckYourLpa(nil, donorStore, shareCodeSender, nil, nil, testNowFn, "http://example.org")(testAppData, w, r, donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -203,6 +203,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 
 			donor := &actor.DonorProvidedDetails{
 				LpaID:               "lpa-id",
+				LpaUID:              "lpa-uid",
 				Hash:                5,
 				Type:                actor.LpaTypePropertyAndAffairs,
 				Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
@@ -213,8 +214,8 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.EXPECT().
-				SendSMS(r.Context(), "07700900000", tc.expectedSms).
-				Return("", nil)
+				SendActorSMS(r.Context(), "07700900000", "lpa-uid", tc.expectedSms).
+				Return(nil)
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
@@ -228,7 +229,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 					Tasks: actor.CertificateProviderTasks{ConfirmYourDetails: tc.certificateProviderDetailsTaskState},
 				}, nil)
 
-			err := CheckYourLpa(nil, donorStore, nil, notifyClient, certificateProviderStore, testNowFn)(testAppData, w, r, donor)
+			err := CheckYourLpa(nil, donorStore, nil, notifyClient, certificateProviderStore, testNowFn, "http://example.org")(testAppData, w, r, donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -257,7 +258,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecksCertificate
 		GetAny(r.Context()).
 		Return(nil, expectedError)
 
-	err := CheckYourLpa(nil, donorStore, nil, nil, certificateProviderStore, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := CheckYourLpa(nil, donorStore, nil, nil, certificateProviderStore, testNowFn, "http://example.org")(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID:               "lpa-id",
 		Hash:                5,
 		Type:                actor.LpaTypePropertyAndAffairs,
@@ -289,6 +290,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 
 			donor := &actor.DonorProvidedDetails{
 				LpaID:               "lpa-id",
+				LpaUID:              "lpa-uid",
 				Hash:                5,
 				Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
 				Tasks:               actor.DonorTasks{CheckYourLpa: existingTaskState},
@@ -298,6 +300,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 
 			updatedDonor := &actor.DonorProvidedDetails{
 				LpaID:               "lpa-id",
+				LpaUID:              "lpa-uid",
 				Hash:                5,
 				Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
 				CheckedAt:           testNow,
@@ -314,15 +317,15 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.EXPECT().
-				SendSMS(r.Context(), "07700900000", notify.CertificateProviderActingOnPaperMeetingPromptSMS{
+				SendActorSMS(r.Context(), "07700900000", "lpa-uid", notify.CertificateProviderActingOnPaperMeetingPromptSMS{
 					DonorFullName:                   "Teneil Throssell",
 					LpaType:                         "property and affairs",
 					DonorFirstNames:                 "Teneil",
 					CertificateProviderStartPageURL: "http://example.org/certificate-provider-start",
 				}).
-				Return("", nil)
+				Return(nil)
 
-			err := CheckYourLpa(nil, donorStore, nil, notifyClient, nil, testNowFn)(testAppData, w, r, donor)
+			err := CheckYourLpa(nil, donorStore, nil, notifyClient, nil, testNowFn, "http://example.org")(testAppData, w, r, donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -359,14 +362,14 @@ func TestPostCheckYourLpaPaperCertificateProviderOnSubsequentCheck(t *testing.T)
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendSMS(r.Context(), "07700900000", notify.CertificateProviderActingOnPaperDetailsChangedSMS{
+		SendActorSMS(r.Context(), "07700900000", "lpa-uid", notify.CertificateProviderActingOnPaperDetailsChangedSMS{
 			DonorFullName:   "Teneil Throssell",
 			DonorFirstNames: "Teneil",
 			LpaUID:          "lpa-uid",
 		}).
-		Return("", nil)
+		Return(nil)
 
-	err := CheckYourLpa(nil, donorStore, nil, notifyClient, nil, testNowFn)(testAppData, w, r, donor)
+	err := CheckYourLpa(nil, donorStore, nil, notifyClient, nil, testNowFn, "http://example.org")(testAppData, w, r, donor)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -388,7 +391,7 @@ func TestPostCheckYourLpaWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := CheckYourLpa(nil, donorStore, nil, nil, nil, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{Hash: 5})
+	err := CheckYourLpa(nil, donorStore, nil, nil, nil, testNowFn, "http://example.org")(testAppData, w, r, &actor.DonorProvidedDetails{Hash: 5})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -420,7 +423,7 @@ func TestPostCheckYourLpaWhenShareCodeSenderErrors(t *testing.T) {
 		SendCertificateProviderInvite(r.Context(), testAppData, mock.Anything).
 		Return(expectedError)
 
-	err := CheckYourLpa(nil, donorStore, shareCodeSender, nil, nil, testNowFn)(testAppData, w, r, donor)
+	err := CheckYourLpa(nil, donorStore, shareCodeSender, nil, nil, testNowFn, "http://example.org")(testAppData, w, r, donor)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -450,10 +453,10 @@ func TestPostCheckYourLpaWhenNotifyClientErrors(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendSMS(mock.Anything, mock.Anything, mock.Anything).
-		Return("", expectedError)
+		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
 
-	err := CheckYourLpa(nil, donorStore, nil, notifyClient, nil, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{Hash: 5, CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Paper}})
+	err := CheckYourLpa(nil, donorStore, nil, notifyClient, nil, testNowFn, "http://example.org")(testAppData, w, r, &actor.DonorProvidedDetails{Hash: 5, CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Paper}})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -476,7 +479,7 @@ func TestPostCheckYourLpaWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := CheckYourLpa(template.Execute, nil, nil, nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{Hash: 5})
+	err := CheckYourLpa(template.Execute, nil, nil, nil, nil, nil, "http://example.org")(testAppData, w, r, &actor.DonorProvidedDetails{Hash: 5})
 	resp := w.Result()
 
 	assert.Nil(t, err)

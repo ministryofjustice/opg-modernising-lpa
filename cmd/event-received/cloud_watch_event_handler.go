@@ -31,18 +31,19 @@ type cloudWatchEventHandler struct {
 	notifyIsProduction bool
 	notifyBaseURL      string
 	appPublicURL       string
+	eventBusName       string
 }
 
-func (h *cloudWatchEventHandler) Handle(ctx context.Context, event events.CloudWatchEvent) error {
-	switch event.DetailType {
+func (h *cloudWatchEventHandler) Handle(ctx context.Context, cloudWatchEvent events.CloudWatchEvent) error {
+	switch cloudWatchEvent.DetailType {
 	case "uid-requested":
 		uidStore := app.NewUidStore(h.dynamoClient, h.now)
 		uidClient := uid.New(h.uidBaseURL, lambda.New(h.cfg, v4.NewSigner(), &http.Client{Timeout: 10 * time.Second}, time.Now))
 
-		return handleUidRequested(ctx, uidStore, uidClient, event)
+		return handleUidRequested(ctx, uidStore, uidClient, cloudWatchEvent)
 
 	case "evidence-received":
-		return handleEvidenceReceived(ctx, h.dynamoClient, event)
+		return handleEvidenceReceived(ctx, h.dynamoClient, cloudWatchEvent)
 
 	case "reduced-fee-approved":
 		bundle, _ := localize.NewBundle("./lang/en.json", "./lang/cy.json")
@@ -60,20 +61,20 @@ func (h *cloudWatchEventHandler) Handle(ctx context.Context, event events.CloudW
 			return fmt.Errorf("failed to get notify API secret: %w", err)
 		}
 
-		notifyClient, err := notify.New(h.notifyIsProduction, h.notifyBaseURL, notifyApiKey, http.DefaultClient)
+		notifyClient, err := notify.New(h.notifyIsProduction, h.notifyBaseURL, notifyApiKey, http.DefaultClient, event.NewClient(h.cfg, h.eventBusName))
 		if err != nil {
 			return err
 		}
 
-		shareCodeSender := page.NewShareCodeSender(app.NewShareCodeStore(h.dynamoClient), notifyClient, h.appPublicURL, random.String)
+		shareCodeSender := page.NewShareCodeSender(app.NewShareCodeStore(h.dynamoClient), notifyClient, h.appPublicURL, random.String, event.NewClient(h.cfg, h.eventBusName))
 
-		return handleFeeApproved(ctx, h.dynamoClient, event, shareCodeSender, appData, h.now)
+		return handleFeeApproved(ctx, h.dynamoClient, cloudWatchEvent, shareCodeSender, appData, h.now)
 
 	case "reduced-fee-declined":
-		return handleFeeDenied(ctx, h.dynamoClient, event, h.now)
+		return handleFeeDenied(ctx, h.dynamoClient, cloudWatchEvent, h.now)
 
 	case "more-evidence-required":
-		return handleMoreEvidenceRequired(ctx, h.dynamoClient, event, h.now)
+		return handleMoreEvidenceRequired(ctx, h.dynamoClient, cloudWatchEvent, h.now)
 
 	default:
 		return fmt.Errorf("unknown cloudwatch event")
@@ -120,25 +121,24 @@ func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event ev
 	return nil
 }
 
-func handleFeeApproved(ctx context.Context, dynamoClient dynamodbClient, event events.CloudWatchEvent, shareCodeSender shareCodeSender, appData page.AppData, now func() time.Time) error {
+func handleFeeApproved(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, shareCodeSender shareCodeSender, appData page.AppData, now func() time.Time) error {
 	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
 	}
 
-	lpa, err := getDonorByLpaUID(ctx, dynamoClient, v.UID)
+	donor, err := getDonorByLpaUID(ctx, client, v.UID)
 	if err != nil {
 		return err
 	}
 
-	lpa.Tasks.PayForLpa = actor.PaymentTaskCompleted
-	lpa.UpdatedAt = now()
+	donor.Tasks.PayForLpa = actor.PaymentTaskCompleted
 
-	if err := dynamoClient.Put(ctx, lpa); err != nil {
+	if err := putDonor(ctx, donor, now, client); err != nil {
 		return fmt.Errorf("failed to update LPA task status: %w", err)
 	}
 
-	if err := shareCodeSender.SendCertificateProviderPrompt(ctx, appData, &lpa); err != nil {
+	if err := shareCodeSender.SendCertificateProviderPrompt(ctx, appData, &donor); err != nil {
 		return fmt.Errorf("failed to send share code to certificate provider: %w", err)
 	}
 
@@ -157,9 +157,8 @@ func handleMoreEvidenceRequired(ctx context.Context, client dynamodbClient, even
 	}
 
 	donor.Tasks.PayForLpa = actor.PaymentTaskMoreEvidenceRequired
-	donor.UpdatedAt = now()
 
-	if err := client.Put(ctx, donor); err != nil {
+	if err := putDonor(ctx, donor, now, client); err != nil {
 		return fmt.Errorf("failed to update LPA task status: %w", err)
 	}
 
@@ -178,9 +177,8 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.Cl
 	}
 
 	donor.Tasks.PayForLpa = actor.PaymentTaskDenied
-	donor.UpdatedAt = now()
 
-	if err := client.Put(ctx, donor); err != nil {
+	if err := putDonor(ctx, donor, now, client); err != nil {
 		return fmt.Errorf("failed to update LPA task status: %w", err)
 	}
 

@@ -1,0 +1,49 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "manageOrganisation" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      {{ if eq (.Query.Get "updated") "name" }}
+        <div class="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+          <div class="govuk-notification-banner__header">
+            <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+              {{ tr .App "organisationNameSaved" }}
+            </h1>
+          </div>
+          <div class="govuk-notification-banner__content">
+            <p class="govuk-body">{{ tr .App "yourOrganisationNameHasBeenSaved" }}</p>
+          </div>
+        </div>
+      {{ end }}
+
+      <h1 class="govuk-heading-xl">{{ tr .App "manageOrganisation" }}</h1>
+
+      <div class="govuk-tabs app-tabs-no-border">
+        <ul class="govuk-tabs__list">
+          <li class="govuk-tabs__list-item">
+            <a class="govuk-tabs__tab" href="{{ link .App global.Paths.Supporter.ManageTeamMembers.Format }}">{{ tr .App "manageTeamMembers" }}</a>
+          </li>
+          <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
+            <a class="govuk-tabs__tab" href="{{ link .App global.Paths.Supporter.OrganisationDetails.Format }}">{{ tr .App "organisationDetails" }}</a>
+          </li>
+        </ul>
+        <div class="govuk-tabs__panel" id="organisation-details">
+          <dl class="govuk-summary-list app-summary-list--border-top">
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">
+                {{ .Organisation.Name }}
+              </dt>
+              <dd class="govuk-summary-list__value">
+              </dd>
+              <dd class="govuk-summary-list__actions">
+                <a class="govuk-link" href="{{ link .App global.Paths.Supporter.EditOrganisationName.Format }}">{{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "name" }}</span></a>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+{{ end }}

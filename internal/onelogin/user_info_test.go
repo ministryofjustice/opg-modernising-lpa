@@ -7,13 +7,12 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
 	"testing"
 	"time"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/stretchr/testify/assert"
@@ -148,7 +147,6 @@ func TestParseIdentityClaim(t *testing.T) {
 		token    string
 		userData identity.UserData
 		error    error
-		jwtError uint32
 	}{
 		"with required claims": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
@@ -164,7 +162,7 @@ func TestParseIdentityClaim(t *testing.T) {
 			},
 		},
 		"missing": {
-			error: errors.New("UserInfo missing CoreIdentityJWT property"),
+			error: ErrMissingCoreIdentityJWT,
 		},
 		"without name": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
@@ -210,18 +208,18 @@ func TestParseIdentityClaim(t *testing.T) {
 				"iat": issuedAt.Unix(),
 				"vc":  vc,
 			}), []byte("a key")),
-			jwtError: jwt.ValidationErrorSignatureInvalid,
+			error: jwt.ErrTokenUnverifiable,
 		},
 		"with malformed token": {
-			token:    "what token",
-			jwtError: jwt.ValidationErrorMalformed,
+			token: "what token",
+			error: jwt.ErrTokenMalformed,
 		},
 		"with invalid token": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
 				"iat": time.Now().Add(time.Minute).Unix(),
 				"vc":  vc,
 			}), privateKey),
-			jwtError: jwt.ValidationErrorIssuedAt,
+			error: jwt.ErrTokenInvalidClaims,
 		},
 	}
 
@@ -232,12 +230,7 @@ func TestParseIdentityClaim(t *testing.T) {
 			}
 
 			userData, err := c.ParseIdentityClaim(context.Background(), userInfo)
-			if verr, ok := err.(*jwt.ValidationError); tc.jwtError > 0 {
-				assert.True(t, ok)
-				assert.Equal(t, tc.jwtError, verr.Errors)
-			} else {
-				assert.Equal(t, tc.error, err)
-			}
+			assert.ErrorIs(t, err, tc.error)
 			assert.Equal(t, tc.userData, userData)
 		})
 	}

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -23,6 +24,8 @@ var (
 	expectedError = errors.New("err")
 	testNow       = time.Date(2023, time.April, 2, 3, 4, 5, 6, time.UTC)
 	testNowFn     = func() time.Time { return testNow }
+	testUID       = actoruid.New()
+	testUIDFn     = func() actoruid.UID { return testUID }
 )
 
 func (m *mockDynamoClient) ExpectOne(ctx, pk, sk, data interface{}, err error) {
@@ -116,16 +119,34 @@ func TestDonorStoreGetAnyWhenDataStoreError(t *testing.T) {
 }
 
 func TestDonorStoreGet(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", SessionID: "456"})
+	testCases := map[string]struct {
+		sessionData *page.SessionData
+		expectedSK  string
+	}{
+		"donor": {
+			sessionData: &page.SessionData{LpaID: "an-id", SessionID: "456"},
+			expectedSK:  "#DONOR#456",
+		},
+		"organisation": {
+			sessionData: &page.SessionData{LpaID: "an-id", SessionID: "456", OrganisationID: "789"},
+			expectedSK:  "ORGANISATION#789",
+		},
+	}
 
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOne(ctx, "LPA#an-id", "#DONOR#456", &actor.DonorProvidedDetails{LpaID: "an-id"}, nil)
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			ctx := page.ContextWithSessionData(context.Background(), tc.sessionData)
 
-	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.ExpectOne(ctx, "LPA#an-id", tc.expectedSK, &actor.DonorProvidedDetails{LpaID: "an-id"}, nil)
 
-	lpa, err := donorStore.Get(ctx)
-	assert.Nil(t, err)
-	assert.Equal(t, &actor.DonorProvidedDetails{LpaID: "an-id"}, lpa)
+			donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
+
+			lpa, err := donorStore.Get(ctx)
+			assert.Nil(t, err)
+			assert.Equal(t, &actor.DonorProvidedDetails{LpaID: "an-id"}, lpa)
+		})
+	}
 }
 
 func TestDonorStoreGetWithSessionMissing(t *testing.T) {
@@ -469,12 +490,15 @@ func TestDonorStorePutWhenPreviousApplicationLinkedWhenError(t *testing.T) {
 
 func TestDonorStoreCreate(t *testing.T) {
 	testCases := map[string]actor.DonorProvidedDetails{
-		"with previous details": {Donor: actor.Donor{
-			FirstNames:  "a",
-			LastName:    "b",
-			OtherNames:  "c",
-			DateOfBirth: date.New("2000", "01", "02"),
-			Address:     place.Address{Line1: "d"}},
+		"with previous details": {
+			Donor: actor.Donor{
+				UID:         actoruid.New(),
+				FirstNames:  "a",
+				LastName:    "b",
+				OtherNames:  "c",
+				DateOfBirth: date.New("2000", "01", "02"),
+				Address:     place.Address{Line1: "d"},
+			},
 		},
 		"no previous details": {},
 	}
@@ -489,6 +513,7 @@ func TestDonorStoreCreate(t *testing.T) {
 				CreatedAt: testNow,
 				Version:   1,
 				Donor: actor.Donor{
+					UID:         testUID,
 					FirstNames:  previousDetails.Donor.FirstNames,
 					LastName:    previousDetails.Donor.LastName,
 					OtherNames:  previousDetails.Donor.OtherNames,
@@ -508,7 +533,7 @@ func TestDonorStoreCreate(t *testing.T) {
 				Create(ctx, lpaLink{PK: "LPA#10100000", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor, UpdatedAt: testNow}).
 				Return(nil)
 
-			donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }, now: testNowFn}
+			donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }, now: testNowFn, newUID: testUIDFn}
 
 			result, err := donorStore.Create(ctx)
 			assert.Nil(t, err)
@@ -571,6 +596,7 @@ func TestDonorStoreCreateWhenError(t *testing.T) {
 				dynamoClient: dynamoClient,
 				uuidString:   func() string { return "10100000" },
 				now:          testNowFn,
+				newUID:       testUIDFn,
 			}
 
 			_, err := donorStore.Create(ctx)

@@ -1,26 +1,87 @@
 package fixtures
 
 import (
+	"context"
+	"encoding/base64"
 	"net/http"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func Supporter(sessionStore sesh.Store) page.Handler {
+type OrganisationStore interface {
+	Create(context.Context, string) (*actor.Organisation, error)
+	CreateLPA(context.Context) (*actor.DonorProvidedDetails, error)
+	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error
+}
+
+func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, donorStore DonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		var (
-			redirect = r.FormValue("redirect")
+			inviteMembers = r.FormValue("inviteMembers")
+			lpa           = r.FormValue("lpa")
+			organisation  = r.FormValue("organisation")
+			redirect      = r.FormValue("redirect")
 
-			supporterSub = random.String(16)
+			supporterSub       = random.String(16)
+			supporterSessionID = base64.StdEncoding.EncodeToString([]byte(supporterSub))
+			ctx                = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: supporterSessionID})
 		)
 
-		if err := sesh.SetLoginSession(sessionStore, r, w, &sesh.LoginSession{Sub: supporterSub, Email: testEmail}); err != nil {
+		loginSession := &sesh.LoginSession{Sub: supporterSub, Email: testEmail}
+
+		if organisation == "1" {
+			org, err := organisationStore.Create(ctx, random.String(12))
+			if err != nil {
+				return err
+			}
+
+			loginSession.OrganisationID = org.ID
+			loginSession.OrganisationName = org.Name
+
+			if lpa == "1" {
+				donor, err := organisationStore.CreateLPA(page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID}))
+				if err != nil {
+					return err
+				}
+
+				donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID, LpaID: donor.LpaID})
+
+				donor.LpaUID = makeUID()
+				donor.Donor = makeDonor()
+				donor.Type = actor.LpaTypePropertyAndAffairs
+
+				donor.Attorneys = actor.Attorneys{
+					Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},
+				}
+
+				if err := donorStore.Put(donorCtx, donor); err != nil {
+					return err
+				}
+			}
+
+			if inviteMembers == "1" {
+				if err = organisationStore.CreateMemberInvite(page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID}), org, "Kamal", "Singh", "kamalsingh@example.org", random.String(12), actor.Admin); err != nil {
+					return err
+				}
+
+				if err = organisationStore.CreateMemberInvite(page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID}), org, "Jo", "Alessi", "jo_alessi@example.org", random.String(12), actor.Admin); err != nil {
+					return err
+				}
+			}
+		}
+
+		if err := sesh.SetLoginSession(sessionStore, r, w, loginSession); err != nil {
 			return err
 		}
 
-		http.Redirect(w, r, "/supporter/"+redirect, http.StatusFound)
+		if redirect != page.Paths.Supporter.EnterOrganisationName.Format() {
+			redirect = "/supporter/" + redirect
+		}
+
+		http.Redirect(w, r, redirect, http.StatusFound)
 		return nil
 	}
 }

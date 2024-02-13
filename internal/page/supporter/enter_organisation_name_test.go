@@ -7,7 +7,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gorilla/sessions"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -21,11 +24,11 @@ func TestGetEnterOrganisationName(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &enterOrganisationNameData{
 			App:  testAppData,
-			Form: &enterOrganisationNameForm{},
+			Form: &organisationNameForm{},
 		}).
 		Return(nil)
 
-	err := EnterOrganisationName(template.Execute, nil)(testAppData, w, r)
+	err := EnterOrganisationName(template.Execute, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -41,7 +44,7 @@ func TestGetEnterOrganisationNameWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := EnterOrganisationName(template.Execute, nil)(testAppData, w, r)
+	err := EnterOrganisationName(template.Execute, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -58,14 +61,110 @@ func TestPostEnterOrganisationName(t *testing.T) {
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		Create(r.Context(), "My organisation").
+		Return(&actor.Organisation{ID: "org-id"}, nil)
+
+	sessionStore := newMockSessionStore(t)
+
+	session := sessions.NewSession(sessionStore, "session")
+	session.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   86400,
+		SameSite: http.SameSiteLaxMode,
+		HttpOnly: true,
+		Secure:   true,
+	}
+	session.Values = map[any]any{"session": &sesh.LoginSession{
+		IDToken: "id-token",
+		Sub:     "random",
+		Email:   "name@example.com",
+	}}
+
+	sessionStore.EXPECT().
+		Get(r, "session").
+		Return(session, nil)
+
+	session.Values = map[any]any{"session": &sesh.LoginSession{
+		IDToken:          "id-token",
+		Sub:              "random",
+		Email:            "name@example.com",
+		OrganisationID:   "org-id",
+		OrganisationName: "My organisation",
+	}}
+
+	sessionStore.EXPECT().
+		Save(r, w, session).
 		Return(nil)
 
-	err := EnterOrganisationName(nil, organisationStore)(testAppData, w, r)
+	err := EnterOrganisationName(nil, organisationStore, sessionStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, page.Paths.Supporter.OrganisationCreated.Format(), resp.Header.Get("Location"))
+}
+
+func TestPostEnterOrganisationNameWhenSessionStoreSaveError(t *testing.T) {
+	form := url.Values{"name": {"My organisation"}}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	organisationStore := newMockOrganisationStore(t)
+	organisationStore.EXPECT().
+		Create(r.Context(), mock.Anything).
+		Return(&actor.Organisation{}, nil)
+
+	sessionStore := newMockSessionStore(t)
+
+	session := sessions.NewSession(sessionStore, "session")
+	session.Values = map[any]any{"session": &sesh.LoginSession{
+		Sub: "random",
+	}}
+
+	sessionStore.EXPECT().
+		Get(r, mock.Anything).
+		Return(session, nil)
+	sessionStore.EXPECT().
+		Save(r, w, mock.Anything).
+		Return(expectedError)
+
+	err := EnterOrganisationName(nil, organisationStore, sessionStore)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostEnterOrganisationNameWhenSessionStoreGetError(t *testing.T) {
+	form := url.Values{"name": {"My organisation"}}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	organisationStore := newMockOrganisationStore(t)
+	organisationStore.EXPECT().
+		Create(r.Context(), mock.Anything).
+		Return(&actor.Organisation{}, nil)
+
+	sessionStore := newMockSessionStore(t)
+
+	session := sessions.NewSession(sessionStore, "session")
+	session.Values = map[any]any{"session": &sesh.LoginSession{
+		Sub: "random",
+	}}
+
+	sessionStore.EXPECT().
+		Get(r, mock.Anything).
+		Return(nil, expectedError)
+
+	err := EnterOrganisationName(nil, organisationStore, sessionStore)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.Supporter.Start.Format(), resp.Header.Get("Location"))
 }
 
 func TestPostEnterOrganisationNameWhenValidationError(t *testing.T) {
@@ -86,7 +185,7 @@ func TestPostEnterOrganisationNameWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := EnterOrganisationName(template.Execute, nil)(testAppData, w, r)
+	err := EnterOrganisationName(template.Execute, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -106,9 +205,9 @@ func TestPostEnterOrganisationNameWhenOrganisationStoreErrors(t *testing.T) {
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		Create(r.Context(), mock.Anything).
-		Return(expectedError)
+		Return(nil, expectedError)
 
-	err := EnterOrganisationName(nil, organisationStore)(testAppData, w, r)
+	err := EnterOrganisationName(nil, organisationStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -123,30 +222,31 @@ func TestReadEnterOrganisationNameForm(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	result := readEnterOrganisationNameForm(r)
+	result := readOrganisationNameForm(r, "x")
 
 	assert.Equal(t, "My name", result.Name)
 }
 
 func TestEnterOrganisationNameFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form   *enterOrganisationNameForm
+		form   *organisationNameForm
 		errors validation.List
 	}{
 		"valid": {
-			form: &enterOrganisationNameForm{
+			form: &organisationNameForm{
 				Name: "My name",
 			},
 		},
 		"missing": {
-			form:   &enterOrganisationNameForm{},
-			errors: validation.With("name", validation.EnterError{Label: "fullOrganisationOrCompanyName"}),
+			form:   &organisationNameForm{Label: "xyz"},
+			errors: validation.With("name", validation.EnterError{Label: "xyz"}),
 		},
 		"too long": {
-			form: &enterOrganisationNameForm{
-				Name: strings.Repeat("a", 101),
+			form: &organisationNameForm{
+				Name:  strings.Repeat("a", 101),
+				Label: "xyz",
 			},
-			errors: validation.With("name", validation.StringTooLongError{Label: "fullOrganisationOrCompanyName", Length: 100}),
+			errors: validation.With("name", validation.StringTooLongError{Label: "xyz", Length: 100}),
 		},
 	}
 

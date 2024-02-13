@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -23,7 +25,8 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyAndAffairs,
+		Type:   actor.LpaTypePropertyAndAffairs,
+		LpaUID: "lpa-uid",
 	}
 
 	localizer := newMockLocalizer(t)
@@ -44,7 +47,7 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeCertificateProvider, "123", actor.ShareCodeData{
+		Put(ctx, actor.TypeCertificateProvider, RandomString, actor.ShareCodeData{
 			LpaID:           "lpa-id",
 			DonorFullname:   "Jan Smith",
 			DonorFirstNames: "Jan",
@@ -54,8 +57,8 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendEmail(ctx, "name@example.org", notify.CertificateProviderInviteEmail{
-			ShareCode:                   "123",
+		SendActorEmail(ctx, "name@example.org", "lpa-uid", notify.CertificateProviderInviteEmail{
+			ShareCode:                   RandomString,
 			CertificateProviderFullName: "Joanna Jones",
 			DonorFirstNames:             "Jan",
 			DonorFullName:               "Jan Smith",
@@ -64,9 +67,9 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 			DonorFirstNamesPossessive:   "Jan’s",
 			WhatLpaCovers:               "houses and stuff",
 		}).
-		Return("", nil)
+		Return(nil)
 
-	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
+	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandomString, nil)
 	err := sender.SendCertificateProviderInvite(ctx, TestAppData, donor)
 
 	assert.Nil(t, err)
@@ -83,7 +86,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 		},
 		"without test code": {
 			useTestCode:      false,
-			expectedTestCode: "123",
+			expectedTestCode: RandomString,
 		},
 	}
 
@@ -97,7 +100,8 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyAndAffairs,
+		Type:   actor.LpaTypePropertyAndAffairs,
+		LpaUID: "lpa-uid",
 	}
 
 	for name, tc := range testcases {
@@ -129,7 +133,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 				Return(nil)
 
 			shareCodeStore.EXPECT().
-				Put(ctx, actor.TypeCertificateProvider, "123", actor.ShareCodeData{
+				Put(ctx, actor.TypeCertificateProvider, RandomString, actor.ShareCodeData{
 					LpaID:           "lpa-id",
 					DonorFullname:   "Jan Smith",
 					DonorFirstNames: "Jan",
@@ -140,7 +144,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.EXPECT().
-				SendEmail(ctx, "name@example.org", notify.CertificateProviderInviteEmail{
+				SendActorEmail(ctx, "name@example.org", "lpa-uid", notify.CertificateProviderInviteEmail{
 					CertificateProviderFullName: "Joanna Jones",
 					DonorFirstNames:             "Jan",
 					DonorFullName:               "Jan Smith",
@@ -151,25 +155,25 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 					WhatLpaCovers:               "houses and stuff",
 				}).
 				Once().
-				Return("", nil)
+				Return(nil)
 			notifyClient.EXPECT().
-				SendEmail(ctx, "name@example.org", notify.CertificateProviderInviteEmail{
+				SendActorEmail(ctx, "name@example.org", "lpa-uid", notify.CertificateProviderInviteEmail{
 					CertificateProviderFullName: "Joanna Jones",
 					DonorFirstNames:             "Jan",
 					DonorFullName:               "Jan Smith",
 					LpaType:                     "property and affairs",
 					CertificateProviderStartURL: fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
-					ShareCode:                   "123",
+					ShareCode:                   RandomString,
 					DonorFirstNamesPossessive:   "Jan’s",
 					WhatLpaCovers:               "houses and stuff",
 				}).
 				Once().
-				Return("", nil)
+				Return(nil)
 
-			sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
+			sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandomString, nil)
 
 			if tc.useTestCode {
-				sender.UseTestCode()
+				sender.UseTestCode("abcdef123456")
 			}
 
 			err := sender.SendCertificateProviderInvite(ctx, TestAppData, donor)
@@ -213,10 +217,10 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenEmailErrors(t *testing.
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendEmail(ctx, mock.Anything, mock.Anything).
-		Return("", expectedError)
+		SendActorEmail(ctx, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
 
-	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
+	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandomString, nil)
 	err := sender.SendCertificateProviderInvite(ctx, TestAppData, donor)
 
 	assert.Equal(t, expectedError, errors.Unwrap(err))
@@ -239,24 +243,26 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenShareCodeStoreErrors(t 
 		Put(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", MockRandom)
+	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", MockRandomString, nil)
 	err := sender.SendCertificateProviderInvite(ctx, TestAppData, &actor.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, errors.Unwrap(err))
 }
 
-func TestShareCodeSenderSendCertificateProviderPrompt(t *testing.T) {
+func TestShareCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{
 		CertificateProvider: actor.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
+			CarryOutBy: actor.Online,
 		},
 		Donor: actor.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyAndAffairs,
+		Type:   actor.LpaTypePropertyAndAffairs,
+		LpaUID: "lpa-uid",
 	}
 
 	localizer := newMockLocalizer(t)
@@ -268,9 +274,20 @@ func TestShareCodeSenderSendCertificateProviderPrompt(t *testing.T) {
 
 	ctx := context.Background()
 
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, "name@example.org", "lpa-uid", notify.CertificateProviderProvideCertificatePromptEmail{
+			ShareCode:                   RandomString,
+			CertificateProviderFullName: "Joanna Jones",
+			DonorFullName:               "Jan Smith",
+			LpaType:                     "property and affairs",
+			CertificateProviderStartURL: fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+		}).
+		Return(nil)
+
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeCertificateProvider, "123", actor.ShareCodeData{
+		Put(ctx, actor.TypeCertificateProvider, RandomString, actor.ShareCodeData{
 			LpaID:           "lpa-id",
 			DonorFullname:   "Jan Smith",
 			DonorFirstNames: "Jan",
@@ -278,18 +295,39 @@ func TestShareCodeSenderSendCertificateProviderPrompt(t *testing.T) {
 		}).
 		Return(nil)
 
-	notifyClient := newMockNotifyClient(t)
-	notifyClient.EXPECT().
-		SendEmail(ctx, "name@example.org", notify.CertificateProviderProvideCertificatePromptEmail{
-			ShareCode:                   "123",
-			CertificateProviderFullName: "Joanna Jones",
-			DonorFullName:               "Jan Smith",
-			LpaType:                     "property and affairs",
-			CertificateProviderStartURL: fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
-		}).
-		Return("", nil)
+	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandomString, nil)
+	err := sender.SendCertificateProviderPrompt(ctx, TestAppData, donor)
 
-	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
+	assert.Nil(t, err)
+}
+
+func TestShareCodeSenderSendCertificateProviderPromptPaper(t *testing.T) {
+	donor := &actor.DonorProvidedDetails{
+		CertificateProvider: actor.CertificateProvider{
+			FirstNames: "Joanna",
+			LastName:   "Jones",
+			Email:      "name@example.org",
+			CarryOutBy: actor.Paper,
+		},
+		Donor: actor.Donor{
+			FirstNames: "Jan",
+			LastName:   "Smith",
+		},
+		Type:   actor.LpaTypePropertyAndAffairs,
+		LpaUID: "lpa-uid",
+	}
+
+	ctx := context.Background()
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendPaperFormRequested(ctx, event.PaperFormRequested{
+			UID:       "lpa-uid",
+			ActorType: actor.TypeCertificateProvider.String(),
+		}).
+		Return(nil)
+
+	sender := NewShareCodeSender(nil, nil, "http://app", MockRandomString, eventClient)
 	err := sender.SendCertificateProviderPrompt(ctx, TestAppData, donor)
 
 	assert.Nil(t, err)
@@ -306,7 +344,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 		},
 		"without test code": {
 			useTestCode:      false,
-			expectedTestCode: "123",
+			expectedTestCode: RandomString,
 		},
 	}
 
@@ -320,7 +358,8 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyAndAffairs,
+		Type:   actor.LpaTypePropertyAndAffairs,
+		LpaUID: "lpa-uid",
 	}
 
 	for name, tc := range testcases {
@@ -347,7 +386,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 				Return(nil)
 
 			shareCodeStore.EXPECT().
-				Put(ctx, actor.TypeCertificateProvider, "123", actor.ShareCodeData{
+				Put(ctx, actor.TypeCertificateProvider, RandomString, actor.ShareCodeData{
 					LpaID:           "lpa-id",
 					DonorFullname:   "Jan Smith",
 					DonorFirstNames: "Jan",
@@ -358,7 +397,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.EXPECT().
-				SendEmail(ctx, "name@example.org", notify.CertificateProviderProvideCertificatePromptEmail{
+				SendActorEmail(ctx, "name@example.org", "lpa-uid", notify.CertificateProviderProvideCertificatePromptEmail{
 					CertificateProviderFullName: "Joanna Jones",
 					DonorFullName:               "Jan Smith",
 					LpaType:                     "property and affairs",
@@ -366,22 +405,22 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 					ShareCode:                   tc.expectedTestCode,
 				}).
 				Once().
-				Return("", nil)
+				Return(nil)
 			notifyClient.EXPECT().
-				SendEmail(ctx, "name@example.org", notify.CertificateProviderProvideCertificatePromptEmail{
+				SendActorEmail(ctx, "name@example.org", "lpa-uid", notify.CertificateProviderProvideCertificatePromptEmail{
 					CertificateProviderFullName: "Joanna Jones",
 					DonorFullName:               "Jan Smith",
 					LpaType:                     "property and affairs",
 					CertificateProviderStartURL: fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
-					ShareCode:                   "123",
+					ShareCode:                   RandomString,
 				}).
 				Once().
-				Return("", nil)
+				Return(nil)
 
-			sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
+			sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandomString, nil)
 
 			if tc.useTestCode {
-				sender.UseTestCode()
+				sender.UseTestCode("abcdef123456")
 			}
 
 			err := sender.SendCertificateProviderPrompt(ctx, TestAppData, donor)
@@ -391,6 +430,26 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 			assert.Nil(t, err)
 		})
 	}
+}
+
+func TestShareCodeSenderSendCertificateProviderPromptPaperWhenEventClientError(t *testing.T) {
+	donor := &actor.DonorProvidedDetails{
+		CertificateProvider: actor.CertificateProvider{
+			CarryOutBy: actor.Paper,
+		},
+	}
+
+	ctx := context.Background()
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendPaperFormRequested(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	sender := NewShareCodeSender(nil, nil, "http://app", MockRandomString, eventClient)
+	err := sender.SendCertificateProviderPrompt(ctx, TestAppData, donor)
+
+	assert.Equal(t, expectedError, err)
 }
 
 func TestShareCodeSenderSendCertificateProviderPromptWhenEmailErrors(t *testing.T) {
@@ -423,10 +482,10 @@ func TestShareCodeSenderSendCertificateProviderPromptWhenEmailErrors(t *testing.
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendEmail(ctx, mock.Anything, mock.Anything).
-		Return("", expectedError)
+		SendActorEmail(ctx, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
 
-	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
+	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandomString, nil)
 	err := sender.SendCertificateProviderPrompt(ctx, TestAppData, donor)
 
 	assert.Equal(t, expectedError, errors.Unwrap(err))
@@ -440,13 +499,26 @@ func TestShareCodeSenderSendCertificateProviderPromptWhenShareCodeStoreErrors(t 
 		Put(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", MockRandom)
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T(mock.Anything).
+		Return("")
+
+	TestAppData.Localizer = localizer
+
+	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", MockRandomString, nil)
 	err := sender.SendCertificateProviderPrompt(ctx, TestAppData, &actor.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, errors.Unwrap(err))
 }
 
 func TestShareCodeSenderSendAttorneys(t *testing.T) {
+	uid1 := actoruid.New()
+	uid2 := actoruid.New()
+	uid3 := actoruid.New()
+	uid4 := actoruid.New()
+	uid5 := actoruid.New()
+
 	donor := &actor.DonorProvidedDetails{
 		Attorneys: actor.Attorneys{
 			TrustCorporation: actor.TrustCorporation{
@@ -455,19 +527,19 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			},
 			Attorneys: []actor.Attorney{
 				{
-					ID:         "1",
+					UID:        uid1,
 					FirstNames: "Joanna",
 					LastName:   "Jones",
 					Email:      "name@example.org",
 				},
 				{
-					ID:         "2",
+					UID:        uid2,
 					FirstNames: "John",
 					LastName:   "Jones",
 					Email:      "name2@example.org",
 				},
 				{
-					ID:         "3",
+					UID:        uid3,
 					FirstNames: "Nope",
 					LastName:   "Jones",
 				},
@@ -480,13 +552,13 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			},
 			Attorneys: []actor.Attorney{
 				{
-					ID:         "4",
+					UID:        uid4,
 					FirstNames: "Dave",
 					LastName:   "Davis",
 					Email:      "dave@example.com",
 				},
 				{
-					ID:         "5",
+					UID:        uid5,
 					FirstNames: "Donny",
 					LastName:   "Davis",
 				},
@@ -496,7 +568,8 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyAndAffairs,
+		Type:   actor.LpaTypePropertyAndAffairs,
+		LpaUID: "lpa-uid",
 	}
 
 	localizer := newMockLocalizer(t)
@@ -513,25 +586,25 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", IsTrustCorporation: true}).
+		Put(ctx, actor.TypeAttorney, RandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", IsTrustCorporation: true}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", IsTrustCorporation: true, IsReplacementAttorney: true}).
+		Put(ctx, actor.TypeAttorney, RandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", IsTrustCorporation: true, IsReplacementAttorney: true}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", AttorneyID: "1"}).
+		Put(ctx, actor.TypeAttorney, RandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: uid1}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", AttorneyID: "2"}).
+		Put(ctx, actor.TypeAttorney, RandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: uid2}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", AttorneyID: "4", IsReplacementAttorney: true}).
+		Put(ctx, actor.TypeAttorney, RandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: uid4, IsReplacementAttorney: true}).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendEmail(ctx, "trusted@example.com", notify.InitialOriginalAttorneyEmail{
-			ShareCode:                 "123",
+		SendActorEmail(ctx, "trusted@example.com", "lpa-uid", notify.InitialOriginalAttorneyEmail{
+			ShareCode:                 RandomString,
 			AttorneyFullName:          "Trusty",
 			DonorFirstNames:           "Jan",
 			DonorFullName:             "Jan Smith",
@@ -539,10 +612,10 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			LpaType:                   "property and affairs",
 			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 		}).
-		Return("", nil)
+		Return(nil)
 	notifyClient.EXPECT().
-		SendEmail(ctx, "untrusted@example.com", notify.InitialReplacementAttorneyEmail{
-			ShareCode:                 "123",
+		SendActorEmail(ctx, "untrusted@example.com", "lpa-uid", notify.InitialReplacementAttorneyEmail{
+			ShareCode:                 RandomString,
 			AttorneyFullName:          "Untrusty",
 			DonorFirstNames:           "Jan",
 			DonorFullName:             "Jan Smith",
@@ -550,10 +623,10 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			LpaType:                   "property and affairs",
 			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 		}).
-		Return("", nil)
+		Return(nil)
 	notifyClient.EXPECT().
-		SendEmail(ctx, "name@example.org", notify.InitialOriginalAttorneyEmail{
-			ShareCode:                 "123",
+		SendActorEmail(ctx, "name@example.org", "lpa-uid", notify.InitialOriginalAttorneyEmail{
+			ShareCode:                 RandomString,
 			AttorneyFullName:          "Joanna Jones",
 			DonorFirstNames:           "Jan",
 			DonorFullName:             "Jan Smith",
@@ -561,10 +634,10 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			LpaType:                   "property and affairs",
 			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 		}).
-		Return("", nil)
+		Return(nil)
 	notifyClient.EXPECT().
-		SendEmail(ctx, "name2@example.org", notify.InitialOriginalAttorneyEmail{
-			ShareCode:                 "123",
+		SendActorEmail(ctx, "name2@example.org", "lpa-uid", notify.InitialOriginalAttorneyEmail{
+			ShareCode:                 RandomString,
 			AttorneyFullName:          "John Jones",
 			DonorFirstNames:           "Jan",
 			DonorFullName:             "Jan Smith",
@@ -572,10 +645,10 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			LpaType:                   "property and affairs",
 			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 		}).
-		Return("", nil)
+		Return(nil)
 	notifyClient.EXPECT().
-		SendEmail(ctx, "dave@example.com", notify.InitialReplacementAttorneyEmail{
-			ShareCode:                 "123",
+		SendActorEmail(ctx, "dave@example.com", "lpa-uid", notify.InitialReplacementAttorneyEmail{
+			ShareCode:                 RandomString,
 			AttorneyFullName:          "Dave Davis",
 			DonorFirstNames:           "Jan",
 			DonorFullName:             "Jan Smith",
@@ -583,9 +656,9 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			LpaType:                   "property and affairs",
 			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 		}).
-		Return("", nil)
+		Return(nil)
 
-	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
+	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandomString, nil)
 	err := sender.SendAttorneys(ctx, TestAppData, donor)
 
 	assert.Nil(t, err)
@@ -602,7 +675,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 		},
 		"without test code": {
 			useTestCode:      false,
-			expectedTestCode: "123",
+			expectedTestCode: RandomString,
 		},
 	}
 
@@ -618,7 +691,8 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyAndAffairs,
+		Type:   actor.LpaTypePropertyAndAffairs,
+		LpaUID: "lpa-uid",
 	}
 
 	localizer := newMockLocalizer(t)
@@ -640,12 +714,12 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 				Put(ctx, actor.TypeAttorney, tc.expectedTestCode, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id"}).
 				Return(nil)
 			shareCodeStore.EXPECT().
-				Put(ctx, actor.TypeAttorney, "123", actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id"}).
+				Put(ctx, actor.TypeAttorney, RandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id"}).
 				Return(nil)
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.EXPECT().
-				SendEmail(ctx, "name@example.org", notify.InitialOriginalAttorneyEmail{
+				SendActorEmail(ctx, "name@example.org", "lpa-uid", notify.InitialOriginalAttorneyEmail{
 					ShareCode:                 tc.expectedTestCode,
 					AttorneyFullName:          "Joanna Jones",
 					DonorFirstNames:           "Jan",
@@ -654,10 +728,10 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 					LpaType:                   "property and affairs",
 					AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 				}).
-				Return("", nil)
+				Return(nil)
 			notifyClient.EXPECT().
-				SendEmail(ctx, "name@example.org", notify.InitialOriginalAttorneyEmail{
-					ShareCode:                 "123",
+				SendActorEmail(ctx, "name@example.org", "lpa-uid", notify.InitialOriginalAttorneyEmail{
+					ShareCode:                 RandomString,
 					AttorneyFullName:          "Joanna Jones",
 					DonorFirstNames:           "Jan",
 					DonorFullName:             "Jan Smith",
@@ -665,12 +739,12 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 					LpaType:                   "property and affairs",
 					AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
 				}).
-				Return("", nil)
+				Return(nil)
 
-			sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
+			sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandomString, nil)
 
 			if tc.useTestCode {
-				sender.UseTestCode()
+				sender.UseTestCode("abcdef123456")
 			}
 
 			err := sender.SendAttorneys(ctx, TestAppData, donor)
@@ -716,10 +790,10 @@ func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendEmail(ctx, mock.Anything, mock.Anything).
-		Return("", expectedError)
+		SendActorEmail(ctx, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
 
-	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandom)
+	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandomString, nil)
 	err := sender.SendAttorneys(ctx, TestAppData, donor)
 
 	assert.Equal(t, expectedError, errors.Unwrap(err))
@@ -742,7 +816,7 @@ func TestShareCodeSenderSendAttorneysWhenShareCodeStoreErrors(t *testing.T) {
 		Put(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", MockRandom)
+	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", MockRandomString, nil)
 	err := sender.SendAttorneys(ctx, TestAppData, &actor.DonorProvidedDetails{
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{Email: "hey@example.com"}}},
 	})

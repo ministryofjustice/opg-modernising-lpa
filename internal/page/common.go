@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -30,8 +31,8 @@ type ShareCodeStore interface {
 }
 
 type NotifyClient interface {
-	SendEmail(context.Context, string, notify.Email) (string, error)
-	SendSMS(context.Context, string, notify.SMS) (string, error)
+	SendActorEmail(context context.Context, to, lpaUID string, email notify.Email) error
+	SendActorSMS(context context.Context, to, lpaUID string, sms notify.SMS) error
 }
 
 type OneLoginClient interface {
@@ -78,3 +79,8 @@ func PostFormReferenceNumber(r *http.Request, name string) string {
 }
 
 type Handler func(data AppData, w http.ResponseWriter, r *http.Request) error
+
+type EventClient interface {
+	SendNotificationSent(ctx context.Context, notificationSentEvent event.NotificationSent) error
+	SendPaperFormRequested(ctx context.Context, paperFormRequestedEvent event.PaperFormRequested) error
+}

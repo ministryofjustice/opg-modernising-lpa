@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 )
@@ -14,24 +15,26 @@ type shareCodeEmail interface {
 }
 
 type ShareCodeSender struct {
-	useTestCode    bool
+	testCode       string
 	shareCodeStore ShareCodeStore
 	notifyClient   NotifyClient
 	appPublicURL   string
 	randomString   func(int) string
+	eventClient    EventClient
 }
 
-func NewShareCodeSender(shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, randomString func(int) string) *ShareCodeSender {
+func NewShareCodeSender(shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, randomString func(int) string, eventClient EventClient) *ShareCodeSender {
 	return &ShareCodeSender{
 		shareCodeStore: shareCodeStore,
 		notifyClient:   notifyClient,
 		appPublicURL:   appPublicURL,
 		randomString:   randomString,
+		eventClient:    eventClient,
 	}
 }
 
-func (s *ShareCodeSender) UseTestCode() {
-	s.useTestCode = true
+func (s *ShareCodeSender) UseTestCode(shareCode string) {
+	s.testCode = shareCode
 }
 
 func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails) error {
@@ -47,6 +50,13 @@ func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, app
 }
 
 func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails) error {
+	if donor.CertificateProvider.CarryOutBy.IsPaper() {
+		return s.eventClient.SendPaperFormRequested(ctx, event.PaperFormRequested{
+			UID:       donor.LpaUID,
+			ActorType: actor.TypeCertificateProvider.String(),
+		})
+	}
+
 	return s.sendCertificateProvider(ctx, appData, donor, notify.CertificateProviderProvideCertificatePromptEmail{
 		CertificateProviderFullName: donor.CertificateProvider.FullName(),
 		DonorFullName:               donor.Donor.FullName(),
@@ -57,13 +67,14 @@ func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, app
 
 func (s *ShareCodeSender) sendCertificateProvider(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, email shareCodeEmail) error {
 	shareCode := s.randomString(12)
-	if s.useTestCode {
-		shareCode = "abcdef123456"
-		s.useTestCode = false
+	if s.testCode != "" {
+		shareCode = s.testCode
+		s.testCode = ""
 	}
 
 	if err := s.shareCodeStore.Put(ctx, actor.TypeCertificateProvider, shareCode, actor.ShareCodeData{
 		LpaID:           appData.LpaID,
+		ActorUID:        donor.CertificateProvider.UID,
 		DonorFullname:   donor.Donor.FullName(),
 		DonorFirstNames: donor.Donor.FirstNames,
 		SessionID:       appData.SessionID,
@@ -71,7 +82,7 @@ func (s *ShareCodeSender) sendCertificateProvider(ctx context.Context, appData A
 		return fmt.Errorf("creating sharecode failed: %w", err)
 	}
 
-	if _, err := s.notifyClient.SendEmail(ctx, donor.CertificateProvider.Email, email.WithShareCode(shareCode)); err != nil {
+	if err := s.notifyClient.SendActorEmail(ctx, donor.CertificateProvider.Email, donor.LpaUID, email.WithShareCode(shareCode)); err != nil {
 		return fmt.Errorf("email failed: %w", err)
 	}
 
@@ -116,10 +127,10 @@ func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData AppD
 			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
 		},
 		actor.ShareCodeData{
-			SessionID:  appData.SessionID,
-			LpaID:      appData.LpaID,
-			AttorneyID: attorney.ID,
-		})
+			SessionID: appData.SessionID,
+			LpaID:     appData.LpaID,
+			ActorUID:  attorney.UID,
+		}, donor)
 }
 
 func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, attorney actor.Attorney) error {
@@ -138,9 +149,9 @@ func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData A
 		}, actor.ShareCodeData{
 			SessionID:             appData.SessionID,
 			LpaID:                 appData.LpaID,
-			AttorneyID:            attorney.ID,
+			ActorUID:              attorney.UID,
 			IsReplacementAttorney: true,
-		})
+		}, donor)
 }
 
 func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, trustCorporation actor.TrustCorporation) error {
@@ -160,8 +171,9 @@ func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData AppD
 		actor.ShareCodeData{
 			SessionID:          appData.SessionID,
 			LpaID:              appData.LpaID,
+			ActorUID:           trustCorporation.UID,
 			IsTrustCorporation: true,
-		})
+		}, donor)
 }
 
 func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, trustCorporation actor.TrustCorporation) error {
@@ -181,23 +193,24 @@ func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, a
 		actor.ShareCodeData{
 			SessionID:             appData.SessionID,
 			LpaID:                 appData.LpaID,
+			ActorUID:              trustCorporation.UID,
 			IsTrustCorporation:    true,
 			IsReplacementAttorney: true,
-		})
+		}, donor)
 }
 
-func (s *ShareCodeSender) sendAttorney(ctx context.Context, to string, email shareCodeEmail, shareCodeData actor.ShareCodeData) error {
+func (s *ShareCodeSender) sendAttorney(ctx context.Context, to string, email shareCodeEmail, shareCodeData actor.ShareCodeData, donor *actor.DonorProvidedDetails) error {
 	shareCode := s.randomString(12)
-	if s.useTestCode {
-		shareCode = "abcdef123456"
-		s.useTestCode = false
+	if s.testCode != "" {
+		shareCode = s.testCode
+		s.testCode = ""
 	}
 
 	if err := s.shareCodeStore.Put(ctx, actor.TypeAttorney, shareCode, shareCodeData); err != nil {
 		return fmt.Errorf("creating attorney share failed: %w", err)
 	}
 
-	if _, err := s.notifyClient.SendEmail(ctx, to, email.WithShareCode(shareCode)); err != nil {
+	if err := s.notifyClient.SendActorEmail(ctx, to, donor.LpaUID, email.WithShareCode(shareCode)); err != nil {
 		return fmt.Errorf("email failed: %w", err)
 	}
 

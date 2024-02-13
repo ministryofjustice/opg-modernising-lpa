@@ -2,7 +2,6 @@ package attorney
 
 import (
 	"context"
-	"encoding/base64"
 	"io"
 	"net/http"
 	"time"
@@ -10,6 +9,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -42,8 +42,9 @@ type DonorStore interface {
 }
 
 type ShareCodeStore interface {
-	Get(context.Context, actor.Type, string) (actor.ShareCodeData, error)
+	Get(ctx context.Context, actorType actor.Type, shareCode string) (actor.ShareCodeData, error)
 	Put(ctx context.Context, actorType actor.Type, shareCode string, data actor.ShareCodeData) error
+	Delete(ctx context.Context, shareCode actor.ShareCodeData) error
 }
 
 type CertificateProviderStore interface {
@@ -51,10 +52,10 @@ type CertificateProviderStore interface {
 }
 
 type AttorneyStore interface {
-	Create(context.Context, string, string, bool, bool) (*actor.AttorneyProvidedDetails, error)
-	Get(context.Context) (*actor.AttorneyProvidedDetails, error)
-	GetAny(context.Context) ([]*actor.AttorneyProvidedDetails, error)
-	Put(context.Context, *actor.AttorneyProvidedDetails) error
+	Create(ctx context.Context, sessionID string, attorneyUID actoruid.UID, isReplacement, isTrustCorporation bool) (*actor.AttorneyProvidedDetails, error)
+	Get(ctx context.Context) (*actor.AttorneyProvidedDetails, error)
+	GetAny(ctx context.Context) ([]*actor.AttorneyProvidedDetails, error)
+	Put(ctx context.Context, attorney *actor.AttorneyProvidedDetails) error
 }
 
 type AddressClient interface {
@@ -151,7 +152,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 					return
 				}
 
-				appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
+				appData.SessionID = session.SessionID()
 				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
 			}
 
@@ -176,7 +177,7 @@ func makeAttorneyHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.
 				return
 			}
 
-			appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
+			appData.SessionID = session.SessionID()
 
 			sessionData, err := page.SessionDataFromContext(ctx)
 			if err == nil {
@@ -195,8 +196,12 @@ func makeAttorneyHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.
 			}
 
 			appData.Page = path.Format(appData.LpaID)
-			appData.AttorneyID = attorney.ID
-			if attorney.IsReplacement {
+			appData.AttorneyUID = attorney.UID
+			if attorney.IsTrustCorporation && attorney.IsReplacement {
+				appData.ActorType = actor.TypeReplacementTrustCorporation
+			} else if attorney.IsTrustCorporation {
+				appData.ActorType = actor.TypeTrustCorporation
+			} else if attorney.IsReplacement {
 				appData.ActorType = actor.TypeReplacementAttorney
 			} else {
 				appData.ActorType = actor.TypeAttorney

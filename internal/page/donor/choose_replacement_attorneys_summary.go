@@ -36,11 +36,11 @@ func ChooseReplacementAttorneysSummary(tmpl template.Template) Handler {
 
 			if data.Errors.None() {
 				if data.Form.YesNo == form.Yes {
-					return appData.Paths.ChooseReplacementAttorneys.RedirectQuery(w, r, appData, donor, url.Values{"addAnother": {"1"}})
+					return page.Paths.ChooseReplacementAttorneys.RedirectQuery(w, r, appData, donor, url.Values{"addAnother": {"1"}})
 				} else if donor.ReplacementAttorneys.Len() > 1 && (donor.Attorneys.Len() == 1 || donor.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers() || donor.AttorneyDecisions.How.IsJointly()) {
-					return appData.Paths.HowShouldReplacementAttorneysMakeDecisions.Redirect(w, r, appData, donor)
+					return page.Paths.HowShouldReplacementAttorneysMakeDecisions.Redirect(w, r, appData, donor)
 				} else if donor.AttorneyDecisions.How.IsJointlyAndSeverally() {
-					return appData.Paths.HowShouldReplacementAttorneysStepIn.Redirect(w, r, appData, donor)
+					return page.Paths.HowShouldReplacementAttorneysStepIn.Redirect(w, r, appData, donor)
 				} else {
 					return page.Paths.TaskList.Redirect(w, r, appData, donor)
 				}

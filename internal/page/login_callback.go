@@ -2,7 +2,6 @@ package page
 
 import (
 	"context"
-	"encoding/base64"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -32,20 +31,18 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 			return err
 		}
 
-		if err := sesh.SetLoginSession(sessionStore, r, w, &sesh.LoginSession{
+		session := &sesh.LoginSession{
 			IDToken: idToken,
 			Sub:     userInfo.Sub,
 			Email:   userInfo.Email,
-		}); err != nil {
+		}
+
+		if err := sesh.SetLoginSession(sessionStore, r, w, session); err != nil {
 			return err
 		}
 
 		if actorType != actor.TypeDonor {
-			exists, err := dashboardStore.SubExistsForActorType(
-				r.Context(),
-				base64.StdEncoding.EncodeToString([]byte(userInfo.Sub)),
-				actorType,
-			)
+			exists, err := dashboardStore.SubExistsForActorType(r.Context(), session.SessionID(), actorType)
 
 			if err != nil {
 				return err

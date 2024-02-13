@@ -2,7 +2,6 @@ package supporter
 
 import (
 	"context"
-	"encoding/base64"
 	"io"
 	"net/http"
 
@@ -17,9 +16,13 @@ import (
 )
 
 type OrganisationStore interface {
-	Create(context.Context, string) error
-	CreateMemberInvite(context.Context, *actor.Organisation, string, string) error
-	Get(context.Context) (*actor.Organisation, error)
+	AllLPAs(ctx context.Context) ([]actor.DonorProvidedDetails, error)
+	Create(ctx context.Context, name string) (*actor.Organisation, error)
+	CreateLPA(ctx context.Context) (*actor.DonorProvidedDetails, error)
+	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error
+	Get(ctx context.Context) (*actor.Organisation, error)
+	InvitedMembers(ctx context.Context) ([]*actor.MemberInvite, error)
+	Put(ctx context.Context, organisation *actor.Organisation) error
 }
 
 type OneLoginClient interface {
@@ -35,12 +38,12 @@ type SessionStore interface {
 }
 
 type NotifyClient interface {
-	SendEmail(context.Context, string, notify.Email) (string, error)
+	SendEmail(context context.Context, to string, email notify.Email) error
 }
 
 type Template func(io.Writer, interface{}) error
 
-type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request) error
+type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
@@ -53,40 +56,63 @@ func Register(
 	notFoundHandler page.Handler,
 	errorHandler page.ErrorHandler,
 	notifyClient NotifyClient,
+	appPublicURL string,
 ) {
 	paths := page.Paths.Supporter
-	handleRoot := makeHandle(rootMux, errorHandler)
+	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
-	handleRoot(paths.Login,
+	handleRoot(paths.SigningInAdvice, page.None,
+		page.Guidance(tmpls.Get("signing_in_advice.gohtml")))
+	handleRoot(paths.Login, page.None,
 		page.Login(oneLoginClient, sessionStore, random.String, paths.LoginCallback))
-	handleRoot(paths.LoginCallback,
-		LoginCallback(oneLoginClient, sessionStore))
+	handleRoot(paths.LoginCallback, page.None,
+		LoginCallback(oneLoginClient, sessionStore, organisationStore))
+	handleRoot(paths.EnterOrganisationName, page.RequireSession,
+		EnterOrganisationName(tmpls.Get("enter_organisation_name.gohtml"), organisationStore, sessionStore))
 
 	supporterMux := http.NewServeMux()
 	rootMux.Handle("/supporter/", http.StripPrefix("/supporter", supporterMux))
 
-	handleSupporter := makeHandle(supporterMux, errorHandler)
-	handleWithSupporter := makeSupporterHandle(supporterMux, sessionStore, errorHandler)
+	handleSupporter := makeHandle(supporterMux, sessionStore, errorHandler)
+	handleWithSupporter := makeSupporterHandle(supporterMux, sessionStore, errorHandler, organisationStore)
 
-	handleSupporter(page.Paths.Root, notFoundHandler)
+	handleSupporter(page.Paths.Root, page.None, notFoundHandler)
 
-	handleWithSupporter(paths.EnterOrganisationName,
-		EnterOrganisationName(tmpls.Get("enter_organisation_name.gohtml"), organisationStore))
 	handleWithSupporter(paths.OrganisationCreated,
-		OrganisationCreated(tmpls.Get("organisation_created.gohtml"), organisationStore))
+		OrganisationCreated(tmpls.Get("organisation_created.gohtml")))
 	handleWithSupporter(paths.Dashboard,
-		TODO())
+		Dashboard(tmpls.Get("dashboard.gohtml"), organisationStore))
 	handleWithSupporter(paths.InviteMember,
-		InviteMember(tmpls.Get("invite_member.gohtml"), organisationStore, notifyClient, random.String))
+		InviteMember(tmpls.Get("invite_member.gohtml"), organisationStore, notifyClient, random.String, appPublicURL))
+
+	handleWithSupporter(paths.OrganisationDetails,
+		Guidance(tmpls.Get("organisation_details.gohtml")))
+	handleWithSupporter(paths.EditOrganisationName,
+		EditOrganisationName(tmpls.Get("edit_organisation_name.gohtml"), organisationStore))
+	handleWithSupporter(paths.ManageTeamMembers,
+		ManageTeamMembers(tmpls.Get("manage_team_members.gohtml"), organisationStore))
 }
 
-func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler) func(page.Path, page.Handler) {
-	return func(path page.Path, h page.Handler) {
+func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler) func(page.Path, page.HandleOpt, page.Handler) {
+	return func(path page.Path, opt page.HandleOpt, h page.Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
 			appData := page.AppDataFromContext(ctx)
 			appData.Page = path.Format()
+			appData.IsSupporter = true
+
+			if opt&page.RequireSession != 0 {
+				session, err := sesh.Login(store, r)
+				if err != nil {
+					http.Redirect(w, r, page.Paths.Supporter.Start.Format(), http.StatusFound)
+					return
+				}
+
+				appData.SessionID = session.SessionID()
+
+				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID})
+			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
 				errorHandler(w, r, err)
@@ -95,24 +121,46 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler) func(page.Pa
 	}
 }
 
-func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler) func(page.SupporterPath, Handler) {
+func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler, organisationStore OrganisationStore) func(page.SupporterPath, Handler) {
 	return func(path page.SupporterPath, h Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
-			ctx := r.Context()
-			appData := page.AppDataFromContext(ctx)
-
-			session, err := sesh.Login(store, r)
+			loginSession, err := sesh.Login(store, r)
 			if err != nil {
 				http.Redirect(w, r, page.Paths.Supporter.Start.Format(), http.StatusFound)
 				return
 			}
 
+			ctx := r.Context()
+
+			appData := page.AppDataFromContext(ctx)
+			appData.SessionID = loginSession.SessionID()
+
+			sessionData, err := page.SessionDataFromContext(ctx)
+			if err == nil {
+				sessionData.SessionID = appData.SessionID
+				ctx = page.ContextWithSessionData(ctx, sessionData)
+			} else {
+				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID})
+			}
+
+			organisation, err := organisationStore.Get(ctx)
+			if err != nil {
+				errorHandler(w, r, err)
+				return
+			}
+
 			appData.Page = path.Format()
-			appData.SessionID = base64.StdEncoding.EncodeToString([]byte(session.Sub))
+			appData.IsSupporter = true
+			appData.OrganisationName = organisation.Name
+			appData.IsManageOrganisation = path.IsManageOrganisation()
 
-			ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID})
+			ctx = page.ContextWithAppData(page.ContextWithSessionData(ctx, &page.SessionData{
+				SessionID:      appData.SessionID,
+				Email:          loginSession.Email,
+				OrganisationID: organisation.ID,
+			}), appData)
 
-			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
+			if err := h(appData, w, r.WithContext(ctx), organisation); err != nil {
 				errorHandler(w, r, err)
 			}
 		})

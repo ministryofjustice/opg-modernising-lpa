@@ -6,28 +6,31 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
+var expectedError = errors.New("err")
+
 func TestNew(t *testing.T) {
-	client, err := New(true, "http://base", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", http.DefaultClient)
+	client, err := New(true, "http://base", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", http.DefaultClient, newMockEventClient(t))
 
 	assert.Nil(t, err)
 	assert.Equal(t, "http://base", client.baseURL)
 	assert.Equal(t, "f33517ff-2a88-4f6e-b855-c550268ce08a", client.issuer)
 	assert.Equal(t, []byte("740e5834-3a29-46b4-9a6f-16142fde533a"), client.secretKey)
+	assert.Equal(t, newMockEventClient(t), client.eventClient)
 
 }
 
 func TestNewWithInvalidApiKey(t *testing.T) {
-	_, err := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f", http.DefaultClient)
+	_, err := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f", http.DefaultClient, nil)
 
 	assert.NotNil(t, err)
 }
@@ -47,7 +50,7 @@ func TestSendEmail(t *testing.T) {
 		Do(mock.MatchedBy(func(req *http.Request) bool {
 			var buf bytes.Buffer
 			io.Copy(&buf, req.Body)
-			req.Body = ioutil.NopCloser(&buf)
+			req.Body = io.NopCloser(&buf)
 
 			var v map[string]any
 			json.Unmarshal(buf.Bytes(), &v)
@@ -60,12 +63,11 @@ func TestSendEmail(t *testing.T) {
 			Body: io.NopCloser(strings.NewReader(`{"id":"xyz"}`)),
 		}, nil)
 
-	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	id, err := client.SendEmail(ctx, "me@example.com", testEmail{A: "value"})
+	err := client.SendEmail(ctx, "me@example.com", testEmail{A: "value"})
 	assert.Nil(err)
-	assert.Equal("xyz", id)
 }
 
 func TestSendEmailWhenError(t *testing.T) {
@@ -79,10 +81,95 @@ func TestSendEmailWhenError(t *testing.T) {
 			Body: io.NopCloser(strings.NewReader(`{"errors":[{"error":"SomeError","message":"This happened"}, {"error":"AndError","message":"Plus this"}]}`)),
 		}, nil)
 
-	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
 
-	_, err := client.SendEmail(ctx, "me@example.com", testEmail{})
+	err := client.SendEmail(ctx, "me@example.com", testEmail{})
 	assert.Equal(`error sending message: This happened: Plus this`, err.Error())
+}
+
+func TestSendActorEmail(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+
+	doer := newMockDoer(t)
+	doer.EXPECT().
+		Do(mock.MatchedBy(func(req *http.Request) bool {
+			var buf bytes.Buffer
+			io.Copy(&buf, req.Body)
+			req.Body = io.NopCloser(&buf)
+
+			var v map[string]any
+			json.Unmarshal(buf.Bytes(), &v)
+
+			return assert.Equal("me@example.com", v["email_address"].(string)) &&
+				assert.Equal("template-id", v["template_id"].(string)) &&
+				assert.Equal(map[string]any{"A": "value"}, v["personalisation"].(map[string]any))
+		})).
+		Return(&http.Response{
+			Body: io.NopCloser(strings.NewReader(`{"id":"xyz"}`)),
+		}, nil)
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendNotificationSent(ctx, event.NotificationSent{UID: "lpa-uid", NotificationID: "xyz"}).
+		Return(nil)
+
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient)
+	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
+
+	err := client.SendActorEmail(ctx, "me@example.com", "lpa-uid", testEmail{A: "value"})
+	assert.Nil(err)
+}
+
+func TestSendActorEmailWhenError(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+
+	doer := newMockDoer(t)
+	doer.EXPECT().
+		Do(mock.Anything).
+		Return(&http.Response{
+			Body: io.NopCloser(strings.NewReader(`{"errors":[{"error":"SomeError","message":"This happened"}, {"error":"AndError","message":"Plus this"}]}`)),
+		}, nil)
+
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
+
+	err := client.SendActorEmail(ctx, "me@example.com", "lpa-uid", testEmail{})
+	assert.Equal(`error sending message: This happened: Plus this`, err.Error())
+}
+
+func TestSendActorEmailWhenEventError(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+
+	doer := newMockDoer(t)
+	doer.EXPECT().
+		Do(mock.MatchedBy(func(req *http.Request) bool {
+			var buf bytes.Buffer
+			io.Copy(&buf, req.Body)
+			req.Body = io.NopCloser(&buf)
+
+			var v map[string]any
+			json.Unmarshal(buf.Bytes(), &v)
+
+			return assert.Equal("me@example.com", v["email_address"].(string)) &&
+				assert.Equal("template-id", v["template_id"].(string)) &&
+				assert.Equal(map[string]any{"A": "value"}, v["personalisation"].(map[string]any))
+		})).
+		Return(&http.Response{
+			Body: io.NopCloser(strings.NewReader(`{"id":"xyz"}`)),
+		}, nil)
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendNotificationSent(ctx, event.NotificationSent{UID: "lpa-uid", NotificationID: "xyz"}).
+		Return(expectedError)
+
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient)
+	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
+
+	err := client.SendActorEmail(ctx, "me@example.com", "lpa-uid", testEmail{A: "value"})
+	assert.Equal(expectedError, err)
 }
 
 func TestNewRequest(t *testing.T) {
@@ -90,7 +177,7 @@ func TestNewRequest(t *testing.T) {
 	ctx := context.Background()
 	doer := newMockDoer(t)
 
-	client, _ := New(true, "http://base", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+	client, _ := New(true, "http://base", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 	req, err := client.newRequest(ctx, "/an/url", map[string]string{"some": "json"})
@@ -106,7 +193,7 @@ func TestNewRequestWhenNewRequestError(t *testing.T) {
 	assert := assert.New(t)
 	doer := newMockDoer(t)
 
-	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
 	client.now = func() time.Time { return time.Now().Add(-time.Minute) }
 
 	_, err := client.newRequest(nil, "/an/url", map[string]string{"some": "json"})
@@ -129,7 +216,7 @@ func TestDo(t *testing.T) {
 	var jsonBody bytes.Buffer
 	jsonBody.WriteString(jsonString)
 
-	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 	req, _ := client.newRequest(ctx, "/an/url", &jsonBody)
@@ -156,7 +243,7 @@ func TestDoWhenContainsErrorList(t *testing.T) {
 	var jsonBody bytes.Buffer
 	jsonBody.WriteString(jsonString)
 
-	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 	req, _ := client.newRequest(ctx, "/an/url", &jsonBody)
@@ -194,21 +281,19 @@ func TestDoRequestWhenRequestError(t *testing.T) {
 	doer := newMockDoer(t)
 	doer.EXPECT().
 		Do(mock.Anything).
-		Return(&http.Response{
-			Body: io.NopCloser(strings.NewReader(`{"id": "123"}`)),
-		}, errors.New("err"))
+		Return(&http.Response{Body: io.NopCloser(strings.NewReader(`{"id": "123"}`))}, expectedError)
 
 	var jsonBody bytes.Buffer
 	jsonBody.WriteString(`{"id": "123"}`)
 
-	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 	req, _ := client.newRequest(ctx, "/an/url", &jsonBody)
 
 	resp, err := client.do(req)
 
-	assert.Equal(errors.New("err"), err)
+	assert.Equal(expectedError, err)
 	assert.Equal(response{}, resp)
 }
 
@@ -226,7 +311,7 @@ func TestDoRequestWhenJsonDecodeFails(t *testing.T) {
 	var jsonBody bytes.Buffer
 	jsonBody.WriteString(`not json`)
 
-	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 	req, _ := client.newRequest(ctx, "/an/url", &jsonBody)
@@ -243,7 +328,7 @@ type testSMS struct {
 
 func (e testSMS) smsID(bool) string { return "template-id" }
 
-func TestSendSMS(t *testing.T) {
+func TestSendActorSMS(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
 
@@ -252,7 +337,7 @@ func TestSendSMS(t *testing.T) {
 		Do(mock.MatchedBy(func(req *http.Request) bool {
 			var buf bytes.Buffer
 			io.Copy(&buf, req.Body)
-			req.Body = ioutil.NopCloser(&buf)
+			req.Body = io.NopCloser(&buf)
 
 			var v map[string]any
 			json.Unmarshal(buf.Bytes(), &v)
@@ -266,16 +351,19 @@ func TestSendSMS(t *testing.T) {
 			Body: io.NopCloser(strings.NewReader(`{"id":"xyz"}`)),
 		}, nil)
 
-	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendNotificationSent(ctx, event.NotificationSent{UID: "lpa-uid", NotificationID: "xyz"}).
+		Return(nil)
+
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	id, err := client.SendSMS(ctx, "+447535111111", testSMS{A: "value"})
-
+	err := client.SendActorSMS(ctx, "+447535111111", "lpa-uid", testSMS{A: "value"})
 	assert.Nil(err)
-	assert.Equal("xyz", id)
 }
 
-func TestSendSMSWhenError(t *testing.T) {
+func TestSendActorSMSWhenError(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
 
@@ -286,8 +374,43 @@ func TestSendSMSWhenError(t *testing.T) {
 			Body: io.NopCloser(strings.NewReader(`{"errors":[{"error":"SomeError","message":"This happened"}, {"error":"AndError","message":"Plus this"}]}`)),
 		}, nil)
 
-	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer)
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
 
-	_, err := client.SendSMS(ctx, "+447535111111", testSMS{})
+	err := client.SendActorSMS(ctx, "+447535111111", "lpa-uid", testSMS{})
 	assert.Equal(`error sending message: This happened: Plus this`, err.Error())
+}
+
+func TestSendActorSMSWhenEventError(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+
+	doer := newMockDoer(t)
+	doer.EXPECT().
+		Do(mock.MatchedBy(func(req *http.Request) bool {
+			var buf bytes.Buffer
+			io.Copy(&buf, req.Body)
+			req.Body = io.NopCloser(&buf)
+
+			var v map[string]any
+			json.Unmarshal(buf.Bytes(), &v)
+
+			return assert.Equal("+447535111111", v["phone_number"].(string)) &&
+				assert.Equal("template-id", v["template_id"].(string)) &&
+				assert.Equal(map[string]any{"A": "value"}, v["personalisation"].(map[string]any))
+
+		})).
+		Return(&http.Response{
+			Body: io.NopCloser(strings.NewReader(`{"id":"xyz"}`)),
+		}, nil)
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendNotificationSent(ctx, event.NotificationSent{UID: "lpa-uid", NotificationID: "xyz"}).
+		Return(expectedError)
+
+	client, _ := New(true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient)
+	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
+
+	err := client.SendActorSMS(ctx, "+447535111111", "lpa-uid", testSMS{A: "value"})
+	assert.Equal(expectedError, err)
 }

@@ -1,6 +1,7 @@
 package sesh
 
 import (
+	"encoding/base64"
 	"encoding/gob"
 	"fmt"
 	"net/http"
@@ -106,9 +107,15 @@ func SetOneLogin(store sessions.Store, r *http.Request, w http.ResponseWriter, o
 }
 
 type LoginSession struct {
-	IDToken string
-	Sub     string
-	Email   string
+	IDToken          string
+	Sub              string
+	Email            string
+	OrganisationID   string
+	OrganisationName string
+}
+
+func (s LoginSession) SessionID() string {
+	return base64.StdEncoding.EncodeToString([]byte(s.Sub))
 }
 
 func (s LoginSession) Valid() bool {

@@ -3,6 +3,7 @@ package actor
 import (
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 )
@@ -94,29 +95,32 @@ func TestAttorneysAddresses(t *testing.T) {
 }
 
 func TestAttorneysGet(t *testing.T) {
+	uid1 := actoruid.New()
+	uid2 := actoruid.New()
+
 	testCases := map[string]struct {
 		attorneys        Attorneys
 		expectedAttorney Attorney
-		id               string
+		uid              actoruid.UID
 		expectedFound    bool
 	}{
 		"attorney exists": {
-			attorneys:        Attorneys{Attorneys: []Attorney{{ID: "1", FirstNames: "Bob"}, {ID: "2"}}},
-			expectedAttorney: Attorney{ID: "1", FirstNames: "Bob"},
-			id:               "1",
+			attorneys:        Attorneys{Attorneys: []Attorney{{UID: uid1, FirstNames: "Bob"}, {UID: uid2}}},
+			expectedAttorney: Attorney{UID: uid1, FirstNames: "Bob"},
+			uid:              uid1,
 			expectedFound:    true,
 		},
 		"attorney does not exist": {
-			attorneys:        Attorneys{Attorneys: []Attorney{{ID: "1", FirstNames: "Bob"}, {ID: "2"}}},
+			attorneys:        Attorneys{Attorneys: []Attorney{{UID: uid1, FirstNames: "Bob"}, {UID: uid2}}},
 			expectedAttorney: Attorney{},
-			id:               "4",
+			uid:              actoruid.New(),
 			expectedFound:    false,
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			a, found := tc.attorneys.Get(tc.id)
+			a, found := tc.attorneys.Get(tc.uid)
 
 			assert.Equal(t, tc.expectedFound, found)
 			assert.Equal(t, tc.expectedAttorney, a)
@@ -125,20 +129,25 @@ func TestAttorneysGet(t *testing.T) {
 }
 
 func TestAttorneysPut(t *testing.T) {
+	uid1 := actoruid.New()
+	uid2 := actoruid.New()
+
+	newAttorney := Attorney{UID: actoruid.New(), FirstNames: "Bob"}
+
 	testCases := map[string]struct {
 		attorneys         Attorneys
 		expectedAttorneys Attorneys
 		updatedAttorney   Attorney
 	}{
 		"attorney exists": {
-			attorneys:         Attorneys{Attorneys: []Attorney{{ID: "1"}, {ID: "2"}}},
-			expectedAttorneys: Attorneys{Attorneys: []Attorney{{ID: "1", FirstNames: "Bob"}, {ID: "2"}}},
-			updatedAttorney:   Attorney{ID: "1", FirstNames: "Bob"},
+			attorneys:         Attorneys{Attorneys: []Attorney{{UID: uid1}, {UID: uid2}}},
+			expectedAttorneys: Attorneys{Attorneys: []Attorney{{UID: uid1, FirstNames: "Bob"}, {UID: uid2}}},
+			updatedAttorney:   Attorney{UID: uid1, FirstNames: "Bob"},
 		},
 		"attorney does not exist": {
-			attorneys:         Attorneys{Attorneys: []Attorney{{ID: "1"}, {ID: "2"}}},
-			expectedAttorneys: Attorneys{Attorneys: []Attorney{{ID: "1"}, {ID: "2"}, {ID: "3", FirstNames: "Bob"}}},
-			updatedAttorney:   Attorney{ID: "3", FirstNames: "Bob"},
+			attorneys:         Attorneys{Attorneys: []Attorney{{UID: uid1}, {UID: uid2}}},
+			expectedAttorneys: Attorneys{Attorneys: []Attorney{{UID: uid1}, {UID: uid2}, newAttorney}},
+			updatedAttorney:   newAttorney,
 		},
 	}
 
@@ -152,6 +161,9 @@ func TestAttorneysPut(t *testing.T) {
 }
 
 func TestAttorneysDelete(t *testing.T) {
+	uid1 := actoruid.New()
+	uid2 := actoruid.New()
+
 	testCases := map[string]struct {
 		attorneys         Attorneys
 		expectedAttorneys Attorneys
@@ -159,15 +171,15 @@ func TestAttorneysDelete(t *testing.T) {
 		expectedDeleted   bool
 	}{
 		"attorney exists": {
-			attorneys:         Attorneys{Attorneys: []Attorney{{ID: "1"}, {ID: "2"}}},
-			expectedAttorneys: Attorneys{Attorneys: []Attorney{{ID: "1"}}},
-			attorneyToDelete:  Attorney{ID: "2"},
+			attorneys:         Attorneys{Attorneys: []Attorney{{UID: uid1}, {UID: uid2}}},
+			expectedAttorneys: Attorneys{Attorneys: []Attorney{{UID: uid1}}},
+			attorneyToDelete:  Attorney{UID: uid2},
 			expectedDeleted:   true,
 		},
 		"attorney does not exist": {
-			attorneys:         Attorneys{Attorneys: []Attorney{{ID: "1"}, {ID: "2"}}},
-			expectedAttorneys: Attorneys{Attorneys: []Attorney{{ID: "1"}, {ID: "2"}}},
-			attorneyToDelete:  Attorney{ID: "3"},
+			attorneys:         Attorneys{Attorneys: []Attorney{{UID: uid1}, {UID: uid2}}},
+			expectedAttorneys: Attorneys{Attorneys: []Attorney{{UID: uid1}, {UID: uid2}}},
+			attorneyToDelete:  Attorney{UID: actoruid.New()},
 			expectedDeleted:   false,
 		},
 	}

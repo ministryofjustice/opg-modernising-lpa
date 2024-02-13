@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -27,14 +28,14 @@ var (
 	}
 	expectedError = errors.New("err")
 	testAppData   = page.AppData{
-		SessionID:    "session-id",
-		LpaID:        "lpa-id",
-		Lang:         localize.En,
-		Paths:        page.Paths,
-		AppPublicURL: "http://example.org",
+		SessionID: "session-id",
+		LpaID:     "lpa-id",
+		Lang:      localize.En,
 	}
 	testNow   = time.Date(2023, time.July, 3, 4, 5, 6, 1, time.UTC)
 	testNowFn = func() time.Time { return testNow }
+	testUID   = actoruid.New()
+	testUIDFn = func() actoruid.UID { return testUID }
 )
 
 func (m *mockDonorStore) withCompletedPaymentLpaData(r *http.Request, paymentId, paymentReference string, paymentAmount int) *mockDonorStore {
