@@ -22,8 +22,6 @@ func TestGetRemoveReplacementAttorney(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
-	logger := newMockLogger(t)
-
 	attorney := actor.Attorney{
 		UID:        uid,
 		FirstNames: "John",
@@ -43,7 +41,7 @@ func TestGetRemoveReplacementAttorney(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := RemoveReplacementAttorney(logger, template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorney}}})
+	err := RemoveReplacementAttorney(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorney}}})
 
 	resp := w.Result()
 
@@ -55,9 +53,6 @@ func TestGetRemoveReplacementAttorneyAttorneyDoesNotExist(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id=invalid-id", nil)
 
-	logger := newMockLogger(t)
-	template := newMockTemplate(t)
-
 	attorney := actor.Attorney{
 		UID: actoruid.New(),
 		Address: place.Address{
@@ -65,8 +60,7 @@ func TestGetRemoveReplacementAttorneyAttorneyDoesNotExist(t *testing.T) {
 		},
 	}
 
-	err := RemoveReplacementAttorney(logger, template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorney}}})
-
+	err := RemoveReplacementAttorney(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorney}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -132,16 +126,12 @@ func TestPostRemoveReplacementAttorney(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/?id="+attorneyWithoutAddress.UID.String(), strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			logger := newMockLogger(t)
-			template := newMockTemplate(t)
-
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
 				Put(r.Context(), tc.updatedDonor).
 				Return(nil)
 
-			err := RemoveReplacementAttorney(logger, template.Execute, donorStore)(testAppData, w, r, tc.donor)
-
+			err := RemoveReplacementAttorney(nil, donorStore)(testAppData, w, r, tc.donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -161,9 +151,6 @@ func TestPostRemoveReplacementAttorneyWithFormValueNo(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	logger := newMockLogger(t)
-	template := newMockTemplate(t)
-
 	attorneyWithAddress := actor.Attorney{
 		UID: actoruid.New(),
 		Address: place.Address{
@@ -176,8 +163,7 @@ func TestPostRemoveReplacementAttorneyWithFormValueNo(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	err := RemoveReplacementAttorney(logger, template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
-
+	err := RemoveReplacementAttorney(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -194,13 +180,6 @@ func TestPostRemoveReplacementAttorneyErrorOnPutStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	template := newMockTemplate(t)
-
-	logger := newMockLogger(t)
-	logger.EXPECT().
-		Print("error removing replacement Attorney from LPA: err").
-		Return()
 
 	attorneyWithAddress := actor.Attorney{
 		UID: actoruid.New(),
@@ -219,14 +198,14 @@ func TestPostRemoveReplacementAttorneyErrorOnPutStore(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := RemoveReplacementAttorney(logger, template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := RemoveReplacementAttorney(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		WantReplacementAttorneys: form.Yes,
 		ReplacementAttorneys:     actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithoutAddress, attorneyWithAddress}},
 	})
 
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.ErrorIs(t, err, expectedError)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -254,7 +233,7 @@ func TestRemoveReplacementAttorneyFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := RemoveReplacementAttorney(nil, template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithoutAddress}}})
+	err := RemoveReplacementAttorney(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithoutAddress}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

@@ -20,7 +20,7 @@ type removeAttorneyData struct {
 	Form       *form.YesNoForm
 }
 
-func RemoveAttorney(logger Logger, tmpl template.Template, donorStore DonorStore) Handler {
+func RemoveAttorney(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		attorney, found := donor.Attorneys.Get(actoruid.FromRequest(r))
 
@@ -50,8 +50,7 @@ func RemoveAttorney(logger Logger, tmpl template.Template, donorStore DonorStore
 					donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
 
 					if err := donorStore.Put(r.Context(), donor); err != nil {
-						logger.Print(fmt.Sprintf("error removing Attorney from LPA: %s", err.Error()))
-						return err
+						return fmt.Errorf("error removing Attorney from LPA: %w", err)
 					}
 				}
 

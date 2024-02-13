@@ -22,7 +22,9 @@ type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, det
 type Template func(io.Writer, interface{}) error
 
 type Logger interface {
-	Print(v ...interface{})
+	Info(msg string, args ...any)
+	Warn(msg string, args ...any)
+	Error(msg string, args ...any)
 }
 
 type SessionStore interface {
