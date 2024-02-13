@@ -38,21 +38,6 @@ func TestLpaType(t *testing.T) {
 	})
 }
 
-func TestLpaTypeLegacyString(t *testing.T) {
-	testCases := map[LpaType]string{
-		LpaTypePropertyAndAffairs: "pfa",
-		LpaTypePersonalWelfare:    "hw",
-		LpaType(99):               "",
-		LpaType(0):                "",
-	}
-
-	for lpaType, expected := range testCases {
-		t.Run(lpaType.String(), func(t *testing.T) {
-			assert.Equal(t, expected, lpaType.LegacyString())
-		})
-	}
-}
-
 func TestLpaTypeWhatLPACoversTransKey(t *testing.T) {
 	testCases := map[LpaType]string{
 		LpaTypePropertyAndAffairs: "whatPropertyAndAffairsCovers",

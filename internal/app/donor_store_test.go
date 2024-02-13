@@ -268,7 +268,7 @@ func TestDonorStorePutWhenUIDNeeded(t *testing.T) {
 		SendUidRequested(ctx, event.UidRequested{
 			LpaID:          "5",
 			DonorSessionID: "an-id",
-			Type:           "hw",
+			Type:           "personal-welfare",
 			Donor: uid.DonorDetails{
 				Name:     "John Smith",
 				Dob:      date.New("2000", "01", "01"),
