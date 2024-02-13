@@ -11,7 +11,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"golang.org/x/exp/maps"
 )
 
 // An lpaLink is used to join an actor to an LPA.
@@ -179,8 +178,8 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		}
 	}
 
-	certificateProvider = maps.Values(certificateProviderMap)
-	attorney = maps.Values(attorneyMap)
+	certificateProvider = mapValues(certificateProviderMap)
+	attorney = mapValues(attorneyMap)
 
 	byUpdatedAt := func(a, b page.LpaAndActorTasks) int {
 		if a.Donor.UpdatedAt.After(b.Donor.UpdatedAt) {
@@ -194,4 +193,12 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 	slices.SortFunc(certificateProvider, byUpdatedAt)
 
 	return donor, attorney, certificateProvider, nil
+}
+
+func mapValues[M ~map[K]V, K comparable, V any](m M) []V {
+	r := make([]V, 0, len(m))
+	for _, v := range m {
+		r = append(r, v)
+	}
+	return r
 }
