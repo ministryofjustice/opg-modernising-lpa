@@ -1,7 +1,7 @@
 package page
 
 import (
-	"fmt"
+	"log/slog"
 	"net/http"
 	"runtime/debug"
 	"strings"
@@ -10,20 +10,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
 
-type recoverError struct {
-	err   any
-	stack []byte
-}
-
-func (e recoverError) Error() string { return "recover error" }
-func (e recoverError) Title() string { return fmt.Sprint(e.err) }
-func (e recoverError) Data() any     { return string(e.stack) }
-
 func Recover(tmpl template.Template, logger Logger, bundle Bundle, next http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				logger.Request(r, recoverError{err: err, stack: debug.Stack()})
+				logger.Error("recover error", slog.Any("req", r), slog.Any("err", err), slog.String("stack", string(debug.Stack())))
 				w.WriteHeader(http.StatusInternalServerError)
 
 				appData := AppData{CookieConsentSet: true}
@@ -35,7 +26,7 @@ func Recover(tmpl template.Template, logger Logger, bundle Bundle, next http.Han
 				appData.Localizer = bundle.For(appData.Lang)
 
 				if terr := tmpl(w, &errorData{App: appData}); terr != nil {
-					logger.Print(fmt.Sprintf("Error rendering page: %s", terr.Error()))
+					logger.Error("error rendering page", slog.Any("req", r), slog.Any("err", terr))
 					http.Error(w, "Encountered an error", http.StatusInternalServerError)
 				}
 			}

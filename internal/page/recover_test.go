@@ -1,6 +1,7 @@
 package page
 
 import (
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -37,12 +38,15 @@ func TestRecover(t *testing.T) {
 
 			logger := newMockLogger(t)
 			logger.EXPECT().
-				Request(r, mock.MatchedBy(func(e recoverError) bool {
-					return assert.Equal(t, "recover error", e.Error()) &&
-						assert.Equal(t, "runtime error: invalid memory address or nil pointer dereference", e.Title()) &&
-						assert.Contains(t, e.Data(), "github.com/ministryofjustice/opg-modernising-lpa/internal/page.TestRecover") &&
-						assert.Contains(t, e.Data(), "internal/page/recover_test.go:")
-				}))
+				Error("recover error",
+					slog.Any("req", r),
+					mock.MatchedBy(func(a slog.Attr) bool {
+						return assert.ErrorContains(t, a.Value.Any().(error), "runtime error")
+					}),
+					mock.MatchedBy(func(a slog.Attr) bool {
+						return assert.Contains(t, a.Value.String(), "github.com/ministryofjustice/opg-modernising-lpa/internal/page.TestRecover") &&
+							assert.Contains(t, a.Value.String(), "internal/page/recover_test.go:")
+					}))
 
 			bundle := newMockBundle(t)
 			bundle.EXPECT().
@@ -70,9 +74,9 @@ func TestRecoverWhenTemplateErrors(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Request(r, mock.Anything)
+		Error("recover error", mock.Anything, mock.Anything, mock.Anything)
 	logger.EXPECT().
-		Print("Error rendering page: err")
+		Error("error rendering page", slog.Any("req", r), slog.Any("err", expectedError))
 
 	bundle := newMockBundle(t)
 	bundle.EXPECT().

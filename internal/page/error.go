@@ -1,7 +1,7 @@
 package page
 
 import (
-	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -17,7 +17,7 @@ type errorData struct {
 
 func Error(tmpl template.Template, logger Logger) ErrorHandler {
 	return func(w http.ResponseWriter, r *http.Request, err error) {
-		logger.Request(r, err)
+		logger.Error("request error", slog.Any("req", r), slog.Any("err", err))
 		if err == ErrCsrfInvalid {
 			w.WriteHeader(http.StatusForbidden)
 		} else {
@@ -25,7 +25,7 @@ func Error(tmpl template.Template, logger Logger) ErrorHandler {
 		}
 
 		if terr := tmpl(w, &errorData{App: AppDataFromContext(r.Context())}); terr != nil {
-			logger.Request(r, fmt.Errorf("Error rendering page: %w", terr))
+			logger.Error("error rendering page", slog.Any("req", r), slog.Any("err", terr))
 			http.Error(w, "Encountered an error", http.StatusInternalServerError)
 		}
 	}

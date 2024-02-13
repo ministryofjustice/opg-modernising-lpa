@@ -6,6 +6,7 @@ import (
 	"errors"
 	"html"
 	"io"
+	"log/slog"
 	"net/http"
 	"slices"
 
@@ -121,7 +122,7 @@ func UploadEvidence(tmpl template.Template, logger Logger, payer Payer, document
 
 				case "pay":
 					if len(documents.NotScanned()) > 0 {
-						logger.Print("attempt to pay with unscanned documents on lpa:", donor.LpaUID)
+						logger.Info("attempt to pay with unscanned documents on lpa", slog.String("lpaUID", donor.LpaUID))
 						data.Errors = validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"})
 						return tmpl(w, data)
 					}

@@ -1,7 +1,7 @@
 package page
 
 import (
-	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -22,7 +22,7 @@ func Root(tmpl template.Template, logger Logger) Handler {
 
 		w.WriteHeader(http.StatusNotFound)
 		if terr := tmpl(w, &rootData{App: appData}); terr != nil {
-			logger.Print(fmt.Sprintf("Error rendering page: %s", terr.Error()))
+			logger.Error("error rendering page", slog.Any("req", r), slog.Any("err", terr))
 			http.Error(w, "Encountered an error", http.StatusInternalServerError)
 		}
 
