@@ -23,7 +23,7 @@ import (
 )
 
 var validBody = &CreateCaseRequestBody{
-	Type: "pfa",
+	Type: "property-and-affairs",
 	Donor: DonorDetails{
 		Name:     "Jane Smith",
 		Dob:      date.New("2000", "1", "2"),
@@ -71,7 +71,7 @@ func TestCreateCase(t *testing.T) {
 
 	uid, err := client.CreateCase(context.Background(), validBody)
 
-	expectedBody := `{"type":"pfa","source":"APPLICANT","donor":{"name":"Jane Smith","dob":"2000-01-02","postcode":"ABC123"}}`
+	expectedBody := `{"type":"property-and-affairs","source":"APPLICANT","donor":{"name":"Jane Smith","dob":"2000-01-02","postcode":"ABC123"}}`
 
 	assert.Equal(t, http.MethodPost, requestMethod)
 	assert.Equal(t, "/cases", endpointCalled)
@@ -138,7 +138,7 @@ func TestValid(t *testing.T) {
 			},
 		},
 		"missing donor name": {
-			Type:   "pfa",
+			Type:   "property-and-affairs",
 			Source: "APPLICANT",
 			Donor: DonorDetails{
 				Dob:      date.New("2000", "1", "2"),
@@ -146,7 +146,7 @@ func TestValid(t *testing.T) {
 			},
 		},
 		"missing donor date of birth": {
-			Type:   "pfa",
+			Type:   "property-and-affairs",
 			Source: "APPLICANT",
 			Donor: DonorDetails{
 				Name:     "Jane Smith",
@@ -154,7 +154,7 @@ func TestValid(t *testing.T) {
 			},
 		},
 		"missing donor postcode": {
-			Type:   "pfa",
+			Type:   "property-and-affairs",
 			Source: "APPLICANT",
 			Donor: DonorDetails{
 				Name: "Jane Smith",
@@ -235,7 +235,7 @@ func TestCreateCaseNonSuccessResponses(t *testing.T) {
 
 func TestPactContract(t *testing.T) {
 	validCreateCaseBody := &CreateCaseRequestBody{
-		Type: "pfa",
+		Type: "property-and-affairs",
 		Donor: DonorDetails{
 			Name:     "Jane Smith",
 			Dob:      date.New("2000", "1", "2"),
@@ -244,7 +244,7 @@ func TestPactContract(t *testing.T) {
 	}
 
 	invalidCreateCaseBody := &CreateCaseRequestBody{
-		Type: "pfa",
+		Type: "property-and-affairs",
 		Donor: DonorDetails{
 			Name:     "Jane Smith",
 			Dob:      date.New("2000", "1", "2"),
@@ -262,7 +262,7 @@ func TestPactContract(t *testing.T) {
 		"UID created (%d)": {
 			UponReceiving: "A POST request with valid LPA details",
 			ExpectedRequestBody: matchers.Map{
-				"type":   matchers.String("pfa"),
+				"type":   matchers.String("property-and-affairs"),
 				"source": matchers.String("APPLICANT"),
 				"donor": matchers.Like(map[string]any{
 					"name":     "Jane Smith",
@@ -277,7 +277,7 @@ func TestPactContract(t *testing.T) {
 		"UID not created (%d)": {
 			UponReceiving: "A POST request with invalid LPA details",
 			ExpectedRequestBody: matchers.Map{
-				"type":   matchers.String("pfa"),
+				"type":   matchers.String("property-and-affairs"),
 				"source": matchers.String("APPLICANT"),
 				"donor": matchers.Like(map[string]any{
 					"name":     "Jane Smith",
