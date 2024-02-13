@@ -24,7 +24,7 @@ describe('Invite member', () => {
     cy.get('#f-email').type(TestEmail);
     cy.get('#f-first-names').type('John');
     cy.get('#f-last-name').type('Doe');
-    cy.get('[name="permission"]').check('admin')
+    cy.get('[name="permission"]').check('admin', { force: true });
 
     cy.contains('button', 'Send invite').click();
 
