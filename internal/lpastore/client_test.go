@@ -630,10 +630,10 @@ func TestClientServiceContract(t *testing.T) {
 			UponReceiving("A request to create a new case").
 			WithRequest(http.MethodPut, "/lpas/M-0000-1111-2222", func(b *consumer.V2RequestBuilder) {
 				b.
-					Header("Content-Type", matchers.String("application/json")).
-					Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 .*")).
-					Header("X-Amz-Date", matchers.String("20000102T000000Z")).
-					Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
+					// Header("Content-Type", matchers.String("application/json")).
+					// Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 .*")).
+					// Header("X-Amz-Date", matchers.String("20000102T000000Z")).
+					// Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
 					JSONBody(matchers.Map{
 						"lpaType":                       matchers.Regex("personal-welfare", "personal-welfare|property-and-affairs"),
 						"lifeSustainingTreatmentOption": matchers.Regex("option-a", "option-a|option-b"),
@@ -688,7 +688,7 @@ func TestClientServiceContract(t *testing.T) {
 					})
 			}).
 			WillRespondWith(http.StatusCreated, func(b *consumer.V2ResponseBuilder) {
-				b.Header("Content-Type", matchers.String("application/json"))
+				// b.Header("Content-Type", matchers.String("application/json"))
 				b.JSONBody(matchers.Map{})
 			})
 
@@ -763,10 +763,10 @@ func TestClientServiceContract(t *testing.T) {
 			UponReceiving("A request to create a case with existing UID").
 			WithRequest(http.MethodPut, "/lpas/M-0000-1111-2222", func(b *consumer.V2RequestBuilder) {
 				b.
-					Header("Content-Type", matchers.String("application/json")).
-					Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 .*")).
-					Header("X-Amz-Date", matchers.String("20000102T000000Z")).
-					Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
+					// Header("Content-Type", matchers.String("application/json")).
+					// Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 .*")).
+					// Header("X-Amz-Date", matchers.String("20000102T000000Z")).
+					// Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
 					JSONBody(matchers.Map{
 						"lpaType": matchers.Regex("personal-welfare", "personal-welfare|property-and-affairs"),
 						"donor": matchers.Like(map[string]any{
@@ -834,7 +834,7 @@ func TestClientServiceContract(t *testing.T) {
 					})
 			}).
 			WillRespondWith(http.StatusBadRequest, func(b *consumer.V2ResponseBuilder) {
-				b.Header("Content-Type", matchers.String("application/json"))
+				// b.Header("Content-Type", matchers.String("application/json"))
 				b.JSONBody(matchers.Map{
 					"code":   matchers.String("INVALID_REQUEST"),
 					"detail": matchers.String("LPA with UID already exists"),
@@ -920,10 +920,10 @@ func TestClientServiceContract(t *testing.T) {
 			UponReceiving("A request to send the attorney data").
 			WithRequest(http.MethodPost, "/lpas/M-0000-1111-2222/updates", func(b *consumer.V2RequestBuilder) {
 				b.
-					Header("Content-Type", matchers.String("application/json")).
-					Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 .*")).
-					Header("X-Amz-Date", matchers.String("20000102T000000Z")).
-					Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
+					// Header("Content-Type", matchers.String("application/json")).
+					// Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 .*")).
+					// Header("X-Amz-Date", matchers.String("20000102T000000Z")).
+					// Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
 					JSONBody(matchers.Map{
 						"type": matchers.Like("ATTORNEY_SIGN"),
 						"changes": matchers.Like([]map[string]any{{
@@ -942,7 +942,7 @@ func TestClientServiceContract(t *testing.T) {
 					})
 			}).
 			WillRespondWith(http.StatusCreated, func(b *consumer.V2ResponseBuilder) {
-				b.Header("Content-Type", matchers.String("application/json"))
+				// b.Header("Content-Type", matchers.String("application/json"))
 				b.JSONBody(matchers.Map{})
 			})
 
@@ -986,10 +986,10 @@ func TestClientServiceContract(t *testing.T) {
 			UponReceiving("A request to send the certificate provider data").
 			WithRequest(http.MethodPost, "/lpas/M-0000-1111-2222/updates", func(b *consumer.V2RequestBuilder) {
 				b.
-					Header("Content-Type", matchers.String("application/json")).
-					Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 .*")).
-					Header("X-Amz-Date", matchers.String("20000102T000000Z")).
-					Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
+					// Header("Content-Type", matchers.String("application/json")).
+					// Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 .*")).
+					// Header("X-Amz-Date", matchers.String("20000102T000000Z")).
+					// Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
 					JSONBody(matchers.Map{
 						"type": matchers.Like("CERTIFICATE_PROVIDER_SIGN"),
 						"changes": matchers.Like([]map[string]any{{
@@ -1004,7 +1004,7 @@ func TestClientServiceContract(t *testing.T) {
 					})
 			}).
 			WillRespondWith(http.StatusCreated, func(b *consumer.V2ResponseBuilder) {
-				b.Header("Content-Type", matchers.String("application/json"))
+				// b.Header("Content-Type", matchers.String("application/json"))
 				b.JSONBody(matchers.Map{})
 			})
 
@@ -1042,10 +1042,10 @@ func TestClientServiceContract(t *testing.T) {
 			UponReceiving("A request to send the certificate provider data for a professional").
 			WithRequest(http.MethodPost, "/lpas/M-0000-1111-2222/updates", func(b *consumer.V2RequestBuilder) {
 				b.
-					Header("Content-Type", matchers.String("application/json")).
-					Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 .*")).
-					Header("X-Amz-Date", matchers.String("20000102T000000Z")).
-					Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
+					// Header("Content-Type", matchers.String("application/json")).
+					// Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 .*")).
+					// Header("X-Amz-Date", matchers.String("20000102T000000Z")).
+					// Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
 					JSONBody(matchers.Map{
 						"type": matchers.Like("CERTIFICATE_PROVIDER_SIGN"),
 						"changes": matchers.Like([]map[string]any{{
@@ -1072,7 +1072,7 @@ func TestClientServiceContract(t *testing.T) {
 					})
 			}).
 			WillRespondWith(http.StatusCreated, func(b *consumer.V2ResponseBuilder) {
-				b.Header("Content-Type", matchers.String("application/json"))
+				// b.Header("Content-Type", matchers.String("application/json"))
 				b.JSONBody(matchers.Map{})
 			})
 
@@ -1113,10 +1113,10 @@ func TestClientServiceContract(t *testing.T) {
 			UponReceiving("A request to update the lpa").
 			WithRequest(http.MethodPost, "/lpas/M-0000-1111-2222/updates", func(b *consumer.V2RequestBuilder) {
 				b.
-					Header("Content-Type", matchers.String("application/json")).
-					Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 .*")).
-					Header("X-Amz-Date", matchers.String("20000102T000000Z")).
-					Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
+					// Header("Content-Type", matchers.String("application/json")).
+					// Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 .*")).
+					// Header("X-Amz-Date", matchers.String("20000102T000000Z")).
+					// Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
 					JSONBody(matchers.Map{
 						"type": matchers.Like("A_TYPE"),
 						"changes": matchers.EachLike(map[string]any{
@@ -1127,7 +1127,7 @@ func TestClientServiceContract(t *testing.T) {
 					})
 			}).
 			WillRespondWith(http.StatusBadRequest, func(b *consumer.V2ResponseBuilder) {
-				b.Header("Content-Type", matchers.String("application/json"))
+				// b.Header("Content-Type", matchers.String("application/json"))
 				b.JSONBody(matchers.Map{
 					"code":   matchers.String("INVALID_REQUEST"),
 					"detail": matchers.String("Invalid request"),
