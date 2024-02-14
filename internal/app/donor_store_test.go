@@ -81,6 +81,16 @@ func (m *mockDynamoClient) ExpectAllByKeys(ctx context.Context, keys []dynamo.Ke
 		Return(data, err)
 }
 
+func (m *mockDynamoClient) ExpectOneBySK(ctx, sk, data interface{}, err error) {
+	m.
+		On("OneBySK", ctx, sk, mock.Anything).
+		Return(func(ctx context.Context, sk string, v interface{}) error {
+			b, _ := json.Marshal(data)
+			json.Unmarshal(b, v)
+			return err
+		})
+}
+
 func TestDonorStoreGetAny(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id"})
 

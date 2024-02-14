@@ -3,7 +3,6 @@ package supporter
 import (
 	"context"
 	"errors"
-	"log"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -50,8 +49,6 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 
 			return page.Paths.Supporter.EnterReferenceNumber.Redirect(w, r, appData)
 		}
-
-		log.Println(err)
 
 		organisation, err := organisationStore.Get(ctx)
 		if err == nil {

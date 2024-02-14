@@ -30,6 +30,10 @@ func (s *organisationStore) Create(ctx context.Context, name string) (*actor.Org
 		return nil, errors.New("organisationStore.Create requires SessionID")
 	}
 
+	if data.Email == "" {
+		return nil, errors.New("organisationStore.Create requires Email")
+	}
+
 	organisationID := s.uuidString()
 
 	organisation := &actor.Organisation{
@@ -63,17 +67,12 @@ func (s *organisationStore) Get(ctx context.Context) (*actor.Organisation, error
 		return nil, err
 	}
 
-	if data.SessionID == "" {
-		return nil, errors.New("organisationStore.Get requires SessionID")
-	}
-
-	var member actor.Member
-	if err := s.dynamoClient.One(ctx, organisationKey(data.OrganisationID), memberKey(data.SessionID), &member); err != nil {
-		return nil, err
+	if data.OrganisationID == "" {
+		return nil, errors.New("organisationStore.Get requires OrganisationID")
 	}
 
 	var organisation actor.Organisation
-	if err := s.dynamoClient.One(ctx, member.PK, member.PK, &organisation); err != nil {
+	if err := s.dynamoClient.One(ctx, organisationKey(data.OrganisationID), organisationKey(data.OrganisationID), &organisation); err != nil {
 		return nil, err
 	}
 
