@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"golang.org/x/exp/maps"
 )
 
 // An lpaLink is used to join an actor to an LPA.
@@ -23,7 +24,7 @@ type lpaLink struct {
 	DonorKey string
 	// ActorType is the type for the current user
 	ActorType actor.Type
-	// UpdatedAt is set to allow this data to be queried from ActorUpdatedAtIndex
+	// UpdatedAt is set to allow this data to be queried from SkUpdatedAtIndex
 	UpdatedAt time.Time
 }
 
@@ -49,7 +50,7 @@ func (k keys) isAttorneyDetails() bool {
 
 func (s *dashboardStore) SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error) {
 	var links []lpaLink
-	if err := s.dynamoClient.AllForActor(ctx, subKey(sub), &links); err != nil {
+	if err := s.dynamoClient.AllBySK(ctx, subKey(sub), &links); err != nil {
 		return false, err
 	}
 
@@ -73,7 +74,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 	}
 
 	var links []lpaLink
-	if err := s.dynamoClient.AllForActor(ctx, subKey(data.SessionID), &links); err != nil {
+	if err := s.dynamoClient.AllBySK(ctx, subKey(data.SessionID), &links); err != nil {
 		return nil, nil, nil, err
 	}
 
@@ -178,8 +179,8 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		}
 	}
 
-	certificateProvider = mapValues(certificateProviderMap)
-	attorney = mapValues(attorneyMap)
+	certificateProvider = maps.Values(certificateProviderMap)
+	attorney = maps.Values(attorneyMap)
 
 	byUpdatedAt := func(a, b page.LpaAndActorTasks) int {
 		if a.Donor.UpdatedAt.After(b.Donor.UpdatedAt) {
@@ -193,12 +194,4 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 	slices.SortFunc(certificateProvider, byUpdatedAt)
 
 	return donor, attorney, certificateProvider, nil
-}
-
-func mapValues[M ~map[K]V, K comparable, V any](m M) []V {
-	r := make([]V, 0, len(m))
-	for _, v := range m {
-		r = append(r, v)
-	}
-	return r
 }

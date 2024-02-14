@@ -12,7 +12,6 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -42,7 +41,7 @@ type DynamoClient interface {
 	OneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
 	AllByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
 	LatestForActor(ctx context.Context, sk string, v interface{}) error
-	AllForActor(ctx context.Context, sk string, v interface{}) error
+	AllBySK(ctx context.Context, sk string, v interface{}) error
 	AllByKeys(ctx context.Context, pks []dynamo.Key) ([]map[string]dynamodbtypes.AttributeValue, error)
 	AllKeysByPk(ctx context.Context, pk string) ([]dynamo.Key, error)
 	Put(ctx context.Context, v interface{}) error
@@ -51,7 +50,9 @@ type DynamoClient interface {
 	DeleteOne(ctx context.Context, pk, sk string) error
 	Update(ctx context.Context, pk, sk string, values map[string]dynamodbtypes.AttributeValue, expression string) error
 	BatchPut(ctx context.Context, items []interface{}) error
+	OneBySK(ctx context.Context, sk string, v interface{}) error
 	OneByUID(ctx context.Context, uid string, v interface{}) error
+	OneByEmailAndPartialSK(ctx context.Context, email, partialSK string, v interface{}) error
 }
 
 type S3Client interface {
@@ -90,7 +91,6 @@ func App(
 		eventClient:   eventClient,
 		logger:        logger,
 		uuidString:    uuid.NewString,
-		newUID:        actoruid.New,
 		now:           time.Now,
 		documentStore: documentStore,
 	}
