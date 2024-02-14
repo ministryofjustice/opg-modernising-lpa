@@ -1,7 +1,7 @@
 package page
 
 import (
-	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -17,12 +17,12 @@ func SignOut(logger Logger, sessionStore sesh.Store, oneLoginClient OneLoginClie
 		}
 
 		if err := sesh.ClearLoginSession(sessionStore, r, w); err != nil {
-			logger.Print(fmt.Sprintf("unable to expire session: %s", err.Error()))
+			logger.Info("unable to expire session", slog.Any("err", err))
 		}
 
 		endSessionURL, err := oneLoginClient.EndSessionURL(idToken, redirectURL)
 		if err != nil {
-			logger.Print(fmt.Sprintf("unable to end onelogin session: %s", err.Error()))
+			logger.Info("unable to end onelogin session", slog.Any("err", err))
 			endSessionURL = redirectURL
 		}
 

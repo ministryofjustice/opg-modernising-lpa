@@ -1,6 +1,7 @@
 package donor
 
 import (
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -404,7 +405,7 @@ func TestPostYourIndependentWitnessAddressLookupError(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Print(expectedError)
+		Info("postcode lookup", slog.Any("err", expectedError))
 
 	addressClient := newMockAddressClient(t)
 	addressClient.EXPECT().
@@ -452,7 +453,7 @@ func TestPostYourIndependentWitnessAddressInvalidPostcodeError(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Print(invalidPostcodeErr)
+		Info("postcode lookup", slog.Any("err", invalidPostcodeErr))
 
 	addressClient := newMockAddressClient(t)
 	addressClient.EXPECT().

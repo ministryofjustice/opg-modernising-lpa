@@ -2,7 +2,6 @@ package fixtures
 
 import (
 	"encoding/base64"
-	"log"
 	"net/http"
 	"slices"
 	"time"
@@ -180,8 +179,6 @@ func CertificateProvider(
 		default:
 			redirect = "/certificate-provider/" + donor.LpaID + redirect
 		}
-
-		log.Println("Logging in with sub", certificateProviderSub)
 
 		http.Redirect(w, r, redirect, http.StatusFound)
 		return nil

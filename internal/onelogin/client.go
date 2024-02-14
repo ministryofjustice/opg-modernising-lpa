@@ -17,7 +17,7 @@ type Doer interface {
 }
 
 type Logger interface {
-	Print(v ...interface{})
+	Warn(msg string, args ...any)
 }
 
 type SecretsClient interface {

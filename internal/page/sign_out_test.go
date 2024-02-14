@@ -1,7 +1,7 @@
 package page
 
 import (
-	"errors"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -49,7 +49,7 @@ func TestSignOutWhenEndSessionURLFails(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Print("unable to end onelogin session: err")
+		Info("unable to end onelogin session", slog.Any("err", expectedError))
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -81,7 +81,7 @@ func TestSignOutWhenClearSessionFails(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Print("unable to expire session: err")
+		Info("unable to expire session", slog.Any("err", expectedError))
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -92,7 +92,7 @@ func TestSignOutWhenClearSessionFails(t *testing.T) {
 		}, nil)
 	sessionStore.EXPECT().
 		Save(r, w, mock.Anything).
-		Return(errors.New("err"))
+		Return(expectedError)
 
 	oneLoginClient := newMockOneLoginClient(t)
 	oneLoginClient.EXPECT().

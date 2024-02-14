@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -10,7 +11,6 @@ import (
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
-	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -34,7 +34,9 @@ import (
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type Logger interface {
-	Print(v ...interface{})
+	Info(msg string, args ...any)
+	Warn(msg string, args ...any)
+	Error(msg string, args ...any)
 }
 
 type DynamoClient interface {
@@ -68,7 +70,7 @@ type SessionStore interface {
 }
 
 func App(
-	logger *logging.Logger,
+	logger *slog.Logger,
 	localizer page.Localizer,
 	lang localize.Lang,
 	tmpls, donorTmpls, certificateProviderTmpls, attorneyTmpls, supporterTmpls template.Templates,
