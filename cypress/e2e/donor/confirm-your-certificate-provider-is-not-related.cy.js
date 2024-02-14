@@ -13,7 +13,7 @@ describe('Confirm your certificate provider is not related', () => {
   it('continues when selected', () => {
     cy.checkA11yApp();
 
-    cy.get('#f-yes-no').click();
+    cy.get('#f-yes-no').click({ force: true });
     cy.contains('button', 'Continue').click();
     cy.url().should('contain', '/check-your-lpa');
   });
