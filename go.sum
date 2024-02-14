@@ -487,6 +487,8 @@ github.com/mitchellh/mapstructure v1.5.0 h1:jeMsZIYE/09sWLaz43PL7Gy6RuMjD2eJVyua
 github.com/mitchellh/mapstructure v1.5.0/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
 github.com/pact-foundation/pact-go/v2 v2.0.3 h1:oxUuOEIFi4X125zQSe7AIQW1OXCn2hsaYDVIx1y6a24=
 github.com/pact-foundation/pact-go/v2 v2.0.3/go.mod h1:4yy8YWVCuxAgqSmfiEf5lmzfLsa6oLCmVXEEC2AcObw=
+github.com/pact-foundation/pact-go/v2 v2.0.4 h1:KnVmFkqRZfg9aRI5OKp6Ub39nWUUuXCk2mDJwc+I2JE=
+github.com/pact-foundation/pact-go/v2 v2.0.4/go.mod h1:4yy8YWVCuxAgqSmfiEf5lmzfLsa6oLCmVXEEC2AcObw=
 github.com/pelletier/go-toml/v2 v2.1.0 h1:FnwAJ4oYMvbT/34k9zzHuZNrhlz48GB3/s6at6/MHO4=
 github.com/pelletier/go-toml/v2 v2.1.0/go.mod h1:tJU2Z3ZkXwnxa4DPO899bsyIoywizdUvyaeZurnPPDc=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=

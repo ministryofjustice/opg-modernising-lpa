@@ -24,7 +24,7 @@ require (
 	github.com/gorilla/sessions v1.2.2
 	github.com/ministryofjustice/opg-go-common v0.0.0-20231128145056-24628fba649c
 	github.com/mitchellh/hashstructure/v2 v2.0.2
-	github.com/pact-foundation/pact-go/v2 v2.0.3
+	github.com/pact-foundation/pact-go/v2 v2.0.4
 	github.com/stretchr/testify v1.8.4
 	github.com/vektra/mockery/v2 v2.40.3
 	github.com/xeipuuv/gojsonschema v1.2.0
