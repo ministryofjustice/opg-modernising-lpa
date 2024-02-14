@@ -2,7 +2,7 @@ package donor
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -23,7 +23,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, &log.Logger{}, template.Templates{}, template.Templates{}, nil, nil, &onelogin.Client{}, &place.Client{}, "http://example.org", &pay.Client{}, nil, &mockWitnessCodeSender{}, nil, nil, nil, nil, &notify.Client{}, nil, nil, nil, nil, nil)
+	Register(mux, &slog.Logger{}, template.Templates{}, template.Templates{}, nil, nil, &onelogin.Client{}, &place.Client{}, "http://example.org", &pay.Client{}, nil, &mockWitnessCodeSender{}, nil, nil, nil, nil, &notify.Client{}, nil, nil, nil, nil, nil)
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
@@ -718,22 +718,17 @@ func TestPayHelperPayWhenCreatePaymentErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
-	logger := newMockLogger(t)
-	logger.EXPECT().
-		Print("Error creating payment: err")
-
 	payClient := newMockPayClient(t)
 	payClient.EXPECT().
 		CreatePayment(mock.Anything, mock.Anything).
 		Return(pay.CreatePaymentResponse{}, expectedError)
 
 	err := (&payHelper{
-		logger:       logger,
 		payClient:    payClient,
 		randomString: func(int) string { return "123456789012" },
 	}).Pay(testAppData, w, r, &actor.DonorProvidedDetails{})
 
-	assert.Equal(t, expectedError, err)
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestPayHelperPayWhenSessionErrors(t *testing.T) {

@@ -3,7 +3,6 @@ package fixtures
 import (
 	"context"
 	"encoding/base64"
-	"log"
 	"net/http"
 	"slices"
 	"time"
@@ -296,8 +295,6 @@ func Attorney(
 		} else {
 			redirect = "/attorney/" + donor.LpaID + redirect
 		}
-
-		log.Println("Logging in with sub", attorneySub)
 
 		http.Redirect(w, r, redirect, http.StatusFound)
 		return nil
