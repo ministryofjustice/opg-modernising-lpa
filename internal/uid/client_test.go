@@ -297,7 +297,7 @@ func TestPactContract(t *testing.T) {
 		},
 	}
 
-	mockProvider, err := consumer.NewV2Pact(consumer.MockHTTPProviderConfig{
+	mockProvider, err := consumer.NewV4Pact(consumer.MockHTTPProviderConfig{
 		Consumer: "modernising-lpa",
 		Provider: "data-lpa-uid",
 		LogDir:   "../../logs",
@@ -311,14 +311,14 @@ func TestPactContract(t *testing.T) {
 				AddInteraction().
 				Given("The UID service is available").
 				UponReceiving(tc.UponReceiving).
-				WithRequest(http.MethodPost, "/cases", func(b *consumer.V2RequestBuilder) {
+				WithRequest(http.MethodPost, "/cases", func(b *consumer.V4RequestBuilder) {
 					b.
 						Header("Content-Type", matchers.String("application/json")).
 						Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date, Signature=98fe2cb1c34c6de900d291351991ba8aa948ca05b7bff969d781edce9b75ee20", "AWS4-HMAC-SHA256 .*")).
 						Header("X-Amz-Date", matchers.String("20000102T000000Z")).
 						JSONBody(tc.ExpectedRequestBody)
 				}).
-				WillRespondWith(tc.ResponseStatus, func(b *consumer.V2ResponseBuilder) {
+				WillRespondWith(tc.ResponseStatus, func(b *consumer.V4ResponseBuilder) {
 					b.Header("Content-Type", matchers.String("application/json"))
 					b.JSONBody(tc.ResponseBody)
 				})
