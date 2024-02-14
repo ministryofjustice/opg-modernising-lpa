@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -20,8 +21,7 @@ type removePersonToNotifyData struct {
 
 func RemovePersonToNotify(logger Logger, tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
-		id := r.FormValue("id")
-		person, found := donor.PeopleToNotify.Get(id)
+		person, found := donor.PeopleToNotify.Get(actoruid.FromRequest(r))
 
 		if found == false {
 			return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, donor)

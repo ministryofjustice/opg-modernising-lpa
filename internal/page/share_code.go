@@ -74,6 +74,7 @@ func (s *ShareCodeSender) sendCertificateProvider(ctx context.Context, appData A
 
 	if err := s.shareCodeStore.Put(ctx, actor.TypeCertificateProvider, shareCode, actor.ShareCodeData{
 		LpaID:           appData.LpaID,
+		ActorUID:        donor.CertificateProvider.UID,
 		DonorFullname:   donor.Donor.FullName(),
 		DonorFirstNames: donor.Donor.FirstNames,
 		SessionID:       appData.SessionID,
@@ -126,9 +127,9 @@ func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData AppD
 			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
 		},
 		actor.ShareCodeData{
-			SessionID:  appData.SessionID,
-			LpaID:      appData.LpaID,
-			AttorneyID: attorney.ID,
+			SessionID: appData.SessionID,
+			LpaID:     appData.LpaID,
+			ActorUID:  attorney.UID,
 		}, donor)
 }
 
@@ -148,7 +149,7 @@ func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData A
 		}, actor.ShareCodeData{
 			SessionID:             appData.SessionID,
 			LpaID:                 appData.LpaID,
-			AttorneyID:            attorney.ID,
+			ActorUID:              attorney.UID,
 			IsReplacementAttorney: true,
 		}, donor)
 }
@@ -170,6 +171,7 @@ func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData AppD
 		actor.ShareCodeData{
 			SessionID:          appData.SessionID,
 			LpaID:              appData.LpaID,
+			ActorUID:           trustCorporation.UID,
 			IsTrustCorporation: true,
 		}, donor)
 }
@@ -191,6 +193,7 @@ func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, a
 		actor.ShareCodeData{
 			SessionID:             appData.SessionID,
 			LpaID:                 appData.LpaID,
+			ActorUID:              trustCorporation.UID,
 			IsTrustCorporation:    true,
 			IsReplacementAttorney: true,
 		}, donor)

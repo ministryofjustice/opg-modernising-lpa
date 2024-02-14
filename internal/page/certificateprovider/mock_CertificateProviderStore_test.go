@@ -3,9 +3,10 @@
 package certificateprovider
 
 import (
-	context "context"
-
 	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	actoruid "github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+
+	context "context"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -23,9 +24,9 @@ func (_m *mockCertificateProviderStore) EXPECT() *mockCertificateProviderStore_E
 	return &mockCertificateProviderStore_Expecter{mock: &_m.Mock}
 }
 
-// Create provides a mock function with given fields: ctx, sessionID
-func (_m *mockCertificateProviderStore) Create(ctx context.Context, sessionID string) (*actor.CertificateProviderProvidedDetails, error) {
-	ret := _m.Called(ctx, sessionID)
+// Create provides a mock function with given fields: ctx, sessionID, certificateProviderUID
+func (_m *mockCertificateProviderStore) Create(ctx context.Context, sessionID string, certificateProviderUID actoruid.UID) (*actor.CertificateProviderProvidedDetails, error) {
+	ret := _m.Called(ctx, sessionID, certificateProviderUID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
@@ -33,19 +34,19 @@ func (_m *mockCertificateProviderStore) Create(ctx context.Context, sessionID st
 
 	var r0 *actor.CertificateProviderProvidedDetails
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*actor.CertificateProviderProvidedDetails, error)); ok {
-		return rf(ctx, sessionID)
+	if rf, ok := ret.Get(0).(func(context.Context, string, actoruid.UID) (*actor.CertificateProviderProvidedDetails, error)); ok {
+		return rf(ctx, sessionID, certificateProviderUID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *actor.CertificateProviderProvidedDetails); ok {
-		r0 = rf(ctx, sessionID)
+	if rf, ok := ret.Get(0).(func(context.Context, string, actoruid.UID) *actor.CertificateProviderProvidedDetails); ok {
+		r0 = rf(ctx, sessionID, certificateProviderUID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*actor.CertificateProviderProvidedDetails)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, sessionID)
+	if rf, ok := ret.Get(1).(func(context.Context, string, actoruid.UID) error); ok {
+		r1 = rf(ctx, sessionID, certificateProviderUID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -61,13 +62,14 @@ type mockCertificateProviderStore_Create_Call struct {
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
 //   - sessionID string
-func (_e *mockCertificateProviderStore_Expecter) Create(ctx interface{}, sessionID interface{}) *mockCertificateProviderStore_Create_Call {
-	return &mockCertificateProviderStore_Create_Call{Call: _e.mock.On("Create", ctx, sessionID)}
+//   - certificateProviderUID actoruid.UID
+func (_e *mockCertificateProviderStore_Expecter) Create(ctx interface{}, sessionID interface{}, certificateProviderUID interface{}) *mockCertificateProviderStore_Create_Call {
+	return &mockCertificateProviderStore_Create_Call{Call: _e.mock.On("Create", ctx, sessionID, certificateProviderUID)}
 }
 
-func (_c *mockCertificateProviderStore_Create_Call) Run(run func(ctx context.Context, sessionID string)) *mockCertificateProviderStore_Create_Call {
+func (_c *mockCertificateProviderStore_Create_Call) Run(run func(ctx context.Context, sessionID string, certificateProviderUID actoruid.UID)) *mockCertificateProviderStore_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string))
+		run(args[0].(context.Context), args[1].(string), args[2].(actoruid.UID))
 	})
 	return _c
 }
@@ -77,7 +79,7 @@ func (_c *mockCertificateProviderStore_Create_Call) Return(_a0 *actor.Certificat
 	return _c
 }
 
-func (_c *mockCertificateProviderStore_Create_Call) RunAndReturn(run func(context.Context, string) (*actor.CertificateProviderProvidedDetails, error)) *mockCertificateProviderStore_Create_Call {
+func (_c *mockCertificateProviderStore_Create_Call) RunAndReturn(run func(context.Context, string, actoruid.UID) (*actor.CertificateProviderProvidedDetails, error)) *mockCertificateProviderStore_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
