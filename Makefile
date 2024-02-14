@@ -97,7 +97,7 @@ get-documents:  ##@dynamodb dumps all documents in the lpas dynamodb table that 
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 \
 		query --table-name lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "LPA#$(lpaId)"}, ":sk": {"S": "#DOCUMENT#"}}'
 
-get-org-members:  ##@dynamodb dumps all documents in the lpas dynamodb table that are related to the LPA id supplied e.g. get-documents lpaId=abc-123
+get-org-members:  ##@dynamodb dumps all members of an org by orgId supplied e.g. get-org-members orgId=abc-123
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 \
 		query --table-name lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "ORGANISATION#$(orgId)"}, ":sk": {"S": "MEMBER#"}}'
 
