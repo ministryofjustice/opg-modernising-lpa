@@ -19,7 +19,7 @@ type removePersonToNotifyData struct {
 	Form           *form.YesNoForm
 }
 
-func RemovePersonToNotify(logger Logger, tmpl template.Template, donorStore DonorStore) Handler {
+func RemovePersonToNotify(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		person, found := donor.PeopleToNotify.Get(actoruid.FromRequest(r))
 
@@ -45,8 +45,7 @@ func RemovePersonToNotify(logger Logger, tmpl template.Template, donorStore Dono
 					}
 
 					if err := donorStore.Put(r.Context(), donor); err != nil {
-						logger.Print(fmt.Sprintf("error removing PersonToNotify from LPA: %s", err.Error()))
-						return err
+						return fmt.Errorf("error removing PersonToNotify from LPA: %w", err)
 					}
 				}
 

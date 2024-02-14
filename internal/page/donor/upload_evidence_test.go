@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"io"
+	"log/slog"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -384,7 +385,7 @@ func TestPostUploadEvidenceWithPayActionWhenUnscannedDocument(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Print("attempt to pay with unscanned documents on lpa:", "lpa-uid")
+		Info("attempt to pay with unscanned documents on lpa", slog.String("lpaUID", "lpa-uid"))
 
 	err := UploadEvidence(template.Execute, logger, nil, documentStore)(testAppData, w, r, donor)
 	resp := w.Result()

@@ -2,7 +2,7 @@ package donor
 
 import (
 	"context"
-	"fmt"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -139,11 +139,6 @@ func TestGetPaymentConfirmationWhenErrorGettingPayment(t *testing.T) {
 	sessionStore := newMockSessionStore(t).
 		withPaySession(r)
 
-	logger := newMockLogger(t)
-	logger.EXPECT().
-		Print(fmt.Sprintf("unable to retrieve payment info: %s", expectedError.Error())).
-		Return()
-
 	payClient := newMockPayClient(t)
 	payClient.EXPECT().
 		GetPayment(r.Context(), "abc123").
@@ -151,10 +146,10 @@ func TestGetPaymentConfirmationWhenErrorGettingPayment(t *testing.T) {
 
 	template := newMockTemplate(t)
 
-	err := PaymentConfirmation(logger, template.Execute, payClient, nil, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := PaymentConfirmation(nil, template.Execute, payClient, nil, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.ErrorIs(t, err, expectedError)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -174,8 +169,7 @@ func TestGetPaymentConfirmationWhenErrorExpiringSession(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Print(fmt.Sprintf("unable to expire cookie in session: %s", expectedError.Error())).
-		Return()
+		Info("unable to expire cookie in session", slog.Any("err", expectedError))
 
 	payClient := newMockPayClient(t).
 		withASuccessfulPayment("abc123", "123456789012", 8200, r.Context())
@@ -210,11 +204,7 @@ func TestGetPaymentConfirmationHalfFeeWhenDonorStorePutError(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	logger := newMockLogger(t)
-	logger.EXPECT().
-		Print(fmt.Sprintf("unable to update lpa in donorStore: %s", expectedError))
-
-	err := PaymentConfirmation(logger, nil, payClient, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := PaymentConfirmation(nil, nil, payClient, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		FeeType: pay.HalfFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
@@ -222,7 +212,7 @@ func TestGetPaymentConfirmationHalfFeeWhenDonorStorePutError(t *testing.T) {
 	})
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.ErrorIs(t, err, expectedError)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
