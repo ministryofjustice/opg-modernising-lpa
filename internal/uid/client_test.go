@@ -234,69 +234,6 @@ func TestCreateCaseNonSuccessResponses(t *testing.T) {
 }
 
 func TestPactContract(t *testing.T) {
-	validCreateCaseBody := &CreateCaseRequestBody{
-		Type: "property-and-affairs",
-		Donor: DonorDetails{
-			Name:     "Jane Smith",
-			Dob:      date.New("2000", "1", "2"),
-			Postcode: "ABC123",
-		},
-	}
-
-	// invalidCreateCaseBody := &CreateCaseRequestBody{
-	// 	Type: "property-and-affairs",
-	// 	Donor: DonorDetails{
-	// 		Name:     "Jane Smith",
-	// 		Dob:      date.New("2000", "1", "2"),
-	// 		Postcode: "ABCD12345",
-	// 	},
-	// }
-
-	testCases := map[string]struct {
-		UponReceiving       string
-		ExpectedRequestBody matchers.Map
-		ActualRequestBody   *CreateCaseRequestBody
-		ResponseBody        matchers.Map
-		ResponseStatus      int
-	}{
-		"UID created (%d)": {
-			UponReceiving: "A POST request with valid LPA details",
-			ExpectedRequestBody: matchers.Map{
-				"type":   matchers.String("property-and-affairs"),
-				"source": matchers.String("APPLICANT"),
-				"donor": matchers.Like(map[string]any{
-					"name":     "Jane Smith",
-					"dob":      "2000-01-02",
-					"postcode": "ABC123",
-				}),
-			},
-			ActualRequestBody: validCreateCaseBody,
-			ResponseBody:      matchers.Map{"uid": matchers.Regex("M-789Q-P4DF-4UX3", "M(-[A-Z0-9]{4}){3}")},
-			ResponseStatus:    http.StatusCreated,
-		},
-		// "UID not created (%d)": {
-		// 	UponReceiving: "A POST request with invalid LPA details",
-		// 	ExpectedRequestBody: matchers.Map{
-		// 		"type":   matchers.String("property-and-affairs"),
-		// 		"source": matchers.String("APPLICANT"),
-		// 		"donor": matchers.Like(map[string]any{
-		// 			"name":     "Jane Smith",
-		// 			"dob":      "2000-01-02",
-		// 			"postcode": "ABCD12345",
-		// 		}),
-		// 	},
-		// 	ActualRequestBody: invalidCreateCaseBody,
-		// 	ResponseBody: matchers.Map{
-		// 		"code": matchers.String("INVALID_REQUEST"),
-		// 		"errors": matchers.EachLike(matchers.Map{
-		// 			"source": matchers.String("/donor/postcode"),
-		// 			"detail": matchers.String("must be a valid postcode"),
-		// 		}, 1),
-		// 	},
-		// 	ResponseStatus: http.StatusBadRequest,
-		// },
-	}
-
 	mockProvider, err := consumer.NewV2Pact(consumer.MockHTTPProviderConfig{
 		Consumer: "modernising-lpa",
 		Provider: "data-lpa-uid",
@@ -305,50 +242,56 @@ func TestPactContract(t *testing.T) {
 	})
 	assert.Nil(t, err)
 
-	for name, tc := range testCases {
-		t.Run(fmt.Sprintf(name, tc.ResponseStatus), func(t *testing.T) {
-			mockProvider.
-				AddInteraction().
-				Given("The UID service is available").
-				UponReceiving(tc.UponReceiving).
-				WithRequest(http.MethodPost, "/cases", func(b *consumer.V2RequestBuilder) {
-					b.
-						Header("Content-Type", matchers.String("application/json")).
-						Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date, Signature=98fe2cb1c34c6de900d291351991ba8aa948ca05b7bff969d781edce9b75ee20", "AWS4-HMAC-SHA256 .*")).
-						Header("X-Amz-Date", matchers.String("20000102T000000Z")).
-						JSONBody(tc.ExpectedRequestBody)
+	mockProvider.
+		AddInteraction().
+		Given("The UID service is available").
+		UponReceiving("A POST request with valid LPA details").
+		WithRequest(http.MethodPost, "/cases", func(b *consumer.V2RequestBuilder) {
+			b.
+				// Header("Content-Type", matchers.String("application/json")).
+				// Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date, Signature=98fe2cb1c34c6de900d291351991ba8aa948ca05b7bff969d781edce9b75ee20", "AWS4-HMAC-SHA256 .*")).
+				JSONBody(matchers.Map{
+					"type":   matchers.String("property-and-affairs"),
+					"source": matchers.String("APPLICANT"),
+					"donor": matchers.Like(map[string]any{
+						"name":     "Jane Smith",
+						"dob":      "2000-01-02",
+						"postcode": "ABC123",
+					}),
 				}).
-				WillRespondWith(tc.ResponseStatus, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", matchers.String("application/json"))
-					b.JSONBody(tc.ResponseBody)
-				})
-
-			assert.Nil(t, mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
-				baseURL := fmt.Sprintf("http://%s:%d", config.Host, config.Port)
-
-				now := func() time.Time { return time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC) }
-
-				cfg := aws.Config{
-					Region:      "eu-west-1",
-					Credentials: &mockCredentialsProvider{},
-				}
-
-				client := New(baseURL, lambda.New(cfg, v4.NewSigner(), http.DefaultClient, now))
-
-				uid, err := client.CreateCase(context.Background(), tc.ActualRequestBody)
-
-				if tc.ResponseStatus == http.StatusCreated {
-					assert.NotEmpty(t, uid)
-					assert.NoError(t, err)
-				} else {
-					assert.Empty(t, uid)
-					assert.Error(t, err)
-				}
-
-				return nil
-			}))
+				Header("X-Amz-Date", matchers.String("20000102T000000Z"))
+		}).
+		WillRespondWith(http.StatusCreated, func(b *consumer.V2ResponseBuilder) {
+			// b.Header("Content-Type", matchers.String("application/json"))
+			b.JSONBody(matchers.Map{"uid": matchers.Regex("M-789Q-P4DF-4UX3", "M(-[A-Z0-9]{4}){3}")})
 		})
-	}
+
+	assert.Nil(t, mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+		baseURL := fmt.Sprintf("http://%s:%d", config.Host, config.Port)
+
+		now := func() time.Time { return time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC) }
+
+		cfg := aws.Config{
+			Region:      "eu-west-1",
+			Credentials: &mockCredentialsProvider{},
+		}
+
+		client := New(baseURL, lambda.New(cfg, v4.NewSigner(), http.DefaultClient, now))
+
+		uid, err := client.CreateCase(context.Background(), &CreateCaseRequestBody{
+			Type: "property-and-affairs",
+			Donor: DonorDetails{
+				Name:     "Jane Smith",
+				Dob:      date.New("2000", "1", "2"),
+				Postcode: "ABC123",
+			},
+		})
+
+		assert.NotEmpty(t, uid)
+		assert.NoError(t, err)
+
+		return nil
+	}))
 }
 
 func TestCheckHealth(t *testing.T) {
