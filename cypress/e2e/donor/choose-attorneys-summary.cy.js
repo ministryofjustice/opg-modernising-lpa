@@ -68,7 +68,7 @@ describe('Choose attorneys summary', () => {
   it('can add another attorney from summary page', () => {
     cy.checkA11yApp();
 
-    cy.get('input[name="yes-no"]').check('yes');
+    cy.get('input[name="yes-no"]').check('yes', { force: true });
     cy.contains('button', 'Continue').click();
 
     cy.url().should('contain', '/choose-attorneys');
@@ -116,7 +116,7 @@ describe('Choose attorneys summary', () => {
 
     cy.contains('Are you sure you want to remove Jessie Jones?');
 
-    cy.get('input[name="yes-no"]').check('yes');
+    cy.get('input[name="yes-no"]').check('yes', { force: true });
     cy.contains('button', 'Continue').click();
 
     cy.url().should('contain', '/choose-attorneys-summary');
@@ -126,7 +126,7 @@ describe('Choose attorneys summary', () => {
     cy.get('main').should('not.contain', 'Jessie Jones');
 
     cy.contains('.govuk-summary-card', 'Robin Redcar').contains('a', 'Remove').click();
-    cy.get('input[name="yes-no"]').check('yes');
+    cy.get('input[name="yes-no"]').check('yes', { force: true });
     cy.contains('button', 'Continue').click();
 
     cy.url().should('contain', '/choose-attorneys');
