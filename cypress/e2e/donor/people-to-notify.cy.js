@@ -4,7 +4,7 @@ describe('People to notify', () => {
 
     cy.checkA11yApp();
 
-    cy.get('input[name="yes-no"]').check('yes')
+    cy.get('input[name="yes-no"]').check('yes', { force: true }, { force: true });
     cy.contains('button', 'Save and continue').click();
 
     cy.url().should('contain', '/choose-people-to-notify');
@@ -52,7 +52,7 @@ describe('People to notify', () => {
       cy.contains("B14 7ED");
     });
 
-    cy.get('input[name="yes-no"]').check('yes')
+    cy.get('input[name="yes-no"]').check('yes', { force: true })
     cy.contains('button', 'Save and continue').click();
 
     cy.visitLpa('/task-list')
@@ -115,7 +115,7 @@ describe('People to notify', () => {
 
     cy.checkA11yApp();
 
-    cy.get('input[name="yes-no"]').check('yes')
+    cy.get('input[name="yes-no"]').check('yes', { force: true })
     cy.contains('button', 'Continue').click();
 
     cy.url().should('contain', '/choose-people-to-notify-summary');
@@ -124,7 +124,7 @@ describe('People to notify', () => {
 
     cy.url().should('contain', '/remove-person-to-notify');
 
-    cy.get('input[name="yes-no"]').check('yes')
+    cy.get('input[name="yes-no"]').check('yes', { force: true })
     cy.contains('button', 'Continue').click();
 
     cy.url().should('contain', '/do-you-want-to-notify-people');

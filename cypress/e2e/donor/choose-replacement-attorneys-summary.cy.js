@@ -54,7 +54,7 @@ describe('Choose replacement attorneys summary', () => {
   it('can add another attorney from summary page', () => {
     cy.checkA11yApp();
 
-    cy.get('input[name="yes-no"]').check('yes');
+    cy.get('input[name="yes-no"]').check('yes', { force: true });
     cy.contains('button', 'Continue').click();
 
     cy.url().should('contain', '/choose-replacement-attorneys');
@@ -102,7 +102,7 @@ describe('Choose replacement attorneys summary', () => {
 
     cy.contains('Are you sure you want to remove Blake Buckley?');
 
-    cy.get('input[name="yes-no"]').check('yes');
+    cy.get('input[name="yes-no"]').check('yes', { force: true });
     cy.contains('button', 'Continue').click();
 
     cy.url().should('contain', '/choose-replacement-attorneys-summary');
@@ -112,7 +112,7 @@ describe('Choose replacement attorneys summary', () => {
     cy.get('main').should('not.contain', 'Blake Buckley');
 
     cy.contains('.govuk-summary-card', 'Taylor Thompson').contains('a', 'Remove').click();
-    cy.get('input[name="yes-no"]').check('yes');
+    cy.get('input[name="yes-no"]').check('yes', { force: true });
     cy.contains('button', 'Continue').click();
 
     cy.url().should('contain', '/do-you-want-replacement-attorneys');

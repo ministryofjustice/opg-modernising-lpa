@@ -26,7 +26,7 @@ describe('Dashboard', () => {
     cy.get('#f-date-of-birth').type('1');
     cy.get('#f-date-of-birth-month').type('2');
     cy.get('#f-date-of-birth-year').type('1990');
-    cy.get('#f-can-sign').check();
+    cy.get('#f-can-sign').check({ force: true });
     cy.contains('button', 'Continue').click();
     cy.contains('a', 'Dashboard').click();
 

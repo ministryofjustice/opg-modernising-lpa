@@ -65,7 +65,7 @@ jobs:
         if: inputs.run_against_image
       - name: Run Against Image/Configure AWS Credentials
         if: inputs.run_against_image
-        uses: aws-actions/configure-aws-credentials@v4.0.1
+        uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
           aws-region: eu-west-1
           role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ecr-pull
@@ -89,7 +89,7 @@ jobs:
 
       - name: Manage Ingress/Configure AWS Credentials
         if: inputs.run_against_image != true
-        uses: aws-actions/configure-aws-credentials@v4.0.1
+        uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
           aws-access-key-id: ${{ secrets.aws_access_key_id }}
           aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
@@ -126,7 +126,7 @@ jobs:
 
       - name: Persist Cypress failure screenshots as artifacts
         if: failure()
-        uses: actions/upload-artifact@v4.3.0
+        uses: actions/upload-artifact@v4.3.1
         with:
           name: cypress-failure-screenshots
           path: ./cypress/screenshots/

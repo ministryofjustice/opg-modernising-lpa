@@ -12,7 +12,7 @@ describe('Pay for LPA', () => {
     cy.url().should('contains', '/are-you-applying-for-fee-discount-or-exemption')
     cy.checkA11yApp();
 
-    cy.get('input[name="yes-no"]').check('no');
+    cy.get('input[name="yes-no"]').check('no', { force: true });
 
     cy.intercept('**/v1/payments', (req) => {
       cy.getCookie('pay').should('exist');
@@ -35,13 +35,13 @@ describe('Pay for LPA', () => {
     cy.url().should('contains', '/are-you-applying-for-fee-discount-or-exemption')
     cy.checkA11yApp();
 
-    cy.get('input[name="yes-no"]').check('yes');
+    cy.get('input[name="yes-no"]').check('yes', { force: true });
     cy.contains('button', 'Save and continue').click();
 
     cy.url().should('contains', '/which-fee-type-are-you-applying-for')
     cy.checkA11yApp();
 
-    cy.get('input[name="fee-type"]').check('HalfFee');
+    cy.get('input[name="fee-type"]').check('HalfFee', { force: true });
     cy.contains('button', 'Save and continue').click();
 
     cy.url().should('contains', '/evidence-required')
@@ -53,7 +53,7 @@ describe('Pay for LPA', () => {
     cy.url().should('contains', '/how-would-you-like-to-send-evidence')
     cy.checkA11yApp();
 
-    cy.get('input[name="evidence-delivery"]').check('upload');
+    cy.get('input[name="evidence-delivery"]').check('upload', { force: true });
     cy.contains('button', 'Continue').click();
 
     cy.url().should('contains', '/upload-evidence')
@@ -120,13 +120,13 @@ describe('Pay for LPA', () => {
     cy.url().should('contains', '/are-you-applying-for-fee-discount-or-exemption')
     cy.checkA11yApp();
 
-    cy.get('input[name="yes-no"]').check('yes');
+    cy.get('input[name="yes-no"]').check('yes', { force: true });
     cy.contains('button', 'Save and continue').click();
 
     cy.url().should('contains', '/which-fee-type-are-you-applying-for')
     cy.checkA11yApp();
 
-    cy.get('input[name="fee-type"]').check('NoFee');
+    cy.get('input[name="fee-type"]').check('NoFee', { force: true });
     cy.contains('button', 'Save and continue').click();
 
     cy.url().should('contains', '/evidence-required')
@@ -138,7 +138,7 @@ describe('Pay for LPA', () => {
     cy.url().should('contains', '/how-would-you-like-to-send-evidence')
     cy.checkA11yApp();
 
-    cy.get('input[name="evidence-delivery"]').check('upload');
+    cy.get('input[name="evidence-delivery"]').check('upload', { force: true });
     cy.contains('button', 'Continue').click();
 
     cy.url().should('contains', '/upload-evidence')
@@ -195,13 +195,13 @@ describe('Pay for LPA', () => {
     cy.url().should('contains', '/are-you-applying-for-fee-discount-or-exemption')
     cy.checkA11yApp();
 
-    cy.get('input[name="yes-no"]').check('yes');
+    cy.get('input[name="yes-no"]').check('yes', { force: true });
     cy.contains('button', 'Save and continue').click();
 
     cy.url().should('contains', '/which-fee-type-are-you-applying-for')
     cy.checkA11yApp();
 
-    cy.get('input[name="fee-type"]').check('HardshipFee');
+    cy.get('input[name="fee-type"]').check('HardshipFee', { force: true });
     cy.contains('button', 'Save and continue').click();
 
     cy.url().should('contains', '/evidence-required')
@@ -213,7 +213,7 @@ describe('Pay for LPA', () => {
     cy.url().should('contains', '/how-would-you-like-to-send-evidence')
     cy.checkA11yApp();
 
-    cy.get('input[name="evidence-delivery"]').check('upload');
+    cy.get('input[name="evidence-delivery"]').check('upload', { force: true });
     cy.contains('button', 'Continue').click();
 
     cy.url().should('contains', '/upload-evidence')
@@ -301,13 +301,13 @@ describe('Pay for LPA', () => {
     cy.url().should('contains', '/are-you-applying-for-fee-discount-or-exemption')
     cy.checkA11yApp();
 
-    cy.get('input[name="yes-no"]').check('yes');
+    cy.get('input[name="yes-no"]').check('yes', { force: true });
     cy.contains('button', 'Save and continue').click();
 
     cy.url().should('contains', '/which-fee-type-are-you-applying-for')
     cy.checkA11yApp();
 
-    cy.get('input[name="fee-type"]').check('HardshipFee');
+    cy.get('input[name="fee-type"]').check('HardshipFee', { force: true });
     cy.contains('button', 'Save and continue').click();
 
     cy.url().should('contains', '/evidence-required')
@@ -319,7 +319,7 @@ describe('Pay for LPA', () => {
     cy.url().should('contains', '/how-would-you-like-to-send-evidence')
     cy.checkA11yApp();
 
-    cy.get('input[name="evidence-delivery"]').check('post');
+    cy.get('input[name="evidence-delivery"]').check('post', { force: true });
     cy.contains('button', 'Continue').click();
 
     cy.url().should('contains', '/send-us-your-evidence-by-post')
