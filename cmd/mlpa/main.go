@@ -52,7 +52,7 @@ var Tag string
 
 func main() {
 	ctx := context.Background()
-	logger := logging.New(os.Stdout, "opg-modernising-lpa")
+	logger := logging.New(os.Stdout, "opg-modernising-lpa2")
 
 	var (
 		appPublicURL          = env.Get("APP_PUBLIC_URL", "http://localhost:5050")
