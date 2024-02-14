@@ -1,7 +1,9 @@
 package actor
 
 import (
+	"encoding/base64"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -27,7 +29,12 @@ type Member struct {
 	// CreatedAt is when the Member was created
 	CreatedAt time.Time
 	// UpdatedAt is when the Member was last updated
-	UpdatedAt time.Time
+	UpdatedAt  time.Time
+	Email      string
+	FirstNames string
+	LastName   string
+	// Permission is the type of permissions assigned to the member to set available actions in an Organisation
+	Permission Permission
 }
 
 // A MemberInvite is created to allow a new Member to join an Organisation
@@ -35,6 +42,8 @@ type MemberInvite struct {
 	PK, SK string
 	// CreatedAt is when the MemberInvite was created
 	CreatedAt time.Time
+	// UpdatedAt is when the MemberInvite was last updated
+	UpdatedAt time.Time
 	// OrganisationID identifies the organisation the invite is for
 	OrganisationID string
 	// Email is the address the new Member must signin as for the invite
@@ -43,6 +52,8 @@ type MemberInvite struct {
 	LastName   string
 	// Permission is the type of permissions assigned to the member to set available actions in an Organisation
 	Permission Permission
+	// ReferenceNumber is a unique code used to invite a Member to and Organisation
+	ReferenceNumber string
 }
 
 func (i MemberInvite) HasExpired() bool {
@@ -51,4 +62,15 @@ func (i MemberInvite) HasExpired() bool {
 
 func (i MemberInvite) FullName() string {
 	return fmt.Sprintf("%s %s", i.FirstNames, i.LastName)
+}
+
+func (i MemberInvite) EmailFromSK() (string, error) {
+	encEmail := strings.Split(i.SK, "#")[1]
+	email, err := base64.StdEncoding.DecodeString(encEmail)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(email), nil
 }
