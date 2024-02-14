@@ -1,6 +1,7 @@
 package page
 
 import (
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -114,7 +115,7 @@ func TestAuthRedirectSessionMissing(t *testing.T) {
 
 			logger := newMockLogger(t)
 			logger.EXPECT().
-				Print(tc.expectedErr)
+				Info("problem retrieving onelogin session", slog.Any("err", tc.expectedErr))
 
 			sessionStore := newMockSessionStore(t)
 			sessionStore.EXPECT().
@@ -135,7 +136,7 @@ func TestAuthRedirectStateIncorrect(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Print("state incorrect")
+		Info("state incorrect")
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().

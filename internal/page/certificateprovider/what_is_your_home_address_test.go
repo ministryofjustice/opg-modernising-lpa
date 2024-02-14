@@ -1,6 +1,7 @@
 package certificateprovider
 
 import (
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -373,7 +374,7 @@ func TestPostWhatIsYourHomeAddressPostcodeLookupWhenInvalidPostcode(t *testing.T
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Print(&place.BadRequestError{})
+		Info("postcode lookup", slog.Any("err", &place.BadRequestError{}))
 
 	template := newMockTemplate(t)
 	template.EXPECT().

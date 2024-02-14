@@ -2,7 +2,7 @@ package certificateprovider
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -20,7 +20,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, &log.Logger{}, template.Templates{}, template.Templates{}, nil, nil, &onelogin.Client{}, nil, nil, nil, nil, &place.Client{}, &notify.Client{}, nil, &mockDashboardStore{}, nil)
+	Register(mux, &slog.Logger{}, template.Templates{}, template.Templates{}, nil, nil, &onelogin.Client{}, nil, nil, nil, nil, &place.Client{}, &notify.Client{}, nil, &mockDashboardStore{}, nil)
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
