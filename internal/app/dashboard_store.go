@@ -24,7 +24,7 @@ type lpaLink struct {
 	DonorKey string
 	// ActorType is the type for the current user
 	ActorType actor.Type
-	// UpdatedAt is set to allow this data to be queried from ActorUpdatedAtIndex
+	// UpdatedAt is set to allow this data to be queried from SkUpdatedAtIndex
 	UpdatedAt time.Time
 }
 
@@ -50,7 +50,7 @@ func (k keys) isAttorneyDetails() bool {
 
 func (s *dashboardStore) SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error) {
 	var links []lpaLink
-	if err := s.dynamoClient.AllForActor(ctx, subKey(sub), &links); err != nil {
+	if err := s.dynamoClient.AllBySK(ctx, subKey(sub), &links); err != nil {
 		return false, err
 	}
 
@@ -74,7 +74,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 	}
 
 	var links []lpaLink
-	if err := s.dynamoClient.AllForActor(ctx, subKey(data.SessionID), &links); err != nil {
+	if err := s.dynamoClient.AllBySK(ctx, subKey(data.SessionID), &links); err != nil {
 		return nil, nil, nil, err
 	}
 

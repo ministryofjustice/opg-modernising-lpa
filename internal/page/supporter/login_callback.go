@@ -3,6 +3,7 @@ package supporter
 import (
 	"context"
 	"errors"
+	"log"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -39,7 +40,18 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 			Email:   userInfo.Email,
 		}
 
-		ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: session.SessionID()})
+		ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: session.SessionID(), Email: session.Email})
+
+		_, err = organisationStore.InvitedMember(ctx)
+		if err == nil {
+			if err := sesh.SetLoginSession(sessionStore, r, w, session); err != nil {
+				return err
+			}
+
+			return page.Paths.Supporter.EnterReferenceNumber.Redirect(w, r, appData)
+		}
+
+		log.Println(err)
 
 		organisation, err := organisationStore.Get(ctx)
 		if err == nil {
@@ -53,11 +65,7 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 		}
 
 		if errors.Is(err, dynamo.NotFoundError{}) {
-			if err := sesh.SetLoginSession(sessionStore, r, w, &sesh.LoginSession{
-				IDToken: idToken,
-				Sub:     "supporter-" + userInfo.Sub,
-				Email:   userInfo.Email,
-			}); err != nil {
+			if err := sesh.SetLoginSession(sessionStore, r, w, session); err != nil {
 				return err
 			}
 		} else {

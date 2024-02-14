@@ -159,7 +159,7 @@ func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails)
 	donor.Hash = newHash
 
 	// By not setting UpdatedAt until a UID exists, queries for SK=#DONOR#xyz on
-	// ActorUpdatedAtIndex will not return UID-less LPAs.
+	// SkUpdatedAtIndex will not return UID-less LPAs.
 	if donor.LpaUID != "" {
 		donor.UpdatedAt = s.now()
 	}
