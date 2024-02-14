@@ -13,15 +13,15 @@ describe('Provide your details', () => {
     cy.get('#f-date-of-birth').type('1');
     cy.get('#f-date-of-birth-month').type('2');
     cy.get('#f-date-of-birth-year').type('1990');
-    cy.get('#f-can-sign').check();
+    cy.get('#f-can-sign').check({ force: true });
     cy.contains('button', 'Continue').click();
 
-    AddressFormAssertions.assertCanAddAddressFromSelect()
+    AddressFormAssertions.assertCanAddAddressFromSelect();
 
-    cy.get('[name="language-preference"]').check('en')
-    cy.contains('button', 'Save and continue').click()
+    cy.get('[name="language-preference"]').check('en', { force: true });
+    cy.contains('button', 'Save and continue').click();
 
-    cy.get('#f-lpa-type').check('property-and-affairs');
+    cy.get('#f-lpa-type').check('property-and-affairs', { force: true });
     cy.contains('button', 'Continue').click();
 
     cy.url()

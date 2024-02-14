@@ -27,7 +27,7 @@ describe('Check the LPA', () => {
     cy.contains('h3', "Certificate provider")
     cy.contains('h3', "Attorneys")
 
-    cy.get('#f-checked-and-happy').check()
+    cy.get('#f-checked-and-happy').check({ force: true })
 
     cy.contains('button', 'Confirm').click();
 
@@ -36,18 +36,18 @@ describe('Check the LPA', () => {
     cy.visit('/dashboard');
 
     cy.contains('.govuk-body-s', 'Reference number:')
-        .invoke('text')
-        .then((text) => {
-          const uid = text.split(':')[1].trim();
-          cy.visit(`http://localhost:9001/?detail-type=notification-sent&detail=${uid}`);
+      .invoke('text')
+      .then((text) => {
+        const uid = text.split(':')[1].trim();
+        cy.visit(`http://localhost:9001/?detail-type=notification-sent&detail=${uid}`);
 
-          cy.contains(`"uid":"${uid}"`)
-          cy.contains('"notificationId":"an-email-id"');
-        });
+        cy.contains(`"uid":"${uid}"`)
+        cy.contains('"notificationId":"an-email-id"');
+      });
   });
 
   it('does not allow checking when no changes', () => {
-    cy.get('#f-checked-and-happy').check()
+    cy.get('#f-checked-and-happy').check({ force: true })
     cy.contains('button', 'Confirm').click();
 
     cy.visitLpa('/check-your-lpa');
@@ -69,7 +69,7 @@ describe('Check the LPA', () => {
         cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy to show it to my certificate provider, Charlie Cooper')
         cy.get('details').contains('What happens if I need to make changes later?')
 
-        cy.get('#f-checked-and-happy').check()
+        cy.get('#f-checked-and-happy').check({ force: true })
         cy.contains('button', 'Confirm').click();
 
         cy.url().should('contain', '/lpa-details-saved');
@@ -89,7 +89,7 @@ describe('Check the LPA', () => {
         cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy to show it to my certificate provider, Charlie Cooper')
         cy.get('.govuk-warning-text').contains('Once you select the confirm button, your certificate provider will be sent a text telling them you have changed your LPA.')
 
-        cy.get('#f-checked-and-happy').check()
+        cy.get('#f-checked-and-happy').check({ force: true })
         cy.contains('button', 'Confirm').click();
 
         cy.url().should('contain', '/lpa-details-saved');
@@ -109,7 +109,7 @@ describe('Check the LPA', () => {
         cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy to show it to my certificate provider, Charlie Cooper')
         cy.get('.govuk-warning-text').contains('Once you select the confirm button, your certificate provider will be sent a text telling them you have changed your LPA.')
 
-        cy.get('#f-checked-and-happy').check()
+        cy.get('#f-checked-and-happy').check({ force: true })
         cy.contains('button', 'Confirm').click();
 
         cy.url().should('contain', '/lpa-details-saved');
@@ -131,7 +131,7 @@ describe('Check the LPA', () => {
         cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy for OPG to share it with my certificate provider, Charlie Cooper')
         cy.get('details').contains('What happens if I need to make changes later?')
 
-        cy.get('#f-checked-and-happy').check()
+        cy.get('#f-checked-and-happy').check({ force: true })
         cy.contains('button', 'Confirm').click();
 
         cy.url().should('contain', '/lpa-details-saved');
@@ -151,7 +151,7 @@ describe('Check the LPA', () => {
         cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy for OPG to share it with my certificate provider, Charlie Cooper')
         cy.get('.govuk-warning-text').contains('Once you select the confirm button, your certificate provider will be sent a text telling them you have changed your LPA.')
 
-        cy.get('#f-checked-and-happy').check()
+        cy.get('#f-checked-and-happy').check({ force: true })
         cy.contains('button', 'Confirm').click();
 
         cy.url().should('contain', '/lpa-details-saved');
@@ -171,7 +171,7 @@ describe('Check the LPA', () => {
         cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy for OPG to share it with my certificate provider, Charlie Cooper')
         cy.get('.govuk-warning-text').contains('Once you select the confirm button, your certificate provider will be sent a text telling them you have changed your LPA.')
 
-        cy.get('#f-checked-and-happy').check()
+        cy.get('#f-checked-and-happy').check({ force: true })
         cy.contains('button', 'Confirm').click();
 
         cy.url().should('contain', '/lpa-details-saved');
