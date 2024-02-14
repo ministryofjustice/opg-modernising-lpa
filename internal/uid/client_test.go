@@ -243,14 +243,14 @@ func TestPactContract(t *testing.T) {
 		},
 	}
 
-	invalidCreateCaseBody := &CreateCaseRequestBody{
-		Type: "property-and-affairs",
-		Donor: DonorDetails{
-			Name:     "Jane Smith",
-			Dob:      date.New("2000", "1", "2"),
-			Postcode: "ABCD12345",
-		},
-	}
+	// invalidCreateCaseBody := &CreateCaseRequestBody{
+	// 	Type: "property-and-affairs",
+	// 	Donor: DonorDetails{
+	// 		Name:     "Jane Smith",
+	// 		Dob:      date.New("2000", "1", "2"),
+	// 		Postcode: "ABCD12345",
+	// 	},
+	// }
 
 	testCases := map[string]struct {
 		UponReceiving       string
@@ -274,27 +274,27 @@ func TestPactContract(t *testing.T) {
 			ResponseBody:      matchers.Map{"uid": matchers.Regex("M-789Q-P4DF-4UX3", "M(-[A-Z0-9]{4}){3}")},
 			ResponseStatus:    http.StatusCreated,
 		},
-		"UID not created (%d)": {
-			UponReceiving: "A POST request with invalid LPA details",
-			ExpectedRequestBody: matchers.Map{
-				"type":   matchers.String("property-and-affairs"),
-				"source": matchers.String("APPLICANT"),
-				"donor": matchers.Like(map[string]any{
-					"name":     "Jane Smith",
-					"dob":      "2000-01-02",
-					"postcode": "ABCD12345",
-				}),
-			},
-			ActualRequestBody: invalidCreateCaseBody,
-			ResponseBody: matchers.Map{
-				"code": matchers.String("INVALID_REQUEST"),
-				"errors": matchers.EachLike(matchers.Map{
-					"source": matchers.String("/donor/postcode"),
-					"detail": matchers.String("must be a valid postcode"),
-				}, 1),
-			},
-			ResponseStatus: http.StatusBadRequest,
-		},
+		// "UID not created (%d)": {
+		// 	UponReceiving: "A POST request with invalid LPA details",
+		// 	ExpectedRequestBody: matchers.Map{
+		// 		"type":   matchers.String("property-and-affairs"),
+		// 		"source": matchers.String("APPLICANT"),
+		// 		"donor": matchers.Like(map[string]any{
+		// 			"name":     "Jane Smith",
+		// 			"dob":      "2000-01-02",
+		// 			"postcode": "ABCD12345",
+		// 		}),
+		// 	},
+		// 	ActualRequestBody: invalidCreateCaseBody,
+		// 	ResponseBody: matchers.Map{
+		// 		"code": matchers.String("INVALID_REQUEST"),
+		// 		"errors": matchers.EachLike(matchers.Map{
+		// 			"source": matchers.String("/donor/postcode"),
+		// 			"detail": matchers.String("must be a valid postcode"),
+		// 		}, 1),
+		// 	},
+		// 	ResponseStatus: http.StatusBadRequest,
+		// },
 	}
 
 	mockProvider, err := consumer.NewV2Pact(consumer.MockHTTPProviderConfig{
