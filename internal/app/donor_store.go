@@ -7,7 +7,6 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
@@ -35,7 +34,6 @@ type donorStore struct {
 	eventClient   EventClient
 	logger        Logger
 	uuidString    func() string
-	newUID        func() actoruid.UID
 	now           func() time.Time
 	s3Client      *s3.Client
 	documentStore DocumentStore
@@ -52,7 +50,6 @@ func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, e
 	}
 
 	lpaID := s.uuidString()
-	donorUID := s.newUID()
 
 	donor := &actor.DonorProvidedDetails{
 		PK:        lpaKey(lpaID),
@@ -60,9 +57,6 @@ func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, e
 		LpaID:     lpaID,
 		CreatedAt: s.now(),
 		Version:   1,
-		Donor: actor.Donor{
-			UID: donorUID,
-		},
 	}
 
 	latest, err := s.Latest(ctx)
@@ -165,7 +159,7 @@ func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails)
 	donor.Hash = newHash
 
 	// By not setting UpdatedAt until a UID exists, queries for SK=#DONOR#xyz on
-	// ActorUpdatedAtIndex will not return UID-less LPAs.
+	// SkUpdatedAtIndex will not return UID-less LPAs.
 	if donor.LpaUID != "" {
 		donor.UpdatedAt = s.now()
 	}
@@ -179,7 +173,7 @@ func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails)
 		if err := s.eventClient.SendUidRequested(ctx, event.UidRequested{
 			LpaID:          donor.LpaID,
 			DonorSessionID: data.SessionID,
-			Type:           donor.Type.String(),
+			Type:           donor.Type.LegacyString(),
 			Donor: uid.DonorDetails{
 				Name:     donor.Donor.FullName(),
 				Dob:      donor.Donor.DateOfBirth,
@@ -195,7 +189,7 @@ func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails)
 	if donor.LpaUID != "" && !donor.HasSentApplicationUpdatedEvent {
 		if err := s.eventClient.SendApplicationUpdated(ctx, event.ApplicationUpdated{
 			UID:       donor.LpaUID,
-			Type:      donor.Type.String(),
+			Type:      donor.Type.LegacyString(),
 			CreatedAt: donor.CreatedAt,
 			Donor: event.ApplicationUpdatedDonor{
 				FirstNames:  donor.Donor.FirstNames,

@@ -174,6 +174,7 @@ type HealthCheckPaths struct {
 
 type SupporterPaths struct {
 	EnterOrganisationName Path
+	EnterReferenceNumber  Path
 	Login                 Path
 	LoginCallback         Path
 	SigningInAdvice       Path
@@ -349,6 +350,7 @@ var Paths = AppPaths{
 
 	Supporter: SupporterPaths{
 		EnterOrganisationName: "/enter-the-name-of-your-organisation-or-company",
+		EnterReferenceNumber:  "/supporter-reference-number",
 		Login:                 "/supporter-login",
 		LoginCallback:         "/supporter-login-callback",
 		SigningInAdvice:       "/signing-in-with-govuk-one-login",
