@@ -41,12 +41,12 @@ type Logger interface {
 
 type DynamoClient interface {
 	One(ctx context.Context, pk, sk string, v interface{}) error
-	OneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
-	AllByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
+	OneByPartialSK(ctx context.Context, pk, partialSk string, v interface{}) error
+	AllByPartialSK(ctx context.Context, pk, partialSk string, v interface{}) error
 	LatestForActor(ctx context.Context, sk string, v interface{}) error
 	AllForActor(ctx context.Context, sk string, v interface{}) error
 	AllByKeys(ctx context.Context, pks []dynamo.Key) ([]map[string]dynamodbtypes.AttributeValue, error)
-	AllKeysByPk(ctx context.Context, pk string) ([]dynamo.Key, error)
+	AllKeysByPK(ctx context.Context, pk string) ([]dynamo.Key, error)
 	Put(ctx context.Context, v interface{}) error
 	Create(ctx context.Context, v interface{}) error
 	DeleteKeys(ctx context.Context, keys []dynamo.Key) error

@@ -41,8 +41,8 @@ func (_m *mockDataStore) GetAllByGsi(ctx context.Context, gsi string, sk string,
 	return r0
 }
 
-// GetOneByPartialSk provides a mock function with given fields: ctx, pk, partialSk, v
-func (_m *mockDataStore) GetOneByPartialSk(ctx context.Context, pk string, partialSk string, v interface{}) error {
+// GetOneByPartialSK provides a mock function with given fields: ctx, pk, partialSk, v
+func (_m *mockDataStore) GetOneByPartialSK(ctx context.Context, pk string, partialSk string, v interface{}) error {
 	ret := _m.Called(ctx, pk, partialSk, v)
 
 	var r0 error

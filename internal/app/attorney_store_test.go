@@ -175,7 +175,7 @@ func TestAttorneyStoreGetAny(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectAllByPartialSk(ctx, "LPA#123", "#ATTORNEY#",
+		ExpectAllByPartialSK(ctx, "LPA#123", "#ATTORNEY#",
 			[]*actor.AttorneyProvidedDetails{{LpaID: "123"}}, nil)
 
 	attorneyStore := &attorneyStore{dynamoClient: dynamoClient}

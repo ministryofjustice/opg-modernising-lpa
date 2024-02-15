@@ -147,7 +147,7 @@ type Key struct {
 	SK string
 }
 
-func (c *Client) AllKeysByPk(ctx context.Context, pk string) ([]Key, error) {
+func (c *Client) AllKeysByPK(ctx context.Context, pk string) ([]Key, error) {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName:                aws.String(c.table),
 		ExpressionAttributeNames: map[string]string{"#PK": "PK"},
@@ -191,7 +191,7 @@ func (c *Client) AllByKeys(ctx context.Context, keys []Key) ([]map[string]types.
 	return result.Responses[c.table], nil
 }
 
-func (c *Client) OneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error {
+func (c *Client) OneByPartialSK(ctx context.Context, pk, partialSk string, v interface{}) error {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName:                aws.String(c.table),
 		ExpressionAttributeNames: map[string]string{"#PK": "PK", "#SK": "SK"},
@@ -217,7 +217,7 @@ func (c *Client) OneByPartialSk(ctx context.Context, pk, partialSk string, v int
 	return attributevalue.UnmarshalMap(response.Items[0], v)
 }
 
-func (c *Client) AllByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error {
+func (c *Client) AllByPartialSK(ctx context.Context, pk, partialSk string, v interface{}) error {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName:                aws.String(c.table),
 		ExpressionAttributeNames: map[string]string{"#PK": "PK", "#SK": "SK"},
