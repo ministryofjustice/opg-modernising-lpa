@@ -21,7 +21,9 @@ import (
 )
 
 type Logger interface {
-	Print(v ...interface{})
+	Info(msg string, args ...any)
+	Warn(msg string, args ...any)
+	Error(msg string, args ...any)
 }
 
 type DonorStore interface {

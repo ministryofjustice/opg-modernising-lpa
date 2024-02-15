@@ -2,6 +2,7 @@ package donor
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/gorilla/sessions"
@@ -33,8 +34,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 
 		payment, err := payClient.GetPayment(r.Context(), paymentId)
 		if err != nil {
-			logger.Print(fmt.Sprintf("unable to retrieve payment info: %s", err.Error()))
-			return err
+			return fmt.Errorf("unable to retrieve payment info: %w", err)
 		}
 
 		donor.PaymentDetails = append(donor.PaymentDetails, actor.Payment{
@@ -52,7 +52,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 		}
 
 		if err := sesh.ClearPayment(sessionStore, r, w); err != nil {
-			logger.Print(fmt.Sprintf("unable to expire cookie in session: %s", err.Error()))
+			logger.Info("unable to expire cookie in session", slog.Any("err", err))
 		}
 
 		if donor.FeeType.IsFullFee() {
@@ -62,8 +62,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 		}
 
 		if err := donorStore.Put(r.Context(), donor); err != nil {
-			logger.Print(fmt.Sprintf("unable to update lpa in donorStore: %s", err.Error()))
-			return err
+			return fmt.Errorf("unable to update lpa in donorStore: %w", err)
 		}
 
 		return tmpl(w, data)
