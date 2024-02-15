@@ -38,7 +38,7 @@ func (m *mockDynamoClient) ExpectOne(ctx, pk, sk, data interface{}, err error) {
 		})
 }
 
-func (m *mockDynamoClient) ExpectOneByPartialSk(ctx, pk, partialSk, data interface{}, err error) {
+func (m *mockDynamoClient) ExpectOneByPartialSK(ctx, pk, partialSk, data interface{}, err error) {
 	m.
 		On("OneByPartialSK", ctx, pk, partialSk, mock.Anything).
 		Return(func(ctx context.Context, pk, partialSk string, v interface{}) error {
@@ -48,7 +48,7 @@ func (m *mockDynamoClient) ExpectOneByPartialSk(ctx, pk, partialSk, data interfa
 		})
 }
 
-func (m *mockDynamoClient) ExpectAllByPartialSk(ctx, pk, partialSk, data interface{}, err error) {
+func (m *mockDynamoClient) ExpectAllByPartialSK(ctx, pk, partialSk, data interface{}, err error) {
 	m.
 		On("AllByPartialSK", ctx, pk, partialSk, mock.Anything).
 		Return(func(ctx context.Context, pk, partialSk string, v interface{}) error {
@@ -88,7 +88,7 @@ func TestDonorStoreGetAny(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOneByPartialSk(ctx, "LPA#an-id", "#DONOR#", &actor.DonorProvidedDetails{LpaID: "an-id"}, nil)
+	dynamoClient.ExpectOneByPartialSK(ctx, "LPA#an-id", "#DONOR#", &actor.DonorProvidedDetails{LpaID: "an-id"}, nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
@@ -110,7 +110,7 @@ func TestDonorStoreGetAnyWhenDataStoreError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOneByPartialSk(ctx, "LPA#an-id", "#DONOR#", &actor.DonorProvidedDetails{LpaID: "an-id"}, expectedError)
+	dynamoClient.ExpectOneByPartialSK(ctx, "LPA#an-id", "#DONOR#", &actor.DonorProvidedDetails{LpaID: "an-id"}, expectedError)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
@@ -616,7 +616,7 @@ func TestDonorStoreDelete(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		AllKeysByPk(ctx, "LPA#123").
+		AllKeysByPK(ctx, "LPA#123").
 		Return(keys, nil)
 	dynamoClient.EXPECT().
 		DeleteKeys(ctx, keys).
@@ -639,7 +639,7 @@ func TestDonorStoreDeleteWhenOtherDonor(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		AllKeysByPk(ctx, "LPA#123").
+		AllKeysByPK(ctx, "LPA#123").
 		Return(keys, nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient}
@@ -648,12 +648,12 @@ func TestDonorStoreDeleteWhenOtherDonor(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestDonorStoreDeleteWhenAllKeysByPkErrors(t *testing.T) {
+func TestDonorStoreDeleteWhenAllKeysByPKErrors(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", LpaID: "123"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		AllKeysByPk(ctx, "LPA#123").
+		AllKeysByPK(ctx, "LPA#123").
 		Return(nil, expectedError)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient}
@@ -667,7 +667,7 @@ func TestDonorStoreDeleteWhenDeleteKeysErrors(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		AllKeysByPk(ctx, "LPA#123").
+		AllKeysByPK(ctx, "LPA#123").
 		Return([]dynamo.Key{{PK: "LPA#123", SK: "#DONOR#an-id"}}, nil)
 	dynamoClient.EXPECT().
 		DeleteKeys(ctx, mock.Anything).

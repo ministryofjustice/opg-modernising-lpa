@@ -62,7 +62,7 @@ func TestDocumentStoreGetAllMissingLpaIdInSession(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestDocumentStoreGetAllWhenDynamoClientAllByPartialSkError(t *testing.T) {
+func TestDocumentStoreGetAllWhenDynamoClientAllByPartialSKError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
 
 	dynamoClient := newMockDynamoClient(t)

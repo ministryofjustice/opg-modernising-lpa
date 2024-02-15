@@ -193,7 +193,7 @@ func TestOneByUIDWhenUnmarshalError(t *testing.T) {
 	assert.IsType(t, &attributevalue.InvalidUnmarshalError{}, err)
 }
 
-func TestOneByPartialSk(t *testing.T) {
+func TestOneByPartialSK(t *testing.T) {
 	ctx := context.Background()
 
 	expected := map[string]string{"Col": "Val"}
@@ -219,7 +219,7 @@ func TestOneByPartialSk(t *testing.T) {
 	assert.Equal(t, expected, v)
 }
 
-func TestOneByPartialSkOnQueryError(t *testing.T) {
+func TestOneByPartialSKOnQueryError(t *testing.T) {
 	ctx := context.Background()
 
 	dynamoDB := newMockDynamoDB(t)
@@ -234,7 +234,7 @@ func TestOneByPartialSkOnQueryError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestOneByPartialSkWhenNotFound(t *testing.T) {
+func TestOneByPartialSKWhenNotFound(t *testing.T) {
 	ctx := context.Background()
 
 	dynamoDB := newMockDynamoDB(t)
@@ -249,7 +249,7 @@ func TestOneByPartialSkWhenNotFound(t *testing.T) {
 	assert.Equal(t, NotFoundError{}, err)
 }
 
-func TestOneByPartialSkWhenMultipleResults(t *testing.T) {
+func TestOneByPartialSKWhenMultipleResults(t *testing.T) {
 	ctx := context.Background()
 
 	data, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val"})
@@ -266,7 +266,7 @@ func TestOneByPartialSkWhenMultipleResults(t *testing.T) {
 	assert.Equal(t, MultipleResultsError{}, err)
 }
 
-func TestAllByPartialSk(t *testing.T) {
+func TestAllByPartialSK(t *testing.T) {
 	ctx := context.Background()
 
 	expected := []map[string]string{{"Col": "Val"}, {"Other": "Thing"}}
@@ -293,7 +293,7 @@ func TestAllByPartialSk(t *testing.T) {
 	assert.Equal(t, expected, v)
 }
 
-func TestAllByPartialSkOnQueryError(t *testing.T) {
+func TestAllByPartialSKOnQueryError(t *testing.T) {
 	ctx := context.Background()
 
 	dynamoDB := newMockDynamoDB(t)
@@ -425,7 +425,7 @@ func TestLatestForActorOnQueryError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestAllKeysByPk(t *testing.T) {
+func TestAllKeysByPK(t *testing.T) {
 	ctx := context.Background()
 
 	keys := []Key{
@@ -456,7 +456,7 @@ func TestAllKeysByPk(t *testing.T) {
 	assert.Equal(t, keys, result)
 }
 
-func TestAllKeysByPkWhenError(t *testing.T) {
+func TestAllKeysByPKWhenError(t *testing.T) {
 	ctx := context.Background()
 
 	dynamoDB := newMockDynamoDB(t)

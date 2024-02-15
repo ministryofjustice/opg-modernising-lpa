@@ -106,7 +106,7 @@ func TestOrganisationStoreGet(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOneByPartialSk(ctx, "MEMBER#an-id", "ORGANISATION#",
+		ExpectOneByPartialSK(ctx, "MEMBER#an-id", "ORGANISATION#",
 			&actor.Member{PK: "MEMBER#an-id", SK: "ORGANISATION#a-uuid"}, nil)
 	dynamoClient.
 		ExpectOne(ctx, "ORGANISATION#a-uuid", "ORGANISATION#a-uuid",
@@ -142,7 +142,7 @@ func TestOrganisationStoreGetWhenErrors(t *testing.T) {
 		"member": func(t *testing.T) *mockDynamoClient {
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.
-				ExpectOneByPartialSk(ctx, "MEMBER#an-id", "ORGANISATION#",
+				ExpectOneByPartialSK(ctx, "MEMBER#an-id", "ORGANISATION#",
 					nil, expectedError)
 
 			return dynamoClient
@@ -150,7 +150,7 @@ func TestOrganisationStoreGetWhenErrors(t *testing.T) {
 		"organisation": func(t *testing.T) *mockDynamoClient {
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.
-				ExpectOneByPartialSk(ctx, "MEMBER#an-id", "ORGANISATION#",
+				ExpectOneByPartialSK(ctx, "MEMBER#an-id", "ORGANISATION#",
 					&actor.Member{PK: "MEMBER#an-id", SK: "ORGANISATION#a-uuid"}, nil)
 			dynamoClient.
 				ExpectOne(ctx, "ORGANISATION#a-uuid", "ORGANISATION#a-uuid",
@@ -383,7 +383,7 @@ func TestOrganisationStoreInvitedMembers(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectAllByPartialSk(ctx, "ORGANISATION#an-id",
+	dynamoClient.ExpectAllByPartialSK(ctx, "ORGANISATION#an-id",
 		"MEMBERINVITE#", []*actor.MemberInvite{{OrganisationID: "an-id"}, {OrganisationID: "an-id"}}, nil)
 
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
@@ -408,7 +408,7 @@ func TestOrganisationStoreInvitedMembersWhenDynamoClientError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectAllByPartialSk(ctx, "ORGANISATION#an-id",
+	dynamoClient.ExpectAllByPartialSK(ctx, "ORGANISATION#an-id",
 		"MEMBERINVITE#", []*actor.MemberInvite{}, expectedError)
 
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
