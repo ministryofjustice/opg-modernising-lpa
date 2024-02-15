@@ -110,7 +110,7 @@ func (s *donorStore) GetAny(ctx context.Context) (*actor.DonorProvidedDetails, e
 	}
 
 	var donor *actor.DonorProvidedDetails
-	if err := s.dynamoClient.OneByPartialSk(ctx, lpaKey(data.LpaID), "#DONOR#", &donor); err != nil {
+	if err := s.dynamoClient.OneByPartialSK(ctx, lpaKey(data.LpaID), "#DONOR#", &donor); err != nil {
 		return nil, err
 	}
 

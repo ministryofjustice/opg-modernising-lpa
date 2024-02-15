@@ -214,7 +214,7 @@ func TestOneByPartialSk(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v map[string]string
-	err := c.OneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
+	err := c.OneByPartialSK(ctx, "a-pk", "a-partial-sk", &v)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, v)
 }
@@ -230,7 +230,7 @@ func TestOneByPartialSkOnQueryError(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v map[string]string
-	err := c.OneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
+	err := c.OneByPartialSK(ctx, "a-pk", "a-partial-sk", &v)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -245,7 +245,7 @@ func TestOneByPartialSkWhenNotFound(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v map[string]string
-	err := c.OneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
+	err := c.OneByPartialSK(ctx, "a-pk", "a-partial-sk", &v)
 	assert.Equal(t, NotFoundError{}, err)
 }
 
@@ -262,7 +262,7 @@ func TestOneByPartialSkWhenMultipleResults(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v map[string]string
-	err := c.OneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
+	err := c.OneByPartialSK(ctx, "a-pk", "a-partial-sk", &v)
 	assert.Equal(t, MultipleResultsError{}, err)
 }
 

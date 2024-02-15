@@ -66,7 +66,7 @@ func (s *organisationStore) Get(ctx context.Context) (*actor.Organisation, error
 	}
 
 	var member actor.Member
-	if err := s.dynamoClient.OneByPartialSk(ctx, memberKey(data.SessionID), organisationKey(""), &member); err != nil {
+	if err := s.dynamoClient.OneByPartialSK(ctx, memberKey(data.SessionID), organisationKey(""), &member); err != nil {
 		return nil, err
 	}
 

@@ -191,7 +191,7 @@ func (c *Client) AllByKeys(ctx context.Context, keys []Key) ([]map[string]types.
 	return result.Responses[c.table], nil
 }
 
-func (c *Client) OneByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error {
+func (c *Client) OneByPartialSK(ctx context.Context, pk, partialSk string, v interface{}) error {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName:                aws.String(c.table),
 		ExpressionAttributeNames: map[string]string{"#PK": "PK", "#SK": "SK"},
