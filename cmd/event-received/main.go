@@ -52,7 +52,7 @@ type DocumentStore interface {
 }
 
 type UidStore interface {
-	Set(ctx context.Context, lpaID, sessionID, uid string) error
+	Set(ctx context.Context, lpaID, sessionID, organisationID, uid string) error
 }
 
 type UidClient interface {
