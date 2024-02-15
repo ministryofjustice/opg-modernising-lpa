@@ -3,6 +3,7 @@ package donor
 import (
 	"context"
 	"errors"
+	"log/slog"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
@@ -56,7 +57,7 @@ func (d *chooseAddressData) overrideTitleKeys(newTitleKeys titleKeys) {
 func lookupAddress(ctx context.Context, logger Logger, addressClient AddressClient, data *chooseAddressData, your bool) {
 	addresses, err := addressClient.LookupPostcode(ctx, data.Form.LookupPostcode)
 	if err != nil {
-		logger.Print(err)
+		logger.Info("postcode lookup", slog.Any("err", err))
 
 		if errors.As(err, &place.BadRequestError{}) {
 			data.Errors.Add("lookup-postcode", validation.EnterError{Label: "invalidPostcode"})
