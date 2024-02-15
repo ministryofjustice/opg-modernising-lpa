@@ -1,0 +1,15 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "contactOpgForPaperForms" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+
+      {{ trHtml .App "contactOpgForPaperFormsContent" }}
+
+      <a href="{{ link .App global.Paths.Supporter.Dashboard.Format }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToDashboard" }}</a>
+    </div>
+  </div>
+{{ end }}

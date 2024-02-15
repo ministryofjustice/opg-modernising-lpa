@@ -79,11 +79,13 @@ func Register(
 	handleSupporter(page.Paths.Root, page.None, notFoundHandler)
 
 	handleWithSupporter(paths.OrganisationCreated,
-		OrganisationCreated(tmpls.Get("organisation_created.gohtml")))
+		Guidance(tmpls.Get("organisation_created.gohtml")))
 	handleWithSupporter(paths.Dashboard,
 		Dashboard(tmpls.Get("dashboard.gohtml"), organisationStore))
-	handleWithSupporter(paths.InviteMember,
-		InviteMember(tmpls.Get("invite_member.gohtml"), organisationStore, notifyClient, random.String, appPublicURL))
+	handleWithSupporter(paths.ConfirmDonorCanInteractOnline,
+		ConfirmDonorCanInteractOnline(tmpls.Get("confirm_donor_can_interact_online.gohtml"), organisationStore))
+	handleWithSupporter(paths.ContactOPGForPaperForms,
+		Guidance(tmpls.Get("contact_opg_for_paper_forms.gohtml")))
 
 	handleWithSupporter(paths.OrganisationDetails,
 		Guidance(tmpls.Get("organisation_details.gohtml")))
@@ -91,6 +93,8 @@ func Register(
 		EditOrganisationName(tmpls.Get("edit_organisation_name.gohtml"), organisationStore))
 	handleWithSupporter(paths.ManageTeamMembers,
 		ManageTeamMembers(tmpls.Get("manage_team_members.gohtml"), organisationStore))
+	handleWithSupporter(paths.InviteMember,
+		InviteMember(tmpls.Get("invite_member.gohtml"), organisationStore, notifyClient, random.String, appPublicURL))
 }
 
 func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler) func(page.Path, page.HandleOpt, page.Handler) {
