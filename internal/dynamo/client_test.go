@@ -751,3 +751,67 @@ func TestBatchPutOneBatch(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 }
+
+func TestOneBySk(t *testing.T) {
+	ctx := context.Background()
+
+	expected := map[string]string{"Col": "Val"}
+	skey, _ := attributevalue.Marshal("sk")
+	data, _ := attributevalue.MarshalMap(expected)
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		Query(ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String("this"),
+			IndexName:                 aws.String(skUpdatedAtIndex),
+			ExpressionAttributeNames:  map[string]string{"#SK": "SK"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":SK": skey},
+			KeyConditionExpression:    aws.String("#SK = :SK"),
+		}).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v map[string]string
+	err := c.OneBySK(ctx, "sk", &v)
+	assert.Nil(t, err)
+	assert.Equal(t, expected, v)
+}
+
+func TestOneBySkWhenMultipleResults(t *testing.T) {
+	ctx := context.Background()
+
+	expected := map[string]string{"Col": "Val"}
+	data, _ := attributevalue.MarshalMap(expected)
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		Query(mock.Anything, mock.Anything).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data, data}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v map[string]string
+	err := c.OneBySK(ctx, "sk", &v)
+
+	assert.Equal(t, errors.New("expected to resolve SK but got 2 items"), err)
+}
+
+func TestOneBySkWhenQueryError(t *testing.T) {
+	ctx := context.Background()
+
+	expected := map[string]string{"Col": "Val"}
+	data, _ := attributevalue.MarshalMap(expected)
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		Query(mock.Anything, mock.Anything).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data}}, expectedError)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v map[string]string
+	err := c.OneBySK(ctx, "sk", &v)
+
+	assert.Equal(t, expectedError, err)
+}
