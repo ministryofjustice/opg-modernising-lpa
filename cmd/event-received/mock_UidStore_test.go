@@ -21,17 +21,17 @@ func (_m *mockUidStore) EXPECT() *mockUidStore_Expecter {
 	return &mockUidStore_Expecter{mock: &_m.Mock}
 }
 
-// Set provides a mock function with given fields: ctx, lpaID, sessionID, uid
-func (_m *mockUidStore) Set(ctx context.Context, lpaID string, sessionID string, uid string) error {
-	ret := _m.Called(ctx, lpaID, sessionID, uid)
+// Set provides a mock function with given fields: ctx, lpaID, sessionID, organisationID, uid
+func (_m *mockUidStore) Set(ctx context.Context, lpaID string, sessionID string, organisationID string, uid string) error {
+	ret := _m.Called(ctx, lpaID, sessionID, organisationID, uid)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Set")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) error); ok {
-		r0 = rf(ctx, lpaID, sessionID, uid)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string) error); ok {
+		r0 = rf(ctx, lpaID, sessionID, organisationID, uid)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -48,14 +48,15 @@ type mockUidStore_Set_Call struct {
 //   - ctx context.Context
 //   - lpaID string
 //   - sessionID string
+//   - organisationID string
 //   - uid string
-func (_e *mockUidStore_Expecter) Set(ctx interface{}, lpaID interface{}, sessionID interface{}, uid interface{}) *mockUidStore_Set_Call {
-	return &mockUidStore_Set_Call{Call: _e.mock.On("Set", ctx, lpaID, sessionID, uid)}
+func (_e *mockUidStore_Expecter) Set(ctx interface{}, lpaID interface{}, sessionID interface{}, organisationID interface{}, uid interface{}) *mockUidStore_Set_Call {
+	return &mockUidStore_Set_Call{Call: _e.mock.On("Set", ctx, lpaID, sessionID, organisationID, uid)}
 }
 
-func (_c *mockUidStore_Set_Call) Run(run func(ctx context.Context, lpaID string, sessionID string, uid string)) *mockUidStore_Set_Call {
+func (_c *mockUidStore_Set_Call) Run(run func(ctx context.Context, lpaID string, sessionID string, organisationID string, uid string)) *mockUidStore_Set_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(string))
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(string), args[4].(string))
 	})
 	return _c
 }
@@ -65,7 +66,7 @@ func (_c *mockUidStore_Set_Call) Return(_a0 error) *mockUidStore_Set_Call {
 	return _c
 }
 
-func (_c *mockUidStore_Set_Call) RunAndReturn(run func(context.Context, string, string, string) error) *mockUidStore_Set_Call {
+func (_c *mockUidStore_Set_Call) RunAndReturn(run func(context.Context, string, string, string, string) error) *mockUidStore_Set_Call {
 	_c.Call.Return(run)
 	return _c
 }

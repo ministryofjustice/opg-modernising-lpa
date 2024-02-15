@@ -28,7 +28,7 @@ func TestHandleUnknownEvent(t *testing.T) {
 func TestHandleUidRequested(t *testing.T) {
 	event := events.CloudWatchEvent{
 		DetailType: "uid-requested",
-		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
+		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","organisationID":"org-id","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
 	}
 
 	uidClient := newMockUidClient(t)
@@ -45,7 +45,7 @@ func TestHandleUidRequested(t *testing.T) {
 
 	uidStore := newMockUidStore(t)
 	uidStore.EXPECT().
-		Set(ctx, "an-id", "donor-id", "M-1111-2222-3333").
+		Set(ctx, "an-id", "donor-id", "org-id", "M-1111-2222-3333").
 		Return(nil)
 
 	err := handleUidRequested(ctx, uidStore, uidClient, event)
@@ -80,7 +80,7 @@ func TestHandleUidRequestedWhenUidStoreErrors(t *testing.T) {
 
 	uidStore := newMockUidStore(t)
 	uidStore.EXPECT().
-		Set(ctx, "an-id", "donor-id", "M-1111-2222-3333").
+		Set(ctx, "an-id", "donor-id", "", "M-1111-2222-3333").
 		Return(expectedError)
 
 	err := handleUidRequested(ctx, uidStore, uidClient, event)

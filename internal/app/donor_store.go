@@ -179,6 +179,7 @@ func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails)
 		if err := s.eventClient.SendUidRequested(ctx, event.UidRequested{
 			LpaID:          donor.LpaID,
 			DonorSessionID: data.SessionID,
+			OrganisationID: data.OrganisationID,
 			Type:           donor.Type.String(),
 			Donor: uid.DonorDetails{
 				Name:     donor.Donor.FullName(),

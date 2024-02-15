@@ -10,23 +10,40 @@ import (
 )
 
 func TestSet(t *testing.T) {
-	now := time.Now()
-	ctx := context.Background()
+	testcases := map[string]struct {
+		organisationID string
+		sk             string
+	}{
+		"donor": {
+			sk: "#DONOR#session-id",
+		},
+		"organisation": {
+			organisationID: "org-id",
+			sk:             "ORGANISATION#org-id",
+		},
+	}
 
-	values, _ := attributevalue.MarshalMap(map[string]any{
-		":uid": "uid",
-		":now": now,
-	})
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			now := time.Now()
+			ctx := context.Background()
 
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.EXPECT().
-		Update(ctx, "LPA#lpa-id", "#DONOR#session-id", values,
-			"set LpaUID = :uid, UpdatedAt = :now").
-		Return(nil)
+			values, _ := attributevalue.MarshalMap(map[string]any{
+				":uid": "uid",
+				":now": now,
+			})
 
-	uidStore := NewUidStore(dynamoClient, func() time.Time { return now })
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.EXPECT().
+				Update(ctx, "LPA#lpa-id", tc.sk, values,
+					"set LpaUID = :uid, UpdatedAt = :now").
+				Return(nil)
 
-	assert.Nil(t, uidStore.Set(ctx, "lpa-id", "session-id", "uid"))
+			uidStore := NewUidStore(dynamoClient, func() time.Time { return now })
+
+			assert.Nil(t, uidStore.Set(ctx, "lpa-id", "session-id", tc.organisationID, "uid"))
+		})
+	}
 }
 
 func TestSetWhenDynamoClientError(t *testing.T) {
@@ -46,5 +63,5 @@ func TestSetWhenDynamoClientError(t *testing.T) {
 
 	uidStore := NewUidStore(dynamoClient, func() time.Time { return now })
 
-	assert.Equal(t, expectedError, uidStore.Set(ctx, "lpa-id", "session-id", "uid"))
+	assert.Equal(t, expectedError, uidStore.Set(ctx, "lpa-id", "session-id", "", "uid"))
 }
