@@ -99,29 +99,6 @@ func (c *Client) OneByUID(ctx context.Context, uid string, v interface{}) error 
 	return attributevalue.UnmarshalMap(response.Items[0], v)
 }
 
-func (c *Client) OneByEmailAndPartialSK(ctx context.Context, email, partialSK string, v interface{}) error {
-	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
-		TableName:                aws.String(c.table),
-		IndexName:                aws.String(skUpdatedAtIndex),
-		ExpressionAttributeNames: map[string]string{"#Email": "Email", "#SK": "SK"},
-		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":Email": &types.AttributeValueMemberS{Value: email},
-			":SK":    &types.AttributeValueMemberS{Value: partialSK},
-		},
-		KeyConditionExpression: aws.String("#Email = :Email and begins_with(#SK, :SK)"),
-	})
-
-	if err != nil {
-		return fmt.Errorf("failed to query email: %w", err)
-	}
-
-	if len(response.Items) != 1 {
-		return fmt.Errorf("expected to resolve email but got %d items", len(response.Items))
-	}
-
-	return attributevalue.UnmarshalMap(response.Items[0], v)
-}
-
 func (c *Client) AllBySK(ctx context.Context, sk string, v interface{}) error {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName:                aws.String(c.table),

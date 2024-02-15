@@ -55,7 +55,6 @@ type DynamoClient interface {
 	BatchPut(ctx context.Context, items []interface{}) error
 	OneBySK(ctx context.Context, sk string, v interface{}) error
 	OneByUID(ctx context.Context, uid string, v interface{}) error
-	OneByEmailAndPartialSK(ctx context.Context, email, partialSK string, v interface{}) error
 }
 
 type S3Client interface {

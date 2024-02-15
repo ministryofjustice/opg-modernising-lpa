@@ -525,55 +525,6 @@ func (_c *mockDynamoClient_One_Call) RunAndReturn(run func(context.Context, stri
 	return _c
 }
 
-// OneByEmailAndPartialSK provides a mock function with given fields: ctx, email, partialSK, v
-func (_m *mockDynamoClient) OneByEmailAndPartialSK(ctx context.Context, email string, partialSK string, v interface{}) error {
-	ret := _m.Called(ctx, email, partialSK, v)
-
-	if len(ret) == 0 {
-		panic("no return value specified for OneByEmailAndPartialSK")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, interface{}) error); ok {
-		r0 = rf(ctx, email, partialSK, v)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// mockDynamoClient_OneByEmailAndPartialSK_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'OneByEmailAndPartialSK'
-type mockDynamoClient_OneByEmailAndPartialSK_Call struct {
-	*mock.Call
-}
-
-// OneByEmailAndPartialSK is a helper method to define mock.On call
-//   - ctx context.Context
-//   - email string
-//   - partialSK string
-//   - v interface{}
-func (_e *mockDynamoClient_Expecter) OneByEmailAndPartialSK(ctx interface{}, email interface{}, partialSK interface{}, v interface{}) *mockDynamoClient_OneByEmailAndPartialSK_Call {
-	return &mockDynamoClient_OneByEmailAndPartialSK_Call{Call: _e.mock.On("OneByEmailAndPartialSK", ctx, email, partialSK, v)}
-}
-
-func (_c *mockDynamoClient_OneByEmailAndPartialSK_Call) Run(run func(ctx context.Context, email string, partialSK string, v interface{})) *mockDynamoClient_OneByEmailAndPartialSK_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(interface{}))
-	})
-	return _c
-}
-
-func (_c *mockDynamoClient_OneByEmailAndPartialSK_Call) Return(_a0 error) *mockDynamoClient_OneByEmailAndPartialSK_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *mockDynamoClient_OneByEmailAndPartialSK_Call) RunAndReturn(run func(context.Context, string, string, interface{}) error) *mockDynamoClient_OneByEmailAndPartialSK_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // OneByPartialSk provides a mock function with given fields: ctx, pk, partialSk, v
 func (_m *mockDynamoClient) OneByPartialSk(ctx context.Context, pk string, partialSk string, v interface{}) error {
 	ret := _m.Called(ctx, pk, partialSk, v)
