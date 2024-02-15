@@ -451,7 +451,7 @@ func TestAllKeysByPk(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	result, err := c.AllKeysByPk(ctx, "pk")
+	result, err := c.AllKeysByPK(ctx, "pk")
 	assert.Nil(t, err)
 	assert.Equal(t, keys, result)
 }
@@ -466,7 +466,7 @@ func TestAllKeysByPkWhenError(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	_, err := c.AllKeysByPk(ctx, "pk")
+	_, err := c.AllKeysByPK(ctx, "pk")
 	assert.Equal(t, expectedError, err)
 }
 

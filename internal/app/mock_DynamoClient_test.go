@@ -180,12 +180,12 @@ func (_c *mockDynamoClient_AllForActor_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
-// AllKeysByPk provides a mock function with given fields: ctx, pk
-func (_m *mockDynamoClient) AllKeysByPk(ctx context.Context, pk string) ([]dynamo.Key, error) {
+// AllKeysByPK provides a mock function with given fields: ctx, pk
+func (_m *mockDynamoClient) AllKeysByPK(ctx context.Context, pk string) ([]dynamo.Key, error) {
 	ret := _m.Called(ctx, pk)
 
 	if len(ret) == 0 {
-		panic("no return value specified for AllKeysByPk")
+		panic("no return value specified for AllKeysByPK")
 	}
 
 	var r0 []dynamo.Key
@@ -210,31 +210,31 @@ func (_m *mockDynamoClient) AllKeysByPk(ctx context.Context, pk string) ([]dynam
 	return r0, r1
 }
 
-// mockDynamoClient_AllKeysByPk_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AllKeysByPk'
-type mockDynamoClient_AllKeysByPk_Call struct {
+// mockDynamoClient_AllKeysByPK_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AllKeysByPK'
+type mockDynamoClient_AllKeysByPK_Call struct {
 	*mock.Call
 }
 
-// AllKeysByPk is a helper method to define mock.On call
+// AllKeysByPK is a helper method to define mock.On call
 //   - ctx context.Context
 //   - pk string
-func (_e *mockDynamoClient_Expecter) AllKeysByPk(ctx interface{}, pk interface{}) *mockDynamoClient_AllKeysByPk_Call {
-	return &mockDynamoClient_AllKeysByPk_Call{Call: _e.mock.On("AllKeysByPk", ctx, pk)}
+func (_e *mockDynamoClient_Expecter) AllKeysByPK(ctx interface{}, pk interface{}) *mockDynamoClient_AllKeysByPK_Call {
+	return &mockDynamoClient_AllKeysByPK_Call{Call: _e.mock.On("AllKeysByPK", ctx, pk)}
 }
 
-func (_c *mockDynamoClient_AllKeysByPk_Call) Run(run func(ctx context.Context, pk string)) *mockDynamoClient_AllKeysByPk_Call {
+func (_c *mockDynamoClient_AllKeysByPK_Call) Run(run func(ctx context.Context, pk string)) *mockDynamoClient_AllKeysByPK_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(string))
 	})
 	return _c
 }
 
-func (_c *mockDynamoClient_AllKeysByPk_Call) Return(_a0 []dynamo.Key, _a1 error) *mockDynamoClient_AllKeysByPk_Call {
+func (_c *mockDynamoClient_AllKeysByPK_Call) Return(_a0 []dynamo.Key, _a1 error) *mockDynamoClient_AllKeysByPK_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockDynamoClient_AllKeysByPk_Call) RunAndReturn(run func(context.Context, string) ([]dynamo.Key, error)) *mockDynamoClient_AllKeysByPk_Call {
+func (_c *mockDynamoClient_AllKeysByPK_Call) RunAndReturn(run func(context.Context, string) ([]dynamo.Key, error)) *mockDynamoClient_AllKeysByPK_Call {
 	_c.Call.Return(run)
 	return _c
 }

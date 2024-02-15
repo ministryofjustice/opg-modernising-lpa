@@ -235,7 +235,7 @@ func (s *donorStore) Delete(ctx context.Context) error {
 		return errors.New("donorStore.Create requires SessionID and LpaID")
 	}
 
-	keys, err := s.dynamoClient.AllKeysByPk(ctx, lpaKey(data.LpaID))
+	keys, err := s.dynamoClient.AllKeysByPK(ctx, lpaKey(data.LpaID))
 	if err != nil {
 		return err
 	}

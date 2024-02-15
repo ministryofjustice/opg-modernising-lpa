@@ -147,7 +147,7 @@ type Key struct {
 	SK string
 }
 
-func (c *Client) AllKeysByPk(ctx context.Context, pk string) ([]Key, error) {
+func (c *Client) AllKeysByPK(ctx context.Context, pk string) ([]Key, error) {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName:                aws.String(c.table),
 		ExpressionAttributeNames: map[string]string{"#PK": "PK"},

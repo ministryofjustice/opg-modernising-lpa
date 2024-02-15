@@ -46,7 +46,7 @@ type DynamoClient interface {
 	LatestForActor(ctx context.Context, sk string, v interface{}) error
 	AllForActor(ctx context.Context, sk string, v interface{}) error
 	AllByKeys(ctx context.Context, pks []dynamo.Key) ([]map[string]dynamodbtypes.AttributeValue, error)
-	AllKeysByPk(ctx context.Context, pk string) ([]dynamo.Key, error)
+	AllKeysByPK(ctx context.Context, pk string) ([]dynamo.Key, error)
 	Put(ctx context.Context, v interface{}) error
 	Create(ctx context.Context, v interface{}) error
 	DeleteKeys(ctx context.Context, keys []dynamo.Key) error
