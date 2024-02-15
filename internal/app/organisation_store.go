@@ -67,12 +67,17 @@ func (s *organisationStore) Get(ctx context.Context) (*actor.Organisation, error
 		return nil, err
 	}
 
-	if data.OrganisationID == "" {
-		return nil, errors.New("organisationStore.Get requires OrganisationID")
+	if data.SessionID == "" {
+		return nil, errors.New("organisationStore.Get requires SessionID")
+	}
+
+	var member actor.Member
+	if err := s.dynamoClient.OneBySK(ctx, memberKey(data.SessionID), &member); err != nil {
+		return nil, err
 	}
 
 	var organisation actor.Organisation
-	if err := s.dynamoClient.One(ctx, organisationKey(data.OrganisationID), organisationKey(data.OrganisationID), &organisation); err != nil {
+	if err := s.dynamoClient.One(ctx, member.PK, member.PK, &organisation); err != nil {
 		return nil, err
 	}
 

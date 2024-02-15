@@ -778,23 +778,40 @@ func TestOneBySk(t *testing.T) {
 	assert.Equal(t, expected, v)
 }
 
-func TestOneBySkWhenMultipleResults(t *testing.T) {
+func TestOneBySKWhenNotOneResult(t *testing.T) {
 	ctx := context.Background()
 
 	expected := map[string]string{"Col": "Val"}
 	data, _ := attributevalue.MarshalMap(expected)
 
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.EXPECT().
-		Query(mock.Anything, mock.Anything).
-		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data, data}}, nil)
+	testcases := map[string]struct {
+		items         []map[string]types.AttributeValue
+		expectedError error
+	}{
+		"no results": {
+			expectedError: NotFoundError{},
+		},
+		"multiple results": {
+			items:         []map[string]types.AttributeValue{data, data},
+			expectedError: errors.New("expected to resolve SK but got 2 items"),
+		},
+	}
 
-	c := &Client{table: "this", svc: dynamoDB}
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			dynamoDB := newMockDynamoDB(t)
+			dynamoDB.EXPECT().
+				Query(mock.Anything, mock.Anything).
+				Return(&dynamodb.QueryOutput{Items: tc.items}, nil)
 
-	var v map[string]string
-	err := c.OneBySK(ctx, "sk", &v)
+			c := &Client{table: "this", svc: dynamoDB}
 
-	assert.Equal(t, errors.New("expected to resolve SK but got 2 items"), err)
+			var v map[string]string
+			err := c.OneBySK(ctx, "sk", &v)
+
+			assert.Equal(t, tc.expectedError, err)
+		})
+	}
 }
 
 func TestOneBySkWhenQueryError(t *testing.T) {

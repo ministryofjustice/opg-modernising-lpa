@@ -103,13 +103,15 @@ func TestOrganisationStoreCreateWhenErrors(t *testing.T) {
 }
 
 func TestOrganisationStoreGet(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "a-uuid"})
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "session-id"})
 	organisation := &actor.Organisation{Name: "A name"}
 
+	member := actor.Member{PK: "ORGANISATION#a-uuid"}
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOne(ctx, "ORGANISATION#a-uuid", "ORGANISATION#a-uuid",
-			organisation, nil)
+		ExpectOneBySK(ctx, "MEMBER#session-id", member, nil)
+	dynamoClient.
+		ExpectOne(ctx, "ORGANISATION#a-uuid", "ORGANISATION#a-uuid", organisation, nil)
 
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
@@ -119,32 +121,45 @@ func TestOrganisationStoreGet(t *testing.T) {
 }
 
 func TestOrganisationStoreGetWithSessionMissing(t *testing.T) {
-	testcases := map[string]context.Context{
-		"no organisation id": page.ContextWithSessionData(context.Background(), &page.SessionData{}),
-		"no session data":    context.Background(),
-	}
+	organisationStore := &organisationStore{}
 
-	for name, ctx := range testcases {
-		t.Run(name, func(t *testing.T) {
-			organisationStore := &organisationStore{}
-
-			_, err := organisationStore.Get(ctx)
-			assert.Error(t, err)
-		})
-	}
+	_, err := organisationStore.Get(context.Background())
+	assert.Error(t, err)
 }
 
 func TestOrganisationStoreGetWhenErrors(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "a-uuid"})
+	testcases := map[string]struct {
+		oneBySKError error
+		oneError     error
+	}{
+		"OneBySK error": {
+			oneBySKError: expectedError,
+		},
+		"One error": {
+			oneError: expectedError,
+		},
+	}
 
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		ExpectOne(ctx, "ORGANISATION#a-uuid", "ORGANISATION#a-uuid",
-			nil, expectedError)
-	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "session-id"})
+	member := actor.Member{PK: "ORGANISATION#a-uuid"}
 
-	_, err := organisationStore.Get(ctx)
-	assert.Equal(t, expectedError, err)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.
+				ExpectOneBySK(ctx, "MEMBER#session-id", member, tc.oneBySKError)
+
+			if tc.oneError != nil {
+				dynamoClient.
+					ExpectOne(ctx, "ORGANISATION#a-uuid", "ORGANISATION#a-uuid", nil, tc.oneError)
+			}
+
+			organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+
+			_, err := organisationStore.Get(ctx)
+			assert.Equal(t, expectedError, err)
+		})
+	}
 }
 
 func TestOrganisationStorePut(t *testing.T) {

@@ -130,7 +130,11 @@ func (c *Client) OneBySK(ctx context.Context, sk string, v interface{}) error {
 		return err
 	}
 
-	if len(response.Items) != 1 {
+	if len(response.Items) == 0 {
+		return NotFoundError{}
+	}
+
+	if len(response.Items) > 1 {
 		return fmt.Errorf("expected to resolve SK but got %d items", len(response.Items))
 	}
 
