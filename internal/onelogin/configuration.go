@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"time"
@@ -56,7 +57,7 @@ func getConfiguration(ctx context.Context, logger Logger, httpClient *http.Clien
 	}
 
 	if err := client.refresh(); err != nil {
-		logger.Print("error refreshing openid configuration:", err)
+		logger.Warn("problem refreshing openid configuration:", slog.Any("err", err))
 	}
 
 	go client.backgroundRefresh()
@@ -141,7 +142,7 @@ func (c *configurationClient) refresh() error {
 		HTTPTimeout:               refreshTimeout,
 		NoErrorReturnFirstHTTPReq: true,
 		RefreshErrorHandler: func(_ context.Context, err error) {
-			c.logger.Print("error refreshing jwks: ", err)
+			c.logger.Warn("problem refreshing jwks", slog.Any("err", err))
 		},
 	})
 	if err != nil {
@@ -179,7 +180,7 @@ func (c *configurationClient) backgroundRefresh() {
 			}
 
 			if err := c.refresh(); err != nil {
-				c.logger.Print("error refreshing openid configuration: ", err.Error())
+				c.logger.Warn("problem refreshing openid configuration", slog.Any("err", err.Error()))
 			}
 
 			lastRefresh = c.now()

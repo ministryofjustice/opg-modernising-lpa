@@ -30,7 +30,9 @@ type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, don
 type Template func(io.Writer, interface{}) error
 
 type Logger interface {
-	Print(v ...interface{})
+	Info(msg string, args ...any)
+	Warn(msg string, args ...any)
+	Error(msg string, args ...any)
 }
 
 type DonorStore interface {
@@ -170,7 +172,6 @@ func Register(
 	lpaStoreClient LpaStoreClient,
 ) {
 	payer := &payHelper{
-		logger:       logger,
 		sessionStore: sessionStore,
 		donorStore:   donorStore,
 		payClient:    payClient,
@@ -235,7 +236,7 @@ func Register(
 	handleWithDonor(page.Paths.ChooseAttorneysSummary, page.CanGoBack,
 		ChooseAttorneysSummary(tmpls.Get("choose_attorneys_summary.gohtml")))
 	handleWithDonor(page.Paths.RemoveAttorney, page.CanGoBack,
-		RemoveAttorney(logger, tmpls.Get("remove_attorney.gohtml"), donorStore))
+		RemoveAttorney(tmpls.Get("remove_attorney.gohtml"), donorStore))
 	handleWithDonor(page.Paths.RemoveTrustCorporation, page.CanGoBack,
 		RemoveTrustCorporation(tmpls.Get("remove_attorney.gohtml"), donorStore, false))
 	handleWithDonor(page.Paths.HowShouldAttorneysMakeDecisions, page.CanGoBack,
@@ -254,7 +255,7 @@ func Register(
 	handleWithDonor(page.Paths.ChooseReplacementAttorneysSummary, page.CanGoBack,
 		ChooseReplacementAttorneysSummary(tmpls.Get("choose_replacement_attorneys_summary.gohtml")))
 	handleWithDonor(page.Paths.RemoveReplacementAttorney, page.CanGoBack,
-		RemoveReplacementAttorney(logger, tmpls.Get("remove_attorney.gohtml"), donorStore))
+		RemoveReplacementAttorney(tmpls.Get("remove_attorney.gohtml"), donorStore))
 	handleWithDonor(page.Paths.RemoveReplacementTrustCorporation, page.CanGoBack,
 		RemoveTrustCorporation(tmpls.Get("remove_attorney.gohtml"), donorStore, true))
 	handleWithDonor(page.Paths.HowShouldReplacementAttorneysStepIn, page.CanGoBack,
@@ -295,7 +296,7 @@ func Register(
 	handleWithDonor(page.Paths.ChoosePeopleToNotifySummary, page.CanGoBack,
 		ChoosePeopleToNotifySummary(tmpls.Get("choose_people_to_notify_summary.gohtml")))
 	handleWithDonor(page.Paths.RemovePersonToNotify, page.CanGoBack,
-		RemovePersonToNotify(logger, tmpls.Get("remove_person_to_notify.gohtml"), donorStore))
+		RemovePersonToNotify(tmpls.Get("remove_person_to_notify.gohtml"), donorStore))
 
 	handleWithDonor(page.Paths.GettingHelpSigning, page.CanGoBack,
 		Guidance(tmpls.Get("getting_help_signing.gohtml")))
@@ -479,7 +480,6 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.Han
 }
 
 type payHelper struct {
-	logger       Logger
 	sessionStore sessions.Store
 	donorStore   DonorStore
 	payClient    PayClient
@@ -512,8 +512,7 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 
 	resp, err := p.payClient.CreatePayment(r.Context(), createPaymentBody)
 	if err != nil {
-		p.logger.Print(fmt.Sprintf("Error creating payment: %s", err.Error()))
-		return err
+		return fmt.Errorf("error creating payment: %w", err)
 	}
 
 	if err = sesh.SetPayment(p.sessionStore, r, w, &sesh.PaymentSession{PaymentID: resp.PaymentId}); err != nil {

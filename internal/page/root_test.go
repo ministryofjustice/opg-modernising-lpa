@@ -1,6 +1,7 @@
 package page
 
 import (
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -45,7 +46,7 @@ func TestRootNotFoundTemplateErrors(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Print("Error rendering page: " + expectedError.Error())
+		Error("error rendering page", slog.Any("req", r), slog.Any("err", expectedError))
 
 	Root(template.Execute, logger)(TestAppData, w, r)
 }

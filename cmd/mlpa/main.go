@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	html "html/template"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -23,7 +24,6 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/env"
-	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
@@ -52,8 +52,31 @@ var Tag string
 
 func main() {
 	ctx := context.Background()
-	logger := logging.New(os.Stdout, "opg-modernising-lpa")
+	logger := slog.New(slog.
+		NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+			ReplaceAttr: func(_ []string, a slog.Attr) slog.Attr {
+				switch a.Value.Kind() {
+				case slog.KindAny:
+					switch v := a.Value.Any().(type) {
+					case *http.Request:
+						return slog.Group(a.Key,
+							slog.String("method", v.Method),
+							slog.String("uri", v.URL.String()))
+					}
+				}
 
+				return a
+			},
+		}).
+		WithAttrs([]slog.Attr{slog.String("service_name", "opg-modernising-lpa")}))
+
+	if err := run(ctx, logger); err != nil {
+		logger.Error("run error", slog.Any("err", err.Error()))
+		os.Exit(1)
+	}
+}
+
+func run(ctx context.Context, logger *slog.Logger) error {
 	var (
 		appPublicURL          = env.Get("APP_PUBLIC_URL", "http://localhost:5050")
 		authRedirectBaseURL   = env.Get("AUTH_REDIRECT_BASE_URL", "http://localhost:5050")
@@ -86,7 +109,7 @@ func main() {
 
 	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
 	if err != nil {
-		logger.Fatal(err)
+		return err
 	}
 	staticHash = url.QueryEscape(staticHash[3:11])
 
@@ -95,12 +118,12 @@ func main() {
 	if xrayEnabled {
 		resource, err := ecs.NewResourceDetector().Detect(ctx)
 		if err != nil {
-			logger.Fatal(err)
+			return err
 		}
 
 		shutdown, err := telemetry.Setup(ctx, resource)
 		if err != nil {
-			logger.Fatal(err)
+			return err
 		}
 		defer shutdown(ctx)
 
@@ -111,7 +134,7 @@ func main() {
 	if metadataURL != "" {
 		region, err = awsRegion(metadataURL)
 		if err != nil {
-			logger.Print("error getting region:", err)
+			logger.Warn("error getting region:", err)
 		}
 	}
 
@@ -125,42 +148,42 @@ func main() {
 		Paths:       page.Paths,
 	}))
 	if err != nil {
-		logger.Fatal(err)
+		return err
 	}
 
 	tmpls, err := parseTemplates(webDir+"/template", layouts)
 	if err != nil {
-		logger.Fatal(err)
+		return err
 	}
 
 	donorTmpls, err := parseTemplates(webDir+"/template/donor", layouts)
 	if err != nil {
-		logger.Fatal(err)
+		return err
 	}
 
 	certificateProviderTmpls, err := parseTemplates(webDir+"/template/certificateprovider", layouts)
 	if err != nil {
-		logger.Fatal(err)
+		return err
 	}
 
 	attorneyTmpls, err := parseTemplates(webDir+"/template/attorney", layouts)
 	if err != nil {
-		logger.Fatal(err)
+		return err
 	}
 
 	supporterTmpls, err := parseTemplates(webDir+"/template/supporter", layouts)
 	if err != nil {
-		logger.Fatal(err)
+		return err
 	}
 
 	bundle, err := localize.NewBundle("lang/en.json", "lang/cy.json")
 	if err != nil {
-		logger.Fatal(err)
+		return err
 	}
 
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
-		logger.Fatal(fmt.Errorf("unable to load SDK config: %w", err))
+		return fmt.Errorf("unable to load SDK config: %w", err)
 	}
 
 	otelaws.AppendMiddlewares(&cfg.APIOptions)
@@ -177,19 +200,19 @@ func main() {
 
 	lpasDynamoClient, err := dynamo.NewClient(cfg, dynamoTableLpas)
 	if err != nil {
-		logger.Fatal(err)
+		return err
 	}
 
 	eventClient := event.NewClient(cfg, eventBusName)
 
 	secretsClient, err := secrets.NewClient(cfg, time.Hour)
 	if err != nil {
-		logger.Fatal(err)
+		return err
 	}
 
 	sessionKeys, err := secretsClient.CookieSessionKeys(ctx)
 	if err != nil {
-		logger.Fatal(err)
+		return err
 	}
 
 	sessionStore := sessions.NewCookieStore(sessionKeys...)
@@ -220,7 +243,7 @@ func main() {
 
 	payApiKey, err := secretsClient.Secret(ctx, secrets.GovUkPay)
 	if err != nil {
-		logger.Fatal(err)
+		return err
 	}
 
 	payClient := &pay.Client{
@@ -231,19 +254,19 @@ func main() {
 
 	osApiKey, err := secretsClient.Secret(ctx, secrets.OrdnanceSurvey)
 	if err != nil {
-		logger.Fatal(err)
+		return err
 	}
 
 	addressClient := place.NewClient(ordnanceSurveyBaseURL, osApiKey, httpClient)
 
 	notifyApiKey, err := secretsClient.Secret(ctx, secrets.GovUkNotify)
 	if err != nil {
-		logger.Fatal(err)
+		return err
 	}
 
 	notifyClient, err := notify.New(notifyIsProduction, notifyBaseURL, notifyApiKey, httpClient, eventClient)
 	if err != nil {
-		logger.Fatal(err)
+		return err
 	}
 
 	evidenceS3Client := s3.NewClient(cfg, evidenceBucketName)
@@ -321,24 +344,23 @@ func main() {
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil {
-			logger.Fatal(err)
+			slog.Error("listen and serve error", slog.Any("err", err))
+			os.Exit(1)
 		}
 	}()
 
-	logger.Print("Running at :" + port)
+	logger.Info("started", slog.String("port", port))
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 
 	sig := <-c
-	logger.Print("signal received: ", sig)
+	logger.Info("signal received", slog.String("signal", sig.String()))
 
 	tc, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
-	if err := server.Shutdown(tc); err != nil {
-		logger.Print(err)
-	}
+	return server.Shutdown(tc)
 }
 
 func awsRegion(metadataURL string) (string, error) {
