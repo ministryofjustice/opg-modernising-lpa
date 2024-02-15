@@ -1,9 +1,7 @@
 package actor
 
 import (
-	"encoding/base64"
 	"fmt"
-	"strings"
 	"time"
 )
 
@@ -68,15 +66,4 @@ func (i MemberInvite) HasExpired() bool {
 
 func (i MemberInvite) FullName() string {
 	return fmt.Sprintf("%s %s", i.FirstNames, i.LastName)
-}
-
-func (i MemberInvite) EmailFromSK() (string, error) {
-	encEmail := strings.Split(i.SK, "#")[1]
-	email, err := base64.StdEncoding.DecodeString(encEmail)
-
-	if err != nil {
-		return "", err
-	}
-
-	return string(email), nil
 }

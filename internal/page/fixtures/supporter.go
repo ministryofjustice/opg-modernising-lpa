@@ -25,7 +25,7 @@ type OrganisationStore interface {
 func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, donorStore DonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		var (
-			invitedMembers = r.FormValue("inviteMembers")
+			invitedMembers = r.FormValue("invitedMembers")
 			lpa            = r.FormValue("lpa")
 			members        = r.FormValue("members")
 			organisation   = r.FormValue("organisation")

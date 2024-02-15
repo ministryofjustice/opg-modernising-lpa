@@ -58,7 +58,7 @@ func (m *mockDynamoClient) ExpectAllByPartialSk(ctx, pk, partialSk, data interfa
 		})
 }
 
-func (m *mockDynamoClient) ExpectAllForActor(ctx, sk, data interface{}, err error) {
+func (m *mockDynamoClient) ExpectAllBySK(ctx, sk, data interface{}, err error) {
 	m.
 		On("AllBySK", ctx, sk, mock.Anything).
 		Return(func(ctx context.Context, pk string, v interface{}) error {
