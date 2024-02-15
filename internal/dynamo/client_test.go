@@ -214,7 +214,7 @@ func TestOneByPartialSk(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v map[string]string
-	err := c.OneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
+	err := c.OneByPartialSK(ctx, "a-pk", "a-partial-sk", &v)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, v)
 }
@@ -230,7 +230,7 @@ func TestOneByPartialSkOnQueryError(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v map[string]string
-	err := c.OneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
+	err := c.OneByPartialSK(ctx, "a-pk", "a-partial-sk", &v)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -245,7 +245,7 @@ func TestOneByPartialSkWhenNotFound(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v map[string]string
-	err := c.OneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
+	err := c.OneByPartialSK(ctx, "a-pk", "a-partial-sk", &v)
 	assert.Equal(t, NotFoundError{}, err)
 }
 
@@ -262,7 +262,7 @@ func TestOneByPartialSkWhenMultipleResults(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v map[string]string
-	err := c.OneByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
+	err := c.OneByPartialSK(ctx, "a-pk", "a-partial-sk", &v)
 	assert.Equal(t, MultipleResultsError{}, err)
 }
 
@@ -288,7 +288,7 @@ func TestAllByPartialSk(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v []map[string]string
-	err := c.AllByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
+	err := c.AllByPartialSK(ctx, "a-pk", "a-partial-sk", &v)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, v)
 }
@@ -304,7 +304,7 @@ func TestAllByPartialSkOnQueryError(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v map[string]string
-	err := c.AllByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
+	err := c.AllByPartialSK(ctx, "a-pk", "a-partial-sk", &v)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -451,7 +451,7 @@ func TestAllKeysByPk(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	result, err := c.AllKeysByPk(ctx, "pk")
+	result, err := c.AllKeysByPK(ctx, "pk")
 	assert.Nil(t, err)
 	assert.Equal(t, keys, result)
 }
@@ -466,7 +466,7 @@ func TestAllKeysByPkWhenError(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	_, err := c.AllKeysByPk(ctx, "pk")
+	_, err := c.AllKeysByPK(ctx, "pk")
 	assert.Equal(t, expectedError, err)
 }
 

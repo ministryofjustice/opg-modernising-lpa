@@ -63,7 +63,7 @@ func (s *documentStore) GetAll(ctx context.Context) (page.Documents, error) {
 	}
 
 	var ds []page.Document
-	if err := s.dynamoClient.AllByPartialSk(ctx, lpaKey(data.LpaID), documentKey(""), &ds); err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
+	if err := s.dynamoClient.AllByPartialSK(ctx, lpaKey(data.LpaID), documentKey(""), &ds); err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
 		return nil, err
 	}
 

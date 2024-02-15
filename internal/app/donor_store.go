@@ -110,7 +110,7 @@ func (s *donorStore) GetAny(ctx context.Context) (*actor.DonorProvidedDetails, e
 	}
 
 	var donor *actor.DonorProvidedDetails
-	if err := s.dynamoClient.OneByPartialSk(ctx, lpaKey(data.LpaID), "#DONOR#", &donor); err != nil {
+	if err := s.dynamoClient.OneByPartialSK(ctx, lpaKey(data.LpaID), "#DONOR#", &donor); err != nil {
 		return nil, err
 	}
 
@@ -235,7 +235,7 @@ func (s *donorStore) Delete(ctx context.Context) error {
 		return errors.New("donorStore.Create requires SessionID and LpaID")
 	}
 
-	keys, err := s.dynamoClient.AllKeysByPk(ctx, lpaKey(data.LpaID))
+	keys, err := s.dynamoClient.AllKeysByPK(ctx, lpaKey(data.LpaID))
 	if err != nil {
 		return err
 	}
