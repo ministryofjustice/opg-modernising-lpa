@@ -57,6 +57,20 @@ var (
 		{Firstnames: "Ally", Lastname: "Avery"},
 		{Firstnames: "Deva", Lastname: "Dankar"},
 	}
+	invitedOrgMemberNames = []Name{
+		{Firstnames: "Kamal", Lastname: "Singh"},
+		{Firstnames: "Jo", Lastname: "Alessi"},
+		{Firstnames: "Dan", Lastname: "Beaumont"},
+		{Firstnames: "Nadia", Lastname: "Ksaiba"},
+		{Firstnames: "Harry", Lastname: "Agius"},
+	}
+	orgMemberNames = []Name{
+		{Firstnames: "Alice", Lastname: "Moxom"},
+		{Firstnames: "Leon", Lastname: "Vynehall"},
+		{Firstnames: "Derrick", Lastname: "Carter"},
+		{Firstnames: "Luke", Lastname: "Solomon"},
+		{Firstnames: "Josey", Lastname: "Rebelle"},
+	}
 )
 
 func makeAttorney(name Name) actor.Attorney {
