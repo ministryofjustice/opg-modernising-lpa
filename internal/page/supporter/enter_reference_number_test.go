@@ -68,10 +68,10 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		InvitedMember(r.Context()).
-		Return(&actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id"}, nil)
+		Return(&actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id", OrganisationName: "org name"}, nil)
 
 	organisationStore.EXPECT().
-		CreateMember(r.Context(), &actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id"}).
+		CreateMember(r.Context(), &actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id", OrganisationName: "org name"}).
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -90,7 +90,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 		Get(r, "session").
 		Return(session, nil)
 
-	session.Values = map[any]any{"session": &sesh.LoginSession{Email: "name@example.com", Sub: "a-sub", OrganisationID: "org-id"}}
+	session.Values = map[any]any{"session": &sesh.LoginSession{Email: "name@example.com", Sub: "a-sub", OrganisationID: "org-id", OrganisationName: "org name"}}
 
 	sessionStore.EXPECT().
 		Save(r, w, session).

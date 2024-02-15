@@ -105,15 +105,16 @@ func (s *organisationStore) CreateMemberInvite(ctx context.Context, organisation
 	}
 
 	invite := &actor.MemberInvite{
-		PK:              organisationKey(data.OrganisationID),
-		SK:              memberInviteKey(email),
-		CreatedAt:       s.now(),
-		OrganisationID:  organisation.ID,
-		Email:           email,
-		FirstNames:      firstNames,
-		LastName:        lastname,
-		Permission:      permission,
-		ReferenceNumber: referenceNumber,
+		PK:               organisationKey(data.OrganisationID),
+		SK:               memberInviteKey(email),
+		CreatedAt:        s.now(),
+		OrganisationID:   organisation.ID,
+		OrganisationName: organisation.Name,
+		Email:            email,
+		FirstNames:       firstNames,
+		LastName:         lastname,
+		Permission:       permission,
+		ReferenceNumber:  referenceNumber,
 	}
 
 	if err := s.dynamoClient.Create(ctx, invite); err != nil {

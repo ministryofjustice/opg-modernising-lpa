@@ -49,6 +49,8 @@ func EnterReferenceNumber(tmpl template.Template, organisationStore Organisation
 				}
 
 				loginSession.OrganisationID = invite.OrganisationID
+				loginSession.OrganisationName = invite.OrganisationName
+
 				if err := sesh.SetLoginSession(sessionStore, r, w, loginSession); err != nil {
 					return err
 				}

@@ -31,16 +31,16 @@ var (
 	tokenSigningKey, _ = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	tokenSigningKid    = randomString("kid-", 8)
 
-	sessions      = map[string]sessionData{}
-	tokens        = map[string]sessionData{}
-	emailOverride = ""
+	sessions = map[string]sessionData{}
+	tokens   = map[string]sessionData{}
 )
 
 type sessionData struct {
-	user     string
-	nonce    string
-	identity bool
-	sub      string
+	user          string
+	nonce         string
+	identity      bool
+	sub           string
+	emailOverride string
 }
 
 type OpenIdConfig struct {
@@ -174,13 +174,12 @@ func authorize() http.HandlerFunc {
 		q.Set("state", r.FormValue("state"))
 
 		sessions[code] = sessionData{
-			nonce:    r.FormValue("nonce"),
-			user:     r.FormValue("user"),
-			identity: wantsIdentity,
-			sub:      r.FormValue("sub"),
+			nonce:         r.FormValue("nonce"),
+			user:          r.FormValue("user"),
+			identity:      wantsIdentity,
+			sub:           r.FormValue("sub"),
+			emailOverride: r.FormValue("email"),
 		}
-
-		emailOverride = r.FormValue("email")
 
 		u.RawQuery = q.Encode()
 
@@ -200,9 +199,8 @@ func userInfo(privateKey *ecdsa.PrivateKey) http.HandlerFunc {
 		}
 
 		email := "simulate-delivered@notifications.service.gov.uk"
-		if emailOverride != "" {
-			email = emailOverride
-			emailOverride = ""
+		if token.emailOverride != "" {
+			email = token.emailOverride
 		}
 
 		userInfo := UserInfoResponse{

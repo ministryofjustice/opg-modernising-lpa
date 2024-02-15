@@ -185,21 +185,22 @@ func TestOrganisationStoreCreateMemberInvite(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
 		Create(ctx, &actor.MemberInvite{
-			PK:              "ORGANISATION#an-id",
-			SK:              "MEMBERINVITE#ZW1haWxAZXhhbXBsZS5jb20=",
-			CreatedAt:       testNow,
-			OrganisationID:  "a-uuid",
-			Email:           "email@example.com",
-			FirstNames:      "a",
-			LastName:        "b",
-			Permission:      actor.None,
-			ReferenceNumber: "abcde",
+			PK:               "ORGANISATION#an-id",
+			SK:               "MEMBERINVITE#ZW1haWxAZXhhbXBsZS5jb20=",
+			CreatedAt:        testNow,
+			OrganisationID:   "a-uuid",
+			OrganisationName: "org name",
+			Email:            "email@example.com",
+			FirstNames:       "a",
+			LastName:         "b",
+			Permission:       actor.None,
+			ReferenceNumber:  "abcde",
 		}).
 		Return(nil)
 
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn}
 
-	err := organisationStore.CreateMemberInvite(ctx, &actor.Organisation{ID: "a-uuid"}, "a", "b", "email@example.com", "abcde", actor.None)
+	err := organisationStore.CreateMemberInvite(ctx, &actor.Organisation{ID: "a-uuid", Name: "org name"}, "a", "b", "email@example.com", "abcde", actor.None)
 	assert.Nil(t, err)
 }
 

@@ -50,7 +50,9 @@ type MemberInvite struct {
 	UpdatedAt time.Time
 	// OrganisationID identifies the organisation the invite is for
 	OrganisationID string
-	// Email is the address the new Member must signin as for the invite
+	// OrganisationName is the name of the organisation the invite is for
+	OrganisationName string
+	// Email is the address the new Member must sign in as for the invite
 	Email      string
 	FirstNames string
 	LastName   string
