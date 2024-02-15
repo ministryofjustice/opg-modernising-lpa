@@ -120,11 +120,20 @@ func TestOrganisationStoreGet(t *testing.T) {
 	assert.Equal(t, organisation, result)
 }
 
-func TestOrganisationStoreGetWithSessionMissing(t *testing.T) {
-	organisationStore := &organisationStore{}
+func TestOrganisationStoreGetWithSessionErrors(t *testing.T) {
+	testcases := map[string]context.Context{
+		"missing":           context.Background(),
+		"missing SessionID": page.ContextWithSessionData(context.Background(), &page.SessionData{}),
+	}
 
-	_, err := organisationStore.Get(context.Background())
-	assert.Error(t, err)
+	for name, ctx := range testcases {
+		t.Run(name, func(t *testing.T) {
+			organisationStore := &organisationStore{}
+
+			_, err := organisationStore.Get(ctx)
+			assert.Error(t, err)
+		})
+	}
 }
 
 func TestOrganisationStoreGetWhenErrors(t *testing.T) {
