@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -16,7 +17,7 @@ type LoginCallbackOneLoginClient interface {
 	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
 }
 
-func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh.Store, organisationStore OrganisationStore) page.Handler {
+func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh.Store, organisationStore OrganisationStore, now func() time.Time) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		oneLoginSession, err := sesh.OneLogin(sessionStore, r)
 		if err != nil {
@@ -33,19 +34,43 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 			return err
 		}
 
-		session := &sesh.LoginSession{
+		loginSession := &sesh.LoginSession{
 			IDToken: idToken,
 			Sub:     "supporter-" + userInfo.Sub,
 			Email:   userInfo.Email,
 		}
 
-		ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: session.SessionID()})
+		sessionData := &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email}
+		ctx := page.ContextWithSessionData(r.Context(), sessionData)
+
+		_, err = organisationStore.InvitedMember(ctx)
+		if err == nil {
+			if err := sesh.SetLoginSession(sessionStore, r, w, loginSession); err != nil {
+				return err
+			}
+
+			return page.Paths.Supporter.EnterReferenceNumber.Redirect(w, r, appData)
+		}
 
 		organisation, err := organisationStore.Get(ctx)
 		if err == nil {
-			session.OrganisationID = organisation.ID
-			session.OrganisationName = organisation.Name
-			if err := sesh.SetLoginSession(sessionStore, r, w, session); err != nil {
+			loginSession.OrganisationID = organisation.ID
+			loginSession.OrganisationName = organisation.Name
+			if err := sesh.SetLoginSession(sessionStore, r, w, loginSession); err != nil {
+				return err
+			}
+
+			sessionData.OrganisationID = organisation.ID
+			ctx = page.ContextWithSessionData(r.Context(), sessionData)
+
+			member, err := organisationStore.Member(ctx)
+			if err != nil {
+				return err
+			}
+
+			member.LastLoggedInAt = now()
+
+			if err := organisationStore.PutMember(ctx, member); err != nil {
 				return err
 			}
 
@@ -53,11 +78,7 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 		}
 
 		if errors.Is(err, dynamo.NotFoundError{}) {
-			if err := sesh.SetLoginSession(sessionStore, r, w, &sesh.LoginSession{
-				IDToken: idToken,
-				Sub:     "supporter-" + userInfo.Sub,
-				Email:   userInfo.Email,
-			}); err != nil {
+			if err := sesh.SetLoginSession(sessionStore, r, w, loginSession); err != nil {
 				return err
 			}
 		} else {
