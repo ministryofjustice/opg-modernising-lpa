@@ -60,7 +60,7 @@ func (s *certificateProviderStore) GetAny(ctx context.Context) (*actor.Certifica
 	}
 
 	var certificateProvider actor.CertificateProviderProvidedDetails
-	err = s.dynamoClient.OneByPartialSk(ctx, lpaKey(data.LpaID), "#CERTIFICATE_PROVIDER#", &certificateProvider)
+	err = s.dynamoClient.OneByPartialSK(ctx, lpaKey(data.LpaID), "#CERTIFICATE_PROVIDER#", &certificateProvider)
 
 	return &certificateProvider, err
 }
