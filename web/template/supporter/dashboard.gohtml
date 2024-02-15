@@ -7,12 +7,9 @@
     <div class="govuk-grid-column-full">
       <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
 
-      <form novalidate method="post">
-        <div class="govuk-button-group">
-          <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "makeANewLPA" }}</button>
-        </div>
-        {{ template "csrf-field" . }}
-      </form>
+      <div class="govuk-button-group">
+        <a href="{{ link .App global.Paths.Supporter.ConfirmDonorCanInteractOnline.Format }}" class="govuk-button">{{ tr .App "makeANewLPA" }}</a>
+      </div>
 
       {{ if .Donors }}
         <table class="govuk-table">

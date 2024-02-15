@@ -1054,5 +1054,17 @@
     "invitedTeamMembers": "Welsh",
     "invitePending": "Welsh",
     "resendInvite": "Welsh",
-    "toMemberName": "Welsh {{ .MemberName }}"
+    "toMemberName": "Welsh {{ .MemberName }}",
+    "ifYouWouldLikeToContinueMakingAnOnlineLPA": "Welsh",
+    "confirmIfTheDonorCanInteractOnline": "Welsh",
+    "confirmIfTheDonorCanInteractOnlineContent": "<p class=\"govuk-body\">Welsh</p>",
+    "youCannotSwitchBetweenPaperAndOnlineWarning": "Welsh",
+    "checkTheDonorCanInteractOnlineContent": "<h2 class=\"govuk-heading-m\">Welsh</h2>",
+    "howWouldYouLikeToContinue": "Welsh",
+    "makeAnOnlineLPA": "Welsh",
+    "chooseThisIfYourDonorCanInteractOnline": "Welsh",
+    "offlineUsingPaperFormsAndByPhone": "Welsh",
+    "wellGiveYouMoreInformationAboutHowToGetPaperForms" :"Welsh",
+    "contactOpgForPaperForms": "Welsh",
+    "contactOpgForPaperFormsContent": "<p class=\"govuk-body\">Welsh</p>"
 }
