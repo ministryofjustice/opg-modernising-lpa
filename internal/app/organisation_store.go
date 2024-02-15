@@ -84,6 +84,11 @@ func (s *organisationStore) Put(ctx context.Context, organisation *actor.Organis
 	return s.dynamoClient.Put(ctx, organisation)
 }
 
+func (s *organisationStore) PutMember(ctx context.Context, member *actor.Member) error {
+	member.UpdatedAt = s.now()
+	return s.dynamoClient.Put(ctx, member)
+}
+
 func (s *organisationStore) CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, referenceNumber string, permission actor.Permission) error {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
@@ -183,7 +188,7 @@ func (s *organisationStore) InvitedMembers(ctx context.Context) ([]*actor.Member
 	}
 
 	if data.OrganisationID == "" {
-		return nil, errors.New("organisationStore.Get requires OrganisationID")
+		return nil, errors.New("organisationStore.InvitedMembers requires OrganisationID")
 	}
 
 	var invitedMembers []*actor.MemberInvite
@@ -212,6 +217,46 @@ func (s *organisationStore) InvitedMember(ctx context.Context) (*actor.MemberInv
 	return invitedMember, nil
 }
 
+func (s *organisationStore) Members(ctx context.Context) ([]*actor.Member, error) {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.OrganisationID == "" {
+		return nil, errors.New("organisationStore.Members requires OrganisationID")
+	}
+
+	var members []*actor.Member
+	if err := s.dynamoClient.AllByPartialSk(ctx, organisationKey(data.OrganisationID), memberKey(""), &members); err != nil {
+		return nil, err
+	}
+
+	return members, nil
+}
+
+func (s *organisationStore) Member(ctx context.Context) (*actor.Member, error) {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.SessionID == "" {
+		return nil, errors.New("organisationStore.Member requires SessionID")
+	}
+
+	if data.OrganisationID == "" {
+		return nil, errors.New("organisationStore.Member requires OrganisationID")
+	}
+
+	var member *actor.Member
+	if err := s.dynamoClient.One(ctx, organisationKey(data.OrganisationID), memberKey(data.SessionID), &member); err != nil {
+		return nil, err
+	}
+
+	return member, nil
+}
+
 func (s *organisationStore) AllLPAs(ctx context.Context) ([]actor.DonorProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
@@ -238,12 +283,12 @@ func (s *organisationStore) AllLPAs(ctx context.Context) ([]actor.DonorProvidedD
 	return donors, nil
 }
 
-func organisationKey(s string) string {
-	return "ORGANISATION#" + s
+func organisationKey(organisationID string) string {
+	return "ORGANISATION#" + organisationID
 }
 
-func memberKey(s string) string {
-	return "MEMBER#" + s
+func memberKey(sessionID string) string {
+	return "MEMBER#" + sessionID
 }
 
 func memberInviteKey(email string) string {

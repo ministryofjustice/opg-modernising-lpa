@@ -29,12 +29,18 @@ type Member struct {
 	// CreatedAt is when the Member was created
 	CreatedAt time.Time
 	// UpdatedAt is when the Member was last updated
-	UpdatedAt  time.Time
-	Email      string
-	FirstNames string
-	LastName   string
+	UpdatedAt time.Time
+	// LastLoggedInAt is when the Member last logged in to the service
+	LastLoggedInAt time.Time
+	Email          string
+	FirstNames     string
+	LastName       string
 	// Permission is the type of permissions assigned to the member to set available actions in an Organisation
 	Permission Permission
+}
+
+func (i Member) FullName() string {
+	return fmt.Sprintf("%s %s", i.FirstNames, i.LastName)
 }
 
 // A MemberInvite is created to allow a new Member to join an Organisation

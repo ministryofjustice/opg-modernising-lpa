@@ -993,5 +993,9 @@
     "invitePending": "Invite pending",
     "resendInvite": "Resend invite",
     "toMemberName": "to {{ .MemberName }}",
-    "enterYourSupporterReferenceNumber": "Enter your supporter reference number"
+    "enterYourSupporterReferenceNumber": "Enter your supporter reference number",
+    "teamMembers": "Team members",
+    "active": "Active",
+    "lastSignedIn": "Last signed in",
+    "admin": "Admin"
 }

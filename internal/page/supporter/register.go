@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -24,7 +25,10 @@ type OrganisationStore interface {
 	Get(ctx context.Context) (*actor.Organisation, error)
 	InvitedMember(ctx context.Context) (*actor.MemberInvite, error)
 	InvitedMembers(ctx context.Context) ([]*actor.MemberInvite, error)
+	Member(ctx context.Context) (*actor.Member, error)
+	Members(ctx context.Context) ([]*actor.Member, error)
 	Put(ctx context.Context, organisation *actor.Organisation) error
+	PutMember(ctx context.Context, member *actor.Member) error
 }
 
 type OneLoginClient interface {
@@ -68,7 +72,7 @@ func Register(
 	handleRoot(paths.Login, page.None,
 		page.Login(oneLoginClient, sessionStore, random.String, paths.LoginCallback))
 	handleRoot(paths.LoginCallback, page.None,
-		LoginCallback(oneLoginClient, sessionStore, organisationStore))
+		LoginCallback(oneLoginClient, sessionStore, organisationStore, time.Now))
 	handleRoot(paths.EnterOrganisationName, page.RequireSession,
 		EnterOrganisationName(tmpls.Get("enter_organisation_name.gohtml"), organisationStore, sessionStore))
 	handleRoot(paths.EnterReferenceNumber, page.RequireSession,

@@ -471,6 +471,122 @@ func (_c *mockOrganisationStore_InvitedMembers_Call) RunAndReturn(run func(conte
 	return _c
 }
 
+// Member provides a mock function with given fields: ctx
+func (_m *mockOrganisationStore) Member(ctx context.Context) (*actor.Member, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Member")
+	}
+
+	var r0 *actor.Member
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (*actor.Member, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) *actor.Member); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*actor.Member)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockOrganisationStore_Member_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Member'
+type mockOrganisationStore_Member_Call struct {
+	*mock.Call
+}
+
+// Member is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *mockOrganisationStore_Expecter) Member(ctx interface{}) *mockOrganisationStore_Member_Call {
+	return &mockOrganisationStore_Member_Call{Call: _e.mock.On("Member", ctx)}
+}
+
+func (_c *mockOrganisationStore_Member_Call) Run(run func(ctx context.Context)) *mockOrganisationStore_Member_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *mockOrganisationStore_Member_Call) Return(_a0 *actor.Member, _a1 error) *mockOrganisationStore_Member_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockOrganisationStore_Member_Call) RunAndReturn(run func(context.Context) (*actor.Member, error)) *mockOrganisationStore_Member_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Members provides a mock function with given fields: ctx
+func (_m *mockOrganisationStore) Members(ctx context.Context) ([]*actor.Member, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Members")
+	}
+
+	var r0 []*actor.Member
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) ([]*actor.Member, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) []*actor.Member); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*actor.Member)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockOrganisationStore_Members_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Members'
+type mockOrganisationStore_Members_Call struct {
+	*mock.Call
+}
+
+// Members is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *mockOrganisationStore_Expecter) Members(ctx interface{}) *mockOrganisationStore_Members_Call {
+	return &mockOrganisationStore_Members_Call{Call: _e.mock.On("Members", ctx)}
+}
+
+func (_c *mockOrganisationStore_Members_Call) Run(run func(ctx context.Context)) *mockOrganisationStore_Members_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *mockOrganisationStore_Members_Call) Return(_a0 []*actor.Member, _a1 error) *mockOrganisationStore_Members_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockOrganisationStore_Members_Call) RunAndReturn(run func(context.Context) ([]*actor.Member, error)) *mockOrganisationStore_Members_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Put provides a mock function with given fields: ctx, organisation
 func (_m *mockOrganisationStore) Put(ctx context.Context, organisation *actor.Organisation) error {
 	ret := _m.Called(ctx, organisation)
@@ -514,6 +630,53 @@ func (_c *mockOrganisationStore_Put_Call) Return(_a0 error) *mockOrganisationSto
 }
 
 func (_c *mockOrganisationStore_Put_Call) RunAndReturn(run func(context.Context, *actor.Organisation) error) *mockOrganisationStore_Put_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PutMember provides a mock function with given fields: ctx, member
+func (_m *mockOrganisationStore) PutMember(ctx context.Context, member *actor.Member) error {
+	ret := _m.Called(ctx, member)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PutMember")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *actor.Member) error); ok {
+		r0 = rf(ctx, member)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockOrganisationStore_PutMember_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PutMember'
+type mockOrganisationStore_PutMember_Call struct {
+	*mock.Call
+}
+
+// PutMember is a helper method to define mock.On call
+//   - ctx context.Context
+//   - member *actor.Member
+func (_e *mockOrganisationStore_Expecter) PutMember(ctx interface{}, member interface{}) *mockOrganisationStore_PutMember_Call {
+	return &mockOrganisationStore_PutMember_Call{Call: _e.mock.On("PutMember", ctx, member)}
+}
+
+func (_c *mockOrganisationStore_PutMember_Call) Run(run func(ctx context.Context, member *actor.Member)) *mockOrganisationStore_PutMember_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*actor.Member))
+	})
+	return _c
+}
+
+func (_c *mockOrganisationStore_PutMember_Call) Return(_a0 error) *mockOrganisationStore_PutMember_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockOrganisationStore_PutMember_Call) RunAndReturn(run func(context.Context, *actor.Member) error) *mockOrganisationStore_PutMember_Call {
 	_c.Call.Return(run)
 	return _c
 }

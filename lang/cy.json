@@ -1055,5 +1055,9 @@
     "invitePending": "Welsh",
     "resendInvite": "Welsh",
     "toMemberName": "Welsh {{ .MemberName }}",
-    "enterYourSupporterReferenceNumber": "Welsh"
+    "enterYourSupporterReferenceNumber": "Welsh",
+    "teamMembers": "Team members",
+    "active": "Active",
+    "lastSignedIn": "Last signed in",
+    "admin": "Admin"
 }

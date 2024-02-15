@@ -16,6 +16,7 @@ type manageTeamMembersData struct {
 	Errors         validation.List
 	Organisation   *actor.Organisation
 	InvitedMembers []*actor.MemberInvite
+	Members        []*actor.Member
 }
 
 func ManageTeamMembers(tmpl template.Template, organisationStore OrganisationStore) Handler {
@@ -25,11 +26,17 @@ func ManageTeamMembers(tmpl template.Template, organisationStore OrganisationSto
 			return err
 		}
 
+		members, err := organisationStore.Members(r.Context())
+		if err != nil {
+			return err
+		}
+
 		return tmpl(w, &manageTeamMembersData{
 			App:            appData,
 			Query:          r.URL.Query(),
 			Organisation:   organisation,
 			InvitedMembers: invitedMembers,
+			Members:        members,
 		})
 	}
 }
