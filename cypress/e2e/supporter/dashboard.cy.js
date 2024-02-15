@@ -4,6 +4,8 @@ describe('Dashboard', () => {
   });
 
   it('shows LPAs', () => {
+    cy.checkA11yApp();
+
     cy.contains('Sam Smith');
     cy.contains('B14 7ED');
     cy.contains('Property and affairs');
@@ -17,9 +19,12 @@ describe('Dashboard', () => {
     cy.contains('Sam2 Smith');
   });
 
-  it('can create a new LPA', () => {
+  it('can start a new LPA', () => {
+    cy.contains('a', 'Make a new LPA').click();
+
     cy.checkA11yApp();
-    cy.contains('button', 'Make a new LPA').click();
+    cy.contains('label', 'Make an online LPA').click();
+    cy.contains('button', 'Continue').click();
 
     cy.get('#f-first-names').type('John');
     cy.get('#f-last-name').type('Doe');
@@ -28,8 +33,13 @@ describe('Dashboard', () => {
     cy.get('#f-date-of-birth-year').type('1990');
     cy.get('#f-can-sign').check({ force: true });
     cy.contains('button', 'Continue').click();
-    cy.contains('a', 'Dashboard').click();
+  });
 
-    cy.contains('John Doe');
+  it('can show guidance for starting a paper LPA', () => {
+    cy.contains('a', 'Make a new LPA').click();
+    cy.contains('label', 'Offline').click();
+    cy.contains('button', 'Continue').click();
+
+    cy.checkA11yApp();
   });
 });
