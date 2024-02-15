@@ -19,6 +19,9 @@ func TestGetManageTeamMembers(t *testing.T) {
 	organisationStore.EXPECT().
 		InvitedMembers(r.Context()).
 		Return([]*actor.MemberInvite{{FirstNames: "a"}, {FirstNames: "b"}}, nil)
+	organisationStore.EXPECT().
+		Members(r.Context()).
+		Return([]*actor.Member{{FirstNames: "c"}, {FirstNames: "d"}}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -27,6 +30,7 @@ func TestGetManageTeamMembers(t *testing.T) {
 			Query:          url.Values{"a": {"b"}},
 			Organisation:   &actor.Organisation{ID: "org-id"},
 			InvitedMembers: []*actor.MemberInvite{{FirstNames: "a"}, {FirstNames: "b"}},
+			Members:        []*actor.Member{{FirstNames: "c"}, {FirstNames: "d"}},
 		}).
 		Return(nil)
 
@@ -38,21 +42,43 @@ func TestGetManageTeamMembers(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetManageTeamMembersWhenOrganisationStoreError(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+func TestGetManageTeamMembersWhenOrganisationStoreErrors(t *testing.T) {
+	testcases := map[string]struct {
+		invitedMembersError error
+		membersError        error
+	}{
+		"InvitedMembers error": {
+			invitedMembersError: expectedError,
+		},
+		"Members error": {
+			membersError: expectedError,
+		},
+	}
 
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
-		InvitedMembers(mock.Anything).
-		Return([]*actor.MemberInvite{}, expectedError)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ManageTeamMembers(nil, organisationStore)(testAppData, w, r, &actor.Organisation{})
+			organisationStore := newMockOrganisationStore(t)
+			organisationStore.EXPECT().
+				InvitedMembers(mock.Anything).
+				Return([]*actor.MemberInvite{}, tc.invitedMembersError)
 
-	resp := w.Result()
+			if tc.membersError != nil {
+				organisationStore.EXPECT().
+					Members(mock.Anything).
+					Return([]*actor.Member{}, tc.membersError)
+			}
 
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			err := ManageTeamMembers(nil, organisationStore)(testAppData, w, r, &actor.Organisation{})
+
+			resp := w.Result()
+
+			assert.Equal(t, expectedError, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
 func TestGetManageTeamMembersWhenTemplateError(t *testing.T) {
@@ -63,6 +89,9 @@ func TestGetManageTeamMembersWhenTemplateError(t *testing.T) {
 	organisationStore.EXPECT().
 		InvitedMembers(mock.Anything).
 		Return([]*actor.MemberInvite{}, nil)
+	organisationStore.EXPECT().
+		Members(mock.Anything).
+		Return([]*actor.Member{{FirstNames: "c"}, {FirstNames: "d"}}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().

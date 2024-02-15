@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	lpaUIDIndex         = "LpaUIDIndex"
-	actorUpdatedAtIndex = "ActorUpdatedAtIndex"
+	lpaUIDIndex      = "LpaUIDIndex"
+	skUpdatedAtIndex = "SkUpdatedAtIndex"
 )
 
 type dynamoDB interface {
@@ -99,10 +99,10 @@ func (c *Client) OneByUID(ctx context.Context, uid string, v interface{}) error 
 	return attributevalue.UnmarshalMap(response.Items[0], v)
 }
 
-func (c *Client) AllForActor(ctx context.Context, sk string, v interface{}) error {
+func (c *Client) AllBySK(ctx context.Context, sk string, v interface{}) error {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName:                aws.String(c.table),
-		IndexName:                aws.String(actorUpdatedAtIndex),
+		IndexName:                aws.String(skUpdatedAtIndex),
 		ExpressionAttributeNames: map[string]string{"#SK": "SK"},
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":SK": &types.AttributeValueMemberS{Value: sk},
@@ -116,10 +116,35 @@ func (c *Client) AllForActor(ctx context.Context, sk string, v interface{}) erro
 	return attributevalue.UnmarshalListOfMaps(response.Items, v)
 }
 
+func (c *Client) OneBySK(ctx context.Context, sk string, v interface{}) error {
+	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
+		TableName:                aws.String(c.table),
+		IndexName:                aws.String(skUpdatedAtIndex),
+		ExpressionAttributeNames: map[string]string{"#SK": "SK"},
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":SK": &types.AttributeValueMemberS{Value: sk},
+		},
+		KeyConditionExpression: aws.String("#SK = :SK"),
+	})
+	if err != nil {
+		return err
+	}
+
+	if len(response.Items) == 0 {
+		return NotFoundError{}
+	}
+
+	if len(response.Items) > 1 {
+		return fmt.Errorf("expected to resolve SK but got %d items", len(response.Items))
+	}
+
+	return attributevalue.UnmarshalMap(response.Items[0], v)
+}
+
 func (c *Client) LatestForActor(ctx context.Context, sk string, v interface{}) error {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName:                aws.String(c.table),
-		IndexName:                aws.String(actorUpdatedAtIndex),
+		IndexName:                aws.String(skUpdatedAtIndex),
 		ExpressionAttributeNames: map[string]string{"#SK": "SK", "#UpdatedAt": "UpdatedAt"},
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":SK": &types.AttributeValueMemberS{Value: sk},

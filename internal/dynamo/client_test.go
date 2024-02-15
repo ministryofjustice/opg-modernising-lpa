@@ -319,7 +319,7 @@ func TestAllForActor(t *testing.T) {
 	dynamoDB.EXPECT().
 		Query(ctx, &dynamodb.QueryInput{
 			TableName:                 aws.String("this"),
-			IndexName:                 aws.String(actorUpdatedAtIndex),
+			IndexName:                 aws.String(skUpdatedAtIndex),
 			ExpressionAttributeNames:  map[string]string{"#SK": "SK"},
 			ExpressionAttributeValues: map[string]types.AttributeValue{":SK": skey},
 			KeyConditionExpression:    aws.String("#SK = :SK"),
@@ -329,7 +329,7 @@ func TestAllForActor(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v []map[string]string
-	err := c.AllForActor(ctx, "a-partial-sk", &v)
+	err := c.AllBySK(ctx, "a-partial-sk", &v)
 	assert.Nil(t, err)
 	assert.Equal(t, []map[string]string{expected, expected}, v)
 }
@@ -345,7 +345,7 @@ func TestAllForActorWhenNotFound(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v []string
-	err := c.AllForActor(ctx, "a-partial-sk", &v)
+	err := c.AllBySK(ctx, "a-partial-sk", &v)
 	assert.Nil(t, err)
 	assert.Empty(t, v)
 }
@@ -361,7 +361,7 @@ func TestAllForActorOnQueryError(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v []string
-	err := c.AllForActor(ctx, "a-partial-sk", &v)
+	err := c.AllBySK(ctx, "a-partial-sk", &v)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -377,7 +377,7 @@ func TestLatestForActor(t *testing.T) {
 	dynamoDB.EXPECT().
 		Query(ctx, &dynamodb.QueryInput{
 			TableName:                 aws.String("this"),
-			IndexName:                 aws.String(actorUpdatedAtIndex),
+			IndexName:                 aws.String(skUpdatedAtIndex),
 			ExpressionAttributeNames:  map[string]string{"#SK": "SK", "#UpdatedAt": "UpdatedAt"},
 			ExpressionAttributeValues: map[string]types.AttributeValue{":SK": skey, ":UpdatedAt": updated},
 			KeyConditionExpression:    aws.String("#SK = :SK and #UpdatedAt > :UpdatedAt"),
@@ -748,6 +748,87 @@ func TestBatchPutOneBatch(t *testing.T) {
 
 	c := &Client{table: "table-name", svc: dynamoDB}
 	err := c.BatchPut(ctx, values)
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestOneBySk(t *testing.T) {
+	ctx := context.Background()
+
+	expected := map[string]string{"Col": "Val"}
+	skey, _ := attributevalue.Marshal("sk")
+	data, _ := attributevalue.MarshalMap(expected)
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		Query(ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String("this"),
+			IndexName:                 aws.String(skUpdatedAtIndex),
+			ExpressionAttributeNames:  map[string]string{"#SK": "SK"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":SK": skey},
+			KeyConditionExpression:    aws.String("#SK = :SK"),
+		}).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v map[string]string
+	err := c.OneBySK(ctx, "sk", &v)
+	assert.Nil(t, err)
+	assert.Equal(t, expected, v)
+}
+
+func TestOneBySKWhenNotOneResult(t *testing.T) {
+	ctx := context.Background()
+
+	expected := map[string]string{"Col": "Val"}
+	data, _ := attributevalue.MarshalMap(expected)
+
+	testcases := map[string]struct {
+		items         []map[string]types.AttributeValue
+		expectedError error
+	}{
+		"no results": {
+			expectedError: NotFoundError{},
+		},
+		"multiple results": {
+			items:         []map[string]types.AttributeValue{data, data},
+			expectedError: errors.New("expected to resolve SK but got 2 items"),
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			dynamoDB := newMockDynamoDB(t)
+			dynamoDB.EXPECT().
+				Query(mock.Anything, mock.Anything).
+				Return(&dynamodb.QueryOutput{Items: tc.items}, nil)
+
+			c := &Client{table: "this", svc: dynamoDB}
+
+			var v map[string]string
+			err := c.OneBySK(ctx, "sk", &v)
+
+			assert.Equal(t, tc.expectedError, err)
+		})
+	}
+}
+
+func TestOneBySkWhenQueryError(t *testing.T) {
+	ctx := context.Background()
+
+	expected := map[string]string{"Col": "Val"}
+	data, _ := attributevalue.MarshalMap(expected)
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		Query(mock.Anything, mock.Anything).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data}}, expectedError)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v map[string]string
+	err := c.OneBySK(ctx, "sk", &v)
 
 	assert.Equal(t, expectedError, err)
 }
