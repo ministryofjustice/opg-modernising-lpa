@@ -21,7 +21,7 @@ func NewUidStore(dynamoClient DynamoUpdateClient, now func() time.Time) *uidStor
 	return &uidStore{dynamoClient: dynamoClient, now: now}
 }
 
-func (s *uidStore) Set(ctx context.Context, lpaID, sessionID, uid string) error {
+func (s *uidStore) Set(ctx context.Context, lpaID, sessionID, organisationID, uid string) error {
 	values, err := attributevalue.MarshalMap(map[string]any{
 		":uid": uid,
 		":now": s.now(),
@@ -30,6 +30,11 @@ func (s *uidStore) Set(ctx context.Context, lpaID, sessionID, uid string) error 
 		return err
 	}
 
-	return s.dynamoClient.Update(ctx, lpaKey(lpaID), donorKey(sessionID), values,
+	sk := donorKey(sessionID)
+	if organisationID != "" {
+		sk = organisationKey(organisationID)
+	}
+
+	return s.dynamoClient.Update(ctx, lpaKey(lpaID), sk, values,
 		"set LpaUID = :uid, UpdatedAt = :now")
 }
