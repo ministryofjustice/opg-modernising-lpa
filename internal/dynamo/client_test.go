@@ -319,7 +319,7 @@ func TestAllForActor(t *testing.T) {
 	dynamoDB.EXPECT().
 		Query(ctx, &dynamodb.QueryInput{
 			TableName:                 aws.String("this"),
-			IndexName:                 aws.String(actorUpdatedAtIndex),
+			IndexName:                 aws.String(skUpdatedAtIndex),
 			ExpressionAttributeNames:  map[string]string{"#SK": "SK"},
 			ExpressionAttributeValues: map[string]types.AttributeValue{":SK": skey},
 			KeyConditionExpression:    aws.String("#SK = :SK"),
@@ -329,7 +329,7 @@ func TestAllForActor(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v []map[string]string
-	err := c.AllForActor(ctx, "a-partial-sk", &v)
+	err := c.AllBySK(ctx, "a-partial-sk", &v)
 	assert.Nil(t, err)
 	assert.Equal(t, []map[string]string{expected, expected}, v)
 }
@@ -345,7 +345,7 @@ func TestAllForActorWhenNotFound(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v []string
-	err := c.AllForActor(ctx, "a-partial-sk", &v)
+	err := c.AllBySK(ctx, "a-partial-sk", &v)
 	assert.Nil(t, err)
 	assert.Empty(t, v)
 }
@@ -361,7 +361,7 @@ func TestAllForActorOnQueryError(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v []string
-	err := c.AllForActor(ctx, "a-partial-sk", &v)
+	err := c.AllBySK(ctx, "a-partial-sk", &v)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -377,7 +377,7 @@ func TestLatestForActor(t *testing.T) {
 	dynamoDB.EXPECT().
 		Query(ctx, &dynamodb.QueryInput{
 			TableName:                 aws.String("this"),
-			IndexName:                 aws.String(actorUpdatedAtIndex),
+			IndexName:                 aws.String(skUpdatedAtIndex),
 			ExpressionAttributeNames:  map[string]string{"#SK": "SK", "#UpdatedAt": "UpdatedAt"},
 			ExpressionAttributeValues: map[string]types.AttributeValue{":SK": skey, ":UpdatedAt": updated},
 			KeyConditionExpression:    aws.String("#SK = :SK and #UpdatedAt > :UpdatedAt"),
