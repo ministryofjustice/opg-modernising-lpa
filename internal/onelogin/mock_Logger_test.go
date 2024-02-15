@@ -17,44 +17,46 @@ func (_m *mockLogger) EXPECT() *mockLogger_Expecter {
 	return &mockLogger_Expecter{mock: &_m.Mock}
 }
 
-// Print provides a mock function with given fields: v
-func (_m *mockLogger) Print(v ...interface{}) {
+// Warn provides a mock function with given fields: msg, args
+func (_m *mockLogger) Warn(msg string, args ...interface{}) {
 	var _ca []interface{}
-	_ca = append(_ca, v...)
+	_ca = append(_ca, msg)
+	_ca = append(_ca, args...)
 	_m.Called(_ca...)
 }
 
-// mockLogger_Print_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Print'
-type mockLogger_Print_Call struct {
+// mockLogger_Warn_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Warn'
+type mockLogger_Warn_Call struct {
 	*mock.Call
 }
 
-// Print is a helper method to define mock.On call
-//   - v ...interface{}
-func (_e *mockLogger_Expecter) Print(v ...interface{}) *mockLogger_Print_Call {
-	return &mockLogger_Print_Call{Call: _e.mock.On("Print",
-		append([]interface{}{}, v...)...)}
+// Warn is a helper method to define mock.On call
+//   - msg string
+//   - args ...interface{}
+func (_e *mockLogger_Expecter) Warn(msg interface{}, args ...interface{}) *mockLogger_Warn_Call {
+	return &mockLogger_Warn_Call{Call: _e.mock.On("Warn",
+		append([]interface{}{msg}, args...)...)}
 }
 
-func (_c *mockLogger_Print_Call) Run(run func(v ...interface{})) *mockLogger_Print_Call {
+func (_c *mockLogger_Warn_Call) Run(run func(msg string, args ...interface{})) *mockLogger_Warn_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]interface{}, len(args)-0)
-		for i, a := range args[0:] {
+		variadicArgs := make([]interface{}, len(args)-1)
+		for i, a := range args[1:] {
 			if a != nil {
 				variadicArgs[i] = a.(interface{})
 			}
 		}
-		run(variadicArgs...)
+		run(args[0].(string), variadicArgs...)
 	})
 	return _c
 }
 
-func (_c *mockLogger_Print_Call) Return() *mockLogger_Print_Call {
+func (_c *mockLogger_Warn_Call) Return() *mockLogger_Warn_Call {
 	_c.Call.Return()
 	return _c
 }
 
-func (_c *mockLogger_Print_Call) RunAndReturn(run func(...interface{})) *mockLogger_Print_Call {
+func (_c *mockLogger_Warn_Call) RunAndReturn(run func(string, ...interface{})) *mockLogger_Warn_Call {
 	_c.Call.Return(run)
 	return _c
 }

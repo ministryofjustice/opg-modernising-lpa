@@ -11,6 +11,7 @@ import (
 type UidRequested struct {
 	LpaID          string
 	DonorSessionID string
+	OrganisationID string
 	Type           string
 	Donor          uid.DonorDetails
 }

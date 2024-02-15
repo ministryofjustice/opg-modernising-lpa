@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"log"
 	"net/http"
 	"slices"
 	"time"
@@ -422,7 +421,6 @@ func Donor(
 			redirect = "/lpa/" + donorDetails.LpaID + redirect
 		}
 
-		log.Println("Logging in with sub", donorSub)
 		page.UseTestWitnessCode = true
 
 		http.Redirect(w, r, redirect, http.StatusFound)
