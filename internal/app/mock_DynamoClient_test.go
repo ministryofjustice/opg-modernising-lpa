@@ -83,12 +83,12 @@ func (_c *mockDynamoClient_AllByKeys_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
-// AllByPartialSk provides a mock function with given fields: ctx, pk, partialSk, v
-func (_m *mockDynamoClient) AllByPartialSk(ctx context.Context, pk string, partialSk string, v interface{}) error {
+// AllByPartialSK provides a mock function with given fields: ctx, pk, partialSk, v
+func (_m *mockDynamoClient) AllByPartialSK(ctx context.Context, pk string, partialSk string, v interface{}) error {
 	ret := _m.Called(ctx, pk, partialSk, v)
 
 	if len(ret) == 0 {
-		panic("no return value specified for AllByPartialSk")
+		panic("no return value specified for AllByPartialSK")
 	}
 
 	var r0 error
@@ -101,33 +101,33 @@ func (_m *mockDynamoClient) AllByPartialSk(ctx context.Context, pk string, parti
 	return r0
 }
 
-// mockDynamoClient_AllByPartialSk_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AllByPartialSk'
-type mockDynamoClient_AllByPartialSk_Call struct {
+// mockDynamoClient_AllByPartialSK_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AllByPartialSK'
+type mockDynamoClient_AllByPartialSK_Call struct {
 	*mock.Call
 }
 
-// AllByPartialSk is a helper method to define mock.On call
+// AllByPartialSK is a helper method to define mock.On call
 //   - ctx context.Context
 //   - pk string
 //   - partialSk string
 //   - v interface{}
-func (_e *mockDynamoClient_Expecter) AllByPartialSk(ctx interface{}, pk interface{}, partialSk interface{}, v interface{}) *mockDynamoClient_AllByPartialSk_Call {
-	return &mockDynamoClient_AllByPartialSk_Call{Call: _e.mock.On("AllByPartialSk", ctx, pk, partialSk, v)}
+func (_e *mockDynamoClient_Expecter) AllByPartialSK(ctx interface{}, pk interface{}, partialSk interface{}, v interface{}) *mockDynamoClient_AllByPartialSK_Call {
+	return &mockDynamoClient_AllByPartialSK_Call{Call: _e.mock.On("AllByPartialSK", ctx, pk, partialSk, v)}
 }
 
-func (_c *mockDynamoClient_AllByPartialSk_Call) Run(run func(ctx context.Context, pk string, partialSk string, v interface{})) *mockDynamoClient_AllByPartialSk_Call {
+func (_c *mockDynamoClient_AllByPartialSK_Call) Run(run func(ctx context.Context, pk string, partialSk string, v interface{})) *mockDynamoClient_AllByPartialSK_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(interface{}))
 	})
 	return _c
 }
 
-func (_c *mockDynamoClient_AllByPartialSk_Call) Return(_a0 error) *mockDynamoClient_AllByPartialSk_Call {
+func (_c *mockDynamoClient_AllByPartialSK_Call) Return(_a0 error) *mockDynamoClient_AllByPartialSK_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *mockDynamoClient_AllByPartialSk_Call) RunAndReturn(run func(context.Context, string, string, interface{}) error) *mockDynamoClient_AllByPartialSk_Call {
+func (_c *mockDynamoClient_AllByPartialSK_Call) RunAndReturn(run func(context.Context, string, string, interface{}) error) *mockDynamoClient_AllByPartialSK_Call {
 	_c.Call.Return(run)
 	return _c
 }

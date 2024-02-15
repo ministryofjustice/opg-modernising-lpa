@@ -288,7 +288,7 @@ func TestAllByPartialSk(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v []map[string]string
-	err := c.AllByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
+	err := c.AllByPartialSK(ctx, "a-pk", "a-partial-sk", &v)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, v)
 }
@@ -304,7 +304,7 @@ func TestAllByPartialSkOnQueryError(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v map[string]string
-	err := c.AllByPartialSk(ctx, "a-pk", "a-partial-sk", &v)
+	err := c.AllByPartialSK(ctx, "a-pk", "a-partial-sk", &v)
 	assert.Equal(t, expectedError, err)
 }
 

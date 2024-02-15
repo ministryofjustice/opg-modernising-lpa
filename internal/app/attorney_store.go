@@ -78,7 +78,7 @@ func (s *attorneyStore) GetAny(ctx context.Context) ([]*actor.AttorneyProvidedDe
 	}
 
 	var attorneys []*actor.AttorneyProvidedDetails
-	err = s.dynamoClient.AllByPartialSk(ctx, lpaKey(data.LpaID), "#ATTORNEY#", &attorneys)
+	err = s.dynamoClient.AllByPartialSK(ctx, lpaKey(data.LpaID), "#ATTORNEY#", &attorneys)
 
 	return attorneys, err
 }

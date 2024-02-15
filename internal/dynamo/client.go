@@ -217,7 +217,7 @@ func (c *Client) OneByPartialSK(ctx context.Context, pk, partialSk string, v int
 	return attributevalue.UnmarshalMap(response.Items[0], v)
 }
 
-func (c *Client) AllByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error {
+func (c *Client) AllByPartialSK(ctx context.Context, pk, partialSk string, v interface{}) error {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName:                aws.String(c.table),
 		ExpressionAttributeNames: map[string]string{"#PK": "PK", "#SK": "SK"},
