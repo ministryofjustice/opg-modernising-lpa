@@ -273,27 +273,27 @@ func TestOrganisationStoreCreateLPAWhenDynamoError(t *testing.T) {
 func TestOrganisationStoreAllLPAs(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
 	expectedDonorA := actor.DonorProvidedDetails{
-		PK:    "LPA#a-uuid",
-		SK:    "ORGANISATION#an-id",
-		LpaID: "a-uuid",
+		PK:     "LPA#a-uuid",
+		SK:     "ORGANISATION#an-id",
+		LpaUID: "a-uid",
 		Donor: actor.Donor{
 			FirstNames: "a",
 			LastName:   "a",
 		},
 	}
 	expectedDonorB := actor.DonorProvidedDetails{
-		PK:    "LPA#b-uuid",
-		SK:    "ORGANISATION#an-id",
-		LpaID: "b-uuid",
+		PK:     "LPA#b-uuid",
+		SK:     "ORGANISATION#an-id",
+		LpaUID: "b-uid",
 		Donor: actor.Donor{
 			FirstNames: "a",
 			LastName:   "b",
 		},
 	}
 	expectedDonorC := actor.DonorProvidedDetails{
-		PK:    "LPA#c-uuid",
-		SK:    "ORGANISATION#an-id",
-		LpaID: "c-uuid",
+		PK:     "LPA#c-uuid",
+		SK:     "ORGANISATION#an-id",
+		LpaUID: "c-uid",
 		Donor: actor.Donor{
 			FirstNames: "c",
 			LastName:   "a",
@@ -307,6 +307,15 @@ func TestOrganisationStoreAllLPAs(t *testing.T) {
 			expectedDonorC,
 			expectedDonorA,
 			{PK: "ORGANISATION#an-id", SK: "ORGANISATION#an-id"},
+			{
+				PK:    "LPA#d-uuid",
+				SK:    "ORGANISATION#an-id",
+				LpaID: "d-uuid",
+				Donor: actor.Donor{
+					FirstNames: "d",
+					LastName:   "d",
+				},
+			},
 		}, nil)
 
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}

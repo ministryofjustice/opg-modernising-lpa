@@ -272,8 +272,8 @@ func (s *organisationStore) AllLPAs(ctx context.Context) ([]actor.DonorProvidedD
 		return nil, fmt.Errorf("organisationStore.AllLPAs error retrieving keys for organisation: %w", err)
 	}
 
-	donors = slices.DeleteFunc(donors, func(key actor.DonorProvidedDetails) bool {
-		return !strings.HasPrefix(key.PK, lpaKey(""))
+	donors = slices.DeleteFunc(donors, func(donor actor.DonorProvidedDetails) bool {
+		return !strings.HasPrefix(donor.PK, lpaKey("")) || donor.LpaUID == ""
 	})
 
 	slices.SortFunc(donors, func(a, b actor.DonorProvidedDetails) int {

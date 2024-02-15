@@ -180,13 +180,15 @@ type SupporterPaths struct {
 	SigningInAdvice       Path
 	Start                 Path
 
-	Dashboard                SupporterPath
-	EditOrganisationName     SupporterPath
-	InviteMember             SupporterPath
-	InviteMemberConfirmation SupporterPath
-	ManageTeamMembers        SupporterPath
-	OrganisationCreated      SupporterPath
-	OrganisationDetails      SupporterPath
+	ConfirmDonorCanInteractOnline SupporterPath
+	ContactOPGForPaperForms       SupporterPath
+	Dashboard                     SupporterPath
+	EditOrganisationName          SupporterPath
+	InviteMember                  SupporterPath
+	InviteMemberConfirmation      SupporterPath
+	ManageTeamMembers             SupporterPath
+	OrganisationCreated           SupporterPath
+	OrganisationDetails           SupporterPath
 }
 
 type AppPaths struct {
@@ -356,13 +358,15 @@ var Paths = AppPaths{
 		SigningInAdvice:       "/signing-in-with-govuk-one-login",
 		Start:                 "/supporter-start",
 
-		Dashboard:                "/supporter-dashboard",
-		EditOrganisationName:     "/manage-organisation/organisation-details/edit-organisation-name",
-		InviteMember:             "/invite-member",
-		InviteMemberConfirmation: "/invite-member-confirmation",
-		ManageTeamMembers:        "/manage-organisation/manage-team-members",
-		OrganisationCreated:      "/organisation-or-company-created",
-		OrganisationDetails:      "/manage-organisation/organisation-details",
+		ConfirmDonorCanInteractOnline: "/confirm-donor-can-interact-online",
+		ContactOPGForPaperForms:       "/contact-opg-for-paper-forms",
+		Dashboard:                     "/supporter-dashboard",
+		EditOrganisationName:          "/manage-organisation/organisation-details/edit-organisation-name",
+		InviteMember:                  "/invite-member",
+		InviteMemberConfirmation:      "/invite-member-confirmation",
+		ManageTeamMembers:             "/manage-organisation/manage-team-members",
+		OrganisationCreated:           "/organisation-or-company-created",
+		OrganisationDetails:           "/manage-organisation/organisation-details",
 	},
 
 	HealthCheck: HealthCheckPaths{
