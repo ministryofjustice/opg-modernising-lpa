@@ -13,7 +13,6 @@ package page
 
 import (
 	"context"
-	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
@@ -46,20 +45,6 @@ func SessionDataFromContext(ctx context.Context) (*SessionData, error) {
 
 func ContextWithSessionData(ctx context.Context, data *SessionData) context.Context {
 	return context.WithValue(ctx, (*SessionData)(nil), data)
-}
-
-func CanGoTo(donor *actor.DonorProvidedDetails, url string) bool {
-	path, _, _ := strings.Cut(url, "?")
-	if path == "" {
-		return false
-	}
-
-	if strings.HasPrefix(path, "/lpa/") {
-		_, lpaPath, _ := strings.Cut(strings.TrimPrefix(path, "/lpa/"), "/")
-		return canGoToLpaPath(donor, "/"+lpaPath)
-	}
-
-	return true
 }
 
 func ChooseAttorneysState(attorneys actor.Attorneys, decisions actor.AttorneyDecisions) actor.TaskState {
