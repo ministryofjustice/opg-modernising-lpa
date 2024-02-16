@@ -419,7 +419,7 @@ var Paths = AppPaths{
 
 		ConfirmDonorCanInteractOnline: "/confirm-donor-can-interact-online",
 		ContactOPGForPaperForms:       "/contact-opg-for-paper-forms",
-		Dashboard:                     "/supporter-dashboard",
+		Dashboard:                     "/dashboard",
 		EditOrganisationName:          "/manage-organisation/organisation-details/edit-organisation-name",
 		InviteMember:                  "/invite-member",
 		InviteMemberConfirmation:      "/invite-member-confirmation",
