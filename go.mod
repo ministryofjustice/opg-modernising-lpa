@@ -1,6 +1,6 @@
 module github.com/ministryofjustice/opg-modernising-lpa
 
-go 1.21
+go 1.22
 
 require (
 	github.com/MicahParks/jwkset v0.5.12
