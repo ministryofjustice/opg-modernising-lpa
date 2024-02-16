@@ -69,9 +69,9 @@ func TestMakeHandleErrors(t *testing.T) {
 }
 
 func TestMakeCertificateProviderHandle(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "ignored-session-id"})
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "ignored-session-id"})
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
+	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/certificate-provider/123/path?a=b", nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -104,7 +104,7 @@ func TestMakeCertificateProviderHandle(t *testing.T) {
 
 func TestMakeCertificateProviderHandleSessionError(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/certificate-provider/id/path", nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -124,7 +124,7 @@ func TestMakeCertificateProviderHandleSessionError(t *testing.T) {
 
 func TestMakeCertificateProviderHandleSessionMissing(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/certificate-provider/id/path", nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().

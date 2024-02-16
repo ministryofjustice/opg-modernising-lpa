@@ -120,9 +120,7 @@ func Register(
 	handleRoot(page.Paths.CertificateProvider.EnterReferenceNumber,
 		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, certificateProviderStore))
 
-	certificateProviderMux := http.NewServeMux()
-	rootMux.Handle("/certificate-provider/", page.RouteToPrefix("/certificate-provider/", certificateProviderMux, notFoundHandler))
-	handleCertificateProvider := makeCertificateProviderHandle(certificateProviderMux, sessionStore, errorHandler)
+	handleCertificateProvider := makeCertificateProviderHandle(rootMux, sessionStore, errorHandler)
 
 	handleCertificateProvider(page.Paths.CertificateProvider.WhoIsEligible, page.None,
 		WhoIsEligible(tmpls.Get("who_is_eligible.gohtml"), donorStore))
@@ -180,6 +178,7 @@ func makeCertificateProviderHandle(mux *http.ServeMux, store sesh.Store, errorHa
 			appData := page.AppDataFromContext(ctx)
 			appData.ActorType = actor.TypeCertificateProvider
 			appData.CanGoBack = opt&page.CanGoBack != 0
+			appData.LpaID = r.PathValue("id")
 
 			session, err := sesh.Login(store, r)
 			if err != nil {
@@ -192,9 +191,8 @@ func makeCertificateProviderHandle(mux *http.ServeMux, store sesh.Store, errorHa
 			sessionData, err := page.SessionDataFromContext(ctx)
 			if err == nil {
 				sessionData.SessionID = appData.SessionID
+				sessionData.LpaID = appData.LpaID
 				ctx = page.ContextWithSessionData(ctx, sessionData)
-
-				appData.LpaID = sessionData.LpaID
 			} else {
 				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
 			}
