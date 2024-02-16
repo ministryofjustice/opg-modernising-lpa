@@ -99,9 +99,7 @@ func Register(
 	handleRoot(page.Paths.Attorney.EnterReferenceNumber, RequireSession,
 		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, attorneyStore))
 
-	attorneyMux := http.NewServeMux()
-	rootMux.Handle("/attorney/", page.RouteToPrefix("/attorney/", attorneyMux, notFoundHandler))
-	handleAttorney := makeAttorneyHandle(attorneyMux, sessionStore, errorHandler, attorneyStore)
+	handleAttorney := makeAttorneyHandle(rootMux, sessionStore, errorHandler, attorneyStore)
 
 	handleAttorney(page.Paths.Attorney.CodeOfConduct, RequireAttorney,
 		Guidance(tmpls.Get("code_of_conduct.gohtml"), donorStore))
@@ -172,6 +170,7 @@ func makeAttorneyHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.
 
 			appData := page.AppDataFromContext(ctx)
 			appData.CanGoBack = opt&CanGoBack != 0
+			appData.LpaID = r.PathValue("id")
 
 			session, err := sesh.Login(store, r)
 			if err != nil {
@@ -184,9 +183,8 @@ func makeAttorneyHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.
 			sessionData, err := page.SessionDataFromContext(ctx)
 			if err == nil {
 				sessionData.SessionID = appData.SessionID
+				sessionData.LpaID = appData.LpaID
 				ctx = page.ContextWithSessionData(ctx, sessionData)
-
-				appData.LpaID = sessionData.LpaID
 			} else {
 				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
 			}
