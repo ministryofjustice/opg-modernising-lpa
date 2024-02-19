@@ -3,7 +3,11 @@ package fixtures
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -14,20 +18,22 @@ import (
 type OrganisationStore interface {
 	Create(context.Context, string) (*actor.Organisation, error)
 	CreateLPA(context.Context) (*actor.DonorProvidedDetails, error)
+	CreateMember(ctx context.Context, invite *actor.MemberInvite) error
 	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error
 }
 
 func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, donorStore DonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		var (
-			inviteMembers = r.FormValue("inviteMembers")
-			lpa           = r.FormValue("lpa")
-			organisation  = r.FormValue("organisation")
-			redirect      = r.FormValue("redirect")
+			invitedMembers = r.FormValue("invitedMembers")
+			lpa            = r.FormValue("lpa")
+			members        = r.FormValue("members")
+			organisation   = r.FormValue("organisation")
+			redirect       = r.FormValue("redirect")
 
 			supporterSub       = random.String(16)
 			supporterSessionID = base64.StdEncoding.EncodeToString([]byte(supporterSub))
-			ctx                = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: supporterSessionID})
+			ctx                = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: supporterSessionID, Email: testEmail})
 		)
 
 		loginSession := &sesh.LoginSession{Sub: supporterSub, Email: testEmail}
@@ -62,13 +68,45 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, don
 				}
 			}
 
-			if inviteMembers == "1" {
-				if err = organisationStore.CreateMemberInvite(page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID}), org, "Kamal", "Singh", "kamalsingh@example.org", random.String(12), actor.Admin); err != nil {
-					return err
-				}
+			if invitedMembers != "" {
+				n, err := strconv.Atoi(invitedMembers)
 
-				if err = organisationStore.CreateMemberInvite(page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID}), org, "Jo", "Alessi", "jo_alessi@example.org", random.String(12), actor.Admin); err != nil {
-					return err
+				for i, member := range invitedOrgMemberNames {
+					if i == n {
+						break
+					}
+
+					if err = organisationStore.CreateMemberInvite(page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID}), org, member.Firstnames, member.Lastname, strings.ToLower(fmt.Sprintf("%s-%s@example.org", member.Firstnames, member.Lastname)), random.String(12), actor.Admin); err != nil {
+						return err
+					}
+				}
+			}
+
+			if members != "" {
+				n, err := strconv.Atoi(members)
+
+				for i, member := range orgMemberNames {
+					if i == n {
+						break
+					}
+
+					if err = organisationStore.CreateMember(
+						page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(12)}),
+						&actor.MemberInvite{
+							PK:              random.String(12),
+							SK:              random.String(12),
+							CreatedAt:       time.Now(),
+							UpdatedAt:       time.Now(),
+							OrganisationID:  org.ID,
+							Email:           strings.ToLower(fmt.Sprintf("%s-%s@example.org", member.Firstnames, member.Lastname)),
+							FirstNames:      member.Firstnames,
+							LastName:        member.Lastname,
+							Permission:      actor.Admin,
+							ReferenceNumber: random.String(12),
+						},
+					); err != nil {
+						return err
+					}
 				}
 			}
 		}
