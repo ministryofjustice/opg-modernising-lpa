@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -65,13 +66,20 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	invite := &actor.MemberInvite{
+		ReferenceNumber:  "abcd12345678",
+		OrganisationID:   "org-id",
+		OrganisationName: "org name",
+		CreatedAt:        time.Now().Add(-47 * time.Hour),
+	}
+
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		InvitedMember(r.Context()).
-		Return(&actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id", OrganisationName: "org name"}, nil)
+		Return(invite, nil)
 
 	organisationStore.EXPECT().
-		CreateMember(r.Context(), &actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id", OrganisationName: "org name"}).
+		CreateMember(r.Context(), invite).
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -136,6 +144,30 @@ func TestPostEnterReferenceNumberWhenIncorrectReferenceNumber(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
+func TestPostEnterReferenceNumberWhenInviteExpired(t *testing.T) {
+	form := url.Values{"reference-number": {"match-1234-789"}}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	organisationStore := newMockOrganisationStore(t)
+	organisationStore.EXPECT().
+		InvitedMember(r.Context()).
+		Return(&actor.MemberInvite{
+			ReferenceNumber: "match1234789",
+			OrganisationID:  "org-id",
+			CreatedAt:       time.Now().Add(-49 * time.Hour),
+		}, nil)
+
+	err := EnterReferenceNumber(nil, organisationStore, nil)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.Supporter.InviteExpired.Format(), resp.Header.Get("Location"))
+}
+
 func TestPostEnterReferenceNumberWhenOrganisationStoreInvitedMemberError(t *testing.T) {
 	form := url.Values{"reference-number": {"abcd12345678"}}
 
@@ -165,7 +197,11 @@ func TestPostEnterReferenceNumberWhenOrganisationStoreCreateError(t *testing.T) 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		InvitedMember(mock.Anything).
-		Return(&actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id"}, nil)
+		Return(&actor.MemberInvite{
+			ReferenceNumber: "abcd12345678",
+			OrganisationID:  "org-id",
+			CreatedAt:       time.Now(),
+		}, nil)
 
 	organisationStore.EXPECT().
 		CreateMember(mock.Anything, mock.Anything).
@@ -188,7 +224,7 @@ func TestPostEnterReferenceNumberWhenSessionGetError(t *testing.T) {
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		InvitedMember(mock.Anything).
-		Return(&actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id"}, nil)
+		Return(&actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id", CreatedAt: time.Now()}, nil)
 
 	organisationStore.EXPECT().
 		CreateMember(mock.Anything, mock.Anything).
@@ -228,7 +264,7 @@ func TestPostEnterReferenceNumberWhenSessionSaveError(t *testing.T) {
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		InvitedMember(mock.Anything).
-		Return(&actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id"}, nil)
+		Return(&actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id", CreatedAt: time.Now()}, nil)
 
 	organisationStore.EXPECT().
 		CreateMember(mock.Anything, mock.Anything).
