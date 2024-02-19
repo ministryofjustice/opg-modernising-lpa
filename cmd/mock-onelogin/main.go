@@ -36,10 +36,11 @@ var (
 )
 
 type sessionData struct {
-	user     string
-	nonce    string
-	identity bool
-	sub      string
+	user          string
+	nonce         string
+	identity      bool
+	sub           string
+	emailOverride string
 }
 
 type OpenIdConfig struct {
@@ -138,9 +139,15 @@ func authorize() http.HandlerFunc {
 <style>body { font-family: sans-serif; font-size: 21px; margin: 2rem; } label { padding: .5rem 0; display: block; } button { font-family: inherit; font-size: 21px; padding: .3rem .5rem; margin-top: 1rem; display: block; }</style>
 <h1>Mock GOV.UK One Login</h1>
 <form method="post">
+
 <p>Sign in using a OneLogin sub (to ignore, leave empty)</p>
 <label for="sub">OneLogin sub</label>
 <input type="text" name="sub" id=f-sub />
+
+<p>Set email in OneLogin UserInfo (leave empty to set as test email address)</p>
+<label for="email">Email</label>
+<input type="text" name="email" id=f-email />
+
 <button type="submit">Sign in</button>
 </form>`)
 			return
@@ -167,10 +174,11 @@ func authorize() http.HandlerFunc {
 		q.Set("state", r.FormValue("state"))
 
 		sessions[code] = sessionData{
-			nonce:    r.FormValue("nonce"),
-			user:     r.FormValue("user"),
-			identity: wantsIdentity,
-			sub:      r.FormValue("sub"),
+			nonce:         r.FormValue("nonce"),
+			user:          r.FormValue("user"),
+			identity:      wantsIdentity,
+			sub:           r.FormValue("sub"),
+			emailOverride: r.FormValue("email"),
 		}
 
 		u.RawQuery = q.Encode()
@@ -190,9 +198,14 @@ func userInfo(privateKey *ecdsa.PrivateKey) http.HandlerFunc {
 			sub = token.sub
 		}
 
+		email := "simulate-delivered@notifications.service.gov.uk"
+		if token.emailOverride != "" {
+			email = token.emailOverride
+		}
+
 		userInfo := UserInfoResponse{
 			Sub:           sub,
-			Email:         "simulate-delivered@notifications.service.gov.uk",
+			Email:         email,
 			EmailVerified: true,
 			Phone:         "01406946277",
 			PhoneVerified: true,
@@ -226,7 +239,7 @@ func userInfo(privateKey *ecdsa.PrivateKey) http.HandlerFunc {
 			}).SignedString(privateKey)
 		}
 
-		log.Printf("Logging in with sub %s", sub)
+		log.Printf("Logging in with sub %s and email %s", sub, email)
 		json.NewEncoder(w).Encode(userInfo)
 	}
 }

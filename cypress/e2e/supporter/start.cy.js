@@ -14,6 +14,9 @@ describe('Start', () => {
 
     if (Cypress.config().baseUrl.includes('localhost')) {
       cy.url().should('contain', '/authorize')
+      cy.contains('button', 'Sign in').click();
+
+      cy.url().should('contain', '/enter-the-name-of-your-organisation-or-company')
     } else {
       cy.origin('https://signin.integration.account.gov.uk', () => {
         cy.url().should('contain', '/')

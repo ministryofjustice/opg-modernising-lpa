@@ -1,6 +1,7 @@
 package supporter
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -127,11 +128,56 @@ func TestMakeSupporterHandle(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
 		Get(r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random", OrganisationID: "org-id"}}}, nil)
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: "cmFuZG9t"})).
+		Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id"})).
+		Return(&actor.Organisation{}, nil)
+
+	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore)
+	handle("/path", func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation) error {
+		assert.Equal(t, page.AppData{
+			Page:        "/supporter/path",
+			SessionID:   "cmFuZG9t",
+			IsSupporter: true,
+		}, appData)
+
+		assert.Equal(t, w, hw)
+
+		sessionData, _ := page.SessionDataFromContext(hr.Context())
+		assert.Equal(t, &page.SessionData{SessionID: "cmFuZG9t"}, sessionData)
+
+		hw.WriteHeader(http.StatusTeapot)
+		return nil
+	})
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
+}
+
+func TestMakeSupporterHandleWithSessionData(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequestWithContext(
+		page.ContextWithSessionData(context.Background(),
+			&page.SessionData{SessionID: "existing-sub", OrganisationID: "an-org-id"}),
+		http.MethodGet,
+		"/supporter/path",
+		nil,
+	)
+
+	mux := http.NewServeMux()
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		Get(r, "session").
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random", OrganisationID: "org-id"}}}, nil)
+
+	organisationStore := newMockOrganisationStore(t)
+	organisationStore.EXPECT().
+		Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id"})).
 		Return(&actor.Organisation{}, nil)
 
 	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore)
