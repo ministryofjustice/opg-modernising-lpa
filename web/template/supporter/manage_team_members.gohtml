@@ -42,13 +42,13 @@
                         <table class="govuk-table">
                             <thead class="govuk-table__head">
                             <tr class="govuk-summary-list__row">
-                                <th class="govuk-table__header govuk-!-font-weight-bold">
+                                <th class="govuk-table__header">
                                     {{ tr .App "name" }}
                                 </th>
-                                <th class="govuk-table__header govuk-!-font-weight-bold">
+                                <th class="govuk-table__header">
                                     {{ tr .App "email" }}
                                 </th>
-                                <th class="govuk-table__header govuk-!-font-weight-bold">
+                                <th class="govuk-table__header">
                                     {{ tr .App "status" }}
                                 </th>
                                 <td class="govuk-table__header">
@@ -69,6 +69,54 @@
                                     </td>
                                     <td class="govuk-table__cell">
                                         <a class="govuk-link" href="#">{{ tr $.App "resendInvite" }}<span class="govuk-visually-hidden"> {{ trFormat $.App "toMemberName" "MemberName" .FullName }}</span></a>
+                                    </td>
+                                </tr>
+                            {{ end }}
+                            </tbody>
+                        </table>
+                    {{ end }}
+
+                    {{ if .Members }}
+                        <h2 class="govuk-heading-m">{{ tr .App "teamMembers" }}</h2>
+
+                        <table class="govuk-table">
+                            <thead class="govuk-table__head">
+                            <tr class="govuk-summary-list__row">
+                                <th class="govuk-table__header">
+                                    {{ tr .App "name" }}
+                                </th>
+                                <th class="govuk-table__header">
+                                    {{ tr .App "email" }}
+                                </th>
+                                <th class="govuk-table__header">
+                                    {{ tr .App "status" }}
+                                </th>
+                                <td class="govuk-table__header">
+                                    {{ tr .App "lastSignedIn" }}
+                                </td>
+                            </tr>
+                            </thead>
+                            <tbody class="govuk-table__body">
+                            {{ range .Members }}
+                                <tr class="govuk-table__row">
+                                    <td class="govuk-table__cell">
+                                        {{ .FullName }}
+                                        {{ if not .Permission.IsNone  }}
+                                            <span class="app-float-right">
+                                                <strong class="govuk-tag govuk-tag--green">
+                                                  {{ tr $.App .Permission.String }}
+                                                </strong>
+                                            </span>
+                                        {{ end }}
+                                    </td>
+                                    <td class="govuk-table__cell">
+                                        {{ .Email }}
+                                    </td>
+                                    <td class="govuk-table__cell">
+                                        {{ tr $.App "active" }}
+                                    </td>
+                                    <td class="govuk-table__cell">
+                                        {{ formatDateTime $.App .LastLoggedInAt }}
                                     </td>
                                 </tr>
                             {{ end }}
