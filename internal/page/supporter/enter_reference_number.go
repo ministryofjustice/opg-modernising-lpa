@@ -39,6 +39,10 @@ func EnterReferenceNumber(tmpl template.Template, organisationStore Organisation
 					return tmpl(w, data)
 				}
 
+				if invite.HasExpired() {
+					return page.Paths.Supporter.InviteExpired.Redirect(w, r, appData)
+				}
+
 				if err := organisationStore.CreateMember(r.Context(), invite); err != nil {
 					return err
 				}
