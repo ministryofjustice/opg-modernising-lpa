@@ -62,7 +62,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 			ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: sessionID})
 
 			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.ExpectAllForActor(ctx, "#SUB#an-id",
+			dynamoClient.ExpectAllBySK(ctx, "#SUB#an-id",
 				[]lpaLink{
 					{PK: "LPA#123", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor},
 					{PK: "LPA#456", SK: "#SUB#an-id", DonorKey: "#DONOR#another-id", ActorType: actor.TypeCertificateProvider},
@@ -106,7 +106,7 @@ func TestDashboardStoreGetAllSubmittedForAttorneys(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: sessionID})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectAllForActor(ctx, "#SUB#an-id",
+	dynamoClient.ExpectAllBySK(ctx, "#SUB#an-id",
 		[]lpaLink{
 			{PK: "LPA#submitted", SK: "#SUB#an-id", DonorKey: "#DONOR#another-id", ActorType: actor.TypeAttorney},
 			{PK: "LPA#submitted-replacement", SK: "#SUB#an-id", DonorKey: "#DONOR#another-id", ActorType: actor.TypeAttorney},
@@ -142,7 +142,7 @@ func TestDashboardStoreGetAllWhenNone(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectAllForActor(ctx, "#SUB#an-id",
+	dynamoClient.ExpectAllBySK(ctx, "#SUB#an-id",
 		[]map[string]any{}, nil)
 
 	dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
@@ -158,7 +158,7 @@ func TestDashboardStoreGetAllWhenAllForActorErrors(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectAllForActor(ctx, "#SUB#an-id",
+	dynamoClient.ExpectAllBySK(ctx, "#SUB#an-id",
 		[]lpaLink{}, expectedError)
 
 	dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
@@ -171,7 +171,7 @@ func TestDashboardStoreGetAllWhenAllByKeysErrors(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectAllForActor(ctx, "#SUB#an-id",
+	dynamoClient.ExpectAllBySK(ctx, "#SUB#an-id",
 		[]lpaLink{{PK: "LPA#123", SK: "#SUB#an-id", DonorKey: "#DONOR#an-id", ActorType: actor.TypeDonor}}, nil)
 	dynamoClient.ExpectAllByKeys(ctx, []dynamo.Key{
 		{PK: "LPA#123", SK: "#DONOR#an-id"},
@@ -207,7 +207,7 @@ func TestDashboardStoreSubExists(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.ExpectAllForActor(context.Background(), "#SUB#a-sub-id",
+			dynamoClient.ExpectAllBySK(context.Background(), "#SUB#a-sub-id",
 				tc.lpas, nil)
 
 			dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
@@ -221,7 +221,7 @@ func TestDashboardStoreSubExists(t *testing.T) {
 
 func TestDashboardStoreSubExistsWhenDynamoError(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectAllForActor(context.Background(), "#SUB#a-sub-id",
+	dynamoClient.ExpectAllBySK(context.Background(), "#SUB#a-sub-id",
 		[]lpaLink{}, expectedError)
 
 	dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
