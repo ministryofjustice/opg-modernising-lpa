@@ -1,6 +1,7 @@
 package donor
 
 import (
+	"context"
 	"errors"
 	"net/http"
 
@@ -19,12 +20,17 @@ type changeMobileNumberData struct {
 }
 
 func ChangeMobileNumber(tmpl template.Template, witnessCodeSender WitnessCodeSender, actorType actor.Type) Handler {
-	send := witnessCodeSender.SendToCertificateProvider
-	redirect := page.Paths.WitnessingAsCertificateProvider
-
-	if actorType == actor.TypeIndependentWitness {
+	var send func(context.Context, *actor.DonorProvidedDetails, page.Localizer) error
+	var redirect page.LpaPath
+	switch actorType {
+	case actor.TypeIndependentWitness:
 		send = witnessCodeSender.SendToIndependentWitness
 		redirect = page.Paths.WitnessingAsIndependentWitness
+	case actor.TypeCertificateProvider:
+		send = witnessCodeSender.SendToCertificateProvider
+		redirect = page.Paths.WitnessingAsCertificateProvider
+	default:
+		panic("ChangeMobileNumber only supports IndependentWitness or CertificateProvider actors")
 	}
 
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
