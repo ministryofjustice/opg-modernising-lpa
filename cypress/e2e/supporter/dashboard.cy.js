@@ -1,6 +1,6 @@
 describe('Dashboard', () => {
   beforeEach(() => {
-    cy.visit('/fixtures/supporter?redirect=/supporter-dashboard&organisation=1&lpa=1');
+    cy.visit('/fixtures/supporter?redirect=/dashboard&organisation=1&lpa=1');
   });
 
   it('shows LPAs', () => {

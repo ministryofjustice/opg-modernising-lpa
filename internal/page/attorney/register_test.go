@@ -192,10 +192,10 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 }
 
 func TestMakeAttorneyHandleExistingSessionData(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "lpa-id", SessionID: "ignored-session-id"})
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "ignored-session-id"})
 	uid := actoruid.New()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
+	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/attorney/lpa-id/path?a=b", nil)
 	expectedDetails := &actor.AttorneyProvidedDetails{UID: uid}
 
 	sessionStore := newMockSessionStore(t)
@@ -262,9 +262,9 @@ func TestMakeAttorneyHandleExistingLpaData(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "lpa-id", SessionID: "ignored-session-id"})
+			ctx := context.Background()
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
+			r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/attorney/lpa-id/path?a=b", nil)
 
 			sessionStore := newMockSessionStore(t)
 			sessionStore.EXPECT().
@@ -307,7 +307,7 @@ func TestMakeAttorneyHandleExistingLpaData(t *testing.T) {
 
 func TestMakeAttorneyHandleErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/attorney/id/path", nil)
 
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.EXPECT().
@@ -334,7 +334,7 @@ func TestMakeAttorneyHandleErrors(t *testing.T) {
 
 func TestMakeAttorneyHandleAttorneyStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/attorney/id/path", nil)
 
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.EXPECT().
@@ -361,7 +361,7 @@ func TestMakeAttorneyHandleAttorneyStoreErrors(t *testing.T) {
 
 func TestMakeAttorneyHandleSessionError(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/attorney/id/path", nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -383,7 +383,7 @@ func TestMakeAttorneyHandleSessionError(t *testing.T) {
 
 func TestMakeAttorneyHandleSessionMissing(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/attorney/id/path", nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -405,7 +405,7 @@ func TestMakeAttorneyHandleSessionMissing(t *testing.T) {
 
 func TestMakeAttorneyHandleLpaMissing(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/attorney/id/path", nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().

@@ -2,8 +2,6 @@ module github.com/ministryofjustice/opg-modernising-lpa
 
 go 1.22
 
-toolchain go1.22.0
-
 require (
 	github.com/MicahParks/jwkset v0.5.12
 	github.com/MicahParks/keyfunc/v3 v3.2.5
