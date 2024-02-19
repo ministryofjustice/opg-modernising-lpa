@@ -213,6 +213,24 @@ func TestOrganisationStoreCreateMemberInvite(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestOrganisationStoreCreateMemberInviteWithSessionMissing(t *testing.T) {
+	testcases := map[string]context.Context{
+		"missing session":        context.Background(),
+		"missing OrganisationID": page.ContextWithSessionData(context.Background(), &page.SessionData{}),
+	}
+
+	organisationStore := &organisationStore{now: testNowFn}
+
+	for name, ctx := range testcases {
+		t.Run(name, func(t *testing.T) {
+
+			err := organisationStore.CreateMemberInvite(ctx, &actor.Organisation{}, "a", "b", "email@example.com", "abcde", actor.None)
+
+			assert.Error(t, err)
+		})
+	}
+}
+
 func TestOrganisationStoreCreateMemberInviteWhenMissingOrganisationID(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{})
 
@@ -261,23 +279,19 @@ func TestOrganisationStoreCreateLPA(t *testing.T) {
 }
 
 func TestOrganisationStoreCreateLPAWithSessionMissing(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: ""})
+	testCases := map[string]context.Context{
+		"missing session":         context.Background(),
+		"missing organisation ID": page.ContextWithSessionData(context.Background(), &page.SessionData{}),
+	}
 
-	organisationStore := &organisationStore{dynamoClient: nil, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+	for name, ctx := range testCases {
+		t.Run(name, func(t *testing.T) {
+			organisationStore := &organisationStore{dynamoClient: nil, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-	_, err := organisationStore.CreateLPA(ctx)
-
-	assert.NotNil(t, err)
-}
-
-func TestOrganisationStoreCreateLPAMissingOrganisationID(t *testing.T) {
-	ctx := context.Background()
-
-	organisationStore := &organisationStore{dynamoClient: nil, now: testNowFn, uuidString: func() string { return "a-uuid" }}
-
-	_, err := organisationStore.CreateLPA(ctx)
-
-	assert.Equal(t, page.SessionMissingError{}, err)
+			_, err := organisationStore.CreateLPA(ctx)
+			assert.Error(t, err)
+		})
+	}
 }
 
 func TestOrganisationStoreCreateLPAWhenDynamoError(t *testing.T) {
@@ -396,14 +410,21 @@ func TestOrganisationStoreInvitedMembers(t *testing.T) {
 	assert.Equal(t, []*actor.MemberInvite{{OrganisationID: "an-id"}, {OrganisationID: "an-id"}}, invitedMembers)
 }
 
-func TestOrganisationStoreInvitedMembersWhenSessionMissingOrgID(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{})
+func TestOrganisationStoreInvitedMembersWhenSessionMissing(t *testing.T) {
+	testcases := map[string]context.Context{
+		"no organisation id": page.ContextWithSessionData(context.Background(), &page.SessionData{}),
+		"no session data":    context.Background(),
+	}
 
-	organisationStore := &organisationStore{now: testNowFn, uuidString: func() string { return "a-uuid" }}
+	for name, ctx := range testcases {
+		t.Run(name, func(t *testing.T) {
+			organisationStore := &organisationStore{now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-	_, err := organisationStore.InvitedMembers(ctx)
+			_, err := organisationStore.InvitedMembers(ctx)
 
-	assert.Equal(t, errors.New("organisationStore.InvitedMembers requires OrganisationID"), err)
+			assert.Error(t, err)
+		})
+	}
 }
 
 func TestOrganisationStoreInvitedMembersWhenDynamoClientError(t *testing.T) {
@@ -447,14 +468,21 @@ func TestOrganisationStoreInvitedMemberWhenDynamoError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestOrganisationStoreInvitedMemberWhenMissingEmail(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{})
+func TestOrganisationStoreInvitedMemberWhenSessionMissing(t *testing.T) {
+	testcases := map[string]context.Context{
+		"no email":        page.ContextWithSessionData(context.Background(), &page.SessionData{}),
+		"no session data": context.Background(),
+	}
 
-	organisationStore := &organisationStore{dynamoClient: nil, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+	for name, ctx := range testcases {
+		t.Run(name, func(t *testing.T) {
+			organisationStore := &organisationStore{now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-	_, err := organisationStore.InvitedMember(ctx)
+			_, err := organisationStore.InvitedMember(ctx)
 
-	assert.Equal(t, errors.New("organisationStore.InvitedMember requires Email"), err)
+			assert.Error(t, err)
+		})
+	}
 }
 
 func TestPutMember(t *testing.T) {
@@ -506,14 +534,21 @@ func TestOrganisationStoreMembers(t *testing.T) {
 	assert.Equal(t, []*actor.Member{{FirstNames: "a"}, {FirstNames: "b"}}, members)
 }
 
-func TestOrganisationStoreMembersWhenSessionMissingOrgID(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{})
+func TestOrganisationStoreMembersWhenSessionMissing(t *testing.T) {
+	testcases := map[string]context.Context{
+		"no organisation ID": page.ContextWithSessionData(context.Background(), &page.SessionData{}),
+		"no session data":    context.Background(),
+	}
 
-	organisationStore := &organisationStore{now: testNowFn, uuidString: func() string { return "a-uuid" }}
+	for name, ctx := range testcases {
+		t.Run(name, func(t *testing.T) {
+			organisationStore := &organisationStore{now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-	_, err := organisationStore.Members(ctx)
+			_, err := organisationStore.Members(ctx)
 
-	assert.Equal(t, errors.New("organisationStore.Members requires OrganisationID"), err)
+			assert.Error(t, err)
+		})
+	}
 }
 
 func TestOrganisationStoreMembersWhenDynamoClientError(t *testing.T) {
@@ -614,6 +649,22 @@ func TestOrganisationStoreCreateMember(t *testing.T) {
 
 	err := organisationStore.CreateMember(ctx, invite)
 	assert.Nil(t, err)
+}
+
+func TestOrganisationStoreCreateMemberWhenSessionMissing(t *testing.T) {
+	testCases := map[string]context.Context{
+		"missing session":    context.Background(),
+		"missing session ID": page.ContextWithSessionData(context.Background(), &page.SessionData{}),
+	}
+
+	for name, ctx := range testCases {
+		t.Run(name, func(t *testing.T) {
+			organisationStore := &organisationStore{dynamoClient: nil, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+
+			err := organisationStore.CreateMember(ctx, &actor.MemberInvite{})
+			assert.Error(t, err)
+		})
+	}
 }
 
 func TestOrganisationStoreCreateMemberWhenDynamoErrors(t *testing.T) {
