@@ -46,6 +46,11 @@ body:not(.js-enabled) .govuk-back-link {
     }
 }
 
+.app-tag {
+    @extend .govuk-tag;
+    max-width: none;
+}
+
 .app-tag--black {
     background: govuk-colour("black");
     color: govuk-colour("white");
