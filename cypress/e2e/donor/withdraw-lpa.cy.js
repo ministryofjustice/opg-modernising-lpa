@@ -12,6 +12,6 @@ describe('Withdraw LPA', () => {
         cy.contains('You have withdrawn');
         cy.contains('a', 'Return to dashboard').click();
 
-        cy.contains('.app-dashboard-card', 'Sam Smith').contains('.govuk-tag', 'Withdrawn');
+        cy.contains('.app-dashboard-card', 'Sam Smith').contains('.app-tag', 'Withdrawn');
     });
 });

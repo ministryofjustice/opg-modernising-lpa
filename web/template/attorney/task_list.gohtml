@@ -31,7 +31,7 @@
             <dd class="govuk-summary-list__value">{{ .Donor.LpaUID }}</dd>
           </div>
         </dl>
-      </div>      
+      </div>
 
       <h2 class="govuk-heading-m">{{ tr $.App "readAndSignTheLpa" }}</h2>
       <ul class="govuk-task-list">
@@ -44,16 +44,16 @@
                 <div>{{ tr $.App .Name }}</div>
               {{ end }}
             </span>
-            
+
             <div class="govuk-task-list__status">
               {{ if not .Path }}
                 <span class="govuk-hint">{{ tr $.App "cannotStartYet" }}</span>
               {{ else if .State.Completed }}
                 {{ tr $.App "completed" }}
               {{ else if .State.InProgress }}
-                <strong class="govuk-tag govuk-tag--light-blue">{{ tr $.App "inProgress" }}</strong>
+                <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "inProgress" }}</strong>
               {{ else }}
-                <strong class="govuk-tag govuk-tag--blue">{{ tr $.App "notStarted" }}</strong>
+                <strong class="app-tag govuk-tag--blue">{{ tr $.App "notStarted" }}</strong>
               {{ end }}
             </div>
           </li>
