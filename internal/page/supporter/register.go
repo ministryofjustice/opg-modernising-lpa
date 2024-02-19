@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -19,10 +20,15 @@ type OrganisationStore interface {
 	AllLPAs(ctx context.Context) ([]actor.DonorProvidedDetails, error)
 	Create(ctx context.Context, name string) (*actor.Organisation, error)
 	CreateLPA(ctx context.Context) (*actor.DonorProvidedDetails, error)
+	CreateMember(ctx context.Context, invite *actor.MemberInvite) error
 	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error
 	Get(ctx context.Context) (*actor.Organisation, error)
+	InvitedMember(ctx context.Context) (*actor.MemberInvite, error)
 	InvitedMembers(ctx context.Context) ([]*actor.MemberInvite, error)
+	Member(ctx context.Context) (*actor.Member, error)
+	Members(ctx context.Context) ([]*actor.Member, error)
 	Put(ctx context.Context, organisation *actor.Organisation) error
+	PutMember(ctx context.Context, member *actor.Member) error
 }
 
 type OneLoginClient interface {
@@ -66,17 +72,13 @@ func Register(
 	handleRoot(paths.Login, page.None,
 		page.Login(oneLoginClient, sessionStore, random.String, paths.LoginCallback))
 	handleRoot(paths.LoginCallback, page.None,
-		LoginCallback(oneLoginClient, sessionStore, organisationStore))
+		LoginCallback(oneLoginClient, sessionStore, organisationStore, time.Now))
 	handleRoot(paths.EnterOrganisationName, page.RequireSession,
 		EnterOrganisationName(tmpls.Get("enter_organisation_name.gohtml"), organisationStore, sessionStore))
+	handleRoot(paths.EnterReferenceNumber, page.RequireSession,
+		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), organisationStore, sessionStore))
 
-	supporterMux := http.NewServeMux()
-	rootMux.Handle("/supporter/", http.StripPrefix("/supporter", supporterMux))
-
-	handleSupporter := makeHandle(supporterMux, sessionStore, errorHandler)
-	handleWithSupporter := makeSupporterHandle(supporterMux, sessionStore, errorHandler, organisationStore)
-
-	handleSupporter(page.Paths.Root, page.None, notFoundHandler)
+	handleWithSupporter := makeSupporterHandle(rootMux, sessionStore, errorHandler, organisationStore)
 
 	handleWithSupporter(paths.OrganisationCreated,
 		Guidance(tmpls.Get("organisation_created.gohtml")))
@@ -115,7 +117,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 
 				appData.SessionID = session.SessionID()
 
-				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID})
+				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, Email: session.Email})
 			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
@@ -142,9 +144,19 @@ func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page
 			sessionData, err := page.SessionDataFromContext(ctx)
 			if err == nil {
 				sessionData.SessionID = appData.SessionID
+				sessionData.OrganisationID = loginSession.OrganisationID
 				ctx = page.ContextWithSessionData(ctx, sessionData)
 			} else {
-				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID})
+				sessionData = &page.SessionData{
+					SessionID: appData.SessionID,
+					Email:     loginSession.Email,
+				}
+
+				if loginSession.OrganisationID != "" {
+					sessionData.OrganisationID = loginSession.OrganisationID
+				}
+
+				ctx = page.ContextWithSessionData(ctx, sessionData)
 			}
 
 			organisation, err := organisationStore.Get(ctx)

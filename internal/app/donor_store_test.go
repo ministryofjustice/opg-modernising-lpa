@@ -58,9 +58,9 @@ func (m *mockDynamoClient) ExpectAllByPartialSK(ctx, pk, partialSk, data interfa
 		})
 }
 
-func (m *mockDynamoClient) ExpectAllForActor(ctx, sk, data interface{}, err error) {
+func (m *mockDynamoClient) ExpectAllBySK(ctx, sk, data interface{}, err error) {
 	m.
-		On("AllForActor", ctx, sk, mock.Anything).
+		On("AllBySK", ctx, sk, mock.Anything).
 		Return(func(ctx context.Context, pk string, v interface{}) error {
 			b, _ := json.Marshal(data)
 			json.Unmarshal(b, v)
@@ -82,6 +82,16 @@ func (m *mockDynamoClient) ExpectAllByKeys(ctx context.Context, keys []dynamo.Ke
 	m.
 		On("AllByKeys", ctx, keys, mock.Anything).
 		Return(data, err)
+}
+
+func (m *mockDynamoClient) ExpectOneBySK(ctx, sk, data interface{}, err error) {
+	m.
+		On("OneBySK", ctx, sk, mock.Anything).
+		Return(func(ctx context.Context, sk string, v interface{}) error {
+			b, _ := json.Marshal(data)
+			json.Unmarshal(b, v)
+			return err
+		})
 }
 
 func TestDonorStoreGetAny(t *testing.T) {

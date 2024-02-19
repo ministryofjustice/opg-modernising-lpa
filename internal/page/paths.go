@@ -3,6 +3,7 @@ package page
 import (
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 )
@@ -30,7 +31,7 @@ func (p Path) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppD
 type LpaPath string
 
 func (p LpaPath) String() string {
-	return string(p)
+	return "/lpa/{id}" + string(p)
 }
 
 func (p LpaPath) Format(id string) string {
@@ -67,10 +68,70 @@ func (p LpaPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData A
 	return nil
 }
 
+func (p LpaPath) canVisit(donor *actor.DonorProvidedDetails) bool {
+	section1Completed := donor.Tasks.YourDetails.Completed() &&
+		donor.Tasks.ChooseAttorneys.Completed() &&
+		donor.Tasks.ChooseReplacementAttorneys.Completed() &&
+		(donor.Type.IsPersonalWelfare() && donor.Tasks.LifeSustainingTreatment.Completed() || donor.Type.IsPropertyAndAffairs() && donor.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
+		donor.Tasks.Restrictions.Completed() &&
+		donor.Tasks.CertificateProvider.Completed() &&
+		donor.Tasks.PeopleToNotify.Completed() &&
+		(donor.Donor.CanSign.IsYes() || donor.Tasks.ChooseYourSignatory.Completed()) &&
+		donor.Tasks.CheckYourLpa.Completed()
+
+	switch p {
+	case Paths.WhenCanTheLpaBeUsed,
+		Paths.LifeSustainingTreatment,
+		Paths.Restrictions,
+		Paths.WhatACertificateProviderDoes,
+		Paths.DoYouWantToNotifyPeople,
+		Paths.DoYouWantReplacementAttorneys:
+		return donor.Tasks.YourDetails.Completed() && donor.Tasks.ChooseAttorneys.Completed()
+
+	case Paths.GettingHelpSigning:
+		return donor.Tasks.CertificateProvider.Completed()
+
+	case Paths.ReadYourLpa,
+		Paths.SignYourLpa,
+		Paths.WitnessingYourSignature,
+		Paths.WitnessingAsCertificateProvider,
+		Paths.WitnessingAsIndependentWitness,
+		Paths.YouHaveSubmittedYourLpa:
+		return donor.DonorIdentityConfirmed()
+
+	case Paths.ConfirmYourCertificateProviderIsNotRelated,
+		Paths.CheckYourLpa:
+		return donor.Tasks.YourDetails.Completed() &&
+			donor.Tasks.ChooseAttorneys.Completed() &&
+			donor.Tasks.ChooseReplacementAttorneys.Completed() &&
+			(donor.Type.IsPersonalWelfare() && donor.Tasks.LifeSustainingTreatment.Completed() || donor.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
+			donor.Tasks.Restrictions.Completed() &&
+			donor.Tasks.CertificateProvider.Completed() &&
+			donor.Tasks.PeopleToNotify.Completed() &&
+			(donor.Donor.CanSign.IsYes() || donor.Tasks.ChooseYourSignatory.Completed())
+
+	case Paths.AboutPayment:
+		return section1Completed
+
+	case Paths.HowToConfirmYourIdentityAndSign,
+		Paths.IdentityWithOneLogin,
+		Paths.ReadYourLpa,
+		Paths.SignYourLpa,
+		Paths.SignTheLpaOnBehalf,
+		Paths.WitnessingYourSignature,
+		Paths.WitnessingAsIndependentWitness,
+		Paths.WitnessingAsCertificateProvider:
+		return section1Completed && (donor.Tasks.PayForLpa.IsCompleted() || donor.Tasks.PayForLpa.IsPending())
+
+	default:
+		return true
+	}
+}
+
 type AttorneyPath string
 
 func (p AttorneyPath) String() string {
-	return string(p)
+	return "/attorney/{id}" + string(p)
 }
 
 func (p AttorneyPath) Format(id string) string {
@@ -90,7 +151,7 @@ func (p AttorneyPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appD
 type CertificateProviderPath string
 
 func (p CertificateProviderPath) String() string {
-	return string(p)
+	return "/certificate-provider/{id}" + string(p)
 }
 
 func (p CertificateProviderPath) Format(id string) string {
@@ -105,7 +166,7 @@ func (p CertificateProviderPath) Redirect(w http.ResponseWriter, r *http.Request
 type SupporterPath string
 
 func (p SupporterPath) String() string {
-	return string(p)
+	return "/supporter" + string(p)
 }
 
 func (p SupporterPath) Format() string {
@@ -174,6 +235,7 @@ type HealthCheckPaths struct {
 
 type SupporterPaths struct {
 	EnterOrganisationName Path
+	EnterReferenceNumber  Path
 	Login                 Path
 	LoginCallback         Path
 	SigningInAdvice       Path
@@ -351,6 +413,7 @@ var Paths = AppPaths{
 
 	Supporter: SupporterPaths{
 		EnterOrganisationName: "/enter-the-name-of-your-organisation-or-company",
+		EnterReferenceNumber:  "/supporter-reference-number",
 		Login:                 "/supporter-login",
 		LoginCallback:         "/supporter-login-callback",
 		SigningInAdvice:       "/signing-in-with-govuk-one-login",
@@ -358,7 +421,7 @@ var Paths = AppPaths{
 
 		ConfirmDonorCanInteractOnline: "/confirm-donor-can-interact-online",
 		ContactOPGForPaperForms:       "/contact-opg-for-paper-forms",
-		Dashboard:                     "/supporter-dashboard",
+		Dashboard:                     "/dashboard",
 		EditOrganisationName:          "/manage-organisation/organisation-details/edit-organisation-name",
 		InviteMember:                  "/invite-member",
 		InviteMemberConfirmation:      "/invite-member-confirmation",
@@ -483,65 +546,16 @@ var Paths = AppPaths{
 	YourPreferredLanguage:                                "/your-preferred-language",
 }
 
-func canGoToLpaPath(donor *actor.DonorProvidedDetails, path string) bool {
-	section1Completed := donor.Tasks.YourDetails.Completed() &&
-		donor.Tasks.ChooseAttorneys.Completed() &&
-		donor.Tasks.ChooseReplacementAttorneys.Completed() &&
-		(donor.Type.IsPersonalWelfare() && donor.Tasks.LifeSustainingTreatment.Completed() || donor.Type.IsPropertyAndAffairs() && donor.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
-		donor.Tasks.Restrictions.Completed() &&
-		donor.Tasks.CertificateProvider.Completed() &&
-		donor.Tasks.PeopleToNotify.Completed() &&
-		(donor.Donor.CanSign.IsYes() || donor.Tasks.ChooseYourSignatory.Completed()) &&
-		donor.Tasks.CheckYourLpa.Completed()
-
-	switch path {
-	case Paths.WhenCanTheLpaBeUsed.String(),
-		Paths.LifeSustainingTreatment.String(),
-		Paths.Restrictions.String(),
-		Paths.WhatACertificateProviderDoes.String(),
-		Paths.DoYouWantToNotifyPeople.String(),
-		Paths.DoYouWantReplacementAttorneys.String():
-		return donor.Tasks.YourDetails.Completed() && donor.Tasks.ChooseAttorneys.Completed()
-
-	case Paths.GettingHelpSigning.String():
-		return donor.Tasks.CertificateProvider.Completed()
-
-	case Paths.ReadYourLpa.String(),
-		Paths.SignYourLpa.String(),
-		Paths.WitnessingYourSignature.String(),
-		Paths.WitnessingAsCertificateProvider.String(),
-		Paths.WitnessingAsIndependentWitness.String(),
-		Paths.YouHaveSubmittedYourLpa.String():
-		return donor.DonorIdentityConfirmed()
-
-	case Paths.ConfirmYourCertificateProviderIsNotRelated.String(),
-		Paths.CheckYourLpa.String():
-		return donor.Tasks.YourDetails.Completed() &&
-			donor.Tasks.ChooseAttorneys.Completed() &&
-			donor.Tasks.ChooseReplacementAttorneys.Completed() &&
-			(donor.Type.IsPersonalWelfare() && donor.Tasks.LifeSustainingTreatment.Completed() || donor.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
-			donor.Tasks.Restrictions.Completed() &&
-			donor.Tasks.CertificateProvider.Completed() &&
-			donor.Tasks.PeopleToNotify.Completed() &&
-			(donor.Donor.CanSign.IsYes() || donor.Tasks.ChooseYourSignatory.Completed())
-
-	case Paths.AboutPayment.String():
-		return section1Completed
-
-	case Paths.HowToConfirmYourIdentityAndSign.String(),
-		Paths.IdentityWithOneLogin.String(),
-		Paths.ReadYourLpa.String(),
-		Paths.SignYourLpa.String(),
-		Paths.SignTheLpaOnBehalf.String(),
-		Paths.WitnessingYourSignature.String(),
-		Paths.WitnessingAsIndependentWitness.String(),
-		Paths.WitnessingAsCertificateProvider.String():
-		return section1Completed && (donor.Tasks.PayForLpa.IsCompleted() || donor.Tasks.PayForLpa.IsPending())
-
-	case "":
+func CanGoTo(donor *actor.DonorProvidedDetails, url string) bool {
+	path, _, _ := strings.Cut(url, "?")
+	if path == "" {
 		return false
-
-	default:
-		return true
 	}
+
+	if strings.HasPrefix(path, "/lpa/") {
+		_, lpaPath, _ := strings.Cut(strings.TrimPrefix(path, "/lpa/"), "/")
+		return LpaPath("/" + lpaPath).canVisit(donor)
+	}
+
+	return true
 }

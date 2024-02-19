@@ -132,12 +132,12 @@ func (_c *mockDynamoClient_AllByPartialSK_Call) RunAndReturn(run func(context.Co
 	return _c
 }
 
-// AllForActor provides a mock function with given fields: ctx, sk, v
-func (_m *mockDynamoClient) AllForActor(ctx context.Context, sk string, v interface{}) error {
+// AllBySK provides a mock function with given fields: ctx, sk, v
+func (_m *mockDynamoClient) AllBySK(ctx context.Context, sk string, v interface{}) error {
 	ret := _m.Called(ctx, sk, v)
 
 	if len(ret) == 0 {
-		panic("no return value specified for AllForActor")
+		panic("no return value specified for AllBySK")
 	}
 
 	var r0 error
@@ -150,32 +150,32 @@ func (_m *mockDynamoClient) AllForActor(ctx context.Context, sk string, v interf
 	return r0
 }
 
-// mockDynamoClient_AllForActor_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AllForActor'
-type mockDynamoClient_AllForActor_Call struct {
+// mockDynamoClient_AllBySK_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AllBySK'
+type mockDynamoClient_AllBySK_Call struct {
 	*mock.Call
 }
 
-// AllForActor is a helper method to define mock.On call
+// AllBySK is a helper method to define mock.On call
 //   - ctx context.Context
 //   - sk string
 //   - v interface{}
-func (_e *mockDynamoClient_Expecter) AllForActor(ctx interface{}, sk interface{}, v interface{}) *mockDynamoClient_AllForActor_Call {
-	return &mockDynamoClient_AllForActor_Call{Call: _e.mock.On("AllForActor", ctx, sk, v)}
+func (_e *mockDynamoClient_Expecter) AllBySK(ctx interface{}, sk interface{}, v interface{}) *mockDynamoClient_AllBySK_Call {
+	return &mockDynamoClient_AllBySK_Call{Call: _e.mock.On("AllBySK", ctx, sk, v)}
 }
 
-func (_c *mockDynamoClient_AllForActor_Call) Run(run func(ctx context.Context, sk string, v interface{})) *mockDynamoClient_AllForActor_Call {
+func (_c *mockDynamoClient_AllBySK_Call) Run(run func(ctx context.Context, sk string, v interface{})) *mockDynamoClient_AllBySK_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(string), args[2].(interface{}))
 	})
 	return _c
 }
 
-func (_c *mockDynamoClient_AllForActor_Call) Return(_a0 error) *mockDynamoClient_AllForActor_Call {
+func (_c *mockDynamoClient_AllBySK_Call) Return(_a0 error) *mockDynamoClient_AllBySK_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *mockDynamoClient_AllForActor_Call) RunAndReturn(run func(context.Context, string, interface{}) error) *mockDynamoClient_AllForActor_Call {
+func (_c *mockDynamoClient_AllBySK_Call) RunAndReturn(run func(context.Context, string, interface{}) error) *mockDynamoClient_AllBySK_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -570,6 +570,54 @@ func (_c *mockDynamoClient_OneByPartialSK_Call) Return(_a0 error) *mockDynamoCli
 }
 
 func (_c *mockDynamoClient_OneByPartialSK_Call) RunAndReturn(run func(context.Context, string, string, interface{}) error) *mockDynamoClient_OneByPartialSK_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// OneBySK provides a mock function with given fields: ctx, sk, v
+func (_m *mockDynamoClient) OneBySK(ctx context.Context, sk string, v interface{}) error {
+	ret := _m.Called(ctx, sk, v)
+
+	if len(ret) == 0 {
+		panic("no return value specified for OneBySK")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, interface{}) error); ok {
+		r0 = rf(ctx, sk, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockDynamoClient_OneBySK_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'OneBySK'
+type mockDynamoClient_OneBySK_Call struct {
+	*mock.Call
+}
+
+// OneBySK is a helper method to define mock.On call
+//   - ctx context.Context
+//   - sk string
+//   - v interface{}
+func (_e *mockDynamoClient_Expecter) OneBySK(ctx interface{}, sk interface{}, v interface{}) *mockDynamoClient_OneBySK_Call {
+	return &mockDynamoClient_OneBySK_Call{Call: _e.mock.On("OneBySK", ctx, sk, v)}
+}
+
+func (_c *mockDynamoClient_OneBySK_Call) Run(run func(ctx context.Context, sk string, v interface{})) *mockDynamoClient_OneBySK_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(interface{}))
+	})
+	return _c
+}
+
+func (_c *mockDynamoClient_OneBySK_Call) Return(_a0 error) *mockDynamoClient_OneBySK_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDynamoClient_OneBySK_Call) RunAndReturn(run func(context.Context, string, interface{}) error) *mockDynamoClient_OneBySK_Call {
 	_c.Call.Return(run)
 	return _c
 }

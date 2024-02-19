@@ -11,13 +11,13 @@
         {{ if .Item.Donor.RegisteredAt.IsZero }}</h3>{{ else }}</h4>{{ end }}
         <div>
           {{ if not .Item.Donor.WithdrawnAt.IsZero }}
-            <strong class="govuk-tag govuk-tag--red">{{ tr .App "withdrawn" }}</strong>
+            <strong class="app-tag govuk-tag--red">{{ tr .App "withdrawn" }}</strong>
           {{ else if not .Item.Donor.RegisteredAt.IsZero }}
-            <strong class="govuk-tag app-tag--black">{{ tr .App "registered" }}</strong>
+            <strong class="app-tag app-tag--black">{{ tr .App "registered" }}</strong>
           {{ else if not .Item.Donor.SubmittedAt.IsZero }}
-            <strong class="govuk-tag govuk-tag--green">{{ tr .App "submittedToOpg" }}</strong>
+            <strong class="app-tag govuk-tag--green">{{ tr .App "submittedToOpg" }}</strong>
           {{ else }}
-            <strong class="govuk-tag govuk-tag--blue">{{ tr .App "inProgress" }}</strong>
+            <strong class="app-tag govuk-tag--blue">{{ tr .App "inProgress" }}</strong>
           {{ end }}
         </div>
     </div>
@@ -73,15 +73,15 @@
         {{ if .Item.Donor.RegisteredAt.IsZero }}</h3>{{ else }}</h4>{{ end }}
         <div>
           {{ if not .Item.Donor.WithdrawnAt.IsZero }}
-            <strong class="govuk-tag govuk-tag--red">{{ tr .App "withdrawn" }}</strong>
+            <strong class="app-tag govuk-tag--red">{{ tr .App "withdrawn" }}</strong>
           {{ else if not .Item.Donor.RegisteredAt.IsZero }}
-            <strong class="govuk-tag app-tag--black">{{ tr .App "registered" }}</strong>
+            <strong class="app-tag app-tag--black">{{ tr .App "registered" }}</strong>
           {{ else if not .Item.Donor.SubmittedAt.IsZero }}
-            <strong class="govuk-tag govuk-tag--green">{{ tr .App "submittedToOpg" }}</strong>
+            <strong class="app-tag govuk-tag--green">{{ tr .App "submittedToOpg" }}</strong>
           {{ else if .Item.Attorney.Signed .Item.Donor.SignedAt }}
-            <strong class="govuk-tag govuk-tag--blue">{{ tr .App "inProgress" }}</strong>
+            <strong class="app-tag govuk-tag--blue">{{ tr .App "inProgress" }}</strong>
           {{ else }}
-            <strong class="govuk-tag govuk-tag--yellow">{{ tr .App "readyToSign" }}</strong>
+            <strong class="app-tag govuk-tag--yellow">{{ tr .App "readyToSign" }}</strong>
           {{ end }}
         </div>
     </div>
@@ -128,9 +128,9 @@
       </h3>
       <div>
         {{ if and .Item.CertificateProvider.Tasks.ReadTheLpa.Completed (not .Item.Donor.SignedAt.IsZero) .Item.Donor.Tasks.PayForLpa.IsCompleted }}
-          <strong class="govuk-tag govuk-tag--yellow">{{ tr .App "readyToSign" }}</strong>
+          <strong class="app-tag govuk-tag--yellow">{{ tr .App "readyToSign" }}</strong>
         {{ else }}
-          <strong class="govuk-tag govuk-tag--blue">{{ tr .App "inProgress" }}</strong>
+          <strong class="app-tag govuk-tag--blue">{{ tr .App "inProgress" }}</strong>
         {{ end }}
       </div>
     </div>
@@ -219,8 +219,7 @@
           <h2 class="govuk-heading-l">{{ tr .App "imAnAttorney" }}</h2>
 
           <div class="app-dashboard-card app-dashboard-card--dashed">
-              {{ $attorney := tr .App global.ActorTypes.Attorney.String }}
-              <p class="govuk-body">{{ trFormat .App "addAnotherLpaIfInvited" "ActorType" ( lowerFirst $attorney) }}</p>
+              <p class="govuk-body">{{ tr .App "addAnotherLpaIfInvited:attorney" }}</p>
               <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Attorney.EnterReferenceNumber.Format ) }}" data-module="govuk-button">{{ tr .App "addAnLpa" }}</a>
           </div>
 
@@ -255,8 +254,7 @@
           <h2 class="govuk-heading-l">{{ tr .App "imACertificateProvider" }}</h2>
 
           <div class="app-dashboard-card app-dashboard-card--dashed">
-              {{ $certificateProvider := tr .App global.ActorTypes.CertificateProvider.String }}
-              <p class="govuk-body">{{ trFormat .App "addAnotherLpaIfInvited" "ActorType" ( lowerFirst $certificateProvider) }}</p>
+              <p class="govuk-body">{{ tr .App "addAnotherLpaIfInvited:certificateProvider" }}</p>
               <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.CertificateProvider.EnterReferenceNumber.Format ) }}" data-module="govuk-button">{{ tr .App "addAnLpa" }}</a>
           </div>
 
