@@ -17,7 +17,17 @@ func TestGetOrganisationDetails(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/?a=b", nil)
 
 	invitedMembers := []*actor.MemberInvite{
-		{"PK", "SK", time.Now(), "org-id", "a@example.com", "a", "b", actor.None},
+		{
+			PK:             "PK",
+			SK:             "SK",
+			CreatedAt:      time.Now(),
+			UpdatedAt:      time.Now(),
+			OrganisationID: "org-id",
+			Email:          "a@example.com",
+			FirstNames:     "a",
+			LastName:       "b",
+			Permission:     actor.None,
+		},
 	}
 
 	organisation := actor.Organisation{
