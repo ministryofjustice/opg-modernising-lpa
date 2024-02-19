@@ -23,7 +23,7 @@ type lpaLink struct {
 	DonorKey string
 	// ActorType is the type for the current user
 	ActorType actor.Type
-	// UpdatedAt is set to allow this data to be queried from SkUpdatedAtIndex
+	// UpdatedAt is set to allow this data to be queried from SKUpdatedAtIndex
 	UpdatedAt time.Time
 }
 

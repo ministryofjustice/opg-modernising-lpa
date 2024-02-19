@@ -13,7 +13,7 @@ import (
 
 const (
 	lpaUIDIndex      = "LpaUIDIndex"
-	skUpdatedAtIndex = "SkUpdatedAtIndex"
+	skUpdatedAtIndex = "SKUpdatedAtIndex"
 )
 
 type dynamoDB interface {

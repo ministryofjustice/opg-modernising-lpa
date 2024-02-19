@@ -1,6 +1,6 @@
 [
   {
-    "IndexName": "SkUpdatedAtIndex",
+    "IndexName": "SKUpdatedAtIndex",
     "KeySchema": [{"AttributeName":"SK","KeyType":"HASH"},{"AttributeName":"UpdatedAt","KeyType":"Range"}],
     "Projection": {
       "ProjectionType":"ALL"
