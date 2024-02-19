@@ -69,6 +69,7 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 			}
 
 			member.LastLoggedInAt = now()
+			member.Email = loginSession.Email
 
 			if err := organisationStore.PutMember(ctx, member); err != nil {
 				return err

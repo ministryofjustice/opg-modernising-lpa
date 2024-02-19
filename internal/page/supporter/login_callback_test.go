@@ -116,41 +116,22 @@ func TestLoginCallback(t *testing.T) {
 	}
 }
 
-func TestLoginCallbackIsOrganisationMember(t *testing.T) {
+func TestLoginCallbackWhenNoOrganisationAndSetLoginSessionError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
 	client := newMockOneLoginClient(t)
 	client.EXPECT().
-		Exchange(r.Context(), "auth-code", "my-nonce").
+		Exchange(r.Context(), mock.Anything, mock.Anything).
 		Return("id-token", "a JWT", nil)
 	client.EXPECT().
-		UserInfo(r.Context(), "a JWT").
+		UserInfo(mock.Anything, mock.Anything).
 		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
 
 	sessionStore := newMockSessionStore(t)
 
-	session := sessions.NewSession(sessionStore, "session")
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   86400,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   true,
-	}
-
-	loginSession := &sesh.LoginSession{
-		IDToken:          "id-token",
-		Sub:              "supporter-random",
-		Email:            "name@example.com",
-		OrganisationID:   "org-id",
-		OrganisationName: "org name",
-	}
-
-	session.Values = map[any]any{"session": loginSession}
-
 	sessionStore.EXPECT().
-		Get(r, "params").
+		Get(r, mock.Anything).
 		Return(&sessions.Session{
 			Values: map[any]any{
 				"one-login": &sesh.OneLoginSession{
@@ -163,8 +144,8 @@ func TestLoginCallbackIsOrganisationMember(t *testing.T) {
 		}, nil)
 
 	sessionStore.EXPECT().
-		Save(r, w, session).
-		Return(nil)
+		Save(r, w, mock.Anything).
+		Return(expectedError)
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
@@ -172,24 +153,109 @@ func TestLoginCallbackIsOrganisationMember(t *testing.T) {
 		Return(nil, expectedError)
 
 	organisationStore.EXPECT().
-		Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email})).
-		Return(&actor.Organisation{ID: "org-id", Name: "org name"}, nil)
-
-	organisationStore.EXPECT().
-		Member(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email, OrganisationID: "org-id"})).
-		Return(&actor.Member{Email: loginSession.Email}, nil)
-
-	organisationStore.EXPECT().
-		PutMember(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email, OrganisationID: "org-id"}), &actor.Member{Email: loginSession.Email, LastLoggedInAt: testNow}).
-		Return(nil)
+		Get(mock.Anything).
+		Return(&actor.Organisation{ID: "org-id", Name: "org name"}, dynamo.NotFoundError{})
 
 	err := LoginCallback(client, sessionStore, organisationStore, testNowFn)(page.AppData{}, w, r)
+	assert.Equal(t, expectedError, err)
 
-	assert.Nil(t, err)
 	resp := w.Result()
 
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.Dashboard.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestLoginCallbackIsOrganisationMember(t *testing.T) {
+	testcases := map[string]struct {
+		loginSessionEmail   string
+		existingMemberEmail string
+	}{
+		"with same email": {
+			loginSessionEmail:   "a@example.org",
+			existingMemberEmail: "a@example.org",
+		},
+		"with new email": {
+			loginSessionEmail:   "b@example.org",
+			existingMemberEmail: "a@example.org",
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
+
+			client := newMockOneLoginClient(t)
+			client.EXPECT().
+				Exchange(r.Context(), "auth-code", "my-nonce").
+				Return("id-token", "a JWT", nil)
+			client.EXPECT().
+				UserInfo(r.Context(), "a JWT").
+				Return(onelogin.UserInfo{Sub: "random", Email: tc.loginSessionEmail}, nil)
+
+			sessionStore := newMockSessionStore(t)
+
+			session := sessions.NewSession(sessionStore, "session")
+			session.Options = &sessions.Options{
+				Path:     "/",
+				MaxAge:   86400,
+				SameSite: http.SameSiteLaxMode,
+				HttpOnly: true,
+				Secure:   true,
+			}
+
+			loginSession := &sesh.LoginSession{
+				IDToken:          "id-token",
+				Sub:              "supporter-random",
+				Email:            tc.loginSessionEmail,
+				OrganisationID:   "org-id",
+				OrganisationName: "org name",
+			}
+
+			session.Values = map[any]any{"session": loginSession}
+
+			sessionStore.EXPECT().
+				Get(r, "params").
+				Return(&sessions.Session{
+					Values: map[any]any{
+						"one-login": &sesh.OneLoginSession{
+							State:    "my-state",
+							Nonce:    "my-nonce",
+							Locale:   "en",
+							Redirect: "/redirect",
+						},
+					},
+				}, nil)
+
+			sessionStore.EXPECT().
+				Save(r, w, session).
+				Return(nil)
+
+			organisationStore := newMockOrganisationStore(t)
+			organisationStore.EXPECT().
+				InvitedMember(mock.Anything).
+				Return(nil, expectedError)
+
+			organisationStore.EXPECT().
+				Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email})).
+				Return(&actor.Organisation{ID: "org-id", Name: "org name"}, nil)
+
+			organisationStore.EXPECT().
+				Member(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email, OrganisationID: "org-id"})).
+				Return(&actor.Member{Email: tc.existingMemberEmail}, nil)
+
+			organisationStore.EXPECT().
+				PutMember(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email, OrganisationID: "org-id"}), &actor.Member{Email: tc.loginSessionEmail, LastLoggedInAt: testNow}).
+				Return(nil)
+
+			err := LoginCallback(client, sessionStore, organisationStore, testNowFn)(page.AppData{}, w, r)
+
+			assert.Nil(t, err)
+			resp := w.Result()
+
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, page.Paths.Supporter.Dashboard.Format(), resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestLoginCallbackIsOrganisationMemberErrors(t *testing.T) {
@@ -342,6 +408,64 @@ func TestLoginCallbackWhenEmailHasInvite(t *testing.T) {
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, page.Paths.Supporter.EnterReferenceNumber.Format(), resp.Header.Get("Location"))
+}
+
+func TestLoginCallbackWhenEmailHasInviteWhenSetLoginSessionError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
+
+	client := newMockOneLoginClient(t)
+	client.EXPECT().
+		Exchange(r.Context(), "auth-code", "my-nonce").
+		Return("id-token", "a JWT", nil)
+	client.EXPECT().
+		UserInfo(r.Context(), "a JWT").
+		Return(onelogin.UserInfo{Sub: "random", Email: "name@example.com"}, nil)
+
+	sessionStore := newMockSessionStore(t)
+
+	session := sessions.NewSession(sessionStore, "session")
+	session.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   86400,
+		SameSite: http.SameSiteLaxMode,
+		HttpOnly: true,
+		Secure:   true,
+	}
+	session.Values = map[any]any{"session": &sesh.LoginSession{
+		IDToken: "id-token",
+		Sub:     "supporter-random",
+		Email:   "name@example.com",
+	}}
+
+	sessionStore.EXPECT().
+		Get(r, "params").
+		Return(&sessions.Session{
+			Values: map[any]any{
+				"one-login": &sesh.OneLoginSession{
+					State:    "my-state",
+					Nonce:    "my-nonce",
+					Locale:   "en",
+					Redirect: "/redirect",
+				},
+			},
+		}, nil)
+
+	sessionStore.EXPECT().
+		Save(r, w, session).
+		Return(expectedError)
+
+	organisationStore := newMockOrganisationStore(t)
+	organisationStore.EXPECT().
+		InvitedMember(mock.Anything).
+		Return(nil, nil)
+
+	err := LoginCallback(client, sessionStore, organisationStore, testNowFn)(page.AppData{}, w, r)
+
+	assert.Equal(t, expectedError, err)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestLoginCallbackSessionMissing(t *testing.T) {
