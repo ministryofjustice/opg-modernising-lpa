@@ -25,7 +25,8 @@ type OrganisationStore interface {
 	Get(ctx context.Context) (*actor.Organisation, error)
 	InvitedMember(ctx context.Context) (*actor.MemberInvite, error)
 	InvitedMembers(ctx context.Context) ([]*actor.MemberInvite, error)
-	Member(ctx context.Context) (*actor.Member, error)
+	Self(ctx context.Context) (*actor.Member, error)
+	Member(ctx context.Context, memberID string) (*actor.Member, error)
 	Members(ctx context.Context) ([]*actor.Member, error)
 	Put(ctx context.Context, organisation *actor.Organisation) error
 	PutMember(ctx context.Context, member *actor.Member) error
@@ -80,23 +81,25 @@ func Register(
 
 	handleWithSupporter := makeSupporterHandle(rootMux, sessionStore, errorHandler, organisationStore)
 
-	handleWithSupporter(paths.OrganisationCreated,
+	handleWithSupporter(paths.OrganisationCreated, page.None,
 		Guidance(tmpls.Get("organisation_created.gohtml")))
-	handleWithSupporter(paths.Dashboard,
+	handleWithSupporter(paths.Dashboard, page.None,
 		Dashboard(tmpls.Get("dashboard.gohtml"), organisationStore))
-	handleWithSupporter(paths.ConfirmDonorCanInteractOnline,
+	handleWithSupporter(paths.ConfirmDonorCanInteractOnline, page.None,
 		ConfirmDonorCanInteractOnline(tmpls.Get("confirm_donor_can_interact_online.gohtml"), organisationStore))
-	handleWithSupporter(paths.ContactOPGForPaperForms,
+	handleWithSupporter(paths.ContactOPGForPaperForms, page.None,
 		Guidance(tmpls.Get("contact_opg_for_paper_forms.gohtml")))
 
-	handleWithSupporter(paths.OrganisationDetails,
+	handleWithSupporter(paths.OrganisationDetails, page.None,
 		Guidance(tmpls.Get("organisation_details.gohtml")))
-	handleWithSupporter(paths.EditOrganisationName,
+	handleWithSupporter(paths.EditOrganisationName, page.None,
 		EditOrganisationName(tmpls.Get("edit_organisation_name.gohtml"), organisationStore))
-	handleWithSupporter(paths.ManageTeamMembers,
+	handleWithSupporter(paths.ManageTeamMembers, page.None,
 		ManageTeamMembers(tmpls.Get("manage_team_members.gohtml"), organisationStore))
-	handleWithSupporter(paths.InviteMember,
+	handleWithSupporter(paths.InviteMember, page.None,
 		InviteMember(tmpls.Get("invite_member.gohtml"), organisationStore, notifyClient, random.String, appPublicURL))
+	handleWithSupporter(paths.EditMember, page.CanGoBack,
+		EditMember(tmpls.Get("edit_team_member.gohtml"), organisationStore))
 }
 
 func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler) func(page.Path, page.HandleOpt, page.Handler) {
@@ -127,8 +130,8 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 	}
 }
 
-func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler, organisationStore OrganisationStore) func(page.SupporterPath, Handler) {
-	return func(path page.SupporterPath, h Handler) {
+func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler, organisationStore OrganisationStore) func(page.SupporterPath, page.HandleOpt, Handler) {
+	return func(path page.SupporterPath, opt page.HandleOpt, h Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			loginSession, err := sesh.Login(store, r)
 			if err != nil {
@@ -140,6 +143,7 @@ func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page
 
 			appData := page.AppDataFromContext(ctx)
 			appData.SessionID = loginSession.SessionID()
+			appData.CanGoBack = opt&page.CanGoBack != 0
 
 			sessionData, err := page.SessionDataFromContext(ctx)
 			if err == nil {

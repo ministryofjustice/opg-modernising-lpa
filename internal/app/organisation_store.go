@@ -20,6 +20,15 @@ type organisationStore struct {
 	now          func() time.Time
 }
 
+// An organisationLink is used to join a Member to an Organisation to be accessed by MemberID.
+type organisationLink struct {
+	// PK is the same as the PK for the Member
+	PK string
+	// SK is the Member ID for the Member
+	SK       string
+	MemberSK string
+}
+
 func (s *organisationStore) Create(ctx context.Context, name string) (*actor.Organisation, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
@@ -51,12 +60,23 @@ func (s *organisationStore) Create(ctx context.Context, name string) (*actor.Org
 	member := &actor.Member{
 		PK:        organisationKey(organisationID),
 		SK:        memberKey(data.SessionID),
+		ID:        s.uuidString(),
 		Email:     data.Email,
 		CreatedAt: s.now(),
 	}
 
 	if err := s.dynamoClient.Create(ctx, member); err != nil {
 		return nil, fmt.Errorf("error creating organisation member: %w", err)
+	}
+
+	link := &organisationLink{
+		PK:       member.PK,
+		SK:       memberIDKey(member.ID),
+		MemberSK: member.SK,
+	}
+
+	if err := s.dynamoClient.Create(ctx, link); err != nil {
+		return nil, fmt.Errorf("error creating organisation link: %w", err)
 	}
 
 	return organisation, nil
@@ -139,6 +159,7 @@ func (s *organisationStore) CreateMember(ctx context.Context, invite *actor.Memb
 		SK:         memberKey(data.SessionID),
 		CreatedAt:  s.now(),
 		UpdatedAt:  s.now(),
+		ID:         s.uuidString(),
 		Email:      invite.Email,
 		FirstNames: invite.FirstNames,
 		LastName:   invite.LastName,
@@ -151,6 +172,16 @@ func (s *organisationStore) CreateMember(ctx context.Context, invite *actor.Memb
 
 	if err := s.dynamoClient.DeleteOne(ctx, invite.PK, invite.SK); err != nil {
 		return fmt.Errorf("error deleting member invite: %w", err)
+	}
+
+	link := &organisationLink{
+		PK:       member.PK,
+		SK:       memberIDKey(member.ID),
+		MemberSK: member.SK,
+	}
+
+	if err := s.dynamoClient.Create(ctx, link); err != nil {
+		return fmt.Errorf("error creating organisation link: %w", err)
 	}
 
 	return nil
@@ -241,18 +272,41 @@ func (s *organisationStore) Members(ctx context.Context) ([]*actor.Member, error
 	return members, nil
 }
 
-func (s *organisationStore) Member(ctx context.Context) (*actor.Member, error) {
+func (s *organisationStore) Member(ctx context.Context, memberID string) (*actor.Member, error) {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.OrganisationID == "" {
+		return nil, errors.New("organisationStore.Self requires OrganisationID")
+	}
+
+	var link *organisationLink
+	if err := s.dynamoClient.One(ctx, organisationKey(data.OrganisationID), memberIDKey(memberID), &link); err != nil {
+		return nil, err
+	}
+
+	var member *actor.Member
+	if err := s.dynamoClient.One(ctx, link.PK, link.MemberSK, &member); err != nil {
+		return nil, err
+	}
+
+	return member, nil
+}
+
+func (s *organisationStore) Self(ctx context.Context) (*actor.Member, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	if data.SessionID == "" {
-		return nil, errors.New("organisationStore.Member requires SessionID")
+		return nil, errors.New("organisationStore.Self requires SessionID")
 	}
 
 	if data.OrganisationID == "" {
-		return nil, errors.New("organisationStore.Member requires OrganisationID")
+		return nil, errors.New("organisationStore.Self requires OrganisationID")
 	}
 
 	var member *actor.Member
@@ -299,4 +353,8 @@ func memberKey(sessionID string) string {
 
 func memberInviteKey(email string) string {
 	return fmt.Sprintf("MEMBERINVITE#%s", base64.StdEncoding.EncodeToString([]byte(email)))
+}
+
+func memberIDKey(memberID string) string {
+	return "MEMBERID#" + memberID
 }

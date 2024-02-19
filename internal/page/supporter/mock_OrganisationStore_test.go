@@ -471,9 +471,9 @@ func (_c *mockOrganisationStore_InvitedMembers_Call) RunAndReturn(run func(conte
 	return _c
 }
 
-// Member provides a mock function with given fields: ctx
-func (_m *mockOrganisationStore) Member(ctx context.Context) (*actor.Member, error) {
-	ret := _m.Called(ctx)
+// Member provides a mock function with given fields: ctx, memberID
+func (_m *mockOrganisationStore) Member(ctx context.Context, memberID string) (*actor.Member, error) {
+	ret := _m.Called(ctx, memberID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Member")
@@ -481,19 +481,19 @@ func (_m *mockOrganisationStore) Member(ctx context.Context) (*actor.Member, err
 
 	var r0 *actor.Member
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*actor.Member, error)); ok {
-		return rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*actor.Member, error)); ok {
+		return rf(ctx, memberID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *actor.Member); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, string) *actor.Member); ok {
+		r0 = rf(ctx, memberID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*actor.Member)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, memberID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -508,13 +508,14 @@ type mockOrganisationStore_Member_Call struct {
 
 // Member is a helper method to define mock.On call
 //   - ctx context.Context
-func (_e *mockOrganisationStore_Expecter) Member(ctx interface{}) *mockOrganisationStore_Member_Call {
-	return &mockOrganisationStore_Member_Call{Call: _e.mock.On("Member", ctx)}
+//   - memberID string
+func (_e *mockOrganisationStore_Expecter) Member(ctx interface{}, memberID interface{}) *mockOrganisationStore_Member_Call {
+	return &mockOrganisationStore_Member_Call{Call: _e.mock.On("Member", ctx, memberID)}
 }
 
-func (_c *mockOrganisationStore_Member_Call) Run(run func(ctx context.Context)) *mockOrganisationStore_Member_Call {
+func (_c *mockOrganisationStore_Member_Call) Run(run func(ctx context.Context, memberID string)) *mockOrganisationStore_Member_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
+		run(args[0].(context.Context), args[1].(string))
 	})
 	return _c
 }
@@ -524,7 +525,7 @@ func (_c *mockOrganisationStore_Member_Call) Return(_a0 *actor.Member, _a1 error
 	return _c
 }
 
-func (_c *mockOrganisationStore_Member_Call) RunAndReturn(run func(context.Context) (*actor.Member, error)) *mockOrganisationStore_Member_Call {
+func (_c *mockOrganisationStore_Member_Call) RunAndReturn(run func(context.Context, string) (*actor.Member, error)) *mockOrganisationStore_Member_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -677,6 +678,64 @@ func (_c *mockOrganisationStore_PutMember_Call) Return(_a0 error) *mockOrganisat
 }
 
 func (_c *mockOrganisationStore_PutMember_Call) RunAndReturn(run func(context.Context, *actor.Member) error) *mockOrganisationStore_PutMember_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Self provides a mock function with given fields: ctx
+func (_m *mockOrganisationStore) Self(ctx context.Context) (*actor.Member, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Self")
+	}
+
+	var r0 *actor.Member
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (*actor.Member, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) *actor.Member); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*actor.Member)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockOrganisationStore_Self_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Self'
+type mockOrganisationStore_Self_Call struct {
+	*mock.Call
+}
+
+// Self is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *mockOrganisationStore_Expecter) Self(ctx interface{}) *mockOrganisationStore_Self_Call {
+	return &mockOrganisationStore_Self_Call{Call: _e.mock.On("Self", ctx)}
+}
+
+func (_c *mockOrganisationStore_Self_Call) Run(run func(ctx context.Context)) *mockOrganisationStore_Self_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *mockOrganisationStore_Self_Call) Return(_a0 *actor.Member, _a1 error) *mockOrganisationStore_Self_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockOrganisationStore_Self_Call) RunAndReturn(run func(context.Context) (*actor.Member, error)) *mockOrganisationStore_Self_Call {
 	_c.Call.Return(run)
 	return _c
 }

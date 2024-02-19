@@ -240,7 +240,7 @@ func TestLoginCallbackIsOrganisationMember(t *testing.T) {
 				Return(&actor.Organisation{ID: "org-id", Name: "org name"}, nil)
 
 			organisationStore.EXPECT().
-				Member(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email, OrganisationID: "org-id"})).
+				Self(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email, OrganisationID: "org-id"})).
 				Return(&actor.Member{Email: tc.existingMemberEmail}, nil)
 
 			organisationStore.EXPECT().
@@ -263,7 +263,7 @@ func TestLoginCallbackIsOrganisationMemberErrors(t *testing.T) {
 		memberError    error
 		putMemberError error
 	}{
-		"Member error": {
+		"Self error": {
 			memberError: expectedError,
 		},
 		"PutMember error": {
@@ -332,7 +332,7 @@ func TestLoginCallbackIsOrganisationMemberErrors(t *testing.T) {
 				Return(&actor.Organisation{ID: "org-id", Name: "org name"}, nil)
 
 			organisationStore.EXPECT().
-				Member(mock.Anything).
+				Self(mock.Anything).
 				Return(&actor.Member{Email: loginSession.Email}, tc.memberError)
 
 			if tc.putMemberError != nil {

@@ -173,6 +173,10 @@ func (p SupporterPath) Format() string {
 	return "/supporter" + string(p)
 }
 
+func (p SupporterPath) FormatID(id string) string {
+	return "/supporter" + strings.Replace(string(p), "{id}", id, 1)
+}
+
 func (p SupporterPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData) error {
 	http.Redirect(w, r, appData.Lang.URL(p.Format()), http.StatusFound)
 	return nil
@@ -244,6 +248,7 @@ type SupporterPaths struct {
 	ConfirmDonorCanInteractOnline SupporterPath
 	ContactOPGForPaperForms       SupporterPath
 	Dashboard                     SupporterPath
+	EditMember                    SupporterPath
 	EditOrganisationName          SupporterPath
 	InviteMember                  SupporterPath
 	InviteMemberConfirmation      SupporterPath
@@ -422,6 +427,7 @@ var Paths = AppPaths{
 		ConfirmDonorCanInteractOnline: "/confirm-donor-can-interact-online",
 		ContactOPGForPaperForms:       "/contact-opg-for-paper-forms",
 		Dashboard:                     "/dashboard",
+		EditMember:                    "/manage-organisation/manage-team-members/edit-team-member/{id}",
 		EditOrganisationName:          "/manage-organisation/organisation-details/edit-organisation-name",
 		InviteMember:                  "/invite-member",
 		InviteMemberConfirmation:      "/invite-member-confirmation",

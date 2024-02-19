@@ -23,15 +23,28 @@ func TestOrganisationStoreCreate(t *testing.T) {
 			CreatedAt: testNow,
 			Name:      "A name",
 		}).
-		Return(nil)
+		Return(nil).
+		Once()
+
 	dynamoClient.EXPECT().
 		Create(ctx, &actor.Member{
 			PK:        "ORGANISATION#a-uuid",
 			SK:        "MEMBER#an-id",
+			ID:        "a-uuid",
 			CreatedAt: testNow,
 			Email:     "a@example.org",
 		}).
-		Return(nil)
+		Return(nil).
+		Once()
+
+	dynamoClient.EXPECT().
+		Create(ctx, &organisationLink{
+			PK:       "ORGANISATION#a-uuid",
+			SK:       "MEMBERID#a-uuid",
+			MemberSK: "MEMBER#an-id",
+		}).
+		Return(nil).
+		Once()
 
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
@@ -579,7 +592,7 @@ func TestOrganisationStoreMember(t *testing.T) {
 
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-	result, err := organisationStore.Member(ctx)
+	result, err := organisationStore.Self(ctx)
 	assert.Nil(t, err)
 	assert.Equal(t, member, result)
 }
@@ -595,7 +608,7 @@ func TestOrganisationStoreMemberWithSessionMissing(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			organisationStore := &organisationStore{}
 
-			_, err := organisationStore.Member(ctx)
+			_, err := organisationStore.Self(ctx)
 			assert.Error(t, err)
 		})
 	}
@@ -610,7 +623,7 @@ func TestOrganisationStoreMemberWhenErrors(t *testing.T) {
 			nil, expectedError)
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-	_, err := organisationStore.Member(ctx)
+	_, err := organisationStore.Self(ctx)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -634,6 +647,7 @@ func TestOrganisationStoreCreateMember(t *testing.T) {
 			SK:         "MEMBER#session-id",
 			CreatedAt:  testNow,
 			UpdatedAt:  testNow,
+			ID:         "a-uuid",
 			Email:      invite.Email,
 			FirstNames: invite.FirstNames,
 			LastName:   invite.LastName,
@@ -643,6 +657,14 @@ func TestOrganisationStoreCreateMember(t *testing.T) {
 
 	dynamoClient.EXPECT().
 		DeleteOne(ctx, "pk", "sk").
+		Return(nil)
+
+	dynamoClient.EXPECT().
+		Create(ctx, &organisationLink{
+			PK:       "ORGANISATION#org-id",
+			SK:       "MEMBERID#a-uuid",
+			MemberSK: "MEMBER#session-id",
+		}).
 		Return(nil)
 
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}

@@ -216,13 +216,13 @@ func (c *Client) AllByKeys(ctx context.Context, keys []Key) ([]map[string]types.
 	return result.Responses[c.table], nil
 }
 
-func (c *Client) OneByPartialSK(ctx context.Context, pk, partialSk string, v interface{}) error {
+func (c *Client) OneByPartialSK(ctx context.Context, pk, partialSK string, v interface{}) error {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName:                aws.String(c.table),
 		ExpressionAttributeNames: map[string]string{"#PK": "PK", "#SK": "SK"},
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":PK": &types.AttributeValueMemberS{Value: pk},
-			":SK": &types.AttributeValueMemberS{Value: partialSk},
+			":SK": &types.AttributeValueMemberS{Value: partialSK},
 		},
 		KeyConditionExpression: aws.String("#PK = :PK and begins_with(#SK, :SK)"),
 	})
