@@ -164,7 +164,7 @@ func TestMakeSupporterHandleWithSessionData(t *testing.T) {
 		page.ContextWithSessionData(context.Background(),
 			&page.SessionData{SessionID: "existing-sub", OrganisationID: "an-org-id"}),
 		http.MethodGet,
-		"/path",
+		"/supporter/path",
 		nil,
 	)
 
