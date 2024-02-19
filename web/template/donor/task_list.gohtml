@@ -35,7 +35,7 @@
           {{ range $e.Items }}
             {{ if not .Hidden }}
               {{ $hasLink := and (not .PaymentState.IsPending) (canGoTo $.Donor .Path) }}
-              
+
               <li class="govuk-task-list__item {{ if $hasLink }}govuk-task-list__item--with-link{{ end }}">
                 <span class="govuk-task-list__name-and-hint">
                   {{ if $hasLink }}
@@ -48,22 +48,22 @@
                     <div class="govuk-task-list__hint">{{ .Count }} {{ tr $.App "added" }}</div>
                   {{ end }}
                 </span>
-                
+
                 <div class="govuk-task-list__status">
                   {{ if or .State.Completed .PaymentState.IsCompleted }}
                     {{ tr $.App "completed" }}
                   {{ else if or .State.InProgress .PaymentState.IsInProgress }}
-                    <strong class="govuk-tag govuk-tag--light-blue">{{ tr $.App "inProgress" }}</strong>
+                    <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "inProgress" }}</strong>
                   {{ else if .PaymentState.IsPending }}
-                    <strong class="govuk-tag govuk-tag--yellow">{{ tr $.App "pending" }}</strong>
+                    <strong class="app-tag govuk-tag--yellow">{{ tr $.App "pending" }}</strong>
                   {{ else if .PaymentState.IsDenied }}
-                    <strong class="govuk-tag govuk-tag--red">{{ tr $.App "denied" }}</strong>
+                    <strong class="app-tag govuk-tag--red">{{ tr $.App "denied" }}</strong>
                   {{ else if .PaymentState.IsMoreEvidenceRequired }}
-                    <strong class="govuk-tag govuk-tag--light-blue">{{ tr $.App "evidenceRequired" }}</strong>
+                    <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "evidenceRequired" }}</strong>
                   {{ else if not (canGoTo $.Donor .Path) }}
                     <span class="govuk-hint">{{ tr $.App "cannotStartYet" }}</span>
                   {{ else }}
-                    <strong class="govuk-tag govuk-tag--blue">{{ tr $.App "notStarted" }}</strong>
+                    <strong class="app-tag govuk-tag--blue">{{ tr $.App "notStarted" }}</strong>
                   {{ end }}
                 </div>
               </li>

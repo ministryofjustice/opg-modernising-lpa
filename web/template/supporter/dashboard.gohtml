@@ -32,11 +32,11 @@
                 <td class="govuk-table__cell">{{ tr $.App .Type.String }}</td>
                 <td class="govuk-table__cell">
                   {{ if not .SignedAt.IsZero }}
-                    <strong class="govuk-tag govuk-tag--green">{{ tr $.App "signed" }}</strong>
+                    <strong class="app-tag govuk-tag--green">{{ tr $.App "signed" }}</strong>
                   {{ else if .Tasks.PayForLpa.IsCompleted }}
-                    <strong class="govuk-tag govuk-tag--yellow">{{ tr $.App "paid" }}</strong>
+                    <strong class="app-tag govuk-tag--yellow">{{ tr $.App "paid" }}</strong>
                   {{ else }}
-                    <strong class="govuk-tag govuk-tag--light-blue">{{ tr $.App "inProgress" }}</strong>
+                    <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "inProgress" }}</strong>
                   {{ end }}
                 </td>
               </tr>
