@@ -105,7 +105,7 @@ func TestCertificateProviderStoreGetAny(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOneByPartialSk(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, nil)
+		ExpectOneByPartialSK(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, nil)
 
 	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: nil}
 
@@ -137,7 +137,7 @@ func TestCertificateProviderStoreGetAnyOnError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOneByPartialSk(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, expectedError)
+		ExpectOneByPartialSK(ctx, "LPA#123", "#CERTIFICATE_PROVIDER#", &actor.CertificateProviderProvidedDetails{LpaID: "123"}, expectedError)
 
 	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: nil}
 
