@@ -284,7 +284,7 @@
     "iGiveAttorneysAuthorityWhenRegistered": "I give my attorneys authority to make decisions about my property and affairs, once this LPA is registered.",
     "iGiveAttorneysAuthorityWhenLostMentalCapacity": "I give my attorneys authority to make decisions about my property and affairs when I cannot act for myself because I do not have mental capacity.",
     "iHaveChosenNPeopleToNotify": {
-        "one": "I have chosen to notify 1 person about my LPA..",
+        "one": "I have chosen to notify 1 person about my LPA.",
         "other": "I have chosen to notify {{ .PluralCount }} people about my LPA."
     },
     "iHaveNotChosenToNotifyAnyone": "I have chosen not to notify anyone about my LPA.",
