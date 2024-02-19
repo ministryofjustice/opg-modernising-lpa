@@ -399,7 +399,7 @@ func TestOrganisationStoreInvitedMembers(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectAllByPartialSk(ctx, "ORGANISATION#an-id",
+	dynamoClient.ExpectAllByPartialSK(ctx, "ORGANISATION#an-id",
 		"MEMBERINVITE#", []*actor.MemberInvite{{OrganisationID: "an-id"}, {OrganisationID: "an-id"}}, nil)
 
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
@@ -431,7 +431,7 @@ func TestOrganisationStoreInvitedMembersWhenDynamoClientError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectAllByPartialSk(ctx, "ORGANISATION#an-id",
+	dynamoClient.ExpectAllByPartialSK(ctx, "ORGANISATION#an-id",
 		"MEMBERINVITE#", []*actor.MemberInvite{}, expectedError)
 
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
@@ -523,7 +523,7 @@ func TestOrganisationStoreMembers(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectAllByPartialSk(ctx, "ORGANISATION#an-id",
+	dynamoClient.ExpectAllByPartialSK(ctx, "ORGANISATION#an-id",
 		"MEMBER#", []*actor.Member{{FirstNames: "a"}, {FirstNames: "b"}}, nil)
 
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
@@ -555,7 +555,7 @@ func TestOrganisationStoreMembersWhenDynamoClientError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectAllByPartialSk(ctx, "ORGANISATION#an-id",
+	dynamoClient.ExpectAllByPartialSK(ctx, "ORGANISATION#an-id",
 		"MEMBER#", []*actor.MemberInvite{}, expectedError)
 
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
