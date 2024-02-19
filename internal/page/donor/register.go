@@ -179,20 +179,14 @@ func Register(
 		appPublicURL: appPublicURL,
 	}
 
-	handleRoot := makeHandle(rootMux, sessionStore, page.None, errorHandler)
+	handleRoot := makeHandle(rootMux, errorHandler)
 
-	handleRoot(page.Paths.Login, page.None,
+	handleRoot(page.Paths.Login,
 		page.Login(oneLoginClient, sessionStore, random.String, page.Paths.LoginCallback))
-	handleRoot(page.Paths.LoginCallback, page.None,
+	handleRoot(page.Paths.LoginCallback,
 		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.Dashboard, dashboardStore, actor.TypeDonor))
 
-	lpaMux := http.NewServeMux()
-	rootMux.Handle("/lpa/", page.RouteToPrefix("/lpa/", lpaMux, notFoundHandler))
-
-	handleDonor := makeHandle(lpaMux, sessionStore, page.RequireSession, errorHandler)
-	handleWithDonor := makeLpaHandle(lpaMux, sessionStore, page.RequireSession, errorHandler, donorStore)
-
-	handleDonor(page.Paths.Root, page.None, notFoundHandler)
+	handleWithDonor := makeLpaHandle(rootMux, sessionStore, errorHandler, donorStore)
 
 	handleWithDonor(page.Paths.DeleteThisLpa, page.None,
 		DeleteLpa(tmpls.Get("delete_this_lpa.gohtml"), donorStore))
@@ -386,37 +380,14 @@ func Register(
 		UploadEvidenceSSE(documentStore, 3*time.Minute, 2*time.Second, time.Now))
 }
 
-func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.HandleOpt, errorHandler page.ErrorHandler) func(page.Path, page.HandleOpt, page.Handler) {
-	return func(path page.Path, opt page.HandleOpt, h page.Handler) {
-		opt = opt | defaultOptions
-
+func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler) func(page.Path, page.Handler) {
+	return func(path page.Path, h page.Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
 			appData := page.AppDataFromContext(ctx)
 			appData.Page = path.Format()
-			appData.CanGoBack = opt&page.CanGoBack != 0
 			appData.ActorType = actor.TypeDonor
-
-			if opt&page.RequireSession != 0 {
-				donorSession, err := sesh.Login(store, r)
-				if err != nil {
-					http.Redirect(w, r, page.Paths.Start.Format(), http.StatusFound)
-					return
-				}
-
-				appData.SessionID = donorSession.SessionID()
-
-				sessionData, err := page.SessionDataFromContext(ctx)
-				if err == nil {
-					sessionData.SessionID = appData.SessionID
-					ctx = page.ContextWithSessionData(ctx, sessionData)
-
-					appData.LpaID = sessionData.LpaID
-				} else {
-					ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
-				}
-			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
 				errorHandler(w, r, err)
@@ -425,17 +396,10 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.Handle
 	}
 }
 
-func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.HandleOpt, errorHandler page.ErrorHandler, donorStore DonorStore) func(page.LpaPath, page.HandleOpt, Handler) {
+func makeLpaHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler, donorStore DonorStore) func(page.LpaPath, page.HandleOpt, Handler) {
 	return func(path page.LpaPath, opt page.HandleOpt, h Handler) {
-
-		opt = opt | defaultOptions
-
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
-
-			appData := page.AppDataFromContext(ctx)
-			appData.CanGoBack = opt&page.CanGoBack != 0
-			appData.ActorType = actor.TypeDonor
 
 			loginSession, err := sesh.Login(store, r)
 			if err != nil {
@@ -443,14 +407,17 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, defaultOptions page.Han
 				return
 			}
 
+			appData := page.AppDataFromContext(ctx)
+			appData.CanGoBack = opt&page.CanGoBack != 0
+			appData.ActorType = actor.TypeDonor
+			appData.LpaID = r.PathValue("id")
 			appData.SessionID = loginSession.SessionID()
-			sessionData, err := page.SessionDataFromContext(ctx)
 
+			sessionData, err := page.SessionDataFromContext(ctx)
 			if err == nil {
 				sessionData.SessionID = appData.SessionID
+				sessionData.LpaID = appData.LpaID
 				ctx = page.ContextWithSessionData(ctx, sessionData)
-
-				appData.LpaID = sessionData.LpaID
 			} else {
 				sessionData = &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID}
 				ctx = page.ContextWithSessionData(ctx, sessionData)
