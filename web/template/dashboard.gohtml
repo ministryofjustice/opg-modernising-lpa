@@ -219,8 +219,7 @@
           <h2 class="govuk-heading-l">{{ tr .App "imAnAttorney" }}</h2>
 
           <div class="app-dashboard-card app-dashboard-card--dashed">
-              {{ $attorney := tr .App global.ActorTypes.Attorney.String }}
-              <p class="govuk-body">{{ trFormat .App "addAnotherLpaIfInvited" "ActorType" ( lowerFirst $attorney) }}</p>
+              <p class="govuk-body">{{ tr .App "addAnotherLpaIfInvited:attorney" }}</p>
               <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Attorney.EnterReferenceNumber.Format ) }}" data-module="govuk-button">{{ tr .App "addAnLpa" }}</a>
           </div>
 
@@ -255,8 +254,7 @@
           <h2 class="govuk-heading-l">{{ tr .App "imACertificateProvider" }}</h2>
 
           <div class="app-dashboard-card app-dashboard-card--dashed">
-              {{ $certificateProvider := tr .App global.ActorTypes.CertificateProvider.String }}
-              <p class="govuk-body">{{ trFormat .App "addAnotherLpaIfInvited" "ActorType" ( lowerFirst $certificateProvider) }}</p>
+              <p class="govuk-body">{{ tr .App "addAnotherLpaIfInvited:certificateProvider" }}</p>
               <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.CertificateProvider.EnterReferenceNumber.Format ) }}" data-module="govuk-button">{{ tr .App "addAnLpa" }}</a>
           </div>
 

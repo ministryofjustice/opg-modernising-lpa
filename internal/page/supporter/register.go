@@ -78,13 +78,7 @@ func Register(
 	handleRoot(paths.EnterReferenceNumber, page.RequireSession,
 		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), organisationStore, sessionStore))
 
-	supporterMux := http.NewServeMux()
-	rootMux.Handle("/supporter/", http.StripPrefix("/supporter", supporterMux))
-
-	handleSupporter := makeHandle(supporterMux, sessionStore, errorHandler)
-	handleWithSupporter := makeSupporterHandle(supporterMux, sessionStore, errorHandler, organisationStore)
-
-	handleSupporter(page.Paths.Root, page.None, notFoundHandler)
+	handleWithSupporter := makeSupporterHandle(rootMux, sessionStore, errorHandler, organisationStore)
 
 	handleWithSupporter(paths.OrganisationCreated,
 		Guidance(tmpls.Get("organisation_created.gohtml")))

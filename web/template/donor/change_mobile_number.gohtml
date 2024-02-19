@@ -8,7 +8,7 @@
       <form novalidate method="post">
         <h1 class="govuk-heading-xl">{{ tr .App "changeYourMobileNumber" }}</h1>
 
-        <p class="govuk-body">{{ trFormatHtml .App "weNeedYourCorrectMobileNumber" "FirstNames" .FirstNames "ActorType" (tr .App .ActorType.String | lowerFirst) }}</p>
+        <p class="govuk-body">{{ trFormatHtml .App (printf "weNeedYourCorrectMobileNumber:%s" .ActorType.String) "FirstNames" .FirstNames  }}</p>
 
         {{ template "input" (input . "mobile" "ukMobileNumber" .Form.Mobile "hint" "enterYourUkMobileHint" "classes" "govuk-input--width-20 govuk-input--extra-letter-spacing" "labelClasses" "govuk-label--s" "type" "tel" "autocomplete" "tel") }}
 

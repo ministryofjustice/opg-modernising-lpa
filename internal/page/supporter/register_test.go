@@ -99,7 +99,7 @@ func TestMakeHandleWhenRequireSession(t *testing.T) {
 
 func TestMakeHandleWhenRequireSessionErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -121,7 +121,7 @@ func TestMakeHandleWhenRequireSessionErrors(t *testing.T) {
 
 func TestMakeSupporterHandle(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/supporter/path", nil)
 
 	mux := http.NewServeMux()
 
@@ -205,7 +205,7 @@ func TestMakeSupporterHandleWithSessionData(t *testing.T) {
 
 func TestMakeSupporterHandleWhenSessionStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/supporter/path", nil)
 
 	mux := http.NewServeMux()
 
@@ -228,7 +228,7 @@ func TestMakeSupporterHandleWhenSessionStoreError(t *testing.T) {
 
 func TestMakeSupporterHandleWhenOrganisationStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/supporter/path", nil)
 
 	mux := http.NewServeMux()
 
@@ -256,7 +256,7 @@ func TestMakeSupporterHandleWhenOrganisationStoreErrors(t *testing.T) {
 
 func TestMakeSupporterHandleErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/supporter/path", nil)
 
 	errorHandler := newMockErrorHandler(t)
 	errorHandler.EXPECT().
