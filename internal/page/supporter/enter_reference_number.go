@@ -39,7 +39,7 @@ func EnterReferenceNumber(tmpl template.Template, memberStore MemberStore, sessi
 					return tmpl(w, data)
 				}
 
-				if err := memberStore.CreateMember(r.Context(), invite); err != nil {
+				if err := memberStore.Create(r.Context(), invite); err != nil {
 					return err
 				}
 

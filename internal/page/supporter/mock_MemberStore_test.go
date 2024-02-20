@@ -24,11 +24,11 @@ func (_m *mockMemberStore) EXPECT() *mockMemberStore_Expecter {
 }
 
 // CreateMember provides a mock function with given fields: ctx, invite
-func (_m *mockMemberStore) CreateMember(ctx context.Context, invite *actor.MemberInvite) error {
+func (_m *mockMemberStore) Create(ctx context.Context, invite *actor.MemberInvite) error {
 	ret := _m.Called(ctx, invite)
 
 	if len(ret) == 0 {
-		panic("no return value specified for CreateMember")
+		panic("no return value specified for Create")
 	}
 
 	var r0 error
@@ -41,7 +41,7 @@ func (_m *mockMemberStore) CreateMember(ctx context.Context, invite *actor.Membe
 	return r0
 }
 
-// mockMemberStore_CreateMember_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateMember'
+// mockMemberStore_CreateMember_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
 type mockMemberStore_CreateMember_Call struct {
 	*mock.Call
 }
@@ -50,7 +50,7 @@ type mockMemberStore_CreateMember_Call struct {
 //   - ctx context.Context
 //   - invite *actor.MemberInvite
 func (_e *mockMemberStore_Expecter) CreateMember(ctx interface{}, invite interface{}) *mockMemberStore_CreateMember_Call {
-	return &mockMemberStore_CreateMember_Call{Call: _e.mock.On("CreateMember", ctx, invite)}
+	return &mockMemberStore_CreateMember_Call{Call: _e.mock.On("Create", ctx, invite)}
 }
 
 func (_c *mockMemberStore_CreateMember_Call) Run(run func(ctx context.Context, invite *actor.MemberInvite)) *mockMemberStore_CreateMember_Call {

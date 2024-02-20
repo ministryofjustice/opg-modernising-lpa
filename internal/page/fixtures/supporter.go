@@ -21,7 +21,7 @@ type OrganisationStore interface {
 }
 
 type MemberStore interface {
-	CreateMember(ctx context.Context, invite *actor.MemberInvite) error
+	Create(ctx context.Context, invite *actor.MemberInvite) error
 	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error
 }
 
@@ -93,7 +93,7 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, don
 						break
 					}
 
-					if err = memberStore.CreateMember(
+					if err = memberStore.Create(
 						page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(12)}),
 						&actor.MemberInvite{
 							PK:              random.String(12),

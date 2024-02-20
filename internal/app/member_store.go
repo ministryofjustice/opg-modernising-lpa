@@ -47,14 +47,14 @@ func (s *memberStore) CreateMemberInvite(ctx context.Context, organisation *acto
 	return nil
 }
 
-func (s *memberStore) CreateMember(ctx context.Context, invite *actor.MemberInvite) error {
+func (s *memberStore) Create(ctx context.Context, invite *actor.MemberInvite) error {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return err
 	}
 
 	if data.SessionID == "" {
-		return errors.New("memberStore.CreateMember requires SessionID")
+		return errors.New("memberStore.Create requires SessionID")
 	}
 
 	member := &actor.Member{

@@ -296,7 +296,7 @@ func TestMemberStoreMemberWhenErrors(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestMemberStoreCreateMember(t *testing.T) {
+func TestMemberStoreCreate(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "session-id"})
 
 	invite := &actor.MemberInvite{
@@ -338,11 +338,11 @@ func TestMemberStoreCreateMember(t *testing.T) {
 
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-	err := memberStore.CreateMember(ctx, invite)
+	err := memberStore.Create(ctx, invite)
 	assert.Nil(t, err)
 }
 
-func TestMemberStoreCreateMemberWhenSessionMissing(t *testing.T) {
+func TestMemberStoreCreateWhenSessionMissing(t *testing.T) {
 	testCases := map[string]context.Context{
 		"missing session":    context.Background(),
 		"missing session ID": page.ContextWithSessionData(context.Background(), &page.SessionData{}),
@@ -352,13 +352,13 @@ func TestMemberStoreCreateMemberWhenSessionMissing(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			memberStore := &memberStore{dynamoClient: nil, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-			err := memberStore.CreateMember(ctx, &actor.MemberInvite{})
+			err := memberStore.Create(ctx, &actor.MemberInvite{})
 			assert.Error(t, err)
 		})
 	}
 }
 
-func TestMemberStoreCreateMemberWhenDynamoErrors(t *testing.T) {
+func TestMemberStoreCreateWhenDynamoErrors(t *testing.T) {
 	testcases := map[string]struct {
 		createError    error
 		deleteOneError error
@@ -384,7 +384,7 @@ func TestMemberStoreCreateMemberWhenDynamoErrors(t *testing.T) {
 
 			memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-			err := memberStore.CreateMember(ctx, &actor.MemberInvite{})
+			err := memberStore.Create(ctx, &actor.MemberInvite{})
 			assert.Error(t, err)
 		})
 	}

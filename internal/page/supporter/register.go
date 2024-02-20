@@ -25,7 +25,7 @@ type OrganisationStore interface {
 }
 
 type MemberStore interface {
-	CreateMember(ctx context.Context, invite *actor.MemberInvite) error
+	Create(ctx context.Context, invite *actor.MemberInvite) error
 	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error
 	InvitedMember(ctx context.Context) (*actor.MemberInvite, error)
 	InvitedMembers(ctx context.Context) ([]*actor.MemberInvite, error)
