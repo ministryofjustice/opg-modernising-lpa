@@ -198,7 +198,7 @@ func (s *organisationStore) InvitedMembers(ctx context.Context) ([]*actor.Member
 	}
 
 	var invitedMembers []*actor.MemberInvite
-	if err := s.dynamoClient.AllByPartialSk(ctx, organisationKey(data.OrganisationID), memberInviteKey(""), &invitedMembers); err != nil {
+	if err := s.dynamoClient.AllByPartialSK(ctx, organisationKey(data.OrganisationID), memberInviteKey(""), &invitedMembers); err != nil {
 		return nil, err
 	}
 
@@ -234,7 +234,7 @@ func (s *organisationStore) Members(ctx context.Context) ([]*actor.Member, error
 	}
 
 	var members []*actor.Member
-	if err := s.dynamoClient.AllByPartialSk(ctx, organisationKey(data.OrganisationID), memberKey(""), &members); err != nil {
+	if err := s.dynamoClient.AllByPartialSK(ctx, organisationKey(data.OrganisationID), memberKey(""), &members); err != nil {
 		return nil, err
 	}
 

@@ -25,7 +25,6 @@ import (
 
 type DynamoClient interface {
 	OneByUID(ctx context.Context, uid string, v interface{}) error
-	AllByPartialSk(ctx context.Context, pk, partialSk string, v interface{}) error
 }
 
 type DocumentStore interface {
