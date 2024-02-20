@@ -18,15 +18,17 @@ func TestGetEditMember(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id=an-id", nil)
 
+	member := &actor.Member{
+		ID:         "an-id",
+		FirstNames: "a",
+		LastName:   "b",
+		Permission: actor.Admin,
+	}
+
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		Member(r.Context(), "an-id").
-		Return(&actor.Member{
-			ID:         "an-id",
-			FirstNames: "a",
-			LastName:   "b",
-			Permission: actor.Admin,
-		}, nil)
+		Return(member, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -38,6 +40,7 @@ func TestGetEditMember(t *testing.T) {
 				Permission: actor.Admin,
 			},
 			Options: actor.PermissionValues,
+			Member:  member,
 		}).
 		Return(nil)
 
@@ -186,15 +189,17 @@ func TestPostEditMemberWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=an-id", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	member := &actor.Member{
+		ID:         "an-id",
+		FirstNames: "a",
+		LastName:   "b",
+		Permission: actor.Admin,
+	}
+
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		Member(r.Context(), "an-id").
-		Return(&actor.Member{
-			ID:         "an-id",
-			FirstNames: "a",
-			LastName:   "b",
-			Permission: actor.Admin,
-		}, nil)
+		Return(member, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -207,6 +212,7 @@ func TestPostEditMemberWhenValidationError(t *testing.T) {
 				Permission: actor.Admin,
 			},
 			Options: actor.PermissionValues,
+			Member:  member,
 		}).
 		Return(nil)
 

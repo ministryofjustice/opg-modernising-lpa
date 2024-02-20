@@ -1017,6 +1017,7 @@
     "permissions": "Permissions",
     "allUsersCanCreateAndEditLPAs": "All users can create and edit LPAs.",
     "edit": "Edit",
+    "editTeamMember": "Edit team member",
     "save": "Save",
     "nameUpdated": "Name updated",
     "teamMembersNameUpdatedToNewName": "Team member’s name updated to <span class=\"govuk-!-font-weight-bold\">{{ .NewName }}</span>."

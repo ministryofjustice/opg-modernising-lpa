@@ -15,6 +15,7 @@ type editMemberData struct {
 	Errors  validation.List
 	Form    *editMemberForm
 	Options actor.PermissionOptions
+	Member  *actor.Member
 }
 
 func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
@@ -32,6 +33,7 @@ func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
 				Permission: member.Permission,
 			},
 			Options: actor.PermissionValues,
+			Member:  member,
 		}
 
 		if r.Method == http.MethodPost {
