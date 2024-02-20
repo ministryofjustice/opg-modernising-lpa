@@ -240,6 +240,7 @@ type SupporterPaths struct {
 	LoginCallback         Path
 	SigningInAdvice       Path
 	Start                 Path
+	InviteExpired         Path
 
 	ConfirmDonorCanInteractOnline SupporterPath
 	ContactOPGForPaperForms       SupporterPath
@@ -425,6 +426,7 @@ var Paths = AppPaths{
 		Dashboard:                     "/dashboard",
 		EditMember:                    "/manage-organisation/manage-team-members/edit-team-member/{id}",
 		EditOrganisationName:          "/manage-organisation/organisation-details/edit-organisation-name",
+		InviteExpired:                 "/invite-expired",
 		InviteMember:                  "/invite-member",
 		InviteMemberConfirmation:      "/invite-member-confirmation",
 		ManageTeamMembers:             "/manage-organisation/manage-team-members",

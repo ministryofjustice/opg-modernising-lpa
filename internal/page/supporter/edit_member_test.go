@@ -135,7 +135,7 @@ func TestPostEditMember(t *testing.T) {
 				}, nil)
 
 			memberStore.EXPECT().
-				PutMember(r.Context(), tc.expectedMember).
+				Put(r.Context(), tc.expectedMember).
 				Return(nil)
 
 			err := EditMember(nil, memberStore)(testAppData, w, r, &actor.Organisation{})
@@ -148,7 +148,7 @@ func TestPostEditMember(t *testing.T) {
 	}
 }
 
-func TestPostEditMemberWhenOrganisationStorePutMemberError(t *testing.T) {
+func TestPostEditMemberWhenOrganisationStorePutError(t *testing.T) {
 	form := url.Values{
 		"first-names": {"c"},
 		"last-name":   {"d"},
@@ -165,7 +165,7 @@ func TestPostEditMemberWhenOrganisationStorePutMemberError(t *testing.T) {
 		Return(&actor.Member{}, nil)
 
 	memberStore.EXPECT().
-		PutMember(mock.Anything, mock.Anything).
+		Put(mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := EditMember(nil, memberStore)(testAppData, w, r, &actor.Organisation{})

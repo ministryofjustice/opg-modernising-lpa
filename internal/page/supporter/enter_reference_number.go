@@ -39,6 +39,10 @@ func EnterReferenceNumber(tmpl template.Template, memberStore MemberStore, sessi
 					return tmpl(w, data)
 				}
 
+				if invite.HasExpired() {
+					return page.Paths.Supporter.InviteExpired.Redirect(w, r, appData)
+				}
+
 				if err := memberStore.Create(r.Context(), invite); err != nil {
 					return err
 				}

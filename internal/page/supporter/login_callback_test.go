@@ -242,7 +242,7 @@ func TestLoginCallbackIsOrganisationMember(t *testing.T) {
 				Return(&actor.Member{Email: tc.existingMemberEmail}, nil)
 
 			memberStore.EXPECT().
-				PutMember(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email, OrganisationID: "org-id"}), &actor.Member{Email: tc.loginSessionEmail, LastLoggedInAt: testNow}).
+				Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email, OrganisationID: "org-id"}), &actor.Member{Email: tc.loginSessionEmail, LastLoggedInAt: testNow}).
 				Return(nil)
 
 			organisationStore := newMockOrganisationStore(t)
@@ -336,7 +336,7 @@ func TestLoginCallbackIsOrganisationMemberErrors(t *testing.T) {
 
 			if tc.putMemberError != nil {
 				memberStore.EXPECT().
-					PutMember(mock.Anything, mock.Anything).
+					Put(mock.Anything, mock.Anything).
 					Return(tc.putMemberError)
 			}
 
