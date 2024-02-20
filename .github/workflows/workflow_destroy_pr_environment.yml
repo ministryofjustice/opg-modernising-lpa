@@ -58,6 +58,12 @@ jobs:
       - uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
+      - name: Setup Workspace Manager
+        run: |
+          wget https://github.com/TomTucka/terraform-workspace-manager/releases/download/v0.3.1/terraform-workspace-manager_Linux_x86_64.tar.gz -O $HOME/terraform-workspace-manager.tar.gz
+          sudo tar -xvf $HOME/terraform-workspace-manager.tar.gz -C /usr/local/bin
+          sudo chmod +x /usr/local/bin/terraform-workspace-manager
+          terraform-workspace-manager -register-workspace=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }} -time-to-protect=1 -aws-account-id=653761790766 -aws-iam-role=modernising-lpa-ci
       - name: Parse terraform version
         id: tf_version_setup
         working-directory: ./terraform/environment
@@ -78,7 +84,6 @@ jobs:
         run: terraform init -input=false
         working-directory: ./terraform/environment
       - name: Destroy PR environment and Terraform workspace
-        if: github.ref != 'refs/heads/weblate-pr'
         working-directory: ./terraform/environment
         env:
           TF_VAR_pagerduty_api_key:  ${{ secrets.PAGERDUTY_API_KEY }}
@@ -88,6 +93,5 @@ jobs:
           terraform workspace select default
           terraform workspace delete ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
       - name: Remove protection for environment workspace
-        if: github.ref != 'refs/heads/main'
         run: |
           terraform-workspace-manager -register-workspace=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }} -time-to-protect=0 -aws-account-id=653761790766 -aws-iam-role=modernising-lpa-ci
