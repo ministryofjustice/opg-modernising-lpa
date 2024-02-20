@@ -19,7 +19,7 @@ type editMemberData struct {
 
 func EditMember(tmpl template.Template, organisationStore OrganisationStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
-		member, err := organisationStore.Member(r.Context(), r.PathValue("id"))
+		member, err := organisationStore.Member(r.Context(), r.URL.Query().Get("id"))
 		if err != nil {
 			return err
 		}
@@ -53,7 +53,7 @@ func EditMember(tmpl template.Template, organisationStore OrganisationStore) Han
 					return err
 				}
 
-				return page.Paths.Supporter.ManageTeamMembers.RedirectQuery(w, r, appData, url.Values{"nameUpdated": {member.FullName()}})
+				return page.Paths.Supporter.ManageTeamMembers.RedirectQuery(w, r, appData, query)
 			}
 		}
 

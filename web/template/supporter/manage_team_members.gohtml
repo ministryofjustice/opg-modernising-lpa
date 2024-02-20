@@ -117,7 +117,7 @@
                             {{ range .Members }}
                                 <tr class="govuk-table__row">
                                     <td class="govuk-table__cell">
-                                        <a class="govuk-link" href="{{ link $.App (global.Paths.Supporter.EditMember.FormatID .ID)}}"><span class="govuk-visually-hidden">{{ tr $.App "edit" }}</span> {{ .FullName }}</a>
+                                        <a class="govuk-link" href="{{ link $.App (global.Paths.Supporter.EditMember.Format)}}?id={{ .ID }}"><span class="govuk-visually-hidden">{{ tr $.App "edit" }}</span> {{ .FullName }}</a>
 
                                         {{ if not .Permission.IsNone  }}
                                             <span class="app-float-right">
