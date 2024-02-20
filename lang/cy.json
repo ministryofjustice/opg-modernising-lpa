@@ -1070,8 +1070,10 @@
     "contactOpgForPaperForms": "Welsh",
     "contactOpgForPaperFormsContent": "<p class=\"govuk-body\">Welsh</p>",
     "enterYourSupporterReferenceNumber": "Welsh",
-    "teamMembers": "Team members",
-    "active": "Active",
-    "lastSignedIn": "Last signed in",
-    "admin": "Admin"
+    "teamMembers": "Welsh",
+    "active": "Welsh",
+    "lastSignedIn": "Welsh",
+    "admin": "Welsh",
+    "yourInviteHasExpired": "Welsh",
+    "yourInviteHasExpiredContent": "<p class=\"govuk-body\">Welsh</p>"
 }
