@@ -18,7 +18,7 @@ type inviteMemberData struct {
 	Options actor.PermissionOptions
 }
 
-func InviteMember(tmpl template.Template, organisationStore OrganisationStore, notifyClient NotifyClient, randomString func(int) string, appPublicURL string) Handler {
+func InviteMember(tmpl template.Template, memberStore MemberStore, notifyClient NotifyClient, randomString func(int) string, appPublicURL string) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
 		data := &inviteMemberData{
 			App:     appData,
@@ -37,7 +37,7 @@ func InviteMember(tmpl template.Template, organisationStore OrganisationStore, n
 				}
 
 				inviteCode := randomString(12)
-				if err := organisationStore.CreateMemberInvite(
+				if err := memberStore.CreateMemberInvite(
 					r.Context(),
 					organisation,
 					data.Form.FirstNames,
@@ -58,7 +58,7 @@ func InviteMember(tmpl template.Template, organisationStore OrganisationStore, n
 					return err
 				}
 
-				return page.Paths.Supporter.ManageTeamMembers.RedirectQuery(w, r, appData, url.Values{"email": {data.Form.Email}})
+				return page.Paths.Supporter.ManageTeamMembers.RedirectQuery(w, r, appData, url.Values{"inviteSent": {data.Form.Email}})
 			}
 		}
 

@@ -1,0 +1,23 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "editTeamMember" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <form novalidate method="post">
+        <span class="govuk-caption-xl">{{ tr .App "manageTeamMembers" }}</span>
+        <h1 class="govuk-heading-xl">{{ .Member.FirstNames }} {{ .Member.LastName }}</h1>
+
+        {{ template "input" (input . "first-names" "firstNames" .Form.FirstNames "classes" "govuk-input--width-20") }}
+
+        {{ template "input" (input . "last-name" "lastName" .Form.LastName "classes" "govuk-input--width-20") }}
+
+        <div class="govuk-button-group">
+          <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "save" }}</button>
+        </div>
+        {{ template "csrf-field" . }}
+      </form>
+    </div>
+  </div>
+{{ end }}
