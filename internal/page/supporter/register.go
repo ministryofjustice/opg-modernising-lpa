@@ -32,7 +32,7 @@ type MemberStore interface {
 	Self(ctx context.Context) (*actor.Member, error)
 	Member(ctx context.Context, memberID string) (*actor.Member, error)
 	Members(ctx context.Context) ([]*actor.Member, error)
-	PutMember(ctx context.Context, member *actor.Member) error
+	Put(ctx context.Context, member *actor.Member) error
 }
 
 type OneLoginClient interface {

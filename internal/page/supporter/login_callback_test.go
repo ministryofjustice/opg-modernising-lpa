@@ -269,7 +269,7 @@ func TestLoginCallbackIsOrganisationMemberErrors(t *testing.T) {
 		"Self error": {
 			memberError: expectedError,
 		},
-		"PutMember error": {
+		"Put error": {
 			putMemberError: expectedError,
 		},
 	}

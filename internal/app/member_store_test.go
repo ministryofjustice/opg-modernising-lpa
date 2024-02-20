@@ -167,7 +167,7 @@ func TestMemberStoreInvitedMemberWhenSessionMissing(t *testing.T) {
 	}
 }
 
-func TestPutMember(t *testing.T) {
+func TestPut(t *testing.T) {
 	ctx := context.Background()
 
 	dynamoClient := newMockDynamoClient(t)
@@ -180,11 +180,11 @@ func TestPutMember(t *testing.T) {
 		now:          testNowFn,
 	}
 
-	err := store.PutMember(ctx, &actor.Member{PK: "ORGANISATION#123", SK: "ORGANISATION#456"})
+	err := store.Put(ctx, &actor.Member{PK: "ORGANISATION#123", SK: "ORGANISATION#456"})
 	assert.Nil(t, err)
 }
 
-func TestPutMemberWhenDynamoError(t *testing.T) {
+func TestPutWhenDynamoError(t *testing.T) {
 	ctx := context.Background()
 
 	dynamoClient := newMockDynamoClient(t)
@@ -197,7 +197,7 @@ func TestPutMemberWhenDynamoError(t *testing.T) {
 		now:          testNowFn,
 	}
 
-	err := store.PutMember(ctx, &actor.Member{PK: "ORGANISATION#123", SK: "ORGANISATION#456"})
+	err := store.Put(ctx, &actor.Member{PK: "ORGANISATION#123", SK: "ORGANISATION#456"})
 	assert.Equal(t, expectedError, err)
 }
 

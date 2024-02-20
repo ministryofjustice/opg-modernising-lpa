@@ -49,7 +49,7 @@ func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
 
 				member.Permission = data.Form.Permission
 
-				if err := memberStore.PutMember(r.Context(), member); err != nil {
+				if err := memberStore.Put(r.Context(), member); err != nil {
 					return err
 				}
 

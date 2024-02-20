@@ -189,7 +189,7 @@ func (s *memberStore) Self(ctx context.Context) (*actor.Member, error) {
 	return member, nil
 }
 
-func (s *memberStore) PutMember(ctx context.Context, member *actor.Member) error {
+func (s *memberStore) Put(ctx context.Context, member *actor.Member) error {
 	member.UpdatedAt = s.now()
 	return s.dynamoClient.Put(ctx, member)
 }
