@@ -88,7 +88,7 @@ jobs:
         env:
           TF_VAR_pagerduty_api_key:  ${{ secrets.PAGERDUTY_API_KEY }}
         run: |
-          terraform workspace select ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
+          terraform workspace select -or-create=true ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
           terraform destroy -auto-approve
           terraform workspace select default
           terraform workspace delete ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
