@@ -64,6 +64,7 @@ jobs:
           wget https://github.com/TomTucka/terraform-workspace-manager/releases/download/v0.3.1/terraform-workspace-manager_Linux_x86_64.tar.gz -O $HOME/terraform-workspace-manager.tar.gz
           sudo tar -xvf $HOME/terraform-workspace-manager.tar.gz -C /usr/local/bin
           sudo chmod +x /usr/local/bin/terraform-workspace-manager
+          terraform-workspace-manager -register-workspace=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }} -time-to-protect=1 -aws-account-id=653761790766 -aws-iam-role=modernising-lpa-ci
       - name: Parse terraform version
         id: tf_version_setup
         working-directory: ./terraform/environment
