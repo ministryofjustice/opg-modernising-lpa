@@ -18,9 +18,9 @@ type organisationDetailsData struct {
 	InvitedMembers []*actor.MemberInvite
 }
 
-func OrganisationDetails(tmpl template.Template, organisationStore OrganisationStore) Handler {
+func OrganisationDetails(tmpl template.Template, memberStore MemberStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
-		invitedMembers, err := organisationStore.InvitedMembers(r.Context())
+		invitedMembers, err := memberStore.InvitedMembers(r.Context())
 		if err != nil {
 			return err
 		}

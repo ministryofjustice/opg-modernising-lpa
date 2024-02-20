@@ -17,9 +17,9 @@ type editMemberData struct {
 	Options actor.PermissionOptions
 }
 
-func EditMember(tmpl template.Template, organisationStore OrganisationStore) Handler {
+func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
-		member, err := organisationStore.Member(r.Context(), r.URL.Query().Get("id"))
+		member, err := memberStore.Member(r.Context(), r.URL.Query().Get("id"))
 		if err != nil {
 			return err
 		}
@@ -49,7 +49,7 @@ func EditMember(tmpl template.Template, organisationStore OrganisationStore) Han
 
 				member.Permission = data.Form.Permission
 
-				if err := organisationStore.PutMember(r.Context(), member); err != nil {
+				if err := memberStore.PutMember(r.Context(), member); err != nil {
 					return err
 				}
 

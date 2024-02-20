@@ -18,11 +18,14 @@ import (
 type OrganisationStore interface {
 	Create(context.Context, string) (*actor.Organisation, error)
 	CreateLPA(context.Context) (*actor.DonorProvidedDetails, error)
+}
+
+type MemberStore interface {
 	CreateMember(ctx context.Context, invite *actor.MemberInvite) error
 	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error
 }
 
-func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, donorStore DonorStore) page.Handler {
+func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, donorStore DonorStore, memberStore MemberStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		var (
 			invitedMembers = r.FormValue("invitedMembers")
@@ -76,7 +79,7 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, don
 						break
 					}
 
-					if err = organisationStore.CreateMemberInvite(page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID}), org, member.Firstnames, member.Lastname, strings.ToLower(fmt.Sprintf("%s-%s@example.org", member.Firstnames, member.Lastname)), random.String(12), actor.Admin); err != nil {
+					if err = memberStore.CreateMemberInvite(page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID}), org, member.Firstnames, member.Lastname, strings.ToLower(fmt.Sprintf("%s-%s@example.org", member.Firstnames, member.Lastname)), random.String(12), actor.Admin); err != nil {
 						return err
 					}
 				}
@@ -90,7 +93,7 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, don
 						break
 					}
 
-					if err = organisationStore.CreateMember(
+					if err = memberStore.CreateMember(
 						page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(12)}),
 						&actor.MemberInvite{
 							PK:              random.String(12),

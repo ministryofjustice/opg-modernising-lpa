@@ -23,7 +23,7 @@ var testAppData = page.AppData{}
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, template.Templates{}, &onelogin.Client{}, nil, nil, nil, nil, &notify.Client{}, "http://base")
+	Register(mux, template.Templates{}, &onelogin.Client{}, nil, nil, nil, &notify.Client{}, "http://base", nil)
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }

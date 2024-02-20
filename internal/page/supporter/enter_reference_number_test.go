@@ -65,12 +65,12 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
 		InvitedMember(r.Context()).
 		Return(&actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id", OrganisationName: "org name"}, nil)
 
-	organisationStore.EXPECT().
+	memberStore.EXPECT().
 		CreateMember(r.Context(), &actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id", OrganisationName: "org name"}).
 		Return(nil)
 
@@ -96,7 +96,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 		Save(r, w, session).
 		Return(nil)
 
-	err := EnterReferenceNumber(nil, organisationStore, sessionStore)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, memberStore, sessionStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -111,8 +111,8 @@ func TestPostEnterReferenceNumberWhenIncorrectReferenceNumber(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
 		InvitedMember(r.Context()).
 		Return(&actor.MemberInvite{ReferenceNumber: "notmatch123", OrganisationID: "org-id"}, nil)
 
@@ -129,7 +129,7 @@ func TestPostEnterReferenceNumberWhenIncorrectReferenceNumber(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterReferenceNumber(template.Execute, organisationStore, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(template.Execute, memberStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -143,12 +143,12 @@ func TestPostEnterReferenceNumberWhenOrganisationStoreInvitedMemberError(t *test
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
 		Return(&actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id"}, expectedError)
 
-	err := EnterReferenceNumber(nil, organisationStore, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, memberStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -162,16 +162,16 @@ func TestPostEnterReferenceNumberWhenOrganisationStoreCreateError(t *testing.T) 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
 		Return(&actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id"}, nil)
 
-	organisationStore.EXPECT().
+	memberStore.EXPECT().
 		CreateMember(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterReferenceNumber(nil, organisationStore, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, memberStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -185,12 +185,12 @@ func TestPostEnterReferenceNumberWhenSessionGetError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
 		Return(&actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id"}, nil)
 
-	organisationStore.EXPECT().
+	memberStore.EXPECT().
 		CreateMember(mock.Anything, mock.Anything).
 		Return(nil)
 
@@ -210,7 +210,7 @@ func TestPostEnterReferenceNumberWhenSessionGetError(t *testing.T) {
 		Get(r, mock.Anything).
 		Return(session, expectedError)
 
-	err := EnterReferenceNumber(nil, organisationStore, sessionStore)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, memberStore, sessionStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -225,12 +225,12 @@ func TestPostEnterReferenceNumberWhenSessionSaveError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
 		Return(&actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id"}, nil)
 
-	organisationStore.EXPECT().
+	memberStore.EXPECT().
 		CreateMember(mock.Anything, mock.Anything).
 		Return(nil)
 
@@ -256,7 +256,7 @@ func TestPostEnterReferenceNumberWhenSessionSaveError(t *testing.T) {
 		Save(r, w, mock.Anything).
 		Return(expectedError)
 
-	err := EnterReferenceNumber(nil, organisationStore, sessionStore)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, memberStore, sessionStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

@@ -103,6 +103,7 @@ func App(
 	dashboardStore := &dashboardStore{dynamoClient: lpaDynamoClient}
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: lpaDynamoClient}
 	organisationStore := &organisationStore{dynamoClient: lpaDynamoClient, now: time.Now, uuidString: uuid.NewString}
+	memberStore := &memberStore{dynamoClient: lpaDynamoClient, now: time.Now, uuidString: uuid.NewString}
 
 	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicURL, random.String, eventClient)
 	witnessCodeSender := page.NewWitnessCodeSender(donorStore, notifyClient)
@@ -124,7 +125,7 @@ func App(
 	handleRoot(page.Paths.AttorneyFixtures, None,
 		fixtures.Attorney(tmpls.Get("attorney_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore))
 	handleRoot(page.Paths.SupporterFixtures, None,
-		fixtures.Supporter(sessionStore, organisationStore, donorStore))
+		fixtures.Supporter(sessionStore, organisationStore, donorStore, memberStore))
 	handleRoot(page.Paths.DashboardFixtures, None,
 		fixtures.Dashboard(tmpls.Get("dashboard_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore))
 	handleRoot(page.Paths.YourLegalRightsAndResponsibilities, None,
@@ -150,10 +151,10 @@ func App(
 		oneLoginClient,
 		sessionStore,
 		organisationStore,
-		notFoundHandler,
 		errorHandler,
 		notifyClient,
 		appPublicURL,
+		memberStore,
 	)
 
 	certificateprovider.Register(

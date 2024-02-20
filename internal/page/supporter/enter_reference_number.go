@@ -15,7 +15,7 @@ type enterReferenceNumber struct {
 	Form   *referenceNumberForm
 }
 
-func EnterReferenceNumber(tmpl template.Template, organisationStore OrganisationStore, sessionStore sesh.Store) page.Handler {
+func EnterReferenceNumber(tmpl template.Template, memberStore MemberStore, sessionStore sesh.Store) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := &enterReferenceNumber{
 			App: appData,
@@ -29,7 +29,7 @@ func EnterReferenceNumber(tmpl template.Template, organisationStore Organisation
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				invite, err := organisationStore.InvitedMember(r.Context())
+				invite, err := memberStore.InvitedMember(r.Context())
 				if err != nil {
 					return err
 				}
@@ -39,7 +39,7 @@ func EnterReferenceNumber(tmpl template.Template, organisationStore Organisation
 					return tmpl(w, data)
 				}
 
-				if err := organisationStore.CreateMember(r.Context(), invite); err != nil {
+				if err := memberStore.CreateMember(r.Context(), invite); err != nil {
 					return err
 				}
 

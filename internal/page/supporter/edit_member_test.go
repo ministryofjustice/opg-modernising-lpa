@@ -18,8 +18,8 @@ func TestGetEditMember(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id=an-id", nil)
 
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
 		Member(r.Context(), "an-id").
 		Return(&actor.Member{
 			ID:         "an-id",
@@ -41,7 +41,7 @@ func TestGetEditMember(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EditMember(template.Execute, organisationStore)(testAppData, w, r, &actor.Organisation{})
+	err := EditMember(template.Execute, memberStore)(testAppData, w, r, &actor.Organisation{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -52,12 +52,12 @@ func TestGetEditMemberWhenOrganisationStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id=an-id", nil)
 
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
 		Member(r.Context(), mock.Anything).
 		Return(nil, expectedError)
 
-	err := EditMember(nil, organisationStore)(testAppData, w, r, &actor.Organisation{})
+	err := EditMember(nil, memberStore)(testAppData, w, r, &actor.Organisation{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -68,8 +68,8 @@ func TestGetEditMemberWhenTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id=an-id", nil)
 
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
 		Member(mock.Anything, mock.Anything).
 		Return(&actor.Member{}, nil)
 
@@ -78,7 +78,7 @@ func TestGetEditMemberWhenTemplateError(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := EditMember(template.Execute, organisationStore)(testAppData, w, r, &actor.Organisation{})
+	err := EditMember(template.Execute, memberStore)(testAppData, w, r, &actor.Organisation{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -125,8 +125,8 @@ func TestPostEditMember(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/?id=an-id", strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			organisationStore := newMockOrganisationStore(t)
-			organisationStore.EXPECT().
+			memberStore := newMockMemberStore(t)
+			memberStore.EXPECT().
 				Member(r.Context(), "an-id").
 				Return(&actor.Member{
 					FirstNames: "a",
@@ -134,11 +134,11 @@ func TestPostEditMember(t *testing.T) {
 					Permission: actor.Admin,
 				}, nil)
 
-			organisationStore.EXPECT().
+			memberStore.EXPECT().
 				PutMember(r.Context(), tc.expectedMember).
 				Return(nil)
 
-			err := EditMember(nil, organisationStore)(testAppData, w, r, &actor.Organisation{})
+			err := EditMember(nil, memberStore)(testAppData, w, r, &actor.Organisation{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -159,16 +159,16 @@ func TestPostEditMemberWhenOrganisationStorePutMemberError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=an-id", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
 		Member(mock.Anything, mock.Anything).
 		Return(&actor.Member{}, nil)
 
-	organisationStore.EXPECT().
+	memberStore.EXPECT().
 		PutMember(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EditMember(nil, organisationStore)(testAppData, w, r, &actor.Organisation{})
+	err := EditMember(nil, memberStore)(testAppData, w, r, &actor.Organisation{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -186,8 +186,8 @@ func TestPostEditMemberWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=an-id", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
 		Member(r.Context(), "an-id").
 		Return(&actor.Member{
 			ID:         "an-id",
@@ -210,7 +210,7 @@ func TestPostEditMemberWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EditMember(template.Execute, organisationStore)(testAppData, w, r, nil)
+	err := EditMember(template.Execute, memberStore)(testAppData, w, r, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
