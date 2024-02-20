@@ -20,15 +20,19 @@ type OrganisationStore interface {
 	AllLPAs(ctx context.Context) ([]actor.DonorProvidedDetails, error)
 	Create(ctx context.Context, name string) (*actor.Organisation, error)
 	CreateLPA(ctx context.Context) (*actor.DonorProvidedDetails, error)
-	CreateMember(ctx context.Context, invite *actor.MemberInvite) error
-	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error
 	Get(ctx context.Context) (*actor.Organisation, error)
+	Put(ctx context.Context, organisation *actor.Organisation) error
+}
+
+type MemberStore interface {
+	Create(ctx context.Context, invite *actor.MemberInvite) error
+	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error
 	InvitedMember(ctx context.Context) (*actor.MemberInvite, error)
 	InvitedMembers(ctx context.Context) ([]*actor.MemberInvite, error)
-	Member(ctx context.Context) (*actor.Member, error)
+	Self(ctx context.Context) (*actor.Member, error)
+	Member(ctx context.Context, memberID string) (*actor.Member, error)
 	Members(ctx context.Context) ([]*actor.Member, error)
-	Put(ctx context.Context, organisation *actor.Organisation) error
-	PutMember(ctx context.Context, member *actor.Member) error
+	Put(ctx context.Context, member *actor.Member) error
 }
 
 type OneLoginClient interface {
@@ -59,10 +63,10 @@ func Register(
 	oneLoginClient OneLoginClient,
 	sessionStore SessionStore,
 	organisationStore OrganisationStore,
-	notFoundHandler page.Handler,
 	errorHandler page.ErrorHandler,
 	notifyClient NotifyClient,
 	appPublicURL string,
+	memberStore MemberStore,
 ) {
 	paths := page.Paths.Supporter
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
@@ -72,33 +76,35 @@ func Register(
 	handleRoot(paths.Login, page.None,
 		page.Login(oneLoginClient, sessionStore, random.String, paths.LoginCallback))
 	handleRoot(paths.LoginCallback, page.None,
-		LoginCallback(oneLoginClient, sessionStore, organisationStore, time.Now))
+		LoginCallback(oneLoginClient, sessionStore, organisationStore, time.Now, memberStore))
 	handleRoot(paths.EnterOrganisationName, page.RequireSession,
 		EnterOrganisationName(tmpls.Get("enter_organisation_name.gohtml"), organisationStore, sessionStore))
 	handleRoot(paths.EnterReferenceNumber, page.RequireSession,
-		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), organisationStore, sessionStore))
+		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), memberStore, sessionStore))
 	handleRoot(paths.InviteExpired, page.RequireSession,
 		page.Guidance(tmpls.Get("invite_expired.gohtml")))
 
 	handleWithSupporter := makeSupporterHandle(rootMux, sessionStore, errorHandler, organisationStore)
 
-	handleWithSupporter(paths.OrganisationCreated,
+	handleWithSupporter(paths.OrganisationCreated, page.None,
 		Guidance(tmpls.Get("organisation_created.gohtml")))
-	handleWithSupporter(paths.Dashboard,
+	handleWithSupporter(paths.Dashboard, page.None,
 		Dashboard(tmpls.Get("dashboard.gohtml"), organisationStore))
-	handleWithSupporter(paths.ConfirmDonorCanInteractOnline,
+	handleWithSupporter(paths.ConfirmDonorCanInteractOnline, page.None,
 		ConfirmDonorCanInteractOnline(tmpls.Get("confirm_donor_can_interact_online.gohtml"), organisationStore))
-	handleWithSupporter(paths.ContactOPGForPaperForms,
+	handleWithSupporter(paths.ContactOPGForPaperForms, page.None,
 		Guidance(tmpls.Get("contact_opg_for_paper_forms.gohtml")))
 
-	handleWithSupporter(paths.OrganisationDetails,
+	handleWithSupporter(paths.OrganisationDetails, page.None,
 		Guidance(tmpls.Get("organisation_details.gohtml")))
-	handleWithSupporter(paths.EditOrganisationName,
+	handleWithSupporter(paths.EditOrganisationName, page.None,
 		EditOrganisationName(tmpls.Get("edit_organisation_name.gohtml"), organisationStore))
-	handleWithSupporter(paths.ManageTeamMembers,
-		ManageTeamMembers(tmpls.Get("manage_team_members.gohtml"), organisationStore))
-	handleWithSupporter(paths.InviteMember,
-		InviteMember(tmpls.Get("invite_member.gohtml"), organisationStore, notifyClient, random.String, appPublicURL))
+	handleWithSupporter(paths.ManageTeamMembers, page.None,
+		ManageTeamMembers(tmpls.Get("manage_team_members.gohtml"), memberStore))
+	handleWithSupporter(paths.InviteMember, page.None,
+		InviteMember(tmpls.Get("invite_member.gohtml"), memberStore, notifyClient, random.String, appPublicURL))
+	handleWithSupporter(paths.EditMember, page.CanGoBack,
+		EditMember(tmpls.Get("edit_team_member.gohtml"), memberStore))
 }
 
 func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler) func(page.Path, page.HandleOpt, page.Handler) {
@@ -129,8 +135,8 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 	}
 }
 
-func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler, organisationStore OrganisationStore) func(page.SupporterPath, Handler) {
-	return func(path page.SupporterPath, h Handler) {
+func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler, organisationStore OrganisationStore) func(page.SupporterPath, page.HandleOpt, Handler) {
+	return func(path page.SupporterPath, opt page.HandleOpt, h Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			loginSession, err := sesh.Login(store, r)
 			if err != nil {
@@ -142,6 +148,7 @@ func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page
 
 			appData := page.AppDataFromContext(ctx)
 			appData.SessionID = loginSession.SessionID()
+			appData.CanGoBack = opt&page.CanGoBack != 0
 
 			sessionData, err := page.SessionDataFromContext(ctx)
 			if err == nil {

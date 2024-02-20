@@ -245,6 +245,7 @@ type SupporterPaths struct {
 	ConfirmDonorCanInteractOnline SupporterPath
 	ContactOPGForPaperForms       SupporterPath
 	Dashboard                     SupporterPath
+	EditMember                    SupporterPath
 	EditOrganisationName          SupporterPath
 	InviteMember                  SupporterPath
 	InviteMemberConfirmation      SupporterPath
@@ -423,6 +424,7 @@ var Paths = AppPaths{
 		ConfirmDonorCanInteractOnline: "/confirm-donor-can-interact-online",
 		ContactOPGForPaperForms:       "/contact-opg-for-paper-forms",
 		Dashboard:                     "/dashboard",
+		EditMember:                    "/manage-organisation/manage-team-members/edit-team-member",
 		EditOrganisationName:          "/manage-organisation/organisation-details/edit-organisation-name",
 		InviteExpired:                 "/invite-expired",
 		InviteMember:                  "/invite-member",
