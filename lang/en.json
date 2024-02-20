@@ -1014,7 +1014,6 @@
     "admin": "Admin",
     "yourInviteHasExpired": "Your invite has expired",
     "yourInviteHasExpiredContent": "<p class=\"govuk-body\">Invite codes are only valid for 48 hours. Yours has now expired.</p><p class=\"govuk-body\">Contact your organisation admin and ask them to resend your invite. Their email address can be found in your original email invitation.</p>",
-    "permissions": "Permissions",
     "allUsersCanCreateAndEditLPAs": "All users can create and edit LPAs.",
     "edit": "Edit",
     "editTeamMember": "Edit team member",

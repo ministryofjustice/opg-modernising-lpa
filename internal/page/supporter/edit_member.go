@@ -11,11 +11,10 @@ import (
 )
 
 type editMemberData struct {
-	App     page.AppData
-	Errors  validation.List
-	Form    *editMemberForm
-	Options actor.PermissionOptions
-	Member  *actor.Member
+	App    page.AppData
+	Errors validation.List
+	Form   *editMemberForm
+	Member *actor.Member
 }
 
 func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
@@ -30,10 +29,8 @@ func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
 			Form: &editMemberForm{
 				FirstNames: member.FirstNames,
 				LastName:   member.LastName,
-				Permission: member.Permission,
 			},
-			Options: actor.PermissionValues,
-			Member:  member,
+			Member: member,
 		}
 
 		if r.Method == http.MethodPost {
@@ -48,8 +45,6 @@ func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
 
 					query.Add("nameUpdated", member.FullName())
 				}
-
-				member.Permission = data.Form.Permission
 
 				if err := memberStore.Put(r.Context(), member); err != nil {
 					return err
@@ -66,18 +61,13 @@ func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
 type editMemberForm struct {
 	FirstNames string
 	LastName   string
-	Permission actor.Permission
 }
 
 func readEditMemberForm(r *http.Request) *editMemberForm {
-	form := &editMemberForm{
+	return &editMemberForm{
 		FirstNames: page.PostFormString(r, "first-names"),
 		LastName:   page.PostFormString(r, "last-name"),
 	}
-
-	form.Permission, _ = actor.ParsePermission(page.PostFormString(r, "permission"))
-
-	return form
 }
 
 func (f *editMemberForm) Validate() validation.List {
@@ -90,8 +80,6 @@ func (f *editMemberForm) Validate() validation.List {
 	errors.String("last-name", "lastName", f.LastName,
 		validation.Empty(),
 		validation.StringTooLong(61))
-
-	errors.Options("permission", "makeThisPersonAnAdmin", []string{f.Permission.String()}, validation.Select(actor.None.String(), actor.Admin.String()))
 
 	return errors
 }

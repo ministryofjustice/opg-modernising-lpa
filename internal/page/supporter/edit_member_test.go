@@ -22,7 +22,6 @@ func TestGetEditMember(t *testing.T) {
 		ID:         "an-id",
 		FirstNames: "a",
 		LastName:   "b",
-		Permission: actor.Admin,
 	}
 
 	memberStore := newMockMemberStore(t)
@@ -37,10 +36,8 @@ func TestGetEditMember(t *testing.T) {
 			Form: &editMemberForm{
 				FirstNames: "a",
 				LastName:   "b",
-				Permission: actor.Admin,
 			},
-			Options: actor.PermissionValues,
-			Member:  member,
+			Member: member,
 		}).
 		Return(nil)
 
@@ -98,26 +95,22 @@ func TestPostEditMember(t *testing.T) {
 			form: url.Values{
 				"first-names": {"c"},
 				"last-name":   {"d"},
-				"permission":  {"admin"},
 			},
 			expectedQuery: "?nameUpdated=c+d",
 			expectedMember: &actor.Member{
 				FirstNames: "c",
 				LastName:   "d",
-				Permission: actor.Admin,
 			},
 		},
 		"no updates": {
 			form: url.Values{
 				"first-names": {"a"},
 				"last-name":   {"b"},
-				"permission":  {"admin"},
 			},
 			expectedQuery: "?",
 			expectedMember: &actor.Member{
 				FirstNames: "a",
 				LastName:   "b",
-				Permission: actor.Admin,
 			},
 		},
 	}
@@ -134,7 +127,6 @@ func TestPostEditMember(t *testing.T) {
 				Return(&actor.Member{
 					FirstNames: "a",
 					LastName:   "b",
-					Permission: actor.Admin,
 				}, nil)
 
 			memberStore.EXPECT().
@@ -155,7 +147,6 @@ func TestPostEditMemberWhenOrganisationStorePutError(t *testing.T) {
 	form := url.Values{
 		"first-names": {"c"},
 		"last-name":   {"d"},
-		"permission":  {"admin"},
 	}
 
 	w := httptest.NewRecorder()
@@ -182,7 +173,6 @@ func TestPostEditMemberWhenValidationError(t *testing.T) {
 	form := url.Values{
 		"first-names": {""},
 		"last-name":   {"b"},
-		"permission":  {"admin"},
 	}
 
 	w := httptest.NewRecorder()
@@ -193,7 +183,6 @@ func TestPostEditMemberWhenValidationError(t *testing.T) {
 		ID:         "an-id",
 		FirstNames: "a",
 		LastName:   "b",
-		Permission: actor.Admin,
 	}
 
 	memberStore := newMockMemberStore(t)
@@ -209,10 +198,8 @@ func TestPostEditMemberWhenValidationError(t *testing.T) {
 			Form: &editMemberForm{
 				FirstNames: "",
 				LastName:   "b",
-				Permission: actor.Admin,
 			},
-			Options: actor.PermissionValues,
-			Member:  member,
+			Member: member,
 		}).
 		Return(nil)
 
@@ -227,7 +214,6 @@ func TestReadEditMemberForm(t *testing.T) {
 	form := url.Values{
 		"first-names": {"a"},
 		"last-name":   {"b"},
-		"permission":  {"admin"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -237,7 +223,6 @@ func TestReadEditMemberForm(t *testing.T) {
 
 	assert.Equal(t, "a", result.FirstNames)
 	assert.Equal(t, "b", result.LastName)
-	assert.Equal(t, actor.Admin, result.Permission)
 }
 
 func TestEditMemberFormValidate(t *testing.T) {
@@ -249,7 +234,6 @@ func TestEditMemberFormValidate(t *testing.T) {
 			form: &editMemberForm{
 				FirstNames: "a",
 				LastName:   "b",
-				Permission: actor.None,
 			},
 		},
 		"missing": {
@@ -262,20 +246,10 @@ func TestEditMemberFormValidate(t *testing.T) {
 			form: &editMemberForm{
 				FirstNames: strings.Repeat("x", 54),
 				LastName:   strings.Repeat("x", 62),
-				Permission: actor.None,
 			},
 			errors: validation.
 				With("first-names", validation.StringTooLongError{Label: "firstNames", Length: 53}).
 				With("last-name", validation.StringTooLongError{Label: "lastName", Length: 61}),
-		},
-		"permission error": {
-			form: &editMemberForm{
-				FirstNames: "a",
-				LastName:   "b",
-				Permission: actor.Permission(99),
-			},
-			errors: validation.
-				With("permission", validation.SelectError{Label: "makeThisPersonAnAdmin"}),
 		},
 	}
 
