@@ -151,7 +151,7 @@ func (s *memberStore) Member(ctx context.Context, memberID string) (*actor.Membe
 	}
 
 	if data.OrganisationID == "" {
-		return nil, errors.New("memberStore.Self requires OrganisationID")
+		return nil, errors.New("memberStore.Member requires OrganisationID")
 	}
 
 	var link *organisationLink

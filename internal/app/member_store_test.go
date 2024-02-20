@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -52,15 +51,6 @@ func TestMemberStoreCreateMemberInviteWithSessionMissing(t *testing.T) {
 			assert.Error(t, err)
 		})
 	}
-}
-
-func TestMemberStoreCreateMemberInviteWhenMissingOrganisationID(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{})
-
-	memberStore := &memberStore{now: testNowFn}
-
-	err := memberStore.CreateMemberInvite(ctx, &actor.Organisation{}, "a", "b", "email@example.com", "abcde", actor.None)
-	assert.Equal(t, errors.New("memberStore.Get requires OrganisationID"), err)
 }
 
 func TestMemberStoreCreateMemberInviteWhenErrors(t *testing.T) {
@@ -247,7 +237,7 @@ func TestMemberStoreMembersWhenDynamoClientError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestMemberStoreMember(t *testing.T) {
+func TestMemberStoreSelf(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{
 		OrganisationID: "a-uuid",
 		SessionID:      "session-id",
@@ -266,7 +256,7 @@ func TestMemberStoreMember(t *testing.T) {
 	assert.Equal(t, member, result)
 }
 
-func TestMemberStoreMemberWithSessionMissing(t *testing.T) {
+func TestMemberStoreSelfWithSessionMissing(t *testing.T) {
 	testcases := map[string]context.Context{
 		"no session id":      page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "id"}),
 		"no organisation id": page.ContextWithSessionData(context.Background(), &page.SessionData{}),
@@ -283,7 +273,7 @@ func TestMemberStoreMemberWithSessionMissing(t *testing.T) {
 	}
 }
 
-func TestMemberStoreMemberWhenErrors(t *testing.T) {
+func TestMemberStoreSelfWhenErrors(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "a-uuid", SessionID: "session-id"})
 
 	dynamoClient := newMockDynamoClient(t)
@@ -360,11 +350,19 @@ func TestMemberStoreCreateWhenSessionMissing(t *testing.T) {
 
 func TestMemberStoreCreateWhenDynamoErrors(t *testing.T) {
 	testcases := map[string]struct {
-		createError    error
-		deleteOneError error
+		createMemberError error
+		deleteOneError    error
+		createLinkError   error
 	}{
-		"Create error":    {createError: expectedError},
-		"DeleteOne error": {deleteOneError: expectedError},
+		"Create member error": {
+			createMemberError: expectedError,
+		},
+		"DeleteOne error": {
+			deleteOneError: expectedError,
+		},
+		"Create link error": {
+			createLinkError: expectedError,
+		},
 	}
 
 	for name, tc := range testcases {
@@ -374,14 +372,21 @@ func TestMemberStoreCreateWhenDynamoErrors(t *testing.T) {
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.EXPECT().
 				Create(ctx, mock.Anything).
-				Return(tc.createError)
+				Return(tc.createMemberError).
+				Once()
 
-			if tc.deleteOneError != nil {
+			if tc.deleteOneError != nil || tc.createLinkError != nil {
 				dynamoClient.EXPECT().
 					DeleteOne(ctx, mock.Anything, mock.Anything).
 					Return(tc.deleteOneError)
 			}
 
+			if tc.createLinkError != nil {
+				dynamoClient.EXPECT().
+					Create(mock.Anything, mock.Anything).
+					Return(tc.createLinkError).
+					Once()
+			}
 			memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
 			err := memberStore.Create(ctx, &actor.MemberInvite{})
@@ -389,4 +394,88 @@ func TestMemberStoreCreateWhenDynamoErrors(t *testing.T) {
 		})
 	}
 
+}
+
+func TestMemberStoreMember(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "org-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		ExpectOne(ctx, "ORGANISATION#org-id", "MEMBERID#1",
+			&organisationLink{
+				PK:       "ORGANISATION#org-id",
+				SK:       "MEMBERID#1",
+				MemberSK: "MEMBER#a-uuid",
+			}, nil)
+
+	expectedMember := &actor.Member{
+		PK: "ORGANISATION#org-id",
+		SK: "MEMBER#a-uuid",
+		ID: "1",
+	}
+
+	dynamoClient.
+		ExpectOne(ctx, "ORGANISATION#org-id", "MEMBER#a-uuid",
+			expectedMember, nil)
+
+	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+
+	member, err := memberStore.Member(ctx, "1")
+
+	assert.Nil(t, err)
+	assert.Equal(t, expectedMember, member)
+}
+
+func TestMemberStoreMemberWhenMissingSession(t *testing.T) {
+	testCases := map[string]context.Context{
+		"missing session":         context.Background(),
+		"missing organisation ID": page.ContextWithSessionData(context.Background(), &page.SessionData{}),
+	}
+
+	for name, ctx := range testCases {
+		t.Run(name, func(t *testing.T) {
+			memberStore := &memberStore{dynamoClient: nil, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+
+			_, err := memberStore.Member(ctx, "1")
+
+			assert.Error(t, err)
+		})
+	}
+}
+
+func TestMemberStoreMemberWhenDynamoClientErrors(t *testing.T) {
+	testCases := map[string]struct {
+		oneLinkError   error
+		oneMemberError error
+	}{
+		"one link error": {
+			oneLinkError: expectedError,
+		},
+		"one member error": {
+			oneMemberError: expectedError,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "org-id"})
+
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.
+				ExpectOne(mock.Anything, mock.Anything, mock.Anything,
+					&organisationLink{}, tc.oneLinkError)
+
+			if tc.oneMemberError != nil {
+				dynamoClient.
+					ExpectOne(mock.Anything, mock.Anything, mock.Anything,
+						&actor.Member{}, tc.oneMemberError)
+			}
+
+			memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+
+			_, err := memberStore.Member(ctx, "1")
+
+			assert.Equal(t, expectedError, err)
+		})
+	}
 }
