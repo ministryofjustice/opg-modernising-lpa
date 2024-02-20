@@ -30,9 +30,11 @@ type Member struct {
 	UpdatedAt time.Time
 	// LastLoggedInAt is when the Member last logged in to the service
 	LastLoggedInAt time.Time
-	Email          string
-	FirstNames     string
-	LastName       string
+	// ID is a unique identifier for the Member
+	ID         string
+	Email      string
+	FirstNames string
+	LastName   string
 	// Permission is the type of permissions assigned to the member to set available actions in an Organisation
 	Permission Permission
 }

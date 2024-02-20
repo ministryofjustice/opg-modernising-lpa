@@ -93,16 +93,17 @@ func TestLoginCallback(t *testing.T) {
 					Return(nil)
 			}
 
-			organisationStore := newMockOrganisationStore(t)
-			organisationStore.EXPECT().
+			memberStore := newMockMemberStore(t)
+			memberStore.EXPECT().
 				InvitedMember(mock.Anything).
 				Return(nil, expectedError)
 
+			organisationStore := newMockOrganisationStore(t)
 			organisationStore.EXPECT().
 				Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: tc.loginSession.SessionID(), Email: tc.loginSession.Email})).
 				Return(&actor.Organisation{ID: "org-id", Name: "org name"}, tc.getError)
 
-			err := LoginCallback(client, sessionStore, organisationStore, testNowFn)(page.AppData{}, w, r)
+			err := LoginCallback(client, sessionStore, organisationStore, testNowFn, memberStore)(page.AppData{}, w, r)
 			if tc.expectedError != nil {
 				assert.Equal(t, tc.expectedError, err)
 			} else {
@@ -147,16 +148,17 @@ func TestLoginCallbackWhenNoOrganisationAndSetLoginSessionError(t *testing.T) {
 		Save(r, w, mock.Anything).
 		Return(expectedError)
 
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
 		Return(nil, expectedError)
 
+	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		Get(mock.Anything).
 		Return(&actor.Organisation{ID: "org-id", Name: "org name"}, dynamo.NotFoundError{})
 
-	err := LoginCallback(client, sessionStore, organisationStore, testNowFn)(page.AppData{}, w, r)
+	err := LoginCallback(client, sessionStore, organisationStore, testNowFn, memberStore)(page.AppData{}, w, r)
 	assert.Equal(t, expectedError, err)
 
 	resp := w.Result()
@@ -230,24 +232,25 @@ func TestLoginCallbackIsOrganisationMember(t *testing.T) {
 				Save(r, w, session).
 				Return(nil)
 
-			organisationStore := newMockOrganisationStore(t)
-			organisationStore.EXPECT().
+			memberStore := newMockMemberStore(t)
+			memberStore.EXPECT().
 				InvitedMember(mock.Anything).
 				Return(nil, expectedError)
 
+			memberStore.EXPECT().
+				Self(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email, OrganisationID: "org-id"})).
+				Return(&actor.Member{Email: tc.existingMemberEmail}, nil)
+
+			memberStore.EXPECT().
+				Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email, OrganisationID: "org-id"}), &actor.Member{Email: tc.loginSessionEmail, LastLoggedInAt: testNow}).
+				Return(nil)
+
+			organisationStore := newMockOrganisationStore(t)
 			organisationStore.EXPECT().
 				Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email})).
 				Return(&actor.Organisation{ID: "org-id", Name: "org name"}, nil)
 
-			organisationStore.EXPECT().
-				Member(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email, OrganisationID: "org-id"})).
-				Return(&actor.Member{Email: tc.existingMemberEmail}, nil)
-
-			organisationStore.EXPECT().
-				PutMember(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email, OrganisationID: "org-id"}), &actor.Member{Email: tc.loginSessionEmail, LastLoggedInAt: testNow}).
-				Return(nil)
-
-			err := LoginCallback(client, sessionStore, organisationStore, testNowFn)(page.AppData{}, w, r)
+			err := LoginCallback(client, sessionStore, organisationStore, testNowFn, memberStore)(page.AppData{}, w, r)
 
 			assert.Nil(t, err)
 			resp := w.Result()
@@ -263,10 +266,10 @@ func TestLoginCallbackIsOrganisationMemberErrors(t *testing.T) {
 		memberError    error
 		putMemberError error
 	}{
-		"Member error": {
+		"Self error": {
 			memberError: expectedError,
 		},
-		"PutMember error": {
+		"Put error": {
 			putMemberError: expectedError,
 		},
 	}
@@ -322,26 +325,27 @@ func TestLoginCallbackIsOrganisationMemberErrors(t *testing.T) {
 				Save(mock.Anything, mock.Anything, mock.Anything).
 				Return(nil)
 
-			organisationStore := newMockOrganisationStore(t)
-			organisationStore.EXPECT().
+			memberStore := newMockMemberStore(t)
+			memberStore.EXPECT().
 				InvitedMember(mock.Anything).
 				Return(nil, expectedError)
 
+			memberStore.EXPECT().
+				Self(mock.Anything).
+				Return(&actor.Member{Email: loginSession.Email}, tc.memberError)
+
+			if tc.putMemberError != nil {
+				memberStore.EXPECT().
+					Put(mock.Anything, mock.Anything).
+					Return(tc.putMemberError)
+			}
+
+			organisationStore := newMockOrganisationStore(t)
 			organisationStore.EXPECT().
 				Get(mock.Anything).
 				Return(&actor.Organisation{ID: "org-id", Name: "org name"}, nil)
 
-			organisationStore.EXPECT().
-				Member(mock.Anything).
-				Return(&actor.Member{Email: loginSession.Email}, tc.memberError)
-
-			if tc.putMemberError != nil {
-				organisationStore.EXPECT().
-					PutMember(mock.Anything, mock.Anything).
-					Return(tc.putMemberError)
-			}
-
-			err := LoginCallback(client, sessionStore, organisationStore, testNowFn)(page.AppData{}, w, r)
+			err := LoginCallback(client, sessionStore, organisationStore, testNowFn, memberStore)(page.AppData{}, w, r)
 
 			assert.Equal(t, expectedError, err)
 			resp := w.Result()
@@ -396,12 +400,12 @@ func TestLoginCallbackWhenEmailHasInvite(t *testing.T) {
 		Save(r, w, session).
 		Return(nil)
 
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
 		Return(nil, nil)
 
-	err := LoginCallback(client, sessionStore, organisationStore, testNowFn)(page.AppData{}, w, r)
+	err := LoginCallback(client, sessionStore, nil, testNowFn, memberStore)(page.AppData{}, w, r)
 
 	assert.Nil(t, err)
 	resp := w.Result()
@@ -455,12 +459,12 @@ func TestLoginCallbackWhenEmailHasInviteWhenSetLoginSessionError(t *testing.T) {
 		Save(r, w, session).
 		Return(expectedError)
 
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
 		Return(nil, nil)
 
-	err := LoginCallback(client, sessionStore, organisationStore, testNowFn)(page.AppData{}, w, r)
+	err := LoginCallback(client, sessionStore, nil, testNowFn, memberStore)(page.AppData{}, w, r)
 
 	assert.Equal(t, expectedError, err)
 	resp := w.Result()
@@ -516,7 +520,7 @@ func TestLoginCallbackSessionMissing(t *testing.T) {
 				Get(r, "params").
 				Return(tc.session, tc.getErr)
 
-			err := LoginCallback(nil, sessionStore, nil, testNowFn)(page.AppData{}, w, r)
+			err := LoginCallback(nil, sessionStore, nil, testNowFn, nil)(page.AppData{}, w, r)
 			assert.Equal(t, tc.expectedErr, err)
 		})
 	}
@@ -540,7 +544,7 @@ func TestLoginCallbackWhenExchangeErrors(t *testing.T) {
 			},
 		}, nil)
 
-	err := LoginCallback(client, sessionStore, nil, testNowFn)(page.AppData{}, w, r)
+	err := LoginCallback(client, sessionStore, nil, testNowFn, nil)(page.AppData{}, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -565,7 +569,7 @@ func TestLoginCallbackWhenUserInfoError(t *testing.T) {
 			},
 		}, nil)
 
-	err := LoginCallback(client, sessionStore, nil, testNowFn)(page.AppData{}, w, r)
+	err := LoginCallback(client, sessionStore, nil, testNowFn, nil)(page.AppData{}, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -598,15 +602,16 @@ func TestLoginCallbackWhenSessionError(t *testing.T) {
 		Save(r, w, mock.Anything).
 		Return(expectedError)
 
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
 		Return(nil, expectedError)
 
+	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		Get(mock.Anything).
 		Return(&actor.Organisation{}, nil)
 
-	err := LoginCallback(client, sessionStore, organisationStore, testNowFn)(page.AppData{}, w, r)
+	err := LoginCallback(client, sessionStore, organisationStore, testNowFn, memberStore)(page.AppData{}, w, r)
 	assert.Equal(t, expectedError, err)
 }

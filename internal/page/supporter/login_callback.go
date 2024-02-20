@@ -17,7 +17,7 @@ type LoginCallbackOneLoginClient interface {
 	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
 }
 
-func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh.Store, organisationStore OrganisationStore, now func() time.Time) page.Handler {
+func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh.Store, organisationStore OrganisationStore, now func() time.Time, memberStore MemberStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		oneLoginSession, err := sesh.OneLogin(sessionStore, r)
 		if err != nil {
@@ -43,7 +43,7 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 		sessionData := &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email}
 		ctx := page.ContextWithSessionData(r.Context(), sessionData)
 
-		_, err = organisationStore.InvitedMember(ctx)
+		_, err = memberStore.InvitedMember(ctx)
 		if err == nil {
 			if err := sesh.SetLoginSession(sessionStore, r, w, loginSession); err != nil {
 				return err
@@ -63,7 +63,7 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 			sessionData.OrganisationID = organisation.ID
 			ctx = page.ContextWithSessionData(r.Context(), sessionData)
 
-			member, err := organisationStore.Member(ctx)
+			member, err := memberStore.Self(ctx)
 			if err != nil {
 				return err
 			}
@@ -71,7 +71,7 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 			member.LastLoggedInAt = now()
 			member.Email = loginSession.Email
 
-			if err := organisationStore.PutMember(ctx, member); err != nil {
+			if err := memberStore.Put(ctx, member); err != nil {
 				return err
 			}
 

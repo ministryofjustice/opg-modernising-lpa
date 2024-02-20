@@ -984,7 +984,7 @@
     "signingInWithGovukOneLogin": "Signing in with GOV.UK One Login",
     "signingInWithGovukOneLoginContent": "<p class=\"govuk-body\">You need a GOV.UK One Login to use the ‘Help someone to make a lasting power of attorney’ service.</p><p class=\"govuk-body\">GOV.UK One Login is the new way to sign in to government services.</p><p class=\"govuk-body\">In the future, it will allow you to access any government service using the same email address and password.</p><p class=\"govuk-body\">It does not work with all GOV.UK services yet.</p><h2 class=\"govuk-heading-m\">Setting up your GOV.UK One Login</h2><p class=\"govuk-body\">If you’re creating LPAs as part of an organisation, we recommend using your work email address when setting up your GOV.UK One Login to access this service.</p><details class=\"govuk-details\" data-module=\"govuk-details\"><summary class=\"govuk-details__summary\"><span class=\"govuk-details__summary-text\">What if I already have a GOV.UK One Login?</span></summary><div class=\"govuk-details__text\"><p class=\"govuk-body\">If you’ve already created a GOV.UK One Login with a personal email address, you can still use it to access this service.</p><p class=\"govuk-body\">However, it may become difficult to separate your personal LPAs from the LPAs you are drafting on behalf of other people.</p><p class=\"govuk-body\">For this reason, we recommend creating a separate GOV.UK One Login with your work email address, if you have one.</p></div></details>",
     "continueToGovukOneLogin": "Continue to GOV.UK One Login",
-    "setTheirPermissions": "<h2 class=\"govuk-heading-m\">Set their permissions</h2><p class=\"govuk-body\">All users can create and edit LPAs.</p>",
+    "setTheirPermissions": "Set their permissions",
     "makeThisPersonAnAdmin": "Make this person an admin",
     "adminPermissionHint": "Admins can manage team members and change the organisation’s details.",
     "donorDetails": "Donor details",
@@ -1013,5 +1013,11 @@
     "lastSignedIn": "Last signed in",
     "admin": "Admin",
     "yourInviteHasExpired": "Your invite has expired",
-    "yourInviteHasExpiredContent": "<p class=\"govuk-body\">Invite codes are only valid for 48 hours. Yours has now expired.</p><p class=\"govuk-body\">Contact your organisation admin and ask them to resend your invite. Their email address can be found in your original email invitation.</p>"
+    "yourInviteHasExpiredContent": "<p class=\"govuk-body\">Invite codes are only valid for 48 hours. Yours has now expired.</p><p class=\"govuk-body\">Contact your organisation admin and ask them to resend your invite. Their email address can be found in your original email invitation.</p>",
+    "permissions": "Permissions",
+    "allUsersCanCreateAndEditLPAs": "All users can create and edit LPAs.",
+    "edit": "Edit",
+    "save": "Save",
+    "nameUpdated": "Name updated",
+    "teamMembersNameUpdatedToNewName": "Team member’s name updated to <span class=\"govuk-!-font-weight-bold\">{{ .NewName }}</span>."
 }

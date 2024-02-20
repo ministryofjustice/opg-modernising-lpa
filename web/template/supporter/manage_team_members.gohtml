@@ -5,7 +5,7 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {{ if .Query.Has "email" }}
+            {{ if .Query.Has "inviteSent" }}
                 <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
                      aria-labelledby="govuk-notification-banner-title"
                      data-module="govuk-notification-banner">
@@ -16,7 +16,24 @@
                     </div>
                     <div class="govuk-notification-banner__content">
                         <p class="govuk-body">
-                            {{ trFormatHtml .App "weHaveSentInvite" "Email" (.Query.Get "email") }}
+                            {{ trFormatHtml .App "weHaveSentInvite" "Email" (.Query.Get "inviteSent") }}
+                        </p>
+                    </div>
+                </div>
+            {{ end}}
+
+            {{ if .Query.Has "nameUpdated" }}
+                <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
+                     aria-labelledby="govuk-notification-banner-title"
+                     data-module="govuk-notification-banner">
+                    <div class="govuk-notification-banner__header">
+                        <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                            {{ tr .App "nameUpdated" }}
+                        </h1>
+                    </div>
+                    <div class="govuk-notification-banner__content">
+                        <p class="govuk-body">
+                            {{ trFormatHtml .App "teamMembersNameUpdatedToNewName" "NewName" (.Query.Get "nameUpdated") }}
                         </p>
                     </div>
                 </div>
@@ -100,7 +117,8 @@
                             {{ range .Members }}
                                 <tr class="govuk-table__row">
                                     <td class="govuk-table__cell">
-                                        {{ .FullName }}
+                                        <a class="govuk-link" href="{{ link $.App (global.Paths.Supporter.EditMember.Format)}}?id={{ .ID }}"><span class="govuk-visually-hidden">{{ tr $.App "edit" }}</span> {{ .FullName }}</a>
+
                                         {{ if not .Permission.IsNone  }}
                                             <span class="app-float-right">
                                                 <strong class="govuk-tag govuk-tag--green">
