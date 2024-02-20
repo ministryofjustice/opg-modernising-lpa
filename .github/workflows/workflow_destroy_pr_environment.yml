@@ -59,7 +59,6 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
       - name: Setup Workspace Manager
-        if: github.ref != 'refs/heads/main'
         run: |
           wget https://github.com/TomTucka/terraform-workspace-manager/releases/download/v0.3.1/terraform-workspace-manager_Linux_x86_64.tar.gz -O $HOME/terraform-workspace-manager.tar.gz
           sudo tar -xvf $HOME/terraform-workspace-manager.tar.gz -C /usr/local/bin
@@ -94,6 +93,5 @@ jobs:
           terraform workspace select default
           terraform workspace delete ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
       - name: Remove protection for environment workspace
-        if: github.ref != 'refs/heads/main'
         run: |
           terraform-workspace-manager -register-workspace=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }} -time-to-protect=0 -aws-account-id=653761790766 -aws-iam-role=modernising-lpa-ci
