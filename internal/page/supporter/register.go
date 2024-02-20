@@ -77,6 +77,8 @@ func Register(
 		EnterOrganisationName(tmpls.Get("enter_organisation_name.gohtml"), organisationStore, sessionStore))
 	handleRoot(paths.EnterReferenceNumber, page.RequireSession,
 		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), organisationStore, sessionStore))
+	handleRoot(paths.InviteExpired, page.RequireSession,
+		page.Guidance(tmpls.Get("invite_expired.gohtml")))
 
 	handleWithSupporter := makeSupporterHandle(rootMux, sessionStore, errorHandler, organisationStore)
 
