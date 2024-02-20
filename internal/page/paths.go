@@ -173,10 +173,6 @@ func (p SupporterPath) Format() string {
 	return "/supporter" + string(p)
 }
 
-func (p SupporterPath) FormatID(id string) string {
-	return "/supporter" + strings.Replace(string(p), "{id}", id, 1)
-}
-
 func (p SupporterPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData) error {
 	http.Redirect(w, r, appData.Lang.URL(p.Format()), http.StatusFound)
 	return nil

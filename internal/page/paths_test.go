@@ -189,31 +189,6 @@ func TestSupporterPathFormat(t *testing.T) {
 	assert.Equal(t, "/supporter/anything", SupporterPath("/anything").Format())
 }
 
-func TestSupporterPathFormatID(t *testing.T) {
-	testcases := []struct {
-		supporterPath SupporterPath
-		expectedPath  string
-	}{
-		{
-			supporterPath: SupporterPath("/anything/{id}"),
-			expectedPath:  "/supporter/anything/1",
-		},
-		{
-			supporterPath: SupporterPath("/{id}/anything"),
-			expectedPath:  "/supporter/1/anything",
-		},
-		{
-			supporterPath: SupporterPath("/{id}/anything/{id}"),
-			expectedPath:  "/supporter/1/anything/{id}",
-		},
-	}
-
-	for _, tc := range testcases {
-		assert.Equal(t, tc.expectedPath, tc.supporterPath.FormatID("1"))
-	}
-
-}
-
 func TestSupporterPathRedirect(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
