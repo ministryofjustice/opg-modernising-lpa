@@ -84,7 +84,6 @@ jobs:
         run: terraform init -input=false
         working-directory: ./terraform/environment
       - name: Destroy PR environment and Terraform workspace
-        if: github.ref != 'refs/heads/weblate-pr'
         working-directory: ./terraform/environment
         env:
           TF_VAR_pagerduty_api_key:  ${{ secrets.PAGERDUTY_API_KEY }}
