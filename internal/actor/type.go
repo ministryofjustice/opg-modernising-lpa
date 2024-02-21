@@ -33,6 +33,8 @@ func (t Type) String() string {
 		return "independentWitness"
 	case TypeTrustCorporation:
 		return "trustCorporation"
+	case TypeReplacementTrustCorporation:
+		return "replacementTrustCorporation"
 	default:
 		return ""
 	}
