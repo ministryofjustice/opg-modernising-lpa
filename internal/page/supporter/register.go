@@ -101,7 +101,7 @@ func Register(
 		EditOrganisationName(tmpls.Get("edit_organisation_name.gohtml"), organisationStore))
 	handleWithSupporter(paths.ManageTeamMembers, page.None,
 		ManageTeamMembers(tmpls.Get("manage_team_members.gohtml"), memberStore))
-	handleWithSupporter(paths.InviteMember, page.None,
+	handleWithSupporter(paths.InviteMember, page.CanGoBack,
 		InviteMember(tmpls.Get("invite_member.gohtml"), memberStore, notifyClient, random.String, appPublicURL))
 	handleWithSupporter(paths.EditMember, page.CanGoBack,
 		EditMember(tmpls.Get("edit_team_member.gohtml"), memberStore))
