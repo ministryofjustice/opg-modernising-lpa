@@ -237,7 +237,7 @@ func TestMemberStoreMembersWhenDynamoClientError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestMemberStoreSelf(t *testing.T) {
+func TestMemberStoreGet(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{
 		OrganisationID: "a-uuid",
 		SessionID:      "session-id",
@@ -251,12 +251,12 @@ func TestMemberStoreSelf(t *testing.T) {
 
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-	result, err := memberStore.Self(ctx)
+	result, err := memberStore.Get(ctx)
 	assert.Nil(t, err)
 	assert.Equal(t, member, result)
 }
 
-func TestMemberStoreSelfWithSessionMissing(t *testing.T) {
+func TestMemberStoreGetWithSessionMissing(t *testing.T) {
 	testcases := map[string]context.Context{
 		"no session id":      page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "id"}),
 		"no organisation id": page.ContextWithSessionData(context.Background(), &page.SessionData{}),
@@ -267,13 +267,13 @@ func TestMemberStoreSelfWithSessionMissing(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			memberStore := &memberStore{}
 
-			_, err := memberStore.Self(ctx)
+			_, err := memberStore.Get(ctx)
 			assert.Error(t, err)
 		})
 	}
 }
 
-func TestMemberStoreSelfWhenErrors(t *testing.T) {
+func TestMemberStoreGetWhenErrors(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "a-uuid", SessionID: "session-id"})
 
 	dynamoClient := newMockDynamoClient(t)
@@ -282,7 +282,7 @@ func TestMemberStoreSelfWhenErrors(t *testing.T) {
 			nil, expectedError)
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-	_, err := memberStore.Self(ctx)
+	_, err := memberStore.Get(ctx)
 	assert.Equal(t, expectedError, err)
 }
 

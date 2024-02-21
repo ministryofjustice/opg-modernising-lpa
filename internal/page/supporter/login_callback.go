@@ -63,7 +63,7 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 			sessionData.OrganisationID = organisation.ID
 			ctx = page.ContextWithSessionData(r.Context(), sessionData)
 
-			member, err := memberStore.Self(ctx)
+			member, err := memberStore.Get(ctx)
 			if err != nil {
 				return err
 			}

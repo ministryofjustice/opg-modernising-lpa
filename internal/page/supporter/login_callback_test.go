@@ -238,7 +238,7 @@ func TestLoginCallbackIsOrganisationMember(t *testing.T) {
 				Return(nil, expectedError)
 
 			memberStore.EXPECT().
-				Self(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email, OrganisationID: "org-id"})).
+				Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email, OrganisationID: "org-id"})).
 				Return(&actor.Member{Email: tc.existingMemberEmail}, nil)
 
 			memberStore.EXPECT().
@@ -266,7 +266,7 @@ func TestLoginCallbackIsOrganisationMemberErrors(t *testing.T) {
 		memberError    error
 		putMemberError error
 	}{
-		"Self error": {
+		"Get error": {
 			memberError: expectedError,
 		},
 		"Put error": {
@@ -331,7 +331,7 @@ func TestLoginCallbackIsOrganisationMemberErrors(t *testing.T) {
 				Return(nil, expectedError)
 
 			memberStore.EXPECT().
-				Self(mock.Anything).
+				Get(mock.Anything).
 				Return(&actor.Member{Email: loginSession.Email}, tc.memberError)
 
 			if tc.putMemberError != nil {

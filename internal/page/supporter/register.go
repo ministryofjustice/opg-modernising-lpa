@@ -29,7 +29,7 @@ type MemberStore interface {
 	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error
 	InvitedMember(ctx context.Context) (*actor.MemberInvite, error)
 	InvitedMembers(ctx context.Context) ([]*actor.MemberInvite, error)
-	Self(ctx context.Context) (*actor.Member, error)
+	Get(ctx context.Context) (*actor.Member, error)
 	GetByID(ctx context.Context, memberID string) (*actor.Member, error)
 	Members(ctx context.Context) ([]*actor.Member, error)
 	Put(ctx context.Context, member *actor.Member) error

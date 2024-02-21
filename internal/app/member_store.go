@@ -167,18 +167,18 @@ func (s *memberStore) GetByID(ctx context.Context, memberID string) (*actor.Memb
 	return member, nil
 }
 
-func (s *memberStore) Self(ctx context.Context) (*actor.Member, error) {
+func (s *memberStore) Get(ctx context.Context) (*actor.Member, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	if data.SessionID == "" {
-		return nil, errors.New("memberStore.Self requires SessionID")
+		return nil, errors.New("memberStore.Get requires SessionID")
 	}
 
 	if data.OrganisationID == "" {
-		return nil, errors.New("memberStore.Self requires OrganisationID")
+		return nil, errors.New("memberStore.Get requires OrganisationID")
 	}
 
 	var member *actor.Member
