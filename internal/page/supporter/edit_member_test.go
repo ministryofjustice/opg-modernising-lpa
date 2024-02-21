@@ -90,8 +90,9 @@ func TestPostEditMember(t *testing.T) {
 		form           url.Values
 		expectedQuery  string
 		expectedMember *actor.Member
+		memberEmail    string
 	}{
-		"name updated": {
+		"Team member name updated": {
 			form: url.Values{
 				"first-names": {"c"},
 				"last-name":   {"d"},
@@ -101,6 +102,19 @@ func TestPostEditMember(t *testing.T) {
 				FirstNames: "c",
 				LastName:   "d",
 			},
+		},
+		"Self name updated": {
+			form: url.Values{
+				"first-names": {"c"},
+				"last-name":   {"d"},
+			},
+			expectedQuery: "?nameUpdated=c+d&selfUpdated=1",
+			expectedMember: &actor.Member{
+				FirstNames: "c",
+				LastName:   "d",
+				Email:      "a@example.org",
+			},
+			memberEmail: "a@example.org",
 		},
 		"no updates": {
 			form: url.Values{
@@ -127,12 +141,14 @@ func TestPostEditMember(t *testing.T) {
 				Return(&actor.Member{
 					FirstNames: "a",
 					LastName:   "b",
+					Email:      tc.memberEmail,
 				}, nil)
 
 			memberStore.EXPECT().
 				Put(r.Context(), tc.expectedMember).
 				Return(nil)
 
+			testAppData.LoginSessionEmail = "a@example.org"
 			err := EditMember(nil, memberStore)(testAppData, w, r, &actor.Organisation{})
 			resp := w.Result()
 

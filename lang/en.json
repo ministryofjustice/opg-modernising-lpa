@@ -1019,5 +1019,7 @@
     "editTeamMember": "Edit team member",
     "save": "Save",
     "nameUpdated": "Name updated",
-    "teamMembersNameUpdatedToNewName": "Team member’s name updated to <span class=\"govuk-!-font-weight-bold\">{{ .NewName }}</span>."
+    "teamMembersNameUpdatedToNewName": "Team member’s name updated to <span class=\"govuk-!-font-weight-bold\">{{ .NewName }}</span>.",
+    "yourNameHasBeenUpdatedToNewName": "Your name has been updated to <span class=\"govuk-!-font-weight-bold\">{{ .NewName }}</span>.",
+    "you": "you"
 }

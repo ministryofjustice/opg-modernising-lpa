@@ -1081,5 +1081,7 @@
     "editTeamMember": "Welsh",
     "save": "Welsh",
     "nameUpdated": "Welsh",
-    "teamMembersNameUpdatedToNewName": "Welsh <span class=\"govuk-!-font-weight-bold\">{{ .NewName }}</span>."
+    "teamMembersNameUpdatedToNewName": "Welsh <span class=\"govuk-!-font-weight-bold\">{{ .NewName }}</span>.",
+    "yourNameHasBeenUpdatedToNewName": "Welsh <span class=\"govuk-!-font-weight-bold\">{{ .NewName }}</span>.",
+    "you": "Welsh"
 }

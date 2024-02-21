@@ -128,26 +128,27 @@ func TestMakeSupporterHandle(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
 		Get(r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random", OrganisationID: "org-id"}}}, nil)
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random", OrganisationID: "org-id", Email: "a@example.org"}}}, nil)
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id"})).
+		Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
 		Return(&actor.Organisation{}, nil)
 
 	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore)
 	handle("/path", page.CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation) error {
 		assert.Equal(t, page.AppData{
-			Page:        "/supporter/path",
-			SessionID:   "cmFuZG9t",
-			IsSupporter: true,
-			CanGoBack:   true,
+			Page:              "/supporter/path",
+			SessionID:         "cmFuZG9t",
+			IsSupporter:       true,
+			CanGoBack:         true,
+			LoginSessionEmail: "a@example.org",
 		}, appData)
 
 		assert.Equal(t, w, hw)
 
 		sessionData, _ := page.SessionDataFromContext(hr.Context())
-		assert.Equal(t, &page.SessionData{SessionID: "cmFuZG9t"}, sessionData)
+		assert.Equal(t, &page.SessionData{SessionID: "cmFuZG9t", Email: "a@example.org"}, sessionData)
 
 		hw.WriteHeader(http.StatusTeapot)
 		return nil

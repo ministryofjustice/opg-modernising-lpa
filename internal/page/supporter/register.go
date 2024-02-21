@@ -178,6 +178,7 @@ func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page
 			appData.IsSupporter = true
 			appData.OrganisationName = organisation.Name
 			appData.IsManageOrganisation = path.IsManageOrganisation()
+			appData.LoginSessionEmail = loginSession.Email
 
 			ctx = page.ContextWithAppData(page.ContextWithSessionData(ctx, &page.SessionData{
 				SessionID:      appData.SessionID,

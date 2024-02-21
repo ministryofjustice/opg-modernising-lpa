@@ -25,6 +25,7 @@ type AppData struct {
 	IsSupporter          bool
 	OrganisationName     string
 	IsManageOrganisation bool
+	LoginSessionEmail    string
 }
 
 func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, url string) error {

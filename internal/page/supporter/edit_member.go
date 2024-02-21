@@ -44,6 +44,10 @@ func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
 					member.LastName = data.Form.LastName
 
 					query.Add("nameUpdated", member.FullName())
+
+					if member.Email == appData.LoginSessionEmail {
+						query.Add("selfUpdated", "1")
+					}
 				}
 
 				if err := memberStore.Put(r.Context(), member); err != nil {

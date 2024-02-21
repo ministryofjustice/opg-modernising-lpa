@@ -8,7 +8,7 @@ describe('Edit member', () => {
         cy.url().should('contain', "/manage-organisation/manage-team-members/edit-team-member");
     });
 
-    it('can edit name', () => {
+    it('can edit a team members name', () => {
         cy.checkA11yApp();
 
         cy.get('#f-first-names').clear().type('John');
@@ -20,6 +20,13 @@ describe('Edit member', () => {
 
         cy.contains('Team member’s name updated to John Doe');
         cy.contains('a', "John Doe")
+    })
+
+    it.only('can edit own name', () => {
+        // TODO update to a full test when admins can set their own names during org creation
+        cy.visit("/supporter/manage-organisation/manage-team-members?nameUpdated=John+Doe&selfUpdated=1");
+
+        cy.contains('Your name has been updated to John Doe');
     })
 
     it('errors when empty', () => {

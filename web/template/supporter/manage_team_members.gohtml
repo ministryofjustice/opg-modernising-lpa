@@ -33,7 +33,11 @@
                     </div>
                     <div class="govuk-notification-banner__content">
                         <p class="govuk-body">
-                            {{ trFormatHtml .App "teamMembersNameUpdatedToNewName" "NewName" (.Query.Get "nameUpdated") }}
+                            {{ if .Query.Has "selfUpdated" }}
+                                {{ trFormatHtml .App "yourNameHasBeenUpdatedToNewName" "NewName" (.Query.Get "nameUpdated") }}
+                            {{ else }}
+                                {{ trFormatHtml .App "teamMembersNameUpdatedToNewName" "NewName" (.Query.Get "nameUpdated") }}
+                            {{ end }}
                         </p>
                     </div>
                 </div>
@@ -117,7 +121,7 @@
                             {{ range .Members }}
                                 <tr class="govuk-table__row">
                                     <td class="govuk-table__cell">
-                                        <a class="govuk-link" href="{{ link $.App (global.Paths.Supporter.EditMember.Format)}}?id={{ .ID }}"><span class="govuk-visually-hidden">{{ tr $.App "edit" }}</span> {{ .FullName }}</a>
+                                        <a class="govuk-link" href="{{ link $.App (global.Paths.Supporter.EditMember.Format)}}?id={{ .ID }}"><span class="govuk-visually-hidden">{{ tr $.App "edit" }}</span> {{ .FullName }}</a> {{ if eq .Email $.App.LoginSessionEmail }} ({{ tr $.App "you" }}) {{ end }}
 
                                         {{ if not .Permission.IsNone  }}
                                             <span class="app-float-right">
