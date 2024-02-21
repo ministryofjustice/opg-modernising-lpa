@@ -30,7 +30,7 @@ type MemberStore interface {
 	InvitedMember(ctx context.Context) (*actor.MemberInvite, error)
 	InvitedMembers(ctx context.Context) ([]*actor.MemberInvite, error)
 	Self(ctx context.Context) (*actor.Member, error)
-	Member(ctx context.Context, memberID string) (*actor.Member, error)
+	GetByID(ctx context.Context, memberID string) (*actor.Member, error)
 	Members(ctx context.Context) ([]*actor.Member, error)
 	Put(ctx context.Context, member *actor.Member) error
 }

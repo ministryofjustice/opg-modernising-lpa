@@ -19,7 +19,7 @@ type editMemberData struct {
 
 func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
-		member, err := memberStore.Member(r.Context(), r.URL.Query().Get("id"))
+		member, err := memberStore.GetByID(r.Context(), r.URL.Query().Get("id"))
 		if err != nil {
 			return err
 		}

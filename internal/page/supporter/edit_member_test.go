@@ -26,7 +26,7 @@ func TestGetEditMember(t *testing.T) {
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		Member(r.Context(), "an-id").
+		GetByID(r.Context(), "an-id").
 		Return(member, nil)
 
 	template := newMockTemplate(t)
@@ -54,7 +54,7 @@ func TestGetEditMemberWhenOrganisationStoreError(t *testing.T) {
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		Member(r.Context(), mock.Anything).
+		GetByID(r.Context(), mock.Anything).
 		Return(nil, expectedError)
 
 	err := EditMember(nil, memberStore)(testAppData, w, r, &actor.Organisation{})
@@ -70,7 +70,7 @@ func TestGetEditMemberWhenTemplateError(t *testing.T) {
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		Member(mock.Anything, mock.Anything).
+		GetByID(mock.Anything, mock.Anything).
 		Return(&actor.Member{}, nil)
 
 	template := newMockTemplate(t)
@@ -123,7 +123,7 @@ func TestPostEditMember(t *testing.T) {
 
 			memberStore := newMockMemberStore(t)
 			memberStore.EXPECT().
-				Member(r.Context(), "an-id").
+				GetByID(r.Context(), "an-id").
 				Return(&actor.Member{
 					FirstNames: "a",
 					LastName:   "b",
@@ -155,7 +155,7 @@ func TestPostEditMemberWhenOrganisationStorePutError(t *testing.T) {
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		Member(mock.Anything, mock.Anything).
+		GetByID(mock.Anything, mock.Anything).
 		Return(&actor.Member{}, nil)
 
 	memberStore.EXPECT().
@@ -187,7 +187,7 @@ func TestPostEditMemberWhenValidationError(t *testing.T) {
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		Member(r.Context(), "an-id").
+		GetByID(r.Context(), "an-id").
 		Return(member, nil)
 
 	template := newMockTemplate(t)

@@ -144,14 +144,14 @@ func (s *memberStore) Members(ctx context.Context) ([]*actor.Member, error) {
 	return members, nil
 }
 
-func (s *memberStore) Member(ctx context.Context, memberID string) (*actor.Member, error) {
+func (s *memberStore) GetByID(ctx context.Context, memberID string) (*actor.Member, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	if data.OrganisationID == "" {
-		return nil, errors.New("memberStore.Member requires OrganisationID")
+		return nil, errors.New("memberStore.GetByID requires OrganisationID")
 	}
 
 	var link *organisationLink
