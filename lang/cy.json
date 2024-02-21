@@ -1046,7 +1046,7 @@
     "signingInWithGovukOneLogin": "Welsh",
     "signingInWithGovukOneLoginContent": "<p class=\"govuk-body\">Welsh</p>",
     "continueToGovukOneLogin": "Welsh",
-    "setTheirPermissions": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh</p>",
+    "setTheirPermissions": "Welsh",
     "makeThisPersonAnAdmin": "Welsh",
     "adminPermissionHint": "Welsh",
     "donorDetails": "Welsh",
@@ -1075,5 +1075,13 @@
     "lastSignedIn": "Welsh",
     "admin": "Welsh",
     "yourInviteHasExpired": "Welsh",
-    "yourInviteHasExpiredContent": "<p class=\"govuk-body\">Welsh</p>"
+    "yourInviteHasExpiredContent": "<p class=\"govuk-body\">Welsh</p>",
+    "allUsersCanCreateAndEditLPAs": "Welsh",
+    "edit": "Welsh",
+    "editTeamMember": "Welsh",
+    "save": "Welsh",
+    "nameUpdated": "Welsh",
+    "teamMembersNameUpdatedToNewName": "Welsh <span class=\"govuk-!-font-weight-bold\">{{ .NewName }}</span>.",
+    "yourNameHasBeenUpdatedToNewName": "Welsh <span class=\"govuk-!-font-weight-bold\">{{ .NewName }}</span>.",
+    "you": "Welsh"
 }

@@ -15,12 +15,12 @@ func TestGetManageTeamMembers(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?a=b", nil)
 
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
 		InvitedMembers(r.Context()).
 		Return([]*actor.MemberInvite{{FirstNames: "a"}, {FirstNames: "b"}}, nil)
-	organisationStore.EXPECT().
-		Members(r.Context()).
+	memberStore.EXPECT().
+		GetAll(r.Context()).
 		Return([]*actor.Member{{FirstNames: "c"}, {FirstNames: "d"}}, nil)
 
 	template := newMockTemplate(t)
@@ -34,7 +34,7 @@ func TestGetManageTeamMembers(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ManageTeamMembers(template.Execute, organisationStore)(testAppData, w, r, &actor.Organisation{ID: "org-id"})
+	err := ManageTeamMembers(template.Execute, memberStore)(testAppData, w, r, &actor.Organisation{ID: "org-id"})
 
 	resp := w.Result()
 
@@ -50,7 +50,7 @@ func TestGetManageTeamMembersWhenOrganisationStoreErrors(t *testing.T) {
 		"InvitedMembers error": {
 			invitedMembersError: expectedError,
 		},
-		"Members error": {
+		"GetAll error": {
 			membersError: expectedError,
 		},
 	}
@@ -60,18 +60,18 @@ func TestGetManageTeamMembersWhenOrganisationStoreErrors(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			organisationStore := newMockOrganisationStore(t)
-			organisationStore.EXPECT().
+			memberStore := newMockMemberStore(t)
+			memberStore.EXPECT().
 				InvitedMembers(mock.Anything).
 				Return([]*actor.MemberInvite{}, tc.invitedMembersError)
 
 			if tc.membersError != nil {
-				organisationStore.EXPECT().
-					Members(mock.Anything).
+				memberStore.EXPECT().
+					GetAll(mock.Anything).
 					Return([]*actor.Member{}, tc.membersError)
 			}
 
-			err := ManageTeamMembers(nil, organisationStore)(testAppData, w, r, &actor.Organisation{})
+			err := ManageTeamMembers(nil, memberStore)(testAppData, w, r, &actor.Organisation{})
 
 			resp := w.Result()
 
@@ -85,12 +85,12 @@ func TestGetManageTeamMembersWhenTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
 		InvitedMembers(mock.Anything).
 		Return([]*actor.MemberInvite{}, nil)
-	organisationStore.EXPECT().
-		Members(mock.Anything).
+	memberStore.EXPECT().
+		GetAll(mock.Anything).
 		Return([]*actor.Member{{FirstNames: "c"}, {FirstNames: "d"}}, nil)
 
 	template := newMockTemplate(t)
@@ -98,7 +98,7 @@ func TestGetManageTeamMembersWhenTemplateError(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ManageTeamMembers(template.Execute, organisationStore)(testAppData, w, r, &actor.Organisation{})
+	err := ManageTeamMembers(template.Execute, memberStore)(testAppData, w, r, &actor.Organisation{})
 
 	resp := w.Result()
 
