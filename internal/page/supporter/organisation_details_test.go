@@ -47,12 +47,12 @@ func TestGetOrganisationDetails(t *testing.T) {
 		}).
 		Return(nil)
 
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
 		InvitedMembers(r.Context()).
 		Return(invitedMembers, nil)
 
-	err := OrganisationDetails(template.Execute, organisationStore)(testAppData, w, r, &organisation)
+	err := OrganisationDetails(template.Execute, memberStore)(testAppData, w, r, &organisation)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -63,12 +63,12 @@ func TestGetOrganisationDetailsWhenOrganisationStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
 		InvitedMembers(r.Context()).
 		Return([]*actor.MemberInvite{}, expectedError)
 
-	err := OrganisationDetails(nil, organisationStore)(testAppData, w, r, &actor.Organisation{})
+	err := OrganisationDetails(nil, memberStore)(testAppData, w, r, &actor.Organisation{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -84,12 +84,12 @@ func TestGetOrganisationDetailsWhenTemplateError(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
 		InvitedMembers(mock.Anything).
 		Return([]*actor.MemberInvite{}, nil)
 
-	err := OrganisationDetails(template.Execute, organisationStore)(testAppData, w, r, &actor.Organisation{})
+	err := OrganisationDetails(template.Execute, memberStore)(testAppData, w, r, &actor.Organisation{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
