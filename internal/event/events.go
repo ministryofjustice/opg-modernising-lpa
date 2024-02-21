@@ -3,6 +3,7 @@ package event
 import (
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
@@ -53,7 +54,7 @@ type NotificationSent struct {
 }
 
 type PaperFormRequested struct {
-	UID       string `json:"uid"`
-	ActorType string `json:"actorType"`
-	ActorUID  string `json:"actorUID,omitempty"`
+	UID       string       `json:"uid"`
+	ActorType string       `json:"actorType"`
+	ActorUID  actoruid.UID `json:"actorUID"`
 }

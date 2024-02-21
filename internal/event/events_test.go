@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -49,7 +50,7 @@ func TestEventSchema(t *testing.T) {
 		},
 		"paper-form-requested": PaperFormRequested{
 			UID:       "M-0000-0000-0000",
-			ActorUID:  random.UuidString(),
+			ActorUID:  actoruid.New(),
 			ActorType: actor.TypeAttorney.String(),
 		},
 	}
