@@ -41,8 +41,8 @@ type Logger interface {
 
 type DynamoClient interface {
 	One(ctx context.Context, pk, sk string, v interface{}) error
-	OneByPartialSK(ctx context.Context, pk, partialSk string, v interface{}) error
-	AllByPartialSK(ctx context.Context, pk, partialSk string, v interface{}) error
+	OneByPartialSK(ctx context.Context, pk, partialSK string, v interface{}) error
+	AllByPartialSK(ctx context.Context, pk, partialSK string, v interface{}) error
 	LatestForActor(ctx context.Context, sk string, v interface{}) error
 	AllBySK(ctx context.Context, sk string, v interface{}) error
 	AllByKeys(ctx context.Context, pks []dynamo.Key) ([]map[string]dynamodbtypes.AttributeValue, error)
@@ -103,6 +103,7 @@ func App(
 	dashboardStore := &dashboardStore{dynamoClient: lpaDynamoClient}
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: lpaDynamoClient}
 	organisationStore := &organisationStore{dynamoClient: lpaDynamoClient, now: time.Now, uuidString: uuid.NewString}
+	memberStore := &memberStore{dynamoClient: lpaDynamoClient, now: time.Now, uuidString: uuid.NewString}
 
 	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicURL, random.String, eventClient)
 	witnessCodeSender := page.NewWitnessCodeSender(donorStore, notifyClient)
@@ -124,7 +125,7 @@ func App(
 	handleRoot(page.Paths.AttorneyFixtures, None,
 		fixtures.Attorney(tmpls.Get("attorney_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore))
 	handleRoot(page.Paths.SupporterFixtures, None,
-		fixtures.Supporter(sessionStore, organisationStore, donorStore))
+		fixtures.Supporter(sessionStore, organisationStore, donorStore, memberStore))
 	handleRoot(page.Paths.DashboardFixtures, None,
 		fixtures.Dashboard(tmpls.Get("dashboard_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore))
 	handleRoot(page.Paths.YourLegalRightsAndResponsibilities, None,
@@ -150,10 +151,10 @@ func App(
 		oneLoginClient,
 		sessionStore,
 		organisationStore,
-		notFoundHandler,
 		errorHandler,
 		notifyClient,
 		appPublicURL,
+		memberStore,
 	)
 
 	certificateprovider.Register(
