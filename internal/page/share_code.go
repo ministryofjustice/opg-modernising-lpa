@@ -54,6 +54,7 @@ func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, app
 		return s.eventClient.SendPaperFormRequested(ctx, event.PaperFormRequested{
 			UID:       donor.LpaUID,
 			ActorType: actor.TypeCertificateProvider.String(),
+			ActorUID:  donor.CertificateProvider.UID,
 		})
 	}
 
@@ -114,7 +115,11 @@ func (s *ShareCodeSender) SendAttorneys(ctx context.Context, appData AppData, do
 
 func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, attorney actor.Attorney) error {
 	if attorney.Email == "" {
-		return nil
+		return s.eventClient.SendPaperFormRequested(ctx, event.PaperFormRequested{
+			UID:       donor.LpaUID,
+			ActorType: actor.TypeAttorney.String(),
+			ActorUID:  attorney.UID,
+		})
 	}
 
 	return s.sendAttorney(ctx, attorney.Email,
@@ -135,7 +140,11 @@ func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData AppD
 
 func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, attorney actor.Attorney) error {
 	if attorney.Email == "" {
-		return nil
+		return s.eventClient.SendPaperFormRequested(ctx, event.PaperFormRequested{
+			UID:       donor.LpaUID,
+			ActorType: actor.TypeReplacementAttorney.String(),
+			ActorUID:  attorney.UID,
+		})
 	}
 
 	return s.sendAttorney(ctx, attorney.Email,
@@ -155,8 +164,16 @@ func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData A
 }
 
 func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, trustCorporation actor.TrustCorporation) error {
-	if trustCorporation.Email == "" {
+	if trustCorporation.Name == "" {
 		return nil
+	}
+
+	if trustCorporation.Email == "" {
+		return s.eventClient.SendPaperFormRequested(ctx, event.PaperFormRequested{
+			UID:       donor.LpaUID,
+			ActorType: actor.TypeTrustCorporation.String(),
+			ActorUID:  trustCorporation.UID,
+		})
 	}
 
 	return s.sendAttorney(ctx, trustCorporation.Email,
@@ -177,8 +194,16 @@ func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData AppD
 }
 
 func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, trustCorporation actor.TrustCorporation) error {
-	if trustCorporation.Email == "" {
+	if trustCorporation.Name == "" {
 		return nil
+	}
+
+	if trustCorporation.Email == "" {
+		return s.eventClient.SendPaperFormRequested(ctx, event.PaperFormRequested{
+			UID:       donor.LpaUID,
+			ActorType: actor.TypeReplacementTrustCorporation.String(),
+			ActorUID:  trustCorporation.UID,
+		})
 	}
 
 	return s.sendAttorney(ctx, trustCorporation.Email,
