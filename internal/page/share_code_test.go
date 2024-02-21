@@ -658,7 +658,72 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 		}).
 		Return(nil)
 
-	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandomString, nil)
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendPaperFormRequested(ctx, event.PaperFormRequested{
+			UID:       "lpa-uid",
+			ActorType: "attorney",
+			ActorUID:  uid3,
+		}).
+		Return(nil)
+	eventClient.EXPECT().
+		SendPaperFormRequested(ctx, event.PaperFormRequested{
+			UID:       "lpa-uid",
+			ActorType: "replacementAttorney",
+			ActorUID:  uid5,
+		}).
+		Return(nil)
+
+	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", MockRandomString, eventClient)
+	err := sender.SendAttorneys(ctx, TestAppData, donor)
+
+	assert.Nil(t, err)
+}
+
+func TestShareCodeSenderSendAttorneysTrustCorporationsNoEmail(t *testing.T) {
+	uid1 := actoruid.New()
+	uid2 := actoruid.New()
+
+	donor := &actor.DonorProvidedDetails{
+		Attorneys: actor.Attorneys{
+			TrustCorporation: actor.TrustCorporation{
+				UID:  uid1,
+				Name: "Trusty",
+			},
+		},
+		ReplacementAttorneys: actor.Attorneys{
+			TrustCorporation: actor.TrustCorporation{
+				UID:  uid2,
+				Name: "Untrusty",
+			},
+		},
+		Donor: actor.Donor{
+			FirstNames: "Jan",
+			LastName:   "Smith",
+		},
+		Type:   actor.LpaTypePropertyAndAffairs,
+		LpaUID: "lpa-uid",
+	}
+
+	ctx := context.Background()
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendPaperFormRequested(ctx, event.PaperFormRequested{
+			UID:       "lpa-uid",
+			ActorType: "trustCorporation",
+			ActorUID:  uid1,
+		}).
+		Return(nil)
+	eventClient.EXPECT().
+		SendPaperFormRequested(ctx, event.PaperFormRequested{
+			UID:       "lpa-uid",
+			ActorType: "replacementTrustCorporation",
+			ActorUID:  uid2,
+		}).
+		Return(nil)
+
+	sender := NewShareCodeSender(nil, nil, "http://app", MockRandomString, eventClient)
 	err := sender.SendAttorneys(ctx, TestAppData, donor)
 
 	assert.Nil(t, err)
