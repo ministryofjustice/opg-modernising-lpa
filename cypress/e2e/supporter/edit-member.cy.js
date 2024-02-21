@@ -22,7 +22,7 @@ describe('Edit member', () => {
         cy.contains('a', "John Doe")
     })
 
-    it.only('can edit own name', () => {
+    it('can edit own name', () => {
         // TODO update to a full test when admins can set their own names during org creation
         cy.visit("/supporter/manage-organisation/manage-team-members?nameUpdated=John+Doe&selfUpdated=1");
 

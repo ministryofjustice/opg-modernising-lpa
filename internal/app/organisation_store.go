@@ -19,7 +19,7 @@ type organisationStore struct {
 	now          func() time.Time
 }
 
-// An organisationLink is used to join a GetByID to an Organisation to be accessed by MemberID.
+// An organisationLink is used to join a Member to an Organisation to be accessed by MemberID.
 type organisationLink struct {
 	// PK is the same as the PK for the Member
 	PK string
