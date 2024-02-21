@@ -26,7 +26,7 @@ func ManageTeamMembers(tmpl template.Template, memberStore MemberStore) Handler 
 			return err
 		}
 
-		members, err := memberStore.Members(r.Context())
+		members, err := memberStore.GetAll(r.Context())
 		if err != nil {
 			return err
 		}

@@ -180,6 +180,64 @@ func (_c *mockMemberStore_Get_Call) RunAndReturn(run func(context.Context) (*act
 	return _c
 }
 
+// GetAll provides a mock function with given fields: ctx
+func (_m *mockMemberStore) GetAll(ctx context.Context) ([]*actor.Member, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAll")
+	}
+
+	var r0 []*actor.Member
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) ([]*actor.Member, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) []*actor.Member); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*actor.Member)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockMemberStore_GetAll_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAll'
+type mockMemberStore_GetAll_Call struct {
+	*mock.Call
+}
+
+// GetAll is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *mockMemberStore_Expecter) GetAll(ctx interface{}) *mockMemberStore_GetAll_Call {
+	return &mockMemberStore_GetAll_Call{Call: _e.mock.On("GetAll", ctx)}
+}
+
+func (_c *mockMemberStore_GetAll_Call) Run(run func(ctx context.Context)) *mockMemberStore_GetAll_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *mockMemberStore_GetAll_Call) Return(_a0 []*actor.Member, _a1 error) *mockMemberStore_GetAll_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockMemberStore_GetAll_Call) RunAndReturn(run func(context.Context) ([]*actor.Member, error)) *mockMemberStore_GetAll_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetByID provides a mock function with given fields: ctx, memberID
 func (_m *mockMemberStore) GetByID(ctx context.Context, memberID string) (*actor.Member, error) {
 	ret := _m.Called(ctx, memberID)
@@ -351,64 +409,6 @@ func (_c *mockMemberStore_InvitedMembers_Call) Return(_a0 []*actor.MemberInvite,
 }
 
 func (_c *mockMemberStore_InvitedMembers_Call) RunAndReturn(run func(context.Context) ([]*actor.MemberInvite, error)) *mockMemberStore_InvitedMembers_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Members provides a mock function with given fields: ctx
-func (_m *mockMemberStore) Members(ctx context.Context) ([]*actor.Member, error) {
-	ret := _m.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Members")
-	}
-
-	var r0 []*actor.Member
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]*actor.Member, error)); ok {
-		return rf(ctx)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context) []*actor.Member); ok {
-		r0 = rf(ctx)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*actor.Member)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// mockMemberStore_Members_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Members'
-type mockMemberStore_Members_Call struct {
-	*mock.Call
-}
-
-// Members is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *mockMemberStore_Expecter) Members(ctx interface{}) *mockMemberStore_Members_Call {
-	return &mockMemberStore_Members_Call{Call: _e.mock.On("Members", ctx)}
-}
-
-func (_c *mockMemberStore_Members_Call) Run(run func(ctx context.Context)) *mockMemberStore_Members_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
-	})
-	return _c
-}
-
-func (_c *mockMemberStore_Members_Call) Return(_a0 []*actor.Member, _a1 error) *mockMemberStore_Members_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *mockMemberStore_Members_Call) RunAndReturn(run func(context.Context) ([]*actor.Member, error)) *mockMemberStore_Members_Call {
 	_c.Call.Return(run)
 	return _c
 }

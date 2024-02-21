@@ -31,7 +31,7 @@ type MemberStore interface {
 	InvitedMembers(ctx context.Context) ([]*actor.MemberInvite, error)
 	Get(ctx context.Context) (*actor.Member, error)
 	GetByID(ctx context.Context, memberID string) (*actor.Member, error)
-	Members(ctx context.Context) ([]*actor.Member, error)
+	GetAll(ctx context.Context) ([]*actor.Member, error)
 	Put(ctx context.Context, member *actor.Member) error
 }
 

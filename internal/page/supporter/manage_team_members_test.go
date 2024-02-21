@@ -20,7 +20,7 @@ func TestGetManageTeamMembers(t *testing.T) {
 		InvitedMembers(r.Context()).
 		Return([]*actor.MemberInvite{{FirstNames: "a"}, {FirstNames: "b"}}, nil)
 	memberStore.EXPECT().
-		Members(r.Context()).
+		GetAll(r.Context()).
 		Return([]*actor.Member{{FirstNames: "c"}, {FirstNames: "d"}}, nil)
 
 	template := newMockTemplate(t)
@@ -50,7 +50,7 @@ func TestGetManageTeamMembersWhenOrganisationStoreErrors(t *testing.T) {
 		"InvitedMembers error": {
 			invitedMembersError: expectedError,
 		},
-		"Members error": {
+		"GetAll error": {
 			membersError: expectedError,
 		},
 	}
@@ -67,7 +67,7 @@ func TestGetManageTeamMembersWhenOrganisationStoreErrors(t *testing.T) {
 
 			if tc.membersError != nil {
 				memberStore.EXPECT().
-					Members(mock.Anything).
+					GetAll(mock.Anything).
 					Return([]*actor.Member{}, tc.membersError)
 			}
 
@@ -90,7 +90,7 @@ func TestGetManageTeamMembersWhenTemplateError(t *testing.T) {
 		InvitedMembers(mock.Anything).
 		Return([]*actor.MemberInvite{}, nil)
 	memberStore.EXPECT().
-		Members(mock.Anything).
+		GetAll(mock.Anything).
 		Return([]*actor.Member{{FirstNames: "c"}, {FirstNames: "d"}}, nil)
 
 	template := newMockTemplate(t)

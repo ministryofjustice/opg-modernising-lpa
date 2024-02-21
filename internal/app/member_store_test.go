@@ -191,7 +191,7 @@ func TestPutWhenDynamoError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestMemberStoreMembers(t *testing.T) {
+func TestMemberStoreGetAll(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
@@ -200,13 +200,13 @@ func TestMemberStoreMembers(t *testing.T) {
 
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-	members, err := memberStore.Members(ctx)
+	members, err := memberStore.GetAll(ctx)
 
 	assert.Nil(t, err)
 	assert.Equal(t, []*actor.Member{{FirstNames: "a"}, {FirstNames: "b"}}, members)
 }
 
-func TestMemberStoreMembersWhenSessionMissing(t *testing.T) {
+func TestMemberStoreGetAllWhenSessionMissing(t *testing.T) {
 	testcases := map[string]context.Context{
 		"no organisation ID": page.ContextWithSessionData(context.Background(), &page.SessionData{}),
 		"no session data":    context.Background(),
@@ -216,14 +216,14 @@ func TestMemberStoreMembersWhenSessionMissing(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			memberStore := &memberStore{now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-			_, err := memberStore.Members(ctx)
+			_, err := memberStore.GetAll(ctx)
 
 			assert.Error(t, err)
 		})
 	}
 }
 
-func TestMemberStoreMembersWhenDynamoClientError(t *testing.T) {
+func TestMemberStoreGetAllWhenDynamoClientError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
@@ -232,7 +232,7 @@ func TestMemberStoreMembersWhenDynamoClientError(t *testing.T) {
 
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-	_, err := memberStore.Members(ctx)
+	_, err := memberStore.GetAll(ctx)
 
 	assert.Equal(t, expectedError, err)
 }

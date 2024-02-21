@@ -126,14 +126,14 @@ func (s *memberStore) InvitedMember(ctx context.Context) (*actor.MemberInvite, e
 	return invitedMember, nil
 }
 
-func (s *memberStore) Members(ctx context.Context) ([]*actor.Member, error) {
+func (s *memberStore) GetAll(ctx context.Context) ([]*actor.Member, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	if data.OrganisationID == "" {
-		return nil, errors.New("memberStore.Members requires OrganisationID")
+		return nil, errors.New("memberStore.GetAll requires OrganisationID")
 	}
 
 	var members []*actor.Member
