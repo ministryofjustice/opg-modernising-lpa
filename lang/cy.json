@@ -1083,5 +1083,6 @@
     "nameUpdated": "Welsh",
     "teamMembersNameUpdatedToNewName": "Welsh <span class=\"govuk-!-font-weight-bold\">{{ .NewName }}</span>.",
     "yourNameHasBeenUpdatedToNewName": "Welsh <span class=\"govuk-!-font-weight-bold\">{{ .NewName }}</span>.",
-    "you": "Welsh"
+    "you": "Welsh",
+    "manageYourDetails": "Welsh"
 }
