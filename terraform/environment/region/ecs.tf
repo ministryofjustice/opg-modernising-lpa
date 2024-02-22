@@ -56,6 +56,8 @@ module "app" {
   lpa_store_base_url                                   = var.lpa_store_service.base_url
   mock_onelogin_enabled                                = data.aws_default_tags.current.tags.environment-name != "production" && var.mock_onelogin_enabled
   fault_injection_experiments_enabled                  = var.fault_injection_experiments_enabled
+  search_endpoint                                      = var.search_endpoint
+  search_collection_arn                                = var.search_collection_arn
   providers = {
     aws.region = aws.region
   }
@@ -87,7 +89,6 @@ module "mock_onelogin" {
     name = aws_service_discovery_private_dns_namespace.mock_one_login.name
   }
   app_ecs_service_security_group_id = module.app.ecs_service_security_group.id
-
   providers = {
     aws.region = aws.region
   }
