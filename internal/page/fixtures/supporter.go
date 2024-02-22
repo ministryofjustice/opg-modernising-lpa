@@ -34,16 +34,17 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, don
 			organisation   = r.FormValue("organisation")
 			redirect       = r.FormValue("redirect")
 			asMember       = r.FormValue("asMember")
+			permission     = r.FormValue("permission")
 
-			adminSub       = random.String(16)
-			adminSessionID = base64.StdEncoding.EncodeToString([]byte(adminSub))
-			adminCtx       = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: adminSessionID, Email: testEmail})
+			supporterSub       = random.String(16)
+			supporterSessionID = base64.StdEncoding.EncodeToString([]byte(supporterSub))
+			supporterCtx       = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: supporterSessionID, Email: testEmail})
 		)
 
-		loginSession := &sesh.LoginSession{Sub: adminSub, Email: testEmail}
+		loginSession := &sesh.LoginSession{Sub: supporterSub, Email: testEmail}
 
 		if organisation == "1" {
-			org, err := organisationStore.Create(adminCtx, random.String(12))
+			org, err := organisationStore.Create(supporterCtx, random.String(12))
 			if err != nil {
 				return err
 			}
@@ -90,6 +91,11 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, don
 				n, _ := strconv.Atoi(members)
 				memberEmailSub := make(map[string]string)
 
+				permission, err := actor.ParsePermission(permission)
+				if err != nil {
+					permission = actor.None
+				}
+
 				for i, member := range orgMemberNames {
 					if i == n {
 						break
@@ -110,7 +116,7 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, don
 							Email:           email,
 							FirstNames:      member.Firstnames,
 							LastName:        member.Lastname,
-							Permission:      actor.None,
+							Permission:      permission,
 							ReferenceNumber: random.String(12),
 						},
 					); err != nil {

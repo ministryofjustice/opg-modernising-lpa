@@ -1,15 +1,13 @@
 describe('Edit member', () => {
     describe('admin', () => {
-        beforeEach(() => {
-            cy.visit("/fixtures/supporter?organisation=1&redirect=/manage-organisation/manage-team-members&members=1");
+        it('can edit a team members name', () => {
+            cy.visit("/fixtures/supporter?organisation=1&redirect=/manage-organisation/manage-team-members&members=1&permission=admin");
 
             cy.url().should('contain', "/manage-organisation/manage-team-members");
             cy.contains('a', "Alice Moxom").click()
 
             cy.url().should('contain', "/manage-organisation/manage-team-members/edit-team-member");
-        });
 
-        it('can edit a team members name', () => {
             cy.checkA11yApp();
 
             cy.get('#f-first-names').clear().type('John');
@@ -29,6 +27,38 @@ describe('Edit member', () => {
 
             cy.contains('Your name has been updated to John Doe');
         })
+    })
+
+    describe('non-admin', () => {
+        it.only('can edit own name', () => {
+            cy.visit("/fixtures/supporter?organisation=1&redirect=/manage-organisation/manage-team-members&members=1&asMember=alice-moxom@example.org");
+
+            cy.contains('a', 'Manage your details').click();
+            cy.url().should('contain', "/manage-organisation/manage-team-members/edit-team-member");
+
+            cy.checkA11yApp();
+            cy.contains('Your name');
+
+            cy.get('#f-first-names').clear ().type('John');
+            cy.get('#f-last-name').clear().type('Doe');
+
+            cy.contains('button', "Save").click()
+
+            cy.url().should('contain', "/dashboard");
+
+            cy.contains('Your name has been updated to John Doe');
+        })
+    })
+
+    describe('errors', () => {
+        beforeEach(() => {
+            cy.visit("/fixtures/supporter?organisation=1&redirect=/manage-organisation/manage-team-members&members=1");
+
+            cy.url().should('contain', "/manage-organisation/manage-team-members");
+            cy.contains('a', "Alice Moxom").click()
+
+            cy.url().should('contain', "/manage-organisation/manage-team-members/edit-team-member");
+        });
 
         it('errors when empty', () => {
             cy.get('#f-first-names').clear();
@@ -58,27 +88,5 @@ describe('Edit member', () => {
             cy.contains('[for=f-first-names] + .govuk-error-message', 'First names must be 53 characters or less');
             cy.contains('[for=f-last-name] + .govuk-error-message', 'Last name must be 61 characters or less');
         });
-    })
-
-    describe('non-admin', () => {
-        it.only('can edit own name', () => {
-            cy.visit("/fixtures/supporter?organisation=1&redirect=/manage-organisation/manage-team-members&members=1&asMember=alice-moxom@example.org");
-
-            cy.contains('a', 'Manage your details').click();
-            cy.url().should('contain', "/manage-organisation/manage-team-members/edit-team-member");
-
-            cy.checkA11yApp();
-            cy.contains('Your name');
-
-            cy.get('#f-first-names').clear ().type('John');
-            cy.get('#f-last-name').clear().type('Doe');
-
-            cy.contains('button', "Save").click()
-
-            cy.url().should('contain', "/dashboard");
-
-            cy.contains('Your name has been updated to John Doe');
-        })
-    })
-
+    });
 })

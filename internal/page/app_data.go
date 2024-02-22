@@ -27,7 +27,7 @@ type AppData struct {
 	IsManageOrganisation bool
 	LoginSessionEmail    string
 	Permission           actor.Permission
-	SupporterMemberID    string
+	LoggedInSupporterID  string
 }
 
 func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, url string) error {

@@ -125,8 +125,8 @@
                           <a class="service-header__nav-list-item-link" href="{{ link .App global.Paths.Supporter.OrganisationDetails.Format }}">{{ tr .App "manageOrganisation" }}</a>
                       </li>
                       {{ else }}
-                      <li class="service-header__nav-list-item {{ if eq .App.Page global.Paths.Supporter.EditMember.Format }}service-header__nav-list-item--active{{ end }}">
-                          <a class="service-header__nav-list-item-link" href="{{ link .App global.Paths.Supporter.EditMember.Format }}?id={{ .App.SupporterMemberID }}">{{ tr .App "manageYourDetails" }}</a>
+                      <li class="service-header__nav-list-item {{ if .App.IsManageOrganisation  }}service-header__nav-list-item--active{{ end }}">
+                          <a class="service-header__nav-list-item-link" href="{{ link .App global.Paths.Supporter.EditMember.Format }}?id={{ .App.LoggedInSupporterID }}">{{ tr .App "manageYourDetails" }}</a>
                       </li>
                       {{ end }}
                 {{ else }}
