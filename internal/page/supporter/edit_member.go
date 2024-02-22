@@ -54,7 +54,12 @@ func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
 					return err
 				}
 
-				return page.Paths.Supporter.ManageTeamMembers.RedirectQuery(w, r, appData, query)
+				redirect := page.Paths.Supporter.ManageTeamMembers
+				if !appData.IsAdmin() {
+					redirect = page.Paths.Supporter.Dashboard
+				}
+
+				return redirect.RedirectQuery(w, r, appData, query)
 			}
 		}
 
