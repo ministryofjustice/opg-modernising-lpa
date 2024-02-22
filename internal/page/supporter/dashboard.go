@@ -2,6 +2,7 @@ package supporter
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -13,6 +14,7 @@ type dashboardData struct {
 	App    page.AppData
 	Errors validation.List
 	Donors []actor.DonorProvidedDetails
+	Query  url.Values
 }
 
 func Dashboard(tmpl template.Template, organisationStore OrganisationStore) Handler {
@@ -22,6 +24,6 @@ func Dashboard(tmpl template.Template, organisationStore OrganisationStore) Hand
 			return err
 		}
 
-		return tmpl(w, &dashboardData{App: appData, Donors: donors})
+		return tmpl(w, &dashboardData{App: appData, Donors: donors, Query: r.URL.Query()})
 	}
 }

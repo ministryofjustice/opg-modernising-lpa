@@ -6,8 +6,13 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <form novalidate method="post">
-        <span class="govuk-caption-xl">{{ tr .App "manageTeamMembers" }}</span>
-        <h1 class="govuk-heading-xl">{{ .Member.FullName }} {{ if eq .Member.Email $.App.LoginSessionEmail }} ({{ tr $.App "you" }}) {{ end }}</h1>
+        {{ if .App.IsAdmin }}
+          <span class="govuk-caption-xl">{{ tr .App "manageTeamMembers" }}</span>
+          <h1 class="govuk-heading-xl">{{ .Member.FullName }} {{ if eq .Member.Email $.App.LoginSessionEmail }} ({{ tr $.App "you" }}) {{ end }}</h1>
+        {{ else }}
+          <span class="govuk-caption-xl">{{ tr .App "manageYourDetails" }}</span>
+          <h1 class="govuk-heading-xl">{{ tr $.App "yourName" }}</h1>
+        {{ end }}
 
         {{ template "input" (input . "first-names" "firstNames" .Form.FirstNames "classes" "govuk-input--width-20") }}
 
