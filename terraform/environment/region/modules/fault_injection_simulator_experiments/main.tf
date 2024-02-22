@@ -131,7 +131,7 @@ resource "aws_fis_experiment_template" "ecs_app_stop_tasks" {
 
   action {
     action_id   = "aws:ecs:stop-task"
-    name        = "one-task"
+    name        = "stop-one-task"
     start_after = []
 
     target {
