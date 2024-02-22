@@ -1,7 +1,3 @@
-data "aws_caller_identity" "current" {
-  provider = aws.eu_west_1
-}
-
 data "aws_vpc_endpoint" "opensearch" {
   tags = {
     Name = "opensearch-eu-west-1"
@@ -72,7 +68,7 @@ resource "aws_opensearchserverless_access_policy" "lpas_collection_data_access_p
           Permission   = ["aoss:*"]
         }
       ],
-      Principal = [data.aws_caller_identity.current.arn]
+      Principal = [module.global.iam_roles.app_ecs_task_role]
     }
   ])
   provider = aws.eu_west_1
