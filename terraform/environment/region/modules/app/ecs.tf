@@ -296,6 +296,20 @@ data "aws_iam_policy_document" "task_role_access_policy" {
     ]
   }
 
+  statement {
+    count  = var.search_collection_arn == null ? 0 : 1
+    sid    = "${local.policy_region_prefix}OpenSearchAccess"
+    effect = "Allow"
+
+    actions = [
+      "aoss:APIAccessAll"
+    ]
+
+    resources = [
+      var.search_collection_arn
+    ]
+  }
+
   provider = aws.region
 }
 
@@ -422,6 +436,10 @@ locals {
         {
           name  = "LPA_STORE_BASE_URL",
           value = var.lpa_store_base_url
+        },
+        {
+          name  = "SEARCH_ENDPOINT",
+          value = var.search_endpoint == null ? "" : var.search_endpoint
         }
       ]
     }
