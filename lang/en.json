@@ -1030,5 +1030,12 @@
     "teamMemberSuspended": "Team member suspended",
     "accessUpdated": "Access updated",
     "emailHasBeenSuspended": "<span class=\"govuk-!-font-weight-bold\">{{ .Email }}</span> has been suspended from this organisation.",
-    "emailCanNowAccessOrganisation": "<span class=\"govuk-!-font-weight-bold\">{{ .Email }}</span> can now access this organisation."
+    "emailCanNowAccessOrganisation": "<span class=\"govuk-!-font-weight-bold\">{{ .Email }}</span> can now access this organisation.",
+    "previousPage": "Previous<span class=\"govuk-visually-hidden\"> page</span>",
+    "nextPage": "Next<span class=\"govuk-visually-hidden\"> page</span>",
+    "page": "Page",
+    "showing": "Showing",
+    "to": "to",
+    "of": "of",
+    "lpas": "LPAs"
 }
