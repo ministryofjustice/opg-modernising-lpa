@@ -9,10 +9,12 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
@@ -33,6 +35,10 @@ type MemberStore interface {
 	GetByID(ctx context.Context, memberID string) (*actor.Member, error)
 	GetAll(ctx context.Context) ([]*actor.Member, error)
 	Put(ctx context.Context, member *actor.Member) error
+}
+
+type DonorStore interface {
+	GetByKeys(ctx context.Context, keys []dynamo.Key) ([]actor.DonorProvidedDetails, error)
 }
 
 type OneLoginClient interface {
@@ -67,6 +73,8 @@ func Register(
 	notifyClient NotifyClient,
 	appPublicURL string,
 	memberStore MemberStore,
+	searchClient *search.Client,
+	donorStore DonorStore,
 ) {
 	paths := page.Paths.Supporter
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
@@ -89,7 +97,7 @@ func Register(
 	handleWithSupporter(paths.OrganisationCreated, page.None,
 		Guidance(tmpls.Get("organisation_created.gohtml")))
 	handleWithSupporter(paths.Dashboard, page.None,
-		Dashboard(tmpls.Get("dashboard.gohtml"), organisationStore))
+		Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, searchClient))
 	handleWithSupporter(paths.ConfirmDonorCanInteractOnline, page.None,
 		ConfirmDonorCanInteractOnline(tmpls.Get("confirm_donor_can_interact_online.gohtml"), organisationStore))
 	handleWithSupporter(paths.ContactOPGForPaperForms, page.None,
