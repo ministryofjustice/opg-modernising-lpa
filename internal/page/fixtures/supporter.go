@@ -52,24 +52,26 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, don
 			loginSession.OrganisationID = org.ID
 			loginSession.OrganisationName = org.Name
 
-			if lpa == "1" {
-				donor, err := organisationStore.CreateLPA(page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID}))
-				if err != nil {
-					return err
-				}
+			if lpaCount, err := strconv.Atoi(lpa); err == nil {
+				for range lpaCount {
+					donor, err := organisationStore.CreateLPA(page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID}))
+					if err != nil {
+						return err
+					}
 
-				donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID, LpaID: donor.LpaID})
+					donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID, LpaID: donor.LpaID})
 
-				donor.LpaUID = makeUID()
-				donor.Donor = makeDonor()
-				donor.Type = actor.LpaTypePropertyAndAffairs
+					donor.LpaUID = makeUID()
+					donor.Donor = makeDonor()
+					donor.Type = actor.LpaTypePropertyAndAffairs
 
-				donor.Attorneys = actor.Attorneys{
-					Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},
-				}
+					donor.Attorneys = actor.Attorneys{
+						Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},
+					}
 
-				if err := donorStore.Put(donorCtx, donor); err != nil {
-					return err
+					if err := donorStore.Put(donorCtx, donor); err != nil {
+						return err
+					}
 				}
 			}
 
