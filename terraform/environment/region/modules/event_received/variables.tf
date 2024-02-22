@@ -32,3 +32,8 @@ variable "uid_base_url" {
 variable "allowed_api_arns" {
   type = list(string)
 }
+
+variable "search_endpoint" {
+  type        = string
+  description = "URL of the OpenSearch Service endpoint to use"
+}
