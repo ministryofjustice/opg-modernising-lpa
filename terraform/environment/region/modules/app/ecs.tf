@@ -422,6 +422,10 @@ locals {
         {
           name  = "LPA_STORE_BASE_URL",
           value = var.lpa_store_base_url
+        },
+        {
+          name  = "SEARCH_ENDPOINT",
+          value = var.search_endpoint
         }
       ]
     }

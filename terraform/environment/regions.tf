@@ -12,6 +12,11 @@ module "allow_list" {
   source = "git@github.com:ministryofjustice/opg-terraform-aws-moj-ip-allow-list.git?ref=v2.3.0"
 }
 
+data "aws_opensearchserverless_collection" "lpas_collection" {
+  name     = "collection-${data.aws_default_tags.current.tags.environment-name}"
+  provider = aws.eu_west_1
+}
+
 module "eu_west_1" {
   source = "./region"
   count  = contains(local.environment.regions, "eu-west-1") ? 1 : 0
@@ -62,6 +67,7 @@ module "eu_west_1" {
   service_health_check_alarm_enabled      = local.environment.app.service_health_check_alarm_enabled
   cloudwatch_application_insights_enabled = local.environment.app.cloudwatch_application_insights_enabled
   fault_injection_experiments_enabled     = local.environment.app.fault_injection_experiments_enabled
+  search_endpoint                         = data.aws_opensearchserverless_collection.lpas_collection.collection_endpoint
   providers = {
     aws.region            = aws.eu_west_1
     aws.global            = aws.global
@@ -120,6 +126,7 @@ module "eu_west_2" {
   service_health_check_alarm_enabled      = local.environment.app.service_health_check_alarm_enabled
   cloudwatch_application_insights_enabled = local.environment.app.cloudwatch_application_insights_enabled
   fault_injection_experiments_enabled     = local.environment.app.fault_injection_experiments_enabled
+  search_endpoint                         = data.aws_opensearchserverless_collection.lpas_collection.collection_endpoint
   providers = {
     aws.region            = aws.eu_west_2
     aws.global            = aws.global
