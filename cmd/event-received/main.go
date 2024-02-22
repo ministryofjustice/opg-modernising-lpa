@@ -35,7 +35,7 @@ type dynamodbClient interface {
 	One(ctx context.Context, pk, sk string, v interface{}) error
 	OneByUID(ctx context.Context, uid string, v interface{}) error
 	Put(ctx context.Context, v interface{}) error
-	Update(ctx context.Context, pk, sk string, values map[string]dynamodbtypes.AttributeValue, expression string) error
+	UpdateReturn(ctx context.Context, pk, sk string, values map[string]dynamodbtypes.AttributeValue, expression string) (map[string]dynamodbtypes.AttributeValue, error)
 	DeleteOne(ctx context.Context, pk, sk string) error
 }
 
@@ -82,6 +82,7 @@ func handler(ctx context.Context, event Event) error {
 		evidenceBucketName = os.Getenv("UPLOADS_S3_BUCKET_NAME")
 		uidBaseURL         = os.Getenv("UID_BASE_URL")
 		eventBusName       = env.Get("EVENT_BUS_NAME", "default")
+		searchEndpoint     = os.Getenv("SEARCH_ENDPOINT")
 	)
 
 	cfg, err := config.LoadDefaultConfig(ctx)
@@ -125,6 +126,7 @@ func handler(ctx context.Context, event Event) error {
 			notifyBaseURL:      notifyBaseURL,
 			appPublicURL:       appPublicURL,
 			eventBusName:       eventBusName,
+			searchEndpoint:     searchEndpoint,
 		}
 
 		if err := handler.Handle(ctx, event.CloudWatchEvent); err != nil {
