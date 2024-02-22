@@ -17,6 +17,8 @@ describe('Edit member', () => {
 
             cy.url().should('contain', "/manage-organisation/manage-team-members");
 
+            cy.checkA11yApp();
+
             cy.contains('Team member’s name updated to John Doe');
             cy.contains('a', "John Doe")
         })
@@ -37,6 +39,8 @@ describe('Edit member', () => {
             cy.contains('button', "Save").click()
 
             cy.url().should('contain', "/manage-organisation/manage-team-members");
+
+            cy.checkA11yApp();
 
             cy.contains('Your name has been updated to John Doe');
             cy.contains('a', "John Doe")
@@ -60,6 +64,7 @@ describe('Edit member', () => {
 
             cy.url().should('contain', "/dashboard");
 
+            cy.checkA11yApp();
             cy.contains('Your name has been updated to John Doe');
         })
     })
