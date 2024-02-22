@@ -19,6 +19,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
@@ -32,12 +33,17 @@ type cloudWatchEventHandler struct {
 	notifyBaseURL      string
 	appPublicURL       string
 	eventBusName       string
+	searchEndpoint     string
 }
 
 func (h *cloudWatchEventHandler) Handle(ctx context.Context, cloudWatchEvent events.CloudWatchEvent) error {
 	switch cloudWatchEvent.DetailType {
 	case "uid-requested":
-		uidStore := app.NewUidStore(h.dynamoClient, h.now)
+		searchClientFactory := func() (app.SearchClient, error) {
+			return search.NewClient(h.cfg, h.searchEndpoint)
+		}
+
+		uidStore := app.NewUidStore(h.dynamoClient, searchClientFactory, h.now)
 		uidClient := uid.New(h.uidBaseURL, lambda.New(h.cfg, v4.NewSigner(), &http.Client{Timeout: 10 * time.Second}, time.Now))
 
 		return handleUidRequested(ctx, uidStore, uidClient, cloudWatchEvent)
