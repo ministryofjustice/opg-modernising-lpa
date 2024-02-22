@@ -35,7 +35,7 @@ type dynamodbClient interface {
 	One(ctx context.Context, pk, sk string, v interface{}) error
 	OneByUID(ctx context.Context, uid string, v interface{}) error
 	Put(ctx context.Context, v interface{}) error
-	Update(ctx context.Context, pk, sk string, values map[string]dynamodbtypes.AttributeValue, expression string) error
+	UpdateReturn(ctx context.Context, pk, sk string, values map[string]dynamodbtypes.AttributeValue, expression string) (map[string]dynamodbtypes.AttributeValue, error)
 	DeleteOne(ctx context.Context, pk, sk string) error
 }
 
