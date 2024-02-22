@@ -8,6 +8,7 @@ module "event_received" {
     APP_PUBLIC_URL             = "https://${var.app_public_url}"
     UPLOADS_S3_BUCKET_NAME     = var.uploads_bucket.bucket
     UID_BASE_URL               = var.uid_base_url
+    SEARCH_ENDPOINT            = var.search_endpoint
   }
   image_uri            = "${var.lambda_function_image_ecr_url}:${var.lambda_function_image_tag}"
   environment          = data.aws_default_tags.current.tags.environment-name
