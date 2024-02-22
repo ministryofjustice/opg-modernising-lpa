@@ -3,13 +3,17 @@ package app
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
@@ -39,6 +43,7 @@ type donorStore struct {
 	now           func() time.Time
 	s3Client      *s3.Client
 	documentStore DocumentStore
+	searchClient  SearchClient
 }
 
 func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, error) {
@@ -156,6 +161,22 @@ func (s *donorStore) Latest(ctx context.Context) (*actor.DonorProvidedDetails, e
 	return donor, nil
 }
 
+func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Key) ([]actor.DonorProvidedDetails, error) {
+	if len(keys) == 0 {
+		return nil, nil
+	}
+
+	items, err := s.dynamoClient.AllByKeys(ctx, keys)
+	if err != nil {
+		return nil, err
+	}
+
+	var donors []actor.DonorProvidedDetails
+	err = attributevalue.UnmarshalListOfMaps(items, &donors)
+
+	return donors, err
+}
+
 func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails) error {
 	newHash, err := donor.GenerateHash()
 	if newHash == donor.Hash || err != nil {
@@ -168,6 +189,14 @@ func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails)
 	// SKUpdatedAtIndex will not return UID-less LPAs.
 	if donor.LpaUID != "" {
 		donor.UpdatedAt = s.now()
+
+		if err := s.searchClient.Index(ctx, search.Lpa{
+			PK:            donor.PK,
+			SK:            donor.SK,
+			DonorFullName: donor.Donor.FullName(),
+		}); err != nil {
+			return fmt.Errorf("donorStore index failed: %w", err)
+		}
 	}
 
 	if donor.LpaUID == "" && !donor.Type.Empty() && !donor.HasSentUidRequestedEvent {

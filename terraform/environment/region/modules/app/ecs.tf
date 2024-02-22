@@ -296,9 +296,46 @@ data "aws_iam_policy_document" "task_role_access_policy" {
     ]
   }
 
+  statement {
+    sid    = "${local.policy_region_prefix}OpenSearchAccess"
+    effect = "Allow"
+
+    actions = [
+      "aoss:APIAccessAll"
+    ]
+
+    resources = [
+      var.search_collection_arn
+    ]
+  }
+
   provider = aws.region
 }
 
+resource "aws_opensearchserverless_access_policy" "lpas_collection_data_access_policy" {
+  count       = var.search_endpoint == null ? 0 : 1
+  name        = "policy-${data.aws_default_tags.current.tags.environment-name}"
+  type        = "data"
+  description = "allow index and collection access"
+  policy = jsonencode([
+    {
+      Rules = [
+        {
+          ResourceType = "index",
+          Resource     = ["index/collection-${data.aws_default_tags.current.tags.environment-name}/*"],
+          Permission   = ["aoss:*"]
+        },
+        {
+          ResourceType = "collection",
+          Resource     = ["collection/collection-${data.aws_default_tags.current.tags.environment-name}"],
+          Permission   = ["aoss:*"]
+        }
+      ],
+      Principal = [aws_ecs_task_definition.app.arn]
+    }
+  ])
+  provider = aws.region
+}
 
 locals {
   app_url = "https://${data.aws_default_tags.current.tags.environment-name}.app.modernising.opg.service.justice.gov.uk"
@@ -422,6 +459,10 @@ locals {
         {
           name  = "LPA_STORE_BASE_URL",
           value = var.lpa_store_base_url
+        },
+        {
+          name  = "SEARCH_ENDPOINT",
+          value = var.search_endpoint == null ? "" : var.search_endpoint
         }
       ]
     }
