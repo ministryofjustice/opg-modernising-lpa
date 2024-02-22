@@ -129,22 +129,23 @@ resource "aws_fis_experiment_template" "ecs_app" {
     Name = "${data.aws_default_tags.current.tags.environment-name} - APP ECS Task Experiments"
   }
 
-  action {
-    action_id   = "aws:ecs:stop-task"
-    name        = "stop_two_tasks"
-    start_after = []
+  # action {
+  #   action_id   = "aws:ecs:stop-task"
+  #   name        = "stop_two_tasks"
+  #   start_after = []
 
-    target {
-      key   = "Tasks"
-      value = "two-tasks"
-    }
-  }
+  #   target {
+  #     key   = "Tasks"
+  #     value = "two-tasks"
+  #   }
+  # }
 
   action {
     action_id   = "aws:ecs:task-cpu-stress"
     description = null
     name        = "cpu_stress_100_percent_10_mins"
-    start_after = ["stop_two_tasks"]
+    start_after = []
+    # start_after = ["stop_two_tasks"]
     parameter {
       key   = "duration"
       value = "PT10M"
