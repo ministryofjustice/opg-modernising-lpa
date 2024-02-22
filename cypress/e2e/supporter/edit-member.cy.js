@@ -22,15 +22,29 @@ describe('Edit member', () => {
         })
 
         it('can edit own name', () => {
-            // TODO update to a full test when admins can set their own names during org creation
-            cy.visit("/supporter/manage-organisation/manage-team-members?nameUpdated=John+Doe&selfUpdated=1");
+            cy.visit("/fixtures/supporter?organisation=1&redirect=/manage-organisation/manage-team-members&members=1&asMember=alice-moxom@example.org&permission=admin");
+
+            cy.url().should('contain', "/manage-organisation/manage-team-members");
+            cy.contains('a', "Alice Moxom").click()
+
+            cy.url().should('contain', "/manage-organisation/manage-team-members/edit-team-member");
+
+            cy.checkA11yApp();
+
+            cy.get('#f-first-names').clear().type('John');
+            cy.get('#f-last-name').clear().type('Doe');
+
+            cy.contains('button', "Save").click()
+
+            cy.url().should('contain', "/manage-organisation/manage-team-members");
 
             cy.contains('Your name has been updated to John Doe');
+            cy.contains('a', "John Doe")
         })
     })
 
     describe('non-admin', () => {
-        it.only('can edit own name', () => {
+        it('can edit own name', () => {
             cy.visit("/fixtures/supporter?organisation=1&redirect=/manage-organisation/manage-team-members&members=1&asMember=alice-moxom@example.org");
 
             cy.contains('a', 'Manage your details').click();
