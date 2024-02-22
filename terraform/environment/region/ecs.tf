@@ -20,6 +20,10 @@ data "aws_ssm_parameter" "additional_allowed_ingress_cidrs" {
   provider = aws.management_global
 }
 
+data "aws_opensearchserverless_collection" "lpas_collection" {
+  name = "collection-${data.aws_default_tags.current.tags.environment-name}"
+}
+
 module "app" {
   source                          = "./modules/app"
   ecs_cluster                     = aws_ecs_cluster.main.id
@@ -56,6 +60,7 @@ module "app" {
   lpa_store_base_url                                   = var.lpa_store_service.base_url
   mock_onelogin_enabled                                = data.aws_default_tags.current.tags.environment-name != "production" && var.mock_onelogin_enabled
   fault_injection_experiments_enabled                  = var.fault_injection_experiments_enabled
+  search_endpoint                                      = data.aws_opensearchserverless_collection.lpas_collection.collection_endpoint
   providers = {
     aws.region = aws.region
   }
@@ -87,7 +92,6 @@ module "mock_onelogin" {
     name = aws_service_discovery_private_dns_namespace.mock_one_login.name
   }
   app_ecs_service_security_group_id = module.app.ecs_service_security_group.id
-
   providers = {
     aws.region = aws.region
   }

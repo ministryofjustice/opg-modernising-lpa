@@ -12,6 +12,7 @@ module "event_received" {
   uploads_bucket                = module.uploads_s3_bucket.bucket
   uid_base_url                  = var.uid_service.base_url
   allowed_api_arns              = var.uid_service.api_arns
+  search_endpoint               = data.aws_opensearchserverless_collection.lpas_collection.collection_endpoint
 
   lpas_table = {
     arn  = var.lpas_table.arn
