@@ -54,14 +54,18 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
       - DOCKER_HOST=unix:///var/run/docker.sock
-      - SERVICES=s3,secretsmanager,sqs,dynamodb,events,kms,lambda
+      - SERVICES=s3,secretsmanager,sqs,dynamodb,events,kms,lambda,opensearch
       - DATA_DIR=/tmp/localstack/data
       - DEBUG=1
       - AWS_ACCESS_KEY_ID=fakeKeyId
       - AWS_BASE_URL=http://localstack:4566
       - AWS_REGION=eu-west-1
       - AWS_SECRET_ACCESS_KEY=fakeAccessKey
-
+    networks:
+      default:
+        aliases:
+          - my-domain.eu-west-1.opensearch.localhost.localstack.cloud
+          
   mock-lpa-store:
     image: outofcoffee/imposter:latest
     volumes:
