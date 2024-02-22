@@ -87,45 +87,87 @@ func TestGetEditMemberWhenTemplateError(t *testing.T) {
 
 func TestPostEditMember(t *testing.T) {
 	testcases := map[string]struct {
-		form           url.Values
-		expectedQuery  string
-		expectedMember *actor.Member
-		memberEmail    string
+		form             url.Values
+		expectedRedirect string
+		expectedMember   *actor.Member
+		memberEmail      string
+		userPermission   actor.Permission
 	}{
-		"Team member name updated": {
+		"As Admin: Team member name updated": {
 			form: url.Values{
 				"first-names": {"c"},
 				"last-name":   {"d"},
 			},
-			expectedQuery: "?nameUpdated=c+d",
+			expectedRedirect: page.Paths.Supporter.ManageTeamMembers.Format() + "?nameUpdated=c+d",
 			expectedMember: &actor.Member{
 				FirstNames: "c",
 				LastName:   "d",
 			},
+			userPermission: actor.Admin,
 		},
-		"Self name updated": {
+		"As Admin: Self name updated": {
 			form: url.Values{
 				"first-names": {"c"},
 				"last-name":   {"d"},
 			},
-			expectedQuery: "?nameUpdated=c+d&selfUpdated=1",
+			expectedRedirect: page.Paths.Supporter.ManageTeamMembers.Format() + "?nameUpdated=c+d&selfUpdated=1",
 			expectedMember: &actor.Member{
 				FirstNames: "c",
 				LastName:   "d",
 				Email:      "a@example.org",
 			},
-			memberEmail: "a@example.org",
+			userPermission: actor.Admin,
+			memberEmail:    "a@example.org",
 		},
-		"no updates": {
+		"As Admin: no updates": {
 			form: url.Values{
 				"first-names": {"a"},
 				"last-name":   {"b"},
 			},
-			expectedQuery: "?",
+			expectedRedirect: page.Paths.Supporter.ManageTeamMembers.Format() + "?",
 			expectedMember: &actor.Member{
 				FirstNames: "a",
 				LastName:   "b",
 			},
+			userPermission: actor.Admin,
+		},
+		"As Non-Admin: Team member name updated": {
+			form: url.Values{
+				"first-names": {"c"},
+				"last-name":   {"d"},
+			},
+			expectedRedirect: page.Paths.Supporter.Dashboard.Format() + "?nameUpdated=c+d",
+			expectedMember: &actor.Member{
+				FirstNames: "c",
+				LastName:   "d",
+			},
+			userPermission: actor.None,
+		},
+		"As Non-Admin: Self name updated": {
+			form: url.Values{
+				"first-names": {"c"},
+				"last-name":   {"d"},
+			},
+			expectedRedirect: page.Paths.Supporter.Dashboard.Format() + "?nameUpdated=c+d&selfUpdated=1",
+			expectedMember: &actor.Member{
+				FirstNames: "c",
+				LastName:   "d",
+				Email:      "a@example.org",
+			},
+			userPermission: actor.None,
+			memberEmail:    "a@example.org",
+		},
+		"As Non-Admin: no updates": {
+			form: url.Values{
+				"first-names": {"a"},
+				"last-name":   {"b"},
+			},
+			expectedRedirect: page.Paths.Supporter.Dashboard.Format() + "?",
+			expectedMember: &actor.Member{
+				FirstNames: "a",
+				LastName:   "b",
+			},
+			userPermission: actor.None,
 		},
 	}
 
@@ -149,12 +191,14 @@ func TestPostEditMember(t *testing.T) {
 				Return(nil)
 
 			testAppData.LoginSessionEmail = "a@example.org"
+			testAppData.Permission = tc.userPermission
+
 			err := EditMember(nil, memberStore)(testAppData, w, r, &actor.Organisation{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Supporter.ManageTeamMembers.Format()+tc.expectedQuery, resp.Header.Get("Location"))
+			assert.Equal(t, tc.expectedRedirect, resp.Header.Get("Location"))
 		})
 	}
 }

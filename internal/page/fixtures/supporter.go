@@ -33,16 +33,17 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, don
 			members        = r.FormValue("members")
 			organisation   = r.FormValue("organisation")
 			redirect       = r.FormValue("redirect")
+			asMember       = r.FormValue("asMember")
 
-			supporterSub       = random.String(16)
-			supporterSessionID = base64.StdEncoding.EncodeToString([]byte(supporterSub))
-			ctx                = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: supporterSessionID, Email: testEmail})
+			adminSub       = random.String(16)
+			adminSessionID = base64.StdEncoding.EncodeToString([]byte(adminSub))
+			adminCtx       = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: adminSessionID, Email: testEmail})
 		)
 
-		loginSession := &sesh.LoginSession{Sub: supporterSub, Email: testEmail}
+		loginSession := &sesh.LoginSession{Sub: adminSub, Email: testEmail}
 
 		if organisation == "1" {
-			org, err := organisationStore.Create(ctx, random.String(12))
+			org, err := organisationStore.Create(adminCtx, random.String(12))
 			if err != nil {
 				return err
 			}
@@ -86,30 +87,42 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, don
 			}
 
 			if members != "" {
-				n, err := strconv.Atoi(members)
+				n, _ := strconv.Atoi(members)
+				memberEmailSub := make(map[string]string)
 
 				for i, member := range orgMemberNames {
 					if i == n {
 						break
 					}
 
+					email := strings.ToLower(fmt.Sprintf("%s-%s@example.org", member.Firstnames, member.Lastname))
+					sub := []byte(random.String(16))
+					memberCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: base64.StdEncoding.EncodeToString(sub), Email: email})
+
 					if err = memberStore.Create(
-						page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(12)}),
+						memberCtx,
 						&actor.MemberInvite{
 							PK:              random.String(12),
 							SK:              random.String(12),
 							CreatedAt:       time.Now(),
 							UpdatedAt:       time.Now(),
 							OrganisationID:  org.ID,
-							Email:           strings.ToLower(fmt.Sprintf("%s-%s@example.org", member.Firstnames, member.Lastname)),
+							Email:           email,
 							FirstNames:      member.Firstnames,
 							LastName:        member.Lastname,
-							Permission:      actor.Admin,
+							Permission:      actor.None,
 							ReferenceNumber: random.String(12),
 						},
 					); err != nil {
 						return err
 					}
+
+					memberEmailSub[email] = string(sub)
+				}
+
+				if sub, found := memberEmailSub[asMember]; found {
+					loginSession.Email = asMember
+					loginSession.Sub = sub
 				}
 			}
 		}

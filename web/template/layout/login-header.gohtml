@@ -117,12 +117,18 @@
             <ul class="service-header__nav-list service-header__nav" id="service-header__nav" data-open-class="service-header__nav--open">
               {{ if .App.IsSupporter }}
                 {{ if .App.OrganisationName }}
-                  <li class="service-header__nav-list-item {{ if not .App.IsManageOrganisation }}service-header__nav-list-item--active{{ end }}">
+                  <li class="service-header__nav-list-item {{ if eq .App.Page global.Paths.Supporter.Dashboard.Format }}service-header__nav-list-item--active{{ end }}">
                     <a class="service-header__nav-list-item-link" aria-current="page" href="{{ link .App global.Paths.Supporter.Dashboard.Format }}">{{ tr .App "dashboard" }}</a>
                   </li>
-                  <li class="service-header__nav-list-item {{ if .App.IsManageOrganisation }}service-header__nav-list-item--active{{ end }}">
-                    <a class="service-header__nav-list-item-link" href="{{ link .App global.Paths.Supporter.OrganisationDetails.Format }}">{{ tr .App "manageOrganisation" }}</a>
-                  </li>
+                    {{ if .App.IsAdmin }}
+                      <li class="service-header__nav-list-item {{ if .App.IsManageOrganisation }}service-header__nav-list-item--active{{ end }}">
+                          <a class="service-header__nav-list-item-link" href="{{ link .App global.Paths.Supporter.OrganisationDetails.Format }}">{{ tr .App "manageOrganisation" }}</a>
+                      </li>
+                      {{ else }}
+                      <li class="service-header__nav-list-item {{ if eq .App.Page global.Paths.Supporter.EditMember.Format }}service-header__nav-list-item--active{{ end }}">
+                          <a class="service-header__nav-list-item-link" href="{{ link .App global.Paths.Supporter.EditMember.Format }}?id={{ .App.SupporterMemberID }}">{{ tr .App "manageYourDetails" }}</a>
+                      </li>
+                      {{ end }}
                 {{ else }}
                   <li class="govuk-!-padding-top-9"></li>
                 {{ end }}

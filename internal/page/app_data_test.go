@@ -71,3 +71,8 @@ func TestIsTrustCorporation(t *testing.T) {
 	assert.False(t, AppData{ActorType: actor.TypeAttorney, AttorneyUID: actoruid.New()}.IsTrustCorporation())
 	assert.False(t, AppData{ActorType: actor.TypeReplacementAttorney, AttorneyUID: actoruid.New()}.IsTrustCorporation())
 }
+
+func TestAppDataIsAdmin(t *testing.T) {
+	assert.True(t, AppData{Permission: actor.Admin}.IsAdmin())
+	assert.False(t, AppData{}.IsAdmin())
+}

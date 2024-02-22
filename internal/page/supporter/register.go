@@ -84,7 +84,7 @@ func Register(
 	handleRoot(paths.InviteExpired, page.RequireSession,
 		page.Guidance(tmpls.Get("invite_expired.gohtml")))
 
-	handleWithSupporter := makeSupporterHandle(rootMux, sessionStore, errorHandler, organisationStore)
+	handleWithSupporter := makeSupporterHandle(rootMux, sessionStore, errorHandler, organisationStore, memberStore)
 
 	handleWithSupporter(paths.OrganisationCreated, page.None,
 		Guidance(tmpls.Get("organisation_created.gohtml")))
@@ -135,7 +135,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 	}
 }
 
-func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler, organisationStore OrganisationStore) func(page.SupporterPath, page.HandleOpt, Handler) {
+func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler, organisationStore OrganisationStore, memberStore MemberStore) func(page.SupporterPath, page.HandleOpt, Handler) {
 	return func(path page.SupporterPath, opt page.HandleOpt, h Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			loginSession, err := sesh.Login(store, r)
@@ -144,17 +144,15 @@ func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page
 				return
 			}
 
-			ctx := r.Context()
-
-			appData := page.AppDataFromContext(ctx)
+			appData := page.AppDataFromContext(r.Context())
 			appData.SessionID = loginSession.SessionID()
 			appData.CanGoBack = opt&page.CanGoBack != 0
 
-			sessionData, err := page.SessionDataFromContext(ctx)
+			sessionData, err := page.SessionDataFromContext(r.Context())
+
 			if err == nil {
 				sessionData.SessionID = appData.SessionID
 				sessionData.OrganisationID = loginSession.OrganisationID
-				ctx = page.ContextWithSessionData(ctx, sessionData)
 			} else {
 				sessionData = &page.SessionData{
 					SessionID: appData.SessionID,
@@ -164,11 +162,21 @@ func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page
 				if loginSession.OrganisationID != "" {
 					sessionData.OrganisationID = loginSession.OrganisationID
 				}
-
-				ctx = page.ContextWithSessionData(ctx, sessionData)
 			}
 
-			organisation, err := organisationStore.Get(ctx)
+			organisation, err := organisationStore.Get(page.ContextWithSessionData(r.Context(), sessionData))
+			if err != nil {
+				errorHandler(w, r, err)
+				return
+			}
+
+			ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
+				SessionID:      appData.SessionID,
+				Email:          loginSession.Email,
+				OrganisationID: organisation.ID,
+			})
+
+			member, err := memberStore.Get(ctx)
 			if err != nil {
 				errorHandler(w, r, err)
 				return
@@ -179,12 +187,10 @@ func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page
 			appData.OrganisationName = organisation.Name
 			appData.IsManageOrganisation = path.IsManageOrganisation()
 			appData.LoginSessionEmail = loginSession.Email
+			appData.Permission = member.Permission
+			appData.SupporterMemberID = member.ID
 
-			ctx = page.ContextWithAppData(page.ContextWithSessionData(ctx, &page.SessionData{
-				SessionID:      appData.SessionID,
-				Email:          loginSession.Email,
-				OrganisationID: organisation.ID,
-			}), appData)
+			ctx = page.ContextWithAppData(ctx, appData)
 
 			if err := h(appData, w, r.WithContext(ctx), organisation); err != nil {
 				errorHandler(w, r, err)
