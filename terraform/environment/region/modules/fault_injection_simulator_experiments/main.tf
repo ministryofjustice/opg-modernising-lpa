@@ -121,48 +121,67 @@ resource "aws_iam_role_policy" "fis_role_log_encryption" {
 
 # Create experiment template for ECS tasks
 
-resource "aws_fis_experiment_template" "ecs_app" {
+resource "aws_fis_experiment_template" "ecs_app_stop_tasks" {
   provider    = aws.region
-  description = "Run ECS task experiments for the app service"
+  description = "Stop one ECS task in the app service"
   role_arn    = var.fault_injection_simulator_role.arn
   tags = {
-    Name = "${data.aws_default_tags.current.tags.environment-name} - APP ECS Task Experiments"
+    Name = "${data.aws_default_tags.current.tags.environment-name} - Stop ECS Task"
   }
 
-  # action {
-  #   action_id   = "aws:ecs:stop-task"
-  #   name        = "stop_two_tasks"
-  #   start_after = []
+  action {
+    action_id   = "aws:ecs:stop-task"
+    name        = "one-task"
+    start_after = []
 
-  #   target {
-  #     key   = "Tasks"
-  #     value = "two-tasks"
-  #   }
-  # }
+    target {
+      key   = "Tasks"
+      value = "one-task"
+    }
+  }
+
+  stop_condition {
+    source = "none"
+    value  = null
+  }
+
+  log_configuration {
+    log_schema_version = 2
+
+    cloudwatch_logs_configuration {
+      log_group_arn = "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*" # tfsec:ignore:aws-cloudwatch-log-group-wildcard
+    }
+  }
+
+  target {
+    name = "one-task"
+    resource_tag {
+      key   = "environment-name"
+      value = data.aws_default_tags.current.tags.environment-name
+    }
+    parameters = {
+      "cluster" = var.ecs_cluster
+      "service" = "app"
+    }
+    resource_type  = "aws:ecs:task"
+    selection_mode = "COUNT(1)"
+  }
+}
+
+resource "aws_fis_experiment_template" "ecs_app_cpu_stress" {
+  provider    = aws.region
+  description = "Stress CPU for all ECS task in the app service"
+  role_arn    = var.fault_injection_simulator_role.arn
+  tags = {
+    Name = "${data.aws_default_tags.current.tags.environment-name} - Stress ECS Task CPU"
+  }
+
 
   action {
     action_id   = "aws:ecs:task-cpu-stress"
     description = null
     name        = "cpu_stress_100_percent_10_mins"
     start_after = []
-    # start_after = ["stop_two_tasks"]
-    parameter {
-      key   = "duration"
-      value = "PT10M"
-    }
-    target {
-      key   = "Tasks"
-      value = "all-tasks"
-    }
-  }
-
-  action {
-    action_id   = "aws:ecs:task-io-stress"
-    description = null
-    name        = "io_stress_10_mins"
-    start_after = [
-      "cpu_stress_100_percent_10_mins"
-    ]
     parameter {
       key   = "duration"
       value = "PT10M"
@@ -199,9 +218,46 @@ resource "aws_fis_experiment_template" "ecs_app" {
     resource_type  = "aws:ecs:task"
     selection_mode = "ALL"
   }
+}
+
+resource "aws_fis_experiment_template" "ecs_app_io_stress" {
+  provider    = aws.region
+  description = "Stress IO for all ECS task in the app service"
+  role_arn    = var.fault_injection_simulator_role.arn
+  tags = {
+    Name = "${data.aws_default_tags.current.tags.environment-name} - Stress ECS Task IO"
+  }
+
+  action {
+    action_id   = "aws:ecs:task-io-stress"
+    description = null
+    name        = "io_stress_10_mins"
+    start_after = []
+    parameter {
+      key   = "duration"
+      value = "PT10M"
+    }
+    target {
+      key   = "Tasks"
+      value = "all-tasks"
+    }
+  }
+
+  stop_condition {
+    source = "none"
+    value  = null
+  }
+
+  log_configuration {
+    log_schema_version = 2
+
+    cloudwatch_logs_configuration {
+      log_group_arn = "${aws_cloudwatch_log_group.fis_app_ecs_tasks.arn}:*" # tfsec:ignore:aws-cloudwatch-log-group-wildcard
+    }
+  }
 
   target {
-    name = "two-tasks"
+    name = "all-tasks"
     resource_tag {
       key   = "environment-name"
       value = data.aws_default_tags.current.tags.environment-name
@@ -211,6 +267,6 @@ resource "aws_fis_experiment_template" "ecs_app" {
       "service" = "app"
     }
     resource_type  = "aws:ecs:task"
-    selection_mode = "COUNT(2)"
+    selection_mode = "ALL"
   }
 }
