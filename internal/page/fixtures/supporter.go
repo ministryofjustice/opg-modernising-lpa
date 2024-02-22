@@ -88,7 +88,11 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, don
 			}
 
 			if members != "" {
-				n, _ := strconv.Atoi(members)
+				n, err := strconv.Atoi(members)
+				if err != nil {
+					return fmt.Errorf("members should be a number")
+				}
+
 				memberEmailSub := make(map[string]string)
 
 				permission, err := actor.ParsePermission(permission)
