@@ -27,11 +27,12 @@ func TestOrganisationStoreCreate(t *testing.T) {
 
 	dynamoClient.EXPECT().
 		Create(ctx, &actor.Member{
-			PK:        "ORGANISATION#a-uuid",
-			SK:        "MEMBER#an-id",
-			ID:        "a-uuid",
-			CreatedAt: testNow,
-			Email:     "a@example.org",
+			PK:         "ORGANISATION#a-uuid",
+			SK:         "MEMBER#an-id",
+			ID:         "a-uuid",
+			CreatedAt:  testNow,
+			Email:      "a@example.org",
+			Permission: actor.Admin,
 		}).
 		Return(nil).
 		Once()

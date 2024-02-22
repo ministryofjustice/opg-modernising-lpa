@@ -133,22 +133,29 @@ func TestMakeSupporterHandle(t *testing.T) {
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
-		Return(&actor.Organisation{}, nil)
+		Return(&actor.Organisation{ID: "org-id"}, nil)
 
-	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore)
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
+		Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
+		Return(&actor.Member{Permission: actor.Admin, ID: "member-id"}, nil)
+
+	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore, memberStore)
 	handle("/path", page.CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation) error {
 		assert.Equal(t, page.AppData{
-			Page:              "/supporter/path",
-			SessionID:         "cmFuZG9t",
-			IsSupporter:       true,
-			CanGoBack:         true,
-			LoginSessionEmail: "a@example.org",
+			Page:                "/supporter/path",
+			SessionID:           "cmFuZG9t",
+			IsSupporter:         true,
+			CanGoBack:           true,
+			LoginSessionEmail:   "a@example.org",
+			Permission:          actor.Admin,
+			LoggedInSupporterID: "member-id",
 		}, appData)
 
 		assert.Equal(t, w, hw)
 
 		sessionData, _ := page.SessionDataFromContext(hr.Context())
-		assert.Equal(t, &page.SessionData{SessionID: "cmFuZG9t", Email: "a@example.org"}, sessionData)
+		assert.Equal(t, &page.SessionData{SessionID: "cmFuZG9t", Email: "a@example.org", OrganisationID: "org-id"}, sessionData)
 
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
@@ -175,25 +182,33 @@ func TestMakeSupporterHandleWithSessionData(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
 		Get(r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random", OrganisationID: "org-id"}}}, nil)
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random", OrganisationID: "org-id", Email: "a@example.org"}}}, nil)
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id"})).
-		Return(&actor.Organisation{}, nil)
+		Return(&actor.Organisation{ID: "org-id"}, nil)
 
-	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore)
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
+		Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
+		Return(&actor.Member{Permission: actor.Admin, ID: "member-id"}, nil)
+
+	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore, memberStore)
 	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation) error {
 		assert.Equal(t, page.AppData{
-			Page:        "/supporter/path",
-			SessionID:   "cmFuZG9t",
-			IsSupporter: true,
+			Page:                "/supporter/path",
+			SessionID:           "cmFuZG9t",
+			IsSupporter:         true,
+			Permission:          actor.Admin,
+			LoggedInSupporterID: "member-id",
+			LoginSessionEmail:   "a@example.org",
 		}, appData)
 
 		assert.Equal(t, w, hw)
 
 		sessionData, _ := page.SessionDataFromContext(hr.Context())
-		assert.Equal(t, &page.SessionData{SessionID: "cmFuZG9t"}, sessionData)
+		assert.Equal(t, &page.SessionData{SessionID: "cmFuZG9t", Email: "a@example.org", OrganisationID: "org-id"}, sessionData)
 
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
@@ -216,7 +231,7 @@ func TestMakeSupporterHandleWhenSessionStoreError(t *testing.T) {
 		Get(r, "session").
 		Return(&sessions.Session{}, expectedError)
 
-	handle := makeSupporterHandle(mux, sessionStore, nil, nil)
+	handle := makeSupporterHandle(mux, sessionStore, nil, nil, nil)
 	handle("/path", page.None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.Organisation) error {
 		return nil
 	})
@@ -248,12 +263,48 @@ func TestMakeSupporterHandleWhenOrganisationStoreErrors(t *testing.T) {
 		Get(mock.Anything).
 		Return(nil, expectedError)
 
-	handle := makeSupporterHandle(mux, sessionStore, errorHandler.Execute, organisationStore)
+	handle := makeSupporterHandle(mux, sessionStore, errorHandler.Execute, organisationStore, nil)
 	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation) error {
 		return nil
 	})
 
 	mux.ServeHTTP(w, r)
+}
+
+func TestMakeSupporterHandleWhenMemberStoreError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/supporter/path", nil)
+
+	mux := http.NewServeMux()
+
+	errorHandler := newMockErrorHandler(t)
+	errorHandler.EXPECT().
+		Execute(w, r, expectedError)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		Get(mock.Anything, mock.Anything).
+		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+
+	organisationStore := newMockOrganisationStore(t)
+	organisationStore.EXPECT().
+		Get(mock.Anything).
+		Return(&actor.Organisation{}, nil)
+
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
+		Get(mock.Anything).
+		Return(&actor.Member{}, expectedError)
+
+	handle := makeSupporterHandle(mux, sessionStore, errorHandler.Execute, organisationStore, memberStore)
+	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation) error {
+		return nil
+	})
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestMakeSupporterHandleErrors(t *testing.T) {
@@ -274,8 +325,13 @@ func TestMakeSupporterHandleErrors(t *testing.T) {
 		Get(mock.Anything).
 		Return(&actor.Organisation{}, nil)
 
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
+		Get(mock.Anything).
+		Return(&actor.Member{}, nil)
+
 	mux := http.NewServeMux()
-	handle := makeSupporterHandle(mux, sessionStore, errorHandler.Execute, organisationStore)
+	handle := makeSupporterHandle(mux, sessionStore, errorHandler.Execute, organisationStore, memberStore)
 	handle("/path", page.None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.Organisation) error {
 		return expectedError
 	})

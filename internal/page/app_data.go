@@ -26,6 +26,8 @@ type AppData struct {
 	OrganisationName     string
 	IsManageOrganisation bool
 	LoginSessionEmail    string
+	Permission           actor.Permission
+	LoggedInSupporterID  string
 }
 
 func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, url string) error {
@@ -57,4 +59,8 @@ func (d AppData) IsReplacementAttorney() bool {
 
 func (d AppData) IsTrustCorporation() bool {
 	return d.ActorType == actor.TypeTrustCorporation || d.ActorType == actor.TypeReplacementTrustCorporation
+}
+
+func (d AppData) IsAdmin() bool {
+	return d.Permission.IsAdmin()
 }

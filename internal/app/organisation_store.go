@@ -57,11 +57,12 @@ func (s *organisationStore) Create(ctx context.Context, name string) (*actor.Org
 	}
 
 	member := &actor.Member{
-		PK:        organisationKey(organisationID),
-		SK:        memberKey(data.SessionID),
-		ID:        s.uuidString(),
-		Email:     data.Email,
-		CreatedAt: s.now(),
+		PK:         organisationKey(organisationID),
+		SK:         memberKey(data.SessionID),
+		ID:         s.uuidString(),
+		Email:      data.Email,
+		CreatedAt:  s.now(),
+		Permission: actor.Admin,
 	}
 
 	if err := s.dynamoClient.Create(ctx, member); err != nil {
