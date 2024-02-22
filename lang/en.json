@@ -1021,5 +1021,12 @@
     "nameUpdated": "Name updated",
     "teamMembersNameUpdatedToNewName": "Team member’s name updated to <span class=\"govuk-!-font-weight-bold\">{{ .NewName }}</span>.",
     "yourNameHasBeenUpdatedToNewName": "Your name has been updated to <span class=\"govuk-!-font-weight-bold\">{{ .NewName }}</span>.",
-    "you": "you"
+    "you": "you",
+    "previousPage": "Previous<span class=\"govuk-visually-hidden\"> page</span>",
+    "nextPage": "Next<span class=\"govuk-visually-hidden\"> page</span>",
+    "page": "Page",
+    "showing": "Showing",
+    "to": "to",
+    "of": "of",
+    "lpas": "LPAs"
 }
