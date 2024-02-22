@@ -26,6 +26,9 @@ resource "aws_ecs_service" "app" {
 
   lifecycle {
     create_before_destroy = true
+    ignore_changes = [
+      desired_count
+    ]
   }
 
   timeouts {
