@@ -144,7 +144,7 @@ resource "aws_fis_experiment_template" "ecs_app" {
     action_id   = "aws:ecs:task-cpu-stress"
     description = null
     name        = "cpu_stress_100_percent_10_mins"
-    start_after = ["stop_tasks"]
+    start_after = ["stop_two_tasks"]
     parameter {
       key   = "duration"
       value = "PT10M"
