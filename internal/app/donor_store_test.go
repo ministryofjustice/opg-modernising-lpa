@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/mitchellh/hashstructure/v2"
 	"github.com/stretchr/testify/assert"
@@ -218,34 +219,40 @@ func TestDonorStoreLatestWhenDataStoreError(t *testing.T) {
 func TestDonorStorePut(t *testing.T) {
 	ctx := context.Background()
 
-	testcases := map[string]struct {
-		input, saved *actor.DonorProvidedDetails
-	}{
-		"no uid": {
-			input: &actor.DonorProvidedDetails{PK: "LPA#5", Hash: 5, SK: "#DONOR#an-id", LpaID: "5", HasSentApplicationUpdatedEvent: true},
-			saved: &actor.DonorProvidedDetails{PK: "LPA#5", SK: "#DONOR#an-id", LpaID: "5", HasSentApplicationUpdatedEvent: true},
-		},
-		"with uid": {
-			input: &actor.DonorProvidedDetails{PK: "LPA#5", Hash: 5, SK: "#DONOR#an-id", LpaID: "5", HasSentApplicationUpdatedEvent: true, LpaUID: "M"},
-			saved: &actor.DonorProvidedDetails{PK: "LPA#5", SK: "#DONOR#an-id", LpaID: "5", HasSentApplicationUpdatedEvent: true, LpaUID: "M", UpdatedAt: testNow},
-		},
-	}
+	saved := &actor.DonorProvidedDetails{PK: "LPA#5", SK: "#DONOR#an-id", LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: actor.Donor{FirstNames: "x", LastName: "y"}}
+	saved.Hash, _ = saved.GenerateHash()
 
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
-			tc.saved.Hash, _ = tc.saved.GenerateHash()
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		Put(ctx, saved).
+		Return(nil)
 
-			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.EXPECT().
-				Put(ctx, tc.saved).
-				Return(nil)
+	donorStore := &donorStore{dynamoClient: dynamoClient, now: testNowFn}
 
-			donorStore := &donorStore{dynamoClient: dynamoClient, now: testNowFn}
+	err := donorStore.Put(ctx, &actor.DonorProvidedDetails{PK: "LPA#5", Hash: 5, SK: "#DONOR#an-id", LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: actor.Donor{FirstNames: "x", LastName: "y"}})
+	assert.Nil(t, err)
+}
 
-			err := donorStore.Put(ctx, tc.input)
-			assert.Nil(t, err)
-		})
-	}
+func TestDonorStorePutWhenUIDSet(t *testing.T) {
+	ctx := context.Background()
+
+	saved := &actor.DonorProvidedDetails{PK: "LPA#5", SK: "#DONOR#an-id", LpaID: "5", HasSentApplicationUpdatedEvent: true, LpaUID: "M", UpdatedAt: testNow, Donor: actor.Donor{FirstNames: "x", LastName: "y"}}
+	saved.Hash, _ = saved.GenerateHash()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		Put(ctx, saved).
+		Return(nil)
+
+	searchClient := newMockSearchClient(t)
+	searchClient.EXPECT().
+		Index(ctx, search.Lpa{PK: "LPA#5", SK: "#DONOR#an-id", DonorFullName: "x y"}).
+		Return(nil)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, searchClient: searchClient, now: testNowFn}
+
+	err := donorStore.Put(ctx, &actor.DonorProvidedDetails{PK: "LPA#5", Hash: 5, SK: "#DONOR#an-id", LpaID: "5", HasSentApplicationUpdatedEvent: true, LpaUID: "M", Donor: actor.Donor{FirstNames: "x", LastName: "y"}})
+	assert.Nil(t, err)
 }
 
 func TestDonorStorePutWhenNoChange(t *testing.T) {
@@ -392,7 +399,12 @@ func TestDonorStorePutWhenApplicationUpdatedWhenError(t *testing.T) {
 		SendApplicationUpdated(ctx, mock.Anything).
 		Return(expectedError)
 
-	donorStore := &donorStore{eventClient: eventClient, now: testNowFn}
+	searchClient := newMockSearchClient(t)
+	searchClient.EXPECT().
+		Index(ctx, mock.Anything).
+		Return(nil)
+
+	donorStore := &donorStore{eventClient: eventClient, searchClient: searchClient, now: testNowFn}
 
 	err := donorStore.Put(ctx, &actor.DonorProvidedDetails{
 		PK:     "LPA#5",
@@ -441,7 +453,12 @@ func TestDonorStorePutWhenPreviousApplicationLinked(t *testing.T) {
 		Put(ctx, updatedDonor).
 		Return(nil)
 
-	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, now: testNowFn}
+	searchClient := newMockSearchClient(t)
+	searchClient.EXPECT().
+		Index(ctx, mock.Anything).
+		Return(nil)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient, searchClient: searchClient, now: testNowFn}
 
 	err := donorStore.Put(ctx, &actor.DonorProvidedDetails{
 		PK:                             "LPA#5",
@@ -463,7 +480,12 @@ func TestDonorStorePutWhenPreviousApplicationLinkedWontResend(t *testing.T) {
 		Put(ctx, mock.Anything).
 		Return(nil)
 
-	donorStore := &donorStore{dynamoClient: dynamoClient, now: testNowFn}
+	searchClient := newMockSearchClient(t)
+	searchClient.EXPECT().
+		Index(ctx, mock.Anything).
+		Return(nil)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, searchClient: searchClient, now: testNowFn}
 
 	err := donorStore.Put(ctx, &actor.DonorProvidedDetails{
 		PK:                                    "LPA#5",
@@ -486,7 +508,12 @@ func TestDonorStorePutWhenPreviousApplicationLinkedWhenError(t *testing.T) {
 		SendPreviousApplicationLinked(ctx, mock.Anything).
 		Return(expectedError)
 
-	donorStore := &donorStore{eventClient: eventClient, now: testNowFn}
+	searchClient := newMockSearchClient(t)
+	searchClient.EXPECT().
+		Index(ctx, mock.Anything).
+		Return(nil)
+
+	donorStore := &donorStore{eventClient: eventClient, searchClient: searchClient, now: testNowFn}
 
 	err := donorStore.Put(ctx, &actor.DonorProvidedDetails{
 		PK:                             "LPA#5",
