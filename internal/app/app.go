@@ -230,7 +230,7 @@ func withAppData(next http.Handler, localizer page.Localizer, lang localize.Lang
 
 		appData := page.AppDataFromContext(ctx)
 		appData.Path = r.URL.Path
-		appData.Query = queryString(r)
+		appData.Query = r.URL.Query()
 		appData.Localizer = localizer
 		appData.Lang = lang
 

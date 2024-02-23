@@ -2,7 +2,6 @@ package supporter
 
 import (
 	"net/http"
-	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -12,7 +11,6 @@ import (
 
 type manageTeamMembersData struct {
 	App            page.AppData
-	Query          url.Values
 	Errors         validation.List
 	Organisation   *actor.Organisation
 	InvitedMembers []*actor.MemberInvite
@@ -33,7 +31,6 @@ func ManageTeamMembers(tmpl template.Template, memberStore MemberStore) Handler 
 
 		return tmpl(w, &manageTeamMembersData{
 			App:            appData,
-			Query:          r.URL.Query(),
 			Organisation:   organisation,
 			InvitedMembers: invitedMembers,
 			Members:        members,

@@ -10,7 +10,7 @@
           <h1 class="govuk-notification-banner__title">{{ tr .App "lpaWithdrawn" }}</h1>
         </div>
         <div class="govuk-notification-banner__content">
-          <p class="govuk-body">{{ trFormatHtml .App "youHaveWithdrawnLpaNumber" "UID" (.Query.Get "uid") }}</p>
+          <p class="govuk-body">{{ trFormatHtml .App "youHaveWithdrawnLpaNumber" "UID" (.App.Query.Get "uid") }}</p>
         </div>
       </div>
 

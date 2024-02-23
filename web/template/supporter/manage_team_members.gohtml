@@ -5,7 +5,7 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {{ if .Query.Has "inviteSent" }}
+            {{ if .App.Query.Has "inviteSent" }}
                 <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
                      aria-labelledby="govuk-notification-banner-title"
                      data-module="govuk-notification-banner">
@@ -16,13 +16,13 @@
                     </div>
                     <div class="govuk-notification-banner__content">
                         <p class="govuk-body">
-                            {{ trFormatHtml .App "weHaveSentInvite" "Email" (.Query.Get "inviteSent") }}
+                            {{ trFormatHtml .App "weHaveSentInvite" "Email" (.App.Query.Get "inviteSent") }}
                         </p>
                     </div>
                 </div>
             {{ end}}
 
-            {{ if .Query.Has "nameUpdated" }}
+            {{ if .App.Query.Has "nameUpdated" }}
                 <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
                      aria-labelledby="govuk-notification-banner-title"
                      data-module="govuk-notification-banner">
@@ -33,10 +33,10 @@
                     </div>
                     <div class="govuk-notification-banner__content">
                         <p class="govuk-body">
-                            {{ if .Query.Has "selfUpdated" }}
-                                {{ trFormatHtml .App "yourNameHasBeenUpdatedToNewName" "NewName" (.Query.Get "nameUpdated") }}
+                            {{ if .App.Query.Has "selfUpdated" }}
+                                {{ trFormatHtml .App "yourNameHasBeenUpdatedToNewName" "NewName" (.App.Query.Get "nameUpdated") }}
                             {{ else }}
-                                {{ trFormatHtml .App "teamMembersNameUpdatedToNewName" "NewName" (.Query.Get "nameUpdated") }}
+                                {{ trFormatHtml .App "teamMembersNameUpdatedToNewName" "NewName" (.App.Query.Get "nameUpdated") }}
                             {{ end }}
                         </p>
                     </div>
