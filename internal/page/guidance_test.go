@@ -3,7 +3,6 @@ package page
 import (
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,7 +14,7 @@ func TestGuidance(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &guidanceData{App: TestAppData, Query: url.Values{}}).
+		Execute(w, &guidanceData{App: TestAppData}).
 		Return(nil)
 
 	err := Guidance(template.Execute)(TestAppData, w, r)
@@ -31,7 +30,7 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &guidanceData{App: TestAppData, Query: url.Values{}}).
+		Execute(w, &guidanceData{App: TestAppData}).
 		Return(expectedError)
 
 	err := Guidance(template.Execute)(TestAppData, w, r)
