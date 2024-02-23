@@ -3,7 +3,6 @@ package supporter
 import (
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -12,7 +11,7 @@ import (
 
 func TestGetDashboard(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?a=b", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donors := []actor.DonorProvidedDetails{{LpaID: "abc"}}
 
@@ -26,7 +25,6 @@ func TestGetDashboard(t *testing.T) {
 		Execute(w, &dashboardData{
 			App:    testAppData,
 			Donors: donors,
-			Query:  url.Values{"a": {"b"}},
 		}).
 		Return(expectedError)
 

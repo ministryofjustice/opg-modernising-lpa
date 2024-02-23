@@ -5,7 +5,7 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-      {{ if .Query.Has "nameUpdated" }}
+      {{ if .App.Query.Has "nameUpdated" }}
         <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
              aria-labelledby="govuk-notification-banner-title"
              data-module="govuk-notification-banner">
@@ -16,7 +16,7 @@
           </div>
           <div class="govuk-notification-banner__content">
             <p class="govuk-body">
-                {{ trFormatHtml .App "yourNameHasBeenUpdatedToNewName" "NewName" (.Query.Get "nameUpdated") }}
+                {{ trFormatHtml .App "yourNameHasBeenUpdatedToNewName" "NewName" (.App.Query.Get "nameUpdated") }}
             </p>
           </div>
         </div>

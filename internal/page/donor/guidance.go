@@ -2,7 +2,6 @@ package donor
 
 import (
 	"net/http"
-	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -14,7 +13,6 @@ type guidanceData struct {
 	App    page.AppData
 	Errors validation.List
 	Donor  *actor.DonorProvidedDetails
-	Query  url.Values
 }
 
 func Guidance(tmpl template.Template) Handler {
@@ -22,7 +20,6 @@ func Guidance(tmpl template.Template) Handler {
 		data := &guidanceData{
 			App:   appData,
 			Donor: donor,
-			Query: r.URL.Query(),
 		}
 
 		return tmpl(w, data)
