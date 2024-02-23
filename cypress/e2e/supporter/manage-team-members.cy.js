@@ -1,6 +1,6 @@
 describe('Organisation details', () => {
     it('shows invited and joined members', () => {
-        cy.visit('/fixtures/supporter?organisation=1&redirect=/manage-organisation/manage-team-members&invitedMembers=2&members=2');
+        cy.visit('/fixtures/supporter?organisation=1&redirect=/manage-organisation/manage-team-members&invitedMembers=2&members=2&permission=admin');
 
         cy.checkA11yApp();
         cy.contains("a", "Manage team members").click()

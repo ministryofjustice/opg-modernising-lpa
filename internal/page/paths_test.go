@@ -204,7 +204,11 @@ func TestSupporterPathRedirect(t *testing.T) {
 
 func TestSupporterPathIsManageOrganisation(t *testing.T) {
 	assert.False(t, Paths.Supporter.Dashboard.IsManageOrganisation())
+
 	assert.True(t, Paths.Supporter.OrganisationDetails.IsManageOrganisation())
+	assert.True(t, Paths.Supporter.EditOrganisationName.IsManageOrganisation())
+	assert.True(t, Paths.Supporter.ManageTeamMembers.IsManageOrganisation())
+	assert.True(t, Paths.Supporter.EditMember.IsManageOrganisation())
 }
 
 func TestCanGoTo(t *testing.T) {
