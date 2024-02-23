@@ -3,7 +3,6 @@ package supporter
 import (
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -13,7 +12,7 @@ import (
 
 func TestGetManageTeamMembers(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?a=b", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
@@ -27,7 +26,6 @@ func TestGetManageTeamMembers(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &manageTeamMembersData{
 			App:            testAppData,
-			Query:          url.Values{"a": {"b"}},
 			Organisation:   &actor.Organisation{ID: "org-id"},
 			InvitedMembers: []*actor.MemberInvite{{FirstNames: "a"}, {FirstNames: "b"}},
 			Members:        []*actor.Member{{FirstNames: "c"}, {FirstNames: "d"}},

@@ -24,33 +24,6 @@ func TestApp(t *testing.T) {
 	assert.Implements(t, (*http.Handler)(nil), app)
 }
 
-func TestQueryString(t *testing.T) {
-	testCases := map[string]struct {
-		url           string
-		expectedQuery string
-	}{
-		"with query": {
-			url:           "http://example.org/?a=query&b=string",
-			expectedQuery: "?a=query&b=string",
-		},
-		"with empty query": {
-			url:           "http://example.org/?",
-			expectedQuery: "",
-		},
-		"without query": {
-			url:           "http://example.org/",
-			expectedQuery: "",
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
-			assert.Equal(t, tc.expectedQuery, queryString(r))
-		})
-	}
-}
-
 func TestMakeHandle(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
