@@ -3,7 +3,6 @@ package donor
 import (
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -13,13 +12,13 @@ import (
 func TestGuidance(t *testing.T) {
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?a=b", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donor := &actor.DonorProvidedDetails{}
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &guidanceData{App: testAppData, Donor: donor, Query: url.Values{"a": {"b"}}}).
+		Execute(w, &guidanceData{App: testAppData, Donor: donor}).
 		Return(nil)
 
 	err := Guidance(template.Execute)(testAppData, w, r, donor)
@@ -35,7 +34,7 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &guidanceData{App: testAppData, Donor: &actor.DonorProvidedDetails{}, Query: url.Values{}}).
+		Execute(w, &guidanceData{App: testAppData, Donor: &actor.DonorProvidedDetails{}}).
 		Return(expectedError)
 
 	err := Guidance(template.Execute)(testAppData, w, r, &actor.DonorProvidedDetails{})
