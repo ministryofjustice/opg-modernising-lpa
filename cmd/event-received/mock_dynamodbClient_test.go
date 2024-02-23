@@ -214,52 +214,64 @@ func (_c *mockDynamodbClient_Put_Call) RunAndReturn(run func(context.Context, in
 	return _c
 }
 
-// Update provides a mock function with given fields: ctx, pk, sk, values, expression
-func (_m *mockDynamodbClient) Update(ctx context.Context, pk string, sk string, values map[string]types.AttributeValue, expression string) error {
+// UpdateReturn provides a mock function with given fields: ctx, pk, sk, values, expression
+func (_m *mockDynamodbClient) UpdateReturn(ctx context.Context, pk string, sk string, values map[string]types.AttributeValue, expression string) (map[string]types.AttributeValue, error) {
 	ret := _m.Called(ctx, pk, sk, values, expression)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Update")
+		panic("no return value specified for UpdateReturn")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, map[string]types.AttributeValue, string) error); ok {
+	var r0 map[string]types.AttributeValue
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, map[string]types.AttributeValue, string) (map[string]types.AttributeValue, error)); ok {
+		return rf(ctx, pk, sk, values, expression)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, map[string]types.AttributeValue, string) map[string]types.AttributeValue); ok {
 		r0 = rf(ctx, pk, sk, values, expression)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[string]types.AttributeValue)
+		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, map[string]types.AttributeValue, string) error); ok {
+		r1 = rf(ctx, pk, sk, values, expression)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
-// mockDynamodbClient_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
-type mockDynamodbClient_Update_Call struct {
+// mockDynamodbClient_UpdateReturn_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateReturn'
+type mockDynamodbClient_UpdateReturn_Call struct {
 	*mock.Call
 }
 
-// Update is a helper method to define mock.On call
+// UpdateReturn is a helper method to define mock.On call
 //   - ctx context.Context
 //   - pk string
 //   - sk string
 //   - values map[string]types.AttributeValue
 //   - expression string
-func (_e *mockDynamodbClient_Expecter) Update(ctx interface{}, pk interface{}, sk interface{}, values interface{}, expression interface{}) *mockDynamodbClient_Update_Call {
-	return &mockDynamodbClient_Update_Call{Call: _e.mock.On("Update", ctx, pk, sk, values, expression)}
+func (_e *mockDynamodbClient_Expecter) UpdateReturn(ctx interface{}, pk interface{}, sk interface{}, values interface{}, expression interface{}) *mockDynamodbClient_UpdateReturn_Call {
+	return &mockDynamodbClient_UpdateReturn_Call{Call: _e.mock.On("UpdateReturn", ctx, pk, sk, values, expression)}
 }
 
-func (_c *mockDynamodbClient_Update_Call) Run(run func(ctx context.Context, pk string, sk string, values map[string]types.AttributeValue, expression string)) *mockDynamodbClient_Update_Call {
+func (_c *mockDynamodbClient_UpdateReturn_Call) Run(run func(ctx context.Context, pk string, sk string, values map[string]types.AttributeValue, expression string)) *mockDynamodbClient_UpdateReturn_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(map[string]types.AttributeValue), args[4].(string))
 	})
 	return _c
 }
 
-func (_c *mockDynamodbClient_Update_Call) Return(_a0 error) *mockDynamodbClient_Update_Call {
-	_c.Call.Return(_a0)
+func (_c *mockDynamodbClient_UpdateReturn_Call) Return(_a0 map[string]types.AttributeValue, _a1 error) *mockDynamodbClient_UpdateReturn_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockDynamodbClient_Update_Call) RunAndReturn(run func(context.Context, string, string, map[string]types.AttributeValue, string) error) *mockDynamodbClient_Update_Call {
+func (_c *mockDynamodbClient_UpdateReturn_Call) RunAndReturn(run func(context.Context, string, string, map[string]types.AttributeValue, string) (map[string]types.AttributeValue, error)) *mockDynamodbClient_UpdateReturn_Call {
 	_c.Call.Return(run)
 	return _c
 }

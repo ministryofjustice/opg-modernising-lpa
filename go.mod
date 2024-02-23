@@ -48,7 +48,7 @@ require (
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	cloud.google.com/go/iam v1.1.5 // indirect
 	cloud.google.com/go/storage v1.35.1 // indirect
-	github.com/aws/aws-sdk-go v1.44.298 // indirect
+	github.com/aws/aws-sdk-go v1.48.13 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.0 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.0 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.15.0 // indirect
@@ -98,6 +98,9 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
+	github.com/opensearch-project/opensearch-go v1.1.0 // indirect
+	github.com/opensearch-project/opensearch-go/v2 v2.3.0 // indirect
+	github.com/opensearch-project/opensearch-go/v3 v3.0.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/rs/zerolog v1.29.0 // indirect
