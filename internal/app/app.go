@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -271,13 +270,5 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, store sesh.S
 				errorHandler(w, r, err)
 			}
 		})
-	}
-}
-
-func queryString(r *http.Request) string {
-	if r.URL.RawQuery != "" {
-		return fmt.Sprintf("?%s", r.URL.RawQuery)
-	} else {
-		return ""
 	}
 }

@@ -65,3 +65,13 @@ func (d AppData) IsTrustCorporation() bool {
 func (d AppData) IsAdmin() bool {
 	return d.Permission.IsAdmin()
 }
+
+func (d AppData) EncodeQuery() string {
+	query := ""
+
+	if d.Query.Encode() != "" {
+		query = "?" + d.Query.Encode()
+	}
+
+	return query
+}
