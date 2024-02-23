@@ -3,14 +3,14 @@
 {{ define "pageTitle" }}{{ tr .App "weHaveUpdatedYourDetails" }}{{ end }}
 
 {{ define "main" }}
-    {{ $detail := lowerFirst (tr .App (.Query.Get "detail")) }}
+    {{ $detail := lowerFirst (tr .App (.App.Query.Get "detail")) }}
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <div class="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
                 <div class="govuk-notification-banner__header">
                     <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
-                        {{ trFormat .App "detailUpdated" "Detail" (tr .App (.Query.Get "detail")) }}
+                        {{ trFormat .App "detailUpdated" "Detail" (tr .App (.App.Query.Get "detail")) }}
                     </h1>
                 </div>
                 <div class="govuk-notification-banner__content">
@@ -20,7 +20,7 @@
 
             <p class="govuk-body">{{ trFormat .App "yourDetailHasBeenUpdated" "Detail" $detail }}</p>
 
-            {{ if ne "dateOfBirth" (.Query.Get "detail") }}
+            {{ if ne "dateOfBirth" (.App.Query.Get "detail") }}
                 {{ trFormatHtml .App "howeverItWillNotApplyToAnySignedOrRegisteredLPAs" "Detail" $detail }}
             {{ end }}
 
