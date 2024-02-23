@@ -4,6 +4,8 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/gorilla/sessions"
@@ -133,3 +135,100 @@ func TestMakeHandleWhenError(t *testing.T) {
 
 	mux.ServeHTTP(w, r)
 }
+
+func TestWithAppData(t *testing.T) {
+	testcases := map[string]struct {
+		url                 string
+		cookieName          string
+		cookieConsentSet    bool
+		showTranslationKeys bool
+		contentType         string
+	}{
+		"with cookie consent": {
+			url:              "/path?a=b",
+			cookieName:       "cookies-consent",
+			cookieConsentSet: true,
+		},
+		"without cookie consent": {
+			url:        "/path?a=b",
+			cookieName: "not-cookies-consent",
+		},
+		"with translation keys": {
+			url:                 "/path?a=b&showTranslationKeys=1",
+			showTranslationKeys: true,
+		},
+		"without translation keys": {
+			url: "/path?a=b",
+		},
+		"with translation keys and multipart form": {
+			url:                 "/path?a=b&showTranslationKeys=1",
+			showTranslationKeys: false,
+			contentType:         "multipart/form-data",
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
+			r.AddCookie(&http.Cookie{Name: tc.cookieName, Value: "1"})
+			if tc.contentType != "" {
+				r.Header.Set("Content-Type", tc.contentType)
+			}
+
+			bundle, _ := localize.NewBundle("testdata/en.json")
+			localizer := bundle.For(localize.En)
+			localizer.SetShowTranslationKeys(tc.showTranslationKeys)
+
+			query := url.Values{"a": {"b"}}
+			if strings.Contains(tc.url, "showTranslationKeys") {
+				query.Add("showTranslationKeys", "1")
+			}
+
+			handler := http.HandlerFunc(func(hw http.ResponseWriter, hr *http.Request) {
+				assert.Equal(t, page.AppData{
+					Path:             "/path",
+					Query:            query,
+					Localizer:        localizer,
+					Lang:             localize.En,
+					CookieConsentSet: tc.cookieConsentSet,
+				}, page.AppDataFromContext(hr.Context()))
+				assert.Equal(t, w, hw)
+			})
+
+			withAppData(handler, localizer, localize.En)(w, r)
+		})
+	}
+}
+
+//func TestWithAppData(t *testing.T) {
+//	testcases := map[string]string{
+//		"with cookie consent":    "cookies-consent",
+//		"without cookie consent": "not-cookie-consent",
+//	}
+//
+//	for name, cookieName := range testcases {
+//		t.Run(name, func(t *testing.T) {
+//			w := httptest.NewRecorder()
+//			r, _ := http.NewRequest(http.MethodGet, "/path?a=b&showTranslationKeys=1", nil)
+//			r.AddCookie(&http.Cookie{Name: cookieName, Value: "1"})
+//
+//			bundle, _ := localize.NewBundle("testdata/en.json")
+//			localizer := bundle.For(localize.En)
+//			localizer.SetShowTranslationKeys(true)
+//
+//			handler := http.HandlerFunc(func(hw http.ResponseWriter, hr *http.Request) {
+//				assert.Equal(t, page.AppData{
+//					Path:             "/path",
+//					Query:            url.Values{"a": {"b"}, "showTranslationKeys": {"1"}},
+//					Localizer:        localizer,
+//					Lang:             localize.En,
+//					CookieConsentSet: cookieName == "cookies-consent",
+//				}, page.AppDataFromContext(hr.Context()))
+//				assert.Equal(t, w, hw)
+//			})
+//
+//			withAppData(handler, localizer, localize.En)(w, r)
+//		})
+//	}
+//}
