@@ -38,6 +38,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/templatefn"
@@ -205,6 +206,15 @@ func run(ctx context.Context, logger *slog.Logger) error {
 
 	eventClient := event.NewClient(cfg, eventBusName)
 
+	searchClient, err := search.NewClient(cfg, "http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566")
+	if err != nil {
+		return err
+	}
+
+	if err := searchClient.CreateIndices(ctx); err != nil {
+		return err
+	}
+
 	secretsClient, err := secrets.NewClient(cfg, time.Hour)
 	if err != nil {
 		return err
@@ -308,6 +318,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		evidenceS3Client,
 		eventClient,
 		lpaStoreClient,
+		searchClient,
 	)))
 
 	mux.Handle("/", app.App(
@@ -329,6 +340,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		evidenceS3Client,
 		eventClient,
 		lpaStoreClient,
+		searchClient,
 	))
 
 	var handler http.Handler = mux
