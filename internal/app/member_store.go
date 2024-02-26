@@ -67,6 +67,7 @@ func (s *memberStore) Create(ctx context.Context, invite *actor.MemberInvite) er
 		FirstNames: invite.FirstNames,
 		LastName:   invite.LastName,
 		Permission: invite.Permission,
+		Status:     actor.Active,
 	}
 
 	if err := s.dynamoClient.Create(ctx, member); err != nil {
