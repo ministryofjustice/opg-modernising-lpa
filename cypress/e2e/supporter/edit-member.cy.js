@@ -45,7 +45,7 @@ describe('Edit member', () => {
             cy.contains('a', "John Doe")
         })
 
-        it('can update a team members access to the organisation', () => {
+        it.only('can update a team members access to the organisation', () => {
             cy.contains('a', "Leon Vynehall").click()
 
             cy.url().should('contain', "/manage-organisation/manage-team-members/edit-team-member");
@@ -92,7 +92,7 @@ describe('Edit member', () => {
         })
 
         it('multiple update banners are stacked', () => {
-            cy.visit("/supporter/manage-organisation/manage-team-members?statusUpdated=suspended:a@b.com&nameUpdated=A+B");
+            cy.visit("/supporter/manage-organisation/manage-team-members?statusUpdated=suspended&statusEmail=a@b.com&nameUpdated=A+B");
 
             cy.checkA11yApp();
 

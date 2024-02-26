@@ -43,17 +43,13 @@
                 </div>
             {{ end}}
 
-            {{ if .App.Query.Has "statusUpdated" }}
-                {{  $statusAndEmail := split (.App.Query.Get "statusUpdated") ":"  }}
-                {{  $status := index $statusAndEmail 0  }}
-                {{  $email := index $statusAndEmail 1  }}
-
+            {{ if and (.App.Query.Has "statusUpdated") (.App.Query.Has "statusEmail") }}
                 <div class="govuk-notification-banner" role="alert"
                      aria-labelledby="govuk-notification-banner-title"
                      data-module="govuk-notification-banner">
                     <div class="govuk-notification-banner__header">
                         <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
-                            {{ if eq $status "suspended" }}
+                            {{ if eq (.App.Query.Get "statusUpdated") "suspended" }}
                                 {{ tr .App "teamMemberSuspended" }}
                             {{ else }}
                                 {{ tr .App "accessUpdated" }}
@@ -62,10 +58,10 @@
                     </div>
                     <div class="govuk-notification-banner__content">
                         <p class="govuk-body">
-                            {{ if eq $status "suspended" }}
-                                {{ trFormatHtml .App "emailHasBeenSuspended" "Email" $email }}
+                            {{ if eq (.App.Query.Get "statusUpdated") "suspended" }}
+                                {{ trFormatHtml .App "emailHasBeenSuspended" "Email" (.App.Query.Get "statusEmail") }}
                             {{ else }}
-                                {{ trFormatHtml .App "emailCanNowAccessOrganisation" "Email" $email }}
+                                {{ trFormatHtml .App "emailCanNowAccessOrganisation" "Email" (.App.Query.Get "statusEmail") }}
                             {{ end }}
                         </p>
                     </div>

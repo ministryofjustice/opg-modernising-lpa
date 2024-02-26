@@ -100,7 +100,7 @@ func TestPostEditMember(t *testing.T) {
 				"last-name":   {"d"},
 				"status":      {"suspended"},
 			},
-			expectedRedirect: page.Paths.Supporter.ManageTeamMembers.Format() + "?nameUpdated=c+d&statusUpdated=suspended%3Ateam-member%40example.org",
+			expectedRedirect: page.Paths.Supporter.ManageTeamMembers.Format() + "?nameUpdated=c+d&statusEmail=team-member%40example.org&statusUpdated=suspended",
 			expectedMember: &actor.Member{
 				FirstNames: "c",
 				LastName:   "d",
@@ -115,7 +115,6 @@ func TestPostEditMember(t *testing.T) {
 			form: url.Values{
 				"first-names": {"c"},
 				"last-name":   {"d"},
-				"status":      {"active"},
 			},
 			expectedRedirect: page.Paths.Supporter.ManageTeamMembers.Format() + "?nameUpdated=c+d&selfUpdated=1",
 			expectedMember: &actor.Member{

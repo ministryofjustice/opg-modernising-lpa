@@ -53,7 +53,8 @@ func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
 				}
 
 				if appData.IsAdmin() && data.Form.Status != member.Status {
-					query.Add("statusUpdated", data.Form.Status.String()+":"+member.Email)
+					query.Add("statusUpdated", data.Form.Status.String())
+					query.Add("statusEmail", member.Email)
 					member.Status = data.Form.Status
 				}
 
