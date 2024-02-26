@@ -1084,5 +1084,12 @@
     "teamMembersNameUpdatedToNewName": "Welsh <span class=\"govuk-!-font-weight-bold\">{{ .NewName }}</span>.",
     "yourNameHasBeenUpdatedToNewName": "Welsh <span class=\"govuk-!-font-weight-bold\">{{ .NewName }}</span>.",
     "you": "Welsh",
-    "manageYourDetails": "Welsh"
+    "manageYourDetails": "Welsh",
+    "previousPage":"Welsh",
+    "nextPage":"Welsh",
+    "page":"Welsh",
+    "showing":"Welsh",
+    "to":"Welsh",
+    "of":"Welsh",
+    "lpas":"Welsh"
 }
