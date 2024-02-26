@@ -1022,5 +1022,13 @@
     "teamMembersNameUpdatedToNewName": "Team member’s name updated to <span class=\"govuk-!-font-weight-bold\">{{ .NewName }}</span>.",
     "yourNameHasBeenUpdatedToNewName": "Your name has been updated to <span class=\"govuk-!-font-weight-bold\">{{ .NewName }}</span>.",
     "you": "you",
-    "manageYourDetails": "Manage your details"
+    "manageYourDetails": "Manage your details",
+    "allowAccessToThisOrganisation": "Allow access to this organisation",
+    "suspendAccessToThisOrganisation": "Suspend access to this organisation",
+    "forExampleExtendedLeave": "For example, for extended leave",
+    "suspended": "Suspended",
+    "teamMemberSuspended": "Team member suspended",
+    "accessUpdated": "Access updated",
+    "emailHasBeenSuspended": "<span class=\"govuk-!-font-weight-bold\">{{ .Email }}</span> has been suspended from this organisation.",
+    "emailCanNowAccessOrganisation": "<span class=\"govuk-!-font-weight-bold\">{{ .Email }}</span> can now access this organisation."
 }
