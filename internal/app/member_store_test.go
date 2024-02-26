@@ -311,6 +311,7 @@ func TestMemberStoreCreate(t *testing.T) {
 			FirstNames: invite.FirstNames,
 			LastName:   invite.LastName,
 			Permission: invite.Permission,
+			Status:     actor.Active,
 		}).
 		Return(nil)
 
