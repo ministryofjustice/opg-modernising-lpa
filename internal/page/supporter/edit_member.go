@@ -36,7 +36,7 @@ func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readEditMemberForm(r, appData.IsAdmin())
+			data.Form = readEditMemberForm(r, appData.IsAdmin(), appData.IsLoggedInMember(member))
 			data.Errors = data.Form.Validate(appData.IsAdmin())
 
 			if data.Errors.None() {
@@ -82,13 +82,13 @@ type editMemberForm struct {
 	StatusError   error
 }
 
-func readEditMemberForm(r *http.Request, isAdmin bool) *editMemberForm {
+func readEditMemberForm(r *http.Request, isAdmin, isEditingSelf bool) *editMemberForm {
 	f := &editMemberForm{
 		FirstNames: page.PostFormString(r, "first-names"),
 		LastName:   page.PostFormString(r, "last-name"),
 	}
 
-	if isAdmin {
+	if isAdmin && !isEditingSelf {
 		f.Status, f.StatusError = actor.ParseStatus(page.PostFormString(r, "status"))
 	}
 

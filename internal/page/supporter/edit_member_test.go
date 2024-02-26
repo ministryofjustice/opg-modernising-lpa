@@ -282,8 +282,9 @@ func TestPostEditMemberWhenValidationError(t *testing.T) {
 
 func TestReadEditMemberForm(t *testing.T) {
 	testcases := map[string]struct {
-		isAdmin bool
-		form    url.Values
+		isAdmin       bool
+		isEditingSelf bool
+		form          url.Values
 	}{
 		"admin": {
 			isAdmin: true,
@@ -291,6 +292,14 @@ func TestReadEditMemberForm(t *testing.T) {
 				"first-names": {"a"},
 				"last-name":   {"b"},
 				"status":      {"suspended"},
+			},
+		},
+		"admin - editing self": {
+			isAdmin:       true,
+			isEditingSelf: true,
+			form: url.Values{
+				"first-names": {"a"},
+				"last-name":   {"b"},
 			},
 		},
 		"non-admin": {
@@ -306,12 +315,12 @@ func TestReadEditMemberForm(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			result := readEditMemberForm(r, tc.isAdmin)
+			result := readEditMemberForm(r, tc.isAdmin, tc.isEditingSelf)
 
 			assert.Equal(t, "a", result.FirstNames)
 			assert.Equal(t, "b", result.LastName)
 
-			if tc.isAdmin {
+			if tc.isAdmin && !tc.isEditingSelf {
 				assert.Equal(t, actor.Suspended, result.Status)
 			}
 		})

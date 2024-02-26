@@ -111,7 +111,7 @@ describe('Edit member', () => {
             cy.checkA11yApp();
             cy.contains('Your name');
 
-            cy.get('#f-first-names').clear ().type('John');
+            cy.get('#f-first-names').clear().type('John');
             cy.get('#f-last-name').clear().type('Doe');
 
             cy.contains('button', "Save").click()
