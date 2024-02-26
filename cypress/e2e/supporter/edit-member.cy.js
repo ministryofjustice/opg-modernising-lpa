@@ -81,7 +81,7 @@ describe('Edit member', () => {
             cy.contains("td", "leon-vynehall@example.org").parent().contains("Active")
         })
 
-        it.only('multiple update banners are stacked', () => {
+        it('multiple update banners are stacked', () => {
             cy.visit("/supporter/manage-organisation/manage-team-members?statusUpdated=suspended:a@b.com&nameUpdated=A+B");
 
             cy.checkA11yApp();
