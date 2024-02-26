@@ -33,6 +33,7 @@ func TestOrganisationStoreCreate(t *testing.T) {
 			CreatedAt:  testNow,
 			Email:      "a@example.org",
 			Permission: actor.Admin,
+			Status:     actor.Active,
 		}).
 		Return(nil).
 		Once()
