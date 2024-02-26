@@ -80,6 +80,15 @@ describe('Edit member', () => {
             cy.contains('leon-vynehall@example.org can now access this organisation.');
             cy.contains("td", "leon-vynehall@example.org").parent().contains("Active")
         })
+
+        it.only('multiple update banners are stacked', () => {
+            cy.visit("/supporter/manage-organisation/manage-team-members?statusUpdated=suspended:a@b.com&nameUpdated=A+B");
+
+            cy.checkA11yApp();
+
+            cy.contains('Team member’s name updated to A B.');
+            cy.contains('a@b.com has been suspended from this organisation.');
+        })
     })
 
     describe('non-admin', () => {
