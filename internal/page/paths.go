@@ -184,7 +184,10 @@ func (p SupporterPath) RedirectQuery(w http.ResponseWriter, r *http.Request, app
 }
 
 func (p SupporterPath) IsManageOrganisation() bool {
-	return p == Paths.Supporter.OrganisationDetails || p == Paths.Supporter.EditOrganisationName || p == Paths.Supporter.ManageTeamMembers
+	return p == Paths.Supporter.OrganisationDetails ||
+		p == Paths.Supporter.EditOrganisationName ||
+		p == Paths.Supporter.ManageTeamMembers ||
+		p == Paths.Supporter.EditMember
 }
 
 type AttorneyPaths struct {

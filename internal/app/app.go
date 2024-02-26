@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -230,7 +229,7 @@ func withAppData(next http.Handler, localizer page.Localizer, lang localize.Lang
 
 		appData := page.AppDataFromContext(ctx)
 		appData.Path = r.URL.Path
-		appData.Query = queryString(r)
+		appData.Query = r.URL.Query()
 		appData.Localizer = localizer
 		appData.Lang = lang
 
@@ -271,13 +270,5 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, store sesh.S
 				errorHandler(w, r, err)
 			}
 		})
-	}
-}
-
-func queryString(r *http.Request) string {
-	if r.URL.RawQuery != "" {
-		return fmt.Sprintf("?%s", r.URL.RawQuery)
-	} else {
-		return ""
 	}
 }

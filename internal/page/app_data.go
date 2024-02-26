@@ -3,6 +3,7 @@ package page
 import (
 	"context"
 	"net/http"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
@@ -12,7 +13,7 @@ import (
 type AppData struct {
 	Page                 string
 	Path                 string
-	Query                string
+	Query                url.Values
 	Localizer            Localizer
 	Lang                 localize.Lang
 	CookieConsentSet     bool
@@ -26,6 +27,8 @@ type AppData struct {
 	OrganisationName     string
 	IsManageOrganisation bool
 	LoginSessionEmail    string
+	Permission           actor.Permission
+	LoggedInSupporterID  string
 }
 
 func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, url string) error {
@@ -57,4 +60,18 @@ func (d AppData) IsReplacementAttorney() bool {
 
 func (d AppData) IsTrustCorporation() bool {
 	return d.ActorType == actor.TypeTrustCorporation || d.ActorType == actor.TypeReplacementTrustCorporation
+}
+
+func (d AppData) IsAdmin() bool {
+	return d.Permission.IsAdmin()
+}
+
+func (d AppData) EncodeQuery() string {
+	query := ""
+
+	if d.Query.Encode() != "" {
+		query = "?" + d.Query.Encode()
+	}
+
+	return query
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -70,4 +71,30 @@ func TestIsTrustCorporation(t *testing.T) {
 
 	assert.False(t, AppData{ActorType: actor.TypeAttorney, AttorneyUID: actoruid.New()}.IsTrustCorporation())
 	assert.False(t, AppData{ActorType: actor.TypeReplacementAttorney, AttorneyUID: actoruid.New()}.IsTrustCorporation())
+}
+
+func TestAppDataIsAdmin(t *testing.T) {
+	assert.True(t, AppData{Permission: actor.Admin}.IsAdmin())
+	assert.False(t, AppData{}.IsAdmin())
+}
+
+func TestAppDataEncodeQuery(t *testing.T) {
+	testCases := map[string]struct {
+		query               url.Values
+		expectedQueryString string
+	}{
+		"with query": {
+			query:               url.Values{"a": {"query"}, "b": {"string"}},
+			expectedQueryString: "?a=query&b=string",
+		},
+		"without query": {
+			expectedQueryString: "",
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.expectedQueryString, AppData{Query: tc.query}.EncodeQuery())
+		})
+	}
 }
