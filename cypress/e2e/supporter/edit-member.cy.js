@@ -45,14 +45,14 @@ describe('Edit member', () => {
             cy.contains('a', "John Doe")
         })
 
-        it.only('can suspend a team members access to the organisation', () => {
+        it('can update a team members access to the organisation', () => {
             cy.contains('a', "Leon Vynehall").click()
 
             cy.url().should('contain', "/manage-organisation/manage-team-members/edit-team-member");
 
             cy.checkA11yApp();
 
-            cy.get('[name="status"]').check('suspend', { force: true });
+            cy.get('[name="status"]').check('suspended', { force: true });
 
             cy.contains('button', "Save").click()
 
@@ -62,6 +62,23 @@ describe('Edit member', () => {
 
             cy.contains('leon-vynehall@example.org has been suspended from this organisation.');
             cy.contains("td", "leon-vynehall@example.org").parent().contains("Suspended")
+
+            cy.contains('a', "Leon Vynehall").click()
+
+            cy.url().should('contain', "/manage-organisation/manage-team-members/edit-team-member");
+
+            cy.checkA11yApp();
+
+            cy.get('[name="status"]').check('active', { force: true });
+
+            cy.contains('button', "Save").click()
+
+            cy.url().should('contain', "/manage-organisation/manage-team-members");
+
+            cy.checkA11yApp();
+
+            cy.contains('leon-vynehall@example.org can now access this organisation.');
+            cy.contains("td", "leon-vynehall@example.org").parent().contains("Active")
         })
     })
 

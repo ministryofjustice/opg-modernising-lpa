@@ -1084,5 +1084,13 @@
     "teamMembersNameUpdatedToNewName": "Welsh <span class=\"govuk-!-font-weight-bold\">{{ .NewName }}</span>.",
     "yourNameHasBeenUpdatedToNewName": "Welsh <span class=\"govuk-!-font-weight-bold\">{{ .NewName }}</span>.",
     "you": "Welsh",
-    "manageYourDetails": "Welsh"
+    "manageYourDetails": "Welsh",
+    "allowAccessToThisOrganisation": "Welsh",
+    "suspendAccessToThisOrganisation": "Welsh",
+    "forExampleExtendedLeave": "Welsh",
+    "suspended": "Welsh",
+    "teamMemberSuspended": "Welsh",
+    "accessUpdated": "Welsh",
+    "emailHasBeenSuspended": "<span class=\"govuk-!-font-weight-bold\">{{ .Email }}</span> Welsh",
+    "emailCanNowAccessOrganisation": "<span class=\"govuk-!-font-weight-bold\">{{ .Email }}</span> Welsh"
 }

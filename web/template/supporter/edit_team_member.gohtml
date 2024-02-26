@@ -3,26 +3,42 @@
 {{ define "pageTitle" }}{{ tr .App "editTeamMember" }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <form novalidate method="post">
-        {{ if .App.IsAdmin }}
-          <span class="govuk-caption-xl">{{ tr .App "manageTeamMembers" }}</span>
-          <h1 class="govuk-heading-xl">{{ .Member.FullName }} {{ if eq .Member.Email $.App.LoginSessionEmail }} ({{ tr $.App "you" }}) {{ end }}</h1>
-        {{ else }}
-          <span class="govuk-caption-xl">{{ tr .App "manageYourDetails" }}</span>
-          <h1 class="govuk-heading-xl">{{ tr $.App "yourName" }}</h1>
-        {{ end }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form novalidate method="post">
+                {{ if .App.IsAdmin }}
+                    <span class="govuk-caption-xl">{{ tr .App "manageTeamMembers" }}</span>
+                    <h1 class="govuk-heading-xl">
+                        {{ .Member.FullName }} {{ if eq .Member.Email $.App.LoginSessionEmail }} ({{ tr $.App "you" }}) {{ end }}
+                    </h1>
+                {{ else }}
+                    <span class="govuk-caption-xl">{{ tr .App "manageYourDetails" }}</span>
+                    <h1 class="govuk-heading-xl">{{ tr $.App "yourName" }}</h1>
+                {{ end }}
 
-        {{ template "input" (input . "first-names" "firstNames" .Form.FirstNames "classes" "govuk-input--width-20") }}
+                {{ template "input" (input . "first-names" "firstNames" .Form.FirstNames "classes" "govuk-input--width-20") }}
 
-        {{ template "input" (input . "last-name" "lastName" .Form.LastName "classes" "govuk-input--width-20") }}
+                {{ template "input" (input . "last-name" "lastName" .Form.LastName "classes" "govuk-input--width-20") }}
 
-        <div class="govuk-button-group">
-          <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "save" }}</button>
+                {{ if .App.IsAdmin }}
+                    <div class="govuk-form-group {{ if .Errors.Has "status" }}govuk-form-group--error{{ end }}">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                                {{ tr .App "status" }}
+                            </legend>
+
+                            {{ template "error-message" (errorMessage . "status") }}
+                            {{ template "radios" (items . "status" .Form.Status.String
+                              (item .Form.StatusOptions.Active.String "allowAccessToThisOrganisation")
+                              (item .Form.StatusOptions.Suspended.String "suspendAccessToThisOrganisation" "hint" "forExampleExtendedLeave")
+                            ) }}
+                        </fieldset>
+                    </div>
+                {{ end }}
+
+                <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "save" }}</button>
+                {{ template "csrf-field" . }}
+            </form>
         </div>
-        {{ template "csrf-field" . }}
-      </form>
     </div>
-  </div>
 {{ end }}

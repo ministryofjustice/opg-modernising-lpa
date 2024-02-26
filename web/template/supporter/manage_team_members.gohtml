@@ -43,6 +43,35 @@
                 </div>
             {{ end}}
 
+            {{ if .App.Query.Has "statusUpdated" }}
+                {{  $statusAndEmail := split (.App.Query.Get "statusUpdated") ":"  }}
+                {{  $status := index $statusAndEmail 0  }}
+                {{  $email := index $statusAndEmail 1  }}
+
+                <div class="govuk-notification-banner" role="alert"
+                     aria-labelledby="govuk-notification-banner-title"
+                     data-module="govuk-notification-banner">
+                    <div class="govuk-notification-banner__header">
+                        <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                            {{ if eq $status "suspended" }}
+                                {{ tr .App "teamMemberSuspended" }}
+                            {{ else }}
+                                {{ tr .App "accessUpdated" }}
+                            {{ end }}
+                        </h1>
+                    </div>
+                    <div class="govuk-notification-banner__content">
+                        <p class="govuk-body">
+                            {{ if eq $status "suspended" }}
+                                {{ trFormatHtml .App "emailHasBeenSuspended" "Email" $email }}
+                            {{ else }}
+                                {{ trFormatHtml .App "emailCanNowAccessOrganisation" "Email" $email }}
+                            {{ end }}
+                        </p>
+                    </div>
+                </div>
+            {{ end}}
+
             <h1 class="govuk-heading-xl">{{ tr .App "manageOrganisation" }}</h1>
 
             <div class="govuk-tabs app-tabs-no-border">
