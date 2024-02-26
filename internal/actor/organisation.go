@@ -37,7 +37,7 @@ type Member struct {
 	LastName   string
 	// Permission is the type of permissions assigned to the member to set available actions in an Organisation
 	Permission Permission
-	// Status shows if the Member has access to the Organisation
+	// Status controls access to the Organisation
 	Status Status
 }
 

@@ -126,6 +126,7 @@ describe('Edit member', () => {
         it('errors when empty', () => {
             cy.get('#f-first-names').clear();
             cy.get('#f-last-name').clear();
+            cy.get('#f-status').invoke('attr', 'checked', false);
 
             cy.contains('button', "Save").click()
 
@@ -134,10 +135,12 @@ describe('Edit member', () => {
             cy.get('.govuk-error-summary').within(() => {
                 cy.contains('Enter first names');
                 cy.contains('Enter last name');
+                cy.contains('Select status');
             });
 
             cy.contains('[for=f-first-names] + .govuk-error-message', 'Enter first names');
             cy.contains('[for=f-last-name] + .govuk-error-message', 'Enter last name');
+            cy.contains('#status-error', 'Select status');
         });
 
         it('errors when names too long', () => {
