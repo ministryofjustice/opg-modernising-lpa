@@ -79,6 +79,7 @@ type editMemberForm struct {
 	LastName      string
 	Status        actor.Status
 	StatusOptions actor.StatusOptions
+	StatusError   error
 }
 
 func readEditMemberForm(r *http.Request, isAdmin bool) *editMemberForm {
@@ -88,7 +89,7 @@ func readEditMemberForm(r *http.Request, isAdmin bool) *editMemberForm {
 	}
 
 	if isAdmin {
-		f.Status, _ = actor.ParseStatus(page.PostFormString(r, "status"))
+		f.Status, f.StatusError = actor.ParseStatus(page.PostFormString(r, "status"))
 	}
 
 	return f
@@ -106,7 +107,7 @@ func (f *editMemberForm) Validate(isAdmin bool) validation.List {
 		validation.StringTooLong(61))
 
 	if isAdmin {
-		errors.Options("status", "status", []string{f.Status.String()}, validation.Select(actor.Active.String(), actor.Suspended.String()))
+		errors.Error("status", "status", f.StatusError, validation.Selected())
 	}
 
 	return errors

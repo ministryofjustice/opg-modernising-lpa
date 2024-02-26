@@ -81,6 +81,16 @@ describe('Edit member', () => {
             cy.contains("td", "leon-vynehall@example.org").parent().contains("Active")
         })
 
+        it('can not update own access to the organisation', () => {
+            cy.contains('a', "Alice Moxom").click()
+
+            cy.url().should('contain', "/manage-organisation/manage-team-members/edit-team-member");
+
+            cy.checkA11yApp();
+
+            cy.get('[name="status"]').should('not.exist');
+        })
+
         it('multiple update banners are stacked', () => {
             cy.visit("/supporter/manage-organisation/manage-team-members?statusUpdated=suspended:a@b.com&nameUpdated=A+B");
 

@@ -355,13 +355,12 @@ func TestEditMemberFormValidate(t *testing.T) {
 		},
 		"unsupported status option": {
 			form: &editMemberForm{
-				FirstNames: "a",
-				LastName:   "b",
-				Status:     actor.Status(99),
+				FirstNames:  "a",
+				LastName:    "b",
+				StatusError: expectedError,
 			},
 			isAdmin: true,
-			errors: validation.
-				With("status", validation.SelectError{Label: "status"}),
+			errors:  validation.With("status", validation.SelectError{Label: "status"}),
 		},
 	}
 

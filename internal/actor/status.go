@@ -4,6 +4,6 @@ package actor
 type Status uint8
 
 const (
-	Active    Status = iota //active
+	Active    Status = iota // active
 	Suspended               // suspended
 )
