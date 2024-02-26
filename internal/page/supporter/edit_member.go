@@ -27,15 +27,17 @@ func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
 		data := &editMemberData{
 			App: appData,
 			Form: &editMemberForm{
-				FirstNames: member.FirstNames,
-				LastName:   member.LastName,
+				FirstNames:    member.FirstNames,
+				LastName:      member.LastName,
+				Status:        member.Status,
+				StatusOptions: actor.StatusValues,
 			},
 			Member: member,
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readEditMemberForm(r)
-			data.Errors = data.Form.Validate()
+			data.Form = readEditMemberForm(r, appData.IsAdmin(), appData.IsLoggedInMember(member))
+			data.Errors = data.Form.Validate(appData.IsAdmin())
 
 			if data.Errors.None() {
 				query := url.Values{}
@@ -48,6 +50,11 @@ func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
 					if member.Email == appData.LoginSessionEmail {
 						query.Add("selfUpdated", "1")
 					}
+				}
+
+				if appData.IsAdmin() && data.Form.Status != member.Status {
+					query.Add("statusUpdated", data.Form.Status.String()+":"+member.Email)
+					member.Status = data.Form.Status
 				}
 
 				if err := memberStore.Put(r.Context(), member); err != nil {
@@ -68,18 +75,27 @@ func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
 }
 
 type editMemberForm struct {
-	FirstNames string
-	LastName   string
+	FirstNames    string
+	LastName      string
+	Status        actor.Status
+	StatusOptions actor.StatusOptions
+	StatusError   error
 }
 
-func readEditMemberForm(r *http.Request) *editMemberForm {
-	return &editMemberForm{
+func readEditMemberForm(r *http.Request, isAdmin, isEditingSelf bool) *editMemberForm {
+	f := &editMemberForm{
 		FirstNames: page.PostFormString(r, "first-names"),
 		LastName:   page.PostFormString(r, "last-name"),
 	}
+
+	if isAdmin && !isEditingSelf {
+		f.Status, f.StatusError = actor.ParseStatus(page.PostFormString(r, "status"))
+	}
+
+	return f
 }
 
-func (f *editMemberForm) Validate() validation.List {
+func (f *editMemberForm) Validate(isAdmin bool) validation.List {
 	var errors validation.List
 
 	errors.String("first-names", "firstNames", f.FirstNames,
@@ -89,6 +105,10 @@ func (f *editMemberForm) Validate() validation.List {
 	errors.String("last-name", "lastName", f.LastName,
 		validation.Empty(),
 		validation.StringTooLong(61))
+
+	if isAdmin {
+		errors.Error("status", "status", f.StatusError, validation.Selected())
+	}
 
 	return errors
 }

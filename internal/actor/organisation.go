@@ -37,6 +37,8 @@ type Member struct {
 	LastName   string
 	// Permission is the type of permissions assigned to the member to set available actions in an Organisation
 	Permission Permission
+	// Status controls access to the Organisation
+	Status Status
 }
 
 func (i Member) FullName() string {
