@@ -110,10 +110,6 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, don
 					if err := dynamoClient.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID}), invite); err != nil {
 						return fmt.Errorf("error creating member invite: %w", err)
 					}
-
-					//if err = memberStore.CreateMemberInvite(page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID}), org, member.Firstnames, member.Lastname, strings.ToLower(fmt.Sprintf("%s-%s@example.org", member.Firstnames, member.Lastname)), random.String(12), actor.Admin); err != nil {
-					//	return err
-					//}
 				}
 			}
 
