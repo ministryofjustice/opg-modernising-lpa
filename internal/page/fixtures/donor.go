@@ -25,6 +25,7 @@ import (
 
 type DynamoClient interface {
 	OneByUID(ctx context.Context, uid string, v interface{}) error
+	Create(ctx context.Context, v interface{}) error
 }
 
 type DocumentStore interface {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -25,7 +26,7 @@ type MemberStore interface {
 	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error
 }
 
-func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, donorStore DonorStore, memberStore MemberStore) page.Handler {
+func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, donorStore DonorStore, memberStore MemberStore, dynamoClient DynamoClient) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		var (
 			invitedMembers = r.FormValue("invitedMembers")
@@ -35,6 +36,7 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, don
 			redirect       = r.FormValue("redirect")
 			asMember       = r.FormValue("asMember")
 			permission     = r.FormValue("permission")
+			expireInvites  = r.FormValue("expireInvites") == "1"
 
 			supporterSub       = random.String(16)
 			supporterSessionID = base64.StdEncoding.EncodeToString([]byte(supporterSub))
@@ -75,15 +77,43 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, don
 
 			if invitedMembers != "" {
 				n, err := strconv.Atoi(invitedMembers)
+				if err != nil {
+					return fmt.Errorf("invitedMembers should be a number")
+				}
 
 				for i, member := range invitedOrgMemberNames {
 					if i == n {
 						break
 					}
 
-					if err = memberStore.CreateMemberInvite(page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID}), org, member.Firstnames, member.Lastname, strings.ToLower(fmt.Sprintf("%s-%s@example.org", member.Firstnames, member.Lastname)), random.String(12), actor.Admin); err != nil {
-						return err
+					email := strings.ToLower(fmt.Sprintf("%s-%s@example.org", member.Firstnames, member.Lastname))
+
+					now := time.Now()
+					if expireInvites {
+						now = now.Add(time.Hour * -time.Duration(48))
+						log.Println(now)
 					}
+
+					invite := &actor.MemberInvite{
+						PK:               "ORGANISATION#" + org.ID,
+						SK:               "MEMBERINVITE#" + base64.StdEncoding.EncodeToString([]byte(email)),
+						CreatedAt:        now,
+						OrganisationID:   org.ID,
+						OrganisationName: org.Name,
+						Email:            email,
+						FirstNames:       member.Firstnames,
+						LastName:         member.Lastname,
+						Permission:       actor.Admin,
+						ReferenceNumber:  random.String(12),
+					}
+
+					if err := dynamoClient.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID}), invite); err != nil {
+						return fmt.Errorf("error creating member invite: %w", err)
+					}
+
+					//if err = memberStore.CreateMemberInvite(page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID}), org, member.Firstnames, member.Lastname, strings.ToLower(fmt.Sprintf("%s-%s@example.org", member.Firstnames, member.Lastname)), random.String(12), actor.Admin); err != nil {
+					//	return err
+					//}
 				}
 			}
 
