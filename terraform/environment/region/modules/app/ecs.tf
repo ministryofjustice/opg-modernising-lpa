@@ -301,7 +301,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
     effect = "Allow"
 
     actions = [
-      "aoss:APIAccessAll"
+      "aoss:*"
     ]
 
     resources = [
