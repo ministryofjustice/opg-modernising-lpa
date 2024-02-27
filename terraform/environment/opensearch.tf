@@ -1,7 +1,3 @@
-data "aws_caller_identity" "current" {
-  provider = aws.eu_west_1
-}
-
 data "aws_vpc_endpoint" "opensearch" {
   tags = {
     Name = "opensearch-eu-west-1"
@@ -49,30 +45,6 @@ resource "aws_opensearchserverless_security_policy" "lpas_collection_network_pol
       SourceVPCEs = [
         data.aws_vpc_endpoint.opensearch.id
       ]
-    }
-  ])
-  provider = aws.eu_west_1
-}
-
-resource "aws_opensearchserverless_access_policy" "lpas_collection_data_access_policy" {
-  name        = "policy-${local.environment_name}"
-  type        = "data"
-  description = "allow index and collection access"
-  policy = jsonencode([
-    {
-      Rules = [
-        {
-          ResourceType = "index",
-          Resource     = ["index/collection-${local.environment_name}/*"],
-          Permission   = ["aoss:*"]
-        },
-        {
-          ResourceType = "collection",
-          Resource     = ["collection/collection-${local.environment_name}"],
-          Permission   = ["aoss:*"]
-        }
-      ],
-      Principal = [data.aws_caller_identity.current.arn]
     }
   ])
   provider = aws.eu_west_1
