@@ -212,9 +212,9 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		return err
 	}
 
-	if err := searchClient.CreateIndices(ctx); err != nil {
-		return err
-	}
+	// if err := searchClient.CreateIndices(ctx); err != nil {
+	// 	return err
+	// }
 
 	secretsClient, err := secrets.NewClient(cfg, time.Hour)
 	if err != nil {
