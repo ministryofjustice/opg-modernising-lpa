@@ -172,6 +172,26 @@ func TestPostManageTeamMembersWhenValidationErrors(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
+func TestPostManageTeamMembersWhenSessionMissing(t *testing.T) {
+	form := url.Values{
+		"email":       {"a@b.com"},
+		"first-names": {"a"},
+		"last-name":   {"b"},
+		"permission":  {"admin"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	err := ManageTeamMembers(nil, nil, func(int) string { return "abcde" }, nil, "http://base")(testAppData, w, r, &actor.Organisation{ID: "org-id", Name: "My organisation"})
+
+	resp := w.Result()
+
+	assert.Error(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
 func TestPostManageTeamMembersWhenMemberStoreErrors(t *testing.T) {
 	testcases := map[string]struct {
 		deleteMembersError error
