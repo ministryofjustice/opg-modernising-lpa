@@ -18,14 +18,14 @@ aws-vault exec mlpa-dev -- aws events put-events --entries file://reduced_fees_u
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.2 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.37.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.38.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.37.0 |
-| <a name="provider_aws.region"></a> [aws.region](#provider\_aws.region) | ~> 5.37.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.38.0 |
+| <a name="provider_aws.region"></a> [aws.region](#provider\_aws.region) | ~> 5.38.0 |
 
 ## Modules
 

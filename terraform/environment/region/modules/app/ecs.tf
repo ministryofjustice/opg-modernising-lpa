@@ -454,7 +454,7 @@ locals {
   amazon_ssm_agent = jsonencode(
     {
       name                   = "amazon-ssm-agent",
-      image                  = "public.ecr.aws/amazon-ssm-agent/amazon-ssm-agent:3.2.1798",
+      image                  = "public.ecr.aws/amazon-ssm-agent/amazon-ssm-agent:3.2.2143",
       cpu                    = 0,
       links                  = [],
       portMappings           = [],
