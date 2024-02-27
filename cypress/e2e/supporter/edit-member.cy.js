@@ -45,7 +45,7 @@ describe('Edit member', () => {
             cy.contains('a', "John Doe")
         })
 
-        it.only('can update a team members access to the organisation', () => {
+        it('can update a team members access to the organisation', () => {
             cy.contains('a', "Leon Vynehall").click()
 
             cy.url().should('contain', "/manage-organisation/manage-team-members/edit-team-member");
