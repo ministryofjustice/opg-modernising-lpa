@@ -292,7 +292,7 @@ func TestMemberStoreCreate(t *testing.T) {
 	invite := &actor.MemberInvite{
 		PK:             "pk",
 		SK:             "sk",
-		Email:          "ab@example.ord",
+		Email:          "ab@example.org",
 		FirstNames:     "a",
 		LastName:       "b",
 		Permission:     actor.Admin,
@@ -316,7 +316,7 @@ func TestMemberStoreCreate(t *testing.T) {
 		Return(nil)
 
 	dynamoClient.EXPECT().
-		DeleteOne(ctx, "pk", "sk").
+		DeleteOne(ctx, "ORGANISATION#org-id", "MEMBERINVITE#YWJAZXhhbXBsZS5vcmc=").
 		Return(nil)
 
 	dynamoClient.EXPECT().

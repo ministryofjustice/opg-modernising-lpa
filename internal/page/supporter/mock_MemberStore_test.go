@@ -122,6 +122,54 @@ func (_c *mockMemberStore_CreateMemberInvite_Call) RunAndReturn(run func(context
 	return _c
 }
 
+// DeleteMemberInvite provides a mock function with given fields: ctx, organisationID, email
+func (_m *mockMemberStore) DeleteMemberInvite(ctx context.Context, organisationID string, email string) error {
+	ret := _m.Called(ctx, organisationID, email)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteMemberInvite")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
+		r0 = rf(ctx, organisationID, email)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockMemberStore_DeleteMemberInvite_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteMemberInvite'
+type mockMemberStore_DeleteMemberInvite_Call struct {
+	*mock.Call
+}
+
+// DeleteMemberInvite is a helper method to define mock.On call
+//   - ctx context.Context
+//   - organisationID string
+//   - email string
+func (_e *mockMemberStore_Expecter) DeleteMemberInvite(ctx interface{}, organisationID interface{}, email interface{}) *mockMemberStore_DeleteMemberInvite_Call {
+	return &mockMemberStore_DeleteMemberInvite_Call{Call: _e.mock.On("DeleteMemberInvite", ctx, organisationID, email)}
+}
+
+func (_c *mockMemberStore_DeleteMemberInvite_Call) Run(run func(ctx context.Context, organisationID string, email string)) *mockMemberStore_DeleteMemberInvite_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *mockMemberStore_DeleteMemberInvite_Call) Return(_a0 error) *mockMemberStore_DeleteMemberInvite_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockMemberStore_DeleteMemberInvite_Call) RunAndReturn(run func(context.Context, string, string) error) *mockMemberStore_DeleteMemberInvite_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Get provides a mock function with given fields: ctx
 func (_m *mockMemberStore) Get(ctx context.Context) (*actor.Member, error) {
 	ret := _m.Called(ctx)
