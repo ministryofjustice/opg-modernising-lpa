@@ -72,7 +72,6 @@ func All(globals *Globals) map[string]any {
 		"penceToPounds":      penceToPounds,
 		"canGoTo":            page.CanGoTo,
 		"content":            content,
-		"split":              strings.Split,
 	}
 }
 
