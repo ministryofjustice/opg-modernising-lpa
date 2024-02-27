@@ -43,6 +43,31 @@
                 </div>
             {{ end}}
 
+            {{ if and (.App.Query.Has "statusUpdated") (.App.Query.Has "statusEmail") }}
+                <div class="govuk-notification-banner" role="alert"
+                     aria-labelledby="govuk-notification-banner-title"
+                     data-module="govuk-notification-banner">
+                    <div class="govuk-notification-banner__header">
+                        <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                            {{ if eq (.App.Query.Get "statusUpdated") "suspended" }}
+                                {{ tr .App "teamMemberSuspended" }}
+                            {{ else }}
+                                {{ tr .App "accessUpdated" }}
+                            {{ end }}
+                        </h1>
+                    </div>
+                    <div class="govuk-notification-banner__content">
+                        <p class="govuk-body">
+                            {{ if eq (.App.Query.Get "statusUpdated") "suspended" }}
+                                {{ trFormatHtml .App "emailHasBeenSuspended" "Email" (.App.Query.Get "statusEmail") }}
+                            {{ else }}
+                                {{ trFormatHtml .App "emailCanNowAccessOrganisation" "Email" (.App.Query.Get "statusEmail") }}
+                            {{ end }}
+                        </p>
+                    </div>
+                </div>
+            {{ end}}
+
             <h1 class="govuk-heading-xl">{{ tr .App "manageOrganisation" }}</h1>
 
             <div class="govuk-tabs app-tabs-no-border">
@@ -135,7 +160,7 @@
                                         {{ .Email }}
                                     </td>
                                     <td class="govuk-table__cell">
-                                        {{ tr $.App "active" }}
+                                        {{ tr $.App .Status.String }}
                                     </td>
                                     <td class="govuk-table__cell">
                                         {{ formatDateTime $.App .LastLoggedInAt }}

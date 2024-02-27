@@ -1,10 +1,12 @@
 describe('Edit member', () => {
     describe('admin', () => {
-        it('can edit a team members name', () => {
-            cy.visit("/fixtures/supporter?organisation=1&redirect=/manage-organisation/manage-team-members&members=1&permission=admin");
-
+        beforeEach(() => {
+            cy.visit("/fixtures/supporter?organisation=1&redirect=/manage-organisation/manage-team-members&members=2&asMember=alice-moxom@example.org&permission=admin");
             cy.url().should('contain', "/manage-organisation/manage-team-members");
-            cy.contains('a', "Alice Moxom").click()
+        })
+
+        it('can edit a team members name', () => {
+            cy.contains('a', "Leon Vynehall").click()
 
             cy.url().should('contain', "/manage-organisation/manage-team-members/edit-team-member");
 
@@ -24,9 +26,6 @@ describe('Edit member', () => {
         })
 
         it('can edit own name', () => {
-            cy.visit("/fixtures/supporter?organisation=1&redirect=/manage-organisation/manage-team-members&members=1&asMember=alice-moxom@example.org&permission=admin");
-
-            cy.url().should('contain', "/manage-organisation/manage-team-members");
             cy.contains('a', "Alice Moxom").click()
 
             cy.url().should('contain', "/manage-organisation/manage-team-members/edit-team-member");
@@ -45,6 +44,61 @@ describe('Edit member', () => {
             cy.contains('Your name has been updated to John Doe');
             cy.contains('a', "John Doe")
         })
+
+        it('can update a team members access to the organisation', () => {
+            cy.contains('a', "Leon Vynehall").click()
+
+            cy.url().should('contain', "/manage-organisation/manage-team-members/edit-team-member");
+
+            cy.checkA11yApp();
+
+            cy.get('[name="status"]').check('suspended', { force: true });
+
+            cy.contains('button', "Save").click()
+
+            cy.url().should('contain', "/manage-organisation/manage-team-members");
+
+            cy.checkA11yApp();
+
+            cy.contains('leon-vynehall@example.org has been suspended from this organisation.');
+            cy.contains("td", "leon-vynehall@example.org").parent().contains("Suspended")
+
+            cy.contains('a', "Leon Vynehall").click()
+
+            cy.url().should('contain', "/manage-organisation/manage-team-members/edit-team-member");
+
+            cy.checkA11yApp();
+
+            cy.get('[name="status"]').check('active', { force: true });
+
+            cy.contains('button', "Save").click()
+
+            cy.url().should('contain', "/manage-organisation/manage-team-members");
+
+            cy.checkA11yApp();
+
+            cy.contains('leon-vynehall@example.org can now access this organisation.');
+            cy.contains("td", "leon-vynehall@example.org").parent().contains("Active")
+        })
+
+        it('can not update own access to the organisation', () => {
+            cy.contains('a', "Alice Moxom").click()
+
+            cy.url().should('contain', "/manage-organisation/manage-team-members/edit-team-member");
+
+            cy.checkA11yApp();
+
+            cy.get('[name="status"]').should('not.exist');
+        })
+
+        it('multiple update banners are stacked', () => {
+            cy.visit("/supporter/manage-organisation/manage-team-members?statusUpdated=suspended&statusEmail=a@b.com&nameUpdated=A+B");
+
+            cy.checkA11yApp();
+
+            cy.contains('Team member’s name updated to A B.');
+            cy.contains('a@b.com has been suspended from this organisation.');
+        })
     })
 
     describe('non-admin', () => {
@@ -57,7 +111,7 @@ describe('Edit member', () => {
             cy.checkA11yApp();
             cy.contains('Your name');
 
-            cy.get('#f-first-names').clear ().type('John');
+            cy.get('#f-first-names').clear().type('John');
             cy.get('#f-last-name').clear().type('Doe');
 
             cy.contains('button', "Save").click()
@@ -82,6 +136,7 @@ describe('Edit member', () => {
         it('errors when empty', () => {
             cy.get('#f-first-names').clear();
             cy.get('#f-last-name').clear();
+            cy.get('#f-status').invoke('attr', 'checked', false);
 
             cy.contains('button', "Save").click()
 
@@ -90,10 +145,12 @@ describe('Edit member', () => {
             cy.get('.govuk-error-summary').within(() => {
                 cy.contains('Enter first names');
                 cy.contains('Enter last name');
+                cy.contains('Select status');
             });
 
             cy.contains('[for=f-first-names] + .govuk-error-message', 'Enter first names');
             cy.contains('[for=f-last-name] + .govuk-error-message', 'Enter last name');
+            cy.contains('#status-error', 'Select status');
         });
 
         it('errors when names too long', () => {
