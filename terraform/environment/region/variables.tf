@@ -152,3 +152,15 @@ variable "fault_injection_experiments_enabled" {
   type        = bool
   description = "Enable fault injection"
 }
+
+variable "search_endpoint" {
+  type        = string
+  description = "URL of the OpenSearch Service endpoint to use"
+  nullable    = true
+}
+
+variable "search_collection_arn" {
+  type        = string
+  description = "ARN of the OpenSearch collection to use"
+  nullable    = true
+}
