@@ -86,7 +86,7 @@ func NewClient(cfg aws.Config, endpoint string) (*Client, error) {
 	return &Client{indices: svc.Indices, svc: svc}, nil
 }
 
-func (c *Client) Info(ctx context.Context) error {
+func (c *Client) CheckHealth(ctx context.Context) error {
 	_, err := c.svc.Info(ctx, nil)
 	return err
 }
