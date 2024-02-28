@@ -86,6 +86,7 @@ jobs:
         run: |
           docker compose -f docker/docker-compose.yml -f docker/docker-compose.ci.yml pull
           docker compose -f docker/docker-compose.yml -f docker/docker-compose.ci.yml up -d --wait
+          docker compose -f docker/docker-compose.yml -f docker/docker-compose.ci.yml logs localstack
 
       - name: Manage Ingress/Configure AWS Credentials
         if: inputs.run_against_image != true
@@ -133,5 +134,6 @@ jobs:
 
       - name: Stop Docker Compose Service
         if: always()
-        run:
+        run: |
+          docker compose -f docker/docker-compose.yml -f docker/docker-compose.ci.yml logs app
           docker compose -f docker/docker-compose.yml -f docker/docker-compose.ci.yml down
