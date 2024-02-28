@@ -20,14 +20,13 @@ type SearchClient interface {
 }
 
 type uidStore struct {
-	dynamoClient        DynamoUpdateClient
-	now                 func() time.Time
-	searchClientFactory func() (SearchClient, error)
-	searchClient        SearchClient
+	dynamoClient DynamoUpdateClient
+	now          func() time.Time
+	searchClient SearchClient
 }
 
-func NewUidStore(dynamoClient DynamoUpdateClient, searchClientFactory func() (SearchClient, error), now func() time.Time) *uidStore {
-	return &uidStore{dynamoClient: dynamoClient, searchClientFactory: searchClientFactory, now: now}
+func NewUidStore(dynamoClient DynamoUpdateClient, searchClient SearchClient, now func() time.Time) *uidStore {
+	return &uidStore{dynamoClient: dynamoClient, searchClient: searchClient, now: now}
 }
 
 func (s *uidStore) Set(ctx context.Context, lpaID, sessionID, organisationID, uid string) error {
@@ -53,13 +52,6 @@ func (s *uidStore) Set(ctx context.Context, lpaID, sessionID, organisationID, ui
 	var donor *actor.DonorProvidedDetails
 	if err := attributevalue.UnmarshalMap(newAttrs, &donor); err != nil {
 		return fmt.Errorf("uidStore unmarshal failed: %w", err)
-	}
-
-	if s.searchClient == nil {
-		s.searchClient, err = s.searchClientFactory()
-		if err != nil {
-			return fmt.Errorf("uidStore could not create search client: %w", err)
-		}
 	}
 
 	if err := s.searchClient.Index(ctx, search.Lpa{

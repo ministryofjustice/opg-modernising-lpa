@@ -39,11 +39,12 @@ type cloudWatchEventHandler struct {
 func (h *cloudWatchEventHandler) Handle(ctx context.Context, cloudWatchEvent events.CloudWatchEvent) error {
 	switch cloudWatchEvent.DetailType {
 	case "uid-requested":
-		searchClientFactory := func() (app.SearchClient, error) {
-			return search.NewClient(h.cfg, h.searchEndpoint)
+		searchClient, err := search.NewClient(h.cfg, h.searchEndpoint)
+		if err != nil {
+			return err
 		}
 
-		uidStore := app.NewUidStore(h.dynamoClient, searchClientFactory, h.now)
+		uidStore := app.NewUidStore(h.dynamoClient, searchClient, h.now)
 		uidClient := uid.New(h.uidBaseURL, lambda.New(h.cfg, v4.NewSigner(), &http.Client{Timeout: 10 * time.Second}, time.Now))
 
 		return handleUidRequested(ctx, uidStore, uidClient, cloudWatchEvent)
