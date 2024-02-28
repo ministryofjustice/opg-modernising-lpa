@@ -39,6 +39,8 @@ locals {
     "rum",
     "secretsmanager",
     "ssm",
+    "ec2Messages",
+    "ssmmessages",
     "xray",
   ])
 }
