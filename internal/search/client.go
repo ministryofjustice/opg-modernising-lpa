@@ -5,6 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -28,7 +30,7 @@ const (
 		"mappings": {
 			"properties": {
 				"DonorFullNameText": { "type": "text" },
-        "DonorFullName": { "type": "keyword", "copy_to": "DonorFullNameText" },
+				"DonorFullName": { "type": "keyword", "copy_to": "DonorFullNameText" },
 				"SK": { "type": "keyword" }
 			}
 		}
@@ -63,8 +65,9 @@ type QueryRequest struct {
 }
 
 type Client struct {
-	svc     opensearchapiClient
-	indices indicesClient
+	svc      opensearchapiClient
+	indices  indicesClient
+	endpoint string
 }
 
 func NewClient(cfg aws.Config, endpoint string) (*Client, error) {
@@ -83,12 +86,23 @@ func NewClient(cfg aws.Config, endpoint string) (*Client, error) {
 		return nil, fmt.Errorf("search could not create opensearch client: %w", err)
 	}
 
-	return &Client{indices: svc.Indices, svc: svc}, nil
+	return &Client{indices: svc.Indices, svc: svc, endpoint: endpoint}, nil
 }
 
 func (c *Client) CheckHealth(ctx context.Context) error {
-	_, err := c.svc.Info(ctx, nil)
-	return err
+	resp, err := http.Get(c.endpoint)
+	if err != nil {
+		return fmt.Errorf("search get error: %w", err)
+	}
+	data, _ := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
+
+	_, err = c.svc.Info(ctx, &opensearchapi.InfoReq{})
+	if err != nil {
+		return fmt.Errorf("info req failed: %w: %s", err, string(data))
+	}
+
+	return nil
 }
 
 func (c *Client) CreateIndices(ctx context.Context) error {

@@ -303,10 +303,10 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	mux := http.NewServeMux()
 	mux.HandleFunc(page.Paths.HealthCheck.Service.String(), func(w http.ResponseWriter, r *http.Request) {})
 	mux.Handle(page.Paths.HealthCheck.Dependency.String(), page.DependencyHealthCheck(logger, map[string]page.HealthChecker{
-		"uid":        uidClient,
-		"onelogin":   oneloginClient,
-		"lpaStore":   lpaStoreClient,
-		"opensearch": searchClient,
+		"uid":      uidClient,
+		"onelogin": oneloginClient,
+		"lpaStore": lpaStoreClient,
+		// "opensearch": searchClient,
 	}))
 	mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, webDir+"/robots.txt")
