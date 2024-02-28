@@ -212,9 +212,23 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		return err
 	}
 
-	if err := searchClient.CreateIndices(ctx); err != nil {
-		return err
-	}
+	go func() {
+		for {
+			time.Sleep(10 * time.Second)
+
+			if err := searchClient.Info(context.Background()); err != nil {
+				logger.Info("search could not connect", slog.Any("err", err))
+				continue
+			}
+
+			if err := searchClient.CreateIndices(ctx); err != nil {
+				logger.Warn("could not create search index", slog.Any("err", err))
+			}
+
+			logger.Info("search indexes created")
+			break
+		}
+	}()
 
 	secretsClient, err := secrets.NewClient(cfg, time.Hour)
 	if err != nil {
