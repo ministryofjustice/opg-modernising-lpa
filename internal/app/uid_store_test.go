@@ -53,35 +53,11 @@ func TestUidStoreSet(t *testing.T) {
 				}).
 				Return(nil)
 
-			uidStore := NewUidStore(dynamoClient, func() (SearchClient, error) { return searchClient, nil }, testNowFn)
+			uidStore := NewUidStore(dynamoClient, searchClient, testNowFn)
 
 			assert.Nil(t, uidStore.Set(ctx, "lpa-id", "session-id", tc.organisationID, "uid"))
 		})
 	}
-}
-
-func TestUidStoreSetWhenSearchClientSet(t *testing.T) {
-	returnValues, _ := attributevalue.MarshalMap(actor.DonorProvidedDetails{
-		Donor: actor.Donor{
-			FirstNames: "x",
-			LastName:   "y",
-		},
-	})
-
-	dynamoClient := newMockDynamoUpdateClient(t)
-	dynamoClient.EXPECT().
-		UpdateReturn(ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(returnValues, nil)
-
-	searchClient := newMockSearchClient(t)
-	searchClient.EXPECT().
-		Index(ctx, mock.Anything).
-		Return(nil)
-
-	uidStore := NewUidStore(dynamoClient, func() (SearchClient, error) { return nil, expectedError }, testNowFn)
-	uidStore.searchClient = searchClient
-
-	assert.Nil(t, uidStore.Set(ctx, "lpa-id", "session-id", "", "uid"))
 }
 
 func TestUidStoreSetWhenDynamoClientError(t *testing.T) {
@@ -96,27 +72,9 @@ func TestUidStoreSetWhenDynamoClientError(t *testing.T) {
 			"set LpaUID = :uid, UpdatedAt = :now").
 		Return(nil, expectedError)
 
-	uidStore := NewUidStore(dynamoClient, func() (SearchClient, error) { return nil, nil }, testNowFn)
+	uidStore := NewUidStore(dynamoClient, nil, testNowFn)
 
 	assert.ErrorIs(t, uidStore.Set(ctx, "lpa-id", "session-id", "", "uid"), expectedError)
-}
-
-func TestUidStoreSetWhenSearchClientFactoryErrors(t *testing.T) {
-	returnValues, _ := attributevalue.MarshalMap(actor.DonorProvidedDetails{
-		Donor: actor.Donor{
-			FirstNames: "x",
-			LastName:   "y",
-		},
-	})
-
-	dynamoClient := newMockDynamoUpdateClient(t)
-	dynamoClient.EXPECT().
-		UpdateReturn(ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(returnValues, nil)
-
-	uidStore := NewUidStore(dynamoClient, func() (SearchClient, error) { return nil, expectedError }, testNowFn)
-	err := uidStore.Set(ctx, "lpa-id", "session-id", "", "uid")
-	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestUidStoreSetWhenSearchIndexErrors(t *testing.T) {
@@ -137,7 +95,7 @@ func TestUidStoreSetWhenSearchIndexErrors(t *testing.T) {
 		Index(ctx, mock.Anything).
 		Return(expectedError)
 
-	uidStore := NewUidStore(dynamoClient, func() (SearchClient, error) { return searchClient, nil }, testNowFn)
+	uidStore := NewUidStore(dynamoClient, searchClient, testNowFn)
 	err := uidStore.Set(ctx, "lpa-id", "session-id", "", "uid")
 	assert.ErrorIs(t, err, expectedError)
 }
