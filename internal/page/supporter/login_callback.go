@@ -43,15 +43,6 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 		sessionData := &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email}
 		ctx := page.ContextWithSessionData(r.Context(), sessionData)
 
-		_, err = memberStore.InvitedMember(ctx)
-		if err == nil {
-			if err := sesh.SetLoginSession(sessionStore, r, w, loginSession); err != nil {
-				return err
-			}
-
-			return page.Paths.Supporter.EnterReferenceNumber.Redirect(w, r, appData)
-		}
-
 		organisation, err := organisationStore.Get(ctx)
 		if err == nil {
 			loginSession.OrganisationID = organisation.ID
@@ -84,6 +75,15 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 			}
 		} else {
 			return err
+		}
+
+		invites, err := memberStore.InvitedMembersByEmail(ctx)
+		if err != nil {
+			return err
+		}
+
+		if len(invites) > 0 {
+			return page.Paths.Supporter.EnterReferenceNumber.Redirect(w, r, appData)
 		}
 
 		return page.Paths.Supporter.EnterOrganisationName.Redirect(w, r, appData)

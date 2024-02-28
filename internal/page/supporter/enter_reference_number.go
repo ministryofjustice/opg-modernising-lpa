@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -29,12 +30,20 @@ func EnterReferenceNumber(tmpl template.Template, memberStore MemberStore, sessi
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				invite, err := memberStore.InvitedMember(r.Context())
+				invites, err := memberStore.InvitedMembersByEmail(r.Context())
 				if err != nil {
 					return err
 				}
 
-				if invite.ReferenceNumber != data.Form.ReferenceNumber {
+				var invite *actor.MemberInvite
+				for _, i := range invites {
+					if i.ReferenceNumber == data.Form.ReferenceNumber {
+						invite = i
+						break
+					}
+				}
+
+				if invite == nil {
 					data.Errors.Add("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"})
 					return tmpl(w, data)
 				}

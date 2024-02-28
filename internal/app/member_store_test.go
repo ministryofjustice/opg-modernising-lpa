@@ -113,34 +113,40 @@ func TestMemberStoreInvitedMembersWhenDynamoClientError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestMemberStoreInvitedMember(t *testing.T) {
+func TestMemberStoreInvitedMembersByEmail(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "a@example.org"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOneBySK(ctx, "MEMBERINVITE#YUBleGFtcGxlLm9yZw==", &actor.MemberInvite{OrganisationID: "an-id"}, nil)
+	dynamoClient.ExpectAllBySK(ctx, "MEMBERINVITE#YUBleGFtcGxlLm9yZw==", []*actor.MemberInvite{
+		{OrganisationID: "an-id", Email: "a@example.org"},
+		{OrganisationID: "another-id", Email: "a@example.org"},
+	}, nil)
 
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-	invitedMember, err := memberStore.InvitedMember(ctx)
+	invitedMembers, err := memberStore.InvitedMembersByEmail(ctx)
 
 	assert.Nil(t, err)
-	assert.Equal(t, &actor.MemberInvite{OrganisationID: "an-id"}, invitedMember)
+	assert.Equal(t, []*actor.MemberInvite{
+		{OrganisationID: "an-id", Email: "a@example.org"},
+		{OrganisationID: "another-id", Email: "a@example.org"},
+	}, invitedMembers)
 }
 
-func TestMemberStoreInvitedMemberWhenDynamoError(t *testing.T) {
+func TestMemberStoreInvitedMembersByEmailWhenDynamoError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "a@example.org"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOneBySK(ctx, mock.Anything, mock.Anything, expectedError)
+	dynamoClient.ExpectAllBySK(ctx, mock.Anything, mock.Anything, expectedError)
 
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-	_, err := memberStore.InvitedMember(ctx)
+	_, err := memberStore.InvitedMembersByEmail(ctx)
 
 	assert.Equal(t, expectedError, err)
 }
 
-func TestMemberStoreInvitedMemberWhenSessionMissing(t *testing.T) {
+func TestMemberStoreInvitedMembersByEmailWhenSessionMissing(t *testing.T) {
 	testcases := map[string]context.Context{
 		"no email":        page.ContextWithSessionData(context.Background(), &page.SessionData{}),
 		"no session data": context.Background(),
@@ -150,7 +156,7 @@ func TestMemberStoreInvitedMemberWhenSessionMissing(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			memberStore := &memberStore{now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-			_, err := memberStore.InvitedMember(ctx)
+			_, err := memberStore.InvitedMembersByEmail(ctx)
 
 			assert.Error(t, err)
 		})
