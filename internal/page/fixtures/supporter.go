@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
@@ -25,7 +26,7 @@ type MemberStore interface {
 	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error
 }
 
-func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, donorStore DonorStore, memberStore MemberStore, dynamoClient DynamoClient) page.Handler {
+func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, donorStore DonorStore, memberStore MemberStore, dynamoClient DynamoClient, searchClient *search.Client) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		var (
 			invitedMembers = r.FormValue("invitedMembers")
@@ -53,13 +54,14 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, don
 			loginSession.OrganisationID = org.ID
 			loginSession.OrganisationName = org.Name
 
+			organisationCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID})
+
 			if lpaCount, err := strconv.Atoi(lpa); err == nil {
 				for range lpaCount {
-					donor, err := organisationStore.CreateLPA(page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID}))
+					donor, err := organisationStore.CreateLPA(organisationCtx)
 					if err != nil {
 						return err
 					}
-
 					donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID, LpaID: donor.LpaID})
 
 					donor.LpaUID = makeUID()
@@ -75,8 +77,14 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, don
 					}
 				}
 
-				// a slight hack to allow the opensearch indexing to happen
-				time.Sleep(5 * time.Second)
+				for range time.Tick(time.Second) {
+					if resp, _ := searchClient.Query(organisationCtx, search.QueryRequest{
+						Page:     1,
+						PageSize: 1,
+					}); resp != nil && len(resp.Keys) > 0 {
+						break
+					}
+				}
 			}
 
 			if invitedMembers != "" {

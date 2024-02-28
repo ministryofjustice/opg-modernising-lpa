@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	indexName       = "lpas4"
+	indexName       = "lpas"
 	indexDefinition = `
 	{
 		"settings": {
