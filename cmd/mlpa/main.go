@@ -38,6 +38,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/templatefn"
@@ -105,6 +106,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		evidenceBucketName    = env.Get("UPLOADS_S3_BUCKET_NAME", "evidence")
 		eventBusName          = env.Get("EVENT_BUS_NAME", "default")
 		mockIdentityPublicKey = env.Get("MOCK_IDENTITY_PUBLIC_KEY", "")
+		searchEndpoint        = env.Get("SEARCH_ENDPOINT", "")
 	)
 
 	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
@@ -205,6 +207,33 @@ func run(ctx context.Context, logger *slog.Logger) error {
 
 	eventClient := event.NewClient(cfg, eventBusName)
 
+	searchClient, err := search.NewClient(cfg, searchEndpoint)
+	if err != nil {
+		return err
+	}
+
+	if err := searchClient.CreateIndices(ctx); err != nil {
+		logger.Warn("could not create search index", slog.Any("err", err))
+	}
+
+	// go func() {
+	// 	for {
+	// 		time.Sleep(10 * time.Second)
+
+	// 		if err := searchClient.CheckHealth(context.Background()); err != nil {
+	// 			logger.Info("search could not connect", slog.Any("err", err))
+	// 			continue
+	// 		}
+
+	// 		if err := searchClient.CreateIndices(ctx); err != nil {
+	// 			logger.Warn("could not create search index", slog.Any("err", err))
+	// 		}
+
+	// 		logger.Info("search indexes created")
+	// 		break
+	// 	}
+	// }()
+
 	secretsClient, err := secrets.NewClient(cfg, time.Hour)
 	if err != nil {
 		return err
@@ -281,6 +310,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		"uid":      uidClient,
 		"onelogin": oneloginClient,
 		"lpaStore": lpaStoreClient,
+		// "opensearch": searchClient,
 	}))
 	mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, webDir+"/robots.txt")
@@ -308,6 +338,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		evidenceS3Client,
 		eventClient,
 		lpaStoreClient,
+		searchClient,
 	)))
 
 	mux.Handle("/", app.App(
@@ -329,6 +360,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		evidenceS3Client,
 		eventClient,
 		lpaStoreClient,
+		searchClient,
 	))
 
 	var handler http.Handler = mux
