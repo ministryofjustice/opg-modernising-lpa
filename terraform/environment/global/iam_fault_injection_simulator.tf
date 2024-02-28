@@ -93,7 +93,7 @@ data "aws_iam_policy_document" "ssm_register_instance_assume" {
 }
 
 resource "aws_iam_role_policy" "ssm_register_instance_permissions" {
-  name     = "ssm-register-instance-permissions"
+  name     = "ssm-register-instance-permissions-${data.aws_default_tags.current.tags.environment-name}"
   role     = aws_iam_role.ssm_register_instance.name
   policy   = data.aws_iam_policy_document.ssm_register_instance_permissions.json
   provider = aws.global
