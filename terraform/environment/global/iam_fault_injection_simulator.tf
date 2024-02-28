@@ -94,7 +94,7 @@ data "aws_iam_policy_document" "ssm_register_instance_assume" {
 
 resource "aws_iam_role_policy" "ssm_register_instance_permissions" {
   name     = "ssm-register-instance-permissions"
-  role     = aws_iam_role.fault_injection_simulator.name
+  role     = aws_iam_role.ssm_register_instance.name
   policy   = data.aws_iam_policy_document.ssm_register_instance_permissions.json
   provider = aws.global
 }
