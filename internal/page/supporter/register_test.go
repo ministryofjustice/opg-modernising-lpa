@@ -2,7 +2,6 @@ package supporter
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -17,9 +16,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
-
-var expectedError = errors.New("err")
-var testAppData = page.AppData{}
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()

@@ -47,6 +47,14 @@ func (s *memberStore) CreateMemberInvite(ctx context.Context, organisation *acto
 	return nil
 }
 
+func (s *memberStore) DeleteMemberInvite(ctx context.Context, organisationID, email string) error {
+	if err := s.dynamoClient.DeleteOne(ctx, organisationKey(organisationID), memberInviteKey(email)); err != nil {
+		return fmt.Errorf("error deleting member invite: %w", err)
+	}
+
+	return nil
+}
+
 func (s *memberStore) Create(ctx context.Context, invite *actor.MemberInvite) error {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
@@ -73,8 +81,8 @@ func (s *memberStore) Create(ctx context.Context, invite *actor.MemberInvite) er
 		return fmt.Errorf("error creating organisation member: %w", err)
 	}
 
-	if err := s.dynamoClient.DeleteOne(ctx, invite.PK, invite.SK); err != nil {
-		return fmt.Errorf("error deleting member invite: %w", err)
+	if err := s.DeleteMemberInvite(ctx, invite.OrganisationID, invite.Email); err != nil {
+		return err
 	}
 
 	link := &organisationLink{
