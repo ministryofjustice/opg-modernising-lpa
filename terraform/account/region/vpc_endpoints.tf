@@ -148,8 +148,9 @@ data "aws_iam_policy_document" "s3_bucket_access" {
 }
 
 resource "aws_opensearchserverless_vpc_endpoint" "lpas_collection_vpc_endpoint" {
-  name       = "opensearch-${data.aws_region.current.name}"
-  vpc_id     = module.network.vpc.id
-  subnet_ids = module.network.application_subnets[*].id
-  provider   = aws.region
+  name               = "opensearch-${data.aws_region.current.name}"
+  vpc_id             = module.network.vpc.id
+  subnet_ids         = module.network.application_subnets[*].id
+  security_group_ids = aws_security_group.vpc_endpoints_private[*].id
+  provider           = aws.region
 }
