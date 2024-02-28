@@ -199,10 +199,10 @@ func TestPostEditMember(t *testing.T) {
 				Put(r.Context(), tc.expectedMember).
 				Return(nil)
 
-			testAppData.LoginSessionEmail = "self@example.org"
-			testAppData.Permission = tc.userPermission
-
-			err := EditMember(nil, memberStore)(testAppData, w, r, &actor.Organisation{})
+			err := EditMember(nil, memberStore)(page.AppData{
+				LoginSessionEmail: "self@example.org",
+				Permission:        tc.userPermission,
+			}, w, r, &actor.Organisation{})
 			resp := w.Result()
 
 			assert.Nil(t, err)

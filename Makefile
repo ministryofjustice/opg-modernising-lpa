@@ -152,3 +152,10 @@ set-uploads-infected: ##@events calls emit-object-tags-added-with-virus for all 
 
 logs: ##@app tails logs for all containers running
 	docker compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml logs -f
+
+terraform-update-docs: ##@terraform updates all terraform-docs managed documentation
+	terraform-docs --config terraform/environment/.terraform-docs.yml ./terraform/environment
+	terraform-docs --config terraform/environment/region/.terraform-docs.yml ./terraform/environment/region
+	terraform-docs --config terraform/environment/global/.terraform-docs.yml ./terraform/environment/global
+	terraform-docs --config terraform/account/.terraform-docs.yml ./terraform/account
+	terraform-docs --config terraform/account/region/.terraform-docs.yml ./terraform/account/region
