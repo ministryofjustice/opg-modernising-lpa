@@ -5,8 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -90,19 +88,8 @@ func NewClient(cfg aws.Config, endpoint string) (*Client, error) {
 }
 
 func (c *Client) CheckHealth(ctx context.Context) error {
-	resp, err := http.Get(c.endpoint)
-	if err != nil {
-		return fmt.Errorf("search get error: %w", err)
-	}
-	data, _ := io.ReadAll(resp.Body)
-	defer resp.Body.Close()
-
-	_, err = c.svc.Info(ctx, &opensearchapi.InfoReq{})
-	if err != nil {
-		return fmt.Errorf("info req failed: %w: %s", err, string(data))
-	}
-
-	return nil
+	_, err := c.svc.Info(ctx, &opensearchapi.InfoReq{})
+	return err
 }
 
 func (c *Client) CreateIndices(ctx context.Context) error {
