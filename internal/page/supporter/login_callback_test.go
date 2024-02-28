@@ -410,7 +410,7 @@ func TestLoginCallbackWhenEmailHasInvite(t *testing.T) {
 	assert.Equal(t, page.Paths.Supporter.EnterReferenceNumber.Format(), resp.Header.Get("Location"))
 }
 
-func TestLoginCallbackWhenEmailHasInviteWhenSetLoginSessionError(t *testing.T) {
+func TestLoginCallbackWhenEmailHasInviteWhenInvitedMembersByEmailError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
@@ -453,18 +453,23 @@ func TestLoginCallbackWhenEmailHasInviteWhenSetLoginSessionError(t *testing.T) {
 
 	sessionStore.EXPECT().
 		Save(r, w, session).
-		Return(expectedError)
+		Return(nil)
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		Get(mock.Anything).
 		Return(&actor.Organisation{}, dynamo.NotFoundError{})
 
-	err := LoginCallback(client, sessionStore, organisationStore, testNowFn, nil)(page.AppData{}, w, r)
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
+		InvitedMembersByEmail(mock.Anything).
+		Return([]*actor.MemberInvite{{}}, expectedError)
 
-	assert.Equal(t, expectedError, err)
+	err := LoginCallback(client, sessionStore, organisationStore, testNowFn, memberStore)(page.AppData{}, w, r)
+
 	resp := w.Result()
 
+	assert.Error(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
