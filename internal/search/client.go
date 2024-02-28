@@ -38,6 +38,7 @@ const (
 type opensearchapiClient interface {
 	Search(ctx context.Context, req *opensearchapi.SearchReq) (*opensearchapi.SearchResp, error)
 	Index(ctx context.Context, req opensearchapi.IndexReq) (*opensearchapi.IndexResp, error)
+	Info(ctx context.Context, req *opensearchapi.InfoReq) (*opensearchapi.InfoResp, error)
 }
 
 type indicesClient interface {
@@ -82,11 +83,12 @@ func NewClient(cfg aws.Config, endpoint string) (*Client, error) {
 		return nil, fmt.Errorf("search could not create opensearch client: %w", err)
 	}
 
-	// if _, err := svc.Info(context.Background(), nil); err != nil {
-	// 	return nil, fmt.Errorf("search could not connect: %w", err)
-	// }
-
 	return &Client{indices: svc.Indices, svc: svc}, nil
+}
+
+func (c *Client) Info(ctx context.Context) error {
+	_, err := c.svc.Info(ctx, nil)
+	return err
 }
 
 func (c *Client) CreateIndices(ctx context.Context) error {
