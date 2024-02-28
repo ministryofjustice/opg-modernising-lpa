@@ -41,6 +41,7 @@ describe('Organisation details', () => {
         cy.contains("Invited team members")
 
         cy.contains("td", "kamal-singh@example.org").parent().within(() => {
+            cy.contains("Invite expired")
             cy.contains("button", "Resend invite").click({force: true})
         })
 

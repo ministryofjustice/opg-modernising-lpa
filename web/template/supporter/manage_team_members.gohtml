@@ -111,7 +111,11 @@
                                         {{ .Email }}
                                     </td>
                                     <td class="govuk-table__cell app-dark-grey">
-                                        {{ tr $.App "invitePending" }}
+                                        {{ if .HasExpired }}
+                                            {{ tr $.App "inviteExpired" }}
+                                        {{ else }}
+                                            {{ tr $.App "invitePending" }}
+                                        {{ end }}
                                     </td>
                                     <td class="govuk-table__cell">
                                         {{ if .HasExpired }}

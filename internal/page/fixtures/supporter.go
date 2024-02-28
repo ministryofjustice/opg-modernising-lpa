@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -91,7 +90,6 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, don
 					now := time.Now()
 					if expireInvites {
 						now = now.Add(time.Hour * -time.Duration(48))
-						log.Println(now)
 					}
 
 					invite := &actor.MemberInvite{

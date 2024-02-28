@@ -1,7 +1,6 @@
 package supporter
 
 import (
-	"context"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -117,9 +116,8 @@ func TestPostManageTeamMembers(t *testing.T) {
 		"permission":  {"admin"},
 	}
 
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "inviter@example.com"})
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	organisation := &actor.Organisation{Name: "My organisation", ID: "org-id"}
@@ -136,13 +134,13 @@ func TestPostManageTeamMembers(t *testing.T) {
 	notifyClient.EXPECT().
 		SendEmail(r.Context(), "email@example.com", notify.OrganisationMemberInviteEmail{
 			OrganisationName:      "My organisation",
-			InviterEmail:          "inviter@example.com",
+			InviterEmail:          "supporter@example.com",
 			InviteCode:            "abcde",
 			JoinAnOrganisationURL: "http://base" + page.Paths.Supporter.Start.Format(),
 		}).
 		Return(nil)
 
-	err := ManageTeamMembers(nil, memberStore, func(int) string { return "abcde" }, notifyClient, "http://base")(testAppData, w, r, organisation)
+	err := ManageTeamMembers(nil, memberStore, func(int) string { return "abcde" }, notifyClient, "http://base")(testOrgMemberAppData, w, r, organisation)
 
 	resp := w.Result()
 
@@ -154,27 +152,6 @@ func TestPostManageTeamMembers(t *testing.T) {
 func TestPostManageTeamMembersWhenValidationErrors(t *testing.T) {
 	form := url.Values{
 		"email":       {"not an email"},
-		"first-names": {"a"},
-		"last-name":   {"b"},
-		"permission":  {"admin"},
-	}
-
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "inviter@example.com"})
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	err := ManageTeamMembers(nil, nil, func(int) string { return "abcde" }, nil, "http://base")(testAppData, w, r, &actor.Organisation{ID: "org-id", Name: "My organisation"})
-
-	resp := w.Result()
-
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestPostManageTeamMembersWhenSessionMissing(t *testing.T) {
-	form := url.Values{
-		"email":       {"a@b.com"},
 		"first-names": {"a"},
 		"last-name":   {"b"},
 		"permission":  {"admin"},
@@ -214,9 +191,8 @@ func TestPostManageTeamMembersWhenMemberStoreErrors(t *testing.T) {
 				"permission":  {"admin"},
 			}
 
-			ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "inviter@example.com"})
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			memberStore := newMockMemberStore(t)
@@ -248,9 +224,8 @@ func TestPostManageTeamMembersWhenNotifyClientError(t *testing.T) {
 		"permission":  {"admin"},
 	}
 
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "inviter@example.com"})
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	memberStore := newMockMemberStore(t)

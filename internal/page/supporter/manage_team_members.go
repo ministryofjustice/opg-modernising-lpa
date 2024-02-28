@@ -33,11 +33,6 @@ func ManageTeamMembers(tmpl template.Template, memberStore MemberStore, randomSt
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				session, err := page.SessionDataFromContext(r.Context())
-				if err != nil {
-					return err
-				}
-
 				if err := memberStore.DeleteMemberInvite(r.Context(), organisation.ID, data.Form.Email); err != nil {
 					return err
 				}
@@ -57,7 +52,7 @@ func ManageTeamMembers(tmpl template.Template, memberStore MemberStore, randomSt
 
 				if err := notifyClient.SendEmail(r.Context(), data.Form.Email, notify.OrganisationMemberInviteEmail{
 					OrganisationName:      organisation.Name,
-					InviterEmail:          session.Email,
+					InviterEmail:          appData.LoginSessionEmail,
 					InviteCode:            inviteCode,
 					JoinAnOrganisationURL: appPublicURL + page.Paths.Supporter.Start.Format(),
 				}); err != nil {

@@ -1092,5 +1092,6 @@
     "teamMemberSuspended": "Welsh",
     "accessUpdated": "Welsh",
     "emailHasBeenSuspended": "<span class=\"govuk-!-font-weight-bold\">{{ .Email }}</span> Welsh",
-    "emailCanNowAccessOrganisation": "<span class=\"govuk-!-font-weight-bold\">{{ .Email }}</span> Welsh"
+    "emailCanNowAccessOrganisation": "<span class=\"govuk-!-font-weight-bold\">{{ .Email }}</span> Welsh",
+    "inviteExpired": "Welsh"
 }
