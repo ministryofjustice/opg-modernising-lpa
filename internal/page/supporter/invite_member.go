@@ -31,11 +31,6 @@ func InviteMember(tmpl template.Template, memberStore MemberStore, notifyClient 
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				session, err := page.SessionDataFromContext(r.Context())
-				if err != nil {
-					return err
-				}
-
 				inviteCode := randomString(12)
 				if err := memberStore.CreateMemberInvite(
 					r.Context(),
@@ -51,7 +46,7 @@ func InviteMember(tmpl template.Template, memberStore MemberStore, notifyClient 
 
 				if err := notifyClient.SendEmail(r.Context(), data.Form.Email, notify.OrganisationMemberInviteEmail{
 					OrganisationName:      organisation.Name,
-					InviterEmail:          session.Email,
+					InviterEmail:          appData.LoginSessionEmail,
 					InviteCode:            inviteCode,
 					JoinAnOrganisationURL: appPublicURL + page.Paths.Supporter.Start.Format(),
 				}); err != nil {
