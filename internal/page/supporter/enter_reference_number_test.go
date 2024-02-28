@@ -66,20 +66,31 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	invite := &actor.MemberInvite{
+	invite1 := &actor.MemberInvite{
 		ReferenceNumber:  "abcd12345678",
 		OrganisationID:   "org-id",
 		OrganisationName: "org name",
 		CreatedAt:        time.Now().Add(-47 * time.Hour),
+		Email:            "a@example.org",
 	}
+
+	invite2 := &actor.MemberInvite{
+		ReferenceNumber:  "abcd12345678",
+		OrganisationID:   "org-id",
+		OrganisationName: "org name",
+		CreatedAt:        time.Now().Add(-47 * time.Hour),
+		Email:            "a@example.org",
+	}
+
+	invites := []*actor.MemberInvite{invite1, invite2}
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		InvitedMember(r.Context()).
-		Return(invite, nil)
+		InvitedMembersByEmail(r.Context()).
+		Return(invites, nil)
 
 	memberStore.EXPECT().
-		Create(r.Context(), invite).
+		Create(r.Context(), invite1).
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -121,8 +132,8 @@ func TestPostEnterReferenceNumberWhenIncorrectReferenceNumber(t *testing.T) {
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		InvitedMember(r.Context()).
-		Return(&actor.MemberInvite{ReferenceNumber: "notmatch123", OrganisationID: "org-id"}, nil)
+		InvitedMembersByEmail(r.Context()).
+		Return([]*actor.MemberInvite{{ReferenceNumber: "notmatch123", OrganisationID: "org-id"}}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -153,12 +164,12 @@ func TestPostEnterReferenceNumberWhenInviteExpired(t *testing.T) {
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		InvitedMember(r.Context()).
-		Return(&actor.MemberInvite{
+		InvitedMembersByEmail(r.Context()).
+		Return([]*actor.MemberInvite{{
 			ReferenceNumber: "match1234789",
 			OrganisationID:  "org-id",
 			CreatedAt:       time.Now().Add(-49 * time.Hour),
-		}, nil)
+		}}, nil)
 
 	err := EnterReferenceNumber(nil, memberStore, nil)(testAppData, w, r)
 	resp := w.Result()
@@ -177,8 +188,8 @@ func TestPostEnterReferenceNumberWhenOrganisationStoreInvitedMemberError(t *test
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		InvitedMember(mock.Anything).
-		Return(&actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id"}, expectedError)
+		InvitedMembersByEmail(mock.Anything).
+		Return([]*actor.MemberInvite{{}}, expectedError)
 
 	err := EnterReferenceNumber(nil, memberStore, nil)(testAppData, w, r)
 	resp := w.Result()
@@ -196,12 +207,12 @@ func TestPostEnterReferenceNumberWhenOrganisationStoreCreateError(t *testing.T) 
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		InvitedMember(mock.Anything).
-		Return(&actor.MemberInvite{
+		InvitedMembersByEmail(mock.Anything).
+		Return([]*actor.MemberInvite{{
 			ReferenceNumber: "abcd12345678",
 			OrganisationID:  "org-id",
 			CreatedAt:       time.Now(),
-		}, nil)
+		}}, nil)
 
 	memberStore.EXPECT().
 		Create(mock.Anything, mock.Anything).
@@ -223,8 +234,12 @@ func TestPostEnterReferenceNumberWhenSessionGetError(t *testing.T) {
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		InvitedMember(mock.Anything).
-		Return(&actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id", CreatedAt: time.Now()}, nil)
+		InvitedMembersByEmail(mock.Anything).
+		Return([]*actor.MemberInvite{{
+			ReferenceNumber: "abcd12345678",
+			OrganisationID:  "org-id",
+			CreatedAt:       time.Now(),
+		}}, nil)
 
 	memberStore.EXPECT().
 		Create(mock.Anything, mock.Anything).
@@ -263,8 +278,12 @@ func TestPostEnterReferenceNumberWhenSessionSaveError(t *testing.T) {
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		InvitedMember(mock.Anything).
-		Return(&actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id", CreatedAt: time.Now()}, nil)
+		InvitedMembersByEmail(mock.Anything).
+		Return([]*actor.MemberInvite{{
+			ReferenceNumber: "abcd12345678",
+			OrganisationID:  "org-id",
+			CreatedAt:       time.Now(),
+		}}, nil)
 
 	memberStore.EXPECT().
 		Create(mock.Anything, mock.Anything).

@@ -116,22 +116,22 @@ func (s *memberStore) InvitedMembers(ctx context.Context) ([]*actor.MemberInvite
 	return invitedMembers, nil
 }
 
-func (s *memberStore) InvitedMember(ctx context.Context) (*actor.MemberInvite, error) {
+func (s *memberStore) InvitedMembersByEmail(ctx context.Context) ([]*actor.MemberInvite, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	if data.Email == "" {
-		return nil, errors.New("memberStore.InvitedMember requires Email")
+		return nil, errors.New("memberStore.InvitedMembersByEmail requires Email")
 	}
 
-	var invitedMember *actor.MemberInvite
-	if err := s.dynamoClient.OneBySK(ctx, memberInviteKey(data.Email), &invitedMember); err != nil {
+	var invitedMembers []*actor.MemberInvite
+	if err := s.dynamoClient.AllBySK(ctx, memberInviteKey(data.Email), &invitedMembers); err != nil {
 		return nil, err
 	}
 
-	return invitedMember, nil
+	return invitedMembers, nil
 }
 
 func (s *memberStore) GetAll(ctx context.Context) ([]*actor.Member, error) {

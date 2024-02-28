@@ -43,8 +43,12 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 		sessionData := &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email}
 		ctx := page.ContextWithSessionData(r.Context(), sessionData)
 
-		_, err = memberStore.InvitedMember(ctx)
-		if err == nil {
+		invites, err := memberStore.InvitedMembersByEmail(ctx)
+		if err != nil {
+			return err
+		}
+
+		if len(invites) > 0 {
 			if err := sesh.SetLoginSession(sessionStore, r, w, loginSession); err != nil {
 				return err
 			}

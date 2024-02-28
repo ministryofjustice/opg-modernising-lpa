@@ -95,8 +95,8 @@ func TestLoginCallback(t *testing.T) {
 
 			memberStore := newMockMemberStore(t)
 			memberStore.EXPECT().
-				InvitedMember(mock.Anything).
-				Return(nil, expectedError)
+				InvitedMembersByEmail(mock.Anything).
+				Return([]*actor.MemberInvite{}, nil)
 
 			organisationStore := newMockOrganisationStore(t)
 			organisationStore.EXPECT().
@@ -150,8 +150,8 @@ func TestLoginCallbackWhenNoOrganisationAndSetLoginSessionError(t *testing.T) {
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		InvitedMember(mock.Anything).
-		Return(nil, expectedError)
+		InvitedMembersByEmail(mock.Anything).
+		Return([]*actor.MemberInvite{}, nil)
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
@@ -234,8 +234,8 @@ func TestLoginCallbackIsOrganisationMember(t *testing.T) {
 
 			memberStore := newMockMemberStore(t)
 			memberStore.EXPECT().
-				InvitedMember(mock.Anything).
-				Return(nil, expectedError)
+				InvitedMembersByEmail(mock.Anything).
+				Return([]*actor.MemberInvite{}, nil)
 
 			memberStore.EXPECT().
 				Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email, OrganisationID: "org-id"})).
@@ -327,8 +327,8 @@ func TestLoginCallbackIsOrganisationMemberErrors(t *testing.T) {
 
 			memberStore := newMockMemberStore(t)
 			memberStore.EXPECT().
-				InvitedMember(mock.Anything).
-				Return(nil, expectedError)
+				InvitedMembersByEmail(mock.Anything).
+				Return([]*actor.MemberInvite{}, nil)
 
 			memberStore.EXPECT().
 				Get(mock.Anything).
@@ -402,8 +402,8 @@ func TestLoginCallbackWhenEmailHasInvite(t *testing.T) {
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		InvitedMember(mock.Anything).
-		Return(nil, nil)
+		InvitedMembersByEmail(mock.Anything).
+		Return([]*actor.MemberInvite{{}}, nil)
 
 	err := LoginCallback(client, sessionStore, nil, testNowFn, memberStore)(page.AppData{}, w, r)
 
@@ -461,8 +461,8 @@ func TestLoginCallbackWhenEmailHasInviteWhenSetLoginSessionError(t *testing.T) {
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		InvitedMember(mock.Anything).
-		Return(nil, nil)
+		InvitedMembersByEmail(mock.Anything).
+		Return([]*actor.MemberInvite{{}}, nil)
 
 	err := LoginCallback(client, sessionStore, nil, testNowFn, memberStore)(page.AppData{}, w, r)
 
@@ -604,8 +604,8 @@ func TestLoginCallbackWhenSessionError(t *testing.T) {
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		InvitedMember(mock.Anything).
-		Return(nil, expectedError)
+		InvitedMembersByEmail(mock.Anything).
+		Return([]*actor.MemberInvite{}, nil)
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
