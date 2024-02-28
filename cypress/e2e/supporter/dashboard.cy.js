@@ -1,4 +1,4 @@
-describe.skip('Dashboard', () => {
+describe('Dashboard', () => {
   beforeEach(() => {
     cy.visit('/fixtures/supporter?redirect=/dashboard&organisation=1&lpa=1');
   });

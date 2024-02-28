@@ -1,4 +1,4 @@
-describe.skip('Edit member', () => {
+describe('Edit member', () => {
   describe('admin', () => {
     beforeEach(() => {
       cy.visit("/fixtures/supporter?organisation=1&redirect=/manage-organisation/manage-team-members&members=2&asMember=alice-moxom@example.org&permission=admin");

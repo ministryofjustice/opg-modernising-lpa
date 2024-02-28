@@ -74,6 +74,9 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, don
 						return err
 					}
 				}
+
+				// a slight hack to allow the opensearch indexing to happen
+				time.Sleep(time.Second)
 			}
 
 			if invitedMembers != "" {
