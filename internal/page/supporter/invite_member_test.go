@@ -1,7 +1,6 @@
 package supporter
 
 import (
-	"context"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -60,9 +59,8 @@ func TestPostInviteMember(t *testing.T) {
 		"permission":  {"admin"},
 	}
 
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "inviter@example.com"})
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	organisation := &actor.Organisation{Name: "My organisation"}
@@ -76,13 +74,13 @@ func TestPostInviteMember(t *testing.T) {
 	notifyClient.EXPECT().
 		SendEmail(r.Context(), "email@example.com", notify.OrganisationMemberInviteEmail{
 			OrganisationName:      "My organisation",
-			InviterEmail:          "inviter@example.com",
+			InviterEmail:          "supporter@example.com",
 			InviteCode:            "abcde",
 			JoinAnOrganisationURL: "http://base" + page.Paths.Supporter.Start.Format(),
 		}).
 		Return(nil)
 
-	err := InviteMember(nil, memberStore, notifyClient, func(int) string { return "abcde" }, "http://base")(testAppData, w, r, organisation)
+	err := InviteMember(nil, memberStore, notifyClient, func(int) string { return "abcde" }, "http://base")(testOrgMemberAppData, w, r, organisation)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -132,9 +130,8 @@ func TestPostInviteMemberWhenCreateMemberInviteErrors(t *testing.T) {
 		"permission":  {"none"},
 	}
 
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "inviter@example.com"})
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	memberStore := newMockMemberStore(t)
@@ -154,9 +151,8 @@ func TestPostInviteMemberWhenNotifySendErrors(t *testing.T) {
 		"permission":  {"admin"},
 	}
 
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "inviter@example.com"})
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	memberStore := newMockMemberStore(t)
