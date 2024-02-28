@@ -51,17 +51,6 @@ func TestNewClient(t *testing.T) {
 	assert.NotNil(t, client)
 }
 
-func TestClientCheckHealth(t *testing.T) {
-	svc := newMockOpensearchapiClient(t)
-	svc.EXPECT().
-		Info(ctx, &opensearchapi.InfoReq{}).
-		Return(nil, expectedError)
-
-	client := &Client{svc: svc}
-	err := client.CheckHealth(ctx)
-	assert.Equal(t, expectedError, err)
-}
-
 func TestClientCreateIndices(t *testing.T) {
 	indices := newMockIndicesClient(t)
 	indices.EXPECT().
