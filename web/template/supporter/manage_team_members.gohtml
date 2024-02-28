@@ -111,10 +111,28 @@
                                         {{ .Email }}
                                     </td>
                                     <td class="govuk-table__cell app-dark-grey">
-                                        {{ tr $.App "invitePending" }}
+                                        {{ if .HasExpired }}
+                                            {{ tr $.App "inviteExpired" }}
+                                        {{ else }}
+                                            {{ tr $.App "invitePending" }}
+                                        {{ end }}
                                     </td>
                                     <td class="govuk-table__cell">
-                                        <a class="govuk-link" href="#">{{ tr $.App "resendInvite" }}<span class="govuk-visually-hidden"> {{ trFormat $.App "toMemberName" "MemberName" .FullName }}</span></a>
+                                        {{ if .HasExpired }}
+                                            <form novalidate method="post">
+                                                <input type="hidden" id="f-first-names-{{ .Email }}" name="first-names" value="{{ .FirstNames }}" />
+                                                <input type="hidden" id="f-last-name-{{ .Email }}" name="last-name" value="{{ .LastName }}" />
+                                                <input type="hidden" id="f-email-{{ .Email }}" name="email" value="{{ .Email }}" />
+                                                <input type="hidden" id="f-permission-{{ .Email }}" name="permission" value="{{ .Permission }}" />
+
+                                                <button name="resend-invite" value="{{ .Email }}" class="app-button-link">
+                                                    <span>{{ tr $.App "resendInvite" }} <span class="govuk-visually-hidden"> {{ trFormat $.App "toMemberName" "MemberName" .FullName }} </span>
+                                                    </span>
+                                                </button>
+
+                                                {{ template "csrf-field" $ }}
+                                            </form>
+                                        {{ end }}
                                     </td>
                                 </tr>
                             {{ end }}

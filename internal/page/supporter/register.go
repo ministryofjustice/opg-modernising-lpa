@@ -27,11 +27,12 @@ type OrganisationStore interface {
 type MemberStore interface {
 	Create(ctx context.Context, invite *actor.MemberInvite) error
 	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error
+	DeleteMemberInvite(ctx context.Context, organisationID, email string) error
+	Get(ctx context.Context) (*actor.Member, error)
+	GetAll(ctx context.Context) ([]*actor.Member, error)
+	GetByID(ctx context.Context, memberID string) (*actor.Member, error)
 	InvitedMember(ctx context.Context) (*actor.MemberInvite, error)
 	InvitedMembers(ctx context.Context) ([]*actor.MemberInvite, error)
-	Get(ctx context.Context) (*actor.Member, error)
-	GetByID(ctx context.Context, memberID string) (*actor.Member, error)
-	GetAll(ctx context.Context) ([]*actor.Member, error)
 	Put(ctx context.Context, member *actor.Member) error
 }
 
@@ -100,7 +101,7 @@ func Register(
 	handleWithSupporter(paths.EditOrganisationName, page.None,
 		EditOrganisationName(tmpls.Get("edit_organisation_name.gohtml"), organisationStore))
 	handleWithSupporter(paths.ManageTeamMembers, page.None,
-		ManageTeamMembers(tmpls.Get("manage_team_members.gohtml"), memberStore))
+		ManageTeamMembers(tmpls.Get("manage_team_members.gohtml"), memberStore, random.String, notifyClient, appPublicURL))
 	handleWithSupporter(paths.InviteMember, page.CanGoBack,
 		InviteMember(tmpls.Get("invite_member.gohtml"), memberStore, notifyClient, random.String, appPublicURL))
 	handleWithSupporter(paths.EditMember, page.CanGoBack,
