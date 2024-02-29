@@ -127,6 +127,7 @@ data "aws_iam_policy_document" "event_received" {
       "kms:Encrypt",
       "kms:Decrypt",
       "kms:GenerateDataKey",
+      "kms:RetireGrant",
     ]
 
     resources = [
