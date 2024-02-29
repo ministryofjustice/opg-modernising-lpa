@@ -15,6 +15,8 @@ type Organisation struct {
 	CreatedAt time.Time
 	// UpdatedAt is when the Organisation was last updated
 	UpdatedAt time.Time
+	// DeletedAt is when the Organisation was (soft) deleted
+	DeletedAt time.Time
 	// ID is a unique identifier for the Organisation
 	ID string
 	// Name of the Organisation, this is unique across all Organisations
