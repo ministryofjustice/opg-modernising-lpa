@@ -179,7 +179,7 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, don
 		}
 
 		if redirect != page.Paths.Supporter.EnterOrganisationName.Format() {
-			redirect = "/supporter/" + redirect
+			redirect = "/supporter" + redirect
 		}
 
 		http.Redirect(w, r, redirect, http.StatusFound)
