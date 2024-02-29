@@ -167,6 +167,17 @@ func (s *organisationStore) AllLPAs(ctx context.Context) ([]actor.DonorProvidedD
 	return donors, nil
 }
 
+func (s *organisationStore) SoftDelete(ctx context.Context) error {
+	organisation, err := s.Get(ctx)
+	if err != nil {
+		return err
+	}
+
+	organisation.DeletedAt = s.now()
+
+	return s.dynamoClient.Put(ctx, organisation)
+}
+
 func organisationKey(organisationID string) string {
 	return "ORGANISATION#" + organisationID
 }

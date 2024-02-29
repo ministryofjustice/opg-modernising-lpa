@@ -1,0 +1,21 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "deleteOrganisation" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form novalidate method="post">
+                <span class="govuk-caption-xl">{{ tr .App "manageOrganisation" }}</span>
+                <h1 class="govuk-heading-xl">{{ tr .App "deleteOrganisation" }}</h1>
+
+                {{ trFormatHtml .App "deleteOrganisationContent" "OrganisationName" .App.OrganisationName "InProgressLPACount" "5" }}
+
+{{/*                <p class="govuk-body">If you delete {{ .OrganisationName }} now, you and all team members will immediately lose access to this organisation.</p><p class="govuk-body">This includes:</p><ul class="govuk-list govuk-list--bullet"><li>{{ .InProgressLPACount }} LPAs that are still in progress</li><li>any completed LPAs made in this organisation</li></ul>*/}}
+
+                <button class="govuk-button govuk-button--warning" data-module="govuk-button">{{ tr .App "deleteOrganisation" }}</button>
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
+    </div>
+{{ end }}
