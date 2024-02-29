@@ -53,6 +53,50 @@ func TestMemberStoreCreateMemberInviteWithSessionMissing(t *testing.T) {
 	}
 }
 
+func TestMemberStoreInvitedMember(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "a@example.org"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectOneBySK(ctx, "MEMBERINVITE#YUBleGFtcGxlLm9yZw==", &actor.MemberInvite{OrganisationID: "an-id"}, nil)
+
+	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+
+	invitedMember, err := memberStore.InvitedMember(ctx)
+
+	assert.Nil(t, err)
+	assert.Equal(t, &actor.MemberInvite{OrganisationID: "an-id"}, invitedMember)
+}
+
+func TestMemberStoreInvitedMemberWhenDynamoError(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "a@example.org"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectOneBySK(ctx, mock.Anything, mock.Anything, expectedError)
+
+	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+
+	_, err := memberStore.InvitedMember(ctx)
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestMemberStoreInvitedMemberWhenSessionMissing(t *testing.T) {
+	testcases := map[string]context.Context{
+		"no email":        page.ContextWithSessionData(context.Background(), &page.SessionData{}),
+		"no session data": context.Background(),
+	}
+
+	for name, ctx := range testcases {
+		t.Run(name, func(t *testing.T) {
+			memberStore := &memberStore{now: testNowFn, uuidString: func() string { return "a-uuid" }}
+
+			_, err := memberStore.InvitedMember(ctx)
+
+			assert.Error(t, err)
+		})
+	}
+}
+
 func TestMemberStoreCreateMemberInviteWhenErrors(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
 
@@ -403,7 +447,7 @@ func TestMemberStoreCreateWhenDynamoErrors(t *testing.T) {
 
 }
 
-func TestMemberStore_GetByID(t *testing.T) {
+func TestMemberStoreGetByID(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "org-id"})
 
 	dynamoClient := newMockDynamoClient(t)
@@ -433,7 +477,7 @@ func TestMemberStore_GetByID(t *testing.T) {
 	assert.Equal(t, expectedMember, member)
 }
 
-func TestMemberStore_GetByIDWhenMissingSession(t *testing.T) {
+func TestMemberStoreGetByIDWhenMissingSession(t *testing.T) {
 	testCases := map[string]context.Context{
 		"missing session":         context.Background(),
 		"missing organisation ID": page.ContextWithSessionData(context.Background(), &page.SessionData{}),
@@ -450,7 +494,7 @@ func TestMemberStore_GetByIDWhenMissingSession(t *testing.T) {
 	}
 }
 
-func TestMemberStore_GetByIDWhenDynamoClientErrors(t *testing.T) {
+func TestMemberStoreGetByIDWhenDynamoClientErrors(t *testing.T) {
 	testCases := map[string]struct {
 		oneLinkError   error
 		oneMemberError error
