@@ -71,6 +71,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 		OrganisationID:   "org-id",
 		OrganisationName: "org name",
 		CreatedAt:        time.Now().Add(-47 * time.Hour),
+		Email:            "a@example.org",
 	}
 
 	memberStore := newMockMemberStore(t)
@@ -168,7 +169,7 @@ func TestPostEnterReferenceNumberWhenInviteExpired(t *testing.T) {
 	assert.Equal(t, page.Paths.Supporter.InviteExpired.Format(), resp.Header.Get("Location"))
 }
 
-func TestPostEnterReferenceNumberWhenOrganisationStoreInvitedMemberError(t *testing.T) {
+func TestPostEnterReferenceNumberWhenMemberStoreInvitedMemberError(t *testing.T) {
 	form := url.Values{"reference-number": {"abcd12345678"}}
 
 	w := httptest.NewRecorder()
@@ -178,7 +179,7 @@ func TestPostEnterReferenceNumberWhenOrganisationStoreInvitedMemberError(t *test
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
-		Return(&actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id"}, expectedError)
+		Return(&actor.MemberInvite{}, expectedError)
 
 	err := EnterReferenceNumber(nil, memberStore, nil)(testAppData, w, r)
 	resp := w.Result()
@@ -187,7 +188,7 @@ func TestPostEnterReferenceNumberWhenOrganisationStoreInvitedMemberError(t *test
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostEnterReferenceNumberWhenOrganisationStoreCreateError(t *testing.T) {
+func TestPostEnterReferenceNumberWhenMemberStoreCreateError(t *testing.T) {
 	form := url.Values{"reference-number": {"abcd12345678"}}
 
 	w := httptest.NewRecorder()
@@ -224,7 +225,11 @@ func TestPostEnterReferenceNumberWhenSessionGetError(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
-		Return(&actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id", CreatedAt: time.Now()}, nil)
+		Return(&actor.MemberInvite{
+			ReferenceNumber: "abcd12345678",
+			OrganisationID:  "org-id",
+			CreatedAt:       time.Now(),
+		}, nil)
 
 	memberStore.EXPECT().
 		Create(mock.Anything, mock.Anything).
@@ -264,7 +269,11 @@ func TestPostEnterReferenceNumberWhenSessionSaveError(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
-		Return(&actor.MemberInvite{ReferenceNumber: "abcd12345678", OrganisationID: "org-id", CreatedAt: time.Now()}, nil)
+		Return(&actor.MemberInvite{
+			ReferenceNumber: "abcd12345678",
+			OrganisationID:  "org-id",
+			CreatedAt:       time.Now(),
+		}, nil)
 
 	memberStore.EXPECT().
 		Create(mock.Anything, mock.Anything).
