@@ -1,15 +1,16 @@
 package app
 
 import (
-	"context"
 	"testing"
-	"time"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/stretchr/testify/assert"
+	mock "github.com/stretchr/testify/mock"
 )
 
-func TestSet(t *testing.T) {
+func TestUidStoreSet(t *testing.T) {
 	testcases := map[string]struct {
 		organisationID string
 		sk             string
@@ -25,43 +26,76 @@ func TestSet(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			now := time.Now()
-			ctx := context.Background()
-
 			values, _ := attributevalue.MarshalMap(map[string]any{
 				":uid": "uid",
-				":now": now,
+				":now": testNow,
 			})
 
-			dynamoClient := newMockDynamoClient(t)
+			returnValues, _ := attributevalue.MarshalMap(actor.DonorProvidedDetails{
+				Donor: actor.Donor{
+					FirstNames: "x",
+					LastName:   "y",
+				},
+			})
+
+			dynamoClient := newMockDynamoUpdateClient(t)
 			dynamoClient.EXPECT().
-				Update(ctx, "LPA#lpa-id", tc.sk, values,
+				UpdateReturn(ctx, "LPA#lpa-id", tc.sk, values,
 					"set LpaUID = :uid, UpdatedAt = :now").
+				Return(returnValues, nil)
+
+			searchClient := newMockSearchClient(t)
+			searchClient.EXPECT().
+				Index(ctx, search.Lpa{
+					PK:            "LPA#lpa-id",
+					SK:            tc.sk,
+					DonorFullName: "x y",
+				}).
 				Return(nil)
 
-			uidStore := NewUidStore(dynamoClient, func() time.Time { return now })
+			uidStore := NewUidStore(dynamoClient, searchClient, testNowFn)
 
 			assert.Nil(t, uidStore.Set(ctx, "lpa-id", "session-id", tc.organisationID, "uid"))
 		})
 	}
 }
 
-func TestSetWhenDynamoClientError(t *testing.T) {
-	now := time.Now()
-	ctx := context.Background()
-
+func TestUidStoreSetWhenDynamoClientError(t *testing.T) {
 	values, _ := attributevalue.MarshalMap(map[string]any{
 		":uid": "uid",
-		":now": now,
+		":now": testNow,
 	})
 
-	dynamoClient := newMockDynamoClient(t)
+	dynamoClient := newMockDynamoUpdateClient(t)
 	dynamoClient.EXPECT().
-		Update(ctx, "LPA#lpa-id", "#DONOR#session-id", values,
+		UpdateReturn(ctx, "LPA#lpa-id", "#DONOR#session-id", values,
 			"set LpaUID = :uid, UpdatedAt = :now").
+		Return(nil, expectedError)
+
+	uidStore := NewUidStore(dynamoClient, nil, testNowFn)
+
+	assert.ErrorIs(t, uidStore.Set(ctx, "lpa-id", "session-id", "", "uid"), expectedError)
+}
+
+func TestUidStoreSetWhenSearchIndexErrors(t *testing.T) {
+	returnValues, _ := attributevalue.MarshalMap(actor.DonorProvidedDetails{
+		Donor: actor.Donor{
+			FirstNames: "x",
+			LastName:   "y",
+		},
+	})
+
+	dynamoClient := newMockDynamoUpdateClient(t)
+	dynamoClient.EXPECT().
+		UpdateReturn(ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(returnValues, nil)
+
+	searchClient := newMockSearchClient(t)
+	searchClient.EXPECT().
+		Index(ctx, mock.Anything).
 		Return(expectedError)
 
-	uidStore := NewUidStore(dynamoClient, func() time.Time { return now })
-
-	assert.Equal(t, expectedError, uidStore.Set(ctx, "lpa-id", "session-id", "", "uid"))
+	uidStore := NewUidStore(dynamoClient, searchClient, testNowFn)
+	err := uidStore.Set(ctx, "lpa-id", "session-id", "", "uid")
+	assert.ErrorIs(t, err, expectedError)
 }
