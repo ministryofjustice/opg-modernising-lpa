@@ -24,9 +24,9 @@ func (_m *mockDynamoClient) EXPECT() *mockDynamoClient_Expecter {
 	return &mockDynamoClient_Expecter{mock: &_m.Mock}
 }
 
-// AllByKeys provides a mock function with given fields: ctx, pks
-func (_m *mockDynamoClient) AllByKeys(ctx context.Context, pks []dynamo.Key) ([]map[string]types.AttributeValue, error) {
-	ret := _m.Called(ctx, pks)
+// AllByKeys provides a mock function with given fields: ctx, keys
+func (_m *mockDynamoClient) AllByKeys(ctx context.Context, keys []dynamo.Key) ([]map[string]types.AttributeValue, error) {
+	ret := _m.Called(ctx, keys)
 
 	if len(ret) == 0 {
 		panic("no return value specified for AllByKeys")
@@ -35,10 +35,10 @@ func (_m *mockDynamoClient) AllByKeys(ctx context.Context, pks []dynamo.Key) ([]
 	var r0 []map[string]types.AttributeValue
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Key) ([]map[string]types.AttributeValue, error)); ok {
-		return rf(ctx, pks)
+		return rf(ctx, keys)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Key) []map[string]types.AttributeValue); ok {
-		r0 = rf(ctx, pks)
+		r0 = rf(ctx, keys)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]map[string]types.AttributeValue)
@@ -46,7 +46,7 @@ func (_m *mockDynamoClient) AllByKeys(ctx context.Context, pks []dynamo.Key) ([]
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, []dynamo.Key) error); ok {
-		r1 = rf(ctx, pks)
+		r1 = rf(ctx, keys)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -61,12 +61,12 @@ type mockDynamoClient_AllByKeys_Call struct {
 
 // AllByKeys is a helper method to define mock.On call
 //   - ctx context.Context
-//   - pks []dynamo.Key
-func (_e *mockDynamoClient_Expecter) AllByKeys(ctx interface{}, pks interface{}) *mockDynamoClient_AllByKeys_Call {
-	return &mockDynamoClient_AllByKeys_Call{Call: _e.mock.On("AllByKeys", ctx, pks)}
+//   - keys []dynamo.Key
+func (_e *mockDynamoClient_Expecter) AllByKeys(ctx interface{}, keys interface{}) *mockDynamoClient_AllByKeys_Call {
+	return &mockDynamoClient_AllByKeys_Call{Call: _e.mock.On("AllByKeys", ctx, keys)}
 }
 
-func (_c *mockDynamoClient_AllByKeys_Call) Run(run func(ctx context.Context, pks []dynamo.Key)) *mockDynamoClient_AllByKeys_Call {
+func (_c *mockDynamoClient_AllByKeys_Call) Run(run func(ctx context.Context, keys []dynamo.Key)) *mockDynamoClient_AllByKeys_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].([]dynamo.Key))
 	})
