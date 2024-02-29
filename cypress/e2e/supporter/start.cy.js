@@ -5,10 +5,12 @@ describe('Start', () => {
 
   it('can be started', () => {
     cy.checkA11yApp();
+    cy.contains('Cymraeg').should('not.exist');
     cy.contains("Help someone to make a lasting power of attorney");
     cy.contains('a', 'Start').click();
 
     cy.checkA11yApp();
+    cy.contains('Cymraeg').should('not.exist');
     cy.contains("Signing in with GOV.UK One Login");
     cy.contains('a', 'Continue to GOV.UK One Login').click();
 
