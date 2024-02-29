@@ -2,6 +2,7 @@ package supporter
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 	"time"
@@ -81,46 +82,55 @@ func Register(
 	paths := page.Paths.Supporter
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
-	handleRoot(paths.Start, page.None,
+	handleRoot(paths.Start, None,
 		page.Guidance(tmpls.Get("start.gohtml")))
-	handleRoot(paths.SigningInAdvice, page.None,
+	handleRoot(paths.SigningInAdvice, None,
 		page.Guidance(tmpls.Get("signing_in_advice.gohtml")))
-	handleRoot(paths.Login, page.None,
+	handleRoot(paths.Login, None,
 		page.Login(oneLoginClient, sessionStore, random.String, paths.LoginCallback))
-	handleRoot(paths.LoginCallback, page.None,
+	handleRoot(paths.LoginCallback, None,
 		LoginCallback(oneLoginClient, sessionStore, organisationStore, time.Now, memberStore))
-	handleRoot(paths.EnterOrganisationName, page.RequireSession,
+	handleRoot(paths.EnterOrganisationName, RequireSession,
 		EnterOrganisationName(tmpls.Get("enter_organisation_name.gohtml"), organisationStore, sessionStore))
-	handleRoot(paths.EnterReferenceNumber, page.RequireSession,
+	handleRoot(paths.EnterReferenceNumber, RequireSession,
 		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), memberStore, sessionStore))
-	handleRoot(paths.InviteExpired, page.RequireSession,
+	handleRoot(paths.InviteExpired, RequireSession,
 		page.Guidance(tmpls.Get("invite_expired.gohtml")))
 
 	handleWithSupporter := makeSupporterHandle(rootMux, sessionStore, errorHandler, organisationStore, memberStore)
 
-	handleWithSupporter(paths.OrganisationCreated, page.None,
+	handleWithSupporter(paths.OrganisationCreated, None,
 		Guidance(tmpls.Get("organisation_created.gohtml")))
-	handleWithSupporter(paths.Dashboard, page.None,
+	handleWithSupporter(paths.Dashboard, None,
 		Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, searchClient))
-	handleWithSupporter(paths.ConfirmDonorCanInteractOnline, page.None,
+	handleWithSupporter(paths.ConfirmDonorCanInteractOnline, None,
 		ConfirmDonorCanInteractOnline(tmpls.Get("confirm_donor_can_interact_online.gohtml"), organisationStore))
-	handleWithSupporter(paths.ContactOPGForPaperForms, page.None,
+	handleWithSupporter(paths.ContactOPGForPaperForms, None,
 		Guidance(tmpls.Get("contact_opg_for_paper_forms.gohtml")))
 
-	handleWithSupporter(paths.OrganisationDetails, page.None,
+	handleWithSupporter(paths.OrganisationDetails, RequireAdmin,
 		Guidance(tmpls.Get("organisation_details.gohtml")))
-	handleWithSupporter(paths.EditOrganisationName, page.None,
+	handleWithSupporter(paths.EditOrganisationName, RequireAdmin,
 		EditOrganisationName(tmpls.Get("edit_organisation_name.gohtml"), organisationStore))
-	handleWithSupporter(paths.ManageTeamMembers, page.None,
+	handleWithSupporter(paths.ManageTeamMembers, RequireAdmin,
 		ManageTeamMembers(tmpls.Get("manage_team_members.gohtml"), memberStore, random.String, notifyClient, appPublicURL))
-	handleWithSupporter(paths.InviteMember, page.CanGoBack,
+	handleWithSupporter(paths.InviteMember, CanGoBack|RequireAdmin,
 		InviteMember(tmpls.Get("invite_member.gohtml"), memberStore, notifyClient, random.String, appPublicURL))
-	handleWithSupporter(paths.EditMember, page.CanGoBack,
-		EditMember(tmpls.Get("edit_team_member.gohtml"), memberStore))
+	handleWithSupporter(paths.EditMember, CanGoBack,
+		EditMember(tmpls.Get("edit_member.gohtml"), memberStore))
 }
 
-func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler) func(page.Path, page.HandleOpt, page.Handler) {
-	return func(path page.Path, opt page.HandleOpt, h page.Handler) {
+type HandleOpt byte
+
+const (
+	None HandleOpt = 1 << iota
+	RequireSession
+	RequireAdmin
+	CanGoBack
+)
+
+func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler) func(page.Path, HandleOpt, page.Handler) {
+	return func(path page.Path, opt HandleOpt, h page.Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
@@ -129,7 +139,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 			appData.CanToggleWelsh = false
 			appData.IsSupporter = true
 
-			if opt&page.RequireSession != 0 {
+			if opt&RequireSession != 0 {
 				session, err := store.Login(r)
 				if err != nil {
 					http.Redirect(w, r, page.Paths.Supporter.Start.Format(), http.StatusFound)
@@ -148,8 +158,8 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 	}
 }
 
-func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler, organisationStore OrganisationStore, memberStore MemberStore) func(page.SupporterPath, page.HandleOpt, Handler) {
-	return func(path page.SupporterPath, opt page.HandleOpt, h Handler) {
+func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler, organisationStore OrganisationStore, memberStore MemberStore) func(page.SupporterPath, HandleOpt, Handler) {
+	return func(path page.SupporterPath, opt HandleOpt, h Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			loginSession, err := store.Login(r)
 			if err != nil {
@@ -159,7 +169,7 @@ func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler pa
 
 			appData := page.AppDataFromContext(r.Context())
 			appData.SessionID = loginSession.SessionID()
-			appData.CanGoBack = opt&page.CanGoBack != 0
+			appData.CanGoBack = opt&CanGoBack != 0
 			appData.CanToggleWelsh = false
 			appData.IsSupporter = true
 			appData.Page = path.Format()
@@ -197,6 +207,11 @@ func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler pa
 			member, err := memberStore.Get(ctx)
 			if err != nil {
 				errorHandler(w, r, err)
+				return
+			}
+
+			if opt&RequireAdmin != 0 && !member.Permission.IsAdmin() {
+				errorHandler(w, r, errors.New("permission denied"))
 				return
 			}
 
