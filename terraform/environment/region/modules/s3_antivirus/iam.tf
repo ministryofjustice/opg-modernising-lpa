@@ -35,7 +35,8 @@ data "aws_iam_policy_document" "lambda" {
     resources = [data.aws_kms_alias.uploads_encryption_key.target_key_arn]
     actions = [
       "kms:Decrypt",
-      "kms:DescribeKey"
+      "kms:DescribeKey",
+      "kms:RetireGrant",
     ]
   }
 
