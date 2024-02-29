@@ -26,8 +26,9 @@ func TestRegister(t *testing.T) {
 }
 
 func TestMakeHandle(t *testing.T) {
+	ctx := page.ContextWithAppData(context.Background(), page.AppData{CanToggleWelsh: true})
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
+	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, nil)
@@ -117,8 +118,9 @@ func TestMakeHandleWhenRequireSessionErrors(t *testing.T) {
 }
 
 func TestMakeSupporterHandle(t *testing.T) {
+	ctx := page.ContextWithAppData(context.Background(), page.AppData{CanToggleWelsh: true})
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/supporter/path", nil)
+	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/supporter/path", nil)
 
 	mux := http.NewServeMux()
 
