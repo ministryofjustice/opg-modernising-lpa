@@ -461,6 +461,64 @@ func (_c *mockMemberStore_InvitedMembers_Call) RunAndReturn(run func(context.Con
 	return _c
 }
 
+// InvitedMembersByEmail provides a mock function with given fields: ctx
+func (_m *mockMemberStore) InvitedMembersByEmail(ctx context.Context) ([]*actor.MemberInvite, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for InvitedMembersByEmail")
+	}
+
+	var r0 []*actor.MemberInvite
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) ([]*actor.MemberInvite, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) []*actor.MemberInvite); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*actor.MemberInvite)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockMemberStore_InvitedMembersByEmail_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'InvitedMembersByEmail'
+type mockMemberStore_InvitedMembersByEmail_Call struct {
+	*mock.Call
+}
+
+// InvitedMembersByEmail is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *mockMemberStore_Expecter) InvitedMembersByEmail(ctx interface{}) *mockMemberStore_InvitedMembersByEmail_Call {
+	return &mockMemberStore_InvitedMembersByEmail_Call{Call: _e.mock.On("InvitedMembersByEmail", ctx)}
+}
+
+func (_c *mockMemberStore_InvitedMembersByEmail_Call) Run(run func(ctx context.Context)) *mockMemberStore_InvitedMembersByEmail_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *mockMemberStore_InvitedMembersByEmail_Call) Return(_a0 []*actor.MemberInvite, _a1 error) *mockMemberStore_InvitedMembersByEmail_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockMemberStore_InvitedMembersByEmail_Call) RunAndReturn(run func(context.Context) ([]*actor.MemberInvite, error)) *mockMemberStore_InvitedMembersByEmail_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Put provides a mock function with given fields: ctx, member
 func (_m *mockMemberStore) Put(ctx context.Context, member *actor.Member) error {
 	ret := _m.Called(ctx, member)
