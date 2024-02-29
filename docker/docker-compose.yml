@@ -47,6 +47,8 @@ services:
     build:
       context: ..
       dockerfile: docker/localstack/Dockerfile
+    depends_on:
+      - opensearch
     container_name: localstack
     ports:
       - "127.0.0.1:4566:4566"            # LocalStack Gateway
@@ -62,6 +64,7 @@ services:
       - AWS_BASE_URL=http://localstack:4566
       - AWS_REGION=eu-west-1
       - AWS_SECRET_ACCESS_KEY=fakeAccessKey
+      - OPENSEARCH_CUSTOM_BACKEND=http://opensearch:9200
     networks:
       default:
         aliases:
@@ -72,6 +75,25 @@ services:
       retries: 10
       start_period: 20s
       timeout: 10s
+
+  opensearch:
+    container_name: opensearch
+    image: opensearchproject/opensearch:1.1.0
+    environment:
+      - node.name=opensearch
+      - cluster.name=opensearch-docker-cluster
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "DISABLE_SECURITY_PLUGIN=true"
+    ports:
+      - "9200:9200"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data01:/usr/share/opensearch/data
 
   mock-lpa-store:
     image: outofcoffee/imposter:latest
@@ -119,3 +141,7 @@ services:
     container_name: mock-uid
     ports:
       - "8080:8080"
+
+volumes:
+  data01:
+    driver: local
