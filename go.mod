@@ -24,6 +24,7 @@ require (
 	github.com/gorilla/sessions v1.2.2
 	github.com/ministryofjustice/opg-go-common v0.0.0-20240223111039-066f4e682b9b
 	github.com/mitchellh/hashstructure/v2 v2.0.2
+	github.com/opensearch-project/opensearch-go/v3 v3.0.0
 	github.com/pact-foundation/pact-go/v2 v2.0.4
 	github.com/stretchr/testify v1.8.4
 	github.com/vektra/mockery/v2 v2.42.0
@@ -48,7 +49,7 @@ require (
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	cloud.google.com/go/iam v1.1.5 // indirect
 	cloud.google.com/go/storage v1.36.0 // indirect
-	github.com/aws/aws-sdk-go v1.44.298 // indirect
+	github.com/aws/aws-sdk-go v1.48.13 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.1 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.3 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.15.1 // indirect

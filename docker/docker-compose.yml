@@ -26,6 +26,7 @@ services:
       - AWS_BASE_URL=http://localstack:4566
       - AWS_REGION=eu-west-1
       - AWS_SECRET_ACCESS_KEY=fakeAccessKey
+      - SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566
 
   event-logger:
     build:
@@ -46,6 +47,8 @@ services:
     build:
       context: ..
       dockerfile: docker/localstack/Dockerfile
+    depends_on:
+      - opensearch
     container_name: localstack
     ports:
       - "127.0.0.1:4566:4566"            # LocalStack Gateway
@@ -54,13 +57,43 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
       - DOCKER_HOST=unix:///var/run/docker.sock
-      - SERVICES=s3,secretsmanager,sqs,dynamodb,events,kms,lambda
+      - SERVICES=s3,secretsmanager,sqs,dynamodb,events,kms,lambda,opensearch
       - DATA_DIR=/tmp/localstack/data
       - DEBUG=1
       - AWS_ACCESS_KEY_ID=fakeKeyId
       - AWS_BASE_URL=http://localstack:4566
       - AWS_REGION=eu-west-1
       - AWS_SECRET_ACCESS_KEY=fakeAccessKey
+      - OPENSEARCH_CUSTOM_BACKEND=http://opensearch:9200
+    networks:
+      default:
+        aliases:
+          - my-domain.eu-west-1.opensearch.localhost.localstack.cloud
+    healthcheck:
+      test: "curl --silent --fail http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566 | grep 'cluster_name'"
+      interval: 20s
+      retries: 10
+      start_period: 20s
+      timeout: 10s
+
+  opensearch:
+    container_name: opensearch
+    image: opensearchproject/opensearch:1.1.0
+    environment:
+      - node.name=opensearch
+      - cluster.name=opensearch-docker-cluster
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "DISABLE_SECURITY_PLUGIN=true"
+    ports:
+      - "9200:9200"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data01:/usr/share/opensearch/data
 
   mock-lpa-store:
     image: outofcoffee/imposter:latest
@@ -108,3 +141,7 @@ services:
     container_name: mock-uid
     ports:
       - "8080:8080"
+
+volumes:
+  data01:
+    driver: local
