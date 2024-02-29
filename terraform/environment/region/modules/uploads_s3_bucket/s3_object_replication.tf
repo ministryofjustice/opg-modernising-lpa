@@ -35,6 +35,7 @@ data "aws_iam_policy_document" "replication" {
       "s3:GetReplicationConfiguration",
       "s3:ListBucket",
       "s3:PutInventoryConfiguration",
+      "s3:HeadBucket"
     ]
 
     resources = [aws_s3_bucket.bucket.arn]
