@@ -18,6 +18,7 @@ type AppData struct {
 	Lang                 localize.Lang
 	CookieConsentSet     bool
 	CanGoBack            bool
+	CanToggleWelsh       bool
 	SessionID            string
 	LpaID                string
 	CsrfToken            string

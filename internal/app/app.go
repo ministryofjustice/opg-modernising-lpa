@@ -138,8 +138,6 @@ func App(
 		page.Guidance(tmpls.Get("certificate_provider_start.gohtml")))
 	handleRoot(page.Paths.Attorney.Start, None,
 		page.Guidance(tmpls.Get("attorney_start.gohtml")))
-	handleRoot(page.Paths.Supporter.Start, None,
-		page.Guidance(supporterTmpls.Get("start.gohtml")))
 	handleRoot(page.Paths.Dashboard, RequireSession,
 		page.Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, dashboardStore))
 	handleRoot(page.Paths.LpaDeleted, RequireSession,
@@ -237,6 +235,7 @@ func withAppData(next http.Handler, localizer page.Localizer, lang localize.Lang
 		appData.Query = r.URL.Query()
 		appData.Localizer = localizer
 		appData.Lang = lang
+		appData.CanToggleWelsh = true
 
 		_, cookieErr := r.Cookie("cookies-consent")
 		appData.CookieConsentSet = cookieErr != http.ErrNoCookie
