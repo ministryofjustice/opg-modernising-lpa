@@ -27,6 +27,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
@@ -44,7 +45,7 @@ type DynamoClient interface {
 	AllByPartialSK(ctx context.Context, pk, partialSK string, v interface{}) error
 	LatestForActor(ctx context.Context, sk string, v interface{}) error
 	AllBySK(ctx context.Context, sk string, v interface{}) error
-	AllByKeys(ctx context.Context, pks []dynamo.Key) ([]map[string]dynamodbtypes.AttributeValue, error)
+	AllByKeys(ctx context.Context, keys []dynamo.Key) ([]map[string]dynamodbtypes.AttributeValue, error)
 	AllKeysByPK(ctx context.Context, pk string) ([]dynamo.Key, error)
 	Put(ctx context.Context, v interface{}) error
 	Create(ctx context.Context, v interface{}) error
@@ -84,6 +85,7 @@ func App(
 	s3Client S3Client,
 	eventClient *event.Client,
 	lpaStoreClient *lpastore.Client,
+	searchClient *search.Client,
 ) http.Handler {
 	documentStore := NewDocumentStore(lpaDynamoClient, s3Client, eventClient, random.UuidString, time.Now)
 
@@ -95,6 +97,7 @@ func App(
 		newUID:        actoruid.New,
 		now:           time.Now,
 		documentStore: documentStore,
+		searchClient:  searchClient,
 	}
 	certificateProviderStore := &certificateProviderStore{dynamoClient: lpaDynamoClient, now: time.Now}
 	attorneyStore := &attorneyStore{dynamoClient: lpaDynamoClient, now: time.Now}
@@ -124,7 +127,7 @@ func App(
 	handleRoot(page.Paths.AttorneyFixtures, None,
 		fixtures.Attorney(tmpls.Get("attorney_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore))
 	handleRoot(page.Paths.SupporterFixtures, None,
-		fixtures.Supporter(sessionStore, organisationStore, donorStore, memberStore, lpaDynamoClient))
+		fixtures.Supporter(sessionStore, organisationStore, donorStore, memberStore, lpaDynamoClient, searchClient))
 	handleRoot(page.Paths.DashboardFixtures, None,
 		fixtures.Dashboard(tmpls.Get("dashboard_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore))
 	handleRoot(page.Paths.YourLegalRightsAndResponsibilities, None,
@@ -154,6 +157,8 @@ func App(
 		notifyClient,
 		appPublicURL,
 		memberStore,
+		searchClient,
+		donorStore,
 	)
 
 	certificateprovider.Register(
