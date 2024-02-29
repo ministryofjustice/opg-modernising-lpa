@@ -4,6 +4,6 @@ package actor
 type Permission uint8
 
 const (
-	None  Permission = iota //none
+	None  Permission = iota // none
 	Admin                   // admin
 )

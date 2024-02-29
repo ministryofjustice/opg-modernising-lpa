@@ -27,20 +27,25 @@ func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
 		data := &editMemberData{
 			App: appData,
 			Form: &editMemberForm{
-				FirstNames:    member.FirstNames,
-				LastName:      member.LastName,
-				Status:        member.Status,
-				StatusOptions: actor.StatusValues,
+				FirstNames:        member.FirstNames,
+				LastName:          member.LastName,
+				Permission:        member.Permission,
+				PermissionOptions: actor.PermissionValues,
+				Status:            member.Status,
+				StatusOptions:     actor.StatusValues,
 			},
 			Member: member,
 		}
 
+		canEditAll := appData.IsAdmin() && !appData.IsLoggedInMember(member)
+
 		if r.Method == http.MethodPost {
-			data.Form = readEditMemberForm(r, appData.IsAdmin(), appData.IsLoggedInMember(member))
-			data.Errors = data.Form.Validate(appData.IsAdmin())
+			data.Form = readEditMemberForm(r, canEditAll)
+			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
 				query := url.Values{}
+
 				if data.Form.FirstNames != member.FirstNames || data.Form.LastName != member.LastName {
 					member.FirstNames = data.Form.FirstNames
 					member.LastName = data.Form.LastName
@@ -52,19 +57,29 @@ func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
 					}
 				}
 
-				if appData.IsAdmin() && data.Form.Status != member.Status {
-					query.Add("statusUpdated", data.Form.Status.String())
-					query.Add("statusEmail", member.Email)
-					member.Status = data.Form.Status
+				if canEditAll {
+					if data.Form.Permission != member.Permission {
+						query.Add("permissionUpdated", data.Form.Permission.String())
+						query.Add("permissionEmail", member.Email)
+						member.Permission = data.Form.Permission
+					}
+
+					if data.Form.Status != member.Status {
+						query.Add("statusUpdated", data.Form.Status.String())
+						query.Add("statusEmail", member.Email)
+						member.Status = data.Form.Status
+					}
 				}
 
-				if err := memberStore.Put(r.Context(), member); err != nil {
-					return err
+				if len(query) > 0 {
+					if err := memberStore.Put(r.Context(), member); err != nil {
+						return err
+					}
 				}
 
-				redirect := page.Paths.Supporter.ManageTeamMembers
-				if !appData.IsAdmin() {
-					redirect = page.Paths.Supporter.Dashboard
+				redirect := page.Paths.Supporter.Dashboard
+				if appData.IsAdmin() {
+					redirect = page.Paths.Supporter.ManageTeamMembers
 				}
 
 				return redirect.RedirectQuery(w, r, appData, query)
@@ -76,27 +91,33 @@ func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
 }
 
 type editMemberForm struct {
-	FirstNames    string
-	LastName      string
-	Status        actor.Status
-	StatusOptions actor.StatusOptions
-	StatusError   error
+	FirstNames        string
+	LastName          string
+	Permission        actor.Permission
+	PermissionOptions actor.PermissionOptions
+	PermissionError   error
+	Status            actor.Status
+	StatusOptions     actor.StatusOptions
+	StatusError       error
+	canEditAll        bool
 }
 
-func readEditMemberForm(r *http.Request, isAdmin, isEditingSelf bool) *editMemberForm {
+func readEditMemberForm(r *http.Request, canEditAll bool) *editMemberForm {
 	f := &editMemberForm{
 		FirstNames: page.PostFormString(r, "first-names"),
 		LastName:   page.PostFormString(r, "last-name"),
+		canEditAll: canEditAll,
 	}
 
-	if isAdmin && !isEditingSelf {
+	if canEditAll {
+		f.Permission, f.PermissionError = actor.ParsePermission(page.PostFormString(r, "permission"))
 		f.Status, f.StatusError = actor.ParseStatus(page.PostFormString(r, "status"))
 	}
 
 	return f
 }
 
-func (f *editMemberForm) Validate(isAdmin bool) validation.List {
+func (f *editMemberForm) Validate() validation.List {
 	var errors validation.List
 
 	errors.String("first-names", "firstNames", f.FirstNames,
@@ -107,8 +128,12 @@ func (f *editMemberForm) Validate(isAdmin bool) validation.List {
 		validation.Empty(),
 		validation.StringTooLong(61))
 
-	if isAdmin {
-		errors.Error("status", "status", f.StatusError, validation.Selected())
+	if f.canEditAll {
+		errors.Options("permission", "makeThisPersonAnAdmin", []string{f.Permission.String()},
+			validation.Select(actor.None.String(), actor.Admin.String()))
+
+		errors.Error("status", "status", f.StatusError,
+			validation.Selected())
 	}
 
 	return errors
