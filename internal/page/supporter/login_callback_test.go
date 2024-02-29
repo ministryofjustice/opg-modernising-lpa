@@ -611,3 +611,63 @@ func TestLoginCallbackWhenSessionError(t *testing.T) {
 	err := LoginCallback(client, sessionStore, organisationStore, testNowFn, nil)(page.AppData{}, w, r)
 	assert.Equal(t, expectedError, err)
 }
+
+func TestLoginCallbackWhenOrganisationIsDeleted(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
+
+	client := newMockOneLoginClient(t)
+	client.EXPECT().
+		Exchange(r.Context(), "auth-code", "my-nonce").
+		Return("id-token", "a JWT", nil)
+	client.EXPECT().
+		UserInfo(r.Context(), "a JWT").
+		Return(onelogin.UserInfo{Sub: "random", Email: "a@example.org"}, nil)
+
+	sessionStore := newMockSessionStore(t)
+
+	session := sessions.NewSession(sessionStore, "session")
+	session.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   86400,
+		SameSite: http.SameSiteLaxMode,
+		HttpOnly: true,
+		Secure:   true,
+	}
+
+	loginSession := &sesh.LoginSession{
+		IDToken:          "id-token",
+		Sub:              "supporter-random",
+		Email:            "a@example.org",
+		OrganisationID:   "org-id",
+		OrganisationName: "org name",
+	}
+
+	session.Values = map[any]any{"session": loginSession}
+
+	sessionStore.EXPECT().
+		Get(r, "params").
+		Return(&sessions.Session{
+			Values: map[any]any{
+				"one-login": &sesh.OneLoginSession{
+					State:    "my-state",
+					Nonce:    "my-nonce",
+					Locale:   "en",
+					Redirect: "/redirect",
+				},
+			},
+		}, nil)
+
+	organisationStore := newMockOrganisationStore(t)
+	organisationStore.EXPECT().
+		Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email})).
+		Return(&actor.Organisation{DeletedAt: time.Now()}, nil)
+
+	err := LoginCallback(client, sessionStore, organisationStore, testNowFn, nil)(page.AppData{}, w, r)
+
+	assert.Nil(t, err)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.Supporter.Start.Format(), resp.Header.Get("Location"))
+}
