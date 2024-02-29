@@ -81,6 +81,8 @@ func Register(
 	paths := page.Paths.Supporter
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
+	handleRoot(paths.Start, page.None,
+		page.Guidance(tmpls.Get("start.gohtml")))
 	handleRoot(paths.SigningInAdvice, page.None,
 		page.Guidance(tmpls.Get("signing_in_advice.gohtml")))
 	handleRoot(paths.Login, page.None,
@@ -124,6 +126,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 
 			appData := page.AppDataFromContext(ctx)
 			appData.Page = path.Format()
+			appData.CanToggleWelsh = false
 			appData.IsSupporter = true
 
 			if opt&page.RequireSession != 0 {
@@ -157,6 +160,11 @@ func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page
 			appData := page.AppDataFromContext(r.Context())
 			appData.SessionID = loginSession.SessionID()
 			appData.CanGoBack = opt&page.CanGoBack != 0
+			appData.CanToggleWelsh = false
+			appData.IsSupporter = true
+			appData.Page = path.Format()
+			appData.IsManageOrganisation = path.IsManageOrganisation()
+			appData.LoginSessionEmail = loginSession.Email
 
 			sessionData, err := page.SessionDataFromContext(r.Context())
 
@@ -192,11 +200,7 @@ func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page
 				return
 			}
 
-			appData.Page = path.Format()
-			appData.IsSupporter = true
 			appData.OrganisationName = organisation.Name
-			appData.IsManageOrganisation = path.IsManageOrganisation()
-			appData.LoginSessionEmail = loginSession.Email
 			appData.Permission = member.Permission
 			appData.LoggedInSupporterID = member.ID
 
