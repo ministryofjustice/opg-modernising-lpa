@@ -5,6 +5,7 @@ describe('Enter organisation name', () => {
 
   it('can be started', () => {
     cy.checkA11yApp();
+    cy.contains('Cymraeg').should('not.exist');
     cy.get('#f-name').type('My name' + Math.random());
     cy.contains('button', 'Continue').click();
 

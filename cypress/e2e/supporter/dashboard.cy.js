@@ -20,12 +20,15 @@ describe('Dashboard', () => {
   });
 
   it('can start a new LPA', () => {
+    cy.contains('Cymraeg').should('not.exist');
     cy.contains('a', 'Make a new LPA').click();
 
     cy.checkA11yApp();
+    cy.contains('Cymraeg').should('not.exist');
     cy.contains('label', 'Make an online LPA').click();
     cy.contains('button', 'Continue').click();
 
+    cy.contains('Cymraeg');
     cy.get('#f-first-names').type('John');
     cy.get('#f-last-name').type('Doe');
     cy.get('#f-date-of-birth').type('1');
