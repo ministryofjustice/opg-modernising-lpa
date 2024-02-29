@@ -288,6 +288,18 @@ func TestDonorStorePutWhenUIDSet(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestDonorStorePutWhenUIDSetIndexErrors(t *testing.T) {
+	searchClient := newMockSearchClient(t)
+	searchClient.EXPECT().
+		Index(ctx, mock.Anything).
+		Return(expectedError)
+
+	donorStore := &donorStore{searchClient: searchClient, now: testNowFn}
+
+	err := donorStore.Put(ctx, &actor.DonorProvidedDetails{PK: "LPA#5", Hash: 5, SK: "#DONOR#an-id", LpaID: "5", HasSentApplicationUpdatedEvent: true, LpaUID: "M", Donor: actor.Donor{FirstNames: "x", LastName: "y"}})
+	assert.ErrorIs(t, err, expectedError)
+}
+
 func TestDonorStorePutWhenNoChange(t *testing.T) {
 	donorStore := &donorStore{}
 
