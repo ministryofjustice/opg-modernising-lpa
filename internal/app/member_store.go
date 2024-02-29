@@ -5,6 +5,8 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -66,15 +68,16 @@ func (s *memberStore) Create(ctx context.Context, invite *actor.MemberInvite) er
 	}
 
 	member := &actor.Member{
-		PK:         organisationKey(invite.OrganisationID),
-		SK:         memberKey(data.SessionID),
-		CreatedAt:  s.now(),
-		UpdatedAt:  s.now(),
-		ID:         s.uuidString(),
-		Email:      invite.Email,
-		FirstNames: invite.FirstNames,
-		LastName:   invite.LastName,
-		Permission: invite.Permission,
+		PK:             organisationKey(invite.OrganisationID),
+		SK:             memberKey(data.SessionID),
+		CreatedAt:      s.now(),
+		UpdatedAt:      s.now(),
+		ID:             s.uuidString(),
+		Email:          invite.Email,
+		FirstNames:     invite.FirstNames,
+		LastName:       invite.LastName,
+		Permission:     invite.Permission,
+		LastLoggedInAt: s.now(),
 	}
 
 	if err := s.dynamoClient.Create(ctx, member); err != nil {
@@ -166,6 +169,10 @@ func (s *memberStore) GetAll(ctx context.Context) ([]*actor.Member, error) {
 	if err := s.dynamoClient.AllByPartialSK(ctx, organisationKey(data.OrganisationID), memberKey(""), &members); err != nil {
 		return nil, err
 	}
+
+	slices.SortFunc(members, func(a, b *actor.Member) int {
+		return strings.Compare(a.FirstNames, b.FirstNames)
+	})
 
 	return members, nil
 }
