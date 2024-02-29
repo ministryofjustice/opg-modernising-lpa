@@ -32,7 +32,7 @@ awslocal events put-rule --region eu-west-1 --name send-events-to-queue-rule --e
 awslocal events put-targets --region eu-west-1 --event-bus-name default --rule send-events-to-queue-rule --targets "Id"="event-queue","Arn"="arn:aws:sqs:eu-west-1:000000000000:event-queue"
 
 echo 'creating lambda'
-awslocal lambda create-function --environment Variables="{LPAS_TABLE=lpas,GOVUK_NOTIFY_IS_PRODUCTION=0,APP_PUBLIC_URL=localhost:5050,GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080,UPLOADS_S3_BUCKET_NAME=evidence,UID_BASE_URL=http://mock-uid:8080}" --region eu-west-1 --function-name event-received --handler event-received --runtime go1.x --role arn:aws:iam::000000000000:role/lambda-role --zip-file fileb:///etc/event-received.zip
+awslocal lambda create-function --environment Variables="{LPAS_TABLE=lpas,GOVUK_NOTIFY_IS_PRODUCTION=0,APP_PUBLIC_URL=localhost:5050,GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080,UPLOADS_S3_BUCKET_NAME=evidence,UID_BASE_URL=http://mock-uid:8080,SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566}" --region eu-west-1 --function-name event-received --handler event-received --runtime go1.x --role arn:aws:iam::000000000000:role/lambda-role --zip-file fileb:///etc/event-received.zip
 awslocal lambda wait function-active-v2 --region eu-west-1 --function-name event-received
 
 awslocal events put-rule --region eu-west-1 --name receive-events-mlpa --event-bus-name default --event-pattern '{"source":["opg.poas.makeregister"],"detail-type":["uid-requested"]}'
