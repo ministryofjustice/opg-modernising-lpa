@@ -213,7 +213,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	}
 
 	if err := searchClient.CreateIndices(ctx); err != nil {
-		logger.Warn("could not create search index", slog.Any("err", err))
+		return err
 	}
 
 	secretsClient, err := secrets.NewClient(cfg, time.Hour)
