@@ -246,14 +246,14 @@ func TestMemberStoreGetAll(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllByPartialSK(ctx, "ORGANISATION#an-id",
-		"MEMBER#", []*actor.Member{{FirstNames: "a"}, {FirstNames: "b"}}, nil)
+		"MEMBER#", []*actor.Member{{FirstNames: "a"}, {FirstNames: "c"}, {FirstNames: "b"}}, nil)
 
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
 	members, err := memberStore.GetAll(ctx)
 
 	assert.Nil(t, err)
-	assert.Equal(t, []*actor.Member{{FirstNames: "a"}, {FirstNames: "b"}}, members)
+	assert.Equal(t, []*actor.Member{{FirstNames: "a"}, {FirstNames: "b"}, {FirstNames: "c"}}, members)
 }
 
 func TestMemberStoreGetAllWhenSessionMissing(t *testing.T) {
@@ -352,16 +352,17 @@ func TestMemberStoreCreate(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
 		Create(ctx, &actor.Member{
-			PK:         "ORGANISATION#org-id",
-			SK:         "MEMBER#session-id",
-			CreatedAt:  testNow,
-			UpdatedAt:  testNow,
-			ID:         "a-uuid",
-			Email:      invite.Email,
-			FirstNames: invite.FirstNames,
-			LastName:   invite.LastName,
-			Permission: invite.Permission,
-			Status:     actor.Active,
+			PK:             "ORGANISATION#org-id",
+			SK:             "MEMBER#session-id",
+			CreatedAt:      testNow,
+			UpdatedAt:      testNow,
+			ID:             "a-uuid",
+			Email:          invite.Email,
+			FirstNames:     invite.FirstNames,
+			LastName:       invite.LastName,
+			Permission:     invite.Permission,
+			Status:         actor.Active,
+			LastLoggedInAt: testNow,
 		}).
 		Return(nil)
 
