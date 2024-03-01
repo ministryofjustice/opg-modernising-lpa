@@ -67,7 +67,7 @@ func TestPostInviteMember(t *testing.T) {
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		CreateMemberInvite(r.Context(), organisation, "a", "b", "email@example.com", "abcde", actor.Admin).
+		CreateMemberInvite(r.Context(), organisation, "a", "b", "email@example.com", "abcde", actor.PermissionAdmin).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
@@ -109,7 +109,7 @@ func TestPostInviteMemberWhenValidationError(t *testing.T) {
 				FirstNames: "a",
 				LastName:   "b",
 				Email:      "what",
-				Permission: actor.Admin,
+				Permission: actor.PermissionAdmin,
 			},
 			Options: actor.PermissionValues,
 		}).
@@ -185,7 +185,7 @@ func TestReadInviteMemberForm(t *testing.T) {
 	assert.Equal(t, "email@example.com", result.Email)
 	assert.Equal(t, "a", result.FirstNames)
 	assert.Equal(t, "b", result.LastName)
-	assert.Equal(t, actor.Admin, result.Permission)
+	assert.Equal(t, actor.PermissionAdmin, result.Permission)
 }
 
 func TestInviteMemberFormValidate(t *testing.T) {
@@ -198,7 +198,7 @@ func TestInviteMemberFormValidate(t *testing.T) {
 				Email:      "email@example.com",
 				FirstNames: "a",
 				LastName:   "b",
-				Permission: actor.None,
+				Permission: actor.PermissionNone,
 			},
 		},
 		"missing": {
@@ -213,7 +213,7 @@ func TestInviteMemberFormValidate(t *testing.T) {
 				Email:      "what",
 				FirstNames: "a",
 				LastName:   "b",
-				Permission: actor.None,
+				Permission: actor.PermissionNone,
 			},
 			errors: validation.With("email", validation.EmailError{Label: "email"}),
 		},
@@ -222,7 +222,7 @@ func TestInviteMemberFormValidate(t *testing.T) {
 				Email:      "email@example.com",
 				FirstNames: strings.Repeat("x", 54),
 				LastName:   strings.Repeat("x", 62),
-				Permission: actor.None,
+				Permission: actor.PermissionNone,
 			},
 			errors: validation.
 				With("first-names", validation.StringTooLongError{Label: "firstNames", Length: 53}).

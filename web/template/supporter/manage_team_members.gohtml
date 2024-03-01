@@ -3,193 +3,194 @@
 {{ define "pageTitle" }}{{ tr .App "manageOrganisation" }}{{ end }}
 
 {{ define "main" }}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {{ if .App.Query.Has "inviteSent" }}
-                <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
-                     aria-labelledby="govuk-notification-banner-title"
-                     data-module="govuk-notification-banner">
-                    <div class="govuk-notification-banner__header">
-                        <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
-                            {{ tr .App "invitationSent" }}
-                        </h1>
-                    </div>
-                    <div class="govuk-notification-banner__content">
-                        <p class="govuk-body">
-                            {{ trFormatHtml .App "weHaveSentInvite" "Email" (.App.Query.Get "inviteSent") }}
-                        </p>
-                    </div>
-                </div>
-            {{ end}}
-
-            {{ if .App.Query.Has "nameUpdated" }}
-                <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
-                     aria-labelledby="govuk-notification-banner-title"
-                     data-module="govuk-notification-banner">
-                    <div class="govuk-notification-banner__header">
-                        <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
-                            {{ tr .App "nameUpdated" }}
-                        </h1>
-                    </div>
-                    <div class="govuk-notification-banner__content">
-                        <p class="govuk-body">
-                            {{ if .App.Query.Has "selfUpdated" }}
-                                {{ trFormatHtml .App "yourNameHasBeenUpdatedToNewName" "NewName" (.App.Query.Get "nameUpdated") }}
-                            {{ else }}
-                                {{ trFormatHtml .App "teamMembersNameUpdatedToNewName" "NewName" (.App.Query.Get "nameUpdated") }}
-                            {{ end }}
-                        </p>
-                    </div>
-                </div>
-            {{ end}}
-
-            {{ if and (.App.Query.Has "statusUpdated") (.App.Query.Has "statusEmail") }}
-                <div class="govuk-notification-banner" role="alert"
-                     aria-labelledby="govuk-notification-banner-title"
-                     data-module="govuk-notification-banner">
-                    <div class="govuk-notification-banner__header">
-                        <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
-                            {{ if eq (.App.Query.Get "statusUpdated") "suspended" }}
-                                {{ tr .App "teamMemberSuspended" }}
-                            {{ else }}
-                                {{ tr .App "accessUpdated" }}
-                            {{ end }}
-                        </h1>
-                    </div>
-                    <div class="govuk-notification-banner__content">
-                        <p class="govuk-body">
-                            {{ if eq (.App.Query.Get "statusUpdated") "suspended" }}
-                                {{ trFormatHtml .App "emailHasBeenSuspended" "Email" (.App.Query.Get "statusEmail") }}
-                            {{ else }}
-                                {{ trFormatHtml .App "emailCanNowAccessOrganisation" "Email" (.App.Query.Get "statusEmail") }}
-                            {{ end }}
-                        </p>
-                    </div>
-                </div>
-            {{ end}}
-
-            <h1 class="govuk-heading-xl">{{ tr .App "manageOrganisation" }}</h1>
-
-            <div class="govuk-tabs app-tabs-no-border">
-                <ul class="govuk-tabs__list">
-                    <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
-                        <a class="govuk-tabs__tab" href="{{ link .App global.Paths.Supporter.ManageTeamMembers.Format }}">{{ tr .App "manageTeamMembers" }}</a>
-                    </li>
-                    <li class="govuk-tabs__list-item">
-                        <a class="govuk-tabs__tab" href="{{ link .App global.Paths.Supporter.OrganisationDetails.Format }}">{{ tr .App "organisationDetails" }}</a>
-                    </li>
-                </ul>
-                <div class="govuk-tabs__panel" id="team-members">
-                    <a class="govuk-button" href="{{ link .App global.Paths.Supporter.InviteMember.Format }}">{{ tr .App "inviteTeamMember" }}</a>
-
-                    {{ if .InvitedMembers }}
-                        <h2 class="govuk-heading-m">{{ tr .App "invitedTeamMembers" }}</h2>
-
-                        <table class="govuk-table">
-                            <thead class="govuk-table__head">
-                            <tr class="govuk-summary-list__row">
-                                <th class="govuk-table__header">
-                                    {{ tr .App "name" }}
-                                </th>
-                                <th class="govuk-table__header">
-                                    {{ tr .App "email" }}
-                                </th>
-                                <th class="govuk-table__header">
-                                    {{ tr .App "status" }}
-                                </th>
-                                <td class="govuk-table__header">
-                                </td>
-                            </tr>
-                            </thead>
-                            <tbody class="govuk-table__body">
-                            {{ range .InvitedMembers }}
-                                <tr class="govuk-table__row">
-                                    <td class="govuk-table__cell app-dark-grey">
-                                        {{ .FullName }}
-                                    </td>
-                                    <td class="govuk-table__cell app-dark-grey">
-                                        {{ .Email }}
-                                    </td>
-                                    <td class="govuk-table__cell app-dark-grey">
-                                        {{ if .HasExpired }}
-                                            {{ tr $.App "inviteExpired" }}
-                                        {{ else }}
-                                            {{ tr $.App "invitePending" }}
-                                        {{ end }}
-                                    </td>
-                                    <td class="govuk-table__cell">
-                                        {{ if .HasExpired }}
-                                            <form novalidate method="post">
-                                                <input type="hidden" id="f-first-names-{{ .Email }}" name="first-names" value="{{ .FirstNames }}" />
-                                                <input type="hidden" id="f-last-name-{{ .Email }}" name="last-name" value="{{ .LastName }}" />
-                                                <input type="hidden" id="f-email-{{ .Email }}" name="email" value="{{ .Email }}" />
-                                                <input type="hidden" id="f-permission-{{ .Email }}" name="permission" value="{{ .Permission }}" />
-
-                                                <button name="resend-invite" value="{{ .Email }}" class="app-button-link">
-                                                    <span>{{ tr $.App "resendInvite" }} <span class="govuk-visually-hidden"> {{ trFormat $.App "toMemberName" "MemberName" .FullName }} </span>
-                                                    </span>
-                                                </button>
-
-                                                {{ template "csrf-field" $ }}
-                                            </form>
-                                        {{ end }}
-                                    </td>
-                                </tr>
-                            {{ end }}
-                            </tbody>
-                        </table>
-                    {{ end }}
-
-                    {{ if .Members }}
-                        <h2 class="govuk-heading-m">{{ tr .App "teamMembers" }}</h2>
-
-                        <table class="govuk-table">
-                            <thead class="govuk-table__head">
-                            <tr class="govuk-summary-list__row">
-                                <th class="govuk-table__header">
-                                    {{ tr .App "name" }}
-                                </th>
-                                <th class="govuk-table__header">
-                                    {{ tr .App "email" }}
-                                </th>
-                                <th class="govuk-table__header">
-                                    {{ tr .App "status" }}
-                                </th>
-                                <td class="govuk-table__header">
-                                    {{ tr .App "lastSignedIn" }}
-                                </td>
-                            </tr>
-                            </thead>
-                            <tbody class="govuk-table__body">
-                            {{ range .Members }}
-                                <tr class="govuk-table__row">
-                                    <td class="govuk-table__cell">
-                                        <a class="govuk-link" href="{{ link $.App (global.Paths.Supporter.EditMember.Format)}}?id={{ .ID }}"><span class="govuk-visually-hidden">{{ tr $.App "edit" }}</span> {{ .FullName }}</a> {{ if eq .Email $.App.LoginSessionEmail }} ({{ tr $.App "you" }}) {{ end }}
-
-                                        {{ if not .Permission.IsNone  }}
-                                            <span class="app-float-right">
-                                                <strong class="govuk-tag govuk-tag--green">
-                                                  {{ tr $.App .Permission.String }}
-                                                </strong>
-                                            </span>
-                                        {{ end }}
-                                    </td>
-                                    <td class="govuk-table__cell">
-                                        {{ .Email }}
-                                    </td>
-                                    <td class="govuk-table__cell">
-                                        {{ tr $.App .Status.String }}
-                                    </td>
-                                    <td class="govuk-table__cell">
-                                        {{ formatDateTime $.App .LastLoggedInAt }}
-                                    </td>
-                                </tr>
-                            {{ end }}
-                            </tbody>
-                        </table>
-                    {{ end }}
-                </div>
-            </div>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      {{ if .App.Query.Has "inviteSent" }}
+        <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
+             aria-labelledby="govuk-notification-banner-title"
+             data-module="govuk-notification-banner">
+          <div class="govuk-notification-banner__header">
+            <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+              {{ tr .App "invitationSent" }}
+            </h1>
+          </div>
+          <div class="govuk-notification-banner__content">
+            <p class="govuk-body">
+              {{ trFormatHtml .App "weHaveSentInvite" "Email" (.App.Query.Get "inviteSent") }}
+            </p>
+          </div>
         </div>
+      {{ end}}
+
+      {{ if .App.Query.Has "nameUpdated" }}
+        <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
+             aria-labelledby="govuk-notification-banner-title"
+             data-module="govuk-notification-banner">
+          <div class="govuk-notification-banner__header">
+            <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+              {{ tr .App "nameUpdated" }}
+            </h1>
+          </div>
+          <div class="govuk-notification-banner__content">
+            <p class="govuk-body">
+              {{ if .App.Query.Has "selfUpdated" }}
+                {{ trFormatHtml .App "yourNameHasBeenUpdatedToNewName" "NewName" (.App.Query.Get "nameUpdated") }}
+              {{ else }}
+                {{ trFormatHtml .App "teamMembersNameUpdatedToNewName" "NewName" (.App.Query.Get "nameUpdated") }}
+              {{ end }}
+            </p>
+          </div>
+        </div>
+      {{ end}}
+
+      {{ if and (.App.Query.Has "statusUpdated") (.App.Query.Has "statusEmail") }}
+        <div class="govuk-notification-banner" role="alert"
+             aria-labelledby="govuk-notification-banner-title"
+             data-module="govuk-notification-banner">
+          <div class="govuk-notification-banner__header">
+            <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+              {{ if eq (.App.Query.Get "statusUpdated") "suspended" }}
+                {{ tr .App "teamMemberSuspended" }}
+              {{ else }}
+                {{ tr .App "accessUpdated" }}
+              {{ end }}
+            </h1>
+          </div>
+          <div class="govuk-notification-banner__content">
+            <p class="govuk-body">
+              {{ if eq (.App.Query.Get "statusUpdated") "suspended" }}
+                {{ trFormatHtml .App "emailHasBeenSuspended" "Email" (.App.Query.Get "statusEmail") }}
+              {{ else }}
+                {{ trFormatHtml .App "emailCanNowAccessOrganisation" "Email" (.App.Query.Get "statusEmail") }}
+              {{ end }}
+            </p>
+          </div>
+        </div>
+      {{ end}}
+
+      <h1 class="govuk-heading-xl">{{ tr .App "manageOrganisation" }}</h1>
+
+      <div class="govuk-tabs app-tabs-no-border">
+        <ul class="govuk-tabs__list">
+          <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
+            <a class="govuk-tabs__tab" href="{{ link .App global.Paths.Supporter.ManageTeamMembers.Format }}">{{ tr .App "manageTeamMembers" }}</a>
+          </li>
+          <li class="govuk-tabs__list-item">
+            <a class="govuk-tabs__tab" href="{{ link .App global.Paths.Supporter.OrganisationDetails.Format }}">{{ tr .App "organisationDetails" }}</a>
+          </li>
+        </ul>
+        <div class="govuk-tabs__panel" id="team-members">
+          <a class="govuk-button" href="{{ link .App global.Paths.Supporter.InviteMember.Format }}">{{ tr .App "inviteTeamMember" }}</a>
+
+          {{ if .InvitedMembers }}
+            <h2 class="govuk-heading-m">{{ tr .App "invitedTeamMembers" }}</h2>
+
+            <table class="govuk-table">
+              <thead class="govuk-table__head">
+                <tr class="govuk-summary-list__row">
+                  <th class="govuk-table__header">
+                    {{ tr .App "name" }}
+                  </th>
+                  <th class="govuk-table__header">
+                    {{ tr .App "email" }}
+                  </th>
+                  <th class="govuk-table__header">
+                    {{ tr .App "status" }}
+                  </th>
+                  <td class="govuk-table__header">
+                  </td>
+                </tr>
+              </thead>
+              <tbody class="govuk-table__body">
+                {{ range .InvitedMembers }}
+                  <tr class="govuk-table__row">
+                    <td class="govuk-table__cell app-dark-grey">
+                      {{ .FullName }}
+                    </td>
+                    <td class="govuk-table__cell app-dark-grey">
+                      {{ .Email }}
+                    </td>
+                    <td class="govuk-table__cell app-dark-grey">
+                      {{ if .HasExpired }}
+                        {{ tr $.App "inviteExpired" }}
+                      {{ else }}
+                        {{ tr $.App "invitePending" }}
+                      {{ end }}
+                    </td>
+                    <td class="govuk-table__cell">
+                      {{ if .HasExpired }}
+                        <form novalidate method="post">
+                          <input type="hidden" id="f-first-names-{{ .Email }}" name="first-names" value="{{ .FirstNames }}" />
+                          <input type="hidden" id="f-last-name-{{ .Email }}" name="last-name" value="{{ .LastName }}" />
+                          <input type="hidden" id="f-email-{{ .Email }}" name="email" value="{{ .Email }}" />
+                          <input type="hidden" id="f-permission-{{ .Email }}" name="permission" value="{{ .Permission }}" />
+
+                          <button name="resend-invite" value="{{ .Email }}" class="app-button-link">
+                            <span>{{ tr $.App "resendInvite" }} <span class="govuk-visually-hidden"> {{ trFormat $.App "toMemberName" "MemberName" .FullName }} </span>
+                            </span>
+                          </button>
+
+                          {{ template "csrf-field" $ }}
+                        </form>
+                      {{ end }}
+                    </td>
+                  </tr>
+                {{ end }}
+              </tbody>
+            </table>
+          {{ end }}
+
+          {{ if .Members }}
+            <h2 class="govuk-heading-m">{{ tr .App "teamMembers" }}</h2>
+
+            <table class="govuk-table">
+              <thead class="govuk-table__head">
+                <tr class="govuk-summary-list__row">
+                  <th class="govuk-table__header">
+                    {{ tr .App "name" }}
+                  </th>
+                  <th class="govuk-table__header">
+                    {{ tr .App "email" }}
+                  </th>
+                  <th class="govuk-table__header">
+                    {{ tr .App "status" }}
+                  </th>
+                  <td class="govuk-table__header govuk-table__header--numeric">
+                    {{ tr .App "lastSignedIn" }}
+                  </td>
+                </tr>
+              </thead>
+              <tbody class="govuk-table__body">
+                {{ range .Members }}
+                  <tr class="govuk-table__row">
+                    <td class="govuk-table__cell">
+                      <a class="govuk-link" href="{{ link $.App (global.Paths.Supporter.EditMember.Format)}}?id={{ .ID }}"><span class="govuk-visually-hidden">{{ tr $.App "edit" }}</span> {{ .FullName }}</a> {{ if eq .Email $.App.LoginSessionEmail }} ({{ tr $.App "you" }}) {{ end }}
+
+                      {{ if not .Permission.IsNone  }}
+                        <span class="app-float-right">
+                          <strong class="govuk-tag govuk-tag--green">
+                            {{ tr $.App .Permission.String }}
+                          </strong>
+                        </span>
+                      {{ end }}
+                    </td>
+                    <td class="govuk-table__cell">
+                      {{ .Email }}
+                    </td>
+                    <td class="govuk-table__cell">
+                      {{ tr $.App .Status.String }}
+                    </td>
+                    <td class="govuk-table__cell govuk-table__cell--numeric">
+                      {{ formatTime $.App .LastLoggedInAt }}<br/>
+                      {{ formatDate $.App .LastLoggedInAt }}
+                    </td>
+                  </tr>
+                {{ end }}
+              </tbody>
+            </table>
+          {{ end }}
+        </div>
+      </div>
     </div>
+  </div>
 {{ end }}
