@@ -17,7 +17,7 @@ var (
 		LoginSessionEmail:   "supporter@example.com",
 		IsSupporter:         true,
 		OrganisationName:    "My organisation",
-		Permission:          actor.None,
+		Permission:          actor.PermissionNone,
 		LoggedInSupporterID: "supporter-id",
 	}
 )

@@ -130,7 +130,7 @@ func (f *editMemberForm) Validate() validation.List {
 
 	if f.canEditAll {
 		errors.Options("permission", "makeThisPersonAnAdmin", []string{f.Permission.String()},
-			validation.Select(actor.None.String(), actor.Admin.String()))
+			validation.Select(actor.PermissionNone.String(), actor.PermissionAdmin.String()))
 
 		errors.Error("status", "status", f.StatusError,
 			validation.Selected())
