@@ -26,7 +26,7 @@ type MemberStore interface {
 	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error
 }
 
-func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, donorStore DonorStore, memberStore MemberStore, dynamoClient DynamoClient, searchClient *search.Client) page.Handler {
+func Supporter(sessionStore *sesh.Store, organisationStore OrganisationStore, donorStore DonorStore, memberStore MemberStore, dynamoClient DynamoClient, searchClient *search.Client) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		var (
 			invitedMembers = r.FormValue("invitedMembers")
@@ -174,7 +174,7 @@ func Supporter(sessionStore sesh.Store, organisationStore OrganisationStore, don
 			}
 		}
 
-		if err := sesh.SetLoginSession(sessionStore, r, w, loginSession); err != nil {
+		if err := sessionStore.SetLogin(r, w, loginSession); err != nil {
 			return err
 		}
 
