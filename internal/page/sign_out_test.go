@@ -6,10 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestSignOut(t *testing.T) {
@@ -18,16 +16,10 @@ func TestSignOut(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{
-			Options: &sessions.Options{},
-			Values:  map[any]any{"session": &sesh.LoginSession{IDToken: "id-token", Sub: "abc"}},
-		}, nil)
+		Login(r).
+		Return(&sesh.LoginSession{IDToken: "id-token", Sub: "abc"}, nil)
 	sessionStore.EXPECT().
-		Save(r, w, &sessions.Session{
-			Options: &sessions.Options{MaxAge: -1},
-			Values:  map[any]any{},
-		}).
+		ClearLogin(r, w).
 		Return(nil)
 
 	oneLoginClient := newMockOneLoginClient(t)
@@ -53,13 +45,10 @@ func TestSignOutWhenEndSessionURLFails(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{
-			Options: &sessions.Options{},
-			Values:  map[any]any{"session": &sesh.LoginSession{IDToken: "id-token", Sub: "abc"}},
-		}, nil)
+		Login(r).
+		Return(&sesh.LoginSession{IDToken: "id-token", Sub: "abc"}, nil)
 	sessionStore.EXPECT().
-		Save(r, w, mock.Anything).
+		ClearLogin(r, w).
 		Return(nil)
 
 	oneLoginClient := newMockOneLoginClient(t)
@@ -85,13 +74,10 @@ func TestSignOutWhenClearSessionFails(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{
-			Options: &sessions.Options{},
-			Values:  map[any]any{"session": &sesh.LoginSession{IDToken: "id-token", Sub: "abc"}},
-		}, nil)
+		Login(r).
+		Return(&sesh.LoginSession{IDToken: "id-token", Sub: "abc"}, nil)
 	sessionStore.EXPECT().
-		Save(r, w, mock.Anything).
+		ClearLogin(r, w).
 		Return(expectedError)
 
 	oneLoginClient := newMockOneLoginClient(t)

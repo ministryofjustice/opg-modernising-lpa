@@ -8,7 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	actoruid "github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -18,21 +17,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
-
-func (m *mockSessionStore) ExpectGet(r *http.Request, values map[any]any, err error) {
-	session := sessions.NewSession(m, "session")
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   86400,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   true,
-	}
-	session.Values = values
-	m.EXPECT().
-		Get(r, "session").
-		Return(session, err)
-}
 
 func TestGetEnterReferenceNumber(t *testing.T) {
 	w := httptest.NewRecorder()
@@ -97,9 +81,9 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		ExpectGet(r,
-			map[any]any{"session": &sesh.LoginSession{Sub: "hey"}}, nil)
+	sessionStore.EXPECT().
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "hey"}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
@@ -193,9 +177,9 @@ func TestPostEnterReferenceNumberWhenShareCodeStoreDeleteError(t *testing.T) {
 		Return(expectedError)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		ExpectGet(r,
-			map[any]any{"session": &sesh.LoginSession{Sub: "hey"}}, nil)
+	sessionStore.EXPECT().
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "hey"}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().

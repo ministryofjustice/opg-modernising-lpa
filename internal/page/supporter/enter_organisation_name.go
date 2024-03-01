@@ -5,7 +5,6 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -15,7 +14,7 @@ type enterOrganisationNameData struct {
 	Form   *organisationNameForm
 }
 
-func EnterOrganisationName(tmpl template.Template, organisationStore OrganisationStore, sessionStore sesh.Store) page.Handler {
+func EnterOrganisationName(tmpl template.Template, organisationStore OrganisationStore, sessionStore SessionStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := &enterOrganisationNameData{
 			App:  appData,
@@ -32,14 +31,14 @@ func EnterOrganisationName(tmpl template.Template, organisationStore Organisatio
 					return err
 				}
 
-				loginSession, err := sesh.Login(sessionStore, r)
+				loginSession, err := sessionStore.Login(r)
 				if err != nil {
 					return page.Paths.Supporter.Start.Redirect(w, r, appData)
 				}
 
 				loginSession.OrganisationID = organisation.ID
 				loginSession.OrganisationName = organisation.Name
-				if err := sesh.SetLoginSession(sessionStore, r, w, loginSession); err != nil {
+				if err := sessionStore.SetLogin(r, w, loginSession); err != nil {
 					return err
 				}
 

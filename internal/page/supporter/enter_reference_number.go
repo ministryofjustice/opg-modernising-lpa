@@ -5,7 +5,6 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -15,7 +14,7 @@ type enterReferenceNumber struct {
 	Form   *referenceNumberForm
 }
 
-func EnterReferenceNumber(tmpl template.Template, memberStore MemberStore, sessionStore sesh.Store) page.Handler {
+func EnterReferenceNumber(tmpl template.Template, memberStore MemberStore, sessionStore SessionStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := &enterReferenceNumber{
 			App: appData,
@@ -47,7 +46,7 @@ func EnterReferenceNumber(tmpl template.Template, memberStore MemberStore, sessi
 					return err
 				}
 
-				loginSession, err := sesh.Login(sessionStore, r)
+				loginSession, err := sessionStore.Login(r)
 				if err != nil {
 					return page.Paths.Supporter.Start.Redirect(w, r, appData)
 				}
@@ -55,7 +54,7 @@ func EnterReferenceNumber(tmpl template.Template, memberStore MemberStore, sessi
 				loginSession.OrganisationID = invite.OrganisationID
 				loginSession.OrganisationName = invite.OrganisationName
 
-				if err := sesh.SetLoginSession(sessionStore, r, w, loginSession); err != nil {
+				if err := sessionStore.SetLogin(r, w, loginSession); err != nil {
 					return err
 				}
 

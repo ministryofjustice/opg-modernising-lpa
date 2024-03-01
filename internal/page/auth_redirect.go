@@ -5,12 +5,11 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func AuthRedirect(logger Logger, store sesh.Store) http.HandlerFunc {
+func AuthRedirect(logger Logger, sessionStore SessionStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		oneLoginSession, err := sesh.OneLogin(store, r)
+		oneLoginSession, err := sessionStore.OneLogin(r)
 		if err != nil {
 			logger.Info("problem retrieving onelogin session", slog.Any("err", err))
 			return

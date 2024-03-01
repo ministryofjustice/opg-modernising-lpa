@@ -5,12 +5,10 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -23,9 +21,9 @@ type paymentConfirmationData struct {
 	EvidenceDelivery pay.EvidenceDelivery
 }
 
-func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore sessions.Store) Handler {
+func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore SessionStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
-		paymentSession, err := sesh.Payment(sessionStore, r)
+		paymentSession, err := sessionStore.Payment(r)
 		if err != nil {
 			return err
 		}
@@ -51,7 +49,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 			EvidenceDelivery: donor.EvidenceDelivery,
 		}
 
-		if err := sesh.ClearPayment(sessionStore, r, w); err != nil {
+		if err := sessionStore.ClearPayment(r, w); err != nil {
 			logger.Info("unable to expire cookie in session", slog.Any("err", err))
 		}
 
