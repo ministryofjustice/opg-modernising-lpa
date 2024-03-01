@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
@@ -30,14 +29,8 @@ func TestMakeHandle(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{
-			Values: map[any]any{
-				"session": &sesh.LoginSession{
-					Sub: "random",
-				},
-			},
-		}, nil)
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "random"}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, sessionStore, nil)
@@ -66,8 +59,8 @@ func TestMakeHandleRequireSessionExistingSessionData(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "random"}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, sessionStore, nil)
@@ -115,48 +108,8 @@ func TestMakeHandleSessionError(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{}, expectedError)
-
-	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, nil)
-	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
-
-	mux.ServeHTTP(w, r)
-	resp := w.Result()
-
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Attorney.Start.Format(), resp.Header.Get("Location"))
-}
-
-func TestMakeHandleSessionMissing(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
-
-	sessionStore := newMockSessionStore(t)
-	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{Values: map[any]any{}}, nil)
-
-	mux := http.NewServeMux()
-	handle := makeHandle(mux, sessionStore, nil)
-	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
-
-	mux.ServeHTTP(w, r)
-	resp := w.Result()
-
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Attorney.Start.Format(), resp.Header.Get("Location"))
-}
-
-func TestMakeHandleLpaMissing(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path", nil)
-
-	sessionStore := newMockSessionStore(t)
-	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{}, nil)
+		Login(r).
+		Return(nil, expectedError)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, sessionStore, nil)
@@ -200,8 +153,8 @@ func TestMakeAttorneyHandleExistingSessionData(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "random"}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.EXPECT().
@@ -268,8 +221,8 @@ func TestMakeAttorneyHandleExistingLpaData(t *testing.T) {
 
 			sessionStore := newMockSessionStore(t)
 			sessionStore.EXPECT().
-				Get(r, "session").
-				Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+				Login(r).
+				Return(&sesh.LoginSession{Sub: "random"}, nil)
 
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.EXPECT().
@@ -316,8 +269,8 @@ func TestMakeAttorneyHandleErrors(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "random"}, nil)
 
 	errorHandler := newMockErrorHandler(t)
 	errorHandler.EXPECT().
@@ -343,8 +296,8 @@ func TestMakeAttorneyHandleAttorneyStoreErrors(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "random"}, nil)
 
 	errorHandler := newMockErrorHandler(t)
 	errorHandler.EXPECT().
@@ -365,52 +318,8 @@ func TestMakeAttorneyHandleSessionError(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{}, expectedError)
-
-	mux := http.NewServeMux()
-	handle := makeAttorneyHandle(mux, sessionStore, nil, nil)
-	handle("/path", RequireSession, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.AttorneyProvidedDetails) error {
-		return nil
-	})
-
-	mux.ServeHTTP(w, r)
-	resp := w.Result()
-
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Attorney.Start.Format(), resp.Header.Get("Location"))
-}
-
-func TestMakeAttorneyHandleSessionMissing(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/attorney/id/path", nil)
-
-	sessionStore := newMockSessionStore(t)
-	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{Values: map[any]any{}}, nil)
-
-	mux := http.NewServeMux()
-	handle := makeAttorneyHandle(mux, sessionStore, nil, nil)
-	handle("/path", RequireSession, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.AttorneyProvidedDetails) error {
-		return nil
-	})
-
-	mux.ServeHTTP(w, r)
-	resp := w.Result()
-
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Attorney.Start.Format(), resp.Header.Get("Location"))
-}
-
-func TestMakeAttorneyHandleLpaMissing(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/attorney/id/path", nil)
-
-	sessionStore := newMockSessionStore(t)
-	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{}, nil)
+		Login(r).
+		Return(nil, expectedError)
 
 	mux := http.NewServeMux()
 	handle := makeAttorneyHandle(mux, sessionStore, nil, nil)

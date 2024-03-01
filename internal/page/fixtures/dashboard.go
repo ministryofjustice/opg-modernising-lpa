@@ -19,7 +19,7 @@ type dashboardFixturesData struct {
 
 func Dashboard(
 	tmpl template.Template,
-	sessionStore sesh.Store,
+	sessionStore *sesh.Store,
 	shareCodeSender *page.ShareCodeSender,
 	donorStore page.DonorStore,
 	certificateProviderStore CertificateProviderStore,
@@ -43,7 +43,7 @@ func Dashboard(
 			donorSessionID = base64.StdEncoding.EncodeToString([]byte(donorSub))
 		)
 
-		if err := sesh.SetLoginSession(sessionStore, r, w, &sesh.LoginSession{Sub: meSub, Email: testEmail}); err != nil {
+		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: meSub, Email: testEmail}); err != nil {
 			return err
 		}
 

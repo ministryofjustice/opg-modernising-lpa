@@ -22,7 +22,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/handlers"
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/env"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -40,6 +39,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/templatefn"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
@@ -226,7 +226,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		return err
 	}
 
-	sessionStore := sessions.NewCookieStore(sessionKeys...)
+	sessionStore := sesh.NewStore(sessionKeys)
 
 	redirectURL := authRedirectBaseURL + page.Paths.AuthRedirect.Format()
 

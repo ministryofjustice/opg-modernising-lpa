@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -50,9 +49,10 @@ type OneLoginClient interface {
 }
 
 type SessionStore interface {
-	Get(r *http.Request, name string) (*sessions.Session, error)
-	New(r *http.Request, name string) (*sessions.Session, error)
-	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
+	OneLogin(r *http.Request) (*sesh.OneLoginSession, error)
+	SetLogin(r *http.Request, w http.ResponseWriter, session *sesh.LoginSession) error
+	Login(r *http.Request) (*sesh.LoginSession, error)
+	SetOneLogin(r *http.Request, w http.ResponseWriter, session *sesh.OneLoginSession) error
 }
 
 type NotifyClient interface {
@@ -119,7 +119,7 @@ func Register(
 		EditMember(tmpls.Get("edit_team_member.gohtml"), memberStore))
 }
 
-func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler) func(page.Path, page.HandleOpt, page.Handler) {
+func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler) func(page.Path, page.HandleOpt, page.Handler) {
 	return func(path page.Path, opt page.HandleOpt, h page.Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -130,7 +130,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 			appData.IsSupporter = true
 
 			if opt&page.RequireSession != 0 {
-				session, err := sesh.Login(store, r)
+				session, err := store.Login(r)
 				if err != nil {
 					http.Redirect(w, r, page.Paths.Supporter.Start.Format(), http.StatusFound)
 					return
@@ -148,10 +148,10 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 	}
 }
 
-func makeSupporterHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler, organisationStore OrganisationStore, memberStore MemberStore) func(page.SupporterPath, page.HandleOpt, Handler) {
+func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler, organisationStore OrganisationStore, memberStore MemberStore) func(page.SupporterPath, page.HandleOpt, Handler) {
 	return func(path page.SupporterPath, opt page.HandleOpt, h Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
-			loginSession, err := sesh.Login(store, r)
+			loginSession, err := store.Login(r)
 			if err != nil {
 				http.Redirect(w, r, page.Paths.Supporter.Start.Format(), http.StatusFound)
 				return

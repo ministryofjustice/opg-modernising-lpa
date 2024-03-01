@@ -11,7 +11,11 @@ type LoginOneLoginClient interface {
 	AuthCodeURL(state, nonce, locale string, identity bool) (string, error)
 }
 
-func Login(oneLoginClient LoginOneLoginClient, store sesh.Store, randomString func(int) string, redirect Path) Handler {
+type LoginSessionStore interface {
+	SetOneLogin(r *http.Request, w http.ResponseWriter, session *sesh.OneLoginSession) error
+}
+
+func Login(oneLoginClient LoginOneLoginClient, sessionStore LoginSessionStore, randomString func(int) string, redirect Path) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		locale := "en"
 		if appData.Lang == localize.Cy {
@@ -26,7 +30,7 @@ func Login(oneLoginClient LoginOneLoginClient, store sesh.Store, randomString fu
 			return err
 		}
 
-		if err := sesh.SetOneLogin(store, r, w, &sesh.OneLoginSession{
+		if err := sessionStore.SetOneLogin(r, w, &sesh.OneLoginSession{
 			State:    state,
 			Nonce:    nonce,
 			Locale:   locale,
