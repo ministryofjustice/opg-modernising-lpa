@@ -22,6 +22,8 @@ func TestGetEditMember(t *testing.T) {
 		ID:         "an-id",
 		FirstNames: "a",
 		LastName:   "b",
+		Status:     actor.StatusActive,
+		Permission: actor.PermissionAdmin,
 	}
 
 	memberStore := newMockMemberStore(t)
@@ -34,9 +36,12 @@ func TestGetEditMember(t *testing.T) {
 		Execute(w, &editMemberData{
 			App: testAppData,
 			Form: &editMemberForm{
-				FirstNames:    "a",
-				LastName:      "b",
-				StatusOptions: actor.StatusValues,
+				FirstNames:        "a",
+				LastName:          "b",
+				Permission:        actor.PermissionAdmin,
+				PermissionOptions: actor.PermissionValues,
+				Status:            actor.StatusActive,
+				StatusOptions:     actor.StatusValues,
 			},
 			Member: member,
 		}).
@@ -88,100 +93,60 @@ func TestGetEditMemberWhenTemplateError(t *testing.T) {
 
 func TestPostEditMember(t *testing.T) {
 	testcases := map[string]struct {
-		form             url.Values
 		expectedRedirect string
 		expectedMember   *actor.Member
 		userPermission   actor.Permission
 		memberEmail      string
 	}{
-		"As Admin: Team member name and status updated": {
-			form: url.Values{
-				"first-names": {"c"},
-				"last-name":   {"d"},
-				"status":      {"suspended"},
-			},
+		"admin": {
+			userPermission:   actor.PermissionAdmin,
+			memberEmail:      "team-member@example.org",
 			expectedRedirect: page.Paths.Supporter.ManageTeamMembers.Format() + "?nameUpdated=c+d&statusEmail=team-member%40example.org&statusUpdated=suspended",
 			expectedMember: &actor.Member{
 				FirstNames: "c",
 				LastName:   "d",
 				Email:      "team-member@example.org",
-				Status:     actor.Suspended,
-				Permission: actor.Admin,
+				Status:     actor.StatusSuspended,
+				Permission: actor.PermissionAdmin,
 			},
-			userPermission: actor.Admin,
-			memberEmail:    "team-member@example.org",
 		},
-		"As Admin: Self name updated": {
-			form: url.Values{
-				"first-names": {"c"},
-				"last-name":   {"d"},
-			},
+		"self": {
+			userPermission:   actor.PermissionAdmin,
+			memberEmail:      "self@example.org",
 			expectedRedirect: page.Paths.Supporter.ManageTeamMembers.Format() + "?nameUpdated=c+d&selfUpdated=1",
 			expectedMember: &actor.Member{
 				FirstNames: "c",
 				LastName:   "d",
 				Email:      "self@example.org",
-				Status:     actor.Active,
-				Permission: actor.Admin,
+				Status:     actor.StatusActive,
+				Permission: actor.PermissionAdmin,
 			},
-			userPermission: actor.Admin,
-			memberEmail:    "self@example.org",
 		},
-		"As Admin: no updates": {
-			form: url.Values{
-				"first-names": {"a"},
-				"last-name":   {"b"},
-				"status":      {"active"},
-			},
-			expectedRedirect: page.Paths.Supporter.ManageTeamMembers.Format() + "?",
-			expectedMember: &actor.Member{
-				FirstNames: "a",
-				LastName:   "b",
-				Email:      "team-member@example.org",
-				Status:     actor.Active,
-				Permission: actor.Admin,
-			},
-			userPermission: actor.Admin,
-			memberEmail:    "team-member@example.org",
-		},
-		"As Non-Admin: Self name updated": {
-			form: url.Values{
-				"first-names": {"c"},
-				"last-name":   {"d"},
-			},
+		"non-admin": {
+			userPermission:   actor.PermissionNone,
+			memberEmail:      "self@example.org",
 			expectedRedirect: page.Paths.Supporter.Dashboard.Format() + "?nameUpdated=c+d&selfUpdated=1",
 			expectedMember: &actor.Member{
 				FirstNames: "c",
 				LastName:   "d",
 				Email:      "self@example.org",
-				Status:     actor.Active,
-				Permission: actor.None,
+				Status:     actor.StatusActive,
+				Permission: actor.PermissionNone,
 			},
-			userPermission: actor.None,
-			memberEmail:    "self@example.org",
-		},
-		"As Non-Admin: no updates": {
-			form: url.Values{
-				"first-names": {"a"},
-				"last-name":   {"b"},
-			},
-			expectedRedirect: page.Paths.Supporter.Dashboard.Format() + "?",
-			expectedMember: &actor.Member{
-				FirstNames: "a",
-				LastName:   "b",
-				Email:      "self@example.org",
-				Status:     actor.Active,
-				Permission: actor.None,
-			},
-			userPermission: actor.None,
-			memberEmail:    "self@example.org",
 		},
 	}
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
+			form := url.Values{
+				"first-names": {"c"},
+				"last-name":   {"d"},
+				"status":      {"suspended"},
+				"permission":  {"admin"},
+			}
+
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/?id=an-id", strings.NewReader(tc.form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/?id=an-id", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			memberStore := newMockMemberStore(t)
@@ -191,13 +156,72 @@ func TestPostEditMember(t *testing.T) {
 					FirstNames: "a",
 					LastName:   "b",
 					Email:      tc.memberEmail,
-					Status:     actor.Active,
+					Status:     actor.StatusActive,
 					Permission: tc.userPermission,
 				}, nil)
-
 			memberStore.EXPECT().
 				Put(r.Context(), tc.expectedMember).
 				Return(nil)
+
+			err := EditMember(nil, memberStore)(page.AppData{
+				LoginSessionEmail: "self@example.org",
+				Permission:        tc.userPermission,
+			}, w, r, &actor.Organisation{})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.expectedRedirect, resp.Header.Get("Location"))
+		})
+	}
+}
+
+func TestPostEditMemberNoUpdate(t *testing.T) {
+	testcases := map[string]struct {
+		expectedRedirect string
+		userPermission   actor.Permission
+		memberEmail      string
+	}{
+		"admin": {
+			userPermission:   actor.PermissionAdmin,
+			memberEmail:      "team-member@example.org",
+			expectedRedirect: page.Paths.Supporter.ManageTeamMembers.Format() + "?",
+		},
+		"self": {
+			userPermission:   actor.PermissionAdmin,
+			memberEmail:      "self@example.org",
+			expectedRedirect: page.Paths.Supporter.ManageTeamMembers.Format() + "?",
+		},
+		"non-admin": {
+			userPermission:   actor.PermissionNone,
+			memberEmail:      "self@example.org",
+			expectedRedirect: page.Paths.Supporter.Dashboard.Format() + "?",
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			form := url.Values{
+				"first-names": {"a"},
+				"last-name":   {"b"},
+				"status":      {"active"},
+				"permission":  {"admin"},
+			}
+
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/?id=an-id", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+			memberStore := newMockMemberStore(t)
+			memberStore.EXPECT().
+				GetByID(r.Context(), "an-id").
+				Return(&actor.Member{
+					FirstNames: "a",
+					LastName:   "b",
+					Email:      tc.memberEmail,
+					Status:     actor.StatusActive,
+					Permission: tc.userPermission,
+				}, nil)
 
 			err := EditMember(nil, memberStore)(page.AppData{
 				LoginSessionEmail: "self@example.org",
@@ -283,25 +307,18 @@ func TestReadEditMemberForm(t *testing.T) {
 	testcases := map[string]struct {
 		isAdmin       bool
 		isEditingSelf bool
+		canEditAll    bool
 		form          url.Values
 	}{
-		"admin": {
-			isAdmin: true,
+		"can edit all": {
+			canEditAll: true,
 			form: url.Values{
 				"first-names": {"a"},
 				"last-name":   {"b"},
 				"status":      {"suspended"},
 			},
 		},
-		"admin - editing self": {
-			isAdmin:       true,
-			isEditingSelf: true,
-			form: url.Values{
-				"first-names": {"a"},
-				"last-name":   {"b"},
-			},
-		},
-		"non-admin": {
+		"can only edit name": {
 			form: url.Values{
 				"first-names": {"a"},
 				"last-name":   {"b"},
@@ -314,13 +331,13 @@ func TestReadEditMemberForm(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			result := readEditMemberForm(r, tc.isAdmin, tc.isEditingSelf)
+			result := readEditMemberForm(r, tc.canEditAll)
 
 			assert.Equal(t, "a", result.FirstNames)
 			assert.Equal(t, "b", result.LastName)
 
 			if tc.isAdmin && !tc.isEditingSelf {
-				assert.Equal(t, actor.Suspended, result.Status)
+				assert.Equal(t, actor.StatusSuspended, result.Status)
 			}
 		})
 	}
@@ -328,9 +345,8 @@ func TestReadEditMemberForm(t *testing.T) {
 
 func TestEditMemberFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form    *editMemberForm
-		errors  validation.List
-		isAdmin bool
+		form   *editMemberForm
+		errors validation.List
 	}{
 		"valid - non-admin": {
 			form: &editMemberForm{
@@ -342,9 +358,9 @@ func TestEditMemberFormValidate(t *testing.T) {
 			form: &editMemberForm{
 				FirstNames: "a",
 				LastName:   "b",
-				Status:     actor.Suspended,
+				Status:     actor.StatusSuspended,
+				canEditAll: true,
 			},
-			isAdmin: true,
 		},
 		"missing": {
 			form: &editMemberForm{},
@@ -366,15 +382,15 @@ func TestEditMemberFormValidate(t *testing.T) {
 				FirstNames:  "a",
 				LastName:    "b",
 				StatusError: expectedError,
+				canEditAll:  true,
 			},
-			isAdmin: true,
-			errors:  validation.With("status", validation.SelectError{Label: "status"}),
+			errors: validation.With("status", validation.SelectError{Label: "status"}),
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate(tc.isAdmin))
+			assert.Equal(t, tc.errors, tc.form.Validate())
 		})
 	}
 }
