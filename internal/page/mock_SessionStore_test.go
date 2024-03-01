@@ -5,7 +5,7 @@ package page
 import (
 	http "net/http"
 
-	sessions "github.com/gorilla/sessions"
+	sesh "github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -22,135 +22,17 @@ func (_m *mockSessionStore) EXPECT() *mockSessionStore_Expecter {
 	return &mockSessionStore_Expecter{mock: &_m.Mock}
 }
 
-// Get provides a mock function with given fields: r, name
-func (_m *mockSessionStore) Get(r *http.Request, name string) (*sessions.Session, error) {
-	ret := _m.Called(r, name)
+// ClearLogin provides a mock function with given fields: r, w
+func (_m *mockSessionStore) ClearLogin(r *http.Request, w http.ResponseWriter) error {
+	ret := _m.Called(r, w)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Get")
-	}
-
-	var r0 *sessions.Session
-	var r1 error
-	if rf, ok := ret.Get(0).(func(*http.Request, string) (*sessions.Session, error)); ok {
-		return rf(r, name)
-	}
-	if rf, ok := ret.Get(0).(func(*http.Request, string) *sessions.Session); ok {
-		r0 = rf(r, name)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*sessions.Session)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(*http.Request, string) error); ok {
-		r1 = rf(r, name)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// mockSessionStore_Get_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Get'
-type mockSessionStore_Get_Call struct {
-	*mock.Call
-}
-
-// Get is a helper method to define mock.On call
-//   - r *http.Request
-//   - name string
-func (_e *mockSessionStore_Expecter) Get(r interface{}, name interface{}) *mockSessionStore_Get_Call {
-	return &mockSessionStore_Get_Call{Call: _e.mock.On("Get", r, name)}
-}
-
-func (_c *mockSessionStore_Get_Call) Run(run func(r *http.Request, name string)) *mockSessionStore_Get_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*http.Request), args[1].(string))
-	})
-	return _c
-}
-
-func (_c *mockSessionStore_Get_Call) Return(_a0 *sessions.Session, _a1 error) *mockSessionStore_Get_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *mockSessionStore_Get_Call) RunAndReturn(run func(*http.Request, string) (*sessions.Session, error)) *mockSessionStore_Get_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// New provides a mock function with given fields: r, name
-func (_m *mockSessionStore) New(r *http.Request, name string) (*sessions.Session, error) {
-	ret := _m.Called(r, name)
-
-	if len(ret) == 0 {
-		panic("no return value specified for New")
-	}
-
-	var r0 *sessions.Session
-	var r1 error
-	if rf, ok := ret.Get(0).(func(*http.Request, string) (*sessions.Session, error)); ok {
-		return rf(r, name)
-	}
-	if rf, ok := ret.Get(0).(func(*http.Request, string) *sessions.Session); ok {
-		r0 = rf(r, name)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*sessions.Session)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(*http.Request, string) error); ok {
-		r1 = rf(r, name)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// mockSessionStore_New_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'New'
-type mockSessionStore_New_Call struct {
-	*mock.Call
-}
-
-// New is a helper method to define mock.On call
-//   - r *http.Request
-//   - name string
-func (_e *mockSessionStore_Expecter) New(r interface{}, name interface{}) *mockSessionStore_New_Call {
-	return &mockSessionStore_New_Call{Call: _e.mock.On("New", r, name)}
-}
-
-func (_c *mockSessionStore_New_Call) Run(run func(r *http.Request, name string)) *mockSessionStore_New_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*http.Request), args[1].(string))
-	})
-	return _c
-}
-
-func (_c *mockSessionStore_New_Call) Return(_a0 *sessions.Session, _a1 error) *mockSessionStore_New_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *mockSessionStore_New_Call) RunAndReturn(run func(*http.Request, string) (*sessions.Session, error)) *mockSessionStore_New_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Save provides a mock function with given fields: r, w, s
-func (_m *mockSessionStore) Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error {
-	ret := _m.Called(r, w, s)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Save")
+		panic("no return value specified for ClearLogin")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*http.Request, http.ResponseWriter, *sessions.Session) error); ok {
-		r0 = rf(r, w, s)
+	if rf, ok := ret.Get(0).(func(*http.Request, http.ResponseWriter) error); ok {
+		r0 = rf(r, w)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -158,32 +40,356 @@ func (_m *mockSessionStore) Save(r *http.Request, w http.ResponseWriter, s *sess
 	return r0
 }
 
-// mockSessionStore_Save_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Save'
-type mockSessionStore_Save_Call struct {
+// mockSessionStore_ClearLogin_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ClearLogin'
+type mockSessionStore_ClearLogin_Call struct {
 	*mock.Call
 }
 
-// Save is a helper method to define mock.On call
+// ClearLogin is a helper method to define mock.On call
 //   - r *http.Request
 //   - w http.ResponseWriter
-//   - s *sessions.Session
-func (_e *mockSessionStore_Expecter) Save(r interface{}, w interface{}, s interface{}) *mockSessionStore_Save_Call {
-	return &mockSessionStore_Save_Call{Call: _e.mock.On("Save", r, w, s)}
+func (_e *mockSessionStore_Expecter) ClearLogin(r interface{}, w interface{}) *mockSessionStore_ClearLogin_Call {
+	return &mockSessionStore_ClearLogin_Call{Call: _e.mock.On("ClearLogin", r, w)}
 }
 
-func (_c *mockSessionStore_Save_Call) Run(run func(r *http.Request, w http.ResponseWriter, s *sessions.Session)) *mockSessionStore_Save_Call {
+func (_c *mockSessionStore_ClearLogin_Call) Run(run func(r *http.Request, w http.ResponseWriter)) *mockSessionStore_ClearLogin_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*http.Request), args[1].(http.ResponseWriter), args[2].(*sessions.Session))
+		run(args[0].(*http.Request), args[1].(http.ResponseWriter))
 	})
 	return _c
 }
 
-func (_c *mockSessionStore_Save_Call) Return(_a0 error) *mockSessionStore_Save_Call {
+func (_c *mockSessionStore_ClearLogin_Call) Return(_a0 error) *mockSessionStore_ClearLogin_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *mockSessionStore_Save_Call) RunAndReturn(run func(*http.Request, http.ResponseWriter, *sessions.Session) error) *mockSessionStore_Save_Call {
+func (_c *mockSessionStore_ClearLogin_Call) RunAndReturn(run func(*http.Request, http.ResponseWriter) error) *mockSessionStore_ClearLogin_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Csrf provides a mock function with given fields: r
+func (_m *mockSessionStore) Csrf(r *http.Request) (*sesh.CsrfSession, bool, error) {
+	ret := _m.Called(r)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Csrf")
+	}
+
+	var r0 *sesh.CsrfSession
+	var r1 bool
+	var r2 error
+	if rf, ok := ret.Get(0).(func(*http.Request) (*sesh.CsrfSession, bool, error)); ok {
+		return rf(r)
+	}
+	if rf, ok := ret.Get(0).(func(*http.Request) *sesh.CsrfSession); ok {
+		r0 = rf(r)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*sesh.CsrfSession)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*http.Request) bool); ok {
+		r1 = rf(r)
+	} else {
+		r1 = ret.Get(1).(bool)
+	}
+
+	if rf, ok := ret.Get(2).(func(*http.Request) error); ok {
+		r2 = rf(r)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// mockSessionStore_Csrf_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Csrf'
+type mockSessionStore_Csrf_Call struct {
+	*mock.Call
+}
+
+// Csrf is a helper method to define mock.On call
+//   - r *http.Request
+func (_e *mockSessionStore_Expecter) Csrf(r interface{}) *mockSessionStore_Csrf_Call {
+	return &mockSessionStore_Csrf_Call{Call: _e.mock.On("Csrf", r)}
+}
+
+func (_c *mockSessionStore_Csrf_Call) Run(run func(r *http.Request)) *mockSessionStore_Csrf_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*http.Request))
+	})
+	return _c
+}
+
+func (_c *mockSessionStore_Csrf_Call) Return(_a0 *sesh.CsrfSession, _a1 bool, _a2 error) *mockSessionStore_Csrf_Call {
+	_c.Call.Return(_a0, _a1, _a2)
+	return _c
+}
+
+func (_c *mockSessionStore_Csrf_Call) RunAndReturn(run func(*http.Request) (*sesh.CsrfSession, bool, error)) *mockSessionStore_Csrf_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Login provides a mock function with given fields: r
+func (_m *mockSessionStore) Login(r *http.Request) (*sesh.LoginSession, error) {
+	ret := _m.Called(r)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Login")
+	}
+
+	var r0 *sesh.LoginSession
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*http.Request) (*sesh.LoginSession, error)); ok {
+		return rf(r)
+	}
+	if rf, ok := ret.Get(0).(func(*http.Request) *sesh.LoginSession); ok {
+		r0 = rf(r)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*sesh.LoginSession)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*http.Request) error); ok {
+		r1 = rf(r)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockSessionStore_Login_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Login'
+type mockSessionStore_Login_Call struct {
+	*mock.Call
+}
+
+// Login is a helper method to define mock.On call
+//   - r *http.Request
+func (_e *mockSessionStore_Expecter) Login(r interface{}) *mockSessionStore_Login_Call {
+	return &mockSessionStore_Login_Call{Call: _e.mock.On("Login", r)}
+}
+
+func (_c *mockSessionStore_Login_Call) Run(run func(r *http.Request)) *mockSessionStore_Login_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*http.Request))
+	})
+	return _c
+}
+
+func (_c *mockSessionStore_Login_Call) Return(_a0 *sesh.LoginSession, _a1 error) *mockSessionStore_Login_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockSessionStore_Login_Call) RunAndReturn(run func(*http.Request) (*sesh.LoginSession, error)) *mockSessionStore_Login_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// OneLogin provides a mock function with given fields: r
+func (_m *mockSessionStore) OneLogin(r *http.Request) (*sesh.OneLoginSession, error) {
+	ret := _m.Called(r)
+
+	if len(ret) == 0 {
+		panic("no return value specified for OneLogin")
+	}
+
+	var r0 *sesh.OneLoginSession
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*http.Request) (*sesh.OneLoginSession, error)); ok {
+		return rf(r)
+	}
+	if rf, ok := ret.Get(0).(func(*http.Request) *sesh.OneLoginSession); ok {
+		r0 = rf(r)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*sesh.OneLoginSession)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*http.Request) error); ok {
+		r1 = rf(r)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockSessionStore_OneLogin_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'OneLogin'
+type mockSessionStore_OneLogin_Call struct {
+	*mock.Call
+}
+
+// OneLogin is a helper method to define mock.On call
+//   - r *http.Request
+func (_e *mockSessionStore_Expecter) OneLogin(r interface{}) *mockSessionStore_OneLogin_Call {
+	return &mockSessionStore_OneLogin_Call{Call: _e.mock.On("OneLogin", r)}
+}
+
+func (_c *mockSessionStore_OneLogin_Call) Run(run func(r *http.Request)) *mockSessionStore_OneLogin_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*http.Request))
+	})
+	return _c
+}
+
+func (_c *mockSessionStore_OneLogin_Call) Return(_a0 *sesh.OneLoginSession, _a1 error) *mockSessionStore_OneLogin_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockSessionStore_OneLogin_Call) RunAndReturn(run func(*http.Request) (*sesh.OneLoginSession, error)) *mockSessionStore_OneLogin_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SetCsrf provides a mock function with given fields: r, w, session
+func (_m *mockSessionStore) SetCsrf(r *http.Request, w http.ResponseWriter, session *sesh.CsrfSession) error {
+	ret := _m.Called(r, w, session)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SetCsrf")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*http.Request, http.ResponseWriter, *sesh.CsrfSession) error); ok {
+		r0 = rf(r, w, session)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockSessionStore_SetCsrf_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetCsrf'
+type mockSessionStore_SetCsrf_Call struct {
+	*mock.Call
+}
+
+// SetCsrf is a helper method to define mock.On call
+//   - r *http.Request
+//   - w http.ResponseWriter
+//   - session *sesh.CsrfSession
+func (_e *mockSessionStore_Expecter) SetCsrf(r interface{}, w interface{}, session interface{}) *mockSessionStore_SetCsrf_Call {
+	return &mockSessionStore_SetCsrf_Call{Call: _e.mock.On("SetCsrf", r, w, session)}
+}
+
+func (_c *mockSessionStore_SetCsrf_Call) Run(run func(r *http.Request, w http.ResponseWriter, session *sesh.CsrfSession)) *mockSessionStore_SetCsrf_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*http.Request), args[1].(http.ResponseWriter), args[2].(*sesh.CsrfSession))
+	})
+	return _c
+}
+
+func (_c *mockSessionStore_SetCsrf_Call) Return(_a0 error) *mockSessionStore_SetCsrf_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockSessionStore_SetCsrf_Call) RunAndReturn(run func(*http.Request, http.ResponseWriter, *sesh.CsrfSession) error) *mockSessionStore_SetCsrf_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SetLogin provides a mock function with given fields: r, w, session
+func (_m *mockSessionStore) SetLogin(r *http.Request, w http.ResponseWriter, session *sesh.LoginSession) error {
+	ret := _m.Called(r, w, session)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SetLogin")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*http.Request, http.ResponseWriter, *sesh.LoginSession) error); ok {
+		r0 = rf(r, w, session)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockSessionStore_SetLogin_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetLogin'
+type mockSessionStore_SetLogin_Call struct {
+	*mock.Call
+}
+
+// SetLogin is a helper method to define mock.On call
+//   - r *http.Request
+//   - w http.ResponseWriter
+//   - session *sesh.LoginSession
+func (_e *mockSessionStore_Expecter) SetLogin(r interface{}, w interface{}, session interface{}) *mockSessionStore_SetLogin_Call {
+	return &mockSessionStore_SetLogin_Call{Call: _e.mock.On("SetLogin", r, w, session)}
+}
+
+func (_c *mockSessionStore_SetLogin_Call) Run(run func(r *http.Request, w http.ResponseWriter, session *sesh.LoginSession)) *mockSessionStore_SetLogin_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*http.Request), args[1].(http.ResponseWriter), args[2].(*sesh.LoginSession))
+	})
+	return _c
+}
+
+func (_c *mockSessionStore_SetLogin_Call) Return(_a0 error) *mockSessionStore_SetLogin_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockSessionStore_SetLogin_Call) RunAndReturn(run func(*http.Request, http.ResponseWriter, *sesh.LoginSession) error) *mockSessionStore_SetLogin_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SetOneLogin provides a mock function with given fields: r, w, session
+func (_m *mockSessionStore) SetOneLogin(r *http.Request, w http.ResponseWriter, session *sesh.OneLoginSession) error {
+	ret := _m.Called(r, w, session)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SetOneLogin")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*http.Request, http.ResponseWriter, *sesh.OneLoginSession) error); ok {
+		r0 = rf(r, w, session)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockSessionStore_SetOneLogin_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetOneLogin'
+type mockSessionStore_SetOneLogin_Call struct {
+	*mock.Call
+}
+
+// SetOneLogin is a helper method to define mock.On call
+//   - r *http.Request
+//   - w http.ResponseWriter
+//   - session *sesh.OneLoginSession
+func (_e *mockSessionStore_Expecter) SetOneLogin(r interface{}, w interface{}, session interface{}) *mockSessionStore_SetOneLogin_Call {
+	return &mockSessionStore_SetOneLogin_Call{Call: _e.mock.On("SetOneLogin", r, w, session)}
+}
+
+func (_c *mockSessionStore_SetOneLogin_Call) Run(run func(r *http.Request, w http.ResponseWriter, session *sesh.OneLoginSession)) *mockSessionStore_SetOneLogin_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*http.Request), args[1].(http.ResponseWriter), args[2].(*sesh.OneLoginSession))
+	})
+	return _c
+}
+
+func (_c *mockSessionStore_SetOneLogin_Call) Return(_a0 error) *mockSessionStore_SetOneLogin_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockSessionStore_SetOneLogin_Call) RunAndReturn(run func(*http.Request, http.ResponseWriter, *sesh.OneLoginSession) error) *mockSessionStore_SetOneLogin_Call {
 	_c.Call.Return(run)
 	return _c
 }

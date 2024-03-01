@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
@@ -226,8 +225,8 @@ func TestPostYourDetails(t *testing.T) {
 
 			sessionStore := newMockSessionStore(t)
 			sessionStore.EXPECT().
-				Get(r, "session").
-				Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
+				Login(r).
+				Return(&sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}, nil)
 
 			err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 				LpaID: "lpa-id",
@@ -281,8 +280,8 @@ func TestPostYourDetailsWhenDetailsNotChanged(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}, nil)
 
 	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
@@ -336,8 +335,8 @@ func TestPostYourDetailsWhenTaskCompleted(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}, nil)
 
 	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
@@ -428,8 +427,8 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 
 			sessionStore := newMockSessionStore(t)
 			sessionStore.EXPECT().
-				Get(mock.Anything, "session").
-				Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
+				Login(mock.Anything).
+				Return(&sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}, nil)
 
 			err := YourDetails(template.Execute, nil, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 			resp := w.Result()
@@ -476,8 +475,8 @@ func TestPostYourDetailsNameWarningOnlyShownWhenDonorAndFormNamesAreDifferent(t 
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(mock.Anything, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
+		Login(mock.Anything).
+		Return(&sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}, nil)
 
 	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
@@ -514,8 +513,8 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(mock.Anything, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}}, nil)
+		Login(mock.Anything).
+		Return(&sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}, nil)
 
 	err := YourDetails(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor: actor.Donor{
@@ -529,19 +528,19 @@ func TestPostYourDetailsWhenStoreErrors(t *testing.T) {
 
 func TestPostYourDetailsWhenSessionProblem(t *testing.T) {
 	testCases := map[string]struct {
-		session *sessions.Session
+		session *sesh.LoginSession
 		error   error
 	}{
 		"store error": {
-			session: &sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}}},
+			session: &sesh.LoginSession{Sub: "xyz", Email: "name@example.com"},
 			error:   expectedError,
 		},
 		"missing donor session": {
-			session: &sessions.Session{},
+			session: &sesh.LoginSession{},
 			error:   nil,
 		},
 		"missing email": {
-			session: &sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "xyz"}}},
+			session: &sesh.LoginSession{Sub: "xyz"},
 			error:   nil,
 		},
 	}
@@ -563,7 +562,7 @@ func TestPostYourDetailsWhenSessionProblem(t *testing.T) {
 
 			sessionStore := newMockSessionStore(t)
 			sessionStore.EXPECT().
-				Get(mock.Anything, "session").
+				Login(mock.Anything).
 				Return(tc.session, tc.error)
 
 			err := YourDetails(nil, nil, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
