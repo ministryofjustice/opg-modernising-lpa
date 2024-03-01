@@ -58,6 +58,7 @@ func All(globals *Globals) map[string]any {
 		"now":                now,
 		"addDays":            addDays,
 		"formatDate":         formatDate,
+		"formatTime":         formatTime,
 		"formatDateTime":     formatDateTime,
 		"formatPhone":        formatPhone,
 		"lowerFirst":         localize.LowerFirst,
@@ -257,6 +258,10 @@ func addDays(days int, t time.Time) time.Time {
 
 func formatDate(app page.AppData, t date.TimeOrDate) string {
 	return app.Localizer.FormatDate(t)
+}
+
+func formatTime(app page.AppData, t time.Time) string {
+	return app.Localizer.FormatTime(t)
 }
 
 func formatDateTime(app page.AppData, t time.Time) string {
