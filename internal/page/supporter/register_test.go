@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -72,8 +71,8 @@ func TestMakeHandleWhenRequireSession(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "random"}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, sessionStore, nil)
@@ -101,7 +100,7 @@ func TestMakeHandleWhenRequireSessionErrors(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
+		Login(r).
 		Return(nil, expectedError)
 
 	mux := http.NewServeMux()
@@ -126,8 +125,8 @@ func TestMakeSupporterHandle(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random", OrganisationID: "org-id", Email: "a@example.org"}}}, nil)
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "random", OrganisationID: "org-id", Email: "a@example.org"}, nil)
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
@@ -180,8 +179,8 @@ func TestMakeSupporterHandleWithSessionData(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random", OrganisationID: "org-id", Email: "a@example.org"}}}, nil)
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "random", OrganisationID: "org-id", Email: "a@example.org"}, nil)
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
@@ -227,8 +226,8 @@ func TestMakeSupporterHandleWhenSessionStoreError(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{}, expectedError)
+		Login(r).
+		Return(nil, expectedError)
 
 	handle := makeSupporterHandle(mux, sessionStore, nil, nil, nil)
 	handle("/path", page.None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.Organisation) error {
@@ -254,8 +253,8 @@ func TestMakeSupporterHandleWhenOrganisationStoreErrors(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "random"}, nil)
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
@@ -282,8 +281,8 @@ func TestMakeSupporterHandleWhenMemberStoreError(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(mock.Anything, mock.Anything).
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+		Login(mock.Anything).
+		Return(&sesh.LoginSession{Sub: "random"}, nil)
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
@@ -316,8 +315,8 @@ func TestMakeSupporterHandleErrors(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "random"}, nil)
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().

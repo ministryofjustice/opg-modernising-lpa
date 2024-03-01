@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
@@ -28,9 +27,10 @@ type Logger interface {
 }
 
 type SessionStore interface {
-	Get(r *http.Request, name string) (*sessions.Session, error)
-	New(r *http.Request, name string) (*sessions.Session, error)
-	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
+	Login(r *http.Request) (*sesh.LoginSession, error)
+	OneLogin(r *http.Request) (*sesh.OneLoginSession, error)
+	SetLogin(r *http.Request, w http.ResponseWriter, session *sesh.LoginSession) error
+	SetOneLogin(r *http.Request, w http.ResponseWriter, session *sesh.OneLoginSession) error
 }
 
 type OneLoginClient interface {
@@ -136,7 +136,7 @@ const (
 	CanGoBack
 )
 
-func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler) func(page.Path, handleOpt, page.Handler) {
+func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler) func(page.Path, handleOpt, page.Handler) {
 	return func(path page.Path, opt handleOpt, h page.Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -146,7 +146,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 			appData.CanGoBack = opt&CanGoBack != 0
 
 			if opt&RequireSession != 0 {
-				session, err := sesh.Login(store, r)
+				session, err := store.Login(r)
 				if err != nil {
 					http.Redirect(w, r, page.Paths.Attorney.Start.Format(), http.StatusFound)
 					return
@@ -163,7 +163,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 	}
 }
 
-func makeAttorneyHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler, attorneyStore AttorneyStore) func(page.AttorneyPath, handleOpt, Handler) {
+func makeAttorneyHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler, attorneyStore AttorneyStore) func(page.AttorneyPath, handleOpt, Handler) {
 	return func(path page.AttorneyPath, opt handleOpt, h Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -172,7 +172,7 @@ func makeAttorneyHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.
 			appData.CanGoBack = opt&CanGoBack != 0
 			appData.LpaID = r.PathValue("id")
 
-			session, err := sesh.Login(store, r)
+			session, err := store.Login(r)
 			if err != nil {
 				http.Redirect(w, r, page.Paths.Attorney.Start.Format(), http.StatusFound)
 				return

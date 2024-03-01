@@ -10,7 +10,13 @@ import (
 	"github.com/gorilla/sessions"
 )
 
-type Store = sessions.Store
+func NewStore(keyPairs [][]byte) *Store {
+	return &Store{s: sessions.NewCookieStore(keyPairs...)}
+}
+
+type Store struct {
+	s sessions.Store
+}
 
 type MissingSessionError string
 
@@ -31,6 +37,7 @@ const (
 	cookieSignIn  = "params"
 	cookieSession = "session"
 	cookiePay     = "pay"
+	cookieCsrf    = "csrf"
 )
 
 var (
@@ -62,6 +69,7 @@ func init() {
 	gob.Register(&OneLoginSession{})
 	gob.Register(&LoginSession{})
 	gob.Register(&PaymentSession{})
+	gob.Register(&CsrfSession{})
 }
 
 type OneLoginSession struct {
@@ -77,8 +85,8 @@ func (s OneLoginSession) Valid() bool {
 	return s.State != "" && s.Nonce != "" && s.Redirect != ""
 }
 
-func OneLogin(store sessions.Store, r *http.Request) (*OneLoginSession, error) {
-	params, err := store.Get(r, cookieSignIn)
+func (s *Store) OneLogin(r *http.Request) (*OneLoginSession, error) {
+	params, err := s.s.Get(r, cookieSignIn)
 	if err != nil {
 		return nil, err
 	}
@@ -99,11 +107,11 @@ func OneLogin(store sessions.Store, r *http.Request) (*OneLoginSession, error) {
 	return oneLoginSession, nil
 }
 
-func SetOneLogin(store sessions.Store, r *http.Request, w http.ResponseWriter, oneLoginSession *OneLoginSession) error {
-	params := sessions.NewSession(store, cookieSignIn)
+func (s *Store) SetOneLogin(r *http.Request, w http.ResponseWriter, oneLoginSession *OneLoginSession) error {
+	params := sessions.NewSession(s.s, cookieSignIn)
 	params.Values = map[any]any{"one-login": oneLoginSession}
 	params.Options = oneLoginCookieOptions
-	return store.Save(r, w, params)
+	return s.s.Save(r, w, params)
 }
 
 type LoginSession struct {
@@ -122,8 +130,8 @@ func (s LoginSession) Valid() bool {
 	return s.Sub != ""
 }
 
-func Login(store sessions.Store, r *http.Request) (*LoginSession, error) {
-	params, err := store.Get(r, cookieSession)
+func (s *Store) Login(r *http.Request) (*LoginSession, error) {
+	params, err := s.s.Get(r, cookieSession)
 	if err != nil {
 		return nil, err
 	}
@@ -144,21 +152,21 @@ func Login(store sessions.Store, r *http.Request) (*LoginSession, error) {
 	return loginSession, nil
 }
 
-func SetLoginSession(store sessions.Store, r *http.Request, w http.ResponseWriter, donorSession *LoginSession) error {
-	session := sessions.NewSession(store, cookieSession)
+func (s *Store) SetLogin(r *http.Request, w http.ResponseWriter, donorSession *LoginSession) error {
+	session := sessions.NewSession(s.s, cookieSession)
 	session.Values = map[any]any{"session": donorSession}
 	session.Options = sessionCookieOptions
-	return store.Save(r, w, session)
+	return s.s.Save(r, w, session)
 }
 
-func ClearLoginSession(store Store, r *http.Request, w http.ResponseWriter) error {
-	session, err := store.Get(r, cookieSession)
+func (s *Store) ClearLogin(r *http.Request, w http.ResponseWriter) error {
+	session, err := s.s.Get(r, cookieSession)
 	if err != nil {
 		return err
 	}
 	session.Values = map[any]any{}
 	session.Options.MaxAge = -1
-	return store.Save(r, w, session)
+	return s.s.Save(r, w, session)
 }
 
 type PaymentSession struct {
@@ -169,8 +177,8 @@ func (s PaymentSession) Valid() bool {
 	return true
 }
 
-func Payment(store sessions.Store, r *http.Request) (*PaymentSession, error) {
-	params, err := store.Get(r, cookiePay)
+func (s *Store) Payment(r *http.Request) (*PaymentSession, error) {
+	params, err := s.s.Get(r, cookiePay)
 	if err != nil {
 		return nil, err
 	}
@@ -191,19 +199,57 @@ func Payment(store sessions.Store, r *http.Request) (*PaymentSession, error) {
 	return paymentSession, nil
 }
 
-func SetPayment(store sessions.Store, r *http.Request, w http.ResponseWriter, paymentSession *PaymentSession) error {
-	session := sessions.NewSession(store, cookiePay)
+func (s *Store) SetPayment(r *http.Request, w http.ResponseWriter, paymentSession *PaymentSession) error {
+	session := sessions.NewSession(s.s, cookiePay)
 	session.Values = map[any]any{"payment": paymentSession}
 	session.Options = paymentCookieOptions
-	return store.Save(r, w, session)
+	return s.s.Save(r, w, session)
 }
 
-func ClearPayment(store Store, r *http.Request, w http.ResponseWriter) error {
-	session, err := store.Get(r, cookiePay)
+func (s *Store) ClearPayment(r *http.Request, w http.ResponseWriter) error {
+	session, err := s.s.Get(r, cookiePay)
 	if err != nil {
 		return err
 	}
 	session.Values = map[any]any{}
 	session.Options.MaxAge = -1
-	return store.Save(r, w, session)
+	return s.s.Save(r, w, session)
+}
+
+type CsrfSession struct {
+	IsNew bool
+	Token string
+}
+
+func (s CsrfSession) Valid() bool {
+	return true
+}
+
+func (s *Store) Csrf(r *http.Request) (*CsrfSession, bool, error) {
+	params, err := s.s.Get(r, cookieCsrf)
+	if err != nil {
+		return nil, false, err
+	}
+
+	session, ok := params.Values["csrf"]
+	if !ok {
+		return nil, false, MissingSessionError("csrf")
+	}
+
+	csrfSession, ok := session.(*CsrfSession)
+	if !ok {
+		return nil, false, MissingSessionError("csrf")
+	}
+	if !csrfSession.Valid() {
+		return nil, false, InvalidSessionError("csrf")
+	}
+
+	return csrfSession, params.IsNew, nil
+}
+
+func (s *Store) SetCsrf(r *http.Request, w http.ResponseWriter, csrfSession *CsrfSession) error {
+	session := sessions.NewSession(s.s, cookieCsrf)
+	session.Values = map[any]any{"csrf": csrfSession}
+	session.Options = sessionCookieOptions
+	return s.s.Save(r, w, session)
 }

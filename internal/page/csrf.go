@@ -8,7 +8,7 @@ import (
 	"mime/multipart"
 	"net/http"
 
-	"github.com/gorilla/sessions"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
 type contextKey string
@@ -17,10 +17,10 @@ var ErrCsrfInvalid = errors.New("CSRF token not valid")
 
 const csrfTokenLength = 12
 
-func ValidateCsrf(next http.Handler, store sessions.Store, randomString func(int) string, errorHandler ErrorHandler) http.HandlerFunc {
+func ValidateCsrf(next http.Handler, store SessionStore, randomString func(int) string, errorHandler ErrorHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		csrfSession, err := store.Get(r, "csrf")
+		csrfSession, isNew, err := store.Csrf(r)
 
 		if r.Method == http.MethodPost {
 			if err != nil {
@@ -34,29 +34,20 @@ func ValidateCsrf(next http.Handler, store sessions.Store, randomString func(int
 			}
 		}
 
-		if csrfSession.IsNew {
-			csrfSession.Values = map[any]any{"token": randomString(csrfTokenLength)}
-			csrfSession.Options = &sessions.Options{
-				MaxAge:   24 * 60 * 60,
-				Secure:   true,
-				HttpOnly: true,
-				SameSite: http.SameSiteLaxMode,
-			}
-			_ = store.Save(r, w, csrfSession)
+		if err != nil || isNew {
+			csrfSession = &sesh.CsrfSession{Token: randomString(csrfTokenLength)}
+			_ = store.SetCsrf(r, w, csrfSession)
 		}
 
 		appData := AppDataFromContext(ctx)
-		appData.CsrfToken, _ = csrfSession.Values["token"].(string)
+		appData.CsrfToken = csrfSession.Token
 
 		next.ServeHTTP(w, r.WithContext(ContextWithAppData(ctx, appData)))
 	}
 }
 
-func csrfValid(r *http.Request, csrfSession *sessions.Session) bool {
-	cookieValue, ok := csrfSession.Values["token"].(string)
-	if !ok {
-		return false
-	}
+func csrfValid(r *http.Request, csrfSession *sesh.CsrfSession) bool {
+	cookieValue := csrfSession.Token
 
 	if mediaType, params, err := mime.ParseMediaType(r.Header.Get("Content-Type")); err == nil && mediaType == "multipart/form-data" {
 		var buf bytes.Buffer
