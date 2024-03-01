@@ -137,7 +137,7 @@ func TestMakeSupporterHandle(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
-		Return(&actor.Member{Permission: actor.Admin, ID: "member-id"}, nil)
+		Return(&actor.Member{Permission: actor.PermissionAdmin, ID: "member-id"}, nil)
 
 	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore, memberStore)
 	handle("/path", CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation) error {
@@ -147,7 +147,7 @@ func TestMakeSupporterHandle(t *testing.T) {
 			IsSupporter:         true,
 			CanGoBack:           true,
 			LoginSessionEmail:   "a@example.org",
-			Permission:          actor.Admin,
+			Permission:          actor.PermissionAdmin,
 			LoggedInSupporterID: "member-id",
 		}, appData)
 
@@ -191,7 +191,7 @@ func TestMakeSupporterHandleWithSessionData(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
-		Return(&actor.Member{Permission: actor.Admin, ID: "member-id"}, nil)
+		Return(&actor.Member{Permission: actor.PermissionAdmin, ID: "member-id"}, nil)
 
 	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore, memberStore)
 	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation) error {
@@ -199,7 +199,7 @@ func TestMakeSupporterHandleWithSessionData(t *testing.T) {
 			Page:                "/supporter/path",
 			SessionID:           "cmFuZG9t",
 			IsSupporter:         true,
-			Permission:          actor.Admin,
+			Permission:          actor.PermissionAdmin,
 			LoggedInSupporterID: "member-id",
 			LoginSessionEmail:   "a@example.org",
 		}, appData)

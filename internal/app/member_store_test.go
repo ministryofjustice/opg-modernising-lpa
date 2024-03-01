@@ -24,14 +24,14 @@ func TestMemberStoreCreateMemberInvite(t *testing.T) {
 			Email:            "email@example.com",
 			FirstNames:       "a",
 			LastName:         "b",
-			Permission:       actor.None,
+			Permission:       actor.PermissionNone,
 			ReferenceNumber:  "abcde",
 		}).
 		Return(nil)
 
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn}
 
-	err := memberStore.CreateMemberInvite(ctx, &actor.Organisation{ID: "a-uuid", Name: "org name"}, "a", "b", "email@example.com", "abcde", actor.None)
+	err := memberStore.CreateMemberInvite(ctx, &actor.Organisation{ID: "a-uuid", Name: "org name"}, "a", "b", "email@example.com", "abcde", actor.PermissionNone)
 	assert.Nil(t, err)
 }
 
@@ -46,7 +46,7 @@ func TestMemberStoreCreateMemberInviteWithSessionMissing(t *testing.T) {
 	for name, ctx := range testcases {
 		t.Run(name, func(t *testing.T) {
 
-			err := memberStore.CreateMemberInvite(ctx, &actor.Organisation{}, "a", "b", "email@example.com", "abcde", actor.None)
+			err := memberStore.CreateMemberInvite(ctx, &actor.Organisation{}, "a", "b", "email@example.com", "abcde", actor.PermissionNone)
 
 			assert.Error(t, err)
 		})
@@ -107,7 +107,7 @@ func TestMemberStoreCreateMemberInviteWhenErrors(t *testing.T) {
 
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn}
 
-	err := memberStore.CreateMemberInvite(ctx, &actor.Organisation{}, "a", "b", "email@example.com", "abcde", actor.None)
+	err := memberStore.CreateMemberInvite(ctx, &actor.Organisation{}, "a", "b", "email@example.com", "abcde", actor.PermissionNone)
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -345,7 +345,7 @@ func TestMemberStoreCreate(t *testing.T) {
 		Email:          "ab@example.org",
 		FirstNames:     "a",
 		LastName:       "b",
-		Permission:     actor.Admin,
+		Permission:     actor.PermissionAdmin,
 		OrganisationID: "org-id",
 	}
 
@@ -361,7 +361,7 @@ func TestMemberStoreCreate(t *testing.T) {
 			FirstNames:     invite.FirstNames,
 			LastName:       invite.LastName,
 			Permission:     invite.Permission,
-			Status:         actor.Active,
+			Status:         actor.StatusActive,
 			LastLoggedInAt: testNow,
 		}).
 		Return(nil)
