@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
@@ -89,9 +88,13 @@ type NotifyClient interface {
 }
 
 type SessionStore interface {
-	Get(r *http.Request, name string) (*sessions.Session, error)
-	New(r *http.Request, name string) (*sessions.Session, error)
-	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
+	Login(r *http.Request) (*sesh.LoginSession, error)
+	SetLogin(r *http.Request, w http.ResponseWriter, session *sesh.LoginSession) error
+	OneLogin(r *http.Request) (*sesh.OneLoginSession, error)
+	SetOneLogin(r *http.Request, w http.ResponseWriter, session *sesh.OneLoginSession) error
+	SetPayment(r *http.Request, w http.ResponseWriter, session *sesh.PaymentSession) error
+	Payment(r *http.Request) (*sesh.PaymentSession, error)
+	ClearPayment(r *http.Request, w http.ResponseWriter) error
 }
 
 type WitnessCodeSender interface {
@@ -396,12 +399,12 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler) func(page.Pa
 	}
 }
 
-func makeLpaHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler, donorStore DonorStore) func(page.LpaPath, page.HandleOpt, Handler) {
+func makeLpaHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler, donorStore DonorStore) func(page.LpaPath, page.HandleOpt, Handler) {
 	return func(path page.LpaPath, opt page.HandleOpt, h Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
-			loginSession, err := sesh.Login(store, r)
+			loginSession, err := store.Login(r)
 			if err != nil {
 				http.Redirect(w, r, page.Paths.Start.Format(), http.StatusFound)
 				return
@@ -447,7 +450,7 @@ func makeLpaHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.Error
 }
 
 type payHelper struct {
-	sessionStore sessions.Store
+	sessionStore SessionStore
 	donorStore   DonorStore
 	payClient    PayClient
 	randomString func(int) string
@@ -482,7 +485,7 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 		return fmt.Errorf("error creating payment: %w", err)
 	}
 
-	if err = sesh.SetPayment(p.sessionStore, r, w, &sesh.PaymentSession{PaymentID: resp.PaymentId}); err != nil {
+	if err = p.sessionStore.SetPayment(r, w, &sesh.PaymentSession{PaymentID: resp.PaymentId}); err != nil {
 		return err
 	}
 

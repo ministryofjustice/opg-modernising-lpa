@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -84,25 +83,11 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t)
-
-	session := sessions.NewSession(sessionStore, "session")
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   86400,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   true,
-	}
-	session.Values = map[any]any{"session": &sesh.LoginSession{Email: "name@example.com", Sub: "a-sub"}}
-
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(session, nil)
-
-	session.Values = map[any]any{"session": &sesh.LoginSession{Email: "name@example.com", Sub: "a-sub", OrganisationID: "org-id", OrganisationName: "org name"}}
-
+		Login(r).
+		Return(&sesh.LoginSession{Email: "name@example.com", Sub: "a-sub"}, nil)
 	sessionStore.EXPECT().
-		Save(r, w, session).
+		SetLogin(r, w, &sesh.LoginSession{Email: "name@example.com", Sub: "a-sub", OrganisationID: "org-id", OrganisationName: "org name"}).
 		Return(nil)
 
 	err := EnterReferenceNumber(nil, memberStore, sessionStore)(testAppData, w, r)
@@ -236,20 +221,9 @@ func TestPostEnterReferenceNumberWhenSessionGetError(t *testing.T) {
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t)
-
-	session := sessions.NewSession(sessionStore, "session")
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   86400,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   true,
-	}
-	session.Values = map[any]any{"session": &sesh.LoginSession{Email: "name@example.com", Sub: "a-sub"}}
-
 	sessionStore.EXPECT().
-		Get(r, mock.Anything).
-		Return(session, expectedError)
+		Login(r).
+		Return(nil, expectedError)
 
 	err := EnterReferenceNumber(nil, memberStore, sessionStore)(testAppData, w, r)
 	resp := w.Result()
@@ -280,25 +254,11 @@ func TestPostEnterReferenceNumberWhenSessionSaveError(t *testing.T) {
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t)
-
-	session := sessions.NewSession(sessionStore, "session")
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   86400,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   true,
-	}
-	session.Values = map[any]any{"session": &sesh.LoginSession{Email: "name@example.com", Sub: "a-sub"}}
-
 	sessionStore.EXPECT().
-		Get(r, mock.Anything).
-		Return(session, nil)
-
-	session.Values = map[any]any{"session": &sesh.LoginSession{Email: "name@example.com", Sub: "a-sub", OrganisationID: "org-id"}}
-
+		Login(r).
+		Return(&sesh.LoginSession{Email: "name@example.com", Sub: "a-sub"}, nil)
 	sessionStore.EXPECT().
-		Save(r, w, mock.Anything).
+		SetLogin(r, w, mock.Anything).
 		Return(expectedError)
 
 	err := EnterReferenceNumber(nil, memberStore, sessionStore)(testAppData, w, r)

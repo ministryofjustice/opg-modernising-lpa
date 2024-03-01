@@ -37,7 +37,7 @@ type AttorneyStore interface {
 
 func Attorney(
 	tmpl template.Template,
-	sessionStore sesh.Store,
+	sessionStore *sesh.Store,
 	shareCodeSender ShareCodeSender,
 	donorStore DonorStore,
 	certificateProviderStore CertificateProviderStore,
@@ -84,7 +84,7 @@ func Attorney(
 			attorneySessionID            = base64.StdEncoding.EncodeToString([]byte(attorneySub))
 		)
 
-		if err := sesh.SetLoginSession(sessionStore, r, w, &sesh.LoginSession{Sub: attorneySub, Email: testEmail}); err != nil {
+		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: attorneySub, Email: testEmail}); err != nil {
 			return err
 		}
 

@@ -17,9 +17,9 @@ type LoginCallbackOneLoginClient interface {
 	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
 }
 
-func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh.Store, organisationStore OrganisationStore, now func() time.Time, memberStore MemberStore) page.Handler {
+func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore SessionStore, organisationStore OrganisationStore, now func() time.Time, memberStore MemberStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		oneLoginSession, err := sesh.OneLogin(sessionStore, r)
+		oneLoginSession, err := sessionStore.OneLogin(r)
 		if err != nil {
 			return err
 		}
@@ -47,7 +47,7 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 		if err == nil {
 			loginSession.OrganisationID = organisation.ID
 			loginSession.OrganisationName = organisation.Name
-			if err := sesh.SetLoginSession(sessionStore, r, w, loginSession); err != nil {
+			if err := sessionStore.SetLogin(r, w, loginSession); err != nil {
 				return err
 			}
 
@@ -70,7 +70,7 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 		}
 
 		if errors.Is(err, dynamo.NotFoundError{}) {
-			if err := sesh.SetLoginSession(sessionStore, r, w, loginSession); err != nil {
+			if err := sessionStore.SetLogin(r, w, loginSession); err != nil {
 				return err
 			}
 		} else {

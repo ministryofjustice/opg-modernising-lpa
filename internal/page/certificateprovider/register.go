@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
@@ -52,9 +51,10 @@ type ShareCodeStore interface {
 type Template func(io.Writer, interface{}) error
 
 type SessionStore interface {
-	Get(r *http.Request, name string) (*sessions.Session, error)
-	New(r *http.Request, name string) (*sessions.Session, error)
-	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
+	Login(r *http.Request) (*sesh.LoginSession, error)
+	SetLogin(r *http.Request, w http.ResponseWriter, session *sesh.LoginSession) error
+	OneLogin(r *http.Request) (*sesh.OneLoginSession, error)
+	SetOneLogin(r *http.Request, w http.ResponseWriter, session *sesh.OneLoginSession) error
 }
 
 type NotifyClient interface {
@@ -111,7 +111,7 @@ func Register(
 	dashboardStore DashboardStore,
 	lpaStoreClient LpaStoreClient,
 ) {
-	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
+	handleRoot := makeHandle(rootMux, errorHandler)
 
 	handleRoot(page.Paths.CertificateProvider.Login,
 		page.Login(oneLoginClient, sessionStore, random.String, page.Paths.CertificateProvider.LoginCallback))
@@ -154,7 +154,7 @@ func Register(
 		Guidance(tmpls.Get("certificate_provided.gohtml"), donorStore, certificateProviderStore))
 }
 
-func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler) func(page.Path, page.Handler) {
+func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler) func(page.Path, page.Handler) {
 	return func(path page.Path, h page.Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -170,7 +170,7 @@ func makeHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHan
 	}
 }
 
-func makeCertificateProviderHandle(mux *http.ServeMux, store sesh.Store, errorHandler page.ErrorHandler) func(page.CertificateProviderPath, page.HandleOpt, page.Handler) {
+func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore, errorHandler page.ErrorHandler) func(page.CertificateProviderPath, page.HandleOpt, page.Handler) {
 	return func(path page.CertificateProviderPath, opt page.HandleOpt, h page.Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -180,7 +180,7 @@ func makeCertificateProviderHandle(mux *http.ServeMux, store sesh.Store, errorHa
 			appData.CanGoBack = opt&page.CanGoBack != 0
 			appData.LpaID = r.PathValue("id")
 
-			session, err := sesh.Login(store, r)
+			session, err := sessionStore.Login(r)
 			if err != nil {
 				http.Redirect(w, r, page.Paths.CertificateProviderStart.Format(), http.StatusFound)
 				return

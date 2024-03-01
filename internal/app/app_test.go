@@ -8,7 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -55,8 +54,8 @@ func TestMakeHandleRequireSession(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "random"}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, sessionStore)
@@ -80,34 +79,14 @@ func TestMakeHandleRequireSession(t *testing.T) {
 	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
 }
 
-func TestMakeHandleRequireSessionMissing(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
-
-	sessionStore := newMockSessionStore(t)
-	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{}, nil)
-
-	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil, sessionStore)
-	handle("/path", RequireSession, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request) error { return nil })
-
-	mux.ServeHTTP(w, r)
-	resp := w.Result()
-
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Start.Format(), resp.Header.Get("Location"))
-}
-
 func TestMakeHandleRequireSessionError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{}, expectedError)
+		Login(r).
+		Return(nil, expectedError)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, sessionStore)
