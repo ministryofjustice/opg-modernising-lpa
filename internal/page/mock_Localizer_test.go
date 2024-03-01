@@ -303,6 +303,52 @@ func (_c *mockLocalizer_FormatDateTime_Call) RunAndReturn(run func(time.Time) st
 	return _c
 }
 
+// FormatTime provides a mock function with given fields: _a0
+func (_m *mockLocalizer) FormatTime(_a0 time.Time) string {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FormatTime")
+	}
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(time.Time) string); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// mockLocalizer_FormatTime_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FormatTime'
+type mockLocalizer_FormatTime_Call struct {
+	*mock.Call
+}
+
+// FormatTime is a helper method to define mock.On call
+//   - _a0 time.Time
+func (_e *mockLocalizer_Expecter) FormatTime(_a0 interface{}) *mockLocalizer_FormatTime_Call {
+	return &mockLocalizer_FormatTime_Call{Call: _e.mock.On("FormatTime", _a0)}
+}
+
+func (_c *mockLocalizer_FormatTime_Call) Run(run func(_a0 time.Time)) *mockLocalizer_FormatTime_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(time.Time))
+	})
+	return _c
+}
+
+func (_c *mockLocalizer_FormatTime_Call) Return(_a0 string) *mockLocalizer_FormatTime_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockLocalizer_FormatTime_Call) RunAndReturn(run func(time.Time) string) *mockLocalizer_FormatTime_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Possessive provides a mock function with given fields: _a0
 func (_m *mockLocalizer) Possessive(_a0 string) string {
 	ret := _m.Called(_a0)

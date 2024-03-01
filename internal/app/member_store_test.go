@@ -352,16 +352,17 @@ func TestMemberStoreCreate(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
 		Create(ctx, &actor.Member{
-			PK:         "ORGANISATION#org-id",
-			SK:         "MEMBER#session-id",
-			CreatedAt:  testNow,
-			UpdatedAt:  testNow,
-			ID:         "a-uuid",
-			Email:      invite.Email,
-			FirstNames: invite.FirstNames,
-			LastName:   invite.LastName,
-			Permission: invite.Permission,
-			Status:     actor.Active,
+			PK:             "ORGANISATION#org-id",
+			SK:             "MEMBER#session-id",
+			CreatedAt:      testNow,
+			UpdatedAt:      testNow,
+			ID:             "a-uuid",
+			Email:          invite.Email,
+			FirstNames:     invite.FirstNames,
+			LastName:       invite.LastName,
+			Permission:     invite.Permission,
+			Status:         actor.Active,
+			LastLoggedInAt: testNow,
 		}).
 		Return(nil)
 
