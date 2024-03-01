@@ -74,7 +74,7 @@ func TestIsTrustCorporation(t *testing.T) {
 }
 
 func TestAppDataIsAdmin(t *testing.T) {
-	assert.True(t, AppData{Permission: actor.Admin}.IsAdmin())
+	assert.True(t, AppData{Permission: actor.PermissionAdmin}.IsAdmin())
 	assert.False(t, AppData{}.IsAdmin())
 }
 

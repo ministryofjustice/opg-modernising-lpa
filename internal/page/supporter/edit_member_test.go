@@ -22,8 +22,8 @@ func TestGetEditMember(t *testing.T) {
 		ID:         "an-id",
 		FirstNames: "a",
 		LastName:   "b",
-		Status:     actor.Active,
-		Permission: actor.Admin,
+		Status:     actor.StatusActive,
+		Permission: actor.PermissionAdmin,
 	}
 
 	memberStore := newMockMemberStore(t)
@@ -38,9 +38,9 @@ func TestGetEditMember(t *testing.T) {
 			Form: &editMemberForm{
 				FirstNames:        "a",
 				LastName:          "b",
-				Permission:        actor.Admin,
+				Permission:        actor.PermissionAdmin,
 				PermissionOptions: actor.PermissionValues,
-				Status:            actor.Active,
+				Status:            actor.StatusActive,
 				StatusOptions:     actor.StatusValues,
 			},
 			Member: member,
@@ -99,39 +99,39 @@ func TestPostEditMember(t *testing.T) {
 		memberEmail      string
 	}{
 		"admin": {
-			userPermission:   actor.Admin,
+			userPermission:   actor.PermissionAdmin,
 			memberEmail:      "team-member@example.org",
 			expectedRedirect: page.Paths.Supporter.ManageTeamMembers.Format() + "?nameUpdated=c+d&statusEmail=team-member%40example.org&statusUpdated=suspended",
 			expectedMember: &actor.Member{
 				FirstNames: "c",
 				LastName:   "d",
 				Email:      "team-member@example.org",
-				Status:     actor.Suspended,
-				Permission: actor.Admin,
+				Status:     actor.StatusSuspended,
+				Permission: actor.PermissionAdmin,
 			},
 		},
 		"self": {
-			userPermission:   actor.Admin,
+			userPermission:   actor.PermissionAdmin,
 			memberEmail:      "self@example.org",
 			expectedRedirect: page.Paths.Supporter.ManageTeamMembers.Format() + "?nameUpdated=c+d&selfUpdated=1",
 			expectedMember: &actor.Member{
 				FirstNames: "c",
 				LastName:   "d",
 				Email:      "self@example.org",
-				Status:     actor.Active,
-				Permission: actor.Admin,
+				Status:     actor.StatusActive,
+				Permission: actor.PermissionAdmin,
 			},
 		},
 		"non-admin": {
-			userPermission:   actor.None,
+			userPermission:   actor.PermissionNone,
 			memberEmail:      "self@example.org",
 			expectedRedirect: page.Paths.Supporter.Dashboard.Format() + "?nameUpdated=c+d&selfUpdated=1",
 			expectedMember: &actor.Member{
 				FirstNames: "c",
 				LastName:   "d",
 				Email:      "self@example.org",
-				Status:     actor.Active,
-				Permission: actor.None,
+				Status:     actor.StatusActive,
+				Permission: actor.PermissionNone,
 			},
 		},
 	}
@@ -156,7 +156,7 @@ func TestPostEditMember(t *testing.T) {
 					FirstNames: "a",
 					LastName:   "b",
 					Email:      tc.memberEmail,
-					Status:     actor.Active,
+					Status:     actor.StatusActive,
 					Permission: tc.userPermission,
 				}, nil)
 			memberStore.EXPECT().
@@ -183,17 +183,17 @@ func TestPostEditMemberNoUpdate(t *testing.T) {
 		memberEmail      string
 	}{
 		"admin": {
-			userPermission:   actor.Admin,
+			userPermission:   actor.PermissionAdmin,
 			memberEmail:      "team-member@example.org",
 			expectedRedirect: page.Paths.Supporter.ManageTeamMembers.Format() + "?",
 		},
 		"self": {
-			userPermission:   actor.Admin,
+			userPermission:   actor.PermissionAdmin,
 			memberEmail:      "self@example.org",
 			expectedRedirect: page.Paths.Supporter.ManageTeamMembers.Format() + "?",
 		},
 		"non-admin": {
-			userPermission:   actor.None,
+			userPermission:   actor.PermissionNone,
 			memberEmail:      "self@example.org",
 			expectedRedirect: page.Paths.Supporter.Dashboard.Format() + "?",
 		},
@@ -219,7 +219,7 @@ func TestPostEditMemberNoUpdate(t *testing.T) {
 					FirstNames: "a",
 					LastName:   "b",
 					Email:      tc.memberEmail,
-					Status:     actor.Active,
+					Status:     actor.StatusActive,
 					Permission: tc.userPermission,
 				}, nil)
 
@@ -337,7 +337,7 @@ func TestReadEditMemberForm(t *testing.T) {
 			assert.Equal(t, "b", result.LastName)
 
 			if tc.isAdmin && !tc.isEditingSelf {
-				assert.Equal(t, actor.Suspended, result.Status)
+				assert.Equal(t, actor.StatusSuspended, result.Status)
 			}
 		})
 	}
@@ -358,7 +358,7 @@ func TestEditMemberFormValidate(t *testing.T) {
 			form: &editMemberForm{
 				FirstNames: "a",
 				LastName:   "b",
-				Status:     actor.Suspended,
+				Status:     actor.StatusSuspended,
 				canEditAll: true,
 			},
 		},
