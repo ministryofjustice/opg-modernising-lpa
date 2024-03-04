@@ -82,7 +82,7 @@
             <ul class="govuk-pagination__list">
               {{ range .Pagination.Pages }}
                 {{ if gt . 0 }}
-                  <li class="govuk-pagination__item">
+                  <li class="govuk-pagination__item {{ if eq . $.CurrentPage }}govuk-pagination__item--current{{ end }}">
                     <a class="govuk-link govuk-link--no-visited-state govuk-pagination__link" href="?page={{ . }}" aria-label="{{ tr $.App "page" }} {{ . }}">
                       {{ . }}
                     </a>
