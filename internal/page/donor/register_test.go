@@ -7,7 +7,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
@@ -71,7 +70,7 @@ func TestMakeHandleErrors(t *testing.T) {
 func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 	testCases := map[string]struct {
 		expectedAppData     page.AppData
-		loginSesh           *sessions.Session
+		loginSesh           *sesh.LoginSession
 		expectedSessionData *page.SessionData
 	}{
 		"donor": {
@@ -81,7 +80,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 				SessionID: "cmFuZG9t",
 				LpaID:     "123",
 			},
-			loginSesh:           &sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}},
+			loginSesh:           &sesh.LoginSession{Sub: "random"},
 			expectedSessionData: &page.SessionData{SessionID: "cmFuZG9t", LpaID: "123"},
 		},
 		"organisation": {
@@ -92,7 +91,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 				LpaID:       "123",
 				IsSupporter: true,
 			},
-			loginSesh:           &sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random", OrganisationID: "org-id"}}},
+			loginSesh:           &sesh.LoginSession{Sub: "random", OrganisationID: "org-id"},
 			expectedSessionData: &page.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id", LpaID: "123"},
 		},
 	}
@@ -106,7 +105,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 
 			sessionStore := newMockSessionStore(t)
 			sessionStore.EXPECT().
-				Get(r, "session").
+				Login(r).
 				Return(tc.loginSesh, nil)
 
 			donorStore := newMockDonorStore(t)
@@ -153,8 +152,8 @@ func TestMakeLpaHandleWhenSessionStoreError(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{}, expectedError)
+		Login(r).
+		Return(nil, expectedError)
 
 	handle := makeLpaHandle(mux, sessionStore, nil, nil)
 	handle("/path", page.None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.DonorProvidedDetails) error {
@@ -176,8 +175,8 @@ func TestMakeLpaHandleWhenLpaStoreError(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "random"}, nil)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -206,8 +205,8 @@ func TestMakeLpaHandleSessionExistingSessionData(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "random"}, nil)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -249,8 +248,8 @@ func TestMakeLpaHandleErrors(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{Values: map[any]any{"session": &sesh.LoginSession{Sub: "random"}}}, nil)
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "random"}, nil)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -287,19 +286,8 @@ func TestPayHelperPay(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
 			sessionStore := newMockSessionStore(t)
-
-			session := sessions.NewSession(sessionStore, "pay")
-			session.Options = &sessions.Options{
-				Path:     "/",
-				MaxAge:   5400,
-				SameSite: http.SameSiteLaxMode,
-				HttpOnly: true,
-				Secure:   true,
-			}
-			session.Values = map[any]any{"payment": &sesh.PaymentSession{PaymentID: "a-fake-id"}}
-
 			sessionStore.EXPECT().
-				Save(r, w, session).
+				SetPayment(r, w, &sesh.PaymentSession{PaymentID: "a-fake-id"}).
 				Return(nil)
 
 			payClient := newMockPayClient(t)
@@ -469,19 +457,8 @@ func TestPayHelperPayWhenFeeDenied(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
 	sessionStore := newMockSessionStore(t)
-
-	session := sessions.NewSession(sessionStore, "pay")
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   5400,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   true,
-	}
-	session.Values = map[any]any{"payment": &sesh.PaymentSession{PaymentID: "a-fake-id"}}
-
 	sessionStore.EXPECT().
-		Save(r, w, session).
+		SetPayment(r, w, &sesh.PaymentSession{PaymentID: "a-fake-id"}).
 		Return(nil)
 
 	payClient := newMockPayClient(t)
@@ -539,19 +516,8 @@ func TestPayHelperPayWhenFeeDeniedAndPutStoreError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
 	sessionStore := newMockSessionStore(t)
-
-	session := sessions.NewSession(sessionStore, "pay")
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   5400,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   true,
-	}
-	session.Values = map[any]any{"payment": &sesh.PaymentSession{PaymentID: "a-fake-id"}}
-
 	sessionStore.EXPECT().
-		Save(r, w, session).
+		SetPayment(r, w, &sesh.PaymentSession{PaymentID: "a-fake-id"}).
 		Return(nil)
 
 	payClient := newMockPayClient(t)
@@ -626,7 +592,7 @@ func TestPayHelperPayWhenSessionErrors(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Save(r, w, mock.Anything).
+		SetPayment(r, w, mock.Anything).
 		Return(expectedError)
 
 	payClient := newMockPayClient(t)
