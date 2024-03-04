@@ -44,6 +44,11 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore Sess
 		ctx := page.ContextWithSessionData(r.Context(), sessionData)
 
 		organisation, err := organisationStore.Get(ctx)
+
+		if !organisation.DeletedAt.IsZero() {
+			return page.Paths.Supporter.Start.Redirect(w, r, appData)
+		}
+
 		if err == nil {
 			loginSession.OrganisationID = organisation.ID
 			loginSession.OrganisationName = organisation.Name

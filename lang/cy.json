@@ -1100,5 +1100,9 @@
     "showing":"Welsh",
     "to":"Welsh",
     "of":"Welsh",
-    "lpas":"Welsh"
+    "lpas":"Welsh",
+    "deleteOrganisation": "Welsh",
+    "deleteOrganisationContent": "<p class=\"govuk-body\">Welsh {{ .OrganisationName }} Welsh</p><p class=\"govuk-body\">Welsh:</p><ul class=\"govuk-list govuk-list--bullet\"><li>{{ .InProgressLPACount }} Welsh</li><li>Welsh</li></ul>",
+    "theOrganisationHasBeenDeleted": "<p class=\"govuk-body app-full-width\">Welsh <span class=\"govuk-!-font-weight-bold\">{{ .OrganisationName }}</span> Welsh</p><p class=\"govuk-body app-full-width\">Welsh</p>",
+    "organisationDeleted": "Welsh"
 }

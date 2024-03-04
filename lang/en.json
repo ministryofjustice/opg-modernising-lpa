@@ -1038,5 +1038,9 @@
     "showing": "Showing",
     "to": "to",
     "of": "of",
-    "lpas": "LPAs"
+    "lpas": "LPAs",
+    "deleteOrganisation": "Delete organisation",
+    "deleteOrganisationContent": "<p class=\"govuk-body\">If you delete {{ .OrganisationName }} now, you and all team members will immediately lose access to this organisation.</p><p class=\"govuk-body\">This includes:</p><ul class=\"govuk-list govuk-list--bullet\"><li><span class=\"govuk-!-font-weight-bold\">{{ .InProgressLPACount }} LPAs</span> that are still in progress</li><li>any completed LPAs made in this organisation</li></ul>",
+    "theOrganisationHasBeenDeleted": "<p class=\"govuk-body app-full-width\">The organisation <span class=\"govuk-!-font-weight-bold\">{{ .OrganisationName }}</span> has been deleted. We have also sent you an email confirming this.</p><p class=\"govuk-body app-full-width\">All team members have now lost access to all LPAs made in this organisation.</p>",
+    "organisationDeleted": "Organisation deleted"
 }
