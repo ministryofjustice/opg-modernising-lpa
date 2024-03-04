@@ -471,39 +471,3 @@ func TestLoginCallbackWhenSessionError(t *testing.T) {
 	err := LoginCallback(client, sessionStore, organisationStore, testNowFn, nil)(page.AppData{}, w, r)
 	assert.Equal(t, expectedError, err)
 }
-
-func TestLoginCallbackWhenOrganisationIsDeleted(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
-
-	client := newMockOneLoginClient(t)
-	client.EXPECT().
-		Exchange(r.Context(), "auth-code", "my-nonce").
-		Return("id-token", "a JWT", nil)
-	client.EXPECT().
-		UserInfo(r.Context(), "a JWT").
-		Return(onelogin.UserInfo{Sub: "random", Email: "a@example.org"}, nil)
-
-	sessionStore := newMockSessionStore(t)
-	sessionStore.EXPECT().
-		OneLogin(r).
-		Return(&sesh.OneLoginSession{
-			State:    "my-state",
-			Nonce:    "my-nonce",
-			Locale:   "en",
-			Redirect: page.Paths.Supporter.LoginCallback.Format(),
-		}, nil)
-
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
-		Get(mock.Anything).
-		Return(&actor.Organisation{DeletedAt: time.Now()}, nil)
-
-	err := LoginCallback(client, sessionStore, organisationStore, testNowFn, nil)(page.AppData{}, w, r)
-
-	assert.Nil(t, err)
-	resp := w.Result()
-
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.Start.Format(), resp.Header.Get("Location"))
-}

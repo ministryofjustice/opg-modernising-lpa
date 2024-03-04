@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
@@ -132,6 +133,24 @@ func TestOrganisationStoreGet(t *testing.T) {
 	result, err := organisationStore.Get(ctx)
 	assert.Nil(t, err)
 	assert.Equal(t, organisation, result)
+}
+
+func TestOrganisationStoreGetWhenOrganisationDeleted(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "session-id"})
+	organisation := &actor.Organisation{Name: "A name", DeletedAt: testNow}
+
+	member := actor.Member{PK: "ORGANISATION#a-uuid"}
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		ExpectOneBySK(ctx, "MEMBER#session-id", member, nil)
+	dynamoClient.
+		ExpectOne(ctx, "ORGANISATION#a-uuid", "ORGANISATION#a-uuid", organisation, nil)
+
+	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+
+	result, err := organisationStore.Get(ctx)
+	assert.Equal(t, dynamo.NotFoundError{}, err)
+	assert.Equal(t, &actor.Organisation{}, result)
 }
 
 func TestOrganisationStoreGetWithSessionErrors(t *testing.T) {
