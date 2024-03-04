@@ -23,5 +23,6 @@ packages:
   github.com/ministryofjustice/opg-modernising-lpa/internal/s3:
   github.com/ministryofjustice/opg-modernising-lpa/internal/search:
   github.com/ministryofjustice/opg-modernising-lpa/internal/secrets:
+  github.com/ministryofjustice/opg-modernising-lpa/internal/sesh:
   github.com/ministryofjustice/opg-modernising-lpa/internal/uid:
   github.com/ministryofjustice/opg-modernising-lpa/internal/validation:

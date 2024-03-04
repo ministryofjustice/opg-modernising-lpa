@@ -7,13 +7,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
 const FormUrlEncoded = "application/x-www-form-urlencoded"
@@ -47,12 +47,6 @@ type DonorStore interface {
 	Put(context.Context, *actor.DonorProvidedDetails) error
 }
 
-type SessionStore interface {
-	Get(r *http.Request, name string) (*sessions.Session, error)
-	New(r *http.Request, name string) (*sessions.Session, error)
-	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
-}
-
 type Bundle interface {
 	For(lang localize.Lang) *localize.Localizer
 }
@@ -83,4 +77,14 @@ type Handler func(data AppData, w http.ResponseWriter, r *http.Request) error
 type EventClient interface {
 	SendNotificationSent(ctx context.Context, notificationSentEvent event.NotificationSent) error
 	SendPaperFormRequested(ctx context.Context, paperFormRequestedEvent event.PaperFormRequested) error
+}
+
+type SessionStore interface {
+	Csrf(r *http.Request) (*sesh.CsrfSession, error)
+	SetCsrf(r *http.Request, w http.ResponseWriter, session *sesh.CsrfSession) error
+	Login(r *http.Request) (*sesh.LoginSession, error)
+	SetLogin(r *http.Request, w http.ResponseWriter, session *sesh.LoginSession) error
+	ClearLogin(r *http.Request, w http.ResponseWriter) error
+	OneLogin(r *http.Request) (*sesh.OneLoginSession, error)
+	SetOneLogin(r *http.Request, w http.ResponseWriter, session *sesh.OneLoginSession) error
 }

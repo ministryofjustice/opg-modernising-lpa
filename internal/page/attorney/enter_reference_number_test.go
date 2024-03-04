@@ -8,7 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -18,19 +17,10 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func (m *mockSessionStore) ExpectGet(r *http.Request, values map[any]any, err error) {
-	session := sessions.NewSession(m, "session")
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   86400,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   true,
-	}
-	session.Values = values
+func (m *mockSessionStore) ExpectGet(r *http.Request, values *sesh.LoginSession, err error) {
 	m.EXPECT().
-		Get(r, "session").
-		Return(session, err)
+		Login(r).
+		Return(values, err)
 }
 
 func TestGetEnterReferenceNumber(t *testing.T) {
@@ -134,9 +124,9 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 				Return(&actor.AttorneyProvidedDetails{}, nil)
 
 			sessionStore := newMockSessionStore(t)
-			sessionStore.
-				ExpectGet(r,
-					map[any]any{"session": &sesh.LoginSession{Sub: "hey"}}, nil)
+			sessionStore.EXPECT().
+				Login(r).
+				Return(&sesh.LoginSession{Sub: "hey"}, nil)
 
 			err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, attorneyStore)(testAppData, w, r)
 
@@ -219,9 +209,9 @@ func TestPostEnterReferenceNumberOnSessionGetError(t *testing.T) {
 		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		ExpectGet(r,
-			map[any]any{"session": &sesh.LoginSession{Sub: "hey"}}, expectedError)
+	sessionStore.EXPECT().
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "hey"}, expectedError)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, nil)(testAppData, w, r)
 
@@ -248,9 +238,9 @@ func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
 		Return(&actor.AttorneyProvidedDetails{}, expectedError)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		ExpectGet(r,
-			map[any]any{"session": &sesh.LoginSession{Sub: "hey"}}, nil)
+	sessionStore.EXPECT().
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "hey"}, nil)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, attorneyStore)(testAppData, w, r)
 
@@ -284,9 +274,9 @@ func TestPostEnterReferenceNumberOnShareCodeStoreDeleteError(t *testing.T) {
 		Return(&actor.AttorneyProvidedDetails{}, nil)
 
 	sessionStore := newMockSessionStore(t)
-	sessionStore.
-		ExpectGet(r,
-			map[any]any{"session": &sesh.LoginSession{Sub: "hey"}}, nil)
+	sessionStore.EXPECT().
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "hey"}, nil)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, attorneyStore)(testAppData, w, r)
 

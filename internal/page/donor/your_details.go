@@ -5,13 +5,11 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -24,7 +22,7 @@ type yourDetailsData struct {
 	NameWarning       *actor.SameNameWarning
 }
 
-func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore sessions.Store) Handler {
+func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore SessionStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &yourDetailsData{
 			App: appData,
@@ -39,7 +37,7 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore ses
 		}
 
 		if r.Method == http.MethodPost {
-			loginSession, err := sesh.Login(sessionStore, r)
+			loginSession, err := sessionStore.Login(r)
 			if err != nil {
 				return err
 			}

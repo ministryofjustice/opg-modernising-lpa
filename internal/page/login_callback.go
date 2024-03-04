@@ -14,9 +14,14 @@ type LoginCallbackOneLoginClient interface {
 	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
 }
 
-func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh.Store, redirect Path, dashboardStore DashboardStore, actorType actor.Type) Handler {
+type LoginCallbackSessionStore interface {
+	OneLogin(r *http.Request) (*sesh.OneLoginSession, error)
+	SetLogin(r *http.Request, w http.ResponseWriter, session *sesh.LoginSession) error
+}
+
+func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore LoginCallbackSessionStore, redirect Path, dashboardStore DashboardStore, actorType actor.Type) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
-		oneLoginSession, err := sesh.OneLogin(sessionStore, r)
+		oneLoginSession, err := sessionStore.OneLogin(r)
 		if err != nil {
 			return err
 		}
@@ -37,7 +42,7 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore sesh
 			Email:   userInfo.Email,
 		}
 
-		if err := sesh.SetLoginSession(sessionStore, r, w, session); err != nil {
+		if err := sessionStore.SetLogin(r, w, session); err != nil {
 			return err
 		}
 

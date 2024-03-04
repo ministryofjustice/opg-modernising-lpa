@@ -25,7 +25,7 @@ type lpaLink struct {
 
 func CertificateProvider(
 	tmpl template.Template,
-	sessionStore sesh.Store,
+	sessionStore *sesh.Store,
 	shareCodeSender ShareCodeSender,
 	donorStore page.DonorStore,
 	certificateProviderStore CertificateProviderStore,
@@ -62,7 +62,7 @@ func CertificateProvider(
 			certificateProviderSessionID = base64.StdEncoding.EncodeToString([]byte(certificateProviderSub))
 		)
 
-		if err := sesh.SetLoginSession(sessionStore, r, w, &sesh.LoginSession{Sub: certificateProviderSub, Email: testEmail}); err != nil {
+		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: certificateProviderSub, Email: testEmail}); err != nil {
 			return err
 		}
 

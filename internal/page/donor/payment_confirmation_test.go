@@ -7,7 +7,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/stretchr/testify/assert"
@@ -122,8 +121,8 @@ func TestGetPaymentConfirmationWhenErrorGettingSession(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "pay").
-		Return(&sessions.Session{}, expectedError)
+		Payment(r).
+		Return(nil, expectedError)
 
 	err := PaymentConfirmation(nil, template.Execute, newMockPayClient(t), nil, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
@@ -162,9 +161,8 @@ func TestGetPaymentConfirmationWhenErrorExpiringSession(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t).
 		withPaySession(r)
-
 	sessionStore.EXPECT().
-		Save(r, w, mock.Anything).
+		ClearPayment(r, w).
 		Return(expectedError)
 
 	logger := newMockLogger(t)
