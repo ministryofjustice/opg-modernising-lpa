@@ -5,7 +5,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
@@ -78,26 +77,8 @@ func TestPostDeleteOrganisationName(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 	sessionStore := newMockSessionStore(t)
-
-	session := sessions.NewSession(nil, "")
-	session.Options = &sessions.Options{
-		MaxAge: -1,
-	}
-	session.Values = map[any]any{}
-
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(&sessions.Session{
-			Options: &sessions.Options{
-				MaxAge: 86400,
-			},
-			Values: map[any]any{
-				"some-session-data": "data",
-			},
-		}, nil)
-
-	sessionStore.EXPECT().
-		Save(r, w, session).
+		ClearLogin(r, w).
 		Return(nil)
 
 	organisationStore := newMockOrganisationStore(t)
@@ -117,47 +98,26 @@ func TestPostDeleteOrganisationName(t *testing.T) {
 	assert.Equal(t, page.Paths.Supporter.OrganisationDeleted.Format()+"?organisationName=My+organisation", resp.Header.Get("Location"))
 }
 
-func TestPostDeleteOrganisationNameWhenSessionStoreErrorsGetError(t *testing.T) {
-	testcases := map[string]struct {
-		getError  error
-		saveError error
-	}{
-		"when get error": {
-			getError: expectedError,
-		},
-		"when save error": {
-			saveError: expectedError,
-		},
-	}
+func TestPostDeleteOrganisationNameWhenSessionStoreErrorsError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
-			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", nil)
+	organisationStore := newMockOrganisationStore(t)
+	organisationStore.EXPECT().
+		AllLPAs(r.Context()).
+		Return([]actor.DonorProvidedDetails{{}}, nil)
 
-			organisationStore := newMockOrganisationStore(t)
-			organisationStore.EXPECT().
-				AllLPAs(r.Context()).
-				Return([]actor.DonorProvidedDetails{{}}, nil)
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		ClearLogin(mock.Anything, mock.Anything).
+		Return(expectedError)
 
-			sessionStore := newMockSessionStore(t)
-			sessionStore.EXPECT().
-				Get(mock.Anything, mock.Anything).
-				Return(&sessions.Session{Options: &sessions.Options{}}, tc.getError)
+	err := DeleteOrganisation(nil, organisationStore, sessionStore)(testOrgMemberAppData, w, r, &actor.Organisation{})
+	resp := w.Result()
 
-			if tc.saveError != nil {
-				sessionStore.EXPECT().
-					Save(mock.Anything, mock.Anything, mock.Anything).
-					Return(tc.saveError)
-			}
+	assert.Error(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-			err := DeleteOrganisation(nil, organisationStore, sessionStore)(testOrgMemberAppData, w, r, &actor.Organisation{})
-			resp := w.Result()
-
-			assert.Error(t, err)
-			assert.Equal(t, http.StatusOK, resp.StatusCode)
-		})
-	}
 }
 
 func TestPostDeleteOrganisationNameWhenOrganisationStoreErrors(t *testing.T) {
@@ -187,13 +147,7 @@ func TestPostDeleteOrganisationNameWhenOrganisationStoreErrors(t *testing.T) {
 
 			if tc.softDeleteError != nil {
 				sessionStore.EXPECT().
-					Get(mock.Anything, mock.Anything).
-					Return(&sessions.Session{
-						Options: &sessions.Options{},
-					}, nil)
-
-				sessionStore.EXPECT().
-					Save(mock.Anything, mock.Anything, mock.Anything).
+					ClearLogin(mock.Anything, mock.Anything).
 					Return(nil)
 
 				organisationStore.EXPECT().

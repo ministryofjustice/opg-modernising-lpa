@@ -59,7 +59,7 @@ func TestLoginCallbackNoOrganisation(t *testing.T) {
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email})).
-		Return(&actor.Organisation{ID: "org-id", Name: "org name"}, dynamo.NotFoundError{})
+		Return(&actor.Organisation{}, dynamo.NotFoundError{})
 
 	err := LoginCallback(client, sessionStore, organisationStore, testNowFn, memberStore)(page.AppData{}, w, r)
 	resp := w.Result()
@@ -485,42 +485,18 @@ func TestLoginCallbackWhenOrganisationIsDeleted(t *testing.T) {
 		Return(onelogin.UserInfo{Sub: "random", Email: "a@example.org"}, nil)
 
 	sessionStore := newMockSessionStore(t)
-
-	session := sessions.NewSession(sessionStore, "session")
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   86400,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   true,
-	}
-
-	loginSession := &sesh.LoginSession{
-		IDToken:          "id-token",
-		Sub:              "supporter-random",
-		Email:            "a@example.org",
-		OrganisationID:   "org-id",
-		OrganisationName: "org name",
-	}
-
-	session.Values = map[any]any{"session": loginSession}
-
 	sessionStore.EXPECT().
-		Get(r, "params").
-		Return(&sessions.Session{
-			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{
-					State:    "my-state",
-					Nonce:    "my-nonce",
-					Locale:   "en",
-					Redirect: "/redirect",
-				},
-			},
+		OneLogin(r).
+		Return(&sesh.OneLoginSession{
+			State:    "my-state",
+			Nonce:    "my-nonce",
+			Locale:   "en",
+			Redirect: page.Paths.Supporter.LoginCallback.Format(),
 		}, nil)
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email})).
+		Get(mock.Anything).
 		Return(&actor.Organisation{DeletedAt: time.Now()}, nil)
 
 	err := LoginCallback(client, sessionStore, organisationStore, testNowFn, nil)(page.AppData{}, w, r)

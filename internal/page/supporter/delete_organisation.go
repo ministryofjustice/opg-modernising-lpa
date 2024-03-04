@@ -7,7 +7,6 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -30,7 +29,7 @@ func DeleteOrganisation(tmpl template.Template, organisationStore OrganisationSt
 		}
 
 		if r.Method == http.MethodPost {
-			if err := sesh.ClearLoginSession(sessionStore, r, w); err != nil {
+			if err := sessionStore.ClearLogin(r, w); err != nil {
 				return err
 			}
 

@@ -50,9 +50,10 @@ type OneLoginClient interface {
 }
 
 type SessionStore interface {
+	ClearLogin(r *http.Request, w http.ResponseWriter) error
+	Login(r *http.Request) (*sesh.LoginSession, error)
 	OneLogin(r *http.Request) (*sesh.OneLoginSession, error)
 	SetLogin(r *http.Request, w http.ResponseWriter, session *sesh.LoginSession) error
-	Login(r *http.Request) (*sesh.LoginSession, error)
 	SetOneLogin(r *http.Request, w http.ResponseWriter, session *sesh.OneLoginSession) error
 }
 
