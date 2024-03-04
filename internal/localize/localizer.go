@@ -117,6 +117,23 @@ func (l *Localizer) FormatDate(t date.TimeOrDate) string {
 	return t.Format("2 January 2006")
 }
 
+func (l *Localizer) FormatTime(t time.Time) string {
+	if t.IsZero() {
+		return ""
+	}
+
+	if l.Lang == Cy {
+		amPm := "yb"
+		if t.Hour() >= 12 {
+			amPm = "yp"
+		}
+
+		return fmt.Sprintf("%s%s", t.Format("3:04"), amPm)
+	}
+
+	return t.Format("3:04pm")
+}
+
 func (l *Localizer) FormatDateTime(t time.Time) string {
 	if t.IsZero() {
 		return ""
