@@ -36,7 +36,7 @@ type DocumentStore interface {
 
 func Donor(
 	tmpl template.Template,
-	sessionStore sesh.Store,
+	sessionStore *sesh.Store,
 	donorStore DonorStore,
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
@@ -91,7 +91,7 @@ func Donor(
 
 		donorSessionID := base64.StdEncoding.EncodeToString([]byte(donorSub))
 
-		if err := sesh.SetLoginSession(sessionStore, r, w, &sesh.LoginSession{Sub: donorSub, Email: testEmail}); err != nil {
+		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: donorSub, Email: testEmail}); err != nil {
 			return err
 		}
 

@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
 )
@@ -54,12 +53,8 @@ func TestAuthRedirect(t *testing.T) {
 
 			sessionStore := newMockSessionStore(t)
 			sessionStore.EXPECT().
-				Get(r, "params").
-				Return(&sessions.Session{
-					Values: map[any]any{
-						"one-login": tc.session,
-					},
-				}, nil)
+				OneLogin(r).
+				Return(tc.session, nil)
 
 			AuthRedirect(nil, sessionStore)(w, r)
 			resp := w.Result()
@@ -70,64 +65,23 @@ func TestAuthRedirect(t *testing.T) {
 	}
 }
 
-func TestAuthRedirectSessionMissing(t *testing.T) {
-	testCases := map[string]struct {
-		url         string
-		session     *sessions.Session
-		getErr      error
-		expectedErr interface{}
-	}{
-		"missing session": {
-			url:         "/?code=auth-code&state=my-state",
-			session:     nil,
-			getErr:      expectedError,
-			expectedErr: expectedError,
-		},
-		"missing state": {
-			url:         "/?code=auth-code&state=my-state",
-			session:     &sessions.Session{Values: map[any]any{}},
-			expectedErr: sesh.MissingSessionError("one-login"),
-		},
-		"missing state from url": {
-			url: "/?code=auth-code",
-			session: &sessions.Session{
-				Values: map[any]any{
-					"one-login": &sesh.OneLoginSession{State: "my-state"},
-				},
-			},
-			expectedErr: sesh.InvalidSessionError("one-login"),
-		},
-		"missing nonce": {
-			url: "/?code=auth-code&state=my-state",
-			session: &sessions.Session{
-				Values: map[any]any{
-					"one-login": &sesh.OneLoginSession{State: "my-state", Locale: "en"},
-				},
-			},
-			expectedErr: sesh.InvalidSessionError("one-login"),
-		},
-	}
+func TestAuthRedirectSessionError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		Info("problem retrieving onelogin session", slog.Any("err", expectedError))
 
-			logger := newMockLogger(t)
-			logger.EXPECT().
-				Info("problem retrieving onelogin session", slog.Any("err", tc.expectedErr))
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		OneLogin(r).
+		Return(nil, expectedError)
 
-			sessionStore := newMockSessionStore(t)
-			sessionStore.EXPECT().
-				Get(r, "params").
-				Return(tc.session, tc.getErr)
+	AuthRedirect(logger, sessionStore)(w, r)
+	resp := w.Result()
 
-			AuthRedirect(logger, sessionStore)(w, r)
-			resp := w.Result()
-
-			assert.Equal(t, http.StatusOK, resp.StatusCode)
-		})
-	}
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestAuthRedirectStateIncorrect(t *testing.T) {
@@ -140,12 +94,8 @@ func TestAuthRedirectStateIncorrect(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "params").
-		Return(&sessions.Session{
-			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Redirect: Paths.LoginCallback.Format()},
-			},
-		}, nil)
+		OneLogin(r).
+		Return(&sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Redirect: Paths.LoginCallback.Format()}, nil)
 
 	AuthRedirect(logger, sessionStore)(w, r)
 	resp := w.Result()

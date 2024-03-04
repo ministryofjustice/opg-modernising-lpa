@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -61,38 +60,24 @@ func TestPostEnterOrganisationName(t *testing.T) {
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		Create(r.Context(), "My organisation").
-		Return(&actor.Organisation{ID: "org-id"}, nil)
+		Return(&actor.Organisation{ID: "org-id", Name: "My organisation"}, nil)
 
 	sessionStore := newMockSessionStore(t)
-
-	session := sessions.NewSession(sessionStore, "session")
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   86400,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   true,
-	}
-	session.Values = map[any]any{"session": &sesh.LoginSession{
-		IDToken: "id-token",
-		Sub:     "random",
-		Email:   "name@example.com",
-	}}
-
 	sessionStore.EXPECT().
-		Get(r, "session").
-		Return(session, nil)
-
-	session.Values = map[any]any{"session": &sesh.LoginSession{
-		IDToken:          "id-token",
-		Sub:              "random",
-		Email:            "name@example.com",
-		OrganisationID:   "org-id",
-		OrganisationName: "My organisation",
-	}}
-
+		Login(r).
+		Return(&sesh.LoginSession{
+			IDToken: "id-token",
+			Sub:     "random",
+			Email:   "name@example.com",
+		}, nil)
 	sessionStore.EXPECT().
-		Save(r, w, session).
+		SetLogin(r, w, &sesh.LoginSession{
+			IDToken:          "id-token",
+			Sub:              "random",
+			Email:            "name@example.com",
+			OrganisationID:   "org-id",
+			OrganisationName: "My organisation",
+		}).
 		Return(nil)
 
 	err := EnterOrganisationName(nil, organisationStore, sessionStore)(testAppData, w, r)
@@ -116,17 +101,13 @@ func TestPostEnterOrganisationNameWhenSessionStoreSaveError(t *testing.T) {
 		Return(&actor.Organisation{}, nil)
 
 	sessionStore := newMockSessionStore(t)
-
-	session := sessions.NewSession(sessionStore, "session")
-	session.Values = map[any]any{"session": &sesh.LoginSession{
-		Sub: "random",
-	}}
-
 	sessionStore.EXPECT().
-		Get(r, mock.Anything).
-		Return(session, nil)
+		Login(r).
+		Return(&sesh.LoginSession{
+			Sub: "random",
+		}, nil)
 	sessionStore.EXPECT().
-		Save(r, w, mock.Anything).
+		SetLogin(r, w, mock.Anything).
 		Return(expectedError)
 
 	err := EnterOrganisationName(nil, organisationStore, sessionStore)(testAppData, w, r)
@@ -149,14 +130,8 @@ func TestPostEnterOrganisationNameWhenSessionStoreGetError(t *testing.T) {
 		Return(&actor.Organisation{}, nil)
 
 	sessionStore := newMockSessionStore(t)
-
-	session := sessions.NewSession(sessionStore, "session")
-	session.Values = map[any]any{"session": &sesh.LoginSession{
-		Sub: "random",
-	}}
-
 	sessionStore.EXPECT().
-		Get(r, mock.Anything).
+		Login(r).
 		Return(nil, expectedError)
 
 	err := EnterOrganisationName(nil, organisationStore, sessionStore)(testAppData, w, r)
