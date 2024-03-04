@@ -10,7 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type deleteOrganisationNameData struct {
+type deleteOrganisationData struct {
 	App                page.AppData
 	Errors             validation.List
 	InProgressLPACount int
@@ -23,17 +23,17 @@ func DeleteOrganisation(tmpl template.Template, organisationStore OrganisationSt
 			return err
 		}
 
-		data := &deleteOrganisationNameData{
+		data := &deleteOrganisationData{
 			App:                appData,
 			InProgressLPACount: len(lpas),
 		}
 
 		if r.Method == http.MethodPost {
-			if err := sessionStore.ClearLogin(r, w); err != nil {
+			if err := organisationStore.SoftDelete(r.Context()); err != nil {
 				return err
 			}
 
-			if err := organisationStore.SoftDelete(r.Context()); err != nil {
+			if err := sessionStore.ClearLogin(r, w); err != nil {
 				return err
 			}
 

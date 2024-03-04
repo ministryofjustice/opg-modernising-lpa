@@ -22,7 +22,7 @@ func TestGetDeleteOrganisationName(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &deleteOrganisationNameData{
+		Execute(w, &deleteOrganisationData{
 			App:                testAppData,
 			InProgressLPACount: 1,
 		}).
@@ -104,8 +104,11 @@ func TestPostDeleteOrganisationNameWhenSessionStoreErrorsError(t *testing.T) {
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		AllLPAs(r.Context()).
+		AllLPAs(mock.Anything).
 		Return([]actor.DonorProvidedDetails{{}}, nil)
+	organisationStore.EXPECT().
+		SoftDelete(mock.Anything).
+		Return(nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -138,24 +141,18 @@ func TestPostDeleteOrganisationNameWhenOrganisationStoreErrors(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-			sessionStore := newMockSessionStore(t)
-
 			organisationStore := newMockOrganisationStore(t)
 			organisationStore.EXPECT().
 				AllLPAs(mock.Anything).
 				Return([]actor.DonorProvidedDetails{}, tc.allLPAsError)
 
 			if tc.softDeleteError != nil {
-				sessionStore.EXPECT().
-					ClearLogin(mock.Anything, mock.Anything).
-					Return(nil)
-
 				organisationStore.EXPECT().
 					SoftDelete(mock.Anything).
 					Return(tc.softDeleteError)
 			}
 
-			err := DeleteOrganisation(nil, organisationStore, sessionStore)(testOrgMemberAppData, w, r, &actor.Organisation{})
+			err := DeleteOrganisation(nil, organisationStore, nil)(testOrgMemberAppData, w, r, &actor.Organisation{})
 			resp := w.Result()
 
 			assert.Error(t, err)
