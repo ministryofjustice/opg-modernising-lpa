@@ -12,14 +12,21 @@ import (
 )
 
 type deleteOrganisationNameData struct {
-	App    page.AppData
-	Errors validation.List
+	App                page.AppData
+	Errors             validation.List
+	InProgressLPACount int
 }
 
 func DeleteOrganisation(tmpl template.Template, organisationStore OrganisationStore, sessionStore SessionStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
+		lpas, err := organisationStore.AllLPAs(r.Context())
+		if err != nil {
+			return err
+		}
+
 		data := &deleteOrganisationNameData{
-			App: appData,
+			App:                appData,
+			InProgressLPACount: len(lpas),
 		}
 
 		if r.Method == http.MethodPost {

@@ -16,17 +16,39 @@ func TestGetDeleteOrganisationName(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
+	organisationStore := newMockOrganisationStore(t)
+	organisationStore.EXPECT().
+		AllLPAs(r.Context()).
+		Return([]actor.DonorProvidedDetails{{}}, nil)
+
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &deleteOrganisationNameData{
-			App: testAppData,
+			App:                testAppData,
+			InProgressLPACount: 1,
 		}).
 		Return(nil)
 
-	err := DeleteOrganisation(template.Execute, nil, nil)(testAppData, w, r, &actor.Organisation{})
+	err := DeleteOrganisation(template.Execute, organisationStore, nil)(testAppData, w, r, &actor.Organisation{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestGetDeleteOrganisationNameWhenOrganisationStoreError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	organisationStore := newMockOrganisationStore(t)
+	organisationStore.EXPECT().
+		AllLPAs(mock.Anything).
+		Return([]actor.DonorProvidedDetails{{}}, expectedError)
+
+	err := DeleteOrganisation(nil, organisationStore, nil)(testAppData, w, r, &actor.Organisation{})
+	resp := w.Result()
+
+	assert.Error(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -34,12 +56,17 @@ func TestGetDeleteOrganisationNameWhenTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
+	organisationStore := newMockOrganisationStore(t)
+	organisationStore.EXPECT().
+		AllLPAs(mock.Anything).
+		Return([]actor.DonorProvidedDetails{{}}, nil)
+
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := DeleteOrganisation(template.Execute, nil, nil)(testAppData, w, r, &actor.Organisation{})
+	err := DeleteOrganisation(template.Execute, organisationStore, nil)(testAppData, w, r, &actor.Organisation{})
 	resp := w.Result()
 
 	assert.Error(t, err)
@@ -75,6 +102,10 @@ func TestPostDeleteOrganisationName(t *testing.T) {
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
+		AllLPAs(r.Context()).
+		Return([]actor.DonorProvidedDetails{{}}, nil)
+
+	organisationStore.EXPECT().
 		SoftDelete(r.Context()).
 		Return(nil)
 
@@ -104,6 +135,11 @@ func TestPostDeleteOrganisationNameWhenSessionStoreErrorsGetError(t *testing.T) 
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
+			organisationStore := newMockOrganisationStore(t)
+			organisationStore.EXPECT().
+				AllLPAs(r.Context()).
+				Return([]actor.DonorProvidedDetails{{}}, nil)
+
 			sessionStore := newMockSessionStore(t)
 			sessionStore.EXPECT().
 				Get(mock.Anything, mock.Anything).
@@ -115,7 +151,7 @@ func TestPostDeleteOrganisationNameWhenSessionStoreErrorsGetError(t *testing.T) 
 					Return(tc.saveError)
 			}
 
-			err := DeleteOrganisation(nil, nil, sessionStore)(testOrgMemberAppData, w, r, &actor.Organisation{})
+			err := DeleteOrganisation(nil, organisationStore, sessionStore)(testOrgMemberAppData, w, r, &actor.Organisation{})
 			resp := w.Result()
 
 			assert.Error(t, err)
@@ -124,29 +160,52 @@ func TestPostDeleteOrganisationNameWhenSessionStoreErrorsGetError(t *testing.T) 
 	}
 }
 
-func TestPostDeleteOrganisationNameWhenOrganisationStoreError(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+func TestPostDeleteOrganisationNameWhenOrganisationStoreErrors(t *testing.T) {
+	testcases := map[string]struct {
+		allLPAsError    error
+		softDeleteError error
+	}{
+		"when AllLPAs error": {
+			allLPAsError: expectedError,
+		},
+		"when SoftDelete error": {
+			softDeleteError: expectedError,
+		},
+	}
 
-	sessionStore := newMockSessionStore(t)
-	sessionStore.EXPECT().
-		Get(mock.Anything, mock.Anything).
-		Return(&sessions.Session{
-			Options: &sessions.Options{},
-		}, nil)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	sessionStore.EXPECT().
-		Save(mock.Anything, mock.Anything, mock.Anything).
-		Return(nil)
+			sessionStore := newMockSessionStore(t)
 
-	organisationStore := newMockOrganisationStore(t)
-	organisationStore.EXPECT().
-		SoftDelete(r.Context()).
-		Return(expectedError)
+			organisationStore := newMockOrganisationStore(t)
+			organisationStore.EXPECT().
+				AllLPAs(mock.Anything).
+				Return([]actor.DonorProvidedDetails{}, tc.allLPAsError)
 
-	err := DeleteOrganisation(nil, organisationStore, sessionStore)(testOrgMemberAppData, w, r, &actor.Organisation{})
-	resp := w.Result()
+			if tc.softDeleteError != nil {
+				sessionStore.EXPECT().
+					Get(mock.Anything, mock.Anything).
+					Return(&sessions.Session{
+						Options: &sessions.Options{},
+					}, nil)
 
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+				sessionStore.EXPECT().
+					Save(mock.Anything, mock.Anything, mock.Anything).
+					Return(nil)
+
+				organisationStore.EXPECT().
+					SoftDelete(mock.Anything).
+					Return(tc.softDeleteError)
+			}
+
+			err := DeleteOrganisation(nil, organisationStore, sessionStore)(testOrgMemberAppData, w, r, &actor.Organisation{})
+			resp := w.Result()
+
+			assert.Error(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }

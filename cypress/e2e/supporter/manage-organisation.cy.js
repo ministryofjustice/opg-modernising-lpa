@@ -1,6 +1,6 @@
 describe('Manage organisation', () => {
     beforeEach(() => {
-        cy.visit('/fixtures/supporter?organisation=1&redirect=/manage-organisation/organisation-details&lpas=5');
+        cy.visit('/fixtures/supporter?organisation=1&redirect=/manage-organisation/organisation-details&lpa=5');
         cy.checkA11yApp();
     });
 
