@@ -523,6 +523,8 @@ github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D
 github.com/mattn/go-runewidth v0.0.4/go.mod h1:LwmH8dsx7+W8Uxz3IHJYH5QSwggIsqBzpuz5H//U1FU=
 github.com/ministryofjustice/opg-go-common v0.0.0-20240223111039-066f4e682b9b h1:knHvGJwDdLcfYc4t06QJtik+t0PsfK9KBRlcw3MzWWk=
 github.com/ministryofjustice/opg-go-common v0.0.0-20240223111039-066f4e682b9b/go.mod h1:3nG7SSyJij0KoZFR3axgfM7bkeyj8XrYR/PQ3e4nuK8=
+github.com/ministryofjustice/opg-go-common v0.0.0-20240227144553-d506200e53d5 h1:o3Cyak8pXiOQTLdniFSiyCbhNiQ5To/+cLHyVKKBd/o=
+github.com/ministryofjustice/opg-go-common v0.0.0-20240227144553-d506200e53d5/go.mod h1:zwxromuoYZxDwvvBy6NDhdyw3AZnAeq3dXZ647fNVf4=
 github.com/mitchellh/go-homedir v1.1.0 h1:lukF9ziXFxDFPkA1vsr5zpc1XuPDn/wFntq5mG+4E0Y=
 github.com/mitchellh/go-homedir v1.1.0/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=
 github.com/mitchellh/go-testing-interface v1.14.1 h1:jrgshOhYAUVNMAJiKbEu7EqAwgJJ2JqpQmpLJOu07cU=
