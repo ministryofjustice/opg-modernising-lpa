@@ -45,11 +45,11 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore Sess
 
 		organisation, err := organisationStore.Get(ctx)
 
-		if !organisation.DeletedAt.IsZero() {
-			return page.Paths.Supporter.Start.Redirect(w, r, appData)
-		}
-
 		if err == nil {
+			if !organisation.DeletedAt.IsZero() {
+				return page.Paths.Supporter.Start.Redirect(w, r, appData)
+			}
+
 			loginSession.OrganisationID = organisation.ID
 			loginSession.OrganisationName = organisation.Name
 			if err := sessionStore.SetLogin(r, w, loginSession); err != nil {
