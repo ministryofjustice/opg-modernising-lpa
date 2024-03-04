@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gorilla/sessions"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -26,8 +26,8 @@ func TestPostValidateCsrf(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "csrf").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"token": RandomString}}, nil)
+		Csrf(r).
+		Return(&sesh.CsrfSession{Token: RandomString}, nil)
 
 	ValidateCsrf(http.NotFoundHandler(), sessionStore, MockRandomString, nil).ServeHTTP(w, r)
 	resp := w.Result()
@@ -55,8 +55,8 @@ func TestPostValidateCsrfWhenMultipartForm(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "csrf").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{"token": RandomString}}, nil)
+		Csrf(r).
+		Return(&sesh.CsrfSession{Token: RandomString}, nil)
 
 	ValidateCsrf(http.NotFoundHandler(), sessionStore, MockRandomString, nil).ServeHTTP(w, r)
 	resp := w.Result()
@@ -65,34 +65,27 @@ func TestPostValidateCsrfWhenMultipartForm(t *testing.T) {
 }
 
 func TestPostValidateCsrfInvalid(t *testing.T) {
-	testcases := map[string]struct {
-		csrf   string
-		cookie string
-	}{
+	testcases := map[string]*sesh.CsrfSession{
 		"not equal": {
-			csrf:   "321",
-			cookie: "token",
+			Token: "321",
 		},
-		"cookie missing": {
-			csrf:   RandomString,
-			cookie: "not-token",
-		},
+		"cookie missing": {},
 	}
 
-	for name, tc := range testcases {
+	for name, session := range testcases {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			form := url.Values{
-				"csrf": {tc.csrf},
+				"csrf": {RandomString},
 			}
 			r, _ := http.NewRequest(http.MethodPost, "/path?a=b", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", FormUrlEncoded)
 
 			sessionStore := newMockSessionStore(t)
 			sessionStore.EXPECT().
-				Get(r, "csrf").
-				Return(&sessions.Session{Values: map[interface{}]interface{}{tc.cookie: RandomString}}, nil)
+				Csrf(r).
+				Return(session, nil)
 
 			errorHandler := newMockErrorHandler(t)
 			errorHandler.EXPECT().
@@ -139,8 +132,8 @@ func TestPostValidateCsrfWhenInvalidMultipartForm(t *testing.T) {
 
 			sessionStore := newMockSessionStore(t)
 			sessionStore.EXPECT().
-				Get(r, "csrf").
-				Return(&sessions.Session{Values: map[any]any{"token": "123456789012"}}, nil)
+				Csrf(r).
+				Return(&sesh.CsrfSession{Token: "123456789012"}, nil)
 
 			errorHandler := newMockErrorHandler(t)
 			errorHandler.EXPECT().
@@ -163,8 +156,8 @@ func TestPostValidateCsrfErrorWhenDecodingSession(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "csrf").
-		Return(&sessions.Session{Values: map[interface{}]interface{}{}}, expectedError)
+		Csrf(r).
+		Return(nil, expectedError)
 
 	errorHandler := newMockErrorHandler(t)
 	errorHandler.EXPECT().
@@ -181,19 +174,10 @@ func TestGetValidateCsrfSessionSavedWhenNew(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(r, "csrf").
-		Return(&sessions.Session{IsNew: true}, nil)
+		Csrf(r).
+		Return(nil, expectedError)
 	sessionStore.EXPECT().
-		Save(r, w, &sessions.Session{
-			IsNew:  true,
-			Values: map[interface{}]interface{}{"token": RandomString},
-			Options: &sessions.Options{
-				MaxAge:   86400,
-				Secure:   true,
-				HttpOnly: true,
-				SameSite: http.SameSiteLaxMode,
-			},
-		}).
+		SetCsrf(r, w, &sesh.CsrfSession{Token: RandomString}).
 		Return(nil)
 
 	ValidateCsrf(http.NotFoundHandler(), sessionStore, MockRandomString, nil).ServeHTTP(w, r)

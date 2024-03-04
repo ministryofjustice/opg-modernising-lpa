@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -35,12 +34,8 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(mock.Anything, "params").
-		Return(&sessions.Session{
-			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce", Redirect: "/redirect"},
-			},
-		}, nil)
+		OneLogin(mock.Anything).
+		Return(&sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce", Redirect: "/redirect"}, nil)
 
 	oneLoginClient := newMockOneLoginClient(t)
 	oneLoginClient.EXPECT().
@@ -93,12 +88,8 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 	sessionRetrieved := func(t *testing.T) *mockSessionStore {
 		sessionStore := newMockSessionStore(t)
 		sessionStore.EXPECT().
-			Get(mock.Anything, "params").
-			Return(&sessions.Session{
-				Values: map[any]any{
-					"one-login": &sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce", Redirect: "/redirect"},
-				},
-			}, nil)
+			OneLogin(mock.Anything).
+			Return(&sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce", Redirect: "/redirect"}, nil)
 		return sessionStore
 	}
 
@@ -219,12 +210,8 @@ func TestGetIdentityWithOneLoginCallbackWhenPutDonorStoreError(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Get(mock.Anything, "params").
-		Return(&sessions.Session{
-			Values: map[any]any{
-				"one-login": &sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce", Redirect: "/redirect"},
-			},
-		}, nil)
+		OneLogin(mock.Anything).
+		Return(&sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce", Redirect: "/redirect"}, nil)
 
 	oneLoginClient := newMockOneLoginClient(t)
 	oneLoginClient.EXPECT().
