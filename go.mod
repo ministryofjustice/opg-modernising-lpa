@@ -22,7 +22,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/sessions v1.2.2
-	github.com/ministryofjustice/opg-go-common v0.0.0-20240223111039-066f4e682b9b
+	github.com/ministryofjustice/opg-go-common v0.0.0-20240227144553-d506200e53d5
 	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/opensearch-project/opensearch-go/v3 v3.0.0
 	github.com/pact-foundation/pact-go/v2 v2.0.4
