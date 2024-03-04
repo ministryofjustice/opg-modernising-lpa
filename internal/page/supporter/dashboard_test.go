@@ -13,37 +13,48 @@ import (
 )
 
 func TestGetDashboard(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	testcases := map[string]int{
+		"/":           1,
+		"/?page=5":    5,
+		"/?page=what": 1,
+	}
 
-	keys := []dynamo.Key{{PK: "a", SK: "b"}}
-	pagination := &search.Pagination{Total: 10}
-	donors := []actor.DonorProvidedDetails{{LpaID: "abc"}}
+	for url, page := range testcases {
+		t.Run(url, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, url, nil)
 
-	searchClient := newMockSearchClient(t)
-	searchClient.EXPECT().
-		Query(r.Context(), search.QueryRequest{Page: 1, PageSize: 10}).
-		Return(&search.QueryResponse{Keys: keys, Pagination: pagination}, nil)
+			keys := []dynamo.Key{{PK: "a", SK: "b"}}
+			pagination := &search.Pagination{Total: 10}
+			donors := []actor.DonorProvidedDetails{{LpaID: "abc"}}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetByKeys(r.Context(), keys).
-		Return(donors, nil)
+			searchClient := newMockSearchClient(t)
+			searchClient.EXPECT().
+				Query(r.Context(), search.QueryRequest{Page: page, PageSize: 10}).
+				Return(&search.QueryResponse{Keys: keys, Pagination: pagination}, nil)
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &dashboardData{
-			App:        testAppData,
-			Donors:     donors,
-			Pagination: pagination,
-		}).
-		Return(expectedError)
+			donorStore := newMockDonorStore(t)
+			donorStore.EXPECT().
+				GetByKeys(r.Context(), keys).
+				Return(donors, nil)
 
-	err := Dashboard(template.Execute, donorStore, searchClient)(testAppData, w, r, nil)
-	resp := w.Result()
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, &dashboardData{
+					App:         testAppData,
+					Donors:      donors,
+					CurrentPage: page,
+					Pagination:  pagination,
+				}).
+				Return(expectedError)
 
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			err := Dashboard(template.Execute, donorStore, searchClient)(testAppData, w, r, nil)
+			resp := w.Result()
+
+			assert.Equal(t, expectedError, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
 func TestGetDashboardWhenSearchClientErrors(t *testing.T) {
