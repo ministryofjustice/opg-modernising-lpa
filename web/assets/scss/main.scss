@@ -120,6 +120,14 @@ body:not(.js-enabled) .govuk-back-link {
     color: govuk-colour("dark-grey");
 }
 
+.app-red {
+    color: govuk-colour("red") !important;
+}
+
 .app-justify-content-center {
     justify-content: center;
+}
+
+.app-full-width {
+    max-width: 100% !important;
 }
