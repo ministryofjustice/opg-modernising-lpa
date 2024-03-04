@@ -63,6 +63,7 @@ type Localizer interface {
 	Format(string, map[string]any) string
 	FormatCount(string, int, map[string]interface{}) string
 	FormatDate(date.TimeOrDate) string
+	FormatTime(time.Time) string
 	FormatDateTime(time.Time) string
 	Possessive(string) string
 	SetShowTranslationKeys(bool)

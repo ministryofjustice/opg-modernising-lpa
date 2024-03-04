@@ -10,7 +10,6 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -71,16 +70,7 @@ type AddressClient interface {
 }
 
 type Localizer interface {
-	Format(string, map[string]any) string
-	T(string) string
-	Count(string, int) string
-	FormatCount(string, int, map[string]interface{}) string
-	ShowTranslationKeys() bool
-	SetShowTranslationKeys(bool)
-	Possessive(string) string
-	Concat([]string, string) string
-	FormatDate(date.TimeOrDate) string
-	FormatDateTime(time.Time) string
+	page.Localizer
 }
 
 type DashboardStore interface {
