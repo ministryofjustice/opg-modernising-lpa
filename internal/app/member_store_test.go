@@ -24,14 +24,14 @@ func TestMemberStoreCreateMemberInvite(t *testing.T) {
 			Email:            "email@example.com",
 			FirstNames:       "a",
 			LastName:         "b",
-			Permission:       actor.None,
+			Permission:       actor.PermissionNone,
 			ReferenceNumber:  "abcde",
 		}).
 		Return(nil)
 
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn}
 
-	err := memberStore.CreateMemberInvite(ctx, &actor.Organisation{ID: "a-uuid", Name: "org name"}, "a", "b", "email@example.com", "abcde", actor.None)
+	err := memberStore.CreateMemberInvite(ctx, &actor.Organisation{ID: "a-uuid", Name: "org name"}, "a", "b", "email@example.com", "abcde", actor.PermissionNone)
 	assert.Nil(t, err)
 }
 
@@ -46,7 +46,7 @@ func TestMemberStoreCreateMemberInviteWithSessionMissing(t *testing.T) {
 	for name, ctx := range testcases {
 		t.Run(name, func(t *testing.T) {
 
-			err := memberStore.CreateMemberInvite(ctx, &actor.Organisation{}, "a", "b", "email@example.com", "abcde", actor.None)
+			err := memberStore.CreateMemberInvite(ctx, &actor.Organisation{}, "a", "b", "email@example.com", "abcde", actor.PermissionNone)
 
 			assert.Error(t, err)
 		})
@@ -107,7 +107,7 @@ func TestMemberStoreCreateMemberInviteWhenErrors(t *testing.T) {
 
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn}
 
-	err := memberStore.CreateMemberInvite(ctx, &actor.Organisation{}, "a", "b", "email@example.com", "abcde", actor.None)
+	err := memberStore.CreateMemberInvite(ctx, &actor.Organisation{}, "a", "b", "email@example.com", "abcde", actor.PermissionNone)
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -246,14 +246,14 @@ func TestMemberStoreGetAll(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllByPartialSK(ctx, "ORGANISATION#an-id",
-		"MEMBER#", []*actor.Member{{FirstNames: "a"}, {FirstNames: "b"}}, nil)
+		"MEMBER#", []*actor.Member{{FirstNames: "a"}, {FirstNames: "c"}, {FirstNames: "b"}}, nil)
 
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
 	members, err := memberStore.GetAll(ctx)
 
 	assert.Nil(t, err)
-	assert.Equal(t, []*actor.Member{{FirstNames: "a"}, {FirstNames: "b"}}, members)
+	assert.Equal(t, []*actor.Member{{FirstNames: "a"}, {FirstNames: "b"}, {FirstNames: "c"}}, members)
 }
 
 func TestMemberStoreGetAllWhenSessionMissing(t *testing.T) {
@@ -345,23 +345,24 @@ func TestMemberStoreCreate(t *testing.T) {
 		Email:          "ab@example.org",
 		FirstNames:     "a",
 		LastName:       "b",
-		Permission:     actor.Admin,
+		Permission:     actor.PermissionAdmin,
 		OrganisationID: "org-id",
 	}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
 		Create(ctx, &actor.Member{
-			PK:         "ORGANISATION#org-id",
-			SK:         "MEMBER#session-id",
-			CreatedAt:  testNow,
-			UpdatedAt:  testNow,
-			ID:         "a-uuid",
-			Email:      invite.Email,
-			FirstNames: invite.FirstNames,
-			LastName:   invite.LastName,
-			Permission: invite.Permission,
-			Status:     actor.Active,
+			PK:             "ORGANISATION#org-id",
+			SK:             "MEMBER#session-id",
+			CreatedAt:      testNow,
+			UpdatedAt:      testNow,
+			ID:             "a-uuid",
+			Email:          invite.Email,
+			FirstNames:     invite.FirstNames,
+			LastName:       invite.LastName,
+			Permission:     invite.Permission,
+			Status:         actor.StatusActive,
+			LastLoggedInAt: testNow,
 		}).
 		Return(nil)
 

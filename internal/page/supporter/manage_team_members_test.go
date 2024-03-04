@@ -127,7 +127,7 @@ func TestPostManageTeamMembers(t *testing.T) {
 		DeleteMemberInvite(r.Context(), organisation.ID, "email@example.com").
 		Return(nil)
 	memberStore.EXPECT().
-		CreateMemberInvite(r.Context(), organisation, "a", "b", "email@example.com", "abcde", actor.Admin).
+		CreateMemberInvite(r.Context(), organisation, "a", "b", "email@example.com", "abcde", actor.PermissionAdmin).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
