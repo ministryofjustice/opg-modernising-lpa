@@ -59,7 +59,7 @@ func TestLoginCallbackNoOrganisation(t *testing.T) {
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email})).
-		Return(&actor.Organisation{ID: "org-id", Name: "org name"}, dynamo.NotFoundError{})
+		Return(&actor.Organisation{}, dynamo.NotFoundError{})
 
 	err := LoginCallback(client, sessionStore, organisationStore, testNowFn, memberStore)(page.AppData{}, w, r)
 	resp := w.Result()

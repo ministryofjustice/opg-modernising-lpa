@@ -23,6 +23,7 @@ type OrganisationStore interface {
 	CreateLPA(ctx context.Context) (*actor.DonorProvidedDetails, error)
 	Get(ctx context.Context) (*actor.Organisation, error)
 	Put(ctx context.Context, organisation *actor.Organisation) error
+	SoftDelete(ctx context.Context) error
 }
 
 type MemberStore interface {
@@ -49,9 +50,10 @@ type OneLoginClient interface {
 }
 
 type SessionStore interface {
+	ClearLogin(r *http.Request, w http.ResponseWriter) error
+	Login(r *http.Request) (*sesh.LoginSession, error)
 	OneLogin(r *http.Request) (*sesh.OneLoginSession, error)
 	SetLogin(r *http.Request, w http.ResponseWriter, session *sesh.LoginSession) error
-	Login(r *http.Request) (*sesh.LoginSession, error)
 	SetOneLogin(r *http.Request, w http.ResponseWriter, session *sesh.OneLoginSession) error
 }
 
@@ -95,6 +97,8 @@ func Register(
 		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), memberStore, sessionStore))
 	handleRoot(paths.InviteExpired, page.RequireSession,
 		page.Guidance(tmpls.Get("invite_expired.gohtml")))
+	handleRoot(paths.OrganisationDeleted, page.None,
+		page.Guidance(tmpls.Get("organisation_deleted.gohtml")))
 
 	handleWithSupporter := makeSupporterHandle(rootMux, sessionStore, errorHandler, organisationStore, memberStore)
 
@@ -117,6 +121,8 @@ func Register(
 		InviteMember(tmpls.Get("invite_member.gohtml"), memberStore, notifyClient, random.String, appPublicURL))
 	handleWithSupporter(paths.EditMember, page.CanGoBack,
 		EditMember(tmpls.Get("edit_team_member.gohtml"), memberStore))
+	handleWithSupporter(paths.DeleteOrganisation, page.CanGoBack,
+		DeleteOrganisation(tmpls.Get("delete_organisation.gohtml"), organisationStore, sessionStore))
 }
 
 func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler) func(page.Path, page.HandleOpt, page.Handler) {

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
@@ -102,7 +103,13 @@ func (s *organisationStore) Get(ctx context.Context) (*actor.Organisation, error
 		return nil, err
 	}
 
-	return &organisation, nil
+	err = nil
+	if !organisation.DeletedAt.IsZero() {
+		err = dynamo.NotFoundError{}
+		organisation = actor.Organisation{}
+	}
+
+	return &organisation, err
 }
 
 func (s *organisationStore) Put(ctx context.Context, organisation *actor.Organisation) error {
@@ -165,6 +172,17 @@ func (s *organisationStore) AllLPAs(ctx context.Context) ([]actor.DonorProvidedD
 	})
 
 	return donors, nil
+}
+
+func (s *organisationStore) SoftDelete(ctx context.Context) error {
+	organisation, err := s.Get(ctx)
+	if err != nil {
+		return err
+	}
+
+	organisation.DeletedAt = s.now()
+
+	return s.dynamoClient.Put(ctx, organisation)
 }
 
 func organisationKey(organisationID string) string {

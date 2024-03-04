@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
@@ -132,6 +133,24 @@ func TestOrganisationStoreGet(t *testing.T) {
 	result, err := organisationStore.Get(ctx)
 	assert.Nil(t, err)
 	assert.Equal(t, organisation, result)
+}
+
+func TestOrganisationStoreGetWhenOrganisationDeleted(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "session-id"})
+	organisation := &actor.Organisation{Name: "A name", DeletedAt: testNow}
+
+	member := actor.Member{PK: "ORGANISATION#a-uuid"}
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		ExpectOneBySK(ctx, "MEMBER#session-id", member, nil)
+	dynamoClient.
+		ExpectOne(ctx, "ORGANISATION#a-uuid", "ORGANISATION#a-uuid", organisation, nil)
+
+	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+
+	result, err := organisationStore.Get(ctx)
+	assert.Equal(t, dynamo.NotFoundError{}, err)
+	assert.Equal(t, &actor.Organisation{}, result)
 }
 
 func TestOrganisationStoreGetWithSessionErrors(t *testing.T) {
@@ -341,4 +360,67 @@ func TestOrganisationStoreAllLPAsWhenErrors(t *testing.T) {
 
 	_, err := organisationStore.AllLPAs(ctx)
 	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestOrganisationStoreSoftDelete(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id", SessionID: "session-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		ExpectOneBySK(ctx, "MEMBER#session-id", actor.Member{PK: "ORGANISATION#a-uuid"}, nil)
+	dynamoClient.
+		ExpectOne(ctx, "ORGANISATION#a-uuid", "ORGANISATION#a-uuid", &actor.Organisation{PK: "ORGANISATION#a-uuid", SK: "ORGANISATION#a-uuid"}, nil)
+	dynamoClient.EXPECT().
+		Put(ctx, &actor.Organisation{PK: "ORGANISATION#a-uuid", SK: "ORGANISATION#a-uuid", DeletedAt: testNow}).
+		Return(nil)
+
+	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+
+	err := organisationStore.SoftDelete(ctx)
+	assert.Nil(t, err)
+}
+
+func TestOrganisationStoreSoftDeleteWhenDynamoClientError(t *testing.T) {
+	testcases := map[string]struct {
+		oneBySKError error
+		oneError     error
+		putError     error
+	}{
+		"OneBySK error": {
+			oneBySKError: expectedError,
+		},
+		"One error": {
+			oneError: expectedError,
+		},
+		"Put error": {
+			putError: expectedError,
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id", SessionID: "session-id"})
+
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.
+				ExpectOneBySK(ctx, "MEMBER#session-id", actor.Member{PK: "ORGANISATION#a-uuid"}, tc.oneBySKError)
+
+			if tc.oneError != nil || tc.putError != nil {
+				dynamoClient.
+					ExpectOne(ctx, "ORGANISATION#a-uuid", "ORGANISATION#a-uuid", &actor.Organisation{PK: "ORGANISATION#a-uuid", SK: "ORGANISATION#a-uuid"}, tc.oneError)
+			}
+
+			if tc.putError != nil {
+				dynamoClient.EXPECT().
+					Put(ctx, &actor.Organisation{PK: "ORGANISATION#a-uuid", SK: "ORGANISATION#a-uuid", DeletedAt: testNow}).
+					Return(tc.putError)
+			}
+
+			organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+
+			err := organisationStore.SoftDelete(ctx)
+			assert.Error(t, err)
+		})
+	}
+
 }
