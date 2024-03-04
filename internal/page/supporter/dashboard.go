@@ -17,10 +17,11 @@ type SearchClient interface {
 }
 
 type dashboardData struct {
-	App        page.AppData
-	Errors     validation.List
-	Donors     []actor.DonorProvidedDetails
-	Pagination *search.Pagination
+	App         page.AppData
+	Errors      validation.List
+	Donors      []actor.DonorProvidedDetails
+	CurrentPage int
+	Pagination  *search.Pagination
 }
 
 func Dashboard(tmpl template.Template, donorStore DonorStore, searchClient SearchClient) Handler {
@@ -46,9 +47,10 @@ func Dashboard(tmpl template.Template, donorStore DonorStore, searchClient Searc
 		}
 
 		return tmpl(w, &dashboardData{
-			App:        appData,
-			Donors:     donors,
-			Pagination: resp.Pagination,
+			App:         appData,
+			Donors:      donors,
+			CurrentPage: page,
+			Pagination:  resp.Pagination,
 		})
 	}
 }
