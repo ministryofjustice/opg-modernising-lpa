@@ -3,20 +3,18 @@ package page
 import (
 	"log/slog"
 	"net/http"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-func SignOut(logger Logger, sessionStore sesh.Store, oneLoginClient OneLoginClient, appPublicURL string) Handler {
+func SignOut(logger Logger, sessionStore SessionStore, oneLoginClient OneLoginClient, appPublicURL string) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		redirectURL := appPublicURL + Paths.Start.Format()
 
 		var idToken string
-		if session, err := sesh.Login(sessionStore, r); err == nil && session != nil {
+		if session, err := sessionStore.Login(r); err == nil && session != nil {
 			idToken = session.IDToken
 		}
 
-		if err := sesh.ClearLoginSession(sessionStore, r, w); err != nil {
+		if err := sessionStore.ClearLogin(r, w); err != nil {
 			logger.Info("unable to expire session", slog.Any("err", err))
 		}
 

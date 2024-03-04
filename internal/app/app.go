@@ -9,7 +9,6 @@ import (
 
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/google/uuid"
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -65,9 +64,7 @@ type S3Client interface {
 }
 
 type SessionStore interface {
-	Get(r *http.Request, name string) (*sessions.Session, error)
-	New(r *http.Request, name string) (*sessions.Session, error)
-	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
+	Login(r *http.Request) (*sesh.LoginSession, error)
 }
 
 func App(
@@ -75,7 +72,7 @@ func App(
 	localizer page.Localizer,
 	lang localize.Lang,
 	tmpls, donorTmpls, certificateProviderTmpls, attorneyTmpls, supporterTmpls template.Templates,
-	sessionStore SessionStore,
+	sessionStore *sesh.Store,
 	lpaDynamoClient DynamoClient,
 	appPublicURL string,
 	payClient *pay.Client,
@@ -251,7 +248,7 @@ const (
 	RequireSession
 )
 
-func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, store sesh.Store) func(page.Path, handleOpt, page.Handler) {
+func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore SessionStore) func(page.Path, handleOpt, page.Handler) {
 	return func(path page.Path, opt handleOpt, h page.Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -260,7 +257,7 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, store sesh.S
 			appData.Page = path.Format()
 
 			if opt&RequireSession != 0 {
-				loginSession, err := sesh.Login(store, r)
+				loginSession, err := sessionStore.Login(r)
 				if err != nil {
 					http.Redirect(w, r, page.Paths.Start.Format(), http.StatusFound)
 					return

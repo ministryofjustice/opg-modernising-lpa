@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -59,35 +58,13 @@ func (m *mockDonorStore) withCompletedPaymentLpaData(r *http.Request, paymentId,
 }
 
 func (m *mockSessionStore) withPaySession(r *http.Request) *mockSessionStore {
-	getSession := sessions.NewSession(m, "pay")
-
-	getSession.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   5400,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   true,
-	}
-	getSession.Values = map[any]any{"payment": &sesh.PaymentSession{PaymentID: "abc123"}}
-
-	m.EXPECT().Get(r, "pay").Return(getSession, nil)
+	m.EXPECT().Payment(r).Return(&sesh.PaymentSession{PaymentID: "abc123"}, nil)
 
 	return m
 }
 
 func (m *mockSessionStore) withExpiredPaySession(r *http.Request, w *httptest.ResponseRecorder) *mockSessionStore {
-	storeSession := sessions.NewSession(m, "pay")
-
-	// Expire cookie
-	storeSession.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   -1,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   true,
-	}
-	storeSession.Values = map[any]any{}
-	m.EXPECT().Save(r, w, storeSession).Return(nil)
+	m.EXPECT().ClearPayment(r, w).Return(nil)
 
 	return m
 }

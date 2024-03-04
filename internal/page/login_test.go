@@ -5,7 +5,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
@@ -22,27 +21,13 @@ func TestLogin(t *testing.T) {
 		Return("http://auth", nil)
 
 	sessionStore := newMockSessionStore(t)
-
-	session := sessions.NewSession(sessionStore, "params")
-
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   3600,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   true,
-	}
-	session.Values = map[any]any{
-		"one-login": &sesh.OneLoginSession{
+	sessionStore.EXPECT().
+		SetOneLogin(r, w, &sesh.OneLoginSession{
 			State:    "i am random",
 			Nonce:    "i am random",
 			Locale:   "cy",
 			Redirect: "/redirect",
-		},
-	}
-
-	sessionStore.EXPECT().
-		Save(r, w, session).
+		}).
 		Return(nil)
 
 	Login(client, sessionStore, func(int) string { return "i am random" }, "/redirect")(AppData{Lang: localize.Cy}, w, r)
@@ -62,27 +47,13 @@ func TestLoginDefaultLocale(t *testing.T) {
 		Return("http://auth", nil)
 
 	sessionStore := newMockSessionStore(t)
-
-	session := sessions.NewSession(sessionStore, "params")
-
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   3600,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   true,
-	}
-	session.Values = map[any]any{
-		"one-login": &sesh.OneLoginSession{
+	sessionStore.EXPECT().
+		SetOneLogin(r, w, &sesh.OneLoginSession{
 			State:    "i am random",
 			Nonce:    "i am random",
 			Locale:   "en",
 			Redirect: "/redirect",
-		},
-	}
-
-	sessionStore.EXPECT().
-		Save(r, w, session).
+		}).
 		Return(nil)
 
 	Login(client, sessionStore, func(int) string { return "i am random" }, "/redirect")(AppData{}, w, r)
@@ -119,7 +90,7 @@ func TestLoginWhenStoreSaveError(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Save(r, w, mock.Anything).
+		SetOneLogin(r, w, mock.Anything).
 		Return(expectedError)
 
 	err := Login(client, sessionStore, func(int) string { return "i am random" }, "/redirect")(AppData{}, w, r)

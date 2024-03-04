@@ -5,7 +5,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gorilla/sessions"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -24,22 +23,8 @@ func TestIdentityWithOneLogin(t *testing.T) {
 		Return("http://auth", nil)
 
 	sessionStore := newMockSessionStore(t)
-
-	session := sessions.NewSession(sessionStore, "params")
-
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   3600,
-		SameSite: http.SameSiteLaxMode,
-		HttpOnly: true,
-		Secure:   true,
-	}
-	session.Values = map[any]any{
-		"one-login": &sesh.OneLoginSession{State: "i am random", Nonce: "i am random", Locale: "cy", Redirect: page.Paths.IdentityWithOneLoginCallback.Format("lpa-id"), LpaID: "lpa-id"},
-	}
-
 	sessionStore.EXPECT().
-		Save(r, w, session).
+		SetOneLogin(r, w, &sesh.OneLoginSession{State: "i am random", Nonce: "i am random", Locale: "cy", Redirect: page.Paths.IdentityWithOneLoginCallback.Format("lpa-id"), LpaID: "lpa-id"}).
 		Return(nil)
 
 	err := IdentityWithOneLogin(client, sessionStore, func(int) string { return "i am random" })(page.AppData{Lang: localize.Cy}, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
@@ -77,7 +62,7 @@ func TestIdentityWithOneLoginWhenStoreSaveError(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		Save(r, w, mock.Anything).
+		SetOneLogin(r, w, mock.Anything).
 		Return(expectedError)
 
 	err := IdentityWithOneLogin(client, sessionStore, func(int) string { return "i am random" })(testAppData, w, r, &actor.DonorProvidedDetails{})
