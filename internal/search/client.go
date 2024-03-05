@@ -117,14 +117,9 @@ func (c *Client) Index(ctx context.Context, lpa Lpa) error {
 }
 
 func (c *Client) Query(ctx context.Context, req QueryRequest) (*QueryResponse, error) {
-	session, err := page.SessionDataFromContext(ctx)
+	sk, err := getSKFromContext(ctx)
 	if err != nil {
 		return nil, err
-	}
-
-	sk := "#DONOR#" + session.SessionID
-	if session.OrganisationID != "" {
-		sk = "ORGANISATION#" + session.OrganisationID
 	}
 
 	body, err := json.Marshal(map[string]any{
@@ -164,4 +159,69 @@ func (c *Client) Query(ctx context.Context, req QueryRequest) (*QueryResponse, e
 		Pagination: newPagination(resp.Hits.Total.Value, req.Page, req.PageSize),
 		Keys:       keys,
 	}, nil
+}
+
+type CountWithQueryReq struct {
+	MustNotExist string
+}
+
+func (c *Client) CountWithQuery(ctx context.Context, req CountWithQueryReq) (int, error) {
+	sk, err := getSKFromContext(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	queryBody := map[string]any{
+		"size":             0,
+		"track_total_hits": true,
+	}
+
+	query := map[string]map[string]any{
+		"bool": {
+			"must": map[string]any{
+				"match": map[string]string{
+					"SK": sk,
+				},
+			},
+		},
+	}
+
+	if req.MustNotExist != "" {
+		query["bool"]["must_not"] = map[string]any{
+			"exists": map[string]any{
+				"field": req.MustNotExist,
+			},
+		}
+	}
+
+	queryBody["query"] = query
+
+	body, err := json.Marshal(queryBody)
+	if err != nil {
+		return 0, err
+	}
+
+	resp, err := c.svc.Search(ctx, &opensearchapi.SearchReq{
+		Indices: []string{indexName},
+		Body:    bytes.NewReader(body),
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	return resp.Hits.Total.Value, err
+}
+
+func getSKFromContext(ctx context.Context) (string, error) {
+	session, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	sk := "#DONOR#" + session.SessionID
+	if session.OrganisationID != "" {
+		sk = "ORGANISATION#" + session.OrganisationID
+	}
+
+	return sk, nil
 }

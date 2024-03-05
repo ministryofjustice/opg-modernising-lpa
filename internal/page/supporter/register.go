@@ -19,11 +19,11 @@ import (
 )
 
 type OrganisationStore interface {
-	AllLPAs(ctx context.Context) ([]actor.DonorProvidedDetails, error)
 	Create(ctx context.Context, name string) (*actor.Organisation, error)
 	CreateLPA(ctx context.Context) (*actor.DonorProvidedDetails, error)
 	Get(ctx context.Context) (*actor.Organisation, error)
 	Put(ctx context.Context, organisation *actor.Organisation) error
+	SoftDelete(ctx context.Context, organisation *actor.Organisation) error
 }
 
 type MemberStore interface {
@@ -50,9 +50,10 @@ type OneLoginClient interface {
 }
 
 type SessionStore interface {
+	ClearLogin(r *http.Request, w http.ResponseWriter) error
+	Login(r *http.Request) (*sesh.LoginSession, error)
 	OneLogin(r *http.Request) (*sesh.OneLoginSession, error)
 	SetLogin(r *http.Request, w http.ResponseWriter, session *sesh.LoginSession) error
-	Login(r *http.Request) (*sesh.LoginSession, error)
 	SetOneLogin(r *http.Request, w http.ResponseWriter, session *sesh.OneLoginSession) error
 }
 
@@ -96,6 +97,8 @@ func Register(
 		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), memberStore, sessionStore))
 	handleRoot(paths.InviteExpired, RequireSession,
 		page.Guidance(tmpls.Get("invite_expired.gohtml")))
+	handleRoot(paths.OrganisationDeleted, None,
+		page.Guidance(tmpls.Get("organisation_deleted.gohtml")))
 
 	handleWithSupporter := makeSupporterHandle(rootMux, sessionStore, errorHandler, organisationStore, memberStore)
 
@@ -116,6 +119,8 @@ func Register(
 		ManageTeamMembers(tmpls.Get("manage_team_members.gohtml"), memberStore, random.String, notifyClient, appPublicURL))
 	handleWithSupporter(paths.InviteMember, CanGoBack|RequireAdmin,
 		InviteMember(tmpls.Get("invite_member.gohtml"), memberStore, notifyClient, random.String, appPublicURL))
+	handleWithSupporter(paths.DeleteOrganisation, CanGoBack,
+		DeleteOrganisation(tmpls.Get("delete_organisation.gohtml"), organisationStore, sessionStore, searchClient))
 	handleWithSupporter(paths.EditMember, CanGoBack,
 		EditMember(tmpls.Get("edit_member.gohtml"), memberStore))
 }

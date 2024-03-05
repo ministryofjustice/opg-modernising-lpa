@@ -224,3 +224,80 @@ func TestClientQueryWhenNoSession(t *testing.T) {
 	_, err := client.Query(ctx, QueryRequest{Page: 1, PageSize: 10})
 	assert.ErrorIs(t, err, page.SessionMissingError{})
 }
+
+func TestClientCountWithQuery(t *testing.T) {
+	testcases := map[string]struct {
+		query   CountWithQueryReq
+		body    []byte
+		session *page.SessionData
+	}{
+		"no query - donor": {
+			query:   CountWithQueryReq{},
+			body:    []byte(`{"query":{"bool":{"must":{"match":{"SK":"#DONOR#1"}}}},"size":0,"track_total_hits":true}`),
+			session: &page.SessionData{SessionID: "1"},
+		},
+		"no query - organisation": {
+			query:   CountWithQueryReq{},
+			body:    []byte(`{"query":{"bool":{"must":{"match":{"SK":"ORGANISATION#1"}}}},"size":0,"track_total_hits":true}`),
+			session: &page.SessionData{OrganisationID: "1"},
+		},
+		"MustNotExist query - donor": {
+			query:   CountWithQueryReq{MustNotExist: "a-field"},
+			body:    []byte(`{"query":{"bool":{"must":{"match":{"SK":"#DONOR#1"}},"must_not":{"exists":{"field":"a-field"}}}},"size":0,"track_total_hits":true}`),
+			session: &page.SessionData{SessionID: "1"},
+		},
+		"MustNotExist query - organisation": {
+			query:   CountWithQueryReq{MustNotExist: "a-field"},
+			body:    []byte(`{"query":{"bool":{"must":{"match":{"SK":"ORGANISATION#1"}},"must_not":{"exists":{"field":"a-field"}}}},"size":0,"track_total_hits":true}`),
+			session: &page.SessionData{OrganisationID: "1"},
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			ctx := page.ContextWithSessionData(ctx, tc.session)
+			resp := &opensearchapi.SearchResp{}
+			resp.Hits.Total.Value = 1
+
+			svc := newMockOpensearchapiClient(t)
+			svc.EXPECT().
+				Search(ctx, &opensearchapi.SearchReq{
+					Indices: []string{indexName},
+					Body:    bytes.NewReader(tc.body),
+				}).
+				Return(resp, nil)
+
+			client := &Client{
+				svc: svc,
+			}
+
+			count, err := client.CountWithQuery(ctx, tc.query)
+
+			assert.Nil(t, err)
+			assert.Equal(t, 1, count)
+		})
+	}
+}
+
+func TestClientCountWithQueryWhenNoSession(t *testing.T) {
+	client := &Client{}
+	_, err := client.CountWithQuery(ctx, CountWithQueryReq{})
+
+	assert.ErrorIs(t, err, page.SessionMissingError{})
+}
+
+func TestClientCountWithQueryWhenSearchError(t *testing.T) {
+	svc := newMockOpensearchapiClient(t)
+	svc.EXPECT().
+		Search(mock.Anything, mock.Anything).
+		Return(&opensearchapi.SearchResp{}, expectedError)
+
+	client := &Client{
+		svc: svc,
+	}
+
+	ctx := page.ContextWithSessionData(ctx, &page.SessionData{SessionID: "1"})
+	_, err := client.CountWithQuery(ctx, CountWithQueryReq{})
+
+	assert.Error(t, err)
+}

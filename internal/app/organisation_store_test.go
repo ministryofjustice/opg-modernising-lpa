@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
@@ -134,6 +135,25 @@ func TestOrganisationStoreGet(t *testing.T) {
 	assert.Equal(t, organisation, result)
 }
 
+func TestOrganisationStoreGetWhenOrganisationDeleted(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "session-id"})
+	organisation := &actor.Organisation{Name: "A name", DeletedAt: testNow}
+
+	member := actor.Member{PK: "ORGANISATION#a-uuid"}
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		ExpectOneBySK(ctx, "MEMBER#session-id", member, nil)
+	dynamoClient.
+		ExpectOne(ctx, "ORGANISATION#a-uuid", "ORGANISATION#a-uuid", organisation, nil)
+
+	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+
+	result, err := organisationStore.Get(ctx)
+
+	assert.Equal(t, dynamo.NotFoundError{}, err)
+	assert.Nil(t, result)
+}
+
 func TestOrganisationStoreGetWithSessionErrors(t *testing.T) {
 	testcases := map[string]context.Context{
 		"missing":           context.Background(),
@@ -257,88 +277,30 @@ func TestOrganisationStoreCreateLPAWhenDynamoError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestOrganisationStoreAllLPAs(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
-	expectedDonorA := actor.DonorProvidedDetails{
-		PK:     "LPA#a-uuid",
-		SK:     "ORGANISATION#an-id",
-		LpaUID: "a-uid",
-		Donor: actor.Donor{
-			FirstNames: "a",
-			LastName:   "a",
-		},
-	}
-	expectedDonorB := actor.DonorProvidedDetails{
-		PK:     "LPA#b-uuid",
-		SK:     "ORGANISATION#an-id",
-		LpaUID: "b-uid",
-		Donor: actor.Donor{
-			FirstNames: "a",
-			LastName:   "b",
-		},
-	}
-	expectedDonorC := actor.DonorProvidedDetails{
-		PK:     "LPA#c-uuid",
-		SK:     "ORGANISATION#an-id",
-		LpaUID: "c-uid",
-		Donor: actor.Donor{
-			FirstNames: "c",
-			LastName:   "a",
-		},
-	}
+func TestOrganisationStoreSoftDelete(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id", SessionID: "session-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectAllBySK(ctx, "ORGANISATION#an-id",
-		[]actor.DonorProvidedDetails{
-			expectedDonorB,
-			expectedDonorC,
-			expectedDonorA,
-			{PK: "ORGANISATION#an-id", SK: "ORGANISATION#an-id"},
-			{
-				PK:    "LPA#d-uuid",
-				SK:    "ORGANISATION#an-id",
-				LpaID: "d-uuid",
-				Donor: actor.Donor{
-					FirstNames: "d",
-					LastName:   "d",
-				},
-			},
-		}, nil)
+	dynamoClient.EXPECT().
+		Put(ctx, &actor.Organisation{DeletedAt: testNow}).
+		Return(nil)
 
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-	donors, err := organisationStore.AllLPAs(ctx)
-
+	err := organisationStore.SoftDelete(ctx, &actor.Organisation{})
 	assert.Nil(t, err)
-	assert.Equal(t, []actor.DonorProvidedDetails{expectedDonorA, expectedDonorB, expectedDonorC}, donors)
 }
 
-func TestOrganisationStoreAllLPAsWithSessionMissing(t *testing.T) {
-	testcases := map[string]context.Context{
-		"no session id":   page.ContextWithSessionData(context.Background(), &page.SessionData{}),
-		"no session data": context.Background(),
-	}
-
-	for name, ctx := range testcases {
-		t.Run(name, func(t *testing.T) {
-			organisationStore := &organisationStore{}
-
-			donors, err := organisationStore.AllLPAs(ctx)
-			assert.Error(t, err)
-			assert.Nil(t, donors)
-		})
-	}
-}
-
-func TestOrganisationStoreAllLPAsWhenErrors(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
+func TestOrganisationStoreSoftDeleteWhenDynamoClientError(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id", SessionID: "session-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectAllBySK(ctx, "ORGANISATION#an-id",
-		nil, expectedError)
+	dynamoClient.EXPECT().
+		Put(mock.Anything, mock.Anything).
+		Return(expectedError)
 
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-	_, err := organisationStore.AllLPAs(ctx)
-	assert.ErrorIs(t, err, expectedError)
+	err := organisationStore.SoftDelete(ctx, &actor.Organisation{})
+	assert.Error(t, err)
 }

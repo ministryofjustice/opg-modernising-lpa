@@ -14,6 +14,7 @@ import (
 
 type SearchClient interface {
 	Query(ctx context.Context, req search.QueryRequest) (*search.QueryResponse, error)
+	CountWithQuery(ctx context.Context, req search.CountWithQueryReq) (int, error)
 }
 
 type dashboardData struct {
