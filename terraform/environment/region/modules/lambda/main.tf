@@ -27,7 +27,7 @@ resource "aws_lambda_function" "lambda_function" {
   provider = aws.region
 }
 
-resource "aws_cloudwatch_query_definition" "events_received" {
+resource "aws_cloudwatch_query_definition" "main" {
   name            = "Lambda Logs/${var.environment} ${var.lambda_name}"
   log_group_names = [aws_cloudwatch_log_group.lambda.name]
 
