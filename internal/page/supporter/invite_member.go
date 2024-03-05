@@ -95,7 +95,7 @@ func (f *inviteMemberForm) Validate() validation.List {
 		validation.Empty(),
 		validation.Email())
 
-	errors.Options("permission", "makeThisPersonAnAdmin", []string{f.Permission.String()}, validation.Select(actor.None.String(), actor.Admin.String()))
+	errors.Options("permission", "makeThisPersonAnAdmin", []string{f.Permission.String()}, validation.Select(actor.PermissionNone.String(), actor.PermissionAdmin.String()))
 
 	return errors
 }
