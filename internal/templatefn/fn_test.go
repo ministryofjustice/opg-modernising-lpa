@@ -258,6 +258,16 @@ func TestFormatDate(t *testing.T) {
 	assert.Equal(t, "7 Mawrth 2020", formatDate(appCy, date.New("2020", "3", "7")))
 }
 
+func TestFormatTime(t *testing.T) {
+	bundle, _ := localize.NewBundle("testdata/en.json", "testdata/cy.json")
+	appEn := page.AppData{Localizer: bundle.For(localize.En)}
+	appCy := page.AppData{Localizer: bundle.For(localize.Cy)}
+
+	assert.Equal(t, "3:04am", formatTime(appEn, time.Date(2020, time.March, 7, 3, 4, 0, 0, time.UTC)))
+
+	assert.Equal(t, "3:04yb", formatTime(appCy, time.Date(2020, time.March, 7, 3, 4, 0, 0, time.UTC)))
+}
+
 func TestFormatDateTime(t *testing.T) {
 	bundle, _ := localize.NewBundle("testdata/en.json", "testdata/cy.json")
 	appEn := page.AppData{Localizer: bundle.For(localize.En)}

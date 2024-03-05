@@ -114,7 +114,7 @@ func Supporter(sessionStore *sesh.Store, organisationStore OrganisationStore, do
 						Email:            email,
 						FirstNames:       member.Firstnames,
 						LastName:         member.Lastname,
-						Permission:       actor.Admin,
+						Permission:       actor.PermissionAdmin,
 						ReferenceNumber:  random.String(12),
 					}
 
@@ -134,7 +134,7 @@ func Supporter(sessionStore *sesh.Store, organisationStore OrganisationStore, do
 
 				permission, err := actor.ParsePermission(permission)
 				if err != nil {
-					permission = actor.None
+					permission = actor.PermissionNone
 				}
 
 				for i, member := range orgMemberNames {
@@ -179,7 +179,7 @@ func Supporter(sessionStore *sesh.Store, organisationStore OrganisationStore, do
 		}
 
 		if redirect != page.Paths.Supporter.EnterOrganisationName.Format() {
-			redirect = "/supporter/" + redirect
+			redirect = "/supporter" + redirect
 		}
 
 		http.Redirect(w, r, redirect, http.StatusFound)

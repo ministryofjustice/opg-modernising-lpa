@@ -1,9 +1,9 @@
 package actor
 
-//go:generate enumerator -type Status -linecomment
+//go:generate enumerator -type Status -linecomment -trimprefix
 type Status uint8
 
 const (
-	Active    Status = iota // active
-	Suspended               // suspended
+	StatusActive    Status = iota // active
+	StatusSuspended               // suspended
 )
