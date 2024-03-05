@@ -28,7 +28,7 @@ resource "aws_lambda_function" "lambda_function" {
 }
 
 resource "aws_cloudwatch_query_definition" "events_received" {
-  name            = "Lambda Logs/${data.aws_default_tags.current.tags.environment-name} ${var.lambda_name}"
+  name            = "Lambda Logs/${var.environment} ${var.lambda_name}"
   log_group_names = [aws_cloudwatch_log_group.lambda.name]
 
   query_string = <<EOF
