@@ -69,9 +69,30 @@ func TestFormatDate(t *testing.T) {
 	assert.Equal(t, "7 Mawrth 2020", cy.FormatDate(date.New("2020", "3", "7")))
 }
 
+func TestFormatTime(t *testing.T) {
+	en := Localizer{Lang: En}
+	cy := Localizer{Lang: Cy}
+
+	assert.Equal(t, "", en.FormatTime(time.Time{}))
+
+	assert.Equal(t, "3:04am", en.FormatTime(time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
+	assert.Equal(t, "3:04yb", cy.FormatTime(time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
+	assert.Equal(t, "3:04pm", en.FormatTime(time.Date(2020, time.March, 7, 15, 4, 5, 6, time.UTC)))
+	assert.Equal(t, "3:04yp", cy.FormatTime(time.Date(2020, time.March, 7, 15, 4, 5, 6, time.UTC)))
+
+	assert.Equal(t, "12:00am", en.FormatTime(time.Date(2020, time.March, 7, 0, 0, 0, 0, time.UTC)))
+	assert.Equal(t, "12:00yb", cy.FormatTime(time.Date(2020, time.March, 7, 0, 0, 0, 0, time.UTC)))
+	assert.Equal(t, "12:00pm", en.FormatTime(time.Date(2020, time.March, 7, 12, 0, 0, 0, time.UTC)))
+	assert.Equal(t, "12:00yp", cy.FormatTime(time.Date(2020, time.March, 7, 12, 0, 0, 0, time.UTC)))
+	assert.Equal(t, "12:00am", en.FormatTime(time.Date(2020, time.March, 7, 24, 0, 0, 0, time.UTC)))
+	assert.Equal(t, "12:00yb", cy.FormatTime(time.Date(2020, time.March, 7, 24, 0, 0, 0, time.UTC)))
+}
+
 func TestFormatDateTime(t *testing.T) {
 	en := Localizer{Lang: En}
 	cy := Localizer{Lang: Cy}
+
+	assert.Equal(t, "", en.FormatDateTime(time.Time{}))
 
 	assert.Equal(t, "7 March 2020 at 3:04am", en.FormatDateTime(time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
 	assert.Equal(t, "7 Mawrth 2020 am 3:04yb", cy.FormatDateTime(time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))

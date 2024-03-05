@@ -357,7 +357,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil {
-			slog.Error("listen and serve error", slog.Any("err", err))
+			logger.Error("listen and serve error", slog.Any("err", err))
 			os.Exit(1)
 		}
 	}()
