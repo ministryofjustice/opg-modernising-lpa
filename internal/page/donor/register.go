@@ -11,7 +11,6 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -115,16 +114,7 @@ type Payer interface {
 }
 
 type Localizer interface {
-	Format(string, map[string]any) string
-	T(string) string
-	Count(messageID string, count int) string
-	FormatCount(messageID string, count int, data map[string]interface{}) string
-	ShowTranslationKeys() bool
-	SetShowTranslationKeys(s bool)
-	Possessive(s string) string
-	Concat([]string, string) string
-	FormatDate(date.TimeOrDate) string
-	FormatDateTime(time.Time) string
+	page.Localizer
 }
 
 type DocumentStore interface {
