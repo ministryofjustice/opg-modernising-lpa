@@ -8,13 +8,13 @@ The module creates a cloudwatch log group and useful log queries for application
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.2 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.38.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.39.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws.region"></a> [aws.region](#provider\_aws.region) | ~> 5.38.0 |
+| <a name="provider_aws.region"></a> [aws.region](#provider\_aws.region) | ~> 5.39.0 |
 
 ## Modules
 

@@ -1101,6 +1101,7 @@
     "to":"Welsh",
     "of":"Welsh",
     "lpas":"Welsh",
+    "permissions": "Welsh",
     "deleteOrganisation": "Welsh",
     "deleteOrganisationContent": "<p class=\"govuk-body\">Welsh <span class=\"govuk-!-font-weight-bold\">{{ .OrganisationName }}</span> Welsh</p><p class=\"govuk-body\">Welsh:</p>",
     "countLPAs": {

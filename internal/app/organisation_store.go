@@ -61,8 +61,8 @@ func (s *organisationStore) Create(ctx context.Context, name string) (*actor.Org
 		ID:         s.uuidString(),
 		Email:      data.Email,
 		CreatedAt:  s.now(),
-		Permission: actor.Admin,
-		Status:     actor.Active,
+		Permission: actor.PermissionAdmin,
+		Status:     actor.StatusActive,
 	}
 
 	if err := s.dynamoClient.Create(ctx, member); err != nil {

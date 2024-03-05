@@ -1039,6 +1039,7 @@
     "to": "to",
     "of": "of",
     "lpas": "LPAs",
+    "permissions": "Permissions",
     "deleteOrganisation": "Delete organisation",
     "deleteOrganisationContent": "<p class=\"govuk-body\">If you delete <span class=\"govuk-!-font-weight-bold\">{{ .OrganisationName }}</span> now, you and all team members will immediately lose access to this organisation.</p><p class=\"govuk-body\">This includes:</p>",
     "countLPAs": {
