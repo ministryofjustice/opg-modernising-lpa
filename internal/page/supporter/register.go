@@ -18,7 +18,6 @@ import (
 )
 
 type OrganisationStore interface {
-	AllLPAs(ctx context.Context) ([]actor.DonorProvidedDetails, error)
 	Create(ctx context.Context, name string) (*actor.Organisation, error)
 	CreateLPA(ctx context.Context) (*actor.DonorProvidedDetails, error)
 	Get(ctx context.Context) (*actor.Organisation, error)
@@ -122,7 +121,7 @@ func Register(
 	handleWithSupporter(paths.EditMember, page.CanGoBack,
 		EditMember(tmpls.Get("edit_team_member.gohtml"), memberStore))
 	handleWithSupporter(paths.DeleteOrganisation, page.CanGoBack,
-		DeleteOrganisation(tmpls.Get("delete_organisation.gohtml"), organisationStore, sessionStore))
+		DeleteOrganisation(tmpls.Get("delete_organisation.gohtml"), organisationStore, sessionStore, searchClient))
 }
 
 func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler) func(page.Path, page.HandleOpt, page.Handler) {

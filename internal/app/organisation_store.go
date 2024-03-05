@@ -4,8 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"slices"
-	"strings"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -144,32 +142,6 @@ func (s *organisationStore) CreateLPA(ctx context.Context) (*actor.DonorProvided
 	}
 
 	return donor, err
-}
-
-func (s *organisationStore) AllLPAs(ctx context.Context) ([]actor.DonorProvidedDetails, error) {
-	data, err := page.SessionDataFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	if data.OrganisationID == "" {
-		return nil, errors.New("organisationStore.AllLPAs requires OrganisationID")
-	}
-
-	var donors []actor.DonorProvidedDetails
-	if err := s.dynamoClient.AllBySK(ctx, organisationKey(data.OrganisationID), &donors); err != nil {
-		return nil, fmt.Errorf("organisationStore.AllLPAs error retrieving keys for organisation: %w", err)
-	}
-
-	donors = slices.DeleteFunc(donors, func(donor actor.DonorProvidedDetails) bool {
-		return !strings.HasPrefix(donor.PK, lpaKey("")) || donor.LpaUID == ""
-	})
-
-	slices.SortFunc(donors, func(a, b actor.DonorProvidedDetails) int {
-		return strings.Compare(a.Donor.FullName(), b.Donor.FullName())
-	})
-
-	return donors, nil
 }
 
 func (s *organisationStore) SoftDelete(ctx context.Context, organisation *actor.Organisation) error {

@@ -1102,7 +1102,22 @@
     "of":"Welsh",
     "lpas":"Welsh",
     "deleteOrganisation": "Welsh",
-    "deleteOrganisationContent": "<p class=\"govuk-body\">Welsh <span class=\"govuk-!-font-weight-bold\">{{ .OrganisationName }}</span> Welsh</p><p class=\"govuk-body\">Welsh:</p><ul class=\"govuk-list govuk-list--bullet\"><li>{{ .InProgressLPACount }} Welsh</li><li>Welsh</li></ul>",
+    "deleteOrganisationContent": "<p class=\"govuk-body\">Welsh <span class=\"govuk-!-font-weight-bold\">{{ .OrganisationName }}</span> Welsh</p><p class=\"govuk-body\">Welsh:</p>",
+    "countLPAs": {
+        "one": "{{ .PluralCount }} Welsh",
+        "two": "{{ .PluralCount }} Welsh",
+        "few": "{{ .PluralCount }} Welsh",
+        "many": "{{ .PluralCount }} Welsh",
+        "other": "{{ .PluralCount }} Welsh"
+    },
+    "stillInProgress": {
+        "one": "Welsh",
+        "two": "Welsh",
+        "few": "Welsh",
+        "many": "Welsh",
+        "other": "Welsh"
+    },
+    "anyCompletedLPAsMadeInThisOrganisation": "Welsh",
     "theOrganisationHasBeenDeleted": "<p class=\"govuk-body app-full-width\">Welsh <span class=\"govuk-!-font-weight-bold\">{{ .OrganisationName }}</span> Welsh</p><p class=\"govuk-body app-full-width\">Welsh</p>",
     "organisationDeleted": "Welsh",
     "changeName": "Welsh"

@@ -11,6 +11,14 @@
 
                 {{ trFormatHtml .App "deleteOrganisationContent" "OrganisationName" .App.OrganisationName "InProgressLPACount" .InProgressLPACount }}
 
+                <ul class="govuk-list govuk-list--bullet">
+                    {{ $countLPAs := trCount .App "countLPAs" .InProgressLPACount }}
+                    {{ $stillInProgress := trCount .App "stillInProgress" .InProgressLPACount }}
+
+                    <li><span class="govuk-!-font-weight-bold">{{ $countLPAs }}</span> {{ $stillInProgress }}</li>
+                    <li>{{ tr .App "anyCompletedLPAsMadeInThisOrganisation" }}</li>
+                </ul>
+
                 <button class="govuk-button govuk-button--warning" data-module="govuk-button">{{ tr .App "deleteOrganisation" }}</button>
                 {{ template "csrf-field" . }}
             </form>
