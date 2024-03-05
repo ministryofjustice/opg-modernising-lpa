@@ -303,17 +303,17 @@ func (_c *mockOrganisationStore_Put_Call) RunAndReturn(run func(context.Context,
 	return _c
 }
 
-// SoftDelete provides a mock function with given fields: ctx
-func (_m *mockOrganisationStore) SoftDelete(ctx context.Context) error {
-	ret := _m.Called(ctx)
+// SoftDelete provides a mock function with given fields: ctx, organisation
+func (_m *mockOrganisationStore) SoftDelete(ctx context.Context, organisation *actor.Organisation) error {
+	ret := _m.Called(ctx, organisation)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SoftDelete")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, *actor.Organisation) error); ok {
+		r0 = rf(ctx, organisation)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -328,13 +328,14 @@ type mockOrganisationStore_SoftDelete_Call struct {
 
 // SoftDelete is a helper method to define mock.On call
 //   - ctx context.Context
-func (_e *mockOrganisationStore_Expecter) SoftDelete(ctx interface{}) *mockOrganisationStore_SoftDelete_Call {
-	return &mockOrganisationStore_SoftDelete_Call{Call: _e.mock.On("SoftDelete", ctx)}
+//   - organisation *actor.Organisation
+func (_e *mockOrganisationStore_Expecter) SoftDelete(ctx interface{}, organisation interface{}) *mockOrganisationStore_SoftDelete_Call {
+	return &mockOrganisationStore_SoftDelete_Call{Call: _e.mock.On("SoftDelete", ctx, organisation)}
 }
 
-func (_c *mockOrganisationStore_SoftDelete_Call) Run(run func(ctx context.Context)) *mockOrganisationStore_SoftDelete_Call {
+func (_c *mockOrganisationStore_SoftDelete_Call) Run(run func(ctx context.Context, organisation *actor.Organisation)) *mockOrganisationStore_SoftDelete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
+		run(args[0].(context.Context), args[1].(*actor.Organisation))
 	})
 	return _c
 }
@@ -344,7 +345,7 @@ func (_c *mockOrganisationStore_SoftDelete_Call) Return(_a0 error) *mockOrganisa
 	return _c
 }
 
-func (_c *mockOrganisationStore_SoftDelete_Call) RunAndReturn(run func(context.Context) error) *mockOrganisationStore_SoftDelete_Call {
+func (_c *mockOrganisationStore_SoftDelete_Call) RunAndReturn(run func(context.Context, *actor.Organisation) error) *mockOrganisationStore_SoftDelete_Call {
 	_c.Call.Return(run)
 	return _c
 }

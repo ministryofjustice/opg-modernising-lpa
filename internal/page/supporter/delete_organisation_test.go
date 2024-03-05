@@ -87,7 +87,7 @@ func TestPostDeleteOrganisationName(t *testing.T) {
 		Return([]actor.DonorProvidedDetails{{}}, nil)
 
 	organisationStore.EXPECT().
-		SoftDelete(r.Context()).
+		SoftDelete(r.Context(), &actor.Organisation{}).
 		Return(nil)
 
 	err := DeleteOrganisation(nil, organisationStore, sessionStore)(testOrgMemberAppData, w, r, &actor.Organisation{})
@@ -107,7 +107,7 @@ func TestPostDeleteOrganisationNameWhenSessionStoreErrorsError(t *testing.T) {
 		AllLPAs(mock.Anything).
 		Return([]actor.DonorProvidedDetails{{}}, nil)
 	organisationStore.EXPECT().
-		SoftDelete(mock.Anything).
+		SoftDelete(mock.Anything, mock.Anything).
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -148,7 +148,7 @@ func TestPostDeleteOrganisationNameWhenOrganisationStoreErrors(t *testing.T) {
 
 			if tc.softDeleteError != nil {
 				organisationStore.EXPECT().
-					SoftDelete(mock.Anything).
+					SoftDelete(mock.Anything, mock.Anything).
 					Return(tc.softDeleteError)
 			}
 

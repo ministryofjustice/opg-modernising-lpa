@@ -29,7 +29,7 @@ func DeleteOrganisation(tmpl template.Template, organisationStore OrganisationSt
 		}
 
 		if r.Method == http.MethodPost {
-			if err := organisationStore.SoftDelete(r.Context()); err != nil {
+			if err := organisationStore.SoftDelete(r.Context(), organisation); err != nil {
 				return err
 			}
 

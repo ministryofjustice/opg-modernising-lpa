@@ -11,8 +11,6 @@
 
                 {{ trFormatHtml .App "deleteOrganisationContent" "OrganisationName" .App.OrganisationName "InProgressLPACount" .InProgressLPACount }}
 
-{{/*                <p class="govuk-body">If you delete {{ .OrganisationName }} now, you and all team members will immediately lose access to this organisation.</p><p class="govuk-body">This includes:</p><ul class="govuk-list govuk-list--bullet"><li>{{ .InProgressLPACount }} LPAs that are still in progress</li><li>any completed LPAs made in this organisation</li></ul>*/}}
-
                 <button class="govuk-button govuk-button--warning" data-module="govuk-button">{{ tr .App "deleteOrganisation" }}</button>
                 {{ template "csrf-field" . }}
             </form>

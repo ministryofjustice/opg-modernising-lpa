@@ -23,7 +23,7 @@ type OrganisationStore interface {
 	CreateLPA(ctx context.Context) (*actor.DonorProvidedDetails, error)
 	Get(ctx context.Context) (*actor.Organisation, error)
 	Put(ctx context.Context, organisation *actor.Organisation) error
-	SoftDelete(ctx context.Context) error
+	SoftDelete(ctx context.Context, organisation *actor.Organisation) error
 }
 
 type MemberStore interface {

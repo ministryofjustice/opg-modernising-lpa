@@ -5,7 +5,7 @@ describe('Manage organisation', () => {
     });
 
     it('name can be changed', () => {
-        cy.contains('a', 'Change').click()
+        cy.contains('a', 'Change name').click()
 
         cy.url().should('contain', '/manage-organisation/organisation-details/edit-organisation-name');
         cy.checkA11yApp();
