@@ -8,14 +8,14 @@ The module creates an ECS service for the Modernising LPA application, and assoc
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.2 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.38.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.39.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.38.0 |
-| <a name="provider_aws.region"></a> [aws.region](#provider\_aws.region) | ~> 5.38.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.39.0 |
+| <a name="provider_aws.region"></a> [aws.region](#provider\_aws.region) | ~> 5.39.0 |
 
 ## Modules
 
@@ -93,6 +93,8 @@ No modules.
 | <a name="input_network"></a> [network](#input\_network) | VPC ID, a list of application subnets, and a list of private subnets required to provision the ECS service | <pre>object({<br>    vpc_id              = string<br>    application_subnets = list(string)<br>    public_subnets      = list(string)<br>  })</pre> | n/a | yes |
 | <a name="input_public_access_enabled"></a> [public\_access\_enabled](#input\_public\_access\_enabled) | Enable access to the Modernising LPA service from the public internet | `bool` | n/a | yes |
 | <a name="input_rum_monitor_application_id_secretsmanager_secret_arn"></a> [rum\_monitor\_application\_id\_secretsmanager\_secret\_arn](#input\_rum\_monitor\_application\_id\_secretsmanager\_secret\_arn) | ARN of the AWS Secrets Manager secret containing the RUM monitor application ID | `string` | n/a | yes |
+| <a name="input_search_collection_arn"></a> [search\_collection\_arn](#input\_search\_collection\_arn) | ARN of the OpenSearch collection to use | `string` | n/a | yes |
+| <a name="input_search_endpoint"></a> [search\_endpoint](#input\_search\_endpoint) | URL of the OpenSearch Service endpoint to use | `string` | n/a | yes |
 | <a name="input_uid_base_url"></a> [uid\_base\_url](#input\_uid\_base\_url) | n/a | `string` | n/a | yes |
 | <a name="input_uploads_s3_bucket"></a> [uploads\_s3\_bucket](#input\_uploads\_s3\_bucket) | Name and ARN of the S3 bucket for uploads | <pre>object({<br>    bucket_name = string<br>    bucket_arn  = string<br>  })</pre> | n/a | yes |
 
