@@ -14,8 +14,9 @@ resource "aws_cloudwatch_query_definition" "app_container_messages" {
   log_group_names = [aws_cloudwatch_log_group.application_logs.name]
 
   query_string = <<EOF
-fields @timestamp, message, concat(method, " ", url) as request, status
+fields @timestamp, level, msg, err, concat(req.method, " ", req.uri) as request
 | filter @message not like "ELB-HealthChecker"
+| filter @logStream not like /(?i)(mock_onelogin|aws-otel-collector)/
 | sort @timestamp desc
 EOF
   provider     = aws.region
