@@ -8,14 +8,14 @@ This module creates the resources required to receive and process events from th
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.2 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.38.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.39.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.38.0 |
-| <a name="provider_aws.region"></a> [aws.region](#provider\_aws.region) | ~> 5.38.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.39.0 |
+| <a name="provider_aws.region"></a> [aws.region](#provider\_aws.region) | ~> 5.39.0 |
 
 ## Modules
 
@@ -55,6 +55,8 @@ This module creates the resources required to receive and process events from th
 | <a name="input_lambda_function_image_ecr_url"></a> [lambda\_function\_image\_ecr\_url](#input\_lambda\_function\_image\_ecr\_url) | n/a | `string` | n/a | yes |
 | <a name="input_lambda_function_image_tag"></a> [lambda\_function\_image\_tag](#input\_lambda\_function\_image\_tag) | n/a | `string` | n/a | yes |
 | <a name="input_lpas_table"></a> [lpas\_table](#input\_lpas\_table) | n/a | <pre>object({<br>    arn  = string<br>    name = string<br>  })</pre> | n/a | yes |
+| <a name="input_search_collection_arn"></a> [search\_collection\_arn](#input\_search\_collection\_arn) | ARN of the OpenSearch collection to use | `string` | n/a | yes |
+| <a name="input_search_endpoint"></a> [search\_endpoint](#input\_search\_endpoint) | URL of the OpenSearch Service endpoint to use | `string` | n/a | yes |
 | <a name="input_uid_base_url"></a> [uid\_base\_url](#input\_uid\_base\_url) | n/a | `string` | n/a | yes |
 | <a name="input_uploads_bucket"></a> [uploads\_bucket](#input\_uploads\_bucket) | n/a | `any` | n/a | yes |
 

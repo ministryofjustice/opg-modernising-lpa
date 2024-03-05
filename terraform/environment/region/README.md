@@ -8,18 +8,18 @@ This module creates the regional resources for an environment.
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.2 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.38.0 |
-| <a name="requirement_pagerduty"></a> [pagerduty](#requirement\_pagerduty) | 3.8.1 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.39.0 |
+| <a name="requirement_pagerduty"></a> [pagerduty](#requirement\_pagerduty) | 3.9.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws.global"></a> [aws.global](#provider\_aws.global) | ~> 5.38.0 |
-| <a name="provider_aws.management"></a> [aws.management](#provider\_aws.management) | ~> 5.38.0 |
-| <a name="provider_aws.management_global"></a> [aws.management\_global](#provider\_aws.management\_global) | ~> 5.38.0 |
-| <a name="provider_aws.region"></a> [aws.region](#provider\_aws.region) | ~> 5.38.0 |
-| <a name="provider_pagerduty"></a> [pagerduty](#provider\_pagerduty) | 3.8.1 |
+| <a name="provider_aws.global"></a> [aws.global](#provider\_aws.global) | ~> 5.39.0 |
+| <a name="provider_aws.management"></a> [aws.management](#provider\_aws.management) | ~> 5.39.0 |
+| <a name="provider_aws.management_global"></a> [aws.management\_global](#provider\_aws.management\_global) | ~> 5.39.0 |
+| <a name="provider_aws.region"></a> [aws.region](#provider\_aws.region) | ~> 5.39.0 |
+| <a name="provider_pagerduty"></a> [pagerduty](#provider\_pagerduty) | 3.9.0 |
 
 ## Modules
 
@@ -61,10 +61,10 @@ This module creates the regional resources for an environment.
 | [aws_sns_topic_subscription.dependency_health_check](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription) | resource |
 | [aws_sns_topic_subscription.ecs_autoscaling_alarms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription) | resource |
 | [aws_sns_topic_subscription.service_health_check](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription) | resource |
-| [pagerduty_service_integration.cloudwatch_application_insights](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.8.1/docs/resources/service_integration) | resource |
-| [pagerduty_service_integration.dependency_health_check](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.8.1/docs/resources/service_integration) | resource |
-| [pagerduty_service_integration.ecs_autoscaling_alarms](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.8.1/docs/resources/service_integration) | resource |
-| [pagerduty_service_integration.service_health_check](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.8.1/docs/resources/service_integration) | resource |
+| [pagerduty_service_integration.cloudwatch_application_insights](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.9.0/docs/resources/service_integration) | resource |
+| [pagerduty_service_integration.dependency_health_check](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.9.0/docs/resources/service_integration) | resource |
+| [pagerduty_service_integration.ecs_autoscaling_alarms](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.9.0/docs/resources/service_integration) | resource |
+| [pagerduty_service_integration.service_health_check](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.9.0/docs/resources/service_integration) | resource |
 | [aws_availability_zones.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) | data source |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_default_tags.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/default_tags) | data source |
@@ -93,8 +93,8 @@ This module creates the regional resources for an environment.
 | [aws_subnet.application](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet) | data source |
 | [aws_subnet.public](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet) | data source |
 | [aws_vpc.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
-| [pagerduty_service.main](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.8.1/docs/data-sources/service) | data source |
-| [pagerduty_vendor.cloudwatch](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.8.1/docs/data-sources/vendor) | data source |
+| [pagerduty_service.main](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.9.0/docs/data-sources/service) | data source |
+| [pagerduty_vendor.cloudwatch](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.9.0/docs/data-sources/vendor) | data source |
 
 ## Inputs
 
@@ -123,6 +123,8 @@ This module creates the regional resources for an environment.
 | <a name="input_receive_account_ids"></a> [receive\_account\_ids](#input\_receive\_account\_ids) | IDs of accounts to receive messages from | `list(string)` | `[]` | no |
 | <a name="input_reduced_fees"></a> [reduced\_fees](#input\_reduced\_fees) | n/a | <pre>object({<br>    s3_object_replication_enabled             = bool<br>    target_environment                        = string<br>    destination_account_id                    = string<br>    enable_s3_batch_job_replication_scheduler = bool<br>  })</pre> | n/a | yes |
 | <a name="input_s3_antivirus_provisioned_concurrency"></a> [s3\_antivirus\_provisioned\_concurrency](#input\_s3\_antivirus\_provisioned\_concurrency) | Number of concurrent executions to provision for Lambda | `number` | `0` | no |
+| <a name="input_search_collection_arn"></a> [search\_collection\_arn](#input\_search\_collection\_arn) | ARN of the OpenSearch collection to use | `string` | n/a | yes |
+| <a name="input_search_endpoint"></a> [search\_endpoint](#input\_search\_endpoint) | URL of the OpenSearch Service endpoint to use | `string` | n/a | yes |
 | <a name="input_service_health_check_alarm_enabled"></a> [service\_health\_check\_alarm\_enabled](#input\_service\_health\_check\_alarm\_enabled) | Enable the service health check alert actions | `bool` | `false` | no |
 | <a name="input_target_event_bus_arn"></a> [target\_event\_bus\_arn](#input\_target\_event\_bus\_arn) | ARN of the event bus to forward events to | `string` | n/a | yes |
 | <a name="input_uid_service"></a> [uid\_service](#input\_uid\_service) | n/a | <pre>object({<br>    base_url = string<br>    api_arns = list(string)<br>  })</pre> | n/a | yes |
