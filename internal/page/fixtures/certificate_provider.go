@@ -76,6 +76,7 @@ func CertificateProvider(
 			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: certificateProviderSessionID, LpaID: donor.LpaID})
 		)
 
+		// to delete
 		donor.LpaUID = makeUID()
 		donor.Donor = makeDonor()
 		donor.Type = actor.LpaTypePropertyAndAffairs
