@@ -35,10 +35,15 @@
               <dt class="govuk-summary-list__key">
                 {{ .Organisation.Name }}
               </dt>
-              <dd class="govuk-summary-list__value">
-              </dd>
               <dd class="govuk-summary-list__actions">
-                <a class="govuk-link" href="{{ link .App global.Paths.Supporter.EditOrganisationName.Format }}">{{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "name" }}</span></a>
+                <ul class="govuk-summary-list__actions-list">
+                  <li class="govuk-summary-list__actions-list-item">
+                    <a class="govuk-link" href="{{ link .App global.Paths.Supporter.EditOrganisationName.Format }}">{{ tr .App "changeName" }}<span class="govuk-visually-hidden"> {{ tr .App "name" }}</span></a>
+                  </li>
+                  <li class="govuk-summary-list__actions-list-item">
+                    <a class="govuk-link app-red" href="{{ link .App global.Paths.Supporter.DeleteOrganisation.Format }}">{{ tr .App "deleteOrganisation" }}</a>
+                  </li>
+                </ul>
               </dd>
             </div>
           </dl>
