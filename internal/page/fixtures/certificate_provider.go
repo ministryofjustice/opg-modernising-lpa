@@ -74,6 +74,16 @@ func CertificateProvider(
 			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: certificateProviderSessionID, LpaID: donorDetails.LpaID})
 		)
 
+		donorDetails.Donor = makeDonor()
+		donorDetails.Type = actor.LpaTypePropertyAndAffairs
+		if lpaType == "personal-welfare" {
+			donorDetails.Type = actor.LpaTypePersonalWelfare
+			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
+			donorDetails.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
+		} else {
+			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
+		}
+
 		if useRealUID {
 			if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
 				LpaID:          donorDetails.LpaID,
@@ -89,16 +99,6 @@ func CertificateProvider(
 			}
 		} else {
 			donorDetails.LpaUID = makeUID()
-		}
-
-		donorDetails.Donor = makeDonor()
-		donorDetails.Type = actor.LpaTypePropertyAndAffairs
-		if lpaType == "personal-welfare" {
-			donorDetails.Type = actor.LpaTypePersonalWelfare
-			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
-			donorDetails.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
-		} else {
-			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
 		}
 
 		donorDetails.Attorneys = actor.Attorneys{
