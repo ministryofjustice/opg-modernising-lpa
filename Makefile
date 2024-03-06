@@ -4,6 +4,8 @@ WHITE  := $(shell tput -Txterm setaf 7)
 YELLOW := $(shell tput -Txterm setaf 3)
 RESET  := $(shell tput -Txterm sgr0)
 
+ECR_LOGIN ?= @aws-vault exec management -- aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin 311462405659.dkr.ecr.eu-west-1.amazonaws.com
+
 # Add the following 'help' target to your Makefile
 # And add help text after each target name starting with '\#\#'
 # A category can be added with @category
