@@ -177,6 +177,10 @@ locals {
         {
           name  = "REDIRECT_URL",
           value = "${var.redirect_base_url}/auth/redirect"
+        },
+        {
+          name  = "TEMPLATE_SUB",
+          value = "1"
         }
       ]
     }

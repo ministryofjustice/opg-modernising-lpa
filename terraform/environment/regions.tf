@@ -4,7 +4,7 @@ data "aws_ecr_repository" "app" {
 }
 
 data "aws_ecr_repository" "mock_onelogin" {
-  name     = "modernising-lpa/mock-onelogin"
+  name     = "mock-onelogin"
   provider = aws.management_eu_west_1
 }
 
@@ -28,7 +28,7 @@ module "eu_west_1" {
   app_service_repository_url              = data.aws_ecr_repository.app.repository_url
   app_service_container_version           = var.container_version
   mock_onelogin_service_repository_url    = data.aws_ecr_repository.mock_onelogin.repository_url
-  mock_onelogin_service_container_version = var.container_version
+  mock_onelogin_service_container_version = local.mock_onelogin_version
   ingress_allow_list_cidr                 = module.allow_list.moj_sites
   alb_deletion_protection_enabled         = local.environment.application_load_balancer.deletion_protection_enabled
   lpas_table = {
@@ -88,7 +88,7 @@ module "eu_west_2" {
   app_service_repository_url              = data.aws_ecr_repository.app.repository_url
   app_service_container_version           = var.container_version
   mock_onelogin_service_repository_url    = data.aws_ecr_repository.mock_onelogin.repository_url
-  mock_onelogin_service_container_version = var.container_version
+  mock_onelogin_service_container_version = local.mock_onelogin_version
   ingress_allow_list_cidr                 = module.allow_list.moj_sites
   alb_deletion_protection_enabled         = local.environment.application_load_balancer.deletion_protection_enabled
   lpas_table = {
