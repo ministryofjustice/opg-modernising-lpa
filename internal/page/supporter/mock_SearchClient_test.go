@@ -22,6 +22,63 @@ func (_m *mockSearchClient) EXPECT() *mockSearchClient_Expecter {
 	return &mockSearchClient_Expecter{mock: &_m.Mock}
 }
 
+// CountWithQuery provides a mock function with given fields: ctx, req
+func (_m *mockSearchClient) CountWithQuery(ctx context.Context, req search.CountWithQueryReq) (int, error) {
+	ret := _m.Called(ctx, req)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CountWithQuery")
+	}
+
+	var r0 int
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, search.CountWithQueryReq) (int, error)); ok {
+		return rf(ctx, req)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, search.CountWithQueryReq) int); ok {
+		r0 = rf(ctx, req)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, search.CountWithQueryReq) error); ok {
+		r1 = rf(ctx, req)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockSearchClient_CountWithQuery_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CountWithQuery'
+type mockSearchClient_CountWithQuery_Call struct {
+	*mock.Call
+}
+
+// CountWithQuery is a helper method to define mock.On call
+//   - ctx context.Context
+//   - req search.CountWithQueryReq
+func (_e *mockSearchClient_Expecter) CountWithQuery(ctx interface{}, req interface{}) *mockSearchClient_CountWithQuery_Call {
+	return &mockSearchClient_CountWithQuery_Call{Call: _e.mock.On("CountWithQuery", ctx, req)}
+}
+
+func (_c *mockSearchClient_CountWithQuery_Call) Run(run func(ctx context.Context, req search.CountWithQueryReq)) *mockSearchClient_CountWithQuery_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(search.CountWithQueryReq))
+	})
+	return _c
+}
+
+func (_c *mockSearchClient_CountWithQuery_Call) Return(_a0 int, _a1 error) *mockSearchClient_CountWithQuery_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockSearchClient_CountWithQuery_Call) RunAndReturn(run func(context.Context, search.CountWithQueryReq) (int, error)) *mockSearchClient_CountWithQuery_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Query provides a mock function with given fields: ctx, req
 func (_m *mockSearchClient) Query(ctx context.Context, req search.QueryRequest) (*search.QueryResponse, error) {
 	ret := _m.Called(ctx, req)

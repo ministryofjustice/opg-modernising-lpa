@@ -23,64 +23,6 @@ func (_m *mockOrganisationStore) EXPECT() *mockOrganisationStore_Expecter {
 	return &mockOrganisationStore_Expecter{mock: &_m.Mock}
 }
 
-// AllLPAs provides a mock function with given fields: ctx
-func (_m *mockOrganisationStore) AllLPAs(ctx context.Context) ([]actor.DonorProvidedDetails, error) {
-	ret := _m.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for AllLPAs")
-	}
-
-	var r0 []actor.DonorProvidedDetails
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]actor.DonorProvidedDetails, error)); ok {
-		return rf(ctx)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context) []actor.DonorProvidedDetails); ok {
-		r0 = rf(ctx)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]actor.DonorProvidedDetails)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// mockOrganisationStore_AllLPAs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AllLPAs'
-type mockOrganisationStore_AllLPAs_Call struct {
-	*mock.Call
-}
-
-// AllLPAs is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *mockOrganisationStore_Expecter) AllLPAs(ctx interface{}) *mockOrganisationStore_AllLPAs_Call {
-	return &mockOrganisationStore_AllLPAs_Call{Call: _e.mock.On("AllLPAs", ctx)}
-}
-
-func (_c *mockOrganisationStore_AllLPAs_Call) Run(run func(ctx context.Context)) *mockOrganisationStore_AllLPAs_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
-	})
-	return _c
-}
-
-func (_c *mockOrganisationStore_AllLPAs_Call) Return(_a0 []actor.DonorProvidedDetails, _a1 error) *mockOrganisationStore_AllLPAs_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *mockOrganisationStore_AllLPAs_Call) RunAndReturn(run func(context.Context) ([]actor.DonorProvidedDetails, error)) *mockOrganisationStore_AllLPAs_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // Create provides a mock function with given fields: ctx, name
 func (_m *mockOrganisationStore) Create(ctx context.Context, name string) (*actor.Organisation, error) {
 	ret := _m.Called(ctx, name)
@@ -299,6 +241,53 @@ func (_c *mockOrganisationStore_Put_Call) Return(_a0 error) *mockOrganisationSto
 }
 
 func (_c *mockOrganisationStore_Put_Call) RunAndReturn(run func(context.Context, *actor.Organisation) error) *mockOrganisationStore_Put_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SoftDelete provides a mock function with given fields: ctx, organisation
+func (_m *mockOrganisationStore) SoftDelete(ctx context.Context, organisation *actor.Organisation) error {
+	ret := _m.Called(ctx, organisation)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SoftDelete")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *actor.Organisation) error); ok {
+		r0 = rf(ctx, organisation)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockOrganisationStore_SoftDelete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SoftDelete'
+type mockOrganisationStore_SoftDelete_Call struct {
+	*mock.Call
+}
+
+// SoftDelete is a helper method to define mock.On call
+//   - ctx context.Context
+//   - organisation *actor.Organisation
+func (_e *mockOrganisationStore_Expecter) SoftDelete(ctx interface{}, organisation interface{}) *mockOrganisationStore_SoftDelete_Call {
+	return &mockOrganisationStore_SoftDelete_Call{Call: _e.mock.On("SoftDelete", ctx, organisation)}
+}
+
+func (_c *mockOrganisationStore_SoftDelete_Call) Run(run func(ctx context.Context, organisation *actor.Organisation)) *mockOrganisationStore_SoftDelete_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*actor.Organisation))
+	})
+	return _c
+}
+
+func (_c *mockOrganisationStore_SoftDelete_Call) Return(_a0 error) *mockOrganisationStore_SoftDelete_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockOrganisationStore_SoftDelete_Call) RunAndReturn(run func(context.Context, *actor.Organisation) error) *mockOrganisationStore_SoftDelete_Call {
 	_c.Call.Return(run)
 	return _c
 }
