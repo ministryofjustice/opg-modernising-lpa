@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -102,10 +103,19 @@ func (c *Client) CreateIndices(ctx context.Context) error {
 }
 
 func (c *Client) Index(ctx context.Context, lpa Lpa) error {
+	log.Printf("search.Client.Index()")
+	log.Printf("%v", lpa)
+
 	body, err := json.Marshal(lpa)
 	if err != nil {
 		return err
 	}
+
+	log.Println("marshalled JSON")
+	log.Println(string(body))
+
+	log.Println("DocumentID is:")
+	log.Println(strings.ReplaceAll(lpa.PK, "#", "--"))
 
 	_, err = c.svc.Index(ctx, opensearchapi.IndexReq{
 		Index:      indexName,
