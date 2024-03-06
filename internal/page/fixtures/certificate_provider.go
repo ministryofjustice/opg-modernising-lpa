@@ -9,19 +9,15 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
-
-type lpaLink struct {
-	PK        string
-	SK        string
-	ActorType actor.Type
-}
 
 func CertificateProvider(
 	tmpl template.Template,
@@ -29,6 +25,7 @@ func CertificateProvider(
 	shareCodeSender ShareCodeSender,
 	donorStore page.DonorStore,
 	certificateProviderStore CertificateProviderStore,
+	eventClient *event.Client,
 ) page.Handler {
 	progressValues := []string{
 		"paid",
@@ -46,6 +43,7 @@ func CertificateProvider(
 			asProfessionalCertificateProvider = r.FormValue("relationship") == "professional"
 			certificateProviderSub            = r.FormValue("certificateProviderSub")
 			shareCode                         = r.FormValue("withShareCode")
+			useRealUID                        = r.FormValue("uid") == "real"
 		)
 
 		if certificateProviderSub == "" {
@@ -66,60 +64,75 @@ func CertificateProvider(
 			return err
 		}
 
-		donor, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}))
+		donorDetails, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}))
 		if err != nil {
 			return err
 		}
 
 		var (
-			donorCtx               = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: donor.LpaID})
-			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: certificateProviderSessionID, LpaID: donor.LpaID})
+			donorCtx               = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: donorDetails.LpaID})
+			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: certificateProviderSessionID, LpaID: donorDetails.LpaID})
 		)
 
-		// to delete
-		donor.LpaUID = makeUID()
-		donor.Donor = makeDonor()
-		donor.Type = actor.LpaTypePropertyAndAffairs
-		if lpaType == "personal-welfare" {
-			donor.Type = actor.LpaTypePersonalWelfare
-			donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
-			donor.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
+		if useRealUID {
+			if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
+				LpaID:          donorDetails.LpaID,
+				DonorSessionID: donorSessionID,
+				Type:           donorDetails.Type.String(),
+				Donor: uid.DonorDetails{
+					Name:     donorDetails.Donor.FullName(),
+					Dob:      donorDetails.Donor.DateOfBirth,
+					Postcode: donorDetails.Donor.Address.Postcode,
+				},
+			}); err != nil {
+				return err
+			}
 		} else {
-			donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
+			donorDetails.LpaUID = makeUID()
 		}
 
-		donor.Attorneys = actor.Attorneys{
+		donorDetails.Donor = makeDonor()
+		donorDetails.Type = actor.LpaTypePropertyAndAffairs
+		if lpaType == "personal-welfare" {
+			donorDetails.Type = actor.LpaTypePersonalWelfare
+			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
+			donorDetails.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
+		} else {
+			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
+		}
+
+		donorDetails.Attorneys = actor.Attorneys{
 			Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])},
 		}
 
-		donor.AttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
+		donorDetails.AttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
 
-		donor.CertificateProvider = makeCertificateProvider()
+		donorDetails.CertificateProvider = makeCertificateProvider()
 		if email != "" {
-			donor.CertificateProvider.Email = email
+			donorDetails.CertificateProvider.Email = email
 		}
 
 		if asProfessionalCertificateProvider {
-			donor.CertificateProvider.Relationship = actor.Professionally
+			donorDetails.CertificateProvider.Relationship = actor.Professionally
 		}
 
-		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID, donor.CertificateProvider.UID)
+		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID, donorDetails.CertificateProvider.UID)
 		if err != nil {
 			return err
 		}
 
 		if progress >= slices.Index(progressValues, "paid") {
-			donor.PaymentDetails = append(donor.PaymentDetails, actor.Payment{
+			donorDetails.PaymentDetails = append(donorDetails.PaymentDetails, actor.Payment{
 				PaymentReference: random.String(12),
 				PaymentId:        random.String(12),
 			})
-			donor.Tasks.PayForLpa = actor.PaymentTaskCompleted
+			donorDetails.Tasks.PayForLpa = actor.PaymentTaskCompleted
 		}
 
 		if progress >= slices.Index(progressValues, "signedByDonor") {
-			donor.Tasks.ConfirmYourIdentityAndSign = actor.TaskCompleted
-			donor.WitnessedByCertificateProviderAt = time.Now()
-			donor.SignedAt = time.Now()
+			donorDetails.Tasks.ConfirmYourIdentityAndSign = actor.TaskCompleted
+			donorDetails.WitnessedByCertificateProviderAt = time.Now()
+			donorDetails.SignedAt = time.Now()
 		}
 
 		if progress >= slices.Index(progressValues, "confirmYourDetails") {
@@ -142,14 +155,14 @@ func CertificateProvider(
 			certificateProvider.IdentityUserData = identity.UserData{
 				OK:          true,
 				RetrievedAt: time.Now(),
-				FirstNames:  donor.CertificateProvider.FirstNames,
-				LastName:    donor.CertificateProvider.LastName,
+				FirstNames:  donorDetails.CertificateProvider.FirstNames,
+				LastName:    donorDetails.CertificateProvider.LastName,
 				DateOfBirth: certificateProvider.DateOfBirth,
 			}
 			certificateProvider.Tasks.ConfirmYourIdentity = actor.TaskCompleted
 		}
 
-		if err := donorStore.Put(donorCtx, donor); err != nil {
+		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
 			return err
 		}
 		if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {
@@ -164,9 +177,9 @@ func CertificateProvider(
 		if email != "" {
 			shareCodeSender.SendCertificateProviderInvite(donorCtx, page.AppData{
 				SessionID: donorSessionID,
-				LpaID:     donor.LpaID,
+				LpaID:     donorDetails.LpaID,
 				Localizer: appData.Localizer,
-			}, donor)
+			}, donorDetails)
 
 			http.Redirect(w, r, page.Paths.CertificateProviderStart.Format(), http.StatusFound)
 			return nil
@@ -178,7 +191,7 @@ func CertificateProvider(
 		case page.Paths.CertificateProviderStart.Format():
 			redirect = page.Paths.CertificateProviderStart.Format()
 		default:
-			redirect = "/certificate-provider/" + donor.LpaID + redirect
+			redirect = "/certificate-provider/" + donorDetails.LpaID + redirect
 		}
 
 		http.Redirect(w, r, redirect, http.StatusFound)
