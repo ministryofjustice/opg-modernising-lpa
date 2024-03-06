@@ -241,6 +241,7 @@ type SupporterPaths struct {
 	EnterReferenceNumber  Path
 	Login                 Path
 	LoginCallback         Path
+	OrganisationDeleted   Path
 	SigningInAdvice       Path
 	Start                 Path
 	InviteExpired         Path
@@ -248,6 +249,7 @@ type SupporterPaths struct {
 	ConfirmDonorCanInteractOnline SupporterPath
 	ContactOPGForPaperForms       SupporterPath
 	Dashboard                     SupporterPath
+	DeleteOrganisation            SupporterPath
 	EditMember                    SupporterPath
 	EditOrganisationName          SupporterPath
 	InviteMember                  SupporterPath
@@ -421,12 +423,14 @@ var Paths = AppPaths{
 		EnterReferenceNumber:  "/supporter-reference-number",
 		Login:                 "/supporter-login",
 		LoginCallback:         "/supporter-login-callback",
+		OrganisationDeleted:   "/organisation-deleted",
 		SigningInAdvice:       "/signing-in-with-govuk-one-login",
 		Start:                 "/supporter-start",
 
 		ConfirmDonorCanInteractOnline: "/confirm-donor-can-interact-online",
 		ContactOPGForPaperForms:       "/contact-opg-for-paper-forms",
 		Dashboard:                     "/dashboard",
+		DeleteOrganisation:            "/manage-organisation/organisation-details/delete-organisation",
 		EditMember:                    "/manage-organisation/manage-team-members/edit-team-member",
 		EditOrganisationName:          "/manage-organisation/organisation-details/edit-organisation-name",
 		InviteExpired:                 "/invite-expired",
