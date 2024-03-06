@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -90,6 +91,7 @@ func (h *cloudWatchEventHandler) Handle(ctx context.Context, cloudWatchEvent eve
 
 func handleUidRequested(ctx context.Context, uidStore UidStore, uidClient UidClient, e events.CloudWatchEvent) error {
 	var v event.UidRequested
+	log.Printf("%v", string(e.Detail))
 	if err := json.Unmarshal(e.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
 	}
