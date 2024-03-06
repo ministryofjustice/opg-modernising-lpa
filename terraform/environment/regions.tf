@@ -4,7 +4,7 @@ data "aws_ecr_repository" "app" {
 }
 
 data "aws_ecr_repository" "mock_onelogin" {
-  name     = "modernising-lpa/mock-onelogin"
+  name     = "mock-onelogin"
   provider = aws.management_eu_west_1
 }
 
