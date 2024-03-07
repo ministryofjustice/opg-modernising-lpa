@@ -45,13 +45,7 @@ resource "aws_cloudwatch_query_definition" "main" {
   log_group_names = [aws_cloudwatch_log_group.lambda.name]
 
   query_string = <<EOF
-fields @timestamp
-| parse @message "* RequestId:" as Status
-| parse @message "RequestId: * Version:" as StartRequestID
-| parse @message "END RequestId: *" as EndRequestID
-| parse @message "REPORT RequestId: *	Duration: " as ReportRequestID
-| parse @message "XRAY TraceId: *	" as XRAYTraceID
-| display @timestamp, Status, errorType, errorMessage, concat(StartRequestID,EndRequestID,ReportRequestID) as RequestId, XRAYTraceID
+fields @timestamp, type, record.status as status, @xrayTraceId, @message, record.metrics.initDurationMs, record.metrics.durationMs
 | sort @timestamp desc
 EOF
   provider     = aws.region
