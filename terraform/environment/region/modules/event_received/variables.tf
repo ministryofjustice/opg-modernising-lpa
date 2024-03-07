@@ -47,3 +47,11 @@ variable "search_collection_arn" {
 variable "event_received_lambda_role" {
   type = any
 }
+
+variable "vpc_config" {
+  description = "Configuration block for VPC"
+  type = object({
+    subnet_ids         = list(string)
+    security_group_ids = list(string)
+  })
+}

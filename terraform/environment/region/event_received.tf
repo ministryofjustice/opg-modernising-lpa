@@ -3,6 +3,11 @@ data "aws_ecr_repository" "event_received" {
   provider = aws.management
 }
 
+data "aws_security_group" "lambda_egress" {
+  name     = "lambda-egress-${data.aws_region.current.name}"
+  provider = aws.region
+}
+
 module "event_received" {
   source                        = "./modules/event_received"
   lambda_function_image_ecr_url = data.aws_ecr_repository.event_received.repository_url
@@ -15,6 +20,11 @@ module "event_received" {
   search_endpoint               = var.search_endpoint
   search_collection_arn         = var.search_collection_arn
   event_received_lambda_role    = var.iam_roles.event_received_lambda_role
+  vpc_config = {
+    subnet_ids         = data.aws_subnet.application[*].id
+    security_group_ids = [data.aws_security_group.lambda_egress.id]
+
+  }
 
   lpas_table = {
     arn  = var.lpas_table.arn
