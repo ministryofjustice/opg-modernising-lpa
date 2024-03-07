@@ -43,3 +43,7 @@ variable "search_collection_arn" {
   description = "ARN of the OpenSearch collection to use"
   nullable    = true
 }
+
+variable "event_received_lambda_role" {
+  type = any
+}

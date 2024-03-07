@@ -11,6 +11,7 @@ module "event_received" {
     SEARCH_ENDPOINT            = var.search_endpoint
   }
   image_uri            = "${var.lambda_function_image_ecr_url}:${var.lambda_function_image_tag}"
+  aws_iam_role         = var.event_received_lambda_role
   environment          = data.aws_default_tags.current.tags.environment-name
   kms_key              = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
   iam_policy_documents = [data.aws_iam_policy_document.api_access_policy.json]
@@ -94,13 +95,13 @@ resource "aws_lambda_permission" "allow_cloudwatch_to_call_event_received_mlpa" 
 
 resource "aws_iam_role_policy" "event_received" {
   name     = "event_received-${data.aws_default_tags.current.tags.environment-name}"
-  role     = module.event_received.lambda_role.id
+  role     = var.event_received_lambda_role.id
   policy   = data.aws_iam_policy_document.event_received.json
   provider = aws.region
 }
 
 resource "aws_iam_role_policy_attachment" "cloudwatch_lambda_insights" {
-  role       = module.event_received.lambda_role.id
+  role       = var.event_received_lambda_role.id
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy"
   provider   = aws.region
 }
