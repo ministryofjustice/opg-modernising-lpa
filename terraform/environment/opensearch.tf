@@ -92,7 +92,7 @@ resource "aws_opensearchserverless_access_policy" "event_received" {
           Permission   = ["aoss:*"]
         }
       ],
-      Principal = [module.global.iam_roles.event_received_lambda_role.arn]
+      Principal = [module.global.iam_roles.event_received_lambda.arn]
     }
   ])
   provider = aws.eu_west_1
