@@ -28,6 +28,20 @@ data "aws_iam_policy_document" "lambda" {
     ]
   }
 
+  statement {
+    sid    = "logEncryption"
+    effect = "Allow"
+    resources = [
+      data.aws_kms_alias.log_encryption_key.arn
+    ]
+    actions = [
+      "kms:Encrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey"
+    ]
+  }
+
   override_policy_documents = var.iam_policy_documents
   provider                  = aws.region
 }

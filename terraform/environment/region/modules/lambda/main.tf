@@ -18,6 +18,11 @@ resource "aws_lambda_function" "lambda_function" {
     mode = "Active"
   }
 
+  logging_config {
+    log_group  = aws_cloudwatch_log_group.lambda.name
+    log_format = "JSON"
+  }
+
   dynamic "vpc_config" {
     for_each = length(var.vpc_config) == 0 ? [] : [true]
     content {
