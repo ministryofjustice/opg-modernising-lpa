@@ -43,3 +43,8 @@ variable "s3_antivirus_lambda_function" {
   type        = any
   description = "Lambda function ARN for events received"
 }
+
+variable "create_s3_batch_replication_jobs_lambda_iam_role" {
+  type        = any
+  description = "Lambda IAM role"
+}

@@ -5,11 +5,12 @@ module "s3_create_batch_replication_jobs" {
   environment_variables = {
     ENVIRONMENT = data.aws_default_tags.current.tags.environment-name
   }
-  image_uri   = "${var.s3_replication.lambda_function_image_ecr_url}:${var.s3_replication.lambda_function_image_tag}"
-  environment = data.aws_default_tags.current.tags.environment-name
-  kms_key     = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
-  timeout     = 900
-  memory      = 1024
+  image_uri    = "${var.s3_replication.lambda_function_image_ecr_url}:${var.s3_replication.lambda_function_image_tag}"
+  aws_iam_role = var.create_s3_batch_replication_jobs_lambda_iam_role
+  environment  = data.aws_default_tags.current.tags.environment-name
+  kms_key      = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
+  timeout      = 900
+  memory       = 1024
   providers = {
     aws.region = aws.region
   }
@@ -18,7 +19,7 @@ module "s3_create_batch_replication_jobs" {
 # Additional IAM permissions
 resource "aws_iam_role_policy" "s3_create_batch_replication_jobs" {
   name     = "create-s3-batch-replication-jobs-${data.aws_default_tags.current.tags.environment-name}"
-  role     = module.s3_create_batch_replication_jobs.lambda_role.id
+  role     = var.create_s3_batch_replication_jobs_lambda_iam_role.id
   policy   = data.aws_iam_policy_document.s3_create_batch_replication_jobs.json
   provider = aws.region
 }
@@ -117,7 +118,7 @@ data "aws_iam_policy_document" "scheduler_invoke_lambda" {
 }
 
 resource "aws_iam_role_policy_attachment" "cloudwatch_lambda_insights" {
-  role       = module.s3_create_batch_replication_jobs.lambda_role.id
+  role       = var.create_s3_batch_replication_jobs_lambda_iam_role.id
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy"
   provider   = aws.region
 }
