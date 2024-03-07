@@ -4,11 +4,13 @@ locals {
 
 variable "iam_roles" {
   type = object({
-    ecs_execution_role        = any
-    app_ecs_task_role         = any
-    s3_antivirus              = any
-    cross_account_put         = any
-    fault_injection_simulator = any
+    ecs_execution_role                      = any
+    app_ecs_task_role                       = any
+    s3_antivirus                            = any
+    cross_account_put                       = any
+    fault_injection_simulator               = any
+    create_s3_batch_replication_jobs_lambda = any
+    event_received_lambda_role              = any
   })
   description = "ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services."
 }
