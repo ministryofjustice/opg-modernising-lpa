@@ -24,6 +24,11 @@ resource "aws_lambda_function" "lambda_function" {
     mode = "Active"
   }
 
+  logging_config {
+    log_group  = aws_cloudwatch_log_group.lambda.name
+    log_format = "JSON"
+  }
+
   vpc_config {
     subnet_ids = var.aws_subnet_ids
     security_group_ids = [
