@@ -16,10 +16,11 @@ data "aws_ecr_repository" "s3_create_batch_replication_jobs" {
 module "uploads_s3_bucket" {
   source = "./modules/uploads_s3_bucket"
 
-  bucket_name                     = "uploads-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
-  force_destroy                   = data.aws_default_tags.current.tags.environment-name != "production" ? true : false
-  events_received_lambda_function = module.event_received.lambda_function
-  s3_antivirus_lambda_function    = module.s3_antivirus.lambda_function
+  bucket_name                                      = "uploads-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
+  force_destroy                                    = data.aws_default_tags.current.tags.environment-name != "production" ? true : false
+  events_received_lambda_function                  = module.event_received.lambda_function
+  create_s3_batch_replication_jobs_lambda_iam_role = var.iam_roles.create_s3_batch_replication_jobs_lambda
+  s3_antivirus_lambda_function                     = module.s3_antivirus.lambda_function
   s3_replication = {
     enabled                                   = var.reduced_fees.s3_object_replication_enabled
     destination_bucket_arn                    = data.aws_ssm_parameter.replication_bucket_arn.value

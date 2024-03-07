@@ -84,6 +84,7 @@ This module creates the regional resources for an environment.
 | [aws_route53_zone.modernising_lpa](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/route53_zone) | data source |
 | [aws_s3_bucket.antivirus_definitions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/s3_bucket) | data source |
 | [aws_secretsmanager_secret_version.rum_monitor_identity_pool_id](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/secretsmanager_secret_version) | data source |
+| [aws_security_group.lambda_egress](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/security_group) | data source |
 | [aws_sns_topic.cloudwatch_application_insights](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/sns_topic) | data source |
 | [aws_sns_topic.custom_cloudwatch_alarms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/sns_topic) | data source |
 | [aws_sns_topic.ecs_autoscaling_alarms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/sns_topic) | data source |
@@ -111,7 +112,7 @@ This module creates the regional resources for an environment.
 | <a name="input_ecs_capacity_provider"></a> [ecs\_capacity\_provider](#input\_ecs\_capacity\_provider) | Name of the capacity provider to use. Valid values are FARGATE\_SPOT and FARGATE | `string` | n/a | yes |
 | <a name="input_ecs_task_autoscaling"></a> [ecs\_task\_autoscaling](#input\_ecs\_task\_autoscaling) | task minimum and maximum values for autoscaling | `any` | n/a | yes |
 | <a name="input_fault_injection_experiments_enabled"></a> [fault\_injection\_experiments\_enabled](#input\_fault\_injection\_experiments\_enabled) | Enable fault injection | `bool` | n/a | yes |
-| <a name="input_iam_roles"></a> [iam\_roles](#input\_iam\_roles) | ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services. | <pre>object({<br>    ecs_execution_role        = any<br>    app_ecs_task_role         = any<br>    s3_antivirus              = any<br>    cross_account_put         = any<br>    fault_injection_simulator = any<br>  })</pre> | n/a | yes |
+| <a name="input_iam_roles"></a> [iam\_roles](#input\_iam\_roles) | ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services. | <pre>object({<br>    ecs_execution_role                      = any<br>    app_ecs_task_role                       = any<br>    s3_antivirus                            = any<br>    cross_account_put                       = any<br>    fault_injection_simulator               = any<br>    create_s3_batch_replication_jobs_lambda = any<br>    event_received_lambda                   = any<br>  })</pre> | n/a | yes |
 | <a name="input_ingress_allow_list_cidr"></a> [ingress\_allow\_list\_cidr](#input\_ingress\_allow\_list\_cidr) | List of CIDR ranges permitted to access the service | `list(string)` | n/a | yes |
 | <a name="input_lpa_store_service"></a> [lpa\_store\_service](#input\_lpa\_store\_service) | n/a | <pre>object({<br>    base_url = string<br>    api_arns = list(string)<br>  })</pre> | n/a | yes |
 | <a name="input_lpas_table"></a> [lpas\_table](#input\_lpas\_table) | DynamoDB table for storing LPAs | `any` | n/a | yes |
