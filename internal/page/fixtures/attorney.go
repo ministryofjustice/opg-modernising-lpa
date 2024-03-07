@@ -11,12 +11,14 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -42,6 +44,7 @@ func Attorney(
 	donorStore DonorStore,
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
+	eventClient *event.Client,
 ) page.Handler {
 	progressValues := []string{
 		"signedByCertificateProvider",
@@ -62,6 +65,7 @@ func Attorney(
 			redirect           = r.FormValue("redirect")
 			attorneySub        = r.FormValue("attorneySub")
 			shareCode          = r.FormValue("withShareCode")
+			useRealUID         = r.FormValue("uid") == "real"
 		)
 
 		if attorneySub == "" {
@@ -88,18 +92,18 @@ func Attorney(
 			return err
 		}
 
-		donor, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}))
+		donorDetails, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}))
 		if err != nil {
 			return err
 		}
 
 		var (
-			donorCtx               = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: donor.LpaID})
-			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: certificateProviderSessionID, LpaID: donor.LpaID})
-			attorneyCtx            = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: attorneySessionID, LpaID: donor.LpaID})
+			donorCtx               = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: donorDetails.LpaID})
+			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: certificateProviderSessionID, LpaID: donorDetails.LpaID})
+			attorneyCtx            = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: attorneySessionID, LpaID: donorDetails.LpaID})
 		)
 
-		donor.Donor = actor.Donor{
+		donorDetails.Donor = actor.Donor{
 			FirstNames: "Sam",
 			LastName:   "Smith",
 			Address: place.Address{
@@ -115,23 +119,41 @@ func Attorney(
 			CanSign:       form.Yes,
 		}
 
-		donor.LpaUID = makeUID()
 		if lpaType == "personal-welfare" && !isTrustCorporation {
-			donor.Type = actor.LpaTypePersonalWelfare
-			donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
-			donor.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
+			donorDetails.Type = actor.LpaTypePersonalWelfare
+			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
+			donorDetails.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
 		} else {
-			donor.Type = actor.LpaTypePropertyAndAffairs
-			donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
+			donorDetails.Type = actor.LpaTypePropertyAndAffairs
+			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
 		}
 
-		donor.CertificateProvider = makeCertificateProvider()
+		if useRealUID {
+			if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
+				LpaID:          donorDetails.LpaID,
+				DonorSessionID: donorSessionID,
+				Type:           donorDetails.Type.String(),
+				Donor: uid.DonorDetails{
+					Name:     donorDetails.Donor.FullName(),
+					Dob:      donorDetails.Donor.DateOfBirth,
+					Postcode: donorDetails.Donor.Address.Postcode,
+				},
+			}); err != nil {
+				return err
+			}
 
-		donor.Attorneys = actor.Attorneys{
+			donorDetails.HasSentUidRequestedEvent = true
+		} else {
+			donorDetails.LpaUID = makeUID()
+		}
+
+		donorDetails.CertificateProvider = makeCertificateProvider()
+
+		donorDetails.Attorneys = actor.Attorneys{
 			Attorneys:        []actor.Attorney{makeAttorney(attorneyNames[0])},
 			TrustCorporation: makeTrustCorporation("First Choice Trust Corporation Ltd."),
 		}
-		donor.ReplacementAttorneys = actor.Attorneys{
+		donorDetails.ReplacementAttorneys = actor.Attorneys{
 			Attorneys:        []actor.Attorney{makeAttorney(replacementAttorneyNames[0])},
 			TrustCorporation: makeTrustCorporation("Second Choice Trust Corporation Ltd."),
 		}
@@ -139,33 +161,33 @@ func Attorney(
 		if email != "" {
 			if isTrustCorporation {
 				if isReplacement {
-					donor.ReplacementAttorneys.TrustCorporation.Email = email
+					donorDetails.ReplacementAttorneys.TrustCorporation.Email = email
 				} else {
-					donor.Attorneys.TrustCorporation.Email = email
+					donorDetails.Attorneys.TrustCorporation.Email = email
 				}
 			}
 			if isReplacement {
-				donor.ReplacementAttorneys.Attorneys[0].Email = email
+				donorDetails.ReplacementAttorneys.Attorneys[0].Email = email
 			} else {
-				donor.Attorneys.Attorneys[0].Email = email
+				donorDetails.Attorneys.Attorneys[0].Email = email
 			}
 		}
 
 		var attorneyUID actoruid.UID
 		if isTrustCorporation && isReplacement {
-			attorneyUID = donor.ReplacementAttorneys.TrustCorporation.UID
+			attorneyUID = donorDetails.ReplacementAttorneys.TrustCorporation.UID
 		} else if isTrustCorporation {
-			attorneyUID = donor.Attorneys.TrustCorporation.UID
+			attorneyUID = donorDetails.Attorneys.TrustCorporation.UID
 		} else if isReplacement {
-			attorneyUID = donor.ReplacementAttorneys.Attorneys[0].UID
+			attorneyUID = donorDetails.ReplacementAttorneys.Attorneys[0].UID
 		} else {
-			attorneyUID = donor.Attorneys.Attorneys[0].UID
+			attorneyUID = donorDetails.Attorneys.Attorneys[0].UID
 		}
 
-		donor.AttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
-		donor.ReplacementAttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
+		donorDetails.AttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
+		donorDetails.ReplacementAttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
 
-		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID, donor.CertificateProvider.UID)
+		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID, donorDetails.CertificateProvider.UID)
 		if err != nil {
 			return err
 		}
@@ -176,8 +198,8 @@ func Attorney(
 		}
 
 		if progress >= slices.Index(progressValues, "signedByCertificateProvider") {
-			donor.SignedAt = time.Now()
-			certificateProvider.Certificate = actor.Certificate{Agreed: donor.SignedAt.Add(time.Hour)}
+			donorDetails.SignedAt = time.Now()
+			certificateProvider.Certificate = actor.Certificate{Agreed: donorDetails.SignedAt.Add(time.Hour)}
 		}
 
 		if progress >= slices.Index(progressValues, "signedByAttorney") {
@@ -193,19 +215,19 @@ func Attorney(
 					FirstNames:        "A",
 					LastName:          "Sign",
 					ProfessionalTitle: "Assistant to the signer",
-					LpaSignedAt:       donor.SignedAt,
-					Confirmed:         donor.SignedAt.Add(2 * time.Hour),
+					LpaSignedAt:       donorDetails.SignedAt,
+					Confirmed:         donorDetails.SignedAt.Add(2 * time.Hour),
 				}}
 			} else {
-				attorney.LpaSignedAt = donor.SignedAt
-				attorney.Confirmed = donor.SignedAt.Add(2 * time.Hour)
+				attorney.LpaSignedAt = donorDetails.SignedAt
+				attorney.Confirmed = donorDetails.SignedAt.Add(2 * time.Hour)
 			}
 		}
 
 		if progress >= slices.Index(progressValues, "signedByAllAttorneys") {
-			for isReplacement, list := range map[bool]actor.Attorneys{false: donor.Attorneys, true: donor.ReplacementAttorneys} {
+			for isReplacement, list := range map[bool]actor.Attorneys{false: donorDetails.Attorneys, true: donorDetails.ReplacementAttorneys} {
 				for _, a := range list.Attorneys {
-					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donor.LpaID})
+					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
 					attorney, err := attorneyStore.Create(ctx, donorSessionID, a.UID, isReplacement, false)
 					if err != nil {
@@ -216,8 +238,8 @@ func Attorney(
 					attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
 					attorney.Tasks.ReadTheLpa = actor.TaskCompleted
 					attorney.Tasks.SignTheLpa = actor.TaskCompleted
-					attorney.LpaSignedAt = donor.SignedAt
-					attorney.Confirmed = donor.SignedAt.Add(2 * time.Hour)
+					attorney.LpaSignedAt = donorDetails.SignedAt
+					attorney.Confirmed = donorDetails.SignedAt.Add(2 * time.Hour)
 
 					if err := attorneyStore.Put(ctx, attorney); err != nil {
 						return err
@@ -225,7 +247,7 @@ func Attorney(
 				}
 
 				if list.TrustCorporation.Name != "" {
-					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donor.LpaID})
+					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
 					attorney, err := attorneyStore.Create(ctx, donorSessionID, list.TrustCorporation.UID, isReplacement, true)
 					if err != nil {
@@ -241,8 +263,8 @@ func Attorney(
 						FirstNames:        "A",
 						LastName:          "Sign",
 						ProfessionalTitle: "Assistant to the signer",
-						LpaSignedAt:       donor.SignedAt,
-						Confirmed:         donor.SignedAt.Add(2 * time.Hour),
+						LpaSignedAt:       donorDetails.SignedAt,
+						Confirmed:         donorDetails.SignedAt.Add(2 * time.Hour),
 					}}
 
 					if err := attorneyStore.Put(ctx, attorney); err != nil {
@@ -253,18 +275,18 @@ func Attorney(
 		}
 
 		if progress >= slices.Index(progressValues, "submitted") {
-			donor.SubmittedAt = time.Now()
+			donorDetails.SubmittedAt = time.Now()
 		}
 
 		if progress == slices.Index(progressValues, "withdrawn") {
-			donor.WithdrawnAt = time.Now()
+			donorDetails.WithdrawnAt = time.Now()
 		}
 
 		if progress >= slices.Index(progressValues, "registered") {
-			donor.RegisteredAt = time.Now()
+			donorDetails.RegisteredAt = time.Now()
 		}
 
-		if err := donorStore.Put(donorCtx, donor); err != nil {
+		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
 			return err
 		}
 		if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {
@@ -282,9 +304,9 @@ func Attorney(
 		if email != "" {
 			shareCodeSender.SendAttorneys(donorCtx, page.AppData{
 				SessionID: donorSessionID,
-				LpaID:     donor.LpaID,
+				LpaID:     donorDetails.LpaID,
 				Localizer: appData.Localizer,
-			}, donor)
+			}, donorDetails)
 
 			http.Redirect(w, r, page.Paths.Attorney.Start.Format(), http.StatusFound)
 			return nil
@@ -293,7 +315,7 @@ func Attorney(
 		if redirect == "" {
 			redirect = page.Paths.Dashboard.Format()
 		} else {
-			redirect = "/attorney/" + donor.LpaID + redirect
+			redirect = "/attorney/" + donorDetails.LpaID + redirect
 		}
 
 		http.Redirect(w, r, redirect, http.StatusFound)
