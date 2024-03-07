@@ -19,7 +19,7 @@ module "event_received" {
   allowed_api_arns              = var.uid_service.api_arns
   search_endpoint               = var.search_endpoint
   search_collection_arn         = var.search_collection_arn
-  event_received_lambda_role    = var.iam_roles.event_received_lambda_role
+  event_received_lambda_role    = var.iam_roles.event_received_lambda
   vpc_config = {
     subnet_ids         = data.aws_subnet.application[*].id
     security_group_ids = [data.aws_security_group.lambda_egress.id]
