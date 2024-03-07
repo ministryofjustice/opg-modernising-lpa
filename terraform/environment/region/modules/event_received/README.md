@@ -52,6 +52,7 @@ This module creates the resources required to receive and process events from th
 | <a name="input_allowed_api_arns"></a> [allowed\_api\_arns](#input\_allowed\_api\_arns) | n/a | `list(string)` | n/a | yes |
 | <a name="input_app_public_url"></a> [app\_public\_url](#input\_app\_public\_url) | n/a | `string` | n/a | yes |
 | <a name="input_event_bus_name"></a> [event\_bus\_name](#input\_event\_bus\_name) | n/a | `string` | n/a | yes |
+| <a name="input_event_received_lambda_role"></a> [event\_received\_lambda\_role](#input\_event\_received\_lambda\_role) | n/a | `any` | n/a | yes |
 | <a name="input_lambda_function_image_ecr_url"></a> [lambda\_function\_image\_ecr\_url](#input\_lambda\_function\_image\_ecr\_url) | n/a | `string` | n/a | yes |
 | <a name="input_lambda_function_image_tag"></a> [lambda\_function\_image\_tag](#input\_lambda\_function\_image\_tag) | n/a | `string` | n/a | yes |
 | <a name="input_lpas_table"></a> [lpas\_table](#input\_lpas\_table) | n/a | <pre>object({<br>    arn  = string<br>    name = string<br>  })</pre> | n/a | yes |
