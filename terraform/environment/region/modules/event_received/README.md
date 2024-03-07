@@ -60,6 +60,7 @@ This module creates the resources required to receive and process events from th
 | <a name="input_search_endpoint"></a> [search\_endpoint](#input\_search\_endpoint) | URL of the OpenSearch Service endpoint to use | `string` | n/a | yes |
 | <a name="input_uid_base_url"></a> [uid\_base\_url](#input\_uid\_base\_url) | n/a | `string` | n/a | yes |
 | <a name="input_uploads_bucket"></a> [uploads\_bucket](#input\_uploads\_bucket) | n/a | `any` | n/a | yes |
+| <a name="input_vpc_config"></a> [vpc\_config](#input\_vpc\_config) | Configuration block for VPC | <pre>object({<br>    subnet_ids         = list(string)<br>    security_group_ids = list(string)<br>  })</pre> | n/a | yes |
 
 ## Outputs
 
