@@ -74,11 +74,6 @@ resource "aws_opensearchserverless_access_policy" "app" {
   provider = aws.eu_west_1
 }
 
-data "aws_iam_role" "event_received" {
-  name     = "event-received-${local.environment_name}"
-  provider = aws.eu_west_1
-}
-
 resource "aws_opensearchserverless_access_policy" "event_received" {
   name        = "event-received-${local.environment_name}"
   type        = "data"
@@ -97,7 +92,7 @@ resource "aws_opensearchserverless_access_policy" "event_received" {
           Permission   = ["aoss:*"]
         }
       ],
-      Principal = [data.aws_iam_role.event_received.arn]
+      Principal = [module.global.iam_roles.event_received_lambda_role.arn]
     }
   ])
   provider = aws.eu_west_1
