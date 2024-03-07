@@ -54,3 +54,8 @@ variable "iam_policy_documents" {
   type        = list(string)
   default     = []
 }
+
+variable "aws_iam_role" {
+  description = "The IAM role for the lambda"
+  type        = any
+}
