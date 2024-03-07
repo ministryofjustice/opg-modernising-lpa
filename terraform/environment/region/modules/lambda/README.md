@@ -27,7 +27,6 @@ No modules.
 | [aws_cloudwatch_log_group.lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_cloudwatch_metric_alarm.lambda_function_failures](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_cloudwatch_query_definition.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_query_definition) | resource |
-| [aws_iam_role.lambda_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy.lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy_attachment.aws_xray_write_only_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.vpc_access_execution_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
@@ -36,13 +35,13 @@ No modules.
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy.aws_xray_write_only_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy) | data source |
 | [aws_iam_policy_document.lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.lambda_assume](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_sns_topic.custom_cloudwatch_alarms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/sns_topic) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_aws_iam_role"></a> [aws\_iam\_role](#input\_aws\_iam\_role) | The IAM role for the lambda | `any` | n/a | yes |
 | <a name="input_description"></a> [description](#input\_description) | Description of your Lambda Function (or Layer) | `string` | `null` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | The environment lambda is being deployed to. | `string` | n/a | yes |
 | <a name="input_environment_variables"></a> [environment\_variables](#input\_environment\_variables) | A map that defines environment variables for the Lambda Function. | `map(string)` | `{}` | no |
@@ -53,6 +52,7 @@ No modules.
 | <a name="input_memory"></a> [memory](#input\_memory) | The memory to use. | `number` | `null` | no |
 | <a name="input_package_type"></a> [package\_type](#input\_package\_type) | The Lambda deployment package type. | `string` | `"Image"` | no |
 | <a name="input_timeout"></a> [timeout](#input\_timeout) | The amount of time your Lambda Function has to run in seconds. | `number` | `30` | no |
+| <a name="input_vpc_config"></a> [vpc\_config](#input\_vpc\_config) | Configuration block for VPC | <pre>object({<br>    subnet_ids         = list(string)<br>    security_group_ids = list(string)<br>  })</pre> | <pre>{<br>  "security_group_ids": [],<br>  "subnet_ids": []<br>}</pre> | no |
 
 ## Outputs
 
@@ -60,5 +60,4 @@ No modules.
 |------|-------------|
 | <a name="output_lambda"></a> [lambda](#output\_lambda) | The lambda function |
 | <a name="output_lambda_log"></a> [lambda\_log](#output\_lambda\_log) | The lambda logs |
-| <a name="output_lambda_role"></a> [lambda\_role](#output\_lambda\_role) | The lambda role |
 <!-- END_TF_DOCS -->

@@ -121,11 +121,11 @@ For terraform_environment, this will be based on your PR and can be found in the
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws.eu_west_1"></a> [aws.eu\_west\_1](#provider\_aws.eu\_west\_1) | 5.39.0 |
-| <a name="provider_aws.eu_west_2"></a> [aws.eu\_west\_2](#provider\_aws.eu\_west\_2) | 5.39.0 |
-| <a name="provider_aws.global"></a> [aws.global](#provider\_aws.global) | 5.39.0 |
-| <a name="provider_aws.management_eu_west_1"></a> [aws.management\_eu\_west\_1](#provider\_aws.management\_eu\_west\_1) | 5.39.0 |
-| <a name="provider_aws.management_global"></a> [aws.management\_global](#provider\_aws.management\_global) | 5.39.0 |
+| <a name="provider_aws.eu_west_1"></a> [aws.eu\_west\_1](#provider\_aws.eu\_west\_1) | 5.39.1 |
+| <a name="provider_aws.eu_west_2"></a> [aws.eu\_west\_2](#provider\_aws.eu\_west\_2) | 5.39.1 |
+| <a name="provider_aws.global"></a> [aws.global](#provider\_aws.global) | 5.39.1 |
+| <a name="provider_aws.management_eu_west_1"></a> [aws.management\_eu\_west\_1](#provider\_aws.management\_eu\_west\_1) | 5.39.1 |
+| <a name="provider_aws.management_global"></a> [aws.management\_global](#provider\_aws.management\_global) | 5.39.1 |
 
 ## Modules
 
@@ -145,7 +145,8 @@ For terraform_environment, this will be based on your PR and can be found in the
 | [aws_backup_vault_notifications.aws_backup_failure_events](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/backup_vault_notifications) | resource |
 | [aws_dynamodb_table.lpas_table](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/dynamodb_table) | resource |
 | [aws_dynamodb_table_replica.lpas_table](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/dynamodb_table_replica) | resource |
-| [aws_opensearchserverless_access_policy.lpas_collection_data_access_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearchserverless_access_policy) | resource |
+| [aws_opensearchserverless_access_policy.app](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearchserverless_access_policy) | resource |
+| [aws_opensearchserverless_access_policy.event_received](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearchserverless_access_policy) | resource |
 | [aws_opensearchserverless_collection.lpas_collection](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearchserverless_collection) | resource |
 | [aws_opensearchserverless_security_policy.lpas_collection_encryption_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearchserverless_security_policy) | resource |
 | [aws_opensearchserverless_security_policy.lpas_collection_network_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearchserverless_security_policy) | resource |
