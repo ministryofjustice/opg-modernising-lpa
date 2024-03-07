@@ -59,3 +59,13 @@ variable "aws_iam_role" {
   description = "The IAM role for the lambda"
   type        = any
 }
+
+variable "vpc_config" {
+  description = "Configuration block for VPC"
+  type = object({
+    subnet_ids         = list(string)
+    security_group_ids = list(string)
+  })
+  default  = null
+  nullable = true
+}

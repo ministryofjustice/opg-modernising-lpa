@@ -18,6 +18,14 @@ resource "aws_lambda_function" "lambda_function" {
     mode = "Active"
   }
 
+  dynamic "vpc_config" {
+    for_each = length(var.vpc_config) == 0 ? [] : [true]
+    content {
+      subnet_ids         = var.vpc_config.subnet_ids
+      security_group_ids = var.vpc_config.security_group_ids
+    }
+  }
+
   dynamic "environment" {
     for_each = length(keys(var.environment_variables)) == 0 ? [] : [true]
     content {
