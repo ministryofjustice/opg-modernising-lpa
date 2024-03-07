@@ -119,6 +119,15 @@ func Attorney(
 			CanSign:       form.Yes,
 		}
 
+		if lpaType == "personal-welfare" && !isTrustCorporation {
+			donorDetails.Type = actor.LpaTypePersonalWelfare
+			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
+			donorDetails.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
+		} else {
+			donorDetails.Type = actor.LpaTypePropertyAndAffairs
+			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
+		}
+
 		if useRealUID {
 			if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
 				LpaID:          donorDetails.LpaID,
@@ -132,17 +141,10 @@ func Attorney(
 			}); err != nil {
 				return err
 			}
+
+			donorDetails.HasSentUidRequestedEvent = true
 		} else {
 			donorDetails.LpaUID = makeUID()
-		}
-
-		if lpaType == "personal-welfare" && !isTrustCorporation {
-			donorDetails.Type = actor.LpaTypePersonalWelfare
-			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
-			donorDetails.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
-		} else {
-			donorDetails.Type = actor.LpaTypePropertyAndAffairs
-			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
 		}
 
 		donorDetails.CertificateProvider = makeCertificateProvider()
