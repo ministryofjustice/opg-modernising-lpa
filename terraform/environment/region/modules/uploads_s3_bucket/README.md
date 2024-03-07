@@ -65,6 +65,7 @@ This module creates an S3 bucket for storing uploads, triggers for virus scannin
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_bucket_name"></a> [bucket\_name](#input\_bucket\_name) | Name of the bucket. do not use dots (.) except for buckets that are used only for static website hosting. | `string` | n/a | yes |
+| <a name="input_create_s3_batch_replication_jobs_lambda_iam_role"></a> [create\_s3\_batch\_replication\_jobs\_lambda\_iam\_role](#input\_create\_s3\_batch\_replication\_jobs\_lambda\_iam\_role) | Lambda IAM role | `any` | n/a | yes |
 | <a name="input_events_received_lambda_function"></a> [events\_received\_lambda\_function](#input\_events\_received\_lambda\_function) | Lambda function ARN for events received | `any` | n/a | yes |
 | <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable. | `bool` | `false` | no |
 | <a name="input_s3_antivirus_lambda_function"></a> [s3\_antivirus\_lambda\_function](#input\_s3\_antivirus\_lambda\_function) | Lambda function ARN for events received | `any` | n/a | yes |

@@ -43,3 +43,15 @@ variable "search_collection_arn" {
   description = "ARN of the OpenSearch collection to use"
   nullable    = true
 }
+
+variable "event_received_lambda_role" {
+  type = any
+}
+
+variable "vpc_config" {
+  description = "Configuration block for VPC"
+  type = object({
+    subnet_ids         = list(string)
+    security_group_ids = list(string)
+  })
+}
