@@ -23,7 +23,6 @@ module "event_received" {
   vpc_config = {
     subnet_ids         = data.aws_subnet.application[*].id
     security_group_ids = [data.aws_security_group.lambda_egress.id]
-
   }
 
   lpas_table = {
