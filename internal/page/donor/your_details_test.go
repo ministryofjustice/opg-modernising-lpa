@@ -245,6 +245,90 @@ func TestPostYourDetails(t *testing.T) {
 	}
 }
 
+func TestPostYourDetailsWhenSupporter(t *testing.T) {
+	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
+
+	testCases := map[string]struct {
+		form     url.Values
+		person   actor.Donor
+		redirect page.LpaPath
+	}{
+		"with email": {
+			form: url.Values{
+				"first-names":         {"John"},
+				"last-name":           {"Doe"},
+				"email":               {"john@example.com"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {validBirthYear},
+				"can-sign":            {actor.Yes.String()},
+			},
+			person: actor.Donor{
+				FirstNames:    "John",
+				LastName:      "Doe",
+				DateOfBirth:   date.New(validBirthYear, "1", "2"),
+				Address:       place.Address{Line1: "abc"},
+				Email:         "john@example.com",
+				ThinksCanSign: actor.Yes,
+				CanSign:       form.Yes,
+			},
+			redirect: page.Paths.YourAddress,
+		},
+		"without email": {
+			form: url.Values{
+				"first-names":         {"John"},
+				"last-name":           {"Doe"},
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {validBirthYear},
+				"can-sign":            {actor.Yes.String()},
+			},
+			person: actor.Donor{
+				FirstNames:    "John",
+				LastName:      "Doe",
+				DateOfBirth:   date.New(validBirthYear, "1", "2"),
+				Address:       place.Address{Line1: "abc"},
+				Email:         "",
+				ThinksCanSign: actor.Yes,
+				CanSign:       form.Yes,
+			},
+			redirect: page.Paths.YourAddress,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+			donorStore := newMockDonorStore(t)
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
+					LpaID: "lpa-id",
+					Donor: tc.person,
+					Tasks: actor.DonorTasks{YourDetails: actor.TaskInProgress},
+				}).
+				Return(nil)
+
+			err := YourDetails(nil, donorStore, nil)(testSupporterAppData, w, r, &actor.DonorProvidedDetails{
+				LpaID: "lpa-id",
+				Donor: actor.Donor{
+					FirstNames: "John",
+					Address:    place.Address{Line1: "abc"},
+				},
+				HasSentApplicationUpdatedEvent: true,
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.redirect.Format("lpa-id"), resp.Header.Get("Location"))
+		})
+	}
+}
+
 func TestPostYourDetailsWhenDetailsNotChanged(t *testing.T) {
 	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
 	f := url.Values{
@@ -425,12 +509,7 @@ func TestPostYourDetailsWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			sessionStore := newMockSessionStore(t)
-			sessionStore.EXPECT().
-				Login(mock.Anything).
-				Return(&sesh.LoginSession{Sub: "xyz", Email: "name@example.com"}, nil)
-
-			err := YourDetails(template.Execute, nil, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+			err := YourDetails(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 			resp := w.Result()
 
 			assert.Nil(t, err)

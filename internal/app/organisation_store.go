@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
@@ -14,6 +15,7 @@ import (
 type organisationStore struct {
 	dynamoClient DynamoClient
 	uuidString   func() string
+	newUID       func() actoruid.UID
 	randomString func(int) string
 	now          func() time.Time
 }
@@ -124,6 +126,7 @@ func (s *organisationStore) CreateLPA(ctx context.Context) (*actor.DonorProvided
 	}
 
 	lpaID := s.uuidString()
+	donorUID := s.newUID()
 
 	donor := &actor.DonorProvidedDetails{
 		PK:        lpaKey(lpaID),
@@ -131,6 +134,9 @@ func (s *organisationStore) CreateLPA(ctx context.Context) (*actor.DonorProvided
 		LpaID:     lpaID,
 		CreatedAt: s.now(),
 		Version:   1,
+		Donor: actor.Donor{
+			UID: donorUID,
+		},
 	}
 
 	if donor.Hash, err = donor.GenerateHash(); err != nil {
