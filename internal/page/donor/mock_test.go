@@ -31,6 +31,12 @@ var (
 		LpaID:     "lpa-id",
 		Lang:      localize.En,
 	}
+	testSupporterAppData = page.AppData{
+		SessionID:   "session-id",
+		LpaID:       "lpa-id",
+		IsSupporter: true,
+		Lang:        localize.En,
+	}
 	testNow   = time.Date(2023, time.July, 3, 4, 5, 6, 1, time.UTC)
 	testNowFn = func() time.Time { return testNow }
 	testUID   = actoruid.New()

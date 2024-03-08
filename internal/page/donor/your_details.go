@@ -37,14 +37,6 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore Ses
 		}
 
 		if r.Method == http.MethodPost {
-			loginSession, err := sessionStore.Login(r)
-			if err != nil {
-				return err
-			}
-			if loginSession.Email == "" {
-				return fmt.Errorf("no email in login session")
-			}
-
 			data.Form = readYourDetailsForm(r)
 			data.Errors = data.Form.Validate()
 			dobWarning := data.Form.DobWarning()
@@ -79,7 +71,20 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore Ses
 
 				donor.Donor.OtherNames = data.Form.OtherNames
 				donor.Donor.ThinksCanSign = data.Form.CanSign
-				donor.Donor.Email = loginSession.Email
+
+				if appData.IsSupporter {
+					donor.Donor.Email = data.Form.Email
+				} else {
+					loginSession, err := sessionStore.Login(r)
+					if err != nil {
+						return err
+					}
+					if loginSession.Email == "" {
+						return fmt.Errorf("no email in login session")
+					}
+
+					donor.Donor.Email = loginSession.Email
+				}
 
 				if donor.Donor.ThinksCanSign.IsYes() {
 					donor.Donor.CanSign = form.Yes
@@ -111,6 +116,7 @@ type yourDetailsForm struct {
 	FirstNames        string
 	LastName          string
 	OtherNames        string
+	Email             string
 	Dob               date.Date
 	CanSign           actor.YesNoMaybe
 	CanSignError      error
@@ -124,6 +130,7 @@ func readYourDetailsForm(r *http.Request) *yourDetailsForm {
 	d.FirstNames = page.PostFormString(r, "first-names")
 	d.LastName = page.PostFormString(r, "last-name")
 	d.OtherNames = page.PostFormString(r, "other-names")
+	d.Email = page.PostFormString(r, "email")
 
 	d.Dob = date.New(
 		page.PostFormString(r, "date-of-birth-year"),
@@ -148,6 +155,9 @@ func (f *yourDetailsForm) Validate() validation.List {
 	errors.String("last-name", "lastName", f.LastName,
 		validation.Empty(),
 		validation.StringTooLong(61))
+
+	errors.String("email", "email", f.Email,
+		validation.Email())
 
 	errors.String("other-names", "otherNamesYouAreKnownBy", f.OtherNames,
 		validation.StringTooLong(50))
