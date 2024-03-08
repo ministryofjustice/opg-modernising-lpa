@@ -65,7 +65,7 @@ func (c *Client) AuthCodeURL(state, nonce, locale string, identity bool) (string
 	}
 
 	if identity {
-		q.Add("vtr", "[Cl.Cm.P2]")
+		q.Add("vtr", `["Cl.Cm.P2"]`)
 		q.Add("claims", `{"userinfo":{"https://vocab.account.gov.uk/v1/coreIdentityJWT": null}}`)
 	}
 
