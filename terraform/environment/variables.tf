@@ -115,4 +115,6 @@ locals {
   default_tags = merge(local.mandatory_moj_tags, local.optional_tags)
 
   ecs_capacity_provider = local.environment.ecs.fargate_spot_capacity_provider_enabled ? "FARGATE_SPOT" : "FARGATE"
+
+  mock_onelogin_version = "latest"
 }
