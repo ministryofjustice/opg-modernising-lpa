@@ -101,7 +101,7 @@ func App(
 	shareCodeStore := &shareCodeStore{dynamoClient: lpaDynamoClient}
 	dashboardStore := &dashboardStore{dynamoClient: lpaDynamoClient}
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: lpaDynamoClient}
-	organisationStore := &organisationStore{dynamoClient: lpaDynamoClient, now: time.Now, uuidString: uuid.NewString}
+	organisationStore := &organisationStore{dynamoClient: lpaDynamoClient, now: time.Now, uuidString: uuid.NewString, newUID: actoruid.New}
 	memberStore := &memberStore{dynamoClient: lpaDynamoClient, now: time.Now, uuidString: uuid.NewString}
 
 	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicURL, random.String, eventClient)

@@ -230,6 +230,9 @@ func TestOrganisationStoreCreateLPA(t *testing.T) {
 		LpaID:     "a-uuid",
 		CreatedAt: testNow,
 		Version:   1,
+		Donor: actor.Donor{
+			UID: testUID,
+		},
 	}
 	expectedDonor.Hash, _ = expectedDonor.GenerateHash()
 
@@ -238,7 +241,12 @@ func TestOrganisationStoreCreateLPA(t *testing.T) {
 		Create(ctx, expectedDonor).
 		Return(nil)
 
-	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+	organisationStore := &organisationStore{
+		dynamoClient: dynamoClient,
+		now:          testNowFn,
+		uuidString:   func() string { return "a-uuid" },
+		newUID:       testUIDFn,
+	}
 
 	donor, err := organisationStore.CreateLPA(ctx)
 
@@ -270,7 +278,12 @@ func TestOrganisationStoreCreateLPAWhenDynamoError(t *testing.T) {
 		Create(ctx, mock.Anything).
 		Return(expectedError)
 
-	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+	organisationStore := &organisationStore{
+		dynamoClient: dynamoClient,
+		now:          testNowFn,
+		uuidString:   func() string { return "a-uuid" },
+		newUID:       testUIDFn,
+	}
 
 	_, err := organisationStore.CreateLPA(ctx)
 
