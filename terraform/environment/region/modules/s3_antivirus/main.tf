@@ -10,6 +10,18 @@ resource "aws_cloudwatch_log_group" "lambda" {
   provider          = aws.region
 }
 
+resource "aws_cloudwatch_query_definition" "main" {
+  name            = "${data.aws_default_tags.current.tags.environment-name}/s3-antivirus"
+  log_group_names = [aws_cloudwatch_log_group.lambda.name]
+
+  query_string = <<EOF
+fields @timestamp, type, record.status as status, @xrayTraceId, @message, record.metrics.initDurationMs, record.metrics.durationMs
+| sort @timestamp desc
+EOF
+  provider     = aws.region
+}
+
+
 resource "aws_lambda_function" "lambda_function" {
   function_name = "s3-antivirus-${data.aws_default_tags.current.tags.environment-name}"
   description   = "Function to scan S3 objects for viruses"
@@ -22,6 +34,11 @@ resource "aws_lambda_function" "lambda_function" {
 
   tracing_config {
     mode = "Active"
+  }
+
+  logging_config {
+    log_group  = aws_cloudwatch_log_group.lambda.name
+    log_format = "JSON"
   }
 
   vpc_config {

@@ -18,6 +18,18 @@ data "aws_iam_policy_document" "lambda" {
   }
 
   statement {
+    sid       = "allowLoggingEncryption"
+    effect    = "Allow"
+    resources = [data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn]
+    actions = [
+      "kms:Encrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey"
+    ]
+  }
+
+  statement {
     sid       = "allowS3Tagging"
     effect    = "Allow"
     resources = [var.data_store_bucket.arn, "${var.data_store_bucket.arn}/*"]

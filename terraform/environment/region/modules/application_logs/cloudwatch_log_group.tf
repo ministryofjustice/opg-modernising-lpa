@@ -10,7 +10,7 @@ resource "aws_cloudwatch_log_group" "application_logs" {
   provider          = aws.region
 }
 resource "aws_cloudwatch_query_definition" "app_container_messages" {
-  name            = "Modernising LPA Application Logs/${data.aws_default_tags.current.tags.environment-name} app container messages"
+  name            = "${data.aws_default_tags.current.tags.environment-name}/app container messages"
   log_group_names = [aws_cloudwatch_log_group.application_logs.name]
 
   query_string = <<EOF
