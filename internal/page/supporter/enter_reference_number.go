@@ -42,7 +42,7 @@ func EnterReferenceNumber(tmpl template.Template, memberStore MemberStore, sessi
 					return page.Paths.Supporter.InviteExpired.Redirect(w, r, appData)
 				}
 
-				if err := memberStore.Create(r.Context(), invite); err != nil {
+				if err := memberStore.CreateFromInvite(r.Context(), invite); err != nil {
 					return err
 				}
 

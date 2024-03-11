@@ -57,14 +57,62 @@ func (s *memberStore) DeleteMemberInvite(ctx context.Context, organisationID, em
 	return nil
 }
 
-func (s *memberStore) Create(ctx context.Context, invite *actor.MemberInvite) error {
+func (s *memberStore) Create(ctx context.Context, firstNames, lastName string) (*actor.Member, error) {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.SessionID == "" {
+		return nil, errors.New("memberStore.Create requires SessionID")
+	}
+
+	if data.Email == "" {
+		return nil, errors.New("memberStore.Create requires Email")
+	}
+
+	organisationID := s.uuidString()
+
+	member := &actor.Member{
+		PK:             organisationKey(organisationID),
+		SK:             memberKey(data.SessionID),
+		ID:             s.uuidString(),
+		OrganisationID: organisationID,
+		Email:          data.Email,
+		FirstNames:     firstNames,
+		LastName:       lastName,
+		CreatedAt:      s.now(),
+		UpdatedAt:      s.now(),
+		Permission:     actor.PermissionAdmin,
+		Status:         actor.StatusActive,
+		LastLoggedInAt: s.now(),
+	}
+
+	if err := s.dynamoClient.Create(ctx, member); err != nil {
+		return nil, fmt.Errorf("error creating member: %w", err)
+	}
+
+	link := &organisationLink{
+		PK:       member.PK,
+		SK:       memberIDKey(member.ID),
+		MemberSK: member.SK,
+	}
+
+	if err := s.dynamoClient.Create(ctx, link); err != nil {
+		return nil, fmt.Errorf("error creating organisation link: %w", err)
+	}
+
+	return member, nil
+}
+
+func (s *memberStore) CreateFromInvite(ctx context.Context, invite *actor.MemberInvite) error {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return err
 	}
 
 	if data.SessionID == "" {
-		return errors.New("memberStore.Create requires SessionID")
+		return errors.New("memberStore.CreateFromInvite requires SessionID")
 	}
 
 	member := &actor.Member{
@@ -73,6 +121,7 @@ func (s *memberStore) Create(ctx context.Context, invite *actor.MemberInvite) er
 		CreatedAt:      s.now(),
 		UpdatedAt:      s.now(),
 		ID:             s.uuidString(),
+		OrganisationID: invite.OrganisationID,
 		Email:          invite.Email,
 		FirstNames:     invite.FirstNames,
 		LastName:       invite.LastName,
@@ -216,6 +265,24 @@ func (s *memberStore) Get(ctx context.Context) (*actor.Member, error) {
 
 	var member *actor.Member
 	if err := s.dynamoClient.One(ctx, organisationKey(data.OrganisationID), memberKey(data.SessionID), &member); err != nil {
+		return nil, err
+	}
+
+	return member, nil
+}
+
+func (s *memberStore) GetAny(ctx context.Context) (*actor.Member, error) {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.SessionID == "" {
+		return nil, errors.New("memberStore.Get requires SessionID")
+	}
+
+	var member *actor.Member
+	if err := s.dynamoClient.OneBySK(ctx, memberKey(data.SessionID), &member); err != nil {
 		return nil, err
 	}
 
