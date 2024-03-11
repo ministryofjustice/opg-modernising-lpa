@@ -239,12 +239,13 @@ type HealthCheckPaths struct {
 type SupporterPaths struct {
 	EnterOrganisationName Path
 	EnterReferenceNumber  Path
+	EnterYourName         Path
+	InviteExpired         Path
 	Login                 Path
 	LoginCallback         Path
 	OrganisationDeleted   Path
 	SigningInAdvice       Path
 	Start                 Path
-	InviteExpired         Path
 
 	ConfirmDonorCanInteractOnline SupporterPath
 	ContactOPGForPaperForms       SupporterPath
@@ -421,6 +422,7 @@ var Paths = AppPaths{
 	Supporter: SupporterPaths{
 		EnterOrganisationName: "/enter-the-name-of-your-organisation-or-company",
 		EnterReferenceNumber:  "/supporter-reference-number",
+		EnterYourName:         "/enter-your-name",
 		Login:                 "/supporter-login",
 		LoginCallback:         "/supporter-login-callback",
 		OrganisationDeleted:   "/organisation-deleted",
