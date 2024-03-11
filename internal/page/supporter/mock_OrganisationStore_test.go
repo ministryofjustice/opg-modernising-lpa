@@ -23,9 +23,9 @@ func (_m *mockOrganisationStore) EXPECT() *mockOrganisationStore_Expecter {
 	return &mockOrganisationStore_Expecter{mock: &_m.Mock}
 }
 
-// Create provides a mock function with given fields: ctx, name
-func (_m *mockOrganisationStore) Create(ctx context.Context, name string) (*actor.Organisation, error) {
-	ret := _m.Called(ctx, name)
+// Create provides a mock function with given fields: ctx, member, name
+func (_m *mockOrganisationStore) Create(ctx context.Context, member *actor.Member, name string) (*actor.Organisation, error) {
+	ret := _m.Called(ctx, member, name)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
@@ -33,19 +33,19 @@ func (_m *mockOrganisationStore) Create(ctx context.Context, name string) (*acto
 
 	var r0 *actor.Organisation
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*actor.Organisation, error)); ok {
-		return rf(ctx, name)
+	if rf, ok := ret.Get(0).(func(context.Context, *actor.Member, string) (*actor.Organisation, error)); ok {
+		return rf(ctx, member, name)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *actor.Organisation); ok {
-		r0 = rf(ctx, name)
+	if rf, ok := ret.Get(0).(func(context.Context, *actor.Member, string) *actor.Organisation); ok {
+		r0 = rf(ctx, member, name)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*actor.Organisation)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, name)
+	if rf, ok := ret.Get(1).(func(context.Context, *actor.Member, string) error); ok {
+		r1 = rf(ctx, member, name)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -60,14 +60,15 @@ type mockOrganisationStore_Create_Call struct {
 
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
+//   - member *actor.Member
 //   - name string
-func (_e *mockOrganisationStore_Expecter) Create(ctx interface{}, name interface{}) *mockOrganisationStore_Create_Call {
-	return &mockOrganisationStore_Create_Call{Call: _e.mock.On("Create", ctx, name)}
+func (_e *mockOrganisationStore_Expecter) Create(ctx interface{}, member interface{}, name interface{}) *mockOrganisationStore_Create_Call {
+	return &mockOrganisationStore_Create_Call{Call: _e.mock.On("Create", ctx, member, name)}
 }
 
-func (_c *mockOrganisationStore_Create_Call) Run(run func(ctx context.Context, name string)) *mockOrganisationStore_Create_Call {
+func (_c *mockOrganisationStore_Create_Call) Run(run func(ctx context.Context, member *actor.Member, name string)) *mockOrganisationStore_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string))
+		run(args[0].(context.Context), args[1].(*actor.Member), args[2].(string))
 	})
 	return _c
 }
@@ -77,7 +78,7 @@ func (_c *mockOrganisationStore_Create_Call) Return(_a0 *actor.Organisation, _a1
 	return _c
 }
 
-func (_c *mockOrganisationStore_Create_Call) RunAndReturn(run func(context.Context, string) (*actor.Organisation, error)) *mockOrganisationStore_Create_Call {
+func (_c *mockOrganisationStore_Create_Call) RunAndReturn(run func(context.Context, *actor.Member, string) (*actor.Organisation, error)) *mockOrganisationStore_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -43,50 +43,53 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore Sess
 		sessionData := &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email}
 		ctx := page.ContextWithSessionData(r.Context(), sessionData)
 
-		organisation, err := organisationStore.Get(ctx)
-
-		if err == nil {
-			loginSession.OrganisationID = organisation.ID
-			loginSession.OrganisationName = organisation.Name
-			if err := sessionStore.SetLogin(r, w, loginSession); err != nil {
-				return err
-			}
-
-			sessionData.OrganisationID = organisation.ID
-			ctx = page.ContextWithSessionData(r.Context(), sessionData)
-
-			member, err := memberStore.Get(ctx)
+		member, err := memberStore.GetAny(ctx)
+		if errors.Is(err, dynamo.NotFoundError{}) {
+			invites, err := memberStore.InvitedMembersByEmail(ctx)
 			if err != nil {
 				return err
 			}
 
-			member.LastLoggedInAt = now()
-			member.Email = loginSession.Email
-
-			if err := memberStore.Put(ctx, member); err != nil {
+			if err := sessionStore.SetLogin(r, w, loginSession); err != nil {
 				return err
 			}
 
-			return page.Paths.Supporter.Dashboard.Redirect(w, r, appData)
+			if len(invites) > 0 {
+				return page.Paths.Supporter.EnterReferenceNumber.Redirect(w, r, appData)
+			}
+
+			return page.Paths.Supporter.EnterYourName.Redirect(w, r, appData)
+		} else if err != nil {
+			return err
 		}
 
+		organisation, err := organisationStore.Get(ctx)
 		if errors.Is(err, dynamo.NotFoundError{}) {
 			if err := sessionStore.SetLogin(r, w, loginSession); err != nil {
 				return err
 			}
-		} else {
+
+			return page.Paths.Supporter.EnterOrganisationName.Redirect(w, r, appData)
+		} else if err != nil {
 			return err
 		}
 
-		invites, err := memberStore.InvitedMembersByEmail(ctx)
-		if err != nil {
+		loginSession.OrganisationID = organisation.ID
+		loginSession.OrganisationName = organisation.Name
+		if err := sessionStore.SetLogin(r, w, loginSession); err != nil {
 			return err
 		}
 
-		if len(invites) > 0 {
-			return page.Paths.Supporter.EnterReferenceNumber.Redirect(w, r, appData)
+		sessionData.OrganisationID = organisation.ID
+		ctx = page.ContextWithSessionData(r.Context(), sessionData)
+
+		member.LastLoggedInAt = now()
+		member.Email = loginSession.Email
+
+		if err := memberStore.Put(ctx, member); err != nil {
+			return err
 		}
 
-		return page.Paths.Supporter.EnterOrganisationName.Redirect(w, r, appData)
+		return page.Paths.Supporter.Dashboard.Redirect(w, r, appData)
 	}
 }
