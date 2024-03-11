@@ -46,7 +46,7 @@ data "aws_iam_policy_document" "lambda" {
     sid    = "logEncryption"
     effect = "Allow"
     resources = [
-      data.aws_kms_key_alias.lambda.arn
+      data.aws_kms_alias.lambda.arn
     ]
     actions = [
       "kms:Decrypt",
