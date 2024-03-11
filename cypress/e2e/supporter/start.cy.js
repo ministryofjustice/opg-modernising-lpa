@@ -20,7 +20,7 @@ describe('Start', () => {
       cy.get('#f-email').type(Math.random() + '@example.org')
       cy.contains('button', 'Sign in').click();
 
-      cy.url().should('contain', '/enter-the-name-of-your-organisation-or-company')
+      cy.url().should('contain', '/enter-your-name')
     } else {
       cy.origin('https://signin.integration.account.gov.uk', () => {
         cy.url().should('contain', '/')

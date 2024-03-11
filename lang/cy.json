@@ -1121,5 +1121,7 @@
     "anyCompletedLPAsMadeInThisOrganisation": "Welsh",
     "theOrganisationHasBeenDeleted": "<p class=\"govuk-body app-full-width\">Welsh <span class=\"govuk-!-font-weight-bold\">{{ .OrganisationName }}</span> Welsh</p><p class=\"govuk-body app-full-width\">Welsh</p>",
     "organisationDeleted": "Welsh",
-    "changeName": "Welsh"
+    "changeName": "Welsh",
+    "enterYourName": "Welsh",
+    "thisWillBeHowYourNameIsDisplayed": "Welsh"
 }

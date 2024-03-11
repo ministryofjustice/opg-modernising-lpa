@@ -1053,5 +1053,7 @@
     "anyCompletedLPAsMadeInThisOrganisation": "any completed LPAs made in this organisation",
     "theOrganisationHasBeenDeleted": "<p class=\"govuk-body app-full-width\">The organisation <span class=\"govuk-!-font-weight-bold\">{{ .OrganisationName }}</span> has been deleted. We have also sent you an email confirming this.</p><p class=\"govuk-body app-full-width\">All team members have now lost access to all LPAs made in this organisation.</p>",
     "organisationDeleted": "Organisation deleted",
-    "changeName": "Change name"
+    "changeName": "Change name",
+    "enterYourName": "Enter your name",
+    "thisWillBeHowYourNameIsDisplayed": "This will be how your name is displayed to others in your organisation."
 }
