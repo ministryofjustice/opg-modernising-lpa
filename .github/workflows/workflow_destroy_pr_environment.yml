@@ -95,6 +95,15 @@ jobs:
       - name: Remove protection for environment workspace
         run: |
           terraform-workspace-manager -register-workspace=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }} -time-to-protect=0 -aws-account-id=653761790766 -aws-iam-role=modernising-lpa-ci
+      - name: Configure AWS Credentials For AWS CLI
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+          aws-role-to-assume: arn:aws:iam::653761790766:role/modernising-lpa-ci
+          aws-region: eu-west-1
+          role-duration-seconds: 3600
+          role-session-name: OPGModernisingLPATerraformGithubAction
       - name: Remove container insights log group
         run: |
           aws logs delete-log-group --log-group-name /aws/ecs/containerinsights/${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}-eu-west-1/performance
