@@ -39,7 +39,7 @@ data "aws_secretsmanager_secret_version" "rum_monitor_identity_pool_id" {
 resource "aws_rum_app_monitor" "main" {
   name           = data.aws_default_tags.current.tags.environment-name
   domain         = aws_route53_record.app.name
-  cw_log_enabled = true
+  cw_log_enabled = var.real_user_monitoring_cw_logs_enabled
   app_monitor_configuration {
     allow_cookies       = true
     enable_xray         = true
