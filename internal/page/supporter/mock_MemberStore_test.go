@@ -23,12 +23,72 @@ func (_m *mockMemberStore) EXPECT() *mockMemberStore_Expecter {
 	return &mockMemberStore_Expecter{mock: &_m.Mock}
 }
 
-// Create provides a mock function with given fields: ctx, invite
-func (_m *mockMemberStore) Create(ctx context.Context, invite *actor.MemberInvite) error {
-	ret := _m.Called(ctx, invite)
+// Create provides a mock function with given fields: ctx, firstNames, lastName
+func (_m *mockMemberStore) Create(ctx context.Context, firstNames string, lastName string) (*actor.Member, error) {
+	ret := _m.Called(ctx, firstNames, lastName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
+	}
+
+	var r0 *actor.Member
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*actor.Member, error)); ok {
+		return rf(ctx, firstNames, lastName)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *actor.Member); ok {
+		r0 = rf(ctx, firstNames, lastName)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*actor.Member)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, firstNames, lastName)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockMemberStore_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
+type mockMemberStore_Create_Call struct {
+	*mock.Call
+}
+
+// Create is a helper method to define mock.On call
+//   - ctx context.Context
+//   - firstNames string
+//   - lastName string
+func (_e *mockMemberStore_Expecter) Create(ctx interface{}, firstNames interface{}, lastName interface{}) *mockMemberStore_Create_Call {
+	return &mockMemberStore_Create_Call{Call: _e.mock.On("Create", ctx, firstNames, lastName)}
+}
+
+func (_c *mockMemberStore_Create_Call) Run(run func(ctx context.Context, firstNames string, lastName string)) *mockMemberStore_Create_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *mockMemberStore_Create_Call) Return(_a0 *actor.Member, _a1 error) *mockMemberStore_Create_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockMemberStore_Create_Call) RunAndReturn(run func(context.Context, string, string) (*actor.Member, error)) *mockMemberStore_Create_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateFromInvite provides a mock function with given fields: ctx, invite
+func (_m *mockMemberStore) CreateFromInvite(ctx context.Context, invite *actor.MemberInvite) error {
+	ret := _m.Called(ctx, invite)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateFromInvite")
 	}
 
 	var r0 error
@@ -41,31 +101,31 @@ func (_m *mockMemberStore) Create(ctx context.Context, invite *actor.MemberInvit
 	return r0
 }
 
-// mockMemberStore_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
-type mockMemberStore_Create_Call struct {
+// mockMemberStore_CreateFromInvite_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateFromInvite'
+type mockMemberStore_CreateFromInvite_Call struct {
 	*mock.Call
 }
 
-// Create is a helper method to define mock.On call
+// CreateFromInvite is a helper method to define mock.On call
 //   - ctx context.Context
 //   - invite *actor.MemberInvite
-func (_e *mockMemberStore_Expecter) Create(ctx interface{}, invite interface{}) *mockMemberStore_Create_Call {
-	return &mockMemberStore_Create_Call{Call: _e.mock.On("Create", ctx, invite)}
+func (_e *mockMemberStore_Expecter) CreateFromInvite(ctx interface{}, invite interface{}) *mockMemberStore_CreateFromInvite_Call {
+	return &mockMemberStore_CreateFromInvite_Call{Call: _e.mock.On("CreateFromInvite", ctx, invite)}
 }
 
-func (_c *mockMemberStore_Create_Call) Run(run func(ctx context.Context, invite *actor.MemberInvite)) *mockMemberStore_Create_Call {
+func (_c *mockMemberStore_CreateFromInvite_Call) Run(run func(ctx context.Context, invite *actor.MemberInvite)) *mockMemberStore_CreateFromInvite_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(*actor.MemberInvite))
 	})
 	return _c
 }
 
-func (_c *mockMemberStore_Create_Call) Return(_a0 error) *mockMemberStore_Create_Call {
+func (_c *mockMemberStore_CreateFromInvite_Call) Return(_a0 error) *mockMemberStore_CreateFromInvite_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *mockMemberStore_Create_Call) RunAndReturn(run func(context.Context, *actor.MemberInvite) error) *mockMemberStore_Create_Call {
+func (_c *mockMemberStore_CreateFromInvite_Call) RunAndReturn(run func(context.Context, *actor.MemberInvite) error) *mockMemberStore_CreateFromInvite_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -282,6 +342,64 @@ func (_c *mockMemberStore_GetAll_Call) Return(_a0 []*actor.Member, _a1 error) *m
 }
 
 func (_c *mockMemberStore_GetAll_Call) RunAndReturn(run func(context.Context) ([]*actor.Member, error)) *mockMemberStore_GetAll_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAny provides a mock function with given fields: ctx
+func (_m *mockMemberStore) GetAny(ctx context.Context) (*actor.Member, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAny")
+	}
+
+	var r0 *actor.Member
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (*actor.Member, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) *actor.Member); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*actor.Member)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockMemberStore_GetAny_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAny'
+type mockMemberStore_GetAny_Call struct {
+	*mock.Call
+}
+
+// GetAny is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *mockMemberStore_Expecter) GetAny(ctx interface{}) *mockMemberStore_GetAny_Call {
+	return &mockMemberStore_GetAny_Call{Call: _e.mock.On("GetAny", ctx)}
+}
+
+func (_c *mockMemberStore_GetAny_Call) Run(run func(ctx context.Context)) *mockMemberStore_GetAny_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *mockMemberStore_GetAny_Call) Return(_a0 *actor.Member, _a1 error) *mockMemberStore_GetAny_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockMemberStore_GetAny_Call) RunAndReturn(run func(context.Context) (*actor.Member, error)) *mockMemberStore_GetAny_Call {
 	_c.Call.Return(run)
 	return _c
 }
