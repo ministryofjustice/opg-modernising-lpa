@@ -32,7 +32,7 @@ type Member struct {
 	UpdatedAt time.Time
 	// ID is a unique identifier for the Member
 	ID string
-	// OrganisationID identifies the organisation the invite is for
+	// OrganisationID identifies the organisation the member belongs to
 	OrganisationID string
 	Email          string
 	FirstNames     string
