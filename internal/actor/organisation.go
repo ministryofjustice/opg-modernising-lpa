@@ -30,17 +30,19 @@ type Member struct {
 	CreatedAt time.Time
 	// UpdatedAt is when the Member was last updated
 	UpdatedAt time.Time
-	// LastLoggedInAt is when the Member last logged in to the service
-	LastLoggedInAt time.Time
 	// ID is a unique identifier for the Member
-	ID         string
-	Email      string
-	FirstNames string
-	LastName   string
+	ID string
+	// OrganisationID identifies the organisation the invite is for
+	OrganisationID string
+	Email          string
+	FirstNames     string
+	LastName       string
 	// Permission is the type of permissions assigned to the member to set available actions in an Organisation
 	Permission Permission
 	// Status controls access to the Organisation
 	Status Status
+	// LastLoggedInAt is when the Member last logged in to the service
+	LastLoggedInAt time.Time
 }
 
 func (i Member) FullName() string {

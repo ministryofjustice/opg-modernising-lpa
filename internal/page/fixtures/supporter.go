@@ -17,12 +17,13 @@ import (
 )
 
 type OrganisationStore interface {
-	Create(context.Context, string) (*actor.Organisation, error)
+	Create(context.Context, *actor.Member, string) (*actor.Organisation, error)
 	CreateLPA(context.Context) (*actor.DonorProvidedDetails, error)
 }
 
 type MemberStore interface {
-	Create(ctx context.Context, invite *actor.MemberInvite) error
+	Create(ctx context.Context, firstNames, lastName string) (*actor.Member, error)
+	CreateFromInvite(ctx context.Context, invite *actor.MemberInvite) error
 	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error
 }
 
@@ -46,7 +47,12 @@ func Supporter(sessionStore *sesh.Store, organisationStore OrganisationStore, do
 		loginSession := &sesh.LoginSession{Sub: supporterSub, Email: testEmail}
 
 		if organisation == "1" {
-			org, err := organisationStore.Create(supporterCtx, random.String(12))
+			member, err := memberStore.Create(supporterCtx, random.String(12), random.String(12))
+			if err != nil {
+				return err
+			}
+
+			org, err := organisationStore.Create(supporterCtx, member, random.String(12))
 			if err != nil {
 				return err
 			}
@@ -146,7 +152,7 @@ func Supporter(sessionStore *sesh.Store, organisationStore OrganisationStore, do
 					sub := []byte(random.String(16))
 					memberCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: base64.StdEncoding.EncodeToString(sub), Email: email})
 
-					if err = memberStore.Create(
+					if err = memberStore.CreateFromInvite(
 						memberCtx,
 						&actor.MemberInvite{
 							PK:              random.String(12),
