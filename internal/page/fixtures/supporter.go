@@ -25,6 +25,7 @@ type MemberStore interface {
 	Create(ctx context.Context, firstNames, lastName string) (*actor.Member, error)
 	CreateFromInvite(ctx context.Context, invite *actor.MemberInvite) error
 	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error
+	Put(ctx context.Context, member *actor.Member) error
 }
 
 func Supporter(sessionStore *sesh.Store, organisationStore OrganisationStore, donorStore DonorStore, memberStore MemberStore, dynamoClient DynamoClient, searchClient *search.Client) page.Handler {
@@ -38,6 +39,7 @@ func Supporter(sessionStore *sesh.Store, organisationStore OrganisationStore, do
 			asMember       = r.FormValue("asMember")
 			permission     = r.FormValue("permission")
 			expireInvites  = r.FormValue("expireInvites") == "1"
+			suspended      = r.FormValue("suspended") == "1"
 
 			supporterSub       = random.String(16)
 			supporterSessionID = base64.StdEncoding.EncodeToString([]byte(supporterSub))
@@ -61,6 +63,14 @@ func Supporter(sessionStore *sesh.Store, organisationStore OrganisationStore, do
 			loginSession.OrganisationName = org.Name
 
 			organisationCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID})
+
+			if suspended {
+				member.Status = actor.StatusSuspended
+
+				if err := memberStore.Put(organisationCtx, member); err != nil {
+					return err
+				}
+			}
 
 			if lpaCount, err := strconv.Atoi(lpa); err == nil {
 				for range lpaCount {
