@@ -29,7 +29,7 @@ type organisationLink struct {
 	MemberSK string
 }
 
-func (s *organisationStore) Create(ctx context.Context, name string) (*actor.Organisation, error) {
+func (s *organisationStore) Create(ctx context.Context, member *actor.Member, name string) (*actor.Organisation, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -39,16 +39,10 @@ func (s *organisationStore) Create(ctx context.Context, name string) (*actor.Org
 		return nil, errors.New("organisationStore.Create requires SessionID")
 	}
 
-	if data.Email == "" {
-		return nil, errors.New("organisationStore.Create requires Email")
-	}
-
-	organisationID := s.uuidString()
-
 	organisation := &actor.Organisation{
-		PK:        organisationKey(organisationID),
-		SK:        organisationKey(organisationID),
-		ID:        organisationID,
+		PK:        organisationKey(member.OrganisationID),
+		SK:        organisationKey(member.OrganisationID),
+		ID:        member.OrganisationID,
 		Name:      name,
 		CreatedAt: s.now(),
 	}
@@ -57,32 +51,9 @@ func (s *organisationStore) Create(ctx context.Context, name string) (*actor.Org
 		return nil, fmt.Errorf("error creating organisation: %w", err)
 	}
 
-	member := &actor.Member{
-		PK:         organisationKey(organisationID),
-		SK:         memberKey(data.SessionID),
-		ID:         s.uuidString(),
-		Email:      data.Email,
-		CreatedAt:  s.now(),
-		Permission: actor.PermissionAdmin,
-		Status:     actor.StatusActive,
-	}
-
-	if err := s.dynamoClient.Create(ctx, member); err != nil {
-		return nil, fmt.Errorf("error creating organisation member: %w", err)
-	}
-
-	link := &organisationLink{
-		PK:       member.PK,
-		SK:       memberIDKey(member.ID),
-		MemberSK: member.SK,
-	}
-
-	if err := s.dynamoClient.Create(ctx, link); err != nil {
-		return nil, fmt.Errorf("error creating organisation link: %w", err)
-	}
-
 	return organisation, nil
 }
+
 func (s *organisationStore) Get(ctx context.Context) (*actor.Organisation, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
