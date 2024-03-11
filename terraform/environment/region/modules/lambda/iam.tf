@@ -49,10 +49,7 @@ data "aws_iam_policy_document" "lambda" {
       data.aws_kms_key_alias.lambda.arn
     ]
     actions = [
-      "kms:Encrypt",
-      "kms:ReEncrypt*",
-      "kms:GenerateDataKey*",
-      "kms:DescribeKey"
+      "kms:Decrypt",
     ]
   }
 
