@@ -23,34 +23,11 @@ func TestOrganisationStoreCreate(t *testing.T) {
 			CreatedAt: testNow,
 			Name:      "A name",
 		}).
-		Return(nil).
-		Once()
-
-	dynamoClient.EXPECT().
-		Create(ctx, &actor.Member{
-			PK:         "ORGANISATION#a-uuid",
-			SK:         "MEMBER#an-id",
-			ID:         "a-uuid",
-			CreatedAt:  testNow,
-			Email:      "a@example.org",
-			Permission: actor.PermissionAdmin,
-			Status:     actor.StatusActive,
-		}).
-		Return(nil).
-		Once()
-
-	dynamoClient.EXPECT().
-		Create(ctx, &organisationLink{
-			PK:       "ORGANISATION#a-uuid",
-			SK:       "MEMBERID#a-uuid",
-			MemberSK: "MEMBER#an-id",
-		}).
-		Return(nil).
-		Once()
+		Return(nil)
 
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-	organisation, err := organisationStore.Create(ctx, "A name")
+	organisation, err := organisationStore.Create(ctx, &actor.Member{OrganisationID: "a-uuid"}, "A name")
 	assert.Nil(t, err)
 	assert.Equal(t, &actor.Organisation{
 		PK:        "ORGANISATION#a-uuid",
@@ -64,7 +41,6 @@ func TestOrganisationStoreCreate(t *testing.T) {
 func TestOrganisationStoreCreateWithSessionMissing(t *testing.T) {
 	testcases := map[string]context.Context{
 		"no session id":   page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "a@example.org"}),
-		"no email":        page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"}),
 		"no session data": context.Background(),
 	}
 
@@ -72,7 +48,7 @@ func TestOrganisationStoreCreateWithSessionMissing(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			organisationStore := &organisationStore{}
 
-			organisation, err := organisationStore.Create(ctx, "A name")
+			organisation, err := organisationStore.Create(ctx, &actor.Member{OrganisationID: "a-uuid"}, "A name")
 			assert.Error(t, err)
 			assert.Nil(t, organisation)
 		})
@@ -82,39 +58,16 @@ func TestOrganisationStoreCreateWithSessionMissing(t *testing.T) {
 func TestOrganisationStoreCreateWhenErrors(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", Email: "a@example.org"})
 
-	testcases := map[string]func(*testing.T) *mockDynamoClient{
-		"organisation": func(t *testing.T) *mockDynamoClient {
-			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.EXPECT().
-				Create(ctx, mock.Anything).
-				Return(expectedError)
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		Create(ctx, mock.Anything).
+		Return(expectedError)
 
-			return dynamoClient
-		},
-		"member": func(t *testing.T) *mockDynamoClient {
-			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.EXPECT().
-				Create(ctx, mock.Anything).
-				Return(nil).
-				Once()
-			dynamoClient.EXPECT().
-				Create(ctx, mock.Anything).
-				Return(expectedError)
+	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-			return dynamoClient
-		},
-	}
-
-	for name, makeMockDynamoClient := range testcases {
-		t.Run(name, func(t *testing.T) {
-			dynamoClient := makeMockDynamoClient(t)
-			organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
-
-			organisation, err := organisationStore.Create(ctx, "A name")
-			assert.ErrorIs(t, err, expectedError)
-			assert.Nil(t, organisation)
-		})
-	}
+	organisation, err := organisationStore.Create(ctx, &actor.Member{OrganisationID: "a-uuid"}, "A name")
+	assert.ErrorIs(t, err, expectedError)
+	assert.Nil(t, organisation)
 }
 
 func TestOrganisationStoreGet(t *testing.T) {

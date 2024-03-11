@@ -27,7 +27,7 @@ func TestGetEnterOrganisationName(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterOrganisationName(template.Execute, nil, nil)(testAppData, w, r)
+	err := EnterOrganisationName(template.Execute, nil, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -43,7 +43,7 @@ func TestGetEnterOrganisationNameWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := EnterOrganisationName(template.Execute, nil, nil)(testAppData, w, r)
+	err := EnterOrganisationName(template.Execute, nil, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -57,9 +57,16 @@ func TestPostEnterOrganisationName(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	member := &actor.Member{ID: "a"}
+
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
+		GetAny(r.Context()).
+		Return(member, nil)
+
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		Create(r.Context(), "My organisation").
+		Create(r.Context(), member, "My organisation").
 		Return(&actor.Organisation{ID: "org-id", Name: "My organisation"}, nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -80,7 +87,7 @@ func TestPostEnterOrganisationName(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterOrganisationName(nil, organisationStore, sessionStore)(testAppData, w, r)
+	err := EnterOrganisationName(nil, organisationStore, memberStore, sessionStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -95,9 +102,14 @@ func TestPostEnterOrganisationNameWhenSessionStoreSaveError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
+		GetAny(r.Context()).
+		Return(&actor.Member{}, nil)
+
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		Create(r.Context(), mock.Anything).
+		Create(r.Context(), mock.Anything, mock.Anything).
 		Return(&actor.Organisation{}, nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -110,7 +122,7 @@ func TestPostEnterOrganisationNameWhenSessionStoreSaveError(t *testing.T) {
 		SetLogin(r, w, mock.Anything).
 		Return(expectedError)
 
-	err := EnterOrganisationName(nil, organisationStore, sessionStore)(testAppData, w, r)
+	err := EnterOrganisationName(nil, organisationStore, memberStore, sessionStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -124,9 +136,14 @@ func TestPostEnterOrganisationNameWhenSessionStoreGetError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
+		GetAny(r.Context()).
+		Return(&actor.Member{}, nil)
+
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		Create(r.Context(), mock.Anything).
+		Create(r.Context(), mock.Anything, mock.Anything).
 		Return(&actor.Organisation{}, nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -134,7 +151,7 @@ func TestPostEnterOrganisationNameWhenSessionStoreGetError(t *testing.T) {
 		Login(r).
 		Return(nil, expectedError)
 
-	err := EnterOrganisationName(nil, organisationStore, sessionStore)(testAppData, w, r)
+	err := EnterOrganisationName(nil, organisationStore, memberStore, sessionStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -160,10 +177,32 @@ func TestPostEnterOrganisationNameWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := EnterOrganisationName(template.Execute, nil, nil)(testAppData, w, r)
+	err := EnterOrganisationName(template.Execute, nil, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostEnterOrganisationNameWhenMemberStoreErrors(t *testing.T) {
+	form := url.Values{
+		"name": {"My name"},
+	}
+
+	w := httptest.NewRecorder()
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
+		GetAny(r.Context()).
+		Return(nil, expectedError)
+
+	err := EnterOrganisationName(nil, nil, memberStore, nil)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -177,12 +216,17 @@ func TestPostEnterOrganisationNameWhenOrganisationStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
+		GetAny(r.Context()).
+		Return(&actor.Member{}, nil)
+
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		Create(r.Context(), mock.Anything).
+		Create(r.Context(), mock.Anything, mock.Anything).
 		Return(nil, expectedError)
 
-	err := EnterOrganisationName(nil, organisationStore, nil)(testAppData, w, r)
+	err := EnterOrganisationName(nil, organisationStore, memberStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
