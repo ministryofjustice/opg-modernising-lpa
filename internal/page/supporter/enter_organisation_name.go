@@ -14,7 +14,7 @@ type enterOrganisationNameData struct {
 	Form   *organisationNameForm
 }
 
-func EnterOrganisationName(tmpl template.Template, organisationStore OrganisationStore, sessionStore SessionStore) page.Handler {
+func EnterOrganisationName(tmpl template.Template, organisationStore OrganisationStore, memberStore MemberStore, sessionStore SessionStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := &enterOrganisationNameData{
 			App:  appData,
@@ -26,7 +26,12 @@ func EnterOrganisationName(tmpl template.Template, organisationStore Organisatio
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				organisation, err := organisationStore.Create(r.Context(), data.Form.Name)
+				member, err := memberStore.GetAny(r.Context())
+				if err != nil {
+					return err
+				}
+
+				organisation, err := organisationStore.Create(r.Context(), member, data.Form.Name)
 				if err != nil {
 					return err
 				}

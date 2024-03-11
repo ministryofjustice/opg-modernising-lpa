@@ -79,7 +79,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 		Return(invite, nil)
 
 	memberStore.EXPECT().
-		Create(r.Context(), invite).
+		CreateFromInvite(r.Context(), invite).
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -190,7 +190,7 @@ func TestPostEnterReferenceNumberWhenMemberStoreCreateError(t *testing.T) {
 		}, nil)
 
 	memberStore.EXPECT().
-		Create(mock.Anything, mock.Anything).
+		CreateFromInvite(mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := EnterReferenceNumber(nil, memberStore, nil)(testAppData, w, r)
@@ -217,7 +217,7 @@ func TestPostEnterReferenceNumberWhenSessionGetError(t *testing.T) {
 		}, nil)
 
 	memberStore.EXPECT().
-		Create(mock.Anything, mock.Anything).
+		CreateFromInvite(mock.Anything, mock.Anything).
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -250,7 +250,7 @@ func TestPostEnterReferenceNumberWhenSessionSaveError(t *testing.T) {
 		}, nil)
 
 	memberStore.EXPECT().
-		Create(mock.Anything, mock.Anything).
+		CreateFromInvite(mock.Anything, mock.Anything).
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t)
