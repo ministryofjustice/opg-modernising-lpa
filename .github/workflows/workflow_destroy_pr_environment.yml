@@ -95,3 +95,6 @@ jobs:
       - name: Remove protection for environment workspace
         run: |
           terraform-workspace-manager -register-workspace=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }} -time-to-protect=0 -aws-account-id=653761790766 -aws-iam-role=modernising-lpa-ci
+      - name: Remove container insights log group
+        run: |
+          aws logs delete-log-group --log-group-name /aws/ecs/containerinsights/${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}-eu-west-1/performance
