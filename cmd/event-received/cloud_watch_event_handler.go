@@ -85,7 +85,7 @@ func (h *cloudWatchEventHandler) Handle(ctx context.Context, cloudWatchEvent eve
 	case "more-evidence-required":
 		return handleMoreEvidenceRequired(ctx, h.dynamoClient, cloudWatchEvent, h.now)
 
-	case "lpa-update":
+	case "lpa-updated":
 		certificateProviderStore := app.NewCertificateProviderStore(h.dynamoClient, h.now)
 
 		return handleLpaUpdated(ctx, h.dynamoClient, certificateProviderStore, cloudWatchEvent)

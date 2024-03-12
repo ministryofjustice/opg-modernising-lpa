@@ -63,26 +63,23 @@ func (s *CertificateProviderStore) CreatePaper(ctx context.Context, lpaID string
 		UID:       certificateProviderUID,
 		LpaID:     lpaID,
 		UpdatedAt: s.now(),
-		Tasks: actor.CertificateProviderTasks{
-			ConfirmYourDetails: actor.TaskCompleted,
-			ReadTheLpa:         actor.TaskCompleted,
+		Certificate: actor.Certificate{
+			AgreeToStatement: true,
+			Agreed:           s.now(),
 		},
 	}
 
 	if err := s.dynamoClient.Create(ctx, cp); err != nil {
 		return err
 	}
-	if err := s.dynamoClient.Create(ctx, lpaLink{
+
+	return s.dynamoClient.Create(ctx, lpaLink{
 		PK:        lpaKey(lpaID),
 		SK:        subKey(certificateProviderUID.String()),
 		DonorKey:  donorKey(donorSessionID),
 		ActorType: actor.TypeCertificateProvider,
 		UpdatedAt: s.now(),
-	}); err != nil {
-		return err
-	}
-
-	return nil
+	})
 }
 
 func (s *CertificateProviderStore) GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error) {
