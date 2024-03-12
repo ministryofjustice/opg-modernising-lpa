@@ -66,6 +66,7 @@ module "eu_west_1" {
   fault_injection_experiments_enabled     = local.environment.app.fault_injection_experiments_enabled
   search_endpoint                         = aws_opensearchserverless_collection.lpas_collection.collection_endpoint
   search_collection_arn                   = aws_opensearchserverless_collection.lpas_collection.arn
+  real_user_monitoring_cw_logs_enabled    = local.environment.app.real_user_monitoring_cw_logs_enabled
   providers = {
     aws.region            = aws.eu_west_1
     aws.global            = aws.global
@@ -128,6 +129,7 @@ module "eu_west_2" {
   fault_injection_experiments_enabled     = local.environment.app.fault_injection_experiments_enabled
   search_endpoint                         = null
   search_collection_arn                   = null
+  real_user_monitoring_cw_logs_enabled    = local.environment.app.real_user_monitoring_cw_logs_enabled
   providers = {
     aws.region            = aws.eu_west_2
     aws.global            = aws.global

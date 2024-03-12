@@ -166,3 +166,8 @@ variable "search_collection_arn" {
   description = "ARN of the OpenSearch collection to use"
   nullable    = true
 }
+
+variable "real_user_monitoring_cw_logs_enabled" {
+  type        = bool
+  description = "Enable CloudWatch logging for Real User Monitoring"
+}
