@@ -15,8 +15,8 @@ type CertificateProviderStore struct {
 	now          func() time.Time
 }
 
-func NewCertificateProviderStore(client DynamoClient, now func() time.Time) CertificateProviderStore {
-	return CertificateProviderStore{
+func NewCertificateProviderStore(client DynamoClient, now func() time.Time) *CertificateProviderStore {
+	return &CertificateProviderStore{
 		dynamoClient: client,
 		now:          now,
 	}
@@ -56,7 +56,7 @@ func (s *CertificateProviderStore) Create(ctx context.Context, donorSessionID st
 	return cp, err
 }
 
-func CreatePaper(ctx context.Context, lpaID string, certificateProviderUID actoruid.UID) error {
+func (s *CertificateProviderStore) CreatePaper(ctx context.Context, lpaID string, certificateProviderUID actoruid.UID) error {
 	return nil
 }
 
