@@ -1123,5 +1123,7 @@
     "organisationDeleted": "Welsh",
     "changeName": "Welsh",
     "enterYourName": "Welsh",
-    "thisWillBeHowYourNameIsDisplayed": "Welsh"
+    "thisWillBeHowYourNameIsDisplayed": "Welsh",
+    "accessSuspended": "Welsh",
+    "accessSuspendedContent": "Welsh {{.OrganisationName}}"
 }
