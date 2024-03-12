@@ -3,7 +3,7 @@ describe('Suspended', () => {
     cy.visit('/fixtures/supporter?redirect=/dashboard&organisation=1&suspended=1');
   });
 
-  it('shows LPAs', () => {
+  it('does not allow access to organisation', () => {
     cy.checkA11yApp();
 
     cy.contains('Access suspended');
