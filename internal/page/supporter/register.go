@@ -16,10 +16,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type OrganisationStore interface {
-	Create(ctx context.Context, name string) (*actor.Organisation, error)
+	Create(ctx context.Context, member *actor.Member, name string) (*actor.Organisation, error)
 	CreateLPA(ctx context.Context) (*actor.DonorProvidedDetails, error)
 	Get(ctx context.Context) (*actor.Organisation, error)
 	Put(ctx context.Context, organisation *actor.Organisation) error
@@ -27,10 +28,12 @@ type OrganisationStore interface {
 }
 
 type MemberStore interface {
-	Create(ctx context.Context, invite *actor.MemberInvite) error
+	Create(ctx context.Context, firstNames, lastName string) (*actor.Member, error)
+	CreateFromInvite(ctx context.Context, invite *actor.MemberInvite) error
 	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error
 	DeleteMemberInvite(ctx context.Context, organisationID, email string) error
 	Get(ctx context.Context) (*actor.Member, error)
+	GetAny(ctx context.Context) (*actor.Member, error)
 	GetAll(ctx context.Context) ([]*actor.Member, error)
 	GetByID(ctx context.Context, memberID string) (*actor.Member, error)
 	InvitedMember(ctx context.Context) (*actor.MemberInvite, error)
@@ -91,8 +94,10 @@ func Register(
 		page.Login(oneLoginClient, sessionStore, random.String, paths.LoginCallback))
 	handleRoot(paths.LoginCallback, None,
 		LoginCallback(oneLoginClient, sessionStore, organisationStore, time.Now, memberStore))
+	handleRoot(paths.EnterYourName, RequireSession,
+		EnterYourName(tmpls.Get("enter_your_name.gohtml"), memberStore))
 	handleRoot(paths.EnterOrganisationName, RequireSession,
-		EnterOrganisationName(tmpls.Get("enter_organisation_name.gohtml"), organisationStore, sessionStore))
+		EnterOrganisationName(tmpls.Get("enter_organisation_name.gohtml"), organisationStore, memberStore, sessionStore))
 	handleRoot(paths.EnterReferenceNumber, RequireSession,
 		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), memberStore, sessionStore))
 	handleRoot(paths.InviteExpired, RequireSession,
@@ -100,7 +105,7 @@ func Register(
 	handleRoot(paths.OrganisationDeleted, None,
 		page.Guidance(tmpls.Get("organisation_deleted.gohtml")))
 
-	handleWithSupporter := makeSupporterHandle(rootMux, sessionStore, errorHandler, organisationStore, memberStore)
+	handleWithSupporter := makeSupporterHandle(rootMux, sessionStore, errorHandler, organisationStore, memberStore, tmpls.Get("suspended.gohtml"))
 
 	handleWithSupporter(paths.OrganisationCreated, None,
 		Guidance(tmpls.Get("organisation_created.gohtml")))
@@ -163,7 +168,13 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 	}
 }
 
-func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler, organisationStore OrganisationStore, memberStore MemberStore) func(page.SupporterPath, HandleOpt, Handler) {
+type suspendedData struct {
+	App              page.AppData
+	Errors           validation.List
+	OrganisationName string
+}
+
+func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler, organisationStore OrganisationStore, memberStore MemberStore, suspendedTmpl template.Template) func(page.SupporterPath, HandleOpt, Handler) {
 	return func(path page.SupporterPath, opt HandleOpt, h Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			loginSession, err := store.Login(r)
@@ -217,6 +228,17 @@ func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler pa
 
 			if opt&RequireAdmin != 0 && !member.Permission.IsAdmin() {
 				errorHandler(w, r, errors.New("permission denied"))
+				return
+			}
+
+			if member.Status.IsSuspended() {
+				if err := suspendedTmpl(w, &suspendedData{
+					App:              appData,
+					OrganisationName: organisation.Name,
+				}); err != nil {
+					errorHandler(w, r, err)
+				}
+
 				return
 			}
 

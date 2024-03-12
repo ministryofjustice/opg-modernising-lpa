@@ -42,6 +42,17 @@ data "aws_iam_policy_document" "lambda" {
     ]
   }
 
+  statement {
+    sid    = "LambdaKMSDecrypt"
+    effect = "Allow"
+    resources = [
+      data.aws_kms_alias.lambda.target_key_arn
+    ]
+    actions = [
+      "kms:Decrypt",
+    ]
+  }
+
   override_policy_documents = var.iam_policy_documents
   provider                  = aws.region
 }
