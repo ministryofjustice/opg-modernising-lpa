@@ -16,6 +16,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type OrganisationStore interface {
@@ -104,7 +105,7 @@ func Register(
 	handleRoot(paths.OrganisationDeleted, None,
 		page.Guidance(tmpls.Get("organisation_deleted.gohtml")))
 
-	handleWithSupporter := makeSupporterHandle(rootMux, sessionStore, errorHandler, organisationStore, memberStore)
+	handleWithSupporter := makeSupporterHandle(rootMux, sessionStore, errorHandler, organisationStore, memberStore, tmpls.Get("suspended.gohtml"))
 
 	handleWithSupporter(paths.OrganisationCreated, None,
 		Guidance(tmpls.Get("organisation_created.gohtml")))
@@ -167,7 +168,13 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 	}
 }
 
-func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler, organisationStore OrganisationStore, memberStore MemberStore) func(page.SupporterPath, HandleOpt, Handler) {
+type suspendedData struct {
+	App              page.AppData
+	Errors           validation.List
+	OrganisationName string
+}
+
+func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler, organisationStore OrganisationStore, memberStore MemberStore, suspendedTmpl template.Template) func(page.SupporterPath, HandleOpt, Handler) {
 	return func(path page.SupporterPath, opt HandleOpt, h Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			loginSession, err := store.Login(r)
@@ -221,6 +228,17 @@ func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler pa
 
 			if opt&RequireAdmin != 0 && !member.Permission.IsAdmin() {
 				errorHandler(w, r, errors.New("permission denied"))
+				return
+			}
+
+			if member.Status.IsSuspended() {
+				if err := suspendedTmpl(w, &suspendedData{
+					App:              appData,
+					OrganisationName: organisation.Name,
+				}); err != nil {
+					errorHandler(w, r, err)
+				}
+
 				return
 			}
 
