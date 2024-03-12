@@ -53,7 +53,7 @@ func shareCodeKeys(actorType actor.Type, shareCode string) (pk, sk string, err e
 	switch actorType {
 	// As attorneys and replacement attorneys share the same landing page we can't
 	// differentiate between them
-	case actor.TypeAttorney, actor.TypeReplacementAttorney:
+	case actor.TypeAttorney, actor.TypeReplacementAttorney, actor.TypeTrustCorporation, actor.TypeReplacementTrustCorporation:
 		return "ATTORNEYSHARE#" + shareCode, "#METADATA#" + shareCode, nil
 	case actor.TypeCertificateProvider:
 		return "CERTIFICATEPROVIDERSHARE#" + shareCode, "#METADATA#" + shareCode, nil
