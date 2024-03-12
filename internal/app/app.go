@@ -96,7 +96,7 @@ func App(
 		documentStore: documentStore,
 		searchClient:  searchClient,
 	}
-	certificateProviderStore := &certificateProviderStore{dynamoClient: lpaDynamoClient, now: time.Now}
+	certificateProviderStore := &CertificateProviderStore{dynamoClient: lpaDynamoClient, now: time.Now}
 	attorneyStore := &attorneyStore{dynamoClient: lpaDynamoClient, now: time.Now}
 	shareCodeStore := &shareCodeStore{dynamoClient: lpaDynamoClient}
 	dashboardStore := &dashboardStore{dynamoClient: lpaDynamoClient}
