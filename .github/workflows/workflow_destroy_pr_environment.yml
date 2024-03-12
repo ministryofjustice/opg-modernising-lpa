@@ -100,7 +100,7 @@ jobs:
         with:
           aws-role-to-assume: arn:aws:iam::653761790766:role/modernising-lpa-github-actions-cloudwatch-log-group-delete
           aws-region: eu-west-1
-          role-duration-seconds: 3600
+          role-duration-seconds: 900
           role-session-name: OPGModernisingLPALogGroupDeleteGithubAction
       - name: Remove container insights log group
         run: |
