@@ -11,4 +11,5 @@ type ShareCodeData struct {
 	IsTrustCorporation    bool
 	DonorFullname         string
 	DonorFirstNames       string
+	Paper                 bool
 }
