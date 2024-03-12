@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -51,11 +52,7 @@ func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, app
 
 func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails) error {
 	if donor.CertificateProvider.CarryOutBy.IsPaper() {
-		return s.eventClient.SendPaperFormRequested(ctx, event.PaperFormRequested{
-			UID:       donor.LpaUID,
-			ActorType: actor.TypeCertificateProvider.String(),
-			ActorUID:  donor.CertificateProvider.UID,
-		})
+		return s.sendPaperForm(ctx, appData, donor.LpaUID, actor.TypeCertificateProvider, donor.CertificateProvider.UID)
 	}
 
 	return s.sendCertificateProvider(ctx, appData, donor, notify.CertificateProviderProvideCertificatePromptEmail{
@@ -115,11 +112,7 @@ func (s *ShareCodeSender) SendAttorneys(ctx context.Context, appData AppData, do
 
 func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, attorney actor.Attorney) error {
 	if attorney.Email == "" {
-		return s.eventClient.SendPaperFormRequested(ctx, event.PaperFormRequested{
-			UID:       donor.LpaUID,
-			ActorType: actor.TypeAttorney.String(),
-			ActorUID:  attorney.UID,
-		})
+		return s.sendPaperForm(ctx, appData, donor.LpaUID, actor.TypeAttorney, attorney.UID)
 	}
 
 	return s.sendAttorney(ctx, attorney.Email,
@@ -135,16 +128,12 @@ func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData AppD
 			SessionID: appData.SessionID,
 			LpaID:     appData.LpaID,
 			ActorUID:  attorney.UID,
-		}, donor)
+		}, donor.LpaUID)
 }
 
 func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, attorney actor.Attorney) error {
 	if attorney.Email == "" {
-		return s.eventClient.SendPaperFormRequested(ctx, event.PaperFormRequested{
-			UID:       donor.LpaUID,
-			ActorType: actor.TypeReplacementAttorney.String(),
-			ActorUID:  attorney.UID,
-		})
+		return s.sendPaperForm(ctx, appData, donor.LpaUID, actor.TypeReplacementAttorney, attorney.UID)
 	}
 
 	return s.sendAttorney(ctx, attorney.Email,
@@ -160,7 +149,7 @@ func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData A
 			LpaID:                 appData.LpaID,
 			ActorUID:              attorney.UID,
 			IsReplacementAttorney: true,
-		}, donor)
+		}, donor.LpaUID)
 }
 
 func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, trustCorporation actor.TrustCorporation) error {
@@ -169,11 +158,7 @@ func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData AppD
 	}
 
 	if trustCorporation.Email == "" {
-		return s.eventClient.SendPaperFormRequested(ctx, event.PaperFormRequested{
-			UID:       donor.LpaUID,
-			ActorType: actor.TypeTrustCorporation.String(),
-			ActorUID:  trustCorporation.UID,
-		})
+		return s.sendPaperForm(ctx, appData, donor.LpaUID, actor.TypeTrustCorporation, trustCorporation.UID)
 	}
 
 	return s.sendAttorney(ctx, trustCorporation.Email,
@@ -190,7 +175,7 @@ func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData AppD
 			LpaID:              appData.LpaID,
 			ActorUID:           trustCorporation.UID,
 			IsTrustCorporation: true,
-		}, donor)
+		}, donor.LpaUID)
 }
 
 func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, trustCorporation actor.TrustCorporation) error {
@@ -199,11 +184,7 @@ func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, a
 	}
 
 	if trustCorporation.Email == "" {
-		return s.eventClient.SendPaperFormRequested(ctx, event.PaperFormRequested{
-			UID:       donor.LpaUID,
-			ActorType: actor.TypeReplacementTrustCorporation.String(),
-			ActorUID:  trustCorporation.UID,
-		})
+		return s.sendPaperForm(ctx, appData, donor.LpaUID, actor.TypeReplacementTrustCorporation, trustCorporation.UID)
 	}
 
 	return s.sendAttorney(ctx, trustCorporation.Email,
@@ -221,10 +202,10 @@ func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, a
 			ActorUID:              trustCorporation.UID,
 			IsTrustCorporation:    true,
 			IsReplacementAttorney: true,
-		}, donor)
+		}, donor.LpaUID)
 }
 
-func (s *ShareCodeSender) sendAttorney(ctx context.Context, to string, email shareCodeEmail, shareCodeData actor.ShareCodeData, donor *actor.DonorProvidedDetails) error {
+func (s *ShareCodeSender) sendAttorney(ctx context.Context, to string, email shareCodeEmail, shareCodeData actor.ShareCodeData, lpaUID string) error {
 	shareCode := s.randomString(12)
 	if s.testCode != "" {
 		shareCode = s.testCode
@@ -235,9 +216,32 @@ func (s *ShareCodeSender) sendAttorney(ctx context.Context, to string, email sha
 		return fmt.Errorf("creating attorney share failed: %w", err)
 	}
 
-	if err := s.notifyClient.SendActorEmail(ctx, to, donor.LpaUID, email.WithShareCode(shareCode)); err != nil {
+	if err := s.notifyClient.SendActorEmail(ctx, to, lpaUID, email.WithShareCode(shareCode)); err != nil {
 		return fmt.Errorf("email failed: %w", err)
 	}
 
 	return nil
+}
+
+func (s *ShareCodeSender) sendPaperForm(ctx context.Context, appData AppData, lpaUID string, actorType actor.Type, actorUID actoruid.UID) error {
+	shareCode := s.randomString(12)
+	shareCodeData := actor.ShareCodeData{
+		SessionID:             appData.SessionID,
+		LpaID:                 appData.LpaID,
+		ActorUID:              actorUID,
+		IsTrustCorporation:    actorType == actor.TypeTrustCorporation || actorType == actor.TypeReplacementTrustCorporation,
+		IsReplacementAttorney: actorType == actor.TypeReplacementAttorney || actorType == actor.TypeReplacementTrustCorporation,
+		Paper:                 true,
+	}
+
+	if err := s.shareCodeStore.Put(ctx, actorType, shareCode, shareCodeData); err != nil {
+		return err
+	}
+
+	return s.eventClient.SendPaperFormRequested(ctx, event.PaperFormRequested{
+		UID:        lpaUID,
+		ActorType:  actorType.String(),
+		ActorUID:   actorUID,
+		AccessCode: shareCode,
+	})
 }

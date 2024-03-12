@@ -47,6 +47,43 @@ func TestShareCodeStoreGet(t *testing.T) {
 	}
 }
 
+func TestShareCodeStoreGetForPaper(t *testing.T) {
+	testcases := map[string]struct {
+		t  actor.Type
+		pk string
+	}{
+		"attorney": {
+			t:  actor.TypeAttorney,
+			pk: "ATTORNEYSHARE#123",
+		},
+		"replacement attorney": {
+			t:  actor.TypeReplacementAttorney,
+			pk: "ATTORNEYSHARE#123",
+		},
+		"certificate provider": {
+			t:  actor.TypeCertificateProvider,
+			pk: "CERTIFICATEPROVIDERSHARE#123",
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			ctx := context.Background()
+			data := actor.ShareCodeData{LpaID: "lpa-id", Paper: true}
+
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.
+				ExpectOne(ctx, tc.pk, "#METADATA#123",
+					data, nil)
+
+			shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}
+
+			_, err := shareCodeStore.Get(ctx, tc.t, "123")
+			assert.Error(t, err)
+		})
+	}
+}
+
 func TestShareCodeStoreGetForBadActorType(t *testing.T) {
 	ctx := context.Background()
 	shareCodeStore := &shareCodeStore{}
