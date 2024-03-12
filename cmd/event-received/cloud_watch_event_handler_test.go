@@ -426,7 +426,7 @@ func TestHandleLpaUpdated(t *testing.T) {
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
-		CreatePaper(ctx, "lpa-id", certificateProviderUID).
+		CreatePaper(ctx, "lpa-id", certificateProviderUID, "456").
 		Return(nil)
 
 	err := handleLpaUpdated(ctx, client, certificateProviderStore, event)
@@ -502,7 +502,7 @@ func TestHandleLpaUpdatedWhenCertificateProviderStorePutError(t *testing.T) {
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
-		CreatePaper(ctx, "lpa-id", certificateProviderUID).
+		CreatePaper(ctx, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := handleLpaUpdated(ctx, client, certificateProviderStore, event)

@@ -215,7 +215,10 @@ func handleLpaUpdated(ctx context.Context, client dynamodbClient, certificatePro
 			return err
 		}
 
-		return certificateProviderStore.CreatePaper(ctx, strings.Split(key.PK, "#")[1], certificateProviderUID)
+		lpaID := strings.Split(key.PK, "#")[1]
+		donorSessionID := strings.Split(key.SK, "#")[2]
+
+		return certificateProviderStore.CreatePaper(ctx, lpaID, certificateProviderUID, donorSessionID)
 	}
 
 	return fmt.Errorf("unsupported changeType: %s", v.ChangeType)

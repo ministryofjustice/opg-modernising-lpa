@@ -234,3 +234,39 @@ func TestCertificateProviderStorePutOnError(t *testing.T) {
 	err := certificateProviderStore.Put(ctx, &actor.CertificateProviderProvidedDetails{PK: "LPA#123", SK: "#CERTIFICATE_PROVIDER#456", LpaID: "123"})
 	assert.Equal(t, expectedError, err)
 }
+
+func TestCertificateProviderStoreCreatePaper(t *testing.T) {
+	ctx := context.Background()
+	uid := actoruid.New()
+	now := time.Now()
+	details := &actor.CertificateProviderProvidedDetails{
+		PK:        "LPA#123",
+		SK:        "#CERTIFICATE_PROVIDER#" + uid.String(),
+		LpaID:     "123",
+		UpdatedAt: now,
+		UID:       uid,
+		Tasks: actor.CertificateProviderTasks{
+			ConfirmYourDetails: actor.TaskCompleted,
+			ReadTheLpa:         actor.TaskCompleted,
+		},
+	}
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		Create(ctx, details).
+		Return(nil)
+	dynamoClient.EXPECT().
+		Create(ctx, lpaLink{
+			PK:        "LPA#123",
+			SK:        "#SUB#" + uid.String(),
+			DonorKey:  "#DONOR#session-id",
+			ActorType: actor.TypeCertificateProvider,
+			UpdatedAt: now,
+		}).
+		Return(nil)
+
+	certificateProviderStore := &CertificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
+
+	err := certificateProviderStore.CreatePaper(ctx, "123", uid, "session-id")
+	assert.Nil(t, err)
+}
