@@ -2,6 +2,8 @@ package actoruid
 
 import (
 	"errors"
+	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -9,7 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const prefix = "urn:opg:poas:makeregister:users:"
+const makeRegisterPrefix = "urn:opg:poas:makeregister:users:"
 
 type UID struct{ value string }
 
@@ -21,6 +23,20 @@ func FromRequest(r interface{ FormValue(string) string }) UID {
 	return UID{value: r.FormValue("id")}
 }
 
+func FromPrefixedString(s string) (UID, error) {
+	regex, err := regexp.Compile("urn:opg:poas:.*:users:")
+	if err != nil {
+		return UID{}, err
+	}
+
+	split := regex.Split(s, 2)
+	if split[0] == s {
+		return UID{}, fmt.Errorf("unexpected UID prefix: %s", s)
+	}
+
+	return UID{value: split[1]}, nil
+}
+
 func (u UID) IsZero() bool {
 	return len(u.value) == 0
 }
@@ -30,7 +46,7 @@ func (u UID) String() string {
 }
 
 func (u UID) PrefixedString() string {
-	return prefix + u.value
+	return makeRegisterPrefix + u.value
 }
 
 func (u UID) MarshalJSON() ([]byte, error) {
@@ -46,7 +62,7 @@ func (u *UID) UnmarshalText(text []byte) error {
 		return nil
 	}
 
-	uid, found := strings.CutPrefix(string(text), prefix)
+	uid, found := strings.CutPrefix(string(text), makeRegisterPrefix)
 	if !found {
 		return errors.New("invalid uid prefix")
 	}

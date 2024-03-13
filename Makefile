@@ -118,6 +118,9 @@ delete-all-items: ##@dynamodb deletes and recreates lpas dynamodb table
 emit-evidence-received: ##@events emits an evidence-received event with the given LpaUID e.g. emit-evidence-received uid=abc-123
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"evidence-received","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
 
+emit-lpa-updated-cp-signed: ##@events emits a lpa-updated event with detail changeType set to CERTIFICATE_PROVIDER_SIGN e.g. emit-lpa-updated-cp-signed uid=abc-123 actorUid=xyz-456
+	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"lpa-updated","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"uid":"$(uid)","actorUID":"urn:opg:poas:servicename:users:$(actorUid)","changeType":"CERTIFICATE_PROVIDER_SIGN"}}'
+
 emit-reduced-fee-approved: ##@events emits a reduced-fee-approved event with the given LpaUID e.g. emit-reduced-fee-approved uid=abc-123
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"reduced-fee-approved","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
 
