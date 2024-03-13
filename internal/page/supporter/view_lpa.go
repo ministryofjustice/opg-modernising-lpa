@@ -10,10 +10,9 @@ import (
 )
 
 type viewLPAData struct {
-	App      page.AppData
-	Errors   validation.List
-	Donor    *actor.DonorProvidedDetails
-	Progress actor.Progress
+	App    page.AppData
+	Errors validation.List
+	Donor  *actor.DonorProvidedDetails
 }
 
 func ViewLPA(tmpl template.Template, donorStore DonorStore) Handler {
