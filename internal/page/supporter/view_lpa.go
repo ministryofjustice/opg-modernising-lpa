@@ -1,12 +1,10 @@
 package supporter
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -18,7 +16,7 @@ type viewLPAData struct {
 	Progress actor.Progress
 }
 
-func ViewLPA(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore) Handler {
+func ViewLPA(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
 		sessionData, err := page.SessionDataFromContext(r.Context())
 		if err != nil {
@@ -35,22 +33,9 @@ func ViewLPA(tmpl template.Template, donorStore DonorStore, certificateProviderS
 			return err
 		}
 
-		certificateProvider, err := certificateProviderStore.GetAny(ctx)
-		if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
-			return err
-		}
-
-		attorneys, err := attorneyStore.GetAny(ctx)
-		if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
-			return err
-		}
-
-		data := &viewLPAData{
-			App:      appData,
-			Donor:    donor,
-			Progress: donor.Progress(certificateProvider, attorneys, appData.Localizer),
-		}
-
-		return tmpl(w, data)
+		return tmpl(w, &viewLPAData{
+			App:   appData,
+			Donor: donor,
+		})
 	}
 }
