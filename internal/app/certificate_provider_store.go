@@ -11,14 +11,16 @@ import (
 )
 
 type CertificateProviderStore struct {
-	dynamoClient DynamoClient
-	now          func() time.Time
+	dynamoClient    DynamoClient
+	now             func() time.Time
+	shareCodeSender ShareCodeSender
 }
 
-func NewCertificateProviderStore(client DynamoClient, now func() time.Time) *CertificateProviderStore {
+func NewCertificateProviderStore(client DynamoClient, now func() time.Time, sender ShareCodeSender) *CertificateProviderStore {
 	return &CertificateProviderStore{
-		dynamoClient: client,
-		now:          now,
+		dynamoClient:    client,
+		now:             now,
+		shareCodeSender: sender,
 	}
 }
 
@@ -56,18 +58,22 @@ func (s *CertificateProviderStore) Create(ctx context.Context, donorSessionID st
 	return cp, err
 }
 
-func (s *CertificateProviderStore) CreatePaper(ctx context.Context, lpaID string, certificateProviderUID actoruid.UID) error {
-	return s.dynamoClient.Create(ctx, &actor.CertificateProviderProvidedDetails{
-		PK:        lpaKey(lpaID),
+func (s *CertificateProviderStore) CreatePaper(ctx context.Context, donor *actor.DonorProvidedDetails, certificateProviderUID actoruid.UID) error {
+	if err := s.dynamoClient.Create(ctx, &actor.CertificateProviderProvidedDetails{
+		PK:        lpaKey(donor.LpaID),
 		SK:        certificateProviderKey(certificateProviderUID.String()),
 		UID:       certificateProviderUID,
-		LpaID:     lpaID,
+		LpaID:     donor.LpaID,
 		UpdatedAt: s.now(),
 		Certificate: actor.Certificate{
 			AgreeToStatement: true,
 			Agreed:           s.now(),
 		},
-	})
+	}); err != nil {
+		return err
+	}
+
+	return s.shareCodeSender.SendAttorneys(ctx, page.AppDataFromContext(ctx), donor)
 }
 
 func (s *CertificateProviderStore) GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error) {

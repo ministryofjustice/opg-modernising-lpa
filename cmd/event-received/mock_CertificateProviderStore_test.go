@@ -3,9 +3,10 @@
 package main
 
 import (
-	context "context"
-
+	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	actoruid "github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+
+	context "context"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -23,17 +24,17 @@ func (_m *mockCertificateProviderStore) EXPECT() *mockCertificateProviderStore_E
 	return &mockCertificateProviderStore_Expecter{mock: &_m.Mock}
 }
 
-// CreatePaper provides a mock function with given fields: ctx, lpaID, certificateProviderUID
-func (_m *mockCertificateProviderStore) CreatePaper(ctx context.Context, lpaID string, certificateProviderUID actoruid.UID) error {
-	ret := _m.Called(ctx, lpaID, certificateProviderUID)
+// CreatePaper provides a mock function with given fields: ctx, donor, certificateProviderUID
+func (_m *mockCertificateProviderStore) CreatePaper(ctx context.Context, donor *actor.DonorProvidedDetails, certificateProviderUID actoruid.UID) error {
+	ret := _m.Called(ctx, donor, certificateProviderUID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreatePaper")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, actoruid.UID) error); ok {
-		r0 = rf(ctx, lpaID, certificateProviderUID)
+	if rf, ok := ret.Get(0).(func(context.Context, *actor.DonorProvidedDetails, actoruid.UID) error); ok {
+		r0 = rf(ctx, donor, certificateProviderUID)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -48,15 +49,15 @@ type mockCertificateProviderStore_CreatePaper_Call struct {
 
 // CreatePaper is a helper method to define mock.On call
 //   - ctx context.Context
-//   - lpaID string
+//   - donor *actor.DonorProvidedDetails
 //   - certificateProviderUID actoruid.UID
-func (_e *mockCertificateProviderStore_Expecter) CreatePaper(ctx interface{}, lpaID interface{}, certificateProviderUID interface{}) *mockCertificateProviderStore_CreatePaper_Call {
-	return &mockCertificateProviderStore_CreatePaper_Call{Call: _e.mock.On("CreatePaper", ctx, lpaID, certificateProviderUID)}
+func (_e *mockCertificateProviderStore_Expecter) CreatePaper(ctx interface{}, donor interface{}, certificateProviderUID interface{}) *mockCertificateProviderStore_CreatePaper_Call {
+	return &mockCertificateProviderStore_CreatePaper_Call{Call: _e.mock.On("CreatePaper", ctx, donor, certificateProviderUID)}
 }
 
-func (_c *mockCertificateProviderStore_CreatePaper_Call) Run(run func(ctx context.Context, lpaID string, certificateProviderUID actoruid.UID)) *mockCertificateProviderStore_CreatePaper_Call {
+func (_c *mockCertificateProviderStore_CreatePaper_Call) Run(run func(ctx context.Context, donor *actor.DonorProvidedDetails, certificateProviderUID actoruid.UID)) *mockCertificateProviderStore_CreatePaper_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(actoruid.UID))
+		run(args[0].(context.Context), args[1].(*actor.DonorProvidedDetails), args[2].(actoruid.UID))
 	})
 	return _c
 }
@@ -66,7 +67,7 @@ func (_c *mockCertificateProviderStore_CreatePaper_Call) Return(_a0 error) *mock
 	return _c
 }
 
-func (_c *mockCertificateProviderStore_CreatePaper_Call) RunAndReturn(run func(context.Context, string, actoruid.UID) error) *mockCertificateProviderStore_CreatePaper_Call {
+func (_c *mockCertificateProviderStore_CreatePaper_Call) RunAndReturn(run func(context.Context, *actor.DonorProvidedDetails, actoruid.UID) error) *mockCertificateProviderStore_CreatePaper_Call {
 	_c.Call.Return(run)
 	return _c
 }

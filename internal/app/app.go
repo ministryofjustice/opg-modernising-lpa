@@ -10,6 +10,7 @@ import (
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/google/uuid"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -67,6 +68,10 @@ type SessionStore interface {
 	Login(r *http.Request) (*sesh.LoginSession, error)
 }
 
+type ShareCodeSender interface {
+	SendAttorneys(ctx context.Context, appData page.AppData, donorProvided *actor.DonorProvidedDetails) error
+}
+
 func App(
 	logger *slog.Logger,
 	localizer page.Localizer,
@@ -96,7 +101,6 @@ func App(
 		documentStore: documentStore,
 		searchClient:  searchClient,
 	}
-	certificateProviderStore := &CertificateProviderStore{dynamoClient: lpaDynamoClient, now: time.Now}
 	attorneyStore := &attorneyStore{dynamoClient: lpaDynamoClient, now: time.Now}
 	shareCodeStore := &shareCodeStore{dynamoClient: lpaDynamoClient}
 	dashboardStore := &dashboardStore{dynamoClient: lpaDynamoClient}
@@ -106,6 +110,8 @@ func App(
 
 	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicURL, random.String, eventClient)
 	witnessCodeSender := page.NewWitnessCodeSender(donorStore, notifyClient)
+
+	certificateProviderStore := NewCertificateProviderStore(lpaDynamoClient, time.Now, shareCodeSender)
 
 	errorHandler := page.Error(tmpls.Get("error-500.gohtml"), logger)
 	notFoundHandler := page.Root(tmpls.Get("error-404.gohtml"), logger)

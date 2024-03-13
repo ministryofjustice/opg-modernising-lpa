@@ -6,10 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
@@ -238,53 +236,89 @@ func TestCertificateProviderStorePutOnError(t *testing.T) {
 }
 
 func TestCertificateProviderStoreCreatePaper(t *testing.T) {
-	ctx := context.Background()
+	ctx := page.ContextWithAppData(context.Background(), page.AppData{})
 	uid := actoruid.New()
-	now := time.Now()
 	details := &actor.CertificateProviderProvidedDetails{
 		PK:        "LPA#123",
 		SK:        "#CERTIFICATE_PROVIDER#" + uid.String(),
 		LpaID:     "123",
-		UpdatedAt: now,
+		UpdatedAt: testNow,
 		UID:       uid,
 		Certificate: actor.Certificate{
 			AgreeToStatement: true,
-			Agreed:           now,
+			Agreed:           testNow,
 		},
 	}
+
+	sender := newMockShareCodeSender(t)
+	sender.EXPECT().
+		SendAttorneys(ctx, page.AppData{}, &actor.DonorProvidedDetails{LpaID: "123"}).
+		Return(nil)
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
 		Create(ctx, details).
 		Return(nil)
 
-	certificateProviderStore := &CertificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
+	certificateProviderStore := &CertificateProviderStore{
+		dynamoClient:    dynamoClient,
+		now:             testNowFn,
+		shareCodeSender: sender,
+	}
 
-	err := certificateProviderStore.CreatePaper(ctx, "123", uid)
+	err := certificateProviderStore.CreatePaper(ctx, &actor.DonorProvidedDetails{LpaID: "123"}, uid)
 	assert.Nil(t, err)
 }
 
 func TestCertificateProviderStoreCreatePaperWhenDynamoCreateCertificateProviderError(t *testing.T) {
 	ctx := context.Background()
 	uid := actoruid.New()
-	now := time.Now()
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
 		Create(ctx, mock.Anything).
 		Return(expectedError)
 
-	certificateProviderStore := &CertificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
+	certificateProviderStore := &CertificateProviderStore{
+		dynamoClient: dynamoClient,
+		now:          testNowFn,
+	}
 
-	err := certificateProviderStore.CreatePaper(ctx, "123", uid)
+	err := certificateProviderStore.CreatePaper(ctx, &actor.DonorProvidedDetails{LpaID: "123"}, uid)
 	assert.Equal(t, expectedError, err)
 }
 
+func TestCertificateProviderStoreCreatePaperWhenShareCodeSenderError(t *testing.T) {
+	ctx := page.ContextWithAppData(context.Background(), page.AppData{})
+	uid := actoruid.New()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		Create(mock.Anything, mock.Anything).
+		Return(nil)
+
+	sender := newMockShareCodeSender(t)
+	sender.EXPECT().
+		SendAttorneys(ctx, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	certificateProviderStore := &CertificateProviderStore{
+		dynamoClient:    dynamoClient,
+		now:             testNowFn,
+		shareCodeSender: sender,
+	}
+
+	err := certificateProviderStore.CreatePaper(ctx, &actor.DonorProvidedDetails{LpaID: "123"}, uid)
+	assert.Error(t, err)
+}
+
 func TestNewCertificateProviderStore(t *testing.T) {
-	client, _ := dynamo.NewClient(aws.Config{}, "a")
+	client := newMockDynamoClient(t)
+	sender := newMockShareCodeSender(t)
 	now := testNowFn
-	actualStore := NewCertificateProviderStore(client, now)
+	actualStore := NewCertificateProviderStore(client, now, sender)
 
 	assert.Equal(t, now(), actualStore.now())
 	assert.Equal(t, client, actualStore.dynamoClient)
+	assert.Equal(t, sender, actualStore.shareCodeSender)
 }
