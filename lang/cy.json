@@ -1125,5 +1125,9 @@
     "enterYourName": "Welsh",
     "thisWillBeHowYourNameIsDisplayed": "Welsh",
     "accessSuspended": "Welsh",
-    "accessSuspendedContent": "Welsh {{.OrganisationName}}"
+    "accessSuspendedContent": "Welsh {{.OrganisationName}}",
+    "lpa": "Welsh",
+    "viewLPASummary": "Welsh",
+    "donorAccess": "Welsh",
+    "viewLPA": "Welsh"
 }
