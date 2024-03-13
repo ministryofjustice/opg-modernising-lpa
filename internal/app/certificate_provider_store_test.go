@@ -6,8 +6,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
@@ -306,4 +308,13 @@ func TestCertificateProviderStoreCreatePaperWhenDynamoCreateLpaLinkError(t *test
 
 	err := certificateProviderStore.CreatePaper(ctx, "123", uid, "session-id")
 	assert.Equal(t, expectedError, err)
+}
+
+func TestNewCertificateProviderStore(t *testing.T) {
+	client, _ := dynamo.NewClient(aws.Config{}, "a")
+	now := testNowFn
+	actualStore := NewCertificateProviderStore(client, now)
+
+	assert.Equal(t, now(), actualStore.now())
+	assert.Equal(t, client, actualStore.dynamoClient)
 }
