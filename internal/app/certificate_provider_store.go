@@ -56,8 +56,8 @@ func (s *CertificateProviderStore) Create(ctx context.Context, donorSessionID st
 	return cp, err
 }
 
-func (s *CertificateProviderStore) CreatePaper(ctx context.Context, lpaID string, certificateProviderUID actoruid.UID, donorSessionID string) error {
-	cp := &actor.CertificateProviderProvidedDetails{
+func (s *CertificateProviderStore) CreatePaper(ctx context.Context, lpaID string, certificateProviderUID actoruid.UID) error {
+	return s.dynamoClient.Create(ctx, &actor.CertificateProviderProvidedDetails{
 		PK:        lpaKey(lpaID),
 		SK:        certificateProviderKey(certificateProviderUID.String()),
 		UID:       certificateProviderUID,
@@ -67,18 +67,6 @@ func (s *CertificateProviderStore) CreatePaper(ctx context.Context, lpaID string
 			AgreeToStatement: true,
 			Agreed:           s.now(),
 		},
-	}
-
-	if err := s.dynamoClient.Create(ctx, cp); err != nil {
-		return err
-	}
-
-	return s.dynamoClient.Create(ctx, lpaLink{
-		PK:        lpaKey(lpaID),
-		SK:        subKey(certificateProviderUID.String()),
-		DonorKey:  donorKey(donorSessionID),
-		ActorType: actor.TypeCertificateProvider,
-		UpdatedAt: s.now(),
 	})
 }
 

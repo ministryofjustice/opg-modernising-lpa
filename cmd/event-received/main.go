@@ -63,7 +63,7 @@ type UidClient interface {
 }
 
 type CertificateProviderStore interface {
-	CreatePaper(ctx context.Context, lpaID string, certificateProviderUID actoruid.UID, donorSessionID string) error
+	CreatePaper(ctx context.Context, lpaID string, certificateProviderUID actoruid.UID) error
 }
 
 type Event struct {

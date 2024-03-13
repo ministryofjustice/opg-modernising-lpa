@@ -257,19 +257,10 @@ func TestCertificateProviderStoreCreatePaper(t *testing.T) {
 	dynamoClient.EXPECT().
 		Create(ctx, details).
 		Return(nil)
-	dynamoClient.EXPECT().
-		Create(ctx, lpaLink{
-			PK:        "LPA#123",
-			SK:        "#SUB#" + uid.String(),
-			DonorKey:  "#DONOR#session-id",
-			ActorType: actor.TypeCertificateProvider,
-			UpdatedAt: now,
-		}).
-		Return(nil)
 
 	certificateProviderStore := &CertificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-	err := certificateProviderStore.CreatePaper(ctx, "123", uid, "session-id")
+	err := certificateProviderStore.CreatePaper(ctx, "123", uid)
 	assert.Nil(t, err)
 }
 
@@ -285,28 +276,7 @@ func TestCertificateProviderStoreCreatePaperWhenDynamoCreateCertificateProviderE
 
 	certificateProviderStore := &CertificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-	err := certificateProviderStore.CreatePaper(ctx, "123", uid, "session-id")
-	assert.Equal(t, expectedError, err)
-}
-
-func TestCertificateProviderStoreCreatePaperWhenDynamoCreateLpaLinkError(t *testing.T) {
-	ctx := context.Background()
-	uid := actoruid.New()
-	now := time.Now()
-
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.EXPECT().
-		Create(ctx, mock.Anything).
-		Return(nil).
-		Once()
-
-	dynamoClient.EXPECT().
-		Create(ctx, mock.Anything).
-		Return(expectedError)
-
-	certificateProviderStore := &CertificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
-
-	err := certificateProviderStore.CreatePaper(ctx, "123", uid, "session-id")
+	err := certificateProviderStore.CreatePaper(ctx, "123", uid)
 	assert.Equal(t, expectedError, err)
 }
 
