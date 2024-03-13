@@ -116,7 +116,7 @@ func Register(
 		ConfirmDonorCanInteractOnline(tmpls.Get("confirm_donor_can_interact_online.gohtml"), organisationStore))
 	handleWithSupporter(paths.ContactOPGForPaperForms, None,
 		Guidance(tmpls.Get("contact_opg_for_paper_forms.gohtml")))
-	handleWithSupporter(paths.ViewLPA, CanGoBack,
+	handleWithSupporter(paths.ViewLPA, None,
 		ViewLPA(tmpls.Get("view_lpa.gohtml"), donorStore))
 
 	handleWithSupporter(paths.OrganisationDetails, RequireAdmin,
