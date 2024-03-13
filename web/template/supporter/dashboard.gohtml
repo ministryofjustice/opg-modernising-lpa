@@ -32,7 +32,7 @@
         {{ if gt (len .Pagination.Pages) 1 }}
           <p class="govuk-body">{{ tr .App "showing" }} <span class="govuk-!-font-weight-bold">{{ .Pagination.Start }}</span> {{ tr .App "to" }} {{ .Pagination.End }} {{ tr .App "of" }} <span class="govuk-!-font-weight-bold">{{ .Pagination.Total }}</span> {{ tr .App "lpas" }}</p>
         {{ end }}
-        
+
         <table class="govuk-table">
           <thead class="govuk-table__head">
             <tr class="govuk-table__row">
