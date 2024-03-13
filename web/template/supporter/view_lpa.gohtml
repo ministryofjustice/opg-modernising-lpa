@@ -1,0 +1,26 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "viewLPA" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <span class="govuk-caption-xl">{{ .Donor.Donor.FullName }}</span>
+            <h1 class="govuk-heading-xl">{{ tr .App .Donor.Type.String }} {{tr .App "lpa"}}</h1>
+
+            <div class="govuk-inset-text">
+                <span class="govuk-!-font-weight-bold">{{ tr .App "referenceNumber" }}</span> {{ .Donor.LpaUID }}
+            </div>
+
+            <div class="govuk-button-group">
+                <a class="govuk-button govuk-button--secondary" href="#" data-module="govuk-button">{{ tr .App "goToTaskList" }}</a>
+                <a class="govuk-button govuk-button--secondary" href="#" data-module="govuk-button">{{ tr .App "viewLPASummary" }}</a>
+                <a class="govuk-button govuk-button--secondary" href="#" data-module="govuk-button">{{ tr .App "donorAccess" }}</a>
+            </div>
+
+            <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
+            {{ template "donor-lpa-progress" . }}
+        </div>
+    </div>
+{{ end }}

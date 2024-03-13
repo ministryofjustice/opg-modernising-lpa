@@ -37,7 +37,7 @@ func LpaProgress(tmpl template.Template, certificateProviderStore CertificatePro
 		data := &lpaProgressData{
 			App:      appData,
 			Donor:    donor,
-			Progress: donor.Progress(certificateProvider, attorneys),
+			Progress: donor.Progress(certificateProvider, attorneys, appData.Localizer),
 		}
 
 		return tmpl(w, data)

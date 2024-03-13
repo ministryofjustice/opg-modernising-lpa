@@ -1057,5 +1057,9 @@
     "enterYourName": "Enter your name",
     "thisWillBeHowYourNameIsDisplayed": "This will be how your name is displayed to others in your organisation.",
     "accessSuspended": "Access suspended",
-    "accessSuspendedContent": "<p class=\"govuk-body\">Your access to <span class=\"govuk-!-font-weight-bold\">{{.OrganisationName}}</span> has been temporarily suspended.</p><p class=\"govuk-body\">Contact an admin at your organisation to get access again.</p>"
+    "accessSuspendedContent": "<p class=\"govuk-body\">Your access to <span class=\"govuk-!-font-weight-bold\">{{.OrganisationName}}</span> has been temporarily suspended.</p><p class=\"govuk-body\">Contact an admin at your organisation to get access again.</p>",
+    "lpa": "LPA",
+    "viewLPASummary": "View LPA summary",
+    "donorAccess": "Donor access"
+
 }

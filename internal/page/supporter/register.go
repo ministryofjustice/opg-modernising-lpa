@@ -43,7 +43,16 @@ type MemberStore interface {
 }
 
 type DonorStore interface {
+	Get(ctx context.Context) (*actor.DonorProvidedDetails, error)
 	GetByKeys(ctx context.Context, keys []dynamo.Key) ([]actor.DonorProvidedDetails, error)
+}
+
+type CertificateProviderStore interface {
+	GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
+}
+
+type AttorneyStore interface {
+	GetAny(ctx context.Context) ([]*actor.AttorneyProvidedDetails, error)
 }
 
 type OneLoginClient interface {
@@ -64,7 +73,7 @@ type NotifyClient interface {
 	SendEmail(context context.Context, to string, email notify.Email) error
 }
 
-type Template func(io.Writer, interface{}) error
+type Template func(w io.Writer, data interface{}) error
 
 type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error
 
@@ -82,6 +91,8 @@ func Register(
 	memberStore MemberStore,
 	searchClient *search.Client,
 	donorStore DonorStore,
+	certificateProviderStore CertificateProviderStore,
+	attorneyStore AttorneyStore,
 ) {
 	paths := page.Paths.Supporter
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
@@ -115,6 +126,8 @@ func Register(
 		ConfirmDonorCanInteractOnline(tmpls.Get("confirm_donor_can_interact_online.gohtml"), organisationStore))
 	handleWithSupporter(paths.ContactOPGForPaperForms, None,
 		Guidance(tmpls.Get("contact_opg_for_paper_forms.gohtml")))
+	handleWithSupporter(paths.ViewLPA, CanGoBack,
+		ViewLPA(tmpls.Get("view_lpa.gohtml"), donorStore, certificateProviderStore, attorneyStore))
 
 	handleWithSupporter(paths.OrganisationDetails, RequireAdmin,
 		Guidance(tmpls.Get("organisation_details.gohtml")))

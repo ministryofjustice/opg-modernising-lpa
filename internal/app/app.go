@@ -154,6 +154,8 @@ func App(
 		memberStore,
 		searchClient,
 		donorStore,
+		certificateProviderStore,
+		attorneyStore,
 	)
 
 	certificateprovider.Register(
