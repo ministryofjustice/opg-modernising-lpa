@@ -1,6 +1,7 @@
 package supporter
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -23,6 +24,10 @@ func ViewLPA(tmpl template.Template, donorStore DonorStore) Handler {
 		}
 
 		lpaID := r.FormValue("id")
+		if lpaID == "" {
+			return errors.New("lpaID missing from query")
+		}
+
 		sessionData.LpaID = lpaID
 
 		ctx := page.ContextWithSessionData(r.Context(), sessionData)

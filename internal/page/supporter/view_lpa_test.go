@@ -37,7 +37,16 @@ func TestGetViewLPA(t *testing.T) {
 
 func TestGetViewLPAWithSessionMissing(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?id=lpa-id", nil)
+	r, _ := http.NewRequestWithContext(page.ContextWithSessionData(context.Background(), &page.SessionData{}), http.MethodGet, "/", nil)
+
+	err := ViewLPA(nil, nil)(testAppData, w, r, &actor.Organisation{})
+
+	assert.Error(t, err)
+}
+
+func TestGetViewLPAMissingLPAId(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := ViewLPA(nil, nil)(testAppData, w, r, &actor.Organisation{})
 
