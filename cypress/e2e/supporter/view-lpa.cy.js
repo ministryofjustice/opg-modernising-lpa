@@ -4,16 +4,30 @@ describe('View LPA', () => {
         cy.checkA11yApp();
     });
 
-    it('shows LPA reference number and progress tracker', () => {
+    it('can continue making an LPA', () => {
         cy.contains('a', 'M-FAKE').click()
 
         cy.url().should('contain', '/view-lpa');
         cy.checkA11yApp();
 
         cy.contains('h1', 'Property and affairs LPA')
-        cy.contains('p', 'M-FAKE')
+        cy.contains('div', 'M-FAKE')
 
-        cy.contains('h2', 'LPA progress')
-        cy.contains('li', 'Sam Smith has paid');
+        cy.contains('a', 'Donor access')
+        cy.contains('a', 'View LPA summary')
+        cy.contains('a', 'Go to task list').click()
+
+        cy.url().should('contain', '/task-list');
+        cy.checkA11yApp();
+
+        cy.contains('Provide your details').click()
+
+        cy.url().should('contain', '/your-details');
+        cy.checkA11yApp();
+
+        cy.get('#f-first-names').type('2');
+        cy.contains('button', 'Continue').click();
+        cy.contains('a', 'Dashboard').click();
+        cy.contains('Sam2 Smith');
     });
 })

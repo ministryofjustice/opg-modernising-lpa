@@ -13,7 +13,7 @@
             </div>
 
             <div class="govuk-button-group">
-                <a class="govuk-button govuk-button--secondary" href="#" data-module="govuk-button">{{ tr .App "goToTaskList" }}</a>
+                <a class="govuk-button govuk-button--secondary" href="{{ link $.App (global.Paths.TaskList.Format .Donor.LpaID) }}" data-module="govuk-button">{{ tr .App "goToTaskList" }}</a>
                 <a class="govuk-button govuk-button--secondary" href="#" data-module="govuk-button">{{ tr .App "viewLPASummary" }}</a>
                 <a class="govuk-button govuk-button--secondary" href="#" data-module="govuk-button">{{ tr .App "donorAccess" }}</a>
             </div>
