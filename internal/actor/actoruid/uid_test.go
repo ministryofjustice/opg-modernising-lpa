@@ -2,6 +2,7 @@ package actoruid
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"testing"
 
@@ -14,7 +15,7 @@ func TestUID(t *testing.T) {
 	uid := UID{value: "abc"}
 
 	assert.Equal(t, "abc", uid.String())
-	assert.Equal(t, prefix+"abc", uid.PrefixedString())
+	assert.Equal(t, makeRegisterPrefix+"abc", uid.PrefixedString())
 }
 
 func TestUIDFromRequest(t *testing.T) {
@@ -68,4 +69,27 @@ func TestUIDAttributeValue(t *testing.T) {
 	var b UID
 	_ = attributevalue.Unmarshal(&types.AttributeValueMemberS{Value: "abc"}, &b)
 	assert.Equal(t, b, uid)
+}
+
+func TestUIDFromPrefixedString(t *testing.T) {
+	uid, err := FromPrefixedString("urn:opg:poas:blah:users:123")
+
+	assert.Nil(t, err)
+	assert.Equal(t, UID{value: "123"}, uid)
+}
+
+func TestUIDFromPrefixedStringNotMatch(t *testing.T) {
+	testcases := []string{
+		"not:the:correct:format:123",
+		"not a urn",
+		"",
+	}
+
+	for _, prefixedUID := range testcases {
+		t.Run(prefixedUID, func(t *testing.T) {
+			_, err := FromPrefixedString(prefixedUID)
+
+			assert.Equal(t, errors.New("unexpected UID prefix: "+prefixedUID), err)
+		})
+	}
 }

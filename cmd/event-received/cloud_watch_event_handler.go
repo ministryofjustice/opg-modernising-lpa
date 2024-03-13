@@ -5,12 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -83,6 +85,10 @@ func (h *cloudWatchEventHandler) Handle(ctx context.Context, cloudWatchEvent eve
 	case "more-evidence-required":
 		return handleMoreEvidenceRequired(ctx, h.dynamoClient, cloudWatchEvent, h.now)
 
+	case "lpa-updated":
+		certificateProviderStore := app.NewCertificateProviderStore(h.dynamoClient, h.now)
+
+		return handleLpaUpdated(ctx, h.dynamoClient, certificateProviderStore, cloudWatchEvent)
 	default:
 		return fmt.Errorf("unknown cloudwatch event")
 	}
@@ -190,4 +196,30 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.Cl
 	}
 
 	return nil
+}
+
+func handleLpaUpdated(ctx context.Context, client dynamodbClient, certificateProviderStore CertificateProviderStore, event events.CloudWatchEvent) error {
+	var v lpaUpdatedEvent
+	if err := json.Unmarshal(event.Detail, &v); err != nil {
+		return fmt.Errorf("failed to unmarshal detail: %w", err)
+	}
+
+	if v.ChangeType == "CERTIFICATE_PROVIDER_SIGN" {
+		var key dynamo.Key
+		if err := client.OneByUID(ctx, v.UID, &key); err != nil {
+			return fmt.Errorf("failed to resolve uid: %w", err)
+		}
+
+		certificateProviderUID, err := actoruid.FromPrefixedString(v.ActorUID)
+		if err != nil {
+			return err
+		}
+
+		lpaID := strings.Split(key.PK, "#")[1]
+		donorSessionID := strings.Split(key.SK, "#")[2]
+
+		return certificateProviderStore.CreatePaper(ctx, lpaID, certificateProviderUID, donorSessionID)
+	}
+
+	return fmt.Errorf("unsupported changeType: %s", v.ChangeType)
 }
