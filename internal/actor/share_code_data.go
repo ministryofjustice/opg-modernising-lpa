@@ -9,6 +9,4 @@ type ShareCodeData struct {
 	ActorUID              actoruid.UID
 	IsReplacementAttorney bool
 	IsTrustCorporation    bool
-	DonorFullname         string
-	DonorFirstNames       string
 }
