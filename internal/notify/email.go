@@ -22,11 +22,6 @@ func (e InitialOriginalAttorneyEmail) emailID(isProduction bool) string {
 	return "376d7ef2-7941-46c2-b372-bacca0e00c1d"
 }
 
-func (e InitialOriginalAttorneyEmail) WithShareCode(shareCode string) Email {
-	e.ShareCode = shareCode
-	return e
-}
-
 type InitialReplacementAttorneyEmail struct {
 	DonorFullName             string
 	LpaType                   string
@@ -43,11 +38,6 @@ func (e InitialReplacementAttorneyEmail) emailID(isProduction bool) string {
 	}
 
 	return "738d500f-b674-4e1e-8039-a7be53fce528"
-}
-
-func (e InitialReplacementAttorneyEmail) WithShareCode(shareCode string) Email {
-	e.ShareCode = shareCode
-	return e
 }
 
 type CertificateProviderCertificateProvidedEmail struct {
@@ -85,11 +75,6 @@ func (e CertificateProviderInviteEmail) emailID(isProduction bool) string {
 	return "829c2aab-a8bd-4fd4-a1e2-9dd03b142e7c"
 }
 
-func (e CertificateProviderInviteEmail) WithShareCode(shareCode string) Email {
-	e.ShareCode = shareCode
-	return e
-}
-
 type CertificateProviderProvideCertificatePromptEmail struct {
 	DonorFullName               string
 	DonorFullNamePossessive     string
@@ -105,11 +90,6 @@ func (e CertificateProviderProvideCertificatePromptEmail) emailID(isProduction b
 	}
 
 	return "3ad5a806-6789-4687-8731-49ff7357372f"
-}
-
-func (e CertificateProviderProvideCertificatePromptEmail) WithShareCode(shareCode string) Email {
-	e.ShareCode = shareCode
-	return e
 }
 
 type OrganisationMemberInviteEmail struct {

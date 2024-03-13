@@ -54,7 +54,8 @@ type NotificationSent struct {
 }
 
 type PaperFormRequested struct {
-	UID       string       `json:"uid"`
-	ActorType string       `json:"actorType"`
-	ActorUID  actoruid.UID `json:"actorUID"`
+	UID        string       `json:"uid"`
+	ActorType  string       `json:"actorType"`
+	ActorUID   actoruid.UID `json:"actorUID"`
+	AccessCode string       `json:"accessCode"`
 }
