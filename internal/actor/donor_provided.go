@@ -186,159 +186,59 @@ func (l *DonorProvidedDetails) Under18ActorDetails() []Under18ActorDetails {
 	return data
 }
 
-func (l *DonorProvidedDetails) IsOrganisationDonor() bool {
-	return strings.Contains(l.SK, "ORGANISATION")
-}
-
-type ProgressTask struct {
-	State TaskState
-	Label string
-}
-
 type Progress struct {
-	Paid                      ProgressTask
-	ConfirmedID               ProgressTask
-	DonorSigned               ProgressTask
-	CertificateProviderSigned ProgressTask
-	AttorneysSigned           ProgressTask
-	LpaSubmitted              ProgressTask
-	StatutoryWaitingPeriod    ProgressTask
-	LpaRegistered             ProgressTask
+	DonorSigned               TaskState
+	CertificateProviderSigned TaskState
+	AttorneysSigned           TaskState
+	LpaSubmitted              TaskState
+	StatutoryWaitingPeriod    TaskState
+	LpaRegistered             TaskState
 }
 
-type Localizer interface {
-	T(messageID string) string
-	Format(messageID string, data map[string]interface{}) string
-	Count(messageID string, count int) string
-}
-
-func (l *DonorProvidedDetails) Progress(certificateProvider *CertificateProviderProvidedDetails, attorneys []*AttorneyProvidedDetails, localizer Localizer) Progress {
-	var (
-		paidLabel,
-		confirmedIDLabel,
-		donorSignedLabel,
-		certificateProviderSignedLabel,
-		attorneysSignedLabel,
-		lpaSubmittedLabel,
-		statutoryWaitingPeriodLabel,
-		lpaRegisteredLabel string
-	)
-
-	if l.CertificateProvider.FirstNames != "" {
-		certificateProviderSignedLabel = localizer.Format(
-			"certificateProviderHasDeclared",
-			map[string]interface{}{"CertificateProviderFullName": l.CertificateProvider.FullName()},
-		)
-	} else {
-		certificateProviderSignedLabel = localizer.T("yourCertificateProviderHasDeclared")
-	}
-
-	if l.IsOrganisationDonor() {
-		paidLabel = localizer.Format(
-			"donorFullNameHasPaid",
-			map[string]interface{}{"DonorFullName": l.Donor.FullName()},
-		)
-
-		confirmedIDLabel = localizer.Format(
-			"donorFullNameHasConfirmedTheirIdentity",
-			map[string]interface{}{"DonorFullName": l.Donor.FullName()},
-		)
-
-		donorSignedLabel = localizer.Format(
-			"donorFullNameHasSignedTheLPA",
-			map[string]interface{}{"DonorFullName": l.Donor.FullName()},
-		)
-	} else {
-		donorSignedLabel = localizer.T("youveSignedYourLpa")
-		attorneysSignedLabel = localizer.Count("attorneysHaveDeclared", len(l.Attorneys.Attorneys))
-		lpaSubmittedLabel = localizer.T("weHaveReceivedYourLpa")
-		statutoryWaitingPeriodLabel = localizer.T("yourWaitingPeriodHasStarted")
-		lpaRegisteredLabel = localizer.T("yourLpaHasBeenRegistered")
-	}
-
+func (l *DonorProvidedDetails) Progress(certificateProvider *CertificateProviderProvidedDetails, attorneys []*AttorneyProvidedDetails) Progress {
 	p := Progress{
-		Paid: ProgressTask{
-			State: TaskInProgress,
-			Label: paidLabel,
-		},
-		ConfirmedID: ProgressTask{
-			State: TaskNotStarted,
-			Label: confirmedIDLabel,
-		},
-		DonorSigned: ProgressTask{
-			State: TaskNotStarted,
-			Label: donorSignedLabel,
-		},
-		CertificateProviderSigned: ProgressTask{
-			State: TaskNotStarted,
-			Label: certificateProviderSignedLabel,
-		},
-		AttorneysSigned: ProgressTask{
-			State: TaskNotStarted,
-			Label: attorneysSignedLabel,
-		},
-		LpaSubmitted: ProgressTask{
-			State: TaskNotStarted,
-			Label: lpaSubmittedLabel,
-		},
-		StatutoryWaitingPeriod: ProgressTask{
-			State: TaskNotStarted,
-			Label: statutoryWaitingPeriodLabel,
-		},
-		LpaRegistered: ProgressTask{
-			State: TaskNotStarted,
-			Label: lpaRegisteredLabel,
-		},
+		DonorSigned:               TaskInProgress,
+		CertificateProviderSigned: TaskNotStarted,
+		AttorneysSigned:           TaskNotStarted,
+		LpaSubmitted:              TaskNotStarted,
+		StatutoryWaitingPeriod:    TaskNotStarted,
+		LpaRegistered:             TaskNotStarted,
 	}
-
-	if !l.Tasks.PayForLpa.IsCompleted() {
-		return p
-	}
-
-	p.Paid.State = TaskCompleted
-	p.ConfirmedID.State = TaskInProgress
-
-	if !l.DonorIdentityConfirmed() {
-		return p
-	}
-
-	p.ConfirmedID.State = TaskCompleted
-	p.DonorSigned.State = TaskInProgress
 
 	if l.SignedAt.IsZero() {
 		return p
 	}
 
-	p.DonorSigned.State = TaskCompleted
-	p.CertificateProviderSigned.State = TaskInProgress
+	p.DonorSigned = TaskCompleted
+	p.CertificateProviderSigned = TaskInProgress
 
 	if !certificateProvider.Signed(l.SignedAt) {
 		return p
 	}
 
-	p.CertificateProviderSigned.State = TaskCompleted
-	p.AttorneysSigned.State = TaskInProgress
+	p.CertificateProviderSigned = TaskCompleted
+	p.AttorneysSigned = TaskInProgress
 
 	if !l.AllAttorneysSigned(attorneys) {
 		return p
 	}
 
-	p.AttorneysSigned.State = TaskCompleted
-	p.LpaSubmitted.State = TaskInProgress
+	p.AttorneysSigned = TaskCompleted
+	p.LpaSubmitted = TaskInProgress
 
 	if l.SubmittedAt.IsZero() {
 		return p
 	}
 
-	p.LpaSubmitted.State = TaskCompleted
-	p.StatutoryWaitingPeriod.State = TaskInProgress
+	p.LpaSubmitted = TaskCompleted
+	p.StatutoryWaitingPeriod = TaskInProgress
 
 	if l.RegisteredAt.IsZero() {
 		return p
 	}
 
-	p.StatutoryWaitingPeriod.State = TaskCompleted
-	p.LpaRegistered.State = TaskCompleted
+	p.StatutoryWaitingPeriod = TaskCompleted
+	p.LpaRegistered = TaskCompleted
 
 	return p
 }

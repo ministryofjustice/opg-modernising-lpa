@@ -21,9 +21,9 @@ func (_m *mockTemplate) EXPECT() *mockTemplate_Expecter {
 	return &mockTemplate_Expecter{mock: &_m.Mock}
 }
 
-// Execute provides a mock function with given fields: w, data
-func (_m *mockTemplate) Execute(w io.Writer, data interface{}) error {
-	ret := _m.Called(w, data)
+// Execute provides a mock function with given fields: _a0, _a1
+func (_m *mockTemplate) Execute(_a0 io.Writer, _a1 interface{}) error {
+	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Execute")
@@ -31,7 +31,7 @@ func (_m *mockTemplate) Execute(w io.Writer, data interface{}) error {
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(io.Writer, interface{}) error); ok {
-		r0 = rf(w, data)
+		r0 = rf(_a0, _a1)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -45,13 +45,13 @@ type mockTemplate_Execute_Call struct {
 }
 
 // Execute is a helper method to define mock.On call
-//   - w io.Writer
-//   - data interface{}
-func (_e *mockTemplate_Expecter) Execute(w interface{}, data interface{}) *mockTemplate_Execute_Call {
-	return &mockTemplate_Execute_Call{Call: _e.mock.On("Execute", w, data)}
+//   - _a0 io.Writer
+//   - _a1 interface{}
+func (_e *mockTemplate_Expecter) Execute(_a0 interface{}, _a1 interface{}) *mockTemplate_Execute_Call {
+	return &mockTemplate_Execute_Call{Call: _e.mock.On("Execute", _a0, _a1)}
 }
 
-func (_c *mockTemplate_Execute_Call) Run(run func(w io.Writer, data interface{})) *mockTemplate_Execute_Call {
+func (_c *mockTemplate_Execute_Call) Run(run func(_a0 io.Writer, _a1 interface{})) *mockTemplate_Execute_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(io.Writer), args[1].(interface{}))
 	})

@@ -49,7 +49,7 @@
                   <span class="govuk-!-font-weight-bold">{{ .Donor.FullName }}</span><br/>
                   {{ .Donor.Address.Postcode }}
                 </td>
-                <td class="govuk-table__cell"><a class="govuk-link" href="{{ link $.App (global.Paths.Supporter.ViewLPA.Format) }}?id={{ .LpaID }}">{{ .LpaUID }}</a></td>
+                <td class="govuk-table__cell"><a class="govuk-link" href="{{ link $.App (global.Paths.TaskList.Format .LpaID) }}">{{ .LpaUID }}</a></td>
                 <td class="govuk-table__cell">{{ tr $.App .Type.String }}</td>
                 <td class="govuk-table__cell">
                   {{ if not .SignedAt.IsZero }}
