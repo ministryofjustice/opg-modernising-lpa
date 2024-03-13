@@ -10,6 +10,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -342,7 +343,7 @@ func TestHandleMoreEvidenceRequiredWhenPutError(t *testing.T) {
 	assert.Equal(t, fmt.Errorf("failed to update LPA task status: %w", expectedError), err)
 }
 
-func TestHandleFeeDenied(t *testing.T) {
+func TestHandleFeeDeclined(t *testing.T) {
 	event := events.CloudWatchEvent{
 		DetailType: "reduced-fee-declined",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
@@ -404,4 +405,153 @@ func TestHandleFeeDeniedWhenPutError(t *testing.T) {
 
 	err := handleFeeDenied(ctx, client, event, func() time.Time { return now })
 	assert.Equal(t, fmt.Errorf("failed to update LPA task status: %w", expectedError), err)
+}
+
+func TestHandleLpaUpdated(t *testing.T) {
+	certificateProviderUID, _ := actoruid.FromPrefixedString("urn:opg:poas:servicename:users:M-1234-5678-9012")
+
+	event := events.CloudWatchEvent{
+		DetailType: "lpa-updated",
+		Detail:     json.RawMessage(fmt.Sprintf(`{"uid":"M-1234-5678-9012","actorUID":"%s","changeType":"CERTIFICATE_PROVIDER_SIGN"}`, certificateProviderUID.PrefixedString())),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("OneByUID", ctx, "M-1234-5678-9012", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		CreatePaper(ctx, &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456"}, certificateProviderUID).
+		Return(nil)
+
+	err := handleLpaUpdated(ctx, client, certificateProviderStore, event)
+	assert.Nil(t, err)
+}
+
+func TestHandleLpaUpdatedWhenUnsupportedChangeType(t *testing.T) {
+	certificateProviderUID, _ := actoruid.FromPrefixedString("urn:opg:poas:servicename:users:M-1234-5678-9012")
+
+	event := events.CloudWatchEvent{
+		DetailType: "lpa-updated",
+		Detail:     json.RawMessage(fmt.Sprintf(`{"uid":"M-1234-5678-9012","actorUID":"%s","changeType":"UNSUPPORTED_CHANGE_TYPE"}`, certificateProviderUID.PrefixedString())),
+	}
+
+	err := handleLpaUpdated(ctx, nil, nil, event)
+	assert.Equal(t, errors.New("unsupported changeType: UNSUPPORTED_CHANGE_TYPE"), err)
+}
+
+func TestHandleLpaUpdatedWhenOneByUIDError(t *testing.T) {
+	certificateProviderUID, _ := actoruid.FromPrefixedString("urn:opg:poas:servicename:users:M-1234-5678-9012")
+
+	event := events.CloudWatchEvent{
+		DetailType: "lpa-updated",
+		Detail:     json.RawMessage(fmt.Sprintf(`{"uid":"M-1234-5678-9012","actorUID":"%s","changeType":"CERTIFICATE_PROVIDER_SIGN"}`, certificateProviderUID.PrefixedString())),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("OneByUID", ctx, mock.Anything, mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			return expectedError
+		})
+
+	err := handleLpaUpdated(ctx, client, nil, event)
+	assert.Error(t, err)
+}
+
+func TestHandleLpaUpdatedWhenOneError(t *testing.T) {
+	certificateProviderUID, _ := actoruid.FromPrefixedString("urn:opg:poas:servicename:users:M-1234-5678-9012")
+
+	event := events.CloudWatchEvent{
+		DetailType: "lpa-updated",
+		Detail:     json.RawMessage(fmt.Sprintf(`{"uid":"M-1234-5678-9012","actorUID":"%s","changeType":"CERTIFICATE_PROVIDER_SIGN"}`, certificateProviderUID.PrefixedString())),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("OneByUID", mock.Anything, mock.Anything, mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("One", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			return expectedError
+		})
+
+	err := handleLpaUpdated(ctx, client, nil, event)
+	assert.Error(t, err)
+}
+
+func TestHandleLpaUpdatedWhenUnexpectedActorUID(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "lpa-updated",
+		Detail:     json.RawMessage(`{"uid":"M-1234-5678-9012","actorUID":"unexpected","changeType":"CERTIFICATE_PROVIDER_SIGN"}`),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("OneByUID", ctx, "M-1234-5678-9012", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+
+	err := handleLpaUpdated(ctx, client, nil, event)
+	assert.Error(t, err)
+}
+
+func TestHandleLpaUpdatedWhenCertificateProviderStorePutError(t *testing.T) {
+	certificateProviderUID, _ := actoruid.FromPrefixedString("urn:opg:poas:servicename:users:M-1234-5678-9012")
+
+	event := events.CloudWatchEvent{
+		DetailType: "lpa-updated",
+		Detail:     json.RawMessage(fmt.Sprintf(`{"uid":"M-1234-5678-9012","actorUID":"%s","changeType":"CERTIFICATE_PROVIDER_SIGN"}`, certificateProviderUID.PrefixedString())),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("OneByUID", ctx, "M-1234-5678-9012", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		CreatePaper(ctx, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := handleLpaUpdated(ctx, client, certificateProviderStore, event)
+	assert.Equal(t, fmt.Errorf("failed to create paper certificate provider: %w", expectedError), err)
 }

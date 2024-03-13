@@ -12,10 +12,10 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
-	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/ministryofjustice/opg-go-common/env"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -31,12 +31,15 @@ type uidEvent struct {
 	UID string `json:"uid"`
 }
 
+type lpaUpdatedEvent struct {
+	UID        string `json:"uid"`
+	ActorUID   string `json:"actorUID"`
+	ChangeType string `json:"changeType"`
+}
+
 type dynamodbClient interface {
-	One(ctx context.Context, pk, sk string, v interface{}) error
-	OneByUID(ctx context.Context, uid string, v interface{}) error
-	Put(ctx context.Context, v interface{}) error
-	UpdateReturn(ctx context.Context, pk, sk string, values map[string]dynamodbtypes.AttributeValue, expression string) (map[string]dynamodbtypes.AttributeValue, error)
-	DeleteOne(ctx context.Context, pk, sk string) error
+	app.DynamoClient
+	app.DynamoUpdateClient
 }
 
 type s3Client interface {
@@ -57,6 +60,10 @@ type UidStore interface {
 
 type UidClient interface {
 	CreateCase(context.Context, *uid.CreateCaseRequestBody) (string, error)
+}
+
+type CertificateProviderStore interface {
+	CreatePaper(ctx context.Context, donor *actor.DonorProvidedDetails, certificateProviderUID actoruid.UID) error
 }
 
 type Event struct {

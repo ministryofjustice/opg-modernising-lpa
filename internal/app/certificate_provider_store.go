@@ -10,19 +10,28 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
-type certificateProviderStore struct {
-	dynamoClient DynamoClient
-	now          func() time.Time
+type CertificateProviderStore struct {
+	dynamoClient    DynamoClient
+	now             func() time.Time
+	shareCodeSender ShareCodeSender
 }
 
-func (s *certificateProviderStore) Create(ctx context.Context, donorSessionID string, certificateProviderUID actoruid.UID) (*actor.CertificateProviderProvidedDetails, error) {
+func NewCertificateProviderStore(client DynamoClient, now func() time.Time, sender ShareCodeSender) *CertificateProviderStore {
+	return &CertificateProviderStore{
+		dynamoClient:    client,
+		now:             now,
+		shareCodeSender: sender,
+	}
+}
+
+func (s *CertificateProviderStore) Create(ctx context.Context, donorSessionID string, certificateProviderUID actoruid.UID) (*actor.CertificateProviderProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	if data.LpaID == "" || data.SessionID == "" {
-		return nil, errors.New("certificateProviderStore.Create requires LpaID and SessionID")
+		return nil, errors.New("CertificateProviderStore.Create requires LpaID and SessionID")
 	}
 
 	cp := &actor.CertificateProviderProvidedDetails{
@@ -49,14 +58,32 @@ func (s *certificateProviderStore) Create(ctx context.Context, donorSessionID st
 	return cp, err
 }
 
-func (s *certificateProviderStore) GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error) {
+func (s *CertificateProviderStore) CreatePaper(ctx context.Context, donor *actor.DonorProvidedDetails, certificateProviderUID actoruid.UID) error {
+	if err := s.dynamoClient.Create(ctx, &actor.CertificateProviderProvidedDetails{
+		PK:        lpaKey(donor.LpaID),
+		SK:        certificateProviderKey(certificateProviderUID.String()),
+		UID:       certificateProviderUID,
+		LpaID:     donor.LpaID,
+		UpdatedAt: s.now(),
+		Certificate: actor.Certificate{
+			AgreeToStatement: true,
+			Agreed:           s.now(),
+		},
+	}); err != nil {
+		return err
+	}
+
+	return s.shareCodeSender.SendAttorneys(ctx, page.AppDataFromContext(ctx), donor)
+}
+
+func (s *CertificateProviderStore) GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	if data.LpaID == "" {
-		return nil, errors.New("certificateProviderStore.GetAny requires LpaID")
+		return nil, errors.New("CertificateProviderStore.GetAny requires LpaID")
 	}
 
 	var certificateProvider actor.CertificateProviderProvidedDetails
@@ -65,14 +92,14 @@ func (s *certificateProviderStore) GetAny(ctx context.Context) (*actor.Certifica
 	return &certificateProvider, err
 }
 
-func (s *certificateProviderStore) Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error) {
+func (s *CertificateProviderStore) Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	if data.LpaID == "" || data.SessionID == "" {
-		return nil, errors.New("certificateProviderStore.Get requires LpaID and SessionID")
+		return nil, errors.New("CertificateProviderStore.Get requires LpaID and SessionID")
 	}
 
 	var certificateProvider actor.CertificateProviderProvidedDetails
@@ -81,11 +108,11 @@ func (s *certificateProviderStore) Get(ctx context.Context) (*actor.CertificateP
 	return &certificateProvider, err
 }
 
-func (s *certificateProviderStore) Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error {
+func (s *CertificateProviderStore) Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error {
 	certificateProvider.UpdatedAt = s.now()
 	return s.dynamoClient.Put(ctx, certificateProvider)
 }
 
-func certificateProviderKey(s string) string {
-	return "#CERTIFICATE_PROVIDER#" + s
+func certificateProviderKey(sessionID string) string {
+	return "#CERTIFICATE_PROVIDER#" + sessionID
 }

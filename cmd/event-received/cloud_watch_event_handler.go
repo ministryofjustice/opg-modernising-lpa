@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -58,22 +59,10 @@ func (h *cloudWatchEventHandler) Handle(ctx context.Context, cloudWatchEvent eve
 		//TODO do this in handleFeeApproved when/if we save lang preference in LPA
 		appData := page.AppData{Localizer: bundle.For(localize.En)}
 
-		secretsClient, err := secrets.NewClient(h.cfg, time.Hour)
-		if err != nil {
-			return fmt.Errorf("failed to create secrets client: %w", err)
-		}
-
-		notifyApiKey, err := secretsClient.Secret(ctx, secrets.GovUkNotify)
-		if err != nil {
-			return fmt.Errorf("failed to get notify API secret: %w", err)
-		}
-
-		notifyClient, err := notify.New(h.notifyIsProduction, h.notifyBaseURL, notifyApiKey, http.DefaultClient, event.NewClient(h.cfg, h.eventBusName))
+		shareCodeSender, err := makeShareCodeSender(ctx, h)
 		if err != nil {
 			return err
 		}
-
-		shareCodeSender := page.NewShareCodeSender(app.NewShareCodeStore(h.dynamoClient), notifyClient, h.appPublicURL, random.String, event.NewClient(h.cfg, h.eventBusName))
 
 		return handleFeeApproved(ctx, h.dynamoClient, cloudWatchEvent, shareCodeSender, appData, h.now)
 
@@ -83,6 +72,15 @@ func (h *cloudWatchEventHandler) Handle(ctx context.Context, cloudWatchEvent eve
 	case "more-evidence-required":
 		return handleMoreEvidenceRequired(ctx, h.dynamoClient, cloudWatchEvent, h.now)
 
+	case "lpa-updated":
+		shareCodeSender, err := makeShareCodeSender(ctx, h)
+		if err != nil {
+			return err
+		}
+
+		certificateProviderStore := app.NewCertificateProviderStore(h.dynamoClient, h.now, shareCodeSender)
+
+		return handleLpaUpdated(ctx, h.dynamoClient, certificateProviderStore, cloudWatchEvent)
 	default:
 		return fmt.Errorf("unknown cloudwatch event")
 	}
@@ -190,4 +188,50 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.Cl
 	}
 
 	return nil
+}
+
+func handleLpaUpdated(ctx context.Context, client dynamodbClient, certificateProviderStore CertificateProviderStore, event events.CloudWatchEvent) error {
+	var v lpaUpdatedEvent
+	if err := json.Unmarshal(event.Detail, &v); err != nil {
+		return fmt.Errorf("failed to unmarshal detail: %w", err)
+	}
+
+	if v.ChangeType == "CERTIFICATE_PROVIDER_SIGN" {
+		donor, err := getDonorByLpaUID(ctx, client, v.UID)
+		if err != nil {
+			return err
+		}
+
+		certificateProviderUID, err := actoruid.FromPrefixedString(v.ActorUID)
+		if err != nil {
+			return err
+		}
+
+		if err := certificateProviderStore.CreatePaper(ctx, &donor, certificateProviderUID); err != nil {
+			return fmt.Errorf("failed to create paper certificate provider: %w", err)
+		}
+
+		return nil
+	}
+
+	return fmt.Errorf("unsupported changeType: %s", v.ChangeType)
+}
+
+func makeShareCodeSender(ctx context.Context, h *cloudWatchEventHandler) (*page.ShareCodeSender, error) {
+	secretsClient, err := secrets.NewClient(h.cfg, time.Hour)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create secrets client: %w", err)
+	}
+
+	notifyApiKey, err := secretsClient.Secret(ctx, secrets.GovUkNotify)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get notify API secret: %w", err)
+	}
+
+	notifyClient, err := notify.New(h.notifyIsProduction, h.notifyBaseURL, notifyApiKey, http.DefaultClient, event.NewClient(h.cfg, h.eventBusName))
+	if err != nil {
+		return nil, err
+	}
+
+	return page.NewShareCodeSender(app.NewShareCodeStore(h.dynamoClient), notifyClient, h.appPublicURL, random.String, event.NewClient(h.cfg, h.eventBusName)), nil
 }
