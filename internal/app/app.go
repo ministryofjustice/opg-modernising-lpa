@@ -98,7 +98,7 @@ func App(
 	}
 	certificateProviderStore := &certificateProviderStore{dynamoClient: lpaDynamoClient, now: time.Now}
 	attorneyStore := &attorneyStore{dynamoClient: lpaDynamoClient, now: time.Now}
-	shareCodeStore := &shareCodeStore{dynamoClient: lpaDynamoClient}
+	shareCodeStore := &shareCodeStore{dynamoClient: lpaDynamoClient, now: time.Now}
 	dashboardStore := &dashboardStore{dynamoClient: lpaDynamoClient}
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: lpaDynamoClient}
 	organisationStore := &organisationStore{dynamoClient: lpaDynamoClient, now: time.Now, uuidString: uuid.NewString, newUID: actoruid.New}
@@ -154,6 +154,7 @@ func App(
 		memberStore,
 		searchClient,
 		donorStore,
+		shareCodeStore,
 	)
 
 	certificateprovider.Register(

@@ -142,6 +142,53 @@ func (_c *mockDonorStore_GetByKeys_Call) RunAndReturn(run func(context.Context, 
 	return _c
 }
 
+// Put provides a mock function with given fields: ctx, donor
+func (_m *mockDonorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails) error {
+	ret := _m.Called(ctx, donor)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Put")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *actor.DonorProvidedDetails) error); ok {
+		r0 = rf(ctx, donor)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockDonorStore_Put_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Put'
+type mockDonorStore_Put_Call struct {
+	*mock.Call
+}
+
+// Put is a helper method to define mock.On call
+//   - ctx context.Context
+//   - donor *actor.DonorProvidedDetails
+func (_e *mockDonorStore_Expecter) Put(ctx interface{}, donor interface{}) *mockDonorStore_Put_Call {
+	return &mockDonorStore_Put_Call{Call: _e.mock.On("Put", ctx, donor)}
+}
+
+func (_c *mockDonorStore_Put_Call) Run(run func(ctx context.Context, donor *actor.DonorProvidedDetails)) *mockDonorStore_Put_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*actor.DonorProvidedDetails))
+	})
+	return _c
+}
+
+func (_c *mockDonorStore_Put_Call) Return(_a0 error) *mockDonorStore_Put_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDonorStore_Put_Call) RunAndReturn(run func(context.Context, *actor.DonorProvidedDetails) error) *mockDonorStore_Put_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // newMockDonorStore creates a new instance of mockDonorStore. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func newMockDonorStore(t interface {
