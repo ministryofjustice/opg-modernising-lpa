@@ -46,7 +46,6 @@ resource "aws_sns_topic_subscription" "cloudwatch_application_insights" {
   provider               = aws.region
 }
 
-
 resource "aws_sns_topic" "event_alarms" {
   name                                     = "${data.aws_default_tags.current.tags.environment-name}-event-alarms"
   kms_master_key_id                        = data.aws_kms_alias.sns.target_key_id
