@@ -1,0 +1,74 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "giveTheDonorAccessToTheirLpa" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <span class="govuk-caption-xl">{{ .Donor.Donor.FullName }}</span>
+      <h1 class="govuk-heading-xl">{{ tr .App "giveTheDonorAccessToTheirLpa" }}</h1>
+
+      <div class="govuk-inset-text">
+        <dl class="govuk-summary-list govuk-summary-list--no-border app-summary-list--no-vertical-padding">
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "lpaType" }}</dt>
+            <dd class="govuk-summary-list__value">{{ tr .App .Donor.Type.String }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "referenceNumber" }}</dt>
+            <dd class="govuk-summary-list__value">{{ .Donor.LpaUID }}</dd>
+          </div>
+        </dl>
+      </div>
+
+      {{ trHtml .App "giveTheDonorAccessToTheirLpaContent" }}
+
+      {{ if .ShareCode }}
+        <h2 class="govuk-heading-m">{{ tr .App "donorAccess" }}</h2>
+
+        <dl class="govuk-summary-list">
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "inviteSent" }}</dt>
+            <dd class="govuk-summary-list__value">{{ formatDate .App .ShareCode.UpdatedAt }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "inviteSentTo" }}</dt>
+            <dd class="govuk-summary-list__value">{{ .ShareCode.InviteSentTo }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "lpaLinkedTo" }}</dt>
+            <dd class="govuk-summary-list__value">&mdash;</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "dateLinked" }}</dt>
+            <dd class="govuk-summary-list__value">&mdash;</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">{{ tr .App "status" }}</dt>
+            <dd class="govuk-summary-list__value">
+              <strong class="govuk-tag govuk-tag--yellow">{{ tr .App "pending" }}</strong>
+            </dd>
+          </div>
+        </dl>
+
+        <form novalidate method="post">
+          <div class="govuk-button-group">
+            <button class="govuk-button govuk-button--secondary" name="action" value="resend">{{ tr .App "resendInvite" }}</button>
+            <button class="govuk-button govuk-button--warning" name="action" value="recall">{{ tr .App "recallInvite" }}</button>
+          </div>
+          
+          {{ template "csrf-field" . }}
+        </form>
+      {{ else }}
+        {{ trHtml .App "donorsEmailAddressContent" }}
+        
+        <form novalidate method="post">
+          {{ template "input" (input . "email" "email" .Form.Email "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
+
+          <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "sendInvite" }}</button>
+          {{ template "csrf-field" . }}
+        </form>
+      {{ end }}
+    </div>
+  </div>
+{{ end }}

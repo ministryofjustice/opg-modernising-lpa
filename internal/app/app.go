@@ -154,6 +154,7 @@ func App(
 		memberStore,
 		searchClient,
 		donorStore,
+		shareCodeStore,
 	)
 
 	certificateprovider.Register(

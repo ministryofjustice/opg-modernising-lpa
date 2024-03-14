@@ -62,7 +62,12 @@ type SessionStore interface {
 }
 
 type NotifyClient interface {
-	SendEmail(context context.Context, to string, email notify.Email) error
+	SendEmail(ctx context.Context, to string, email notify.Email) error
+}
+
+type ShareCodeStore interface {
+	PutDonor(ctx context.Context, shareCode string, data actor.ShareCodeData) error
+	GetDonor(ctx context.Context) (actor.ShareCodeData, error)
 }
 
 type Template func(w io.Writer, data interface{}) error
@@ -83,6 +88,7 @@ func Register(
 	memberStore MemberStore,
 	searchClient *search.Client,
 	donorStore DonorStore,
+	shareCodeStore ShareCodeStore,
 ) {
 	paths := page.Paths.Supporter
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
@@ -131,6 +137,9 @@ func Register(
 		DeleteOrganisation(tmpls.Get("delete_organisation.gohtml"), organisationStore, sessionStore, searchClient))
 	handleWithSupporter(paths.EditMember, CanGoBack,
 		EditMember(tmpls.Get("edit_member.gohtml"), memberStore))
+
+	handleWithSupporter(paths.DonorAccess, CanGoBack,
+		DonorAccess(tmpls.Get("donor_access.gohtml"), donorStore, shareCodeStore, notifyClient, random.String))
 }
 
 type HandleOpt byte
@@ -177,8 +186,13 @@ type suspendedData struct {
 	OrganisationName string
 }
 
-func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler, organisationStore OrganisationStore, memberStore MemberStore, suspendedTmpl template.Template) func(page.SupporterPath, HandleOpt, Handler) {
-	return func(path page.SupporterPath, opt HandleOpt, h Handler) {
+type SupporterPath interface {
+	String() string
+	IsManageOrganisation() bool
+}
+
+func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler, organisationStore OrganisationStore, memberStore MemberStore, suspendedTmpl template.Template) func(SupporterPath, HandleOpt, Handler) {
+	return func(path SupporterPath, opt HandleOpt, h Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			loginSession, err := store.Login(r)
 			if err != nil {
@@ -191,9 +205,18 @@ func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler pa
 			appData.CanGoBack = opt&CanGoBack != 0
 			appData.CanToggleWelsh = false
 			appData.IsSupporter = true
-			appData.Page = path.Format()
 			appData.IsManageOrganisation = path.IsManageOrganisation()
 			appData.LoginSessionEmail = loginSession.Email
+
+			switch v := path.(type) {
+			case page.SupporterPath:
+				appData.Page = v.Format()
+			case page.SupporterLpaPath:
+				appData.LpaID = r.PathValue("id")
+				appData.Page = v.Format(appData.LpaID)
+			default:
+				panic("non-supporter path registered")
+			}
 
 			sessionData, err := page.SessionDataFromContext(r.Context())
 
@@ -221,6 +244,7 @@ func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler pa
 				SessionID:      appData.SessionID,
 				Email:          loginSession.Email,
 				OrganisationID: organisation.ID,
+				LpaID:          appData.LpaID,
 			})
 
 			member, err := memberStore.Get(ctx)

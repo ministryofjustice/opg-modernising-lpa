@@ -3,12 +3,15 @@ package app
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
 type ShareCodeStoreDynamoClient interface {
 	One(ctx context.Context, pk, sk string, v interface{}) error
+	OneBySK(ctx context.Context, sk string, v interface{}) error
 	Put(ctx context.Context, v interface{}) error
 	DeleteOne(ctx context.Context, pk, sk string) error
 }
@@ -43,6 +46,28 @@ func (s *shareCodeStore) Put(ctx context.Context, actorType actor.Type, shareCod
 	data.SK = sk
 
 	return s.dynamoClient.Put(ctx, data)
+}
+
+func (s *shareCodeStore) PutDonor(ctx context.Context, shareCode string, data actor.ShareCodeData) error {
+	data.PK = "DONORSHARE#" + shareCode
+	data.SK = "DONORINVITE#" + data.SessionID + "#" + data.LpaID
+	data.UpdatedAt = time.Now()
+
+	return s.dynamoClient.Put(ctx, data)
+}
+
+func (s *shareCodeStore) GetDonor(ctx context.Context) (actor.ShareCodeData, error) {
+	var data actor.ShareCodeData
+
+	sessionData, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return data, err
+	}
+
+	sk := "DONORINVITE#" + sessionData.OrganisationID + "#" + sessionData.LpaID
+
+	err = s.dynamoClient.OneBySK(ctx, sk, &data)
+	return data, err
 }
 
 func (s *shareCodeStore) Delete(ctx context.Context, shareCode actor.ShareCodeData) error {
