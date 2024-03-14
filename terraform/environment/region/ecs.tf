@@ -58,10 +58,6 @@ module "app" {
   fault_injection_experiments_enabled                  = var.fault_injection_experiments_enabled
   search_endpoint                                      = var.search_endpoint
   search_collection_arn                                = var.search_collection_arn
-  events_aws_cloudwatch_log_group = {
-    arn  = aws_cloudwatch_log_group.events.arn
-    name = aws_cloudwatch_log_group.events.name
-  }
   providers = {
     aws.region = aws.region
   }
