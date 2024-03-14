@@ -357,3 +357,12 @@ func TestNamesChanged(t *testing.T) {
 
 	assert.False(t, donor.NamesChanged("a", "b", "c"))
 }
+
+func TestIsOrganisationDonor(t *testing.T) {
+	donor := &DonorProvidedDetails{SK: "ORGANISATION#123"}
+	assert.True(t, donor.IsOrganisationDonor())
+
+	donor.SK = ""
+
+	assert.False(t, donor.IsOrganisationDonor())
+}

@@ -141,6 +141,10 @@ type LpaStoreClient interface {
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
+type ProgressTracker interface {
+	Progress(donor *actor.DonorProvidedDetails, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) actor.Progress
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -154,7 +158,6 @@ func Register(
 	shareCodeSender ShareCodeSender,
 	witnessCodeSender WitnessCodeSender,
 	errorHandler page.ErrorHandler,
-	notFoundHandler page.Handler,
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
 	notifyClient NotifyClient,
@@ -163,6 +166,7 @@ func Register(
 	eventClient EventClient,
 	dashboardStore DashboardStore,
 	lpaStoreClient LpaStoreClient,
+	progressTracker ProgressTracker,
 ) {
 	payer := &payHelper{
 		sessionStore: sessionStore,
@@ -367,7 +371,7 @@ func Register(
 		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml")))
 
 	handleWithDonor(page.Paths.Progress, page.CanGoBack,
-		LpaProgress(tmpls.Get("lpa_progress.gohtml"), certificateProviderStore, attorneyStore))
+		LpaProgress(tmpls.Get("lpa_progress.gohtml"), certificateProviderStore, attorneyStore, progressTracker))
 
 	handleWithDonor(page.Paths.UploadEvidenceSSE, page.None,
 		UploadEvidenceSSE(documentStore, 3*time.Minute, 2*time.Second, time.Now))

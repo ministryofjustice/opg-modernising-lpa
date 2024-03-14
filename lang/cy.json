@@ -1138,5 +1138,13 @@
     "lpaLinkedTo": "Welsh",
     "dateLinked": "Welsh",
     "recallInvite": "Welsh",
-    "youSentAnInviteTo": "Welsh {{.Email}}"
+    "youSentAnInviteTo": "Welsh {{.Email}}",
+    "lpaProgress": "Welsh",
+    "donorFullNameHasPaid": "{{.DonorFullName }} Welsh",
+    "donorFullNameHasConfirmedTheirIdentity": "{{.DonorFullName }} Welsh",
+    "donorFullNameHasSignedTheLPA": "{{.DonorFullName }} Welsh",
+    "theCertificateProviderHasDeclared": "Welsh",
+    "opgHasReceivedTheLPA": "Welsh",
+    "theWaitingPeriodHasStarted": "Welsh",
+    "theLpaHasBeenRegistered": "Welsh"
 }

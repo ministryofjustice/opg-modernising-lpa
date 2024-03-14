@@ -48,6 +48,18 @@ type DonorStore interface {
 	Put(ctx context.Context, donor *actor.DonorProvidedDetails) error
 }
 
+type CertificateProviderStore interface {
+	GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
+}
+
+type AttorneyStore interface {
+	GetAny(ctx context.Context) ([]*actor.AttorneyProvidedDetails, error)
+}
+
+type Localizer interface {
+	page.Localizer
+}
+
 type OneLoginClient interface {
 	AuthCodeURL(state, nonce, locale string, identity bool) (string, error)
 	Exchange(ctx context.Context, code, nonce string) (idToken, accessToken string, err error)
@@ -77,6 +89,10 @@ type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, org
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
+type ProgressTracker interface {
+	Progress(donor *actor.DonorProvidedDetails, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) actor.Progress
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	tmpls template.Templates,
@@ -90,6 +106,9 @@ func Register(
 	searchClient *search.Client,
 	donorStore DonorStore,
 	shareCodeStore ShareCodeStore,
+	certificateProviderStore CertificateProviderStore,
+	attorneyStore AttorneyStore,
+	progressTracker ProgressTracker,
 ) {
 	paths := page.Paths.Supporter
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
@@ -124,7 +143,7 @@ func Register(
 	handleWithSupporter(paths.ContactOPGForPaperForms, None,
 		Guidance(tmpls.Get("contact_opg_for_paper_forms.gohtml")))
 	handleWithSupporter(paths.ViewLPA, None,
-		ViewLPA(tmpls.Get("view_lpa.gohtml"), donorStore))
+		ViewLPA(tmpls.Get("view_lpa.gohtml"), donorStore, certificateProviderStore, attorneyStore, progressTracker))
 
 	handleWithSupporter(paths.OrganisationDetails, RequireAdmin,
 		Guidance(tmpls.Get("organisation_details.gohtml")))
