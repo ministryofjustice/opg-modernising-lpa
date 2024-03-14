@@ -15,13 +15,13 @@ resource "aws_kms_replica_key" "opensearch_replica" {
 }
 
 resource "aws_kms_alias" "opensearch_alias_eu_west_1" {
-  name          = "alias/${local.default_tags.application}_opensearch_encryption_key"
+  name          = "alias/${local.default_tags.application}-opensearch-encryption-key"
   target_key_id = aws_kms_key.opensearch.key_id
   provider      = aws.eu_west_1
 }
 
 resource "aws_kms_alias" "opensearch_alias_eu_west_2" {
-  name          = "alias/${local.default_tags.application}_opensearch_encryption_key"
+  name          = "alias/${local.default_tags.application}-opensearch-encryption-key"
   target_key_id = aws_kms_replica_key.opensearch_replica.key_id
   provider      = aws.eu_west_2
 }
