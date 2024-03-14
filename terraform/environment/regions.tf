@@ -9,7 +9,7 @@ data "aws_ecr_repository" "mock_onelogin" {
 }
 
 module "allow_list" {
-  source = "git@github.com:ministryofjustice/opg-terraform-aws-moj-ip-allow-list.git?ref=v2.3.0"
+  source = "git@github.com:ministryofjustice/opg-terraform-aws-moj-ip-allow-list.git?ref=v3.0.1"
 }
 
 module "eu_west_1" {

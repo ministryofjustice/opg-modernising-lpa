@@ -118,6 +118,54 @@ func (_c *mockShareCodeStoreDynamoClient_One_Call) RunAndReturn(run func(context
 	return _c
 }
 
+// OneBySK provides a mock function with given fields: ctx, sk, v
+func (_m *mockShareCodeStoreDynamoClient) OneBySK(ctx context.Context, sk string, v interface{}) error {
+	ret := _m.Called(ctx, sk, v)
+
+	if len(ret) == 0 {
+		panic("no return value specified for OneBySK")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, interface{}) error); ok {
+		r0 = rf(ctx, sk, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockShareCodeStoreDynamoClient_OneBySK_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'OneBySK'
+type mockShareCodeStoreDynamoClient_OneBySK_Call struct {
+	*mock.Call
+}
+
+// OneBySK is a helper method to define mock.On call
+//   - ctx context.Context
+//   - sk string
+//   - v interface{}
+func (_e *mockShareCodeStoreDynamoClient_Expecter) OneBySK(ctx interface{}, sk interface{}, v interface{}) *mockShareCodeStoreDynamoClient_OneBySK_Call {
+	return &mockShareCodeStoreDynamoClient_OneBySK_Call{Call: _e.mock.On("OneBySK", ctx, sk, v)}
+}
+
+func (_c *mockShareCodeStoreDynamoClient_OneBySK_Call) Run(run func(ctx context.Context, sk string, v interface{})) *mockShareCodeStoreDynamoClient_OneBySK_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(interface{}))
+	})
+	return _c
+}
+
+func (_c *mockShareCodeStoreDynamoClient_OneBySK_Call) Return(_a0 error) *mockShareCodeStoreDynamoClient_OneBySK_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockShareCodeStoreDynamoClient_OneBySK_Call) RunAndReturn(run func(context.Context, string, interface{}) error) *mockShareCodeStoreDynamoClient_OneBySK_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Put provides a mock function with given fields: ctx, v
 func (_m *mockShareCodeStoreDynamoClient) Put(ctx context.Context, v interface{}) error {
 	ret := _m.Called(ctx, v)

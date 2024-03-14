@@ -211,6 +211,31 @@ func TestSupporterPathIsManageOrganisation(t *testing.T) {
 	assert.True(t, Paths.Supporter.EditMember.IsManageOrganisation())
 }
 
+func TestSupporterLpaPathString(t *testing.T) {
+	assert.Equal(t, "/supporter/anything/{id}", SupporterLpaPath("/anything").String())
+}
+
+func TestSupporterLpaPathFormat(t *testing.T) {
+	assert.Equal(t, "/supporter/anything/abc", SupporterLpaPath("/anything").Format("abc"))
+}
+
+func TestSupporterLpaPathRedirect(t *testing.T) {
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	w := httptest.NewRecorder()
+	p := SupporterLpaPath("/something")
+
+	err := p.Redirect(w, r, AppData{Lang: localize.En}, "abc")
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, p.Format("abc"), resp.Header.Get("Location"))
+}
+
+func TestSupporterLpaPathIsManageOrganisation(t *testing.T) {
+	assert.False(t, SupporterLpaPath("").IsManageOrganisation())
+}
+
 func TestCanGoTo(t *testing.T) {
 	testCases := map[string]struct {
 		donor    *actor.DonorProvidedDetails

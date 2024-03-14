@@ -107,3 +107,11 @@ func (e OrganisationMemberInviteEmail) emailID(isProduction bool) string {
 
 	return "eac6a25f-3055-4b72-be19-6067398551db"
 }
+
+type DonorAccessEmail struct {
+	ShareCode string
+}
+
+func (e DonorAccessEmail) emailID(isProduction bool) string {
+	return ""
+}
