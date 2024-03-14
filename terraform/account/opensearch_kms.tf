@@ -39,7 +39,7 @@ data "aws_iam_policy_document" "opensearch_kms_merged" {
 data "aws_iam_policy_document" "opensearch_kms" {
   provider = aws.global
   statement {
-    sid    = "Allow Key to be used for Encryption"
+    sid    = "Allow Grant for Opensearch Serverless"
     effect = "Allow"
     resources = [
       "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
@@ -64,7 +64,7 @@ data "aws_iam_policy_document" "opensearch_kms" {
   }
 
   statement {
-    sid    = "Allow Key to be used for Encryption"
+    sid    = "Allow list keys for Opensearch Serverless"
     effect = "Allow"
     resources = [
       "*"
