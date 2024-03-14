@@ -26,6 +26,9 @@ No modules.
 | Name | Type |
 |------|------|
 | [aws_cloudwatch_event_rule.ecs_failed_deployment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
+| [aws_cloudwatch_event_target.ecs_failed_deployment_to_cloudwatch](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
+| [aws_cloudwatch_log_metric_filter.ecs_failed_deployment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_metric_filter) | resource |
+| [aws_cloudwatch_metric_alarm.ecs_failed_deployment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_ecs_service.app](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service) | resource |
 | [aws_ecs_task_definition.app](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_task_definition) | resource |
 | [aws_iam_role_policy.app_task_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
@@ -87,6 +90,7 @@ No modules.
 | <a name="input_ecs_service_desired_count"></a> [ecs\_service\_desired\_count](#input\_ecs\_service\_desired\_count) | Number of instances of the task definition to place and keep running. Defaults to 0. Do not specify if using the DAEMON scheduling strategy. | `number` | `0` | no |
 | <a name="input_ecs_task_role"></a> [ecs\_task\_role](#input\_ecs\_task\_role) | ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services. | `any` | n/a | yes |
 | <a name="input_event_bus"></a> [event\_bus](#input\_event\_bus) | Name and ARN of the event bus to send events to | <pre>object({<br>    name = string<br>    arn  = string<br>  })</pre> | n/a | yes |
+| <a name="input_events_aws_cloudwatch_log_group"></a> [events\_aws\_cloudwatch\_log\_group](#input\_events\_aws\_cloudwatch\_log\_group) | Name and ARN of the AWS Cloudwatch Log Group resource for events | <pre>object({<br>    name = string<br>    arn  = string<br>  })</pre> | n/a | yes |
 | <a name="input_fault_injection_experiments_enabled"></a> [fault\_injection\_experiments\_enabled](#input\_fault\_injection\_experiments\_enabled) | Enable fault injection | `bool` | n/a | yes |
 | <a name="input_ingress_allow_list_cidr"></a> [ingress\_allow\_list\_cidr](#input\_ingress\_allow\_list\_cidr) | List of CIDR ranges permitted to access the service | `list(string)` | n/a | yes |
 | <a name="input_lpa_store_base_url"></a> [lpa\_store\_base\_url](#input\_lpa\_store\_base\_url) | n/a | `string` | n/a | yes |
