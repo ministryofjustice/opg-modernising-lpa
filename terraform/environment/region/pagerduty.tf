@@ -6,11 +6,6 @@ data "pagerduty_service" "main" {
   name = var.pagerduty_service_name
 }
 
-data "aws_kms_alias" "sns" {
-  name     = "alias/${local.default_tags.application}_sns_secret_encryption_key"
-  provider = aws.region
-}
-
 resource "pagerduty_service_integration" "ecs_autoscaling_alarms" {
   name    = "Modernising LPA ${data.aws_default_tags.current.tags.environment-name} ${data.aws_region.current.name} ECS AutoScaling Alarm - Maximum Reached"
   service = data.pagerduty_service.main.id
@@ -48,7 +43,7 @@ resource "aws_sns_topic_subscription" "cloudwatch_application_insights" {
 
 resource "aws_sns_topic" "event_alarms" {
   name                                     = "${data.aws_default_tags.current.tags.environment-name}-event-alarms"
-  kms_master_key_id                        = data.aws_kms_alias.sns.target_key_id
+  kms_master_key_id                        = data.aws_kms_alias.sns_kms_key_alias_global.target_key_id
   application_failure_feedback_role_arn    = data.aws_iam_role.sns_failure_feedback.arn
   application_success_feedback_role_arn    = data.aws_iam_role.sns_success_feedback.arn
   application_success_feedback_sample_rate = 100
