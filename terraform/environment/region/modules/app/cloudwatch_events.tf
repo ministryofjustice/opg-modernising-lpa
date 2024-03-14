@@ -38,8 +38,8 @@ resource "aws_cloudwatch_log_metric_filter" "ecs_failed_deployment" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "ecs_failed_deployment" {
-  actions_enabled           = true
-  alarm_actions             = [data.aws_sns_topic.cloudwatch_topic.arn]
+  actions_enabled = true
+  # alarm_actions             = [data.aws_sns_topic.cloudwatch_topic.arn]
   alarm_description         = "ECS Deployment Failure for ${data.aws_default_tags.current.tags.environment-name}"
   alarm_name                = "${data.aws_default_tags.current.tags.environment-name}-ecs-failed-deployments"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
