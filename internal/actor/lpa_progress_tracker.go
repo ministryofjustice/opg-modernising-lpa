@@ -4,6 +4,22 @@ type ProgressTracker struct {
 	Localizer Localizer
 }
 
+type ProgressTask struct {
+	State TaskState
+	Label string
+}
+
+type Progress struct {
+	Paid                      ProgressTask
+	ConfirmedID               ProgressTask
+	DonorSigned               ProgressTask
+	CertificateProviderSigned ProgressTask
+	AttorneysSigned           ProgressTask
+	LpaSubmitted              ProgressTask
+	StatutoryWaitingPeriod    ProgressTask
+	LpaRegistered             ProgressTask
+}
+
 func (pt ProgressTracker) Progress(donor *DonorProvidedDetails, certificateProvider *CertificateProviderProvidedDetails, attorneys []*AttorneyProvidedDetails) Progress {
 	var (
 		paidLabel,
@@ -150,11 +166,3 @@ func (pt ProgressTracker) Progress(donor *DonorProvidedDetails, certificateProvi
 
 	return progress
 }
-
-//localizer := newMockLocalizer(t)
-//localizer.EXPECT().
-//T(mock.Anything).
-//Return("translated")
-//localizer.EXPECT().
-//Format(mock.Anything, mock.Anything).
-//Return("translated")

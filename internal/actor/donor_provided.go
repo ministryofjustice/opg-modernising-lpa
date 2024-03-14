@@ -190,22 +190,6 @@ func (l *DonorProvidedDetails) IsOrganisationDonor() bool {
 	return strings.Contains(l.SK, "ORGANISATION")
 }
 
-type ProgressTask struct {
-	State TaskState
-	Label string
-}
-
-type Progress struct {
-	Paid                      ProgressTask
-	ConfirmedID               ProgressTask
-	DonorSigned               ProgressTask
-	CertificateProviderSigned ProgressTask
-	AttorneysSigned           ProgressTask
-	LpaSubmitted              ProgressTask
-	StatutoryWaitingPeriod    ProgressTask
-	LpaRegistered             ProgressTask
-}
-
 type Localizer interface {
 	T(messageID string) string
 	Format(messageID string, data map[string]interface{}) string
