@@ -57,8 +57,8 @@ data "aws_iam_policy_document" "opensearch_kms" {
       test     = "StringEquals"
       variable = "kms:ViaService"
       values = [
-        "aoss.${data.aws_region.eu_west_1}.amazonaws.com",
-        "aoss.${data.aws_region.eu_west_2}.amazonaws.com"
+        "aoss.eu-west-1.amazonaws.com",
+        "aoss.eu-west-2.amazonaws.com"
       ]
     }
   }
@@ -81,8 +81,8 @@ data "aws_iam_policy_document" "opensearch_kms" {
       test     = "StringEquals"
       variable = "kms:ViaService"
       values = [
-        "aoss.${data.aws_region.eu_west_1}.amazonaws.com",
-        "aoss.${data.aws_region.eu_west_2}.amazonaws.com"
+        "aoss.eu-west-1.amazonaws.com",
+        "aoss.eu-west-2.amazonaws.com"
       ]
     }
   }
