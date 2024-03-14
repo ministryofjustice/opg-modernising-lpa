@@ -55,6 +55,10 @@ type AttorneyStore interface {
 	GetAny(ctx context.Context) ([]*actor.AttorneyProvidedDetails, error)
 }
 
+type Localizer interface {
+	page.Localizer
+}
+
 type OneLoginClient interface {
 	AuthCodeURL(state, nonce, locale string, identity bool) (string, error)
 	Exchange(ctx context.Context, code, nonce string) (idToken, accessToken string, err error)
