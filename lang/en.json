@@ -1070,5 +1070,13 @@
     "lpaLinkedTo": "LPA linked to",
     "dateLinked": "Date linked",
     "recallInvite": "Recall invite",
-    "youSentAnInviteTo": "You sent an invite to <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span> to access their LPA online."
+    "youSentAnInviteTo": "You sent an invite to <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span> to access their LPA online.",
+    "lpaProgress": "LPA progress",
+    "donorFullNameHasPaid": "{{.DonorFullName }} has paid",
+    "donorFullNameHasConfirmedTheirIdentity": "{{.DonorFullName }} has confirmed their identity",
+    "donorFullNameHasSignedTheLPA": "{{.DonorFullName }} has signed the LPA",
+    "theCertificateProviderHasDeclared": "The certificate provider has provided their certificate",
+    "opgHasReceivedTheLPA": "OPG has received the LPA",
+    "theWaitingPeriodHasStarted": "The 4-week waiting period has started",
+    "theLpaHasBeenRegistered": "The LPA has been registered"
 }

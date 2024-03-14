@@ -2,131 +2,13 @@ package page
 
 import (
 	"testing"
-	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 )
-
-func TestLpaProgress(t *testing.T) {
-	lpaSignedAt := time.Now()
-	uid1 := actoruid.New()
-	uid2 := actoruid.New()
-
-	testCases := map[string]struct {
-		donor               *actor.DonorProvidedDetails
-		certificateProvider *actor.CertificateProviderProvidedDetails
-		attorneys           []*actor.AttorneyProvidedDetails
-		expectedProgress    actor.Progress
-	}{
-		"initial state": {
-			donor:               &actor.DonorProvidedDetails{},
-			certificateProvider: &actor.CertificateProviderProvidedDetails{},
-			expectedProgress: actor.Progress{
-				DonorSigned:               actor.TaskInProgress,
-				CertificateProviderSigned: actor.TaskNotStarted,
-				AttorneysSigned:           actor.TaskNotStarted,
-				LpaSubmitted:              actor.TaskNotStarted,
-				StatutoryWaitingPeriod:    actor.TaskNotStarted,
-				LpaRegistered:             actor.TaskNotStarted,
-			},
-		},
-		"lpa signed": {
-			donor:               &actor.DonorProvidedDetails{SignedAt: lpaSignedAt},
-			certificateProvider: &actor.CertificateProviderProvidedDetails{},
-			expectedProgress: actor.Progress{
-				DonorSigned:               actor.TaskCompleted,
-				CertificateProviderSigned: actor.TaskInProgress,
-				AttorneysSigned:           actor.TaskNotStarted,
-				LpaSubmitted:              actor.TaskNotStarted,
-				StatutoryWaitingPeriod:    actor.TaskNotStarted,
-				LpaRegistered:             actor.TaskNotStarted,
-			},
-		},
-		"certificate provider signed": {
-			donor:               &actor.DonorProvidedDetails{SignedAt: lpaSignedAt},
-			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
-			expectedProgress: actor.Progress{
-				DonorSigned:               actor.TaskCompleted,
-				CertificateProviderSigned: actor.TaskCompleted,
-				AttorneysSigned:           actor.TaskInProgress,
-				LpaSubmitted:              actor.TaskNotStarted,
-				StatutoryWaitingPeriod:    actor.TaskNotStarted,
-				LpaRegistered:             actor.TaskNotStarted,
-			},
-		},
-		"attorneys signed": {
-			donor: &actor.DonorProvidedDetails{
-				SignedAt:  lpaSignedAt,
-				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}, {UID: uid2}}},
-			},
-			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
-			attorneys: []*actor.AttorneyProvidedDetails{
-				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
-				{UID: uid2, LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
-			},
-			expectedProgress: actor.Progress{
-				DonorSigned:               actor.TaskCompleted,
-				CertificateProviderSigned: actor.TaskCompleted,
-				AttorneysSigned:           actor.TaskCompleted,
-				LpaSubmitted:              actor.TaskInProgress,
-				StatutoryWaitingPeriod:    actor.TaskNotStarted,
-				LpaRegistered:             actor.TaskNotStarted,
-			},
-		},
-		"submitted": {
-			donor: &actor.DonorProvidedDetails{
-				SignedAt:    lpaSignedAt,
-				SubmittedAt: lpaSignedAt.Add(time.Hour),
-				Attorneys:   actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}, {UID: uid2}}},
-			},
-			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
-			attorneys: []*actor.AttorneyProvidedDetails{
-				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
-				{UID: uid2, LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
-			},
-			expectedProgress: actor.Progress{
-				DonorSigned:               actor.TaskCompleted,
-				CertificateProviderSigned: actor.TaskCompleted,
-				AttorneysSigned:           actor.TaskCompleted,
-				LpaSubmitted:              actor.TaskCompleted,
-				StatutoryWaitingPeriod:    actor.TaskInProgress,
-				LpaRegistered:             actor.TaskNotStarted,
-			},
-		},
-		"registered": {
-			donor: &actor.DonorProvidedDetails{
-				SignedAt:     lpaSignedAt,
-				SubmittedAt:  lpaSignedAt.Add(time.Hour),
-				RegisteredAt: lpaSignedAt.Add(2 * time.Hour),
-				Attorneys:    actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}, {UID: uid2}}},
-			},
-			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
-			attorneys: []*actor.AttorneyProvidedDetails{
-				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
-				{UID: uid2, LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
-			},
-			expectedProgress: actor.Progress{
-				DonorSigned:               actor.TaskCompleted,
-				CertificateProviderSigned: actor.TaskCompleted,
-				AttorneysSigned:           actor.TaskCompleted,
-				LpaSubmitted:              actor.TaskCompleted,
-				StatutoryWaitingPeriod:    actor.TaskCompleted,
-				LpaRegistered:             actor.TaskCompleted,
-			},
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expectedProgress, tc.donor.Progress(tc.certificateProvider, tc.attorneys))
-		})
-	}
-}
 
 func TestChooseAttorneysState(t *testing.T) {
 	testcases := map[string]struct {

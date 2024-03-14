@@ -10,6 +10,7 @@ import (
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/google/uuid"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -103,6 +104,7 @@ func App(
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: lpaDynamoClient}
 	organisationStore := &organisationStore{dynamoClient: lpaDynamoClient, now: time.Now, uuidString: uuid.NewString, newUID: actoruid.New}
 	memberStore := &memberStore{dynamoClient: lpaDynamoClient, now: time.Now, uuidString: uuid.NewString}
+	progressTracker := actor.ProgressTracker{Localizer: localizer}
 
 	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicURL, random.String, eventClient)
 	witnessCodeSender := page.NewWitnessCodeSender(donorStore, notifyClient)
@@ -124,7 +126,7 @@ func App(
 	handleRoot(page.Paths.AttorneyFixtures, None,
 		fixtures.Attorney(tmpls.Get("attorney_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore, eventClient))
 	handleRoot(page.Paths.SupporterFixtures, None,
-		fixtures.Supporter(sessionStore, organisationStore, donorStore, memberStore, lpaDynamoClient, searchClient))
+		fixtures.Supporter(sessionStore, organisationStore, donorStore, memberStore, lpaDynamoClient, searchClient, certificateProviderStore, attorneyStore, documentStore, eventClient))
 	handleRoot(page.Paths.DashboardFixtures, None,
 		fixtures.Dashboard(tmpls.Get("dashboard_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore))
 	handleRoot(page.Paths.YourLegalRightsAndResponsibilities, None,
@@ -155,6 +157,9 @@ func App(
 		searchClient,
 		donorStore,
 		shareCodeStore,
+		certificateProviderStore,
+		attorneyStore,
+		progressTracker,
 	)
 
 	certificateprovider.Register(
@@ -207,7 +212,6 @@ func App(
 		shareCodeSender,
 		witnessCodeSender,
 		errorHandler,
-		notFoundHandler,
 		certificateProviderStore,
 		attorneyStore,
 		notifyClient,
@@ -216,6 +220,7 @@ func App(
 		eventClient,
 		dashboardStore,
 		lpaStoreClient,
+		progressTracker,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang)
