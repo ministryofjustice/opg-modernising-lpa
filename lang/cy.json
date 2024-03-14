@@ -1125,5 +1125,14 @@
     "enterYourName": "Welsh",
     "thisWillBeHowYourNameIsDisplayed": "Welsh",
     "accessSuspended": "Welsh",
-    "accessSuspendedContent": "Welsh {{.OrganisationName}}"
+    "accessSuspendedContent": "Welsh {{.OrganisationName}}",
+    "giveTheDonorAccessToTheirLpa": "Welsh",
+    "giveTheDonorAccessToTheirLpaContent": "<p class=\"govuk-body\">Welsh</p>",
+    "donorsEmailAddressContent": "<p class=\"govuk-body\">Welsh</p>",
+    "donorAccess": "Welsh",
+    "inviteSent": "Welsh",
+    "inviteSentTo": "Welsh",
+    "lpaLinkedTo": "Welsh",
+    "dateLinked": "Welsh",
+    "recallInvite": "Welsh"
 }

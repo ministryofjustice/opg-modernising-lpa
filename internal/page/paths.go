@@ -190,6 +190,25 @@ func (p SupporterPath) IsManageOrganisation() bool {
 		p == Paths.Supporter.EditMember
 }
 
+type SupporterLpaPath string
+
+func (p SupporterLpaPath) String() string {
+	return "/supporter" + string(p) + "/{id}"
+}
+
+func (p SupporterLpaPath) Format(lpaID string) string {
+	return "/supporter" + string(p) + "/" + lpaID
+}
+
+func (p SupporterLpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData, lpaID string) error {
+	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID)), http.StatusFound)
+	return nil
+}
+
+func (p SupporterLpaPath) IsManageOrganisation() bool {
+	return false
+}
+
 type AttorneyPaths struct {
 	EnterReferenceNumber Path
 	Login                Path
@@ -258,6 +277,8 @@ type SupporterPaths struct {
 	ManageTeamMembers             SupporterPath
 	OrganisationCreated           SupporterPath
 	OrganisationDetails           SupporterPath
+
+	DonorAccess SupporterLpaPath
 }
 
 type AppPaths struct {
@@ -441,6 +462,7 @@ var Paths = AppPaths{
 		ManageTeamMembers:             "/manage-organisation/manage-team-members",
 		OrganisationCreated:           "/organisation-or-company-created",
 		OrganisationDetails:           "/manage-organisation/organisation-details",
+		DonorAccess:                   "/donor-access",
 	},
 
 	HealthCheck: HealthCheckPaths{

@@ -1057,5 +1057,14 @@
     "enterYourName": "Enter your name",
     "thisWillBeHowYourNameIsDisplayed": "This will be how your name is displayed to others in your organisation.",
     "accessSuspended": "Access suspended",
-    "accessSuspendedContent": "<p class=\"govuk-body\">Your access to <span class=\"govuk-!-font-weight-bold\">{{.OrganisationName}}</span> has been temporarily suspended.</p><p class=\"govuk-body\">Contact an admin at your organisation to get access again.</p>"
+    "accessSuspendedContent": "<p class=\"govuk-body\">Your access to <span class=\"govuk-!-font-weight-bold\">{{.OrganisationName}}</span> has been temporarily suspended.</p><p class=\"govuk-body\">Contact an admin at your organisation to get access again.</p>",
+    "giveTheDonorAccessToTheirLpa": "Give the donor access to their LPA",
+    "giveTheDonorAccessToTheirLpaContent": "<p class=\"govuk-body\">When you invite the donor to access their LPA online, they’ll get an email with instructions and a link.</p><p class=\"govuk-body\">Once they log into or create their GOV One Login account, their LPA will appear in their ‘Make and register an LPA’ dashboard.</p>",
+    "donorsEmailAddressContent": "<h2 class=\"govuk-heading-m\">Donor’s email address</h2><p class=\"govuk-body\">You can edit the donor’s email address.</p><p class=\"govuk-body\">Any changes will be saved in the donor’s details once you send the invite to the updated address.</p>",
+    "donorAccess": "Donor access",
+    "inviteSent": "Invite sent",
+    "inviteSentTo": "Invite sent to",
+    "lpaLinkedTo": "LPA linked to",
+    "dateLinked": "Date linked",
+    "recallInvite": "Recall invite"
 }
