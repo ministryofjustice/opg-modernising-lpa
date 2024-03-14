@@ -47,6 +47,14 @@ type DonorStore interface {
 	GetByKeys(ctx context.Context, keys []dynamo.Key) ([]actor.DonorProvidedDetails, error)
 }
 
+type CertificateProviderStore interface {
+	GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
+}
+
+type AttorneyStore interface {
+	GetAny(ctx context.Context) ([]*actor.AttorneyProvidedDetails, error)
+}
+
 type OneLoginClient interface {
 	AuthCodeURL(state, nonce, locale string, identity bool) (string, error)
 	Exchange(ctx context.Context, code, nonce string) (idToken, accessToken string, err error)
@@ -83,6 +91,8 @@ func Register(
 	memberStore MemberStore,
 	searchClient *search.Client,
 	donorStore DonorStore,
+	certificateProviderStore CertificateProviderStore,
+	attorneyStore AttorneyStore,
 ) {
 	paths := page.Paths.Supporter
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
@@ -117,7 +127,7 @@ func Register(
 	handleWithSupporter(paths.ContactOPGForPaperForms, None,
 		Guidance(tmpls.Get("contact_opg_for_paper_forms.gohtml")))
 	handleWithSupporter(paths.ViewLPA, None,
-		ViewLPA(tmpls.Get("view_lpa.gohtml"), donorStore))
+		ViewLPA(tmpls.Get("view_lpa.gohtml"), donorStore, certificateProviderStore, attorneyStore))
 
 	handleWithSupporter(paths.OrganisationDetails, RequireAdmin,
 		Guidance(tmpls.Get("organisation_details.gohtml")))

@@ -230,7 +230,11 @@ func (l *DonorProvidedDetails) Progress(certificateProvider *CertificateProvider
 			map[string]interface{}{"CertificateProviderFullName": l.CertificateProvider.FullName()},
 		)
 	} else {
-		certificateProviderSignedLabel = localizer.T("yourCertificateProviderHasDeclared")
+		if l.IsOrganisationDonor() {
+			certificateProviderSignedLabel = localizer.T("theCertificateProviderHasDeclared")
+		} else {
+			certificateProviderSignedLabel = localizer.T("yourCertificateProviderHasDeclared")
+		}
 	}
 
 	if l.IsOrganisationDonor() {
@@ -248,6 +252,10 @@ func (l *DonorProvidedDetails) Progress(certificateProvider *CertificateProvider
 			"donorFullNameHasSignedTheLPA",
 			map[string]interface{}{"DonorFullName": l.Donor.FullName()},
 		)
+		attorneysSignedLabel = localizer.T("allAttorneysHaveSignedTheLpa")
+		lpaSubmittedLabel = localizer.T("opgHasReceivedTheLPA")
+		statutoryWaitingPeriodLabel = localizer.T("theWaitingPeriodHasStarted")
+		lpaRegisteredLabel = localizer.T("theLpaHasBeenRegistered")
 	} else {
 		donorSignedLabel = localizer.T("youveSignedYourLpa")
 		attorneysSignedLabel = localizer.Count("attorneysHaveDeclared", len(l.Attorneys.Attorneys))
@@ -258,7 +266,7 @@ func (l *DonorProvidedDetails) Progress(certificateProvider *CertificateProvider
 
 	p := Progress{
 		Paid: ProgressTask{
-			State: TaskInProgress,
+			State: TaskNotStarted,
 			Label: paidLabel,
 		},
 		ConfirmedID: ProgressTask{
@@ -291,22 +299,30 @@ func (l *DonorProvidedDetails) Progress(certificateProvider *CertificateProvider
 		},
 	}
 
-	if !l.Tasks.PayForLpa.IsCompleted() {
-		return p
-	}
+	if l.IsOrganisationDonor() {
+		p.Paid.State = TaskInProgress
+		if !l.Tasks.PayForLpa.IsCompleted() {
+			return p
+		}
 
-	p.Paid.State = TaskCompleted
-	p.ConfirmedID.State = TaskInProgress
+		p.Paid.State = TaskCompleted
+		p.ConfirmedID.State = TaskInProgress
 
-	if !l.DonorIdentityConfirmed() {
-		return p
-	}
+		if !l.DonorIdentityConfirmed() {
+			return p
+		}
 
-	p.ConfirmedID.State = TaskCompleted
-	p.DonorSigned.State = TaskInProgress
+		p.ConfirmedID.State = TaskCompleted
+		p.DonorSigned.State = TaskInProgress
 
-	if l.SignedAt.IsZero() {
-		return p
+		if l.SignedAt.IsZero() {
+			return p
+		}
+	} else {
+		p.DonorSigned.State = TaskInProgress
+		if l.SignedAt.IsZero() {
+			return p
+		}
 	}
 
 	p.DonorSigned.State = TaskCompleted

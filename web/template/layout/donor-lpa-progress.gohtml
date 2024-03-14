@@ -2,66 +2,62 @@
     <div id="progress" class="app-progress-bar" aria-label="progress-label">
         <ol class="app-progress-bar__list">
             {{ if .App.IsSupporter }}
-                <li id="donor-paid" class="app-progress-bar__item" {{ if .Progress.Paid.InProgress }}aria-current="step"{{ end }}>
-                    <span class="app-progress-bar__icon {{ if .Progress.Paid.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
+                <li id="donor-paid" class="app-progress-bar__item" {{ if .Progress.Paid.State.InProgress }}aria-current="step"{{ end }}>
+                    <span class="app-progress-bar__icon {{ if .Progress.Paid.State.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
                     <span class="app-progress-bar__label">
-                         {{ trFormat .App "donorFullNameHasPaid" "DonorFullName" .Donor.Donor.FullName }}<span class="govuk-visually-hidden"> {{tr .App .Progress.Paid.String }}</span>
+                         {{ .Progress.Paid.Label }}<span class="govuk-visually-hidden"> {{tr .App .Progress.Paid.State.String }}</span>
                     </span>
                 </li>
-                <li id="donor-confirmed-id" class="app-progress-bar__item" {{ if .Progress.ConfirmedID.InProgress }}aria-current="step"{{ end }}>
-                    <span class="app-progress-bar__icon {{ if .Progress.ConfirmedID.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
+                <li id="donor-confirmed-id" class="app-progress-bar__item" {{ if .Progress.ConfirmedID.State.InProgress }}aria-current="step"{{ end }}>
+                    <span class="app-progress-bar__icon {{ if .Progress.ConfirmedID.State.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
                     <span class="app-progress-bar__label">
-                         {{ trFormat .App "donorFullNameHasConfirmedTheirIdentity" "DonorFullName" .Donor.Donor.FullName }}<span class="govuk-visually-hidden"> {{tr .App .Progress.ConfirmedID.String }}</span>
+                         {{ .Progress.ConfirmedID.Label }}<span class="govuk-visually-hidden"> {{tr .App .Progress.ConfirmedID.State.String }}</span>
                     </span>
                 </li>
-                <li id="donor-signed-lpa" class="app-progress-bar__item" {{ if .Progress.DonorSigned.InProgress }}aria-current="step"{{ end }}>
-                    <span class="app-progress-bar__icon {{ if .Progress.DonorSigned.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
+                <li id="donor-signed-lpa" class="app-progress-bar__item" {{ if .Progress.DonorSigned.State.InProgress }}aria-current="step"{{ end }}>
+                    <span class="app-progress-bar__icon {{ if .Progress.DonorSigned.State.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
                     <span class="app-progress-bar__label">
-                         {{ trFormat .App "donorFullNameHasSignedTheLPA" "DonorFullName" .Donor.Donor.FullName }}<span class="govuk-visually-hidden"> {{tr .App .Progress.DonorSigned.String }}</span>
+                         {{ .Progress.DonorSigned.Label }}<span class="govuk-visually-hidden"> {{tr .App .Progress.DonorSigned.State.String }}</span>
                     </span>
                 </li>
             {{ else }}
-                <li id="lpa-signed" class="app-progress-bar__item" {{ if .Progress.DonorSigned.InProgress }}aria-current="step"{{ end }}>
-                    <span class="app-progress-bar__icon {{ if .Progress.DonorSigned.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
+                <li id="lpa-signed" class="app-progress-bar__item" {{ if .Progress.DonorSigned.State.InProgress }}aria-current="step"{{ end }}>
+                    <span class="app-progress-bar__icon {{ if .Progress.DonorSigned.State.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
                     <span class="app-progress-bar__label">
-                         {{ tr .App "youveSignedYourLpa" }}<span class="govuk-visually-hidden"> {{tr .App .Progress.DonorSigned.String }}</span>
+                         {{ .Progress.DonorSigned.Label }}<span class="govuk-visually-hidden"> {{tr .App .Progress.DonorSigned.State.String }}</span>
                     </span>
                 </li>
             {{ end }}
 
-            <li id="certificate-provider-declared" class="app-progress-bar__item" {{ if .Progress.CertificateProviderSigned.InProgress }}aria-current="step"{{ end }}>
-                <span class="app-progress-bar__icon {{ if .Progress.CertificateProviderSigned.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
+            <li id="certificate-provider-declared" class="app-progress-bar__item" {{ if .Progress.CertificateProviderSigned.State.InProgress }}aria-current="step"{{ end }}>
+                <span class="app-progress-bar__icon {{ if .Progress.CertificateProviderSigned.State.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
                 <span class="app-progress-bar__label">
-              {{ if .Donor.CertificateProvider.FirstNames }}
-                  {{ trFormat .App "certificateProviderHasDeclared" "CertificateProviderFullName" .Donor.CertificateProvider.FullName }}<span class="govuk-visually-hidden"> {{tr .App .Progress.CertificateProviderSigned.String }}</span>
-              {{ else }}
-                  {{ tr .App "yourCertificateProviderHasDeclared" }}<span class="govuk-visually-hidden"> {{tr .App .Progress.CertificateProviderSigned.String }}</span>
-              {{ end }}
-                    </span>
+                    {{ .Progress.CertificateProviderSigned.Label }}<span class="govuk-visually-hidden"> {{tr .App .Progress.CertificateProviderSigned.State.String }}</span>
+                </span>
             </li>
-            <li id="attorneys-declared" class="app-progress-bar__item" {{ if .Progress.AttorneysSigned.InProgress }}aria-current="step"{{ end }}>
-                <span class="app-progress-bar__icon {{ if .Progress.AttorneysSigned.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
+            <li id="attorneys-declared" class="app-progress-bar__item" {{ if .Progress.AttorneysSigned.State.InProgress }}aria-current="step"{{ end }}>
+                <span class="app-progress-bar__icon {{ if .Progress.AttorneysSigned.State.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
                 <span class="app-progress-bar__label">
-              {{ trCount .App "attorneysHaveDeclared" .Donor.Attorneys.Len }}<span class="govuk-visually-hidden"> {{tr .App .Progress.AttorneysSigned.String }}</span>
-            </span>
+                    {{ .Progress.AttorneysSigned.Label }}<span class="govuk-visually-hidden"> {{tr .App .Progress.AttorneysSigned.State.String }}</span>
+                </span>
             </li>
-            <li id="lpa-submitted" class="app-progress-bar__item" {{ if .Progress.LpaSubmitted.InProgress }}aria-current="step"{{ end }}>
-                <span class="app-progress-bar__icon {{ if .Progress.LpaSubmitted.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
+            <li id="lpa-submitted" class="app-progress-bar__item" {{ if .Progress.LpaSubmitted.State.InProgress }}aria-current="step"{{ end }}>
+                <span class="app-progress-bar__icon {{ if .Progress.LpaSubmitted.State.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
                 <span class="app-progress-bar__label">
-              {{ tr .App "weHaveReceivedYourLpa" }}<span class="govuk-visually-hidden"> {{tr .App .Progress.LpaSubmitted.String }}</span>
-            </span>
+                    {{ .Progress.LpaSubmitted.Label }}<span class="govuk-visually-hidden"> {{tr .App .Progress.LpaSubmitted.State.String }}</span>
+                </span>
             </li>
-            <li id="statutory-waiting-period" class="app-progress-bar__item" {{ if .Progress.StatutoryWaitingPeriod.InProgress }}aria-current="step"{{ end }}>
-                <span class="app-progress-bar__icon {{ if .Progress.StatutoryWaitingPeriod.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
+            <li id="statutory-waiting-period" class="app-progress-bar__item" {{ if .Progress.StatutoryWaitingPeriod.State.InProgress }}aria-current="step"{{ end }}>
+                <span class="app-progress-bar__icon {{ if .Progress.StatutoryWaitingPeriod.State.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
                 <span class="app-progress-bar__label">
-              {{ tr .App "yourWaitingPeriodHasStarted" }}<span class="govuk-visually-hidden"> {{tr .App .Progress.StatutoryWaitingPeriod.String }}</span>
-            </span>
+                    {{ .Progress.StatutoryWaitingPeriod.Label }}<span class="govuk-visually-hidden"> {{tr .App .Progress.StatutoryWaitingPeriod.State.String }}</span>
+                </span>
             </li>
-            <li id="lpa-registered" class="app-progress-bar__item" {{ if .Progress.LpaRegistered.InProgress }}aria-current="step"{{ end }}>
-                <span class="app-progress-bar__icon {{ if .Progress.LpaRegistered.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
+            <li id="lpa-registered" class="app-progress-bar__item" {{ if .Progress.LpaRegistered.State.InProgress }}aria-current="step"{{ end }}>
+                <span class="app-progress-bar__icon {{ if .Progress.LpaRegistered.State.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
                 <span class="app-progress-bar__label">
-              {{ tr .App "yourLpaHasBeenRegistered" }}<span class="govuk-visually-hidden"> {{tr .App .Progress.LpaRegistered.String }}</span>
-            </span>
+                    {{ .Progress.LpaRegistered.Label }}<span class="govuk-visually-hidden"> {{tr .App .Progress.LpaRegistered.State.String }}</span>
+                </span>
             </li>
         </ol>
     </div>

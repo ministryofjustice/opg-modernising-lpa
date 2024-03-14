@@ -1061,5 +1061,13 @@
     "lpa": "LPA",
     "viewLPASummary": "View LPA summary",
     "donorAccess": "Donor access",
-    "viewLPA": "View LPA"
+    "viewLPA": "View LPA",
+    "lpaProgress": "LPA progress",
+    "donorFullNameHasPaid": "{{.DonorFullName }} has paid",
+    "donorFullNameHasConfirmedTheirIdentity": "{{.DonorFullName }} has confirmed their identity",
+    "donorFullNameHasSignedTheLPA": "{{.DonorFullName }} has signed the LPA",
+    "theCertificateProviderHasDeclared": "The certificate provider has provided their certificate",
+    "opgHasReceivedTheLPA": "OPG has received the LPA",
+    "theWaitingPeriodHasStarted": "The 4-week waiting period has started",
+    "theLpaHasBeenRegistered": "The LPA has been registered"
 }
