@@ -1,0 +1,99 @@
+package supporter
+
+import (
+	"errors"
+	"net/http"
+	"net/url"
+
+	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
+)
+
+type donorAccessData struct {
+	App       page.AppData
+	Errors    validation.List
+	Form      *donorAccessForm
+	Donor     *actor.DonorProvidedDetails
+	ShareCode *actor.ShareCodeData
+}
+
+func DonorAccess(tmpl template.Template, donorStore DonorStore, shareCodeStore ShareCodeStore, notifyClient NotifyClient, randomString func(int) string) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
+		donor, err := donorStore.Get(r.Context())
+		if err != nil {
+			return err
+		}
+
+		data := &donorAccessData{
+			App:   appData,
+			Donor: donor,
+			Form:  &donorAccessForm{Email: donor.Donor.Email},
+		}
+
+		shareCodeData, err := shareCodeStore.GetDonor(r.Context())
+		if err == nil {
+			data.ShareCode = &shareCodeData
+			return tmpl(w, data)
+		}
+
+		if !errors.Is(err, dynamo.NotFoundError{}) {
+			return err
+		}
+
+		if r.Method == http.MethodPost {
+			data.Form = readDonorAccessForm(r)
+			data.Errors = data.Form.Validate()
+
+			if data.Errors.None() {
+				shareCode := randomString(12)
+				shareCodeData := actor.ShareCodeData{
+					SessionID:    organisation.ID,
+					LpaID:        appData.LpaID,
+					ActorUID:     donor.Donor.UID,
+					InviteSentTo: data.Form.Email,
+				}
+
+				if err := shareCodeStore.PutDonor(r.Context(), shareCode, shareCodeData); err != nil {
+					return err
+				}
+
+				if err := notifyClient.SendEmail(r.Context(), data.Form.Email, notify.DonorAccessEmail{
+					ShareCode: shareCode,
+				}); err != nil {
+					return err
+				}
+
+				return page.Paths.Supporter.ViewLPA.RedirectQuery(w, r, appData, url.Values{
+					"id":           {appData.LpaID},
+					"inviteSentTo": {data.Form.Email},
+				})
+			}
+		}
+
+		return tmpl(w, data)
+	}
+}
+
+type donorAccessForm struct {
+	Email string
+}
+
+func readDonorAccessForm(r *http.Request) *donorAccessForm {
+	return &donorAccessForm{
+		Email: page.PostFormString(r, "email"),
+	}
+}
+
+func (f *donorAccessForm) Validate() validation.List {
+	var errors validation.List
+
+	errors.String("email", "email", f.Email,
+		validation.Empty(),
+		validation.Email())
+
+	return errors
+}

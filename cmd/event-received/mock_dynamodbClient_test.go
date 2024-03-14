@@ -119,6 +119,54 @@ func (_c *mockDynamodbClient_One_Call) RunAndReturn(run func(context.Context, st
 	return _c
 }
 
+// OneBySK provides a mock function with given fields: ctx, sk, v
+func (_m *mockDynamodbClient) OneBySK(ctx context.Context, sk string, v interface{}) error {
+	ret := _m.Called(ctx, sk, v)
+
+	if len(ret) == 0 {
+		panic("no return value specified for OneBySK")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, interface{}) error); ok {
+		r0 = rf(ctx, sk, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockDynamodbClient_OneBySK_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'OneBySK'
+type mockDynamodbClient_OneBySK_Call struct {
+	*mock.Call
+}
+
+// OneBySK is a helper method to define mock.On call
+//   - ctx context.Context
+//   - sk string
+//   - v interface{}
+func (_e *mockDynamodbClient_Expecter) OneBySK(ctx interface{}, sk interface{}, v interface{}) *mockDynamodbClient_OneBySK_Call {
+	return &mockDynamodbClient_OneBySK_Call{Call: _e.mock.On("OneBySK", ctx, sk, v)}
+}
+
+func (_c *mockDynamodbClient_OneBySK_Call) Run(run func(ctx context.Context, sk string, v interface{})) *mockDynamodbClient_OneBySK_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(interface{}))
+	})
+	return _c
+}
+
+func (_c *mockDynamodbClient_OneBySK_Call) Return(_a0 error) *mockDynamodbClient_OneBySK_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDynamodbClient_OneBySK_Call) RunAndReturn(run func(context.Context, string, interface{}) error) *mockDynamodbClient_OneBySK_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // OneByUID provides a mock function with given fields: ctx, uid, v
 func (_m *mockDynamodbClient) OneByUID(ctx context.Context, uid string, v interface{}) error {
 	ret := _m.Called(ctx, uid, v)
