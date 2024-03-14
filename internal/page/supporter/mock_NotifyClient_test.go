@@ -22,9 +22,9 @@ func (_m *mockNotifyClient) EXPECT() *mockNotifyClient_Expecter {
 	return &mockNotifyClient_Expecter{mock: &_m.Mock}
 }
 
-// SendEmail provides a mock function with given fields: _a0, to, email
-func (_m *mockNotifyClient) SendEmail(_a0 context.Context, to string, email notify.Email) error {
-	ret := _m.Called(_a0, to, email)
+// SendEmail provides a mock function with given fields: ctx, to, email
+func (_m *mockNotifyClient) SendEmail(ctx context.Context, to string, email notify.Email) error {
+	ret := _m.Called(ctx, to, email)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SendEmail")
@@ -32,7 +32,7 @@ func (_m *mockNotifyClient) SendEmail(_a0 context.Context, to string, email noti
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, string, notify.Email) error); ok {
-		r0 = rf(_a0, to, email)
+		r0 = rf(ctx, to, email)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -46,14 +46,14 @@ type mockNotifyClient_SendEmail_Call struct {
 }
 
 // SendEmail is a helper method to define mock.On call
-//   - _a0 context.Context
+//   - ctx context.Context
 //   - to string
 //   - email notify.Email
-func (_e *mockNotifyClient_Expecter) SendEmail(_a0 interface{}, to interface{}, email interface{}) *mockNotifyClient_SendEmail_Call {
-	return &mockNotifyClient_SendEmail_Call{Call: _e.mock.On("SendEmail", _a0, to, email)}
+func (_e *mockNotifyClient_Expecter) SendEmail(ctx interface{}, to interface{}, email interface{}) *mockNotifyClient_SendEmail_Call {
+	return &mockNotifyClient_SendEmail_Call{Call: _e.mock.On("SendEmail", ctx, to, email)}
 }
 
-func (_c *mockNotifyClient_SendEmail_Call) Run(run func(_a0 context.Context, to string, email notify.Email)) *mockNotifyClient_SendEmail_Call {
+func (_c *mockNotifyClient_SendEmail_Call) Run(run func(ctx context.Context, to string, email notify.Email)) *mockNotifyClient_SendEmail_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(string), args[2].(notify.Email))
 	})

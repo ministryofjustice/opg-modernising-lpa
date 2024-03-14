@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -131,8 +132,57 @@ func TestShareCodeStorePutOnError(t *testing.T) {
 
 func TestNewShareCodeStore(t *testing.T) {
 	client := newMockDynamoClient(t)
+	store := NewShareCodeStore(client)
 
-	assert.Equal(t, &shareCodeStore{dynamoClient: client}, NewShareCodeStore(client))
+	assert.Equal(t, client, store.dynamoClient)
+	assert.NotNil(t, store.now)
+}
+
+func TestShareCodeStoreGetDonor(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{
+		OrganisationID: "org-id",
+		LpaID:          "lpa-id",
+	})
+	data := actor.ShareCodeData{LpaID: "lpa-id"}
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		ExpectOneBySK(ctx, "DONORINVITE#org-id#lpa-id",
+			data, expectedError)
+
+	shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}
+
+	result, err := shareCodeStore.GetDonor(ctx)
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, data, result)
+}
+
+func TestShareCodeStoreGetDonorWithSessionMissing(t *testing.T) {
+	ctx := context.Background()
+	shareCodeStore := &shareCodeStore{}
+
+	_, err := shareCodeStore.GetDonor(ctx)
+	assert.NotNil(t, err)
+}
+
+func TestShareCodeStorePutDonor(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		Put(ctx, actor.ShareCodeData{
+			PK:        "DONORSHARE#123",
+			SK:        "DONORINVITE#org-id#lpa-id",
+			SessionID: "org-id",
+			LpaID:     "lpa-id",
+			UpdatedAt: testNow,
+		}).
+		Return(nil)
+
+	shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient, now: testNowFn}
+
+	err := shareCodeStore.PutDonor(ctx, "123", actor.ShareCodeData{SessionID: "org-id", LpaID: "lpa-id"})
+	assert.Nil(t, err)
 }
 
 func TestShareCodeStoreDelete(t *testing.T) {
