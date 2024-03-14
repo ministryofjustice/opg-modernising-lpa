@@ -18,7 +18,7 @@ type viewLPAData struct {
 	Progress actor.Progress
 }
 
-func ViewLPA(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore) Handler {
+func ViewLPA(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, progressTracker ProgressTracker) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
 		sessionData, err := page.SessionDataFromContext(r.Context())
 		if err != nil {
@@ -52,7 +52,7 @@ func ViewLPA(tmpl template.Template, donorStore DonorStore, certificateProviderS
 		return tmpl(w, &viewLPAData{
 			App:      appData,
 			Donor:    donor,
-			Progress: donor.Progress(certificateProvider, attorneys, appData.Localizer),
+			Progress: progressTracker.Progress(donor, certificateProvider, attorneys),
 		})
 	}
 }
