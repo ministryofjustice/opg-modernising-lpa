@@ -1129,5 +1129,14 @@
     "lpa": "Welsh",
     "viewLPASummary": "Welsh",
     "donorAccess": "Welsh",
-    "viewLPA": "Welsh"
+    "viewLPA": "Welsh",
+    "giveTheDonorAccessToTheirLpa": "Welsh",
+    "giveTheDonorAccessToTheirLpaContent": "<p class=\"govuk-body\">Welsh</p>",
+    "donorsEmailAddressContent": "<p class=\"govuk-body\">Welsh</p>",
+    "inviteSent": "Welsh",
+    "inviteSentTo": "Welsh",
+    "lpaLinkedTo": "Welsh",
+    "dateLinked": "Welsh",
+    "recallInvite": "Welsh",
+    "youSentAnInviteTo": "Welsh {{.Email}}"
 }
