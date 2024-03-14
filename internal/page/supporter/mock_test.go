@@ -11,6 +11,7 @@ import (
 var (
 	expectedError        = errors.New("err")
 	testAppData          = page.AppData{}
+	testLpaAppData       = page.AppData{LpaID: "lpa-id"}
 	testOrgMemberAppData = page.AppData{
 		SessionID:           "session-id",
 		Lang:                localize.En,
@@ -20,4 +21,6 @@ var (
 		Permission:          actor.PermissionNone,
 		LoggedInSupporterID: "supporter-id",
 	}
+	testRandomString   = "12345"
+	testRandomStringFn = func(int) string { return testRandomString }
 )
