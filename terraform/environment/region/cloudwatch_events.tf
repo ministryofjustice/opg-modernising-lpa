@@ -7,7 +7,7 @@ resource "aws_cloudwatch_log_group" "events" {
 
 resource "aws_cloudwatch_event_rule" "ecs_failed_deployment" {
   name        = "${data.aws_default_tags.current.tags.environment-name}-capture-ecs-deployment-events"
-  description = "Capture Container Task Exit Events"
+  description = "Capture ECS deployment failure events for ${data.aws_default_tags.current.tags.environment-name}"
 
   event_pattern = jsonencode(
     {
@@ -25,7 +25,7 @@ resource "aws_cloudwatch_event_rule" "ecs_failed_deployment" {
 
 resource "aws_cloudwatch_event_target" "ecs_failed_deployment_to_cloudwatch" {
   rule      = aws_cloudwatch_event_rule.ecs_failed_deployment.name
-  target_id = "${data.aws_default_tags.current.tags.environment-name}-send-ecs-deployment-failure-events-to-cloudwatch"
+  target_id = "${data.aws_default_tags.current.tags.environment-name}-send-ecs-deployment-failure-events-to-cloudwatch-log-group"
   arn       = aws_cloudwatch_log_group.events.arn
   provider  = aws.region
 }
