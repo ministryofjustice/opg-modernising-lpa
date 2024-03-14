@@ -114,24 +114,24 @@ For terraform_environment, this will be based on your PR and can be found in the
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | 1.7.4 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.39.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.40.0 |
 | <a name="requirement_pagerduty"></a> [pagerduty](#requirement\_pagerduty) | 3.9.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws.eu_west_1"></a> [aws.eu\_west\_1](#provider\_aws.eu\_west\_1) | 5.39.1 |
-| <a name="provider_aws.eu_west_2"></a> [aws.eu\_west\_2](#provider\_aws.eu\_west\_2) | 5.39.1 |
-| <a name="provider_aws.global"></a> [aws.global](#provider\_aws.global) | 5.39.1 |
-| <a name="provider_aws.management_eu_west_1"></a> [aws.management\_eu\_west\_1](#provider\_aws.management\_eu\_west\_1) | 5.39.1 |
-| <a name="provider_aws.management_global"></a> [aws.management\_global](#provider\_aws.management\_global) | 5.39.1 |
+| <a name="provider_aws.eu_west_1"></a> [aws.eu\_west\_1](#provider\_aws.eu\_west\_1) | 5.40.0 |
+| <a name="provider_aws.eu_west_2"></a> [aws.eu\_west\_2](#provider\_aws.eu\_west\_2) | 5.40.0 |
+| <a name="provider_aws.global"></a> [aws.global](#provider\_aws.global) | 5.40.0 |
+| <a name="provider_aws.management_eu_west_1"></a> [aws.management\_eu\_west\_1](#provider\_aws.management\_eu\_west\_1) | 5.40.0 |
+| <a name="provider_aws.management_global"></a> [aws.management\_global](#provider\_aws.management\_global) | 5.40.0 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_allow_list"></a> [allow\_list](#module\_allow\_list) | git@github.com:ministryofjustice/opg-terraform-aws-moj-ip-allow-list.git | v2.3.0 |
+| <a name="module_allow_list"></a> [allow\_list](#module\_allow\_list) | git@github.com:ministryofjustice/opg-terraform-aws-moj-ip-allow-list.git | v3.0.1 |
 | <a name="module_eu_west_1"></a> [eu\_west\_1](#module\_eu\_west\_1) | ./region | n/a |
 | <a name="module_eu_west_2"></a> [eu\_west\_2](#module\_eu\_west\_2) | ./region | n/a |
 | <a name="module_global"></a> [global](#module\_global) | ./global | n/a |
