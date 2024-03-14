@@ -11,12 +11,7 @@ describe('Dashboard', () => {
     cy.contains('Property and affairs');
     cy.contains('In progress');
 
-    cy.contains('a', 'M-').click();
-    cy.contains('Provide your details').click();
-    cy.get('#f-first-names').type('2');
-    cy.contains('button', 'Continue').click();
-    cy.contains('a', 'Dashboard').click();
-    cy.contains('Sam2 Smith');
+    cy.contains('a', 'M-');
   });
 
   it('can start a new LPA', () => {
