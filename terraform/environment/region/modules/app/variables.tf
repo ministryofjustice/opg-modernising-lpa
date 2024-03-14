@@ -149,11 +149,3 @@ variable "search_collection_arn" {
   description = "ARN of the OpenSearch collection to use"
   nullable    = true
 }
-
-variable "events_aws_cloudwatch_log_group" {
-  type = object({
-    name = string
-    arn  = string
-  })
-  description = "Name and ARN of the AWS Cloudwatch Log Group resource for events"
-}

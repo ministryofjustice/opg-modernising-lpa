@@ -1,3 +1,10 @@
+#tfsec:ignore:aws-cloudwatch-log-group-customer-key
+resource "aws_cloudwatch_log_group" "events" {
+  name              = "${data.aws_default_tags.current.tags.environment-name}-events"
+  retention_in_days = 1
+  provider          = aws.region
+}
+
 resource "aws_cloudwatch_event_rule" "ecs_failed_deployment" {
   name        = "${data.aws_default_tags.current.tags.environment-name}-capture-ecs-deployment-events"
   description = "Capture Container Task Exit Events"
@@ -19,14 +26,14 @@ resource "aws_cloudwatch_event_rule" "ecs_failed_deployment" {
 resource "aws_cloudwatch_event_target" "ecs_failed_deployment_to_cloudwatch" {
   rule      = aws_cloudwatch_event_rule.ecs_failed_deployment.name
   target_id = "${data.aws_default_tags.current.tags.environment-name}-send-ecs-deployment-failure-events-to-cloudwatch"
-  arn       = var.events_aws_cloudwatch_log_group.arn
+  arn       = aws_cloudwatch_log_group.events.arn
   provider  = aws.region
 }
 
 resource "aws_cloudwatch_log_metric_filter" "ecs_failed_deployment" {
   name           = "${data.aws_default_tags.current.tags.environment-name}-ecs-failed-deployment"
   pattern        = "{ $.detail.eventName = \"SERVICE_DEPLOYMENT_FAILED\" }"
-  log_group_name = var.events_aws_cloudwatch_log_group.name
+  log_group_name = aws_cloudwatch_log_group.events.name
 
   metric_transformation {
     name          = "${data.aws_default_tags.current.tags.environment-name}-ecs-failed-deployment"
@@ -38,8 +45,8 @@ resource "aws_cloudwatch_log_metric_filter" "ecs_failed_deployment" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "ecs_failed_deployment" {
-  actions_enabled = true
-  # alarm_actions             = [data.aws_sns_topic.cloudwatch_topic.arn]
+  actions_enabled           = true
+  alarm_actions             = [aws_sns_topic.event_alarms.arn]
   alarm_description         = "ECS Deployment Failure for ${data.aws_default_tags.current.tags.environment-name}"
   alarm_name                = "${data.aws_default_tags.current.tags.environment-name}-ecs-failed-deployments"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
