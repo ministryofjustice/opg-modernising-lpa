@@ -258,6 +258,7 @@ type SupporterPaths struct {
 	ManageTeamMembers             SupporterPath
 	OrganisationCreated           SupporterPath
 	OrganisationDetails           SupporterPath
+	ViewLPA                       SupporterPath
 }
 
 type AppPaths struct {
@@ -441,6 +442,7 @@ var Paths = AppPaths{
 		ManageTeamMembers:             "/manage-organisation/manage-team-members",
 		OrganisationCreated:           "/organisation-or-company-created",
 		OrganisationDetails:           "/manage-organisation/organisation-details",
+		ViewLPA:                       "/view-lpa",
 	},
 
 	HealthCheck: HealthCheckPaths{
