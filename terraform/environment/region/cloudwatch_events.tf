@@ -5,8 +5,8 @@ resource "aws_cloudwatch_log_group" "events" {
   provider          = aws.region
 }
 
-resource "aws_cloudwatch_event_rule" "ecs_failed_deployment" {
-  name        = "${data.aws_default_tags.current.tags.environment-name}-capture-ecs-deployment-events"
+resource "aws_cloudwatch_event_rule" "app_ecs_failed_deployment" {
+  name        = "${data.aws_default_tags.current.tags.environment-name}-capture-app-ecs-deployment-events"
   description = "Capture ECS deployment failure events for ${data.aws_default_tags.current.tags.environment-name}"
 
   event_pattern = jsonencode(
@@ -23,20 +23,20 @@ resource "aws_cloudwatch_event_rule" "ecs_failed_deployment" {
   provider = aws.region
 }
 
-resource "aws_cloudwatch_event_target" "ecs_failed_deployment_to_cloudwatch" {
-  rule      = aws_cloudwatch_event_rule.ecs_failed_deployment.name
-  target_id = "${data.aws_default_tags.current.tags.environment-name}-send-ecs-deployment-failure-events-to-cloudwatch-log-group"
+resource "aws_cloudwatch_event_target" "app_ecs_failed_deployment_to_cloudwatch" {
+  rule      = aws_cloudwatch_event_rule.app_ecs_failed_deployment.name
+  target_id = "${data.aws_default_tags.current.tags.environment-name}-send-app-ecs-deployment-failure-events-to-cloudwatch-log-group"
   arn       = aws_cloudwatch_log_group.events.arn
   provider  = aws.region
 }
 
-resource "aws_cloudwatch_log_metric_filter" "ecs_failed_deployment" {
-  name           = "${data.aws_default_tags.current.tags.environment-name}-ecs-failed-deployment"
+resource "aws_cloudwatch_log_metric_filter" "app_ecs_failed_deployment" {
+  name           = "${data.aws_default_tags.current.tags.environment-name}-app-ecs-failed-deployment"
   pattern        = "{ $.detail.eventName = \"SERVICE_DEPLOYMENT_FAILED\" }"
   log_group_name = aws_cloudwatch_log_group.events.name
 
   metric_transformation {
-    name          = "${data.aws_default_tags.current.tags.environment-name}-ecs-failed-deployment"
+    name          = "${data.aws_default_tags.current.tags.environment-name}-app-ecs-failed-deployment"
     namespace     = "Monitoring"
     value         = "1"
     default_value = "0"
@@ -44,16 +44,16 @@ resource "aws_cloudwatch_log_metric_filter" "ecs_failed_deployment" {
   provider = aws.region
 }
 
-resource "aws_cloudwatch_metric_alarm" "ecs_failed_deployment" {
+resource "aws_cloudwatch_metric_alarm" "app_ecs_failed_deployment" {
   actions_enabled           = true
   alarm_actions             = [aws_sns_topic.event_alarms.arn]
-  alarm_description         = "ECS Deployment Failure for ${data.aws_default_tags.current.tags.environment-name}"
+  alarm_description         = "App ECS Deployment Failure for ${data.aws_default_tags.current.tags.environment-name}"
   alarm_name                = "${data.aws_default_tags.current.tags.environment-name}-ecs-failed-deployments"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   datapoints_to_alarm       = 1
   evaluation_periods        = 1
   insufficient_data_actions = []
-  metric_name               = aws_cloudwatch_log_metric_filter.ecs_failed_deployment.name
+  metric_name               = aws_cloudwatch_log_metric_filter.app_ecs_failed_deployment.name
   namespace                 = "Monitoring"
   period                    = 60
   statistic                 = "Maximum"
