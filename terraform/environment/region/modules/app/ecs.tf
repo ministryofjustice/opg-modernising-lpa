@@ -12,6 +12,15 @@ resource "aws_ecs_service" "app" {
     weight            = 100
   }
 
+  deployment_controller {
+    type = "ECS"
+  }
+
+  deployment_circuit_breaker {
+    enable   = true
+    rollback = true
+  }
+
   network_configuration {
     security_groups  = [aws_security_group.app_ecs_service.id]
     subnets          = var.network.application_subnets
