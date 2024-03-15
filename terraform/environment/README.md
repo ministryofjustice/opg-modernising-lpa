@@ -147,6 +147,8 @@ For terraform_environment, this will be based on your PR and can be found in the
 | [aws_dynamodb_table_replica.lpas_table](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/dynamodb_table_replica) | resource |
 | [aws_opensearchserverless_access_policy.app](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearchserverless_access_policy) | resource |
 | [aws_opensearchserverless_access_policy.event_received](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearchserverless_access_policy) | resource |
+| [aws_opensearchserverless_access_policy.team_breakglas_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearchserverless_access_policy) | resource |
+| [aws_opensearchserverless_access_policy.team_operator_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearchserverless_access_policy) | resource |
 | [aws_opensearchserverless_collection.lpas_collection](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearchserverless_collection) | resource |
 | [aws_opensearchserverless_security_policy.lpas_collection_encryption_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearchserverless_security_policy) | resource |
 | [aws_opensearchserverless_security_policy.lpas_collection_network_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearchserverless_security_policy) | resource |
@@ -156,6 +158,7 @@ For terraform_environment, this will be based on your PR and can be found in the
 | [aws_ssm_parameter.dns_target_region](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_parameter) | resource |
 | [aws_backup_vault.eu_west_1](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/backup_vault) | data source |
 | [aws_backup_vault.eu_west_2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/backup_vault) | data source |
+| [aws_caller_identity.eu_west_1](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_ecr_repository.app](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ecr_repository) | data source |
 | [aws_ecr_repository.mock_onelogin](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ecr_repository) | data source |
 | [aws_iam_policy_document.aws_backup_sns](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
