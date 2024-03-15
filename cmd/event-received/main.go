@@ -34,6 +34,7 @@ type uidEvent struct {
 type dynamodbClient interface {
 	One(ctx context.Context, pk, sk string, v interface{}) error
 	OneByUID(ctx context.Context, uid string, v interface{}) error
+	OneByPK(ctx context.Context, pk string, v interface{}) error
 	OneBySK(ctx context.Context, sk string, v interface{}) error
 	Put(ctx context.Context, v interface{}) error
 	UpdateReturn(ctx context.Context, pk, sk string, values map[string]dynamodbtypes.AttributeValue, expression string) (map[string]dynamodbtypes.AttributeValue, error)

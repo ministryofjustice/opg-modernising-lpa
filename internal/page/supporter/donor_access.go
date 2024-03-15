@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -21,8 +22,8 @@ type donorAccessData struct {
 	ShareCode *actor.ShareCodeData
 }
 
-func DonorAccess(tmpl template.Template, donorStore DonorStore, shareCodeStore ShareCodeStore, notifyClient NotifyClient, randomString func(int) string) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
+func DonorAccess(tmpl template.Template, donorStore DonorStore, shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, randomString func(int) string) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, member *actor.Member) error {
 		donor, err := donorStore.Get(r.Context())
 		if err != nil {
 			return err
@@ -70,7 +71,12 @@ func DonorAccess(tmpl template.Template, donorStore DonorStore, shareCodeStore S
 				}
 
 				if err := notifyClient.SendEmail(r.Context(), data.Form.Email, notify.DonorAccessEmail{
-					ShareCode: shareCode,
+					SupporterFullName: member.FullName(),
+					OrganisationName:  organisation.Name,
+					LpaType:           localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
+					DonorName:         donor.Donor.FullName(),
+					URL:               appPublicURL + page.Paths.Start.Format(),
+					ShareCode:         shareCode,
 				}); err != nil {
 					return err
 				}

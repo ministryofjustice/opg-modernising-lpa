@@ -3,8 +3,10 @@ package app
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -36,7 +38,7 @@ func TestShareCodeStoreGet(t *testing.T) {
 
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.
-				ExpectOne(ctx, tc.pk, "#METADATA#123",
+				ExpectOneByPK(ctx, tc.pk,
 					data, nil)
 
 			shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}
@@ -48,11 +50,26 @@ func TestShareCodeStoreGet(t *testing.T) {
 	}
 }
 
+func TestShareCodeStoreGetWhenLinked(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		ExpectOneByPK(ctx, "DONORSHARE#123",
+			actor.ShareCodeData{LpaLinkedAt: time.Now()}, nil)
+
+	shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}
+
+	result, err := shareCodeStore.Get(ctx, actor.TypeDonor, "123")
+	assert.Equal(t, dynamo.NotFoundError{}, err)
+	assert.Equal(t, actor.ShareCodeData{}, result)
+}
+
 func TestShareCodeStoreGetForBadActorType(t *testing.T) {
 	ctx := context.Background()
 	shareCodeStore := &shareCodeStore{}
 
-	_, err := shareCodeStore.Get(ctx, actor.TypeDonor, "123")
+	_, err := shareCodeStore.Get(ctx, actor.TypeIndependentWitness, "123")
 	assert.NotNil(t, err)
 }
 
@@ -62,12 +79,29 @@ func TestShareCodeStoreGetOnError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOne(ctx, "ATTORNEYSHARE#123", "#METADATA#123",
+		ExpectOneByPK(ctx, "ATTORNEYSHARE#123",
 			data, expectedError)
 
 	shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}
 
 	_, err := shareCodeStore.Get(ctx, actor.TypeAttorney, "123")
+	assert.Equal(t, expectedError, err)
+}
+
+func TestShareCodeStoreLinked(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		Put(ctx, actor.ShareCodeData{
+			LpaLinkedTo: "email",
+			LpaLinkedAt: testNow,
+		}).
+		Return(expectedError)
+
+	store := &shareCodeStore{dynamoClient: dynamoClient, now: testNowFn}
+	err := store.Linked(ctx, actor.ShareCodeData{}, "email")
+
 	assert.Equal(t, expectedError, err)
 }
 

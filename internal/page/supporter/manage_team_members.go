@@ -22,7 +22,7 @@ type manageTeamMembersData struct {
 }
 
 func ManageTeamMembers(tmpl template.Template, memberStore MemberStore, randomString func(int) string, notifyClient NotifyClient, appPublicURL string) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
 		data := &manageTeamMembersData{
 			App:          appData,
 			Organisation: organisation,
