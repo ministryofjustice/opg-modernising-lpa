@@ -109,9 +109,18 @@ func (e OrganisationMemberInviteEmail) emailID(isProduction bool) string {
 }
 
 type DonorAccessEmail struct {
-	ShareCode string
+	SupporterFullName string
+	OrganisationName  string
+	LpaType           string
+	DonorName         string
+	URL               string
+	ShareCode         string
 }
 
 func (e DonorAccessEmail) emailID(isProduction bool) string {
-	return ""
+	if isProduction {
+		return "4e7337cd-34aa-41ba-81e3-3c866e3daf4b"
+	}
+
+	return "0d762056-570b-4fca-9871-1f6a69f9da47"
 }
