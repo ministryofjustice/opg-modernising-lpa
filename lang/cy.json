@@ -1138,5 +1138,12 @@
     "lpaLinkedTo": "Welsh",
     "dateLinked": "Welsh",
     "recallInvite": "Welsh",
-    "youSentAnInviteTo": "Welsh {{.Email}}"
+    "youSentAnInviteTo": "Welsh {{.Email}}",
+    "enterYourAccessCode": "Welsh",
+    "youCanFindThisInTheEmail": "Welsh",
+    "accessCode": "Welsh",
+    "accessCodeHint": "Welsh",
+    "incorrectAccessCode": "Welsh",
+    "linked": "Welsh",
+    "removeAccess": "Welsh"
 }
