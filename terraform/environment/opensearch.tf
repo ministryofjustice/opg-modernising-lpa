@@ -5,6 +5,11 @@ data "aws_vpc_endpoint" "opensearch" {
   provider = aws.eu_west_1
 }
 
+data "aws_kms_alias" "opensearch" {
+  name     = "alias/${local.default_tags.application}-opensearch-encryption-key"
+  provider = aws.eu_west_1
+}
+
 resource "aws_opensearchserverless_security_policy" "lpas_collection_encryption_policy" {
   name        = "policy-${local.environment_name}"
   type        = "encryption"
@@ -16,7 +21,8 @@ resource "aws_opensearchserverless_security_policy" "lpas_collection_encryption_
         ResourceType = "collection"
       }
     ],
-    AWSOwnedKey = true
+    AWSOwnedKey = false
+    KmsARN      = data.aws_kms_alias.opensearch.target_key_id
   })
   provider = aws.eu_west_1
 }
