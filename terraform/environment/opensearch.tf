@@ -218,7 +218,7 @@ data "pagerduty_service" "main" {
 }
 
 data "aws_kms_alias" "sns_kms_key_alias" {
-  name     = "alias/${local.environment.account_name}_sns_secret_encryption_key"
+  name     = "alias/${local.default_tags.application}_sns_secret_encryption_key"
   provider = aws.eu_west_1
 }
 
