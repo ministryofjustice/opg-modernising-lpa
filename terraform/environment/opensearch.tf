@@ -159,7 +159,7 @@ resource "aws_opensearchserverless_access_policy" "team_breakglas_access" {
         },
         {
           ResourceType = "collection",
-          Resource     = ["collection/collection-${local.environment_name}"],
+          Resource     = ["collection/collection-v"],
           Permission   = ["aoss:*"]
         }
       ],
@@ -168,5 +168,43 @@ resource "aws_opensearchserverless_access_policy" "team_breakglas_access" {
       ]
     }
   ])
+  provider = aws.eu_west_1
+}
+
+resource "aws_cloudwatch_metric_alarm" "opensearch_4xx_errors" {
+  alarm_name = "${local.environment_name}-opensearch-4xx-errors"
+  # alarm_actions             = [aws_sns_topic.event_alarms.arn]
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "2"
+  metric_name               = "4xx"
+  namespace                 = "AWS/AOSS"
+  period                    = "30"
+  statistic                 = "Maximum"
+  threshold                 = "1"
+  alarm_description         = "This metric monitors AWS OpenSearch Service 4xx error count for ${local.environment_name}"
+  insufficient_data_actions = []
+  dimensions = {
+    CollectionId   = aws_opensearchserverless_collection.lpas_collection.id
+    CollectionName = aws_opensearchserverless_collection.lpas_collection.name
+  }
+  provider = aws.eu_west_1
+}
+
+resource "aws_cloudwatch_metric_alarm" "opensearch_5xx_errors" {
+  alarm_name = "${local.environment_name}-opensearch-5xx-errors"
+  # alarm_actions             = [aws_sns_topic.event_alarms.arn]
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "2"
+  metric_name               = "5xx"
+  namespace                 = "AWS/AOSS"
+  period                    = "30"
+  statistic                 = "Maximum"
+  threshold                 = "1"
+  alarm_description         = "This metric monitors AWS OpenSearch Service 5xx error count for ${local.environment_name}"
+  insufficient_data_actions = []
+  dimensions = {
+    CollectionId   = aws_opensearchserverless_collection.lpas_collection.id
+    CollectionName = aws_opensearchserverless_collection.lpas_collection.name
+  }
   provider = aws.eu_west_1
 }
