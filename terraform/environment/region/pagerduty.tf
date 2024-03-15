@@ -37,7 +37,7 @@ resource "aws_sns_topic_subscription" "cloudwatch_application_insights" {
   topic_arn              = data.aws_sns_topic.cloudwatch_application_insights.arn
   protocol               = "https"
   endpoint_auto_confirms = true
-  endpoint               = "https://events.pagerduty.com/integration/${pagerduty_service_integration.ecs_autoscaling_alarms.integration_key}/enqueue"
+  endpoint               = "https://events.pagerduty.com/integration/${pagerduty_service_integration.cloudwatch_application_insights.integration_key}/enqueue"
   provider               = aws.region
 }
 
