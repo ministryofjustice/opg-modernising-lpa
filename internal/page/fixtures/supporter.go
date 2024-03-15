@@ -28,7 +28,11 @@ type MemberStore interface {
 	Put(ctx context.Context, member *actor.Member) error
 }
 
-func Supporter(sessionStore *sesh.Store, organisationStore OrganisationStore, donorStore DonorStore, memberStore MemberStore, dynamoClient DynamoClient, searchClient *search.Client) page.Handler {
+type ShareCodeStore interface {
+	PutDonor(ctx context.Context, code string, data actor.ShareCodeData) error
+}
+
+func Supporter(sessionStore *sesh.Store, organisationStore OrganisationStore, donorStore DonorStore, memberStore MemberStore, dynamoClient DynamoClient, searchClient *search.Client, shareCodeStore ShareCodeStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		var (
 			invitedMembers = r.FormValue("invitedMembers")
@@ -40,6 +44,7 @@ func Supporter(sessionStore *sesh.Store, organisationStore OrganisationStore, do
 			permission     = r.FormValue("permission")
 			expireInvites  = r.FormValue("expireInvites") == "1"
 			suspended      = r.FormValue("suspended") == "1"
+			accessCode     = r.FormValue("accessCode")
 
 			supporterSub       = random.String(16)
 			supporterSessionID = base64.StdEncoding.EncodeToString([]byte(supporterSub))
@@ -68,6 +73,35 @@ func Supporter(sessionStore *sesh.Store, organisationStore OrganisationStore, do
 				member.Status = actor.StatusSuspended
 
 				if err := memberStore.Put(organisationCtx, member); err != nil {
+					return err
+				}
+			}
+
+			if accessCode != "" {
+				donor, err := organisationStore.CreateLPA(organisationCtx)
+				if err != nil {
+					return err
+				}
+				donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID, LpaID: donor.LpaID})
+
+				donor.LpaUID = makeUID()
+				donor.Donor = makeDonor()
+				donor.Type = actor.LpaTypePropertyAndAffairs
+
+				donor.Attorneys = actor.Attorneys{
+					Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},
+				}
+
+				if err := donorStore.Put(donorCtx, donor); err != nil {
+					return err
+				}
+
+				if err := shareCodeStore.PutDonor(r.Context(), accessCode, actor.ShareCodeData{
+					SessionID:    org.ID,
+					LpaID:        donor.LpaID,
+					ActorUID:     donor.Donor.UID,
+					InviteSentTo: "email@example.com",
+				}); err != nil {
 					return err
 				}
 			}
@@ -194,7 +228,7 @@ func Supporter(sessionStore *sesh.Store, organisationStore OrganisationStore, do
 			return err
 		}
 
-		if redirect != page.Paths.Supporter.EnterOrganisationName.Format() && redirect != page.Paths.Supporter.EnterYourName.Format() {
+		if redirect != page.Paths.Supporter.EnterOrganisationName.Format() && redirect != page.Paths.Supporter.EnterYourName.Format() && redirect != page.Paths.EnterAccessCode.Format() {
 			redirect = "/supporter" + redirect
 		}
 

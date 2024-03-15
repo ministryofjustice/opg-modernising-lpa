@@ -48,7 +48,7 @@ func TestGetDashboard(t *testing.T) {
 				}).
 				Return(expectedError)
 
-			err := Dashboard(template.Execute, donorStore, searchClient)(testAppData, w, r, nil)
+			err := Dashboard(template.Execute, donorStore, searchClient)(testAppData, w, r, nil, nil)
 			resp := w.Result()
 
 			assert.Equal(t, expectedError, err)
@@ -66,7 +66,7 @@ func TestGetDashboardWhenSearchClientErrors(t *testing.T) {
 		Query(r.Context(), search.QueryRequest{Page: 1, PageSize: 10}).
 		Return(&search.QueryResponse{Keys: []dynamo.Key{}, Pagination: &search.Pagination{}}, expectedError)
 
-	err := Dashboard(nil, nil, searchClient)(testAppData, w, r, nil)
+	err := Dashboard(nil, nil, searchClient)(testAppData, w, r, nil, nil)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -84,6 +84,6 @@ func TestGetDashboardWhenDonorStoreErrors(t *testing.T) {
 		GetByKeys(r.Context(), mock.Anything).
 		Return(nil, expectedError)
 
-	err := Dashboard(nil, donorStore, searchClient)(testAppData, w, r, nil)
+	err := Dashboard(nil, donorStore, searchClient)(testAppData, w, r, nil, nil)
 	assert.Equal(t, expectedError, err)
 }
