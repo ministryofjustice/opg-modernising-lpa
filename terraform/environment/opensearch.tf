@@ -159,7 +159,7 @@ resource "aws_opensearchserverless_access_policy" "team_breakglas_access" {
         },
         {
           ResourceType = "collection",
-          Resource     = ["collection/collection-v"],
+          Resource     = ["collection/collection-${local.environment_name}"],
           Permission   = ["aoss:*"]
         }
       ],
