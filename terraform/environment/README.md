@@ -154,7 +154,6 @@ For terraform_environment, this will be based on your PR and can be found in the
 | [aws_opensearchserverless_access_policy.team_operator_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearchserverless_access_policy) | resource |
 | [aws_opensearchserverless_collection.lpas_collection](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearchserverless_collection) | resource |
 | [aws_opensearchserverless_security_policy.lpas_collection_encryption_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearchserverless_security_policy) | resource |
-| [aws_opensearchserverless_security_policy.lpas_collection_network_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearchserverless_security_policy) | resource |
 | [aws_sns_topic.aws_backup_failure_events](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
 | [aws_sns_topic.opensearch](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
 | [aws_sns_topic_policy.aws_backup_failure_events](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_policy) | resource |
@@ -176,7 +175,6 @@ For terraform_environment, this will be based on your PR and can be found in the
 | [aws_kms_alias.opensearch](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/kms_alias) | data source |
 | [aws_kms_alias.sns_encryption_key_eu_west_1](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/kms_alias) | data source |
 | [aws_kms_alias.sns_kms_key_alias](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/kms_alias) | data source |
-| [aws_vpc_endpoint.opensearch](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc_endpoint) | data source |
 | [pagerduty_service.main](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.9.0/docs/data-sources/service) | data source |
 | [pagerduty_vendor.cloudwatch](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.9.0/docs/data-sources/vendor) | data source |
 

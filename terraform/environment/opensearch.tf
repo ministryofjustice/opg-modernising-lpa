@@ -1,9 +1,9 @@
-data "aws_vpc_endpoint" "opensearch" {
-  tags = {
-    Name = "opensearch-eu-west-1"
-  }
-  provider = aws.eu_west_1
-}
+# data "aws_vpc_endpoint" "opensearch" {
+#   tags = {
+#     Name = "opensearch-eu-west-1"
+#   }
+#   provider = aws.eu_west_1
+# }
 
 data "aws_kms_alias" "opensearch" {
   name     = "alias/${local.default_tags.application}-opensearch-encryption-key"
@@ -34,37 +34,37 @@ resource "aws_opensearchserverless_collection" "lpas_collection" {
   provider   = aws.eu_west_1
 }
 
-resource "aws_opensearchserverless_security_policy" "lpas_collection_network_policy" {
-  name        = "policy-${local.environment_name}"
-  type        = "network"
-  description = "VPC access for collection endpoint"
-  policy = jsonencode([
-    {
-      Description = "VPC access for collection endpoint",
-      Rules = [
-        {
-          ResourceType = "collection",
-          Resource     = ["collection/collection-${local.environment_name}"]
-        }
-      ],
-      AllowFromPublic = false,
-      SourceVPCEs = [
-        data.aws_vpc_endpoint.opensearch.id
-      ]
-    },
-    {
-      AllowFromPublic = true
-      Description     = "public access to dashboard"
-      Rules = [
-        {
-          Resource     = ["collection/collection-${local.environment_name}"]
-          ResourceType = "dashboard"
-        }
-      ]
-    }
-  ])
-  provider = aws.eu_west_1
-}
+# resource "aws_opensearchserverless_security_policy" "lpas_collection_network_policy" {
+#   name        = "policy-${local.environment_name}"
+#   type        = "network"
+#   description = "VPC access for collection endpoint"
+#   policy = jsonencode([
+#     {
+#       Description = "VPC access for collection endpoint",
+#       Rules = [
+#         {
+#           ResourceType = "collection",
+#           Resource     = ["collection/collection-${local.environment_name}"]
+#         }
+#       ],
+#       AllowFromPublic = false,
+#       SourceVPCEs = [
+#         data.aws_vpc_endpoint.opensearch.id
+#       ]
+#     },
+#     {
+#       AllowFromPublic = true
+#       Description     = "public access to dashboard"
+#       Rules = [
+#         {
+#           Resource     = ["collection/collection-${local.environment_name}"]
+#           ResourceType = "dashboard"
+#         }
+#       ]
+#     }
+#   ])
+#   provider = aws.eu_west_1
+# }
 
 resource "aws_opensearchserverless_access_policy" "app" {
   name        = "app-${local.environment_name}"
