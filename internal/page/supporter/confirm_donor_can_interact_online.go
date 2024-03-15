@@ -17,7 +17,7 @@ type confirmDonorCanInteractOnlineData struct {
 }
 
 func ConfirmDonorCanInteractOnline(tmpl template.Template, organisationStore OrganisationStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
 		data := &confirmDonorCanInteractOnlineData{
 			App:  appData,
 			Form: form.NewYesNoForm(form.YesNoUnknown),

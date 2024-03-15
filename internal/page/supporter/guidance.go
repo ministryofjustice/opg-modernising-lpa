@@ -18,7 +18,7 @@ type guidanceData struct {
 }
 
 func Guidance(tmpl template.Template) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
 		return tmpl(w, &guidanceData{
 			App:          appData,
 			Query:        r.URL.Query(),
