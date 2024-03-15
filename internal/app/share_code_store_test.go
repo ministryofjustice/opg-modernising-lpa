@@ -36,7 +36,7 @@ func TestShareCodeStoreGet(t *testing.T) {
 
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.
-				ExpectOne(ctx, tc.pk, "#METADATA#123",
+				ExpectOneByPK(ctx, tc.pk,
 					data, nil)
 
 			shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}
@@ -52,7 +52,7 @@ func TestShareCodeStoreGetForBadActorType(t *testing.T) {
 	ctx := context.Background()
 	shareCodeStore := &shareCodeStore{}
 
-	_, err := shareCodeStore.Get(ctx, actor.TypeDonor, "123")
+	_, err := shareCodeStore.Get(ctx, actor.TypeIndependentWitness, "123")
 	assert.NotNil(t, err)
 }
 
@@ -62,7 +62,7 @@ func TestShareCodeStoreGetOnError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOne(ctx, "ATTORNEYSHARE#123", "#METADATA#123",
+		ExpectOneByPK(ctx, "ATTORNEYSHARE#123",
 			data, expectedError)
 
 	shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}

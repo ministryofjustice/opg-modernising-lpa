@@ -25,17 +25,17 @@ func (_m *mockHandler) EXPECT() *mockHandler_Expecter {
 	return &mockHandler_Expecter{mock: &_m.Mock}
 }
 
-// Execute provides a mock function with given fields: data, w, r, organisation
-func (_m *mockHandler) Execute(data page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
-	ret := _m.Called(data, w, r, organisation)
+// Execute provides a mock function with given fields: data, w, r, organisation, member
+func (_m *mockHandler) Execute(data page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, member *actor.Member) error {
+	ret := _m.Called(data, w, r, organisation, member)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Execute")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(page.AppData, http.ResponseWriter, *http.Request, *actor.Organisation) error); ok {
-		r0 = rf(data, w, r, organisation)
+	if rf, ok := ret.Get(0).(func(page.AppData, http.ResponseWriter, *http.Request, *actor.Organisation, *actor.Member) error); ok {
+		r0 = rf(data, w, r, organisation, member)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -53,13 +53,14 @@ type mockHandler_Execute_Call struct {
 //   - w http.ResponseWriter
 //   - r *http.Request
 //   - organisation *actor.Organisation
-func (_e *mockHandler_Expecter) Execute(data interface{}, w interface{}, r interface{}, organisation interface{}) *mockHandler_Execute_Call {
-	return &mockHandler_Execute_Call{Call: _e.mock.On("Execute", data, w, r, organisation)}
+//   - member *actor.Member
+func (_e *mockHandler_Expecter) Execute(data interface{}, w interface{}, r interface{}, organisation interface{}, member interface{}) *mockHandler_Execute_Call {
+	return &mockHandler_Execute_Call{Call: _e.mock.On("Execute", data, w, r, organisation, member)}
 }
 
-func (_c *mockHandler_Execute_Call) Run(run func(data page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation)) *mockHandler_Execute_Call {
+func (_c *mockHandler_Execute_Call) Run(run func(data page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, member *actor.Member)) *mockHandler_Execute_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(page.AppData), args[1].(http.ResponseWriter), args[2].(*http.Request), args[3].(*actor.Organisation))
+		run(args[0].(page.AppData), args[1].(http.ResponseWriter), args[2].(*http.Request), args[3].(*actor.Organisation), args[4].(*actor.Member))
 	})
 	return _c
 }
@@ -69,7 +70,7 @@ func (_c *mockHandler_Execute_Call) Return(_a0 error) *mockHandler_Execute_Call 
 	return _c
 }
 
-func (_c *mockHandler_Execute_Call) RunAndReturn(run func(page.AppData, http.ResponseWriter, *http.Request, *actor.Organisation) error) *mockHandler_Execute_Call {
+func (_c *mockHandler_Execute_Call) RunAndReturn(run func(page.AppData, http.ResponseWriter, *http.Request, *actor.Organisation, *actor.Member) error) *mockHandler_Execute_Call {
 	_c.Call.Return(run)
 	return _c
 }
