@@ -17,4 +17,9 @@ type ShareCodeData struct {
 
 	// InviteSentTo is the email address the supporter sent the invite to
 	InviteSentTo string
+	// LpaLinkedAt is the time the donor entered the access code
+	LpaLinkedAt time.Time
+	// LpaLinkedTo is set to the email address the donor used to sign-in when
+	// using the code
+	LpaLinkedTo string
 }

@@ -36,7 +36,7 @@ type keys struct {
 }
 
 func (k keys) isLpa() bool {
-	return strings.HasPrefix(k.SK, donorKey(""))
+	return strings.HasPrefix(k.SK, donorKey("")) || strings.HasPrefix(k.SK, organisationKey(""))
 }
 
 func (k keys) isCertificateProviderDetails() bool {

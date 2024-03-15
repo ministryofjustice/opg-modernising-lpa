@@ -31,6 +31,7 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore Ses
 				LastName:   donor.Donor.LastName,
 				OtherNames: donor.Donor.OtherNames,
 				Dob:        donor.Donor.DateOfBirth,
+				Email:      donor.Donor.Email,
 				CanSign:    donor.Donor.ThinksCanSign,
 			},
 			YesNoMaybeOptions: actor.YesNoMaybeValues,

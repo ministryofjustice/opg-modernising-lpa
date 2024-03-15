@@ -216,6 +216,31 @@ func (c *Client) AllByKeys(ctx context.Context, keys []Key) ([]map[string]types.
 	return result.Responses[c.table], nil
 }
 
+func (c *Client) OneByPK(ctx context.Context, pk string, v interface{}) error {
+	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
+		TableName:                aws.String(c.table),
+		ExpressionAttributeNames: map[string]string{"#PK": "PK"},
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":PK": &types.AttributeValueMemberS{Value: pk},
+		},
+		KeyConditionExpression: aws.String("#PK = :PK"),
+	})
+
+	if err != nil {
+		return err
+	}
+
+	if len(response.Items) == 0 {
+		return NotFoundError{}
+	}
+
+	if len(response.Items) > 1 {
+		return MultipleResultsError{}
+	}
+
+	return attributevalue.UnmarshalMap(response.Items[0], v)
+}
+
 func (c *Client) OneByPartialSK(ctx context.Context, pk, partialSK string, v interface{}) error {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName:                aws.String(c.table),

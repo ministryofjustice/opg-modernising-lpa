@@ -137,7 +137,7 @@ func TestMakeSupporterHandle(t *testing.T) {
 		Return(&actor.Member{Permission: actor.PermissionAdmin, ID: "member-id"}, nil)
 
 	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore, memberStore, nil)
-	handle(page.SupporterPath("/path"), CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation) error {
+	handle(page.SupporterPath("/path"), CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
 		assert.Equal(t, page.AppData{
 			Page:                "/supporter/path",
 			SessionID:           "cmFuZG9t",
@@ -186,7 +186,7 @@ func TestMakeSupporterHandleWithLpaPath(t *testing.T) {
 		Return(&actor.Member{Permission: actor.PermissionAdmin, ID: "member-id"}, nil)
 
 	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore, memberStore, nil)
-	handle(page.SupporterLpaPath("/path"), CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation) error {
+	handle(page.SupporterLpaPath("/path"), CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
 		assert.Equal(t, page.AppData{
 			Page:                "/supporter/path/xyz",
 			SessionID:           "cmFuZG9t",
@@ -236,7 +236,7 @@ func TestMakeSupporterHandleWhenRequireAdmin(t *testing.T) {
 		Return(&actor.Member{Permission: actor.PermissionAdmin, ID: "member-id"}, nil)
 
 	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore, memberStore, nil)
-	handle(page.SupporterPath("/path"), RequireAdmin, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation) error {
+	handle(page.SupporterPath("/path"), RequireAdmin, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
 		assert.Equal(t, page.AppData{
 			Page:                "/supporter/path",
 			SessionID:           "cmFuZG9t",
@@ -413,7 +413,7 @@ func TestMakeSupporterHandleWithSessionData(t *testing.T) {
 		Return(&actor.Member{Permission: actor.PermissionAdmin, ID: "member-id"}, nil)
 
 	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore, memberStore, nil)
-	handle(page.SupporterPath("/path"), None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation) error {
+	handle(page.SupporterPath("/path"), None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
 		assert.Equal(t, page.AppData{
 			Page:                "/supporter/path",
 			SessionID:           "cmFuZG9t",
@@ -541,7 +541,7 @@ func TestMakeSupporterHandleErrors(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeSupporterHandle(mux, sessionStore, errorHandler.Execute, organisationStore, memberStore, nil)
-	handle(page.SupporterPath("/path"), None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.Organisation) error {
+	handle(page.SupporterPath("/path"), None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.Organisation, _ *actor.Member) error {
 		return expectedError
 	})
 

@@ -118,6 +118,54 @@ func (_c *mockShareCodeStoreDynamoClient_One_Call) RunAndReturn(run func(context
 	return _c
 }
 
+// OneByPK provides a mock function with given fields: ctx, pk, v
+func (_m *mockShareCodeStoreDynamoClient) OneByPK(ctx context.Context, pk string, v interface{}) error {
+	ret := _m.Called(ctx, pk, v)
+
+	if len(ret) == 0 {
+		panic("no return value specified for OneByPK")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, interface{}) error); ok {
+		r0 = rf(ctx, pk, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockShareCodeStoreDynamoClient_OneByPK_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'OneByPK'
+type mockShareCodeStoreDynamoClient_OneByPK_Call struct {
+	*mock.Call
+}
+
+// OneByPK is a helper method to define mock.On call
+//   - ctx context.Context
+//   - pk string
+//   - v interface{}
+func (_e *mockShareCodeStoreDynamoClient_Expecter) OneByPK(ctx interface{}, pk interface{}, v interface{}) *mockShareCodeStoreDynamoClient_OneByPK_Call {
+	return &mockShareCodeStoreDynamoClient_OneByPK_Call{Call: _e.mock.On("OneByPK", ctx, pk, v)}
+}
+
+func (_c *mockShareCodeStoreDynamoClient_OneByPK_Call) Run(run func(ctx context.Context, pk string, v interface{})) *mockShareCodeStoreDynamoClient_OneByPK_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(interface{}))
+	})
+	return _c
+}
+
+func (_c *mockShareCodeStoreDynamoClient_OneByPK_Call) Return(_a0 error) *mockShareCodeStoreDynamoClient_OneByPK_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockShareCodeStoreDynamoClient_OneByPK_Call) RunAndReturn(run func(context.Context, string, interface{}) error) *mockShareCodeStoreDynamoClient_OneByPK_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // OneBySK provides a mock function with given fields: ctx, sk, v
 func (_m *mockShareCodeStoreDynamoClient) OneBySK(ctx context.Context, sk string, v interface{}) error {
 	ret := _m.Called(ctx, sk, v)
