@@ -1,0 +1,19 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "enterYourAccessCode" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ tr .App "enterYourAccessCode" }}</h1>
+
+      <p class="govuk-body">{{ tr .App "youCanFindThisInTheEmail" }}</p>
+
+      <form novalidate method="post">
+        {{ template "input" (input . "reference-number" "accessCode" .Form.AccessCodeRaw "classes" "govuk-input--width-20 govuk-!-margin-bottom-3 govuk-input--extra-letter-spacing" "hint" "accessCodeHint")}}
+        {{ template "continue-button" . }}
+        {{ template "csrf-field" . }}
+      </form>
+    </div>
+  </div>
+{{ end }}
