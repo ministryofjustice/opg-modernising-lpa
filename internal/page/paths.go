@@ -296,6 +296,7 @@ type AppPaths struct {
 	Dashboard                          Path
 	DashboardFixtures                  Path
 	DonorSubByLpaUID                   Path
+	EnterAccessCode                    Path
 	Fixtures                           Path
 	Login                              Path
 	LoginCallback                      Path
@@ -505,6 +506,7 @@ var Paths = AppPaths{
 	DeleteThisLpa:                                        "/delete-this-lpa",
 	DoYouWantReplacementAttorneys:                        "/do-you-want-replacement-attorneys",
 	DoYouWantToNotifyPeople:                              "/do-you-want-to-notify-people",
+	EnterAccessCode:                                      "/enter-access-code",
 	EnterReplacementTrustCorporation:                     "/enter-replacement-trust-corporation",
 	EnterReplacementTrustCorporationAddress:              "/enter-replacement-trust-corporation-address",
 	EnterTrustCorporation:                                "/enter-trust-corporation",

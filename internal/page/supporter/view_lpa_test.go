@@ -30,7 +30,7 @@ func TestGetViewLPA(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ViewLPA(template.Execute, donorStore)(testAppData, w, r, &actor.Organisation{})
+	err := ViewLPA(template.Execute, donorStore)(testAppData, w, r, &actor.Organisation{}, nil)
 
 	assert.Nil(t, err)
 }
@@ -39,7 +39,7 @@ func TestGetViewLPAWithSessionMissing(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(page.ContextWithSessionData(context.Background(), &page.SessionData{}), http.MethodGet, "/", nil)
 
-	err := ViewLPA(nil, nil)(testAppData, w, r, &actor.Organisation{})
+	err := ViewLPA(nil, nil)(testAppData, w, r, &actor.Organisation{}, nil)
 
 	assert.Error(t, err)
 }
@@ -48,7 +48,7 @@ func TestGetViewLPAMissingLPAId(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ViewLPA(nil, nil)(testAppData, w, r, &actor.Organisation{})
+	err := ViewLPA(nil, nil)(testAppData, w, r, &actor.Organisation{}, nil)
 
 	assert.Error(t, err)
 }
@@ -62,7 +62,7 @@ func TestGetViewLPAWithDonorStoreError(t *testing.T) {
 		Get(page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
 		Return(nil, expectedError)
 
-	err := ViewLPA(nil, donorStore)(testAppData, w, r, &actor.Organisation{})
+	err := ViewLPA(nil, donorStore)(testAppData, w, r, &actor.Organisation{}, nil)
 
 	assert.Error(t, err)
 }
@@ -86,7 +86,7 @@ func TestGetViewLPAWhenTemplateError(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := ViewLPA(template.Execute, donorStore)(testAppData, w, r, &actor.Organisation{})
+	err := ViewLPA(template.Execute, donorStore)(testAppData, w, r, &actor.Organisation{}, nil)
 
 	assert.Error(t, err)
 }
