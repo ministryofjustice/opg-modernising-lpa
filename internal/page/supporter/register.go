@@ -19,6 +19,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
+type Localizer interface {
+	page.Localizer
+}
+
 type OrganisationStore interface {
 	Create(ctx context.Context, member *actor.Member, name string) (*actor.Organisation, error)
 	CreateLPA(ctx context.Context) (*actor.DonorProvidedDetails, error)
@@ -73,7 +77,7 @@ type ShareCodeStore interface {
 
 type Template func(w io.Writer, data interface{}) error
 
-type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error
+type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, member *actor.Member) error
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
@@ -140,7 +144,7 @@ func Register(
 		EditMember(tmpls.Get("edit_member.gohtml"), memberStore))
 
 	handleWithSupporter(paths.DonorAccess, CanGoBack,
-		DonorAccess(tmpls.Get("donor_access.gohtml"), donorStore, shareCodeStore, notifyClient, random.String))
+		DonorAccess(tmpls.Get("donor_access.gohtml"), donorStore, shareCodeStore, notifyClient, appPublicURL, random.String))
 }
 
 type HandleOpt byte
@@ -276,7 +280,7 @@ func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler pa
 
 			ctx = page.ContextWithAppData(ctx, appData)
 
-			if err := h(appData, w, r.WithContext(ctx), organisation); err != nil {
+			if err := h(appData, w, r.WithContext(ctx), organisation, member); err != nil {
 				errorHandler(w, r, err)
 			}
 		})
