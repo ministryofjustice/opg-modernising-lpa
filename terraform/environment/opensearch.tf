@@ -79,7 +79,10 @@ resource "aws_opensearchserverless_access_policy" "app" {
           Permission   = ["aoss:*"]
         }
       ],
-      Principal = [module.global.iam_roles.app_ecs_task_role.arn]
+      Principal = [
+        module.global.iam_roles.app_ecs_task_role.arn,
+        "arn:aws:iam::${data.aws_caller_identity.eu_west_1.account_id}:role/operator"
+      ]
     }
   ])
   provider = aws.eu_west_1
@@ -104,6 +107,32 @@ resource "aws_opensearchserverless_access_policy" "event_received" {
         }
       ],
       Principal = [module.global.iam_roles.event_received_lambda.arn]
+    }
+  ])
+  provider = aws.eu_west_1
+}
+
+resource "aws_opensearchserverless_access_policy" "team_access" {
+  name        = "team-access-${local.environment_name}"
+  type        = "data"
+  description = "allow index and collection access for team"
+  policy = jsonencode([
+    {
+      Rules = [
+        {
+          ResourceType = "index",
+          Resource     = ["index/collection-${local.environment_name}/*"],
+          Permission   = ["aoss:*"]
+        },
+        {
+          ResourceType = "collection",
+          Resource     = ["collection/collection-${local.environment_name}"],
+          Permission   = ["aoss:*"]
+        }
+      ],
+      Principal = [
+        "arn:aws:iam::${data.aws_caller_identity.eu_west_1.account_id}:role/operator"
+      ]
     }
   ])
   provider = aws.eu_west_1
