@@ -28,7 +28,7 @@ type dashboardData struct {
 func Dashboard(tmpl template.Template, donorStore DonorStore, searchClient SearchClient) Handler {
 	const pageSize = 10
 
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
 		page, err := strconv.Atoi(r.FormValue("page"))
 		if err != nil {
 			page = 1

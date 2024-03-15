@@ -104,6 +104,48 @@ func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, e
 	return donor, err
 }
 
+// An lpaReference creates a "pointer" record which can be queried as if the
+// expected donor owned the LPA. This contains the actual SK containing the LPA
+// data.
+type lpaReference struct {
+	PK, SK       string
+	ReferencedSK string
+}
+
+// Link allows a donor to access an Lpa created by a supporter. It creates two
+// records:
+//
+//  1. an lpaReference which allows the donor's session ID to be queried
+//     for the organisation ID that holds the Lpa data;
+//  2. an lpaLink which allows
+//     the Lpa to be shown on the donor's dashboard.
+func (s *donorStore) Link(ctx context.Context, shareCode actor.ShareCodeData) error {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	if data.SessionID == "" {
+		return errors.New("donorStore.Link requires SessionID")
+	}
+
+	if err := s.dynamoClient.Create(ctx, lpaReference{
+		PK:           lpaKey(shareCode.LpaID),
+		SK:           donorKey(data.SessionID),
+		ReferencedSK: organisationKey(shareCode.SessionID),
+	}); err != nil {
+		return err
+	}
+
+	return s.dynamoClient.Create(ctx, lpaLink{
+		PK:        lpaKey(shareCode.LpaID),
+		SK:        subKey(data.SessionID),
+		DonorKey:  organisationKey(shareCode.SessionID),
+		ActorType: actor.TypeDonor,
+		UpdatedAt: s.now(),
+	})
+}
+
 func (s *donorStore) GetAny(ctx context.Context) (*actor.DonorProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
@@ -133,14 +175,23 @@ func (s *donorStore) Get(ctx context.Context) (*actor.DonorProvidedDetails, erro
 	}
 
 	sk := donorKey(data.SessionID)
-
 	if data.OrganisationID != "" {
 		sk = organisationKey(data.OrganisationID)
 	}
 
-	var donor *actor.DonorProvidedDetails
-	err = s.dynamoClient.One(ctx, lpaKey(data.LpaID), sk, &donor)
-	return donor, err
+	var donor struct {
+		actor.DonorProvidedDetails
+		ReferencedSK string
+	}
+	if err := s.dynamoClient.One(ctx, lpaKey(data.LpaID), sk, &donor); err != nil {
+		return nil, err
+	}
+
+	if donor.ReferencedSK != "" {
+		err = s.dynamoClient.One(ctx, lpaKey(data.LpaID), donor.ReferencedSK, &donor)
+	}
+
+	return &donor.DonorProvidedDetails, err
 }
 
 func (s *donorStore) Latest(ctx context.Context) (*actor.DonorProvidedDetails, error) {
