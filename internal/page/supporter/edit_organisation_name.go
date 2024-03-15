@@ -17,7 +17,7 @@ type editOrganisationNameData struct {
 }
 
 func EditOrganisationName(tmpl template.Template, organisationStore OrganisationStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
 		data := &editOrganisationNameData{
 			App: appData,
 			Form: &organisationNameForm{

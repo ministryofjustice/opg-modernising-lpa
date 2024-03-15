@@ -40,6 +40,7 @@ type Logger interface {
 
 type DynamoClient interface {
 	One(ctx context.Context, pk, sk string, v interface{}) error
+	OneByPK(ctx context.Context, pk string, v interface{}) error
 	OneByPartialSK(ctx context.Context, pk, partialSK string, v interface{}) error
 	AllByPartialSK(ctx context.Context, pk, partialSK string, v interface{}) error
 	LatestForActor(ctx context.Context, sk string, v interface{}) error
@@ -216,6 +217,7 @@ func App(
 		eventClient,
 		dashboardStore,
 		lpaStoreClient,
+		shareCodeStore,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang)
