@@ -48,6 +48,10 @@ data "aws_iam_policy_document" "opensearch_kms" {
       "kms:CreateGrant",
       "kms:DescribeKey",
     ]
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.global.account_id}:root"]
+    }
     condition {
       test     = "Bool"
       variable = "kms:GrantIsForAWSResource"
@@ -72,6 +76,10 @@ data "aws_iam_policy_document" "opensearch_kms" {
     actions = [
       "kms:ListKeys",
     ]
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.global.account_id}:root"]
+    }
     condition {
       test     = "Bool"
       variable = "kms:GrantIsForAWSResource"
