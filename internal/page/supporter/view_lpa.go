@@ -17,7 +17,7 @@ type viewLPAData struct {
 }
 
 func ViewLPA(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
 		sessionData, err := page.SessionDataFromContext(r.Context())
 		if err != nil {
 			return err

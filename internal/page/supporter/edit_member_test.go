@@ -47,7 +47,7 @@ func TestGetEditMember(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EditMember(template.Execute, memberStore)(testAppData, w, r, &actor.Organisation{})
+	err := EditMember(template.Execute, memberStore)(testAppData, w, r, &actor.Organisation{}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -63,7 +63,7 @@ func TestGetEditMemberWhenOrganisationStoreError(t *testing.T) {
 		GetByID(r.Context(), mock.Anything).
 		Return(nil, expectedError)
 
-	err := EditMember(nil, memberStore)(testAppData, w, r, &actor.Organisation{})
+	err := EditMember(nil, memberStore)(testAppData, w, r, &actor.Organisation{}, nil)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -84,7 +84,7 @@ func TestGetEditMemberWhenTemplateError(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := EditMember(template.Execute, memberStore)(testAppData, w, r, &actor.Organisation{})
+	err := EditMember(template.Execute, memberStore)(testAppData, w, r, &actor.Organisation{}, nil)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -166,7 +166,7 @@ func TestPostEditMember(t *testing.T) {
 			err := EditMember(nil, memberStore)(page.AppData{
 				LoginSessionEmail: "self@example.org",
 				Permission:        tc.userPermission,
-			}, w, r, &actor.Organisation{})
+			}, w, r, &actor.Organisation{}, nil)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -226,7 +226,7 @@ func TestPostEditMemberNoUpdate(t *testing.T) {
 			err := EditMember(nil, memberStore)(page.AppData{
 				LoginSessionEmail: "self@example.org",
 				Permission:        tc.userPermission,
-			}, w, r, &actor.Organisation{})
+			}, w, r, &actor.Organisation{}, nil)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -255,7 +255,7 @@ func TestPostEditMemberWhenOrganisationStorePutError(t *testing.T) {
 		Put(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EditMember(nil, memberStore)(testAppData, w, r, &actor.Organisation{})
+	err := EditMember(nil, memberStore)(testAppData, w, r, &actor.Organisation{}, nil)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -296,7 +296,7 @@ func TestPostEditMemberWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EditMember(template.Execute, memberStore)(testAppData, w, r, nil)
+	err := EditMember(template.Execute, memberStore)(testAppData, w, r, nil, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)

@@ -36,7 +36,7 @@ func TestGetManageTeamMembers(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ManageTeamMembers(template.Execute, memberStore, nil, nil, "")(testAppData, w, r, &actor.Organisation{ID: "org-id"})
+	err := ManageTeamMembers(template.Execute, memberStore, nil, nil, "")(testAppData, w, r, &actor.Organisation{ID: "org-id"}, nil)
 
 	resp := w.Result()
 
@@ -73,7 +73,7 @@ func TestGetManageTeamMembersWhenMemberStoreErrors(t *testing.T) {
 					Return([]*actor.Member{}, tc.membersError)
 			}
 
-			err := ManageTeamMembers(nil, memberStore, nil, nil, "")(testAppData, w, r, &actor.Organisation{})
+			err := ManageTeamMembers(nil, memberStore, nil, nil, "")(testAppData, w, r, &actor.Organisation{}, nil)
 
 			resp := w.Result()
 
@@ -100,7 +100,7 @@ func TestGetManageTeamMembersWhenTemplateError(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ManageTeamMembers(template.Execute, memberStore, nil, nil, "")(testAppData, w, r, &actor.Organisation{})
+	err := ManageTeamMembers(template.Execute, memberStore, nil, nil, "")(testAppData, w, r, &actor.Organisation{}, nil)
 
 	resp := w.Result()
 
@@ -140,7 +140,7 @@ func TestPostManageTeamMembers(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ManageTeamMembers(nil, memberStore, func(int) string { return "abcde" }, notifyClient, "http://base")(testOrgMemberAppData, w, r, organisation)
+	err := ManageTeamMembers(nil, memberStore, func(int) string { return "abcde" }, notifyClient, "http://base")(testOrgMemberAppData, w, r, organisation, nil)
 
 	resp := w.Result()
 
@@ -161,7 +161,7 @@ func TestPostManageTeamMembersWhenValidationErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := ManageTeamMembers(nil, nil, func(int) string { return "abcde" }, nil, "http://base")(testAppData, w, r, &actor.Organisation{ID: "org-id", Name: "My organisation"})
+	err := ManageTeamMembers(nil, nil, func(int) string { return "abcde" }, nil, "http://base")(testAppData, w, r, &actor.Organisation{ID: "org-id", Name: "My organisation"}, nil)
 
 	resp := w.Result()
 
@@ -206,7 +206,7 @@ func TestPostManageTeamMembersWhenMemberStoreErrors(t *testing.T) {
 					Return(tc.createMemberInvite)
 			}
 
-			err := ManageTeamMembers(nil, memberStore, func(int) string { return "abcde" }, nil, "")(testAppData, w, r, &actor.Organisation{})
+			err := ManageTeamMembers(nil, memberStore, func(int) string { return "abcde" }, nil, "")(testAppData, w, r, &actor.Organisation{}, nil)
 
 			resp := w.Result()
 
@@ -241,7 +241,7 @@ func TestPostManageTeamMembersWhenNotifyClientError(t *testing.T) {
 		SendEmail(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := ManageTeamMembers(nil, memberStore, func(int) string { return "abcde" }, notifyClient, "")(testAppData, w, r, &actor.Organisation{})
+	err := ManageTeamMembers(nil, memberStore, func(int) string { return "abcde" }, notifyClient, "")(testAppData, w, r, &actor.Organisation{}, nil)
 
 	resp := w.Result()
 
