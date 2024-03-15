@@ -28,7 +28,7 @@ func TestGetEditOrganisationName(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EditOrganisationName(template.Execute, nil)(testAppData, w, r, organisation)
+	err := EditOrganisationName(template.Execute, nil)(testAppData, w, r, organisation, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -44,7 +44,7 @@ func TestGetEditOrganisationNameWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := EditOrganisationName(template.Execute, nil)(testAppData, w, r, &actor.Organisation{})
+	err := EditOrganisationName(template.Execute, nil)(testAppData, w, r, &actor.Organisation{}, nil)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -63,7 +63,7 @@ func TestPostEditOrganisationName(t *testing.T) {
 		Put(r.Context(), &actor.Organisation{PK: "ORG", Name: "My organisation"}).
 		Return(nil)
 
-	err := EditOrganisationName(nil, organisationStore)(testAppData, w, r, &actor.Organisation{PK: "ORG"})
+	err := EditOrganisationName(nil, organisationStore)(testAppData, w, r, &actor.Organisation{PK: "ORG"}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -89,7 +89,7 @@ func TestPostEditOrganisationNameWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := EditOrganisationName(template.Execute, nil)(testAppData, w, r, &actor.Organisation{})
+	err := EditOrganisationName(template.Execute, nil)(testAppData, w, r, &actor.Organisation{}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -111,7 +111,7 @@ func TestPostEditOrganisationNameWhenOrganisationStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := EditOrganisationName(nil, organisationStore)(testAppData, w, r, &actor.Organisation{})
+	err := EditOrganisationName(nil, organisationStore)(testAppData, w, r, &actor.Organisation{}, nil)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

@@ -22,7 +22,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, &slog.Logger{}, template.Templates{}, template.Templates{}, nil, nil, &onelogin.Client{}, &place.Client{}, "http://example.org", &pay.Client{}, nil, &mockWitnessCodeSender{}, nil, nil, nil, nil, &notify.Client{}, nil, nil, nil, nil, nil)
+	Register(mux, &slog.Logger{}, template.Templates{}, template.Templates{}, nil, nil, &onelogin.Client{}, &place.Client{}, "http://example.org", &pay.Client{}, nil, &mockWitnessCodeSender{}, nil, nil, nil, nil, &notify.Client{}, nil, nil, nil, nil, nil, &mockShareCodeStore{})
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
@@ -32,8 +32,8 @@ func TestMakeHandle(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/path?a=b", nil)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, nil)
-	handle("/path", func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle := makeHandle(mux, nil, nil)
+	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/path",
 			ActorType: actor.TypeDonor,
@@ -59,8 +59,8 @@ func TestMakeHandleErrors(t *testing.T) {
 		Execute(w, r, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeHandle(mux, errorHandler.Execute)
-	handle("/path", func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle := makeHandle(mux, nil, errorHandler.Execute)
+	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
 
