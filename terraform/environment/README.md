@@ -126,6 +126,7 @@ For terraform_environment, this will be based on your PR and can be found in the
 | <a name="provider_aws.global"></a> [aws.global](#provider\_aws.global) | 5.41.0 |
 | <a name="provider_aws.management_eu_west_1"></a> [aws.management\_eu\_west\_1](#provider\_aws.management\_eu\_west\_1) | 5.41.0 |
 | <a name="provider_aws.management_global"></a> [aws.management\_global](#provider\_aws.management\_global) | 5.41.0 |
+| <a name="provider_pagerduty"></a> [pagerduty](#provider\_pagerduty) | 3.9.0 |
 
 ## Modules
 
@@ -155,9 +156,12 @@ For terraform_environment, this will be based on your PR and can be found in the
 | [aws_opensearchserverless_security_policy.lpas_collection_encryption_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearchserverless_security_policy) | resource |
 | [aws_opensearchserverless_security_policy.lpas_collection_network_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearchserverless_security_policy) | resource |
 | [aws_sns_topic.aws_backup_failure_events](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
+| [aws_sns_topic.opensearch](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
 | [aws_sns_topic_policy.aws_backup_failure_events](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_policy) | resource |
+| [aws_sns_topic_subscription.opensearch](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription) | resource |
 | [aws_ssm_parameter.container_version](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_parameter) | resource |
 | [aws_ssm_parameter.dns_target_region](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_parameter) | resource |
+| [pagerduty_service_integration.opensearch](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.9.0/docs/resources/service_integration) | resource |
 | [aws_backup_vault.eu_west_1](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/backup_vault) | data source |
 | [aws_backup_vault.eu_west_2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/backup_vault) | data source |
 | [aws_caller_identity.eu_west_1](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
@@ -171,7 +175,10 @@ For terraform_environment, this will be based on your PR and can be found in the
 | [aws_kms_alias.dynamodb_encryption_key_eu_west_2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/kms_alias) | data source |
 | [aws_kms_alias.opensearch](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/kms_alias) | data source |
 | [aws_kms_alias.sns_encryption_key_eu_west_1](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/kms_alias) | data source |
+| [aws_kms_alias.sns_kms_key_alias](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/kms_alias) | data source |
 | [aws_vpc_endpoint.opensearch](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc_endpoint) | data source |
+| [pagerduty_service.main](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.9.0/docs/data-sources/service) | data source |
+| [pagerduty_vendor.cloudwatch](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.9.0/docs/data-sources/vendor) | data source |
 
 ## Inputs
 
