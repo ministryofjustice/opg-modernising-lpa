@@ -12,6 +12,15 @@ resource "aws_ecs_service" "app" {
     weight            = 100
   }
 
+  deployment_controller {
+    type = "ECS"
+  }
+
+  deployment_circuit_breaker {
+    enable   = true
+    rollback = true
+  }
+
   network_configuration {
     security_groups  = [aws_security_group.app_ecs_service.id]
     subnets          = var.network.application_subnets
@@ -121,6 +130,11 @@ data "aws_kms_alias" "reduced_fees_uploads_s3_encryption" {
   provider = aws.region
 }
 
+data "aws_kms_alias" "opensearch_encryption_key" {
+  name     = "alias/${data.aws_default_tags.current.tags.application}-opensearch-encryption-key"
+  provider = aws.region
+}
+
 data "aws_secretsmanager_secret" "private_jwt_key" {
   name     = "private-jwt-key-base64"
   provider = aws.region
@@ -204,6 +218,21 @@ data "aws_iam_policy_document" "task_role_access_policy" {
 
     resources = [
       data.aws_kms_alias.dynamodb_encryption_key.target_key_arn,
+    ]
+  }
+
+  statement {
+    sid    = "${local.policy_region_prefix}OpensearchEncryptionAccess"
+    effect = "Allow"
+
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:GenerateDataKey",
+    ]
+
+    resources = [
+      data.aws_kms_alias.opensearch_encryption_key.target_key_arn,
     ]
   }
 
