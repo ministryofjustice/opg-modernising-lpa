@@ -14,11 +14,11 @@ import (
 type lpaProgressData struct {
 	App      page.AppData
 	Donor    *actor.DonorProvidedDetails
-	Progress actor.Progress
+	Progress page.Progress
 	Errors   validation.List
 }
 
-func LpaProgress(tmpl template.Template, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore) Handler {
+func LpaProgress(tmpl template.Template, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, progressTracker ProgressTracker) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		certificateProvider, err := certificateProviderStore.GetAny(r.Context())
 		if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
@@ -37,7 +37,7 @@ func LpaProgress(tmpl template.Template, certificateProviderStore CertificatePro
 		data := &lpaProgressData{
 			App:      appData,
 			Donor:    donor,
-			Progress: donor.Progress(certificateProvider, attorneys),
+			Progress: progressTracker.Progress(donor, certificateProvider, attorneys),
 		}
 
 		return tmpl(w, data)

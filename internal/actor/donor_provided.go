@@ -186,61 +186,8 @@ func (l *DonorProvidedDetails) Under18ActorDetails() []Under18ActorDetails {
 	return data
 }
 
-type Progress struct {
-	DonorSigned               TaskState
-	CertificateProviderSigned TaskState
-	AttorneysSigned           TaskState
-	LpaSubmitted              TaskState
-	StatutoryWaitingPeriod    TaskState
-	LpaRegistered             TaskState
-}
-
-func (l *DonorProvidedDetails) Progress(certificateProvider *CertificateProviderProvidedDetails, attorneys []*AttorneyProvidedDetails) Progress {
-	p := Progress{
-		DonorSigned:               TaskInProgress,
-		CertificateProviderSigned: TaskNotStarted,
-		AttorneysSigned:           TaskNotStarted,
-		LpaSubmitted:              TaskNotStarted,
-		StatutoryWaitingPeriod:    TaskNotStarted,
-		LpaRegistered:             TaskNotStarted,
-	}
-
-	if l.SignedAt.IsZero() {
-		return p
-	}
-
-	p.DonorSigned = TaskCompleted
-	p.CertificateProviderSigned = TaskInProgress
-
-	if !certificateProvider.Signed(l.SignedAt) {
-		return p
-	}
-
-	p.CertificateProviderSigned = TaskCompleted
-	p.AttorneysSigned = TaskInProgress
-
-	if !l.AllAttorneysSigned(attorneys) {
-		return p
-	}
-
-	p.AttorneysSigned = TaskCompleted
-	p.LpaSubmitted = TaskInProgress
-
-	if l.SubmittedAt.IsZero() {
-		return p
-	}
-
-	p.LpaSubmitted = TaskCompleted
-	p.StatutoryWaitingPeriod = TaskInProgress
-
-	if l.RegisteredAt.IsZero() {
-		return p
-	}
-
-	p.StatutoryWaitingPeriod = TaskCompleted
-	p.LpaRegistered = TaskCompleted
-
-	return p
+func (l *DonorProvidedDetails) IsOrganisationDonor() bool {
+	return strings.Contains(l.SK, "ORGANISATION")
 }
 
 func (l *DonorProvidedDetails) AllAttorneysSigned(attorneys []*AttorneyProvidedDetails) bool {

@@ -1145,5 +1145,13 @@
     "accessCodeHint": "Welsh",
     "incorrectAccessCode": "Welsh",
     "linked": "Welsh",
-    "removeAccess": "Welsh"
+    "removeAccess": "Welsh",
+    "lpaProgress": "Welsh",
+    "donorFullNameHasPaid": "{{.DonorFullName }} Welsh",
+    "donorFullNameHasConfirmedTheirIdentity": "{{.DonorFullName }} Welsh",
+    "donorFullNameHasSignedTheLPA": "{{.DonorFullName }} Welsh",
+    "theCertificateProviderHasDeclared": "Welsh",
+    "opgHasReceivedTheLPA": "Welsh",
+    "theWaitingPeriodHasStarted": "Welsh",
+    "theLpaHasBeenRegistered": "Welsh"
 }
