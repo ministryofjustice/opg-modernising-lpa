@@ -43,6 +43,17 @@ func (m *mockDynamoClient) ExpectOne(ctx, pk, sk, data interface{}, err error) {
 		Once()
 }
 
+func (m *mockDynamoClient) ExpectOneByPK(ctx, pk, data interface{}, err error) {
+	m.
+		On("OneByPK", ctx, pk, mock.Anything).
+		Return(func(ctx context.Context, pk string, v interface{}) error {
+			b, _ := json.Marshal(data)
+			json.Unmarshal(b, v)
+			return err
+		}).
+		Once()
+}
+
 func (m *mockDynamoClient) ExpectOneByPartialSK(ctx, pk, partialSk, data interface{}, err error) {
 	m.
 		On("OneByPartialSK", ctx, pk, partialSk, mock.Anything).
@@ -162,6 +173,20 @@ func TestDonorStoreGet(t *testing.T) {
 	}
 }
 
+func TestDonorStoreGetWhenReferenced(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", SessionID: "456"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectOne(ctx, "LPA#an-id", "#DONOR#456", lpaReference{ReferencedSK: "ORGANISATION#789"}, nil)
+	dynamoClient.ExpectOne(ctx, "LPA#an-id", "ORGANISATION#789", &actor.DonorProvidedDetails{LpaID: "an-id"}, expectedError)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
+
+	lpa, err := donorStore.Get(ctx)
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, &actor.DonorProvidedDetails{LpaID: "an-id"}, lpa)
+}
+
 func TestDonorStoreGetWithSessionMissing(t *testing.T) {
 	donorStore := &donorStore{dynamoClient: nil, uuidString: func() string { return "10100000" }}
 
@@ -173,7 +198,7 @@ func TestDonorStoreGetWhenDataStoreError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOne(ctx, "LPA#an-id", "#DONOR#456", &actor.DonorProvidedDetails{LpaID: "an-id"}, expectedError)
+	dynamoClient.ExpectOne(ctx, "LPA#an-id", "#DONOR#456", lpaReference{ReferencedSK: "ref"}, expectedError)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
@@ -668,6 +693,92 @@ func TestDonorStoreCreateWhenError(t *testing.T) {
 			}
 
 			_, err := donorStore.Create(ctx)
+			assert.Equal(t, expectedError, err)
+		})
+	}
+}
+
+func TestDonorStoreLink(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
+	shareCode := actor.ShareCodeData{
+		LpaID:     "lpa-id",
+		SessionID: "org-id",
+	}
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		Create(ctx, lpaReference{
+			PK:           "LPA#lpa-id",
+			SK:           "#DONOR#an-id",
+			ReferencedSK: "ORGANISATION#org-id",
+		}).
+		Return(nil).
+		Once()
+	dynamoClient.EXPECT().
+		Create(ctx, lpaLink{
+			PK:        "LPA#lpa-id",
+			SK:        "#SUB#an-id",
+			DonorKey:  "ORGANISATION#org-id",
+			ActorType: actor.TypeDonor,
+			UpdatedAt: testNow,
+		}).
+		Return(nil).
+		Once()
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, now: testNowFn}
+
+	err := donorStore.Link(ctx, shareCode)
+	assert.Nil(t, err)
+}
+
+func TestDonorStoreLinkWithSessionMissing(t *testing.T) {
+	donorStore := &donorStore{}
+
+	err := donorStore.Link(ctx, actor.ShareCodeData{})
+	assert.Equal(t, page.SessionMissingError{}, err)
+}
+
+func TestDonorStoreLinkWithSessionIDMissing(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{})
+	donorStore := &donorStore{}
+
+	err := donorStore.Link(ctx, actor.ShareCodeData{})
+	assert.Error(t, err)
+}
+
+func TestDonorStoreLinkWhenError(t *testing.T) {
+	testcases := map[string]func(*mockDynamoClient){
+		"lpaReference errors": func(dynamoClient *mockDynamoClient) {
+			dynamoClient.EXPECT().
+				Create(mock.Anything, mock.Anything).
+				Return(expectedError)
+		},
+		"lpaLink errors": func(dynamoClient *mockDynamoClient) {
+			dynamoClient.EXPECT().
+				Create(mock.Anything, mock.Anything).
+				Return(nil).
+				Once()
+			dynamoClient.EXPECT().
+				Create(mock.Anything, mock.Anything).
+				Return(expectedError).
+				Once()
+		},
+	}
+
+	for name, setupDynamoClient := range testcases {
+		t.Run(name, func(t *testing.T) {
+			ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
+			shareCode := actor.ShareCodeData{
+				LpaID:     "lpa-id",
+				SessionID: "org-id",
+			}
+
+			dynamoClient := newMockDynamoClient(t)
+			setupDynamoClient(dynamoClient)
+
+			donorStore := &donorStore{dynamoClient: dynamoClient, now: testNowFn}
+
+			err := donorStore.Link(ctx, shareCode)
 			assert.Equal(t, expectedError, err)
 		})
 	}

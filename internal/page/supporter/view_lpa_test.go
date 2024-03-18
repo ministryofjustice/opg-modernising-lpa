@@ -57,7 +57,7 @@ func TestGetViewLPA(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ViewLPA(template.Execute, donorStore, certificateProviderStore, attorneyStore, progressTracker)(testAppData, w, r, &actor.Organisation{})
+			err := ViewLPA(template.Execute, donorStore, certificateProviderStore, attorneyStore, progressTracker)(testAppData, w, r, &actor.Organisation{}, nil)
 
 			assert.Nil(t, err)
 		})
@@ -69,7 +69,7 @@ func TestGetViewLPAWithSessionMissing(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(page.ContextWithSessionData(context.Background(), &page.SessionData{}), http.MethodGet, "/", nil)
 
-	err := ViewLPA(nil, nil, nil, nil, nil)(testAppData, w, r, &actor.Organisation{})
+	err := ViewLPA(nil, nil, nil, nil, nil)(testAppData, w, r, &actor.Organisation{}, nil)
 
 	assert.Error(t, err)
 }
@@ -78,7 +78,7 @@ func TestGetViewLPAMissingLPAId(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ViewLPA(nil, nil, nil, nil, nil)(testAppData, w, r, &actor.Organisation{})
+	err := ViewLPA(nil, nil, nil, nil, nil)(testAppData, w, r, &actor.Organisation{}, nil)
 
 	assert.Error(t, err)
 }
@@ -92,7 +92,7 @@ func TestGetViewLPAWithDonorStoreError(t *testing.T) {
 		Get(mock.Anything).
 		Return(nil, expectedError)
 
-	err := ViewLPA(nil, donorStore, nil, nil, nil)(testAppData, w, r, &actor.Organisation{})
+	err := ViewLPA(nil, donorStore, nil, nil, nil)(testAppData, w, r, &actor.Organisation{}, nil)
 
 	assert.Error(t, err)
 }
@@ -113,7 +113,7 @@ func TestGetViewLPAWhenCertificateProviderStoreError(t *testing.T) {
 		GetAny(mock.Anything).
 		Return(nil, expectedError)
 
-	err := ViewLPA(nil, donorStore, certificateProviderStore, nil, nil)(testAppData, w, r, &actor.Organisation{})
+	err := ViewLPA(nil, donorStore, certificateProviderStore, nil, nil)(testAppData, w, r, &actor.Organisation{}, nil)
 
 	assert.Error(t, err)
 }
@@ -139,7 +139,7 @@ func TestGetViewLPAWhenAttorneyStoreError(t *testing.T) {
 		GetAny(mock.Anything).
 		Return(nil, expectedError)
 
-	err := ViewLPA(nil, donorStore, certificateProviderStore, attorneyStore, nil)(testAppData, w, r, &actor.Organisation{})
+	err := ViewLPA(nil, donorStore, certificateProviderStore, attorneyStore, nil)(testAppData, w, r, &actor.Organisation{}, nil)
 
 	assert.Error(t, err)
 }
@@ -175,7 +175,7 @@ func TestGetViewLPAWhenTemplateError(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ViewLPA(template.Execute, donorStore, certificateProviderStore, attorneyStore, progressTracker)(testAppData, w, r, &actor.Organisation{})
+	err := ViewLPA(template.Execute, donorStore, certificateProviderStore, attorneyStore, progressTracker)(testAppData, w, r, &actor.Organisation{}, nil)
 
 	assert.Error(t, err)
 }

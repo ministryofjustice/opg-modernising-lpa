@@ -63,7 +63,7 @@ func TestGetDonorAccess(t *testing.T) {
 				Execute(w, tc.data).
 				Return(expectedError)
 
-			err := DonorAccess(template.Execute, donorStore, shareCodeStore, nil, nil)(testLpaAppData, w, r, nil)
+			err := DonorAccess(template.Execute, donorStore, shareCodeStore, nil, "", nil)(testLpaAppData, w, r, nil, nil)
 			resp := w.Result()
 
 			assert.Equal(t, expectedError, err)
@@ -81,7 +81,7 @@ func TestGetDonorAccessWhenDonorStoreErrors(t *testing.T) {
 		Get(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, expectedError)
 
-	err := DonorAccess(nil, donorStore, nil, nil, nil)(testLpaAppData, w, r, nil)
+	err := DonorAccess(nil, donorStore, nil, nil, "", nil)(testLpaAppData, w, r, nil, nil)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -99,7 +99,7 @@ func TestGetDonorAccessWhenShareCodeStoreErrors(t *testing.T) {
 		GetDonor(r.Context()).
 		Return(actor.ShareCodeData{}, expectedError)
 
-	err := DonorAccess(nil, donorStore, shareCodeStore, nil, nil)(testLpaAppData, w, r, nil)
+	err := DonorAccess(nil, donorStore, shareCodeStore, nil, "", nil)(testLpaAppData, w, r, nil, nil)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -116,11 +116,13 @@ func TestPostDonorAccess(t *testing.T) {
 	donorStore.EXPECT().
 		Get(r.Context()).
 		Return(&actor.DonorProvidedDetails{
-			Donor: actor.Donor{UID: donorUID},
+			Type:  actor.LpaTypePropertyAndAffairs,
+			Donor: actor.Donor{UID: donorUID, FirstNames: "Barry", LastName: "Boy"},
 		}, nil)
 	donorStore.EXPECT().
 		Put(r.Context(), &actor.DonorProvidedDetails{
-			Donor: actor.Donor{UID: donorUID, Email: "email@example.com"},
+			Type:  actor.LpaTypePropertyAndAffairs,
+			Donor: actor.Donor{UID: donorUID, FirstNames: "Barry", LastName: "Boy", Email: "email@example.com"},
 		}).
 		Return(nil)
 
@@ -139,10 +141,23 @@ func TestPostDonorAccess(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendEmail(r.Context(), "email@example.com", notify.DonorAccessEmail{ShareCode: testRandomString}).
+		SendEmail(r.Context(), "email@example.com", notify.DonorAccessEmail{
+			SupporterFullName: "John Smith",
+			OrganisationName:  "Helpers",
+			LpaType:           "translation",
+			DonorName:         "Barry Boy",
+			URL:               "http://whatever/start",
+			ShareCode:         testRandomString,
+		}).
 		Return(nil)
 
-	err := DonorAccess(nil, donorStore, shareCodeStore, notifyClient, testRandomStringFn)(testLpaAppData, w, r, &actor.Organisation{ID: "org-id"})
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T(actor.LpaTypePropertyAndAffairs.String()).
+		Return("Translation")
+	testLpaAppData.Localizer = localizer
+
+	err := DonorAccess(nil, donorStore, shareCodeStore, notifyClient, "http://whatever", testRandomStringFn)(testLpaAppData, w, r, &actor.Organisation{ID: "org-id", Name: "Helpers"}, &actor.Member{FirstNames: "John", LastName: "Smith"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -170,7 +185,7 @@ func TestPostDonorAccessWhenDonorUpdateErrors(t *testing.T) {
 		GetDonor(r.Context()).
 		Return(actor.ShareCodeData{}, dynamo.NotFoundError{})
 
-	err := DonorAccess(nil, donorStore, shareCodeStore, nil, nil)(testLpaAppData, w, r, &actor.Organisation{ID: "org-id"})
+	err := DonorAccess(nil, donorStore, shareCodeStore, nil, "", nil)(testLpaAppData, w, r, &actor.Organisation{ID: "org-id"}, nil)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -194,7 +209,7 @@ func TestPostDonorAccessWhenShareCodeStoreErrors(t *testing.T) {
 		PutDonor(r.Context(), mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := DonorAccess(nil, donorStore, shareCodeStore, nil, testRandomStringFn)(testLpaAppData, w, r, &actor.Organisation{ID: "org-id"})
+	err := DonorAccess(nil, donorStore, shareCodeStore, nil, "", testRandomStringFn)(testLpaAppData, w, r, &actor.Organisation{ID: "org-id"}, nil)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -223,7 +238,13 @@ func TestPostDonorAccessWhenNotifyErrors(t *testing.T) {
 		SendEmail(r.Context(), mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := DonorAccess(nil, donorStore, shareCodeStore, notifyClient, testRandomStringFn)(testLpaAppData, w, r, &actor.Organisation{ID: "org-id"})
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T(mock.Anything).
+		Return("Translation")
+	testLpaAppData.Localizer = localizer
+
+	err := DonorAccess(nil, donorStore, shareCodeStore, notifyClient, "", testRandomStringFn)(testLpaAppData, w, r, &actor.Organisation{ID: "org-id"}, &actor.Member{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -251,7 +272,7 @@ func TestPostDonorAccessWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := DonorAccess(template.Execute, donorStore, shareCodeStore, nil, nil)(testLpaAppData, w, r, &actor.Organisation{ID: "org-id"})
+	err := DonorAccess(template.Execute, donorStore, shareCodeStore, nil, "", nil)(testLpaAppData, w, r, &actor.Organisation{ID: "org-id"}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)

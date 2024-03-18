@@ -40,6 +40,7 @@ type Logger interface {
 
 type DynamoClient interface {
 	One(ctx context.Context, pk, sk string, v interface{}) error
+	OneByPK(ctx context.Context, pk string, v interface{}) error
 	OneByPartialSK(ctx context.Context, pk, partialSK string, v interface{}) error
 	AllByPartialSK(ctx context.Context, pk, partialSK string, v interface{}) error
 	LatestForActor(ctx context.Context, sk string, v interface{}) error
@@ -125,7 +126,7 @@ func App(
 	handleRoot(page.Paths.AttorneyFixtures, None,
 		fixtures.Attorney(tmpls.Get("attorney_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore, eventClient))
 	handleRoot(page.Paths.SupporterFixtures, None,
-		fixtures.Supporter(sessionStore, organisationStore, donorStore, memberStore, lpaDynamoClient, searchClient, certificateProviderStore, attorneyStore, documentStore, eventClient))
+		fixtures.Supporter(sessionStore, organisationStore, donorStore, memberStore, lpaDynamoClient, searchClient, shareCodeStore, certificateProviderStore, attorneyStore, documentStore, eventClient))
 	handleRoot(page.Paths.DashboardFixtures, None,
 		fixtures.Dashboard(tmpls.Get("dashboard_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore))
 	handleRoot(page.Paths.YourLegalRightsAndResponsibilities, None,
@@ -219,6 +220,7 @@ func App(
 		eventClient,
 		dashboardStore,
 		lpaStoreClient,
+		shareCodeStore,
 		progressTracker,
 	)
 
