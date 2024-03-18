@@ -7,7 +7,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -247,28 +246,61 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 	lpaSignedAt := time.Now()
 	uid := actoruid.New()
 	initialProgress := Progress{
-		Paid:                      ProgressTask{State: TaskInProgress, Label: "a b has paid"},
-		ConfirmedID:               ProgressTask{State: TaskNotStarted, Label: "a b has confirmed their identity"},
-		DonorSigned:               ProgressTask{State: TaskNotStarted, Label: "a b has signed the LPA"},
-		CertificateProviderSigned: ProgressTask{State: TaskNotStarted, Label: "The certificate provider has provided their certificate"},
-		AttorneysSigned:           ProgressTask{State: TaskNotStarted, Label: "All attorneys have signed the LPA"},
-		LpaSubmitted:              ProgressTask{State: TaskNotStarted, Label: "OPG has received the LPA"},
-		StatutoryWaitingPeriod:    ProgressTask{State: TaskNotStarted, Label: "The 4-week waiting period has started"},
-		LpaRegistered:             ProgressTask{State: TaskNotStarted, Label: "The LPA has been registered"},
-	}
-	bundle, err := localize.NewBundle("../../lang/en.json")
-	if err != nil {
-		t.Error("error creating bundle")
+		Paid:                      ProgressTask{State: TaskInProgress, Label: "Paid translation"},
+		ConfirmedID:               ProgressTask{State: TaskNotStarted, Label: "ConfirmedID translation"},
+		DonorSigned:               ProgressTask{State: TaskNotStarted, Label: "DonorSigned translation"},
+		CertificateProviderSigned: ProgressTask{State: TaskNotStarted, Label: "CertificateProviderSigned translation"},
+		AttorneysSigned:           ProgressTask{State: TaskNotStarted, Label: "AttorneysSigned translation"},
+		LpaSubmitted:              ProgressTask{State: TaskNotStarted, Label: "LpaSubmitted translation"},
+		StatutoryWaitingPeriod:    ProgressTask{State: TaskNotStarted, Label: "StatutoryWaitingPeriod translation"},
+		LpaRegistered:             ProgressTask{State: TaskNotStarted, Label: "LpaRegistered translation"},
 	}
 
-	localizer := bundle.For(localize.En)
-	progressTracker := ProgressTracker{Localizer: localizer}
+	localizerFn := func() *mockLocalizer {
+		localizer := newMockLocalizer(t)
+		localizer.EXPECT().
+			Format(
+				"donorFullNameHasPaid",
+				map[string]interface{}{"DonorFullName": "a b"},
+			).
+			Return("Paid translation")
+		localizer.EXPECT().
+			Format(
+				"donorFullNameHasConfirmedTheirIdentity",
+				map[string]interface{}{"DonorFullName": "a b"},
+			).
+			Return("ConfirmedID translation")
+		localizer.EXPECT().
+			Format(
+				"donorFullNameHasSignedTheLPA",
+				map[string]interface{}{"DonorFullName": "a b"},
+			).
+			Return("DonorSigned translation")
+		localizer.EXPECT().
+			T("theCertificateProviderHasDeclared").
+			Return("CertificateProviderSigned translation")
+		localizer.EXPECT().
+			T("allAttorneysHaveSignedTheLpa").
+			Return("AttorneysSigned translation")
+		localizer.EXPECT().
+			T("opgHasReceivedTheLPA").
+			Return("LpaSubmitted translation")
+		localizer.EXPECT().
+			T("theWaitingPeriodHasStarted").
+			Return("StatutoryWaitingPeriod translation")
+		localizer.EXPECT().
+			T("theLpaHasBeenRegistered").
+			Return("LpaRegistered translation")
+
+		return localizer
+	}
 
 	testCases := map[string]struct {
 		donor               *DonorProvidedDetails
 		certificateProvider *CertificateProviderProvidedDetails
 		attorneys           []*AttorneyProvidedDetails
 		expectedProgress    func() Progress
+		expectedLocalizer   func() *mockLocalizer
 	}{
 		"initial state": {
 			donor: &DonorProvidedDetails{
@@ -280,6 +312,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			expectedProgress: func() Progress {
 				return initialProgress
 			},
+			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"paid": {
 			donor: &DonorProvidedDetails{
@@ -296,6 +329,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 
 				return progress
 			},
+			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"confirmed ID": {
 			donor: &DonorProvidedDetails{
@@ -314,6 +348,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 
 				return progress
 			},
+			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"donor signed": {
 			donor: &DonorProvidedDetails{
@@ -334,6 +369,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 
 				return progress
 			},
+			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"certificate provider signed": {
 			donor: &DonorProvidedDetails{
@@ -355,6 +391,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 
 				return progress
 			},
+			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"attorneys signed": {
 			donor: &DonorProvidedDetails{
@@ -380,6 +417,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 
 				return progress
 			},
+			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"submitted": {
 			donor: &DonorProvidedDetails{
@@ -407,6 +445,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 
 				return progress
 			},
+			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"registered": {
 			donor: &DonorProvidedDetails{
@@ -436,11 +475,14 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 
 				return progress
 			},
+			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
+			progressTracker := ProgressTracker{Localizer: tc.expectedLocalizer()}
+
 			assert.Equal(t, tc.expectedProgress(), progressTracker.Progress(tc.donor, tc.certificateProvider, tc.attorneys))
 		})
 	}
