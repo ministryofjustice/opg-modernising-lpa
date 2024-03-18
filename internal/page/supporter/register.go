@@ -73,6 +73,7 @@ type NotifyClient interface {
 type ShareCodeStore interface {
 	PutDonor(ctx context.Context, shareCode string, data actor.ShareCodeData) error
 	GetDonor(ctx context.Context) (actor.ShareCodeData, error)
+	Delete(ctx context.Context, data actor.ShareCodeData) error
 }
 
 type Template func(w io.Writer, data interface{}) error
