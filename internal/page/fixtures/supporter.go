@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
@@ -32,7 +33,19 @@ type ShareCodeStore interface {
 	PutDonor(ctx context.Context, code string, data actor.ShareCodeData) error
 }
 
-func Supporter(sessionStore *sesh.Store, organisationStore OrganisationStore, donorStore DonorStore, memberStore MemberStore, dynamoClient DynamoClient, searchClient *search.Client, shareCodeStore ShareCodeStore) page.Handler {
+func Supporter(
+	sessionStore *sesh.Store,
+	organisationStore OrganisationStore,
+	donorStore DonorStore,
+	memberStore MemberStore,
+	dynamoClient DynamoClient,
+	searchClient *search.Client,
+	shareCodeStore ShareCodeStore,
+	certificateProviderStore CertificateProviderStore,
+	attorneyStore AttorneyStore,
+	documentStore DocumentStore,
+	eventClient *event.Client,
+) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		var (
 			invitedMembers = r.FormValue("invitedMembers")
@@ -44,6 +57,7 @@ func Supporter(sessionStore *sesh.Store, organisationStore OrganisationStore, do
 			permission     = r.FormValue("permission")
 			expireInvites  = r.FormValue("expireInvites") == "1"
 			suspended      = r.FormValue("suspended") == "1"
+			setLPAProgress = r.FormValue("setLPAProgress") == "1"
 			accessCode     = r.FormValue("accessCode")
 
 			supporterSub       = random.String(16)
@@ -107,6 +121,8 @@ func Supporter(sessionStore *sesh.Store, organisationStore OrganisationStore, do
 			}
 
 			if lpaCount, err := strconv.Atoi(lpa); err == nil {
+				donorFixtureData := setFixtureData(r)
+
 				for range lpaCount {
 					donor, err := organisationStore.CreateLPA(organisationCtx)
 					if err != nil {
@@ -120,6 +136,13 @@ func Supporter(sessionStore *sesh.Store, organisationStore OrganisationStore, do
 
 					donor.Attorneys = actor.Attorneys{
 						Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},
+					}
+
+					if setLPAProgress {
+						donor, err = updateLPAProgress(donorFixtureData, donor, random.String(16), r, certificateProviderStore, attorneyStore, documentStore, eventClient)
+						if err != nil {
+							return err
+						}
 					}
 
 					if err := donorStore.Put(donorCtx, donor); err != nil {

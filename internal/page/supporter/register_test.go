@@ -19,7 +19,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, template.Templates{}, &onelogin.Client{}, nil, nil, nil, &notify.Client{}, "http://base", nil, &search.Client{}, nil, nil)
+	Register(mux, template.Templates{}, &onelogin.Client{}, &mockSessionStore{}, &mockOrganisationStore{}, nil, &notify.Client{}, "http://base", &mockMemberStore{}, &search.Client{}, &mockDonorStore{}, &mockShareCodeStore{}, &mockCertificateProviderStore{}, &mockAttorneyStore{}, &mockProgressTracker{})
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
