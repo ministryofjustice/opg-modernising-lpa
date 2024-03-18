@@ -170,3 +170,89 @@ resource "aws_opensearchserverless_access_policy" "team_breakglas_access" {
   ])
   provider = aws.eu_west_1
 }
+
+resource "aws_cloudwatch_metric_alarm" "opensearch_4xx_errors" {
+  alarm_name                = "${local.environment_name}-opensearch-4xx-errors"
+  alarm_actions             = [aws_sns_topic.opensearch.arn]
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "1"
+  metric_name               = "4xx"
+  namespace                 = "AWS/AOSS"
+  period                    = "30"
+  statistic                 = "Maximum"
+  threshold                 = "1"
+  alarm_description         = "This metric monitors AWS OpenSearch Service 4xx error count for ${local.environment_name}"
+  insufficient_data_actions = []
+  dimensions = {
+    CollectionId   = aws_opensearchserverless_collection.lpas_collection.id
+    CollectionName = aws_opensearchserverless_collection.lpas_collection.name
+  }
+  provider = aws.eu_west_1
+}
+
+resource "aws_cloudwatch_metric_alarm" "opensearch_5xx_errors" {
+  alarm_name                = "${local.environment_name}-opensearch-5xx-errors"
+  alarm_actions             = [aws_sns_topic.opensearch.arn]
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "1"
+  metric_name               = "5xx"
+  namespace                 = "AWS/AOSS"
+  period                    = "30"
+  statistic                 = "Maximum"
+  threshold                 = "1"
+  alarm_description         = "This metric monitors AWS OpenSearch Service 5xx error count for ${local.environment_name}"
+  insufficient_data_actions = []
+  dimensions = {
+    CollectionId   = aws_opensearchserverless_collection.lpas_collection.id
+    CollectionName = aws_opensearchserverless_collection.lpas_collection.name
+  }
+  provider = aws.eu_west_1
+}
+
+data "pagerduty_vendor" "cloudwatch" {
+  name = "Cloudwatch"
+}
+
+data "pagerduty_service" "main" {
+  name = local.environment.pagerduty_service_name
+}
+
+data "aws_kms_alias" "sns_kms_key_alias" {
+  name     = "alias/${local.default_tags.application}_sns_secret_encryption_key"
+  provider = aws.eu_west_1
+}
+
+resource "aws_sns_topic" "opensearch" {
+  name                                     = "${local.environment_name}-opensearch-alarms"
+  kms_master_key_id                        = data.aws_kms_alias.sns_kms_key_alias.target_key_id
+  application_failure_feedback_role_arn    = data.aws_iam_role.sns_failure_feedback.arn
+  application_success_feedback_role_arn    = data.aws_iam_role.sns_success_feedback.arn
+  application_success_feedback_sample_rate = 100
+  firehose_failure_feedback_role_arn       = data.aws_iam_role.sns_failure_feedback.arn
+  firehose_success_feedback_role_arn       = data.aws_iam_role.sns_success_feedback.arn
+  firehose_success_feedback_sample_rate    = 100
+  http_failure_feedback_role_arn           = data.aws_iam_role.sns_failure_feedback.arn
+  http_success_feedback_role_arn           = data.aws_iam_role.sns_success_feedback.arn
+  http_success_feedback_sample_rate        = 100
+  lambda_failure_feedback_role_arn         = data.aws_iam_role.sns_failure_feedback.arn
+  lambda_success_feedback_role_arn         = data.aws_iam_role.sns_success_feedback.arn
+  lambda_success_feedback_sample_rate      = 100
+  sqs_failure_feedback_role_arn            = data.aws_iam_role.sns_failure_feedback.arn
+  sqs_success_feedback_role_arn            = data.aws_iam_role.sns_success_feedback.arn
+  sqs_success_feedback_sample_rate         = 100
+  provider                                 = aws.eu_west_1
+}
+
+resource "pagerduty_service_integration" "opensearch" {
+  name    = "Modernising LPA ${local.environment_name} OpenSearch Alarm"
+  service = data.pagerduty_service.main.id
+  vendor  = data.pagerduty_vendor.cloudwatch.id
+}
+
+resource "aws_sns_topic_subscription" "opensearch" {
+  topic_arn              = aws_sns_topic.opensearch.arn
+  protocol               = "https"
+  endpoint_auto_confirms = true
+  endpoint               = "https://events.pagerduty.com/integration/${pagerduty_service_integration.opensearch.integration_key}/enqueue"
+  provider               = aws.eu_west_1
+}
