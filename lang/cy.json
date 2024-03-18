@@ -1145,5 +1145,7 @@
     "accessCodeHint": "Welsh",
     "incorrectAccessCode": "Welsh",
     "linked": "Welsh",
-    "removeAccess": "Welsh"
+    "removeAccess": "Welsh",
+    "inviteRecalled": "Welsh",
+    "youRecalledTheInviteFor": "Welsh {{.Email}}"
 }
