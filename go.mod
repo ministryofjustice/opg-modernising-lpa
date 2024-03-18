@@ -3,16 +3,16 @@ module github.com/ministryofjustice/opg-modernising-lpa
 go 1.22
 
 require (
-	github.com/MicahParks/jwkset v0.5.13
-	github.com/MicahParks/keyfunc/v3 v3.2.7
+	github.com/MicahParks/jwkset v0.5.15
+	github.com/MicahParks/keyfunc/v3 v3.2.9
 	github.com/aws/aws-lambda-go v1.46.0
 	github.com/aws/aws-sdk-go-v2 v1.25.3
 	github.com/aws/aws-sdk-go-v2/config v1.27.7
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.13.9
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.30.4
 	github.com/aws/aws-sdk-go-v2/service/eventbridge v1.30.2
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.51.4
-	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.28.2
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.52.0
+	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.28.3
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.31.2
 	github.com/aws/smithy-go v1.20.1
 	github.com/dustin/go-humanize v1.0.1
@@ -27,7 +27,7 @@ require (
 	github.com/opensearch-project/opensearch-go/v3 v3.0.0
 	github.com/pact-foundation/pact-go/v2 v2.0.4
 	github.com/stretchr/testify v1.9.0
-	github.com/vektra/mockery/v2 v2.42.0
+	github.com/vektra/mockery/v2 v2.42.1
 	github.com/xeipuuv/gojsonschema v1.2.0
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.24.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws v0.49.0
