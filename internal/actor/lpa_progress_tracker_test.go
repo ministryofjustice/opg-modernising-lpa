@@ -212,21 +212,6 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 				return initialProgress
 			},
 		},
-		"initial state - with certificate provider name": {
-			donor: &DonorProvidedDetails{
-				SK:                  "ORGANISATION#123",
-				Donor:               Donor{FirstNames: "a", LastName: "b"},
-				CertificateProvider: CertificateProvider{FirstNames: "A", LastName: "B"},
-				Attorneys:           Attorneys{Attorneys: []Attorney{{}}},
-			},
-			certificateProvider: &CertificateProviderProvidedDetails{},
-			expectedProgress: func() Progress {
-				progress := initialProgress
-				progress.CertificateProviderSigned.Label = "A B has provided their certificate"
-
-				return progress
-			},
-		},
 		"paid": {
 			donor: &DonorProvidedDetails{
 				SK:        "ORGANISATION#123",

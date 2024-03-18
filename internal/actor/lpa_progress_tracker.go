@@ -21,89 +21,79 @@ type Progress struct {
 }
 
 func (pt ProgressTracker) Progress(donor *DonorProvidedDetails, certificateProvider *CertificateProviderProvidedDetails, attorneys []*AttorneyProvidedDetails) Progress {
-	var (
-		paidLabel,
-		confirmedIDLabel,
-		donorSignedLabel,
-		certificateProviderSignedLabel,
-		attorneysSignedLabel,
-		lpaSubmittedLabel,
-		statutoryWaitingPeriodLabel,
-		lpaRegisteredLabel string
-	)
+	labels := map[string]string{
+		"paid":                      "",
+		"confirmedID":               "",
+		"donorSigned":               pt.Localizer.T("youveSignedYourLpa"),
+		"certificateProviderSigned": pt.Localizer.T("yourCertificateProviderHasDeclared"),
+		"attorneysSigned":           pt.Localizer.Count("attorneysHaveDeclared", len(donor.Attorneys.Attorneys)),
+		"lpaSubmitted":              pt.Localizer.T("weHaveReceivedYourLpa"),
+		"statutoryWaitingPeriod":    pt.Localizer.T("yourWaitingPeriodHasStarted"),
+		"lpaRegistered":             pt.Localizer.T("yourLpaHasBeenRegistered"),
+	}
 
 	if donor.CertificateProvider.FirstNames != "" {
-		certificateProviderSignedLabel = pt.Localizer.Format(
+		labels["certificateProviderSigned"] = pt.Localizer.Format(
 			"certificateProviderHasDeclared",
 			map[string]interface{}{"CertificateProviderFullName": donor.CertificateProvider.FullName()},
 		)
-	} else {
-		if donor.IsOrganisationDonor() {
-			certificateProviderSignedLabel = pt.Localizer.T("theCertificateProviderHasDeclared")
-		} else {
-			certificateProviderSignedLabel = pt.Localizer.T("yourCertificateProviderHasDeclared")
-		}
 	}
 
 	if donor.IsOrganisationDonor() {
-		paidLabel = pt.Localizer.Format(
+		labels["paid"] = pt.Localizer.Format(
 			"donorFullNameHasPaid",
 			map[string]interface{}{"DonorFullName": donor.Donor.FullName()},
 		)
 
-		confirmedIDLabel = pt.Localizer.Format(
+		labels["confirmedID"] = pt.Localizer.Format(
 			"donorFullNameHasConfirmedTheirIdentity",
 			map[string]interface{}{"DonorFullName": donor.Donor.FullName()},
 		)
 
-		donorSignedLabel = pt.Localizer.Format(
+		labels["donorSigned"] = pt.Localizer.Format(
 			"donorFullNameHasSignedTheLPA",
 			map[string]interface{}{"DonorFullName": donor.Donor.FullName()},
 		)
-		attorneysSignedLabel = pt.Localizer.T("allAttorneysHaveSignedTheLpa")
-		lpaSubmittedLabel = pt.Localizer.T("opgHasReceivedTheLPA")
-		statutoryWaitingPeriodLabel = pt.Localizer.T("theWaitingPeriodHasStarted")
-		lpaRegisteredLabel = pt.Localizer.T("theLpaHasBeenRegistered")
-	} else {
-		donorSignedLabel = pt.Localizer.T("youveSignedYourLpa")
-		attorneysSignedLabel = pt.Localizer.Count("attorneysHaveDeclared", len(donor.Attorneys.Attorneys))
-		lpaSubmittedLabel = pt.Localizer.T("weHaveReceivedYourLpa")
-		statutoryWaitingPeriodLabel = pt.Localizer.T("yourWaitingPeriodHasStarted")
-		lpaRegisteredLabel = pt.Localizer.T("yourLpaHasBeenRegistered")
+
+		labels["certificateProviderSigned"] = pt.Localizer.T("theCertificateProviderHasDeclared")
+		labels["attorneysSigned"] = pt.Localizer.T("allAttorneysHaveSignedTheLpa")
+		labels["lpaSubmitted"] = pt.Localizer.T("opgHasReceivedTheLPA")
+		labels["statutoryWaitingPeriod"] = pt.Localizer.T("theWaitingPeriodHasStarted")
+		labels["lpaRegistered"] = pt.Localizer.T("theLpaHasBeenRegistered")
 	}
 
 	progress := Progress{
 		Paid: ProgressTask{
 			State: TaskNotStarted,
-			Label: paidLabel,
+			Label: labels["paid"],
 		},
 		ConfirmedID: ProgressTask{
 			State: TaskNotStarted,
-			Label: confirmedIDLabel,
+			Label: labels["confirmedID"],
 		},
 		DonorSigned: ProgressTask{
 			State: TaskNotStarted,
-			Label: donorSignedLabel,
+			Label: labels["donorSigned"],
 		},
 		CertificateProviderSigned: ProgressTask{
 			State: TaskNotStarted,
-			Label: certificateProviderSignedLabel,
+			Label: labels["certificateProviderSigned"],
 		},
 		AttorneysSigned: ProgressTask{
 			State: TaskNotStarted,
-			Label: attorneysSignedLabel,
+			Label: labels["attorneysSigned"],
 		},
 		LpaSubmitted: ProgressTask{
 			State: TaskNotStarted,
-			Label: lpaSubmittedLabel,
+			Label: labels["lpaSubmitted"],
 		},
 		StatutoryWaitingPeriod: ProgressTask{
 			State: TaskNotStarted,
-			Label: statutoryWaitingPeriodLabel,
+			Label: labels["statutoryWaitingPeriod"],
 		},
 		LpaRegistered: ProgressTask{
 			State: TaskNotStarted,
-			Label: lpaRegisteredLabel,
+			Label: labels["lpaRegistered"],
 		},
 	}
 
