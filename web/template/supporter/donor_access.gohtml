@@ -37,25 +37,45 @@
           </div>
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "lpaLinkedTo" }}</dt>
-            <dd class="govuk-summary-list__value">&mdash;</dd>
+            <dd class="govuk-summary-list__value">
+              {{ if .ShareCode.LpaLinkedTo }}
+                {{ .ShareCode.LpaLinkedTo }}
+              {{ else }}
+                &mdash;
+              {{ end }}
+            </dd>
           </div>
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "dateLinked" }}</dt>
-            <dd class="govuk-summary-list__value">&mdash;</dd>
+            <dd class="govuk-summary-list__value">
+              {{ if .ShareCode.LpaLinkedAt.IsZero }}
+                &mdash;
+              {{ else }}
+                {{ formatDate .App .ShareCode.LpaLinkedAt }}
+              {{ end }}
+            </dd>
           </div>
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "status" }}</dt>
             <dd class="govuk-summary-list__value">
-              <strong class="govuk-tag govuk-tag--yellow">{{ tr .App "pending" }}</strong>
+              {{ if .ShareCode.LpaLinkedAt.IsZero }}
+                <strong class="govuk-tag govuk-tag--yellow">{{ tr .App "pending" }}</strong>
+              {{ else }}
+                <strong class="govuk-tag govuk-tag--green">{{ tr .App "linked" }}</strong>
+              {{ end }}
             </dd>
           </div>
         </dl>
 
         <form novalidate method="post">
-          <div class="govuk-button-group">
-            <button class="govuk-button govuk-button--secondary" name="action" value="resend">{{ tr .App "resendInvite" }}</button>
-            <button class="govuk-button govuk-button--warning" name="action" value="recall">{{ tr .App "recallInvite" }}</button>
-          </div>
+          {{ if .ShareCode.LpaLinkedAt.IsZero }}
+            <div class="govuk-button-group">
+              <button class="govuk-button govuk-button--secondary" name="action" value="resend">{{ tr .App "resendInvite" }}</button>
+              <button class="govuk-button govuk-button--warning" name="action" value="recall">{{ tr .App "recallInvite" }}</button>
+            </div>
+          {{ else }}
+            <button class="govuk-button govuk-button--warning" name="action" value="remove">{{ tr .App "removeAccess" }}</button>
+          {{ end }}
           
           {{ template "csrf-field" . }}
         </form>

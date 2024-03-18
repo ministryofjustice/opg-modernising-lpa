@@ -34,10 +34,11 @@ type Logger interface {
 }
 
 type DonorStore interface {
-	Get(context.Context) (*actor.DonorProvidedDetails, error)
-	Latest(context.Context) (*actor.DonorProvidedDetails, error)
-	Put(context.Context, *actor.DonorProvidedDetails) error
-	Delete(context.Context) error
+	Get(ctx context.Context) (*actor.DonorProvidedDetails, error)
+	Latest(ctx context.Context) (*actor.DonorProvidedDetails, error)
+	Put(ctx context.Context, donor *actor.DonorProvidedDetails) error
+	Delete(ctx context.Context) error
+	Link(ctx context.Context, data actor.ShareCodeData) error
 }
 
 type GetDonorStore interface {
@@ -139,6 +140,11 @@ type LpaStoreClient interface {
 	SendLpa(context.Context, *actor.DonorProvidedDetails) error
 }
 
+type ShareCodeStore interface {
+	Get(ctx context.Context, actorType actor.Type, code string) (actor.ShareCodeData, error)
+	Linked(ctx context.Context, data actor.ShareCodeData, email string) error
+}
+
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 func Register(
@@ -163,6 +169,7 @@ func Register(
 	eventClient EventClient,
 	dashboardStore DashboardStore,
 	lpaStoreClient LpaStoreClient,
+	shareCodeStore ShareCodeStore,
 ) {
 	payer := &payHelper{
 		sessionStore: sessionStore,
@@ -172,12 +179,14 @@ func Register(
 		appPublicURL: appPublicURL,
 	}
 
-	handleRoot := makeHandle(rootMux, errorHandler)
+	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
-	handleRoot(page.Paths.Login,
+	handleRoot(page.Paths.Login, page.None,
 		page.Login(oneLoginClient, sessionStore, random.String, page.Paths.LoginCallback))
-	handleRoot(page.Paths.LoginCallback,
+	handleRoot(page.Paths.LoginCallback, page.None,
 		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.Dashboard, dashboardStore, actor.TypeDonor))
+	handleRoot(page.Paths.EnterAccessCode, page.RequireSession,
+		EnterAccessCode(tmpls.Get("enter_access_code.gohtml"), shareCodeStore, donorStore))
 
 	handleWithDonor := makeLpaHandle(rootMux, sessionStore, errorHandler, donorStore)
 
@@ -373,14 +382,26 @@ func Register(
 		UploadEvidenceSSE(documentStore, 3*time.Minute, 2*time.Second, time.Now))
 }
 
-func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler) func(page.Path, page.Handler) {
-	return func(path page.Path, h page.Handler) {
+func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler) func(page.Path, page.HandleOpt, page.Handler) {
+	return func(path page.Path, opt page.HandleOpt, h page.Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
 			appData := page.AppDataFromContext(ctx)
 			appData.Page = path.Format()
 			appData.ActorType = actor.TypeDonor
+
+			if opt&page.RequireSession != 0 {
+				session, err := store.Login(r)
+				if err != nil {
+					http.Redirect(w, r, page.Paths.Start.Format(), http.StatusFound)
+					return
+				}
+
+				appData.SessionID = session.SessionID()
+				appData.LoginSessionEmail = session.Email
+				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID, Email: appData.LoginSessionEmail})
+			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
 				errorHandler(w, r, err)
@@ -405,6 +426,7 @@ func makeLpaHandle(mux *http.ServeMux, store SessionStore, errorHandler page.Err
 			appData.ActorType = actor.TypeDonor
 			appData.LpaID = r.PathValue("id")
 			appData.SessionID = loginSession.SessionID()
+			appData.LoginSessionEmail = loginSession.Email
 
 			sessionData, err := page.SessionDataFromContext(ctx)
 			if err == nil {
