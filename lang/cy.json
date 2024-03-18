@@ -1153,5 +1153,7 @@
     "theCertificateProviderHasDeclared": "Welsh",
     "opgHasReceivedTheLPA": "Welsh",
     "theWaitingPeriodHasStarted": "Welsh",
-    "theLpaHasBeenRegistered": "Welsh"
+    "theLpaHasBeenRegistered": "Welsh",
+    "inviteRecalled": "Welsh",
+    "youRecalledTheInviteFor": "Welsh {{.Email}}"
 }

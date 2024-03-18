@@ -73,6 +73,7 @@ func All(globals *Globals) map[string]any {
 		"penceToPounds":      penceToPounds,
 		"canGoTo":            page.CanGoTo,
 		"content":            content,
+		"notificationBanner": notificationBanner,
 	}
 }
 
@@ -383,5 +384,21 @@ func content(app page.AppData, content string) map[string]interface{} {
 	return map[string]interface{}{
 		"App":     app,
 		"Content": content,
+	}
+}
+
+type notificationBannerData struct {
+	App     page.AppData
+	Title   string
+	Content template.HTML
+	Success bool
+}
+
+func notificationBanner(app page.AppData, title string, content template.HTML, success bool) notificationBannerData {
+	return notificationBannerData{
+		App:     app,
+		Title:   title,
+		Content: content,
+		Success: success,
 	}
 }

@@ -21,5 +21,13 @@ describe('Donor access', () => {
     cy.contains('Donor access').click();
     cy.get('#f-email').should('not.exist');
     cy.contains('Pending');
+
+    cy.contains('button', 'Recall invite').click();
+
+    cy.url().should('contain', '/view-lpa');
+    cy.contains(`You recalled the invite to this LPA for ${TestEmail}.`)
+
+    cy.contains('Donor access').click();
+    cy.get('#f-email');
   });
 });
