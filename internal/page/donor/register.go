@@ -142,7 +142,7 @@ type LpaStoreClient interface {
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type ProgressTracker interface {
-	Progress(donor *actor.DonorProvidedDetails, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) actor.Progress
+	Progress(donor *actor.DonorProvidedDetails, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) page.Progress
 }
 
 func Register(

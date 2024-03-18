@@ -90,7 +90,7 @@ type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, org
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type ProgressTracker interface {
-	Progress(donor *actor.DonorProvidedDetails, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) actor.Progress
+	Progress(donor *actor.DonorProvidedDetails, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) page.Progress
 }
 
 func Register(

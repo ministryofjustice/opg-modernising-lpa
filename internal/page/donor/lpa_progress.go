@@ -14,7 +14,7 @@ import (
 type lpaProgressData struct {
 	App      page.AppData
 	Donor    *actor.DonorProvidedDetails
-	Progress actor.Progress
+	Progress page.Progress
 	Errors   validation.List
 }
 

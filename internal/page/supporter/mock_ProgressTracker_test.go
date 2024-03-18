@@ -4,6 +4,7 @@ package supporter
 
 import (
 	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -21,18 +22,18 @@ func (_m *mockProgressTracker) EXPECT() *mockProgressTracker_Expecter {
 }
 
 // Progress provides a mock function with given fields: donor, certificateProvider, attorneys
-func (_m *mockProgressTracker) Progress(donor *actor.DonorProvidedDetails, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) actor.Progress {
+func (_m *mockProgressTracker) Progress(donor *actor.DonorProvidedDetails, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) page.Progress {
 	ret := _m.Called(donor, certificateProvider, attorneys)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Progress")
 	}
 
-	var r0 actor.Progress
-	if rf, ok := ret.Get(0).(func(*actor.DonorProvidedDetails, *actor.CertificateProviderProvidedDetails, []*actor.AttorneyProvidedDetails) actor.Progress); ok {
+	var r0 page.Progress
+	if rf, ok := ret.Get(0).(func(*actor.DonorProvidedDetails, *actor.CertificateProviderProvidedDetails, []*actor.AttorneyProvidedDetails) page.Progress); ok {
 		r0 = rf(donor, certificateProvider, attorneys)
 	} else {
-		r0 = ret.Get(0).(actor.Progress)
+		r0 = ret.Get(0).(page.Progress)
 	}
 
 	return r0
@@ -58,12 +59,12 @@ func (_c *mockProgressTracker_Progress_Call) Run(run func(donor *actor.DonorProv
 	return _c
 }
 
-func (_c *mockProgressTracker_Progress_Call) Return(_a0 actor.Progress) *mockProgressTracker_Progress_Call {
+func (_c *mockProgressTracker_Progress_Call) Return(_a0 page.Progress) *mockProgressTracker_Progress_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *mockProgressTracker_Progress_Call) RunAndReturn(run func(*actor.DonorProvidedDetails, *actor.CertificateProviderProvidedDetails, []*actor.AttorneyProvidedDetails) actor.Progress) *mockProgressTracker_Progress_Call {
+func (_c *mockProgressTracker_Progress_Call) RunAndReturn(run func(*actor.DonorProvidedDetails, *actor.CertificateProviderProvidedDetails, []*actor.AttorneyProvidedDetails) page.Progress) *mockProgressTracker_Progress_Call {
 	_c.Call.Return(run)
 	return _c
 }

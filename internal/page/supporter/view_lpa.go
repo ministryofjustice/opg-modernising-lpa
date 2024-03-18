@@ -15,7 +15,7 @@ type viewLPAData struct {
 	App      page.AppData
 	Errors   validation.List
 	Donor    *actor.DonorProvidedDetails
-	Progress actor.Progress
+	Progress page.Progress
 }
 
 func ViewLPA(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, progressTracker ProgressTracker) Handler {

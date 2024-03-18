@@ -190,12 +190,6 @@ func (l *DonorProvidedDetails) IsOrganisationDonor() bool {
 	return strings.Contains(l.SK, "ORGANISATION")
 }
 
-type Localizer interface {
-	T(messageID string) string
-	Format(messageID string, data map[string]interface{}) string
-	Count(messageID string, count int) string
-}
-
 func (l *DonorProvidedDetails) AllAttorneysSigned(attorneys []*AttorneyProvidedDetails) bool {
 	if l == nil || l.SignedAt.IsZero() || l.Attorneys.Len() == 0 {
 		return false
