@@ -4,16 +4,16 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.2 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.40.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.41.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.40.0 |
-| <a name="provider_aws.global"></a> [aws.global](#provider\_aws.global) | ~> 5.40.0 |
-| <a name="provider_aws.management"></a> [aws.management](#provider\_aws.management) | ~> 5.40.0 |
-| <a name="provider_aws.region"></a> [aws.region](#provider\_aws.region) | ~> 5.40.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.41.0 |
+| <a name="provider_aws.global"></a> [aws.global](#provider\_aws.global) | ~> 5.41.0 |
+| <a name="provider_aws.management"></a> [aws.management](#provider\_aws.management) | ~> 5.41.0 |
+| <a name="provider_aws.region"></a> [aws.region](#provider\_aws.region) | ~> 5.41.0 |
 
 ## Modules
 
