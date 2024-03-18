@@ -11,18 +11,27 @@ import (
 )
 
 type editMemberData struct {
-	App    page.AppData
-	Errors validation.List
-	Form   *editMemberForm
-	Member *actor.Member
+	App        page.AppData
+	Errors     validation.List
+	Form       *editMemberForm
+	Member     *actor.Member
+	CanEditAll bool
 }
 
 func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
-		member, err := memberStore.GetByID(r.Context(), r.URL.Query().Get("id"))
-		if err != nil {
-			return err
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, member *actor.Member) error {
+		memberID := r.FormValue("id")
+		isLoggedInMember := member.ID == memberID
+		if !isLoggedInMember {
+			memberByID, err := memberStore.GetByID(r.Context(), memberID)
+			if err != nil {
+				return err
+			}
+
+			member = memberByID
 		}
+
+		canEditAll := appData.IsAdmin() && !isLoggedInMember
 
 		data := &editMemberData{
 			App: appData,
@@ -34,10 +43,9 @@ func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
 				Status:            member.Status,
 				StatusOptions:     actor.StatusValues,
 			},
-			Member: member,
+			Member:     member,
+			CanEditAll: canEditAll,
 		}
-
-		canEditAll := appData.IsAdmin() && !appData.IsLoggedInMember(member)
 
 		if r.Method == http.MethodPost {
 			data.Form = readEditMemberForm(r, canEditAll)
@@ -54,7 +62,7 @@ func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
 
 					query.Add("nameUpdated", member.FullName())
 
-					if member.Email == appData.LoginSessionEmail {
+					if isLoggedInMember {
 						query.Add("selfUpdated", "1")
 					}
 				}

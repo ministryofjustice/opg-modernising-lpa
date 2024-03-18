@@ -47,14 +47,14 @@ func TestGetEditMember(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EditMember(template.Execute, memberStore)(testAppData, w, r, &actor.Organisation{}, nil)
+	err := EditMember(template.Execute, memberStore)(testAppData, w, r, &actor.Organisation{}, &actor.Member{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetEditMemberWhenOrganisationStoreError(t *testing.T) {
+func TestGetEditMemberWhenMemberStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id=an-id", nil)
 
@@ -63,7 +63,7 @@ func TestGetEditMemberWhenOrganisationStoreError(t *testing.T) {
 		GetByID(r.Context(), mock.Anything).
 		Return(nil, expectedError)
 
-	err := EditMember(nil, memberStore)(testAppData, w, r, &actor.Organisation{}, nil)
+	err := EditMember(nil, memberStore)(testAppData, w, r, &actor.Organisation{}, &actor.Member{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -74,17 +74,12 @@ func TestGetEditMemberWhenTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id=an-id", nil)
 
-	memberStore := newMockMemberStore(t)
-	memberStore.EXPECT().
-		GetByID(mock.Anything, mock.Anything).
-		Return(&actor.Member{}, nil)
-
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := EditMember(template.Execute, memberStore)(testAppData, w, r, &actor.Organisation{}, nil)
+	err := EditMember(template.Execute, nil)(testAppData, w, r, &actor.Organisation{}, &actor.Member{ID: "an-id"})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -93,28 +88,26 @@ func TestGetEditMemberWhenTemplateError(t *testing.T) {
 
 func TestPostEditMember(t *testing.T) {
 	testcases := map[string]struct {
+		member           *actor.Member
 		expectedRedirect string
 		expectedMember   *actor.Member
 		userPermission   actor.Permission
 		memberEmail      string
 	}{
-		"admin": {
-			userPermission:   actor.PermissionAdmin,
-			memberEmail:      "team-member@example.org",
-			expectedRedirect: page.Paths.Supporter.ManageTeamMembers.Format() + "?nameUpdated=c+d&statusEmail=team-member%40example.org&statusUpdated=suspended",
-			expectedMember: &actor.Member{
-				FirstNames: "c",
-				LastName:   "d",
-				Email:      "team-member@example.org",
-				Status:     actor.StatusSuspended,
-				Permission: actor.PermissionNone,
-			},
-		},
 		"self": {
+			member: &actor.Member{
+				ID:         "an-id",
+				FirstNames: "a",
+				LastName:   "b",
+				Email:      "self@example.org",
+				Status:     actor.StatusActive,
+				Permission: actor.PermissionAdmin,
+			},
 			userPermission:   actor.PermissionAdmin,
 			memberEmail:      "self@example.org",
 			expectedRedirect: page.Paths.Supporter.ManageTeamMembers.Format() + "?nameUpdated=c+d&selfUpdated=1",
 			expectedMember: &actor.Member{
+				ID:         "an-id",
 				FirstNames: "c",
 				LastName:   "d",
 				Email:      "self@example.org",
@@ -123,10 +116,15 @@ func TestPostEditMember(t *testing.T) {
 			},
 		},
 		"non-admin": {
+			member: &actor.Member{
+				ID:    "an-id",
+				Email: "self@example.org",
+			},
 			userPermission:   actor.PermissionNone,
 			memberEmail:      "self@example.org",
 			expectedRedirect: page.Paths.Supporter.Dashboard.Format() + "?nameUpdated=c+d&selfUpdated=1",
 			expectedMember: &actor.Member{
+				ID:         "an-id",
 				FirstNames: "c",
 				LastName:   "d",
 				Email:      "self@example.org",
@@ -151,22 +149,13 @@ func TestPostEditMember(t *testing.T) {
 
 			memberStore := newMockMemberStore(t)
 			memberStore.EXPECT().
-				GetByID(r.Context(), "an-id").
-				Return(&actor.Member{
-					FirstNames: "a",
-					LastName:   "b",
-					Email:      tc.memberEmail,
-					Status:     actor.StatusActive,
-					Permission: tc.userPermission,
-				}, nil)
-			memberStore.EXPECT().
 				Put(r.Context(), tc.expectedMember).
 				Return(nil)
 
 			err := EditMember(nil, memberStore)(page.AppData{
 				LoginSessionEmail: "self@example.org",
 				Permission:        tc.userPermission,
-			}, w, r, &actor.Organisation{}, nil)
+			}, w, r, &actor.Organisation{}, tc.member)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -176,17 +165,55 @@ func TestPostEditMember(t *testing.T) {
 	}
 }
 
+func TestPostEditMemberWhenOtherMember(t *testing.T) {
+	form := url.Values{
+		"first-names": {"c"},
+		"last-name":   {"d"},
+		"status":      {"suspended"},
+		"permission":  {},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/?id=an-id", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
+		GetByID(r.Context(), "an-id").
+		Return(&actor.Member{
+			FirstNames: "a",
+			LastName:   "b",
+			Email:      "team-member@example.org",
+			Status:     actor.StatusActive,
+			Permission: actor.PermissionNone,
+		}, nil)
+	memberStore.EXPECT().
+		Put(r.Context(), &actor.Member{
+			FirstNames: "c",
+			LastName:   "d",
+			Email:      "team-member@example.org",
+			Status:     actor.StatusSuspended,
+			Permission: actor.PermissionNone,
+		}).
+		Return(nil)
+
+	err := EditMember(nil, memberStore)(page.AppData{
+		LoginSessionEmail: "self@example.org",
+		Permission:        actor.PermissionAdmin,
+	}, w, r, &actor.Organisation{}, &actor.Member{})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.Supporter.ManageTeamMembers.Format()+"?nameUpdated=c+d&statusEmail=team-member%40example.org&statusUpdated=suspended", resp.Header.Get("Location"))
+}
+
 func TestPostEditMemberNoUpdate(t *testing.T) {
 	testcases := map[string]struct {
 		expectedRedirect string
 		userPermission   actor.Permission
 		memberEmail      string
 	}{
-		"admin": {
-			userPermission:   actor.PermissionAdmin,
-			memberEmail:      "team-member@example.org",
-			expectedRedirect: page.Paths.Supporter.ManageTeamMembers.Format() + "?",
-		},
 		"self": {
 			userPermission:   actor.PermissionAdmin,
 			memberEmail:      "self@example.org",
@@ -212,21 +239,17 @@ func TestPostEditMemberNoUpdate(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/?id=an-id", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			memberStore := newMockMemberStore(t)
-			memberStore.EXPECT().
-				GetByID(r.Context(), "an-id").
-				Return(&actor.Member{
-					FirstNames: "a",
-					LastName:   "b",
-					Email:      tc.memberEmail,
-					Status:     actor.StatusActive,
-					Permission: tc.userPermission,
-				}, nil)
-
-			err := EditMember(nil, memberStore)(page.AppData{
+			err := EditMember(nil, nil)(page.AppData{
 				LoginSessionEmail: "self@example.org",
 				Permission:        tc.userPermission,
-			}, w, r, &actor.Organisation{}, nil)
+			}, w, r, &actor.Organisation{}, &actor.Member{
+				ID:         "an-id",
+				FirstNames: "a",
+				LastName:   "b",
+				Email:      tc.memberEmail,
+				Status:     actor.StatusActive,
+				Permission: tc.userPermission,
+			})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -234,6 +257,40 @@ func TestPostEditMemberNoUpdate(t *testing.T) {
 			assert.Equal(t, tc.expectedRedirect, resp.Header.Get("Location"))
 		})
 	}
+}
+
+func TestPostEditMemberNoUpdateWhenOtherMember(t *testing.T) {
+	form := url.Values{
+		"first-names": {"a"},
+		"last-name":   {"b"},
+		"status":      {"active"},
+		"permission":  {"admin"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/?id=an-id", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	memberStore := newMockMemberStore(t)
+	memberStore.EXPECT().
+		GetByID(r.Context(), "an-id").
+		Return(&actor.Member{
+			FirstNames: "a",
+			LastName:   "b",
+			Email:      "team-member@example.org",
+			Status:     actor.StatusActive,
+			Permission: actor.PermissionAdmin,
+		}, nil)
+
+	err := EditMember(nil, memberStore)(page.AppData{
+		LoginSessionEmail: "self@example.org",
+		Permission:        actor.PermissionAdmin,
+	}, w, r, &actor.Organisation{}, &actor.Member{})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.Supporter.ManageTeamMembers.Format()+"?", resp.Header.Get("Location"))
 }
 
 func TestPostEditMemberWhenOrganisationStorePutError(t *testing.T) {
@@ -255,7 +312,7 @@ func TestPostEditMemberWhenOrganisationStorePutError(t *testing.T) {
 		Put(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EditMember(nil, memberStore)(testAppData, w, r, &actor.Organisation{}, nil)
+	err := EditMember(nil, memberStore)(testAppData, w, r, &actor.Organisation{}, &actor.Member{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -296,7 +353,7 @@ func TestPostEditMemberWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EditMember(template.Execute, memberStore)(testAppData, w, r, nil, nil)
+	err := EditMember(template.Execute, memberStore)(testAppData, w, r, nil, &actor.Member{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
