@@ -52,7 +52,7 @@ describe('View LPA', () => {
         cy.contains('li', 'Sam Smith has paid Completed')
         cy.contains('li', 'Sam Smith has confirmed their identity Completed')
         cy.contains('li', 'Sam Smith has signed the LPA Completed')
-        cy.contains('li', 'Charlie Cooper has provided their certificate Completed')
+        cy.contains('li', 'The certificate provider has provided their certificate')
         cy.contains('li', 'All attorneys have signed the LPA Completed')
         cy.contains('li', 'OPG has received the LPA Completed')
         cy.contains('li', 'The 4-week waiting period has started Completed')
