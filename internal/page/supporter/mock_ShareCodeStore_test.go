@@ -23,6 +23,53 @@ func (_m *mockShareCodeStore) EXPECT() *mockShareCodeStore_Expecter {
 	return &mockShareCodeStore_Expecter{mock: &_m.Mock}
 }
 
+// Delete provides a mock function with given fields: ctx, data
+func (_m *mockShareCodeStore) Delete(ctx context.Context, data actor.ShareCodeData) error {
+	ret := _m.Called(ctx, data)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Delete")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, actor.ShareCodeData) error); ok {
+		r0 = rf(ctx, data)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockShareCodeStore_Delete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Delete'
+type mockShareCodeStore_Delete_Call struct {
+	*mock.Call
+}
+
+// Delete is a helper method to define mock.On call
+//   - ctx context.Context
+//   - data actor.ShareCodeData
+func (_e *mockShareCodeStore_Expecter) Delete(ctx interface{}, data interface{}) *mockShareCodeStore_Delete_Call {
+	return &mockShareCodeStore_Delete_Call{Call: _e.mock.On("Delete", ctx, data)}
+}
+
+func (_c *mockShareCodeStore_Delete_Call) Run(run func(ctx context.Context, data actor.ShareCodeData)) *mockShareCodeStore_Delete_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(actor.ShareCodeData))
+	})
+	return _c
+}
+
+func (_c *mockShareCodeStore_Delete_Call) Return(_a0 error) *mockShareCodeStore_Delete_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockShareCodeStore_Delete_Call) RunAndReturn(run func(context.Context, actor.ShareCodeData) error) *mockShareCodeStore_Delete_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetDonor provides a mock function with given fields: ctx
 func (_m *mockShareCodeStore) GetDonor(ctx context.Context) (actor.ShareCodeData, error) {
 	ret := _m.Called(ctx)
