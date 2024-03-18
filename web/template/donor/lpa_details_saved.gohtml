@@ -5,33 +5,22 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
+      {{ $notificationContent := "" }}
+      {{ if .IsFirstCheck }}
+        {{ if .Donor.CertificateProvider.CarryOutBy.IsPaper }}
+          {{ $notificationContent = trFormat .App "lpaDetailsSavedContentOnFirstSubmissionCPCarryingOutRolePaper" "CertificateProviderFullName" .Donor.CertificateProvider.FullName }}
+        {{ else }}
+          {{ $notificationContent = trFormat .App "lpaDetailsSavedContentOnFirstSubmissionCPCarryingOutRoleOnline" "CertificateProviderFullName" .Donor.CertificateProvider.FullName }}
+        {{ end }}
+      {{ else }}
+        {{ if .Donor.CertificateProvider.CarryOutBy.IsPaper }}
+          {{ $notificationContent = trFormat .App "lpaDetailsSavedContentOnSubsequentSubmissionCPCarryingOutRolePaper" "CertificateProviderFullName" .Donor.CertificateProvider.FullName }}
+        {{ else }}
+          {{ $notificationContent = trFormat .App "lpaDetailsSavedContentOnSubsequentSubmissionCPCarryingOutRoleOnline" "CertificateProviderFullName" .Donor.CertificateProvider.FullName }}
+        {{ end }}
+      {{ end }}
 
-      <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
-           aria-labelledby="govuk-notification-banner-title"
-           data-module="govuk-notification-banner">
-        <div class="govuk-notification-banner__header">
-          <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
-            {{ tr .App "lpaDetailsSaved" }}
-          </h1>
-        </div>
-        <div class="govuk-notification-banner__content">
-          <p class="govuk-body">
-            {{ if .IsFirstCheck }}
-              {{ if .Donor.CertificateProvider.CarryOutBy.IsPaper }}
-                {{ trFormat .App "lpaDetailsSavedContentOnFirstSubmissionCPCarryingOutRolePaper" "CertificateProviderFullName" .Donor.CertificateProvider.FullName }}
-              {{ else }}
-                {{ trFormat .App "lpaDetailsSavedContentOnFirstSubmissionCPCarryingOutRoleOnline" "CertificateProviderFullName" .Donor.CertificateProvider.FullName }}
-              {{ end }}
-            {{ else }}
-              {{ if .Donor.CertificateProvider.CarryOutBy.IsPaper }}
-                {{ trFormat .App "lpaDetailsSavedContentOnSubsequentSubmissionCPCarryingOutRolePaper" "CertificateProviderFullName" .Donor.CertificateProvider.FullName }}
-              {{ else }}
-                {{ trFormat .App "lpaDetailsSavedContentOnSubsequentSubmissionCPCarryingOutRoleOnline" "CertificateProviderFullName" .Donor.CertificateProvider.FullName }}
-              {{ end }}
-            {{ end }}
-          </p>
-        </div>
-      </div>
+      {{ template "notification-banner" (notificationBanner .App "lpaDetailsSaved" $notificationContent "success") }}
 
       {{ if .Donor.Tasks.PayForLpa.IsCompleted }}
         <div class="govuk-button-group">

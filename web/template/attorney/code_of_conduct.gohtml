@@ -7,31 +7,23 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <div class="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
-        <div class="govuk-notification-banner__header">
-          <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
-            {{ tr .App "success" }}
-          </h2>
-        </div>
-        <div class="govuk-notification-banner__content">
-          <p class="govuk-notification-banner__heading">
-            {{ if .App.IsReplacementAttorney }}
-              {{ if .App.IsTrustCorporation }}
-                {{ tr .App "weHaveIdentifiedTheTrustCorporationsReplacementAttorneyReferenceNumber" }}
-              {{ else }}
-                {{ tr .App "weHaveIdentifiedYourReplacementAttorneyReferenceNumber" }}
-              {{ end }}
-            {{ else }}
-              {{ if .App.IsTrustCorporation }}
-                {{ tr .App "weHaveIdentifiedTheTrustCorporationsAttorneyReferenceNumber" }}
-              {{ else }}
-                {{ tr .App "weHaveIdentifiedYourAttorneyReferenceNumber" }}
-              {{ end }}
-            {{ end }}
-          </p>
-        </div>
-      </div>
+      {{ $notificationContent := "" }}
+      {{ if .App.IsReplacementAttorney }}
+        {{ if .App.IsTrustCorporation }}
+          {{ $notificationContent = tr .App "weHaveIdentifiedTheTrustCorporationsReplacementAttorneyReferenceNumber" }}
+        {{ else }}
+          {{ $notificationContent = tr .App "weHaveIdentifiedYourReplacementAttorneyReferenceNumber" }}
+        {{ end }}
+      {{ else }}
+        {{ if .App.IsTrustCorporation }}
+          {{ $notificationContent = tr .App "weHaveIdentifiedTheTrustCorporationsAttorneyReferenceNumber" }}
+        {{ else }}
+          {{ $notificationContent = tr .App "weHaveIdentifiedYourAttorneyReferenceNumber" }}
+        {{ end }}
+      {{ end }}
 
+      {{ template "notification-banner" (notificationBanner .App "success" $notificationContent "success" "heading") }}
+     
       <h1 class="govuk-heading-xl">{{ tr .App "actingAsAttorney" }}</h1>
 
       {{ $content := "" }}
