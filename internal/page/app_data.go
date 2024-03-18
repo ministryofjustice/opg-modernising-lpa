@@ -76,7 +76,3 @@ func (d AppData) EncodeQuery() string {
 
 	return query
 }
-
-func (d AppData) IsLoggedInMember(member *actor.Member) bool {
-	return member.Email == d.LoginSessionEmail
-}

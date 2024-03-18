@@ -19,7 +19,7 @@ type inviteMemberData struct {
 }
 
 func InviteMember(tmpl template.Template, memberStore MemberStore, notifyClient NotifyClient, randomString func(int) string, appPublicURL string) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
 		data := &inviteMemberData{
 			App:     appData,
 			Form:    &inviteMemberForm{},

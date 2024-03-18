@@ -18,7 +18,7 @@ type deleteOrganisationData struct {
 }
 
 func DeleteOrganisation(tmpl template.Template, organisationStore OrganisationStore, sessionStore SessionStore, searchClient SearchClient) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
 		if r.Method == http.MethodPost {
 			if err := organisationStore.SoftDelete(r.Context(), organisation); err != nil {
 				return err
