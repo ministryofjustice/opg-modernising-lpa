@@ -27,9 +27,10 @@ var (
 	}
 	expectedError = errors.New("err")
 	testAppData   = page.AppData{
-		SessionID: "session-id",
-		LpaID:     "lpa-id",
-		Lang:      localize.En,
+		SessionID:         "session-id",
+		LpaID:             "lpa-id",
+		Lang:              localize.En,
+		LoginSessionEmail: "logged-in@example.com",
 	}
 	testSupporterAppData = page.AppData{
 		SessionID:   "session-id",

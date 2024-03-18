@@ -98,10 +98,3 @@ func TestAppDataEncodeQuery(t *testing.T) {
 		})
 	}
 }
-
-func TestAppDataIsLoggedInMember(t *testing.T) {
-	member := &actor.Member{Email: "a@example.org"}
-
-	assert.True(t, AppData{LoginSessionEmail: "a@example.org"}.IsLoggedInMember(member))
-	assert.False(t, AppData{}.IsLoggedInMember(member))
-}

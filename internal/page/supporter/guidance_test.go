@@ -18,7 +18,7 @@ func TestGuidance(t *testing.T) {
 		Execute(w, &guidanceData{App: testAppData, Query: url.Values{}}).
 		Return(nil)
 
-	err := Guidance(template.Execute)(testAppData, w, r, nil)
+	err := Guidance(template.Execute)(testAppData, w, r, nil, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -34,7 +34,7 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 		Execute(w, &guidanceData{App: testAppData, Query: url.Values{}}).
 		Return(expectedError)
 
-	err := Guidance(template.Execute)(testAppData, w, r, nil)
+	err := Guidance(template.Execute)(testAppData, w, r, nil, nil)
 
 	assert.Equal(t, expectedError, err)
 }
