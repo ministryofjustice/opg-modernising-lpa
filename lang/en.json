@@ -1077,5 +1077,7 @@
     "accessCodeHint": "This will be made up of 12 characters and may contain a mix of letters and numbers.",
     "incorrectAccessCode": "The access code you entered is incorrect, please check it and try again",
     "linked": "Linked",
-    "removeAccess": "Remove access"
+    "removeAccess": "Remove access",
+    "inviteRecalled": "Invite recalled",
+    "youRecalledTheInviteFor": "You recalled the invite to this LPA for <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span>."
 }
