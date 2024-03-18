@@ -38,7 +38,21 @@ func DonorAccess(tmpl template.Template, donorStore DonorStore, shareCodeStore S
 		shareCodeData, err := shareCodeStore.GetDonor(r.Context())
 		if err == nil {
 			data.ShareCode = &shareCodeData
-			return tmpl(w, data)
+
+			switch page.PostFormString(r, "action") {
+			case "recall":
+				if err := shareCodeStore.Delete(r.Context(), shareCodeData); err != nil {
+					return err
+				}
+
+				return page.Paths.Supporter.ViewLPA.RedirectQuery(w, r, appData, url.Values{
+					"id":                {appData.LpaID},
+					"inviteRecalledFor": {shareCodeData.InviteSentTo},
+				})
+
+			default:
+				return tmpl(w, data)
+			}
 		}
 
 		if !errors.Is(err, dynamo.NotFoundError{}) {
