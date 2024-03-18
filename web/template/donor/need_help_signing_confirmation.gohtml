@@ -5,16 +5,7 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <div class="govuk-notification-banner govuk-notification-banner--success" data-module="govuk-notification-banner">
-        <div class="govuk-notification-banner__header">
-          <p class="govuk-notification-banner__title">{{ tr .App "informationSaved" }}</p>
-        </div>
-        <div class="govuk-notification-banner__content">
-          <h1 class="govuk-body">
-            {{ tr .App "weKnowYouWillNeedHelpSigning" }}
-          </h1>
-        </div>
-      </div>
+      {{ template "notification-banner" (notificationBanner .App "informationSaved" (tr .App "weKnowYouWillNeedHelpSigning") "success") }}
 
       {{ trHtml .App "weKnowYouWillNeedHelpSigningContent" }}
 

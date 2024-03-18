@@ -6,7 +6,7 @@
       </h1>
     </div>
     <div class="govuk-notification-banner__content">
-      <p class="govuk-body app-full-width">
+      <p class="{{ if .Heading }}govuk-notification-banner__heading{{ else }}govuk-body app-full-width{{ end }}">
         {{ .Content }}
       </p>
     </div>

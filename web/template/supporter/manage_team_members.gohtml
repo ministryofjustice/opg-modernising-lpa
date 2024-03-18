@@ -6,66 +6,34 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
       {{ if .App.Query.Has "inviteSent" }}
-        <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
-             aria-labelledby="govuk-notification-banner-title"
-             data-module="govuk-notification-banner">
-          <div class="govuk-notification-banner__header">
-            <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
-              {{ tr .App "invitationSent" }}
-            </h1>
-          </div>
-          <div class="govuk-notification-banner__content">
-            <p class="govuk-body">
-              {{ trFormatHtml .App "weHaveSentInvite" "Email" (.App.Query.Get "inviteSent") }}
-            </p>
-          </div>
-        </div>
+        {{ template "notification-banner" (notificationBanner .App "invitationSent" (trFormatHtml .App "weHaveSentInvite" "Email" (.App.Query.Get "inviteSent")) "success") }}
       {{ end}}
 
       {{ if .App.Query.Has "nameUpdated" }}
-        <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
-             aria-labelledby="govuk-notification-banner-title"
-             data-module="govuk-notification-banner">
-          <div class="govuk-notification-banner__header">
-            <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
-              {{ tr .App "nameUpdated" }}
-            </h1>
-          </div>
-          <div class="govuk-notification-banner__content">
-            <p class="govuk-body">
-              {{ if .App.Query.Has "selfUpdated" }}
-                {{ trFormatHtml .App "yourNameHasBeenUpdatedToNewName" "NewName" (.App.Query.Get "nameUpdated") }}
-              {{ else }}
-                {{ trFormatHtml .App "teamMembersNameUpdatedToNewName" "NewName" (.App.Query.Get "nameUpdated") }}
-              {{ end }}
-            </p>
-          </div>
-        </div>
+        {{ $nameUpdatedContent := "" }}
+        {{ if .App.Query.Has "selfUpdated" }}
+          {{ $nameUpdatedContent = trFormatHtml .App "yourNameHasBeenUpdatedToNewName" "NewName" (.App.Query.Get "nameUpdated") }}
+        {{ else }}
+          {{ $nameUpdatedContent = trFormatHtml .App "teamMembersNameUpdatedToNewName" "NewName" (.App.Query.Get "nameUpdated") }}
+        {{ end }}
+
+        {{ template "notification-banner" (notificationBanner .App "nameUpdated" $nameUpdatedContent "success") }}
       {{ end}}
 
       {{ if and (.App.Query.Has "statusUpdated") (.App.Query.Has "statusEmail") }}
-        <div class="govuk-notification-banner" role="alert"
-             aria-labelledby="govuk-notification-banner-title"
-             data-module="govuk-notification-banner">
-          <div class="govuk-notification-banner__header">
-            <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
-              {{ if eq (.App.Query.Get "statusUpdated") "suspended" }}
-                {{ tr .App "teamMemberSuspended" }}
-              {{ else }}
-                {{ tr .App "accessUpdated" }}
-              {{ end }}
-            </h1>
-          </div>
-          <div class="govuk-notification-banner__content">
-            <p class="govuk-body">
-              {{ if eq (.App.Query.Get "statusUpdated") "suspended" }}
-                {{ trFormatHtml .App "emailHasBeenSuspended" "Email" (.App.Query.Get "statusEmail") }}
-              {{ else }}
-                {{ trFormatHtml .App "emailCanNowAccessOrganisation" "Email" (.App.Query.Get "statusEmail") }}
-              {{ end }}
-            </p>
-          </div>
-        </div>
+        {{ $statusUpdatedTitle := "accessUpdated" }}
+        {{ if eq (.App.Query.Get "statusUpdated") "suspended" }}
+          {{ $statusUpdatedTitle = "teamMemberSuspended" }}
+        {{ end }}
+
+        {{ $statusUpdatedContent := "" }}
+        {{ if eq (.App.Query.Get "statusUpdated") "suspended" }}
+          {{ $statusUpdatedContent = trFormatHtml .App "emailHasBeenSuspended" "Email" (.App.Query.Get "statusEmail") }}
+        {{ else }}
+          {{ $statusUpdatedContent = trFormatHtml .App "emailCanNowAccessOrganisation" "Email" (.App.Query.Get "statusEmail") }}
+        {{ end }}
+        
+        {{ template "notification-banner" (notificationBanner .App $statusUpdatedTitle $statusUpdatedContent "success") }}
       {{ end}}
 
       <h1 class="govuk-heading-xl">{{ tr .App "manageOrganisation" }}</h1>
