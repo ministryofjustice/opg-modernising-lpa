@@ -27,7 +27,7 @@ func TestGetConfirmDonorCanInteractOnline(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := ConfirmDonorCanInteractOnline(template.Execute, nil)(testAppData, w, r, nil)
+	err := ConfirmDonorCanInteractOnline(template.Execute, nil)(testAppData, w, r, nil, nil)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -46,7 +46,7 @@ func TestPostConfirmDonorCanInteractOnlineWhenYes(t *testing.T) {
 		CreateLPA(r.Context()).
 		Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
 
-	err := ConfirmDonorCanInteractOnline(nil, organisationStore)(testAppData, w, r, &actor.Organisation{ID: "org-id"})
+	err := ConfirmDonorCanInteractOnline(nil, organisationStore)(testAppData, w, r, &actor.Organisation{ID: "org-id"}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -61,7 +61,7 @@ func TestPostConfirmDonorCanInteractOnlineWhenNo(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := ConfirmDonorCanInteractOnline(nil, nil)(testAppData, w, r, &actor.Organisation{ID: "org-id"})
+	err := ConfirmDonorCanInteractOnline(nil, nil)(testAppData, w, r, &actor.Organisation{ID: "org-id"}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -83,7 +83,7 @@ func TestPostConfirmDonorCanInteractOnlineWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ConfirmDonorCanInteractOnline(template.Execute, nil)(testAppData, w, r, &actor.Organisation{ID: "org-id"})
+	err := ConfirmDonorCanInteractOnline(template.Execute, nil)(testAppData, w, r, &actor.Organisation{ID: "org-id"}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -102,7 +102,7 @@ func TestPostConfirmDonorCanInteractOnlineWhenOrganisationStoreError(t *testing.
 		CreateLPA(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, expectedError)
 
-	err := ConfirmDonorCanInteractOnline(nil, organisationStore)(testAppData, w, r, &actor.Organisation{ID: "org-id"})
+	err := ConfirmDonorCanInteractOnline(nil, organisationStore)(testAppData, w, r, &actor.Organisation{ID: "org-id"}, nil)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
