@@ -623,7 +623,7 @@
     "useAnAddressYouAlreadyEntered": "Defnyddio cyfeiriad rydych chi eisoes wedi’i roi",
     "enterNewAddress": "Rhoi cyfeiriad newydd",
     "whatIsPersonsPostcode": "Beth yw cod post gwaith {{.FullNamePossessive}}?",
-    "whatIsPersonsWorkPostcode": "Welsh {{.FullNamePossessive}} Welsh",
+    "whatIsPersonsWorkPostcode": "Beth yw cod post gwaith {{.FullNamePossessive}}?",
     "selectAnAddressForPerson": "Dewis gyfeiriad ar gyfer {{.FullName}}",
     "selectPersonsWorkAddress": "Dewiswch gyfeiriad gwaith {{.FullNamePossessive}}",
     "personsAddress": "Cyfeiriad {{.FullNamePossessive}}",
