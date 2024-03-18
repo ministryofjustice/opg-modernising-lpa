@@ -21,45 +21,47 @@ type Progress struct {
 }
 
 func (pt ProgressTracker) Progress(donor *DonorProvidedDetails, certificateProvider *CertificateProviderProvidedDetails, attorneys []*AttorneyProvidedDetails) Progress {
-	labels := map[string]string{
-		"paid":                      "",
-		"confirmedID":               "",
-		"donorSigned":               pt.Localizer.T("youveSignedYourLpa"),
-		"certificateProviderSigned": pt.Localizer.T("yourCertificateProviderHasDeclared"),
-		"attorneysSigned":           pt.Localizer.Count("attorneysHaveDeclared", len(donor.Attorneys.Attorneys)),
-		"lpaSubmitted":              pt.Localizer.T("weHaveReceivedYourLpa"),
-		"statutoryWaitingPeriod":    pt.Localizer.T("yourWaitingPeriodHasStarted"),
-		"lpaRegistered":             pt.Localizer.T("yourLpaHasBeenRegistered"),
-	}
-
-	if donor.CertificateProvider.FirstNames != "" {
-		labels["certificateProviderSigned"] = pt.Localizer.Format(
-			"certificateProviderHasDeclared",
-			map[string]interface{}{"CertificateProviderFullName": donor.CertificateProvider.FullName()},
-		)
-	}
+	var labels map[string]string
 
 	if donor.IsOrganisationDonor() {
-		labels["paid"] = pt.Localizer.Format(
-			"donorFullNameHasPaid",
-			map[string]interface{}{"DonorFullName": donor.Donor.FullName()},
-		)
+		labels = map[string]string{
+			"paid": pt.Localizer.Format(
+				"donorFullNameHasPaid",
+				map[string]interface{}{"DonorFullName": donor.Donor.FullName()},
+			),
+			"confirmedID": pt.Localizer.Format(
+				"donorFullNameHasConfirmedTheirIdentity",
+				map[string]interface{}{"DonorFullName": donor.Donor.FullName()},
+			),
+			"donorSigned": pt.Localizer.Format(
+				"donorFullNameHasSignedTheLPA",
+				map[string]interface{}{"DonorFullName": donor.Donor.FullName()},
+			),
+			"certificateProviderSigned": pt.Localizer.T("theCertificateProviderHasDeclared"),
+			"attorneysSigned":           pt.Localizer.T("allAttorneysHaveSignedTheLpa"),
+			"lpaSubmitted":              pt.Localizer.T("opgHasReceivedTheLPA"),
+			"statutoryWaitingPeriod":    pt.Localizer.T("theWaitingPeriodHasStarted"),
+			"lpaRegistered":             pt.Localizer.T("theLpaHasBeenRegistered"),
+		}
+	} else {
+		labels = map[string]string{
+			"paid":                   "",
+			"confirmedID":            "",
+			"donorSigned":            pt.Localizer.T("youveSignedYourLpa"),
+			"attorneysSigned":        pt.Localizer.Count("attorneysHaveDeclared", len(donor.Attorneys.Attorneys)),
+			"lpaSubmitted":           pt.Localizer.T("weHaveReceivedYourLpa"),
+			"statutoryWaitingPeriod": pt.Localizer.T("yourWaitingPeriodHasStarted"),
+			"lpaRegistered":          pt.Localizer.T("yourLpaHasBeenRegistered"),
+		}
 
-		labels["confirmedID"] = pt.Localizer.Format(
-			"donorFullNameHasConfirmedTheirIdentity",
-			map[string]interface{}{"DonorFullName": donor.Donor.FullName()},
-		)
-
-		labels["donorSigned"] = pt.Localizer.Format(
-			"donorFullNameHasSignedTheLPA",
-			map[string]interface{}{"DonorFullName": donor.Donor.FullName()},
-		)
-
-		labels["certificateProviderSigned"] = pt.Localizer.T("theCertificateProviderHasDeclared")
-		labels["attorneysSigned"] = pt.Localizer.T("allAttorneysHaveSignedTheLpa")
-		labels["lpaSubmitted"] = pt.Localizer.T("opgHasReceivedTheLPA")
-		labels["statutoryWaitingPeriod"] = pt.Localizer.T("theWaitingPeriodHasStarted")
-		labels["lpaRegistered"] = pt.Localizer.T("theLpaHasBeenRegistered")
+		if donor.CertificateProvider.FirstNames != "" {
+			labels["certificateProviderSigned"] = pt.Localizer.Format(
+				"certificateProviderHasDeclared",
+				map[string]interface{}{"CertificateProviderFullName": donor.CertificateProvider.FullName()},
+			)
+		} else {
+			labels["certificateProviderSigned"] = pt.Localizer.T("yourCertificateProviderHasDeclared")
+		}
 	}
 
 	progress := Progress{
