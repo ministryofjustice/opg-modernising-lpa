@@ -33,6 +33,16 @@ func (i PaymentTask) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
 }
 
+func (i *PaymentTask) UnmarshalText(text []byte) error {
+	val, err := ParsePaymentTask(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
+}
+
 func (i PaymentTask) IsNotStarted() bool {
 	return i == PaymentTaskNotStarted
 }
