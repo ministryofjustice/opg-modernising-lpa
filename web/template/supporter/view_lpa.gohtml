@@ -6,21 +6,12 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
       {{ if .App.Query.Has "inviteSentTo" }}
-        <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
-             aria-labelledby="govuk-notification-banner-title"
-             data-module="govuk-notification-banner">
-          <div class="govuk-notification-banner__header">
-            <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
-              {{ tr .App "inviteSent" }}
-            </h1>
-          </div>
-          <div class="govuk-notification-banner__content">
-            <p class="govuk-body app-full-width">
-              {{ trFormatHtml .App "youSentAnInviteTo" "Email" (.App.Query.Get "inviteSentTo") }}
-            </p>
-          </div>
-        </div>
-      {{ end}}
+        {{ template "notification-banner" (notificationBanner .App "inviteSent" (trFormatHtml .App "youSentAnInviteTo" "Email" (.App.Query.Get "inviteSentTo")) true) }}
+      {{ end }}
+
+      {{ if .App.Query.Has "inviteRecalledFor" }}
+        {{ template "notification-banner" (notificationBanner .App "inviteRecalled" (trFormatHtml .App "youRecalledTheInviteFor" "Email" (.App.Query.Get "inviteRecalledFor")) false) }}
+      {{ end }}
 
       <span class="govuk-caption-xl">{{ .Donor.Donor.FullName }}</span>
       <h1 class="govuk-heading-xl">{{ tr .App .Donor.Type.String }} {{tr .App "lpa"}}</h1>
@@ -36,6 +27,9 @@
       </div>
 
       <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+      
+      <h2 class="govuk-heading-m">{{tr .App "lpaProgress"}}</h2>
+
+      {{ template "donor-lpa-progress" . }}
     </div>
-  </div>
 {{ end }}

@@ -1077,5 +1077,15 @@
     "accessCodeHint": "This will be made up of 12 characters and may contain a mix of letters and numbers.",
     "incorrectAccessCode": "The access code you entered is incorrect, please check it and try again",
     "linked": "Linked",
-    "removeAccess": "Remove access"
+    "removeAccess": "Remove access",
+    "lpaProgress": "LPA progress",
+    "donorFullNameHasPaid": "{{.DonorFullName }} has paid",
+    "donorFullNameHasConfirmedTheirIdentity": "{{.DonorFullName }} has confirmed their identity",
+    "donorFullNameHasSignedTheLPA": "{{.DonorFullName }} has signed the LPA",
+    "theCertificateProviderHasDeclared": "The certificate provider has provided their certificate",
+    "opgHasReceivedTheLPA": "OPG has received the LPA",
+    "theWaitingPeriodHasStarted": "The 4-week waiting period has started",
+    "theLpaHasBeenRegistered": "The LPA has been registered",
+    "inviteRecalled": "Invite recalled",
+    "youRecalledTheInviteFor": "You recalled the invite to this LPA for <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span>."
 }

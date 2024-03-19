@@ -443,3 +443,14 @@ func TestContent(t *testing.T) {
 	assert.Equal(t, app, v["App"])
 	assert.Equal(t, componentContent, v["Content"])
 }
+
+func TestNotificationBanner(t *testing.T) {
+	app := page.AppData{SessionID: "abc"}
+
+	assert.Equal(t, notificationBannerData{
+		App:     app,
+		Title:   "title",
+		Content: "content",
+		Success: true,
+	}, notificationBanner(app, "title", "content", true))
+}
