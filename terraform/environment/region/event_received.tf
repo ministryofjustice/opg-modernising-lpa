@@ -16,6 +16,7 @@ module "event_received" {
   app_public_url                = aws_route53_record.app.fqdn
   uploads_bucket                = module.uploads_s3_bucket.bucket
   uid_base_url                  = var.uid_service.base_url
+  lpa_store_base_url            = var.lpa_store_service.base_url
   allowed_api_arns              = var.uid_service.api_arns
   search_endpoint               = var.search_endpoint
   search_collection_arn         = var.search_collection_arn
