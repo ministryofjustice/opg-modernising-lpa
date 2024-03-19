@@ -98,7 +98,7 @@ func Supporter(
 				if err != nil {
 					return err
 				}
-				donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: organisation.ID, LpaID: donor.LpaID, SessionID: random.String(12)})
+				donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID, LpaID: donor.LpaID, SessionID: random.String(12)})
 
 				donor.LpaUID = makeUID()
 				donor.Donor = makeDonor()

@@ -359,7 +359,6 @@ func (s *donorStore) DeleteLink(ctx context.Context, shareCodeData actor.ShareCo
 	}
 
 	return s.dynamoClient.DeleteOne(ctx, lpaKey(shareCodeData.LpaID), donorKey(link.UserSub()))
-
 }
 
 func lpaKey(s string) string {

@@ -414,5 +414,66 @@ func TestPostDonorAccessRemove(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.ViewLPA.Format()+"?id=lpa-id&inviteRemovedFor=email%40example.com", resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.Supporter.ViewLPA.Format()+"?accessRemovedFor=email%40example.com&id=lpa-id", resp.Header.Get("Location"))
+}
+
+func TestPostDonorAccessRemoveWhenDeleteError(t *testing.T) {
+	form := url.Values{"action": {"remove"}}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		GetDonor(mock.Anything).
+		Return(actor.ShareCodeData{}, nil)
+	shareCodeStore.EXPECT().
+		Delete(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	donor := &actor.DonorProvidedDetails{SK: "#DONOR#donor-session-id"}
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Get(mock.Anything).
+		Return(donor, nil)
+
+	err := DonorAccess(nil, donorStore, shareCodeStore, nil, "http://whatever", testRandomStringFn)(testLpaAppData, w, r, &actor.Organisation{}, &actor.Member{})
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostDonorAccessRemoveWhenDeleteLinkError(t *testing.T) {
+	form := url.Values{"action": {"remove"}}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		GetDonor(mock.Anything).
+		Return(actor.ShareCodeData{}, nil)
+	shareCodeStore.EXPECT().
+		Delete(mock.Anything, mock.Anything).
+		Return(nil)
+
+	donor := &actor.DonorProvidedDetails{SK: "#DONOR#donor-session-id"}
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Get(mock.Anything).
+		Return(donor, nil)
+	donorStore.EXPECT().
+		DeleteLink(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := DonorAccess(nil, donorStore, shareCodeStore, nil, "http://whatever", testRandomStringFn)(testLpaAppData, w, r, &actor.Organisation{}, &actor.Member{})
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }

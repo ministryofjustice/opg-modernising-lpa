@@ -48,11 +48,11 @@ describe('Donor access', () => {
       cy.url().should('contain', '/view-lpa');
       cy.checkA11yApp();
 
-      cy.contains(`You removed access to this LPA for ${TestEmail}.`)
+      cy.contains(`You removed access to this LPA for email@example.com.`)
 
       cy.contains('Donor access').click();
 
-      cy.contains('dt', 'Status').parent().should('not.contain', 'Linked')
+      cy.contains('main').should('not.contain', 'Linked')
     })
   })
 });

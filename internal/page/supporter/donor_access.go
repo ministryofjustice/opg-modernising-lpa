@@ -61,7 +61,7 @@ func DonorAccess(tmpl template.Template, donorStore DonorStore, shareCodeStore S
 
 				return page.Paths.Supporter.ViewLPA.RedirectQuery(w, r, appData, url.Values{
 					"id":               {appData.LpaID},
-					"inviteRemovedFor": {shareCodeData.InviteSentTo},
+					"accessRemovedFor": {shareCodeData.InviteSentTo},
 				})
 
 			default:
