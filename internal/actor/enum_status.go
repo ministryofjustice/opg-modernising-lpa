@@ -29,6 +29,16 @@ func (i Status) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
 }
 
+func (i *Status) UnmarshalText(text []byte) error {
+	val, err := ParseStatus(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
+}
+
 func (i Status) IsActive() bool {
 	return i == StatusActive
 }

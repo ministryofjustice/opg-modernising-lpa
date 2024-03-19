@@ -84,6 +84,16 @@ func (i Day) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
 }
 
+func (i *Day) UnmarshalText(text []byte) error {
+	val, err := ParseDay(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
+}
+
 func (i Day) IsMonday() bool {
 	return i == Monday
 }
@@ -195,6 +205,16 @@ func (i Number) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
 }
 
+func (i *Number) UnmarshalText(text []byte) error {
+	val, err := ParseNumber(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
+}
+
 func (i Number) IsOne() bool {
 	return i == One
 }
@@ -289,6 +309,16 @@ func (i Gap) String() string {
 
 func (i Gap) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
+}
+
+func (i *Gap) UnmarshalText(text []byte) error {
+	val, err := ParseGap(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
 }
 
 func (i Gap) IsTwo() bool {
@@ -407,6 +437,16 @@ func (i Num) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
 }
 
+func (i *Num) UnmarshalText(text []byte) error {
+	val, err := ParseNum(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
+}
+
 func (i Num) Ism_2() bool {
 	return i == m_2
 }
@@ -510,6 +550,16 @@ func (i Unum) String() string {
 
 func (i Unum) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
+}
+
+func (i *Unum) UnmarshalText(text []byte) error {
+	val, err := ParseUnum(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
 }
 
 func (i Unum) Ism0() bool {
@@ -616,6 +666,16 @@ func (i Unumpos) String() string {
 
 func (i Unumpos) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
+}
+
+func (i *Unumpos) UnmarshalText(text []byte) error {
+	val, err := ParseUnumpos(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
 }
 
 func (i Unumpos) Ism1() bool {
@@ -740,6 +800,16 @@ func (i Prime) String() string {
 
 func (i Prime) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
+}
+
+func (i *Prime) UnmarshalText(text []byte) error {
+	val, err := ParsePrime(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
 }
 
 func (i Prime) Isp2() bool {
@@ -900,6 +970,16 @@ func (i Type) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
 }
 
+func (i *Type) UnmarshalText(text []byte) error {
+	val, err := ParseType(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
+}
+
 func (i Type) IsInt() bool {
 	return i == TypeInt
 }
@@ -1015,6 +1095,16 @@ func (i Token) String() string {
 
 func (i Token) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
+}
+
+func (i *Token) UnmarshalText(text []byte) error {
+	val, err := ParseToken(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
 }
 
 func (i Token) IsAnd() bool {

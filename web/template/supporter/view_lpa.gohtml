@@ -6,11 +6,11 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
       {{ if .App.Query.Has "inviteSentTo" }}
-        {{ template "notification-banner" (notificationBanner .App "inviteSent" (trFormatHtml .App "youSentAnInviteTo" "Email" (.App.Query.Get "inviteSentTo")) true) }}
+        {{ template "notification-banner" (notificationBanner .App "inviteSent" (trFormatHtml .App "youSentAnInviteTo" "Email" (.App.Query.Get "inviteSentTo")) "success") }}
       {{ end }}
 
       {{ if .App.Query.Has "inviteRecalledFor" }}
-        {{ template "notification-banner" (notificationBanner .App "inviteRecalled" (trFormatHtml .App "youRecalledTheInviteFor" "Email" (.App.Query.Get "inviteRecalledFor")) false) }}
+        {{ template "notification-banner" (notificationBanner .App "inviteRecalled" (trFormatHtml .App "youRecalledTheInviteFor" "Email" (.App.Query.Get "inviteRecalledFor"))) }}
       {{ end }}
 
       {{ if .App.Query.Has "accessRemovedFor" }}

@@ -29,6 +29,16 @@ func (i Permission) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
 }
 
+func (i *Permission) UnmarshalText(text []byte) error {
+	val, err := ParsePermission(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
+}
+
 func (i Permission) IsNone() bool {
 	return i == PermissionNone
 }
