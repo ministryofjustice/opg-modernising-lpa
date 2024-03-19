@@ -122,7 +122,7 @@
                   </li>
                     {{ if .App.IsAdmin }}
                       <li class="service-header__nav-list-item {{ if .App.IsManageOrganisation }}service-header__nav-list-item--active{{ end }}">
-                          <a class="service-header__nav-list-item-link" href="{{ link .App global.Paths.Supporter.OrganisationDetails.Format }}">{{ tr .App "manageOrganisation" }}</a>
+                          <a class="service-header__nav-list-item-link" href="{{ link .App global.Paths.Supporter.ManageTeamMembers.Format }}">{{ tr .App "manageOrganisation" }}</a>
                       </li>
                       {{ else }}
                       <li class="service-header__nav-list-item {{ if .App.IsManageOrganisation  }}service-header__nav-list-item--active{{ end }}">
