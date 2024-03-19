@@ -14,7 +14,7 @@
       {{ end }}
 
       {{ if .App.Query.Has "accessRemovedFor" }}
-        {{ template "notification-banner" (notificationBanner .App "accessRemoved" (trFormatHtml .App "youRemovedAccessToThisLPAFor" "Email" (.App.Query.Get "accessRemovedFor")) false) }}
+        {{ template "notification-banner" (notificationBanner .App "accessRemoved" (trFormatHtml .App "youRemovedAccessToThisLPAFor" "Email" (.App.Query.Get "accessRemovedFor"))) }}
       {{ end }}
 
       <span class="govuk-caption-xl">{{ .Donor.Donor.FullName }}</span>
