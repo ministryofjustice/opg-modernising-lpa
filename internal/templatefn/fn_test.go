@@ -452,5 +452,12 @@ func TestNotificationBanner(t *testing.T) {
 		Title:   "title",
 		Content: "content",
 		Success: true,
-	}, notificationBanner(app, "title", "content", true))
+		Heading: true,
+	}, notificationBanner(app, "title", "content", "heading", "success"))
+
+	assert.Equal(t, notificationBannerData{
+		App:     app,
+		Title:   "title",
+		Content: "content",
+	}, notificationBanner(app, "title", "content"))
 }
