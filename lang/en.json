@@ -1087,5 +1087,7 @@
     "theWaitingPeriodHasStarted": "The 4-week waiting period has started",
     "theLpaHasBeenRegistered": "The LPA has been registered",
     "inviteRecalled": "Invite recalled",
-    "youRecalledTheInviteFor": "You recalled the invite to this LPA for <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span>."
+    "youRecalledTheInviteFor": "You recalled the invite to this LPA for <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span>.",
+    "accessRemoved": "Access removed",
+    "youRemovedAccessToThisLPAFor": "You removed access to this LPA for <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span>."
 }

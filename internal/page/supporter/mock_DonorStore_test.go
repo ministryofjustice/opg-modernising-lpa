@@ -25,6 +25,53 @@ func (_m *mockDonorStore) EXPECT() *mockDonorStore_Expecter {
 	return &mockDonorStore_Expecter{mock: &_m.Mock}
 }
 
+// DeleteLink provides a mock function with given fields: ctx, shareCodeData
+func (_m *mockDonorStore) DeleteLink(ctx context.Context, shareCodeData actor.ShareCodeData) error {
+	ret := _m.Called(ctx, shareCodeData)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteLink")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, actor.ShareCodeData) error); ok {
+		r0 = rf(ctx, shareCodeData)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockDonorStore_DeleteLink_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteLink'
+type mockDonorStore_DeleteLink_Call struct {
+	*mock.Call
+}
+
+// DeleteLink is a helper method to define mock.On call
+//   - ctx context.Context
+//   - shareCodeData actor.ShareCodeData
+func (_e *mockDonorStore_Expecter) DeleteLink(ctx interface{}, shareCodeData interface{}) *mockDonorStore_DeleteLink_Call {
+	return &mockDonorStore_DeleteLink_Call{Call: _e.mock.On("DeleteLink", ctx, shareCodeData)}
+}
+
+func (_c *mockDonorStore_DeleteLink_Call) Run(run func(ctx context.Context, shareCodeData actor.ShareCodeData)) *mockDonorStore_DeleteLink_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(actor.ShareCodeData))
+	})
+	return _c
+}
+
+func (_c *mockDonorStore_DeleteLink_Call) Return(_a0 error) *mockDonorStore_DeleteLink_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDonorStore_DeleteLink_Call) RunAndReturn(run func(context.Context, actor.ShareCodeData) error) *mockDonorStore_DeleteLink_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Get provides a mock function with given fields: ctx
 func (_m *mockDonorStore) Get(ctx context.Context) (*actor.DonorProvidedDetails, error) {
 	ret := _m.Called(ctx)
