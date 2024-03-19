@@ -51,6 +51,10 @@ func DonorAccess(tmpl template.Template, donorStore DonorStore, shareCodeStore S
 				})
 
 			case "remove":
+				if donor.Tasks.PayForLpa.IsCompleted() {
+					return errors.New("cannot remove LPA access when donor has paid")
+				}
+
 				if err := shareCodeStore.Delete(r.Context(), shareCodeData); err != nil {
 					return err
 				}
