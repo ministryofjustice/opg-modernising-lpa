@@ -44,6 +44,20 @@ data "aws_iam_policy_document" "opensearch_ingestion" {
       aws_dynamodb_table.lpas_table.stream_arn,
     ]
   }
+
+  statement {
+    sid    = "allowReadAndWriteToS3ForExport"
+    effect = "Allow"
+    actions = [
+      "s3:GetObject",
+      "s3:AbortMultipartUpload",
+      "s3:PutObject",
+      "s3:PutObjectAcl",
+    ]
+    resources = [
+      "${aws_s3_bucket.opensearch_ingestion.arn}/export/*",
+    ]
+  }
 }
 
 data "aws_vpc" "main" {
@@ -64,4 +78,15 @@ resource "aws_cloudwatch_log_group" "opensearch_ingestion" {
   name              = "/aws/vendedlogs/OpenSearchIngestion/lpas-${local.default_tags.environment-name}/audit-logs"
   retention_in_days = 1
   provider          = aws.eu_west_1
+}
+
+resource "aws_s3_bucket" "opensearch_ingestion" {
+  bucket   = "${local.default_tags.environment-name}-opensearch-ingestion"
+  provider = aws.eu_west_1
+}
+
+resource "aws_s3_bucket_acl" "opensearch_ingestion" {
+  bucket   = aws_s3_bucket.opensearch_ingestion.bucket
+  acl      = "private"
+  provider = aws.eu_west_1
 }
