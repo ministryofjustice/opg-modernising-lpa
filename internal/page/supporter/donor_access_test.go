@@ -376,3 +376,43 @@ func TestDonorAccessFormValidate(t *testing.T) {
 		})
 	}
 }
+
+func TestPostDonorAccessRemove(t *testing.T) {
+	form := url.Values{"action": {"remove"}}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	shareCodeData := actor.ShareCodeData{
+		PK:           "1",
+		SK:           "DONORINVITE#donor-session-id#lpa-id",
+		InviteSentTo: "email@example.com",
+		SessionID:    "session-id",
+	}
+
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		GetDonor(r.Context()).
+		Return(shareCodeData, nil)
+	shareCodeStore.EXPECT().
+		Delete(r.Context(), shareCodeData).
+		Return(nil)
+
+	donor := &actor.DonorProvidedDetails{SK: "#DONOR#donor-session-id"}
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Get(r.Context()).
+		Return(donor, nil)
+	donorStore.EXPECT().
+		DeleteLink(r.Context(), shareCodeData).
+		Return(nil)
+
+	err := DonorAccess(nil, donorStore, shareCodeStore, nil, "http://whatever", testRandomStringFn)(testLpaAppData, w, r, &actor.Organisation{}, &actor.Member{})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.Supporter.ViewLPA.Format()+"?id=lpa-id&inviteRemovedFor=email%40example.com", resp.Header.Get("Location"))
+}

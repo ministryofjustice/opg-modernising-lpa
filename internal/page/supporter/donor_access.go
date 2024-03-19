@@ -50,6 +50,20 @@ func DonorAccess(tmpl template.Template, donorStore DonorStore, shareCodeStore S
 					"inviteRecalledFor": {shareCodeData.InviteSentTo},
 				})
 
+			case "remove":
+				if err := shareCodeStore.Delete(r.Context(), shareCodeData); err != nil {
+					return err
+				}
+
+				if err := donorStore.DeleteLink(r.Context(), shareCodeData); err != nil {
+					return err
+				}
+
+				return page.Paths.Supporter.ViewLPA.RedirectQuery(w, r, appData, url.Values{
+					"id":               {appData.LpaID},
+					"inviteRemovedFor": {shareCodeData.InviteSentTo},
+				})
+
 			default:
 				return tmpl(w, data)
 			}

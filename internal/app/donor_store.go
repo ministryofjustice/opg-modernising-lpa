@@ -335,6 +335,33 @@ func (s *donorStore) Delete(ctx context.Context) error {
 	return s.dynamoClient.DeleteKeys(ctx, keys)
 }
 
+func (s *donorStore) DeleteLink(ctx context.Context, shareCodeData actor.ShareCodeData) error {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	if data.OrganisationID == "" {
+		return errors.New("donorStore.DeleteLink requires OrganisationID")
+	}
+
+	if data.OrganisationID != shareCodeData.SessionID {
+		return errors.New("cannot remove access to another organisations LPA")
+	}
+
+	var link lpaLink
+	if err := s.dynamoClient.OneByPartialSK(ctx, lpaKey(shareCodeData.LpaID), subKey(""), &link); err != nil {
+		return err
+	}
+
+	if err := s.dynamoClient.DeleteOne(ctx, link.PK, link.SK); err != nil {
+		return err
+	}
+
+	return s.dynamoClient.DeleteOne(ctx, lpaKey(shareCodeData.LpaID), donorKey(link.UserSub()))
+
+}
+
 func lpaKey(s string) string {
 	return "LPA#" + s
 }
