@@ -30,6 +30,16 @@ func (i EvidenceDelivery) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
 }
 
+func (i *EvidenceDelivery) UnmarshalText(text []byte) error {
+	val, err := ParseEvidenceDelivery(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
+}
+
 func (i EvidenceDelivery) IsUpload() bool {
 	return i == Upload
 }

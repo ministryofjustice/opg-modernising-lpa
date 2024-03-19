@@ -32,6 +32,16 @@ func (i PreviousFee) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
 }
 
+func (i *PreviousFee) UnmarshalText(text []byte) error {
+	val, err := ParsePreviousFee(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
+}
+
 func (i PreviousFee) IsPreviousFeeFull() bool {
 	return i == PreviousFeeFull
 }

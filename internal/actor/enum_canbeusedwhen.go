@@ -30,6 +30,16 @@ func (i CanBeUsedWhen) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
 }
 
+func (i *CanBeUsedWhen) UnmarshalText(text []byte) error {
+	val, err := ParseCanBeUsedWhen(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
+}
+
 func (i CanBeUsedWhen) IsUnknown() bool {
 	return i == CanBeUsedWhenUnknown
 }
