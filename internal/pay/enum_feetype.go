@@ -32,6 +32,16 @@ func (i FeeType) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
 }
 
+func (i *FeeType) UnmarshalText(text []byte) error {
+	val, err := ParseFeeType(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
+}
+
 func (i FeeType) IsFullFee() bool {
 	return i == FullFee
 }

@@ -30,6 +30,16 @@ func (i CertificateProviderCarryOutBy) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
 }
 
+func (i *CertificateProviderCarryOutBy) UnmarshalText(text []byte) error {
+	val, err := ParseCertificateProviderCarryOutBy(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
+}
+
 func (i CertificateProviderCarryOutBy) IsPaper() bool {
 	return i == Paper
 }

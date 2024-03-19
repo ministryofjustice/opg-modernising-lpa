@@ -30,6 +30,16 @@ func (i LifeSustainingTreatment) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
 }
 
+func (i *LifeSustainingTreatment) UnmarshalText(text []byte) error {
+	val, err := ParseLifeSustainingTreatment(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
+}
+
 func (i LifeSustainingTreatment) IsOptionA() bool {
 	return i == LifeSustainingTreatmentOptionA
 }

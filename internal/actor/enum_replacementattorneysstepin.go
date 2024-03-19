@@ -31,6 +31,16 @@ func (i ReplacementAttorneysStepIn) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
 }
 
+func (i *ReplacementAttorneysStepIn) UnmarshalText(text []byte) error {
+	val, err := ParseReplacementAttorneysStepIn(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
+}
+
 func (i ReplacementAttorneysStepIn) IsWhenAllCanNoLongerAct() bool {
 	return i == ReplacementAttorneysStepInWhenAllCanNoLongerAct
 }

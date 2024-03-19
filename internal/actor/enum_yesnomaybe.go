@@ -31,6 +31,16 @@ func (i YesNoMaybe) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
 }
 
+func (i *YesNoMaybe) UnmarshalText(text []byte) error {
+	val, err := ParseYesNoMaybe(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
+}
+
 func (i YesNoMaybe) IsYes() bool {
 	return i == Yes
 }
