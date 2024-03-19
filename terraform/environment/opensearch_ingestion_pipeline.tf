@@ -84,9 +84,3 @@ resource "aws_s3_bucket" "opensearch_ingestion" {
   bucket   = "${local.default_tags.environment-name}-opensearch-ingestion"
   provider = aws.eu_west_1
 }
-
-resource "aws_s3_bucket_acl" "opensearch_ingestion" {
-  bucket   = aws_s3_bucket.opensearch_ingestion.bucket
-  acl      = "private"
-  provider = aws.eu_west_1
-}
