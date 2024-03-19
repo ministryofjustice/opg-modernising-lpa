@@ -11,16 +11,22 @@ import (
 )
 
 func TestUID(t *testing.T) {
-	uid := UID{value: "abc"}
+	uuidString := "2ea1a849-975e-481c-af19-1209d20ed362"
+	uid, err := Parse(uuidString)
 
-	assert.Equal(t, "abc", uid.String())
-	assert.Equal(t, prefix+"abc", uid.PrefixedString())
+	assert.Nil(t, err)
+	assert.Equal(t, uuidString, uid.String())
+	assert.Equal(t, prefix+uuidString, uid.PrefixedString())
+
+	_, err = Parse("what")
+	assert.Error(t, err)
 }
 
 func TestUIDFromRequest(t *testing.T) {
-	r, _ := http.NewRequest(http.MethodGet, "/?id=abc", nil)
+	uuidString := "2ea1a849-975e-481c-af19-1209d20ed362"
+	r, _ := http.NewRequest(http.MethodGet, "/?id="+uuidString, nil)
 
-	assert.Equal(t, UID{value: "abc"}, FromRequest(r))
+	assert.Equal(t, uuidString, FromRequest(r).String())
 }
 
 func TestUIDZero(t *testing.T) {
@@ -29,13 +35,15 @@ func TestUIDZero(t *testing.T) {
 }
 
 func TestUIDJSON(t *testing.T) {
-	uid := UID{value: "abc"}
+	uuidString := "2ea1a849-975e-481c-af19-1209d20ed362"
+	uid, err := Parse(uuidString)
+	assert.Nil(t, err)
 
 	jsonData, _ := json.Marshal(uid)
-	assert.Equal(t, `"urn:opg:poas:makeregister:users:abc"`, string(jsonData))
+	assert.Equal(t, `"`+uuidString+`"`, string(jsonData))
 
 	var a UID
-	err := json.Unmarshal([]byte(`"urn:opg:poas:makeregister:users:abc"`), &a)
+	err = json.Unmarshal([]byte(`"`+uuidString+`"`), &a)
 	assert.Nil(t, err)
 	assert.Equal(t, a, uid)
 
@@ -51,21 +59,28 @@ func TestUIDJSON(t *testing.T) {
 	err = json.Unmarshal([]byte(`""`), &c)
 	assert.Nil(t, err)
 	assert.True(t, c.IsZero())
-}
 
-func TestUIDJSONInvalidPrefix(t *testing.T) {
-	var v UID
-	err := json.Unmarshal([]byte(`"urn:opg:poas:makeregister:users2:abc"`), &v)
-	assert.ErrorContains(t, err, "invalid uid prefix")
+	var d UID
+	err = json.Unmarshal([]byte(`"abc"`), &d)
+	assert.Error(t, err)
+	assert.True(t, c.IsZero())
 }
 
 func TestUIDAttributeValue(t *testing.T) {
-	uid := UID{value: "abc"}
+	uuidString := "2ea1a849-975e-481c-af19-1209d20ed362"
+	uid, err := Parse(uuidString)
+	assert.Nil(t, err)
 
 	avData, _ := attributevalue.Marshal(uid)
-	assert.Equal(t, &types.AttributeValueMemberS{Value: "abc"}, avData)
+	assert.Equal(t, &types.AttributeValueMemberS{Value: uuidString}, avData)
 
 	var b UID
-	_ = attributevalue.Unmarshal(&types.AttributeValueMemberS{Value: "abc"}, &b)
+	err = attributevalue.Unmarshal(&types.AttributeValueMemberS{Value: uuidString}, &b)
+	assert.Nil(t, err)
 	assert.Equal(t, b, uid)
+
+	var c UID
+	err = attributevalue.Unmarshal(&types.AttributeValueMemberS{Value: "abc"}, &c)
+	assert.Error(t, err)
+	assert.True(t, c.IsZero())
 }
