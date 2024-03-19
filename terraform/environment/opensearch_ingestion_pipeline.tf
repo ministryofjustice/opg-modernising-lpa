@@ -131,7 +131,7 @@ locals {
       }
     }
     supporter_lpas = {
-      route = "'contains(/SK, \"ORGANISATION#\")'"
+      route = "'contains(/\"SK\", \"ORGANISATION#\") and contains(/\"PK\", \"LPA#\")'"
       sink = {
         opensearch = {
           hosts = aws_opensearchserverless_collection.lpas_collection.collection_endpoint
