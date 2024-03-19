@@ -8,6 +8,9 @@ import (
 
 const prefix = "urn:opg:poas:makeregister:users:"
 
+// Service is used when the application does an action.
+var Service = UID{value: [16]byte{0, 0, 0, 0, 0, 0, 64}}
+
 type UID struct{ value uuid.UUID }
 
 func New() UID {
