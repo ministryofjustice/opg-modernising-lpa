@@ -45,3 +45,17 @@ data "aws_iam_policy_document" "opensearch_ingestion" {
     ]
   }
 }
+
+data "aws_vpc" "main" {
+  filter {
+    name   = "tag:application"
+    values = [local.default_tags.application]
+  }
+  provider = aws.eu_west_1
+}
+
+resource "aws_security_group" "opensearch_ingestion" {
+  name_prefix = "${local.default_tags.environment-name}-opensearch-ingestion"
+  vpc_id      = data.aws_vpc.main.id
+  provider    = aws.eu_west_1
+}
