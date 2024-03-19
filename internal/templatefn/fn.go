@@ -391,14 +391,16 @@ type notificationBannerData struct {
 	App     page.AppData
 	Title   string
 	Content template.HTML
+	Heading bool
 	Success bool
 }
 
-func notificationBanner(app page.AppData, title string, content template.HTML, success bool) notificationBannerData {
+func notificationBanner(app page.AppData, title string, content template.HTML, options ...string) notificationBannerData {
 	return notificationBannerData{
 		App:     app,
 		Title:   title,
 		Content: content,
-		Success: success,
+		Heading: slices.Contains(options, "heading"),
+		Success: slices.Contains(options, "success"),
 	}
 }
