@@ -31,6 +31,16 @@ func (i AttorneysAct) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
 }
 
+func (i *AttorneysAct) UnmarshalText(text []byte) error {
+	val, err := ParseAttorneysAct(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
+}
+
 func (i AttorneysAct) IsJointly() bool {
 	return i == Jointly
 }

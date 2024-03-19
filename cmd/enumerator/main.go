@@ -35,6 +35,7 @@
 //	func ParseT(string) (T, error)
 //	func (t T) String() string
 //	func (t T) MarshalText() ([]byte, error)
+//	func (t *T) UnmarshalText([]byte) error
 //
 // and for each value X
 //
@@ -67,6 +68,7 @@
 //	func ParsePill() (Pill, error)
 //	func (Pill) String() string
 //	func (Pill) MarshalText() ([]byte, error)
+//	func (*Pill) UnmarshalText([]byte) error
 //	func (Pill) IsPlacebo() bool
 //	func (Pill) IsAspirin() bool
 //	func (Pill) IsIbuprofen() bool
@@ -310,7 +312,7 @@ func (g *Generator) generate(typeName string) {
 		g.buildMap(runs, typeName)
 	}
 
-	g.buildMarshalTextMethod(typeName)
+	g.buildTextMethods(typeName)
 	g.buildIsMethods(runs, typeName)
 	g.buildParseMethod(runs, typeName)
 	g.buildValues(runs, typeName)
@@ -574,13 +576,23 @@ func (g *Generator) createIndexAndNameDecl(run []Value, typeName string, suffix 
 	return b.String(), nameConst
 }
 
-func (g *Generator) buildMarshalTextMethod(typeName string) {
-	g.Printf(marshalTextMethod, typeName)
+func (g *Generator) buildTextMethods(typeName string) {
+	g.Printf(textMethods, typeName)
 }
 
-const marshalTextMethod = `
+const textMethods = `
 func (i %[1]s) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
+}
+
+func (i *%[1]s) UnmarshalText(text []byte) error {
+  val, err := Parse%[1]s(string(text))
+  if err != nil {
+    return err
+  }
+
+  *i = val
+  return nil
 }
 `
 

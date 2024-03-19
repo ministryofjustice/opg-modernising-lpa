@@ -30,6 +30,16 @@ func (i Lang) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
 }
 
+func (i *Lang) UnmarshalText(text []byte) error {
+	val, err := ParseLang(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
+}
+
 func (i Lang) IsEn() bool {
 	return i == En
 }
