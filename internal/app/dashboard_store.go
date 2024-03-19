@@ -28,6 +28,10 @@ type lpaLink struct {
 }
 
 func (l lpaLink) UserSub() string {
+	if l.SK == "" {
+		return ""
+	}
+
 	return strings.Split(l.SK, subKey(""))[1]
 }
 

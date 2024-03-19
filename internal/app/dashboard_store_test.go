@@ -230,3 +230,8 @@ func TestDashboardStoreSubExistsWhenDynamoError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 	assert.False(t, exists)
 }
+
+func TestLpaLinkUserSub(t *testing.T) {
+	assert.Equal(t, "a-sub", lpaLink{SK: subKey("a-sub")}.UserSub())
+	assert.Equal(t, "", lpaLink{}.UserSub())
+}
