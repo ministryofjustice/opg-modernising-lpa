@@ -50,6 +50,24 @@ func DonorAccess(tmpl template.Template, donorStore DonorStore, shareCodeStore S
 					"inviteRecalledFor": {shareCodeData.InviteSentTo},
 				})
 
+			case "remove":
+				if donor.Tasks.PayForLpa.IsCompleted() {
+					return errors.New("cannot remove LPA access when donor has paid")
+				}
+
+				if err := shareCodeStore.Delete(r.Context(), shareCodeData); err != nil {
+					return err
+				}
+
+				if err := donorStore.DeleteLink(r.Context(), shareCodeData); err != nil {
+					return err
+				}
+
+				return page.Paths.Supporter.ViewLPA.RedirectQuery(w, r, appData, url.Values{
+					"id":               {appData.LpaID},
+					"accessRemovedFor": {shareCodeData.InviteSentTo},
+				})
+
 			default:
 				return tmpl(w, data)
 			}
