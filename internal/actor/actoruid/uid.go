@@ -1,9 +1,6 @@
 package actoruid
 
 import (
-	"errors"
-	"strings"
-
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/google/uuid"
@@ -11,34 +8,44 @@ import (
 
 const prefix = "urn:opg:poas:makeregister:users:"
 
-type UID struct{ value string }
+type UID struct{ value uuid.UUID }
 
 func New() UID {
-	return UID{value: uuid.NewString()}
+	return UID{value: uuid.New()}
+}
+
+func Parse(uid string) (UID, error) {
+	u, err := uuid.Parse(uid)
+	if err != nil {
+		return UID{}, err
+	}
+
+	return UID{value: u}, nil
 }
 
 func FromRequest(r interface{ FormValue(string) string }) UID {
-	return UID{value: r.FormValue("id")}
+	uid, _ := Parse(r.FormValue("id"))
+	return uid
 }
 
 func (u UID) IsZero() bool {
-	return len(u.value) == 0
+	return u == UID{}
 }
 
 func (u UID) String() string {
-	return u.value
+	return u.value.String()
 }
 
 func (u UID) PrefixedString() string {
-	return prefix + u.value
+	return prefix + u.String()
 }
 
 func (u UID) MarshalJSON() ([]byte, error) {
-	if u.value == "" {
+	if u.IsZero() {
 		return []byte("null"), nil
 	}
 
-	return []byte(`"` + u.PrefixedString() + `"`), nil
+	return []byte(`"` + u.String() + `"`), nil
 }
 
 func (u *UID) UnmarshalText(text []byte) error {
@@ -46,19 +53,24 @@ func (u *UID) UnmarshalText(text []byte) error {
 		return nil
 	}
 
-	uid, found := strings.CutPrefix(string(text), prefix)
-	if !found {
-		return errors.New("invalid uid prefix")
+	uid, err := Parse(string(text))
+	if err != nil {
+		return err
 	}
 
-	u.value = uid
+	*u = uid
 	return nil
 }
 
 func (u UID) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) {
-	return attributevalue.Marshal(u.value)
+	return attributevalue.Marshal(u.value.String())
 }
 
 func (u *UID) UnmarshalDynamoDBAttributeValue(av types.AttributeValue) error {
-	return attributevalue.Unmarshal(av, &u.value)
+	var s string
+	if err := attributevalue.Unmarshal(av, &s); err != nil {
+		return err
+	}
+
+	return u.UnmarshalText([]byte(s))
 }
