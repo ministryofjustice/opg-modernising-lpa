@@ -13,6 +13,10 @@
         {{ template "notification-banner" (notificationBanner .App "inviteRecalled" (trFormatHtml .App "youRecalledTheInviteFor" "Email" (.App.Query.Get "inviteRecalledFor"))) }}
       {{ end }}
 
+      {{ if .App.Query.Has "accessRemovedFor" }}
+        {{ template "notification-banner" (notificationBanner .App "accessRemoved" (trFormatHtml .App "youRemovedAccessToThisLPAFor" "Email" (.App.Query.Get "accessRemovedFor")) false) }}
+      {{ end }}
+
       <span class="govuk-caption-xl">{{ .Donor.Donor.FullName }}</span>
       <h1 class="govuk-heading-xl">{{ tr .App .Donor.Type.String }} {{tr .App "lpa"}}</h1>
 
@@ -27,7 +31,7 @@
       </div>
 
       <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-      
+
       <h2 class="govuk-heading-m">{{tr .App "lpaProgress"}}</h2>
 
       {{ template "donor-lpa-progress" . }}
