@@ -1,0 +1,34 @@
+version: "2"
+dynamodb-pipeline:
+  source:
+    dynamodb:
+      acknowledgments: true
+      tables:
+        - table_arn: ${source.tables.table_arn}
+          stream:
+            start_position: ${source.tables.stream.start_position}
+          export:
+            s3_bucket: ${source.tables.export.s3_bucket}
+            s3_region: ${source.tables.export.s3_region}
+            s3_prefix: ${source.tables.export.s3_prefix}
+      aws:
+        sts_role_arn: ${source.tables.aws.sts_role_arn}
+        region: ${source.tables.aws.region}
+  route:
+    - supporter_lpas_route: ${supporter_lpas.route}
+  sink:
+    - opensearch:
+        hosts: ["${supporter_lpas.sink.opensearch.hosts}"]
+        index: ${supporter_lpas.sink.opensearch.index}
+        routes: [ "supporter_lpas_route" ]
+        index_type: custom
+        document_id: "$${getMetadata(\"primary_key\")}"
+        action: "$${getMetadata(\"opensearch_action\")}"
+        document_version: "$${getMetadata(\"document_version\")}"
+        document_version_type: "external"
+        aws:
+          sts_role_arn: ${supporter_lpas.sink.opensearch.aws.sts_role_arn}
+          region: ${supporter_lpas.sink.opensearch.aws.region}
+          serverless: true
+          serverless_options:
+            network_policy_name: ${supporter_lpas.sink.opensearch.aws.serverless_options.network_policy_name}
