@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -16,6 +17,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -28,6 +30,7 @@ type cloudWatchEventHandler struct {
 	dynamoClient       dynamodbClient
 	now                func() time.Time
 	uidBaseURL         string
+	lpaStoreBaseURL    string
 	cfg                aws.Config
 	notifyIsProduction bool
 	notifyBaseURL      string
@@ -45,7 +48,7 @@ func (h *cloudWatchEventHandler) Handle(ctx context.Context, cloudWatchEvent eve
 		}
 
 		uidStore := app.NewUidStore(h.dynamoClient, searchClient, h.now)
-		uidClient := uid.New(h.uidBaseURL, lambda.New(h.cfg, v4.NewSigner(), &http.Client{Timeout: 10 * time.Second}, time.Now))
+		uidClient := uid.New(h.uidBaseURL, h.makeLambdaClient())
 
 		return handleUidRequested(ctx, uidStore, uidClient, cloudWatchEvent)
 
@@ -53,27 +56,20 @@ func (h *cloudWatchEventHandler) Handle(ctx context.Context, cloudWatchEvent eve
 		return handleEvidenceReceived(ctx, h.dynamoClient, cloudWatchEvent)
 
 	case "reduced-fee-approved":
-		bundle, _ := localize.NewBundle("./lang/en.json", "./lang/cy.json")
-
-		//TODO do this in handleFeeApproved when/if we save lang preference in LPA
-		appData := page.AppData{Localizer: bundle.For(localize.En)}
+		appData, err := h.makeAppData()
+		if err != nil {
+			return err
+		}
 
 		secretsClient, err := secrets.NewClient(h.cfg, time.Hour)
 		if err != nil {
 			return fmt.Errorf("failed to create secrets client: %w", err)
 		}
 
-		notifyApiKey, err := secretsClient.Secret(ctx, secrets.GovUkNotify)
-		if err != nil {
-			return fmt.Errorf("failed to get notify API secret: %w", err)
-		}
-
-		notifyClient, err := notify.New(h.notifyIsProduction, h.notifyBaseURL, notifyApiKey, http.DefaultClient, event.NewClient(h.cfg, h.eventBusName))
+		shareCodeSender, err := h.makeShareCodeSender(ctx, secretsClient)
 		if err != nil {
 			return err
 		}
-
-		shareCodeSender := page.NewShareCodeSender(app.NewShareCodeStore(h.dynamoClient), notifyClient, h.appPublicURL, random.String, event.NewClient(h.cfg, h.eventBusName))
 
 		return handleFeeApproved(ctx, h.dynamoClient, cloudWatchEvent, shareCodeSender, appData, h.now)
 
@@ -83,9 +79,61 @@ func (h *cloudWatchEventHandler) Handle(ctx context.Context, cloudWatchEvent eve
 	case "more-evidence-required":
 		return handleMoreEvidenceRequired(ctx, h.dynamoClient, cloudWatchEvent, h.now)
 
+	case "donor-submission-completed":
+		appData, err := h.makeAppData()
+		if err != nil {
+			return err
+		}
+
+		secretsClient, err := secrets.NewClient(h.cfg, time.Hour)
+		if err != nil {
+			return fmt.Errorf("failed to create secrets client: %w", err)
+		}
+
+		shareCodeSender, err := h.makeShareCodeSender(ctx, secretsClient)
+		if err != nil {
+			return err
+		}
+
+		lpaStoreClient := h.makeLpaStoreClient(secretsClient)
+
+		return handleDonorSubmissionCompleted(ctx, h.dynamoClient, cloudWatchEvent, shareCodeSender, appData, lpaStoreClient)
+
 	default:
 		return fmt.Errorf("unknown cloudwatch event")
 	}
+}
+
+func (h *cloudWatchEventHandler) makeAppData() (page.AppData, error) {
+	bundle, err := localize.NewBundle("./lang/en.json", "./lang/cy.json")
+	if err != nil {
+		return page.AppData{}, err
+	}
+
+	//TODO do this in handleFeeApproved when/if we save lang preference in LPA
+	return page.AppData{Localizer: bundle.For(localize.En)}, nil
+}
+
+func (h *cloudWatchEventHandler) makeLambdaClient() *lambda.Client {
+	return lambda.New(h.cfg, v4.NewSigner(), &http.Client{Timeout: 10 * time.Second}, time.Now)
+}
+
+func (h *cloudWatchEventHandler) makeShareCodeSender(ctx context.Context, secretsClient secretsClient) (*page.ShareCodeSender, error) {
+	notifyApiKey, err := secretsClient.Secret(ctx, secrets.GovUkNotify)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get notify API secret: %w", err)
+	}
+
+	notifyClient, err := notify.New(h.notifyIsProduction, h.notifyBaseURL, notifyApiKey, http.DefaultClient, event.NewClient(h.cfg, h.eventBusName))
+	if err != nil {
+		return nil, err
+	}
+
+	return page.NewShareCodeSender(app.NewShareCodeStore(h.dynamoClient), notifyClient, h.appPublicURL, random.String, event.NewClient(h.cfg, h.eventBusName)), nil
+}
+
+func (h *cloudWatchEventHandler) makeLpaStoreClient(secretsClient secretsClient) *lpastore.Client {
+	return lpastore.New(h.lpaStoreBaseURL, secretsClient, h.makeLambdaClient())
 }
 
 func handleUidRequested(ctx context.Context, uidStore UidStore, uidClient UidClient, e events.CloudWatchEvent) error {
@@ -145,7 +193,7 @@ func handleFeeApproved(ctx context.Context, client dynamodbClient, event events.
 		return fmt.Errorf("failed to update LPA task status: %w", err)
 	}
 
-	if err := shareCodeSender.SendCertificateProviderPrompt(ctx, appData, &donor); err != nil {
+	if err := shareCodeSender.SendCertificateProviderPrompt(ctx, appData, donor); err != nil {
 		return fmt.Errorf("failed to send share code to certificate provider: %w", err)
 	}
 
@@ -187,6 +235,31 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.Cl
 
 	if err := putDonor(ctx, donor, now, client); err != nil {
 		return fmt.Errorf("failed to update LPA task status: %w", err)
+	}
+
+	return nil
+}
+
+func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, shareCodeSender shareCodeSender, appData page.AppData, lpaStoreClient lpaStoreClient) error {
+	var v uidEvent
+	if err := json.Unmarshal(event.Detail, &v); err != nil {
+		return fmt.Errorf("failed to unmarshal detail: %w", err)
+	}
+
+	var key dynamo.Key
+	if err := client.OneByUID(ctx, v.UID, &key); !errors.Is(err, dynamo.NotFoundError{}) {
+		return err
+	}
+
+	donor, err := lpaStoreClient.Lpa(ctx, v.UID)
+	if err != nil {
+		return err
+	}
+
+	if donor.CertificateProvider.CarryOutBy.IsOnline() {
+		if err := shareCodeSender.SendCertificateProviderInvite(ctx, appData, donor); err != nil {
+			return err
+		}
 	}
 
 	return nil
