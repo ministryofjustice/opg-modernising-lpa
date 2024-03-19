@@ -1,3 +1,13 @@
+data "aws_kms_alias" "dynamodb_encryption_key" {
+  name     = "alias/${local.default_tags.application}_dynamodb_encryption"
+  provider = aws.eu_west_1
+}
+
+data "aws_kms_alias" "opensearch_encryption_key" {
+  name     = "alias/${local.default_tags.application}-opensearch-encryption-key"
+  provider = aws.eu_west_1
+}
+
 resource "aws_iam_role_policy" "opensearch_ingestion" {
   name     = "opensearch_ingestion"
   role     = module.global.iam_roles.opensearch_ingestion.name
@@ -28,6 +38,35 @@ data "aws_iam_policy_document" "opensearch_ingestion" {
     ]
     resources = [
       aws_dynamodb_table.lpas_table.arn,
+    ]
+  }
+
+  statement {
+    sid    = "DynamoDBEncryptionAccess"
+    effect = "Allow"
+
+    actions = [
+      "kms:Decrypt",
+      "kms:GenerateDataKey",
+    ]
+
+    resources = [
+      data.aws_kms_alias.dynamodb_encryption_key.target_key_arn,
+    ]
+  }
+
+  statement {
+    sid    = "OpensearchEncryptionAccess"
+    effect = "Allow"
+
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:GenerateDataKey",
+    ]
+
+    resources = [
+      data.aws_kms_alias.opensearch_encryption_key.target_key_arn,
     ]
   }
 
@@ -104,6 +143,13 @@ resource "aws_cloudwatch_log_group" "opensearch_ingestion" {
   name              = "/aws/vendedlogs/OpenSearchIngestion/lpas-${local.default_tags.environment-name}/audit-logs"
   retention_in_days = 1
   provider          = aws.eu_west_1
+}
+
+resource "aws_cloudwatch_query_definition" "opensearch_ingestion" {
+  name            = "${local.default_tags.environment-name}/lpas-opensearch-ingestion"
+  query_string    = "parse @message '* [*] * * - *' as timestamp, thread, Loglevel, endpoint, message | sort @timestamp desc | limit 1000"
+  log_group_names = [aws_cloudwatch_log_group.opensearch_ingestion.name]
+  provider        = aws.eu_west_1
 }
 
 resource "aws_s3_bucket" "opensearch_ingestion" {
