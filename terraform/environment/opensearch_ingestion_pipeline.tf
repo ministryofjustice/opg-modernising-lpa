@@ -61,7 +61,7 @@ resource "aws_security_group" "opensearch_ingestion" {
 }
 
 resource "aws_cloudwatch_log_group" "opensearch_ingestion" {
-  name              = "${local.default_tags.environment-name}-opensearch-ingestion"
+  name              = "/aws/vendedlogs/OpenSearchIngestion/lpas-${local.default_tags.environment-name}/audit-logs"
   retention_in_days = 1
   provider          = aws.eu_west_1
 }
