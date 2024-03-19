@@ -20,7 +20,7 @@ dynamodb-pipeline:
     - opensearch:
         hosts: ["${supporter_lpas.sink.opensearch.hosts}"]
         index: ${supporter_lpas.sink.opensearch.index}
-        # routes: [ "supporter_lpas_route" ]
+        routes: [ "supporter_lpas_route" ]
         index_type: custom
         document_id: "$${getMetadata(\"primary_key\")}"
         action: "$${getMetadata(\"opensearch_action\")}"
