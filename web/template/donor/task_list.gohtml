@@ -1,25 +1,60 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "yourTaskList" }}{{ end }}
+{{ define "pageTitle" }}
+  {{ if .App.IsSupporter }}
+    {{ tr .App "lpaTaskList" }}
+  {{ else }}
+    {{ tr .App "yourTaskList" }}
+  {{ end }}
+{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <span class="govuk-caption-xl">{{ trFormat .App "makeYourTypeLpa" "Type" (tr .App .Donor.Type.String | lowerFirst) }}</span>
-      <h1 class="govuk-heading-xl">{{ tr .App "yourTaskList" }}</h1>
+      {{ if .App.IsSupporter }}
+        <div class="govuk-breadcrumbs">
+          <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+              <a class="govuk-breadcrumbs__link" href="{{ link .App (global.Paths.Supporter.ViewLPA.Format .Donor.LpaID) }}">{{ trFormat .App "donorsTypeLpa" "DonorFullNamePossessive" (possessive .App .Donor.Donor.FullName) "LpaType" (tr .App .Donor.Type.String) }}</a>
+            </li>
+          </ol>
+        </div>
+        
+        <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
 
-      <div class="govuk-inset-text">
-        <dl class="govuk-summary-list govuk-summary-list--no-border app-summary-list--no-vertical-padding">
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">{{ tr .App "donor" }}</dt>
-            <dd class="govuk-summary-list__value">{{ .Donor.Donor.FullName }}</dd>
-          </div>
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">{{ tr .App "referenceNumber" }}</dt>
-            <dd class="govuk-summary-list__value">{{ .Donor.LpaUID }}</dd>
-          </div>
-        </dl>
-      </div>
+        <div class="govuk-inset-text">
+          <dl class="govuk-summary-list govuk-summary-list--no-border app-summary-list--no-vertical-padding">
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">{{ tr .App "donor" }}</dt>
+              <dd class="govuk-summary-list__value">{{ .Donor.Donor.FullName }}</dd>
+            </div>
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">{{ tr .App "lpaType" }}</dt>
+              <dd class="govuk-summary-list__value">{{ tr .App .Donor.Type.String }}</dd>
+            </div>
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">{{ tr .App "referenceNumber" }}</dt>
+              <dd class="govuk-summary-list__value">{{ .Donor.LpaUID }}</dd>
+            </div>
+          </dl>
+        </div>
+      {{ else }}
+        <span class="govuk-caption-xl">{{ trFormat .App "makeYourTypeLpa" "Type" (tr .App .Donor.Type.String | lowerFirst) }}</span>
+        <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+
+        <div class="govuk-inset-text">
+          <dl class="govuk-summary-list govuk-summary-list--no-border app-summary-list--no-vertical-padding">
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">{{ tr .App "donor" }}</dt>
+              <dd class="govuk-summary-list__value">{{ .Donor.Donor.FullName }}</dd>
+            </div>
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">{{ tr .App "referenceNumber" }}</dt>
+              <dd class="govuk-summary-list__value">{{ .Donor.LpaUID }}</dd>
+            </div>
+          </dl>
+        </div>
+      {{ end }}
 
       {{ template "details" (details . "taskListHelp" "taskListHelpContent" false) }}
 

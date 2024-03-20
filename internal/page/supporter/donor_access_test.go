@@ -162,7 +162,7 @@ func TestPostDonorAccess(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.ViewLPA.Format()+"?id=lpa-id&inviteSentTo=email%40example.com", resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.Supporter.ViewLPA.Format("lpa-id")+"?inviteSentTo=email%40example.com", resp.Header.Get("Location"))
 }
 
 func TestPostDonorAccessWhenDonorUpdateErrors(t *testing.T) {
@@ -306,7 +306,7 @@ func TestPostDonorAccessRecall(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.ViewLPA.Format()+"?id=lpa-id&inviteRecalledFor=email%40example.com", resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.Supporter.ViewLPA.Format("lpa-id")+"?inviteRecalledFor=email%40example.com", resp.Header.Get("Location"))
 }
 
 func TestPostDonorAccessRecallWhenDeleteErrors(t *testing.T) {
@@ -414,7 +414,7 @@ func TestPostDonorAccessRemove(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.ViewLPA.Format()+"?accessRemovedFor=email%40example.com&id=lpa-id", resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.Supporter.ViewLPA.Format("lpa-id")+"?accessRemovedFor=email%40example.com", resp.Header.Get("Location"))
 }
 
 func TestPostDonorAccessRemoveWhenDonorHasPaid(t *testing.T) {
