@@ -31,6 +31,12 @@ type uidEvent struct {
 	UID string `json:"uid"`
 }
 
+type changeEvent struct {
+	UID        string `json:"uid"`
+	ChangeType string `json:"changeType"`
+	ActorUID   string `json:"actorUID"`
+}
+
 type dynamodbClient interface {
 	One(ctx context.Context, pk, sk string, v interface{}) error
 	OneByUID(ctx context.Context, uid string, v interface{}) error
@@ -83,6 +89,7 @@ func handler(ctx context.Context, event Event) error {
 		notifyBaseURL      = os.Getenv("GOVUK_NOTIFY_BASE_URL")
 		evidenceBucketName = os.Getenv("UPLOADS_S3_BUCKET_NAME")
 		uidBaseURL         = os.Getenv("UID_BASE_URL")
+		lpaStoreBaseURL    = os.Getenv("LPA_STORE_BASE_URL")
 		eventBusName       = env.Get("EVENT_BUS_NAME", "default")
 		searchEndpoint     = os.Getenv("SEARCH_ENDPOINT")
 	)
@@ -123,6 +130,7 @@ func handler(ctx context.Context, event Event) error {
 			dynamoClient:       dynamoClient,
 			now:                time.Now,
 			uidBaseURL:         uidBaseURL,
+			lpaStoreBaseURL:    lpaStoreBaseURL,
 			cfg:                cfg,
 			notifyIsProduction: notifyIsProduction,
 			notifyBaseURL:      notifyBaseURL,
