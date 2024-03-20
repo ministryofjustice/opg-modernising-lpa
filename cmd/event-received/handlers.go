@@ -52,7 +52,7 @@ func handleObjectTagsAdded(ctx context.Context, dynamodbClient dynamodbClient, e
 	return nil
 }
 
-func putDonor(ctx context.Context, donor actor.DonorProvidedDetails, now func() time.Time, client dynamodbClient) error {
+func putDonor(ctx context.Context, donor *actor.DonorProvidedDetails, now func() time.Time, client dynamodbClient) error {
 	donor.UpdatedAt = now()
 
 	hash, err := donor.GenerateHash()
@@ -65,20 +65,20 @@ func putDonor(ctx context.Context, donor actor.DonorProvidedDetails, now func() 
 	return client.Put(ctx, donor)
 }
 
-func getDonorByLpaUID(ctx context.Context, client dynamodbClient, uid string) (actor.DonorProvidedDetails, error) {
+func getDonorByLpaUID(ctx context.Context, client dynamodbClient, uid string) (*actor.DonorProvidedDetails, error) {
 	var key dynamo.Key
 	if err := client.OneByUID(ctx, uid, &key); err != nil {
-		return actor.DonorProvidedDetails{}, fmt.Errorf("failed to resolve uid: %w", err)
+		return nil, fmt.Errorf("failed to resolve uid: %w", err)
 	}
 
 	if key.PK == "" {
-		return actor.DonorProvidedDetails{}, fmt.Errorf("PK missing from LPA in response")
+		return nil, fmt.Errorf("PK missing from LPA in response")
 	}
 
 	var donor actor.DonorProvidedDetails
 	if err := client.One(ctx, key.PK, key.SK, &donor); err != nil {
-		return actor.DonorProvidedDetails{}, fmt.Errorf("failed to get LPA: %w", err)
+		return nil, fmt.Errorf("failed to get LPA: %w", err)
 	}
 
-	return donor, nil
+	return &donor, nil
 }
