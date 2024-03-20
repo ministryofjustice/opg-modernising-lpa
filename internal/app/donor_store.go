@@ -129,6 +129,13 @@ func (s *donorStore) Link(ctx context.Context, shareCode actor.ShareCodeData) er
 		return errors.New("donorStore.Link requires SessionID")
 	}
 
+	var link lpaLink
+	if err := s.dynamoClient.OneByPartialSK(ctx, lpaKey(shareCode.LpaID), subKey(""), &link); err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
+		return err
+	} else if link.ActorType == actor.TypeDonor {
+		return errors.New("a donor link already exists for " + shareCode.LpaID)
+	}
+
 	if err := s.dynamoClient.Create(ctx, lpaReference{
 		PK:           lpaKey(shareCode.LpaID),
 		SK:           donorKey(data.SessionID),
