@@ -178,7 +178,7 @@ func TestHandleFeeApproved(t *testing.T) {
 	}
 
 	now := time.Now()
-	updated := actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}
+	updated := &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}
 	updated.Hash, _ = updated.GenerateHash()
 
 	client := newMockDynamodbClient(t)
@@ -202,7 +202,7 @@ func TestHandleFeeApproved(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendCertificateProviderPrompt(ctx, page.AppData{}, &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}}).
+		SendCertificateProviderPrompt(ctx, page.AppData{}, updated).
 		Return(nil)
 
 	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{}, func() time.Time { return now })
@@ -283,7 +283,7 @@ func TestHandleMoreEvidenceRequired(t *testing.T) {
 	}
 
 	now := time.Now()
-	updated := actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}
+	updated := &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}
 	updated.Hash, _ = updated.GenerateHash()
 
 	client := newMockDynamodbClient(t)
@@ -316,7 +316,7 @@ func TestHandleMoreEvidenceRequiredWhenPutError(t *testing.T) {
 	}
 
 	now := time.Now()
-	updated := actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}
+	updated := &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}
 	updated.Hash, _ = updated.GenerateHash()
 
 	client := newMockDynamodbClient(t)
@@ -349,7 +349,7 @@ func TestHandleFeeDenied(t *testing.T) {
 	}
 
 	now := time.Now()
-	updated := actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}, UpdatedAt: now}
+	updated := &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}, UpdatedAt: now}
 	updated.Hash, _ = updated.GenerateHash()
 
 	client := newMockDynamodbClient(t)
