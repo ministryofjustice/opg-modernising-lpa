@@ -30,6 +30,7 @@ type MemberStore interface {
 }
 
 type ShareCodeStore interface {
+	Linked(ctx context.Context, data actor.ShareCodeData, email string) error
 	PutDonor(ctx context.Context, code string, data actor.ShareCodeData) error
 }
 
@@ -59,6 +60,7 @@ func Supporter(
 			suspended      = r.FormValue("suspended") == "1"
 			setLPAProgress = r.FormValue("setLPAProgress") == "1"
 			accessCode     = r.FormValue("accessCode")
+			linkDonor      = r.FormValue("linkDonor") == "1"
 
 			supporterSub       = random.String(16)
 			supporterSessionID = base64.StdEncoding.EncodeToString([]byte(supporterSub))
@@ -96,7 +98,7 @@ func Supporter(
 				if err != nil {
 					return err
 				}
-				donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID, LpaID: donor.LpaID})
+				donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID, LpaID: donor.LpaID, SessionID: random.String(12)})
 
 				donor.LpaUID = makeUID()
 				donor.Donor = makeDonor()
@@ -110,13 +112,35 @@ func Supporter(
 					return err
 				}
 
-				if err := shareCodeStore.PutDonor(r.Context(), accessCode, actor.ShareCodeData{
+				shareCodeData := actor.ShareCodeData{
 					SessionID:    org.ID,
 					LpaID:        donor.LpaID,
 					ActorUID:     donor.Donor.UID,
 					InviteSentTo: "email@example.com",
-				}); err != nil {
+				}
+
+				if err != nil {
 					return err
+				}
+
+				if err := shareCodeStore.PutDonor(r.Context(), accessCode, shareCodeData); err != nil {
+					return err
+				}
+
+				if linkDonor {
+					shareCodeData.PK = "DONORSHARE#" + accessCode
+					shareCodeData.SK = "DONORINVITE#" + shareCodeData.SessionID + "#" + shareCodeData.LpaID
+					shareCodeData.UpdatedAt = time.Now()
+
+					if err := donorStore.Link(donorCtx, shareCodeData); err != nil {
+						return err
+					}
+
+					if err := shareCodeStore.Linked(donorCtx, shareCodeData, shareCodeData.InviteSentTo); err != nil {
+						return err
+					}
+
+					waitForLPAIndex(searchClient, organisationCtx)
 				}
 			}
 
@@ -150,14 +174,7 @@ func Supporter(
 					}
 				}
 
-				for range time.Tick(time.Second) {
-					if resp, _ := searchClient.Query(organisationCtx, search.QueryRequest{
-						Page:     1,
-						PageSize: 1,
-					}); resp != nil && len(resp.Keys) > 0 {
-						break
-					}
-				}
+				waitForLPAIndex(searchClient, organisationCtx)
 			}
 
 			if invitedMembers != "" {
@@ -257,5 +274,16 @@ func Supporter(
 
 		http.Redirect(w, r, redirect, http.StatusFound)
 		return nil
+	}
+}
+
+func waitForLPAIndex(searchClient *search.Client, organisationCtx context.Context) {
+	for range time.Tick(time.Second) {
+		if resp, _ := searchClient.Query(organisationCtx, search.QueryRequest{
+			Page:     1,
+			PageSize: 1,
+		}); resp != nil && len(resp.Keys) > 0 {
+			break
+		}
 	}
 }

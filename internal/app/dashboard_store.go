@@ -27,6 +27,14 @@ type lpaLink struct {
 	UpdatedAt time.Time
 }
 
+func (l lpaLink) UserSub() string {
+	if l.SK == "" {
+		return ""
+	}
+
+	return strings.Split(l.SK, subKey(""))[1]
+}
+
 type dashboardStore struct {
 	dynamoClient DynamoClient
 }
