@@ -1155,5 +1155,7 @@
     "theWaitingPeriodHasStarted": "Welsh",
     "theLpaHasBeenRegistered": "Welsh",
     "inviteRecalled": "Welsh",
-    "youRecalledTheInviteFor": "Welsh {{.Email}}"
+    "youRecalledTheInviteFor": "Welsh {{.Email}}",
+    "accessRemoved": "Welsh",
+    "youRemovedAccessToThisLPAFor": "Welsh <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span>."
 }
