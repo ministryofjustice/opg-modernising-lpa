@@ -13,10 +13,75 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
+
+func TestMakeAppData(t *testing.T) {
+	handler := &cloudWatchEventHandler{}
+
+	appData, err := handler.makeAppData()
+	assert.Error(t, err)
+	assert.Equal(t, page.AppData{}, appData)
+}
+
+func TestMakeLambdaClient(t *testing.T) {
+	handler := &cloudWatchEventHandler{}
+	client := handler.makeLambdaClient()
+
+	assert.NotNil(t, client)
+}
+
+func TestMakeShareCodeSender(t *testing.T) {
+	ctx := context.Background()
+	handler := &cloudWatchEventHandler{}
+
+	secretsClient := newMockSecretsClient(t)
+	secretsClient.EXPECT().
+		Secret(ctx, secrets.GovUkNotify).
+		Return("a-b-c-d-e-f-g-h-i-j-k", nil)
+
+	sender, err := handler.makeShareCodeSender(ctx, secretsClient)
+	assert.Nil(t, err)
+	assert.NotNil(t, sender)
+}
+
+func TestMakeShareCodeSenderWhenSecretsClientError(t *testing.T) {
+	ctx := context.Background()
+	handler := &cloudWatchEventHandler{}
+
+	secretsClient := newMockSecretsClient(t)
+	secretsClient.EXPECT().
+		Secret(ctx, secrets.GovUkNotify).
+		Return("", expectedError)
+
+	_, err := handler.makeShareCodeSender(ctx, secretsClient)
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestMakeShareCodeSenderWhenNotifyClientError(t *testing.T) {
+	ctx := context.Background()
+	handler := &cloudWatchEventHandler{}
+
+	secretsClient := newMockSecretsClient(t)
+	secretsClient.EXPECT().
+		Secret(ctx, secrets.GovUkNotify).
+		Return("", nil)
+
+	_, err := handler.makeShareCodeSender(ctx, secretsClient)
+	assert.NotNil(t, err)
+}
+
+func TestMakeLpaStoreClient(t *testing.T) {
+	handler := &cloudWatchEventHandler{}
+
+	secretsClient := newMockSecretsClient(t)
+
+	client := handler.makeLpaStoreClient(secretsClient)
+	assert.NotNil(t, client)
+}
 
 func TestHandleUnknownEvent(t *testing.T) {
 	handler := &cloudWatchEventHandler{}
@@ -178,7 +243,7 @@ func TestHandleFeeApproved(t *testing.T) {
 	}
 
 	now := time.Now()
-	updated := actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}
+	updated := &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}
 	updated.Hash, _ = updated.GenerateHash()
 
 	client := newMockDynamodbClient(t)
@@ -202,7 +267,7 @@ func TestHandleFeeApproved(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendCertificateProviderPrompt(ctx, page.AppData{}, &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}}).
+		SendCertificateProviderPrompt(ctx, page.AppData{}, updated).
 		Return(nil)
 
 	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{}, func() time.Time { return now })
@@ -283,7 +348,7 @@ func TestHandleMoreEvidenceRequired(t *testing.T) {
 	}
 
 	now := time.Now()
-	updated := actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}
+	updated := &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}
 	updated.Hash, _ = updated.GenerateHash()
 
 	client := newMockDynamodbClient(t)
@@ -316,7 +381,7 @@ func TestHandleMoreEvidenceRequiredWhenPutError(t *testing.T) {
 	}
 
 	now := time.Now()
-	updated := actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}
+	updated := &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}
 	updated.Hash, _ = updated.GenerateHash()
 
 	client := newMockDynamodbClient(t)
@@ -349,7 +414,7 @@ func TestHandleFeeDenied(t *testing.T) {
 	}
 
 	now := time.Now()
-	updated := actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}, UpdatedAt: now}
+	updated := &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}, UpdatedAt: now}
 	updated.Hash, _ = updated.GenerateHash()
 
 	client := newMockDynamodbClient(t)
@@ -404,4 +469,160 @@ func TestHandleFeeDeniedWhenPutError(t *testing.T) {
 
 	err := handleFeeDenied(ctx, client, event, func() time.Time { return now })
 	assert.Equal(t, fmt.Errorf("failed to update LPA task status: %w", expectedError), err)
+}
+
+func TestHandleDonorSubmissionCompleted(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "donor-submission-completed",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	appData := page.AppData{}
+
+	donor := &actor.DonorProvidedDetails{
+		CertificateProvider: actor.CertificateProvider{
+			CarryOutBy: actor.Online,
+		},
+	}
+
+	client := newMockDynamodbClient(t)
+	client.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		Return(dynamo.NotFoundError{})
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(ctx, "M-1111-2222-3333").
+		Return(donor, nil)
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.EXPECT().
+		SendCertificateProviderInvite(ctx, appData, donor).
+		Return(nil)
+
+	err := handleDonorSubmissionCompleted(ctx, client, event, shareCodeSender, appData, lpaStoreClient)
+	assert.Nil(t, err)
+}
+
+func TestHandleDonorSubmissionCompletedWhenPaperCertificateProvider(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "donor-submission-completed",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	appData := page.AppData{}
+
+	donor := &actor.DonorProvidedDetails{
+		CertificateProvider: actor.CertificateProvider{
+			CarryOutBy: actor.Paper,
+		},
+	}
+
+	client := newMockDynamodbClient(t)
+	client.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		Return(dynamo.NotFoundError{})
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(ctx, "M-1111-2222-3333").
+		Return(donor, nil)
+
+	err := handleDonorSubmissionCompleted(ctx, client, event, nil, appData, lpaStoreClient)
+	assert.Nil(t, err)
+}
+
+func TestHandleDonorSubmissionCompletedWhenDynamoExists(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "donor-submission-completed",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	appData := page.AppData{}
+
+	client := newMockDynamodbClient(t)
+	client.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		Return(nil)
+
+	err := handleDonorSubmissionCompleted(ctx, client, event, nil, appData, nil)
+	assert.Nil(t, err)
+}
+
+func TestHandleDonorSubmissionCompletedWhenDynamoError(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "donor-submission-completed",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	appData := page.AppData{}
+
+	client := newMockDynamodbClient(t)
+	client.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		Return(expectedError)
+
+	err := handleDonorSubmissionCompleted(ctx, client, event, nil, appData, nil)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestHandleDonorSubmissionCompletedWhenLpaStoreError(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "donor-submission-completed",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	appData := page.AppData{}
+
+	donor := &actor.DonorProvidedDetails{
+		CertificateProvider: actor.CertificateProvider{
+			CarryOutBy: actor.Online,
+		},
+	}
+
+	client := newMockDynamodbClient(t)
+	client.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		Return(dynamo.NotFoundError{})
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(ctx, "M-1111-2222-3333").
+		Return(donor, expectedError)
+
+	err := handleDonorSubmissionCompleted(ctx, client, event, nil, appData, lpaStoreClient)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestHandleDonorSubmissionCompletedWhenShareCodeSenderError(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "donor-submission-completed",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	appData := page.AppData{}
+
+	donor := &actor.DonorProvidedDetails{
+		CertificateProvider: actor.CertificateProvider{
+			CarryOutBy: actor.Online,
+		},
+	}
+
+	client := newMockDynamodbClient(t)
+	client.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		Return(dynamo.NotFoundError{})
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(ctx, "M-1111-2222-3333").
+		Return(donor, nil)
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.EXPECT().
+		SendCertificateProviderInvite(ctx, appData, donor).
+		Return(expectedError)
+
+	err := handleDonorSubmissionCompleted(ctx, client, event, shareCodeSender, appData, lpaStoreClient)
+	assert.Equal(t, expectedError, err)
 }

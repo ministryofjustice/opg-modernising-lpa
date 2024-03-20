@@ -46,7 +46,16 @@ type s3Client interface {
 }
 
 type shareCodeSender interface {
+	SendCertificateProviderInvite(context.Context, page.AppData, *actor.DonorProvidedDetails) error
 	SendCertificateProviderPrompt(context.Context, page.AppData, *actor.DonorProvidedDetails) error
+}
+
+type lpaStoreClient interface {
+	Lpa(ctx context.Context, uid string) (*actor.DonorProvidedDetails, error)
+}
+
+type secretsClient interface {
+	Secret(ctx context.Context, name string) (string, error)
 }
 
 type DocumentStore interface {
@@ -83,6 +92,7 @@ func handler(ctx context.Context, event Event) error {
 		notifyBaseURL      = os.Getenv("GOVUK_NOTIFY_BASE_URL")
 		evidenceBucketName = os.Getenv("UPLOADS_S3_BUCKET_NAME")
 		uidBaseURL         = os.Getenv("UID_BASE_URL")
+		lpaStoreBaseURL    = os.Getenv("LPA_STORE_BASE_URL")
 		eventBusName       = env.Get("EVENT_BUS_NAME", "default")
 		searchEndpoint     = os.Getenv("SEARCH_ENDPOINT")
 	)
@@ -123,6 +133,7 @@ func handler(ctx context.Context, event Event) error {
 			dynamoClient:       dynamoClient,
 			now:                time.Now,
 			uidBaseURL:         uidBaseURL,
+			lpaStoreBaseURL:    lpaStoreBaseURL,
 			cfg:                cfg,
 			notifyIsProduction: notifyIsProduction,
 			notifyBaseURL:      notifyBaseURL,
