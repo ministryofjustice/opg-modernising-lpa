@@ -183,7 +183,7 @@ func TestHandleObjectTagsAddedWhenDocumentStoreUpdateScanResultsError(t *testing
 }
 
 func TestGetLpaByUID(t *testing.T) {
-	expectedDonor := actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456"}
+	expectedDonor := &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456"}
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -215,7 +215,7 @@ func TestGetLpaByUIDWhenClientOneByUidError(t *testing.T) {
 
 	lpa, err := getDonorByLpaUID(ctx, client, "M-1111-2222-3333")
 
-	assert.Equal(t, actor.DonorProvidedDetails{}, lpa)
+	assert.Nil(t, lpa)
 	assert.Equal(t, fmt.Errorf("failed to resolve uid: %w", expectedError), err)
 }
 
@@ -231,7 +231,7 @@ func TestGetLpaByUIDWhenPKMissing(t *testing.T) {
 
 	lpa, err := getDonorByLpaUID(ctx, client, "M-1111-2222-3333")
 
-	assert.Equal(t, actor.DonorProvidedDetails{}, lpa)
+	assert.Nil(t, lpa)
 	assert.Equal(t, errors.New("PK missing from LPA in response"), err)
 }
 
@@ -250,6 +250,6 @@ func TestGetLpaByUIDWhenClientOneError(t *testing.T) {
 
 	lpa, err := getDonorByLpaUID(ctx, client, "M-1111-2222-3333")
 
-	assert.Equal(t, actor.DonorProvidedDetails{}, lpa)
+	assert.Nil(t, lpa)
 	assert.Equal(t, fmt.Errorf("failed to get LPA: %w", expectedError), err)
 }
