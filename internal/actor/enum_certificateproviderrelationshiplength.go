@@ -30,6 +30,16 @@ func (i CertificateProviderRelationshipLength) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
 }
 
+func (i *CertificateProviderRelationshipLength) UnmarshalText(text []byte) error {
+	val, err := ParseCertificateProviderRelationshipLength(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
+}
+
 func (i CertificateProviderRelationshipLength) IsRelationshipLengthUnknown() bool {
 	return i == RelationshipLengthUnknown
 }

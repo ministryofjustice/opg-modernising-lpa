@@ -30,6 +30,16 @@ func (i LpaType) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
 }
 
+func (i *LpaType) UnmarshalText(text []byte) error {
+	val, err := ParseLpaType(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
+}
+
 func (i LpaType) IsPersonalWelfare() bool {
 	return i == LpaTypePersonalWelfare
 }

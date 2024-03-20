@@ -30,6 +30,16 @@ func (i CertificateProviderRelationship) MarshalText() ([]byte, error) {
 	return []byte(i.String()), nil
 }
 
+func (i *CertificateProviderRelationship) UnmarshalText(text []byte) error {
+	val, err := ParseCertificateProviderRelationship(string(text))
+	if err != nil {
+		return err
+	}
+
+	*i = val
+	return nil
+}
+
 func (i CertificateProviderRelationship) IsPersonally() bool {
 	return i == Personally
 }
