@@ -917,3 +917,95 @@ func TestDonorStoreDeleteWhenSessionMissing(t *testing.T) {
 		})
 	}
 }
+
+func TestDonorStoreDeleteLink(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", OrganisationID: "org-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectOneByPartialSK(ctx, "LPA#lpa-id", "#SUB#", lpaLink{PK: "#LPA#lpa-id", SK: "#SUB#donor-sub"}, nil)
+	dynamoClient.EXPECT().
+		DeleteOne(ctx, "#LPA#lpa-id", "#SUB#donor-sub").
+		Return(nil).
+		Once()
+	dynamoClient.EXPECT().
+		DeleteOne(ctx, "LPA#lpa-id", "#DONOR#donor-sub").
+		Return(nil).
+		Once()
+
+	donorStore := &donorStore{dynamoClient: dynamoClient}
+
+	err := donorStore.DeleteLink(ctx, actor.ShareCodeData{SessionID: "org-id", LpaID: "lpa-id"})
+	assert.Nil(t, err)
+}
+
+func TestDonorStoreDeleteLinkWhenSessionMissing(t *testing.T) {
+	testcases := map[string]context.Context{
+		"missing":           context.Background(),
+		"no organisationID": page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"}),
+	}
+
+	for name, ctx := range testcases {
+		t.Run(name, func(t *testing.T) {
+			donorStore := &donorStore{}
+
+			err := donorStore.DeleteLink(ctx, actor.ShareCodeData{})
+			assert.Error(t, err)
+		})
+	}
+}
+
+func TestDonorStoreDeleteLinkWhenDeleterInDifferentOrganisation(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", OrganisationID: "a-different-org-id"})
+
+	donorStore := &donorStore{}
+
+	err := donorStore.DeleteLink(ctx, actor.ShareCodeData{SessionID: "org-id", LpaID: "lpa-id"})
+	assert.Error(t, err)
+}
+
+func TestDonorStoreDeleteLinkWhenOneByPartialSKError(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", OrganisationID: "org-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectOneByPartialSK(ctx, "LPA#lpa-id", "#SUB#", lpaLink{PK: "#LPA#lpa-id", SK: "#SUB#donor-sub"}, expectedError)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient}
+
+	err := donorStore.DeleteLink(ctx, actor.ShareCodeData{SessionID: "org-id", LpaID: "lpa-id"})
+	assert.Error(t, err)
+}
+
+func TestDonorStoreDeleteLinkWhenDeleteOneLinkError(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", OrganisationID: "org-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectOneByPartialSK(ctx, "LPA#lpa-id", "#SUB#", lpaLink{PK: "#LPA#lpa-id", SK: "#SUB#donor-sub"}, nil)
+	dynamoClient.EXPECT().
+		DeleteOne(mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient}
+
+	err := donorStore.DeleteLink(ctx, actor.ShareCodeData{SessionID: "org-id", LpaID: "lpa-id"})
+	assert.Error(t, err)
+}
+
+func TestDonorStoreDeleteLinkWhenDeleteOneLPAReferenceError(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", OrganisationID: "org-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectOneByPartialSK(ctx, "LPA#lpa-id", "#SUB#", lpaLink{PK: "#LPA#lpa-id", SK: "#SUB#donor-sub"}, nil)
+	dynamoClient.EXPECT().
+		DeleteOne(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil).
+		Once()
+	dynamoClient.EXPECT().
+		DeleteOne(ctx, "LPA#lpa-id", "#DONOR#donor-sub").
+		Return(expectedError).
+		Once()
+
+	donorStore := &donorStore{dynamoClient: dynamoClient}
+
+	err := donorStore.DeleteLink(ctx, actor.ShareCodeData{SessionID: "org-id", LpaID: "lpa-id"})
+	assert.Error(t, err)
+}
