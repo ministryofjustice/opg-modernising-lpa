@@ -45,8 +45,7 @@ func DonorAccess(tmpl template.Template, donorStore DonorStore, shareCodeStore S
 					return err
 				}
 
-				return page.Paths.Supporter.ViewLPA.RedirectQuery(w, r, appData, url.Values{
-					"id":                {appData.LpaID},
+				return page.Paths.Supporter.ViewLPA.RedirectQuery(w, r, appData, appData.LpaID, url.Values{
 					"inviteRecalledFor": {shareCodeData.InviteSentTo},
 				})
 
@@ -63,8 +62,7 @@ func DonorAccess(tmpl template.Template, donorStore DonorStore, shareCodeStore S
 					return err
 				}
 
-				return page.Paths.Supporter.ViewLPA.RedirectQuery(w, r, appData, url.Values{
-					"id":               {appData.LpaID},
+				return page.Paths.Supporter.ViewLPA.RedirectQuery(w, r, appData, appData.LpaID, url.Values{
 					"accessRemovedFor": {shareCodeData.InviteSentTo},
 				})
 
@@ -113,8 +111,7 @@ func DonorAccess(tmpl template.Template, donorStore DonorStore, shareCodeStore S
 					return err
 				}
 
-				return page.Paths.Supporter.ViewLPA.RedirectQuery(w, r, appData, url.Values{
-					"id":           {appData.LpaID},
+				return page.Paths.Supporter.ViewLPA.RedirectQuery(w, r, appData, appData.LpaID, url.Values{
 					"inviteSentTo": {data.Form.Email},
 				})
 			}
