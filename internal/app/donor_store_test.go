@@ -699,36 +699,58 @@ func TestDonorStoreCreateWhenError(t *testing.T) {
 }
 
 func TestDonorStoreLink(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
-	shareCode := actor.ShareCodeData{
-		LpaID:     "lpa-id",
-		SessionID: "org-id",
+	testcases := map[string]struct {
+		oneByPartialSKError error
+		link                lpaLink
+	}{
+		"no link": {
+			oneByPartialSKError: dynamo.NotFoundError{},
+		},
+		"not a donor link": {
+			link: lpaLink{
+				PK:        "LPA#",
+				SK:        "#SUB#a-sub",
+				ActorType: actor.TypeCertificateProvider,
+			},
+		},
 	}
 
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.EXPECT().
-		Create(ctx, lpaReference{
-			PK:           "LPA#lpa-id",
-			SK:           "#DONOR#an-id",
-			ReferencedSK: "ORGANISATION#org-id",
-		}).
-		Return(nil).
-		Once()
-	dynamoClient.EXPECT().
-		Create(ctx, lpaLink{
-			PK:        "LPA#lpa-id",
-			SK:        "#SUB#an-id",
-			DonorKey:  "ORGANISATION#org-id",
-			ActorType: actor.TypeDonor,
-			UpdatedAt: testNow,
-		}).
-		Return(nil).
-		Once()
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
+			shareCode := actor.ShareCodeData{
+				LpaID:     "lpa-id",
+				SessionID: "org-id",
+			}
 
-	donorStore := &donorStore{dynamoClient: dynamoClient, now: testNowFn}
+			dynamoClient := newMockDynamoClient(t)
+			dynamoClient.
+				ExpectOneByPartialSK(ctx, "LPA#lpa-id", "#SUB#", tc.link, tc.oneByPartialSKError)
+			dynamoClient.EXPECT().
+				Create(ctx, lpaReference{
+					PK:           "LPA#lpa-id",
+					SK:           "#DONOR#an-id",
+					ReferencedSK: "ORGANISATION#org-id",
+				}).
+				Return(nil).
+				Once()
+			dynamoClient.EXPECT().
+				Create(ctx, lpaLink{
+					PK:        "LPA#lpa-id",
+					SK:        "#SUB#an-id",
+					DonorKey:  "ORGANISATION#org-id",
+					ActorType: actor.TypeDonor,
+					UpdatedAt: testNow,
+				}).
+				Return(nil).
+				Once()
 
-	err := donorStore.Link(ctx, shareCode)
-	assert.Nil(t, err)
+			donorStore := &donorStore{dynamoClient: dynamoClient, now: testNowFn}
+
+			err := donorStore.Link(ctx, shareCode)
+			assert.Nil(t, err)
+		})
+	}
 }
 
 func TestDonorStoreLinkWithSessionMissing(t *testing.T) {
@@ -746,14 +768,35 @@ func TestDonorStoreLinkWithSessionIDMissing(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestDonorStoreLinkWhenDonorLinkAlreadyExists(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		ExpectOneByPartialSK(ctx, "LPA#lpa-id", "#SUB#", lpaLink{PK: "LPA#lpa-id", SK: "#SUB#a-sub", ActorType: actor.TypeDonor}, nil)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient}
+
+	err := donorStore.Link(ctx, actor.ShareCodeData{LpaID: "lpa-id"})
+	assert.Equal(t, errors.New("a donor link already exists for lpa-id"), err)
+}
+
 func TestDonorStoreLinkWhenError(t *testing.T) {
 	testcases := map[string]func(*mockDynamoClient){
+		"OneByPartialSK errors": func(dynamoClient *mockDynamoClient) {
+			dynamoClient.
+				ExpectOneByPartialSK(mock.Anything, "LPA#lpa-id", "#SUB#", lpaLink{PK: "LPA#lpa-id", SK: "#SUB#a-sub", ActorType: actor.TypeAttorney}, expectedError)
+		},
 		"lpaReference errors": func(dynamoClient *mockDynamoClient) {
+			dynamoClient.
+				ExpectOneByPartialSK(mock.Anything, "LPA#lpa-id", "#SUB#", lpaLink{PK: "LPA#lpa-id", SK: "#SUB#a-sub", ActorType: actor.TypeAttorney}, nil)
 			dynamoClient.EXPECT().
 				Create(mock.Anything, mock.Anything).
 				Return(expectedError)
 		},
 		"lpaLink errors": func(dynamoClient *mockDynamoClient) {
+			dynamoClient.
+				ExpectOneByPartialSK(mock.Anything, "LPA#lpa-id", "#SUB#", lpaLink{PK: "LPA#lpa-id", SK: "#SUB#a-sub", ActorType: actor.TypeAttorney}, nil)
 			dynamoClient.EXPECT().
 				Create(mock.Anything, mock.Anything).
 				Return(nil).
