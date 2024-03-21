@@ -51,6 +51,7 @@
     "errorDateMustBeReal": "{{.Label}} must be a real date",
     "errorDateMustBePast": "{{.Label}} must be in the past",
     "errorMobile": "{{.Label}} must be a UK mobile number, like 07700 900 982 or +44 7700 900 982",
+    "errorTelephone": "{{.Label}} must be a telephone number",
     "errorSelect": "Select {{.Label}}",
     "errorEmail": "{{.Label}} must be in the correct format, like name@example.com",
     "errorPostcode": "{{.Label}} must be a UK postcode",
@@ -1094,5 +1095,16 @@
     "donorsTypeLpa": "{{.DonorFullNamePossessive}} {{.LpaType}} LPA",
     "supporterLPAContextPrimer": "<p class=\"app-supporter-lpa-context-banner__content govuk-!-font-weight-bold\">As a supporter drafting an LPA, you’ll need to enter information about the donor.</p> <p class=\"app-supporter-lpa-context-banner__content\">The language in this service addresses the donor. For example: ‘Your details’ requires you to enter the details of the donor.</p>",
     "youAreDraftingDonorsLpa": "You are drafting <span class=\"govuk-!-font-weight-bold\">{{ .DonorFullNamePossessive }}</span> LPA",
-    "youAreDraftingDonorsTypeLpa": "You are drafting <span class=\"govuk-!-font-weight-bold\">{{ .DonorFullNamePossessive }} {{.LpaType}}</span> LPA"
+    "youAreDraftingDonorsTypeLpa": "You are drafting <span class=\"govuk-!-font-weight-bold\">{{ .DonorFullNamePossessive }} {{.LpaType}}</span> LPA",
+    "addCorrespondent": "Add a correspondent",
+    "wouldYouLikeToAddCorrespondent": "Would you like to add a correspondent?",
+    "addCorrespondentContent": "<p class=\"govuk-body\">A correspondent is someone who can speak with others involved in making and registering the LPA on behalf of the donor.</p><p class=\"govuk-body\">This can be helpful if there are questions or problems. The correspondent can also receive communications on behalf of the donor.</p><p class=\"govuk-body\">You can choose to share the correspondent’s details with:</p><ul class=\"govuk-list govuk-list--bullet\"><li>attorneys</li><li>the certificate provider</li><li>the Office of the Public Guardian (OPG)</li></ul>",
+    "enterCorrespondentDetails": "Enter the correspondent’s details",
+    "organisationOptional": "Organisation (optional)",
+    "phoneNumberOptional": "Phone number (optional)",
+    "phoneNumber": "Phone number",
+    "wouldYouLikeToAddAddress": "Would you like to add an address?",
+    "wouldYouLikeToAddAddressHint": "Add an address if you think anyone involved in the LPA would prefer to contact the correspondent in writing.",
+    "yesToAddAnAddress": "yes to add an address",
+    "correspondent": "Correspondent"
 }
