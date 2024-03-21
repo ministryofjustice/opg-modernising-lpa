@@ -194,7 +194,7 @@ func TestPostMobileNumberWhenValidationError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	dataMatcher := func(t *testing.T, data *mobileNumberData) bool {
-		return assert.Equal(t, validation.With("mobile", validation.MobileError{Label: "mobile"}), data.Errors)
+		return assert.Equal(t, validation.With("mobile", validation.PhoneError{Tmpl: "errorMobile", Label: "mobile"}), data.Errors)
 	}
 
 	template := newMockTemplate(t)
@@ -265,7 +265,7 @@ func TestMobileNumberFormValidate(t *testing.T) {
 			form: &mobileNumberForm{
 				Mobile: "123",
 			},
-			errors: validation.With("mobile", validation.MobileError{Label: "mobile"}),
+			errors: validation.With("mobile", validation.PhoneError{Tmpl: "errorMobile", Label: "mobile"}),
 		},
 	}
 
