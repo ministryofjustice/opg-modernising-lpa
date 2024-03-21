@@ -4,8 +4,9 @@
 .app-supporter-lpa-context-banner{
   @include govuk-responsive-margin(7, "bottom");
   @include govuk-responsive-padding(3, "left");
-  border-bottom: 2px solid #000000;
-  background-color: #cce2d8;
+  border-bottom: 2px solid govuk-colour("black");
+  // from .govuk-tag--green
+  background-color: govuk-tint(govuk-colour("green"), 80%);
 
   .app-supporter-lpa-context-banner__content{
     @include govuk-font($size: 19);
