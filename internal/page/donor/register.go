@@ -318,6 +318,13 @@ func Register(
 	handleWithDonor(page.Paths.LpaDetailsSaved, page.CanGoBack,
 		LpaDetailsSaved(tmpls.Get("lpa_details_saved.gohtml")))
 
+	handleWithDonor(page.Paths.AddCorrespondent, page.None,
+		AddCorrespondent(tmpls.Get("add_correspondent.gohtml"), donorStore))
+	handleWithDonor(page.Paths.EnterCorrespondentDetails, page.CanGoBack,
+		EnterCorrespondentDetails(tmpls.Get("enter_correspondent_details.gohtml"), donorStore))
+	handleWithDonor(page.Paths.EnterCorrespondentAddress, page.CanGoBack,
+		EnterCorrespondentAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
+
 	handleWithDonor(page.Paths.AboutPayment, page.None,
 		Guidance(tmpls.Get("about_payment.gohtml")))
 	handleWithDonor(page.Paths.AreYouApplyingForFeeDiscountOrExemption, page.CanGoBack,
