@@ -232,6 +232,19 @@ func TestSupporterLpaPathRedirect(t *testing.T) {
 	assert.Equal(t, p.Format("abc"), resp.Header.Get("Location"))
 }
 
+func TestSupporterLpaPathRedirectQuery(t *testing.T) {
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	w := httptest.NewRecorder()
+	p := SupporterLpaPath("/something")
+
+	err := p.RedirectQuery(w, r, AppData{Lang: localize.En}, "abc", url.Values{"x": {"y"}})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, p.Format("abc")+"?x=y", resp.Header.Get("Location"))
+}
+
 func TestSupporterLpaPathIsManageOrganisation(t *testing.T) {
 	assert.False(t, SupporterLpaPath("").IsManageOrganisation())
 }
