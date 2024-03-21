@@ -1,3 +1,5 @@
+import {AddressFormAssertions} from "../../support/e2e";
+
 describe('Dashboard', () => {
   beforeEach(() => {
     cy.visit('/fixtures/supporter?redirect=/dashboard&organisation=1&lpa=1');
@@ -24,13 +26,28 @@ describe('Dashboard', () => {
     cy.contains('button', 'Continue').click();
 
     cy.contains('Cymraeg');
+
+    cy.contains('As a supporter drafting an LPA, you’ll need to enter information about the donor.')
+
     cy.get('#f-first-names').type('John');
     cy.get('#f-last-name').type('Doe');
     cy.get('#f-date-of-birth').type('1');
     cy.get('#f-date-of-birth-month').type('2');
     cy.get('#f-date-of-birth-year').type('1990');
     cy.get('#f-can-sign').check({ force: true });
+    cy.contains('button', 'Continue').click()
+
+    cy.contains('You are drafting John Doe’s LPA')
+
+    AddressFormAssertions.assertCanAddAddressFromSelect()
+
+    cy.get('[name="language-preference"]').check('en', { force: true })
+    cy.contains('button', 'Save and continue').click()
+
+    cy.get('#f-lpa-type').check('property-and-affairs');
     cy.contains('button', 'Continue').click();
+
+    cy.contains('You are drafting John Doe’s property and affairs LPA')
   });
 
   it('can show guidance for starting a paper LPA', () => {
