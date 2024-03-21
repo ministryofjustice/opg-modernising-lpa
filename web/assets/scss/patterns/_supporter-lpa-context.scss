@@ -1,0 +1,13 @@
+@import "node_modules/govuk-frontend/dist/govuk/base";
+@import "node_modules/govuk-frontend/dist/govuk/objects/grid";
+
+.app-supporter-lpa-context-banner{
+  border-bottom: 2px solid #000000;
+  margin-bottom: govuk-spacing(8);
+  padding-left: govuk-spacing(3);
+  background-color: #cce2d8;
+
+  .app-supporter-lpa-context-banner__content{
+    @include govuk-font($size: 19);
+  }
+}
