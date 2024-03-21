@@ -1,10 +1,10 @@
-resource "aws_iam_role" "opensearch_ingestion" {
-  name               = "${data.aws_default_tags.current.tags.environment-name}-opensearch-ingestion-role"
-  assume_role_policy = data.aws_iam_policy_document.opensearch_ingestion.json
+resource "aws_iam_role" "opensearch_pipeline" {
+  name               = "${data.aws_default_tags.current.tags.environment-name}-opensearch-pipeline-role"
+  assume_role_policy = data.aws_iam_policy_document.opensearch_pipeline.json
   provider           = aws.global
 }
 
-data "aws_iam_policy_document" "opensearch_ingestion" {
+data "aws_iam_policy_document" "opensearch_pipeline" {
   statement {
     effect  = "Allow"
     actions = ["sts:AssumeRole"]
