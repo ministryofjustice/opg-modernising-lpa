@@ -12,6 +12,6 @@ describe('Enter access code', () => {
 
     cy.contains('M-FAKE-');
     cy.contains('a', 'Go to task list').click();
-    cy.contains('Your task list');
+    cy.contains('LPA task list');
   });
 });

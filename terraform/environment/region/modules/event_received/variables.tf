@@ -29,6 +29,10 @@ variable "uid_base_url" {
   type = string
 }
 
+variable "lpa_store_base_url" {
+  type = string
+}
+
 variable "allowed_api_arns" {
   type = list(string)
 }

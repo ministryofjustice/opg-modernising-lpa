@@ -1,7 +1,6 @@
 package supporter
 
 import (
-	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -22,25 +21,23 @@ func TestGetViewLPA(t *testing.T) {
 	for name, storeError := range testcases {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequestWithContext(page.ContextWithSessionData(context.Background(), &page.SessionData{}), http.MethodGet, "/?id=lpa-id", nil)
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 			donor := &actor.DonorProvidedDetails{LpaID: "lpa-id"}
 
-			ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})
-
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Get(ctx).
+				Get(r.Context()).
 				Return(donor, nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.EXPECT().
-				GetAny(ctx).
+				GetAny(r.Context()).
 				Return(&actor.CertificateProviderProvidedDetails{}, storeError)
 
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.EXPECT().
-				GetAny(ctx).
+				GetAny(r.Context()).
 				Return([]*actor.AttorneyProvidedDetails{{}}, storeError)
 
 			progressTracker := newMockProgressTracker(t)
@@ -65,27 +62,9 @@ func TestGetViewLPA(t *testing.T) {
 
 }
 
-func TestGetViewLPAWithSessionMissing(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequestWithContext(page.ContextWithSessionData(context.Background(), &page.SessionData{}), http.MethodGet, "/", nil)
-
-	err := ViewLPA(nil, nil, nil, nil, nil)(testAppData, w, r, &actor.Organisation{}, nil)
-
-	assert.Error(t, err)
-}
-
-func TestGetViewLPAMissingLPAId(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	err := ViewLPA(nil, nil, nil, nil, nil)(testAppData, w, r, &actor.Organisation{}, nil)
-
-	assert.Error(t, err)
-}
-
 func TestGetViewLPAWithDonorStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequestWithContext(page.ContextWithSessionData(context.Background(), &page.SessionData{}), http.MethodGet, "/?id=lpa-id", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -99,7 +78,7 @@ func TestGetViewLPAWithDonorStoreError(t *testing.T) {
 
 func TestGetViewLPAWhenCertificateProviderStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequestWithContext(page.ContextWithSessionData(context.Background(), &page.SessionData{}), http.MethodGet, "/?id=lpa-id", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donor := &actor.DonorProvidedDetails{LpaID: "lpa-id", SK: "ORGANISATION"}
 
@@ -120,7 +99,7 @@ func TestGetViewLPAWhenCertificateProviderStoreError(t *testing.T) {
 
 func TestGetViewLPAWhenAttorneyStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequestWithContext(page.ContextWithSessionData(context.Background(), &page.SessionData{}), http.MethodGet, "/?id=lpa-id", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donor := &actor.DonorProvidedDetails{LpaID: "lpa-id", SK: "ORGANISATION"}
 
@@ -146,7 +125,7 @@ func TestGetViewLPAWhenAttorneyStoreError(t *testing.T) {
 
 func TestGetViewLPAWhenTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequestWithContext(page.ContextWithSessionData(context.Background(), &page.SessionData{}), http.MethodGet, "/?id=lpa-id", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donor := &actor.DonorProvidedDetails{LpaID: "lpa-id"}
 
