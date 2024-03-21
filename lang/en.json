@@ -1089,5 +1089,7 @@
     "inviteRecalled": "Invite recalled",
     "youRecalledTheInviteFor": "You recalled the invite to this LPA for <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span>.",
     "accessRemoved": "Access removed",
-    "youRemovedAccessToThisLPAFor": "You removed access to this LPA for <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span>."
+    "youRemovedAccessToThisLPAFor": "You removed access to this LPA for <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span>.",
+    "lpaTaskList": "LPA task list",
+    "donorsTypeLpa": "{{.DonorFullNamePossessive}} {{.LpaType}} LPA"
 }
