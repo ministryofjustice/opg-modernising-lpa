@@ -443,9 +443,6 @@ func makeLpaHandle(mux *http.ServeMux, store SessionStore, errorHandler page.Err
 			}
 
 			if loginSession.OrganisationID != "" {
-				appData.IsSupporter = true
-				appData.OrganisationName = loginSession.OrganisationName
-
 				sessionData.OrganisationID = loginSession.OrganisationID
 				sessionData.Email = loginSession.Email
 			}
@@ -456,6 +453,14 @@ func makeLpaHandle(mux *http.ServeMux, store SessionStore, errorHandler page.Err
 			if err != nil {
 				errorHandler(w, r, err)
 				return
+			}
+
+			if loginSession.OrganisationID != "" {
+				appData.IsSupporter = true
+				appData.OrganisationName = loginSession.OrganisationName
+				appData.IsDonorPage = true
+				appData.LpaType = lpa.Type
+				appData.DonorFullName = lpa.Donor.FullName()
 			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData)), lpa); err != nil {
