@@ -32,7 +32,7 @@ type AppData struct {
 	LoggedInSupporterID  string
 	IsDonorPage          bool
 	LpaType              actor.LpaType
-	DonorName            string
+	DonorFullName        string
 }
 
 func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, url string) error {

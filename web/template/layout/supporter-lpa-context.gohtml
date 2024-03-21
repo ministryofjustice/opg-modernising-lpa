@@ -3,13 +3,12 @@
         <div class="app-supporter-lpa-context-banner">
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-two-thirds">
-                    {{ if and (not .App.DonorName) .App.LpaType.Empty }}
+                    {{ if and (not .App.DonorFullName) .App.LpaType.Empty }}
                         {{ trHtml .App "supporterLPAContextPrimer" }}
-                    {{ end }}
-
-                    {{ if .App.DonorName }}
+                    {{ else }}
                         <p class="app-supporter-lpa-context-banner__content">
-                            {{ tr .App "youAreDrafting" }} <span class="govuk-!-font-weight-bold">{{ .App.Localizer.Possessive .App.DonorName }} {{ if not .App.LpaType.Empty }}{{ tr .App .App.LpaType.String | lowerFirst }} {{ end }}</span>{{ tr .App "lpa" }}
+                            {{ $donorNamePossessive := .App.Localizer.Possessive .App.DonorFullName }}
+                            {{ tr .App "youAreDrafting" }} <span class="govuk-!-font-weight-bold">{{ $donorNamePossessive }} {{ if not .App.LpaType.Empty }} {{ lowerFirst (tr .App .App.LpaType.String) }} {{ end }}</span>{{ tr .App "lpa" }}
                         </p>
                     {{ end }}
                 </div>

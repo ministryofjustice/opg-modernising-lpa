@@ -460,7 +460,7 @@ func makeLpaHandle(mux *http.ServeMux, store SessionStore, errorHandler page.Err
 				appData.OrganisationName = loginSession.OrganisationName
 				appData.IsDonorPage = true
 				appData.LpaType = lpa.Type
-				appData.DonorName = lpa.Donor.FullName()
+				appData.DonorFullName = lpa.Donor.FullName()
 			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData)), lpa); err != nil {
