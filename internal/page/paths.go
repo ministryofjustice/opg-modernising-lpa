@@ -205,6 +205,11 @@ func (p SupporterLpaPath) Redirect(w http.ResponseWriter, r *http.Request, appDa
 	return nil
 }
 
+func (p SupporterLpaPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, lpaID string, query url.Values) error {
+	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID))+"?"+query.Encode(), http.StatusFound)
+	return nil
+}
+
 func (p SupporterLpaPath) IsManageOrganisation() bool {
 	return false
 }
@@ -277,8 +282,8 @@ type SupporterPaths struct {
 	ManageTeamMembers             SupporterPath
 	OrganisationCreated           SupporterPath
 	OrganisationDetails           SupporterPath
-	ViewLPA                       SupporterPath
 
+	ViewLPA     SupporterLpaPath
 	DonorAccess SupporterLpaPath
 }
 

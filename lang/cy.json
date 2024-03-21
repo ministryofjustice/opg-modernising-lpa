@@ -1157,5 +1157,7 @@
     "inviteRecalled": "Welsh",
     "youRecalledTheInviteFor": "Welsh {{.Email}}",
     "accessRemoved": "Welsh",
-    "youRemovedAccessToThisLPAFor": "Welsh <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span>."
+    "youRemovedAccessToThisLPAFor": "Welsh <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span>.",
+    "lpaTaskList": "Welsh",
+    "donorsTypeLpa": "{{.DonorFullNamePossessive}} {{.LpaType}} Welsh"
 }
