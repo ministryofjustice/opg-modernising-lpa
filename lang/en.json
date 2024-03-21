@@ -1093,5 +1093,6 @@
     "lpaTaskList": "LPA task list",
     "donorsTypeLpa": "{{.DonorFullNamePossessive}} {{.LpaType}} LPA",
     "supporterLPAContextPrimer": "<p class=\"app-supporter-lpa-context-banner__content govuk-!-font-weight-bold\">As a supporter drafting an LPA, you’ll need to enter information about the donor.</p> <p class=\"app-supporter-lpa-context-banner__content\">The language in this service addresses the donor. For example: ‘Your details’ requires you to enter the details of the donor.</p>",
-    "youAreDrafting": "You are drafting"
+    "youAreDraftingDonorsLpa": "You are drafting <span class=\"govuk-!-font-weight-bold\">{{ .DonorFullNamePossessive }}</span> LPA",
+    "youAreDraftingDonorsTypeLpa": "You are drafting <span class=\"govuk-!-font-weight-bold\">{{ .DonorFullNamePossessive }} {{.LpaType}}</span> LPA"
 }
