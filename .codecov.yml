@@ -16,6 +16,7 @@ coverage:
     - "./internal/notify/sms.go"
     - "./internal/page/fixtures"
     - "./internal/telemetry"
+    - "./internal/validation/error.go"
     - "./mocks/*"
   status:
     project:
