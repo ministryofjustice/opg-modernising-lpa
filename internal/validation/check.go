@@ -14,6 +14,7 @@ import (
 var (
 	mobileRegex      = regexp.MustCompile(`^(?:07|\+?447)\d{9}$`)
 	nonUKMobileRegex = regexp.MustCompile(`^\+\d{4,15}$`)
+	telephoneRegex   = regexp.MustCompile(`^\+?\d{4,15}$`) // TODO: make this better
 	postcodeRegex    = regexp.MustCompile("^[A-Z0-9 ]{1,9}$")
 )
 
@@ -238,39 +239,39 @@ func StringLength(length int) StringLengthCheck {
 	return StringLengthCheck{length: length}
 }
 
-type MobileCheck struct {
-	nonUK      bool
+type PhoneCheck struct {
+	re         *regexp.Regexp
+	tmpl       string
 	errorLabel string
 }
 
-func (c MobileCheck) ErrorLabel(label string) MobileCheck {
+func (c PhoneCheck) ErrorLabel(label string) PhoneCheck {
 	c.errorLabel = label
 	return c
 }
 
-func (c MobileCheck) CheckString(label, value string) FormattableError {
-	re := mobileRegex
-	if c.nonUK {
-		re = nonUKMobileRegex
-	}
-
-	if value != "" && !re.MatchString(strings.ReplaceAll(value, " ", "")) {
+func (c PhoneCheck) CheckString(label, value string) FormattableError {
+	if value != "" && !c.re.MatchString(strings.ReplaceAll(value, " ", "")) {
 		if c.errorLabel != "" {
 			return CustomError{Label: c.errorLabel}
 		} else {
-			return MobileError{Label: label}
+			return PhoneError{Tmpl: c.tmpl, Label: label}
 		}
 	}
 
 	return nil
 }
 
-func Mobile() MobileCheck {
-	return MobileCheck{}
+func Mobile() PhoneCheck {
+	return PhoneCheck{re: mobileRegex, tmpl: "errorMobile"}
 }
 
-func NonUKMobile() MobileCheck {
-	return MobileCheck{nonUK: true}
+func NonUKMobile() PhoneCheck {
+	return PhoneCheck{re: nonUKMobileRegex, tmpl: "errorMobile"}
+}
+
+func Telephone() PhoneCheck {
+	return PhoneCheck{re: telephoneRegex, tmpl: "errorTelephone"}
 }
 
 type PostcodeCheck struct{}
