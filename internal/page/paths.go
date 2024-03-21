@@ -314,6 +314,7 @@ type AppPaths struct {
 	YourLegalRightsAndResponsibilities Path
 
 	AboutPayment                                         LpaPath
+	AddCorrespondent                                     LpaPath
 	AreYouApplyingForFeeDiscountOrExemption              LpaPath
 	CertificateProviderAddress                           LpaPath
 	CertificateProviderDetails                           LpaPath
@@ -338,6 +339,8 @@ type AppPaths struct {
 	DeleteThisLpa                                        LpaPath
 	DoYouWantReplacementAttorneys                        LpaPath
 	DoYouWantToNotifyPeople                              LpaPath
+	EnterCorrespondentAddress                            LpaPath
+	EnterCorrespondentDetails                            LpaPath
 	EnterReplacementTrustCorporation                     LpaPath
 	EnterReplacementTrustCorporationAddress              LpaPath
 	EnterTrustCorporation                                LpaPath
@@ -394,12 +397,12 @@ type AppPaths struct {
 	WitnessingAsCertificateProvider                      LpaPath
 	WitnessingAsIndependentWitness                       LpaPath
 	WitnessingYourSignature                              LpaPath
-	YouHaveSubmittedYourLpa                              LpaPath
 	YouCannotSignYourLpaYet                              LpaPath
+	YouHaveSubmittedYourLpa                              LpaPath
 	YourAddress                                          LpaPath
 	YourAuthorisedSignatory                              LpaPath
-	YourDetails                                          LpaPath
 	YourDateOfBirth                                      LpaPath
+	YourDetails                                          LpaPath
 	YourIndependentWitness                               LpaPath
 	YourIndependentWitnessAddress                        LpaPath
 	YourIndependentWitnessMobile                         LpaPath
@@ -480,6 +483,7 @@ var Paths = AppPaths{
 	},
 
 	AboutPayment:                                         "/about-payment",
+	AddCorrespondent:                                     "/add-correspondent",
 	AreYouApplyingForFeeDiscountOrExemption:              "/are-you-applying-for-fee-discount-or-exemption",
 	AttorneyFixtures:                                     "/fixtures/attorney",
 	AuthRedirect:                                         "/auth/redirect",
@@ -512,6 +516,8 @@ var Paths = AppPaths{
 	DoYouWantReplacementAttorneys:                        "/do-you-want-replacement-attorneys",
 	DoYouWantToNotifyPeople:                              "/do-you-want-to-notify-people",
 	EnterAccessCode:                                      "/enter-access-code",
+	EnterCorrespondentAddress:                            "/enter-correspondent-address",
+	EnterCorrespondentDetails:                            "/enter-correspondent-details",
 	EnterReplacementTrustCorporation:                     "/enter-replacement-trust-corporation",
 	EnterReplacementTrustCorporationAddress:              "/enter-replacement-trust-corporation-address",
 	EnterTrustCorporation:                                "/enter-trust-corporation",
