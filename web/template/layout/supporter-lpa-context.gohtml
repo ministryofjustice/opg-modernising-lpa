@@ -1,0 +1,18 @@
+{{ define "supporter-lpa-context" }}
+    {{ if and .App.IsSupporter .App.IsDonorPage }}
+        <div class="app-supporter-lpa-context-banner">
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    {{ if and (not .App.DonorFullName) .App.LpaType.Empty }}
+                        {{ trHtml .App "supporterLPAContextPrimer" }}
+                    {{ else }}
+                        <p class="app-supporter-lpa-context-banner__content">
+                            {{ $donorNamePossessive := .App.Localizer.Possessive .App.DonorFullName }}
+                            {{ tr .App "youAreDrafting" }} <span class="govuk-!-font-weight-bold">{{ $donorNamePossessive }} {{ if not .App.LpaType.Empty }} {{ lowerFirst (tr .App .App.LpaType.String) }} {{ end }}</span>{{ tr .App "lpa" }}
+                        </p>
+                    {{ end }}
+                </div>
+            </div>
+        </div>
+    {{ end }}
+{{ end }}
