@@ -11,6 +11,6 @@ output "iam_roles" {
     fault_injection_simulator               = aws_iam_role.fault_injection_simulator,
     create_s3_batch_replication_jobs_lambda = aws_iam_role.create_s3_batch_replication_jobs_lambda
     event_received_lambda                   = aws_iam_role.event_received_lambda
-    opensearch_ingestion                    = aws_iam_role.opensearch_ingestion
+    opensearch_pipeline                     = aws_iam_role.opensearch_pipeline
   }
 }
