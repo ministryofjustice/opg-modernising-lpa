@@ -30,6 +30,13 @@ type AppData struct {
 	LoginSessionEmail    string
 	Permission           actor.Permission
 	LoggedInSupporterID  string
+	SupporterData        SupporterData
+}
+
+type SupporterData struct {
+	IsDonorPage   bool
+	LpaType       actor.LpaType
+	DonorFullName string
 }
 
 func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, url string) error {

@@ -2,6 +2,7 @@ package actor
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
@@ -32,7 +33,7 @@ type Donor struct {
 }
 
 func (d Donor) FullName() string {
-	return fmt.Sprintf("%s %s", d.FirstNames, d.LastName)
+	return strings.Trim(fmt.Sprintf("%s %s", d.FirstNames, d.LastName), " ")
 }
 
 // AuthorisedSignatory contains details of the person who will sign the LPA on the donor's behalf
