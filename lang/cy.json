@@ -1157,5 +1157,7 @@
     "inviteRecalled": "Welsh",
     "youRecalledTheInviteFor": "Welsh {{.Email}}",
     "accessRemoved": "Welsh",
-    "youRemovedAccessToThisLPAFor": "Welsh <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span>."
+    "youRemovedAccessToThisLPAFor": "Welsh <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span>.",
+    "supporterLPAContextPrimer": "<p class=\"app-supporter-lpa-context-banner__content govuk-!-font-weight-bold\">Welsh</p> <p class=\"app-supporter-lpa-context-banner__content\">Welsh</p>",
+    "youAreDrafting": "Welsh"
 }
