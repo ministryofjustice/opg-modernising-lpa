@@ -2,12 +2,16 @@
 @import "node_modules/govuk-frontend/dist/govuk/objects/grid";
 
 .app-supporter-lpa-context-banner{
+  @include govuk-responsive-margin(7, "bottom");
+  @include govuk-responsive-padding(3, "left");
   border-bottom: 2px solid #000000;
-  margin-bottom: govuk-spacing(8);
-  padding-left: govuk-spacing(3);
   background-color: #cce2d8;
 
   .app-supporter-lpa-context-banner__content{
     @include govuk-font($size: 19);
+
+    @include govuk-media-query($until: tablet) {
+      @include govuk-responsive-padding(3, "top");
+    }
   }
 }
