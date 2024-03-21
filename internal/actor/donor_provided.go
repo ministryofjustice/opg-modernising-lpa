@@ -28,6 +28,7 @@ type DonorTasks struct {
 	ConfirmYourIdentityAndSign TaskState
 	ChooseYourSignatory        TaskState // if .Donor.CanSign.IsNo only
 	PeopleToNotify             TaskState
+	AddCorrespondent           TaskState // if supporter only
 }
 
 // DonorProvidedDetails contains all the data related to the LPA application
@@ -75,6 +76,10 @@ type DonorProvidedDetails struct {
 	HowShouldReplacementAttorneysStepIn ReplacementAttorneysStepIn
 	// Details on how replacement attorneys must step in if HowShouldReplacementAttorneysStepIn is set to "other"
 	HowShouldReplacementAttorneysStepInDetails string
+	// Whether the applicant wants to add a correspondent
+	AddCorrespondent form.YesNo
+	// Correspondent is sent updates on an application in place of a (supporter) donor
+	Correspondent Correspondent
 	// Whether the applicant wants to notify people about the application
 	DoYouWantToNotifyPeople form.YesNo
 	// People to notify about the application
