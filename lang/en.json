@@ -943,7 +943,7 @@
     "previouslyUploadedFiles": "Previously uploaded files",
     "theseFilesHaveAlreadyBeenUploaded": "These files have already been uploaded and seen by a case worker. They cannot be deleted.",
     "uploadDateAndTime": "Upload date and time",
-    "added": "added",
+    "added": "{{ .Count }} added",
     "pending": "Pending",
     "denied": "Denied",
     "makeANewLPA": "Make a new LPA",
