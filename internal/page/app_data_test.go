@@ -98,9 +98,3 @@ func TestAppDataEncodeQuery(t *testing.T) {
 		})
 	}
 }
-
-func TestAppDataOrganisationName(t *testing.T) {
-	assert.Equal(t, "org name", AppData{SupporterData: &SupporterData{OrganisationName: "org name"}}.OrganisationName())
-	assert.Equal(t, "", AppData{}.OrganisationName())
-	assert.Equal(t, "", AppData{SupporterData: &SupporterData{}}.OrganisationName())
-}

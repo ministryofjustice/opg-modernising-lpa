@@ -81,11 +81,3 @@ func (d AppData) EncodeQuery() string {
 
 	return query
 }
-
-func (d AppData) OrganisationName() string {
-	if d.SupporterData == nil {
-		return ""
-	}
-
-	return d.SupporterData.OrganisationName
-}
