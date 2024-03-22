@@ -30,11 +30,10 @@ type AppData struct {
 	LoginSessionEmail    string
 	Permission           actor.Permission
 	LoggedInSupporterID  string
-	SupporterData        SupporterData
+	SupporterData        *SupporterData
 }
 
 type SupporterData struct {
-	IsDonorPage   bool
 	LpaType       actor.LpaType
 	DonorFullName string
 }
