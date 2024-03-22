@@ -44,7 +44,7 @@ func EnterCorrespondentAddress(logger Logger, tmpl template.Template, addressCli
 						return err
 					}
 
-					return page.Paths.TaskList.Redirect(w, r, appData, donor)
+					return page.Paths.WhoCanCorrespondentsDetailsBeSharedWith.Redirect(w, r, appData, donor)
 				}
 
 			case "postcode-select":
