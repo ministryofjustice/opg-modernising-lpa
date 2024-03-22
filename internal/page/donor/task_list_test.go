@@ -214,7 +214,7 @@ func TestGetTaskList(t *testing.T) {
 					{Name: "chooseYourCertificateProvider", Path: page.Paths.WhatACertificateProviderDoes.Format("lpa-id"), State: actor.TaskInProgress},
 					{Name: "peopleToNotifyAboutYourLpa", Path: page.Paths.DoYouWantToNotifyPeople.Format("lpa-id")},
 					{Name: "chooseYourSignatoryAndIndependentWitness", Path: page.Paths.GettingHelpSigning.Format("lpa-id"), Hidden: true},
-					{Name: "checkAndSendToYourCertificateProvider", Path: page.Paths.CheckYourLpa.Format("lpa-id"), State: actor.TaskNotStarted},
+					{Name: "addCorrespondent", Path: page.Paths.AddCorrespondent.Format("lpa-id"), State: actor.TaskNotStarted},
 				}
 
 				return sections[0:1]
