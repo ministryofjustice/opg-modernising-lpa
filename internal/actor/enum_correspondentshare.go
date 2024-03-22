@@ -10,15 +10,13 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
-	_ = x[CorrespondentShareOPG-2]
-	_ = x[CorrespondentShareAttorneys-4]
-	_ = x[CorrespondentShareCertificateProvider-8]
+	_ = x[CorrespondentShareAttorneys-2]
+	_ = x[CorrespondentShareCertificateProvider-4]
 }
 
 const (
-	_CorrespondentShare_name_0 = "OPG"
-	_CorrespondentShare_name_1 = "Attorneys"
-	_CorrespondentShare_name_2 = "CertificateProvider"
+	_CorrespondentShare_name_0 = "Attorneys"
+	_CorrespondentShare_name_1 = "CertificateProvider"
 )
 
 func (i CorrespondentShare) String() string {
@@ -27,8 +25,6 @@ func (i CorrespondentShare) String() string {
 		return _CorrespondentShare_name_0
 	case i == 4:
 		return _CorrespondentShare_name_1
-	case i == 8:
-		return _CorrespondentShare_name_2
 	default:
 		return "CorrespondentShare(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
@@ -36,9 +32,6 @@ func (i CorrespondentShare) String() string {
 
 func (i CorrespondentShare) Strings() []string {
 	var result []string
-	if i.HasOPG() {
-		result = append(result, CorrespondentShareOPG.String())
-	}
 	if i.HasAttorneys() {
 		result = append(result, CorrespondentShareAttorneys.String())
 	}
@@ -46,10 +39,6 @@ func (i CorrespondentShare) Strings() []string {
 		result = append(result, CorrespondentShareCertificateProvider.String())
 	}
 	return result
-}
-
-func (i CorrespondentShare) HasOPG() bool {
-	return i&CorrespondentShareOPG != 0
 }
 
 func (i CorrespondentShare) HasAttorneys() bool {
@@ -65,8 +54,6 @@ func ParseCorrespondentShare(strs []string) (CorrespondentShare, error) {
 
 	for _, s := range strs {
 		switch s {
-		case "OPG":
-			result |= CorrespondentShareOPG
 		case "Attorneys":
 			result |= CorrespondentShareAttorneys
 		case "CertificateProvider":
@@ -80,13 +67,11 @@ func ParseCorrespondentShare(strs []string) (CorrespondentShare, error) {
 }
 
 type CorrespondentShareOptions struct {
-	OPG                 CorrespondentShare
 	Attorneys           CorrespondentShare
 	CertificateProvider CorrespondentShare
 }
 
 var CorrespondentShareValues = CorrespondentShareOptions{
-	OPG:                 CorrespondentShareOPG,
 	Attorneys:           CorrespondentShareAttorneys,
 	CertificateProvider: CorrespondentShareCertificateProvider,
 }
