@@ -74,6 +74,7 @@ func All(globals *Globals) map[string]any {
 		"canGoTo":            page.CanGoTo,
 		"content":            content,
 		"notificationBanner": notificationBanner,
+		"checkboxEq":         checkboxEq,
 	}
 }
 
@@ -168,6 +169,24 @@ func contains(needle string, list any) bool {
 	}
 
 	if slist, ok := list.([]string); ok {
+		return slices.Contains(slist, needle)
+	}
+
+	return false
+}
+
+// checkboxEq allows matching in the checkboxes.gohtml template for a value that
+// is a list of strings, or a single string (where we are emulating a switch)
+func checkboxEq(needle string, in any) bool {
+	if in == nil {
+		return false
+	}
+
+	if str, ok := in.(string); ok {
+		return needle == str
+	}
+
+	if slist, ok := in.([]string); ok {
 		return slices.Contains(slist, needle)
 	}
 
