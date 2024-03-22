@@ -118,6 +118,22 @@
 //
 // we would be able to check whether a value x had not been set to Yes or No by
 // using the boolean value returned by x.Empty().
+//
+// The -bits flag tells enumerator to consider the type as a field of bits. This
+// is useful when an emum is defined using 1<<iota. It causes the following
+// methods to be generated instead of the usual behaviour:
+//
+//	func ParseT([]string) (T, error)
+//	func (t T) String() string
+//	func (t T) Strings() []string
+//
+// and for each value X
+//
+//	func (t T) HasX() bool
+//
+// The String() method will only return sensible values for uncombined values of
+// T, i.e. X.String(), not (X|Y).String(). When dealing with combined values use
+// Strings(), where (X|Y).Strings() == []string{X.String(), Y.String()}.
 package main
 
 import (
@@ -142,6 +158,7 @@ var (
 	trimprefix  = flag.Bool("trimprefix", false, "trim the type prefix from the generated constant names")
 	linecomment = flag.Bool("linecomment", false, "use line comment text as printed text when present")
 	empty       = flag.Bool("empty", false, "generate method to check for empty value")
+	bits        = flag.Bool("bits", false, "consider the type to be a bit field")
 )
 
 // Usage is a replacement usage function for the flags package.
@@ -167,6 +184,7 @@ func main() {
 		trimPrefix:  *trimprefix,
 		lineComment: *linecomment,
 		empty:       *empty,
+		bits:        *bits,
 	}
 
 	g.parsePackage(".")
@@ -203,6 +221,7 @@ type Generator struct {
 	trimPrefix  bool
 	lineComment bool
 	empty       bool
+	bits        bool
 }
 
 func (g *Generator) Printf(format string, args ...interface{}) {
@@ -310,6 +329,9 @@ func (g *Generator) generate(typeName string) {
 		g.buildMultipleRuns(runs, typeName)
 	default:
 		g.buildMap(runs, typeName)
+	}
+	if g.bits {
+		g.buildStrings(runs, typeName)
 	}
 
 	g.buildTextMethods(typeName)
@@ -577,7 +599,9 @@ func (g *Generator) createIndexAndNameDecl(run []Value, typeName string, suffix 
 }
 
 func (g *Generator) buildTextMethods(typeName string) {
-	g.Printf(textMethods, typeName)
+	if !g.bits {
+		g.Printf(textMethods, typeName)
+	}
 }
 
 const textMethods = `
@@ -603,10 +627,20 @@ func (g *Generator) buildIsMethods(runs [][]Value, typeName string) {
 			if g.trimPrefix {
 				name = strings.TrimPrefix(name, typeName)
 			}
-			g.Printf(isMethod, typeName, name, value.originalName)
+			if g.bits {
+				g.Printf(hasMethod, typeName, name, value.originalName)
+			} else {
+				g.Printf(isMethod, typeName, name, value.originalName)
+			}
 		}
 	}
 }
+
+const hasMethod = `
+func (i %[1]s) Has%[2]s() bool {
+	return i&%[3]s != 0
+}
+`
 
 const isMethod = `
 func (i %[1]s) Is%[2]s() bool {
@@ -617,21 +651,45 @@ func (i %[1]s) Is%[2]s() bool {
 func (g *Generator) buildParseMethod(runs [][]Value, typeName string) {
 	g.Printf("\n")
 
-	g.Printf(`func Parse%[1]s(s string) (%[1]s, error) {
+	if g.bits {
+		g.Printf(`func Parse%[1]s(strs []string) (%[1]s, error) {
+  var result %[1]s
+
+  for _, s := range strs {
+	  switch s {
+`, typeName)
+		for _, values := range runs {
+			for _, value := range values {
+				g.Printf(`  case "%[1]s":
+		result |= %[2]s
+`, value.name, value.originalName)
+			}
+		}
+		g.Printf(`  default:
+		  return %[1]s(0), fmt.Errorf("invalid %[1]s '%%s'", s)
+	  }
+  }
+
+  return result, nil
+}
+`, typeName)
+	} else {
+		g.Printf(`func Parse%[1]s(s string) (%[1]s, error) {
 	switch s {
 `, typeName)
-	for _, values := range runs {
-		for _, value := range values {
-			g.Printf(`  case "%[1]s":
+		for _, values := range runs {
+			for _, value := range values {
+				g.Printf(`  case "%[1]s":
 		return %[2]s, nil
 `, value.name, value.originalName)
+			}
 		}
-	}
-	g.Printf(`  default:
+		g.Printf(`  default:
 		return %[1]s(0), fmt.Errorf("invalid %[1]s '%%s'", s)
 	}
 }
 `, typeName)
+	}
 }
 
 func (g *Generator) buildValues(runs [][]Value, typeName string) {
@@ -772,3 +830,22 @@ const stringMap = `func (i %[1]s) String() string {
 	return "%[1]s(" + strconv.FormatInt(int64(i), 10) + ")"
 }
 `
+
+func (g *Generator) buildStrings(runs [][]Value, typeName string) {
+	g.Printf("\n")
+
+	g.Printf(`func (i %[1]s) Strings() []string {
+  var result []string
+`, typeName)
+	for _, values := range runs {
+		for _, value := range values {
+			g.Printf(`if i.Has%[1]s() {
+  result = append(result, %[2]s.String())
+}
+`, value.name, value.originalName)
+		}
+	}
+	g.Printf(`  return result
+}
+`)
+}

@@ -324,6 +324,8 @@ func Register(
 		EnterCorrespondentDetails(tmpls.Get("enter_correspondent_details.gohtml"), donorStore))
 	handleWithDonor(page.Paths.EnterCorrespondentAddress, page.CanGoBack,
 		EnterCorrespondentAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
+	handleWithDonor(page.Paths.WhoCanCorrespondentsDetailsBeSharedWith, page.CanGoBack,
+		WhoCanCorrespondentsDetailsBeSharedWith(tmpls.Get("who_can_correspondents_details_be_shared_with.gohtml"), donorStore))
 
 	handleWithDonor(page.Paths.AboutPayment, page.None,
 		Guidance(tmpls.Get("about_payment.gohtml")))
