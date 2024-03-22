@@ -9,8 +9,7 @@ import (
 type CorrespondentShare uint8
 
 const (
-	CorrespondentShareOPG CorrespondentShare = 2 << iota
-	CorrespondentShareAttorneys
+	CorrespondentShareAttorneys CorrespondentShare = 2 << iota
 	CorrespondentShareCertificateProvider
 )
 

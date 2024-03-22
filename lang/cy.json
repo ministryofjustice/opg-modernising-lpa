@@ -1179,5 +1179,7 @@
     "whoCanCorrespondentDetailsBeSharedWithContent": "<p class=\"govuk-body\">Welsh</p>",
     "theOPG": "Welsh",
     "correspondentShareOPGHint": "Welsh",
-    "whoCorrespondentDetailsCanBeSharedWith": "Welsh"
+    "whoCorrespondentDetailsCanBeSharedWith": "Welsh",
+    "chooseWhoElseCorrespondentShareOptional": "Welsh",
+    "attorneysAndReplacementAttorneys": "Welsh"
 }
