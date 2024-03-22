@@ -24,20 +24,22 @@ type Golden struct {
 	trimPrefix  bool
 	lineComment bool
 	empty       bool
+	bits        bool
 	input       string // input; the package clause is provided when running the test.
 	output      string // expected output.
 }
 
 var golden = []Golden{
-	{"day", false, false, true, day_in, day_out},
-	{"offset", false, false, false, offset_in, offset_out},
-	{"gap", false, false, false, gap_in, gap_out},
-	{"num", false, false, false, num_in, num_out},
-	{"unum", false, false, false, unum_in, unum_out},
-	{"unumpos", false, false, false, unumpos_in, unumpos_out},
-	{"prime", false, false, false, prime_in, prime_out},
-	{"prefix", true, false, false, prefix_in, prefix_out},
-	{"tokens", false, true, false, tokens_in, tokens_out},
+	{"day", false, false, true, false, day_in, day_out},
+	{"offset", false, false, false, false, offset_in, offset_out},
+	{"gap", false, false, false, false, gap_in, gap_out},
+	{"num", false, false, false, false, num_in, num_out},
+	{"unum", false, false, false, false, unum_in, unum_out},
+	{"unumpos", false, false, false, false, unumpos_in, unumpos_out},
+	{"prime", false, false, false, false, prime_in, prime_out},
+	{"prefix", true, false, false, false, prefix_in, prefix_out},
+	{"tokens", false, true, false, false, tokens_in, tokens_out},
+	{"bits", false, true, false, true, bits_in, bits_out},
 }
 
 // Each example starts with "type XXX [u]int", with a single space separating them.
@@ -1193,6 +1195,101 @@ var TokenValues = TokenOptions{
 }
 `
 
+const bits_in = `type Bits uint8
+const (
+  X Bits = 1 << iota
+  Y
+  Z
+`
+
+const bits_out = `func _() {
+	// An "invalid array index" compiler error signifies that the constant values have changed.
+	// Re-run the stringer command to generate them again.
+	var x [1]struct{}
+	_ = x[X-1]
+	_ = x[Y-2]
+	_ = x[Z-4]
+}
+
+const (
+	_Bits_name_0 = "XY"
+	_Bits_name_1 = "Z"
+)
+
+var (
+	_Bits_index_0 = [...]uint8{0, 1, 2}
+)
+
+func (i Bits) String() string {
+	switch {
+	case 1 <= i && i <= 2:
+		i -= 1
+		return _Bits_name_0[_Bits_index_0[i]:_Bits_index_0[i+1]]
+	case i == 4:
+		return _Bits_name_1
+	default:
+		return "Bits(" + strconv.FormatInt(int64(i), 10) + ")"
+	}
+}
+
+func (i Bits) Strings() []string {
+	var result []string
+	if i.HasX() {
+		result = append(result, X.String())
+	}
+	if i.HasY() {
+		result = append(result, Y.String())
+	}
+	if i.HasZ() {
+		result = append(result, Z.String())
+	}
+	return result
+}
+
+func (i Bits) HasX() bool {
+	return i&X != 0
+}
+
+func (i Bits) HasY() bool {
+	return i&Y != 0
+}
+
+func (i Bits) HasZ() bool {
+	return i&Z != 0
+}
+
+func ParseBits(strs []string) (Bits, error) {
+	var result Bits
+
+	for _, s := range strs {
+		switch s {
+		case "X":
+			result |= X
+		case "Y":
+			result |= Y
+		case "Z":
+			result |= Z
+		default:
+			return Bits(0), fmt.Errorf("invalid Bits '%s'", s)
+		}
+	}
+
+	return result, nil
+}
+
+type BitsOptions struct {
+	X Bits
+	Y Bits
+	Z Bits
+}
+
+var BitsValues = BitsOptions{
+	X: X,
+	Y: Y,
+	Z: Z,
+}
+`
+
 func TestGolden(t *testing.T) {
 	dir := t.TempDir()
 	for _, test := range golden {
@@ -1201,6 +1298,7 @@ func TestGolden(t *testing.T) {
 				trimPrefix:  test.trimPrefix,
 				lineComment: test.lineComment,
 				empty:       test.empty,
+				bits:        test.bits,
 			}
 			input := "package test\n" + test.input
 			file := test.name + ".go"
