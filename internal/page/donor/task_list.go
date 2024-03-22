@@ -81,18 +81,23 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 					State:  donor.Tasks.ChooseYourSignatory,
 					Hidden: !donor.Donor.CanSign.IsNo(),
 				},
-				{
-					Name:  "checkAndSendToYourCertificateProvider",
-					Path:  taskListCheckLpaPath(donor).Format(donor.LpaID),
-					State: donor.Tasks.CheckYourLpa,
-				},
 			},
 		}
 
 		var sections []taskListSection
 		if appData.IsSupporter {
+			section1.Items = append(section1.Items, taskListItem{
+				Name:  "addCorrespondent",
+				Path:  page.Paths.AddCorrespondent.Format(donor.LpaID),
+				State: donor.Tasks.AddCorrespondent,
+			})
 			sections = []taskListSection{section1}
 		} else {
+			section1.Items = append(section1.Items, taskListItem{
+				Name:  "checkAndSendToYourCertificateProvider",
+				Path:  taskListCheckLpaPath(donor).Format(donor.LpaID),
+				State: donor.Tasks.CheckYourLpa,
+			})
 			sections = []taskListSection{section1, taskListPaymentSection(donor), taskListSignSection(donor)}
 		}
 
