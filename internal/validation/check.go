@@ -14,7 +14,7 @@ import (
 var (
 	mobileRegex      = regexp.MustCompile(`^(?:07|\+?447)\d{9}$`)
 	nonUKMobileRegex = regexp.MustCompile(`^\+\d{4,15}$`)
-	telephoneRegex   = regexp.MustCompile(`^\+?\d{4,15}$`) // TODO: make this better
+	telephoneRegex   = regexp.MustCompile(`^\+?\d{4,15}$`)
 	postcodeRegex    = regexp.MustCompile("^[A-Z0-9 ]{1,9}$")
 )
 

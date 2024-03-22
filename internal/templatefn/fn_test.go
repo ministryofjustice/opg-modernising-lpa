@@ -152,6 +152,16 @@ func TestContains(t *testing.T) {
 	assert.False(t, contains("", nil))
 }
 
+func TestCheckboxEq(t *testing.T) {
+	assert.True(t, checkboxEq("b", []string{"a", "b", "c"}))
+	assert.False(t, checkboxEq("d", []string{"a", "b", "c"}))
+
+	assert.True(t, checkboxEq("b", "b"))
+	assert.False(t, checkboxEq("b", "d"))
+
+	assert.False(t, checkboxEq("", nil))
+}
+
 func TestTr(t *testing.T) {
 	bundle, _ := localize.NewBundle("testdata/en.json")
 	app := page.AppData{
