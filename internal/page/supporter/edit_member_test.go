@@ -154,7 +154,9 @@ func TestPostEditMember(t *testing.T) {
 
 			err := EditMember(nil, memberStore)(page.AppData{
 				LoginSessionEmail: "self@example.org",
-				Permission:        tc.userPermission,
+				SupporterData: &page.SupporterData{
+					Permission: tc.userPermission,
+				},
 			}, w, r, &actor.Organisation{}, tc.member)
 			resp := w.Result()
 
@@ -199,7 +201,9 @@ func TestPostEditMemberWhenOtherMember(t *testing.T) {
 
 	err := EditMember(nil, memberStore)(page.AppData{
 		LoginSessionEmail: "self@example.org",
-		Permission:        actor.PermissionAdmin,
+		SupporterData: &page.SupporterData{
+			Permission: actor.PermissionAdmin,
+		},
 	}, w, r, &actor.Organisation{}, &actor.Member{})
 	resp := w.Result()
 
@@ -241,7 +245,9 @@ func TestPostEditMemberNoUpdate(t *testing.T) {
 
 			err := EditMember(nil, nil)(page.AppData{
 				LoginSessionEmail: "self@example.org",
-				Permission:        tc.userPermission,
+				SupporterData: &page.SupporterData{
+					Permission: tc.userPermission,
+				},
 			}, w, r, &actor.Organisation{}, &actor.Member{
 				ID:         "an-id",
 				FirstNames: "a",
@@ -284,7 +290,9 @@ func TestPostEditMemberNoUpdateWhenOtherMember(t *testing.T) {
 
 	err := EditMember(nil, memberStore)(page.AppData{
 		LoginSessionEmail: "self@example.org",
-		Permission:        actor.PermissionAdmin,
+		SupporterData: &page.SupporterData{
+			Permission: actor.PermissionAdmin,
+		},
 	}, w, r, &actor.Organisation{}, &actor.Member{})
 	resp := w.Result()
 

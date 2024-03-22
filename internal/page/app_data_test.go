@@ -74,7 +74,7 @@ func TestIsTrustCorporation(t *testing.T) {
 }
 
 func TestAppDataIsAdmin(t *testing.T) {
-	assert.True(t, AppData{Permission: actor.PermissionAdmin}.IsAdmin())
+	assert.True(t, AppData{SupporterData: &SupporterData{Permission: actor.PermissionAdmin}}.IsAdmin())
 	assert.False(t, AppData{}.IsAdmin())
 }
 
@@ -97,4 +97,10 @@ func TestAppDataEncodeQuery(t *testing.T) {
 			assert.Equal(t, tc.expectedQueryString, AppData{Query: tc.query}.EncodeQuery())
 		})
 	}
+}
+
+func TestAppDataOrganisationName(t *testing.T) {
+	assert.Equal(t, "org name", AppData{SupporterData: &SupporterData{OrganisationName: "org name"}}.OrganisationName())
+	assert.Equal(t, "", AppData{}.OrganisationName())
+	assert.Equal(t, "", AppData{SupporterData: &SupporterData{}}.OrganisationName())
 }

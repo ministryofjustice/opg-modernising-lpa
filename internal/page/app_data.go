@@ -11,31 +11,30 @@ import (
 )
 
 type AppData struct {
-	Page                 string
-	Path                 string
-	Query                url.Values
-	Localizer            Localizer
-	Lang                 localize.Lang
-	CookieConsentSet     bool
-	CanGoBack            bool
-	CanToggleWelsh       bool
-	SessionID            string
-	LpaID                string
-	CsrfToken            string
-	ActorType            actor.Type
-	AttorneyUID          actoruid.UID
-	IsSupporter          bool
-	OrganisationName     string
-	IsManageOrganisation bool
-	LoginSessionEmail    string
-	Permission           actor.Permission
-	LoggedInSupporterID  string
-	SupporterData        *SupporterData
+	Page              string
+	Path              string
+	Query             url.Values
+	Localizer         Localizer
+	Lang              localize.Lang
+	CookieConsentSet  bool
+	CanGoBack         bool
+	CanToggleWelsh    bool
+	SessionID         string
+	LpaID             string
+	CsrfToken         string
+	ActorType         actor.Type
+	AttorneyUID       actoruid.UID
+	LoginSessionEmail string
+	SupporterData     *SupporterData
 }
 
 type SupporterData struct {
-	LpaType       actor.LpaType
-	DonorFullName string
+	LpaType              actor.LpaType
+	DonorFullName        string
+	OrganisationName     string
+	IsManageOrganisation bool
+	Permission           actor.Permission
+	LoggedInSupporterID  string
 }
 
 func (d AppData) Redirect(w http.ResponseWriter, r *http.Request, url string) error {
@@ -70,7 +69,7 @@ func (d AppData) IsTrustCorporation() bool {
 }
 
 func (d AppData) IsAdmin() bool {
-	return d.Permission.IsAdmin()
+	return d.SupporterData != nil && d.SupporterData.Permission.IsAdmin()
 }
 
 func (d AppData) EncodeQuery() string {
@@ -81,4 +80,12 @@ func (d AppData) EncodeQuery() string {
 	}
 
 	return query
+}
+
+func (d AppData) OrganisationName() string {
+	if d.SupporterData == nil {
+		return ""
+	}
+
+	return d.SupporterData.OrganisationName
 }

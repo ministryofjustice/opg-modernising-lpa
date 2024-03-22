@@ -33,10 +33,10 @@ var (
 		LoginSessionEmail: "logged-in@example.com",
 	}
 	testSupporterAppData = page.AppData{
-		SessionID:   "session-id",
-		LpaID:       "lpa-id",
-		IsSupporter: true,
-		Lang:        localize.En,
+		SessionID:     "session-id",
+		LpaID:         "lpa-id",
+		SupporterData: &page.SupporterData{},
+		Lang:          localize.En,
 	}
 	testNow   = time.Date(2023, time.July, 3, 4, 5, 6, 1, time.UTC)
 	testNowFn = func() time.Time { return testNow }
