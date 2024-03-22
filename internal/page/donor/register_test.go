@@ -141,6 +141,10 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 				SessionID:   "cmFuZG9t",
 				LpaID:       "123",
 				IsSupporter: true,
+				SupporterData: &page.SupporterData{
+					DonorFullName: "Jane Smith",
+					LpaType:       actor.LpaTypePropertyAndAffairs,
+				},
 			},
 			loginSesh:           &sesh.LoginSession{Sub: "random", OrganisationID: "org-id"},
 			expectedSessionData: &page.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id", LpaID: "123"},
