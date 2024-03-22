@@ -1171,5 +1171,9 @@
     "wouldYouLikeToAddAddress": "Welsh",
     "wouldYouLikeToAddAddressHint": "Welsh",
     "yesToAddAnAddress": "Welsh",
-    "correspondent": "Welsh"
+    "correspondent": "Welsh",
+    "whoCanCorrespondentDetailsBeSharedWith": "Welsh",
+    "whoCanCorrespondentDetailsBeSharedWithContent": "<p class=\"govuk-body\">Welsh</p>",
+    "theOPG": "Welsh",
+    "correspondentShareOPGHint": "Welsh"
 }

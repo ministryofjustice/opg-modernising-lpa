@@ -74,6 +74,7 @@ func All(globals *Globals) map[string]any {
 		"canGoTo":            page.CanGoTo,
 		"content":            content,
 		"notificationBanner": notificationBanner,
+		"checkboxEq":         checkboxEq,
 	}
 }
 
@@ -168,6 +169,22 @@ func contains(needle string, list any) bool {
 	}
 
 	if slist, ok := list.([]string); ok {
+		return slices.Contains(slist, needle)
+	}
+
+	return false
+}
+
+func checkboxEq(needle string, in any) bool {
+	if in == nil {
+		return false
+	}
+
+	if str, ok := in.(string); ok {
+		return needle == str
+	}
+
+	if slist, ok := in.([]string); ok {
 		return slices.Contains(slist, needle)
 	}
 
