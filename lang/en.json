@@ -1106,5 +1106,10 @@
     "wouldYouLikeToAddAddress": "Would you like to add an address?",
     "wouldYouLikeToAddAddressHint": "Add an address if you think anyone involved in the LPA would prefer to contact the correspondent in writing.",
     "yesToAddAnAddress": "yes to add an address",
-    "correspondent": "Correspondent"
+    "correspondent": "Correspondent",
+    "whoCanCorrespondentDetailsBeSharedWith": "Who can the correspondent’s details be shared with?",
+    "whoCanCorrespondentDetailsBeSharedWithContent": "<p class=\"govuk-body\">Choose who you would like to share the correspondent’s details with.</p><p class=\"govuk-body\">We’l share their full name, organisation (if given), and any contact details you’ve provided.</p>",
+    "theOPG": "The Office of the Public Guardian (OPG)",
+    "correspondentShareOPGHint": "The correspondent will receive any communication from OPG instead of the donor. The donor will be contacted by OPG when the LPA registration process can begin.",
+    "whoCorrespondentDetailsCanBeSharedWith": "Who correspondent details can be shared with"
 }

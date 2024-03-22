@@ -31,6 +31,7 @@ describe('Add correspondent', () => {
     cy.get('#f-email').type('email@example.com');
     cy.contains('label', 'No').click();
     cy.contains('button', 'Save and continue').click();
+    cy.contains('button', 'Save and continue').click();
     cy.contains('li', 'Add a correspondent').should('contain', 'Completed');
   });
 
@@ -54,6 +55,7 @@ describe('Add correspondent', () => {
     cy.contains('button', 'Continue').click();
     AddressFormAssertions.assertCanAddAddressFromSelect()
 
+    cy.contains('button', 'Save and continue').click();
     cy.contains('li', 'Add a correspondent').should('contain', 'Completed');
   });
 });
