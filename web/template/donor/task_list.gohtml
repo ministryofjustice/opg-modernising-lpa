@@ -65,7 +65,7 @@
       {{ end }}
 
       {{ range $i, $e := .Sections }}
-        <h2 class="govuk-heading-m">{{ inc $i }}. {{ tr $.App $e.Heading }}</h2>
+        <h2 class="govuk-heading-m">{{ if gt (len $.Sections) 1 }}{{ inc $i }}. {{ end }}{{ tr $.App $e.Heading }}</h2>
         <ul class="govuk-task-list">
           {{ range $e.Items }}
             {{ if not .Hidden }}
