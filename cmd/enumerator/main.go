@@ -142,6 +142,7 @@ var (
 	trimprefix  = flag.Bool("trimprefix", false, "trim the type prefix from the generated constant names")
 	linecomment = flag.Bool("linecomment", false, "use line comment text as printed text when present")
 	empty       = flag.Bool("empty", false, "generate method to check for empty value")
+	bits        = flag.Bool("bits", false, "consider the type to be a bit field")
 )
 
 // Usage is a replacement usage function for the flags package.
@@ -310,6 +311,9 @@ func (g *Generator) generate(typeName string) {
 		g.buildMultipleRuns(runs, typeName)
 	default:
 		g.buildMap(runs, typeName)
+	}
+	if *bits {
+		g.buildStrings(runs, typeName)
 	}
 
 	g.buildTextMethods(typeName)
@@ -577,7 +581,9 @@ func (g *Generator) createIndexAndNameDecl(run []Value, typeName string, suffix 
 }
 
 func (g *Generator) buildTextMethods(typeName string) {
-	g.Printf(textMethods, typeName)
+	if !*bits {
+		g.Printf(textMethods, typeName)
+	}
 }
 
 const textMethods = `
@@ -603,10 +609,20 @@ func (g *Generator) buildIsMethods(runs [][]Value, typeName string) {
 			if g.trimPrefix {
 				name = strings.TrimPrefix(name, typeName)
 			}
-			g.Printf(isMethod, typeName, name, value.originalName)
+			if *bits {
+				g.Printf(hasMethod, typeName, name, value.originalName)
+			} else {
+				g.Printf(isMethod, typeName, name, value.originalName)
+			}
 		}
 	}
 }
+
+const hasMethod = `
+func (i %[1]s) Has%[2]s() bool {
+	return i&%[3]s != 0
+}
+`
 
 const isMethod = `
 func (i %[1]s) Is%[2]s() bool {
@@ -617,21 +633,45 @@ func (i %[1]s) Is%[2]s() bool {
 func (g *Generator) buildParseMethod(runs [][]Value, typeName string) {
 	g.Printf("\n")
 
-	g.Printf(`func Parse%[1]s(s string) (%[1]s, error) {
+	if *bits {
+		g.Printf(`func Parse%[1]s(strs []string) (%[1]s, error) {
+  var result %[1]s
+
+  for _, s := range strs {
+	  switch s {
+`, typeName)
+		for _, values := range runs {
+			for _, value := range values {
+				g.Printf(`  case "%[1]s":
+		result |= %[2]s
+`, value.name, value.originalName)
+			}
+		}
+		g.Printf(`  default:
+		  return %[1]s(0), fmt.Errorf("invalid %[1]s '%%s'", s)
+	  }
+  }
+
+  return result, nil
+}
+`, typeName)
+	} else {
+		g.Printf(`func Parse%[1]s(s string) (%[1]s, error) {
 	switch s {
 `, typeName)
-	for _, values := range runs {
-		for _, value := range values {
-			g.Printf(`  case "%[1]s":
+		for _, values := range runs {
+			for _, value := range values {
+				g.Printf(`  case "%[1]s":
 		return %[2]s, nil
 `, value.name, value.originalName)
+			}
 		}
-	}
-	g.Printf(`  default:
+		g.Printf(`  default:
 		return %[1]s(0), fmt.Errorf("invalid %[1]s '%%s'", s)
 	}
 }
 `, typeName)
+	}
 }
 
 func (g *Generator) buildValues(runs [][]Value, typeName string) {
@@ -772,3 +812,21 @@ const stringMap = `func (i %[1]s) String() string {
 	return "%[1]s(" + strconv.FormatInt(int64(i), 10) + ")"
 }
 `
+
+func (g *Generator) buildStrings(runs [][]Value, typeName string) {
+	g.Printf("\n")
+
+	g.Printf(`func (i %[1]s) Strings() []string {
+  var result []string
+`, typeName)
+	for _, values := range runs {
+		for _, value := range values {
+			g.Printf(`if i.Has%[1]s() {
+  result = append(result, %[2]s.String())
+}
+`, value.name, value.originalName)
+		}
+	}
+	g.Printf(`  return result
+}`)
+}

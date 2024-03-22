@@ -42,6 +42,10 @@ func (l *List) Add(name string, error FormattableError) {
 	*l = append(*l, Field{Name: name, Error: error})
 }
 
+func (l *List) Append(other List) List {
+	return append(*l, other...)
+}
+
 func (l List) Has(name string) bool {
 	for _, field := range l {
 		if field.Name == name {
