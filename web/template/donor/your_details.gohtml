@@ -17,7 +17,7 @@
 
         {{ template "input" (input . "other-names" "otherNamesYouAreKnownByOptional" .Form.OtherNames "hint" "otherNamesHint" "classes" "govuk-input--width-20") }}
 
-        {{ if .App.IsSupporter }}
+        {{ if .App.SupporterData }}
           {{ template "input" (input . "email" "emailOptional" .Form.Email "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
         {{ end }}
 

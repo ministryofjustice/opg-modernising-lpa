@@ -1,7 +1,7 @@
 {{ define "donor-lpa-progress" }}
     <div id="progress" class="app-progress-bar" aria-label="progress-label">
         <ol class="app-progress-bar__list">
-            {{ if .App.IsSupporter }}
+            {{ if .App.SupporterData }}
                 <li id="donor-paid" class="app-progress-bar__item" {{ if .Progress.Paid.State.InProgress }}aria-current="step"{{ end }}>
                     <span class="app-progress-bar__icon {{ if .Progress.Paid.State.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
                     <span class="app-progress-bar__label">

@@ -95,7 +95,7 @@
     <div class="govuk-width-container">
       <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-          <h2 class="service-header__heading">{{ if .App.IsSupporter }}{{ tr .App "helpSomeoneMakeLastingPowerOfAttorney" }}{{ else }}{{ tr .App "serviceName" }}{{ end }}</h2>
+          <h2 class="service-header__heading">{{ if .App.SupporterData }}{{ tr .App "helpSomeoneMakeLastingPowerOfAttorney" }}{{ else }}{{ tr .App "serviceName" }}{{ end }}</h2>
           {{ if .App.OrganisationName }}
             <span class="govuk-caption-l app-service-header-caption">{{ .App.OrganisationName }}</span>
           {{ end }}
@@ -115,18 +115,18 @@
           </button>
           <nav aria-label="{{ trFormat .App "serviceNameNavigationMenu" "ServiceName" (tr .App "serviceName") }}">
             <ul class="service-header__nav-list service-header__nav" id="service-header__nav" data-open-class="service-header__nav--open">
-              {{ if .App.IsSupporter }}
+              {{ if .App.SupporterData }}
                 {{ if .App.OrganisationName }}
                   <li class="service-header__nav-list-item {{ if eq .App.Page global.Paths.Supporter.Dashboard.Format }}service-header__nav-list-item--active{{ end }}">
                     <a class="service-header__nav-list-item-link" aria-current="page" href="{{ link .App global.Paths.Supporter.Dashboard.Format }}">{{ tr .App "dashboard" }}</a>
                   </li>
                     {{ if .App.IsAdmin }}
-                      <li class="service-header__nav-list-item {{ if .App.IsManageOrganisation }}service-header__nav-list-item--active{{ end }}">
+                      <li class="service-header__nav-list-item {{ if .App.SupporterData.IsManageOrganisation }}service-header__nav-list-item--active{{ end }}">
                           <a class="service-header__nav-list-item-link" href="{{ link .App global.Paths.Supporter.ManageTeamMembers.Format }}">{{ tr .App "manageOrganisation" }}</a>
                       </li>
                       {{ else }}
-                      <li class="service-header__nav-list-item {{ if .App.IsManageOrganisation  }}service-header__nav-list-item--active{{ end }}">
-                          <a class="service-header__nav-list-item-link" href="{{ link .App global.Paths.Supporter.EditMember.Format }}?id={{ .App.LoggedInSupporterID }}">{{ tr .App "manageYourDetails" }}</a>
+                      <li class="service-header__nav-list-item {{ if .App.SupporterData.IsManageOrganisation  }}service-header__nav-list-item--active{{ end }}">
+                          <a class="service-header__nav-list-item-link" href="{{ link .App global.Paths.Supporter.EditMember.Format }}?id={{ .App.SupporterData.LoggedInSupporterID }}">{{ tr .App "manageYourDetails" }}</a>
                       </li>
                       {{ end }}
                 {{ else }}

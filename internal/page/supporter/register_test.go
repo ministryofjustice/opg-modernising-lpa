@@ -33,8 +33,8 @@ func TestMakeHandle(t *testing.T) {
 	handle := makeHandle(mux, nil, nil)
 	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
-			Page:        "/path",
-			IsSupporter: true,
+			Page:          "/path",
+			SupporterData: &page.SupporterData{},
 		}, appData)
 		assert.Equal(t, w, hw)
 
@@ -78,9 +78,9 @@ func TestMakeHandleWhenRequireSession(t *testing.T) {
 	handle := makeHandle(mux, sessionStore, nil)
 	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
-			Page:        "/path",
-			SessionID:   "cmFuZG9t",
-			IsSupporter: true,
+			Page:          "/path",
+			SessionID:     "cmFuZG9t",
+			SupporterData: &page.SupporterData{},
 		}, appData)
 		assert.Equal(t, w, hw)
 
@@ -139,13 +139,14 @@ func TestMakeSupporterHandle(t *testing.T) {
 	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore, memberStore, nil)
 	handle(page.SupporterPath("/path"), CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
 		assert.Equal(t, page.AppData{
-			Page:                "/supporter/path",
-			SessionID:           "cmFuZG9t",
-			IsSupporter:         true,
-			CanGoBack:           true,
-			LoginSessionEmail:   "a@example.org",
-			Permission:          actor.PermissionAdmin,
-			LoggedInSupporterID: "member-id",
+			Page:      "/supporter/path",
+			SessionID: "cmFuZG9t",
+			SupporterData: &page.SupporterData{
+				Permission:          actor.PermissionAdmin,
+				LoggedInSupporterID: "member-id",
+			},
+			CanGoBack:         true,
+			LoginSessionEmail: "a@example.org",
 		}, appData)
 
 		assert.Equal(t, w, hw)
@@ -188,14 +189,15 @@ func TestMakeSupporterHandleWithLpaPath(t *testing.T) {
 	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore, memberStore, nil)
 	handle(page.SupporterLpaPath("/path"), CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
 		assert.Equal(t, page.AppData{
-			Page:                "/supporter/path/xyz",
-			SessionID:           "cmFuZG9t",
-			IsSupporter:         true,
-			CanGoBack:           true,
-			LoginSessionEmail:   "a@example.org",
-			Permission:          actor.PermissionAdmin,
-			LoggedInSupporterID: "member-id",
-			LpaID:               "xyz",
+			Page:      "/supporter/path/xyz",
+			SessionID: "cmFuZG9t",
+			SupporterData: &page.SupporterData{
+				Permission:          actor.PermissionAdmin,
+				LoggedInSupporterID: "member-id",
+			},
+			CanGoBack:         true,
+			LoginSessionEmail: "a@example.org",
+			LpaID:             "xyz",
 		}, appData)
 
 		assert.Equal(t, w, hw)
@@ -238,12 +240,13 @@ func TestMakeSupporterHandleWhenRequireAdmin(t *testing.T) {
 	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore, memberStore, nil)
 	handle(page.SupporterPath("/path"), RequireAdmin, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
 		assert.Equal(t, page.AppData{
-			Page:                "/supporter/path",
-			SessionID:           "cmFuZG9t",
-			IsSupporter:         true,
-			LoginSessionEmail:   "a@example.org",
-			Permission:          actor.PermissionAdmin,
-			LoggedInSupporterID: "member-id",
+			Page:      "/supporter/path",
+			SessionID: "cmFuZG9t",
+			SupporterData: &page.SupporterData{
+				Permission:          actor.PermissionAdmin,
+				LoggedInSupporterID: "member-id",
+			},
+			LoginSessionEmail: "a@example.org",
 		}, appData)
 
 		assert.Equal(t, w, hw)
@@ -321,7 +324,7 @@ func TestMakeSupporterHandleWhenSuspended(t *testing.T) {
 			App: page.AppData{
 				Page:              "/supporter/path",
 				SessionID:         "cmFuZG9t",
-				IsSupporter:       true,
+				SupporterData:     &page.SupporterData{},
 				LoginSessionEmail: "a@example.org",
 			},
 			OrganisationName: "My Org",
@@ -365,7 +368,7 @@ func TestMakeSupporterHandleWhenSuspendedTemplateErrors(t *testing.T) {
 			App: page.AppData{
 				Page:              "/supporter/path",
 				SessionID:         "cmFuZG9t",
-				IsSupporter:       true,
+				SupporterData:     &page.SupporterData{},
 				LoginSessionEmail: "a@example.org",
 			},
 			OrganisationName: "My Org",
@@ -415,12 +418,13 @@ func TestMakeSupporterHandleWithSessionData(t *testing.T) {
 	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore, memberStore, nil)
 	handle(page.SupporterPath("/path"), None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
 		assert.Equal(t, page.AppData{
-			Page:                "/supporter/path",
-			SessionID:           "cmFuZG9t",
-			IsSupporter:         true,
-			Permission:          actor.PermissionAdmin,
-			LoggedInSupporterID: "member-id",
-			LoginSessionEmail:   "a@example.org",
+			Page:      "/supporter/path",
+			SessionID: "cmFuZG9t",
+			SupporterData: &page.SupporterData{
+				Permission:          actor.PermissionAdmin,
+				LoggedInSupporterID: "member-id",
+			},
+			LoginSessionEmail: "a@example.org",
 		}, appData)
 
 		assert.Equal(t, w, hw)
