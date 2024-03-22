@@ -1005,7 +1005,7 @@
     "previouslyUploadedFiles": "Welsh",
     "theseFilesHaveAlreadyBeenUploaded": "Welsh",
     "uploadDateAndTime": "Welsh",
-    "added": "Welsh",
+    "added": "Wedi ychwanegu {{.Count}}",
     "pending": "Welsh",
     "denied": "Welsh",
     "makeANewLPA": "Welsh",
@@ -1159,5 +1159,8 @@
     "accessRemoved": "Welsh",
     "youRemovedAccessToThisLPAFor": "Welsh <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span>.",
     "lpaTaskList": "Welsh",
-    "donorsTypeLpa": "{{.DonorFullNamePossessive}} {{.LpaType}} Welsh"
+    "donorsTypeLpa": "{{.DonorFullNamePossessive}} {{.LpaType}} Welsh",
+    "supporterLPAContextPrimer": "<p class=\"app-supporter-lpa-context-banner__content govuk-!-font-weight-bold\">Welsh</p> <p class=\"app-supporter-lpa-context-banner__content\">Welsh</p>",
+    "youAreDraftingDonorsLpa": "Welsh <span class=\"govuk-!-font-weight-bold\">{{ .DonorFullNamePossessive }}</span> Welsh",
+    "youAreDraftingDonorsTypeLpa": "Welsh <span class=\"govuk-!-font-weight-bold\">{{ .DonorFullNamePossessive }} {{.LpaType}}</span> Welsh"
 }

@@ -19,7 +19,7 @@
             </li>
           </ol>
         </div>
-        
+
         <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
 
         <div class="govuk-inset-text">
@@ -80,7 +80,7 @@
                   {{ end }}
 
                   {{ if gt .Count 0 }}
-                    <div class="govuk-task-list__hint">{{ .Count }} {{ tr $.App "added" }}</div>
+                    <div class="govuk-task-list__hint">{{ trFormat $.App "added" "Count" .Count }}</div>
                   {{ end }}
                 </span>
 
