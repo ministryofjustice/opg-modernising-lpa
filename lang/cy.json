@@ -1005,7 +1005,7 @@
     "previouslyUploadedFiles": "Welsh",
     "theseFilesHaveAlreadyBeenUploaded": "Welsh",
     "uploadDateAndTime": "Welsh",
-    "added": "Welsh",
+    "added": "Wedi ychwanegu {{.Count}}",
     "pending": "Welsh",
     "denied": "Welsh",
     "makeANewLPA": "Welsh",
