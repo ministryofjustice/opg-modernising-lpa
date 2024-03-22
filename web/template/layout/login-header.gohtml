@@ -96,11 +96,11 @@
       <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
           <h2 class="service-header__heading">{{ if .App.SupporterData }}{{ tr .App "helpSomeoneMakeLastingPowerOfAttorney" }}{{ else }}{{ tr .App "serviceName" }}{{ end }}</h2>
-          {{ if .App.OrganisationName }}
-            <span class="govuk-caption-l app-service-header-caption">{{ .App.OrganisationName }}</span>
+          {{ if and .App.SupporterData .App.SupporterData.OrganisationName }}
+            <span class="govuk-caption-l app-service-header-caption">{{ .App.SupporterData.OrganisationName }}</span>
           {{ end }}
         </div>
-        <div class="govuk-grid-column-one-third app-hide-print {{ if .App.OrganisationName }}app-padding-top-7-non-mobile{{ end }}">
+        <div class="govuk-grid-column-one-third app-hide-print {{ if and .App.SupporterData .App.SupporterData.OrganisationName }}app-padding-top-7-non-mobile{{ end }}">
           <button type="button"
                   aria-controls="service-header__nav"
                   data-open-class="cross-service-header__button--open"
@@ -116,7 +116,7 @@
           <nav aria-label="{{ trFormat .App "serviceNameNavigationMenu" "ServiceName" (tr .App "serviceName") }}">
             <ul class="service-header__nav-list service-header__nav" id="service-header__nav" data-open-class="service-header__nav--open">
               {{ if .App.SupporterData }}
-                {{ if .App.OrganisationName }}
+                {{ if .App.SupporterData.OrganisationName }}
                   <li class="service-header__nav-list-item {{ if eq .App.Page global.Paths.Supporter.Dashboard.Format }}service-header__nav-list-item--active{{ end }}">
                     <a class="service-header__nav-list-item-link" aria-current="page" href="{{ link .App global.Paths.Supporter.Dashboard.Format }}">{{ tr .App "dashboard" }}</a>
                   </li>
