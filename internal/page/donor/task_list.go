@@ -85,7 +85,7 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 		}
 
 		var sections []taskListSection
-		if appData.IsSupporter {
+		if appData.SupporterData != nil {
 			section1.Items = append(section1.Items, taskListItem{
 				Name:  "addCorrespondent",
 				Path:  page.Paths.AddCorrespondent.Format(donor.LpaID),
