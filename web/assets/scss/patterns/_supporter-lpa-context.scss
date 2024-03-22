@@ -1,0 +1,18 @@
+@import "node_modules/govuk-frontend/dist/govuk/base";
+@import "node_modules/govuk-frontend/dist/govuk/objects/grid";
+
+.app-supporter-lpa-context-banner{
+  @include govuk-responsive-margin(7, "bottom");
+  @include govuk-responsive-padding(3, "left");
+  border-bottom: 2px solid govuk-colour("black");
+  // from .govuk-tag--green
+  background-color: govuk-tint(govuk-colour("green"), 80%);
+
+  .app-supporter-lpa-context-banner__content{
+    @include govuk-font($size: 19);
+
+    @include govuk-media-query($until: tablet) {
+      @include govuk-responsive-padding(3, "top");
+    }
+  }
+}
