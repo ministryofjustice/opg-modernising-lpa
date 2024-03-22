@@ -90,7 +90,7 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 		}
 
 		var sections []taskListSection
-		if appData.IsSupporter {
+		if appData.SupporterData != nil {
 			sections = []taskListSection{section1}
 		} else {
 			sections = []taskListSection{section1, taskListPaymentSection(donor), taskListSignSection(donor)}

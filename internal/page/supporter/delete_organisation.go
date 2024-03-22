@@ -28,7 +28,7 @@ func DeleteOrganisation(tmpl template.Template, organisationStore OrganisationSt
 				return err
 			}
 
-			return page.Paths.Supporter.OrganisationDeleted.RedirectQuery(w, r, appData, url.Values{"organisationName": {appData.OrganisationName}})
+			return page.Paths.Supporter.OrganisationDeleted.RedirectQuery(w, r, appData, url.Values{"organisationName": {appData.SupporterData.OrganisationName}})
 		}
 
 		inProgressLPACount, err := searchClient.CountWithQuery(r.Context(), search.CountWithQueryReq{MustNotExist: "RegisteredAt"})

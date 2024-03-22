@@ -179,10 +179,10 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"supporter": {
 			appData: page.AppData{
-				SessionID:   "session-id",
-				LpaID:       "lpa-id",
-				Lang:        localize.En,
-				IsSupporter: true,
+				SessionID:     "session-id",
+				LpaID:         "lpa-id",
+				Lang:          localize.En,
+				SupporterData: &page.SupporterData{},
 			},
 			donor: &actor.DonorProvidedDetails{
 				LpaID:               "lpa-id",
