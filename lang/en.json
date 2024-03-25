@@ -923,6 +923,7 @@
     "cy": "Welsh",
     "whichLanguageYoudLikeUsToUseWhenWeContactYou": "which language you’d like us to use when we contact you",
     "preferredContactLanguage": "Preferred contact language",
+    "addAnotherLpaIfInvited:donor": "Add your LPA that you’ve been invited to access by email.",
     "addAnotherLpaIfInvited:attorney": "Add another LPA if you have been sent an email inviting you to be an attorney.",
     "addAnotherLpaIfInvited:certificateProvider": "Add another LPA if you have been sent an email inviting you to be a certificate provider.",
     "addAnLpa": "Add an LPA",
@@ -1113,5 +1114,6 @@
     "correspondentShareOPGHint": "The correspondent will receive any communication from OPG instead of the donor. The donor will be contacted by OPG when the LPA registration process can begin.",
     "whoCorrespondentDetailsCanBeSharedWith": "Who correspondent details can be shared with",
     "chooseWhoElseCorrespondentShareOptional": "Choose who else you would like to share the correspondent’s details with (optional)",
-    "attorneysAndReplacementAttorneys": "Attorneys and replacement attorneys"
+    "attorneysAndReplacementAttorneys": "Attorneys and replacement attorneys",
+    "addMyLpa": "Add my LPA"
 }

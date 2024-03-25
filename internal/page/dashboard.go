@@ -56,10 +56,7 @@ func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore Das
 			return err
 		}
 
-		tabCount := 0
-		if len(donorLpas) > 0 {
-			tabCount++
-		}
+		tabCount := 1
 		if len(certificateProviderLpas) > 0 {
 			tabCount++
 		}

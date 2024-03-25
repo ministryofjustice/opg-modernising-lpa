@@ -976,6 +976,7 @@
     "cy": "Cymraeg",
     "whichLanguageYoudLikeUsToUseWhenWeContactYou": "Welsh",
     "preferredContactLanguage": "Dewis iaith gyswllt",
+    "addAnotherLpaIfInvited:donor": "Welsh",
     "addAnotherLpaIfInvited:attorney": "Ychwanegwch LPA arall os anfonwyd e-bost atoch yn eich gwahodd i fod yn atwrnai.",
     "addAnotherLpaIfInvited:certificateProvider": "Ychwanegwch LPA arall os anfonwyd e-bost atoch yn eich gwahodd i fod yn ddarparwr tystysgrif.",
     "addAnLpa": "Ychwanegu LPA",
@@ -1181,5 +1182,6 @@
     "correspondentShareOPGHint": "Welsh",
     "whoCorrespondentDetailsCanBeSharedWith": "Welsh",
     "chooseWhoElseCorrespondentShareOptional": "Welsh",
-    "attorneysAndReplacementAttorneys": "Welsh"
+    "attorneysAndReplacementAttorneys": "Welsh",
+    "addMyLpa": "Add my LPA"
 }
