@@ -9,7 +9,7 @@
                 <span class="govuk-caption-xl">{{ tr .App "manageOrganisation" }}</span>
                 <h1 class="govuk-heading-xl">{{ tr .App "deleteOrganisation" }}</h1>
 
-                {{ trFormatHtml .App "deleteOrganisationContent" "OrganisationName" .App.OrganisationName "InProgressLPACount" .InProgressLPACount }}
+                {{ trFormatHtml .App "deleteOrganisationContent" "OrganisationName" .App.SupporterData.OrganisationName "InProgressLPACount" .InProgressLPACount }}
 
                 <ul class="govuk-list govuk-list--bullet">
                     {{ $countLPAs := trCount .App "countLPAs" .InProgressLPACount }}

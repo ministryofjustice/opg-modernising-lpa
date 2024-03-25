@@ -181,7 +181,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 			appData := page.AppDataFromContext(ctx)
 			appData.Page = path.Format()
 			appData.CanToggleWelsh = false
-			appData.IsSupporter = true
+			appData.SupporterData = &page.SupporterData{}
 
 			if opt&RequireSession != 0 {
 				session, err := store.Login(r)
@@ -226,8 +226,11 @@ func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler pa
 			appData.SessionID = loginSession.SessionID()
 			appData.CanGoBack = opt&CanGoBack != 0
 			appData.CanToggleWelsh = false
-			appData.IsSupporter = true
-			appData.IsManageOrganisation = path.IsManageOrganisation()
+
+			appData.SupporterData = &page.SupporterData{
+				IsManageOrganisation: path.IsManageOrganisation(),
+			}
+
 			appData.LoginSessionEmail = loginSession.Email
 
 			switch v := path.(type) {
@@ -291,9 +294,9 @@ func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler pa
 				return
 			}
 
-			appData.OrganisationName = organisation.Name
-			appData.Permission = member.Permission
-			appData.LoggedInSupporterID = member.ID
+			appData.SupporterData.OrganisationName = organisation.Name
+			appData.SupporterData.Permission = member.Permission
+			appData.SupporterData.LoggedInSupporterID = member.ID
 
 			ctx = page.ContextWithAppData(ctx, appData)
 
