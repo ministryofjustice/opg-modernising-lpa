@@ -1,7 +1,7 @@
 {{ template "page" . }}
 
 {{ define "pageTitle" }}
-  {{ if .App.IsSupporter }}
+  {{ if .App.SupporterData }}
     {{ tr .App "lpaTaskList" }}
   {{ else }}
     {{ tr .App "yourTaskList" }}
@@ -11,7 +11,7 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      {{ if .App.IsSupporter }}
+      {{ if .App.SupporterData }}
         <div class="govuk-breadcrumbs">
           <ol class="govuk-breadcrumbs__list">
             <li class="govuk-breadcrumbs__list-item">

@@ -136,11 +136,10 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 		},
 		"organisation": {
 			expectedAppData: page.AppData{
-				Page:        "/lpa/123/path",
-				ActorType:   actor.TypeDonor,
-				SessionID:   "cmFuZG9t",
-				LpaID:       "123",
-				IsSupporter: true,
+				Page:      "/lpa/123/path",
+				ActorType: actor.TypeDonor,
+				SessionID: "cmFuZG9t",
+				LpaID:     "123",
 				SupporterData: &page.SupporterData{
 					DonorFullName: "Jane Smith",
 					LpaType:       actor.LpaTypePropertyAndAffairs,
