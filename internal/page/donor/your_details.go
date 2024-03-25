@@ -73,7 +73,7 @@ func YourDetails(tmpl template.Template, donorStore DonorStore, sessionStore Ses
 				donor.Donor.OtherNames = data.Form.OtherNames
 				donor.Donor.ThinksCanSign = data.Form.CanSign
 
-				if appData.IsSupporter {
+				if appData.SupporterData != nil {
 					donor.Donor.Email = data.Form.Email
 				} else {
 					loginSession, err := sessionStore.Login(r)
