@@ -86,12 +86,13 @@ func (e StringLengthError) Format(l Localizer) string {
 	})
 }
 
-type MobileError struct {
+type PhoneError struct {
+	Tmpl  string
 	Label string
 }
 
-func (e MobileError) Format(l Localizer) string {
-	return l.Format("errorMobile", map[string]any{
+func (e PhoneError) Format(l Localizer) string {
+	return l.Format(e.Tmpl, map[string]any{
 		"Label": l.T(e.Label),
 	})
 }
