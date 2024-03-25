@@ -46,6 +46,13 @@ func TestValidation(t *testing.T) {
 	assert.Equal(t, list, with)
 }
 
+func TestListAppend(t *testing.T) {
+	list1 := With("x", EnterError{})
+	list2 := With("y", PhoneError{})
+
+	assert.Equal(t, With("x", EnterError{}).With("y", PhoneError{}), list1.Append(list2))
+}
+
 func TestValidationForDates(t *testing.T) {
 	var list List
 	assert.True(t, list.None())
