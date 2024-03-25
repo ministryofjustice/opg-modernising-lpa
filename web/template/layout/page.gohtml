@@ -126,6 +126,7 @@
         </div>
 
         <main class="govuk-main-wrapper app-main-class" id="main-content" role="main">
+          {{ template "supporter-lpa-context" . }}
           {{ template "error-summary" . }}
           {{ template "main" . }}
         </main>

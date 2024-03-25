@@ -318,6 +318,15 @@ func Register(
 	handleWithDonor(page.Paths.LpaDetailsSaved, page.CanGoBack,
 		LpaDetailsSaved(tmpls.Get("lpa_details_saved.gohtml")))
 
+	handleWithDonor(page.Paths.AddCorrespondent, page.None,
+		AddCorrespondent(tmpls.Get("add_correspondent.gohtml"), donorStore))
+	handleWithDonor(page.Paths.EnterCorrespondentDetails, page.CanGoBack,
+		EnterCorrespondentDetails(tmpls.Get("enter_correspondent_details.gohtml"), donorStore))
+	handleWithDonor(page.Paths.EnterCorrespondentAddress, page.CanGoBack,
+		EnterCorrespondentAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
+	handleWithDonor(page.Paths.WhoCanCorrespondentsDetailsBeSharedWith, page.CanGoBack,
+		WhoCanCorrespondentsDetailsBeSharedWith(tmpls.Get("who_can_correspondents_details_be_shared_with.gohtml"), donorStore))
+
 	handleWithDonor(page.Paths.AboutPayment, page.None,
 		Guidance(tmpls.Get("about_payment.gohtml")))
 	handleWithDonor(page.Paths.AreYouApplyingForFeeDiscountOrExemption, page.CanGoBack,
@@ -443,9 +452,6 @@ func makeLpaHandle(mux *http.ServeMux, store SessionStore, errorHandler page.Err
 			}
 
 			if loginSession.OrganisationID != "" {
-				appData.IsSupporter = true
-				appData.OrganisationName = loginSession.OrganisationName
-
 				sessionData.OrganisationID = loginSession.OrganisationID
 				sessionData.Email = loginSession.Email
 			}
@@ -456,6 +462,15 @@ func makeLpaHandle(mux *http.ServeMux, store SessionStore, errorHandler page.Err
 			if err != nil {
 				errorHandler(w, r, err)
 				return
+			}
+
+			if loginSession.OrganisationID != "" {
+				appData.SupporterData = &page.SupporterData{
+					LpaType:       lpa.Type,
+					DonorFullName: lpa.Donor.FullName(),
+				}
+				appData.IsSupporter = true
+				appData.OrganisationName = loginSession.OrganisationName
 			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData)), lpa); err != nil {
