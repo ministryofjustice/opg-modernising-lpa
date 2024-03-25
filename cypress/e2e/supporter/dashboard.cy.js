@@ -1,4 +1,4 @@
-import {AddressFormAssertions} from "../../support/e2e";
+import { AddressFormAssertions } from "../../support/e2e";
 
 describe('Dashboard', () => {
   beforeEach(() => {
@@ -46,8 +46,10 @@ describe('Dashboard', () => {
 
     cy.get('#f-lpa-type').check('property-and-affairs');
     cy.contains('button', 'Continue').click();
+    cy.contains('You are drafting John Doe’s property and affairs LPA').should('not.exist');
 
-    cy.contains('You are drafting John Doe’s property and affairs LPA')
+    cy.contains('li', 'Provide your details').click();
+    cy.contains('You are drafting John Doe’s property and affairs LPA');
   });
 
   it('can show guidance for starting a paper LPA', () => {
