@@ -167,11 +167,9 @@
       {{ if .UseTabs }}
         <div class="govuk-tabs app-tabs-no-border" data-module="govuk-tabs">
           <ul class="govuk-tabs__list">
-            {{ if .DonorLpas }}
-              <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
-                <a class="govuk-tabs__tab" href="#donor">{{ tr .App "myLpas" }}</a>
-              </li>
-            {{ end }}
+            <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
+              <a class="govuk-tabs__tab" href="#donor">{{ tr .App "myLpas" }}</a>
+            </li>
             {{ if .AttorneyLpas }}
               <li class="govuk-tabs__list-item">
                 <a class="govuk-tabs__tab" href="#attorney">{{ tr .App "imAnAttorney" }}</a>
@@ -185,9 +183,15 @@
           </ul>
       {{ end }}
 
-      {{ if .DonorLpas }}
-        {{ if .UseTabs }}<div class="govuk-tabs__panel" id="donor">{{ end }}
-          <h2 class="govuk-heading-l">{{ tr .App "myLpas" }}</h2>
+      {{ if .UseTabs }}<div class="govuk-tabs__panel" id="donor">{{ end }}
+        <h2 class="govuk-heading-l">{{ tr .App "myLpas" }}</h2>
+
+        <div class="app-dashboard-card app-dashboard-card--dashed">
+          <p class="govuk-body">{{ tr .App "addAnotherLpaIfInvited:donor" }}</p>
+          <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.EnterAccessCode.Format ) }}" data-module="govuk-button">{{ tr .App "addMyLpa" }}</a>
+        </div>
+
+        {{ if .DonorLpas }}
           <p class="govuk-body">{{ tr .App "viewAndManageDonor" }}</p>
           {{ $hasRegistered := false }}
           {{ range .DonorLpas }}
@@ -211,8 +215,8 @@
               {{ end }}
             {{ end }}
           {{ end }}
+        {{ end }}
         {{ if .UseTabs }}</div>{{ end }}
-      {{ end }}
 
       {{ if .AttorneyLpas }}
         {{ if .UseTabs }}<div class="govuk-tabs__panel" id="attorney">{{ end }}
