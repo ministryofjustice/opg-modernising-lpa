@@ -63,12 +63,12 @@ type lpaRequestTrustCorporation struct {
 }
 
 type lpaRequestCertificateProvider struct {
-	UID        actoruid.UID                        `json:"uid"`
-	FirstNames string                              `json:"firstNames"`
-	LastName   string                              `json:"lastName"`
-	Email      string                              `json:"email,omitempty"`
-	Address    place.Address                       `json:"address"`
-	Channel    actor.CertificateProviderCarryOutBy `json:"channel"`
+	UID        actoruid.UID   `json:"uid"`
+	FirstNames string         `json:"firstNames"`
+	LastName   string         `json:"lastName"`
+	Email      string         `json:"email,omitempty"`
+	Address    place.Address  `json:"address"`
+	Channel    actor.ActingOn `json:"channel"`
 }
 
 type lpaRequestPersonToNotify struct {
