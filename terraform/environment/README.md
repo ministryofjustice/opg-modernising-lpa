@@ -158,6 +158,7 @@ For terraform_environment, this will be based on your PR and can be found in the
 | [aws_opensearchserverless_collection.lpas_collection](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearchserverless_collection) | resource |
 | [aws_opensearchserverless_security_policy.lpas_collection_encryption_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearchserverless_security_policy) | resource |
 | [aws_opensearchserverless_security_policy.lpas_collection_network_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/opensearchserverless_security_policy) | resource |
+| [aws_osis_pipeline.example](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/osis_pipeline) | resource |
 | [aws_s3_bucket.opensearch_ingestion](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
 | [aws_security_group.opensearch_ingestion](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_sns_topic.aws_backup_failure_events](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
@@ -167,6 +168,7 @@ For terraform_environment, this will be based on your PR and can be found in the
 | [aws_ssm_parameter.container_version](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_parameter) | resource |
 | [aws_ssm_parameter.dns_target_region](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_parameter) | resource |
 | [pagerduty_service_integration.opensearch](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.10.0/docs/resources/service_integration) | resource |
+| [aws_availability_zones.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) | data source |
 | [aws_backup_vault.eu_west_1](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/backup_vault) | data source |
 | [aws_backup_vault.eu_west_2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/backup_vault) | data source |
 | [aws_caller_identity.eu_west_1](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
@@ -182,6 +184,7 @@ For terraform_environment, this will be based on your PR and can be found in the
 | [aws_kms_alias.opensearch](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/kms_alias) | data source |
 | [aws_kms_alias.sns_encryption_key_eu_west_1](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/kms_alias) | data source |
 | [aws_kms_alias.sns_kms_key_alias](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/kms_alias) | data source |
+| [aws_subnet.application](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet) | data source |
 | [aws_vpc.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
 | [aws_vpc_endpoint.opensearch](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc_endpoint) | data source |
 | [pagerduty_service.main](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.10.0/docs/data-sources/service) | data source |
