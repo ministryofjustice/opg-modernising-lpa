@@ -62,11 +62,11 @@ func WitnessingAsCertificateProvider(
 			}
 
 			if data.Errors.None() {
-				if err := lpaStoreClient.SendLpa(r.Context(), donor); err != nil {
-					return err
-				}
-
 				if donor.Tasks.PayForLpa.IsCompleted() {
+					if err := lpaStoreClient.SendLpa(r.Context(), donor); err != nil {
+						return err
+					}
+
 					if err := shareCodeSender.SendCertificateProviderPrompt(r.Context(), appData, donor); err != nil {
 						return err
 					}
