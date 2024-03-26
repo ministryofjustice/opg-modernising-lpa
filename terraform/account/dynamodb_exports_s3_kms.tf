@@ -86,7 +86,7 @@ data "aws_iam_policy_document" "dynamodb_exports_s3_bucket_kms" {
       variable = "kms:ViaService"
 
       values = [
-        "dynamodb_exports_s3_bucket.*.amazonaws.com"
+        "s3.*.amazonaws.com"
       ]
     }
   }

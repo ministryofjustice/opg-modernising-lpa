@@ -86,7 +86,7 @@ data "aws_iam_policy_document" "reduced_fees_uploads_s3_kms" {
       variable = "kms:ViaService"
 
       values = [
-        "reduced_fees_uploads_s3.*.amazonaws.com"
+        "s3.*.amazonaws.com"
       ]
     }
   }
