@@ -71,7 +71,9 @@ func (h *cloudWatchEventHandler) Handle(ctx context.Context, cloudWatchEvent eve
 			return err
 		}
 
-		return handleFeeApproved(ctx, h.dynamoClient, cloudWatchEvent, shareCodeSender, appData, h.now)
+		lpaStoreClient := h.makeLpaStoreClient(secretsClient)
+
+		return handleFeeApproved(ctx, h.dynamoClient, cloudWatchEvent, shareCodeSender, lpaStoreClient, appData, h.now)
 
 	case "reduced-fee-declined":
 		return handleFeeDenied(ctx, h.dynamoClient, cloudWatchEvent, h.now)
@@ -176,7 +178,7 @@ func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event ev
 	return nil
 }
 
-func handleFeeApproved(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, shareCodeSender shareCodeSender, appData page.AppData, now func() time.Time) error {
+func handleFeeApproved(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, shareCodeSender shareCodeSender, lpaStoreClient lpaStoreClient, appData page.AppData, now func() time.Time) error {
 	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
@@ -195,6 +197,10 @@ func handleFeeApproved(ctx context.Context, client dynamodbClient, event events.
 
 	if err := shareCodeSender.SendCertificateProviderPrompt(ctx, appData, donor); err != nil {
 		return fmt.Errorf("failed to send share code to certificate provider: %w", err)
+	}
+
+	if err := lpaStoreClient.SendLpa(ctx, donor); err != nil {
+		return fmt.Errorf("failed to send to lpastore: %w", err)
 	}
 
 	return nil

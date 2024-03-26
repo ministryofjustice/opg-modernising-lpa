@@ -51,6 +51,7 @@ type shareCodeSender interface {
 }
 
 type lpaStoreClient interface {
+	SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails) error
 	Lpa(ctx context.Context, uid string) (*actor.DonorProvidedDetails, error)
 }
 
