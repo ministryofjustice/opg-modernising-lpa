@@ -24,7 +24,7 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     actions = [
       "aoss:BatchGetCollection",
     ]
-    resources = [aws_opensearchserverless_collection.lpas_collection.arn]
+    resources = ["*"]
   }
 
   statement {
