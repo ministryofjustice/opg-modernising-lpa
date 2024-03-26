@@ -270,7 +270,12 @@ func TestHandleFeeApproved(t *testing.T) {
 		SendCertificateProviderPrompt(ctx, page.AppData{}, updated).
 		Return(nil)
 
-	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{}, func() time.Time { return now })
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		SendLpa(ctx, updated).
+		Return(nil)
+
+	err := handleFeeApproved(ctx, client, event, shareCodeSender, lpaStoreClient, page.AppData{}, func() time.Time { return now })
 	assert.Nil(t, err)
 }
 
@@ -301,7 +306,7 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 		Put(ctx, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, nil, page.AppData{}, func() time.Time { return now })
+	err := handleFeeApproved(ctx, client, event, nil, nil, page.AppData{}, func() time.Time { return now })
 	assert.Equal(t, fmt.Errorf("failed to update LPA task status: %w", expectedError), err)
 }
 
@@ -337,8 +342,51 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 		SendCertificateProviderPrompt(ctx, page.AppData{}, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{}, func() time.Time { return now })
+	err := handleFeeApproved(ctx, client, event, shareCodeSender, nil, page.AppData{}, func() time.Time { return now })
 	assert.Equal(t, fmt.Errorf("failed to send share code to certificate provider: %w", expectedError), err)
+}
+
+func TestHandleFeeApprovedWhenLpaStoreError(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "reduced-fee-approved",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	now := time.Now()
+	updated := &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}
+	updated.Hash, _ = updated.GenerateHash()
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.EXPECT().
+		Put(ctx, updated).
+		Return(nil)
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.EXPECT().
+		SendCertificateProviderPrompt(ctx, page.AppData{}, updated).
+		Return(nil)
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		SendLpa(ctx, updated).
+		Return(expectedError)
+
+	err := handleFeeApproved(ctx, client, event, shareCodeSender, lpaStoreClient, page.AppData{}, func() time.Time { return now })
+	assert.Equal(t, fmt.Errorf("failed to send to lpastore: %w", expectedError), err)
 }
 
 func TestHandleMoreEvidenceRequired(t *testing.T) {
