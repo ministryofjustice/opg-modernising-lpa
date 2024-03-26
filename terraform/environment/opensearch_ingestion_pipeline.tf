@@ -127,7 +127,8 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
       "s3:PutObjectAcl",
     ]
     resources = [
-      "${aws_s3_bucket.opensearch_pipeline.arn}/export/*",
+      "${aws_s3_bucket.opensearch_pipeline.arn}/*",
+      aws_s3_bucket.opensearch_pipeline.arn,
     ]
   }
 }
