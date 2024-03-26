@@ -5,50 +5,39 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/aws/aws-sdk-go-v2/aws"
-	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
+type factory interface {
+	AppData() (page.AppData, error)
+	ShareCodeSender(ctx context.Context) (ShareCodeSender, error)
+	LpaStoreClient() (LpaStoreClient, error)
+	UidStore() (UidStore, error)
+	UidClient() UidClient
+}
+
 type cloudWatchEventHandler struct {
-	dynamoClient       dynamodbClient
-	now                func() time.Time
-	uidBaseURL         string
-	lpaStoreBaseURL    string
-	cfg                aws.Config
-	notifyIsProduction bool
-	notifyBaseURL      string
-	appPublicURL       string
-	eventBusName       string
-	searchEndpoint     string
+	dynamoClient dynamodbClient
+	now          func() time.Time
+	factory      factory
 }
 
 func (h *cloudWatchEventHandler) Handle(ctx context.Context, cloudWatchEvent events.CloudWatchEvent) error {
 	switch cloudWatchEvent.DetailType {
 	case "uid-requested":
-		searchClient, err := search.NewClient(h.cfg, h.searchEndpoint)
+		uidStore, err := h.factory.UidStore()
 		if err != nil {
 			return err
 		}
 
-		uidStore := app.NewUidStore(h.dynamoClient, searchClient, h.now)
-		uidClient := uid.New(h.uidBaseURL, h.makeLambdaClient())
+		uidClient := h.factory.UidClient()
 
 		return handleUidRequested(ctx, uidStore, uidClient, cloudWatchEvent)
 
@@ -56,22 +45,20 @@ func (h *cloudWatchEventHandler) Handle(ctx context.Context, cloudWatchEvent eve
 		return handleEvidenceReceived(ctx, h.dynamoClient, cloudWatchEvent)
 
 	case "reduced-fee-approved":
-		appData, err := h.makeAppData()
+		appData, err := h.factory.AppData()
 		if err != nil {
 			return err
 		}
 
-		secretsClient, err := secrets.NewClient(h.cfg, time.Hour)
-		if err != nil {
-			return fmt.Errorf("failed to create secrets client: %w", err)
-		}
-
-		shareCodeSender, err := h.makeShareCodeSender(ctx, secretsClient)
+		shareCodeSender, err := h.factory.ShareCodeSender(ctx)
 		if err != nil {
 			return err
 		}
 
-		lpaStoreClient := h.makeLpaStoreClient(secretsClient)
+		lpaStoreClient, err := h.factory.LpaStoreClient()
+		if err != nil {
+			return err
+		}
 
 		return handleFeeApproved(ctx, h.dynamoClient, cloudWatchEvent, shareCodeSender, lpaStoreClient, appData, h.now)
 
@@ -82,60 +69,26 @@ func (h *cloudWatchEventHandler) Handle(ctx context.Context, cloudWatchEvent eve
 		return handleMoreEvidenceRequired(ctx, h.dynamoClient, cloudWatchEvent, h.now)
 
 	case "donor-submission-completed":
-		appData, err := h.makeAppData()
+		appData, err := h.factory.AppData()
 		if err != nil {
 			return err
 		}
 
-		secretsClient, err := secrets.NewClient(h.cfg, time.Hour)
-		if err != nil {
-			return fmt.Errorf("failed to create secrets client: %w", err)
-		}
-
-		shareCodeSender, err := h.makeShareCodeSender(ctx, secretsClient)
+		shareCodeSender, err := h.factory.ShareCodeSender(ctx)
 		if err != nil {
 			return err
 		}
 
-		lpaStoreClient := h.makeLpaStoreClient(secretsClient)
+		lpaStoreClient, err := h.factory.LpaStoreClient()
+		if err != nil {
+			return err
+		}
 
 		return handleDonorSubmissionCompleted(ctx, h.dynamoClient, cloudWatchEvent, shareCodeSender, appData, lpaStoreClient)
 
 	default:
 		return fmt.Errorf("unknown cloudwatch event")
 	}
-}
-
-func (h *cloudWatchEventHandler) makeAppData() (page.AppData, error) {
-	bundle, err := localize.NewBundle("./lang/en.json", "./lang/cy.json")
-	if err != nil {
-		return page.AppData{}, err
-	}
-
-	//TODO do this in handleFeeApproved when/if we save lang preference in LPA
-	return page.AppData{Localizer: bundle.For(localize.En)}, nil
-}
-
-func (h *cloudWatchEventHandler) makeLambdaClient() *lambda.Client {
-	return lambda.New(h.cfg, v4.NewSigner(), &http.Client{Timeout: 10 * time.Second}, time.Now)
-}
-
-func (h *cloudWatchEventHandler) makeShareCodeSender(ctx context.Context, secretsClient secretsClient) (*page.ShareCodeSender, error) {
-	notifyApiKey, err := secretsClient.Secret(ctx, secrets.GovUkNotify)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get notify API secret: %w", err)
-	}
-
-	notifyClient, err := notify.New(h.notifyIsProduction, h.notifyBaseURL, notifyApiKey, http.DefaultClient, event.NewClient(h.cfg, h.eventBusName))
-	if err != nil {
-		return nil, err
-	}
-
-	return page.NewShareCodeSender(app.NewShareCodeStore(h.dynamoClient), notifyClient, h.appPublicURL, random.String, event.NewClient(h.cfg, h.eventBusName)), nil
-}
-
-func (h *cloudWatchEventHandler) makeLpaStoreClient(secretsClient secretsClient) *lpastore.Client {
-	return lpastore.New(h.lpaStoreBaseURL, secretsClient, h.makeLambdaClient())
 }
 
 func handleUidRequested(ctx context.Context, uidStore UidStore, uidClient UidClient, e events.CloudWatchEvent) error {
@@ -178,7 +131,7 @@ func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event ev
 	return nil
 }
 
-func handleFeeApproved(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, shareCodeSender shareCodeSender, lpaStoreClient lpaStoreClient, appData page.AppData, now func() time.Time) error {
+func handleFeeApproved(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, shareCodeSender ShareCodeSender, lpaStoreClient LpaStoreClient, appData page.AppData, now func() time.Time) error {
 	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
@@ -246,7 +199,7 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.Cl
 	return nil
 }
 
-func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, shareCodeSender shareCodeSender, appData page.AppData, lpaStoreClient lpaStoreClient) error {
+func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, shareCodeSender ShareCodeSender, appData page.AppData, lpaStoreClient LpaStoreClient) error {
 	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
