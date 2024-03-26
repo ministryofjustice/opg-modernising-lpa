@@ -4,16 +4,16 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.2 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.41.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.42.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.41.0 |
-| <a name="provider_aws.global"></a> [aws.global](#provider\_aws.global) | ~> 5.41.0 |
-| <a name="provider_aws.management"></a> [aws.management](#provider\_aws.management) | ~> 5.41.0 |
-| <a name="provider_aws.region"></a> [aws.region](#provider\_aws.region) | ~> 5.41.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.42.0 |
+| <a name="provider_aws.global"></a> [aws.global](#provider\_aws.global) | ~> 5.42.0 |
+| <a name="provider_aws.management"></a> [aws.management](#provider\_aws.management) | ~> 5.42.0 |
+| <a name="provider_aws.region"></a> [aws.region](#provider\_aws.region) | ~> 5.42.0 |
 
 ## Modules
 
@@ -21,6 +21,7 @@
 |------|--------|---------|
 | <a name="module_antivirus_definitions"></a> [antivirus\_definitions](#module\_antivirus\_definitions) | ./modules/antivirus_definitions | n/a |
 | <a name="module_dns_firewall"></a> [dns\_firewall](#module\_dns\_firewall) | ./modules/dns_firewall | n/a |
+| <a name="module_name"></a> [name](#module\_name) | ./modules/dynamodb_exports_s3_bucket | n/a |
 | <a name="module_network"></a> [network](#module\_network) | github.com/ministryofjustice/opg-terraform-aws-network | v1.3.3 |
 | <a name="module_s3_batch_manifests"></a> [s3\_batch\_manifests](#module\_s3\_batch\_manifests) | ./modules/s3_batch_manifests | n/a |
 | <a name="module_s3_event_notifications"></a> [s3\_event\_notifications](#module\_s3\_event\_notifications) | ./modules/s3_bucket_event_notifications | n/a |
