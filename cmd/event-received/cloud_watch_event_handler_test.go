@@ -13,75 +13,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
-
-func TestMakeAppData(t *testing.T) {
-	handler := &cloudWatchEventHandler{}
-
-	appData, err := handler.makeAppData()
-	assert.Error(t, err)
-	assert.Equal(t, page.AppData{}, appData)
-}
-
-func TestMakeLambdaClient(t *testing.T) {
-	handler := &cloudWatchEventHandler{}
-	client := handler.makeLambdaClient()
-
-	assert.NotNil(t, client)
-}
-
-func TestMakeShareCodeSender(t *testing.T) {
-	ctx := context.Background()
-	handler := &cloudWatchEventHandler{}
-
-	secretsClient := newMockSecretsClient(t)
-	secretsClient.EXPECT().
-		Secret(ctx, secrets.GovUkNotify).
-		Return("a-b-c-d-e-f-g-h-i-j-k", nil)
-
-	sender, err := handler.makeShareCodeSender(ctx, secretsClient)
-	assert.Nil(t, err)
-	assert.NotNil(t, sender)
-}
-
-func TestMakeShareCodeSenderWhenSecretsClientError(t *testing.T) {
-	ctx := context.Background()
-	handler := &cloudWatchEventHandler{}
-
-	secretsClient := newMockSecretsClient(t)
-	secretsClient.EXPECT().
-		Secret(ctx, secrets.GovUkNotify).
-		Return("", expectedError)
-
-	_, err := handler.makeShareCodeSender(ctx, secretsClient)
-	assert.ErrorIs(t, err, expectedError)
-}
-
-func TestMakeShareCodeSenderWhenNotifyClientError(t *testing.T) {
-	ctx := context.Background()
-	handler := &cloudWatchEventHandler{}
-
-	secretsClient := newMockSecretsClient(t)
-	secretsClient.EXPECT().
-		Secret(ctx, secrets.GovUkNotify).
-		Return("", nil)
-
-	_, err := handler.makeShareCodeSender(ctx, secretsClient)
-	assert.NotNil(t, err)
-}
-
-func TestMakeLpaStoreClient(t *testing.T) {
-	handler := &cloudWatchEventHandler{}
-
-	secretsClient := newMockSecretsClient(t)
-
-	client := handler.makeLpaStoreClient(secretsClient)
-	assert.NotNil(t, client)
-}
 
 func TestHandleUnknownEvent(t *testing.T) {
 	handler := &cloudWatchEventHandler{}
@@ -270,7 +205,12 @@ func TestHandleFeeApproved(t *testing.T) {
 		SendCertificateProviderPrompt(ctx, page.AppData{}, updated).
 		Return(nil)
 
-	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{}, func() time.Time { return now })
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		SendLpa(ctx, updated).
+		Return(nil)
+
+	err := handleFeeApproved(ctx, client, event, shareCodeSender, lpaStoreClient, page.AppData{}, func() time.Time { return now })
 	assert.Nil(t, err)
 }
 
@@ -301,7 +241,7 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 		Put(ctx, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, nil, page.AppData{}, func() time.Time { return now })
+	err := handleFeeApproved(ctx, client, event, nil, nil, page.AppData{}, func() time.Time { return now })
 	assert.Equal(t, fmt.Errorf("failed to update LPA task status: %w", expectedError), err)
 }
 
@@ -337,8 +277,51 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 		SendCertificateProviderPrompt(ctx, page.AppData{}, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, shareCodeSender, page.AppData{}, func() time.Time { return now })
+	err := handleFeeApproved(ctx, client, event, shareCodeSender, nil, page.AppData{}, func() time.Time { return now })
 	assert.Equal(t, fmt.Errorf("failed to send share code to certificate provider: %w", expectedError), err)
+}
+
+func TestHandleFeeApprovedWhenLpaStoreError(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "reduced-fee-approved",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	now := time.Now()
+	updated := &actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}, UpdatedAt: now}
+	updated.Hash, _ = updated.GenerateHash()
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := json.Marshal(dynamo.Key{PK: "LPA#123", SK: "#DONOR#456"})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("One", ctx, "LPA#123", "#DONOR#456", mock.Anything).
+		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+			b, _ := json.Marshal(actor.DonorProvidedDetails{PK: "LPA#123", SK: "#DONOR#456", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			json.Unmarshal(b, v)
+			return nil
+		})
+	client.EXPECT().
+		Put(ctx, updated).
+		Return(nil)
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.EXPECT().
+		SendCertificateProviderPrompt(ctx, page.AppData{}, updated).
+		Return(nil)
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		SendLpa(ctx, updated).
+		Return(expectedError)
+
+	err := handleFeeApproved(ctx, client, event, shareCodeSender, lpaStoreClient, page.AppData{}, func() time.Time { return now })
+	assert.Equal(t, fmt.Errorf("failed to send to lpastore: %w", expectedError), err)
 }
 
 func TestHandleMoreEvidenceRequired(t *testing.T) {

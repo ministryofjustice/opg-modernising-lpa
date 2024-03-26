@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -114,6 +115,48 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 
 	err := WitnessingAsCertificateProvider(nil, donorStore, nil, lpaStoreClient, func() time.Time { return now })(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID:                    "lpa-id",
+		DonorIdentityUserData:    identity.UserData{OK: true},
+		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
+		CertificateProvider:      actor.CertificateProvider{FirstNames: "Fred"},
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.YouHaveSubmittedYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPostWitnessingAsCertificateProviderWhenNotFullFee(t *testing.T) {
+	form := url.Values{
+		"witness-code": {"1234"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+	now := time.Now()
+
+	donor := &actor.DonorProvidedDetails{
+		LpaID:                            "lpa-id",
+		DonorIdentityUserData:            identity.UserData{OK: true},
+		CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
+		CertificateProvider:              actor.CertificateProvider{FirstNames: "Fred"},
+		FeeType:                          pay.HalfFee,
+		WitnessedByCertificateProviderAt: now,
+		SignedAt:                         now,
+		Tasks: actor.DonorTasks{
+			ConfirmYourIdentityAndSign: actor.TaskCompleted,
+		},
+	}
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(r.Context(), donor).
+		Return(nil)
+
+	err := WitnessingAsCertificateProvider(nil, donorStore, nil, nil, func() time.Time { return now })(testAppData, w, r, &actor.DonorProvidedDetails{
+		LpaID:                    "lpa-id",
+		FeeType:                  pay.HalfFee,
 		DonorIdentityUserData:    identity.UserData{OK: true},
 		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 		CertificateProvider:      actor.CertificateProvider{FirstNames: "Fred"},

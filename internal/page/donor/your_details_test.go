@@ -786,7 +786,7 @@ func TestYourDetailsFormDobWarning(t *testing.T) {
 		},
 		"dob-under-18": {
 			form: &yourDetailsForm{
-				Dob: now.AddDate(-18, 0, 1),
+				Dob: now.AddDate(-18, 0, 2),
 			},
 			warning: "dateOfBirthIsUnder18",
 		},
