@@ -86,6 +86,9 @@ func (h *cloudWatchEventHandler) Handle(ctx context.Context, cloudWatchEvent eve
 
 		return handleDonorSubmissionCompleted(ctx, h.dynamoClient, cloudWatchEvent, shareCodeSender, appData, lpaStoreClient)
 
+	case "certificate-provider-submission-completed":
+		return handleCertificateProviderSubmissionCompleted(ctx, cloudWatchEvent, h.factory)
+
 	default:
 		return fmt.Errorf("unknown cloudwatch event")
 	}
@@ -217,7 +220,42 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 
 	if donor.CertificateProvider.CarryOutBy.IsOnline() {
 		if err := shareCodeSender.SendCertificateProviderInvite(ctx, appData, donor); err != nil {
+			return fmt.Errorf("failed to send share code to certificate provider: %w", err)
+		}
+	}
+
+	return nil
+}
+
+func handleCertificateProviderSubmissionCompleted(ctx context.Context, event events.CloudWatchEvent, factory factory) error {
+	var v uidEvent
+	if err := json.Unmarshal(event.Detail, &v); err != nil {
+		return fmt.Errorf("failed to unmarshal detail: %w", err)
+	}
+
+	lpaStoreClient, err := factory.LpaStoreClient()
+	if err != nil {
+		return err
+	}
+
+	donor, err := lpaStoreClient.Lpa(ctx, v.UID)
+	if err != nil {
+		return fmt.Errorf("failed to retrieve lpa: %w", err)
+	}
+
+	if donor.CertificateProvider.CarryOutBy.IsPaper() {
+		shareCodeSender, err := factory.ShareCodeSender(ctx)
+		if err != nil {
 			return err
+		}
+
+		appData, err := factory.AppData()
+		if err != nil {
+			return err
+		}
+
+		if err := shareCodeSender.SendAttorneys(ctx, appData, donor); err != nil {
+			return fmt.Errorf("failed to send share codes to attorneys: %w", err)
 		}
 	}
 
