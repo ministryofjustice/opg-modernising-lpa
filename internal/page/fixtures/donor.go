@@ -373,7 +373,7 @@ func updateLPAProgress(
 	if data.Progress >= slices.Index(progressValues, "signedByCertificateProvider") {
 		ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
-		certificateProvider, err := certificateProviderStore.Create(ctx, donorSessionID, donorDetails.CertificateProvider.UID)
+		certificateProvider, err := certificateProviderStore.Create(ctx, donorSessionID, donorDetails.CertificateProvider.UID, actor.Online)
 		if err != nil {
 			return nil, err
 		}
