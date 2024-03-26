@@ -35,7 +35,7 @@ func (s *ShareCodeSender) UseTestCode(shareCode string) {
 }
 
 func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails) error {
-	shareCode, err := s.createShareCode(ctx, appData, donor.CertificateProvider.UID, actor.TypeCertificateProvider)
+	shareCode, err := s.createShareCode(ctx, appData, donor.CertificateProvider.UID, actor.TypeCertificateProvider, donor.ActingOn)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, app
 }
 
 func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails) error {
-	shareCode, err := s.createShareCode(ctx, appData, donor.CertificateProvider.UID, actor.TypeCertificateProvider)
+	shareCode, err := s.createShareCode(ctx, appData, donor.CertificateProvider.UID, actor.TypeCertificateProvider, donor.ActingOn)
 	if err != nil {
 		return err
 	}
@@ -95,7 +95,7 @@ func (s *ShareCodeSender) SendAttorneys(ctx context.Context, appData AppData, do
 }
 
 func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, attorney actor.Attorney) error {
-	shareCode, err := s.createShareCode(ctx, appData, attorney.UID, actor.TypeAttorney)
+	shareCode, err := s.createShareCode(ctx, appData, attorney.UID, actor.TypeAttorney, donor.ActingOn)
 	if err != nil {
 		return err
 	}
@@ -117,7 +117,7 @@ func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData AppD
 }
 
 func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails, attorney actor.Attorney) error {
-	shareCode, err := s.createShareCode(ctx, appData, attorney.UID, actor.TypeReplacementAttorney)
+	shareCode, err := s.createShareCode(ctx, appData, attorney.UID, actor.TypeReplacementAttorney, donor.ActingOn)
 	if err != nil {
 		return err
 	}
@@ -143,7 +143,7 @@ func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData AppD
 		return nil
 	}
 
-	shareCode, err := s.createShareCode(ctx, appData, trustCorporation.UID, actor.TypeTrustCorporation)
+	shareCode, err := s.createShareCode(ctx, appData, trustCorporation.UID, actor.TypeTrustCorporation, donor.ActingOn)
 	if err != nil {
 		return err
 	}
@@ -169,7 +169,7 @@ func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, a
 		return nil
 	}
 
-	shareCode, err := s.createShareCode(ctx, appData, trustCorporation.UID, actor.TypeReplacementTrustCorporation)
+	shareCode, err := s.createShareCode(ctx, appData, trustCorporation.UID, actor.TypeReplacementTrustCorporation, donor.ActingOn)
 	if err != nil {
 		return err
 	}
@@ -190,7 +190,7 @@ func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, a
 		})
 }
 
-func (s *ShareCodeSender) createShareCode(ctx context.Context, appData AppData, actorUID actoruid.UID, actorType actor.Type) (string, error) {
+func (s *ShareCodeSender) createShareCode(ctx context.Context, appData AppData, actorUID actoruid.UID, actorType actor.Type, donorActingOn actor.ActingOn) (string, error) {
 	shareCode := s.randomString(12)
 	if s.testCode != "" {
 		shareCode = s.testCode
@@ -203,6 +203,7 @@ func (s *ShareCodeSender) createShareCode(ctx context.Context, appData AppData, 
 		ActorUID:              actorUID,
 		IsReplacementAttorney: actorType == actor.TypeReplacementAttorney || actorType == actor.TypeReplacementTrustCorporation,
 		IsTrustCorporation:    actorType == actor.TypeTrustCorporation || actorType == actor.TypeReplacementTrustCorporation,
+		DonorActingOn:         donorActingOn,
 	}
 
 	if err := s.shareCodeStore.Put(ctx, actorType, shareCode, shareCodeData); err != nil {

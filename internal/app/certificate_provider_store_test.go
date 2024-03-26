@@ -17,7 +17,7 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 	uid := actoruid.New()
 	now := time.Now()
-	details := &actor.CertificateProviderProvidedDetails{PK: "LPA#123", SK: "#CERTIFICATE_PROVIDER#456", LpaID: "123", UpdatedAt: now, UID: uid}
+	details := &actor.CertificateProviderProvidedDetails{PK: "LPA#123", SK: "#CERTIFICATE_PROVIDER#456", LpaID: "123", UpdatedAt: now, UID: uid, DonorActingOn: actor.Paper}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -29,7 +29,7 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 
 	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-	certificateProvider, err := certificateProviderStore.Create(ctx, "session-id", uid)
+	certificateProvider, err := certificateProviderStore.Create(ctx, "session-id", uid, actor.Paper)
 	assert.Nil(t, err)
 	assert.Equal(t, details, certificateProvider)
 }
@@ -39,7 +39,7 @@ func TestCertificateProviderStoreCreateWhenSessionMissing(t *testing.T) {
 
 	certificateProviderStore := &certificateProviderStore{dynamoClient: nil, now: nil}
 
-	_, err := certificateProviderStore.Create(ctx, "session-id", actoruid.New())
+	_, err := certificateProviderStore.Create(ctx, "session-id", actoruid.New(), actor.Online)
 	assert.Equal(t, page.SessionMissingError{}, err)
 }
 
@@ -55,7 +55,7 @@ func TestCertificateProviderStoreCreateWhenSessionDataMissing(t *testing.T) {
 
 			certificateProviderStore := &certificateProviderStore{}
 
-			_, err := certificateProviderStore.Create(ctx, "session-id", actoruid.New())
+			_, err := certificateProviderStore.Create(ctx, "session-id", actoruid.New(), actor.Online)
 			assert.NotNil(t, err)
 		})
 	}
@@ -94,7 +94,7 @@ func TestCertificateProviderStoreCreateWhenCreateError(t *testing.T) {
 
 			certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-			_, err := certificateProviderStore.Create(ctx, "session-id", actoruid.New())
+			_, err := certificateProviderStore.Create(ctx, "session-id", actoruid.New(), actor.Online)
 			assert.Equal(t, expectedError, err)
 		})
 	}
