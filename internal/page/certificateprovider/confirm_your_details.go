@@ -14,6 +14,7 @@ type confirmYourDetailsData struct {
 	Errors              validation.List
 	Donor               *actor.DonorProvidedDetails
 	CertificateProvider *actor.CertificateProviderProvidedDetails
+	PhoneNumberLabel    string
 }
 
 func ConfirmYourDetails(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore) page.Handler {
@@ -47,6 +48,11 @@ func ConfirmYourDetails(tmpl template.Template, donorStore DonorStore, certifica
 			App:                 appData,
 			CertificateProvider: certificateProvider,
 			Donor:               donor,
+			PhoneNumberLabel:    "mobileNumber",
+		}
+
+		if certificateProvider.DonorActingOn.IsPaper() {
+			data.PhoneNumberLabel = "contactNumber"
 		}
 
 		return tmpl(w, data)
