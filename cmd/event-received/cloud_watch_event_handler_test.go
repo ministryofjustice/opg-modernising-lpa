@@ -607,5 +607,205 @@ func TestHandleDonorSubmissionCompletedWhenShareCodeSenderError(t *testing.T) {
 		Return(expectedError)
 
 	err := handleDonorSubmissionCompleted(ctx, client, event, shareCodeSender, appData, lpaStoreClient)
+	assert.Equal(t, fmt.Errorf("failed to send share code to certificate provider: %w", expectedError), err)
+}
+
+func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "certificate-provider-submission-completed",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	appData := page.AppData{}
+
+	donor := &actor.DonorProvidedDetails{
+		CertificateProvider: actor.CertificateProvider{
+			CarryOutBy: actor.Paper,
+		},
+	}
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(ctx, "M-1111-2222-3333").
+		Return(donor, nil)
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.EXPECT().
+		SendAttorneys(ctx, appData, donor).
+		Return(nil)
+
+	factory := newMockFactory(t)
+	factory.EXPECT().
+		LpaStoreClient().
+		Return(lpaStoreClient, nil)
+	factory.EXPECT().
+		ShareCodeSender(ctx).
+		Return(shareCodeSender, nil)
+	factory.EXPECT().
+		AppData().
+		Return(appData, nil)
+
+	err := handleCertificateProviderSubmissionCompleted(ctx, event, factory)
+	assert.Nil(t, err)
+}
+
+func TestHandleCertificateProviderSubmissionCompletedWhenOnline(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "certificate-provider-submission-completed",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	donor := &actor.DonorProvidedDetails{
+		CertificateProvider: actor.CertificateProvider{
+			CarryOutBy: actor.Online,
+		},
+	}
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(ctx, "M-1111-2222-3333").
+		Return(donor, nil)
+
+	factory := newMockFactory(t)
+	factory.EXPECT().
+		LpaStoreClient().
+		Return(lpaStoreClient, nil)
+
+	err := handleCertificateProviderSubmissionCompleted(ctx, event, factory)
+	assert.Nil(t, err)
+}
+
+func TestHandleCertificateProviderSubmissionCompletedWhenLpaStoreFactoryErrors(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "certificate-provider-submission-completed",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	factory := newMockFactory(t)
+	factory.EXPECT().
+		LpaStoreClient().
+		Return(nil, expectedError)
+
+	err := handleCertificateProviderSubmissionCompleted(ctx, event, factory)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestHandleCertificateProviderSubmissionCompletedWhenLpaStoreErrors(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "certificate-provider-submission-completed",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(ctx, "M-1111-2222-3333").
+		Return(nil, expectedError)
+
+	factory := newMockFactory(t)
+	factory.EXPECT().
+		LpaStoreClient().
+		Return(lpaStoreClient, nil)
+
+	err := handleCertificateProviderSubmissionCompleted(ctx, event, factory)
+	assert.Equal(t, fmt.Errorf("failed to retrieve lpa: %w", expectedError), err)
+}
+
+func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderErrors(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "certificate-provider-submission-completed",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	appData := page.AppData{}
+
+	donor := &actor.DonorProvidedDetails{
+		CertificateProvider: actor.CertificateProvider{
+			CarryOutBy: actor.Paper,
+		},
+	}
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(ctx, "M-1111-2222-3333").
+		Return(donor, nil)
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.EXPECT().
+		SendAttorneys(ctx, appData, donor).
+		Return(expectedError)
+
+	factory := newMockFactory(t)
+	factory.EXPECT().
+		LpaStoreClient().
+		Return(lpaStoreClient, nil)
+	factory.EXPECT().
+		ShareCodeSender(ctx).
+		Return(shareCodeSender, nil)
+	factory.EXPECT().
+		AppData().
+		Return(appData, nil)
+
+	err := handleCertificateProviderSubmissionCompleted(ctx, event, factory)
+	assert.Equal(t, fmt.Errorf("failed to send share codes to attorneys: %w", expectedError), err)
+}
+
+func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderFactoryErrors(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "certificate-provider-submission-completed",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	donor := &actor.DonorProvidedDetails{
+		CertificateProvider: actor.CertificateProvider{
+			CarryOutBy: actor.Paper,
+		},
+	}
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(ctx, "M-1111-2222-3333").
+		Return(donor, nil)
+
+	factory := newMockFactory(t)
+	factory.EXPECT().
+		LpaStoreClient().
+		Return(lpaStoreClient, nil)
+	factory.EXPECT().
+		ShareCodeSender(ctx).
+		Return(nil, expectedError)
+
+	err := handleCertificateProviderSubmissionCompleted(ctx, event, factory)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestHandleCertificateProviderSubmissionCompletedWhenAppDataFactoryErrors(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "certificate-provider-submission-completed",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	donor := &actor.DonorProvidedDetails{
+		CertificateProvider: actor.CertificateProvider{
+			CarryOutBy: actor.Paper,
+		},
+	}
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(ctx, "M-1111-2222-3333").
+		Return(donor, nil)
+
+	factory := newMockFactory(t)
+	factory.EXPECT().
+		LpaStoreClient().
+		Return(lpaStoreClient, nil)
+	factory.EXPECT().
+		ShareCodeSender(ctx).
+		Return(nil, nil)
+	factory.EXPECT().
+		AppData().
+		Return(page.AppData{}, expectedError)
+
+	err := handleCertificateProviderSubmissionCompleted(ctx, event, factory)
 	assert.Equal(t, expectedError, err)
 }
