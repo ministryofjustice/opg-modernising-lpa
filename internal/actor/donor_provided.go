@@ -111,6 +111,8 @@ type DonorProvidedDetails struct {
 	Version int `hash:"-"`
 	// ContactLanguagePreference is the language the donor prefers to receive notifications in
 	ContactLanguagePreference localize.Lang
+	// ActingOn is the channel the donor is applying for the LPA through (online or paper)
+	ActingOn ActingOn
 
 	// Codes used for the certificate provider to witness signing
 	CertificateProviderCodes WitnessCodes
