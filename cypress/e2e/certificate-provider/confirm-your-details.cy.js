@@ -72,4 +72,11 @@ describe('Confirm your details', () => {
       cy.url().should('contain', '/your-role');
     });
   })
+
+  it('shows contact number when donor acting on paper', () => {
+    cy.visit('/fixtures/certificate-provider?redirect=/confirm-your-details&donorActingOn=paper');
+
+    cy.contains('Contact number').should('exist');
+    cy.contains('Mobile number').should('not.exist');
+  })
 });

@@ -75,9 +75,9 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeCertificateProvider, "abcdef123456").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", ActorUID: uid}, nil)
+		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", ActorUID: uid, DonorActingOn: actor.Online}, nil)
 	shareCodeStore.EXPECT().
-		Delete(r.Context(), actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", ActorUID: uid}).
+		Delete(r.Context(), actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", ActorUID: uid, DonorActingOn: actor.Online}).
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -91,7 +91,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 			session, _ := page.SessionDataFromContext(ctx)
 
 			return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
-		}), "session-id", uid).
+		}), "session-id", uid, actor.Online).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, certificateProviderStore)(testAppData, w, r)
@@ -171,7 +171,7 @@ func TestPostEnterReferenceNumberWhenShareCodeStoreDeleteError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeCertificateProvider, "abcdef123456").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", ActorUID: uid}, nil)
+		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", ActorUID: uid, DonorActingOn: actor.Online}, nil)
 	shareCodeStore.EXPECT().
 		Delete(mock.Anything, mock.Anything).
 		Return(expectedError)
@@ -187,7 +187,7 @@ func TestPostEnterReferenceNumberWhenShareCodeStoreDeleteError(t *testing.T) {
 			session, _ := page.SessionDataFromContext(ctx)
 
 			return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
-		}), "session-id", uid).
+		}), "session-id", uid, actor.Online).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, certificateProviderStore)(testAppData, w, r)
