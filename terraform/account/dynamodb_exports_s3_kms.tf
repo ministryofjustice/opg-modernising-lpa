@@ -21,13 +21,13 @@ resource "aws_kms_replica_key" "dynamodb_exports_s3_bucket_replica" {
 }
 
 resource "aws_kms_alias" "dynamodb_exports_s3_bucket_alias_eu_west_1" {
-  name          = "alias/${local.default_tags.application}_dynamodb_exports_s3_bucket_encryption"
+  name          = "alias/${local.default_tags.application}-dynamodb-exports-s3-bucket-encryption"
   target_key_id = aws_kms_key.dynamodb_exports_s3_bucket.key_id
   provider      = aws.eu_west_1
 }
 
 resource "aws_kms_alias" "dynamodb_exports_s3_bucket_alias_eu_west_2" {
-  name          = "alias/${local.default_tags.application}_dynamodb_exports_s3_bucket_encryption"
+  name          = "alias/${local.default_tags.application}-dynamodb-exports-s3-bucket-encryption"
   target_key_id = aws_kms_replica_key.dynamodb_exports_s3_bucket_replica.key_id
   provider      = aws.eu_west_2
 }
