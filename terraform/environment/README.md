@@ -114,20 +114,20 @@ For terraform_environment, this will be based on your PR and can be found in the
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | 1.7.5 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.41.0 |
-| <a name="requirement_pagerduty"></a> [pagerduty](#requirement\_pagerduty) | 3.9.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.42.0 |
+| <a name="requirement_pagerduty"></a> [pagerduty](#requirement\_pagerduty) | 3.10.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.41.0 |
-| <a name="provider_aws.eu_west_1"></a> [aws.eu\_west\_1](#provider\_aws.eu\_west\_1) | 5.41.0 |
-| <a name="provider_aws.eu_west_2"></a> [aws.eu\_west\_2](#provider\_aws.eu\_west\_2) | 5.41.0 |
-| <a name="provider_aws.global"></a> [aws.global](#provider\_aws.global) | 5.41.0 |
-| <a name="provider_aws.management_eu_west_1"></a> [aws.management\_eu\_west\_1](#provider\_aws.management\_eu\_west\_1) | 5.41.0 |
-| <a name="provider_aws.management_global"></a> [aws.management\_global](#provider\_aws.management\_global) | 5.41.0 |
-| <a name="provider_pagerduty"></a> [pagerduty](#provider\_pagerduty) | 3.9.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.42.0 |
+| <a name="provider_aws.eu_west_1"></a> [aws.eu\_west\_1](#provider\_aws.eu\_west\_1) | 5.42.0 |
+| <a name="provider_aws.eu_west_2"></a> [aws.eu\_west\_2](#provider\_aws.eu\_west\_2) | 5.42.0 |
+| <a name="provider_aws.global"></a> [aws.global](#provider\_aws.global) | 5.42.0 |
+| <a name="provider_aws.management_eu_west_1"></a> [aws.management\_eu\_west\_1](#provider\_aws.management\_eu\_west\_1) | 5.42.0 |
+| <a name="provider_aws.management_global"></a> [aws.management\_global](#provider\_aws.management\_global) | 5.42.0 |
+| <a name="provider_pagerduty"></a> [pagerduty](#provider\_pagerduty) | 3.10.0 |
 
 ## Modules
 
@@ -169,7 +169,7 @@ For terraform_environment, this will be based on your PR and can be found in the
 | [aws_sns_topic_subscription.opensearch](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription) | resource |
 | [aws_ssm_parameter.container_version](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_parameter) | resource |
 | [aws_ssm_parameter.dns_target_region](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_parameter) | resource |
-| [pagerduty_service_integration.opensearch](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.9.0/docs/resources/service_integration) | resource |
+| [pagerduty_service_integration.opensearch](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.10.0/docs/resources/service_integration) | resource |
 | [aws_availability_zones.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) | data source |
 | [aws_backup_vault.eu_west_1](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/backup_vault) | data source |
 | [aws_backup_vault.eu_west_2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/backup_vault) | data source |
@@ -191,8 +191,8 @@ For terraform_environment, this will be based on your PR and can be found in the
 | [aws_subnet.application](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet) | data source |
 | [aws_vpc.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
 | [aws_vpc_endpoint.opensearch](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc_endpoint) | data source |
-| [pagerduty_service.main](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.9.0/docs/data-sources/service) | data source |
-| [pagerduty_vendor.cloudwatch](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.9.0/docs/data-sources/vendor) | data source |
+| [pagerduty_service.main](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.10.0/docs/data-sources/service) | data source |
+| [pagerduty_vendor.cloudwatch](https://registry.terraform.io/providers/PagerDuty/pagerduty/3.10.0/docs/data-sources/vendor) | data source |
 
 ## Inputs
 
