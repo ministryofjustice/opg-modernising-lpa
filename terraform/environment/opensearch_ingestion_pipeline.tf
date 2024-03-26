@@ -122,7 +122,7 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     actions = [
       "s3:GetObject",
       "s3:AbortMultipartUpload",
-      "CreateMultipartUpload",
+      "s3:CreateMultipartUpload",
       "s3:PutObject",
       "s3:PutObjectAcl",
     ]
