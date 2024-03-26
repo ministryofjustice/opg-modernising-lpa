@@ -1,5 +1,5 @@
 {{ define "supporter-lpa-context" }}
-    {{ if .App.SupporterData }}
+    {{ if and .App.IsDonor .App.SupporterData (ne .App.Page (global.Paths.TaskList.Format .App.LpaID)) }}
         <div class="app-supporter-lpa-context-banner">
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-two-thirds">
