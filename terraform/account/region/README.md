@@ -21,7 +21,7 @@
 |------|--------|---------|
 | <a name="module_antivirus_definitions"></a> [antivirus\_definitions](#module\_antivirus\_definitions) | ./modules/antivirus_definitions | n/a |
 | <a name="module_dns_firewall"></a> [dns\_firewall](#module\_dns\_firewall) | ./modules/dns_firewall | n/a |
-| <a name="module_name"></a> [name](#module\_name) | ./modules/dynamodb_exports_s3_bucket | n/a |
+| <a name="module_dynamodb_exports_s3_bucket"></a> [dynamodb\_exports\_s3\_bucket](#module\_dynamodb\_exports\_s3\_bucket) | ./modules/dynamodb_exports_s3_bucket | n/a |
 | <a name="module_network"></a> [network](#module\_network) | github.com/ministryofjustice/opg-terraform-aws-network | v1.3.3 |
 | <a name="module_s3_batch_manifests"></a> [s3\_batch\_manifests](#module\_s3\_batch\_manifests) | ./modules/s3_batch_manifests | n/a |
 | <a name="module_s3_event_notifications"></a> [s3\_event\_notifications](#module\_s3\_event\_notifications) | ./modules/s3_bucket_event_notifications | n/a |
@@ -101,6 +101,7 @@
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_cloudwatch_log_group_kms_key_alias"></a> [cloudwatch\_log\_group\_kms\_key\_alias](#input\_cloudwatch\_log\_group\_kms\_key\_alias) | The alias of the KMS Key to use when encrypting Cloudwatch log data. | `string` | `null` | no |
+| <a name="input_dynamodb_exports_s3_bucket_server_side_encryption_key_id"></a> [dynamodb\_exports\_s3\_bucket\_server\_side\_encryption\_key\_id](#input\_dynamodb\_exports\_s3\_bucket\_server\_side\_encryption\_key\_id) | The ID of the KMS key to use for server-side encryption of the bucket. | `string` | n/a | yes |
 | <a name="input_network_cidr_block"></a> [network\_cidr\_block](#input\_network\_cidr\_block) | The IPv4 CIDR block for the VPC. CIDR can be explicitly set or it can be derived from IPAM using ipv4\_netmask\_length. | `string` | n/a | yes |
 | <a name="input_reduced_fees_uploads_s3_encryption_kms_key_alias"></a> [reduced\_fees\_uploads\_s3\_encryption\_kms\_key\_alias](#input\_reduced\_fees\_uploads\_s3\_encryption\_kms\_key\_alias) | The alias of the KMS key used to encrypt the reduced fees uploads S3 bucket and replication manifests | `string` | n/a | yes |
 | <a name="input_secrets_manager_kms_key_alias"></a> [secrets\_manager\_kms\_key\_alias](#input\_secrets\_manager\_kms\_key\_alias) | The alias of the KMS key used to encrypt Secrets Manager secrets | `string` | n/a | yes |
