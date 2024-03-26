@@ -77,7 +77,6 @@ func CertificateProvider(
 
 		donorDetails.Donor = makeDonor()
 		donorDetails.Type = actor.LpaTypePropertyAndAffairs
-		donorDetails.ActingOn = actor.Online
 
 		if donorActingOnString == "paper" {
 			donorDetails.ActingOn = actor.Paper
