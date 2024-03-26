@@ -15,12 +15,9 @@ import (
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/ministryofjustice/opg-go-common/env"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
 const (
@@ -45,29 +42,8 @@ type s3Client interface {
 	GetObjectTags(ctx context.Context, key string) ([]types.Tag, error)
 }
 
-type shareCodeSender interface {
-	SendCertificateProviderInvite(context.Context, page.AppData, *actor.DonorProvidedDetails) error
-	SendCertificateProviderPrompt(context.Context, page.AppData, *actor.DonorProvidedDetails) error
-}
-
-type lpaStoreClient interface {
-	Lpa(ctx context.Context, uid string) (*actor.DonorProvidedDetails, error)
-}
-
-type secretsClient interface {
-	Secret(ctx context.Context, name string) (string, error)
-}
-
 type DocumentStore interface {
 	UpdateScanResults(ctx context.Context, lpaID, objectKey string, virusDetected bool) error
-}
-
-type UidStore interface {
-	Set(ctx context.Context, lpaID, sessionID, organisationID, uid string) error
-}
-
-type UidClient interface {
-	CreateCase(context.Context, *uid.CreateCaseRequestBody) (string, error)
 }
 
 type Event struct {
@@ -129,17 +105,23 @@ func handler(ctx context.Context, event Event) error {
 	}
 
 	if event.isCloudWatchEvent() {
-		handler := &cloudWatchEventHandler{
-			dynamoClient:       dynamoClient,
+		factory := &Factory{
 			now:                time.Now,
-			uidBaseURL:         uidBaseURL,
-			lpaStoreBaseURL:    lpaStoreBaseURL,
 			cfg:                cfg,
-			notifyIsProduction: notifyIsProduction,
-			notifyBaseURL:      notifyBaseURL,
+			dynamoClient:       dynamoClient,
 			appPublicURL:       appPublicURL,
+			lpaStoreBaseURL:    lpaStoreBaseURL,
+			uidBaseURL:         uidBaseURL,
+			notifyBaseURL:      notifyBaseURL,
+			notifyIsProduction: notifyIsProduction,
 			eventBusName:       eventBusName,
 			searchEndpoint:     searchEndpoint,
+		}
+
+		handler := &cloudWatchEventHandler{
+			dynamoClient: dynamoClient,
+			now:          time.Now,
+			factory:      factory,
 		}
 
 		if err := handler.Handle(ctx, event.CloudWatchEvent); err != nil {

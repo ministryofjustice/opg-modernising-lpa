@@ -641,7 +641,7 @@ func TestChooseAttorneysFormDobWarning(t *testing.T) {
 		},
 		"dob under 18": {
 			form: &chooseAttorneysForm{
-				Dob: now.AddDate(-18, 0, 1),
+				Dob: now.AddDate(-18, 0, 2),
 			},
 			warning: "attorneyDateOfBirthIsUnder18",
 		},
