@@ -25,6 +25,54 @@ func (_m *mockShareCodeSender) EXPECT() *mockShareCodeSender_Expecter {
 	return &mockShareCodeSender_Expecter{mock: &_m.Mock}
 }
 
+// SendAttorneys provides a mock function with given fields: _a0, _a1, _a2
+func (_m *mockShareCodeSender) SendAttorneys(_a0 context.Context, _a1 page.AppData, _a2 *actor.DonorProvidedDetails) error {
+	ret := _m.Called(_a0, _a1, _a2)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendAttorneys")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, page.AppData, *actor.DonorProvidedDetails) error); ok {
+		r0 = rf(_a0, _a1, _a2)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockShareCodeSender_SendAttorneys_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendAttorneys'
+type mockShareCodeSender_SendAttorneys_Call struct {
+	*mock.Call
+}
+
+// SendAttorneys is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 page.AppData
+//   - _a2 *actor.DonorProvidedDetails
+func (_e *mockShareCodeSender_Expecter) SendAttorneys(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockShareCodeSender_SendAttorneys_Call {
+	return &mockShareCodeSender_SendAttorneys_Call{Call: _e.mock.On("SendAttorneys", _a0, _a1, _a2)}
+}
+
+func (_c *mockShareCodeSender_SendAttorneys_Call) Run(run func(_a0 context.Context, _a1 page.AppData, _a2 *actor.DonorProvidedDetails)) *mockShareCodeSender_SendAttorneys_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(page.AppData), args[2].(*actor.DonorProvidedDetails))
+	})
+	return _c
+}
+
+func (_c *mockShareCodeSender_SendAttorneys_Call) Return(_a0 error) *mockShareCodeSender_SendAttorneys_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockShareCodeSender_SendAttorneys_Call) RunAndReturn(run func(context.Context, page.AppData, *actor.DonorProvidedDetails) error) *mockShareCodeSender_SendAttorneys_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SendCertificateProviderInvite provides a mock function with given fields: _a0, _a1, _a2
 func (_m *mockShareCodeSender) SendCertificateProviderInvite(_a0 context.Context, _a1 page.AppData, _a2 *actor.DonorProvidedDetails) error {
 	ret := _m.Called(_a0, _a1, _a2)
