@@ -12,32 +12,41 @@ import (
 )
 
 func TestConfirmYourDetails(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	testcases := map[actor.Channel]string{
+		actor.Online: "mobileNumber",
+		actor.Paper:  "contactNumber",
+	}
 
-	donor := &actor.DonorProvidedDetails{}
-	certificateProvider := &actor.CertificateProviderProvidedDetails{}
+	for donorChannel, expectedPhoneNumberTranslation := range testcases {
+		t.Run(donorChannel.String(), func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
-		Return(donor, nil)
+			donor := &actor.DonorProvidedDetails{}
+			certificateProvider := &actor.CertificateProviderProvidedDetails{DonorChannel: donorChannel}
 
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.EXPECT().
-		Get(r.Context()).
-		Return(certificateProvider, nil)
+			donorStore := newMockDonorStore(t)
+			donorStore.EXPECT().
+				GetAny(r.Context()).
+				Return(donor, nil)
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &confirmYourDetailsData{App: testAppData, Donor: donor, CertificateProvider: certificateProvider}).
-		Return(nil)
+			certificateProviderStore := newMockCertificateProviderStore(t)
+			certificateProviderStore.EXPECT().
+				Get(r.Context()).
+				Return(certificateProvider, nil)
 
-	err := ConfirmYourDetails(template.Execute, donorStore, certificateProviderStore)(testAppData, w, r)
-	resp := w.Result()
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, &confirmYourDetailsData{App: testAppData, Donor: donor, CertificateProvider: certificateProvider, PhoneNumberLabel: expectedPhoneNumberTranslation}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			err := ConfirmYourDetails(template.Execute, donorStore, certificateProviderStore)(testAppData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
 func TestConfirmYourDetailsWhenCertificateProviderStoreErrors(t *testing.T) {
