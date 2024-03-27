@@ -25,24 +25,6 @@ repos:
       - id: terraform_tflint
         args:
           - --args=--recursive
-  - repo: https://github.com/terraform-docs/terraform-docs
-    rev: "v0.17.0"
-    hooks:
-      - id: terraform-docs-go
-        name: terraform-docs Environment-root
-        args: ["--config", "terraform/environment/.terraform-docs.yml", "./terraform/environment"]
-      - id: terraform-docs-go
-        name: terraform-docs Environment-region
-        args: ["--config", "terraform/environment/region/.terraform-docs.yml", "./terraform/environment/region"]
-      - id: terraform-docs-go
-        name: terraform-docs Environment-global
-        args: ["--config", "terraform/environment/global/.terraform-docs.yml", "./terraform/environment/global"]
-      - id: terraform-docs-go
-        name: terraform-docs Account-root
-        args: ["--config", "terraform/account/.terraform-docs.yml", "./terraform/account"]
-      - id: terraform-docs-go
-        name: terraform-docs Account-region
-        args: ["--config", "terraform/account/region/.terraform-docs.yml", "./terraform/account/region"]
   - repo: https://github.com/dnephin/pre-commit-golang
     rev: v0.5.1
     hooks:

@@ -38,6 +38,7 @@ type SecretsClient interface {
 type ShareCodeSender interface {
 	SendCertificateProviderInvite(context.Context, page.AppData, *actor.DonorProvidedDetails) error
 	SendCertificateProviderPrompt(context.Context, page.AppData, *actor.DonorProvidedDetails) error
+	SendAttorneys(context.Context, page.AppData, *actor.DonorProvidedDetails) error
 }
 
 type UidStore interface {
