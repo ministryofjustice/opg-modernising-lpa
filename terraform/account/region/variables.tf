@@ -23,3 +23,8 @@ variable "reduced_fees_uploads_s3_encryption_kms_key_alias" {
   description = "The alias of the KMS key used to encrypt the reduced fees uploads S3 bucket and replication manifests"
   type        = string
 }
+
+variable "dynamodb_exports_s3_bucket_server_side_encryption_key_id" {
+  description = "The ID of the KMS key to use for server-side encryption of the bucket."
+  type        = string
+}
