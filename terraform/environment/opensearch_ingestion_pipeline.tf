@@ -128,8 +128,7 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
       "s3:PutObjectAcl",
     ]
     resources = [
-      "${data.aws_s3_bucket.dynamodb_export_bucket.arn}/*",
-      data.aws_s3_bucket.dynamodb_export_bucket.arn,
+      "${data.aws_s3_bucket.dynamodb_export_bucket.arn}/${local.default_tags.environment-name}/ddb-to-opensearch-export/*",
     ]
   }
 }
