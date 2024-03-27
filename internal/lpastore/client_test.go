@@ -132,7 +132,7 @@ func TestClientServiceContract(t *testing.T) {
 								"postcode": matchers.String("A1 1FF"),
 								"country":  matchers.String("GB"),
 							}),
-							"channel": matchers.Regex("online", "online|post"),
+							"channel": matchers.Regex("online", "online|paper"),
 						}),
 						"restrictionsAndConditions": matchers.String("hmm"),
 						"signedAt":                  matchers.Regex("2000-01-02T12:13:14.00000Z", `\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d+)?Z`),
@@ -267,7 +267,7 @@ func TestClientServiceContract(t *testing.T) {
 								"postcode": matchers.String("A1 1FF"),
 								"country":  matchers.String("GB"),
 							}),
-							"channel": matchers.Regex("online", "online|post"),
+							"channel": matchers.Regex("online", "online|paper"),
 						}),
 						"peopleToNotify": matchers.EachLike(map[string]any{
 							"uid":        matchers.UUID(),
