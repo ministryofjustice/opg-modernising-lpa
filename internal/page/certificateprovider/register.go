@@ -29,7 +29,7 @@ type DonorStore interface {
 }
 
 type CertificateProviderStore interface {
-	Create(ctx context.Context, sessionID string, certificateProviderUID actoruid.UID) (*actor.CertificateProviderProvidedDetails, error)
+	Create(ctx context.Context, donorSessionID string, certificateProviderUID actoruid.UID, donorChannel actor.Channel) (*actor.CertificateProviderProvidedDetails, error)
 	Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
 	Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error
 }
