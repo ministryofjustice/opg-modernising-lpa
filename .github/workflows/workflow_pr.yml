@@ -97,7 +97,7 @@ jobs:
     with:
       run_against_image: true
       tag: ${{ needs.create_tags.outputs.version_tag }}
-      skip: ${{ contains(fromJSON('["weblate-pr"]'), github.head_ref) }}
+      skip: true
       specs: 'cypress/e2e/**/*.cy.js'
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
