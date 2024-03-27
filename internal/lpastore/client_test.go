@@ -631,7 +631,6 @@ func TestClientServiceContract(t *testing.T) {
 					"uid":     matchers.Regex("M-0000-1111-2222", "M(-[A-Z0-9]{4}){3}"),
 					"status":  matchers.String("processing"),
 					"lpaType": matchers.String("personal-welfare"),
-					"channel": matchers.String("online"),
 					"donor": matchers.Like(map[string]any{
 						"firstNames":  matchers.String("Homer"),
 						"lastName":    matchers.String("Zoller"),
@@ -691,9 +690,8 @@ func TestClientServiceContract(t *testing.T) {
 			}
 
 			assert.Equal(t, &actor.DonorProvidedDetails{
-				LpaUID:  "M-0000-1111-2222",
-				Type:    actor.LpaTypePersonalWelfare,
-				Channel: actor.Online,
+				LpaUID: "M-0000-1111-2222",
+				Type:   actor.LpaTypePersonalWelfare,
 				Donor: actor.Donor{
 					FirstNames:  "Homer",
 					LastName:    "Zoller",
