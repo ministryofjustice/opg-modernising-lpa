@@ -252,23 +252,23 @@ resource "aws_opensearchserverless_access_policy" "pipeline" {
   provider = aws.eu_west_1
 }
 
-resource "aws_osis_pipeline" "lpas" {
-  pipeline_name               = "lpas-${local.default_tags.environment-name}"
-  max_units                   = 1
-  min_units                   = 1
-  pipeline_configuration_body = templatefile("opensearch_pipeline/pipeline_configuration.yaml.tftpl", local.pipeline_configuration_tempalte_vars)
-  buffer_options {
-    persistent_buffer_enabled = false
-  }
-  log_publishing_options {
-    cloudwatch_log_destination {
-      log_group = aws_cloudwatch_log_group.opensearch_pipeline.name
-    }
-    is_logging_enabled = true
-  }
-  vpc_options {
-    security_group_ids = [aws_security_group.opensearch_ingestion.id]
-    subnet_ids         = data.aws_subnet.application[*].id
-  }
-  provider = aws.eu_west_1
-}
+# resource "aws_osis_pipeline" "lpas" {
+#   pipeline_name               = "lpas-${local.default_tags.environment-name}"
+#   max_units                   = 1
+#   min_units                   = 1
+#   pipeline_configuration_body = templatefile("opensearch_pipeline/pipeline_configuration.yaml.tftpl", local.pipeline_configuration_tempalte_vars)
+#   buffer_options {
+#     persistent_buffer_enabled = false
+#   }
+#   log_publishing_options {
+#     cloudwatch_log_destination {
+#       log_group = aws_cloudwatch_log_group.opensearch_pipeline.name
+#     }
+#     is_logging_enabled = true
+#   }
+#   vpc_options {
+#     security_group_ids = [aws_security_group.opensearch_ingestion.id]
+#     subnet_ids         = data.aws_subnet.application[*].id
+#   }
+#   provider = aws.eu_west_1
+# }
