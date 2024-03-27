@@ -86,6 +86,7 @@ func TestClientServiceContract(t *testing.T) {
 					// Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
 					JSONBody(matchers.Map{
 						"lpaType":                       matchers.Regex("personal-welfare", "personal-welfare|property-and-affairs"),
+						"channel":                       matchers.Regex("online", "online|paper"),
 						"lifeSustainingTreatmentOption": matchers.Regex("option-a", "option-a|option-b"),
 						"donor": matchers.Like(map[string]any{
 							"uid":         matchers.UUID(),
@@ -131,7 +132,7 @@ func TestClientServiceContract(t *testing.T) {
 								"postcode": matchers.String("A1 1FF"),
 								"country":  matchers.String("GB"),
 							}),
-							"channel": matchers.Regex("online", "online|post"),
+							"channel": matchers.Regex("online", "online|paper"),
 						}),
 						"restrictionsAndConditions": matchers.String("hmm"),
 						"signedAt":                  matchers.Regex("2000-01-02T12:13:14.00000Z", `\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d+)?Z`),
@@ -160,6 +161,7 @@ func TestClientServiceContract(t *testing.T) {
 			err := client.SendLpa(context.Background(), &actor.DonorProvidedDetails{
 				LpaUID:                        "M-0000-1111-2222",
 				Type:                          actor.LpaTypePersonalWelfare,
+				Channel:                       actor.Online,
 				LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA,
 				Donor: actor.Donor{
 					UID:         actoruid.New(),
@@ -219,6 +221,7 @@ func TestClientServiceContract(t *testing.T) {
 					// Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
 					JSONBody(matchers.Map{
 						"lpaType": matchers.Regex("personal-welfare", "personal-welfare|property-and-affairs"),
+						"channel": matchers.Regex("online", "online|paper"),
 						"donor": matchers.Like(map[string]any{
 							"uid":         matchers.UUID(),
 							"firstNames":  matchers.String("John Johnson"),
@@ -264,7 +267,7 @@ func TestClientServiceContract(t *testing.T) {
 								"postcode": matchers.String("A1 1FF"),
 								"country":  matchers.String("GB"),
 							}),
-							"channel": matchers.Regex("online", "online|post"),
+							"channel": matchers.Regex("online", "online|paper"),
 						}),
 						"peopleToNotify": matchers.EachLike(map[string]any{
 							"uid":        matchers.UUID(),
@@ -307,8 +310,9 @@ func TestClientServiceContract(t *testing.T) {
 			}
 
 			err := client.SendLpa(context.Background(), &actor.DonorProvidedDetails{
-				LpaUID: "M-0000-1111-2222",
-				Type:   actor.LpaTypePersonalWelfare,
+				LpaUID:  "M-0000-1111-2222",
+				Type:    actor.LpaTypePersonalWelfare,
+				Channel: actor.Online,
 				Donor: actor.Donor{
 					UID:         actoruid.New(),
 					FirstNames:  "John Johnson",
@@ -627,6 +631,7 @@ func TestClientServiceContract(t *testing.T) {
 					"uid":     matchers.Regex("M-0000-1111-2222", "M(-[A-Z0-9]{4}){3}"),
 					"status":  matchers.String("processing"),
 					"lpaType": matchers.String("personal-welfare"),
+					"channel": matchers.String("online"),
 					"donor": matchers.Like(map[string]any{
 						"firstNames":  matchers.String("Homer"),
 						"lastName":    matchers.String("Zoller"),
@@ -686,8 +691,9 @@ func TestClientServiceContract(t *testing.T) {
 			}
 
 			assert.Equal(t, &actor.DonorProvidedDetails{
-				LpaUID: "M-0000-1111-2222",
-				Type:   actor.LpaTypePersonalWelfare,
+				LpaUID:  "M-0000-1111-2222",
+				Type:    actor.LpaTypePersonalWelfare,
+				Channel: actor.Online,
 				Donor: actor.Donor{
 					FirstNames:  "Homer",
 					LastName:    "Zoller",

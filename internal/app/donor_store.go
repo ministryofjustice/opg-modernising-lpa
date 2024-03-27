@@ -68,6 +68,7 @@ func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, e
 		Donor: actor.Donor{
 			UID: donorUID,
 		},
+		Channel: actor.Online,
 	}
 
 	latest, err := s.Latest(ctx)
