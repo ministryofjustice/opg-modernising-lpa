@@ -78,6 +78,18 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
       data.aws_kms_alias.dynamodb_encryption_key.target_key_arn,
     ]
   }
+
+  statement {
+    sid    = "allowCheckExportjob"
+    effect = "Allow"
+    actions = [
+      "dynamodb:DescribeExport",
+    ]
+    resources = [
+      "${aws_dynamodb_table.lpas_table.arn}/export/*",
+    ]
+  }
+
   #TODO: Move to a separate statement?
   statement {
     sid    = "OpensearchEncryptionAccess"
@@ -93,16 +105,6 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     ]
   }
 
-  statement {
-    sid    = "allowCheckExportjob"
-    effect = "Allow"
-    actions = [
-      "dynamodb:DescribeExport",
-    ]
-    resources = [
-      "${aws_dynamodb_table.lpas_table.arn}/export/*",
-    ]
-  }
 
   statement {
     sid    = "allowReadFromStream"
@@ -113,7 +115,7 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
       "dynamodb:GetShardIterator",
     ]
     resources = [
-      aws_dynamodb_table.lpas_table.stream_arn,
+      "${aws_dynamodb_table.lpas_table.arn}/stream/*",
     ]
   }
 
@@ -252,7 +254,7 @@ resource "aws_opensearchserverless_access_policy" "pipeline" {
 
 resource "aws_osis_pipeline" "lpas" {
   pipeline_name               = "lpas-${local.default_tags.environment-name}"
-  max_units                   = 4
+  max_units                   = 1
   min_units                   = 1
   pipeline_configuration_body = templatefile("opensearch_pipeline/pipeline_configuration.yaml.tftpl", local.pipeline_configuration_tempalte_vars)
   buffer_options {
