@@ -78,7 +78,7 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
       data.aws_kms_alias.dynamodb_encryption_key.target_key_arn,
     ]
   }
-
+  #TODO: Move to a separate statement?
   statement {
     sid    = "OpensearchEncryptionAccess"
     effect = "Allow"
@@ -89,6 +89,7 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     ]
     resources = [
       data.aws_kms_alias.opensearch_encryption_key.target_key_arn,
+      data.aws_kms_alias.dynamodb_export_bucket_encryption_key.target_key_arn,
     ]
   }
 
@@ -127,8 +128,8 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
       "s3:PutObjectAcl",
     ]
     resources = [
-      "${aws_s3_bucket.opensearch_pipeline.arn}/*",
-      aws_s3_bucket.opensearch_pipeline.arn,
+      "${data.aws_s3_bucket.dynamodb_export_bucket.arn}/*",
+      data.aws_s3_bucket.dynamodb_export_bucket.arn,
     ]
   }
 }
@@ -176,8 +177,13 @@ resource "aws_cloudwatch_query_definition" "opensearch_pipeline" {
   provider        = aws.eu_west_1
 }
 
-resource "aws_s3_bucket" "opensearch_pipeline" {
-  bucket   = "${local.default_tags.environment-name}-opensearch-pipeline"
+data "aws_s3_bucket" "dynamodb_export_bucket" {
+  bucket   = "dynamodb-exports-${local.default_tags.application}-${local.default_tags.account-name}-${data.aws_region.eu_west_1.name}"
+  provider = aws.eu_west_1
+}
+
+data "aws_kms_alias" "dynamodb_export_bucket_encryption_key" {
+  name     = "alias/${local.default_tags.application}-dynamodb-exports-s3-bucket-encryption"
   provider = aws.eu_west_1
 }
 
@@ -190,7 +196,7 @@ locals {
           start_position = "LATEST"
         }
         export = {
-          s3_bucket = aws_s3_bucket.opensearch_pipeline.bucket
+          s3_bucket = data.aws_s3_bucket.dynamodb_export_bucket.bucket
           s3_region = "eu-west-1"
           s3_prefix = "${local.default_tags.environment-name}/ddb-to-opensearch-export/"
         }
