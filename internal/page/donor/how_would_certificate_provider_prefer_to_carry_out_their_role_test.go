@@ -23,7 +23,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) {
 		Execute(w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:     testAppData,
 			Form:    &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
-			Options: actor.ActingOnValues,
+			Options: actor.ChannelValues,
 		}).
 		Return(nil)
 
@@ -44,7 +44,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleFromStore(t *tes
 			App:                 testAppData,
 			CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Paper},
 			Form:                &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{CarryOutBy: actor.Paper},
-			Options:             actor.ActingOnValues,
+			Options:             actor.ChannelValues,
 		}).
 		Return(nil)
 
@@ -66,7 +66,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenTemplateErro
 		Execute(w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:     testAppData,
 			Form:    &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
-			Options: actor.ActingOnValues,
+			Options: actor.ChannelValues,
 		}).
 		Return(expectedError)
 
@@ -79,7 +79,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenTemplateErro
 
 func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) {
 	testCases := []struct {
-		carryOutBy actor.ActingOn
+		carryOutBy actor.Channel
 		email      string
 	}{
 		{
@@ -204,14 +204,14 @@ func TestHowWouldCertificateProviderPreferToCarryOutTheirRoleFormValidate(t *tes
 		},
 		"missing": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: actor.ActingOn(0),
+				CarryOutBy: actor.Channel(0),
 				Error:      expectedError,
 			},
 			errors: validation.With("carry-out-by", validation.SelectError{Label: "howYourCertificateProviderWouldPreferToCarryOutTheirRole"}),
 		},
 		"invalid": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: actor.ActingOn(99),
+				CarryOutBy: actor.Channel(99),
 				Error:      expectedError,
 			},
 			errors: validation.With("carry-out-by", validation.SelectError{Label: "howYourCertificateProviderWouldPreferToCarryOutTheirRole"}),

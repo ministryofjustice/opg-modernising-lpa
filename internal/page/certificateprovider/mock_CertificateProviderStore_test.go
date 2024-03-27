@@ -25,7 +25,7 @@ func (_m *mockCertificateProviderStore) EXPECT() *mockCertificateProviderStore_E
 }
 
 // Create provides a mock function with given fields: ctx, donorSessionID, certificateProviderUID, donorActingOn
-func (_m *mockCertificateProviderStore) Create(ctx context.Context, donorSessionID string, certificateProviderUID actoruid.UID, donorActingOn actor.ActingOn) (*actor.CertificateProviderProvidedDetails, error) {
+func (_m *mockCertificateProviderStore) Create(ctx context.Context, donorSessionID string, certificateProviderUID actoruid.UID, donorActingOn actor.Channel) (*actor.CertificateProviderProvidedDetails, error) {
 	ret := _m.Called(ctx, donorSessionID, certificateProviderUID, donorActingOn)
 
 	if len(ret) == 0 {
@@ -34,10 +34,10 @@ func (_m *mockCertificateProviderStore) Create(ctx context.Context, donorSession
 
 	var r0 *actor.CertificateProviderProvidedDetails
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, actoruid.UID, actor.ActingOn) (*actor.CertificateProviderProvidedDetails, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, actoruid.UID, actor.Channel) (*actor.CertificateProviderProvidedDetails, error)); ok {
 		return rf(ctx, donorSessionID, certificateProviderUID, donorActingOn)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, actoruid.UID, actor.ActingOn) *actor.CertificateProviderProvidedDetails); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, actoruid.UID, actor.Channel) *actor.CertificateProviderProvidedDetails); ok {
 		r0 = rf(ctx, donorSessionID, certificateProviderUID, donorActingOn)
 	} else {
 		if ret.Get(0) != nil {
@@ -45,7 +45,7 @@ func (_m *mockCertificateProviderStore) Create(ctx context.Context, donorSession
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, actoruid.UID, actor.ActingOn) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, actoruid.UID, actor.Channel) error); ok {
 		r1 = rf(ctx, donorSessionID, certificateProviderUID, donorActingOn)
 	} else {
 		r1 = ret.Error(1)
@@ -63,14 +63,14 @@ type mockCertificateProviderStore_Create_Call struct {
 //   - ctx context.Context
 //   - donorSessionID string
 //   - certificateProviderUID actoruid.UID
-//   - donorActingOn actor.ActingOn
+//   - donorActingOn actor.Channel
 func (_e *mockCertificateProviderStore_Expecter) Create(ctx interface{}, donorSessionID interface{}, certificateProviderUID interface{}, donorActingOn interface{}) *mockCertificateProviderStore_Create_Call {
 	return &mockCertificateProviderStore_Create_Call{Call: _e.mock.On("Create", ctx, donorSessionID, certificateProviderUID, donorActingOn)}
 }
 
-func (_c *mockCertificateProviderStore_Create_Call) Run(run func(ctx context.Context, donorSessionID string, certificateProviderUID actoruid.UID, donorActingOn actor.ActingOn)) *mockCertificateProviderStore_Create_Call {
+func (_c *mockCertificateProviderStore_Create_Call) Run(run func(ctx context.Context, donorSessionID string, certificateProviderUID actoruid.UID, donorActingOn actor.Channel)) *mockCertificateProviderStore_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(actoruid.UID), args[3].(actor.ActingOn))
+		run(args[0].(context.Context), args[1].(string), args[2].(actoruid.UID), args[3].(actor.Channel))
 	})
 	return _c
 }
@@ -80,7 +80,7 @@ func (_c *mockCertificateProviderStore_Create_Call) Return(_a0 *actor.Certificat
 	return _c
 }
 
-func (_c *mockCertificateProviderStore_Create_Call) RunAndReturn(run func(context.Context, string, actoruid.UID, actor.ActingOn) (*actor.CertificateProviderProvidedDetails, error)) *mockCertificateProviderStore_Create_Call {
+func (_c *mockCertificateProviderStore_Create_Call) RunAndReturn(run func(context.Context, string, actoruid.UID, actor.Channel) (*actor.CertificateProviderProvidedDetails, error)) *mockCertificateProviderStore_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }

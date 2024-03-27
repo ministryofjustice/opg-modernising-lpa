@@ -12,7 +12,7 @@ import (
 )
 
 func TestConfirmYourDetails(t *testing.T) {
-	testcases := map[actor.ActingOn]string{
+	testcases := map[actor.Channel]string{
 		actor.Online: "mobileNumber",
 		actor.Paper:  "contactNumber",
 	}

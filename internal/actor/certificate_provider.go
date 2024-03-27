@@ -41,7 +41,7 @@ type CertificateProvider struct {
 	// Email of the certificate provider
 	Email string
 	// How the certificate provider wants to perform their role (paper or online)
-	CarryOutBy ActingOn
+	CarryOutBy Channel
 	// The certificate provider's relationship to the applicant
 	Relationship CertificateProviderRelationship
 	// Amount of time Relationship has been in place if Personally

@@ -190,7 +190,7 @@ func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, a
 		})
 }
 
-func (s *ShareCodeSender) createShareCode(ctx context.Context, appData AppData, actorUID actoruid.UID, actorType actor.Type, donorActingOn actor.ActingOn) (string, error) {
+func (s *ShareCodeSender) createShareCode(ctx context.Context, appData AppData, actorUID actoruid.UID, actorType actor.Type, donorActingOn actor.Channel) (string, error) {
 	shareCode := s.randomString(12)
 	if s.testCode != "" {
 		shareCode = s.testCode

@@ -16,7 +16,7 @@ import (
 type lpaRequest struct {
 	LpaType                                     actor.LpaType                    `json:"lpaType"`
 	Donor                                       lpaRequestDonor                  `json:"donor"`
-	Channel                                     actor.ActingOn                   `json:"channel"`
+	Channel                                     actor.Channel                    `json:"channel"`
 	Attorneys                                   []lpaRequestAttorney             `json:"attorneys"`
 	TrustCorporations                           []lpaRequestTrustCorporation     `json:"trustCorporations,omitempty"`
 	CertificateProvider                         lpaRequestCertificateProvider    `json:"certificateProvider"`
@@ -64,12 +64,12 @@ type lpaRequestTrustCorporation struct {
 }
 
 type lpaRequestCertificateProvider struct {
-	UID        actoruid.UID   `json:"uid"`
-	FirstNames string         `json:"firstNames"`
-	LastName   string         `json:"lastName"`
-	Email      string         `json:"email,omitempty"`
-	Address    place.Address  `json:"address"`
-	Channel    actor.ActingOn `json:"channel"`
+	UID        actoruid.UID  `json:"uid"`
+	FirstNames string        `json:"firstNames"`
+	LastName   string        `json:"lastName"`
+	Email      string        `json:"email,omitempty"`
+	Address    place.Address `json:"address"`
+	Channel    actor.Channel `json:"channel"`
 }
 
 type lpaRequestPersonToNotify struct {
@@ -200,7 +200,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 
 type lpaResponse struct {
 	LpaType                                     actor.LpaType                    `json:"lpaType"`
-	Channel                                     actor.ActingOn                   `json:"channel"`
+	Channel                                     actor.Channel                    `json:"channel"`
 	Donor                                       lpaRequestDonor                  `json:"donor"`
 	Attorneys                                   []lpaRequestAttorney             `json:"attorneys"`
 	TrustCorporations                           []lpaRequestTrustCorporation     `json:"trustCorporations,omitempty"`

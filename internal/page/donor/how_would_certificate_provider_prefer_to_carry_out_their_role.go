@@ -14,7 +14,7 @@ type howWouldCertificateProviderPreferToCarryOutTheirRoleData struct {
 	Errors              validation.List
 	CertificateProvider actor.CertificateProvider
 	Form                *howWouldCertificateProviderPreferToCarryOutTheirRoleForm
-	Options             actor.ActingOnOptions
+	Options             actor.ChannelOptions
 }
 
 func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template, donorStore DonorStore) Handler {
@@ -26,7 +26,7 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 				CarryOutBy: donor.CertificateProvider.CarryOutBy,
 				Email:      donor.CertificateProvider.Email,
 			},
-			Options: actor.ActingOnValues,
+			Options: actor.ChannelValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -50,13 +50,13 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 }
 
 type howWouldCertificateProviderPreferToCarryOutTheirRoleForm struct {
-	CarryOutBy actor.ActingOn
+	CarryOutBy actor.Channel
 	Email      string
 	Error      error
 }
 
 func readHowWouldCertificateProviderPreferToCarryOutTheirRole(r *http.Request) *howWouldCertificateProviderPreferToCarryOutTheirRoleForm {
-	carryOutBy, err := actor.ParseActingOn(page.PostFormString(r, "carry-out-by"))
+	carryOutBy, err := actor.ParseChannel(page.PostFormString(r, "carry-out-by"))
 
 	return &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
 		CarryOutBy: carryOutBy,
