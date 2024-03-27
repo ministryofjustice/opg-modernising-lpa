@@ -35,8 +35,9 @@ func TestClientSendLpa(t *testing.T) {
 	}{
 		"minimal": {
 			donor: &actor.DonorProvidedDetails{
-				LpaUID: "M-0000-1111-2222",
-				Type:   actor.LpaTypePropertyAndAffairs,
+				LpaUID:   "M-0000-1111-2222",
+				ActingOn: actor.Online,
+				Type:     actor.LpaTypePropertyAndAffairs,
 				Donor: actor.Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
@@ -81,6 +82,7 @@ func TestClientSendLpa(t *testing.T) {
 			},
 			json: `{
 "lpaType":"property-and-affairs",
+"channel":"online",
 "donor":{"uid":"` + donorUID.String() + `","firstNames":"John Johnson","lastName":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"","line3":"","town":"town","postcode":"","country":"GB"},"otherNamesKnownBy":"JJ"},
 "attorneys":[{"uid":"` + attorneyUID.String() + `","firstNames":"Adam","lastName":"Attorney","dateOfBirth":"1999-01-02","email":"adam@example.com","address":{"line1":"a-line-1","line2":"","line3":"","town":"a-town","postcode":"","country":"GB"},"status":"active"}],
 "certificateProvider":{"uid":"` + certificateProviderUID.String() + `","firstNames":"Carol","lastName":"Cert","address":{"line1":"c-line-1","line2":"","line3":"","town":"c-town","postcode":"","country":"GB"},"channel":"paper"},
@@ -91,8 +93,9 @@ func TestClientSendLpa(t *testing.T) {
 		},
 		"everything": {
 			donor: &actor.DonorProvidedDetails{
-				LpaUID: "M-0000-1111-2222",
-				Type:   actor.LpaTypePersonalWelfare,
+				LpaUID:   "M-0000-1111-2222",
+				ActingOn: actor.Online,
+				Type:     actor.LpaTypePersonalWelfare,
 				Donor: actor.Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
@@ -242,6 +245,7 @@ func TestClientSendLpa(t *testing.T) {
 			},
 			json: `{
 "lpaType":"personal-welfare",
+"channel":"online",
 "donor":{"uid":"` + donorUID.String() + `","firstNames":"John Johnson","lastName":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"line-2","line3":"line-3","town":"town","postcode":"F1 1FF","country":"GB"},"otherNamesKnownBy":"JJ"},
 "attorneys":[
 {"uid":"` + attorneyUID.String() + `","firstNames":"Adam","lastName":"Attorney","dateOfBirth":"1999-01-02","email":"adam@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active"},

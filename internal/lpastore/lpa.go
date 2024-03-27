@@ -16,6 +16,7 @@ import (
 type lpaRequest struct {
 	LpaType                                     actor.LpaType                    `json:"lpaType"`
 	Donor                                       lpaRequestDonor                  `json:"donor"`
+	Channel                                     actor.Channel                    `json:"channel"`
 	Attorneys                                   []lpaRequestAttorney             `json:"attorneys"`
 	TrustCorporations                           []lpaRequestTrustCorporation     `json:"trustCorporations,omitempty"`
 	CertificateProvider                         lpaRequestCertificateProvider    `json:"certificateProvider"`
@@ -63,12 +64,12 @@ type lpaRequestTrustCorporation struct {
 }
 
 type lpaRequestCertificateProvider struct {
-	UID        actoruid.UID                        `json:"uid"`
-	FirstNames string                              `json:"firstNames"`
-	LastName   string                              `json:"lastName"`
-	Email      string                              `json:"email,omitempty"`
-	Address    place.Address                       `json:"address"`
-	Channel    actor.CertificateProviderCarryOutBy `json:"channel"`
+	UID        actoruid.UID  `json:"uid"`
+	FirstNames string        `json:"firstNames"`
+	LastName   string        `json:"lastName"`
+	Email      string        `json:"email,omitempty"`
+	Address    place.Address `json:"address"`
+	Channel    actor.Channel `json:"channel"`
 }
 
 type lpaRequestPersonToNotify struct {
@@ -81,6 +82,7 @@ type lpaRequestPersonToNotify struct {
 func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails) error {
 	body := lpaRequest{
 		LpaType: donor.Type,
+		Channel: donor.ActingOn,
 		Donor: lpaRequestDonor{
 			UID:               donor.Donor.UID,
 			FirstNames:        donor.Donor.FirstNames,
@@ -198,6 +200,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 
 type lpaResponse struct {
 	LpaType                                     actor.LpaType                    `json:"lpaType"`
+	Channel                                     actor.Channel                    `json:"channel"`
 	Donor                                       lpaRequestDonor                  `json:"donor"`
 	Attorneys                                   []lpaRequestAttorney             `json:"attorneys"`
 	TrustCorporations                           []lpaRequestTrustCorporation     `json:"trustCorporations,omitempty"`
@@ -273,6 +276,7 @@ func (l *lpaResponse) ToDonorProvidedDetails() *actor.DonorProvidedDetails {
 
 	return &actor.DonorProvidedDetails{
 		LpaUID:       l.UID,
+		ActingOn:     l.Channel,
 		RegisteredAt: l.RegistrationDate,
 		UpdatedAt:    l.UpdatedAt,
 		Type:         l.LpaType,

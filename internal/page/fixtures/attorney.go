@@ -29,8 +29,8 @@ type DonorStore interface {
 }
 
 type CertificateProviderStore interface {
-	Create(context.Context, string, actoruid.UID) (*actor.CertificateProviderProvidedDetails, error)
-	Put(context.Context, *actor.CertificateProviderProvidedDetails) error
+	Create(ctx context.Context, donorSessionID string, certificateProviderUID actoruid.UID, donorActingOn actor.Channel) (*actor.CertificateProviderProvidedDetails, error)
+	Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error
 }
 
 type AttorneyStore interface {
@@ -188,7 +188,7 @@ func Attorney(
 		donorDetails.AttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
 		donorDetails.ReplacementAttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
 
-		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID, donorDetails.CertificateProvider.UID)
+		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID, donorDetails.CertificateProvider.UID, actor.Online)
 		if err != nil {
 			return err
 		}
