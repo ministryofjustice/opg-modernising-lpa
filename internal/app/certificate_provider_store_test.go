@@ -17,7 +17,7 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 	uid := actoruid.New()
 	now := time.Now()
-	details := &actor.CertificateProviderProvidedDetails{PK: "LPA#123", SK: "#CERTIFICATE_PROVIDER#456", LpaID: "123", UpdatedAt: now, UID: uid, DonorActingOn: actor.Paper}
+	details := &actor.CertificateProviderProvidedDetails{PK: "LPA#123", SK: "#CERTIFICATE_PROVIDER#456", LpaID: "123", UpdatedAt: now, UID: uid, DonorChannel: actor.Paper}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().

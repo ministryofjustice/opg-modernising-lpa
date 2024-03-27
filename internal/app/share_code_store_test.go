@@ -56,7 +56,7 @@ func TestShareCodeStoreGetWhenLinked(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
 		ExpectOneByPK(ctx, "DONORSHARE#123",
-			actor.ShareCodeData{LpaLinkedAt: time.Now(), DonorActingOn: actor.Online}, nil)
+			actor.ShareCodeData{LpaLinkedAt: time.Now(), DonorChannel: actor.Online}, nil)
 
 	shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}
 

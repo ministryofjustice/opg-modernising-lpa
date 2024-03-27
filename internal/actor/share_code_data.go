@@ -14,7 +14,7 @@ type ShareCodeData struct {
 	ActorUID              actoruid.UID
 	IsReplacementAttorney bool
 	IsTrustCorporation    bool
-	DonorActingOn         Channel
+	DonorChannel          Channel
 
 	// InviteSentTo is the email address the supporter sent the invite to
 	InviteSentTo string

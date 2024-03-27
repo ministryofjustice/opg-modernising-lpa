@@ -25,9 +25,9 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:     actor.LpaTypePropertyAndAffairs,
-		LpaUID:   "lpa-uid",
-		ActingOn: actor.Online,
+		Type:    actor.LpaTypePropertyAndAffairs,
+		LpaUID:  "lpa-uid",
+		Channel: actor.Online,
 	}
 
 	localizer := newMockLocalizer(t)
@@ -49,9 +49,9 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Put(ctx, actor.TypeCertificateProvider, testRandomString, actor.ShareCodeData{
-			LpaID:         "lpa-id",
-			SessionID:     "session-id",
-			DonorActingOn: actor.Online,
+			LpaID:        "lpa-id",
+			SessionID:    "session-id",
+			DonorChannel: actor.Online,
 		}).
 		Return(nil)
 
@@ -248,9 +248,9 @@ func TestShareCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:     actor.LpaTypePropertyAndAffairs,
-		LpaUID:   "lpa-uid",
-		ActingOn: actor.Online,
+		Type:    actor.LpaTypePropertyAndAffairs,
+		LpaUID:  "lpa-uid",
+		Channel: actor.Online,
 	}
 
 	localizer := newMockLocalizer(t)
@@ -276,9 +276,9 @@ func TestShareCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Put(ctx, actor.TypeCertificateProvider, testRandomString, actor.ShareCodeData{
-			LpaID:         "lpa-id",
-			SessionID:     "session-id",
-			DonorActingOn: actor.Online,
+			LpaID:        "lpa-id",
+			SessionID:    "session-id",
+			DonorChannel: actor.Online,
 		}).
 		Return(nil)
 
@@ -587,9 +587,9 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:     actor.LpaTypePropertyAndAffairs,
-		LpaUID:   "lpa-uid",
-		ActingOn: actor.Online,
+		Type:    actor.LpaTypePropertyAndAffairs,
+		LpaUID:  "lpa-uid",
+		Channel: actor.Online,
 	}
 
 	localizer := newMockLocalizer(t)
@@ -606,25 +606,25 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeTrustCorporation, testRandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: trustCorporationUID, IsTrustCorporation: true, DonorActingOn: actor.Online}).
+		Put(ctx, actor.TypeTrustCorporation, testRandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: trustCorporationUID, IsTrustCorporation: true, DonorChannel: actor.Online}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeReplacementTrustCorporation, testRandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: replacementTrustCorporationUID, IsTrustCorporation: true, IsReplacementAttorney: true, DonorActingOn: actor.Online}).
+		Put(ctx, actor.TypeReplacementTrustCorporation, testRandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: replacementTrustCorporationUID, IsTrustCorporation: true, IsReplacementAttorney: true, DonorChannel: actor.Online}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeAttorney, testRandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: attorney1UID, DonorActingOn: actor.Online}).
+		Put(ctx, actor.TypeAttorney, testRandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: attorney1UID, DonorChannel: actor.Online}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeAttorney, testRandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: attorney2UID, DonorActingOn: actor.Online}).
+		Put(ctx, actor.TypeAttorney, testRandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: attorney2UID, DonorChannel: actor.Online}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeAttorney, testRandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: attorney3UID, DonorActingOn: actor.Online}).
+		Put(ctx, actor.TypeAttorney, testRandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: attorney3UID, DonorChannel: actor.Online}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeReplacementAttorney, testRandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: replacement1UID, IsReplacementAttorney: true, DonorActingOn: actor.Online}).
+		Put(ctx, actor.TypeReplacementAttorney, testRandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: replacement1UID, IsReplacementAttorney: true, DonorChannel: actor.Online}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeReplacementAttorney, testRandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: replacement2UID, IsReplacementAttorney: true, DonorActingOn: actor.Online}).
+		Put(ctx, actor.TypeReplacementAttorney, testRandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: replacement2UID, IsReplacementAttorney: true, DonorChannel: actor.Online}).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
@@ -729,9 +729,9 @@ func TestShareCodeSenderSendAttorneysTrustCorporationsNoEmail(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:     actor.LpaTypePropertyAndAffairs,
-		LpaUID:   "lpa-uid",
-		ActingOn: actor.Online,
+		Type:    actor.LpaTypePropertyAndAffairs,
+		LpaUID:  "lpa-uid",
+		Channel: actor.Online,
 	}
 
 	ctx := context.Background()
@@ -742,7 +742,7 @@ func TestShareCodeSenderSendAttorneysTrustCorporationsNoEmail(t *testing.T) {
 			LpaID:              "lpa-id",
 			ActorUID:           uid1,
 			IsTrustCorporation: true,
-			DonorActingOn:      actor.Online,
+			DonorChannel:       actor.Online,
 		}).
 		Return(nil)
 	shareCodeStore.EXPECT().
@@ -752,7 +752,7 @@ func TestShareCodeSenderSendAttorneysTrustCorporationsNoEmail(t *testing.T) {
 			ActorUID:              uid2,
 			IsTrustCorporation:    true,
 			IsReplacementAttorney: true,
-			DonorActingOn:         actor.Online,
+			DonorChannel:          actor.Online,
 		}).
 		Return(nil)
 

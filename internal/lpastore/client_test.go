@@ -161,7 +161,7 @@ func TestClientServiceContract(t *testing.T) {
 			err := client.SendLpa(context.Background(), &actor.DonorProvidedDetails{
 				LpaUID:                        "M-0000-1111-2222",
 				Type:                          actor.LpaTypePersonalWelfare,
-				ActingOn:                      actor.Online,
+				Channel:                       actor.Online,
 				LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA,
 				Donor: actor.Donor{
 					UID:         actoruid.New(),
@@ -310,9 +310,9 @@ func TestClientServiceContract(t *testing.T) {
 			}
 
 			err := client.SendLpa(context.Background(), &actor.DonorProvidedDetails{
-				LpaUID:   "M-0000-1111-2222",
-				Type:     actor.LpaTypePersonalWelfare,
-				ActingOn: actor.Online,
+				LpaUID:  "M-0000-1111-2222",
+				Type:    actor.LpaTypePersonalWelfare,
+				Channel: actor.Online,
 				Donor: actor.Donor{
 					UID:         actoruid.New(),
 					FirstNames:  "John Johnson",
@@ -691,9 +691,9 @@ func TestClientServiceContract(t *testing.T) {
 			}
 
 			assert.Equal(t, &actor.DonorProvidedDetails{
-				LpaUID:   "M-0000-1111-2222",
-				Type:     actor.LpaTypePersonalWelfare,
-				ActingOn: actor.Online,
+				LpaUID:  "M-0000-1111-2222",
+				Type:    actor.LpaTypePersonalWelfare,
+				Channel: actor.Online,
 				Donor: actor.Donor{
 					FirstNames:  "Homer",
 					LastName:    "Zoller",

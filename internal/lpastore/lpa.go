@@ -82,7 +82,7 @@ type lpaRequestPersonToNotify struct {
 func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails) error {
 	body := lpaRequest{
 		LpaType: donor.Type,
-		Channel: donor.ActingOn,
+		Channel: donor.Channel,
 		Donor: lpaRequestDonor{
 			UID:               donor.Donor.UID,
 			FirstNames:        donor.Donor.FirstNames,
@@ -276,7 +276,7 @@ func (l *lpaResponse) ToDonorProvidedDetails() *actor.DonorProvidedDetails {
 
 	return &actor.DonorProvidedDetails{
 		LpaUID:       l.UID,
-		ActingOn:     l.Channel,
+		Channel:      l.Channel,
 		RegisteredAt: l.RegistrationDate,
 		UpdatedAt:    l.UpdatedAt,
 		Type:         l.LpaType,

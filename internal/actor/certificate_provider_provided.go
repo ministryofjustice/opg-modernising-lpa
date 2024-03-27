@@ -31,8 +31,8 @@ type CertificateProviderProvidedDetails struct {
 	Tasks CertificateProviderTasks
 	// ContactLanguagePreference is the language the certificate provider prefers to receive notifications in
 	ContactLanguagePreference localize.Lang
-	// DonorActingOn is the channel the donor is applying for the LPA through (online or paper)
-	DonorActingOn Channel
+	// DonorChannel is the way the donor is applying for the LPA (online or paper)
+	DonorChannel Channel
 }
 
 func (c CertificateProviderProvidedDetails) Signed(after time.Time) bool {

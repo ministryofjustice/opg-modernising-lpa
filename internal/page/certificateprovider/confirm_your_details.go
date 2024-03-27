@@ -51,7 +51,7 @@ func ConfirmYourDetails(tmpl template.Template, donorStore DonorStore, certifica
 			PhoneNumberLabel:    "mobileNumber",
 		}
 
-		if certificateProvider.DonorActingOn.IsPaper() {
+		if certificateProvider.DonorChannel.IsPaper() {
 			data.PhoneNumberLabel = "contactNumber"
 		}
 

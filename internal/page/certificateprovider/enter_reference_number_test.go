@@ -75,9 +75,9 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeCertificateProvider, "abcdef123456").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", ActorUID: uid, DonorActingOn: actor.Online}, nil)
+		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", ActorUID: uid, DonorChannel: actor.Online}, nil)
 	shareCodeStore.EXPECT().
-		Delete(r.Context(), actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", ActorUID: uid, DonorActingOn: actor.Online}).
+		Delete(r.Context(), actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", ActorUID: uid, DonorChannel: actor.Online}).
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -171,7 +171,7 @@ func TestPostEnterReferenceNumberWhenShareCodeStoreDeleteError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeCertificateProvider, "abcdef123456").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", ActorUID: uid, DonorActingOn: actor.Online}, nil)
+		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", ActorUID: uid, DonorChannel: actor.Online}, nil)
 	shareCodeStore.EXPECT().
 		Delete(mock.Anything, mock.Anything).
 		Return(expectedError)

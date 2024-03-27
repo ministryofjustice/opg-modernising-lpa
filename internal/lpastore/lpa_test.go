@@ -35,9 +35,9 @@ func TestClientSendLpa(t *testing.T) {
 	}{
 		"minimal": {
 			donor: &actor.DonorProvidedDetails{
-				LpaUID:   "M-0000-1111-2222",
-				ActingOn: actor.Online,
-				Type:     actor.LpaTypePropertyAndAffairs,
+				LpaUID:  "M-0000-1111-2222",
+				Channel: actor.Online,
+				Type:    actor.LpaTypePropertyAndAffairs,
 				Donor: actor.Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
@@ -93,9 +93,9 @@ func TestClientSendLpa(t *testing.T) {
 		},
 		"everything": {
 			donor: &actor.DonorProvidedDetails{
-				LpaUID:   "M-0000-1111-2222",
-				ActingOn: actor.Online,
-				Type:     actor.LpaTypePersonalWelfare,
+				LpaUID:  "M-0000-1111-2222",
+				Channel: actor.Online,
+				Type:    actor.LpaTypePersonalWelfare,
 				Donor: actor.Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",

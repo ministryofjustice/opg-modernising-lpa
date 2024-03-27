@@ -74,7 +74,7 @@ describe('Confirm your details', () => {
   })
 
   it('shows contact number when donor acting on paper', () => {
-    cy.visit('/fixtures/certificate-provider?redirect=/confirm-your-details&donorActingOn=paper');
+    cy.visit('/fixtures/certificate-provider?redirect=/confirm-your-details&donorChannel=paper');
 
     cy.contains('Contact number').should('exist');
     cy.contains('Mobile number').should('not.exist');

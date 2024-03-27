@@ -17,13 +17,13 @@ func TestConfirmYourDetails(t *testing.T) {
 		actor.Paper:  "contactNumber",
 	}
 
-	for donorActingOn, expectedPhoneNumberTranslation := range testcases {
-		t.Run(donorActingOn.String(), func(t *testing.T) {
+	for donorChannel, expectedPhoneNumberTranslation := range testcases {
+		t.Run(donorChannel.String(), func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 			donor := &actor.DonorProvidedDetails{}
-			certificateProvider := &actor.CertificateProviderProvidedDetails{DonorActingOn: donorActingOn}
+			certificateProvider := &actor.CertificateProviderProvidedDetails{DonorChannel: donorChannel}
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().

@@ -44,7 +44,7 @@ func CertificateProvider(
 			certificateProviderSub            = r.FormValue("certificateProviderSub")
 			shareCode                         = r.FormValue("withShareCode")
 			useRealUID                        = r.FormValue("uid") == "real"
-			donorActingOnString               = r.FormValue("donorActingOn")
+			donorChannel                      = r.FormValue("donorChannel")
 		)
 
 		if certificateProviderSub == "" {
@@ -78,8 +78,8 @@ func CertificateProvider(
 		donorDetails.Donor = makeDonor()
 		donorDetails.Type = actor.LpaTypePropertyAndAffairs
 
-		if donorActingOnString == "paper" {
-			donorDetails.ActingOn = actor.Paper
+		if donorChannel == "paper" {
+			donorDetails.Channel = actor.Paper
 		}
 
 		if lpaType == "personal-welfare" {
@@ -124,7 +124,7 @@ func CertificateProvider(
 			donorDetails.CertificateProvider.Relationship = actor.Professionally
 		}
 
-		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID, donorDetails.CertificateProvider.UID, donorDetails.ActingOn)
+		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID, donorDetails.CertificateProvider.UID, donorDetails.Channel)
 		if err != nil {
 			return err
 		}
