@@ -67,6 +67,7 @@ type lpaRequestCertificateProvider struct {
 	FirstNames string                              `json:"firstNames"`
 	LastName   string                              `json:"lastName"`
 	Email      string                              `json:"email,omitempty"`
+	Phone      string                              `json:"phone"`
 	Address    place.Address                       `json:"address"`
 	Channel    actor.CertificateProviderCarryOutBy `json:"channel"`
 }
@@ -95,6 +96,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 			FirstNames: donor.CertificateProvider.FirstNames,
 			LastName:   donor.CertificateProvider.LastName,
 			Email:      donor.CertificateProvider.Email,
+			Phone:      donor.CertificateProvider.Mobile,
 			Address:    donor.CertificateProvider.Address,
 			Channel:    donor.CertificateProvider.CarryOutBy,
 		},
@@ -299,6 +301,7 @@ func (l *lpaResponse) ToDonorProvidedDetails() *actor.DonorProvidedDetails {
 			LastName:   l.CertificateProvider.LastName,
 			Email:      l.CertificateProvider.Email,
 			Address:    l.CertificateProvider.Address,
+			Mobile:     l.CertificateProvider.Phone,
 			CarryOutBy: l.CertificateProvider.Channel,
 		},
 		PeopleToNotify: peopleToNotify,
