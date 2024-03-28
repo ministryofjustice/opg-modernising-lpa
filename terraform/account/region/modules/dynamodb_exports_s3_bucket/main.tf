@@ -22,16 +22,16 @@ resource "aws_s3_bucket_versioning" "bucket_versioning" {
   provider = aws.region
 }
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "bucket_encryption_configuration" {
-  bucket = aws_s3_bucket.bucket.bucket
+# resource "aws_s3_bucket_server_side_encryption_configuration" "bucket_encryption_configuration" {
+#   bucket = aws_s3_bucket.bucket.bucket
 
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
-    }
-  }
-  provider = aws.region
-}
+#   rule {
+#     apply_server_side_encryption_by_default {
+#       sse_algorithm = "AES256"
+#     }
+#   }
+#   provider = aws.region
+# }
 
 resource "aws_s3_bucket_public_access_block" "public_access_policy" {
   bucket                  = aws_s3_bucket.bucket.id
