@@ -23,7 +23,7 @@ type provideCertificateData struct {
 
 func ProvideCertificate(
 	tmpl template.Template,
-	donorStore DonorStore,
+	lpaStoreResolvingService LpaStoreResolvingService,
 	certificateProviderStore CertificateProviderStore,
 	notifyClient NotifyClient,
 	shareCodeSender ShareCodeSender,
@@ -31,7 +31,7 @@ func ProvideCertificate(
 	now func() time.Time,
 ) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		donor, err := donorStore.GetAny(r.Context())
+		donor, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}
