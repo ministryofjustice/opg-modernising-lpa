@@ -67,6 +67,7 @@ type lpaRequestCertificateProvider struct {
 	FirstNames string                              `json:"firstNames"`
 	LastName   string                              `json:"lastName"`
 	Email      string                              `json:"email,omitempty"`
+	Phone      string                              `json:"phone,omitempty"`
 	Address    place.Address                       `json:"address"`
 	Channel    actor.CertificateProviderCarryOutBy `json:"channel"`
 }
@@ -95,6 +96,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 			FirstNames: donor.CertificateProvider.FirstNames,
 			LastName:   donor.CertificateProvider.LastName,
 			Email:      donor.CertificateProvider.Email,
+			Phone:      donor.CertificateProvider.Mobile,
 			Address:    donor.CertificateProvider.Address,
 			Channel:    donor.CertificateProvider.CarryOutBy,
 		},
@@ -216,8 +218,8 @@ type lpaResponse struct {
 	CertificateProviderNotRelatedConfirmedAt    *time.Time                       `json:"certificateProviderNotRelatedConfirmedAt,omitempty"`
 	UID                                         string                           `json:"uid"`
 	Status                                      string                           `json:"status"`
-	RegistrationDate                            time.Time                        `json:"registrationDate"`
-	UpdatedAt                                   time.Time                        `json:"updatedAt"`
+	RegistrationDate                            date.Date                        `json:"registrationDate"`
+	UpdatedAt                                   date.Date                        `json:"updatedAt"`
 }
 
 func (l *lpaResponse) ToDonorProvidedDetails() *actor.DonorProvidedDetails {
@@ -273,8 +275,8 @@ func (l *lpaResponse) ToDonorProvidedDetails() *actor.DonorProvidedDetails {
 
 	return &actor.DonorProvidedDetails{
 		LpaUID:       l.UID,
-		RegisteredAt: l.RegistrationDate,
-		UpdatedAt:    l.UpdatedAt,
+		RegisteredAt: l.RegistrationDate.Time(),
+		UpdatedAt:    l.UpdatedAt.Time(),
 		Type:         l.LpaType,
 		Donor: actor.Donor{
 			UID:         l.Donor.UID,
@@ -299,6 +301,7 @@ func (l *lpaResponse) ToDonorProvidedDetails() *actor.DonorProvidedDetails {
 			LastName:   l.CertificateProvider.LastName,
 			Email:      l.CertificateProvider.Email,
 			Address:    l.CertificateProvider.Address,
+			Mobile:     l.CertificateProvider.Phone,
 			CarryOutBy: l.CertificateProvider.Channel,
 		},
 		PeopleToNotify: peopleToNotify,

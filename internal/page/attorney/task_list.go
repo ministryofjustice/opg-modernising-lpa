@@ -23,9 +23,9 @@ type taskListItem struct {
 	Count int
 }
 
-func TaskList(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore) Handler {
+func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorney *actor.AttorneyProvidedDetails) error {
-		donor, err := donorStore.GetAny(r.Context())
+		donor, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}
