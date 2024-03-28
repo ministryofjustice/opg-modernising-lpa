@@ -167,7 +167,7 @@ locals {
       }
     }
     routes = {
-      lpas_stream = "'contains(/\"SK\", \"#SUB#\") and contains(/\"PK\", \"LPA#\")'"
+      lpas_stream = "'contains(/SK, \"#SUB#\")'"
     }
     supporter_lpas = {
       sink = {
