@@ -218,7 +218,7 @@ resource "aws_osis_pipeline" "lpas_stream" {
   pipeline_name               = "lpas-${local.default_tags.environment-name}-stream"
   max_units                   = 1
   min_units                   = 1
-  pipeline_configuration_body = templatefile("opensearch_pipeline/pipeline_configuration.yaml.tftpl", local.lpas_stream_pipeline_configuration_template_vars)
+  pipeline_configuration_body = templatefile("opensearch_pipeline/lpas_stream_pipeline_configuration.yaml.tftpl", local.lpas_stream_pipeline_configuration_template_vars)
   buffer_options {
     persistent_buffer_enabled = false
   }
