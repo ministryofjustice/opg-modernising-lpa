@@ -19,10 +19,11 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
   version = "2012-10-17"
 
   statement {
-    sid    = "GetCollection"
+    sid    = "CollectionActions"
     effect = "Allow"
     actions = [
       "aoss:BatchGetCollection",
+      "aoss:APIAccessAll"
     ]
     resources = [aws_opensearchserverless_collection.lpas_collection.arn]
   }
@@ -32,9 +33,7 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     effect = "Allow"
     actions = [
       "aoss:CreateSecurityPolicy",
-      "aoss:GetSecurityPolicy",
       "aoss:UpdateSecurityPolicy",
-      "aoss:APIAccessAll"
     ]
     resources = ["*"]
     condition {
@@ -42,16 +41,21 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
       variable = "aoss:collection"
       values   = [aws_opensearchserverless_collection.lpas_collection.name]
     }
+  }
+
+  statement {
+    sid    = "GetSecurityPolicy"
+    effect = "Allow"
+    actions = [
+      "aoss:GetSecurityPolicy",
+    ]
+    resources = ["*"]
+
     condition {
       test     = "StringEquals"
       variable = "aws:SourceAccount"
       values   = [data.aws_caller_identity.eu_west_1.account_id]
     }
-    # condition {
-    #   test     = "ArnLike"
-    #   variable = "aws:SourceArn"
-    #   values   = ["arn:aws:osis:eu-west-1:${data.aws_caller_identity.eu_west_1.account_id}:pipeline/*"]
-    # }
   }
 
   statement {
@@ -102,7 +106,6 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
       "dynamodb:GetShardIterator",
     ]
     resources = [
-      # "*",
       "${aws_dynamodb_table.lpas_table.arn}/stream/*",
     ]
   }
