@@ -1,0 +1,27 @@
+version: "2"
+dynamodb-pipeline:
+  source:
+    dynamodb:
+      acknowledgments: true
+      tables:
+        - table_arn: ${source.tables.table_arn}
+          stream:
+            start_position: ${source.tables.stream.start_position}
+      aws:
+        sts_role_arn: ${source.tables.aws.sts_role_arn}
+        region: ${source.tables.aws.region}
+  routes:
+    - lpas_stream: ${routes.lpas_stream}
+    - lay_journey_lpas: ${routes.lay_journey_lpas}
+    - supporter_journey_lpas: ${routes.supporter_journey_lpas}
+  sink:
+    - opensearch:
+        hosts: ["${sink.opensearch.hosts}"]
+        index: ${sink.opensearch.index}
+        routes: [ "lpas_stream", "lay_journey_lpas", "supporter_journey_lpas"]
+        aws:
+          sts_role_arn: ${sink.opensearch.aws.sts_role_arn}
+          region: ${sink.opensearch.aws.region}
+          serverless: true
+          serverless_options:
+            network_policy_name: ${sink.opensearch.aws.serverless_options.network_policy_name}
