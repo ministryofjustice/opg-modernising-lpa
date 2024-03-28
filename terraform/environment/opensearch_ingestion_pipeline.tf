@@ -134,6 +134,7 @@ data "aws_subnet" "application" {
 
 resource "aws_security_group" "opensearch_ingestion" {
   name_prefix = "${local.default_tags.environment-name}-opensearch-ingestion"
+  description = "Security group for the opensearch ingestion pipeline"
   vpc_id      = data.aws_vpc.main.id
   provider    = aws.eu_west_1
 }
