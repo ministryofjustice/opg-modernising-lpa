@@ -24,7 +24,7 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     actions = [
       "aoss:BatchGetCollection",
     ]
-    resources = ["*"]
+    resources = [aws_opensearchserverless_collection.lpas_collection.arn]
   }
 
   statement {
@@ -37,16 +37,16 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
       "aoss:APIAccessAll"
     ]
     resources = ["*"]
-    # condition {
-    #   test     = "StringEquals"
-    #   variable = "aoss:collection"
-    #   values   = [aws_opensearchserverless_collection.lpas_collection.name]
-    # }
-    # condition {
-    #   test     = "StringEquals"
-    #   variable = "aws:SourceAccount"
-    #   values   = [data.aws_caller_identity.eu_west_1.account_id]
-    # }
+    condition {
+      test     = "StringEquals"
+      variable = "aoss:collection"
+      values   = [aws_opensearchserverless_collection.lpas_collection.name]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = [data.aws_caller_identity.eu_west_1.account_id]
+    }
     # condition {
     #   test     = "ArnLike"
     #   variable = "aws:SourceArn"
