@@ -96,7 +96,7 @@ services:
       - data01:/usr/share/opensearch/data
 
   mock-lpa-store:
-    image: outofcoffee/imposter:latest
+    image: outofcoffee/imposter-all:latest
     volumes:
       - ./mock-lpa-store/mock-lpa-store-config.yaml:/opt/imposter/config/mock-lpa-store-config.yaml
     container_name: mock-lpa-store

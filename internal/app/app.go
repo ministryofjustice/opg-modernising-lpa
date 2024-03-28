@@ -168,7 +168,6 @@ func App(
 		tmpls,
 		certificateProviderTmpls,
 		sessionStore,
-		donorStore,
 		oneLoginClient,
 		shareCodeStore,
 		errorHandler,
@@ -179,6 +178,7 @@ func App(
 		shareCodeSender,
 		dashboardStore,
 		lpaStoreClient,
+		lpastore.NewResolvingService(donorStore, lpaStoreClient),
 	)
 
 	attorney.Register(
@@ -187,7 +187,6 @@ func App(
 		tmpls,
 		attorneyTmpls,
 		sessionStore,
-		donorStore,
 		certificateProviderStore,
 		attorneyStore,
 		oneLoginClient,
@@ -196,6 +195,7 @@ func App(
 		notFoundHandler,
 		dashboardStore,
 		lpaStoreClient,
+		lpastore.NewResolvingService(donorStore, lpaStoreClient),
 	)
 
 	donor.Register(
