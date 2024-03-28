@@ -10,6 +10,16 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     actions = ["sts:AssumeRole"]
 
     principals {
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.global.account_id}:root"]
+      type        = "AWS"
+    }
+  }
+
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals {
       identifiers = ["osis-pipelines.amazonaws.com"]
       type        = "Service"
     }

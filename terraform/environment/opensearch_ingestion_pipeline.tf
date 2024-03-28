@@ -37,21 +37,21 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
       "aoss:APIAccessAll"
     ]
     resources = ["*"]
-    condition {
-      test     = "StringEquals"
-      variable = "aoss:collection"
-      values   = [aws_opensearchserverless_collection.lpas_collection.name]
-    }
-    condition {
-      test     = "StringEquals"
-      variable = "aws:SourceAccount"
-      values   = [data.aws_caller_identity.eu_west_1.account_id]
-    }
-    condition {
-      test     = "ArnLike"
-      variable = "aws:SourceArn"
-      values   = ["arn:aws:osis:eu-west-1:${data.aws_caller_identity.eu_west_1.account_id}:pipeline/*"]
-    }
+    # condition {
+    #   test     = "StringEquals"
+    #   variable = "aoss:collection"
+    #   values   = [aws_opensearchserverless_collection.lpas_collection.name]
+    # }
+    # condition {
+    #   test     = "StringEquals"
+    #   variable = "aws:SourceAccount"
+    #   values   = [data.aws_caller_identity.eu_west_1.account_id]
+    # }
+    # condition {
+    #   test     = "ArnLike"
+    #   variable = "aws:SourceArn"
+    #   values   = ["arn:aws:osis:eu-west-1:${data.aws_caller_identity.eu_west_1.account_id}:pipeline/*"]
+    # }
   }
 
   statement {
@@ -80,18 +80,6 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
   }
 
   statement {
-    sid    = "allowCheckExportjob"
-    effect = "Allow"
-    actions = [
-      "dynamodb:DescribeExport",
-    ]
-    resources = [
-      "${aws_dynamodb_table.lpas_table.arn}/export/*",
-    ]
-  }
-
-  #TODO: Move to a separate statement?
-  statement {
     sid    = "OpensearchEncryptionAccess"
     effect = "Allow"
     actions = [
@@ -101,7 +89,6 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     ]
     resources = [
       data.aws_kms_alias.opensearch_encryption_key.target_key_arn,
-      data.aws_kms_alias.dynamodb_export_bucket_encryption_key.target_key_arn,
     ]
   }
 
@@ -115,22 +102,8 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
       "dynamodb:GetShardIterator",
     ]
     resources = [
+      # "*",
       "${aws_dynamodb_table.lpas_table.arn}/stream/*",
-    ]
-  }
-
-  statement {
-    sid    = "allowReadAndWriteToS3ForExport"
-    effect = "Allow"
-    actions = [
-      "s3:GetObject",
-      "s3:AbortMultipartUpload",
-      "s3:CreateMultipartUpload",
-      "s3:PutObject",
-      "s3:PutObjectAcl",
-    ]
-    resources = [
-      "${data.aws_s3_bucket.dynamodb_export_bucket.arn}/${local.default_tags.environment-name}/ddb-to-opensearch-export/*",
     ]
   }
 }
@@ -178,28 +151,13 @@ resource "aws_cloudwatch_query_definition" "opensearch_pipeline" {
   provider        = aws.eu_west_1
 }
 
-data "aws_s3_bucket" "dynamodb_export_bucket" {
-  bucket   = "dynamodb-exports-${local.default_tags.application}-${local.default_tags.account-name}-${data.aws_region.eu_west_1.name}"
-  provider = aws.eu_west_1
-}
-
-data "aws_kms_alias" "dynamodb_export_bucket_encryption_key" {
-  name     = "alias/${local.default_tags.application}-dynamodb-exports-s3-bucket-encryption"
-  provider = aws.eu_west_1
-}
-
 locals {
-  pipeline_configuration_tempalte_vars = {
+  pipeline_configuration_template_vars = {
     source = {
       tables = {
         table_arn = aws_dynamodb_table.lpas_table.arn
         stream = {
           start_position = "LATEST"
-        }
-        export = {
-          s3_bucket = data.aws_s3_bucket.dynamodb_export_bucket.bucket
-          s3_region = "eu-west-1"
-          s3_prefix = "${local.default_tags.environment-name}/ddb-to-opensearch-export/"
         }
         aws = {
           sts_role_arn = module.global.iam_roles.opensearch_pipeline.arn
@@ -252,23 +210,32 @@ resource "aws_opensearchserverless_access_policy" "pipeline" {
   provider = aws.eu_west_1
 }
 
-# resource "aws_osis_pipeline" "lpas" {
-#   pipeline_name               = "lpas-${local.default_tags.environment-name}"
-#   max_units                   = 1
-#   min_units                   = 1
-#   pipeline_configuration_body = templatefile("opensearch_pipeline/pipeline_configuration.yaml.tftpl", local.pipeline_configuration_tempalte_vars)
-#   buffer_options {
-#     persistent_buffer_enabled = false
-#   }
-#   log_publishing_options {
-#     cloudwatch_log_destination {
-#       log_group = aws_cloudwatch_log_group.opensearch_pipeline.name
-#     }
-#     is_logging_enabled = true
-#   }
-#   vpc_options {
-#     security_group_ids = [aws_security_group.opensearch_ingestion.id]
-#     subnet_ids         = data.aws_subnet.application[*].id
-#   }
-#   provider = aws.eu_west_1
-# }
+resource "aws_osis_pipeline" "lpas_stream" {
+  pipeline_name               = "lpas-${local.default_tags.environment-name}"
+  max_units                   = 1
+  min_units                   = 1
+  pipeline_configuration_body = templatefile("opensearch_pipeline/pipeline_configuration.yaml.tftpl", local.pipeline_configuration_template_vars)
+  buffer_options {
+    persistent_buffer_enabled = false
+  }
+  log_publishing_options {
+    cloudwatch_log_destination {
+      log_group = aws_cloudwatch_log_group.opensearch_pipeline.name
+    }
+    is_logging_enabled = true
+  }
+  vpc_options {
+    security_group_ids = [aws_security_group.opensearch_ingestion.id]
+    subnet_ids         = data.aws_subnet.application[*].id
+  }
+  provider = aws.eu_west_1
+}
+
+moved {
+  from = aws_osis_pipeline.lpas_stream[0]
+  to   = aws_osis_pipeline.lpas_stream
+}
+moved {
+  from = aws_cloudwatch_log_group.opensearch_pipeline[0]
+  to   = aws_cloudwatch_log_group.opensearch_pipeline
+}
