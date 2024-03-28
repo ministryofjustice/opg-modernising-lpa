@@ -32,6 +32,9 @@ func (s *ResolvingService) Get(ctx context.Context) (*actor.DonorProvidedDetails
 		return nil, err
 	}
 
+	// TODO: these won't work for a donor who is using paper
 	lpa.LpaID = donor.LpaID
+	lpa.Tasks = donor.Tasks
+
 	return lpa, nil
 }
