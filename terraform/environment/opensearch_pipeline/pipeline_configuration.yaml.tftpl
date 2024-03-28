@@ -10,14 +10,13 @@ dynamodb-pipeline:
       aws:
         sts_role_arn: ${source.tables.aws.sts_role_arn}
         region: ${source.tables.aws.region}
+  routes:
+    - lpas_stream: ${routes.lpas_stream}
   sink:
     - opensearch:
         hosts: ["${supporter_lpas.sink.opensearch.hosts}"]
         index: ${supporter_lpas.sink.opensearch.index}
-        # document_id: "$${getMetadata(\"primary_key\")}"
-        # action: "$${getMetadata(\"opensearch_action\")}"
-        # document_version: "$${getMetadata(\"document_version\")}"
-        # document_version_type: "external"
+        routes: [ "lpas_stream" ]
         aws:
           sts_role_arn: ${supporter_lpas.sink.opensearch.aws.sts_role_arn}
           region: ${supporter_lpas.sink.opensearch.aws.region}

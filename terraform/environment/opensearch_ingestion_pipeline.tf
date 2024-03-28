@@ -166,8 +166,10 @@ locals {
         }
       }
     }
+    routes = {
+      lpas_stream = "'contains(/\"SK\", \"#SUB#\") and contains(/\"PK\", \"LPA#\")'"
+    }
     supporter_lpas = {
-      route = "'contains(/\"SK\", \"ORGANISATION#\") and contains(/\"PK\", \"LPA#\")'"
       sink = {
         opensearch = {
           hosts = aws_opensearchserverless_collection.lpas_collection.collection_endpoint
@@ -212,7 +214,7 @@ resource "aws_opensearchserverless_access_policy" "pipeline" {
 }
 
 resource "aws_osis_pipeline" "lpas_stream" {
-  pipeline_name               = "lpas-${local.default_tags.environment-name}"
+  pipeline_name               = "lpas-${local.default_tags.environment-name}-stream"
   max_units                   = 1
   min_units                   = 1
   pipeline_configuration_body = templatefile("opensearch_pipeline/pipeline_configuration.yaml.tftpl", local.pipeline_configuration_template_vars)
