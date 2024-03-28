@@ -98,7 +98,7 @@ services:
   mock-lpa-store:
     image: outofcoffee/imposter-all:latest
     volumes:
-      - ./mock-lpa-store/mock-lpa-store-config.yaml:/opt/imposter/config/mock-lpa-store-config.yaml
+      - ./mock-lpa-store/:/opt/imposter/config/
     container_name: mock-lpa-store
     ports:
       - "8081:8080"
