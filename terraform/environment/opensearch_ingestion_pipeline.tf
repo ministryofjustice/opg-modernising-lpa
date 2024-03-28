@@ -153,7 +153,7 @@ resource "aws_cloudwatch_query_definition" "opensearch_pipeline" {
 }
 
 locals {
-  pipeline_configuration_template_vars = {
+  lpas_stream_pipeline_configuration_template_vars = {
     source = {
       tables = {
         table_arn = aws_dynamodb_table.lpas_table.arn
@@ -167,19 +167,20 @@ locals {
       }
     }
     routes = {
-      lpas_stream = "'contains(/SK, \"#SUB#\")'"
+      lpas_stream            = "'contains(/SK, \"#SUB#\") and contains(/PK, \"#LPA#\")'"
+      lay_journey_lpas       = "'contains(/SK, \"#DONOR#\") and contains(/PK, \"#LPA#\")'"
+      supporter_journey_lpas = "'contains(/SK, \"#ORGANISATION#\") and contains(/PK, \"#LPA#\")'"
     }
-    supporter_lpas = {
-      sink = {
-        opensearch = {
-          hosts = aws_opensearchserverless_collection.lpas_collection.collection_endpoint
-          index = "lpas"
-          aws = {
-            sts_role_arn = module.global.iam_roles.opensearch_pipeline.arn
-            region       = "eu-west-1"
-            serverless_options = {
-              network_policy_name = aws_opensearchserverless_security_policy.lpas_collection_network_policy.name
-            }
+
+    sink = {
+      opensearch = {
+        hosts = aws_opensearchserverless_collection.lpas_collection.collection_endpoint
+        index = "lpas"
+        aws = {
+          sts_role_arn = module.global.iam_roles.opensearch_pipeline.arn
+          region       = "eu-west-1"
+          serverless_options = {
+            network_policy_name = aws_opensearchserverless_security_policy.lpas_collection_network_policy.name
           }
         }
       }
@@ -217,7 +218,7 @@ resource "aws_osis_pipeline" "lpas_stream" {
   pipeline_name               = "lpas-${local.default_tags.environment-name}-stream"
   max_units                   = 1
   min_units                   = 1
-  pipeline_configuration_body = templatefile("opensearch_pipeline/pipeline_configuration.yaml.tftpl", local.pipeline_configuration_template_vars)
+  pipeline_configuration_body = templatefile("opensearch_pipeline/pipeline_configuration.yaml.tftpl", local.lpas_stream_pipeline_configuration_template_vars)
   buffer_options {
     persistent_buffer_enabled = false
   }
