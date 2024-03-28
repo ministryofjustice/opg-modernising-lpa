@@ -51,9 +51,9 @@ func TestProgress(t *testing.T) {
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 			}
 
-			donorStore := newMockDonorStore(t)
-			donorStore.EXPECT().
-				GetAny(r.Context()).
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			lpaStoreResolvingService.EXPECT().
+				Get(r.Context()).
 				Return(donor, nil)
 
 			attorneyStore := newMockAttorneyStore(t)
@@ -66,7 +66,7 @@ func TestProgress(t *testing.T) {
 				Execute(w, &progressData{App: testAppData, Donor: donor, Signed: tc.signed, AttorneysSigned: tc.attorneysSigned}).
 				Return(nil)
 
-			err := Progress(template.Execute, attorneyStore, donorStore)(testAppData, w, r, tc.attorney)
+			err := Progress(template.Execute, attorneyStore, lpaStoreResolvingService)(testAppData, w, r, tc.attorney)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -79,9 +79,9 @@ func TestProgressWhenAttorneyStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
@@ -89,22 +89,22 @@ func TestProgressWhenAttorneyStoreErrors(t *testing.T) {
 		GetAny(r.Context()).
 		Return(nil, expectedError)
 
-	err := Progress(nil, attorneyStore, donorStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
+	err := Progress(nil, attorneyStore, lpaStoreResolvingService)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	assert.Equal(t, expectedError, err)
 }
 
-func TestProgressWhenDonorStoreErrors(t *testing.T) {
+func TestProgressWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donor := &actor.DonorProvidedDetails{}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
 		Return(donor, expectedError)
 
-	err := Progress(nil, nil, donorStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
+	err := Progress(nil, nil, lpaStoreResolvingService)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -112,9 +112,9 @@ func TestProgressWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
@@ -127,6 +127,6 @@ func TestProgressWhenTemplateErrors(t *testing.T) {
 		Execute(w, &progressData{App: testAppData, Donor: &actor.DonorProvidedDetails{}}).
 		Return(expectedError)
 
-	err := Progress(template.Execute, attorneyStore, donorStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
+	err := Progress(template.Execute, attorneyStore, lpaStoreResolvingService)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	assert.Equal(t, expectedError, err)
 }

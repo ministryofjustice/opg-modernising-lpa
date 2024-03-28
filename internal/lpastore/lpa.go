@@ -216,8 +216,8 @@ type lpaResponse struct {
 	CertificateProviderNotRelatedConfirmedAt    *time.Time                       `json:"certificateProviderNotRelatedConfirmedAt,omitempty"`
 	UID                                         string                           `json:"uid"`
 	Status                                      string                           `json:"status"`
-	RegistrationDate                            time.Time                        `json:"registrationDate"`
-	UpdatedAt                                   time.Time                        `json:"updatedAt"`
+	RegistrationDate                            date.Date                        `json:"registrationDate"`
+	UpdatedAt                                   date.Date                        `json:"updatedAt"`
 }
 
 func (l *lpaResponse) ToDonorProvidedDetails() *actor.DonorProvidedDetails {
@@ -273,8 +273,8 @@ func (l *lpaResponse) ToDonorProvidedDetails() *actor.DonorProvidedDetails {
 
 	return &actor.DonorProvidedDetails{
 		LpaUID:       l.UID,
-		RegisteredAt: l.RegistrationDate,
-		UpdatedAt:    l.UpdatedAt,
+		RegisteredAt: l.RegistrationDate.Time(),
+		UpdatedAt:    l.UpdatedAt.Time(),
 		Type:         l.LpaType,
 		Donor: actor.Donor{
 			UID:         l.Donor.UID,

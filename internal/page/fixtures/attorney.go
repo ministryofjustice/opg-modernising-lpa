@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -46,6 +47,7 @@ func Attorney(
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
 	eventClient *event.Client,
+	lpaStoreClient *lpastore.Client,
 ) page.Handler {
 	progressValues := []string{
 		"signedByCertificateProvider",
@@ -288,6 +290,9 @@ func Attorney(
 		}
 
 		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
+			return err
+		}
+		if err := lpaStoreClient.SendLpa(donorCtx, donorDetails); err != nil {
 			return err
 		}
 		if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {
