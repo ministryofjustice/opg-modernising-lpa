@@ -234,12 +234,3 @@ resource "aws_osis_pipeline" "lpas_stream" {
   }
   provider = aws.eu_west_1
 }
-
-moved {
-  from = aws_osis_pipeline.lpas_stream[0]
-  to   = aws_osis_pipeline.lpas_stream
-}
-moved {
-  from = aws_cloudwatch_log_group.opensearch_pipeline[0]
-  to   = aws_cloudwatch_log_group.opensearch_pipeline
-}
