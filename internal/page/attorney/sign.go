@@ -42,7 +42,7 @@ type signData struct {
 
 func Sign(
 	tmpl template.Template,
-	donorStore DonorStore,
+	lpaStoreResolvingService LpaStoreResolvingService,
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
 	lpaStoreClient LpaStoreClient,
@@ -54,7 +54,7 @@ func Sign(
 			signatoryIndex = 1
 		}
 
-		lpa, err := donorStore.GetAny(r.Context())
+		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}

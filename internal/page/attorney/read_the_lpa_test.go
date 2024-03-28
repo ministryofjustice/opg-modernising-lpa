@@ -16,9 +16,9 @@ func TestGetReadTheLpaWithAttorney(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
 		Return(&actor.DonorProvidedDetails{Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}}}, nil)
 
 	template := newMockTemplate(t)
@@ -29,7 +29,7 @@ func TestGetReadTheLpaWithAttorney(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ReadTheLpa(template.Execute, donorStore, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
+	err := ReadTheLpa(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -41,9 +41,9 @@ func TestGetReadTheLpaWithReplacementAttorney(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
 		Return(&actor.DonorProvidedDetails{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}}}, nil)
 
 	template := newMockTemplate(t)
@@ -54,24 +54,24 @@ func TestGetReadTheLpaWithReplacementAttorney(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ReadTheLpa(template.Execute, donorStore, nil)(testReplacementAppData, w, r, &actor.AttorneyProvidedDetails{})
+	err := ReadTheLpa(template.Execute, lpaStoreResolvingService, nil)(testReplacementAppData, w, r, &actor.AttorneyProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetReadTheLpaWithAttorneyWhenDonorStoreErrors(t *testing.T) {
+func TestGetReadTheLpaWithAttorneyWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
 		Return(&actor.DonorProvidedDetails{Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}}}, expectedError)
 
-	err := ReadTheLpa(nil, donorStore, nil)(testAppData, w, r, nil)
+	err := ReadTheLpa(nil, lpaStoreResolvingService, nil)(testAppData, w, r, nil)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -83,9 +83,9 @@ func TestGetReadTheLpaWhenTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
 		Return(&actor.DonorProvidedDetails{Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}}}, nil)
 
 	template := newMockTemplate(t)
@@ -96,7 +96,7 @@ func TestGetReadTheLpaWhenTemplateError(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := ReadTheLpa(template.Execute, donorStore, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
+	err := ReadTheLpa(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
