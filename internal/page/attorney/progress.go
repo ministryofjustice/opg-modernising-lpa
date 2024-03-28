@@ -17,9 +17,9 @@ type progressData struct {
 	AttorneysSigned bool
 }
 
-func Progress(tmpl template.Template, attorneyStore AttorneyStore, donorStore DonorStore) Handler {
+func Progress(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreResolvingService LpaStoreResolvingService) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *actor.AttorneyProvidedDetails) error {
-		donor, err := donorStore.GetAny(r.Context())
+		donor, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}
