@@ -223,10 +223,6 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 		LpaUID:    v.UID,
 		CreatedAt: now(),
 		Version:   1,
-		Tasks: actor.DonorTasks{
-			PayForLpa:                  actor.PaymentTaskCompleted,
-			ConfirmYourIdentityAndSign: actor.TaskCompleted,
-		},
 	}); err != nil {
 		return err
 	}

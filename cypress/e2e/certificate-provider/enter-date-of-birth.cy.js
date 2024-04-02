@@ -14,19 +14,18 @@ describe('Enter date of birth', () => {
     });
 
 
-    // TODO: figure out how to get this info
-    // it('professional certificate provider', () => {
-    //   cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth&relationship=professional');
-    //   cy.checkA11yApp();
+    it('professional certificate provider', () => {
+      cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth&relationship=professional');
+      cy.checkA11yApp();
 
-    //   cy.get('#f-date-of-birth').type('1');
-    //   cy.get('#f-date-of-birth-month').type('2');
-    //   cy.get('#f-date-of-birth-year').type('1990');
+      cy.get('#f-date-of-birth').type('1');
+      cy.get('#f-date-of-birth-month').type('2');
+      cy.get('#f-date-of-birth-year').type('1990');
 
-    //   cy.contains('button', 'Save and continue').click();
+      cy.contains('button', 'Save and continue').click();
 
-    //   cy.url().should('contain', '/what-is-your-home-address');
-    // });
+      cy.url().should('contain', '/what-is-your-home-address');
+    });
   })
 
   describe('errors and warnings', () => {

@@ -480,10 +480,6 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 			LpaUID:    "M-1111-2222-3333",
 			CreatedAt: testNow,
 			Version:   1,
-			Tasks: actor.DonorTasks{
-				PayForLpa:                  actor.PaymentTaskCompleted,
-				ConfirmYourIdentityAndSign: actor.TaskCompleted,
-			},
 		}).
 		Return(nil)
 
