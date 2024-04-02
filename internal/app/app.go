@@ -160,6 +160,7 @@ func App(
 		certificateProviderStore,
 		attorneyStore,
 		progressTracker,
+		lpaStoreClient,
 	)
 
 	certificateprovider.Register(

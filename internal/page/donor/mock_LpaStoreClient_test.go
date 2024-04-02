@@ -7,6 +7,8 @@ import (
 
 	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 
+	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -23,9 +25,68 @@ func (_m *mockLpaStoreClient) EXPECT() *mockLpaStoreClient_Expecter {
 	return &mockLpaStoreClient_Expecter{mock: &_m.Mock}
 }
 
-// SendLpa provides a mock function with given fields: _a0, _a1
-func (_m *mockLpaStoreClient) SendLpa(_a0 context.Context, _a1 *actor.DonorProvidedDetails) error {
-	ret := _m.Called(_a0, _a1)
+// Lpa provides a mock function with given fields: ctx, lpaUID
+func (_m *mockLpaStoreClient) Lpa(ctx context.Context, lpaUID string) (*lpastore.ResolvedLpa, error) {
+	ret := _m.Called(ctx, lpaUID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Lpa")
+	}
+
+	var r0 *lpastore.ResolvedLpa
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*lpastore.ResolvedLpa, error)); ok {
+		return rf(ctx, lpaUID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) *lpastore.ResolvedLpa); ok {
+		r0 = rf(ctx, lpaUID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*lpastore.ResolvedLpa)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, lpaUID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockLpaStoreClient_Lpa_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Lpa'
+type mockLpaStoreClient_Lpa_Call struct {
+	*mock.Call
+}
+
+// Lpa is a helper method to define mock.On call
+//   - ctx context.Context
+//   - lpaUID string
+func (_e *mockLpaStoreClient_Expecter) Lpa(ctx interface{}, lpaUID interface{}) *mockLpaStoreClient_Lpa_Call {
+	return &mockLpaStoreClient_Lpa_Call{Call: _e.mock.On("Lpa", ctx, lpaUID)}
+}
+
+func (_c *mockLpaStoreClient_Lpa_Call) Run(run func(ctx context.Context, lpaUID string)) *mockLpaStoreClient_Lpa_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *mockLpaStoreClient_Lpa_Call) Return(_a0 *lpastore.ResolvedLpa, _a1 error) *mockLpaStoreClient_Lpa_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockLpaStoreClient_Lpa_Call) RunAndReturn(run func(context.Context, string) (*lpastore.ResolvedLpa, error)) *mockLpaStoreClient_Lpa_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SendLpa provides a mock function with given fields: ctx, details
+func (_m *mockLpaStoreClient) SendLpa(ctx context.Context, details *actor.DonorProvidedDetails) error {
+	ret := _m.Called(ctx, details)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SendLpa")
@@ -33,7 +94,7 @@ func (_m *mockLpaStoreClient) SendLpa(_a0 context.Context, _a1 *actor.DonorProvi
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, *actor.DonorProvidedDetails) error); ok {
-		r0 = rf(_a0, _a1)
+		r0 = rf(ctx, details)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -47,13 +108,13 @@ type mockLpaStoreClient_SendLpa_Call struct {
 }
 
 // SendLpa is a helper method to define mock.On call
-//   - _a0 context.Context
-//   - _a1 *actor.DonorProvidedDetails
-func (_e *mockLpaStoreClient_Expecter) SendLpa(_a0 interface{}, _a1 interface{}) *mockLpaStoreClient_SendLpa_Call {
-	return &mockLpaStoreClient_SendLpa_Call{Call: _e.mock.On("SendLpa", _a0, _a1)}
+//   - ctx context.Context
+//   - details *actor.DonorProvidedDetails
+func (_e *mockLpaStoreClient_Expecter) SendLpa(ctx interface{}, details interface{}) *mockLpaStoreClient_SendLpa_Call {
+	return &mockLpaStoreClient_SendLpa_Call{Call: _e.mock.On("SendLpa", ctx, details)}
 }
 
-func (_c *mockLpaStoreClient_SendLpa_Call) Run(run func(_a0 context.Context, _a1 *actor.DonorProvidedDetails)) *mockLpaStoreClient_SendLpa_Call {
+func (_c *mockLpaStoreClient_SendLpa_Call) Run(run func(ctx context.Context, details *actor.DonorProvidedDetails)) *mockLpaStoreClient_SendLpa_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(*actor.DonorProvidedDetails))
 	})

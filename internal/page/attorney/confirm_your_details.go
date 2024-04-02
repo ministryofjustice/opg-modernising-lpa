@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -12,7 +13,7 @@ import (
 type confirmYourDetailsData struct {
 	App                     page.AppData
 	Errors                  validation.List
-	Donor                   *actor.DonorProvidedDetails
+	Donor                   *lpastore.ResolvedLpa
 	Attorney                actor.Attorney
 	TrustCorporation        actor.TrustCorporation
 	AttorneyProvidedDetails *actor.AttorneyProvidedDetails

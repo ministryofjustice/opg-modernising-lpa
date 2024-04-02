@@ -222,7 +222,86 @@ type lpaResponse struct {
 	UpdatedAt                                   date.Date                        `json:"updatedAt"`
 }
 
-func (l *lpaResponse) ToDonorProvidedDetails() *actor.DonorProvidedDetails {
+type ResolvedLpa struct {
+	LpaID                                      string
+	LpaUID                                     string
+	RegisteredAt                               date.Date
+	UpdatedAt                                  date.Date
+	Type                                       actor.LpaType
+	Donor                                      actor.Donor
+	Attorneys                                  actor.Attorneys
+	ReplacementAttorneys                       actor.Attorneys
+	CertificateProvider                        actor.CertificateProvider // TODO: cut this down
+	PeopleToNotify                             actor.PeopleToNotify
+	AttorneyDecisions                          actor.AttorneyDecisions
+	ReplacementAttorneyDecisions               actor.AttorneyDecisions
+	HowShouldReplacementAttorneysStepIn        actor.ReplacementAttorneysStepIn
+	HowShouldReplacementAttorneysStepInDetails string
+	Restrictions                               string
+	WhenCanTheLpaBeUsed                        actor.CanBeUsedWhen
+	LifeSustainingTreatmentOption              actor.LifeSustainingTreatment
+	SignedAt                                   time.Time
+	CertificateProviderNotRelatedConfirmedAt   time.Time
+	Tasks                                      actor.DonorTasks // TODO: cut this down
+	DonorIdentityConfirmed                     bool
+	Submitted                                  bool
+	IsOrganisationDonor                        bool
+}
+
+// TODO: this will need removing once attorney signing is captured in the lpa
+// store, as this implementation will not work for paper attorneys
+func (l *ResolvedLpa) AllAttorneysSigned(attorneys []*actor.AttorneyProvidedDetails) bool {
+	if l == nil || l.SignedAt.IsZero() || l.Attorneys.Len() == 0 {
+		return false
+	}
+
+	var (
+		attorneysSigned                   = map[actoruid.UID]struct{}{}
+		replacementAttorneysSigned        = map[actoruid.UID]struct{}{}
+		trustCorporationSigned            = false
+		replacementTrustCorporationSigned = false
+	)
+
+	for _, a := range attorneys {
+		if !a.Signed(l.SignedAt) {
+			continue
+		}
+
+		if a.IsReplacement && a.IsTrustCorporation {
+			replacementTrustCorporationSigned = true
+		} else if a.IsReplacement {
+			replacementAttorneysSigned[a.UID] = struct{}{}
+		} else if a.IsTrustCorporation {
+			trustCorporationSigned = true
+		} else {
+			attorneysSigned[a.UID] = struct{}{}
+		}
+	}
+
+	if l.ReplacementAttorneys.TrustCorporation.Name != "" && !replacementTrustCorporationSigned {
+		return false
+	}
+
+	for _, a := range l.ReplacementAttorneys.Attorneys {
+		if _, ok := replacementAttorneysSigned[a.UID]; !ok {
+			return false
+		}
+	}
+
+	if l.Attorneys.TrustCorporation.Name != "" && !trustCorporationSigned {
+		return false
+	}
+
+	for _, a := range l.Attorneys.Attorneys {
+		if _, ok := attorneysSigned[a.UID]; !ok {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (l *lpaResponse) ToResolvedLpa() *ResolvedLpa {
 	var attorneys, replacementAttorneys []actor.Attorney
 	for _, a := range l.Attorneys {
 		at := actor.Attorney{
@@ -273,10 +352,10 @@ func (l *lpaResponse) ToDonorProvidedDetails() *actor.DonorProvidedDetails {
 		confirmedAt = *v
 	}
 
-	return &actor.DonorProvidedDetails{
+	return &ResolvedLpa{
 		LpaUID:       l.UID,
-		RegisteredAt: l.RegistrationDate.Time(),
-		UpdatedAt:    l.UpdatedAt.Time(),
+		RegisteredAt: l.RegistrationDate,
+		UpdatedAt:    l.UpdatedAt,
 		Type:         l.LpaType,
 		Donor: actor.Donor{
 			UID:         l.Donor.UID,
@@ -323,7 +402,7 @@ func (l *lpaResponse) ToDonorProvidedDetails() *actor.DonorProvidedDetails {
 	}
 }
 
-func (c *Client) Lpa(ctx context.Context, lpaUID string) (*actor.DonorProvidedDetails, error) {
+func (c *Client) Lpa(ctx context.Context, lpaUID string) (*ResolvedLpa, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/lpas/"+lpaUID, nil)
 	if err != nil {
 		return nil, err
@@ -334,5 +413,5 @@ func (c *Client) Lpa(ctx context.Context, lpaUID string) (*actor.DonorProvidedDe
 		return nil, err
 	}
 
-	return v.ToDonorProvidedDetails(), nil
+	return v.ToResolvedLpa(), nil
 }

@@ -2,6 +2,7 @@ package lpastore
 
 import (
 	"context"
+	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -22,7 +23,7 @@ func NewResolvingService(donorStore DonorStore, client *Client) *ResolvingServic
 	return &ResolvingService{donorStore: donorStore, client: client}
 }
 
-func (s *ResolvingService) Get(ctx context.Context) (*actor.DonorProvidedDetails, error) {
+func (s *ResolvingService) Get(ctx context.Context) (*ResolvedLpa, error) {
 	donor, err := s.donorStore.GetAny(ctx)
 	if err != nil {
 		return nil, err
@@ -46,9 +47,14 @@ func (s *ResolvingService) Get(ctx context.Context) (*actor.DonorProvidedDetails
 		// set to Professionally so we always show the certificate provider home
 		// address question
 		lpa.CertificateProvider.Relationship = actor.Professionally
+		lpa.DonorIdentityConfirmed = true
+		lpa.Submitted = true
 	} else {
+		lpa.IsOrganisationDonor = strings.HasPrefix(donor.SK, dynamo.OrganisationKey(""))
 		lpa.Tasks = donor.Tasks
 		lpa.CertificateProvider.Relationship = donor.CertificateProvider.Relationship
+		lpa.DonorIdentityConfirmed = donor.DonorIdentityConfirmed()
+		lpa.Submitted = !donor.SubmittedAt.IsZero()
 	}
 
 	return lpa, nil

@@ -6,13 +6,14 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type dateOfBirthData struct {
 	App        page.AppData
-	Donor      *actor.DonorProvidedDetails
+	Donor      *lpastore.ResolvedLpa
 	Form       *dateOfBirthForm
 	Errors     validation.List
 	DobWarning string

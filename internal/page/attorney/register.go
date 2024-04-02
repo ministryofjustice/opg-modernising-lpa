@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -17,7 +18,7 @@ import (
 )
 
 type LpaStoreResolvingService interface {
-	Get(ctx context.Context) (*actor.DonorProvidedDetails, error)
+	Get(ctx context.Context) (*lpastore.ResolvedLpa, error)
 }
 
 type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, details *actor.AttorneyProvidedDetails) error
@@ -70,7 +71,7 @@ type DashboardStore interface {
 }
 
 type LpaStoreClient interface {
-	SendAttorney(context.Context, *actor.DonorProvidedDetails, *actor.AttorneyProvidedDetails) error
+	SendAttorney(context.Context, *lpastore.ResolvedLpa, *actor.AttorneyProvidedDetails) error
 }
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)

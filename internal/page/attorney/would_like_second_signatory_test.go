@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -82,7 +83,7 @@ func TestPostWouldLikeSecondSignatoryWhenYes(t *testing.T) {
 }
 
 func TestPostWouldLikeSecondSignatoryWhenNo(t *testing.T) {
-	donor := &actor.DonorProvidedDetails{SignedAt: time.Now()}
+	donor := &lpastore.ResolvedLpa{SignedAt: time.Now()}
 	updatedAttorney := &actor.AttorneyProvidedDetails{
 		LpaID:                    "lpa-id",
 		WouldLikeSecondSignatory: form.No,
@@ -122,7 +123,7 @@ func TestPostWouldLikeSecondSignatoryWhenNo(t *testing.T) {
 }
 
 func TestPostWouldLikeSecondSignatoryWhenLpaStoreClientErrors(t *testing.T) {
-	donor := &actor.DonorProvidedDetails{SignedAt: time.Now()}
+	donor := &lpastore.ResolvedLpa{SignedAt: time.Now()}
 
 	f := url.Values{
 		form.FieldNames.YesNo: {form.No.String()},

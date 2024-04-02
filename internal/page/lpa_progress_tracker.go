@@ -1,6 +1,9 @@
 package page
 
-import "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+import (
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+)
 
 type ProgressTracker struct {
 	Localizer Localizer
@@ -22,10 +25,10 @@ type Progress struct {
 	LpaRegistered             ProgressTask
 }
 
-func (pt ProgressTracker) Progress(donor *actor.DonorProvidedDetails, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) Progress {
+func (pt ProgressTracker) Progress(donor *lpastore.ResolvedLpa, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) Progress {
 	var labels map[string]string
 
-	if donor.IsOrganisationDonor() {
+	if donor.IsOrganisationDonor {
 		labels = map[string]string{
 			"paid": pt.Localizer.Format(
 				"donorFullNameHasPaid",
@@ -101,7 +104,7 @@ func (pt ProgressTracker) Progress(donor *actor.DonorProvidedDetails, certificat
 		},
 	}
 
-	if donor.IsOrganisationDonor() {
+	if donor.IsOrganisationDonor {
 		progress.Paid.State = actor.TaskInProgress
 		if !donor.Tasks.PayForLpa.IsCompleted() {
 			return progress
@@ -110,7 +113,7 @@ func (pt ProgressTracker) Progress(donor *actor.DonorProvidedDetails, certificat
 		progress.Paid.State = actor.TaskCompleted
 		progress.ConfirmedID.State = actor.TaskInProgress
 
-		if !donor.DonorIdentityConfirmed() {
+		if !donor.DonorIdentityConfirmed {
 			return progress
 		}
 
@@ -144,7 +147,7 @@ func (pt ProgressTracker) Progress(donor *actor.DonorProvidedDetails, certificat
 	progress.AttorneysSigned.State = actor.TaskCompleted
 	progress.LpaSubmitted.State = actor.TaskInProgress
 
-	if donor.SubmittedAt.IsZero() {
+	if !donor.Submitted {
 		return progress
 	}
 

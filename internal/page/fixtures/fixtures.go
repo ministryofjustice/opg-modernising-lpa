@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -15,8 +16,8 @@ import (
 )
 
 type ShareCodeSender interface {
-	SendCertificateProviderInvite(context context.Context, appData page.AppData, donorProvided *actor.DonorProvidedDetails) error
-	SendAttorneys(context context.Context, appData page.AppData, donorProvided *actor.DonorProvidedDetails) error
+	SendCertificateProviderInvite(context context.Context, appData page.AppData, donorProvided page.CertificateProviderInvite) error
+	SendAttorneys(context context.Context, appData page.AppData, donorProvided *lpastore.ResolvedLpa) error
 	UseTestCode(shareCode string)
 }
 
