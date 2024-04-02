@@ -56,7 +56,7 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 					Name:     "confirmYourIdentity",
 					Path:     identityTaskPage.Format(donor.LpaID),
 					State:    tasks.ConfirmYourIdentity,
-					Disabled: !donor.Tasks.PayForLpa.IsCompleted() || donor.SignedAt.IsZero(),
+					Disabled: !donor.Paid || donor.SignedAt.IsZero(),
 				},
 				{
 					Name:     "provideYourCertificate",

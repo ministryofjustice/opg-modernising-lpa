@@ -106,7 +106,7 @@ func (pt ProgressTracker) Progress(donor *lpastore.ResolvedLpa, certificateProvi
 
 	if donor.IsOrganisationDonor {
 		progress.Paid.State = actor.TaskInProgress
-		if !donor.Tasks.PayForLpa.IsCompleted() {
+		if !donor.Paid {
 			return progress
 		}
 

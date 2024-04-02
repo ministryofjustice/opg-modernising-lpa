@@ -120,7 +120,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 		},
 		"certificate provider signed": {
 			donor: &lpastore.ResolvedLpa{
-				Tasks:     actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
+				Paid:      true,
 				Donor:     actor.Donor{FirstNames: "a", LastName: "b"},
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 				SignedAt:  lpaSignedAt,
@@ -138,7 +138,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 		},
 		"attorneys signed": {
 			donor: &lpastore.ResolvedLpa{
-				Tasks:     actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
+				Paid:      true,
 				Donor:     actor.Donor{FirstNames: "a", LastName: "b"},
 				SignedAt:  lpaSignedAt,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}, {UID: uid2}}},
@@ -183,7 +183,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 		},
 		"submitted": {
 			donor: &lpastore.ResolvedLpa{
-				Tasks:     actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
+				Paid:      true,
 				Donor:     actor.Donor{FirstNames: "a", LastName: "b"},
 				SignedAt:  lpaSignedAt,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}}},
@@ -207,7 +207,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 		},
 		"registered": {
 			donor: &lpastore.ResolvedLpa{
-				Tasks:        actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
+				Paid:         true,
 				Donor:        actor.Donor{FirstNames: "a", LastName: "b"},
 				SignedAt:     lpaSignedAt,
 				Attorneys:    actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}}},
@@ -320,7 +320,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 				IsOrganisationDonor: true,
 				Donor:               actor.Donor{FirstNames: "a", LastName: "b"},
 				Attorneys:           actor.Attorneys{Attorneys: []actor.Attorney{{}}},
-				Tasks:               actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
+				Paid:                true,
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{},
 			expectedProgress: func() Progress {
@@ -338,7 +338,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 				Donor:                  actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
 				DonorIdentityConfirmed: true,
 				Attorneys:              actor.Attorneys{Attorneys: []actor.Attorney{{}}},
-				Tasks:                  actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
+				Paid:                   true,
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{},
 			expectedProgress: func() Progress {
@@ -357,7 +357,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 				Donor:                  actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
 				DonorIdentityConfirmed: true,
 				Attorneys:              actor.Attorneys{Attorneys: []actor.Attorney{{}}},
-				Tasks:                  actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
+				Paid:                   true,
 				SignedAt:               lpaSignedAt,
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{},
@@ -378,7 +378,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 				Donor:                  actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
 				DonorIdentityConfirmed: true,
 				Attorneys:              actor.Attorneys{Attorneys: []actor.Attorney{{}}},
-				Tasks:                  actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
+				Paid:                   true,
 				SignedAt:               lpaSignedAt,
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
@@ -400,7 +400,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 				Donor:                  actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
 				DonorIdentityConfirmed: true,
 				Attorneys:              actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
-				Tasks:                  actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
+				Paid:                   true,
 				SignedAt:               lpaSignedAt,
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
@@ -426,7 +426,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 				Donor:                  actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
 				DonorIdentityConfirmed: true,
 				Attorneys:              actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
-				Tasks:                  actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
+				Paid:                   true,
 				SignedAt:               lpaSignedAt,
 				Submitted:              true,
 			},
@@ -454,7 +454,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 				Donor:                  actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
 				DonorIdentityConfirmed: true,
 				Attorneys:              actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
-				Tasks:                  actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
+				Paid:                   true,
 				SignedAt:               lpaSignedAt,
 				Submitted:              true,
 				RegisteredAt:           date.FromTime(lpaSignedAt),

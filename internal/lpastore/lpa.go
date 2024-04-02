@@ -231,7 +231,7 @@ type ResolvedLpa struct {
 	Donor                                      actor.Donor
 	Attorneys                                  actor.Attorneys
 	ReplacementAttorneys                       actor.Attorneys
-	CertificateProvider                        actor.CertificateProvider // TODO: cut this down
+	CertificateProvider                        actor.CertificateProvider
 	PeopleToNotify                             actor.PeopleToNotify
 	AttorneyDecisions                          actor.AttorneyDecisions
 	ReplacementAttorneyDecisions               actor.AttorneyDecisions
@@ -242,9 +242,9 @@ type ResolvedLpa struct {
 	LifeSustainingTreatmentOption              actor.LifeSustainingTreatment
 	SignedAt                                   time.Time
 	CertificateProviderNotRelatedConfirmedAt   time.Time
-	Tasks                                      actor.DonorTasks // TODO: cut this down
 	DonorIdentityConfirmed                     bool
 	Submitted                                  bool
+	Paid                                       bool
 	IsOrganisationDonor                        bool
 }
 
