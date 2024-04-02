@@ -9,11 +9,12 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-func canSign(ctx context.Context, certificateProviderStore CertificateProviderStore, donor *actor.DonorProvidedDetails) (bool, error) {
+func canSign(ctx context.Context, certificateProviderStore CertificateProviderStore, donor *lpastore.ResolvedLpa) (bool, error) {
 	ctx = page.ContextWithSessionData(ctx, &page.SessionData{LpaID: donor.LpaID})
 
 	certificateProvider, err := certificateProviderStore.GetAny(ctx)
@@ -42,7 +43,7 @@ type signData struct {
 
 func Sign(
 	tmpl template.Template,
-	donorStore DonorStore,
+	lpaStoreResolvingService LpaStoreResolvingService,
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
 	lpaStoreClient LpaStoreClient,
@@ -54,7 +55,7 @@ func Sign(
 			signatoryIndex = 1
 		}
 
-		lpa, err := donorStore.GetAny(r.Context())
+		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}

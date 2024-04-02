@@ -5,8 +5,7 @@ package certificateprovider
 import (
 	context "context"
 
-	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-
+	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	mock "github.com/stretchr/testify/mock"
 
 	page "github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -26,7 +25,7 @@ func (_m *mockShareCodeSender) EXPECT() *mockShareCodeSender_Expecter {
 }
 
 // SendAttorneys provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockShareCodeSender) SendAttorneys(_a0 context.Context, _a1 page.AppData, _a2 *actor.DonorProvidedDetails) error {
+func (_m *mockShareCodeSender) SendAttorneys(_a0 context.Context, _a1 page.AppData, _a2 *lpastore.ResolvedLpa) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	if len(ret) == 0 {
@@ -34,7 +33,7 @@ func (_m *mockShareCodeSender) SendAttorneys(_a0 context.Context, _a1 page.AppDa
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, page.AppData, *actor.DonorProvidedDetails) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, page.AppData, *lpastore.ResolvedLpa) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
@@ -51,14 +50,14 @@ type mockShareCodeSender_SendAttorneys_Call struct {
 // SendAttorneys is a helper method to define mock.On call
 //   - _a0 context.Context
 //   - _a1 page.AppData
-//   - _a2 *actor.DonorProvidedDetails
+//   - _a2 *lpastore.ResolvedLpa
 func (_e *mockShareCodeSender_Expecter) SendAttorneys(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockShareCodeSender_SendAttorneys_Call {
 	return &mockShareCodeSender_SendAttorneys_Call{Call: _e.mock.On("SendAttorneys", _a0, _a1, _a2)}
 }
 
-func (_c *mockShareCodeSender_SendAttorneys_Call) Run(run func(_a0 context.Context, _a1 page.AppData, _a2 *actor.DonorProvidedDetails)) *mockShareCodeSender_SendAttorneys_Call {
+func (_c *mockShareCodeSender_SendAttorneys_Call) Run(run func(_a0 context.Context, _a1 page.AppData, _a2 *lpastore.ResolvedLpa)) *mockShareCodeSender_SendAttorneys_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(page.AppData), args[2].(*actor.DonorProvidedDetails))
+		run(args[0].(context.Context), args[1].(page.AppData), args[2].(*lpastore.ResolvedLpa))
 	})
 	return _c
 }
@@ -68,7 +67,7 @@ func (_c *mockShareCodeSender_SendAttorneys_Call) Return(_a0 error) *mockShareCo
 	return _c
 }
 
-func (_c *mockShareCodeSender_SendAttorneys_Call) RunAndReturn(run func(context.Context, page.AppData, *actor.DonorProvidedDetails) error) *mockShareCodeSender_SendAttorneys_Call {
+func (_c *mockShareCodeSender_SendAttorneys_Call) RunAndReturn(run func(context.Context, page.AppData, *lpastore.ResolvedLpa) error) *mockShareCodeSender_SendAttorneys_Call {
 	_c.Call.Return(run)
 	return _c
 }

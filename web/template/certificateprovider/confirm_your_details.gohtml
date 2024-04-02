@@ -7,7 +7,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "confirmYourDetails" }}</h1>
 
-      <p class="govuk-body">{{ trFormat .App "youMustConfirmYourDetails" "DonorFullName" .Donor.Donor.FullName }}</p>
+      <p class="govuk-body">{{ trFormat .App "youMustConfirmYourDetails" "DonorFullName" .Lpa.Donor.FullName }}</p>
 
       <h2 class="govuk-heading-m">{{ tr .App "detailsYouHaveGivenUs" }}</h2>
 
@@ -16,15 +16,15 @@
           <dt class="govuk-summary-list__key">{{ tr .App "dateOfBirth" }}</dt>
           <dd class="govuk-summary-list__value">{{ formatDate .App .CertificateProvider.DateOfBirth }}</dd>
           <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App (global.Paths.CertificateProvider.EnterDateOfBirth.Format .Donor.LpaID) }}">{{ trHtml .App "changeDateOfBirthLink" }}</a>
+            <a class="govuk-link" href="{{ link .App (global.Paths.CertificateProvider.EnterDateOfBirth.Format .Lpa.LpaID) }}">{{ trHtml .App "changeDateOfBirthLink" }}</a>
           </dd>
         </div>
-        {{ if .Donor.CertificateProvider.Relationship.IsProfessionally }}
+        {{ if .Lpa.CertificateProvider.Relationship.IsProfessionally }}
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "homeAddress" }}</dt>
             <dd class="govuk-summary-list__value">{{ template "address-lines" .CertificateProvider.HomeAddress }}</dd>
             <dd class="govuk-summary-list__actions">
-              <a class="govuk-link" href="{{ link .App (global.Paths.CertificateProvider.WhatIsYourHomeAddress.Format .Donor.LpaID) }}">{{ trHtml .App "changeHomeAddressLink" }}</a>
+              <a class="govuk-link" href="{{ link .App (global.Paths.CertificateProvider.WhatIsYourHomeAddress.Format .Lpa.LpaID) }}">{{ trHtml .App "changeHomeAddressLink" }}</a>
             </dd>
           </div>
         {{ end }}
@@ -44,7 +44,7 @@
       {{ $detailsContent := "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay" }}
       {{ $addressLabel := "address" }}
 
-      {{ if .Donor.CertificateProvider.Relationship.IsProfessionally }}
+      {{ if .Lpa.CertificateProvider.Relationship.IsProfessionally }}
         {{ $detailsContent = "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentProfessional" }}
         {{ $addressLabel = "workAddress" }}
       {{ end }}
@@ -52,15 +52,15 @@
       <dl class="govuk-summary-list">
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">{{ tr .App "name" }}</dt>
-          <dd class="govuk-summary-list__value">{{ .Donor.CertificateProvider.FullName }}</dd>
+          <dd class="govuk-summary-list__value">{{ .Lpa.CertificateProvider.FullName }}</dd>
         </div>
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">{{ tr .App $addressLabel }}</dt>
-          <dd class="govuk-summary-list__value">{{ template "address-lines" .Donor.CertificateProvider.Address }}</dd>
+          <dd class="govuk-summary-list__value">{{ template "address-lines" .Lpa.CertificateProvider.Address }}</dd>
         </div>
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">{{ tr .App "mobileNumber" }}</dt>
-          <dd class="govuk-summary-list__value">{{ formatPhone .Donor.CertificateProvider.Mobile }}</dd>
+          <dd class="govuk-summary-list__value">{{ formatPhone .Lpa.CertificateProvider.Mobile }}</dd>
         </div>
       </dl>
 

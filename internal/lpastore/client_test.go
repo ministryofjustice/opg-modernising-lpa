@@ -412,7 +412,7 @@ func TestClientServiceContract(t *testing.T) {
 			}
 
 			err := client.SendAttorney(context.Background(),
-				&actor.DonorProvidedDetails{
+				&ResolvedLpa{
 					LpaUID: "M-0000-1111-2222",
 					Attorneys: actor.Attorneys{
 						Attorneys: []actor.Attorney{{UID: uid}},
@@ -685,7 +685,7 @@ func TestClientServiceContract(t *testing.T) {
 				return err
 			}
 
-			assert.Equal(t, &actor.DonorProvidedDetails{
+			assert.Equal(t, &ResolvedLpa{
 				LpaUID: "M-0000-1111-2222",
 				Type:   actor.LpaTypePersonalWelfare,
 				Donor: actor.Donor{

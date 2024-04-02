@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -27,14 +28,14 @@ func TestGetTaskList(t *testing.T) {
 	}
 
 	testCases := map[string]struct {
-		donor                    *actor.DonorProvidedDetails
+		donor                    *lpastore.ResolvedLpa
 		attorney                 *actor.AttorneyProvidedDetails
 		certificateProviderStore func(t *testing.T, r *http.Request) *mockCertificateProviderStore
 		appData                  page.AppData
 		expected                 func([]taskListItem) []taskListItem
 	}{
 		"empty": {
-			donor:    &actor.DonorProvidedDetails{LpaID: "lpa-id"},
+			donor:    &lpastore.ResolvedLpa{LpaID: "lpa-id"},
 			attorney: &actor.AttorneyProvidedDetails{},
 			certificateProviderStore: func(t *testing.T, r *http.Request) *mockCertificateProviderStore {
 				return nil
@@ -45,7 +46,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"trust corporation": {
-			donor:    &actor.DonorProvidedDetails{LpaID: "lpa-id"},
+			donor:    &lpastore.ResolvedLpa{LpaID: "lpa-id"},
 			attorney: &actor.AttorneyProvidedDetails{},
 			certificateProviderStore: func(t *testing.T, r *http.Request) *mockCertificateProviderStore {
 				return nil
@@ -58,7 +59,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"trust corporation with two signatories": {
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.ResolvedLpa{
 				LpaID:    "lpa-id",
 				SignedAt: time.Now(),
 			},
@@ -85,7 +86,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"tasks completed not signed": {
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.ResolvedLpa{
 				LpaID:    "lpa-id",
 				SignedAt: time.Now(),
 			},
@@ -112,7 +113,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"tasks completed and signed": {
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.ResolvedLpa{
 				LpaID:    "lpa-id",
 				SignedAt: time.Now(),
 			},
@@ -133,7 +134,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"completed": {
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.ResolvedLpa{
 				LpaID:    "lpa-id",
 				SignedAt: time.Now(),
 			},
@@ -156,7 +157,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"completed replacement": {
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.ResolvedLpa{
 				LpaID:    "lpa-id",
 				SignedAt: time.Now(),
 			},
@@ -185,16 +186,16 @@ func TestGetTaskList(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			donorStore := newMockDonorStore(t)
-			donorStore.EXPECT().
-				GetAny(r.Context()).
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			lpaStoreResolvingService.EXPECT().
+				Get(r.Context()).
 				Return(tc.donor, nil)
 
 			template := newMockTemplate(t)
 			template.EXPECT().
 				Execute(w, &taskListData{
-					App:   tc.appData,
-					Donor: tc.donor,
+					App: tc.appData,
+					Lpa: tc.donor,
 					Items: tc.expected([]taskListItem{
 						{Name: "confirmYourDetails", Path: page.Paths.Attorney.MobileNumber.Format("lpa-id")},
 						{Name: "readTheLpa", Path: page.Paths.Attorney.ReadTheLpa.Format("lpa-id")},
@@ -203,7 +204,7 @@ func TestGetTaskList(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := TaskList(template.Execute, donorStore, tc.certificateProviderStore(t, r))(tc.appData, w, r, tc.attorney)
+			err := TaskList(template.Execute, lpaStoreResolvingService, tc.certificateProviderStore(t, r))(tc.appData, w, r, tc.attorney)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -212,16 +213,16 @@ func TestGetTaskList(t *testing.T) {
 	}
 }
 
-func TestGetTaskListWhenDonorStoreErrors(t *testing.T) {
+func TestGetTaskListWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
-		Return(&actor.DonorProvidedDetails{}, expectedError)
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(&lpastore.ResolvedLpa{}, expectedError)
 
-	err := TaskList(nil, donorStore, nil)(testAppData, w, r, nil)
+	err := TaskList(nil, lpaStoreResolvingService, nil)(testAppData, w, r, nil)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -230,17 +231,17 @@ func TestGetTaskListWhenCertificateProviderStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
-		Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(&lpastore.ResolvedLpa{LpaID: "lpa-id"}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
 		GetAny(page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
 		Return(nil, expectedError)
 
-	err := TaskList(nil, donorStore, certificateProviderStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{Tasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskCompleted, ReadTheLpa: actor.TaskCompleted}})
+	err := TaskList(nil, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{Tasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskCompleted, ReadTheLpa: actor.TaskCompleted}})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -249,10 +250,10 @@ func TestGetTaskListWhenCertificateProviderNotFound(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
-		Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(&lpastore.ResolvedLpa{LpaID: "lpa-id"}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
@@ -264,7 +265,7 @@ func TestGetTaskListWhenCertificateProviderNotFound(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(nil)
 
-	err := TaskList(template.Execute, donorStore, certificateProviderStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{Tasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskCompleted, ReadTheLpa: actor.TaskCompleted}})
+	err := TaskList(template.Execute, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{Tasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskCompleted, ReadTheLpa: actor.TaskCompleted}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -275,17 +276,17 @@ func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
-		Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(&lpastore.ResolvedLpa{LpaID: "lpa-id"}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := TaskList(template.Execute, donorStore, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
+	err := TaskList(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
