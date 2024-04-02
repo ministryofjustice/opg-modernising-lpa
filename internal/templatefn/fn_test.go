@@ -301,9 +301,8 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 		{UID: actoruid.New()},
 	}
 
-	app := page.AppData{SessionID: "abc", Page: "/here", ActorType: actor.TypeDonor}
+	app := page.AppData{SessionID: "abc", Page: "/here", ActorType: actor.TypeDonor, LpaID: "lpa-id"}
 	headingLevel := 3
-	donor := &actor.DonorProvidedDetails{LpaID: "lpa-id"}
 	attorneyType := "attorney"
 
 	want := attorneySummaryData{
@@ -321,7 +320,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 	want.Link.TrustCorporationAddress = page.Paths.EnterTrustCorporationAddress.Format("lpa-id") + "?from=/here"
 	want.Link.RemoveTrustCorporation = page.Paths.RemoveTrustCorporation.Format("lpa-id") + "?from=/here"
 
-	got := listAttorneys(actor.Attorneys{TrustCorporation: trustCorporation, Attorneys: attorneys}, app, attorneyType, headingLevel, donor)
+	got := listAttorneys(app, actor.Attorneys{TrustCorporation: trustCorporation, Attorneys: attorneys}, attorneyType, headingLevel, true)
 
 	assert.Equal(t, want, got)
 }
@@ -333,9 +332,8 @@ func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
 		{UID: actoruid.New()},
 	}
 
-	app := page.AppData{SessionID: "abc", Page: "/here"}
+	app := page.AppData{SessionID: "abc", Page: "/here", LpaID: "lpa-id"}
 	headingLevel := 3
-	donor := &actor.DonorProvidedDetails{LpaID: "lpa-id"}
 	attorneyType := "replacement"
 
 	want := attorneySummaryData{
@@ -352,7 +350,7 @@ func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
 	want.Link.TrustCorporationAddress = page.Paths.EnterReplacementTrustCorporationAddress.Format("lpa-id") + "?from=/here"
 	want.Link.RemoveTrustCorporation = page.Paths.RemoveReplacementTrustCorporation.Format("lpa-id") + "?from=/here"
 
-	got := listAttorneys(actor.Attorneys{TrustCorporation: trustCorporation, Attorneys: attorneys}, app, attorneyType, headingLevel, donor)
+	got := listAttorneys(app, actor.Attorneys{TrustCorporation: trustCorporation, Attorneys: attorneys}, attorneyType, headingLevel, false)
 
 	assert.Equal(t, want, got)
 }
@@ -360,15 +358,16 @@ func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
 func TestListPeopleToNotify(t *testing.T) {
 	app := page.AppData{SessionID: "abc"}
 	headingLevel := 3
-	donor := &actor.DonorProvidedDetails{}
+	peopleToNotify := actor.PeopleToNotify{{}}
 
 	want := map[string]interface{}{
-		"App":          app,
-		"HeadingLevel": headingLevel,
-		"Donor":        donor,
+		"App":            app,
+		"HeadingLevel":   headingLevel,
+		"PeopleToNotify": peopleToNotify,
+		"CanChange":      true,
 	}
 
-	got := listPeopleToNotify(app, headingLevel, donor)
+	got := listPeopleToNotify(app, peopleToNotify, headingLevel, true)
 
 	assert.Equal(t, want, got)
 }

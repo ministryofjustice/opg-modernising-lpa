@@ -17,7 +17,7 @@ type yourPreferredLanguageData struct {
 	Form      *form.LanguagePreferenceForm
 	Options   localize.LangOptions
 	FieldName string
-	Donor     *lpastore.ResolvedLpa
+	Lpa       *lpastore.ResolvedLpa
 }
 
 func YourPreferredLanguage(tmpl template.Template, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService) page.Handler {
@@ -27,7 +27,7 @@ func YourPreferredLanguage(tmpl template.Template, certificateProviderStore Cert
 			return err
 		}
 
-		donor, err := lpaStoreResolvingService.Get(r.Context())
+		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -39,7 +39,7 @@ func YourPreferredLanguage(tmpl template.Template, certificateProviderStore Cert
 			},
 			Options:   localize.LangValues,
 			FieldName: form.FieldNames.LanguagePreference,
-			Donor:     donor,
+			Lpa:       lpa,
 		}
 
 		if r.Method == http.MethodPost {

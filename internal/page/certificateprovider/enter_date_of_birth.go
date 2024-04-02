@@ -13,7 +13,7 @@ import (
 
 type dateOfBirthData struct {
 	App        page.AppData
-	Donor      *lpastore.ResolvedLpa
+	Lpa        *lpastore.ResolvedLpa
 	Form       *dateOfBirthForm
 	Errors     validation.List
 	DobWarning string
@@ -26,7 +26,7 @@ type dateOfBirthForm struct {
 
 func EnterDateOfBirth(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		donor, err := lpaStoreResolvingService.Get(r.Context())
+		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -37,8 +37,8 @@ func EnterDateOfBirth(tmpl template.Template, lpaStoreResolvingService LpaStoreR
 		}
 
 		data := &dateOfBirthData{
-			App:   appData,
-			Donor: donor,
+			App: appData,
+			Lpa: lpa,
 			Form: &dateOfBirthForm{
 				Dob: certificateProvider.DateOfBirth,
 			},
@@ -63,7 +63,7 @@ func EnterDateOfBirth(tmpl template.Template, lpaStoreResolvingService LpaStoreR
 					return err
 				}
 
-				if donor.CertificateProvider.Relationship.IsProfessionally() {
+				if lpa.CertificateProvider.Relationship.IsProfessionally() {
 					return page.Paths.CertificateProvider.WhatIsYourHomeAddress.Redirect(w, r, appData, certificateProvider.LpaID)
 				}
 

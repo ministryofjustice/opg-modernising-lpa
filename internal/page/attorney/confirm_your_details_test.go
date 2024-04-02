@@ -29,7 +29,7 @@ func TestGetConfirmYourDetails(t *testing.T) {
 			},
 			data: &confirmYourDetailsData{
 				App: testAppData,
-				Donor: &lpastore.ResolvedLpa{
+				Lpa: &lpastore.ResolvedLpa{
 					Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid, FirstNames: "John"}}},
 				},
 				Attorney:                actor.Attorney{UID: uid, FirstNames: "John"},
@@ -43,7 +43,7 @@ func TestGetConfirmYourDetails(t *testing.T) {
 			},
 			data: &confirmYourDetailsData{
 				App: testTrustCorporationAppData,
-				Donor: &lpastore.ResolvedLpa{
+				Lpa: &lpastore.ResolvedLpa{
 					Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "company"}},
 				},
 				TrustCorporation:        actor.TrustCorporation{Name: "company"},

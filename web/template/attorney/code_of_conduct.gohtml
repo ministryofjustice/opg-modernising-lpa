@@ -31,21 +31,21 @@
         {{ if .App.IsTrustCorporation }}
           {{ $content = "replacementTrustCorporationCodeOfConduct" }}
         {{ else }}
-          {{ $content = printf "replacementAttorneyCodeOfConduct:%s" .Donor.Type.String }}
+          {{ $content = printf "replacementAttorneyCodeOfConduct:%s" .Lpa.Type.String }}
         {{ end }}
       {{ else }}
         {{ if .App.IsTrustCorporation }}
             {{ $content = "trustCorporationCodeOfConduct" }}
         {{ else }}
-          {{ $content = printf "attorneyCodeOfConduct:%s" .Donor.Type.String }}
+          {{ $content = printf "attorneyCodeOfConduct:%s" .Lpa.Type.String }}
         {{ end }}
       {{ end }}
 
       {{ trFormatHtml .App $content
-      "DonorFullName" .Donor.Donor.FullName
-      "DonorFullNamePossessive" (possessive .App .Donor.Donor.FullName)
-      "DonorFirstNamesPossessive" (possessive .App .Donor.Donor.FirstNames)
-      "DonorFirstNames" .Donor.Donor.FirstNames }}
+      "DonorFullName" .Lpa.Donor.FullName
+      "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName)
+      "DonorFirstNamesPossessive" (possessive .App .Lpa.Donor.FirstNames)
+      "DonorFirstNames" .Lpa.Donor.FirstNames }}
 
       <a class="govuk-button" href="{{ link .App (global.Paths.Attorney.TaskList.Format .App.LpaID) }}">{{ tr .App "continue" }}</a>
     </div>

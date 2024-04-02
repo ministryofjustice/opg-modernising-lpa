@@ -136,8 +136,8 @@ func TestGetTaskList(t *testing.T) {
 			template := newMockTemplate(t)
 			template.EXPECT().
 				Execute(w, &taskListData{
-					App:   tc.appData,
-					Donor: tc.donor,
+					App: tc.appData,
+					Lpa: tc.donor,
 					Items: tc.expected([]taskListItem{
 						{Name: "confirmYourDetails", Path: page.Paths.CertificateProvider.EnterDateOfBirth.Format("lpa-id")},
 						{Name: "confirmYourIdentity", Path: page.Paths.CertificateProvider.ProveYourIdentity.Format("lpa-id")},

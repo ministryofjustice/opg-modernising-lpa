@@ -16,24 +16,24 @@
         <dl class="govuk-summary-list govuk-summary-list--no-border app-summary-list--no-vertical-padding">
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "donor" }}</dt>
-            <dd class="govuk-summary-list__value">{{ .Donor.Donor.FullName }}</dd>
+            <dd class="govuk-summary-list__value">{{ .Lpa.Donor.FullName }}</dd>
           </div>
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "lpaType" }}</dt>
-            <dd class="govuk-summary-list__value">{{ tr .App .Donor.Type.String }}</dd>
+            <dd class="govuk-summary-list__value">{{ tr .App .Lpa.Type.String }}</dd>
           </div>
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "referenceNumber" }}</dt>
-            <dd class="govuk-summary-list__value">{{ .Donor.LpaUID }}</dd>
+            <dd class="govuk-summary-list__value">{{ .Lpa.LpaUID }}</dd>
           </div>
         </dl>
       </div>
 
-      {{ if .Donor.SignedAt.IsZero }}
-        {{ $yourRoleURL := link .App (global.Paths.CertificateProvider.YourRole.Format .Donor.LpaID)}}
+      {{ if .Lpa.SignedAt.IsZero }}
+        {{ $yourRoleURL := link .App (global.Paths.CertificateProvider.YourRole.Format .Lpa.LpaID)}}
 
-        {{ trFormatHtml .App "untilYouHaveWitnessed" "DonorFullName" .Donor.Donor.FullName "YourRoleURL" $yourRoleURL }}
-        <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.CertificateProvider.ReadTheLpa.Format .Donor.LpaID) }}">{{ tr .App "readTheDraftLpa" }}</a>
+        {{ trFormatHtml .App "untilYouHaveWitnessed" "DonorFullName" .Lpa.Donor.FullName "YourRoleURL" $yourRoleURL }}
+        <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.CertificateProvider.ReadTheLpa.Format .Lpa.LpaID) }}">{{ tr .App "readTheDraftLpa" }}</a>
         {{ trHtml .App "afterYouHaveWitnessed" }}
       {{ end }}
 

@@ -13,7 +13,7 @@ import (
 type taskListData struct {
 	App    page.AppData
 	Errors validation.List
-	Donor  *lpastore.ResolvedLpa
+	Lpa    *lpastore.ResolvedLpa
 	Items  []taskListItem
 }
 
@@ -26,7 +26,7 @@ type taskListItem struct {
 
 func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorney *actor.AttorneyProvidedDetails) error {
-		donor, err := lpaStoreResolvingService.Get(r.Context())
+		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -35,12 +35,12 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 
 		var signPath string
 		if tasks.ConfirmYourDetails.Completed() && tasks.ReadTheLpa.Completed() {
-			ok, err := canSign(r.Context(), certificateProviderStore, donor)
+			ok, err := canSign(r.Context(), certificateProviderStore, lpa)
 			if err != nil {
 				return err
 			}
 			if ok {
-				signPath = page.Paths.Attorney.Sign.Format(donor.LpaID)
+				signPath = page.Paths.Attorney.Sign.Format(lpa.LpaID)
 			}
 		}
 
@@ -63,17 +63,17 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 		}
 
 		data := &taskListData{
-			App:   appData,
-			Donor: donor,
+			App: appData,
+			Lpa: lpa,
 			Items: append([]taskListItem{
 				{
 					Name:  "confirmYourDetails",
-					Path:  page.Paths.Attorney.MobileNumber.Format(donor.LpaID),
+					Path:  page.Paths.Attorney.MobileNumber.Format(lpa.LpaID),
 					State: tasks.ConfirmYourDetails,
 				},
 				{
 					Name:  "readTheLpa",
-					Path:  page.Paths.Attorney.ReadTheLpa.Format(donor.LpaID),
+					Path:  page.Paths.Attorney.ReadTheLpa.Format(lpa.LpaID),
 					State: tasks.ReadTheLpa,
 				},
 			}, signItems...),

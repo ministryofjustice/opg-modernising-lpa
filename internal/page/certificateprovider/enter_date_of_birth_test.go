@@ -39,9 +39,9 @@ func TestGetEnterDateOfBirth(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &dateOfBirthData{
-			App:   testAppData,
-			Donor: donor,
-			Form:  &dateOfBirthForm{},
+			App:  testAppData,
+			Lpa:  donor,
+			Form: &dateOfBirthForm{},
 		}).
 		Return(nil)
 
@@ -69,8 +69,8 @@ func TestGetEnterDateOfBirthFromStore(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &dateOfBirthData{
-			App:   testAppData,
-			Donor: &lpastore.ResolvedLpa{},
+			App: testAppData,
+			Lpa: &lpastore.ResolvedLpa{},
 			Form: &dateOfBirthForm{
 				Dob: date.New("1997", "1", "2"),
 			},
@@ -142,9 +142,9 @@ func TestGetEnterDateOfBirthWhenTemplateErrors(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &dateOfBirthData{
-			App:   testAppData,
-			Donor: donor,
-			Form:  &dateOfBirthForm{},
+			App:  testAppData,
+			Lpa:  donor,
+			Form: &dateOfBirthForm{},
 		}).
 		Return(expectedError)
 
