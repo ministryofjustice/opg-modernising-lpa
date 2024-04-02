@@ -74,7 +74,7 @@ func TestClientSendAttorney(t *testing.T) {
 
 	testcases := map[string]struct {
 		attorney *actor.AttorneyProvidedDetails
-		donor    *actor.DonorProvidedDetails
+		donor    *ResolvedLpa
 		json     string
 	}{
 		"attorney": {
@@ -84,7 +84,7 @@ func TestClientSendAttorney(t *testing.T) {
 				Confirmed:                 time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				ContactLanguagePreference: localize.Cy,
 			},
-			donor: &actor.DonorProvidedDetails{
+			donor: &ResolvedLpa{
 				LpaUID: "lpa-uid",
 				Attorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{
@@ -102,7 +102,7 @@ func TestClientSendAttorney(t *testing.T) {
 				Confirmed:                 time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				ContactLanguagePreference: localize.Cy,
 			},
-			donor: &actor.DonorProvidedDetails{
+			donor: &ResolvedLpa{
 				LpaUID: "lpa-uid",
 				Attorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{
@@ -135,7 +135,7 @@ func TestClientSendAttorney(t *testing.T) {
 				}},
 				ContactLanguagePreference: localize.En,
 			},
-			donor: &actor.DonorProvidedDetails{
+			donor: &ResolvedLpa{
 				LpaUID: "lpa-uid",
 			},
 			json: `{"type":"ATTORNEY_SIGN","changes":[{"key":"/trustCorporations/0/mobile","old":null,"new":"07777"},{"key":"/trustCorporations/0/contactLanguagePreference","old":null,"new":"en"},{"key":"/trustCorporations/0/signatories/0/firstNames","old":null,"new":"John"},{"key":"/trustCorporations/0/signatories/0/lastName","old":null,"new":"Signer"},{"key":"/trustCorporations/0/signatories/0/professionalTitle","old":null,"new":"Director"},{"key":"/trustCorporations/0/signatories/0/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"},{"key":"/trustCorporations/0/signatories/1/firstNames","old":null,"new":"Dave"},{"key":"/trustCorporations/0/signatories/1/lastName","old":null,"new":"Signer"},{"key":"/trustCorporations/0/signatories/1/professionalTitle","old":null,"new":"Assistant to the Director"},{"key":"/trustCorporations/0/signatories/1/signedAt","old":null,"new":"2000-01-02T03:04:05.000000007Z"}]}`,
@@ -154,7 +154,7 @@ func TestClientSendAttorney(t *testing.T) {
 				}},
 				ContactLanguagePreference: localize.En,
 			},
-			donor: &actor.DonorProvidedDetails{
+			donor: &ResolvedLpa{
 				LpaUID: "lpa-uid",
 			},
 			json: `{"type":"ATTORNEY_SIGN","changes":[{"key":"/trustCorporations/0/mobile","old":null,"new":"07777"},{"key":"/trustCorporations/0/contactLanguagePreference","old":null,"new":"en"},{"key":"/trustCorporations/0/signatories/0/firstNames","old":null,"new":"John"},{"key":"/trustCorporations/0/signatories/0/lastName","old":null,"new":"Signer"},{"key":"/trustCorporations/0/signatories/0/professionalTitle","old":null,"new":"Director"},{"key":"/trustCorporations/0/signatories/0/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"}]}`,
@@ -173,7 +173,7 @@ func TestClientSendAttorney(t *testing.T) {
 				}},
 				ContactLanguagePreference: localize.En,
 			},
-			donor: &actor.DonorProvidedDetails{
+			donor: &ResolvedLpa{
 				LpaUID:    "lpa-uid",
 				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
 			},

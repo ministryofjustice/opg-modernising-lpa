@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/stretchr/testify/assert"
@@ -454,15 +455,15 @@ func TestHandleFeeDeniedWhenPutError(t *testing.T) {
 	assert.Equal(t, fmt.Errorf("failed to update LPA task status: %w", expectedError), err)
 }
 
-func TestHandleDonorSubmissionCompleted(t *testing.T) {
-	event := events.CloudWatchEvent{
-		DetailType: "donor-submission-completed",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
-	}
+var donorSubmissionCompletedEvent = events.CloudWatchEvent{
+	DetailType: "donor-submission-completed",
+	Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+}
 
+func TestHandleDonorSubmissionCompleted(t *testing.T) {
 	appData := page.AppData{}
 
-	donor := &actor.DonorProvidedDetails{
+	donor := &lpastore.ResolvedLpa{
 		CertificateProvider: actor.CertificateProvider{
 			CarryOutBy: actor.Online,
 		},
@@ -472,6 +473,16 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 	client.EXPECT().
 		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
 		Return(dynamo.NotFoundError{})
+	client.EXPECT().
+		Put(ctx, &actor.DonorProvidedDetails{
+			PK:        dynamo.LpaKey(testUuidString),
+			SK:        dynamo.DonorKey("PAPER"),
+			LpaID:     testUuidString,
+			LpaUID:    "M-1111-2222-3333",
+			CreatedAt: testNow,
+			Version:   1,
+		}).
+		Return(nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
@@ -480,22 +491,19 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendCertificateProviderInvite(ctx, appData, donor).
+		SendCertificateProviderInvite(ctx, appData, page.CertificateProviderInvite{
+			CertificateProvider: donor.CertificateProvider,
+		}).
 		Return(nil)
 
-	err := handleDonorSubmissionCompleted(ctx, client, event, shareCodeSender, appData, lpaStoreClient)
+	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, shareCodeSender, appData, lpaStoreClient, testUuidStringFn, testNowFn)
 	assert.Nil(t, err)
 }
 
 func TestHandleDonorSubmissionCompletedWhenPaperCertificateProvider(t *testing.T) {
-	event := events.CloudWatchEvent{
-		DetailType: "donor-submission-completed",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
-	}
-
 	appData := page.AppData{}
 
-	donor := &actor.DonorProvidedDetails{
+	donor := &lpastore.ResolvedLpa{
 		CertificateProvider: actor.CertificateProvider{
 			CarryOutBy: actor.Paper,
 		},
@@ -505,22 +513,20 @@ func TestHandleDonorSubmissionCompletedWhenPaperCertificateProvider(t *testing.T
 	client.EXPECT().
 		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
 		Return(dynamo.NotFoundError{})
+	client.EXPECT().
+		Put(ctx, mock.Anything).
+		Return(nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
 		Return(donor, nil)
 
-	err := handleDonorSubmissionCompleted(ctx, client, event, nil, appData, lpaStoreClient)
+	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, nil, appData, lpaStoreClient, testUuidStringFn, testNowFn)
 	assert.Nil(t, err)
 }
 
 func TestHandleDonorSubmissionCompletedWhenDynamoExists(t *testing.T) {
-	event := events.CloudWatchEvent{
-		DetailType: "donor-submission-completed",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
-	}
-
 	appData := page.AppData{}
 
 	client := newMockDynamodbClient(t)
@@ -528,16 +534,11 @@ func TestHandleDonorSubmissionCompletedWhenDynamoExists(t *testing.T) {
 		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
 		Return(nil)
 
-	err := handleDonorSubmissionCompleted(ctx, client, event, nil, appData, nil)
+	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, nil, appData, nil, nil, nil)
 	assert.Nil(t, err)
 }
 
-func TestHandleDonorSubmissionCompletedWhenDynamoError(t *testing.T) {
-	event := events.CloudWatchEvent{
-		DetailType: "donor-submission-completed",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
-	}
-
+func TestHandleDonorSubmissionCompletedWhenDynamoOneByUIDError(t *testing.T) {
 	appData := page.AppData{}
 
 	client := newMockDynamodbClient(t)
@@ -545,19 +546,29 @@ func TestHandleDonorSubmissionCompletedWhenDynamoError(t *testing.T) {
 		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
 		Return(expectedError)
 
-	err := handleDonorSubmissionCompleted(ctx, client, event, nil, appData, nil)
+	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, nil, appData, nil, nil, nil)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestHandleDonorSubmissionCompletedWhenDynamoPutError(t *testing.T) {
+	appData := page.AppData{}
+
+	client := newMockDynamodbClient(t)
+	client.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		Return(dynamo.NotFoundError{})
+	client.EXPECT().
+		Put(ctx, mock.Anything).
+		Return(expectedError)
+
+	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, nil, appData, nil, testUuidStringFn, testNowFn)
 	assert.Equal(t, expectedError, err)
 }
 
 func TestHandleDonorSubmissionCompletedWhenLpaStoreError(t *testing.T) {
-	event := events.CloudWatchEvent{
-		DetailType: "donor-submission-completed",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
-	}
-
 	appData := page.AppData{}
 
-	donor := &actor.DonorProvidedDetails{
+	donor := &lpastore.ResolvedLpa{
 		CertificateProvider: actor.CertificateProvider{
 			CarryOutBy: actor.Online,
 		},
@@ -567,25 +578,23 @@ func TestHandleDonorSubmissionCompletedWhenLpaStoreError(t *testing.T) {
 	client.EXPECT().
 		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
 		Return(dynamo.NotFoundError{})
+	client.EXPECT().
+		Put(ctx, mock.Anything).
+		Return(nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
 		Return(donor, expectedError)
 
-	err := handleDonorSubmissionCompleted(ctx, client, event, nil, appData, lpaStoreClient)
+	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, nil, appData, lpaStoreClient, testUuidStringFn, testNowFn)
 	assert.Equal(t, expectedError, err)
 }
 
 func TestHandleDonorSubmissionCompletedWhenShareCodeSenderError(t *testing.T) {
-	event := events.CloudWatchEvent{
-		DetailType: "donor-submission-completed",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
-	}
-
 	appData := page.AppData{}
 
-	donor := &actor.DonorProvidedDetails{
+	donor := &lpastore.ResolvedLpa{
 		CertificateProvider: actor.CertificateProvider{
 			CarryOutBy: actor.Online,
 		},
@@ -595,6 +604,9 @@ func TestHandleDonorSubmissionCompletedWhenShareCodeSenderError(t *testing.T) {
 	client.EXPECT().
 		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
 		Return(dynamo.NotFoundError{})
+	client.EXPECT().
+		Put(ctx, mock.Anything).
+		Return(nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
@@ -603,10 +615,10 @@ func TestHandleDonorSubmissionCompletedWhenShareCodeSenderError(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendCertificateProviderInvite(ctx, appData, donor).
+		SendCertificateProviderInvite(ctx, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := handleDonorSubmissionCompleted(ctx, client, event, shareCodeSender, appData, lpaStoreClient)
+	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, shareCodeSender, appData, lpaStoreClient, testUuidStringFn, testNowFn)
 	assert.Equal(t, fmt.Errorf("failed to send share code to certificate provider: %w", expectedError), err)
 }
 
@@ -618,7 +630,7 @@ var certificateProviderSubmissionCompletedEvent = events.CloudWatchEvent{
 func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 	appData := page.AppData{}
 
-	donor := &actor.DonorProvidedDetails{
+	donor := &lpastore.ResolvedLpa{
 		CertificateProvider: actor.CertificateProvider{
 			CarryOutBy: actor.Paper,
 		},
@@ -650,7 +662,7 @@ func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 }
 
 func TestHandleCertificateProviderSubmissionCompletedWhenOnline(t *testing.T) {
-	donor := &actor.DonorProvidedDetails{
+	donor := &lpastore.ResolvedLpa{
 		CertificateProvider: actor.CertificateProvider{
 			CarryOutBy: actor.Online,
 		},
@@ -702,7 +714,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderErrors(t
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
-		Return(&actor.DonorProvidedDetails{
+		Return(&lpastore.ResolvedLpa{
 			CertificateProvider: actor.CertificateProvider{
 				CarryOutBy: actor.Paper,
 			},
@@ -733,7 +745,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderFactoryE
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
-		Return(&actor.DonorProvidedDetails{
+		Return(&lpastore.ResolvedLpa{
 			CertificateProvider: actor.CertificateProvider{
 				CarryOutBy: actor.Paper,
 			},
@@ -756,7 +768,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenAppDataFactoryErrors(t 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
-		Return(&actor.DonorProvidedDetails{
+		Return(&lpastore.ResolvedLpa{
 			CertificateProvider: actor.CertificateProvider{
 				CarryOutBy: actor.Paper,
 			},

@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -17,13 +18,13 @@ type provideCertificateData struct {
 	App                 page.AppData
 	Errors              validation.List
 	CertificateProvider *actor.CertificateProviderProvidedDetails
-	Donor               *actor.DonorProvidedDetails
+	Donor               *lpastore.ResolvedLpa
 	Form                *provideCertificateForm
 }
 
 func ProvideCertificate(
 	tmpl template.Template,
-	donorStore DonorStore,
+	lpaStoreResolvingService LpaStoreResolvingService,
 	certificateProviderStore CertificateProviderStore,
 	notifyClient NotifyClient,
 	shareCodeSender ShareCodeSender,
@@ -31,7 +32,7 @@ func ProvideCertificate(
 	now func() time.Time,
 ) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		donor, err := donorStore.GetAny(r.Context())
+		donor, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}

@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -12,18 +13,18 @@ import (
 type confirmYourDetailsData struct {
 	App                 page.AppData
 	Errors              validation.List
-	Donor               *actor.DonorProvidedDetails
+	Donor               *lpastore.ResolvedLpa
 	CertificateProvider *actor.CertificateProviderProvidedDetails
 }
 
-func ConfirmYourDetails(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore) page.Handler {
+func ConfirmYourDetails(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
-		donor, err := donorStore.GetAny(r.Context())
+		donor, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -36,7 +37,7 @@ func ConfirmYourDetails(tmpl template.Template, donorStore DonorStore, certifica
 			}
 
 			redirect := page.Paths.CertificateProvider.YourRole
-			if donor.Tasks.ConfirmYourIdentityAndSign.Completed() {
+			if !donor.SignedAt.IsZero() {
 				redirect = page.Paths.CertificateProvider.TaskList
 			}
 

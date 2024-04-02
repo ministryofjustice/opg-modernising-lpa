@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -72,7 +73,7 @@ type AddressClient interface {
 }
 
 type ShareCodeSender interface {
-	SendCertificateProviderInvite(context.Context, page.AppData, *actor.DonorProvidedDetails) error
+	SendCertificateProviderInvite(context.Context, page.AppData, page.CertificateProviderInvite) error
 	SendCertificateProviderPrompt(context.Context, page.AppData, *actor.DonorProvidedDetails) error
 }
 
@@ -137,7 +138,8 @@ type DashboardStore interface {
 }
 
 type LpaStoreClient interface {
-	SendLpa(context.Context, *actor.DonorProvidedDetails) error
+	SendLpa(ctx context.Context, details *actor.DonorProvidedDetails) error
+	Lpa(ctx context.Context, lpaUID string) (*lpastore.ResolvedLpa, error)
 }
 
 type ShareCodeStore interface {
@@ -148,7 +150,7 @@ type ShareCodeStore interface {
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type ProgressTracker interface {
-	Progress(donor *actor.DonorProvidedDetails, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) page.Progress
+	Progress(donor *lpastore.ResolvedLpa, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) page.Progress
 }
 
 func Register(
@@ -389,7 +391,7 @@ func Register(
 		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml")))
 
 	handleWithDonor(page.Paths.Progress, page.CanGoBack,
-		LpaProgress(tmpls.Get("lpa_progress.gohtml"), certificateProviderStore, attorneyStore, progressTracker))
+		LpaProgress(tmpls.Get("lpa_progress.gohtml"), lpaStoreClient, certificateProviderStore, attorneyStore, progressTracker))
 
 	handleWithDonor(page.Paths.UploadEvidenceSSE, page.None,
 		UploadEvidenceSSE(documentStore, 3*time.Minute, 2*time.Second, time.Now))

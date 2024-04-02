@@ -40,8 +40,8 @@ func (s *organisationStore) Create(ctx context.Context, member *actor.Member, na
 	}
 
 	organisation := &actor.Organisation{
-		PK:        organisationKey(member.OrganisationID),
-		SK:        organisationKey(member.OrganisationID),
+		PK:        dynamo.OrganisationKey(member.OrganisationID),
+		SK:        dynamo.OrganisationKey(member.OrganisationID),
 		ID:        member.OrganisationID,
 		Name:      name,
 		CreatedAt: s.now(),
@@ -65,7 +65,7 @@ func (s *organisationStore) Get(ctx context.Context) (*actor.Organisation, error
 	}
 
 	var member actor.Member
-	if err := s.dynamoClient.OneBySK(ctx, memberKey(data.SessionID), &member); err != nil {
+	if err := s.dynamoClient.OneBySK(ctx, dynamo.MemberKey(data.SessionID), &member); err != nil {
 		return nil, err
 	}
 
@@ -100,8 +100,8 @@ func (s *organisationStore) CreateLPA(ctx context.Context) (*actor.DonorProvided
 	donorUID := s.newUID()
 
 	donor := &actor.DonorProvidedDetails{
-		PK:        lpaKey(lpaID),
-		SK:        organisationKey(data.OrganisationID),
+		PK:        dynamo.LpaKey(lpaID),
+		SK:        dynamo.OrganisationKey(data.OrganisationID),
 		LpaID:     lpaID,
 		CreatedAt: s.now(),
 		Version:   1,
@@ -125,8 +125,4 @@ func (s *organisationStore) SoftDelete(ctx context.Context, organisation *actor.
 	organisation.DeletedAt = s.now()
 
 	return s.dynamoClient.Put(ctx, organisation)
-}
-
-func organisationKey(organisationID string) string {
-	return "ORGANISATION#" + organisationID
 }

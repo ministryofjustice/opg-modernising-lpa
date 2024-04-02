@@ -5,32 +5,32 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type readTheLpaData struct {
-	App                 page.AppData
-	Errors              validation.List
-	Donor               *actor.DonorProvidedDetails
-	CertificateProvider *actor.CertificateProviderProvidedDetails
+	App    page.AppData
+	Errors validation.List
+	Donor  *lpastore.ResolvedLpa
 }
 
-func ReadTheLpa(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore) page.Handler {
+func ReadTheLpa(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		donor, err := donorStore.GetAny(r.Context())
-		if err != nil {
-			return err
-		}
-
-		certificateProvider, err := certificateProviderStore.Get(r.Context())
+		donor, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
 		if r.Method == http.MethodPost {
-			if donor.SignedAt.IsZero() || !donor.Tasks.PayForLpa.IsCompleted() {
+			if donor.SignedAt.IsZero() || !donor.Paid {
 				return page.Paths.CertificateProvider.TaskList.Redirect(w, r, appData, donor.LpaID)
+			}
+
+			certificateProvider, err := certificateProviderStore.Get(r.Context())
+			if err != nil {
+				return err
 			}
 
 			certificateProvider.Tasks.ReadTheLpa = actor.TaskCompleted
@@ -42,9 +42,8 @@ func ReadTheLpa(tmpl template.Template, donorStore DonorStore, certificateProvid
 		}
 
 		data := &readTheLpaData{
-			App:                 appData,
-			Donor:               donor,
-			CertificateProvider: certificateProvider,
+			App:   appData,
+			Donor: donor,
 		}
 
 		return tmpl(w, data)

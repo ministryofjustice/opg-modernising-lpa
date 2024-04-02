@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -12,13 +13,13 @@ import (
 type confirmYourDetailsData struct {
 	App                     page.AppData
 	Errors                  validation.List
-	Donor                   *actor.DonorProvidedDetails
+	Donor                   *lpastore.ResolvedLpa
 	Attorney                actor.Attorney
 	TrustCorporation        actor.TrustCorporation
 	AttorneyProvidedDetails *actor.AttorneyProvidedDetails
 }
 
-func ConfirmYourDetails(tmpl template.Template, attorneyStore AttorneyStore, donorStore DonorStore) Handler {
+func ConfirmYourDetails(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreResolvingService LpaStoreResolvingService) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *actor.AttorneyProvidedDetails) error {
 		if r.Method == http.MethodPost {
 			attorneyProvidedDetails.Tasks.ConfirmYourDetails = actor.TaskCompleted
@@ -30,7 +31,7 @@ func ConfirmYourDetails(tmpl template.Template, attorneyStore AttorneyStore, don
 			return page.Paths.Attorney.ReadTheLpa.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 		}
 
-		donor, err := donorStore.GetAny(r.Context())
+		donor, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}

@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -82,7 +83,7 @@ func TestPostWouldLikeSecondSignatoryWhenYes(t *testing.T) {
 }
 
 func TestPostWouldLikeSecondSignatoryWhenNo(t *testing.T) {
-	donor := &actor.DonorProvidedDetails{SignedAt: time.Now()}
+	donor := &lpastore.ResolvedLpa{SignedAt: time.Now()}
 	updatedAttorney := &actor.AttorneyProvidedDetails{
 		LpaID:                    "lpa-id",
 		WouldLikeSecondSignatory: form.No,
@@ -101,9 +102,9 @@ func TestPostWouldLikeSecondSignatoryWhenNo(t *testing.T) {
 		Put(r.Context(), updatedAttorney).
 		Return(nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
 		Return(donor, nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
@@ -111,7 +112,7 @@ func TestPostWouldLikeSecondSignatoryWhenNo(t *testing.T) {
 		SendAttorney(r.Context(), donor, updatedAttorney).
 		Return(nil)
 
-	err := WouldLikeSecondSignatory(nil, attorneyStore, donorStore, lpaStoreClient)(testAppData, w, r, &actor.AttorneyProvidedDetails{
+	err := WouldLikeSecondSignatory(nil, attorneyStore, lpaStoreResolvingService, lpaStoreClient)(testAppData, w, r, &actor.AttorneyProvidedDetails{
 		LpaID: "lpa-id",
 	})
 	resp := w.Result()
@@ -122,7 +123,7 @@ func TestPostWouldLikeSecondSignatoryWhenNo(t *testing.T) {
 }
 
 func TestPostWouldLikeSecondSignatoryWhenLpaStoreClientErrors(t *testing.T) {
-	donor := &actor.DonorProvidedDetails{SignedAt: time.Now()}
+	donor := &lpastore.ResolvedLpa{SignedAt: time.Now()}
 
 	f := url.Values{
 		form.FieldNames.YesNo: {form.No.String()},
@@ -137,9 +138,9 @@ func TestPostWouldLikeSecondSignatoryWhenLpaStoreClientErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
 		Return(donor, nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
@@ -147,11 +148,11 @@ func TestPostWouldLikeSecondSignatoryWhenLpaStoreClientErrors(t *testing.T) {
 		SendAttorney(r.Context(), mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := WouldLikeSecondSignatory(nil, attorneyStore, donorStore, lpaStoreClient)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
+	err := WouldLikeSecondSignatory(nil, attorneyStore, lpaStoreResolvingService, lpaStoreClient)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	assert.Equal(t, expectedError, err)
 }
 
-func TestPostWouldLikeSecondSignatoryWhenDonorStoreErrors(t *testing.T) {
+func TestPostWouldLikeSecondSignatoryWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.YesNo: {form.No.String()},
 	}
@@ -165,12 +166,12 @@ func TestPostWouldLikeSecondSignatoryWhenDonorStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
 		Return(nil, expectedError)
 
-	err := WouldLikeSecondSignatory(nil, attorneyStore, donorStore, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
+	err := WouldLikeSecondSignatory(nil, attorneyStore, lpaStoreResolvingService, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	assert.Equal(t, expectedError, err)
 }
 

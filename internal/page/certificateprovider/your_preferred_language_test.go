@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -26,10 +27,10 @@ func TestGetYourPreferredLanguage(t *testing.T) {
 		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy}, nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
-		Return(&actor.DonorProvidedDetails{}, nil)
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(&lpastore.ResolvedLpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -40,11 +41,11 @@ func TestGetYourPreferredLanguage(t *testing.T) {
 			},
 			Options:   localize.LangValues,
 			FieldName: form.FieldNames.LanguagePreference,
-			Donor:     &actor.DonorProvidedDetails{},
+			Donor:     &lpastore.ResolvedLpa{},
 		}).
 		Return(nil)
 
-	err := YourPreferredLanguage(template.Execute, certificateProviderStore, donorStore)(testAppData, w, r)
+	err := YourPreferredLanguage(template.Execute, certificateProviderStore, lpaStoreResolvingService)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -69,7 +70,7 @@ func TestGetYourPreferredLanguageWhenCertificateProviderStoreError(t *testing.T)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetYourPreferredLanguageWhenDonorStoreError(t *testing.T) {
+func TestGetYourPreferredLanguageWhenLpaStoreResolvingServiceError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -78,12 +79,12 @@ func TestGetYourPreferredLanguageWhenDonorStoreError(t *testing.T) {
 		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy}, nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
-		Return(&actor.DonorProvidedDetails{}, expectedError)
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(&lpastore.ResolvedLpa{}, expectedError)
 
-	err := YourPreferredLanguage(nil, certificateProviderStore, donorStore)(testAppData, w, r)
+	err := YourPreferredLanguage(nil, certificateProviderStore, lpaStoreResolvingService)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -100,17 +101,17 @@ func TestGetYourPreferredLanguageWhenTemplateError(t *testing.T) {
 		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy}, nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
-		Return(&actor.DonorProvidedDetails{}, nil)
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(&lpastore.ResolvedLpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := YourPreferredLanguage(template.Execute, certificateProviderStore, donorStore)(testAppData, w, r)
+	err := YourPreferredLanguage(template.Execute, certificateProviderStore, lpaStoreResolvingService)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -137,12 +138,12 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 				Put(r.Context(), &actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: lang}).
 				Return(nil)
 
-			donorStore := newMockDonorStore(t)
-			donorStore.EXPECT().
-				GetAny(r.Context()).
-				Return(&actor.DonorProvidedDetails{}, nil)
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			lpaStoreResolvingService.EXPECT().
+				Get(r.Context()).
+				Return(&lpastore.ResolvedLpa{}, nil)
 
-			err := YourPreferredLanguage(nil, certificateProviderStore, donorStore)(testAppData, w, r)
+			err := YourPreferredLanguage(nil, certificateProviderStore, lpaStoreResolvingService)(testAppData, w, r)
 
 			resp := w.Result()
 
@@ -168,12 +169,12 @@ func TestPostYourPreferredLanguageWhenAttorneyStoreError(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
-		Return(&actor.DonorProvidedDetails{}, nil)
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(&lpastore.ResolvedLpa{}, nil)
 
-	err := YourPreferredLanguage(nil, certificateProviderStore, donorStore)(testAppData, w, r)
+	err := YourPreferredLanguage(nil, certificateProviderStore, lpaStoreResolvingService)(testAppData, w, r)
 
 	resp := w.Result()
 
@@ -193,10 +194,10 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
-		Return(&actor.DonorProvidedDetails{}, nil)
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(&lpastore.ResolvedLpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -209,11 +210,11 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 			Options:   localize.LangValues,
 			FieldName: form.FieldNames.LanguagePreference,
 			Errors:    validation.With(form.FieldNames.LanguagePreference, validation.SelectError{Label: "whichLanguageYoudLikeUsToUseWhenWeContactYou"}),
-			Donor:     &actor.DonorProvidedDetails{},
+			Donor:     &lpastore.ResolvedLpa{},
 		}).
 		Return(nil)
 
-	err := YourPreferredLanguage(template.Execute, certificateProviderStore, donorStore)(testAppData, w, r)
+	err := YourPreferredLanguage(template.Execute, certificateProviderStore, lpaStoreResolvingService)(testAppData, w, r)
 
 	resp := w.Result()
 

@@ -18,8 +18,13 @@ type lpaProgressData struct {
 	Errors   validation.List
 }
 
-func LpaProgress(tmpl template.Template, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, progressTracker ProgressTracker) Handler {
+func LpaProgress(tmpl template.Template, lpaStoreClient LpaStoreClient, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, progressTracker ProgressTracker) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+		lpa, err := lpaStoreClient.Lpa(r.Context(), donor.LpaUID)
+		if err != nil {
+			return err
+		}
+
 		certificateProvider, err := certificateProviderStore.GetAny(r.Context())
 		if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
 			return err
@@ -37,7 +42,7 @@ func LpaProgress(tmpl template.Template, certificateProviderStore CertificatePro
 		data := &lpaProgressData{
 			App:      appData,
 			Donor:    donor,
-			Progress: progressTracker.Progress(donor, certificateProvider, attorneys),
+			Progress: progressTracker.Progress(lpa, certificateProvider, attorneys),
 		}
 
 		return tmpl(w, data)

@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 )
 
@@ -38,12 +39,12 @@ func (s *uidStore) Set(ctx context.Context, lpaID, sessionID, organisationID, ui
 		return err
 	}
 
-	sk := donorKey(sessionID)
+	sk := dynamo.DonorKey(sessionID)
 	if organisationID != "" {
-		sk = organisationKey(organisationID)
+		sk = dynamo.OrganisationKey(organisationID)
 	}
 
-	newAttrs, err := s.dynamoClient.UpdateReturn(ctx, lpaKey(lpaID), sk, values,
+	newAttrs, err := s.dynamoClient.UpdateReturn(ctx, dynamo.LpaKey(lpaID), sk, values,
 		"set LpaUID = :uid, UpdatedAt = :now")
 	if err != nil {
 		return fmt.Errorf("uidStore update failed: %w", err)
@@ -55,7 +56,7 @@ func (s *uidStore) Set(ctx context.Context, lpaID, sessionID, organisationID, ui
 	}
 
 	if err := s.searchClient.Index(ctx, search.Lpa{
-		PK:            lpaKey(lpaID),
+		PK:            dynamo.LpaKey(lpaID),
 		SK:            sk,
 		DonorFullName: donor.Donor.FullName(),
 	}); err != nil {

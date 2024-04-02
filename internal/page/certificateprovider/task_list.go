@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -12,7 +13,7 @@ import (
 type taskListData struct {
 	App    page.AppData
 	Errors validation.List
-	Donor  *actor.DonorProvidedDetails
+	Donor  *lpastore.ResolvedLpa
 	Items  []taskListItem
 }
 
@@ -23,9 +24,9 @@ type taskListItem struct {
 	Disabled bool
 }
 
-func TaskList(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore) page.Handler {
+func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		donor, err := donorStore.GetAny(r.Context())
+		donor, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -55,7 +56,7 @@ func TaskList(tmpl template.Template, donorStore DonorStore, certificateProvider
 					Name:     "confirmYourIdentity",
 					Path:     identityTaskPage.Format(donor.LpaID),
 					State:    tasks.ConfirmYourIdentity,
-					Disabled: !donor.Tasks.PayForLpa.IsCompleted() || donor.SignedAt.IsZero(),
+					Disabled: !donor.Paid || donor.SignedAt.IsZero(),
 				},
 				{
 					Name:     "provideYourCertificate",

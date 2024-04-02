@@ -9,12 +9,17 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
+
+type LpaStoreResolvingService interface {
+	Get(ctx context.Context) (*lpastore.ResolvedLpa, error)
+}
 
 type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, details *actor.AttorneyProvidedDetails) error
 
@@ -37,10 +42,6 @@ type OneLoginClient interface {
 	AuthCodeURL(state, nonce, locale string, identity bool) (string, error)
 	Exchange(ctx context.Context, code, nonce string) (idToken, accessToken string, err error)
 	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
-}
-
-type DonorStore interface {
-	GetAny(context.Context) (*actor.DonorProvidedDetails, error)
 }
 
 type ShareCodeStore interface {
@@ -70,7 +71,7 @@ type DashboardStore interface {
 }
 
 type LpaStoreClient interface {
-	SendAttorney(context.Context, *actor.DonorProvidedDetails, *actor.AttorneyProvidedDetails) error
+	SendAttorney(context.Context, *lpastore.ResolvedLpa, *actor.AttorneyProvidedDetails) error
 }
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
@@ -80,7 +81,6 @@ func Register(
 	logger Logger,
 	commonTmpls, tmpls template.Templates,
 	sessionStore SessionStore,
-	donorStore DonorStore,
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
 	oneLoginClient OneLoginClient,
@@ -89,6 +89,7 @@ func Register(
 	notFoundHandler page.Handler,
 	dashboardStore DashboardStore,
 	lpaStoreClient LpaStoreClient,
+	lpaStoreResolvingService LpaStoreResolvingService,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -102,29 +103,29 @@ func Register(
 	handleAttorney := makeAttorneyHandle(rootMux, sessionStore, errorHandler, attorneyStore)
 
 	handleAttorney(page.Paths.Attorney.CodeOfConduct, RequireAttorney,
-		Guidance(tmpls.Get("code_of_conduct.gohtml"), donorStore))
+		Guidance(tmpls.Get("code_of_conduct.gohtml"), lpaStoreResolvingService))
 	handleAttorney(page.Paths.Attorney.TaskList, RequireAttorney,
-		TaskList(tmpls.Get("task_list.gohtml"), donorStore, certificateProviderStore))
+		TaskList(tmpls.Get("task_list.gohtml"), lpaStoreResolvingService, certificateProviderStore))
 	handleAttorney(page.Paths.Attorney.MobileNumber, RequireAttorney,
 		MobileNumber(tmpls.Get("mobile_number.gohtml"), attorneyStore))
 	handleAttorney(page.Paths.Attorney.YourPreferredLanguage, RequireAttorney,
-		YourPreferredLanguage(commonTmpls.Get("your_preferred_language.gohtml"), attorneyStore, donorStore))
+		YourPreferredLanguage(commonTmpls.Get("your_preferred_language.gohtml"), attorneyStore, lpaStoreResolvingService))
 	handleAttorney(page.Paths.Attorney.ConfirmYourDetails, RequireAttorney,
-		ConfirmYourDetails(tmpls.Get("confirm_your_details.gohtml"), attorneyStore, donorStore))
+		ConfirmYourDetails(tmpls.Get("confirm_your_details.gohtml"), attorneyStore, lpaStoreResolvingService))
 	handleAttorney(page.Paths.Attorney.ReadTheLpa, RequireAttorney,
-		ReadTheLpa(tmpls.Get("read_the_lpa.gohtml"), donorStore, attorneyStore))
+		ReadTheLpa(tmpls.Get("read_the_lpa.gohtml"), lpaStoreResolvingService, attorneyStore))
 	handleAttorney(page.Paths.Attorney.RightsAndResponsibilities, RequireAttorney,
 		Guidance(tmpls.Get("legal_rights_and_responsibilities.gohtml"), nil))
 	handleAttorney(page.Paths.Attorney.WhatHappensWhenYouSign, RequireAttorney,
-		Guidance(tmpls.Get("what_happens_when_you_sign.gohtml"), donorStore))
+		Guidance(tmpls.Get("what_happens_when_you_sign.gohtml"), lpaStoreResolvingService))
 	handleAttorney(page.Paths.Attorney.Sign, RequireAttorney,
-		Sign(tmpls.Get("sign.gohtml"), donorStore, certificateProviderStore, attorneyStore, lpaStoreClient, time.Now))
+		Sign(tmpls.Get("sign.gohtml"), lpaStoreResolvingService, certificateProviderStore, attorneyStore, lpaStoreClient, time.Now))
 	handleAttorney(page.Paths.Attorney.WouldLikeSecondSignatory, RequireAttorney,
-		WouldLikeSecondSignatory(tmpls.Get("would_like_second_signatory.gohtml"), attorneyStore, donorStore, lpaStoreClient))
+		WouldLikeSecondSignatory(tmpls.Get("would_like_second_signatory.gohtml"), attorneyStore, lpaStoreResolvingService, lpaStoreClient))
 	handleAttorney(page.Paths.Attorney.WhatHappensNext, RequireAttorney,
-		Guidance(tmpls.Get("what_happens_next.gohtml"), donorStore))
+		Guidance(tmpls.Get("what_happens_next.gohtml"), lpaStoreResolvingService))
 	handleAttorney(page.Paths.Attorney.Progress, RequireAttorney,
-		Progress(tmpls.Get("progress.gohtml"), attorneyStore, donorStore))
+		Progress(tmpls.Get("progress.gohtml"), attorneyStore, lpaStoreResolvingService))
 }
 
 type handleOpt byte
