@@ -26,6 +26,7 @@ type factory interface {
 type cloudWatchEventHandler struct {
 	dynamoClient dynamodbClient
 	now          func() time.Time
+	uuidString   func() string
 	factory      factory
 }
 
@@ -84,7 +85,7 @@ func (h *cloudWatchEventHandler) Handle(ctx context.Context, cloudWatchEvent eve
 			return err
 		}
 
-		return handleDonorSubmissionCompleted(ctx, h.dynamoClient, cloudWatchEvent, shareCodeSender, appData, lpaStoreClient)
+		return handleDonorSubmissionCompleted(ctx, h.dynamoClient, cloudWatchEvent, shareCodeSender, appData, lpaStoreClient, h.uuidString, h.now)
 
 	case "certificate-provider-submission-completed":
 		return handleCertificateProviderSubmissionCompleted(ctx, cloudWatchEvent, h.factory)
@@ -127,7 +128,7 @@ func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event ev
 		return fmt.Errorf("PK missing from LPA in response")
 	}
 
-	if err := client.Put(ctx, map[string]string{"PK": key.PK, "SK": "#EVIDENCE_RECEIVED"}); err != nil {
+	if err := client.Put(ctx, map[string]string{"PK": key.PK, "SK": dynamo.EvidenceReceivedKey()}); err != nil {
 		return fmt.Errorf("failed to persist evidence received: %w", err)
 	}
 
@@ -202,7 +203,7 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.Cl
 	return nil
 }
 
-func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, shareCodeSender ShareCodeSender, appData page.AppData, lpaStoreClient LpaStoreClient) error {
+func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, shareCodeSender ShareCodeSender, appData page.AppData, lpaStoreClient LpaStoreClient, uuidString func() string, now func() time.Time) error {
 	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
@@ -210,6 +211,23 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 
 	var key dynamo.Key
 	if err := client.OneByUID(ctx, v.UID, &key); !errors.Is(err, dynamo.NotFoundError{}) {
+		return err
+	}
+
+	lpaID := uuidString()
+
+	if err := client.Put(ctx, &actor.DonorProvidedDetails{
+		PK:        dynamo.LpaKey(lpaID),
+		SK:        dynamo.DonorKey("PAPER"),
+		LpaID:     lpaID,
+		LpaUID:    v.UID,
+		CreatedAt: now(),
+		Version:   1,
+		Tasks: actor.DonorTasks{
+			PayForLpa:                  actor.PaymentTaskCompleted,
+			ConfirmYourIdentityAndSign: actor.TaskCompleted,
+		},
+	}); err != nil {
 		return err
 	}
 

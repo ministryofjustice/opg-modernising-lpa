@@ -7,6 +7,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
@@ -26,8 +27,8 @@ func (s *certificateProviderStore) Create(ctx context.Context, donorSessionID st
 	}
 
 	cp := &actor.CertificateProviderProvidedDetails{
-		PK:        lpaKey(data.LpaID),
-		SK:        certificateProviderKey(data.SessionID),
+		PK:        dynamo.LpaKey(data.LpaID),
+		SK:        dynamo.CertificateProviderKey(data.SessionID),
 		UID:       certificateProviderUID,
 		LpaID:     data.LpaID,
 		UpdatedAt: s.now(),
@@ -37,9 +38,9 @@ func (s *certificateProviderStore) Create(ctx context.Context, donorSessionID st
 		return nil, err
 	}
 	if err := s.dynamoClient.Create(ctx, lpaLink{
-		PK:        lpaKey(data.LpaID),
-		SK:        subKey(data.SessionID),
-		DonorKey:  donorKey(donorSessionID),
+		PK:        dynamo.LpaKey(data.LpaID),
+		SK:        dynamo.SubKey(data.SessionID),
+		DonorKey:  dynamo.DonorKey(donorSessionID),
 		ActorType: actor.TypeCertificateProvider,
 		UpdatedAt: s.now(),
 	}); err != nil {
@@ -60,7 +61,7 @@ func (s *certificateProviderStore) GetAny(ctx context.Context) (*actor.Certifica
 	}
 
 	var certificateProvider actor.CertificateProviderProvidedDetails
-	err = s.dynamoClient.OneByPartialSK(ctx, lpaKey(data.LpaID), "#CERTIFICATE_PROVIDER#", &certificateProvider)
+	err = s.dynamoClient.OneByPartialSK(ctx, dynamo.LpaKey(data.LpaID), "#CERTIFICATE_PROVIDER#", &certificateProvider)
 
 	return &certificateProvider, err
 }
@@ -76,7 +77,7 @@ func (s *certificateProviderStore) Get(ctx context.Context) (*actor.CertificateP
 	}
 
 	var certificateProvider actor.CertificateProviderProvidedDetails
-	err = s.dynamoClient.One(ctx, lpaKey(data.LpaID), certificateProviderKey(data.SessionID), &certificateProvider)
+	err = s.dynamoClient.One(ctx, dynamo.LpaKey(data.LpaID), dynamo.CertificateProviderKey(data.SessionID), &certificateProvider)
 
 	return &certificateProvider, err
 }
@@ -84,8 +85,4 @@ func (s *certificateProviderStore) Get(ctx context.Context) (*actor.CertificateP
 func (s *certificateProviderStore) Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error {
 	certificateProvider.UpdatedAt = s.now()
 	return s.dynamoClient.Put(ctx, certificateProvider)
-}
-
-func certificateProviderKey(s string) string {
-	return "#CERTIFICATE_PROVIDER#" + s
 }

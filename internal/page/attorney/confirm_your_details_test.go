@@ -56,9 +56,9 @@ func TestGetConfirmYourDetails(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			donorStore := newMockDonorStore(t)
-			donorStore.EXPECT().
-				GetAny(r.Context()).
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			lpaStoreResolvingService.EXPECT().
+				Get(r.Context()).
 				Return(tc.donor, nil)
 
 			template := newMockTemplate(t)
@@ -66,7 +66,7 @@ func TestGetConfirmYourDetails(t *testing.T) {
 				Execute(w, tc.data).
 				Return(nil)
 
-			err := ConfirmYourDetails(template.Execute, nil, donorStore)(tc.appData, w, r, attorneyProvidedDetails)
+			err := ConfirmYourDetails(template.Execute, nil, lpaStoreResolvingService)(tc.appData, w, r, attorneyProvidedDetails)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -75,18 +75,18 @@ func TestGetConfirmYourDetails(t *testing.T) {
 	}
 }
 
-func TestGetConfirmYourDetailsWhenDonorStoreErrors(t *testing.T) {
+func TestGetConfirmYourDetailsWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donor := &actor.DonorProvidedDetails{}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
 		Return(donor, expectedError)
 
-	err := ConfirmYourDetails(nil, nil, donorStore)(testAppData, w, r, nil)
+	err := ConfirmYourDetails(nil, nil, lpaStoreResolvingService)(testAppData, w, r, nil)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -95,9 +95,9 @@ func TestGetConfirmYourDetailsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
 		Return(&actor.DonorProvidedDetails{}, nil)
 
 	template := newMockTemplate(t)
@@ -105,7 +105,7 @@ func TestGetConfirmYourDetailsWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ConfirmYourDetails(template.Execute, nil, donorStore)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
+	err := ConfirmYourDetails(template.Execute, nil, lpaStoreResolvingService)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }

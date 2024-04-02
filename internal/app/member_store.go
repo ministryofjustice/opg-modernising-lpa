@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"slices"
@@ -10,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
@@ -30,8 +30,8 @@ func (s *memberStore) CreateMemberInvite(ctx context.Context, organisation *acto
 	}
 
 	invite := &actor.MemberInvite{
-		PK:               organisationKey(data.OrganisationID),
-		SK:               memberInviteKey(email),
+		PK:               dynamo.OrganisationKey(data.OrganisationID),
+		SK:               dynamo.MemberInviteKey(email),
 		CreatedAt:        s.now(),
 		OrganisationID:   organisation.ID,
 		OrganisationName: organisation.Name,
@@ -50,7 +50,7 @@ func (s *memberStore) CreateMemberInvite(ctx context.Context, organisation *acto
 }
 
 func (s *memberStore) DeleteMemberInvite(ctx context.Context, organisationID, email string) error {
-	if err := s.dynamoClient.DeleteOne(ctx, organisationKey(organisationID), memberInviteKey(email)); err != nil {
+	if err := s.dynamoClient.DeleteOne(ctx, dynamo.OrganisationKey(organisationID), dynamo.MemberInviteKey(email)); err != nil {
 		return fmt.Errorf("error deleting member invite: %w", err)
 	}
 
@@ -74,8 +74,8 @@ func (s *memberStore) Create(ctx context.Context, firstNames, lastName string) (
 	organisationID := s.uuidString()
 
 	member := &actor.Member{
-		PK:             organisationKey(organisationID),
-		SK:             memberKey(data.SessionID),
+		PK:             dynamo.OrganisationKey(organisationID),
+		SK:             dynamo.MemberKey(data.SessionID),
 		ID:             s.uuidString(),
 		OrganisationID: organisationID,
 		Email:          data.Email,
@@ -94,7 +94,7 @@ func (s *memberStore) Create(ctx context.Context, firstNames, lastName string) (
 
 	link := &organisationLink{
 		PK:       member.PK,
-		SK:       memberIDKey(member.ID),
+		SK:       dynamo.MemberIDKey(member.ID),
 		MemberSK: member.SK,
 	}
 
@@ -116,8 +116,8 @@ func (s *memberStore) CreateFromInvite(ctx context.Context, invite *actor.Member
 	}
 
 	member := &actor.Member{
-		PK:             organisationKey(invite.OrganisationID),
-		SK:             memberKey(data.SessionID),
+		PK:             dynamo.OrganisationKey(invite.OrganisationID),
+		SK:             dynamo.MemberKey(data.SessionID),
 		CreatedAt:      s.now(),
 		UpdatedAt:      s.now(),
 		ID:             s.uuidString(),
@@ -139,7 +139,7 @@ func (s *memberStore) CreateFromInvite(ctx context.Context, invite *actor.Member
 
 	link := &organisationLink{
 		PK:       member.PK,
-		SK:       memberIDKey(member.ID),
+		SK:       dynamo.MemberIDKey(member.ID),
 		MemberSK: member.SK,
 	}
 
@@ -161,7 +161,7 @@ func (s *memberStore) InvitedMember(ctx context.Context) (*actor.MemberInvite, e
 	}
 
 	var invitedMember *actor.MemberInvite
-	if err := s.dynamoClient.OneBySK(ctx, memberInviteKey(data.Email), &invitedMember); err != nil {
+	if err := s.dynamoClient.OneBySK(ctx, dynamo.MemberInviteKey(data.Email), &invitedMember); err != nil {
 		return nil, err
 	}
 
@@ -179,7 +179,7 @@ func (s *memberStore) InvitedMembers(ctx context.Context) ([]*actor.MemberInvite
 	}
 
 	var invitedMembers []*actor.MemberInvite
-	if err := s.dynamoClient.AllByPartialSK(ctx, organisationKey(data.OrganisationID), memberInviteKey(""), &invitedMembers); err != nil {
+	if err := s.dynamoClient.AllByPartialSK(ctx, dynamo.OrganisationKey(data.OrganisationID), dynamo.MemberInviteKey(""), &invitedMembers); err != nil {
 		return nil, err
 	}
 
@@ -197,7 +197,7 @@ func (s *memberStore) InvitedMembersByEmail(ctx context.Context) ([]*actor.Membe
 	}
 
 	var invitedMembers []*actor.MemberInvite
-	if err := s.dynamoClient.AllBySK(ctx, memberInviteKey(data.Email), &invitedMembers); err != nil {
+	if err := s.dynamoClient.AllBySK(ctx, dynamo.MemberInviteKey(data.Email), &invitedMembers); err != nil {
 		return nil, err
 	}
 
@@ -215,7 +215,7 @@ func (s *memberStore) GetAll(ctx context.Context) ([]*actor.Member, error) {
 	}
 
 	var members []*actor.Member
-	if err := s.dynamoClient.AllByPartialSK(ctx, organisationKey(data.OrganisationID), memberKey(""), &members); err != nil {
+	if err := s.dynamoClient.AllByPartialSK(ctx, dynamo.OrganisationKey(data.OrganisationID), dynamo.MemberKey(""), &members); err != nil {
 		return nil, err
 	}
 
@@ -237,7 +237,7 @@ func (s *memberStore) GetByID(ctx context.Context, memberID string) (*actor.Memb
 	}
 
 	var link *organisationLink
-	if err := s.dynamoClient.One(ctx, organisationKey(data.OrganisationID), memberIDKey(memberID), &link); err != nil {
+	if err := s.dynamoClient.One(ctx, dynamo.OrganisationKey(data.OrganisationID), dynamo.MemberIDKey(memberID), &link); err != nil {
 		return nil, err
 	}
 
@@ -264,7 +264,7 @@ func (s *memberStore) Get(ctx context.Context) (*actor.Member, error) {
 	}
 
 	var member *actor.Member
-	if err := s.dynamoClient.One(ctx, organisationKey(data.OrganisationID), memberKey(data.SessionID), &member); err != nil {
+	if err := s.dynamoClient.One(ctx, dynamo.OrganisationKey(data.OrganisationID), dynamo.MemberKey(data.SessionID), &member); err != nil {
 		return nil, err
 	}
 
@@ -282,7 +282,7 @@ func (s *memberStore) GetAny(ctx context.Context) (*actor.Member, error) {
 	}
 
 	var member *actor.Member
-	if err := s.dynamoClient.OneBySK(ctx, memberKey(data.SessionID), &member); err != nil {
+	if err := s.dynamoClient.OneBySK(ctx, dynamo.MemberKey(data.SessionID), &member); err != nil {
 		return nil, err
 	}
 
@@ -292,16 +292,4 @@ func (s *memberStore) GetAny(ctx context.Context) (*actor.Member, error) {
 func (s *memberStore) Put(ctx context.Context, member *actor.Member) error {
 	member.UpdatedAt = s.now()
 	return s.dynamoClient.Put(ctx, member)
-}
-
-func memberKey(sessionID string) string {
-	return "MEMBER#" + sessionID
-}
-
-func memberInviteKey(email string) string {
-	return fmt.Sprintf("MEMBERINVITE#%s", base64.StdEncoding.EncodeToString([]byte(email)))
-}
-
-func memberIDKey(memberID string) string {
-	return "MEMBERID#" + memberID
 }
