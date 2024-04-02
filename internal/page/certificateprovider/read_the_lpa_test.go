@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -16,7 +17,7 @@ func TestGetReadTheLpa(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &actor.DonorProvidedDetails{}
+	donor := &lpastore.ResolvedLpa{}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -39,7 +40,7 @@ func TestGetReadTheLpaWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &actor.DonorProvidedDetails{}
+	donor := &lpastore.ResolvedLpa{}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -58,7 +59,7 @@ func TestGetReadTheLpaWhenTemplateErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&actor.DonorProvidedDetails{}, nil)
+		Return(&lpastore.ResolvedLpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -77,7 +78,7 @@ func TestPostReadTheLpa(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&actor.DonorProvidedDetails{
+		Return(&lpastore.ResolvedLpa{
 			LpaID:    "lpa-id",
 			SignedAt: time.Now(),
 			Tasks: actor.DonorTasks{
@@ -106,7 +107,7 @@ func TestPostReadTheLpa(t *testing.T) {
 }
 
 func TestPostReadTheLpaWhenNotReady(t *testing.T) {
-	testcases := map[string]*actor.DonorProvidedDetails{
+	testcases := map[string]*lpastore.ResolvedLpa{
 		"not submitted": {
 			LpaID: "lpa-id",
 			Tasks: actor.DonorTasks{
@@ -146,7 +147,7 @@ func TestPostReadTheLpaWithAttorneyWhenCertificateStoreGetErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&actor.DonorProvidedDetails{
+		Return(&lpastore.ResolvedLpa{
 			LpaID:    "lpa-id",
 			SignedAt: time.Now(),
 			Tasks: actor.DonorTasks{
@@ -173,7 +174,7 @@ func TestPostReadTheLpaWithAttorneyWhenCertificateStorePutErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&actor.DonorProvidedDetails{
+		Return(&lpastore.ResolvedLpa{
 			LpaID:    "lpa-id",
 			SignedAt: time.Now(),
 			Tasks: actor.DonorTasks{

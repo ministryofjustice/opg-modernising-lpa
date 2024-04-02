@@ -308,11 +308,19 @@ func Attorney(
 		}
 
 		if email != "" {
+			lpa := &lpastore.ResolvedLpa{
+				LpaUID:               donorDetails.LpaUID,
+				Type:                 donorDetails.Type,
+				Donor:                donorDetails.Donor,
+				Attorneys:            donorDetails.Attorneys,
+				ReplacementAttorneys: donorDetails.ReplacementAttorneys,
+			}
+
 			shareCodeSender.SendAttorneys(donorCtx, page.AppData{
 				SessionID: donorSessionID,
 				LpaID:     donorDetails.LpaID,
 				Localizer: appData.Localizer,
-			}, donorDetails)
+			}, lpa)
 
 			http.Redirect(w, r, page.Paths.Attorney.Start.Format(), http.StatusFound)
 			return nil

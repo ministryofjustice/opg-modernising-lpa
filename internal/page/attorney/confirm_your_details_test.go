@@ -7,6 +7,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -18,17 +19,17 @@ func TestGetConfirmYourDetails(t *testing.T) {
 
 	testcases := map[string]struct {
 		appData page.AppData
-		donor   *actor.DonorProvidedDetails
+		donor   *lpastore.ResolvedLpa
 		data    *confirmYourDetailsData
 	}{
 		"attorney": {
 			appData: testAppData,
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.ResolvedLpa{
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid, FirstNames: "John"}}},
 			},
 			data: &confirmYourDetailsData{
 				App: testAppData,
-				Donor: &actor.DonorProvidedDetails{
+				Donor: &lpastore.ResolvedLpa{
 					Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid, FirstNames: "John"}}},
 				},
 				Attorney:                actor.Attorney{UID: uid, FirstNames: "John"},
@@ -37,12 +38,12 @@ func TestGetConfirmYourDetails(t *testing.T) {
 		},
 		"trust corporation": {
 			appData: testTrustCorporationAppData,
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.ResolvedLpa{
 				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "company"}},
 			},
 			data: &confirmYourDetailsData{
 				App: testTrustCorporationAppData,
-				Donor: &actor.DonorProvidedDetails{
+				Donor: &lpastore.ResolvedLpa{
 					Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "company"}},
 				},
 				TrustCorporation:        actor.TrustCorporation{Name: "company"},
@@ -79,7 +80,7 @@ func TestGetConfirmYourDetailsWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &actor.DonorProvidedDetails{}
+	donor := &lpastore.ResolvedLpa{}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -98,7 +99,7 @@ func TestGetConfirmYourDetailsWhenTemplateErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&actor.DonorProvidedDetails{}, nil)
+		Return(&lpastore.ResolvedLpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().

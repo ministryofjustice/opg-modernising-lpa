@@ -132,7 +132,9 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 
 			shareCodeSender := newMockShareCodeSender(t)
 			shareCodeSender.EXPECT().
-				SendCertificateProviderInvite(r.Context(), testAppData, updatedDonor).
+				SendCertificateProviderInvite(r.Context(), testAppData, page.CertificateProviderInvite{
+					CertificateProvider: donor.CertificateProvider,
+				}).
 				Return(nil)
 
 			donorStore := newMockDonorStore(t)

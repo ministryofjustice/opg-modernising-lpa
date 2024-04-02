@@ -233,7 +233,12 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 	}
 
 	if donor.CertificateProvider.CarryOutBy.IsOnline() {
-		if err := shareCodeSender.SendCertificateProviderInvite(ctx, appData, donor); err != nil {
+		if err := shareCodeSender.SendCertificateProviderInvite(ctx, appData, page.CertificateProviderInvite{
+			LpaUID:              donor.LpaUID,
+			Type:                donor.Type,
+			Donor:               donor.Donor,
+			CertificateProvider: donor.CertificateProvider,
+		}); err != nil {
 			return fmt.Errorf("failed to send share code to certificate provider: %w", err)
 		}
 	}

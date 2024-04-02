@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -19,12 +20,12 @@ import (
 func TestGetSign(t *testing.T) {
 	testcases := map[string]struct {
 		appData page.AppData
-		donor   *actor.DonorProvidedDetails
+		donor   *lpastore.ResolvedLpa
 		data    *signData
 	}{
 		"attorney use when registered": {
 			appData: testAppData,
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.ResolvedLpa{
 				SignedAt:            time.Now(),
 				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
@@ -41,7 +42,7 @@ func TestGetSign(t *testing.T) {
 		},
 		"attorney use when capacity lost": {
 			appData: testAppData,
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.ResolvedLpa{
 				SignedAt:            time.Now(),
 				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenCapacityLost,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
@@ -57,7 +58,7 @@ func TestGetSign(t *testing.T) {
 		},
 		"replacement attorney use when registered": {
 			appData: testReplacementAppData,
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.ResolvedLpa{
 				SignedAt:            time.Now(),
 				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity,
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
@@ -75,7 +76,7 @@ func TestGetSign(t *testing.T) {
 		},
 		"replacement attorney use when capacity lost": {
 			appData: testReplacementAppData,
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.ResolvedLpa{
 				SignedAt:            time.Now(),
 				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenCapacityLost,
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
@@ -92,7 +93,7 @@ func TestGetSign(t *testing.T) {
 		},
 		"trust corporation": {
 			appData: testTrustCorporationAppData,
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.ResolvedLpa{
 				SignedAt:            time.Now(),
 				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity,
 				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
@@ -144,12 +145,12 @@ func TestGetSignCantSignYet(t *testing.T) {
 
 	testcases := map[string]struct {
 		appData             page.AppData
-		donor               *actor.DonorProvidedDetails
+		donor               *lpastore.ResolvedLpa
 		certificateProvider *actor.CertificateProviderProvidedDetails
 	}{
 		"submitted but not certified": {
 			appData: testAppData,
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.ResolvedLpa{
 				SignedAt: time.Now(),
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{UID: uid, FirstNames: "Bob", LastName: "Smith"},
@@ -160,7 +161,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 		},
 		"certified but not submitted": {
 			appData: testAppData,
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.ResolvedLpa{
 				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenCapacityLost,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{UID: uid, FirstNames: "Bob", LastName: "Smith"},
@@ -203,11 +204,11 @@ func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 
 	testcases := map[string]struct {
 		appData page.AppData
-		donor   *actor.DonorProvidedDetails
+		donor   *lpastore.ResolvedLpa
 	}{
 		"attorney": {
 			appData: testAppData,
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.ResolvedLpa{
 				SignedAt: time.Now(),
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{UID: uid, FirstNames: "Bob", LastName: "Smith"},
@@ -216,7 +217,7 @@ func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 		},
 		"replacement attorney": {
 			appData: testReplacementAppData,
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.ResolvedLpa{
 				SignedAt: time.Now(),
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 					{UID: uid, FirstNames: "Bob", LastName: "Smith"},
@@ -261,7 +262,7 @@ func TestGetSignOnLpaStoreResolvingServiceError(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&actor.DonorProvidedDetails{}, expectedError)
+		Return(&lpastore.ResolvedLpa{}, expectedError)
 
 	err := Sign(template.Execute, lpaStoreResolvingService, nil, nil, nil, nil)(testAppData, w, r, nil)
 	resp := w.Result()
@@ -282,7 +283,7 @@ func TestGetSignOnTemplateError(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&actor.DonorProvidedDetails{
+		Return(&lpastore.ResolvedLpa{
 			SignedAt:  time.Now(),
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: testUID}}},
 		}, nil)
@@ -309,13 +310,13 @@ func TestPostSign(t *testing.T) {
 		url             string
 		appData         page.AppData
 		form            url.Values
-		donor           *actor.DonorProvidedDetails
+		donor           *lpastore.ResolvedLpa
 		updatedAttorney *actor.AttorneyProvidedDetails
 	}{
 		"attorney": {
 			appData: testAppData,
 			form:    url.Values{"confirm": {"1"}},
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.ResolvedLpa{
 				SignedAt:  lpaSignedAt,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith"}}},
 			},
@@ -329,7 +330,7 @@ func TestPostSign(t *testing.T) {
 		"replacement attorney": {
 			appData: testReplacementAppData,
 			form:    url.Values{"confirm": {"1"}},
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.ResolvedLpa{
 				SignedAt:             lpaSignedAt,
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith"}}},
 			},
@@ -349,7 +350,7 @@ func TestPostSign(t *testing.T) {
 				"professional-title": {"c"},
 				"confirm":            {"1"},
 			},
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.ResolvedLpa{
 				SignedAt:  lpaSignedAt,
 				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "Corp"}},
 			},
@@ -374,7 +375,7 @@ func TestPostSign(t *testing.T) {
 				"professional-title": {"c"},
 				"confirm":            {"1"},
 			},
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.ResolvedLpa{
 				SignedAt:             lpaSignedAt,
 				ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "Corp"}},
 			},
@@ -439,7 +440,7 @@ func TestPostSignWhenWantSecondSignatory(t *testing.T) {
 		url             string
 		appData         page.AppData
 		form            url.Values
-		donor           *actor.DonorProvidedDetails
+		donor           *lpastore.ResolvedLpa
 		updatedAttorney *actor.AttorneyProvidedDetails
 	}{
 		"trust corporation": {
@@ -450,7 +451,7 @@ func TestPostSignWhenWantSecondSignatory(t *testing.T) {
 				"professional-title": {"c"},
 				"confirm":            {"1"},
 			},
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.ResolvedLpa{
 				SignedAt:  lpaSignedAt,
 				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "Corp"}},
 			},
@@ -474,7 +475,7 @@ func TestPostSignWhenWantSecondSignatory(t *testing.T) {
 				"professional-title": {"c"},
 				"confirm":            {"1"},
 			},
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.ResolvedLpa{
 				SignedAt:             lpaSignedAt,
 				ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "Corp"}},
 			},
@@ -536,7 +537,7 @@ func TestPostSignWhenLpaStoreClientErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&actor.DonorProvidedDetails{
+		Return(&lpastore.ResolvedLpa{
 			SignedAt:  time.Now(),
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith"}}},
 		}, nil)
@@ -574,7 +575,7 @@ func TestPostSignWhenStoreError(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&actor.DonorProvidedDetails{
+		Return(&lpastore.ResolvedLpa{
 			SignedAt:  time.Now(),
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith"}}},
 		}, nil)
@@ -608,7 +609,7 @@ func TestPostSignOnValidationError(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&actor.DonorProvidedDetails{
+		Return(&lpastore.ResolvedLpa{
 			SignedAt:  time.Now(),
 			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith"}}},
 		}, nil)

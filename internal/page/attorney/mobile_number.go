@@ -5,13 +5,14 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type mobileNumberData struct {
 	App    page.AppData
-	Donor  *actor.DonorProvidedDetails
+	Donor  *lpastore.ResolvedLpa
 	Form   *mobileNumberForm
 	Errors validation.List
 }

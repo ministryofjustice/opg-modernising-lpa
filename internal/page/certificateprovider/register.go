@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -19,7 +20,7 @@ import (
 )
 
 type LpaStoreResolvingService interface {
-	Get(ctx context.Context) (*actor.DonorProvidedDetails, error)
+	Get(ctx context.Context) (*lpastore.ResolvedLpa, error)
 }
 
 type Logger interface {
@@ -62,7 +63,7 @@ type NotifyClient interface {
 }
 
 type ShareCodeSender interface {
-	SendAttorneys(context.Context, page.AppData, *actor.DonorProvidedDetails) error
+	SendAttorneys(context.Context, page.AppData, *lpastore.ResolvedLpa) error
 }
 
 type AddressClient interface {
