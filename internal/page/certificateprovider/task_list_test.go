@@ -35,9 +35,7 @@ func TestGetTaskList(t *testing.T) {
 		"paid": {
 			donor: &lpastore.ResolvedLpa{
 				LpaID: "lpa-id",
-				Tasks: actor.DonorTasks{
-					PayForLpa: actor.PaymentTaskCompleted,
-				},
+				Paid:  true,
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{
 				Tasks: actor.CertificateProviderTasks{
@@ -76,9 +74,7 @@ func TestGetTaskList(t *testing.T) {
 			donor: &lpastore.ResolvedLpa{
 				LpaID:    "lpa-id",
 				SignedAt: time.Now(),
-				Tasks: actor.DonorTasks{
-					PayForLpa: actor.PaymentTaskCompleted,
-				},
+				Paid:     true,
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{
 				IdentityUserData: identity.UserData{OK: true},
@@ -102,9 +98,7 @@ func TestGetTaskList(t *testing.T) {
 			donor: &lpastore.ResolvedLpa{
 				LpaID:    "lpa-id",
 				SignedAt: time.Now(),
-				Tasks: actor.DonorTasks{
-					PayForLpa: actor.PaymentTaskCompleted,
-				},
+				Paid:     true,
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{
 				Tasks: actor.CertificateProviderTasks{

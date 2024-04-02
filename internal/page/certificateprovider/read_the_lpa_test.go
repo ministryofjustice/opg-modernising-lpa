@@ -81,9 +81,7 @@ func TestPostReadTheLpa(t *testing.T) {
 		Return(&lpastore.ResolvedLpa{
 			LpaID:    "lpa-id",
 			SignedAt: time.Now(),
-			Tasks: actor.DonorTasks{
-				PayForLpa: actor.PaymentTaskCompleted,
-			},
+			Paid:     true,
 		}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -110,9 +108,7 @@ func TestPostReadTheLpaWhenNotReady(t *testing.T) {
 	testcases := map[string]*lpastore.ResolvedLpa{
 		"not submitted": {
 			LpaID: "lpa-id",
-			Tasks: actor.DonorTasks{
-				PayForLpa: actor.PaymentTaskCompleted,
-			},
+			Paid:  true,
 		},
 		"not paid": {
 			LpaID:    "lpa-id",
@@ -150,9 +146,7 @@ func TestPostReadTheLpaWithAttorneyWhenCertificateStoreGetErrors(t *testing.T) {
 		Return(&lpastore.ResolvedLpa{
 			LpaID:    "lpa-id",
 			SignedAt: time.Now(),
-			Tasks: actor.DonorTasks{
-				PayForLpa: actor.PaymentTaskCompleted,
-			},
+			Paid:     true,
 		}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -177,9 +171,7 @@ func TestPostReadTheLpaWithAttorneyWhenCertificateStorePutErrors(t *testing.T) {
 		Return(&lpastore.ResolvedLpa{
 			LpaID:    "lpa-id",
 			SignedAt: time.Now(),
-			Tasks: actor.DonorTasks{
-				PayForLpa: actor.PaymentTaskCompleted,
-			},
+			Paid:     true,
 		}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)

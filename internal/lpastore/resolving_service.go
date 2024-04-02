@@ -37,24 +37,18 @@ func (s *ResolvingService) Get(ctx context.Context) (*ResolvedLpa, error) {
 	lpa.LpaID = donor.LpaID
 	lpa.LpaUID = donor.LpaUID
 	if donor.SK == dynamo.DonorKey("PAPER") {
-		// set these tasks completed as they are completed, and are used for
-		// certificate provider logic
-		lpa.Tasks = actor.DonorTasks{
-			PayForLpa:                  actor.PaymentTaskCompleted,
-			ConfirmYourIdentityAndSign: actor.TaskCompleted,
-		}
-
 		// set to Professionally so we always show the certificate provider home
 		// address question
 		lpa.CertificateProvider.Relationship = actor.Professionally
 		lpa.DonorIdentityConfirmed = true
 		lpa.Submitted = true
+		lpa.Paid = true
 	} else {
 		lpa.IsOrganisationDonor = strings.HasPrefix(donor.SK, dynamo.OrganisationKey(""))
-		lpa.Tasks = donor.Tasks
 		lpa.CertificateProvider.Relationship = donor.CertificateProvider.Relationship
 		lpa.DonorIdentityConfirmed = donor.DonorIdentityConfirmed()
 		lpa.Submitted = !donor.SubmittedAt.IsZero()
+		lpa.Paid = donor.Tasks.PayForLpa.IsCompleted()
 	}
 
 	return lpa, nil

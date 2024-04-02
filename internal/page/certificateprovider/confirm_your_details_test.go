@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -99,21 +100,23 @@ func TestConfirmYourDetailsWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostConfirmYourDetails(t *testing.T) {
-	testCases := map[actor.TaskState]page.CertificateProviderPath{
-		actor.TaskCompleted:  page.Paths.CertificateProvider.TaskList,
-		actor.TaskInProgress: page.Paths.CertificateProvider.YourRole,
-		actor.TaskNotStarted: page.Paths.CertificateProvider.YourRole,
+	testCases := map[string]struct {
+		signedAt time.Time
+		redirect page.CertificateProviderPath
+	}{
+		"signed":     {signedAt: time.Now(), redirect: page.Paths.CertificateProvider.TaskList},
+		"not signed": {redirect: page.Paths.CertificateProvider.YourRole},
 	}
 
-	for confirmYourIdentityAndSignTaskState, expectedPath := range testCases {
-		t.Run(confirmYourIdentityAndSignTaskState.String(), func(t *testing.T) {
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
 			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 			lpaStoreResolvingService.EXPECT().
 				Get(r.Context()).
-				Return(&lpastore.ResolvedLpa{Tasks: actor.DonorTasks{ConfirmYourIdentityAndSign: confirmYourIdentityAndSignTaskState}}, nil)
+				Return(&lpastore.ResolvedLpa{SignedAt: tc.signedAt}, nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.EXPECT().
@@ -133,7 +136,7 @@ func TestPostConfirmYourDetails(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, expectedPath.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, tc.redirect.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
