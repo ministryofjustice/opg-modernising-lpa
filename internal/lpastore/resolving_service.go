@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 )
 
 type DonorStore interface {
@@ -34,7 +35,21 @@ func (s *ResolvingService) Get(ctx context.Context) (*actor.DonorProvidedDetails
 
 	lpa.LpaID = donor.LpaID
 	lpa.LpaUID = donor.LpaUID
-	lpa.Tasks = donor.Tasks
+	if donor.SK == dynamo.DonorKey("PAPER") {
+		// set these tasks completed as they are completed, and are used for
+		// certificate provider logic
+		lpa.Tasks = actor.DonorTasks{
+			PayForLpa:                  actor.PaymentTaskCompleted,
+			ConfirmYourIdentityAndSign: actor.TaskCompleted,
+		}
+
+		// set to Professionally so we always show the certificate provider home
+		// address question
+		lpa.CertificateProvider.Relationship = actor.Professionally
+	} else {
+		lpa.Tasks = donor.Tasks
+		lpa.CertificateProvider.Relationship = donor.CertificateProvider.Relationship
+	}
 
 	return lpa, nil
 }
