@@ -23,7 +23,7 @@ func (s *evidenceReceivedStore) Get(ctx context.Context) (bool, error) {
 	}
 
 	var v any
-	if err := s.dynamoClient.One(ctx, lpaKey(data.LpaID), "#EVIDENCE_RECEIVED", &v); err != nil {
+	if err := s.dynamoClient.One(ctx, dynamo.LpaKey(data.LpaID), dynamo.EvidenceReceivedKey(), &v); err != nil {
 		if errors.Is(err, dynamo.NotFoundError{}) {
 			return false, nil
 		}

@@ -18,7 +18,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, nil, template.Templates{}, template.Templates{}, nil, nil, nil, nil, nil, nil, nil, nil, &mockDashboardStore{}, &lpastore.Client{})
+	Register(mux, nil, template.Templates{}, template.Templates{}, nil, nil, nil, nil, nil, nil, nil, &mockDashboardStore{}, &lpastore.Client{}, &lpastore.ResolvingService{})
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }

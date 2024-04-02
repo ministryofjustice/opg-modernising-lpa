@@ -7,6 +7,8 @@ import (
 
 	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 
+	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -24,23 +26,23 @@ func (_m *mockLpaStoreClient) EXPECT() *mockLpaStoreClient_Expecter {
 }
 
 // Lpa provides a mock function with given fields: ctx, uid
-func (_m *mockLpaStoreClient) Lpa(ctx context.Context, uid string) (*actor.DonorProvidedDetails, error) {
+func (_m *mockLpaStoreClient) Lpa(ctx context.Context, uid string) (*lpastore.ResolvedLpa, error) {
 	ret := _m.Called(ctx, uid)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Lpa")
 	}
 
-	var r0 *actor.DonorProvidedDetails
+	var r0 *lpastore.ResolvedLpa
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*actor.DonorProvidedDetails, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*lpastore.ResolvedLpa, error)); ok {
 		return rf(ctx, uid)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *actor.DonorProvidedDetails); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *lpastore.ResolvedLpa); ok {
 		r0 = rf(ctx, uid)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*actor.DonorProvidedDetails)
+			r0 = ret.Get(0).(*lpastore.ResolvedLpa)
 		}
 	}
 
@@ -72,12 +74,12 @@ func (_c *mockLpaStoreClient_Lpa_Call) Run(run func(ctx context.Context, uid str
 	return _c
 }
 
-func (_c *mockLpaStoreClient_Lpa_Call) Return(_a0 *actor.DonorProvidedDetails, _a1 error) *mockLpaStoreClient_Lpa_Call {
+func (_c *mockLpaStoreClient_Lpa_Call) Return(_a0 *lpastore.ResolvedLpa, _a1 error) *mockLpaStoreClient_Lpa_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockLpaStoreClient_Lpa_Call) RunAndReturn(run func(context.Context, string) (*actor.DonorProvidedDetails, error)) *mockLpaStoreClient_Lpa_Call {
+func (_c *mockLpaStoreClient_Lpa_Call) RunAndReturn(run func(context.Context, string) (*lpastore.ResolvedLpa, error)) *mockLpaStoreClient_Lpa_Call {
 	_c.Call.Return(run)
 	return _c
 }

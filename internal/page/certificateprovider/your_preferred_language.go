@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -17,17 +17,17 @@ type yourPreferredLanguageData struct {
 	Form      *form.LanguagePreferenceForm
 	Options   localize.LangOptions
 	FieldName string
-	Donor     *actor.DonorProvidedDetails
+	Lpa       *lpastore.ResolvedLpa
 }
 
-func YourPreferredLanguage(tmpl template.Template, certificateProviderStore CertificateProviderStore, donorStore DonorStore) page.Handler {
+func YourPreferredLanguage(tmpl template.Template, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
-		donor, err := donorStore.GetAny(r.Context())
+		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -39,7 +39,7 @@ func YourPreferredLanguage(tmpl template.Template, certificateProviderStore Cert
 			},
 			Options:   localize.LangValues,
 			FieldName: form.FieldNames.LanguagePreference,
-			Donor:     donor,
+			Lpa:       lpa,
 		}
 
 		if r.Method == http.MethodPost {
