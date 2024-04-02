@@ -13,7 +13,7 @@ import (
 type confirmYourDetailsData struct {
 	App                     page.AppData
 	Errors                  validation.List
-	Donor                   *lpastore.ResolvedLpa
+	Lpa                     *lpastore.ResolvedLpa
 	Attorney                actor.Attorney
 	TrustCorporation        actor.TrustCorporation
 	AttorneyProvidedDetails *actor.AttorneyProvidedDetails
@@ -31,20 +31,20 @@ func ConfirmYourDetails(tmpl template.Template, attorneyStore AttorneyStore, lpa
 			return page.Paths.Attorney.ReadTheLpa.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 		}
 
-		donor, err := lpaStoreResolvingService.Get(r.Context())
+		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
 		data := &confirmYourDetailsData{
 			App:                     appData,
-			Donor:                   donor,
+			Lpa:                     lpa,
 			AttorneyProvidedDetails: attorneyProvidedDetails,
 		}
 
-		attorneys := donor.Attorneys
+		attorneys := lpa.Attorneys
 		if appData.IsReplacementAttorney() {
-			attorneys = donor.ReplacementAttorneys
+			attorneys = lpa.ReplacementAttorneys
 		}
 
 		if appData.IsTrustCorporation() {

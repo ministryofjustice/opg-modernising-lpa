@@ -18,7 +18,7 @@ type provideCertificateData struct {
 	App                 page.AppData
 	Errors              validation.List
 	CertificateProvider *actor.CertificateProviderProvidedDetails
-	Donor               *lpastore.ResolvedLpa
+	Lpa                 *lpastore.ResolvedLpa
 	Form                *provideCertificateForm
 }
 
@@ -32,7 +32,7 @@ func ProvideCertificate(
 	now func() time.Time,
 ) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		donor, err := lpaStoreResolvingService.Get(r.Context())
+		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -42,14 +42,14 @@ func ProvideCertificate(
 			return err
 		}
 
-		if donor.SignedAt.IsZero() {
-			return page.Paths.CertificateProvider.TaskList.Redirect(w, r, appData, donor.LpaID)
+		if lpa.SignedAt.IsZero() {
+			return page.Paths.CertificateProvider.TaskList.Redirect(w, r, appData, lpa.LpaID)
 		}
 
 		data := &provideCertificateData{
 			App:                 appData,
 			CertificateProvider: certificateProvider,
-			Donor:               donor,
+			Lpa:                 lpa,
 			Form: &provideCertificateForm{
 				AgreeToStatement: certificateProvider.Certificate.AgreeToStatement,
 			},
@@ -67,21 +67,21 @@ func ProvideCertificate(
 					return err
 				}
 
-				if err := lpaStoreClient.SendCertificateProvider(r.Context(), donor.LpaUID, certificateProvider); err != nil {
+				if err := lpaStoreClient.SendCertificateProvider(r.Context(), lpa.LpaUID, certificateProvider); err != nil {
 					return err
 				}
 
-				if err := notifyClient.SendActorEmail(r.Context(), donor.CertificateProvider.Email, donor.LpaUID, notify.CertificateProviderCertificateProvidedEmail{
-					DonorFullNamePossessive:     appData.Localizer.Possessive(donor.Donor.FullName()),
-					DonorFirstNamesPossessive:   appData.Localizer.Possessive(donor.Donor.FirstNames),
-					LpaType:                     localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
-					CertificateProviderFullName: donor.CertificateProvider.FullName(),
+				if err := notifyClient.SendActorEmail(r.Context(), lpa.CertificateProvider.Email, lpa.LpaUID, notify.CertificateProviderCertificateProvidedEmail{
+					DonorFullNamePossessive:     appData.Localizer.Possessive(lpa.Donor.FullName()),
+					DonorFirstNamesPossessive:   appData.Localizer.Possessive(lpa.Donor.FirstNames),
+					LpaType:                     localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
+					CertificateProviderFullName: lpa.CertificateProvider.FullName(),
 					CertificateProvidedDateTime: appData.Localizer.FormatDateTime(certificateProvider.Certificate.Agreed),
 				}); err != nil {
 					return fmt.Errorf("email failed: %w", err)
 				}
 
-				if err := shareCodeSender.SendAttorneys(r.Context(), appData, donor); err != nil {
+				if err := shareCodeSender.SendAttorneys(r.Context(), appData, lpa); err != nil {
 					return err
 				}
 

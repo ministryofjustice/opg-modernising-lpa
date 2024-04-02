@@ -13,19 +13,19 @@ import (
 type readTheLpaData struct {
 	App    page.AppData
 	Errors validation.List
-	Donor  *lpastore.ResolvedLpa
+	Lpa    *lpastore.ResolvedLpa
 }
 
 func ReadTheLpa(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		donor, err := lpaStoreResolvingService.Get(r.Context())
+		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
 		if r.Method == http.MethodPost {
-			if donor.SignedAt.IsZero() || !donor.Paid {
-				return page.Paths.CertificateProvider.TaskList.Redirect(w, r, appData, donor.LpaID)
+			if lpa.SignedAt.IsZero() || !lpa.Paid {
+				return page.Paths.CertificateProvider.TaskList.Redirect(w, r, appData, lpa.LpaID)
 			}
 
 			certificateProvider, err := certificateProviderStore.Get(r.Context())
@@ -38,12 +38,12 @@ func ReadTheLpa(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvi
 				return err
 			}
 
-			return page.Paths.CertificateProvider.WhatHappensNext.Redirect(w, r, appData, donor.LpaID)
+			return page.Paths.CertificateProvider.WhatHappensNext.Redirect(w, r, appData, lpa.LpaID)
 		}
 
 		data := &readTheLpaData{
-			App:   appData,
-			Donor: donor,
+			App: appData,
+			Lpa: lpa,
 		}
 
 		return tmpl(w, data)

@@ -26,7 +26,7 @@ func TestGetReadTheLpa(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &readTheLpaData{App: testAppData, Donor: donor}).
+		Execute(w, &readTheLpaData{App: testAppData, Lpa: donor}).
 		Return(nil)
 
 	err := ReadTheLpa(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r)

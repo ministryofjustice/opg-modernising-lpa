@@ -13,7 +13,7 @@ import (
 type guidanceData struct {
 	App    page.AppData
 	Errors validation.List
-	Donor  *lpastore.ResolvedLpa
+	Lpa    *lpastore.ResolvedLpa
 }
 
 func Guidance(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService) Handler {
@@ -23,11 +23,11 @@ func Guidance(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 		}
 
 		if lpaStoreResolvingService != nil {
-			donor, err := lpaStoreResolvingService.Get(r.Context())
+			lpa, err := lpaStoreResolvingService.Get(r.Context())
 			if err != nil {
 				return err
 			}
-			data.Donor = donor
+			data.Lpa = lpa
 		}
 
 		return tmpl(w, data)

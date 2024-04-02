@@ -29,7 +29,7 @@ func TestGuidance(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &guidanceData{App: testAppData, Donor: donor, CertificateProvider: certificateProvider}).
+		Execute(w, &guidanceData{App: testAppData, Lpa: donor, CertificateProvider: certificateProvider}).
 		Return(nil)
 
 	err := Guidance(template.Execute, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r)
@@ -100,7 +100,7 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &guidanceData{App: testAppData, Donor: &lpastore.ResolvedLpa{}}).
+		Execute(w, &guidanceData{App: testAppData, Lpa: &lpastore.ResolvedLpa{}}).
 		Return(expectedError)
 
 	err := Guidance(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r)

@@ -41,7 +41,7 @@ func TestGetYourPreferredLanguage(t *testing.T) {
 			},
 			Options:   localize.LangValues,
 			FieldName: form.FieldNames.LanguagePreference,
-			Donor:     &lpastore.ResolvedLpa{},
+			Lpa:       &lpastore.ResolvedLpa{},
 		}).
 		Return(nil)
 
@@ -210,7 +210,7 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 			Options:   localize.LangValues,
 			FieldName: form.FieldNames.LanguagePreference,
 			Errors:    validation.With(form.FieldNames.LanguagePreference, validation.SelectError{Label: "whichLanguageYoudLikeUsToUseWhenWeContactYou"}),
-			Donor:     &lpastore.ResolvedLpa{},
+			Lpa:       &lpastore.ResolvedLpa{},
 		}).
 		Return(nil)
 

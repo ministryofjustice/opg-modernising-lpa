@@ -13,7 +13,7 @@ import (
 type taskListData struct {
 	App    page.AppData
 	Errors validation.List
-	Donor  *lpastore.ResolvedLpa
+	Lpa    *lpastore.ResolvedLpa
 	Items  []taskListItem
 }
 
@@ -26,7 +26,7 @@ type taskListItem struct {
 
 func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		donor, err := lpaStoreResolvingService.Get(r.Context())
+		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -37,32 +37,32 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 		}
 
 		identityTaskPage := page.Paths.CertificateProvider.ProveYourIdentity
-		if certificateProvider.CertificateProviderIdentityConfirmed(donor.CertificateProvider.FirstNames, donor.CertificateProvider.LastName) {
+		if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
 			identityTaskPage = page.Paths.CertificateProvider.ReadTheLpa
 		}
 
 		tasks := certificateProvider.Tasks
 
 		data := &taskListData{
-			App:   appData,
-			Donor: donor,
+			App: appData,
+			Lpa: lpa,
 			Items: []taskListItem{
 				{
 					Name:  "confirmYourDetails",
-					Path:  page.Paths.CertificateProvider.EnterDateOfBirth.Format(donor.LpaID),
+					Path:  page.Paths.CertificateProvider.EnterDateOfBirth.Format(lpa.LpaID),
 					State: tasks.ConfirmYourDetails,
 				},
 				{
 					Name:     "confirmYourIdentity",
-					Path:     identityTaskPage.Format(donor.LpaID),
+					Path:     identityTaskPage.Format(lpa.LpaID),
 					State:    tasks.ConfirmYourIdentity,
-					Disabled: !donor.Paid || donor.SignedAt.IsZero(),
+					Disabled: !lpa.Paid || lpa.SignedAt.IsZero(),
 				},
 				{
 					Name:     "provideYourCertificate",
-					Path:     page.Paths.CertificateProvider.ReadTheLpa.Format(donor.LpaID),
+					Path:     page.Paths.CertificateProvider.ReadTheLpa.Format(lpa.LpaID),
 					State:    tasks.ProvideTheCertificate,
-					Disabled: donor.SignedAt.IsZero() || !tasks.ConfirmYourDetails.Completed() || !tasks.ConfirmYourIdentity.Completed(),
+					Disabled: lpa.SignedAt.IsZero() || !tasks.ConfirmYourDetails.Completed() || !tasks.ConfirmYourIdentity.Completed(),
 				},
 			},
 		}

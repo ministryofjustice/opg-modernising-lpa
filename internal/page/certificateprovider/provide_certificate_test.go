@@ -39,7 +39,7 @@ func TestGetProvideCertificate(t *testing.T) {
 		Execute(w, &provideCertificateData{
 			App:                 testAppData,
 			CertificateProvider: &actor.CertificateProviderProvidedDetails{},
-			Donor:               donor,
+			Lpa:                 donor,
 			Form:                &provideCertificateForm{},
 		}).
 		Return(nil)

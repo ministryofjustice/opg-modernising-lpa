@@ -75,6 +75,7 @@ func All(globals *Globals) map[string]any {
 		"content":            content,
 		"notificationBanner": notificationBanner,
 		"checkboxEq":         checkboxEq,
+		"lpaDecisions":       lpaDecisions,
 	}
 }
 
@@ -316,39 +317,40 @@ type attorneySummaryData struct {
 	HeadingLevel int
 }
 
-func listAttorneys(attorneys actor.Attorneys, app page.AppData, attorneyType string, headingLevel int, donor *actor.DonorProvidedDetails) attorneySummaryData {
+func listAttorneys(app page.AppData, attorneys actor.Attorneys, attorneyType string, headingLevel int, canChange bool) attorneySummaryData {
 	data := attorneySummaryData{
 		App:              app,
-		CanChange:        !donor.Tasks.ConfirmYourIdentityAndSign.Completed() && app.IsDonor(),
+		CanChange:        canChange,
 		TrustCorporation: attorneys.TrustCorporation,
 		Attorneys:        attorneys.Attorneys,
 		HeadingLevel:     headingLevel,
 	}
 
 	if attorneyType == "replacement" {
-		data.Link.Attorney = fmt.Sprintf("%s?from=%s", page.Paths.ChooseReplacementAttorneys.Format(donor.LpaID), app.Page)
-		data.Link.AttorneyAddress = fmt.Sprintf("%s?from=%s", page.Paths.ChooseReplacementAttorneysAddress.Format(donor.LpaID), app.Page)
-		data.Link.RemoveAttorney = fmt.Sprintf("%s?from=%s", page.Paths.RemoveReplacementAttorney.Format(donor.LpaID), app.Page)
-		data.Link.TrustCorporation = fmt.Sprintf("%s?from=%s", page.Paths.EnterReplacementTrustCorporation.Format(donor.LpaID), app.Page)
-		data.Link.TrustCorporationAddress = fmt.Sprintf("%s?from=%s", page.Paths.EnterReplacementTrustCorporationAddress.Format(donor.LpaID), app.Page)
-		data.Link.RemoveTrustCorporation = fmt.Sprintf("%s?from=%s", page.Paths.RemoveReplacementTrustCorporation.Format(donor.LpaID), app.Page)
+		data.Link.Attorney = fmt.Sprintf("%s?from=%s", page.Paths.ChooseReplacementAttorneys.Format(app.LpaID), app.Page)
+		data.Link.AttorneyAddress = fmt.Sprintf("%s?from=%s", page.Paths.ChooseReplacementAttorneysAddress.Format(app.LpaID), app.Page)
+		data.Link.RemoveAttorney = fmt.Sprintf("%s?from=%s", page.Paths.RemoveReplacementAttorney.Format(app.LpaID), app.Page)
+		data.Link.TrustCorporation = fmt.Sprintf("%s?from=%s", page.Paths.EnterReplacementTrustCorporation.Format(app.LpaID), app.Page)
+		data.Link.TrustCorporationAddress = fmt.Sprintf("%s?from=%s", page.Paths.EnterReplacementTrustCorporationAddress.Format(app.LpaID), app.Page)
+		data.Link.RemoveTrustCorporation = fmt.Sprintf("%s?from=%s", page.Paths.RemoveReplacementTrustCorporation.Format(app.LpaID), app.Page)
 	} else {
-		data.Link.Attorney = fmt.Sprintf("%s?from=%s", page.Paths.ChooseAttorneys.Format(donor.LpaID), app.Page)
-		data.Link.AttorneyAddress = fmt.Sprintf("%s?from=%s", page.Paths.ChooseAttorneysAddress.Format(donor.LpaID), app.Page)
-		data.Link.RemoveAttorney = fmt.Sprintf("%s?from=%s", page.Paths.RemoveAttorney.Format(donor.LpaID), app.Page)
-		data.Link.TrustCorporation = fmt.Sprintf("%s?from=%s", page.Paths.EnterTrustCorporation.Format(donor.LpaID), app.Page)
-		data.Link.TrustCorporationAddress = fmt.Sprintf("%s?from=%s", page.Paths.EnterTrustCorporationAddress.Format(donor.LpaID), app.Page)
-		data.Link.RemoveTrustCorporation = fmt.Sprintf("%s?from=%s", page.Paths.RemoveTrustCorporation.Format(donor.LpaID), app.Page)
+		data.Link.Attorney = fmt.Sprintf("%s?from=%s", page.Paths.ChooseAttorneys.Format(app.LpaID), app.Page)
+		data.Link.AttorneyAddress = fmt.Sprintf("%s?from=%s", page.Paths.ChooseAttorneysAddress.Format(app.LpaID), app.Page)
+		data.Link.RemoveAttorney = fmt.Sprintf("%s?from=%s", page.Paths.RemoveAttorney.Format(app.LpaID), app.Page)
+		data.Link.TrustCorporation = fmt.Sprintf("%s?from=%s", page.Paths.EnterTrustCorporation.Format(app.LpaID), app.Page)
+		data.Link.TrustCorporationAddress = fmt.Sprintf("%s?from=%s", page.Paths.EnterTrustCorporationAddress.Format(app.LpaID), app.Page)
+		data.Link.RemoveTrustCorporation = fmt.Sprintf("%s?from=%s", page.Paths.RemoveTrustCorporation.Format(app.LpaID), app.Page)
 	}
 
 	return data
 }
 
-func listPeopleToNotify(app page.AppData, headingLevel int, donor *actor.DonorProvidedDetails) map[string]interface{} {
+func listPeopleToNotify(app page.AppData, peopleToNotify actor.PeopleToNotify, headingLevel int, canChange bool) map[string]interface{} {
 	return map[string]interface{}{
-		"App":          app,
-		"HeadingLevel": headingLevel,
-		"Donor":        donor,
+		"App":            app,
+		"HeadingLevel":   headingLevel,
+		"PeopleToNotify": peopleToNotify,
+		"CanChange":      canChange,
 	}
 }
 
@@ -421,5 +423,19 @@ func notificationBanner(app page.AppData, title string, content template.HTML, o
 		Content: content,
 		Heading: slices.Contains(options, "heading"),
 		Success: slices.Contains(options, "success"),
+	}
+}
+
+type lpaDecisionsData struct {
+	App       page.AppData
+	Lpa       any // will be *actor.DonorProvidedData or *lpastore.ResolvedLpa
+	CanChange bool
+}
+
+func lpaDecisions(app page.AppData, lpa any, canChange bool) lpaDecisionsData {
+	return lpaDecisionsData{
+		App:       app,
+		Lpa:       lpa,
+		CanChange: canChange,
 	}
 }

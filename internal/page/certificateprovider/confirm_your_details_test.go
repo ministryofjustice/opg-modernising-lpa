@@ -32,7 +32,7 @@ func TestConfirmYourDetails(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &confirmYourDetailsData{App: testAppData, Donor: donor, CertificateProvider: certificateProvider}).
+		Execute(w, &confirmYourDetailsData{App: testAppData, Lpa: donor, CertificateProvider: certificateProvider}).
 		Return(nil)
 
 	err := ConfirmYourDetails(template.Execute, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r)
