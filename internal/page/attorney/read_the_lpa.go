@@ -15,7 +15,7 @@ type readTheLpaData struct {
 	Donor  *actor.DonorProvidedDetails
 }
 
-func ReadTheLpa(tmpl template.Template, donorStore DonorStore, attorneyStore AttorneyStore) Handler {
+func ReadTheLpa(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, attorneyStore AttorneyStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *actor.AttorneyProvidedDetails) error {
 		if r.Method == http.MethodPost {
 			attorneyProvidedDetails.Tasks.ReadTheLpa = actor.TaskCompleted
@@ -27,7 +27,7 @@ func ReadTheLpa(tmpl template.Template, donorStore DonorStore, attorneyStore Att
 			return page.Paths.Attorney.RightsAndResponsibilities.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 		}
 
-		donor, err := donorStore.GetAny(r.Context())
+		donor, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}

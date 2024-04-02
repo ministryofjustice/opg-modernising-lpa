@@ -18,14 +18,14 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
+type LpaStoreResolvingService interface {
+	Get(ctx context.Context) (*actor.DonorProvidedDetails, error)
+}
+
 type Logger interface {
 	Info(msg string, args ...any)
 	Warn(msg string, args ...any)
 	Error(msg string, args ...any)
-}
-
-type DonorStore interface {
-	GetAny(context.Context) (*actor.DonorProvidedDetails, error)
 }
 
 type CertificateProviderStore interface {
@@ -79,7 +79,7 @@ type DashboardStore interface {
 }
 
 type LpaStoreClient interface {
-	SendCertificateProvider(context.Context, string, *actor.CertificateProviderProvidedDetails) error
+	SendCertificateProvider(ctx context.Context, lpaUID string, certificateProvider *actor.CertificateProviderProvidedDetails) error
 }
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
@@ -89,7 +89,6 @@ func Register(
 	logger Logger,
 	commonTmpls, tmpls template.Templates,
 	sessionStore SessionStore,
-	donorStore DonorStore,
 	oneLoginClient OneLoginClient,
 	shareCodeStore ShareCodeStore,
 	errorHandler page.ErrorHandler,
@@ -100,6 +99,7 @@ func Register(
 	shareCodeSender ShareCodeSender,
 	dashboardStore DashboardStore,
 	lpaStoreClient LpaStoreClient,
+	lpaStoreResolvingService LpaStoreResolvingService,
 ) {
 	handleRoot := makeHandle(rootMux, errorHandler)
 
@@ -113,35 +113,35 @@ func Register(
 	handleCertificateProvider := makeCertificateProviderHandle(rootMux, sessionStore, errorHandler)
 
 	handleCertificateProvider(page.Paths.CertificateProvider.WhoIsEligible, page.None,
-		WhoIsEligible(tmpls.Get("who_is_eligible.gohtml"), donorStore))
+		Guidance(tmpls.Get("who_is_eligible.gohtml"), lpaStoreResolvingService, nil))
 	handleCertificateProvider(page.Paths.CertificateProvider.TaskList, page.None,
-		TaskList(tmpls.Get("task_list.gohtml"), donorStore, certificateProviderStore))
+		TaskList(tmpls.Get("task_list.gohtml"), lpaStoreResolvingService, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.EnterDateOfBirth, page.CanGoBack,
-		EnterDateOfBirth(tmpls.Get("enter_date_of_birth.gohtml"), donorStore, certificateProviderStore))
+		EnterDateOfBirth(tmpls.Get("enter_date_of_birth.gohtml"), lpaStoreResolvingService, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.YourPreferredLanguage, page.CanGoBack,
-		YourPreferredLanguage(commonTmpls.Get("your_preferred_language.gohtml"), certificateProviderStore, donorStore))
+		YourPreferredLanguage(commonTmpls.Get("your_preferred_language.gohtml"), certificateProviderStore, lpaStoreResolvingService))
 	handleCertificateProvider(page.Paths.CertificateProvider.WhatIsYourHomeAddress, page.None,
 		WhatIsYourHomeAddress(logger, tmpls.Get("what_is_your_home_address.gohtml"), addressClient, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.ConfirmYourDetails, page.None,
-		ConfirmYourDetails(tmpls.Get("confirm_your_details.gohtml"), donorStore, certificateProviderStore))
+		ConfirmYourDetails(tmpls.Get("confirm_your_details.gohtml"), lpaStoreResolvingService, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.YourRole, page.CanGoBack,
-		Guidance(tmpls.Get("your_role.gohtml"), donorStore, nil))
+		Guidance(tmpls.Get("your_role.gohtml"), lpaStoreResolvingService, nil))
 
 	handleCertificateProvider(page.Paths.CertificateProvider.ProveYourIdentity, page.None,
 		Guidance(tmpls.Get("prove_your_identity.gohtml"), nil, nil))
 	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLogin, page.None,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLoginCallback, page.None,
-		IdentityWithOneLoginCallback(commonTmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, certificateProviderStore, donorStore))
+		IdentityWithOneLoginCallback(commonTmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, certificateProviderStore, lpaStoreResolvingService))
 
 	handleCertificateProvider(page.Paths.CertificateProvider.ReadTheLpa, page.None,
-		ReadTheLpa(tmpls.Get("read_the_lpa.gohtml"), donorStore, certificateProviderStore))
+		ReadTheLpa(tmpls.Get("read_the_lpa.gohtml"), lpaStoreResolvingService, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.WhatHappensNext, page.CanGoBack,
-		Guidance(tmpls.Get("what_happens_next.gohtml"), donorStore, nil))
+		Guidance(tmpls.Get("what_happens_next.gohtml"), lpaStoreResolvingService, nil))
 	handleCertificateProvider(page.Paths.CertificateProvider.ProvideCertificate, page.CanGoBack,
-		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), donorStore, certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, time.Now))
+		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), lpaStoreResolvingService, certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, time.Now))
 	handleCertificateProvider(page.Paths.CertificateProvider.CertificateProvided, page.None,
-		Guidance(tmpls.Get("certificate_provided.gohtml"), donorStore, certificateProviderStore))
+		Guidance(tmpls.Get("certificate_provided.gohtml"), lpaStoreResolvingService, certificateProviderStore))
 }
 
 func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler) func(page.Path, page.Handler) {

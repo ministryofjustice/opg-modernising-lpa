@@ -11,13 +11,13 @@
             {{ tr .App "whoIsEligibleToBeCertificateProvider" }}
         </h1>
 
-        {{ trFormatHtml .App "whoIsEligibleToBeCertificateProviderContent" "DonorFullNamePossessive" (possessive .App .DonorFullName) "DonorFirstName" .DonorFirstNames  }}
+        {{ trFormatHtml .App "whoIsEligibleToBeCertificateProviderContent" "DonorFullNamePossessive" (possessive .App .Donor.Donor.FullName) "DonorFirstName" .Donor.Donor.FirstNames  }}
 
         {{ template "details" (details . "whoIsEligibleToBeCertificateProviderDetails" "whoIsEligibleToBeCertificateProviderDetailsContent" false) }}
 
         <h2 class="govuk-heading-m">{{ tr .App "whoCannotBeCertificateProvider" }}</h2>
 
-        {{ trFormatHtml .App "whoCannotBeCertificateProviderContent" "DonorFirstName" .DonorFirstNames "DonorFirstNamePossessive" (possessive .App .DonorFirstNames) }}
+        {{ trFormatHtml .App "whoCannotBeCertificateProviderContent" "DonorFirstName" .Donor.Donor.FirstNames "DonorFirstNamePossessive" (possessive .App .Donor.Donor.FirstNames) }}
 
         <p class="govuk-inset-text">{{ trFormatHtml .App "theCourtOfProtectionCanAlsoMakeDecisions" }} </p>
 
