@@ -24,6 +24,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
+type LpaStoreResolvingService interface {
+	Get(ctx context.Context) (*lpastore.Lpa, error)
+}
+
 type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error
 
 type Template func(io.Writer, interface{}) error
@@ -176,6 +180,7 @@ func Register(
 	lpaStoreClient LpaStoreClient,
 	shareCodeStore ShareCodeStore,
 	progressTracker ProgressTracker,
+	lpaStoreResolvingService LpaStoreResolvingService,
 ) {
 	payer := &payHelper{
 		sessionStore: sessionStore,
@@ -391,7 +396,7 @@ func Register(
 		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml")))
 
 	handleWithDonor(page.Paths.Progress, page.CanGoBack,
-		LpaProgress(tmpls.Get("lpa_progress.gohtml"), lpaStoreClient, certificateProviderStore, attorneyStore, progressTracker))
+		LpaProgress(tmpls.Get("lpa_progress.gohtml"), lpaStoreResolvingService, certificateProviderStore, attorneyStore, progressTracker))
 
 	handleWithDonor(page.Paths.UploadEvidenceSSE, page.None,
 		UploadEvidenceSSE(documentStore, 3*time.Minute, 2*time.Second, time.Now))

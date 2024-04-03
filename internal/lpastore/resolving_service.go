@@ -2,6 +2,7 @@ package lpastore
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -34,7 +35,9 @@ func (s *ResolvingService) Get(ctx context.Context) (*Lpa, error) {
 	}
 
 	lpa, err := s.client.Lpa(ctx, donor.LpaUID)
-	if err != nil {
+	if errors.Is(err, ErrNotFound) {
+		lpa = &Lpa{}
+	} else if err != nil {
 		return nil, err
 	}
 
