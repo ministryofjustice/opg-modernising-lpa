@@ -24,18 +24,12 @@ func TestGetViewLPA(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			donor := &actor.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid"}
-			resolvedLpa := &lpastore.Lpa{LpaUID: "lpa-uid"}
-
-			donorStore := newMockDonorStore(t)
-			donorStore.EXPECT().
-				Get(r.Context()).
-				Return(donor, nil)
+			lpa := &lpastore.Lpa{LpaUID: "lpa-uid"}
 
 			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 			lpaStoreResolvingService.EXPECT().
 				Get(r.Context()).
-				Return(resolvedLpa, nil)
+				Return(lpa, nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.EXPECT().
@@ -49,19 +43,19 @@ func TestGetViewLPA(t *testing.T) {
 
 			progressTracker := newMockProgressTracker(t)
 			progressTracker.EXPECT().
-				Progress(resolvedLpa, &actor.CertificateProviderProvidedDetails{}, []*actor.AttorneyProvidedDetails{{}}).
+				Progress(lpa, &actor.CertificateProviderProvidedDetails{}, []*actor.AttorneyProvidedDetails{{}}).
 				Return(page.Progress{Paid: page.ProgressTask{State: actor.TaskInProgress}})
 
 			template := newMockTemplate(t)
 			template.EXPECT().
 				Execute(w, &viewLPAData{
 					App:      testAppData,
-					Donor:    donor,
+					Lpa:      lpa,
 					Progress: page.Progress{Paid: page.ProgressTask{State: actor.TaskInProgress}},
 				}).
 				Return(nil)
 
-			err := ViewLPA(template.Execute, lpaStoreResolvingService, donorStore, certificateProviderStore, attorneyStore, progressTracker)(testAppData, w, r, &actor.Organisation{}, nil)
+			err := ViewLPA(template.Execute, lpaStoreResolvingService, certificateProviderStore, attorneyStore, progressTracker)(testAppData, w, r, &actor.Organisation{}, nil)
 
 			assert.Nil(t, err)
 		})
@@ -69,37 +63,16 @@ func TestGetViewLPA(t *testing.T) {
 
 }
 
-func TestGetViewLPAWithDonorStoreError(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Get(mock.Anything).
-		Return(nil, expectedError)
-
-	err := ViewLPA(nil, nil, donorStore, nil, nil, nil)(testAppData, w, r, &actor.Organisation{}, nil)
-
-	assert.Error(t, err)
-}
-
 func TestGetViewLPAWhenLpaStoreClientError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donor := &actor.DonorProvidedDetails{LpaID: "lpa-id", SK: "ORGANISATION"}
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Get(mock.Anything).
-		Return(donor, nil)
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
 		Return(nil, expectedError)
 
-	err := ViewLPA(nil, lpaStoreResolvingService, donorStore, nil, nil, nil)(testAppData, w, r, &actor.Organisation{}, nil)
+	err := ViewLPA(nil, lpaStoreResolvingService, nil, nil, nil)(testAppData, w, r, &actor.Organisation{}, nil)
 
 	assert.Error(t, err)
 }
@@ -107,13 +80,6 @@ func TestGetViewLPAWhenLpaStoreClientError(t *testing.T) {
 func TestGetViewLPAWhenCertificateProviderStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donor := &actor.DonorProvidedDetails{LpaID: "lpa-id", SK: "ORGANISATION"}
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Get(mock.Anything).
-		Return(donor, nil)
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -125,7 +91,7 @@ func TestGetViewLPAWhenCertificateProviderStoreError(t *testing.T) {
 		GetAny(mock.Anything).
 		Return(nil, expectedError)
 
-	err := ViewLPA(nil, lpaStoreResolvingService, donorStore, certificateProviderStore, nil, nil)(testAppData, w, r, &actor.Organisation{}, nil)
+	err := ViewLPA(nil, lpaStoreResolvingService, certificateProviderStore, nil, nil)(testAppData, w, r, &actor.Organisation{}, nil)
 
 	assert.Error(t, err)
 }
@@ -133,13 +99,6 @@ func TestGetViewLPAWhenCertificateProviderStoreError(t *testing.T) {
 func TestGetViewLPAWhenAttorneyStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donor := &actor.DonorProvidedDetails{LpaID: "lpa-id", SK: "ORGANISATION"}
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Get(mock.Anything).
-		Return(donor, nil)
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -156,7 +115,7 @@ func TestGetViewLPAWhenAttorneyStoreError(t *testing.T) {
 		GetAny(mock.Anything).
 		Return(nil, expectedError)
 
-	err := ViewLPA(nil, lpaStoreResolvingService, donorStore, certificateProviderStore, attorneyStore, nil)(testAppData, w, r, &actor.Organisation{}, nil)
+	err := ViewLPA(nil, lpaStoreResolvingService, certificateProviderStore, attorneyStore, nil)(testAppData, w, r, &actor.Organisation{}, nil)
 
 	assert.Error(t, err)
 }
@@ -164,13 +123,6 @@ func TestGetViewLPAWhenAttorneyStoreError(t *testing.T) {
 func TestGetViewLPAWhenTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donor := &actor.DonorProvidedDetails{LpaID: "lpa-id"}
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Get(mock.Anything).
-		Return(donor, nil)
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -197,7 +149,7 @@ func TestGetViewLPAWhenTemplateError(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ViewLPA(template.Execute, lpaStoreResolvingService, donorStore, certificateProviderStore, attorneyStore, progressTracker)(testAppData, w, r, &actor.Organisation{}, nil)
+	err := ViewLPA(template.Execute, lpaStoreResolvingService, certificateProviderStore, attorneyStore, progressTracker)(testAppData, w, r, &actor.Organisation{}, nil)
 
 	assert.Error(t, err)
 }
