@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -14,17 +15,12 @@ import (
 type viewLPAData struct {
 	App      page.AppData
 	Errors   validation.List
-	Donor    *actor.DonorProvidedDetails
+	Lpa      *lpastore.Lpa
 	Progress page.Progress
 }
 
-func ViewLPA(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, donorStore DonorStore, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, progressTracker ProgressTracker) Handler {
+func ViewLPA(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, progressTracker ProgressTracker) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
-		donor, err := donorStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
@@ -42,7 +38,7 @@ func ViewLPA(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingS
 
 		return tmpl(w, &viewLPAData{
 			App:      appData,
-			Donor:    donor,
+			Lpa:      lpa,
 			Progress: progressTracker.Progress(lpa, certificateProvider, attorneys),
 		})
 	}

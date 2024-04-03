@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -178,7 +177,6 @@ func Supporter(
 					if err := donorStore.Put(donorCtx, donor); err != nil {
 						return err
 					}
-					log.Println("Sending", donor.LpaID, donor.LpaUID)
 					if err := lpaStoreClient.SendLpa(donorCtx, donor); err != nil {
 						return err
 					}

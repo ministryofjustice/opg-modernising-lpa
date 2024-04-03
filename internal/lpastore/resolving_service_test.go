@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/stretchr/testify/assert"
@@ -13,6 +14,8 @@ import (
 )
 
 func TestResolvingServiceGet(t *testing.T) {
+	registeredAt := time.Now()
+
 	testcases := map[string]struct {
 		donor    *actor.DonorProvidedDetails
 		resolved *Lpa
@@ -20,10 +23,11 @@ func TestResolvingServiceGet(t *testing.T) {
 	}{
 		"digital with all true": {
 			donor: &actor.DonorProvidedDetails{
-				SK:          dynamo.OrganisationKey("S"),
-				LpaID:       "1",
-				LpaUID:      "M-1111",
-				SubmittedAt: time.Now(),
+				SK:           dynamo.OrganisationKey("S"),
+				LpaID:        "1",
+				LpaUID:       "M-1111",
+				SubmittedAt:  time.Now(),
+				RegisteredAt: registeredAt,
 				CertificateProvider: actor.CertificateProvider{
 					Relationship: actor.Personally,
 				},
@@ -42,6 +46,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				Submitted:              true,
 				Paid:                   true,
 				IsOrganisationDonor:    true,
+				RegisteredAt:           date.FromTime(registeredAt),
 				CertificateProvider: actor.CertificateProvider{
 					Relationship: actor.Personally,
 				},

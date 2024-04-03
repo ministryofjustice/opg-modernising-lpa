@@ -16,12 +16,12 @@ func TestGetLpaProgress(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	resolvedLpa := &lpastore.Lpa{LpaUID: "lpa-uid"}
+	lpa := &lpastore.Lpa{LpaUID: "lpa-uid"}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(resolvedLpa, nil)
+		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
@@ -35,7 +35,7 @@ func TestGetLpaProgress(t *testing.T) {
 
 	progressTracker := newMockProgressTracker(t)
 	progressTracker.EXPECT().
-		Progress(resolvedLpa, &actor.CertificateProviderProvidedDetails{}, []*actor.AttorneyProvidedDetails{}).
+		Progress(lpa, &actor.CertificateProviderProvidedDetails{}, []*actor.AttorneyProvidedDetails{}).
 		Return(page.Progress{DonorSigned: page.ProgressTask{State: actor.TaskInProgress}})
 
 	template := newMockTemplate(t)

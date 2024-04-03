@@ -151,7 +151,7 @@ func Register(
 	handleWithSupporter(paths.ContactOPGForPaperForms, None,
 		Guidance(tmpls.Get("contact_opg_for_paper_forms.gohtml")))
 	handleWithSupporter(paths.ViewLPA, None,
-		ViewLPA(tmpls.Get("view_lpa.gohtml"), lpaStoreResolvingService, donorStore, certificateProviderStore, attorneyStore, progressTracker))
+		ViewLPA(tmpls.Get("view_lpa.gohtml"), lpaStoreResolvingService, certificateProviderStore, attorneyStore, progressTracker))
 
 	handleWithSupporter(paths.OrganisationDetails, RequireAdmin,
 		Guidance(tmpls.Get("organisation_details.gohtml")))
