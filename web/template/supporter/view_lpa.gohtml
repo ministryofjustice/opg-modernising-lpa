@@ -17,17 +17,17 @@
         {{ template "notification-banner" (notificationBanner .App "accessRemoved" (trFormatHtml .App "youRemovedAccessToThisLPAFor" "Email" (.App.Query.Get "accessRemovedFor"))) }}
       {{ end }}
 
-      <span class="govuk-caption-xl">{{ .Donor.Donor.FullName }}</span>
-      <h1 class="govuk-heading-xl">{{ tr .App .Donor.Type.String }} {{tr .App "lpa"}}</h1>
+      <span class="govuk-caption-xl">{{ .Lpa.Donor.FullName }}</span>
+      <h1 class="govuk-heading-xl">{{ tr .App .Lpa.Type.String }} {{tr .App "lpa"}}</h1>
 
       <div class="govuk-inset-text">
-        <span class="govuk-!-font-weight-bold">{{ tr .App "referenceNumber" }}</span> {{ .Donor.LpaUID }}
+        <span class="govuk-!-font-weight-bold">{{ tr .App "referenceNumber" }}</span> {{ .Lpa.LpaUID }}
       </div>
 
       <div class="govuk-button-group">
-        <a class="govuk-button govuk-button--secondary" href="{{ link $.App (global.Paths.TaskList.Format .Donor.LpaID) }}" data-module="govuk-button">{{ tr .App "goToTaskList" }}</a>
+        <a class="govuk-button govuk-button--secondary" href="{{ link $.App (global.Paths.TaskList.Format .Lpa.LpaID) }}" data-module="govuk-button">{{ tr .App "goToTaskList" }}</a>
         <a class="govuk-button govuk-button--secondary" href="#" data-module="govuk-button">{{ tr .App "viewLPASummary" }}</a>
-        <a class="govuk-button govuk-button--secondary" href="{{ link $.App (global.Paths.Supporter.DonorAccess.Format .Donor.LpaID) }}" data-module="govuk-button">{{ tr .App "donorAccess" }}</a>
+        <a class="govuk-button govuk-button--secondary" href="{{ link $.App (global.Paths.Supporter.DonorAccess.Format .Lpa.LpaID) }}" data-module="govuk-button">{{ tr .App "donorAccess" }}</a>
       </div>
 
       <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">

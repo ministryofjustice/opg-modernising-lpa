@@ -32,7 +32,7 @@ func (l lpaLink) UserSub() string {
 		return ""
 	}
 
-	return strings.Split(l.SK, subKey(""))[1]
+	return strings.Split(l.SK, dynamo.SubKey(""))[1]
 }
 
 type dashboardStore struct {
@@ -44,20 +44,20 @@ type keys struct {
 }
 
 func (k keys) isLpa() bool {
-	return strings.HasPrefix(k.SK, donorKey("")) || strings.HasPrefix(k.SK, organisationKey(""))
+	return strings.HasPrefix(k.SK, dynamo.DonorKey("")) || strings.HasPrefix(k.SK, dynamo.OrganisationKey(""))
 }
 
 func (k keys) isCertificateProviderDetails() bool {
-	return strings.HasPrefix(k.SK, certificateProviderKey(""))
+	return strings.HasPrefix(k.SK, dynamo.CertificateProviderKey(""))
 }
 
 func (k keys) isAttorneyDetails() bool {
-	return strings.HasPrefix(k.SK, attorneyKey(""))
+	return strings.HasPrefix(k.SK, dynamo.AttorneyKey(""))
 }
 
 func (s *dashboardStore) SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error) {
 	var links []lpaLink
-	if err := s.dynamoClient.AllBySK(ctx, subKey(sub), &links); err != nil {
+	if err := s.dynamoClient.AllBySK(ctx, dynamo.SubKey(sub), &links); err != nil {
 		return false, err
 	}
 
@@ -81,7 +81,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 	}
 
 	var links []lpaLink
-	if err := s.dynamoClient.AllBySK(ctx, subKey(data.SessionID), &links); err != nil {
+	if err := s.dynamoClient.AllBySK(ctx, dynamo.SubKey(data.SessionID), &links); err != nil {
 		return nil, nil, nil, err
 	}
 
@@ -91,11 +91,11 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		searchKeys = append(searchKeys, dynamo.Key{PK: key.PK, SK: key.DonorKey})
 
 		if key.ActorType == actor.TypeAttorney {
-			searchKeys = append(searchKeys, dynamo.Key{PK: key.PK, SK: attorneyKey(data.SessionID)})
+			searchKeys = append(searchKeys, dynamo.Key{PK: key.PK, SK: dynamo.AttorneyKey(data.SessionID)})
 		}
 
 		if key.ActorType == actor.TypeCertificateProvider {
-			searchKeys = append(searchKeys, dynamo.Key{PK: key.PK, SK: certificateProviderKey(data.SessionID)})
+			searchKeys = append(searchKeys, dynamo.Key{PK: key.PK, SK: dynamo.CertificateProviderKey(data.SessionID)})
 		}
 
 		_, id, _ := strings.Cut(key.PK, "#")

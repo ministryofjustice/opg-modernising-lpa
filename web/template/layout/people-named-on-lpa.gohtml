@@ -3,29 +3,29 @@
     {{ tr .App "donor" }}
   </h3>
 
-  {{ template "donor-details" . }}
+  {{ template "donor-details" (lpaDecisions .App .Lpa .CanChange) }}
 
   <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">
     {{ tr .App "certificateProvider" }}
   </h3>
 
-  {{ template "certificate-provider-details" . }}
+  {{ template "certificate-provider-details" (lpaDecisions .App .Lpa .CanChange) }}
 
   <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">
     {{ tr .App "attorneys" }}
   </h3>
 
-  {{ template "attorney-summary" (listAttorneys .Donor.Attorneys .App "attorney" 4 .Donor) }}
+  {{ template "attorney-summary" (listAttorneys .App .Lpa.Attorneys "attorney" 4 .CanChange) }}
 
-  {{ if gt .Donor.ReplacementAttorneys.Len 0 }}
+  {{ if gt .Lpa.ReplacementAttorneys.Len 0 }}
     <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">
       {{ tr .App "replacementAttorneys" }}
     </h3>
 
-    {{ template "attorney-summary" (listAttorneys .Donor.ReplacementAttorneys .App "replacement" 4 .Donor) }}
+    {{ template "attorney-summary" (listAttorneys .App .Lpa.ReplacementAttorneys "replacement" 4 .CanChange) }}
   {{ end }}
 
-  {{ if gt (len .Donor.PeopleToNotify) 0  }}
+  {{ if gt (len .Lpa.PeopleToNotify) 0  }}
     <h3 class="govuk-heading-m govuk-!-margin-top-9 govuk-!-margin-bottom-2">
       {{ if .App.IsDonor }}
         {{ tr .App "peopleToNotifyAboutYourLpa" }}
@@ -34,6 +34,6 @@
       {{ end }}
     </h3>
 
-    {{ template "people-to-notify-summary" (listPeopleToNotify .App 4 .Donor) }}
+    {{ template "people-to-notify-summary" (listPeopleToNotify .App .Lpa.PeopleToNotify 4 .CanChange) }}
   {{ end }}
 {{ end }}
