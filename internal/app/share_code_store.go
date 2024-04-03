@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -30,7 +29,7 @@ func NewShareCodeStore(dynamoClient ShareCodeStoreDynamoClient) *shareCodeStore 
 func (s *shareCodeStore) Get(ctx context.Context, actorType actor.Type, shareCode string) (actor.ShareCodeData, error) {
 	var data actor.ShareCodeData
 
-	pk, err := shareCodeKeys(actorType, shareCode)
+	pk, err := dynamo.ShareCodeKey(actorType, shareCode)
 	if err != nil {
 		return data, err
 	}
@@ -54,20 +53,20 @@ func (s *shareCodeStore) Linked(ctx context.Context, data actor.ShareCodeData, e
 }
 
 func (s *shareCodeStore) Put(ctx context.Context, actorType actor.Type, shareCode string, data actor.ShareCodeData) error {
-	pk, err := shareCodeKeys(actorType, shareCode)
+	pk, err := dynamo.ShareCodeKey(actorType, shareCode)
 	if err != nil {
 		return err
 	}
 
 	data.PK = pk
-	data.SK = "#METADATA#" + shareCode
+	data.SK = dynamo.MetadataKey(shareCode)
 
 	return s.dynamoClient.Put(ctx, data)
 }
 
 func (s *shareCodeStore) PutDonor(ctx context.Context, shareCode string, data actor.ShareCodeData) error {
-	data.PK = "DONORSHARE#" + shareCode
-	data.SK = "DONORINVITE#" + data.SessionID + "#" + data.LpaID
+	data.PK = dynamo.DonorShareKey(shareCode)
+	data.SK = dynamo.DonorInviteKey(data.SessionID, data.LpaID)
 	data.UpdatedAt = s.now()
 
 	return s.dynamoClient.Put(ctx, data)
@@ -81,7 +80,7 @@ func (s *shareCodeStore) GetDonor(ctx context.Context) (actor.ShareCodeData, err
 		return data, err
 	}
 
-	sk := "DONORINVITE#" + sessionData.OrganisationID + "#" + sessionData.LpaID
+	sk := dynamo.DonorInviteKey(sessionData.OrganisationID, sessionData.LpaID)
 
 	err = s.dynamoClient.OneBySK(ctx, sk, &data)
 	return data, err
@@ -89,19 +88,4 @@ func (s *shareCodeStore) GetDonor(ctx context.Context) (actor.ShareCodeData, err
 
 func (s *shareCodeStore) Delete(ctx context.Context, shareCode actor.ShareCodeData) error {
 	return s.dynamoClient.DeleteOne(ctx, shareCode.PK, shareCode.SK)
-}
-
-func shareCodeKeys(actorType actor.Type, shareCode string) (pk string, err error) {
-	switch actorType {
-	case actor.TypeDonor:
-		return "DONORSHARE#" + shareCode, nil
-	// As attorneys and replacement attorneys share the same landing page we can't
-	// differentiate between them
-	case actor.TypeAttorney, actor.TypeReplacementAttorney, actor.TypeTrustCorporation, actor.TypeReplacementTrustCorporation:
-		return "ATTORNEYSHARE#" + shareCode, nil
-	case actor.TypeCertificateProvider:
-		return "CERTIFICATEPROVIDERSHARE#" + shareCode, nil
-	default:
-		return "", fmt.Errorf("cannot have share code for actorType=%v", actorType)
-	}
 }

@@ -8,6 +8,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -19,7 +20,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, template.Templates{}, &onelogin.Client{}, &mockSessionStore{}, &mockOrganisationStore{}, nil, &notify.Client{}, "http://base", &mockMemberStore{}, &search.Client{}, &mockDonorStore{}, &mockShareCodeStore{}, &mockCertificateProviderStore{}, &mockAttorneyStore{}, &mockProgressTracker{})
+	Register(mux, template.Templates{}, &onelogin.Client{}, &mockSessionStore{}, &mockOrganisationStore{}, nil, &notify.Client{}, "http://base", &mockMemberStore{}, &search.Client{}, &mockDonorStore{}, &mockShareCodeStore{}, &mockCertificateProviderStore{}, &mockAttorneyStore{}, &mockProgressTracker{}, &lpastore.ResolvingService{})
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
