@@ -20,8 +20,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type LpaStoreClient interface {
-	Lpa(ctx context.Context, uid string) (*lpastore.Lpa, error)
+type LpaStoreResolvingService interface {
+	Get(ctx context.Context) (*lpastore.Lpa, error)
 }
 
 type OrganisationStore interface {
@@ -116,7 +116,7 @@ func Register(
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
 	progressTracker ProgressTracker,
-	lpaStoreClient LpaStoreClient,
+	lpaStoreResolvingService LpaStoreResolvingService,
 ) {
 	paths := page.Paths.Supporter
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
@@ -151,7 +151,7 @@ func Register(
 	handleWithSupporter(paths.ContactOPGForPaperForms, None,
 		Guidance(tmpls.Get("contact_opg_for_paper_forms.gohtml")))
 	handleWithSupporter(paths.ViewLPA, None,
-		ViewLPA(tmpls.Get("view_lpa.gohtml"), lpaStoreClient, donorStore, certificateProviderStore, attorneyStore, progressTracker))
+		ViewLPA(tmpls.Get("view_lpa.gohtml"), lpaStoreResolvingService, donorStore, certificateProviderStore, attorneyStore, progressTracker))
 
 	handleWithSupporter(paths.OrganisationDetails, RequireAdmin,
 		Guidance(tmpls.Get("organisation_details.gohtml")))

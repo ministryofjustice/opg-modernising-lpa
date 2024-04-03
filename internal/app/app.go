@@ -128,7 +128,7 @@ func App(
 	handleRoot(page.Paths.AttorneyFixtures, None,
 		fixtures.Attorney(tmpls.Get("attorney_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore, eventClient, lpaStoreClient))
 	handleRoot(page.Paths.SupporterFixtures, None,
-		fixtures.Supporter(sessionStore, organisationStore, donorStore, memberStore, lpaDynamoClient, searchClient, shareCodeStore, certificateProviderStore, attorneyStore, documentStore, eventClient))
+		fixtures.Supporter(sessionStore, organisationStore, donorStore, memberStore, lpaDynamoClient, searchClient, shareCodeStore, certificateProviderStore, attorneyStore, documentStore, eventClient, lpaStoreClient))
 	handleRoot(page.Paths.DashboardFixtures, None,
 		fixtures.Dashboard(tmpls.Get("dashboard_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore))
 	handleRoot(page.Paths.YourLegalRightsAndResponsibilities, None,
@@ -162,7 +162,7 @@ func App(
 		certificateProviderStore,
 		attorneyStore,
 		progressTracker,
-		lpaStoreClient,
+		lpaStoreResolvingService,
 	)
 
 	certificateprovider.Register(
