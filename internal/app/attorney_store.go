@@ -7,6 +7,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
@@ -26,8 +27,8 @@ func (s *attorneyStore) Create(ctx context.Context, donorSessionID string, attor
 	}
 
 	attorney := &actor.AttorneyProvidedDetails{
-		PK:                 lpaKey(data.LpaID),
-		SK:                 attorneyKey(data.SessionID),
+		PK:                 dynamo.LpaKey(data.LpaID),
+		SK:                 dynamo.AttorneyKey(data.SessionID),
 		UID:                attorneyUID,
 		LpaID:              data.LpaID,
 		UpdatedAt:          s.now(),
@@ -39,9 +40,9 @@ func (s *attorneyStore) Create(ctx context.Context, donorSessionID string, attor
 		return nil, err
 	}
 	if err := s.dynamoClient.Create(ctx, lpaLink{
-		PK:        lpaKey(data.LpaID),
-		SK:        subKey(data.SessionID),
-		DonorKey:  donorKey(donorSessionID),
+		PK:        dynamo.LpaKey(data.LpaID),
+		SK:        dynamo.SubKey(data.SessionID),
+		DonorKey:  dynamo.DonorKey(donorSessionID),
 		ActorType: actor.TypeAttorney,
 		UpdatedAt: s.now(),
 	}); err != nil {
@@ -62,7 +63,7 @@ func (s *attorneyStore) Get(ctx context.Context) (*actor.AttorneyProvidedDetails
 	}
 
 	var attorney actor.AttorneyProvidedDetails
-	err = s.dynamoClient.One(ctx, lpaKey(data.LpaID), attorneyKey(data.SessionID), &attorney)
+	err = s.dynamoClient.One(ctx, dynamo.LpaKey(data.LpaID), dynamo.AttorneyKey(data.SessionID), &attorney)
 
 	return &attorney, err
 }
@@ -78,7 +79,7 @@ func (s *attorneyStore) GetAny(ctx context.Context) ([]*actor.AttorneyProvidedDe
 	}
 
 	var attorneys []*actor.AttorneyProvidedDetails
-	err = s.dynamoClient.AllByPartialSK(ctx, lpaKey(data.LpaID), "#ATTORNEY#", &attorneys)
+	err = s.dynamoClient.AllByPartialSK(ctx, dynamo.LpaKey(data.LpaID), "#ATTORNEY#", &attorneys)
 
 	return attorneys, err
 }
@@ -86,8 +87,4 @@ func (s *attorneyStore) GetAny(ctx context.Context) ([]*actor.AttorneyProvidedDe
 func (s *attorneyStore) Put(ctx context.Context, attorney *actor.AttorneyProvidedDetails) error {
 	attorney.UpdatedAt = s.now()
 	return s.dynamoClient.Put(ctx, attorney)
-}
-
-func attorneyKey(s string) string {
-	return "#ATTORNEY#" + s
 }

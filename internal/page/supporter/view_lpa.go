@@ -18,9 +18,14 @@ type viewLPAData struct {
 	Progress page.Progress
 }
 
-func ViewLPA(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, progressTracker ProgressTracker) Handler {
+func ViewLPA(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, donorStore DonorStore, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, progressTracker ProgressTracker) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
 		donor, err := donorStore.Get(r.Context())
+		if err != nil {
+			return err
+		}
+
+		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -38,7 +43,7 @@ func ViewLPA(tmpl template.Template, donorStore DonorStore, certificateProviderS
 		return tmpl(w, &viewLPAData{
 			App:      appData,
 			Donor:    donor,
-			Progress: progressTracker.Progress(donor, certificateProvider, attorneys),
+			Progress: progressTracker.Progress(lpa, certificateProvider, attorneys),
 		})
 	}
 }

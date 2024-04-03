@@ -60,8 +60,8 @@ func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, e
 	donorUID := s.newUID()
 
 	donor := &actor.DonorProvidedDetails{
-		PK:        lpaKey(lpaID),
-		SK:        donorKey(data.SessionID),
+		PK:        dynamo.LpaKey(lpaID),
+		SK:        dynamo.DonorKey(data.SessionID),
 		LpaID:     lpaID,
 		CreatedAt: s.now(),
 		Version:   1,
@@ -92,9 +92,9 @@ func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, e
 	}
 
 	if err := s.dynamoClient.Create(ctx, lpaLink{
-		PK:        lpaKey(lpaID),
-		SK:        subKey(data.SessionID),
-		DonorKey:  donorKey(data.SessionID),
+		PK:        dynamo.LpaKey(lpaID),
+		SK:        dynamo.SubKey(data.SessionID),
+		DonorKey:  dynamo.DonorKey(data.SessionID),
 		ActorType: actor.TypeDonor,
 		UpdatedAt: s.now(),
 	}); err != nil {
@@ -130,24 +130,24 @@ func (s *donorStore) Link(ctx context.Context, shareCode actor.ShareCodeData) er
 	}
 
 	var link lpaLink
-	if err := s.dynamoClient.OneByPartialSK(ctx, lpaKey(shareCode.LpaID), subKey(""), &link); err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
+	if err := s.dynamoClient.OneByPartialSK(ctx, dynamo.LpaKey(shareCode.LpaID), dynamo.SubKey(""), &link); err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
 		return err
 	} else if link.ActorType == actor.TypeDonor {
 		return errors.New("a donor link already exists for " + shareCode.LpaID)
 	}
 
 	if err := s.dynamoClient.Create(ctx, lpaReference{
-		PK:           lpaKey(shareCode.LpaID),
-		SK:           donorKey(data.SessionID),
-		ReferencedSK: organisationKey(shareCode.SessionID),
+		PK:           dynamo.LpaKey(shareCode.LpaID),
+		SK:           dynamo.DonorKey(data.SessionID),
+		ReferencedSK: dynamo.OrganisationKey(shareCode.SessionID),
 	}); err != nil {
 		return err
 	}
 
 	return s.dynamoClient.Create(ctx, lpaLink{
-		PK:        lpaKey(shareCode.LpaID),
-		SK:        subKey(data.SessionID),
-		DonorKey:  organisationKey(shareCode.SessionID),
+		PK:        dynamo.LpaKey(shareCode.LpaID),
+		SK:        dynamo.SubKey(data.SessionID),
+		DonorKey:  dynamo.OrganisationKey(shareCode.SessionID),
 		ActorType: actor.TypeDonor,
 		UpdatedAt: s.now(),
 	})
@@ -163,8 +163,13 @@ func (s *donorStore) GetAny(ctx context.Context) (*actor.DonorProvidedDetails, e
 		return nil, errors.New("donorStore.Get requires LpaID")
 	}
 
+	sk := dynamo.DonorKey("")
+	if data.OrganisationID != "" {
+		sk = dynamo.OrganisationKey("")
+	}
+
 	var donor *actor.DonorProvidedDetails
-	if err := s.dynamoClient.OneByPartialSK(ctx, lpaKey(data.LpaID), "#DONOR#", &donor); err != nil {
+	if err := s.dynamoClient.OneByPartialSK(ctx, dynamo.LpaKey(data.LpaID), sk, &donor); err != nil {
 		return nil, err
 	}
 
@@ -181,21 +186,21 @@ func (s *donorStore) Get(ctx context.Context) (*actor.DonorProvidedDetails, erro
 		return nil, errors.New("donorStore.Get requires LpaID and SessionID")
 	}
 
-	sk := donorKey(data.SessionID)
+	sk := dynamo.DonorKey(data.SessionID)
 	if data.OrganisationID != "" {
-		sk = organisationKey(data.OrganisationID)
+		sk = dynamo.OrganisationKey(data.OrganisationID)
 	}
 
 	var donor struct {
 		actor.DonorProvidedDetails
 		ReferencedSK string
 	}
-	if err := s.dynamoClient.One(ctx, lpaKey(data.LpaID), sk, &donor); err != nil {
+	if err := s.dynamoClient.One(ctx, dynamo.LpaKey(data.LpaID), sk, &donor); err != nil {
 		return nil, err
 	}
 
 	if donor.ReferencedSK != "" {
-		err = s.dynamoClient.One(ctx, lpaKey(data.LpaID), donor.ReferencedSK, &donor)
+		err = s.dynamoClient.One(ctx, dynamo.LpaKey(data.LpaID), donor.ReferencedSK, &donor)
 	}
 
 	return &donor.DonorProvidedDetails, err
@@ -212,7 +217,7 @@ func (s *donorStore) Latest(ctx context.Context) (*actor.DonorProvidedDetails, e
 	}
 
 	var donor *actor.DonorProvidedDetails
-	if err := s.dynamoClient.LatestForActor(ctx, donorKey(data.SessionID), &donor); err != nil {
+	if err := s.dynamoClient.LatestForActor(ctx, dynamo.DonorKey(data.SessionID), &donor); err != nil {
 		return nil, err
 	}
 
@@ -322,14 +327,14 @@ func (s *donorStore) Delete(ctx context.Context) error {
 		return errors.New("donorStore.Create requires SessionID and LpaID")
 	}
 
-	keys, err := s.dynamoClient.AllKeysByPK(ctx, lpaKey(data.LpaID))
+	keys, err := s.dynamoClient.AllKeysByPK(ctx, dynamo.LpaKey(data.LpaID))
 	if err != nil {
 		return err
 	}
 
 	canDelete := false
 	for _, key := range keys {
-		if key.PK == lpaKey(data.LpaID) && key.SK == donorKey(data.SessionID) {
+		if key.PK == dynamo.LpaKey(data.LpaID) && key.SK == dynamo.DonorKey(data.SessionID) {
 			canDelete = true
 			break
 		}
@@ -357,7 +362,7 @@ func (s *donorStore) DeleteLink(ctx context.Context, shareCodeData actor.ShareCo
 	}
 
 	var link lpaLink
-	if err := s.dynamoClient.OneByPartialSK(ctx, lpaKey(shareCodeData.LpaID), subKey(""), &link); err != nil {
+	if err := s.dynamoClient.OneByPartialSK(ctx, dynamo.LpaKey(shareCodeData.LpaID), dynamo.SubKey(""), &link); err != nil {
 		return err
 	}
 
@@ -365,17 +370,5 @@ func (s *donorStore) DeleteLink(ctx context.Context, shareCodeData actor.ShareCo
 		return err
 	}
 
-	return s.dynamoClient.DeleteOne(ctx, lpaKey(shareCodeData.LpaID), donorKey(link.UserSub()))
-}
-
-func lpaKey(s string) string {
-	return "LPA#" + s
-}
-
-func donorKey(s string) string {
-	return "#DONOR#" + s
-}
-
-func subKey(s string) string {
-	return "#SUB#" + s
+	return s.dynamoClient.DeleteOne(ctx, dynamo.LpaKey(shareCodeData.LpaID), dynamo.DonorKey(link.UserSub()))
 }

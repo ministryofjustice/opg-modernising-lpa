@@ -191,61 +191,6 @@ func (l *DonorProvidedDetails) Under18ActorDetails() []Under18ActorDetails {
 	return data
 }
 
-func (l *DonorProvidedDetails) IsOrganisationDonor() bool {
-	return strings.Contains(l.SK, "ORGANISATION")
-}
-
-func (l *DonorProvidedDetails) AllAttorneysSigned(attorneys []*AttorneyProvidedDetails) bool {
-	if l == nil || l.SignedAt.IsZero() || l.Attorneys.Len() == 0 {
-		return false
-	}
-
-	var (
-		attorneysSigned                   = map[actoruid.UID]struct{}{}
-		replacementAttorneysSigned        = map[actoruid.UID]struct{}{}
-		trustCorporationSigned            = false
-		replacementTrustCorporationSigned = false
-	)
-
-	for _, a := range attorneys {
-		if !a.Signed(l.SignedAt) {
-			continue
-		}
-
-		if a.IsReplacement && a.IsTrustCorporation {
-			replacementTrustCorporationSigned = true
-		} else if a.IsReplacement {
-			replacementAttorneysSigned[a.UID] = struct{}{}
-		} else if a.IsTrustCorporation {
-			trustCorporationSigned = true
-		} else {
-			attorneysSigned[a.UID] = struct{}{}
-		}
-	}
-
-	if l.ReplacementAttorneys.TrustCorporation.Name != "" && !replacementTrustCorporationSigned {
-		return false
-	}
-
-	for _, a := range l.ReplacementAttorneys.Attorneys {
-		if _, ok := replacementAttorneysSigned[a.UID]; !ok {
-			return false
-		}
-	}
-
-	if l.Attorneys.TrustCorporation.Name != "" && !trustCorporationSigned {
-		return false
-	}
-
-	for _, a := range l.Attorneys.Attorneys {
-		if _, ok := attorneysSigned[a.UID]; !ok {
-			return false
-		}
-	}
-
-	return true
-}
-
 func (l *DonorProvidedDetails) ActorAddresses() []place.Address {
 	var addresses []place.Address
 
