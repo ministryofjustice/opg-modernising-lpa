@@ -553,7 +553,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 	replacement1UID := actoruid.New()
 	replacement2UID := actoruid.New()
 
-	donor := &lpastore.ResolvedLpa{
+	donor := &lpastore.Lpa{
 		Attorneys: actor.Attorneys{
 			TrustCorporation: actor.TrustCorporation{
 				UID:   trustCorporationUID,
@@ -728,7 +728,7 @@ func TestShareCodeSenderSendAttorneysTrustCorporationsNoEmail(t *testing.T) {
 	uid1 := actoruid.New()
 	uid2 := actoruid.New()
 
-	donor := &lpastore.ResolvedLpa{
+	donor := &lpastore.Lpa{
 		Attorneys: actor.Attorneys{
 			TrustCorporation: actor.TrustCorporation{
 				UID:  uid1,
@@ -808,7 +808,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 		},
 	}
 
-	donor := &lpastore.ResolvedLpa{
+	donor := &lpastore.Lpa{
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{
 				FirstNames: "Joanna",
@@ -888,7 +888,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 	ctx := context.Background()
 
-	donor := &lpastore.ResolvedLpa{
+	donor := &lpastore.Lpa{
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{
 				FirstNames: "Joanna",
@@ -937,7 +937,7 @@ func TestShareCodeSenderSendAttorneysWhenShareCodeStoreErrors(t *testing.T) {
 		Return(expectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", testRandomStringFn, nil)
-	err := sender.SendAttorneys(ctx, TestAppData, &lpastore.ResolvedLpa{
+	err := sender.SendAttorneys(ctx, TestAppData, &lpastore.Lpa{
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{Email: "hey@example.com"}}},
 	})
 

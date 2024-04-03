@@ -20,7 +20,7 @@ import (
 )
 
 type LpaStoreResolvingService interface {
-	Get(ctx context.Context) (*lpastore.ResolvedLpa, error)
+	Get(ctx context.Context) (*lpastore.Lpa, error)
 }
 
 type Logger interface {
@@ -63,7 +63,7 @@ type NotifyClient interface {
 }
 
 type ShareCodeSender interface {
-	SendAttorneys(context.Context, page.AppData, *lpastore.ResolvedLpa) error
+	SendAttorneys(context.Context, page.AppData, *lpastore.Lpa) error
 }
 
 type AddressClient interface {

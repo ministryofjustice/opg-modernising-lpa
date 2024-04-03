@@ -308,7 +308,7 @@ func Attorney(
 		}
 
 		if email != "" {
-			lpa := &lpastore.ResolvedLpa{
+			lpa := &lpastore.Lpa{
 				LpaUID:               donorDetails.LpaUID,
 				Type:                 donorDetails.Type,
 				Donor:                donorDetails.Donor,

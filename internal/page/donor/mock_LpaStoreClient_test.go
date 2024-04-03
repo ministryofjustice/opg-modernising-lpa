@@ -26,23 +26,23 @@ func (_m *mockLpaStoreClient) EXPECT() *mockLpaStoreClient_Expecter {
 }
 
 // Lpa provides a mock function with given fields: ctx, lpaUID
-func (_m *mockLpaStoreClient) Lpa(ctx context.Context, lpaUID string) (*lpastore.ResolvedLpa, error) {
+func (_m *mockLpaStoreClient) Lpa(ctx context.Context, lpaUID string) (*lpastore.Lpa, error) {
 	ret := _m.Called(ctx, lpaUID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Lpa")
 	}
 
-	var r0 *lpastore.ResolvedLpa
+	var r0 *lpastore.Lpa
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*lpastore.ResolvedLpa, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*lpastore.Lpa, error)); ok {
 		return rf(ctx, lpaUID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *lpastore.ResolvedLpa); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *lpastore.Lpa); ok {
 		r0 = rf(ctx, lpaUID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*lpastore.ResolvedLpa)
+			r0 = ret.Get(0).(*lpastore.Lpa)
 		}
 	}
 
@@ -74,12 +74,12 @@ func (_c *mockLpaStoreClient_Lpa_Call) Run(run func(ctx context.Context, lpaUID 
 	return _c
 }
 
-func (_c *mockLpaStoreClient_Lpa_Call) Return(_a0 *lpastore.ResolvedLpa, _a1 error) *mockLpaStoreClient_Lpa_Call {
+func (_c *mockLpaStoreClient_Lpa_Call) Return(_a0 *lpastore.Lpa, _a1 error) *mockLpaStoreClient_Lpa_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockLpaStoreClient_Lpa_Call) RunAndReturn(run func(context.Context, string) (*lpastore.ResolvedLpa, error)) *mockLpaStoreClient_Lpa_Call {
+func (_c *mockLpaStoreClient_Lpa_Call) RunAndReturn(run func(context.Context, string) (*lpastore.Lpa, error)) *mockLpaStoreClient_Lpa_Call {
 	_c.Call.Return(run)
 	return _c
 }

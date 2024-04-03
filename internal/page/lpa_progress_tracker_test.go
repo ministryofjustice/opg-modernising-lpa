@@ -51,14 +51,14 @@ func TestProgressTrackerProgress(t *testing.T) {
 	}
 
 	testCases := map[string]struct {
-		donor               *lpastore.ResolvedLpa
+		donor               *lpastore.Lpa
 		certificateProvider *actor.CertificateProviderProvidedDetails
 		attorneys           []*actor.AttorneyProvidedDetails
 		expectedProgress    func() Progress
 		expectedLocalizer   func() *mockLocalizer
 	}{
 		"initial state": {
-			donor: &lpastore.ResolvedLpa{
+			donor: &lpastore.Lpa{
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{},
@@ -68,7 +68,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"initial state - with certificate provider name": {
-			donor: &lpastore.ResolvedLpa{
+			donor: &lpastore.Lpa{
 				CertificateProvider: actor.CertificateProvider{FirstNames: "A", LastName: "B"},
 				Attorneys:           actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 			},
@@ -103,7 +103,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 			},
 		},
 		"lpa signed": {
-			donor: &lpastore.ResolvedLpa{
+			donor: &lpastore.Lpa{
 				Donor:     actor.Donor{FirstNames: "a", LastName: "b"},
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 				SignedAt:  lpaSignedAt,
@@ -119,7 +119,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"certificate provider signed": {
-			donor: &lpastore.ResolvedLpa{
+			donor: &lpastore.Lpa{
 				Paid:      true,
 				Donor:     actor.Donor{FirstNames: "a", LastName: "b"},
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
@@ -137,7 +137,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"attorneys signed": {
-			donor: &lpastore.ResolvedLpa{
+			donor: &lpastore.Lpa{
 				Paid:      true,
 				Donor:     actor.Donor{FirstNames: "a", LastName: "b"},
 				SignedAt:  lpaSignedAt,
@@ -182,7 +182,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 			},
 		},
 		"submitted": {
-			donor: &lpastore.ResolvedLpa{
+			donor: &lpastore.Lpa{
 				Paid:      true,
 				Donor:     actor.Donor{FirstNames: "a", LastName: "b"},
 				SignedAt:  lpaSignedAt,
@@ -206,7 +206,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"registered": {
-			donor: &lpastore.ResolvedLpa{
+			donor: &lpastore.Lpa{
 				Paid:         true,
 				Donor:        actor.Donor{FirstNames: "a", LastName: "b"},
 				SignedAt:     lpaSignedAt,
@@ -297,14 +297,14 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 	}
 
 	testCases := map[string]struct {
-		donor               *lpastore.ResolvedLpa
+		donor               *lpastore.Lpa
 		certificateProvider *actor.CertificateProviderProvidedDetails
 		attorneys           []*actor.AttorneyProvidedDetails
 		expectedProgress    func() Progress
 		expectedLocalizer   func() *mockLocalizer
 	}{
 		"initial state": {
-			donor: &lpastore.ResolvedLpa{
+			donor: &lpastore.Lpa{
 				IsOrganisationDonor: true,
 				Donor:               actor.Donor{FirstNames: "a", LastName: "b"},
 				Attorneys:           actor.Attorneys{Attorneys: []actor.Attorney{{}}},
@@ -316,7 +316,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"paid": {
-			donor: &lpastore.ResolvedLpa{
+			donor: &lpastore.Lpa{
 				IsOrganisationDonor: true,
 				Donor:               actor.Donor{FirstNames: "a", LastName: "b"},
 				Attorneys:           actor.Attorneys{Attorneys: []actor.Attorney{{}}},
@@ -333,7 +333,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"confirmed ID": {
-			donor: &lpastore.ResolvedLpa{
+			donor: &lpastore.Lpa{
 				IsOrganisationDonor:    true,
 				Donor:                  actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
 				DonorIdentityConfirmed: true,
@@ -352,7 +352,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"donor signed": {
-			donor: &lpastore.ResolvedLpa{
+			donor: &lpastore.Lpa{
 				IsOrganisationDonor:    true,
 				Donor:                  actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
 				DonorIdentityConfirmed: true,
@@ -373,7 +373,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"certificate provider signed": {
-			donor: &lpastore.ResolvedLpa{
+			donor: &lpastore.Lpa{
 				IsOrganisationDonor:    true,
 				Donor:                  actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
 				DonorIdentityConfirmed: true,
@@ -395,7 +395,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"attorneys signed": {
-			donor: &lpastore.ResolvedLpa{
+			donor: &lpastore.Lpa{
 				IsOrganisationDonor:    true,
 				Donor:                  actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
 				DonorIdentityConfirmed: true,
@@ -421,7 +421,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"submitted": {
-			donor: &lpastore.ResolvedLpa{
+			donor: &lpastore.Lpa{
 				IsOrganisationDonor:    true,
 				Donor:                  actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
 				DonorIdentityConfirmed: true,
@@ -449,7 +449,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"registered": {
-			donor: &lpastore.ResolvedLpa{
+			donor: &lpastore.Lpa{
 				IsOrganisationDonor:    true,
 				Donor:                  actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
 				DonorIdentityConfirmed: true,

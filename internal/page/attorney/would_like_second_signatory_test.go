@@ -83,7 +83,7 @@ func TestPostWouldLikeSecondSignatoryWhenYes(t *testing.T) {
 }
 
 func TestPostWouldLikeSecondSignatoryWhenNo(t *testing.T) {
-	donor := &lpastore.ResolvedLpa{SignedAt: time.Now()}
+	donor := &lpastore.Lpa{SignedAt: time.Now()}
 	updatedAttorney := &actor.AttorneyProvidedDetails{
 		LpaID:                    "lpa-id",
 		WouldLikeSecondSignatory: form.No,
@@ -123,7 +123,7 @@ func TestPostWouldLikeSecondSignatoryWhenNo(t *testing.T) {
 }
 
 func TestPostWouldLikeSecondSignatoryWhenLpaStoreClientErrors(t *testing.T) {
-	donor := &lpastore.ResolvedLpa{SignedAt: time.Now()}
+	donor := &lpastore.Lpa{SignedAt: time.Now()}
 
 	f := url.Values{
 		form.FieldNames.YesNo: {form.No.String()},

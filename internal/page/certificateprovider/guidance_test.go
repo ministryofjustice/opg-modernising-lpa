@@ -14,7 +14,7 @@ func TestGuidance(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &lpastore.ResolvedLpa{}
+	donor := &lpastore.Lpa{}
 	certificateProvider := &actor.CertificateProviderProvidedDetails{}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
@@ -63,7 +63,7 @@ func TestGuidanceWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.ResolvedLpa{}, expectedError)
+		Return(&lpastore.Lpa{}, expectedError)
 
 	err := Guidance(nil, lpaStoreResolvingService, nil)(testAppData, w, r)
 
@@ -77,7 +77,7 @@ func TestGuidanceWhenCertificateProviderStoreErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.ResolvedLpa{}, nil)
+		Return(&lpastore.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
@@ -96,11 +96,11 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.ResolvedLpa{}, nil)
+		Return(&lpastore.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &guidanceData{App: testAppData, Lpa: &lpastore.ResolvedLpa{}}).
+		Execute(w, &guidanceData{App: testAppData, Lpa: &lpastore.Lpa{}}).
 		Return(expectedError)
 
 	err := Guidance(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r)

@@ -21,7 +21,7 @@ import (
 )
 
 type LpaStoreClient interface {
-	Lpa(ctx context.Context, uid string) (*lpastore.ResolvedLpa, error)
+	Lpa(ctx context.Context, uid string) (*lpastore.Lpa, error)
 }
 
 type OrganisationStore interface {
@@ -97,7 +97,7 @@ type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, org
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type ProgressTracker interface {
-	Progress(donor *lpastore.ResolvedLpa, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) page.Progress
+	Progress(donor *lpastore.Lpa, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) page.Progress
 }
 
 func Register(

@@ -22,7 +22,7 @@ func TestGetProvideCertificate(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &lpastore.ResolvedLpa{SignedAt: time.Now()}
+	donor := &lpastore.Lpa{SignedAt: time.Now()}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -58,7 +58,7 @@ func TestGetProvideCertificateRedirectsToStartOnLpaNotSubmitted(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.ResolvedLpa{LpaID: "lpa-id"}, nil)
+		Return(&lpastore.Lpa{LpaID: "lpa-id"}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
@@ -80,7 +80,7 @@ func TestGetProvideCertificateWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.ResolvedLpa{}, expectedError)
+		Return(&lpastore.Lpa{}, expectedError)
 
 	err := ProvideCertificate(nil, lpaStoreResolvingService, nil, nil, nil, nil, nil)(testAppData, w, r)
 	resp := w.Result()
@@ -96,7 +96,7 @@ func TestGetProvideCertificateWhenCertificateProviderStoreErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.ResolvedLpa{}, nil)
+		Return(&lpastore.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
@@ -121,7 +121,7 @@ func TestPostProvideCertificate(t *testing.T) {
 
 	now := time.Now()
 
-	donor := &lpastore.ResolvedLpa{
+	donor := &lpastore.Lpa{
 		LpaUID:   "lpa-uid",
 		SignedAt: now,
 		CertificateProvider: actor.CertificateProvider{
@@ -216,7 +216,7 @@ func TestPostProvideCertificateOnStoreError(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.ResolvedLpa{SignedAt: now}, nil)
+		Return(&lpastore.Lpa{SignedAt: now}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
@@ -244,7 +244,7 @@ func TestPostProvideCertificateWhenLpaStoreClientError(t *testing.T) {
 
 	now := time.Now()
 
-	donor := &lpastore.ResolvedLpa{
+	donor := &lpastore.Lpa{
 		LpaUID:   "lpa-uid",
 		SignedAt: now,
 		CertificateProvider: actor.CertificateProvider{
@@ -303,7 +303,7 @@ func TestPostProvideCertificateOnNotifyClientError(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.ResolvedLpa{
+		Return(&lpastore.Lpa{
 			SignedAt: now,
 			CertificateProvider: actor.CertificateProvider{
 				Email:      "cp@example.org",
@@ -369,7 +369,7 @@ func TestPostProvideCertificateWhenShareCodeSenderErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.ResolvedLpa{
+		Return(&lpastore.Lpa{
 			SignedAt: now,
 			Donor:    actor.Donor{FirstNames: "c", LastName: "d"},
 			Type:     actor.LpaTypePropertyAndAffairs,
@@ -432,7 +432,7 @@ func TestPostProvideCertificateWhenValidationErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.ResolvedLpa{SignedAt: now}, nil)
+		Return(&lpastore.Lpa{SignedAt: now}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().

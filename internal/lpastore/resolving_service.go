@@ -13,7 +13,7 @@ type DonorStore interface {
 }
 
 type LpaClient interface {
-	Lpa(ctx context.Context, lpaUID string) (*ResolvedLpa, error)
+	Lpa(ctx context.Context, lpaUID string) (*Lpa, error)
 }
 
 // A ResolvingService wraps a Client so that an Lpa can be retrieved without
@@ -27,7 +27,7 @@ func NewResolvingService(donorStore DonorStore, client LpaClient) *ResolvingServ
 	return &ResolvingService{donorStore: donorStore, client: client}
 }
 
-func (s *ResolvingService) Get(ctx context.Context) (*ResolvedLpa, error) {
+func (s *ResolvingService) Get(ctx context.Context) (*Lpa, error) {
 	donor, err := s.donorStore.GetAny(ctx)
 	if err != nil {
 		return nil, err

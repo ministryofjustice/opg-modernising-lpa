@@ -15,8 +15,8 @@ import (
 func TestResolvingServiceGet(t *testing.T) {
 	testcases := map[string]struct {
 		donor    *actor.DonorProvidedDetails
-		resolved *ResolvedLpa
-		expected *ResolvedLpa
+		resolved *Lpa
+		expected *Lpa
 	}{
 		"digital with all true": {
 			donor: &actor.DonorProvidedDetails{
@@ -34,8 +34,8 @@ func TestResolvingServiceGet(t *testing.T) {
 					OK: true,
 				},
 			},
-			resolved: &ResolvedLpa{LpaID: "1"},
-			expected: &ResolvedLpa{
+			resolved: &Lpa{LpaID: "1"},
+			expected: &Lpa{
 				LpaID:                  "1",
 				LpaUID:                 "M-1111",
 				DonorIdentityConfirmed: true,
@@ -53,8 +53,8 @@ func TestResolvingServiceGet(t *testing.T) {
 				LpaID:  "1",
 				LpaUID: "M-1111",
 			},
-			resolved: &ResolvedLpa{LpaID: "1"},
-			expected: &ResolvedLpa{
+			resolved: &Lpa{LpaID: "1"},
+			expected: &Lpa{
 				LpaID:  "1",
 				LpaUID: "M-1111",
 			},
@@ -65,8 +65,8 @@ func TestResolvingServiceGet(t *testing.T) {
 				LpaID:  "1",
 				LpaUID: "M-1111",
 			},
-			resolved: &ResolvedLpa{LpaID: "1"},
-			expected: &ResolvedLpa{
+			resolved: &Lpa{LpaID: "1"},
+			expected: &Lpa{
 				LpaID:                  "1",
 				LpaUID:                 "M-1111",
 				DonorIdentityConfirmed: true,

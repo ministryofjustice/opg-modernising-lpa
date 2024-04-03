@@ -16,7 +16,7 @@ func TestGetLpaProgress(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	resolvedLpa := &lpastore.ResolvedLpa{LpaUID: "lpa-uid"}
+	resolvedLpa := &lpastore.Lpa{LpaUID: "lpa-uid"}
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
@@ -74,7 +74,7 @@ func TestGetLpaProgressWhenCertificateProviderStoreErrors(t *testing.T) {
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(r.Context(), "lpa-uid").
-		Return(&lpastore.ResolvedLpa{}, nil)
+		Return(&lpastore.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
@@ -92,7 +92,7 @@ func TestGetLpaProgressWhenAttorneyStoreErrors(t *testing.T) {
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(r.Context(), "lpa-uid").
-		Return(&lpastore.ResolvedLpa{}, nil)
+		Return(&lpastore.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
@@ -115,7 +115,7 @@ func TestGetLpaProgressOnTemplateError(t *testing.T) {
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(r.Context(), "lpa-uid").
-		Return(&lpastore.ResolvedLpa{}, nil)
+		Return(&lpastore.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().

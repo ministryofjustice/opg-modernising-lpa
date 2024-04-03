@@ -13,7 +13,7 @@ import (
 type readTheLpaData struct {
 	App    page.AppData
 	Errors validation.List
-	Lpa    *lpastore.ResolvedLpa
+	Lpa    *lpastore.Lpa
 }
 
 func ReadTheLpa(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, attorneyStore AttorneyStore) Handler {

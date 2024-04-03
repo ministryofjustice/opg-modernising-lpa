@@ -19,17 +19,17 @@ func TestGetConfirmYourDetails(t *testing.T) {
 
 	testcases := map[string]struct {
 		appData page.AppData
-		donor   *lpastore.ResolvedLpa
+		donor   *lpastore.Lpa
 		data    *confirmYourDetailsData
 	}{
 		"attorney": {
 			appData: testAppData,
-			donor: &lpastore.ResolvedLpa{
+			donor: &lpastore.Lpa{
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid, FirstNames: "John"}}},
 			},
 			data: &confirmYourDetailsData{
 				App: testAppData,
-				Lpa: &lpastore.ResolvedLpa{
+				Lpa: &lpastore.Lpa{
 					Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid, FirstNames: "John"}}},
 				},
 				Attorney:                actor.Attorney{UID: uid, FirstNames: "John"},
@@ -38,12 +38,12 @@ func TestGetConfirmYourDetails(t *testing.T) {
 		},
 		"trust corporation": {
 			appData: testTrustCorporationAppData,
-			donor: &lpastore.ResolvedLpa{
+			donor: &lpastore.Lpa{
 				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "company"}},
 			},
 			data: &confirmYourDetailsData{
 				App: testTrustCorporationAppData,
-				Lpa: &lpastore.ResolvedLpa{
+				Lpa: &lpastore.Lpa{
 					Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "company"}},
 				},
 				TrustCorporation:        actor.TrustCorporation{Name: "company"},
@@ -80,7 +80,7 @@ func TestGetConfirmYourDetailsWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &lpastore.ResolvedLpa{}
+	donor := &lpastore.Lpa{}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -99,7 +99,7 @@ func TestGetConfirmYourDetailsWhenTemplateErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.ResolvedLpa{}, nil)
+		Return(&lpastore.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().

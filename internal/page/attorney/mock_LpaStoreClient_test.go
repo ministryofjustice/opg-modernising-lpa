@@ -26,7 +26,7 @@ func (_m *mockLpaStoreClient) EXPECT() *mockLpaStoreClient_Expecter {
 }
 
 // SendAttorney provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockLpaStoreClient) SendAttorney(_a0 context.Context, _a1 *lpastore.ResolvedLpa, _a2 *actor.AttorneyProvidedDetails) error {
+func (_m *mockLpaStoreClient) SendAttorney(_a0 context.Context, _a1 *lpastore.Lpa, _a2 *actor.AttorneyProvidedDetails) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	if len(ret) == 0 {
@@ -34,7 +34,7 @@ func (_m *mockLpaStoreClient) SendAttorney(_a0 context.Context, _a1 *lpastore.Re
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *lpastore.ResolvedLpa, *actor.AttorneyProvidedDetails) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *lpastore.Lpa, *actor.AttorneyProvidedDetails) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
@@ -56,9 +56,9 @@ func (_e *mockLpaStoreClient_Expecter) SendAttorney(_a0 interface{}, _a1 interfa
 	return &mockLpaStoreClient_SendAttorney_Call{Call: _e.mock.On("SendAttorney", _a0, _a1, _a2)}
 }
 
-func (_c *mockLpaStoreClient_SendAttorney_Call) Run(run func(_a0 context.Context, _a1 *lpastore.ResolvedLpa, _a2 *actor.AttorneyProvidedDetails)) *mockLpaStoreClient_SendAttorney_Call {
+func (_c *mockLpaStoreClient_SendAttorney_Call) Run(run func(_a0 context.Context, _a1 *lpastore.Lpa, _a2 *actor.AttorneyProvidedDetails)) *mockLpaStoreClient_SendAttorney_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*lpastore.ResolvedLpa), args[2].(*actor.AttorneyProvidedDetails))
+		run(args[0].(context.Context), args[1].(*lpastore.Lpa), args[2].(*actor.AttorneyProvidedDetails))
 	})
 	return _c
 }
@@ -68,7 +68,7 @@ func (_c *mockLpaStoreClient_SendAttorney_Call) Return(_a0 error) *mockLpaStoreC
 	return _c
 }
 
-func (_c *mockLpaStoreClient_SendAttorney_Call) RunAndReturn(run func(context.Context, *lpastore.ResolvedLpa, *actor.AttorneyProvidedDetails) error) *mockLpaStoreClient_SendAttorney_Call {
+func (_c *mockLpaStoreClient_SendAttorney_Call) RunAndReturn(run func(context.Context, *lpastore.Lpa, *actor.AttorneyProvidedDetails) error) *mockLpaStoreClient_SendAttorney_Call {
 	_c.Call.Return(run)
 	return _c
 }

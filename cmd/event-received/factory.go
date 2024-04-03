@@ -28,7 +28,7 @@ type LambdaClient interface {
 
 type LpaStoreClient interface {
 	SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails) error
-	Lpa(ctx context.Context, uid string) (*lpastore.ResolvedLpa, error)
+	Lpa(ctx context.Context, uid string) (*lpastore.Lpa, error)
 }
 
 type SecretsClient interface {
@@ -38,7 +38,7 @@ type SecretsClient interface {
 type ShareCodeSender interface {
 	SendCertificateProviderInvite(context.Context, page.AppData, page.CertificateProviderInvite) error
 	SendCertificateProviderPrompt(context.Context, page.AppData, *actor.DonorProvidedDetails) error
-	SendAttorneys(context.Context, page.AppData, *lpastore.ResolvedLpa) error
+	SendAttorneys(context.Context, page.AppData, *lpastore.Lpa) error
 }
 
 type UidStore interface {

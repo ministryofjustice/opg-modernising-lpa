@@ -139,7 +139,7 @@ type DashboardStore interface {
 
 type LpaStoreClient interface {
 	SendLpa(ctx context.Context, details *actor.DonorProvidedDetails) error
-	Lpa(ctx context.Context, lpaUID string) (*lpastore.ResolvedLpa, error)
+	Lpa(ctx context.Context, lpaUID string) (*lpastore.Lpa, error)
 }
 
 type ShareCodeStore interface {
@@ -150,7 +150,7 @@ type ShareCodeStore interface {
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type ProgressTracker interface {
-	Progress(donor *lpastore.ResolvedLpa, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) page.Progress
+	Progress(donor *lpastore.Lpa, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) page.Progress
 }
 
 func Register(
