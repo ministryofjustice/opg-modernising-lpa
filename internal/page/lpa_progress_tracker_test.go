@@ -7,7 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -51,14 +51,14 @@ func TestProgressTrackerProgress(t *testing.T) {
 	}
 
 	testCases := map[string]struct {
-		donor               *actor.DonorProvidedDetails
+		donor               *lpastore.Lpa
 		certificateProvider *actor.CertificateProviderProvidedDetails
 		attorneys           []*actor.AttorneyProvidedDetails
 		expectedProgress    func() Progress
 		expectedLocalizer   func() *mockLocalizer
 	}{
 		"initial state": {
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.Lpa{
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{},
@@ -68,7 +68,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"initial state - with certificate provider name": {
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.Lpa{
 				CertificateProvider: actor.CertificateProvider{FirstNames: "A", LastName: "B"},
 				Attorneys:           actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 			},
@@ -103,7 +103,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 			},
 		},
 		"lpa signed": {
-			donor: &actor.DonorProvidedDetails{
+			donor: &lpastore.Lpa{
 				Donor:     actor.Donor{FirstNames: "a", LastName: "b"},
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 				SignedAt:  lpaSignedAt,
@@ -119,8 +119,8 @@ func TestProgressTrackerProgress(t *testing.T) {
 			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"certificate provider signed": {
-			donor: &actor.DonorProvidedDetails{
-				Tasks:     actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
+			donor: &lpastore.Lpa{
+				Paid:      true,
 				Donor:     actor.Donor{FirstNames: "a", LastName: "b"},
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 				SignedAt:  lpaSignedAt,
@@ -137,8 +137,8 @@ func TestProgressTrackerProgress(t *testing.T) {
 			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"attorneys signed": {
-			donor: &actor.DonorProvidedDetails{
-				Tasks:     actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
+			donor: &lpastore.Lpa{
+				Paid:      true,
 				Donor:     actor.Donor{FirstNames: "a", LastName: "b"},
 				SignedAt:  lpaSignedAt,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}, {UID: uid2}}},
@@ -182,12 +182,12 @@ func TestProgressTrackerProgress(t *testing.T) {
 			},
 		},
 		"submitted": {
-			donor: &actor.DonorProvidedDetails{
-				Tasks:       actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
-				Donor:       actor.Donor{FirstNames: "a", LastName: "b"},
-				SignedAt:    lpaSignedAt,
-				Attorneys:   actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}}},
-				SubmittedAt: lpaSignedAt.Add(time.Hour),
+			donor: &lpastore.Lpa{
+				Paid:      true,
+				Donor:     actor.Donor{FirstNames: "a", LastName: "b"},
+				SignedAt:  lpaSignedAt,
+				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}}},
+				Submitted: true,
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
 			attorneys: []*actor.AttorneyProvidedDetails{
@@ -206,13 +206,13 @@ func TestProgressTrackerProgress(t *testing.T) {
 			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"registered": {
-			donor: &actor.DonorProvidedDetails{
-				Tasks:        actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
+			donor: &lpastore.Lpa{
+				Paid:         true,
 				Donor:        actor.Donor{FirstNames: "a", LastName: "b"},
 				SignedAt:     lpaSignedAt,
 				Attorneys:    actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}}},
-				SubmittedAt:  lpaSignedAt.Add(time.Hour),
-				RegisteredAt: lpaSignedAt.Add(2 * time.Hour),
+				Submitted:    true,
+				RegisteredAt: date.FromTime(lpaSignedAt),
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
 			attorneys: []*actor.AttorneyProvidedDetails{
@@ -297,17 +297,17 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 	}
 
 	testCases := map[string]struct {
-		donor               *actor.DonorProvidedDetails
+		donor               *lpastore.Lpa
 		certificateProvider *actor.CertificateProviderProvidedDetails
 		attorneys           []*actor.AttorneyProvidedDetails
 		expectedProgress    func() Progress
 		expectedLocalizer   func() *mockLocalizer
 	}{
 		"initial state": {
-			donor: &actor.DonorProvidedDetails{
-				SK:        "ORGANISATION#123",
-				Donor:     actor.Donor{FirstNames: "a", LastName: "b"},
-				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
+			donor: &lpastore.Lpa{
+				IsOrganisationDonor: true,
+				Donor:               actor.Donor{FirstNames: "a", LastName: "b"},
+				Attorneys:           actor.Attorneys{Attorneys: []actor.Attorney{{}}},
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{},
 			expectedProgress: func() Progress {
@@ -316,11 +316,11 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"paid": {
-			donor: &actor.DonorProvidedDetails{
-				SK:        "ORGANISATION#123",
-				Donor:     actor.Donor{FirstNames: "a", LastName: "b"},
-				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
-				Tasks:     actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
+			donor: &lpastore.Lpa{
+				IsOrganisationDonor: true,
+				Donor:               actor.Donor{FirstNames: "a", LastName: "b"},
+				Attorneys:           actor.Attorneys{Attorneys: []actor.Attorney{{}}},
+				Paid:                true,
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{},
 			expectedProgress: func() Progress {
@@ -333,12 +333,12 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"confirmed ID": {
-			donor: &actor.DonorProvidedDetails{
-				SK:                    "ORGANISATION#123",
-				Donor:                 actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
-				DonorIdentityUserData: identity.UserData{OK: true, FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
-				Attorneys:             actor.Attorneys{Attorneys: []actor.Attorney{{}}},
-				Tasks:                 actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
+			donor: &lpastore.Lpa{
+				IsOrganisationDonor:    true,
+				Donor:                  actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
+				DonorIdentityConfirmed: true,
+				Attorneys:              actor.Attorneys{Attorneys: []actor.Attorney{{}}},
+				Paid:                   true,
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{},
 			expectedProgress: func() Progress {
@@ -352,13 +352,13 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"donor signed": {
-			donor: &actor.DonorProvidedDetails{
-				SK:                    "ORGANISATION#123",
-				Donor:                 actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
-				DonorIdentityUserData: identity.UserData{OK: true, FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
-				Attorneys:             actor.Attorneys{Attorneys: []actor.Attorney{{}}},
-				Tasks:                 actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
-				SignedAt:              lpaSignedAt,
+			donor: &lpastore.Lpa{
+				IsOrganisationDonor:    true,
+				Donor:                  actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
+				DonorIdentityConfirmed: true,
+				Attorneys:              actor.Attorneys{Attorneys: []actor.Attorney{{}}},
+				Paid:                   true,
+				SignedAt:               lpaSignedAt,
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{},
 			expectedProgress: func() Progress {
@@ -373,13 +373,13 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"certificate provider signed": {
-			donor: &actor.DonorProvidedDetails{
-				SK:                    "ORGANISATION#123",
-				Donor:                 actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
-				DonorIdentityUserData: identity.UserData{OK: true, FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
-				Attorneys:             actor.Attorneys{Attorneys: []actor.Attorney{{}}},
-				Tasks:                 actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
-				SignedAt:              lpaSignedAt,
+			donor: &lpastore.Lpa{
+				IsOrganisationDonor:    true,
+				Donor:                  actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
+				DonorIdentityConfirmed: true,
+				Attorneys:              actor.Attorneys{Attorneys: []actor.Attorney{{}}},
+				Paid:                   true,
+				SignedAt:               lpaSignedAt,
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
 			expectedProgress: func() Progress {
@@ -395,13 +395,13 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"attorneys signed": {
-			donor: &actor.DonorProvidedDetails{
-				SK:                    "ORGANISATION#123",
-				Donor:                 actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
-				DonorIdentityUserData: identity.UserData{OK: true, FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
-				Attorneys:             actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
-				Tasks:                 actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
-				SignedAt:              lpaSignedAt,
+			donor: &lpastore.Lpa{
+				IsOrganisationDonor:    true,
+				Donor:                  actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
+				DonorIdentityConfirmed: true,
+				Attorneys:              actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
+				Paid:                   true,
+				SignedAt:               lpaSignedAt,
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
 			attorneys: []*actor.AttorneyProvidedDetails{
@@ -421,14 +421,14 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"submitted": {
-			donor: &actor.DonorProvidedDetails{
-				SK:                    "ORGANISATION#123",
-				Donor:                 actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
-				DonorIdentityUserData: identity.UserData{OK: true, FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
-				Attorneys:             actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
-				Tasks:                 actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
-				SignedAt:              lpaSignedAt,
-				SubmittedAt:           lpaSignedAt.Add(time.Hour),
+			donor: &lpastore.Lpa{
+				IsOrganisationDonor:    true,
+				Donor:                  actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
+				DonorIdentityConfirmed: true,
+				Attorneys:              actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
+				Paid:                   true,
+				SignedAt:               lpaSignedAt,
+				Submitted:              true,
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
 			attorneys: []*actor.AttorneyProvidedDetails{
@@ -449,15 +449,15 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"registered": {
-			donor: &actor.DonorProvidedDetails{
-				SK:                    "ORGANISATION#123",
-				Donor:                 actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
-				DonorIdentityUserData: identity.UserData{OK: true, FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
-				Attorneys:             actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
-				Tasks:                 actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
-				SignedAt:              lpaSignedAt,
-				SubmittedAt:           lpaSignedAt.Add(time.Hour),
-				RegisteredAt:          lpaSignedAt.Add(2 * time.Hour),
+			donor: &lpastore.Lpa{
+				IsOrganisationDonor:    true,
+				Donor:                  actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dateOfBirth},
+				DonorIdentityConfirmed: true,
+				Attorneys:              actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
+				Paid:                   true,
+				SignedAt:               lpaSignedAt,
+				Submitted:              true,
+				RegisteredAt:           date.FromTime(lpaSignedAt),
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
 			attorneys: []*actor.AttorneyProvidedDetails{

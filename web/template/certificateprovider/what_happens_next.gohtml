@@ -7,7 +7,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "whatHappensNext" }}</h1>
 
-      {{ trFormatHtml .App "whatHappensNextContent" "DonorFirstNames" .Donor.Donor.FirstNames "DonorFullName" .Donor.Donor.FullName }}
+      {{ trFormatHtml .App "whatHappensNextContent" "DonorFirstNames" .Lpa.Donor.FirstNames "DonorFullName" .Lpa.Donor.FullName }}
 
       <p class="govuk-inset-text">
         {{ tr .App "ifYouHaveConcerns" }}

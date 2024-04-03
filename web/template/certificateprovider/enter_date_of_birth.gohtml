@@ -8,7 +8,7 @@
       <form novalidate method="post">
         <h1 class="govuk-heading-xl">{{ tr .App "enterYourDateOfBirth" }}</h1>
 
-        {{ if .Donor.CertificateProvider.Relationship.IsProfessionally }}
+        {{ if .Lpa.CertificateProvider.Relationship.IsProfessionally }}
           <p class="govuk-body">{{ tr .App "thisIsRequiredToCheckAndProtect" }}</p>
         {{ end }}
 
@@ -16,11 +16,11 @@
 
         {{ template "dob-warning" . }}
 
-        {{ if .Donor.CertificateProvider.Relationship.IsProfessionally }}
+        {{ if .Lpa.CertificateProvider.Relationship.IsProfessionally }}
           <div class="govuk-inset-text">{{ tr .App "yourDateOfBirthWillNotBeShown" }}</div>
         {{ end }}
 
-        {{ if .Donor.CertificateProvider.Relationship.IsPersonally }}
+        {{ if .Lpa.CertificateProvider.Relationship.IsPersonally }}
           {{ template "warning" (content .App "18OrOverWarning") }}
         {{ end }}
 

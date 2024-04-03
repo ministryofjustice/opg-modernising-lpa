@@ -17,20 +17,20 @@ func TestDashboardStoreGetAll(t *testing.T) {
 	sessionID := "an-id"
 	aTime := time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)
 
-	lpa0 := &actor.DonorProvidedDetails{LpaID: "0", LpaUID: "M", UpdatedAt: aTime, SK: donorKey(sessionID), PK: lpaKey("0")}
-	lpa123 := &actor.DonorProvidedDetails{LpaID: "123", LpaUID: "M", UpdatedAt: aTime, SK: donorKey(sessionID), PK: lpaKey("123")}
-	lpa456 := &actor.DonorProvidedDetails{LpaID: "456", LpaUID: "M", SK: donorKey("another-id"), PK: lpaKey("456")}
+	lpa0 := &actor.DonorProvidedDetails{LpaID: "0", LpaUID: "M", UpdatedAt: aTime, SK: dynamo.DonorKey(sessionID), PK: dynamo.LpaKey("0")}
+	lpa123 := &actor.DonorProvidedDetails{LpaID: "123", LpaUID: "M", UpdatedAt: aTime, SK: dynamo.DonorKey(sessionID), PK: dynamo.LpaKey("123")}
+	lpa456 := &actor.DonorProvidedDetails{LpaID: "456", LpaUID: "M", SK: dynamo.DonorKey("another-id"), PK: dynamo.LpaKey("456")}
 	lpa456CpProvidedDetails := &actor.CertificateProviderProvidedDetails{
-		LpaID: "456", Tasks: actor.CertificateProviderTasks{ConfirmYourDetails: actor.TaskCompleted}, SK: certificateProviderKey(sessionID),
+		LpaID: "456", Tasks: actor.CertificateProviderTasks{ConfirmYourDetails: actor.TaskCompleted}, SK: dynamo.CertificateProviderKey(sessionID),
 	}
-	lpa789 := &actor.DonorProvidedDetails{LpaID: "789", LpaUID: "M", SK: donorKey("different-id"), PK: lpaKey("789")}
+	lpa789 := &actor.DonorProvidedDetails{LpaID: "789", LpaUID: "M", SK: dynamo.DonorKey("different-id"), PK: dynamo.LpaKey("789")}
 	lpa789AttorneyProvidedDetails := &actor.AttorneyProvidedDetails{
-		LpaID: "789", Tasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskInProgress}, SK: attorneyKey(sessionID),
+		LpaID: "789", Tasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskInProgress}, SK: dynamo.AttorneyKey(sessionID),
 	}
-	lpaNoUID := &actor.DonorProvidedDetails{LpaID: "999", UpdatedAt: aTime, SK: donorKey(sessionID), PK: lpaKey("0")}
-	lpaSignedByCp := &actor.DonorProvidedDetails{LpaID: "signed-by-cp", LpaUID: "M", SK: donorKey("another-id"), PK: lpaKey("signed-by-cp")}
+	lpaNoUID := &actor.DonorProvidedDetails{LpaID: "999", UpdatedAt: aTime, SK: dynamo.DonorKey(sessionID), PK: dynamo.LpaKey("0")}
+	lpaSignedByCp := &actor.DonorProvidedDetails{LpaID: "signed-by-cp", LpaUID: "M", SK: dynamo.DonorKey("another-id"), PK: dynamo.LpaKey("signed-by-cp")}
 	lpaSignedByCpProvidedDetails := &actor.CertificateProviderProvidedDetails{
-		LpaID: "signed-by-cp", SK: certificateProviderKey(sessionID), Certificate: actor.Certificate{AgreeToStatement: true},
+		LpaID: "signed-by-cp", SK: dynamo.CertificateProviderKey(sessionID), Certificate: actor.Certificate{AgreeToStatement: true},
 	}
 
 	testCases := map[string][]map[string]types.AttributeValue{
@@ -99,10 +99,10 @@ func TestDashboardStoreGetAllSubmittedForAttorneys(t *testing.T) {
 	sessionID := "an-id"
 	aTime := time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)
 
-	lpaSubmitted := &actor.DonorProvidedDetails{LpaID: "submitted", LpaUID: "M", SK: donorKey("another-id"), PK: lpaKey("submitted"), SubmittedAt: aTime}
-	lpaSubmittedAttorneyDetails := &actor.AttorneyProvidedDetails{LpaID: "submitted", SK: attorneyKey(sessionID)}
-	lpaSubmittedReplacement := &actor.DonorProvidedDetails{LpaID: "submitted-replacement", LpaUID: "M", SK: donorKey("another-id"), PK: lpaKey("submitted-replacement"), SubmittedAt: aTime}
-	lpaSubmittedReplacementAttorneyDetails := &actor.AttorneyProvidedDetails{LpaID: "submitted-replacement", SK: attorneyKey(sessionID), IsReplacement: true}
+	lpaSubmitted := &actor.DonorProvidedDetails{LpaID: "submitted", LpaUID: "M", SK: dynamo.DonorKey("another-id"), PK: dynamo.LpaKey("submitted"), SubmittedAt: aTime}
+	lpaSubmittedAttorneyDetails := &actor.AttorneyProvidedDetails{LpaID: "submitted", SK: dynamo.AttorneyKey(sessionID)}
+	lpaSubmittedReplacement := &actor.DonorProvidedDetails{LpaID: "submitted-replacement", LpaUID: "M", SK: dynamo.DonorKey("another-id"), PK: dynamo.LpaKey("submitted-replacement"), SubmittedAt: aTime}
+	lpaSubmittedReplacementAttorneyDetails := &actor.AttorneyProvidedDetails{LpaID: "submitted-replacement", SK: dynamo.AttorneyKey(sessionID), IsReplacement: true}
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: sessionID})
 
 	dynamoClient := newMockDynamoClient(t)
@@ -232,6 +232,6 @@ func TestDashboardStoreSubExistsWhenDynamoError(t *testing.T) {
 }
 
 func TestLpaLinkUserSub(t *testing.T) {
-	assert.Equal(t, "a-sub", lpaLink{SK: subKey("a-sub")}.UserSub())
+	assert.Equal(t, "a-sub", lpaLink{SK: dynamo.SubKey("a-sub")}.UserSub())
 	assert.Equal(t, "", lpaLink{}.UserSub())
 }

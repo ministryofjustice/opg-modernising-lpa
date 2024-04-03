@@ -18,8 +18,8 @@
 
       <h2 class="govuk-heading-m">{{ tr .App "lpaDecisions"}}</h2>
 
-      {{ template "lpa-decisions" . }}
-      {{ template "people-named-on-lpa" . }}
+      {{ template "lpa-decisions" (lpaDecisions .App .Donor (not .Donor.Tasks.ConfirmYourIdentityAndSign.Completed)) }}
+      {{ template "people-named-on-lpa" (lpaDecisions .App .Donor (not .Donor.Tasks.ConfirmYourIdentityAndSign.Completed)) }}
     </div>
   </div>
 {{ end }}
