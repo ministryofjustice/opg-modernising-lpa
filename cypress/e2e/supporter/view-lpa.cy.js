@@ -4,7 +4,7 @@ describe('View LPA', () => {
     cy.checkA11yApp();
   });
 
-  it.only('can continue making an LPA', () => {
+  it('can continue making an LPA', () => {
     cy.contains('a', 'M-FAKE').click()
 
     cy.url().should('contain', '/view-lpa');
