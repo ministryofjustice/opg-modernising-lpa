@@ -123,6 +123,7 @@ func TestClientServiceContract(t *testing.T) {
 							"firstNames": matchers.String("Charles"),
 							"lastName":   matchers.String("Certificate"),
 							"email":      matchers.String("charles@example.com"),
+							"phone":      matchers.String("0700009000"),
 							"address": matchers.Like(map[string]any{
 								"line1":    matchers.String("a-line-1"),
 								"line2":    matchers.String("a-line-2"),
@@ -194,6 +195,7 @@ func TestClientServiceContract(t *testing.T) {
 					FirstNames: "Charles",
 					LastName:   "Certificate",
 					Email:      "charles@example.com",
+					Mobile:     "0700009000",
 					Address:    address,
 					CarryOutBy: actor.Online,
 				},
