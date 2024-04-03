@@ -40,7 +40,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.ResolvedLpa{CertificateProvider: actor.CertificateProvider{FirstNames: "John", LastName: "Doe"}}, nil)
+		Return(&lpastore.Lpa{CertificateProvider: actor.CertificateProvider{FirstNames: "John", LastName: "Doe"}}, nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -219,7 +219,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 			lpaStoreResolvingService.EXPECT().
 				Get(r.Context()).
-				Return(&lpastore.ResolvedLpa{CertificateProvider: actor.CertificateProvider{}}, nil)
+				Return(&lpastore.Lpa{CertificateProvider: actor.CertificateProvider{}}, nil)
 
 			sessionStore := tc.sessionStore(t)
 			oneLoginClient := tc.oneLoginClient(t)
@@ -260,7 +260,7 @@ func TestGetIdentityWithOneLoginCallbackWhenGetLpaStoreResolvingServiceError(t *
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.ResolvedLpa{CertificateProvider: actor.CertificateProvider{}}, expectedError)
+		Return(&lpastore.Lpa{CertificateProvider: actor.CertificateProvider{}}, expectedError)
 
 	err := IdentityWithOneLoginCallback(nil, nil, nil, certificateProviderStore, lpaStoreResolvingService)(testAppData, w, r)
 
@@ -283,7 +283,7 @@ func TestGetIdentityWithOneLoginCallbackWhenPutCertificateProviderStoreError(t *
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.ResolvedLpa{CertificateProvider: actor.CertificateProvider{}}, nil)
+		Return(&lpastore.Lpa{CertificateProvider: actor.CertificateProvider{}}, nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -322,7 +322,7 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.ResolvedLpa{CertificateProvider: actor.CertificateProvider{FirstNames: "first-names", LastName: "last-name"}}, nil)
+		Return(&lpastore.Lpa{CertificateProvider: actor.CertificateProvider{FirstNames: "first-names", LastName: "last-name"}}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -356,7 +356,7 @@ func TestPostIdentityWithOneLoginCallback(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.ResolvedLpa{CertificateProvider: actor.CertificateProvider{}}, nil)
+		Return(&lpastore.Lpa{CertificateProvider: actor.CertificateProvider{}}, nil)
 
 	err := IdentityWithOneLoginCallback(nil, nil, nil, certificateProviderStore, lpaStoreResolvingService)(testAppData, w, r)
 	resp := w.Result()
@@ -378,7 +378,7 @@ func TestPostIdentityWithOneLoginCallbackNotConfirmed(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.ResolvedLpa{CertificateProvider: actor.CertificateProvider{}}, nil)
+		Return(&lpastore.Lpa{CertificateProvider: actor.CertificateProvider{}}, nil)
 
 	err := IdentityWithOneLoginCallback(nil, nil, nil, certificateProviderStore, lpaStoreResolvingService)(testAppData, w, r)
 	resp := w.Result()

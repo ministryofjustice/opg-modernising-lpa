@@ -25,7 +25,7 @@ func (_m *mockProgressTracker) EXPECT() *mockProgressTracker_Expecter {
 }
 
 // Progress provides a mock function with given fields: donor, certificateProvider, attorneys
-func (_m *mockProgressTracker) Progress(donor *lpastore.ResolvedLpa, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) page.Progress {
+func (_m *mockProgressTracker) Progress(donor *lpastore.Lpa, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) page.Progress {
 	ret := _m.Called(donor, certificateProvider, attorneys)
 
 	if len(ret) == 0 {
@@ -33,7 +33,7 @@ func (_m *mockProgressTracker) Progress(donor *lpastore.ResolvedLpa, certificate
 	}
 
 	var r0 page.Progress
-	if rf, ok := ret.Get(0).(func(*lpastore.ResolvedLpa, *actor.CertificateProviderProvidedDetails, []*actor.AttorneyProvidedDetails) page.Progress); ok {
+	if rf, ok := ret.Get(0).(func(*lpastore.Lpa, *actor.CertificateProviderProvidedDetails, []*actor.AttorneyProvidedDetails) page.Progress); ok {
 		r0 = rf(donor, certificateProvider, attorneys)
 	} else {
 		r0 = ret.Get(0).(page.Progress)
@@ -55,9 +55,9 @@ func (_e *mockProgressTracker_Expecter) Progress(donor interface{}, certificateP
 	return &mockProgressTracker_Progress_Call{Call: _e.mock.On("Progress", donor, certificateProvider, attorneys)}
 }
 
-func (_c *mockProgressTracker_Progress_Call) Run(run func(donor *lpastore.ResolvedLpa, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails)) *mockProgressTracker_Progress_Call {
+func (_c *mockProgressTracker_Progress_Call) Run(run func(donor *lpastore.Lpa, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails)) *mockProgressTracker_Progress_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*lpastore.ResolvedLpa), args[1].(*actor.CertificateProviderProvidedDetails), args[2].([]*actor.AttorneyProvidedDetails))
+		run(args[0].(*lpastore.Lpa), args[1].(*actor.CertificateProviderProvidedDetails), args[2].([]*actor.AttorneyProvidedDetails))
 	})
 	return _c
 }
@@ -67,7 +67,7 @@ func (_c *mockProgressTracker_Progress_Call) Return(_a0 page.Progress) *mockProg
 	return _c
 }
 
-func (_c *mockProgressTracker_Progress_Call) RunAndReturn(run func(*lpastore.ResolvedLpa, *actor.CertificateProviderProvidedDetails, []*actor.AttorneyProvidedDetails) page.Progress) *mockProgressTracker_Progress_Call {
+func (_c *mockProgressTracker_Progress_Call) RunAndReturn(run func(*lpastore.Lpa, *actor.CertificateProviderProvidedDetails, []*actor.AttorneyProvidedDetails) page.Progress) *mockProgressTracker_Progress_Call {
 	_c.Call.Return(run)
 	return _c
 }

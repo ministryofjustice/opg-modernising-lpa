@@ -374,11 +374,11 @@ func TestClientLpa(t *testing.T) {
 	personToNotifyUID := actoruid.New()
 
 	testcases := map[string]struct {
-		donor *ResolvedLpa
+		donor *Lpa
 		json  string
 	}{
 		"minimal": {
-			donor: &ResolvedLpa{
+			donor: &Lpa{
 				LpaUID: "M-0000-1111-2222",
 				Type:   actor.LpaTypePropertyAndAffairs,
 				Donor: actor.Donor{
@@ -435,7 +435,7 @@ func TestClientLpa(t *testing.T) {
 }`,
 		},
 		"everything": {
-			donor: &ResolvedLpa{
+			donor: &Lpa{
 				LpaUID: "M-0000-1111-2222",
 				Type:   actor.LpaTypePersonalWelfare,
 				Donor: actor.Donor{
@@ -714,7 +714,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 	uid5 := actoruid.New()
 
 	testcases := map[string]struct {
-		lpa       *ResolvedLpa
+		lpa       *Lpa
 		attorneys []*actor.AttorneyProvidedDetails
 		expected  bool
 	}{
@@ -722,7 +722,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 			expected: false,
 		},
 		"need attorney to sign": {
-			lpa: &ResolvedLpa{
+			lpa: &Lpa{
 				SignedAt:             lpaSignedAt,
 				Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}, {UID: uid2}}},
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid3}}},
@@ -735,7 +735,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 			expected: false,
 		},
 		"need replacement attorney to sign": {
-			lpa: &ResolvedLpa{
+			lpa: &Lpa{
 				SignedAt:             lpaSignedAt,
 				Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}}},
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid3}, {UID: uid5}}},
@@ -748,7 +748,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 			expected: false,
 		},
 		"all attorneys signed": {
-			lpa: &ResolvedLpa{
+			lpa: &Lpa{
 				SignedAt:             lpaSignedAt,
 				Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}, {UID: uid2}}},
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid3}}},
@@ -761,7 +761,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 			expected: true,
 		},
 		"more attorneys signed": {
-			lpa: &ResolvedLpa{
+			lpa: &Lpa{
 				SignedAt:  lpaSignedAt,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}, {UID: uid2}}},
 			},
@@ -773,7 +773,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 			expected: true,
 		},
 		"waiting for attorney to re-sign": {
-			lpa: &ResolvedLpa{
+			lpa: &Lpa{
 				SignedAt:  lpaSignedAt,
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}, {UID: uid2}}},
 			},
@@ -784,7 +784,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 			expected: false,
 		},
 		"trust corporations not signed": {
-			lpa: &ResolvedLpa{
+			lpa: &Lpa{
 				SignedAt:             lpaSignedAt,
 				Attorneys:            actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
 				ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "r"}},
@@ -792,7 +792,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 			expected: false,
 		},
 		"replacement trust corporations not signed": {
-			lpa: &ResolvedLpa{
+			lpa: &Lpa{
 				SignedAt:             lpaSignedAt,
 				Attorneys:            actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
 				ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "r"}},
@@ -812,7 +812,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 			expected: false,
 		},
 		"trust corporations signed": {
-			lpa: &ResolvedLpa{
+			lpa: &Lpa{
 				SignedAt:             lpaSignedAt,
 				Attorneys:            actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
 				ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "r"}},

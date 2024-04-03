@@ -28,7 +28,7 @@ func (_m *mockShareCodeSender) EXPECT() *mockShareCodeSender_Expecter {
 }
 
 // SendAttorneys provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockShareCodeSender) SendAttorneys(_a0 context.Context, _a1 page.AppData, _a2 *lpastore.ResolvedLpa) error {
+func (_m *mockShareCodeSender) SendAttorneys(_a0 context.Context, _a1 page.AppData, _a2 *lpastore.Lpa) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	if len(ret) == 0 {
@@ -36,7 +36,7 @@ func (_m *mockShareCodeSender) SendAttorneys(_a0 context.Context, _a1 page.AppDa
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, page.AppData, *lpastore.ResolvedLpa) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, page.AppData, *lpastore.Lpa) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
@@ -58,9 +58,9 @@ func (_e *mockShareCodeSender_Expecter) SendAttorneys(_a0 interface{}, _a1 inter
 	return &mockShareCodeSender_SendAttorneys_Call{Call: _e.mock.On("SendAttorneys", _a0, _a1, _a2)}
 }
 
-func (_c *mockShareCodeSender_SendAttorneys_Call) Run(run func(_a0 context.Context, _a1 page.AppData, _a2 *lpastore.ResolvedLpa)) *mockShareCodeSender_SendAttorneys_Call {
+func (_c *mockShareCodeSender_SendAttorneys_Call) Run(run func(_a0 context.Context, _a1 page.AppData, _a2 *lpastore.Lpa)) *mockShareCodeSender_SendAttorneys_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(page.AppData), args[2].(*lpastore.ResolvedLpa))
+		run(args[0].(context.Context), args[1].(page.AppData), args[2].(*lpastore.Lpa))
 	})
 	return _c
 }
@@ -70,7 +70,7 @@ func (_c *mockShareCodeSender_SendAttorneys_Call) Return(_a0 error) *mockShareCo
 	return _c
 }
 
-func (_c *mockShareCodeSender_SendAttorneys_Call) RunAndReturn(run func(context.Context, page.AppData, *lpastore.ResolvedLpa) error) *mockShareCodeSender_SendAttorneys_Call {
+func (_c *mockShareCodeSender_SendAttorneys_Call) RunAndReturn(run func(context.Context, page.AppData, *lpastore.Lpa) error) *mockShareCodeSender_SendAttorneys_Call {
 	_c.Call.Return(run)
 	return _c
 }

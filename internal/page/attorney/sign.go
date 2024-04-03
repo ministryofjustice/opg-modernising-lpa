@@ -14,7 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-func canSign(ctx context.Context, certificateProviderStore CertificateProviderStore, donor *lpastore.ResolvedLpa) (bool, error) {
+func canSign(ctx context.Context, certificateProviderStore CertificateProviderStore, donor *lpastore.Lpa) (bool, error) {
 	ctx = page.ContextWithSessionData(ctx, &page.SessionData{LpaID: donor.LpaID})
 
 	certificateProvider, err := certificateProviderStore.GetAny(ctx)

@@ -18,7 +18,7 @@ type yourPreferredLanguageData struct {
 	Form      *form.LanguagePreferenceForm
 	Options   localize.LangOptions
 	FieldName string
-	Lpa       *lpastore.ResolvedLpa
+	Lpa       *lpastore.Lpa
 }
 
 func YourPreferredLanguage(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreResolvingService LpaStoreResolvingService) Handler {

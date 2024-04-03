@@ -17,7 +17,7 @@ func TestGetReadTheLpa(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &lpastore.ResolvedLpa{}
+	donor := &lpastore.Lpa{}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -40,7 +40,7 @@ func TestGetReadTheLpaWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &lpastore.ResolvedLpa{}
+	donor := &lpastore.Lpa{}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -59,7 +59,7 @@ func TestGetReadTheLpaWhenTemplateErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.ResolvedLpa{}, nil)
+		Return(&lpastore.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -78,7 +78,7 @@ func TestPostReadTheLpa(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.ResolvedLpa{
+		Return(&lpastore.Lpa{
 			LpaID:    "lpa-id",
 			SignedAt: time.Now(),
 			Paid:     true,
@@ -105,7 +105,7 @@ func TestPostReadTheLpa(t *testing.T) {
 }
 
 func TestPostReadTheLpaWhenNotReady(t *testing.T) {
-	testcases := map[string]*lpastore.ResolvedLpa{
+	testcases := map[string]*lpastore.Lpa{
 		"not submitted": {
 			LpaID: "lpa-id",
 			Paid:  true,
@@ -143,7 +143,7 @@ func TestPostReadTheLpaWithAttorneyWhenCertificateStoreGetErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.ResolvedLpa{
+		Return(&lpastore.Lpa{
 			LpaID:    "lpa-id",
 			SignedAt: time.Now(),
 			Paid:     true,
@@ -168,7 +168,7 @@ func TestPostReadTheLpaWithAttorneyWhenCertificateStorePutErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.ResolvedLpa{
+		Return(&lpastore.Lpa{
 			LpaID:    "lpa-id",
 			SignedAt: time.Now(),
 			Paid:     true,

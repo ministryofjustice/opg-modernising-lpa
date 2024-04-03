@@ -222,7 +222,7 @@ type lpaResponse struct {
 	UpdatedAt                                   date.Date                        `json:"updatedAt"`
 }
 
-type ResolvedLpa struct {
+type Lpa struct {
 	LpaID                                      string
 	LpaUID                                     string
 	RegisteredAt                               date.Date
@@ -250,7 +250,7 @@ type ResolvedLpa struct {
 
 // TODO: this will need removing once attorney signing is captured in the lpa
 // store, as this implementation will not work for paper attorneys
-func (l *ResolvedLpa) AllAttorneysSigned(attorneys []*actor.AttorneyProvidedDetails) bool {
+func (l *Lpa) AllAttorneysSigned(attorneys []*actor.AttorneyProvidedDetails) bool {
 	if l == nil || l.SignedAt.IsZero() || l.Attorneys.Len() == 0 {
 		return false
 	}
@@ -301,7 +301,7 @@ func (l *ResolvedLpa) AllAttorneysSigned(attorneys []*actor.AttorneyProvidedDeta
 	return true
 }
 
-func (l *lpaResponse) ToResolvedLpa() *ResolvedLpa {
+func (l *lpaResponse) ToResolvedLpa() *Lpa {
 	var attorneys, replacementAttorneys []actor.Attorney
 	for _, a := range l.Attorneys {
 		at := actor.Attorney{
@@ -352,7 +352,7 @@ func (l *lpaResponse) ToResolvedLpa() *ResolvedLpa {
 		confirmedAt = *v
 	}
 
-	return &ResolvedLpa{
+	return &Lpa{
 		LpaUID:       l.UID,
 		RegisteredAt: l.RegistrationDate,
 		UpdatedAt:    l.UpdatedAt,
@@ -402,7 +402,7 @@ func (l *lpaResponse) ToResolvedLpa() *ResolvedLpa {
 	}
 }
 
-func (c *Client) Lpa(ctx context.Context, lpaUID string) (*ResolvedLpa, error) {
+func (c *Client) Lpa(ctx context.Context, lpaUID string) (*Lpa, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/lpas/"+lpaUID, nil)
 	if err != nil {
 		return nil, err

@@ -470,3 +470,13 @@ func TestNotificationBanner(t *testing.T) {
 		Content: "content",
 	}, notificationBanner(app, "title", "content"))
 }
+
+func TestLpaDecisions(t *testing.T) {
+	app := page.AppData{SessionID: "abc"}
+
+	assert.Equal(t, lpaDecisionsData{
+		App:       app,
+		Lpa:       5,
+		CanChange: true,
+	}, lpaDecisions(app, 5, true))
+}

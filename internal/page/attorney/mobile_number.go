@@ -12,7 +12,7 @@ import (
 
 type mobileNumberData struct {
 	App    page.AppData
-	Donor  *lpastore.ResolvedLpa
+	Donor  *lpastore.Lpa
 	Form   *mobileNumberForm
 	Errors validation.List
 }

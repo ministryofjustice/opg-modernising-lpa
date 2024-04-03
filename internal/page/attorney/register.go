@@ -18,7 +18,7 @@ import (
 )
 
 type LpaStoreResolvingService interface {
-	Get(ctx context.Context) (*lpastore.ResolvedLpa, error)
+	Get(ctx context.Context) (*lpastore.Lpa, error)
 }
 
 type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, details *actor.AttorneyProvidedDetails) error
@@ -71,7 +71,7 @@ type DashboardStore interface {
 }
 
 type LpaStoreClient interface {
-	SendAttorney(context.Context, *lpastore.ResolvedLpa, *actor.AttorneyProvidedDetails) error
+	SendAttorney(context.Context, *lpastore.Lpa, *actor.AttorneyProvidedDetails) error
 }
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)

@@ -13,7 +13,7 @@ import (
 type guidanceData struct {
 	App                 page.AppData
 	Errors              validation.List
-	Lpa                 *lpastore.ResolvedLpa
+	Lpa                 *lpastore.Lpa
 	CertificateProvider *actor.CertificateProviderProvidedDetails
 }
 
