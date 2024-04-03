@@ -78,7 +78,7 @@ describe('Check the LPA', () => {
 
         cy.contains('a', 'Continue').click();
 
-        cy.url().should('contain', '/about-payment');
+        cy.url().should('contain', '/task-list');
       })
     })
 
@@ -98,7 +98,7 @@ describe('Check the LPA', () => {
 
         cy.contains('a', 'Continue').click();
 
-        cy.url().should('contain', '/about-payment');
+        cy.url().should('contain', '/task-list');
       })
     })
 
@@ -140,7 +140,7 @@ describe('Check the LPA', () => {
 
         cy.contains('a', 'Continue').click();
 
-        cy.url().should('contain', '/about-payment');
+        cy.url().should('contain', '/task-list');
       })
     })
 
@@ -160,7 +160,7 @@ describe('Check the LPA', () => {
 
         cy.contains('a', 'Continue').click();
 
-        cy.url().should('contain', '/about-payment');
+        cy.url().should('contain', '/task-list');
       })
     })
 
