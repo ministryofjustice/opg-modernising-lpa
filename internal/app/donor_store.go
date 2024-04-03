@@ -163,8 +163,13 @@ func (s *donorStore) GetAny(ctx context.Context) (*actor.DonorProvidedDetails, e
 		return nil, errors.New("donorStore.Get requires LpaID")
 	}
 
+	sk := dynamo.DonorKey("")
+	if data.OrganisationID != "" {
+		sk = dynamo.OrganisationKey("")
+	}
+
 	var donor *actor.DonorProvidedDetails
-	if err := s.dynamoClient.OneByPartialSK(ctx, dynamo.LpaKey(data.LpaID), "#DONOR#", &donor); err != nil {
+	if err := s.dynamoClient.OneByPartialSK(ctx, dynamo.LpaKey(data.LpaID), sk, &donor); err != nil {
 		return nil, err
 	}
 

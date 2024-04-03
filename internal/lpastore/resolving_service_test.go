@@ -102,6 +102,29 @@ func TestResolvingServiceGet(t *testing.T) {
 	}
 }
 
+func TestResolvingServiceGetWhenNotFound(t *testing.T) {
+	ctx := context.Background()
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		GetAny(ctx).
+		Return(&actor.DonorProvidedDetails{LpaID: "1", LpaUID: "M-1111"}, nil)
+
+	lpaClient := newMockLpaClient(t)
+	lpaClient.EXPECT().
+		Lpa(ctx, mock.Anything).
+		Return(nil, ErrNotFound)
+
+	service := NewResolvingService(donorStore, lpaClient)
+	lpa, err := service.Get(ctx)
+
+	assert.Equal(t, &Lpa{
+		LpaID:  "1",
+		LpaUID: "M-1111",
+	}, lpa)
+	assert.Nil(t, err)
+}
+
 func TestResolvingServiceGetWhenDonorStoreErrors(t *testing.T) {
 	ctx := context.Background()
 
