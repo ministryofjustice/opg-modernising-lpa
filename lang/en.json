@@ -266,7 +266,6 @@
     "lpaDetailsSavedContentOnSubsequentSubmissionCPCarryingOutRolePaper": "We’ve saved your changes and sent a text to your certificate provider, {{ .CertificateProviderFullName }}, to tell them that your LPA is ready for review. You should show them your LPA.",
     "lpaDetailsSavedContentOnSubsequentSubmissionCPCarryingOutRoleOnline": "We’ve saved your changes and sent a text to your certificate provider, {{ .CertificateProviderFullName }}, to tell them that they should review your LPA online.",
     "weveSentATextToCPContent": "<p class=\"govuk-body\">We’ve sent a text to {{ .CertificateProviderFirstName }} to tell them you’ve made an LPA. We’ve also given them a link to some online guidance about being a certificate provider.</p> <p class=\"govuk-body\">If {{ .CertificateProviderFirstName }} needs help viewing this online, you should show them the guidance for certificate providers on GOV.UK (opens in a new tab).</p>",
-    "youCanContinueToPay": "You can now continue to pay for your LPA.",
     "returnToDashboard": "Return to dashboard",
     "paymentReceivedHeader": "Payment received",
     "yourRefNumber": "Your reference number",

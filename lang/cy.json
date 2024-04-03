@@ -282,7 +282,6 @@
     "lpaDetailsSavedContentOnSubsequentSubmissionCPCarryingOutRolePaper": "Rydym wedi cadw’r newidiadau a wnaethoch ac wedi anfon neges testun at eich darparwr tystysgrif, {{ .CertificateProviderFullName }}, i ddweud wrthynt fod eich LPA yn barod i’w hadolygu. Dylech ddangos eich LPA iddynt.",
     "lpaDetailsSavedContentOnSubsequentSubmissionCPCarryingOutRoleOnline": "Rydym wedi cadw’r newidiadau a wnaethoch ac wedi anfon neges testun at eich darparwr tystysgrif, {{ .CertificateProviderFullName }}, i ddweud wrthynt y dylent adolygu eich LPA ar-lein.",
     "weveSentATextToCPContent": "<p class=\"govuk-body\">Rydym wedi anfon neges testun at {{ .CertificateProviderFirstName }} i ddweud wrthynt eich bod wedi gwneud LPA. Rydym hefyd wedi rhoi dolen iddynt at ganllawiau ar-lein ynghylch bod yn ddarparwr tystysgrif.</p> <p class=\"govuk-body\">Os bydd angen help ar {{ .CertificateProviderFirstName }} i weld hwn ar-lein, dylech ddangos iddynt y canllawiau i ddarparwyr tystysgrifau ar wefan GOV.UK (yn agor mewn tab newydd).</p>",
-    "youCanContinueToPay": "Gallwch fynd ymlaen nawr i dalu am eich LPA.",
     "returnToDashboard": "Yn ôl i’r dangosfwrdd",
     "onceYouClickCertificateProviderWillBeSentText": "Ar ôl i chi ddewis y botwm cadarnhau, anfonir neges destun at eich darparwr tystysgrif i ddweud wrthynt eich bod wedi newid eich LPA.",
     "checkYourLpa": "Gwirio eich LPA",
