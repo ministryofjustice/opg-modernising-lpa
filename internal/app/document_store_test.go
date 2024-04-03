@@ -424,10 +424,6 @@ func TestDocumentStoreSubmitWhenDynamoClientErrors(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestDocumentKey(t *testing.T) {
-	assert.Equal(t, "#DOCUMENT#key", documentKey("key"))
-}
-
 func TestDocumentCreate(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()

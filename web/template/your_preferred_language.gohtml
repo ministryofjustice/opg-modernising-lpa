@@ -3,43 +3,43 @@
 {{ define "pageTitle" }}{{ tr .App "yourPreferredLanguage" }}{{ end }}
 
 {{ define "main" }}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl">{{ tr .App "yourPreferredLanguage" }}</h1>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ tr .App "yourPreferredLanguage" }}</h1>
 
-            {{ trHtml .App "yourPreferredLanguageIntroContent" }}
+      {{ trHtml .App "yourPreferredLanguageIntroContent" }}
 
-            {{ template "details" (details . "howToChangeLanguageToWelsh" "howToChangeLanguageToWelshContent" false) }}
+      {{ template "details" (details . "howToChangeLanguageToWelsh" "howToChangeLanguageToWelshContent" false) }}
 
-            {{ if .App.IsDonor }}
-                {{ trHtml .App "gettingInTouchWithYouContentIsDonor" }}
-            {{ else }}
-                {{ trFormatHtml .App "gettingInTouchWithYouContentIsNotDonor" "DonorFirstNames" .Donor.Donor.FirstNames }}
-            {{ end }}
+      {{ if .App.IsDonor }}
+        {{ trHtml .App "gettingInTouchWithYouContentIsDonor" }}
+      {{ else }}
+        {{ trFormatHtml .App "gettingInTouchWithYouContentIsNotDonor" "DonorFirstNames" .Lpa.Donor.FirstNames }}
+      {{ end }}
 
-            <form novalidate method="post">
-                <div class="govuk-form-group {{ if .Errors.Has .FieldName }}govuk-form-group--error{{ end }}">
-                    <fieldset class="govuk-fieldset">
-                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
-                            <h2 class="govuk-fieldset__heading">{{ tr .App "whichLanguageWouldYouPreferWhenWeContactYou" }}</h2>
-                        </legend>
+      <form novalidate method="post">
+        <div class="govuk-form-group {{ if .Errors.Has .FieldName }}govuk-form-group--error{{ end }}">
+          <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+              <h2 class="govuk-fieldset__heading">{{ tr .App "whichLanguageWouldYouPreferWhenWeContactYou" }}</h2>
+            </legend>
 
-                        {{ template "error-message" (errorMessage . .FieldName) }}
+            {{ template "error-message" (errorMessage . .FieldName) }}
 
-                        {{ template "radios" (items . .FieldName .Form.Preference.String
-                        (item .Options.En.String .Options.En.String)
-                        (item .Options.Cy.String .Options.Cy.String)
-                        ) }}
-                    </fieldset>
-                </div>
-
-                <div class="govuk-button-group">
-                    <button type="submit" id="save-and-continue-btn" class="govuk-button" data-module="govuk-button">{{ tr .App "saveAndContinue" }}</button>
-                </div>
-
-                {{ template "csrf-field" . }}
-            </form>
-
+            {{ template "radios" (items . .FieldName .Form.Preference.String
+              (item .Options.En.String .Options.En.String)
+              (item .Options.Cy.String .Options.Cy.String)
+            ) }}
+          </fieldset>
         </div>
+
+        <div class="govuk-button-group">
+          <button type="submit" id="save-and-continue-btn" class="govuk-button" data-module="govuk-button">{{ tr .App "saveAndContinue" }}</button>
+        </div>
+
+        {{ template "csrf-field" . }}
+      </form>
+
     </div>
+  </div>
 {{ end }}

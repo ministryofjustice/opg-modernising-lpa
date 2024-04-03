@@ -6,7 +6,6 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
@@ -107,145 +106,6 @@ func TestUnder18ActorDetails(t *testing.T) {
 		{FullName: "a b", DateOfBirth: under18, UID: uid1, Type: TypeAttorney},
 		{FullName: "e f", DateOfBirth: under18, UID: uid3, Type: TypeReplacementAttorney},
 	}, actors)
-}
-
-func TestAllAttorneysSigned(t *testing.T) {
-	lpaSignedAt := time.Now()
-	otherLpaSignedAt := lpaSignedAt.Add(time.Minute)
-	attorneySigned := lpaSignedAt.Add(time.Second)
-
-	uid1 := actoruid.New()
-	uid2 := actoruid.New()
-	uid3 := actoruid.New()
-	uid4 := actoruid.New()
-	uid5 := actoruid.New()
-
-	testcases := map[string]struct {
-		lpa       *DonorProvidedDetails
-		attorneys []*AttorneyProvidedDetails
-		expected  bool
-	}{
-		"no attorneys": {
-			expected: false,
-		},
-		"need attorney to sign": {
-			lpa: &DonorProvidedDetails{
-				SignedAt:             lpaSignedAt,
-				Attorneys:            Attorneys{Attorneys: []Attorney{{UID: uid1}, {UID: uid2}}},
-				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{UID: uid3}}},
-			},
-			attorneys: []*AttorneyProvidedDetails{
-				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{UID: uid4, LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySigned},
-				{UID: uid3, IsReplacement: true, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-			},
-			expected: false,
-		},
-		"need replacement attorney to sign": {
-			lpa: &DonorProvidedDetails{
-				SignedAt:             lpaSignedAt,
-				Attorneys:            Attorneys{Attorneys: []Attorney{{UID: uid1}}},
-				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{UID: uid3}, {UID: uid5}}},
-			},
-			attorneys: []*AttorneyProvidedDetails{
-				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{UID: uid3, IsReplacement: true},
-				{UID: uid5, IsReplacement: true, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-			},
-			expected: false,
-		},
-		"all attorneys signed": {
-			lpa: &DonorProvidedDetails{
-				SignedAt:             lpaSignedAt,
-				Attorneys:            Attorneys{Attorneys: []Attorney{{UID: uid1}, {UID: uid2}}},
-				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{UID: uid3}}},
-			},
-			attorneys: []*AttorneyProvidedDetails{
-				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{UID: uid2, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{UID: uid3, IsReplacement: true, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-			},
-			expected: true,
-		},
-		"more attorneys signed": {
-			lpa: &DonorProvidedDetails{
-				SignedAt:  lpaSignedAt,
-				Attorneys: Attorneys{Attorneys: []Attorney{{UID: uid1}, {UID: uid2}}},
-			},
-			attorneys: []*AttorneyProvidedDetails{
-				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{UID: uid2, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{UID: uid4, LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySigned},
-			},
-			expected: true,
-		},
-		"waiting for attorney to re-sign": {
-			lpa: &DonorProvidedDetails{
-				SignedAt:  lpaSignedAt,
-				Attorneys: Attorneys{Attorneys: []Attorney{{UID: uid1}, {UID: uid2}}},
-			},
-			attorneys: []*AttorneyProvidedDetails{
-				{UID: uid1, LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySigned},
-				{UID: uid2, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-			},
-			expected: false,
-		},
-		"trust corporations not signed": {
-			lpa: &DonorProvidedDetails{
-				SignedAt:             lpaSignedAt,
-				Attorneys:            Attorneys{TrustCorporation: TrustCorporation{Name: "a"}},
-				ReplacementAttorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "r"}},
-			},
-			expected: false,
-		},
-		"replacement trust corporations not signed": {
-			lpa: &DonorProvidedDetails{
-				SignedAt:             lpaSignedAt,
-				Attorneys:            Attorneys{TrustCorporation: TrustCorporation{Name: "a"}},
-				ReplacementAttorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "r"}},
-			},
-			attorneys: []*AttorneyProvidedDetails{
-				{
-					IsTrustCorporation:       true,
-					WouldLikeSecondSignatory: form.No,
-					AuthorisedSignatories:    [2]TrustCorporationSignatory{{LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned}},
-				},
-				{
-					IsTrustCorporation:       true,
-					WouldLikeSecondSignatory: form.Yes,
-					AuthorisedSignatories:    [2]TrustCorporationSignatory{{LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned}},
-				},
-			},
-			expected: false,
-		},
-		"trust corporations signed": {
-			lpa: &DonorProvidedDetails{
-				SignedAt:             lpaSignedAt,
-				Attorneys:            Attorneys{TrustCorporation: TrustCorporation{Name: "a"}},
-				ReplacementAttorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "r"}},
-			},
-			attorneys: []*AttorneyProvidedDetails{
-				{
-					IsTrustCorporation:       true,
-					WouldLikeSecondSignatory: form.No,
-					AuthorisedSignatories:    [2]TrustCorporationSignatory{{LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned}},
-				},
-				{
-					IsTrustCorporation:       true,
-					IsReplacement:            true,
-					WouldLikeSecondSignatory: form.No,
-					AuthorisedSignatories:    [2]TrustCorporationSignatory{{LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned}},
-				},
-			},
-			expected: true,
-		},
-	}
-
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expected, tc.lpa.AllAttorneysSigned(tc.attorneys))
-		})
-	}
 }
 
 func TestActorAddresses(t *testing.T) {
@@ -356,13 +216,4 @@ func TestNamesChanged(t *testing.T) {
 	}
 
 	assert.False(t, donor.NamesChanged("a", "b", "c"))
-}
-
-func TestIsOrganisationDonor(t *testing.T) {
-	donor := &DonorProvidedDetails{SK: "ORGANISATION#123"}
-	assert.True(t, donor.IsOrganisationDonor())
-
-	donor.SK = ""
-
-	assert.False(t, donor.IsOrganisationDonor())
 }

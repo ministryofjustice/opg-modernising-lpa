@@ -34,8 +34,8 @@ func (s *documentStore) Create(ctx context.Context, donor *actor.DonorProvidedDe
 	key := donor.LpaUID + "/evidence/" + s.randomUUID()
 
 	document := page.Document{
-		PK:       lpaKey(donor.LpaID),
-		SK:       documentKey(key),
+		PK:       dynamo.LpaKey(donor.LpaID),
+		SK:       dynamo.DocumentKey(key),
 		Filename: filename,
 		Key:      key,
 		Uploaded: s.now(),
@@ -63,7 +63,7 @@ func (s *documentStore) GetAll(ctx context.Context) (page.Documents, error) {
 	}
 
 	var ds []page.Document
-	if err := s.dynamoClient.AllByPartialSK(ctx, lpaKey(data.LpaID), documentKey(""), &ds); err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
+	if err := s.dynamoClient.AllByPartialSK(ctx, dynamo.LpaKey(data.LpaID), dynamo.DocumentKey(""), &ds); err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
 		return nil, err
 	}
 
@@ -72,8 +72,8 @@ func (s *documentStore) GetAll(ctx context.Context) (page.Documents, error) {
 
 func (s *documentStore) UpdateScanResults(ctx context.Context, lpaID, s3ObjectKey string, virusDetected bool) error {
 	return s.dynamoClient.Update(ctx,
-		lpaKey(lpaID),
-		documentKey(s3ObjectKey),
+		dynamo.LpaKey(lpaID),
+		dynamo.DocumentKey(s3ObjectKey),
 		map[string]types.AttributeValue{
 			":virusDetected": &types.AttributeValueMemberBOOL{Value: virusDetected},
 			":scanned":       &types.AttributeValueMemberBOOL{Value: true},
@@ -149,8 +149,4 @@ func (s *documentStore) Submit(ctx context.Context, donor *actor.DonorProvidedDe
 	}
 
 	return nil
-}
-
-func documentKey(s3Key string) string {
-	return "#DOCUMENT#" + s3Key
 }
