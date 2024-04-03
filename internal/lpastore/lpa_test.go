@@ -787,9 +787,8 @@ func TestAllAttorneysSigned(t *testing.T) {
 		},
 		"trust corporations not signed": {
 			lpa: &Lpa{
-				SignedAt:             lpaSignedAt,
-				Attorneys:            actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
-				ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "r"}},
+				SignedAt:  lpaSignedAt,
+				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
 			},
 			expected: false,
 		},
