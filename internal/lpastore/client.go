@@ -3,6 +3,7 @@ package lpastore
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -18,6 +19,8 @@ const (
 	statusActive      = "active"
 	statusReplacement = "replacement"
 )
+
+var ErrNotFound = errors.New("lpa not found in lpa-store")
 
 type responseError struct {
 	name string
@@ -75,7 +78,12 @@ func (c *Client) do(ctx context.Context, actorUID actoruid.UID, req *http.Reques
 
 	switch req.Method {
 	case http.MethodGet:
-		if resp.StatusCode != http.StatusOK {
+		switch resp.StatusCode {
+		case http.StatusOK:
+			return json.NewDecoder(resp.Body).Decode(data)
+		case http.StatusNotFound:
+			return ErrNotFound
+		default:
 			body, _ := io.ReadAll(resp.Body)
 
 			return responseError{
@@ -83,8 +91,6 @@ func (c *Client) do(ctx context.Context, actorUID actoruid.UID, req *http.Reques
 				body: string(body),
 			}
 		}
-
-		return json.NewDecoder(resp.Body).Decode(data)
 
 	case http.MethodPost, http.MethodPut:
 		if resp.StatusCode != http.StatusCreated {

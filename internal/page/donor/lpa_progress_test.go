@@ -18,9 +18,9 @@ func TestGetLpaProgress(t *testing.T) {
 
 	resolvedLpa := &lpastore.Lpa{LpaUID: "lpa-uid"}
 
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		Lpa(r.Context(), "lpa-uid").
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
 		Return(resolvedLpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -47,7 +47,7 @@ func TestGetLpaProgress(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LpaProgress(template.Execute, lpaStoreClient, certificateProviderStore, attorneyStore, progressTracker)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
+	err := LpaProgress(template.Execute, lpaStoreResolvingService, certificateProviderStore, attorneyStore, progressTracker)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -58,12 +58,12 @@ func TestGetLpaProgressWhenLpaStoreClientErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		Lpa(r.Context(), "lpa-uid").
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
 		Return(nil, expectedError)
 
-	err := LpaProgress(nil, lpaStoreClient, nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
+	err := LpaProgress(nil, lpaStoreResolvingService, nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -71,9 +71,9 @@ func TestGetLpaProgressWhenCertificateProviderStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		Lpa(r.Context(), "lpa-uid").
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
 		Return(&lpastore.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -81,7 +81,7 @@ func TestGetLpaProgressWhenCertificateProviderStoreErrors(t *testing.T) {
 		GetAny(r.Context()).
 		Return(nil, expectedError)
 
-	err := LpaProgress(nil, lpaStoreClient, certificateProviderStore, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
+	err := LpaProgress(nil, lpaStoreResolvingService, certificateProviderStore, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -89,9 +89,9 @@ func TestGetLpaProgressWhenAttorneyStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		Lpa(r.Context(), "lpa-uid").
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
 		Return(&lpastore.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -104,7 +104,7 @@ func TestGetLpaProgressWhenAttorneyStoreErrors(t *testing.T) {
 		GetAny(r.Context()).
 		Return(nil, expectedError)
 
-	err := LpaProgress(nil, lpaStoreClient, certificateProviderStore, attorneyStore, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
+	err := LpaProgress(nil, lpaStoreResolvingService, certificateProviderStore, attorneyStore, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -112,9 +112,9 @@ func TestGetLpaProgressOnTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		Lpa(r.Context(), "lpa-uid").
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
 		Return(&lpastore.Lpa{}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -137,6 +137,6 @@ func TestGetLpaProgressOnTemplateError(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := LpaProgress(template.Execute, lpaStoreClient, certificateProviderStore, attorneyStore, progressTracker)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
+	err := LpaProgress(template.Execute, lpaStoreResolvingService, certificateProviderStore, attorneyStore, progressTracker)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }

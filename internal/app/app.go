@@ -109,6 +109,8 @@ func App(
 	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicURL, random.String, eventClient)
 	witnessCodeSender := page.NewWitnessCodeSender(donorStore, notifyClient)
 
+	lpaStoreResolvingService := lpastore.NewResolvingService(donorStore, lpaStoreClient)
+
 	errorHandler := page.Error(tmpls.Get("error-500.gohtml"), logger)
 	notFoundHandler := page.Root(tmpls.Get("error-404.gohtml"), logger)
 
@@ -120,7 +122,7 @@ func App(
 	handleRoot(page.Paths.SignOut, None,
 		page.SignOut(logger, sessionStore, oneLoginClient, appPublicURL))
 	handleRoot(page.Paths.Fixtures, None,
-		fixtures.Donor(tmpls.Get("fixtures.gohtml"), sessionStore, donorStore, certificateProviderStore, attorneyStore, documentStore, eventClient))
+		fixtures.Donor(tmpls.Get("fixtures.gohtml"), sessionStore, donorStore, certificateProviderStore, attorneyStore, documentStore, eventClient, lpaStoreClient))
 	handleRoot(page.Paths.CertificateProviderFixtures, None,
 		fixtures.CertificateProvider(tmpls.Get("certificate_provider_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, eventClient, lpaStoreClient))
 	handleRoot(page.Paths.AttorneyFixtures, None,
@@ -179,7 +181,7 @@ func App(
 		shareCodeSender,
 		dashboardStore,
 		lpaStoreClient,
-		lpastore.NewResolvingService(donorStore, lpaStoreClient),
+		lpaStoreResolvingService,
 	)
 
 	attorney.Register(
@@ -196,7 +198,7 @@ func App(
 		notFoundHandler,
 		dashboardStore,
 		lpaStoreClient,
-		lpastore.NewResolvingService(donorStore, lpaStoreClient),
+		lpaStoreResolvingService,
 	)
 
 	donor.Register(
@@ -223,6 +225,7 @@ func App(
 		lpaStoreClient,
 		shareCodeStore,
 		progressTracker,
+		lpaStoreResolvingService,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang)

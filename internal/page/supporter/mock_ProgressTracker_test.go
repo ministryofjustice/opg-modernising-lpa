@@ -48,7 +48,7 @@ type mockProgressTracker_Progress_Call struct {
 }
 
 // Progress is a helper method to define mock.On call
-//   - donor *lpastore.ResolvedLpa
+//   - donor *lpastore.Lpa
 //   - certificateProvider *actor.CertificateProviderProvidedDetails
 //   - attorneys []*actor.AttorneyProvidedDetails
 func (_e *mockProgressTracker_Expecter) Progress(donor interface{}, certificateProvider interface{}, attorneys interface{}) *mockProgressTracker_Progress_Call {

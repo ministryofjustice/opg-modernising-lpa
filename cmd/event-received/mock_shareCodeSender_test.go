@@ -53,7 +53,7 @@ type mockShareCodeSender_SendAttorneys_Call struct {
 // SendAttorneys is a helper method to define mock.On call
 //   - _a0 context.Context
 //   - _a1 page.AppData
-//   - _a2 *lpastore.ResolvedLpa
+//   - _a2 *lpastore.Lpa
 func (_e *mockShareCodeSender_Expecter) SendAttorneys(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockShareCodeSender_SendAttorneys_Call {
 	return &mockShareCodeSender_SendAttorneys_Call{Call: _e.mock.On("SendAttorneys", _a0, _a1, _a2)}
 }

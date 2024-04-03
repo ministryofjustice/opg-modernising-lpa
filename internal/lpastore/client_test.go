@@ -732,6 +732,27 @@ func TestClientServiceContract(t *testing.T) {
 	})
 }
 
+func TestClientDoWhenStatusNotFound(t *testing.T) {
+	ctx := context.Background()
+
+	req, _ := http.NewRequest(http.MethodGet, "", nil)
+
+	secretsClient := newMockSecretsClient(t)
+	secretsClient.EXPECT().
+		Secret(mock.Anything, mock.Anything).
+		Return("secret", nil)
+
+	doer := newMockDoer(t)
+	doer.EXPECT().
+		Do(mock.Anything).
+		Return(&http.Response{StatusCode: http.StatusNotFound, Body: io.NopCloser(strings.NewReader("hey"))}, nil)
+
+	client := New("http://base", secretsClient, doer)
+	err := client.do(ctx, actoruid.New(), req, nil)
+
+	assert.Equal(t, ErrNotFound, err)
+}
+
 func TestClientDoWhenMethodUnsupported(t *testing.T) {
 	ctx := context.Background()
 
