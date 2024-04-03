@@ -22,7 +22,7 @@
                 <div class="govuk-checkboxes__item">
                   <input class="govuk-checkboxes__input" id="f-agree-to-statement" name="agree-to-statement" type="checkbox" value="1" {{ if .Form.AgreeToStatement }}checked{{ end }}>
                   <label class="govuk-label govuk-checkboxes__label" for="f-agree-to-statement">
-                    {{ trFormat .App "iAgreeToTheseStatements" "FullName" .Donor.CertificateProvider.FullName }}
+                    {{ trFormat .App "iAgreeToTheseStatements" "FullName" .Lpa.CertificateProvider.FullName }}
                   </label>
                 </div>
               </div>

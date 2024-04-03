@@ -72,7 +72,7 @@ func (c *Client) SendCertificateProvider(ctx context.Context, lpaUID string, cer
 	return c.sendUpdate(ctx, lpaUID, certificateProvider.UID, body)
 }
 
-func (c *Client) SendAttorney(ctx context.Context, donor *actor.DonorProvidedDetails, attorney *actor.AttorneyProvidedDetails) error {
+func (c *Client) SendAttorney(ctx context.Context, donor *Lpa, attorney *actor.AttorneyProvidedDetails) error {
 	var attorneyKey string
 	if attorney.IsTrustCorporation && attorney.IsReplacement && donor.Attorneys.TrustCorporation.Name != "" {
 		attorneyKey = "/trustCorporations/1"
