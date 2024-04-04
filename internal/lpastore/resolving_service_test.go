@@ -79,6 +79,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				CertificateProvider: actor.CertificateProvider{
 					Relationship: actor.Professionally,
 				},
+				IsPaperDonor: true,
 			},
 		},
 	}
