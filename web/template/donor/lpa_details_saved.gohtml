@@ -32,13 +32,8 @@
           {{ trFormatHtml .App "weveSentATextToCPContent" "CertificateProviderFirstName" .Donor.CertificateProvider.FirstNames }}
         {{ end }}
 
-        <p class="govuk-body">
-          {{ tr .App "youCanContinueToPay" }}
-        </p>
-
         <div class="govuk-button-group">
-          <a href="{{ link .App (global.Paths.AboutPayment.Format .App.LpaID) }}" class="govuk-button">{{ tr .App "continue" }}</a>
-          <a href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+          <a href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button">{{ tr .App "continue" }}</a>
         </div>
       {{ end }}
     </div>
