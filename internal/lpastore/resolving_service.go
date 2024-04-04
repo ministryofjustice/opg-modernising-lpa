@@ -55,7 +55,16 @@ func (s *ResolvingService) Get(ctx context.Context) (*Lpa, error) {
 		lpa.Submitted = !donor.SubmittedAt.IsZero()
 		lpa.Paid = donor.Tasks.PayForLpa.IsCompleted()
 		lpa.IsOrganisationDonor = strings.HasPrefix(donor.SK, dynamo.OrganisationKey(""))
-		lpa.CertificateProvider.Relationship = donor.CertificateProvider.Relationship
+
+		// When the first certificate provider email is sent their data won't be in
+		// the lpastore, so we copy it from dynamo if not present. Otherwise we only
+		// need to take the relationship, which isn't stored in the lpastore.
+		if lpa.CertificateProvider.FirstNames == "" {
+			lpa.CertificateProvider = donor.CertificateProvider
+		} else {
+			lpa.CertificateProvider.Relationship = donor.CertificateProvider.Relationship
+		}
+
 		// TODO: eventually we'll need to remove the RegisteredAt field as mlpa
 		// won't be tracking that data, then we'll need to figure out how to expose
 		// the data for testing
