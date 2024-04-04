@@ -45,7 +45,6 @@ func (s *ResolvingService) Get(ctx context.Context) (*Lpa, error) {
 	lpa.LpaID = donor.LpaID
 	lpa.LpaUID = donor.LpaUID
 	if donor.SK == dynamo.DonorKey("PAPER") {
-		lpa.DonorIdentityConfirmed = true
 		lpa.Submitted = true
 		lpa.Paid = true
 		// set to Professionally so we always show the certificate provider home
