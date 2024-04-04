@@ -1,7 +1,7 @@
 {{ template "page" . }}
 
 {{ define "pageTitle" }}
-  {{ trFormat .App "theirLpa" "FullNamePossessive" (possessive .App .Donor.Donor.FullName) "LpaType" (tr .App .Donor.Type.String | lowerFirst) }}
+  {{ trFormat .App "theirLpa" "FullNamePossessive" (possessive .App .Lpa.Donor.FullName) "LpaType" (tr .App .Lpa.Type.String | lowerFirst) }}
 {{ end }}
 
 {{ define "main" }}
@@ -9,7 +9,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
       <div class="govuk-body">
-        <span><strong>{{ tr .App "applicationNumber" }}:</strong> {{ .Donor.LpaID }}</span>
+        <span><strong>{{ tr .App "applicationNumber" }}:</strong> {{ .Lpa.LpaID }}</span>
       </div>
 
       <div class="app-progress-bar">
@@ -33,8 +33,8 @@
 
       <h2 class="govuk-heading-m">{{ tr .App "lpaDecisions"}}</h2>
 
-      {{ template "lpa-decisions" . }}
-      {{ template "people-named-on-lpa" . }}
+      {{ template "lpa-decisions" (lpaDecisions .App .Lpa false) }}
+      {{ template "people-named-on-lpa" (lpaDecisions .App .Lpa false) }}
     </div>
   </div>
 {{ end }}

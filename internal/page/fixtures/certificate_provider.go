@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -26,6 +27,7 @@ func CertificateProvider(
 	donorStore page.DonorStore,
 	certificateProviderStore CertificateProviderStore,
 	eventClient *event.Client,
+	lpaStoreClient *lpastore.Client,
 ) page.Handler {
 	progressValues := []string{
 		"paid",
@@ -167,6 +169,11 @@ func CertificateProvider(
 		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
 			return err
 		}
+		if donorDetails.LpaUID != "" {
+			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails); err != nil {
+				return err
+			}
+		}
 		if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {
 			return err
 		}
@@ -181,7 +188,12 @@ func CertificateProvider(
 				SessionID: donorSessionID,
 				LpaID:     donorDetails.LpaID,
 				Localizer: appData.Localizer,
-			}, donorDetails)
+			}, page.CertificateProviderInvite{
+				LpaUID:              donorDetails.LpaUID,
+				Type:                donorDetails.Type,
+				Donor:               donorDetails.Donor,
+				CertificateProvider: donorDetails.CertificateProvider,
+			})
 
 			http.Redirect(w, r, page.Paths.CertificateProviderStart.Format(), http.StatusFound)
 			return nil
