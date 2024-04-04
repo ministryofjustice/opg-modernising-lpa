@@ -1,7 +1,5 @@
 {{ define "people-to-notify-summary" }}
-  {{ $canChange := and (not $.Donor.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
-
-  {{ range .Donor.PeopleToNotify }}
+  {{ range .PeopleToNotify }}
     {{ $detailsLink := printf "%s?from=%s&id=%s" (link $.App (global.Paths.ChoosePeopleToNotify.Format $.App.LpaID)) $.App.Page .UID }}
     {{ $addressLink := printf "%s?from=%s&id=%s" (link $.App (global.Paths.ChoosePeopleToNotifyAddress.Format $.App.LpaID)) $.App.Page .UID }}
     {{ $removeLink := printf "%s?from=%s&id=%s" (link $.App (global.Paths.RemovePersonToNotify.Format $.App.LpaID)) $.App.Page .UID }}
@@ -14,7 +12,7 @@
           <h2 class="govuk-summary-card__title">{{ .FullName }}</h2>
         {{ end }}
 
-        {{ if $canChange }}
+        {{ if $.CanChange }}
           <ul class="govuk-summary-card__actions">
             <li class="govuk-summary-card__action">
               <a class="govuk-link govuk-link--no-visited-state" href="{{ $removeLink }}">{{ tr $.App "removePersonToNotify" }}</a>
@@ -27,7 +25,7 @@
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key"> {{ tr $.App "name" }}</dt>
             <dd class="govuk-summary-list__value">{{ .FullName }}</dd>
-            {{ if $canChange }}
+            {{ if $.CanChange }}
               <dd class="govuk-summary-list__actions">
                 <a class="govuk-link govuk-link--no-visited-state" href="{{ $detailsLink }}#f-first-names">
                   {{ trFormatHtml $.App "changeNameLinkText" "FirstNames" .FirstNames "LastName" .LastName }}
@@ -38,7 +36,7 @@
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr $.App "address" }}</dt>
             <dd class="govuk-summary-list__value">{{ template "address-lines" .Address }}</dd>
-            {{ if $canChange }}
+            {{ if $.CanChange }}
               <dd class="govuk-summary-list__actions">
                 <a class="govuk-link govuk-link--no-visited-state" href="{{ $addressLink }}#f-address-line-1">
                   {{ trFormatHtml $.App "changeAddressLink" "FirstNames" .FirstNames "LastName" .LastName }}

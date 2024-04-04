@@ -6,13 +6,14 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type dateOfBirthData struct {
 	App        page.AppData
-	Donor      *actor.DonorProvidedDetails
+	Lpa        *lpastore.Lpa
 	Form       *dateOfBirthForm
 	Errors     validation.List
 	DobWarning string
@@ -23,9 +24,9 @@ type dateOfBirthForm struct {
 	IgnoreDobWarning string
 }
 
-func EnterDateOfBirth(tmpl template.Template, donorStore DonorStore, certificateProviderStore CertificateProviderStore) page.Handler {
+func EnterDateOfBirth(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		donor, err := donorStore.GetAny(r.Context())
+		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}
@@ -36,8 +37,8 @@ func EnterDateOfBirth(tmpl template.Template, donorStore DonorStore, certificate
 		}
 
 		data := &dateOfBirthData{
-			App:   appData,
-			Donor: donor,
+			App: appData,
+			Lpa: lpa,
 			Form: &dateOfBirthForm{
 				Dob: certificateProvider.DateOfBirth,
 			},
@@ -62,7 +63,7 @@ func EnterDateOfBirth(tmpl template.Template, donorStore DonorStore, certificate
 					return err
 				}
 
-				if donor.CertificateProvider.Relationship.IsProfessionally() {
+				if lpa.CertificateProvider.Relationship.IsProfessionally() {
 					return page.Paths.CertificateProvider.WhatIsYourHomeAddress.Redirect(w, r, appData, certificateProvider.LpaID)
 				}
 
