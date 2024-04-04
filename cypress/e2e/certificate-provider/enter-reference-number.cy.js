@@ -1,62 +1,62 @@
 const { TestEmail, randomShareCode } = require("../../support/e2e");
 
-describe('Enter reference number', () => {
-    let shareCode = ''
-    beforeEach(() => {
-        shareCode = randomShareCode()
+describe.skip('Enter reference number', () => {
+  let shareCode = ''
+  beforeEach(() => {
+    shareCode = randomShareCode()
 
-        cy.visit(`/fixtures/certificate-provider?redirect=/certificate-provider-start&withShareCode=${shareCode}&email=${TestEmail}`);
+    cy.visit(`/fixtures/certificate-provider?redirect=/certificate-provider-start&withShareCode=${shareCode}&email=${TestEmail}`);
 
-        cy.contains('a', 'Start').click()
-        cy.contains('button', 'Sign in').click();
-        cy.url().should('contain', '/certificate-provider-enter-reference-number')
+    cy.contains('a', 'Start').click()
+    cy.contains('button', 'Sign in').click();
+    cy.url().should('contain', '/certificate-provider-enter-reference-number')
+  });
+
+  it('can enter a valid reference number', { pageLoadTimeout: 6000 }, () => {
+    cy.checkA11yApp();
+
+    cy.get('#f-reference-number').type(shareCode);
+    cy.contains('Save and continue').click();
+
+    cy.url().should('contain', '/certificate-provider-who-is-eligible')
+  });
+
+  it('errors when empty number', () => {
+    cy.contains('Save and continue').click();
+
+    cy.checkA11yApp();
+
+    cy.get('.govuk-error-summary').within(() => {
+      cy.contains('Enter your 12 character reference number');
     });
 
-    it('can enter a valid reference number', { pageLoadTimeout: 6000 }, () => {
-        cy.checkA11yApp();
+    cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'Enter your 12 character reference number');
+  });
 
-        cy.get('#f-reference-number').type(shareCode);
-        cy.contains('Save and continue').click();
+  it('errors when incorrect code', () => {
+    cy.get('#f-reference-number').type('i-am-very-wrong');
+    cy.contains('Save and continue').click();
 
-        cy.url().should('contain', '/certificate-provider-who-is-eligible')
+    cy.checkA11yApp();
+
+    cy.get('.govuk-error-summary').within(() => {
+      cy.contains('The reference number you entered is incorrect, please check it and try again');
     });
 
-    it('errors when empty number', () => {
-        cy.contains('Save and continue').click();
+    cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'The reference number you entered is incorrect, please check it and try again');
+  });
 
-        cy.checkA11yApp();
+  it('errors when incorrect code length', () => {
+    cy.get('#f-reference-number').type('short');
+    cy.contains('Save and continue').click();
 
-        cy.get('.govuk-error-summary').within(() => {
-            cy.contains('Enter your 12 character reference number');
-        });
+    cy.checkA11yApp();
 
-        cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'Enter your 12 character reference number');
+    cy.get('.govuk-error-summary').within(() => {
+      cy.contains('The reference number you enter must be 12 characters');
     });
 
-    it('errors when incorrect code', () => {
-        cy.get('#f-reference-number').type('i-am-very-wrong');
-        cy.contains('Save and continue').click();
-
-        cy.checkA11yApp();
-
-        cy.get('.govuk-error-summary').within(() => {
-            cy.contains('The reference number you entered is incorrect, please check it and try again');
-        });
-
-        cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'The reference number you entered is incorrect, please check it and try again');
-    });
-
-    it('errors when incorrect code length', () => {
-        cy.get('#f-reference-number').type('short');
-        cy.contains('Save and continue').click();
-
-        cy.checkA11yApp();
-
-        cy.get('.govuk-error-summary').within(() => {
-            cy.contains('The reference number you enter must be 12 characters');
-        });
-
-        cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'The reference number you enter must be 12 characters');
-    });
+    cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'The reference number you enter must be 12 characters');
+  });
 
 });

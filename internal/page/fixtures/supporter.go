@@ -11,6 +11,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
@@ -46,6 +47,7 @@ func Supporter(
 	attorneyStore AttorneyStore,
 	documentStore DocumentStore,
 	eventClient *event.Client,
+	lpaStoreClient *lpastore.Client,
 ) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		var (
@@ -103,12 +105,15 @@ func Supporter(
 				donor.LpaUID = makeUID()
 				donor.Donor = makeDonor()
 				donor.Type = actor.LpaTypePropertyAndAffairs
-
+				donor.CertificateProvider = makeCertificateProvider()
 				donor.Attorneys = actor.Attorneys{
 					Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},
 				}
 
 				if err := donorStore.Put(donorCtx, donor); err != nil {
+					return err
+				}
+				if err := lpaStoreClient.SendLpa(donorCtx, donor); err != nil {
 					return err
 				}
 
@@ -157,7 +162,7 @@ func Supporter(
 					donor.LpaUID = makeUID()
 					donor.Donor = makeDonor()
 					donor.Type = actor.LpaTypePropertyAndAffairs
-
+					donor.CertificateProvider = makeCertificateProvider()
 					donor.Attorneys = actor.Attorneys{
 						Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},
 					}
@@ -170,6 +175,9 @@ func Supporter(
 					}
 
 					if err := donorStore.Put(donorCtx, donor); err != nil {
+						return err
+					}
+					if err := lpaStoreClient.SendLpa(donorCtx, donor); err != nil {
 						return err
 					}
 				}

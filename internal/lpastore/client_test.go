@@ -123,6 +123,7 @@ func TestClientServiceContract(t *testing.T) {
 							"firstNames": matchers.String("Charles"),
 							"lastName":   matchers.String("Certificate"),
 							"email":      matchers.String("charles@example.com"),
+							"phone":      matchers.String("0700009000"),
 							"address": matchers.Like(map[string]any{
 								"line1":    matchers.String("a-line-1"),
 								"line2":    matchers.String("a-line-2"),
@@ -194,6 +195,7 @@ func TestClientServiceContract(t *testing.T) {
 					FirstNames: "Charles",
 					LastName:   "Certificate",
 					Email:      "charles@example.com",
+					Mobile:     "0700009000",
 					Address:    address,
 					CarryOutBy: actor.Online,
 				},
@@ -412,7 +414,7 @@ func TestClientServiceContract(t *testing.T) {
 			}
 
 			err := client.SendAttorney(context.Background(),
-				&actor.DonorProvidedDetails{
+				&Lpa{
 					LpaUID: "M-0000-1111-2222",
 					Attorneys: actor.Attorneys{
 						Attorneys: []actor.Attorney{{UID: uid}},
@@ -685,7 +687,7 @@ func TestClientServiceContract(t *testing.T) {
 				return err
 			}
 
-			assert.Equal(t, &actor.DonorProvidedDetails{
+			assert.Equal(t, &Lpa{
 				LpaUID: "M-0000-1111-2222",
 				Type:   actor.LpaTypePersonalWelfare,
 				Donor: actor.Donor{
@@ -730,6 +732,27 @@ func TestClientServiceContract(t *testing.T) {
 
 		assert.Nil(t, err)
 	})
+}
+
+func TestClientDoWhenStatusNotFound(t *testing.T) {
+	ctx := context.Background()
+
+	req, _ := http.NewRequest(http.MethodGet, "", nil)
+
+	secretsClient := newMockSecretsClient(t)
+	secretsClient.EXPECT().
+		Secret(mock.Anything, mock.Anything).
+		Return("secret", nil)
+
+	doer := newMockDoer(t)
+	doer.EXPECT().
+		Do(mock.Anything).
+		Return(&http.Response{StatusCode: http.StatusNotFound, Body: io.NopCloser(strings.NewReader("hey"))}, nil)
+
+	client := New("http://base", secretsClient, doer)
+	err := client.do(ctx, actoruid.New(), req, nil)
+
+	assert.Equal(t, ErrNotFound, err)
 }
 
 func TestClientDoWhenMethodUnsupported(t *testing.T) {
