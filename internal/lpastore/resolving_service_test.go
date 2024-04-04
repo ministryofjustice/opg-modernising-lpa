@@ -72,11 +72,10 @@ func TestResolvingServiceGet(t *testing.T) {
 			},
 			resolved: &Lpa{LpaID: "1"},
 			expected: &Lpa{
-				LpaID:                  "1",
-				LpaUID:                 "M-1111",
-				DonorIdentityConfirmed: true,
-				Submitted:              true,
-				Paid:                   true,
+				LpaID:     "1",
+				LpaUID:    "M-1111",
+				Submitted: true,
+				Paid:      true,
 				CertificateProvider: actor.CertificateProvider{
 					Relationship: actor.Professionally,
 				},
