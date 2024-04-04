@@ -103,6 +103,7 @@ func Supporter(
 				donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID, LpaID: donor.LpaID, SessionID: random.String(12)})
 
 				donor.LpaUID = makeUID()
+				donor.SignedAt = time.Now()
 				donor.Donor = makeDonor()
 				donor.Type = actor.LpaTypePropertyAndAffairs
 				donor.CertificateProvider = makeCertificateProvider()
@@ -160,6 +161,7 @@ func Supporter(
 					donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID, LpaID: donor.LpaID})
 
 					donor.LpaUID = makeUID()
+					donor.SignedAt = time.Now()
 					donor.Donor = makeDonor()
 					donor.Type = actor.LpaTypePropertyAndAffairs
 					donor.CertificateProvider = makeCertificateProvider()
