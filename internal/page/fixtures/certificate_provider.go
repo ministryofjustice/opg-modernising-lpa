@@ -76,6 +76,7 @@ func CertificateProvider(
 			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: certificateProviderSessionID, LpaID: donorDetails.LpaID})
 		)
 
+		donorDetails.SignedAt = time.Now()
 		donorDetails.Donor = makeDonor()
 		donorDetails.Type = actor.LpaTypePropertyAndAffairs
 		if lpaType == "personal-welfare" {
