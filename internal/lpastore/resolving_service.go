@@ -37,7 +37,7 @@ func (s *ResolvingService) Get(ctx context.Context) (*Lpa, error) {
 
 	lpa, err := s.client.Lpa(ctx, donor.LpaUID)
 	if errors.Is(err, ErrNotFound) {
-		lpa = &Lpa{}
+		lpa = donorProvidedDetailsToLpa(donor)
 	} else if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,10 @@ func (s *ResolvingService) Get(ctx context.Context) (*Lpa, error) {
 		lpa.Submitted = !donor.SubmittedAt.IsZero()
 		lpa.Paid = donor.Tasks.PayForLpa.IsCompleted()
 		lpa.IsOrganisationDonor = strings.HasPrefix(donor.SK, dynamo.OrganisationKey(""))
+
+		// copy the relationship as it isn't stored in the lpastore.
 		lpa.CertificateProvider.Relationship = donor.CertificateProvider.Relationship
+
 		// TODO: eventually we'll need to remove the RegisteredAt field as mlpa
 		// won't be tracking that data, then we'll need to figure out how to expose
 		// the data for testing

@@ -302,7 +302,7 @@ func (l *Lpa) AllAttorneysSigned(attorneys []*actor.AttorneyProvidedDetails) boo
 	return true
 }
 
-func (l *lpaResponse) ToResolvedLpa() *Lpa {
+func lpaResponseToLpa(l lpaResponse) *Lpa {
 	var attorneys, replacementAttorneys []actor.Attorney
 	for _, a := range l.Attorneys {
 		at := actor.Attorney{
@@ -403,6 +403,29 @@ func (l *lpaResponse) ToResolvedLpa() *Lpa {
 	}
 }
 
+func donorProvidedDetailsToLpa(l *actor.DonorProvidedDetails) *Lpa {
+	return &Lpa{
+		LpaUID:                              l.LpaUID,
+		RegisteredAt:                        date.FromTime(l.RegisteredAt),
+		UpdatedAt:                           date.FromTime(l.UpdatedAt),
+		Type:                                l.Type,
+		Donor:                               l.Donor,
+		Attorneys:                           l.Attorneys,
+		ReplacementAttorneys:                l.ReplacementAttorneys,
+		CertificateProvider:                 l.CertificateProvider,
+		PeopleToNotify:                      l.PeopleToNotify,
+		AttorneyDecisions:                   l.AttorneyDecisions,
+		ReplacementAttorneyDecisions:        l.ReplacementAttorneyDecisions,
+		HowShouldReplacementAttorneysStepIn: l.HowShouldReplacementAttorneysStepIn,
+		HowShouldReplacementAttorneysStepInDetails: l.HowShouldReplacementAttorneysStepInDetails,
+		Restrictions:                             l.Restrictions,
+		WhenCanTheLpaBeUsed:                      l.WhenCanTheLpaBeUsed,
+		LifeSustainingTreatmentOption:            l.LifeSustainingTreatmentOption,
+		SignedAt:                                 l.SignedAt,
+		CertificateProviderNotRelatedConfirmedAt: l.CertificateProviderNotRelatedConfirmedAt,
+	}
+}
+
 func (c *Client) Lpa(ctx context.Context, lpaUID string) (*Lpa, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/lpas/"+lpaUID, nil)
 	if err != nil {
@@ -414,5 +437,5 @@ func (c *Client) Lpa(ctx context.Context, lpaUID string) (*Lpa, error) {
 		return nil, err
 	}
 
-	return v.ToResolvedLpa(), nil
+	return lpaResponseToLpa(v), nil
 }
