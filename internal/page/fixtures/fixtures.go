@@ -2,6 +2,7 @@ package fixtures
 
 import (
 	"context"
+	"net/http"
 	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -168,4 +169,13 @@ func makePersonToNotify(name Name) actor.PersonToNotify {
 
 func makeUID() string {
 	return strings.ToUpper("M-" + "FAKE" + "-" + random.String(4) + "-" + random.String(4))
+}
+
+func acceptCookiesConsent(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:   "cookies-consent",
+		Value:  "accept",
+		MaxAge: 365 * 24 * 60 * 60,
+		Path:   "/",
+	})
 }
