@@ -11,7 +11,7 @@ switch (context.request.method) {
                 respond().withStatusCode(404)
             }
         } else {
-            respond().withStatusCode(404)
+            respond()
         }
         break
 
