@@ -2,10 +2,14 @@ def lpaStore = stores.open('lpa')
 
 switch (context.request.method) {
     case 'GET':
-        def parts = context.request.path.split('/')
-        def lpa = lpaStore.load(parts[2])
-        if (lpa) {
-            respond().withContent(lpa)
+        if (context.request.path.contains('/lpa')) {
+            def parts = context.request.path.split('/')
+            def lpa = lpaStore.load(parts[2])
+            if (lpa) {
+                respond().withContent(lpa)
+            } else {
+                respond().withStatusCode(404)
+            }
         } else {
             respond()
         }
