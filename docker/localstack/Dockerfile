@@ -1,4 +1,4 @@
-FROM golang:1.22.1-alpine as build
+FROM golang:1.22.2-alpine as build
 
 RUN apk add zip
 
@@ -13,7 +13,7 @@ COPY --link internal ./internal
 RUN GOOS=linux GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -tags lambda.norpc -o event-received ./cmd/event-received
 RUN zip event-received.zip event-received
 
-FROM localstack/localstack:3.2.0 as localstack
+FROM localstack/localstack:3.3.0 as localstack
 
 COPY --from=build /app/event-received.zip /etc/event-received.zip
 
