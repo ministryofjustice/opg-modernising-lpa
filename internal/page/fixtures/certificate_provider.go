@@ -51,6 +51,7 @@ func CertificateProvider(
 			shareCode                         = r.FormValue("withShareCode")
 			useRealUID                        = r.FormValue("uid") == "real"
 			donorChannel                      = r.FormValue("donorChannel")
+			sendLpaToLPAStore                 = r.FormValue("sendLpaToLpaStore") == "1"
 		)
 
 		if certificateProviderSub == "" {
@@ -84,6 +85,7 @@ func CertificateProvider(
 				CreatedAt:                      time.Now(),
 				Version:                        1,
 				HasSentApplicationUpdatedEvent: true,
+				SignedAt:                       time.Now(),
 			}
 
 			if err := dynamoClient.Create(r.Context(), donorDetails); err != nil {
@@ -195,7 +197,7 @@ func CertificateProvider(
 			return err
 		}
 
-		if donorDetails.LpaUID != "" {
+		if (!donorDetails.SignedAt.IsZero() && donorDetails.LpaUID != "") || sendLpaToLPAStore {
 			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails); err != nil {
 				return err
 			}
