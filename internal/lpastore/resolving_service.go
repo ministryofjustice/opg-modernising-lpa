@@ -50,6 +50,7 @@ func (s *ResolvingService) Get(ctx context.Context) (*Lpa, error) {
 		// set to Professionally so we always show the certificate provider home
 		// address question
 		lpa.CertificateProvider.Relationship = actor.Professionally
+		lpa.IsPaperDonor = true
 	} else {
 		lpa.DonorIdentityConfirmed = donor.DonorIdentityConfirmed()
 		lpa.Submitted = !donor.SubmittedAt.IsZero()

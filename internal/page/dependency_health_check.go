@@ -10,7 +10,7 @@ type HealthChecker interface {
 	CheckHealth(context.Context) error
 }
 
-func DependencyHealthCheck(logger Logger, services map[string]HealthChecker) http.HandlerFunc {
+func DependencyHealthCheck(services map[string]HealthChecker) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		results := map[string]string{}
 		status := http.StatusOK

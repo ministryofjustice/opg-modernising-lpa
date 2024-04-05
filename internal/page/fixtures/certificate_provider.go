@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -28,6 +29,7 @@ func CertificateProvider(
 	certificateProviderStore CertificateProviderStore,
 	eventClient *event.Client,
 	lpaStoreClient *lpastore.Client,
+	dynamoClient DynamoClient,
 ) page.Handler {
 	progressValues := []string{
 		"paid",
@@ -37,6 +39,8 @@ func CertificateProvider(
 	}
 
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+		acceptCookiesConsent(w)
+
 		var (
 			lpaType                           = r.FormValue("lpa-type")
 			progress                          = slices.Index(progressValues, r.FormValue("progress"))
@@ -46,6 +50,8 @@ func CertificateProvider(
 			certificateProviderSub            = r.FormValue("certificateProviderSub")
 			shareCode                         = r.FormValue("withShareCode")
 			useRealUID                        = r.FormValue("uid") == "real"
+			donorChannel                      = r.FormValue("donorChannel")
+			sendLpaToLPAStore                 = r.FormValue("sendLpaToLpaStore") == "1"
 		)
 
 		if certificateProviderSub == "" {
@@ -62,13 +68,34 @@ func CertificateProvider(
 			certificateProviderSessionID = base64.StdEncoding.EncodeToString([]byte(certificateProviderSub))
 		)
 
-		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: certificateProviderSub, Email: testEmail}); err != nil {
+		err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: certificateProviderSub, Email: testEmail})
+		if err != nil {
 			return err
 		}
 
-		donorDetails, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}))
-		if err != nil {
-			return err
+		var donorDetails *actor.DonorProvidedDetails
+
+		if donorChannel == "paper" {
+			lpaID := random.UuidString()
+			donorDetails = &actor.DonorProvidedDetails{
+				PK:                             dynamo.LpaKey(lpaID),
+				SK:                             dynamo.DonorKey("PAPER"),
+				LpaID:                          lpaID,
+				LpaUID:                         random.UuidString(),
+				CreatedAt:                      time.Now(),
+				Version:                        1,
+				HasSentApplicationUpdatedEvent: true,
+				SignedAt:                       time.Now(),
+			}
+
+			if err := dynamoClient.Create(r.Context(), donorDetails); err != nil {
+				return err
+			}
+		} else {
+			donorDetails, err = donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}))
+			if err != nil {
+				return err
+			}
 		}
 
 		var (
@@ -169,11 +196,13 @@ func CertificateProvider(
 		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
 			return err
 		}
-		if !donorDetails.SignedAt.IsZero() && donorDetails.LpaUID != "" {
+
+		if (!donorDetails.SignedAt.IsZero() && donorDetails.LpaUID != "") || sendLpaToLPAStore {
 			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails); err != nil {
 				return err
 			}
 		}
+
 		if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {
 			return err
 		}
