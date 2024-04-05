@@ -57,6 +57,8 @@ func Attorney(
 	}
 
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+		acceptCookiesConsent(w)
+
 		var (
 			isReplacement      = r.FormValue("is-replacement") == "1"
 			isTrustCorporation = r.FormValue("is-trust-corporation") == "1"
