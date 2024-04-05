@@ -19,6 +19,7 @@ func TestResolvingServiceGet(t *testing.T) {
 	testcases := map[string]struct {
 		donor    *actor.DonorProvidedDetails
 		resolved *Lpa
+		error    error
 		expected *Lpa
 	}{
 		"digital with all true": {
@@ -29,6 +30,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				SubmittedAt:  time.Now(),
 				RegisteredAt: registeredAt,
 				CertificateProvider: actor.CertificateProvider{
+					FirstNames:   "Barry",
 					Relationship: actor.Personally,
 				},
 				Tasks: actor.DonorTasks{
@@ -38,7 +40,12 @@ func TestResolvingServiceGet(t *testing.T) {
 					OK: true,
 				},
 			},
-			resolved: &Lpa{LpaID: "1"},
+			resolved: &Lpa{
+				LpaID: "1",
+				CertificateProvider: actor.CertificateProvider{
+					FirstNames: "Paul",
+				},
+			},
 			expected: &Lpa{
 				LpaID:                  "1",
 				LpaUID:                 "M-1111",
@@ -48,6 +55,25 @@ func TestResolvingServiceGet(t *testing.T) {
 				IsOrganisationDonor:    true,
 				RegisteredAt:           date.FromTime(registeredAt),
 				CertificateProvider: actor.CertificateProvider{
+					FirstNames:   "Paul",
+					Relationship: actor.Personally,
+				},
+			},
+		},
+		"digital with no lpastore record": {
+			donor: &actor.DonorProvidedDetails{
+				SK:     dynamo.DonorKey("S"),
+				LpaUID: "M-1111",
+				CertificateProvider: actor.CertificateProvider{
+					FirstNames:   "John",
+					Relationship: actor.Personally,
+				},
+			},
+			error: ErrNotFound,
+			expected: &Lpa{
+				LpaUID: "M-1111",
+				CertificateProvider: actor.CertificateProvider{
+					FirstNames:   "John",
 					Relationship: actor.Personally,
 				},
 			},
@@ -95,7 +121,7 @@ func TestResolvingServiceGet(t *testing.T) {
 			lpaClient := newMockLpaClient(t)
 			lpaClient.EXPECT().
 				Lpa(ctx, "M-1111").
-				Return(tc.resolved, nil)
+				Return(tc.resolved, tc.error)
 
 			service := NewResolvingService(donorStore, lpaClient)
 			lpa, err := service.Get(ctx)

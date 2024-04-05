@@ -7,7 +7,7 @@ switch (context.request.method) {
         if (lpa) {
             respond().withContent(lpa)
         } else {
-            respond()
+            respond().withStatusCode(404)
         }
         break
 

@@ -21,7 +21,7 @@
         {{ tr .App "peopleNamedOnTheLpa" }}
       </h2>
 
-      {{ template "people-named-on-lpa" . }}
+      {{ template "people-named-on-lpa" (lpaDecisions .App .Donor (not .Donor.Tasks.ConfirmYourIdentityAndSign.Completed)) }}
 
       <div class="govuk-button-group">
         <a href="{{ link .App (global.Paths.LpaYourLegalRightsAndResponsibilities.Format .App.LpaID) }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
