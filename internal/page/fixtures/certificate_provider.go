@@ -68,7 +68,8 @@ func CertificateProvider(
 			certificateProviderSessionID = base64.StdEncoding.EncodeToString([]byte(certificateProviderSub))
 		)
 
-		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: certificateProviderSub, Email: testEmail}); err != nil {
+		err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: certificateProviderSub, Email: testEmail})
+		if err != nil {
 			return err
 		}
 
