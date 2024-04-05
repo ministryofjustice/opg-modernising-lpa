@@ -64,6 +64,7 @@ func TestToday(t *testing.T) {
 
 func TestFromTime(t *testing.T) {
 	assert.Equal(t, New("2000", "1", "2"), FromTime(time.Date(2000, time.January, 2, 0, 0, 0, 0, time.UTC)))
+	assert.Equal(t, Date{}, FromTime(time.Time{}))
 }
 
 func TestEquals(t *testing.T) {

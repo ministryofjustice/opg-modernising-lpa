@@ -51,6 +51,10 @@ func Today() Date {
 }
 
 func FromTime(t time.Time) Date {
+	if t.IsZero() {
+		return Date{}
+	}
+
 	return Date{
 		year:  t.Format("2006"),
 		month: t.Format("1"),

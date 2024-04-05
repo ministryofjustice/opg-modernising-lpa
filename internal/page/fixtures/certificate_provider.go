@@ -169,7 +169,7 @@ func CertificateProvider(
 		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
 			return err
 		}
-		if donorDetails.LpaUID != "" {
+		if !donorDetails.SignedAt.IsZero() && donorDetails.LpaUID != "" {
 			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails); err != nil {
 				return err
 			}
