@@ -39,6 +39,8 @@ func CertificateProvider(
 	}
 
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+		acceptCookiesConsent(w)
+
 		var (
 			lpaType                           = r.FormValue("lpa-type")
 			progress                          = slices.Index(progressValues, r.FormValue("progress"))
