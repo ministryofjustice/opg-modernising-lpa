@@ -1,7 +1,7 @@
 describe('Confirm your details', () => {
   describe('shows details for', () => {
     it('lay certificate providers', () => {
-      cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth');
+      cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth&sendLpaToLpaStore=1');
 
       cy.get('#f-date-of-birth').type('1');
       cy.get('#f-date-of-birth-month').type('2');
@@ -29,7 +29,7 @@ describe('Confirm your details', () => {
     });
 
     it('professional certificate providers', () => {
-      cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth&relationship=professional');
+      cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth&relationship=professional&sendLpaToLpaStore=1');
 
       cy.get('#f-date-of-birth').type('1');
       cy.get('#f-date-of-birth-month').type('2');
@@ -71,5 +71,12 @@ describe('Confirm your details', () => {
       cy.contains('button', 'Continue').click();
       cy.url().should('contain', '/your-role');
     });
+
+    it('shows contact number when donor acting on paper', () => {
+      cy.visit('/fixtures/certificate-provider?redirect=/confirm-your-details&donorChannel=paper');
+
+      cy.contains('Contact number').should('exist');
+      cy.contains('Mobile number').should('not.exist');
+    })
   })
 });
