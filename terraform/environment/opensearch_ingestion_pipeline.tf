@@ -44,21 +44,6 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     }
   }
 
-  # statement {
-  #   sid    = "GetSecurityPolicy"
-  #   effect = "Allow"
-  #   actions = [
-  #     "aoss:GetSecurityPolicy",
-  #   ]
-  #   resources = ["*"]
-
-  #   condition {
-  #     test     = "StringEquals"
-  #     variable = "aws:SourceAccount"
-  #     values   = [data.aws_caller_identity.eu_west_1.account_id]
-  #   }
-  # }
-
   statement {
     sid    = "allowRunExportJob"
     effect = "Allow"
