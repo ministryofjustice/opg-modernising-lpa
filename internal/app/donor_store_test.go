@@ -627,6 +627,7 @@ func TestDonorStoreCreate(t *testing.T) {
 					OtherNames:  previousDetails.Donor.OtherNames,
 					DateOfBirth: previousDetails.Donor.DateOfBirth,
 					Address:     previousDetails.Donor.Address,
+					Channel:     actor.ChannelOnline,
 				},
 			}
 			donor.Hash, _ = donor.GenerateHash()

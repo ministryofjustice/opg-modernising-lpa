@@ -288,7 +288,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc(page.Paths.HealthCheck.Service.String(), func(w http.ResponseWriter, r *http.Request) {})
-	mux.Handle(page.Paths.HealthCheck.Dependency.String(), page.DependencyHealthCheck(logger, map[string]page.HealthChecker{
+	mux.Handle(page.Paths.HealthCheck.Dependency.String(), page.DependencyHealthCheck(map[string]page.HealthChecker{
 		"uid":      uidClient,
 		"onelogin": oneloginClient,
 		"lpaStore": lpaStoreClient,
