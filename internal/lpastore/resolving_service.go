@@ -50,11 +50,13 @@ func (s *ResolvingService) Get(ctx context.Context) (*Lpa, error) {
 		// set to Professionally so we always show the certificate provider home
 		// address question
 		lpa.CertificateProvider.Relationship = actor.Professionally
+		lpa.Donor.Channel = actor.ChannelPaper
 	} else {
 		lpa.DonorIdentityConfirmed = donor.DonorIdentityConfirmed()
 		lpa.Submitted = !donor.SubmittedAt.IsZero()
 		lpa.Paid = donor.Tasks.PayForLpa.IsCompleted()
 		lpa.IsOrganisationDonor = strings.HasPrefix(donor.SK, dynamo.OrganisationKey(""))
+		lpa.Donor.Channel = actor.ChannelOnline
 
 		// copy the relationship as it isn't stored in the lpastore.
 		lpa.CertificateProvider.Relationship = donor.CertificateProvider.Relationship

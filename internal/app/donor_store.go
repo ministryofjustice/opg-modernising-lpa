@@ -66,7 +66,8 @@ func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, e
 		CreatedAt: s.now(),
 		Version:   1,
 		Donor: actor.Donor{
-			UID: donorUID,
+			UID:     donorUID,
+			Channel: actor.ChannelOnline,
 		},
 	}
 
