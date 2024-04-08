@@ -1,7 +1,7 @@
 describe('Confirm your details', () => {
   describe('shows details for', () => {
     it('lay certificate providers', () => {
-      cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth&sendLpaToLpaStore=1');
+      cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth');
 
       cy.get('#f-date-of-birth').type('1');
       cy.get('#f-date-of-birth-month').type('2');
@@ -29,7 +29,7 @@ describe('Confirm your details', () => {
     });
 
     it('professional certificate providers', () => {
-      cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth&relationship=professional&sendLpaToLpaStore=1');
+      cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth&relationship=professional');
 
       cy.get('#f-date-of-birth').type('1');
       cy.get('#f-date-of-birth-month').type('2');
