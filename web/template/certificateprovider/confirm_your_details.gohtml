@@ -41,12 +41,6 @@
 
       <h2 class="govuk-heading-m govuk-!-margin-top-8">{{ tr .App "detailsTheDonorHasGivenAboutYou" }}</h2>
 
-      {{ $detailsContent := "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay" }}
-
-      {{ if .Lpa.CertificateProvider.Relationship.IsProfessionally }}
-        {{ $detailsContent = "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentProfessional" }}
-      {{ end }}
-
       <dl class="govuk-summary-list">
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">{{ tr .App "name" }}</dt>
@@ -62,7 +56,7 @@
         </div>
       </dl>
 
-      {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" $detailsContent false) }}
+      {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" .DetailComponentContent false) }}
 
       {{ template "warning" (content .App "anyErrorsInYourDetailsCanDelay") }}
 

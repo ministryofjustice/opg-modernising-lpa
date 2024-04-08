@@ -19,25 +19,30 @@ func TestGetConfirmYourDetails(t *testing.T) {
 		PhoneNumberLabel                string
 		CertificateProviderRelationship actor.CertificateProviderRelationship
 		AddressLabel                    string
+		DetailsComponentContent         string
 	}{
 		"online donor": {
-			DonorChannel:     actor.ChannelOnline,
-			PhoneNumberLabel: "mobileNumber",
-			AddressLabel:     "address",
+			DonorChannel:            actor.ChannelOnline,
+			PhoneNumberLabel:        "mobileNumber",
+			AddressLabel:            "address",
+			DetailsComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
 		},
 		"paper donor": {
-			DonorChannel:     actor.ChannelPaper,
-			PhoneNumberLabel: "contactNumber",
-			AddressLabel:     "address",
+			DonorChannel:            actor.ChannelPaper,
+			PhoneNumberLabel:        "contactNumber",
+			AddressLabel:            "address",
+			DetailsComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
 		},
 		"lay CP": {
 			CertificateProviderRelationship: actor.Personally,
 			AddressLabel:                    "address",
+			DetailsComponentContent:         "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
 			PhoneNumberLabel:                "mobileNumber",
 		},
 		"professional CP": {
 			CertificateProviderRelationship: actor.Professionally,
 			AddressLabel:                    "workAddress",
+			DetailsComponentContent:         "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentProfessional",
 			PhoneNumberLabel:                "mobileNumber",
 		},
 	}
@@ -66,11 +71,12 @@ func TestGetConfirmYourDetails(t *testing.T) {
 			template := newMockTemplate(t)
 			template.EXPECT().
 				Execute(w, &confirmYourDetailsData{
-					App:                 testAppData,
-					Lpa:                 lpa,
-					CertificateProvider: certificateProvider,
-					PhoneNumberLabel:    tc.PhoneNumberLabel,
-					AddressLabel:        tc.AddressLabel,
+					App:                    testAppData,
+					Lpa:                    lpa,
+					CertificateProvider:    certificateProvider,
+					PhoneNumberLabel:       tc.PhoneNumberLabel,
+					AddressLabel:           tc.AddressLabel,
+					DetailComponentContent: tc.DetailsComponentContent,
 				}).
 				Return(nil)
 
