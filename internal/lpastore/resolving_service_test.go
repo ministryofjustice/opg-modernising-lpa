@@ -22,7 +22,7 @@ func TestResolvingServiceGet(t *testing.T) {
 		error    error
 		expected *Lpa
 	}{
-		"digital with all true": {
+		"online with all true": {
 			donor: &actor.DonorProvidedDetails{
 				SK:           dynamo.OrganisationKey("S"),
 				LpaID:        "1",
@@ -58,9 +58,10 @@ func TestResolvingServiceGet(t *testing.T) {
 					FirstNames:   "Paul",
 					Relationship: actor.Personally,
 				},
+				Donor: actor.Donor{Channel: actor.ChannelOnline},
 			},
 		},
-		"digital with no lpastore record": {
+		"online with no lpastore record": {
 			donor: &actor.DonorProvidedDetails{
 				SK:     dynamo.DonorKey("S"),
 				LpaUID: "M-1111",
@@ -68,6 +69,7 @@ func TestResolvingServiceGet(t *testing.T) {
 					FirstNames:   "John",
 					Relationship: actor.Personally,
 				},
+				Donor: actor.Donor{Channel: actor.ChannelOnline},
 			},
 			error: ErrNotFound,
 			expected: &Lpa{
@@ -76,9 +78,10 @@ func TestResolvingServiceGet(t *testing.T) {
 					FirstNames:   "John",
 					Relationship: actor.Personally,
 				},
+				Donor: actor.Donor{Channel: actor.ChannelOnline},
 			},
 		},
-		"digital with all false": {
+		"online with all false": {
 			donor: &actor.DonorProvidedDetails{
 				SK:     dynamo.DonorKey("S"),
 				LpaID:  "1",
@@ -88,6 +91,7 @@ func TestResolvingServiceGet(t *testing.T) {
 			expected: &Lpa{
 				LpaID:  "1",
 				LpaUID: "M-1111",
+				Donor:  actor.Donor{Channel: actor.ChannelOnline},
 			},
 		},
 		"paper": {
@@ -105,6 +109,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				CertificateProvider: actor.CertificateProvider{
 					Relationship: actor.Professionally,
 				},
+				Donor: actor.Donor{Channel: actor.ChannelPaper},
 			},
 		},
 	}
@@ -151,6 +156,7 @@ func TestResolvingServiceGetWhenNotFound(t *testing.T) {
 	assert.Equal(t, &Lpa{
 		LpaID:  "1",
 		LpaUID: "M-1111",
+		Donor:  actor.Donor{Channel: actor.ChannelOnline},
 	}, lpa)
 	assert.Nil(t, err)
 }

@@ -15,6 +15,8 @@ type confirmYourDetailsData struct {
 	Errors              validation.List
 	Lpa                 *lpastore.Lpa
 	CertificateProvider *actor.CertificateProviderProvidedDetails
+	PhoneNumberLabel    string
+	AddressLabel        string
 }
 
 func ConfirmYourDetails(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore) page.Handler {
@@ -48,6 +50,16 @@ func ConfirmYourDetails(tmpl template.Template, lpaStoreResolvingService LpaStor
 			App:                 appData,
 			CertificateProvider: certificateProvider,
 			Lpa:                 lpa,
+			PhoneNumberLabel:    "mobileNumber",
+			AddressLabel:        "address",
+		}
+
+		if lpa.Donor.Channel.IsPaper() {
+			data.PhoneNumberLabel = "contactNumber"
+		}
+
+		if lpa.CertificateProvider.Relationship.IsProfessionally() {
+			data.AddressLabel = "workAddress"
 		}
 
 		return tmpl(w, data)
