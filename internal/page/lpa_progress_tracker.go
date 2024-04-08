@@ -1,6 +1,9 @@
 package page
 
-import "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+import (
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+)
 
 type ProgressTracker struct {
 	Localizer Localizer
@@ -22,22 +25,22 @@ type Progress struct {
 	LpaRegistered             ProgressTask
 }
 
-func (pt ProgressTracker) Progress(donor *actor.DonorProvidedDetails, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) Progress {
+func (pt ProgressTracker) Progress(lpa *lpastore.Lpa, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) Progress {
 	var labels map[string]string
 
-	if donor.IsOrganisationDonor() {
+	if lpa.IsOrganisationDonor {
 		labels = map[string]string{
 			"paid": pt.Localizer.Format(
 				"donorFullNameHasPaid",
-				map[string]interface{}{"DonorFullName": donor.Donor.FullName()},
+				map[string]interface{}{"DonorFullName": lpa.Donor.FullName()},
 			),
 			"confirmedID": pt.Localizer.Format(
 				"donorFullNameHasConfirmedTheirIdentity",
-				map[string]interface{}{"DonorFullName": donor.Donor.FullName()},
+				map[string]interface{}{"DonorFullName": lpa.Donor.FullName()},
 			),
 			"donorSigned": pt.Localizer.Format(
 				"donorFullNameHasSignedTheLPA",
-				map[string]interface{}{"DonorFullName": donor.Donor.FullName()},
+				map[string]interface{}{"DonorFullName": lpa.Donor.FullName()},
 			),
 			"certificateProviderSigned": pt.Localizer.T("theCertificateProviderHasDeclared"),
 			"attorneysSigned":           pt.Localizer.T("allAttorneysHaveSignedTheLpa"),
@@ -50,16 +53,16 @@ func (pt ProgressTracker) Progress(donor *actor.DonorProvidedDetails, certificat
 			"paid":                   "",
 			"confirmedID":            "",
 			"donorSigned":            pt.Localizer.T("youveSignedYourLpa"),
-			"attorneysSigned":        pt.Localizer.Count("attorneysHaveDeclared", len(donor.Attorneys.Attorneys)),
+			"attorneysSigned":        pt.Localizer.Count("attorneysHaveDeclared", len(lpa.Attorneys.Attorneys)),
 			"lpaSubmitted":           pt.Localizer.T("weHaveReceivedYourLpa"),
 			"statutoryWaitingPeriod": pt.Localizer.T("yourWaitingPeriodHasStarted"),
 			"lpaRegistered":          pt.Localizer.T("yourLpaHasBeenRegistered"),
 		}
 
-		if donor.CertificateProvider.FirstNames != "" {
+		if lpa.CertificateProvider.FirstNames != "" {
 			labels["certificateProviderSigned"] = pt.Localizer.Format(
 				"certificateProviderHasDeclared",
-				map[string]interface{}{"CertificateProviderFullName": donor.CertificateProvider.FullName()},
+				map[string]interface{}{"CertificateProviderFullName": lpa.CertificateProvider.FullName()},
 			)
 		} else {
 			labels["certificateProviderSigned"] = pt.Localizer.T("yourCertificateProviderHasDeclared")
@@ -101,28 +104,28 @@ func (pt ProgressTracker) Progress(donor *actor.DonorProvidedDetails, certificat
 		},
 	}
 
-	if donor.IsOrganisationDonor() {
+	if lpa.IsOrganisationDonor {
 		progress.Paid.State = actor.TaskInProgress
-		if !donor.Tasks.PayForLpa.IsCompleted() {
+		if !lpa.Paid {
 			return progress
 		}
 
 		progress.Paid.State = actor.TaskCompleted
 		progress.ConfirmedID.State = actor.TaskInProgress
 
-		if !donor.DonorIdentityConfirmed() {
+		if !lpa.DonorIdentityConfirmed {
 			return progress
 		}
 
 		progress.ConfirmedID.State = actor.TaskCompleted
 		progress.DonorSigned.State = actor.TaskInProgress
 
-		if donor.SignedAt.IsZero() {
+		if lpa.SignedAt.IsZero() {
 			return progress
 		}
 	} else {
 		progress.DonorSigned.State = actor.TaskInProgress
-		if donor.SignedAt.IsZero() {
+		if lpa.SignedAt.IsZero() {
 			return progress
 		}
 	}
@@ -130,28 +133,28 @@ func (pt ProgressTracker) Progress(donor *actor.DonorProvidedDetails, certificat
 	progress.DonorSigned.State = actor.TaskCompleted
 	progress.CertificateProviderSigned.State = actor.TaskInProgress
 
-	if !certificateProvider.Signed(donor.SignedAt) {
+	if !certificateProvider.Signed(lpa.SignedAt) {
 		return progress
 	}
 
 	progress.CertificateProviderSigned.State = actor.TaskCompleted
 	progress.AttorneysSigned.State = actor.TaskInProgress
 
-	if !donor.AllAttorneysSigned(attorneys) {
+	if !lpa.AllAttorneysSigned(attorneys) {
 		return progress
 	}
 
 	progress.AttorneysSigned.State = actor.TaskCompleted
 	progress.LpaSubmitted.State = actor.TaskInProgress
 
-	if donor.SubmittedAt.IsZero() {
+	if !lpa.Submitted {
 		return progress
 	}
 
 	progress.LpaSubmitted.State = actor.TaskCompleted
 	progress.StatutoryWaitingPeriod.State = actor.TaskInProgress
 
-	if donor.RegisteredAt.IsZero() {
+	if lpa.RegisteredAt.IsZero() {
 		return progress
 	}
 

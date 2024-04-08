@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -68,7 +69,12 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 		Return(nil)
 
 	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", testRandomStringFn, nil)
-	err := sender.SendCertificateProviderInvite(ctx, TestAppData, donor)
+	err := sender.SendCertificateProviderInvite(ctx, TestAppData, CertificateProviderInvite{
+		LpaUID:              donor.LpaUID,
+		Type:                donor.Type,
+		Donor:               donor.Donor,
+		CertificateProvider: donor.CertificateProvider,
+	})
 
 	assert.Nil(t, err)
 }
@@ -170,10 +176,20 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 				sender.UseTestCode("abcdef123456")
 			}
 
-			err := sender.SendCertificateProviderInvite(ctx, TestAppData, donor)
+			err := sender.SendCertificateProviderInvite(ctx, TestAppData, CertificateProviderInvite{
+				LpaUID:              donor.LpaUID,
+				Type:                donor.Type,
+				Donor:               donor.Donor,
+				CertificateProvider: donor.CertificateProvider,
+			})
 			assert.Nil(t, err)
 
-			err = sender.SendCertificateProviderInvite(ctx, TestAppData, donor)
+			err = sender.SendCertificateProviderInvite(ctx, TestAppData, CertificateProviderInvite{
+				LpaUID:              donor.LpaUID,
+				Type:                donor.Type,
+				Donor:               donor.Donor,
+				CertificateProvider: donor.CertificateProvider,
+			})
 			assert.Nil(t, err)
 		})
 	}
@@ -215,7 +231,12 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenEmailErrors(t *testing.
 		Return(expectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, notifyClient, "http://app", testRandomStringFn, nil)
-	err := sender.SendCertificateProviderInvite(ctx, TestAppData, donor)
+	err := sender.SendCertificateProviderInvite(ctx, TestAppData, CertificateProviderInvite{
+		LpaUID:              donor.LpaUID,
+		Type:                donor.Type,
+		Donor:               donor.Donor,
+		CertificateProvider: donor.CertificateProvider,
+	})
 
 	assert.Equal(t, expectedError, errors.Unwrap(err))
 }
@@ -229,7 +250,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenShareCodeStoreErrors(t 
 		Return(expectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", testRandomStringFn, nil)
-	err := sender.SendCertificateProviderInvite(ctx, TestAppData, &actor.DonorProvidedDetails{})
+	err := sender.SendCertificateProviderInvite(ctx, TestAppData, CertificateProviderInvite{})
 
 	assert.Equal(t, expectedError, errors.Unwrap(err))
 }
@@ -532,7 +553,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 	replacement1UID := actoruid.New()
 	replacement2UID := actoruid.New()
 
-	donor := &actor.DonorProvidedDetails{
+	donor := &lpastore.Lpa{
 		Attorneys: actor.Attorneys{
 			TrustCorporation: actor.TrustCorporation{
 				UID:   trustCorporationUID,
@@ -707,7 +728,7 @@ func TestShareCodeSenderSendAttorneysTrustCorporationsNoEmail(t *testing.T) {
 	uid1 := actoruid.New()
 	uid2 := actoruid.New()
 
-	donor := &actor.DonorProvidedDetails{
+	donor := &lpastore.Lpa{
 		Attorneys: actor.Attorneys{
 			TrustCorporation: actor.TrustCorporation{
 				UID:  uid1,
@@ -787,7 +808,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 		},
 	}
 
-	donor := &actor.DonorProvidedDetails{
+	donor := &lpastore.Lpa{
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{
 				FirstNames: "Joanna",
@@ -867,7 +888,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 	ctx := context.Background()
 
-	donor := &actor.DonorProvidedDetails{
+	donor := &lpastore.Lpa{
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
 			{
 				FirstNames: "Joanna",
@@ -916,7 +937,7 @@ func TestShareCodeSenderSendAttorneysWhenShareCodeStoreErrors(t *testing.T) {
 		Return(expectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", testRandomStringFn, nil)
-	err := sender.SendAttorneys(ctx, TestAppData, &actor.DonorProvidedDetails{
+	err := sender.SendAttorneys(ctx, TestAppData, &lpastore.Lpa{
 		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{Email: "hey@example.com"}}},
 	})
 

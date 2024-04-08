@@ -123,6 +123,19 @@ func TestDonorStoreGetAny(t *testing.T) {
 	assert.Equal(t, &actor.DonorProvidedDetails{LpaID: "an-id"}, lpa)
 }
 
+func TestDonorStoreGetAnyWhenOrganisation(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", OrganisationID: "x"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectOneByPartialSK(ctx, "LPA#an-id", "ORGANISATION#", &actor.DonorProvidedDetails{LpaID: "an-id"}, nil)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
+
+	lpa, err := donorStore.GetAny(ctx)
+	assert.Nil(t, err)
+	assert.Equal(t, &actor.DonorProvidedDetails{LpaID: "an-id"}, lpa)
+}
+
 func TestDonorStoreGetAnyWithSessionMissing(t *testing.T) {
 	donorStore := &donorStore{dynamoClient: nil, uuidString: func() string { return "10100000" }}
 

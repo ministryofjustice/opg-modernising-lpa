@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/stretchr/testify/assert"
@@ -214,6 +215,7 @@ func TestClientSendLpa(t *testing.T) {
 					FirstNames: "Carol",
 					LastName:   "Cert",
 					Email:      "carol@example.com",
+					Mobile:     "0700009000",
 					Address: place.Address{
 						Line1:      "c-line-1",
 						Line2:      "c-line-2",
@@ -253,7 +255,7 @@ func TestClientSendLpa(t *testing.T) {
 {"uid":"` + trustCorporationUID.String() + `","name":"Trusty","companyNumber":"55555","email":"trusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active"},
 {"uid":"` + replacementTrustCorporationUID.String() + `","name":"UnTrusty","companyNumber":"65555","email":"untrusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"replacement"}
 ],
-"certificateProvider":{"uid":"` + certificateProviderUID.String() + `","firstNames":"Carol","lastName":"Cert","email":"carol@example.com","address":{"line1":"c-line-1","line2":"c-line-2","line3":"c-line-3","town":"c-town","postcode":"C1 1FF","country":"GB"},"channel":"online"},
+"certificateProvider":{"uid":"` + certificateProviderUID.String() + `","firstNames":"Carol","lastName":"Cert","email":"carol@example.com","phone":"0700009000","address":{"line1":"c-line-1","line2":"c-line-2","line3":"c-line-3","town":"c-town","postcode":"C1 1FF","country":"GB"},"channel":"online"},
 "peopleToNotify":[{"uid":"` + personToNotifyUID.String() + `","firstNames":"Peter","lastName":"Notify","address":{"line1":"p-line-1","line2":"p-line-2","line3":"p-line-3","town":"p-town","postcode":"P1 1FF","country":"GB"}}],
 "howAttorneysMakeDecisions":"jointly",
 "howReplacementAttorneysMakeDecisions":"jointly-for-some-severally-for-others",
@@ -373,11 +375,11 @@ func TestClientLpa(t *testing.T) {
 	personToNotifyUID := actoruid.New()
 
 	testcases := map[string]struct {
-		donor *actor.DonorProvidedDetails
+		donor *Lpa
 		json  string
 	}{
 		"minimal": {
-			donor: &actor.DonorProvidedDetails{
+			donor: &Lpa{
 				LpaUID: "M-0000-1111-2222",
 				Type:   actor.LpaTypePropertyAndAffairs,
 				Donor: actor.Donor{
@@ -434,7 +436,7 @@ func TestClientLpa(t *testing.T) {
 }`,
 		},
 		"everything": {
-			donor: &actor.DonorProvidedDetails{
+			donor: &Lpa{
 				LpaUID: "M-0000-1111-2222",
 				Type:   actor.LpaTypePersonalWelfare,
 				Donor: actor.Donor{
@@ -558,6 +560,7 @@ func TestClientLpa(t *testing.T) {
 					FirstNames: "Carol",
 					LastName:   "Cert",
 					Email:      "carol@example.com",
+					Mobile:     "0700009000",
 					Address: place.Address{
 						Line1:      "c-line-1",
 						Line2:      "c-line-2",
@@ -598,7 +601,7 @@ func TestClientLpa(t *testing.T) {
 {"uid":"` + trustCorporationUID.String() + `","name":"Trusty","companyNumber":"55555","email":"trusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active"},
 {"uid":"` + replacementTrustCorporationUID.String() + `","name":"UnTrusty","companyNumber":"65555","email":"untrusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"replacement"}
 ],
-"certificateProvider":{"uid":"` + certificateProviderUID.String() + `","firstNames":"Carol","lastName":"Cert","email":"carol@example.com","address":{"line1":"c-line-1","line2":"c-line-2","line3":"c-line-3","town":"c-town","postcode":"C1 1FF","country":"GB"},"channel":"online"},
+"certificateProvider":{"uid":"` + certificateProviderUID.String() + `","firstNames":"Carol","lastName":"Cert","email":"carol@example.com","phone":"0700009000","address":{"line1":"c-line-1","line2":"c-line-2","line3":"c-line-3","town":"c-town","postcode":"C1 1FF","country":"GB"},"channel":"online"},
 "peopleToNotify":[{"uid":"` + personToNotifyUID.String() + `","firstNames":"Peter","lastName":"Notify","address":{"line1":"p-line-1","line2":"p-line-2","line3":"p-line-3","town":"p-town","postcode":"P1 1FF","country":"GB"}}],
 "howAttorneysMakeDecisions":"jointly",
 "howReplacementAttorneysMakeDecisions":"jointly-for-some-severally-for-others",
@@ -699,4 +702,142 @@ func TestClientLpaWhenStatusCodeIsNotCreated(t *testing.T) {
 	_, err := client.Lpa(ctx, "M-0000-1111-2222")
 
 	assert.Equal(t, responseError{name: "expected 200 response but got 400", body: "hey"}, err)
+}
+
+func TestAllAttorneysSigned(t *testing.T) {
+	lpaSignedAt := time.Now()
+	otherLpaSignedAt := lpaSignedAt.Add(time.Minute)
+	attorneySigned := lpaSignedAt.Add(time.Second)
+
+	uid1 := actoruid.New()
+	uid2 := actoruid.New()
+	uid3 := actoruid.New()
+	uid4 := actoruid.New()
+	uid5 := actoruid.New()
+
+	testcases := map[string]struct {
+		lpa       *Lpa
+		attorneys []*actor.AttorneyProvidedDetails
+		expected  bool
+	}{
+		"no attorneys": {
+			expected: false,
+		},
+		"need attorney to sign": {
+			lpa: &Lpa{
+				SignedAt:             lpaSignedAt,
+				Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}, {UID: uid2}}},
+				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid3}}},
+			},
+			attorneys: []*actor.AttorneyProvidedDetails{
+				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid4, LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid3, IsReplacement: true, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+			},
+			expected: false,
+		},
+		"need replacement attorney to sign": {
+			lpa: &Lpa{
+				SignedAt:             lpaSignedAt,
+				Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}}},
+				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid3}, {UID: uid5}}},
+			},
+			attorneys: []*actor.AttorneyProvidedDetails{
+				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid3, IsReplacement: true},
+				{UID: uid5, IsReplacement: true, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+			},
+			expected: false,
+		},
+		"all attorneys signed": {
+			lpa: &Lpa{
+				SignedAt:             lpaSignedAt,
+				Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}, {UID: uid2}}},
+				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid3}}},
+			},
+			attorneys: []*actor.AttorneyProvidedDetails{
+				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid2, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid3, IsReplacement: true, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+			},
+			expected: true,
+		},
+		"more attorneys signed": {
+			lpa: &Lpa{
+				SignedAt:  lpaSignedAt,
+				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}, {UID: uid2}}},
+			},
+			attorneys: []*actor.AttorneyProvidedDetails{
+				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid2, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid4, LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySigned},
+			},
+			expected: true,
+		},
+		"waiting for attorney to re-sign": {
+			lpa: &Lpa{
+				SignedAt:  lpaSignedAt,
+				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}, {UID: uid2}}},
+			},
+			attorneys: []*actor.AttorneyProvidedDetails{
+				{UID: uid1, LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid2, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+			},
+			expected: false,
+		},
+		"trust corporations not signed": {
+			lpa: &Lpa{
+				SignedAt:  lpaSignedAt,
+				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
+			},
+			expected: false,
+		},
+		"replacement trust corporations not signed": {
+			lpa: &Lpa{
+				SignedAt:             lpaSignedAt,
+				Attorneys:            actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
+				ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "r"}},
+			},
+			attorneys: []*actor.AttorneyProvidedDetails{
+				{
+					IsTrustCorporation:       true,
+					WouldLikeSecondSignatory: form.No,
+					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned}},
+				},
+				{
+					IsTrustCorporation:       true,
+					WouldLikeSecondSignatory: form.Yes,
+					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned}},
+				},
+			},
+			expected: false,
+		},
+		"trust corporations signed": {
+			lpa: &Lpa{
+				SignedAt:             lpaSignedAt,
+				Attorneys:            actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
+				ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "r"}},
+			},
+			attorneys: []*actor.AttorneyProvidedDetails{
+				{
+					IsTrustCorporation:       true,
+					WouldLikeSecondSignatory: form.No,
+					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned}},
+				},
+				{
+					IsTrustCorporation:       true,
+					IsReplacement:            true,
+					WouldLikeSecondSignatory: form.No,
+					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned}},
+				},
+			},
+			expected: true,
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.expected, tc.lpa.AllAttorneysSigned(tc.attorneys))
+		})
+	}
 }

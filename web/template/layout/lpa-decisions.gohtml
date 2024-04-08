@@ -1,15 +1,13 @@
 {{ define "lpa-decisions" }}
-  {{ $canChange := and (not $.Donor.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
-
   <dl class="govuk-summary-list">
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">
         {{ tr .App "typeOfLpa" }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ tr .App .Donor.Type.String }}
+        {{ tr .App .Lpa.Type.String }}
       </dd>
-      {{ if $canChange }}
+      {{ if .CanChange }}
         <dd class="govuk-summary-list__actions">
           <a class="govuk-link" href="{{ link .App (global.Paths.LpaType.Format .App.LpaID) }}">
             {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "typeOfLpa" }}</span>
@@ -28,12 +26,12 @@
       </dt>
       <dd class="govuk-summary-list__value">
         {{ if .App.IsDonor }}
-          {{ tr .App .Donor.WhenCanTheLpaBeUsed.String }}
+          {{ tr .App .Lpa.WhenCanTheLpaBeUsed.String }}
         {{ else }}
-          {{ tr .App (printf "%s:3rd" .Donor.WhenCanTheLpaBeUsed.String) }}
+          {{ tr .App (printf "%s:3rd" .Lpa.WhenCanTheLpaBeUsed.String) }}
         {{ end }}
       </dd>
-      {{ if and $canChange .Donor.Type.IsPropertyAndAffairs }}
+      {{ if and .CanChange .Lpa.Type.IsPropertyAndAffairs }}
         <dd class="govuk-summary-list__actions">
           <a class="govuk-link" href="{{ link .App (global.Paths.WhenCanTheLpaBeUsed.Format .App.LpaID) }}">
             {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "whenYourAttorneysCanUseYourLpa" }}</span>
@@ -45,17 +43,17 @@
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">
         {{ if .App.IsDonor }}
-          {{ trCount .App "whoAreYourAttorneys" .Donor.Attorneys.Len }}
+          {{ trCount .App "whoAreYourAttorneys" .Lpa.Attorneys.Len }}
         {{ else if .App.IsCertificateProvider }}
-          {{ trCount .App "theirAttorneys" .Donor.Attorneys.Len }}
+          {{ trCount .App "theirAttorneys" .Lpa.Attorneys.Len }}
         {{ else }}
-          {{ trCount .App "attorneyNames" .Donor.Attorneys.Len }}
+          {{ trCount .App "attorneyNames" .Lpa.Attorneys.Len }}
         {{ end }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ concatAnd .App .Donor.Attorneys.FullNames }}
+        {{ concatAnd .App .Lpa.Attorneys.FullNames }}
       </dd>
-      {{ if $canChange }}
+      {{ if .CanChange }}
         <dd class="govuk-summary-list__actions">
           <a class="govuk-link" href="{{ link .App (global.Paths.ChooseAttorneys.Format .App.LpaID) }}">
             {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "yourAttorneys" }}</span>
@@ -64,7 +62,7 @@
       {{ end }}
     </div>
 
-    {{ if .Donor.AttorneyDecisions.How }}
+    {{ if .Lpa.AttorneyDecisions.How }}
       {{ $title := "howAttorneysMustMakeDecisions" }}
       {{ if .App.IsDonor }}
         {{ $title = "howYourAttorneysMustMakeDecisions" }}
@@ -76,12 +74,12 @@
         </dt>
         <dd class="govuk-summary-list__value">
           {{ if .App.IsDonor }}
-            {{ trHtml .App (printf "your-%s" .Donor.AttorneyDecisions.How.String) }}
+            {{ trHtml .App (printf "your-%s" .Lpa.AttorneyDecisions.How.String) }}
           {{ else }}
-            {{ trHtml .App .Donor.AttorneyDecisions.How.String }}
+            {{ trHtml .App .Lpa.AttorneyDecisions.How.String }}
           {{ end }}
         </dd>
-        {{ if $canChange }}
+        {{ if .CanChange }}
           <dd class="govuk-summary-list__actions">
             <a class="govuk-link" href="{{ link .App (global.Paths.HowShouldAttorneysMakeDecisions.Format .App.LpaID) }}?from={{ .App.Page }}">
               {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ lowerFirst (tr .App $title) }}</span>
@@ -91,7 +89,7 @@
       </div>
     {{ end }}
 
-    {{ if .Donor.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
+    {{ if .Lpa.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
       {{ $title := "decisionsAttorneysMustMakeTogether" }}
       {{ if .App.IsDonor }}
         {{ $title = "decisionsYourAttorneysMustMakeTogether" }}
@@ -102,9 +100,9 @@
           {{ tr .App $title }}
         </dt>
         <dd class="govuk-summary-list__value">
-          {{ trHtml .App .Donor.AttorneyDecisions.Details }}
+          {{ trHtml .App .Lpa.AttorneyDecisions.Details }}
         </dd>
-        {{ if $canChange }}
+        {{ if .CanChange }}
           <dd class="govuk-summary-list__actions">
             <a class="govuk-link" href="{{ link .App (global.Paths.HowShouldAttorneysMakeDecisions.Format .App.LpaID) }}?from={{ .App.Page }}#f-mixed-details">
               {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ lowerFirst (tr .App $title) }}</span>
@@ -117,21 +115,21 @@
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">
         {{ if .App.IsDonor }}
-          {{ trCount .App "whoAreYourReplacementAttorneys" .Donor.ReplacementAttorneys.Len }}
+          {{ trCount .App "whoAreYourReplacementAttorneys" .Lpa.ReplacementAttorneys.Len }}
         {{ else if .App.IsCertificateProvider }}
-          {{ trCount .App "theirReplacementAttorneys" .Donor.ReplacementAttorneys.Len }}
+          {{ trCount .App "theirReplacementAttorneys" .Lpa.ReplacementAttorneys.Len }}
         {{ else }}
-          {{ trCount .App "replacementAttorneyNames" .Donor.ReplacementAttorneys.Len }}
+          {{ trCount .App "replacementAttorneyNames" .Lpa.ReplacementAttorneys.Len }}
         {{ end }}
       </dt>
       <dd class="govuk-summary-list__value">
-        {{ if eq .Donor.ReplacementAttorneys.Len 0 }}
+        {{ if eq .Lpa.ReplacementAttorneys.Len 0 }}
           {{ tr .App "replacementAttorneysNotAppointed" }}
         {{ else }}
-          {{ concatAnd .App .Donor.ReplacementAttorneys.FullNames }}
+          {{ concatAnd .App .Lpa.ReplacementAttorneys.FullNames }}
         {{ end }}
       </dd>
-      {{ if $canChange }}
+      {{ if .CanChange }}
         <dd class="govuk-summary-list__actions">
           <a class="govuk-link" href="{{ link .App (global.Paths.ChooseReplacementAttorneys.Format .App.LpaID) }}">
             {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ tr .App "yourReplacementAttorneys" }}</span>
@@ -140,7 +138,7 @@
       {{ end }}
     </div>
 
-    {{ if .Donor.ReplacementAttorneyDecisions.How }}
+    {{ if .Lpa.ReplacementAttorneyDecisions.How }}
       {{ $title := "howReplacementAttorneysMustMakeDecisions" }}
       {{ if .App.IsDonor }}
         {{ $title = "howYourReplacementAttorneysMustMakeDecisions" }}
@@ -151,12 +149,12 @@
         </dt>
         <dd class="govuk-summary-list__value">
           {{ if .App.IsDonor }}
-            {{ trHtml .App (printf "your-replacement-%s" .Donor.ReplacementAttorneyDecisions.How.String) }}
+            {{ trHtml .App (printf "your-replacement-%s" .Lpa.ReplacementAttorneyDecisions.How.String) }}
           {{ else }}
-            {{ trHtml .App (printf "replacement-%s" .Donor.ReplacementAttorneyDecisions.How.String) }}
+            {{ trHtml .App (printf "replacement-%s" .Lpa.ReplacementAttorneyDecisions.How.String) }}
           {{ end }}
         </dd>
-        {{ if $canChange }}
+        {{ if .CanChange }}
           <dd class="govuk-summary-list__actions">
             <a class="govuk-link" href="{{ link .App (global.Paths.HowShouldReplacementAttorneysMakeDecisions.Format .App.LpaID) }}?from={{ .App.Page }}">
               {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ lowerFirst (tr .App $title) }}</span>
@@ -166,7 +164,7 @@
       </div>
     {{ end }}
 
-    {{ if .Donor.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
+    {{ if .Lpa.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
       {{ $title := "decisionsReplacementAttorneysMustMakeTogether" }}
       {{ if .App.IsDonor }}
         {{ $title = "decisionsYourReplacementAttorneysMustMakeTogether" }}
@@ -177,9 +175,9 @@
           {{ tr .App $title }}
         </dt>
         <dd class="govuk-summary-list__value">
-          {{ trHtml .App .Donor.ReplacementAttorneyDecisions.Details }}
+          {{ trHtml .App .Lpa.ReplacementAttorneyDecisions.Details }}
         </dd>
-        {{ if $canChange }}
+        {{ if .CanChange }}
           <dd class="govuk-summary-list__actions">
             <a class="govuk-link" href="{{ link .App (global.Paths.HowShouldReplacementAttorneysMakeDecisions.Format .App.LpaID) }}?from={{ .App.Page }}#f-mixed-details">
               {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ lowerFirst (tr .App $title) }}</span>
@@ -189,7 +187,7 @@
       </div>
     {{ end }}
 
-    {{ if .Donor.HowShouldReplacementAttorneysStepIn }}
+    {{ if .Lpa.HowShouldReplacementAttorneysStepIn }}
       {{ $title := "howReplacementAttorneysShouldStepIn" }}
       {{ if .App.IsDonor }}
         {{ $title = "howYourReplacementAttorneysShouldStepIn" }}
@@ -199,15 +197,15 @@
           {{ tr .App $title }}
         </dt>
         <dd class="govuk-summary-list__value">
-          {{ if .Donor.HowShouldReplacementAttorneysStepIn.IsWhenOneCanNoLongerAct }}
+          {{ if .Lpa.HowShouldReplacementAttorneysStepIn.IsWhenOneCanNoLongerAct }}
             {{ trHtml .App "whenOneCanNoLongerAct" }}
-          {{ else if .Donor.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct }}
+          {{ else if .Lpa.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct }}
             {{ trHtml .App "whenNoneCanNoLongerAct" }}
           {{ else }}
             {{ trHtml .App "otherWay" }}
           {{ end }}
         </dd>
-        {{ if $canChange }}
+        {{ if .CanChange }}
           <dd class="govuk-summary-list__actions">
             <a class="govuk-link" href="{{ link .App (global.Paths.HowShouldReplacementAttorneysStepIn.Format .App.LpaID) }}">
               {{ tr .App "change" }}<span class="govuk-visually-hidden">{{ lowerFirst (tr .App $title) }}</span>
@@ -217,19 +215,19 @@
       </div>
     {{ end }}
 
-    {{ if .Donor.Type.IsPersonalWelfare }}
+    {{ if .Lpa.Type.IsPersonalWelfare }}
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">
           {{ tr .App "lifeSustainingTreatment" }}
         </dt>
         <dd class="govuk-summary-list__value">
-          {{ if .Donor.LifeSustainingTreatmentOption.IsOptionA }}
+          {{ if .Lpa.LifeSustainingTreatmentOption.IsOptionA }}
             <p class="govuk-body">{{ trHtml .App "optionA" }}</p>
           {{ else }}
             <p class="govuk-body">{{ trHtml .App "optionB" }}</p>
           {{ end }}
         </dd>
-        {{ if $canChange }}
+        {{ if .CanChange }}
           <dd class="govuk-summary-list__actions">
             <a class="govuk-link" href="{{ link .App (global.Paths.LifeSustainingTreatment.Format .App.LpaID) }}">
               {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "lifeSustainingTreatment" }}</span>
@@ -244,9 +242,9 @@
         {{ tr .App "restrictions" }}
       </dt>
       <dd class="govuk-summary-list__value">
-        <p class="govuk-body">{{ .Donor.Restrictions }}</p>
+        <p class="govuk-body">{{ .Lpa.Restrictions }}</p>
       </dd>
-      {{ if $canChange }}
+      {{ if .CanChange }}
         <dd class="govuk-summary-list__actions">
           <a class="govuk-link" href="{{ link .App (global.Paths.Restrictions.Format .App.LpaID) }}">
             {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "yourRestrictions" }}</span>

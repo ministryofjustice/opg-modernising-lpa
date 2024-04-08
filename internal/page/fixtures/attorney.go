@@ -10,12 +10,11 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
@@ -46,6 +45,7 @@ func Attorney(
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
 	eventClient *event.Client,
+	lpaStoreClient *lpastore.Client,
 ) page.Handler {
 	progressValues := []string{
 		"signedByCertificateProvider",
@@ -104,21 +104,8 @@ func Attorney(
 			attorneyCtx            = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: attorneySessionID, LpaID: donorDetails.LpaID})
 		)
 
-		donorDetails.Donor = actor.Donor{
-			FirstNames: "Sam",
-			LastName:   "Smith",
-			Address: place.Address{
-				Line1:      "1 RICHMOND PLACE",
-				Line2:      "KINGS HEATH",
-				Line3:      "WEST MIDLANDS",
-				TownOrCity: "BIRMINGHAM",
-				Postcode:   "B14 7ED",
-			},
-			Email:         testEmail,
-			DateOfBirth:   date.New("2000", "1", "2"),
-			ThinksCanSign: actor.Yes,
-			CanSign:       form.Yes,
-		}
+		donorDetails.SignedAt = time.Now()
+		donorDetails.Donor = makeDonor()
 
 		if lpaType == "personal-welfare" && !isTrustCorporation {
 			donorDetails.Type = actor.LpaTypePersonalWelfare
@@ -187,6 +174,7 @@ func Attorney(
 
 		donorDetails.AttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
 		donorDetails.ReplacementAttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
+		donorDetails.HowShouldReplacementAttorneysStepIn = actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct
 
 		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID, donorDetails.CertificateProvider.UID)
 		if err != nil {
@@ -290,6 +278,11 @@ func Attorney(
 		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
 			return err
 		}
+		if donorDetails.LpaUID != "" {
+			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails); err != nil {
+				return err
+			}
+		}
 		if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {
 			return err
 		}
@@ -303,11 +296,19 @@ func Attorney(
 		}
 
 		if email != "" {
+			lpa := &lpastore.Lpa{
+				LpaUID:               donorDetails.LpaUID,
+				Type:                 donorDetails.Type,
+				Donor:                donorDetails.Donor,
+				Attorneys:            donorDetails.Attorneys,
+				ReplacementAttorneys: donorDetails.ReplacementAttorneys,
+			}
+
 			shareCodeSender.SendAttorneys(donorCtx, page.AppData{
 				SessionID: donorSessionID,
 				LpaID:     donorDetails.LpaID,
 				Localizer: appData.Localizer,
-			}, donorDetails)
+			}, lpa)
 
 			http.Redirect(w, r, page.Paths.Attorney.Start.Format(), http.StatusFound)
 			return nil

@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -18,6 +19,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
+
+type LpaStoreResolvingService interface {
+	Get(ctx context.Context) (*lpastore.Lpa, error)
+}
 
 type OrganisationStore interface {
 	Create(ctx context.Context, member *actor.Member, name string) (*actor.Organisation, error)
@@ -92,7 +97,7 @@ type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, org
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type ProgressTracker interface {
-	Progress(donor *actor.DonorProvidedDetails, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) page.Progress
+	Progress(donor *lpastore.Lpa, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) page.Progress
 }
 
 func Register(
@@ -111,6 +116,7 @@ func Register(
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
 	progressTracker ProgressTracker,
+	lpaStoreResolvingService LpaStoreResolvingService,
 ) {
 	paths := page.Paths.Supporter
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
@@ -145,7 +151,7 @@ func Register(
 	handleWithSupporter(paths.ContactOPGForPaperForms, None,
 		Guidance(tmpls.Get("contact_opg_for_paper_forms.gohtml")))
 	handleWithSupporter(paths.ViewLPA, None,
-		ViewLPA(tmpls.Get("view_lpa.gohtml"), donorStore, certificateProviderStore, attorneyStore, progressTracker))
+		ViewLPA(tmpls.Get("view_lpa.gohtml"), lpaStoreResolvingService, certificateProviderStore, attorneyStore, progressTracker))
 
 	handleWithSupporter(paths.OrganisationDetails, RequireAdmin,
 		Guidance(tmpls.Get("organisation_details.gohtml")))
