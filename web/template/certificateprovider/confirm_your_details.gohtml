@@ -42,11 +42,9 @@
       <h2 class="govuk-heading-m govuk-!-margin-top-8">{{ tr .App "detailsTheDonorHasGivenAboutYou" }}</h2>
 
       {{ $detailsContent := "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay" }}
-      {{ $addressLabel := "address" }}
 
       {{ if .Lpa.CertificateProvider.Relationship.IsProfessionally }}
         {{ $detailsContent = "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentProfessional" }}
-        {{ $addressLabel = "workAddress" }}
       {{ end }}
 
       <dl class="govuk-summary-list">
@@ -55,11 +53,11 @@
           <dd class="govuk-summary-list__value">{{ .Lpa.CertificateProvider.FullName }}</dd>
         </div>
         <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">{{ tr .App $addressLabel }}</dt>
+          <dt class="govuk-summary-list__key">{{ tr .App .AddressLabel }}</dt>
           <dd class="govuk-summary-list__value">{{ template "address-lines" .Lpa.CertificateProvider.Address }}</dd>
         </div>
         <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">{{ tr .App "mobileNumber" }}</dt>
+          <dt class="govuk-summary-list__key">{{ tr .App .PhoneNumberLabel }}</dt>
           <dd class="govuk-summary-list__value">{{ formatPhone .Lpa.CertificateProvider.Mobile }}</dd>
         </div>
       </dl>
