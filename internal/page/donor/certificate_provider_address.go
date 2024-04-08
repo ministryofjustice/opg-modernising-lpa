@@ -46,17 +46,17 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 				donor.CertificateProvider.Address = *data.Form.Address
 				donor.Tasks.CertificateProvider = actor.TaskCompleted
 
-				return donorStore.Put(r.Context(), donor)
+				if err := donorStore.Put(r.Context(), donor); err != nil {
+					return err
+				}
+
+				return page.Paths.TaskList.Redirect(w, r, appData, donor)
 			}
 
 			switch data.Form.Action {
 			case "manual":
 				if data.Errors.None() {
-					if err := setAddress(*data.Form.Address); err != nil {
-						return err
-					}
-
-					return page.Paths.TaskList.Redirect(w, r, appData, donor)
+					return setAddress(*data.Form.Address)
 				}
 
 			case "postcode-select":
@@ -78,11 +78,7 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 
 			case "reuse-select":
 				if data.Errors.None() {
-					if err := setAddress(*data.Form.Address); err != nil {
-						return err
-					}
-
-					return page.Paths.TaskList.Redirect(w, r, appData, donor)
+					return setAddress(*data.Form.Address)
 				} else {
 					data.Addresses = donor.ActorAddresses()
 				}
