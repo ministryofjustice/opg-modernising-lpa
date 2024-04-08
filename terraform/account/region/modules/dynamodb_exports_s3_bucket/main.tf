@@ -51,7 +51,7 @@ resource "aws_s3_bucket_policy" "bucket" {
 
 resource "aws_s3_bucket_logging" "bucket" {
   bucket        = aws_s3_bucket.bucket.id
-  target_bucket = var.s3_bucket_logging_target_bucket_id
+  target_bucket = data.aws_s3_bucket.access_logging.id
   target_prefix = "log/${aws_s3_bucket.bucket.id}/"
   provider      = aws.region
 }
