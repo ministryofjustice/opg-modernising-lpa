@@ -246,7 +246,6 @@ type Lpa struct {
 	Submitted                                  bool
 	Paid                                       bool
 	IsOrganisationDonor                        bool
-	IsPaperDonor                               bool
 }
 
 // TODO: this will need removing once attorney signing is captured in the lpa

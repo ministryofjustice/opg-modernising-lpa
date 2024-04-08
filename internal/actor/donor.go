@@ -30,6 +30,8 @@ type Donor struct {
 	ThinksCanSign YesNoMaybe
 	// CanSign is Yes if the donor has said they will sign online
 	CanSign form.YesNo
+	// Channel is how the Donor is applying for their LPA (paper or online)
+	Channel Channel
 }
 
 func (d Donor) FullName() string {

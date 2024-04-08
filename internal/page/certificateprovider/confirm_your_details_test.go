@@ -14,20 +14,17 @@ import (
 )
 
 func TestConfirmYourDetails(t *testing.T) {
-	testcases := map[string]struct {
-		IsPaperDonor bool
-		PhoneLabel   string
-	}{
-		"online donor": {PhoneLabel: "mobileNumber"},
-		"paper donor":  {PhoneLabel: "contactNumber", IsPaperDonor: true},
+	testcases := map[actor.Channel]string{
+		actor.ChannelOnline: "mobileNumber",
+		actor.ChannelPaper:  "contactNumber",
 	}
 
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
+	for channel, label := range testcases {
+		t.Run(channel.String(), func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			lpa := &lpastore.Lpa{IsPaperDonor: tc.IsPaperDonor}
+			lpa := &lpastore.Lpa{Donor: actor.Donor{Channel: channel}}
 			certificateProvider := &actor.CertificateProviderProvidedDetails{}
 
 			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
@@ -42,7 +39,7 @@ func TestConfirmYourDetails(t *testing.T) {
 
 			template := newMockTemplate(t)
 			template.EXPECT().
-				Execute(w, &confirmYourDetailsData{App: testAppData, Lpa: lpa, CertificateProvider: certificateProvider, PhoneNumberLabel: tc.PhoneLabel}).
+				Execute(w, &confirmYourDetailsData{App: testAppData, Lpa: lpa, CertificateProvider: certificateProvider, PhoneNumberLabel: label}).
 				Return(nil)
 
 			err := ConfirmYourDetails(template.Execute, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r)

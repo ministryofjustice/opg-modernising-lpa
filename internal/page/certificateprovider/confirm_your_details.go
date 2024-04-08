@@ -52,7 +52,7 @@ func ConfirmYourDetails(tmpl template.Template, lpaStoreResolvingService LpaStor
 			PhoneNumberLabel:    "mobileNumber",
 		}
 
-		if lpa.IsPaperDonor {
+		if lpa.Donor.Channel.IsPaper() {
 			data.PhoneNumberLabel = "contactNumber"
 		}
 
