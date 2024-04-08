@@ -22,16 +22,16 @@ resource "aws_s3_bucket_versioning" "bucket_versioning" {
   provider = aws.region
 }
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "bucket_encryption_configuration" {
-  bucket = aws_s3_bucket.bucket.bucket
+# resource "aws_s3_bucket_server_side_encryption_configuration" "bucket_encryption_configuration" {
+#   bucket = aws_s3_bucket.bucket.bucket
 
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
-    }
-  }
-  provider = aws.region
-}
+#   rule {
+#     apply_server_side_encryption_by_default {
+#       sse_algorithm = "AES256"
+#     }
+#   }
+#   provider = aws.region
+# }
 
 resource "aws_s3_bucket_public_access_block" "public_access_policy" {
   bucket                  = aws_s3_bucket.bucket.id
@@ -51,7 +51,7 @@ resource "aws_s3_bucket_policy" "bucket" {
 
 resource "aws_s3_bucket_logging" "bucket" {
   bucket        = aws_s3_bucket.bucket.id
-  target_bucket = var.s3_bucket_logging_target_bucket_id
+  target_bucket = data.aws_s3_bucket.access_logging.id
   target_prefix = "log/${aws_s3_bucket.bucket.id}/"
   provider      = aws.region
 }

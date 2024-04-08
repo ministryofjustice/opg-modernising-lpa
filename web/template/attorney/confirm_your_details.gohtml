@@ -7,10 +7,10 @@
     <div class="govuk-grid-column-two-thirds">
       {{ if .TrustCorporation.Name }}
         <h1 class="govuk-heading-xl">{{ tr .App "confirmYourCompanyDetails" }}</h1>
-        <p class="govuk-body">{{ trFormat .App "youMustConfirmTheDetailsAboutYourCompany" "DonorFullName" .Donor.Donor.FullName }}</p>
+        <p class="govuk-body">{{ trFormat .App "youMustConfirmTheDetailsAboutYourCompany" "DonorFullName" .Lpa.Donor.FullName }}</p>
       {{ else }}
         <h1 class="govuk-heading-xl">{{ tr .App "confirmYourDetails" }}</h1>
-        <p class="govuk-body">{{ trFormat .App "youMustConfirmYourTelephoneNumber" "DonorFullName" .Donor.Donor.FullName }}</p>
+        <p class="govuk-body">{{ trFormat .App "youMustConfirmYourTelephoneNumber" "DonorFullName" .Lpa.Donor.FullName }}</p>
       {{ end }}
 
       <h2 class="govuk-heading-m">{{ tr .App "detailsYouHaveGivenUs" }}</h2>
@@ -19,7 +19,7 @@
           <dt class="govuk-summary-list__key">{{ tr .App "telephoneNumber" }}</dt>
           <dd class="govuk-summary-list__value">{{ formatPhone .AttorneyProvidedDetails.Mobile }}</dd>
           <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App (global.Paths.Attorney.MobileNumber.Format .Donor.LpaID) }}">{{ trHtml .App "changeTelephoneNumberLink" }}</a>
+            <a class="govuk-link" href="{{ link .App (global.Paths.Attorney.MobileNumber.Format .Lpa.LpaID) }}">{{ trHtml .App "changeTelephoneNumberLink" }}</a>
           </dd>
         </div>
         <div class="govuk-summary-list__row">

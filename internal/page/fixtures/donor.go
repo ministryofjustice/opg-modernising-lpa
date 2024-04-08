@@ -15,6 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -79,6 +80,7 @@ func Donor(
 	attorneyStore AttorneyStore,
 	documentStore DocumentStore,
 	eventClient *event.Client,
+	lpaStoreClient *lpastore.Client,
 ) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := setFixtureData(r)
@@ -111,6 +113,11 @@ func Donor(
 
 		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
 			return err
+		}
+		if donorDetails.LpaUID != "" {
+			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails); err != nil {
+				return err
+			}
 		}
 
 		if data.Redirect == "" {

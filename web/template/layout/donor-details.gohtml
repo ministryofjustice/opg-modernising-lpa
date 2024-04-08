@@ -1,16 +1,14 @@
 {{ define "donor-details" }}
-  {{ $canChange := and (not $.Donor.Tasks.ConfirmYourIdentityAndSign.Completed) $.App.IsDonor }}
-
   <div class="govuk-summary-card">
     <div class="govuk-summary-card__title-wrapper">
-      <h4 class="govuk-summary-card__title">{{ .Donor.Donor.FullName }}</h4>
+      <h4 class="govuk-summary-card__title">{{ .Lpa.Donor.FullName }}</h4>
     </div>
     <div class="govuk-summary-card__content">
       <dl class="govuk-summary-list">
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">{{ tr .App "name" }}</dt>
-          <dd class="govuk-summary-list__value">{{ .Donor.Donor.FullName }}</dd>
-          {{ if $canChange }}
+          <dd class="govuk-summary-list__value">{{ .Lpa.Donor.FullName }}</dd>
+          {{ if .CanChange }}
             <dd class="govuk-summary-list__actions">
               <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (global.Paths.YourDetails.Format .App.LpaID) }}?from={{.App.Page}}#f-first-names">
                 {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "name" }}</span>
@@ -19,11 +17,11 @@
           {{ end }}
         </div>
 
-        {{ if .Donor.Donor.OtherNames }}
+        {{ if .Lpa.Donor.OtherNames }}
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "otherNamesYouAreKnownBy" }}</dt>
-            <dd class="govuk-summary-list__value">{{ .Donor.Donor.OtherNames }}</dd>
-            {{ if $canChange }}
+            <dd class="govuk-summary-list__value">{{ .Lpa.Donor.OtherNames }}</dd>
+            {{ if .CanChange }}
               <dd class="govuk-summary-list__actions">
                 <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (global.Paths.YourDetails.Format .App.LpaID) }}?from={{.App.Page}}#f-other-names">
                   {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "otherNamesYouAreKnownBy" }}</span>
@@ -35,8 +33,8 @@
 
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">{{ tr .App "dateOfBirth" }}</dt>
-          <dd class="govuk-summary-list__value">{{ formatDate .App .Donor.Donor.DateOfBirth }}</dd>
-          {{ if $canChange }}
+          <dd class="govuk-summary-list__value">{{ formatDate .App .Lpa.Donor.DateOfBirth }}</dd>
+          {{ if .CanChange }}
             <dd class="govuk-summary-list__actions">
               <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (global.Paths.YourDetails.Format .App.LpaID) }}?from={{.App.Page}}#f-date-of-birth">
                 {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "dateOfBirth" }}</span>
@@ -47,13 +45,13 @@
 
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">{{ tr .App "email" }}</dt>
-          <dd class="govuk-summary-list__value">{{ .Donor.Donor.Email }}</dd>
+          <dd class="govuk-summary-list__value">{{ .Lpa.Donor.Email }}</dd>
         </div>
 
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
-          <dd class="govuk-summary-list__value">{{ template "address-lines" .Donor.Donor.Address }}</dd>
-          {{ if $canChange }}
+          <dd class="govuk-summary-list__value">{{ template "address-lines" .Lpa.Donor.Address }}</dd>
+          {{ if .CanChange }}
             <dd class="govuk-summary-list__actions">
               <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (global.Paths.YourAddress.Format .App.LpaID) }}?from={{.App.Page}}#f-address-line-1">
                 {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "address" }}</span>
@@ -65,8 +63,8 @@
         {{ if $.App.IsDonor }}
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "preferredContactLanguage" }}</dt>
-            <dd class="govuk-summary-list__value">{{ if not .Donor.ContactLanguagePreference.Empty }} {{ tr .App .Donor.ContactLanguagePreference.String }} {{ end }}</dd>
-            {{ if $canChange }}
+            <dd class="govuk-summary-list__value">{{ if not .Lpa.ContactLanguagePreference.Empty }} {{ tr .App .Lpa.ContactLanguagePreference.String }} {{ end }}</dd>
+            {{ if .CanChange }}
               <dd class="govuk-summary-list__actions">
                 <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (global.Paths.YourPreferredLanguage.Format .App.LpaID) }}?from={{.App.Page}}">
                   {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "preferredContactLanguage" }}</span>
