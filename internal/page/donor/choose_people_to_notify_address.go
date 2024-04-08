@@ -41,17 +41,17 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 				donor.PeopleToNotify.Put(personToNotify)
 				donor.Tasks.PeopleToNotify = actor.TaskCompleted
 
-				return donorStore.Put(r.Context(), donor)
+				if err := donorStore.Put(r.Context(), donor); err != nil {
+					return err
+				}
+
+				return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, donor)
 			}
 
 			switch data.Form.Action {
 			case "manual":
 				if data.Errors.None() {
-					if err := setAddress(*data.Form.Address); err != nil {
-						return err
-					}
-
-					return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, donor)
+					return setAddress(*data.Form.Address)
 				}
 
 			case "postcode-select":
@@ -73,11 +73,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 
 			case "reuse-select":
 				if data.Errors.None() {
-					if err := setAddress(*data.Form.Address); err != nil {
-						return err
-					}
-
-					return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, donor)
+					return setAddress(*data.Form.Address)
 				} else {
 					data.Addresses = donor.ActorAddresses()
 				}
