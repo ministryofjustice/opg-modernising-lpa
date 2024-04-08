@@ -11,7 +11,6 @@ dynamodb-pipeline:
         sts_role_arn: ${source.tables.aws.sts_role_arn}
         region: ${source.tables.aws.region}
   routes:
-    - lpas_stream: ${routes.lpas_stream}
     - lay_journey_lpas: ${routes.lay_journey_lpas}
     - supporter_journey_lpas: ${routes.supporter_journey_lpas}
   sink:

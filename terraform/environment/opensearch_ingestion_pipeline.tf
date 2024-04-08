@@ -157,7 +157,6 @@ locals {
       }
     }
     routes = {
-      lpas_stream            = "'contains(/SK, \"#SUB#\") and contains(/PK, \"#LPA#\")'" # example of a route that filters the stream, can be edited and added to the template yaml
       lay_journey_lpas       = "'contains(/SK, \"#DONOR#\") and contains(/PK, \"#LPA#\")'"
       supporter_journey_lpas = "'contains(/SK, \"#ORGANISATION#\") and contains(/PK, \"#LPA#\")'"
     }
