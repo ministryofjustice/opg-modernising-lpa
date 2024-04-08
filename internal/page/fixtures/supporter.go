@@ -115,9 +115,6 @@ func Supporter(
 				if err := donorStore.Put(donorCtx, donor); err != nil {
 					return err
 				}
-				if err := lpaStoreClient.SendLpa(donorCtx, donor); err != nil {
-					return err
-				}
 
 				shareCodeData := actor.ShareCodeData{
 					SessionID:    org.ID,
@@ -179,8 +176,10 @@ func Supporter(
 					if err := donorStore.Put(donorCtx, donor); err != nil {
 						return err
 					}
-					if err := lpaStoreClient.SendLpa(donorCtx, donor); err != nil {
-						return err
+					if !donor.SignedAt.IsZero() && donor.LpaUID != "" {
+						if err := lpaStoreClient.SendLpa(donorCtx, donor); err != nil {
+							return err
+						}
 					}
 				}
 
