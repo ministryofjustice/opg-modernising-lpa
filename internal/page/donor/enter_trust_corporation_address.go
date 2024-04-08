@@ -38,17 +38,17 @@ func EnterTrustCorporationAddress(logger Logger, tmpl template.Template, address
 				donor.Tasks.ChooseAttorneys = page.ChooseAttorneysState(donor.Attorneys, donor.AttorneyDecisions)
 				donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
 
-				return donorStore.Put(r.Context(), donor)
+				if err := donorStore.Put(r.Context(), donor); err != nil {
+					return err
+				}
+
+				return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, donor)
 			}
 
 			switch data.Form.Action {
 			case "manual":
 				if data.Errors.None() {
-					if err := setAddress(*data.Form.Address); err != nil {
-						return err
-					}
-
-					return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, donor)
+					return setAddress(*data.Form.Address)
 				}
 
 			case "postcode-select":
@@ -70,11 +70,7 @@ func EnterTrustCorporationAddress(logger Logger, tmpl template.Template, address
 
 			case "reuse-select":
 				if data.Errors.None() {
-					if err := setAddress(*data.Form.Address); err != nil {
-						return err
-					}
-
-					return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, donor)
+					return setAddress(*data.Form.Address)
 				} else {
 					data.Addresses = donor.ActorAddresses()
 				}
