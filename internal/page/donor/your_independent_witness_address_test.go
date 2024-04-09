@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -551,6 +552,72 @@ func TestPostYourIndependentWitnessAddressLookupWhenValidationError(t *testing.T
 		Return(nil)
 
 	err := YourIndependentWitnessAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostYourIndependentWitnessAddressReuseSelect(t *testing.T) {
+	f := url.Values{
+		form.FieldNames.Address.Action: {"reuse-select"},
+		"select-address":               {testAddress.Encode()},
+	}
+
+	uid := actoruid.New()
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
+			LpaID: "lpa-id",
+			IndependentWitness: actor.IndependentWitness{
+				Address: testAddress,
+			},
+			Tasks: actor.DonorTasks{ChooseYourSignatory: actor.TaskCompleted},
+		}).
+		Return(nil)
+
+	err := YourIndependentWitnessAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+		LpaID: "lpa-id",
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPostYourIndependentWitnessAddressReuseSelectWhenValidationError(t *testing.T) {
+	f := url.Values{
+		form.FieldNames.Address.Action: {"reuse-select"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	template := newMockTemplate(t)
+	template.EXPECT().
+		Execute(w, &chooseAddressData{
+			App: testAppData,
+			Form: &form.AddressForm{
+				Action:     "reuse-select",
+				FieldNames: form.FieldNames.Address,
+			},
+			Addresses:  []place.Address{{Line1: "donor lane"}},
+			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
+			FullName:   " ",
+			ActorLabel: "independentWitness",
+			TitleKeys:  testTitleKeys,
+		}).
+		Return(nil)
+
+	err := YourIndependentWitnessAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+		Donor: actor.Donor{Address: place.Address{Line1: "donor lane"}},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
