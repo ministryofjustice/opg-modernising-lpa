@@ -21,7 +21,7 @@ func TestDependencyHealthCheck(t *testing.T) {
 		"service": service,
 	}
 
-	DependencyHealthCheck(nil, services)(w, r)
+	DependencyHealthCheck(services)(w, r)
 
 	resp := w.Result()
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -45,7 +45,7 @@ func TestDependencyHealthCheckWhenError(t *testing.T) {
 		"badService": badService,
 	}
 
-	DependencyHealthCheck(nil, services)(w, r)
+	DependencyHealthCheck(services)(w, r)
 
 	resp := w.Result()
 	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)

@@ -83,6 +83,8 @@ func Donor(
 	lpaStoreClient *lpastore.Client,
 ) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+		acceptCookiesConsent(w)
+
 		data := setFixtureData(r)
 
 		if data.DonorSub == "" {

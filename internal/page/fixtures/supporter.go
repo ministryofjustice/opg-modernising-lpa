@@ -50,6 +50,8 @@ func Supporter(
 	lpaStoreClient *lpastore.Client,
 ) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+		acceptCookiesConsent(w)
+
 		var (
 			invitedMembers = r.FormValue("invitedMembers")
 			lpa            = r.FormValue("lpa")
