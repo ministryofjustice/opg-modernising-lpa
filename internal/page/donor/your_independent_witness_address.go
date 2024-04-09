@@ -34,17 +34,17 @@ func YourIndependentWitnessAddress(logger Logger, tmpl template.Template, addres
 				donor.Tasks.ChooseYourSignatory = actor.TaskCompleted
 				donor.IndependentWitness.Address = *data.Form.Address
 
-				return donorStore.Put(r.Context(), donor)
+				if err := donorStore.Put(r.Context(), donor); err != nil {
+					return err
+				}
+
+				return page.Paths.TaskList.Redirect(w, r, appData, donor)
 			}
 
 			switch data.Form.Action {
 			case "manual":
 				if data.Errors.None() {
-					if err := setAddress(*data.Form.Address); err != nil {
-						return err
-					}
-
-					return page.Paths.TaskList.Redirect(w, r, appData, donor)
+					return setAddress(*data.Form.Address)
 				}
 
 			case "postcode-select":
@@ -66,11 +66,7 @@ func YourIndependentWitnessAddress(logger Logger, tmpl template.Template, addres
 
 			case "reuse-select":
 				if data.Errors.None() {
-					if err := setAddress(*data.Form.Address); err != nil {
-						return err
-					}
-
-					return page.Paths.TaskList.Redirect(w, r, appData, donor)
+					return setAddress(*data.Form.Address)
 				} else {
 					data.Addresses = donor.ActorAddresses()
 				}
