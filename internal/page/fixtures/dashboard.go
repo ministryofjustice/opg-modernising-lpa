@@ -9,23 +9,18 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
-
-type dashboardFixturesData struct {
-	App    page.AppData
-	Errors validation.List
-}
 
 func Dashboard(
 	tmpl template.Template,
 	sessionStore *sesh.Store,
-	shareCodeSender *page.ShareCodeSender,
 	donorStore page.DonorStore,
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
 ) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+		acceptCookiesConsent(w)
+
 		var (
 			asDonor               = r.FormValue("asDonor") == "1"
 			asAttorney            = r.FormValue("asAttorney") == "1"
