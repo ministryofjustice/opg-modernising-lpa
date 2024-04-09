@@ -13,36 +13,83 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestConfirmYourDetails(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+func TestGetConfirmYourDetails(t *testing.T) {
+	testcases := map[string]struct {
+		DonorChannel                    actor.Channel
+		PhoneNumberLabel                string
+		CertificateProviderRelationship actor.CertificateProviderRelationship
+		AddressLabel                    string
+		DetailsComponentContent         string
+	}{
+		"online donor": {
+			DonorChannel:            actor.ChannelOnline,
+			PhoneNumberLabel:        "mobileNumber",
+			AddressLabel:            "address",
+			DetailsComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
+		},
+		"paper donor": {
+			DonorChannel:            actor.ChannelPaper,
+			PhoneNumberLabel:        "contactNumber",
+			AddressLabel:            "address",
+			DetailsComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
+		},
+		"lay CP": {
+			CertificateProviderRelationship: actor.Personally,
+			AddressLabel:                    "address",
+			DetailsComponentContent:         "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
+			PhoneNumberLabel:                "mobileNumber",
+		},
+		"professional CP": {
+			CertificateProviderRelationship: actor.Professionally,
+			AddressLabel:                    "workAddress",
+			DetailsComponentContent:         "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentProfessional",
+			PhoneNumberLabel:                "mobileNumber",
+		},
+	}
 
-	donor := &lpastore.Lpa{}
-	certificateProvider := &actor.CertificateProviderProvidedDetails{}
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(donor, nil)
+			lpa := &lpastore.Lpa{
+				Donor:               actor.Donor{Channel: tc.DonorChannel},
+				CertificateProvider: actor.CertificateProvider{Relationship: tc.CertificateProviderRelationship},
+			}
+			certificateProvider := &actor.CertificateProviderProvidedDetails{}
 
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.EXPECT().
-		Get(r.Context()).
-		Return(certificateProvider, nil)
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			lpaStoreResolvingService.EXPECT().
+				Get(r.Context()).
+				Return(lpa, nil)
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &confirmYourDetailsData{App: testAppData, Lpa: donor, CertificateProvider: certificateProvider}).
-		Return(nil)
+			certificateProviderStore := newMockCertificateProviderStore(t)
+			certificateProviderStore.EXPECT().
+				Get(r.Context()).
+				Return(certificateProvider, nil)
 
-	err := ConfirmYourDetails(template.Execute, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r)
-	resp := w.Result()
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, &confirmYourDetailsData{
+					App:                    testAppData,
+					Lpa:                    lpa,
+					CertificateProvider:    certificateProvider,
+					PhoneNumberLabel:       tc.PhoneNumberLabel,
+					AddressLabel:           tc.AddressLabel,
+					DetailComponentContent: tc.DetailsComponentContent,
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			err := ConfirmYourDetails(template.Execute, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
-func TestConfirmYourDetailsWhenCertificateProviderStoreErrors(t *testing.T) {
+func TestGetConfirmYourDetailsWhenCertificateProviderStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -56,7 +103,7 @@ func TestConfirmYourDetailsWhenCertificateProviderStoreErrors(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestConfirmYourDetailsWhenLpaStoreResolvingServiceErrors(t *testing.T) {
+func TestGetConfirmYourDetailsWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -75,7 +122,7 @@ func TestConfirmYourDetailsWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestConfirmYourDetailsWhenTemplateErrors(t *testing.T) {
+func TestGetConfirmYourDetailsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 

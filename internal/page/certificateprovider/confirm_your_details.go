@@ -11,10 +11,13 @@ import (
 )
 
 type confirmYourDetailsData struct {
-	App                 page.AppData
-	Errors              validation.List
-	Lpa                 *lpastore.Lpa
-	CertificateProvider *actor.CertificateProviderProvidedDetails
+	App                    page.AppData
+	Errors                 validation.List
+	Lpa                    *lpastore.Lpa
+	CertificateProvider    *actor.CertificateProviderProvidedDetails
+	PhoneNumberLabel       string
+	AddressLabel           string
+	DetailComponentContent string
 }
 
 func ConfirmYourDetails(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore) page.Handler {
@@ -45,9 +48,21 @@ func ConfirmYourDetails(tmpl template.Template, lpaStoreResolvingService LpaStor
 		}
 
 		data := &confirmYourDetailsData{
-			App:                 appData,
-			CertificateProvider: certificateProvider,
-			Lpa:                 lpa,
+			App:                    appData,
+			CertificateProvider:    certificateProvider,
+			Lpa:                    lpa,
+			PhoneNumberLabel:       "mobileNumber",
+			AddressLabel:           "address",
+			DetailComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
+		}
+
+		if lpa.Donor.Channel.IsPaper() {
+			data.PhoneNumberLabel = "contactNumber"
+		}
+
+		if lpa.CertificateProvider.Relationship.IsProfessionally() {
+			data.AddressLabel = "workAddress"
+			data.DetailComponentContent = "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentProfessional"
 		}
 
 		return tmpl(w, data)
