@@ -71,7 +71,7 @@ func handler(ctx context.Context, event Event) error {
 		lpaStoreBaseURL       = os.Getenv("LPA_STORE_BASE_URL")
 		eventBusName          = env.Get("EVENT_BUS_NAME", "default")
 		searchEndpoint        = os.Getenv("SEARCH_ENDPOINT")
-		searchIndexingEnabled = env.Get("SEARCH_INDEXING_ENABLED", "") == "1"
+		searchIndexingEnabled = env.Get("SEARCH_INDEXING_ENABLED", "1") == "1"
 	)
 
 	cfg, err := config.LoadDefaultConfig(ctx)
