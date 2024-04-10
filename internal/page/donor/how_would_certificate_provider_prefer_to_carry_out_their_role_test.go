@@ -191,46 +191,46 @@ func TestReadHowWouldCertificateProviderPreferToCarryOutTheirRoleForm(t *testing
 	testcases := map[string]struct {
 		carryOutBy   actor.CertificateProviderCarryOutBy
 		email        string
+		formValues   url.Values
 		expectedForm *howWouldCertificateProviderPreferToCarryOutTheirRoleForm
 	}{
 		"online with email": {
-			carryOutBy: actor.Online,
-			email:      "a@b.com",
+			formValues: url.Values{
+				"carry-out-by": {actor.Online.String()},
+				"email":        {"a@b.com"},
+			},
 			expectedForm: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
 				CarryOutBy: actor.Online,
 				Email:      "a@b.com",
 			},
 		},
 		"paper": {
-			carryOutBy: actor.Paper,
+			formValues: url.Values{
+				"carry-out-by": {actor.Paper.String()},
+			},
 			expectedForm: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
 				CarryOutBy: actor.Paper,
-				Email:      "a@b.com",
 			},
 		},
 		"paper with email": {
-			carryOutBy: actor.Paper,
-			email:      "a@b.com",
+			formValues: url.Values{
+				"carry-out-by": {actor.Paper.String()},
+				"email":        {"a@b.com"},
+			},
 			expectedForm: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
 				CarryOutBy: actor.Paper,
 			},
 		},
 	}
 
-	for name, testcases := range testcases {
+	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			form := url.Values{
-				"carry-out-by": {actor.Online.String()},
-				"email":        {"someone@example.com"},
-			}
-
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.formValues.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			result := readHowWouldCertificateProviderPreferToCarryOutTheirRole(r)
 
-			assert.Equal(t, actor.Online, result.CarryOutBy)
-			assert.Equal(t, "someone@example.com", result.Email)
+			assert.Equal(t, tc.expectedForm, result)
 		})
 	}
 }
