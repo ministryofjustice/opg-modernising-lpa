@@ -125,7 +125,6 @@ func TestPostProvideCertificate(t *testing.T) {
 		LpaUID:   "lpa-uid",
 		SignedAt: now,
 		CertificateProvider: actor.CertificateProvider{
-			Email:      "cp@example.org",
 			FirstNames: "a",
 			LastName:   "b",
 		},
@@ -142,6 +141,7 @@ func TestPostProvideCertificate(t *testing.T) {
 		Tasks: actor.CertificateProviderTasks{
 			ProvideTheCertificate: actor.TaskCompleted,
 		},
+		Email: "cp@example.org",
 	}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
@@ -152,7 +152,7 @@ func TestPostProvideCertificate(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
 		Get(r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", Email: "cp@example.org"}, nil)
 	certificateProviderStore.EXPECT().
 		Put(r.Context(), certificateProvider).
 		Return(nil)
