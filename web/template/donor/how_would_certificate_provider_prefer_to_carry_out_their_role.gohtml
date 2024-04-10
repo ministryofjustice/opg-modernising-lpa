@@ -22,9 +22,9 @@
                 <label class="govuk-label govuk-radios__label" for="f-carry-out-by">
                   {{ tr .App "byEmail" }}
                 </label>
-                <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="conditional-email">
-                  {{ template "input" (input . "email" "certificateProvidersEmail" .Form.Email "classes" "govuk-input--width-20" "type" "email") }}
-                </div>
+              </div>
+              <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="conditional-email">
+                {{ template "input" (input . "email" "certificateProvidersEmail" .Form.Email "classes" "govuk-input--width-20" "type" "email") }}
               </div>
 
               <div class="govuk-radios__item">

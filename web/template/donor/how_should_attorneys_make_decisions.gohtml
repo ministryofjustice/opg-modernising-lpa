@@ -50,8 +50,8 @@
                   <p class="govuk-body">{{ tr .App (printf "jointlyAndSeverallyMixedHintExample:%s" .Donor.Type.String) }}</p>
                   <p class="govuk-body">{{ tr .App "ifYouChooseThisOptionMustStateDecisionsAgreedTogether" }}</p>
                 </div>
-
-                <div class="govuk-radios__conditional" id="decision-type-3-conditional-div">
+              </div>
+              <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="decision-type-3-conditional-div">
                   <div class="govuk-form-group govuk-!-margin-top-4 {{ if .Errors.Has "mixed-details" }}govuk-form-group--error{{ end }}">
                     <p class="govuk-body">{{ trHtml .App "decisionDetailsHint" }}</p>
                     <label class="govuk-label" for="f-mixed-details">
@@ -61,7 +61,6 @@
                     <textarea class="govuk-textarea {{ if .Errors.Has "mixed-details" }}govuk-input--error{{ end }}" id="f-mixed-details" name="mixed-details" rows="10">{{ .Form.DecisionsDetails }}</textarea>
                   </div>
                 </div>
-              </div>
             </div>
           </fieldset>
         </div>
