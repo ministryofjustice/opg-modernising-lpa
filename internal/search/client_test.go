@@ -46,7 +46,7 @@ func TestNewClient(t *testing.T) {
 	client, err := NewClient(aws.Config{
 		Region:      "eu-west-1",
 		Credentials: &mockCredentialsProvider{},
-	}, s.URL)
+	}, s.URL, true)
 	assert.Nil(t, err)
 	assert.NotNil(t, client)
 }
@@ -60,7 +60,13 @@ func TestClientCreateIndices(t *testing.T) {
 		Create(ctx, opensearchapi.IndicesCreateReq{Index: indexName, Body: strings.NewReader(indexDefinition)}).
 		Return(nil, nil)
 
-	client := &Client{indices: indices}
+	client := &Client{indices: indices, indexingEnabled: true}
+	err := client.CreateIndices(ctx)
+	assert.Nil(t, err)
+}
+
+func TestClientCreateIndicesWhenNotEnabled(t *testing.T) {
+	client := &Client{}
 	err := client.CreateIndices(ctx)
 	assert.Nil(t, err)
 }
@@ -74,7 +80,7 @@ func TestClientCreateIndicesWhenCreateErrors(t *testing.T) {
 		Create(ctx, mock.Anything).
 		Return(nil, expectedError)
 
-	client := &Client{indices: indices}
+	client := &Client{indices: indices, indexingEnabled: true}
 	err := client.CreateIndices(ctx)
 	assert.ErrorIs(t, err, expectedError)
 }
@@ -85,7 +91,7 @@ func TestClientCreateIndicesWhenExists(t *testing.T) {
 		Exists(ctx, mock.Anything).
 		Return(nil, nil)
 
-	client := &Client{indices: indices}
+	client := &Client{indices: indices, indexingEnabled: true}
 	err := client.CreateIndices(ctx)
 	assert.Nil(t, err)
 }
@@ -100,7 +106,13 @@ func TestClientIndex(t *testing.T) {
 		}).
 		Return(nil, nil)
 
-	client := &Client{svc: svc}
+	client := &Client{svc: svc, indexingEnabled: true}
+	err := client.Index(ctx, Lpa{DonorFullName: "x y", PK: "LPA#2020", SK: "abc#123"})
+	assert.Nil(t, err)
+}
+
+func TestClientIndexWhenNotEnabled(t *testing.T) {
+	client := &Client{}
 	err := client.Index(ctx, Lpa{DonorFullName: "x y", PK: "LPA#2020", SK: "abc#123"})
 	assert.Nil(t, err)
 }
@@ -111,7 +123,7 @@ func TestClientIndexWhenIndexErrors(t *testing.T) {
 		Index(ctx, mock.Anything).
 		Return(nil, expectedError)
 
-	client := &Client{svc: svc}
+	client := &Client{svc: svc, indexingEnabled: true}
 	err := client.Index(ctx, Lpa{DonorFullName: "x y", PK: "LPA#2020", SK: "abc#123"})
 	assert.Equal(t, expectedError, err)
 }
