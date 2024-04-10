@@ -58,9 +58,14 @@ type howWouldCertificateProviderPreferToCarryOutTheirRoleForm struct {
 func readHowWouldCertificateProviderPreferToCarryOutTheirRole(r *http.Request) *howWouldCertificateProviderPreferToCarryOutTheirRoleForm {
 	carryOutBy, err := actor.ParseCertificateProviderCarryOutBy(page.PostFormString(r, "carry-out-by"))
 
+	email := page.PostFormString(r, "email")
+	if carryOutBy.IsPaper() {
+		email = ""
+	}
+
 	return &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
 		CarryOutBy: carryOutBy,
-		Email:      page.PostFormString(r, "email"),
+		Email:      email,
 		Error:      err,
 	}
 }
