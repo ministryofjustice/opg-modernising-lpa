@@ -33,7 +33,7 @@ func TestGetYourPreferredLanguage(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourPreferredLanguage(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy})
+	err := YourPreferredLanguage(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{ContactLanguagePreference: localize.Cy}})
 
 	resp := w.Result()
 
@@ -50,7 +50,7 @@ func TestGetYourPreferredLanguageWhenTemplateError(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := YourPreferredLanguage(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy})
+	err := YourPreferredLanguage(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{ContactLanguagePreference: localize.Cy}})
 
 	resp := w.Result()
 
@@ -71,7 +71,7 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: lang}).
+				Put(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{ContactLanguagePreference: lang}}).
 				Return(nil)
 
 			err := YourPreferredLanguage(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
