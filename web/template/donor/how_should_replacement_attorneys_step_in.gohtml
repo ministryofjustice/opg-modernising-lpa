@@ -36,16 +36,15 @@
                 <label class="govuk-label govuk-radios__label" for="f-when-to-step-in-3">
                   {{ tr .App "otherWay" }}
                 </label>
-
-                <div class="govuk-radios__conditional" id="when-to-step-in-3-conditional-div">
-                  <div class="govuk-form-group {{ if .Errors.Has "other-details" }}govuk-form-group--error{{ end }}">
-                    <p class="govuk-body">{{ tr .App "otherWayHint" }}</p>
-                    <label class="govuk-label" for="f-other-details">
-                      {{ tr .App "details" }}
-                    </label>
-                    {{ template "error-message" (errorMessage . "other-details") }}
-                    <textarea class="govuk-textarea {{ if .Errors.Has "other-details" }}govuk-input--error{{ end }}" id="f-other-details" name="other-details" rows="10">{{ .Form.OtherDetails }}</textarea>
-                  </div>
+              </div>
+              <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="when-to-step-in-3-conditional-div">
+                <div class="govuk-form-group {{ if .Errors.Has "other-details" }}govuk-form-group--error{{ end }}">
+                  <p class="govuk-body">{{ tr .App "otherWayHint" }}</p>
+                  <label class="govuk-label" for="f-other-details">
+                    {{ tr .App "details" }}
+                  </label>
+                  {{ template "error-message" (errorMessage . "other-details") }}
+                  <textarea class="govuk-textarea {{ if .Errors.Has "other-details" }}govuk-input--error{{ end }}" id="f-other-details" name="other-details" rows="10">{{ .Form.OtherDetails }}</textarea>
                 </div>
               </div>
             </div>
