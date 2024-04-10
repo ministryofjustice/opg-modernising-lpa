@@ -120,6 +120,35 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) 
 	}
 }
 
+func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleChangingFromOnlineToPaper(t *testing.T) {
+	form := url.Values{
+		"carry-out-by": {actor.Paper.String()},
+		"email":        {"a@b.com"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
+			LpaID:               "lpa-id",
+			CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Paper, Email: ""},
+		}).
+		Return(nil)
+
+	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+		LpaID:               "lpa-id",
+		CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Online, Email: "a@b.com"},
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.CertificateProviderAddress.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
 func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenStoreErrors(t *testing.T) {
 	form := url.Values{
 		"carry-out-by": {actor.Paper.String()},
@@ -159,18 +188,51 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenValidationE
 }
 
 func TestReadHowWouldCertificateProviderPreferToCarryOutTheirRoleForm(t *testing.T) {
-	form := url.Values{
-		"carry-out-by": {actor.Online.String()},
-		"email":        {"someone@example.com"},
+	testcases := map[string]struct {
+		carryOutBy   actor.CertificateProviderCarryOutBy
+		email        string
+		expectedForm *howWouldCertificateProviderPreferToCarryOutTheirRoleForm
+	}{
+		"online with email": {
+			carryOutBy: actor.Online,
+			email:      "a@b.com",
+			expectedForm: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
+				CarryOutBy: actor.Online,
+				Email:      "a@b.com",
+			},
+		},
+		"paper": {
+			carryOutBy: actor.Paper,
+			expectedForm: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
+				CarryOutBy: actor.Paper,
+				Email:      "a@b.com",
+			},
+		},
+		"paper with email": {
+			carryOutBy: actor.Paper,
+			email:      "a@b.com",
+			expectedForm: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
+				CarryOutBy: actor.Paper,
+			},
+		},
 	}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
+	for name, testcases := range testcases {
+		t.Run(name, func(t *testing.T) {
+			form := url.Values{
+				"carry-out-by": {actor.Online.String()},
+				"email":        {"someone@example.com"},
+			}
 
-	result := readHowWouldCertificateProviderPreferToCarryOutTheirRole(r)
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	assert.Equal(t, actor.Online, result.CarryOutBy)
-	assert.Equal(t, "someone@example.com", result.Email)
+			result := readHowWouldCertificateProviderPreferToCarryOutTheirRole(r)
+
+			assert.Equal(t, actor.Online, result.CarryOutBy)
+			assert.Equal(t, "someone@example.com", result.Email)
+		})
+	}
 }
 
 func TestHowWouldCertificateProviderPreferToCarryOutTheirRoleFormValidate(t *testing.T) {
