@@ -24,7 +24,7 @@ func YourPreferredLanguage(tmpl template.Template, donorStore DonorStore) Handle
 		data := &yourPreferredLanguageData{
 			App: appData,
 			Form: &form.LanguagePreferenceForm{
-				Preference: donor.ContactLanguagePreference,
+				Preference: donor.Donor.ContactLanguagePreference,
 			},
 			Options:   localize.LangValues,
 			FieldName: form.FieldNames.LanguagePreference,
@@ -35,7 +35,7 @@ func YourPreferredLanguage(tmpl template.Template, donorStore DonorStore) Handle
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.ContactLanguagePreference = data.Form.Preference
+				donor.Donor.ContactLanguagePreference = data.Form.Preference
 				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
