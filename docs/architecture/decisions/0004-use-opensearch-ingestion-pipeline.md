@@ -19,7 +19,7 @@ data to trigger the request again.
 
 ## Decision
 
-Using Opensearch Ingestion Pipelines will allow us to process the DynamoDB
+Use Opensearch Ingestion Pipelines will allow us to process the DynamoDB
 stream used to maintain global replica tables, and route specific stream events
 to be added to the index.
 
