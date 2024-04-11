@@ -1,6 +1,8 @@
 resource "aws_iam_role" "opensearch_ingestion_service_role" {
-  name               = "aws-service-role/osis.amazonaws.com/AWSServiceRoleForAmazonOpenSearchIngestionService"
+  name               = "AWSServiceRoleForAmazonOpenSearchIngestionService"
+  path               = "/aws-service-role/osis.amazonaws.com/"
   assume_role_policy = data.aws_iam_policy_document.opensearch_ingestion_service_role_assume_policy.json
+  description        = "Allows Amazon OpenSearch Ingestion Service to access other AWS services on your behalf."
   provider           = aws.global
 }
 
@@ -19,6 +21,6 @@ data "aws_iam_policy_document" "opensearch_ingestion_service_role_assume_policy"
 
 resource "aws_iam_role_policy_attachment" "opensearch_ingestion_service_role" {
   policy_arn = "arn:aws:iam::aws:policy/aws-service-role/AmazonOpenSearchIngestionServiceRolePolicy"
-  role       = aws_iam_role.opensearch_ingestion_service_role_assume_policy.name
+  role       = aws_iam_role.opensearch_ingestion_service_role.name
   provider   = aws.global
 }
