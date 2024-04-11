@@ -30,7 +30,7 @@ type Logger interface {
 }
 
 type CertificateProviderStore interface {
-	Create(ctx context.Context, sessionID string, certificateProviderUID actoruid.UID) (*actor.CertificateProviderProvidedDetails, error)
+	Create(ctx context.Context, sessionID string, certificateProviderUID actoruid.UID, email string) (*actor.CertificateProviderProvidedDetails, error)
 	Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
 	Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error
 }
@@ -80,7 +80,7 @@ type DashboardStore interface {
 }
 
 type LpaStoreClient interface {
-	SendCertificateProvider(ctx context.Context, lpaUID string, certificateProvider *actor.CertificateProviderProvidedDetails) error
+	SendCertificateProvider(ctx context.Context, lpaUID string, certificateProvider *actor.CertificateProviderProvidedDetails, lpa *lpastore.Lpa) error
 }
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)

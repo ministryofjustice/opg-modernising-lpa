@@ -31,6 +31,8 @@ type CertificateProviderProvidedDetails struct {
 	Tasks CertificateProviderTasks
 	// ContactLanguagePreference is the language the certificate provider prefers to receive notifications in
 	ContactLanguagePreference localize.Lang
+	// Email is the email address returned from OneLogin when the certificate provider logged in
+	Email string
 }
 
 func (c CertificateProviderProvidedDetails) Signed(after time.Time) bool {
