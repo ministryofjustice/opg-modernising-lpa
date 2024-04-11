@@ -52,19 +52,21 @@ func main() {
 		messages []message
 	)
 
-	cfg, err := config.LoadDefaultConfig(ctx)
+	cfg, err := config.LoadDefaultConfig(ctx,
+		config.WithRegion("eu-west-1"),
+		config.WithEndpointResolverWithOptions(
+			aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+				return aws.Endpoint{
+					PartitionID:   "aws",
+					URL:           awsBaseURL,
+					SigningRegion: "eu-west-1",
+				}, nil
+			}),
+		),
+	)
 	if err != nil {
 		log.Fatal(fmt.Errorf("unable to load SDK config: %w", err))
 	}
-
-	cfg.Region = "eu-west-1"
-	cfg.EndpointResolverWithOptions = aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-		return aws.Endpoint{
-			PartitionID:   "aws",
-			URL:           awsBaseURL,
-			SigningRegion: "eu-west-1",
-		}, nil
-	})
 
 	client := sqs.NewFromConfig(cfg)
 

@@ -184,22 +184,25 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		return err
 	}
 
-	cfg, err := config.LoadDefaultConfig(ctx)
+	var options []func(*config.LoadOptions) error
+	if len(awsBaseURL) > 0 {
+		options = append(options, config.WithEndpointResolverWithOptions(
+			aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+				return aws.Endpoint{
+					PartitionID:   "aws",
+					URL:           awsBaseURL,
+					SigningRegion: "eu-west-1",
+				}, nil
+			}),
+		))
+	}
+
+	cfg, err := config.LoadDefaultConfig(ctx, options...)
 	if err != nil {
 		return fmt.Errorf("unable to load SDK config: %w", err)
 	}
 
 	otelaws.AppendMiddlewares(&cfg.APIOptions)
-
-	if len(awsBaseURL) > 0 {
-		cfg.EndpointResolverWithOptions = aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-			return aws.Endpoint{
-				PartitionID:   "aws",
-				URL:           awsBaseURL,
-				SigningRegion: "eu-west-1",
-			}, nil
-		})
-	}
 
 	lpasDynamoClient, err := dynamo.NewClient(cfg, dynamoTableLpas)
 	if err != nil {

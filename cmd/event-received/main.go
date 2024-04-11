@@ -74,19 +74,22 @@ func handler(ctx context.Context, event Event) error {
 		searchIndexingEnabled = env.Get("SEARCH_INDEXING_DISABLED", "") != "1"
 	)
 
-	cfg, err := config.LoadDefaultConfig(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to load default config: %w", err)
+	var options []func(*config.LoadOptions) error
+	if len(awsBaseURL) > 0 {
+		options = append(options, config.WithEndpointResolverWithOptions(
+			aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+				return aws.Endpoint{
+					PartitionID:   "aws",
+					URL:           awsBaseURL,
+					SigningRegion: "eu-west-1",
+				}, nil
+			}),
+		))
 	}
 
-	if len(awsBaseURL) > 0 {
-		cfg.EndpointResolverWithOptions = aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-			return aws.Endpoint{
-				PartitionID:   "aws",
-				URL:           awsBaseURL,
-				SigningRegion: "eu-west-1",
-			}, nil
-		})
+	cfg, err := config.LoadDefaultConfig(ctx, options...)
+	if err != nil {
+		return fmt.Errorf("failed to load default config: %w", err)
 	}
 
 	dynamoClient, err := dynamo.NewClient(cfg, tableName)
