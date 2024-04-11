@@ -50,16 +50,17 @@ type UidClient interface {
 }
 
 type Factory struct {
-	now                func() time.Time
-	cfg                aws.Config
-	dynamoClient       dynamodbClient
-	appPublicURL       string
-	lpaStoreBaseURL    string
-	uidBaseURL         string
-	notifyBaseURL      string
-	notifyIsProduction bool
-	eventBusName       string
-	searchEndpoint     string
+	now                   func() time.Time
+	cfg                   aws.Config
+	dynamoClient          dynamodbClient
+	appPublicURL          string
+	lpaStoreBaseURL       string
+	uidBaseURL            string
+	notifyBaseURL         string
+	notifyIsProduction    bool
+	eventBusName          string
+	searchEndpoint        string
+	searchIndexingEnabled bool
 
 	// previously constructed values
 	appData         *page.AppData
@@ -144,7 +145,7 @@ func (f *Factory) LpaStoreClient() (LpaStoreClient, error) {
 
 func (f *Factory) UidStore() (UidStore, error) {
 	if f.uidStore == nil {
-		searchClient, err := search.NewClient(f.cfg, f.searchEndpoint)
+		searchClient, err := search.NewClient(f.cfg, f.searchEndpoint, f.searchIndexingEnabled)
 		if err != nil {
 			return nil, err
 		}
