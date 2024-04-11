@@ -467,6 +467,10 @@ locals {
         {
           name  = "SEARCH_ENDPOINT",
           value = var.search_endpoint == null ? "" : var.search_endpoint
+        },
+        {
+          name  = "SEARCH_INDEXING_DISABLED",
+          value = "1"
         }
       ]
     }
