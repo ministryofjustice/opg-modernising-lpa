@@ -107,6 +107,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		eventBusName          = env.Get("EVENT_BUS_NAME", "default")
 		mockIdentityPublicKey = env.Get("MOCK_IDENTITY_PUBLIC_KEY", "")
 		searchEndpoint        = env.Get("SEARCH_ENDPOINT", "")
+		searchIndexingEnabled = env.Get("SEARCH_INDEXING_DISABLED", "") != "1"
 	)
 
 	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
@@ -207,7 +208,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 
 	eventClient := event.NewClient(cfg, eventBusName)
 
-	searchClient, err := search.NewClient(cfg, searchEndpoint)
+	searchClient, err := search.NewClient(cfg, searchEndpoint, searchIndexingEnabled)
 	if err != nil {
 		return err
 	}
