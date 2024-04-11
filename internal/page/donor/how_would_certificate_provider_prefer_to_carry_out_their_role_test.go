@@ -23,7 +23,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) {
 		Execute(w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:     testAppData,
 			Form:    &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
-			Options: actor.CertificateProviderCarryOutByValues,
+			Options: actor.ChannelValues,
 		}).
 		Return(nil)
 
@@ -42,14 +42,14 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleFromStore(t *tes
 	template.EXPECT().
 		Execute(w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:                 testAppData,
-			CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Paper},
-			Form:                &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{CarryOutBy: actor.Paper},
-			Options:             actor.CertificateProviderCarryOutByValues,
+			CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.ChannelPaper},
+			Form:                &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{CarryOutBy: actor.ChannelPaper},
+			Options:             actor.ChannelValues,
 		}).
 		Return(nil)
 
 	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Paper},
+		CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.ChannelPaper},
 	})
 	resp := w.Result()
 
@@ -66,7 +66,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenTemplateErro
 		Execute(w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:     testAppData,
 			Form:    &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
-			Options: actor.CertificateProviderCarryOutByValues,
+			Options: actor.ChannelValues,
 		}).
 		Return(expectedError)
 
@@ -79,14 +79,14 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenTemplateErro
 
 func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) {
 	testCases := []struct {
-		carryOutBy actor.CertificateProviderCarryOutBy
+		carryOutBy actor.Channel
 		email      string
 	}{
 		{
-			carryOutBy: actor.Paper,
+			carryOutBy: actor.ChannelPaper,
 		},
 		{
-			carryOutBy: actor.Online,
+			carryOutBy: actor.ChannelOnline,
 			email:      "someone@example.com",
 		},
 	}
@@ -122,7 +122,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) 
 
 func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleChangingFromOnlineToPaper(t *testing.T) {
 	form := url.Values{
-		"carry-out-by": {actor.Paper.String()},
+		"carry-out-by": {actor.ChannelPaper.String()},
 		"email":        {"a@b.com"},
 	}
 
@@ -134,13 +134,13 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleChangingFromOnl
 	donorStore.EXPECT().
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:               "lpa-id",
-			CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Paper, Email: ""},
+			CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.ChannelPaper, Email: ""},
 		}).
 		Return(nil)
 
 	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID:               "lpa-id",
-		CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.Online, Email: "a@b.com"},
+		CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.ChannelOnline, Email: "a@b.com"},
 	})
 	resp := w.Result()
 
@@ -151,7 +151,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleChangingFromOnl
 
 func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"carry-out-by": {actor.Paper.String()},
+		"carry-out-by": {actor.ChannelPaper.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -189,36 +189,36 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenValidationE
 
 func TestReadHowWouldCertificateProviderPreferToCarryOutTheirRoleForm(t *testing.T) {
 	testcases := map[string]struct {
-		carryOutBy   actor.CertificateProviderCarryOutBy
+		carryOutBy   actor.Channel
 		email        string
 		formValues   url.Values
 		expectedForm *howWouldCertificateProviderPreferToCarryOutTheirRoleForm
 	}{
 		"online with email": {
 			formValues: url.Values{
-				"carry-out-by": {actor.Online.String()},
+				"carry-out-by": {actor.ChannelOnline.String()},
 				"email":        {"a@b.com"},
 			},
 			expectedForm: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: actor.Online,
+				CarryOutBy: actor.ChannelOnline,
 				Email:      "a@b.com",
 			},
 		},
 		"paper": {
 			formValues: url.Values{
-				"carry-out-by": {actor.Paper.String()},
+				"carry-out-by": {actor.ChannelPaper.String()},
 			},
 			expectedForm: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: actor.Paper,
+				CarryOutBy: actor.ChannelPaper,
 			},
 		},
 		"paper with email": {
 			formValues: url.Values{
-				"carry-out-by": {actor.Paper.String()},
+				"carry-out-by": {actor.ChannelPaper.String()},
 				"email":        {"a@b.com"},
 			},
 			expectedForm: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: actor.Paper,
+				CarryOutBy: actor.ChannelPaper,
 			},
 		},
 	}
@@ -242,38 +242,38 @@ func TestHowWouldCertificateProviderPreferToCarryOutTheirRoleFormValidate(t *tes
 	}{
 		"paper": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: actor.Paper,
+				CarryOutBy: actor.ChannelPaper,
 			},
 		},
 		"online": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: actor.Online,
+				CarryOutBy: actor.ChannelOnline,
 				Email:      "someone@example.com",
 			},
 		},
 		"online email invalid": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: actor.Online,
+				CarryOutBy: actor.ChannelOnline,
 				Email:      "what",
 			},
 			errors: validation.With("email", validation.EmailError{Label: "certificateProvidersEmail"}),
 		},
 		"online email missing": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: actor.Online,
+				CarryOutBy: actor.ChannelOnline,
 			},
 			errors: validation.With("email", validation.EnterError{Label: "certificateProvidersEmail"}),
 		},
 		"missing": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: actor.CertificateProviderCarryOutBy(0),
+				CarryOutBy: actor.Channel(0),
 				Error:      expectedError,
 			},
 			errors: validation.With("carry-out-by", validation.SelectError{Label: "howYourCertificateProviderWouldPreferToCarryOutTheirRole"}),
 		},
 		"invalid": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: actor.CertificateProviderCarryOutBy(99),
+				CarryOutBy: actor.Channel(99),
 				Error:      expectedError,
 			},
 			errors: validation.With("carry-out-by", validation.SelectError{Label: "howYourCertificateProviderWouldPreferToCarryOutTheirRole"}),

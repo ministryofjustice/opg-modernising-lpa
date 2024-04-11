@@ -465,7 +465,7 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 
 	donor := &lpastore.Lpa{
 		CertificateProvider: actor.CertificateProvider{
-			CarryOutBy: actor.Online,
+			CarryOutBy: actor.ChannelOnline,
 		},
 	}
 
@@ -505,7 +505,7 @@ func TestHandleDonorSubmissionCompletedWhenPaperCertificateProvider(t *testing.T
 
 	donor := &lpastore.Lpa{
 		CertificateProvider: actor.CertificateProvider{
-			CarryOutBy: actor.Paper,
+			CarryOutBy: actor.ChannelPaper,
 		},
 	}
 
@@ -570,7 +570,7 @@ func TestHandleDonorSubmissionCompletedWhenLpaStoreError(t *testing.T) {
 
 	donor := &lpastore.Lpa{
 		CertificateProvider: actor.CertificateProvider{
-			CarryOutBy: actor.Online,
+			CarryOutBy: actor.ChannelOnline,
 		},
 	}
 
@@ -596,7 +596,7 @@ func TestHandleDonorSubmissionCompletedWhenShareCodeSenderError(t *testing.T) {
 
 	donor := &lpastore.Lpa{
 		CertificateProvider: actor.CertificateProvider{
-			CarryOutBy: actor.Online,
+			CarryOutBy: actor.ChannelOnline,
 		},
 	}
 
@@ -632,7 +632,7 @@ func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 
 	donor := &lpastore.Lpa{
 		CertificateProvider: actor.CertificateProvider{
-			CarryOutBy: actor.Paper,
+			CarryOutBy: actor.ChannelPaper,
 		},
 	}
 
@@ -664,7 +664,7 @@ func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 func TestHandleCertificateProviderSubmissionCompletedWhenOnline(t *testing.T) {
 	donor := &lpastore.Lpa{
 		CertificateProvider: actor.CertificateProvider{
-			CarryOutBy: actor.Online,
+			CarryOutBy: actor.ChannelOnline,
 		},
 	}
 
@@ -716,7 +716,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderErrors(t
 		Lpa(ctx, "M-1111-2222-3333").
 		Return(&lpastore.Lpa{
 			CertificateProvider: actor.CertificateProvider{
-				CarryOutBy: actor.Paper,
+				CarryOutBy: actor.ChannelPaper,
 			},
 		}, nil)
 
@@ -747,7 +747,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderFactoryE
 		Lpa(ctx, "M-1111-2222-3333").
 		Return(&lpastore.Lpa{
 			CertificateProvider: actor.CertificateProvider{
-				CarryOutBy: actor.Paper,
+				CarryOutBy: actor.ChannelPaper,
 			},
 		}, nil)
 
@@ -770,7 +770,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenAppDataFactoryErrors(t 
 		Lpa(ctx, "M-1111-2222-3333").
 		Return(&lpastore.Lpa{
 			CertificateProvider: actor.CertificateProvider{
-				CarryOutBy: actor.Paper,
+				CarryOutBy: actor.ChannelPaper,
 			},
 		}, nil)
 
