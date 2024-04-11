@@ -67,7 +67,7 @@ func ProvideCertificate(
 					return err
 				}
 
-				if err := lpaStoreClient.SendCertificateProvider(r.Context(), lpa.LpaUID, certificateProvider); err != nil {
+				if err := lpaStoreClient.SendCertificateProvider(r.Context(), lpa.LpaUID, certificateProvider, lpa); err != nil {
 					return err
 				}
 
