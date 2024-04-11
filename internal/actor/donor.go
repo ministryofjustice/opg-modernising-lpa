@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
@@ -32,6 +33,8 @@ type Donor struct {
 	CanSign form.YesNo
 	// Channel is how the Donor is applying for their LPA (paper or online)
 	Channel Channel
+	// ContactLanguagePreference is the language the donor prefers to receive notifications in
+	ContactLanguagePreference localize.Lang
 }
 
 func (d Donor) FullName() string {

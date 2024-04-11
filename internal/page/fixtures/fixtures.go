@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -123,10 +124,11 @@ func makeDonor() actor.Donor {
 			Postcode:   "B14 7ED",
 			Country:    "GB",
 		},
-		Email:         testEmail,
-		DateOfBirth:   date.New("2000", "1", "2"),
-		ThinksCanSign: actor.Yes,
-		CanSign:       form.Yes,
+		Email:                     testEmail,
+		DateOfBirth:               date.New("2000", "1", "2"),
+		ThinksCanSign:             actor.Yes,
+		CanSign:                   form.Yes,
+		ContactLanguagePreference: localize.En,
 	}
 }
 
