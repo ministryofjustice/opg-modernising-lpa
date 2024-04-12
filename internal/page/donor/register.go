@@ -154,7 +154,7 @@ type ShareCodeStore interface {
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type ProgressTracker interface {
-	Progress(donor *lpastore.Lpa, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) page.Progress
+	Progress(donor *lpastore.Lpa, certificateProvider *actor.CertificateProviderProvidedDetails) page.Progress
 }
 
 func Register(
@@ -396,7 +396,7 @@ func Register(
 		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml")))
 
 	handleWithDonor(page.Paths.Progress, page.CanGoBack,
-		LpaProgress(tmpls.Get("lpa_progress.gohtml"), lpaStoreResolvingService, certificateProviderStore, attorneyStore, progressTracker))
+		LpaProgress(tmpls.Get("lpa_progress.gohtml"), lpaStoreResolvingService, certificateProviderStore, progressTracker))
 
 	handleWithDonor(page.Paths.UploadEvidenceSSE, page.None,
 		UploadEvidenceSSE(documentStore, 3*time.Minute, 2*time.Second, time.Now))
