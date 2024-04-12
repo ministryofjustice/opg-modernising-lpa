@@ -88,10 +88,6 @@ func NewClient(cfg aws.Config, endpoint string, indexingEnabled bool) (*Client, 
 }
 
 func (c *Client) CreateIndices(ctx context.Context) error {
-	if !c.indexingEnabled {
-		return nil
-	}
-
 	_, err := c.indices.Exists(ctx, opensearchapi.IndicesExistsReq{Indices: []string{indexName}})
 	if err == nil {
 		return nil
