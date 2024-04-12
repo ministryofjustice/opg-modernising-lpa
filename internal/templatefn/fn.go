@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
@@ -308,8 +309,8 @@ func formatPhone(s string) string {
 type attorneySummaryData struct {
 	App              page.AppData
 	CanChange        bool
-	TrustCorporation actor.TrustCorporation
-	Attorneys        []actor.Attorney
+	TrustCorporation lpastore.TrustCorporation
+	Attorneys        []lpastore.Attorney
 	Link             struct {
 		TrustCorporation, TrustCorporationAddress, RemoveTrustCorporation string
 		Attorney, AttorneyAddress, RemoveAttorney                         string
@@ -317,7 +318,7 @@ type attorneySummaryData struct {
 	HeadingLevel int
 }
 
-func listAttorneys(app page.AppData, attorneys actor.Attorneys, attorneyType string, headingLevel int, canChange bool) attorneySummaryData {
+func listAttorneys(app page.AppData, attorneys lpastore.Attorneys, attorneyType string, headingLevel int, canChange bool) attorneySummaryData {
 	data := attorneySummaryData{
 		App:              app,
 		CanChange:        canChange,
