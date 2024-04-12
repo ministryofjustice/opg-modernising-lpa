@@ -10,7 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/stretchr/testify/assert"
-	mock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestResolvingServiceGet(t *testing.T) {
@@ -42,7 +42,7 @@ func TestResolvingServiceGet(t *testing.T) {
 			},
 			resolved: &Lpa{
 				LpaID: "1",
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: CertificateProvider{
 					FirstNames: "Paul",
 				},
 			},
@@ -54,7 +54,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				Paid:                   true,
 				IsOrganisationDonor:    true,
 				RegisteredAt:           date.FromTime(registeredAt),
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: CertificateProvider{
 					FirstNames:   "Paul",
 					Relationship: actor.Personally,
 				},
@@ -74,7 +74,7 @@ func TestResolvingServiceGet(t *testing.T) {
 			error: ErrNotFound,
 			expected: &Lpa{
 				LpaUID: "M-1111",
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: CertificateProvider{
 					FirstNames:   "John",
 					Relationship: actor.Personally,
 				},
@@ -106,7 +106,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				LpaUID:    "M-1111",
 				Submitted: true,
 				Paid:      true,
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: CertificateProvider{
 					Relationship: actor.Professionally,
 				},
 				Donor: actor.Donor{Channel: actor.ChannelPaper},

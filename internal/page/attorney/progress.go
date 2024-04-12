@@ -18,14 +18,9 @@ type progressData struct {
 	AttorneysSigned bool
 }
 
-func Progress(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreResolvingService LpaStoreResolvingService) Handler {
+func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *actor.AttorneyProvidedDetails) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
-		attorneys, err := attorneyStore.GetAny(r.Context())
 		if err != nil {
 			return err
 		}
@@ -34,7 +29,7 @@ func Progress(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreResol
 			App:             appData,
 			Lpa:             lpa,
 			Signed:          attorneyProvidedDetails.Signed(lpa.SignedAt),
-			AttorneysSigned: lpa.AllAttorneysSigned(attorneys),
+			AttorneysSigned: lpa.AllAttorneysSigned(),
 		}
 
 		return tmpl(w, data)

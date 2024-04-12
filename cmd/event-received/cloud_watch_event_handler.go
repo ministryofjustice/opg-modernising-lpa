@@ -232,12 +232,14 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 		return err
 	}
 
-	if donor.CertificateProvider.CarryOutBy.IsOnline() {
+	if donor.CertificateProvider.Channel.IsOnline() {
 		if err := shareCodeSender.SendCertificateProviderInvite(ctx, appData, page.CertificateProviderInvite{
-			LpaUID:              donor.LpaUID,
-			Type:                donor.Type,
-			Donor:               donor.Donor,
-			CertificateProvider: donor.CertificateProvider,
+			LpaUID:                      donor.LpaUID,
+			Type:                        donor.Type,
+			Donor:                       donor.Donor,
+			CertificateProviderUID:      donor.CertificateProvider.UID,
+			CertificateProviderFullName: donor.CertificateProvider.FullName(),
+			CertificateProviderEmail:    donor.CertificateProvider.Email,
 		}); err != nil {
 			return fmt.Errorf("failed to send share code to certificate provider: %w", err)
 		}
@@ -262,7 +264,7 @@ func handleCertificateProviderSubmissionCompleted(ctx context.Context, event eve
 		return fmt.Errorf("failed to retrieve lpa: %w", err)
 	}
 
-	if donor.CertificateProvider.CarryOutBy.IsPaper() {
+	if donor.CertificateProvider.Channel.IsPaper() {
 		shareCodeSender, err := factory.ShareCodeSender(ctx)
 		if err != nil {
 			return err
