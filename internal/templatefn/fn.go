@@ -318,13 +318,40 @@ type attorneySummaryData struct {
 	HeadingLevel int
 }
 
-func listAttorneys(app page.AppData, attorneys lpastore.Attorneys, attorneyType string, headingLevel int, canChange bool) attorneySummaryData {
+func listAttorneys(app page.AppData, attorneys any, attorneyType string, headingLevel int, canChange bool) attorneySummaryData {
 	data := attorneySummaryData{
-		App:              app,
-		CanChange:        canChange,
-		TrustCorporation: attorneys.TrustCorporation,
-		Attorneys:        attorneys.Attorneys,
-		HeadingLevel:     headingLevel,
+		App:          app,
+		CanChange:    canChange,
+		HeadingLevel: headingLevel,
+	}
+
+	switch v := attorneys.(type) {
+	case lpastore.Attorneys:
+		data.Attorneys = v.Attorneys
+		data.TrustCorporation = v.TrustCorporation
+	case actor.Attorneys:
+		for _, a := range v.Attorneys {
+			data.Attorneys = append(data.Attorneys, lpastore.Attorney{
+				UID:         a.UID,
+				FirstNames:  a.FirstNames,
+				LastName:    a.LastName,
+				DateOfBirth: a.DateOfBirth,
+				Email:       a.Email,
+				Address:     a.Address,
+			})
+		}
+
+		if t := v.TrustCorporation; t.Name != "" {
+			data.TrustCorporation = lpastore.TrustCorporation{
+				UID:           t.UID,
+				Name:          t.Name,
+				CompanyNumber: t.CompanyNumber,
+				Email:         t.Email,
+				Address:       t.Address,
+			}
+		}
+	default:
+		panic("unsupported type of attorneys for listAttorneys")
 	}
 
 	if attorneyType == "replacement" {
