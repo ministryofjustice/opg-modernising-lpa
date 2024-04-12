@@ -3,4 +3,4 @@ specFile: https://github.com/ministryofjustice/opg-data-lpa-store/raw/main/docs/
 validation:
   request: false
 response:
-  scriptFile: lpa-store.groovy
+  scriptFile: lpa-store.js

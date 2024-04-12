@@ -3,6 +3,7 @@ package fixtures
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"net/http"
 	"slices"
 	"time"
@@ -206,15 +207,14 @@ func Attorney(
 					FirstNames:        "A",
 					LastName:          "Sign",
 					ProfessionalTitle: "Assistant to the signer",
-					LpaSignedAt:       donorDetails.SignedAt,
 					Confirmed:         donorDetails.SignedAt.Add(2 * time.Hour),
 				}}
 			} else {
-				attorney.LpaSignedAt = donorDetails.SignedAt
 				attorney.Confirmed = donorDetails.SignedAt.Add(2 * time.Hour)
 			}
 		}
 
+		var signings []*actor.AttorneyProvidedDetails
 		if progress >= slices.Index(progressValues, "signedByAllAttorneys") {
 			for isReplacement, list := range map[bool]actor.Attorneys{false: donorDetails.Attorneys, true: donorDetails.ReplacementAttorneys} {
 				for _, a := range list.Attorneys {
@@ -229,12 +229,13 @@ func Attorney(
 					attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
 					attorney.Tasks.ReadTheLpa = actor.TaskCompleted
 					attorney.Tasks.SignTheLpa = actor.TaskCompleted
-					attorney.LpaSignedAt = donorDetails.SignedAt
 					attorney.Confirmed = donorDetails.SignedAt.Add(2 * time.Hour)
 
 					if err := attorneyStore.Put(ctx, attorney); err != nil {
 						return err
 					}
+
+					signings = append(signings, attorney)
 				}
 
 				if list.TrustCorporation.Name != "" {
@@ -254,13 +255,14 @@ func Attorney(
 						FirstNames:        "A",
 						LastName:          "Sign",
 						ProfessionalTitle: "Assistant to the signer",
-						LpaSignedAt:       donorDetails.SignedAt,
 						Confirmed:         donorDetails.SignedAt.Add(2 * time.Hour),
 					}}
 
 					if err := attorneyStore.Put(ctx, attorney); err != nil {
 						return err
 					}
+
+					signings = append(signings, attorney)
 				}
 			}
 		}
@@ -280,9 +282,20 @@ func Attorney(
 		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
 			return err
 		}
-		if !donorDetails.SignedAt.IsZero() && donorDetails.LpaUID != "" {
+		if donorDetails.LpaUID != "" {
 			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails); err != nil {
-				return err
+				return fmt.Errorf("problem sending lpa: %w", err)
+			}
+
+			lpa, err := lpaStoreClient.Lpa(donorCtx, donorDetails.LpaUID)
+			if err != nil {
+				return fmt.Errorf("problem getting lpa: %w", err)
+			}
+
+			for _, attorney := range signings {
+				if err := lpaStoreClient.SendAttorney(donorCtx, lpa, attorney); err != nil {
+					return fmt.Errorf("problem sending attorney: %w", err)
+				}
 			}
 		}
 		if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {
@@ -298,12 +311,9 @@ func Attorney(
 		}
 
 		if email != "" {
-			lpa := &lpastore.Lpa{
-				LpaUID:               donorDetails.LpaUID,
-				Type:                 donorDetails.Type,
-				Donor:                donorDetails.Donor,
-				Attorneys:            donorDetails.Attorneys,
-				ReplacementAttorneys: donorDetails.ReplacementAttorneys,
+			lpa, err := lpaStoreClient.Lpa(r.Context(), donorDetails.LpaUID)
+			if err != nil {
+				return err
 			}
 
 			shareCodeSender.SendAttorneys(donorCtx, page.AppData{
