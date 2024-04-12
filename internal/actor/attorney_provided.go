@@ -25,10 +25,6 @@ type AttorneyProvidedDetails struct {
 	IsTrustCorporation bool
 	// Mobile number of the attorney or replacement attorney
 	Mobile string
-	// LpaSignedAt is when the Lpa was signed at the time of the attorney
-	// confirming. This allows us to verify that the Lpa hasn't been resigned
-	// since the attorney confirmed.
-	LpaSignedAt time.Time
 	// Confirming the attorney or replacement attorney agrees to responsibilities
 	// and confirms the tick box is a legal signature
 	Confirmed time.Time
@@ -45,24 +41,20 @@ type AttorneyProvidedDetails struct {
 
 // Signed checks whether the attorney has confirmed and if that confirmation is
 // still valid by checking that it was made for the donor's current signature.
-func (d AttorneyProvidedDetails) Signed(lpaSignedAt time.Time) bool {
-	if lpaSignedAt.IsZero() {
-		return false
-	}
-
+func (d AttorneyProvidedDetails) Signed(after time.Time) bool {
 	if d.IsTrustCorporation {
 		switch d.WouldLikeSecondSignatory {
 		case form.Yes:
-			return lpaSignedAt.Equal(d.AuthorisedSignatories[0].LpaSignedAt) && !d.AuthorisedSignatories[0].Confirmed.IsZero() &&
-				lpaSignedAt.Equal(d.AuthorisedSignatories[1].LpaSignedAt) && !d.AuthorisedSignatories[1].Confirmed.IsZero()
+			return d.AuthorisedSignatories[0].Confirmed.After(after) &&
+				d.AuthorisedSignatories[1].Confirmed.After(after)
 		case form.No:
-			return lpaSignedAt.Equal(d.AuthorisedSignatories[0].LpaSignedAt) && !d.AuthorisedSignatories[0].Confirmed.IsZero()
+			return d.AuthorisedSignatories[0].Confirmed.After(after)
 		default:
 			return false
 		}
 	}
 
-	return lpaSignedAt.Equal(d.LpaSignedAt) && !d.Confirmed.IsZero()
+	return d.Confirmed.After(after)
 }
 
 type AttorneyTasks struct {
@@ -78,5 +70,4 @@ type TrustCorporationSignatory struct {
 	LastName          string
 	ProfessionalTitle string
 	Confirmed         time.Time
-	LpaSignedAt       time.Time
 }
