@@ -47,7 +47,7 @@ func TestProgress(t *testing.T) {
 
 			donor := &lpastore.Lpa{
 				SignedAt:  lpaSignedAt,
-				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
+				Attorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{{}}},
 			}
 
 			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)

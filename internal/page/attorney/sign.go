@@ -33,8 +33,8 @@ type signData struct {
 	App                         page.AppData
 	Errors                      validation.List
 	LpaID                       string
-	Attorney                    actor.Attorney
-	TrustCorporation            actor.TrustCorporation
+	Attorney                    lpastore.Attorney
+	TrustCorporation            lpastore.TrustCorporation
 	IsReplacement               bool
 	IsSecondSignatory           bool
 	LpaCanBeUsedWhenHasCapacity bool
