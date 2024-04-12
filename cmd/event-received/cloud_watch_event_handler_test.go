@@ -10,6 +10,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -462,10 +463,15 @@ var donorSubmissionCompletedEvent = events.CloudWatchEvent{
 
 func TestHandleDonorSubmissionCompleted(t *testing.T) {
 	appData := page.AppData{}
+	uid := actoruid.New()
 
 	donor := &lpastore.Lpa{
-		CertificateProvider: actor.CertificateProvider{
-			CarryOutBy: actor.Online,
+		CertificateProvider: lpastore.CertificateProvider{
+			Channel:    actor.Online,
+			UID:        uid,
+			FirstNames: "John",
+			LastName:   "Smith",
+			Email:      "john@example.com",
 		},
 	}
 
@@ -492,7 +498,9 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
 		SendCertificateProviderInvite(ctx, appData, page.CertificateProviderInvite{
-			CertificateProvider: donor.CertificateProvider,
+			CertificateProviderUID:      uid,
+			CertificateProviderFullName: "John Smith",
+			CertificateProviderEmail:    "john@example.com",
 		}).
 		Return(nil)
 
@@ -504,8 +512,8 @@ func TestHandleDonorSubmissionCompletedWhenPaperCertificateProvider(t *testing.T
 	appData := page.AppData{}
 
 	donor := &lpastore.Lpa{
-		CertificateProvider: actor.CertificateProvider{
-			CarryOutBy: actor.Paper,
+		CertificateProvider: lpastore.CertificateProvider{
+			Channel: actor.Paper,
 		},
 	}
 
@@ -569,8 +577,8 @@ func TestHandleDonorSubmissionCompletedWhenLpaStoreError(t *testing.T) {
 	appData := page.AppData{}
 
 	donor := &lpastore.Lpa{
-		CertificateProvider: actor.CertificateProvider{
-			CarryOutBy: actor.Online,
+		CertificateProvider: lpastore.CertificateProvider{
+			Channel: actor.Online,
 		},
 	}
 
@@ -595,8 +603,8 @@ func TestHandleDonorSubmissionCompletedWhenShareCodeSenderError(t *testing.T) {
 	appData := page.AppData{}
 
 	donor := &lpastore.Lpa{
-		CertificateProvider: actor.CertificateProvider{
-			CarryOutBy: actor.Online,
+		CertificateProvider: lpastore.CertificateProvider{
+			Channel: actor.Online,
 		},
 	}
 
@@ -631,8 +639,8 @@ func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 	appData := page.AppData{}
 
 	donor := &lpastore.Lpa{
-		CertificateProvider: actor.CertificateProvider{
-			CarryOutBy: actor.Paper,
+		CertificateProvider: lpastore.CertificateProvider{
+			Channel: actor.Paper,
 		},
 	}
 
@@ -663,8 +671,8 @@ func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 
 func TestHandleCertificateProviderSubmissionCompletedWhenOnline(t *testing.T) {
 	donor := &lpastore.Lpa{
-		CertificateProvider: actor.CertificateProvider{
-			CarryOutBy: actor.Online,
+		CertificateProvider: lpastore.CertificateProvider{
+			Channel: actor.Online,
 		},
 	}
 
@@ -715,8 +723,8 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderErrors(t
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
 		Return(&lpastore.Lpa{
-			CertificateProvider: actor.CertificateProvider{
-				CarryOutBy: actor.Paper,
+			CertificateProvider: lpastore.CertificateProvider{
+				Channel: actor.Paper,
 			},
 		}, nil)
 
@@ -746,8 +754,8 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderFactoryE
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
 		Return(&lpastore.Lpa{
-			CertificateProvider: actor.CertificateProvider{
-				CarryOutBy: actor.Paper,
+			CertificateProvider: lpastore.CertificateProvider{
+				Channel: actor.Paper,
 			},
 		}, nil)
 
@@ -769,8 +777,8 @@ func TestHandleCertificateProviderSubmissionCompletedWhenAppDataFactoryErrors(t 
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
 		Return(&lpastore.Lpa{
-			CertificateProvider: actor.CertificateProvider{
-				CarryOutBy: actor.Paper,
+			CertificateProvider: lpastore.CertificateProvider{
+				Channel: actor.Paper,
 			},
 		}, nil)
 
