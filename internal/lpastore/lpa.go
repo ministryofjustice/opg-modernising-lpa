@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"slices"
 	"time"
@@ -319,6 +320,20 @@ func (a Attorneys) Get(uid actoruid.UID) (Attorney, bool) {
 	return a.Attorneys[idx], true
 }
 
+func (a Attorneys) FullNames() []string {
+	var names []string
+
+	if a.TrustCorporation.Name != "" {
+		names = append(names, a.TrustCorporation.Name)
+	}
+
+	for _, a := range a.Attorneys {
+		names = append(names, fmt.Sprintf("%s %s", a.FirstNames, a.LastName))
+	}
+
+	return names
+}
+
 type Lpa struct {
 	LpaID                                      string
 	LpaUID                                     string
@@ -345,53 +360,28 @@ type Lpa struct {
 	IsOrganisationDonor                        bool
 }
 
-// TODO: this will need removing once attorney signing is captured in the lpa
-// store, as this implementation will not work for paper attorneys
-func (l *Lpa) AllAttorneysSigned(attorneys []*actor.AttorneyProvidedDetails) bool {
-	if l == nil || l.SignedAt.IsZero() || l.Attorneys.Len() == 0 {
+func (l Lpa) AllAttorneysSigned() bool {
+	if l.Attorneys.Len() == 0 {
 		return false
 	}
 
-	var (
-		attorneysSigned                   = map[actoruid.UID]struct{}{}
-		replacementAttorneysSigned        = map[actoruid.UID]struct{}{}
-		trustCorporationSigned            = false
-		replacementTrustCorporationSigned = false
-	)
-
-	for _, a := range attorneys {
-		if !a.Signed(l.SignedAt) {
-			continue
+	for _, attorneys := range []Attorneys{l.Attorneys, l.ReplacementAttorneys} {
+		for _, a := range attorneys.Attorneys {
+			if a.SignedAt.IsZero() {
+				return false
+			}
 		}
 
-		if a.IsReplacement && a.IsTrustCorporation {
-			replacementTrustCorporationSigned = true
-		} else if a.IsReplacement {
-			replacementAttorneysSigned[a.UID] = struct{}{}
-		} else if a.IsTrustCorporation {
-			trustCorporationSigned = true
-		} else {
-			attorneysSigned[a.UID] = struct{}{}
-		}
-	}
+		if t := attorneys.TrustCorporation; t.Name != "" {
+			if len(t.Signatories) == 0 {
+				return false
+			}
 
-	if l.ReplacementAttorneys.TrustCorporation.Name != "" && !replacementTrustCorporationSigned {
-		return false
-	}
-
-	for _, a := range l.ReplacementAttorneys.Attorneys {
-		if _, ok := replacementAttorneysSigned[a.UID]; !ok {
-			return false
-		}
-	}
-
-	if l.Attorneys.TrustCorporation.Name != "" && !trustCorporationSigned {
-		return false
-	}
-
-	for _, a := range l.Attorneys.Attorneys {
-		if _, ok := attorneysSigned[a.UID]; !ok {
-			return false
+			for _, s := range t.Signatories {
+				if s.SignedAt.IsZero() {
+					return false
+				}
+			}
 		}
 	}
 
@@ -402,12 +392,15 @@ func lpaResponseToLpa(l lpaResponse) *Lpa {
 	var attorneys, replacementAttorneys []Attorney
 	for _, a := range l.Attorneys {
 		at := Attorney{
-			UID:         a.UID,
-			FirstNames:  a.FirstNames,
-			LastName:    a.LastName,
-			DateOfBirth: a.DateOfBirth,
-			Email:       a.Email,
-			Address:     a.Address,
+			UID:                       a.UID,
+			FirstNames:                a.FirstNames,
+			LastName:                  a.LastName,
+			DateOfBirth:               a.DateOfBirth,
+			Email:                     a.Email,
+			Address:                   a.Address,
+			Mobile:                    a.Mobile,
+			SignedAt:                  a.SignedAt,
+			ContactLanguagePreference: a.ContactLanguagePreference,
 		}
 
 		if a.Status == "replacement" {
@@ -420,11 +413,14 @@ func lpaResponseToLpa(l lpaResponse) *Lpa {
 	var trustCorporation, replacementTrustCorporation TrustCorporation
 	for _, t := range l.TrustCorporations {
 		tc := TrustCorporation{
-			UID:           t.UID,
-			Name:          t.Name,
-			CompanyNumber: t.CompanyNumber,
-			Email:         t.Email,
-			Address:       t.Address,
+			UID:                       t.UID,
+			Name:                      t.Name,
+			CompanyNumber:             t.CompanyNumber,
+			Email:                     t.Email,
+			Address:                   t.Address,
+			Mobile:                    t.Mobile,
+			Signatories:               t.Signatories,
+			ContactLanguagePreference: t.ContactLanguagePreference,
 		}
 
 		if t.Status == "replacement" {
