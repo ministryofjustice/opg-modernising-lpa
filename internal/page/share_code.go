@@ -36,20 +36,22 @@ func (s *ShareCodeSender) UseTestCode(shareCode string) {
 }
 
 type CertificateProviderInvite struct {
-	LpaUID              string
-	Type                actor.LpaType
-	Donor               actor.Donor
-	CertificateProvider actor.CertificateProvider
+	LpaUID                      string
+	Type                        actor.LpaType
+	Donor                       actor.Donor
+	CertificateProviderUID      actoruid.UID
+	CertificateProviderFullName string
+	CertificateProviderEmail    string
 }
 
 func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, appData AppData, donor CertificateProviderInvite) error {
-	shareCode, err := s.createShareCode(ctx, appData, donor.CertificateProvider.UID, actor.TypeCertificateProvider)
+	shareCode, err := s.createShareCode(ctx, appData, donor.CertificateProviderUID, actor.TypeCertificateProvider)
 	if err != nil {
 		return err
 	}
 
-	return s.sendEmail(ctx, donor.CertificateProvider.Email, donor.LpaUID, notify.CertificateProviderInviteEmail{
-		CertificateProviderFullName: donor.CertificateProvider.FullName(),
+	return s.sendEmail(ctx, donor.CertificateProviderEmail, donor.LpaUID, notify.CertificateProviderInviteEmail{
+		CertificateProviderFullName: donor.CertificateProviderFullName,
 		DonorFullName:               donor.Donor.FullName(),
 		LpaType:                     localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
 		CertificateProviderStartURL: fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderStart),
@@ -102,7 +104,7 @@ func (s *ShareCodeSender) SendAttorneys(ctx context.Context, appData AppData, do
 	return nil
 }
 
-func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData AppData, donor *lpastore.Lpa, attorney actor.Attorney) error {
+func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData AppData, donor *lpastore.Lpa, attorney lpastore.Attorney) error {
 	shareCode, err := s.createShareCode(ctx, appData, attorney.UID, actor.TypeAttorney)
 	if err != nil {
 		return err
@@ -124,7 +126,7 @@ func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData AppD
 		})
 }
 
-func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData AppData, donor *lpastore.Lpa, attorney actor.Attorney) error {
+func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData AppData, donor *lpastore.Lpa, attorney lpastore.Attorney) error {
 	shareCode, err := s.createShareCode(ctx, appData, attorney.UID, actor.TypeReplacementAttorney)
 	if err != nil {
 		return err
@@ -146,7 +148,7 @@ func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData A
 		})
 }
 
-func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData AppData, donor *lpastore.Lpa, trustCorporation actor.TrustCorporation) error {
+func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData AppData, donor *lpastore.Lpa, trustCorporation lpastore.TrustCorporation) error {
 	if trustCorporation.Name == "" {
 		return nil
 	}
@@ -172,7 +174,7 @@ func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData AppD
 		})
 }
 
-func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, appData AppData, donor *lpastore.Lpa, trustCorporation actor.TrustCorporation) error {
+func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, appData AppData, donor *lpastore.Lpa, trustCorporation lpastore.TrustCorporation) error {
 	if trustCorporation.Name == "" {
 		return nil
 	}
