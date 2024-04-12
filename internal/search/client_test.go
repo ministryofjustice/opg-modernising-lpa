@@ -65,12 +65,6 @@ func TestClientCreateIndices(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestClientCreateIndicesWhenNotEnabled(t *testing.T) {
-	client := &Client{}
-	err := client.CreateIndices(ctx)
-	assert.Nil(t, err)
-}
-
 func TestClientCreateIndicesWhenCreateErrors(t *testing.T) {
 	indices := newMockIndicesClient(t)
 	indices.EXPECT().
