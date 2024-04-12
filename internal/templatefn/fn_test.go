@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 )
@@ -295,8 +296,8 @@ func TestFormatPhone(t *testing.T) {
 }
 
 func TestListAttorneysWithAttorneys(t *testing.T) {
-	trustCorporation := actor.TrustCorporation{Name: "a"}
-	attorneys := []actor.Attorney{
+	trustCorporation := lpastore.TrustCorporation{Name: "a"}
+	attorneys := []lpastore.Attorney{
 		{UID: actoruid.New()},
 		{UID: actoruid.New()},
 	}
@@ -320,14 +321,14 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 	want.Link.TrustCorporationAddress = page.Paths.EnterTrustCorporationAddress.Format("lpa-id") + "?from=/here"
 	want.Link.RemoveTrustCorporation = page.Paths.RemoveTrustCorporation.Format("lpa-id") + "?from=/here"
 
-	got := listAttorneys(app, actor.Attorneys{TrustCorporation: trustCorporation, Attorneys: attorneys}, attorneyType, headingLevel, true)
+	got := listAttorneys(app, lpastore.Attorneys{TrustCorporation: trustCorporation, Attorneys: attorneys}, attorneyType, headingLevel, true)
 
 	assert.Equal(t, want, got)
 }
 
 func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
-	trustCorporation := actor.TrustCorporation{Name: "a"}
-	attorneys := []actor.Attorney{
+	trustCorporation := lpastore.TrustCorporation{Name: "a"}
+	attorneys := []lpastore.Attorney{
 		{UID: actoruid.New()},
 		{UID: actoruid.New()},
 	}
@@ -350,7 +351,7 @@ func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
 	want.Link.TrustCorporationAddress = page.Paths.EnterReplacementTrustCorporationAddress.Format("lpa-id") + "?from=/here"
 	want.Link.RemoveTrustCorporation = page.Paths.RemoveReplacementTrustCorporation.Format("lpa-id") + "?from=/here"
 
-	got := listAttorneys(app, actor.Attorneys{TrustCorporation: trustCorporation, Attorneys: attorneys}, attorneyType, headingLevel, false)
+	got := listAttorneys(app, lpastore.Attorneys{TrustCorporation: trustCorporation, Attorneys: attorneys}, attorneyType, headingLevel, false)
 
 	assert.Equal(t, want, got)
 }
@@ -476,7 +477,7 @@ func TestLpaDecisions(t *testing.T) {
 
 	assert.Equal(t, lpaDecisionsData{
 		App:       app,
-		Lpa:       5,
+		Lpa:       &lpastore.Lpa{},
 		CanChange: true,
-	}, lpaDecisions(app, 5, true))
+	}, lpaDecisions(app, &lpastore.Lpa{}, true))
 }
