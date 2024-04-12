@@ -206,11 +206,9 @@ func Attorney(
 					FirstNames:        "A",
 					LastName:          "Sign",
 					ProfessionalTitle: "Assistant to the signer",
-					LpaSignedAt:       donorDetails.SignedAt,
 					Confirmed:         donorDetails.SignedAt.Add(2 * time.Hour),
 				}}
 			} else {
-				attorney.LpaSignedAt = donorDetails.SignedAt
 				attorney.Confirmed = donorDetails.SignedAt.Add(2 * time.Hour)
 			}
 		}
@@ -229,7 +227,6 @@ func Attorney(
 					attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
 					attorney.Tasks.ReadTheLpa = actor.TaskCompleted
 					attorney.Tasks.SignTheLpa = actor.TaskCompleted
-					attorney.LpaSignedAt = donorDetails.SignedAt
 					attorney.Confirmed = donorDetails.SignedAt.Add(2 * time.Hour)
 
 					if err := attorneyStore.Put(ctx, attorney); err != nil {
@@ -254,7 +251,6 @@ func Attorney(
 						FirstNames:        "A",
 						LastName:          "Sign",
 						ProfessionalTitle: "Assistant to the signer",
-						LpaSignedAt:       donorDetails.SignedAt,
 						Confirmed:         donorDetails.SignedAt.Add(2 * time.Hour),
 					}}
 

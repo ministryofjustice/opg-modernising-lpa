@@ -145,8 +145,8 @@ func TestProgressTrackerProgress(t *testing.T) {
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
 			attorneys: []*actor.AttorneyProvidedDetails{
-				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
-				{UID: uid2, LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
+				{UID: uid1, Confirmed: lpaSignedAt.Add(time.Minute)},
+				{UID: uid2, Confirmed: lpaSignedAt.Add(time.Minute)},
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
@@ -191,7 +191,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
 			attorneys: []*actor.AttorneyProvidedDetails{
-				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
+				{UID: uid1, Confirmed: lpaSignedAt.Add(time.Minute)},
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
@@ -216,7 +216,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
 			attorneys: []*actor.AttorneyProvidedDetails{
-				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
+				{UID: uid1, Confirmed: lpaSignedAt.Add(time.Minute)},
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
@@ -405,7 +405,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
 			attorneys: []*actor.AttorneyProvidedDetails{
-				{UID: uid, LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
+				{UID: uid, Confirmed: lpaSignedAt.Add(time.Minute)},
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
@@ -432,7 +432,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
 			attorneys: []*actor.AttorneyProvidedDetails{
-				{UID: uid, LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
+				{UID: uid, Confirmed: lpaSignedAt.Add(time.Minute)},
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
@@ -461,7 +461,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{Certificate: actor.Certificate{Agreed: lpaSignedAt.Add(time.Second)}},
 			attorneys: []*actor.AttorneyProvidedDetails{
-				{UID: uid, LpaSignedAt: lpaSignedAt, Confirmed: lpaSignedAt.Add(time.Minute)},
+				{UID: uid, Confirmed: lpaSignedAt.Add(time.Minute)},
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
