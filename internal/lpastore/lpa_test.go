@@ -11,7 +11,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
@@ -708,119 +707,53 @@ func TestClientLpaWhenStatusCodeIsNotCreated(t *testing.T) {
 }
 
 func TestAllAttorneysSigned(t *testing.T) {
-	lpaSignedAt := time.Now()
-	attorneySigned := lpaSignedAt.Add(time.Second)
-
-	uid1 := actoruid.New()
-	uid2 := actoruid.New()
-	uid3 := actoruid.New()
-	uid4 := actoruid.New()
-	uid5 := actoruid.New()
+	attorneySigned := time.Now()
 
 	testcases := map[string]struct {
-		lpa       *Lpa
-		attorneys []*actor.AttorneyProvidedDetails
-		expected  bool
+		lpa      Lpa
+		expected bool
 	}{
 		"no attorneys": {
 			expected: false,
 		},
 		"need attorney to sign": {
-			lpa: &Lpa{
-				SignedAt:             lpaSignedAt,
-				Attorneys:            Attorneys{Attorneys: []Attorney{{UID: uid1}, {UID: uid2}}},
-				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{UID: uid3}}},
-			},
-			attorneys: []*actor.AttorneyProvidedDetails{
-				{UID: uid1, Confirmed: attorneySigned},
-				{UID: uid4, Confirmed: attorneySigned},
-				{UID: uid3, IsReplacement: true, Confirmed: attorneySigned},
+			lpa: Lpa{
+				Attorneys:            Attorneys{Attorneys: []Attorney{{SignedAt: attorneySigned}, {}}},
+				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{SignedAt: attorneySigned}}},
 			},
 			expected: false,
 		},
 		"need replacement attorney to sign": {
-			lpa: &Lpa{
-				SignedAt:             lpaSignedAt,
-				Attorneys:            Attorneys{Attorneys: []Attorney{{UID: uid1}}},
-				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{UID: uid3}, {UID: uid5}}},
-			},
-			attorneys: []*actor.AttorneyProvidedDetails{
-				{UID: uid1, Confirmed: attorneySigned},
-				{UID: uid3, IsReplacement: true},
-				{UID: uid5, IsReplacement: true, Confirmed: attorneySigned},
+			lpa: Lpa{
+				Attorneys:            Attorneys{Attorneys: []Attorney{{SignedAt: attorneySigned}}},
+				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{}, {SignedAt: attorneySigned}}},
 			},
 			expected: false,
 		},
 		"all attorneys signed": {
-			lpa: &Lpa{
-				SignedAt:             lpaSignedAt,
-				Attorneys:            Attorneys{Attorneys: []Attorney{{UID: uid1}, {UID: uid2}}},
-				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{UID: uid3}}},
-			},
-			attorneys: []*actor.AttorneyProvidedDetails{
-				{UID: uid1, Confirmed: attorneySigned},
-				{UID: uid2, Confirmed: attorneySigned},
-				{UID: uid3, IsReplacement: true, Confirmed: attorneySigned},
-			},
-			expected: true,
-		},
-		"more attorneys signed": {
-			lpa: &Lpa{
-				SignedAt:  lpaSignedAt,
-				Attorneys: Attorneys{Attorneys: []Attorney{{UID: uid1}, {UID: uid2}}},
-			},
-			attorneys: []*actor.AttorneyProvidedDetails{
-				{UID: uid1, Confirmed: attorneySigned},
-				{UID: uid2, Confirmed: attorneySigned},
-				{UID: uid4, Confirmed: attorneySigned},
+			lpa: Lpa{
+				Attorneys:            Attorneys{Attorneys: []Attorney{{SignedAt: attorneySigned}, {SignedAt: attorneySigned}}},
+				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{SignedAt: attorneySigned}}},
 			},
 			expected: true,
 		},
 		"trust corporations not signed": {
-			lpa: &Lpa{
-				SignedAt:  lpaSignedAt,
+			lpa: Lpa{
 				Attorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "a"}},
 			},
 			expected: false,
 		},
 		"replacement trust corporations not signed": {
-			lpa: &Lpa{
-				SignedAt:             lpaSignedAt,
-				Attorneys:            Attorneys{TrustCorporation: TrustCorporation{Name: "a"}},
+			lpa: Lpa{
+				Attorneys:            Attorneys{TrustCorporation: TrustCorporation{Name: "a", Signatories: []TrustCorporationSignatory{{SignedAt: attorneySigned}}}},
 				ReplacementAttorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "r"}},
-			},
-			attorneys: []*actor.AttorneyProvidedDetails{
-				{
-					IsTrustCorporation:       true,
-					WouldLikeSecondSignatory: form.No,
-					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{Confirmed: attorneySigned}},
-				},
-				{
-					IsTrustCorporation:       true,
-					WouldLikeSecondSignatory: form.Yes,
-					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{Confirmed: attorneySigned}},
-				},
 			},
 			expected: false,
 		},
 		"trust corporations signed": {
-			lpa: &Lpa{
-				SignedAt:             lpaSignedAt,
-				Attorneys:            Attorneys{TrustCorporation: TrustCorporation{Name: "a"}},
-				ReplacementAttorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "r"}},
-			},
-			attorneys: []*actor.AttorneyProvidedDetails{
-				{
-					IsTrustCorporation:       true,
-					WouldLikeSecondSignatory: form.No,
-					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{Confirmed: attorneySigned}},
-				},
-				{
-					IsTrustCorporation:       true,
-					IsReplacement:            true,
-					WouldLikeSecondSignatory: form.No,
-					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{Confirmed: attorneySigned}},
-				},
+			lpa: Lpa{
+				Attorneys:            Attorneys{TrustCorporation: TrustCorporation{Name: "a", Signatories: []TrustCorporationSignatory{{SignedAt: attorneySigned}, {SignedAt: attorneySigned}}}},
+				ReplacementAttorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "r", Signatories: []TrustCorporationSignatory{{SignedAt: attorneySigned}}}},
 			},
 			expected: true,
 		},
@@ -828,7 +761,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expected, tc.lpa.AllAttorneysSigned(tc.attorneys))
+			assert.Equal(t, tc.expected, tc.lpa.AllAttorneysSigned())
 		})
 	}
 }

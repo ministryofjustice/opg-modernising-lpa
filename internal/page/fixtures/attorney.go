@@ -3,6 +3,7 @@ package fixtures
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"net/http"
 	"slices"
 	"time"
@@ -213,6 +214,7 @@ func Attorney(
 			}
 		}
 
+		var signings []*actor.AttorneyProvidedDetails
 		if progress >= slices.Index(progressValues, "signedByAllAttorneys") {
 			for isReplacement, list := range map[bool]actor.Attorneys{false: donorDetails.Attorneys, true: donorDetails.ReplacementAttorneys} {
 				for _, a := range list.Attorneys {
@@ -232,6 +234,8 @@ func Attorney(
 					if err := attorneyStore.Put(ctx, attorney); err != nil {
 						return err
 					}
+
+					signings = append(signings, attorney)
 				}
 
 				if list.TrustCorporation.Name != "" {
@@ -257,6 +261,8 @@ func Attorney(
 					if err := attorneyStore.Put(ctx, attorney); err != nil {
 						return err
 					}
+
+					signings = append(signings, attorney)
 				}
 			}
 		}
@@ -278,7 +284,18 @@ func Attorney(
 		}
 		if donorDetails.LpaUID != "" {
 			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails); err != nil {
-				return err
+				return fmt.Errorf("problem sending lpa: %w", err)
+			}
+
+			lpa, err := lpaStoreClient.Lpa(donorCtx, donorDetails.LpaUID)
+			if err != nil {
+				return fmt.Errorf("problem getting lpa: %w", err)
+			}
+
+			for _, attorney := range signings {
+				if err := lpaStoreClient.SendAttorney(donorCtx, lpa, attorney); err != nil {
+					return fmt.Errorf("problem sending attorney: %w", err)
+				}
 			}
 		}
 		if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {
