@@ -398,8 +398,8 @@ func TestClientLpa(t *testing.T) {
 					},
 					OtherNames: "JJ",
 				},
-				Attorneys: actor.Attorneys{
-					Attorneys: []actor.Attorney{{
+				Attorneys: Attorneys{
+					Attorneys: []Attorney{{
 						UID:         attorneyUID,
 						FirstNames:  "Adam",
 						LastName:    "Attorney",
@@ -412,9 +412,9 @@ func TestClientLpa(t *testing.T) {
 						},
 					}},
 				},
-				ReplacementAttorneys: actor.Attorneys{},
+				ReplacementAttorneys: Attorneys{},
 				WhenCanTheLpaBeUsed:  actor.CanBeUsedWhenCapacityLost,
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: CertificateProvider{
 					UID:        certificateProviderUID,
 					FirstNames: "Carol",
 					LastName:   "Cert",
@@ -423,7 +423,7 @@ func TestClientLpa(t *testing.T) {
 						TownOrCity: "c-town",
 						Country:    "GB",
 					},
-					CarryOutBy: actor.Paper,
+					Channel: actor.Paper,
 				},
 				SignedAt: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 			},
@@ -458,8 +458,8 @@ func TestClientLpa(t *testing.T) {
 					},
 					OtherNames: "JJ",
 				},
-				Attorneys: actor.Attorneys{
-					TrustCorporation: actor.TrustCorporation{
+				Attorneys: Attorneys{
+					TrustCorporation: TrustCorporation{
 						UID:           trustCorporationUID,
 						Name:          "Trusty",
 						CompanyNumber: "55555",
@@ -473,7 +473,7 @@ func TestClientLpa(t *testing.T) {
 							Country:    "GB",
 						},
 					},
-					Attorneys: []actor.Attorney{{
+					Attorneys: []Attorney{{
 						UID:         attorneyUID,
 						FirstNames:  "Adam",
 						LastName:    "Attorney",
@@ -506,8 +506,8 @@ func TestClientLpa(t *testing.T) {
 				AttorneyDecisions: actor.AttorneyDecisions{
 					How: actor.Jointly,
 				},
-				ReplacementAttorneys: actor.Attorneys{
-					TrustCorporation: actor.TrustCorporation{
+				ReplacementAttorneys: Attorneys{
+					TrustCorporation: TrustCorporation{
 						UID:           replacementTrustCorporationUID,
 						Name:          "UnTrusty",
 						CompanyNumber: "65555",
@@ -521,7 +521,7 @@ func TestClientLpa(t *testing.T) {
 							Country:    "GB",
 						},
 					},
-					Attorneys: []actor.Attorney{{
+					Attorneys: []Attorney{{
 						UID:         replacementAttorneyUID,
 						FirstNames:  "Richard",
 						LastName:    "Attorney",
@@ -558,12 +558,12 @@ func TestClientLpa(t *testing.T) {
 				HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 				LifeSustainingTreatmentOption:       actor.LifeSustainingTreatmentOptionA,
 				Restrictions:                        "do not do this",
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: CertificateProvider{
 					UID:        certificateProviderUID,
 					FirstNames: "Carol",
 					LastName:   "Cert",
 					Email:      "carol@example.com",
-					Mobile:     "0700009000",
+					Phone:      "0700009000",
 					Address: place.Address{
 						Line1:      "c-line-1",
 						Line2:      "c-line-2",
@@ -572,7 +572,7 @@ func TestClientLpa(t *testing.T) {
 						Postcode:   "C1 1FF",
 						Country:    "GB",
 					},
-					CarryOutBy: actor.Online,
+					Channel: actor.Online,
 				},
 				PeopleToNotify: actor.PeopleToNotify{{
 					UID:        personToNotifyUID,
@@ -728,8 +728,8 @@ func TestAllAttorneysSigned(t *testing.T) {
 		"need attorney to sign": {
 			lpa: &Lpa{
 				SignedAt:             lpaSignedAt,
-				Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}, {UID: uid2}}},
-				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid3}}},
+				Attorneys:            Attorneys{Attorneys: []Attorney{{UID: uid1}, {UID: uid2}}},
+				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{UID: uid3}}},
 			},
 			attorneys: []*actor.AttorneyProvidedDetails{
 				{UID: uid1, Confirmed: attorneySigned},
@@ -741,8 +741,8 @@ func TestAllAttorneysSigned(t *testing.T) {
 		"need replacement attorney to sign": {
 			lpa: &Lpa{
 				SignedAt:             lpaSignedAt,
-				Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}}},
-				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid3}, {UID: uid5}}},
+				Attorneys:            Attorneys{Attorneys: []Attorney{{UID: uid1}}},
+				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{UID: uid3}, {UID: uid5}}},
 			},
 			attorneys: []*actor.AttorneyProvidedDetails{
 				{UID: uid1, Confirmed: attorneySigned},
@@ -754,8 +754,8 @@ func TestAllAttorneysSigned(t *testing.T) {
 		"all attorneys signed": {
 			lpa: &Lpa{
 				SignedAt:             lpaSignedAt,
-				Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}, {UID: uid2}}},
-				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid3}}},
+				Attorneys:            Attorneys{Attorneys: []Attorney{{UID: uid1}, {UID: uid2}}},
+				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{UID: uid3}}},
 			},
 			attorneys: []*actor.AttorneyProvidedDetails{
 				{UID: uid1, Confirmed: attorneySigned},
@@ -767,7 +767,7 @@ func TestAllAttorneysSigned(t *testing.T) {
 		"more attorneys signed": {
 			lpa: &Lpa{
 				SignedAt:  lpaSignedAt,
-				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}, {UID: uid2}}},
+				Attorneys: Attorneys{Attorneys: []Attorney{{UID: uid1}, {UID: uid2}}},
 			},
 			attorneys: []*actor.AttorneyProvidedDetails{
 				{UID: uid1, Confirmed: attorneySigned},
@@ -779,15 +779,15 @@ func TestAllAttorneysSigned(t *testing.T) {
 		"trust corporations not signed": {
 			lpa: &Lpa{
 				SignedAt:  lpaSignedAt,
-				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
+				Attorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "a"}},
 			},
 			expected: false,
 		},
 		"replacement trust corporations not signed": {
 			lpa: &Lpa{
 				SignedAt:             lpaSignedAt,
-				Attorneys:            actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
-				ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "r"}},
+				Attorneys:            Attorneys{TrustCorporation: TrustCorporation{Name: "a"}},
+				ReplacementAttorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "r"}},
 			},
 			attorneys: []*actor.AttorneyProvidedDetails{
 				{
@@ -806,8 +806,8 @@ func TestAllAttorneysSigned(t *testing.T) {
 		"trust corporations signed": {
 			lpa: &Lpa{
 				SignedAt:             lpaSignedAt,
-				Attorneys:            actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
-				ReplacementAttorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "r"}},
+				Attorneys:            Attorneys{TrustCorporation: TrustCorporation{Name: "a"}},
+				ReplacementAttorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "r"}},
 			},
 			attorneys: []*actor.AttorneyProvidedDetails{
 				{

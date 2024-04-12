@@ -276,7 +276,7 @@ func Attorney(
 		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
 			return err
 		}
-		if !donorDetails.SignedAt.IsZero() && donorDetails.LpaUID != "" {
+		if donorDetails.LpaUID != "" {
 			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails); err != nil {
 				return err
 			}
@@ -294,12 +294,9 @@ func Attorney(
 		}
 
 		if email != "" {
-			lpa := &lpastore.Lpa{
-				LpaUID:               donorDetails.LpaUID,
-				Type:                 donorDetails.Type,
-				Donor:                donorDetails.Donor,
-				Attorneys:            donorDetails.Attorneys,
-				ReplacementAttorneys: donorDetails.ReplacementAttorneys,
+			lpa, err := lpaStoreClient.Lpa(r.Context(), donorDetails.LpaUID)
+			if err != nil {
+				return err
 			}
 
 			shareCodeSender.SendAttorneys(donorCtx, page.AppData{
