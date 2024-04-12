@@ -58,13 +58,7 @@ func main() {
 	}
 
 	cfg.Region = "eu-west-1"
-	cfg.EndpointResolverWithOptions = aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-		return aws.Endpoint{
-			PartitionID:   "aws",
-			URL:           awsBaseURL,
-			SigningRegion: "eu-west-1",
-		}, nil
-	})
+	cfg.BaseEndpoint = aws.String(awsBaseURL)
 
 	client := sqs.NewFromConfig(cfg)
 
