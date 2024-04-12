@@ -477,7 +477,7 @@ func TestLpaDecisions(t *testing.T) {
 
 	assert.Equal(t, lpaDecisionsData{
 		App:       app,
-		Lpa:       5,
+		Lpa:       &lpastore.Lpa{},
 		CanChange: true,
-	}, lpaDecisions(app, 5, true))
+	}, lpaDecisions(app, &lpastore.Lpa{}, true))
 }

@@ -28,6 +28,8 @@ switch (context.request.method) {
     let update = JSON.parse(context.request.body);
     let lpa = JSON.parse(lpaStore.load(pathParts[2]));
 
+    console.log(JSON.stringify(update));
+    console.log(JSON.stringify(lpa));
     switch (update.type) {
       case 'ATTORNEY_SIGN':
         const keyParts = update.changes[0].key.split('/');
@@ -35,10 +37,14 @@ switch (context.request.method) {
 
         switch (keyParts[1]) {
           case 'attorneys':
-            lpa.attorneys[idx].signedAt = lpa.signedAt;
+            if (lpa.attorneys && idx < lpa.attorneys.length) {
+              lpa.attorneys[idx].signedAt = lpa.signedAt;
+            }
 
           case 'trustCorporations':
-            lpa.trustCorporations[idx].signatories = [{ signedAt: lpa.signedAt }];
+            if (lpa.trustCorporations && idx < lpa.trustCorporations.length) {
+              lpa.trustCorporations[idx].signatories = [{ signedAt: lpa.signedAt }];
+            }
         }
     }
 
