@@ -10,6 +10,7 @@ module "event_received" {
     UID_BASE_URL               = var.uid_base_url
     LPA_STORE_BASE_URL         = var.lpa_store_base_url
     SEARCH_ENDPOINT            = var.search_endpoint
+    SEARCH_INDEXING_DISABLED   = 1
   }
   image_uri            = "${var.lambda_function_image_ecr_url}:${var.lambda_function_image_tag}"
   aws_iam_role         = var.event_received_lambda_role
