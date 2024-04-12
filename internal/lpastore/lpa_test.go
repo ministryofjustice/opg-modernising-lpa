@@ -709,7 +709,6 @@ func TestClientLpaWhenStatusCodeIsNotCreated(t *testing.T) {
 
 func TestAllAttorneysSigned(t *testing.T) {
 	lpaSignedAt := time.Now()
-	otherLpaSignedAt := lpaSignedAt.Add(time.Minute)
 	attorneySigned := lpaSignedAt.Add(time.Second)
 
 	uid1 := actoruid.New()
@@ -733,9 +732,9 @@ func TestAllAttorneysSigned(t *testing.T) {
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid3}}},
 			},
 			attorneys: []*actor.AttorneyProvidedDetails{
-				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{UID: uid4, LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySigned},
-				{UID: uid3, IsReplacement: true, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid1, Confirmed: attorneySigned},
+				{UID: uid4, Confirmed: attorneySigned},
+				{UID: uid3, IsReplacement: true, Confirmed: attorneySigned},
 			},
 			expected: false,
 		},
@@ -746,9 +745,9 @@ func TestAllAttorneysSigned(t *testing.T) {
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid3}, {UID: uid5}}},
 			},
 			attorneys: []*actor.AttorneyProvidedDetails{
-				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid1, Confirmed: attorneySigned},
 				{UID: uid3, IsReplacement: true},
-				{UID: uid5, IsReplacement: true, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid5, IsReplacement: true, Confirmed: attorneySigned},
 			},
 			expected: false,
 		},
@@ -759,9 +758,9 @@ func TestAllAttorneysSigned(t *testing.T) {
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid3}}},
 			},
 			attorneys: []*actor.AttorneyProvidedDetails{
-				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{UID: uid2, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{UID: uid3, IsReplacement: true, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid1, Confirmed: attorneySigned},
+				{UID: uid2, Confirmed: attorneySigned},
+				{UID: uid3, IsReplacement: true, Confirmed: attorneySigned},
 			},
 			expected: true,
 		},
@@ -771,22 +770,11 @@ func TestAllAttorneysSigned(t *testing.T) {
 				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}, {UID: uid2}}},
 			},
 			attorneys: []*actor.AttorneyProvidedDetails{
-				{UID: uid1, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{UID: uid2, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-				{UID: uid4, LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySigned},
+				{UID: uid1, Confirmed: attorneySigned},
+				{UID: uid2, Confirmed: attorneySigned},
+				{UID: uid4, Confirmed: attorneySigned},
 			},
 			expected: true,
-		},
-		"waiting for attorney to re-sign": {
-			lpa: &Lpa{
-				SignedAt:  lpaSignedAt,
-				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid1}, {UID: uid2}}},
-			},
-			attorneys: []*actor.AttorneyProvidedDetails{
-				{UID: uid1, LpaSignedAt: otherLpaSignedAt, Confirmed: attorneySigned},
-				{UID: uid2, LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned},
-			},
-			expected: false,
 		},
 		"trust corporations not signed": {
 			lpa: &Lpa{
@@ -805,12 +793,12 @@ func TestAllAttorneysSigned(t *testing.T) {
 				{
 					IsTrustCorporation:       true,
 					WouldLikeSecondSignatory: form.No,
-					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned}},
+					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{Confirmed: attorneySigned}},
 				},
 				{
 					IsTrustCorporation:       true,
 					WouldLikeSecondSignatory: form.Yes,
-					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned}},
+					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{Confirmed: attorneySigned}},
 				},
 			},
 			expected: false,
@@ -825,13 +813,13 @@ func TestAllAttorneysSigned(t *testing.T) {
 				{
 					IsTrustCorporation:       true,
 					WouldLikeSecondSignatory: form.No,
-					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned}},
+					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{Confirmed: attorneySigned}},
 				},
 				{
 					IsTrustCorporation:       true,
 					IsReplacement:            true,
 					WouldLikeSecondSignatory: form.No,
-					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{LpaSignedAt: lpaSignedAt, Confirmed: attorneySigned}},
+					AuthorisedSignatories:    [2]actor.TrustCorporationSignatory{{Confirmed: attorneySigned}},
 				},
 			},
 			expected: true,
