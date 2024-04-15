@@ -25,28 +25,28 @@ func TestGetConfirmYourDetails(t *testing.T) {
 		"attorney": {
 			appData: testAppData,
 			donor: &lpastore.Lpa{
-				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid, FirstNames: "John"}}},
+				Attorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{{UID: uid, FirstNames: "John"}}},
 			},
 			data: &confirmYourDetailsData{
 				App: testAppData,
 				Lpa: &lpastore.Lpa{
-					Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid, FirstNames: "John"}}},
+					Attorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{{UID: uid, FirstNames: "John"}}},
 				},
-				Attorney:                actor.Attorney{UID: uid, FirstNames: "John"},
+				Attorney:                lpastore.Attorney{UID: uid, FirstNames: "John"},
 				AttorneyProvidedDetails: attorneyProvidedDetails,
 			},
 		},
 		"trust corporation": {
 			appData: testTrustCorporationAppData,
 			donor: &lpastore.Lpa{
-				Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "company"}},
+				Attorneys: lpastore.Attorneys{TrustCorporation: lpastore.TrustCorporation{Name: "company"}},
 			},
 			data: &confirmYourDetailsData{
 				App: testTrustCorporationAppData,
 				Lpa: &lpastore.Lpa{
-					Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "company"}},
+					Attorneys: lpastore.Attorneys{TrustCorporation: lpastore.TrustCorporation{Name: "company"}},
 				},
-				TrustCorporation:        actor.TrustCorporation{Name: "company"},
+				TrustCorporation:        lpastore.TrustCorporation{Name: "company"},
 				AttorneyProvidedDetails: attorneyProvidedDetails,
 			},
 		},
