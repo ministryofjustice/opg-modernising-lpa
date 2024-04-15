@@ -36,7 +36,7 @@ func (c *Client) sendUpdate(ctx context.Context, lpaUID string, actorUID actorui
 	return c.do(ctx, actorUID, req, nil)
 }
 
-func (c *Client) SendCertificateProvider(ctx context.Context, lpaUID string, certificateProvider *actor.CertificateProviderProvidedDetails) error {
+func (c *Client) SendCertificateProvider(ctx context.Context, lpaUID string, certificateProvider *actor.CertificateProviderProvidedDetails, lpa *Lpa) error {
 	body := updateRequest{
 		Type: "CERTIFICATE_PROVIDER_SIGN",
 		Changes: []updateRequestChange{
@@ -67,6 +67,14 @@ func (c *Client) SendCertificateProvider(ctx context.Context, lpaUID string, cer
 
 	if certificateProvider.HomeAddress.Country != "" {
 		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/address/country", New: certificateProvider.HomeAddress.Country})
+	}
+
+	if lpa.CertificateProvider.Email != certificateProvider.Email {
+		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/email", New: certificateProvider.Email, Old: lpa.CertificateProvider.Email})
+	}
+
+	if lpa.CertificateProvider.CarryOutBy != actor.ChannelOnline {
+		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/channel", New: actor.ChannelOnline, Old: actor.ChannelPaper})
 	}
 
 	return c.sendUpdate(ctx, lpaUID, certificateProvider.UID, body)
