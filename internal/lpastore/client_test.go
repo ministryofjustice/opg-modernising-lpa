@@ -422,8 +422,8 @@ func TestClientServiceContract(t *testing.T) {
 			err := client.SendAttorney(context.Background(),
 				&Lpa{
 					LpaUID: "M-0000-1111-2222",
-					Attorneys: actor.Attorneys{
-						Attorneys: []actor.Attorney{{UID: uid}},
+					Attorneys: Attorneys{
+						Attorneys: []Attorney{{UID: uid}},
 					},
 				},
 				&actor.AttorneyProvidedDetails{
@@ -708,8 +708,8 @@ func TestClientServiceContract(t *testing.T) {
 						Country:    "GB",
 					},
 				},
-				Attorneys: actor.Attorneys{
-					Attorneys: []actor.Attorney{{
+				Attorneys: Attorneys{
+					Attorneys: []Attorney{{
 						FirstNames:  "Jake",
 						LastName:    "Valler",
 						DateOfBirth: date.New("2001", "01", "17"),
@@ -720,17 +720,17 @@ func TestClientServiceContract(t *testing.T) {
 						},
 					}},
 				},
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: CertificateProvider{
 					FirstNames: "Some",
 					LastName:   "Provider",
 					Email:      "some@example.com",
-					Mobile:     "0700009000",
+					Phone:      "0700009000",
 					Address: place.Address{
 						Line1:      "71 South Western Terrace",
 						TownOrCity: "Milton",
 						Country:    "AU",
 					},
-					CarryOutBy: actor.Online,
+					Channel: actor.Online,
 				},
 				LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA,
 				SignedAt:                      time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),

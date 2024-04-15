@@ -1,4 +1,3 @@
-
 FROM badouralix/curl-jq:latest as build
 
 RUN curl https://raw.githubusercontent.com/alphagov/pay-publicapi/master/openapi/publicapi_spec.json --output openapi-spec.json
