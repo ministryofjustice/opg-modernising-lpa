@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 )
@@ -295,64 +296,121 @@ func TestFormatPhone(t *testing.T) {
 }
 
 func TestListAttorneysWithAttorneys(t *testing.T) {
-	trustCorporation := actor.TrustCorporation{Name: "a"}
-	attorneys := []actor.Attorney{
-		{UID: actoruid.New()},
-		{UID: actoruid.New()},
-	}
-
 	app := page.AppData{SessionID: "abc", Page: "/here", ActorType: actor.TypeDonor, LpaID: "lpa-id"}
 	headingLevel := 3
-	attorneyType := "attorney"
+	uid1 := actoruid.New()
+	uid2 := actoruid.New()
 
-	want := attorneySummaryData{
-		TrustCorporation: trustCorporation,
-		Attorneys:        attorneys,
-		App:              app,
-		HeadingLevel:     headingLevel,
-		CanChange:        true,
+	attorneyLinks := attorneySummaryDataLinks{
+		Attorney:                page.Paths.ChooseAttorneys.Format("lpa-id") + "?from=/here",
+		AttorneyAddress:         page.Paths.ChooseAttorneysAddress.Format("lpa-id") + "?from=/here",
+		RemoveAttorney:          page.Paths.RemoveAttorney.Format("lpa-id") + "?from=/here",
+		TrustCorporation:        page.Paths.EnterTrustCorporation.Format("lpa-id") + "?from=/here",
+		TrustCorporationAddress: page.Paths.EnterTrustCorporationAddress.Format("lpa-id") + "?from=/here",
+		RemoveTrustCorporation:  page.Paths.RemoveTrustCorporation.Format("lpa-id") + "?from=/here",
 	}
 
-	want.Link.Attorney = page.Paths.ChooseAttorneys.Format("lpa-id") + "?from=/here"
-	want.Link.AttorneyAddress = page.Paths.ChooseAttorneysAddress.Format("lpa-id") + "?from=/here"
-	want.Link.RemoveAttorney = page.Paths.RemoveAttorney.Format("lpa-id") + "?from=/here"
-	want.Link.TrustCorporation = page.Paths.EnterTrustCorporation.Format("lpa-id") + "?from=/here"
-	want.Link.TrustCorporationAddress = page.Paths.EnterTrustCorporationAddress.Format("lpa-id") + "?from=/here"
-	want.Link.RemoveTrustCorporation = page.Paths.RemoveTrustCorporation.Format("lpa-id") + "?from=/here"
+	replacementLinks := attorneySummaryDataLinks{
+		Attorney:                page.Paths.ChooseReplacementAttorneys.Format("lpa-id") + "?from=/here",
+		AttorneyAddress:         page.Paths.ChooseReplacementAttorneysAddress.Format("lpa-id") + "?from=/here",
+		RemoveAttorney:          page.Paths.RemoveReplacementAttorney.Format("lpa-id") + "?from=/here",
+		TrustCorporation:        page.Paths.EnterReplacementTrustCorporation.Format("lpa-id") + "?from=/here",
+		TrustCorporationAddress: page.Paths.EnterReplacementTrustCorporationAddress.Format("lpa-id") + "?from=/here",
+		RemoveTrustCorporation:  page.Paths.RemoveReplacementTrustCorporation.Format("lpa-id") + "?from=/here",
+	}
 
-	got := listAttorneys(app, actor.Attorneys{TrustCorporation: trustCorporation, Attorneys: attorneys}, attorneyType, headingLevel, true)
+	lpaStoreAttorneys := []lpastore.Attorney{
+		{UID: uid1},
+		{UID: uid2},
+	}
+	lpaStoreTrustCorporation := lpastore.TrustCorporation{Name: "a"}
 
-	assert.Equal(t, want, got)
+	actorAttorneys := []actor.Attorney{
+		{UID: uid1},
+		{UID: uid2},
+	}
+	actorTrustCorporation := actor.TrustCorporation{Name: "a"}
+
+	testcases := map[string]struct {
+		attorneys    any
+		data         attorneySummaryData
+		attorneyType string
+	}{
+		"lpastore": {
+			attorneys: lpastore.Attorneys{
+				Attorneys:        lpaStoreAttorneys,
+				TrustCorporation: lpaStoreTrustCorporation,
+			},
+			attorneyType: "attorney",
+			data: attorneySummaryData{
+				TrustCorporation: lpaStoreTrustCorporation,
+				Attorneys:        lpaStoreAttorneys,
+				App:              app,
+				HeadingLevel:     headingLevel,
+				CanChange:        true,
+				Link:             attorneyLinks,
+			},
+		},
+		"dynamo": {
+			attorneys: actor.Attorneys{
+				Attorneys:        actorAttorneys,
+				TrustCorporation: actorTrustCorporation,
+			},
+			attorneyType: "attorney",
+			data: attorneySummaryData{
+				TrustCorporation: lpaStoreTrustCorporation,
+				Attorneys:        lpaStoreAttorneys,
+				App:              app,
+				HeadingLevel:     headingLevel,
+				CanChange:        true,
+				Link:             attorneyLinks,
+			},
+		},
+		"lpastore replacement": {
+			attorneys: lpastore.Attorneys{
+				Attorneys:        lpaStoreAttorneys,
+				TrustCorporation: lpaStoreTrustCorporation,
+			},
+			attorneyType: "replacement",
+			data: attorneySummaryData{
+				TrustCorporation: lpaStoreTrustCorporation,
+				Attorneys:        lpaStoreAttorneys,
+				App:              app,
+				HeadingLevel:     headingLevel,
+				CanChange:        true,
+				Link:             replacementLinks,
+			},
+		},
+		"dynamo replacement": {
+			attorneys: actor.Attorneys{
+				Attorneys:        actorAttorneys,
+				TrustCorporation: actorTrustCorporation,
+			},
+			attorneyType: "replacement",
+			data: attorneySummaryData{
+				TrustCorporation: lpaStoreTrustCorporation,
+				Attorneys:        lpaStoreAttorneys,
+				App:              app,
+				HeadingLevel:     headingLevel,
+				CanChange:        true,
+				Link:             replacementLinks,
+			},
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			got := listAttorneys(app, tc.attorneys, tc.attorneyType, headingLevel, true)
+
+			assert.Equal(t, tc.data, got)
+		})
+	}
 }
 
-func TestListAttorneysWithReplacementAttorneys(t *testing.T) {
-	trustCorporation := actor.TrustCorporation{Name: "a"}
-	attorneys := []actor.Attorney{
-		{UID: actoruid.New()},
-		{UID: actoruid.New()},
-	}
-
-	app := page.AppData{SessionID: "abc", Page: "/here", LpaID: "lpa-id"}
-	headingLevel := 3
-	attorneyType := "replacement"
-
-	want := attorneySummaryData{
-		TrustCorporation: trustCorporation,
-		Attorneys:        attorneys,
-		App:              app,
-		HeadingLevel:     headingLevel,
-	}
-
-	want.Link.Attorney = page.Paths.ChooseReplacementAttorneys.Format("lpa-id") + "?from=/here"
-	want.Link.AttorneyAddress = page.Paths.ChooseReplacementAttorneysAddress.Format("lpa-id") + "?from=/here"
-	want.Link.RemoveAttorney = page.Paths.RemoveReplacementAttorney.Format("lpa-id") + "?from=/here"
-	want.Link.TrustCorporation = page.Paths.EnterReplacementTrustCorporation.Format("lpa-id") + "?from=/here"
-	want.Link.TrustCorporationAddress = page.Paths.EnterReplacementTrustCorporationAddress.Format("lpa-id") + "?from=/here"
-	want.Link.RemoveTrustCorporation = page.Paths.RemoveReplacementTrustCorporation.Format("lpa-id") + "?from=/here"
-
-	got := listAttorneys(app, actor.Attorneys{TrustCorporation: trustCorporation, Attorneys: attorneys}, attorneyType, headingLevel, false)
-
-	assert.Equal(t, want, got)
+func TestListAttorneysWithIncorrectType(t *testing.T) {
+	assert.Panics(t, func() {
+		listAttorneys(page.AppData{}, 5, "attorney", 3, true)
+	})
 }
 
 func TestListPeopleToNotify(t *testing.T) {
@@ -476,7 +534,17 @@ func TestLpaDecisions(t *testing.T) {
 
 	assert.Equal(t, lpaDecisionsData{
 		App:       app,
-		Lpa:       5,
+		Lpa:       &lpastore.Lpa{},
 		CanChange: true,
-	}, lpaDecisions(app, 5, true))
+	}, lpaDecisions(app, &lpastore.Lpa{}, true))
+}
+
+func TestLpaDecisionsWithDonorProvidedDetails(t *testing.T) {
+	app := page.AppData{SessionID: "abc"}
+
+	assert.Equal(t, lpaDecisionsData{
+		App:       app,
+		Lpa:       &lpastore.Lpa{},
+		CanChange: true,
+	}, lpaDecisions(app, &actor.DonorProvidedDetails{}, true))
 }
