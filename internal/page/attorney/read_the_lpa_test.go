@@ -20,13 +20,13 @@ func TestGetReadTheLpaWithAttorney(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}}}, nil)
+		Return(&lpastore.Lpa{Attorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{{UID: uid}}}}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &readTheLpaData{
 			App: testAppData,
-			Lpa: &lpastore.Lpa{Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}}},
+			Lpa: &lpastore.Lpa{Attorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{{UID: uid}}}},
 		}).
 		Return(nil)
 
@@ -45,13 +45,13 @@ func TestGetReadTheLpaWithReplacementAttorney(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}}}, nil)
+		Return(&lpastore.Lpa{ReplacementAttorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{{UID: uid}}}}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &readTheLpaData{
 			App: testReplacementAppData,
-			Lpa: &lpastore.Lpa{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}}},
+			Lpa: &lpastore.Lpa{ReplacementAttorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{{UID: uid}}}},
 		}).
 		Return(nil)
 
@@ -70,7 +70,7 @@ func TestGetReadTheLpaWithAttorneyWhenLpaStoreResolvingServiceErrors(t *testing.
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}}}, expectedError)
+		Return(&lpastore.Lpa{Attorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{{UID: uid}}}}, expectedError)
 
 	err := ReadTheLpa(nil, lpaStoreResolvingService, nil)(testAppData, w, r, nil)
 	resp := w.Result()
@@ -87,13 +87,13 @@ func TestGetReadTheLpaWhenTemplateError(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}}}, nil)
+		Return(&lpastore.Lpa{Attorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{{UID: uid}}}}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &readTheLpaData{
 			App: testAppData,
-			Lpa: &lpastore.Lpa{Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}}},
+			Lpa: &lpastore.Lpa{Attorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{{UID: uid}}}},
 		}).
 		Return(expectedError)
 
