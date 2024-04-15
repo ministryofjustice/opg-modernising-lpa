@@ -86,6 +86,7 @@ jobs:
         run: |
           docker compose -f docker/docker-compose.yml -f docker/docker-compose.ci.yml pull
           docker compose -f docker/docker-compose.yml -f docker/docker-compose.ci.yml up -d --wait
+          sleep 5
 
       - name: Manage Ingress/Configure AWS Credentials
         if: inputs.run_against_image != true
