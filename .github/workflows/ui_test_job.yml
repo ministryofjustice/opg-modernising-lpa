@@ -122,7 +122,8 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.cypress_record_key }}
           GITHUB_TOKEN: ${{ secrets.github_access_token }}
         run:
-          yarn run cypress:parallel-with-specs --spec ${{ inputs.specs }}
+          yarn cypress:run
+          # yarn run cypress:parallel-with-specs --spec ${{ inputs.specs }}
 
       - name: Persist Cypress failure screenshots as artifacts
         if: failure()
