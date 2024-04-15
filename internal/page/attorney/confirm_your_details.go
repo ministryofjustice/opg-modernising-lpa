@@ -14,8 +14,8 @@ type confirmYourDetailsData struct {
 	App                     page.AppData
 	Errors                  validation.List
 	Lpa                     *lpastore.Lpa
-	Attorney                actor.Attorney
-	TrustCorporation        actor.TrustCorporation
+	Attorney                lpastore.Attorney
+	TrustCorporation        lpastore.TrustCorporation
 	AttorneyProvidedDetails *actor.AttorneyProvidedDetails
 }
 

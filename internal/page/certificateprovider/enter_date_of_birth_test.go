@@ -261,7 +261,7 @@ func TestPostEnterDateOfBirthWhenProfessionalCertificateProvider(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{LpaID: "lpa-id", CertificateProvider: actor.CertificateProvider{Relationship: actor.Professionally}}, nil)
+		Return(&lpastore.Lpa{LpaID: "lpa-id", CertificateProvider: lpastore.CertificateProvider{Relationship: actor.Professionally}}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().

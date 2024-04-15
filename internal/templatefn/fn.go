@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
@@ -308,22 +309,51 @@ func formatPhone(s string) string {
 type attorneySummaryData struct {
 	App              page.AppData
 	CanChange        bool
-	TrustCorporation actor.TrustCorporation
-	Attorneys        []actor.Attorney
-	Link             struct {
-		TrustCorporation, TrustCorporationAddress, RemoveTrustCorporation string
-		Attorney, AttorneyAddress, RemoveAttorney                         string
-	}
-	HeadingLevel int
+	TrustCorporation lpastore.TrustCorporation
+	Attorneys        []lpastore.Attorney
+	Link             attorneySummaryDataLinks
+	HeadingLevel     int
 }
 
-func listAttorneys(app page.AppData, attorneys actor.Attorneys, attorneyType string, headingLevel int, canChange bool) attorneySummaryData {
+type attorneySummaryDataLinks struct {
+	TrustCorporation, TrustCorporationAddress, RemoveTrustCorporation string
+	Attorney, AttorneyAddress, RemoveAttorney                         string
+}
+
+func listAttorneys(app page.AppData, attorneys any, attorneyType string, headingLevel int, canChange bool) attorneySummaryData {
 	data := attorneySummaryData{
-		App:              app,
-		CanChange:        canChange,
-		TrustCorporation: attorneys.TrustCorporation,
-		Attorneys:        attorneys.Attorneys,
-		HeadingLevel:     headingLevel,
+		App:          app,
+		CanChange:    canChange,
+		HeadingLevel: headingLevel,
+	}
+
+	switch v := attorneys.(type) {
+	case lpastore.Attorneys:
+		data.Attorneys = v.Attorneys
+		data.TrustCorporation = v.TrustCorporation
+	case actor.Attorneys:
+		for _, a := range v.Attorneys {
+			data.Attorneys = append(data.Attorneys, lpastore.Attorney{
+				UID:         a.UID,
+				FirstNames:  a.FirstNames,
+				LastName:    a.LastName,
+				DateOfBirth: a.DateOfBirth,
+				Email:       a.Email,
+				Address:     a.Address,
+			})
+		}
+
+		if t := v.TrustCorporation; t.Name != "" {
+			data.TrustCorporation = lpastore.TrustCorporation{
+				UID:           t.UID,
+				Name:          t.Name,
+				CompanyNumber: t.CompanyNumber,
+				Email:         t.Email,
+				Address:       t.Address,
+			}
+		}
+	default:
+		panic("unsupported type of attorneys for listAttorneys")
 	}
 
 	if attorneyType == "replacement" {
@@ -428,14 +458,22 @@ func notificationBanner(app page.AppData, title string, content template.HTML, o
 
 type lpaDecisionsData struct {
 	App       page.AppData
-	Lpa       any // will be *actor.DonorProvidedData or *lpastore.ResolvedLpa
+	Lpa       *lpastore.Lpa
 	CanChange bool
 }
 
 func lpaDecisions(app page.AppData, lpa any, canChange bool) lpaDecisionsData {
-	return lpaDecisionsData{
+	data := lpaDecisionsData{
 		App:       app,
-		Lpa:       lpa,
 		CanChange: canChange,
 	}
+
+	switch v := lpa.(type) {
+	case *lpastore.Lpa:
+		data.Lpa = v
+	case *actor.DonorProvidedDetails:
+		data.Lpa = lpastore.FromDonorProvidedDetails(v)
+	}
+
+	return data
 }
