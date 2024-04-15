@@ -261,8 +261,9 @@ type CertificateProvider struct {
 	Channel                   actor.CertificateProviderCarryOutBy `json:"channel"`
 	SignedAt                  time.Time                           `json:"signedAt"`
 	ContactLanguagePreference localize.Lang                       `json:"contactLanguagePreference"`
-	// TODO: figure out what to do with this field, maybe change it to a different
-	// name to make it more obvious it only has one purpose?
+	// Relationship is not stored in the lpa-store so is defaulted to
+	// Professional. We require it to determine whether to show the home address
+	// page to a certificate provider.
 	Relationship actor.CertificateProviderRelationship
 }
 
@@ -487,7 +488,7 @@ func lpaResponseToLpa(l lpaResponse) *Lpa {
 	}
 }
 
-func donorProvidedDetailsToLpa(l *actor.DonorProvidedDetails) *Lpa {
+func FromDonorProvidedDetails(l *actor.DonorProvidedDetails) *Lpa {
 	attorneys := Attorneys{}
 	for _, a := range l.Attorneys.Attorneys {
 		attorneys.Attorneys = append(attorneys.Attorneys, Attorney{

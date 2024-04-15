@@ -70,6 +70,14 @@ func TestResolvingServiceGet(t *testing.T) {
 					Relationship: actor.Personally,
 				},
 				Donor: actor.Donor{Channel: actor.ChannelOnline},
+				Attorneys: actor.Attorneys{
+					Attorneys:        []actor.Attorney{{FirstNames: "a"}},
+					TrustCorporation: actor.TrustCorporation{Name: "b"},
+				},
+				ReplacementAttorneys: actor.Attorneys{
+					Attorneys:        []actor.Attorney{{FirstNames: "c"}},
+					TrustCorporation: actor.TrustCorporation{Name: "d"},
+				},
 			},
 			error: ErrNotFound,
 			expected: &Lpa{
@@ -79,6 +87,14 @@ func TestResolvingServiceGet(t *testing.T) {
 					Relationship: actor.Personally,
 				},
 				Donor: actor.Donor{Channel: actor.ChannelOnline},
+				Attorneys: Attorneys{
+					Attorneys:        []Attorney{{FirstNames: "a"}},
+					TrustCorporation: TrustCorporation{Name: "b"},
+				},
+				ReplacementAttorneys: Attorneys{
+					Attorneys:        []Attorney{{FirstNames: "c"}},
+					TrustCorporation: TrustCorporation{Name: "d"},
+				},
 			},
 		},
 		"online with all false": {

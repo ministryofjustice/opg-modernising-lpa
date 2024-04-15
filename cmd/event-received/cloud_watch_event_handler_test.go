@@ -465,7 +465,7 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 	appData := page.AppData{}
 	uid := actoruid.New()
 
-	donor := &lpastore.Lpa{
+	lpa := &lpastore.Lpa{
 		CertificateProvider: lpastore.CertificateProvider{
 			Channel:    actor.Online,
 			UID:        uid,
@@ -493,7 +493,7 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
-		Return(donor, nil)
+		Return(lpa, nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
@@ -511,7 +511,7 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 func TestHandleDonorSubmissionCompletedWhenPaperCertificateProvider(t *testing.T) {
 	appData := page.AppData{}
 
-	donor := &lpastore.Lpa{
+	lpa := &lpastore.Lpa{
 		CertificateProvider: lpastore.CertificateProvider{
 			Channel: actor.Paper,
 		},
@@ -528,7 +528,7 @@ func TestHandleDonorSubmissionCompletedWhenPaperCertificateProvider(t *testing.T
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
-		Return(donor, nil)
+		Return(lpa, nil)
 
 	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, nil, appData, lpaStoreClient, testUuidStringFn, testNowFn)
 	assert.Nil(t, err)
@@ -576,7 +576,7 @@ func TestHandleDonorSubmissionCompletedWhenDynamoPutError(t *testing.T) {
 func TestHandleDonorSubmissionCompletedWhenLpaStoreError(t *testing.T) {
 	appData := page.AppData{}
 
-	donor := &lpastore.Lpa{
+	lpa := &lpastore.Lpa{
 		CertificateProvider: lpastore.CertificateProvider{
 			Channel: actor.Online,
 		},
@@ -593,7 +593,7 @@ func TestHandleDonorSubmissionCompletedWhenLpaStoreError(t *testing.T) {
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
-		Return(donor, expectedError)
+		Return(lpa, expectedError)
 
 	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, nil, appData, lpaStoreClient, testUuidStringFn, testNowFn)
 	assert.Equal(t, expectedError, err)
@@ -602,7 +602,7 @@ func TestHandleDonorSubmissionCompletedWhenLpaStoreError(t *testing.T) {
 func TestHandleDonorSubmissionCompletedWhenShareCodeSenderError(t *testing.T) {
 	appData := page.AppData{}
 
-	donor := &lpastore.Lpa{
+	lpa := &lpastore.Lpa{
 		CertificateProvider: lpastore.CertificateProvider{
 			Channel: actor.Online,
 		},
@@ -619,7 +619,7 @@ func TestHandleDonorSubmissionCompletedWhenShareCodeSenderError(t *testing.T) {
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
-		Return(donor, nil)
+		Return(lpa, nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
@@ -638,7 +638,7 @@ var certificateProviderSubmissionCompletedEvent = events.CloudWatchEvent{
 func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 	appData := page.AppData{}
 
-	donor := &lpastore.Lpa{
+	lpa := &lpastore.Lpa{
 		CertificateProvider: lpastore.CertificateProvider{
 			Channel: actor.Paper,
 		},
@@ -647,11 +647,11 @@ func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
-		Return(donor, nil)
+		Return(lpa, nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendAttorneys(ctx, appData, donor).
+		SendAttorneys(ctx, appData, lpa).
 		Return(nil)
 
 	factory := newMockFactory(t)
@@ -670,7 +670,7 @@ func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 }
 
 func TestHandleCertificateProviderSubmissionCompletedWhenOnline(t *testing.T) {
-	donor := &lpastore.Lpa{
+	lpa := &lpastore.Lpa{
 		CertificateProvider: lpastore.CertificateProvider{
 			Channel: actor.Online,
 		},
@@ -679,7 +679,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenOnline(t *testing.T) {
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
-		Return(donor, nil)
+		Return(lpa, nil)
 
 	factory := newMockFactory(t)
 	factory.EXPECT().
