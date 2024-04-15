@@ -63,7 +63,7 @@
         {{ if $.App.IsDonor }}
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "preferredContactLanguage" }}</dt>
-            <dd class="govuk-summary-list__value">{{ if not .Lpa.ContactLanguagePreference.Empty }} {{ tr .App .Lpa.ContactLanguagePreference.String }} {{ end }}</dd>
+            <dd class="govuk-summary-list__value">{{ if not .Lpa.Donor.ContactLanguagePreference.Empty }} {{ tr .App .Lpa.Donor.ContactLanguagePreference.String }} {{ end }}</dd>
             {{ if .CanChange }}
               <dd class="govuk-summary-list__actions">
                 <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (global.Paths.YourPreferredLanguage.Format .App.LpaID) }}?from={{.App.Page}}">

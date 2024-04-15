@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
@@ -34,13 +35,14 @@ type lpaRequest struct {
 }
 
 type lpaRequestDonor struct {
-	UID               actoruid.UID  `json:"uid"`
-	FirstNames        string        `json:"firstNames"`
-	LastName          string        `json:"lastName"`
-	DateOfBirth       date.Date     `json:"dateOfBirth"`
-	Email             string        `json:"email"`
-	Address           place.Address `json:"address"`
-	OtherNamesKnownBy string        `json:"otherNamesKnownBy,omitempty"`
+	UID                       actoruid.UID  `json:"uid"`
+	FirstNames                string        `json:"firstNames"`
+	LastName                  string        `json:"lastName"`
+	DateOfBirth               date.Date     `json:"dateOfBirth"`
+	Email                     string        `json:"email"`
+	Address                   place.Address `json:"address"`
+	OtherNamesKnownBy         string        `json:"otherNamesKnownBy,omitempty"`
+	ContactLanguagePreference localize.Lang `json:"contactLanguagePreference"`
 }
 
 type lpaRequestAttorney struct {
@@ -83,13 +85,14 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 	body := lpaRequest{
 		LpaType: donor.Type,
 		Donor: lpaRequestDonor{
-			UID:               donor.Donor.UID,
-			FirstNames:        donor.Donor.FirstNames,
-			LastName:          donor.Donor.LastName,
-			DateOfBirth:       donor.Donor.DateOfBirth,
-			Email:             donor.Donor.Email,
-			Address:           donor.Donor.Address,
-			OtherNamesKnownBy: donor.Donor.OtherNames,
+			UID:                       donor.Donor.UID,
+			FirstNames:                donor.Donor.FirstNames,
+			LastName:                  donor.Donor.LastName,
+			DateOfBirth:               donor.Donor.DateOfBirth,
+			Email:                     donor.Donor.Email,
+			Address:                   donor.Donor.Address,
+			OtherNamesKnownBy:         donor.Donor.OtherNames,
+			ContactLanguagePreference: donor.Donor.ContactLanguagePreference,
 		},
 		CertificateProvider: lpaRequestCertificateProvider{
 			UID:        donor.CertificateProvider.UID,

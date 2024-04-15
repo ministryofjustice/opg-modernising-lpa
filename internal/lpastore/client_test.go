@@ -101,6 +101,7 @@ func TestClientServiceContract(t *testing.T) {
 								"postcode": matchers.String("F1 1FF"),
 								"country":  matchers.String("GB"),
 							}),
+							"contactLanguagePreference": matchers.String("en"),
 						}),
 						"attorneys": matchers.EachLike(map[string]any{
 							"uid":         matchers.UUID(),
@@ -163,12 +164,13 @@ func TestClientServiceContract(t *testing.T) {
 				Type:                          actor.LpaTypePersonalWelfare,
 				LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA,
 				Donor: actor.Donor{
-					UID:         actoruid.New(),
-					FirstNames:  "John Johnson",
-					LastName:    "Smith",
-					DateOfBirth: date.New("2000", "1", "2"),
-					Email:       "john@example.com",
-					Address:     address,
+					UID:                       actoruid.New(),
+					FirstNames:                "John Johnson",
+					LastName:                  "Smith",
+					DateOfBirth:               date.New("2000", "1", "2"),
+					Email:                     "john@example.com",
+					Address:                   address,
+					ContactLanguagePreference: localize.En,
 				},
 				Attorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{{
@@ -235,7 +237,8 @@ func TestClientServiceContract(t *testing.T) {
 								"postcode": matchers.String("F1 1FF"),
 								"country":  matchers.String("GB"),
 							}),
-							"otherNamesKnownBy": matchers.String("JJ"),
+							"otherNamesKnownBy":         matchers.String("JJ"),
+							"contactLanguagePreference": matchers.String("cy"),
 						}),
 						"attorneys": matchers.EachLike(map[string]any{
 							"uid":         matchers.UUID(),
@@ -313,13 +316,14 @@ func TestClientServiceContract(t *testing.T) {
 				LpaUID: "M-0000-1111-2222",
 				Type:   actor.LpaTypePersonalWelfare,
 				Donor: actor.Donor{
-					UID:         actoruid.New(),
-					FirstNames:  "John Johnson",
-					LastName:    "Smith",
-					DateOfBirth: date.New("2000", "1", "2"),
-					Email:       "john@example.com",
-					Address:     address,
-					OtherNames:  "JJ",
+					UID:                       actoruid.New(),
+					FirstNames:                "John Johnson",
+					LastName:                  "Smith",
+					DateOfBirth:               date.New("2000", "1", "2"),
+					Email:                     "john@example.com",
+					Address:                   address,
+					OtherNames:                "JJ",
+					ContactLanguagePreference: localize.Cy,
 				},
 				Attorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{{

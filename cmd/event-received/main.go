@@ -61,16 +61,17 @@ func (e Event) isCloudWatchEvent() bool {
 
 func handler(ctx context.Context, event Event) error {
 	var (
-		tableName          = os.Getenv("LPAS_TABLE")
-		notifyIsProduction = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
-		appPublicURL       = os.Getenv("APP_PUBLIC_URL")
-		awsBaseURL         = os.Getenv("AWS_BASE_URL")
-		notifyBaseURL      = os.Getenv("GOVUK_NOTIFY_BASE_URL")
-		evidenceBucketName = os.Getenv("UPLOADS_S3_BUCKET_NAME")
-		uidBaseURL         = os.Getenv("UID_BASE_URL")
-		lpaStoreBaseURL    = os.Getenv("LPA_STORE_BASE_URL")
-		eventBusName       = env.Get("EVENT_BUS_NAME", "default")
-		searchEndpoint     = os.Getenv("SEARCH_ENDPOINT")
+		tableName             = os.Getenv("LPAS_TABLE")
+		notifyIsProduction    = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
+		appPublicURL          = os.Getenv("APP_PUBLIC_URL")
+		awsBaseURL            = os.Getenv("AWS_BASE_URL")
+		notifyBaseURL         = os.Getenv("GOVUK_NOTIFY_BASE_URL")
+		evidenceBucketName    = os.Getenv("UPLOADS_S3_BUCKET_NAME")
+		uidBaseURL            = os.Getenv("UID_BASE_URL")
+		lpaStoreBaseURL       = os.Getenv("LPA_STORE_BASE_URL")
+		eventBusName          = env.Get("EVENT_BUS_NAME", "default")
+		searchEndpoint        = os.Getenv("SEARCH_ENDPOINT")
+		searchIndexingEnabled = env.Get("SEARCH_INDEXING_DISABLED", "") != "1"
 	)
 
 	cfg, err := config.LoadDefaultConfig(ctx)
@@ -79,13 +80,7 @@ func handler(ctx context.Context, event Event) error {
 	}
 
 	if len(awsBaseURL) > 0 {
-		cfg.EndpointResolverWithOptions = aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-			return aws.Endpoint{
-				PartitionID:   "aws",
-				URL:           awsBaseURL,
-				SigningRegion: "eu-west-1",
-			}, nil
-		})
+		cfg.BaseEndpoint = aws.String(awsBaseURL)
 	}
 
 	dynamoClient, err := dynamo.NewClient(cfg, tableName)
@@ -106,16 +101,17 @@ func handler(ctx context.Context, event Event) error {
 
 	if event.isCloudWatchEvent() {
 		factory := &Factory{
-			now:                time.Now,
-			cfg:                cfg,
-			dynamoClient:       dynamoClient,
-			appPublicURL:       appPublicURL,
-			lpaStoreBaseURL:    lpaStoreBaseURL,
-			uidBaseURL:         uidBaseURL,
-			notifyBaseURL:      notifyBaseURL,
-			notifyIsProduction: notifyIsProduction,
-			eventBusName:       eventBusName,
-			searchEndpoint:     searchEndpoint,
+			now:                   time.Now,
+			cfg:                   cfg,
+			dynamoClient:          dynamoClient,
+			appPublicURL:          appPublicURL,
+			lpaStoreBaseURL:       lpaStoreBaseURL,
+			uidBaseURL:            uidBaseURL,
+			notifyBaseURL:         notifyBaseURL,
+			notifyIsProduction:    notifyIsProduction,
+			eventBusName:          eventBusName,
+			searchEndpoint:        searchEndpoint,
+			searchIndexingEnabled: searchIndexingEnabled,
 		}
 
 		handler := &cloudWatchEventHandler{

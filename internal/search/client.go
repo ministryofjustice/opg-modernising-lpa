@@ -62,12 +62,13 @@ type QueryRequest struct {
 }
 
 type Client struct {
-	svc      opensearchapiClient
-	indices  indicesClient
-	endpoint string
+	svc             opensearchapiClient
+	indices         indicesClient
+	endpoint        string
+	indexingEnabled bool
 }
 
-func NewClient(cfg aws.Config, endpoint string) (*Client, error) {
+func NewClient(cfg aws.Config, endpoint string, indexingEnabled bool) (*Client, error) {
 	signer, err := requestsigner.NewSignerWithService(cfg, "aoss")
 	if err != nil {
 		return nil, fmt.Errorf("search could not create signer: %w", err)
@@ -83,7 +84,7 @@ func NewClient(cfg aws.Config, endpoint string) (*Client, error) {
 		return nil, fmt.Errorf("search could not create opensearch client: %w", err)
 	}
 
-	return &Client{indices: svc.Indices, svc: svc, endpoint: endpoint}, nil
+	return &Client{indices: svc.Indices, svc: svc, endpoint: endpoint, indexingEnabled: indexingEnabled}, nil
 }
 
 func (c *Client) CreateIndices(ctx context.Context) error {
@@ -102,6 +103,10 @@ func (c *Client) CreateIndices(ctx context.Context) error {
 }
 
 func (c *Client) Index(ctx context.Context, lpa Lpa) error {
+	if !c.indexingEnabled {
+		return nil
+	}
+
 	body, err := json.Marshal(lpa)
 	if err != nil {
 		return err

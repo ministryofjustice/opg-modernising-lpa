@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/stretchr/testify/assert"
@@ -49,7 +50,8 @@ func TestClientSendLpa(t *testing.T) {
 						TownOrCity: "town",
 						Country:    "GB",
 					},
-					OtherNames: "JJ",
+					OtherNames:                "JJ",
+					ContactLanguagePreference: localize.Cy,
 				},
 				Attorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{{
@@ -82,7 +84,7 @@ func TestClientSendLpa(t *testing.T) {
 			},
 			json: `{
 "lpaType":"property-and-affairs",
-"donor":{"uid":"` + donorUID.String() + `","firstNames":"John Johnson","lastName":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"","line3":"","town":"town","postcode":"","country":"GB"},"otherNamesKnownBy":"JJ"},
+"donor":{"uid":"` + donorUID.String() + `","firstNames":"John Johnson","lastName":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"","line3":"","town":"town","postcode":"","country":"GB"},"otherNamesKnownBy":"JJ","contactLanguagePreference":"cy"},
 "attorneys":[{"uid":"` + attorneyUID.String() + `","firstNames":"Adam","lastName":"Attorney","dateOfBirth":"1999-01-02","email":"adam@example.com","address":{"line1":"a-line-1","line2":"","line3":"","town":"a-town","postcode":"","country":"GB"},"status":"active"}],
 "certificateProvider":{"uid":"` + certificateProviderUID.String() + `","firstNames":"Carol","lastName":"Cert","address":{"line1":"c-line-1","line2":"","line3":"","town":"c-town","postcode":"","country":"GB"},"channel":"paper"},
 "restrictionsAndConditions":"",
@@ -108,7 +110,8 @@ func TestClientSendLpa(t *testing.T) {
 						Postcode:   "F1 1FF",
 						Country:    "GB",
 					},
-					OtherNames: "JJ",
+					OtherNames:                "JJ",
+					ContactLanguagePreference: localize.En,
 				},
 				Attorneys: actor.Attorneys{
 					TrustCorporation: actor.TrustCorporation{
@@ -244,7 +247,7 @@ func TestClientSendLpa(t *testing.T) {
 			},
 			json: `{
 "lpaType":"personal-welfare",
-"donor":{"uid":"` + donorUID.String() + `","firstNames":"John Johnson","lastName":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"line-2","line3":"line-3","town":"town","postcode":"F1 1FF","country":"GB"},"otherNamesKnownBy":"JJ"},
+"donor":{"uid":"` + donorUID.String() + `","firstNames":"John Johnson","lastName":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"line-2","line3":"line-3","town":"town","postcode":"F1 1FF","country":"GB"},"otherNamesKnownBy":"JJ","contactLanguagePreference":"en"},
 "attorneys":[
 {"uid":"` + attorneyUID.String() + `","firstNames":"Adam","lastName":"Attorney","dateOfBirth":"1999-01-02","email":"adam@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active"},
 {"uid":"` + attorney2UID.String() + `","firstNames":"Alice","lastName":"Attorney","dateOfBirth":"1998-01-02","email":"alice@example.com","address":{"line1":"aa-line-1","line2":"aa-line-2","line3":"aa-line-3","town":"aa-town","postcode":"A1 1AF","country":"GB"},"status":"active"},
