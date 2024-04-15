@@ -311,11 +311,13 @@ type attorneySummaryData struct {
 	CanChange        bool
 	TrustCorporation lpastore.TrustCorporation
 	Attorneys        []lpastore.Attorney
-	Link             struct {
-		TrustCorporation, TrustCorporationAddress, RemoveTrustCorporation string
-		Attorney, AttorneyAddress, RemoveAttorney                         string
-	}
-	HeadingLevel int
+	Link             attorneySummaryDataLinks
+	HeadingLevel     int
+}
+
+type attorneySummaryDataLinks struct {
+	TrustCorporation, TrustCorporationAddress, RemoveTrustCorporation string
+	Attorney, AttorneyAddress, RemoveAttorney                         string
 }
 
 func listAttorneys(app page.AppData, attorneys any, attorneyType string, headingLevel int, canChange bool) attorneySummaryData {
@@ -470,83 +472,8 @@ func lpaDecisions(app page.AppData, lpa any, canChange bool) lpaDecisionsData {
 	case *lpastore.Lpa:
 		data.Lpa = v
 	case *actor.DonorProvidedDetails:
-		data.Lpa = donorProvidedDetailsToLpa(v)
+		data.Lpa = lpastore.FromDonorProvidedDetails(v)
 	}
 
 	return data
-}
-
-func donorProvidedDetailsToLpa(l *actor.DonorProvidedDetails) *lpastore.Lpa {
-	attorneys := lpastore.Attorneys{}
-	for _, a := range l.Attorneys.Attorneys {
-		attorneys.Attorneys = append(attorneys.Attorneys, lpastore.Attorney{
-			UID:         a.UID,
-			FirstNames:  a.FirstNames,
-			LastName:    a.LastName,
-			DateOfBirth: a.DateOfBirth,
-			Email:       a.Email,
-			Address:     a.Address,
-		})
-	}
-
-	if c := l.Attorneys.TrustCorporation; c.Name != "" {
-		attorneys.TrustCorporation = lpastore.TrustCorporation{
-			UID:           c.UID,
-			Name:          c.Name,
-			CompanyNumber: c.CompanyNumber,
-			Email:         c.Email,
-			Address:       c.Address,
-		}
-	}
-
-	var replacementAttorneys lpastore.Attorneys
-	for _, a := range l.ReplacementAttorneys.Attorneys {
-		replacementAttorneys.Attorneys = append(replacementAttorneys.Attorneys, lpastore.Attorney{
-			UID:         a.UID,
-			FirstNames:  a.FirstNames,
-			LastName:    a.LastName,
-			DateOfBirth: a.DateOfBirth,
-			Email:       a.Email,
-			Address:     a.Address,
-		})
-	}
-
-	if c := l.ReplacementAttorneys.TrustCorporation; c.Name != "" {
-		replacementAttorneys.TrustCorporation = lpastore.TrustCorporation{
-			UID:           c.UID,
-			Name:          c.Name,
-			CompanyNumber: c.CompanyNumber,
-			Email:         c.Email,
-			Address:       c.Address,
-		}
-	}
-
-	return &lpastore.Lpa{
-		LpaUID:               l.LpaUID,
-		RegisteredAt:         date.FromTime(l.RegisteredAt),
-		UpdatedAt:            date.FromTime(l.UpdatedAt),
-		Type:                 l.Type,
-		Donor:                l.Donor,
-		Attorneys:            attorneys,
-		ReplacementAttorneys: replacementAttorneys,
-		CertificateProvider: lpastore.CertificateProvider{
-			UID:        l.CertificateProvider.UID,
-			FirstNames: l.CertificateProvider.FirstNames,
-			LastName:   l.CertificateProvider.LastName,
-			Email:      l.CertificateProvider.Email,
-			Phone:      l.CertificateProvider.Mobile,
-			Address:    l.CertificateProvider.Address,
-			Channel:    l.CertificateProvider.CarryOutBy,
-		},
-		PeopleToNotify:                             l.PeopleToNotify,
-		AttorneyDecisions:                          l.AttorneyDecisions,
-		ReplacementAttorneyDecisions:               l.ReplacementAttorneyDecisions,
-		HowShouldReplacementAttorneysStepIn:        l.HowShouldReplacementAttorneysStepIn,
-		HowShouldReplacementAttorneysStepInDetails: l.HowShouldReplacementAttorneysStepInDetails,
-		Restrictions:                               l.Restrictions,
-		WhenCanTheLpaBeUsed:                        l.WhenCanTheLpaBeUsed,
-		LifeSustainingTreatmentOption:              l.LifeSustainingTreatmentOption,
-		SignedAt:                                   l.SignedAt,
-		CertificateProviderNotRelatedConfirmedAt:   l.CertificateProviderNotRelatedConfirmedAt,
-	}
 }
