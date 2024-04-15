@@ -37,7 +37,7 @@ func (s *ResolvingService) Get(ctx context.Context) (*Lpa, error) {
 
 	lpa, err := s.client.Lpa(ctx, donor.LpaUID)
 	if errors.Is(err, ErrNotFound) {
-		lpa = donorProvidedDetailsToLpa(donor)
+		lpa = FromDonorProvidedDetails(donor)
 	} else if err != nil {
 		return nil, err
 	}
