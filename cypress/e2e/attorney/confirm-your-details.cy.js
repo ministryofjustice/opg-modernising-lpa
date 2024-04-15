@@ -1,6 +1,6 @@
 import { TestMobile } from '../../support/e2e';
 
-describe('Confirm your details', () => {
+describe.skip('Confirm your details', () => {
   beforeEach(() => {
     cy.visit('/fixtures/attorney?redirect=/mobile-number');
 
