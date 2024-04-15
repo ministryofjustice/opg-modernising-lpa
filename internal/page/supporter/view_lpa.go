@@ -19,7 +19,7 @@ type viewLPAData struct {
 	Progress page.Progress
 }
 
-func ViewLPA(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore, attorneyStore AttorneyStore, progressTracker ProgressTracker) Handler {
+func ViewLPA(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore, progressTracker ProgressTracker) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
@@ -31,15 +31,10 @@ func ViewLPA(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingS
 			return err
 		}
 
-		attorneys, err := attorneyStore.GetAny(r.Context())
-		if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
-			return err
-		}
-
 		return tmpl(w, &viewLPAData{
 			App:      appData,
 			Lpa:      lpa,
-			Progress: progressTracker.Progress(lpa, certificateProvider, attorneys),
+			Progress: progressTracker.Progress(lpa, certificateProvider),
 		})
 	}
 }

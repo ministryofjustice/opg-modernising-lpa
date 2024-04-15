@@ -23,7 +23,7 @@
 
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">{{ tr .App "mobile" }}</dt>
-          <dd class="govuk-summary-list__value">{{ formatPhone .Lpa.CertificateProvider.Mobile }}</dd>
+          <dd class="govuk-summary-list__value">{{ formatPhone .Lpa.CertificateProvider.Phone }}</dd>
           {{ if .CanChange }}
             <dd class="govuk-summary-list__actions">
               <a class="govuk-link govuk-link--no-visited-state" href="{{ $detailsLink }}#f-mobile">
@@ -35,7 +35,7 @@
 
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">{{ tr .App "contactPreference" }}</dt>
-          <dd class="govuk-summary-list__value">{{ if .Lpa.CertificateProvider.CarryOutBy.IsPaper }}{{ tr .App "usingPaperForms" }}{{ else if .Lpa.CertificateProvider.CarryOutBy.IsOnline }}{{ tr .App "byEmail" }}{{ end }}</dd>
+          <dd class="govuk-summary-list__value">{{ if .Lpa.CertificateProvider.Channel.IsPaper }}{{ tr .App "usingPaperForms" }}{{ else if .Lpa.CertificateProvider.Channel.IsOnline }}{{ tr .App "byEmail" }}{{ end }}</dd>
           {{ if .CanChange }}
             <dd class="govuk-summary-list__actions">
               <a class="govuk-link govuk-link--no-visited-state" href="{{ $carryOutByLink }}">
