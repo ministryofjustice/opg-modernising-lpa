@@ -1,6 +1,8 @@
 package page
 
 import (
+	"log"
+
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 )
@@ -25,7 +27,7 @@ type Progress struct {
 	LpaRegistered             ProgressTask
 }
 
-func (pt ProgressTracker) Progress(lpa *lpastore.Lpa, certificateProvider *actor.CertificateProviderProvidedDetails) Progress {
+func (pt ProgressTracker) Progress(lpa *lpastore.Lpa) Progress {
 	var labels map[string]string
 
 	if lpa.IsOrganisationDonor {
@@ -133,7 +135,8 @@ func (pt ProgressTracker) Progress(lpa *lpastore.Lpa, certificateProvider *actor
 	progress.DonorSigned.State = actor.TaskCompleted
 	progress.CertificateProviderSigned.State = actor.TaskInProgress
 
-	if !certificateProvider.Signed(lpa.SignedAt) {
+	log.Println(lpa.CertificateProvider)
+	if lpa.CertificateProvider.SignedAt.IsZero() {
 		return progress
 	}
 

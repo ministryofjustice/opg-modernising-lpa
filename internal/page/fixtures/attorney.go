@@ -247,6 +247,7 @@ func Attorney(
 					}
 
 					attorney.Mobile = testMobile
+					attorney.ContactLanguagePreference = localize.En
 					attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
 					attorney.Tasks.ReadTheLpa = actor.TaskCompleted
 					attorney.Tasks.SignTheLpa = actor.TaskCompleted
