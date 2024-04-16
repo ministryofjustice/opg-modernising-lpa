@@ -54,7 +54,7 @@ func TestGetConfirmYourDetails(t *testing.T) {
 
 			lpa := &lpastore.Lpa{
 				Donor:               actor.Donor{Channel: tc.DonorChannel},
-				CertificateProvider: actor.CertificateProvider{Relationship: tc.CertificateProviderRelationship},
+				CertificateProvider: lpastore.CertificateProvider{Relationship: tc.CertificateProviderRelationship},
 			}
 			certificateProvider := &actor.CertificateProviderProvidedDetails{}
 

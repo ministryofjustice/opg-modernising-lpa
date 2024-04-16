@@ -10,7 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/stretchr/testify/assert"
-	mock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestResolvingServiceGet(t *testing.T) {
@@ -42,7 +42,7 @@ func TestResolvingServiceGet(t *testing.T) {
 			},
 			resolved: &Lpa{
 				LpaID: "1",
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: CertificateProvider{
 					FirstNames: "Paul",
 				},
 			},
@@ -54,7 +54,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				Paid:                   true,
 				IsOrganisationDonor:    true,
 				RegisteredAt:           date.FromTime(registeredAt),
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: CertificateProvider{
 					FirstNames:   "Paul",
 					Relationship: actor.Personally,
 				},
@@ -70,15 +70,31 @@ func TestResolvingServiceGet(t *testing.T) {
 					Relationship: actor.Personally,
 				},
 				Donor: actor.Donor{Channel: actor.ChannelOnline},
+				Attorneys: actor.Attorneys{
+					Attorneys:        []actor.Attorney{{FirstNames: "a"}},
+					TrustCorporation: actor.TrustCorporation{Name: "b"},
+				},
+				ReplacementAttorneys: actor.Attorneys{
+					Attorneys:        []actor.Attorney{{FirstNames: "c"}},
+					TrustCorporation: actor.TrustCorporation{Name: "d"},
+				},
 			},
 			error: ErrNotFound,
 			expected: &Lpa{
 				LpaUID: "M-1111",
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: CertificateProvider{
 					FirstNames:   "John",
 					Relationship: actor.Personally,
 				},
 				Donor: actor.Donor{Channel: actor.ChannelOnline},
+				Attorneys: Attorneys{
+					Attorneys:        []Attorney{{FirstNames: "a"}},
+					TrustCorporation: TrustCorporation{Name: "b"},
+				},
+				ReplacementAttorneys: Attorneys{
+					Attorneys:        []Attorney{{FirstNames: "c"}},
+					TrustCorporation: TrustCorporation{Name: "d"},
+				},
 			},
 		},
 		"online with all false": {
@@ -106,7 +122,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				LpaUID:    "M-1111",
 				Submitted: true,
 				Paid:      true,
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: CertificateProvider{
 					Relationship: actor.Professionally,
 				},
 				Donor: actor.Donor{Channel: actor.ChannelPaper},
