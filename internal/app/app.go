@@ -159,7 +159,6 @@ func App(
 		searchClient,
 		donorStore,
 		shareCodeStore,
-		certificateProviderStore,
 		attorneyStore,
 		progressTracker,
 		lpaStoreResolvingService,
