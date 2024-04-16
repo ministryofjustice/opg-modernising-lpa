@@ -23,14 +23,9 @@ func TestGetLpaProgress(t *testing.T) {
 		Get(r.Context()).
 		Return(lpa, nil)
 
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.EXPECT().
-		GetAny(r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{}, nil)
-
 	progressTracker := newMockProgressTracker(t)
 	progressTracker.EXPECT().
-		Progress(lpa, &actor.CertificateProviderProvidedDetails{}).
+		Progress(lpa).
 		Return(page.Progress{DonorSigned: page.ProgressTask{State: actor.TaskInProgress}})
 
 	template := newMockTemplate(t)
@@ -42,7 +37,7 @@ func TestGetLpaProgress(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LpaProgress(template.Execute, lpaStoreResolvingService, certificateProviderStore, progressTracker)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
+	err := LpaProgress(template.Execute, lpaStoreResolvingService, progressTracker)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -58,25 +53,7 @@ func TestGetLpaProgressWhenLpaStoreClientErrors(t *testing.T) {
 		Get(r.Context()).
 		Return(nil, expectedError)
 
-	err := LpaProgress(nil, lpaStoreResolvingService, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
-	assert.Equal(t, expectedError, err)
-}
-
-func TestGetLpaProgressWhenCertificateProviderStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpastore.Lpa{}, nil)
-
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.EXPECT().
-		GetAny(r.Context()).
-		Return(nil, expectedError)
-
-	err := LpaProgress(nil, lpaStoreResolvingService, certificateProviderStore, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
+	err := LpaProgress(nil, lpaStoreResolvingService, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -89,14 +66,9 @@ func TestGetLpaProgressOnTemplateError(t *testing.T) {
 		Get(r.Context()).
 		Return(&lpastore.Lpa{}, nil)
 
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.EXPECT().
-		GetAny(r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{}, nil)
-
 	progressTracker := newMockProgressTracker(t)
 	progressTracker.EXPECT().
-		Progress(mock.Anything, mock.Anything).
+		Progress(mock.Anything).
 		Return(page.Progress{})
 
 	template := newMockTemplate(t)
@@ -104,6 +76,6 @@ func TestGetLpaProgressOnTemplateError(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := LpaProgress(template.Execute, lpaStoreResolvingService, certificateProviderStore, progressTracker)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
+	err := LpaProgress(template.Execute, lpaStoreResolvingService, progressTracker)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }
