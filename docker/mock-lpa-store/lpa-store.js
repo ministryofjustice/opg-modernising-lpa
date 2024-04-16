@@ -44,6 +44,8 @@ switch (context.request.method) {
               lpa.trustCorporations[idx].signatories = [{ signedAt: lpa.signedAt }];
             }
         }
+      case 'CERTIFICATE_PROVIDER_SIGN':
+        lpa.certificateProvider.signedAt = lpa.signedAt;
     }
 
     lpaStore.save(pathParts[2], JSON.stringify(lpa));

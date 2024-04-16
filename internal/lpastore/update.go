@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -27,6 +28,8 @@ func (c *Client) sendUpdate(ctx context.Context, lpaUID string, actorUID actorui
 	if err := json.NewEncoder(&buf).Encode(body); err != nil {
 		return err
 	}
+
+	log.Println(buf.String())
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/lpas/"+lpaUID+"/updates", &buf)
 	if err != nil {
