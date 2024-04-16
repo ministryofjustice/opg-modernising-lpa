@@ -226,6 +226,7 @@ func Attorney(
 					}
 
 					attorney.Mobile = testMobile
+					attorney.ContactLanguagePreference = localize.En
 					attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
 					attorney.Tasks.ReadTheLpa = actor.TaskCompleted
 					attorney.Tasks.SignTheLpa = actor.TaskCompleted
@@ -247,6 +248,7 @@ func Attorney(
 					}
 
 					attorney.Mobile = testMobile
+					attorney.ContactLanguagePreference = localize.En
 					attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
 					attorney.Tasks.ReadTheLpa = actor.TaskCompleted
 					attorney.Tasks.SignTheLpa = actor.TaskCompleted
@@ -282,6 +284,13 @@ func Attorney(
 		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
 			return err
 		}
+		if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {
+			return err
+		}
+		if err := attorneyStore.Put(attorneyCtx, attorney); err != nil {
+			return err
+		}
+
 		if donorDetails.LpaUID != "" {
 			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails); err != nil {
 				return fmt.Errorf("problem sending lpa: %w", err)
@@ -297,12 +306,6 @@ func Attorney(
 					return fmt.Errorf("problem sending attorney: %w", err)
 				}
 			}
-		}
-		if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {
-			return err
-		}
-		if err := attorneyStore.Put(attorneyCtx, attorney); err != nil {
-			return err
 		}
 
 		// should only be used in tests as otherwise people can read their emails...
