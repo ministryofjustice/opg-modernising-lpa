@@ -97,7 +97,7 @@ type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, org
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type ProgressTracker interface {
-	Progress(donor *lpastore.Lpa, certificateProvider *actor.CertificateProviderProvidedDetails) page.Progress
+	Progress(lpa *lpastore.Lpa) page.Progress
 }
 
 func Register(
@@ -113,7 +113,6 @@ func Register(
 	searchClient *search.Client,
 	donorStore DonorStore,
 	shareCodeStore ShareCodeStore,
-	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
 	progressTracker ProgressTracker,
 	lpaStoreResolvingService LpaStoreResolvingService,
@@ -151,7 +150,7 @@ func Register(
 	handleWithSupporter(paths.ContactOPGForPaperForms, None,
 		Guidance(tmpls.Get("contact_opg_for_paper_forms.gohtml")))
 	handleWithSupporter(paths.ViewLPA, None,
-		ViewLPA(tmpls.Get("view_lpa.gohtml"), lpaStoreResolvingService, certificateProviderStore, progressTracker))
+		ViewLPA(tmpls.Get("view_lpa.gohtml"), lpaStoreResolvingService, progressTracker))
 
 	handleWithSupporter(paths.OrganisationDetails, RequireAdmin,
 		Guidance(tmpls.Get("organisation_details.gohtml")))
