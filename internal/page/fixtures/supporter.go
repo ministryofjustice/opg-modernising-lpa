@@ -166,9 +166,12 @@ func Supporter(
 						Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},
 					}
 
-					var signedAttorneys []*actor.AttorneyProvidedDetails
+					var (
+						signedAttorneys           []*actor.AttorneyProvidedDetails
+						signedCertificateProvider *actor.CertificateProviderProvidedDetails
+					)
 					if setLPAProgress {
-						donor, signedAttorneys, err = updateLPAProgress(donorFixtureData, donor, random.String(16), r, certificateProviderStore, attorneyStore, documentStore, eventClient)
+						donor, signedCertificateProvider, signedAttorneys, err = updateLPAProgress(donorFixtureData, donor, random.String(16), r, certificateProviderStore, attorneyStore, documentStore, eventClient)
 						if err != nil {
 							return err
 						}
@@ -185,6 +188,12 @@ func Supporter(
 						lpa, err := lpaStoreClient.Lpa(donorCtx, donor.LpaUID)
 						if err != nil {
 							return fmt.Errorf("problem getting lpa: %w", err)
+						}
+
+						if signedCertificateProvider != nil {
+							if err := lpaStoreClient.SendCertificateProvider(donorCtx, donor.LpaUID, signedCertificateProvider); err != nil {
+								return fmt.Errorf("problem sending certificate provider: %w", err)
+							}
 						}
 
 						for _, attorney := range signedAttorneys {
