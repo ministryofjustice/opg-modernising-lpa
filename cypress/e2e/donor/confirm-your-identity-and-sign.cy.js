@@ -1,4 +1,4 @@
-describe.skip('Confirm your identity and sign', () => {
+describe('Confirm your identity and sign', () => {
   describe('when certificate provider is acting online', () => {
     beforeEach(() => {
       cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
