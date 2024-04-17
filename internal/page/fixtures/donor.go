@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"slices"
 	"time"
@@ -14,6 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -105,7 +107,11 @@ func Donor(
 			return err
 		}
 
-		donorDetails, err = updateLPAProgress(data, donorDetails, donorSessionID, r, certificateProviderStore, attorneyStore, documentStore, eventClient)
+		var (
+			signedAttorneys           []*actor.AttorneyProvidedDetails
+			signedCertificateProvider *actor.CertificateProviderProvidedDetails
+		)
+		donorDetails, signedCertificateProvider, signedAttorneys, err = updateLPAProgress(data, donorDetails, donorSessionID, r, certificateProviderStore, attorneyStore, documentStore, eventClient)
 		if err != nil {
 			return err
 		}
@@ -118,6 +124,23 @@ func Donor(
 		if !donorDetails.SignedAt.IsZero() && donorDetails.LpaUID != "" {
 			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails); err != nil {
 				return err
+			}
+
+			lpa, err := lpaStoreClient.Lpa(donorCtx, donorDetails.LpaUID)
+			if err != nil {
+				return fmt.Errorf("problem getting lpa: %w", err)
+			}
+
+			if signedCertificateProvider != nil {
+				if err := lpaStoreClient.SendCertificateProvider(donorCtx, donorDetails.LpaUID, signedCertificateProvider); err != nil {
+					return fmt.Errorf("problem sending certificate provider: %w", err)
+				}
+			}
+
+			for _, attorney := range signedAttorneys {
+				if err := lpaStoreClient.SendAttorney(donorCtx, lpa, attorney); err != nil {
+					return fmt.Errorf("problem sending attorney: %w", err)
+				}
 			}
 		}
 
@@ -143,7 +166,12 @@ func updateLPAProgress(
 	attorneyStore AttorneyStore,
 	documentStore DocumentStore,
 	eventClient *event.Client,
-) (*actor.DonorProvidedDetails, error) {
+) (*actor.DonorProvidedDetails, *actor.CertificateProviderProvidedDetails, []*actor.AttorneyProvidedDetails, error) {
+	var (
+		signedAttorneys           []*actor.AttorneyProvidedDetails
+		signedCertificateProvider *actor.CertificateProviderProvidedDetails
+	)
+
 	if data.Progress >= slices.Index(progressValues, "provideYourDetails") {
 		donorDetails.Donor = makeDonor()
 		donorDetails.Type = actor.LpaTypePropertyAndAffairs
@@ -164,7 +192,7 @@ func updateLPAProgress(
 					Postcode: donorDetails.Donor.Address.Postcode,
 				},
 			}); err != nil {
-				return nil, err
+				return nil, nil, nil, err
 			}
 
 			donorDetails.HasSentUidRequestedEvent = true
@@ -295,7 +323,7 @@ func updateLPAProgress(
 		if data.FeeType != "" && data.FeeType != "FullFee" {
 			feeType, err := pay.ParseFeeType(data.FeeType)
 			if err != nil {
-				return nil, err
+				return nil, nil, nil, err
 			}
 
 			donorDetails.FeeType = feeType
@@ -308,14 +336,14 @@ func updateLPAProgress(
 			)
 
 			if err != nil {
-				return nil, err
+				return nil, nil, nil, err
 			}
 
 			stagedForUpload.Scanned = true
 			stagedForUpload.VirusDetected = data.WithVirus
 
 			if err := documentStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}), stagedForUpload); err != nil {
-				return nil, err
+				return nil, nil, nil, err
 			}
 
 			previouslyUploaded, err := documentStore.Create(
@@ -326,7 +354,7 @@ func updateLPAProgress(
 			)
 
 			if err != nil {
-				return nil, err
+				return nil, nil, nil, err
 			}
 
 			previouslyUploaded.Scanned = true
@@ -334,7 +362,7 @@ func updateLPAProgress(
 			previouslyUploaded.Sent = time.Now()
 
 			if err := documentStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}), previouslyUploaded); err != nil {
-				return nil, err
+				return nil, nil, nil, err
 			}
 		} else {
 			donorDetails.FeeType = pay.FullFee
@@ -350,7 +378,7 @@ func updateLPAProgress(
 		if data.PaymentTaskProgress != "" {
 			taskState, err := actor.ParsePaymentTask(data.PaymentTaskProgress)
 			if err != nil {
-				return nil, err
+				return nil, nil, nil, err
 			}
 
 			donorDetails.EvidenceDelivery = pay.Upload
@@ -382,14 +410,17 @@ func updateLPAProgress(
 
 		certificateProvider, err := certificateProviderStore.Create(ctx, donorSessionID, donorDetails.CertificateProvider.UID)
 		if err != nil {
-			return nil, err
+			return nil, nil, nil, err
 		}
 
+		certificateProvider.ContactLanguagePreference = localize.En
 		certificateProvider.Certificate = actor.Certificate{Agreed: time.Now()}
 
 		if err := certificateProviderStore.Put(ctx, certificateProvider); err != nil {
-			return nil, err
+			return nil, nil, nil, err
 		}
+
+		signedCertificateProvider = certificateProvider
 	}
 
 	if data.Progress >= slices.Index(progressValues, "signedByAttorneys") {
@@ -399,19 +430,21 @@ func updateLPAProgress(
 
 				attorney, err := attorneyStore.Create(ctx, donorSessionID, a.UID, isReplacement, false)
 				if err != nil {
-					return nil, err
+					return nil, nil, nil, err
 				}
 
 				attorney.Mobile = testMobile
+				attorney.ContactLanguagePreference = localize.En
 				attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
 				attorney.Tasks.ReadTheLpa = actor.TaskCompleted
 				attorney.Tasks.SignTheLpa = actor.TaskCompleted
-				attorney.LpaSignedAt = donorDetails.SignedAt
 				attorney.Confirmed = donorDetails.SignedAt.Add(2 * time.Hour)
 
 				if err := attorneyStore.Put(ctx, attorney); err != nil {
-					return nil, err
+					return nil, nil, nil, err
 				}
+
+				signedAttorneys = append(signedAttorneys, attorney)
 			}
 
 			if list.TrustCorporation.Name != "" {
@@ -419,7 +452,7 @@ func updateLPAProgress(
 
 				attorney, err := attorneyStore.Create(ctx, donorSessionID, list.TrustCorporation.UID, isReplacement, true)
 				if err != nil {
-					return nil, err
+					return nil, nil, nil, err
 				}
 
 				attorney.Mobile = testMobile
@@ -431,13 +464,14 @@ func updateLPAProgress(
 					FirstNames:        "A",
 					LastName:          "Sign",
 					ProfessionalTitle: "Assistant to the signer",
-					LpaSignedAt:       donorDetails.SignedAt,
 					Confirmed:         donorDetails.SignedAt.Add(2 * time.Hour),
 				}}
 
 				if err := attorneyStore.Put(ctx, attorney); err != nil {
-					return nil, err
+					return nil, nil, nil, err
 				}
+
+				signedAttorneys = append(signedAttorneys, attorney)
 			}
 		}
 	}
@@ -454,7 +488,7 @@ func updateLPAProgress(
 		donorDetails.RegisteredAt = time.Now()
 	}
 
-	return donorDetails, nil
+	return donorDetails, signedCertificateProvider, signedAttorneys, nil
 }
 
 func setFixtureData(r *http.Request) FixtureData {

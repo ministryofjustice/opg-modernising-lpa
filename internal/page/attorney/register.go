@@ -125,7 +125,7 @@ func Register(
 	handleAttorney(page.Paths.Attorney.WhatHappensNext, RequireAttorney,
 		Guidance(tmpls.Get("what_happens_next.gohtml"), lpaStoreResolvingService))
 	handleAttorney(page.Paths.Attorney.Progress, RequireAttorney,
-		Progress(tmpls.Get("progress.gohtml"), attorneyStore, lpaStoreResolvingService))
+		Progress(tmpls.Get("progress.gohtml"), lpaStoreResolvingService))
 }
 
 type handleOpt byte
