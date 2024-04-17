@@ -1,6 +1,6 @@
 const { TestEmail, randomShareCode } = require("../../support/e2e");
 
-describe.skip('Enter reference number', () => {
+describe('Enter reference number', () => {
   let shareCode = ''
   beforeEach(() => {
     shareCode = randomShareCode()
@@ -8,7 +8,7 @@ describe.skip('Enter reference number', () => {
     cy.visit(`/fixtures/certificate-provider?redirect=/certificate-provider-start&withShareCode=${shareCode}&email=${TestEmail}`);
 
     cy.contains('a', 'Start').click()
-    cy.contains('button', 'Sign in').click();
+    cy.contains('button', 'Continue').click();
     cy.url().should('contain', '/certificate-provider-enter-reference-number')
   });
 
