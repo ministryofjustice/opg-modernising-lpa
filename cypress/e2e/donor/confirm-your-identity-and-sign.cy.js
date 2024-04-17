@@ -1,4 +1,4 @@
-describe.skip('Confirm your identity and sign', () => {
+describe('Confirm your identity and sign', () => {
   describe('when certificate provider is acting online', () => {
     beforeEach(() => {
       cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
@@ -21,7 +21,7 @@ describe.skip('Confirm your identity and sign', () => {
       cy.contains('a', 'Continue').click();
 
       cy.contains('label', 'Sam Smith (donor)').click();
-      cy.contains('button', 'Sign in').click();
+      cy.contains('button', 'Continue').click();
 
       cy.url().should('contain', '/one-login/callback');
       cy.checkA11yApp();
@@ -98,7 +98,7 @@ describe.skip('Confirm your identity and sign', () => {
       cy.contains('a', 'Continue').click();
 
       cy.contains('label', 'Sam Smith (donor)').click();
-      cy.contains('button', 'Sign in').click();
+      cy.contains('button', 'Continue').click();
 
       cy.contains('button', 'Continue').click();
       cy.contains('a', 'Continue').click();

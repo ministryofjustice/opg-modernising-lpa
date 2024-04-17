@@ -1,4 +1,4 @@
-describe.skip('Your preferred language', () => {
+describe('Your preferred language', () => {
   beforeEach(() => {
     cy.visit('/fixtures/attorney?redirect=/your-preferred-language');
     cy.url().should('contain', '/your-preferred-language')
