@@ -17,7 +17,8 @@ dynamodb-pipeline:
     - opensearch:
         hosts: ["${sink.opensearch.hosts}"]
         index: ${sink.opensearch.index}
-        routes: ["lay_journey_lpas", "supporter_journey_lpas"]
+        routes: ["supporter_journey_lpas"]
+        # routes: ["lay_journey_lpas", "supporter_journey_lpas"]
         aws:
           sts_role_arn: ${sink.opensearch.aws.sts_role_arn}
           region: ${sink.opensearch.aws.region}
