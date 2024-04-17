@@ -18,7 +18,7 @@ describe('Start', () => {
       cy.url().should('contain', '/authorize')
 
       cy.get('#f-email').type(Math.random() + '@example.org')
-      cy.contains('button', 'Sign in').click();
+      cy.contains('button', 'Continue').click();
 
       cy.url().should('contain', '/enter-your-name')
     } else {
