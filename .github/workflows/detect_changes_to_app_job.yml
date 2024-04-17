@@ -4,7 +4,7 @@ on:
   workflow_call:
     outputs:
       changes_detected:
-        description: "Boolean value for changes detected in /cmd, /internal, /web, /lang or /lambda"
+        description: "Boolean value for changes detected in /cmd, /cypress, /internal, /web, /lang or /lambda"
         value: ${{ jobs.compare_changes.outputs.changes_detected }}
 
 jobs:
@@ -15,7 +15,7 @@ jobs:
         with:
           ref: ${{ github.event.ref }}
           fetch-depth: 0 # Fetch all history for all tags and branches
-      - name: Detect changes in /cmd, /internal, /web, /lang or /lambda using git diff
+      - name: Detect changes in /cmd, /cypress, /internal, /web, /lang or /lambda using git diff
         id: detect_changes
         if: github.ref != 'refs/heads/main'
         run: |
@@ -23,12 +23,12 @@ jobs:
           echo "Build status of ${{github.event.before}}: $BEFORE_STATUS"
           if [[ "$BEFORE_STATUS" == "success" ]]; then
             echo "Checking against ${{github.event.before}}"
-            (git diff --quiet ${{github.event.before}} ${{github.event.after}} -- cmd internal lang web lambda docker/event-received docker/mlpa package.json yarn.lock go.mod && \
+            (git diff --quiet ${{github.event.before}} ${{github.event.after}} -- cmd cypress internal lang web lambda docker/event-received docker/mlpa package.json yarn.lock go.mod && \
             echo "changes=${{ false }}" || \
             echo "changes=${{ true }}") | tee -a "${GITHUB_OUTPUT}"
           else
             echo "Checking against origin/main"
-            (git diff --quiet HEAD origin/main -- cmd internal lang web lambda docker/event-received docker/mlpa package.json yarn.lock go.mod && \
+            (git diff --quiet HEAD origin/main -- cmd cypress internal lang web lambda docker/event-received docker/mlpa package.json yarn.lock go.mod && \
             echo "changes=${{ false }}" || \
             echo "changes=${{ true }}") | tee -a "${GITHUB_OUTPUT}"
           fi
@@ -44,7 +44,7 @@ jobs:
     steps:
       - name: Previous build on this branch will be deployed
         run: |
-          echo '### No Changes Detected in /cmd, /internal, /web, /lang or /lambda since the previous build!' >> $GITHUB_STEP_SUMMARY
+          echo '### No Changes Detected in /cmd, /cypress, /internal, /web, /lang or /lambda since the previous build!' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
           echo "The previous build will be deployed and the following jobs will be skipped" >> $GITHUB_STEP_SUMMARY
           echo "- Create Tags" >> $GITHUB_STEP_SUMMARY
