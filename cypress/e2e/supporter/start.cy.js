@@ -1,4 +1,4 @@
-describe.skip('Start', () => {
+describe('Start', () => {
   beforeEach(() => {
     cy.visit('/supporter-start');
   });
