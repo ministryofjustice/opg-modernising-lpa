@@ -29,21 +29,24 @@ switch (context.request.method) {
     let lpa = JSON.parse(lpaStore.load(pathParts[2]));
 
     switch (update.type) {
-      case 'ATTORNEY_SIGN':
+      case 'ATTORNEY_SIGN': {
         const keyParts = update.changes[0].key.split('/');
         const idx = parseInt(keyParts[2]);
 
-        switch (keyParts[1]) {
-          case 'attorneys':
-            if (lpa.attorneys && idx < lpa.attorneys.length) {
-              lpa.attorneys[idx].signedAt = lpa.signedAt;
-            }
-
-          case 'trustCorporations':
-            if (lpa.trustCorporations && idx < lpa.trustCorporations.length) {
-              lpa.trustCorporations[idx].signatories = [{ signedAt: lpa.signedAt }];
-            }
+        if (lpa.attorneys && idx < lpa.attorneys.length) {
+          lpa.attorneys[idx].signedAt = lpa.signedAt;
         }
+      }
+      case 'TRUST_CORPORATION_SIGN': {
+        const keyParts = update.changes[0].key.split('/');
+        const idx = parseInt(keyParts[2]);
+
+        if (lpa.trustCorporations && idx < lpa.trustCorporations.length) {
+          lpa.trustCorporations[idx].signatories = [{ signedAt: lpa.signedAt }];
+        }
+      }
+      case 'CERTIFICATE_PROVIDER_SIGN':
+        lpa.certificateProvider.signedAt = lpa.signedAt;
     }
 
     lpaStore.save(pathParts[2], JSON.stringify(lpa));
