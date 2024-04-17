@@ -1,6 +1,6 @@
 const { TestEmail, randomShareCode } = require("../../support/e2e");
 
-describe.skip('Enter reference number', () => {
+describe('Enter reference number', () => {
   let shareCode = ''
   beforeEach(() => {
     shareCode = randomShareCode()

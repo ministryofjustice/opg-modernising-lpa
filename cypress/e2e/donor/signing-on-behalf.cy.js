@@ -1,4 +1,4 @@
-describe.skip('Signing on behalf of the donor', () => {
+describe('Signing on behalf of the donor', () => {
   beforeEach(() => {
     cy.visit('/fixtures?redirect=/how-to-confirm-your-identity-and-sign&progress=payForTheLpa&donor=cannot-sign');
 
