@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -27,6 +28,8 @@ func (c *Client) sendUpdate(ctx context.Context, lpaUID string, actorUID actorui
 	if err := json.NewEncoder(&buf).Encode(body); err != nil {
 		return err
 	}
+
+	log.Println(buf.String())
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/lpas/"+lpaUID+"/updates", &buf)
 	if err != nil {
@@ -93,6 +96,8 @@ func (c *Client) SendAttorney(ctx context.Context, donor *Lpa, attorney *actor.A
 	}
 
 	if attorney.IsTrustCorporation {
+		body.Type = "TRUST_CORPORATION_SIGN"
+
 		body.Changes = append(body.Changes,
 			updateRequestChange{Key: attorneyKey + "/signatories/0/firstNames", New: attorney.AuthorisedSignatories[0].FirstNames},
 			updateRequestChange{Key: attorneyKey + "/signatories/0/lastName", New: attorney.AuthorisedSignatories[0].LastName},
