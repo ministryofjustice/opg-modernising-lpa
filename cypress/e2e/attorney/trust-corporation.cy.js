@@ -1,13 +1,13 @@
 const { TestMobile, TestEmail, randomShareCode } = require("../../support/e2e");
 
-describe.skip('As a trust corporation', () => {
+describe('As a trust corporation', () => {
   beforeEach(() => {
     const shareCode = randomShareCode()
     cy.visit(`/fixtures/attorney?redirect=/attorney-start&is-trust-corporation=1&progress=signedByCertificateProvider&&withShareCode=${shareCode}&email=${TestEmail}`);
 
     // start
     cy.contains('a', 'Start').click();
-    cy.contains('button', 'Sign in').click();
+    cy.contains('button', 'Continue').click();
 
     // enter reference number
     cy.get('#f-reference-number').type(shareCode);

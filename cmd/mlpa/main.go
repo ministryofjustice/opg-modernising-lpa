@@ -69,7 +69,7 @@ func main() {
 				return a
 			},
 		}).
-		WithAttrs([]slog.Attr{slog.String("service_name", "opg-modernising-lpa")}))
+		WithAttrs([]slog.Attr{slog.String("service_name", "opg-modernising-lpa2")}))
 
 	if err := run(ctx, logger); err != nil {
 		logger.Error("run error", slog.Any("err", err.Error()))
