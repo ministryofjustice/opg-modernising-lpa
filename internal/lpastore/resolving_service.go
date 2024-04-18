@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 )
 
@@ -35,6 +34,10 @@ func (s *ResolvingService) Get(ctx context.Context) (*Lpa, error) {
 		return nil, err
 	}
 
+	return s.Resolve(ctx, donor)
+}
+
+func (s *ResolvingService) Resolve(ctx context.Context, donor *actor.DonorProvidedDetails) (*Lpa, error) {
 	lpa, err := s.client.Lpa(ctx, donor.LpaUID)
 	if errors.Is(err, ErrNotFound) {
 		lpa = FromDonorProvidedDetails(donor)
@@ -61,11 +64,8 @@ func (s *ResolvingService) Get(ctx context.Context) (*Lpa, error) {
 		// copy the relationship as it isn't stored in the lpastore.
 		lpa.CertificateProvider.Relationship = donor.CertificateProvider.Relationship
 
-		// TODO: eventually we'll need to remove the RegisteredAt field as mlpa
-		// won't be tracking that data, then we'll need to figure out how to expose
-		// the data for testing
-		if !donor.RegisteredAt.IsZero() {
-			lpa.RegisteredAt = date.FromTime(donor.RegisteredAt)
+		if lpa.WithdrawnAt.IsZero() {
+			lpa.WithdrawnAt = donor.WithdrawnAt
 		}
 	}
 

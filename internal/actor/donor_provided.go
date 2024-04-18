@@ -102,8 +102,6 @@ type DonorProvidedDetails struct {
 	SignedAt time.Time
 	// SubmittedAt is when the Lpa was sent to the OPG
 	SubmittedAt time.Time
-	// RegisteredAt is when the Lpa was registered by the OPG
-	RegisteredAt time.Time
 	// WithdrawnAt is when the Lpa was withdrawn by the donor
 	WithdrawnAt time.Time
 	// Version is the number of times the LPA has been updated (auto-incremented on PUT)
