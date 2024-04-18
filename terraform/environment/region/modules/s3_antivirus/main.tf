@@ -1,8 +1,3 @@
-data "aws_kms_alias" "cloudwatch_application_logs_encryption" {
-  name     = "alias/${data.aws_default_tags.current.tags.application}_cloudwatch_application_logs_encryption"
-  provider = aws.region
-}
-
 resource "aws_cloudwatch_log_group" "lambda" {
   name              = "/aws/lambda/s3-antivirus-${data.aws_default_tags.current.tags.environment-name}"
   kms_key_id        = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
@@ -41,24 +36,12 @@ resource "aws_lambda_function" "lambda_function" {
     log_format = "JSON"
   }
 
-  vpc_config {
-    subnet_ids = var.aws_subnet_ids
-    security_group_ids = [
-      data.aws_security_group.lambda_egress.id
-    ]
-  }
-
   dynamic "environment" {
     for_each = length(keys(var.environment_variables)) == 0 ? [] : [true]
     content {
       variables = var.environment_variables
     }
   }
-  provider = aws.region
-}
-
-data "aws_security_group" "lambda_egress" {
-  name     = "lambda-egress-${data.aws_region.current.name}"
   provider = aws.region
 }
 
