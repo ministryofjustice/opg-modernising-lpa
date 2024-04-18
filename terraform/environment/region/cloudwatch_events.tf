@@ -15,7 +15,7 @@ resource "aws_cloudwatch_event_rule" "ecs_failed_deployment" {
       "detail-type" : ["ECS Deployment State Change"],
       "resources" : [{ "wildcard" : "arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:service/${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}/*" }],
       "detail" : {
-        "eventName" : ["ERROR"],
+        "eventType" : ["ERROR"],
         "eventName" : ["SERVICE_DEPLOYMENT_FAILED"]
       }
     }
@@ -60,4 +60,16 @@ resource "aws_cloudwatch_metric_alarm" "ecs_failed_deployment" {
   threshold                 = 1
   treat_missing_data        = "notBreaching"
   provider                  = aws.region
+}
+
+resource "aws_cloudwatch_query_definition" "ecs_failed_deployment" {
+  name            = "${data.aws_default_tags.current.tags.environment-name}/ecs-failed-deployment"
+  log_group_names = [aws_cloudwatch_log_group.events.name]
+
+  query_string = <<EOF
+fields @timestamp, @message, @logStream, @log
+| sort @timestamp desc
+| limit 1000
+EOF
+  provider     = aws.region
 }
