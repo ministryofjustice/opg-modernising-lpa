@@ -36,7 +36,15 @@ func TestClientSendCertificateProvider(t *testing.T) {
 		ContactLanguagePreference: localize.Cy,
 		Email:                     "b@example.com",
 	}
-	json := `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"cy"},{"key":"/certificateProvider/address/line1","old":null,"new":"line-1"},{"key":"/certificateProvider/address/line2","old":null,"new":"line-2"},{"key":"/certificateProvider/address/line3","old":null,"new":"line-3"},{"key":"/certificateProvider/address/town","old":null,"new":"town"},{"key":"/certificateProvider/address/postcode","old":null,"new":"postcode"},{"key":"/certificateProvider/address/country","old":null,"new":"GB"},{"key":"/certificateProvider/email","old":"a@example.com","new":"b@example.com"}]}`
+
+	lpa := &Lpa{
+		CertificateProvider: CertificateProvider{
+			Channel: actor.ChannelOnline,
+			Email:   "a@example.com",
+		},
+	}
+
+	json := `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"cy"},{"key":"/certificateProvider/address/line1","old":"","new":"line-1"},{"key":"/certificateProvider/address/line2","old":"","new":"line-2"},{"key":"/certificateProvider/address/line3","old":"","new":"line-3"},{"key":"/certificateProvider/address/town","old":"","new":"town"},{"key":"/certificateProvider/address/postcode","old":"","new":"postcode"},{"key":"/certificateProvider/address/country","old":"","new":"GB"},{"key":"/certificateProvider/email","old":"a@example.com","new":"b@example.com"}]}`
 
 	ctx := context.Background()
 
@@ -64,7 +72,7 @@ func TestClientSendCertificateProvider(t *testing.T) {
 
 	client := New("http://base", secretsClient, doer)
 	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
-	err := client.SendCertificateProvider(ctx, "lpa-uid", certificateProvider, &Lpa{CertificateProvider: CertificateProvider{Channel: actor.ChannelOnline, Email: "a@example.com"}})
+	err := client.SendCertificateProvider(ctx, "lpa-uid", certificateProvider, lpa)
 
 	assert.Nil(t, err)
 }
