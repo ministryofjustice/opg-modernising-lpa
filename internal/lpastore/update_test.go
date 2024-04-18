@@ -64,7 +64,7 @@ func TestClientSendCertificateProvider(t *testing.T) {
 
 	client := New("http://base", secretsClient, doer)
 	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
-	err := client.SendCertificateProvider(ctx, "lpa-uid", certificateProvider, &Lpa{CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.ChannelOnline, Email: "a@example.com"}})
+	err := client.SendCertificateProvider(ctx, "lpa-uid", certificateProvider, &Lpa{CertificateProvider: CertificateProvider{Channel: actor.ChannelOnline, Email: "a@example.com"}})
 
 	assert.Nil(t, err)
 }

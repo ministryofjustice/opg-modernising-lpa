@@ -496,7 +496,7 @@ func TestClientServiceContract(t *testing.T) {
 					},
 					ContactLanguagePreference: localize.Cy,
 					Email:                     "b@example.com",
-				}, &Lpa{CertificateProvider: actor.CertificateProvider{Email: "a@example.com", CarryOutBy: actor.ChannelPaper}})
+				}, &Lpa{CertificateProvider: CertificateProvider{Email: "a@example.com", Channel: actor.ChannelPaper}})
 			assert.Nil(t, err)
 			return nil
 		}))
@@ -578,7 +578,7 @@ func TestClientServiceContract(t *testing.T) {
 						Country:    "GB",
 					},
 					Email: "b@example.com",
-				}, &Lpa{CertificateProvider: actor.CertificateProvider{Email: "a@example.com", CarryOutBy: actor.ChannelPaper}})
+				}, &Lpa{CertificateProvider: CertificateProvider{Email: "a@example.com", Channel: actor.ChannelPaper}})
 		}))
 	})
 

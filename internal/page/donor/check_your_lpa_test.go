@@ -115,11 +115,12 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+			uid := actoruid.New()
 			donor := &actor.DonorProvidedDetails{
 				LpaID:               "lpa-id",
 				Hash:                5,
 				Tasks:               actor.DonorTasks{CheckYourLpa: existingTaskState},
-				CertificateProvider: actor.CertificateProvider{UID: actoruid.New(), FirstNames: "John", LastName: "Smith", Email: "john@example.com", CarryOutBy: actor.ChannelOnline},
+				CertificateProvider: actor.CertificateProvider{UID: uid, FirstNames: "John", LastName: "Smith", Email: "john@example.com", CarryOutBy: actor.ChannelOnline},
 			}
 
 			updatedDonor := &actor.DonorProvidedDetails{
@@ -127,7 +128,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 				Hash:                5,
 				CheckedAt:           testNow,
 				Tasks:               actor.DonorTasks{CheckYourLpa: actor.TaskCompleted},
-				CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.ChannelOnline},
+				CertificateProvider: actor.CertificateProvider{UID: uid, FirstNames: "John", LastName: "Smith", Email: "john@example.com", CarryOutBy: actor.ChannelOnline},
 			}
 			updatedDonor.CheckedHash, _ = updatedDonor.GenerateHash()
 
