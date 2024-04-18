@@ -1,3 +1,7 @@
+locals {
+  enable_opensearch_ingestion_pipeline = false
+}
+
 data "aws_kms_alias" "dynamodb_encryption_key" {
   name     = "alias/${local.default_tags.application}_dynamodb_encryption"
   provider = aws.eu_west_1
@@ -9,6 +13,7 @@ data "aws_kms_alias" "opensearch_encryption_key" {
 }
 
 resource "aws_iam_role_policy" "opensearch_pipeline" {
+  count    = local.enable_opensearch_ingestion_pipeline ? 1 : 0
   name     = "opensearch_pipeline"
   role     = module.global.iam_roles.opensearch_pipeline.name
   policy   = data.aws_iam_policy_document.opensearch_pipeline.json
@@ -122,6 +127,7 @@ data "aws_subnet" "application" {
 }
 
 resource "aws_security_group" "opensearch_ingestion" {
+  count       = local.enable_opensearch_ingestion_pipeline ? 1 : 0
   name_prefix = "${local.default_tags.environment-name}-opensearch-ingestion"
   description = "Security group for the opensearch ingestion pipeline"
   vpc_id      = data.aws_vpc.main.id
@@ -130,15 +136,17 @@ resource "aws_security_group" "opensearch_ingestion" {
 
 # tfsec:ignore:aws-cloudwatch-log-group-customer-key
 resource "aws_cloudwatch_log_group" "opensearch_pipeline" {
+  count             = local.enable_opensearch_ingestion_pipeline ? 1 : 0
   name              = "/aws/vendedlogs/OpenSearchIngestion/lpas-${local.default_tags.environment-name}/audit-logs"
   retention_in_days = 1
   provider          = aws.eu_west_1
 }
 
 resource "aws_cloudwatch_query_definition" "opensearch_pipeline" {
+  count           = local.enable_opensearch_ingestion_pipeline ? 1 : 0
   name            = "${local.default_tags.environment-name}/lpas-opensearch-pipeline"
   query_string    = "parse @message '* [*] * * - *' as timestamp, thread, Loglevel, endpoint, message | sort @timestamp desc | limit 1000"
-  log_group_names = [aws_cloudwatch_log_group.opensearch_pipeline.name]
+  log_group_names = [aws_cloudwatch_log_group.opensearch_pipeline[0].name]
   provider        = aws.eu_west_1
 }
 
@@ -178,6 +186,7 @@ locals {
 }
 
 resource "aws_opensearchserverless_access_policy" "pipeline" {
+  count       = local.enable_opensearch_ingestion_pipeline ? 1 : 0
   name        = "pipeline-${local.environment_name}"
   type        = "data"
   description = "allow index and collection access for the opensearch ingestion pipeline"
@@ -204,6 +213,7 @@ resource "aws_opensearchserverless_access_policy" "pipeline" {
 }
 
 resource "aws_osis_pipeline" "lpas_stream" {
+  count                       = local.enable_opensearch_ingestion_pipeline ? 1 : 0
   pipeline_name               = "lpas-${local.default_tags.environment-name}-stream"
   max_units                   = 1
   min_units                   = 1
@@ -213,12 +223,12 @@ resource "aws_osis_pipeline" "lpas_stream" {
   }
   log_publishing_options {
     cloudwatch_log_destination {
-      log_group = aws_cloudwatch_log_group.opensearch_pipeline.name
+      log_group = aws_cloudwatch_log_group.opensearch_pipeline[0].name
     }
     is_logging_enabled = true
   }
   vpc_options {
-    security_group_ids = [aws_security_group.opensearch_ingestion.id]
+    security_group_ids = [aws_security_group.opensearch_ingestion[0].id]
     subnet_ids         = data.aws_subnet.application[*].id
   }
   provider = aws.eu_west_1
