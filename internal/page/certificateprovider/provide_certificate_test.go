@@ -124,7 +124,8 @@ func TestPostProvideCertificate(t *testing.T) {
 	donor := &lpastore.Lpa{
 		LpaUID:   "lpa-uid",
 		SignedAt: now,
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProvider: lpastore.CertificateProvider{
+			Email:      "cp@example.org",
 			FirstNames: "a",
 			LastName:   "b",
 		},
@@ -247,7 +248,7 @@ func TestPostProvideCertificateWhenLpaStoreClientError(t *testing.T) {
 	donor := &lpastore.Lpa{
 		LpaUID:   "lpa-uid",
 		SignedAt: now,
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProvider: lpastore.CertificateProvider{
 			Email:      "cp@example.org",
 			FirstNames: "a",
 			LastName:   "b",
@@ -305,7 +306,7 @@ func TestPostProvideCertificateOnNotifyClientError(t *testing.T) {
 		Get(r.Context()).
 		Return(&lpastore.Lpa{
 			SignedAt: now,
-			CertificateProvider: actor.CertificateProvider{
+			CertificateProvider: lpastore.CertificateProvider{
 				Email:      "cp@example.org",
 				FirstNames: "a",
 				LastName:   "b",

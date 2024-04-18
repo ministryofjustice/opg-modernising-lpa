@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -118,7 +119,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 				LpaID:               "lpa-id",
 				Hash:                5,
 				Tasks:               actor.DonorTasks{CheckYourLpa: existingTaskState},
-				CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.ChannelOnline},
+				CertificateProvider: actor.CertificateProvider{UID: actoruid.New(), FirstNames: "John", LastName: "Smith", Email: "john@example.com", CarryOutBy: actor.ChannelOnline},
 			}
 
 			updatedDonor := &actor.DonorProvidedDetails{
@@ -133,7 +134,9 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 			shareCodeSender := newMockShareCodeSender(t)
 			shareCodeSender.EXPECT().
 				SendCertificateProviderInvite(r.Context(), testAppData, page.CertificateProviderInvite{
-					CertificateProvider: donor.CertificateProvider,
+					CertificateProviderUID:      donor.CertificateProvider.UID,
+					CertificateProviderFullName: donor.CertificateProvider.FullName(),
+					CertificateProviderEmail:    donor.CertificateProvider.Email,
 				}).
 				Return(nil)
 

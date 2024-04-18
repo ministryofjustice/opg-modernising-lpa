@@ -217,10 +217,12 @@ func CertificateProvider(
 				LpaID:     donorDetails.LpaID,
 				Localizer: appData.Localizer,
 			}, page.CertificateProviderInvite{
-				LpaUID:              donorDetails.LpaUID,
-				Type:                donorDetails.Type,
-				Donor:               donorDetails.Donor,
-				CertificateProvider: donorDetails.CertificateProvider,
+				LpaUID:                      donorDetails.LpaUID,
+				Type:                        donorDetails.Type,
+				Donor:                       donorDetails.Donor,
+				CertificateProviderUID:      donorDetails.CertificateProvider.UID,
+				CertificateProviderFullName: donorDetails.CertificateProvider.FullName(),
+				CertificateProviderEmail:    donorDetails.CertificateProvider.Email,
 			})
 
 			http.Redirect(w, r, page.Paths.CertificateProviderStart.Format(), http.StatusFound)

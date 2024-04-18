@@ -107,6 +107,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		eventBusName          = env.Get("EVENT_BUS_NAME", "default")
 		mockIdentityPublicKey = env.Get("MOCK_IDENTITY_PUBLIC_KEY", "")
 		searchEndpoint        = env.Get("SEARCH_ENDPOINT", "")
+		searchIndexingEnabled = env.Get("SEARCH_INDEXING_DISABLED", "") != "1"
 	)
 
 	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
@@ -188,17 +189,11 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		return fmt.Errorf("unable to load SDK config: %w", err)
 	}
 
-	otelaws.AppendMiddlewares(&cfg.APIOptions)
-
 	if len(awsBaseURL) > 0 {
-		cfg.EndpointResolverWithOptions = aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-			return aws.Endpoint{
-				PartitionID:   "aws",
-				URL:           awsBaseURL,
-				SigningRegion: "eu-west-1",
-			}, nil
-		})
+		cfg.BaseEndpoint = aws.String(awsBaseURL)
 	}
+
+	otelaws.AppendMiddlewares(&cfg.APIOptions)
 
 	lpasDynamoClient, err := dynamo.NewClient(cfg, dynamoTableLpas)
 	if err != nil {
@@ -207,7 +202,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 
 	eventClient := event.NewClient(cfg, eventBusName)
 
-	searchClient, err := search.NewClient(cfg, searchEndpoint)
+	searchClient, err := search.NewClient(cfg, searchEndpoint, searchIndexingEnabled)
 	if err != nil {
 		return err
 	}

@@ -101,6 +101,7 @@ func TestClientServiceContract(t *testing.T) {
 								"postcode": matchers.String("F1 1FF"),
 								"country":  matchers.String("GB"),
 							}),
+							"contactLanguagePreference": matchers.String("en"),
 						}),
 						"attorneys": matchers.EachLike(map[string]any{
 							"uid":         matchers.UUID(),
@@ -163,12 +164,13 @@ func TestClientServiceContract(t *testing.T) {
 				Type:                          actor.LpaTypePersonalWelfare,
 				LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA,
 				Donor: actor.Donor{
-					UID:         actoruid.New(),
-					FirstNames:  "John Johnson",
-					LastName:    "Smith",
-					DateOfBirth: date.New("2000", "1", "2"),
-					Email:       "john@example.com",
-					Address:     address,
+					UID:                       actoruid.New(),
+					FirstNames:                "John Johnson",
+					LastName:                  "Smith",
+					DateOfBirth:               date.New("2000", "1", "2"),
+					Email:                     "john@example.com",
+					Address:                   address,
+					ContactLanguagePreference: localize.En,
 				},
 				Attorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{{
@@ -235,7 +237,8 @@ func TestClientServiceContract(t *testing.T) {
 								"postcode": matchers.String("F1 1FF"),
 								"country":  matchers.String("GB"),
 							}),
-							"otherNamesKnownBy": matchers.String("JJ"),
+							"otherNamesKnownBy":         matchers.String("JJ"),
+							"contactLanguagePreference": matchers.String("cy"),
 						}),
 						"attorneys": matchers.EachLike(map[string]any{
 							"uid":         matchers.UUID(),
@@ -313,13 +316,14 @@ func TestClientServiceContract(t *testing.T) {
 				LpaUID: "M-0000-1111-2222",
 				Type:   actor.LpaTypePersonalWelfare,
 				Donor: actor.Donor{
-					UID:         actoruid.New(),
-					FirstNames:  "John Johnson",
-					LastName:    "Smith",
-					DateOfBirth: date.New("2000", "1", "2"),
-					Email:       "john@example.com",
-					Address:     address,
-					OtherNames:  "JJ",
+					UID:                       actoruid.New(),
+					FirstNames:                "John Johnson",
+					LastName:                  "Smith",
+					DateOfBirth:               date.New("2000", "1", "2"),
+					Email:                     "john@example.com",
+					Address:                   address,
+					OtherNames:                "JJ",
+					ContactLanguagePreference: localize.Cy,
 				},
 				Attorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{{
@@ -418,8 +422,8 @@ func TestClientServiceContract(t *testing.T) {
 			err := client.SendAttorney(context.Background(),
 				&Lpa{
 					LpaUID: "M-0000-1111-2222",
-					Attorneys: actor.Attorneys{
-						Attorneys: []actor.Attorney{{UID: uid}},
+					Attorneys: Attorneys{
+						Attorneys: []Attorney{{UID: uid}},
 					},
 				},
 				&actor.AttorneyProvidedDetails{
@@ -722,8 +726,8 @@ func TestClientServiceContract(t *testing.T) {
 						Country:    "GB",
 					},
 				},
-				Attorneys: actor.Attorneys{
-					Attorneys: []actor.Attorney{{
+				Attorneys: Attorneys{
+					Attorneys: []Attorney{{
 						FirstNames:  "Jake",
 						LastName:    "Valler",
 						DateOfBirth: date.New("2001", "01", "17"),
@@ -734,17 +738,17 @@ func TestClientServiceContract(t *testing.T) {
 						},
 					}},
 				},
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: CertificateProvider{
 					FirstNames: "Some",
 					LastName:   "Provider",
 					Email:      "some@example.com",
-					Mobile:     "0700009000",
+					Phone:      "0700009000",
 					Address: place.Address{
 						Line1:      "71 South Western Terrace",
 						TownOrCity: "Milton",
 						Country:    "AU",
 					},
-					CarryOutBy: actor.ChannelOnline,
+					Channel: actor.ChannelOnline,
 				},
 				LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA,
 				SignedAt:                      time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),

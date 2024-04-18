@@ -101,6 +101,8 @@ func (c *Client) SendAttorney(ctx context.Context, donor *Lpa, attorney *actor.A
 	}
 
 	if attorney.IsTrustCorporation {
+		body.Type = "TRUST_CORPORATION_SIGN"
+
 		body.Changes = append(body.Changes,
 			updateRequestChange{Key: attorneyKey + "/signatories/0/firstNames", New: attorney.AuthorisedSignatories[0].FirstNames},
 			updateRequestChange{Key: attorneyKey + "/signatories/0/lastName", New: attorney.AuthorisedSignatories[0].LastName},

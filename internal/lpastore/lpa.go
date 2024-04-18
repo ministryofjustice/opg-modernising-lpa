@@ -4,12 +4,15 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
@@ -34,13 +37,14 @@ type lpaRequest struct {
 }
 
 type lpaRequestDonor struct {
-	UID               actoruid.UID  `json:"uid"`
-	FirstNames        string        `json:"firstNames"`
-	LastName          string        `json:"lastName"`
-	DateOfBirth       date.Date     `json:"dateOfBirth"`
-	Email             string        `json:"email"`
-	Address           place.Address `json:"address"`
-	OtherNamesKnownBy string        `json:"otherNamesKnownBy,omitempty"`
+	UID                       actoruid.UID  `json:"uid"`
+	FirstNames                string        `json:"firstNames"`
+	LastName                  string        `json:"lastName"`
+	DateOfBirth               date.Date     `json:"dateOfBirth"`
+	Email                     string        `json:"email"`
+	Address                   place.Address `json:"address"`
+	OtherNamesKnownBy         string        `json:"otherNamesKnownBy,omitempty"`
+	ContactLanguagePreference localize.Lang `json:"contactLanguagePreference"`
 }
 
 type lpaRequestAttorney struct {
@@ -83,13 +87,14 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 	body := lpaRequest{
 		LpaType: donor.Type,
 		Donor: lpaRequestDonor{
-			UID:               donor.Donor.UID,
-			FirstNames:        donor.Donor.FirstNames,
-			LastName:          donor.Donor.LastName,
-			DateOfBirth:       donor.Donor.DateOfBirth,
-			Email:             donor.Donor.Email,
-			Address:           donor.Donor.Address,
-			OtherNamesKnownBy: donor.Donor.OtherNames,
+			UID:                       donor.Donor.UID,
+			FirstNames:                donor.Donor.FirstNames,
+			LastName:                  donor.Donor.LastName,
+			DateOfBirth:               donor.Donor.DateOfBirth,
+			Email:                     donor.Donor.Email,
+			Address:                   donor.Donor.Address,
+			OtherNamesKnownBy:         donor.Donor.OtherNames,
+			ContactLanguagePreference: donor.Donor.ContactLanguagePreference,
 		},
 		CertificateProvider: lpaRequestCertificateProvider{
 			UID:        donor.CertificateProvider.UID,
@@ -198,12 +203,80 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 	return c.do(ctx, donor.Donor.UID, req, nil)
 }
 
+type lpaResponseAttorney struct {
+	lpaRequestAttorney
+	Mobile                    string        `json:"mobile"`
+	SignedAt                  time.Time     `json:"signedAt"`
+	ContactLanguagePreference localize.Lang `json:"contactLanguagePreference"`
+}
+
+type lpaResponseTrustCorporation struct {
+	lpaRequestTrustCorporation
+	Mobile                    string                      `json:"mobile"`
+	Signatories               []TrustCorporationSignatory `json:"signatories"`
+	ContactLanguagePreference localize.Lang               `json:"contactLanguagePreference"`
+}
+
+type Attorney struct {
+	UID                       actoruid.UID
+	FirstNames                string
+	LastName                  string
+	DateOfBirth               date.Date
+	Email                     string
+	Address                   place.Address
+	Mobile                    string
+	SignedAt                  time.Time
+	ContactLanguagePreference localize.Lang
+}
+
+func (a Attorney) FullName() string {
+	return a.FirstNames + " " + a.LastName
+}
+
+type TrustCorporation struct {
+	UID                       actoruid.UID
+	Name                      string
+	CompanyNumber             string
+	Email                     string
+	Address                   place.Address
+	Mobile                    string
+	Signatories               []TrustCorporationSignatory
+	ContactLanguagePreference localize.Lang
+}
+
+type TrustCorporationSignatory struct {
+	FirstNames        string    `json:"firstNames"`
+	LastName          string    `json:"lastName"`
+	ProfessionalTitle string    `json:"professionalTitle"`
+	SignedAt          time.Time `json:"signedAt"`
+}
+
+type CertificateProvider struct {
+	UID                       actoruid.UID                        `json:"uid"`
+	FirstNames                string                              `json:"firstNames"`
+	LastName                  string                              `json:"lastName"`
+	Email                     string                              `json:"email,omitempty"`
+	Phone                     string                              `json:"phone,omitempty"`
+	Address                   place.Address                       `json:"address"`
+	Channel                   actor.CertificateProviderCarryOutBy `json:"channel"`
+	SignedAt                  time.Time                           `json:"signedAt"`
+	ContactLanguagePreference localize.Lang                       `json:"contactLanguagePreference"`
+	// Relationship is not stored in the lpa-store so is defaulted to
+	// Professional. We require it to determine whether to show the home address
+	// page to a certificate provider.
+	Relationship actor.CertificateProviderRelationship
+}
+
+func (c CertificateProvider) FullName() string {
+	return c.FirstNames + " " + c.LastName
+}
+
 type lpaResponse struct {
 	LpaType                                     actor.LpaType                    `json:"lpaType"`
 	Donor                                       lpaRequestDonor                  `json:"donor"`
-	Attorneys                                   []lpaRequestAttorney             `json:"attorneys"`
-	TrustCorporations                           []lpaRequestTrustCorporation     `json:"trustCorporations,omitempty"`
-	CertificateProvider                         lpaRequestCertificateProvider    `json:"certificateProvider"`
+	Attorneys                                   []lpaResponseAttorney            `json:"attorneys"`
+	TrustCorporations                           []lpaResponseTrustCorporation    `json:"trustCorporations,omitempty"`
+	CertificateProvider                         CertificateProvider              `json:"certificateProvider"`
 	PeopleToNotify                              []lpaRequestPersonToNotify       `json:"peopleToNotify,omitempty"`
 	HowAttorneysMakeDecisions                   actor.AttorneysAct               `json:"howAttorneysMakeDecisions,omitempty"`
 	HowAttorneysMakeDecisionsDetails            string                           `json:"howAttorneysMakeDecisionsDetails,omitempty"`
@@ -222,6 +295,46 @@ type lpaResponse struct {
 	UpdatedAt                                   date.Date                        `json:"updatedAt"`
 }
 
+type Attorneys struct {
+	Attorneys        []Attorney
+	TrustCorporation TrustCorporation
+}
+
+func (a Attorneys) Len() int {
+	if a.TrustCorporation.Name != "" {
+		return 1 + len(a.Attorneys)
+	}
+
+	return len(a.Attorneys)
+}
+
+func (a Attorneys) Index(uid actoruid.UID) int {
+	return slices.IndexFunc(a.Attorneys, func(a Attorney) bool { return a.UID == uid })
+}
+
+func (a Attorneys) Get(uid actoruid.UID) (Attorney, bool) {
+	idx := a.Index(uid)
+	if idx == -1 {
+		return Attorney{}, false
+	}
+
+	return a.Attorneys[idx], true
+}
+
+func (a Attorneys) FullNames() []string {
+	var names []string
+
+	if a.TrustCorporation.Name != "" {
+		names = append(names, a.TrustCorporation.Name)
+	}
+
+	for _, a := range a.Attorneys {
+		names = append(names, fmt.Sprintf("%s %s", a.FirstNames, a.LastName))
+	}
+
+	return names
+}
+
 type Lpa struct {
 	LpaID                                      string
 	LpaUID                                     string
@@ -229,9 +342,9 @@ type Lpa struct {
 	UpdatedAt                                  date.Date
 	Type                                       actor.LpaType
 	Donor                                      actor.Donor
-	Attorneys                                  actor.Attorneys
-	ReplacementAttorneys                       actor.Attorneys
-	CertificateProvider                        actor.CertificateProvider
+	Attorneys                                  Attorneys
+	ReplacementAttorneys                       Attorneys
+	CertificateProvider                        CertificateProvider
 	PeopleToNotify                             actor.PeopleToNotify
 	AttorneyDecisions                          actor.AttorneyDecisions
 	ReplacementAttorneyDecisions               actor.AttorneyDecisions
@@ -248,53 +361,28 @@ type Lpa struct {
 	IsOrganisationDonor                        bool
 }
 
-// TODO: this will need removing once attorney signing is captured in the lpa
-// store, as this implementation will not work for paper attorneys
-func (l *Lpa) AllAttorneysSigned(attorneys []*actor.AttorneyProvidedDetails) bool {
-	if l == nil || l.SignedAt.IsZero() || l.Attorneys.Len() == 0 {
+func (l Lpa) AllAttorneysSigned() bool {
+	if l.Attorneys.Len() == 0 {
 		return false
 	}
 
-	var (
-		attorneysSigned                   = map[actoruid.UID]struct{}{}
-		replacementAttorneysSigned        = map[actoruid.UID]struct{}{}
-		trustCorporationSigned            = false
-		replacementTrustCorporationSigned = false
-	)
-
-	for _, a := range attorneys {
-		if !a.Signed(l.SignedAt) {
-			continue
+	for _, attorneys := range []Attorneys{l.Attorneys, l.ReplacementAttorneys} {
+		for _, a := range attorneys.Attorneys {
+			if a.SignedAt.IsZero() {
+				return false
+			}
 		}
 
-		if a.IsReplacement && a.IsTrustCorporation {
-			replacementTrustCorporationSigned = true
-		} else if a.IsReplacement {
-			replacementAttorneysSigned[a.UID] = struct{}{}
-		} else if a.IsTrustCorporation {
-			trustCorporationSigned = true
-		} else {
-			attorneysSigned[a.UID] = struct{}{}
-		}
-	}
+		if t := attorneys.TrustCorporation; t.Name != "" {
+			if len(t.Signatories) == 0 {
+				return false
+			}
 
-	if l.ReplacementAttorneys.TrustCorporation.Name != "" && !replacementTrustCorporationSigned {
-		return false
-	}
-
-	for _, a := range l.ReplacementAttorneys.Attorneys {
-		if _, ok := replacementAttorneysSigned[a.UID]; !ok {
-			return false
-		}
-	}
-
-	if l.Attorneys.TrustCorporation.Name != "" && !trustCorporationSigned {
-		return false
-	}
-
-	for _, a := range l.Attorneys.Attorneys {
-		if _, ok := attorneysSigned[a.UID]; !ok {
-			return false
+			for _, s := range t.Signatories {
+				if s.SignedAt.IsZero() {
+					return false
+				}
+			}
 		}
 	}
 
@@ -302,15 +390,18 @@ func (l *Lpa) AllAttorneysSigned(attorneys []*actor.AttorneyProvidedDetails) boo
 }
 
 func lpaResponseToLpa(l lpaResponse) *Lpa {
-	var attorneys, replacementAttorneys []actor.Attorney
+	var attorneys, replacementAttorneys []Attorney
 	for _, a := range l.Attorneys {
-		at := actor.Attorney{
-			UID:         a.UID,
-			FirstNames:  a.FirstNames,
-			LastName:    a.LastName,
-			DateOfBirth: a.DateOfBirth,
-			Email:       a.Email,
-			Address:     a.Address,
+		at := Attorney{
+			UID:                       a.UID,
+			FirstNames:                a.FirstNames,
+			LastName:                  a.LastName,
+			DateOfBirth:               a.DateOfBirth,
+			Email:                     a.Email,
+			Address:                   a.Address,
+			Mobile:                    a.Mobile,
+			SignedAt:                  a.SignedAt,
+			ContactLanguagePreference: a.ContactLanguagePreference,
 		}
 
 		if a.Status == "replacement" {
@@ -320,14 +411,17 @@ func lpaResponseToLpa(l lpaResponse) *Lpa {
 		}
 	}
 
-	var trustCorporation, replacementTrustCorporation actor.TrustCorporation
+	var trustCorporation, replacementTrustCorporation TrustCorporation
 	for _, t := range l.TrustCorporations {
-		tc := actor.TrustCorporation{
-			UID:           t.UID,
-			Name:          t.Name,
-			CompanyNumber: t.CompanyNumber,
-			Email:         t.Email,
-			Address:       t.Address,
+		tc := TrustCorporation{
+			UID:                       t.UID,
+			Name:                      t.Name,
+			CompanyNumber:             t.CompanyNumber,
+			Email:                     t.Email,
+			Address:                   t.Address,
+			Mobile:                    t.Mobile,
+			Signatories:               t.Signatories,
+			ContactLanguagePreference: t.ContactLanguagePreference,
 		}
 
 		if t.Status == "replacement" {
@@ -366,24 +460,16 @@ func lpaResponseToLpa(l lpaResponse) *Lpa {
 			Address:     l.Donor.Address,
 			OtherNames:  l.Donor.OtherNamesKnownBy,
 		},
-		Attorneys: actor.Attorneys{
+		Attorneys: Attorneys{
 			Attorneys:        attorneys,
 			TrustCorporation: trustCorporation,
 		},
-		ReplacementAttorneys: actor.Attorneys{
+		ReplacementAttorneys: Attorneys{
 			Attorneys:        replacementAttorneys,
 			TrustCorporation: replacementTrustCorporation,
 		},
-		CertificateProvider: actor.CertificateProvider{
-			UID:        l.CertificateProvider.UID,
-			FirstNames: l.CertificateProvider.FirstNames,
-			LastName:   l.CertificateProvider.LastName,
-			Email:      l.CertificateProvider.Email,
-			Address:    l.CertificateProvider.Address,
-			Mobile:     l.CertificateProvider.Phone,
-			CarryOutBy: l.CertificateProvider.Channel,
-		},
-		PeopleToNotify: peopleToNotify,
+		CertificateProvider: l.CertificateProvider,
+		PeopleToNotify:      peopleToNotify,
 		AttorneyDecisions: actor.AttorneyDecisions{
 			How:     l.HowAttorneysMakeDecisions,
 			Details: l.HowAttorneysMakeDecisionsDetails,
@@ -402,26 +488,78 @@ func lpaResponseToLpa(l lpaResponse) *Lpa {
 	}
 }
 
-func donorProvidedDetailsToLpa(l *actor.DonorProvidedDetails) *Lpa {
+func FromDonorProvidedDetails(l *actor.DonorProvidedDetails) *Lpa {
+	attorneys := Attorneys{}
+	for _, a := range l.Attorneys.Attorneys {
+		attorneys.Attorneys = append(attorneys.Attorneys, Attorney{
+			UID:         a.UID,
+			FirstNames:  a.FirstNames,
+			LastName:    a.LastName,
+			DateOfBirth: a.DateOfBirth,
+			Email:       a.Email,
+			Address:     a.Address,
+		})
+	}
+
+	if c := l.Attorneys.TrustCorporation; c.Name != "" {
+		attorneys.TrustCorporation = TrustCorporation{
+			UID:           c.UID,
+			Name:          c.Name,
+			CompanyNumber: c.CompanyNumber,
+			Email:         c.Email,
+			Address:       c.Address,
+		}
+	}
+
+	var replacementAttorneys Attorneys
+	for _, a := range l.ReplacementAttorneys.Attorneys {
+		replacementAttorneys.Attorneys = append(replacementAttorneys.Attorneys, Attorney{
+			UID:         a.UID,
+			FirstNames:  a.FirstNames,
+			LastName:    a.LastName,
+			DateOfBirth: a.DateOfBirth,
+			Email:       a.Email,
+			Address:     a.Address,
+		})
+	}
+
+	if c := l.ReplacementAttorneys.TrustCorporation; c.Name != "" {
+		replacementAttorneys.TrustCorporation = TrustCorporation{
+			UID:           c.UID,
+			Name:          c.Name,
+			CompanyNumber: c.CompanyNumber,
+			Email:         c.Email,
+			Address:       c.Address,
+		}
+	}
+
 	return &Lpa{
-		LpaUID:                              l.LpaUID,
-		RegisteredAt:                        date.FromTime(l.RegisteredAt),
-		UpdatedAt:                           date.FromTime(l.UpdatedAt),
-		Type:                                l.Type,
-		Donor:                               l.Donor,
-		Attorneys:                           l.Attorneys,
-		ReplacementAttorneys:                l.ReplacementAttorneys,
-		CertificateProvider:                 l.CertificateProvider,
-		PeopleToNotify:                      l.PeopleToNotify,
-		AttorneyDecisions:                   l.AttorneyDecisions,
-		ReplacementAttorneyDecisions:        l.ReplacementAttorneyDecisions,
-		HowShouldReplacementAttorneysStepIn: l.HowShouldReplacementAttorneysStepIn,
+		LpaUID:               l.LpaUID,
+		RegisteredAt:         date.FromTime(l.RegisteredAt),
+		UpdatedAt:            date.FromTime(l.UpdatedAt),
+		Type:                 l.Type,
+		Donor:                l.Donor,
+		Attorneys:            attorneys,
+		ReplacementAttorneys: replacementAttorneys,
+		CertificateProvider: CertificateProvider{
+			UID:        l.CertificateProvider.UID,
+			FirstNames: l.CertificateProvider.FirstNames,
+			LastName:   l.CertificateProvider.LastName,
+			Email:      l.CertificateProvider.Email,
+			Phone:      l.CertificateProvider.Mobile,
+			Address:    l.CertificateProvider.Address,
+			Channel:    l.CertificateProvider.CarryOutBy,
+		},
+		PeopleToNotify:                             l.PeopleToNotify,
+		AttorneyDecisions:                          l.AttorneyDecisions,
+		ReplacementAttorneyDecisions:               l.ReplacementAttorneyDecisions,
+		HowShouldReplacementAttorneysStepIn:        l.HowShouldReplacementAttorneysStepIn,
 		HowShouldReplacementAttorneysStepInDetails: l.HowShouldReplacementAttorneysStepInDetails,
-		Restrictions:                             l.Restrictions,
-		WhenCanTheLpaBeUsed:                      l.WhenCanTheLpaBeUsed,
-		LifeSustainingTreatmentOption:            l.LifeSustainingTreatmentOption,
-		SignedAt:                                 l.SignedAt,
-		CertificateProviderNotRelatedConfirmedAt: l.CertificateProviderNotRelatedConfirmedAt,
+		Restrictions:                               l.Restrictions,
+		WhenCanTheLpaBeUsed:                        l.WhenCanTheLpaBeUsed,
+		LifeSustainingTreatmentOption:              l.LifeSustainingTreatmentOption,
+		SignedAt:                                   l.SignedAt,
+		CertificateProviderNotRelatedConfirmedAt:   l.CertificateProviderNotRelatedConfirmedAt,
 	}
 }
 

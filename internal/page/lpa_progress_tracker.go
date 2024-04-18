@@ -25,7 +25,7 @@ type Progress struct {
 	LpaRegistered             ProgressTask
 }
 
-func (pt ProgressTracker) Progress(lpa *lpastore.Lpa, certificateProvider *actor.CertificateProviderProvidedDetails, attorneys []*actor.AttorneyProvidedDetails) Progress {
+func (pt ProgressTracker) Progress(lpa *lpastore.Lpa) Progress {
 	var labels map[string]string
 
 	if lpa.IsOrganisationDonor {
@@ -133,14 +133,14 @@ func (pt ProgressTracker) Progress(lpa *lpastore.Lpa, certificateProvider *actor
 	progress.DonorSigned.State = actor.TaskCompleted
 	progress.CertificateProviderSigned.State = actor.TaskInProgress
 
-	if !certificateProvider.Signed(lpa.SignedAt) {
+	if lpa.CertificateProvider.SignedAt.IsZero() {
 		return progress
 	}
 
 	progress.CertificateProviderSigned.State = actor.TaskCompleted
 	progress.AttorneysSigned.State = actor.TaskInProgress
 
-	if !lpa.AllAttorneysSigned(attorneys) {
+	if !lpa.AllAttorneysSigned() {
 		return progress
 	}
 

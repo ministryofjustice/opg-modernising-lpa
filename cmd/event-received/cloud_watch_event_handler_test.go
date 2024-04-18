@@ -10,6 +10,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -462,10 +463,15 @@ var donorSubmissionCompletedEvent = events.CloudWatchEvent{
 
 func TestHandleDonorSubmissionCompleted(t *testing.T) {
 	appData := page.AppData{}
+	uid := actoruid.New()
 
-	donor := &lpastore.Lpa{
-		CertificateProvider: actor.CertificateProvider{
-			CarryOutBy: actor.ChannelOnline,
+	lpa := &lpastore.Lpa{
+		CertificateProvider: lpastore.CertificateProvider{
+			Channel:    actor.ChannelOnline,
+			UID:        uid,
+			FirstNames: "John",
+			LastName:   "Smith",
+			Email:      "john@example.com",
 		},
 	}
 
@@ -487,12 +493,14 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
-		Return(donor, nil)
+		Return(lpa, nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
 		SendCertificateProviderInvite(ctx, appData, page.CertificateProviderInvite{
-			CertificateProvider: donor.CertificateProvider,
+			CertificateProviderUID:      uid,
+			CertificateProviderFullName: "John Smith",
+			CertificateProviderEmail:    "john@example.com",
 		}).
 		Return(nil)
 
@@ -503,9 +511,9 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 func TestHandleDonorSubmissionCompletedWhenPaperCertificateProvider(t *testing.T) {
 	appData := page.AppData{}
 
-	donor := &lpastore.Lpa{
-		CertificateProvider: actor.CertificateProvider{
-			CarryOutBy: actor.ChannelPaper,
+	lpa := &lpastore.Lpa{
+		CertificateProvider: lpastore.CertificateProvider{
+			Channel: actor.ChannelPaper,
 		},
 	}
 
@@ -520,7 +528,7 @@ func TestHandleDonorSubmissionCompletedWhenPaperCertificateProvider(t *testing.T
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
-		Return(donor, nil)
+		Return(lpa, nil)
 
 	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, nil, appData, lpaStoreClient, testUuidStringFn, testNowFn)
 	assert.Nil(t, err)
@@ -568,9 +576,9 @@ func TestHandleDonorSubmissionCompletedWhenDynamoPutError(t *testing.T) {
 func TestHandleDonorSubmissionCompletedWhenLpaStoreError(t *testing.T) {
 	appData := page.AppData{}
 
-	donor := &lpastore.Lpa{
-		CertificateProvider: actor.CertificateProvider{
-			CarryOutBy: actor.ChannelOnline,
+	lpa := &lpastore.Lpa{
+		CertificateProvider: lpastore.CertificateProvider{
+			Channel: actor.ChannelOnline,
 		},
 	}
 
@@ -585,7 +593,7 @@ func TestHandleDonorSubmissionCompletedWhenLpaStoreError(t *testing.T) {
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
-		Return(donor, expectedError)
+		Return(lpa, expectedError)
 
 	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, nil, appData, lpaStoreClient, testUuidStringFn, testNowFn)
 	assert.Equal(t, expectedError, err)
@@ -594,9 +602,9 @@ func TestHandleDonorSubmissionCompletedWhenLpaStoreError(t *testing.T) {
 func TestHandleDonorSubmissionCompletedWhenShareCodeSenderError(t *testing.T) {
 	appData := page.AppData{}
 
-	donor := &lpastore.Lpa{
-		CertificateProvider: actor.CertificateProvider{
-			CarryOutBy: actor.ChannelOnline,
+	lpa := &lpastore.Lpa{
+		CertificateProvider: lpastore.CertificateProvider{
+			Channel: actor.ChannelOnline,
 		},
 	}
 
@@ -611,7 +619,7 @@ func TestHandleDonorSubmissionCompletedWhenShareCodeSenderError(t *testing.T) {
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
-		Return(donor, nil)
+		Return(lpa, nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
@@ -630,20 +638,20 @@ var certificateProviderSubmissionCompletedEvent = events.CloudWatchEvent{
 func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 	appData := page.AppData{}
 
-	donor := &lpastore.Lpa{
-		CertificateProvider: actor.CertificateProvider{
-			CarryOutBy: actor.ChannelPaper,
+	lpa := &lpastore.Lpa{
+		CertificateProvider: lpastore.CertificateProvider{
+			Channel: actor.ChannelPaper,
 		},
 	}
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
-		Return(donor, nil)
+		Return(lpa, nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendAttorneys(ctx, appData, donor).
+		SendAttorneys(ctx, appData, lpa).
 		Return(nil)
 
 	factory := newMockFactory(t)
@@ -662,16 +670,16 @@ func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 }
 
 func TestHandleCertificateProviderSubmissionCompletedWhenOnline(t *testing.T) {
-	donor := &lpastore.Lpa{
-		CertificateProvider: actor.CertificateProvider{
-			CarryOutBy: actor.ChannelOnline,
+	lpa := &lpastore.Lpa{
+		CertificateProvider: lpastore.CertificateProvider{
+			Channel: actor.ChannelOnline,
 		},
 	}
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
-		Return(donor, nil)
+		Return(lpa, nil)
 
 	factory := newMockFactory(t)
 	factory.EXPECT().
@@ -715,8 +723,8 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderErrors(t
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
 		Return(&lpastore.Lpa{
-			CertificateProvider: actor.CertificateProvider{
-				CarryOutBy: actor.ChannelPaper,
+			CertificateProvider: lpastore.CertificateProvider{
+				Channel: actor.ChannelPaper,
 			},
 		}, nil)
 
@@ -746,8 +754,8 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderFactoryE
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
 		Return(&lpastore.Lpa{
-			CertificateProvider: actor.CertificateProvider{
-				CarryOutBy: actor.ChannelPaper,
+			CertificateProvider: lpastore.CertificateProvider{
+				Channel: actor.ChannelPaper,
 			},
 		}, nil)
 
@@ -769,8 +777,8 @@ func TestHandleCertificateProviderSubmissionCompletedWhenAppDataFactoryErrors(t 
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
 		Return(&lpastore.Lpa{
-			CertificateProvider: actor.CertificateProvider{
-				CarryOutBy: actor.ChannelPaper,
+			CertificateProvider: lpastore.CertificateProvider{
+				Channel: actor.ChannelPaper,
 			},
 		}, nil)
 
