@@ -36,13 +36,6 @@ resource "aws_lambda_function" "lambda_function" {
     log_format = "JSON"
   }
 
-  # vpc_config {
-  #   subnet_ids = var.aws_subnet_ids
-  #   security_group_ids = [
-  #     data.aws_security_group.lambda_egress.id
-  #   ]
-  # }
-
   dynamic "environment" {
     for_each = length(keys(var.environment_variables)) == 0 ? [] : [true]
     content {
@@ -51,11 +44,6 @@ resource "aws_lambda_function" "lambda_function" {
   }
   provider = aws.region
 }
-
-# data "aws_security_group" "lambda_egress" {
-#   name     = "lambda-egress-${data.aws_region.current.name}"
-#   provider = aws.region
-# }
 
 resource "aws_lambda_alias" "lambda_alias" {
   name             = "latest"

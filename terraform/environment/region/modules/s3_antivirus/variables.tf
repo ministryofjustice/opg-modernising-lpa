@@ -3,11 +3,6 @@ variable "alarm_sns_topic_arn" {
   type        = string
 }
 
-# variable "aws_subnet_ids" {
-#   type        = list(string)
-#   description = "List of Sirius private subnet Ids"
-# }
-
 variable "data_store_bucket" {
   type        = any
   description = "Data store bucket to scan for viruses"
