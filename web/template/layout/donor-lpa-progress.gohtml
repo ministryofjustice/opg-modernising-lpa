@@ -59,6 +59,14 @@
                     {{ .Progress.LpaRegistered.Label }}<span class="govuk-visually-hidden"> {{tr .App .Progress.LpaRegistered.State.String }}</span>
                 </span>
             </li>
+            {{ if .Progress.LpaRegistered.State.Completed }}
+                <li id="lpa-registered-notification" class="app-progress-bar__item" aria-current="step">
+                    <span class="app-progress-bar__icon app-progress-bar__icon--complete"></span>
+                    <span class="app-progress-bar__label">
+                        {{ .Progress.LpaRegistered.Label }}<span class="govuk-visually-hidden"> {{ .Progress.LpaRegistered.NotificationTranslation }}</span>
+                    </span>
+                </li>
+            {{ end }}}
         </ol>
     </div>
 
