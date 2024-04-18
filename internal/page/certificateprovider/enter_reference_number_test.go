@@ -83,7 +83,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
 		Login(r).
-		Return(&sesh.LoginSession{Sub: "hey"}, nil)
+		Return(&sesh.LoginSession{Sub: "hey", Email: "a@b.com"}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
@@ -91,7 +91,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 			session, _ := page.SessionDataFromContext(ctx)
 
 			return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
-		}), "session-id", uid).
+		}), "session-id", uid, "a@b.com").
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, certificateProviderStore)(testAppData, w, r)
@@ -187,7 +187,7 @@ func TestPostEnterReferenceNumberWhenShareCodeStoreDeleteError(t *testing.T) {
 			session, _ := page.SessionDataFromContext(ctx)
 
 			return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
-		}), "session-id", uid).
+		}), "session-id", uid, mock.Anything).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, certificateProviderStore)(testAppData, w, r)
