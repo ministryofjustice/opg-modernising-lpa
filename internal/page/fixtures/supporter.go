@@ -191,7 +191,7 @@ func Supporter(
 						}
 
 						if signedCertificateProvider != nil {
-							if err := lpaStoreClient.SendCertificateProvider(donorCtx, donor.LpaUID, signedCertificateProvider); err != nil {
+							if err := lpaStoreClient.SendCertificateProvider(donorCtx, donor.LpaUID, signedCertificateProvider, lpa); err != nil {
 								return fmt.Errorf("problem sending certificate provider: %w", err)
 							}
 						}

@@ -67,13 +67,13 @@ type lpaRequestTrustCorporation struct {
 }
 
 type lpaRequestCertificateProvider struct {
-	UID        actoruid.UID                        `json:"uid"`
-	FirstNames string                              `json:"firstNames"`
-	LastName   string                              `json:"lastName"`
-	Email      string                              `json:"email,omitempty"`
-	Phone      string                              `json:"phone,omitempty"`
-	Address    place.Address                       `json:"address"`
-	Channel    actor.CertificateProviderCarryOutBy `json:"channel"`
+	UID        actoruid.UID  `json:"uid"`
+	FirstNames string        `json:"firstNames"`
+	LastName   string        `json:"lastName"`
+	Email      string        `json:"email,omitempty"`
+	Phone      string        `json:"phone,omitempty"`
+	Address    place.Address `json:"address"`
+	Channel    actor.Channel `json:"channel"`
 }
 
 type lpaRequestPersonToNotify struct {
@@ -252,15 +252,15 @@ type TrustCorporationSignatory struct {
 }
 
 type CertificateProvider struct {
-	UID                       actoruid.UID                        `json:"uid"`
-	FirstNames                string                              `json:"firstNames"`
-	LastName                  string                              `json:"lastName"`
-	Email                     string                              `json:"email,omitempty"`
-	Phone                     string                              `json:"phone,omitempty"`
-	Address                   place.Address                       `json:"address"`
-	Channel                   actor.CertificateProviderCarryOutBy `json:"channel"`
-	SignedAt                  time.Time                           `json:"signedAt"`
-	ContactLanguagePreference localize.Lang                       `json:"contactLanguagePreference"`
+	UID                       actoruid.UID  `json:"uid"`
+	FirstNames                string        `json:"firstNames"`
+	LastName                  string        `json:"lastName"`
+	Email                     string        `json:"email,omitempty"`
+	Phone                     string        `json:"phone,omitempty"`
+	Address                   place.Address `json:"address"`
+	Channel                   actor.Channel `json:"channel"`
+	SignedAt                  time.Time     `json:"signedAt"`
+	ContactLanguagePreference localize.Lang `json:"contactLanguagePreference"`
 	// Relationship is not stored in the lpa-store so is defaulted to
 	// Professional. We require it to determine whether to show the home address
 	// page to a certificate provider.

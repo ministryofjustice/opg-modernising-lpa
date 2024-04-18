@@ -141,7 +141,7 @@ func makeCertificateProvider() actor.CertificateProvider {
 		Mobile:             testMobile,
 		Relationship:       actor.Personally,
 		RelationshipLength: actor.GreaterThanEqualToTwoYears,
-		CarryOutBy:         actor.Online,
+		CarryOutBy:         actor.ChannelOnline,
 		Address: place.Address{
 			Line1:      "5 RICHMOND PLACE",
 			Line2:      "KINGS HEATH",
