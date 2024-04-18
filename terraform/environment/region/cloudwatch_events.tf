@@ -13,7 +13,7 @@ resource "aws_cloudwatch_event_rule" "ecs_failed_deployment" {
     {
       "source" : ["aws.ecs"],
       "detail-type" : ["ECS Deployment State Change"],
-      "resources" : [{ "wildcard" : "arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:service/${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}" }],
+      "resources" : [{ "wildcard" : "arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:service/${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}/app" }],
       "detail" : {
         "eventType" : ["ERROR"],
         "eventName" : ["SERVICE_DEPLOYMENT_FAILED"]
@@ -82,7 +82,7 @@ resource "aws_cloudwatch_event_rule" "ecs_successful_deployment" {
     {
       "source" : ["aws.ecs"],
       "detail-type" : ["ECS Deployment State Change"],
-      "resources" : [{ "wildcard" : "arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:service/${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}" }],
+      "resources" : [{ "wildcard" : "arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:service/${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}/app" }],
       "detail" : {
         "eventType" : ["INFO"],
         "eventName" : ["SERVICE_DEPLOYMENT_COMPLETED"]
