@@ -277,8 +277,9 @@ func Attorney(
 			donorDetails.WithdrawnAt = time.Now()
 		}
 
+		registered := false
 		if progress >= slices.Index(progressValues, "registered") {
-			donorDetails.RegisteredAt = time.Now()
+			registered = true
 		}
 
 		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
@@ -304,6 +305,12 @@ func Attorney(
 			for _, attorney := range signings {
 				if err := lpaStoreClient.SendAttorney(donorCtx, lpa, attorney); err != nil {
 					return fmt.Errorf("problem sending attorney: %w", err)
+				}
+			}
+
+			if registered {
+				if err := lpaStoreClient.SendRegister(donorCtx, donorDetails.LpaUID); err != nil {
+					return fmt.Errorf("problem sending register: %w", err)
 				}
 			}
 		}
