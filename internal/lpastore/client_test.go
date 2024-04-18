@@ -199,7 +199,7 @@ func TestClientServiceContract(t *testing.T) {
 					Email:      "charles@example.com",
 					Mobile:     "0700009000",
 					Address:    address,
-					CarryOutBy: actor.Online,
+					CarryOutBy: actor.ChannelOnline,
 				},
 				Restrictions: "hmm",
 				SignedAt:     time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
@@ -352,7 +352,7 @@ func TestClientServiceContract(t *testing.T) {
 					Email:      "charles@example.com",
 					Mobile:     "0700009000",
 					Address:    address,
-					CarryOutBy: actor.Online,
+					CarryOutBy: actor.ChannelOnline,
 				},
 				PeopleToNotify: actor.PeopleToNotify{{
 					UID:        actoruid.New(),
@@ -458,6 +458,14 @@ func TestClientServiceContract(t *testing.T) {
 							"key": matchers.Like("/certificateProvider/signedAt"),
 							"old": matchers.Like(nil),
 							"new": matchers.Like("2020-01-01T12:13:14Z"),
+						}, {
+							"key": matchers.Like("/certificateProvider/email"),
+							"old": matchers.Like(""),
+							"new": matchers.Like("a@example.com"),
+						}, {
+							"key": matchers.Like("/certificateProvider/channel"),
+							"old": matchers.Like("paper"),
+							"new": matchers.Like("online"),
 						}}),
 					})
 			}).
@@ -487,7 +495,8 @@ func TestClientServiceContract(t *testing.T) {
 						Agreed: time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
 					},
 					ContactLanguagePreference: localize.Cy,
-				})
+					Email:                     "a@example.com",
+				}, &Lpa{CertificateProvider: CertificateProvider{Channel: actor.ChannelPaper}})
 			assert.Nil(t, err)
 			return nil
 		}))
@@ -516,16 +525,24 @@ func TestClientServiceContract(t *testing.T) {
 							"new": matchers.Like("2020-01-01T12:13:14Z"),
 						}, {
 							"key": matchers.Like("/certificateProvider/address/line1"),
-							"old": matchers.Like(nil),
+							"old": matchers.Like("71 South Western Terrace"),
 							"new": matchers.Like("123 Fake Street"),
 						}, {
 							"key": matchers.Like("/certificateProvider/address/town"),
-							"old": matchers.Like(nil),
+							"old": matchers.Like("Milton"),
 							"new": matchers.Like("Faketon"),
 						}, {
 							"key": matchers.Like("/certificateProvider/address/country"),
-							"old": matchers.Like(nil),
+							"old": matchers.Like("AU"),
 							"new": matchers.Like("GB"),
+						}, {
+							"key": matchers.Like("/certificateProvider/email"),
+							"old": matchers.Like(""),
+							"new": matchers.Like("a@example.com"),
+						}, {
+							"key": matchers.Like("/certificateProvider/channel"),
+							"old": matchers.Like("paper"),
+							"new": matchers.Like("online"),
 						}}),
 					})
 			}).
@@ -559,6 +576,16 @@ func TestClientServiceContract(t *testing.T) {
 						Line1:      "123 Fake Street",
 						TownOrCity: "Faketon",
 						Country:    "GB",
+					},
+					Email: "a@example.com",
+				}, &Lpa{
+					CertificateProvider: CertificateProvider{
+						Channel: actor.ChannelPaper,
+						Address: place.Address{
+							Line1:      "71 South Western Terrace",
+							TownOrCity: "Milton",
+							Country:    "AU",
+						},
 					},
 				})
 		}))
@@ -730,7 +757,7 @@ func TestClientServiceContract(t *testing.T) {
 						TownOrCity: "Milton",
 						Country:    "AU",
 					},
-					Channel: actor.Online,
+					Channel: actor.ChannelOnline,
 				},
 				LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA,
 				SignedAt:                      time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),

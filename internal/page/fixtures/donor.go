@@ -132,7 +132,7 @@ func Donor(
 			}
 
 			if signedCertificateProvider != nil {
-				if err := lpaStoreClient.SendCertificateProvider(donorCtx, donorDetails.LpaUID, signedCertificateProvider); err != nil {
+				if err := lpaStoreClient.SendCertificateProvider(donorCtx, donorDetails.LpaUID, signedCertificateProvider, lpa); err != nil {
 					return fmt.Errorf("problem sending certificate provider: %w", err)
 				}
 			}
@@ -286,7 +286,7 @@ func updateLPAProgress(
 	if data.Progress >= slices.Index(progressValues, "chooseYourCertificateProvider") {
 		donorDetails.CertificateProvider = makeCertificateProvider()
 		if data.CertificateProvider == "paper" {
-			donorDetails.CertificateProvider.CarryOutBy = actor.Paper
+			donorDetails.CertificateProvider.CarryOutBy = actor.ChannelPaper
 		}
 
 		if data.CertificateProviderEmail != "" {
@@ -408,7 +408,7 @@ func updateLPAProgress(
 	if data.Progress >= slices.Index(progressValues, "signedByCertificateProvider") {
 		ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
-		certificateProvider, err := certificateProviderStore.Create(ctx, donorSessionID, donorDetails.CertificateProvider.UID)
+		certificateProvider, err := certificateProviderStore.Create(ctx, donorSessionID, donorDetails.CertificateProvider.UID, donorDetails.CertificateProvider.Email)
 		if err != nil {
 			return nil, nil, nil, err
 		}
