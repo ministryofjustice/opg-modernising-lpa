@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 )
@@ -17,43 +18,48 @@ func TestDashboardStoreGetAll(t *testing.T) {
 	sessionID := "an-id"
 	aTime := time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)
 
-	lpa0 := &actor.DonorProvidedDetails{LpaID: "0", LpaUID: "M", UpdatedAt: aTime, SK: dynamo.DonorKey(sessionID), PK: dynamo.LpaKey("0")}
-	lpa123 := &actor.DonorProvidedDetails{LpaID: "123", LpaUID: "M", UpdatedAt: aTime, SK: dynamo.DonorKey(sessionID), PK: dynamo.LpaKey("123")}
-	lpa456 := &actor.DonorProvidedDetails{LpaID: "456", LpaUID: "M", SK: dynamo.DonorKey("another-id"), PK: dynamo.LpaKey("456")}
-	lpa456CpProvidedDetails := &actor.CertificateProviderProvidedDetails{
+	lpa0 := &lpastore.Lpa{LpaID: "0", LpaUID: "M", UpdatedAt: aTime}
+	donor0 := &actor.DonorProvidedDetails{LpaID: "0", LpaUID: "M", UpdatedAt: aTime, SK: dynamo.DonorKey(sessionID), PK: dynamo.LpaKey("0")}
+	lpa123 := &lpastore.Lpa{LpaID: "123", LpaUID: "M", UpdatedAt: aTime}
+	lpa123Donor := &actor.DonorProvidedDetails{LpaID: "123", LpaUID: "M", UpdatedAt: aTime, SK: dynamo.DonorKey(sessionID), PK: dynamo.LpaKey("123")}
+	lpa456 := &lpastore.Lpa{LpaID: "456", LpaUID: "M"}
+	lpa456Donor := &actor.DonorProvidedDetails{LpaID: "456", LpaUID: "M", SK: dynamo.DonorKey("another-id"), PK: dynamo.LpaKey("456")}
+	lpa456CertificateProvider := &actor.CertificateProviderProvidedDetails{
 		LpaID: "456", Tasks: actor.CertificateProviderTasks{ConfirmYourDetails: actor.TaskCompleted}, SK: dynamo.CertificateProviderKey(sessionID),
 	}
-	lpa789 := &actor.DonorProvidedDetails{LpaID: "789", LpaUID: "M", SK: dynamo.DonorKey("different-id"), PK: dynamo.LpaKey("789")}
-	lpa789AttorneyProvidedDetails := &actor.AttorneyProvidedDetails{
+	lpa789 := &lpastore.Lpa{LpaID: "789", LpaUID: "M"}
+	lpa789Donor := &actor.DonorProvidedDetails{LpaID: "789", LpaUID: "M", SK: dynamo.DonorKey("different-id"), PK: dynamo.LpaKey("789")}
+	lpa789Attorney := &actor.AttorneyProvidedDetails{
 		LpaID: "789", Tasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskInProgress}, SK: dynamo.AttorneyKey(sessionID),
 	}
-	lpaNoUID := &actor.DonorProvidedDetails{LpaID: "999", UpdatedAt: aTime, SK: dynamo.DonorKey(sessionID), PK: dynamo.LpaKey("0")}
-	lpaSignedByCp := &actor.DonorProvidedDetails{LpaID: "signed-by-cp", LpaUID: "M", SK: dynamo.DonorKey("another-id"), PK: dynamo.LpaKey("signed-by-cp")}
-	lpaSignedByCpProvidedDetails := &actor.CertificateProviderProvidedDetails{
+	lpaNoUIDDonor := &actor.DonorProvidedDetails{LpaID: "999", UpdatedAt: aTime, SK: dynamo.DonorKey(sessionID), PK: dynamo.LpaKey("0")}
+	lpaCertified := &lpastore.Lpa{LpaID: "signed-by-cp", LpaUID: "M"}
+	lpaCertifiedDonor := &actor.DonorProvidedDetails{LpaID: "signed-by-cp", LpaUID: "M", SK: dynamo.DonorKey("another-id"), PK: dynamo.LpaKey("signed-by-cp")}
+	lpaCertifiedCertificateProvider := &actor.CertificateProviderProvidedDetails{
 		LpaID: "signed-by-cp", SK: dynamo.CertificateProviderKey(sessionID), Certificate: actor.Certificate{AgreeToStatement: true},
 	}
 
 	testCases := map[string][]map[string]types.AttributeValue{
 		"details returned after lpas": {
-			makeAttributeValueMap(lpa123),
-			makeAttributeValueMap(lpa456),
-			makeAttributeValueMap(lpa456CpProvidedDetails),
-			makeAttributeValueMap(lpa789),
-			makeAttributeValueMap(lpa789AttorneyProvidedDetails),
-			makeAttributeValueMap(lpa0),
-			makeAttributeValueMap(lpaSignedByCp),
-			makeAttributeValueMap(lpaSignedByCpProvidedDetails),
+			makeAttributeValueMap(lpa123Donor),
+			makeAttributeValueMap(lpa456Donor),
+			makeAttributeValueMap(lpa456CertificateProvider),
+			makeAttributeValueMap(lpa789Donor),
+			makeAttributeValueMap(lpa789Attorney),
+			makeAttributeValueMap(donor0),
+			makeAttributeValueMap(lpaCertifiedDonor),
+			makeAttributeValueMap(lpaCertifiedCertificateProvider),
 		},
 		"details returned before lpas": {
-			makeAttributeValueMap(lpaNoUID),
-			makeAttributeValueMap(lpa456CpProvidedDetails),
-			makeAttributeValueMap(lpa789AttorneyProvidedDetails),
-			makeAttributeValueMap(lpaSignedByCpProvidedDetails),
-			makeAttributeValueMap(lpa123),
-			makeAttributeValueMap(lpa456),
-			makeAttributeValueMap(lpa789),
-			makeAttributeValueMap(lpaSignedByCp),
-			makeAttributeValueMap(lpa0),
+			makeAttributeValueMap(lpaNoUIDDonor),
+			makeAttributeValueMap(lpa456CertificateProvider),
+			makeAttributeValueMap(lpa789Attorney),
+			makeAttributeValueMap(lpaCertifiedCertificateProvider),
+			makeAttributeValueMap(lpa123Donor),
+			makeAttributeValueMap(lpa456Donor),
+			makeAttributeValueMap(lpa789Donor),
+			makeAttributeValueMap(lpaCertifiedDonor),
+			makeAttributeValueMap(donor0),
 		},
 	}
 
@@ -83,14 +89,21 @@ func TestDashboardStoreGetAll(t *testing.T) {
 				{PK: "LPA#signed-by-cp", SK: "#CERTIFICATE_PROVIDER#an-id"},
 			}, attributeValues, nil)
 
-			dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			lpaStoreResolvingService.EXPECT().Resolve(ctx, donor0).Return(lpa0, nil).Once()
+			lpaStoreResolvingService.EXPECT().Resolve(ctx, lpa123Donor).Return(lpa123, nil).Once()
+			lpaStoreResolvingService.EXPECT().Resolve(ctx, lpa456Donor).Return(lpa456, nil).Once()
+			lpaStoreResolvingService.EXPECT().Resolve(ctx, lpa789Donor).Return(lpa789, nil).Once()
+			lpaStoreResolvingService.EXPECT().Resolve(ctx, lpaCertifiedDonor).Return(lpaCertified, nil).Once()
+
+			dashboardStore := &dashboardStore{dynamoClient: dynamoClient, lpaStoreResolvingService: lpaStoreResolvingService}
 
 			donor, attorney, certificateProvider, err := dashboardStore.GetAll(ctx)
 			assert.Nil(t, err)
 
-			assert.Equal(t, []page.LpaAndActorTasks{{Donor: lpa123}, {Donor: lpa0}}, donor)
-			assert.Equal(t, []page.LpaAndActorTasks{{Donor: lpa456, CertificateProvider: lpa456CpProvidedDetails}}, certificateProvider)
-			assert.Equal(t, []page.LpaAndActorTasks{{Donor: lpa789, Attorney: lpa789AttorneyProvidedDetails}}, attorney)
+			assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa123}, {Lpa: lpa0}}, donor)
+			assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa456, CertificateProvider: lpa456CertificateProvider}}, certificateProvider)
+			assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa789, Attorney: lpa789Attorney}}, attorney)
 		})
 	}
 }
@@ -99,10 +112,12 @@ func TestDashboardStoreGetAllSubmittedForAttorneys(t *testing.T) {
 	sessionID := "an-id"
 	aTime := time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)
 
-	lpaSubmitted := &actor.DonorProvidedDetails{LpaID: "submitted", LpaUID: "M", SK: dynamo.DonorKey("another-id"), PK: dynamo.LpaKey("submitted"), SubmittedAt: aTime}
-	lpaSubmittedAttorneyDetails := &actor.AttorneyProvidedDetails{LpaID: "submitted", SK: dynamo.AttorneyKey(sessionID)}
-	lpaSubmittedReplacement := &actor.DonorProvidedDetails{LpaID: "submitted-replacement", LpaUID: "M", SK: dynamo.DonorKey("another-id"), PK: dynamo.LpaKey("submitted-replacement"), SubmittedAt: aTime}
-	lpaSubmittedReplacementAttorneyDetails := &actor.AttorneyProvidedDetails{LpaID: "submitted-replacement", SK: dynamo.AttorneyKey(sessionID), IsReplacement: true}
+	lpaSubmitted := &lpastore.Lpa{LpaID: "submitted", LpaUID: "M", Submitted: true}
+	lpaSubmittedDonor := &actor.DonorProvidedDetails{LpaID: "submitted", LpaUID: "M", SK: dynamo.DonorKey("another-id"), PK: dynamo.LpaKey("submitted"), SubmittedAt: aTime}
+	lpaSubmittedAttorney := &actor.AttorneyProvidedDetails{LpaID: "submitted", SK: dynamo.AttorneyKey(sessionID)}
+	lpaSubmittedReplacement := &lpastore.Lpa{LpaID: "submitted-replacement", LpaUID: "M", Submitted: true}
+	lpaSubmittedReplacementDonor := &actor.DonorProvidedDetails{LpaID: "submitted-replacement", LpaUID: "M", SK: dynamo.DonorKey("another-id"), PK: dynamo.LpaKey("submitted-replacement"), SubmittedAt: aTime}
+	lpaSubmittedReplacementAttorney := &actor.AttorneyProvidedDetails{LpaID: "submitted-replacement", SK: dynamo.AttorneyKey(sessionID), IsReplacement: true}
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: sessionID})
 
 	dynamoClient := newMockDynamoClient(t)
@@ -117,19 +132,23 @@ func TestDashboardStoreGetAllSubmittedForAttorneys(t *testing.T) {
 		{PK: "LPA#submitted-replacement", SK: "#DONOR#another-id"},
 		{PK: "LPA#submitted-replacement", SK: "#ATTORNEY#an-id"},
 	}, []map[string]types.AttributeValue{
-		makeAttributeValueMap(lpaSubmitted),
-		makeAttributeValueMap(lpaSubmittedAttorneyDetails),
-		makeAttributeValueMap(lpaSubmittedReplacement),
-		makeAttributeValueMap(lpaSubmittedReplacementAttorneyDetails),
+		makeAttributeValueMap(lpaSubmittedDonor),
+		makeAttributeValueMap(lpaSubmittedAttorney),
+		makeAttributeValueMap(lpaSubmittedReplacementDonor),
+		makeAttributeValueMap(lpaSubmittedReplacementAttorney),
 	}, nil)
 
-	dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().Resolve(ctx, lpaSubmittedDonor).Return(lpaSubmitted, nil)
+	lpaStoreResolvingService.EXPECT().Resolve(ctx, lpaSubmittedReplacementDonor).Return(lpaSubmittedReplacement, nil)
+
+	dashboardStore := &dashboardStore{dynamoClient: dynamoClient, lpaStoreResolvingService: lpaStoreResolvingService}
 
 	_, attorney, _, err := dashboardStore.GetAll(ctx)
 	assert.Nil(t, err)
 
 	assert.Equal(t, []page.LpaAndActorTasks{
-		{Donor: lpaSubmitted, Attorney: lpaSubmittedAttorneyDetails},
+		{Lpa: lpaSubmitted, Attorney: lpaSubmittedAttorney},
 	}, attorney)
 }
 

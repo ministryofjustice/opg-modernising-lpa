@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -15,7 +16,7 @@ type DashboardStore interface {
 }
 
 type LpaAndActorTasks struct {
-	Donor               *actor.DonorProvidedDetails
+	Lpa                 *lpastore.Lpa
 	CertificateProvider *actor.CertificateProviderProvidedDetails
 	Attorney            *actor.AttorneyProvidedDetails
 }
