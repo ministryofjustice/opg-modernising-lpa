@@ -100,7 +100,7 @@ func App(
 	certificateProviderStore := &certificateProviderStore{dynamoClient: lpaDynamoClient, now: time.Now}
 	attorneyStore := &attorneyStore{dynamoClient: lpaDynamoClient, now: time.Now}
 	shareCodeStore := &shareCodeStore{dynamoClient: lpaDynamoClient, now: time.Now}
-	dashboardStore := &dashboardStore{dynamoClient: lpaDynamoClient}
+	dashboardStore := &dashboardStore{dynamoClient: lpaDynamoClient, lpaStoreResolvingService: lpastore.NewResolvingService(donorStore, lpaStoreClient)}
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: lpaDynamoClient}
 	organisationStore := &organisationStore{dynamoClient: lpaDynamoClient, now: time.Now, uuidString: uuid.NewString, newUID: actoruid.New}
 	memberStore := &memberStore{dynamoClient: lpaDynamoClient, now: time.Now, uuidString: uuid.NewString}
