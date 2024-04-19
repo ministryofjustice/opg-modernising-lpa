@@ -1117,5 +1117,6 @@
     "addMyLpa": "Add my LPA",
     "contactNumber": "Contact number",
     "emailSentOnAbout": "We sent an email on {{ .On }} about {{ .About }}",
-    "yourLPARegistration": "about your LPA registration"
+    "yourLPARegistration": "your LPA registration",
+    "theLPARegistration": "the LPA registration"
 }

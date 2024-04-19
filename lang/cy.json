@@ -1185,5 +1185,6 @@
     "addMyLpa": "Welsh",
     "contactNumber": "Welsh",
     "emailSentOnAbout": "Welsh {{ .On }} Welsh {{ .About }}",
-    "yourLPARegistration": "Welsh"
+    "yourLPARegistration": "Welsh",
+    "theLPARegistration": "Welsh"
 }
