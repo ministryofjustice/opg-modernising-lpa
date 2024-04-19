@@ -5,16 +5,16 @@
 {{ define "donorCard" }}
   <div class="app-dashboard-card">
     <div class="app-dashboard-row">
-      {{ if .Item.Donor.RegisteredAt.IsZero }}<h3 class="govuk-heading-m">{{ else }}<h4 class="govuk-heading-m">{{ end }}
-        {{ tr .App .Item.Donor.Type.String }}:
-        <span class="govuk-!-font-weight-regular">{{ .Item.Donor.Donor.FullName }}</span>
-        {{ if .Item.Donor.RegisteredAt.IsZero }}</h3>{{ else }}</h4>{{ end }}
+      {{ if .Item.Lpa.RegisteredAt.IsZero }}<h3 class="govuk-heading-m">{{ else }}<h4 class="govuk-heading-m">{{ end }}
+        {{ tr .App .Item.Lpa.Type.String }}:
+        <span class="govuk-!-font-weight-regular">{{ .Item.Lpa.Donor.FullName }}</span>
+        {{ if .Item.Lpa.RegisteredAt.IsZero }}</h3>{{ else }}</h4>{{ end }}
         <div>
-          {{ if not .Item.Donor.WithdrawnAt.IsZero }}
+          {{ if not .Item.Lpa.WithdrawnAt.IsZero }}
             <strong class="app-tag govuk-tag--red">{{ tr .App "withdrawn" }}</strong>
-          {{ else if not .Item.Donor.RegisteredAt.IsZero }}
+          {{ else if not .Item.Lpa.RegisteredAt.IsZero }}
             <strong class="app-tag app-tag--black">{{ tr .App "registered" }}</strong>
-          {{ else if not .Item.Donor.SubmittedAt.IsZero }}
+          {{ else if .Item.Lpa.Submitted }}
             <strong class="app-tag govuk-tag--green">{{ tr .App "submittedToOpg" }}</strong>
           {{ else }}
             <strong class="app-tag govuk-tag--blue">{{ tr .App "inProgress" }}</strong>
@@ -23,40 +23,40 @@
     </div>
     <div class="app-dashboard-row">
       <p class="govuk-body-s">
-        <strong>{{ if .Item.Donor.RegisteredAt.IsZero }}{{ tr .App "referenceNumber" }}{{ else }}{{ tr .App "lpaNumber" }}{{ end }}:</strong>
-        {{ .Item.Donor.LpaUID }}
+        <strong>{{ if .Item.Lpa.RegisteredAt.IsZero }}{{ tr .App "referenceNumber" }}{{ else }}{{ tr .App "lpaNumber" }}{{ end }}:</strong>
+        {{ .Item.Lpa.LpaUID }}
       </p>
-      {{ if not .Item.Donor.WithdrawnAt.IsZero }}
-        <p class="govuk-body-s"><strong>{{ tr .App "withdrawn" }}:</strong> {{ formatDateTime .App .Item.Donor.WithdrawnAt }}</p>
-      {{ else if not .Item.Donor.RegisteredAt.IsZero }}
-        <p class="govuk-body-s"><strong>{{ tr .App "registered" }}:</strong> {{ formatDateTime .App .Item.Donor.RegisteredAt }}</p>
+      {{ if not .Item.Lpa.WithdrawnAt.IsZero }}
+        <p class="govuk-body-s"><strong>{{ tr .App "withdrawn" }}:</strong> {{ formatDateTime .App .Item.Lpa.WithdrawnAt }}</p>
+      {{ else if not .Item.Lpa.RegisteredAt.IsZero }}
+        <p class="govuk-body-s"><strong>{{ tr .App "registered" }}:</strong> {{ formatDateTime .App .Item.Lpa.RegisteredAt }}</p>
       {{ else }}
-        <p class="govuk-body-s"><strong>{{ tr .App "lastUpdated" }}:</strong> {{ formatDateTime .App .Item.Donor.UpdatedAt }}</p>
+        <p class="govuk-body-s"><strong>{{ tr .App "lastUpdated" }}:</strong> {{ formatDateTime .App .Item.Lpa.UpdatedAt }}</p>
       {{ end }}
     </div>
-    {{ if .Item.Donor.WithdrawnAt.IsZero }}
+    {{ if .Item.Lpa.WithdrawnAt.IsZero }}
       <div class="govuk-dashboard-row">
-        {{ if not .Item.Donor.RegisteredAt.IsZero }}
+        {{ if not .Item.Lpa.RegisteredAt.IsZero }}
           <p class="govuk-body">
             <a class="govuk-button" href="#">{{ tr .App "viewSignedLpa" }}</a><br/>
             <a class="govuk-link" href="#">{{ tr .App "useThisLpa" }}</a>
           </p>
-        {{ else if not .Item.Donor.SubmittedAt.IsZero }}
+        {{ else if .Item.Lpa.Submitted }}
           <div class="govuk-button-group">
             <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a>
-            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Progress.Format .Item.Donor.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
-            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.WithdrawThisLpa.Format .Item.Donor.LpaID) }}">{{ tr .App "withdrawLpa" }}</a>
+            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Progress.Format .Item.Lpa.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
+            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.WithdrawThisLpa.Format .Item.Lpa.LpaID) }}">{{ tr .App "withdrawLpa" }}</a>
           </div>
-        {{ else if not .Item.Donor.SignedAt.IsZero }}
+        {{ else if not .Item.Lpa.SignedAt.IsZero }}
           <div class="govuk-button-group">
-            <a class="govuk-button" href="{{ link .App (global.Paths.TaskList.Format .Item.Donor.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
-            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Progress.Format .Item.Donor.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
-            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.WithdrawThisLpa.Format .Item.Donor.LpaID) }}">{{ tr .App "withdrawLpa" }}</a>
+            <a class="govuk-button" href="{{ link .App (global.Paths.TaskList.Format .Item.Lpa.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
+            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Progress.Format .Item.Lpa.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
+            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.WithdrawThisLpa.Format .Item.Lpa.LpaID) }}">{{ tr .App "withdrawLpa" }}</a>
           </div>
         {{ else }}
           <div class="govuk-button-group">
-            <a class="govuk-button" href="{{ link .App (global.Paths.TaskList.Format .Item.Donor.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
-            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.DeleteThisLpa.Format .Item.Donor.LpaID) }}">{{ tr .App "deleteLpa" }}</a>
+            <a class="govuk-button" href="{{ link .App (global.Paths.TaskList.Format .Item.Lpa.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
+            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.DeleteThisLpa.Format .Item.Lpa.LpaID) }}">{{ tr .App "deleteLpa" }}</a>
           </div>
         {{ end }}
       </div>
@@ -67,18 +67,18 @@
 {{ define "attorneyCard" }}
   <div class="app-dashboard-card">
     <div class="app-dashboard-row">
-      {{ if .Item.Donor.RegisteredAt.IsZero }}<h3 class="govuk-heading-m">{{ else }}<h4 class="govuk-heading-m">{{ end }}
-        {{ tr .App .Item.Donor.Type.String }}:
-        <span class="govuk-!-font-weight-regular">{{ .Item.Donor.Donor.FullName }}</span>
-        {{ if .Item.Donor.RegisteredAt.IsZero }}</h3>{{ else }}</h4>{{ end }}
+      {{ if .Item.Lpa.RegisteredAt.IsZero }}<h3 class="govuk-heading-m">{{ else }}<h4 class="govuk-heading-m">{{ end }}
+        {{ tr .App .Item.Lpa.Type.String }}:
+        <span class="govuk-!-font-weight-regular">{{ .Item.Lpa.Donor.FullName }}</span>
+        {{ if .Item.Lpa.RegisteredAt.IsZero }}</h3>{{ else }}</h4>{{ end }}
         <div>
-          {{ if not .Item.Donor.WithdrawnAt.IsZero }}
+          {{ if not .Item.Lpa.WithdrawnAt.IsZero }}
             <strong class="app-tag govuk-tag--red">{{ tr .App "withdrawn" }}</strong>
-          {{ else if not .Item.Donor.RegisteredAt.IsZero }}
+          {{ else if not .Item.Lpa.RegisteredAt.IsZero }}
             <strong class="app-tag app-tag--black">{{ tr .App "registered" }}</strong>
-          {{ else if not .Item.Donor.SubmittedAt.IsZero }}
+          {{ else if .Item.Lpa.Submitted }}
             <strong class="app-tag govuk-tag--green">{{ tr .App "submittedToOpg" }}</strong>
-          {{ else if .Item.Attorney.Signed .Item.Donor.SignedAt }}
+          {{ else if .Item.Attorney.Signed .Item.Lpa.SignedAt }}
             <strong class="app-tag govuk-tag--blue">{{ tr .App "inProgress" }}</strong>
           {{ else }}
             <strong class="app-tag govuk-tag--yellow">{{ tr .App "readyToSign" }}</strong>
@@ -87,31 +87,31 @@
     </div>
     <div class="app-dashboard-row">
       <p class="govuk-body-s">
-        <strong>{{ if .Item.Donor.RegisteredAt.IsZero }}{{ tr .App "referenceNumber" }}{{ else }}{{ tr .App "lpaNumber" }}{{ end }}:</strong>
-        {{ .Item.Donor.LpaUID }}
+        <strong>{{ if .Item.Lpa.RegisteredAt.IsZero }}{{ tr .App "referenceNumber" }}{{ else }}{{ tr .App "lpaNumber" }}{{ end }}:</strong>
+        {{ .Item.Lpa.LpaUID }}
       </p>
-      {{ if not .Item.Donor.WithdrawnAt.IsZero }}
-        <p class="govuk-body-s"><strong>{{ tr .App "withdrawn" }}:</strong> {{ formatDateTime .App .Item.Donor.WithdrawnAt }}</p>
-      {{ else if not .Item.Donor.RegisteredAt.IsZero }}
-        <p class="govuk-body-s"><strong>{{ tr .App "registered" }}:</strong> {{ formatDateTime .App .Item.Donor.RegisteredAt }}</p>
+      {{ if not .Item.Lpa.WithdrawnAt.IsZero }}
+        <p class="govuk-body-s"><strong>{{ tr .App "withdrawn" }}:</strong> {{ formatDateTime .App .Item.Lpa.WithdrawnAt }}</p>
+      {{ else if not .Item.Lpa.RegisteredAt.IsZero }}
+        <p class="govuk-body-s"><strong>{{ tr .App "registered" }}:</strong> {{ formatDateTime .App .Item.Lpa.RegisteredAt }}</p>
       {{ else }}
-        <p class="govuk-body-s"><strong>{{ tr .App "lastUpdated" }}:</strong> {{ formatDateTime .App .Item.Donor.UpdatedAt }}</p>
+        <p class="govuk-body-s"><strong>{{ tr .App "lastUpdated" }}:</strong> {{ formatDateTime .App .Item.Lpa.UpdatedAt }}</p>
       {{ end }}
     </div>
-    {{ if .Item.Donor.WithdrawnAt.IsZero }}
+    {{ if .Item.Lpa.WithdrawnAt.IsZero }}
       <div class="app-dashboard-row">
         <div class="govuk-button-group">
-          {{ if not .Item.Donor.RegisteredAt.IsZero }}
+          {{ if not .Item.Lpa.RegisteredAt.IsZero }}
             <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a>
             <a class="govuk-link" href="#">{{ tr .App "use" }}</a>
-          {{ else if not .Item.Donor.SubmittedAt.IsZero }}
+          {{ else if .Item.Lpa.Submitted }}
             <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a>
-            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Attorney.Progress.Format .Item.Donor.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
-          {{ else if .Item.Attorney.Signed .Item.Donor.SignedAt }}
-            <a class="govuk-button" href="{{ link .App (global.Paths.Attorney.TaskList.Format .Item.Donor.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
-            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Attorney.Progress.Format .Item.Donor.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
+            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Attorney.Progress.Format .Item.Lpa.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
+          {{ else if .Item.Attorney.Signed .Item.Lpa.SignedAt }}
+            <a class="govuk-button" href="{{ link .App (global.Paths.Attorney.TaskList.Format .Item.Lpa.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
+            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Attorney.Progress.Format .Item.Lpa.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
           {{ else }}
-            <a class="govuk-button" href="{{ link .App (global.Paths.Attorney.TaskList.Format .Item.Donor.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
+            <a class="govuk-button" href="{{ link .App (global.Paths.Attorney.TaskList.Format .Item.Lpa.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
           {{ end }}
         </div>
       </div>
@@ -123,11 +123,11 @@
   <div class="app-dashboard-card">
     <div class="app-dashboard-row">
       <h3 class="govuk-heading-m">
-        {{ tr .App .Item.Donor.Type.String }}:
-        <span class="govuk-!-font-weight-regular">{{ .Item.Donor.Donor.FullName }}</span>
+        {{ tr .App .Item.Lpa.Type.String }}:
+        <span class="govuk-!-font-weight-regular">{{ .Item.Lpa.Donor.FullName }}</span>
       </h3>
       <div>
-        {{ if and .Item.CertificateProvider.Tasks.ReadTheLpa.Completed (not .Item.Donor.SignedAt.IsZero) .Item.Donor.Tasks.PayForLpa.IsCompleted }}
+        {{ if and .Item.CertificateProvider.Tasks.ReadTheLpa.Completed (not .Item.Lpa.SignedAt.IsZero) .Item.Lpa.Tasks.PayForLpa.IsCompleted }}
           <strong class="app-tag govuk-tag--yellow">{{ tr .App "readyToSign" }}</strong>
         {{ else }}
           <strong class="app-tag govuk-tag--blue">{{ tr .App "inProgress" }}</strong>
@@ -135,12 +135,12 @@
       </div>
     </div>
     <div class="app-dashboard-row">
-      <p class="govuk-body-s"><strong>{{ tr .App "referenceNumber" }}:</strong> {{ .Item.Donor.LpaUID }}</p>
-      <p class="govuk-body-s"><strong>{{ tr .App "lastUpdated" }}:</strong> {{ formatDateTime .App .Item.Donor.UpdatedAt }}</p>
+      <p class="govuk-body-s"><strong>{{ tr .App "referenceNumber" }}:</strong> {{ .Item.Lpa.LpaUID }}</p>
+      <p class="govuk-body-s"><strong>{{ tr .App "lastUpdated" }}:</strong> {{ formatDateTime .App .Item.Lpa.UpdatedAt }}</p>
     </div>
     <div class="app-dashboard-row">
       <div class="govuk-button-group">
-        <a class="govuk-button" href="{{ link .App (global.Paths.CertificateProvider.TaskList.Format .Item.Donor.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
+        <a class="govuk-button" href="{{ link .App (global.Paths.CertificateProvider.TaskList.Format .Item.Lpa.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
       </div>
     </div>
   </div>
@@ -195,7 +195,7 @@
           <p class="govuk-body">{{ tr .App "viewAndManageDonor" }}</p>
           {{ $hasRegistered := false }}
           {{ range .DonorLpas }}
-            {{ if .Donor.RegisteredAt.IsZero }}
+            {{ if .Lpa.RegisteredAt.IsZero }}
               {{ template "donorCard" (card $.App .) }}
             {{ else }}
               {{ $hasRegistered = true }}
@@ -210,7 +210,7 @@
             {{ template "details" (details . "whatIsTheUseService" "whatIsTheUseServiceDetails" false) }}
 
             {{ range .DonorLpas }}
-              {{ if not .Donor.RegisteredAt.IsZero }}
+              {{ if not .Lpa.RegisteredAt.IsZero }}
                 {{ template "donorCard" (card $.App .) }}
               {{ end }}
             {{ end }}
@@ -230,7 +230,7 @@
           <p class="govuk-body">{{ tr .App "viewAndManageAttorney" }}</p>
           {{ $hasRegistered := false }}
           {{ range .AttorneyLpas }}
-            {{ if .Donor.RegisteredAt.IsZero }}
+            {{ if .Lpa.RegisteredAt.IsZero }}
               {{ template "attorneyCard" (card $.App .) }}
             {{ else }}
               {{ $hasRegistered = true }}
@@ -245,7 +245,7 @@
             {{ template "details" (details . "whatIsTheUseService" "whatIsTheUseServiceDetails" false) }}
 
             {{ range .AttorneyLpas }}
-              {{ if not .Donor.RegisteredAt.IsZero }}
+              {{ if not .Lpa.RegisteredAt.IsZero }}
                 {{ template "donorCard" (card $.App .) }}
               {{ end }}
             {{ end }}
