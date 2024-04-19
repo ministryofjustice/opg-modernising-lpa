@@ -60,13 +60,13 @@
                 </span>
             </li>
             {{ if .Progress.LpaRegistered.State.Completed }}
-                <li id="lpa-registered-notification" class="app-progress-bar__item" aria-current="step">
+                <li id="lpa-registered-notification" class="app-progress-bar__item" {{ if .Progress.LpaRegistered.State.Completed }}aria-current="step"{{ end }}>
                     <span class="app-progress-bar__icon app-progress-bar__icon--complete"></span>
                     <span class="app-progress-bar__label">
                         {{ .Progress.LpaRegistered.NotificationSentTranslation }}
                     </span>
                 </li>
-            {{ end }}}
+            {{ end }}
         </ol>
     </div>
 
