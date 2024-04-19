@@ -94,7 +94,6 @@ func Register(
 	shareCodeStore ShareCodeStore,
 	errorHandler page.ErrorHandler,
 	certificateProviderStore CertificateProviderStore,
-	notFoundHandler page.Handler,
 	addressClient AddressClient,
 	notifyClient NotifyClient,
 	shareCodeSender ShareCodeSender,
