@@ -29,8 +29,8 @@ type DonorStore interface {
 }
 
 type CertificateProviderStore interface {
-	Create(context.Context, string, actoruid.UID) (*actor.CertificateProviderProvidedDetails, error)
-	Put(context.Context, *actor.CertificateProviderProvidedDetails) error
+	Create(ctx context.Context, donorSessionID string, certificateProviderUID actoruid.UID, email string) (*actor.CertificateProviderProvidedDetails, error)
+	Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error
 }
 
 type AttorneyStore interface {
@@ -179,7 +179,7 @@ func Attorney(
 		donorDetails.ReplacementAttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
 		donorDetails.HowShouldReplacementAttorneysStepIn = actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct
 
-		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID, donorDetails.CertificateProvider.UID)
+		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID, donorDetails.CertificateProvider.UID, donorDetails.CertificateProvider.Email)
 		if err != nil {
 			return err
 		}
@@ -304,7 +304,7 @@ func Attorney(
 				return fmt.Errorf("problem getting lpa: %w", err)
 			}
 
-			if err := lpaStoreClient.SendCertificateProvider(donorCtx, donorDetails.LpaUID, certificateProvider); err != nil {
+			if err := lpaStoreClient.SendCertificateProvider(donorCtx, certificateProvider, lpa); err != nil {
 				return fmt.Errorf("problem sending certificate provider: %w", err)
 			}
 

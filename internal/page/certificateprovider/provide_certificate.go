@@ -67,11 +67,11 @@ func ProvideCertificate(
 					return err
 				}
 
-				if err := lpaStoreClient.SendCertificateProvider(r.Context(), lpa.LpaUID, certificateProvider); err != nil {
+				if err := lpaStoreClient.SendCertificateProvider(r.Context(), certificateProvider, lpa); err != nil {
 					return err
 				}
 
-				if err := notifyClient.SendActorEmail(r.Context(), lpa.CertificateProvider.Email, lpa.LpaUID, notify.CertificateProviderCertificateProvidedEmail{
+				if err := notifyClient.SendActorEmail(r.Context(), certificateProvider.Email, lpa.LpaUID, notify.CertificateProviderCertificateProvidedEmail{
 					DonorFullNamePossessive:     appData.Localizer.Possessive(lpa.Donor.FullName()),
 					DonorFirstNamesPossessive:   appData.Localizer.Possessive(lpa.Donor.FirstNames),
 					LpaType:                     localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
