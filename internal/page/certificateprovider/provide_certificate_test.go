@@ -121,7 +121,7 @@ func TestPostProvideCertificate(t *testing.T) {
 
 	now := time.Now()
 
-	donor := &lpastore.Lpa{
+	lpa := &lpastore.Lpa{
 		LpaUID:   "lpa-uid",
 		SignedAt: now,
 		CertificateProvider: lpastore.CertificateProvider{
@@ -142,17 +142,18 @@ func TestPostProvideCertificate(t *testing.T) {
 		Tasks: actor.CertificateProviderTasks{
 			ProvideTheCertificate: actor.TaskCompleted,
 		},
+		Email: "a@example.com",
 	}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(donor, nil)
+		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
 		Get(r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", Email: "a@example.com"}, nil)
 	certificateProviderStore.EXPECT().
 		Put(r.Context(), certificateProvider).
 		Return(nil)
@@ -175,7 +176,7 @@ func TestPostProvideCertificate(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorEmail(r.Context(), "cp@example.org", "lpa-uid", notify.CertificateProviderCertificateProvidedEmail{
+		SendActorEmail(r.Context(), "a@example.com", "lpa-uid", notify.CertificateProviderCertificateProvidedEmail{
 			DonorFullNamePossessive:     "the possessive full name",
 			DonorFirstNamesPossessive:   "the possessive first names",
 			LpaType:                     "the translated term",
@@ -186,12 +187,12 @@ func TestPostProvideCertificate(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendAttorneys(r.Context(), testAppData, donor).
+		SendAttorneys(r.Context(), testAppData, lpa).
 		Return(nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
-		SendCertificateProvider(r.Context(), "lpa-uid", certificateProvider).
+		SendCertificateProvider(r.Context(), certificateProvider, lpa).
 		Return(nil)
 
 	err := ProvideCertificate(nil, lpaStoreResolvingService, certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, func() time.Time { return now })(testAppData, w, r)

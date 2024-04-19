@@ -29,8 +29,8 @@ type DonorStore interface {
 }
 
 type CertificateProviderStore interface {
-	Create(context.Context, string, actoruid.UID) (*actor.CertificateProviderProvidedDetails, error)
-	Put(context.Context, *actor.CertificateProviderProvidedDetails) error
+	Create(ctx context.Context, donorSessionID string, certificateProviderUID actoruid.UID, email string) (*actor.CertificateProviderProvidedDetails, error)
+	Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error
 }
 
 type AttorneyStore interface {
@@ -179,10 +179,12 @@ func Attorney(
 		donorDetails.ReplacementAttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
 		donorDetails.HowShouldReplacementAttorneysStepIn = actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct
 
-		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID, donorDetails.CertificateProvider.UID)
+		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID, donorDetails.CertificateProvider.UID, donorDetails.CertificateProvider.Email)
 		if err != nil {
 			return err
 		}
+
+		certificateProvider.ContactLanguagePreference = localize.En
 
 		attorney, err := attorneyStore.Create(attorneyCtx, donorSessionID, attorneyUID, isReplacement, isTrustCorporation)
 		if err != nil {
@@ -277,8 +279,9 @@ func Attorney(
 			donorDetails.WithdrawnAt = time.Now()
 		}
 
+		registered := false
 		if progress >= slices.Index(progressValues, "registered") {
-			donorDetails.RegisteredAt = time.Now()
+			registered = true
 		}
 
 		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
@@ -301,9 +304,19 @@ func Attorney(
 				return fmt.Errorf("problem getting lpa: %w", err)
 			}
 
+			if err := lpaStoreClient.SendCertificateProvider(donorCtx, certificateProvider, lpa); err != nil {
+				return fmt.Errorf("problem sending certificate provider: %w", err)
+			}
+
 			for _, attorney := range signings {
 				if err := lpaStoreClient.SendAttorney(donorCtx, lpa, attorney); err != nil {
 					return fmt.Errorf("problem sending attorney: %w", err)
+				}
+			}
+
+			if registered {
+				if err := lpaStoreClient.SendRegister(donorCtx, donorDetails.LpaUID); err != nil {
+					return fmt.Errorf("problem sending register: %w", err)
 				}
 			}
 		}
