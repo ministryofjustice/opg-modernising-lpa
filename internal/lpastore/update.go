@@ -81,7 +81,7 @@ func (c *Client) SendCertificateProvider(ctx context.Context, certificateProvide
 		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/email", New: certificateProvider.Email, Old: lpa.CertificateProvider.Email})
 	}
 
-	if lpa.CertificateProvider.Channel != actor.ChannelOnline {
+	if lpa.CertificateProvider.Channel == actor.ChannelPaper {
 		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/channel", New: actor.ChannelOnline, Old: actor.ChannelPaper})
 	}
 
