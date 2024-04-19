@@ -163,7 +163,7 @@ func (pt ProgressTracker) Progress(lpa *lpastore.Lpa) Progress {
 	progress.LpaRegistered.State = actor.TaskCompleted
 
 	progress.LpaRegistered.NotificationSentTranslation = pt.Localizer.Format(
-		"emailSentOnAbout", map[string]any{"On": lpa.RegisteredAt.String(), "About": pt.Localizer.T("yourLPARegistration")},
+		"emailSentOnAbout", map[string]any{"On": pt.Localizer.FormatDate(lpa.RegisteredAt), "About": pt.Localizer.T("yourLPARegistration")},
 	)
 
 	return progress
