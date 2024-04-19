@@ -16,7 +16,7 @@ type certificateProviderStore struct {
 	now          func() time.Time
 }
 
-func (s *certificateProviderStore) Create(ctx context.Context, donorSessionID string, certificateProviderUID actoruid.UID) (*actor.CertificateProviderProvidedDetails, error) {
+func (s *certificateProviderStore) Create(ctx context.Context, donorSessionID string, certificateProviderUID actoruid.UID, email string) (*actor.CertificateProviderProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -32,6 +32,7 @@ func (s *certificateProviderStore) Create(ctx context.Context, donorSessionID st
 		UID:       certificateProviderUID,
 		LpaID:     data.LpaID,
 		UpdatedAt: s.now(),
+		Email:     email,
 	}
 
 	if err := s.dynamoClient.Create(ctx, cp); err != nil {

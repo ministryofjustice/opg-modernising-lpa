@@ -44,7 +44,7 @@ func (c *Client) SendRegister(ctx context.Context, lpaUID string) error {
 	return c.sendUpdate(ctx, lpaUID, actoruid.Service, body)
 }
 
-func (c *Client) SendCertificateProvider(ctx context.Context, lpaUID string, certificateProvider *actor.CertificateProviderProvidedDetails) error {
+func (c *Client) SendCertificateProvider(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails, lpa *Lpa) error {
 	body := updateRequest{
 		Type: "CERTIFICATE_PROVIDER_SIGN",
 		Changes: []updateRequestChange{
@@ -54,30 +54,38 @@ func (c *Client) SendCertificateProvider(ctx context.Context, lpaUID string, cer
 	}
 
 	if certificateProvider.HomeAddress.Line1 != "" {
-		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/address/line1", New: certificateProvider.HomeAddress.Line1})
+		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/address/line1", New: certificateProvider.HomeAddress.Line1, Old: lpa.CertificateProvider.Address.Line1})
 	}
 
 	if certificateProvider.HomeAddress.Line2 != "" {
-		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/address/line2", New: certificateProvider.HomeAddress.Line2})
+		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/address/line2", New: certificateProvider.HomeAddress.Line2, Old: lpa.CertificateProvider.Address.Line2})
 	}
 
 	if certificateProvider.HomeAddress.Line3 != "" {
-		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/address/line3", New: certificateProvider.HomeAddress.Line3})
+		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/address/line3", New: certificateProvider.HomeAddress.Line3, Old: lpa.CertificateProvider.Address.Line3})
 	}
 
 	if certificateProvider.HomeAddress.TownOrCity != "" {
-		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/address/town", New: certificateProvider.HomeAddress.TownOrCity})
+		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/address/town", New: certificateProvider.HomeAddress.TownOrCity, Old: lpa.CertificateProvider.Address.TownOrCity})
 	}
 
 	if certificateProvider.HomeAddress.Postcode != "" {
-		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/address/postcode", New: certificateProvider.HomeAddress.Postcode})
+		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/address/postcode", New: certificateProvider.HomeAddress.Postcode, Old: lpa.CertificateProvider.Address.Postcode})
 	}
 
 	if certificateProvider.HomeAddress.Country != "" {
-		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/address/country", New: certificateProvider.HomeAddress.Country})
+		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/address/country", New: certificateProvider.HomeAddress.Country, Old: lpa.CertificateProvider.Address.Country})
 	}
 
-	return c.sendUpdate(ctx, lpaUID, certificateProvider.UID, body)
+	if certificateProvider.Email != "" {
+		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/email", New: certificateProvider.Email, Old: lpa.CertificateProvider.Email})
+	}
+
+	if lpa.CertificateProvider.Channel == actor.ChannelPaper {
+		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/channel", New: actor.ChannelOnline, Old: actor.ChannelPaper})
+	}
+
+	return c.sendUpdate(ctx, lpa.LpaUID, certificateProvider.UID, body)
 }
 
 func (c *Client) SendAttorney(ctx context.Context, donor *Lpa, attorney *actor.AttorneyProvidedDetails) error {
