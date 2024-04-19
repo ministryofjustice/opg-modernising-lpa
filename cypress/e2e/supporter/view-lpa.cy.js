@@ -59,6 +59,6 @@ describe('View LPA', () => {
     cy.contains('li', 'The LPA has been registered Completed')
 
     const today = new Date().toLocaleDateString('en-uk', { year:"numeric", month:"long", day: 'numeric'})
-    cy.contains('li', `We sent an email on ${today} about about the LPA registration`);
+    cy.contains('li', `We sent an email on ${today} about the LPA registration`);
   })
 })

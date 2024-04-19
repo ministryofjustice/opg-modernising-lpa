@@ -46,6 +46,6 @@ describe('LPA progress', () => {
         cy.contains('li', 'Your LPA has been registered Completed');
 
         const today = new Date().toLocaleDateString('en-uk', { year:"numeric", month:"long", day: 'numeric'})
-        cy.contains('li', `We sent an email on ${today} about about your LPA registration`);
+        cy.contains('li', `We sent an email on ${today} about your LPA registration`);
     })
 });
