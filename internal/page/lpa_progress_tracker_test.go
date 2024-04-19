@@ -211,10 +211,24 @@ func TestProgressTrackerProgress(t *testing.T) {
 				progress.LpaSubmitted.State = actor.TaskCompleted
 				progress.StatutoryWaitingPeriod.State = actor.TaskCompleted
 				progress.LpaRegistered.State = actor.TaskCompleted
+				progress.LpaRegistered.NotificationSentTranslation = "emailSentOnAbout translation"
 
 				return progress
 			},
-			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
+			expectedLocalizer: func() *mockLocalizer {
+				baseExpectationsLocalizer := localizerFn()
+				baseExpectationsLocalizer.EXPECT().
+					Format("emailSentOnAbout", map[string]any{"On": "Formatted dated", "About": "yourLPARegistration translation"}).
+					Return("emailSentOnAbout translation")
+				baseExpectationsLocalizer.EXPECT().
+					FormatDate(lpaSignedAt).
+					Return("Formatted dated")
+				baseExpectationsLocalizer.EXPECT().
+					T("yourLPARegistration").
+					Return("yourLPARegistration translation")
+
+				return baseExpectationsLocalizer
+			},
 		},
 	}
 
@@ -443,10 +457,24 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 				progress.LpaSubmitted.State = actor.TaskCompleted
 				progress.StatutoryWaitingPeriod.State = actor.TaskCompleted
 				progress.LpaRegistered.State = actor.TaskCompleted
+				progress.LpaRegistered.NotificationSentTranslation = "emailSentOnAbout translation"
 
 				return progress
 			},
-			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
+			expectedLocalizer: func() *mockLocalizer {
+				baseExpectationsLocalizer := localizerFn()
+				baseExpectationsLocalizer.EXPECT().
+					Format("emailSentOnAbout", map[string]any{"On": "Formatted dated", "About": "theLPARegistration translation"}).
+					Return("emailSentOnAbout translation")
+				baseExpectationsLocalizer.EXPECT().
+					FormatDate(lpaSignedAt).
+					Return("Formatted dated")
+				baseExpectationsLocalizer.EXPECT().
+					T("theLPARegistration").
+					Return("theLPARegistration translation")
+
+				return baseExpectationsLocalizer
+			},
 		},
 	}
 

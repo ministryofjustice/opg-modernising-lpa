@@ -1115,5 +1115,8 @@
     "chooseWhoElseCorrespondentShareOptional": "Choose who else you would like to share the correspondent’s details with (optional)",
     "attorneysAndReplacementAttorneys": "Attorneys and replacement attorneys",
     "addMyLpa": "Add my LPA",
-    "contactNumber": "Contact number"
+    "contactNumber": "Contact number",
+    "emailSentOnAbout": "We sent an email on {{ .On }} about {{ .About }}",
+    "yourLPARegistration": "your LPA registration",
+    "theLPARegistration": "the LPA registration"
 }

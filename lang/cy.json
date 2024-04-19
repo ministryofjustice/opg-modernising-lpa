@@ -1183,5 +1183,8 @@
     "chooseWhoElseCorrespondentShareOptional": "Welsh",
     "attorneysAndReplacementAttorneys": "Welsh",
     "addMyLpa": "Welsh",
-    "contactNumber": "Welsh"
+    "contactNumber": "Welsh",
+    "emailSentOnAbout": "Welsh {{ .On }} Welsh {{ .About }}",
+    "yourLPARegistration": "Welsh",
+    "theLPARegistration": "Welsh"
 }
