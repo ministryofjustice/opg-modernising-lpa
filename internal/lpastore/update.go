@@ -36,6 +36,14 @@ func (c *Client) sendUpdate(ctx context.Context, lpaUID string, actorUID actorui
 	return c.do(ctx, actorUID, req, nil)
 }
 
+func (c *Client) SendRegister(ctx context.Context, lpaUID string) error {
+	body := updateRequest{
+		Type: "REGISTER",
+	}
+
+	return c.sendUpdate(ctx, lpaUID, actoruid.Service, body)
+}
+
 func (c *Client) SendCertificateProvider(ctx context.Context, lpaUID string, certificateProvider *actor.CertificateProviderProvidedDetails, lpa *Lpa) error {
 	body := updateRequest{
 		Type: "CERTIFICATE_PROVIDER_SIGN",

@@ -201,7 +201,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 				Attorneys:           lpastore.Attorneys{Attorneys: []lpastore.Attorney{{UID: uid1, SignedAt: lpaSignedAt.Add(time.Minute)}}},
 				CertificateProvider: lpastore.CertificateProvider{SignedAt: lpaSignedAt},
 				Submitted:           true,
-				RegisteredAt:        date.FromTime(lpaSignedAt),
+				RegisteredAt:        lpaSignedAt,
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
@@ -431,7 +431,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 				Paid:                   true,
 				SignedAt:               lpaSignedAt,
 				Submitted:              true,
-				RegisteredAt:           date.FromTime(lpaSignedAt),
+				RegisteredAt:           lpaSignedAt,
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
