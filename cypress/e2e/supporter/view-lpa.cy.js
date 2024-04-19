@@ -57,5 +57,8 @@ describe('View LPA', () => {
     cy.contains('li', 'OPG has received the LPA Completed')
     cy.contains('li', 'The 4-week waiting period has started Completed')
     cy.contains('li', 'The LPA has been registered Completed')
+
+    const today = new Date().toLocaleDateString('en-uk', { year:"numeric", month:"long", day: 'numeric'})
+    cy.contains('li', `We sent an email on ${today} about about the LPA registration`);
   })
 })

@@ -10,8 +10,9 @@ type ProgressTracker struct {
 }
 
 type ProgressTask struct {
-	State actor.TaskState
-	Label string
+	State                       actor.TaskState
+	Label                       string
+	NotificationSentTranslation string
 }
 
 type Progress struct {
@@ -160,6 +161,15 @@ func (pt ProgressTracker) Progress(lpa *lpastore.Lpa) Progress {
 
 	progress.StatutoryWaitingPeriod.State = actor.TaskCompleted
 	progress.LpaRegistered.State = actor.TaskCompleted
+
+	about := "yourLPARegistration"
+	if lpa.IsOrganisationDonor {
+		about = "theLPARegistration"
+	}
+
+	progress.LpaRegistered.NotificationSentTranslation = pt.Localizer.Format(
+		"emailSentOnAbout", map[string]any{"On": pt.Localizer.FormatDate(lpa.RegisteredAt), "About": pt.Localizer.T(about)},
+	)
 
 	return progress
 }

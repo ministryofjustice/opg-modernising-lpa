@@ -174,7 +174,6 @@ func App(
 		shareCodeStore,
 		errorHandler,
 		certificateProviderStore,
-		notFoundHandler,
 		addressClient,
 		notifyClient,
 		shareCodeSender,
