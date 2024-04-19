@@ -489,14 +489,14 @@ func TestClientServiceContract(t *testing.T) {
 				now:           now,
 			}
 
-			err := client.SendCertificateProvider(context.Background(), "M-0000-1111-2222",
+			err := client.SendCertificateProvider(context.Background(),
 				&actor.CertificateProviderProvidedDetails{
 					Certificate: actor.Certificate{
 						Agreed: time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
 					},
 					ContactLanguagePreference: localize.Cy,
 					Email:                     "a@example.com",
-				}, &Lpa{CertificateProvider: CertificateProvider{Channel: actor.ChannelPaper}})
+				}, &Lpa{CertificateProvider: CertificateProvider{Channel: actor.ChannelPaper}, LpaUID: "M-0000-1111-2222"})
 			assert.Nil(t, err)
 			return nil
 		}))
@@ -566,7 +566,7 @@ func TestClientServiceContract(t *testing.T) {
 				now:           now,
 			}
 
-			return client.SendCertificateProvider(context.Background(), "M-0000-1111-2222",
+			return client.SendCertificateProvider(context.Background(),
 				&actor.CertificateProviderProvidedDetails{
 					Certificate: actor.Certificate{
 						Agreed: time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
@@ -587,6 +587,7 @@ func TestClientServiceContract(t *testing.T) {
 							Country:    "AU",
 						},
 					},
+					LpaUID: "M-0000-1111-2222",
 				})
 		}))
 	})

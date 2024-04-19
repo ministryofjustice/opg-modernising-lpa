@@ -25,17 +25,17 @@ func (_m *mockLpaStoreClient) EXPECT() *mockLpaStoreClient_Expecter {
 	return &mockLpaStoreClient_Expecter{mock: &_m.Mock}
 }
 
-// SendCertificateProvider provides a mock function with given fields: ctx, lpaUID, certificateProvider, lpa
-func (_m *mockLpaStoreClient) SendCertificateProvider(ctx context.Context, lpaUID string, certificateProvider *actor.CertificateProviderProvidedDetails, lpa *lpastore.Lpa) error {
-	ret := _m.Called(ctx, lpaUID, certificateProvider, lpa)
+// SendCertificateProvider provides a mock function with given fields: ctx, certificateProvider, lpa
+func (_m *mockLpaStoreClient) SendCertificateProvider(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails, lpa *lpastore.Lpa) error {
+	ret := _m.Called(ctx, certificateProvider, lpa)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SendCertificateProvider")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *actor.CertificateProviderProvidedDetails, *lpastore.Lpa) error); ok {
-		r0 = rf(ctx, lpaUID, certificateProvider, lpa)
+	if rf, ok := ret.Get(0).(func(context.Context, *actor.CertificateProviderProvidedDetails, *lpastore.Lpa) error); ok {
+		r0 = rf(ctx, certificateProvider, lpa)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -50,16 +50,15 @@ type mockLpaStoreClient_SendCertificateProvider_Call struct {
 
 // SendCertificateProvider is a helper method to define mock.On call
 //   - ctx context.Context
-//   - lpaUID string
 //   - certificateProvider *actor.CertificateProviderProvidedDetails
 //   - lpa *lpastore.Lpa
-func (_e *mockLpaStoreClient_Expecter) SendCertificateProvider(ctx interface{}, lpaUID interface{}, certificateProvider interface{}, lpa interface{}) *mockLpaStoreClient_SendCertificateProvider_Call {
-	return &mockLpaStoreClient_SendCertificateProvider_Call{Call: _e.mock.On("SendCertificateProvider", ctx, lpaUID, certificateProvider, lpa)}
+func (_e *mockLpaStoreClient_Expecter) SendCertificateProvider(ctx interface{}, certificateProvider interface{}, lpa interface{}) *mockLpaStoreClient_SendCertificateProvider_Call {
+	return &mockLpaStoreClient_SendCertificateProvider_Call{Call: _e.mock.On("SendCertificateProvider", ctx, certificateProvider, lpa)}
 }
 
-func (_c *mockLpaStoreClient_SendCertificateProvider_Call) Run(run func(ctx context.Context, lpaUID string, certificateProvider *actor.CertificateProviderProvidedDetails, lpa *lpastore.Lpa)) *mockLpaStoreClient_SendCertificateProvider_Call {
+func (_c *mockLpaStoreClient_SendCertificateProvider_Call) Run(run func(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails, lpa *lpastore.Lpa)) *mockLpaStoreClient_SendCertificateProvider_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(*actor.CertificateProviderProvidedDetails), args[3].(*lpastore.Lpa))
+		run(args[0].(context.Context), args[1].(*actor.CertificateProviderProvidedDetails), args[2].(*lpastore.Lpa))
 	})
 	return _c
 }
@@ -69,7 +68,7 @@ func (_c *mockLpaStoreClient_SendCertificateProvider_Call) Return(_a0 error) *mo
 	return _c
 }
 
-func (_c *mockLpaStoreClient_SendCertificateProvider_Call) RunAndReturn(run func(context.Context, string, *actor.CertificateProviderProvidedDetails, *lpastore.Lpa) error) *mockLpaStoreClient_SendCertificateProvider_Call {
+func (_c *mockLpaStoreClient_SendCertificateProvider_Call) RunAndReturn(run func(context.Context, *actor.CertificateProviderProvidedDetails, *lpastore.Lpa) error) *mockLpaStoreClient_SendCertificateProvider_Call {
 	_c.Call.Return(run)
 	return _c
 }

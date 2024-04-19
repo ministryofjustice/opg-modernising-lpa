@@ -44,7 +44,7 @@ func (c *Client) SendRegister(ctx context.Context, lpaUID string) error {
 	return c.sendUpdate(ctx, lpaUID, actoruid.Service, body)
 }
 
-func (c *Client) SendCertificateProvider(ctx context.Context, lpaUID string, certificateProvider *actor.CertificateProviderProvidedDetails, lpa *Lpa) error {
+func (c *Client) SendCertificateProvider(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails, lpa *Lpa) error {
 	body := updateRequest{
 		Type: "CERTIFICATE_PROVIDER_SIGN",
 		Changes: []updateRequestChange{
@@ -85,7 +85,7 @@ func (c *Client) SendCertificateProvider(ctx context.Context, lpaUID string, cer
 		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/channel", New: actor.ChannelOnline, Old: actor.ChannelPaper})
 	}
 
-	return c.sendUpdate(ctx, lpaUID, certificateProvider.UID, body)
+	return c.sendUpdate(ctx, lpa.LpaUID, certificateProvider.UID, body)
 }
 
 func (c *Client) SendAttorney(ctx context.Context, donor *Lpa, attorney *actor.AttorneyProvidedDetails) error {

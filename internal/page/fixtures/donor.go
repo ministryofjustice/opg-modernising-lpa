@@ -408,8 +408,8 @@ func updateLPAProgress(
 			return nil, nil, err
 		}
 
-		fns = append(fns, func(ctx context.Context, client *lpastore.Client, _ *lpastore.Lpa) error {
-			return client.SendCertificateProvider(ctx, donorDetails.LpaUID, certificateProvider)
+		fns = append(fns, func(ctx context.Context, client *lpastore.Client, lpa *lpastore.Lpa) error {
+			return client.SendCertificateProvider(ctx, certificateProvider, lpa)
 		})
 	}
 

@@ -121,7 +121,7 @@ func TestPostProvideCertificate(t *testing.T) {
 
 	now := time.Now()
 
-	donor := &lpastore.Lpa{
+	lpa := &lpastore.Lpa{
 		LpaUID:   "lpa-uid",
 		SignedAt: now,
 		CertificateProvider: lpastore.CertificateProvider{
@@ -148,7 +148,7 @@ func TestPostProvideCertificate(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(donor, nil)
+		Return(lpa, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
@@ -187,12 +187,12 @@ func TestPostProvideCertificate(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendAttorneys(r.Context(), testAppData, donor).
+		SendAttorneys(r.Context(), testAppData, lpa).
 		Return(nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
-		SendCertificateProvider(r.Context(), "lpa-uid", certificateProvider, donor).
+		SendCertificateProvider(r.Context(), certificateProvider, lpa).
 		Return(nil)
 
 	err := ProvideCertificate(nil, lpaStoreResolvingService, certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, func() time.Time { return now })(testAppData, w, r)
@@ -283,7 +283,7 @@ func TestPostProvideCertificateWhenLpaStoreClientError(t *testing.T) {
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
-		SendCertificateProvider(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		SendCertificateProvider(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := ProvideCertificate(nil, lpaStoreResolvingService, certificateProviderStore, nil, nil, lpaStoreClient, func() time.Time { return now })(testAppData, w, r)
@@ -346,7 +346,7 @@ func TestPostProvideCertificateOnNotifyClientError(t *testing.T) {
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
-		SendCertificateProvider(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		SendCertificateProvider(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	err := ProvideCertificate(nil, lpaStoreResolvingService, certificateProviderStore, notifyClient, nil, lpaStoreClient, func() time.Time { return now })(testAppData, w, r)
@@ -412,7 +412,7 @@ func TestPostProvideCertificateWhenShareCodeSenderErrors(t *testing.T) {
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
-		SendCertificateProvider(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		SendCertificateProvider(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	err := ProvideCertificate(nil, lpaStoreResolvingService, certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, func() time.Time { return now })(testAppData, w, r)

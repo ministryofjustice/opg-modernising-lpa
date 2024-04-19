@@ -304,7 +304,7 @@ func Attorney(
 				return fmt.Errorf("problem getting lpa: %w", err)
 			}
 
-			if err := lpaStoreClient.SendCertificateProvider(donorCtx, donorDetails.LpaUID, certificateProvider); err != nil {
+			if err := lpaStoreClient.SendCertificateProvider(donorCtx, certificateProvider, lpa); err != nil {
 				return fmt.Errorf("problem sending certificate provider: %w", err)
 			}
 
