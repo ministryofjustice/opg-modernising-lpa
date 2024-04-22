@@ -17,6 +17,40 @@ import (
 	mock "github.com/stretchr/testify/mock"
 )
 
+func TestClientSendRegister(t *testing.T) {
+	json := `{"type":"REGISTER","changes":null}`
+
+	ctx := context.Background()
+
+	secretsClient := newMockSecretsClient(t)
+	secretsClient.EXPECT().
+		Secret(ctx, secrets.LpaStoreJwtSecretKey).
+		Return("secret", nil)
+
+	var body []byte
+	doer := newMockDoer(t)
+	doer.EXPECT().
+		Do(mock.MatchedBy(func(req *http.Request) bool {
+			if body == nil {
+				body, _ = io.ReadAll(req.Body)
+			}
+
+			return assert.Equal(t, ctx, req.Context()) &&
+				assert.Equal(t, http.MethodPost, req.Method) &&
+				assert.Equal(t, "http://base/lpas/lpa-uid/updates", req.URL.String()) &&
+				assert.Equal(t, "application/json", req.Header.Get("Content-Type")) &&
+				assert.Equal(t, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ1cm46b3BnOnBvYXM6bWFrZXJlZ2lzdGVyOnVzZXJzOjAwMDAwMDAwLTAwMDAtNDAwMC0wMDAwLTAwMDAwMDAwMDAwMCIsImlhdCI6OTQ2NzgyMjQ1fQ.V7MxjZw7-K8ehujYn4e0gef7s23r2UDlTbyzQtpTKvo", req.Header.Get("X-Jwt-Authorization")) &&
+				assert.JSONEq(t, json, string(body))
+		})).
+		Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
+
+	client := New("http://base", secretsClient, doer)
+	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
+	err := client.SendRegister(ctx, "lpa-uid")
+
+	assert.Nil(t, err)
+}
+
 func TestClientSendCertificateProvider(t *testing.T) {
 	uid, _ := actoruid.Parse("399ce2f7-f3bd-4feb-9207-699ff4d99cbf")
 
@@ -34,8 +68,18 @@ func TestClientSendCertificateProvider(t *testing.T) {
 			Agreed: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 		},
 		ContactLanguagePreference: localize.Cy,
+		Email:                     "b@example.com",
 	}
-	json := `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"cy"},{"key":"/certificateProvider/address/line1","old":null,"new":"line-1"},{"key":"/certificateProvider/address/line2","old":null,"new":"line-2"},{"key":"/certificateProvider/address/line3","old":null,"new":"line-3"},{"key":"/certificateProvider/address/town","old":null,"new":"town"},{"key":"/certificateProvider/address/postcode","old":null,"new":"postcode"},{"key":"/certificateProvider/address/country","old":null,"new":"GB"}]}`
+
+	lpa := &Lpa{
+		LpaUID: "lpa-uid",
+		CertificateProvider: CertificateProvider{
+			Channel: actor.ChannelOnline,
+			Email:   "a@example.com",
+		},
+	}
+
+	json := `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"cy"},{"key":"/certificateProvider/address/line1","old":"","new":"line-1"},{"key":"/certificateProvider/address/line2","old":"","new":"line-2"},{"key":"/certificateProvider/address/line3","old":"","new":"line-3"},{"key":"/certificateProvider/address/town","old":"","new":"town"},{"key":"/certificateProvider/address/postcode","old":"","new":"postcode"},{"key":"/certificateProvider/address/country","old":"","new":"GB"},{"key":"/certificateProvider/email","old":"a@example.com","new":"b@example.com"}]}`
 
 	ctx := context.Background()
 
@@ -63,7 +107,7 @@ func TestClientSendCertificateProvider(t *testing.T) {
 
 	client := New("http://base", secretsClient, doer)
 	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
-	err := client.SendCertificateProvider(ctx, "lpa-uid", certificateProvider)
+	err := client.SendCertificateProvider(ctx, certificateProvider, lpa)
 
 	assert.Nil(t, err)
 }

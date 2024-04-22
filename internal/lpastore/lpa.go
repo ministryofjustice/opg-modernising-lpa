@@ -67,13 +67,13 @@ type lpaRequestTrustCorporation struct {
 }
 
 type lpaRequestCertificateProvider struct {
-	UID        actoruid.UID                        `json:"uid"`
-	FirstNames string                              `json:"firstNames"`
-	LastName   string                              `json:"lastName"`
-	Email      string                              `json:"email,omitempty"`
-	Phone      string                              `json:"phone,omitempty"`
-	Address    place.Address                       `json:"address"`
-	Channel    actor.CertificateProviderCarryOutBy `json:"channel"`
+	UID        actoruid.UID  `json:"uid"`
+	FirstNames string        `json:"firstNames"`
+	LastName   string        `json:"lastName"`
+	Email      string        `json:"email,omitempty"`
+	Phone      string        `json:"phone,omitempty"`
+	Address    place.Address `json:"address"`
+	Channel    actor.Channel `json:"channel"`
 }
 
 type lpaRequestPersonToNotify struct {
@@ -252,15 +252,15 @@ type TrustCorporationSignatory struct {
 }
 
 type CertificateProvider struct {
-	UID                       actoruid.UID                        `json:"uid"`
-	FirstNames                string                              `json:"firstNames"`
-	LastName                  string                              `json:"lastName"`
-	Email                     string                              `json:"email,omitempty"`
-	Phone                     string                              `json:"phone,omitempty"`
-	Address                   place.Address                       `json:"address"`
-	Channel                   actor.CertificateProviderCarryOutBy `json:"channel"`
-	SignedAt                  time.Time                           `json:"signedAt"`
-	ContactLanguagePreference localize.Lang                       `json:"contactLanguagePreference"`
+	UID                       actoruid.UID  `json:"uid"`
+	FirstNames                string        `json:"firstNames"`
+	LastName                  string        `json:"lastName"`
+	Email                     string        `json:"email,omitempty"`
+	Phone                     string        `json:"phone,omitempty"`
+	Address                   place.Address `json:"address"`
+	Channel                   actor.Channel `json:"channel"`
+	SignedAt                  time.Time     `json:"signedAt"`
+	ContactLanguagePreference localize.Lang `json:"contactLanguagePreference"`
 	// Relationship is not stored in the lpa-store so is defaulted to
 	// Professional. We require it to determine whether to show the home address
 	// page to a certificate provider.
@@ -291,8 +291,8 @@ type lpaResponse struct {
 	CertificateProviderNotRelatedConfirmedAt    *time.Time                       `json:"certificateProviderNotRelatedConfirmedAt,omitempty"`
 	UID                                         string                           `json:"uid"`
 	Status                                      string                           `json:"status"`
-	RegistrationDate                            date.Date                        `json:"registrationDate"`
-	UpdatedAt                                   date.Date                        `json:"updatedAt"`
+	RegistrationDate                            time.Time                        `json:"registrationDate"`
+	UpdatedAt                                   time.Time                        `json:"updatedAt"`
 }
 
 type Attorneys struct {
@@ -338,8 +338,9 @@ func (a Attorneys) FullNames() []string {
 type Lpa struct {
 	LpaID                                      string
 	LpaUID                                     string
-	RegisteredAt                               date.Date
-	UpdatedAt                                  date.Date
+	RegisteredAt                               time.Time
+	WithdrawnAt                                time.Time
+	UpdatedAt                                  time.Time
 	Type                                       actor.LpaType
 	Donor                                      actor.Donor
 	Attorneys                                  Attorneys
@@ -535,8 +536,7 @@ func FromDonorProvidedDetails(l *actor.DonorProvidedDetails) *Lpa {
 
 	return &Lpa{
 		LpaUID:               l.LpaUID,
-		RegisteredAt:         date.FromTime(l.RegisteredAt),
-		UpdatedAt:            date.FromTime(l.UpdatedAt),
+		UpdatedAt:            l.UpdatedAt,
 		Type:                 l.Type,
 		Donor:                l.Donor,
 		Attorneys:            attorneys,

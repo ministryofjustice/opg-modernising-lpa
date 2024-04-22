@@ -10,8 +10,13 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
+
+type LpaStoreResolvingService interface {
+	Resolve(ctx context.Context, donor *actor.DonorProvidedDetails) (*lpastore.Lpa, error)
+}
 
 // An lpaLink is used to join an actor to an LPA.
 type lpaLink struct {
@@ -36,7 +41,8 @@ func (l lpaLink) UserSub() string {
 }
 
 type dashboardStore struct {
-	dynamoClient DynamoClient
+	dynamoClient             DynamoClient
+	lpaStoreResolvingService LpaStoreResolvingService
 }
 
 type keys struct {
@@ -130,13 +136,18 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 				continue
 			}
 
+			lpa, err := s.lpaStoreResolvingService.Resolve(ctx, donorDetails)
+			if err != nil {
+				return nil, nil, nil, err
+			}
+
 			switch keyMap[donorDetails.LpaID] {
 			case actor.TypeDonor:
-				donor = append(donor, page.LpaAndActorTasks{Donor: donorDetails})
+				donor = append(donor, page.LpaAndActorTasks{Lpa: lpa})
 			case actor.TypeAttorney:
-				attorneyMap[donorDetails.LpaID] = page.LpaAndActorTasks{Donor: donorDetails}
+				attorneyMap[donorDetails.LpaID] = page.LpaAndActorTasks{Lpa: lpa}
 			case actor.TypeCertificateProvider:
-				certificateProviderMap[donorDetails.LpaID] = page.LpaAndActorTasks{Donor: donorDetails}
+				certificateProviderMap[donorDetails.LpaID] = page.LpaAndActorTasks{Lpa: lpa}
 			}
 		}
 	}
@@ -156,7 +167,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 			lpaID := attorneyProvidedDetails.LpaID
 
 			if entry, ok := attorneyMap[lpaID]; ok {
-				if attorneyProvidedDetails.IsReplacement && !entry.Donor.SubmittedAt.IsZero() {
+				if attorneyProvidedDetails.IsReplacement && entry.Lpa.Submitted {
 					delete(attorneyMap, lpaID)
 					continue
 				}
@@ -190,7 +201,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 	attorney = mapValues(attorneyMap)
 
 	byUpdatedAt := func(a, b page.LpaAndActorTasks) int {
-		if a.Donor.UpdatedAt.After(b.Donor.UpdatedAt) {
+		if a.Lpa.UpdatedAt.After(b.Lpa.UpdatedAt) {
 			return -1
 		}
 		return 1
