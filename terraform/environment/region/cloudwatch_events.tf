@@ -5,6 +5,18 @@ resource "aws_cloudwatch_log_group" "events" {
   provider          = aws.region
 }
 
+resource "aws_cloudwatch_query_definition" "events" {
+  name            = "${data.aws_default_tags.current.tags.environment-name}/events"
+  log_group_names = [aws_cloudwatch_log_group.events.name]
+
+  query_string = <<EOF
+fields @timestamp, detail.eventName, detail.reason
+| sort @timestamp desc
+| limit 1000
+EOF
+  provider     = aws.region
+}
+
 resource "aws_cloudwatch_event_rule" "ecs_failed_deployment" {
   name        = "${data.aws_default_tags.current.tags.environment-name}-capture-ecs-deployment-events"
   description = "Capture ECS deployment failure events for ${data.aws_default_tags.current.tags.environment-name}"
@@ -60,41 +72,4 @@ resource "aws_cloudwatch_metric_alarm" "ecs_failed_deployment" {
   threshold                 = 1
   treat_missing_data        = "notBreaching"
   provider                  = aws.region
-}
-
-resource "aws_cloudwatch_query_definition" "ecs_failed_deployment" {
-  name            = "${data.aws_default_tags.current.tags.environment-name}/events"
-  log_group_names = [aws_cloudwatch_log_group.events.name]
-
-  query_string = <<EOF
-fields @timestamp, detail.eventName, detail.reason
-| sort @timestamp desc
-| limit 1000
-EOF
-  provider     = aws.region
-}
-
-resource "aws_cloudwatch_event_rule" "ecs_successful_deployment" {
-  name        = "${data.aws_default_tags.current.tags.environment-name}-capture-successful-ecs-deployment-events"
-  description = "Capture ECS deployment failure events for ${data.aws_default_tags.current.tags.environment-name}"
-
-  event_pattern = jsonencode(
-    {
-      "source" : ["aws.ecs"],
-      "detail-type" : ["ECS Deployment State Change"],
-      "resources" : [{ "wildcard" : "arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:service/${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}/*" }],
-      "detail" : {
-        "eventType" : ["INFO"],
-        "eventName" : ["SERVICE_DEPLOYMENT_COMPLETED"]
-      }
-    }
-  )
-  provider = aws.region
-}
-
-resource "aws_cloudwatch_event_target" "ecs_successful_deployment_to_cloudwatch" {
-  rule      = aws_cloudwatch_event_rule.ecs_successful_deployment.name
-  target_id = "${data.aws_default_tags.current.tags.environment-name}-send-ecs-deployment-success-events-to-log-group"
-  arn       = aws_cloudwatch_log_group.events.arn
-  provider  = aws.region
 }
