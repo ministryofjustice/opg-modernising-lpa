@@ -2,10 +2,8 @@ package lpastore
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"time"
 
@@ -50,7 +48,7 @@ func New(baseURL string, secretsClient SecretsClient, lambdaClient Doer) *Client
 	return &Client{baseURL: baseURL, secretsClient: secretsClient, doer: lambdaClient, now: time.Now}
 }
 
-func (c *Client) do(ctx context.Context, actorUID actoruid.UID, req *http.Request, data any) error {
+func (c *Client) do(ctx context.Context, actorUID actoruid.UID, req *http.Request) (*http.Response, error) {
 	req.Header.Add("Content-Type", "application/json")
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
@@ -61,51 +59,16 @@ func (c *Client) do(ctx context.Context, actorUID actoruid.UID, req *http.Reques
 
 	secretKey, err := c.secretsClient.Secret(ctx, secrets.LpaStoreJwtSecretKey)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	auth, err := token.SignedString([]byte(secretKey))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	req.Header.Add("X-Jwt-Authorization", "Bearer "+auth)
 
-	resp, err := c.doer.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	switch req.Method {
-	case http.MethodGet:
-		switch resp.StatusCode {
-		case http.StatusOK:
-			return json.NewDecoder(resp.Body).Decode(data)
-		case http.StatusNotFound:
-			return ErrNotFound
-		default:
-			body, _ := io.ReadAll(resp.Body)
-
-			return responseError{
-				name: fmt.Sprintf("expected 200 response but got %d", resp.StatusCode),
-				body: string(body),
-			}
-		}
-
-	case http.MethodPost, http.MethodPut:
-		if resp.StatusCode != http.StatusCreated {
-			body, _ := io.ReadAll(resp.Body)
-
-			return responseError{
-				name: fmt.Sprintf("expected 201 response but got %d", resp.StatusCode),
-				body: string(body),
-			}
-		}
-
-		return nil
-	}
-
-	return fmt.Errorf("unexpected http method %s", req.Method)
+	return c.doer.Do(req)
 }
 
 func (c *Client) CheckHealth(ctx context.Context) error {
