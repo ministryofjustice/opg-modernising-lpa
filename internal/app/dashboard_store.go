@@ -15,7 +15,7 @@ import (
 )
 
 type LpaStoreResolvingService interface {
-	Resolve(ctx context.Context, donor *actor.DonorProvidedDetails) (*lpastore.Lpa, error)
+	ResolveList(ctx context.Context, donors []*actor.DonorProvidedDetails) ([]*lpastore.Lpa, error)
 }
 
 // An lpaLink is used to join an actor to an LPA.
@@ -117,9 +117,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		return nil, nil, nil, err
 	}
 
-	certificateProviderMap := map[string]page.LpaAndActorTasks{}
-	attorneyMap := map[string]page.LpaAndActorTasks{}
-
+	var donorsDetails []*actor.DonorProvidedDetails
 	for _, item := range lpasOrProvidedDetails {
 		var ks keys
 		if err = attributevalue.UnmarshalMap(item, &ks); err != nil {
@@ -132,23 +130,28 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 				return nil, nil, nil, err
 			}
 
-			if donorDetails.LpaUID == "" {
-				continue
+			if donorDetails.LpaUID != "" {
+				donorsDetails = append(donorsDetails, donorDetails)
 			}
+		}
+	}
 
-			lpa, err := s.lpaStoreResolvingService.Resolve(ctx, donorDetails)
-			if err != nil {
-				return nil, nil, nil, err
-			}
+	resolvedLpas, err := s.lpaStoreResolvingService.ResolveList(ctx, donorsDetails)
+	if err != nil {
+		return nil, nil, nil, err
+	}
 
-			switch keyMap[donorDetails.LpaID] {
-			case actor.TypeDonor:
-				donor = append(donor, page.LpaAndActorTasks{Lpa: lpa})
-			case actor.TypeAttorney:
-				attorneyMap[donorDetails.LpaID] = page.LpaAndActorTasks{Lpa: lpa}
-			case actor.TypeCertificateProvider:
-				certificateProviderMap[donorDetails.LpaID] = page.LpaAndActorTasks{Lpa: lpa}
-			}
+	certificateProviderMap := map[string]page.LpaAndActorTasks{}
+	attorneyMap := map[string]page.LpaAndActorTasks{}
+
+	for _, lpa := range resolvedLpas {
+		switch keyMap[lpa.LpaID] {
+		case actor.TypeDonor:
+			donor = append(donor, page.LpaAndActorTasks{Lpa: lpa})
+		case actor.TypeAttorney:
+			attorneyMap[lpa.LpaID] = page.LpaAndActorTasks{Lpa: lpa}
+		case actor.TypeCertificateProvider:
+			certificateProviderMap[lpa.LpaID] = page.LpaAndActorTasks{Lpa: lpa}
 		}
 	}
 
@@ -201,10 +204,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 	attorney = mapValues(attorneyMap)
 
 	byUpdatedAt := func(a, b page.LpaAndActorTasks) int {
-		if a.Lpa.UpdatedAt.After(b.Lpa.UpdatedAt) {
-			return -1
-		}
-		return 1
+		return b.Lpa.UpdatedAt.Compare(a.Lpa.UpdatedAt)
 	}
 
 	slices.SortFunc(donor, byUpdatedAt)
