@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"slices"
 	"time"
@@ -200,7 +201,22 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 		return err
 	}
 
-	return c.do(ctx, donor.Donor.UID, req, nil)
+	resp, err := c.do(ctx, donor.Donor.UID, req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusCreated {
+		body, _ := io.ReadAll(resp.Body)
+
+		return responseError{
+			name: fmt.Sprintf("expected 201 response but got %d", resp.StatusCode),
+			body: string(body),
+		}
+	}
+
+	return nil
 }
 
 type lpaResponseAttorney struct {
@@ -569,10 +585,77 @@ func (c *Client) Lpa(ctx context.Context, lpaUID string) (*Lpa, error) {
 		return nil, err
 	}
 
-	var v lpaResponse
-	if err := c.do(ctx, actoruid.Service, req, &v); err != nil {
+	resp, err := c.do(ctx, actoruid.Service, req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	switch resp.StatusCode {
+	case http.StatusOK:
+		var v lpaResponse
+		if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+			return nil, err
+		}
+
+		return lpaResponseToLpa(v), nil
+
+	case http.StatusNotFound:
+		return nil, ErrNotFound
+	default:
+		body, _ := io.ReadAll(resp.Body)
+
+		return nil, responseError{
+			name: fmt.Sprintf("expected 200 response but got %d", resp.StatusCode),
+			body: string(body),
+		}
+	}
+}
+
+type lpasRequest struct {
+	UIDs []string `json:"uids"`
+}
+
+type lpasResponse struct {
+	Lpas []lpaResponse `json:"lpas"`
+}
+
+func (c *Client) Lpas(ctx context.Context, lpaUIDs []string) ([]*Lpa, error) {
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(lpasRequest{UIDs: lpaUIDs}); err != nil {
 		return nil, err
 	}
 
-	return lpaResponseToLpa(v), nil
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/lpas", &buf)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.do(ctx, actoruid.Service, req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+
+		return nil, responseError{
+			name: fmt.Sprintf("expected 200 response but got %d", resp.StatusCode),
+			body: string(body),
+		}
+	}
+
+	var v lpasResponse
+	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+		return nil, err
+	}
+
+	var lpas []*Lpa
+	for _, l := range v.Lpas {
+		lpas = append(lpas, lpaResponseToLpa(l))
+	}
+
+	return lpas, nil
 }
