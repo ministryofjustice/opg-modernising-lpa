@@ -1,8 +1,20 @@
 #tfsec:ignore:aws-cloudwatch-log-group-customer-key
 resource "aws_cloudwatch_log_group" "events" {
-  name              = "${data.aws_default_tags.current.tags.environment-name}-events"
+  name              = "/aws/events/${data.aws_default_tags.current.tags.environment-name}"
   retention_in_days = 1
   provider          = aws.region
+}
+
+resource "aws_cloudwatch_query_definition" "events" {
+  name            = "${data.aws_default_tags.current.tags.environment-name}/events"
+  log_group_names = [aws_cloudwatch_log_group.events.name]
+
+  query_string = <<EOF
+fields @timestamp, detail.eventName, detail.reason
+| sort @timestamp desc
+| limit 1000
+EOF
+  provider     = aws.region
 }
 
 resource "aws_cloudwatch_event_rule" "ecs_failed_deployment" {
@@ -15,7 +27,7 @@ resource "aws_cloudwatch_event_rule" "ecs_failed_deployment" {
       "detail-type" : ["ECS Deployment State Change"],
       "resources" : [{ "wildcard" : "arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:service/${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}/*" }],
       "detail" : {
-        "eventName" : ["ERROR"],
+        "eventType" : ["ERROR"],
         "eventName" : ["SERVICE_DEPLOYMENT_FAILED"]
       }
     }
