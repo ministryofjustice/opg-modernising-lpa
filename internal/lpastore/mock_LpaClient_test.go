@@ -80,6 +80,65 @@ func (_c *mockLpaClient_Lpa_Call) RunAndReturn(run func(context.Context, string)
 	return _c
 }
 
+// Lpas provides a mock function with given fields: ctx, lpaUIDs
+func (_m *mockLpaClient) Lpas(ctx context.Context, lpaUIDs []string) ([]*Lpa, error) {
+	ret := _m.Called(ctx, lpaUIDs)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Lpas")
+	}
+
+	var r0 []*Lpa
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, []string) ([]*Lpa, error)); ok {
+		return rf(ctx, lpaUIDs)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, []string) []*Lpa); ok {
+		r0 = rf(ctx, lpaUIDs)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*Lpa)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, []string) error); ok {
+		r1 = rf(ctx, lpaUIDs)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockLpaClient_Lpas_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Lpas'
+type mockLpaClient_Lpas_Call struct {
+	*mock.Call
+}
+
+// Lpas is a helper method to define mock.On call
+//   - ctx context.Context
+//   - lpaUIDs []string
+func (_e *mockLpaClient_Expecter) Lpas(ctx interface{}, lpaUIDs interface{}) *mockLpaClient_Lpas_Call {
+	return &mockLpaClient_Lpas_Call{Call: _e.mock.On("Lpas", ctx, lpaUIDs)}
+}
+
+func (_c *mockLpaClient_Lpas_Call) Run(run func(ctx context.Context, lpaUIDs []string)) *mockLpaClient_Lpas_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]string))
+	})
+	return _c
+}
+
+func (_c *mockLpaClient_Lpas_Call) Return(_a0 []*Lpa, _a1 error) *mockLpaClient_Lpas_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockLpaClient_Lpas_Call) RunAndReturn(run func(context.Context, []string) ([]*Lpa, error)) *mockLpaClient_Lpas_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // newMockLpaClient creates a new instance of mockLpaClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func newMockLpaClient(t interface {
