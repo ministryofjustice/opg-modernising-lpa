@@ -20,7 +20,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 	aTime := time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)
 
 	lpa0 := &lpastore.Lpa{LpaID: "0", LpaUID: "M", UpdatedAt: aTime}
-	donor0 := &actor.DonorProvidedDetails{LpaID: "0", LpaUID: "M", UpdatedAt: aTime, SK: dynamo.DonorKey(sessionID), PK: dynamo.LpaKey("0")}
+	lpa0Donor := &actor.DonorProvidedDetails{LpaID: "0", LpaUID: "M", UpdatedAt: aTime, SK: dynamo.DonorKey(sessionID), PK: dynamo.LpaKey("0")}
 	lpa123 := &lpastore.Lpa{LpaID: "123", LpaUID: "M", UpdatedAt: aTime}
 	lpa123Donor := &actor.DonorProvidedDetails{LpaID: "123", LpaUID: "M", UpdatedAt: aTime, SK: dynamo.DonorKey(sessionID), PK: dynamo.LpaKey("123")}
 	lpa456 := &lpastore.Lpa{LpaID: "456", LpaUID: "M"}
@@ -47,7 +47,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 			makeAttributeValueMap(lpa456CertificateProvider),
 			makeAttributeValueMap(lpa789Donor),
 			makeAttributeValueMap(lpa789Attorney),
-			makeAttributeValueMap(donor0),
+			makeAttributeValueMap(lpa0Donor),
 			makeAttributeValueMap(lpaCertifiedDonor),
 			makeAttributeValueMap(lpaCertifiedCertificateProvider),
 		},
@@ -59,8 +59,8 @@ func TestDashboardStoreGetAll(t *testing.T) {
 			makeAttributeValueMap(lpa123Donor),
 			makeAttributeValueMap(lpa456Donor),
 			makeAttributeValueMap(lpa789Donor),
+			makeAttributeValueMap(lpa0Donor),
 			makeAttributeValueMap(lpaCertifiedDonor),
-			makeAttributeValueMap(donor0),
 		},
 	}
 
@@ -91,11 +91,9 @@ func TestDashboardStoreGetAll(t *testing.T) {
 			}, attributeValues, nil)
 
 			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().Resolve(ctx, donor0).Return(lpa0, nil).Once()
-			lpaStoreResolvingService.EXPECT().Resolve(ctx, lpa123Donor).Return(lpa123, nil).Once()
-			lpaStoreResolvingService.EXPECT().Resolve(ctx, lpa456Donor).Return(lpa456, nil).Once()
-			lpaStoreResolvingService.EXPECT().Resolve(ctx, lpa789Donor).Return(lpa789, nil).Once()
-			lpaStoreResolvingService.EXPECT().Resolve(ctx, lpaCertifiedDonor).Return(lpaCertified, nil).Once()
+			lpaStoreResolvingService.EXPECT().
+				ResolveList(ctx, []*actor.DonorProvidedDetails{lpa123Donor, lpa456Donor, lpa789Donor, lpa0Donor, lpaCertifiedDonor}).
+				Return([]*lpastore.Lpa{lpa123, lpa456, lpa789, lpa0, lpaCertified}, nil)
 
 			dashboardStore := &dashboardStore{dynamoClient: dynamoClient, lpaStoreResolvingService: lpaStoreResolvingService}
 
@@ -140,8 +138,9 @@ func TestDashboardStoreGetAllSubmittedForAttorneys(t *testing.T) {
 	}, nil)
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().Resolve(ctx, lpaSubmittedDonor).Return(lpaSubmitted, nil)
-	lpaStoreResolvingService.EXPECT().Resolve(ctx, lpaSubmittedReplacementDonor).Return(lpaSubmittedReplacement, nil)
+	lpaStoreResolvingService.EXPECT().
+		ResolveList(ctx, []*actor.DonorProvidedDetails{lpaSubmittedDonor, lpaSubmittedReplacementDonor}).
+		Return([]*lpastore.Lpa{lpaSubmitted, lpaSubmittedReplacement}, nil)
 
 	dashboardStore := &dashboardStore{dynamoClient: dynamoClient, lpaStoreResolvingService: lpaStoreResolvingService}
 
@@ -176,7 +175,7 @@ func TestDashboardStoreGetAllWhenResolveErrors(t *testing.T) {
 	}, []map[string]types.AttributeValue{makeAttributeValueMap(donor)}, nil)
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().Resolve(ctx, mock.Anything).Return(nil, expectedError)
+	lpaStoreResolvingService.EXPECT().ResolveList(ctx, mock.Anything).Return(nil, expectedError)
 
 	dashboardStore := &dashboardStore{dynamoClient: dynamoClient, lpaStoreResolvingService: lpaStoreResolvingService}
 
