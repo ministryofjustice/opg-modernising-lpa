@@ -768,11 +768,139 @@ func TestClientServiceContract(t *testing.T) {
 
 		assert.Nil(t, err)
 	})
+
+	t.Run("Lpas", func(t *testing.T) {
+		mockProvider.
+			AddInteraction().
+			Given("An LPA with UID M-0000-1111-2222 exists").
+			UponReceiving("A request to get multiple lpas").
+			WithRequest(http.MethodPost, "/lpas", func(b *consumer.V2RequestBuilder) {
+				b.Header("Content-Type", matchers.String("application/json"))
+				b.JSONBody(lpasRequest{UIDs: []string{"M-0000-1111-2222"}})
+				// b.
+				// Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 .*")).
+				// Header("X-Amz-Date", matchers.String("20000102T000000Z")).
+				// Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+"))
+			}).
+			WillRespondWith(http.StatusOK, func(b *consumer.V2ResponseBuilder) {
+				// b.Header("Content-Type", matchers.String("application/json"))
+				b.JSONBody(matchers.Map{
+					"lpas": matchers.EachLike(matchers.Map{
+						"uid":     matchers.Regex("M-0000-1111-2222", "M(-[A-Z0-9]{4}){3}"),
+						"status":  matchers.String("processing"),
+						"lpaType": matchers.String("personal-welfare"),
+						"donor": matchers.Like(map[string]any{
+							"firstNames":  matchers.String("Homer"),
+							"lastName":    matchers.String("Zoller"),
+							"dateOfBirth": matchers.String("1960-04-06"),
+							"address": matchers.Like(map[string]any{
+								"line1":    matchers.String("79 Bury Rd"),
+								"town":     matchers.String("Hampton Lovett"),
+								"postcode": matchers.String("WR9 2PF"),
+								"country":  matchers.String("GB"),
+							}),
+						}),
+						"attorneys": matchers.EachLike(map[string]any{
+							"firstNames":  matchers.String("Jake"),
+							"lastName":    matchers.String("Valler"),
+							"dateOfBirth": matchers.String("2001-01-17"),
+							"address": matchers.Like(map[string]any{
+								"line1":   matchers.String("71 South Western Terrace"),
+								"town":    matchers.String("Milton"),
+								"country": matchers.String("AU"),
+							}),
+							"status": matchers.String("active"),
+						}, 1),
+						"certificateProvider": matchers.Like(map[string]any{
+							"firstNames": matchers.String("Some"),
+							"lastName":   matchers.String("Provider"),
+							"email":      matchers.String("some@example.com"),
+							"phone":      matchers.String("0700009000"),
+							"address": matchers.Like(map[string]any{
+								"line1":   matchers.String("71 South Western Terrace"),
+								"town":    matchers.String("Milton"),
+								"country": matchers.String("AU"),
+							}),
+							"channel": matchers.String("online"),
+						}),
+						"lifeSustainingTreatmentOption": matchers.String("option-a"),
+						"signedAt":                      matchers.String("2000-01-02T12:13:14Z"),
+					}, 1),
+				})
+			})
+
+		err := mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+			baseURL := fmt.Sprintf("http://%s:%d", config.Host, config.Port)
+
+			secretsClient := newMockSecretsClient(t)
+			secretsClient.EXPECT().
+				Secret(mock.Anything, mock.Anything).
+				Return("secret", nil)
+
+			client := &Client{
+				baseURL:       baseURL,
+				secretsClient: secretsClient,
+				doer:          lambda.New(cfg, v4.NewSigner(), http.DefaultClient, now),
+				now:           now,
+			}
+
+			lpas, err := client.Lpas(context.Background(), []string{"M-0000-1111-2222"})
+			if err != nil {
+				return err
+			}
+
+			assert.Equal(t, []*Lpa{{
+				LpaUID: "M-0000-1111-2222",
+				Type:   actor.LpaTypePersonalWelfare,
+				Donor: actor.Donor{
+					FirstNames:  "Homer",
+					LastName:    "Zoller",
+					DateOfBirth: date.New("1960", "04", "06"),
+					Address: place.Address{
+						Line1:      "79 Bury Rd",
+						TownOrCity: "Hampton Lovett",
+						Postcode:   "WR9 2PF",
+						Country:    "GB",
+					},
+				},
+				Attorneys: Attorneys{
+					Attorneys: []Attorney{{
+						FirstNames:  "Jake",
+						LastName:    "Valler",
+						DateOfBirth: date.New("2001", "01", "17"),
+						Address: place.Address{
+							Line1:      "71 South Western Terrace",
+							TownOrCity: "Milton",
+							Country:    "AU",
+						},
+					}},
+				},
+				CertificateProvider: CertificateProvider{
+					FirstNames: "Some",
+					LastName:   "Provider",
+					Email:      "some@example.com",
+					Phone:      "0700009000",
+					Address: place.Address{
+						Line1:      "71 South Western Terrace",
+						TownOrCity: "Milton",
+						Country:    "AU",
+					},
+					Channel: actor.ChannelOnline,
+				},
+				LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA,
+				SignedAt:                      time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
+			}}, lpas)
+			return nil
+		})
+
+		assert.Nil(t, err)
+	})
 }
 
-func TestClientDoWhenStatusNotFound(t *testing.T) {
-	ctx := context.Background()
+func TestClientDo(t *testing.T) {
+	expectedResponse := &http.Response{StatusCode: http.StatusNotFound, Body: io.NopCloser(strings.NewReader("hey"))}
 
+	ctx := context.Background()
 	req, _ := http.NewRequest(http.MethodGet, "", nil)
 
 	secretsClient := newMockSecretsClient(t)
@@ -783,33 +911,13 @@ func TestClientDoWhenStatusNotFound(t *testing.T) {
 	doer := newMockDoer(t)
 	doer.EXPECT().
 		Do(mock.Anything).
-		Return(&http.Response{StatusCode: http.StatusNotFound, Body: io.NopCloser(strings.NewReader("hey"))}, nil)
+		Return(expectedResponse, expectedError)
 
 	client := New("http://base", secretsClient, doer)
-	err := client.do(ctx, actoruid.New(), req, nil)
+	resp, err := client.do(ctx, actoruid.New(), req)
 
-	assert.Equal(t, ErrNotFound, err)
-}
-
-func TestClientDoWhenMethodUnsupported(t *testing.T) {
-	ctx := context.Background()
-
-	req, _ := http.NewRequest(http.MethodDelete, "", nil)
-
-	secretsClient := newMockSecretsClient(t)
-	secretsClient.EXPECT().
-		Secret(mock.Anything, mock.Anything).
-		Return("secret", nil)
-
-	doer := newMockDoer(t)
-	doer.EXPECT().
-		Do(mock.Anything).
-		Return(&http.Response{StatusCode: http.StatusBadRequest, Body: io.NopCloser(strings.NewReader("hey"))}, nil)
-
-	client := New("http://base", secretsClient, doer)
-	err := client.do(ctx, actoruid.New(), req, nil)
-
-	assert.Error(t, err)
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, expectedResponse, resp)
 }
 
 func TestCheckHealth(t *testing.T) {

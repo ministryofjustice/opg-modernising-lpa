@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -33,7 +34,22 @@ func (c *Client) sendUpdate(ctx context.Context, lpaUID string, actorUID actorui
 		return err
 	}
 
-	return c.do(ctx, actorUID, req, nil)
+	resp, err := c.do(ctx, actorUID, req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusCreated {
+		body, _ := io.ReadAll(resp.Body)
+
+		return responseError{
+			name: fmt.Sprintf("expected 201 response but got %d", resp.StatusCode),
+			body: string(body),
+		}
+	}
+
+	return nil
 }
 
 func (c *Client) SendRegister(ctx context.Context, lpaUID string) error {

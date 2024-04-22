@@ -25,29 +25,29 @@ func (_m *mockLpaStoreResolvingService) EXPECT() *mockLpaStoreResolvingService_E
 	return &mockLpaStoreResolvingService_Expecter{mock: &_m.Mock}
 }
 
-// Resolve provides a mock function with given fields: ctx, donor
-func (_m *mockLpaStoreResolvingService) Resolve(ctx context.Context, donor *actor.DonorProvidedDetails) (*lpastore.Lpa, error) {
-	ret := _m.Called(ctx, donor)
+// ResolveList provides a mock function with given fields: ctx, donors
+func (_m *mockLpaStoreResolvingService) ResolveList(ctx context.Context, donors []*actor.DonorProvidedDetails) ([]*lpastore.Lpa, error) {
+	ret := _m.Called(ctx, donors)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Resolve")
+		panic("no return value specified for ResolveList")
 	}
 
-	var r0 *lpastore.Lpa
+	var r0 []*lpastore.Lpa
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *actor.DonorProvidedDetails) (*lpastore.Lpa, error)); ok {
-		return rf(ctx, donor)
+	if rf, ok := ret.Get(0).(func(context.Context, []*actor.DonorProvidedDetails) ([]*lpastore.Lpa, error)); ok {
+		return rf(ctx, donors)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *actor.DonorProvidedDetails) *lpastore.Lpa); ok {
-		r0 = rf(ctx, donor)
+	if rf, ok := ret.Get(0).(func(context.Context, []*actor.DonorProvidedDetails) []*lpastore.Lpa); ok {
+		r0 = rf(ctx, donors)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*lpastore.Lpa)
+			r0 = ret.Get(0).([]*lpastore.Lpa)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *actor.DonorProvidedDetails) error); ok {
-		r1 = rf(ctx, donor)
+	if rf, ok := ret.Get(1).(func(context.Context, []*actor.DonorProvidedDetails) error); ok {
+		r1 = rf(ctx, donors)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -55,31 +55,31 @@ func (_m *mockLpaStoreResolvingService) Resolve(ctx context.Context, donor *acto
 	return r0, r1
 }
 
-// mockLpaStoreResolvingService_Resolve_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Resolve'
-type mockLpaStoreResolvingService_Resolve_Call struct {
+// mockLpaStoreResolvingService_ResolveList_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ResolveList'
+type mockLpaStoreResolvingService_ResolveList_Call struct {
 	*mock.Call
 }
 
-// Resolve is a helper method to define mock.On call
+// ResolveList is a helper method to define mock.On call
 //   - ctx context.Context
-//   - donor *actor.DonorProvidedDetails
-func (_e *mockLpaStoreResolvingService_Expecter) Resolve(ctx interface{}, donor interface{}) *mockLpaStoreResolvingService_Resolve_Call {
-	return &mockLpaStoreResolvingService_Resolve_Call{Call: _e.mock.On("Resolve", ctx, donor)}
+//   - donors []*actor.DonorProvidedDetails
+func (_e *mockLpaStoreResolvingService_Expecter) ResolveList(ctx interface{}, donors interface{}) *mockLpaStoreResolvingService_ResolveList_Call {
+	return &mockLpaStoreResolvingService_ResolveList_Call{Call: _e.mock.On("ResolveList", ctx, donors)}
 }
 
-func (_c *mockLpaStoreResolvingService_Resolve_Call) Run(run func(ctx context.Context, donor *actor.DonorProvidedDetails)) *mockLpaStoreResolvingService_Resolve_Call {
+func (_c *mockLpaStoreResolvingService_ResolveList_Call) Run(run func(ctx context.Context, donors []*actor.DonorProvidedDetails)) *mockLpaStoreResolvingService_ResolveList_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*actor.DonorProvidedDetails))
+		run(args[0].(context.Context), args[1].([]*actor.DonorProvidedDetails))
 	})
 	return _c
 }
 
-func (_c *mockLpaStoreResolvingService_Resolve_Call) Return(_a0 *lpastore.Lpa, _a1 error) *mockLpaStoreResolvingService_Resolve_Call {
+func (_c *mockLpaStoreResolvingService_ResolveList_Call) Return(_a0 []*lpastore.Lpa, _a1 error) *mockLpaStoreResolvingService_ResolveList_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockLpaStoreResolvingService_Resolve_Call) RunAndReturn(run func(context.Context, *actor.DonorProvidedDetails) (*lpastore.Lpa, error)) *mockLpaStoreResolvingService_Resolve_Call {
+func (_c *mockLpaStoreResolvingService_ResolveList_Call) RunAndReturn(run func(context.Context, []*actor.DonorProvidedDetails) ([]*lpastore.Lpa, error)) *mockLpaStoreResolvingService_ResolveList_Call {
 	_c.Call.Return(run)
 	return _c
 }
