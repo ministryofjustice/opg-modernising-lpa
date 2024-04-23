@@ -101,13 +101,13 @@ func TestClientIndex(t *testing.T) {
 		Return(nil, nil)
 
 	client := &Client{svc: svc, indexingEnabled: true}
-	err := client.Index(ctx, Lpa{DonorFullName: "x y", PK: "LPA#2020", SK: "abc#123"})
+	err := client.Index(ctx, Lpa{DonorFullName: "x y", PK: dynamo.LpaKey("2020"), SK: "abc#123"})
 	assert.Nil(t, err)
 }
 
 func TestClientIndexWhenNotEnabled(t *testing.T) {
 	client := &Client{}
-	err := client.Index(ctx, Lpa{DonorFullName: "x y", PK: "LPA#2020", SK: "abc#123"})
+	err := client.Index(ctx, Lpa{DonorFullName: "x y", PK: dynamo.LpaKey("2020"), SK: "abc#123"})
 	assert.Nil(t, err)
 }
 
@@ -118,7 +118,7 @@ func TestClientIndexWhenIndexErrors(t *testing.T) {
 		Return(nil, expectedError)
 
 	client := &Client{svc: svc, indexingEnabled: true}
-	err := client.Index(ctx, Lpa{DonorFullName: "x y", PK: "LPA#2020", SK: "abc#123"})
+	err := client.Index(ctx, Lpa{DonorFullName: "x y", PK: dynamo.LpaKey("2020"), SK: "abc#123"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -131,25 +131,25 @@ func TestClientQuery(t *testing.T) {
 	}{
 		"donor": {
 			session: &page.SessionData{SessionID: "abc"},
-			sk:      "#DONOR#abc",
+			sk:      dynamo.DonorKey("abc"),
 			from:    0,
 			page:    1,
 		},
 		"organisation": {
 			session: &page.SessionData{SessionID: "abc", OrganisationID: "xyz"},
-			sk:      "ORGANISATION#xyz",
+			sk:      dynamo.OrganisationKey("xyz"),
 			from:    0,
 			page:    1,
 		},
 		"donor paged": {
 			session: &page.SessionData{SessionID: "abc"},
-			sk:      "#DONOR#abc",
+			sk:      dynamo.DonorKey("abc"),
 			from:    40,
 			page:    5,
 		},
 		"organisation paged": {
 			session: &page.SessionData{SessionID: "abc", OrganisationID: "xyz"},
-			sk:      "ORGANISATION#xyz",
+			sk:      dynamo.OrganisationKey("xyz"),
 			from:    40,
 			page:    5,
 		},
@@ -239,7 +239,7 @@ func TestClientCountWithQuery(t *testing.T) {
 	}{
 		"no query - donor": {
 			query:   CountWithQueryReq{},
-			body:    []byte(`{"query":{"bool":{"must":{"match":{"SK":"#DONOR#1"}}}},"size":0,"track_total_hits":true}`),
+			body:    []byte(`{"query":{"bool":{"must":{"match":{"SK":"DONOR#1"}}}},"size":0,"track_total_hits":true}`),
 			session: &page.SessionData{SessionID: "1"},
 		},
 		"no query - organisation": {
@@ -249,7 +249,7 @@ func TestClientCountWithQuery(t *testing.T) {
 		},
 		"MustNotExist query - donor": {
 			query:   CountWithQueryReq{MustNotExist: "a-field"},
-			body:    []byte(`{"query":{"bool":{"must":{"match":{"SK":"#DONOR#1"}},"must_not":{"exists":{"field":"a-field"}}}},"size":0,"track_total_hits":true}`),
+			body:    []byte(`{"query":{"bool":{"must":{"match":{"SK":"DONOR#1"}},"must_not":{"exists":{"field":"a-field"}}}},"size":0,"track_total_hits":true}`),
 			session: &page.SessionData{SessionID: "1"},
 		},
 		"MustNotExist query - organisation": {
