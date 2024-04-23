@@ -3,8 +3,6 @@ package dynamo
 import (
 	"encoding/base64"
 	"fmt"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 )
 
 // LpaKey is used as the PK for all Lpa related information.
@@ -16,37 +14,37 @@ func LpaKey(s string) string {
 // information. It is set to PAPER when the donor information has been provided
 // from paper forms.
 func DonorKey(s string) string {
-	return "#DONOR#" + s
+	return "DONOR#" + s
 }
 
 // SubKey is used as the SK (with LpaKey as PK) to allow queries on a OneLogin
 // sub against all Lpas an actor may have provided information on.
 func SubKey(s string) string {
-	return "#SUB#" + s
+	return "SUB#" + s
 }
 
 // AttorneyKey is used as the SK (with LpaKey as PK) for attorney entered
 // information.
 func AttorneyKey(s string) string {
-	return "#ATTORNEY#" + s
+	return "ATTORNEY#" + s
 }
 
 // CertificateProviderKey is used as the SK (with LpaKey as PK) for certificate
 // provider entered information.
 func CertificateProviderKey(s string) string {
-	return "#CERTIFICATE_PROVIDER#" + s
+	return "CERTIFICATE_PROVIDER#" + s
 }
 
 // DocumentKey is used as the SK (with LpaKey as PK) for any documents uploaded
 // as evidence for reduced fees.
 func DocumentKey(s3Key string) string {
-	return "#DOCUMENT#" + s3Key
+	return "DOCUMENT#" + s3Key
 }
 
 // EvidenceReceivedKey is used as the SK (with LpaKey as PK) to show that paper
 // evidence has been submitted for an Lpa.
 func EvidenceReceivedKey() string {
-	return "#EVIDENCE_RECEIVED"
+	return "EVIDENCE_RECEIVED"
 }
 
 // OrganisationKey is used as the PK to group organisation data; or as the SK
@@ -77,7 +75,7 @@ func MemberIDKey(memberID string) string {
 
 // MetadataKey is used as the SK when the value of the SK is not used for any purpose.
 func MetadataKey(s string) string {
-	return "#METADATA#" + s
+	return "METADATA#" + s
 }
 
 // DonorShareKey is used as the PK for sharing an Lpa with a donor.
@@ -91,18 +89,12 @@ func DonorInviteKey(organisationID, lpaID string) string {
 	return "DONORINVITE#" + organisationID + "#" + lpaID
 }
 
-// ShareCodeKey is used as the PK for sharing an Lpa with another actor.
-func ShareCodeKey(actorType actor.Type, shareCode string) (pk string, err error) {
-	switch actorType {
-	case actor.TypeDonor:
-		return DonorShareKey(shareCode), nil
-	// As attorneys and replacement attorneys share the same landing page we can't
-	// differentiate between them
-	case actor.TypeAttorney, actor.TypeReplacementAttorney, actor.TypeTrustCorporation, actor.TypeReplacementTrustCorporation:
-		return "ATTORNEYSHARE#" + shareCode, nil
-	case actor.TypeCertificateProvider:
-		return "CERTIFICATEPROVIDERSHARE#" + shareCode, nil
-	default:
-		return "", fmt.Errorf("cannot have share code for actorType=%v", actorType)
-	}
+// CertificateProviderShareKey is used as the PK for sharing an Lpa with a donor.
+func CertificateProviderShareKey(code string) string {
+	return "CERTIFICATEPROVIDERSHARE#" + code
+}
+
+// AttorneyShareKey is used as the PK for sharing an Lpa with a donor.
+func AttorneyShareKey(code string) string {
+	return "ATTORNEYSHARE#" + code
 }
