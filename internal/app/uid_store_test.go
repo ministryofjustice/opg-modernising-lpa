@@ -21,7 +21,7 @@ func TestUidStoreSet(t *testing.T) {
 		},
 		"organisation": {
 			organisationID: "org-id",
-			sk:             "ORGANISATION#org-id",
+			sk:             dynamo.OrganisationKey("org-id"),
 		},
 	}
 
@@ -41,14 +41,14 @@ func TestUidStoreSet(t *testing.T) {
 
 			dynamoClient := newMockDynamoUpdateClient(t)
 			dynamoClient.EXPECT().
-				UpdateReturn(ctx, "LPA#lpa-id", tc.sk, values,
+				UpdateReturn(ctx, dynamo.LpaKey("lpa-id"), tc.sk, values,
 					"set LpaUID = :uid, UpdatedAt = :now").
 				Return(returnValues, nil)
 
 			searchClient := newMockSearchClient(t)
 			searchClient.EXPECT().
 				Index(ctx, search.Lpa{
-					PK:            "LPA#lpa-id",
+					PK:            dynamo.LpaKey("lpa-id"),
 					SK:            tc.sk,
 					DonorFullName: "x y",
 				}).
@@ -69,7 +69,7 @@ func TestUidStoreSetWhenDynamoClientError(t *testing.T) {
 
 	dynamoClient := newMockDynamoUpdateClient(t)
 	dynamoClient.EXPECT().
-		UpdateReturn(ctx, "LPA#lpa-id", dynamo.DonorKey("session-id"), values,
+		UpdateReturn(ctx, dynamo.LpaKey("lpa-id"), dynamo.DonorKey("session-id"), values,
 			"set LpaUID = :uid, UpdatedAt = :now").
 		Return(nil, expectedError)
 
