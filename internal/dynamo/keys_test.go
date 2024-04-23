@@ -13,15 +13,15 @@ func TestStringKeys(t *testing.T) {
 		prefix string
 	}{
 		"LpaKey":                 {LpaKey, "LPA#"},
-		"DonorKey":               {DonorKey, "#DONOR#"},
-		"SubKey":                 {SubKey, "#SUB#"},
-		"AttorneyKey":            {AttorneyKey, "#ATTORNEY#"},
-		"CertificateProviderKey": {CertificateProviderKey, "#CERTIFICATE_PROVIDER#"},
-		"DocumentKey":            {DocumentKey, "#DOCUMENT#"},
+		"DonorKey":               {DonorKey, "DONOR#"},
+		"SubKey":                 {SubKey, "SUB#"},
+		"AttorneyKey":            {AttorneyKey, "ATTORNEY#"},
+		"CertificateProviderKey": {CertificateProviderKey, "CERTIFICATE_PROVIDER#"},
+		"DocumentKey":            {DocumentKey, "DOCUMENT#"},
 		"MemberKey":              {MemberKey, "MEMBER#"},
 		"MemberIDKey":            {MemberIDKey, "MEMBERID#"},
 		"OrganisationKey":        {OrganisationKey, "ORGANISATION#"},
-		"MetadataKey":            {MetadataKey, "#METADATA#"},
+		"MetadataKey":            {MetadataKey, "METADATA#"},
 		"DonorShareKey":          {DonorShareKey, "DONORSHARE#"},
 	}
 
@@ -33,7 +33,7 @@ func TestStringKeys(t *testing.T) {
 }
 
 func TestEvidenceReceivedKey(t *testing.T) {
-	assert.Equal(t, "#EVIDENCE_RECEIVED", EvidenceReceivedKey())
+	assert.Equal(t, "EVIDENCE_RECEIVED", EvidenceReceivedKey())
 }
 
 func TestMemberInviteKey(t *testing.T) {
