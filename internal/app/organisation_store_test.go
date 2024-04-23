@@ -17,8 +17,8 @@ func TestOrganisationStoreCreate(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
 		Create(ctx, &actor.Organisation{
-			PK:        "ORGANISATION#a-uuid",
-			SK:        "ORGANISATION#a-uuid",
+			PK:        dynamo.OrganisationKey("a-uuid"),
+			SK:        dynamo.OrganisationKey("a-uuid"),
 			ID:        "a-uuid",
 			CreatedAt: testNow,
 			Name:      "A name",
@@ -30,8 +30,8 @@ func TestOrganisationStoreCreate(t *testing.T) {
 	organisation, err := organisationStore.Create(ctx, &actor.Member{OrganisationID: "a-uuid"}, "A name")
 	assert.Nil(t, err)
 	assert.Equal(t, &actor.Organisation{
-		PK:        "ORGANISATION#a-uuid",
-		SK:        "ORGANISATION#a-uuid",
+		PK:        dynamo.OrganisationKey("a-uuid"),
+		SK:        dynamo.OrganisationKey("a-uuid"),
 		ID:        "a-uuid",
 		CreatedAt: testNow,
 		Name:      "A name",
@@ -74,12 +74,12 @@ func TestOrganisationStoreGet(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "session-id"})
 	organisation := &actor.Organisation{Name: "A name"}
 
-	member := actor.Member{PK: "ORGANISATION#a-uuid"}
+	member := actor.Member{PK: dynamo.OrganisationKey("a-uuid")}
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOneBySK(ctx, "MEMBER#session-id", member, nil)
+		ExpectOneBySK(ctx, dynamo.MemberKey("session-id"), member, nil)
 	dynamoClient.
-		ExpectOne(ctx, "ORGANISATION#a-uuid", "ORGANISATION#a-uuid", organisation, nil)
+		ExpectOne(ctx, dynamo.OrganisationKey("a-uuid"), dynamo.OrganisationKey("a-uuid"), organisation, nil)
 
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
@@ -92,12 +92,12 @@ func TestOrganisationStoreGetWhenOrganisationDeleted(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "session-id"})
 	organisation := &actor.Organisation{Name: "A name", DeletedAt: testNow}
 
-	member := actor.Member{PK: "ORGANISATION#a-uuid"}
+	member := actor.Member{PK: dynamo.OrganisationKey("a-uuid")}
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOneBySK(ctx, "MEMBER#session-id", member, nil)
+		ExpectOneBySK(ctx, dynamo.MemberKey("session-id"), member, nil)
 	dynamoClient.
-		ExpectOne(ctx, "ORGANISATION#a-uuid", "ORGANISATION#a-uuid", organisation, nil)
+		ExpectOne(ctx, dynamo.OrganisationKey("a-uuid"), dynamo.OrganisationKey("a-uuid"), organisation, nil)
 
 	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
@@ -137,17 +137,17 @@ func TestOrganisationStoreGetWhenErrors(t *testing.T) {
 	}
 
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "session-id"})
-	member := actor.Member{PK: "ORGANISATION#a-uuid"}
+	member := actor.Member{PK: dynamo.OrganisationKey("a-uuid")}
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.
-				ExpectOneBySK(ctx, "MEMBER#session-id", member, tc.oneBySKError)
+				ExpectOneBySK(ctx, dynamo.MemberKey("session-id"), member, tc.oneBySKError)
 
 			if tc.oneError != nil {
 				dynamoClient.
-					ExpectOne(ctx, "ORGANISATION#a-uuid", "ORGANISATION#a-uuid", nil, tc.oneError)
+					ExpectOne(ctx, dynamo.OrganisationKey("a-uuid"), dynamo.OrganisationKey("a-uuid"), nil, tc.oneError)
 			}
 
 			organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
@@ -163,7 +163,7 @@ func TestOrganisationStorePut(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		Put(ctx, &actor.Organisation{PK: "ORGANISATION#123", SK: "ORGANISATION#456", Name: "Hey", UpdatedAt: testNow}).
+		Put(ctx, &actor.Organisation{PK: dynamo.OrganisationKey("123"), SK: dynamo.OrganisationKey("456"), Name: "Hey", UpdatedAt: testNow}).
 		Return(expectedError)
 
 	store := &organisationStore{
@@ -171,15 +171,15 @@ func TestOrganisationStorePut(t *testing.T) {
 		now:          testNowFn,
 	}
 
-	err := store.Put(ctx, &actor.Organisation{PK: "ORGANISATION#123", SK: "ORGANISATION#456", Name: "Hey"})
+	err := store.Put(ctx, &actor.Organisation{PK: dynamo.OrganisationKey("123"), SK: dynamo.OrganisationKey("456"), Name: "Hey"})
 	assert.Equal(t, expectedError, err)
 }
 
 func TestOrganisationStoreCreateLPA(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
 	expectedDonor := &actor.DonorProvidedDetails{
-		PK:        "LPA#a-uuid",
-		SK:        "ORGANISATION#an-id",
+		PK:        dynamo.LpaKey("a-uuid"),
+		SK:        dynamo.OrganisationKey("an-id"),
 		LpaID:     "a-uuid",
 		CreatedAt: testNow,
 		Version:   1,

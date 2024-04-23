@@ -2,9 +2,6 @@ package dynamo
 
 import (
 	"encoding/base64"
-	"fmt"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 )
 
 // LpaKey is used as the PK for all Lpa related information.
@@ -66,7 +63,7 @@ func MemberKey(sessionID string) string {
 // MemberInviteKey is used as the SK (with OrganisationKey as PK) for a member
 // invite.
 func MemberInviteKey(email string) string {
-	return fmt.Sprintf("MEMBERINVITE#%s", base64.StdEncoding.EncodeToString([]byte(email)))
+	return "MEMBERINVITE#" + base64.StdEncoding.EncodeToString([]byte(email))
 }
 
 // MemberIDKey is used as the SK (with OrganisationKey as PK) to allow
@@ -91,18 +88,12 @@ func DonorInviteKey(organisationID, lpaID string) string {
 	return "DONORINVITE#" + organisationID + "#" + lpaID
 }
 
-// ShareCodeKey is used as the PK for sharing an Lpa with another actor.
-func ShareCodeKey(actorType actor.Type, shareCode string) (pk string, err error) {
-	switch actorType {
-	case actor.TypeDonor:
-		return DonorShareKey(shareCode), nil
-	// As attorneys and replacement attorneys share the same landing page we can't
-	// differentiate between them
-	case actor.TypeAttorney, actor.TypeReplacementAttorney, actor.TypeTrustCorporation, actor.TypeReplacementTrustCorporation:
-		return "ATTORNEYSHARE#" + shareCode, nil
-	case actor.TypeCertificateProvider:
-		return "CERTIFICATEPROVIDERSHARE#" + shareCode, nil
-	default:
-		return "", fmt.Errorf("cannot have share code for actorType=%v", actorType)
-	}
+// CertificateProviderShareKey is used as the PK for sharing an Lpa with a donor.
+func CertificateProviderShareKey(code string) string {
+	return "CERTIFICATEPROVIDERSHARE#" + code
+}
+
+// AttorneyShareKey is used as the PK for sharing an Lpa with a donor.
+func AttorneyShareKey(code string) string {
+	return "ATTORNEYSHARE#" + code
 }

@@ -19,15 +19,15 @@ func TestShareCodeStoreGet(t *testing.T) {
 	}{
 		"attorney": {
 			t:  actor.TypeAttorney,
-			pk: "ATTORNEYSHARE#123",
+			pk: dynamo.AttorneyShareKey("123"),
 		},
 		"replacement attorney": {
 			t:  actor.TypeReplacementAttorney,
-			pk: "ATTORNEYSHARE#123",
+			pk: dynamo.AttorneyShareKey("123"),
 		},
 		"certificate provider": {
 			t:  actor.TypeCertificateProvider,
-			pk: "CERTIFICATEPROVIDERSHARE#123",
+			pk: dynamo.CertificateProviderShareKey("123"),
 		},
 	}
 
@@ -55,7 +55,7 @@ func TestShareCodeStoreGetWhenLinked(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOneByPK(ctx, "DONORSHARE#123",
+		ExpectOneByPK(ctx, dynamo.DonorShareKey("123"),
 			actor.ShareCodeData{LpaLinkedAt: time.Now()}, nil)
 
 	shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}
@@ -79,7 +79,7 @@ func TestShareCodeStoreGetOnError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOneByPK(ctx, "ATTORNEYSHARE#123",
+		ExpectOneByPK(ctx, dynamo.AttorneyShareKey("123"),
 			data, expectedError)
 
 	shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}
@@ -112,15 +112,15 @@ func TestShareCodeStorePut(t *testing.T) {
 	}{
 		"attorney": {
 			actor: actor.TypeAttorney,
-			pk:    "ATTORNEYSHARE#123",
+			pk:    dynamo.AttorneyShareKey("123"),
 		},
 		"replacement attorney": {
 			actor: actor.TypeReplacementAttorney,
-			pk:    "ATTORNEYSHARE#123",
+			pk:    dynamo.AttorneyShareKey("123"),
 		},
 		"certificate provider": {
 			actor: actor.TypeCertificateProvider,
-			pk:    "CERTIFICATEPROVIDERSHARE#123",
+			pk:    dynamo.CertificateProviderShareKey("123"),
 		},
 	}
 
@@ -181,7 +181,7 @@ func TestShareCodeStoreGetDonor(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOneBySK(ctx, "DONORINVITE#org-id#lpa-id",
+		ExpectOneBySK(ctx, dynamo.DonorInviteKey("org-id", "lpa-id"),
 			data, expectedError)
 
 	shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}
@@ -205,8 +205,8 @@ func TestShareCodeStorePutDonor(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
 		Put(ctx, actor.ShareCodeData{
-			PK:        "DONORSHARE#123",
-			SK:        "DONORINVITE#org-id#lpa-id",
+			PK:        dynamo.DonorShareKey("123"),
+			SK:        dynamo.DonorInviteKey("org-id", "lpa-id"),
 			SessionID: "org-id",
 			LpaID:     "lpa-id",
 			UpdatedAt: testNow,
@@ -245,4 +245,28 @@ func TestShareCodeStoreDeleteOnError(t *testing.T) {
 
 	err := shareCodeStore.Delete(ctx, actor.ShareCodeData{})
 	assert.Equal(t, expectedError, err)
+}
+
+func TestShareCodeKey(t *testing.T) {
+	testcases := map[actor.Type]string{
+		actor.TypeDonor:                       dynamo.DonorShareKey("S"),
+		actor.TypeAttorney:                    dynamo.AttorneyShareKey("S"),
+		actor.TypeReplacementAttorney:         dynamo.AttorneyShareKey("S"),
+		actor.TypeTrustCorporation:            dynamo.AttorneyShareKey("S"),
+		actor.TypeReplacementTrustCorporation: dynamo.AttorneyShareKey("S"),
+		actor.TypeCertificateProvider:         dynamo.CertificateProviderShareKey("S"),
+	}
+
+	for actorType, prefix := range testcases {
+		t.Run(actorType.String(), func(t *testing.T) {
+			pk, err := shareCodeKey(actorType, "S")
+			assert.Nil(t, err)
+			assert.Equal(t, prefix, pk)
+		})
+	}
+}
+
+func TestShareCodeKeyWhenUnknownType(t *testing.T) {
+	_, err := shareCodeKey(actor.TypeAuthorisedSignatory, "S")
+	assert.NotNil(t, err)
 }
