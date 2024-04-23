@@ -218,8 +218,8 @@ func Supporter(
 					}
 
 					invite := &actor.MemberInvite{
-						PK:               "ORGANISATION#" + org.ID,
-						SK:               "MEMBERINVITE#" + base64.StdEncoding.EncodeToString([]byte(email)),
+						PK:               dynamo.OrganisationKey(org.ID),
+						SK:               dynamo.MemberInviteKey(email),
 						CreatedAt:        now,
 						OrganisationID:   org.ID,
 						OrganisationName: org.Name,
