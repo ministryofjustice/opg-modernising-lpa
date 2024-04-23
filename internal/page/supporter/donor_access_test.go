@@ -399,7 +399,7 @@ func TestPostDonorAccessRemove(t *testing.T) {
 		Delete(r.Context(), shareCodeData).
 		Return(nil)
 
-	donor := &actor.DonorProvidedDetails{SK: "#DONOR#donor-session-id"}
+	donor := &actor.DonorProvidedDetails{SK: dynamo.DonorKey("donor-session-id")}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -436,7 +436,7 @@ func TestPostDonorAccessRemoveWhenDonorHasPaid(t *testing.T) {
 		GetDonor(r.Context()).
 		Return(shareCodeData, nil)
 
-	donor := &actor.DonorProvidedDetails{SK: "#DONOR#donor-session-id", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}}
+	donor := &actor.DonorProvidedDetails{SK: dynamo.DonorKey("donor-session-id"), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -465,7 +465,7 @@ func TestPostDonorAccessRemoveWhenDeleteError(t *testing.T) {
 		Delete(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	donor := &actor.DonorProvidedDetails{SK: "#DONOR#donor-session-id"}
+	donor := &actor.DonorProvidedDetails{SK: dynamo.DonorKey("donor-session-id")}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -494,7 +494,7 @@ func TestPostDonorAccessRemoveWhenDeleteLinkError(t *testing.T) {
 		Delete(mock.Anything, mock.Anything).
 		Return(nil)
 
-	donor := &actor.DonorProvidedDetails{SK: "#DONOR#donor-session-id"}
+	donor := &actor.DonorProvidedDetails{SK: dynamo.DonorKey("donor-session-id")}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().

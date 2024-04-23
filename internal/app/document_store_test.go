@@ -31,7 +31,7 @@ func TestDocumentStoreGetAll(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		On("AllByPartialSK", ctx, "LPA#123", "#DOCUMENT#", mock.Anything).
+		On("AllByPartialSK", ctx, "LPA#123", dynamo.DocumentKey(""), mock.Anything).
 		Return(func(ctx context.Context, pk, partialSk string, v interface{}) error {
 			b, _ := json.Marshal(page.Documents{{PK: "LPA#123"}})
 			json.Unmarshal(b, v)
@@ -67,7 +67,7 @@ func TestDocumentStoreGetAllWhenDynamoClientAllByPartialSKError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		On("AllByPartialSK", ctx, "LPA#123", "#DOCUMENT#", mock.Anything).
+		On("AllByPartialSK", ctx, "LPA#123", dynamo.DocumentKey(""), mock.Anything).
 		Return(func(ctx context.Context, pk, partialSk string, v interface{}) error {
 			b, _ := json.Marshal(page.Documents{{PK: "LPA#123"}})
 			json.Unmarshal(b, v)
@@ -85,7 +85,7 @@ func TestDocumentStoreGetAllWhenNoResults(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		On("AllByPartialSK", ctx, "LPA#123", "#DOCUMENT#", mock.Anything).
+		On("AllByPartialSK", ctx, "LPA#123", dynamo.DocumentKey(""), mock.Anything).
 		Return(func(ctx context.Context, pk, partialSk string, v interface{}) error {
 			b, _ := json.Marshal(page.Documents{})
 			json.Unmarshal(b, v)
@@ -106,7 +106,7 @@ func TestDocumentStoreUpdateScanResults(t *testing.T) {
 		Update(
 			ctx,
 			"LPA#123",
-			"#DOCUMENT#object/key",
+			dynamo.DocumentKey("object/key"),
 			map[string]types.AttributeValue{
 				":virusDetected": &types.AttributeValueMemberBOOL{Value: true},
 				":scanned":       &types.AttributeValueMemberBOOL{Value: true},
@@ -127,7 +127,7 @@ func TestDocumentStoreUpdateScanResultsWhenUpdateError(t *testing.T) {
 		Update(
 			ctx,
 			"LPA#123",
-			"#DOCUMENT#object/key",
+			dynamo.DocumentKey("object/key"),
 			map[string]types.AttributeValue{
 				":virusDetected": &types.AttributeValueMemberBOOL{Value: true},
 				":scanned":       &types.AttributeValueMemberBOOL{Value: true},
@@ -439,7 +439,7 @@ func TestDocumentCreate(t *testing.T) {
 
 	expectedDocument := page.Document{
 		PK:       "LPA#lpa-id",
-		SK:       "#DOCUMENT#lpa-uid/evidence/a-uuid",
+		SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uuid"),
 		Filename: "a-filename",
 		Key:      "lpa-uid/evidence/a-uuid",
 		Uploaded: now,

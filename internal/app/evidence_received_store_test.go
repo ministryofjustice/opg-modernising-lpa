@@ -14,7 +14,7 @@ func TestEvidenceReceivedStoreGet(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOne(ctx, "LPA#an-id", "#EVIDENCE_RECEIVED", nil, nil)
+	dynamoClient.ExpectOne(ctx, "LPA#an-id", dynamo.EvidenceReceivedKey(), nil, nil)
 
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: dynamoClient}
 
@@ -27,7 +27,7 @@ func TestEvidenceReceivedStoreGetWhenFalse(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOne(ctx, "LPA#an-id", "#EVIDENCE_RECEIVED", nil, dynamo.NotFoundError{})
+	dynamoClient.ExpectOne(ctx, "LPA#an-id", dynamo.EvidenceReceivedKey(), nil, dynamo.NotFoundError{})
 
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: dynamoClient}
 
@@ -49,7 +49,7 @@ func TestEvidenceReceivedStoreGetWhenDataStoreError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOne(ctx, "LPA#an-id", "#EVIDENCE_RECEIVED", &actor.DonorProvidedDetails{LpaID: "an-id"}, expectedError)
+	dynamoClient.ExpectOne(ctx, "LPA#an-id", dynamo.EvidenceReceivedKey(), &actor.DonorProvidedDetails{LpaID: "an-id"}, expectedError)
 
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: dynamoClient}
 
