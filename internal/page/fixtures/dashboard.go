@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -17,6 +18,7 @@ func Dashboard(
 	donorStore page.DonorStore,
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
+	lpaStoreClient *lpastore.Client,
 ) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		acceptCookiesConsent(w)
@@ -53,12 +55,16 @@ func Dashboard(
 			donor.LpaUID = makeUID()
 			donor.Donor = makeDonor()
 			donor.Type = actor.LpaTypePropertyAndAffairs
-
+			donor.CertificateProvider = makeCertificateProvider()
 			donor.Attorneys = actor.Attorneys{
 				Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},
 			}
 
 			if err := donorStore.Put(donorCtx, donor); err != nil {
+				return err
+			}
+
+			if err := lpaStoreClient.SendLpa(donorCtx, donor); err != nil {
 				return err
 			}
 		}
