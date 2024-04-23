@@ -192,7 +192,7 @@ func TestResolvingServiceGetWhenLpaClientErrors(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		GetAny(ctx).
-		Return(&actor.DonorProvidedDetails{}, nil)
+		Return(&actor.DonorProvidedDetails{LpaUID: "M-1111"}, nil)
 
 	lpaClient := newMockLpaClient(t)
 	lpaClient.EXPECT().
