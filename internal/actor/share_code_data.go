@@ -9,7 +9,7 @@ import (
 
 type ShareCodeData struct {
 	PK                    dynamo.ShareKeyType
-	SK                    dynamo.ShareKeySKType
+	SK                    dynamo.ShareSortKeyType
 	UpdatedAt             time.Time
 	SessionID             string
 	LpaID                 string

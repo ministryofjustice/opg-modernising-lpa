@@ -59,15 +59,15 @@ func (s *shareCodeStore) Put(ctx context.Context, actorType actor.Type, shareCod
 		return err
 	}
 
-	data.PK = dynamo.ShareKey(pk)
-	data.SK = dynamo.ShareKeySK(dynamo.MetadataKey(shareCode))
+	data.PK = pk
+	data.SK = dynamo.ShareSortKey(dynamo.MetadataKey(shareCode))
 
 	return s.dynamoClient.Put(ctx, data)
 }
 
 func (s *shareCodeStore) PutDonor(ctx context.Context, shareCode string, data actor.ShareCodeData) error {
 	data.PK = dynamo.ShareKey(dynamo.DonorShareKey(shareCode))
-	data.SK = dynamo.ShareKeySK(dynamo.DonorInviteKey(data.SessionID, data.LpaID))
+	data.SK = dynamo.ShareSortKey(dynamo.DonorInviteKey(data.SessionID, data.LpaID))
 	data.UpdatedAt = s.now()
 
 	return s.dynamoClient.Put(ctx, data)
@@ -91,17 +91,17 @@ func (s *shareCodeStore) Delete(ctx context.Context, shareCode actor.ShareCodeDa
 	return s.dynamoClient.DeleteOne(ctx, shareCode.PK, shareCode.SK)
 }
 
-func shareCodeKey(actorType actor.Type, shareCode string) (pk dynamo.PK, err error) {
+func shareCodeKey(actorType actor.Type, shareCode string) (pk dynamo.ShareKeyType, err error) {
 	switch actorType {
 	case actor.TypeDonor:
-		return dynamo.DonorShareKey(shareCode), nil
+		return dynamo.ShareKey(dynamo.DonorShareKey(shareCode)), nil
 	// As attorneys and replacement attorneys share the same landing page we can't
 	// differentiate between them
 	case actor.TypeAttorney, actor.TypeReplacementAttorney, actor.TypeTrustCorporation, actor.TypeReplacementTrustCorporation:
-		return dynamo.AttorneyShareKey(shareCode), nil
+		return dynamo.ShareKey(dynamo.AttorneyShareKey(shareCode)), nil
 	case actor.TypeCertificateProvider:
-		return dynamo.CertificateProviderShareKey(shareCode), nil
+		return dynamo.ShareKey(dynamo.CertificateProviderShareKey(shareCode)), nil
 	default:
-		return nil, fmt.Errorf("cannot have share code for actorType=%v", actorType)
+		return dynamo.ShareKey(nil), fmt.Errorf("cannot have share code for actorType=%v", actorType)
 	}
 }
