@@ -41,7 +41,7 @@ func TestHandleObjectTagsAdded(t *testing.T) {
 			dynamoClient.
 				On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 				Return(func(ctx context.Context, uid string, v interface{}) error {
-					b, _ := json.Marshal(dynamo.Key{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+					b, _ := json.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
 					json.Unmarshal(b, v)
 					return nil
 				})
@@ -127,7 +127,7 @@ func TestHandleObjectTagsAddedWhenDynamoClientOneByUIDError(t *testing.T) {
 	dynamoClient.
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(dynamo.Key{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+			b, _ := json.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
 			json.Unmarshal(b, v)
 			return nil
 		})
@@ -161,7 +161,7 @@ func TestHandleObjectTagsAddedWhenDocumentStoreUpdateScanResultsError(t *testing
 	dynamoClient.
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(dynamo.Key{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+			b, _ := json.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
 			json.Unmarshal(b, v)
 			return nil
 		})
@@ -189,7 +189,7 @@ func TestGetLpaByUID(t *testing.T) {
 	client.
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(dynamo.Key{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+			b, _ := json.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
 			json.Unmarshal(b, v)
 			return nil
 		})
@@ -224,7 +224,7 @@ func TestGetLpaByUIDWhenPKMissing(t *testing.T) {
 	client.
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(dynamo.Key{SK: dynamo.DonorKey("456")})
+			b, _ := json.Marshal(dynamo.Keys{SK: dynamo.DonorKey("456")})
 			json.Unmarshal(b, v)
 			return nil
 		})
@@ -240,7 +240,7 @@ func TestGetLpaByUIDWhenClientOneError(t *testing.T) {
 	client.
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(dynamo.Key{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+			b, _ := json.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
 			json.Unmarshal(b, v)
 			return nil
 		})

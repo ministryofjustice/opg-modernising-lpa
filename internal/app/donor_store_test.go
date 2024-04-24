@@ -94,7 +94,7 @@ func (m *mockDynamoClient) ExpectLatestForActor(ctx, sk, data interface{}, err e
 		})
 }
 
-func (m *mockDynamoClient) ExpectAllByKeys(ctx context.Context, keys []dynamo.Key, data interface{}, err error) {
+func (m *mockDynamoClient) ExpectAllByKeys(ctx context.Context, keys []dynamo.Keys, data interface{}, err error) {
 	m.
 		On("AllByKeys", ctx, keys, mock.Anything).
 		Return(data, err)
@@ -252,7 +252,7 @@ func TestDonorStoreLatestWhenDataStoreError(t *testing.T) {
 }
 
 func TestDonorStoreGetByKeys(t *testing.T) {
-	keys := []dynamo.Key{{}}
+	keys := []dynamo.Keys{{}}
 	donors := []actor.DonorProvidedDetails{{LpaID: "1"}, {LpaID: "2"}}
 	av0, _ := attributevalue.MarshalMap(donors[0])
 	av1, _ := attributevalue.MarshalMap(donors[1])
@@ -269,7 +269,7 @@ func TestDonorStoreGetByKeys(t *testing.T) {
 }
 
 func TestDonorStoreGetByKeysWhenNoKeys(t *testing.T) {
-	keys := []dynamo.Key{}
+	keys := []dynamo.Keys{}
 
 	donorStore := &donorStore{}
 
@@ -279,7 +279,7 @@ func TestDonorStoreGetByKeysWhenNoKeys(t *testing.T) {
 }
 
 func TestDonorStoreGetByKeysWhenDynamoErrors(t *testing.T) {
-	keys := []dynamo.Key{{}}
+	keys := []dynamo.Keys{{}}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllByKeys(ctx, keys,
@@ -844,7 +844,7 @@ func TestDonorStoreLinkWhenError(t *testing.T) {
 func TestDonorStoreDelete(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", LpaID: "123"})
 
-	keys := []dynamo.Key{
+	keys := []dynamo.Keys{
 		{PK: dynamo.LpaKey("123"), SK: "sk1"},
 		{PK: dynamo.LpaKey("123"), SK: "sk2"},
 		{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("an-id")},
@@ -867,7 +867,7 @@ func TestDonorStoreDelete(t *testing.T) {
 func TestDonorStoreDeleteWhenOtherDonor(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", LpaID: "123"})
 
-	keys := []dynamo.Key{
+	keys := []dynamo.Keys{
 		{PK: dynamo.LpaKey("123"), SK: "sk1"},
 		{PK: dynamo.LpaKey("123"), SK: "sk2"},
 		{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("another-id")},
@@ -904,7 +904,7 @@ func TestDonorStoreDeleteWhenDeleteKeysErrors(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
 		AllKeysByPK(ctx, dynamo.LpaKey("123")).
-		Return([]dynamo.Key{{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("an-id")}}, nil)
+		Return([]dynamo.Keys{{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("an-id")}}, nil)
 	dynamoClient.EXPECT().
 		DeleteKeys(ctx, mock.Anything).
 		Return(expectedError)

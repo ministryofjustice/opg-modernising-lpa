@@ -184,7 +184,7 @@ func TestClientQuery(t *testing.T) {
 			assert.Nil(t, err)
 			assert.Equal(t, result, &QueryResponse{
 				Pagination: newPagination(10, tc.page, 10),
-				Keys: []dynamo.Key{
+				Keys: []dynamo.Keys{
 					{PK: "abc#123", SK: "xyz#456"},
 					{PK: "abc#456", SK: "xyz#789"},
 				},
