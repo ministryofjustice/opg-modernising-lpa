@@ -50,7 +50,7 @@ type MemberStore interface {
 type DonorStore interface {
 	DeleteLink(ctx context.Context, shareCodeData actor.ShareCodeData) error
 	Get(ctx context.Context) (*actor.DonorProvidedDetails, error)
-	GetByKeys(ctx context.Context, keys []dynamo.Key) ([]actor.DonorProvidedDetails, error)
+	GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]actor.DonorProvidedDetails, error)
 	Put(ctx context.Context, donor *actor.DonorProvidedDetails) error
 }
 
