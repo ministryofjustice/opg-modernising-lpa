@@ -41,7 +41,7 @@ func (s *certificateProviderStore) Create(ctx context.Context, donorSessionID st
 	if err := s.dynamoClient.Create(ctx, lpaLink{
 		PK:        dynamo.LpaKey(data.LpaID),
 		SK:        dynamo.SubKey(data.SessionID),
-		DonorKey:  dynamo.DonorKey(donorSessionID),
+		DonorKey:  dynamo.LpaOwnerKey(dynamo.DonorKey(donorSessionID)),
 		ActorType: actor.TypeCertificateProvider,
 		UpdatedAt: s.now(),
 	}); err != nil {

@@ -3,10 +3,13 @@ package page
 import (
 	"slices"
 	"time"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 )
 
 type Document struct {
-	PK, SK        string
+	PK            dynamo.LpaKeyType
+	SK            dynamo.DocumentKeyType
 	Filename      string
 	VirusDetected bool
 	Scanned       bool

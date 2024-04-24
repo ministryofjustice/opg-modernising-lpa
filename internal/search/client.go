@@ -223,10 +223,10 @@ func getSKFromContext(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	sk := dynamo.DonorKey(session.SessionID)
+	var sk dynamo.SK = dynamo.DonorKey(session.SessionID)
 	if session.OrganisationID != "" {
 		sk = dynamo.OrganisationKey(session.OrganisationID)
 	}
 
-	return sk, nil
+	return sk.SK(), nil
 }

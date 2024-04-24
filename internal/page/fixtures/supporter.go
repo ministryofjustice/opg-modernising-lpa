@@ -133,8 +133,8 @@ func Supporter(
 				}
 
 				if linkDonor {
-					shareCodeData.PK = dynamo.DonorShareKey(accessCode)
-					shareCodeData.SK = dynamo.DonorInviteKey(shareCodeData.SessionID, shareCodeData.LpaID)
+					shareCodeData.PK = dynamo.ShareKey(dynamo.DonorShareKey(accessCode))
+					shareCodeData.SK = dynamo.ShareKeySK(dynamo.DonorInviteKey(shareCodeData.SessionID, shareCodeData.LpaID))
 					shareCodeData.UpdatedAt = time.Now()
 
 					if err := donorStore.Link(donorCtx, shareCodeData); err != nil {
@@ -261,8 +261,8 @@ func Supporter(
 					if err = memberStore.CreateFromInvite(
 						memberCtx,
 						&actor.MemberInvite{
-							PK:              random.String(12),
-							SK:              random.String(12),
+							PK:              dynamo.OrganisationKey(random.String(12)),
+							SK:              dynamo.MemberInviteKey(random.String(12)),
 							CreatedAt:       time.Now(),
 							UpdatedAt:       time.Now(),
 							OrganisationID:  org.ID,

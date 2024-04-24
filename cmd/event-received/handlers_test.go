@@ -47,7 +47,7 @@ func TestHandleObjectTagsAdded(t *testing.T) {
 				})
 			dynamoClient.
 				On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
-				Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+				Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
 					b, _ := json.Marshal(actor.DonorProvidedDetails{LpaID: "123", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
 					json.Unmarshal(b, v)
 					return nil
@@ -133,7 +133,7 @@ func TestHandleObjectTagsAddedWhenDynamoClientOneByUIDError(t *testing.T) {
 		})
 	dynamoClient.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
-		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
 			b, _ := json.Marshal(actor.DonorProvidedDetails{LpaID: "123", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
 			json.Unmarshal(b, v)
 			return expectedError
@@ -167,7 +167,7 @@ func TestHandleObjectTagsAddedWhenDocumentStoreUpdateScanResultsError(t *testing
 		})
 	dynamoClient.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
-		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
 			b, _ := json.Marshal(actor.DonorProvidedDetails{LpaID: "123", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
 			json.Unmarshal(b, v)
 			return nil
@@ -183,7 +183,7 @@ func TestHandleObjectTagsAddedWhenDocumentStoreUpdateScanResultsError(t *testing
 }
 
 func TestGetLpaByUID(t *testing.T) {
-	expectedDonor := &actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")}
+	expectedDonor := &actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))}
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -195,7 +195,7 @@ func TestGetLpaByUID(t *testing.T) {
 		})
 	client.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
-		Return(func(ctx context.Context, pk, sk string, v interface{}) error {
+		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
 			b, _ := json.Marshal(expectedDonor)
 			json.Unmarshal(b, v)
 			return nil

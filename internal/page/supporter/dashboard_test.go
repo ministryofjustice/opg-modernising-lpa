@@ -24,7 +24,7 @@ func TestGetDashboard(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, url, nil)
 
-			keys := []dynamo.Keys{{PK: "a", SK: "b"}}
+			keys := []dynamo.Keys{{PK: dynamo.LpaKey("a"), SK: dynamo.OrganisationKey("b")}}
 			pagination := &search.Pagination{Total: 10}
 			donors := []actor.DonorProvidedDetails{{LpaID: "abc"}}
 

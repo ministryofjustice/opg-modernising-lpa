@@ -11,10 +11,17 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/smithy-go"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
 )
+
+type testPK string
+
+func (k testPK) PK() string { return string(k) }
+
+type testSK string
+
+func (k testSK) SK() string { return string(k) }
 
 var expectedError = errors.New("err")
 
@@ -37,7 +44,7 @@ func TestOne(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var actual map[string]string
-	err := c.One(ctx, "a-pk", "a-sk", &actual)
+	err := c.One(ctx, testPK("a-pk"), testSK("a-sk"), &actual)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, actual)
 }
@@ -58,7 +65,7 @@ func TestOneWhenError(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v string
-	err := c.One(ctx, "a-pk", "a-sk", &v)
+	err := c.One(ctx, testPK("a-pk"), testSK("a-sk"), &v)
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, "", v)
 }
@@ -79,7 +86,7 @@ func TestOneWhenNotFound(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v string
-	err := c.One(ctx, "a-pk", "a-sk", &v)
+	err := c.One(ctx, testPK("a-pk"), testSK("a-sk"), &v)
 	assert.Equal(t, NotFoundError{}, err)
 	assert.Equal(t, "", v)
 }
@@ -105,11 +112,11 @@ func TestOneByUID(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	var v actor.DonorProvidedDetails
+	var v map[string]any
 	err := c.OneByUID(ctx, "M-1111-2222-3333", &v)
 
 	assert.Nil(t, err)
-	assert.Equal(t, actor.DonorProvidedDetails{PK: "LPA#123", LpaUID: "M-1111-2222-3333"}, v)
+	assert.Equal(t, map[string]any{"PK": "LPA#123", "LpaUID": "M-1111-2222-3333"}, v)
 }
 
 func TestOneByUIDWhenQueryError(t *testing.T) {
@@ -213,7 +220,7 @@ func TestOneByPK(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v map[string]string
-	err := c.OneByPK(ctx, "a-pk", &v)
+	err := c.OneByPK(ctx, testPK("a-pk"), &v)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, v)
 }
@@ -229,7 +236,7 @@ func TestOneByPKOnQueryError(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v map[string]string
-	err := c.OneByPK(ctx, "a-pk", &v)
+	err := c.OneByPK(ctx, testPK("a-pk"), &v)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -244,7 +251,7 @@ func TestOneByPKWhenNotFound(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v map[string]string
-	err := c.OneByPK(ctx, "a-pk", &v)
+	err := c.OneByPK(ctx, testPK("a-pk"), &v)
 	assert.Equal(t, NotFoundError{}, err)
 }
 
@@ -261,7 +268,7 @@ func TestOneByPKWhenMultipleResults(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v map[string]string
-	err := c.OneByPK(ctx, "a-pk", &v)
+	err := c.OneByPK(ctx, testPK("a-pk"), &v)
 	assert.Equal(t, MultipleResultsError{}, err)
 }
 
@@ -286,7 +293,7 @@ func TestOneByPartialSK(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v map[string]string
-	err := c.OneByPartialSK(ctx, "a-pk", "a-partial-sk", &v)
+	err := c.OneByPartialSK(ctx, testPK("a-pk"), testSK("a-partial-sk"), &v)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, v)
 }
@@ -302,7 +309,7 @@ func TestOneByPartialSKOnQueryError(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v map[string]string
-	err := c.OneByPartialSK(ctx, "a-pk", "a-partial-sk", &v)
+	err := c.OneByPartialSK(ctx, testPK("a-pk"), testSK("a-partial-sk"), &v)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -317,7 +324,7 @@ func TestOneByPartialSKWhenNotFound(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v map[string]string
-	err := c.OneByPartialSK(ctx, "a-pk", "a-partial-sk", &v)
+	err := c.OneByPartialSK(ctx, testPK("a-pk"), testSK("a-partial-sk"), &v)
 	assert.Equal(t, NotFoundError{}, err)
 }
 
@@ -334,7 +341,7 @@ func TestOneByPartialSKWhenMultipleResults(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v map[string]string
-	err := c.OneByPartialSK(ctx, "a-pk", "a-partial-sk", &v)
+	err := c.OneByPartialSK(ctx, testPK("a-pk"), testSK("a-partial-sk"), &v)
 	assert.Equal(t, MultipleResultsError{}, err)
 }
 
@@ -360,7 +367,7 @@ func TestAllByPartialSK(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v []map[string]string
-	err := c.AllByPartialSK(ctx, "a-pk", "a-partial-sk", &v)
+	err := c.AllByPartialSK(ctx, testPK("a-pk"), testSK("a-partial-sk"), &v)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, v)
 }
@@ -376,7 +383,7 @@ func TestAllByPartialSKOnQueryError(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v map[string]string
-	err := c.AllByPartialSK(ctx, "a-pk", "a-partial-sk", &v)
+	err := c.AllByPartialSK(ctx, testPK("a-pk"), testSK("a-partial-sk"), &v)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -401,7 +408,7 @@ func TestAllForActor(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v []map[string]string
-	err := c.AllBySK(ctx, "a-partial-sk", &v)
+	err := c.AllBySK(ctx, testSK("a-partial-sk"), &v)
 	assert.Nil(t, err)
 	assert.Equal(t, []map[string]string{expected, expected}, v)
 }
@@ -417,7 +424,7 @@ func TestAllForActorWhenNotFound(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v []string
-	err := c.AllBySK(ctx, "a-partial-sk", &v)
+	err := c.AllBySK(ctx, testSK("a-partial-sk"), &v)
 	assert.Nil(t, err)
 	assert.Empty(t, v)
 }
@@ -433,7 +440,7 @@ func TestAllForActorOnQueryError(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v []string
-	err := c.AllBySK(ctx, "a-partial-sk", &v)
+	err := c.AllBySK(ctx, testSK("a-partial-sk"), &v)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -461,7 +468,7 @@ func TestLatestForActor(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v map[string]string
-	err := c.LatestForActor(ctx, "a-partial-sk", &v)
+	err := c.LatestForActor(ctx, testSK("a-partial-sk"), &v)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, v)
 }
@@ -477,7 +484,7 @@ func TestLatestForActorWhenNotFound(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v interface{}
-	err := c.LatestForActor(ctx, "a-partial-sk", &v)
+	err := c.LatestForActor(ctx, testSK("a-partial-sk"), &v)
 	assert.Nil(t, err)
 	assert.Nil(t, v)
 }
@@ -493,7 +500,7 @@ func TestLatestForActorOnQueryError(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v []string
-	err := c.LatestForActor(ctx, "a-partial-sk", &v)
+	err := c.LatestForActor(ctx, testSK("a-partial-sk"), &v)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -501,8 +508,8 @@ func TestAllKeysByPK(t *testing.T) {
 	ctx := context.Background()
 
 	keys := []Keys{
-		{PK: "pk", SK: "sk1"},
-		{PK: "pk", SK: "sk2"},
+		{PK: LpaKey("pk"), SK: OrganisationKey("sk1")},
+		{PK: LpaKey("pk"), SK: DonorKey("sk2")},
 	}
 
 	item1, _ := attributevalue.MarshalMap(keys[0])
@@ -514,7 +521,7 @@ func TestAllKeysByPK(t *testing.T) {
 			TableName:                aws.String("this"),
 			ExpressionAttributeNames: map[string]string{"#PK": "PK"},
 			ExpressionAttributeValues: map[string]types.AttributeValue{
-				":PK": &types.AttributeValueMemberS{Value: "pk"},
+				":PK": &types.AttributeValueMemberS{Value: "LPA#pk"},
 			},
 			KeyConditionExpression: aws.String("#PK = :PK"),
 			ProjectionExpression:   aws.String("PK, SK"),
@@ -523,7 +530,7 @@ func TestAllKeysByPK(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	result, err := c.AllKeysByPK(ctx, "pk")
+	result, err := c.AllKeysByPK(ctx, LpaKey("pk"))
 	assert.Nil(t, err)
 	assert.Equal(t, keys, result)
 }
@@ -538,7 +545,7 @@ func TestAllKeysByPKWhenError(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	_, err := c.AllKeysByPK(ctx, "pk")
+	_, err := c.AllKeysByPK(ctx, testPK("pk"))
 	assert.Equal(t, expectedError, err)
 }
 
@@ -568,7 +575,7 @@ func TestAllByKeys(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	v, err := c.AllByKeys(ctx, []Keys{{PK: "pk", SK: "sk"}})
+	v, err := c.AllByKeys(ctx, []Keys{{PK: testPK("pk"), SK: testSK("sk")}})
 	assert.Nil(t, err)
 	assert.Equal(t, []map[string]types.AttributeValue{data}, v)
 }
@@ -583,7 +590,7 @@ func TestAllByKeysWhenQueryErrors(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	_, err := c.AllByKeys(ctx, []Keys{{PK: "pk", SK: "sk"}})
+	_, err := c.AllByKeys(ctx, []Keys{{PK: testPK("pk"), SK: testSK("sk")}})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -741,7 +748,7 @@ func TestDeleteKeys(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	err := c.DeleteKeys(ctx, []Keys{{PK: "pk", SK: "sk1"}, {PK: "pk", SK: "sk2"}})
+	err := c.DeleteKeys(ctx, []Keys{{PK: testPK("pk"), SK: testSK("sk1")}, {PK: testPK("pk"), SK: testSK("sk2")}})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -763,7 +770,7 @@ func TestUpdate(t *testing.T) {
 
 	c := &Client{table: "table-name", svc: dynamoDB}
 
-	err := c.Update(ctx, "a-pk", "a-sk", map[string]types.AttributeValue{"prop": &types.AttributeValueMemberS{Value: "val"}}, "some = expression")
+	err := c.Update(ctx, testPK("a-pk"), testSK("a-sk"), map[string]types.AttributeValue{"prop": &types.AttributeValueMemberS{Value: "val"}}, "some = expression")
 
 	assert.Nil(t, err)
 }
@@ -786,7 +793,7 @@ func TestUpdateOnServiceError(t *testing.T) {
 
 	c := &Client{table: "table-name", svc: dynamoDB}
 
-	err := c.Update(ctx, "a-pk", "a-sk", map[string]types.AttributeValue{"Col": &types.AttributeValueMemberS{Value: "Val"}}, "some = expression")
+	err := c.Update(ctx, testPK("a-pk"), testSK("a-sk"), map[string]types.AttributeValue{"Col": &types.AttributeValueMemberS{Value: "Val"}}, "some = expression")
 
 	assert.Equal(t, expectedError, err)
 }
@@ -812,7 +819,7 @@ func TestUpdateReturn(t *testing.T) {
 
 	c := &Client{table: "table-name", svc: dynamoDB}
 
-	result, err := c.UpdateReturn(ctx, "a-pk", "a-sk", map[string]types.AttributeValue{"prop": &types.AttributeValueMemberS{Value: "val"}}, "some = expression")
+	result, err := c.UpdateReturn(ctx, testPK("a-pk"), testSK("a-sk"), map[string]types.AttributeValue{"prop": &types.AttributeValueMemberS{Value: "val"}}, "some = expression")
 	assert.Nil(t, err)
 	assert.Equal(t, returned, result)
 }
@@ -827,7 +834,7 @@ func TestUpdateReturnOnServiceError(t *testing.T) {
 
 	c := &Client{table: "table-name", svc: dynamoDB}
 
-	_, err := c.UpdateReturn(ctx, "a-pk", "a-sk", map[string]types.AttributeValue{"Col": &types.AttributeValueMemberS{Value: "Val"}}, "some = expression")
+	_, err := c.UpdateReturn(ctx, testPK("a-pk"), testSK("a-sk"), map[string]types.AttributeValue{"Col": &types.AttributeValueMemberS{Value: "Val"}}, "some = expression")
 
 	assert.Equal(t, expectedError, err)
 }
@@ -886,7 +893,7 @@ func TestOneBySk(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v map[string]string
-	err := c.OneBySK(ctx, "sk", &v)
+	err := c.OneBySK(ctx, testSK("sk"), &v)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, v)
 }
@@ -920,7 +927,7 @@ func TestOneBySKWhenNotOneResult(t *testing.T) {
 			c := &Client{table: "this", svc: dynamoDB}
 
 			var v map[string]string
-			err := c.OneBySK(ctx, "sk", &v)
+			err := c.OneBySK(ctx, testSK("sk"), &v)
 
 			assert.Equal(t, tc.expectedError, err)
 		})
@@ -941,7 +948,7 @@ func TestOneBySkWhenQueryError(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v map[string]string
-	err := c.OneBySK(ctx, "sk", &v)
+	err := c.OneBySK(ctx, testSK("sk"), &v)
 
 	assert.Equal(t, expectedError, err)
 }

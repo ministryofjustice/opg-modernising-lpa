@@ -42,7 +42,7 @@ func (s *attorneyStore) Create(ctx context.Context, donorSessionID string, attor
 	if err := s.dynamoClient.Create(ctx, lpaLink{
 		PK:        dynamo.LpaKey(data.LpaID),
 		SK:        dynamo.SubKey(data.SessionID),
-		DonorKey:  dynamo.DonorKey(donorSessionID),
+		DonorKey:  dynamo.LpaOwnerKey(dynamo.DonorKey(donorSessionID)),
 		ActorType: actor.TypeAttorney,
 		UpdatedAt: s.now(),
 	}); err != nil {

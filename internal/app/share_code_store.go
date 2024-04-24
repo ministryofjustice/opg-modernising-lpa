@@ -11,11 +11,11 @@ import (
 )
 
 type ShareCodeStoreDynamoClient interface {
-	One(ctx context.Context, pk, sk string, v interface{}) error
-	OneByPK(ctx context.Context, pk string, v interface{}) error
-	OneBySK(ctx context.Context, sk string, v interface{}) error
+	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error
+	OneByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
+	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
 	Put(ctx context.Context, v interface{}) error
-	DeleteOne(ctx context.Context, pk, sk string) error
+	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
 }
 
 type shareCodeStore struct {
@@ -59,15 +59,15 @@ func (s *shareCodeStore) Put(ctx context.Context, actorType actor.Type, shareCod
 		return err
 	}
 
-	data.PK = pk
-	data.SK = dynamo.MetadataKey(shareCode)
+	data.PK = dynamo.ShareKey(pk)
+	data.SK = dynamo.ShareKeySK(dynamo.MetadataKey(shareCode))
 
 	return s.dynamoClient.Put(ctx, data)
 }
 
 func (s *shareCodeStore) PutDonor(ctx context.Context, shareCode string, data actor.ShareCodeData) error {
-	data.PK = dynamo.DonorShareKey(shareCode)
-	data.SK = dynamo.DonorInviteKey(data.SessionID, data.LpaID)
+	data.PK = dynamo.ShareKey(dynamo.DonorShareKey(shareCode))
+	data.SK = dynamo.ShareKeySK(dynamo.DonorInviteKey(data.SessionID, data.LpaID))
 	data.UpdatedAt = s.now()
 
 	return s.dynamoClient.Put(ctx, data)
@@ -91,7 +91,7 @@ func (s *shareCodeStore) Delete(ctx context.Context, shareCode actor.ShareCodeDa
 	return s.dynamoClient.DeleteOne(ctx, shareCode.PK, shareCode.SK)
 }
 
-func shareCodeKey(actorType actor.Type, shareCode string) (pk string, err error) {
+func shareCodeKey(actorType actor.Type, shareCode string) (pk dynamo.PK, err error) {
 	switch actorType {
 	case actor.TypeDonor:
 		return dynamo.DonorShareKey(shareCode), nil
@@ -102,6 +102,6 @@ func shareCodeKey(actorType actor.Type, shareCode string) (pk string, err error)
 	case actor.TypeCertificateProvider:
 		return dynamo.CertificateProviderShareKey(shareCode), nil
 	default:
-		return "", fmt.Errorf("cannot have share code for actorType=%v", actorType)
+		return nil, fmt.Errorf("cannot have share code for actorType=%v", actorType)
 	}
 }

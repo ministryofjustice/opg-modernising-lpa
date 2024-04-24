@@ -167,7 +167,7 @@ type mockDonorStore_GetByKeys_Call struct {
 
 // GetByKeys is a helper method to define mock.On call
 //   - ctx context.Context
-//   - keys []dynamo.Key
+//   - keys []dynamo.Keys
 func (_e *mockDonorStore_Expecter) GetByKeys(ctx interface{}, keys interface{}) *mockDonorStore_GetByKeys_Call {
 	return &mockDonorStore_GetByKeys_Call{Call: _e.mock.On("GetByKeys", ctx, keys)}
 }

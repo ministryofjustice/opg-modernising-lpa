@@ -71,7 +71,7 @@ func getDonorByLpaUID(ctx context.Context, client dynamodbClient, uid string) (*
 		return nil, fmt.Errorf("failed to resolve uid: %w", err)
 	}
 
-	if key.PK == "" {
+	if key.PK == nil {
 		return nil, fmt.Errorf("PK missing from LPA in response")
 	}
 

@@ -15,7 +15,7 @@ import (
 func TestShareCodeStoreGet(t *testing.T) {
 	testcases := map[string]struct {
 		t  actor.Type
-		pk string
+		pk dynamo.PK
 	}{
 		"attorney": {
 			t:  actor.TypeAttorney,
@@ -108,7 +108,7 @@ func TestShareCodeStoreLinked(t *testing.T) {
 func TestShareCodeStorePut(t *testing.T) {
 	testcases := map[string]struct {
 		actor actor.Type
-		pk    string
+		pk    dynamo.PK
 	}{
 		"attorney": {
 			actor: actor.TypeAttorney,
@@ -127,7 +127,7 @@ func TestShareCodeStorePut(t *testing.T) {
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			ctx := context.Background()
-			data := actor.ShareCodeData{PK: tc.pk, SK: dynamo.MetadataKey("123"), LpaID: "lpa-id"}
+			data := actor.ShareCodeData{PK: dynamo.ShareKey(tc.pk), SK: dynamo.ShareKeySK(dynamo.MetadataKey("123")), LpaID: "lpa-id"}
 
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.EXPECT().
@@ -205,8 +205,8 @@ func TestShareCodeStorePutDonor(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
 		Put(ctx, actor.ShareCodeData{
-			PK:        dynamo.DonorShareKey("123"),
-			SK:        dynamo.DonorInviteKey("org-id", "lpa-id"),
+			PK:        dynamo.ShareKey(dynamo.DonorShareKey("123")),
+			SK:        dynamo.ShareKeySK(dynamo.DonorInviteKey("org-id", "lpa-id")),
 			SessionID: "org-id",
 			LpaID:     "lpa-id",
 			UpdatedAt: testNow,
@@ -221,15 +221,17 @@ func TestShareCodeStorePutDonor(t *testing.T) {
 
 func TestShareCodeStoreDelete(t *testing.T) {
 	ctx := context.Background()
+	pk := dynamo.ShareKey(dynamo.AttorneyShareKey("a-pk"))
+	sk := dynamo.ShareKeySK(dynamo.MetadataKey("a-sk"))
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		DeleteOne(ctx, "a-pk", "a-sk").
+		DeleteOne(ctx, pk, sk).
 		Return(nil)
 
 	shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}
 
-	err := shareCodeStore.Delete(ctx, actor.ShareCodeData{LpaID: "123", PK: "a-pk", SK: "a-sk"})
+	err := shareCodeStore.Delete(ctx, actor.ShareCodeData{LpaID: "123", PK: pk, SK: sk})
 	assert.Nil(t, err)
 }
 
@@ -248,7 +250,7 @@ func TestShareCodeStoreDeleteOnError(t *testing.T) {
 }
 
 func TestShareCodeKey(t *testing.T) {
-	testcases := map[actor.Type]string{
+	testcases := map[actor.Type]dynamo.PK{
 		actor.TypeDonor:                       dynamo.DonorShareKey("S"),
 		actor.TypeAttorney:                    dynamo.AttorneyShareKey("S"),
 		actor.TypeReplacementAttorney:         dynamo.AttorneyShareKey("S"),

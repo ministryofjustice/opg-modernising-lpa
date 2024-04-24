@@ -59,12 +59,12 @@ func NewClient(cfg aws.Config, tableName string) (*Client, error) {
 	return &Client{table: tableName, svc: dynamodb.NewFromConfig(cfg)}, nil
 }
 
-func (c *Client) One(ctx context.Context, pk, sk string, v interface{}) error {
+func (c *Client) One(ctx context.Context, pk PK, sk SK, v interface{}) error {
 	result, err := c.svc.GetItem(ctx, &dynamodb.GetItemInput{
 		TableName: aws.String(c.table),
 		Key: map[string]types.AttributeValue{
-			"PK": &types.AttributeValueMemberS{Value: pk},
-			"SK": &types.AttributeValueMemberS{Value: sk},
+			"PK": &types.AttributeValueMemberS{Value: pk.PK()},
+			"SK": &types.AttributeValueMemberS{Value: sk.SK()},
 		},
 	})
 	if err != nil {
@@ -99,13 +99,13 @@ func (c *Client) OneByUID(ctx context.Context, uid string, v interface{}) error 
 	return attributevalue.UnmarshalMap(response.Items[0], v)
 }
 
-func (c *Client) AllBySK(ctx context.Context, sk string, v interface{}) error {
+func (c *Client) AllBySK(ctx context.Context, sk SK, v interface{}) error {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName:                aws.String(c.table),
 		IndexName:                aws.String(skUpdatedAtIndex),
 		ExpressionAttributeNames: map[string]string{"#SK": "SK"},
 		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":SK": &types.AttributeValueMemberS{Value: sk},
+			":SK": &types.AttributeValueMemberS{Value: sk.SK()},
 		},
 		KeyConditionExpression: aws.String("#SK = :SK"),
 	})
@@ -116,13 +116,13 @@ func (c *Client) AllBySK(ctx context.Context, sk string, v interface{}) error {
 	return attributevalue.UnmarshalListOfMaps(response.Items, v)
 }
 
-func (c *Client) OneBySK(ctx context.Context, sk string, v interface{}) error {
+func (c *Client) OneBySK(ctx context.Context, sk SK, v interface{}) error {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName:                aws.String(c.table),
 		IndexName:                aws.String(skUpdatedAtIndex),
 		ExpressionAttributeNames: map[string]string{"#SK": "SK"},
 		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":SK": &types.AttributeValueMemberS{Value: sk},
+			":SK": &types.AttributeValueMemberS{Value: sk.SK()},
 		},
 		KeyConditionExpression: aws.String("#SK = :SK"),
 	})
@@ -141,13 +141,13 @@ func (c *Client) OneBySK(ctx context.Context, sk string, v interface{}) error {
 	return attributevalue.UnmarshalMap(response.Items[0], v)
 }
 
-func (c *Client) LatestForActor(ctx context.Context, sk string, v interface{}) error {
+func (c *Client) LatestForActor(ctx context.Context, sk SK, v interface{}) error {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName:                aws.String(c.table),
 		IndexName:                aws.String(skUpdatedAtIndex),
 		ExpressionAttributeNames: map[string]string{"#SK": "SK", "#UpdatedAt": "UpdatedAt"},
 		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":SK": &types.AttributeValueMemberS{Value: sk},
+			":SK": &types.AttributeValueMemberS{Value: sk.SK()},
 			// Specifying the condition UpdatedAt>2 filters out zero-value timestamps
 			":UpdatedAt": &types.AttributeValueMemberS{Value: "2"},
 		},
@@ -167,17 +167,12 @@ func (c *Client) LatestForActor(ctx context.Context, sk string, v interface{}) e
 	return attributevalue.UnmarshalMap(response.Items[0], v)
 }
 
-type Keys struct {
-	PK string
-	SK string
-}
-
-func (c *Client) AllKeysByPK(ctx context.Context, pk string) ([]Keys, error) {
+func (c *Client) AllKeysByPK(ctx context.Context, pk PK) ([]Keys, error) {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName:                aws.String(c.table),
 		ExpressionAttributeNames: map[string]string{"#PK": "PK"},
 		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":PK": &types.AttributeValueMemberS{Value: pk},
+			":PK": &types.AttributeValueMemberS{Value: pk.PK()},
 		},
 		KeyConditionExpression: aws.String("#PK = :PK"),
 		ProjectionExpression:   aws.String("PK, SK"),
@@ -197,8 +192,8 @@ func (c *Client) AllByKeys(ctx context.Context, keys []Keys) ([]map[string]types
 	var keyAttrs []map[string]types.AttributeValue
 	for _, key := range keys {
 		keyAttrs = append(keyAttrs, map[string]types.AttributeValue{
-			"PK": &types.AttributeValueMemberS{Value: key.PK},
-			"SK": &types.AttributeValueMemberS{Value: key.SK},
+			"PK": &types.AttributeValueMemberS{Value: key.PK.PK()},
+			"SK": &types.AttributeValueMemberS{Value: key.SK.SK()},
 		})
 	}
 
@@ -216,12 +211,12 @@ func (c *Client) AllByKeys(ctx context.Context, keys []Keys) ([]map[string]types
 	return result.Responses[c.table], nil
 }
 
-func (c *Client) OneByPK(ctx context.Context, pk string, v interface{}) error {
+func (c *Client) OneByPK(ctx context.Context, pk PK, v interface{}) error {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName:                aws.String(c.table),
 		ExpressionAttributeNames: map[string]string{"#PK": "PK"},
 		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":PK": &types.AttributeValueMemberS{Value: pk},
+			":PK": &types.AttributeValueMemberS{Value: pk.PK()},
 		},
 		KeyConditionExpression: aws.String("#PK = :PK"),
 	})
@@ -241,13 +236,13 @@ func (c *Client) OneByPK(ctx context.Context, pk string, v interface{}) error {
 	return attributevalue.UnmarshalMap(response.Items[0], v)
 }
 
-func (c *Client) OneByPartialSK(ctx context.Context, pk, partialSK string, v interface{}) error {
+func (c *Client) OneByPartialSK(ctx context.Context, pk PK, partialSK SK, v interface{}) error {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName:                aws.String(c.table),
 		ExpressionAttributeNames: map[string]string{"#PK": "PK", "#SK": "SK"},
 		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":PK": &types.AttributeValueMemberS{Value: pk},
-			":SK": &types.AttributeValueMemberS{Value: partialSK},
+			":PK": &types.AttributeValueMemberS{Value: pk.PK()},
+			":SK": &types.AttributeValueMemberS{Value: partialSK.SK()},
 		},
 		KeyConditionExpression: aws.String("#PK = :PK and begins_with(#SK, :SK)"),
 	})
@@ -267,13 +262,13 @@ func (c *Client) OneByPartialSK(ctx context.Context, pk, partialSK string, v int
 	return attributevalue.UnmarshalMap(response.Items[0], v)
 }
 
-func (c *Client) AllByPartialSK(ctx context.Context, pk, partialSk string, v interface{}) error {
+func (c *Client) AllByPartialSK(ctx context.Context, pk PK, partialSk SK, v interface{}) error {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName:                aws.String(c.table),
 		ExpressionAttributeNames: map[string]string{"#PK": "PK", "#SK": "SK"},
 		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":PK": &types.AttributeValueMemberS{Value: pk},
-			":SK": &types.AttributeValueMemberS{Value: partialSk},
+			":PK": &types.AttributeValueMemberS{Value: pk.PK()},
+			":SK": &types.AttributeValueMemberS{Value: partialSk.SK()},
 		},
 		KeyConditionExpression: aws.String("#PK = :PK and begins_with(#SK, :SK)"),
 	})
@@ -355,8 +350,8 @@ func (c *Client) DeleteKeys(ctx context.Context, keys []Keys) error {
 			Delete: &types.Delete{
 				TableName: aws.String(c.table),
 				Key: map[string]types.AttributeValue{
-					"PK": &types.AttributeValueMemberS{Value: key.PK},
-					"SK": &types.AttributeValueMemberS{Value: key.SK},
+					"PK": &types.AttributeValueMemberS{Value: key.PK.PK()},
+					"SK": &types.AttributeValueMemberS{Value: key.SK.SK()},
 				},
 			},
 		}
@@ -369,24 +364,24 @@ func (c *Client) DeleteKeys(ctx context.Context, keys []Keys) error {
 	return err
 }
 
-func (c *Client) DeleteOne(ctx context.Context, pk, sk string) error {
+func (c *Client) DeleteOne(ctx context.Context, pk PK, sk SK) error {
 	_, err := c.svc.DeleteItem(ctx, &dynamodb.DeleteItemInput{
 		TableName: aws.String(c.table),
 		Key: map[string]types.AttributeValue{
-			"PK": &types.AttributeValueMemberS{Value: pk},
-			"SK": &types.AttributeValueMemberS{Value: sk},
+			"PK": &types.AttributeValueMemberS{Value: pk.PK()},
+			"SK": &types.AttributeValueMemberS{Value: sk.SK()},
 		},
 	})
 
 	return err
 }
 
-func (c *Client) Update(ctx context.Context, pk, sk string, values map[string]types.AttributeValue, expression string) error {
+func (c *Client) Update(ctx context.Context, pk PK, sk SK, values map[string]types.AttributeValue, expression string) error {
 	_, err := c.svc.UpdateItem(ctx, &dynamodb.UpdateItemInput{
 		TableName: aws.String(c.table),
 		Key: map[string]types.AttributeValue{
-			"PK": &types.AttributeValueMemberS{Value: pk},
-			"SK": &types.AttributeValueMemberS{Value: sk},
+			"PK": &types.AttributeValueMemberS{Value: pk.PK()},
+			"SK": &types.AttributeValueMemberS{Value: sk.SK()},
 		},
 		ExpressionAttributeValues: values,
 		UpdateExpression:          aws.String(expression),
@@ -395,12 +390,12 @@ func (c *Client) Update(ctx context.Context, pk, sk string, values map[string]ty
 	return err
 }
 
-func (c *Client) UpdateReturn(ctx context.Context, pk, sk string, values map[string]types.AttributeValue, expression string) (map[string]types.AttributeValue, error) {
+func (c *Client) UpdateReturn(ctx context.Context, pk PK, sk SK, values map[string]types.AttributeValue, expression string) (map[string]types.AttributeValue, error) {
 	resp, err := c.svc.UpdateItem(ctx, &dynamodb.UpdateItemInput{
 		TableName: aws.String(c.table),
 		Key: map[string]types.AttributeValue{
-			"PK": &types.AttributeValueMemberS{Value: pk},
-			"SK": &types.AttributeValueMemberS{Value: sk},
+			"PK": &types.AttributeValueMemberS{Value: pk.PK()},
+			"SK": &types.AttributeValueMemberS{Value: sk.SK()},
 		},
 		ExpressionAttributeValues: values,
 		UpdateExpression:          aws.String(expression),

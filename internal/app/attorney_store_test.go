@@ -37,7 +37,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 				Create(ctx, details).
 				Return(nil)
 			dynamoClient.EXPECT().
-				Create(ctx, lpaLink{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("456"), DonorKey: dynamo.DonorKey("session-id"), ActorType: actor.TypeAttorney, UpdatedAt: now}).
+				Create(ctx, lpaLink{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("456"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorType: actor.TypeAttorney, UpdatedAt: now}).
 				Return(nil)
 
 			attorneyStore := &attorneyStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
