@@ -13,6 +13,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -106,8 +107,8 @@ func TestPostUploadEvidenceWithUploadActionAcceptedFileTypes(t *testing.T) {
 			documentStore.EXPECT().
 				Create(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee}, filename, mock.Anything).
 				Return(page.Document{
-					PK:       "LPA#lpa-id",
-					SK:       "#DOCUMENT#lpa-uid/evidence/a-uid",
+					PK:       dynamo.LpaKey("lpa-id"),
+					SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
 					Filename: filename,
 					Key:      "lpa-uid/evidence/a-uid",
 				}, nil)
@@ -117,8 +118,8 @@ func TestPostUploadEvidenceWithUploadActionAcceptedFileTypes(t *testing.T) {
 				Execute(w, &uploadEvidenceData{
 					App: testAppData,
 					Documents: page.Documents{{
-						PK:       "LPA#lpa-id",
-						SK:       "#DOCUMENT#lpa-uid/evidence/a-uid",
+						PK:       dynamo.LpaKey("lpa-id"),
+						SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
 						Filename: filename,
 						Key:      "lpa-uid/evidence/a-uid"},
 					},
@@ -161,8 +162,8 @@ func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
 	documentStore.EXPECT().
 		Create(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee}, "dummy.pdf", mock.Anything).
 		Return(page.Document{
-			PK:       "LPA#lpa-id",
-			SK:       "#DOCUMENT#lpa-uid/evidence/a-uid",
+			PK:       dynamo.LpaKey("lpa-id"),
+			SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
 			Filename: "dummy.pdf",
 			Key:      "lpa-uid/evidence/a-uid",
 		}, nil).
@@ -170,8 +171,8 @@ func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
 	documentStore.EXPECT().
 		Create(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee}, "dummy.png", mock.Anything).
 		Return(page.Document{
-			PK:       "LPA#lpa-id",
-			SK:       "#DOCUMENT#lpa-uid/evidence/a-uid",
+			PK:       dynamo.LpaKey("lpa-id"),
+			SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
 			Filename: "dummy.png",
 			Key:      "lpa-uid/evidence/a-uid",
 		}, nil).
@@ -183,14 +184,14 @@ func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
 			App: testAppData,
 			Documents: page.Documents{
 				{
-					PK:       "LPA#lpa-id",
-					SK:       "#DOCUMENT#lpa-uid/evidence/a-uid",
+					PK:       dynamo.LpaKey("lpa-id"),
+					SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
 					Filename: "dummy.pdf",
 					Key:      "lpa-uid/evidence/a-uid",
 				},
 				{
-					PK:       "LPA#lpa-id",
-					SK:       "#DOCUMENT#lpa-uid/evidence/a-uid",
+					PK:       dynamo.LpaKey("lpa-id"),
+					SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
 					Filename: "dummy.png",
 					Key:      "lpa-uid/evidence/a-uid",
 				},
@@ -234,8 +235,8 @@ func TestPostUploadEvidenceWithUploadActionFilenameSpecialCharactersAreEscaped(t
 	documentStore.EXPECT().
 		Create(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee}, "&lt;img src=1 onerror=alert(document.domain)&gt;’ brute.heic", mock.Anything).
 		Return(page.Document{
-			PK:       "LPA#lpa-id",
-			SK:       "#DOCUMENT#lpa-uid/evidence/a-uid",
+			PK:       dynamo.LpaKey("lpa-id"),
+			SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
 			Filename: "&lt;img src=1 onerror=alert(document.domain)&gt;’ brute.heic",
 			Key:      "lpa-uid/evidence/a-uid",
 		}, nil)
@@ -246,8 +247,8 @@ func TestPostUploadEvidenceWithUploadActionFilenameSpecialCharactersAreEscaped(t
 			App: testAppData,
 			Documents: page.Documents{
 				{
-					PK:       "LPA#lpa-id",
-					SK:       "#DOCUMENT#lpa-uid/evidence/a-uid",
+					PK:       dynamo.LpaKey("lpa-id"),
+					SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
 					Filename: "&lt;img src=1 onerror=alert(document.domain)&gt;’ brute.heic",
 					Key:      "lpa-uid/evidence/a-uid",
 				},
@@ -273,14 +274,14 @@ func TestPostUploadEvidenceWithPayAction(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
 
 	documents := page.Documents{{
-		PK:       "LPA#lpa-id",
-		SK:       "#DOCUMENT#lpa-uid/evidence/a-uid",
+		PK:       dynamo.LpaKey("lpa-id"),
+		SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
 		Filename: "safe.file",
 		Key:      "lpa-uid/evidence/a-uid",
 		Scanned:  true,
 	}, {
-		PK:            "LPA#lpa-id",
-		SK:            "#DOCUMENT#lpa-uid/evidence/with-virus",
+		PK:            dynamo.LpaKey("lpa-id"),
+		SK:            dynamo.DocumentKey("lpa-uid/evidence/with-virus"),
 		Filename:      "virus.file",
 		Key:           "lpa-uid/evidence/with-virus",
 		Scanned:       true,
@@ -343,8 +344,8 @@ func TestPostUploadEvidenceWithPayActionWhenDocumentStoreSubmitErrors(t *testing
 	documentStore.EXPECT().
 		GetAll(r.Context()).
 		Return(page.Documents{{
-			PK:       "LPA#lpa-id",
-			SK:       "#DOCUMENT#lpa-uid/evidence/a-uid",
+			PK:       dynamo.LpaKey("lpa-id"),
+			SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
 			Filename: "safe.file",
 			Key:      "lpa-uid/evidence/a-uid",
 			Scanned:  true,
@@ -370,8 +371,8 @@ func TestPostUploadEvidenceWithPayActionWhenUnscannedDocument(t *testing.T) {
 	documentStore.EXPECT().
 		GetAll(r.Context()).
 		Return(page.Documents{{
-			PK:       "LPA#lpa-id",
-			SK:       "#DOCUMENT#lpa-uid/evidence/a-uid",
+			PK:       dynamo.LpaKey("lpa-id"),
+			SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
 			Filename: "safe.file",
 			Key:      "lpa-uid/evidence/a-uid",
 		}}, nil)

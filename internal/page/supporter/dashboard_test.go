@@ -24,7 +24,7 @@ func TestGetDashboard(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, url, nil)
 
-			keys := []dynamo.Key{{PK: "a", SK: "b"}}
+			keys := []dynamo.Keys{{PK: dynamo.LpaKey("a"), SK: dynamo.OrganisationKey("b")}}
 			pagination := &search.Pagination{Total: 10}
 			donors := []actor.DonorProvidedDetails{{LpaID: "abc"}}
 
@@ -64,7 +64,7 @@ func TestGetDashboardWhenSearchClientErrors(t *testing.T) {
 	searchClient := newMockSearchClient(t)
 	searchClient.EXPECT().
 		Query(r.Context(), search.QueryRequest{Page: 1, PageSize: 10}).
-		Return(&search.QueryResponse{Keys: []dynamo.Key{}, Pagination: &search.Pagination{}}, expectedError)
+		Return(&search.QueryResponse{Keys: []dynamo.Keys{}, Pagination: &search.Pagination{}}, expectedError)
 
 	err := Dashboard(nil, nil, searchClient)(testAppData, w, r, nil, nil)
 	assert.Equal(t, expectedError, err)
@@ -77,7 +77,7 @@ func TestGetDashboardWhenDonorStoreErrors(t *testing.T) {
 	searchClient := newMockSearchClient(t)
 	searchClient.EXPECT().
 		Query(r.Context(), search.QueryRequest{Page: 1, PageSize: 10}).
-		Return(&search.QueryResponse{Keys: []dynamo.Key{}, Pagination: &search.Pagination{}}, nil)
+		Return(&search.QueryResponse{Keys: []dynamo.Keys{}, Pagination: &search.Pagination{}}, nil)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().

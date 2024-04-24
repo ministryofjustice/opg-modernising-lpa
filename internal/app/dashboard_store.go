@@ -21,11 +21,11 @@ type LpaStoreResolvingService interface {
 // An lpaLink is used to join an actor to an LPA.
 type lpaLink struct {
 	// PK is the same as the PK for the LPA
-	PK string
+	PK dynamo.LpaKeyType
 	// SK is the subKey for the current user
-	SK string
+	SK dynamo.SubKeyType
 	// DonorKey is the donorKey for the donor
-	DonorKey string
+	DonorKey dynamo.LpaOwnerKeyType
 	// ActorType is the type for the current user
 	ActorType actor.Type
 	// UpdatedAt is set to allow this data to be queried from SKUpdatedAtIndex
@@ -37,7 +37,7 @@ func (l lpaLink) UserSub() string {
 		return ""
 	}
 
-	return strings.Split(l.SK, dynamo.SubKey(""))[1]
+	return strings.Split(l.SK.SK(), dynamo.SubKey("").SK())[1]
 }
 
 type dashboardStore struct {
@@ -50,15 +50,15 @@ type keys struct {
 }
 
 func (k keys) isLpa() bool {
-	return strings.HasPrefix(k.SK, dynamo.DonorKey("")) || strings.HasPrefix(k.SK, dynamo.OrganisationKey(""))
+	return strings.HasPrefix(k.SK, dynamo.DonorKey("").SK()) || strings.HasPrefix(k.SK, dynamo.OrganisationKey("").PK())
 }
 
 func (k keys) isCertificateProviderDetails() bool {
-	return strings.HasPrefix(k.SK, dynamo.CertificateProviderKey(""))
+	return strings.HasPrefix(k.SK, dynamo.CertificateProviderKey("").SK())
 }
 
 func (k keys) isAttorneyDetails() bool {
-	return strings.HasPrefix(k.SK, dynamo.AttorneyKey(""))
+	return strings.HasPrefix(k.SK, dynamo.AttorneyKey("").SK())
 }
 
 func (s *dashboardStore) SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error) {
@@ -91,20 +91,20 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		return nil, nil, nil, err
 	}
 
-	var searchKeys []dynamo.Key
+	var searchKeys []dynamo.Keys
 	keyMap := map[string]actor.Type{}
 	for _, key := range links {
-		searchKeys = append(searchKeys, dynamo.Key{PK: key.PK, SK: key.DonorKey})
+		searchKeys = append(searchKeys, dynamo.Keys{PK: key.PK, SK: key.DonorKey})
 
 		if key.ActorType == actor.TypeAttorney {
-			searchKeys = append(searchKeys, dynamo.Key{PK: key.PK, SK: dynamo.AttorneyKey(data.SessionID)})
+			searchKeys = append(searchKeys, dynamo.Keys{PK: key.PK, SK: dynamo.AttorneyKey(data.SessionID)})
 		}
 
 		if key.ActorType == actor.TypeCertificateProvider {
-			searchKeys = append(searchKeys, dynamo.Key{PK: key.PK, SK: dynamo.CertificateProviderKey(data.SessionID)})
+			searchKeys = append(searchKeys, dynamo.Keys{PK: key.PK, SK: dynamo.CertificateProviderKey(data.SessionID)})
 		}
 
-		_, id, _ := strings.Cut(key.PK, "#")
+		_, id, _ := strings.Cut(key.PK.PK(), "#")
 		keyMap[id] = key.ActorType
 	}
 
