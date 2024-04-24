@@ -5,6 +5,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
@@ -16,11 +17,11 @@ func TestUidStoreSet(t *testing.T) {
 		sk             string
 	}{
 		"donor": {
-			sk: "#DONOR#session-id",
+			sk: dynamo.DonorKey("session-id"),
 		},
 		"organisation": {
 			organisationID: "org-id",
-			sk:             "ORGANISATION#org-id",
+			sk:             dynamo.OrganisationKey("org-id"),
 		},
 	}
 
@@ -40,14 +41,14 @@ func TestUidStoreSet(t *testing.T) {
 
 			dynamoClient := newMockDynamoUpdateClient(t)
 			dynamoClient.EXPECT().
-				UpdateReturn(ctx, "LPA#lpa-id", tc.sk, values,
+				UpdateReturn(ctx, dynamo.LpaKey("lpa-id"), tc.sk, values,
 					"set LpaUID = :uid, UpdatedAt = :now").
 				Return(returnValues, nil)
 
 			searchClient := newMockSearchClient(t)
 			searchClient.EXPECT().
 				Index(ctx, search.Lpa{
-					PK:            "LPA#lpa-id",
+					PK:            dynamo.LpaKey("lpa-id"),
 					SK:            tc.sk,
 					DonorFullName: "x y",
 				}).
@@ -68,7 +69,7 @@ func TestUidStoreSetWhenDynamoClientError(t *testing.T) {
 
 	dynamoClient := newMockDynamoUpdateClient(t)
 	dynamoClient.EXPECT().
-		UpdateReturn(ctx, "LPA#lpa-id", "#DONOR#session-id", values,
+		UpdateReturn(ctx, dynamo.LpaKey("lpa-id"), dynamo.DonorKey("session-id"), values,
 			"set LpaUID = :uid, UpdatedAt = :now").
 		Return(nil, expectedError)
 
