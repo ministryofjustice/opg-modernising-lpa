@@ -7,7 +7,7 @@ describe('As a trust corporation', () => {
 
     // start
     cy.contains('a', 'Start').click();
-    cy.contains('button', 'Continue').click();
+    cy.get('form').submit();
 
     // enter reference number
     cy.get('#f-reference-number').type(shareCode);
