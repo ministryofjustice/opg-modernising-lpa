@@ -134,7 +134,7 @@ func Supporter(
 
 				if linkDonor {
 					shareCodeData.PK = dynamo.ShareKey(dynamo.DonorShareKey(accessCode))
-					shareCodeData.SK = dynamo.ShareKeySK(dynamo.DonorInviteKey(shareCodeData.SessionID, shareCodeData.LpaID))
+					shareCodeData.SK = dynamo.ShareSortKey(dynamo.DonorInviteKey(shareCodeData.SessionID, shareCodeData.LpaID))
 					shareCodeData.UpdatedAt = time.Now()
 
 					if err := donorStore.Link(donorCtx, shareCodeData); err != nil {

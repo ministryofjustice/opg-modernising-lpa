@@ -104,7 +104,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 			searchKeys = append(searchKeys, dynamo.Keys{PK: key.PK, SK: dynamo.CertificateProviderKey(data.SessionID)})
 		}
 
-		_, id, _ := strings.Cut(key.PK.PK(), "#") // TODO: may be able to rework this
+		_, id, _ := strings.Cut(key.PK.PK(), "#")
 		keyMap[id] = key.ActorType
 	}
 
