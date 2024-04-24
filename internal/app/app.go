@@ -45,11 +45,11 @@ type DynamoClient interface {
 	AllByPartialSK(ctx context.Context, pk, partialSK string, v interface{}) error
 	LatestForActor(ctx context.Context, sk string, v interface{}) error
 	AllBySK(ctx context.Context, sk string, v interface{}) error
-	AllByKeys(ctx context.Context, keys []dynamo.Key) ([]map[string]dynamodbtypes.AttributeValue, error)
-	AllKeysByPK(ctx context.Context, pk string) ([]dynamo.Key, error)
+	AllByKeys(ctx context.Context, keys []dynamo.Keys) ([]map[string]dynamodbtypes.AttributeValue, error)
+	AllKeysByPK(ctx context.Context, pk string) ([]dynamo.Keys, error)
 	Put(ctx context.Context, v interface{}) error
 	Create(ctx context.Context, v interface{}) error
-	DeleteKeys(ctx context.Context, keys []dynamo.Key) error
+	DeleteKeys(ctx context.Context, keys []dynamo.Keys) error
 	DeleteOne(ctx context.Context, pk, sk string) error
 	Update(ctx context.Context, pk, sk string, values map[string]dynamodbtypes.AttributeValue, expression string) error
 	BatchPut(ctx context.Context, items []interface{}) error

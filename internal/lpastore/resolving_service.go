@@ -37,12 +37,16 @@ func (s *ResolvingService) Get(ctx context.Context) (*Lpa, error) {
 	return s.Resolve(ctx, donor)
 }
 
-func (s *ResolvingService) Resolve(ctx context.Context, donor *actor.DonorProvidedDetails) (*Lpa, error) {
-	lpa, err := s.client.Lpa(ctx, donor.LpaUID)
-	if errors.Is(err, ErrNotFound) {
+func (s *ResolvingService) Resolve(ctx context.Context, donor *actor.DonorProvidedDetails) (lpa *Lpa, err error) {
+	if donor.LpaUID == "" {
 		lpa = FromDonorProvidedDetails(donor)
-	} else if err != nil {
-		return nil, err
+	} else {
+		lpa, err = s.client.Lpa(ctx, donor.LpaUID)
+		if errors.Is(err, ErrNotFound) {
+			lpa = FromDonorProvidedDetails(donor)
+		} else if err != nil {
+			return nil, err
+		}
 	}
 
 	lpa.LpaID = donor.LpaID
