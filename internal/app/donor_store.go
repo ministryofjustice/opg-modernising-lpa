@@ -225,7 +225,7 @@ func (s *donorStore) Latest(ctx context.Context) (*actor.DonorProvidedDetails, e
 	return donor, nil
 }
 
-func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Key) ([]actor.DonorProvidedDetails, error) {
+func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]actor.DonorProvidedDetails, error) {
 	if len(keys) == 0 {
 		return nil, nil
 	}

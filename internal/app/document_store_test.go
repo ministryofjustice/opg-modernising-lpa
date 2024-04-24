@@ -176,7 +176,7 @@ func TestDeleteInfectedDocuments(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		DeleteKeys(ctx, []dynamo.Key{
+		DeleteKeys(ctx, []dynamo.Keys{
 			{PK: "a-pk", SK: "a-sk"},
 			{PK: "another-pk", SK: "another-sk"},
 		}).
@@ -197,7 +197,7 @@ func TestDeleteInfectedDocumentsWhenDynamoClientError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		DeleteKeys(ctx, []dynamo.Key{
+		DeleteKeys(ctx, []dynamo.Keys{
 			{PK: "a-pk", SK: "a-sk"},
 			{PK: "another-pk", SK: "another-sk"},
 		}).

@@ -78,7 +78,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 					{PK: dynamo.LpaKey("999"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.DonorKey("an-id"), ActorType: actor.TypeDonor},
 					{PK: dynamo.LpaKey("signed-by-cp"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.DonorKey("another-id"), ActorType: actor.TypeCertificateProvider},
 				}, nil)
-			dynamoClient.ExpectAllByKeys(ctx, []dynamo.Key{
+			dynamoClient.ExpectAllByKeys(ctx, []dynamo.Keys{
 				{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("an-id")},
 				{PK: dynamo.LpaKey("456"), SK: dynamo.DonorKey("another-id")},
 				{PK: dynamo.LpaKey("456"), SK: dynamo.CertificateProviderKey("an-id")},
@@ -125,7 +125,7 @@ func TestDashboardStoreGetAllSubmittedForAttorneys(t *testing.T) {
 			{PK: dynamo.LpaKey("submitted"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.DonorKey("another-id"), ActorType: actor.TypeAttorney},
 			{PK: dynamo.LpaKey("submitted-replacement"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.DonorKey("another-id"), ActorType: actor.TypeAttorney},
 		}, nil)
-	dynamoClient.ExpectAllByKeys(ctx, []dynamo.Key{
+	dynamoClient.ExpectAllByKeys(ctx, []dynamo.Keys{
 		{PK: dynamo.LpaKey("submitted"), SK: dynamo.DonorKey("another-id")},
 		{PK: dynamo.LpaKey("submitted"), SK: dynamo.AttorneyKey("an-id")},
 		{PK: dynamo.LpaKey("submitted-replacement"), SK: dynamo.DonorKey("another-id")},
@@ -170,7 +170,7 @@ func TestDashboardStoreGetAllWhenResolveErrors(t *testing.T) {
 		[]lpaLink{
 			{PK: dynamo.LpaKey("0"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.DonorKey("an-id"), ActorType: actor.TypeDonor},
 		}, nil)
-	dynamoClient.ExpectAllByKeys(ctx, []dynamo.Key{
+	dynamoClient.ExpectAllByKeys(ctx, []dynamo.Keys{
 		{PK: dynamo.LpaKey("0"), SK: dynamo.DonorKey("an-id")},
 	}, []map[string]types.AttributeValue{makeAttributeValueMap(donor)}, nil)
 
@@ -218,7 +218,7 @@ func TestDashboardStoreGetAllWhenAllByKeysErrors(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllBySK(ctx, dynamo.SubKey("an-id"),
 		[]lpaLink{{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.DonorKey("an-id"), ActorType: actor.TypeDonor}}, nil)
-	dynamoClient.ExpectAllByKeys(ctx, []dynamo.Key{
+	dynamoClient.ExpectAllByKeys(ctx, []dynamo.Keys{
 		{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("an-id")},
 	}, nil, expectedError)
 

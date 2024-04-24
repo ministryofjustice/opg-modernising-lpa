@@ -91,17 +91,17 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		return nil, nil, nil, err
 	}
 
-	var searchKeys []dynamo.Key
+	var searchKeys []dynamo.Keys
 	keyMap := map[string]actor.Type{}
 	for _, key := range links {
-		searchKeys = append(searchKeys, dynamo.Key{PK: key.PK, SK: key.DonorKey})
+		searchKeys = append(searchKeys, dynamo.Keys{PK: key.PK, SK: key.DonorKey})
 
 		if key.ActorType == actor.TypeAttorney {
-			searchKeys = append(searchKeys, dynamo.Key{PK: key.PK, SK: dynamo.AttorneyKey(data.SessionID)})
+			searchKeys = append(searchKeys, dynamo.Keys{PK: key.PK, SK: dynamo.AttorneyKey(data.SessionID)})
 		}
 
 		if key.ActorType == actor.TypeCertificateProvider {
-			searchKeys = append(searchKeys, dynamo.Key{PK: key.PK, SK: dynamo.CertificateProviderKey(data.SessionID)})
+			searchKeys = append(searchKeys, dynamo.Keys{PK: key.PK, SK: dynamo.CertificateProviderKey(data.SessionID)})
 		}
 
 		_, id, _ := strings.Cut(key.PK, "#")

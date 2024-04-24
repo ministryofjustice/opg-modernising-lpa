@@ -500,7 +500,7 @@ func TestLatestForActorOnQueryError(t *testing.T) {
 func TestAllKeysByPK(t *testing.T) {
 	ctx := context.Background()
 
-	keys := []Key{
+	keys := []Keys{
 		{PK: "pk", SK: "sk1"},
 		{PK: "pk", SK: "sk2"},
 	}
@@ -568,7 +568,7 @@ func TestAllByKeys(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	v, err := c.AllByKeys(ctx, []Key{{PK: "pk", SK: "sk"}})
+	v, err := c.AllByKeys(ctx, []Keys{{PK: "pk", SK: "sk"}})
 	assert.Nil(t, err)
 	assert.Equal(t, []map[string]types.AttributeValue{data}, v)
 }
@@ -583,7 +583,7 @@ func TestAllByKeysWhenQueryErrors(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	_, err := c.AllByKeys(ctx, []Key{{PK: "pk", SK: "sk"}})
+	_, err := c.AllByKeys(ctx, []Keys{{PK: "pk", SK: "sk"}})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -741,7 +741,7 @@ func TestDeleteKeys(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 
-	err := c.DeleteKeys(ctx, []Key{{PK: "pk", SK: "sk1"}, {PK: "pk", SK: "sk2"}})
+	err := c.DeleteKeys(ctx, []Keys{{PK: "pk", SK: "sk1"}, {PK: "pk", SK: "sk2"}})
 	assert.Equal(t, expectedError, err)
 }
 
