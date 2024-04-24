@@ -3,7 +3,6 @@ package lpastore
 import (
 	"context"
 	"errors"
-	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -37,17 +36,21 @@ func (s *ResolvingService) Get(ctx context.Context) (*Lpa, error) {
 	return s.Resolve(ctx, donor)
 }
 
-func (s *ResolvingService) Resolve(ctx context.Context, donor *actor.DonorProvidedDetails) (*Lpa, error) {
-	lpa, err := s.client.Lpa(ctx, donor.LpaUID)
-	if errors.Is(err, ErrNotFound) {
+func (s *ResolvingService) Resolve(ctx context.Context, donor *actor.DonorProvidedDetails) (lpa *Lpa, err error) {
+	if donor.LpaUID == "" {
 		lpa = FromDonorProvidedDetails(donor)
-	} else if err != nil {
-		return nil, err
+	} else {
+		lpa, err = s.client.Lpa(ctx, donor.LpaUID)
+		if errors.Is(err, ErrNotFound) {
+			lpa = FromDonorProvidedDetails(donor)
+		} else if err != nil {
+			return nil, err
+		}
 	}
 
 	lpa.LpaID = donor.LpaID
 	lpa.LpaUID = donor.LpaUID
-	if donor.SK == dynamo.DonorKey("PAPER") {
+	if donor.SK.Equals(dynamo.DonorKey("PAPER")) {
 		lpa.Submitted = true
 		lpa.Paid = true
 		// set to Professionally so we always show the certificate provider home
@@ -58,7 +61,7 @@ func (s *ResolvingService) Resolve(ctx context.Context, donor *actor.DonorProvid
 		lpa.DonorIdentityConfirmed = donor.DonorIdentityConfirmed()
 		lpa.Submitted = !donor.SubmittedAt.IsZero()
 		lpa.Paid = donor.Tasks.PayForLpa.IsCompleted()
-		lpa.IsOrganisationDonor = strings.HasPrefix(donor.SK, dynamo.OrganisationKey(""))
+		lpa.IsOrganisationDonor = donor.SK.IsOrganisation()
 		lpa.Donor.Channel = actor.ChannelOnline
 
 		// copy the relationship as it isn't stored in the lpastore.

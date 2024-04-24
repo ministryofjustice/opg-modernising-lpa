@@ -4,10 +4,12 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 )
 
 type ShareCodeData struct {
-	PK, SK                string
+	PK                    dynamo.ShareKeyType
+	SK                    dynamo.ShareSortKeyType
 	UpdatedAt             time.Time
 	SessionID             string
 	LpaID                 string
