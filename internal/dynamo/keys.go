@@ -191,7 +191,7 @@ func MemberIDKey(memberID string) MemberIDKeyType {
 type MetadataKeyType string
 
 func (t MetadataKeyType) SK() string { return string(t) }
-func (t MetadataKeyType) shareSK()   {}
+func (t MetadataKeyType) shareSort() {}
 
 // MetadataKey is used as the SK when the value of the SK is not used for any purpose.
 func MetadataKey(s string) MetadataKeyType {
@@ -211,7 +211,7 @@ func DonorShareKey(code string) DonorShareKeyType {
 type DonorInviteKeyType string
 
 func (t DonorInviteKeyType) SK() string { return string(t) }
-func (t DonorInviteKeyType) shareSK()   {}
+func (t DonorInviteKeyType) shareSort() {}
 
 // DonorInviteKey is used as the SK (with DonorShareKey as PK) for an invitation
 // to a donor to link an Lpa being created by a member of an organisation.

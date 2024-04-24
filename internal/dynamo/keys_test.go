@@ -104,3 +104,21 @@ func TestSK(t *testing.T) {
 		})
 	}
 }
+
+func TestLpaOwnerKeyTypes(t *testing.T) {
+	for _, key := range []interface{ lpaOwner() }{DonorKey("hey"), OrganisationKey("what")} {
+		key.lpaOwner()
+	}
+}
+
+func TestShareKeyTypes(t *testing.T) {
+	for _, key := range []interface{ share() }{DonorShareKey("hey"), CertificateProviderShareKey("what"), AttorneyShareKey("hello")} {
+		key.share()
+	}
+}
+
+func TestShareSortKeyTypes(t *testing.T) {
+	for _, key := range []interface{ shareSort() }{MetadataKey("hey"), DonorInviteKey("what", "hello")} {
+		key.shareSort()
+	}
+}

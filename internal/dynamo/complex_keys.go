@@ -111,10 +111,18 @@ func (k *LpaOwnerKeyType) UnmarshalDynamoDBAttributeValue(av types.AttributeValu
 }
 
 func (k LpaOwnerKeyType) Equals(sk SK) bool {
-	return k.sk == sk
+	if k.sk == nil || sk == nil {
+		return false
+	}
+
+	return k.SK() == sk.SK()
 }
 
 func (k LpaOwnerKeyType) SK() string {
+	if k.sk == nil {
+		return ""
+	}
+
 	return k.sk.SK()
 }
 
@@ -185,7 +193,7 @@ type ShareSortKeyType struct{ sk SK }
 
 func ShareSortKey(sk interface {
 	SK
-	shareSK()
+	shareSort()
 }) ShareSortKeyType {
 	return ShareSortKeyType{sk: sk}
 }
@@ -210,7 +218,7 @@ func (k *ShareSortKeyType) UnmarshalText(text []byte) error {
 
 	sk, ok := v.(interface {
 		SK
-		shareSK()
+		shareSort()
 	})
 	if !ok {
 		return errors.New("invalid key")

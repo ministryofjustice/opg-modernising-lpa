@@ -22,6 +22,12 @@ func TestKeysJSON(t *testing.T) {
 	assert.Equal(t, keys, v)
 }
 
+func TestKeysUnmarshalJSONWhenError(t *testing.T) {
+	var v Keys
+	err := json.Unmarshal([]byte(`hey`), &v)
+	assert.Error(t, err)
+}
+
 func TestKeysAttributeValue(t *testing.T) {
 	keys := Keys{PK: LpaKey("abc"), SK: DonorKey("123")}
 
@@ -38,6 +44,12 @@ func TestKeysAttributeValue(t *testing.T) {
 	err = attributevalue.Unmarshal(data, &v)
 	assert.Nil(t, err)
 	assert.Equal(t, keys, v)
+}
+
+func TestKeysUnmarshalAttributeValueWhenError(t *testing.T) {
+	var v Keys
+	err := attributevalue.Unmarshal(&types.AttributeValueMemberS{Value: "hey"}, &v)
+	assert.Error(t, err)
 }
 
 func TestKeysWhenMalformed(t *testing.T) {
@@ -63,6 +75,10 @@ func TestLpaOwnerKey(t *testing.T) {
 		"DONOR#123":        LpaOwnerKey(DonorKey("123")),
 		"ORGANISATION#123": LpaOwnerKey(OrganisationKey("123")),
 	} {
+		t.Run(str+"/SK", func(t *testing.T) {
+			assert.Equal(t, str, key.SK())
+		})
+
 		t.Run(str+"/json", func(t *testing.T) {
 			data, err := json.Marshal(key)
 			assert.Nil(t, err)
@@ -86,17 +102,58 @@ func TestLpaOwnerKey(t *testing.T) {
 		})
 	}
 
+	t.Run("Equals", func(t *testing.T) {
+		x := LpaOwnerKey(DonorKey("abc"))
+		y := LpaOwnerKey(DonorKey("def"))
+		z := LpaOwnerKey(OrganisationKey("abc"))
+
+		assert.True(t, x.Equals(x))
+		assert.True(t, x.Equals(DonorKey("abc")))
+		assert.True(t, x.Equals(LpaOwnerKey(DonorKey("abc"))))
+		assert.True(t, z.Equals(z))
+
+		assert.False(t, x.Equals(y))
+		assert.False(t, x.Equals(z))
+
+		assert.False(t, LpaOwnerKey(nil).Equals(nil))
+		assert.False(t, LpaOwnerKey(DonorKey("")).Equals(LpaOwnerKey(nil)))
+		assert.False(t, LpaOwnerKey(nil).Equals(DonorKey("")))
+	})
+
+	t.Run("IsOrganisation", func(t *testing.T) {
+		assert.True(t, LpaOwnerKey(OrganisationKey("")).IsOrganisation())
+		assert.False(t, LpaOwnerKey(DonorKey("")).IsOrganisation())
+		assert.False(t, LpaOwnerKey(nil).IsOrganisation())
+	})
+
+	t.Run("malformed", func(t *testing.T) {
+		var v LpaOwnerKeyType
+		err := json.Unmarshal([]byte(`"WHAT"`), &v)
+		assert.Error(t, err)
+	})
+
 	t.Run("invalid", func(t *testing.T) {
 		var v LpaOwnerKeyType
 		err := json.Unmarshal([]byte(`"ATTORNEY#123"`), &v)
 		assert.Error(t, err)
 	})
 
-	t.Run("empty", func(t *testing.T) {
+	t.Run("empty json", func(t *testing.T) {
 		var v LpaOwnerKeyType
+		err := json.Unmarshal([]byte(`""`), &v)
+		assert.Nil(t, err)
+		assert.Equal(t, LpaOwnerKeyType{}, v)
+
 		data, err := json.Marshal(v)
 		assert.Nil(t, err)
 		assert.Equal(t, `""`, string(data))
+	})
+
+	t.Run("empty attributevalue", func(t *testing.T) {
+		var v LpaOwnerKeyType
+		err := attributevalue.Unmarshal(&types.AttributeValueMemberS{Value: ""}, &v)
+		assert.Nil(t, err)
+		assert.Equal(t, LpaOwnerKeyType{}, v)
 
 		av, err := attributevalue.Marshal(v)
 		assert.Nil(t, err)
@@ -110,6 +167,10 @@ func TestShareKey(t *testing.T) {
 		"CERTIFICATEPROVIDERSHARE#123": ShareKey(CertificateProviderShareKey("123")),
 		"ATTORNEYSHARE#123":            ShareKey(AttorneyShareKey("123")),
 	} {
+		t.Run(str+"/PK", func(t *testing.T) {
+			assert.Equal(t, str, key.PK())
+		})
+
 		t.Run(str+"/json", func(t *testing.T) {
 			data, err := json.Marshal(key)
 			assert.Nil(t, err)
@@ -133,17 +194,34 @@ func TestShareKey(t *testing.T) {
 		})
 	}
 
+	t.Run("malformed", func(t *testing.T) {
+		var v ShareKeyType
+		err := json.Unmarshal([]byte(`"WHAT"`), &v)
+		assert.Error(t, err)
+	})
+
 	t.Run("invalid", func(t *testing.T) {
 		var v ShareKeyType
 		err := json.Unmarshal([]byte(`"ATTORNEY#123"`), &v)
 		assert.Error(t, err)
 	})
 
-	t.Run("empty", func(t *testing.T) {
+	t.Run("empty json", func(t *testing.T) {
 		var v ShareKeyType
+		err := json.Unmarshal([]byte(`""`), &v)
+		assert.Nil(t, err)
+		assert.Equal(t, ShareKeyType{}, v)
+
 		data, err := json.Marshal(v)
 		assert.Nil(t, err)
 		assert.Equal(t, `""`, string(data))
+	})
+
+	t.Run("empty attributevalue", func(t *testing.T) {
+		var v ShareKeyType
+		err := attributevalue.Unmarshal(&types.AttributeValueMemberS{Value: ""}, &v)
+		assert.Nil(t, err)
+		assert.Equal(t, ShareKeyType{}, v)
 
 		av, err := attributevalue.Marshal(v)
 		assert.Nil(t, err)
@@ -156,6 +234,10 @@ func TestShareSortKey(t *testing.T) {
 		"DONORINVITE#123#abc": ShareSortKey(DonorInviteKey("123", "abc")),
 		"METADATA#123":        ShareSortKey(MetadataKey("123")),
 	} {
+		t.Run(str+"/SK", func(t *testing.T) {
+			assert.Equal(t, str, key.SK())
+		})
+
 		t.Run(str+"/json", func(t *testing.T) {
 			data, err := json.Marshal(key)
 			assert.Nil(t, err)
@@ -179,17 +261,34 @@ func TestShareSortKey(t *testing.T) {
 		})
 	}
 
+	t.Run("malformed", func(t *testing.T) {
+		var v ShareSortKeyType
+		err := json.Unmarshal([]byte(`"WHAT"`), &v)
+		assert.Error(t, err)
+	})
+
 	t.Run("invalid", func(t *testing.T) {
 		var v ShareSortKeyType
 		err := json.Unmarshal([]byte(`"ATTORNEY#123"`), &v)
 		assert.Error(t, err)
 	})
 
-	t.Run("empty", func(t *testing.T) {
+	t.Run("empty json", func(t *testing.T) {
 		var v ShareSortKeyType
+		err := json.Unmarshal([]byte(`""`), &v)
+		assert.Nil(t, err)
+		assert.Equal(t, ShareSortKeyType{}, v)
+
 		data, err := json.Marshal(v)
 		assert.Nil(t, err)
 		assert.Equal(t, `""`, string(data))
+	})
+
+	t.Run("empty attributevalue", func(t *testing.T) {
+		var v ShareSortKeyType
+		err := attributevalue.Unmarshal(&types.AttributeValueMemberS{Value: ""}, &v)
+		assert.Nil(t, err)
+		assert.Equal(t, ShareSortKeyType{}, v)
 
 		av, err := attributevalue.Marshal(v)
 		assert.Nil(t, err)

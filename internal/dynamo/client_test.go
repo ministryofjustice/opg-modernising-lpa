@@ -752,6 +752,27 @@ func TestDeleteKeys(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
+func TestDeleteOne(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		DeleteItem(ctx, &dynamodb.DeleteItemInput{
+			TableName: aws.String("table-name"),
+			Key: map[string]types.AttributeValue{
+				"PK": &types.AttributeValueMemberS{Value: "a-pk"},
+				"SK": &types.AttributeValueMemberS{Value: "a-sk"},
+			},
+		}).
+		Return(nil, expectedError)
+
+	c := &Client{table: "table-name", svc: dynamoDB}
+
+	err := c.DeleteOne(ctx, testPK("a-pk"), testSK("a-sk"))
+
+	assert.Equal(t, expectedError, err)
+}
+
 func TestUpdate(t *testing.T) {
 	ctx := context.Background()
 

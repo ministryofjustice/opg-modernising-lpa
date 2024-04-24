@@ -233,7 +233,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 	}{
 		"online with all true": {
 			donors: []*actor.DonorProvidedDetails{{
-				SK:          dynamo.OrganisationKey("S"),
+				SK:          dynamo.LpaOwnerKey(dynamo.OrganisationKey("S")),
 				LpaID:       "1",
 				LpaUID:      "M-1111",
 				SubmittedAt: time.Now(),
@@ -272,7 +272,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 		},
 		"online with no lpastore record": {
 			donors: []*actor.DonorProvidedDetails{{
-				SK:     dynamo.DonorKey("S"),
+				SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("S")),
 				LpaUID: "M-1111",
 				CertificateProvider: actor.CertificateProvider{
 					FirstNames:   "John",
@@ -308,7 +308,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 		},
 		"online with all false": {
 			donors: []*actor.DonorProvidedDetails{{
-				SK:     dynamo.DonorKey("S"),
+				SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("S")),
 				LpaID:  "1",
 				LpaUID: "M-1111",
 			}},
@@ -322,7 +322,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 		},
 		"paper": {
 			donors: []*actor.DonorProvidedDetails{{
-				SK:     dynamo.DonorKey("PAPER"),
+				SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
 				LpaID:  "1",
 				LpaUID: "M-1111",
 			}},
