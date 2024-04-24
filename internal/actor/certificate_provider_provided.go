@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -12,7 +13,8 @@ import (
 
 // CertificateProviderProvidedDetails contains details about the certificate provider, provided by the certificate provider
 type CertificateProviderProvidedDetails struct {
-	PK, SK string
+	PK dynamo.LpaKeyType
+	SK dynamo.CertificateProviderKeyType
 	// UID of the actor
 	UID actoruid.UID
 	// The identifier of the LPA the certificate provider is providing a certificate for

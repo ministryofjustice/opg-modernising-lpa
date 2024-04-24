@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -16,8 +17,8 @@ func TestMemberStoreCreateMemberInvite(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
 		Create(ctx, &actor.MemberInvite{
-			PK:               "ORGANISATION#an-id",
-			SK:               "MEMBERINVITE#ZW1haWxAZXhhbXBsZS5jb20=",
+			PK:               dynamo.OrganisationKey("an-id"),
+			SK:               dynamo.MemberInviteKey("email@example.com"),
 			CreatedAt:        testNow,
 			OrganisationID:   "a-uuid",
 			OrganisationName: "org name",
@@ -57,7 +58,7 @@ func TestMemberStoreInvitedMember(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "a@example.org"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOneBySK(ctx, "MEMBERINVITE#YUBleGFtcGxlLm9yZw==", &actor.MemberInvite{OrganisationID: "an-id"}, nil)
+	dynamoClient.ExpectOneBySK(ctx, dynamo.MemberInviteKey("a@example.org"), &actor.MemberInvite{OrganisationID: "an-id"}, nil)
 
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
@@ -115,8 +116,8 @@ func TestMemberStoreInvitedMembers(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectAllByPartialSK(ctx, "ORGANISATION#an-id",
-		"MEMBERINVITE#", []*actor.MemberInvite{{OrganisationID: "an-id"}, {OrganisationID: "an-id"}}, nil)
+	dynamoClient.ExpectAllByPartialSK(ctx, dynamo.OrganisationKey("an-id"),
+		dynamo.MemberInviteKey(""), []*actor.MemberInvite{{OrganisationID: "an-id"}, {OrganisationID: "an-id"}}, nil)
 
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
@@ -147,8 +148,8 @@ func TestMemberStoreInvitedMembersWhenDynamoClientError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectAllByPartialSK(ctx, "ORGANISATION#an-id",
-		"MEMBERINVITE#", []*actor.MemberInvite{}, expectedError)
+	dynamoClient.ExpectAllByPartialSK(ctx, dynamo.OrganisationKey("an-id"),
+		dynamo.MemberInviteKey(""), []*actor.MemberInvite{}, expectedError)
 
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
@@ -161,7 +162,7 @@ func TestMemberStoreInvitedMembersByEmail(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{Email: "a@example.org"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectAllBySK(ctx, "MEMBERINVITE#YUBleGFtcGxlLm9yZw==", []*actor.MemberInvite{
+	dynamoClient.ExpectAllBySK(ctx, dynamo.MemberInviteKey("a@example.org"), []*actor.MemberInvite{
 		{OrganisationID: "an-id", Email: "a@example.org"},
 		{OrganisationID: "another-id", Email: "a@example.org"},
 	}, nil)
@@ -212,7 +213,7 @@ func TestPut(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		Put(ctx, &actor.Member{PK: "ORGANISATION#123", SK: "ORGANISATION#456", UpdatedAt: testNow}).
+		Put(ctx, &actor.Member{PK: dynamo.OrganisationKey("123"), SK: dynamo.MemberKey("456"), UpdatedAt: testNow}).
 		Return(nil)
 
 	store := &memberStore{
@@ -220,7 +221,7 @@ func TestPut(t *testing.T) {
 		now:          testNowFn,
 	}
 
-	err := store.Put(ctx, &actor.Member{PK: "ORGANISATION#123", SK: "ORGANISATION#456"})
+	err := store.Put(ctx, &actor.Member{PK: dynamo.OrganisationKey("123"), SK: dynamo.MemberKey("456")})
 	assert.Nil(t, err)
 }
 
@@ -237,7 +238,7 @@ func TestPutWhenDynamoError(t *testing.T) {
 		now:          testNowFn,
 	}
 
-	err := store.Put(ctx, &actor.Member{PK: "ORGANISATION#123", SK: "ORGANISATION#456"})
+	err := store.Put(ctx, &actor.Member{PK: dynamo.OrganisationKey("123"), SK: dynamo.MemberKey("456")})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -245,8 +246,8 @@ func TestMemberStoreGetAll(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectAllByPartialSK(ctx, "ORGANISATION#an-id",
-		"MEMBER#", []*actor.Member{{FirstNames: "a"}, {FirstNames: "c"}, {FirstNames: "b"}}, nil)
+	dynamoClient.ExpectAllByPartialSK(ctx, dynamo.OrganisationKey("an-id"),
+		dynamo.MemberKey(""), []*actor.Member{{FirstNames: "a"}, {FirstNames: "c"}, {FirstNames: "b"}}, nil)
 
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
@@ -277,8 +278,8 @@ func TestMemberStoreGetAllWhenDynamoClientError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectAllByPartialSK(ctx, "ORGANISATION#an-id",
-		"MEMBER#", []*actor.MemberInvite{}, expectedError)
+	dynamoClient.ExpectAllByPartialSK(ctx, dynamo.OrganisationKey("an-id"),
+		dynamo.MemberKey(""), []*actor.MemberInvite{}, expectedError)
 
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
@@ -296,7 +297,7 @@ func TestMemberStoreGet(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOne(ctx, "ORGANISATION#a-uuid", "MEMBER#session-id",
+		ExpectOne(ctx, dynamo.OrganisationKey("a-uuid"), dynamo.MemberKey("session-id"),
 			member, nil)
 
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
@@ -328,7 +329,7 @@ func TestMemberStoreGetWhenErrors(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOne(ctx, "ORGANISATION#a-uuid", "MEMBER#session-id",
+		ExpectOne(ctx, dynamo.OrganisationKey("a-uuid"), dynamo.MemberKey("session-id"),
 			nil, expectedError)
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
@@ -339,8 +340,8 @@ func TestMemberStoreGetWhenErrors(t *testing.T) {
 func TestMemberStoreCreate(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "session-id", Email: "email@example.com"})
 	expectedMember := &actor.Member{
-		PK:             "ORGANISATION#a-uuid",
-		SK:             "MEMBER#session-id",
+		PK:             dynamo.OrganisationKey("a-uuid"),
+		SK:             dynamo.MemberKey("session-id"),
 		CreatedAt:      testNow,
 		UpdatedAt:      testNow,
 		ID:             "a-uuid",
@@ -360,9 +361,9 @@ func TestMemberStoreCreate(t *testing.T) {
 		Once()
 	dynamoClient.EXPECT().
 		Create(ctx, &organisationLink{
-			PK:       "ORGANISATION#a-uuid",
-			SK:       "MEMBERID#a-uuid",
-			MemberSK: "MEMBER#session-id",
+			PK:       dynamo.OrganisationKey("a-uuid"),
+			SK:       dynamo.MemberIDKey("a-uuid"),
+			MemberSK: dynamo.MemberKey("session-id"),
 		}).
 		Return(nil).
 		Once()
@@ -448,8 +449,8 @@ func TestMemberStoreCreateFromInvite(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
 		Create(ctx, &actor.Member{
-			PK:             "ORGANISATION#org-id",
-			SK:             "MEMBER#session-id",
+			PK:             dynamo.OrganisationKey("org-id"),
+			SK:             dynamo.MemberKey("session-id"),
 			CreatedAt:      testNow,
 			UpdatedAt:      testNow,
 			ID:             "a-uuid",
@@ -464,14 +465,14 @@ func TestMemberStoreCreateFromInvite(t *testing.T) {
 		Return(nil)
 
 	dynamoClient.EXPECT().
-		DeleteOne(ctx, "ORGANISATION#org-id", "MEMBERINVITE#YWJAZXhhbXBsZS5vcmc=").
+		DeleteOne(ctx, dynamo.OrganisationKey("org-id"), dynamo.MemberInviteKey(invite.Email)).
 		Return(nil)
 
 	dynamoClient.EXPECT().
 		Create(ctx, &organisationLink{
-			PK:       "ORGANISATION#org-id",
-			SK:       "MEMBERID#a-uuid",
-			MemberSK: "MEMBER#session-id",
+			PK:       dynamo.OrganisationKey("org-id"),
+			SK:       dynamo.MemberIDKey("a-uuid"),
+			MemberSK: dynamo.MemberKey("session-id"),
 		}).
 		Return(nil)
 
@@ -549,21 +550,21 @@ func TestMemberStoreGetByID(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOne(ctx, "ORGANISATION#org-id", "MEMBERID#1",
+		ExpectOne(ctx, dynamo.OrganisationKey("org-id"), dynamo.MemberIDKey("1"),
 			&organisationLink{
-				PK:       "ORGANISATION#org-id",
-				SK:       "MEMBERID#1",
-				MemberSK: "MEMBER#a-uuid",
+				PK:       dynamo.OrganisationKey("org-id"),
+				SK:       dynamo.MemberIDKey("1"),
+				MemberSK: dynamo.MemberKey("a-uuid"),
 			}, nil)
 
 	expectedMember := &actor.Member{
-		PK: "ORGANISATION#org-id",
-		SK: "MEMBER#a-uuid",
+		PK: dynamo.OrganisationKey("org-id"),
+		SK: dynamo.MemberKey("a-uuid"),
 		ID: "1",
 	}
 
 	dynamoClient.
-		ExpectOne(ctx, "ORGANISATION#org-id", "MEMBER#a-uuid",
+		ExpectOne(ctx, dynamo.OrganisationKey("org-id"), dynamo.MemberKey("a-uuid"),
 			expectedMember, nil)
 
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
@@ -635,7 +636,7 @@ func TestMemberStoreGetAny(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOneBySK(ctx, "MEMBER#session-id",
+		ExpectOneBySK(ctx, dynamo.MemberKey("session-id"),
 			expectedMember, nil)
 
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
@@ -667,7 +668,7 @@ func TestMemberStoreGetAnyWhenDynamoClientErrors(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOneBySK(ctx, "MEMBER#session-id",
+		ExpectOneBySK(ctx, dynamo.MemberKey("session-id"),
 			nil, expectedError)
 
 	memberStore := &memberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
