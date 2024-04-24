@@ -4,65 +4,72 @@ const lpaStore = stores.open('lpa');
 const pathParts = context.request.path.split('/');
 
 switch (context.request.method) {
-case 'GET': {
+  case 'GET': {
     if (pathParts.length == 3 && pathParts[1] == 'lpas') {
-        const lpa = lpaStore.load(pathParts[2]);
-        if (lpa) {
-            respond().withContent(lpa);
-        } else {
-            respond().withStatusCode(404);
-        }
+      const lpa = lpaStore.load(pathParts[2]);
+      if (lpa) {
+        respond().withContent(lpa);
+      } else {
+        respond().withStatusCode(404);
+      }
     } else {
-        respond();
+      respond();
     }
     break;
-}
-case 'PUT': {
+  }
+  case 'PUT': {
     let lpa = JSON.parse(context.request.body);
     lpa.uid = pathParts[2];
     lpa.updatedAt = new Date(Date.now()).toISOString();
     lpaStore.save(pathParts[2], JSON.stringify(lpa));
     respond();
     break;
-}
-case 'POST': {
-    let update = JSON.parse(context.request.body);
-    let lpa = JSON.parse(lpaStore.load(pathParts[2]));
-    lpa.updatedAt = new Date(Date.now()).toISOString();
+  }
+  case 'POST': {
+    if (context.request.path == '/lpas') {
+      let uids = JSON.parse(context.request.body).uids;
+      let lpas = uids.map(uid => lpaStore.load(uid)).reduce((list, lpa) => lpa ? list.concat([JSON.parse(lpa)]) : list, []);
 
-    switch (update.type) {
-    case 'ATTORNEY_SIGN': {
-        const keyParts = update.changes[0].key.split('/');
-        const idx = parseInt(keyParts[2]);
+      respond().withContent(JSON.stringify({ lpas: lpas }));
+    } else {
+      let update = JSON.parse(context.request.body);
+      let lpa = JSON.parse(lpaStore.load(pathParts[2]));
+      lpa.updatedAt = new Date(Date.now()).toISOString();
 
-        if (lpa.attorneys && idx < lpa.attorneys.length) {
+      switch (update.type) {
+        case 'ATTORNEY_SIGN': {
+          const keyParts = update.changes[0].key.split('/');
+          const idx = parseInt(keyParts[2]);
+
+          if (lpa.attorneys && idx < lpa.attorneys.length) {
             lpa.attorneys[idx].signedAt = lpa.signedAt;
+          }
+          break;
         }
-        break;
-    }
-    case 'TRUST_CORPORATION_SIGN': {
-        const keyParts = update.changes[0].key.split('/');
-        const idx = parseInt(keyParts[2]);
+        case 'TRUST_CORPORATION_SIGN': {
+          const keyParts = update.changes[0].key.split('/');
+          const idx = parseInt(keyParts[2]);
 
-        if (lpa.trustCorporations && idx < lpa.trustCorporations.length) {
+          if (lpa.trustCorporations && idx < lpa.trustCorporations.length) {
             lpa.trustCorporations[idx].signatories = [{ signedAt: lpa.signedAt }];
+          }
+          break;
         }
-        break;
-    }
-    case 'CERTIFICATE_PROVIDER_SIGN': 
-        lpa.certificateProvider.signedAt = lpa.signedAt;
-        break;
-        
-    case 'REGISTER':
-        lpa.status = 'registered';
-        lpa.registrationDate = new Date(Date.now()).toISOString();
-        break;
-    }
+        case 'CERTIFICATE_PROVIDER_SIGN':
+          lpa.certificateProvider.signedAt = lpa.signedAt;
+          break;
 
-    lpaStore.save(pathParts[2], JSON.stringify(lpa));
-    respond();
+        case 'REGISTER':
+          lpa.status = 'registered';
+          lpa.registrationDate = new Date(Date.now()).toISOString();
+          break;
+      }
+
+      lpaStore.save(pathParts[2], JSON.stringify(lpa));
+      respond();
+    }
     break;
-}
-default:
+  }
+  default:
     respond();
 }
