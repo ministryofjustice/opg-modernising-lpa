@@ -386,7 +386,7 @@ func TestPostDonorAccessRemove(t *testing.T) {
 
 	shareCodeData := actor.ShareCodeData{
 		PK:           dynamo.ShareKey(dynamo.DonorShareKey("1")),
-		SK:           dynamo.ShareKeySK(dynamo.DonorInviteKey("donor-session-id", "lpa-id")),
+		SK:           dynamo.ShareSortKey(dynamo.DonorInviteKey("donor-session-id", "lpa-id")),
 		InviteSentTo: "email@example.com",
 		SessionID:    "session-id",
 	}
@@ -426,7 +426,7 @@ func TestPostDonorAccessRemoveWhenDonorHasPaid(t *testing.T) {
 
 	shareCodeData := actor.ShareCodeData{
 		PK:           dynamo.ShareKey(dynamo.DonorShareKey("1")),
-		SK:           dynamo.ShareKeySK(dynamo.DonorInviteKey("donor-session-id", "lpa-id")),
+		SK:           dynamo.ShareSortKey(dynamo.DonorInviteKey("donor-session-id", "lpa-id")),
 		InviteSentTo: "email@example.com",
 		SessionID:    "session-id",
 	}
