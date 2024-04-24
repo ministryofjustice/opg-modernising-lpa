@@ -3,6 +3,8 @@ package actor
 import (
 	"fmt"
 	"time"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 )
 
 const memberInviteExpireAfter = time.Hour * 48
@@ -10,7 +12,7 @@ const memberInviteExpireAfter = time.Hour * 48
 // An Organisation contains users associated with a set of permissions that work on the
 // same set of LPAs.
 type Organisation struct {
-	PK, SK string
+	PK, SK dynamo.OrganisationKeyType
 	// CreatedAt is when the Organisation was created
 	CreatedAt time.Time
 	// UpdatedAt is when the Organisation was last updated
@@ -25,7 +27,8 @@ type Organisation struct {
 
 // A Member is the association of a OneLogin user with an Organisation.
 type Member struct {
-	PK, SK string
+	PK dynamo.OrganisationKeyType
+	SK dynamo.MemberKeyType
 	// CreatedAt is when the Member was created
 	CreatedAt time.Time
 	// UpdatedAt is when the Member was last updated
@@ -51,7 +54,8 @@ func (i Member) FullName() string {
 
 // A MemberInvite is created to allow a new Member to join an Organisation
 type MemberInvite struct {
-	PK, SK string
+	PK dynamo.OrganisationKeyType
+	SK dynamo.MemberInviteKeyType
 	// CreatedAt is when the MemberInvite was created
 	CreatedAt time.Time
 	// UpdatedAt is when the MemberInvite was last updated

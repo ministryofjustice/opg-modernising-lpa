@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -10,11 +11,11 @@ import (
 )
 
 type ShareCodeStoreDynamoClient interface {
-	One(ctx context.Context, pk, sk string, v interface{}) error
-	OneByPK(ctx context.Context, pk string, v interface{}) error
-	OneBySK(ctx context.Context, sk string, v interface{}) error
+	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error
+	OneByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
+	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
 	Put(ctx context.Context, v interface{}) error
-	DeleteOne(ctx context.Context, pk, sk string) error
+	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
 }
 
 type shareCodeStore struct {
@@ -29,7 +30,7 @@ func NewShareCodeStore(dynamoClient ShareCodeStoreDynamoClient) *shareCodeStore 
 func (s *shareCodeStore) Get(ctx context.Context, actorType actor.Type, shareCode string) (actor.ShareCodeData, error) {
 	var data actor.ShareCodeData
 
-	pk, err := dynamo.ShareCodeKey(actorType, shareCode)
+	pk, err := shareCodeKey(actorType, shareCode)
 	if err != nil {
 		return data, err
 	}
@@ -53,20 +54,20 @@ func (s *shareCodeStore) Linked(ctx context.Context, data actor.ShareCodeData, e
 }
 
 func (s *shareCodeStore) Put(ctx context.Context, actorType actor.Type, shareCode string, data actor.ShareCodeData) error {
-	pk, err := dynamo.ShareCodeKey(actorType, shareCode)
+	pk, err := shareCodeKey(actorType, shareCode)
 	if err != nil {
 		return err
 	}
 
-	data.PK = pk
-	data.SK = dynamo.MetadataKey(shareCode)
+	data.PK = dynamo.ShareKey(pk)
+	data.SK = dynamo.ShareKeySK(dynamo.MetadataKey(shareCode))
 
 	return s.dynamoClient.Put(ctx, data)
 }
 
 func (s *shareCodeStore) PutDonor(ctx context.Context, shareCode string, data actor.ShareCodeData) error {
-	data.PK = dynamo.DonorShareKey(shareCode)
-	data.SK = dynamo.DonorInviteKey(data.SessionID, data.LpaID)
+	data.PK = dynamo.ShareKey(dynamo.DonorShareKey(shareCode))
+	data.SK = dynamo.ShareKeySK(dynamo.DonorInviteKey(data.SessionID, data.LpaID))
 	data.UpdatedAt = s.now()
 
 	return s.dynamoClient.Put(ctx, data)
@@ -88,4 +89,19 @@ func (s *shareCodeStore) GetDonor(ctx context.Context) (actor.ShareCodeData, err
 
 func (s *shareCodeStore) Delete(ctx context.Context, shareCode actor.ShareCodeData) error {
 	return s.dynamoClient.DeleteOne(ctx, shareCode.PK, shareCode.SK)
+}
+
+func shareCodeKey(actorType actor.Type, shareCode string) (pk dynamo.PK, err error) {
+	switch actorType {
+	case actor.TypeDonor:
+		return dynamo.DonorShareKey(shareCode), nil
+	// As attorneys and replacement attorneys share the same landing page we can't
+	// differentiate between them
+	case actor.TypeAttorney, actor.TypeReplacementAttorney, actor.TypeTrustCorporation, actor.TypeReplacementTrustCorporation:
+		return dynamo.AttorneyShareKey(shareCode), nil
+	case actor.TypeCertificateProvider:
+		return dynamo.CertificateProviderShareKey(shareCode), nil
+	default:
+		return nil, fmt.Errorf("cannot have share code for actorType=%v", actorType)
+	}
 }

@@ -19,7 +19,7 @@ import (
 
 func TestGetDonorAccess(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{Donor: actor.Donor{Email: "x"}}
-	shareCodeData := actor.ShareCodeData{PK: "1"}
+	shareCodeData := actor.ShareCodeData{PK: dynamo.ShareKey(dynamo.DonorShareKey("1"))}
 
 	testcases := map[string]struct {
 		data                *donorAccessData
@@ -286,7 +286,7 @@ func TestPostDonorAccessRecall(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	shareCodeData := actor.ShareCodeData{PK: "1", InviteSentTo: "email@example.com"}
+	shareCodeData := actor.ShareCodeData{PK: dynamo.ShareKey(dynamo.DonorShareKey("1")), InviteSentTo: "email@example.com"}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -316,7 +316,7 @@ func TestPostDonorAccessRecallWhenDeleteErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	shareCodeData := actor.ShareCodeData{PK: "1", InviteSentTo: "email@example.com"}
+	shareCodeData := actor.ShareCodeData{PK: dynamo.ShareKey(dynamo.DonorShareKey("1")), InviteSentTo: "email@example.com"}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -385,8 +385,8 @@ func TestPostDonorAccessRemove(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	shareCodeData := actor.ShareCodeData{
-		PK:           "1",
-		SK:           "DONORINVITE#donor-session-id#lpa-id",
+		PK:           dynamo.ShareKey(dynamo.DonorShareKey("1")),
+		SK:           dynamo.ShareKeySK(dynamo.DonorInviteKey("donor-session-id", "lpa-id")),
 		InviteSentTo: "email@example.com",
 		SessionID:    "session-id",
 	}
@@ -399,7 +399,7 @@ func TestPostDonorAccessRemove(t *testing.T) {
 		Delete(r.Context(), shareCodeData).
 		Return(nil)
 
-	donor := &actor.DonorProvidedDetails{SK: "#DONOR#donor-session-id"}
+	donor := &actor.DonorProvidedDetails{SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id"))}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -425,8 +425,8 @@ func TestPostDonorAccessRemoveWhenDonorHasPaid(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	shareCodeData := actor.ShareCodeData{
-		PK:           "1",
-		SK:           "DONORINVITE#donor-session-id#lpa-id",
+		PK:           dynamo.ShareKey(dynamo.DonorShareKey("1")),
+		SK:           dynamo.ShareKeySK(dynamo.DonorInviteKey("donor-session-id", "lpa-id")),
 		InviteSentTo: "email@example.com",
 		SessionID:    "session-id",
 	}
@@ -436,7 +436,7 @@ func TestPostDonorAccessRemoveWhenDonorHasPaid(t *testing.T) {
 		GetDonor(r.Context()).
 		Return(shareCodeData, nil)
 
-	donor := &actor.DonorProvidedDetails{SK: "#DONOR#donor-session-id", Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}}
+	donor := &actor.DonorProvidedDetails{SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -465,7 +465,7 @@ func TestPostDonorAccessRemoveWhenDeleteError(t *testing.T) {
 		Delete(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	donor := &actor.DonorProvidedDetails{SK: "#DONOR#donor-session-id"}
+	donor := &actor.DonorProvidedDetails{SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id"))}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -494,7 +494,7 @@ func TestPostDonorAccessRemoveWhenDeleteLinkError(t *testing.T) {
 		Delete(mock.Anything, mock.Anything).
 		Return(nil)
 
-	donor := &actor.DonorProvidedDetails{SK: "#DONOR#donor-session-id"}
+	donor := &actor.DonorProvidedDetails{SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id"))}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
