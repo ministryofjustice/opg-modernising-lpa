@@ -47,7 +47,7 @@ type indicesClient interface {
 
 type QueryResponse struct {
 	Pagination *Pagination
-	Keys       []dynamo.Key
+	Keys       []dynamo.Keys
 }
 
 type Lpa struct {
@@ -151,9 +151,9 @@ func (c *Client) Query(ctx context.Context, req QueryRequest) (*QueryResponse, e
 		return nil, err
 	}
 
-	var keys []dynamo.Key
+	var keys []dynamo.Keys
 	for _, hit := range resp.Hits.Hits {
-		var key dynamo.Key
+		var key dynamo.Keys
 		if err := json.Unmarshal(hit.Source, &key); err != nil {
 			return nil, err
 		}
@@ -223,9 +223,9 @@ func getSKFromContext(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	sk := "#DONOR#" + session.SessionID
+	sk := dynamo.DonorKey(session.SessionID)
 	if session.OrganisationID != "" {
-		sk = "ORGANISATION#" + session.OrganisationID
+		sk = dynamo.OrganisationKey(session.OrganisationID)
 	}
 
 	return sk, nil

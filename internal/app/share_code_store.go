@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -29,7 +30,7 @@ func NewShareCodeStore(dynamoClient ShareCodeStoreDynamoClient) *shareCodeStore 
 func (s *shareCodeStore) Get(ctx context.Context, actorType actor.Type, shareCode string) (actor.ShareCodeData, error) {
 	var data actor.ShareCodeData
 
-	pk, err := dynamo.ShareCodeKey(actorType, shareCode)
+	pk, err := shareCodeKey(actorType, shareCode)
 	if err != nil {
 		return data, err
 	}
@@ -53,7 +54,7 @@ func (s *shareCodeStore) Linked(ctx context.Context, data actor.ShareCodeData, e
 }
 
 func (s *shareCodeStore) Put(ctx context.Context, actorType actor.Type, shareCode string, data actor.ShareCodeData) error {
-	pk, err := dynamo.ShareCodeKey(actorType, shareCode)
+	pk, err := shareCodeKey(actorType, shareCode)
 	if err != nil {
 		return err
 	}
@@ -88,4 +89,19 @@ func (s *shareCodeStore) GetDonor(ctx context.Context) (actor.ShareCodeData, err
 
 func (s *shareCodeStore) Delete(ctx context.Context, shareCode actor.ShareCodeData) error {
 	return s.dynamoClient.DeleteOne(ctx, shareCode.PK, shareCode.SK)
+}
+
+func shareCodeKey(actorType actor.Type, shareCode string) (pk string, err error) {
+	switch actorType {
+	case actor.TypeDonor:
+		return dynamo.DonorShareKey(shareCode), nil
+	// As attorneys and replacement attorneys share the same landing page we can't
+	// differentiate between them
+	case actor.TypeAttorney, actor.TypeReplacementAttorney, actor.TypeTrustCorporation, actor.TypeReplacementTrustCorporation:
+		return dynamo.AttorneyShareKey(shareCode), nil
+	case actor.TypeCertificateProvider:
+		return dynamo.CertificateProviderShareKey(shareCode), nil
+	default:
+		return "", fmt.Errorf("cannot have share code for actorType=%v", actorType)
+	}
 }

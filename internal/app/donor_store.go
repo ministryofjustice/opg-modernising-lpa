@@ -225,7 +225,7 @@ func (s *donorStore) Latest(ctx context.Context) (*actor.DonorProvidedDetails, e
 	return donor, nil
 }
 
-func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Key) ([]actor.DonorProvidedDetails, error) {
+func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]actor.DonorProvidedDetails, error) {
 	if len(keys) == 0 {
 		return nil, nil
 	}
@@ -249,7 +249,7 @@ func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails)
 
 	donor.Hash = newHash
 
-	// By not setting UpdatedAt until a UID exists, queries for SK=#DONOR#xyz on
+	// By not setting UpdatedAt until a UID exists, queries for SK=DONOR#xyz on
 	// SKUpdatedAtIndex will not return UID-less LPAs.
 	if donor.LpaUID != "" {
 		donor.UpdatedAt = s.now()

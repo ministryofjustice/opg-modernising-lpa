@@ -25,7 +25,7 @@ func (_m *mockDynamoClient) EXPECT() *mockDynamoClient_Expecter {
 }
 
 // AllByKeys provides a mock function with given fields: ctx, keys
-func (_m *mockDynamoClient) AllByKeys(ctx context.Context, keys []dynamo.Key) ([]map[string]types.AttributeValue, error) {
+func (_m *mockDynamoClient) AllByKeys(ctx context.Context, keys []dynamo.Keys) ([]map[string]types.AttributeValue, error) {
 	ret := _m.Called(ctx, keys)
 
 	if len(ret) == 0 {
@@ -34,10 +34,10 @@ func (_m *mockDynamoClient) AllByKeys(ctx context.Context, keys []dynamo.Key) ([
 
 	var r0 []map[string]types.AttributeValue
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Key) ([]map[string]types.AttributeValue, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Keys) ([]map[string]types.AttributeValue, error)); ok {
 		return rf(ctx, keys)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Key) []map[string]types.AttributeValue); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Keys) []map[string]types.AttributeValue); ok {
 		r0 = rf(ctx, keys)
 	} else {
 		if ret.Get(0) != nil {
@@ -45,7 +45,7 @@ func (_m *mockDynamoClient) AllByKeys(ctx context.Context, keys []dynamo.Key) ([
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, []dynamo.Key) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, []dynamo.Keys) error); ok {
 		r1 = rf(ctx, keys)
 	} else {
 		r1 = ret.Error(1)
@@ -66,9 +66,9 @@ func (_e *mockDynamoClient_Expecter) AllByKeys(ctx interface{}, keys interface{}
 	return &mockDynamoClient_AllByKeys_Call{Call: _e.mock.On("AllByKeys", ctx, keys)}
 }
 
-func (_c *mockDynamoClient_AllByKeys_Call) Run(run func(ctx context.Context, keys []dynamo.Key)) *mockDynamoClient_AllByKeys_Call {
+func (_c *mockDynamoClient_AllByKeys_Call) Run(run func(ctx context.Context, keys []dynamo.Keys)) *mockDynamoClient_AllByKeys_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].([]dynamo.Key))
+		run(args[0].(context.Context), args[1].([]dynamo.Keys))
 	})
 	return _c
 }
@@ -78,7 +78,7 @@ func (_c *mockDynamoClient_AllByKeys_Call) Return(_a0 []map[string]types.Attribu
 	return _c
 }
 
-func (_c *mockDynamoClient_AllByKeys_Call) RunAndReturn(run func(context.Context, []dynamo.Key) ([]map[string]types.AttributeValue, error)) *mockDynamoClient_AllByKeys_Call {
+func (_c *mockDynamoClient_AllByKeys_Call) RunAndReturn(run func(context.Context, []dynamo.Keys) ([]map[string]types.AttributeValue, error)) *mockDynamoClient_AllByKeys_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -181,23 +181,23 @@ func (_c *mockDynamoClient_AllBySK_Call) RunAndReturn(run func(context.Context, 
 }
 
 // AllKeysByPK provides a mock function with given fields: ctx, pk
-func (_m *mockDynamoClient) AllKeysByPK(ctx context.Context, pk string) ([]dynamo.Key, error) {
+func (_m *mockDynamoClient) AllKeysByPK(ctx context.Context, pk string) ([]dynamo.Keys, error) {
 	ret := _m.Called(ctx, pk)
 
 	if len(ret) == 0 {
 		panic("no return value specified for AllKeysByPK")
 	}
 
-	var r0 []dynamo.Key
+	var r0 []dynamo.Keys
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) ([]dynamo.Key, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) ([]dynamo.Keys, error)); ok {
 		return rf(ctx, pk)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) []dynamo.Key); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) []dynamo.Keys); ok {
 		r0 = rf(ctx, pk)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]dynamo.Key)
+			r0 = ret.Get(0).([]dynamo.Keys)
 		}
 	}
 
@@ -229,12 +229,12 @@ func (_c *mockDynamoClient_AllKeysByPK_Call) Run(run func(ctx context.Context, p
 	return _c
 }
 
-func (_c *mockDynamoClient_AllKeysByPK_Call) Return(_a0 []dynamo.Key, _a1 error) *mockDynamoClient_AllKeysByPK_Call {
+func (_c *mockDynamoClient_AllKeysByPK_Call) Return(_a0 []dynamo.Keys, _a1 error) *mockDynamoClient_AllKeysByPK_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockDynamoClient_AllKeysByPK_Call) RunAndReturn(run func(context.Context, string) ([]dynamo.Key, error)) *mockDynamoClient_AllKeysByPK_Call {
+func (_c *mockDynamoClient_AllKeysByPK_Call) RunAndReturn(run func(context.Context, string) ([]dynamo.Keys, error)) *mockDynamoClient_AllKeysByPK_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -334,7 +334,7 @@ func (_c *mockDynamoClient_Create_Call) RunAndReturn(run func(context.Context, i
 }
 
 // DeleteKeys provides a mock function with given fields: ctx, keys
-func (_m *mockDynamoClient) DeleteKeys(ctx context.Context, keys []dynamo.Key) error {
+func (_m *mockDynamoClient) DeleteKeys(ctx context.Context, keys []dynamo.Keys) error {
 	ret := _m.Called(ctx, keys)
 
 	if len(ret) == 0 {
@@ -342,7 +342,7 @@ func (_m *mockDynamoClient) DeleteKeys(ctx context.Context, keys []dynamo.Key) e
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Key) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Keys) error); ok {
 		r0 = rf(ctx, keys)
 	} else {
 		r0 = ret.Error(0)
@@ -363,9 +363,9 @@ func (_e *mockDynamoClient_Expecter) DeleteKeys(ctx interface{}, keys interface{
 	return &mockDynamoClient_DeleteKeys_Call{Call: _e.mock.On("DeleteKeys", ctx, keys)}
 }
 
-func (_c *mockDynamoClient_DeleteKeys_Call) Run(run func(ctx context.Context, keys []dynamo.Key)) *mockDynamoClient_DeleteKeys_Call {
+func (_c *mockDynamoClient_DeleteKeys_Call) Run(run func(ctx context.Context, keys []dynamo.Keys)) *mockDynamoClient_DeleteKeys_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].([]dynamo.Key))
+		run(args[0].(context.Context), args[1].([]dynamo.Keys))
 	})
 	return _c
 }
@@ -375,7 +375,7 @@ func (_c *mockDynamoClient_DeleteKeys_Call) Return(_a0 error) *mockDynamoClient_
 	return _c
 }
 
-func (_c *mockDynamoClient_DeleteKeys_Call) RunAndReturn(run func(context.Context, []dynamo.Key) error) *mockDynamoClient_DeleteKeys_Call {
+func (_c *mockDynamoClient_DeleteKeys_Call) RunAndReturn(run func(context.Context, []dynamo.Keys) error) *mockDynamoClient_DeleteKeys_Call {
 	_c.Call.Return(run)
 	return _c
 }

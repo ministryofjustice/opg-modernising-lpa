@@ -31,9 +31,9 @@ func TestDocumentStoreGetAll(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		On("AllByPartialSK", ctx, "LPA#123", "#DOCUMENT#", mock.Anything).
+		On("AllByPartialSK", ctx, dynamo.LpaKey("123"), dynamo.DocumentKey(""), mock.Anything).
 		Return(func(ctx context.Context, pk, partialSk string, v interface{}) error {
-			b, _ := json.Marshal(page.Documents{{PK: "LPA#123"}})
+			b, _ := json.Marshal(page.Documents{{PK: dynamo.LpaKey("123")}})
 			json.Unmarshal(b, v)
 			return nil
 		})
@@ -43,7 +43,7 @@ func TestDocumentStoreGetAll(t *testing.T) {
 	documents, err := documentStore.GetAll(ctx)
 
 	assert.Nil(t, err)
-	assert.Equal(t, page.Documents{{PK: "LPA#123"}}, documents)
+	assert.Equal(t, page.Documents{{PK: dynamo.LpaKey("123")}}, documents)
 }
 
 func TestDocumentStoreGetAllMissingSessionData(t *testing.T) {
@@ -67,9 +67,9 @@ func TestDocumentStoreGetAllWhenDynamoClientAllByPartialSKError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		On("AllByPartialSK", ctx, "LPA#123", "#DOCUMENT#", mock.Anything).
+		On("AllByPartialSK", ctx, dynamo.LpaKey("123"), dynamo.DocumentKey(""), mock.Anything).
 		Return(func(ctx context.Context, pk, partialSk string, v interface{}) error {
-			b, _ := json.Marshal(page.Documents{{PK: "LPA#123"}})
+			b, _ := json.Marshal(page.Documents{{PK: dynamo.LpaKey("123")}})
 			json.Unmarshal(b, v)
 			return expectedError
 		})
@@ -85,7 +85,7 @@ func TestDocumentStoreGetAllWhenNoResults(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		On("AllByPartialSK", ctx, "LPA#123", "#DOCUMENT#", mock.Anything).
+		On("AllByPartialSK", ctx, dynamo.LpaKey("123"), dynamo.DocumentKey(""), mock.Anything).
 		Return(func(ctx context.Context, pk, partialSk string, v interface{}) error {
 			b, _ := json.Marshal(page.Documents{})
 			json.Unmarshal(b, v)
@@ -105,8 +105,8 @@ func TestDocumentStoreUpdateScanResults(t *testing.T) {
 	dynamoClient.EXPECT().
 		Update(
 			ctx,
-			"LPA#123",
-			"#DOCUMENT#object/key",
+			dynamo.LpaKey("123"),
+			dynamo.DocumentKey("object/key"),
 			map[string]types.AttributeValue{
 				":virusDetected": &types.AttributeValueMemberBOOL{Value: true},
 				":scanned":       &types.AttributeValueMemberBOOL{Value: true},
@@ -126,8 +126,8 @@ func TestDocumentStoreUpdateScanResultsWhenUpdateError(t *testing.T) {
 	dynamoClient.EXPECT().
 		Update(
 			ctx,
-			"LPA#123",
-			"#DOCUMENT#object/key",
+			dynamo.LpaKey("123"),
+			dynamo.DocumentKey("object/key"),
 			map[string]types.AttributeValue{
 				":virusDetected": &types.AttributeValueMemberBOOL{Value: true},
 				":scanned":       &types.AttributeValueMemberBOOL{Value: true},
@@ -176,7 +176,7 @@ func TestDeleteInfectedDocuments(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		DeleteKeys(ctx, []dynamo.Key{
+		DeleteKeys(ctx, []dynamo.Keys{
 			{PK: "a-pk", SK: "a-sk"},
 			{PK: "another-pk", SK: "another-sk"},
 		}).
@@ -197,7 +197,7 @@ func TestDeleteInfectedDocumentsWhenDynamoClientError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		DeleteKeys(ctx, []dynamo.Key{
+		DeleteKeys(ctx, []dynamo.Keys{
 			{PK: "a-pk", SK: "a-sk"},
 			{PK: "another-pk", SK: "another-sk"},
 		}).
@@ -438,8 +438,8 @@ func TestDocumentCreate(t *testing.T) {
 		Return(nil)
 
 	expectedDocument := page.Document{
-		PK:       "LPA#lpa-id",
-		SK:       "#DOCUMENT#lpa-uid/evidence/a-uuid",
+		PK:       dynamo.LpaKey("lpa-id"),
+		SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uuid"),
 		Filename: "a-filename",
 		Key:      "lpa-uid/evidence/a-uuid",
 		Uploaded: now,

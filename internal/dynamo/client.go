@@ -167,12 +167,12 @@ func (c *Client) LatestForActor(ctx context.Context, sk string, v interface{}) e
 	return attributevalue.UnmarshalMap(response.Items[0], v)
 }
 
-type Key struct {
+type Keys struct {
 	PK string
 	SK string
 }
 
-func (c *Client) AllKeysByPK(ctx context.Context, pk string) ([]Key, error) {
+func (c *Client) AllKeysByPK(ctx context.Context, pk string) ([]Keys, error) {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName:                aws.String(c.table),
 		ExpressionAttributeNames: map[string]string{"#PK": "PK"},
@@ -187,13 +187,13 @@ func (c *Client) AllKeysByPK(ctx context.Context, pk string) ([]Key, error) {
 		return nil, err
 	}
 
-	var keys []Key
+	var keys []Keys
 	err = attributevalue.UnmarshalListOfMaps(response.Items, &keys)
 
 	return keys, err
 }
 
-func (c *Client) AllByKeys(ctx context.Context, keys []Key) ([]map[string]types.AttributeValue, error) {
+func (c *Client) AllByKeys(ctx context.Context, keys []Keys) ([]map[string]types.AttributeValue, error) {
 	var keyAttrs []map[string]types.AttributeValue
 	for _, key := range keys {
 		keyAttrs = append(keyAttrs, map[string]types.AttributeValue{
@@ -347,7 +347,7 @@ func (c *Client) Create(ctx context.Context, v interface{}) error {
 	return err
 }
 
-func (c *Client) DeleteKeys(ctx context.Context, keys []Key) error {
+func (c *Client) DeleteKeys(ctx context.Context, keys []Keys) error {
 	items := make([]types.TransactWriteItem, len(keys))
 
 	for i, key := range keys {
