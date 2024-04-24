@@ -39,21 +39,21 @@ type Logger interface {
 }
 
 type DynamoClient interface {
-	One(ctx context.Context, pk, sk string, v interface{}) error
-	OneByPK(ctx context.Context, pk string, v interface{}) error
-	OneByPartialSK(ctx context.Context, pk, partialSK string, v interface{}) error
-	AllByPartialSK(ctx context.Context, pk, partialSK string, v interface{}) error
-	LatestForActor(ctx context.Context, sk string, v interface{}) error
-	AllBySK(ctx context.Context, sk string, v interface{}) error
+	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error
+	OneByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
+	OneByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error
+	AllByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error
+	LatestForActor(ctx context.Context, sk dynamo.SK, v interface{}) error
+	AllBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
 	AllByKeys(ctx context.Context, keys []dynamo.Keys) ([]map[string]dynamodbtypes.AttributeValue, error)
-	AllKeysByPK(ctx context.Context, pk string) ([]dynamo.Keys, error)
+	AllKeysByPK(ctx context.Context, pk dynamo.PK) ([]dynamo.Keys, error)
 	Put(ctx context.Context, v interface{}) error
 	Create(ctx context.Context, v interface{}) error
 	DeleteKeys(ctx context.Context, keys []dynamo.Keys) error
-	DeleteOne(ctx context.Context, pk, sk string) error
-	Update(ctx context.Context, pk, sk string, values map[string]dynamodbtypes.AttributeValue, expression string) error
+	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
+	Update(ctx context.Context, pk dynamo.PK, sk dynamo.SK, values map[string]dynamodbtypes.AttributeValue, expression string) error
 	BatchPut(ctx context.Context, items []interface{}) error
-	OneBySK(ctx context.Context, sk string, v interface{}) error
+	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
 	OneByUID(ctx context.Context, uid string, v interface{}) error
 }
 

@@ -8,13 +8,13 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/stretchr/testify/assert"
-	mock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestUidStoreSet(t *testing.T) {
 	testcases := map[string]struct {
 		organisationID string
-		sk             string
+		sk             dynamo.SK
 	}{
 		"donor": {
 			sk: dynamo.DonorKey("session-id"),
@@ -48,8 +48,8 @@ func TestUidStoreSet(t *testing.T) {
 			searchClient := newMockSearchClient(t)
 			searchClient.EXPECT().
 				Index(ctx, search.Lpa{
-					PK:            dynamo.LpaKey("lpa-id"),
-					SK:            tc.sk,
+					PK:            dynamo.LpaKey("lpa-id").PK(),
+					SK:            tc.sk.SK(),
 					DonorFullName: "x y",
 				}).
 				Return(nil)

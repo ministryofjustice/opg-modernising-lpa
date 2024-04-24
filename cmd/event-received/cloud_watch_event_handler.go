@@ -124,11 +124,11 @@ func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event ev
 		return fmt.Errorf("failed to resolve uid: %w", err)
 	}
 
-	if key.PK == "" {
+	if key.PK == nil {
 		return fmt.Errorf("PK missing from LPA in response")
 	}
 
-	if err := client.Put(ctx, map[string]string{"PK": key.PK, "SK": dynamo.EvidenceReceivedKey()}); err != nil {
+	if err := client.Put(ctx, map[string]string{"PK": key.PK.PK(), "SK": dynamo.EvidenceReceivedKey().SK()}); err != nil {
 		return fmt.Errorf("failed to persist evidence received: %w", err)
 	}
 
@@ -218,7 +218,7 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 
 	if err := client.Put(ctx, &actor.DonorProvidedDetails{
 		PK:        dynamo.LpaKey(lpaID),
-		SK:        dynamo.DonorKey("PAPER"),
+		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
 		LpaID:     lpaID,
 		LpaUID:    v.UID,
 		CreatedAt: now(),

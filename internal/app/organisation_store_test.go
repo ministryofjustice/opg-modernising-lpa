@@ -179,7 +179,7 @@ func TestOrganisationStoreCreateLPA(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{OrganisationID: "an-id"})
 	expectedDonor := &actor.DonorProvidedDetails{
 		PK:        dynamo.LpaKey("a-uuid"),
-		SK:        dynamo.OrganisationKey("an-id"),
+		SK:        dynamo.LpaOwnerKey(dynamo.OrganisationKey("an-id")),
 		LpaID:     "a-uuid",
 		CreatedAt: testNow,
 		Version:   1,

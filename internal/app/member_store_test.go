@@ -213,7 +213,7 @@ func TestPut(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		Put(ctx, &actor.Member{PK: dynamo.OrganisationKey("123"), SK: dynamo.OrganisationKey("456"), UpdatedAt: testNow}).
+		Put(ctx, &actor.Member{PK: dynamo.OrganisationKey("123"), SK: dynamo.MemberKey("456"), UpdatedAt: testNow}).
 		Return(nil)
 
 	store := &memberStore{
@@ -221,7 +221,7 @@ func TestPut(t *testing.T) {
 		now:          testNowFn,
 	}
 
-	err := store.Put(ctx, &actor.Member{PK: dynamo.OrganisationKey("123"), SK: dynamo.OrganisationKey("456")})
+	err := store.Put(ctx, &actor.Member{PK: dynamo.OrganisationKey("123"), SK: dynamo.MemberKey("456")})
 	assert.Nil(t, err)
 }
 
@@ -238,7 +238,7 @@ func TestPutWhenDynamoError(t *testing.T) {
 		now:          testNowFn,
 	}
 
-	err := store.Put(ctx, &actor.Member{PK: dynamo.OrganisationKey("123"), SK: dynamo.OrganisationKey("456")})
+	err := store.Put(ctx, &actor.Member{PK: dynamo.OrganisationKey("123"), SK: dynamo.MemberKey("456")})
 	assert.Equal(t, expectedError, err)
 }
 

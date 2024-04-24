@@ -27,12 +27,12 @@ func TestGenerateHash(t *testing.T) {
 	}}
 	hash, err := donor.GenerateHash()
 	assert.Nil(t, err)
-	assert.Equal(t, uint64(0xa66ff60a82e03c43), hash)
+	assert.Equal(t, uint64(0x757f179848dc49a8), hash)
 
 	donor.Attorneys.Attorneys[0].DateOfBirth = date.New("2001", "1", "2")
 	hash, err = donor.GenerateHash()
 	assert.Nil(t, err)
-	assert.Equal(t, uint64(0x51fb6f3976645210), hash)
+	assert.Equal(t, uint64(0x858827c8eb6e4b8f), hash)
 }
 
 func TestIdentityConfirmed(t *testing.T) {
