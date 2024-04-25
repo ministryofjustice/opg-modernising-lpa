@@ -42,7 +42,7 @@ func (s *attorneyStore) Create(ctx context.Context, donorSessionID string, attor
 	if err := s.dynamoClient.Create(ctx, lpaLink{
 		PK:        dynamo.LpaKey(data.LpaID),
 		SK:        dynamo.SubKey(data.SessionID),
-		DonorKey:  dynamo.DonorKey(donorSessionID),
+		DonorKey:  dynamo.LpaOwnerKey(dynamo.DonorKey(donorSessionID)),
 		ActorType: actor.TypeAttorney,
 		UpdatedAt: s.now(),
 	}); err != nil {
@@ -79,7 +79,7 @@ func (s *attorneyStore) GetAny(ctx context.Context) ([]*actor.AttorneyProvidedDe
 	}
 
 	var attorneys []*actor.AttorneyProvidedDetails
-	err = s.dynamoClient.AllByPartialSK(ctx, dynamo.LpaKey(data.LpaID), "#ATTORNEY#", &attorneys)
+	err = s.dynamoClient.AllByPartialSK(ctx, dynamo.LpaKey(data.LpaID), dynamo.AttorneyKey(""), &attorneys)
 
 	return attorneys, err
 }

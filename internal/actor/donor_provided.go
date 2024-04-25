@@ -7,6 +7,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -32,7 +33,8 @@ type DonorTasks struct {
 
 // DonorProvidedDetails contains all the data related to the LPA application
 type DonorProvidedDetails struct {
-	PK, SK string
+	PK dynamo.LpaKeyType      `hash:"-"`
+	SK dynamo.LpaOwnerKeyType `hash:"-"`
 	// Hash is used to determine whether the Lpa has been changed since last read
 	Hash uint64 `hash:"-"`
 	// LpaID identifies the LPA being drafted

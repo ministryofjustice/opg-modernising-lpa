@@ -3,7 +3,6 @@ package lpastore
 import (
 	"context"
 	"errors"
-	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -80,7 +79,7 @@ func (s *ResolvingService) ResolveList(ctx context.Context, donors []*actor.Dono
 func (s *ResolvingService) merge(lpa *Lpa, donor *actor.DonorProvidedDetails) *Lpa {
 	lpa.LpaID = donor.LpaID
 	lpa.LpaUID = donor.LpaUID
-	if donor.SK == dynamo.DonorKey("PAPER") {
+	if donor.SK.Equals(dynamo.DonorKey("PAPER")) {
 		lpa.Submitted = true
 		lpa.Paid = true
 		// set to Professionally so we always show the certificate provider home
@@ -91,7 +90,7 @@ func (s *ResolvingService) merge(lpa *Lpa, donor *actor.DonorProvidedDetails) *L
 		lpa.DonorIdentityConfirmed = donor.DonorIdentityConfirmed()
 		lpa.Submitted = !donor.SubmittedAt.IsZero()
 		lpa.Paid = donor.Tasks.PayForLpa.IsCompleted()
-		lpa.IsOrganisationDonor = strings.HasPrefix(donor.SK, dynamo.OrganisationKey(""))
+		lpa.IsOrganisationDonor = donor.SK.IsOrganisation()
 		lpa.Donor.Channel = actor.ChannelOnline
 
 		// copy the relationship as it isn't stored in the lpastore.

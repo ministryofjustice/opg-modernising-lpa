@@ -66,12 +66,12 @@ func putDonor(ctx context.Context, donor *actor.DonorProvidedDetails, now func()
 }
 
 func getDonorByLpaUID(ctx context.Context, client dynamodbClient, uid string) (*actor.DonorProvidedDetails, error) {
-	var key dynamo.Key
+	var key dynamo.Keys
 	if err := client.OneByUID(ctx, uid, &key); err != nil {
 		return nil, fmt.Errorf("failed to resolve uid: %w", err)
 	}
 
-	if key.PK == "" {
+	if key.PK == nil {
 		return nil, fmt.Errorf("PK missing from LPA in response")
 	}
 
