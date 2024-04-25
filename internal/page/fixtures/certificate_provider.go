@@ -78,7 +78,7 @@ func CertificateProvider(
 			lpaID := random.UuidString()
 			donorDetails = &actor.DonorProvidedDetails{
 				PK:                             dynamo.LpaKey(lpaID),
-				SK:                             dynamo.DonorKey("PAPER"),
+				SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
 				LpaID:                          lpaID,
 				LpaUID:                         random.UuidString(),
 				CreatedAt:                      time.Now(),

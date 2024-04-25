@@ -29,13 +29,13 @@ type uidEvent struct {
 }
 
 type dynamodbClient interface {
-	One(ctx context.Context, pk, sk string, v interface{}) error
+	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error
 	OneByUID(ctx context.Context, uid string, v interface{}) error
-	OneByPK(ctx context.Context, pk string, v interface{}) error
-	OneBySK(ctx context.Context, sk string, v interface{}) error
+	OneByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
+	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
 	Put(ctx context.Context, v interface{}) error
-	UpdateReturn(ctx context.Context, pk, sk string, values map[string]dynamodbtypes.AttributeValue, expression string) (map[string]dynamodbtypes.AttributeValue, error)
-	DeleteOne(ctx context.Context, pk, sk string) error
+	UpdateReturn(ctx context.Context, pk dynamo.PK, sk dynamo.SK, values map[string]dynamodbtypes.AttributeValue, expression string) (map[string]dynamodbtypes.AttributeValue, error)
+	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
 }
 
 type s3Client interface {

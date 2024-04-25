@@ -61,7 +61,7 @@ func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, e
 
 	donor := &actor.DonorProvidedDetails{
 		PK:        dynamo.LpaKey(lpaID),
-		SK:        dynamo.DonorKey(data.SessionID),
+		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey(data.SessionID)),
 		LpaID:     lpaID,
 		CreatedAt: s.now(),
 		Version:   1,
@@ -95,7 +95,7 @@ func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, e
 	if err := s.dynamoClient.Create(ctx, lpaLink{
 		PK:        dynamo.LpaKey(lpaID),
 		SK:        dynamo.SubKey(data.SessionID),
-		DonorKey:  dynamo.DonorKey(data.SessionID),
+		DonorKey:  dynamo.LpaOwnerKey(dynamo.DonorKey(data.SessionID)),
 		ActorType: actor.TypeDonor,
 		UpdatedAt: s.now(),
 	}); err != nil {
@@ -109,8 +109,9 @@ func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, e
 // expected donor owned the LPA. This contains the actual SK containing the LPA
 // data.
 type lpaReference struct {
-	PK, SK       string
-	ReferencedSK string
+	PK           dynamo.LpaKeyType
+	SK           dynamo.DonorKeyType
+	ReferencedSK dynamo.OrganisationKeyType
 }
 
 // Link allows a donor to access an Lpa created by a supporter. It creates two
@@ -148,7 +149,7 @@ func (s *donorStore) Link(ctx context.Context, shareCode actor.ShareCodeData) er
 	return s.dynamoClient.Create(ctx, lpaLink{
 		PK:        dynamo.LpaKey(shareCode.LpaID),
 		SK:        dynamo.SubKey(data.SessionID),
-		DonorKey:  dynamo.OrganisationKey(shareCode.SessionID),
+		DonorKey:  dynamo.LpaOwnerKey(dynamo.OrganisationKey(shareCode.SessionID)),
 		ActorType: actor.TypeDonor,
 		UpdatedAt: s.now(),
 	})
@@ -164,7 +165,7 @@ func (s *donorStore) GetAny(ctx context.Context) (*actor.DonorProvidedDetails, e
 		return nil, errors.New("donorStore.Get requires LpaID")
 	}
 
-	sk := dynamo.DonorKey("")
+	var sk dynamo.SK = dynamo.DonorKey("")
 	if data.OrganisationID != "" {
 		sk = dynamo.OrganisationKey("")
 	}
@@ -187,14 +188,14 @@ func (s *donorStore) Get(ctx context.Context) (*actor.DonorProvidedDetails, erro
 		return nil, errors.New("donorStore.Get requires LpaID and SessionID")
 	}
 
-	sk := dynamo.DonorKey(data.SessionID)
+	var sk dynamo.SK = dynamo.DonorKey(data.SessionID)
 	if data.OrganisationID != "" {
 		sk = dynamo.OrganisationKey(data.OrganisationID)
 	}
 
 	var donor struct {
 		actor.DonorProvidedDetails
-		ReferencedSK string
+		ReferencedSK dynamo.OrganisationKeyType
 	}
 	if err := s.dynamoClient.One(ctx, dynamo.LpaKey(data.LpaID), sk, &donor); err != nil {
 		return nil, err
@@ -225,7 +226,7 @@ func (s *donorStore) Latest(ctx context.Context) (*actor.DonorProvidedDetails, e
 	return donor, nil
 }
 
-func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Key) ([]actor.DonorProvidedDetails, error) {
+func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]actor.DonorProvidedDetails, error) {
 	if len(keys) == 0 {
 		return nil, nil
 	}
@@ -249,14 +250,14 @@ func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails)
 
 	donor.Hash = newHash
 
-	// By not setting UpdatedAt until a UID exists, queries for SK=#DONOR#xyz on
+	// By not setting UpdatedAt until a UID exists, queries for SK=DONOR#xyz on
 	// SKUpdatedAtIndex will not return UID-less LPAs.
 	if donor.LpaUID != "" {
 		donor.UpdatedAt = s.now()
 
 		if err := s.searchClient.Index(ctx, search.Lpa{
-			PK:            donor.PK,
-			SK:            donor.SK,
+			PK:            donor.PK.PK(),
+			SK:            donor.SK.SK(),
 			DonorFullName: donor.Donor.FullName(),
 		}); err != nil {
 			return fmt.Errorf("donorStore index failed: %w", err)

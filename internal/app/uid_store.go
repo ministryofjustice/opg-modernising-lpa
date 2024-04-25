@@ -13,7 +13,7 @@ import (
 )
 
 type DynamoUpdateClient interface {
-	UpdateReturn(ctx context.Context, pk, sk string, values map[string]types.AttributeValue, expression string) (map[string]types.AttributeValue, error)
+	UpdateReturn(ctx context.Context, pk dynamo.PK, sk dynamo.SK, values map[string]types.AttributeValue, expression string) (map[string]types.AttributeValue, error)
 }
 
 type SearchClient interface {
@@ -39,7 +39,7 @@ func (s *uidStore) Set(ctx context.Context, lpaID, sessionID, organisationID, ui
 		return err
 	}
 
-	sk := dynamo.DonorKey(sessionID)
+	var sk dynamo.SK = dynamo.DonorKey(sessionID)
 	if organisationID != "" {
 		sk = dynamo.OrganisationKey(organisationID)
 	}
@@ -56,8 +56,8 @@ func (s *uidStore) Set(ctx context.Context, lpaID, sessionID, organisationID, ui
 	}
 
 	if err := s.searchClient.Index(ctx, search.Lpa{
-		PK:            dynamo.LpaKey(lpaID),
-		SK:            sk,
+		PK:            dynamo.LpaKey(lpaID).PK(),
+		SK:            sk.SK(),
 		DonorFullName: donor.Donor.FullName(),
 	}); err != nil {
 		return fmt.Errorf("uidStore index failed: %w", err)
