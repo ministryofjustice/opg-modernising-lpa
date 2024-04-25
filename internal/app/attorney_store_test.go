@@ -26,7 +26,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456", Email: "a@example.com"})
+			ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 			now := time.Now()
 			uid := actoruid.New()
 			details := &actor.AttorneyProvidedDetails{PK: "LPA#123", SK: "#ATTORNEY#456", UID: uid, LpaID: "123", UpdatedAt: now, IsReplacement: tc.replacement, IsTrustCorporation: tc.trustCorporation, Email: "a@example.com"}
@@ -41,7 +41,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 
 			attorneyStore := &attorneyStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-			attorney, err := attorneyStore.Create(ctx, "session-id", uid, tc.replacement, tc.trustCorporation)
+			attorney, err := attorneyStore.Create(ctx, "session-id", uid, tc.replacement, tc.trustCorporation, "a@example.com")
 			assert.Nil(t, err)
 			assert.Equal(t, details, attorney)
 		})
@@ -53,15 +53,14 @@ func TestAttorneyStoreCreateWhenSessionMissing(t *testing.T) {
 
 	attorneyStore := &attorneyStore{dynamoClient: nil, now: nil}
 
-	_, err := attorneyStore.Create(ctx, "session-id", actoruid.New(), false, false)
+	_, err := attorneyStore.Create(ctx, "session-id", actoruid.New(), false, false, "")
 	assert.Equal(t, page.SessionMissingError{}, err)
 }
 
 func TestAttorneyStoreCreateWhenSessionDataMissing(t *testing.T) {
 	testcases := map[string]*page.SessionData{
-		"LpaID":     {SessionID: "456", Email: "a@example.com"},
-		"SessionID": {LpaID: "123", Email: "a@example.com"},
-		"Email":     {SessionID: "456", LpaID: "123"},
+		"LpaID":     {SessionID: "456"},
+		"SessionID": {LpaID: "123"},
 	}
 
 	for name, sessionData := range testcases {
@@ -70,14 +69,14 @@ func TestAttorneyStoreCreateWhenSessionDataMissing(t *testing.T) {
 
 			attorneyStore := &attorneyStore{}
 
-			_, err := attorneyStore.Create(ctx, "session-id", actoruid.New(), false, false)
+			_, err := attorneyStore.Create(ctx, "session-id", actoruid.New(), false, false, "")
 			assert.NotNil(t, err)
 		})
 	}
 }
 
 func TestAttorneyStoreCreateWhenCreateError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456", Email: "a@example.com"})
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 	now := time.Now()
 
 	testcases := map[string]func(*testing.T) *mockDynamoClient{
@@ -109,7 +108,7 @@ func TestAttorneyStoreCreateWhenCreateError(t *testing.T) {
 
 			attorneyStore := &attorneyStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-			_, err := attorneyStore.Create(ctx, "session-id", actoruid.New(), false, false)
+			_, err := attorneyStore.Create(ctx, "session-id", actoruid.New(), false, false, "")
 			assert.Equal(t, expectedError, err)
 		})
 	}
