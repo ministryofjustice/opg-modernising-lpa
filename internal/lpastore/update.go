@@ -104,16 +104,20 @@ func (c *Client) SendCertificateProvider(ctx context.Context, certificateProvide
 	return c.sendUpdate(ctx, lpa.LpaUID, certificateProvider.UID, body)
 }
 
-func (c *Client) SendAttorney(ctx context.Context, donor *Lpa, attorney *actor.AttorneyProvidedDetails) error {
+func (c *Client) SendAttorney(ctx context.Context, lpa *Lpa, attorney *actor.AttorneyProvidedDetails) error {
 	var attorneyKey string
-	if attorney.IsTrustCorporation && attorney.IsReplacement && donor.Attorneys.TrustCorporation.Name != "" {
+	var lpaAttorney Attorney
+
+	if attorney.IsTrustCorporation && attorney.IsReplacement && lpa.Attorneys.TrustCorporation.Name != "" {
 		attorneyKey = "/trustCorporations/1"
 	} else if attorney.IsTrustCorporation {
 		attorneyKey = "/trustCorporations/0"
 	} else if attorney.IsReplacement {
-		attorneyKey = fmt.Sprintf("/attorneys/%d", len(donor.Attorneys.Attorneys)+donor.ReplacementAttorneys.Index(attorney.UID))
+		attorneyKey = fmt.Sprintf("/attorneys/%d", len(lpa.Attorneys.Attorneys)+lpa.ReplacementAttorneys.Index(attorney.UID))
+		lpaAttorney = lpa.ReplacementAttorneys.Attorneys[lpa.ReplacementAttorneys.Index(attorney.UID)]
 	} else {
-		attorneyKey = fmt.Sprintf("/attorneys/%d", donor.Attorneys.Index(attorney.UID))
+		attorneyKey = fmt.Sprintf("/attorneys/%d", lpa.Attorneys.Index(attorney.UID))
+		lpaAttorney = lpa.Attorneys.Attorneys[lpa.Attorneys.Index(attorney.UID)]
 	}
 
 	body := updateRequest{
@@ -143,8 +147,16 @@ func (c *Client) SendAttorney(ctx context.Context, donor *Lpa, attorney *actor.A
 			)
 		}
 	} else {
+		if attorney.Email != "" {
+			body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/email", New: attorney.Email, Old: lpaAttorney.Email})
+		}
+
+		if lpaAttorney.Channel == actor.ChannelPaper {
+			body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/channel", New: actor.ChannelOnline, Old: actor.ChannelPaper})
+		}
+
 		body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/signedAt", New: attorney.Confirmed})
 	}
 
-	return c.sendUpdate(ctx, donor.LpaUID, attorney.UID, body)
+	return c.sendUpdate(ctx, lpa.LpaUID, attorney.UID, body)
 }
