@@ -22,8 +22,8 @@ func (s *attorneyStore) Create(ctx context.Context, donorSessionID string, attor
 		return nil, err
 	}
 
-	if data.LpaID == "" || data.SessionID == "" {
-		return nil, errors.New("attorneyStore.Create requires LpaID and SessionID")
+	if data.LpaID == "" || data.SessionID == "" || data.Email == "" {
+		return nil, errors.New("attorneyStore.Create requires LpaID, SessionID and Email")
 	}
 
 	attorney := &actor.AttorneyProvidedDetails{
@@ -34,6 +34,7 @@ func (s *attorneyStore) Create(ctx context.Context, donorSessionID string, attor
 		UpdatedAt:          s.now(),
 		IsReplacement:      isReplacement,
 		IsTrustCorporation: isTrustCorporation,
+		Email:              data.Email,
 	}
 
 	if err := s.dynamoClient.Create(ctx, attorney); err != nil {

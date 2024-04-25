@@ -37,6 +37,8 @@ type AttorneyProvidedDetails struct {
 	Tasks AttorneyTasks
 	// ContactLanguagePreference is the language the attorney or replacement attorney prefers to receive notifications in
 	ContactLanguagePreference localize.Lang
+	// Email is the email address returned from OneLogin when the attorney logged in
+	Email string
 }
 
 // Signed checks whether the attorney has confirmed and if that confirmation is
