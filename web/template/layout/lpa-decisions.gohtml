@@ -99,9 +99,7 @@
         <dt class="govuk-summary-list__key">
           {{ tr .App $title }}
         </dt>
-        <dd class="govuk-summary-list__value">
-          {{ trHtml .App .Lpa.AttorneyDecisions.Details }}
-        </dd>
+        <dd class="govuk-summary-list__value app-wrap-text">{{ trHtml .App .Lpa.AttorneyDecisions.Details }}</dd>
         {{ if .CanChange }}
           <dd class="govuk-summary-list__actions">
             <a class="govuk-link" href="{{ link .App (global.Paths.HowShouldAttorneysMakeDecisions.Format .App.LpaID) }}?from={{ .App.Page }}#f-mixed-details">
@@ -174,9 +172,7 @@
         <dt class="govuk-summary-list__key">
           {{ tr .App $title }}
         </dt>
-        <dd class="govuk-summary-list__value">
-          {{ trHtml .App .Lpa.ReplacementAttorneyDecisions.Details }}
-        </dd>
+        <dd class="govuk-summary-list__value app-wrap-text">{{ trHtml .App .Lpa.ReplacementAttorneyDecisions.Details }}</dd>
         {{ if .CanChange }}
           <dd class="govuk-summary-list__actions">
             <a class="govuk-link" href="{{ link .App (global.Paths.HowShouldReplacementAttorneysMakeDecisions.Format .App.LpaID) }}?from={{ .App.Page }}#f-mixed-details">
@@ -241,9 +237,7 @@
       <dt class="govuk-summary-list__key">
         {{ tr .App "restrictions" }}
       </dt>
-      <dd class="govuk-summary-list__value">
-        <p class="govuk-body">{{ .Lpa.Restrictions }}</p>
-      </dd>
+      <dd class="govuk-summary-list__value app-wrap-text">{{ .Lpa.Restrictions }}</dd>
       {{ if .CanChange }}
         <dd class="govuk-summary-list__actions">
           <a class="govuk-link" href="{{ link .App (global.Paths.Restrictions.Format .App.LpaID) }}">
