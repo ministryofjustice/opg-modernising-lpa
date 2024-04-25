@@ -85,7 +85,7 @@ func LpaKey(s string) LpaKeyType {
 type DonorKeyType string
 
 func (t DonorKeyType) SK() string { return string(t) }
-func (t DonorKeyType) lpaOwner()  {}
+func (t DonorKeyType) lpaOwner()  {} // mark as usable with LpaOwnerKey
 
 // DonorKey is used as the SK (with LpaKey as PK) for donor entered
 // information. It is set to PAPER when the donor information has been provided
@@ -148,7 +148,7 @@ type OrganisationKeyType string
 
 func (t OrganisationKeyType) PK() string { return string(t) }
 func (t OrganisationKeyType) SK() string { return string(t) }
-func (t OrganisationKeyType) lpaOwner()  {}
+func (t OrganisationKeyType) lpaOwner()  {} // mark as usable with LpaOwnerKey
 
 // OrganisationKey is used as the PK to group organisation data; or as the SK
 // (with OrganisationKey as PK) for the organisation itself; or as the SK (with
@@ -191,7 +191,7 @@ func MemberIDKey(memberID string) MemberIDKeyType {
 type MetadataKeyType string
 
 func (t MetadataKeyType) SK() string { return string(t) }
-func (t MetadataKeyType) shareSort() {}
+func (t MetadataKeyType) shareSort() {} // mark as usable with ShareSortKey
 
 // MetadataKey is used as the SK when the value of the SK is not used for any purpose.
 func MetadataKey(s string) MetadataKeyType {
@@ -201,7 +201,7 @@ func MetadataKey(s string) MetadataKeyType {
 type DonorShareKeyType string
 
 func (t DonorShareKeyType) PK() string { return string(t) }
-func (t DonorShareKeyType) share()     {}
+func (t DonorShareKeyType) share()     {} // mark as usable with ShareKey
 
 // DonorShareKey is used as the PK for sharing an Lpa with a donor.
 func DonorShareKey(code string) DonorShareKeyType {
@@ -211,7 +211,7 @@ func DonorShareKey(code string) DonorShareKeyType {
 type DonorInviteKeyType string
 
 func (t DonorInviteKeyType) SK() string { return string(t) }
-func (t DonorInviteKeyType) shareSort() {}
+func (t DonorInviteKeyType) shareSort() {} // mark as usable with ShareSortKey
 
 // DonorInviteKey is used as the SK (with DonorShareKey as PK) for an invitation
 // to a donor to link an Lpa being created by a member of an organisation.
@@ -222,7 +222,7 @@ func DonorInviteKey(organisationID, lpaID string) DonorInviteKeyType {
 type CertificateProviderShareKeyType string
 
 func (t CertificateProviderShareKeyType) PK() string { return string(t) }
-func (t CertificateProviderShareKeyType) share()     {}
+func (t CertificateProviderShareKeyType) share()     {} // mark as usable with ShareKey
 
 // CertificateProviderShareKey is used as the PK for sharing an Lpa with a donor.
 func CertificateProviderShareKey(code string) CertificateProviderShareKeyType {
@@ -232,7 +232,7 @@ func CertificateProviderShareKey(code string) CertificateProviderShareKeyType {
 type AttorneyShareKeyType string
 
 func (t AttorneyShareKeyType) PK() string { return string(t) }
-func (t AttorneyShareKeyType) share()     {}
+func (t AttorneyShareKeyType) share()     {} // mark as usable with ShareKey
 
 // AttorneyShareKey is used as the PK for sharing an Lpa with a donor.
 func AttorneyShareKey(code string) AttorneyShareKeyType {

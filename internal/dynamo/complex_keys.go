@@ -58,6 +58,8 @@ func (k *Keys) UnmarshalJSON(text []byte) error {
 
 type LpaOwnerKeyType struct{ sk SK }
 
+// LpaOwnerKey is used as the SK (with LpaKey as PK) to allow both donors and
+// organisations to "own" LPAs.
 func LpaOwnerKey(sk interface {
 	SK
 	lpaOwner()
@@ -133,6 +135,8 @@ func (k LpaOwnerKeyType) IsOrganisation() bool {
 
 type ShareKeyType struct{ pk PK }
 
+// ShareKey is used as the PK (with ShareSortKey as SK) for sharing an LPA with
+// another actor.
 func ShareKey(pk interface {
 	PK
 	share()
@@ -191,6 +195,8 @@ func (k ShareKeyType) PK() string {
 
 type ShareSortKeyType struct{ sk SK }
 
+// ShareSortKey is used as the SK (with ShareKey as the PK) for sharing an LPA
+// with another actor.
 func ShareSortKey(sk interface {
 	SK
 	shareSort()
