@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
@@ -11,7 +12,8 @@ import (
 // AttorneyProvidedDetails contains details about an attorney or replacement
 // attorney, provided by the attorney or replacement attorney
 type AttorneyProvidedDetails struct {
-	PK, SK string
+	PK dynamo.LpaKeyType
+	SK dynamo.AttorneyKeyType
 	// The identifier of the attorney or replacement attorney being edited
 	UID actoruid.UID
 	// The identifier of the LPA the attorney or replacement attorney is named in

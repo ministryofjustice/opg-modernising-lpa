@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -132,8 +133,8 @@ func Supporter(
 				}
 
 				if linkDonor {
-					shareCodeData.PK = "DONORSHARE#" + accessCode
-					shareCodeData.SK = "DONORINVITE#" + shareCodeData.SessionID + "#" + shareCodeData.LpaID
+					shareCodeData.PK = dynamo.ShareKey(dynamo.DonorShareKey(accessCode))
+					shareCodeData.SK = dynamo.ShareSortKey(dynamo.DonorInviteKey(shareCodeData.SessionID, shareCodeData.LpaID))
 					shareCodeData.UpdatedAt = time.Now()
 
 					if err := donorStore.Link(donorCtx, shareCodeData); err != nil {
@@ -217,8 +218,8 @@ func Supporter(
 					}
 
 					invite := &actor.MemberInvite{
-						PK:               "ORGANISATION#" + org.ID,
-						SK:               "MEMBERINVITE#" + base64.StdEncoding.EncodeToString([]byte(email)),
+						PK:               dynamo.OrganisationKey(org.ID),
+						SK:               dynamo.MemberInviteKey(email),
 						CreatedAt:        now,
 						OrganisationID:   org.ID,
 						OrganisationName: org.Name,
@@ -260,8 +261,8 @@ func Supporter(
 					if err = memberStore.CreateFromInvite(
 						memberCtx,
 						&actor.MemberInvite{
-							PK:              random.String(12),
-							SK:              random.String(12),
+							PK:              dynamo.OrganisationKey(random.String(12)),
+							SK:              dynamo.MemberInviteKey(random.String(12)),
 							CreatedAt:       time.Now(),
 							UpdatedAt:       time.Now(),
 							OrganisationID:  org.ID,
