@@ -86,11 +86,11 @@ func (s *documentStore) Put(ctx context.Context, document page.Document) error {
 }
 
 func (s *documentStore) DeleteInfectedDocuments(ctx context.Context, documents page.Documents) error {
-	var dynamoKeys []dynamo.Key
+	var dynamoKeys []dynamo.Keys
 
 	for _, d := range documents {
 		if d.VirusDetected {
-			dynamoKeys = append(dynamoKeys, dynamo.Key{PK: d.PK, SK: d.SK})
+			dynamoKeys = append(dynamoKeys, dynamo.Keys{PK: d.PK, SK: d.SK})
 		}
 	}
 

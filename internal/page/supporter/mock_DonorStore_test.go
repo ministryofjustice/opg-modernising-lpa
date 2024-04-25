@@ -131,7 +131,7 @@ func (_c *mockDonorStore_Get_Call) RunAndReturn(run func(context.Context) (*acto
 }
 
 // GetByKeys provides a mock function with given fields: ctx, keys
-func (_m *mockDonorStore) GetByKeys(ctx context.Context, keys []dynamo.Key) ([]actor.DonorProvidedDetails, error) {
+func (_m *mockDonorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]actor.DonorProvidedDetails, error) {
 	ret := _m.Called(ctx, keys)
 
 	if len(ret) == 0 {
@@ -140,10 +140,10 @@ func (_m *mockDonorStore) GetByKeys(ctx context.Context, keys []dynamo.Key) ([]a
 
 	var r0 []actor.DonorProvidedDetails
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Key) ([]actor.DonorProvidedDetails, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Keys) ([]actor.DonorProvidedDetails, error)); ok {
 		return rf(ctx, keys)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Key) []actor.DonorProvidedDetails); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Keys) []actor.DonorProvidedDetails); ok {
 		r0 = rf(ctx, keys)
 	} else {
 		if ret.Get(0) != nil {
@@ -151,7 +151,7 @@ func (_m *mockDonorStore) GetByKeys(ctx context.Context, keys []dynamo.Key) ([]a
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, []dynamo.Key) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, []dynamo.Keys) error); ok {
 		r1 = rf(ctx, keys)
 	} else {
 		r1 = ret.Error(1)
@@ -167,14 +167,14 @@ type mockDonorStore_GetByKeys_Call struct {
 
 // GetByKeys is a helper method to define mock.On call
 //   - ctx context.Context
-//   - keys []dynamo.Key
+//   - keys []dynamo.Keys
 func (_e *mockDonorStore_Expecter) GetByKeys(ctx interface{}, keys interface{}) *mockDonorStore_GetByKeys_Call {
 	return &mockDonorStore_GetByKeys_Call{Call: _e.mock.On("GetByKeys", ctx, keys)}
 }
 
-func (_c *mockDonorStore_GetByKeys_Call) Run(run func(ctx context.Context, keys []dynamo.Key)) *mockDonorStore_GetByKeys_Call {
+func (_c *mockDonorStore_GetByKeys_Call) Run(run func(ctx context.Context, keys []dynamo.Keys)) *mockDonorStore_GetByKeys_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].([]dynamo.Key))
+		run(args[0].(context.Context), args[1].([]dynamo.Keys))
 	})
 	return _c
 }
@@ -184,7 +184,7 @@ func (_c *mockDonorStore_GetByKeys_Call) Return(_a0 []actor.DonorProvidedDetails
 	return _c
 }
 
-func (_c *mockDonorStore_GetByKeys_Call) RunAndReturn(run func(context.Context, []dynamo.Key) ([]actor.DonorProvidedDetails, error)) *mockDonorStore_GetByKeys_Call {
+func (_c *mockDonorStore_GetByKeys_Call) RunAndReturn(run func(context.Context, []dynamo.Keys) ([]actor.DonorProvidedDetails, error)) *mockDonorStore_GetByKeys_Call {
 	_c.Call.Return(run)
 	return _c
 }
