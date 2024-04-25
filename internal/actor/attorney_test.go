@@ -12,6 +12,11 @@ func TestAttorneyFullName(t *testing.T) {
 	assert.Equal(t, "First Last", Attorney{FirstNames: "First", LastName: "Last"}.FullName())
 }
 
+func TestAttorneyChannel(t *testing.T) {
+	assert.Equal(t, ChannelOnline, Attorney{Email: "a@example.com"}.Channel())
+	assert.Equal(t, ChannelPaper, Attorney{}.Channel())
+}
+
 func TestAttorneysLen(t *testing.T) {
 	testcases := map[string]struct {
 		attorneys Attorneys
