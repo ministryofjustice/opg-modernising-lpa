@@ -16,7 +16,7 @@ type attorneyStore struct {
 	now          func() time.Time
 }
 
-func (s *attorneyStore) Create(ctx context.Context, donorSessionID string, attorneyUID actoruid.UID, isReplacement, isTrustCorporation bool) (*actor.AttorneyProvidedDetails, error) {
+func (s *attorneyStore) Create(ctx context.Context, donorSessionID string, attorneyUID actoruid.UID, isReplacement, isTrustCorporation bool, email string) (*actor.AttorneyProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -34,6 +34,7 @@ func (s *attorneyStore) Create(ctx context.Context, donorSessionID string, attor
 		UpdatedAt:          s.now(),
 		IsReplacement:      isReplacement,
 		IsTrustCorporation: isTrustCorporation,
+		Email:              email,
 	}
 
 	if err := s.dynamoClient.Create(ctx, attorney); err != nil {

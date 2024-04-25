@@ -55,7 +55,7 @@ type CertificateProviderStore interface {
 }
 
 type AttorneyStore interface {
-	Create(ctx context.Context, sessionID string, attorneyUID actoruid.UID, isReplacement, isTrustCorporation bool) (*actor.AttorneyProvidedDetails, error)
+	Create(ctx context.Context, sessionID string, attorneyUID actoruid.UID, isReplacement, isTrustCorporation bool, email string) (*actor.AttorneyProvidedDetails, error)
 	Get(ctx context.Context) (*actor.AttorneyProvidedDetails, error)
 	GetAny(ctx context.Context) ([]*actor.AttorneyProvidedDetails, error)
 	Put(ctx context.Context, attorney *actor.AttorneyProvidedDetails) error
