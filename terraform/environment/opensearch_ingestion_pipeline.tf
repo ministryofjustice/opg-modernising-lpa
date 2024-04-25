@@ -165,8 +165,8 @@ locals {
       }
     }
     routes = {
-      lay_journey_lpas       = "'contains(/SK, \"#DONOR#\") and contains(/PK, \"#LPA#\")'"
-      supporter_journey_lpas = "'contains(/SK, \"#ORGANISATION#\") and contains(/PK, \"#LPA#\")'"
+      lay_journey_lpas       = "'contains(/SK, \"DONOR#\") and contains(/PK, \"LPA#\")'"
+      supporter_journey_lpas = "'contains(/SK, \"ORGANISATION#\") and contains(/PK, \"LPA#\")'"
     }
 
     sink = {

@@ -1,69 +1,124 @@
 package dynamo
 
 import (
+	"encoding/json"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestStringKeys(t *testing.T) {
+func TestReadKeyMalformed(t *testing.T) {
+	testcases := map[string]string{
+		"empty":          "",
+		"no hash":        "DONOR",
+		"unknown prefix": "WHAT#123",
+	}
+
+	for name, key := range testcases {
+		t.Run(name, func(t *testing.T) {
+			_, err := readKey(key)
+			assert.Error(t, err)
+		})
+	}
+}
+
+func TestPK(t *testing.T) {
 	testcases := map[string]struct {
-		fn     func(string) string
-		prefix string
+		key PK
+		str string
 	}{
-		"LpaKey":                 {LpaKey, "LPA#"},
-		"DonorKey":               {DonorKey, "#DONOR#"},
-		"SubKey":                 {SubKey, "#SUB#"},
-		"AttorneyKey":            {AttorneyKey, "#ATTORNEY#"},
-		"CertificateProviderKey": {CertificateProviderKey, "#CERTIFICATE_PROVIDER#"},
-		"DocumentKey":            {DocumentKey, "#DOCUMENT#"},
-		"MemberKey":              {MemberKey, "MEMBER#"},
-		"MemberIDKey":            {MemberIDKey, "MEMBERID#"},
-		"OrganisationKey":        {OrganisationKey, "ORGANISATION#"},
-		"MetadataKey":            {MetadataKey, "#METADATA#"},
-		"DonorShareKey":          {DonorShareKey, "DONORSHARE#"},
+		"LpaKey":                      {LpaKey("S"), "LPA#S"},
+		"OrganisationKey":             {OrganisationKey("S"), "ORGANISATION#S"},
+		"DonorShareKey":               {DonorShareKey("S"), "DONORSHARE#S"},
+		"CertificateProviderShareKey": {CertificateProviderShareKey("S"), "CERTIFICATEPROVIDERSHARE#S"},
+		"AttorneyShareKey":            {AttorneyShareKey("S"), "ATTORNEYSHARE#S"},
 	}
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.prefix+"S", tc.fn("S"))
+			assert.Equal(t, tc.str, tc.key.PK())
 		})
-	}
-}
 
-func TestEvidenceReceivedKey(t *testing.T) {
-	assert.Equal(t, "#EVIDENCE_RECEIVED", EvidenceReceivedKey())
-}
-
-func TestMemberInviteKey(t *testing.T) {
-	assert.Equal(t, "MEMBERINVITE#ZW1haWxAZXhhbXBsZS5jb20=", MemberInviteKey("email@example.com"))
-}
-
-func TestDonorInviteKey(t *testing.T) {
-	assert.Equal(t, "DONORINVITE#org-id#lpa-id", DonorInviteKey("org-id", "lpa-id"))
-}
-
-func TestShareCodeKey(t *testing.T) {
-	testcases := map[actor.Type]string{
-		actor.TypeDonor:                       "DONORSHARE#",
-		actor.TypeAttorney:                    "ATTORNEYSHARE#",
-		actor.TypeReplacementAttorney:         "ATTORNEYSHARE#",
-		actor.TypeTrustCorporation:            "ATTORNEYSHARE#",
-		actor.TypeReplacementTrustCorporation: "ATTORNEYSHARE#",
-		actor.TypeCertificateProvider:         "CERTIFICATEPROVIDERSHARE#",
-	}
-
-	for actorType, prefix := range testcases {
-		t.Run(actorType.String(), func(t *testing.T) {
-			pk, err := ShareCodeKey(actorType, "S")
+		t.Run(name+"/read", func(t *testing.T) {
+			pk, err := readKey(tc.str)
 			assert.Nil(t, err)
-			assert.Equal(t, prefix+"S", pk)
+			assert.Equal(t, tc.key, pk)
+		})
+
+		t.Run(name+"/json", func(t *testing.T) {
+			data, err := json.Marshal(tc.key)
+			assert.Nil(t, err)
+			assert.Equal(t, `"`+tc.str+`"`, string(data))
+		})
+
+		t.Run(name+"/attributevalue", func(t *testing.T) {
+			data, err := attributevalue.Marshal(tc.key)
+			assert.Nil(t, err)
+			assert.Equal(t, &types.AttributeValueMemberS{Value: tc.str}, data)
 		})
 	}
 }
 
-func TestShareCodeKeyWhenUnknownType(t *testing.T) {
-	_, err := ShareCodeKey(actor.TypeAuthorisedSignatory, "S")
-	assert.NotNil(t, err)
+func TestSK(t *testing.T) {
+	testcases := map[string]struct {
+		key SK
+		str string
+	}{
+		"DonorKey":               {DonorKey("S"), "DONOR#S"},
+		"SubKey":                 {SubKey("S"), "SUB#S"},
+		"AttorneyKey":            {AttorneyKey("S"), "ATTORNEY#S"},
+		"CertificateProviderKey": {CertificateProviderKey("S"), "CERTIFICATE_PROVIDER#S"},
+		"DocumentKey":            {DocumentKey("S"), "DOCUMENT#S"},
+		"EvidenceReceivedKey":    {EvidenceReceivedKey(), "EVIDENCE_RECEIVED#"},
+		"MemberKey":              {MemberKey("S"), "MEMBER#S"},
+		"MemberInviteKey":        {MemberInviteKey("email@example.com"), "MEMBERINVITE#ZW1haWxAZXhhbXBsZS5jb20="},
+		"MemberIDKey":            {MemberIDKey("S"), "MEMBERID#S"},
+		"OrganisationKey":        {OrganisationKey("S"), "ORGANISATION#S"},
+		"MetadataKey":            {MetadataKey("S"), "METADATA#S"},
+		"DonorInviteKey":         {DonorInviteKey("org-id", "lpa-id"), "DONORINVITE#org-id#lpa-id"},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.str, tc.key.SK())
+		})
+
+		t.Run(name+"/read", func(t *testing.T) {
+			sk, err := readKey(tc.str)
+			assert.Nil(t, err)
+			assert.Equal(t, tc.key, sk)
+		})
+
+		t.Run(name+"/json", func(t *testing.T) {
+			data, err := json.Marshal(tc.key)
+			assert.Nil(t, err)
+			assert.Equal(t, `"`+tc.str+`"`, string(data))
+		})
+
+		t.Run(name+"/attributevalue", func(t *testing.T) {
+			data, err := attributevalue.Marshal(tc.key)
+			assert.Nil(t, err)
+			assert.Equal(t, &types.AttributeValueMemberS{Value: tc.str}, data)
+		})
+	}
+}
+
+func TestLpaOwnerKeyTypes(t *testing.T) {
+	for _, key := range []interface{ lpaOwner() }{DonorKey("hey"), OrganisationKey("what")} {
+		key.lpaOwner()
+	}
+}
+
+func TestShareKeyTypes(t *testing.T) {
+	for _, key := range []interface{ share() }{DonorShareKey("hey"), CertificateProviderShareKey("what"), AttorneyShareKey("hello")} {
+		key.share()
+	}
+}
+
+func TestShareSortKeyTypes(t *testing.T) {
+	for _, key := range []interface{ shareSort() }{MetadataKey("hey"), DonorInviteKey("what", "hello")} {
+		key.shareSort()
+	}
 }
