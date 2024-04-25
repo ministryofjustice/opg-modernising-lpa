@@ -398,6 +398,14 @@ func TestClientServiceContract(t *testing.T) {
 							"key": matchers.Like("/attorneys/0/signedAt"),
 							"old": matchers.Like(nil),
 							"new": matchers.Like("2020-01-01T12:13:14Z"),
+						}, {
+							"key": matchers.Like("/attorneys/0/email"),
+							"old": matchers.Like(nil),
+							"new": matchers.Like("a@example.com"),
+						}, {
+							"key": matchers.Like("/attorneys/0/channel"),
+							"old": matchers.Like("paper"),
+							"new": matchers.Like("online"),
 						}}),
 					})
 			}).
@@ -685,7 +693,8 @@ func TestClientServiceContract(t *testing.T) {
 							"town":    matchers.String("Milton"),
 							"country": matchers.String("AU"),
 						}),
-						"status": matchers.String("active"),
+						"status":  matchers.String("active"),
+						"channel": matchers.String("paper"),
 					}, 1),
 					"certificateProvider": matchers.Like(map[string]any{
 						"firstNames": matchers.String("Some"),
@@ -748,6 +757,7 @@ func TestClientServiceContract(t *testing.T) {
 							TownOrCity: "Milton",
 							Country:    "AU",
 						},
+						Channel: actor.ChannelPaper,
 					}},
 				},
 				CertificateProvider: CertificateProvider{
@@ -812,7 +822,8 @@ func TestClientServiceContract(t *testing.T) {
 								"town":    matchers.String("Milton"),
 								"country": matchers.String("AU"),
 							}),
-							"status": matchers.String("active"),
+							"status":  matchers.String("active"),
+							"channel": matchers.String("online"),
 						}, 1),
 						"certificateProvider": matchers.Like(map[string]any{
 							"firstNames": matchers.String("Some"),
@@ -876,6 +887,7 @@ func TestClientServiceContract(t *testing.T) {
 							TownOrCity: "Milton",
 							Country:    "AU",
 						},
+						Channel: actor.ChannelOnline,
 					}},
 				},
 				CertificateProvider: CertificateProvider{

@@ -246,6 +246,7 @@ type Attorney struct {
 	Mobile                    string
 	SignedAt                  time.Time
 	ContactLanguagePreference localize.Lang
+	Channel                   actor.Channel
 }
 
 func (a Attorney) FullName() string {
@@ -422,6 +423,7 @@ func lpaResponseToLpa(l lpaResponse) *Lpa {
 			Mobile:                    a.Mobile,
 			SignedAt:                  a.SignedAt,
 			ContactLanguagePreference: a.ContactLanguagePreference,
+			Channel:                   a.Channel,
 		}
 
 		if a.Status == "replacement" {
