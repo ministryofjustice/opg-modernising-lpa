@@ -90,6 +90,9 @@ func (h *cloudWatchEventHandler) Handle(ctx context.Context, cloudWatchEvent eve
 	case "certificate-provider-submission-completed":
 		return handleCertificateProviderSubmissionCompleted(ctx, cloudWatchEvent, h.factory)
 
+	case "lpa-updated":
+		return handleLpaUpdated(ctx, h.dynamoClient, cloudWatchEvent, h.now)
+
 	default:
 		return fmt.Errorf("unknown cloudwatch event")
 	}
@@ -278,6 +281,35 @@ func handleCertificateProviderSubmissionCompleted(ctx context.Context, event eve
 		if err := shareCodeSender.SendAttorneys(ctx, appData, donor); err != nil {
 			return fmt.Errorf("failed to send share codes to attorneys: %w", err)
 		}
+	}
+
+	return nil
+}
+
+type lpaUpdatedEvent struct {
+	UID        string `json:"uid"`
+	ChangeType string `json:"changeType"`
+}
+
+func handleLpaUpdated(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, now func() time.Time) error {
+	var v lpaUpdatedEvent
+	if err := json.Unmarshal(event.Detail, &v); err != nil {
+		return fmt.Errorf("failed to unmarshal detail: %w", err)
+	}
+
+	if v.ChangeType != "PERFECT" {
+		return nil
+	}
+
+	donor, err := getDonorByLpaUID(ctx, client, v.UID)
+	if err != nil {
+		return err
+	}
+
+	donor.PerfectAt = time.Now()
+
+	if err := putDonor(ctx, donor, now, client); err != nil {
+		return fmt.Errorf("failed to update donor details: %w", err)
 	}
 
 	return nil

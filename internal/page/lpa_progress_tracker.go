@@ -15,14 +15,33 @@ type ProgressTask struct {
 }
 
 type Progress struct {
+	isOrganisation            bool
 	Paid                      ProgressTask
 	ConfirmedID               ProgressTask
 	DonorSigned               ProgressTask
 	CertificateProviderSigned ProgressTask
 	AttorneysSigned           ProgressTask
 	LpaSubmitted              ProgressTask
+	NoticesOfIntentSent       ProgressTask
 	StatutoryWaitingPeriod    ProgressTask
 	LpaRegistered             ProgressTask
+}
+
+func (p Progress) ToSlice() []ProgressTask {
+	var list []ProgressTask
+	if p.isOrganisation {
+		list = append(list, p.Paid, p.ConfirmedID)
+	}
+
+	list = append(list, p.DonorSigned, p.CertificateProviderSigned, p.AttorneysSigned, p.LpaSubmitted)
+
+	if p.NoticesOfIntentSent.State.Completed() {
+		list = append(list, p.NoticesOfIntentSent)
+	}
+
+	list = append(list, p.StatutoryWaitingPeriod, p.LpaRegistered)
+
+	return list
 }
 
 func (pt ProgressTracker) Progress(lpa *lpastore.Lpa) Progress {
@@ -45,16 +64,16 @@ func (pt ProgressTracker) Progress(lpa *lpastore.Lpa) Progress {
 			"certificateProviderSigned": pt.Localizer.T("theCertificateProviderHasDeclared"),
 			"attorneysSigned":           pt.Localizer.T("allAttorneysHaveSignedTheLpa"),
 			"lpaSubmitted":              pt.Localizer.T("opgHasReceivedTheLPA"),
+			"noticesOfIntentSent":       "weSentAnEmailTheLpaIsReadyToRegister",
 			"statutoryWaitingPeriod":    pt.Localizer.T("theWaitingPeriodHasStarted"),
 			"lpaRegistered":             pt.Localizer.T("theLpaHasBeenRegistered"),
 		}
 	} else {
 		labels = map[string]string{
-			"paid":                   "",
-			"confirmedID":            "",
 			"donorSigned":            pt.Localizer.T("youveSignedYourLpa"),
 			"attorneysSigned":        pt.Localizer.Count("attorneysHaveDeclared", len(lpa.Attorneys.Attorneys)),
 			"lpaSubmitted":           pt.Localizer.T("weHaveReceivedYourLpa"),
+			"noticesOfIntentSent":    "weSentAnEmailYourLpaIsReadyToRegister",
 			"statutoryWaitingPeriod": pt.Localizer.T("yourWaitingPeriodHasStarted"),
 			"lpaRegistered":          pt.Localizer.T("yourLpaHasBeenRegistered"),
 		}
@@ -70,6 +89,7 @@ func (pt ProgressTracker) Progress(lpa *lpastore.Lpa) Progress {
 	}
 
 	progress := Progress{
+		isOrganisation: lpa.IsOrganisationDonor,
 		Paid: ProgressTask{
 			State: actor.TaskNotStarted,
 			Label: labels["paid"],
@@ -93,6 +113,9 @@ func (pt ProgressTracker) Progress(lpa *lpastore.Lpa) Progress {
 		LpaSubmitted: ProgressTask{
 			State: actor.TaskNotStarted,
 			Label: labels["lpaSubmitted"],
+		},
+		NoticesOfIntentSent: ProgressTask{
+			State: actor.TaskNotStarted,
 		},
 		StatutoryWaitingPeriod: ProgressTask{
 			State: actor.TaskNotStarted,
@@ -152,6 +175,15 @@ func (pt ProgressTracker) Progress(lpa *lpastore.Lpa) Progress {
 	}
 
 	progress.LpaSubmitted.State = actor.TaskCompleted
+
+	if lpa.PerfectAt.IsZero() {
+		return progress
+	}
+
+	progress.NoticesOfIntentSent.Label = pt.Localizer.Format(labels["noticesOfIntentSent"], map[string]any{
+		"SentOn": pt.Localizer.FormatDate(lpa.PerfectAt),
+	})
+	progress.NoticesOfIntentSent.State = actor.TaskCompleted
 	progress.StatutoryWaitingPeriod.State = actor.TaskInProgress
 
 	if lpa.RegisteredAt.IsZero() {
