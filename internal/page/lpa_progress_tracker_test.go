@@ -26,34 +26,10 @@ func TestProgressTrackerProgress(t *testing.T) {
 		LpaRegistered:             ProgressTask{State: actor.TaskNotStarted, Label: "LpaRegistered translation"},
 	}
 
-	localizerFn := func() *mockLocalizer {
-		localizer := newMockLocalizer(t)
-		localizer.EXPECT().
-			T("youveSignedYourLpa").
-			Return("DonorSigned translation")
-		localizer.EXPECT().
-			T("yourCertificateProviderHasDeclared").
-			Return("CertificateProviderSigned translation")
-		localizer.EXPECT().
-			Count("attorneysHaveDeclared", 1).
-			Return("AttorneysSigned translation")
-		localizer.EXPECT().
-			T("weHaveReceivedYourLpa").
-			Return("LpaSubmitted translation")
-		localizer.EXPECT().
-			T("yourWaitingPeriodHasStarted").
-			Return("StatutoryWaitingPeriod translation")
-		localizer.EXPECT().
-			T("yourLpaHasBeenRegistered").
-			Return("LpaRegistered translation")
-
-		return localizer
-	}
-
 	testCases := map[string]struct {
-		lpa               *lpastore.Lpa
-		expectedProgress  func() Progress
-		expectedLocalizer func() *mockLocalizer
+		lpa              *lpastore.Lpa
+		expectedProgress func() Progress
+		setupLocalizer   func(*mockLocalizer)
 	}{
 		"initial state": {
 			lpa: &lpastore.Lpa{
@@ -62,9 +38,16 @@ func TestProgressTrackerProgress(t *testing.T) {
 			expectedProgress: func() Progress {
 				return initialProgress
 			},
-			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
+			setupLocalizer: func(localizer *mockLocalizer) {
+				localizer.EXPECT().
+					T("yourCertificateProviderHasDeclared").
+					Return("CertificateProviderSigned translation")
+				localizer.EXPECT().
+					Count("attorneysHaveDeclared", 1).
+					Return("AttorneysSigned translation")
+			},
 		},
-		"initial state - with certificate provider name": {
+		"initial state with certificate provider name": {
 			lpa: &lpastore.Lpa{
 				CertificateProvider: lpastore.CertificateProvider{FirstNames: "A", LastName: "B"},
 				Attorneys:           lpastore.Attorneys{Attorneys: []lpastore.Attorney{{}}},
@@ -72,30 +55,15 @@ func TestProgressTrackerProgress(t *testing.T) {
 			expectedProgress: func() Progress {
 				return initialProgress
 			},
-			expectedLocalizer: func() *mockLocalizer {
-				localizer := newMockLocalizer(t)
+			setupLocalizer: func(localizer *mockLocalizer) {
 				localizer.EXPECT().
-					T("youveSignedYourLpa").
-					Return("DonorSigned translation")
-				localizer.EXPECT().
-					Format(
-						"certificateProviderHasDeclared", map[string]interface{}{"CertificateProviderFullName": "A B"},
-					).
+					Format("certificateProviderHasDeclared", map[string]interface{}{
+						"CertificateProviderFullName": "A B",
+					}).
 					Return("CertificateProviderSigned translation")
 				localizer.EXPECT().
 					Count("attorneysHaveDeclared", 1).
 					Return("AttorneysSigned translation")
-				localizer.EXPECT().
-					T("weHaveReceivedYourLpa").
-					Return("LpaSubmitted translation")
-				localizer.EXPECT().
-					T("yourWaitingPeriodHasStarted").
-					Return("StatutoryWaitingPeriod translation")
-				localizer.EXPECT().
-					T("yourLpaHasBeenRegistered").
-					Return("LpaRegistered translation")
-
-				return localizer
 			},
 		},
 		"lpa signed": {
@@ -111,7 +79,14 @@ func TestProgressTrackerProgress(t *testing.T) {
 
 				return progress
 			},
-			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
+			setupLocalizer: func(localizer *mockLocalizer) {
+				localizer.EXPECT().
+					T("yourCertificateProviderHasDeclared").
+					Return("CertificateProviderSigned translation")
+				localizer.EXPECT().
+					Count("attorneysHaveDeclared", 1).
+					Return("AttorneysSigned translation")
+			},
 		},
 		"certificate provider signed": {
 			lpa: &lpastore.Lpa{
@@ -129,7 +104,14 @@ func TestProgressTrackerProgress(t *testing.T) {
 
 				return progress
 			},
-			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
+			setupLocalizer: func(localizer *mockLocalizer) {
+				localizer.EXPECT().
+					T("yourCertificateProviderHasDeclared").
+					Return("CertificateProviderSigned translation")
+				localizer.EXPECT().
+					Count("attorneysHaveDeclared", 1).
+					Return("AttorneysSigned translation")
+			},
 		},
 		"attorneys signed": {
 			lpa: &lpastore.Lpa{
@@ -148,28 +130,13 @@ func TestProgressTrackerProgress(t *testing.T) {
 
 				return progress
 			},
-			expectedLocalizer: func() *mockLocalizer {
-				localizer := newMockLocalizer(t)
-				localizer.EXPECT().
-					T("youveSignedYourLpa").
-					Return("DonorSigned translation")
+			setupLocalizer: func(localizer *mockLocalizer) {
 				localizer.EXPECT().
 					T("yourCertificateProviderHasDeclared").
 					Return("CertificateProviderSigned translation")
 				localizer.EXPECT().
 					Count("attorneysHaveDeclared", 2).
 					Return("AttorneysSigned translation")
-				localizer.EXPECT().
-					T("weHaveReceivedYourLpa").
-					Return("LpaSubmitted translation")
-				localizer.EXPECT().
-					T("yourWaitingPeriodHasStarted").
-					Return("StatutoryWaitingPeriod translation")
-				localizer.EXPECT().
-					T("yourLpaHasBeenRegistered").
-					Return("LpaRegistered translation")
-
-				return localizer
 			},
 		},
 		"submitted": {
@@ -187,11 +154,17 @@ func TestProgressTrackerProgress(t *testing.T) {
 				progress.CertificateProviderSigned.State = actor.TaskCompleted
 				progress.AttorneysSigned.State = actor.TaskCompleted
 				progress.LpaSubmitted.State = actor.TaskCompleted
-				progress.StatutoryWaitingPeriod.State = actor.TaskInProgress
 
 				return progress
 			},
-			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
+			setupLocalizer: func(localizer *mockLocalizer) {
+				localizer.EXPECT().
+					T("yourCertificateProviderHasDeclared").
+					Return("CertificateProviderSigned translation")
+				localizer.EXPECT().
+					Count("attorneysHaveDeclared", 1).
+					Return("AttorneysSigned translation")
+			},
 		},
 		"registered": {
 			lpa: &lpastore.Lpa{
@@ -201,6 +174,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 				Attorneys:           lpastore.Attorneys{Attorneys: []lpastore.Attorney{{UID: uid1, SignedAt: lpaSignedAt.Add(time.Minute)}}},
 				CertificateProvider: lpastore.CertificateProvider{SignedAt: lpaSignedAt},
 				Submitted:           true,
+				PerfectAt:           lpaSignedAt,
 				RegisteredAt:        lpaSignedAt,
 			},
 			expectedProgress: func() Progress {
@@ -209,18 +183,51 @@ func TestProgressTrackerProgress(t *testing.T) {
 				progress.CertificateProviderSigned.State = actor.TaskCompleted
 				progress.AttorneysSigned.State = actor.TaskCompleted
 				progress.LpaSubmitted.State = actor.TaskCompleted
+				progress.NoticesOfIntentSent.State = actor.TaskCompleted
+				progress.NoticesOfIntentSent.Label = "NoticesOfIntentSent translation"
 				progress.StatutoryWaitingPeriod.State = actor.TaskCompleted
 				progress.LpaRegistered.State = actor.TaskCompleted
 
 				return progress
 			},
-			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
+			setupLocalizer: func(localizer *mockLocalizer) {
+				localizer.EXPECT().
+					T("yourCertificateProviderHasDeclared").
+					Return("CertificateProviderSigned translation")
+				localizer.EXPECT().
+					Count("attorneysHaveDeclared", 1).
+					Return("AttorneysSigned translation")
+				localizer.EXPECT().
+					Format("weSentAnEmailYourLpaIsReadyToRegister", map[string]any{"SentOn": "perfect-on"}).
+					Return("NoticesOfIntentSent translation")
+				localizer.EXPECT().
+					FormatDate(lpaSignedAt).
+					Return("perfect-on")
+			},
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			progressTracker := ProgressTracker{Localizer: tc.expectedLocalizer()}
+			localizer := newMockLocalizer(t)
+			localizer.EXPECT().
+				T("youveSignedYourLpa").
+				Return("DonorSigned translation")
+			localizer.EXPECT().
+				T("weHaveReceivedYourLpa").
+				Return("LpaSubmitted translation")
+			localizer.EXPECT().
+				T("yourWaitingPeriodHasStarted").
+				Return("StatutoryWaitingPeriod translation")
+			localizer.EXPECT().
+				T("yourLpaHasBeenRegistered").
+				Return("LpaRegistered translation")
+
+			if tc.setupLocalizer != nil {
+				tc.setupLocalizer(localizer)
+			}
+
+			progressTracker := ProgressTracker{Localizer: localizer}
 
 			assert.Equal(t, tc.expectedProgress(), progressTracker.Progress(tc.lpa))
 		})
@@ -232,59 +239,22 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 	lpaSignedAt := time.Now()
 	uid := actoruid.New()
 	initialProgress := Progress{
+		isOrganisation:            true,
 		Paid:                      ProgressTask{State: actor.TaskInProgress, Label: "Paid translation"},
 		ConfirmedID:               ProgressTask{State: actor.TaskNotStarted, Label: "ConfirmedID translation"},
 		DonorSigned:               ProgressTask{State: actor.TaskNotStarted, Label: "DonorSigned translation"},
 		CertificateProviderSigned: ProgressTask{State: actor.TaskNotStarted, Label: "CertificateProviderSigned translation"},
 		AttorneysSigned:           ProgressTask{State: actor.TaskNotStarted, Label: "AttorneysSigned translation"},
 		LpaSubmitted:              ProgressTask{State: actor.TaskNotStarted, Label: "LpaSubmitted translation"},
+		NoticesOfIntentSent:       ProgressTask{State: actor.TaskNotStarted},
 		StatutoryWaitingPeriod:    ProgressTask{State: actor.TaskNotStarted, Label: "StatutoryWaitingPeriod translation"},
 		LpaRegistered:             ProgressTask{State: actor.TaskNotStarted, Label: "LpaRegistered translation"},
 	}
 
-	localizerFn := func() *mockLocalizer {
-		localizer := newMockLocalizer(t)
-		localizer.EXPECT().
-			Format(
-				"donorFullNameHasPaid",
-				map[string]interface{}{"DonorFullName": "a b"},
-			).
-			Return("Paid translation")
-		localizer.EXPECT().
-			Format(
-				"donorFullNameHasConfirmedTheirIdentity",
-				map[string]interface{}{"DonorFullName": "a b"},
-			).
-			Return("ConfirmedID translation")
-		localizer.EXPECT().
-			Format(
-				"donorFullNameHasSignedTheLPA",
-				map[string]interface{}{"DonorFullName": "a b"},
-			).
-			Return("DonorSigned translation")
-		localizer.EXPECT().
-			T("theCertificateProviderHasDeclared").
-			Return("CertificateProviderSigned translation")
-		localizer.EXPECT().
-			T("allAttorneysHaveSignedTheLpa").
-			Return("AttorneysSigned translation")
-		localizer.EXPECT().
-			T("opgHasReceivedTheLPA").
-			Return("LpaSubmitted translation")
-		localizer.EXPECT().
-			T("theWaitingPeriodHasStarted").
-			Return("StatutoryWaitingPeriod translation")
-		localizer.EXPECT().
-			T("theLpaHasBeenRegistered").
-			Return("LpaRegistered translation")
-
-		return localizer
-	}
-
 	testCases := map[string]struct {
-		lpa               *lpastore.Lpa
-		expectedProgress  func() Progress
-		expectedLocalizer func() *mockLocalizer
+		lpa              *lpastore.Lpa
+		expectedProgress func() Progress
+		setupLocalizer   func(*mockLocalizer)
 	}{
 		"initial state": {
 			lpa: &lpastore.Lpa{
@@ -295,7 +265,6 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			expectedProgress: func() Progress {
 				return initialProgress
 			},
-			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"paid": {
 			lpa: &lpastore.Lpa{
@@ -311,7 +280,6 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 
 				return progress
 			},
-			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"confirmed ID": {
 			lpa: &lpastore.Lpa{
@@ -329,7 +297,6 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 
 				return progress
 			},
-			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"donor signed": {
 			lpa: &lpastore.Lpa{
@@ -349,7 +316,6 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 
 				return progress
 			},
-			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"certificate provider signed": {
 			lpa: &lpastore.Lpa{
@@ -371,7 +337,6 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 
 				return progress
 			},
-			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"attorneys signed": {
 			lpa: &lpastore.Lpa{
@@ -394,7 +359,6 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 
 				return progress
 			},
-			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"submitted": {
 			lpa: &lpastore.Lpa{
@@ -415,11 +379,9 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 				progress.CertificateProviderSigned.State = actor.TaskCompleted
 				progress.AttorneysSigned.State = actor.TaskCompleted
 				progress.LpaSubmitted.State = actor.TaskCompleted
-				progress.StatutoryWaitingPeriod.State = actor.TaskInProgress
 
 				return progress
 			},
-			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
 		},
 		"registered": {
 			lpa: &lpastore.Lpa{
@@ -431,6 +393,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 				Paid:                   true,
 				SignedAt:               lpaSignedAt,
 				Submitted:              true,
+				PerfectAt:              lpaSignedAt,
 				RegisteredAt:           lpaSignedAt,
 			},
 			expectedProgress: func() Progress {
@@ -441,18 +404,66 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 				progress.CertificateProviderSigned.State = actor.TaskCompleted
 				progress.AttorneysSigned.State = actor.TaskCompleted
 				progress.LpaSubmitted.State = actor.TaskCompleted
+				progress.NoticesOfIntentSent.Label = "NoticesOfIntentSent translation"
+				progress.NoticesOfIntentSent.State = actor.TaskCompleted
 				progress.StatutoryWaitingPeriod.State = actor.TaskCompleted
 				progress.LpaRegistered.State = actor.TaskCompleted
 
 				return progress
 			},
-			expectedLocalizer: func() *mockLocalizer { return localizerFn() },
+			setupLocalizer: func(localizer *mockLocalizer) {
+				localizer.EXPECT().
+					Format("weSentAnEmailTheLpaIsReadyToRegister", map[string]any{"SentOn": "perfect-on"}).
+					Return("NoticesOfIntentSent translation")
+				localizer.EXPECT().
+					FormatDate(lpaSignedAt).
+					Return("perfect-on")
+			},
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			progressTracker := ProgressTracker{Localizer: tc.expectedLocalizer()}
+			localizer := newMockLocalizer(t)
+			localizer.EXPECT().
+				Format(
+					"donorFullNameHasPaid",
+					map[string]interface{}{"DonorFullName": "a b"},
+				).
+				Return("Paid translation")
+			localizer.EXPECT().
+				Format(
+					"donorFullNameHasConfirmedTheirIdentity",
+					map[string]interface{}{"DonorFullName": "a b"},
+				).
+				Return("ConfirmedID translation")
+			localizer.EXPECT().
+				Format(
+					"donorFullNameHasSignedTheLPA",
+					map[string]interface{}{"DonorFullName": "a b"},
+				).
+				Return("DonorSigned translation")
+			localizer.EXPECT().
+				T("theCertificateProviderHasDeclared").
+				Return("CertificateProviderSigned translation")
+			localizer.EXPECT().
+				T("allAttorneysHaveSignedTheLpa").
+				Return("AttorneysSigned translation")
+			localizer.EXPECT().
+				T("opgHasReceivedTheLPA").
+				Return("LpaSubmitted translation")
+			localizer.EXPECT().
+				T("theWaitingPeriodHasStarted").
+				Return("StatutoryWaitingPeriod translation")
+			localizer.EXPECT().
+				T("theLpaHasBeenRegistered").
+				Return("LpaRegistered translation")
+
+			if tc.setupLocalizer != nil {
+				tc.setupLocalizer(localizer)
+			}
+
+			progressTracker := ProgressTracker{Localizer: localizer}
 
 			assert.Equal(t, tc.expectedProgress(), progressTracker.Progress(tc.lpa))
 		})
