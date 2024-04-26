@@ -51,6 +51,7 @@ var progressValues = []string{
 	"signedByCertificateProvider",
 	"signedByAttorneys",
 	"submitted",
+	"perfect",
 	"withdrawn",
 	"registered",
 }
@@ -472,6 +473,10 @@ func updateLPAProgress(
 
 	if data.Progress >= slices.Index(progressValues, "submitted") {
 		donorDetails.SubmittedAt = time.Now()
+	}
+
+	if data.Progress >= slices.Index(progressValues, "perfect") {
+		donorDetails.PerfectAt = time.Now()
 	}
 
 	if data.Progress == slices.Index(progressValues, "withdrawn") {
