@@ -19,6 +19,7 @@ module "event_received" {
   lpa_store_base_url            = var.lpa_store_service.base_url
   allowed_api_arns              = var.uid_service.api_arns
   search_endpoint               = var.search_endpoint
+  search_index_name             = var.search_index_name
   search_collection_arn         = var.search_collection_arn
   event_received_lambda_role    = var.iam_roles.event_received_lambda
   vpc_config = {

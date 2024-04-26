@@ -57,6 +57,7 @@ module "app" {
   mock_onelogin_enabled                                = data.aws_default_tags.current.tags.environment-name != "production" && var.mock_onelogin_enabled
   fault_injection_experiments_enabled                  = var.fault_injection_experiments_enabled
   search_endpoint                                      = var.search_endpoint
+  search_index_name                                    = var.search_index_name
   search_collection_arn                                = var.search_collection_arn
   providers = {
     aws.region = aws.region
