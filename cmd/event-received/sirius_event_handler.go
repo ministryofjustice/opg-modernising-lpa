@@ -10,107 +10,64 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
-type factory interface {
-	AppData() (page.AppData, error)
-	ShareCodeSender(ctx context.Context) (ShareCodeSender, error)
-	LpaStoreClient() (LpaStoreClient, error)
-	UidStore() (UidStore, error)
-	UidClient() UidClient
-}
+type siriusEventHandler struct{}
 
-type cloudWatchEventHandler struct {
-	dynamoClient dynamodbClient
-	now          func() time.Time
-	uuidString   func() string
-	factory      factory
-}
-
-func (h *cloudWatchEventHandler) Handle(ctx context.Context, cloudWatchEvent events.CloudWatchEvent) error {
+func (h *siriusEventHandler) Handle(ctx context.Context, factory factory, cloudWatchEvent events.CloudWatchEvent) error {
 	switch cloudWatchEvent.DetailType {
-	case "uid-requested":
-		uidStore, err := h.factory.UidStore()
-		if err != nil {
-			return err
-		}
-
-		uidClient := h.factory.UidClient()
-
-		return handleUidRequested(ctx, uidStore, uidClient, cloudWatchEvent)
-
 	case "evidence-received":
-		return handleEvidenceReceived(ctx, h.dynamoClient, cloudWatchEvent)
+		return handleEvidenceReceived(ctx, factory.DynamoClient(), cloudWatchEvent)
 
 	case "reduced-fee-approved":
-		appData, err := h.factory.AppData()
+		appData, err := factory.AppData()
 		if err != nil {
 			return err
 		}
 
-		shareCodeSender, err := h.factory.ShareCodeSender(ctx)
+		shareCodeSender, err := factory.ShareCodeSender(ctx)
 		if err != nil {
 			return err
 		}
 
-		lpaStoreClient, err := h.factory.LpaStoreClient()
+		lpaStoreClient, err := factory.LpaStoreClient()
 		if err != nil {
 			return err
 		}
 
-		return handleFeeApproved(ctx, h.dynamoClient, cloudWatchEvent, shareCodeSender, lpaStoreClient, appData, h.now)
+		return handleFeeApproved(ctx, factory.DynamoClient(), cloudWatchEvent, shareCodeSender, lpaStoreClient, appData, factory.Now())
 
 	case "reduced-fee-declined":
-		return handleFeeDenied(ctx, h.dynamoClient, cloudWatchEvent, h.now)
+		return handleFeeDenied(ctx, factory.DynamoClient(), cloudWatchEvent, factory.Now())
 
-	case "more-evidence-required":
-		return handleMoreEvidenceRequired(ctx, h.dynamoClient, cloudWatchEvent, h.now)
+	case "further-info-requested":
+		return handleFurtherInfoRequested(ctx, factory.DynamoClient(), cloudWatchEvent, factory.Now())
 
 	case "donor-submission-completed":
-		appData, err := h.factory.AppData()
+		appData, err := factory.AppData()
 		if err != nil {
 			return err
 		}
 
-		shareCodeSender, err := h.factory.ShareCodeSender(ctx)
+		shareCodeSender, err := factory.ShareCodeSender(ctx)
 		if err != nil {
 			return err
 		}
 
-		lpaStoreClient, err := h.factory.LpaStoreClient()
+		lpaStoreClient, err := factory.LpaStoreClient()
 		if err != nil {
 			return err
 		}
 
-		return handleDonorSubmissionCompleted(ctx, h.dynamoClient, cloudWatchEvent, shareCodeSender, appData, lpaStoreClient, h.uuidString, h.now)
+		return handleDonorSubmissionCompleted(ctx, factory.DynamoClient(), cloudWatchEvent, shareCodeSender, appData, lpaStoreClient, factory.UuidString(), factory.Now())
 
 	case "certificate-provider-submission-completed":
-		return handleCertificateProviderSubmissionCompleted(ctx, cloudWatchEvent, h.factory)
+		return handleCertificateProviderSubmissionCompleted(ctx, cloudWatchEvent, factory)
 
 	default:
 		return fmt.Errorf("unknown cloudwatch event")
 	}
-}
-
-func handleUidRequested(ctx context.Context, uidStore UidStore, uidClient UidClient, e events.CloudWatchEvent) error {
-	var v event.UidRequested
-	if err := json.Unmarshal(e.Detail, &v); err != nil {
-		return fmt.Errorf("failed to unmarshal detail: %w", err)
-	}
-
-	uid, err := uidClient.CreateCase(ctx, &uid.CreateCaseRequestBody{Type: v.Type, Donor: v.Donor})
-	if err != nil {
-		return fmt.Errorf("failed to create case: %w", err)
-	}
-
-	if err := uidStore.Set(ctx, v.LpaID, v.DonorSessionID, v.OrganisationID, uid); err != nil {
-		return fmt.Errorf("failed to set uid: %w", err)
-	}
-
-	return nil
 }
 
 func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent) error {
@@ -163,7 +120,7 @@ func handleFeeApproved(ctx context.Context, client dynamodbClient, event events.
 	return nil
 }
 
-func handleMoreEvidenceRequired(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, now func() time.Time) error {
+func handleFurtherInfoRequested(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, now func() time.Time) error {
 	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)

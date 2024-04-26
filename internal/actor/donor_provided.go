@@ -106,6 +106,8 @@ type DonorProvidedDetails struct {
 	SubmittedAt time.Time
 	// WithdrawnAt is when the Lpa was withdrawn by the donor
 	WithdrawnAt time.Time
+	// PerfectAt is when the Lpa transitioned to the PERFECT status in the lpa-store
+	PerfectAt time.Time
 	// Version is the number of times the LPA has been updated (auto-incremented on PUT)
 	Version int `hash:"-"`
 
