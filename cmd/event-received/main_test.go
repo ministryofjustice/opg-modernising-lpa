@@ -30,17 +30,3 @@ func TestIsS3Event(t *testing.T) {
 
 	assert.False(t, s3Event.isS3Event())
 }
-
-func TestIsCloudWatchEvent(t *testing.T) {
-	cloudwatchEvents := []Event{
-		{CloudWatchEvent: events.CloudWatchEvent{Source: "aws.cloudwatch"}},
-		{CloudWatchEvent: events.CloudWatchEvent{Source: "opg.poas.makeregister"}},
-		{CloudWatchEvent: events.CloudWatchEvent{Source: "opg.poas.sirius"}},
-	}
-
-	for _, e := range cloudwatchEvents {
-		assert.True(t, e.isCloudWatchEvent())
-	}
-
-	assert.False(t, Event{CloudWatchEvent: events.CloudWatchEvent{Source: "somewhere else"}}.isCloudWatchEvent())
-}
