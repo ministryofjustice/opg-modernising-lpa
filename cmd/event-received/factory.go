@@ -51,6 +51,7 @@ type UidClient interface {
 
 type Factory struct {
 	now                   func() time.Time
+	uuidString            func() string
 	cfg                   aws.Config
 	dynamoClient          dynamodbClient
 	appPublicURL          string
@@ -70,6 +71,18 @@ type Factory struct {
 	lpaStoreClient  LpaStoreClient
 	uidStore        UidStore
 	uidClient       UidClient
+}
+
+func (f *Factory) Now() func() time.Time {
+	return f.now
+}
+
+func (f *Factory) DynamoClient() dynamodbClient {
+	return f.dynamoClient
+}
+
+func (f *Factory) UuidString() func() string {
+	return f.uuidString
 }
 
 func (f *Factory) AppData() (page.AppData, error) {

@@ -46,7 +46,14 @@ resource "aws_cloudwatch_event_rule" "receive_events_sirius" {
 
   event_pattern = jsonencode({
     source      = ["opg.poas.sirius"],
-    detail-type = ["evidence-received", "reduced-fee-approved", "reduced-fee-declined", "more-evidence-required"],
+    detail-type = [
+      "certificate-provider-submission-completed",
+      "donor-submission-completed",
+      "evidence-received",
+      "further-evidence-requested",
+      "reduced-fee-approved",
+      "reduced-fee-declined",
+    ],
   })
   provider = aws.region
 }
@@ -55,6 +62,26 @@ resource "aws_cloudwatch_event_target" "receive_events_sirius" {
   target_id      = "${data.aws_default_tags.current.tags.environment-name}-receive-events-sirius"
   event_bus_name = var.event_bus_name
   rule           = aws_cloudwatch_event_rule.receive_events_sirius.name
+  arn            = module.event_received.lambda.arn
+  provider       = aws.region
+}
+
+resource "aws_cloudwatch_event_rule" "receive_events_lpa_store" {
+  name           = "${data.aws_default_tags.current.tags.environment-name}-receive-events-lpa-store"
+  description    = "receive events from lpa store"
+  event_bus_name = var.event_bus_name
+
+  event_pattern = jsonencode({
+    source      = ["opg.poas.lpastore"],
+    detail-type = ["lpa-updated"],
+  })
+  provider = aws.region
+}
+
+resource "aws_cloudwatch_event_target" "receive_events_lpa_store" {
+  target_id      = "${data.aws_default_tags.current.tags.environment-name}-receive-events-lpa-store"
+  event_bus_name = var.event_bus_name
+  rule           = aws_cloudwatch_event_rule.receive_events_lpa_store.name
   arn            = module.event_received.lambda.arn
   provider       = aws.region
 }
