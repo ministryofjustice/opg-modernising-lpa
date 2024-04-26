@@ -144,6 +144,11 @@ variable "search_endpoint" {
   nullable    = true
 }
 
+variable "search_index_name" {
+  type        = string
+  description = "Name of the OpenSearch Service index to use"
+}
+
 variable "search_collection_arn" {
   type        = string
   description = "ARN of the OpenSearch collection to use"
