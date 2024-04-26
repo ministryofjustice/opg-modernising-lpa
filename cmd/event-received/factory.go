@@ -60,6 +60,7 @@ type Factory struct {
 	notifyIsProduction    bool
 	eventBusName          string
 	searchEndpoint        string
+	searchIndexName       string
 	searchIndexingEnabled bool
 
 	// previously constructed values
@@ -145,7 +146,7 @@ func (f *Factory) LpaStoreClient() (LpaStoreClient, error) {
 
 func (f *Factory) UidStore() (UidStore, error) {
 	if f.uidStore == nil {
-		searchClient, err := search.NewClient(f.cfg, f.searchEndpoint, f.searchIndexingEnabled)
+		searchClient, err := search.NewClient(f.cfg, f.searchEndpoint, f.searchIndexName, f.searchIndexingEnabled)
 		if err != nil {
 			return nil, err
 		}

@@ -16,7 +16,6 @@ import (
 )
 
 const (
-	indexName       = "lpas"
 	indexDefinition = `
 	{
 		"settings": {
@@ -65,10 +64,11 @@ type Client struct {
 	svc             opensearchapiClient
 	indices         indicesClient
 	endpoint        string
+	indexName       string
 	indexingEnabled bool
 }
 
-func NewClient(cfg aws.Config, endpoint string, indexingEnabled bool) (*Client, error) {
+func NewClient(cfg aws.Config, endpoint, indexName string, indexingEnabled bool) (*Client, error) {
 	signer, err := requestsigner.NewSignerWithService(cfg, "aoss")
 	if err != nil {
 		return nil, fmt.Errorf("search could not create signer: %w", err)
@@ -84,18 +84,18 @@ func NewClient(cfg aws.Config, endpoint string, indexingEnabled bool) (*Client, 
 		return nil, fmt.Errorf("search could not create opensearch client: %w", err)
 	}
 
-	return &Client{indices: svc.Indices, svc: svc, endpoint: endpoint, indexingEnabled: indexingEnabled}, nil
+	return &Client{indices: svc.Indices, svc: svc, endpoint: endpoint, indexName: indexName, indexingEnabled: indexingEnabled}, nil
 }
 
 func (c *Client) CreateIndices(ctx context.Context) error {
-	_, err := c.indices.Exists(ctx, opensearchapi.IndicesExistsReq{Indices: []string{indexName}})
+	_, err := c.indices.Exists(ctx, opensearchapi.IndicesExistsReq{Indices: []string{c.indexName}})
 	if err == nil {
 		return nil
 	}
 
 	settings := strings.NewReader(indexDefinition)
 
-	if _, err := c.indices.Create(ctx, opensearchapi.IndicesCreateReq{Index: indexName, Body: settings}); err != nil {
+	if _, err := c.indices.Create(ctx, opensearchapi.IndicesCreateReq{Index: c.indexName, Body: settings}); err != nil {
 		return fmt.Errorf("search could not create index: %w", err)
 	}
 
@@ -113,7 +113,7 @@ func (c *Client) Index(ctx context.Context, lpa Lpa) error {
 	}
 
 	_, err = c.svc.Index(ctx, opensearchapi.IndexReq{
-		Index:      indexName,
+		Index:      c.indexName,
 		DocumentID: strings.ReplaceAll(lpa.PK, "#", "--"),
 		Body:       bytes.NewReader(body),
 	})
@@ -139,7 +139,7 @@ func (c *Client) Query(ctx context.Context, req QueryRequest) (*QueryResponse, e
 	}
 
 	resp, err := c.svc.Search(ctx, &opensearchapi.SearchReq{
-		Indices: []string{indexName},
+		Indices: []string{c.indexName},
 		Body:    bytes.NewReader(body),
 		Params: opensearchapi.SearchParams{
 			From: aws.Int((req.Page - 1) * req.PageSize),
@@ -207,7 +207,7 @@ func (c *Client) CountWithQuery(ctx context.Context, req CountWithQueryReq) (int
 	}
 
 	resp, err := c.svc.Search(ctx, &opensearchapi.SearchReq{
-		Indices: []string{indexName},
+		Indices: []string{c.indexName},
 		Body:    bytes.NewReader(body),
 	})
 	if err != nil {
