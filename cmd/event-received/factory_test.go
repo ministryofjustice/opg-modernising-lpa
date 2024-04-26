@@ -9,6 +9,25 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestNow(t *testing.T) {
+	factory := &Factory{now: testNowFn}
+
+	assert.Equal(t, testNow, factory.Now()())
+}
+
+func TestDynamoClient(t *testing.T) {
+	dynamoClient := newMockDynamodbClient(t)
+	factory := &Factory{dynamoClient: dynamoClient}
+
+	assert.Equal(t, dynamoClient, factory.DynamoClient())
+}
+
+func TestUuidString(t *testing.T) {
+	factory := &Factory{uuidString: testUuidStringFn}
+
+	assert.Equal(t, testUuidString, factory.UuidString()())
+}
+
 func TestAppData(t *testing.T) {
 	factory := &Factory{}
 
