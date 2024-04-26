@@ -79,6 +79,7 @@ func (s *ResolvingService) ResolveList(ctx context.Context, donors []*actor.Dono
 func (s *ResolvingService) merge(lpa *Lpa, donor *actor.DonorProvidedDetails) *Lpa {
 	lpa.LpaID = donor.LpaID
 	lpa.LpaUID = donor.LpaUID
+	lpa.PerfectAt = donor.PerfectAt
 	if donor.SK.Equals(dynamo.DonorKey("PAPER")) {
 		lpa.Submitted = true
 		lpa.Paid = true
