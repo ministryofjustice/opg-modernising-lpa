@@ -360,6 +360,7 @@ type Lpa struct {
 	LpaUID                                     string
 	RegisteredAt                               time.Time
 	WithdrawnAt                                time.Time
+	PerfectAt                                  time.Time
 	UpdatedAt                                  time.Time
 	Type                                       actor.LpaType
 	Donor                                      actor.Donor
