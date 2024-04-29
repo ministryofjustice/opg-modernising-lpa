@@ -66,7 +66,7 @@ func (h *siriusEventHandler) Handle(ctx context.Context, factory factory, cloudW
 		return handleCertificateProviderSubmissionCompleted(ctx, cloudWatchEvent, factory)
 
 	default:
-		return fmt.Errorf("unknown cloudwatch event")
+		return fmt.Errorf("unknown sirius event")
 	}
 }
 

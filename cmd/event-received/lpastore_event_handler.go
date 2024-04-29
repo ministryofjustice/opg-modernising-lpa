@@ -17,7 +17,7 @@ func (h *lpastoreEventHandler) Handle(ctx context.Context, factory factory, clou
 		return handleLpaUpdated(ctx, factory.DynamoClient(), cloudWatchEvent, factory.Now())
 
 	default:
-		return fmt.Errorf("unknown cloudwatch event")
+		return fmt.Errorf("unknown lpastore event")
 	}
 }
 

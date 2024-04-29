@@ -22,7 +22,7 @@ func TestSiriusEventHandlerHandleUnknownEvent(t *testing.T) {
 	handler := &siriusEventHandler{}
 
 	err := handler.Handle(ctx, nil, events.CloudWatchEvent{DetailType: "some-event"})
-	assert.Equal(t, fmt.Errorf("unknown cloudwatch event"), err)
+	assert.Equal(t, fmt.Errorf("unknown sirius event"), err)
 }
 
 func TestHandleEvidenceReceived(t *testing.T) {

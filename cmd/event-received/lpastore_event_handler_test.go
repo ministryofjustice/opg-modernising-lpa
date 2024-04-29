@@ -17,7 +17,7 @@ func TestLpaStoreEventHandlerHandleUnknownEvent(t *testing.T) {
 	handler := &lpastoreEventHandler{}
 
 	err := handler.Handle(ctx, nil, events.CloudWatchEvent{DetailType: "some-event"})
-	assert.Equal(t, fmt.Errorf("unknown cloudwatch event"), err)
+	assert.Equal(t, fmt.Errorf("unknown lpastore event"), err)
 }
 
 func TestLpaStoreEventHandlerHandleLpaUpdated(t *testing.T) {

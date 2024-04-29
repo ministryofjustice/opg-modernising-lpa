@@ -16,7 +16,7 @@ func TestMakeRegisterHandlerHandleUnknownEvent(t *testing.T) {
 	handler := &makeregisterEventHandler{}
 
 	err := handler.Handle(ctx, nil, events.CloudWatchEvent{DetailType: "some-event"})
-	assert.Equal(t, fmt.Errorf("unknown cloudwatch event"), err)
+	assert.Equal(t, fmt.Errorf("unknown makeregister event"), err)
 }
 
 func TestHandleUidRequested(t *testing.T) {

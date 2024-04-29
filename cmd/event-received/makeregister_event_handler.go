@@ -25,7 +25,7 @@ func (h *makeregisterEventHandler) Handle(ctx context.Context, factory factory, 
 		return handleUidRequested(ctx, uidStore, uidClient, cloudWatchEvent)
 
 	default:
-		return fmt.Errorf("unknown cloudwatch event")
+		return fmt.Errorf("unknown makeregister event")
 	}
 }
 
