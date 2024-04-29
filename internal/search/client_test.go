@@ -22,6 +22,7 @@ import (
 var (
 	ctx           = context.Background()
 	expectedError = errors.New("err")
+	testIndexName = "index"
 )
 
 type mockCredentialsProvider struct{}
@@ -46,7 +47,7 @@ func TestNewClient(t *testing.T) {
 	client, err := NewClient(aws.Config{
 		Region:      "eu-west-1",
 		Credentials: &mockCredentialsProvider{},
-	}, s.URL, true)
+	}, s.URL, testIndexName, true)
 	assert.Nil(t, err)
 	assert.NotNil(t, client)
 }
@@ -54,13 +55,13 @@ func TestNewClient(t *testing.T) {
 func TestClientCreateIndices(t *testing.T) {
 	indices := newMockIndicesClient(t)
 	indices.EXPECT().
-		Exists(ctx, opensearchapi.IndicesExistsReq{Indices: []string{indexName}}).
+		Exists(ctx, opensearchapi.IndicesExistsReq{Indices: []string{testIndexName}}).
 		Return(nil, expectedError)
 	indices.EXPECT().
-		Create(ctx, opensearchapi.IndicesCreateReq{Index: indexName, Body: strings.NewReader(indexDefinition)}).
+		Create(ctx, opensearchapi.IndicesCreateReq{Index: testIndexName, Body: strings.NewReader(indexDefinition)}).
 		Return(nil, nil)
 
-	client := &Client{indices: indices, indexingEnabled: true}
+	client := &Client{indices: indices, indexName: testIndexName, indexingEnabled: true}
 	err := client.CreateIndices(ctx)
 	assert.Nil(t, err)
 }
@@ -94,13 +95,13 @@ func TestClientIndex(t *testing.T) {
 	svc := newMockOpensearchapiClient(t)
 	svc.EXPECT().
 		Index(ctx, opensearchapi.IndexReq{
-			Index:      indexName,
+			Index:      testIndexName,
 			DocumentID: "LPA--2020",
 			Body:       bytes.NewReader([]byte(`{"DonorFullName":"x y","PK":"LPA#2020","SK":"abc#123"}`)),
 		}).
 		Return(nil, nil)
 
-	client := &Client{svc: svc, indexingEnabled: true}
+	client := &Client{svc: svc, indexName: testIndexName, indexingEnabled: true}
 	err := client.Index(ctx, Lpa{DonorFullName: "x y", PK: dynamo.LpaKey("2020").PK(), SK: "abc#123"})
 	assert.Nil(t, err)
 }
@@ -169,7 +170,7 @@ func TestClientQuery(t *testing.T) {
 			svc := newMockOpensearchapiClient(t)
 			svc.EXPECT().
 				Search(ctx, &opensearchapi.SearchReq{
-					Indices: []string{indexName},
+					Indices: []string{testIndexName},
 					Body:    bytes.NewReader([]byte(fmt.Sprintf(`{"query":{"match":{"SK":"%s"}}}`, tc.sk.SK()))),
 					Params: opensearchapi.SearchParams{
 						From: aws.Int(tc.from),
@@ -179,7 +180,7 @@ func TestClientQuery(t *testing.T) {
 				}).
 				Return(resp, nil)
 
-			client := &Client{svc: svc}
+			client := &Client{svc: svc, indexName: testIndexName}
 			result, err := client.Query(ctx, QueryRequest{Page: tc.page, PageSize: 10})
 			assert.Nil(t, err)
 			assert.Equal(t, result, &QueryResponse{
@@ -268,13 +269,14 @@ func TestClientCountWithQuery(t *testing.T) {
 			svc := newMockOpensearchapiClient(t)
 			svc.EXPECT().
 				Search(ctx, &opensearchapi.SearchReq{
-					Indices: []string{indexName},
+					Indices: []string{testIndexName},
 					Body:    bytes.NewReader(tc.body),
 				}).
 				Return(resp, nil)
 
 			client := &Client{
-				svc: svc,
+				svc:       svc,
+				indexName: testIndexName,
 			}
 
 			count, err := client.CountWithQuery(ctx, tc.query)
