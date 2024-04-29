@@ -1117,5 +1117,7 @@
     "addMyLpa": "Add my LPA",
     "contactNumber": "Contact number",
     "weSentAnEmailYourLpaIsReadyToRegister": "We sent an email on {{.SentOn}} that your LPA is ready to register",
-    "weSentAnEmailTheLpaIsReadyToRegister": "We sent an email on {{.SentOn}} that the LPA is ready to register"
+    "weSentAnEmailTheLpaIsReadyToRegister": "We sent an email on {{.SentOn}} that the LPA is ready to register",
+    "drafting": "Drafting",
+    "waitingPeriod": "Waiting period"
 }
