@@ -24,9 +24,9 @@ func (_m *mockAttorneyStore) EXPECT() *mockAttorneyStore_Expecter {
 	return &mockAttorneyStore_Expecter{mock: &_m.Mock}
 }
 
-// Create provides a mock function with given fields: ctx, sessionID, attorneyUID, isReplacement, isTrustCorporation
-func (_m *mockAttorneyStore) Create(ctx context.Context, sessionID string, attorneyUID actoruid.UID, isReplacement bool, isTrustCorporation bool) (*actor.AttorneyProvidedDetails, error) {
-	ret := _m.Called(ctx, sessionID, attorneyUID, isReplacement, isTrustCorporation)
+// Create provides a mock function with given fields: ctx, sessionID, attorneyUID, isReplacement, isTrustCorporation, email
+func (_m *mockAttorneyStore) Create(ctx context.Context, sessionID string, attorneyUID actoruid.UID, isReplacement bool, isTrustCorporation bool, email string) (*actor.AttorneyProvidedDetails, error) {
+	ret := _m.Called(ctx, sessionID, attorneyUID, isReplacement, isTrustCorporation, email)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
@@ -34,19 +34,19 @@ func (_m *mockAttorneyStore) Create(ctx context.Context, sessionID string, attor
 
 	var r0 *actor.AttorneyProvidedDetails
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, actoruid.UID, bool, bool) (*actor.AttorneyProvidedDetails, error)); ok {
-		return rf(ctx, sessionID, attorneyUID, isReplacement, isTrustCorporation)
+	if rf, ok := ret.Get(0).(func(context.Context, string, actoruid.UID, bool, bool, string) (*actor.AttorneyProvidedDetails, error)); ok {
+		return rf(ctx, sessionID, attorneyUID, isReplacement, isTrustCorporation, email)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, actoruid.UID, bool, bool) *actor.AttorneyProvidedDetails); ok {
-		r0 = rf(ctx, sessionID, attorneyUID, isReplacement, isTrustCorporation)
+	if rf, ok := ret.Get(0).(func(context.Context, string, actoruid.UID, bool, bool, string) *actor.AttorneyProvidedDetails); ok {
+		r0 = rf(ctx, sessionID, attorneyUID, isReplacement, isTrustCorporation, email)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*actor.AttorneyProvidedDetails)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, actoruid.UID, bool, bool) error); ok {
-		r1 = rf(ctx, sessionID, attorneyUID, isReplacement, isTrustCorporation)
+	if rf, ok := ret.Get(1).(func(context.Context, string, actoruid.UID, bool, bool, string) error); ok {
+		r1 = rf(ctx, sessionID, attorneyUID, isReplacement, isTrustCorporation, email)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -65,13 +65,14 @@ type mockAttorneyStore_Create_Call struct {
 //   - attorneyUID actoruid.UID
 //   - isReplacement bool
 //   - isTrustCorporation bool
-func (_e *mockAttorneyStore_Expecter) Create(ctx interface{}, sessionID interface{}, attorneyUID interface{}, isReplacement interface{}, isTrustCorporation interface{}) *mockAttorneyStore_Create_Call {
-	return &mockAttorneyStore_Create_Call{Call: _e.mock.On("Create", ctx, sessionID, attorneyUID, isReplacement, isTrustCorporation)}
+//   - email string
+func (_e *mockAttorneyStore_Expecter) Create(ctx interface{}, sessionID interface{}, attorneyUID interface{}, isReplacement interface{}, isTrustCorporation interface{}, email interface{}) *mockAttorneyStore_Create_Call {
+	return &mockAttorneyStore_Create_Call{Call: _e.mock.On("Create", ctx, sessionID, attorneyUID, isReplacement, isTrustCorporation, email)}
 }
 
-func (_c *mockAttorneyStore_Create_Call) Run(run func(ctx context.Context, sessionID string, attorneyUID actoruid.UID, isReplacement bool, isTrustCorporation bool)) *mockAttorneyStore_Create_Call {
+func (_c *mockAttorneyStore_Create_Call) Run(run func(ctx context.Context, sessionID string, attorneyUID actoruid.UID, isReplacement bool, isTrustCorporation bool, email string)) *mockAttorneyStore_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(actoruid.UID), args[3].(bool), args[4].(bool))
+		run(args[0].(context.Context), args[1].(string), args[2].(actoruid.UID), args[3].(bool), args[4].(bool), args[5].(string))
 	})
 	return _c
 }
@@ -81,7 +82,7 @@ func (_c *mockAttorneyStore_Create_Call) Return(_a0 *actor.AttorneyProvidedDetai
 	return _c
 }
 
-func (_c *mockAttorneyStore_Create_Call) RunAndReturn(run func(context.Context, string, actoruid.UID, bool, bool) (*actor.AttorneyProvidedDetails, error)) *mockAttorneyStore_Create_Call {
+func (_c *mockAttorneyStore_Create_Call) RunAndReturn(run func(context.Context, string, actoruid.UID, bool, bool, string) (*actor.AttorneyProvidedDetails, error)) *mockAttorneyStore_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
