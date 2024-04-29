@@ -5,7 +5,7 @@ package search
 import (
 	context "context"
 
-	opensearchapi "github.com/opensearch-project/opensearch-go/v3/opensearchapi"
+	opensearchapi "github.com/opensearch-project/opensearch-go/v4/opensearchapi"
 	mock "github.com/stretchr/testify/mock"
 )
 
