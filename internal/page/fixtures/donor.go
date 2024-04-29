@@ -51,6 +51,7 @@ var progressValues = []string{
 	"signedByCertificateProvider",
 	"signedByAttorneys",
 	"submitted",
+	"perfect",
 	"withdrawn",
 	"registered",
 }
@@ -418,7 +419,7 @@ func updateLPAProgress(
 			for _, a := range list.Attorneys {
 				ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
-				attorney, err := attorneyStore.Create(ctx, donorSessionID, a.UID, isReplacement, false)
+				attorney, err := attorneyStore.Create(ctx, donorSessionID, a.UID, isReplacement, false, a.Email)
 				if err != nil {
 					return nil, nil, err
 				}
@@ -442,7 +443,7 @@ func updateLPAProgress(
 			if list.TrustCorporation.Name != "" {
 				ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
-				attorney, err := attorneyStore.Create(ctx, donorSessionID, list.TrustCorporation.UID, isReplacement, true)
+				attorney, err := attorneyStore.Create(ctx, donorSessionID, list.TrustCorporation.UID, isReplacement, true, list.TrustCorporation.Email)
 				if err != nil {
 					return nil, nil, err
 				}
@@ -472,6 +473,10 @@ func updateLPAProgress(
 
 	if data.Progress >= slices.Index(progressValues, "submitted") {
 		donorDetails.SubmittedAt = time.Now()
+	}
+
+	if data.Progress >= slices.Index(progressValues, "perfect") {
+		donorDetails.PerfectAt = time.Now()
 	}
 
 	if data.Progress == slices.Index(progressValues, "withdrawn") {
