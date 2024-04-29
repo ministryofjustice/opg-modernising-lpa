@@ -381,6 +381,7 @@ type Lpa struct {
 	Submitted                                  bool
 	Paid                                       bool
 	IsOrganisationDonor                        bool
+	Drafted                                    bool
 }
 
 func (l Lpa) AllAttorneysSigned() bool {

@@ -30,7 +30,8 @@ func TestResolvingServiceGet(t *testing.T) {
 					Relationship: actor.Personally,
 				},
 				Tasks: actor.DonorTasks{
-					PayForLpa: actor.PaymentTaskCompleted,
+					CheckYourLpa: actor.TaskCompleted,
+					PayForLpa:    actor.PaymentTaskCompleted,
 				},
 				DonorIdentityUserData: identity.UserData{
 					OK: true,
@@ -46,6 +47,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				LpaID:                  "1",
 				LpaUID:                 "M-1111",
 				DonorIdentityConfirmed: true,
+				Drafted:                true,
 				Submitted:              true,
 				Paid:                   true,
 				IsOrganisationDonor:    true,
@@ -116,6 +118,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				LpaID:     "1",
 				LpaUID:    "M-1111",
 				Submitted: true,
+				Drafted:   true,
 				Paid:      true,
 				CertificateProvider: CertificateProvider{
 					Relationship: actor.Professionally,
@@ -242,7 +245,8 @@ func TestResolvingServiceResolveList(t *testing.T) {
 					Relationship: actor.Personally,
 				},
 				Tasks: actor.DonorTasks{
-					PayForLpa: actor.PaymentTaskCompleted,
+					CheckYourLpa: actor.TaskCompleted,
+					PayForLpa:    actor.PaymentTaskCompleted,
 				},
 				DonorIdentityUserData: identity.UserData{
 					OK: true,
@@ -260,6 +264,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 				LpaID:                  "1",
 				LpaUID:                 "M-1111",
 				DonorIdentityConfirmed: true,
+				Drafted:                true,
 				Submitted:              true,
 				Paid:                   true,
 				IsOrganisationDonor:    true,
@@ -331,6 +336,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 			expected: []*Lpa{{
 				LpaID:     "1",
 				LpaUID:    "M-1111",
+				Drafted:   true,
 				Submitted: true,
 				Paid:      true,
 				CertificateProvider: CertificateProvider{

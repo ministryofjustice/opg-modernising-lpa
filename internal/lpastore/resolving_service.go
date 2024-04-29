@@ -81,6 +81,7 @@ func (s *ResolvingService) merge(lpa *Lpa, donor *actor.DonorProvidedDetails) *L
 	lpa.LpaUID = donor.LpaUID
 	lpa.PerfectAt = donor.PerfectAt
 	if donor.SK.Equals(dynamo.DonorKey("PAPER")) {
+		lpa.Drafted = true
 		lpa.Submitted = true
 		lpa.Paid = true
 		// set to Professionally so we always show the certificate provider home
@@ -89,6 +90,7 @@ func (s *ResolvingService) merge(lpa *Lpa, donor *actor.DonorProvidedDetails) *L
 		lpa.Donor.Channel = actor.ChannelPaper
 	} else {
 		lpa.DonorIdentityConfirmed = donor.DonorIdentityConfirmed()
+		lpa.Drafted = donor.Tasks.CheckYourLpa.Completed()
 		lpa.Submitted = !donor.SubmittedAt.IsZero()
 		lpa.Paid = donor.Tasks.PayForLpa.IsCompleted()
 		lpa.IsOrganisationDonor = donor.SK.IsOrganisation()
