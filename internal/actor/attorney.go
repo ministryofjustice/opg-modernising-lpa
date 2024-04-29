@@ -29,6 +29,14 @@ func (a Attorney) FullName() string {
 	return fmt.Sprintf("%s %s", a.FirstNames, a.LastName)
 }
 
+func (a Attorney) Channel() Channel {
+	if a.Email != "" {
+		return ChannelOnline
+	}
+
+	return ChannelPaper
+}
+
 // TrustCorporation contains details about a trust corporation, provided by the applicant
 type TrustCorporation struct {
 	// UID for the actor
