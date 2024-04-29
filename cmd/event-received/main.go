@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -14,7 +15,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
-	"github.com/ministryofjustice/opg-go-common/env"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
@@ -69,9 +69,10 @@ func handler(ctx context.Context, event Event) error {
 		evidenceBucketName    = os.Getenv("UPLOADS_S3_BUCKET_NAME")
 		uidBaseURL            = os.Getenv("UID_BASE_URL")
 		lpaStoreBaseURL       = os.Getenv("LPA_STORE_BASE_URL")
-		eventBusName          = env.Get("EVENT_BUS_NAME", "default")
+		eventBusName          = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
 		searchEndpoint        = os.Getenv("SEARCH_ENDPOINT")
-		searchIndexingEnabled = env.Get("SEARCH_INDEXING_DISABLED", "") != "1"
+		searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
+		searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
 	)
 
 	cfg, err := config.LoadDefaultConfig(ctx)
@@ -111,6 +112,7 @@ func handler(ctx context.Context, event Event) error {
 			notifyIsProduction:    notifyIsProduction,
 			eventBusName:          eventBusName,
 			searchEndpoint:        searchEndpoint,
+			searchIndexName:       searchIndexName,
 			searchIndexingEnabled: searchIndexingEnabled,
 		}
 
