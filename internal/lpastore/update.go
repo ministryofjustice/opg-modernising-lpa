@@ -147,7 +147,7 @@ func (c *Client) SendAttorney(ctx context.Context, lpa *Lpa, attorney *actor.Att
 			)
 		}
 	} else {
-		if attorney.Email != "" {
+		if attorney.Email != lpaAttorney.Email {
 			body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/email", New: attorney.Email, Old: lpaAttorney.Email})
 		}
 
