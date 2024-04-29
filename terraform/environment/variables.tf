@@ -118,4 +118,6 @@ locals {
   ecs_capacity_provider = local.environment.ecs.fargate_spot_capacity_provider_enabled ? "FARGATE_SPOT" : "FARGATE"
 
   mock_onelogin_version = "latest"
+
+  search_index_name = "lpas_${local.environment_name}"
 }
