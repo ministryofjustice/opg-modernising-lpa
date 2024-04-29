@@ -34,8 +34,8 @@ type CertificateProviderStore interface {
 }
 
 type AttorneyStore interface {
-	Create(context.Context, string, actoruid.UID, bool, bool) (*actor.AttorneyProvidedDetails, error)
-	Put(context.Context, *actor.AttorneyProvidedDetails) error
+	Create(ctx context.Context, donorSessionID string, attorneyUID actoruid.UID, isReplacement, isTrustCorporation bool, email string) (*actor.AttorneyProvidedDetails, error)
+	Put(ctx context.Context, attorney *actor.AttorneyProvidedDetails) error
 }
 
 func Attorney(
@@ -186,7 +186,7 @@ func Attorney(
 
 		certificateProvider.ContactLanguagePreference = localize.En
 
-		attorney, err := attorneyStore.Create(attorneyCtx, donorSessionID, attorneyUID, isReplacement, isTrustCorporation)
+		attorney, err := attorneyStore.Create(attorneyCtx, donorSessionID, attorneyUID, isReplacement, isTrustCorporation, donorDetails.CertificateProvider.Email)
 		if err != nil {
 			return err
 		}
@@ -222,7 +222,7 @@ func Attorney(
 				for _, a := range list.Attorneys {
 					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
-					attorney, err := attorneyStore.Create(ctx, donorSessionID, a.UID, isReplacement, false)
+					attorney, err := attorneyStore.Create(ctx, donorSessionID, a.UID, isReplacement, false, a.Email)
 					if err != nil {
 						return err
 					}
@@ -244,7 +244,7 @@ func Attorney(
 				if list.TrustCorporation.Name != "" {
 					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
-					attorney, err := attorneyStore.Create(ctx, donorSessionID, list.TrustCorporation.UID, isReplacement, true)
+					attorney, err := attorneyStore.Create(ctx, donorSessionID, list.TrustCorporation.UID, isReplacement, true, list.TrustCorporation.Email)
 					if err != nil {
 						return err
 					}

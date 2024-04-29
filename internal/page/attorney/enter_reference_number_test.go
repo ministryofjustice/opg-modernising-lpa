@@ -76,21 +76,21 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	}{
 		"attorney": {
 			shareCode: actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", ActorUID: testUID},
-			session:   &sesh.LoginSession{Sub: "hey"},
+			session:   &sesh.LoginSession{Sub: "hey", Email: "a@example.com"},
 		},
 		"replacement": {
 			shareCode:     actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", ActorUID: testUID, IsReplacementAttorney: true},
-			session:       &sesh.LoginSession{Sub: "hey"},
+			session:       &sesh.LoginSession{Sub: "hey", Email: "a@example.com"},
 			isReplacement: true,
 		},
 		"trust corporation": {
 			shareCode:          actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", ActorUID: testUID, IsTrustCorporation: true},
-			session:            &sesh.LoginSession{Sub: "hey"},
+			session:            &sesh.LoginSession{Sub: "hey", Email: "a@example.com"},
 			isTrustCorporation: true,
 		},
 		"replacement trust corporation": {
 			shareCode:          actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", ActorUID: testUID, IsReplacementAttorney: true, IsTrustCorporation: true},
-			session:            &sesh.LoginSession{Sub: "hey"},
+			session:            &sesh.LoginSession{Sub: "hey", Email: "a@example.com"},
 			isReplacement:      true,
 			isTrustCorporation: true,
 		},
@@ -120,13 +120,13 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 					session, _ := page.SessionDataFromContext(ctx)
 
 					return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
-				}), "aGV5", testUID, tc.isReplacement, tc.isTrustCorporation).
+				}), "aGV5", testUID, tc.isReplacement, tc.isTrustCorporation, "a@example.com").
 				Return(&actor.AttorneyProvidedDetails{}, nil)
 
 			sessionStore := newMockSessionStore(t)
 			sessionStore.EXPECT().
 				Login(r).
-				Return(&sesh.LoginSession{Sub: "hey"}, nil)
+				Return(&sesh.LoginSession{Sub: "hey", Email: "a@example.com"}, nil)
 
 			err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, attorneyStore)(testAppData, w, r)
 
@@ -234,7 +234,7 @@ func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
 
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.EXPECT().
-		Create(mock.Anything, mock.Anything, mock.Anything, false, false).
+		Create(mock.Anything, mock.Anything, mock.Anything, false, false, mock.Anything).
 		Return(&actor.AttorneyProvidedDetails{}, expectedError)
 
 	sessionStore := newMockSessionStore(t)
@@ -270,7 +270,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreDeleteError(t *testing.T) {
 
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.EXPECT().
-		Create(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Create(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(&actor.AttorneyProvidedDetails{}, nil)
 
 	sessionStore := newMockSessionStore(t)
