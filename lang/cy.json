@@ -119,7 +119,7 @@
     "taskListHelp": "Help i wneud yr LPA hon",
     "taskListHelpContent": "<p class=\"govuk-body\">Mae cymorth wedi’i gynnwys gyda phob cwestiwn, a gallwch hefyd ddarllen <a class=\"govuk-link\" href=\"#\">ein canllaw llawn ar wneud LPA</a>.</p> <p class=\"govuk-body\">Efallai hoffech edrych ar ein tudalen gymorth <a class=\"govuk-link\" href=\"#\">cyn i chi ddechrau</a>. Mae’n esbonio’r penderfyniadau y mae’n rhaid i chi eu gwneud am eich LPA a’r wybodaeth y bydd angen i chi ei rhoi.</p> <p class=\"govuk-body\">Byddwn yn arbed yr LPA wrth i chi symud ymlaen - nid oes angen ei chwblhau mewn un tro. Gallwch allgofnodi unrhyw bryd a dod yn ôl ato’n hwyrach. </p>",
     "completed": "Wedi’i gwblhau",
-    "inProgress": "Wedi dechrau",
+    "inProgress": "Prosesu",
     "cannotStartYet": "Methu dechrau eto",
     "notStarted": "Heb ddechrau",
     "fillInTheLpa": "Llenwi’r LPA",
@@ -812,7 +812,7 @@
     "deleteLpa": "Dileu’r LPA",
     "goToTaskList": "Mynd at y rhestr tasgau",
     "use": "Defnyddio",
-    "registered": "Wedi’i chofrestru",
+    "registered": "Wedi cofrestru",
     "submittedToOpg": "Wedi’i chyflwyno i OPG",
     "readyToSign": "Barod i lofnodi",
     "lpaNumber": "Rhif LPA",
@@ -910,7 +910,7 @@
     "lpaWithdrawn": "Mae’r LPA wedi cael ei thynnu’n ôl",
     "youHaveWithdrawnLpaNumber": "Rydych wedi tynnu’n ôl LPA rhif <span class=\"govuk-!-font-weight-bold\">{{.UID}}</span>.",
     "opgWillNowContactAnyoneWhoHasAlreadyBeenContacted": "Nawr bydd Swyddfa’r Gwarcheidwad Cyhoeddus yn cysylltu ag unrhyw un y cysylltwyd ag ef yn barod mewn perthynas â’ch LPA ac yn ei hysbysu am eich penderfyniad i’w thynnu’n ôl.",
-    "withdrawn": "Wedi’i thynnu’n ôl",
+    "withdrawn": "Tynny’n ôl",
     "dateLpaSigned": "Dyddiad llofnodi’r LPA",
     "whatIsYourPreviousReferenceNumber": "Beth yw’ch cyfeirnod blaenorol?",
     "whatIsYourPreviousReferenceNumberContent": "<p class=\"govuk-body\">Rydych wedi dweud wrthym eich bod wedi gwneud cais ar gyfer LPA yn ddiweddar.</p><p class=\"govuk-body\">Mae arnom angen eich cyfeirnod blaenorol fel y gallwn baru’ch hen gais â’ch cais newydd.</p>",
@@ -1185,5 +1185,7 @@
     "addMyLpa": "Welsh",
     "contactNumber": "Welsh",
     "weSentAnEmailYourLpaIsReadyToRegister": "Welsh {{.SentOn}}",
-    "weSentAnEmailTheLpaIsReadyToRegister": "Welsh {{.SentOn}}"
+    "weSentAnEmailTheLpaIsReadyToRegister": "Welsh {{.SentOn}}",
+    "drafting": "Drafftio",
+    "waitingPeriod": "Cyfnod aros"
 }
