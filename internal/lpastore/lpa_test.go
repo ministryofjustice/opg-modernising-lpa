@@ -84,7 +84,7 @@ func TestClientSendLpa(t *testing.T) {
 			json: `{
 "lpaType":"property-and-affairs",
 "donor":{"uid":"` + donorUID.String() + `","firstNames":"John Johnson","lastName":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"","line3":"","town":"town","postcode":"","country":"GB"},"otherNamesKnownBy":"JJ","contactLanguagePreference":"cy"},
-"attorneys":[{"uid":"` + attorneyUID.String() + `","firstNames":"Adam","lastName":"Attorney","dateOfBirth":"1999-01-02","email":"adam@example.com","address":{"line1":"a-line-1","line2":"","line3":"","town":"a-town","postcode":"","country":"GB"},"status":"active"}],
+"attorneys":[{"uid":"` + attorneyUID.String() + `","firstNames":"Adam","lastName":"Attorney","dateOfBirth":"1999-01-02","email":"adam@example.com","address":{"line1":"a-line-1","line2":"","line3":"","town":"a-town","postcode":"","country":"GB"},"status":"active","channel":"online"}],
 "certificateProvider":{"uid":"` + certificateProviderUID.String() + `","firstNames":"Carol","lastName":"Cert","address":{"line1":"c-line-1","line2":"","line3":"","town":"c-town","postcode":"","country":"GB"},"channel":"paper"},
 "restrictionsAndConditions":"",
 "whenTheLpaCanBeUsed":"when-capacity-lost",
@@ -146,7 +146,6 @@ func TestClientSendLpa(t *testing.T) {
 						FirstNames:  "Alice",
 						LastName:    "Attorney",
 						DateOfBirth: date.New("1998", "1", "2"),
-						Email:       "alice@example.com",
 						Address: place.Address{
 							Line1:      "aa-line-1",
 							Line2:      "aa-line-2",
@@ -248,10 +247,10 @@ func TestClientSendLpa(t *testing.T) {
 "lpaType":"personal-welfare",
 "donor":{"uid":"` + donorUID.String() + `","firstNames":"John Johnson","lastName":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"line-2","line3":"line-3","town":"town","postcode":"F1 1FF","country":"GB"},"otherNamesKnownBy":"JJ","contactLanguagePreference":"en"},
 "attorneys":[
-{"uid":"` + attorneyUID.String() + `","firstNames":"Adam","lastName":"Attorney","dateOfBirth":"1999-01-02","email":"adam@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active"},
-{"uid":"` + attorney2UID.String() + `","firstNames":"Alice","lastName":"Attorney","dateOfBirth":"1998-01-02","email":"alice@example.com","address":{"line1":"aa-line-1","line2":"aa-line-2","line3":"aa-line-3","town":"aa-town","postcode":"A1 1AF","country":"GB"},"status":"active"},
-{"uid":"` + replacementAttorneyUID.String() + `","firstNames":"Richard","lastName":"Attorney","dateOfBirth":"1999-11-12","email":"richard@example.com","address":{"line1":"r-line-1","line2":"r-line-2","line3":"r-line-3","town":"r-town","postcode":"R1 1FF","country":"GB"},"status":"replacement"},
-{"uid":"` + replacementAttorney2UID.String() + `","firstNames":"Rachel","lastName":"Attorney","dateOfBirth":"1998-11-12","email":"rachel@example.com","address":{"line1":"rr-line-1","line2":"rr-line-2","line3":"rr-line-3","town":"rr-town","postcode":"R1 1RF","country":"GB"},"status":"replacement"}
+{"uid":"` + attorneyUID.String() + `","firstNames":"Adam","lastName":"Attorney","dateOfBirth":"1999-01-02","email":"adam@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active","channel":"online"},
+{"uid":"` + attorney2UID.String() + `","firstNames":"Alice","lastName":"Attorney","dateOfBirth":"1998-01-02","address":{"line1":"aa-line-1","line2":"aa-line-2","line3":"aa-line-3","town":"aa-town","postcode":"A1 1AF","country":"GB"},"status":"active","channel":"paper"},
+{"uid":"` + replacementAttorneyUID.String() + `","firstNames":"Richard","lastName":"Attorney","dateOfBirth":"1999-11-12","email":"richard@example.com","address":{"line1":"r-line-1","line2":"r-line-2","line3":"r-line-3","town":"r-town","postcode":"R1 1FF","country":"GB"},"status":"replacement","channel":"online"},
+{"uid":"` + replacementAttorney2UID.String() + `","firstNames":"Rachel","lastName":"Attorney","dateOfBirth":"1998-11-12","email":"rachel@example.com","address":{"line1":"rr-line-1","line2":"rr-line-2","line3":"rr-line-3","town":"rr-town","postcode":"R1 1RF","country":"GB"},"status":"replacement","channel":"online"}
 ],
 "trustCorporations":[
 {"uid":"` + trustCorporationUID.String() + `","name":"Trusty","companyNumber":"55555","email":"trusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active"},
