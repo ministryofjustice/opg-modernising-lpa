@@ -11,82 +11,18 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-func TestHandleUnknownEvent(t *testing.T) {
-	handler := &cloudWatchEventHandler{}
+func TestSiriusEventHandlerHandleUnknownEvent(t *testing.T) {
+	handler := &siriusEventHandler{}
 
-	err := handler.Handle(ctx, events.CloudWatchEvent{DetailType: "some-event"})
-	assert.Equal(t, fmt.Errorf("unknown cloudwatch event"), err)
-}
-
-func TestHandleUidRequested(t *testing.T) {
-	event := events.CloudWatchEvent{
-		DetailType: "uid-requested",
-		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","organisationID":"org-id","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
-	}
-
-	uidClient := newMockUidClient(t)
-	uidClient.EXPECT().
-		CreateCase(ctx, &uid.CreateCaseRequestBody{
-			Type: "personal-welfare",
-			Donor: uid.DonorDetails{
-				Name:     "a donor",
-				Dob:      date.New("2000", "01", "02"),
-				Postcode: "F1 1FF",
-			},
-		}).
-		Return("M-1111-2222-3333", nil)
-
-	uidStore := newMockUidStore(t)
-	uidStore.EXPECT().
-		Set(ctx, "an-id", "donor-id", "org-id", "M-1111-2222-3333").
-		Return(nil)
-
-	err := handleUidRequested(ctx, uidStore, uidClient, event)
-	assert.Nil(t, err)
-}
-
-func TestHandleUidRequestedWhenUidClientErrors(t *testing.T) {
-	event := events.CloudWatchEvent{
-		DetailType: "uid-requested",
-		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
-	}
-
-	uidClient := newMockUidClient(t)
-	uidClient.EXPECT().
-		CreateCase(ctx, mock.Anything).
-		Return("", expectedError)
-
-	err := handleUidRequested(ctx, nil, uidClient, event)
-	assert.Equal(t, fmt.Errorf("failed to create case: %w", expectedError), err)
-}
-
-func TestHandleUidRequestedWhenUidStoreErrors(t *testing.T) {
-	event := events.CloudWatchEvent{
-		DetailType: "uid-requested",
-		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
-	}
-
-	uidClient := newMockUidClient(t)
-	uidClient.EXPECT().
-		CreateCase(ctx, mock.Anything).
-		Return("M-1111-2222-3333", nil)
-
-	uidStore := newMockUidStore(t)
-	uidStore.EXPECT().
-		Set(ctx, "an-id", "donor-id", "", "M-1111-2222-3333").
-		Return(expectedError)
-
-	err := handleUidRequested(ctx, uidStore, uidClient, event)
-	assert.Equal(t, fmt.Errorf("failed to set uid: %w", expectedError), err)
+	err := handler.Handle(ctx, nil, events.CloudWatchEvent{DetailType: "some-event"})
+	assert.Equal(t, fmt.Errorf("unknown sirius event"), err)
 }
 
 func TestHandleEvidenceReceived(t *testing.T) {
@@ -326,9 +262,9 @@ func TestHandleFeeApprovedWhenLpaStoreError(t *testing.T) {
 	assert.Equal(t, fmt.Errorf("failed to send to lpastore: %w", expectedError), err)
 }
 
-func TestHandleMoreEvidenceRequired(t *testing.T) {
+func TestHandleFurtherInfoRequested(t *testing.T) {
 	event := events.CloudWatchEvent{
-		DetailType: "more-evidence-required",
+		DetailType: "further-info-requested",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
@@ -355,13 +291,13 @@ func TestHandleMoreEvidenceRequired(t *testing.T) {
 		Put(ctx, updated).
 		Return(nil)
 
-	err := handleMoreEvidenceRequired(ctx, client, event, func() time.Time { return now })
+	err := handleFurtherInfoRequested(ctx, client, event, func() time.Time { return now })
 	assert.Nil(t, err)
 }
 
-func TestHandleMoreEvidenceRequiredWhenPutError(t *testing.T) {
+func TestHandleFurtherInfoRequestedWhenPutError(t *testing.T) {
 	event := events.CloudWatchEvent{
-		DetailType: "more-evidence-required",
+		DetailType: "further-info-requested",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
@@ -388,7 +324,7 @@ func TestHandleMoreEvidenceRequiredWhenPutError(t *testing.T) {
 		Put(ctx, updated).
 		Return(expectedError)
 
-	err := handleMoreEvidenceRequired(ctx, client, event, func() time.Time { return now })
+	err := handleFurtherInfoRequested(ctx, client, event, func() time.Time { return now })
 	assert.Equal(t, fmt.Errorf("failed to update LPA task status: %w", expectedError), err)
 }
 
@@ -686,8 +622,8 @@ func TestHandleCertificateProviderSubmissionCompletedWhenOnline(t *testing.T) {
 		LpaStoreClient().
 		Return(lpaStoreClient, nil)
 
-	handler := &cloudWatchEventHandler{factory: factory}
-	err := handler.Handle(ctx, certificateProviderSubmissionCompletedEvent)
+	handler := &siriusEventHandler{}
+	err := handler.Handle(ctx, factory, certificateProviderSubmissionCompletedEvent)
 	assert.Nil(t, err)
 }
 
@@ -697,8 +633,8 @@ func TestHandleCertificateProviderSubmissionCompletedWhenLpaStoreFactoryErrors(t
 		LpaStoreClient().
 		Return(nil, expectedError)
 
-	handler := &cloudWatchEventHandler{factory: factory}
-	err := handler.Handle(ctx, certificateProviderSubmissionCompletedEvent)
+	handler := &siriusEventHandler{}
+	err := handler.Handle(ctx, factory, certificateProviderSubmissionCompletedEvent)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -713,8 +649,8 @@ func TestHandleCertificateProviderSubmissionCompletedWhenLpaStoreErrors(t *testi
 		LpaStoreClient().
 		Return(lpaStoreClient, nil)
 
-	handler := &cloudWatchEventHandler{factory: factory}
-	err := handler.Handle(ctx, certificateProviderSubmissionCompletedEvent)
+	handler := &siriusEventHandler{}
+	err := handler.Handle(ctx, factory, certificateProviderSubmissionCompletedEvent)
 	assert.Equal(t, fmt.Errorf("failed to retrieve lpa: %w", expectedError), err)
 }
 
@@ -744,8 +680,8 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderErrors(t
 		AppData().
 		Return(page.AppData{}, nil)
 
-	handler := &cloudWatchEventHandler{factory: factory}
-	err := handler.Handle(ctx, certificateProviderSubmissionCompletedEvent)
+	handler := &siriusEventHandler{}
+	err := handler.Handle(ctx, factory, certificateProviderSubmissionCompletedEvent)
 	assert.Equal(t, fmt.Errorf("failed to send share codes to attorneys: %w", expectedError), err)
 }
 
@@ -767,8 +703,8 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderFactoryE
 		ShareCodeSender(ctx).
 		Return(nil, expectedError)
 
-	handler := &cloudWatchEventHandler{factory: factory}
-	err := handler.Handle(ctx, certificateProviderSubmissionCompletedEvent)
+	handler := &siriusEventHandler{}
+	err := handler.Handle(ctx, factory, certificateProviderSubmissionCompletedEvent)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -793,7 +729,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenAppDataFactoryErrors(t 
 		AppData().
 		Return(page.AppData{}, expectedError)
 
-	handler := &cloudWatchEventHandler{factory: factory}
-	err := handler.Handle(ctx, certificateProviderSubmissionCompletedEvent)
+	handler := &siriusEventHandler{}
+	err := handler.Handle(ctx, factory, certificateProviderSubmissionCompletedEvent)
 	assert.Equal(t, expectedError, err)
 }
