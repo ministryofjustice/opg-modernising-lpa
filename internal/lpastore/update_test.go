@@ -127,16 +127,17 @@ func TestClientSendAttorney(t *testing.T) {
 				Mobile:                    "07777",
 				Confirmed:                 time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				ContactLanguagePreference: localize.Cy,
+				Email:                     "b@example.com",
 			},
 			donor: &Lpa{
 				LpaUID: "lpa-uid",
 				Attorneys: Attorneys{
 					Attorneys: []Attorney{
-						{UID: uid1}, {UID: uid2},
+						{UID: uid1}, {UID: uid2, Email: "a@example.com", Channel: actor.ChannelPaper},
 					},
 				},
 			},
-			json: `{"type":"ATTORNEY_SIGN","changes":[{"key":"/attorneys/1/mobile","old":null,"new":"07777"},{"key":"/attorneys/1/contactLanguagePreference","old":null,"new":"cy"},{"key":"/attorneys/1/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"}]}`,
+			json: `{"type":"ATTORNEY_SIGN","changes":[{"key":"/attorneys/1/mobile","old":null,"new":"07777"},{"key":"/attorneys/1/contactLanguagePreference","old":null,"new":"cy"},{"key":"/attorneys/1/email","old":"a@example.com","new":"b@example.com"},{"key":"/attorneys/1/channel","old":"paper","new":"online"},{"key":"/attorneys/1/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"}]}`,
 		},
 		"replacement attorney": {
 			attorney: &actor.AttorneyProvidedDetails{
@@ -145,6 +146,7 @@ func TestClientSendAttorney(t *testing.T) {
 				Mobile:                    "07777",
 				Confirmed:                 time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				ContactLanguagePreference: localize.Cy,
+				Email:                     "b@example.com",
 			},
 			donor: &Lpa{
 				LpaUID: "lpa-uid",
@@ -155,11 +157,11 @@ func TestClientSendAttorney(t *testing.T) {
 				},
 				ReplacementAttorneys: Attorneys{
 					Attorneys: []Attorney{
-						{UID: uid1}, {UID: uid2},
+						{UID: uid1}, {UID: uid2, Email: "a@example.com", Channel: actor.ChannelPaper},
 					},
 				},
 			},
-			json: `{"type":"ATTORNEY_SIGN","changes":[{"key":"/attorneys/3/mobile","old":null,"new":"07777"},{"key":"/attorneys/3/contactLanguagePreference","old":null,"new":"cy"},{"key":"/attorneys/3/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"}]}`,
+			json: `{"type":"ATTORNEY_SIGN","changes":[{"key":"/attorneys/3/mobile","old":null,"new":"07777"},{"key":"/attorneys/3/contactLanguagePreference","old":null,"new":"cy"},{"key":"/attorneys/3/email","old":"a@example.com","new":"b@example.com"},{"key":"/attorneys/3/channel","old":"paper","new":"online"},{"key":"/attorneys/3/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"}]}`,
 		},
 		"trust corporation": {
 			attorney: &actor.AttorneyProvidedDetails{
