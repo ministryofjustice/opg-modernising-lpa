@@ -53,9 +53,10 @@ type lpaRequestAttorney struct {
 	FirstNames  string        `json:"firstNames"`
 	LastName    string        `json:"lastName"`
 	DateOfBirth date.Date     `json:"dateOfBirth"`
-	Email       string        `json:"email"`
+	Email       string        `json:"email,omitempty"`
 	Address     place.Address `json:"address"`
 	Status      string        `json:"status"`
+	Channel     actor.Channel `json:"channel"`
 }
 
 type lpaRequestTrustCorporation struct {
@@ -145,6 +146,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 			Email:       attorney.Email,
 			Address:     attorney.Address,
 			Status:      statusActive,
+			Channel:     attorney.Channel(),
 		})
 	}
 
@@ -168,6 +170,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 			Email:       attorney.Email,
 			Address:     attorney.Address,
 			Status:      statusReplacement,
+			Channel:     attorney.Channel(),
 		})
 	}
 
@@ -243,6 +246,7 @@ type Attorney struct {
 	Mobile                    string
 	SignedAt                  time.Time
 	ContactLanguagePreference localize.Lang
+	Channel                   actor.Channel
 }
 
 func (a Attorney) FullName() string {
@@ -420,6 +424,7 @@ func lpaResponseToLpa(l lpaResponse) *Lpa {
 			Mobile:                    a.Mobile,
 			SignedAt:                  a.SignedAt,
 			ContactLanguagePreference: a.ContactLanguagePreference,
+			Channel:                   a.Channel,
 		}
 
 		if a.Status == "replacement" {
