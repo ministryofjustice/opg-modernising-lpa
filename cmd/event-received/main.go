@@ -17,12 +17,29 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
 )
 
 const (
 	virusFound = "infected"
 )
+
+type factory interface {
+	Now() func() time.Time
+	DynamoClient() dynamodbClient
+	UuidString() func() string
+	AppData() (page.AppData, error)
+	ShareCodeSender(ctx context.Context) (ShareCodeSender, error)
+	LpaStoreClient() (LpaStoreClient, error)
+	UidStore() (UidStore, error)
+	UidClient() UidClient
+}
+
+type Handler interface {
+	Handle(context.Context, factory, events.CloudWatchEvent) error
+}
 
 type uidEvent struct {
 	UID string `json:"uid"`
@@ -53,10 +70,6 @@ type Event struct {
 
 func (e Event) isS3Event() bool {
 	return len(e.Records) > 0
-}
-
-func (e Event) isCloudWatchEvent() bool {
-	return e.Source == "aws.cloudwatch" || e.Source == "opg.poas.makeregister" || e.Source == "opg.poas.sirius"
 }
 
 func handler(ctx context.Context, event Event) error {
@@ -100,38 +113,43 @@ func handler(ctx context.Context, event Event) error {
 		return nil
 	}
 
-	if event.isCloudWatchEvent() {
-		factory := &Factory{
-			now:                   time.Now,
-			cfg:                   cfg,
-			dynamoClient:          dynamoClient,
-			appPublicURL:          appPublicURL,
-			lpaStoreBaseURL:       lpaStoreBaseURL,
-			uidBaseURL:            uidBaseURL,
-			notifyBaseURL:         notifyBaseURL,
-			notifyIsProduction:    notifyIsProduction,
-			eventBusName:          eventBusName,
-			searchEndpoint:        searchEndpoint,
-			searchIndexName:       searchIndexName,
-			searchIndexingEnabled: searchIndexingEnabled,
-		}
-
-		handler := &cloudWatchEventHandler{
-			dynamoClient: dynamoClient,
-			now:          time.Now,
-			factory:      factory,
-		}
-
-		if err := handler.Handle(ctx, event.CloudWatchEvent); err != nil {
-			return fmt.Errorf("%s: %w", event.DetailType, err)
-		}
-
-		log.Println("successfully handled ", event.DetailType)
-		return nil
+	factory := &Factory{
+		now:                   time.Now,
+		uuidString:            random.UuidString,
+		cfg:                   cfg,
+		dynamoClient:          dynamoClient,
+		appPublicURL:          appPublicURL,
+		lpaStoreBaseURL:       lpaStoreBaseURL,
+		uidBaseURL:            uidBaseURL,
+		notifyBaseURL:         notifyBaseURL,
+		notifyIsProduction:    notifyIsProduction,
+		eventBusName:          eventBusName,
+		searchEndpoint:        searchEndpoint,
+		searchIndexName:       searchIndexName,
+		searchIndexingEnabled: searchIndexingEnabled,
 	}
 
-	eJson, _ := json.Marshal(event)
-	return fmt.Errorf("unknown event type received: %s", string(eJson))
+	var handler Handler
+	switch event.Source {
+	case "opg.poas.sirius":
+		handler = &siriusEventHandler{}
+	case "opg.poas.makeregister":
+		handler = &makeregisterEventHandler{}
+	case "opg.poas.lpastore":
+		handler = &lpastoreEventHandler{}
+	}
+
+	if handler == nil {
+		eJson, _ := json.Marshal(event)
+		return fmt.Errorf("unknown event received: %s", string(eJson))
+	}
+
+	if err := handler.Handle(ctx, factory, event.CloudWatchEvent); err != nil {
+		return fmt.Errorf("%s: %w", event.DetailType, err)
+	}
+
+	log.Println("successfully handled ", event.DetailType)
+	return nil
 }
 
 func main() {
