@@ -21,11 +21,8 @@
         {{ trFormatHtml .App "whoCannotBeACertificateProviderAttorneysAndTrustCorporation" "AttorneysNames" (concatComma .Donor.AllLayAttorneysFullNames) "TrustCorporationsNames" (concatOr .App .Donor.TrustCorporationsNames) }}
       {{ end }}
       {{ trHtml .App "detailsYoullNeedAboutYourCertificateProvider" }}
-      
-      <div class="govuk-button-group">
-        <a class="govuk-button" href="{{ link .App (global.Paths.CertificateProviderDetails.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
-        <a href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
-      </div>
+
+      {{ template "buttons" (button .App "continue" "link" (global.Paths.CertificateProviderDetails.Format .App.LpaID)) }}
     </div>
   </div>
 {{ end }}

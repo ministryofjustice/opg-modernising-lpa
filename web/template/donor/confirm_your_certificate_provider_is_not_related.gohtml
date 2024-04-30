@@ -30,7 +30,7 @@
 
         <p class="govuk-body">{{ tr .App "ifYourCertificateProviderIsRelated" }} <button name="action" value="choose-new" class="app-button-link"><span>{{ tr .App "deleteYourCurrentCertificateProvider" }}</span></button>.</p>
 
-        {{ template "continue-and-return-buttons" . }}
+        {{ template "buttons" (button .App "continue") }}
         {{ template "csrf-field" . }}
       </form>
     </div>

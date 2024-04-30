@@ -25,7 +25,7 @@ func ReadTheLpa(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvi
 				return err
 			}
 
-			return page.Paths.Attorney.RightsAndResponsibilities.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
+			return page.Paths.Attorney.TaskList.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 		}
 
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
