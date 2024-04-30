@@ -17,7 +17,7 @@
       {{ end }}
 
       <form novalidate method="post">
-        {{ template "continue-and-return-buttons" . }}
+        {{ template "buttons" (button .App "continue") }}
         {{ template "csrf-field" . }}
       </form>
     </div>

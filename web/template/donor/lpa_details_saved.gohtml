@@ -23,10 +23,7 @@
       {{ template "notification-banner" (notificationBanner .App "lpaDetailsSaved" (trFormatHtml .App $notificationContent "CertificateProviderFullName" .Donor.CertificateProvider.FullName) "success") }}
 
       {{ if .Donor.Tasks.PayForLpa.IsCompleted }}
-        <div class="govuk-button-group">
-          <a href="{{ link .App (global.Paths.Dashboard.String) }}" class="govuk-button">{{ tr .App "returnToDashboard" }}</a>
-          <a href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
-        </div>
+        {{ template "buttons" (button .App "returnToDashboard" global.Paths.Dashboard.String) }}
       {{ else }}
         {{ if and .Donor.CertificateProvider.CarryOutBy.IsPaper .IsFirstCheck }}
           {{ trFormatHtml .App "weveSentATextToCPContent" "CertificateProviderFirstName" .Donor.CertificateProvider.FirstNames }}

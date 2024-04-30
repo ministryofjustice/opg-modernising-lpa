@@ -65,6 +65,12 @@ func TestInputWithUnevenAttrs(t *testing.T) {
 	assert.Panics(t, func() { input(1, "name", "label", 2, "hint") })
 }
 
+func TestButton(t *testing.T) {
+	appData := page.AppData{Path: "1"}
+
+	assert.Equal(t, map[string]any{"app": appData, "label": "label"}, button(appData, "label"))
+}
+
 func TestItems(t *testing.T) {
 	top := 1
 	name := "name"

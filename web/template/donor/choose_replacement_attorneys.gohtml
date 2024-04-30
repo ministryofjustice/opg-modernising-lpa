@@ -27,8 +27,7 @@
 
         {{ template "dob-warning" . }}
 
-        {{ template "save-and-return-buttons" . }}
-
+        {{ template "buttons" (button .App "saveAndContinue") }}
         {{ template "csrf-field" . }}
       </form>
     </div>

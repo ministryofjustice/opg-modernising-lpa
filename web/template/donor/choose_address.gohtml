@@ -163,7 +163,7 @@
             </fieldset>
           </div>
 
-          {{ template "save-and-return-buttons" . }}
+          {{ template "buttons" (button .App "saveAndContinue") }}
           <input type="hidden" name="{{ .Form.FieldNames.Action }}" value="reuse-select" />
 
         {{ else }}
@@ -187,7 +187,7 @@
             </fieldset>
           </div>
 
-          {{ template "continue-and-return-buttons" . }}
+          {{ template "buttons" (button .App "continue") }}
         {{ end }}
 
         {{ template "csrf-field" . }}
