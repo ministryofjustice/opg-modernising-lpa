@@ -11,13 +11,15 @@
         {{ if .Item.Lpa.RegisteredAt.IsZero }}</h3>{{ else }}</h4>{{ end }}
         <div>
           {{ if not .Item.Lpa.WithdrawnAt.IsZero }}
-            <strong class="app-tag govuk-tag--red">{{ tr .App "withdrawn" }}</strong>
+            <strong class="app-tag govuk-tag--grey">{{ tr .App "withdrawn" }}</strong>
           {{ else if not .Item.Lpa.RegisteredAt.IsZero }}
-            <strong class="app-tag app-tag--black">{{ tr .App "registered" }}</strong>
-          {{ else if .Item.Lpa.Submitted }}
-            <strong class="app-tag govuk-tag--green">{{ tr .App "submittedToOpg" }}</strong>
-          {{ else }}
+            <strong class="app-tag govuk-tag--green">{{ tr .App "registered" }}</strong>
+          {{ else if not .Item.Lpa.PerfectAt.IsZero }}
+            <strong class="app-tag govuk-tag--turquoise">{{ tr .App "waitingPeriod" }}</strong>
+          {{ else if .Item.Lpa.Drafted }}
             <strong class="app-tag govuk-tag--blue">{{ tr .App "inProgress" }}</strong>
+          {{ else }}
+            <strong class="app-tag govuk-tag--light-blue">{{ tr .App "drafting" }}</strong>
           {{ end }}
         </div>
     </div>
