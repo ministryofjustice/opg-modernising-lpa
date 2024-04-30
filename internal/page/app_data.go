@@ -60,6 +60,13 @@ func (d AppData) IsCertificateProvider() bool {
 	return d.ActorType == actor.TypeCertificateProvider
 }
 
+func (d AppData) IsAttorneyType() bool {
+	return d.ActorType == actor.TypeAttorney ||
+		d.ActorType == actor.TypeReplacementAttorney ||
+		d.ActorType == actor.TypeTrustCorporation ||
+		d.ActorType == actor.TypeReplacementTrustCorporation
+}
+
 func (d AppData) IsReplacementAttorney() bool {
 	return d.ActorType == actor.TypeReplacementAttorney
 }
