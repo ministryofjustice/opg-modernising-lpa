@@ -79,14 +79,7 @@
 
         {{ template "details" (details . "howTickingActsAsSignature" "howTickingActsAsSignatureContent" false) }}
 
-        {{ template "data-loss-warning-dialog" . }}
-
-        <div class="govuk-button-group">
-          <button type="submit" id="save-and-continue-btn" class="govuk-button" data-module="govuk-button">
-            {{ tr .App "submitMySignature" }}
-          </button>
-          <a href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" id="return-to-tasklist-btn" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
-        </div>
+        {{ template "buttons" (button .App "submitMySignature") }}
         {{ template "csrf-field" . }}
       </form>
     </div>
