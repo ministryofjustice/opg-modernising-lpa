@@ -11,9 +11,7 @@
       
       {{ trHtml .App "proveYourIdentityContent" }}
 
-      <div class="govuk-button-group">
-        <a class="govuk-button" href="{{ link .App (global.Paths.IdentityWithOneLogin.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
-        <a href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
-      </div>
+      {{ template "buttons" (button .App "continue" "link" (global.Paths.IdentityWithOneLogin.Format .App.LpaID)) }}
     </div>
+  </div>
 {{ end }}

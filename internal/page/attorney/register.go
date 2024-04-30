@@ -102,29 +102,29 @@ func Register(
 
 	handleAttorney := makeAttorneyHandle(rootMux, sessionStore, errorHandler, attorneyStore)
 
-	handleAttorney(page.Paths.Attorney.CodeOfConduct, RequireAttorney,
+	handleAttorney(page.Paths.Attorney.CodeOfConduct, None,
 		Guidance(tmpls.Get("code_of_conduct.gohtml"), lpaStoreResolvingService))
-	handleAttorney(page.Paths.Attorney.TaskList, RequireAttorney,
+	handleAttorney(page.Paths.Attorney.TaskList, None,
 		TaskList(tmpls.Get("task_list.gohtml"), lpaStoreResolvingService, certificateProviderStore))
-	handleAttorney(page.Paths.Attorney.MobileNumber, RequireAttorney,
+	handleAttorney(page.Paths.Attorney.MobileNumber, None,
 		MobileNumber(tmpls.Get("mobile_number.gohtml"), attorneyStore))
-	handleAttorney(page.Paths.Attorney.YourPreferredLanguage, RequireAttorney,
+	handleAttorney(page.Paths.Attorney.YourPreferredLanguage, CanGoBack,
 		YourPreferredLanguage(commonTmpls.Get("your_preferred_language.gohtml"), attorneyStore, lpaStoreResolvingService))
-	handleAttorney(page.Paths.Attorney.ConfirmYourDetails, RequireAttorney,
+	handleAttorney(page.Paths.Attorney.ConfirmYourDetails, None,
 		ConfirmYourDetails(tmpls.Get("confirm_your_details.gohtml"), attorneyStore, lpaStoreResolvingService))
-	handleAttorney(page.Paths.Attorney.ReadTheLpa, RequireAttorney,
+	handleAttorney(page.Paths.Attorney.ReadTheLpa, None,
 		ReadTheLpa(tmpls.Get("read_the_lpa.gohtml"), lpaStoreResolvingService, attorneyStore))
-	handleAttorney(page.Paths.Attorney.RightsAndResponsibilities, RequireAttorney,
+	handleAttorney(page.Paths.Attorney.RightsAndResponsibilities, None,
 		Guidance(tmpls.Get("legal_rights_and_responsibilities.gohtml"), nil))
-	handleAttorney(page.Paths.Attorney.WhatHappensWhenYouSign, RequireAttorney,
+	handleAttorney(page.Paths.Attorney.WhatHappensWhenYouSign, CanGoBack,
 		Guidance(tmpls.Get("what_happens_when_you_sign.gohtml"), lpaStoreResolvingService))
-	handleAttorney(page.Paths.Attorney.Sign, RequireAttorney,
+	handleAttorney(page.Paths.Attorney.Sign, CanGoBack,
 		Sign(tmpls.Get("sign.gohtml"), lpaStoreResolvingService, certificateProviderStore, attorneyStore, lpaStoreClient, time.Now))
-	handleAttorney(page.Paths.Attorney.WouldLikeSecondSignatory, RequireAttorney,
+	handleAttorney(page.Paths.Attorney.WouldLikeSecondSignatory, None,
 		WouldLikeSecondSignatory(tmpls.Get("would_like_second_signatory.gohtml"), attorneyStore, lpaStoreResolvingService, lpaStoreClient))
-	handleAttorney(page.Paths.Attorney.WhatHappensNext, RequireAttorney,
+	handleAttorney(page.Paths.Attorney.WhatHappensNext, None,
 		Guidance(tmpls.Get("what_happens_next.gohtml"), lpaStoreResolvingService))
-	handleAttorney(page.Paths.Attorney.Progress, RequireAttorney,
+	handleAttorney(page.Paths.Attorney.Progress, None,
 		Progress(tmpls.Get("progress.gohtml"), lpaStoreResolvingService))
 }
 
@@ -133,7 +133,6 @@ type handleOpt byte
 const (
 	None handleOpt = 1 << iota
 	RequireSession
-	RequireAttorney
 	CanGoBack
 )
 

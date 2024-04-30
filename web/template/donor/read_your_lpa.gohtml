@@ -23,12 +23,7 @@
 
       {{ template "people-named-on-lpa" (lpaDecisions .App .Donor (not .Donor.Tasks.ConfirmYourIdentityAndSign.Completed)) }}
 
-      <div class="govuk-button-group">
-        <a href="{{ link .App (global.Paths.LpaYourLegalRightsAndResponsibilities.Format .App.LpaID) }}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
-          {{ tr .App "continue" }}
-        </a>
-        <a href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
-      </div>
+      {{ template "buttons" (button .App "continue" "link" (global.Paths.LpaYourLegalRightsAndResponsibilities.Format .App.LpaID)) }}
     </div>
   </div>
 {{ end }}
