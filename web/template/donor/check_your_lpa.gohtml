@@ -49,12 +49,7 @@
 
           <p class="govuk-body govuk-!-font-weight-bold">{{ tr .App "onceConfirmedNotAbleToMakeChanges" }}</p>
 
-          {{ template "data-loss-warning-dialog" . }}
-
-          <div class="govuk-button-group">
-            <button type="submit" id="save-and-continue-btn" class="govuk-button" data-module="govuk-button">{{ tr .App "confirm" }}</button>
-            <a href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" id="return-to-tasklist-btn" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
-          </div>
+          {{ template "buttons" (button .App "confirm") }}
           {{ template "csrf-field" . }}
         </form>
       {{ else }}

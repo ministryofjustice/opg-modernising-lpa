@@ -42,6 +42,7 @@ func All(globals *Globals) map[string]any {
 		"isEnglish":          isEnglish,
 		"isWelsh":            isWelsh,
 		"input":              input,
+		"button":             button,
 		"items":              items,
 		"item":               item,
 		"fieldID":            fieldID,
@@ -94,6 +95,23 @@ func input(top interface{}, name, label string, value interface{}, attrs ...inte
 		"name":  name,
 		"label": label,
 		"value": value,
+	}
+
+	if len(attrs)%2 != 0 {
+		panic("must have even number of attrs")
+	}
+
+	for i := 0; i < len(attrs); i += 2 {
+		field[attrs[i].(string)] = attrs[i+1]
+	}
+
+	return field
+}
+
+func button(app page.AppData, label string, attrs ...any) map[string]any {
+	field := map[string]any{
+		"app":   app,
+		"label": label,
 	}
 
 	if len(attrs)%2 != 0 {

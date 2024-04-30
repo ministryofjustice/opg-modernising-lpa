@@ -10,7 +10,7 @@
 
         {{ template "input" (input . "mobile" "enterYourUkMobileNumberOptional" .Form.Mobile "context" "youCanChooseToTellUsYourMobileNumber" "hint" "enterYourUkMobileHint" "classes" "govuk-input--width-20 govuk-input--extra-letter-spacing govuk-!-margin-bottom-6" "type" "tel" "autocomplete" "tel") }}
 
-        {{ template "save-and-return-buttons" . }}
+        {{ template "buttons" (button .App "saveAndContinue") }}
         {{ template "csrf-field" . }}
       </form>
     </div>
