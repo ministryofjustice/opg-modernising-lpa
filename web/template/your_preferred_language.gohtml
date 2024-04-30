@@ -33,13 +33,9 @@
           </fieldset>
         </div>
 
-        <div class="govuk-button-group">
-          <button type="submit" id="save-and-continue-btn" class="govuk-button" data-module="govuk-button">{{ tr .App "saveAndContinue" }}</button>
-        </div>
-
+        {{ template "save-and-return-buttons" . }}
         {{ template "csrf-field" . }}
       </form>
-
     </div>
   </div>
 {{ end }}
