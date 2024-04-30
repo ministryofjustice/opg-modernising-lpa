@@ -19,10 +19,7 @@
         {{ trHtml .App "attorneyRightsAndResponsibilitiesContent" }}
       {{ end }}
 
-      <div class="govuk-button-group">
-        <a href="{{ link .App (global.Paths.Attorney.WhatHappensWhenYouSign.Format .App.LpaID) }}" class="govuk-button" data-module="govuk-button">{{ tr .App "continue" }}</button>
-        <a href="{{ link .App (global.Paths.Attorney.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
-      </div>
+      {{ template "buttons" (button .App "continue" "link" (global.Paths.Attorney.WhatHappensWhenYouSign.Format .App.LpaID)) }}
     </div>
   </div>
 {{ end }}

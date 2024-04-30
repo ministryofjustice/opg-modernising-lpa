@@ -29,10 +29,7 @@
 
       {{ template "warning" (content .App "mustProvideEvidenceWarning") }}
 
-      <div class="govuk-button-group">
-        <a href="{{ link .App (global.Paths.AreYouApplyingForFeeDiscountOrExemption.Format .App.LpaID) }}" class="govuk-button">{{ tr .App "continue" }}</a>
-        <a href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
-      </div>
+      {{ template "buttons" (button .App "continue" "link" (global.Paths.AreYouApplyingForFeeDiscountOrExemption.Format .App.LpaID)) }}
     </div>
   </div>
 {{ end }}
