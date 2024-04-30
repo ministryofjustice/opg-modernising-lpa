@@ -33,7 +33,11 @@
           </fieldset>
         </div>
 
-        {{ template "buttons" (button .App "saveAndContinue") }}
+        {{ if .App.IsAttorneyType }}
+          {{ template "buttons" (button .App "saveAndContinue") }}
+        {{ else }}
+          <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "saveAndContinue" }}</button>
+        {{ end }}
         {{ template "csrf-field" . }}
       </form>
     </div>
