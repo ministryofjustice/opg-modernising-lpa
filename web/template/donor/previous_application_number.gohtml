@@ -14,7 +14,7 @@
       <form novalidate method="post">
         {{ template "input" (input . "previous-application-number" "previousApplicationNumber" .Form.PreviousApplicationNumber "labelClasses" "govuk-label--s" "classes" "govuk-input--width-20") }}
 
-        {{ template "save-and-return-buttons" . }}
+        {{ template "buttons" (button .App "saveAndContinue") }}
         {{ template "csrf-field" . }}
       </form>
     </div>
