@@ -12,10 +12,12 @@
       {{ template "warning" (content .App "youMustIncludeYourReferenceNumberWarning") }}
 
       <form novalidate method="post">
-        <div class="govuk-button-group">
-          <button type="submit" class="govuk-button" data-module="govuk-button">{{ if or .FeeType.IsFullFee .FeeType.IsHalfFee }}{{ tr .App "continueToPayment" }}{{ else }}{{ tr .App "continue" }}{{ end }}</button>
-          <a href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
-        </div>
+        {{ $label := "continue" }}
+        {{ if or .FeeType.IsFullFee .FeeType.IsHalfFee }}
+          {{ $label = "continueToPayment" }}
+        {{ end }}
+
+        {{ template "buttons" (button .App $label) }}
         {{ template "csrf-field" . }}
       </form>
     </div>

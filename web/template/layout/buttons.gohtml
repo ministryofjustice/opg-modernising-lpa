@@ -1,0 +1,17 @@
+{{ define "buttons" }}
+  {{ $path := global.Paths.TaskList }}
+  {{ if .app.IsCertificateProvider }}
+    {{ $path = global.Paths.CertificateProvider.TaskList }}
+  {{ else if or .app.IsAttorneyType }}
+    {{ $path = global.Paths.Attorney.TaskList }}
+  {{ end }}
+
+  <div class="govuk-button-group">
+    {{ if .link }}
+      <a href="{{ link .app .link }}" class="govuk-button" data-module="govuk-button">{{ tr .app .label }}</a>
+    {{ else }}
+      <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .app .label }}</button>
+    {{ end }}
+    <a href="{{ link .app ($path.Format .app.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .app "returnToTaskList" }}</a>
+  </div>
+{{ end }}

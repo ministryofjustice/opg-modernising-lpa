@@ -77,7 +77,7 @@ func TestGetTaskList(t *testing.T) {
 				items[0].Path = page.Paths.Attorney.MobileNumber.Format("lpa-id")
 				items[1].State = actor.TaskCompleted
 				items[2].Name = "signTheLpaSignatory1"
-				items[2].Path = page.Paths.Attorney.Sign.Format("lpa-id")
+				items[2].Path = page.Paths.Attorney.RightsAndResponsibilities.Format("lpa-id")
 
 				return append(items, taskListItem{
 					Name: "signTheLpaSignatory2",
@@ -128,7 +128,7 @@ func TestGetTaskList(t *testing.T) {
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = actor.TaskCompleted
 				items[1].State = actor.TaskCompleted
-				items[2].Path = page.Paths.Attorney.Sign.Format("lpa-id")
+				items[2].Path = page.Paths.Attorney.RightsAndResponsibilities.Format("lpa-id")
 
 				return items
 			},
@@ -151,7 +151,7 @@ func TestGetTaskList(t *testing.T) {
 				items[0].State = actor.TaskCompleted
 				items[1].State = actor.TaskCompleted
 				items[2].State = actor.TaskCompleted
-				items[2].Path = page.Paths.Attorney.Sign.Format("lpa-id")
+				items[2].Path = page.Paths.Attorney.RightsAndResponsibilities.Format("lpa-id")
 
 				return items
 			},
@@ -174,7 +174,7 @@ func TestGetTaskList(t *testing.T) {
 				items[0].State = actor.TaskCompleted
 				items[1].State = actor.TaskCompleted
 				items[2].State = actor.TaskCompleted
-				items[2].Path = page.Paths.Attorney.Sign.Format("lpa-id")
+				items[2].Path = page.Paths.Attorney.RightsAndResponsibilities.Format("lpa-id")
 
 				return items
 			},
