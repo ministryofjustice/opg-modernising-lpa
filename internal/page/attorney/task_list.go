@@ -40,7 +40,7 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 				return err
 			}
 			if ok {
-				signPath = page.Paths.Attorney.Sign.Format(lpa.LpaID)
+				signPath = page.Paths.Attorney.RightsAndResponsibilities.Format(lpa.LpaID)
 			}
 		}
 
