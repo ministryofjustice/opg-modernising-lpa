@@ -8,12 +8,12 @@
          aria-describedby="dialog-description"
          aria-modal="true">
 
-        <h2 id="dialog-title" class="govuk-heading-l" tabindex="0">{{ tr .App "youHaveUnsavedChanges" }}</h2>
-        <p id="dialog-description" class="govuk-body" tabindex="0">{{ trHtml .App "unsavedChangesDialogContent" }}</p>
+        <h2 id="dialog-title" class="govuk-heading-l" tabindex="0">{{ tr . "youHaveUnsavedChanges" }}</h2>
+        <p id="dialog-description" class="govuk-body" tabindex="0">{{ trHtml . "unsavedChangesDialogContent" }}</p>
 
         <div class="govuk-button-group">
-            <button type="button" id='back-to-page-dialog-btn' class="govuk-button govuk-button--secondary" data-module="govuk-button" aria-label="{{ tr .App "backToPage" }}">{{ tr .App "backToPage" }}</button>
-            <a href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" id='return-to-task-list-dialog-btn' class="govuk-button govuk-button--warning">{{ tr .App "continueWithoutSaving" }}</a>
+            <button type="button" id='back-to-page-dialog-btn' class="govuk-button govuk-button--secondary" data-module="govuk-button" aria-label="{{ tr . "backToPage" }}">{{ tr . "backToPage" }}</button>
+            <a href="{{ link . (global.Paths.TaskList.Format .LpaID) }}" id='return-to-task-list-dialog-btn' class="govuk-button govuk-button--warning">{{ tr . "continueWithoutSaving" }}</a>
         </div>
     </div>
 {{ end }}

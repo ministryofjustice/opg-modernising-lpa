@@ -28,7 +28,7 @@ func ConfirmYourDetails(tmpl template.Template, attorneyStore AttorneyStore, lpa
 				return err
 			}
 
-			return page.Paths.Attorney.ReadTheLpa.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
+			return page.Paths.Attorney.TaskList.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 		}
 
 		lpa, err := lpaStoreResolvingService.Get(r.Context())

@@ -5,7 +5,7 @@ describe('Confirm your details', () => {
     cy.visit('/fixtures/attorney?redirect=/mobile-number');
 
     cy.get('#f-mobile').type(TestMobile);
-    cy.contains('Continue').click();
+    cy.contains('Save and continue').click();
 
     cy.get('[name="language-preference"]').check('cy', { force: true })
     cy.contains('button', 'Save and continue').click()
@@ -22,6 +22,6 @@ describe('Confirm your details', () => {
     cy.contains('Welsh');
 
     cy.contains('button', 'Continue').click();
-    cy.url().should('contain', '/read-the-lpa');
+    cy.url().should('contain', '/task-list');
   });
 });

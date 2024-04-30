@@ -11,7 +11,7 @@ describe('As a trust corporation', () => {
 
     // enter reference number
     cy.get('#f-reference-number').type(shareCode);
-    cy.contains('button', 'Continue').click();
+    cy.contains('button', 'Save and continue').click();
 
     // acting as an attorney
     cy.contains('We have identified the trust corporation’s attorney reference number');
@@ -22,7 +22,7 @@ describe('As a trust corporation', () => {
 
     // mobile number
     cy.get('#f-mobile').type(TestMobile);
-    cy.contains('button', 'Continue').click();
+    cy.contains('button', 'Save and continue').click();
 
     // language preferences
     cy.get('[name="language-preference"]').check('cy', { force: true })
@@ -39,11 +39,12 @@ describe('As a trust corporation', () => {
     cy.contains('B14 7ED');
     cy.contains('button', 'Continue').click();
 
-    // read the lpa
-    cy.contains('Read Sam Smith’s LPA');
+    // task list
+    cy.contains('Read the LPA').click();
     cy.contains('button', 'Continue').click();
 
     // legal rights and responsibilities
+    cy.contains('Sign the LPA').click();
     cy.contains('Before signing, you must read the trust corporation’s legal rights and responsibilities as an attorney.');
     cy.contains('a', 'Continue').click();
 
