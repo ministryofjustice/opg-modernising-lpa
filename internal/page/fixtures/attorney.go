@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -29,12 +30,12 @@ type DonorStore interface {
 }
 
 type CertificateProviderStore interface {
-	Create(ctx context.Context, donorSessionID string, certificateProviderUID actoruid.UID, email string) (*actor.CertificateProviderProvidedDetails, error)
+	Create(ctx context.Context, lpaOwnerKey dynamo.LpaOwnerKeyType, certificateProviderUID actoruid.UID, email string) (*actor.CertificateProviderProvidedDetails, error)
 	Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error
 }
 
 type AttorneyStore interface {
-	Create(ctx context.Context, donorSessionID string, attorneyUID actoruid.UID, isReplacement, isTrustCorporation bool, email string) (*actor.AttorneyProvidedDetails, error)
+	Create(ctx context.Context, lpaOwnerKey dynamo.LpaOwnerKeyType, attorneyUID actoruid.UID, isReplacement, isTrustCorporation bool, email string) (*actor.AttorneyProvidedDetails, error)
 	Put(ctx context.Context, attorney *actor.AttorneyProvidedDetails) error
 }
 
@@ -47,6 +48,8 @@ func Attorney(
 	attorneyStore AttorneyStore,
 	eventClient *event.Client,
 	lpaStoreClient *lpastore.Client,
+	organisationStore OrganisationStore,
+	memberStore MemberStore,
 ) page.Handler {
 	progressValues := []string{
 		"signedByCertificateProvider",
@@ -63,6 +66,7 @@ func Attorney(
 		var (
 			isReplacement      = r.FormValue("is-replacement") == "1"
 			isTrustCorporation = r.FormValue("is-trust-corporation") == "1"
+			isSupported        = r.FormValue("is-supported") == "1"
 			lpaType            = r.FormValue("lpa-type")
 			progress           = slices.Index(progressValues, r.FormValue("progress"))
 			email              = r.FormValue("email")
@@ -96,9 +100,37 @@ func Attorney(
 			return err
 		}
 
-		donorDetails, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}))
+		createFn := donorStore.Create
+		createSession := &page.SessionData{SessionID: donorSessionID}
+		if isSupported {
+			createFn = organisationStore.CreateLPA
+
+			supporterCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, Email: testEmail})
+
+			member, err := memberStore.Create(supporterCtx, random.String(12), random.String(12))
+			if err != nil {
+				return err
+			}
+
+			org, err := organisationStore.Create(supporterCtx, member, random.String(12))
+			if err != nil {
+				return err
+			}
+
+			createSession.OrganisationID = org.ID
+		}
+		donorDetails, err := createFn(page.ContextWithSessionData(r.Context(), createSession))
 		if err != nil {
 			return err
+		}
+
+		if isSupported {
+			if err := donorStore.Link(page.ContextWithSessionData(r.Context(), createSession), actor.ShareCodeData{
+				LpaKey:      donorDetails.PK,
+				LpaOwnerKey: donorDetails.SK,
+			}); err != nil {
+				return err
+			}
 		}
 
 		var (
@@ -179,14 +211,14 @@ func Attorney(
 		donorDetails.ReplacementAttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
 		donorDetails.HowShouldReplacementAttorneysStepIn = actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct
 
-		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID, donorDetails.CertificateProvider.UID, donorDetails.CertificateProvider.Email)
+		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorDetails.SK, donorDetails.CertificateProvider.UID, donorDetails.CertificateProvider.Email)
 		if err != nil {
 			return err
 		}
 
 		certificateProvider.ContactLanguagePreference = localize.En
 
-		attorney, err := attorneyStore.Create(attorneyCtx, donorSessionID, attorneyUID, isReplacement, isTrustCorporation, donorDetails.CertificateProvider.Email)
+		attorney, err := attorneyStore.Create(attorneyCtx, donorDetails.SK, attorneyUID, isReplacement, isTrustCorporation, donorDetails.CertificateProvider.Email)
 		if err != nil {
 			return err
 		}
@@ -222,7 +254,7 @@ func Attorney(
 				for _, a := range list.Attorneys {
 					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
-					attorney, err := attorneyStore.Create(ctx, donorSessionID, a.UID, isReplacement, false, a.Email)
+					attorney, err := attorneyStore.Create(ctx, donorDetails.SK, a.UID, isReplacement, false, a.Email)
 					if err != nil {
 						return err
 					}
@@ -244,7 +276,7 @@ func Attorney(
 				if list.TrustCorporation.Name != "" {
 					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
-					attorney, err := attorneyStore.Create(ctx, donorSessionID, list.TrustCorporation.UID, isReplacement, true, list.TrustCorporation.Email)
+					attorney, err := attorneyStore.Create(ctx, donorDetails.SK, list.TrustCorporation.UID, isReplacement, true, list.TrustCorporation.Email)
 					if err != nil {
 						return err
 					}

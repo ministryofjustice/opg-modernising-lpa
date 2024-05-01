@@ -77,7 +77,7 @@ func TestSK(t *testing.T) {
 		"MemberIDKey":            {MemberIDKey("S"), "MEMBERID#S"},
 		"OrganisationKey":        {OrganisationKey("S"), "ORGANISATION#S"},
 		"MetadataKey":            {MetadataKey("S"), "METADATA#S"},
-		"DonorInviteKey":         {DonorInviteKey("org-id", "lpa-id"), "DONORINVITE#org-id#lpa-id"},
+		"DonorInviteKey":         {DonorInviteKey(OrganisationKey("org-id"), LpaKey("lpa-id")), "DONORINVITE#org-id#lpa-id"},
 	}
 
 	for name, tc := range testcases {
@@ -118,7 +118,7 @@ func TestShareKeyTypes(t *testing.T) {
 }
 
 func TestShareSortKeyTypes(t *testing.T) {
-	for _, key := range []interface{ shareSort() }{MetadataKey("hey"), DonorInviteKey("what", "hello")} {
+	for _, key := range []interface{ shareSort() }{MetadataKey("hey"), DonorInviteKey(OrganisationKey("what"), LpaKey("hello"))} {
 		key.shareSort()
 	}
 }

@@ -191,6 +191,8 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 
 	if lpa.CertificateProvider.Channel.IsOnline() {
 		if err := shareCodeSender.SendCertificateProviderInvite(ctx, appData, page.CertificateProviderInvite{
+			LpaKey:                      lpa.LpaKey,
+			LpaOwnerKey:                 lpa.LpaOwnerKey,
 			LpaUID:                      lpa.LpaUID,
 			Type:                        lpa.Type,
 			Donor:                       lpa.Donor,
