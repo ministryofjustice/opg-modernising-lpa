@@ -168,8 +168,7 @@ func TestEnterTrustCorporationFormValidate(t *testing.T) {
 			form: &enterTrustCorporationForm{},
 			errors: validation.
 				With("name", validation.EnterError{Label: "companyName"}).
-				With("company-number", validation.EnterError{Label: "companyNumber"}).
-				With("email", validation.EnterError{Label: "companyEmailAddress"}),
+				With("company-number", validation.EnterError{Label: "companyNumber"}),
 		},
 		"invalid email": {
 			form: &enterTrustCorporationForm{
