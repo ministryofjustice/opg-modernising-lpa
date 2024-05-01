@@ -657,6 +657,7 @@
     "companyNumber": "Company number",
     "companyNumberHint": "This is the number given to them by Companies House.",
     "companyEmailAddress": "Company email address",
+    "companyEmailAddressOptional": "Company email address (optional)",
     "companyEmailHint": "This must not belong to an individual person.",
     "ifTheDetailsYouProvideAreNotCorrect": "If the details you provide are not correct, organisations might not accept the LPA",
     "ifUsePreviousAddressOrEnterNew": "if you would like to use an address you’ve already entered or enter a new address",
