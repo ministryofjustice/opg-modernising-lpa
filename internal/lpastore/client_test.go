@@ -117,7 +117,22 @@ func TestClientServiceContract(t *testing.T) {
 								"postcode": matchers.String("A1 1FF"),
 								"country":  matchers.String("GB"),
 							}),
-							"channel": matchers.Regex("online", "online|post"),
+							"channel": matchers.Regex("online", "online|paper"),
+							"status":  matchers.Regex("active", "active|replacement"),
+						}, 1),
+						"trustCorporations": matchers.EachLike(map[string]any{
+							"uid":           matchers.UUID(),
+							"name":          matchers.String("Trust us Corp."),
+							"companyNumber": matchers.String("66654321"),
+							"address": matchers.Like(map[string]any{
+								"line1":    matchers.String("tc-line-1"),
+								"line2":    matchers.String("tc-line-2"),
+								"line3":    matchers.String("tc-line-3"),
+								"town":     matchers.String("tc-town"),
+								"postcode": matchers.String("TC1 1FF"),
+								"country":  matchers.String("GB"),
+							}),
+							"channel": matchers.Regex("paper", "online|paper"),
 							"status":  matchers.Regex("active", "active|replacement"),
 						}, 1),
 						"certificateProvider": matchers.Like(map[string]any{
@@ -127,17 +142,18 @@ func TestClientServiceContract(t *testing.T) {
 							"email":      matchers.String("charles@example.com"),
 							"phone":      matchers.String("0700009000"),
 							"address": matchers.Like(map[string]any{
-								"line1":    matchers.String("a-line-1"),
-								"line2":    matchers.String("a-line-2"),
-								"line3":    matchers.String("a-line-3"),
-								"town":     matchers.String("a-town"),
-								"postcode": matchers.String("A1 1FF"),
+								"line1":    matchers.String("cp-line-1"),
+								"line2":    matchers.String("cp-line-2"),
+								"line3":    matchers.String("cp-line-3"),
+								"town":     matchers.String("cp-town"),
+								"postcode": matchers.String("CP1 1FF"),
 								"country":  matchers.String("GB"),
 							}),
-							"channel": matchers.Regex("online", "online|post"),
+							"channel": matchers.Regex("online", "online|paper"),
 						}),
 						"restrictionsAndConditions": matchers.String("hmm"),
 						"signedAt":                  matchers.Regex("2000-01-02T12:13:14.00000Z", `\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d+)?Z`),
+						"howAttorneysMakeDecisions": matchers.Regex("jointly", "jointly|jointly-and-severally|jointly-for-some-severally-for-others"),
 					})
 			}).
 			WillRespondWith(http.StatusCreated, func(b *consumer.V2ResponseBuilder) {
@@ -182,7 +198,14 @@ func TestClientServiceContract(t *testing.T) {
 						Email:       "alice@example.com",
 						Address:     address,
 					}},
+					TrustCorporation: actor.TrustCorporation{
+						UID:           actoruid.New(),
+						Name:          "Trust us Corp.",
+						CompanyNumber: "66654321",
+						Address:       address,
+					},
 				},
+				AttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
 				ReplacementAttorneys: actor.Attorneys{
 					Attorneys: []actor.Attorney{{
 						UID:         actoruid.New(),
@@ -441,6 +464,109 @@ func TestClientServiceContract(t *testing.T) {
 					Mobile:                    "07777777",
 					Confirmed:                 time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
 					ContactLanguagePreference: localize.Cy,
+				})
+			assert.Nil(t, err)
+			return nil
+		}))
+	})
+
+	t.Run("SendAttorney when trust corporation", func(t *testing.T) {
+		uid := actoruid.New()
+
+		mockProvider.
+			AddInteraction().
+			Given("An LPA with UID M-0000-1111-2222 exists").
+			UponReceiving("A request to send the trust corporation data").
+			WithRequest(http.MethodPost, "/lpas/M-0000-1111-2222/updates", func(b *consumer.V2RequestBuilder) {
+				b.
+					// Header("Content-Type", matchers.String("application/json")).
+					// Header("Authorization", matchers.Regex("AWS4-HMAC-SHA256 Credential=abc/20000102/eu-west-1/execute-api/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-date;x-jwt-authorization, Signature=3fe9cd4a65c746d7531c3f3d9ae4479eec81886f5b6863680fcf7cf804aa4d6b", "AWS4-HMAC-SHA256 .*")).
+					// Header("X-Amz-Date", matchers.String("20000102T000000Z")).
+					// Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
+					JSONBody(matchers.Map{
+						"type": matchers.Like("TRUST_CORPORATION_SIGN"),
+						"changes": matchers.Like([]map[string]any{{
+							"key": matchers.Like("/trustCorporations/0/mobile"),
+							"old": matchers.Like(nil),
+							"new": matchers.Like("07777777"),
+						}, {
+							"key": matchers.Like("/trustCorporations/0/contactLanguagePreference"),
+							"old": matchers.Like(nil),
+							"new": matchers.Like("cy"),
+						}, {
+							"key": matchers.Like("/trustCorporations/0/email"),
+							"old": matchers.Like("a@example.com"),
+							"new": matchers.Like("b@example.com"),
+						}, {
+							"key": matchers.Like("/trustCorporations/0/channel"),
+							"old": matchers.Like("paper"),
+							"new": matchers.Like("online"),
+						}, {
+							"key": matchers.Like("/trustCorporations/0/signatories/0/firstNames"),
+							"old": matchers.Like(nil),
+							"new": matchers.Like("John"),
+						}, {
+							"key": matchers.Like("/trustCorporations/0/signatories/0/lastName"),
+							"old": matchers.Like(nil),
+							"new": matchers.Like("Smith"),
+						}, {
+							"key": matchers.Like("/trustCorporations/0/signatories/0/professionalTitle"),
+							"old": matchers.Like(nil),
+							"new": matchers.Like("Director"),
+						}, {
+							"key": matchers.Like("/trustCorporations/0/signatories/0/signedAt"),
+							"old": matchers.Like(nil),
+							"new": matchers.Like("2020-01-01T12:13:14Z"),
+						}}),
+					})
+			}).
+			WillRespondWith(http.StatusCreated, func(b *consumer.V2ResponseBuilder) {
+				// b.Header("Content-Type", matchers.String("application/json"))
+				b.JSONBody(matchers.Map{})
+			})
+
+		assert.Nil(t, mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+			baseURL := fmt.Sprintf("http://%s:%d", config.Host, config.Port)
+
+			secretsClient := newMockSecretsClient(t)
+			secretsClient.EXPECT().
+				Secret(mock.Anything, mock.Anything).
+				Return("secret", nil)
+
+			client := &Client{
+				baseURL:       baseURL,
+				secretsClient: secretsClient,
+				doer:          lambda.New(cfg, v4.NewSigner(), http.DefaultClient, now),
+				now:           now,
+			}
+
+			err := client.SendAttorney(context.Background(),
+				&Lpa{
+					LpaUID: "M-0000-1111-2222",
+					Attorneys: Attorneys{
+						TrustCorporation: TrustCorporation{
+							UID:           uid,
+							Name:          "Trust us Corp.",
+							CompanyNumber: "66654321",
+							Email:         "a@example.com",
+							Channel:       actor.ChannelPaper,
+						},
+					},
+				},
+				&actor.AttorneyProvidedDetails{
+					UID:                       uid,
+					Mobile:                    "07777777",
+					ContactLanguagePreference: localize.Cy,
+					AuthorisedSignatories: [2]actor.TrustCorporationSignatory{
+						{
+							FirstNames:        "John",
+							LastName:          "Smith",
+							ProfessionalTitle: "Director",
+							Confirmed:         time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
+						},
+					},
+					IsTrustCorporation: true,
+					Email:              "b@example.com",
 				})
 			assert.Nil(t, err)
 			return nil

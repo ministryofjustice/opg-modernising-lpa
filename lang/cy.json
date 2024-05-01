@@ -705,6 +705,7 @@
     "companyNumber": "Rhif y cwmni",
     "companyNumberHint": "Dyma’r rhif a roddwyd iddynt gan Dŷ’r Cwmnïau.",
     "companyEmailAddress": "Cyfeiriad e-bost y cwmni",
+    "companyEmailAddressOptional": "Cyfeiriad e-bost y cwmni (dewisol)",
     "companyEmailHint": "Rhaid i hwn beidio â bod yn gyfeiriad e-bost unigolyn.",
     "ifTheDetailsYouProvideAreNotCorrect": "Os nad yw’r manylion a roddwch yn gywir, mae’n bosibl na fydd sefydliadau’n derbyn yr LPA",
     "ifUsePreviousAddressOrEnterNew": "os hoffech ddefnyddio cyfeiriad rydych eisoes wedi’i roi neu rhowch gyfeiriad newydd",

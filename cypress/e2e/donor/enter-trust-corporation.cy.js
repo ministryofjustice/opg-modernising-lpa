@@ -24,12 +24,10 @@ describe('Enter trust corporation', () => {
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Enter company name');
             cy.contains('Enter company number');
-            cy.contains('Enter company email address');
         });
 
         cy.contains('[for=f-name] + .govuk-error-message', 'Enter company name');
         cy.contains('[for=f-company-number] + div + .govuk-error-message', 'Enter company number');
-        cy.contains('[for=f-email] + div + .govuk-error-message', 'Enter company email address');
     });
 
     it('errors when invalid email', () => {

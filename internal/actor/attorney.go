@@ -51,6 +51,14 @@ type TrustCorporation struct {
 	Address place.Address
 }
 
+func (tc TrustCorporation) Channel() Channel {
+	if tc.Email != "" {
+		return ChannelOnline
+	}
+
+	return ChannelPaper
+}
+
 type Attorneys struct {
 	TrustCorporation TrustCorporation
 	Attorneys        []Attorney
