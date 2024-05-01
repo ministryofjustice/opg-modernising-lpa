@@ -66,7 +66,7 @@ func TestPostEnterAccessCode(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	shareCode := actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", ActorUID: testUID}
+	shareCode := actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: "aGV5", ActorUID: testUID}
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
@@ -101,7 +101,7 @@ func TestPostEnterAccessCodeOnShareCodeStoreError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeDonor, "abcdef123456").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, expectedError)
+		Return(actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: "aGV5"}, expectedError)
 
 	err := EnterAccessCode(nil, shareCodeStore, nil)(testAppData, w, r)
 	resp := w.Result()
@@ -133,7 +133,7 @@ func TestPostEnterAccessCodeOnShareCodeStoreNotFoundError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeDonor, "abcdef123456").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, dynamo.NotFoundError{})
+		Return(actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: "aGV5"}, dynamo.NotFoundError{})
 
 	err := EnterAccessCode(template.Execute, shareCodeStore, nil)(testAppData, w, r)
 	resp := w.Result()
@@ -154,7 +154,7 @@ func TestPostEnterAccessCodeOnDonorStoreError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeDonor, "abcdef123456").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, nil)
+		Return(actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: "aGV5"}, nil)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -180,7 +180,7 @@ func TestPostEnterAccessCodeOnShareCodeStoreLinkedError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeDonor, mock.Anything).
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, nil)
+		Return(actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: "aGV5"}, nil)
 	shareCodeStore.EXPECT().
 		Linked(r.Context(), mock.Anything, mock.Anything).
 		Return(expectedError)

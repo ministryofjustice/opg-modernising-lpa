@@ -128,9 +128,9 @@ func (k LpaOwnerKeyType) SK() string {
 	return k.sk.SK()
 }
 
-func (k LpaOwnerKeyType) IsOrganisation() bool {
-	_, ok := k.sk.(OrganisationKeyType)
-	return ok
+func (k LpaOwnerKeyType) Organisation() (OrganisationKeyType, bool) {
+	v, ok := k.sk.(OrganisationKeyType)
+	return v, ok
 }
 
 type ShareKeyType struct{ pk PK }

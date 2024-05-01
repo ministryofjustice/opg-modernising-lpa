@@ -75,21 +75,21 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 		isTrustCorporation bool
 	}{
 		"attorney": {
-			shareCode: actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", ActorUID: testUID},
+			shareCode: actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: "aGV5", ActorUID: testUID},
 			session:   &sesh.LoginSession{Sub: "hey", Email: "a@example.com"},
 		},
 		"replacement": {
-			shareCode:     actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", ActorUID: testUID, IsReplacementAttorney: true},
+			shareCode:     actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: "aGV5", ActorUID: testUID, IsReplacementAttorney: true},
 			session:       &sesh.LoginSession{Sub: "hey", Email: "a@example.com"},
 			isReplacement: true,
 		},
 		"trust corporation": {
-			shareCode:          actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", ActorUID: testUID, IsTrustCorporation: true},
+			shareCode:          actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: "aGV5", ActorUID: testUID, IsTrustCorporation: true},
 			session:            &sesh.LoginSession{Sub: "hey", Email: "a@example.com"},
 			isTrustCorporation: true,
 		},
 		"replacement trust corporation": {
-			shareCode:          actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5", ActorUID: testUID, IsReplacementAttorney: true, IsTrustCorporation: true},
+			shareCode:          actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: "aGV5", ActorUID: testUID, IsReplacementAttorney: true, IsTrustCorporation: true},
 			session:            &sesh.LoginSession{Sub: "hey", Email: "a@example.com"},
 			isReplacement:      true,
 			isTrustCorporation: true,
@@ -151,7 +151,7 @@ func TestPostEnterReferenceNumberOnDonorStoreError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeAttorney, "abcdef123456").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, expectedError)
+		Return(actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: "aGV5"}, expectedError)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, nil, nil)(testAppData, w, r)
 
@@ -184,7 +184,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeAttorney, "abcdef123456").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, dynamo.NotFoundError{})
+		Return(actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: "aGV5"}, dynamo.NotFoundError{})
 
 	err := EnterReferenceNumber(template.Execute, shareCodeStore, nil, nil)(testAppData, w, r)
 
@@ -206,7 +206,7 @@ func TestPostEnterReferenceNumberOnSessionGetError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeAttorney, "abcdef123456").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, nil)
+		Return(actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: "aGV5"}, nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -230,7 +230,7 @@ func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeAttorney, "abcdef123456").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}, nil)
+		Return(actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: "aGV5"}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.EXPECT().
@@ -259,7 +259,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreDeleteError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	shareCode := actor.ShareCodeData{LpaID: "lpa-id", SessionID: "aGV5"}
+	shareCode := actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: "aGV5"}
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeAttorney, mock.Anything).
