@@ -132,24 +132,29 @@ func (s *donorStore) Link(ctx context.Context, shareCode actor.ShareCodeData) er
 	}
 
 	var link lpaLink
-	if err := s.dynamoClient.OneByPartialSK(ctx, dynamo.LpaKey(shareCode.LpaID), dynamo.SubKey(""), &link); err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
+	if err := s.dynamoClient.OneByPartialSK(ctx, shareCode.LpaKey, dynamo.SubKey(""), &link); err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
 		return err
 	} else if link.ActorType == actor.TypeDonor {
-		return errors.New("a donor link already exists for " + shareCode.LpaID)
+		return errors.New("a donor link already exists for " + shareCode.LpaKey.ID())
+	}
+
+	organisationKey, ok := shareCode.LpaOwnerKey.Organisation()
+	if !ok {
+		return errors.New("donorStore.Link can only be used with organisations")
 	}
 
 	if err := s.dynamoClient.Create(ctx, lpaReference{
-		PK:           dynamo.LpaKey(shareCode.LpaID),
+		PK:           shareCode.LpaKey,
 		SK:           dynamo.DonorKey(data.SessionID),
-		ReferencedSK: dynamo.OrganisationKey(shareCode.SessionID),
+		ReferencedSK: organisationKey,
 	}); err != nil {
 		return err
 	}
 
 	return s.dynamoClient.Create(ctx, lpaLink{
-		PK:        dynamo.LpaKey(shareCode.LpaID),
+		PK:        shareCode.LpaKey,
 		SK:        dynamo.SubKey(data.SessionID),
-		DonorKey:  dynamo.LpaOwnerKey(dynamo.OrganisationKey(shareCode.SessionID)),
+		DonorKey:  shareCode.LpaOwnerKey,
 		ActorType: actor.TypeDonor,
 		UpdatedAt: s.now(),
 	})
@@ -170,12 +175,19 @@ func (s *donorStore) GetAny(ctx context.Context) (*actor.DonorProvidedDetails, e
 		sk = dynamo.OrganisationKey("")
 	}
 
-	var donor *actor.DonorProvidedDetails
+	var donor struct {
+		actor.DonorProvidedDetails
+		ReferencedSK dynamo.OrganisationKeyType
+	}
 	if err := s.dynamoClient.OneByPartialSK(ctx, dynamo.LpaKey(data.LpaID), sk, &donor); err != nil {
 		return nil, err
 	}
 
-	return donor, nil
+	if donor.ReferencedSK != "" {
+		err = s.dynamoClient.One(ctx, dynamo.LpaKey(data.LpaID), donor.ReferencedSK, &donor)
+	}
+
+	return &donor.DonorProvidedDetails, err
 }
 
 func (s *donorStore) Get(ctx context.Context) (*actor.DonorProvidedDetails, error) {
@@ -359,12 +371,17 @@ func (s *donorStore) DeleteLink(ctx context.Context, shareCodeData actor.ShareCo
 		return errors.New("donorStore.DeleteLink requires OrganisationID")
 	}
 
-	if data.OrganisationID != shareCodeData.SessionID {
+	organisationKey, ok := shareCodeData.LpaOwnerKey.Organisation()
+	if !ok {
+		return errors.New("donorStore.DeleteLink can only be used with organisations")
+	}
+
+	if data.OrganisationID != organisationKey.ID() {
 		return errors.New("cannot remove access to another organisations LPA")
 	}
 
 	var link lpaLink
-	if err := s.dynamoClient.OneByPartialSK(ctx, dynamo.LpaKey(shareCodeData.LpaID), dynamo.SubKey(""), &link); err != nil {
+	if err := s.dynamoClient.OneByPartialSK(ctx, shareCodeData.LpaKey, dynamo.SubKey(""), &link); err != nil {
 		return err
 	}
 
@@ -372,5 +389,5 @@ func (s *donorStore) DeleteLink(ctx context.Context, shareCodeData actor.ShareCo
 		return err
 	}
 
-	return s.dynamoClient.DeleteOne(ctx, dynamo.LpaKey(shareCodeData.LpaID), dynamo.DonorKey(link.UserSub()))
+	return s.dynamoClient.DeleteOne(ctx, shareCodeData.LpaKey, dynamo.DonorKey(link.UserSub()))
 }

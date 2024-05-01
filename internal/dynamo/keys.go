@@ -76,6 +76,7 @@ type SK interface{ SK() string }
 type LpaKeyType string
 
 func (t LpaKeyType) PK() string { return string(t) }
+func (t LpaKeyType) ID() string { return t.PK()[len(lpaPrefix)+1:] }
 
 // LpaKey is used as the PK for all Lpa related information.
 func LpaKey(s string) LpaKeyType {
@@ -148,6 +149,7 @@ type OrganisationKeyType string
 
 func (t OrganisationKeyType) PK() string { return string(t) }
 func (t OrganisationKeyType) SK() string { return string(t) }
+func (t OrganisationKeyType) ID() string { return t.PK()[len(organisationPrefix)+1:] }
 func (t OrganisationKeyType) lpaOwner()  {} // mark as usable with LpaOwnerKey
 
 // OrganisationKey is used as the PK to group organisation data; or as the SK
@@ -215,8 +217,8 @@ func (t DonorInviteKeyType) shareSort() {} // mark as usable with ShareSortKey
 
 // DonorInviteKey is used as the SK (with DonorShareKey as PK) for an invitation
 // to a donor to link an Lpa being created by a member of an organisation.
-func DonorInviteKey(organisationID, lpaID string) DonorInviteKeyType {
-	return DonorInviteKeyType(donorInvitePrefix + "#" + organisationID + "#" + lpaID)
+func DonorInviteKey(organisation OrganisationKeyType, lpa LpaKeyType) DonorInviteKeyType {
+	return DonorInviteKeyType(donorInvitePrefix + "#" + organisation.ID() + "#" + lpa.ID())
 }
 
 type CertificateProviderShareKeyType string

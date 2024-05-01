@@ -49,8 +49,8 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Put(ctx, actor.TypeCertificateProvider, testRandomString, actor.ShareCodeData{
-			LpaID:     "lpa-id",
-			SessionID: "session-id",
+			LpaKey:      "lpa-id",
+			LpaOwnerKey: "session-id",
 		}).
 		Return(nil)
 
@@ -130,16 +130,16 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 			shareCodeStore := newMockShareCodeStore(t)
 			shareCodeStore.EXPECT().
 				Put(ctx, actor.TypeCertificateProvider, tc.expectedTestCode, actor.ShareCodeData{
-					LpaID:     "lpa-id",
-					SessionID: "session-id",
+					LpaKey:      "lpa-id",
+					LpaOwnerKey: "session-id",
 				}).
 				Once().
 				Return(nil)
 
 			shareCodeStore.EXPECT().
 				Put(ctx, actor.TypeCertificateProvider, testRandomString, actor.ShareCodeData{
-					LpaID:     "lpa-id",
-					SessionID: "session-id",
+					LpaKey:      "lpa-id",
+					LpaOwnerKey: "session-id",
 				}).
 				Once().
 				Return(nil)
@@ -302,8 +302,8 @@ func TestShareCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Put(ctx, actor.TypeCertificateProvider, testRandomString, actor.ShareCodeData{
-			LpaID:     "lpa-id",
-			SessionID: "session-id",
+			LpaKey:      "lpa-id",
+			LpaOwnerKey: "session-id",
 		}).
 		Return(nil)
 
@@ -337,9 +337,9 @@ func TestShareCodeSenderSendCertificateProviderPromptPaper(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Put(ctx, actor.TypeCertificateProvider, testRandomString, actor.ShareCodeData{
-			SessionID: "session-id",
-			LpaID:     "lpa-id",
-			ActorUID:  actorUID,
+			LpaOwnerKey: "session-id",
+			LpaKey:      "lpa-id",
+			ActorUID:    actorUID,
 		}).
 		Return(nil)
 
@@ -403,16 +403,16 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 			shareCodeStore := newMockShareCodeStore(t)
 			shareCodeStore.EXPECT().
 				Put(ctx, actor.TypeCertificateProvider, tc.expectedTestCode, actor.ShareCodeData{
-					LpaID:     "lpa-id",
-					SessionID: "session-id",
+					LpaKey:      "lpa-id",
+					LpaOwnerKey: "session-id",
 				}).
 				Once().
 				Return(nil)
 
 			shareCodeStore.EXPECT().
 				Put(ctx, actor.TypeCertificateProvider, testRandomString, actor.ShareCodeData{
-					LpaID:     "lpa-id",
-					SessionID: "session-id",
+					LpaKey:      "lpa-id",
+					LpaOwnerKey: "session-id",
 				}).
 				Once().
 				Return(nil)
@@ -630,25 +630,25 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeTrustCorporation, testRandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: trustCorporationUID, IsTrustCorporation: true}).
+		Put(ctx, actor.TypeTrustCorporation, testRandomString, actor.ShareCodeData{LpaOwnerKey: "session-id", LpaKey: "lpa-id", ActorUID: trustCorporationUID, IsTrustCorporation: true}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeReplacementTrustCorporation, testRandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: replacementTrustCorporationUID, IsTrustCorporation: true, IsReplacementAttorney: true}).
+		Put(ctx, actor.TypeReplacementTrustCorporation, testRandomString, actor.ShareCodeData{LpaOwnerKey: "session-id", LpaKey: "lpa-id", ActorUID: replacementTrustCorporationUID, IsTrustCorporation: true, IsReplacementAttorney: true}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeAttorney, testRandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: attorney1UID}).
+		Put(ctx, actor.TypeAttorney, testRandomString, actor.ShareCodeData{LpaOwnerKey: "session-id", LpaKey: "lpa-id", ActorUID: attorney1UID}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeAttorney, testRandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: attorney2UID}).
+		Put(ctx, actor.TypeAttorney, testRandomString, actor.ShareCodeData{LpaOwnerKey: "session-id", LpaKey: "lpa-id", ActorUID: attorney2UID}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeAttorney, testRandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: attorney3UID}).
+		Put(ctx, actor.TypeAttorney, testRandomString, actor.ShareCodeData{LpaOwnerKey: "session-id", LpaKey: "lpa-id", ActorUID: attorney3UID}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeReplacementAttorney, testRandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: replacement1UID, IsReplacementAttorney: true}).
+		Put(ctx, actor.TypeReplacementAttorney, testRandomString, actor.ShareCodeData{LpaOwnerKey: "session-id", LpaKey: "lpa-id", ActorUID: replacement1UID, IsReplacementAttorney: true}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeReplacementAttorney, testRandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id", ActorUID: replacement2UID, IsReplacementAttorney: true}).
+		Put(ctx, actor.TypeReplacementAttorney, testRandomString, actor.ShareCodeData{LpaOwnerKey: "session-id", LpaKey: "lpa-id", ActorUID: replacement2UID, IsReplacementAttorney: true}).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
@@ -761,16 +761,16 @@ func TestShareCodeSenderSendAttorneysTrustCorporationsNoEmail(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Put(ctx, actor.TypeTrustCorporation, testRandomString, actor.ShareCodeData{
-			SessionID:          "session-id",
-			LpaID:              "lpa-id",
+			LpaOwnerKey:        "session-id",
+			LpaKey:             "lpa-id",
 			ActorUID:           uid1,
 			IsTrustCorporation: true,
 		}).
 		Return(nil)
 	shareCodeStore.EXPECT().
 		Put(ctx, actor.TypeReplacementTrustCorporation, testRandomString, actor.ShareCodeData{
-			SessionID:             "session-id",
-			LpaID:                 "lpa-id",
+			LpaOwnerKey:           "session-id",
+			LpaKey:                "lpa-id",
 			ActorUID:              uid2,
 			IsTrustCorporation:    true,
 			IsReplacementAttorney: true,
@@ -848,10 +848,10 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 
 			shareCodeStore := newMockShareCodeStore(t)
 			shareCodeStore.EXPECT().
-				Put(ctx, actor.TypeAttorney, tc.expectedTestCode, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id"}).
+				Put(ctx, actor.TypeAttorney, tc.expectedTestCode, actor.ShareCodeData{LpaOwnerKey: "session-id", LpaKey: "lpa-id"}).
 				Return(nil)
 			shareCodeStore.EXPECT().
-				Put(ctx, actor.TypeAttorney, testRandomString, actor.ShareCodeData{SessionID: "session-id", LpaID: "lpa-id"}).
+				Put(ctx, actor.TypeAttorney, testRandomString, actor.ShareCodeData{LpaOwnerKey: "session-id", LpaKey: "lpa-id"}).
 				Return(nil)
 
 			notifyClient := newMockNotifyClient(t)

@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -36,6 +37,8 @@ func (s *ShareCodeSender) UseTestCode(shareCode string) {
 }
 
 type CertificateProviderInvite struct {
+	LpaKey                      dynamo.LpaKeyType
+	LpaOwnerKey                 dynamo.LpaOwnerKeyType
 	LpaUID                      string
 	Type                        actor.LpaType
 	Donor                       actor.Donor
@@ -45,7 +48,7 @@ type CertificateProviderInvite struct {
 }
 
 func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, appData AppData, donor CertificateProviderInvite) error {
-	shareCode, err := s.createShareCode(ctx, appData, donor.CertificateProviderUID, actor.TypeCertificateProvider)
+	shareCode, err := s.createShareCode(ctx, donor.LpaKey, donor.LpaOwnerKey, donor.CertificateProviderUID, actor.TypeCertificateProvider)
 	if err != nil {
 		return err
 	}
@@ -63,7 +66,7 @@ func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, app
 }
 
 func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails) error {
-	shareCode, err := s.createShareCode(ctx, appData, donor.CertificateProvider.UID, actor.TypeCertificateProvider)
+	shareCode, err := s.createShareCode(ctx, donor.PK, donor.SK, donor.CertificateProvider.UID, actor.TypeCertificateProvider)
 	if err != nil {
 		return err
 	}
@@ -104,103 +107,103 @@ func (s *ShareCodeSender) SendAttorneys(ctx context.Context, appData AppData, do
 	return nil
 }
 
-func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData AppData, donor *lpastore.Lpa, attorney lpastore.Attorney) error {
-	shareCode, err := s.createShareCode(ctx, appData, attorney.UID, actor.TypeAttorney)
+func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData AppData, lpa *lpastore.Lpa, attorney lpastore.Attorney) error {
+	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, attorney.UID, actor.TypeAttorney)
 	if err != nil {
 		return err
 	}
 
 	if attorney.Email == "" {
-		return s.sendPaperForm(ctx, donor.LpaUID, actor.TypeAttorney, attorney.UID, shareCode)
+		return s.sendPaperForm(ctx, lpa.LpaUID, actor.TypeAttorney, attorney.UID, shareCode)
 	}
 
-	return s.sendEmail(ctx, attorney.Email, donor.LpaUID,
+	return s.sendEmail(ctx, attorney.Email, lpa.LpaUID,
 		notify.InitialOriginalAttorneyEmail{
 			AttorneyFullName:          attorney.FullName(),
-			DonorFirstNames:           donor.Donor.FirstNames,
-			DonorFirstNamesPossessive: appData.Localizer.Possessive(donor.Donor.FirstNames),
-			DonorFullName:             donor.Donor.FullName(),
-			LpaType:                   localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
+			DonorFirstNames:           lpa.Donor.FirstNames,
+			DonorFirstNamesPossessive: appData.Localizer.Possessive(lpa.Donor.FirstNames),
+			DonorFullName:             lpa.Donor.FullName(),
+			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
 			ShareCode:                 shareCode,
 		})
 }
 
-func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData AppData, donor *lpastore.Lpa, attorney lpastore.Attorney) error {
-	shareCode, err := s.createShareCode(ctx, appData, attorney.UID, actor.TypeReplacementAttorney)
+func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData AppData, lpa *lpastore.Lpa, attorney lpastore.Attorney) error {
+	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, attorney.UID, actor.TypeReplacementAttorney)
 	if err != nil {
 		return err
 	}
 
 	if attorney.Email == "" {
-		return s.sendPaperForm(ctx, donor.LpaUID, actor.TypeReplacementAttorney, attorney.UID, shareCode)
+		return s.sendPaperForm(ctx, lpa.LpaUID, actor.TypeReplacementAttorney, attorney.UID, shareCode)
 	}
 
-	return s.sendEmail(ctx, attorney.Email, donor.LpaUID,
+	return s.sendEmail(ctx, attorney.Email, lpa.LpaUID,
 		notify.InitialReplacementAttorneyEmail{
 			AttorneyFullName:          attorney.FullName(),
-			DonorFirstNames:           donor.Donor.FirstNames,
-			DonorFirstNamesPossessive: appData.Localizer.Possessive(donor.Donor.FirstNames),
-			DonorFullName:             donor.Donor.FullName(),
-			LpaType:                   localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
+			DonorFirstNames:           lpa.Donor.FirstNames,
+			DonorFirstNamesPossessive: appData.Localizer.Possessive(lpa.Donor.FirstNames),
+			DonorFullName:             lpa.Donor.FullName(),
+			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
 			ShareCode:                 shareCode,
 		})
 }
 
-func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData AppData, donor *lpastore.Lpa, trustCorporation lpastore.TrustCorporation) error {
+func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData AppData, lpa *lpastore.Lpa, trustCorporation lpastore.TrustCorporation) error {
 	if trustCorporation.Name == "" {
 		return nil
 	}
 
-	shareCode, err := s.createShareCode(ctx, appData, trustCorporation.UID, actor.TypeTrustCorporation)
+	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, trustCorporation.UID, actor.TypeTrustCorporation)
 	if err != nil {
 		return err
 	}
 
 	if trustCorporation.Email == "" {
-		return s.sendPaperForm(ctx, donor.LpaUID, actor.TypeTrustCorporation, trustCorporation.UID, shareCode)
+		return s.sendPaperForm(ctx, lpa.LpaUID, actor.TypeTrustCorporation, trustCorporation.UID, shareCode)
 	}
 
-	return s.sendEmail(ctx, trustCorporation.Email, donor.LpaUID,
+	return s.sendEmail(ctx, trustCorporation.Email, lpa.LpaUID,
 		notify.InitialOriginalAttorneyEmail{
 			AttorneyFullName:          trustCorporation.Name,
-			DonorFirstNames:           donor.Donor.FirstNames,
-			DonorFirstNamesPossessive: appData.Localizer.Possessive(donor.Donor.FirstNames),
-			DonorFullName:             donor.Donor.FullName(),
-			LpaType:                   localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
+			DonorFirstNames:           lpa.Donor.FirstNames,
+			DonorFirstNamesPossessive: appData.Localizer.Possessive(lpa.Donor.FirstNames),
+			DonorFullName:             lpa.Donor.FullName(),
+			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
 			ShareCode:                 shareCode,
 		})
 }
 
-func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, appData AppData, donor *lpastore.Lpa, trustCorporation lpastore.TrustCorporation) error {
+func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, appData AppData, lpa *lpastore.Lpa, trustCorporation lpastore.TrustCorporation) error {
 	if trustCorporation.Name == "" {
 		return nil
 	}
 
-	shareCode, err := s.createShareCode(ctx, appData, trustCorporation.UID, actor.TypeReplacementTrustCorporation)
+	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, trustCorporation.UID, actor.TypeReplacementTrustCorporation)
 	if err != nil {
 		return err
 	}
 
 	if trustCorporation.Email == "" {
-		return s.sendPaperForm(ctx, donor.LpaUID, actor.TypeReplacementTrustCorporation, trustCorporation.UID, shareCode)
+		return s.sendPaperForm(ctx, lpa.LpaUID, actor.TypeReplacementTrustCorporation, trustCorporation.UID, shareCode)
 	}
 
-	return s.sendEmail(ctx, trustCorporation.Email, donor.LpaUID,
+	return s.sendEmail(ctx, trustCorporation.Email, lpa.LpaUID,
 		notify.InitialReplacementAttorneyEmail{
 			AttorneyFullName:          trustCorporation.Name,
-			DonorFirstNames:           donor.Donor.FirstNames,
-			DonorFirstNamesPossessive: appData.Localizer.Possessive(donor.Donor.FirstNames),
-			DonorFullName:             donor.Donor.FullName(),
-			LpaType:                   localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
+			DonorFirstNames:           lpa.Donor.FirstNames,
+			DonorFirstNamesPossessive: appData.Localizer.Possessive(lpa.Donor.FirstNames),
+			DonorFullName:             lpa.Donor.FullName(),
+			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
 			ShareCode:                 shareCode,
 		})
 }
 
-func (s *ShareCodeSender) createShareCode(ctx context.Context, appData AppData, actorUID actoruid.UID, actorType actor.Type) (string, error) {
+func (s *ShareCodeSender) createShareCode(ctx context.Context, lpaKey dynamo.LpaKeyType, lpaOwnerKey dynamo.LpaOwnerKeyType, actorUID actoruid.UID, actorType actor.Type) (string, error) {
 	shareCode := s.randomString(12)
 	if s.testCode != "" {
 		shareCode = s.testCode
@@ -208,8 +211,8 @@ func (s *ShareCodeSender) createShareCode(ctx context.Context, appData AppData, 
 	}
 
 	shareCodeData := actor.ShareCodeData{
-		SessionID:             appData.SessionID,
-		LpaID:                 appData.LpaID,
+		LpaKey:                lpaKey,
+		LpaOwnerKey:           lpaOwnerKey,
 		ActorUID:              actorUID,
 		IsReplacementAttorney: actorType == actor.TypeReplacementAttorney || actorType == actor.TypeReplacementTrustCorporation,
 		IsTrustCorporation:    actorType == actor.TypeTrustCorporation || actorType == actor.TypeReplacementTrustCorporation,

@@ -75,9 +75,9 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeCertificateProvider, "abcdef123456").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", ActorUID: uid}, nil)
+		Return(actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: "session-id", ActorUID: uid}, nil)
 	shareCodeStore.EXPECT().
-		Delete(r.Context(), actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", ActorUID: uid}).
+		Delete(r.Context(), actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: "session-id", ActorUID: uid}).
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -115,7 +115,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeCertificateProvider, "abcdef123456").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id"}, expectedError)
+		Return(actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: "session-id"}, expectedError)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, nil, nil)(testAppData, w, r)
 
@@ -148,7 +148,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeCertificateProvider, "abcdef123456").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id"}, dynamo.NotFoundError{})
+		Return(actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: "session-id"}, dynamo.NotFoundError{})
 
 	err := EnterReferenceNumber(template.Execute, shareCodeStore, nil, nil)(testAppData, w, r)
 
@@ -171,7 +171,7 @@ func TestPostEnterReferenceNumberWhenShareCodeStoreDeleteError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeCertificateProvider, "abcdef123456").
-		Return(actor.ShareCodeData{LpaID: "lpa-id", SessionID: "session-id", ActorUID: uid}, nil)
+		Return(actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: "session-id", ActorUID: uid}, nil)
 	shareCodeStore.EXPECT().
 		Delete(mock.Anything, mock.Anything).
 		Return(expectedError)
