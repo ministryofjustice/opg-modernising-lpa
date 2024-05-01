@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -30,7 +31,7 @@ type Logger interface {
 }
 
 type CertificateProviderStore interface {
-	Create(ctx context.Context, sessionID string, certificateProviderUID actoruid.UID, email string) (*actor.CertificateProviderProvidedDetails, error)
+	Create(ctx context.Context, lpaOwnerKey dynamo.LpaOwnerKeyType, certificateProviderUID actoruid.UID, email string) (*actor.CertificateProviderProvidedDetails, error)
 	Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
 	Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error
 }

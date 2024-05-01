@@ -44,6 +44,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				},
 			},
 			expected: &Lpa{
+				LpaOwnerKey:            dynamo.LpaOwnerKey(dynamo.OrganisationKey("S")),
 				LpaID:                  "1",
 				LpaUID:                 "M-1111",
 				DonorIdentityConfirmed: true,
@@ -78,7 +79,8 @@ func TestResolvingServiceGet(t *testing.T) {
 			},
 			error: ErrNotFound,
 			expected: &Lpa{
-				LpaUID: "M-1111",
+				LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("S")),
+				LpaUID:      "M-1111",
 				CertificateProvider: CertificateProvider{
 					FirstNames:   "John",
 					Relationship: actor.Personally,
@@ -102,9 +104,10 @@ func TestResolvingServiceGet(t *testing.T) {
 			},
 			resolved: &Lpa{LpaID: "1"},
 			expected: &Lpa{
-				LpaID:  "1",
-				LpaUID: "M-1111",
-				Donor:  actor.Donor{Channel: actor.ChannelOnline},
+				LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("S")),
+				LpaID:       "1",
+				LpaUID:      "M-1111",
+				Donor:       actor.Donor{Channel: actor.ChannelOnline},
 			},
 		},
 		"paper": {
@@ -115,11 +118,12 @@ func TestResolvingServiceGet(t *testing.T) {
 			},
 			resolved: &Lpa{LpaID: "1"},
 			expected: &Lpa{
-				LpaID:     "1",
-				LpaUID:    "M-1111",
-				Submitted: true,
-				Drafted:   true,
-				Paid:      true,
+				LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
+				LpaID:       "1",
+				LpaUID:      "M-1111",
+				Submitted:   true,
+				Drafted:     true,
+				Paid:        true,
 				CertificateProvider: CertificateProvider{
 					Relationship: actor.Professionally,
 				},
@@ -261,6 +265,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 				},
 			}},
 			expected: []*Lpa{{
+				LpaOwnerKey:            dynamo.LpaOwnerKey(dynamo.OrganisationKey("S")),
 				LpaID:                  "1",
 				LpaUID:                 "M-1111",
 				DonorIdentityConfirmed: true,
@@ -295,7 +300,8 @@ func TestResolvingServiceResolveList(t *testing.T) {
 			}},
 			uids: []string{"M-1111"},
 			expected: []*Lpa{{
-				LpaUID: "M-1111",
+				LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("S")),
+				LpaUID:      "M-1111",
 				CertificateProvider: CertificateProvider{
 					FirstNames:   "John",
 					Relationship: actor.Personally,
@@ -320,9 +326,10 @@ func TestResolvingServiceResolveList(t *testing.T) {
 			uids:     []string{"M-1111"},
 			resolved: []*Lpa{{LpaID: "1", LpaUID: "M-1111"}},
 			expected: []*Lpa{{
-				LpaID:  "1",
-				LpaUID: "M-1111",
-				Donor:  actor.Donor{Channel: actor.ChannelOnline},
+				LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("S")),
+				LpaID:       "1",
+				LpaUID:      "M-1111",
+				Donor:       actor.Donor{Channel: actor.ChannelOnline},
 			}},
 		},
 		"paper": {
@@ -334,11 +341,12 @@ func TestResolvingServiceResolveList(t *testing.T) {
 			uids:     []string{"M-1111"},
 			resolved: []*Lpa{{LpaID: "1", LpaUID: "M-1111"}},
 			expected: []*Lpa{{
-				LpaID:     "1",
-				LpaUID:    "M-1111",
-				Drafted:   true,
-				Submitted: true,
-				Paid:      true,
+				LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
+				LpaID:       "1",
+				LpaUID:      "M-1111",
+				Drafted:     true,
+				Submitted:   true,
+				Paid:        true,
 				CertificateProvider: CertificateProvider{
 					Relationship: actor.Professionally,
 				},
