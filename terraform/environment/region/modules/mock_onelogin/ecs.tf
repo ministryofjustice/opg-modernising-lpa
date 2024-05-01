@@ -122,8 +122,8 @@ resource "aws_ecs_task_definition" "mock_onelogin" {
   family                   = "${local.name_prefix}-mock-onelogin"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = 512
-  memory                   = 1024
+  cpu                      = 256
+  memory                   = 512
   container_definitions    = "[${local.mock_onelogin}]"
   task_role_arn            = var.ecs_task_role.arn
   execution_role_arn       = var.ecs_execution_role.arn
