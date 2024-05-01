@@ -243,3 +243,8 @@ func TestAttorneysNames(t *testing.T) {
 		})
 	}
 }
+
+func TestTrustCorporationChannel(t *testing.T) {
+	assert.Equal(t, ChannelOnline, TrustCorporation{Email: "a@example.com"}.Channel())
+	assert.Equal(t, ChannelPaper, TrustCorporation{}.Channel())
+}
