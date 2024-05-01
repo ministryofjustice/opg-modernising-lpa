@@ -132,8 +132,8 @@ func TestPostDonorAccess(t *testing.T) {
 		Return(actor.ShareCodeData{}, dynamo.NotFoundError{})
 	shareCodeStore.EXPECT().
 		PutDonor(r.Context(), testRandomString, actor.ShareCodeData{
-			SessionID:    "org-id",
-			LpaID:        "lpa-id",
+			LpaOwnerKey:  dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")),
+			LpaKey:       dynamo.LpaKey("lpa-id"),
 			ActorUID:     donorUID,
 			InviteSentTo: "email@example.com",
 		}).
@@ -157,7 +157,7 @@ func TestPostDonorAccess(t *testing.T) {
 		Return("Translation")
 	testLpaAppData.Localizer = localizer
 
-	err := DonorAccess(nil, donorStore, shareCodeStore, notifyClient, "http://whatever", testRandomStringFn)(testLpaAppData, w, r, &actor.Organisation{ID: "org-id", Name: "Helpers"}, &actor.Member{FirstNames: "John", LastName: "Smith"})
+	err := DonorAccess(nil, donorStore, shareCodeStore, notifyClient, "http://whatever", testRandomStringFn)(testLpaAppData, w, r, &actor.Organisation{PK: dynamo.OrganisationKey("org-id"), ID: "org-id", Name: "Helpers"}, &actor.Member{FirstNames: "John", LastName: "Smith"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -388,7 +388,7 @@ func TestPostDonorAccessRemove(t *testing.T) {
 		PK:           dynamo.ShareKey(dynamo.DonorShareKey("1")),
 		SK:           dynamo.ShareSortKey(dynamo.DonorInviteKey("donor-session-id", "lpa-id")),
 		InviteSentTo: "email@example.com",
-		SessionID:    "session-id",
+		LpaOwnerKey:  dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id")),
 	}
 
 	shareCodeStore := newMockShareCodeStore(t)
@@ -428,7 +428,7 @@ func TestPostDonorAccessRemoveWhenDonorHasPaid(t *testing.T) {
 		PK:           dynamo.ShareKey(dynamo.DonorShareKey("1")),
 		SK:           dynamo.ShareSortKey(dynamo.DonorInviteKey("donor-session-id", "lpa-id")),
 		InviteSentTo: "email@example.com",
-		SessionID:    "session-id",
+		LpaOwnerKey:  dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id")),
 	}
 
 	shareCodeStore := newMockShareCodeStore(t)
