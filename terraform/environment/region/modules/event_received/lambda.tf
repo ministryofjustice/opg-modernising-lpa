@@ -46,7 +46,7 @@ resource "aws_cloudwatch_event_rule" "receive_events_sirius" {
   event_bus_name = var.event_bus_name
 
   event_pattern = jsonencode({
-    source      = ["opg.poas.sirius"],
+    source = ["opg.poas.sirius"],
     detail-type = [
       "certificate-provider-submission-completed",
       "donor-submission-completed",
