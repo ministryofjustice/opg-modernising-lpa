@@ -9,17 +9,17 @@
 {{ end }}
 
 {{ define "main" }}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-          <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
 
-          {{ if .App.IsTrustCorporation }}
-            {{ trHtml .App "trustCorporationRightsAndResponsibilitiesContent" }}
-          {{ else }}
-            {{ trHtml .App "attorneyRightsAndResponsibilitiesContent" }}
-          {{ end }}
+      {{ if .App.IsTrustCorporation }}
+        {{ trHtml .App "trustCorporationRightsAndResponsibilitiesContent" }}
+      {{ else }}
+        {{ trHtml .App "attorneyRightsAndResponsibilitiesContent" }}
+      {{ end }}
 
-          <a class="govuk-button" href="{{ link .App (global.Paths.Attorney.WhatHappensWhenYouSign.Format .App.LpaID) }}" data-module="govuk-button">{{ tr .App "continue" }}</a>
-        </div>
+      {{ template "buttons" (button .App "continue" "link" (global.Paths.Attorney.WhatHappensWhenYouSign.Format .App.LpaID)) }}
     </div>
+  </div>
 {{ end }}
