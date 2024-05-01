@@ -37,12 +37,12 @@ func TestAttorneyStoreCreate(t *testing.T) {
 				Create(ctx, details).
 				Return(nil)
 			dynamoClient.EXPECT().
-				Create(ctx, lpaLink{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("456"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorType: actor.TypeAttorney, UpdatedAt: now}).
+				Create(ctx, lpaLink{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("456"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), ActorType: actor.TypeAttorney, UpdatedAt: now}).
 				Return(nil)
 
 			attorneyStore := &attorneyStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-			attorney, err := attorneyStore.Create(ctx, "session-id", uid, tc.replacement, tc.trustCorporation, "a@example.com")
+			attorney, err := attorneyStore.Create(ctx, dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), uid, tc.replacement, tc.trustCorporation, "a@example.com")
 			assert.Nil(t, err)
 			assert.Equal(t, details, attorney)
 		})
@@ -54,7 +54,7 @@ func TestAttorneyStoreCreateWhenSessionMissing(t *testing.T) {
 
 	attorneyStore := &attorneyStore{dynamoClient: nil, now: nil}
 
-	_, err := attorneyStore.Create(ctx, "session-id", actoruid.New(), false, false, "")
+	_, err := attorneyStore.Create(ctx, dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), actoruid.New(), false, false, "")
 	assert.Equal(t, page.SessionMissingError{}, err)
 }
 
@@ -70,7 +70,7 @@ func TestAttorneyStoreCreateWhenSessionDataMissing(t *testing.T) {
 
 			attorneyStore := &attorneyStore{}
 
-			_, err := attorneyStore.Create(ctx, "session-id", actoruid.New(), false, false, "")
+			_, err := attorneyStore.Create(ctx, dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), actoruid.New(), false, false, "")
 			assert.NotNil(t, err)
 		})
 	}
@@ -109,7 +109,7 @@ func TestAttorneyStoreCreateWhenCreateError(t *testing.T) {
 
 			attorneyStore := &attorneyStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-			_, err := attorneyStore.Create(ctx, "session-id", actoruid.New(), false, false, "")
+			_, err := attorneyStore.Create(ctx, dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), actoruid.New(), false, false, "")
 			assert.Equal(t, expectedError, err)
 		})
 	}

@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -66,8 +67,13 @@ func (s *shareCodeStore) Put(ctx context.Context, actorType actor.Type, shareCod
 }
 
 func (s *shareCodeStore) PutDonor(ctx context.Context, shareCode string, data actor.ShareCodeData) error {
+	organisationKey, ok := data.LpaOwnerKey.Organisation()
+	if !ok {
+		return errors.New("shareCodeStore.PutDonor can only be used by organisations")
+	}
+
 	data.PK = dynamo.ShareKey(dynamo.DonorShareKey(shareCode))
-	data.SK = dynamo.ShareSortKey(dynamo.DonorInviteKey(data.SessionID, data.LpaID))
+	data.SK = dynamo.ShareSortKey(dynamo.DonorInviteKey(organisationKey, data.LpaKey))
 	data.UpdatedAt = s.now()
 
 	return s.dynamoClient.Put(ctx, data)
@@ -81,7 +87,7 @@ func (s *shareCodeStore) GetDonor(ctx context.Context) (actor.ShareCodeData, err
 		return data, err
 	}
 
-	sk := dynamo.DonorInviteKey(sessionData.OrganisationID, sessionData.LpaID)
+	sk := dynamo.DonorInviteKey(dynamo.OrganisationKey(sessionData.OrganisationID), dynamo.LpaKey(sessionData.LpaID))
 
 	err = s.dynamoClient.OneBySK(ctx, sk, &data)
 	return data, err
