@@ -5,8 +5,9 @@ data "aws_ecr_repository" "s3_antivirus" {
 
 data "aws_ecr_image" "s3_antivirus" {
   repository_name = data.aws_ecr_repository.s3_antivirus.name
-  image_tag       = "latest"
-  provider        = aws.management
+  image_tag       = "v0.586.0-MLPAB-2085-use-an-aws-base-image-for-the-lambda-function.1"
+  # image_tag = "latest"
+  provider = aws.management
 }
 
 data "aws_s3_bucket" "antivirus_definitions" {
