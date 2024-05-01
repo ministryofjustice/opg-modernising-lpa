@@ -49,10 +49,10 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 
 				ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
 					SessionID: session.SessionID(),
-					LpaID:     shareCode.LpaID,
+					LpaID:     shareCode.LpaKey.ID(),
 				})
 
-				if _, err := attorneyStore.Create(ctx, shareCode.SessionID, shareCode.ActorUID, shareCode.IsReplacementAttorney, shareCode.IsTrustCorporation, session.Email); err != nil {
+				if _, err := attorneyStore.Create(ctx, shareCode.LpaOwnerKey, shareCode.ActorUID, shareCode.IsReplacementAttorney, shareCode.IsTrustCorporation, session.Email); err != nil {
 					var ccf *types.ConditionalCheckFailedException
 					if !errors.As(err, &ccf) {
 						return err
@@ -63,8 +63,8 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 					return err
 				}
 
-				appData.LpaID = shareCode.LpaID
-				return page.Paths.Attorney.CodeOfConduct.Redirect(w, r, appData, shareCode.LpaID)
+				appData.LpaID = shareCode.LpaKey.ID()
+				return page.Paths.Attorney.CodeOfConduct.Redirect(w, r, appData, appData.LpaID)
 			}
 		}
 
