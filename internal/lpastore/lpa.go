@@ -63,9 +63,10 @@ type lpaRequestTrustCorporation struct {
 	UID           actoruid.UID  `json:"uid"`
 	Name          string        `json:"name"`
 	CompanyNumber string        `json:"companyNumber"`
-	Email         string        `json:"email"`
+	Email         string        `json:"email,omitempty"`
 	Address       place.Address `json:"address"`
 	Status        string        `json:"status"`
+	Channel       actor.Channel `json:"channel"`
 }
 
 type lpaRequestCertificateProvider struct {
@@ -158,6 +159,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 			Email:         trustCorporation.Email,
 			Address:       trustCorporation.Address,
 			Status:        statusActive,
+			Channel:       trustCorporation.Channel(),
 		})
 	}
 
@@ -182,6 +184,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 			Email:         trustCorporation.Email,
 			Address:       trustCorporation.Address,
 			Status:        statusReplacement,
+			Channel:       trustCorporation.Channel(),
 		})
 	}
 
@@ -262,6 +265,7 @@ type TrustCorporation struct {
 	Mobile                    string
 	Signatories               []TrustCorporationSignatory
 	ContactLanguagePreference localize.Lang
+	Channel                   actor.Channel
 }
 
 type TrustCorporationSignatory struct {
@@ -446,6 +450,7 @@ func lpaResponseToLpa(l lpaResponse) *Lpa {
 			Mobile:                    t.Mobile,
 			Signatories:               t.Signatories,
 			ContactLanguagePreference: t.ContactLanguagePreference,
+			Channel:                   t.Channel,
 		}
 
 		if t.Status == "replacement" {
