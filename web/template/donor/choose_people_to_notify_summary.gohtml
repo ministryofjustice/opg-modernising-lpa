@@ -17,7 +17,7 @@
         <form novalidate method="post">
           <input type="hidden" name="{{ .Form.FieldName }}" value="{{ .Form.Options.No.String }}">
 
-          {{ template "continue-and-return-buttons" . }}
+          {{ template "buttons" (button .App "continue") }}
           {{ template "csrf-field" . }}
         </form>
       {{ else }}
@@ -37,7 +37,7 @@
             </fieldset>
           </div>
 
-          {{ template "save-and-return-buttons" . }}
+          {{ template "buttons" (button .App "saveAndContinue") }}
           {{ template "csrf-field" . }}
         </form>
       {{ end }}

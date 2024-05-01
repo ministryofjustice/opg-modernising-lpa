@@ -18,7 +18,7 @@
       <form novalidate method="post">
         {{ template "input" (input . "witness-code" "enter4DigitCode" .Form.Code "classes" "govuk-input--width-5" "labelClasses" "govuk-label--s" "autocomplete" "off") }}
 
-        {{ template "continue-and-return-buttons" . }}
+        {{ template "buttons" (button .App "continue") }}
         {{ template "csrf-field" . }}
       </form>
 
