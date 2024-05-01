@@ -57,6 +57,23 @@ func TestIsCertificateProvider(t *testing.T) {
 	assert.False(t, appData.IsCertificateProvider())
 }
 
+func TestIsAttorneyType(t *testing.T) {
+	appData := AppData{ActorType: actor.TypeReplacementAttorney}
+	assert.True(t, appData.IsAttorneyType())
+
+	appData.ActorType = actor.TypeAttorney
+	assert.True(t, appData.IsAttorneyType())
+
+	appData.ActorType = actor.TypeTrustCorporation
+	assert.True(t, appData.IsAttorneyType())
+
+	appData.ActorType = actor.TypeReplacementTrustCorporation
+	assert.True(t, appData.IsAttorneyType())
+
+	appData.ActorType = actor.TypeCertificateProvider
+	assert.False(t, appData.IsAttorneyType())
+}
+
 func TestIsReplacementAttorney(t *testing.T) {
 	appData := AppData{ActorType: actor.TypeReplacementAttorney}
 	assert.True(t, appData.IsReplacementAttorney())
