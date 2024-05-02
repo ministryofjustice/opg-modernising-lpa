@@ -495,8 +495,8 @@ func TestClientServiceContract(t *testing.T) {
 							"new": matchers.Like("cy"),
 						}, {
 							"key": matchers.Like("/trustCorporations/0/email"),
-							"old": matchers.Like("a@example.com"),
-							"new": matchers.Like("b@example.com"),
+							"old": matchers.Like(""),
+							"new": matchers.Like("a@example.com"),
 						}, {
 							"key": matchers.Like("/trustCorporations/0/channel"),
 							"old": matchers.Like("paper"),
@@ -548,7 +548,6 @@ func TestClientServiceContract(t *testing.T) {
 							UID:           uid,
 							Name:          "Trust us Corp.",
 							CompanyNumber: "66654321",
-							Email:         "a@example.com",
 							Channel:       actor.ChannelPaper,
 						},
 					},
