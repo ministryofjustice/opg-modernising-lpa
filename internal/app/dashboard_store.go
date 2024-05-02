@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"errors"
+	"log"
 	"slices"
 	"strings"
 	"time"
@@ -45,20 +46,21 @@ type dashboardStore struct {
 	lpaStoreResolvingService LpaStoreResolvingService
 }
 
-type keys struct {
-	PK, SK string
+func isLpaKey(k dynamo.Keys) bool {
+	_, donorOK := k.SK.(dynamo.DonorKeyType)
+	_, orgOK := k.SK.(dynamo.OrganisationKeyType)
+
+	return donorOK || orgOK
 }
 
-func (k keys) isLpa() bool {
-	return strings.HasPrefix(k.SK, dynamo.DonorKey("").SK()) || strings.HasPrefix(k.SK, dynamo.OrganisationKey("").PK())
+func isCertificateProviderKey(k dynamo.Keys) bool {
+	_, ok := k.SK.(dynamo.CertificateProviderKeyType)
+	return ok
 }
 
-func (k keys) isCertificateProviderDetails() bool {
-	return strings.HasPrefix(k.SK, dynamo.CertificateProviderKey("").SK())
-}
-
-func (k keys) isAttorneyDetails() bool {
-	return strings.HasPrefix(k.SK, dynamo.AttorneyKey("").SK())
+func isAttorneyKey(k dynamo.Keys) bool {
+	_, ok := k.SK.(dynamo.AttorneyKeyType)
+	return ok
 }
 
 func (s *dashboardStore) SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error) {
@@ -117,14 +119,41 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		return nil, nil, nil, err
 	}
 
-	var donorsDetails []*actor.DonorProvidedDetails
+	var (
+		referencedKeys []dynamo.Keys
+		donorsDetails  []*actor.DonorProvidedDetails
+	)
 	for _, item := range lpasOrProvidedDetails {
-		var ks keys
+		var ks dynamo.Keys
+		log.Println(item["PK"], item["SK"])
 		if err = attributevalue.UnmarshalMap(item, &ks); err != nil {
 			return nil, nil, nil, err
 		}
 
-		if ks.isLpa() {
+		if isLpaKey(ks) {
+			var donorDetails struct {
+				actor.DonorProvidedDetails
+				ReferencedSK dynamo.OrganisationKeyType
+			}
+			if err := attributevalue.UnmarshalMap(item, &donorDetails); err != nil {
+				return nil, nil, nil, err
+			}
+
+			if donorDetails.ReferencedSK != "" {
+				referencedKeys = append(referencedKeys, dynamo.Keys{PK: ks.PK, SK: donorDetails.ReferencedSK})
+			} else if donorDetails.LpaUID != "" {
+				donorsDetails = append(donorsDetails, &donorDetails.DonorProvidedDetails)
+			}
+		}
+	}
+
+	if len(referencedKeys) > 0 {
+		referencedLpas, err := s.dynamoClient.AllByKeys(ctx, referencedKeys)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+
+		for _, item := range referencedLpas {
 			donorDetails := &actor.DonorProvidedDetails{}
 			if err := attributevalue.UnmarshalMap(item, donorDetails); err != nil {
 				return nil, nil, nil, err
@@ -156,12 +185,12 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 	}
 
 	for _, item := range lpasOrProvidedDetails {
-		var ks keys
+		var ks dynamo.Keys
 		if err = attributevalue.UnmarshalMap(item, &ks); err != nil {
 			return nil, nil, nil, err
 		}
 
-		if ks.isAttorneyDetails() {
+		if isAttorneyKey(ks) {
 			attorneyProvidedDetails := &actor.AttorneyProvidedDetails{}
 			if err := attributevalue.UnmarshalMap(item, attorneyProvidedDetails); err != nil {
 				return nil, nil, nil, err
@@ -181,7 +210,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 			}
 		}
 
-		if ks.isCertificateProviderDetails() {
+		if isCertificateProviderKey(ks) {
 			certificateProviderProvidedDetails := &actor.CertificateProviderProvidedDetails{}
 			if err := attributevalue.UnmarshalMap(item, certificateProviderProvidedDetails); err != nil {
 				return nil, nil, nil, err
