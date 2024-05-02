@@ -77,6 +77,8 @@ func (s *ResolvingService) ResolveList(ctx context.Context, donors []*actor.Dono
 }
 
 func (s *ResolvingService) merge(lpa *Lpa, donor *actor.DonorProvidedDetails) *Lpa {
+	lpa.LpaKey = donor.PK
+	lpa.LpaOwnerKey = donor.SK
 	lpa.LpaID = donor.LpaID
 	lpa.LpaUID = donor.LpaUID
 	lpa.PerfectAt = donor.PerfectAt
@@ -93,7 +95,7 @@ func (s *ResolvingService) merge(lpa *Lpa, donor *actor.DonorProvidedDetails) *L
 		lpa.Drafted = donor.Tasks.CheckYourLpa.Completed()
 		lpa.Submitted = !donor.SubmittedAt.IsZero()
 		lpa.Paid = donor.Tasks.PayForLpa.IsCompleted()
-		lpa.IsOrganisationDonor = donor.SK.IsOrganisation()
+		_, lpa.IsOrganisationDonor = donor.SK.Organisation()
 		lpa.Donor.Channel = actor.ChannelOnline
 
 		// copy the relationship as it isn't stored in the lpastore.

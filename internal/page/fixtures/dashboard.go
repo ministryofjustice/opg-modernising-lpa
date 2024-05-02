@@ -77,7 +77,7 @@ func Dashboard(
 
 			certificateProviderCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID, LpaID: donor.LpaID})
 
-			certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID, donor.CertificateProvider.UID, testEmail)
+			certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donor.SK, donor.CertificateProvider.UID, testEmail)
 			if err != nil {
 				return err
 			}
@@ -104,7 +104,7 @@ func Dashboard(
 
 			attorneyCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID, LpaID: donor.LpaID})
 
-			attorney, err := attorneyStore.Create(attorneyCtx, donorSessionID, donor.Attorneys.Attorneys[0].UID, false, false, donor.Attorneys.Attorneys[0].Email)
+			attorney, err := attorneyStore.Create(attorneyCtx, donor.SK, donor.Attorneys.Attorneys[0].UID, false, false, donor.Attorneys.Attorneys[0].Email)
 			if err != nil {
 				return err
 			}

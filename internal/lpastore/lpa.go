@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
@@ -360,6 +361,8 @@ func (a Attorneys) FullNames() []string {
 }
 
 type Lpa struct {
+	LpaKey                                     dynamo.LpaKeyType
+	LpaOwnerKey                                dynamo.LpaOwnerKeyType
 	LpaID                                      string
 	LpaUID                                     string
 	RegisteredAt                               time.Time
