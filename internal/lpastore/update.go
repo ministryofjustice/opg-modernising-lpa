@@ -107,11 +107,14 @@ func (c *Client) SendCertificateProvider(ctx context.Context, certificateProvide
 func (c *Client) SendAttorney(ctx context.Context, lpa *Lpa, attorney *actor.AttorneyProvidedDetails) error {
 	var attorneyKey string
 	var lpaAttorney Attorney
+	var lpaTrustCorp TrustCorporation
 
 	if attorney.IsTrustCorporation && attorney.IsReplacement && lpa.Attorneys.TrustCorporation.Name != "" {
 		attorneyKey = "/trustCorporations/1"
+		lpaTrustCorp = lpa.ReplacementAttorneys.TrustCorporation
 	} else if attorney.IsTrustCorporation {
 		attorneyKey = "/trustCorporations/0"
+		lpaTrustCorp = lpa.Attorneys.TrustCorporation
 	} else if attorney.IsReplacement {
 		attorneyKey = fmt.Sprintf("/attorneys/%d", len(lpa.Attorneys.Attorneys)+lpa.ReplacementAttorneys.Index(attorney.UID))
 		lpaAttorney = lpa.ReplacementAttorneys.Attorneys[lpa.ReplacementAttorneys.Index(attorney.UID)]
@@ -130,6 +133,14 @@ func (c *Client) SendAttorney(ctx context.Context, lpa *Lpa, attorney *actor.Att
 
 	if attorney.IsTrustCorporation {
 		body.Type = "TRUST_CORPORATION_SIGN"
+
+		if lpaTrustCorp.Email != attorney.Email {
+			body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/email", New: attorney.Email, Old: lpaTrustCorp.Email})
+		}
+
+		if lpaTrustCorp.Channel == actor.ChannelPaper {
+			body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/channel", New: actor.ChannelOnline, Old: actor.ChannelPaper})
+		}
 
 		body.Changes = append(body.Changes,
 			updateRequestChange{Key: attorneyKey + "/signatories/0/firstNames", New: attorney.AuthorisedSignatories[0].FirstNames},
