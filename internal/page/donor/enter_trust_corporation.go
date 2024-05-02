@@ -79,7 +79,6 @@ func (f *enterTrustCorporationForm) Validate() validation.List {
 		validation.Empty())
 
 	errors.String("email", "companyEmailAddress", f.Email,
-		validation.Empty(),
 		validation.Email())
 
 	return errors
