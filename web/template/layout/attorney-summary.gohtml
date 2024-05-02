@@ -29,7 +29,7 @@
               </dd>
             {{ end }}
           </div>
-          
+
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "companyNumber" }}</dt>
             <dd class="govuk-summary-list__value">{{ .TrustCorporation.CompanyNumber }}</dd>
@@ -41,7 +41,7 @@
               </dd>
             {{ end }}
           </div>
-          
+
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key ">{{ tr .App "companyEmailAddress" }}</dt>
             <dd class="govuk-summary-list__value">{{ .TrustCorporation.Email }}</dd>
@@ -53,7 +53,7 @@
               </dd>
             {{ end }}
           </div>
-          
+
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
             <dd class="govuk-summary-list__value">{{ template "address-lines" .TrustCorporation.Address }}</dd>
