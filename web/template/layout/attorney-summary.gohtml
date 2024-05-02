@@ -42,19 +42,17 @@
             {{ end }}
           </div>
 
-          {{ if .TrustCorporation.Email }}
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key ">{{ tr .App "companyEmailAddress" }}</dt>
-              <dd class="govuk-summary-list__value">{{ .TrustCorporation.Email }}</dd>
-              {{ if .CanChange }}
-                <dd class="govuk-summary-list__actions">
-                  <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App .Link.TrustCorporation }}#f-email">
-                    {{ trHtml .App "changeCompanyEmailLink" }}
-                  </a>
-                </dd>
-              {{ end }}
-            </div>
-          {{ end }}
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key ">{{ tr .App "companyEmailAddress" }}</dt>
+            <dd class="govuk-summary-list__value">{{ .TrustCorporation.Email }}</dd>
+            {{ if .CanChange }}
+              <dd class="govuk-summary-list__actions">
+                <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App .Link.TrustCorporation }}#f-email">
+                  {{ trHtml .App "changeCompanyEmailLink" }}
+                </a>
+              </dd>
+            {{ end }}
+          </div>
 
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
