@@ -112,14 +112,17 @@ func Supporter(
 				donor.Attorneys = actor.Attorneys{
 					Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},
 				}
+				donor.Tasks.YourDetails = actor.TaskCompleted
+				donor.Tasks.ChooseAttorneys = actor.TaskCompleted
+				donor.Tasks.CertificateProvider = actor.TaskCompleted
 
 				if err := donorStore.Put(donorCtx, donor); err != nil {
 					return err
 				}
 
 				shareCodeData := actor.ShareCodeData{
-					SessionID:    org.ID,
-					LpaID:        donor.LpaID,
+					LpaOwnerKey:  dynamo.LpaOwnerKey(org.PK),
+					LpaKey:       donor.PK,
 					ActorUID:     donor.Donor.UID,
 					InviteSentTo: "email@example.com",
 				}
@@ -134,7 +137,7 @@ func Supporter(
 
 				if linkDonor {
 					shareCodeData.PK = dynamo.ShareKey(dynamo.DonorShareKey(accessCode))
-					shareCodeData.SK = dynamo.ShareSortKey(dynamo.DonorInviteKey(shareCodeData.SessionID, shareCodeData.LpaID))
+					shareCodeData.SK = dynamo.ShareSortKey(dynamo.DonorInviteKey(org.PK, shareCodeData.LpaKey))
 					shareCodeData.UpdatedAt = time.Now()
 
 					if err := donorStore.Link(donorCtx, shareCodeData); err != nil {

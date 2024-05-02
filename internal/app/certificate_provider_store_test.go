@@ -25,12 +25,12 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 		Create(ctx, details).
 		Return(nil)
 	dynamoClient.EXPECT().
-		Create(ctx, lpaLink{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("456"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorType: actor.TypeCertificateProvider, UpdatedAt: now}).
+		Create(ctx, lpaLink{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("456"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), ActorType: actor.TypeCertificateProvider, UpdatedAt: now}).
 		Return(nil)
 
 	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-	certificateProvider, err := certificateProviderStore.Create(ctx, "session-id", uid, "a@b.com")
+	certificateProvider, err := certificateProviderStore.Create(ctx, dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), uid, "a@b.com")
 	assert.Nil(t, err)
 	assert.Equal(t, details, certificateProvider)
 }
@@ -40,7 +40,7 @@ func TestCertificateProviderStoreCreateWhenSessionMissing(t *testing.T) {
 
 	certificateProviderStore := &certificateProviderStore{dynamoClient: nil, now: nil}
 
-	_, err := certificateProviderStore.Create(ctx, "session-id", actoruid.New(), "")
+	_, err := certificateProviderStore.Create(ctx, dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), actoruid.New(), "")
 	assert.Equal(t, page.SessionMissingError{}, err)
 }
 
@@ -56,7 +56,7 @@ func TestCertificateProviderStoreCreateWhenSessionDataMissing(t *testing.T) {
 
 			certificateProviderStore := &certificateProviderStore{}
 
-			_, err := certificateProviderStore.Create(ctx, "session-id", actoruid.New(), "")
+			_, err := certificateProviderStore.Create(ctx, dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), actoruid.New(), "")
 			assert.NotNil(t, err)
 		})
 	}
@@ -95,7 +95,7 @@ func TestCertificateProviderStoreCreateWhenCreateError(t *testing.T) {
 
 			certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-			_, err := certificateProviderStore.Create(ctx, "session-id", actoruid.New(), "")
+			_, err := certificateProviderStore.Create(ctx, dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), actoruid.New(), "")
 			assert.Equal(t, expectedError, err)
 		})
 	}
