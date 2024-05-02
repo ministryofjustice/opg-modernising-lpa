@@ -11,8 +11,8 @@ type ShareCodeData struct {
 	PK                    dynamo.ShareKeyType
 	SK                    dynamo.ShareSortKeyType
 	UpdatedAt             time.Time
-	SessionID             string
-	LpaID                 string
+	LpaKey                dynamo.LpaKeyType
+	LpaOwnerKey           dynamo.LpaOwnerKeyType
 	ActorUID              actoruid.UID
 	IsReplacementAttorney bool
 	IsTrustCorporation    bool

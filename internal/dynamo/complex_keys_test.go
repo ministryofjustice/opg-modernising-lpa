@@ -120,10 +120,14 @@ func TestLpaOwnerKey(t *testing.T) {
 		assert.False(t, LpaOwnerKey(nil).Equals(DonorKey("")))
 	})
 
-	t.Run("IsOrganisation", func(t *testing.T) {
-		assert.True(t, LpaOwnerKey(OrganisationKey("")).IsOrganisation())
-		assert.False(t, LpaOwnerKey(DonorKey("")).IsOrganisation())
-		assert.False(t, LpaOwnerKey(nil).IsOrganisation())
+	t.Run("Organisation", func(t *testing.T) {
+		key, ok := LpaOwnerKey(OrganisationKey("a")).Organisation()
+		assert.Equal(t, OrganisationKey("a"), key)
+		assert.True(t, ok)
+		_, ok = LpaOwnerKey(DonorKey("")).Organisation()
+		assert.False(t, ok)
+		_, ok = LpaOwnerKey(nil).Organisation()
+		assert.False(t, ok)
 	})
 
 	t.Run("malformed", func(t *testing.T) {
@@ -231,7 +235,7 @@ func TestShareKey(t *testing.T) {
 
 func TestShareSortKey(t *testing.T) {
 	for str, key := range map[string]ShareSortKeyType{
-		"DONORINVITE#123#abc": ShareSortKey(DonorInviteKey("123", "abc")),
+		"DONORINVITE#123#abc": ShareSortKey(DonorInviteKey(OrganisationKey("123"), LpaKey("abc"))),
 		"METADATA#123":        ShareSortKey(MetadataKey("123")),
 	} {
 		t.Run(str+"/SK", func(t *testing.T) {

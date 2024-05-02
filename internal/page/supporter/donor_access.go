@@ -90,8 +90,8 @@ func DonorAccess(tmpl template.Template, donorStore DonorStore, shareCodeStore S
 
 				shareCode := randomString(12)
 				shareCodeData := actor.ShareCodeData{
-					SessionID:    organisation.ID,
-					LpaID:        appData.LpaID,
+					LpaOwnerKey:  dynamo.LpaOwnerKey(organisation.PK),
+					LpaKey:       dynamo.LpaKey(appData.LpaID),
 					ActorUID:     donor.Donor.UID,
 					InviteSentTo: data.Form.Email,
 				}
