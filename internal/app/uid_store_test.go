@@ -6,12 +6,18 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestUidStoreSet(t *testing.T) {
+	donor := &actor.DonorProvidedDetails{
+		Donor: actor.Donor{
+			FirstNames: "x",
+			LastName:   "y",
+		},
+	}
+
 	testcases := map[string]struct {
 		organisationID string
 		sk             dynamo.SK
@@ -32,12 +38,7 @@ func TestUidStoreSet(t *testing.T) {
 				":now": testNow,
 			})
 
-			returnValues, _ := attributevalue.MarshalMap(actor.DonorProvidedDetails{
-				Donor: actor.Donor{
-					FirstNames: "x",
-					LastName:   "y",
-				},
-			})
+			returnValues, _ := attributevalue.MarshalMap(donor)
 
 			dynamoClient := newMockDynamoUpdateClient(t)
 			dynamoClient.EXPECT().
@@ -47,11 +48,7 @@ func TestUidStoreSet(t *testing.T) {
 
 			searchClient := newMockSearchClient(t)
 			searchClient.EXPECT().
-				Index(ctx, search.Lpa{
-					PK:            dynamo.LpaKey("lpa-id").PK(),
-					SK:            tc.sk.SK(),
-					DonorFullName: "x y",
-				}).
+				Index(ctx, donor).
 				Return(nil)
 
 			uidStore := NewUidStore(dynamoClient, searchClient, testNowFn)
