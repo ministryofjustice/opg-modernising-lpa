@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -304,10 +305,14 @@ func Supporter(
 
 func waitForLPAIndex(searchClient *search.Client, organisationCtx context.Context) {
 	for range time.Tick(time.Second) {
-		if resp, _ := searchClient.Query(organisationCtx, search.QueryRequest{
+		resp, err := searchClient.Query(organisationCtx, search.QueryRequest{
 			Page:     1,
 			PageSize: 1,
-		}); resp != nil && len(resp.Keys) > 0 {
+		})
+		if err != nil {
+			log.Println(err)
+		}
+		if resp != nil && len(resp.Keys) > 0 {
 			break
 		}
 	}
