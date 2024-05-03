@@ -119,5 +119,5 @@ locals {
 
   mock_onelogin_version = "latest"
 
-  search_index_name = "lpas_${local.environment_name}"
+  search_index_name = "lpa_${local.environment_name}"
 }
