@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/opensearch-project/opensearch-go/v4"
@@ -27,12 +26,9 @@ const (
 		},
 		"mappings": {
 			"properties": {
-				"PK": { "type": "keyword" },
-				"SK": { "type": "keyword" },
-				"Hash": { "type": "keyword" },
-        "CheckedHash": { "type": "keyword" },
-				"Donor.FirstNames": { "type": "keyword" },
-				"Donor.LastName": { "type": "keyword" }
+				"DonorFullNameText": { "type": "text" },
+				"DonorFullName": { "type": "keyword", "copy_to": "DonorFullNameText" },
+				"SK": { "type": "keyword" }
 			}
 		}
 	}`
@@ -51,6 +47,12 @@ type indicesClient interface {
 type QueryResponse struct {
 	Pagination *Pagination
 	Keys       []dynamo.Keys
+}
+
+type Lpa struct {
+	DonorFullName string
+	PK            string
+	SK            string
 }
 
 type QueryRequest struct {
@@ -100,19 +102,19 @@ func (c *Client) CreateIndices(ctx context.Context) error {
 	return nil
 }
 
-func (c *Client) Index(ctx context.Context, donor *actor.DonorProvidedDetails) error {
+func (c *Client) Index(ctx context.Context, lpa Lpa) error {
 	if !c.indexingEnabled {
 		return nil
 	}
 
-	body, err := json.Marshal(donor)
+	body, err := json.Marshal(lpa)
 	if err != nil {
 		return err
 	}
 
 	_, err = c.svc.Index(ctx, opensearchapi.IndexReq{
 		Index:      c.indexName,
-		DocumentID: strings.ReplaceAll(donor.PK.PK(), "#", "--"),
+		DocumentID: strings.ReplaceAll(lpa.PK, "#", "--"),
 		Body:       bytes.NewReader(body),
 	})
 
@@ -126,7 +128,11 @@ func (c *Client) Query(ctx context.Context, req QueryRequest) (*QueryResponse, e
 	}
 
 	body, err := json.Marshal(map[string]any{
-		"query": baseQuery(sk),
+		"query": map[string]any{
+			"match": map[string]any{
+				"SK": sk,
+			},
+		},
 	})
 	if err != nil {
 		return nil, err
@@ -138,7 +144,7 @@ func (c *Client) Query(ctx context.Context, req QueryRequest) (*QueryResponse, e
 		Params: opensearchapi.SearchParams{
 			From: aws.Int((req.Page - 1) * req.PageSize),
 			Size: aws.Int(req.PageSize),
-			Sort: []string{"Donor.FirstNames", "Donor.LastName"},
+			Sort: []string{"DonorFullName"},
 		},
 	})
 	if err != nil {
@@ -175,7 +181,15 @@ func (c *Client) CountWithQuery(ctx context.Context, req CountWithQueryReq) (int
 		"track_total_hits": true,
 	}
 
-	query := baseQuery(sk)
+	query := map[string]map[string]any{
+		"bool": {
+			"must": map[string]any{
+				"match": map[string]string{
+					"SK": sk,
+				},
+			},
+		},
+	}
 
 	if req.MustNotExist != "" {
 		query["bool"]["must_not"] = map[string]any{
@@ -201,25 +215,6 @@ func (c *Client) CountWithQuery(ctx context.Context, req CountWithQueryReq) (int
 	}
 
 	return resp.Hits.Total.Value, err
-}
-
-func baseQuery(sk string) map[string]map[string]any {
-	return map[string]map[string]any{
-		"bool": {
-			"must": []map[string]any{
-				{
-					"match": map[string]string{
-						"SK": sk,
-					},
-				},
-				{
-					"prefix": map[string]string{
-						"PK": dynamo.LpaKey("").PK(),
-					},
-				},
-			},
-		},
-	}
 }
 
 func getSKFromContext(ctx context.Context) (string, error) {

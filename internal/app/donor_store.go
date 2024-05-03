@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
@@ -250,16 +251,6 @@ func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]actor
 	var donors []actor.DonorProvidedDetails
 	err = attributevalue.UnmarshalListOfMaps(items, &donors)
 
-	mappedDonors := map[string]actor.DonorProvidedDetails{}
-	for _, donor := range donors {
-		mappedDonors[donor.PK.PK()+"|"+donor.SK.SK()] = donor
-	}
-
-	clear(donors)
-	for i, key := range keys {
-		donors[i] = mappedDonors[key.PK.PK()+"|"+key.SK.SK()]
-	}
-
 	return donors, err
 }
 
@@ -276,7 +267,11 @@ func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails)
 	if donor.LpaUID != "" {
 		donor.UpdatedAt = s.now()
 
-		if err := s.searchClient.Index(ctx, donor); err != nil {
+		if err := s.searchClient.Index(ctx, search.Lpa{
+			PK:            donor.PK.PK(),
+			SK:            donor.SK.SK(),
+			DonorFullName: donor.Donor.FullName(),
+		}); err != nil {
 			return fmt.Errorf("donorStore index failed: %w", err)
 		}
 	}

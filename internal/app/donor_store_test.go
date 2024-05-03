@@ -16,6 +16,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/mitchellh/hashstructure/v2"
 	"github.com/stretchr/testify/assert"
@@ -290,23 +291,14 @@ func TestDonorStoreLatestWhenDataStoreError(t *testing.T) {
 }
 
 func TestDonorStoreGetByKeys(t *testing.T) {
-	keys := []dynamo.Keys{
-		{PK: dynamo.LpaKey("1"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("a"))},
-		{PK: dynamo.LpaKey("2"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("b"))},
-		{PK: dynamo.LpaKey("3"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("c"))},
-	}
-	donors := []actor.DonorProvidedDetails{
-		{PK: dynamo.LpaKey("1"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("a")), LpaID: "1"},
-		{PK: dynamo.LpaKey("2"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("b")), LpaID: "2"},
-		{PK: dynamo.LpaKey("3"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("c")), LpaID: "3"},
-	}
-	av0, _ := attributevalue.MarshalMap(donors[2])
+	keys := []dynamo.Keys{{}}
+	donors := []actor.DonorProvidedDetails{{LpaID: "1"}, {LpaID: "2"}}
+	av0, _ := attributevalue.MarshalMap(donors[0])
 	av1, _ := attributevalue.MarshalMap(donors[1])
-	av2, _ := attributevalue.MarshalMap(donors[0])
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllByKeys(ctx, keys,
-		[]map[string]types.AttributeValue{av0, av1, av2}, nil)
+		[]map[string]types.AttributeValue{av0, av1}, nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient}
 
@@ -364,7 +356,7 @@ func TestDonorStorePutWhenUIDSet(t *testing.T) {
 
 	searchClient := newMockSearchClient(t)
 	searchClient.EXPECT().
-		Index(ctx, saved).
+		Index(ctx, search.Lpa{PK: dynamo.LpaKey("5").PK(), SK: dynamo.DonorKey("an-id").SK(), DonorFullName: "x y"}).
 		Return(nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, searchClient: searchClient, now: testNowFn}
