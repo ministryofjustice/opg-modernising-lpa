@@ -136,6 +136,26 @@ func TestDonorStoreGetAnyWhenOrganisation(t *testing.T) {
 	assert.Equal(t, &actor.DonorProvidedDetails{LpaID: "an-id"}, lpa)
 }
 
+func TestDonorStoreGetAnyWhenReference(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectOneByPartialSK(ctx, dynamo.LpaKey("an-id"), dynamo.DonorKey(""),
+		lpaReference{
+			PK:           dynamo.LpaKey("an-id"),
+			SK:           dynamo.DonorKey("donor"),
+			ReferencedSK: dynamo.OrganisationKey("org"),
+		}, nil)
+	dynamoClient.ExpectOne(ctx, dynamo.LpaKey("an-id"), dynamo.OrganisationKey("org"),
+		&actor.DonorProvidedDetails{LpaID: "an-id"}, nil)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
+
+	lpa, err := donorStore.GetAny(ctx)
+	assert.Nil(t, err)
+	assert.Equal(t, &actor.DonorProvidedDetails{SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaID: "an-id"}, lpa)
+}
+
 func TestDonorStoreGetAnyWithSessionMissing(t *testing.T) {
 	donorStore := &donorStore{dynamoClient: nil, uuidString: func() string { return "10100000" }}
 
@@ -148,6 +168,25 @@ func TestDonorStoreGetAnyWhenDataStoreError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectOneByPartialSK(ctx, dynamo.LpaKey("an-id"), dynamo.DonorKey(""), &actor.DonorProvidedDetails{LpaID: "an-id"}, expectedError)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
+
+	_, err := donorStore.GetAny(ctx)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestDonorStoreGetAnyWhenReferenceErrors(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectOneByPartialSK(ctx, dynamo.LpaKey("an-id"), dynamo.DonorKey(""),
+		lpaReference{
+			PK:           dynamo.LpaKey("an-id"),
+			SK:           dynamo.DonorKey("donor"),
+			ReferencedSK: dynamo.OrganisationKey("org"),
+		}, nil)
+	dynamoClient.ExpectOne(ctx, dynamo.LpaKey("an-id"), dynamo.OrganisationKey("org"),
+		nil, expectedError)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
@@ -733,8 +772,8 @@ func TestDonorStoreLink(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
 			shareCode := actor.ShareCodeData{
-				LpaID:     "lpa-id",
-				SessionID: "org-id",
+				LpaKey:      dynamo.LpaKey("lpa-id"),
+				LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")),
 			}
 
 			dynamoClient := newMockDynamoClient(t)
@@ -767,10 +806,17 @@ func TestDonorStoreLink(t *testing.T) {
 	}
 }
 
+func TestDonorStoreLinkWithDonor(t *testing.T) {
+	donorStore := &donorStore{}
+
+	err := donorStore.Link(ctx, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor"))})
+	assert.Error(t, err)
+}
+
 func TestDonorStoreLinkWithSessionMissing(t *testing.T) {
 	donorStore := &donorStore{}
 
-	err := donorStore.Link(ctx, actor.ShareCodeData{})
+	err := donorStore.Link(ctx, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org"))})
 	assert.Equal(t, page.SessionMissingError{}, err)
 }
 
@@ -778,7 +824,7 @@ func TestDonorStoreLinkWithSessionIDMissing(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{})
 	donorStore := &donorStore{}
 
-	err := donorStore.Link(ctx, actor.ShareCodeData{})
+	err := donorStore.Link(ctx, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org"))})
 	assert.Error(t, err)
 }
 
@@ -791,7 +837,7 @@ func TestDonorStoreLinkWhenDonorLinkAlreadyExists(t *testing.T) {
 
 	donorStore := &donorStore{dynamoClient: dynamoClient}
 
-	err := donorStore.Link(ctx, actor.ShareCodeData{LpaID: "lpa-id"})
+	err := donorStore.Link(ctx, actor.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org"))})
 	assert.Equal(t, errors.New("a donor link already exists for lpa-id"), err)
 }
 
@@ -826,8 +872,8 @@ func TestDonorStoreLinkWhenError(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
 			shareCode := actor.ShareCodeData{
-				LpaID:     "lpa-id",
-				SessionID: "org-id",
+				LpaKey:      dynamo.LpaKey("lpa-id"),
+				LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")),
 			}
 
 			dynamoClient := newMockDynamoClient(t)
@@ -948,8 +994,15 @@ func TestDonorStoreDeleteLink(t *testing.T) {
 
 	donorStore := &donorStore{dynamoClient: dynamoClient}
 
-	err := donorStore.DeleteLink(ctx, actor.ShareCodeData{SessionID: "org-id", LpaID: "lpa-id"})
+	err := donorStore.DeleteLink(ctx, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
 	assert.Nil(t, err)
+}
+
+func TestDonorStoreDeleteLinkWhenDonor(t *testing.T) {
+	donorStore := &donorStore{}
+
+	err := donorStore.DeleteLink(ctx, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor"))})
+	assert.Error(t, err)
 }
 
 func TestDonorStoreDeleteLinkWhenSessionMissing(t *testing.T) {
@@ -962,7 +1015,7 @@ func TestDonorStoreDeleteLinkWhenSessionMissing(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			donorStore := &donorStore{}
 
-			err := donorStore.DeleteLink(ctx, actor.ShareCodeData{})
+			err := donorStore.DeleteLink(ctx, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org"))})
 			assert.Error(t, err)
 		})
 	}
@@ -973,7 +1026,7 @@ func TestDonorStoreDeleteLinkWhenDeleterInDifferentOrganisation(t *testing.T) {
 
 	donorStore := &donorStore{}
 
-	err := donorStore.DeleteLink(ctx, actor.ShareCodeData{SessionID: "org-id", LpaID: "lpa-id"})
+	err := donorStore.DeleteLink(ctx, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
 	assert.Error(t, err)
 }
 
@@ -985,7 +1038,7 @@ func TestDonorStoreDeleteLinkWhenOneByPartialSKError(t *testing.T) {
 
 	donorStore := &donorStore{dynamoClient: dynamoClient}
 
-	err := donorStore.DeleteLink(ctx, actor.ShareCodeData{SessionID: "org-id", LpaID: "lpa-id"})
+	err := donorStore.DeleteLink(ctx, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
 	assert.Error(t, err)
 }
 
@@ -1000,7 +1053,7 @@ func TestDonorStoreDeleteLinkWhenDeleteOneLinkError(t *testing.T) {
 
 	donorStore := &donorStore{dynamoClient: dynamoClient}
 
-	err := donorStore.DeleteLink(ctx, actor.ShareCodeData{SessionID: "org-id", LpaID: "lpa-id"})
+	err := donorStore.DeleteLink(ctx, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
 	assert.Error(t, err)
 }
 
@@ -1020,6 +1073,6 @@ func TestDonorStoreDeleteLinkWhenDeleteOneLPAReferenceError(t *testing.T) {
 
 	donorStore := &donorStore{dynamoClient: dynamoClient}
 
-	err := donorStore.DeleteLink(ctx, actor.ShareCodeData{SessionID: "org-id", LpaID: "lpa-id"})
+	err := donorStore.DeleteLink(ctx, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
 	assert.Error(t, err)
 }
