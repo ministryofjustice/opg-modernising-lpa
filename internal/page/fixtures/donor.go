@@ -397,7 +397,7 @@ func updateLPAProgress(
 	if data.Progress >= slices.Index(progressValues, "signedByCertificateProvider") {
 		ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
-		certificateProvider, err := certificateProviderStore.Create(ctx, donorSessionID, donorDetails.CertificateProvider.UID, donorDetails.CertificateProvider.Email)
+		certificateProvider, err := certificateProviderStore.Create(ctx, donorDetails.SK, donorDetails.CertificateProvider.UID, donorDetails.CertificateProvider.Email)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -419,7 +419,7 @@ func updateLPAProgress(
 			for _, a := range list.Attorneys {
 				ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
-				attorney, err := attorneyStore.Create(ctx, donorSessionID, a.UID, isReplacement, false, a.Email)
+				attorney, err := attorneyStore.Create(ctx, donorDetails.SK, a.UID, isReplacement, false, a.Email)
 				if err != nil {
 					return nil, nil, err
 				}
@@ -443,7 +443,7 @@ func updateLPAProgress(
 			if list.TrustCorporation.Name != "" {
 				ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
-				attorney, err := attorneyStore.Create(ctx, donorSessionID, list.TrustCorporation.UID, isReplacement, true, list.TrustCorporation.Email)
+				attorney, err := attorneyStore.Create(ctx, donorDetails.SK, list.TrustCorporation.UID, isReplacement, true, list.TrustCorporation.Email)
 				if err != nil {
 					return nil, nil, err
 				}

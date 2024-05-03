@@ -25,11 +25,13 @@ func CertificateProvider(
 	tmpl template.Template,
 	sessionStore *sesh.Store,
 	shareCodeSender ShareCodeSender,
-	donorStore page.DonorStore,
+	donorStore DonorStore,
 	certificateProviderStore CertificateProviderStore,
 	eventClient *event.Client,
 	lpaStoreClient *lpastore.Client,
 	dynamoClient DynamoClient,
+	organisationStore OrganisationStore,
+	memberStore MemberStore,
 ) page.Handler {
 	progressValues := []string{
 		"paid",
@@ -51,6 +53,7 @@ func CertificateProvider(
 			shareCode                         = r.FormValue("withShareCode")
 			useRealUID                        = r.FormValue("uid") == "real"
 			donorChannel                      = r.FormValue("donorChannel")
+			isSupported                       = r.FormValue("is-supported") == "1"
 		)
 
 		if certificateProviderSub == "" {
@@ -88,6 +91,31 @@ func CertificateProvider(
 			}
 
 			if err := dynamoClient.Create(r.Context(), donorDetails); err != nil {
+				return err
+			}
+		} else if isSupported {
+			supporterCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, Email: testEmail})
+
+			member, err := memberStore.Create(supporterCtx, random.String(12), random.String(12))
+			if err != nil {
+				return err
+			}
+
+			org, err := organisationStore.Create(supporterCtx, member, random.String(12))
+			if err != nil {
+				return err
+			}
+
+			orgSession := &page.SessionData{SessionID: donorSessionID, OrganisationID: org.ID}
+			donorDetails, err = organisationStore.CreateLPA(page.ContextWithSessionData(r.Context(), orgSession))
+			if err != nil {
+				return err
+			}
+
+			if err := donorStore.Link(page.ContextWithSessionData(r.Context(), orgSession), actor.ShareCodeData{
+				LpaKey:      donorDetails.PK,
+				LpaOwnerKey: donorDetails.SK,
+			}); err != nil {
 				return err
 			}
 		} else {
@@ -146,7 +174,7 @@ func CertificateProvider(
 			donorDetails.CertificateProvider.Relationship = actor.Professionally
 		}
 
-		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorSessionID, donorDetails.CertificateProvider.UID, donorDetails.CertificateProvider.Email)
+		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorDetails.SK, donorDetails.CertificateProvider.UID, donorDetails.CertificateProvider.Email)
 		if err != nil {
 			return err
 		}
@@ -217,6 +245,8 @@ func CertificateProvider(
 				LpaID:     donorDetails.LpaID,
 				Localizer: appData.Localizer,
 			}, page.CertificateProviderInvite{
+				LpaKey:                      donorDetails.PK,
+				LpaOwnerKey:                 donorDetails.SK,
 				LpaUID:                      donorDetails.LpaUID,
 				Type:                        donorDetails.Type,
 				Donor:                       donorDetails.Donor,
