@@ -5,8 +5,7 @@ package app
 import (
 	context "context"
 
-	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-
+	search "github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -23,17 +22,17 @@ func (_m *mockSearchClient) EXPECT() *mockSearchClient_Expecter {
 	return &mockSearchClient_Expecter{mock: &_m.Mock}
 }
 
-// Index provides a mock function with given fields: ctx, donor
-func (_m *mockSearchClient) Index(ctx context.Context, donor *actor.DonorProvidedDetails) error {
-	ret := _m.Called(ctx, donor)
+// Index provides a mock function with given fields: ctx, lpa
+func (_m *mockSearchClient) Index(ctx context.Context, lpa search.Lpa) error {
+	ret := _m.Called(ctx, lpa)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Index")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *actor.DonorProvidedDetails) error); ok {
-		r0 = rf(ctx, donor)
+	if rf, ok := ret.Get(0).(func(context.Context, search.Lpa) error); ok {
+		r0 = rf(ctx, lpa)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -48,14 +47,14 @@ type mockSearchClient_Index_Call struct {
 
 // Index is a helper method to define mock.On call
 //   - ctx context.Context
-//   - donor *actor.DonorProvidedDetails
-func (_e *mockSearchClient_Expecter) Index(ctx interface{}, donor interface{}) *mockSearchClient_Index_Call {
-	return &mockSearchClient_Index_Call{Call: _e.mock.On("Index", ctx, donor)}
+//   - lpa search.Lpa
+func (_e *mockSearchClient_Expecter) Index(ctx interface{}, lpa interface{}) *mockSearchClient_Index_Call {
+	return &mockSearchClient_Index_Call{Call: _e.mock.On("Index", ctx, lpa)}
 }
 
-func (_c *mockSearchClient_Index_Call) Run(run func(ctx context.Context, donor *actor.DonorProvidedDetails)) *mockSearchClient_Index_Call {
+func (_c *mockSearchClient_Index_Call) Run(run func(ctx context.Context, lpa search.Lpa)) *mockSearchClient_Index_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*actor.DonorProvidedDetails))
+		run(args[0].(context.Context), args[1].(search.Lpa))
 	})
 	return _c
 }
@@ -65,7 +64,7 @@ func (_c *mockSearchClient_Index_Call) Return(_a0 error) *mockSearchClient_Index
 	return _c
 }
 
-func (_c *mockSearchClient_Index_Call) RunAndReturn(run func(context.Context, *actor.DonorProvidedDetails) error) *mockSearchClient_Index_Call {
+func (_c *mockSearchClient_Index_Call) RunAndReturn(run func(context.Context, search.Lpa) error) *mockSearchClient_Index_Call {
 	_c.Call.Return(run)
 	return _c
 }
