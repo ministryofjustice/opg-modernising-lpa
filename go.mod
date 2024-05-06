@@ -8,8 +8,8 @@ require (
 	github.com/aws/aws-lambda-go v1.47.0
 	github.com/aws/aws-sdk-go-v2 v1.26.1
 	github.com/aws/aws-sdk-go-v2/config v1.27.11
-	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.13.13
-	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.31.1
+	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.13.14
+	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.32.0
 	github.com/aws/aws-sdk-go-v2/service/eventbridge v1.30.4
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.53.1
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.28.6
@@ -27,7 +27,7 @@ require (
 	github.com/opensearch-project/opensearch-go/v4 v4.0.0
 	github.com/pact-foundation/pact-go/v2 v2.0.4
 	github.com/stretchr/testify v1.9.0
-	github.com/vektra/mockery/v2 v2.42.3
+	github.com/vektra/mockery/v2 v2.43.0
 	github.com/xeipuuv/gojsonschema v1.2.0
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.26.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws v0.51.0
