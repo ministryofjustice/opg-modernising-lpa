@@ -48,9 +48,9 @@ func TestUidStoreSet(t *testing.T) {
 			searchClient := newMockSearchClient(t)
 			searchClient.EXPECT().
 				Index(ctx, search.Lpa{
-					PK:            dynamo.LpaKey("lpa-id").PK(),
-					SK:            tc.sk.SK(),
-					DonorFullName: "x y",
+					PK:    dynamo.LpaKey("lpa-id").PK(),
+					SK:    tc.sk.SK(),
+					Donor: search.LpaDonor{FirstNames: "x", LastName: "y"},
 				}).
 				Return(nil)
 
