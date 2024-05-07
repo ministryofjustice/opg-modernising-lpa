@@ -251,6 +251,16 @@ func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]actor
 	var donors []actor.DonorProvidedDetails
 	err = attributevalue.UnmarshalListOfMaps(items, &donors)
 
+	mappedDonors := map[string]actor.DonorProvidedDetails{}
+	for _, donor := range donors {
+		mappedDonors[donor.PK.PK()+"|"+donor.SK.SK()] = donor
+	}
+
+	clear(donors)
+	for i, key := range keys {
+		donors[i] = mappedDonors[key.PK.PK()+"|"+key.SK.SK()]
+	}
+
 	return donors, err
 }
 
@@ -268,9 +278,12 @@ func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails)
 		donor.UpdatedAt = s.now()
 
 		if err := s.searchClient.Index(ctx, search.Lpa{
-			PK:            donor.PK.PK(),
-			SK:            donor.SK.SK(),
-			DonorFullName: donor.Donor.FullName(),
+			PK: donor.PK.PK(),
+			SK: donor.SK.SK(),
+			Donor: search.LpaDonor{
+				FirstNames: donor.Donor.FirstNames,
+				LastName:   donor.Donor.LastName,
+			},
 		}); err != nil {
 			return fmt.Errorf("donorStore index failed: %w", err)
 		}

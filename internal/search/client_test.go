@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -53,12 +52,14 @@ func TestNewClient(t *testing.T) {
 }
 
 func TestClientCreateIndices(t *testing.T) {
+	data, _ := json.Marshal(indexDefinition)
+
 	indices := newMockIndicesClient(t)
 	indices.EXPECT().
 		Exists(ctx, opensearchapi.IndicesExistsReq{Indices: []string{testIndexName}}).
 		Return(nil, expectedError)
 	indices.EXPECT().
-		Create(ctx, opensearchapi.IndicesCreateReq{Index: testIndexName, Body: strings.NewReader(indexDefinition)}).
+		Create(ctx, opensearchapi.IndicesCreateReq{Index: testIndexName, Body: bytes.NewReader(data)}).
 		Return(nil, nil)
 
 	client := &Client{indices: indices, indexName: testIndexName, indexingEnabled: true}
@@ -97,18 +98,18 @@ func TestClientIndex(t *testing.T) {
 		Index(ctx, opensearchapi.IndexReq{
 			Index:      testIndexName,
 			DocumentID: "LPA--2020",
-			Body:       bytes.NewReader([]byte(`{"DonorFullName":"x y","PK":"LPA#2020","SK":"abc#123"}`)),
+			Body:       bytes.NewReader([]byte(`{"PK":"LPA#2020","SK":"abc#123","Donor":{"FirstNames":"x","LastName":"y"}}`)),
 		}).
 		Return(nil, nil)
 
 	client := &Client{svc: svc, indexName: testIndexName, indexingEnabled: true}
-	err := client.Index(ctx, Lpa{DonorFullName: "x y", PK: dynamo.LpaKey("2020").PK(), SK: "abc#123"})
+	err := client.Index(ctx, Lpa{Donor: LpaDonor{FirstNames: "x", LastName: "y"}, PK: dynamo.LpaKey("2020").PK(), SK: "abc#123"})
 	assert.Nil(t, err)
 }
 
 func TestClientIndexWhenNotEnabled(t *testing.T) {
 	client := &Client{}
-	err := client.Index(ctx, Lpa{DonorFullName: "x y", PK: dynamo.LpaKey("2020").PK(), SK: "abc#123"})
+	err := client.Index(ctx, Lpa{Donor: LpaDonor{FirstNames: "x", LastName: "y"}, PK: dynamo.LpaKey("2020").PK(), SK: "abc#123"})
 	assert.Nil(t, err)
 }
 
@@ -119,7 +120,7 @@ func TestClientIndexWhenIndexErrors(t *testing.T) {
 		Return(nil, expectedError)
 
 	client := &Client{svc: svc, indexingEnabled: true}
-	err := client.Index(ctx, Lpa{DonorFullName: "x y", PK: dynamo.LpaKey("2020").PK(), SK: "abc#123"})
+	err := client.Index(ctx, Lpa{Donor: LpaDonor{FirstNames: "x", LastName: "y"}, PK: dynamo.LpaKey("2020").PK(), SK: "abc#123"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -171,11 +172,11 @@ func TestClientQuery(t *testing.T) {
 			svc.EXPECT().
 				Search(ctx, &opensearchapi.SearchReq{
 					Indices: []string{testIndexName},
-					Body:    bytes.NewReader([]byte(fmt.Sprintf(`{"query":{"match":{"SK":"%s"}}}`, tc.sk.SK()))),
+					Body:    bytes.NewReader([]byte(fmt.Sprintf(`{"query":{"bool":{"must":[{"match":{"SK":"%s"}},{"prefix":{"PK":"LPA#"}}]}}}`, tc.sk.SK()))),
 					Params: opensearchapi.SearchParams{
 						From: aws.Int(tc.from),
 						Size: aws.Int(10),
-						Sort: []string{"DonorFullName"},
+						Sort: []string{"Donor.FirstNames", "Donor.LastName"},
 					},
 				}).
 				Return(resp, nil)
@@ -240,22 +241,22 @@ func TestClientCountWithQuery(t *testing.T) {
 	}{
 		"no query - donor": {
 			query:   CountWithQueryReq{},
-			body:    []byte(`{"query":{"bool":{"must":{"match":{"SK":"DONOR#1"}}}},"size":0,"track_total_hits":true}`),
+			body:    []byte(`{"query":{"bool":{"must":[{"match":{"SK":"DONOR#1"}},{"prefix":{"PK":"LPA#"}}]}},"size":0,"track_total_hits":true}`),
 			session: &page.SessionData{SessionID: "1"},
 		},
 		"no query - organisation": {
 			query:   CountWithQueryReq{},
-			body:    []byte(`{"query":{"bool":{"must":{"match":{"SK":"ORGANISATION#1"}}}},"size":0,"track_total_hits":true}`),
+			body:    []byte(`{"query":{"bool":{"must":[{"match":{"SK":"ORGANISATION#1"}},{"prefix":{"PK":"LPA#"}}]}},"size":0,"track_total_hits":true}`),
 			session: &page.SessionData{OrganisationID: "1"},
 		},
 		"MustNotExist query - donor": {
 			query:   CountWithQueryReq{MustNotExist: "a-field"},
-			body:    []byte(`{"query":{"bool":{"must":{"match":{"SK":"DONOR#1"}},"must_not":{"exists":{"field":"a-field"}}}},"size":0,"track_total_hits":true}`),
+			body:    []byte(`{"query":{"bool":{"must":[{"match":{"SK":"DONOR#1"}},{"prefix":{"PK":"LPA#"}}],"must_not":{"exists":{"field":"a-field"}}}},"size":0,"track_total_hits":true}`),
 			session: &page.SessionData{SessionID: "1"},
 		},
 		"MustNotExist query - organisation": {
 			query:   CountWithQueryReq{MustNotExist: "a-field"},
-			body:    []byte(`{"query":{"bool":{"must":{"match":{"SK":"ORGANISATION#1"}},"must_not":{"exists":{"field":"a-field"}}}},"size":0,"track_total_hits":true}`),
+			body:    []byte(`{"query":{"bool":{"must":[{"match":{"SK":"ORGANISATION#1"}},{"prefix":{"PK":"LPA#"}}],"must_not":{"exists":{"field":"a-field"}}}},"size":0,"track_total_hits":true}`),
 			session: &page.SessionData{OrganisationID: "1"},
 		},
 	}
