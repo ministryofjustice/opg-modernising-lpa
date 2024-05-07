@@ -86,6 +86,7 @@ func TestClientServiceContract(t *testing.T) {
 					// Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
 					JSONBody(matchers.Map{
 						"lpaType":                       matchers.Regex("personal-welfare", "personal-welfare|property-and-affairs"),
+						"channel":                       matchers.String("online"),
 						"lifeSustainingTreatmentOption": matchers.Regex("option-a", "option-a|option-b"),
 						"donor": matchers.Like(map[string]any{
 							"uid":         matchers.UUID(),
@@ -247,6 +248,7 @@ func TestClientServiceContract(t *testing.T) {
 					// Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
 					JSONBody(matchers.Map{
 						"lpaType": matchers.Regex("personal-welfare", "personal-welfare|property-and-affairs"),
+						"channel": matchers.String("online"),
 						"donor": matchers.Like(map[string]any{
 							"uid":         matchers.UUID(),
 							"firstNames":  matchers.String("John Johnson"),
