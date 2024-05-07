@@ -56,9 +56,12 @@ func (s *uidStore) Set(ctx context.Context, lpaID, sessionID, organisationID, ui
 	}
 
 	if err := s.searchClient.Index(ctx, search.Lpa{
-		PK:            dynamo.LpaKey(lpaID).PK(),
-		SK:            sk.SK(),
-		DonorFullName: donor.Donor.FullName(),
+		PK: dynamo.LpaKey(lpaID).PK(),
+		SK: sk.SK(),
+		Donor: search.LpaDonor{
+			FirstNames: donor.Donor.FirstNames,
+			LastName:   donor.Donor.LastName,
+		},
 	}); err != nil {
 		return fmt.Errorf("uidStore index failed: %w", err)
 	}

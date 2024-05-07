@@ -291,14 +291,23 @@ func TestDonorStoreLatestWhenDataStoreError(t *testing.T) {
 }
 
 func TestDonorStoreGetByKeys(t *testing.T) {
-	keys := []dynamo.Keys{{}}
-	donors := []actor.DonorProvidedDetails{{LpaID: "1"}, {LpaID: "2"}}
-	av0, _ := attributevalue.MarshalMap(donors[0])
+	keys := []dynamo.Keys{
+		{PK: dynamo.LpaKey("1"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("a"))},
+		{PK: dynamo.LpaKey("2"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("b"))},
+		{PK: dynamo.LpaKey("3"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("c"))},
+	}
+	donors := []actor.DonorProvidedDetails{
+		{PK: dynamo.LpaKey("1"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("a")), LpaID: "1"},
+		{PK: dynamo.LpaKey("2"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("b")), LpaID: "2"},
+		{PK: dynamo.LpaKey("3"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("c")), LpaID: "3"},
+	}
+	av0, _ := attributevalue.MarshalMap(donors[2])
 	av1, _ := attributevalue.MarshalMap(donors[1])
+	av2, _ := attributevalue.MarshalMap(donors[0])
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllByKeys(ctx, keys,
-		[]map[string]types.AttributeValue{av0, av1}, nil)
+		[]map[string]types.AttributeValue{av0, av1, av2}, nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient}
 
@@ -356,7 +365,7 @@ func TestDonorStorePutWhenUIDSet(t *testing.T) {
 
 	searchClient := newMockSearchClient(t)
 	searchClient.EXPECT().
-		Index(ctx, search.Lpa{PK: dynamo.LpaKey("5").PK(), SK: dynamo.DonorKey("an-id").SK(), DonorFullName: "x y"}).
+		Index(ctx, search.Lpa{PK: dynamo.LpaKey("5").PK(), SK: dynamo.DonorKey("an-id").SK(), Donor: search.LpaDonor{FirstNames: "x", LastName: "y"}}).
 		Return(nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, searchClient: searchClient, now: testNowFn}

@@ -3,6 +3,7 @@ package search
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -15,24 +16,22 @@ import (
 	requestsigner "github.com/opensearch-project/opensearch-go/v4/signer/awsv2"
 )
 
-const (
-	indexDefinition = `
-	{
-		"settings": {
-			"index": {
-				"number_of_shards": 1,
-				"number_of_replicas": 0
-			}
+var indexDefinition = map[string]any{
+	"settings": map[string]any{
+		"index": map[string]any{
+			"number_of_shards":   1,
+			"number_of_replicas": 0,
 		},
-		"mappings": {
-			"properties": {
-				"DonorFullNameText": { "type": "text" },
-				"DonorFullName": { "type": "keyword", "copy_to": "DonorFullNameText" },
-				"SK": { "type": "keyword" }
-			}
-		}
-	}`
-)
+	},
+	"mappings": map[string]any{
+		"properties": map[string]any{
+			"PK":               map[string]any{"type": "keyword"},
+			"SK":               map[string]any{"type": "keyword"},
+			"Donor.FirstNames": map[string]any{"type": "keyword"},
+			"Donor.LastName":   map[string]any{"type": "keyword"},
+		},
+	},
+}
 
 type opensearchapiClient interface {
 	Search(ctx context.Context, req *opensearchapi.SearchReq) (*opensearchapi.SearchResp, error)
@@ -50,9 +49,14 @@ type QueryResponse struct {
 }
 
 type Lpa struct {
-	DonorFullName string
-	PK            string
-	SK            string
+	PK    string
+	SK    string
+	Donor LpaDonor
+}
+
+type LpaDonor struct {
+	FirstNames string
+	LastName   string
 }
 
 type QueryRequest struct {
@@ -84,18 +88,26 @@ func NewClient(cfg aws.Config, endpoint, indexName string, indexingEnabled bool)
 		return nil, fmt.Errorf("search could not create opensearch client: %w", err)
 	}
 
-	return &Client{indices: svc.Indices, svc: svc, endpoint: endpoint, indexName: indexName, indexingEnabled: indexingEnabled}, nil
+	hash := sha256.New()
+	if err := json.NewEncoder(hash).Encode(indexDefinition); err != nil {
+		return nil, err
+	}
+	sum := hash.Sum(nil)
+
+	return &Client{indices: svc.Indices, svc: svc, endpoint: endpoint, indexName: fmt.Sprintf("%s_%x", indexName, sum[:8]), indexingEnabled: indexingEnabled}, nil
 }
 
 func (c *Client) CreateIndices(ctx context.Context) error {
-	_, err := c.indices.Exists(ctx, opensearchapi.IndicesExistsReq{Indices: []string{c.indexName}})
-	if err == nil {
+	body, err := json.Marshal(indexDefinition)
+	if err != nil {
+		return err
+	}
+
+	if _, err := c.indices.Exists(ctx, opensearchapi.IndicesExistsReq{Indices: []string{c.indexName}}); err == nil {
 		return nil
 	}
 
-	settings := strings.NewReader(indexDefinition)
-
-	if _, err := c.indices.Create(ctx, opensearchapi.IndicesCreateReq{Index: c.indexName, Body: settings}); err != nil {
+	if _, err := c.indices.Create(ctx, opensearchapi.IndicesCreateReq{Index: c.indexName, Body: bytes.NewReader(body)}); err != nil {
 		return fmt.Errorf("search could not create index: %w", err)
 	}
 
@@ -128,11 +140,7 @@ func (c *Client) Query(ctx context.Context, req QueryRequest) (*QueryResponse, e
 	}
 
 	body, err := json.Marshal(map[string]any{
-		"query": map[string]any{
-			"match": map[string]any{
-				"SK": sk,
-			},
-		},
+		"query": baseQuery(sk),
 	})
 	if err != nil {
 		return nil, err
@@ -144,7 +152,7 @@ func (c *Client) Query(ctx context.Context, req QueryRequest) (*QueryResponse, e
 		Params: opensearchapi.SearchParams{
 			From: aws.Int((req.Page - 1) * req.PageSize),
 			Size: aws.Int(req.PageSize),
-			Sort: []string{"DonorFullName"},
+			Sort: []string{"Donor.FirstNames", "Donor.LastName"},
 		},
 	})
 	if err != nil {
@@ -181,15 +189,7 @@ func (c *Client) CountWithQuery(ctx context.Context, req CountWithQueryReq) (int
 		"track_total_hits": true,
 	}
 
-	query := map[string]map[string]any{
-		"bool": {
-			"must": map[string]any{
-				"match": map[string]string{
-					"SK": sk,
-				},
-			},
-		},
-	}
+	query := baseQuery(sk)
 
 	if req.MustNotExist != "" {
 		query["bool"]["must_not"] = map[string]any{
@@ -215,6 +215,25 @@ func (c *Client) CountWithQuery(ctx context.Context, req CountWithQueryReq) (int
 	}
 
 	return resp.Hits.Total.Value, err
+}
+
+func baseQuery(sk string) map[string]map[string]any {
+	return map[string]map[string]any{
+		"bool": {
+			"must": []map[string]any{
+				{
+					"match": map[string]string{
+						"SK": sk,
+					},
+				},
+				{
+					"prefix": map[string]string{
+						"PK": dynamo.LpaKey("").PK(),
+					},
+				},
+			},
+		},
+	}
 }
 
 func getSKFromContext(ctx context.Context) (string, error) {
