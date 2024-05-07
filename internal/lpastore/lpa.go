@@ -20,6 +20,7 @@ import (
 
 type lpaRequest struct {
 	LpaType                                     actor.LpaType                    `json:"lpaType"`
+	Channel                                     actor.Channel                    `json:"channel"`
 	Donor                                       lpaRequestDonor                  `json:"donor"`
 	Attorneys                                   []lpaRequestAttorney             `json:"attorneys"`
 	TrustCorporations                           []lpaRequestTrustCorporation     `json:"trustCorporations,omitempty"`
@@ -90,6 +91,7 @@ type lpaRequestPersonToNotify struct {
 func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails) error {
 	body := lpaRequest{
 		LpaType: donor.Type,
+		Channel: actor.ChannelOnline,
 		Donor: lpaRequestDonor{
 			UID:                       donor.Donor.UID,
 			FirstNames:                donor.Donor.FirstNames,
