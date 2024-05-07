@@ -304,6 +304,8 @@ func Supporter(
 }
 
 func waitForLPAIndex(searchClient *search.Client, organisationCtx context.Context) {
+	count := 0
+
 	for range time.Tick(time.Second) {
 		resp, err := searchClient.Query(organisationCtx, search.QueryRequest{
 			Page:     1,
@@ -312,6 +314,12 @@ func waitForLPAIndex(searchClient *search.Client, organisationCtx context.Contex
 		if err != nil {
 			log.Println(err)
 		}
+
+		if count > 10 {
+			return
+		}
+		count++
+
 		if resp != nil && len(resp.Keys) > 0 {
 			break
 		}

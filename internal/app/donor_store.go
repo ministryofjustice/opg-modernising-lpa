@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
@@ -276,7 +277,14 @@ func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails)
 	if donor.LpaUID != "" {
 		donor.UpdatedAt = s.now()
 
-		if err := s.searchClient.Index(ctx, donor); err != nil {
+		if err := s.searchClient.Index(ctx, search.Lpa{
+			PK: donor.PK.PK(),
+			SK: donor.SK.SK(),
+			Donor: search.LpaDonor{
+				FirstNames: donor.Donor.FirstNames,
+				LastName:   donor.Donor.LastName,
+			},
+		}); err != nil {
 			return fmt.Errorf("donorStore index failed: %w", err)
 		}
 	}

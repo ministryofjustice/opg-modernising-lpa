@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/opensearch-project/opensearch-go/v4"
@@ -16,27 +15,22 @@ import (
 	requestsigner "github.com/opensearch-project/opensearch-go/v4/signer/awsv2"
 )
 
-const (
-	indexDefinition = `
-	{
-		"settings": {
-			"index": {
-				"number_of_shards": 1,
-				"number_of_replicas": 0
-			}
+var indexDefinition = map[string]any{
+	"settings": map[string]any{
+		"index": map[string]any{
+			"number_of_shards":   1,
+			"number_of_replicas": 0,
 		},
-		"mappings": {
-			"properties": {
-				"PK": { "type": "keyword" },
-				"SK": { "type": "keyword" },
-				"Hash": { "type": "keyword" },
-        "CheckedHash": { "type": "keyword" },
-				"Donor.FirstNames": { "type": "keyword" },
-				"Donor.LastName": { "type": "keyword" }
-			}
-		}
-	}`
-)
+	},
+	"mappings": map[string]any{
+		"properties": map[string]any{
+			"PK":               map[string]any{"type": "keyword"},
+			"SK":               map[string]any{"type": "keyword"},
+			"Donor.FirstNames": map[string]any{"type": "keyword"},
+			"Donor.LastName":   map[string]any{"type": "keyword"},
+		},
+	},
+}
 
 type opensearchapiClient interface {
 	Search(ctx context.Context, req *opensearchapi.SearchReq) (*opensearchapi.SearchResp, error)
@@ -51,6 +45,17 @@ type indicesClient interface {
 type QueryResponse struct {
 	Pagination *Pagination
 	Keys       []dynamo.Keys
+}
+
+type Lpa struct {
+	PK    string
+	SK    string
+	Donor LpaDonor
+}
+
+type LpaDonor struct {
+	FirstNames string
+	LastName   string
 }
 
 type QueryRequest struct {
@@ -86,33 +91,35 @@ func NewClient(cfg aws.Config, endpoint, indexName string, indexingEnabled bool)
 }
 
 func (c *Client) CreateIndices(ctx context.Context) error {
-	_, err := c.indices.Exists(ctx, opensearchapi.IndicesExistsReq{Indices: []string{c.indexName}})
-	if err == nil {
+	body, err := json.Marshal(indexDefinition)
+	if err != nil {
+		return err
+	}
+
+	if _, err := c.indices.Exists(ctx, opensearchapi.IndicesExistsReq{Indices: []string{c.indexName}}); err == nil {
 		return nil
 	}
 
-	settings := strings.NewReader(indexDefinition)
-
-	if _, err := c.indices.Create(ctx, opensearchapi.IndicesCreateReq{Index: c.indexName, Body: settings}); err != nil {
+	if _, err := c.indices.Create(ctx, opensearchapi.IndicesCreateReq{Index: c.indexName, Body: bytes.NewReader(body)}); err != nil {
 		return fmt.Errorf("search could not create index: %w", err)
 	}
 
 	return nil
 }
 
-func (c *Client) Index(ctx context.Context, donor *actor.DonorProvidedDetails) error {
+func (c *Client) Index(ctx context.Context, lpa Lpa) error {
 	if !c.indexingEnabled {
 		return nil
 	}
 
-	body, err := json.Marshal(donor)
+	body, err := json.Marshal(lpa)
 	if err != nil {
 		return err
 	}
 
 	_, err = c.svc.Index(ctx, opensearchapi.IndexReq{
 		Index:      c.indexName,
-		DocumentID: strings.ReplaceAll(donor.PK.PK(), "#", "--"),
+		DocumentID: strings.ReplaceAll(lpa.PK, "#", "--"),
 		Body:       bytes.NewReader(body),
 	})
 

@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 )
 
 type DynamoUpdateClient interface {
@@ -16,7 +17,7 @@ type DynamoUpdateClient interface {
 }
 
 type SearchClient interface {
-	Index(ctx context.Context, donor *actor.DonorProvidedDetails) error
+	Index(ctx context.Context, lpa search.Lpa) error
 }
 
 type uidStore struct {
@@ -54,7 +55,14 @@ func (s *uidStore) Set(ctx context.Context, lpaID, sessionID, organisationID, ui
 		return fmt.Errorf("uidStore unmarshal failed: %w", err)
 	}
 
-	if err := s.searchClient.Index(ctx, donor); err != nil {
+	if err := s.searchClient.Index(ctx, search.Lpa{
+		PK: dynamo.LpaKey(lpaID).PK(),
+		SK: sk.SK(),
+		Donor: search.LpaDonor{
+			FirstNames: donor.Donor.FirstNames,
+			LastName:   donor.Donor.LastName,
+		},
+	}); err != nil {
 		return fmt.Errorf("uidStore index failed: %w", err)
 	}
 

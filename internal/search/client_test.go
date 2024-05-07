@@ -8,11 +8,9 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/opensearch-project/opensearch-go/v4/opensearchapi"
@@ -54,12 +52,14 @@ func TestNewClient(t *testing.T) {
 }
 
 func TestClientCreateIndices(t *testing.T) {
+	data, _ := json.Marshal(indexDefinition)
+
 	indices := newMockIndicesClient(t)
 	indices.EXPECT().
 		Exists(ctx, opensearchapi.IndicesExistsReq{Indices: []string{testIndexName}}).
 		Return(nil, expectedError)
 	indices.EXPECT().
-		Create(ctx, opensearchapi.IndicesCreateReq{Index: testIndexName, Body: strings.NewReader(indexDefinition)}).
+		Create(ctx, opensearchapi.IndicesCreateReq{Index: testIndexName, Body: bytes.NewReader(data)}).
 		Return(nil, nil)
 
 	client := &Client{indices: indices, indexName: testIndexName, indexingEnabled: true}
@@ -93,26 +93,23 @@ func TestClientCreateIndicesWhenExists(t *testing.T) {
 }
 
 func TestClientIndex(t *testing.T) {
-	donor := &actor.DonorProvidedDetails{PK: dynamo.LpaKey("2020"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("abc#123")), Donor: actor.Donor{FirstNames: "x", LastName: "y"}}
-	data, _ := json.Marshal(donor)
-
 	svc := newMockOpensearchapiClient(t)
 	svc.EXPECT().
 		Index(ctx, opensearchapi.IndexReq{
 			Index:      testIndexName,
 			DocumentID: "LPA--2020",
-			Body:       bytes.NewReader(data),
+			Body:       bytes.NewReader([]byte(`{"PK":"LPA#2020","SK":"abc#123","Donor":{"FirstNames":"x","LastName":"y"}}`)),
 		}).
 		Return(nil, nil)
 
 	client := &Client{svc: svc, indexName: testIndexName, indexingEnabled: true}
-	err := client.Index(ctx, donor)
+	err := client.Index(ctx, Lpa{Donor: LpaDonor{FirstNames: "x", LastName: "y"}, PK: dynamo.LpaKey("2020").PK(), SK: "abc#123"})
 	assert.Nil(t, err)
 }
 
 func TestClientIndexWhenNotEnabled(t *testing.T) {
 	client := &Client{}
-	err := client.Index(ctx, &actor.DonorProvidedDetails{PK: dynamo.LpaKey("2020"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("abc#123")), Donor: actor.Donor{FirstNames: "x", LastName: "y"}})
+	err := client.Index(ctx, Lpa{Donor: LpaDonor{FirstNames: "x", LastName: "y"}, PK: dynamo.LpaKey("2020").PK(), SK: "abc#123"})
 	assert.Nil(t, err)
 }
 
@@ -123,7 +120,7 @@ func TestClientIndexWhenIndexErrors(t *testing.T) {
 		Return(nil, expectedError)
 
 	client := &Client{svc: svc, indexingEnabled: true}
-	err := client.Index(ctx, &actor.DonorProvidedDetails{PK: dynamo.LpaKey("2020"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("abc#123")), Donor: actor.Donor{FirstNames: "x", LastName: "y"}})
+	err := client.Index(ctx, Lpa{Donor: LpaDonor{FirstNames: "x", LastName: "y"}, PK: dynamo.LpaKey("2020").PK(), SK: "abc#123"})
 	assert.Equal(t, expectedError, err)
 }
 
