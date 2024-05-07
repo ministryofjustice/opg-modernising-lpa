@@ -208,6 +208,8 @@ github.com/aws/aws-sdk-go-v2/credentials v1.17.11 h1:YuIB1dJNf1Re822rriUOTxopaHH
 github.com/aws/aws-sdk-go-v2/credentials v1.17.11/go.mod h1:AQtFPsDH9bI2O+71anW6EKL+NcD7LG3dpKGMV4SShgo=
 github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.13.13 h1:loQ4VSt3hTm9n8ST9jveArwmhqAc5aiRJXlxLPxCNTw=
 github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.13.13/go.mod h1:RjdeQvzJuUf9jWj+ta+7l3VnVpDZ+RmtP/p+QdwRIpI=
+github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.13.14 h1:MqN3V/VApAVAheStH43Dl3BWuGE712Cp5s97WmCMbYQ=
+github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.13.14/go.mod h1:WwwihVdoE2S7TTziJGvgWaHI8HlOt1DwO6DM338pkzo=
 github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.1 h1:FVJ0r5XTHSmIHJV6KuDmdYhEpvlHpiSd38RQWhut5J4=
 github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.1/go.mod h1:zusuAeqezXzAB24LGuzuekqMAEgWkVYukBec3kr3jUg=
 github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.5 h1:aw39xVGeRWlWx9EzGVnhOR4yOjQDHPQ6o6NmBlscyQg=
@@ -220,6 +222,8 @@ github.com/aws/aws-sdk-go-v2/internal/v4a v1.3.5 h1:81KE7vaZzrl7yHBYHVEzYB8sypz1
 github.com/aws/aws-sdk-go-v2/internal/v4a v1.3.5/go.mod h1:LIt2rg7Mcgn09Ygbdh/RdIm0rQ+3BNkbP1gyVMFtRK0=
 github.com/aws/aws-sdk-go-v2/service/dynamodb v1.31.1 h1:dZXY07Dm59TxAjJcUfNMJHLDI/gLMxTRZefn2jFAVsw=
 github.com/aws/aws-sdk-go-v2/service/dynamodb v1.31.1/go.mod h1:lVLqEtX+ezgtfalyJs7Peb0uv9dEpAQP5yuq2O26R44=
+github.com/aws/aws-sdk-go-v2/service/dynamodb v1.32.0 h1:tGV+9T7NwSJNky5tGLh6/i7CoIkd9fPiGWDn9u4PWgI=
+github.com/aws/aws-sdk-go-v2/service/dynamodb v1.32.0/go.mod h1:lVLqEtX+ezgtfalyJs7Peb0uv9dEpAQP5yuq2O26R44=
 github.com/aws/aws-sdk-go-v2/service/dynamodbstreams v1.20.4 h1:hSwDD19/e01z3pfyx+hDeX5T/0Sn+ZEnnTO5pVWKWx8=
 github.com/aws/aws-sdk-go-v2/service/dynamodbstreams v1.20.4/go.mod h1:61CuGwE7jYn0g2gl7K3qoT4vCY59ZQEixkPu8PN5IrE=
 github.com/aws/aws-sdk-go-v2/service/eventbridge v1.30.4 h1:Vz4ilZcVXCR9yatX5yfMrkBldYggtkih3h7woHvzu5Q=
@@ -558,6 +562,7 @@ github.com/ulikunitz/xz v0.5.11 h1:kpFauv27b6ynzBNT/Xy+1k+fK4WswhN/6PN5WhFAGw8=
 github.com/ulikunitz/xz v0.5.11/go.mod h1:nbz6k7qbPmH4IRqmfOplQw/tblSgqTqBwxkY0oWt/14=
 github.com/vektra/mockery/v2 v2.42.3 h1:ikkdzvlLNHVzKh6cEyOHFY+ItZXkZMvo76mp1HS1T9Q=
 github.com/vektra/mockery/v2 v2.42.3/go.mod h1:XNTE9RIu3deGAGQRVjP1VZxGpQNm0YedZx4oDs3prr8=
+github.com/vektra/mockery/v2 v2.43.0/go.mod h1:XNTE9RIu3deGAGQRVjP1VZxGpQNm0YedZx4oDs3prr8=
 github.com/wI2L/jsondiff v0.5.1 h1:xS4zYUspH4U3IB0Lwo9+jv+MSRJSWMF87Y4BpDbFMHo=
 github.com/wI2L/jsondiff v0.5.1/go.mod h1:qqG6hnK0Lsrz2BpIVCxWiK9ItsBCpIZQiv0izJjOZ9s=
 github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f h1:J9EGpcZtP0E/raorCMxlFGSTBrsSlaDGf3jU/qvAE2c=
