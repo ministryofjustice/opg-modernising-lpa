@@ -124,3 +124,16 @@ func (e DonorAccessEmail) emailID(isProduction bool) string {
 
 	return "0d762056-570b-4fca-9871-1f6a69f9da47"
 }
+
+type CertificateProviderHasOptedOutEmail struct {
+	DonorFullName               string
+	CertificateProviderFullName string
+}
+
+func (e CertificateProviderHasOptedOutEmail) emailID(isProduction bool) string {
+	if isProduction {
+		return "xxx"
+	}
+
+	return "xxx"
+}

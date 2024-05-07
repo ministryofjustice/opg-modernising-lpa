@@ -171,3 +171,11 @@ func (c *Client) SendAttorney(ctx context.Context, lpa *Lpa, attorney *actor.Att
 
 	return c.sendUpdate(ctx, lpa.LpaUID, attorney.UID, body)
 }
+
+func (c *Client) SendCertificateProviderOptOut(ctx context.Context, lpaUID string) error {
+	body := updateRequest{
+		Type: "CERTIFICATE_PROVIDER_OPT_OUT",
+	}
+
+	return c.sendUpdate(ctx, lpaUID, actoruid.Service, body)
+}

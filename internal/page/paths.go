@@ -235,9 +235,12 @@ type AttorneyPaths struct {
 }
 
 type CertificateProviderPaths struct {
-	Login                Path
-	LoginCallback        Path
-	EnterReferenceNumber Path
+	Login                                     Path
+	LoginCallback                             Path
+	EnterReferenceNumber                      Path
+	EnterReferenceNumberOptOut                Path
+	ConfirmDontWantToBeCertificateProvider    Path
+	YouHaveDecidedNotToBeACertificateProvider Path
 
 	CertificateProvided          CertificateProviderPath
 	ConfirmYourDetails           CertificateProviderPath

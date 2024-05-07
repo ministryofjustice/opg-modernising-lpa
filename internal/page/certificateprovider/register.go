@@ -82,6 +82,7 @@ type DashboardStore interface {
 
 type LpaStoreClient interface {
 	SendCertificateProvider(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails, lpa *lpastore.Lpa) error
+	SendCertificateProviderOptOut(ctx context.Context, lpaUID string) error
 }
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
@@ -111,6 +112,10 @@ func Register(
 		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.CertificateProvider.EnterReferenceNumber, dashboardStore, actor.TypeCertificateProvider))
 	handleRoot(page.Paths.CertificateProvider.EnterReferenceNumber,
 		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, certificateProviderStore))
+	handleRoot(page.Paths.CertificateProvider.EnterReferenceNumberOptOut,
+		EnterReferenceNumberOptOut(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore))
+	handleRoot(page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider,
+		ConfirmDontWantToBeCertificateProvider(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), shareCodeStore, lpaStoreResolvingService, notifyClient, lpaStoreClient))
 
 	handleCertificateProvider := makeCertificateProviderHandle(rootMux, sessionStore, errorHandler)
 
