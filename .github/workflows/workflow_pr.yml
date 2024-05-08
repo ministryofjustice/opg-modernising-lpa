@@ -145,6 +145,9 @@ jobs:
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
       cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      test_onelogin_basic_auth: ${{ secrets.TEST_ONELOGIN_BASIC_AUTH }}
+      test_onelogin_totp_key: ${{ secrets.TEST_ONELOGIN_TOTP_KEY }}
+      test_onelogin_password: ${{ secrets.TEST_ONELOGIN_PASSWORD }}
 
   always_remove_ingress:
     name: Remove CI ingress from environment
