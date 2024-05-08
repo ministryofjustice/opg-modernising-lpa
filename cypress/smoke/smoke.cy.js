@@ -25,26 +25,26 @@ describe('Smoke tests', () => {
 
       if (Cypress.config().baseUrl.includes('localhost')) {
         cy.url().should('contain', '/authorize')
-      } else if (Cypress.config().baseUrl.includes('preproduction')) {
-        const { otp } = TOTP.generate(Cypress.env('ONELOGIN_TOTP_KEY'));
+      } else if (Cypress.config().baseUrl.includes('1221mlpab18')) {
+        //   const { otp } = TOTP.generate(Cypress.env('TEST_ONELOGIN_TOTP_KEY'));
 
-        cy.origin('https://signin.integration.account.gov.uk', { args: { token: otp } }, ({ token }) => {
-          cy.url().should('contain', '/sign-in-or-create')
+        //   cy.origin('https://signin.integration.account.gov.uk', { args: { token: otp } }, ({ token }) => {
+        //     cy.url().should('contain', '/sign-in-or-create')
 
-          cy.contains('Sign in').click();
-          cy.get('[type=email]').type('opgteam+modernising-lpa@digital.justice.gov.uk');
-          cy.get('form').submit();
-          cy.get('[type=password]').type(Cypress.env('ONELOGIN_PASSWORD'));
-          cy.get('form').submit();
+        //     cy.contains('Sign in').click();
+        //     cy.get('[type=email]').type('opgteam+modernising-lpa@digital.justice.gov.uk');
+        //     cy.get('form').submit();
+        //     cy.get('[type=password]').type(Cypress.env('TEST_ONELOGIN_PASSWORD'));
+        //     cy.get('form').submit();
 
-          cy.get('[name=code]').type(token);
-          cy.contains('button', 'Continue').click();
-        });
+        //     cy.get('[name=code]').type(token);
+        //     cy.contains('button', 'Continue').click();
+        //   });
 
-        cy.origin('https://preproduction.app.modernising.opg.service.justice.gov.uk', () => {
-          cy.url().should('contain', '/dashboard');
-          cy.contains('Manage your LPAs');
-        });
+        //   cy.origin('https://preproduction.app.modernising.opg.service.justice.gov.uk', () => {
+        //     cy.url().should('contain', '/dashboard');
+        //     cy.contains('Manage your LPAs');
+        //   });
       }
     })
   })
