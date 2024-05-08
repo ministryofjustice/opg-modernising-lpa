@@ -382,8 +382,9 @@ func TestClientLpa(t *testing.T) {
 	}{
 		"minimal": {
 			donor: &Lpa{
-				LpaUID: "M-0000-1111-2222",
-				Type:   actor.LpaTypePropertyAndAffairs,
+				LpaUID:  "M-0000-1111-2222",
+				Type:    actor.LpaTypePropertyAndAffairs,
+				Channel: actor.ChannelOnline,
 				Donor: actor.Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
@@ -440,8 +441,9 @@ func TestClientLpa(t *testing.T) {
 		},
 		"everything": {
 			donor: &Lpa{
-				LpaUID: "M-0000-1111-2222",
-				Type:   actor.LpaTypePersonalWelfare,
+				LpaUID:  "M-0000-1111-2222",
+				Type:    actor.LpaTypePersonalWelfare,
+				Channel: actor.ChannelOnline,
 				Donor: actor.Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
@@ -746,8 +748,9 @@ func TestClientLpas(t *testing.T) {
 		"minimal": {
 			lpas: []*Lpa{
 				{
-					LpaUID: "M-0000-1111-2222",
-					Type:   actor.LpaTypePropertyAndAffairs,
+					LpaUID:  "M-0000-1111-2222",
+					Type:    actor.LpaTypePropertyAndAffairs,
+					Channel: actor.ChannelOnline,
 					Donor: actor.Donor{
 						UID:         donorUID,
 						FirstNames:  "John Johnson",
@@ -806,8 +809,9 @@ func TestClientLpas(t *testing.T) {
 		"everything": {
 			lpas: []*Lpa{
 				{
-					LpaUID: "M-0000-1111-2222",
-					Type:   actor.LpaTypePersonalWelfare,
+					LpaUID:  "M-0000-1111-2222",
+					Type:    actor.LpaTypePersonalWelfare,
+					Channel: actor.ChannelOnline,
 					Donor: actor.Donor{
 						UID:         donorUID,
 						FirstNames:  "John Johnson",
