@@ -13,6 +13,8 @@ describe('Smoke tests', () => {
 
   describe('app', () => {
     it('is available', () => {
+      cy.log('baseUrl', Cypress.config().baseUrl);
+
       cy.visit('/')
 
       cy.get('h1').should('contain', 'Make and register a lasting power of attorney (LPA)');
@@ -25,7 +27,7 @@ describe('Smoke tests', () => {
 
       if (Cypress.config().baseUrl.includes('localhost')) {
         cy.url().should('contain', '/authorize')
-      } else if (Cypress.config().baseUrl.includes('preproduction')) {
+      } else if (Cypress.config().baseUrl.includes('1221mlpab18')) {
         const { otp } = TOTP.generate(Cypress.env('ONELOGIN_TOTP_KEY'));
 
         cy.origin('https://signin.integration.account.gov.uk', { args: { token: otp } }, ({ token }) => {
