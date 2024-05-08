@@ -48,6 +48,15 @@ on:
       github_access_token:
         description: 'Github Token'
         required: true
+      test_onelogin_basic_auth:
+        description: 'Test OneLogin basic auth'
+        required: false
+      test_onelogin_totp_key:
+        description: 'Test OneLogin totp key'
+        required: false
+      test_onelogin_password:
+        description: 'Test OneLogin password'
+        required: false
 
 defaults:
   run:
@@ -120,6 +129,9 @@ jobs:
         env:
           CYPRESS_baseUrl: ${{ inputs.base_url }}
           CYPRESS_RECORD_KEY: ${{ secrets.cypress_record_key }}
+          CYPRESS_TEST_ONELOGIN_BASIC_AUTH: ${{ secrets.test_onelogin_basic_auth }}
+          CYPRESS_TEST_ONELOGIN_TOTP_KEY: ${{ secrets.test_onelogin_totp_key }}
+          CYPRESS_TEST_ONELOGIN_PASSWORD: ${{ secrets.test_onelogin_password }}
           GITHUB_TOKEN: ${{ secrets.github_access_token }}
         run:
           yarn run cypress:parallel-with-specs --spec ${{ inputs.specs }}
