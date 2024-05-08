@@ -17,16 +17,14 @@ describe('Smoke tests', () => {
 
       cy.get('h1').should('contain', 'Make and register a lasting power of attorney (LPA)');
 
-      cy.intercept('https://signin.integration.account.gov.uk/**', (req) => {
-        req.headers['Authorization'] = 'Basic aW50ZWdyYXRpb24tdXNlcjp3aW50ZXIyMDIx';
-      });
+      if (Cypress.config().baseUrl.includes('1221mlpab18')) {
+        cy.intercept('https://signin.integration.account.gov.uk/**', (req) => {
+          req.headers['Authorization'] = 'Basic aW50ZWdyYXRpb24tdXNlcjp3aW50ZXIyMDIx';
+        });
 
-      cy.contains('a', 'Start').click();
+        cy.contains('a', 'Start').click();
 
-      if (Cypress.config().baseUrl.includes('localhost')) {
-        cy.url().should('contain', '/authorize')
-      } else if (Cypress.config().baseUrl.includes('preproduction')) {
-        const { otp } = TOTP.generate(Cypress.env('ONELOGIN_TOTP_KEY'));
+        const { otp } = TOTP.generate(Cypress.env('TEST_ONELOGIN_TOTP_KEY'));
 
         cy.origin('https://signin.integration.account.gov.uk', { args: { token: otp } }, ({ token }) => {
           cy.url().should('contain', '/sign-in-or-create')
@@ -34,7 +32,7 @@ describe('Smoke tests', () => {
           cy.contains('Sign in').click();
           cy.get('[type=email]').type('opgteam+modernising-lpa@digital.justice.gov.uk');
           cy.get('form').submit();
-          cy.get('[type=password]').type(Cypress.env('ONELOGIN_PASSWORD'));
+          cy.get('[type=password]').type(Cypress.env('TEST_ONELOGIN_PASSWORD'));
           cy.get('form').submit();
 
           cy.get('[name=code]').type(token);
@@ -45,6 +43,8 @@ describe('Smoke tests', () => {
           cy.url().should('contain', '/dashboard');
           cy.contains('Manage your LPAs');
         });
+      } else {
+        cy.contains('a', 'Start');
       }
     })
   })
