@@ -12,7 +12,7 @@
             <form novalidate method="post">
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset">
-                        {{ template "input" (input . "reference-number" "enterYour12CharacterReferencenumber" .Form.ReferenceNumberRaw "classes" "govuk-input--width-20 govuk-!-margin-bottom-3 govuk-input--extra-letter-spacing" "hint" "enterYour12CharacterReferencenumberHint")}}
+                        {{ template "input" (input . "reference-number" "enterYour12CharacterReferenceNumber" .Form.ReferenceNumberRaw "classes" "govuk-input--width-20 govuk-!-margin-bottom-3 govuk-input--extra-letter-spacing" "hint" "enterYour12CharacterReferenceNumberHint" "labelClasses" "govuk-!-font-weight-bold")}}
                         <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "continue" }}</button>
                     </fieldset>
                 </div>

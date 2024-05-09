@@ -1,13 +1,18 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "youHaveDecidedNotToBeACertificateProvider" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "thankYou" }}{{ end }}
 
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl">{{ tr .App "youHaveDecidedNotToBeACertificateProvider" }}</h1>
+            <div class="govuk-panel govuk-panel--confirmation">
+                <h1 class="govuk-panel__title">{{ tr .App "thankYou" }}</h1>
+                <div class="govuk-panel__body">
+                    {{ trFormat .App "weHaveContactedDonorToLetThemKnowYourDecision" "DonorFullName" .DonorFullName }}
+                </div>
+            </div>
 
-{{/*            {{ trFormatHtml .App "youHaveDecidedNotToBeACertificateProviderContent" "DonorFullName" .Lpa.Donor.FullName  }}*/}}
+            {{ trHtml .App "reportAConcernContent" }}
         </div>
     </div>
 {{ end }}
