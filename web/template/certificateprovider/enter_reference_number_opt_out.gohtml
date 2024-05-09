@@ -1,0 +1,23 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "enterYourReferenceNumber" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "enterYourReferenceNumber" }}</h1>
+
+            {{ trHtml .App "certificateProviderReferenceNumberOptOutContent" }}
+
+            <form novalidate method="post">
+                <div class="govuk-form-group">
+                    <fieldset class="govuk-fieldset">
+                        {{ template "input" (input . "reference-number" "enterYour12CharacterReferencenumber" .Form.ReferenceNumberRaw "classes" "govuk-input--width-20 govuk-!-margin-bottom-3 govuk-input--extra-letter-spacing" "hint" "enterYour12CharacterReferencenumberHint")}}
+                        <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "continue" }}</button>
+                    </fieldset>
+                </div>
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
+    </div>
+{{ end }}
