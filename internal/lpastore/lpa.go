@@ -20,6 +20,7 @@ import (
 
 type lpaRequest struct {
 	LpaType                                     actor.LpaType                    `json:"lpaType"`
+	Channel                                     actor.Channel                    `json:"channel"`
 	Donor                                       lpaRequestDonor                  `json:"donor"`
 	Attorneys                                   []lpaRequestAttorney             `json:"attorneys"`
 	TrustCorporations                           []lpaRequestTrustCorporation     `json:"trustCorporations,omitempty"`
@@ -90,6 +91,7 @@ type lpaRequestPersonToNotify struct {
 func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails) error {
 	body := lpaRequest{
 		LpaType: donor.Type,
+		Channel: actor.ChannelOnline,
 		Donor: lpaRequestDonor{
 			UID:                       donor.Donor.UID,
 			FirstNames:                donor.Donor.FirstNames,
@@ -299,6 +301,7 @@ func (c CertificateProvider) FullName() string {
 type lpaResponse struct {
 	LpaType                                     actor.LpaType                    `json:"lpaType"`
 	Donor                                       lpaRequestDonor                  `json:"donor"`
+	Channel                                     actor.Channel                    `json:"channel"`
 	Attorneys                                   []lpaResponseAttorney            `json:"attorneys"`
 	TrustCorporations                           []lpaResponseTrustCorporation    `json:"trustCorporations,omitempty"`
 	CertificateProvider                         CertificateProvider              `json:"certificateProvider"`
@@ -370,6 +373,7 @@ type Lpa struct {
 	PerfectAt                                  time.Time
 	UpdatedAt                                  time.Time
 	Type                                       actor.LpaType
+	Channel                                    actor.Channel
 	Donor                                      actor.Donor
 	Attorneys                                  Attorneys
 	ReplacementAttorneys                       Attorneys
@@ -483,6 +487,7 @@ func lpaResponseToLpa(l lpaResponse) *Lpa {
 		RegisteredAt: l.RegistrationDate,
 		UpdatedAt:    l.UpdatedAt,
 		Type:         l.LpaType,
+		Channel:      l.Channel,
 		Donor: actor.Donor{
 			UID:         l.Donor.UID,
 			FirstNames:  l.Donor.FirstNames,
