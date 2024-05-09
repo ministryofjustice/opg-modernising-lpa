@@ -19,7 +19,7 @@ type confirmDontWantToBeCertificateProviderData struct {
 
 func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, shareCodeStore ShareCodeStore, lpaStoreResolvingService LpaStoreResolvingService, notifyClient NotifyClient, lpaStoreClient LpaStoreClient) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeCertificateProvider, "")
+		shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeCertificateProvider, r.URL.Query().Get("referenceNumber"))
 		if err != nil {
 			return err
 		}
@@ -41,15 +41,15 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, shareCodeSto
 				return err
 			}
 
-			if err := shareCodeStore.Delete(r.Context(), shareCode); err != nil {
-				return err
-			}
-
 			// TODO need to account for paper donors
 			if err := notifyClient.SendActorEmail(r.Context(), lpa.Donor.Email, lpa.LpaUID, notify.CertificateProviderHasOptedOutEmail{
 				DonorFullName:               lpa.Donor.FullName(),
 				CertificateProviderFullName: lpa.CertificateProvider.FullName(),
 			}); err != nil {
+				return err
+			}
+
+			if err := shareCodeStore.Delete(r.Context(), shareCode); err != nil {
 				return err
 			}
 

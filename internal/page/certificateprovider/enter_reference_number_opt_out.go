@@ -3,6 +3,7 @@ package certificateprovider
 import (
 	"errors"
 	"net/http"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -36,7 +37,7 @@ func EnterReferenceNumberOptOut(tmpl template.Template, shareCodeStore ShareCode
 				}
 
 				appData.LpaID = shareCode.LpaKey.ID()
-				return page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider.Redirect(w, r, appData)
+				return page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider.RedirectQuery(w, r, appData, url.Values{"referenceNumber": {referenceNumber}})
 			}
 		}
 
