@@ -116,6 +116,8 @@ func Register(
 		EnterReferenceNumberOptOut(tmpls.Get("enter_reference_number_opt_out.gohtml"), shareCodeStore))
 	handleRoot(page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider,
 		ConfirmDontWantToBeCertificateProvider(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), shareCodeStore, lpaStoreResolvingService, notifyClient, lpaStoreClient))
+	handleRoot(page.Paths.CertificateProvider.YouHaveDecidedNotToBeACertificateProvider,
+		YouHaveDecidedNotToBeACertificateProvider(tmpls.Get("you_have_decided_not_to_be_a_certificate_provider.gohtml")))
 
 	handleCertificateProvider := makeCertificateProviderHandle(rootMux, sessionStore, errorHandler)
 

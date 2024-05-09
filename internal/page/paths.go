@@ -433,8 +433,9 @@ var Paths = AppPaths{
 		WhatHappensNext:                        "/what-happens-next",
 		WhatIsYourHomeAddress:                  "/what-is-your-home-address",
 		WhoIsEligible:                          "/certificate-provider-who-is-eligible",
-		YourPreferredLanguage:                  "/your-preferred-language",
-		YourRole:                               "/your-role",
+		YouHaveDecidedNotToBeACertificateProvider: "/you-have-decided-not-to-be-a-certificate-provider",
+		YourPreferredLanguage:                     "/your-preferred-language",
+		YourRole:                                  "/your-role",
 	},
 
 	Attorney: AttorneyPaths{
