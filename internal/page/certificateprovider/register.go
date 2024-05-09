@@ -87,6 +87,11 @@ type LpaStoreClient interface {
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
+type DonorStore interface {
+	GetAny(ctx context.Context) (*actor.DonorProvidedDetails, error)
+	Put(ctx context.Context, donor *actor.DonorProvidedDetails) error
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -96,13 +101,13 @@ func Register(
 	shareCodeStore ShareCodeStore,
 	errorHandler page.ErrorHandler,
 	certificateProviderStore CertificateProviderStore,
-	notFoundHandler page.Handler,
 	addressClient AddressClient,
 	notifyClient NotifyClient,
 	shareCodeSender ShareCodeSender,
 	dashboardStore DashboardStore,
 	lpaStoreClient LpaStoreClient,
 	lpaStoreResolvingService LpaStoreResolvingService,
+	donorStore DonorStore,
 ) {
 	handleRoot := makeHandle(rootMux, errorHandler)
 
@@ -115,7 +120,7 @@ func Register(
 	handleRoot(page.Paths.CertificateProvider.EnterReferenceNumberOptOut,
 		EnterReferenceNumberOptOut(tmpls.Get("enter_reference_number_opt_out.gohtml"), shareCodeStore))
 	handleRoot(page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider,
-		ConfirmDontWantToBeCertificateProvider(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), shareCodeStore, lpaStoreResolvingService, lpaStoreClient))
+		ConfirmDontWantToBeCertificateProvider(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), shareCodeStore, lpaStoreResolvingService, lpaStoreClient, donorStore))
 	handleRoot(page.Paths.CertificateProvider.YouHaveDecidedNotToBeACertificateProvider,
 		YouHaveDecidedNotToBeACertificateProvider(tmpls.Get("you_have_decided_not_to_be_a_certificate_provider.gohtml")))
 

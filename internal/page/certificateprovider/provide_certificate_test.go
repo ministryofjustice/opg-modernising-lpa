@@ -113,6 +113,7 @@ func TestGetProvideCertificateWhenCertificateProviderStoreErrors(t *testing.T) {
 func TestPostProvideCertificate(t *testing.T) {
 	form := url.Values{
 		"agree-to-statement": {"1"},
+		"submittable":        {"submit"},
 	}
 
 	w := httptest.NewRecorder()
@@ -206,6 +207,7 @@ func TestPostProvideCertificate(t *testing.T) {
 func TestPostProvideCertificateOnStoreError(t *testing.T) {
 	form := url.Values{
 		"agree-to-statement": {"1"},
+		"submittable":        {"submit"},
 	}
 
 	w := httptest.NewRecorder()
@@ -237,6 +239,7 @@ func TestPostProvideCertificateOnStoreError(t *testing.T) {
 func TestPostProvideCertificateWhenLpaStoreClientError(t *testing.T) {
 	form := url.Values{
 		"agree-to-statement": {"1"},
+		"submittable":        {"submit"},
 	}
 
 	w := httptest.NewRecorder()
@@ -293,6 +296,7 @@ func TestPostProvideCertificateWhenLpaStoreClientError(t *testing.T) {
 func TestPostProvideCertificateOnNotifyClientError(t *testing.T) {
 	form := url.Values{
 		"agree-to-statement": {"1"},
+		"submittable":        {"submit"},
 	}
 
 	w := httptest.NewRecorder()
@@ -359,6 +363,7 @@ func TestPostProvideCertificateOnNotifyClientError(t *testing.T) {
 func TestPostProvideCertificateWhenShareCodeSenderErrors(t *testing.T) {
 	form := url.Values{
 		"agree-to-statement": {"1"},
+		"submittable":        {"submit"},
 	}
 
 	w := httptest.NewRecorder()
@@ -422,6 +427,7 @@ func TestPostProvideCertificateWhenShareCodeSenderErrors(t *testing.T) {
 func TestPostProvideCertificateWhenValidationErrors(t *testing.T) {
 	form := url.Values{
 		"agree-to-statement": {""},
+		"submittable":        {"submit"},
 	}
 
 	w := httptest.NewRecorder()
@@ -459,6 +465,7 @@ func TestReadProvideCertificateForm(t *testing.T) {
 
 	form := url.Values{
 		"agree-to-statement": {" 1   "},
+		"submittable":        {"submit"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -467,6 +474,7 @@ func TestReadProvideCertificateForm(t *testing.T) {
 	result := readProvideCertificateForm(r)
 
 	assert.Equal(true, result.AgreeToStatement)
+	assert.Equal("submit", result.Submittable)
 }
 
 func TestProvideCertificateFormValidate(t *testing.T) {

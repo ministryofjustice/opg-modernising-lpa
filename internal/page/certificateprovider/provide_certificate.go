@@ -113,10 +113,7 @@ func readProvideCertificateForm(r *http.Request) *provideCertificateForm {
 func (f *provideCertificateForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("submittable", "", f.Submittable,
-		validation.Select("submit", "cannot-submit"))
-
-	if f.Submittable == "submit" {
+	if f.Submittable != "cannot-submit" {
 		errors.Bool("agree-to-statement", "toSignAsCertificateProvider", f.AgreeToStatement,
 			validation.Selected())
 	}

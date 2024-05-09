@@ -80,7 +80,7 @@ func TestPostEnterReferenceNumberOptOut(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider.Format()+"?referenceNumber=abcdef123456", resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider.Format()+"?LpaID=lpa-id&referenceNumber=abcdef123456", resp.Header.Get("Location"))
 }
 
 func TestPostEnterReferenceNumberOptOutOnShareCodeStoreError(t *testing.T) {

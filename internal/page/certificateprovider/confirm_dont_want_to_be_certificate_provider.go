@@ -17,7 +17,7 @@ type confirmDontWantToBeCertificateProviderData struct {
 	Lpa    *lpastore.Lpa
 }
 
-func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, shareCodeStore ShareCodeStore, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient) page.Handler {
+func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, shareCodeStore ShareCodeStore, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient, donorStore DonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: r.URL.Query().Get("LpaID")})
 
@@ -34,6 +34,19 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, shareCodeSto
 		if r.Method == http.MethodPost {
 			if !lpa.SignedAt.IsZero() {
 				if err := lpaStoreClient.SendCertificateProviderOptOut(ctx, lpa.LpaUID); err != nil {
+					return err
+				}
+			} else {
+				donor, err := donorStore.GetAny(ctx)
+				if err != nil {
+					return err
+				}
+
+				donor.CertificateProvider = actor.CertificateProvider{}
+				donor.Tasks.CertificateProvider = actor.TaskNotStarted
+				donor.Tasks.CheckYourLpa = actor.TaskNotStarted
+
+				if err = donorStore.Put(ctx, donor); err != nil {
 					return err
 				}
 			}

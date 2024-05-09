@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -33,7 +34,7 @@ func TestGetConfirmDontWantToBeCertificateProvider(t *testing.T) {
 		Get(page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
 		Return(&lpa, nil)
 
-	err := ConfirmDontWantToBeCertificateProvider(template.Execute, nil, lpaStoreResolvingService, nil)(testAppData, w, r)
+	err := ConfirmDontWantToBeCertificateProvider(template.Execute, nil, lpaStoreResolvingService, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -81,7 +82,7 @@ func TestGetConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/?LpaID=lpa-id", nil)
 
-			err := ConfirmDontWantToBeCertificateProvider(tc.template().Execute, nil, tc.lpaStoreResolvingService(), nil)(testAppData, w, r)
+			err := ConfirmDontWantToBeCertificateProvider(tc.template().Execute, nil, tc.lpaStoreResolvingService(), nil, nil)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Equal(t, expectedError, err)
@@ -97,8 +98,9 @@ func TestPostConfirmDontWantToBeCertificateProviderSignedIn(t *testing.T) {
 	testcases := map[string]struct {
 		lpa            lpastore.Lpa
 		lpaStoreClient func() *mockLpaStoreClient
+		donorStore     func() *mockDonorStore
 	}{
-		"witnessed and signed": {
+		"signed in - witnessed and signed": {
 			lpa: lpastore.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now(), Donor: actor.Donor{FirstNames: "a b", LastName: "c"}},
 			lpaStoreClient: func() *mockLpaStoreClient {
 				lpaStoreClient := newMockLpaStoreClient(t)
@@ -108,10 +110,34 @@ func TestPostConfirmDontWantToBeCertificateProviderSignedIn(t *testing.T) {
 
 				return lpaStoreClient
 			},
+			donorStore: func() *mockDonorStore { return nil },
 		},
-		"not witnessed and signed": {
+		"signed in - not witnessed and signed": {
 			lpa:            lpastore.Lpa{LpaUID: "lpa-uid", Donor: actor.Donor{FirstNames: "a b", LastName: "c"}},
 			lpaStoreClient: func() *mockLpaStoreClient { return nil },
+			donorStore: func() *mockDonorStore {
+				donorStore := newMockDonorStore(t)
+				donorStore.EXPECT().
+					GetAny(ctx).
+					Return(&actor.DonorProvidedDetails{
+						Tasks: actor.DonorTasks{
+							CertificateProvider: actor.TaskCompleted,
+							CheckYourLpa:        actor.TaskCompleted,
+						},
+						CertificateProvider: actor.CertificateProvider{UID: actoruid.New()},
+					}, nil)
+				donorStore.EXPECT().
+					Put(ctx, &actor.DonorProvidedDetails{
+						Tasks: actor.DonorTasks{
+							CertificateProvider: actor.TaskNotStarted,
+							CheckYourLpa:        actor.TaskNotStarted,
+						},
+						CertificateProvider: actor.CertificateProvider{},
+					}).
+					Return(nil)
+
+				return donorStore
+			},
 		},
 	}
 
@@ -124,7 +150,7 @@ func TestPostConfirmDontWantToBeCertificateProviderSignedIn(t *testing.T) {
 				Get(ctx).
 				Return(&tc.lpa, nil)
 
-			err := ConfirmDontWantToBeCertificateProvider(nil, nil, lpaStoreResolvingService, tc.lpaStoreClient())(testAppData, w, r)
+			err := ConfirmDontWantToBeCertificateProvider(nil, nil, lpaStoreResolvingService, tc.lpaStoreClient(), tc.donorStore())(testAppData, w, r)
 
 			resp := w.Result()
 
@@ -142,6 +168,7 @@ func TestPostConfirmDontWantToBeCertificateProviderNotSignedIn(t *testing.T) {
 	testcases := map[string]struct {
 		lpa            lpastore.Lpa
 		lpaStoreClient func() *mockLpaStoreClient
+		donorStore     func() *mockDonorStore
 	}{
 		"witnessed and signed": {
 			lpa: lpastore.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now(), Donor: actor.Donor{FirstNames: "a b", LastName: "c"}},
@@ -153,10 +180,34 @@ func TestPostConfirmDontWantToBeCertificateProviderNotSignedIn(t *testing.T) {
 
 				return lpaStoreClient
 			},
+			donorStore: func() *mockDonorStore { return nil },
 		},
 		"not witnessed and signed": {
 			lpa:            lpastore.Lpa{LpaUID: "lpa-uid", Donor: actor.Donor{FirstNames: "a b", LastName: "c"}},
 			lpaStoreClient: func() *mockLpaStoreClient { return nil },
+			donorStore: func() *mockDonorStore {
+				donorStore := newMockDonorStore(t)
+				donorStore.EXPECT().
+					GetAny(ctx).
+					Return(&actor.DonorProvidedDetails{
+						Tasks: actor.DonorTasks{
+							CertificateProvider: actor.TaskCompleted,
+							CheckYourLpa:        actor.TaskCompleted,
+						},
+						CertificateProvider: actor.CertificateProvider{UID: actoruid.New()},
+					}, nil)
+				donorStore.EXPECT().
+					Put(ctx, &actor.DonorProvidedDetails{
+						Tasks: actor.DonorTasks{
+							CertificateProvider: actor.TaskNotStarted,
+							CheckYourLpa:        actor.TaskNotStarted,
+						},
+						CertificateProvider: actor.CertificateProvider{},
+					}).
+					Return(nil)
+
+				return donorStore
+			},
 		},
 	}
 
@@ -182,7 +233,7 @@ func TestPostConfirmDontWantToBeCertificateProviderNotSignedIn(t *testing.T) {
 				Get(ctx).
 				Return(&tc.lpa, nil)
 
-			err := ConfirmDontWantToBeCertificateProvider(nil, shareCodeStore, lpaStoreResolvingService, tc.lpaStoreClient())(testAppData, w, r)
+			err := ConfirmDontWantToBeCertificateProvider(nil, shareCodeStore, lpaStoreResolvingService, tc.lpaStoreClient(), tc.donorStore())(testAppData, w, r)
 
 			resp := w.Result()
 
@@ -198,17 +249,40 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})
 
 	shareCodeData := actor.ShareCodeData{
-		LpaKey:      dynamo.LpaKey("lpa-id"),
-		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+		LpaKey: dynamo.LpaKey("lpa-id"),
 	}
 
-	lpa := lpastore.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now()}
+	unsignedLPA := lpastore.Lpa{LpaUID: "lpa-uid"}
+	signedLPA := lpastore.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now()}
 
 	testcases := map[string]struct {
-		lpaStoreClient func() *mockLpaStoreClient
-		shareCodeStore func() *mockShareCodeStore
+		lpaStoreResolvingService func() *mockLpaStoreResolvingService
+		lpaStoreClient           func() *mockLpaStoreClient
+		shareCodeStore           func() *mockShareCodeStore
+		donorStore               func() *mockDonorStore
 	}{
+		"when lpaStoreResolvingService error": {
+			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
+				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+				lpaStoreResolvingService.EXPECT().
+					Get(ctx).
+					Return(&lpastore.Lpa{}, expectedError)
+
+				return lpaStoreResolvingService
+			},
+			lpaStoreClient: func() *mockLpaStoreClient { return nil },
+			shareCodeStore: func() *mockShareCodeStore { return nil },
+			donorStore:     func() *mockDonorStore { return nil },
+		},
 		"when lpaStoreClient error": {
+			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
+				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+				lpaStoreResolvingService.EXPECT().
+					Get(ctx).
+					Return(&signedLPA, nil)
+
+				return lpaStoreResolvingService
+			},
 			lpaStoreClient: func() *mockLpaStoreClient {
 				lpaStoreClient := newMockLpaStoreClient(t)
 				lpaStoreClient.EXPECT().
@@ -217,11 +291,88 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 				return lpaStoreClient
 			},
-			shareCodeStore: func() *mockShareCodeStore {
-				return newMockShareCodeStore(t)
+			shareCodeStore: func() *mockShareCodeStore { return nil },
+			donorStore:     func() *mockDonorStore { return nil },
+		},
+		"when donorStore.GetAny() error": {
+			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
+				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+				lpaStoreResolvingService.EXPECT().
+					Get(ctx).
+					Return(&unsignedLPA, nil)
+
+				return lpaStoreResolvingService
+			},
+			lpaStoreClient: func() *mockLpaStoreClient { return nil },
+			shareCodeStore: func() *mockShareCodeStore { return nil },
+			donorStore: func() *mockDonorStore {
+				donorStore := newMockDonorStore(t)
+				donorStore.EXPECT().
+					GetAny(ctx).
+					Return(&actor.DonorProvidedDetails{}, expectedError)
+
+				return donorStore
 			},
 		},
-		"when shareCodeStore error": {
+		"when donorStore.Put() error": {
+			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
+				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+				lpaStoreResolvingService.EXPECT().
+					Get(ctx).
+					Return(&unsignedLPA, nil)
+
+				return lpaStoreResolvingService
+			},
+			lpaStoreClient: func() *mockLpaStoreClient { return nil },
+			shareCodeStore: func() *mockShareCodeStore { return nil },
+			donorStore: func() *mockDonorStore {
+				donorStore := newMockDonorStore(t)
+				donorStore.EXPECT().
+					GetAny(ctx).
+					Return(&actor.DonorProvidedDetails{}, nil)
+				donorStore.EXPECT().
+					Put(ctx, mock.Anything).
+					Return(expectedError)
+
+				return donorStore
+			},
+		},
+		"when shareCodeStore.Get() error": {
+			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
+				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+				lpaStoreResolvingService.EXPECT().
+					Get(ctx).
+					Return(&signedLPA, nil)
+
+				return lpaStoreResolvingService
+			},
+			lpaStoreClient: func() *mockLpaStoreClient {
+				lpaStoreClient := newMockLpaStoreClient(t)
+				lpaStoreClient.EXPECT().
+					SendCertificateProviderOptOut(mock.Anything, mock.Anything).
+					Return(nil)
+
+				return lpaStoreClient
+			},
+			shareCodeStore: func() *mockShareCodeStore {
+				shareCodeStore := newMockShareCodeStore(t)
+				shareCodeStore.EXPECT().
+					Get(mock.Anything, mock.Anything, mock.Anything).
+					Return(shareCodeData, expectedError)
+
+				return shareCodeStore
+			},
+			donorStore: func() *mockDonorStore { return nil },
+		},
+		"when shareCodeStore.Delete() error": {
+			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
+				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+				lpaStoreResolvingService.EXPECT().
+					Get(ctx).
+					Return(&signedLPA, nil)
+
+				return lpaStoreResolvingService
+			},
 			lpaStoreClient: func() *mockLpaStoreClient {
 				lpaStoreClient := newMockLpaStoreClient(t)
 				lpaStoreClient.EXPECT().
@@ -241,18 +392,15 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 				return shareCodeStore
 			},
+			donorStore: func() *mockDonorStore { return nil },
 		},
 	}
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().
-				Get(ctx).
-				Return(&lpa, nil)
 
-			err := ConfirmDontWantToBeCertificateProvider(nil, tc.shareCodeStore(), lpaStoreResolvingService, tc.lpaStoreClient())(testAppData, w, r)
+			err := ConfirmDontWantToBeCertificateProvider(nil, tc.shareCodeStore(), tc.lpaStoreResolvingService(), tc.lpaStoreClient(), tc.donorStore())(testAppData, w, r)
 
 			resp := w.Result()
 
