@@ -82,9 +82,15 @@ type DashboardStore interface {
 
 type LpaStoreClient interface {
 	SendCertificateProvider(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails, lpa *lpastore.Lpa) error
+	SendCertificateProviderOptOut(ctx context.Context, lpaUID string) error
 }
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
+
+type DonorStore interface {
+	GetAny(ctx context.Context) (*actor.DonorProvidedDetails, error)
+	Put(ctx context.Context, donor *actor.DonorProvidedDetails) error
+}
 
 func Register(
 	rootMux *http.ServeMux,
@@ -95,13 +101,13 @@ func Register(
 	shareCodeStore ShareCodeStore,
 	errorHandler page.ErrorHandler,
 	certificateProviderStore CertificateProviderStore,
-	notFoundHandler page.Handler,
 	addressClient AddressClient,
 	notifyClient NotifyClient,
 	shareCodeSender ShareCodeSender,
 	dashboardStore DashboardStore,
 	lpaStoreClient LpaStoreClient,
 	lpaStoreResolvingService LpaStoreResolvingService,
+	donorStore DonorStore,
 ) {
 	handleRoot := makeHandle(rootMux, errorHandler)
 
@@ -111,6 +117,12 @@ func Register(
 		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.CertificateProvider.EnterReferenceNumber, dashboardStore, actor.TypeCertificateProvider))
 	handleRoot(page.Paths.CertificateProvider.EnterReferenceNumber,
 		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, certificateProviderStore))
+	handleRoot(page.Paths.CertificateProvider.EnterReferenceNumberOptOut,
+		EnterReferenceNumberOptOut(tmpls.Get("enter_reference_number_opt_out.gohtml"), shareCodeStore))
+	handleRoot(page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider,
+		ConfirmDontWantToBeCertificateProvider(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), shareCodeStore, lpaStoreResolvingService, lpaStoreClient, donorStore))
+	handleRoot(page.Paths.CertificateProvider.YouHaveDecidedNotToBeACertificateProvider,
+		YouHaveDecidedNotToBeACertificateProvider(tmpls.Get("you_have_decided_not_to_be_a_certificate_provider.gohtml")))
 
 	handleCertificateProvider := makeCertificateProviderHandle(rootMux, sessionStore, errorHandler)
 
