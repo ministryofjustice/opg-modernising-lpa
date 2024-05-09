@@ -63,6 +63,10 @@ switch (context.request.method) {
           lpa.status = 'registered';
           lpa.registrationDate = new Date(Date.now()).toISOString();
           break;
+
+        case 'CERTIFICATE_PROVIDER_OPT_OUT':
+          lpa.status = 'cannot-register';
+          break;
       }
 
       lpaStore.save(pathParts[2], JSON.stringify(lpa));
