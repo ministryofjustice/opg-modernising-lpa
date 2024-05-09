@@ -73,6 +73,53 @@ func (_c *mockLpaStoreClient_SendCertificateProvider_Call) RunAndReturn(run func
 	return _c
 }
 
+// SendCertificateProviderOptOut provides a mock function with given fields: ctx, lpaUID
+func (_m *mockLpaStoreClient) SendCertificateProviderOptOut(ctx context.Context, lpaUID string) error {
+	ret := _m.Called(ctx, lpaUID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendCertificateProviderOptOut")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, lpaUID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockLpaStoreClient_SendCertificateProviderOptOut_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendCertificateProviderOptOut'
+type mockLpaStoreClient_SendCertificateProviderOptOut_Call struct {
+	*mock.Call
+}
+
+// SendCertificateProviderOptOut is a helper method to define mock.On call
+//   - ctx context.Context
+//   - lpaUID string
+func (_e *mockLpaStoreClient_Expecter) SendCertificateProviderOptOut(ctx interface{}, lpaUID interface{}) *mockLpaStoreClient_SendCertificateProviderOptOut_Call {
+	return &mockLpaStoreClient_SendCertificateProviderOptOut_Call{Call: _e.mock.On("SendCertificateProviderOptOut", ctx, lpaUID)}
+}
+
+func (_c *mockLpaStoreClient_SendCertificateProviderOptOut_Call) Run(run func(ctx context.Context, lpaUID string)) *mockLpaStoreClient_SendCertificateProviderOptOut_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *mockLpaStoreClient_SendCertificateProviderOptOut_Call) Return(_a0 error) *mockLpaStoreClient_SendCertificateProviderOptOut_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockLpaStoreClient_SendCertificateProviderOptOut_Call) RunAndReturn(run func(context.Context, string) error) *mockLpaStoreClient_SendCertificateProviderOptOut_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // newMockLpaStoreClient creates a new instance of mockLpaStoreClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func newMockLpaStoreClient(t interface {

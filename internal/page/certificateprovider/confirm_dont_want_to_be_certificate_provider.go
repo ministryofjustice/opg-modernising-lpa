@@ -6,7 +6,6 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -17,7 +16,7 @@ type confirmDontWantToBeCertificateProviderData struct {
 	Lpa    *lpastore.Lpa
 }
 
-func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, shareCodeStore ShareCodeStore, lpaStoreResolvingService LpaStoreResolvingService, notifyClient NotifyClient, lpaStoreClient LpaStoreClient) page.Handler {
+func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, shareCodeStore ShareCodeStore, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeCertificateProvider, r.URL.Query().Get("referenceNumber"))
 		if err != nil {
@@ -37,16 +36,10 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, shareCodeSto
 		}
 
 		if r.Method == http.MethodPost {
-			if err := lpaStoreClient.SendCertificateProviderOptOut(ctx, lpa.LpaUID); err != nil {
-				return err
-			}
-
-			// TODO need to account for paper donors
-			if err := notifyClient.SendActorEmail(r.Context(), lpa.Donor.Email, lpa.LpaUID, notify.CertificateProviderHasOptedOutEmail{
-				DonorFullName:               lpa.Donor.FullName(),
-				CertificateProviderFullName: lpa.CertificateProvider.FullName(),
-			}); err != nil {
-				return err
+			if !lpa.SignedAt.IsZero() {
+				if err := lpaStoreClient.SendCertificateProviderOptOut(ctx, lpa.LpaUID); err != nil {
+					return err
+				}
 			}
 
 			if err := shareCodeStore.Delete(r.Context(), shareCode); err != nil {

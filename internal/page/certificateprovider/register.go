@@ -115,7 +115,7 @@ func Register(
 	handleRoot(page.Paths.CertificateProvider.EnterReferenceNumberOptOut,
 		EnterReferenceNumberOptOut(tmpls.Get("enter_reference_number_opt_out.gohtml"), shareCodeStore))
 	handleRoot(page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider,
-		ConfirmDontWantToBeCertificateProvider(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), shareCodeStore, lpaStoreResolvingService, notifyClient, lpaStoreClient))
+		ConfirmDontWantToBeCertificateProvider(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), shareCodeStore, lpaStoreResolvingService, lpaStoreClient))
 	handleRoot(page.Paths.CertificateProvider.YouHaveDecidedNotToBeACertificateProvider,
 		YouHaveDecidedNotToBeACertificateProvider(tmpls.Get("you_have_decided_not_to_be_a_certificate_provider.gohtml")))
 
