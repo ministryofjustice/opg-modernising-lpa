@@ -19,12 +19,7 @@ type confirmDontWantToBeCertificateProviderData struct {
 
 func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, shareCodeStore ShareCodeStore, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeCertificateProvider, r.URL.Query().Get("referenceNumber"))
-		if err != nil {
-			return err
-		}
-
-		ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: shareCode.LpaOwnerKey.SK(), LpaID: shareCode.LpaKey.ID()})
+		ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: r.URL.Query().Get("LpaID")})
 
 		lpa, err := lpaStoreResolvingService.Get(ctx)
 		if err != nil {
@@ -43,8 +38,15 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, shareCodeSto
 				}
 			}
 
-			if err := shareCodeStore.Delete(r.Context(), shareCode); err != nil {
-				return err
+			if referenceNumber := r.URL.Query().Get("referenceNumber"); referenceNumber != "" {
+				shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeCertificateProvider, referenceNumber)
+				if err != nil {
+					return err
+				}
+
+				if err := shareCodeStore.Delete(r.Context(), shareCode); err != nil {
+					return err
+				}
 			}
 
 			return page.Paths.CertificateProvider.YouHaveDecidedNotToBeACertificateProvider.RedirectQuery(w, r, appData, url.Values{"donorFullName": {lpa.Donor.FullName()}})

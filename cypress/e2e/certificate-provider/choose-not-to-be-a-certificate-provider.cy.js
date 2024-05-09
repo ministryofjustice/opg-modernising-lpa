@@ -3,9 +3,7 @@ const {randomShareCode, TestEmail} = require("../../support/e2e");
 describe('Choose not to be a certificate provider', () => {
     it('can enter reference number to not be a certificate provider', () => {
         const shareCode = randomShareCode()
-
         cy.visit(`/fixtures/certificate-provider?redirect=/certificate-provider-enter-reference-number-opt-out&withShareCode=${shareCode}&email=${TestEmail}&progress=signedByDonor`)
-        cy.visit(`/fixtures/certificate-provider?redirect=/certificate-provider-enter-reference-number-opt-out&withShareCode=123456abcdef&email=a@b.com&progress=signedByDonor`)
 
         cy.checkA11yApp();
 
@@ -15,11 +13,13 @@ describe('Choose not to be a certificate provider', () => {
         cy.url().should('contain', '/confirm-you-do-not-want-to-be-a-certificate-provider')
         cy.checkA11yApp();
 
+        cy.contains('Property and affairs')
+
         cy.contains('Confirm').click();
 
         cy.url().should('contain', '/you-have-decided-not-to-be-a-certificate-provider')
         cy.checkA11yApp();
 
-        // assert email sent
+        cy.contains('We have contacted Sam Smith')
     });
 })

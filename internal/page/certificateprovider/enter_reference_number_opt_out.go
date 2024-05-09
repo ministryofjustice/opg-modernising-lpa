@@ -37,7 +37,7 @@ func EnterReferenceNumberOptOut(tmpl template.Template, shareCodeStore ShareCode
 				}
 
 				appData.LpaID = shareCode.LpaKey.ID()
-				return page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider.RedirectQuery(w, r, appData, url.Values{"referenceNumber": {referenceNumber}})
+				return page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider.RedirectQuery(w, r, appData, url.Values{"referenceNumber": {referenceNumber}, "LpaID": {shareCode.LpaKey.ID()}})
 			}
 		}
 
