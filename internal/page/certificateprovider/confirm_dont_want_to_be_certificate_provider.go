@@ -2,6 +2,7 @@ package certificateprovider
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -46,7 +47,7 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, shareCodeSto
 				return err
 			}
 
-			return page.Paths.CertificateProvider.YouHaveDecidedNotToBeACertificateProvider.Redirect(w, r, appData)
+			return page.Paths.CertificateProvider.YouHaveDecidedNotToBeACertificateProvider.RedirectQuery(w, r, appData, url.Values{"donorFullName": {lpa.Donor.FullName()}})
 		}
 
 		return tmpl(w, data)
