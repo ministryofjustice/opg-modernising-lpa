@@ -1,0 +1,29 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "confirmYouDoNotWantToBeACertificateProvider" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "confirmYouDoNotWantToBeACertificateProvider" }}</h1>
+
+            {{ $donorFullNamePossessive := tr .App (possessive .App .Lpa.Donor.FullName) }}
+            {{ $lpaType := tr .App .Lpa.Type.String }}
+
+            {{ trFormatHtml .App "confirmYouDoNotWantToBeACertificateProviderContent" "DonorFullNamePossessive" $donorFullNamePossessive "LpaType" $lpaType "LpaUID" .Lpa.LpaUID }}
+
+            {{ template "details" (details . "ifYouHaveConcernsAboutThisLPA" "ifYouHaveConcernsAboutThisLPAContent" false) }}
+
+            <p class="govuk-body">{{ trFormat .App "whenYouSelectConfirmWeWillContactDonor" "DonorFirstNames" .Lpa.Donor.FirstNames }}</p>
+
+            <form novalidate method="post">
+                <div class="govuk-form-group">
+                    <fieldset class="govuk-fieldset">
+                        <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "confirm" }}</button>
+                    </fieldset>
+                </div>
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
+    </div>
+{{ end }}

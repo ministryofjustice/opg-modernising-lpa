@@ -33,8 +33,8 @@
         </div>
 
         <div class="govuk-button-group">
-          <button type="submit" class="govuk-button" data-module="govuk-button" value="submit">{{ tr .App "submitSignature" }}</button>
-          <button type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button" value="cannot-submit">{{ tr .App "iCannotProvideTheCertificate" }}</button>
+          <button type="submit" class="govuk-button" data-module="govuk-button" value="submit" name="submittable">{{ tr .App "submitSignature" }}</button>
+          <button type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button" value="cannot-submit" name="submittable">{{ tr .App "iCannotProvideTheCertificate" }}</button>
         </div>
 
         {{ template "csrf-field" . }}
