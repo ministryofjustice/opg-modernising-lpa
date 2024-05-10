@@ -167,7 +167,7 @@ func TestGetPaymentConfirmationWhenErrorExpiringSession(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Info("unable to expire cookie in session", slog.Any("err", expectedError))
+		InfoContext(r.Context(), "unable to expire cookie in session", slog.Any("err", expectedError))
 
 	payClient := newMockPayClient(t).
 		withASuccessfulPayment("abc123", "123456789012", 8200, r.Context())
