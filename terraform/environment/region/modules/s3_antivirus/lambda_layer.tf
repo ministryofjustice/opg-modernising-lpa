@@ -1,6 +1,6 @@
 resource "aws_lambda_layer_version" "lambda_layer" {
   filename                 = "${path.module}/lambda_layer.zip"
-  layer_name               = "clamav"
+  layer_name               = "clamav-${data.aws_default_tags.current.tags.environment-name}"
   description              = "ClamAV Antivirus Layer"
   source_code_hash         = filebase64sha256("${path.module}/lambda_layer.zip")
   compatible_architectures = ["x86_64"]
