@@ -50,7 +50,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 		}
 
 		if err := sessionStore.ClearPayment(r, w); err != nil {
-			logger.Info("unable to expire cookie in session", slog.Any("err", err))
+			logger.InfoContext(r.Context(), "unable to expire cookie in session", slog.Any("err", err))
 		}
 
 		if donor.FeeType.IsFullFee() {

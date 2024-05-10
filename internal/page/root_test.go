@@ -46,7 +46,7 @@ func TestRootNotFoundTemplateErrors(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Error("error rendering page", slog.Any("req", r), slog.Any("err", expectedError))
+		ErrorContext(r.Context(), "error rendering page", slog.Any("req", r), slog.Any("err", expectedError))
 
 	Root(template.Execute, logger)(TestAppData, w, r)
 }
