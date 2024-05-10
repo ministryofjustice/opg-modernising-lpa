@@ -23,7 +23,7 @@ describe('Smoke tests', () => {
         });
 
         cy.contains('a', 'Start').click({ timeout: 30000 });
-        cy.wait(5000);
+        cy.wait(10000);
 
         const { otp } = TOTP.generate(Cypress.env('TEST_ONELOGIN_TOTP_KEY'));
 
@@ -38,7 +38,7 @@ describe('Smoke tests', () => {
 
           cy.get('[name=code]').type(token);
           cy.contains('button', 'Continue').click();
-          cy.wait(5000);
+          cy.wait(10000);
         });
 
         cy.url().should('contain', '/dashboard');
