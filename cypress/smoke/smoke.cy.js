@@ -38,6 +38,7 @@ describe('Smoke tests', () => {
 
           cy.get('[name=code]').type(token);
           cy.contains('button', 'Continue').click();
+          cy.wait(5000);
         });
 
         cy.url().should('contain', '/dashboard');
