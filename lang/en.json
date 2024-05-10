@@ -659,7 +659,7 @@
     "companyEmailAddress": "Company email address",
     "companyEmailAddressOptional": "Company email address (optional)",
     "companyEmailHint": "This must not belong to an individual person.",
-    "ifTheDetailsYouProvideAreNotCorrect": "If the details you provide are not correct, organisations might not accept the LPA",
+    "ifTheDetailsYouProvideAreNotCorrect": "Any errors in your details can make the LPA difficult to use. Organisations might not accept the LPA if your details do not match your ID.",
     "ifUsePreviousAddressOrEnterNew": "if you would like to use an address you’ve already entered or enter a new address",
     "changeCompanyNameLink": "Change<span class=\"govuk-visually-hidden\"> company name</span>",
     "changeCompanyNumberLink": "Change<span class=\"govuk-visually-hidden\"> company number</span>",
