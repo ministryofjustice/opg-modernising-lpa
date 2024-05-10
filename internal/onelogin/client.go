@@ -17,7 +17,7 @@ type Doer interface {
 }
 
 type Logger interface {
-	Warn(msg string, args ...any)
+	WarnContext(ctx context.Context, msg string, args ...any)
 }
 
 type SecretsClient interface {

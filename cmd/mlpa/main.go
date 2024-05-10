@@ -53,7 +53,8 @@ var Tag string
 
 func main() {
 	ctx := context.Background()
-	logger := slog.New(slog.
+
+	handler := telemetry.NewSlogHandler(slog.
 		NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 			ReplaceAttr: func(_ []string, a slog.Attr) slog.Attr {
 				switch a.Value.Kind() {
@@ -68,8 +69,13 @@ func main() {
 
 				return a
 			},
-		}).
-		WithAttrs([]slog.Attr{slog.String("service_name", "opg-modernising-lpa")}))
+		}))
+
+	logger := slog.New(handler.
+		WithAttrs([]slog.Attr{
+			slog.String("service_name", "opg-modernising-lpa"),
+			slog.String("tag", Tag),
+		}))
 
 	if err := run(ctx, logger); err != nil {
 		logger.Error("run error", slog.Any("err", err.Error()))
@@ -271,7 +277,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		return err
 	}
 
-	notifyClient, err := notify.New(notifyIsProduction, notifyBaseURL, notifyApiKey, httpClient, eventClient)
+	notifyClient, err := notify.New(logger, notifyIsProduction, notifyBaseURL, notifyApiKey, httpClient, eventClient)
 	if err != nil {
 		return err
 	}
