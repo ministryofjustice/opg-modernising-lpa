@@ -8,13 +8,6 @@ resource "aws_lambda_layer_version" "lambda_layer" {
   provider                 = aws.region
 }
 
-
-# data "aws_lambda_layer_version" "lambda_layer" {
-#   layer_name = "clamav"
-#   provider   = aws.region
-# }
-
-
 resource "aws_lambda_function" "zip_lambda_function" {
   function_name    = "zip-s3-antivirus-${data.aws_default_tags.current.tags.environment-name}"
   description      = "Function to scan S3 objects for viruses"
