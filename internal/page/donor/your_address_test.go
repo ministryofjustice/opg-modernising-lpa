@@ -457,7 +457,7 @@ func TestPostYourAddressLookupError(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Info("postcode lookup", slog.Any("err", expectedError))
+		InfoContext(r.Context(), "postcode lookup", slog.Any("err", expectedError))
 
 	addressClient := newMockAddressClient(t)
 	addressClient.EXPECT().
@@ -503,7 +503,7 @@ func TestPostYourAddressInvalidPostcodeError(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Info("postcode lookup", slog.Any("err", invalidPostcodeErr))
+		InfoContext(r.Context(), "postcode lookup", slog.Any("err", invalidPostcodeErr))
 
 	addressClient := newMockAddressClient(t)
 	addressClient.EXPECT().

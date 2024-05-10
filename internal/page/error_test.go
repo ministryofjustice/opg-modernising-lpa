@@ -17,7 +17,7 @@ func TestError(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Error("request error", slog.Any("req", r), slog.Any("err", expectedError))
+		ErrorContext(r.Context(), "request error", slog.Any("req", r), slog.Any("err", expectedError))
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -36,7 +36,7 @@ func TestErrorWithErrCsrfInvalid(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Error("request error", slog.Any("req", r), slog.Any("err", ErrCsrfInvalid))
+		ErrorContext(r.Context(), "request error", slog.Any("req", r), slog.Any("err", ErrCsrfInvalid))
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -57,9 +57,9 @@ func TestErrorWhenTemplateErrors(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Error("request error", slog.Any("req", r), slog.Any("err", expectedError))
+		ErrorContext(r.Context(), "request error", slog.Any("req", r), slog.Any("err", expectedError))
 	logger.EXPECT().
-		Error("error rendering page", slog.Any("req", r), slog.Any("err", templateError))
+		ErrorContext(r.Context(), "error rendering page", slog.Any("req", r), slog.Any("err", templateError))
 
 	template := newMockTemplate(t)
 	template.EXPECT().

@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -12,6 +13,10 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 )
+
+type Logger interface {
+	ErrorContext(ctx context.Context, msg string, args ...any)
+}
 
 type Doer interface {
 	Do(*http.Request) (*http.Response, error)
@@ -22,6 +27,7 @@ type EventClient interface {
 }
 
 type Client struct {
+	logger       Logger
 	baseURL      string
 	doer         Doer
 	issuer       string
@@ -31,13 +37,14 @@ type Client struct {
 	eventClient  EventClient
 }
 
-func New(isProduction bool, baseURL, apiKey string, httpClient Doer, eventClient EventClient) (*Client, error) {
+func New(logger Logger, isProduction bool, baseURL, apiKey string, httpClient Doer, eventClient EventClient) (*Client, error) {
 	keyParts := strings.Split(apiKey, "-")
 	if len(keyParts) != 11 {
 		return nil, errors.New("invalid apiKey format")
 	}
 
 	return &Client{
+		logger:       logger,
 		baseURL:      baseURL,
 		doer:         httpClient,
 		issuer:       strings.Join(keyParts[1:6], "-"),
@@ -94,6 +101,7 @@ func (c *Client) SendEmail(ctx context.Context, to string, email Email) error {
 
 	_, err = c.do(req)
 	if err != nil {
+		c.logger.ErrorContext(ctx, "email send failed", slog.String("to", to))
 		return err
 	}
 
@@ -112,6 +120,7 @@ func (c *Client) SendActorEmail(ctx context.Context, to, lpaUID string, email Em
 
 	resp, err := c.do(req)
 	if err != nil {
+		c.logger.ErrorContext(ctx, "email send failed", slog.String("to", to))
 		return err
 	}
 
