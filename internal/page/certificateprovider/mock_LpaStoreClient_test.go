@@ -3,9 +3,10 @@
 package certificateprovider
 
 import (
-	context "context"
-
 	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	actoruid "github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+
+	context "context"
 
 	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 
@@ -69,6 +70,54 @@ func (_c *mockLpaStoreClient_SendCertificateProvider_Call) Return(_a0 error) *mo
 }
 
 func (_c *mockLpaStoreClient_SendCertificateProvider_Call) RunAndReturn(run func(context.Context, *actor.CertificateProviderProvidedDetails, *lpastore.Lpa) error) *mockLpaStoreClient_SendCertificateProvider_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SendCertificateProviderOptOut provides a mock function with given fields: ctx, lpaUID, actorUID
+func (_m *mockLpaStoreClient) SendCertificateProviderOptOut(ctx context.Context, lpaUID string, actorUID actoruid.UID) error {
+	ret := _m.Called(ctx, lpaUID, actorUID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendCertificateProviderOptOut")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, actoruid.UID) error); ok {
+		r0 = rf(ctx, lpaUID, actorUID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockLpaStoreClient_SendCertificateProviderOptOut_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendCertificateProviderOptOut'
+type mockLpaStoreClient_SendCertificateProviderOptOut_Call struct {
+	*mock.Call
+}
+
+// SendCertificateProviderOptOut is a helper method to define mock.On call
+//   - ctx context.Context
+//   - lpaUID string
+//   - actorUID actoruid.UID
+func (_e *mockLpaStoreClient_Expecter) SendCertificateProviderOptOut(ctx interface{}, lpaUID interface{}, actorUID interface{}) *mockLpaStoreClient_SendCertificateProviderOptOut_Call {
+	return &mockLpaStoreClient_SendCertificateProviderOptOut_Call{Call: _e.mock.On("SendCertificateProviderOptOut", ctx, lpaUID, actorUID)}
+}
+
+func (_c *mockLpaStoreClient_SendCertificateProviderOptOut_Call) Run(run func(ctx context.Context, lpaUID string, actorUID actoruid.UID)) *mockLpaStoreClient_SendCertificateProviderOptOut_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(actoruid.UID))
+	})
+	return _c
+}
+
+func (_c *mockLpaStoreClient_SendCertificateProviderOptOut_Call) Return(_a0 error) *mockLpaStoreClient_SendCertificateProviderOptOut_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockLpaStoreClient_SendCertificateProviderOptOut_Call) RunAndReturn(run func(context.Context, string, actoruid.UID) error) *mockLpaStoreClient_SendCertificateProviderOptOut_Call {
 	_c.Call.Return(run)
 	return _c
 }
