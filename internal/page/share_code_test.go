@@ -66,7 +66,7 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 			CertificateProviderStartURL:  fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
 			DonorFirstNamesPossessive:    "Jan’s",
 			WhatLpaCovers:                "houses and stuff",
-			CertificateProviderOptOutURL: fmt.Sprintf("http://app%s", Paths.CertificateProviderOptOut),
+			CertificateProviderOptOutURL: fmt.Sprintf("http://app%s", Paths.CertificateProvider.EnterReferenceNumberOptOut),
 		}).
 		Return(nil)
 
@@ -158,7 +158,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 					ShareCode:                    tc.expectedTestCode,
 					DonorFirstNamesPossessive:    "Jan’s",
 					WhatLpaCovers:                "houses and stuff",
-					CertificateProviderOptOutURL: fmt.Sprintf("http://app%s", Paths.CertificateProviderOptOut),
+					CertificateProviderOptOutURL: fmt.Sprintf("http://app%s", Paths.CertificateProvider.EnterReferenceNumberOptOut),
 				}).
 				Once().
 				Return(nil)
@@ -172,7 +172,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 					ShareCode:                    testRandomString,
 					DonorFirstNamesPossessive:    "Jan’s",
 					WhatLpaCovers:                "houses and stuff",
-					CertificateProviderOptOutURL: fmt.Sprintf("http://app%s", Paths.CertificateProviderOptOut),
+					CertificateProviderOptOutURL: fmt.Sprintf("http://app%s", Paths.CertificateProvider.EnterReferenceNumberOptOut),
 				}).
 				Once().
 				Return(nil)
