@@ -15,12 +15,12 @@ func SignOut(logger Logger, sessionStore SessionStore, oneLoginClient OneLoginCl
 		}
 
 		if err := sessionStore.ClearLogin(r, w); err != nil {
-			logger.Info("unable to expire session", slog.Any("err", err))
+			logger.InfoContext(r.Context(), "unable to expire session", slog.Any("err", err))
 		}
 
 		endSessionURL, err := oneLoginClient.EndSessionURL(idToken, redirectURL)
 		if err != nil {
-			logger.Info("unable to end onelogin session", slog.Any("err", err))
+			logger.InfoContext(r.Context(), "unable to end onelogin session", slog.Any("err", err))
 			endSessionURL = redirectURL
 		}
 

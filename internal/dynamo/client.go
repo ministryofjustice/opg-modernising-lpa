@@ -27,14 +27,9 @@ type dynamoDB interface {
 	BatchWriteItem(ctx context.Context, params *dynamodb.BatchWriteItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.BatchWriteItemOutput, error)
 }
 
-type Logger interface {
-	Print(v ...interface{})
-}
-
 type Client struct {
-	table  string
-	svc    dynamoDB
-	logger Logger
+	table string
+	svc   dynamoDB
 }
 
 type NotFoundError struct{}

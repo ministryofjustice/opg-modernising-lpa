@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -50,6 +51,7 @@ type UidClient interface {
 }
 
 type Factory struct {
+	logger                *slog.Logger
 	now                   func() time.Time
 	uuidString            func() string
 	cfg                   aws.Config
@@ -133,7 +135,7 @@ func (f *Factory) ShareCodeSender(ctx context.Context) (ShareCodeSender, error) 
 			return nil, fmt.Errorf("failed to get notify API secret: %w", err)
 		}
 
-		notifyClient, err := notify.New(f.notifyIsProduction, f.notifyBaseURL, notifyApiKey, http.DefaultClient, event.NewClient(f.cfg, f.eventBusName))
+		notifyClient, err := notify.New(f.logger, f.notifyIsProduction, f.notifyBaseURL, notifyApiKey, http.DefaultClient, event.NewClient(f.cfg, f.eventBusName))
 		if err != nil {
 			return nil, err
 		}
