@@ -37,13 +37,13 @@ func ProvideCertificate(
 			return err
 		}
 
+		if lpa.SignedAt.IsZero() {
+			return page.Paths.CertificateProvider.TaskList.Redirect(w, r, appData, lpa.LpaID)
+		}
+
 		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
-		}
-
-		if lpa.SignedAt.IsZero() {
-			return page.Paths.CertificateProvider.TaskList.Redirect(w, r, appData, lpa.LpaID)
 		}
 
 		data := &provideCertificateData{
