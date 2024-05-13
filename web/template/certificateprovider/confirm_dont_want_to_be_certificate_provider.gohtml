@@ -17,11 +17,8 @@
             <p class="govuk-body">{{ trFormat .App "whenYouSelectConfirmWeWillContactDonor" "DonorFirstNames" .Lpa.Donor.FirstNames }}</p>
 
             <form novalidate method="post">
-                <div class="govuk-form-group">
-                    <fieldset class="govuk-fieldset">
-                        <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "confirm" }}</button>
-                    </fieldset>
-                </div>
+                <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "confirm" }}</button>
+
                 {{ template "csrf-field" . }}
             </form>
         </div>
