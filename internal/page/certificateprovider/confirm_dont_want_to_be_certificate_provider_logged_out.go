@@ -12,31 +12,38 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type confirmDontWantToBeCertificateProviderData struct {
+type confirmDontWantToBeCertificateProviderDataLoggedOut struct {
 	App    page.AppData
 	Errors validation.List
 	Lpa    *lpastore.Lpa
 }
 
-func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient, donorStore DonorStore, certificateProviderStore CertificateProviderStore) page.Handler {
+func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, shareCodeStore ShareCodeStore, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient, donorStore DonorStore, sessionStore SessionStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		lpa, err := lpaStoreResolvingService.Get(r.Context())
+		session, err := sessionStore.LpaData(r)
 		if err != nil {
 			return err
 		}
 
-		data := &confirmDontWantToBeCertificateProviderData{
+		ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: session.LpaID})
+
+		lpa, err := lpaStoreResolvingService.Get(ctx)
+		if err != nil {
+			return err
+		}
+
+		data := &confirmDontWantToBeCertificateProviderDataLoggedOut{
 			App: appData,
 			Lpa: lpa,
 		}
 
 		if r.Method == http.MethodPost {
 			if !lpa.SignedAt.IsZero() {
-				if err := lpaStoreClient.SendCertificateProviderOptOut(r.Context(), lpa.LpaUID, actoruid.Service); err != nil {
+				if err := lpaStoreClient.SendCertificateProviderOptOut(ctx, lpa.LpaUID, actoruid.Service); err != nil {
 					return err
 				}
 			} else {
-				donor, err := donorStore.GetAny(r.Context())
+				donor, err := donorStore.GetAny(ctx)
 				if err != nil {
 					return err
 				}
@@ -45,17 +52,17 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreReso
 				donor.Tasks.CertificateProvider = actor.TaskNotStarted
 				donor.Tasks.CheckYourLpa = actor.TaskNotStarted
 
-				if err = donorStore.Put(r.Context(), donor); err != nil {
+				if err = donorStore.Put(ctx, donor); err != nil {
 					return err
 				}
 			}
 
-			certificateProvider, err := certificateProviderStore.Get(r.Context())
+			shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeCertificateProvider, r.URL.Query().Get("referenceNumber"))
 			if err != nil {
 				return err
 			}
 
-			if err := certificateProviderStore.Delete(r.Context(), certificateProvider); err != nil {
+			if err := shareCodeStore.Delete(r.Context(), shareCode); err != nil {
 				return err
 			}
 

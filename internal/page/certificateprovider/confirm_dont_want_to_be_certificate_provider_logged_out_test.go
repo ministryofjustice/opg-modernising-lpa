@@ -11,42 +11,72 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetConfirmDontWantToBeCertificateProvider(t *testing.T) {
+func TestGetConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?LpaID=lpa-id", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	lpa := lpastore.Lpa{LpaUID: "lpa-uid"}
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &confirmDontWantToBeCertificateProviderData{
-			App: testAppData,
-			Lpa: &lpa,
-		}).
-		Return(nil)
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		LpaData(r).
+		Return(&sesh.LpaDataSession{LpaID: "lpa-id"}, nil)
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
 		Return(&lpa, nil)
 
-	err := ConfirmDontWantToBeCertificateProvider(template.Execute, nil, lpaStoreResolvingService, nil, nil)(testAppData, w, r)
+	template := newMockTemplate(t)
+	template.EXPECT().
+		Execute(w, &confirmDontWantToBeCertificateProviderDataLoggedOut{
+			App: testAppData,
+			Lpa: &lpa,
+		}).
+		Return(nil)
+
+	err := ConfirmDontWantToBeCertificateProviderLoggedOut(template.Execute, nil, lpaStoreResolvingService, nil, nil, sessionStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
+func TestGetConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
 	testcases := map[string]struct {
+		sessionStore             func() *mockSessionStore
 		lpaStoreResolvingService func() *mockLpaStoreResolvingService
 		template                 func() *mockTemplate
 	}{
+		"when sessionStore error": {
+			sessionStore: func() *mockSessionStore {
+				sessionStore := newMockSessionStore(t)
+				sessionStore.EXPECT().
+					LpaData(r).
+					Return(&sesh.LpaDataSession{}, expectedError)
+
+				return sessionStore
+			},
+			lpaStoreResolvingService: func() *mockLpaStoreResolvingService { return nil },
+			template:                 func() *mockTemplate { return nil },
+		},
 		"when lpaStoreResolvingService error": {
+			sessionStore: func() *mockSessionStore {
+				sessionStore := newMockSessionStore(t)
+				sessionStore.EXPECT().
+					LpaData(r).
+					Return(&sesh.LpaDataSession{LpaID: "lpa-id"}, nil)
+
+				return sessionStore
+			},
 			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
 				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 				lpaStoreResolvingService.EXPECT().
@@ -58,6 +88,14 @@ func TestGetConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 			template: func() *mockTemplate { return nil },
 		},
 		"when template error": {
+			sessionStore: func() *mockSessionStore {
+				sessionStore := newMockSessionStore(t)
+				sessionStore.EXPECT().
+					LpaData(r).
+					Return(&sesh.LpaDataSession{LpaID: "lpa-id"}, nil)
+
+				return sessionStore
+			},
 			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
 				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 				lpaStoreResolvingService.EXPECT().
@@ -79,10 +117,7 @@ func TestGetConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodGet, "/?LpaID=lpa-id", nil)
-
-			err := ConfirmDontWantToBeCertificateProvider(tc.template().Execute, nil, tc.lpaStoreResolvingService(), nil, nil)(testAppData, w, r)
+			err := ConfirmDontWantToBeCertificateProviderLoggedOut(tc.template().Execute, nil, tc.lpaStoreResolvingService(), nil, nil, tc.sessionStore())(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Equal(t, expectedError, err)
@@ -91,78 +126,9 @@ func TestGetConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 	}
 }
 
-func TestPostConfirmDontWantToBeCertificateProviderSignedIn(t *testing.T) {
-	r, _ := http.NewRequest(http.MethodPost, "/?LpaID=lpa-id", nil)
-	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})
-
-	testcases := map[string]struct {
-		lpa            lpastore.Lpa
-		lpaStoreClient func() *mockLpaStoreClient
-		donorStore     func() *mockDonorStore
-	}{
-		"signed in - witnessed and signed": {
-			lpa: lpastore.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now(), Donor: actor.Donor{FirstNames: "a b", LastName: "c"}},
-			lpaStoreClient: func() *mockLpaStoreClient {
-				lpaStoreClient := newMockLpaStoreClient(t)
-				lpaStoreClient.EXPECT().
-					SendCertificateProviderOptOut(ctx, "lpa-uid", actoruid.Service).
-					Return(nil)
-
-				return lpaStoreClient
-			},
-			donorStore: func() *mockDonorStore { return nil },
-		},
-		"signed in - not witnessed and signed": {
-			lpa:            lpastore.Lpa{LpaUID: "lpa-uid", Donor: actor.Donor{FirstNames: "a b", LastName: "c"}},
-			lpaStoreClient: func() *mockLpaStoreClient { return nil },
-			donorStore: func() *mockDonorStore {
-				donorStore := newMockDonorStore(t)
-				donorStore.EXPECT().
-					GetAny(ctx).
-					Return(&actor.DonorProvidedDetails{
-						Tasks: actor.DonorTasks{
-							CertificateProvider: actor.TaskCompleted,
-							CheckYourLpa:        actor.TaskCompleted,
-						},
-						CertificateProvider: actor.CertificateProvider{UID: actoruid.New()},
-					}, nil)
-				donorStore.EXPECT().
-					Put(ctx, &actor.DonorProvidedDetails{
-						Tasks: actor.DonorTasks{
-							CertificateProvider: actor.TaskNotStarted,
-							CheckYourLpa:        actor.TaskNotStarted,
-						},
-						CertificateProvider: actor.CertificateProvider{},
-					}).
-					Return(nil)
-
-				return donorStore
-			},
-		},
-	}
-
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
-			w := httptest.NewRecorder()
-
-			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().
-				Get(ctx).
-				Return(&tc.lpa, nil)
-
-			err := ConfirmDontWantToBeCertificateProvider(nil, nil, lpaStoreResolvingService, tc.lpaStoreClient(), tc.donorStore())(testAppData, w, r)
-
-			resp := w.Result()
-
-			assert.Nil(t, err)
-			assert.Equal(t, page.Paths.CertificateProvider.YouHaveDecidedNotToBeACertificateProvider.Format()+"?donorFullName=a+b+c", resp.Header.Get("Location"))
-			assert.Equal(t, http.StatusFound, resp.StatusCode)
-		})
-	}
-}
-
-func TestPostConfirmDontWantToBeCertificateProviderNotSignedIn(t *testing.T) {
-	r, _ := http.NewRequest(http.MethodPost, "/?referenceNumber=123&LpaID=lpa-id", nil)
+func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
+	r, _ := http.NewRequest(http.MethodPost, "/?referenceNumber=123", nil)
+	w := httptest.NewRecorder()
 	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})
 
 	testcases := map[string]struct {
@@ -213,7 +179,10 @@ func TestPostConfirmDontWantToBeCertificateProviderNotSignedIn(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			w := httptest.NewRecorder()
+			sessionStore := newMockSessionStore(t)
+			sessionStore.EXPECT().
+				LpaData(r).
+				Return(&sesh.LpaDataSession{LpaID: "lpa-id"}, nil)
 
 			shareCodeData := actor.ShareCodeData{
 				LpaKey:      dynamo.LpaKey("lpa-id"),
@@ -233,7 +202,7 @@ func TestPostConfirmDontWantToBeCertificateProviderNotSignedIn(t *testing.T) {
 				Get(ctx).
 				Return(&tc.lpa, nil)
 
-			err := ConfirmDontWantToBeCertificateProvider(nil, shareCodeStore, lpaStoreResolvingService, tc.lpaStoreClient(), tc.donorStore())(testAppData, w, r)
+			err := ConfirmDontWantToBeCertificateProviderLoggedOut(nil, shareCodeStore, lpaStoreResolvingService, tc.lpaStoreClient(), tc.donorStore(), sessionStore)(testAppData, w, r)
 
 			resp := w.Result()
 
@@ -244,8 +213,8 @@ func TestPostConfirmDontWantToBeCertificateProviderNotSignedIn(t *testing.T) {
 	}
 }
 
-func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
-	r, _ := http.NewRequest(http.MethodPost, "/?referenceNumber=123&LpaID=lpa-id", nil)
+func TestPostConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T) {
+	r, _ := http.NewRequest(http.MethodPost, "/?referenceNumber=123", nil)
 	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})
 
 	shareCodeData := actor.ShareCodeData{
@@ -256,25 +225,21 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 	signedLPA := lpastore.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now()}
 
 	testcases := map[string]struct {
+		sessionStore             func() *mockSessionStore
 		lpaStoreResolvingService func() *mockLpaStoreResolvingService
 		lpaStoreClient           func() *mockLpaStoreClient
 		shareCodeStore           func() *mockShareCodeStore
 		donorStore               func() *mockDonorStore
 	}{
-		"when lpaStoreResolvingService error": {
-			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
-				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-				lpaStoreResolvingService.EXPECT().
-					Get(ctx).
-					Return(&lpastore.Lpa{}, expectedError)
-
-				return lpaStoreResolvingService
-			},
-			lpaStoreClient: func() *mockLpaStoreClient { return nil },
-			shareCodeStore: func() *mockShareCodeStore { return nil },
-			donorStore:     func() *mockDonorStore { return nil },
-		},
 		"when lpaStoreClient error": {
+			sessionStore: func() *mockSessionStore {
+				sessionStore := newMockSessionStore(t)
+				sessionStore.EXPECT().
+					LpaData(r).
+					Return(&sesh.LpaDataSession{LpaID: "lpa-id"}, nil)
+
+				return sessionStore
+			},
 			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
 				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 				lpaStoreResolvingService.EXPECT().
@@ -295,6 +260,14 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 			donorStore:     func() *mockDonorStore { return nil },
 		},
 		"when donorStore.GetAny() error": {
+			sessionStore: func() *mockSessionStore {
+				sessionStore := newMockSessionStore(t)
+				sessionStore.EXPECT().
+					LpaData(r).
+					Return(&sesh.LpaDataSession{LpaID: "lpa-id"}, nil)
+
+				return sessionStore
+			},
 			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
 				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 				lpaStoreResolvingService.EXPECT().
@@ -315,6 +288,14 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 			},
 		},
 		"when donorStore.Put() error": {
+			sessionStore: func() *mockSessionStore {
+				sessionStore := newMockSessionStore(t)
+				sessionStore.EXPECT().
+					LpaData(r).
+					Return(&sesh.LpaDataSession{LpaID: "lpa-id"}, nil)
+
+				return sessionStore
+			},
 			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
 				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 				lpaStoreResolvingService.EXPECT().
@@ -338,6 +319,14 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 			},
 		},
 		"when shareCodeStore.Get() error": {
+			sessionStore: func() *mockSessionStore {
+				sessionStore := newMockSessionStore(t)
+				sessionStore.EXPECT().
+					LpaData(r).
+					Return(&sesh.LpaDataSession{LpaID: "lpa-id"}, nil)
+
+				return sessionStore
+			},
 			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
 				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 				lpaStoreResolvingService.EXPECT().
@@ -365,6 +354,14 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 			donorStore: func() *mockDonorStore { return nil },
 		},
 		"when shareCodeStore.Delete() error": {
+			sessionStore: func() *mockSessionStore {
+				sessionStore := newMockSessionStore(t)
+				sessionStore.EXPECT().
+					LpaData(r).
+					Return(&sesh.LpaDataSession{LpaID: "lpa-id"}, nil)
+
+				return sessionStore
+			},
 			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
 				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 				lpaStoreResolvingService.EXPECT().
@@ -400,7 +397,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 
-			err := ConfirmDontWantToBeCertificateProvider(nil, tc.shareCodeStore(), tc.lpaStoreResolvingService(), tc.lpaStoreClient(), tc.donorStore())(testAppData, w, r)
+			err := ConfirmDontWantToBeCertificateProviderLoggedOut(nil, tc.shareCodeStore(), tc.lpaStoreResolvingService(), tc.lpaStoreClient(), tc.donorStore(), tc.sessionStore())(testAppData, w, r)
 
 			resp := w.Result()
 

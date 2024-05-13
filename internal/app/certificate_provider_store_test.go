@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -234,4 +235,33 @@ func TestCertificateProviderStorePutOnError(t *testing.T) {
 
 	err := certificateProviderStore.Put(ctx, &actor.CertificateProviderProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.CertificateProviderKey("456"), LpaID: "123"})
 	assert.Equal(t, expectedError, err)
+}
+
+func TestCertificateProviderStoreDelete(t *testing.T) {
+	ctx := context.Background()
+	certificateProvider := &actor.CertificateProviderProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.CertificateProviderKey("456"), LpaID: "123"}
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		DeleteOne(ctx, certificateProvider.PK, certificateProvider.SK).
+		Return(nil)
+
+	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient}
+
+	err := certificateProviderStore.Delete(ctx, certificateProvider)
+	assert.Nil(t, err)
+}
+
+func TestCertificateProviderStoreDeleteWhenDynamoClientError(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		DeleteOne(mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient}
+
+	err := certificateProviderStore.Delete(ctx, &actor.CertificateProviderProvidedDetails{})
+	assert.Equal(t, fmt.Errorf("error deleting certificate provider: %w", expectedError), err)
 }

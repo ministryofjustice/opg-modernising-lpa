@@ -9,10 +9,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-func EnterReferenceNumberOptOut(tmpl template.Template, shareCodeStore ShareCodeStore) page.Handler {
+func EnterReferenceNumberOptOut(tmpl template.Template, shareCodeStore ShareCodeStore, sessionStore SessionStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := enterReferenceNumberData{
 			App:  appData,
@@ -36,8 +37,11 @@ func EnterReferenceNumberOptOut(tmpl template.Template, shareCodeStore ShareCode
 					}
 				}
 
-				appData.LpaID = shareCode.LpaKey.ID()
-				return page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider.RedirectQuery(w, r, appData, url.Values{"referenceNumber": {referenceNumber}, "LpaID": {shareCode.LpaKey.ID()}})
+				if err := sessionStore.SetLpaData(r, w, &sesh.LpaDataSession{LpaID: shareCode.LpaKey.ID()}); err != nil {
+					return err
+				}
+
+				return page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProviderLoggedOut.RedirectQuery(w, r, appData, url.Values{"referenceNumber": {referenceNumber}})
 			}
 		}
 

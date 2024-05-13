@@ -3,7 +3,6 @@ package certificateprovider
 import (
 	"fmt"
 	"net/http"
-	"net/url"
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -62,7 +61,7 @@ func ProvideCertificate(
 
 			if data.Errors.None() {
 				if data.Form.Submittable == "cannot-submit" {
-					return page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider.RedirectQuery(w, r, appData, url.Values{"LpaID": {appData.LpaID}})
+					return page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider.Redirect(w, r, appData, certificateProvider.LpaID)
 				}
 
 				certificateProvider.Certificate.AgreeToStatement = true
