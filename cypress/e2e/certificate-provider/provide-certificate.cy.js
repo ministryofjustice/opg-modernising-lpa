@@ -12,6 +12,24 @@ describe('Provide the certificate', () => {
     cy.url().should('contain', '/certificate-provided');
   });
 
+  it('can choose not to provide the certificate', () => {
+    cy.checkA11yApp();
+
+    cy.contains('I cannot provide the certificate').click();
+
+    cy.url().should('contain', '/confirm-you-do-not-want-to-be-a-certificate-provider')
+    cy.checkA11yApp();
+
+    cy.contains('Property and affairs')
+
+    cy.contains('button', 'Confirm').click();
+
+    cy.url().should('contain', '/you-have-decided-not-to-be-a-certificate-provider')
+    cy.checkA11yApp();
+
+    cy.contains('We have contacted Sam Smith')
+  });
+
   it("errors when not selected", () => {
     cy.contains('button', 'Submit signature').click();
 
