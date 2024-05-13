@@ -54,14 +54,15 @@ func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, app
 	}
 
 	return s.sendEmail(ctx, donor.CertificateProviderEmail, donor.LpaUID, notify.CertificateProviderInviteEmail{
-		CertificateProviderFullName: donor.CertificateProviderFullName,
-		DonorFullName:               donor.Donor.FullName(),
-		LpaType:                     localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
-		CertificateProviderStartURL: fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderStart),
-		DonorFirstNames:             donor.Donor.FirstNames,
-		DonorFirstNamesPossessive:   appData.Localizer.Possessive(donor.Donor.FirstNames),
-		WhatLpaCovers:               appData.Localizer.T(donor.Type.WhatLPACoversTransKey()),
-		ShareCode:                   shareCode,
+		CertificateProviderFullName:  donor.CertificateProviderFullName,
+		DonorFullName:                donor.Donor.FullName(),
+		LpaType:                      localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
+		CertificateProviderStartURL:  fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderStart),
+		DonorFirstNames:              donor.Donor.FirstNames,
+		DonorFirstNamesPossessive:    appData.Localizer.Possessive(donor.Donor.FirstNames),
+		WhatLpaCovers:                appData.Localizer.T(donor.Type.WhatLPACoversTransKey()),
+		ShareCode:                    shareCode,
+		CertificateProviderOptOutURL: fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderOptOut),
 	})
 }
 
