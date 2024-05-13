@@ -14,7 +14,7 @@ func Recover(tmpl template.Template, logger Logger, bundle Bundle, next http.Han
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				logger.Error("recover error", slog.Any("req", r), slog.Any("err", err), slog.String("stack", string(debug.Stack())))
+				logger.ErrorContext(r.Context(), "recover error", slog.Any("req", r), slog.Any("err", err), slog.String("stack", string(debug.Stack())))
 				w.WriteHeader(http.StatusInternalServerError)
 
 				appData := AppData{CookieConsentSet: true}
@@ -26,7 +26,7 @@ func Recover(tmpl template.Template, logger Logger, bundle Bundle, next http.Han
 				appData.Localizer = bundle.For(appData.Lang)
 
 				if terr := tmpl(w, &errorData{App: appData}); terr != nil {
-					logger.Error("error rendering page", slog.Any("req", r), slog.Any("err", terr))
+					logger.ErrorContext(r.Context(), "error rendering page", slog.Any("req", r), slog.Any("err", terr))
 					http.Error(w, "Encountered an error", http.StatusInternalServerError)
 				}
 			}

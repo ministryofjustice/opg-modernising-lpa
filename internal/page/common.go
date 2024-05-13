@@ -21,8 +21,8 @@ const FormUrlEncoded = "application/x-www-form-urlencoded"
 type Template func(io.Writer, interface{}) error
 
 type Logger interface {
-	Info(msg string, args ...any)
-	Error(msg string, args ...any)
+	InfoContext(ctx context.Context, msg string, args ...any)
+	ErrorContext(ctx context.Context, msg string, args ...any)
 }
 
 type ShareCodeStore interface {
