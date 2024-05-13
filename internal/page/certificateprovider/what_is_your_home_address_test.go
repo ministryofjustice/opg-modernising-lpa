@@ -374,7 +374,7 @@ func TestPostWhatIsYourHomeAddressPostcodeLookupWhenInvalidPostcode(t *testing.T
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Info("postcode lookup", slog.Any("err", &place.BadRequestError{}))
+		InfoContext(r.Context(), "postcode lookup", slog.Any("err", &place.BadRequestError{}))
 
 	template := newMockTemplate(t)
 	template.EXPECT().

@@ -386,7 +386,7 @@ func TestPostUploadEvidenceWithPayActionWhenUnscannedDocument(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Info("attempt to pay with unscanned documents on lpa", slog.String("lpaUID", "lpa-uid"))
+		InfoContext(r.Context(), "attempt to pay with unscanned documents on lpa", slog.String("lpaUID", "lpa-uid"))
 
 	err := UploadEvidence(template.Execute, logger, nil, documentStore)(testAppData, w, r, donor)
 	resp := w.Result()

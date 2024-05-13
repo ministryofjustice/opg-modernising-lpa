@@ -220,7 +220,7 @@ func TestConfigurationClientBackgroundRefreshRateLimit(t *testing.T) {
 	defer oidcServer.Close()
 
 	logger := newMockLogger(t)
-	logger.EXPECT().Warn(mock.Anything, mock.Anything)
+	logger.EXPECT().WarnContext(ctx, mock.Anything, mock.Anything)
 
 	client := &configurationClient{
 		httpClient:     http.DefaultClient,

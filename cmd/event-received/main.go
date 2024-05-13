@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"time"
 
@@ -88,6 +89,11 @@ func handler(ctx context.Context, event Event) error {
 		searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
 	)
 
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil).
+		WithAttrs([]slog.Attr{
+			slog.String("service_name", "opg-modernising-lpa/event-received"),
+		}))
+
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to load default config: %w", err)
@@ -114,6 +120,7 @@ func handler(ctx context.Context, event Event) error {
 	}
 
 	factory := &Factory{
+		logger:                logger,
 		now:                   time.Now,
 		uuidString:            random.UuidString,
 		cfg:                   cfg,

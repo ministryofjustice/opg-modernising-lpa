@@ -71,7 +71,7 @@ func TestAuthRedirectSessionError(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Info("problem retrieving onelogin session", slog.Any("err", expectedError))
+		InfoContext(r.Context(), "problem retrieving onelogin session", slog.Any("err", expectedError))
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -90,7 +90,7 @@ func TestAuthRedirectStateIncorrect(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Info("state incorrect")
+		InfoContext(r.Context(), "state incorrect")
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
